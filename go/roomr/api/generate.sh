@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Regenerates the Go code for the media node's protos (committed, so `go build` needs no protoc).
+# Regenerates the Go code for the Roomr node's protos (committed, so `go build` needs no protoc).
 # Needs protoc and the two plugins at these versions (the committed code was generated with them; go.mod's newer protobuf and grpc runtimes accept it):
 #   go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.8
 #   go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1

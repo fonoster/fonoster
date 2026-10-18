@@ -20,7 +20,7 @@ import { Roomr } from "@fonoster/common";
 import * as grpc from "@grpc/grpc-js";
 import { NatsConnection, StringCodec } from "nats";
 
-// A fake media node for controllers (redesign-media-node conformance, "fake controller with
+// A fake Roomr node for controllers (redesign-roomr conformance, "fake controller with
 // several nodes"): a roomr.v1.Roomr gRPC server with CreateRoom, CreateCall, EndCall and EndRoom,
 // heartbeats on roomr.nodes.<node_ref>.heartbeat with its control_addr, and a call's events on
 // roomr.events.<call_ref>. It keeps the node's contract: the room limit (RESOURCE_EXHAUSTED),

@@ -51,7 +51,7 @@ export type RepointChange = {
 };
 
 /**
- * Moves app-linked Numbers to the peer routing says (the media nodes). Routr stores `aorLink` on
+ * Moves app-linked Numbers to the peer routing says (the Roomr nodes). Routr stores `aorLink` on
  * each Number, so numbers created for Asterisk keep pointing at it until they are rewritten;
  * agent-linked Numbers are never touched. Returns what changed (or would,
  * with `dryRun`).

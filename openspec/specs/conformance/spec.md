@@ -24,14 +24,14 @@ suite MUST NOT import, mock or inspect the implementation's internal modules.
 ### Requirement: Every contract has a fake for each side
 
 The framework SHALL provide fakes so each side of a contract can be tested alone: a fake app and a
-fake gateway for the session protocol, a fake media node, fake STT, TTS and LLM providers with
+fake gateway for the session protocol, a fake Roomr node, fake STT, TTS and LLM providers with
 deterministic output and injectable delays and failures, and a caller bot that places real SIP
 calls.
 
 #### Scenario: Gateway tested without real vendors
 
 - **WHEN** the session protocol suite runs
-- **THEN** the gateway is connected to the fake media node and fake providers
+- **THEN** the gateway is connected to the fake Roomr node and fake providers
 - **AND** no vendor network call is made
 
 #### Scenario: Injected provider failure
@@ -79,12 +79,12 @@ TypeScript and Python SDK suites MUST execute the same scenario files.
 ### Requirement: The harness lives in `mods/conformance`
 
 The fakes, runners and scenario files SHALL live in the `mods/conformance` workspace package. The
-scenario files MUST be published with that package so the Python SDK suite and the Go media node's
+scenario files MUST be published with that package so the Python SDK suite and the Go Roomr node's
 test runner consume the same files as the TypeScript tests.
 
 #### Scenario: One source of scenario files
 
-- **WHEN** the TypeScript suite, the Python SDK suite and the Go media node runner run
+- **WHEN** the TypeScript suite, the Python SDK suite and the Go Roomr node runner run
 - **THEN** each loads its scenarios from the `mods/conformance` scenario files of the same version
 - **AND** no runner keeps a private copy of a shared scenario
 
@@ -99,7 +99,7 @@ unreachable-app retry and fallback, and outbound sessions opening at answer.
 
 - **WHEN** the fake app sends audio, then `mark` named `m1`, then `clear` before `m1` is heard
 - **THEN** the gateway sends `mark` with `name: m1` and `cleared: true`
-- **AND** no further queued audio reaches the fake media node
+- **AND** no further queued audio reaches the fake Roomr node
 
 #### Scenario: Bad signature
 
@@ -117,7 +117,7 @@ unreachable-app retry and fallback, and outbound sessions opening at answer.
 
 The gateway timing suite SHALL measure the time the gateway itself adds, with provider time
 subtracted. At p95 the gateway MUST add at most 50 ms from `speak` text arriving to the first audio
-frame sent to the media node, and at most 50 ms from caller audio arriving to it reaching STT. A
+frame sent to the Roomr node, and at most 50 ms from caller audio arriving to it reaching STT. A
 `clear` MUST silence the call within 40 ms.
 
 #### Scenario: Text to first audio
@@ -131,12 +131,12 @@ frame sent to the media node, and at most 50 ms from caller audio arriving to it
 - **WHEN** the app has started listening and the caller starts speaking
 - **AND** 200 calls are timed
 - **THEN** the p95 of (first audible frame at the fake STT − first audible caller packet sent by the
-  fake media node) is at most 50 ms
+  fake Roomr node) is at most 50 ms
 
 #### Scenario: Clear
 
 - **WHEN** audio is playing and the app sends `clear`
-- **THEN** the fake media node receives no further output audio later than 40 ms after the `clear`
+- **THEN** the fake Roomr node receives no further output audio later than 40 ms after the `clear`
 
 ### Requirement: Scale pass bar (T2)
 

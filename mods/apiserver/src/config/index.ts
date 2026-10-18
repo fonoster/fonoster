@@ -22,7 +22,6 @@ import { IdentityConfig, toIdentityConfig } from "@fonoster/identity";
 import {
   FonosterConfig,
   fonosterConfigSchema,
-  MOVED_KEYS,
   SHARED_VALUE_PATHS
 } from "./schema";
 
@@ -39,9 +38,7 @@ function getConfig(): FonosterConfig {
       service: "apiserver",
       fileBase: "fonoster",
       schema: fonosterConfigSchema,
-      interpolatePaths: SHARED_VALUE_PATHS,
-      movedKeys: MOVED_KEYS,
-      legacyEnvPrefixes: ["APISERVER_", "AUTOPILOT_"]
+      interpolatePaths: SHARED_VALUE_PATHS
     });
   }
   return loaded;

@@ -170,7 +170,7 @@ function baseKinds(over: Partial<WorkspaceKinds>): WorkspaceKinds {
         name: "Main",
         telUrl: "tel:+15550002222",
         trunkRef: "cp-trunk-1",
-        aorLink: "sip:medianode@default",
+        aorLink: "sip:roomr@default",
         extraHeaders: [{ name: "X-App-Ref", value: "app-support" }]
       }
     ],

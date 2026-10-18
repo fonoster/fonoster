@@ -53,7 +53,7 @@ export const callEventsSubject = (ref: string) => `calls.${ref}.events`;
 export const CALL_EVENTS_WILDCARD = "calls.*.events";
 
 /**
- * A call's events from its media node (media-control "Events on NATS are keyed by call"):
+ * A call's events from its Roomr node (media-control "Events on NATS are keyed by call"):
  * call.started, call.ringing, call.answered, call.ended and the call's participant and operation
  * events, each with node_ref, seq and metadata.
  */
@@ -62,7 +62,7 @@ export const mediaCallEventsSubject = (ref: string) => `roomr.events.${ref}`;
 /** Every call's media events (TrackCall's subscription; room events are roomr.events.room.*). */
 export const MEDIA_CALL_EVENTS_WILDCARD = "roomr.events.*";
 
-/** Every media node's heartbeat and node.down (TrackCall ends the calls of a lost node). */
+/** Every Roomr node's heartbeat and node.down (TrackCall ends the calls of a lost node). */
 export const NODE_HEARTBEAT_WILDCARD = "roomr.nodes.*.heartbeat";
 
 // Other configurations
@@ -151,8 +151,8 @@ export const OWNER_PASSWORD = config.identity.owner?.password;
 
 export const ROUTR_API_ENDPOINT = config.routr.apiEndpoint;
 
-// The media-node peer every app-linked number points at (add-media-node 4.1)
-export const ROUTR_MEDIA_NODE_PEER = config.routr.mediaNodePeer;
+// The roomr peer every app-linked number points at (add-roomr 4.1)
+export const ROUTR_ROOMR_PEER = config.routr.roomrPeer;
 
 /** Routr's SIP address: API-originated calls are dialed through it (Roomr CreateCall). */
 export const ROUTR_SIP_PROXY = config.routr.sipProxy;

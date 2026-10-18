@@ -20,7 +20,7 @@ import { APP_REF_HEADER, ROUTR_DEFAULT_PEER_AOR } from "@fonoster/common";
 import { CreateNumberRequest, UpdateNumberRequest } from "@fonoster/types";
 
 /**
- * `appPeerAor` is the peer an app-linked number routes to: the media-node peer by default (see
+ * `appPeerAor` is the peer an app-linked number routes to: the roomr peer by default (see
  * engineRouting.ts).
  */
 function convertToRoutrNumber(

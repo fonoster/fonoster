@@ -55,7 +55,7 @@ function hasHelm() {
   }
 }
 
-/** The media nodes' rendered roomr.yaml. */
+/** The Roomr nodes' rendered roomr.yaml. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function roomrConfig(objs: K8sObject[]): Record<string, any> {
   return parseAllDocuments(
@@ -142,7 +142,7 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(find(objs, "StatefulSet", "fonoster-nats")).to.not.exist;
   });
 
-  it("rolls media nodes out by draining: gRPC readiness, a long grace period and a PodDisruptionBudget", function () {
+  it("rolls Roomr nodes out by draining: gRPC readiness, a long grace period and a PodDisruptionBudget", function () {
     const objs = render();
     const sts = find(objs, "StatefulSet", "fonoster-roomr")!;
     const spec = sts.spec as {
@@ -190,7 +190,7 @@ describe("@conformance/deployment (Helm chart)", function () {
     ).to.equal(undefined);
   });
 
-  it("renders no trusted-sources setting for the media nodes (network isolation is the boundary)", function () {
+  it("renders no trusted-sources setting for the Roomr nodes (network isolation is the boundary)", function () {
     const config = roomrConfig(render());
     expect(config).to.not.have.property("trustedSources");
     expect(config).to.not.have.property("debugAddr");
@@ -462,7 +462,7 @@ describe("@conformance/deployment (Helm chart)", function () {
     ).to.not.include("records");
   });
 
-  it("renders the media nodes' optional SIP over TLS", function () {
+  it("renders the Roomr nodes' optional SIP over TLS", function () {
     const objs = render("--set=roomr.tls.enabled=true");
     expect(roomrConfig(objs).tls).to.deep.equal({
       listen: "0.0.0.0:5061",
@@ -478,7 +478,7 @@ describe("@conformance/deployment (Helm chart)", function () {
 
   // fix-config-and-placement-gaps: the node reads no ROOMR_* variables, so the chart passes
   // everything in roomr.yaml, with the pod's own values as ${VAR} placeholders.
-  it("configures the media nodes through roomr.yaml, not ROOMR_* variables", function () {
+  it("configures the Roomr nodes through roomr.yaml, not ROOMR_* variables", function () {
     const objs = render();
     const node = find(objs, "StatefulSet", "fonoster-roomr")!;
     // (NATS_ROOMR_PASSWORD is the node's NATS password, nats.auth.)
@@ -489,7 +489,7 @@ describe("@conformance/deployment (Helm chart)", function () {
     const config = roomrConfig(objs);
     expect(config.nodeId).to.equal("${POD_NAME}");
     // Routr is this deployment's registrar: one generic registration templating its
-    // least-sessions header (redesign-media-node 2.1).
+    // least-sessions header (redesign-roomr 2.1).
     expect(config.sip).to.deep.equal({
       listen: "0.0.0.0:5060",
       advertise: "${HOST_IP}",

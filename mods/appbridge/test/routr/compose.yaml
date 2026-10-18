@@ -37,7 +37,7 @@ services:
       - "15560:15560/udp"
       - "15560:15560/tcp"
       - "15551:51907"
-      # Location service: the test reads the media node's route (and its session count) here.
+      # Location service: the test reads the Roomr node's route (and its session count) here.
       - "15552:51902"
     volumes:
       - ./edgeport.yaml:/etc/routr/rig/edgeport.yaml:ro

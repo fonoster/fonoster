@@ -243,7 +243,7 @@ export const dtmfEventSchema = {
   }
 } as const;
 
-/** Answering-machine detection, once per call, for apps with `amd` (add-media-node 4.3). */
+/** Answering-machine detection, once per call, for apps with `amd` (add-roomr 4.3). */
 export const amdResultSchema = {
   type: "object",
   required: ["type", "status", "confidence", "detector", "audioMs"],

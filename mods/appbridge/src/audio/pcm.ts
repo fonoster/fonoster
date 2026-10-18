@@ -32,7 +32,7 @@ export const INTERNAL: Format = { codec: "pcm16", rate: INTERNAL_RATE };
 
 /**
  * The fonoster protocol's format menu (voice-session "Raw audio in both directions", design OQ8,
- * AO-B4): what an app may choose for caller and agent audio. The leg to the media node stays
+ * AO-B4): what an app may choose for caller and agent audio. The leg to the Roomr node stays
  * L16/16000 whatever the caller's SIP codec (PCMU, PCMA, G.722 or Opus): the node transcodes.
  * Opus is not offered over WebSocket in v1.
  */
@@ -172,7 +172,7 @@ export function resample(
 export function convert(buf: Buffer, from: Format, to: Format): Buffer {
   if (from.codec === to.codec && from.rate === to.rate) return buf;
   // L16 and internal PCM16 at one rate differ only in byte order: a copy and a native swap.
-  // This is the media-node leg's conversion (L16/16000) for every frame in both directions.
+  // This is the roomr leg's conversion (L16/16000) for every frame in both directions.
   if (from.rate === to.rate && from.codec !== "pcmu" && to.codec !== "pcmu") {
     const n = buf.length & ~1;
     const out = Buffer.allocUnsafe(n);

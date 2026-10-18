@@ -173,7 +173,7 @@ export async function enroll(options: EnrollOptions): Promise<RegionIdentity> {
       publicKey: jwk.x,
       version: options.version,
       components: options.components ?? {
-        mediaNodes: 1,
+        roomrNodes: 1,
         gateways: 1,
         autopilot: true
       }

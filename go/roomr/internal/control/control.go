@@ -1,5 +1,5 @@
 // Package control serves Roomr (roomr.v1) over gRPC next to the node's NATS commands
-// (redesign-media-node, "Roomr is a gRPC service with three nouns"). Each RPC calls the
+// (redesign-roomr, "Roomr is a gRPC service with three nouns"). Each RPC calls the
 // node operation the NATS handler for the same action uses; this package only checks input and
 // maps the node's error codes to gRPC status codes with the code as the reason.
 package control

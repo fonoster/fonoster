@@ -245,10 +245,10 @@ export function sdkRoutrPort(options: {
 }
 
 /**
- * The media-node peer in the cell's Routr (what the apiserver does in a public region): media
+ * The roomr peer in the cell's Routr (what the apiserver does in a public region): media
  * nodes register under it and Routr balances calls by least sessions.
  */
-export async function ensureMediaNodePeer(
+export async function ensureRoomrPeer(
   routr: RoutrPort,
   peer: { name: string; username: string; aor: string; password: string }
 ) {

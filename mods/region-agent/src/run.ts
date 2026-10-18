@@ -29,7 +29,7 @@ import { getLogger } from "@fonoster/logger";
 import { connect } from "nats";
 import { RegionAgent } from "./agent";
 import { DatabaseApplier } from "./apply/DatabaseApplier";
-import { ensureMediaNodePeer, sdkRoutrPort } from "./apply/RoutrApplier";
+import { ensureRoomrPeer, sdkRoutrPort } from "./apply/RoutrApplier";
 import { AgentConfig, packageVersion } from "./config";
 import { EndpointsOverride, resolveEndpoints } from "./endpoints";
 import { DirIdentityStore, loadIdentity } from "./enroll";
@@ -96,8 +96,8 @@ export async function runAgent(
   const routr = config.routr
     ? sdkRoutrPort({ endpoint: config.routr.endpoint })
     : undefined;
-  if (routr && config.routr?.mediaNodePeer) {
-    const p = config.routr.mediaNodePeer as {
+  if (routr && config.routr?.roomrPeer) {
+    const p = config.routr.roomrPeer as {
       name: string;
       username: string;
       aor: string;
@@ -105,14 +105,14 @@ export async function runAgent(
     };
     const password = env[p.passwordEnv];
     if (password)
-      void ensureMediaNodePeer(routr, {
+      void ensureRoomrPeer(routr, {
         name: p.name,
         username: p.username,
         aor: p.aor,
         password
       })
-        .then((r) => logger.info(`media-node peer ${r}`))
-        .catch((e) => logger.warn(`media-node peer: ${e.message}`));
+        .then((r) => logger.info(`roomr peer ${r}`))
+        .catch((e) => logger.warn(`roomr peer: ${e.message}`));
   }
 
   let relay: RelayResponder | undefined;

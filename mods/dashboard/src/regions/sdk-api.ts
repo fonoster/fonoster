@@ -51,7 +51,7 @@ export function toRegionDetail(r: SdkRegion): RegionDetail {
     ...toRegion(r),
     version: r.version,
     lastSeenAt: r.lastSeenAt ?? r.lastHeartbeatAt,
-    mediaNodes: r.components?.mediaNodes ?? r.mediaNodes,
+    roomrNodes: r.components?.roomrNodes ?? r.roomrNodes,
     gateways: r.components?.gateways ?? r.gateways,
     activeCalls: r.activeCalls,
     unsupportedReason: r.unsupportedReason,

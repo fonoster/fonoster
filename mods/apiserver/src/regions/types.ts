@@ -49,7 +49,7 @@ export const subjects = (ref: string) => ({
 });
 
 export type Components = {
-  mediaNodes: number;
+  roomrNodes: number;
   gateways: number;
   autopilot: boolean;
 };

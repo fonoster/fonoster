@@ -58,7 +58,7 @@ describe("@gateway replicas", function () {
       return this.skip();
     }
     harness = await new FakesHarness().start();
-    harness.mediaNode.attachNats(nc);
+    harness.roomrNode.attachNats(nc);
   });
 
   after(async () => {
@@ -109,7 +109,7 @@ describe("@gateway replicas", function () {
     const callRef = `live-${Date.now()}`;
     // Only g1 runs: the live call is g1's.
     const g1 = await startGateway();
-    harness.mediaNode.offerCall({ callRef });
+    harness.roomrNode.offerCall({ callRef });
     await harness.app.nextConnection();
     const lease = await waitFor(() =>
       Sessions.getSession(kv, "calls", callRef)
@@ -123,7 +123,7 @@ describe("@gateway replicas", function () {
     for (let i = 0; i < 12 && !onG2; i++) {
       const before = g1.calls.size + g2.calls.size;
       const g2Before = g2.calls.size;
-      const { roomRef } = harness.mediaNode.offerCall({ callRef });
+      const { roomRef } = harness.roomrNode.offerCall({ callRef });
       await harness.app.nextConnection();
       await waitFor(() => g1.calls.size + g2.calls.size > before || undefined);
       onG2 = g2.calls.size > g2Before;

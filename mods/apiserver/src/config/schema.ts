@@ -123,7 +123,6 @@ const catalogSchema = z.object({ file: z.string().min(1) }).optional();
 /**
  * Assistant evaluations (EvaluateIntelligence): platform model keys by credentialRef, used when a
  * workspace has no key of its own for the provider. Values take `secret://` references (D8).
- * `fonoster-migrate-legacy --integrations` writes them from the retired integrations.json.
  */
 const evaluationsSchema = z
   .object({ credentials: z.record(z.string().min(1)).default({}) })
@@ -264,18 +263,18 @@ const fonosterConfigSchema = z
         apiEndpoint: z.string().default("routr:51907"),
         /**
          * host:port of Routr's SIP listener: API-originated calls are dialed through it
-         * (CreateCall's to.proxy), as the media-node peer below (to.auth).
+         * (CreateCall's to.proxy), as the roomr peer below (to.auth).
          */
         sipProxy: z.string().default("routr:5060"),
         /**
-         * The peer Go media nodes register under (least-sessions, add-media-node 4.1). Without a
+         * The peer Go Roomr nodes register under (least-sessions, add-roomr 4.1). Without a
          * password the apiserver does not create it.
          */
-        mediaNodePeer: z
+        roomrPeer: z
           .object({
-            aor: z.string().default("sip:medianode@default"),
-            name: z.string().default("Media Nodes"),
-            username: z.string().default("medianode"),
+            aor: z.string().default("sip:roomr@default"),
+            name: z.string().default("Roomr nodes"),
+            username: z.string().default("roomr"),
             password: z.string().optional()
           })
           .default({})
@@ -383,26 +382,9 @@ type FonosterConfig = z.infer<typeof fonosterConfigSchema>;
  */
 const SHARED_VALUE_PATHS = ["*"];
 
-/** Keys people may carry over from identity.json or older drafts. */
-const MOVED_KEYS = {
-  encryptionKey: "encryption.key",
-  defaultUser: "identity.owner",
-  invite: "identity.invites",
-  issuer: "identity.issuer",
-  audience: "identity.audience",
-  keys: "identity.keys",
-  tokens: "identity.tokens",
-  oauth2: "identity.oauth2",
-  "smtp.auth": "smtp.user and smtp.password",
-  owner: "identity.owner",
-  integrationsFile:
-    "evaluations.credentials (run fonoster-migrate-legacy --integrations once)"
-};
-
 export {
   featuresSchema,
   fonosterConfigSchema,
   FonosterConfig,
-  MOVED_KEYS,
   SHARED_VALUE_PATHS
 };

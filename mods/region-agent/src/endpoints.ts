@@ -21,7 +21,7 @@ import { Endpoints, SipEndpoint } from "./types";
 
 // The cell's connection details (contract `region.R.endpoints`, task 3.6, RC-B16): the PUBLIC
 // addresses carriers and softphones use. Taken from the same settings the cell's Routr, RTPEngine
-// and media node run with (EXTERNAL_ADDRS, RTPENGINE_PUBLIC_IP, port ranges, …); every field can be
+// and Roomr node run with (EXTERNAL_ADDRS, RTPENGINE_PUBLIC_IP, port ranges, …); every field can be
 // set by hand in the agent config, and a set field wins.
 
 export type EndpointsOverride = {

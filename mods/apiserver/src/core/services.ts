@@ -31,7 +31,7 @@ import { buildCallsService } from "../calls";
 import { influxdb } from "../calls/influxdb";
 import { buildCapabilitiesService } from "../capabilities";
 import { getConfig } from "../config";
-import { REGISTRY, ROUTR_MEDIA_NODE_PEER } from "../envs";
+import { REGISTRY, ROUTR_ROOMR_PEER } from "../envs";
 import { buildProvidersService } from "../providers";
 import { buildSecretsService } from "../secrets";
 import { createCheckNumberPreconditions } from "../utils";
@@ -53,9 +53,9 @@ const agentsService = buildAgentsService(routrConfig);
 const domainsService = buildDomainsService(routrConfig);
 const credentialsService = buildCredentialsService(routrConfig);
 const trunksService = buildTrunksService(routrConfig);
-// App-linked numbers point at the media-node peer (Asterisk is retired, cleanbreak CB-B3).
+// App-linked numbers point at the roomr peer (Asterisk is retired, cleanbreak CB-B3).
 const numberRouting = createNumberRouting({
-  mediaNodeAor: ROUTR_MEDIA_NODE_PEER.aor
+  roomrNodeAor: ROUTR_ROOMR_PEER.aor
 });
 const numbersService = buildNumbersService(
   routrConfig,

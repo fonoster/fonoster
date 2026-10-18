@@ -96,7 +96,7 @@ npm run dev            # all of them, with prefixed logs
 npm run dev:appbridge    # or one: dev:apiserver, dev:appbridge, dev:autopilot, dev:roomr, dev:dashboard, dev:fakes
 ```
 
-Each one reloads when you save its source (the media node is rebuilt). Open the dashboard at
+Each one reloads when you save its source (the Roomr node is rebuilt). Open the dashboard at
 `http://localhost:8449` and sign in with the login `npm run dev:info` prints. Calls use fake
 speech and language-model providers, so no vendor keys are needed.
 

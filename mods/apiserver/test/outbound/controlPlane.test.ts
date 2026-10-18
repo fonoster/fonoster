@@ -31,7 +31,7 @@ import { TEST_TOKEN, TEST_UUID } from "../utils";
 
 // The apiserver as a stateless control plane (control-plane spec; harden-conformance 1.1, 1.2):
 // several replicas on one NATS, each running the outbound placement (`calls.create`, one queue
-// group) and TrackCall. Media nodes are fake Roomr servers (gRPC, heartbeats and call events on
+// group) and TrackCall. Roomr nodes are fake Roomr servers (gRPC, heartbeats and call events on
 // NATS) and gateways are stand-ins on NATS. Needs
 // CONFORMANCE_NATS_URL; the registry cases also need JetStream (CONFORMANCE_JETSTREAM_URL, or the
 // same server started with -js).
@@ -310,7 +310,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
     expect(n.of("EndRoom")).to.have.length(0);
   });
 
-  it("losing a media node: TrackCall ends with FAILED on every replica", async function () {
+  it("losing a Roomr node: TrackCall ends with FAILED on every replica", async function () {
     const [a, b] = await replicas(["a"], ["b", { place: false }]);
     const ref = randomUUID();
     const n = await node(`n-${randomUUID()}`, { callee: "ring" });

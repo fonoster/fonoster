@@ -1,4 +1,4 @@
-// End-to-end tests of Roomr over gRPC (redesign-media-node): the node serves both NATS
+// End-to-end tests of Roomr over gRPC (redesign-roomr): the node serves both NATS
 // commands and the gRPC service; the test is the controller, the callee bot the dialed party.
 package e2e
 
@@ -367,7 +367,7 @@ func TestRoomrMutualTLS(t *testing.T) {
 	}
 }
 
-// TestRoomrAtCapacity: the room limit covers rooms opened over gRPC (media-node "Node at
+// TestRoomrAtCapacity: the room limit covers rooms opened over gRPC (roomr "Node at
 // its limit"): CreateRoom and CreateCall into a new room fail with RESOURCE_EXHAUSTED and no
 // INVITE is sent, room.create over NATS sees the same limit, and a room that ends frees a place.
 func TestRoomrAtCapacity(t *testing.T) {

@@ -23,11 +23,11 @@ import { repointNumbers, RoutrNumbersClient } from "./repointNumbers";
 
 /**
  * Moves app-linked Numbers created before the rebuild (pointing at Asterisk's sip:voice@default)
- * to the media-node peer:
+ * to the roomr peer:
  *
  *   node dist/numbers/repointNumbersCli.js <routing.json> [--apply] [--app <ref>]...
  *
- * routing.json holds an EngineRoutingConfig ({ mediaNodeAor }); `{}` uses sip:medianode@default.
+ * routing.json holds an EngineRoutingConfig ({ roomrNodeAor }); `{}` uses sip:roomr@default.
  * Without --apply it only prints what would change. ROUTR_API_ENDPOINT (default routr:51907)
  * points at Routr's API.
  */

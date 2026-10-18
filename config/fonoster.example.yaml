@@ -69,10 +69,10 @@ features:
 
 routr:
   apiEndpoint: routr:51907
-  # The peer Go media nodes register under; every app-linked number points at it.
-  mediaNodePeer:
-    aor: sip:medianode@default
-    username: medianode
+  # The peer Go Roomr nodes register under; every app-linked number points at it.
+  roomrPeer:
+    aor: sip:roomr@default
+    username: roomr
     password: ${ROOMR_PASSWORD}             # the apiserver creates the peer when set
 
 nats:
@@ -103,8 +103,7 @@ influxdb:                                        # call records
 #         credentials: { accessKeyId: ${RECORDS_S3_KEY}, secretAccessKey: ${RECORDS_S3_SECRET} }
 
 # Platform model keys for assistant evaluations, by credentialRef (secret:// references work).
-# A workspace's own vendor key wins. `fonoster-migrate-legacy --integrations` writes them from the
-# retired integrations.json.
+# A workspace's own vendor key wins.
 # evaluations:
 #   credentials:
 #     openai-default: ${OPENAI_API_KEY}

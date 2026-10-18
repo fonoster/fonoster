@@ -14,10 +14,10 @@ incompatible release: there are no compatibility shims.
    gone; `@fonoster/voice/session` stays as an alias for this release only.
 3. **`record()`, `setAudioFilters()`, `mute()` and `unmute()` are removed.** Recording and audio
    filters are app configuration, and `hold()` / `resume()` replace mute / unmute.
-4. **Asterisk is retired.** The Go media nodes answer every app-linked number
-   (`sip:medianode@default`); the apiserver no longer talks ARI, serves `/api/recordings/:id`
+4. **Asterisk is retired.** The Go Roomr nodes answer every app-linked number
+   (`sip:roomr@default`); the apiserver no longer talks ARI, serves `/api/recordings/:id`
    or creates the `sip:voice@default` peer. API-originated calls (`CreateCall`) are placed on the
-   media nodes. `fonoster.yaml` loses `mediaService`, `amd`, `audioFilters`, `routr.defaultPeer`
+   Roomr nodes. `fonoster.yaml` loses `mediaService`, `amd`, `audioFilters`, `routr.defaultPeer`
    and `routr.engines`.
 5. **Autopilot is the hosted session engine.** The previous engine (xstate machine, Silero VAD,
    gRPC voice server) is gone; `fonoster/autopilot` runs `mods/autopilot/src/session` and reads
@@ -25,8 +25,8 @@ incompatible release: there are no compatibility shims.
 6. **Assistant webhooks are retired.** `eventsHook` and its `conversation.started` /
    `conversation.ended` events are gone. Subscribe a workspace webhook to `call.started`,
    `call.ended` (the call is over) or `call_record.sealed` (the record, with transcript, turns and
-   recording, is ready). `fonoster-migrate-legacy` creates that webhook for every assistant that
-   had an `eventsHook`; creating one with a retired event name is refused with the replacement.
+   recording, is ready). Creating a webhook with a retired event name is refused with the
+   replacement.
 7. **Recording URLs are no longer built by convention.** `${RECORDING_BASE_URL}/${appRef}_${id}.wav`
    is gone: a call's recording is a part of its call record (`GET /api/records/{callRef}/recording`,
    the dashboard's Calls page, `fonoster records:download`).
@@ -51,7 +51,7 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
    URL in the file, as a placeholder if it lives in the environment:
    `database: { url: "${APISERVER_DATABASE_URL}" }`. `database.urlEnv` is refused at start with
    that hint, and a `database` section without `url` is refused too.
-3. **Media node: `ROOMR_*` variables are no longer read.** Every setting is a key in
+3. **Roomr node: `ROOMR_*` variables are no longer read.** Every setting is a key in
    `roomr.yaml` (`/config/roomr.yaml`, or `-config <file>`) or a flag; flags still win.
    To keep a value in the environment, reference it in the file (`nodeId: "${ROOMR_ID}"`,
    `registration: { password: "${ROOMR_PASSWORD}" }`) or pass it as
@@ -75,7 +75,7 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
 ## Deployables and operations
 
 - **New deployables.** The **VoiceSessionGateway** (`fonoster/appbridge`: speech, turn-taking, app
-  sessions) and the Go **media node** (`fonoster/roomr`: rooms, mixing, RTP) replace Asterisk
+  sessions) and the Go **Roomr node** (`fonoster/roomr`: rooms, mixing, RTP) replace Asterisk
   and the voice code that lived in the apiserver. The apiserver keeps the management gRPC API,
   Identity, `GetCapabilities`, call creation and webhooks; it no longer talks ARI, AudioSocket or
   speech vendors.
@@ -88,7 +88,7 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
   data plane and upgrades it; the region links to the control plane only through an outbound NATS
   leaf node ([Running a region](./operators/regions.md)).
 - **Telemetry**: every service exports OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; a call's trace
-  runs from the media node through the gateway (a `traceparent` NATS header).
+  runs from the Roomr node through the gateway (a `traceparent` NATS header).
 
 ## Isolation between services
 

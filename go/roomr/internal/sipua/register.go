@@ -1,6 +1,6 @@
 package sipua
 
-// Registrations (media-node, "Registration is optional and configured"): the node keeps zero or
+// Registrations (roomr, "Registration is optional and configured"): the node keeps zero or
 // more REGISTERs from its configuration. Each names a registrar, an address of record, optional
 // digest credentials, an expiry and header templates; {sessions} in a template is rendered as the
 // node's active room count. A deployment that
@@ -33,7 +33,7 @@ type Registration struct {
 	// (sip:host:port;transport=tcp) picks udp (default), tcp or tls.
 	Registrar string
 	// AOR is the address of record in From and To (sip:user@domain); default
-	// sip:medianode@<registrar host>. Its user is the Contact's user too.
+	// sip:roomr@<registrar host>. Its user is the Contact's user too.
 	AOR string
 	// Username and Password answer a digest challenge (401/407); without either the challenge
 	// fails the registration. Username defaults to the AOR's user.
@@ -100,13 +100,13 @@ func newRegistration(r Registration) (*registration, error) {
 			port = 5061
 		}
 	}
-	aor := sip.Uri{User: "medianode", Host: target.Host}
+	aor := sip.Uri{User: "roomr", Host: target.Host}
 	if r.AOR != "" {
 		parsed, err := parseTarget(r.AOR)
 		if err != nil {
 			return nil, fmt.Errorf("registration %q: aor: %w", r.Registrar, err)
 		}
-		aor = sip.Uri{User: orDefault(parsed.User, "medianode"), Host: parsed.Host, Port: parsed.Port}
+		aor = sip.Uri{User: orDefault(parsed.User, "roomr"), Host: parsed.Host, Port: parsed.Port}
 	}
 	if err := sipheader.Validate(r.Headers); err != nil {
 		return nil, fmt.Errorf("registration %q: %w", r.Registrar, err)

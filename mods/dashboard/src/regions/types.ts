@@ -57,7 +57,7 @@ export type RegionDetail = Region & {
   version?: string;
   /** ISO time of the last heartbeat. */
   lastSeenAt?: string;
-  mediaNodes?: number;
+  roomrNodes?: number;
   gateways?: number;
   activeCalls?: number;
   /** Why config sync is paused (status `unsupported`). */

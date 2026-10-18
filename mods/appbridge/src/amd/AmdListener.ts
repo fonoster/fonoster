@@ -21,7 +21,7 @@ import { getLogger } from "@fonoster/logger";
 
 const logger = getLogger({ service: "gateway", filePath: __filename });
 
-// Answering-machine detection as a voice-worker listener (add-media-node 4.3, design: "AMD via
+// Answering-machine detection as a voice-worker listener (add-roomr 4.3, design: "AMD via
 // AMD() or the ML sidecar over AGI/AudioSocket → a listener in the voice worker"). The gateway
 // attaches a listen-only participant to the room with one RTP stream: the caller's track. It
 // collects `windowMs` of the caller's audio (16 kHz L16, the recording format) from the moment the

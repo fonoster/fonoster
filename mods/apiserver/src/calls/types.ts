@@ -45,7 +45,7 @@ type GetCallRequest = {
 };
 
 type CallPublisher = {
-  /** Resolves once a media node has accepted the call; rejects with a CallPlacementError. */
+  /** Resolves once a Roomr node has accepted the call; rejects with a CallPlacementError. */
   publishCall: (
     event: CreateCallRequest & { ref: string; accessKeyId: string }
   ) => Promise<void> | void;

@@ -201,7 +201,7 @@ class FakeCell {
           type: "region.heartbeat",
           regionRef: this.ref,
           version: "0.27.0",
-          components: { mediaNodes: 1, gateways: 1, autopilot: true },
+          components: { roomrNodes: 1, gateways: 1, autopilot: true },
           activeCalls: 2,
           secretsSet: ["deepgram"],
           configVersion: 0,
@@ -480,7 +480,7 @@ describe("@apiserver[regions/e2e] regions round trip (PR-12..PR-21)", function (
         token,
         publicKey,
         version: "0.27.0",
-        components: { mediaNodes: 1, gateways: 1, autopilot: true }
+        components: { roomrNodes: 1, gateways: 1, autopilot: true }
       }
     });
 
@@ -705,14 +705,14 @@ describe("@apiserver[regions/e2e] regions round trip (PR-12..PR-21)", function (
       sipDomain: "sip.acme.com",
       version: "0.27.0",
       activeCalls: 2,
-      mediaNodes: 1,
+      roomrNodes: 1,
       gateways: 1,
       workspaceDomain: "acme.sip.acme.com",
       monthlyFeeCents: 49900
     });
     expect(region.lastSeenAt).to.equal(region.lastHeartbeatAt);
     expect(region.components).to.deep.equal({
-      mediaNodes: 1,
+      roomrNodes: 1,
       gateways: 1,
       autopilot: true
     });
@@ -910,7 +910,7 @@ describe("@apiserver[regions/e2e] regions round trip (PR-12..PR-21)", function (
   it("degraded with a component down; unsupported pauses config sync", async function () {
     cell.heartbeat({
       configVersion: 4,
-      components: { mediaNodes: 0, gateways: 1, autopilot: true }
+      components: { roomrNodes: 0, gateways: 1, autopilot: true }
     });
     await until(async () => (await current()).status === "degraded");
     cell.heartbeat({ configVersion: 4, version: "0.25.1" });

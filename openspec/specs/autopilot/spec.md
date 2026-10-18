@@ -224,7 +224,7 @@ reached, and SHALL stop all work when the session ends.
 ### Requirement: Autopilot is an ordinary application
 
 Autopilot SHALL run as a hosted `VoiceServer` and SHALL use only public session messages of the
-fonoster protocol. It MUST NOT depend on any private interface to the gateway or the media node.
+fonoster protocol. It MUST NOT depend on any private interface to the gateway or the Roomr node.
 Because every Autopilot app shares one signing secret, the hosted Autopilot SHALL require its
 `publicUrl` (the URL Autopilot apps point to) and verify signatures against it only, never against
 the request's `Host` header; it SHALL require the app-bound signature (`voice-session`,

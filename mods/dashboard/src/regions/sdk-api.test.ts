@@ -65,7 +65,7 @@ function fake() {
         state: "connected",
         version: "0.27.0",
         lastSeenAt: "2026-10-15T10:00:00.000Z",
-        components: { mediaNodes: 2, gateways: 1 },
+        components: { roomrNodes: 2, gateways: 1 },
         activeCalls: 1,
         sipDomain: "sip.acme.com",
         workspaces: [{ ref: "ws-1", name: "Acme Support" }],
@@ -126,7 +126,7 @@ describe("RegionsApi over the SDK", () => {
     expect(await api.getRegion("rg_abc")).toMatchObject({
       ref: "rg_abc",
       status: "connected",
-      mediaNodes: 2,
+      roomrNodes: 2,
       gateways: 1,
       activeCalls: 1,
       sipDomain: "sip.acme.com",

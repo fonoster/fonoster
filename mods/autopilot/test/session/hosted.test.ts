@@ -622,14 +622,12 @@ describe("@autopilot/session assistants and keys from the database (CP-B11)", fu
     // No url: the variable is not a fallback.
     fs.writeFileSync(file, base + "database: {}\n");
     expect(() => loadHostedConfig(file, env)).to.throw(/database\.url/);
-    // The old key names the new one.
+    // The old key is an unknown key.
     fs.writeFileSync(
       file,
       base + "database: { urlEnv: APISERVER_DATABASE_URL }\n"
     );
-    expect(() => loadHostedConfig(file, env)).to.throw(
-      /"database\.urlEnv" moved to "database\.url/
-    );
+    expect(() => loadHostedConfig(file, env)).to.throw(/unknown key "urlEnv"/);
     // A placeholder in the file still reads it.
     fs.writeFileSync(
       file,

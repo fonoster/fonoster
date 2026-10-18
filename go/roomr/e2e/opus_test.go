@@ -1,6 +1,6 @@
 package e2e
 
-// Opus first (redesign-media-node task 8): an Opus-capable caller negotiates Opus and carries
+// Opus first (redesign-roomr task 8): an Opus-capable caller negotiates Opus and carries
 // wideband audio both ways; a G.711-only peer still gets PCMU; the node's own INVITEs offer
 // opus/48000/2, G.722, PCMU, PCMA and the callee's pick wins.
 

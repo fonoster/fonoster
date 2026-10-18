@@ -1,7 +1,7 @@
 # Operating the Fonoster rebuild stack
 
 This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/helm/fonoster-rebuild`
-(Helm): the VoiceSessionGateway, the Go media node, and the services around them. It follows
+(Helm): the VoiceSessionGateway, the Go Roomr node, and the services around them. It follows
 `openspec/changes/archive/2026-10-17-add-platform`.
 
 ## What runs
@@ -20,7 +20,7 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | `envoy` | `envoyproxy/envoy` | gRPC, gRPC-Web, `/api` and the dashboard on one port (root `config/envoy.yaml`). |
 | `dashboard` | `ops/rebuild/docker/dashboard.Dockerfile` | The dashboard, built with this checkout's SDK. |
 | `fakes` (profile) | `ops/rebuild/docker/fakes.Dockerfile` | Fake TTS/STT/LLM for test deployments. |
-| `sipcaller` (profile `tools`) | media node image | The SIP caller bot (smoke tests). |
+| `sipcaller` (profile `tools`) | Roomr node image | The SIP caller bot (smoke tests). |
 
 Each Fonoster service reads exactly one YAML file (mounted at `/config/<service>.yaml`) and never a
 `.env` file; secrets in it are `${NAME}` placeholders the container's environment fills. Compose
@@ -28,7 +28,7 @@ passes each service only the `.env` values its own file names (its `environment:
 `ops/bundle/compose.yaml`), never the whole `.env`, and only the API server mounts Identity's
 private key (`keys/private.pem`); the gateway gets `public.pem` and its `records.pem`. A
 placeholder you add to a service file needs a matching line in that service's `environment:`
-(for example `CLICKHOUSE_USER`). The media node reads `/config/roomr.yaml` (or `-config <file>`, its only flag;
+(for example `CLICKHOUSE_USER`). The Roomr node reads `/config/roomr.yaml` (or `-config <file>`, its only flag;
 see `ops/bundle/config/roomr.example.yaml`). It reads no `ROOMR_*`
 variables: a value from the environment goes in the file as a `${NAME}` placeholder.
 
@@ -65,23 +65,23 @@ Set `COMPOSE_PROJECT_NAME` to run several stacks on one host.
 | 4222 | TCP | NATS | Internal; publish only for debugging. 8222 is monitoring (`/healthz`). |
 | 7422 | TCP | NATS leaf nodes | Hub side of the regions link (see Regions). Dev stack profile `regions` only (`RB_LEAF_PORT`). |
 | 5060 | UDP/TCP | Routr | Carrier-facing SIP. |
-| 5060 | UDP/TCP | Media node | Internal SIP from Routr; do not expose to the internet. |
+| 5060 | UDP/TCP | Roomr node | Internal SIP from Routr; do not expose to the internet. |
 | 10000-10100 | UDP | RTPEngine | Carrier-facing media (`RTPENGINE_PORT_MIN/MAX`). Size to your concurrent calls. |
-| 30000-30199 | UDP | Media node RTP | `rtp.portMin/portMax` in `roomr.yaml`. Two ports per call leg (RTP and the session leg); publish exactly this range. |
+| 30000-30199 | UDP | Roomr node RTP | `rtp.portMin/portMax` in `roomr.yaml`. Two ports per call leg (RTP and the session leg); publish exactly this range. |
 | 8080 | TCP | Gateway | Twilio-compatible Calls endpoint when `http` is set in `gateway.yaml`. |
 
 ### RTP ranges
 
-The media node binds RTP sockets only inside `[rtp-port-min, rtp-port-max]` when both are set
+The Roomr node binds RTP sockets only inside `[rtp-port-min, rtp-port-max]` when both are set
 (unset means any ephemeral port, fine for tests only). When the range is exhausted the node refuses
 new legs rather than overrun it. Size the range at roughly two ports per concurrent call, then
 publish the same range on the container, pod (host network) or firewall. `rtp.advertise`
 is the address that goes into SDP; it must be reachable from Routr and RTPEngine. Behind NAT, set
 it to the reachable address; on Kubernetes the chart defaults to the node's host IP.
 
-### Who may reach the media node
+### Who may reach the Roomr node
 
-The media node takes `X-App-Ref`, `X-Call-Ref` and `X-Call-Direction` from the INVITE and trusts
+The Roomr node takes `X-App-Ref`, `X-Call-Ref` and `X-Call-Direction` from the INVITE and trusts
 them, so its SIP port must be reachable only from Routr. Network isolation is the boundary: the
 Compose bundle does not publish the SIP port on the host; on Kubernetes use a NetworkPolicy when
 Roomr runs on the pod network, or a host firewall when `roomr.hostNetwork` is true (the default,
@@ -103,7 +103,7 @@ NATS is a trust boundary (add-platform 4.1): every service connects as its own u
 and subscribe only on its subjects. The permission files are
 `ops/rebuild/config/nats-permissions/<service>.conf` (apiserver, gateway, roomr, routr,
 region-agent); the main NATS, the cell's NATS and the chart (`nats.auth`) include the ones they
-serve. In short: only media nodes publish heartbeats, room events and `gateway.incoming`; only
+serve. In short: only Roomr nodes publish heartbeats, room events and `gateway.incoming`; only
 gateways publish `callrecord.sealed` (index entries) and `registry.used`; only the apiserver
 publishes `calls.create` and `callrecord.<region>.maintenance`; media-control commands come from
 gateways and the apiserver; Routr publishes `routr.>` only; the region agent alone talks
@@ -119,7 +119,7 @@ unchanged.
   user goes in its URL (`nats://routr:<password>@nats:4222`), so use hex passwords.
 - **Replies**: each user receives replies (and JetStream deliveries) only under its own inbox
   prefix, `_INBOX_<user>.>`; the services set it when they connect with a user
-  (`natsConnectOptions`, the media node's `CustomInboxPrefix`), so no service can read another's
+  (`natsConnectOptions`, the Roomr node's `CustomInboxPrefix`), so no service can read another's
   replies, such as bring-your-own keys from the region agent. A client of your own that connects
   as one of these users must use the same prefix (nats.js `inboxPrefix: "_INBOX_<user>"`, nats.go
   `nats.CustomInboxPrefix`); with the default `_INBOX.` it gets no replies. Routr only publishes
@@ -131,7 +131,7 @@ unchanged.
 
 The session registry (D3) is the JetStream KV bucket `fonoster_sessions`: `calls.<ref>` and
 `gateways.<ref>` (written by gateways) and `placements.<ref>` (written by the apiserver for
-outbound calls being placed). Media nodes write nothing there: they use core NATS only (heartbeat
+outbound calls being placed). Roomr nodes write nothing there: they use core NATS only (heartbeat
 and events), and the apiserver learns nodes from their heartbeats (a restarted replica places
 calls after the next heartbeat, within `heartbeatInterval`). Entries are leases: the bucket keeps
 a value 15 s after its last write, owners rewrite theirs every 2 to 5 s and delete them on a clean
@@ -140,7 +140,7 @@ warning and runs on heartbeats only.
 
 ## Drain and rollout
 
-The media node serves the standard gRPC health service (`grpc.health.v1.Health`) on its control
+The Roomr node serves the standard gRPC health service (`grpc.health.v1.Health`) on its control
 port. `SIGTERM` starts the drain: health turns NOT_SERVING (readiness fails), the node
 unregisters (REGISTER with Expires 0), stops its heartbeat and publishes `node.down`, keeps its
 rooms, and exits when the last room ends or `drainWait` elapses (default 10 min, in
@@ -165,7 +165,7 @@ them one at a time (`gateway.podDisruptionBudget`) and give calls time via
 | --- | --- | --- |
 | Longest call | 4 h | `maxDuration` (per-app values can be lower) |
 | Participants per room | 10 | `maxParticipants` (`CreateRoom` can set it per room) |
-| Rooms per media node | 200 | `maxRooms` (heartbeats report it; placement skips a full node and `room.create` beyond it gets `at_capacity`) |
+| Rooms per Roomr node | 200 | `maxRooms` (heartbeats report it; placement skips a full node and `room.create` beyond it gets `at_capacity`) |
 | Silent media timeout (caller and app legs) | 30 s | `mediaTimeout` |
 | Room with nobody in it (its placer is gone) | 30 s | `emptyRoomTimeout` (negative: never; `CreateRoom` can set it per room) |
 | Room whose gateway stopped its heartbeats | 20 s | `ownerTimeout` (needs the node to receive `gateway.heartbeat`; negative: never) |
@@ -222,7 +222,7 @@ Metrics: `fonoster.gateway.calls.active`, `fonoster.gateway.calls.total`,
 `rpc.grpc.status_code`), `fonoster.apiserver.records.indexed` (by `outcome`),
 `fonoster.registry.commands` (the `fonoster-registry` utility, by `command` and `outcome`).
 
-Traces cross services with a W3C `traceparent` header: the media node sends it on `call.incoming`
+Traces cross services with a W3C `traceparent` header: the Roomr node sends it on `call.incoming`
 (the gateway's `gateway.call` span becomes its child), the gateway sends it on every media-control
 command (`roomr.command` spans) and on a record's index entry while the call's span is open
 (`apiserver.records.index`). The apiserver makes a span per gRPC request (`apiserver.grpc`) and joins
@@ -231,7 +231,7 @@ a `traceparent` metadata entry when a client sends one.
 ## Regions and cells
 
 One global control plane (apiserver, Identity, dashboard) serves many cells. A cell is the data plane:
-Routr, RTPEngine, media nodes, gateways, object storage. This stack is one cell. Cells link to the
+Routr, RTPEngine, Roomr nodes, gateways, object storage. This stack is one cell. Cells link to the
 control plane only through an **outbound** NATS leaf-node connection over TLS, so a private cell needs
 no inbound port other than SIP and RTP from its carriers. Call content (recordings, transcripts,
 records, provider keys) stays in the cell; only the call-record index, config and health cross the
@@ -275,8 +275,8 @@ The chart `ops/rebuild/helm/fonoster-rebuild` has three values files:
 
 | File | Installs |
 | --- | --- |
-| `values.yaml` (default) | The data plane only: gateway and media nodes (and, opt-in, the hosted Autopilot and a private cell's region agent). NATS, Routr, RTPEngine, Postgres and MinIO are external. |
-| `values-cloud.yaml` | The whole platform, mirroring `ops/rebuild/compose.yaml`: apiserver (embedded Identity, migrations Job), Envoy, dashboard, hosted Autopilot, single-node NATS with JetStream, dev-grade Postgres and MinIO, gateway and media nodes. |
+| `values.yaml` (default) | The data plane only: gateway and Roomr nodes (and, opt-in, the hosted Autopilot and a private cell's region agent). NATS, Routr, RTPEngine, Postgres and MinIO are external. |
+| `values-cloud.yaml` | The whole platform, mirroring `ops/rebuild/compose.yaml`: apiserver (embedded Identity, migrations Job), Envoy, dashboard, hosted Autopilot, single-node NATS with JetStream, dev-grade Postgres and MinIO, gateway and Roomr nodes. |
 | `values-observability.yaml` | The default observability profile: OTel collector, Prometheus, Loki, Tempo and Grafana; every service exports to the collector. Combine it with either file above. |
 
 Routr and RTPEngine come from their own charts (Routr at `routr:5060` / `routr:51907`, using the
@@ -333,7 +333,7 @@ kubectl port-forward svc/fonoster-grafana 3000
   `apiserver.keysSecret`.
 - **Postgres and MinIO** (`postgres.deploy`, `minio.deploy`) are single-replica and for trying the
   platform; point the database and store URLs in your Secrets at managed services instead.
-- **Gateway RTP.** The gateway advertises its pod IP to the media nodes (`rtp.advertiseHostEnv:
+- **Gateway RTP.** The gateway advertises its pod IP to the Roomr nodes (`rtp.advertiseHostEnv:
   POD_IP`) unless `rtp.advertiseHost` is set.
 - **Observability.** With `observability.enabled` and no `otel.endpoint`, every service exports to
   `<release>-otel-collector:4318`. To use your own backend, leave the profile off and set
@@ -350,7 +350,7 @@ helm install fonoster ops/rebuild/helm/fonoster-rebuild \
 ```
 
 The gateway (`appbridge` in the chart values) runs as a Deployment (ConfigMap with `gateway.yaml`,
-Service, PDB) and the media node as a StatefulSet (host network by default because RTP needs a UDP
+Service, PDB) and the Roomr node as a StatefulSet (host network by default because RTP needs a UDP
 range, node id = pod name). Create the Secret named by `roomr.routr.passwordSecret` (key `password`) for the nodes' Routr peer.
 
 `helm lint` and `helm template` run in the deployment suite (`mods/conformance/test/deployment.test.ts`),

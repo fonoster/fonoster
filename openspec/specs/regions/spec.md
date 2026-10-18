@@ -7,7 +7,7 @@ The global control plane with many cells and how cells link to it.
 
 Fonoster SHALL run one global control plane (apiserver, Identity, dashboard and their database)
 for every workspace. Each of our regions and each private region SHALL be a cell that runs the data
-plane: Routr, RTPEngine, media nodes, VoiceSessionGateways, object storage and the analytics store.
+plane: Routr, RTPEngine, Roomr nodes, VoiceSessionGateways, object storage and the analytics store.
 Config and the call-record index SHALL be central; call data SHALL stay in the cell where the call
 happened.
 

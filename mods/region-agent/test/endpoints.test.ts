@@ -22,7 +22,7 @@ import { endpointsHash, resolveEndpoints } from "../src/endpoints";
 // add-private-regions task 3.6: the cell's public connection details.
 
 describe("@region-agent endpoints", function () {
-  it("derives them from the settings the cell's Routr, RTPEngine and media node use", function () {
+  it("derives them from the settings the cell's Routr, RTPEngine and Roomr node use", function () {
     expect(
       resolveEndpoints(
         {},

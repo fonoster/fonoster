@@ -97,7 +97,7 @@ describe("@region-agent enrollment", function () {
     expect(Buffer.from(String(sent.publicKey), "base64url")).to.have.length(32);
     expect(sent.version).to.equal("0.28.1");
     expect(sent.components).to.deep.equal({
-      mediaNodes: 1,
+      roomrNodes: 1,
       gateways: 1,
       autopilot: true
     });

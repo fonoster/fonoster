@@ -75,7 +75,7 @@ jobs:
           node-version: "22.x"
           cache: npm
 
-      # Some suites build and run the real media node (go build, cgo with libopus).
+      # Some suites build and run the real Roomr node (go build, cgo with libopus).
       - name: Setup Go
         uses: actions/setup-go@v5
         with:

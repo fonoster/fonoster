@@ -108,7 +108,7 @@
             },
             "callRef": {
               "type": "string",
-              "description": "The callRef the media node gives the call (Twilio's callSid)"
+              "description": "The callRef the Roomr node gives the call (Twilio's callSid)"
             }
           }
         },
@@ -204,7 +204,7 @@
             "maxRooms": {
               "type": "integer",
               "minimum": 1,
-              "description": "The media node's room limit; room.create beyond it is refused with at_capacity"
+              "description": "The Roomr node's room limit; room.create beyond it is refused with at_capacity"
             },
             "claimCalls": {
               "type": "boolean",
@@ -412,7 +412,7 @@
           "type": "object",
           "additionalProperties": false,
           "minProperties": 1,
-          "description": "The fake media node acts as the caller: presses keys, speaks or hangs up; or the node drops the room or crashes",
+          "description": "The fake Roomr node acts as the caller: presses keys, speaks or hangs up; or the node drops the room or crashes",
           "properties": {
             "dtmf": {
               "type": "string",
@@ -438,7 +438,7 @@
             },
             "nodeCrash": {
               "const": true,
-              "description": "The media node dies: no more heartbeats, replies or events"
+              "description": "The Roomr node dies: no more heartbeats, replies or events"
             },
             "call": {
               "type": "object",

@@ -347,7 +347,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
       callback: (_e, m) => m.respond(sc.encode('{"secret":"reply"}'))
     });
     await node.flush();
-    // Another service, a second media node and Routr try every inbox they could read.
+    // Another service, a second Roomr node and Routr try every inbox they could read.
     const otherNode = await as(main!, "roomr");
     conns.push(otherNode);
     const inboxes = ["_INBOX.>", `${natsInboxPrefix("gateway")}.>`];
@@ -417,7 +417,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     // The control plane writes placements.* (outbound calls being placed) and deletes them.
     await apiKv.put("placements.p1", sc.encode('{"callRef":"p1"}'));
     await apiKv.delete("placements.p1");
-    // Everything else is refused; the media node writes nothing to the registry any more.
+    // Everything else is refused; the Roomr node writes nothing to the registry any more.
     const refused = async (kv: typeof gwKv, key: string) => {
       const ok = await kv.put(key, sc.encode("{}"), { timeout: 1000 }).then(
         () => true,
@@ -442,7 +442,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(deleted).to.equal(false);
   });
 
-  it("gives the media node core NATS only: no session registry and no JetStream", async function () {
+  it("gives the Roomr node core NATS only: no session registry and no JetStream", async function () {
     // It can't open the bucket, write any entry, or reach the JetStream API.
     const opened = await Sessions.openSessions(node).then(
       () => true,
@@ -484,7 +484,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     await cgw.request("cell.workspacekeys.get", sc.encode("{}"), {
       timeout: 2000
     });
-    // The key in the reply reaches the gateway only: the media node cannot read its inbox.
+    // The key in the reply reaches the gateway only: the Roomr node cannot read its inbox.
     const heard = await overheard(
       cnode,
       ["_INBOX.>", `${natsInboxPrefix("gateway")}.>`],

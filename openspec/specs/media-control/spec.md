@@ -1,12 +1,12 @@
 # media-control Specification
 
 ## Purpose
-The NATS contract between the control plane, the gateway and the media nodes.
+The NATS contract between the control plane, the gateway and the Roomr nodes.
 ## Requirements
 ### Requirement: Commands go down, audio and call events come up
 
 The `media-control` contract SHALL carry commands from the VoiceSessionGateway or the control plane
-to a media node, and audio and call events from the node back up. Commands SHALL be: `ring`,
+to a Roomr node, and audio and call events from the node back up. Commands SHALL be: `ring`,
 `answer`, `room.create`, `participant.add`, `participant.dial`, `participant.remove`, `transfer`,
 `transfer.complete`, `hold`, `resume`, `dtmf.send`, `listener.attach`, `listener.detach`, `room.end` and `hangup`.
 Events SHALL be: `call.incoming`, `call.progress`, `call.answered`, `participant.joined`,
@@ -30,7 +30,7 @@ the contract only ever grows.
 
 ### Requirement: media-control runs over NATS request and reply
 
-Each media node SHALL serve commands as NATS requests on `media.<nodeId>.commands` and SHALL answer
+Each Roomr node SHALL serve commands as NATS requests on `media.<nodeId>.commands` and SHALL answer
 every command with exactly one JSON reply: `{type: "ack", id, ...}` carrying any results (such as
 `roomRef`, `participantRef` or `rtp`), or `{type: "error", id, code, message}`. Outcomes that take
 time (dial progress, transfers, room end) SHALL arrive later as events. The node SHALL publish
@@ -92,7 +92,7 @@ optional `srtp` (`suite`, `key`) present only when MN6 encryption is on. The gat
 block and the node's acknowledgement SHALL return the node's block with its own `host`, `port` and
 `ssrc`; `codec`, `payloadType` and `ptime` SHALL match the offer or the node SHALL refuse with
 `unsupported_codec`. This audio MUST NOT travel
-over SIP, NATS or WebSocket, and agents MUST NOT connect to the media node directly.
+over SIP, NATS or WebSocket, and agents MUST NOT connect to the Roomr node directly.
 
 #### Scenario: Ports are exchanged in participant.add
 - **WHEN** the gateway sends `participant.add` `{id: "c3", roomRef: "r1", kind: "session", rtp: {host: "10.0.0.5", port: 40010, codec: "L16/16000", payloadType: 96, ptime: 20, ssrc: 1111}}`
@@ -223,7 +223,7 @@ gateway SHALL take the app from `appRef` and SHALL fall back to a number lookup 
 ### Requirement: Calls can carry a lower maximum duration
 
 `answer` and `room.create` MAY carry `maxDurationSec`, which SHALL lower the node's maximum call duration
-(media-node "Call and room limits") for that room; a value above the node's limit SHALL be
+(roomr "Call and room limits") for that room; a value above the node's limit SHALL be
 ignored. When it is reached the room ends with `reason: "max_duration"`.
 
 #### Scenario: App limit applied
@@ -264,7 +264,7 @@ record instead of assuming `caller_hangup`.
 ### Requirement: Nodes report liveness
 
 Each node SHALL publish `node.heartbeat` `{nodeId, rooms, maxRooms, draining}` on
-`media.<nodeId>.heartbeat` every 2 seconds, where `maxRooms` is its room limit (media-node "Call
+`media.<nodeId>.heartbeat` every 2 seconds, where `maxRooms` is its room limit (roomr "Call
 and room limits"). A node stopping on purpose SHALL publish `node.down` `{nodeId}` after its last
 room ends. A gateway SHALL treat a node as down after 3 missed heartbeats (6 seconds), SHALL end
 every session it owns on that node with `session.end` `reason: "error"`, and SHALL seal their

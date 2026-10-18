@@ -97,8 +97,8 @@ type Region = {
   /** Same as lastHeartbeatAt. */
   lastSeenAt?: string;
   enrolledAt?: string;
-  components?: { mediaNodes: number; gateways: number; autopilot: boolean };
-  mediaNodes?: number;
+  components?: { roomrNodes: number; gateways: number; autopilot: boolean };
+  roomrNodes?: number;
   gateways?: number;
   activeCalls?: number;
   configVersion?: number;

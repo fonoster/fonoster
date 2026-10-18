@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 import {
-  buildMediaNode,
+  buildRoomr,
   loadScenarios,
-  MediaNodeBinaries,
+  RoomrBinaries,
   RealMediaHarness,
   runScenario,
   Scenario
@@ -44,8 +44,8 @@ import { MemoryCallRecordSink } from "../src/record/CallRecordSink";
 import { catalogFor } from "./scenarioCatalog";
 import { appsFor, recordReaders } from "./scenarioApps";
 
-// The voice-session suite through the gateway, the Go media node and a SIP caller bot: real SIP,
-// RTP and media-control end to end (add-media-node 3.x, the first-call milestone). Needs NATS
+// The voice-session suite through the gateway, the Go Roomr node and a SIP caller bot: real SIP,
+// RTP and media-control end to end (add-roomr 3.x, the first-call milestone). Needs NATS
 // (CONFORMANCE_NATS_URL) and a Go toolchain.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
@@ -82,7 +82,7 @@ function configFor(
   };
 }
 
-describe("@gateway voice-session through the Go media node", function () {
+describe("@gateway voice-session through the Go Roomr node", function () {
   // The scenarios play media from the harness's local server; play fetches reach public
   // addresses only unless allowed (M13).
   let allowedDestinations: string | undefined;
@@ -97,12 +97,12 @@ describe("@gateway voice-session through the Go media node", function () {
   });
   this.timeout(30000);
   let nc: NatsConnection;
-  let bins: MediaNodeBinaries | undefined;
+  let bins: RoomrBinaries | undefined;
 
   before(async function () {
     this.timeout(120000);
     if (!NATS_URL) return this.skip();
-    bins = buildMediaNode(NATS_URL);
+    bins = buildRoomr(NATS_URL);
     if (!bins) return this.skip();
     nc = await connect({ servers: NATS_URL });
   });
@@ -145,15 +145,15 @@ describe("@gateway voice-session through the Go media node", function () {
 
 // Recording policy through the real node's listener.attach (add-call-record 3.2): one unmixed RTP
 // stream per side, written by the gateway's recorder and sealed into the record.
-describe("@gateway call recording through the Go media node", function () {
+describe("@gateway call recording through the Go Roomr node", function () {
   this.timeout(30000);
   let nc: NatsConnection;
-  let bins: MediaNodeBinaries | undefined;
+  let bins: RoomrBinaries | undefined;
 
   before(async function () {
     this.timeout(120000);
     if (!NATS_URL) return this.skip();
-    bins = buildMediaNode(NATS_URL);
+    bins = buildRoomr(NATS_URL);
     if (!bins) return this.skip();
     nc = await connect({ servers: NATS_URL });
   });
@@ -235,16 +235,16 @@ describe("@gateway call recording through the Go media node", function () {
 });
 
 // Every SIP codec the node negotiates reaches the app in the app's format (AO-B4): the gateway leg
-// stays L16/16000 and the media node transcodes PCMU, PCMA, G.722 and Opus.
-describe("@gateway SIP codecs through the Go media node", function () {
+// stays L16/16000 and the Roomr node transcodes PCMU, PCMA, G.722 and Opus.
+describe("@gateway SIP codecs through the Go Roomr node", function () {
   this.timeout(30000);
   let nc: NatsConnection;
-  let bins: MediaNodeBinaries | undefined;
+  let bins: RoomrBinaries | undefined;
 
   before(async function () {
     this.timeout(120000);
     if (!NATS_URL) return this.skip();
-    bins = buildMediaNode(NATS_URL);
+    bins = buildRoomr(NATS_URL);
     if (!bins) return this.skip();
     nc = await connect({ servers: NATS_URL });
   });
@@ -315,15 +315,15 @@ describe("@gateway SIP codecs through the Go media node", function () {
 // RTP is not text) or as one subject at a media frame rate (50/s for 20 ms frames). Every message
 // must be text, and no subject may pass 10/s. The spec's call lasts 60 s; this one carries a few
 // seconds each way, which is enough to see a stream at frame rate.
-describe("@gateway no audio on the bus (Go media node)", function () {
+describe("@gateway no audio on the bus (Go Roomr node)", function () {
   this.timeout(30000);
   let nc: NatsConnection;
-  let bins: MediaNodeBinaries | undefined;
+  let bins: RoomrBinaries | undefined;
 
   before(async function () {
     this.timeout(120000);
     if (!NATS_URL) return this.skip();
-    bins = buildMediaNode(NATS_URL);
+    bins = buildRoomr(NATS_URL);
     if (!bins) return this.skip();
     nc = await connect({ servers: NATS_URL });
   });

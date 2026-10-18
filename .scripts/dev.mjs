@@ -25,7 +25,7 @@
 //
 // Each process gets the values of .dev/.env (with ${NAME} expanded, as Compose's env_file does)
 // for the ${NAME} placeholders of its config file, .dev/config/<service>.yaml (passed explicitly:
-// the media nodes and gateways the tests start look in /config).
+// the Roomr nodes and gateways the tests start look in /config).
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, symlinkSync, watch } from "node:fs";
 import { createRequire } from "node:module";
@@ -97,7 +97,7 @@ function run(name, command, args, options = {}) {
   return child;
 }
 
-// SIGTERM, then SIGKILL: the media node drains calls on SIGTERM, which a reload should not wait for.
+// SIGTERM, then SIGKILL: the Roomr node drains calls on SIGTERM, which a reload should not wait for.
 function stop(child) {
   const kill = (signal) => {
     try {
@@ -159,7 +159,7 @@ function apiserver() {
   );
 }
 
-// The media node: `go build`, then run; rebuilt and restarted when a .go file (or go.mod/go.sum)
+// The Roomr node: `go build`, then run; rebuilt and restarted when a .go file (or go.mod/go.sum)
 // changes. A failed build keeps the running node.
 function roomr() {
   const log = (line) =>

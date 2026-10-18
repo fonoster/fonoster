@@ -75,7 +75,7 @@ describe("@gateway integration", function () {
   beforeEach(async function () {
     harness = await new FakesHarness().start();
     other = await new FakeApp().start();
-    harness.mediaNode.attachNats(nc);
+    harness.roomrNode.attachNats(nc);
     record = new MemoryCallRecordSink();
   });
 
@@ -120,12 +120,12 @@ describe("@gateway integration", function () {
     gateway = await new Gateway({ config, nats: nc, record }).start();
   }
 
-  const commands = () => harness.mediaNode.commands.map((c) => c.command.type);
+  const commands = () => harness.roomrNode.commands.map((c) => c.command.type);
 
   it("signs connections so a verifying app accepts them", async function () {
     harness.app.configure({ signingSecret: "secret", verifySignature: true });
     await start([app("a", harness.app.url)]);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     expect(harness.app.attempts[0]).to.include({ accepted: true });
@@ -139,10 +139,10 @@ describe("@gateway integration", function () {
       })
     ]);
     const since = Date.now();
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     await waitFor(() => commands().includes("hangup"), 6000);
     expect(harness.app.attempts.every((a) => !a.accepted)).to.equal(true);
-    expect(harness.mediaNode.outputAudioMs(since)).to.be.greaterThan(500);
+    expect(harness.roomrNode.outputAudioMs(since)).to.be.greaterThan(500);
     const types = [...record.records.values()][0].map((e) => e.message.type);
     expect(types).to.include.members(["app.connect_failed", "app.unreachable"]);
   });
@@ -154,7 +154,7 @@ describe("@gateway integration", function () {
       app("a", downUrl, { fallback: { app: "b" } }),
       app("b", other.url, { numbers: ["+0"] })
     ]);
-    harness.mediaNode.offerCall({ to: "+15550002222" });
+    harness.roomrNode.offerCall({ to: "+15550002222" });
     const { peer } = await other.nextConnection(5000);
     const startMsg = await waitFor(() =>
       json(peer).find((m) => m.type === "session.start")
@@ -171,7 +171,7 @@ describe("@gateway integration", function () {
       app("ivr", harness.app.url, { workspaceRef: "W1" }),
       app("billing", other.url, { numbers: ["+0"], workspaceRef: "W1" })
     ]);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const first = (await harness.app.nextConnection()).peer;
     await waitFor(() => json(first).find((m) => m.type === "session.start"));
     first.sendJson({
@@ -194,12 +194,12 @@ describe("@gateway integration", function () {
 
   it("never merges a call into a live call with the same callRef (RV-B7)", async function () {
     await start([app("a", harness.app.url)]);
-    harness.mediaNode.offerCall({ callRef: "dup" });
+    harness.roomrNode.offerCall({ callRef: "dup" });
     const first = (await harness.app.nextConnection()).peer;
     const start1 = await waitFor(() =>
       json(first).find((m) => m.type === "session.start")
     );
-    const second = harness.mediaNode.offerCall({ callRef: "dup" });
+    const second = harness.roomrNode.offerCall({ callRef: "dup" });
     const peer2 = (await harness.app.nextConnection()).peer;
     const start2 = await waitFor(() =>
       json(peer2).find((m) => m.type === "session.start")
@@ -225,7 +225,7 @@ describe("@gateway integration", function () {
           ).data
         )
       );
-    harness.mediaNode.offerCall({
+    harness.roomrNode.offerCall({
       to: "+1000",
       appRef: "none",
       callRef: "c-none"
@@ -234,7 +234,7 @@ describe("@gateway integration", function () {
     await waitFor(() => json(p1).find((m) => m.type === "session.start"));
     expect(await hangup("c-none", "W1")).to.include({ code: "not_found" });
 
-    harness.mediaNode.offerCall({
+    harness.roomrNode.offerCall({
       to: "+2000",
       appRef: "mine",
       callRef: "c-mine"
@@ -248,7 +248,7 @@ describe("@gateway integration", function () {
 
   it("opens outbound sessions only when the callee answers", async function () {
     await start([app("a", harness.app.url)]);
-    const room = await harness.mediaNode.handle({
+    const room = await harness.roomrNode.handle({
       type: "room.create",
       id: "c1"
     });
@@ -256,7 +256,7 @@ describe("@gateway integration", function () {
       OUTBOUND_SUBJECT,
       sc.encode(
         JSON.stringify({
-          nodeId: harness.mediaNode.nodeId,
+          nodeId: harness.roomrNode.nodeId,
           roomRef: room.roomRef,
           appRef: "a",
           to: "+15551234567"
@@ -266,7 +266,7 @@ describe("@gateway integration", function () {
     expect(JSON.parse(sc.decode(reply.data))).to.include({ type: "ack" });
     expect(harness.app.attempts).to.have.length(0);
 
-    await harness.mediaNode.handle({
+    await harness.roomrNode.handle({
       type: "participant.dial",
       id: "d1",
       roomRef: room.roomRef as string,
@@ -282,7 +282,7 @@ describe("@gateway integration", function () {
 
   it("records callee_hangup when the dialed party hangs up (the app sees caller_hangup)", async function () {
     await start([app("a", harness.app.url)]);
-    const room = await harness.mediaNode.handle({
+    const room = await harness.roomrNode.handle({
       type: "room.create",
       id: "c1"
     });
@@ -290,7 +290,7 @@ describe("@gateway integration", function () {
       OUTBOUND_SUBJECT,
       sc.encode(
         JSON.stringify({
-          nodeId: harness.mediaNode.nodeId,
+          nodeId: harness.roomrNode.nodeId,
           roomRef: room.roomRef,
           appRef: "a",
           callRef: "out-2",
@@ -298,7 +298,7 @@ describe("@gateway integration", function () {
         })
       )
     );
-    await harness.mediaNode.handle({
+    await harness.roomrNode.handle({
       type: "participant.dial",
       id: "d1",
       roomRef: room.roomRef as string,
@@ -306,7 +306,7 @@ describe("@gateway integration", function () {
     });
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
-    harness.mediaNode.calleeHangup(room.roomRef as string);
+    harness.roomrNode.calleeHangup(room.roomRef as string);
     const end = await waitFor(() =>
       json(peer).find((m) => m.type === "session.end")
     );
@@ -321,9 +321,9 @@ describe("@gateway integration", function () {
   });
 
   it("never dials the app when the callee is busy", async function () {
-    harness.mediaNode.configure({ dialOutcome: "busy" });
+    harness.roomrNode.configure({ dialOutcome: "busy" });
     await start([app("a", harness.app.url)]);
-    const room = await harness.mediaNode.handle({
+    const room = await harness.roomrNode.handle({
       type: "room.create",
       id: "c1"
     });
@@ -331,14 +331,14 @@ describe("@gateway integration", function () {
       OUTBOUND_SUBJECT,
       sc.encode(
         JSON.stringify({
-          nodeId: harness.mediaNode.nodeId,
+          nodeId: harness.roomrNode.nodeId,
           roomRef: room.roomRef,
           appRef: "a",
           callRef: "out-1"
         })
       )
     );
-    await harness.mediaNode.handle({
+    await harness.roomrNode.handle({
       type: "participant.dial",
       id: "d1",
       roomRef: room.roomRef as string,
@@ -354,7 +354,7 @@ describe("@gateway integration", function () {
 
   it("appends every message in both directions to the call record", async function () {
     await start([app("a", harness.app.url)]);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({ type: "speak", id: "r1", text: "Bye.", last: true });
@@ -379,7 +379,7 @@ describe("@gateway integration", function () {
         listeners: [{ url: other.url, tracks: "both" }]
       })
     ]);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const listener = (await other.nextConnection()).peer;
     await waitFor(() => json(listener).find((m) => m.type === "session.start"));
@@ -407,7 +407,7 @@ describe("@gateway integration", function () {
     await start([
       app("a", harness.app.url, { listeners: [{ url: other.url }] })
     ]);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const listener = (await other.nextConnection()).peer;
     await waitFor(() => json(listener).find((m) => m.type === "session.start"));
@@ -432,7 +432,7 @@ describe("@gateway integration", function () {
     await start([app("a", harness.app.url)], {
       keepalive: { pingIntervalMs: 100, idleTimeoutMs: 350 }
     });
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     // Stop reading the socket: no pongs, no frames.
@@ -453,7 +453,7 @@ describe("@gateway integration", function () {
         app("ivr", harness.app.url, { workspaceRef: "W1" }),
         app("theirs", other.url, { numbers: ["+0"], workspaceRef: target })
       ]);
-      harness.mediaNode.offerCall();
+      harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
       await waitFor(() => json(peer).find((m) => m.type === "session.start"));
       peer.sendJson({ type: "handoff", id: "h1", app: "theirs", payload: {} });
@@ -493,7 +493,7 @@ describe("@gateway integration", function () {
   ] as const) {
     it(`refuses a transfer with ${name} and sends nothing to the node (H11)`, async function () {
       await start([app("ivr", harness.app.url, { workspaceRef: "W1" })]);
-      harness.mediaNode.offerCall();
+      harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
       await waitFor(() => json(peer).find((m) => m.type === "session.start"));
       peer.sendJson({ type: "transfer", id: "t1", ...transfer });
@@ -509,7 +509,7 @@ describe("@gateway integration", function () {
 
   it("transfers with the app's custom headers and the call's own number and workspace (H11)", async function () {
     await start([app("ivr", harness.app.url, { workspaceRef: "W1" })]);
-    harness.mediaNode.offerCall({ from: "+15550001111", to: "+15550002222" });
+    harness.roomrNode.offerCall({ from: "+15550001111", to: "+15550002222" });
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({
@@ -519,7 +519,7 @@ describe("@gateway integration", function () {
       headers: { "X-Customer-Id": "c-42" }
     });
     const transfer = await waitFor(() =>
-      harness.mediaNode.commands
+      harness.roomrNode.commands
         .map((c) => c.command)
         .find((c) => c.type === "transfer")
     );
@@ -536,7 +536,7 @@ describe("@gateway integration", function () {
       app("ivr", harness.app.url, { workspaceRef: "W1" }),
       app("billing", other.url, { numbers: ["+0"], workspaceRef: "W1" })
     ]);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({
@@ -572,7 +572,7 @@ describe("@gateway integration", function () {
     await start([
       app("a", harness.app.url, { filters: [{ name: "test-mute" }] })
     ]);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({
@@ -582,7 +582,7 @@ describe("@gateway integration", function () {
       last: true
     });
     await waitFor(() => json(peer).find((m) => m.type === "output.started"));
-    harness.mediaNode.callerSpeaks({ kind: "tone", ms: 600 });
+    harness.roomrNode.callerSpeaks({ kind: "tone", ms: 600 });
     await waitFor(
       () =>
         json(peer).find(
@@ -601,7 +601,7 @@ describe("@gateway integration", function () {
     await start([
       app("a", harness.app.url, { filters: [{ name: "does-not-exist" }] })
     ]);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({ type: "speak", id: "r1", text: "Still here.", last: true });
@@ -614,7 +614,7 @@ describe("@gateway integration", function () {
 
   it("records app notes and refuses oversized ones", async function () {
     await start([app("a", harness.app.url)]);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({
@@ -646,7 +646,7 @@ describe("@gateway integration", function () {
       script: [{ atMs: 400, text: "What are your hours?" }]
     });
     await start([app("a", harness.app.url)]);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     peer.sendJson({ type: "listen.update" });
     await waitFor(() => json(peer).find((m) => m.type === "turn.ended"), 5000);
@@ -703,7 +703,7 @@ describe("@gateway integration", function () {
       ],
       { registry: { file } }
     );
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({ type: "speak", id: "r1", text: "Hello.", last: true });
@@ -773,7 +773,7 @@ describe("@gateway integration", function () {
       ],
       { registry: { file } }
     );
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     peer.sendJson({ type: "listen.update" });
     const first = await waitFor(
@@ -819,7 +819,7 @@ describe("@gateway integration", function () {
       ],
       { registry: { file } }
     );
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     peer.sendJson({ type: "listen.update" });
     const error = await waitFor(() =>
@@ -831,7 +831,7 @@ describe("@gateway integration", function () {
 
   it("hangs up when the app drops mid-call", async function () {
     await start([app("a", harness.app.url)]);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.close();

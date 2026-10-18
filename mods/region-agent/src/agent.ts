@@ -49,7 +49,7 @@ const sc = StringCodec();
 /** Where the cell's gateways publish sealed records' index entries (call-record). */
 export const RECORD_SEALED_SUBJECT = "callrecord.sealed";
 export const GATEWAY_HEARTBEAT_SUBJECT = "gateway.heartbeat";
-/** A media node counts while its heartbeats (every 2 s) are this fresh. */
+/** A Roomr node counts while its heartbeats (every 2 s) are this fresh. */
 const NODE_FRESH_MS = 10_000;
 /** A gateway counts while its heartbeats (every 5 s) are this fresh. */
 const GATEWAY_FRESH_MS = 20_000;
@@ -516,7 +516,7 @@ export class RegionAgent {
       : false;
     return {
       components: {
-        mediaNodes: nodes.length,
+        roomrNodes: nodes.length,
         gateways: gateways.length,
         autopilot
       },

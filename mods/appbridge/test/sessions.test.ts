@@ -55,7 +55,7 @@ describe("@gateway session registry", function () {
       return this.skip();
     }
     harness = await new FakesHarness().start();
-    harness.mediaNode.attachNats(nc);
+    harness.roomrNode.attachNats(nc);
   });
 
   after(async () => {
@@ -103,7 +103,7 @@ describe("@gateway session registry", function () {
         Sessions.getSession(kv, "gateways", gateway.gatewayRef)
       );
       expect(own).to.include({ gatewayRef: gateway.gatewayRef });
-      const offered = harness.mediaNode.offerCall({ callRef });
+      const offered = harness.roomrNode.offerCall({ callRef });
       await harness.app.nextConnection();
       const call = await waitFor(() =>
         Sessions.getSession(kv, "calls", callRef)

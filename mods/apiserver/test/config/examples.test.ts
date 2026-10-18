@@ -21,7 +21,6 @@ import { loadServiceConfig } from "@fonoster/common";
 import { expect } from "chai";
 import {
   fonosterConfigSchema,
-  MOVED_KEYS,
   SHARED_VALUE_PATHS
 } from "../../src/config/schema";
 
@@ -44,8 +43,7 @@ const load = (file: string) =>
     schema: fonosterConfigSchema,
     argv: ["node", "apiserver", "--config", join(ROOT, "config", file)],
     env: ENV,
-    interpolatePaths: SHARED_VALUE_PATHS,
-    movedKeys: MOVED_KEYS
+    interpolatePaths: SHARED_VALUE_PATHS
   });
 
 describe("@apiserver[config/examples]", function () {
@@ -57,9 +55,9 @@ describe("@apiserver[config/examples]", function () {
     expect(config.identity.database?.url).to.equal(
       "postgresql://postgres:postgres@postgres:5432/fnidentity"
     );
-    // Every app-linked number points at the media-node peer (cleanbreak CB-B3).
-    expect(config.routr.mediaNodePeer.aor).to.equal("sip:medianode@default");
-    expect(config.routr.mediaNodePeer.password).to.equal("changeme");
+    // Every app-linked number points at the roomr peer (cleanbreak CB-B3).
+    expect(config.routr.roomrPeer.aor).to.equal("sip:roomr@default");
+    expect(config.routr.roomrPeer.password).to.equal("changeme");
     expect(config.features.auth.methods).to.deep.equal(["password"]);
   });
 

@@ -2,10 +2,10 @@
   kind: Peer
   ref: peer-mn
   metadata:
-    name: Media nodes
+    name: Roomr nodes
   spec:
-    aor: sip:medianode@sip.local
-    username: medianode
+    aor: sip:roomr@sip.local
+    username: roomr
     credentialsRef: credentials-mn
     loadBalancing:
       algorithm: least-sessions

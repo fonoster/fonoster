@@ -22,9 +22,9 @@
 //     [--harness-workers <n>] [--nats nats://127.0.0.1:4222] [--gateway-node-args "<args>"]
 //
 // Each gateway runs as its own process (its own event loop, like a replica); the replicas share
-// the calls through the claim on NATS. The fakes (media node, app, providers) run in their own
+// the calls through the claim on NATS. The fakes (Roomr node, app, providers) run in their own
 // worker processes, by default one per 100 calls, so the load generator does not share an event
-// loop with the gateways or saturate one of its own: each worker has its own media node, app and
+// loop with the gateways or saturate one of its own: each worker has its own Roomr node, app and
 // fake providers and offers its share of the calls to its own app. Every call speaks every 3 s.
 //
 // Reported: dropped frames in both directions, speak → output.started latency, each gateway's
@@ -103,9 +103,9 @@ async function worker(index: number) {
   const nc = await connect({ servers: NATS_URL });
   const harness = await new FakesHarness().start();
   const nodeId = `scale-${process.pid}-${index}`;
-  harness.mediaNode.configure({});
-  (harness.mediaNode as unknown as { nodeId: string }).nodeId = nodeId;
-  harness.mediaNode.attachNats(nc, {
+  harness.roomrNode.configure({});
+  (harness.roomrNode as unknown as { nodeId: string }).nodeId = nodeId;
+  harness.roomrNode.attachNats(nc, {
     commands: `media.${nodeId}.commands`,
     events: `media.${nodeId}.events`
   });
@@ -167,7 +167,7 @@ async function worker(index: number) {
   let calls = 0;
   for (let k = index; k < CALLS; k += WORKERS) {
     await sleep(go.start + k * RAMP_MS - Date.now());
-    harness.mediaNode.offerCall({
+    harness.roomrNode.offerCall({
       from: `+1555${k}`,
       to: "+15550000000",
       appRef: `load-${index}`
@@ -179,7 +179,7 @@ async function worker(index: number) {
   await sleep(go.end - Date.now());
   measuring = false;
 
-  const outbound = harness.mediaNode
+  const outbound = harness.roomrNode
     .receivedAudio()
     .filter((p) => p.at >= go.measureFrom && p.at < go.end).length;
   send({

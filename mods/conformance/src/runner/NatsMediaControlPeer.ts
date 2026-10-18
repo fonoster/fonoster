@@ -17,12 +17,12 @@
  * limitations under the License.
  */
 import { NatsConnection, StringCodec, Subscription } from "nats";
-import { INCOMING_SUBJECT } from "../fakes/FakeMediaNode";
+import { INCOMING_SUBJECT } from "../fakes/FakeNatsRoomr";
 import { FrameLog, Peer } from "./Peer";
 
 // The runner as a media-control client (role `media-control-client`): commands go to a node as
 // NATS requests and each reply arrives as a frame; the node's room events, heartbeats and
-// `call.incoming` requests arrive as frames too (add-media-node/specs/media-control).
+// `call.incoming` requests arrive as frames too (add-roomr/specs/media-control).
 
 export const COMMAND_TIMEOUT_MS = 2000;
 

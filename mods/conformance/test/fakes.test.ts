@@ -23,7 +23,7 @@ import {
   FakeApp,
   FakeGateway,
   FakeLlm,
-  FakeMediaNode,
+  FakeNatsRoomr,
   FakeStt,
   FakeTts,
   MediaEvent,
@@ -91,15 +91,15 @@ describe("@conformance/FakeApp and FakeGateway", function () {
   });
 });
 
-describe("@conformance/FakeMediaNode", function () {
-  let node: FakeMediaNode;
+describe("@conformance/FakeNatsRoomr", function () {
+  let node: FakeNatsRoomr;
 
   afterEach(async function () {
     await node?.stop();
   });
 
   it("acknowledges commands with their id and rejects unknown ones", async function () {
-    node = new FakeMediaNode();
+    node = new FakeNatsRoomr();
     const { roomRef } = node.offerCall();
     expect(
       await node.handle({ type: "hold", id: "c7", roomRef })
@@ -114,7 +114,7 @@ describe("@conformance/FakeMediaNode", function () {
   });
 
   it("exchanges RTP with the session participant negotiated in participant.add", async function () {
-    node = new FakeMediaNode({ callerAudio: { kind: "tone", ms: 200 } });
+    node = new FakeNatsRoomr({ callerAudio: { kind: "tone", ms: 200 } });
     const { roomRef } = node.offerCall({ from: "+1555", to: "+1666" });
     expect(node.events[0].event).to.include({
       type: "call.incoming",
@@ -167,7 +167,7 @@ describe("@conformance/FakeMediaNode", function () {
   });
 
   it("reports dial progress and outcomes", async function () {
-    node = new FakeMediaNode({ answerAfterMs: 10 });
+    node = new FakeNatsRoomr({ answerAfterMs: 10 });
     const { roomRef } = node.offerCall();
     const seen: MediaEvent[] = [];
     node.on("event", (e) => seen.push(e));
@@ -203,7 +203,7 @@ describe("@conformance/FakeMediaNode", function () {
   });
 
   it("ends the room on hangup and on caller hangup", async function () {
-    node = new FakeMediaNode();
+    node = new FakeNatsRoomr();
     const first = node.offerCall();
     await node.handle({ type: "hangup", id: "h1", roomRef: first.roomRef });
     await sleep(5);
@@ -225,7 +225,7 @@ describe("@conformance/FakeMediaNode", function () {
   });
 
   it("refuses unknown commands with unknown_command", async function () {
-    node = new FakeMediaNode();
+    node = new FakeNatsRoomr();
     node.offerCall();
     expect(
       await node.handle({ type: "room.mute_all", id: "x1" })
@@ -233,7 +233,7 @@ describe("@conformance/FakeMediaNode", function () {
   });
 
   it("rings, answers, holds and completes a warm transfer", async function () {
-    node = new FakeMediaNode({ answerAfterMs: 5 });
+    node = new FakeNatsRoomr({ answerAfterMs: 5 });
     const { roomRef } = node.offerCall();
     await node.handle({ type: "ring", id: "r", roomRef });
     await node.handle({ type: "answer", id: "a", roomRef });

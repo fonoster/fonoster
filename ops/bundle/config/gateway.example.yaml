@@ -1,7 +1,7 @@
 # The voice gateway. `fonoster-config init` writes config/gateway.yaml from this file; each
 # ${NAME} stays as written and is read from the gateway's environment (Compose passes .env).
 nats: { url: "nats://nats:4222", user: gateway, password: "${NATS_GATEWAY_PASSWORD}" }
-# The RTP leg to the media node, on the gateway's fixed address.
+# The RTP leg to the Roomr node, on the gateway's fixed address.
 rtp: { host: 0.0.0.0, advertiseHost: "${SUBNET_PREFIX}.43" }
 # Speech vendors. No platform keys: each workspace adds its own in the dashboard (workspaceKeys).
 # For a platform key every workspace shares, add `credential: { value: "<key>" }`.

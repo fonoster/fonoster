@@ -22,13 +22,13 @@ import { expect } from "chai";
 import { randomUUID } from "crypto";
 import { connect, NatsConnection, StringCodec } from "nats";
 import {
-  buildMediaNode,
+  buildRoomr,
   FakeRoomr,
-  MediaNodeBinaries,
-  MediaNodeProcess
+  RoomrBinaries,
+  RoomrProcess
 } from "../src";
 
-// Roomr over gRPC against the Go node (redesign-media-node; decisions 3 and 7): the suite is the
+// Roomr over gRPC against the Go node (redesign-roomr; decisions 3 and 7): the suite is the
 // controller (a Roomr client), the caller bot is the SIP trunk the node dials through, NATS
 // carries the call's events. Needs NATS (CONFORMANCE_NATS_URL) and a Go toolchain.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
@@ -59,14 +59,14 @@ const rejected = (p: Promise<unknown>) =>
 describe("@conformance Roomr CreateCall over gRPC (Go node)", function () {
   this.timeout(60000);
   let nc: NatsConnection;
-  let bins: MediaNodeBinaries | undefined;
-  let node: MediaNodeProcess;
+  let bins: RoomrBinaries | undefined;
+  let node: RoomrProcess;
   let roomr: ReturnType<typeof Roomr.createRoomrPool>;
   const events = new Map<string, Event[]>();
 
   before(async function () {
     if (!NATS_URL) return this.skip();
-    bins = buildMediaNode(NATS_URL);
+    bins = buildRoomr(NATS_URL);
     if (!bins) return this.skip();
     nc = await connect({ servers: NATS_URL });
     nc.subscribe("roomr.events.>", {
@@ -80,7 +80,7 @@ describe("@conformance Roomr CreateCall over gRPC (Go node)", function () {
   });
 
   beforeEach(async function () {
-    node = new MediaNodeProcess(bins!);
+    node = new RoomrProcess(bins!);
     await node.start();
   });
 
@@ -218,7 +218,7 @@ describe("@conformance Roomr CreateCall over gRPC (Go node)", function () {
 
   it("refuses at its room limit with RESOURCE_EXHAUSTED before any INVITE", async function () {
     await node.stop();
-    node = new MediaNodeProcess(bins!);
+    node = new RoomrProcess(bins!);
     node.maxRooms = 1;
     await node.start();
     await roomr.createRoom(node.controlAddr, {});

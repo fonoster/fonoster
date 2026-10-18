@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/** One media node as its heartbeats describe it (media-control, node.heartbeat). */
-export type MediaNodeStatus = {
+/** One Roomr node as its heartbeats describe it (media-control, node.heartbeat). */
+export type RoomrStatus = {
   /** The heartbeat's node_ref. */
   nodeId: string;
   rooms: number;
@@ -35,7 +35,7 @@ export type MediaNodeStatus = {
   seenAt: number;
 };
 
-/** The room limit assumed for a node that reports none (the media node's default). */
+/** The room limit assumed for a node that reports none (the Roomr node's default). */
 export const DEFAULT_MAX_ROOMS = 200;
 
 /** Heartbeats are every 2 s; a node silent for three of them is not offered new calls. */
@@ -48,7 +48,7 @@ export const NODE_STALE_MS = 6000;
 export const NODE_FORGET_MS = 60_000;
 
 /**
- * The media nodes this replica knows, for placing outbound calls (add-media-node 3.3): fed by
+ * The Roomr nodes this replica knows, for placing outbound calls (add-roomr 3.3): fed by
  * the `node.heartbeat` / `node.down` events on `roomr.nodes.<node_ref>.heartbeat` (core NATS;
  * nodes write nothing else). `node.down` only takes the node out of placement: a draining node
  * keeps its live rooms and sends no heartbeats, so it is "gone" only after it stays silent for
@@ -60,7 +60,7 @@ export function createNodeDirectory(
   const staleMs = options.staleMs ?? NODE_STALE_MS;
   const forgetMs = Math.max(options.forgetMs ?? NODE_FORGET_MS, staleMs);
   const now = options.now ?? Date.now;
-  const nodes = new Map<string, MediaNodeStatus>();
+  const nodes = new Map<string, RoomrStatus>();
   let sweptAt = now();
   /** Drops the nodes silent for `forgetMs` (at most once per `staleMs`). */
   const forget = () => {
@@ -119,7 +119,7 @@ export function createNodeDirectory(
       exclude: ReadonlySet<string> = new Set(),
       region?: string
     ): string | undefined {
-      let best: { node: MediaNodeStatus; score: number } | undefined;
+      let best: { node: RoomrStatus; score: number } | undefined;
       for (const n of nodes.values()) {
         if (exclude.has(n.nodeId) || n.down || !n.controlAddr) continue;
         if (now() - n.seenAt > staleMs) continue;
@@ -158,7 +158,7 @@ export function createNodeDirectory(
       const n = nodes.get(nodeId);
       if (n) n.rooms += 1;
     },
-    list(): MediaNodeStatus[] {
+    list(): RoomrStatus[] {
       return [...nodes.values()];
     }
   };

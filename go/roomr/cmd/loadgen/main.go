@@ -1,4 +1,4 @@
-// Command loadgen is the media node's load harness (add-media-node 1.5 and 1.6). It plays both
+// Command loadgen is the Roomr node's load harness (add-roomr 1.5 and 1.6). It plays both
 // the callers and the gateway against a running node:
 //
 //   - a caller bot places -calls SIP calls (one codec, -codec) at -rate calls per second;

@@ -162,8 +162,8 @@ describe("@gateway Pipecat golden test (twilio protocol)", function () {
 
   async function setup(autoHangUp: boolean) {
     harness = await new FakesHarness().start();
-    harness.mediaNode.attachNats(nc);
-    harness.mediaNode.configure({ callerAudio: { kind: "tone", ms: 3000 } });
+    harness.roomrNode.attachNats(nc);
+    harness.roomrNode.configure({ callerAudio: { kind: "tone", ms: 3000 } });
     const botPort = await freePort();
     const httpPort = await freePort();
     record = new MemoryCallRecordSink();
@@ -198,14 +198,14 @@ describe("@gateway Pipecat golden test (twilio protocol)", function () {
     await bot.ready(botPort);
   }
 
-  const commands = () => harness.mediaNode.commands.map((c) => c.command.type);
+  const commands = () => harness.roomrNode.commands.map((c) => c.command.type);
   const endEvents = () =>
     [...record.records.values()].flat().map((e) => e.message.type as string);
 
   it("hears the caller, is heard, barges in with clear, reads DTMF and hangs up through base_url", async function () {
     await setup(true);
     const since = Date.now();
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
 
     const connected = await waitFor(
       () => bot.saw("connected"),
@@ -219,19 +219,19 @@ describe("@gateway Pipecat golden test (twilio protocol)", function () {
       "caller audio at the bot"
     );
     await waitFor(
-      () => harness.mediaNode.outputAudioMs(since) > 500,
+      () => harness.roomrNode.outputAudioMs(since) > 500,
       10000,
       "the bot's audio at the caller"
     );
 
-    harness.mediaNode.pressKey("1");
+    harness.roomrNode.pressKey("1");
     await waitFor(() => bot.saw("interrupted"), 5000, "the bot to interrupt");
     const cut = Date.now();
     await sleep(400);
     // The 4 s tone stopped: nothing audible arrived well after the clear.
-    expect(harness.mediaNode.outputSilentWithinMs(cut)).to.be.lessThan(200);
+    expect(harness.roomrNode.outputSilentWithinMs(cut)).to.be.lessThan(200);
 
-    harness.mediaNode.pressKey("9");
+    harness.roomrNode.pressKey("9");
     await waitFor(() => commands().includes("hangup"), 10000, "the hang-up");
     expect(bot.events.map((e) => e.event)).to.include.members([
       "dtmf",
@@ -243,13 +243,13 @@ describe("@gateway Pipecat golden test (twilio protocol)", function () {
 
   it("hangs up when the bot closes its socket", async function () {
     await setup(false);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     await waitFor(
       () => bot.saw("connected"),
       10000,
       "the bot to get the stream"
     );
-    harness.mediaNode.pressKey("9");
+    harness.roomrNode.pressKey("9");
     await waitFor(
       () => commands().includes("hangup"),
       10000,

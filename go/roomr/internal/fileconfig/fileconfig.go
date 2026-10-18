@@ -1,4 +1,4 @@
-// Package fileconfig loads the media node's config file (unify-config-placeholders): one YAML (or
+// Package fileconfig loads the Roomr node's config file (unify-config-placeholders): one YAML (or
 // JSON) file, /config/roomr.yaml by default, whose values may be ${VAR} or ${VAR:-default}
 // placeholders resolved from the environment, with the same rules as the TypeScript services'
 // interpolateEnv: an unset or empty VAR without a default is an error naming the key path.
@@ -96,7 +96,7 @@ type File struct {
 		Key    string `yaml:"key"`
 		CA     string `yaml:"ca"`
 	} `yaml:"tls"`
-	// Control is Roomr over gRPC (redesign-media-node); off unless control.grpc.listen
+	// Control is Roomr over gRPC (redesign-roomr); off unless control.grpc.listen
 	// is set.
 	Control struct {
 		GRPC struct {
@@ -146,12 +146,12 @@ type Auth struct {
 	Password string `yaml:"password"`
 }
 
-// Registration is one entry of sip.registrations (media-node, "Registration is optional and
+// Registration is one entry of sip.registrations (roomr, "Registration is optional and
 // configured").
 type Registration struct {
 	// Registrar is host:port or a SIP URI (sip:host:port;transport=tcp). Required.
 	Registrar string `yaml:"registrar"`
-	// AOR is the address of record (sip:user@domain); default sip:medianode@<registrar host>.
+	// AOR is the address of record (sip:user@domain); default sip:roomr@<registrar host>.
 	AOR string `yaml:"aor"`
 	// Auth answers a digest challenge; without it a challenge fails the registration.
 	Auth *Auth `yaml:"auth"`

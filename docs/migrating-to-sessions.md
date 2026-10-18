@@ -3,7 +3,7 @@
 Fonoster used to run your app as a gRPC server (`voice.proto`) that the apiserver talked to,
 with Asterisk in front. Every call now reaches your app as one WebSocket **session** that the
 VoiceSessionGateway opens to your app's URL ([session protocol](./session-protocol.md)), and the Go
-media nodes carry the audio. This is a new, incompatible release: nothing from the gRPC stack keeps
+Roomr nodes carry the audio. This is a new, incompatible release: nothing from the gRPC stack keeps
 working, and there are no compatibility shims.
 
 What is gone:
@@ -25,7 +25,7 @@ What is gone:
 | A Twilio Media Streams bot (Pipecat, for example) | [Use the Twilio protocol](#4-twilio-protocol-with-pipecat), no code change |
 | Your own gRPC server speaking `voice.proto` | Use an SDK, or implement [the protocol](./session-protocol.md) |
 | An Autopilot assistant | Nothing. Autopilot is an ordinary app of the platform |
-| Numbers created before this release | Run `repointNumbersCli` (sipnet) to move them from `sip:voice@default` to the media-node peer |
+| Numbers created before this release | Run `repointNumbersCli` (sipnet) to move them from `sip:voice@default` to the roomr peer |
 
 ## 1. SDK users: rewrite the handler
 
@@ -195,5 +195,5 @@ against the gateway.
 - [ ] Replace `dial`, `stream`, `sgather`, `record`, `setAudioFilters`, `mute` and `unmute`
 - [ ] Decide recording as app policy
 - [ ] Remove `mediaService`, `amd`, `audioFilters`, `routr.defaultPeer` and `routr.engines` from
-      `fonoster.yaml`; set `routr.mediaNodePeer.password`
-- [ ] Move numbers created before this release to the media-node peer (`repointNumbersCli`)
+      `fonoster.yaml`; set `routr.roomrPeer.password`
+- [ ] Move numbers created before this release to the roomr peer (`repointNumbersCli`)

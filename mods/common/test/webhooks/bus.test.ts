@@ -108,7 +108,7 @@ describe("@common/webhooks bus fan-out (task 2.2)", function () {
       publish: (e) => dispatcher.publish(e),
       workspaceOfApp: async (appRef) => (appRef === "support" ? "W" : undefined)
     });
-    // A media node refusing a call no gateway claimed knows only the app.
+    // A Roomr node refusing a call no gateway claimed knows only the app.
     busWebhookPublisher(bus)(callFailed("", { ...call, reason: "node_error" }));
     busWebhookPublisher(bus)(
       callFailed("", { ...call, appRef: "unknown", reason: "node_error" })
@@ -169,7 +169,7 @@ describe("@common/webhooks bus fan-out (task 2.2)", function () {
   });
 });
 
-// M6: media nodes report unclaimed calls on their own subject; the control plane builds the
+// M6: Roomr nodes report unclaimed calls on their own subject; the control plane builds the
 // webhook event and trusts nothing but the call's parties, app and a node reason.
 describe("@common/webhooks node call.failed reports", function () {
   const enc = (o: unknown) => new TextEncoder().encode(JSON.stringify(o));

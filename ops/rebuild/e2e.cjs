@@ -20,7 +20,7 @@
 /* global process, console, setTimeout, fetch */
 // `ops/rebuild/stack e2e`: the nightly end-to-end call (conformance "End-to-end caller bot",
 // harden-conformance 2.3). The caller bot dials the seeded number through Routr; the call reaches
-// the hosted Autopilot app over the media node and the gateway (fake STT, TTS and LLM). It checks:
+// the hosted Autopilot app over the Roomr node and the gateway (fake STT, TTS and LLM). It checks:
 //
 //   1. the call is answered and the caller hears the greeting
 //   2. the caller speaks and hears the agent's reply (audio both ways, one conversation turn)
@@ -108,7 +108,7 @@ async function main() {
   const report = { startedAt: new Date().toISOString() };
   const startedAt = Date.now() - 1000;
 
-  // 1. Answered, greeting heard. Routr answers 480 until the media node registers: retry.
+  // 1. Answered, greeting heard. Routr answers 480 until the Roomr node registers: retry.
   let call;
   for (let i = 0; ; i++) {
     call = await http("POST", `${caller}/calls`, {
