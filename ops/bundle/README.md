@@ -15,6 +15,12 @@ npx -p @fonoster/common fonoster-config info
 3. `info` prints the dashboard URL, the owner login and the SIP address.
 
 Run `npx -p @fonoster/common fonoster-config check` to validate `config/` before starting.
+
+The dashboard and API use plain HTTP on `HTTP_PORT` (8449) by default. On the internet, turn on
+HTTPS: set `COMPOSE_FILE=compose.yaml:compose.tls.yaml`, `TLS_CERT`, `TLS_KEY` and
+`PUBLIC_URL=https://<domain>` in `.env` (see `.env.example` and `compose.tls.yaml`), run `init`
+again and `docker compose up -d`. Envoy then serves 443 with your certificate and redirects 80.
+Or keep plain HTTP behind your own TLS proxy with `HTTP_BIND=127.0.0.1`.
 Vendor keys (Deepgram, ElevenLabs, OpenAI, Groq...) are added per workspace in the dashboard.
 
 Call records being written live in the `gateway-records` volume (`callRecord.dir` in

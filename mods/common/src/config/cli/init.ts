@@ -26,6 +26,7 @@ import {
   serializeEnvLines,
   writeWithMode
 } from "./envFile";
+import { exposureWarnings } from "./exposure";
 import { renderConfigDir, RenderError } from "./render";
 import { detectHostIp, ensureKeys, generateSecret } from "./secrets";
 import { Io } from "./types";
@@ -165,6 +166,7 @@ export async function runInit(options: InitOptions, io: Io): Promise<number> {
   );
   io.out(`config: ${rendered.map((f) => `config/${f}`).join(", ")}`);
   io.out(`host address: ${hostIp}`);
+  exposureWarnings(env, dir).forEach((w) => io.err(`warning: ${w}`));
   io.out("");
   io.out("Next: docker compose up -d");
   io.out(
