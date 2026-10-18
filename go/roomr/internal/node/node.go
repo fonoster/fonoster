@@ -69,6 +69,10 @@ type Config struct {
 	// and how it picks among a caller's offer. Empty: audio.PhoneCodecs (opus/48000/2, G.722,
 	// PCMU, PCMA; Opus only when built with libopus). Leave Opus out to disable it.
 	Codecs []string
+	// CallRefHeader is the SIP header that carries a call's call_ref (e.g. X-Call-Ref; empty:
+	// none). An inbound INVITE's value becomes the call_ref when well formed (else the node picks
+	// one); a CreateCall's to.headers value is accepted as its call_ref.
+	CallRefHeader string
 	// Heartbeat facts for controllers (media-control "Heartbeat"): the Roomr address they
 	// dial, the SIP address, the RTP port range ([0, 0]: any), the node's version and region.
 	ControlAddr, SIPAddr string
@@ -509,6 +513,7 @@ func (n *Node) room(ref string) *Room {
 // Incoming handles an INVITE: a room with the caller, then call.incoming until a gateway claims
 // it; no claim within the timeout, twice, refuses the call with 503.
 func (n *Node) Incoming(call IncomingCall) {
+	call.CallRef = n.inboundCallRef(call.Headers)
 	ctx, endSpan := telemetry.StartCall(context.Background(), "roomr.call.incoming", call.CallRef)
 	defer endSpan()
 	if _, _, ok := call.Media.ChoosePreferred(n.cfg.Codecs...); !ok {
@@ -560,9 +565,7 @@ func (n *Node) Incoming(call IncomingCall) {
 	if call.AppRef != "" {
 		ev["appRef"] = call.AppRef
 	}
-	if call.CallRef != "" {
-		ev["callRef"] = call.CallRef
-	}
+	ev["callRef"] = call.CallRef
 	data, _ := json.Marshal(ev)
 	// The call's trace continues in the gateway that claims it (traceparent header).
 	req := &nats.Msg{Subject: IncomingSubject, Data: data, Header: nats.Header{}}
@@ -586,7 +589,7 @@ func (n *Node) Incoming(call IncomingCall) {
 	n.cfg.Logger.Warn("no gateway claimed the call", "room", room.Ref, telemetry.CallRefKey, call.CallRef)
 	_ = call.Leg.Reject(503)
 	room.end(ReasonNodeError, 503, "")
-	n.publishCallFailed(orDefault(call.CallRef, room.Ref), call, ReasonNodeError)
+	n.publishCallFailed(call.CallRef, call, ReasonNodeError)
 }
 
 // CallerGone is a BYE or CANCEL from the caller.

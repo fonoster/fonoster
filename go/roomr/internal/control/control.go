@@ -44,6 +44,7 @@ var codeFor = map[string]codes.Code{
 	node.CodeAtCapacity:          codes.ResourceExhausted,
 	node.CodeRoomFull:            codes.ResourceExhausted,
 	node.CodeRoomExists:          codes.AlreadyExists,
+	node.CodeCallExists:          codes.AlreadyExists,
 	node.CodeRoomNotFound:        codes.NotFound,
 	node.CodeCallNotFound:        codes.NotFound,
 	node.CodeParticipantNotFound: codes.NotFound,

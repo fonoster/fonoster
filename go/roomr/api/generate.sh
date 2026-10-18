@@ -10,3 +10,6 @@ protoc -I . \
   --go_out=. --go_opt=paths=source_relative \
   --go-grpc_out=. --go-grpc_opt=paths=source_relative \
   roomr/v1/roomr.proto
+# The TypeScript controller (@fonoster/common, roomr) loads a copy of the proto at run time; keep
+# it identical (mods/common/test/roomr/roomrClient.test.ts checks).
+cp roomr/v1/roomr.proto ../../../mods/common/src/protos/roomr.proto

@@ -311,7 +311,6 @@ func (u *UA) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 	from, to := req.From(), req.To()
 	call := node.IncomingCall{
 		AppRef:    header(req, "X-App-Ref"),
-		CallRef:   header(req, "X-Call-Ref"),
 		Direction: directionOf(header(req, "X-Call-Direction")),
 		Headers:   headers,
 		Media:     media,

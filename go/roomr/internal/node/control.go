@@ -24,6 +24,7 @@ const (
 	CodeDraining            = "draining"
 	CodeAtCapacity          = "at_capacity"
 	CodeRoomExists          = "room_exists"
+	CodeCallExists          = "call_exists"
 	CodeRoomNotFound        = "room_not_found"
 	CodeCallNotFound        = "call_not_found"
 	CodeParticipantNotFound = "participant_not_found"
@@ -108,7 +109,9 @@ type CallInfo struct {
 }
 
 type callEntry struct {
-	info    CallInfo
+	info CallInfo
+	// req is the CreateCall that placed the call (zero for inbound calls): a repeat must match it.
+	req     CallRequest
 	labels  map[string]string
 	inbound bool
 	// removed is an EndCall while ringing: the dial was cancelled on purpose.
@@ -117,9 +120,53 @@ type callEntry struct {
 	endedAt time.Time
 }
 
-// endedCallTTL is how long an ended call is remembered, so a repeated CreateCall with its
-// call_ref returns it instead of dialing again.
+// endedCallTTL is the dedupe window: how long an ended call is remembered, so a repeated
+// CreateCall with its call_ref returns it instead of dialing again.
 const endedCallTTL = 5 * time.Minute
+
+// headerValue looks a header up by name, ignoring case (SIP header names are case-insensitive).
+func headerValue(headers map[string]string, name string) (string, bool) {
+	if name == "" {
+		return "", false
+	}
+	for k, v := range headers {
+		if strings.EqualFold(k, name) {
+			return v, true
+		}
+	}
+	return "", false
+}
+
+// wellFormedRef reports whether a call-ref header value can be a call_ref (one subject token).
+func wellFormedRef(v string) bool { return v != "" && validToken(v) }
+
+// inboundCallRef is an inbound call's call_ref: the configured call-ref header's value when it
+// is well formed and names no call the node knows, else a new ref.
+func (n *Node) inboundCallRef(headers map[string]string) string {
+	if v, ok := headerValue(headers, n.cfg.CallRefHeader); ok && wellFormedRef(v) && n.ctl.get(v) == nil {
+		return v
+	}
+	return n.nextRef("call")
+}
+
+// sameCall reports whether two CreateCall requests for one call_ref ask for the same call.
+func sameCall(a, b CallRequest) bool {
+	same := func(x, y map[string]string) bool {
+		if len(x) != len(y) {
+			return false
+		}
+		for k, v := range x {
+			if w, ok := y[k]; !ok || w != v {
+				return false
+			}
+		}
+		return true
+	}
+	return a.CallRef == b.CallRef && a.RoomRef == b.RoomRef && a.From == b.From &&
+		a.RingTimeout == b.RingTimeout && a.MaxDuration == b.MaxDuration && same(a.Labels, b.Labels) &&
+		a.To.URI == b.To.URI && a.To.Proxy == b.To.Proxy && same(a.To.Headers, b.To.Headers) &&
+		a.To.Username == b.To.Username && a.To.Password == b.To.Password
+}
 
 // callTable is the node's calls by call_ref (CreateCall, and inbound calls with X-Call-Ref).
 type callTable struct {
@@ -253,9 +300,21 @@ func (n *Node) EndRoom(ref string) error {
 
 // CreateCall dials req.To into req.RoomRef (created when missing, or a new room) and returns
 // the Call ringing; progress and the answer are published as events, as for participant.dial.
+// The configured call-ref header in req.To.Headers names the call when call_ref is empty (both
+// set and different: bad_message). A repeated call_ref returns the call it names (ended calls
+// for endedCallTTL), or call_exists when the request differs.
 func (n *Node) CreateCall(req CallRequest) (CallInfo, error) {
 	if err := req.To.check(); err != nil {
 		return CallInfo{}, err
+	}
+	if v, ok := headerValue(req.To.Headers, n.cfg.CallRefHeader); ok {
+		switch {
+		case !wellFormedRef(v):
+			return CallInfo{}, errorf(CodeBadMessage, "header %s must be one token without dots or spaces", n.cfg.CallRefHeader)
+		case req.CallRef != "" && req.CallRef != v:
+			return CallInfo{}, errorf(CodeBadMessage, "call_ref and header %s differ", n.cfg.CallRefHeader)
+		}
+		req.CallRef = v
 	}
 	if req.CallRef == "" {
 		req.CallRef = n.nextRef("call")
@@ -263,6 +322,9 @@ func (n *Node) CreateCall(req CallRequest) (CallInfo, error) {
 	n.ctl.mu.Lock()
 	if e := n.ctl.calls[req.CallRef]; e != nil {
 		n.ctl.mu.Unlock()
+		if e.inbound || !sameCall(e.req, req) {
+			return CallInfo{}, errorf(CodeCallExists, "call %s exists with other parameters", req.CallRef)
+		}
 		return n.callInfo(e), nil
 	}
 	dialer := n.ctl.dialer
@@ -275,7 +337,6 @@ func (n *Node) CreateCall(req CallRequest) (CallInfo, error) {
 		return CallInfo{}, errDraining
 	}
 	var r *Room
-	owned := false
 	if req.RoomRef != "" {
 		r = n.room(req.RoomRef)
 	}
@@ -285,7 +346,6 @@ func (n *Node) CreateCall(req CallRequest) (CallInfo, error) {
 			n.ctl.mu.Unlock()
 			return CallInfo{}, err
 		}
-		owned = true
 	}
 	timeout := req.RingTimeout
 	if timeout <= 0 {
@@ -293,13 +353,15 @@ func (n *Node) CreateCall(req CallRequest) (CallInfo, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	e := &callEntry{info: CallInfo{CallRef: req.CallRef, RoomRef: r.Ref, State: CallRinging},
-		labels: req.Labels, cancel: cancel}
+		req: req, labels: req.Labels, cancel: cancel}
 	n.ctl.putLocked(e)
 	info := e.info
 	n.ctl.mu.Unlock()
+	// A room waiting on this dial is not an empty room (orphans.go).
+	r.dialStarted()
 	n.openCall(req.CallRef, r.Ref, "", req.Labels, Event{"direction": "outbound", "from": req.From, "to": req.To.URI})
 	r.setMaxDuration(maxDurationCmd(req.MaxDuration))
-	go n.runCall(ctx, cancel, r, owned, e, req, dialer)
+	go n.runCall(ctx, cancel, r, e, req, dialer)
 	return info, nil
 }
 
@@ -315,7 +377,7 @@ func failCause(status int) string {
 	}
 }
 
-func (n *Node) runCall(ctx context.Context, cancel context.CancelFunc, r *Room, owned bool, e *callEntry,
+func (n *Node) runCall(ctx context.Context, cancel context.CancelFunc, r *Room, e *callEntry,
 	req CallRequest, dialer TargetDialer) {
 	defer cancel()
 	ref := req.CallRef
@@ -333,6 +395,7 @@ func (n *Node) runCall(ctx context.Context, cancel context.CancelFunc, r *Room, 
 	p, err := r.dialLeg(func(offer []byte, onProgress func(int)) (OutLeg, []byte, error) {
 		return dialer.DialTarget(ctx, req.To, req.From, offer, onProgress)
 	}, func() {})
+	empty := r.dialEnded()
 	n.ctl.mu.Lock()
 	removed := e.removed
 	if err != nil {
@@ -349,7 +412,8 @@ func (n *Node) runCall(ctx context.Context, cancel context.CancelFunc, r *Room, 
 		}
 		n.cfg.Logger.Warn("create call failed", "room", r.Ref, "callRef", ref, "err", err)
 		n.emit(r.Ref, event("call.progress", Event{"status": progressStatus(status), "sipStatus": status, "cause": cause}))
-		if owned && r.empty() {
+		if empty {
+			// A dial that fails in an otherwise empty room ends the room with its outcome.
 			r.end(cause, status, ref)
 		}
 		return
@@ -360,12 +424,6 @@ func (n *Node) runCall(ctx context.Context, cancel context.CancelFunc, r *Room, 
 		// EndCall raced the answer.
 		r.remove(p.Ref, ref, ReasonRemoved)
 	}
-}
-
-func (r *Room) empty() bool {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	return len(r.participants) == 0 && len(r.listeners) == 0
 }
 
 // EndCall ends a call: CANCEL while ringing, BYE once answered; an inbound call ends its room,

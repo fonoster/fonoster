@@ -87,7 +87,8 @@ func startWith(t *testing.T, o rigOptions) *rig {
 		t.Fatal(err)
 	}
 	id := fmt.Sprintf("e2e-%d", time.Now().UnixNano())
-	cfg := node.Config{NodeID: id, Heartbeat: 200 * time.Millisecond, ClaimTimeout: 200 * time.Millisecond}
+	cfg := node.Config{NodeID: id, Heartbeat: 200 * time.Millisecond, ClaimTimeout: 200 * time.Millisecond,
+		CallRefHeader: "X-Call-Ref"}
 	if o.nodeCfg != nil {
 		o.nodeCfg(&cfg)
 	}

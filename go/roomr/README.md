@@ -113,7 +113,9 @@ Roomr is the redesigned media node (OpenSpec change `redesign-media-node`). Its 
 the `roomr.v1.Roomr` gRPC service (`api/roomr/v1/roomr.proto`): `CreateCall`,
 `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record` and `SendDtmf`. It runs
 **next to** the NATS commands: both work, every RPC calls the same room operation as the NATS
-command for the same action, and events stay on NATS (`media.<nodeId>.events.<roomRef>`).
+command for the same action, and events stay on NATS (`media.<nodeId>.events.<roomRef>`). The
+apiserver places API-originated calls with `CreateRoom` and `CreateCall` here; the gateway's own
+commands stay on NATS until the control stream replaces them.
 
 It is off unless a listen address is set:
 
@@ -132,10 +134,14 @@ or `-control-grpc 0.0.0.0:50061` with `-control-grpc-cert`, `-control-grpc-key` 
 `-control-grpc-client-ca`. Keep the port private to the controller (the apiserver) unless TLS
 with client certificates is on.
 
+`sip.callRefHeader` (`-call-ref-header`, e.g. `X-Call-Ref`; none by default) names the header
+that carries a call's `call_ref`: an inbound INVITE's well-formed value becomes the call's ref
+(otherwise the node picks one), and `CreateCall` accepts it from `to.headers`.
+
 | RPC | Today |
 | --- | --- |
-| `CreateCall` | INVITE to `to.uri` through `to.proxy` (a loose `Route`), `to.headers` added untouched (core SIP headers refused), digest `to.auth`; `from` is the From user or URI; `room_ref` joins the room or creates it with that ref; idempotent `call_ref`; `ring_timeout_s` (60 s), `max_duration_s`, `labels` echoed in this call's `call.progress` / `call.answered` / `participant.joined`. Busy, no answer or rejection publish `call.progress` with `sipStatus` and `cause` and end the room the call created |
-| `EndCall` | CANCEL while ringing, BYE once answered; inbound calls (by `X-Call-Ref`) end like `hangup` |
+| `CreateCall` | INVITE to `to.uri` through `to.proxy` (a loose `Route`), `to.headers` added untouched (core SIP headers refused), digest `to.auth`; `from` is the From user or URI (empty: the first registration's identity); `room_ref` joins the room or creates it with that ref; `call_ref` is idempotent for 5 minutes after the call ends (the same `Call`, no second INVITE) and `ALREADY_EXISTS` when repeated with other parameters; the `sip.callRefHeader` in `to.headers` is the `call_ref` when `call_ref` is empty (both set and different: `INVALID_ARGUMENT`); `ring_timeout_s` (60 s), `max_duration_s`, `labels` echoed in this call's `call.progress` / `call.answered` / `participant.joined`. Busy, no answer or rejection publish `call.progress` with `sipStatus` and `cause` and end the room when nobody else is in it |
+| `EndCall` | CANCEL while ringing, BYE once answered; inbound calls (by their `call_ref`) end like `hangup` |
 | `CreateRoom` / `EndRoom` | `room.create` with an optional ref (`ALREADY_EXISTS` when taken) / `room.end` |
 | `Join` / `Leave` | RTP participants (`participant.add`) and listen-only participants (`listener.attach`); WebRTC answers `UNIMPLEMENTED` |
 | `Play` | a PCM16 WAV URL (fetched like hold music: public destinations only, unless `allowedDestinations`) mixed into a call, a participant or the whole room; `operation.done` with `completed`, `failed` or `stopped` |

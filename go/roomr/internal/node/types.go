@@ -44,11 +44,13 @@ type CallLeg interface {
 // IncomingCall is an INVITE from Routr, already parsed.
 type IncomingCall struct {
 	From, To, CallerName string
-	AppRef, CallRef      string
-	Direction            string
-	Headers              map[string]string
-	Media                sdp.Media
-	Leg                  CallLeg
+	AppRef               string
+	// CallRef is set by the node (Config.CallRefHeader); the SIP layer leaves it empty.
+	CallRef   string
+	Direction string
+	Headers   map[string]string
+	Media     sdp.Media
+	Leg       CallLeg
 	// OnRoom is told the room the call joined, before it is offered to the gateways.
 	OnRoom func(roomRef string)
 }

@@ -154,6 +154,7 @@ func main() {
 	codecList := flag.String("codecs", or(strings.Join(fc.Codecs, ","), ""), "SIP-leg codecs in preference order (default opus,G722,PCMU,PCMA); leave opus out to disable it")
 	region := flag.String("region", or(fc.Region, ""), "the node's region in its heartbeat (controllers place calls in the call's region)")
 	grpcAdvertise := flag.String("control-grpc-advertise", or(fc.Control.GRPC.Advertise, ""), "host:port controllers dial for Roomr (heartbeat control_addr); empty: the listen port on -sip-advertise's host")
+	callRefHeader := flag.String("call-ref-header", or(fc.SIP.CallRefHeader, ""), "SIP header carrying a call's call_ref (e.g. X-Call-Ref): inbound INVITEs and CreateCall to.headers; empty: none")
 	flag.Parse()
 	if *rtpMax != 0 {
 		if *rtpMin <= 0 || *rtpMin > *rtpMax {
@@ -229,7 +230,7 @@ func main() {
 		Heartbeat: *heartbeat, MaxDuration: *maxDuration, MaxParticipants: *maxParticipants, MaxRooms: *maxRooms,
 		MediaTimeout: *mediaTimeout, RequireEncryption: *requireEnc, Logger: logger,
 		EmptyRoomTimeout: *emptyRoomTimeout, OwnerTimeout: *ownerTimeout,
-		AllowedDestinations: allowedDestinations(fc), Codecs: codecs,
+		AllowedDestinations: allowedDestinations(fc), Codecs: codecs, CallRefHeader: *callRefHeader,
 		Version: version, Region: *region, RTPPorts: [2]int{*rtpMin, *rtpMax},
 		SIPAddr: advertised(*sipListen, *sipAdvertise), ControlAddr: or(*grpcAdvertise, advertised(*grpcListen, *sipAdvertise))})
 	// The PEM settings are file paths or secret:// references (edgetls, add-platform 4.2).

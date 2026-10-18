@@ -35,6 +35,9 @@ type File struct {
 		Advertise string `yaml:"advertise"`
 		// Registrations are the REGISTERs the node keeps; none (the default) sends no REGISTER.
 		Registrations []Registration `yaml:"registrations"`
+		// CallRefHeader names the header that carries a call's call_ref (e.g. X-Call-Ref);
+		// empty: none.
+		CallRefHeader string `yaml:"callRefHeader"`
 	} `yaml:"sip"`
 	RTP struct {
 		Host      string `yaml:"host"`
