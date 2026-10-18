@@ -18,7 +18,6 @@
  */
 export * from "./Agent";
 export * from "./config";
-export * from "./convertLegacyAssistant";
 export * from "./createAutopilot";
 export * from "./hosted";
 export * from "./knowledge";

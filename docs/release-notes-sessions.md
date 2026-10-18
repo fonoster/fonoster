@@ -25,8 +25,8 @@ incompatible release: there are no compatibility shims.
 6. **Assistant webhooks are retired.** `eventsHook` and its `conversation.started` /
    `conversation.ended` events are gone. Subscribe a workspace webhook to `call.started`,
    `call.ended` (the call is over) or `call_record.sealed` (the record, with transcript, turns and
-   recording, is ready). `fonoster-migrate-legacy` creates that webhook for every assistant that
-   had an `eventsHook`; creating one with a retired event name is refused with the replacement.
+   recording, is ready). Creating a webhook with a retired event name is refused with the
+   replacement.
 7. **Recording URLs are no longer built by convention.** `${RECORDING_BASE_URL}/${appRef}_${id}.wav`
    is gone: a call's recording is a part of its call record (`GET /api/records/{callRef}/recording`,
    the dashboard's Calls page, `fonoster records:download`).

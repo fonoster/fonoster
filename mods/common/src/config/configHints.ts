@@ -16,38 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type Env = Record<string, string | undefined>;
-
-/** Old key path → new key path, e.g. `{ encryptionKey: "encryption.key" }`. */
-type MovedKeys = Record<string, string>;
-
-function hasPath(input: unknown, path: string): boolean {
-  let current: unknown = input;
-
-  for (const segment of path.split(".")) {
-    if (
-      current === null ||
-      typeof current !== "object" ||
-      !(segment in (current as Record<string, unknown>))
-    ) {
-      return false;
-    }
-    current = (current as Record<string, unknown>)[segment];
-  }
-
-  return true;
-}
-
-/**
- * Lists the moved keys present in a raw config, as readable hints. The new
- * location may itself be valid, so this only reports what was found.
- */
-function findMovedKeys(raw: unknown, movedKeys: MovedKeys): string[] {
-  return Object.entries(movedKeys)
-    .filter(([from]) => hasPath(raw, from))
-    .map(([from, to]) => `"${from}" moved to "${to}"`);
-}
-
 /** Edit distance between two strings (insertions, deletions, substitutions). */
 function levenshtein(a: string, b: string): number {
   let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
@@ -79,4 +47,4 @@ function suggestKey(unknown: string, known: string[]): string | undefined {
   return best?.key;
 }
 
-export { findMovedKeys, levenshtein, suggestKey, MovedKeys };
+export { levenshtein, suggestKey };

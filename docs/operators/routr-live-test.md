@@ -80,7 +80,7 @@ Routr runs in Docker. The node, the caller bot and the gateway run on the host.
 | Number | `tel:+17853178070`: aorLink `sip:medianode@rig.local`, trunkRef as above, extra header `x-app-ref: app-rig` |
 
 The code is in `mods/appbridge/test/routr/provision.ts`. It also works as a reference for setting up
-a real media-node Peer (see `docs/operators/cutover.md`).
+a real media-node Peer.
 
 ## Things that tripped the first run
 

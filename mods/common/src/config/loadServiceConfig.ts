@@ -19,7 +19,6 @@
 import { existsSync, readFileSync } from "fs";
 import { getLogger } from "@fonoster/logger";
 import { z, ZodError, ZodTypeAny } from "zod";
-import { findMovedKeys, MovedKeys } from "./configHints";
 import { interpolateEnv } from "./interpolateEnv";
 import { parseConfigFile } from "./parseConfigFile";
 import { resolveConfigFile } from "./resolveConfigFile";
@@ -49,8 +48,6 @@ type LoadServiceConfigOptions<S extends ZodTypeAny> = {
    * else is an error.
    */
   interpolatePaths?: string[];
-  /** Old key path → new key path, reported as hints. */
-  movedKeys?: MovedKeys;
 };
 
 /**
@@ -121,13 +118,6 @@ function loadServiceConfig<S extends ZodTypeAny>(
     const rest = { ...(raw as Record<string, unknown>) };
     delete rest.$schema;
     raw = rest;
-  }
-
-  const moved = findMovedKeys(raw, options.movedKeys ?? {});
-  if (moved.length > 0) {
-    throw new Error(
-      `invalid ${service} config at ${where}: ${moved.join("; ")}`
-    );
   }
 
   let interpolated: unknown;
