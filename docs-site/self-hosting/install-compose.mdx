@@ -151,8 +151,8 @@ Everything lives in the `fonoster` folder:
 | Path           | What it holds                                                    |
 | -------------- | ---------------------------------------------------------------- |
 | `.env`         | Ports, the host address, the owner's login and every generated secret |
-| `config/`      | Each service's settings, written by `init` from the examples. They name secrets as `${NAME}`, which each container reads from `.env` |
-| `config/keys/` | The signing keys                                                  |
+| `config/`      | Each service's settings, written by `init` from the examples. They name secrets as `${NAME}`; Compose passes each container only the values its own file names (its `environment:` list in `compose.yaml`) |
+| `config/keys/` | The signing keys. Only the API server mounts Identity's private key; the gateway gets the public key and its call-record key |
 
 <Warning>
   Back up `.env`. Its encryption key protects the vendor keys you store, and they can't be recovered

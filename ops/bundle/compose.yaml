@@ -9,10 +9,11 @@
 #
 # Every Fonoster service reads one YAML file, mounted at /config/<service>.yaml from config/
 # (written by `fonoster-config init` from the config/*.example.yaml next to it). Secrets are not in
-# those files: they hold ${NAME} placeholders the service resolves from its environment, which
-# Compose fills from .env (env_file). The ${NAME} values in this file come from .env too: host
-# ports, the image version, the host address and the secrets third-party containers take from the
-# environment.
+# those files: they hold ${NAME} placeholders the service resolves from its environment. Each
+# service's `environment:` passes it only the .env values its own file names, never the whole
+# .env, and only the API server (Identity) mounts Identity's private signing key; the others get
+# the public key. The ${NAME} values in this file come from .env: host ports, the image version,
+# the host address and the secrets.
 name: ${COMPOSE_PROJECT_NAME:-fonoster}
 
 # One network with fixed addresses for the SIP and RTP parties (SDP needs addresses, not names).
@@ -128,7 +129,16 @@ services:
     stop_grace_period: ${MEDIANODE_DRAIN_GRACE:-10m}
     depends_on:
       nats: { condition: service_healthy }
-    env_file: ${FONOSTER_ENV_FILE:-.env}
+    # The ${NAME}s in config/medianode.yaml, nothing else from .env.
+    environment:
+      MEDIANODE_ID: ${MEDIANODE_ID:-}
+      MEDIANODE_PASSWORD: ${MEDIANODE_PASSWORD:?run fonoster-config init}
+      MEDIANODE_RTP_PORT_MIN: ${MEDIANODE_RTP_PORT_MIN:-11000}
+      MEDIANODE_RTP_PORT_MAX: ${MEDIANODE_RTP_PORT_MAX:-11999}
+      NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD:?run fonoster-config init}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      SIP_PORT: ${SIP_PORT:-5060}
+      SUBNET_PREFIX: ${SUBNET_PREFIX:-10.216.30}
     volumes:
       - ${CONFIG_DIR:-./config}/medianode.yaml:/config/medianode.yaml:ro
     ports:
@@ -145,10 +155,23 @@ services:
       nats: { condition: service_healthy }
       # Healthy = migrated and serving: the gateway reads the apps tables at start.
       apiserver: { condition: service_healthy }
-    env_file: ${FONOSTER_ENV_FILE:-.env}
+    # The ${NAME}s in config/gateway.yaml (CLICKHOUSE_* only with call-record analytics).
+    environment:
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fonoster}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run fonoster-config init}
+      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD:?run fonoster-config init}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
+      SUBNET_PREFIX: ${SUBNET_PREFIX:-10.216.30}
     volumes:
       - ${CONFIG_DIR:-./config}/gateway.yaml:/config/gateway.yaml:ro
-      - ${CONFIG_DIR:-./config}/keys:/etc/fonoster/keys:ro
+      # Identity's public key (test-call tokens) and the gateway's own call-record key; never
+      # Identity's private key, which only the API server holds.
+      - ${CONFIG_DIR:-./config}/keys/public.pem:/etc/fonoster/keys/public.pem:ro
+      - ${CONFIG_DIR:-./config}/keys/records.pem:/etc/fonoster/keys/records.pem:ro
     networks:
       default:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.43
@@ -160,7 +183,12 @@ services:
     restart: unless-stopped
     depends_on:
       apiserver: { condition: service_healthy }
-    env_file: ${FONOSTER_ENV_FILE:-.env}
+    # The ${NAME}s in config/autopilot.yaml.
+    environment:
+      AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?run fonoster-config init}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
     volumes:
       - ${CONFIG_DIR:-./config}/autopilot.yaml:/config/autopilot.yaml:ro
     expose:
@@ -196,7 +224,24 @@ services:
       postgres: { condition: service_healthy }
       nats: { condition: service_healthy }
       routr: { condition: service_started }
-    env_file: ${FONOSTER_ENV_FILE:-.env}
+    # The ${NAME}s in config/fonoster.yaml.
+    environment:
+      AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?run fonoster-config init}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
+      HOST_IP: ${HOST_IP:?run fonoster-config init}
+      HTTP_PORT: ${HTTP_PORT:-8449}
+      MEDIANODE_PASSWORD: ${MEDIANODE_PASSWORD:?run fonoster-config init}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fonoster}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run fonoster-config init}
+      NATS_APISERVER_PASSWORD: ${NATS_APISERVER_PASSWORD:?run fonoster-config init}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OWNER_EMAIL: ${OWNER_EMAIL:-admin@fonoster.local}
+      OWNER_PASSWORD: ${OWNER_PASSWORD:?run fonoster-config init}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8449}
+      RTPENGINE_PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
+      RTPENGINE_PORT_MAX: ${RTPENGINE_PORT_MAX:-10999}
+      SIP_PORT: ${SIP_PORT:-5060}
     volumes:
       - ${CONFIG_DIR:-./config}/fonoster.yaml:/config/fonoster.yaml:ro
       - ${CONFIG_DIR:-./config}/keys:/opt/fonoster/keys:ro

@@ -36,14 +36,29 @@ export type NatsConnectionConfig = z.infer<typeof natsConnectionSchema>;
 /** A NATS URL or full connection settings. */
 export type NatsTarget = string | NatsConnectionConfig;
 
+/**
+ * The inbox prefix of a NATS user: replies to its requests (and JetStream deliveries) arrive
+ * under `_INBOX_<user>.`, the only inbox its permissions let it subscribe to, so no service can
+ * read another's replies (nats-permissions/*.conf).
+ */
+export function natsInboxPrefix(user: string): string {
+  return `_INBOX_${user}`;
+}
+
 /** nats.js `connect` options for a URL or a `{ url, user, password }` setting. */
 export function natsConnectOptions(nats: NatsTarget): {
   servers: string;
   user?: string;
   pass?: string;
+  inboxPrefix?: string;
 } {
   if (typeof nats === "string") return { servers: nats };
   return nats.user
-    ? { servers: nats.url, user: nats.user, pass: nats.password ?? "" }
+    ? {
+        servers: nats.url,
+        user: nats.user,
+        pass: nats.password ?? "",
+        inboxPrefix: natsInboxPrefix(nats.user)
+      }
     : { servers: nats.url };
 }

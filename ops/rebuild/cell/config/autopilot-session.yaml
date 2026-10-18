@@ -2,6 +2,8 @@
 # control plane); LLM keys from the cell's secret store. Conversations never leave the cell.
 port: 3000
 signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
+# The URL the cell's Autopilot apps point to (region-agent.yaml autopilot.url).
+publicUrl: "ws://autopilot:3000"
 assistants: { source: database }
 registry: { source: database }
 workspaceSecrets:

@@ -177,7 +177,9 @@ func main() {
 			logger.Error("nats password", "err", err)
 			os.Exit(1)
 		}
-		natsOpts = append(natsOpts, nats.UserInfo(*natsUser, pass))
+		// Replies arrive under the user's own inbox prefix, the only inbox its NATS permissions
+		// let it read (nats-permissions/medianode.conf): no service reads another's replies.
+		natsOpts = append(natsOpts, nats.UserInfo(*natsUser, pass), nats.CustomInboxPrefix(natsInboxPrefix(*natsUser)))
 	}
 	sipPassword, err := secretref.Resolve(*password)
 	if err != nil {
@@ -296,4 +298,10 @@ func allowedDestinations(fc *fileconfig.File) []string {
 		return fc.AllowedDestinations
 	}
 	return strings.Split(os.Getenv("FONOSTER_ALLOWED_DESTINATIONS"), ",")
+}
+
+// natsInboxPrefix is the inbox prefix of a NATS user, `_INBOX_<user>` (the JS services' too:
+// mods/common natsInboxPrefix).
+func natsInboxPrefix(user string) string {
+	return "_INBOX_" + user
 }

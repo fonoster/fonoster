@@ -21,17 +21,46 @@ import { createHmac } from "crypto";
 // voice-session, "Connection requests are signed".
 export const SIGNATURE_HEADER = "X-Fonoster-Signature";
 export const TIMESTAMP_HEADER = "X-Fonoster-Timestamp";
+// voice-session, "Connection requests are bound to the app": the app and workspace the gateway
+// dials for, and an HMAC over them, so a signature made for one app cannot open a session for
+// another (Autopilot apps share one secret).
+export const APP_REF_HEADER = "X-Fonoster-App-Ref";
+export const WORKSPACE_REF_HEADER = "X-Fonoster-Workspace-Ref";
+export const APP_SIGNATURE_HEADER = "X-Fonoster-App-Signature";
+
+/** Who a connection is for: the app and the workspace that owns it ("" when unknown). */
+export type AppBinding = { appRef: string; workspaceRef?: string };
+
+/** The bound string: `<timestamp>\n<url>\n<appRef>\n<workspaceRef>` (no part has a newline). */
+export function appSigningInput(
+  timestamp: number,
+  url: string,
+  binding: AppBinding
+) {
+  return [timestamp, url, binding.appRef, binding.workspaceRef ?? ""].join(
+    "\n"
+  );
+}
 
 export function signatureHeaders(
   url: string,
   secret: string,
-  nowSeconds = Math.floor(Date.now() / 1000)
-) {
+  nowSeconds = Math.floor(Date.now() / 1000),
+  binding?: AppBinding
+): Record<string, string> {
   const signature = createHmac("sha256", secret)
     .update(`${nowSeconds}.${url}`)
     .digest("hex");
-  return {
+  const headers: Record<string, string> = {
     [SIGNATURE_HEADER]: signature,
     [TIMESTAMP_HEADER]: String(nowSeconds)
   };
+  if (binding) {
+    headers[APP_REF_HEADER] = binding.appRef;
+    headers[WORKSPACE_REF_HEADER] = binding.workspaceRef ?? "";
+    headers[APP_SIGNATURE_HEADER] = createHmac("sha256", secret)
+      .update(appSigningInput(nowSeconds, url, binding))
+      .digest("hex");
+  }
+  return headers;
 }

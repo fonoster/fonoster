@@ -1,8 +1,12 @@
 # The hosted Autopilot. `fonoster-config init` writes config/autopilot.yaml from this file; each
-# ${NAME} stays as written and is read from Autopilot's environment (Compose passes .env).
+# ${NAME} stays as written and is read from Autopilot's environment (Compose passes the values
+# this file names).
 host: 0.0.0.0
 port: 3000
 signingSecret: { value: "${AUTOPILOT_SIGNING_SECRET}" }
+# The URL Autopilot apps point to, exactly as fonoster.yaml's apps.autopilotUrl: signatures are
+# checked against it (never the request's Host header) and bound to each app and workspace.
+publicUrl: "ws://autopilot:3000"
 # Assistants, the catalog and workspace vendor keys: the API server's database.
 assistants: { source: database, cacheMs: 3000 }
 registry: { source: database, refreshMs: 5000 }

@@ -273,7 +273,9 @@ ops/rebuild/stack smoke              # up, seed, one call, checks, down (RB_KEEP
   keys (`workspaceKeys.enabled`) from the same database.
 - **Hosted Autopilot** (`mods/autopilot/src/session/main.ts`): the URL every Autopilot app points
   to (`ws://autopilot:3000`, the API server's `apps.autopilotUrl`), with one signing secret
-  (`apps.autopilotSigningSecret`). Assistants, the catalog and workspace vendor keys come from the
+  (`apps.autopilotSigningSecret`). Its `publicUrl` must be that same URL: Autopilot checks
+  signatures against it, never the `Host` header, and serves only the app and workspace each
+  signature is bound to. Assistants, the catalog and workspace vendor keys come from the
   API server's database (`source: database` in `autopilot-session.yaml`).
 
 ## Troubleshooting

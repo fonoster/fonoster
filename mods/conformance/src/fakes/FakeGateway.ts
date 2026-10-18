@@ -18,7 +18,7 @@
  */
 import WebSocket from "ws";
 import { WebSocketPeer } from "../runner/Peer";
-import { signatureHeaders } from "./signature";
+import { AppBinding, signatureHeaders } from "./signature";
 
 export type FakeGatewayOptions = {
   /** Secret used to sign the connection request; omit to send no signature. */
@@ -29,6 +29,12 @@ export type FakeGatewayOptions = {
   timeoutMs?: number;
   /** The subprotocol to request, if any. */
   protocol?: string;
+  /** Bind the signature to this app and workspace, as the gateway does. */
+  app?: AppBinding;
+  /** Sign this URL instead of the one dialed (a signature made for another URL). */
+  signedUrl?: string;
+  /** Extra request headers (e.g. a Host header), sent after the signature headers. */
+  headers?: Record<string, string>;
 };
 
 /**
@@ -44,11 +50,16 @@ export class FakeGateway {
       signingSecret,
       timestamp,
       timeoutMs = 5000,
-      protocol
+      protocol,
+      app,
+      signedUrl
     } = this.options;
-    const headers = signingSecret
-      ? signatureHeaders(url, signingSecret, timestamp)
-      : {};
+    const headers = {
+      ...(signingSecret
+        ? signatureHeaders(signedUrl ?? url, signingSecret, timestamp, app)
+        : {}),
+      ...this.options.headers
+    };
 
     return new Promise((resolve, reject) => {
       const socket = new WebSocket(url, protocol ? [protocol] : [], {

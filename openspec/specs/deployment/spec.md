@@ -31,8 +31,11 @@ MUST NOT be published before a person approves it, after its images and install 
 Each Fonoster service SHALL read exactly one config file (YAML, JSON or JSON with comments),
 mounted at `/config/<service>.yaml` in its container. Secrets SHALL appear inline, as `secret://` references (D8), or as `${VAR}` /
 `${VAR:-default}` placeholders resolved from the container environment, which Docker Compose
-fills from `.env`. Fonoster services MUST NOT read configuration from a `.env` file themselves.
-Third-party containers keep their own configuration.
+fills from `.env`. Compose SHALL pass each Fonoster service only the `.env` values its own config
+file names (an explicit `environment:` list), never the whole `.env`, and only the service that
+signs Identity's tokens (the apiserver) SHALL get Identity's private key; services that only
+verify get the public key. Fonoster services MUST NOT read configuration from a `.env` file
+themselves. Third-party containers keep their own configuration.
 
 #### Scenario: Secret reference resolved
 - **WHEN** the gateway config sets a provider credential to `secret://k8s/fonoster/deepgram#key`
@@ -47,9 +50,33 @@ Third-party containers keep their own configuration.
 - **WHEN** a config value is `${VAR}`, `VAR` is unset or empty and no default is given
 - **THEN** the service refuses to start, naming the variable and the key path, never a value
 
+#### Scenario: Each container gets only its own values
+- **WHEN** the self-host bundle starts
+- **THEN** the media node, gateway and Autopilot containers hold none of the values only another
+  service's file names (for example the apiserver's NATS password or the owner's password)
+- **AND** only the apiserver container mounts `keys/private.pem`; the gateway mounts `public.pem`
+  and its call-record key
+
 #### Scenario: A .env file is ignored
 - **WHEN** a `.env` file in the working directory sets a value that the service's YAML sets differently
 - **THEN** the service uses the YAML value
+
+### Requirement: Each NATS user reads only its own replies
+
+Where NATS has per-service users (Compose, cell and Helm), each user SHALL be allowed to subscribe
+to replies only under its own inbox prefix, `_INBOX_<user>.>`, and every Fonoster NATS client that
+connects with a user SHALL use that prefix for requests and JetStream deliveries. No user SHALL be
+allowed `_INBOX.>` or another user's prefix; a user that only publishes (Routr) subscribes to
+nothing.
+
+#### Scenario: Another service's reply stays private
+- **WHEN** the gateway requests a workspace key and the region agent replies
+- **THEN** a media node subscribing to `_INBOX.>` or `_INBOX_gateway.>` is refused and receives nothing
+- **AND** the gateway receives the reply
+
+#### Scenario: Session registry still works
+- **WHEN** services with prefixed inboxes put, get and watch session-registry entries
+- **THEN** each succeeds within its own permissions
 
 ### Requirement: Every service is a plain container
 

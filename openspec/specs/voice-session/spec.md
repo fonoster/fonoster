@@ -43,6 +43,24 @@ away from their own clock.
 - **THEN** connections after the rotation are signed with the new secret only
 - **AND** there is no overlap window: an app still checking the old secret refuses them until it is redeployed (accepted risk, owner decision 2026-10-15)
 
+### Requirement: Connection requests are bound to the app
+
+Besides the URL-only signature, the gateway SHALL send, on every app and listener connection,
+`X-Fonoster-App-Ref` (the app), `X-Fonoster-Workspace-Ref` (the workspace that owns it, empty when
+unknown) and `X-Fonoster-App-Signature`: the lowercase hex HMAC-SHA256, with the same secret and
+timestamp, of `<timestamp>\n<url>\n<appRef>\n<workspaceRef>` (newline-separated). An app that
+shares its secret with other apps (the hosted Autopilot) MUST require this signature, verify it
+against its configured URL only, and serve only the app and workspace it names.
+
+#### Scenario: A signature cannot be reused for another tenant's app
+- **WHEN** a signature the gateway made for one workspace's app (for example on that app's
+  listener URL) is presented to the hosted Autopilot for another workspace's app
+- **THEN** Autopilot refuses the connection or the session, and loads no assistant for the other app
+
+#### Scenario: Apps that verify only the URL keep working
+- **WHEN** an app verifies only `X-Fonoster-Signature`
+- **THEN** connections from a gateway that also sends the app-bound headers still verify
+
 ### Requirement: Inbound calls are answered on verified connect
 
 The gateway SHALL answer an inbound call as soon as the app's socket is open and the start

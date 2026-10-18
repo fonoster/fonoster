@@ -126,7 +126,7 @@ regionAgent:
   databaseSecret: fonoster-cell-db        # keys: url, key
   autopilotSecret: fonoster-cell-autopilot # key: secret
   config:
-    autopilot: { url: "ws://<release>-autopilot:3000" }
+    autopilot: { url: "ws://<release>-autopilot:3000" }   # = autopilot.config.publicUrl
 autopilot:
   enabled: true                            # the cell's own Autopilot (PR-9)
 gateway:
