@@ -184,6 +184,9 @@ describe("@gateway Pipecat golden test (twilio protocol)", function () {
             ref: "pipecat",
             url: `ws://127.0.0.1:${botPort}/ws`,
             protocol: "twilio",
+            // The hang-up endpoint only ends calls of the AccountSid's own workspace (RV-B12); in
+            // self-hosting mode that is the app whose workspaceRef is the configured accountSid.
+            workspaceRef: ACCOUNT_SID,
             signingSecret: "unused-by-pipecat",
             speech: { voice: "fake/default", language: "en-US" }
           }
