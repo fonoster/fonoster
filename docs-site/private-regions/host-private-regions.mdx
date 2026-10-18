@@ -63,6 +63,7 @@ All commands run in your `fonoster` folder.
       The files in `config/keys/region-hub/` can create credentials for any region. Back them up
       with `.env` and keep them private.
     </Warning>
+
   </Step>
 
   <Step title="Create an operator key">
@@ -74,6 +75,7 @@ All commands run in your `fonoster` folder.
     ```
 
     You can skip it: private regions work without it, and the admin API stays off.
+
   </Step>
 
   <Step title="Run the hub">
@@ -110,6 +112,7 @@ All commands run in your `fonoster` folder.
     ```bash
     COMPOSE_FILE=compose.yaml:compose.tls.yaml:compose.regions.yaml
     ```
+
   </Step>
 
   <Step title="Connect the API server to the hub">
@@ -139,6 +142,7 @@ All commands run in your `fonoster` folder.
     | `operatorKey` | Turns the region admin API on. Leave it out if you skipped the operator key |
 
     Edit the example, not `config/fonoster.yaml`: `init` writes that file again from the example.
+
   </Step>
 
   <Step title="Write the config and restart">
@@ -149,6 +153,7 @@ All commands run in your `fonoster` folder.
     npx -p @fonoster/common fonoster-config check
     docker compose up -d --force-recreate apiserver
     ```
+
   </Step>
 </Steps>
 
