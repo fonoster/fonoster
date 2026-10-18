@@ -53,10 +53,11 @@ test("makes an invitee set a password before anything else", async ({ page, api 
   const maria = { ref: "u-maria", email: "maria@acme.com", name: "Maria", mustChangePassword: true };
   let changed = false;
   api
-    .on("Identity/ExchangeCredentials", () => tokens(maria))
+    // After the change the dashboard signs in again with the new password (M3).
+    .on("Identity/ExchangeCredentials", () => tokens({ ...maria, mustChangePassword: !changed }))
     .on("Identity/UpdateUser", (request) => {
-      const { ref, password } = identity.UpdateUserRequest.deserializeBinary(request).toObject();
-      changed = ref === maria.ref && password === "a-new-password";
+      const { ref, password, currentPassword } = identity.UpdateUserRequest.deserializeBinary(request).toObject();
+      changed = ref === maria.ref && password === "a-new-password" && currentPassword === "one-time-pw";
       const response = new identity.UpdateUserResponse();
       response.setRef(maria.ref);
       return response;
@@ -79,6 +80,7 @@ test("makes an invitee set a password before anything else", async ({ page, api 
   await page.goto("/workspaces");
   await expect(page).toHaveURL(/\/set-password$/);
 
+  await page.getByLabel("One-time password").fill("one-time-pw");
   await page.getByLabel("New password").fill("a-new-password");
   await page.getByLabel("Confirm password").fill("a-new-password");
   await page.getByRole("button", { name: "Set password and continue" }).click();
