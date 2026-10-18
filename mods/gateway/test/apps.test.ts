@@ -250,12 +250,21 @@ describe("@gateway apps", function () {
       let harness: FakesHarness;
       let receiver: FakeWebhookReceiver;
       let gateway: Gateway;
+      let allowed: string | undefined;
 
       before(async function () {
         if (!process.env.CONFORMANCE_NATS_URL) return this.skip();
         nc = await connect({ servers: process.env.CONFORMANCE_NATS_URL });
+        // Database apps may reach public addresses only (M14); the fake app is local.
+        allowed = process.env.FONOSTER_ALLOWED_DESTINATIONS;
+        process.env.FONOSTER_ALLOWED_DESTINATIONS = "127.0.0.1";
       });
-      after(async () => nc?.close());
+      after(async () => {
+        if (allowed === undefined)
+          delete process.env.FONOSTER_ALLOWED_DESTINATIONS;
+        else process.env.FONOSTER_ALLOWED_DESTINATIONS = allowed;
+        await nc?.close();
+      });
       afterEach(async () => {
         await gateway?.stop();
         await harness?.stop();

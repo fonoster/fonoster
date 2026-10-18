@@ -18,6 +18,7 @@
  */
 import winston from "winston";
 import { endFluent, getSettings, getTransports } from "./envs";
+import { redactFormat } from "./redact";
 import { register } from "./registry";
 
 const loggers = new Map();
@@ -30,6 +31,7 @@ function getLogger(config: { service?: string; filePath: string }) {
   }
 
   const humanFormat = winston.format.combine(
+    redactFormat(),
     winston.format.timestamp({
       format: "YYYY-MM-DD HH:mm:ss.SSS"
     }),

@@ -29,12 +29,19 @@ import {
   isOpenSignup,
   methodDisabledError
 } from "../utils/authMethods";
+import { createClaimUnverifiedAccount } from "../utils/claimUnverifiedAccount";
+import { CallWithAddress, clientAddress } from "../utils/clientAddress";
 import { createGetUserByEmail } from "../utils/createGetUserByEmail";
 import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
 import {
   AccessKeyIdType,
   generateAccessKeyId
 } from "../utils/generateAccessKeyId";
+import {
+  createSignInThrottle,
+  SignInThrottle,
+  tooManySignInAttempts
+} from "../utils/signInThrottle";
 import { ContactType } from "../verification/types";
 import { exchangeTokens } from "./exchangeTokens";
 import { ExchangeResponse, IdentityConfig } from "./types";
@@ -55,13 +62,15 @@ type ExchangeVerificationCodeRequest = { email: string; code: string };
  */
 function createExchangeVerificationCode(
   prisma: Prisma,
-  identityConfig: IdentityConfig
+  identityConfig: IdentityConfig,
+  throttle: SignInThrottle = createSignInThrottle()
 ) {
   const isValidVerificationCode = createIsValidVerificationCode(prisma);
   const getUserByEmail = createGetUserByEmail(prisma);
+  const claimUnverifiedAccount = createClaimUnverifiedAccount(prisma);
 
   const exchangeVerificationCode = async (
-    call: { request: ExchangeVerificationCodeRequest },
+    call: CallWithAddress & { request: ExchangeVerificationCodeRequest },
     callback: (error?: GrpcErrorMessage, response?: ExchangeResponse) => void
   ) => {
     const email = call.request.email.trim().toLowerCase();
@@ -72,6 +81,12 @@ function createExchangeVerificationCode(
       return callback(methodDisabledError("email_code"));
     }
 
+    const ip = clientAddress(call);
+
+    if (throttle.isBlocked(email, ip)) {
+      return callback(tooManySignInAttempts);
+    }
+
     const isValid = await isValidVerificationCode({
       type: ContactType.EMAIL,
       value: email,
@@ -79,6 +94,7 @@ function createExchangeVerificationCode(
     });
 
     if (!isValid) {
+      throttle.recordFailure(email, ip);
       return callback(invalidCode);
     }
 
@@ -88,12 +104,10 @@ function createExchangeVerificationCode(
       return callback(invalidCode);
     }
 
-    // The code proves the address, so the email is verified either way.
+    // The code proves the address, so the email is verified either way. An
+    // account whose email was never verified loses its password (M2).
     const user = existing
-      ? await prisma.user.update({
-          where: { ref: existing.ref },
-          data: { emailVerified: true }
-        })
+      ? await claimUnverifiedAccount(existing)
       : await prisma.user.create({
           data: {
             name: email.split("@")[0].slice(0, 60),

@@ -24,26 +24,65 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, UpdateUserRequest } from "@fonoster/types";
-import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { ServerInterceptingCall, status } from "@grpc/grpc-js";
 import { Prisma } from "../db";
+import { createRefreshTokenStore } from "../exchanges/refreshTokens";
 import { getAccessKeyIdFromToken } from "../utils";
-import { passwordColumns } from "../utils/userPasswords";
+import {
+  createVerifyUserPassword,
+  passwordColumns
+} from "../utils/userPasswords";
 import { UserUpdateInput } from "./types";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
+/**
+ * Updates the caller's own profile. A new password needs the current one
+ * (an access token alone can't change it) and signs the user out everywhere:
+ * every refresh token is revoked. Accounts without a password (GitHub or
+ * email-code sign-in) set one with the password-reset flow, which proves the
+ * email.
+ */
 function createUpdateUser(prisma: Prisma) {
+  const verifyUserPassword = createVerifyUserPassword(prisma);
+  const refreshTokens = createRefreshTokenStore(prisma);
+
   const updateUser = async (
     call: { request: UpdateUserRequest },
     callback: (error: GrpcErrorMessage, response?: BaseApiObject) => void
   ) => {
     const { request } = call;
-    const { ref, name, avatar, password, phone } = request;
+    const { ref, name, avatar, password, currentPassword, phone } = request;
 
     const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
     const accessKeyId = getAccessKeyIdFromToken(token);
 
     logger.verbose("call to updateUser", { ref });
+
+    if (password) {
+      const user = await prisma.user.findFirst({
+        where: { ref, accessKeyId }
+      });
+
+      if (!user) {
+        return callback({ code: status.NOT_FOUND, message: "User not found" });
+      }
+
+      if (!user.passwordDigest && !user.password) {
+        return callback({
+          code: status.FAILED_PRECONDITION,
+          message:
+            "This account has no password; set one with the password reset flow"
+        });
+      }
+
+      if (!(await verifyUserPassword(user, currentPassword?.trim() ?? ""))) {
+        return callback({
+          code: status.PERMISSION_DENIED,
+          message: "The current password is incorrect"
+        });
+      }
+    }
 
     const updateData = {
       name,
@@ -67,6 +106,10 @@ function createUpdateUser(prisma: Prisma) {
       },
       data: updateData
     });
+
+    if (password) {
+      await refreshTokens.revokeAll(accessKeyId);
+    }
 
     const response: BaseApiObject = {
       ref

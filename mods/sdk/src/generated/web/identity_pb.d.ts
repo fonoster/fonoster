@@ -628,6 +628,9 @@ export class UpdateUserRequest extends jspb.Message {
   getPhone(): string;
   setPhone(value: string): UpdateUserRequest;
 
+  getCurrentPassword(): string;
+  setCurrentPassword(value: string): UpdateUserRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateUserRequest.AsObject;
   static toObject(includeInstance: boolean, msg: UpdateUserRequest): UpdateUserRequest.AsObject;
@@ -643,6 +646,7 @@ export namespace UpdateUserRequest {
     name: string,
     avatar: string,
     phone: string,
+    currentPassword: string,
   }
 }
 

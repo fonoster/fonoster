@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { verifyAccessToken } from "@fonoster/common";
+import { TokenVerifyOptions, verifyAccessToken } from "@fonoster/common";
 import { NextFunction, Request, Response } from "express";
 
 export type Caller = { accessKeyId: string; role: string; actor: string };
@@ -37,17 +37,25 @@ type Decoded = {
   access?: { accessKeyId: string; role: string }[];
 };
 
-/** Bearer access token + `x-accesskey-id` (same rules as the records API). */
-export function createHttpAuth(identityPublicKey: string) {
+/**
+ * Bearer access token + `x-accesskey-id` (same rules as the records API). With
+ * `tokenOptions`, the token's issuer and audience must match too.
+ */
+export function createHttpAuth(
+  identityPublicKey: string,
+  tokenOptions: TokenVerifyOptions = {}
+) {
   return (req: Request, res: Response, next: NextFunction) => {
     const token = bearer(req);
     const accessKeyId = String(
       req.headers["x-accesskey-id"] ?? req.headers["accesskeyid"] ?? ""
     );
     // Access tokens only: id, refresh and invite tokens are refused here.
-    const decoded = verifyAccessToken(token, identityPublicKey) as
-      | Decoded
-      | undefined;
+    const decoded = verifyAccessToken(
+      token,
+      identityPublicKey,
+      tokenOptions
+    ) as Decoded | undefined;
     if (!decoded) return res.status(401).json({ error: "unauthenticated" });
     const access = decoded.access?.find((a) => a.accessKeyId === accessKeyId);
     if (!accessKeyId || !access)
@@ -61,17 +69,24 @@ export function createHttpAuth(identityPublicKey: string) {
   };
 }
 
-const userOf = (token: string, identityPublicKey: string) => {
-  const decoded = verifyAccessToken(token, identityPublicKey) as
+const userOf = (
+  token: string,
+  identityPublicKey: string,
+  tokenOptions: TokenVerifyOptions
+) => {
+  const decoded = verifyAccessToken(token, identityPublicKey, tokenOptions) as
     | Decoded
     | undefined;
   return decoded?.sub ? ({ userRef: decoded.sub } as UserCaller) : undefined;
 };
 
 /** A user-level call: a valid Bearer access token; its `sub` is the user (no workspace). */
-export function createUserAuth(identityPublicKey: string) {
+export function createUserAuth(
+  identityPublicKey: string,
+  tokenOptions: TokenVerifyOptions = {}
+) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const user = userOf(bearer(req), identityPublicKey);
+    const user = userOf(bearer(req), identityPublicKey, tokenOptions);
     if (!user) return res.status(401).json({ error: "unauthenticated" });
     res.locals.user = user;
     next();
@@ -79,9 +94,12 @@ export function createUserAuth(identityPublicKey: string) {
 }
 
 /** Sets `res.locals.user` when a valid token is present; never refuses. */
-export function optionalUser(identityPublicKey: string) {
+export function optionalUser(
+  identityPublicKey: string,
+  tokenOptions: TokenVerifyOptions = {}
+) {
   return (req: Request, res: Response, next: NextFunction) => {
-    const user = userOf(bearer(req), identityPublicKey);
+    const user = userOf(bearer(req), identityPublicKey, tokenOptions);
     if (user) res.locals.user = user;
     next();
   };

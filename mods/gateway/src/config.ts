@@ -59,6 +59,12 @@ export type AppConfig = {
   filters?: { name: string; options?: Record<string, unknown> }[];
   /** Listen-only sockets dialed for every session of this app (signed with its secret). */
   listeners?: { url: string; tracks?: "inbound" | "outbound" | "both" }[];
+  /**
+   * Set for tenant apps (from the database): their URL and listeners may reach public
+   * addresses only, unless FONOSTER_ALLOWED_DESTINATIONS allows them (M14). Apps from the
+   * operator's YAML, and the hosted Autopilot URL of Autopilot apps, are not checked.
+   */
+  publicDestinationsOnly?: { url: boolean; listeners: boolean };
   /** Recording policy for this app; overrides the workspace's and the region default. */
   recording?: RecordingPolicy;
   /**

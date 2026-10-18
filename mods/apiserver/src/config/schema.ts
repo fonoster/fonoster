@@ -93,7 +93,12 @@ const sessionAppsSchema = z
     autopilotUrl: z.string().min(1).default("ws://autopilot:50061"),
     autopilotSigningSecret: z.string().min(1).optional(),
     /** Plain http:// webhook endpoints (local testing only). */
-    allowInsecureWebhooks: z.boolean().default(false)
+    allowInsecureWebhooks: z.boolean().default(false),
+    /**
+     * Private hosts, IPs or CIDRs app and listener URLs may use (self-hosting); default
+     * FONOSTER_ALLOWED_DESTINATIONS.
+     */
+    allowedDestinations: z.array(z.string().min(1)).optional()
   })
   .default({});
 

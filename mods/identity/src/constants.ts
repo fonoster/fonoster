@@ -33,6 +33,15 @@ export const RESET_PASSWORD_ATTEMPT_LIMITS = {
   windowMs: 10 * 60 * 1000
 };
 /**
+ * Failed sign-ins (ExchangeCredentials, ExchangeVerificationCode) per email,
+ * and per client IP, before sign-in is refused for the rest of the window.
+ */
+export const SIGN_IN_FAILURE_LIMITS = {
+  perEmail: 10,
+  perIp: 50,
+  windowMs: 15 * 60 * 1000
+};
+/**
  * How long a just-used refresh token may be used again (concurrent renewals,
  * e.g. two browser tabs). Later reuse revokes the token's family.
  */

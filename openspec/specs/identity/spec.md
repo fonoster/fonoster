@@ -267,3 +267,47 @@ sends) SHALL be counted in the Identity database, so they hold across replicas a
 
 - **WHEN** a fourth reset email is requested for the same address within 10 minutes
 - **THEN** the call fails with `RESOURCE_EXHAUSTED` and no email is sent
+
+### Requirement: Failed sign-ins are throttled
+
+`ExchangeCredentials` and `ExchangeVerificationCode` SHALL count failed attempts (wrong password,
+2FA code or email code) per email and per client IP. After 10 failures for an email, or 50 from
+an IP, within 15 minutes, sign-in for that email (or from that IP) SHALL fail with
+`RESOURCE_EXHAUSTED` for 15 minutes, even with the right password, without checking it. Successful
+sign-ins SHALL NOT count. Counts are kept in each process's memory, like the other limits.
+
+#### Scenario: Guessing a password
+
+- **WHEN** the tenth wrong password for an email is tried within 15 minutes
+- **THEN** the next sign-in for that email fails with `RESOURCE_EXHAUSTED`, right password or not
+
+### Requirement: An unverified account belongs to whoever proves its email
+
+When someone signs in with an emailed code (`ExchangeVerificationCode`) or GitHub
+(`ExchangeOauth2Code`, by a verified GitHub email) to an existing account whose email was never
+verified, Identity SHALL mark the email verified, clear the account's password and revoke all of
+its refresh tokens: whoever set that password may not own the address. `VerifyCode` with an email
+code SHALL verify only the account whose email received the code.
+
+#### Scenario: Someone signed up with another person's email
+
+- **WHEN** a password account is created for an email its creator doesn't own, and the email's owner
+  later signs in with an emailed code or GitHub
+- **THEN** the owner is signed in and the password set at sign-up no longer works
+
+#### Scenario: Verifying another account
+
+- **WHEN** `VerifyCode` is called with a code for `a@x.com` and `username` `b@x.com`
+- **THEN** it fails with `PERMISSION_DENIED` and `b@x.com` stays unverified
+
+### Requirement: Changing a password needs the current one
+
+`UpdateUser` with a new `password` SHALL require `currentPassword` to match the account's
+password (`PERMISSION_DENIED` otherwise) and SHALL revoke all of the user's refresh tokens. An
+account without a password (GitHub or email-code sign-in) SHALL get `FAILED_PRECONDITION` and set
+one with the password-reset flow. Invitees enter their one-time password as `currentPassword`.
+
+#### Scenario: Stolen access token
+
+- **WHEN** `UpdateUser` is called with a valid access token and a new password but no current password
+- **THEN** it fails with `PERMISSION_DENIED` and the password is unchanged

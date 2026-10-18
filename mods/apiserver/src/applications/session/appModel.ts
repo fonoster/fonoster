@@ -17,7 +17,11 @@
  * limitations under the License.
  */
 import { randomBytes } from "crypto";
-import { datesMapper, sessionAssistantSchema } from "@fonoster/common";
+import {
+  assertPublicWebSocketUrlShape,
+  datesMapper,
+  sessionAssistantSchema
+} from "@fonoster/common";
 import { struct } from "pb-util";
 import { z } from "zod";
 
@@ -34,7 +38,36 @@ export type SessionAppsConfig = {
   autopilotUrl: string;
   /** One secret for every Autopilot app (the hosted Autopilot verifies a single secret). */
   autopilotSigningSecret?: string;
+  /**
+   * Private hosts, IPs or CIDRs app and listener URLs may use (self-hosting); default
+   * FONOSTER_ALLOWED_DESTINATIONS. Everything else must be public (M14).
+   */
+  allowedDestinations?: string[];
 };
+
+/**
+ * App and listener URLs are the tenant's choice and the gateway dials them, so they must not
+ * name the platform's own network: no internal names (localhost, *.svc, single labels) and no
+ * private, loopback or metadata IPs, unless allowed by the operator. The hosted Autopilot URL
+ * comes from configuration and is exempt. The gateway re-checks resolved addresses on connect.
+ */
+function checkDestination(
+  value: string,
+  what: string,
+  config: SessionAppsConfig
+) {
+  if (value === config.autopilotUrl) return;
+  try {
+    assertPublicWebSocketUrlShape(
+      value,
+      config.allowedDestinations
+        ? { allow: config.allowedDestinations }
+        : undefined
+    );
+  } catch (e) {
+    throw invalid(`${what} must be a public address: ${(e as Error).message}`);
+  }
+}
 
 export const DEFAULT_VOICE = "deepgram/aura-2-thalia-en";
 export const DEFAULT_LANGUAGE = "en-US";
@@ -174,6 +207,9 @@ export async function toAppColumns(
   const autopilot = input.type === "AUTOPILOT";
   const url = input.url ?? (autopilot ? ctx.config.autopilotUrl : undefined);
   if (!url) throw invalid("url is required (ws:// or wss://)");
+  checkDestination(url, "url", ctx.config);
+  for (const listener of input.listeners)
+    checkDestination(listener.url, "listeners.url", ctx.config);
   if ((request as { flavor?: unknown }).flavor !== undefined)
     throw invalid("flavor was renamed to protocol (fonoster or twilio)");
   const protocol = input.protocol ?? "fonoster";

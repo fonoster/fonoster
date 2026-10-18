@@ -23,6 +23,7 @@ import chaiAsPromised from "chai-as-promised";
 import { createSandbox } from "sinon";
 import sinonChai from "sinon-chai";
 import { Prisma } from "../../src/db";
+import { hashPassword } from "../../src/utils/passwords";
 import { TEST_TOKEN, TEST_UUID } from "../utils";
 
 chai.use(chaiAsPromised);
@@ -100,5 +101,103 @@ describe("@identity[users/updateUser]", function () {
     await expect(response).to.be.rejectedWith(
       "The requested resource was not found"
     );
+  });
+
+  describe("changing the password (M3)", function () {
+    const callWith = (request: Record<string, unknown>) => {
+      const metadata = new grpc.Metadata();
+      metadata.set("token", TEST_TOKEN);
+      return { metadata, request: { ref: TEST_UUID, ...request } };
+    };
+
+    async function prismaFor(stored: Record<string, unknown> | null) {
+      const update = sandbox.stub().resolves({ ref: TEST_UUID });
+      const revoke = sandbox.stub().resolves({ count: 1 });
+      const prisma = {
+        user: { findFirst: sandbox.stub().resolves(stored), update },
+        refreshToken: { updateMany: revoke }
+      } as unknown as Prisma;
+      return { prisma, update, revoke };
+    }
+
+    async function run(prisma: Prisma, request: Record<string, unknown>) {
+      const { createUpdateUser } = await import(
+        "../../src/users/createUpdateUser"
+      );
+      return new Promise<{ error?: { code: number } | null }>((resolve) =>
+        createUpdateUser(prisma)(callWith(request), (error) =>
+          resolve({ error })
+        )
+      );
+    }
+
+    it("refuses a new password without the current one", async function () {
+      const { prisma, update } = await prismaFor({
+        ref: TEST_UUID,
+        passwordDigest: await hashPassword("the-old-passw0rd")
+      });
+
+      const { error } = await run(prisma, { password: "a-new-passw0rd" });
+
+      expect(error).to.include({ code: grpc.status.PERMISSION_DENIED });
+      expect(update).not.to.have.been.called;
+    });
+
+    it("refuses a wrong current password", async function () {
+      const { prisma, update } = await prismaFor({
+        ref: TEST_UUID,
+        passwordDigest: await hashPassword("the-old-passw0rd")
+      });
+
+      const { error } = await run(prisma, {
+        password: "a-new-passw0rd",
+        currentPassword: "not-the-old-one"
+      });
+
+      expect(error).to.include({ code: grpc.status.PERMISSION_DENIED });
+      expect(update).not.to.have.been.called;
+    });
+
+    it("changes it with the current password and signs out everywhere", async function () {
+      const { prisma, update, revoke } = await prismaFor({
+        ref: TEST_UUID,
+        accessKeyId: "USuser0001",
+        passwordDigest: await hashPassword("the-old-passw0rd")
+      });
+
+      const { error } = await run(prisma, {
+        password: "a-new-passw0rd",
+        currentPassword: "the-old-passw0rd"
+      });
+
+      expect(error).to.be.null;
+      expect(update.firstCall.args[0].data.passwordDigest).to.be.a("string");
+      expect(revoke).to.have.been.calledOnce;
+    });
+
+    it("sends accounts without a password to the reset flow", async function () {
+      const { prisma, update } = await prismaFor({
+        ref: TEST_UUID,
+        passwordDigest: null,
+        password: null
+      });
+
+      const { error } = await run(prisma, {
+        password: "a-new-passw0rd",
+        currentPassword: ""
+      });
+
+      expect(error).to.include({ code: grpc.status.FAILED_PRECONDITION });
+      expect(update).not.to.have.been.called;
+    });
+
+    it("leaves sessions alone when the password doesn't change", async function () {
+      const { prisma, revoke } = await prismaFor(null);
+
+      const { error } = await run(prisma, { name: "Ana" });
+
+      expect(error).to.be.null;
+      expect(revoke).not.to.have.been.called;
+    });
   });
 });

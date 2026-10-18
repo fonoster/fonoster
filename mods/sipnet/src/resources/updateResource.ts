@@ -37,7 +37,10 @@ function updateResource<T, R, U>(
   const fn = async (call: { request: R }): Promise<T> => {
     const { request } = call;
 
-    logger.verbose(`call to update${resource}`, { ...request });
+    // Never the request itself: credentials and trunks carry passwords (M11).
+    logger.verbose(`call to update${resource}`, {
+      ref: (request as { ref?: string }).ref
+    });
 
     // Referenced credentials, ACLs, domains, numbers and trunks must be the caller's (H7).
     await checkRefs?.(

@@ -216,10 +216,12 @@ message User {
 
 message UpdateUserRequest {
   string ref = 1;
+  // A new password; current_password must be the account's password.
   string password = 2;
   string name = 3;
   string avatar = 4;
   string phone = 5;
+  string current_password = 6;
 }
 
 message UpdateUserResponse {

@@ -80,6 +80,9 @@ const app = z.object({
       })
     )
     .optional(),
+  publicDestinationsOnly: z
+    .object({ url: z.boolean(), listeners: z.boolean() })
+    .optional(),
   recording: recordingPolicy.optional(),
   amd: z
     .union([

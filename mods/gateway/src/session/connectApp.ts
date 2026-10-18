@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { LookupFunction } from "net";
+import { publicWebSocketGuard } from "@fonoster/common";
 import WebSocket from "ws";
 import { AppConfig } from "../config";
 import { signatureHeaders } from "../signing";
@@ -29,14 +31,19 @@ export type BufferedSocket = WebSocket & {
   takeEarlyFrames?: () => EarlyFrame[];
 };
 
-function attempt(app: AppConfig, timeoutMs: number): Promise<WebSocket> {
+function attempt(
+  app: AppConfig,
+  timeoutMs: number,
+  lookup?: LookupFunction
+): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(app.url, {
       headers: signatureHeaders(app.url, app.signingSecret, undefined, {
         appRef: app.ref,
         workspaceRef: app.workspaceRef
       }),
-      handshakeTimeout: timeoutMs
+      handshakeTimeout: timeoutMs,
+      ...(lookup ? { lookup } : {})
     });
     socket.once("open", () => {
       // The app may send frames before the session is attached (media setup takes a round
@@ -73,10 +80,21 @@ export async function connectApp(
 ): Promise<WebSocket> {
   const deadline = Date.now() + options.windowMs;
   let last = "";
+  // Tenant-chosen URLs must reach public addresses only (M14); a refusal isn't retried.
+  let lookup: LookupFunction | undefined;
+  if (app.publicDestinationsOnly?.url) {
+    try {
+      lookup = publicWebSocketGuard(app.url).lookup;
+    } catch (e) {
+      last = (e as Error).message;
+      options.onFailure({ at: Date.now(), url: app.url, reason: last });
+      throw new Error(`app ${app.ref} unreachable at ${app.url}: ${last}`);
+    }
+  }
   for (;;) {
     const remaining = deadline - Date.now();
     try {
-      return await attempt(app, Math.max(250, remaining));
+      return await attempt(app, Math.max(250, remaining), lookup);
     } catch (e) {
       last = (e as Error).message;
       options.onFailure({ at: Date.now(), url: app.url, reason: last });

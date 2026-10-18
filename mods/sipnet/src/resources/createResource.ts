@@ -44,7 +44,8 @@ function createResource<T, R, U>(
       call as unknown as ServerInterceptingCall
     );
 
-    logger.verbose(`call to create${resource}`, { ...request, accessKeyId });
+    // Never the request itself: credentials and trunks carry passwords (M11).
+    logger.verbose(`call to create${resource}`, { accessKeyId });
 
     // Referenced credentials, ACLs, domains, numbers and trunks must be the caller's (H7).
     await checkRefs?.(request, accessKeyId);

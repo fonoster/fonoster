@@ -184,11 +184,19 @@ ids that override the app's defaults for that item only.
 
 The gateway SHALL accept `play` with `id`, `url`, optional `loop`, `interruptible` and optional
 `preempt`, fetch the media, convert it to the call's format and play it through the output queue.
+The URL is the app's choice, so the fetch SHALL reach public addresses only (http/https; private,
+loopback, link-local and metadata addresses refused, each redirect and the connected address
+re-checked; `FONOSTER_ALLOWED_DESTINATIONS` lists exceptions), follow at most 3 redirects, read at
+most 20 MiB and give up after 15 s; a refused or failed fetch is `play_fetch_failed`.
 
 #### Scenario: Play a file
 - **WHEN** the app sends `play` `{id: "p1", url: "https://example.com/hold.wav"}`
 - **THEN** the caller hears the file
 - **AND** the app receives `output.started` and then `output.done` with `id: "p1"`
+
+#### Scenario: Play an internal address
+- **WHEN** the app sends `play` with `url: "http://169.254.169.254/latest/meta-data/"`
+- **THEN** nothing is fetched and the app receives an `error` `play_fetch_failed` for that id
 
 ### Requirement: One output queue
 
@@ -527,6 +535,15 @@ configured. Outbound calls MUST name an app.
 - **WHEN** a number points to an Autopilot agent
 - **THEN** the gateway connects to the hosted Autopilot's URL with the `fonoster` protocol
 - **AND** the protocol is identical to that of any other app
+
+#### Scenario: App URLs are public destinations
+- **WHEN** an app is created or updated with a `url` or listener URL naming an internal host
+  (`localhost`, a single-label or `*.svc` name) or a private, loopback, link-local or metadata IP
+- **THEN** the call fails with `INVALID_ARGUMENT`, unless the operator allows the destination
+  (`apps.allowedDestinations` or `FONOSTER_ALLOWED_DESTINATIONS`); the hosted Autopilot URL from
+  configuration is exempt
+- **AND** when dialing an app or listener from the database, the gateway refuses addresses that
+  resolve to private ranges (Autopilot apps' URL and the operator's YAML apps are not checked)
 
 ### Requirement: session.start opens every fonoster-protocol session
 

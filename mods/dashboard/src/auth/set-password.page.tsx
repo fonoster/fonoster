@@ -23,28 +23,31 @@ import { useNavigate } from "react-router-dom";
 import type { z } from "zod";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
+import { Field } from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
 import { useAuth } from "~/lib/auth";
 import { errorMessage } from "~/lib/errors";
-import { AuthLayout, authButton } from "./auth-layout";
+import { AuthLayout, authButton, authInput } from "./auth-layout";
 import { NewPasswordFields } from "./password-fields";
-import { newPasswordForm } from "./schemas";
+import { setPasswordForm } from "./schemas";
 
 /** Invitees land here until they replace the invite's one-time password. */
 export default function SetPasswordPage() {
-  const { user, sdk, refreshSession, signOut } = useAuth();
+  const { user, sdk, signInWithPassword, signOut } = useAuth();
   const navigate = useNavigate();
   const [failure, setFailure] = useState<string | null>(null);
-  const form = useForm<z.infer<typeof newPasswordForm>>({
-    resolver: zodResolver(newPasswordForm),
-    defaultValues: { password: "", confirm: "" }
+  const form = useForm<z.infer<typeof setPasswordForm>>({
+    resolver: zodResolver(setPasswordForm),
+    defaultValues: { currentPassword: "", password: "", confirm: "" }
   });
 
-  const onSubmit = form.handleSubmit(async ({ password }) => {
+  const onSubmit = form.handleSubmit(async ({ currentPassword, password }) => {
     if (!user) return;
     setFailure(null);
     try {
-      await sdk.users.updateUser({ ref: user.sub, password });
-      await refreshSession();
+      await sdk.users.updateUser({ ref: user.sub, password, currentPassword });
+      // A new password ends every session, this one included: sign in again.
+      await signInWithPassword(user.email, password);
       navigate("/", { replace: true });
     } catch (error) {
       setFailure(errorMessage(error));
@@ -73,6 +76,20 @@ export default function SetPasswordPage() {
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
         {failure && <Alert variant="error">{failure}</Alert>}
+        <Field
+          label="One-time password"
+          error={form.formState.errors.currentPassword?.message}
+        >
+          {(a11y) => (
+            <Input
+              {...a11y}
+              {...form.register("currentPassword")}
+              type="password"
+              autoComplete="current-password"
+              className={authInput}
+            />
+          )}
+        </Field>
         <NewPasswordFields form={form} />
         <Button
           type="submit"

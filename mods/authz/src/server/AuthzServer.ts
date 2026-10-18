@@ -51,7 +51,12 @@ class AuthzServer {
           call: grpc.ServerUnaryCall<any, any>,
           callback: grpc.sendUnaryData<any>
         ) => {
-          logger.verbose("checkSessionAuthorized called", call.request);
+          // Not the request itself: it carries the caller's token (M11).
+          logger.verbose("checkSessionAuthorized called", {
+            accessKeyId:
+              call.request?.accessKeyId ?? call.request?.access_key_id,
+            appRef: call.request?.appRef ?? call.request?.app_ref
+          });
 
           try {
             const authorized = await handler.checkSessionAuthorized(
@@ -70,7 +75,11 @@ class AuthzServer {
           call: grpc.ServerUnaryCall<any, any>,
           callback: grpc.sendUnaryData<any>
         ) => {
-          logger.verbose("checkMethodAuthorized called", call.request);
+          // Not the request itself: it carries the caller's token (M11).
+          logger.verbose("checkMethodAuthorized called", {
+            accessKeyId: call.request?.accessKeyId,
+            method: call.request?.method
+          });
 
           try {
             const authorized = await handler.checkMethodAuthorized(
@@ -89,7 +98,9 @@ class AuthzServer {
           call: grpc.ServerUnaryCall<any, any>,
           callback: grpc.sendUnaryData<any>
         ) => {
-          logger.verbose("addBillingMeterEvent called", call.request);
+          logger.verbose("addBillingMeterEvent called", {
+            accessKeyId: call.request?.accessKeyId
+          });
 
           try {
             const request = {
