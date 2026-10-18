@@ -88,3 +88,22 @@ addresses, so it can run on container platforms other than the official targets.
 - **WHEN** an operator runs the gateway image with `docker run`, its config file mounted and NATS reachable
 - **THEN** the gateway starts, registers its health and accepts sessions
 
+
+### Requirement: Deployments are closed by default
+
+The Helm chart SHALL enable NATS users (`nats.auth.enabled: true`) by default and SHALL refuse to
+render with auth off unless `nats.auth.allowUnauthenticated: true`. Envoy SHALL NOT allow every
+origin with CORS: only the origins the deployment lists (Compose `CORS_ALLOWED_ORIGINS`, Helm
+`envoy.corsAllowedOrigins`; none by default, the dashboard being same-origin). The media node's
+NATS user SHALL only write its session-registry entries (no gets, consumers or consumer deletes).
+No signing or encryption key SHALL be committed; Identity SHALL refuse to start with a key that was
+once published in the repository, or with the example's placeholder encryption key. The media
+node's builder image SHALL be pinned to a patched Go release by digest.
+
+#### Scenario: Helm install without NATS users
+- **WHEN** the chart is rendered with `nats.auth.enabled=false` and no `allowUnauthenticated`
+- **THEN** rendering fails with a message naming `nats.auth.allowUnauthenticated`
+
+#### Scenario: A copied development key
+- **WHEN** Identity starts with the signing key formerly at `config/keys/private.pem`
+- **THEN** it refuses to start and says to generate a key

@@ -40,7 +40,7 @@ describe("@identity[server/config]", function () {
 
   const base = {
     database: { url: "postgresql://u:p@db/identity" },
-    encryptionKey: "k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=",
+    encryptionKey: "k1.aesgcm256.QbAsmmaz84hmSaol9HreK-s91rE1Rk8YAAkTq48kZGw=",
     issuer: "https://id.acme.com",
     keys: { privateKey: "test-private", publicKey: "test-public" }
   };
@@ -60,7 +60,7 @@ describe("@identity[server/config]", function () {
     expect(identityConfig.issuer).to.equal("https://id.acme.com");
     expect(identityConfig.audience).to.equal("api");
     expect(identityConfig.encryptionKey).to.equal(
-      "k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY="
+      "k1.aesgcm256.QbAsmmaz84hmSaol9HreK-s91rE1Rk8YAAkTq48kZGw="
     );
     expect(identityConfig.refreshTokenExpiresIn).to.equal("24h");
     expect(identityConfig.workspaceInviteExpiration).to.equal("1d");
@@ -115,7 +115,7 @@ describe("@identity[server/config]", function () {
       path,
       [
         "database: { url: postgresql://db/identity }",
-        "encryptionKey: k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=",
+        "encryptionKey: k1.aesgcm256.QbAsmmaz84hmSaol9HreK-s91rE1Rk8YAAkTq48kZGw=",
         "issuer: https://id.acme.com",
         "keys: { privateKey: a, publicKey: b }"
       ].join("\n")

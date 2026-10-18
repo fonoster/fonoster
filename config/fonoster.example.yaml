@@ -33,9 +33,9 @@ database:
   url: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fonoster
 
 encryption:
-  # Encrypts stored credentials. Development key: generate your own with
+  # Encrypts stored credentials. A placeholder the services refuse: generate your own with
   # `npx @47ng/cloak generate` (format k1.aesgcm256.<base64url>).
-  key: k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=
+  key: k1.aesgcm256.GENERATE-YOUR-OWN-with-npx-47ng-cloak-gen00=
 
 # Outgoing email (invites, verification codes, password resets). Leave out to
 # run without email; anything that needs it then fails with a clear error.

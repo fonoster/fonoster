@@ -9,8 +9,13 @@ metadata:
   labels:
     {{- include "fonoster-rebuild.labels" . | nindent 4 }}
 data:
+  {{- /* envoy.corsAllowedOrigins: one exact match per origin (M9); none leaves the placeholder. */}}
+  {{- $origins := list }}
+  {{- range $e.corsAllowedOrigins }}{{- $origins = append $origins (printf "- exact: %s" (. | quote)) }}{{- end }}
+  {{- $cors := "- exact: \"__CORS_ALLOWED_ORIGINS__\"" }}
+  {{- if $origins }}{{- $cors = join "\n                        " $origins }}{{- end }}
   envoy.yaml: |
-    {{- .Files.Get "files/envoy.yaml" | replace "address: apiserver" (printf "address: %s-apiserver" .Release.Name) | replace "address: dashboard" (printf "address: %s-dashboard" .Release.Name) | nindent 4 }}
+    {{- .Files.Get "files/envoy.yaml" | replace "address: apiserver" (printf "address: %s-apiserver" .Release.Name) | replace "address: dashboard" (printf "address: %s-dashboard" .Release.Name) | replace "- exact: \"__CORS_ALLOWED_ORIGINS__\"" $cors | nindent 4 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,7 +34,7 @@ spec:
       labels:
         {{- include "fonoster-rebuild.selector" (dict "root" $ "name" "envoy") | nindent 8 }}
       annotations:
-        checksum/config: {{ .Files.Get "files/envoy.yaml" | sha256sum }}
+        checksum/config: {{ printf "%s%v" (.Files.Get "files/envoy.yaml") $e.corsAllowedOrigins | sha256sum }}
     spec:
       containers:
         - name: envoy

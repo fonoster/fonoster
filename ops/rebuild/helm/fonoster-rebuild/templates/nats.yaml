@@ -1,3 +1,6 @@
+{{- if and (not .Values.nats.auth.enabled) (not .Values.nats.auth.allowUnauthenticated) }}
+{{- fail "nats.auth.enabled is false: every pod that reaches NATS could control media. Keep it on (create the nats.auth.secret Secret), or set nats.auth.allowUnauthenticated=true for development only" }}
+{{- end }}
 {{- if .Values.nats.deploy }}
 {{- $n := .Values.nats }}
 {{- /* NATS users of the services this release runs (nats.auth, add-platform 4.1). */}}

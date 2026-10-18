@@ -21,6 +21,7 @@
 // "rebuild", its copies of the dev stack's static configs stay in sync, and its examples, written
 // the way `fonoster-config init` writes them (placeholders kept), load through each service's own
 // config validation with .env's values, which Compose passes to the containers.
+import { execFileSync } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
@@ -208,6 +209,36 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
   it("never says rebuild or RB_", function () {
     for (const file of filesUnder(BUNDLE))
       expect(fs.readFileSync(file, "utf8"), file).to.not.match(/rebuild|RB_/i);
+  });
+
+  it("lets only the configured browser origins call the API (CORS, M9)", function () {
+    const envoy = read("ops/bundle/config/envoy.yaml");
+    expect(envoy).to.not.contain('prefix: "*"');
+    expect(envoy).to.contain('- exact: "__CORS_ALLOWED_ORIGINS__"');
+    const svc = services.envoy as Service & { command?: string[] };
+    expect(svc.environment?.CORS_ALLOWED_ORIGINS).to.equal(
+      "${CORS_ALLOWED_ORIGINS:-}"
+    );
+    // Run the entrypoint's rewrite (Compose turns $$ into $) on the shipped file.
+    const work = fs.mkdtempSync(path.join(os.tmpdir(), "bundle-envoy-"));
+    const out = path.join(work, "envoy.yaml");
+    const script = svc
+      .command![0].replace(/\$\$/g, "$")
+      .replace("/etc/envoy/envoy.yaml", path.join(BUNDLE, "config/envoy.yaml"))
+      .replace("/tmp/envoy.yaml", out)
+      .replace(/&& exec envoy.*$/, "");
+    const rewrite = (origins: string) => {
+      execFileSync("/bin/sh", ["-c", script], {
+        env: { ...process.env, CORS_ALLOWED_ORIGINS: origins }
+      });
+      return fs.readFileSync(out, "utf8");
+    };
+    const two = rewrite("https://app.example.com, https://b.example.com");
+    expect(two).to.contain('- exact: "https://app.example.com"');
+    expect(two).to.contain('- exact: "https://b.example.com"');
+    expect(two).to.not.contain("__CORS_ALLOWED_ORIGINS__");
+    expect(rewrite("").trimEnd()).to.equal(envoy.trimEnd());
+    fs.rmSync(work, { recursive: true, force: true });
   });
 
   it("keeps its copies of the static configs in sync", function () {

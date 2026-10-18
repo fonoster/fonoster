@@ -268,6 +268,20 @@ services:
       - ${CONFIG_DIR:-./config}/envoy.yaml:/etc/envoy/envoy.yaml:ro
     ports:
       - "${HTTP_PORT:-8449}:8449"
+    environment:
+      # Other browser origins that may call the API (comma-separated, e.g.
+      # https://app.example.com); the dashboard is same-origin and needs none. Empty: none.
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+    # Writes the allowed origins into a copy of envoy.yaml, then starts Envoy.
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - >-
+        awk -v list="$$(printf '%s' "$$CORS_ALLOWED_ORIGINS" | tr -d ' ')"
+        '/__CORS_ALLOWED_ORIGINS__/ { if (list == "") { print; next }
+        ind = $$0; sub(/-.*/, "", ind); n = split(list, o, ",");
+        for (i = 1; i <= n; i++) if (o[i] != "") print ind "- exact: \"" o[i] "\""; next }
+        { print }' /etc/envoy/envoy.yaml > /tmp/envoy.yaml
+        && exec envoy -c /tmp/envoy.yaml
 
   dashboard:
     image: fonoster/dashboard:${FONOSTER_VERSION:?set FONOSTER_VERSION}

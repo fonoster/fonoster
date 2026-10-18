@@ -16,10 +16,13 @@ nats:
   # password per user: keys apiserver, gateway, medianode, routr, region-agent (those you run).
   # Services read theirs through secret://env/NATS_<USER>_PASSWORD. With nats.deploy the chart's
   # NATS gets the users; with your own NATS, give it the same users and permission files. Routr
-  # connects as `routr` with the password in its NATS URL (hex passwords only).
+  # connects as `routr` with the password in its NATS URL (hex passwords only). On by default:
+  # create the Secret before installing. Turning it off needs allowUnauthenticated: true, which
+  # lets any pod that reaches NATS control media (development only).
   auth:
-    enabled: false
+    enabled: true
     secret: fonoster-nats-users
+    allowUnauthenticated: false
 
 # The region hub (add-private-regions; control plane side). Run `fonoster-region-hub-setup <dir>`
 # once, then: kubectl create secret generic fonoster-region-hub-config
@@ -103,6 +106,9 @@ envoy:
   replicas: 1
   service: { type: ClusterIP, port: 8449 }
   resources: {}
+  # Browser origins, besides the dashboard (served on Envoy's own origin), that may call the API
+  # with CORS, e.g. ["https://app.example.com"]. Empty: none.
+  corsAllowedOrigins: []
 
 # Dev-grade Postgres and MinIO in the release (single replica). For production set deploy: false
 # and point the configs at managed services through your Secrets.

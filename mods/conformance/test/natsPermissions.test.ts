@@ -426,6 +426,59 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(deleted).to.equal(false);
   });
 
+  it("keeps the media node write-only on the session registry (M7)", async function () {
+    const nodeKv = await Sessions.openSessions(node);
+    await nodeKv.put("nodes.n7", sc.encode('{"nodeId":"n7"}'));
+    await nodeKv.put("rooms.r7", sc.encode('{"roomRef":"r7"}'));
+    // A JetStream API request the user may not publish gets no answer.
+    const answered = (conn: NatsConnection, subject: string, body: unknown) =>
+      conn
+        .request(subject, sc.encode(JSON.stringify(body)), { timeout: 1000 })
+        .then(
+          (m) => !sc.decode(m.data).includes('"error"'),
+          () => false
+        );
+    const getLast = {
+      last_by_subj: "$KV.fonoster_sessions.nodes.n7"
+    };
+    // The control plane reads the entry...
+    expect(
+      await answered(api, "$JS.API.DIRECT.GET.KV_fonoster_sessions", getLast)
+    ).to.equal(true);
+    // ...the node can't read any entry (its own, other nodes', calls)...
+    expect(
+      await answered(node, "$JS.API.DIRECT.GET.KV_fonoster_sessions", getLast)
+    ).to.equal(false);
+    expect(
+      await answered(node, "$JS.API.STREAM.MSG.GET.KV_fonoster_sessions", {
+        last_by_subj: "$KV.fonoster_sessions.calls.c1"
+      })
+    ).to.equal(false);
+    // ...watch the registry...
+    expect(
+      await answered(node, "$JS.API.CONSUMER.CREATE.KV_fonoster_sessions", {
+        stream_name: "KV_fonoster_sessions",
+        config: { deliver_policy: "last_per_subject", ack_policy: "none" }
+      })
+    ).to.equal(false);
+    // ...or delete another service's watcher.
+    expect(
+      await answered(
+        node,
+        "$JS.API.CONSUMER.DELETE.KV_fonoster_sessions.any-watcher",
+        {}
+      )
+    ).to.equal(false);
+    // It still can't write outside nodes.* and rooms.*.
+    const wrote = await nodeKv
+      .put("gateways.g7", sc.encode("{}"), { timeout: 1000 })
+      .then(
+        () => true,
+        () => false
+      );
+    expect(wrote).to.equal(false);
+  });
+
   it("limits a cell's region agent to region.> and its local subjects", async function () {
     const agent = await as(cell!, "region-agent");
     const cgw = await as(cell!, "gateway");
