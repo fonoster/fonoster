@@ -38,6 +38,7 @@
     "dev:autopilot": "node .scripts/dev.mjs autopilot",
     "dev:config": "sh .devcontainer/initialize.sh --refresh",
     "dev:dashboard": "node .scripts/dev.mjs dashboard",
+    "dev:e2e-setup": "npx playwright install --with-deps chromium",
     "dev:fakes": "node .scripts/dev.mjs fakes",
     "dev:appbridge": "node .scripts/dev.mjs appbridge",
     "dev:info": "node mods/common/dist/config/cli/index.js info --dir .dev",

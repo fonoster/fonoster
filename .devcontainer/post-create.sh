@@ -16,14 +16,13 @@ npm run build
 # The dev config (.dev/), rendered again with the CLI just built; every secret is kept.
 npm run dev:config
 
-# Headless Chromium + OS deps for the dashboard's Playwright tests (version pinned by package-lock)
-npx playwright install --with-deps chromium
-
 cat <<'MSG'
 
 Fonoster dev container ready. Start everything with:
 
   npm run dev
+
+The dashboard's browser tests need Chromium once: npm run dev:e2e-setup
 
 MSG
 npm run --silent dev:info
