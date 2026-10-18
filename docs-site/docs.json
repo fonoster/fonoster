@@ -61,6 +61,13 @@
                   "self-hosting/overview",
                   "self-hosting/install-compose"
                 ]
+              },
+              {
+                "group": "Integrations",
+                "pages": [
+                  "self-hosting/send-call-metrics-to-clickhouse",
+                  "self-hosting/send-telemetry"
+                ]
               }
             ]
           },
@@ -71,6 +78,12 @@
                 "group": "Private regions",
                 "pages": [
                   "private-regions/overview"
+                ]
+              },
+              {
+                "group": "Control plane",
+                "pages": [
+                  "private-regions/host-private-regions"
                 ]
               }
             ]
