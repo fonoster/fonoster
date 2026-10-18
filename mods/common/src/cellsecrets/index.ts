@@ -278,6 +278,9 @@ export const CELL_WORKSPACE_KEYS_SUBJECT = "cell.workspacekeys.get";
  * workspace has none or the answer does not come within the timeout.
  */
 export class NatsWorkspaceKeys {
+  /** Never cached: the gateway keeps no adapter built with these keys past the call's lookup. */
+  readonly cacheable = false;
+
   constructor(
     private readonly requester: () => Promise<KeyRequester>,
     private readonly timeoutMs = 2000

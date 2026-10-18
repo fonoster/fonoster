@@ -21,6 +21,11 @@ session. The record SHALL be identified by the call's `callRef`.
 - **THEN** the call still has exactly one record
 - **AND** the record lists both apps in order, with the handoff payload
 
+#### Scenario: No record store configured
+
+- **WHEN** a gateway runs without `callRecord` and without `GATEWAY_RECORD_DIR` (development)
+- **THEN** it keeps no record entries in memory, so its memory does not grow with each call
+
 ### Requirement: The record contains the call's parties, timing, transcript, messages and turns
 
 A sealed call record SHALL contain:
