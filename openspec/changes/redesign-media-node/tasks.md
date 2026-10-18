@@ -4,7 +4,7 @@
 ## 1. Pass-through headers (S)
 
 - [ ] 1.1 Replace the node's built-in header names (`X-DOD-Number`, `X-App-Ref`, `X-Call-Ref`, `X-Call-Direction`) with a `headers` map on outbound dials and a full header map on inbound reports
-- [ ] 1.2 Move `X-DOD-Number` into the apiserver's pass-through headers in `placeOutboundCall`
+- [x] 1.2 Move `X-DOD-Number` into the apiserver's pass-through headers in `placeOutboundCall`
 - [ ] 1.3 Test: an INVITE with an arbitrary `X-` header reaches the app in `Start.headers` unchanged; a `CreateCall` header appears on the outbound INVITE byte for byte
 
 ## 2. Registration as configuration (S)
@@ -18,10 +18,10 @@
 
 - [x] 3.1 Add `max_rooms`, `cpu_idle`, `version`, `region`, `control_addr`, `sip_addr`, `rtp_ports`, `participants` and `codecs` to the heartbeat
 - [x] 3.2 Refuse at the limit: `503` for inbound INVITEs, `RESOURCE_EXHAUSTED` for `CreateCall`; `UNAVAILABLE` while draining
-- [ ] 3.3 Controller: score `1 - rooms / max_rooms` over eligible nodes (fresh, not draining, below limit, in region); retry up to 3 nodes; synchronous capacity error (`createNodeDirectory`, `placeOutboundCall`)
-- [ ] 3.4 Test: a node at its limit is skipped; two controllers picking the same node resolve by refusal and retry; every node refusing fails the API call at once
-- [ ] 3.5 Controller: fail over only on `RESOURCE_EXHAUSTED`/`UNAVAILABLE`; on a timeout or lost connection retry the same node with the same `call_ref`; `cpu_idle` ignored for eligibility and score
-- [ ] 3.6 Apiserver: write `call_ref` → `node_ref` to the registry before `CreateCall`; sweep entries whose node is down or answers `NOT_FOUND`, closing the record `FAILED`
+- [x] 3.3 Controller: score `1 - rooms / max_rooms` over eligible nodes (fresh, not draining, below limit, in region); retry up to 3 nodes; synchronous capacity error (`createNodeDirectory`, `placeOutboundCall`)
+- [x] 3.4 Test: a node at its limit is skipped; two controllers picking the same node resolve by refusal and retry; every node refusing fails the API call at once
+- [x] 3.5 Controller: fail over only on `RESOURCE_EXHAUSTED`/`UNAVAILABLE`; on a timeout or lost connection retry the same node with the same `call_ref`; `cpu_idle` ignored for eligibility and score
+- [x] 3.6 Apiserver: write `call_ref` → `node_ref` to the registry before `CreateCall`; sweep entries whose node is down or answers `NOT_FOUND`, closing the record `FAILED`
 - [ ] 3.7 Node: no CPU- or memory-based refusal; `max_rooms` is the only admission limit
 - [ ] 3.8 Test: a timed-out `CreateCall` is retried on the same node and the callee gets one INVITE; a replica killed between the registry write and the RPC is swept; a CPU-saturated node below `max_rooms` accepts
 - [ ] 3.9 Test: heartbeat content (`rooms`, `max_rooms`, `version`, `region`, `draining`, dialable `control_addr`); a killed node is skipped by every controller within 6 s
@@ -65,14 +65,14 @@
 - [ ] 7.1 `roomr.v1.Roomr` server on the node: `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record`, `SendDtmf`; typed gRPC status codes
 - [ ] 7.2 `CreateCall`: idempotent `call_ref`, dial through `to.proxy` with `to.headers` and `to.auth`, `room_ref` join-or-create, `session` override, `ring_timeout_s`, `max_duration_s`, labels
 - [x] 7.3 `Join` with `listen` for listen-only per-track RTP destinations (recording, AMD); `Leave`
-- [ ] 7.4 Apiserver: `placeOutboundCall` calls `CreateCall` at the node's `control_addr`
+- [x] 7.4 Apiserver: `placeOutboundCall` calls `CreateCall` at the node's `control_addr`
 - [ ] 7.5 Retire the `media.<nodeId>.commands` subjects and the NATS command handlers
 - [ ] 7.6 Test: busy/no-answer/rejected calls create no room and no stream; `EndCall` ends inbound and outbound calls; `EndRoom` ends every call in the room
-- [ ] 7.7 `CreateCall` dedupe window (default 10 min, ended calls included); different parameters → `ALREADY_EXISTS`; `401`/`407` answered with `to.auth`, never logged or echoed; `EndCall` while `RINGING` sends `CANCEL`
-- [ ] 7.8 `call_ref_header` config: a well-formed inbound header becomes the `call_ref`, else generated; `CreateCall` `to.headers` carries it; differing `call_ref` → `INVALID_ARGUMENT`
+- [x] 7.7 `CreateCall` dedupe window (default 10 min, ended calls included); different parameters → `ALREADY_EXISTS`; `401`/`407` answered with `to.auth`, never logged or echoed; `EndCall` while `RINGING` sends `CANCEL`
+- [x] 7.8 `call_ref_header` config: a well-formed inbound header becomes the `call_ref`, else generated; `CreateCall` `to.headers` carries it; differing `call_ref` → `INVALID_ARGUMENT`
 - [ ] 7.9 Rooms with no participant and no `CreateCall` in progress for 30 s end with `cause: "node_error"`
 - [ ] 7.10 Test: repeat after end returns `Call{ENDED}`; same ref with different `to` → `ALREADY_EXISTS`; `407` digest challenge answered with no password in logs, events or responses; cancel while ringing
-- [ ] 7.11 Test: inbound ref from the header, generated ref, outbound ref from `to.headers`, conflicting refs
+- [x] 7.11 Test: inbound ref from the header, generated ref, outbound ref from `to.headers`, conflicting refs
 - [ ] 7.12 Test: `CreateRoom` with a taken ref → `ALREADY_EXISTS`; `Leave` removes with `cause: "removed"`; `Play`/`Stop`/`Record` return operations and report `operation.done` (`stopped` on `Stop`); `SendDtmf` RPC sends RFC 4733 in order; unknown field ignored
 - [ ] 7.13 Test: empty `CreateRoom` room and emptied room end after 30 s (short limit) with `node_error`
 
