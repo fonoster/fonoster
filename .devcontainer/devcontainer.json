@@ -26,6 +26,8 @@
   // (Postgres, NATS) are not cut off. Stop them with `docker compose -p fonoster-dev stop`.
   "shutdownAction": "none",
   "remoteUser": "node",
+  // Login shells reset PATH; keep the image's (Go lives in /usr/local/go/bin).
+  "remoteEnv": { "PATH": "${containerEnv:PATH}" },
   // gh, to open pull requests from the container. Log in once with `gh auth login`.
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}

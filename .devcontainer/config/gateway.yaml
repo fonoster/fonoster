@@ -7,3 +7,7 @@ rtp: { advertiseHost: "${SUBNET_PREFIX}.42" }
 testMode: true
 providers:
   deepgram: { adapter: fake, tts: { url: "http://localhost:7001" }, stt: { url: "ws://localhost:7002" } }
+# Call records: a directory and signing key the workspace user can write and read.
+callRecord:
+  dir: /workspaces/fonoster/.dev/records
+  signingKey: { privateKeyFile: /workspaces/fonoster/.dev/config/keys/records.pem }
