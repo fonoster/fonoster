@@ -14,7 +14,7 @@ last message when the socket is still open. The reason SHALL come from the media
 | `removed` after the app's `hangup`, or after an `EndCall`/`EndRoom` from the control plane | `app_hangup` |
 | `removed` after a transfer (cold, `TransferComplete` or `refer`) | `transfer` |
 | `max_duration` | `timeout` |
-| `media_timeout`, `node_error`, `app_gone`, `encryption_required` | `error` |
+| `media_timeout`, `node_error`, `app_gone` | `error` |
 | any cause the gateway does not know | `error` |
 
 A control stream that closes without `Ended` SHALL map to `error`. `busy`, `no_answer` and
@@ -68,13 +68,18 @@ The platform SHALL model every app as a WebSocket URL, a protocol (`fonoster` or
 defaults (voice and language as catalog ids), optional audio filters and an optional fallback. A
 number MUST point to an app. Routr resolves the number and passes the app in `X-App-Ref`; the
 media node passes every header through, and the gateway SHALL take the app from `X-App-Ref` in the
-`headers` of the control stream's `Start` (media-control). It SHALL use a number lookup only as a
+`headers` of the control stream's `Start` (media-control) or, for outbound calls, from `app_ref`
+in its `metadata`, which the caller of `CreateCall` sets. It SHALL use a number lookup only as a
 development fallback when `X-App-Ref` is missing and a routing file is configured, and SHALL
 `Reject` the call with `404` when neither names an app. Outbound calls MUST name an app.
 
 #### Scenario: Inbound routing
 - **WHEN** `Start.headers` carries `X-App-Ref` naming app `A`, whose URL is `wss://bot.example.com/agent`
 - **THEN** the gateway connects to `wss://bot.example.com/agent`
+
+#### Scenario: Outbound routing
+- **WHEN** `Start.metadata` carries `app_ref` naming app `A`
+- **THEN** the gateway connects to app `A`'s URL
 
 #### Scenario: Missing app reference
 - **WHEN** `Start.headers` has no `X-App-Ref` and no development routing file is configured
