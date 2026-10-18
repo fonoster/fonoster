@@ -38,7 +38,7 @@ services:
     # One NATS user per service (add-platform 4.1); each service gets its password below.
     environment:
       NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD:?set NATS_GATEWAY_PASSWORD}
-      NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD:?set NATS_MEDIANODE_PASSWORD}
+      NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD:?set NATS_ROOMR_PASSWORD}
       NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD:?set NATS_ROUTR_PASSWORD}
       NATS_REGION_AGENT_PASSWORD: ${NATS_REGION_AGENT_PASSWORD:?set NATS_REGION_AGENT_PASSWORD}
     volumes:
@@ -107,26 +107,25 @@ services:
       default:
         ipv4_address: ${RB_NET:-10.216.17}.41
 
-  medianode:
+  roomr:
     build:
-      context: ../../../go/medianode
-    image: ${RB_REGISTRY:-fonoster}/medianode:${RB_TAG:-dev}
+      context: ../../../go/roomr
+    image: ${RB_REGISTRY:-fonoster}/roomr:${RB_TAG:-dev}
     restart: unless-stopped
-    stop_grace_period: ${RB_DRAIN_GRACE:-10m}
+    stop_grace_period: ${RB_DRAIN_GRACE:-11m}
     depends_on:
       nats: { condition: service_healthy }
     environment:
       <<: *otel
-      # The ${NAME}s in config/medianode.yaml.
-      MEDIANODE_ID: ${RB_NODE_ID:-node-a}
-      NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD}
-      MEDIANODE_ADVERTISE: ${RB_NODE_ADVERTISE:-${RB_NET:-10.216.17}.42}
-      MEDIANODE_RTP_PORT_MIN: ${RB_NODE_RTP_MIN:-30000}
-      MEDIANODE_RTP_PORT_MAX: ${RB_NODE_RTP_MAX:-30199}
-      MEDIANODE_PASSWORD: ${RB_NODE_PASSWORD:?set RB_NODE_PASSWORD}
-      MEDIANODE_TRUSTED_SOURCE: ${RB_NET:-10.216.17}.40
+      # The ${NAME}s in config/roomr.yaml.
+      ROOMR_ID: ${RB_NODE_ID:-node-a}
+      NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD}
+      ROOMR_ADVERTISE: ${RB_NODE_ADVERTISE:-${RB_NET:-10.216.17}.42}
+      ROOMR_RTP_PORT_MIN: ${RB_NODE_RTP_MIN:-30000}
+      ROOMR_RTP_PORT_MAX: ${RB_NODE_RTP_MAX:-30199}
+      ROOMR_PASSWORD: ${RB_NODE_PASSWORD:?set RB_NODE_PASSWORD}
     volumes:
-      - ./config/medianode.yaml:/config/medianode.yaml:ro
+      - ./config/roomr.yaml:/config/roomr.yaml:ro
     ports:
       - "${RB_NODE_RTP_MIN:-30000}-${RB_NODE_RTP_MAX:-30199}:${RB_NODE_RTP_MIN:-30000}-${RB_NODE_RTP_MAX:-30199}/udp"
     networks:

@@ -149,7 +149,7 @@ NATS users: the Compose region gives each service its own NATS user (`NATS_*_PAS
 permissions in `ops/rebuild/config/nats-permissions/`). Start each password with a letter (for example
 `n$(openssl rand -hex 16)`): NATS can't load a password that starts with a digit. On Kubernetes, give your NATS the same users
 and permission files and create the Secret `nats.auth.secret` (`nats.auth.enabled` is on by default; keys
-`gateway`, `medianode`, `routr`, `region-agent`); see the operator guide, "NATS users and subject
+`gateway`, `roomr`, `routr`, `region-agent`); see the operator guide, "NATS users and subject
 permissions".
 
 ## Firewall
@@ -173,7 +173,7 @@ Upgrades are yours: nothing changes in the region until you roll its images.
    of the control plane (see Versions below).
 2. Compose: set the image tags (`RB_TAG`) and `docker compose -f ops/rebuild/cell/compose.yaml up -d`.
    Helm: `helm upgrade` with the new image tags. The media nodes drain (calls in progress finish, up
-   to `medianode.drainGraceSeconds`) and the gateways keep in-flight sessions until they end.
+   to `roomr.drainGraceSeconds`) and the gateways keep in-flight sessions until they end.
 3. The region agent reports the new version on its next heartbeat; the dashboard's Region page
    shows it. Config sync resumes on its own if it had paused for an unsupported version.
 

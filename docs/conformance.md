@@ -11,7 +11,7 @@ send back. Any implementation, in any language, passes or fails the same files. 
 | Layer | Plays | Under test | Needs |
 | --- | --- | --- | --- |
 | Fake node | Fake media node and fake STT, TTS and LLM | VoiceSessionGateway (TypeScript) | NATS |
-| Go node | A SIP caller bot, the test plays the gateway | `go/medianode` | NATS, Go 1.26 |
+| Go node | A SIP caller bot, the test plays the gateway | `go/roomr` | NATS, Go 1.26 |
 | Real stack | Caller bot through Routr, real gateway and node | Everything together | Routr, node, gateway (nightly, not yet automated: conformance task 2.5 and 3.11) |
 
 ## Quick start
@@ -45,7 +45,7 @@ npx mocha 'mods/conformance/test/**/*.test.ts' --exit --timeout 30000
 ### Go media node
 
 ```sh
-cd go/medianode
+cd go/roomr
 test -z "$(gofmt -l .)" && GOTOOLCHAIN=local go vet ./...
 GOTOOLCHAIN=local go test -race ./...          # e2e tests run when CONFORMANCE_NATS_URL is set
 cd ../.. && npx mocha --exit --timeout 30000 \
@@ -61,7 +61,7 @@ cd ../.. && npx mocha --exit --timeout 30000 \
 
 Real SIP calls need Routr and the whole platform up (the dev container's `npm run dev`, or
 `ops/rebuild/stack up`). The caller bot
-(`go/medianode/cmd/sipcaller`) places the calls; the nightly end-to-end suite is still to be wired
+(`go/roomr/cmd/sipcaller`) places the calls; the nightly end-to-end suite is still to be wired
 (conformance tasks 2.5 and 3.11). Until then, run the Go node against the gateway with
 `mods/appbridge/test/gonode.test.ts`, which is the closest automated check.
 

@@ -93,7 +93,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       expect(svc.image, name).to.be.a("string");
     }
     for (const svc of [
-      "medianode",
+      "roomr",
       "appbridge",
       "autopilot",
       "apiserver",
@@ -116,7 +116,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
         "dashboard",
         "envoy",
         "appbridge",
-        "medianode",
+        "roomr",
         "minio",
         "nats",
         "postgres",
@@ -130,7 +130,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     apiserver: "fonoster",
     appbridge: "gateway",
     autopilot: "autopilot",
-    medianode: "medianode"
+    roomr: "roomr"
   };
 
   /** The ${NAME}s a config example names (comments included: optional settings), but `NAME`. */
@@ -409,7 +409,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       expect(read(`ops/bundle/config/${f}`), f).to.equal(
         read(`ops/rebuild/config/${f}`)
       );
-    for (const u of ["apiserver", "gateway", "medianode", "routr"])
+    for (const u of ["apiserver", "gateway", "roomr", "routr"])
       expect(
         body(read(`ops/bundle/config/nats-permissions/${u}.conf`)),
         u
@@ -518,7 +518,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       "fonoster.yaml",
       "gateway.yaml",
       "autopilot.yaml",
-      "medianode.yaml"
+      "roomr.yaml"
     ]) {
       const text = fs.readFileSync(path.join(dir, f), "utf8");
       for (const [k, v] of Object.entries(env))

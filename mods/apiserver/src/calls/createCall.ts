@@ -90,13 +90,16 @@ function createCall(
     } catch (e) {
       if (!(e instanceof CallPlacementError)) throw e;
       logger.warn("call not placed", { ref, code: e.code, message: e.message });
+      const code =
+        {
+          no_capacity: status.RESOURCE_EXHAUSTED,
+          invalid_argument: status.INVALID_ARGUMENT,
+          already_exists: status.ALREADY_EXISTS
+        }[e.code] ?? status.UNAVAILABLE;
       callback({
-        code:
-          e.code === "no_capacity"
-            ? status.RESOURCE_EXHAUSTED
-            : status.UNAVAILABLE,
+        code,
         message:
-          e.code === "no_capacity"
+          code === status.RESOURCE_EXHAUSTED
             ? `No capacity to place the call: ${e.message}`
             : `The call could not be placed: ${e.message}`
       });

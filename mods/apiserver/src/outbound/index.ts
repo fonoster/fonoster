@@ -18,4 +18,5 @@
  */
 export * from "./createNodeDirectory";
 export * from "./placeOutboundCall";
+export * from "./placementSweep";
 export * from "./runOutboundCalls";

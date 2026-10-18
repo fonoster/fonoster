@@ -34,7 +34,7 @@ services:
     environment:
       NATS_APISERVER_PASSWORD: ${NATS_APISERVER_PASSWORD:?run fonoster-config init}
       NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD:?run fonoster-config init}
-      NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD:?run fonoster-config init}
+      NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD:?run fonoster-config init}
       NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD:?run fonoster-config init}
     ports:
       - "${NATS_BIND:-127.0.0.1}:${NATS_PORT:-4222}:4222"
@@ -121,28 +121,29 @@ services:
       default:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.41
 
-  # The media node: config/medianode.yaml.
-  medianode:
-    image: fonoster/medianode:${FONOSTER_VERSION:?set FONOSTER_VERSION}
+  # The media node: config/roomr.yaml.
+  roomr:
+    image: fonoster/roomr:${FONOSTER_VERSION:?set FONOSTER_VERSION}
     restart: unless-stopped
-    # SIGTERM drains: the node reports full and exits when its rooms end or the wait runs out.
-    stop_grace_period: ${MEDIANODE_DRAIN_GRACE:-10m}
+    # SIGTERM drains: the node unregisters, publishes node.down and exits when its rooms end or
+    # drainWait (config/roomr.yaml, 10m) runs out; the grace period is a little longer.
+    stop_grace_period: ${ROOMR_DRAIN_GRACE:-11m}
     depends_on:
       nats: { condition: service_healthy }
-    # The ${NAME}s in config/medianode.yaml, nothing else from .env.
+    # The ${NAME}s in config/roomr.yaml, nothing else from .env.
     environment:
-      MEDIANODE_ID: ${MEDIANODE_ID:-}
-      MEDIANODE_PASSWORD: ${MEDIANODE_PASSWORD:?run fonoster-config init}
-      MEDIANODE_RTP_PORT_MIN: ${MEDIANODE_RTP_PORT_MIN:-11000}
-      MEDIANODE_RTP_PORT_MAX: ${MEDIANODE_RTP_PORT_MAX:-11999}
-      NATS_MEDIANODE_PASSWORD: ${NATS_MEDIANODE_PASSWORD:?run fonoster-config init}
+      ROOMR_ID: ${ROOMR_ID:-}
+      ROOMR_PASSWORD: ${ROOMR_PASSWORD:?run fonoster-config init}
+      ROOMR_RTP_PORT_MIN: ${ROOMR_RTP_PORT_MIN:-11000}
+      ROOMR_RTP_PORT_MAX: ${ROOMR_RTP_PORT_MAX:-11999}
+      NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD:?run fonoster-config init}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       SIP_PORT: ${SIP_PORT:-5060}
       SUBNET_PREFIX: ${SUBNET_PREFIX:-10.216.30}
     volumes:
-      - ${CONFIG_DIR:-./config}/medianode.yaml:/config/medianode.yaml:ro
+      - ${CONFIG_DIR:-./config}/roomr.yaml:/config/roomr.yaml:ro
     ports:
-      - "${MEDIANODE_RTP_PORT_MIN:-11000}-${MEDIANODE_RTP_PORT_MAX:-11999}:${MEDIANODE_RTP_PORT_MIN:-11000}-${MEDIANODE_RTP_PORT_MAX:-11999}/udp"
+      - "${ROOMR_RTP_PORT_MIN:-11000}-${ROOMR_RTP_PORT_MAX:-11999}:${ROOMR_RTP_PORT_MIN:-11000}-${ROOMR_RTP_PORT_MAX:-11999}/udp"
     networks:
       default:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.42
@@ -232,7 +233,7 @@ services:
       AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?run fonoster-config init}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
       HOST_IP: ${HOST_IP:?run fonoster-config init}
-      MEDIANODE_PASSWORD: ${MEDIANODE_PASSWORD:?run fonoster-config init}
+      ROOMR_PASSWORD: ${ROOMR_PASSWORD:?run fonoster-config init}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fonoster}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run fonoster-config init}
       NATS_APISERVER_PASSWORD: ${NATS_APISERVER_PASSWORD:?run fonoster-config init}

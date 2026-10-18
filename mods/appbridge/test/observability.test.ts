@@ -74,7 +74,7 @@ describe("@gateway OpenTelemetry signals from one real call (Go media node)", fu
 
   after(async () => nc?.close());
 
-  it("the gateway and the media node deliver traces, metrics and logs tagged with the call ref", async function () {
+  it("the gateway and the media node deliver traces and metrics (the node sends no OTLP logs) tagged with the call ref", async function () {
     const collector = await new OtlpCollector().start();
     const callRef = `obs-${Date.now()}`;
     const harness = new RealMediaHarness(nc, bins!, { vendorCalls: () => 0 });
@@ -99,14 +99,13 @@ describe("@gateway OpenTelemetry signals from one real call (Go media node)", fu
       await harness.media.shutdown();
 
       const gw = "fonoster-gateway";
-      const node = "fonoster-medianode";
+      const node = "fonoster-roomr";
       await collector.until(
         () =>
           collector.has(gw, "traces", CALL_REF_ATTR, callRef) &&
           collector.has(gw, "logs", CALL_REF_ATTR, callRef) &&
           collector.has(gw, "metrics") &&
           collector.has(node, "traces", CALL_REF_ATTR, callRef) &&
-          collector.has(node, "logs") &&
           collector.has(node, "metrics"),
         "every signal from the gateway and the media node"
       );

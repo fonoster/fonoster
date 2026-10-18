@@ -93,7 +93,10 @@ describe("@region-agent bounded state", function () {
     const a = await startAgent(nc);
     for (let i = 0; i < 100; i++) {
       send("gateway.heartbeat", { gatewayRef: `gw-${i}`, calls: 1 });
-      send("media.*.heartbeat", { type: "node.heartbeat", nodeId: `n-${i}` });
+      send("roomr.nodes.*.heartbeat", {
+        type: "node.heartbeat",
+        node_ref: `n-${i}`
+      });
       await clock.tickAsync(5_000); // each "restart" gets a new ref
     }
     await a.heartbeat();

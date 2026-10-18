@@ -41,7 +41,7 @@
     "dev:fakes": "node .scripts/dev.mjs fakes",
     "dev:appbridge": "node .scripts/dev.mjs appbridge",
     "dev:info": "node mods/common/dist/config/cli/index.js info --dir .dev",
-    "dev:medianode": "node .scripts/dev.mjs medianode",
+    "dev:roomr": "node .scripts/dev.mjs roomr",
     "format": "prettier --write mods/**/src",
     "generate:prisma-clients": "npx prisma generate --schema mods/apiserver/schema.prisma && npx prisma generate --schema mods/identity/schema.prisma",
     "generate:protos": ".scripts/gen-code-proto.sh",

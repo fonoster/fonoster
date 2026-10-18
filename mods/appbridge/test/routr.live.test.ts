@@ -18,6 +18,9 @@
  */
 import { ChildProcess, spawn } from "child_process";
 import * as dgram from "dgram";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import * as readline from "readline";
 import {
   buildMediaNode,
@@ -48,11 +51,42 @@ const SECRET = "routr-live-secret";
 const ROUTING: MediaNodeRouting = {
   aor: "sip:medianode@rig.local",
   username: "medianode",
-  password: "rig-medianode-pass",
+  password: "rig-roomr-pass",
   inboundUri: "trunk.rig.local",
   number: "+17853178070",
   appRef: "app-rig"
 };
+
+/**
+ * The node's registration with Routr (sip.registrations): the Peer above, with the session count
+ * Routr's least-sessions reads. Small loads re-register on the timer (5+ rooms re-register at
+ * once), so the expiry is short here.
+ */
+function nodeConfig(nodeId: string, sipPort: number): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "routr-live-"));
+  const file = path.join(dir, "roomr.yaml");
+  fs.writeFileSync(
+    file,
+    [
+      `nodeId: ${nodeId}`,
+      `nats: { url: "${NATS_URL}" }`,
+      "rtp: { host: 127.0.0.1, advertise: 127.0.0.1 }",
+      `outboundProxy: "${ROUTR_SIP}"`,
+      "sip:",
+      `  listen: "0.0.0.0:${sipPort}"`,
+      `  advertise: "${HOST_ADDR}"`,
+      "  callRefHeader: X-Call-Ref",
+      "  registrations:",
+      `    - registrar: "${ROUTR_SIP}"`,
+      `      aor: "${ROUTING.aor}"`,
+      "      expires: 4s",
+      `      auth: { username: "${ROUTING.username}", password: "${ROUTING.password}" }`,
+      '      headers: { X-Session-Count: "{sessions}" }',
+      ""
+    ].join("\n")
+  );
+  return file;
+}
 
 async function freeUdpPort(): Promise<number> {
   const s = dgram.createSocket("udp4");
@@ -157,34 +191,8 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
 
     nodePort = await freeUdpPort();
     const node = await start(
-      bins.medianode,
-      [
-        "-node-id",
-        `routr-live-${Date.now()}`,
-        "-nats",
-        NATS_URL,
-        "-sip",
-        `0.0.0.0:${nodePort}`,
-        "-sip-advertise",
-        HOST_ADDR,
-        "-rtp",
-        "127.0.0.1",
-        "-rtp-advertise",
-        "127.0.0.1",
-        "-registrar",
-        ROUTR_SIP,
-        "-domain",
-        "rig.local",
-        "-username",
-        ROUTING.username,
-        "-password",
-        ROUTING.password,
-        "-outbound-proxy",
-        ROUTR_SIP,
-        // Small loads re-register on the timer (5+ rooms re-register at once); keep it short here.
-        "-register-every",
-        "2s"
-      ],
+      bins.roomr,
+      ["-config", nodeConfig(`routr-live-${Date.now()}`, nodePort)],
       /ready/
     );
     procs.push(node.child);

@@ -32,10 +32,10 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 const sc = StringCodec();
 
 /**
- * How long CreateCall waits for a node to accept the call's room: up to three nodes at the
- * media-control reply timeout (2 s) each, plus margin.
+ * How long CreateCall waits for the placement: CreateRoom (a retry on a timeout, up to three
+ * nodes), the gateway's claim and CreateCall (a retry on a timeout), 2 s each, plus margin.
  */
-const PLACE_TIMEOUT_MS = 8000;
+const PLACE_TIMEOUT_MS = 15000;
 
 async function createCallPublisher(nats: NatsTarget) {
   const options = natsConnectOptions(nats);
@@ -50,8 +50,9 @@ function callPublisher(nc: NatsConnection) {
   return {
     /**
      * Asks the outbound placement (any replica's `calls.create` queue group) to place the call,
-     * and resolves once a media node has accepted its room. Rejects with a CallPlacementError:
-     * `no_capacity` when no node took it, `unavailable` when no replica answered.
+     * and resolves once a media node has accepted CreateCall. Rejects with a CallPlacementError:
+     * `no_capacity` when no node took it, `invalid_argument` or `already_exists` as the node
+     * said, `unavailable` otherwise (no replica answered included).
      */
     publishCall: async (request: CreateCallRequest & { ref: string }) => {
       logger.verbose("placing call", { ref: request.ref });

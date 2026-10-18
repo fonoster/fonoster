@@ -19,7 +19,7 @@ on:
       - '.devcontainer/**'
       - 'compose.yaml'
       - '**/Dockerfile'
-      - 'go/medianode/**'
+      - 'go/roomr/**'
       - 'mods/**'
       - '!mods/**/test/**'
       - '!mods/**/*.md'

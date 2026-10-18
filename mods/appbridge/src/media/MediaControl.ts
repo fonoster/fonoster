@@ -82,8 +82,9 @@ export interface MediaControl {
 
 /** Subject media nodes send `call.incoming` requests to. */
 export const INCOMING_SUBJECT = "gateway.incoming";
-/** Every node's heartbeat subject. */
-export const heartbeatSubject = (nodeId: string) => `media.${nodeId}.heartbeat`;
+/** A node's heartbeat and node.down subject (media-control "Nodes report capacity and liveness"). */
+export const heartbeatSubject = (nodeRef: string) =>
+  `roomr.nodes.${nodeRef}.heartbeat`;
 
 const sc = StringCodec();
 
@@ -116,9 +117,15 @@ export class NatsMediaControl implements MediaControl {
   ): Promise<MediaReply> {
     let reply: MediaReply;
     try {
+      // The gateway names itself on every command: the node ends the room if this gateway
+      // goes away (media-node "Rooms without an owner end"), also for calls placed over Roomr,
+      // whose CreateCall names no gateway.
+      const body = this.options.gatewayRef
+        ? { ...command, gatewayRef: this.options.gatewayRef }
+        : command;
       const msg = await this.nc.request(
         `media.${nodeId}.commands`,
-        sc.encode(JSON.stringify(command)),
+        sc.encode(JSON.stringify(body)),
         {
           timeout: this.options.timeoutMs ?? REPLY_TIMEOUT_MS,
           ...(traceparent ? { headers: traceHeaders(traceparent) } : {})

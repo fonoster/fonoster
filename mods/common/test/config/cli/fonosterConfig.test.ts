@@ -136,7 +136,7 @@ describe("@common[config/cli] fonoster-config", function () {
         "config/fonoster.yaml",
         "config/gateway.yaml",
         "config/autopilot.yaml",
-        "config/medianode.yaml",
+        "config/roomr.yaml",
         "config/routr-edgeport.yaml",
         "config/keys/private.pem",
         "config/keys/public.pem",
@@ -165,15 +165,15 @@ describe("@common[config/cli] fonoster-config", function () {
         "MINIO_ROOT_PASSWORD",
         "NATS_APISERVER_PASSWORD",
         "NATS_GATEWAY_PASSWORD",
-        "NATS_MEDIANODE_PASSWORD",
+        "NATS_ROOMR_PASSWORD",
         "NATS_ROUTR_PASSWORD",
         "AUTOPILOT_SIGNING_SECRET",
-        "MEDIANODE_PASSWORD",
+        "ROOMR_PASSWORD",
         "OWNER_PASSWORD",
         "ENCRYPTION_KEY"
       ])
         expect(env.get(name), name).to.have.length.greaterThan(15);
-      for (const svc of ["APISERVER", "GATEWAY", "MEDIANODE", "ROUTR"])
+      for (const svc of ["APISERVER", "GATEWAY", "ROOMR", "ROUTR"])
         expect(env.get(`NATS_${svc}_PASSWORD`)).to.match(/^[a-z][0-9a-f]+$/);
       expect(env.get("ENCRYPTION_KEY")).to.match(
         /^k1\.aesgcm256\.[A-Za-z0-9_-]{43}=$/
@@ -272,7 +272,7 @@ describe("@common[config/cli] fonoster-config", function () {
         "fonoster.yaml",
         "gateway.yaml",
         "autopilot.yaml",
-        "medianode.yaml",
+        "roomr.yaml",
         "routr-edgeport.yaml"
       ]) {
         const text = readFileSync(join(dir, "config", f), "utf8");

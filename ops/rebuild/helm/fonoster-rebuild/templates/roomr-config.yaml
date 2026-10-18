@@ -1,0 +1,43 @@
+{{- if .Values.roomr.enabled }}
+{{- $m := .Values.roomr }}
+{{- /* The media node reads only this file (its one flag is -config; no ROOMR_* variables). Values the pod
+knows at start are ${VAR} placeholders the node fills from the env the StatefulSet sets: POD_NAME,
+HOST_IP and ROUTR_PEER_PASSWORD. */}}
+{{- $sipAdvertise := ternary "${HOST_IP}" $m.sip.advertise (eq $m.sip.advertise "hostIP") }}
+{{- $rtpAdvertise := ternary "${HOST_IP}" $m.rtp.advertise (eq $m.rtp.advertise "hostIP") }}
+{{- $cfg := dict "nodeId" "${POD_NAME}" }}
+{{- $_ := set $cfg "nats" (include "fonoster-rebuild.natsConfig" (dict "root" $ "user" "roomr") | fromYaml) }}
+{{- /* The node knows no registrar by name: roomr.routr fills one sip.registrations entry
+(Routr's least-sessions reads X-Session-Count; dialed calls go out as the same peer);
+roomr.sip.registrations replaces it with the registrars you list ([] sends no REGISTER). */}}
+{{- $user := $m.routr.username | default "${POD_NAME}" }}
+{{- $auth := dict "username" $user "password" "${ROUTR_PEER_PASSWORD:-}" }}
+{{- $sip := dict "listen" $m.sip.listen "advertise" $sipAdvertise }}
+{{- if $m.callRefHeader }}{{- $_ := set $sip "callRefHeader" $m.callRefHeader }}{{- end }}
+{{- if kindIs "slice" $m.sip.registrations }}
+{{- $_ := set $sip "registrations" $m.sip.registrations }}
+{{- else if $m.routr.registrar }}
+{{- $_ := set $sip "registrations" (list (dict "registrar" $m.routr.registrar "aor" (printf "sip:%s@%s" $user $m.routr.domain) "auth" $auth "expires" "30s" "headers" (dict "X-Session-Count" "{sessions}"))) }}
+{{- end }}
+{{- $_ := set $cfg "sip" $sip }}
+{{- $_ := set $cfg "rtp" (dict "host" "0.0.0.0" "advertise" $rtpAdvertise "portMin" ($m.rtp.portMin | int) "portMax" ($m.rtp.portMax | int)) }}
+{{- $_ := set $cfg "outboundProxy" $m.routr.outboundProxy }}
+{{- /* Rooms get drainGraceSeconds to end after SIGTERM (the pod's grace period is longer). */}}
+{{- $_ := set $cfg "drainWait" (printf "%ds" ($m.drainGraceSeconds | int)) }}
+{{- /* Roomr for the apiserver; the node advertises it on sip.advertise's host. */}}
+{{- $_ := set $cfg "control" (dict "grpc" (dict "listen" (printf "0.0.0.0:%d" ($m.controlPort | int)))) }}
+{{- if $m.tls.enabled }}
+{{- /* Optional SIP over TLS: the listener, and ca.crt to trust the edge's certificate. */}}
+{{- $tls := dict "listen" $m.tls.listen "cert" "/etc/roomr/tls/tls.crt" "key" "/etc/roomr/tls/tls.key" "ca" "/etc/roomr/tls/ca.crt" }}
+{{- $_ := set $cfg "tls" $tls }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-roomr
+  labels:
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+data:
+  roomr.yaml: |
+    {{- toYaml $cfg | nindent 4 }}
+{{- end }}

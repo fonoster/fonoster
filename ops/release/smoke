@@ -61,8 +61,8 @@ sed -e "s/^COMPOSE_PROJECT_NAME=.*/COMPOSE_PROJECT_NAME=$PROJECT/" \
   -e "s/^MINIO_CONSOLE_PORT=.*/MINIO_CONSOLE_PORT=$((BASE + 5))/" \
   -e "s/^RTPENGINE_PORT_MIN=.*/RTPENGINE_PORT_MIN=$((BASE + 10))/" \
   -e "s/^RTPENGINE_PORT_MAX=.*/RTPENGINE_PORT_MAX=$((BASE + 39))/" \
-  -e "s/^MEDIANODE_RTP_PORT_MIN=.*/MEDIANODE_RTP_PORT_MIN=$((BASE + 40))/" \
-  -e "s/^MEDIANODE_RTP_PORT_MAX=.*/MEDIANODE_RTP_PORT_MAX=$((BASE + 69))/" \
+  -e "s/^ROOMR_RTP_PORT_MIN=.*/ROOMR_RTP_PORT_MIN=$((BASE + 40))/" \
+  -e "s/^ROOMR_RTP_PORT_MAX=.*/ROOMR_RTP_PORT_MAX=$((BASE + 69))/" \
   .env.example >.env
 
 log "fonoster-config init"

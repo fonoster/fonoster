@@ -51,7 +51,7 @@ export const FONOSTER_SERVICE_FILES = [
   "identity",
   "gateway",
   "autopilot",
-  "medianode"
+  "roomr"
 ];
 
 /**

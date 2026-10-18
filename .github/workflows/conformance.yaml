@@ -79,8 +79,8 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: go/medianode/go.mod
-          cache-dependency-path: go/medianode/go.sum
+          go-version-file: go/roomr/go.mod
+          cache-dependency-path: go/roomr/go.sum
 
       - name: Install libopus
         run: sudo apt-get update -qq && sudo apt-get install -y -qq libopus-dev
@@ -105,7 +105,7 @@ jobs:
             'mods/conformance/test/media-control-go.test.ts' \
             'mods/appbridge/test/gonode.test.ts' \
             'mods/appbridge/test/observability.test.ts' \
-            'mods/conformance/test/medianode-secrets.test.ts' \
+            'mods/conformance/test/roomr-secrets.test.ts' \
             'mods/autopilot/test/session/fullstack.test.ts' \
             'mods/apiserver/test/outbound/placeOutboundCall.test.ts' \
             'mods/apiserver/test/outbound/controlPlane.test.ts'

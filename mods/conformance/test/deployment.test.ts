@@ -55,11 +55,11 @@ function hasHelm() {
   }
 }
 
-/** The media nodes' rendered medianode.yaml. */
+/** The media nodes' rendered roomr.yaml. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function medianodeConfig(objs: K8sObject[]): Record<string, any> {
+function roomrConfig(objs: K8sObject[]): Record<string, any> {
   return parseAllDocuments(
-    find(objs, "ConfigMap", "fonoster-medianode")!.data!["medianode.yaml"]
+    find(objs, "ConfigMap", "fonoster-roomr")!.data!["roomr.yaml"]
   )[0].toJS();
 }
 
@@ -88,7 +88,7 @@ function fakeSecretsDir() {
     },
     "fonoster-apiserver": { ownerPassword: "owner-pass" },
     "fonoster-autopilot": { secret: "ap-secret" },
-    "medianode-peer": { password: "peer-pass" },
+    "roomr-peer": { password: "peer-pass" },
     "fonoster-minio": { rootUser: "minio", rootPassword: "minio-pass" },
     "fonoster-vendors": { deepgram: "dg-key" }
   };
@@ -137,39 +137,64 @@ describe("@conformance/deployment (Helm chart)", function () {
   it("renders only the data plane by default", function () {
     const objs = render();
     expect(find(objs, "Deployment", "fonoster-appbridge")).to.exist;
-    expect(find(objs, "StatefulSet", "fonoster-medianode")).to.exist;
+    expect(find(objs, "StatefulSet", "fonoster-roomr")).to.exist;
     expect(find(objs, "Deployment", "fonoster-apiserver")).to.not.exist;
     expect(find(objs, "StatefulSet", "fonoster-nats")).to.not.exist;
   });
 
-  it("media nodes accept INVITEs only from trusted sources by default and refuse to render open (H9)", function () {
-    // The media node's config file, from the chart's ConfigMap.
-    const trustedOf = (objs: K8sObject[]) => {
-      const cm = find(objs, "ConfigMap", "fonoster-medianode");
-      const cfg = parseAllDocuments(
-        cm?.data?.["medianode.yaml"] ?? ""
-      )[0]?.toJS() as { trustedSources?: string[] } | undefined;
-      return cfg?.trustedSources;
+  it("rolls media nodes out by draining: gRPC readiness, a long grace period and a PodDisruptionBudget", function () {
+    const objs = render();
+    const sts = find(objs, "StatefulSet", "fonoster-roomr")!;
+    const spec = sts.spec as {
+      template: {
+        spec: {
+          terminationGracePeriodSeconds: number;
+          containers: {
+            args?: string[];
+            readinessProbe?: { grpc?: { port: number } };
+            startupProbe?: { grpc?: { port: number } };
+          }[];
+        };
+      };
     };
-    const trusted = trustedOf(render());
-    expect(trusted, "a default trusted-sources list").to.be.an("array").that.is
-      .not.empty;
-    expect(trusted).to.not.include("0.0.0.0/0");
-    expect(() =>
-      execFileSync(
-        "helm",
-        ["template", "fonoster", CHART, "--set=medianode.trustedSources="],
-        { stdio: "pipe" }
-      )
-    ).to.throw(/trustedSources is empty/);
+    const pod = spec.template.spec;
+    const c = pod.containers[0];
+    // The control port's gRPC health service is the readiness (and startup) probe.
+    expect(c.readinessProbe?.grpc?.port).to.equal(50061);
+    expect(c.startupProbe?.grpc?.port).to.equal(50061);
+    // No flags but the config file: drain wait and the rest are in roomr.yaml.
+    expect(c.args).to.equal(undefined);
+    const drainWait = roomrConfig(objs).drainWait as string;
+    expect(drainWait).to.equal("600s");
+    expect(pod.terminationGracePeriodSeconds).to.be.greaterThan(600);
+    const pdb = find(objs, "PodDisruptionBudget", "fonoster-roomr")!;
+    expect(pdb.spec).to.deep.include({ minAvailable: 1 });
+    // maxUnavailable instead, from values.
+    const alt = find(
+      render(
+        "--set=roomr.podDisruptionBudget.minAvailable=null",
+        "--set=roomr.podDisruptionBudget.maxUnavailable=1"
+      ),
+      "PodDisruptionBudget",
+      "fonoster-roomr"
+    )!;
+    expect(alt.spec).to.deep.include({ maxUnavailable: 1 });
+    expect(alt.spec).to.not.have.property("minAvailable");
+    // And no PodDisruptionBudget at all when disabled.
     expect(
-      trustedOf(
-        render(
-          "--set=medianode.trustedSources=",
-          "--set=medianode.allowAnySource=true"
-        )
+      find(
+        render("--set=roomr.podDisruptionBudget=null"),
+        "PodDisruptionBudget",
+        "fonoster-roomr"
       )
     ).to.equal(undefined);
+  });
+
+  it("renders no trusted-sources setting for the media nodes (network isolation is the boundary)", function () {
+    const config = roomrConfig(render());
+    expect(config).to.not.have.property("trustedSources");
+    expect(config).to.not.have.property("debugAddr");
+    expect(config).to.not.have.property("sessionRegistry");
   });
 
   it("renders every deployable of the cloud install, with a migrations Job", function () {
@@ -181,7 +206,7 @@ describe("@conformance/deployment (Helm chart)", function () {
       ["Deployment", "fonoster-envoy"],
       ["Deployment", "fonoster-autopilot"],
       ["Deployment", "fonoster-appbridge"],
-      ["StatefulSet", "fonoster-medianode"],
+      ["StatefulSet", "fonoster-roomr"],
       ["StatefulSet", "fonoster-nats"],
       ["StatefulSet", "fonoster-postgres"],
       ["StatefulSet", "fonoster-minio"]
@@ -330,17 +355,15 @@ describe("@conformance/deployment (Helm chart)", function () {
   it("gives every service its NATS user and the chart's NATS the users (nats.auth)", function () {
     const objs = render("values-cloud.yaml", "--set=regionAgent.enabled=true");
     const conf = find(objs, "ConfigMap", "fonoster-nats")!.data!;
-    ["apiserver", "gateway", "medianode", "routr", "region-agent"].forEach(
-      (u) => {
-        expect(conf["nats.conf"]).to.contain(`{ user: ${u}, password: $NATS_`);
-        expect(conf[`permissions-${u}.conf`], u).to.equal(
-          fs.readFileSync(
-            path.join(ROOT, "ops/rebuild/config/nats-permissions", `${u}.conf`),
-            "utf8"
-          )
-        );
-      }
-    );
+    ["apiserver", "gateway", "roomr", "routr", "region-agent"].forEach((u) => {
+      expect(conf["nats.conf"]).to.contain(`{ user: ${u}, password: $NATS_`);
+      expect(conf[`permissions-${u}.conf`], u).to.equal(
+        fs.readFileSync(
+          path.join(ROOT, "ops/rebuild/config/nats-permissions", `${u}.conf`),
+          "utf8"
+        )
+      );
+    });
     const env = (kind: string, name: string) =>
       JSON.stringify(find(objs, kind, name)!.spec);
     expect(env("StatefulSet", "fonoster-nats")).to.contain(
@@ -349,13 +372,13 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(env("Deployment", "fonoster-appbridge")).to.contain(
       '"name":"NATS_GATEWAY_PASSWORD","valueFrom":{"secretKeyRef":{"name":"fonoster-nats-users","key":"gateway"}}'
     );
-    expect(env("StatefulSet", "fonoster-medianode")).to.contain(
-      '"name":"NATS_MEDIANODE_PASSWORD","valueFrom":{"secretKeyRef":{"name":"fonoster-nats-users","key":"medianode"}}'
+    expect(env("StatefulSet", "fonoster-roomr")).to.contain(
+      '"name":"NATS_ROOMR_PASSWORD","valueFrom":{"secretKeyRef":{"name":"fonoster-nats-users","key":"roomr"}}'
     );
-    expect(medianodeConfig(objs).nats).to.deep.equal({
+    expect(roomrConfig(objs).nats).to.deep.equal({
       url: "nats://fonoster-nats:4222",
-      user: "medianode",
-      password: "secret://env/NATS_MEDIANODE_PASSWORD"
+      user: "roomr",
+      password: "secret://env/NATS_ROOMR_PASSWORD"
     });
     const agent = parseAllDocuments(
       find(objs, "ConfigMap", "fonoster-region-agent")!.data![
@@ -439,36 +462,51 @@ describe("@conformance/deployment (Helm chart)", function () {
     ).to.not.include("records");
   });
 
-  it("renders the media nodes' mutual TLS toward the edge (add-platform 4.2)", function () {
-    const objs = render("--set=medianode.tls.enabled=true");
-    expect(medianodeConfig(objs).tls).to.deep.equal({
+  it("renders the media nodes' optional SIP over TLS", function () {
+    const objs = render("--set=roomr.tls.enabled=true");
+    expect(roomrConfig(objs).tls).to.deep.equal({
       listen: "0.0.0.0:5061",
-      cert: "/etc/medianode/tls/tls.crt",
-      key: "/etc/medianode/tls/tls.key",
-      ca: "/etc/medianode/tls/ca.crt",
-      clientCa: "/etc/medianode/tls/ca.crt"
+      cert: "/etc/roomr/tls/tls.crt",
+      key: "/etc/roomr/tls/tls.key",
+      ca: "/etc/roomr/tls/ca.crt"
     });
     expect(
-      JSON.stringify(find(objs, "StatefulSet", "fonoster-medianode")!.spec)
-    ).to.contain('"secretName":"medianode-tls"');
-    expect(medianodeConfig(render()).tls).to.equal(undefined);
+      JSON.stringify(find(objs, "StatefulSet", "fonoster-roomr")!.spec)
+    ).to.contain('"secretName":"roomr-tls"');
+    expect(roomrConfig(render()).tls).to.equal(undefined);
   });
 
-  // fix-config-and-placement-gaps: the node reads no MEDIANODE_* variables, so the chart passes
-  // everything in medianode.yaml, with the pod's own values as ${VAR} placeholders.
-  it("configures the media nodes through medianode.yaml, not MEDIANODE_* variables", function () {
-    const objs = render("--set=medianode.trustedSources=10.0.0.1");
-    const node = find(objs, "StatefulSet", "fonoster-medianode")!;
-    // (NATS_MEDIANODE_PASSWORD is the node's NATS password, nats.auth.)
-    expect(JSON.stringify(node)).to.not.match(/"MEDIANODE_|\$\{MEDIANODE_/);
+  // fix-config-and-placement-gaps: the node reads no ROOMR_* variables, so the chart passes
+  // everything in roomr.yaml, with the pod's own values as ${VAR} placeholders.
+  it("configures the media nodes through roomr.yaml, not ROOMR_* variables", function () {
+    const objs = render();
+    const node = find(objs, "StatefulSet", "fonoster-roomr")!;
+    // (NATS_ROOMR_PASSWORD is the node's NATS password, nats.auth.)
+    expect(JSON.stringify(node)).to.not.match(/"ROOMR_|\$\{ROOMR_/);
     expect(JSON.stringify(node.spec)).to.contain(
-      '"mountPath":"/config/medianode.yaml","subPath":"medianode.yaml"'
+      '"mountPath":"/config/roomr.yaml","subPath":"roomr.yaml"'
     );
-    const config = medianodeConfig(objs);
+    const config = roomrConfig(objs);
     expect(config.nodeId).to.equal("${POD_NAME}");
+    // Routr is this deployment's registrar: one generic registration templating its
+    // least-sessions header (redesign-media-node 2.1).
     expect(config.sip).to.deep.equal({
       listen: "0.0.0.0:5060",
-      advertise: "${HOST_IP}"
+      advertise: "${HOST_IP}",
+      // Routr's X-Call-Ref names inbound calls (decision 7).
+      callRefHeader: "X-Call-Ref",
+      registrations: [
+        {
+          registrar: "routr:5060",
+          aor: "sip:${POD_NAME}@nodes.fonoster.local",
+          auth: {
+            username: "${POD_NAME}",
+            password: "${ROUTR_PEER_PASSWORD:-}"
+          },
+          expires: "30s",
+          headers: { "X-Session-Count": "{sessions}" }
+        }
+      ]
     });
     expect(config.rtp).to.deep.equal({
       host: "0.0.0.0",
@@ -476,13 +514,10 @@ describe("@conformance/deployment (Helm chart)", function () {
       portMin: 30000,
       portMax: 30199
     });
-    expect(config.registration).to.deep.equal({
-      registrar: "routr:5060",
-      domain: "nodes.fonoster.local",
-      username: "${POD_NAME}",
-      password: "${ROUTR_PEER_PASSWORD:-}"
-    });
-    expect(config.trustedSources).to.deep.equal(["10.0.0.1"]);
+    expect(config.registration).to.equal(undefined);
+    expect(config.outboundProxy).to.equal("routr:5060");
+    // Roomr (gRPC) for the apiserver's CreateCall, advertised on sip.advertise's host.
+    expect(config.control).to.deep.equal({ grpc: { listen: "0.0.0.0:50061" } });
     // Every placeholder is a variable the pod sets.
     const env = JSON.stringify(node.spec);
     ["POD_NAME", "HOST_IP", "ROUTR_PEER_PASSWORD"].forEach((v) =>

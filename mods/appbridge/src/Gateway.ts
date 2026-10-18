@@ -494,7 +494,7 @@ export class Gateway {
   }
 
   private onNodeStatus(event: MediaEvent) {
-    const nodeId = String(event.nodeId ?? "");
+    const nodeId = String(event.node_ref ?? "");
     if (!nodeId) return;
     if (event.type === "node.heartbeat")
       this.heartbeats.set(nodeId, Date.now());

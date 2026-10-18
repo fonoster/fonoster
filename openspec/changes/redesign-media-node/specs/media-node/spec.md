@@ -4,7 +4,18 @@
 - TO: `### Requirement: Registration is optional and configured`
 
 - FROM: `### Requirement: The node does not capture SIP, record or run speech`
-- TO: `### Requirement: The node runs no speech and captures no SIP`
+- TO: `### Requirement: The node records only when asked and captures no SIP`
+
+## REMOVED Requirements
+
+### Requirement: Draining nodes take no new rooms
+
+**Reason**: The node no longer refuses while draining and no longer reports itself full. It
+signals draining through the standard gRPC health service and by stopping its heartbeats and
+unregistering; the layers that place calls stop sending (see "Draining is a health signal with a
+bounded wait"). The room-limit refusal stays.
+**Migration**: Remove the draining refusal code (`503`, `UNAVAILABLE`), the `draining` heartbeat
+field and the `{sessions}`-as-limit rendering; probe readiness with `grpc.health.v1.Health`.
 
 ## MODIFIED Requirements
 
@@ -13,13 +24,13 @@
 A room SHALL live on exactly one node and SHALL mix audio so that each participant receives the
 sum of every other participant's audio and never its own (mix-minus). The node SHALL mix in 16 kHz
 linear audio; a participant whose codec carries a higher rate receives wideband audio encoded at
-its codec's rate, not full-band audio. SIP legs, plain RTP endpoints and WebRTC peers SHALL be
-able to share one room. Every participant SHALL have one or more tracks, each with a `kind` and a
-`codec`. In v1 the only supported `kind` SHALL be `audio`; a request for any other kind MUST be
-refused with `unsupported_track_kind` and MUST NOT change the room. A room MUST NOT span nodes.
+its codec's rate, not full-band audio. SIP legs and plain RTP endpoints SHALL be able to share one
+room. Every participant SHALL have one or more tracks, each with a `kind` and a `codec`. In v1 the
+only supported `kind` SHALL be `audio`; a request for any other kind MUST be refused with
+`unsupported_track_kind` and MUST NOT change the room. A room MUST NOT span nodes.
 
-#### Scenario: Mix-minus with three participants of three kinds
-- **WHEN** a SIP caller A, an RTP participant B and a WebRTC peer C are in a room and only A and B send a known tone each
+#### Scenario: Mix-minus with three participants
+- **WHEN** a SIP caller A, an RTP participant B and an RTP participant C are in a room and only A and B send a known tone each
 - **THEN** C receives both tones mixed
 - **AND** A receives only B's tone, and B receives only A's tone
 
@@ -46,8 +57,10 @@ session endpoint and SHALL send `Start` carrying `call_ref`, `direction: INBOUND
 node SHALL NOT send `200 OK` until the app sends `Answer` on that stream. It SHALL reject the
 INVITE with `503 Service Unavailable` when the session endpoint cannot be reached and with
 `480 Temporarily Unavailable` when neither `Answer` nor `Reject` arrives within the configured
-answer timeout. It MUST NOT interpret any header other than the configured room and token
-headers.
+answer timeout. A `CANCEL` from the caller before `Answer` SHALL end the call (media-control
+"Each call opens one control stream to the session endpoint"). It MUST NOT interpret any header
+other than the configured room and call-ref headers. A header value containing CR or LF SHALL be
+rejected.
 
 #### Scenario: Inbound call reported with its headers
 - **WHEN** a peer sends an INVITE with `X-App-Ref: app-1`, `X-Anything: 42` and `To: sip:+15550001@...`
@@ -67,12 +80,16 @@ headers.
 - **WHEN** the app sends `Reject` with `sip_status: 404`
 - **THEN** the caller receives `404 Not Found` and no room remains
 
+#### Scenario: CR or LF in a header value
+- **WHEN** a controller calls `CreateCall` with a `to.headers` value containing a line break
+- **THEN** the request fails with `INVALID_ARGUMENT` and no INVITE is sent
+
 ### Requirement: Supported codecs
 
 The node SHALL offer, on SIP legs, `opus/48000/2`, `G722/8000`, `PCMU/8000` and `PCMA/8000` in
 that order and SHALL negotiate whichever the peer accepts first, transcoding between the leg's
-codec and the room's internal format. On WebRTC legs it SHALL offer Opus then PCMU. It SHALL
-refuse an offer with none of these codecs with `488 Not Acceptable Here`.
+codec and the room's internal format. It SHALL refuse an offer with none of these codecs with
+`488 Not Acceptable Here`.
 
 #### Scenario: Each codec carries audio both ways
 - **WHEN** a test caller offers only one of PCMU, PCMA, G.722 or Opus and sends a known tone
@@ -96,11 +113,10 @@ refuse an offer with none of these codecs with `488 Not Acceptable Here`.
 The node SHALL keep zero or more SIP registrations from its configuration, each with a
 `registrar`, an `aor`, an optional digest `auth`, an `expires` interval and a map of header
 templates. Templates SHALL support the placeholder `{sessions}`, rendered as the node's active
-room count, or as its room limit while the node is draining. The node SHALL re-register on the
-interval and SHALL re-register at once when its room count changes by more than a configured
-threshold or when it starts draining, and SHALL publish `registration.state` (media-control) when
-a registration succeeds, fails or expires. With no registrations configured the node MUST send no
-REGISTER.
+room count. The node SHALL re-register on the interval and SHALL re-register at once when its room
+count changes by more than the configured `reregisterDelta`, and SHALL publish
+`registration.state` (media-control) when a registration succeeds, fails or expires. With no
+registrations configured the node MUST send no REGISTER.
 
 #### Scenario: Count sent in a templated header
 - **WHEN** a node with 12 active rooms registers with `headers: { X-Session-Count: "{sessions}" }`
@@ -113,27 +129,6 @@ REGISTER.
 #### Scenario: No registrations
 - **WHEN** the configuration lists no registrations
 - **THEN** the node sends no REGISTER and still accepts INVITEs
-
-#### Scenario: Draining reports full
-- **WHEN** a node with a limit of 200 rooms and 3 active rooms starts draining
-- **THEN** it re-registers at once with `{sessions}` rendered as `200`
-
-### Requirement: Draining nodes take no new rooms
-
-On SIGTERM a node SHALL set `draining: true` in its heartbeat, SHALL render its registration
-templates as full, SHALL refuse new INVITEs with `503` and new `CreateCall` requests with
-`UNAVAILABLE`, SHALL keep existing rooms running, and SHALL exit when all its rooms have ended or a
-configured maximum wait has passed.
-
-#### Scenario: Drain
-- **WHEN** a node with 3 active rooms receives SIGTERM
-- **THEN** its next heartbeat carries `draining: true` and a new INVITE gets `503`
-- **AND** the 3 rooms continue until they end
-- **AND** the node exits after the last room ends
-
-#### Scenario: Maximum wait
-- **WHEN** a draining node still has rooms after the maximum wait
-- **THEN** it ends those rooms, and each app receives `Ended` with `cause: "node_error"` on its control stream before the stream closes
 
 ### Requirement: A crashed node's calls end cleanly
 
@@ -148,24 +143,27 @@ migrated to another node.
 
 ### Requirement: Optional TLS and SRTP between the edge and the node
 
-The node SHALL support plain SIP and RTP, and TLS signaling with SRTP media, chosen per
-deployment. With encryption on, the node MUST refuse unencrypted SIP and RTP from the edge. The
-app leg MAY also be encrypted: a `MediaEndpoint` with an `srtp_key` uses SRTP (media-control).
+The node SHALL support plain SIP and RTP by default. It MAY listen for SIP over TLS when `tls`
+(`listen`, `cert`, `key`) is configured, MAY use TLS to the outbound proxy when the proxy URI says
+so, and SHALL negotiate SDES-SRTP when the peer offers or requests it. All of these are off by
+default. The app leg MAY also be encrypted: a `MediaEndpoint` with an `srtp_key` uses SRTP
+(media-control).
 
-#### Scenario: Encrypted deployment
-- **WHEN** a deployment enables encryption and a peer sends an INVITE over TLS offering SRTP
+#### Scenario: Encrypted call
+- **WHEN** the node has a SIP TLS listener and a peer sends an INVITE over TLS offering SRTP
 - **THEN** the call is answered with SRTP and audio flows
 
-#### Scenario: Plain call refused when encryption is required
-- **WHEN** encryption is enabled and an INVITE arrives over plain TCP
-- **THEN** the node refuses the call
+#### Scenario: Plain by default
+- **WHEN** no `tls` is configured and an INVITE arrives over UDP offering plain RTP
+- **THEN** the call is answered with plain RTP
 
 ### Requirement: Call and room limits
 
 The node SHALL end any call that exceeds the maximum duration, 4 hours by default and lowerable
-per call, SHALL refuse to add an eleventh participant to a room by default, and SHALL refuse new
-calls at its configured room limit (`max_rooms`): inbound INVITEs with `503` and `CreateCall` with
-`RESOURCE_EXHAUSTED`. All three limits SHALL be configurable per deployment.
+per call, SHALL refuse to add an eleventh participant to a room by default (`maxParticipants`,
+overridable per room in `CreateRoom`), and SHALL refuse new calls at its configured room limit
+(`maxRooms`): inbound INVITEs with `503` and `CreateCall` with `RESOURCE_EXHAUSTED`. All three
+limits SHALL be configurable per deployment.
 
 #### Scenario: Maximum duration
 - **WHEN** a call's maximum duration is 10 minutes and the call reaches 10 minutes
@@ -175,71 +173,53 @@ calls at its configured room limit (`max_rooms`): inbound INVITEs with `503` and
 - **WHEN** a room has 10 participants and another is added
 - **THEN** the request fails with `room_full` and the room is unchanged
 
+#### Scenario: Per-room participant limit
+- **WHEN** a room is created with `CreateRoom` and `max_participants: 2`, and a third participant is added
+- **THEN** the request fails with `room_full`
+
 #### Scenario: Node at its limit
-- **WHEN** a node with `max_rooms: 200` carries 200 rooms
+- **WHEN** a node with `maxRooms: 200` carries 200 rooms
 - **THEN** a new INVITE receives `503` and `CreateCall` fails with `RESOURCE_EXHAUSTED`
 - **AND** the 200 rooms are unaffected
 
-### Requirement: The node runs no speech and captures no SIP
+### Requirement: The node records only when asked and captures no SIP
 
-The node SHALL NOT run speech recognition, speech synthesis or turn detection, and SHALL NOT
-capture SIP traces (out of scope for the first release). It SHALL record audio only when asked
-through a `Record` operation (media-control) and SHALL write nothing otherwise.
-
-#### Scenario: Speech stays above the node
-- **WHEN** a call with speech recognition and synthesis runs end to end
-- **THEN** the node receives and sends only RTP and control messages, never text
+The node SHALL NOT capture SIP traces (out of scope for the first release). It SHALL record audio
+only when asked through a `Record` operation (media-control) and SHALL write nothing otherwise.
 
 #### Scenario: Nothing recorded unless asked
 - **WHEN** a call runs without any `Record` operation
 - **THEN** the node writes no audio file
 
+### Requirement: Rooms without an owner end
+
+The node SHALL end, with `cause: "node_error"`, a room that has had no participant and no
+`CreateCall` in progress for the empty-room timeout (`emptyRoomTimeout`, 30 s by default,
+overridable per room in `CreateRoom`). A `CreateCall` that fails in an otherwise empty room SHALL
+end the room at once with the call's outcome. A call whose app is gone is ended by the control
+stream's keepalive (media-control), not by this rule.
+
+#### Scenario: Placer died before anything joined
+- **WHEN** a room is created with `CreateRoom` and nothing joins or dials into it for 30 s
+- **THEN** the node ends it, frees its slot and publishes `room.ended` with `cause: "node_error"` on `roomr.events.room.<room_ref>`
+
+#### Scenario: Room emptied
+- **WHEN** the last participant leaves a room created with `CreateRoom` and nothing joins for 30 s
+- **THEN** the node ends the room with `cause: "node_error"`
+
+#### Scenario: Per-room timeout
+- **WHEN** a room is created with `CreateRoom` and `empty_room_timeout_s: 5` and nothing joins
+- **THEN** the node ends it after 5 s
+
 ## ADDED Requirements
-
-### Requirement: Two-party rooms on the same codec pass audio through
-
-When a room has exactly two participants whose legs use the same codec, the node SHALL forward
-each participant's RTP payloads to the other without decoding. When a third participant joins, the
-node SHALL switch the room to mixing; when the room returns to two participants on the same
-codec it MAY return to passthrough. Keypress detection SHALL keep working in passthrough.
-
-#### Scenario: Payloads forwarded unchanged
-- **WHEN** two PCMU participants are alone in a room and one sends a known payload sequence
-- **THEN** the other receives the same payload bytes
-- **AND** the node's decoder is not invoked for that room
-
-#### Scenario: Third participant switches to mixing
-- **WHEN** a third participant joins a passthrough room and sends a tone
-- **THEN** both original participants hear the tone mixed with each other's audio
-
-#### Scenario: Different codecs are mixed
-- **WHEN** a room has one PCMU participant and one Opus participant
-- **THEN** the node transcodes and mixes; the Opus participant receives Opus frames carrying the PCMU participant's audio
-
-### Requirement: WebRTC participants terminate on the node
-
-The node SHALL accept WebRTC participants through `Join` with an SDP offer (media-control) and
-SHALL return an SDP answer. It SHALL run ICE on one configured UDP port per node, telling
-participants apart by ICE username, SHALL secure media with DTLS-SRTP and SHALL offer Opus then
-PCMU. No media relay in front of the node SHALL be required.
-
-#### Scenario: Browser joins a room
-- **WHEN** a controller calls `Join` with a browser's SDP offer for room `r1` where a SIP caller is present
-- **THEN** the response carries an SDP answer, the browser connects over ICE and DTLS-SRTP on the node's WebRTC port
-- **AND** the browser and the SIP caller hear each other
-
-#### Scenario: Two peers share the port
-- **WHEN** two browsers join rooms on the same node
-- **THEN** both exchange media on the node's single WebRTC UDP port and neither hears the other's room
 
 ### Requirement: Inbound calls can join a room by header
 
 When the configuration names a room header, an inbound INVITE that carries it SHALL join the room
-with that ref if it exists on this node. If it does not exist the node SHALL create it with that
-ref and add the caller (`onMissingRoom: create`, the default), or SHALL reject the INVITE with
-`404 Not Found` (`onMissingRoom: reject`). `Start` on the control stream SHALL name the room. The
-node MUST NOT redirect (no `3xx`) a call toward another node. Without a configured room header, the
-node SHALL treat every header as opaque.
+with that ref if it exists on this node and SHALL create it with that ref, adding the caller, if it
+does not. `Start` on the control stream SHALL name the room. The node MUST NOT redirect (no `3xx`)
+a call toward another node. Without a configured room header, the node SHALL treat every header as
+opaque. Room refs the node generates SHALL be unguessable (at least 128 random bits).
 
 #### Scenario: Join an existing room
 - **WHEN** room `r1` exists on the node and an INVITE arrives with `X-Room-Ref: r1` (the configured header)
@@ -247,43 +227,25 @@ node SHALL treat every header as opaque.
 - **AND** `Start` carries `room_ref: "r1"`
 
 #### Scenario: Create on missing room
-- **WHEN** no room `r2` exists and an INVITE arrives with `X-Room-Ref: r2` under the default policy
+- **WHEN** no room `r2` exists and an INVITE arrives with `X-Room-Ref: r2`
 - **THEN** the node creates room `r2` with the caller as its only participant
-
-#### Scenario: Reject on missing room
-- **WHEN** `onMissingRoom: reject` is configured and an INVITE names a room that does not exist on this node
-- **THEN** the caller receives `404 Not Found` and no room is created
 
 #### Scenario: Never redirect
 - **WHEN** an INVITE names a room that lives on another node
-- **THEN** the node answers `404` or creates a local room per policy, and never answers with a `3xx`
+- **THEN** the node creates a local room and never answers with a `3xx`
 
-### Requirement: Room joins can require a token
-
-When room-header authentication is configured as `jwt`, the node SHALL require a token in the
-configured token header and SHALL verify its signature with the configured public key, its expiry,
-its audience and that its `room_ref` claim equals the room header. A missing, expired, malformed or
-mismatched token SHALL be refused with `403 Forbidden`. The node SHALL hold no private key.
-
-#### Scenario: Valid token
-- **WHEN** an INVITE carries `X-Room-Ref: r1` and a token signed by the configured key with `aud: media` and `room_ref: r1`
-- **THEN** the caller joins `r1`
-
-#### Scenario: Room mismatch
-- **WHEN** the token's `room_ref` claim is `r9` and the header names `r1`
-- **THEN** the caller receives `403 Forbidden`
-
-#### Scenario: Expired or missing token
-- **WHEN** the token is expired, or the token header is absent while auth is on
-- **THEN** the caller receives `403 Forbidden`
+#### Scenario: Generated refs are random
+- **WHEN** the node creates 1,000 rooms without a given `room_ref`
+- **THEN** every `room_ref` is distinct and carries at least 128 bits from a random source
 
 ### Requirement: The node knows no other component by name
 
 The node SHALL learn every peer from its configuration or from request parameters: the outbound
-proxy, the registrars, the session endpoint, the room and token header names and the NATS
+proxy, the registrars, the session endpoint, the room and call-ref header names and the NATS
 address. It MUST NOT contain built-in SIP header names, component names or routing rules. Headers
 on inbound INVITEs SHALL be passed to the app untouched in `Start.headers`; headers given in
-`CreateCall` SHALL be sent on the INVITE untouched.
+`CreateCall` SHALL be sent on the INVITE untouched. The transport of the outbound proxy SHALL be
+part of its URI (`sip:host:port;transport=tcp`).
 
 #### Scenario: Outbound headers pass through
 - **WHEN** a controller calls `CreateCall` with `to.headers: { "X-DOD-Number": "+15550002", "X-Foo": "bar" }`
@@ -297,22 +259,99 @@ on inbound INVITEs SHALL be passed to the app untouched in `Start.headers`; head
 - **WHEN** two `CreateCall` requests name different `to.proxy` values
 - **THEN** each INVITE is sent to the proxy named in its own request
 
-### Requirement: Port ranges are configured per leg type
+### Requirement: One RTP port range serves every leg
 
-The node SHALL take RTP ports for app legs from a configured range bound to its own address and
-SHALL announce the chosen port on the control stream, so nodes on distinct addresses need no
-coordination. For SIP and RTP legs that leave the cluster it SHALL use a configured public range
-and advertised address. For WebRTC it SHALL use one configured UDP port. Two nodes on one host
-SHALL be able to run with non-overlapping ranges.
+The node SHALL take RTP ports for every leg, app legs and SIP legs alike, from one configured
+range (`rtp.portMin` to `rtp.portMax`) bound to `rtp.host`, and SHALL announce the chosen port on
+the control stream, so nodes on distinct addresses need no coordination. For legs that leave the
+cluster it SHALL advertise `rtp.advertise`. Two nodes on one host SHALL be able to run with
+non-overlapping ranges.
 
 #### Scenario: Same range on different addresses
-- **WHEN** two nodes on different pod IPs both use ports 30000–30199 for app legs
+- **WHEN** two nodes on different pod IPs both use ports 30000–30199
 - **THEN** both carry calls and no port conflict occurs
 
 #### Scenario: Two nodes on one host
-- **WHEN** two nodes on one host are configured with ranges 30000–30199 and 30200–30399 and distinct WebRTC ports
-- **THEN** both start and both carry SIP and WebRTC calls
+- **WHEN** two nodes on one host are configured with ranges 30000–30199 and 30200–30399
+- **THEN** both start and both carry SIP calls
 
 #### Scenario: Port announced on the stream
 - **WHEN** a call starts
 - **THEN** `Start` carries the node's RTP `ip` and `port` for that call, and RTP from the app to that address reaches the room
+
+### Requirement: One call ref end to end
+
+The node SHALL keep one call ref per call across SIP, `Start` and events, using an optional
+configured call-ref header (`callRefHeader`, for example `X-Call-Ref`). When an inbound INVITE
+carries that header with a well-formed value, the value SHALL be the call's
+`call_ref`; otherwise the node SHALL generate one. When `CreateCall`'s `to.headers` carries the
+configured header, its value SHALL be the call's `call_ref` and SHALL be sent on the INVITE; a
+`call_ref` field that is also set and differs SHALL fail with `INVALID_ARGUMENT` before any INVITE.
+The same ref SHALL appear in `Start`, in every event and on the SIP leg. Callers dictate the call
+ref through this header or `call_ref`, and the app reference through `metadata` (media-control).
+
+#### Scenario: Inbound ref taken from the header
+- **WHEN** `callRefHeader: X-Call-Ref` is configured and an INVITE carries `X-Call-Ref: abc123`
+- **THEN** `Start` carries `call_ref: "abc123"` and events are published on `roomr.events.abc123`
+
+#### Scenario: Inbound ref generated
+- **WHEN** an INVITE has no `X-Call-Ref`, or a malformed one
+- **THEN** the node generates a `call_ref` and uses it in `Start` and every event
+
+#### Scenario: Outbound ref from the headers
+- **WHEN** `CreateCall` has no `call_ref` and `to.headers: { "X-Call-Ref": "out7" }`
+- **THEN** the `Call` has `call_ref: "out7"` and the INVITE carries `X-Call-Ref: out7`
+
+#### Scenario: Conflicting refs
+- **WHEN** `CreateCall` has `call_ref: "a"` and `to.headers: { "X-Call-Ref": "b" }`
+- **THEN** it fails with `INVALID_ARGUMENT` and no INVITE is sent
+
+### Requirement: A silent leg ends the call
+
+The node SHALL end an answered call when a leg sends no RTP for the media timeout (`mediaTimeout`,
+one key for the caller leg and the app leg, 30 s by default), with `cause: "media_timeout"` when
+the caller's leg went silent and `cause: "app_gone"` when the app's did, sending BYE on the SIP
+leg.
+
+#### Scenario: App stops sending audio
+- **WHEN** the app's RTP stops while its control stream stays open
+- **THEN** after the media timeout the node sends BYE to the caller and `Ended` with `cause: "app_gone"` on the stream
+
+#### Scenario: Caller stops sending audio
+- **WHEN** the caller's RTP stops
+- **THEN** after the same media timeout the node ends the call with `cause: "media_timeout"`
+
+### Requirement: Draining is a health signal with a bounded wait
+
+The node SHALL serve the standard gRPC health service (`grpc.health.v1.Health`) on its control
+port, reporting `SERVING` normally. On SIGTERM it SHALL report `NOT_SERVING`, SHALL send REGISTER
+with `Expires: 0` for each registration, SHALL stop its heartbeats and SHALL publish `node.down`
+(`type: "node.down"`) on `roomr.nodes.<node_ref>.heartbeat`. It SHALL then keep serving its live
+rooms, their control streams and `Roomr` RPCs until every room has ended or the configured maximum
+wait (`drainWait`, default 1 h) has passed, end any remaining room with `cause: "node_error"` and
+exit. The node SHALL NOT refuse calls because it is draining; keeping new calls away is the job of
+the layers that place them: the controller skips nodes without fresh heartbeats, the SIP proxy
+stops after `Expires: 0`, and the orchestrator's readiness probe (the gRPC health check) takes the
+pod out of service.
+
+#### Scenario: Health fails on SIGTERM
+- **WHEN** a node with 3 live rooms receives SIGTERM
+- **THEN** its gRPC health check reports `NOT_SERVING`, it sends REGISTER with `Expires: 0`, publishes `node.down` and stops heartbeating
+- **AND** the 3 rooms keep running
+
+#### Scenario: Exit after the last room
+- **WHEN** the last room of a draining node ends before `drainWait`
+- **THEN** the node exits
+
+#### Scenario: Maximum wait reached
+- **WHEN** a short `drainWait` passes while a draining node still has a room
+- **THEN** it ends the room, the app receives `Ended` with `cause: "node_error"` on its control stream before the stream closes, and the node exits
+
+### Requirement: The room limit is the only admission limit
+
+The node SHALL refuse new calls for capacity only at `maxRooms`. It SHALL NOT refuse calls because
+of CPU or memory; resource control belongs to Kubernetes requests and limits.
+
+#### Scenario: Loaded node still accepts
+- **WHEN** a node's CPU is saturated and its `rooms` is below `maxRooms`
+- **THEN** an INVITE is accepted and `CreateCall` succeeds

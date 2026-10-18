@@ -51,14 +51,14 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
    URL in the file, as a placeholder if it lives in the environment:
    `database: { url: "${APISERVER_DATABASE_URL}" }`. `database.urlEnv` is refused at start with
    that hint, and a `database` section without `url` is refused too.
-3. **Media node: `MEDIANODE_*` variables are no longer read.** Every setting is a key in
-   `medianode.yaml` (`/config/medianode.yaml`, or `-config <file>`) or a flag; flags still win.
-   To keep a value in the environment, reference it in the file (`nodeId: "${MEDIANODE_ID}"`,
-   `registration: { password: "${MEDIANODE_PASSWORD}" }`) or pass it as
+3. **Media node: `ROOMR_*` variables are no longer read.** Every setting is a key in
+   `roomr.yaml` (`/config/roomr.yaml`, or `-config <file>`) or a flag; flags still win.
+   To keep a value in the environment, reference it in the file (`nodeId: "${ROOMR_ID}"`,
+   `registration: { password: "${ROOMR_PASSWORD}" }`) or pass it as
    `secret://env/NAME` for the passwords and TLS PEM settings. At start the node logs, by name
-   only, every `MEDIANODE_*` variable that the file and flags do not reference. The Helm chart
-   now renders `medianode.yaml` as a ConfigMap (the `medianode.*` values are unchanged) and the
-   cell's Compose file mounts `ops/rebuild/cell/config/medianode.yaml`.
+   only, every `ROOMR_*` variable that the file and flags do not reference. The Helm chart
+   now renders `roomr.yaml` as a ConfigMap (the `roomr.*` values are unchanged) and the
+   cell's Compose file mounts `ops/rebuild/cell/config/roomr.yaml`.
 
 ## New
 
@@ -75,7 +75,7 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
 ## Deployables and operations
 
 - **New deployables.** The **VoiceSessionGateway** (`fonoster/appbridge`: speech, turn-taking, app
-  sessions) and the Go **media node** (`fonoster/medianode`: rooms, mixing, RTP) replace Asterisk
+  sessions) and the Go **media node** (`fonoster/roomr`: rooms, mixing, RTP) replace Asterisk
   and the voice code that lived in the apiserver. The apiserver keeps the management gRPC API,
   Identity, `GetCapabilities`, call creation and webhooks; it no longer talks ARI, AudioSocket or
   speech vendors.

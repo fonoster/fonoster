@@ -42,3 +42,4 @@ export * from "./telemetry";
 export * from "./net";
 export * as Sessions from "./sessions";
 export * as RegionHub from "./regions/hub";
+export * as Roomr from "./roomr";

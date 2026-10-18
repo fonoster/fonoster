@@ -10,7 +10,7 @@ features:
   auth: { methods: [password], signup: invite }
 routr:
   apiEndpoint: routr:51907
-  # Created at start; the media nodes register with it (MEDIANODE_PASSWORD).
+  # Created at start; the media nodes register with it (ROOMR_PASSWORD).
   mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: change-me }
 nats: { url: "nats://nats:4222", user: apiserver, password: "secret://env/NATS_APISERVER_PASSWORD" }
 # Autopilot apps point at the hosted Autopilot and share its signing secret.

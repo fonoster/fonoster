@@ -50,7 +50,7 @@ judgement, not page content).
 
 Measured on the new installer (coordinator's clean-folder run, 2026-10-15, macOS, images local):
 - Archive 20 KB; `init` from the npm tarball ~7 s; `docker compose up -d` 8 s; dashboard answers ~2 s later.
-- Image sizes: apiserver 1.32 GB, autopilot 817 MB, gateway 796 MB, dashboard 53 MB, medianode 26 MB
+- Image sizes: apiserver 1.32 GB, autopilot 817 MB, gateway 796 MB, dashboard 53 MB, roomr 26 MB
   (~3 GB of Fonoster images, before third-party ones). Heavy: the three Node images carry the whole
   monorepo `/work`.
 - Local image build ~3 min with warm layers.

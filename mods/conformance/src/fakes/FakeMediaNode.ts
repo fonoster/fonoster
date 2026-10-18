@@ -323,10 +323,9 @@ export class FakeMediaNode extends EventEmitter {
     const beat = () =>
       this.publishStatus({
         type: "node.heartbeat",
-        nodeId: this.nodeId,
+        node_ref: this.nodeId,
         rooms: this.activeRooms(),
-        maxRooms: this.maxRooms(),
-        draining: false
+        max_rooms: this.maxRooms()
       });
     beat();
     this.heartbeat = setInterval(beat, every);
@@ -479,13 +478,13 @@ export class FakeMediaNode extends EventEmitter {
   /** A clean shutdown: publishes node.down. */
   shutdown() {
     clearInterval(this.heartbeat);
-    this.publishStatus({ type: "node.down", nodeId: this.nodeId });
+    this.publishStatus({ type: "node.down", node_ref: this.nodeId });
   }
 
   private publishStatus(event: MediaEvent) {
     if (!this.nc || this.crashed) return;
     this.nc.publish(
-      `media.${this.nodeId}.heartbeat`,
+      `roomr.nodes.${this.nodeId}.heartbeat`,
       StringCodec().encode(JSON.stringify(event))
     );
   }

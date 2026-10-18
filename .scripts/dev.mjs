@@ -36,8 +36,8 @@ import { fileURLToPath } from "node:url";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const DEV = join(ROOT, ".dev");
 const TSX = join(ROOT, "node_modules", ".bin", "tsx");
-const MEDIANODE_SRC = join(ROOT, "go", "medianode");
-const MEDIANODE_BIN = join(DEV, "bin", "medianode");
+const ROOMR_SRC = join(ROOT, "go", "roomr");
+const ROOMR_BIN = join(DEV, "bin", "roomr");
 const config = (service) => join(DEV, "config", `${service}.yaml`);
 
 const COLORS = [36, 35, 33, 32, 34, 31];
@@ -46,7 +46,7 @@ const NAMES = [
   "apiserver",
   "appbridge",
   "autopilot",
-  "medianode",
+  "roomr",
   "dashboard"
 ];
 const width = Math.max(...NAMES.map((n) => n.length));
@@ -161,18 +161,18 @@ function apiserver() {
 
 // The media node: `go build`, then run; rebuilt and restarted when a .go file (or go.mod/go.sum)
 // changes. A failed build keeps the running node.
-function medianode() {
+function roomr() {
   const log = (line) =>
-    process.stdout.write(`${"medianode".padEnd(width)} | ${line}\n`);
+    process.stdout.write(`${"roomr".padEnd(width)} | ${line}\n`);
   let node;
   let timer;
   const build = () => {
-    mkdirSync(dirname(MEDIANODE_BIN), { recursive: true });
+    mkdirSync(dirname(ROOMR_BIN), { recursive: true });
     const res = spawnSync(
       "go",
-      ["build", "-buildvcs=false", "-o", MEDIANODE_BIN, "./cmd/medianode"],
+      ["build", "-buildvcs=false", "-o", ROOMR_BIN, "./cmd/roomr"],
       {
-        cwd: MEDIANODE_SRC,
+        cwd: ROOMR_SRC,
         env: { ...process.env, GOTOOLCHAIN: "local" },
         encoding: "utf8"
       }
@@ -187,7 +187,7 @@ function medianode() {
     return true;
   };
   const start = () => {
-    node = run("medianode", MEDIANODE_BIN, ["-config", config("medianode")], {
+    node = run("roomr", ROOMR_BIN, ["-config", config("roomr")], {
       quiet: true
     });
   };
@@ -201,7 +201,7 @@ function medianode() {
     } else start();
   };
   if (build()) start();
-  watch(MEDIANODE_SRC, { recursive: true }, (_event, file) => {
+  watch(ROOMR_SRC, { recursive: true }, (_event, file) => {
     if (!file || !/(\.go|go\.mod|go\.sum)$/.test(file)) return;
     clearTimeout(timer);
     timer = setTimeout(restart, 300);
@@ -227,7 +227,7 @@ const COMPONENTS = {
         config("autopilot")
       )
     ),
-  medianode,
+  roomr,
   // Vite on :3030; Envoy (the bundle's) serves it with the API at PUBLIC_URL.
   dashboard: () =>
     run(

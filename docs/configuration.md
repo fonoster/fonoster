@@ -7,7 +7,7 @@ Each Fonoster service reads one file, mounted at `/config/<name>.yaml` in its co
 | API server (with Identity) | `fonoster.yaml` | Everything; secrets as `${NAME}` placeholders |
 | Voice gateway | `gateway.yaml` | `encryption.key` is the API server's key |
 | Autopilot | `autopilot.yaml` | One file for every replica |
-| Media node | `medianode.yaml` | Flags win over it; `MEDIANODE_*` variables are not read |
+| Media node | `roomr.yaml` | Flags win over it; `ROOMR_*` variables are not read |
 | Dashboard | `DASHBOARD_API_URL` | Everything else comes from the API server |
 
 The Compose stack is `ops/bundle/compose.yaml` (with the development layer
@@ -148,7 +148,8 @@ Variables not listed here (`ROUTR_*`, `RTPENGINE_*`, `POSTGRES_*`,
 | `APISERVER_SMTP_AUTH_USER / _AUTH_PASS` | `smtp.user / smtp.password` |
 | `APISERVER_AUTHZ_SERVICE_ENABLED / _HOST / _PORT / _METHODS` | `authz.enabled / host / port / methods (a list)` |
 | `APISERVER_ROUTR_API_ENDPOINT` | `routr.apiEndpoint` |
-| (new) | `routr.mediaNodePeer.aor / name / username / password` (the peer every app-linked number points at; created only with a password, reference `${MEDIANODE_PASSWORD}`) |
+| (new) | `routr.mediaNodePeer.aor / name / username / password` (the peer every app-linked number points at; created only with a password, reference `${ROOMR_PASSWORD}`) |
+| (new) | `routr.sipProxy` (Routr's SIP address, default `routr:5060`: API-originated calls are dialed through it as the media-node peer) |
 | `APISERVER_ASTERISK_*`, `APISERVER_AMD_*`, `APISERVER_ROUTR_DEFAULT_PEER_*`, `AIC_SDK_LICENSE` | Removed with Asterisk (`mediaService`, `amd`, `routr.defaultPeer`, `routr.engines` and `audioFilters` are unknown keys now) |
 | `APISERVER_NATS_URL` | `nats.url` |
 | `APISERVER_INFLUXDB_URL` | `influxdb.url` |
@@ -174,23 +175,24 @@ The previous Autopilot engine and its `autopilot.yaml` are gone. The hosted engi
 Autopilot no longer falls back to `APISERVER_DATABASE_URL` and `database.urlEnv` is gone: write
 `database: { url: "${APISERVER_DATABASE_URL}" }`.
 
-### Media node → `medianode.yaml`
+### Media node → `roomr.yaml`
 
-The media node reads no `MEDIANODE_*` variables. Each one is a key (see
-`ops/bundle/config/medianode.example.yaml`); reference the variable as `${NAME}` to keep the value
-in the environment.
+The media node reads no `ROOMR_*` variables and takes one flag only, `-config <path>`. Each
+setting is a key in that file (see `ops/bundle/config/roomr.example.yaml`); reference the
+variable as `${NAME}` to keep the value in the environment.
 
 | Variable | Key |
 |---|---|
-| `MEDIANODE_ID` | `nodeId` |
-| `MEDIANODE_NATS_URL / _NATS_USER / _NATS_PASSWORD` | `nats.url / user / password` |
-| `MEDIANODE_SIP_LISTEN / _SIP_ADVERTISE` | `sip.listen / advertise` |
-| `MEDIANODE_RTP_HOST / _RTP_ADVERTISE / _RTP_PORT_MIN / _RTP_PORT_MAX` | `rtp.host / advertise / portMin / portMax` |
-| `MEDIANODE_REGISTRAR / _DOMAIN / _USERNAME / _PASSWORD / _TRANSPORT / _REGISTER_EVERY` | `registration.registrar / domain / username / password / transport / every` |
-| `MEDIANODE_OUTBOUND_PROXY / _OUTBOUND_TRANSPORT` | `outboundProxy / outboundTransport` |
-| `MEDIANODE_TLS_LISTEN / _TLS_CERT / _TLS_KEY / _TLS_CA / _TLS_CLIENT_CA` | `tls.listen / cert / key / ca / clientCa` |
-| `MEDIANODE_DEBUG_ADDR / _DRAIN_WAIT / _MAX_DURATION / _MAX_PARTICIPANTS / _MEDIA_TIMEOUT` | `debugAddr / drainWait / maxDuration / maxParticipants / mediaTimeout` |
-| `MEDIANODE_SESSION_REGISTRY / _REQUIRE_ENCRYPTION / _TRUSTED_SOURCES` | `sessionRegistry / requireEncryption / trustedSources (a list)` |
+| `ROOMR_ID` | `nodeId` |
+| `ROOMR_NATS_URL / _NATS_USER / _NATS_PASSWORD` | `nats.url / user / password` |
+| `ROOMR_SIP_LISTEN / _SIP_ADVERTISE` | `sip.listen / advertise` |
+| `ROOMR_RTP_HOST / _RTP_ADVERTISE / _RTP_PORT_MIN / _RTP_PORT_MAX` | `rtp.host / advertise / portMin / portMax` |
+| `ROOMR_REGISTRAR / _DOMAIN / _USERNAME / _PASSWORD / _TRANSPORT / _REGISTER_EVERY` | `sip.registrations[]`: `registrar` (`;transport=` for tcp/tls), `aor` (`sip:<username>@<domain>`), `auth.username / auth.password`, `expires` (twice the old interval), `headers: { X-Session-Count: "{sessions}" }` (the old `registration` block and flags are removed) |
+| `ROOMR_OUTBOUND_PROXY / _OUTBOUND_TRANSPORT` | `outboundProxy`, as a SIP URI when it needs a transport: `sip:host:5060;transport=tcp` (`outboundTransport` is removed) |
+| (new) | `sip.callRefHeader` (the header carrying a call's ref, `X-Call-Ref` with Routr), `heartbeatInterval` (2s), `reregisterDelta` (5) and `control.grpc.listen / advertise` (Roomr for the apiserver's outbound calls, port 50061) |
+| `ROOMR_TLS_LISTEN / _TLS_CERT / _TLS_KEY / _TLS_CA` | `tls.listen / cert / key / ca` (optional SIP over TLS; `tls.clientCa` is removed) |
+| `ROOMR_DRAIN_WAIT / _MAX_DURATION / _MAX_PARTICIPANTS / _MEDIA_TIMEOUT` | `drainWait / maxDuration / maxParticipants / mediaTimeout` (`debugAddr` is removed: the heartbeat and the gRPC health service replace it) |
+| `ROOMR_SESSION_REGISTRY / _REQUIRE_ENCRYPTION / _TRUSTED_SOURCES` | removed: the node writes nothing to the session registry, requires no encryption and filters no sources (network isolation is the boundary); `allowedDestinations` moved to the apiserver and appbridge (`FONOSTER_ALLOWED_DESTINATIONS`) |
 
 ### Easy to get wrong
 

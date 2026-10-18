@@ -70,8 +70,8 @@ describe("@gateway SRTP (AES_CM_128_HMAC_SHA1_80)", function () {
   });
 });
 
-// The gateway leg against the Go node with -require-encryption: the node's pion/srtp must accept
-// what RtpLink sends and the other way round (media-control "Encrypted deployment uses SRTP").
+// The gateway leg against the Go node: pion/srtp must accept what RtpLink sends and the other
+// way round (SDES-SRTP is optional: a leg that offers srtp gets it, a plain leg stays plain).
 describe("@gateway SRTP leg against the Go media node", function () {
   this.timeout(30000);
   let nc: NatsConnection;
@@ -118,34 +118,29 @@ describe("@gateway SRTP leg against the Go media node", function () {
     };
     const sip = await free();
     const tlsPort = await free();
-    node = spawn(
-      bins.medianode,
-      [
-        "-node-id",
+    const config = path.join(dir, "roomr.yaml");
+    fs.writeFileSync(
+      config,
+      JSON.stringify({
         nodeId,
-        "-nats",
-        NATS_URL,
-        "-sip",
-        `127.0.0.1:${sip}`,
-        "-rtp",
-        "127.0.0.1",
-        "-rtp-advertise",
-        "127.0.0.1",
-        "-require-encryption",
-        "-tls",
-        `127.0.0.1:${tlsPort}`,
-        "-tls-cert",
-        path.join(dir, "cert.pem"),
-        "-tls-key",
-        path.join(dir, "key.pem")
-      ],
-      { stdio: ["ignore", "pipe", "pipe"] }
+        nats: { url: NATS_URL },
+        sip: { listen: `127.0.0.1:${sip}` },
+        rtp: { host: "127.0.0.1", advertise: "127.0.0.1" },
+        tls: {
+          listen: `127.0.0.1:${tlsPort}`,
+          cert: path.join(dir, "cert.pem"),
+          key: path.join(dir, "key.pem")
+        }
+      })
     );
+    node = spawn(bins.roomr, ["-config", config], {
+      stdio: ["ignore", "pipe", "pipe"]
+    });
     node.stderr!.on("data", () => undefined);
     await new Promise<void>((resolve, reject) => {
       const lines = readline.createInterface({ input: node!.stdout! });
       lines.on("line", (l) => l.includes("ready") && resolve());
-      node!.on("exit", (code) => reject(new Error(`medianode exited ${code}`)));
+      node!.on("exit", (code) => reject(new Error(`roomr exited ${code}`)));
     });
     nc = await connect({ servers: NATS_URL });
   });
@@ -181,11 +176,12 @@ describe("@gateway SRTP leg against the Go media node", function () {
     return { link, ack };
   }
 
-  it("refuses a plain gateway leg and carries audio between two SRTP legs (pion interop)", async function () {
+  it("carries audio between two SRTP legs (pion interop) and keeps a plain leg plain", async function () {
     const room = (await command({ type: "room.create", id: "c1" }))
       .roomRef as string;
     const plain = await join(room, false);
-    expect(plain.ack.code).to.equal("encryption_required");
+    expect(plain.ack.type).to.equal("ack");
+    expect((plain.ack.rtp as { srtp?: unknown }).srtp).to.equal(undefined);
     plain.link.close();
 
     const a = await join(room, true);

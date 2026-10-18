@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Roomr } from "@fonoster/common";
+import { status } from "@grpc/grpc-js";
 import { NodeDirectory } from "./createNodeDirectory";
 
 /** The calls.create message the Calls service publishes (CreateCall). */
@@ -27,6 +29,8 @@ export type OutboundCallRequest = {
   accessKeyId: string;
   timeout?: number;
   metadata?: Record<string, unknown>;
+  /** The call's region: only nodes whose heartbeat names it are eligible (unset: any node). */
+  region?: string;
 };
 
 /** The slice of a NATS connection placement needs: JSON request and reply. */
@@ -36,6 +40,13 @@ export type Requester = (
   timeoutMs: number
 ) => Promise<Record<string, unknown>>;
 
+/** Where API-originated calls are dialed: the SIP proxy and the digest identity it challenges. */
+export type OutboundTarget = {
+  /** host:port of the SIP proxy (Routr); the INVITE goes there. */
+  proxy: string;
+  auth?: Roomr.SipAuth;
+};
+
 /** The gateway subject that opens the app session when the callee answers (gateway B8). */
 export const GATEWAY_OUTBOUND_SUBJECT = "gateway.outbound";
 
@@ -44,11 +55,11 @@ const REPLY_TIMEOUT_MS = 2000;
 /** Nodes tried for one call before it fails with no_capacity. */
 export const MAX_PLACEMENT_ATTEMPTS = 3;
 
+/** Attempts of one RPC on the same node when the outcome is unknown (a timeout). */
+export const SAME_NODE_ATTEMPTS = 2;
+
 /** The PlacementError code for "no node took the call" (CreateCall's RESOURCE_EXHAUSTED). */
 export const NO_CAPACITY = "no_capacity";
-
-/** room.create refusals that send the call to the next node. */
-const TRY_NEXT = new Set(["at_capacity", "draining"]);
 
 export class PlacementError extends Error {
   constructor(
@@ -60,59 +71,114 @@ export class PlacementError extends Error {
   }
 }
 
+/** A node's refusal that sends the call to another node (decision 3). */
+const isRefusal = (e: unknown) =>
+  e instanceof Roomr.RoomrError &&
+  (e.code === status.RESOURCE_EXHAUSTED || e.code === status.UNAVAILABLE);
+
+/** An outcome the caller cannot know (the request may have been served): retry the same node. */
+const isAmbiguous = (e: unknown) =>
+  !(e instanceof Roomr.RoomrError) ||
+  e.code === status.DEADLINE_EXCEEDED ||
+  e.code === status.CANCELLED ||
+  e.code === status.UNKNOWN;
+
+/** The PlacementError for a failed RPC: the API maps these codes to its own status codes. */
+function placementError(what: string, nodeId: string, e: unknown) {
+  const code =
+    e instanceof Roomr.RoomrError
+      ? ({
+          [status.RESOURCE_EXHAUSTED]: NO_CAPACITY,
+          [status.INVALID_ARGUMENT]: "invalid_argument",
+          [status.ALREADY_EXISTS]: "already_exists"
+        }[e.code as number] ?? "unavailable")
+      : "unavailable";
+  return new PlacementError(
+    code,
+    `${what} failed on ${nodeId}: ${(e as Error).message}`
+  );
+}
+
+/** Runs `rpc`, again on the same node while its outcome is ambiguous. */
+async function sameNode<T>(rpc: () => Promise<T>): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await rpc();
+    } catch (e) {
+      if (attempt >= SAME_NODE_ATTEMPTS || !isAmbiguous(e)) throw e;
+    }
+  }
+}
+
+/** The Request-URI for a callee: a SIP URI as given, a number at the proxy's host. */
+export function calleeUri(to: string, proxy: string) {
+  if (/^sips?:/i.test(to)) return to;
+  const host = proxy.replace(/:\d+$/, "");
+  return `sip:${to}@${host}`;
+}
+
 /**
- * Places an API-originated call (CreateCall) on the media nodes, replacing Asterisk's originate:
- * `room.create` on the least-loaded eligible node (the next one, up to MAX_PLACEMENT_ATTEMPTS
- * nodes, when a node is full, draining or silent), `gateway.outbound` so a gateway opens the app
- * session on `call.answered`, then `participant.dial` through Routr with the headers Routr
- * routes API-originated calls by (X-Dod-Number picks the trunk). The room carries the call's
- * ref, so the node also publishes the call's status events on `calls.<ref>.events` (TrackCall).
+ * Places an API-originated call (CreateCall) on the media nodes over Roomr (gRPC, at the
+ * heartbeat's `control_addr`):
+ *
+ * 1. `CreateRoom` with the call's ref on the highest-scoring eligible node. `RESOURCE_EXHAUSTED`
+ *    or `UNAVAILABLE` sends the call to the next node, up to MAX_PLACEMENT_ATTEMPTS nodes, then
+ *    `no_capacity`; a timeout is retried on the same node (the ref makes the retry safe) and
+ *    then fails the call.
+ * 2. `gateway.outbound`, so a gateway watches the room and opens the app's session on
+ *    `call.answered` (until the control stream replaces it, tasks 5 and 6).
+ * 3. `CreateCall` into that room with the call's ref (repeated on a timeout: the node dedupes
+ *    it), dialing through the SIP proxy with the pass-through headers it routes on
+ *    (`X-DOD-Number` picks the trunk) and `to.auth` for its challenge.
+ *
+ * `onAttempt` is told each node before anything is sent to it (the session registry entry that
+ * lets a sweep end the call if this replica dies mid-placement); `onRoom` once the room exists.
  */
 export async function placeOutboundCall(
-  request: Requester,
-  nodes: NodeDirectory,
+  deps: {
+    roomr: Roomr.RoomrCalls;
+    request: Requester;
+    nodes: NodeDirectory;
+    outbound: OutboundTarget;
+  },
   call: OutboundCallRequest,
   hooks: {
-    /** Called once the room exists, before anything is dialed (e.g. to watch its events). */
-    onRoom?: (nodeId: string, roomRef: string) => void;
+    onAttempt?: (nodeId: string, controlAddr: string) => unknown;
+    onRoom?: (nodeId: string, roomRef: string) => unknown;
   } = {}
-): Promise<{ nodeId: string; roomRef: string }> {
-  const command = async (nodeId: string, body: Record<string, unknown>) => {
-    const reply = await request(
-      `media.${nodeId}.commands`,
-      body,
-      REPLY_TIMEOUT_MS
-    );
-    if (reply.type !== "ack") {
-      throw new PlacementError(
-        String(reply.code ?? "error"),
-        `${body.type} failed on ${nodeId}: ${reply.code ?? "error"}`
-      );
-    }
-    return reply;
-  };
-
-  // room.create on the least-loaded eligible node; a full, draining or silent node sends the
-  // call to the next one.
+): Promise<{ nodeId: string; roomRef: string; callRef: string }> {
+  const { roomr, nodes } = deps;
   const tried = new Set<string>();
-  let placedOn: { nodeId: string; roomRef: string } | undefined;
+  let placedOn: { nodeId: string; addr: string; roomRef: string } | undefined;
   while (!placedOn && tried.size < MAX_PLACEMENT_ATTEMPTS) {
-    const candidate = nodes.pick(tried);
-    if (!candidate) break;
-    tried.add(candidate);
+    const nodeId = nodes.pick(tried, call.region);
+    if (!nodeId) break;
+    tried.add(nodeId);
+    const addr = nodes.addressOf(nodeId)!;
+    await hooks.onAttempt?.(nodeId, addr);
     try {
-      const room = await command(candidate, {
-        type: "room.create",
-        id: `${call.ref}:room`,
-        callRef: call.ref
-      });
-      placedOn = { nodeId: candidate, roomRef: String(room.roomRef ?? "") };
+      const room = await sameNode(() =>
+        roomr.createRoom(addr, { roomRef: call.ref }).catch((e) => {
+          // A retried CreateRoom finds the room its first try made.
+          if (e instanceof Roomr.RoomrError && e.code === status.ALREADY_EXISTS)
+            return { roomRef: call.ref };
+          throw e;
+        })
+      );
+      placedOn = { nodeId, addr, roomRef: room.roomRef };
     } catch (e) {
-      if (e instanceof PlacementError) {
-        if (!TRY_NEXT.has(e.code)) throw e;
-        nodes.refused(candidate, e.code);
+      if (isRefusal(e)) {
+        nodes.refused(
+          nodeId,
+          (e as Roomr.RoomrError).code === status.UNAVAILABLE
+            ? "unavailable"
+            : "at_capacity"
+        );
+        continue;
       }
-      // Otherwise no reply in time: the node is gone or stuck; try the next one.
+      // Anything else, a timeout after its retries included, fails the call: only a refusal
+      // says the node did nothing.
+      throw placementError("CreateRoom", nodeId, e);
     }
   }
   if (!placedOn) {
@@ -123,19 +189,14 @@ export async function placeOutboundCall(
         : `no media node took the call (tried ${[...tried].join(", ")})`
     );
   }
-  const { nodeId, roomRef } = placedOn;
+  const { nodeId, addr, roomRef } = placedOn;
   nodes.placed(nodeId);
-  hooks.onRoom?.(nodeId, roomRef);
-  const endRoom = () =>
-    command(nodeId, {
-      type: "room.end",
-      id: `${call.ref}:end`,
-      roomRef
-    }).catch(() => undefined);
+  await hooks.onRoom?.(nodeId, roomRef);
+  const endRoom = () => roomr.endRoom(addr, { roomRef }).catch(() => undefined);
 
   let claimed: Record<string, unknown>;
   try {
-    claimed = await request(
+    claimed = await deps.request(
       GATEWAY_OUTBOUND_SUBJECT,
       {
         nodeId,
@@ -164,27 +225,31 @@ export async function placeOutboundCall(
   }
 
   try {
-    await command(nodeId, {
-      type: "participant.dial",
-      id: `${call.ref}:dial`,
-      roomRef,
-      to: call.to,
-      from: call.from,
-      timeout: call.timeout,
-      // The gateway that will own the call: the node ends the room if that gateway goes away.
-      ...(typeof claimed.gatewayRef === "string"
-        ? { gatewayRef: claimed.gatewayRef }
-        : {}),
-      headers: {
-        "X-Call-Ref": call.ref,
-        "X-Dod-Number": call.from,
-        "X-Access-Key-Id": call.accessKeyId,
-        "X-Is-Api-Originated-Type": "true"
-      }
-    });
+    const placed = await sameNode(() =>
+      roomr.createCall(addr, {
+        callRef: call.ref,
+        roomRef,
+        // From is the node's own SIP identity (its registration): the caller-id travels in
+        // X-DOD-Number, which picks the trunk.
+        to: {
+          uri: calleeUri(call.to, deps.outbound.proxy),
+          proxy: deps.outbound.proxy,
+          headers: {
+            "X-DOD-Number": call.from,
+            "X-Call-Ref": call.ref,
+            "X-Access-Key-Id": call.accessKeyId,
+            "X-Is-Api-Originated-Type": "true"
+          },
+          ...(deps.outbound.auth ? { auth: deps.outbound.auth } : {})
+        },
+        ringTimeoutS: call.timeout,
+        metadata: { app_ref: call.appRef }
+      })
+    );
+    return { nodeId, roomRef, callRef: placed.callRef };
   } catch (e) {
+    await roomr.endCall(addr, { callRef: call.ref }).catch(() => undefined);
     await endRoom();
-    throw e;
+    throw placementError("CreateCall", nodeId, e);
   }
-  return { nodeId, roomRef };
 }

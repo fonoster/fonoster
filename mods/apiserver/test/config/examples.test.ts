@@ -29,7 +29,7 @@ import {
 const ENV = {
   POSTGRES_USER: "postgres",
   POSTGRES_PASSWORD: "postgres",
-  MEDIANODE_PASSWORD: "changeme",
+  ROOMR_PASSWORD: "changeme",
   INFLUXDB_INIT_ORG: "fonoster",
   INFLUXDB_INIT_USERNAME: "influxdb",
   INFLUXDB_INIT_PASSWORD: "changeme",

@@ -263,6 +263,11 @@ const fonosterConfigSchema = z
       .object({
         apiEndpoint: z.string().default("routr:51907"),
         /**
+         * host:port of Routr's SIP listener: API-originated calls are dialed through it
+         * (CreateCall's to.proxy), as the media-node peer below (to.auth).
+         */
+        sipProxy: z.string().default("routr:5060"),
+        /**
          * The peer Go media nodes register under (least-sessions, add-media-node 4.1). Without a
          * password the apiserver does not create it.
          */

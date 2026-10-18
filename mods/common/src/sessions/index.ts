@@ -22,24 +22,31 @@ import type { KV, KvEntry, NatsConnection } from "nats";
  * The session registry (add-platform 2.3, add-media-node 3.2, decision D3): one NATS JetStream KV
  * bucket shared by every service. Keys are `<kind>.<id>`:
  *
- *   nodes.<nodeId>        media node: { nodeId, rooms, draining, at }      (written by the node)
- *   rooms.<roomRef>       media node: { roomRef, nodeId, at }              (written by the node)
  *   calls.<callRef>       gateway:    { callRef, gatewayRef, nodeId, roomRef, direction, at }
  *                                     + once answered: { appRef, from, to, startedAt }
  *   gateways.<gatewayRef> gateway:    { gatewayRef, calls, at }
+ *   placements.<callRef>  apiserver:  { callRef, nodeRef, controlAddr, roomRef?, at }
+ *                                     while an outbound call is being placed (CreateCall)
+ *
+ * Media nodes write nothing here (core NATS only: heartbeat and events); the control plane learns
+ * nodes from their heartbeats.
  *
  * The control plane reads `calls` and `gateways`: a call whose entry and whose gateway's entry
  * both stop being rewritten lost its gateway mid-call, and gets `call.ended` (`appbridge-lost`).
  *
  * Entries are leases: the bucket keeps a value for SESSIONS_TTL_MS after its last write, owners
- * rewrite theirs every SESSIONS_REFRESH_MS, and a crashed owner's entries expire on their own. The
- * Go node uses the same bucket, TTL and key rules (go/medianode/internal/registry).
+ * rewrite theirs every SESSIONS_REFRESH_MS, and a crashed owner's entries expire on their own.
  */
 export const SESSIONS_BUCKET = "fonoster_sessions";
 export const SESSIONS_TTL_MS = 15_000;
 export const SESSIONS_REFRESH_MS = 5_000;
 
-export type SessionKind = "nodes" | "rooms" | "calls" | "gateways";
+export type SessionKind =
+  | "nodes"
+  | "rooms"
+  | "calls"
+  | "gateways"
+  | "placements";
 
 /** `<kind>.<id>` with characters KV keys do not allow replaced by `_`. */
 export const sessionKey = (kind: SessionKind, id: string) =>

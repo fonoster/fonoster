@@ -20,6 +20,7 @@ import { randomUUID } from "crypto";
 import {
   APP_COMMAND_SCHEMAS,
   AppCommandType,
+  assertPublicDestination,
   E164,
   isSipTarget,
   SESSION_PROTOCOL,
@@ -1150,6 +1151,29 @@ export class AppSession {
     }
   }
 
+  /**
+   * Hold and transfer music is a URL the app chose and the media node fetches, so it is checked
+   * here, where it enters the platform: http(s) only, public destinations only (the same rule as
+   * Play media and webhooks; FONOSTER_ALLOWED_DESTINATIONS lists exceptions). The media node
+   * itself fetches whatever it is told.
+   */
+  private async musicAllowed(music: unknown, relatesTo?: string) {
+    if (typeof music !== "string" || !music) return true;
+    try {
+      await assertPublicDestination(music);
+      return true;
+    } catch (e) {
+      this.emit({
+        type: "error",
+        code: "bad_message",
+        message: `music: ${(e as Error).message}`,
+        fatal: false,
+        relatesTo
+      });
+      return false;
+    }
+  }
+
   private async onCommand(cmd: Record<string, unknown>) {
     const type = cmd.type as AppCommandType;
     const validate = validators[type];
@@ -1308,6 +1332,7 @@ export class AppSession {
         );
         return;
       case "hold":
+        if (!(await this.musicAllowed(cmd.music, id))) return;
         await this.call.mediaCommand(
           {
             type: "hold",
@@ -1344,6 +1369,7 @@ export class AppSession {
           });
           return;
         }
+        if (!(await this.musicAllowed(cmd.music, transferId))) return;
         this.transfer = { id: transferId, mode };
         try {
           await this.call.mediaCommand(

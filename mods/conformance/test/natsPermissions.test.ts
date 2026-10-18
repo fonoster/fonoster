@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 // NATS users and subject permissions (add-platform 4.1, build log HD-B1): runs the checked-in
-// ops/rebuild/config/nats.conf (main stack: apiserver, gateway, medianode, routr) and
-// ops/rebuild/cell/config/nats.conf (a cell: gateway, medianode, routr, region-agent) in Docker
+// ops/rebuild/config/nats.conf (main stack: apiserver, gateway, roomr, routr) and
+// ops/rebuild/cell/config/nats.conf (a cell: gateway, roomr, routr, region-agent) in Docker
 // and proves each service reaches its own subjects and nothing else. Opt-in (starts containers):
 //
 //   NATS_ACL_TEST=docker [NATS_ACL_CONTAINER_PREFIX=fonoster-acl] [NATS_ACL_PORT=31400] npm test
@@ -210,18 +210,18 @@ describe("@conformance/nats permissions (per-service users)", function () {
     main = startServer("main", PORT, mainDir, [
       "apiserver",
       "gateway",
-      "medianode",
+      "roomr",
       "routr"
     ]);
     cell = startServer("cell", PORT + 1, cellDir, [
       "gateway",
-      "medianode",
+      "roomr",
       "routr",
       "region-agent"
     ]);
     api = await as(main, "apiserver");
     gw = await as(main, "gateway");
-    node = await as(main, "medianode");
+    node = await as(main, "roomr");
     routr = await as(main, "routr");
     conns.push(api, gw, node, routr);
   });
@@ -263,10 +263,6 @@ describe("@conformance/nats permissions (per-service users)", function () {
       }
     );
     expect(sc.decode(reply.data)).to.equal('{"type":"ack"}');
-    // ...and the control plane too (outbound placement).
-    await api.request(`media.${nodeId}.commands`, sc.encode("{}"), {
-      timeout: 2000
-    });
     cmds.unsubscribe();
     // call.incoming: the node asks, a gateway claims.
     const claims = gw.subscribe("gateway.incoming", {
@@ -276,9 +272,15 @@ describe("@conformance/nats permissions (per-service users)", function () {
     await gw.flush();
     await node.request("gateway.incoming", sc.encode("{}"), { timeout: 2000 });
     claims.unsubscribe();
-    expect(await delivered(node, api, `media.${nodeId}.heartbeat`)).to.equal(
-      true
-    );
+    expect(
+      await delivered(node, api, `roomr.nodes.${nodeId}.heartbeat`)
+    ).to.equal(true);
+    expect(
+      await delivered(node, gw, `roomr.nodes.${nodeId}.heartbeat`)
+    ).to.equal(true);
+    // Events keyed by call and by room, for any controller replica.
+    expect(await delivered(node, api, "roomr.events.c1")).to.equal(true);
+    expect(await delivered(node, api, "roomr.events.room.r1")).to.equal(true);
     expect(await delivered(node, gw, `media.${nodeId}.events.r1`)).to.equal(
       true
     );
@@ -290,9 +292,8 @@ describe("@conformance/nats permissions (per-service users)", function () {
     ).to.equal(true);
     expect(await delivered(gw, api, "webhooks.events")).to.equal(true);
     expect(await delivered(api, api, "calls.create")).to.equal(true);
-    // TrackCall: the placing replica and the node report a call's status per ref.
+    // TrackCall: the placing replica reports its part of a call's status per ref.
     expect(await delivered(api, api, "calls.r1.events")).to.equal(true);
-    expect(await delivered(node, api, "calls.r1.events")).to.equal(true);
     expect(await delivered(routr, api, "routr.call.started")).to.equal(true);
     expect(await delivered(api, gw, "callrecord.local.maintenance")).to.equal(
       true
@@ -301,7 +302,11 @@ describe("@conformance/nats permissions (per-service users)", function () {
 
   it("refuses publishing outside a service's subjects", async function () {
     // Nobody but the node speaks for a node; nobody but a gateway files index entries.
-    expect(await delivered(gw, api, "media.n1.heartbeat")).to.equal(false);
+    expect(await delivered(gw, api, "roomr.nodes.n1.heartbeat")).to.equal(
+      false
+    );
+    expect(await delivered(gw, api, "roomr.events.c1")).to.equal(false);
+    expect(await delivered(api, api, "roomr.events.c1")).to.equal(false);
     expect(await delivered(api, gw, "media.n1.events.r1")).to.equal(false);
     expect(await delivered(node, api, "callrecord.sealed")).to.equal(false);
     expect(await delivered(routr, api, "callrecord.sealed")).to.equal(false);
@@ -309,11 +314,14 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(await delivered(gw, api, "calls.create")).to.equal(false);
     expect(await delivered(node, api, "calls.create")).to.equal(false);
     expect(await delivered(gw, api, "calls.r1.events")).to.equal(false);
+    expect(await delivered(node, api, "calls.r1.events")).to.equal(false);
     // Record maintenance is asked by the control plane only.
     expect(await delivered(node, gw, "callrecord.local.maintenance")).to.equal(
       false
     );
-    // Media-control commands come from gateways and the control plane, never Routr or a node.
+    // Media-control commands come from gateways only: never Routr, a node or the control plane
+    // (it places calls with Roomr over gRPC).
+    expect(await delivered(api, node, "media.n1.commands")).to.equal(false);
     expect(await delivered(routr, node, "media.n1.commands")).to.equal(false);
     expect(await delivered(node, node, "media.n2.commands")).to.equal(false);
     // Routr's events are Routr's.
@@ -340,7 +348,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     });
     await node.flush();
     // Another service, a second media node and Routr try every inbox they could read.
-    const otherNode = await as(main!, "medianode");
+    const otherNode = await as(main!, "roomr");
     conns.push(otherNode);
     const inboxes = ["_INBOX.>", `${natsInboxPrefix("gateway")}.>`];
     for (const eavesdropper of [api, otherNode, routr]) {
@@ -354,14 +362,21 @@ describe("@conformance/nats permissions (per-service users)", function () {
       expect(answered).to.equal('{"secret":"reply"}');
       expect(heard).to.equal(false);
     }
-    // ...and the control plane's replies stay its own too.
-    const gwHeard = await overheard(
-      gw,
-      ["_INBOX.>", `${natsInboxPrefix("apiserver")}.>`],
-      () => api.request("media.n9.commands", sc.encode("{}"), { timeout: 2000 })
-    );
-    expect(gwHeard).to.equal(false);
     cmds.unsubscribe();
+    // ...and the control plane's replies stay its own too (the gateway's claim of an outbound
+    // call, overheard by a node).
+    const claims = gw.subscribe("gateway.outbound", {
+      queue: "gateway-outbound",
+      callback: (_e, m) => m.respond(sc.encode('{"type":"ack"}'))
+    });
+    await gw.flush();
+    const nodeHeard = await overheard(
+      otherNode,
+      ["_INBOX.>", `${natsInboxPrefix("apiserver")}.>`],
+      () => api.request("gateway.outbound", sc.encode("{}"), { timeout: 2000 })
+    );
+    expect(nodeHeard).to.equal(false);
+    claims.unsubscribe();
   });
 
   it("refuses replies to a client that keeps the shared _INBOX prefix", async function () {
@@ -393,27 +408,17 @@ describe("@conformance/nats permissions (per-service users)", function () {
     cmds.unsubscribe();
   });
 
-  it("lets each service write only its own session-registry entries", async function () {
-    const nodeKv = await Sessions.openSessions(node);
+  it("lets the gateway and the control plane write only their own session-registry entries", async function () {
     const gwKv = await Sessions.openSessions(gw);
     const apiKv = await Sessions.openSessions(api);
-    // The node writes nodes.*; the control plane reads it (get and watch).
-    await nodeKv.put("nodes.n1", sc.encode('{"nodeId":"n1","rooms":1}'));
-    expect(await Sessions.getSession(apiKv, "nodes", "n1")).to.include({
-      nodeId: "n1"
-    });
-    const seen: string[] = [];
-    const stop = await Sessions.watchSessions(apiKv, "nodes", (e) =>
-      seen.push(e.id)
-    );
-    await sleep(300);
-    stop();
-    expect(seen).to.include("n1");
     // The gateway writes calls.* and gateways.*.
     await gwKv.put("calls.c1", sc.encode('{"callRef":"c1"}'));
     await gwKv.put("gateways.g1", sc.encode('{"gatewayRef":"g1"}'));
-    // Everything else is refused.
-    const refused = async (kv: typeof nodeKv, key: string) => {
+    // The control plane writes placements.* (outbound calls being placed) and deletes them.
+    await apiKv.put("placements.p1", sc.encode('{"callRef":"p1"}'));
+    await apiKv.delete("placements.p1");
+    // Everything else is refused; the media node writes nothing to the registry any more.
+    const refused = async (kv: typeof gwKv, key: string) => {
       const ok = await kv.put(key, sc.encode("{}"), { timeout: 1000 }).then(
         () => true,
         () => false
@@ -422,8 +427,9 @@ describe("@conformance/nats permissions (per-service users)", function () {
     };
     await refused(apiKv, "nodes.forged");
     await refused(gwKv, "nodes.forged");
-    await refused(nodeKv, "calls.forged");
+    await refused(gwKv, "rooms.forged");
     await refused(apiKv, "calls.forged");
+    await refused(gwKv, "placements.forged");
     expect(await Sessions.getSession(apiKv, "nodes", "forged")).to.equal(
       undefined
     );
@@ -436,11 +442,13 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(deleted).to.equal(false);
   });
 
-  it("keeps the media node write-only on the session registry (M7)", async function () {
-    const nodeKv = await Sessions.openSessions(node);
-    await nodeKv.put("nodes.n7", sc.encode('{"nodeId":"n7"}'));
-    await nodeKv.put("rooms.r7", sc.encode('{"roomRef":"r7"}'));
-    // A JetStream API request the user may not publish gets no answer.
+  it("gives the media node core NATS only: no session registry and no JetStream", async function () {
+    // It can't open the bucket, write any entry, or reach the JetStream API.
+    const opened = await Sessions.openSessions(node).then(
+      () => true,
+      () => false
+    );
+    expect(opened).to.equal(false);
     const answered = (conn: NatsConnection, subject: string, body: unknown) =>
       conn
         .request(subject, sc.encode(JSON.stringify(body)), { timeout: 1000 })
@@ -448,51 +456,25 @@ describe("@conformance/nats permissions (per-service users)", function () {
           (m) => !sc.decode(m.data).includes('"error"'),
           () => false
         );
-    const getLast = {
-      last_by_subj: "$KV.fonoster_sessions.nodes.n7"
-    };
-    // The control plane reads the entry...
+    expect(await answered(node, "$JS.API.INFO", {})).to.equal(false);
     expect(
-      await answered(api, "$JS.API.DIRECT.GET.KV_fonoster_sessions", getLast)
-    ).to.equal(true);
-    // ...the node can't read any entry (its own, other nodes', calls)...
-    expect(
-      await answered(node, "$JS.API.DIRECT.GET.KV_fonoster_sessions", getLast)
+      await answered(node, "$JS.API.STREAM.INFO.KV_fonoster_sessions", {})
     ).to.equal(false);
     expect(
-      await answered(node, "$JS.API.STREAM.MSG.GET.KV_fonoster_sessions", {
-        last_by_subj: "$KV.fonoster_sessions.calls.c1"
+      await answered(node, "$JS.API.DIRECT.GET.KV_fonoster_sessions", {
+        last_by_subj: "$KV.fonoster_sessions.nodes.n7"
       })
     ).to.equal(false);
-    // ...watch the registry...
-    expect(
-      await answered(node, "$JS.API.CONSUMER.CREATE.KV_fonoster_sessions", {
-        stream_name: "KV_fonoster_sessions",
-        config: { deliver_policy: "last_per_subject", ack_policy: "none" }
-      })
-    ).to.equal(false);
-    // ...or delete another service's watcher.
-    expect(
-      await answered(
-        node,
-        "$JS.API.CONSUMER.DELETE.KV_fonoster_sessions.any-watcher",
-        {}
-      )
-    ).to.equal(false);
-    // It still can't write outside nodes.* and rooms.*.
-    const wrote = await nodeKv
-      .put("gateways.g7", sc.encode("{}"), { timeout: 1000 })
-      .then(
-        () => true,
-        () => false
-      );
-    expect(wrote).to.equal(false);
+    // The heartbeat still gets through to the control plane (core NATS).
+    expect(await delivered(node, api, "roomr.nodes.n7.heartbeat")).to.equal(
+      true
+    );
   });
 
   it("limits a cell's region agent to region.> and its local subjects", async function () {
     const agent = await as(cell!, "region-agent");
     const cgw = await as(cell!, "gateway");
-    const cnode = await as(cell!, "medianode");
+    const cnode = await as(cell!, "roomr");
     conns.push(agent, cgw, cnode);
     // Bring-your-own key requests: the gateway asks, the agent answers.
     const keys = agent.subscribe("cell.workspacekeys.get", {
@@ -514,7 +496,9 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(heard).to.equal(false);
     keys.unsubscribe();
     expect(await delivered(cgw, agent, "callrecord.sealed")).to.equal(true);
-    expect(await delivered(cnode, agent, "media.n1.heartbeat")).to.equal(true);
+    expect(await delivered(cnode, agent, "roomr.nodes.n1.heartbeat")).to.equal(
+      true
+    );
     expect(await delivered(agent, agent, "region.r1.heartbeat")).to.equal(true);
     // The agent drives nothing in the cell.
     expect(await delivered(agent, cnode, "media.n1.commands")).to.equal(false);

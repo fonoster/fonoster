@@ -200,11 +200,12 @@ export class RegionAgent {
         `this region was revoked (${this.state.revoked.reason}); re-enroll with a new token`
       );
     const s = this.subjects;
-    this.on("media.*.heartbeat", (_m, b) => {
-      const e = b as { type?: string; nodeId?: string; rooms?: number };
-      if (e.type === "node.heartbeat" && e.nodeId)
-        this.nodes.set(e.nodeId, { at: this.now(), rooms: e.rooms ?? 0 });
-      else if (e.type === "node.down" && e.nodeId) this.nodes.delete(e.nodeId);
+    this.on("roomr.nodes.*.heartbeat", (_m, b) => {
+      const e = b as { type?: string; node_ref?: string; rooms?: number };
+      if (e.type === "node.heartbeat" && e.node_ref)
+        this.nodes.set(e.node_ref, { at: this.now(), rooms: e.rooms ?? 0 });
+      else if (e.type === "node.down" && e.node_ref)
+        this.nodes.delete(e.node_ref);
     });
     this.on(GATEWAY_HEARTBEAT_SUBJECT, (_m, b) => {
       const e = b as { gatewayRef?: string; calls?: number };

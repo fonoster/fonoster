@@ -18,13 +18,25 @@
  */
 /** One media node as its heartbeats describe it (media-control, node.heartbeat). */
 export type MediaNodeStatus = {
+  /** The heartbeat's node_ref. */
   nodeId: string;
   rooms: number;
-  /** The node's room limit (media-node "Call and room limits"); unset for nodes that report none. */
+  /** The node's room limit (max_rooms); unset for nodes that report none. */
   maxRooms?: number;
-  draining: boolean;
+  /** The node's region; unset for nodes that report none. */
+  region?: string;
+  /**
+   * The node said `node.down` (it is draining or exiting) and has not sent a heartbeat since: it
+   * takes no new calls, but its live calls are not failed for it (see `live`).
+   */
+  down: boolean;
+  /** Where the node serves Roomr (the heartbeat's control_addr); unset: no calls placed on it. */
+  controlAddr?: string;
   seenAt: number;
 };
+
+/** The room limit assumed for a node that reports none (the media node's default). */
+export const DEFAULT_MAX_ROOMS = 200;
 
 /** Heartbeats are every 2 s; a node silent for three of them is not offered new calls. */
 export const NODE_STALE_MS = 6000;
@@ -36,9 +48,11 @@ export const NODE_STALE_MS = 6000;
 export const NODE_FORGET_MS = 60_000;
 
 /**
- * The media nodes this replica knows, for placing outbound calls (add-media-node 3.3): fed by the
- * session registry's `nodes.` entries (JetStream KV, 3.2; read in full at start, so a restarted
- * replica places calls at once) and by `node.heartbeat` / `node.down` events.
+ * The media nodes this replica knows, for placing outbound calls (add-media-node 3.3): fed by
+ * the `node.heartbeat` / `node.down` events on `roomr.nodes.<node_ref>.heartbeat` (core NATS;
+ * nodes write nothing else). `node.down` only takes the node out of placement: a draining node
+ * keeps its live rooms and sends no heartbeats, so it is "gone" only after it stays silent for
+ * `staleMs` past its `node.down`.
  */
 export function createNodeDirectory(
   options: { staleMs?: number; forgetMs?: number; now?: () => number } = {}
@@ -62,50 +76,82 @@ export function createNodeDirectory(
      * registry entries read after the fact (default now).
      */
     note(event: Record<string, unknown>, seenAt?: number) {
-      const nodeId = typeof event.nodeId === "string" ? event.nodeId : "";
+      const nodeId = typeof event.node_ref === "string" ? event.node_ref : "";
       if (!nodeId) return;
       if (event.type === "node.down") {
-        nodes.delete(nodeId);
+        const known = nodes.get(nodeId);
+        if (known) {
+          known.down = true;
+          known.seenAt = seenAt ?? now();
+        }
       } else if (event.type === "node.heartbeat") {
         const at = seenAt ?? now();
         const known = nodes.get(nodeId);
         // An older registry entry never replaces a fresher heartbeat.
         if (known && known.seenAt > at) return;
-        const maxRooms = Number(event.maxRooms);
+        const maxRooms = Number(event.max_rooms);
         nodes.set(nodeId, {
           nodeId,
           rooms: Number(event.rooms ?? 0),
           maxRooms:
             Number.isFinite(maxRooms) && maxRooms > 0 ? maxRooms : undefined,
-          draining: event.draining === true,
+          region:
+            typeof event.region === "string" && event.region
+              ? event.region
+              : undefined,
+          down: false,
+          controlAddr:
+            typeof event.control_addr === "string" && event.control_addr
+              ? event.control_addr
+              : undefined,
           seenAt: at
         });
       }
       forget();
     },
     /**
-     * The least-loaded eligible node (live, not draining, below its room limit), skipping the
-     * nodes in `exclude` (already tried for this call); undefined when there is none.
+     * The eligible node with the most room to spare (control-plane): live, not down, below
+     * its room limit, with a control address and, when the call names a region, in that region; scored
+     * `1 - rooms / max_rooms`, highest wins. Skips the nodes in `exclude` (already tried for
+     * this call); undefined when there is none.
      */
-    pick(exclude: ReadonlySet<string> = new Set()): string | undefined {
-      let best: MediaNodeStatus | undefined;
+    pick(
+      exclude: ReadonlySet<string> = new Set(),
+      region?: string
+    ): string | undefined {
+      let best: { node: MediaNodeStatus; score: number } | undefined;
       for (const n of nodes.values()) {
-        if (exclude.has(n.nodeId) || n.draining) continue;
+        if (exclude.has(n.nodeId) || n.down || !n.controlAddr) continue;
         if (now() - n.seenAt > staleMs) continue;
-        if (n.maxRooms !== undefined && n.rooms >= n.maxRooms) continue;
-        if (!best || n.rooms < best.rooms) best = n;
+        if (region && n.region !== region) continue;
+        const limit = n.maxRooms ?? DEFAULT_MAX_ROOMS;
+        if (n.rooms >= limit) continue;
+        const score = 1 - n.rooms / limit;
+        if (!best || score > best.score) best = { node: n, score };
       }
-      return best?.nodeId;
+      return best?.node.nodeId;
     },
     /**
-     * A node refused a room because it is full or draining: no new call goes to it until its
-     * next heartbeat says otherwise.
+     * A node refused a room because it is full or unavailable: no new call goes to it until
+     * its next heartbeat says otherwise.
      */
     refused(nodeId: string, code: string) {
       const n = nodes.get(nodeId);
       if (!n) return;
-      if (code === "draining") n.draining = true;
+      if (code === "unavailable") n.down = true;
       else n.maxRooms = Math.min(n.maxRooms ?? n.rooms, n.rooms);
+    },
+    /**
+     * Whether the node is still there: a heartbeat, or its `node.down`, is fresh. A node that
+     * said `node.down` stays live for `staleMs` more; after that, silence means it exited.
+     */
+    live(nodeId: string): boolean {
+      const n = nodes.get(nodeId);
+      return !!n && now() - n.seenAt <= staleMs;
+    },
+    /** The node's Roomr address (control_addr), if known. */
+    addressOf(nodeId: string): string | undefined {
+      return nodes.get(nodeId)?.controlAddr;
     },
     /** Counts a room placed on a node before its next heartbeat reports it. */
     placed(nodeId: string) {

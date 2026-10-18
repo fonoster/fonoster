@@ -12,7 +12,7 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | `postgres` | `postgres:16` | Routr's database (Routr runs with `START_INTERNAL_DB=false`). |
 | `routr` | `fonoster/routr-one` | SIP edge. Nodes register to it with their session count. |
 | `rtpengine` | `fonoster/rtpengine` | Carrier-side media relay. |
-| `medianode` | `go/medianode/Dockerfile` | Rooms, mixing, RTP. Distroless static binary. |
+| `roomr` | `go/roomr/Dockerfile` | Rooms, mixing, RTP. Distroless static binary. |
 | `appbridge` | `mods/appbridge/Dockerfile` | AppBridge (VoiceSessionGateway): speech, turn-taking, app sessions. |
 | `autopilot` (profile) | `mods/autopilot/Dockerfile` | Hosted Autopilot session engine. |
 | `minio` | `minio/minio` | Object storage for recordings and records. |
@@ -28,10 +28,9 @@ passes each service only the `.env` values its own file names (its `environment:
 `ops/bundle/compose.yaml`), never the whole `.env`, and only the API server mounts Identity's
 private key (`keys/private.pem`); the gateway gets `public.pem` and its `records.pem`. A
 placeholder you add to a service file needs a matching line in that service's `environment:`
-(for example `CLICKHOUSE_USER`). The media node reads `/config/medianode.yaml` (or `-config <file>`;
-see `ops/bundle/config/medianode.example.yaml`); flags win over it. It reads no `MEDIANODE_*`
-variables: a value from the environment goes in the file as a `${NAME}` placeholder, and a
-`MEDIANODE_*` variable the file does not reference is logged by name as ignored.
+(for example `CLICKHOUSE_USER`). The media node reads `/config/roomr.yaml` (or `-config <file>`, its only flag;
+see `ops/bundle/config/roomr.example.yaml`). It reads no `ROOMR_*`
+variables: a value from the environment goes in the file as a `${NAME}` placeholder.
 
 ## Start
 
@@ -68,7 +67,7 @@ Set `COMPOSE_PROJECT_NAME` to run several stacks on one host.
 | 5060 | UDP/TCP | Routr | Carrier-facing SIP. |
 | 5060 | UDP/TCP | Media node | Internal SIP from Routr; do not expose to the internet. |
 | 10000-10100 | UDP | RTPEngine | Carrier-facing media (`RTPENGINE_PORT_MIN/MAX`). Size to your concurrent calls. |
-| 30000-30199 | UDP | Media node RTP | `rtp.portMin/portMax` in `medianode.yaml`. Two ports per call leg (RTP and the session leg); publish exactly this range. |
+| 30000-30199 | UDP | Media node RTP | `rtp.portMin/portMax` in `roomr.yaml`. Two ports per call leg (RTP and the session leg); publish exactly this range. |
 | 8080 | TCP | Gateway | Twilio-compatible Calls endpoint when `http` is set in `gateway.yaml`. |
 
 ### RTP ranges
@@ -80,37 +79,29 @@ publish the same range on the container, pod (host network) or firewall. `rtp.ad
 is the address that goes into SDP; it must be reachable from Routr and RTPEngine. Behind NAT, set
 it to the reachable address; on Kubernetes the chart defaults to the node's host IP.
 
-### Trusted SIP sources
+### Who may reach the media node
 
-The media node takes `X-App-Ref`, `X-Call-Ref` and `X-Call-Direction` from the INVITE, so it must
-accept INVITEs from Routr only. `trustedSources` in `medianode.yaml` (flag `-trusted-sources`)
-lists Routr's addresses as IPs, CIDRs or host names; an INVITE from any other address is refused. The Compose
-bundle sets it to Routr's container address. The Helm chart defaults `medianode.trustedSources` to
-the private ranges (`10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`), because with `hostNetwork` port
-5060 is open on the node's address; narrow it to Routr's pod CIDR or addresses. The chart refuses
-to render with an empty list unless `medianode.allowAnySource: true` (development only). The node
-binary itself still accepts any source when the list is empty and logs a warning.
+The media node takes `X-App-Ref`, `X-Call-Ref` and `X-Call-Direction` from the INVITE and trusts
+them, so its SIP port must be reachable only from Routr. Network isolation is the boundary: the
+Compose bundle does not publish the SIP port on the host; on Kubernetes use a NetworkPolicy when
+Roomr runs on the pod network, or a host firewall when `roomr.hostNetwork` is true (the default,
+because RTP is a UDP range). The node itself accepts INVITEs from any address.
 
-## Encryption and mutual TLS toward the edge
+## Optional TLS toward the edge
 
-`requireEncryption: true` in `medianode.yaml` makes the node serve SIP over TLS only and require
-SRTP on every leg (MN6); the TLS listener is `tls.listen` with `tls.cert` and `tls.key`, and
-`tls.ca` verifies Routr when the node dials or registers over TLS.
-
-**Mutual TLS** (add-platform 4.2): set `tls.clientCa` to the CA that signs Routr's
-certificate and the TLS listener requires a client certificate signed by it from every connection
-(`RequireAndVerifyClientCert`); anything else fails the handshake before a SIP message is read. With
-a CA set, the node also presents its own certificate when it connects to Routr over TLS, so Routr
-can verify the node. Every PEM setting is a file path or a `secret://` reference whose value is the
-PEM. `trustedSources` (RV-B7) stays on as an extra check. Off by default locally; the
-chart's `medianode.tls` (`enabled`, `listen`, `secret` with `tls.crt`/`tls.key`/`ca.crt`, `mutual`)
-wires it on Kubernetes. Routr's side (a client certificate on its TLS transport) is Routr's config.
+Off by default. `tls.listen` with `tls.cert` and `tls.key` in `roomr.yaml` adds a SIP-over-TLS
+listener next to UDP and TCP, and `tls.ca` verifies Routr when the node dials or registers over
+TLS (`outboundProxy: sip:routr:5061;transport=tls`). SDES-SRTP is negotiated when a leg offers
+it (RTP/SAVP with an SDES key); a plain leg stays plain. Every PEM setting is a file path or a
+`secret://` reference whose value is the PEM. The chart's `roomr.tls` (`enabled`, `listen`,
+`secret` with `tls.crt`/`tls.key`/`ca.crt`) wires it on Kubernetes. Requiring client
+certificates on the SIP edge and refusing plain traffic are not options.
 
 ## NATS users and subject permissions
 
 NATS is a trust boundary (add-platform 4.1): every service connects as its own user and may publish
 and subscribe only on its subjects. The permission files are
-`ops/rebuild/config/nats-permissions/<service>.conf` (apiserver, gateway, medianode, routr,
+`ops/rebuild/config/nats-permissions/<service>.conf` (apiserver, gateway, roomr, routr,
 region-agent); the main NATS, the cell's NATS and the chart (`nats.auth`) include the ones they
 serve. In short: only media nodes publish heartbeats, room events and `gateway.incoming`; only
 gateways publish `callrecord.sealed` (index entries) and `registry.used`; only the apiserver
@@ -122,9 +113,9 @@ unchanged.
 - **Passwords**: one per service. `ops/rebuild/stack` generates them into `.local/stack.env`
   (`NATS_<SERVICE>_PASSWORD`, added to older files on the next `up`); a cell takes them from
   `cell.env`; the chart from the Secret `nats.auth.secret` (keys `apiserver`, `gateway`,
-  `medianode`, `routr`, `region-agent`).
+  `roomr`, `routr`, `region-agent`).
 - **Service config**: `nats: { url, user, password }` in fonoster.yaml, gateway.yaml and
-  region-agent.yaml and medianode.yaml, with `password: secret://env/NATS_<SERVICE>_PASSWORD`. Routr's
+  region-agent.yaml and roomr.yaml, with `password: secret://env/NATS_<SERVICE>_PASSWORD`. Routr's
   user goes in its URL (`nats://routr:<password>@nats:4222`), so use hex passwords.
 - **Replies**: each user receives replies (and JetStream deliveries) only under its own inbox
   prefix, `_INBOX_<user>.>`; the services set it when they connect with a user
@@ -138,24 +129,31 @@ unchanged.
 
 ## Session registry
 
-The session registry (D3) is the JetStream KV bucket `fonoster_sessions`: `nodes.<id>` and
-`rooms.<ref>` (written by media nodes), `calls.<ref>` and `gateways.<ref>` (written by gateways).
-Entries are leases: the bucket keeps a value 15 s after its last write, owners rewrite theirs every
-2 to 5 s and delete them on a clean exit, so a crashed owner's entries expire on their own. The
-apiserver reads `nodes.` at start and follows it, so a restarted replica places outbound calls at
-once (it still listens to heartbeats). Without JetStream every service logs a warning and runs on
-heartbeats only; `sessionRegistry: false` in `medianode.yaml` turns the node's writes off.
+The session registry (D3) is the JetStream KV bucket `fonoster_sessions`: `calls.<ref>` and
+`gateways.<ref>` (written by gateways) and `placements.<ref>` (written by the apiserver for
+outbound calls being placed). Media nodes write nothing there: they use core NATS only (heartbeat
+and events), and the apiserver learns nodes from their heartbeats (a restarted replica places
+calls after the next heartbeat, within `heartbeatInterval`). Entries are leases: the bucket keeps
+a value 15 s after its last write, owners rewrite theirs every 2 to 5 s and delete them on a clean
+exit, so a crashed owner's entries expire on their own. Without JetStream every service logs a
+warning and runs on heartbeats only.
 
 ## Drain and rollout
 
-`SIGTERM` puts the node in drain: it reports itself full (no new rooms; the gateways stop placing
-calls on it), keeps existing rooms, and exits when the last room ends or `drain-wait` elapses
-(default 10 min, `drainWait` or `-drain-wait`), ending whatever is left. The container
-runtime must wait at least that long:
+The media node serves the standard gRPC health service (`grpc.health.v1.Health`) on its control
+port. `SIGTERM` starts the drain: health turns NOT_SERVING (readiness fails), the node
+unregisters (REGISTER with Expires 0), stops its heartbeat and publishes `node.down`, keeps its
+rooms, and exits when the last room ends or `drainWait` elapses (default 10 min, in
+`roomr.yaml`), ending whatever is left. The node refuses nothing during a drain; the placement
+layers stop sending it calls (the apiserver skips a node after `node.down` or a stale heartbeat,
+Routr stops after Expires 0, Kubernetes after the failed readiness probe). The container runtime
+must wait longer than `drainWait`:
 
-- Compose: `stop_grace_period` (`RB_DRAIN_GRACE`, default `10m`).
-- Helm: `medianode.drainGraceSeconds` sets both `-drain-wait` and the pod's
-  `terminationGracePeriodSeconds` (+15 s slack). Roll nodes one at a time (StatefulSet default).
+- Compose: `stop_grace_period` (`RB_DRAIN_GRACE`, default `11m`).
+- Helm: `roomr.drainGraceSeconds` sets `drainWait` in `roomr.yaml` and the pod's
+  `terminationGracePeriodSeconds` (+30 s margin); the chart probes the control port over gRPC
+  (startup and readiness) and renders a PodDisruptionBudget (`roomr.podDisruptionBudget`:
+  `minAvailable` or `maxUnavailable`). Roll nodes one at a time (StatefulSet default).
 
 Gateway replicas are stateless between calls, but a call lives on the replica that claimed it; roll
 them one at a time (`gateway.podDisruptionBudget`) and give calls time via
@@ -163,15 +161,16 @@ them one at a time (`gateway.podDisruptionBudget`) and give calls time via
 
 ## Limits
 
-| Setting | Default | Flag / `medianode.yaml` |
+| Setting | Default | Flag / `roomr.yaml` |
 | --- | --- | --- |
-| Longest call | 4 h | `-max-duration`, `maxDuration` (per-app values can be lower) |
-| Participants per room | 10 | `-max-participants`, `maxParticipants` |
-| Rooms per media node | 200 | `-max-rooms`, `maxRooms` (heartbeats report it; placement skips a full node and `room.create` beyond it gets `at_capacity`) |
-| Silent caller media timeout | 30 s | `-media-timeout`, `mediaTimeout` |
-| Room with nobody in it (its placer is gone) | 30 s | `-empty-room-timeout`, `emptyRoomTimeout` (negative: never) |
-| Room whose gateway stopped its heartbeats | 20 s | `-owner-timeout`, `ownerTimeout` (needs the node to receive `gateway.heartbeat`; negative: never) |
-| Heartbeat | 2 s | `-heartbeat` |
+| Longest call | 4 h | `maxDuration` (per-app values can be lower) |
+| Participants per room | 10 | `maxParticipants` (`CreateRoom` can set it per room) |
+| Rooms per media node | 200 | `maxRooms` (heartbeats report it; placement skips a full node and `room.create` beyond it gets `at_capacity`) |
+| Silent media timeout (caller and app legs) | 30 s | `mediaTimeout` |
+| Room with nobody in it (its placer is gone) | 30 s | `emptyRoomTimeout` (negative: never; `CreateRoom` can set it per room) |
+| Room whose gateway stopped its heartbeats | 20 s | `ownerTimeout` (needs the node to receive `gateway.heartbeat`; negative: never) |
+| Heartbeat | 2 s | `heartbeatInterval` |
+| Drain wait after SIGTERM | 10 min | `drainWait` |
 | Call claim by a gateway | 500 ms, one retry, then 503 | fixed by the spec |
 
 ## Analytics
@@ -215,14 +214,14 @@ Neither the bundle nor the local stack runs a collector: set `OTEL_EXPORTER_OTLP
 set `otel.endpoint`.
 
 Metrics: `fonoster.gateway.calls.active`, `fonoster.gateway.calls.total`,
-`fonoster.medianode.rooms.active`, `fonoster.medianode.draining`, `fonoster.medianode.calls.incoming`,
+`fonoster.roomr.rooms.active`, `fonoster.roomr.calls.incoming`,
 `fonoster.autopilot.sessions.total`, `fonoster.apiserver.grpc.requests` (by `rpc.method` and
 `rpc.grpc.status_code`), `fonoster.apiserver.records.indexed` (by `outcome`),
 `fonoster.registry.commands` (the `fonoster-registry` utility, by `command` and `outcome`).
 
 Traces cross services with a W3C `traceparent` header: the media node sends it on `call.incoming`
 (the gateway's `gateway.call` span becomes its child), the gateway sends it on every media-control
-command (`medianode.command` spans) and on a record's index entry while the call's span is open
+command (`roomr.command` spans) and on a record's index entry while the call's span is open
 (`apiserver.records.index`). The apiserver makes a span per gRPC request (`apiserver.grpc`) and joins
 a `traceparent` metadata entry when a client sends one.
 
@@ -296,12 +295,12 @@ kubectl create secret generic fonoster-minio --from-literal=rootUser=minio --fro
 kubectl create secret generic fonoster-identity-keys --from-file=private.pem --from-file=public.pem
 kubectl create secret generic fonoster-apiserver --from-literal=ownerPassword="$OWNER"
 kubectl create secret generic fonoster-autopilot --from-literal=secret="$(openssl rand -hex 32)"
-kubectl create secret generic medianode-peer --from-literal=password="$(openssl rand -hex 16)"
+kubectl create secret generic roomr-peer --from-literal=password="$(openssl rand -hex 16)"
 kubectl create secret generic fonoster-records-key --from-file=records.pem   # EC P-256
 kubectl create secret generic fonoster-vendors --from-literal=deepgram="$DEEPGRAM_API_KEY"
 kubectl create secret generic fonoster-nats-users \
   --from-literal=apiserver="$(openssl rand -hex 16)" --from-literal=gateway="$(openssl rand -hex 16)" \
-  --from-literal=medianode="$(openssl rand -hex 16)" --from-literal=routr="$(openssl rand -hex 16)"
+  --from-literal=roomr="$(openssl rand -hex 16)" --from-literal=routr="$(openssl rand -hex 16)"
 
 helm install fonoster ops/rebuild/helm/fonoster-rebuild \
   -f ops/rebuild/helm/fonoster-rebuild/values-cloud.yaml \
@@ -343,13 +342,13 @@ kubectl port-forward svc/fonoster-grafana 3000
 ```sh
 helm install fonoster ops/rebuild/helm/fonoster-rebuild \
   --set nats.url=nats://nats.fonoster:4222 \
-  --set medianode.replicas=3 --set medianode.drainGraceSeconds=900 \
-  --set medianode.rtp.portMin=30000 --set medianode.rtp.portMax=30199
+  --set roomr.replicas=3 --set roomr.drainGraceSeconds=900 \
+  --set roomr.rtp.portMin=30000 --set roomr.rtp.portMax=30199
 ```
 
 The gateway (`appbridge` in the chart values) runs as a Deployment (ConfigMap with `gateway.yaml`,
 Service, PDB) and the media node as a StatefulSet (host network by default because RTP needs a UDP
-range, node id = pod name). Create the Secret named by `medianode.routr.passwordSecret` (key `password`) for the nodes' Routr peer.
+range, node id = pod name). Create the Secret named by `roomr.routr.passwordSecret` (key `password`) for the nodes' Routr peer.
 
 `helm lint` and `helm template` run in the deployment suite (`mods/conformance/test/deployment.test.ts`),
 which also loads every rendered config through its service's loader with the Secrets mounted.

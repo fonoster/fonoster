@@ -55,9 +55,9 @@ again.
 | --- | --- | --- | --- |
 | API server | `fonoster-apiserver` | One span per API request | `fonoster.apiserver.grpc.requests` (by method and status), `fonoster.apiserver.records.indexed` |
 | Voice gateway | `fonoster-gateway` | `gateway.call`, one span per call | `fonoster.gateway.calls.total`, `fonoster.gateway.calls.active` |
-| Media node | `fonoster-medianode` | `medianode.call.incoming` and `medianode.command` | `fonoster.medianode.calls.incoming` (by outcome), `fonoster.medianode.rooms.active`, `fonoster.medianode.draining` |
+| Media node | `fonoster-roomr` | `roomr.call.incoming` and `roomr.command` | `fonoster.roomr.calls.incoming` (by outcome), `fonoster.roomr.rooms.active` |
 
-The gateway and the media node also send their logs; the API server's logs stay in
+The gateway also sends its logs; the media node's logs and the API server's stay in
 `docker compose logs`. A call's trace starts at the media node and continues in the gateway.
 Metrics are sent every 15 seconds.
 
@@ -128,7 +128,7 @@ service's `environment` in a Compose file of your own (see the next section for 
     docker compose logs -f otel-collector
     ```
 
-    Within 15 seconds, metrics arrive from `fonoster-gateway` and `fonoster-medianode`. Sign in to
+    Within 15 seconds, metrics arrive from `fonoster-gateway` and `fonoster-roomr`. Sign in to
     the dashboard to see API server spans. Make a call to see its `gateway.call` span.
   </Step>
 </Steps>
