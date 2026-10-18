@@ -200,4 +200,12 @@ describe("@gateway call record after a crash", function () {
       "Hello before the crash."
     );
   });
+
+  // Pending (in-memory state audit, test 4): the media node ends the dead gateway's room
+  // (go/medianode/e2e TestRoomEndsWhenItsGatewayIsLost) and a surviving replica seals the record
+  // (above), but nothing sends the workspace `call.ended` (or `call.failed`) for the call: only
+  // the owning gateway produces them (workspace-webhooks "v1 event types"), and it is dead. The
+  // fix needs a spec decision on who reports it (the node on an orphaned room, or the sweep that
+  // seals an incomplete record), so this stays pending until then.
+  it("sends call.ended for a call whose gateway was killed mid-call");
 });

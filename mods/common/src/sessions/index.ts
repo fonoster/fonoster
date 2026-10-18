@@ -122,6 +122,11 @@ export class SessionLeases {
     return this.write(key);
   }
 
+  /** Reads any owner's entry from the bucket (undefined when absent or expired). */
+  get(kind: SessionKind, id: string) {
+    return getSession(this.kv, kind, id);
+  }
+
   /** Rewrites every live entry (called on a timer). */
   refresh() {
     for (const [key, value] of this.entries) void this.write(key, value);

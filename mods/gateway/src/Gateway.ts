@@ -103,6 +103,9 @@ export const NODE_DOWN_AFTER_MS = 6000;
  */
 export const OUTBOUND_ANSWER_TIMEOUT_MS = 75_000;
 
+/** How long a call.incoming waits on the session registry to check its X-Call-Ref (RV-B7). */
+const LEASE_LOOKUP_TIMEOUT_MS = 500;
+
 export class Gateway {
   readonly calls = new Map<string, Call>();
   readonly record: CallRecordSink;
@@ -378,10 +381,10 @@ export class Gateway {
     const roomRef = event.roomRef as string;
     const to = String(event.to ?? "");
     const appRef = event.appRef as string | undefined;
-    // A callRef (X-Call-Ref) that names a live call never joins it: the new call gets its own
-    // ref, its room's (RV-B7).
+    // A callRef (X-Call-Ref) that names a live call never joins it, here or on another replica
+    // (the session registry): the new call gets its own ref, its room's (RV-B7).
     let callRef = (event.callRef as string) ?? roomRef;
-    if (this.calls.has(callRef)) {
+    if (this.calls.has(callRef) || (await this.liveElsewhere(callRef))) {
       logger.warn(
         `call.incoming with the callRef of a live call (${callRef}); using room ${roomRef}`
       );
@@ -455,6 +458,28 @@ export class Gateway {
     } catch (e) {
       logger.error(`call ${info.callRef} failed: ${(e as Error).message}`);
       await call.hangup("error");
+    }
+  }
+
+  /**
+   * Whether another gateway holds a live `calls.<callRef>` lease. A registry that does not answer
+   * in time counts as no (the call is not held up; the local check still applies).
+   */
+  private async liveElsewhere(callRef: string): Promise<boolean> {
+    if (!this.leases) return false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const entry = await Promise.race([
+        this.leases.get("calls", callRef),
+        new Promise<undefined>((r) => {
+          timer = setTimeout(() => r(undefined), LEASE_LOOKUP_TIMEOUT_MS);
+        })
+      ]);
+      return !!entry && entry.gatewayRef !== this.gatewayRef;
+    } catch {
+      return false;
+    } finally {
+      clearTimeout(timer);
     }
   }
 
