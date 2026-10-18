@@ -1,42 +1,41 @@
 package node
 
 import (
-	"crypto/rand"
-	"encoding/hex"
-	"time"
+	"fmt"
 )
 
-// WebhookEventsSubject is where producers publish workspace webhook events for the control
-// plane's fan-out (add-workspace-webhooks 2.2 and 2.4, build log LO-B1).
-const WebhookEventsSubject = "webhooks.events"
+// CallFailedToken is the last token of the subject a node reports a call no gateway claimed on:
+// media.<nodeId>.events.call-failed (room refs start with "room-", so it never names a room).
+// The node has no publish right on webhooks.events (M6): the control plane builds the workspace's
+// call.failed webhook from this report, takes the workspace from the app (never from the node),
+// and accepts only this one event type.
+const CallFailedToken = "call-failed"
 
-// callFailedEvent is the v1 `call.failed` envelope for a call that never reached a gateway. The
-// node knows the app (Routr's X-App-Ref) but not its workspace, so workspaceRef stays empty and
-// the fan-out fills it in from data.appRef.
-func callFailedEvent(callRef string, call IncomingCall, reason string, now time.Time) Event {
-	var b [16]byte
-	_, _ = rand.Read(b[:])
+// CallFailedSubject is where node nodeID reports its unclaimed calls.
+func CallFailedSubject(nodeID string) string {
+	return fmt.Sprintf("media.%s.events.%s", nodeID, CallFailedToken)
+}
+
+// callFailedReport is what the node knows about a call that never reached a gateway: the app
+// (Routr's X-App-Ref), but not its workspace.
+func callFailedReport(nodeID, callRef string, call IncomingCall, reason string) Event {
 	return Event{
-		"id":           "evt_" + hex.EncodeToString(b[:]),
-		"type":         "call.failed",
-		"createdAt":    now.UTC().Format("2006-01-02T15:04:05.000Z"),
-		"workspaceRef": "",
-		"data": Event{
-			"callRef":   callRef,
-			"appRef":    call.AppRef,
-			"from":      call.From,
-			"to":        call.To,
-			"direction": orDefault(call.Direction, "inbound"),
-			"reason":    reason,
-		},
+		"type":      "call.failed",
+		"nodeId":    nodeID,
+		"callRef":   callRef,
+		"appRef":    call.AppRef,
+		"from":      call.From,
+		"to":        call.To,
+		"direction": orDefault(call.Direction, "inbound"),
+		"reason":    reason,
 	}
 }
 
-// publishCallFailed tells the workspace that a call failed at the node. Calls without an app
-// cannot be attributed to a workspace and produce nothing.
+// publishCallFailed tells the control plane that a call failed at the node, so the workspace
+// gets a call.failed webhook. Calls without an app cannot be attributed and produce nothing.
 func (n *Node) publishCallFailed(callRef string, call IncomingCall, reason string) {
 	if call.AppRef == "" {
 		return
 	}
-	n.publish(WebhookEventsSubject, callFailedEvent(callRef, call, reason, time.Now()))
+	n.publish(CallFailedSubject(n.cfg.NodeID), callFailedReport(n.cfg.NodeID, callRef, call, reason))
 }

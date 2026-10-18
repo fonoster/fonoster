@@ -26,6 +26,7 @@ import {
   busWebhookPublisher,
   callFailed,
   callStarted,
+  nodeCallFailedEvent,
   parseBusEvent,
   resolveWorkspace,
   subscribeWebhookFanout
@@ -165,5 +166,67 @@ describe("@common/webhooks bus fan-out (task 2.2)", function () {
       await a.close();
       await b.close();
     }
+  });
+});
+
+// M6: media nodes report unclaimed calls on their own subject; the control plane builds the
+// webhook event and trusts nothing but the call's parties, app and a node reason.
+describe("@common/webhooks node call.failed reports", function () {
+  const enc = (o: unknown) => new TextEncoder().encode(JSON.stringify(o));
+  const report = {
+    type: "call.failed",
+    nodeId: "n1",
+    callRef: "c9",
+    appRef: "support",
+    from: "+15550001111",
+    to: "+15550002222",
+    direction: "inbound",
+    reason: "node_error"
+  };
+  const SUBJECT = "media.n1.events.call-failed";
+
+  it("builds a call.failed event whose workspace comes from the app", function () {
+    const e = nodeCallFailedEvent(SUBJECT, enc(report))!;
+    expect(e).to.deep.include({ type: "call.failed", workspaceRef: "" });
+    expect(e.data).to.deep.equal({
+      callRef: "c9",
+      appRef: "support",
+      from: "+15550001111",
+      to: "+15550002222",
+      direction: "inbound",
+      reason: "node_error"
+    });
+    expect(e.id).to.match(/^evt_node_[0-9a-f]{32}$/);
+    // A repeated report is the same event (delivered once).
+    expect(nodeCallFailedEvent(SUBJECT, enc(report))!.id).to.equal(e.id);
+  });
+
+  it("ignores a workspace, an event type or extra data the node claims", function () {
+    const e = nodeCallFailedEvent(
+      SUBJECT,
+      enc({ ...report, workspaceRef: "WS-victim", extra: "x" })
+    )!;
+    expect(e.workspaceRef).to.equal("");
+    expect(e.data).not.to.have.property("extra");
+    for (const type of ["call.started", "call.ended", "call_record.sealed"])
+      expect(nodeCallFailedEvent(SUBJECT, enc({ ...report, type }))).to.equal(
+        undefined
+      );
+  });
+
+  it("refuses reports that do not name the subject's node, or are malformed", function () {
+    const none = (subject: string, body: unknown) =>
+      expect(nodeCallFailedEvent(subject, enc(body))).to.equal(undefined);
+    none(SUBJECT, { ...report, nodeId: "n2" });
+    none("media.n1.events.room-1", report);
+    none("webhooks.events", report);
+    none(SUBJECT, { ...report, appRef: "" });
+    none(SUBJECT, { ...report, callRef: 7 });
+    none(SUBJECT, { ...report, reason: "busy" });
+    none(SUBJECT, { ...report, direction: "sideways" });
+    none(SUBJECT, { ...report, to: "x".repeat(300) });
+    expect(
+      nodeCallFailedEvent(SUBJECT, new TextEncoder().encode("{"))
+    ).to.equal(undefined);
   });
 });

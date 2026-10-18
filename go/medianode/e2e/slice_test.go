@@ -344,13 +344,14 @@ func TestUnclaimedCallGets503(t *testing.T) {
 	r.mu.Lock()
 	r.claim = false
 	r.mu.Unlock()
-	// The workspace learns about the failed call through the webhook bus (LO-B1).
+	// The node reports the failed call on its own subject; the control plane turns it into the
+	// workspace's call.failed webhook (M6: the node may not publish webhooks.events).
 	appRef := fmt.Sprintf("app-unclaimed-%d", time.Now().UnixNano())
 	hooks := make(chan map[string]any, 4)
-	sub, err := r.nc.Subscribe(node.WebhookEventsSubject, func(m *nats.Msg) {
+	sub, err := r.nc.Subscribe(node.CallFailedSubject(r.node.ID()), func(m *nats.Msg) {
 		var ev map[string]any
 		if json.Unmarshal(m.Data, &ev) == nil {
-			if d, _ := ev["data"].(map[string]any); d != nil && d["appRef"] == appRef {
+			if ev["appRef"] == appRef {
 				hooks <- ev
 			}
 		}
@@ -370,14 +371,15 @@ func TestUnclaimedCallGets503(t *testing.T) {
 	r.waitEvent(typed("room.ended", "reason", "node_error", "sipStatus", 503), 2*time.Second)
 	select {
 	case ev := <-hooks:
-		d := ev["data"].(map[string]any)
-		if ev["type"] != "call.failed" || ev["workspaceRef"] != "" || d["reason"] != "node_error" ||
-			d["to"] != "+15550002222" || d["direction"] != "inbound" || d["callRef"] == "" ||
-			!strings.HasPrefix(ev["id"].(string), "evt_") {
-			t.Fatalf("call.failed event %v", ev)
+		if ev["type"] != "call.failed" || ev["reason"] != "node_error" || ev["to"] != "+15550002222" ||
+			ev["direction"] != "inbound" || ev["callRef"] == "" || ev["nodeId"] != r.node.ID() {
+			t.Fatalf("call.failed report %v", ev)
+		}
+		if _, ok := ev["workspaceRef"]; ok {
+			t.Fatalf("the node must not name a workspace: %v", ev)
 		}
 	case <-time.After(2 * time.Second):
-		t.Fatal("no call.failed on the webhook bus")
+		t.Fatal("no call.failed report from the node")
 	}
 }
 

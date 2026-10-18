@@ -16,15 +16,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { createHash } from "crypto";
 import { TextDecoder, TextEncoder } from "util";
 import { Delivery } from "./Dispatcher";
-import { WEBHOOK_EVENT_TYPES, WebhookEvent } from "./events";
+import { callFailed, WEBHOOK_EVENT_TYPES, WebhookEvent } from "./events";
 
 // Event fan-out from the event bus (add-workspace-webhooks task 2.2, build log LO-B1). Producers
 // that have no database (media nodes, gateways in bus mode, other regions) publish events on
 // `webhooks.events`; one control-plane replica per event (queue group) fans each event out to the
-// workspace's subscribed endpoints. A producer that does not know the workspace (a media node only
-// knows the app) leaves `workspaceRef` empty and the fan-out resolves it from `data.appRef`.
+// workspace's subscribed endpoints. A producer that does not know the workspace leaves
+// `workspaceRef` empty and the fan-out resolves it from `data.appRef`.
+//
+// Media nodes may not publish `webhooks.events` (M6: a node could otherwise forge any event for
+// any workspace). A node reports a call no gateway claimed on its own subject,
+// `media.<nodeId>.events.call-failed`; the control plane builds the call.failed event from it
+// (nodeCallFailedEvent), with the workspace taken from the app and nothing else trusted.
 
 export const WEBHOOK_EVENTS_SUBJECT = "webhooks.events";
 
@@ -67,6 +73,81 @@ export function parseBusEvent(data: Uint8Array): WebhookEvent | undefined {
   )
     return undefined;
   return e;
+}
+
+/** Where media nodes report calls no gateway claimed (the last token is never a room ref). */
+export const NODE_CALL_FAILED_SUBJECT = "media.*.events.call-failed";
+
+/** The reasons a node may give: it only ever fails a call nobody claimed. */
+export const NODE_CALL_FAILED_REASONS = ["node_error"] as const;
+
+const MAX_FIELD = 256;
+const field = (v: unknown, required = false) =>
+  typeof v === "string" && v.length <= MAX_FIELD && (!required || v.length > 0)
+    ? v
+    : undefined;
+
+/**
+ * The call.failed event for a media node's report on `subject`
+ * (`media.<nodeId>.events.call-failed`); undefined for anything else. Only `call.failed` with a
+ * node reason is accepted, the report must name the node of its subject, and the workspace is left
+ * empty for the fan-out to resolve from the app: a node never chooses the workspace, the event type
+ * or extra data. The id depends on the node and the call, so a repeated report is delivered once.
+ */
+export function nodeCallFailedEvent(
+  subject: string,
+  data: Uint8Array,
+  now = new Date()
+): WebhookEvent | undefined {
+  const tokens = subject.split(".");
+  if (
+    tokens.length !== 4 ||
+    tokens[0] !== "media" ||
+    tokens[2] !== "events" ||
+    tokens[3] !== "call-failed"
+  )
+    return undefined;
+  let r: Record<string, unknown>;
+  try {
+    r = JSON.parse(decoder.decode(data));
+  } catch {
+    return undefined;
+  }
+  if (!r || typeof r !== "object" || r.type !== "call.failed") return undefined;
+  const nodeId = tokens[1];
+  const callRef = field(r.callRef, true);
+  const appRef = field(r.appRef, true);
+  const from = field(r.from);
+  const to = field(r.to);
+  const reason = field(r.reason);
+  const direction = r.direction ?? "inbound";
+  if (
+    r.nodeId !== nodeId ||
+    !callRef ||
+    !appRef ||
+    from === undefined ||
+    to === undefined ||
+    !(NODE_CALL_FAILED_REASONS as readonly string[]).includes(reason ?? "") ||
+    (direction !== "inbound" && direction !== "outbound")
+  )
+    return undefined;
+  const event = callFailed("", {
+    callRef,
+    appRef,
+    from,
+    to,
+    direction,
+    reason: reason!
+  });
+  const digest = createHash("sha256")
+    .update(`${nodeId}\n${callRef}`)
+    .digest("hex")
+    .slice(0, 32);
+  return {
+    ...event,
+    id: `evt_node_${digest}`,
+    createdAt: now.toISOString()
+  } as WebhookEvent;
 }
 
 export type FanoutOptions = {

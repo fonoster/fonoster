@@ -284,7 +284,11 @@ describe("@conformance/nats permissions (per-service users)", function () {
     );
     expect(await delivered(gw, api, "callrecord.sealed")).to.equal(true);
     expect(await delivered(gw, api, "registry.used")).to.equal(true);
-    expect(await delivered(node, api, "webhooks.events")).to.equal(true);
+    // A node reports unclaimed calls on its own subject; the control plane makes the webhook.
+    expect(
+      await delivered(node, api, `media.${nodeId}.events.call-failed`)
+    ).to.equal(true);
+    expect(await delivered(gw, api, "webhooks.events")).to.equal(true);
     expect(await delivered(api, api, "calls.create")).to.equal(true);
     expect(await delivered(routr, api, "routr.call.started")).to.equal(true);
     expect(await delivered(api, gw, "callrecord.local.maintenance")).to.equal(
@@ -312,6 +316,8 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(await delivered(gw, api, "routr.call.started")).to.equal(false);
     // Catalog use comes from gateways.
     expect(await delivered(node, api, "registry.used")).to.equal(false);
+    // A node cannot speak for a workspace on the webhook bus (M6).
+    expect(await delivered(node, api, "webhooks.events")).to.equal(false);
   });
 
   it("refuses subscriptions outside a service's subjects", async function () {
