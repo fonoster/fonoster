@@ -1,0 +1,160 @@
+---
+title: "Host private regions"
+description: "Let workspaces on your self-hosted Fonoster connect their own private regions."
+---
+
+A private region connects to your control plane through the **region hub**: a NATS server that
+each region links to with an outbound TLS connection on port `7422`. The Docker Compose bundle
+leaves the hub out, so private regions are off until you add it. This page adds it to an install
+made with [Install with Docker Compose](/self-hosting/install-compose).
+
+When you're done, workspace owners see **Settings → Region** in the dashboard, where they create a
+private region and get its install command.
+
+## Before you begin
+
+You need:
+
+- Fonoster installed with Docker Compose and served over HTTPS, with `TLS_CERT` and `TLS_KEY` set in
+  `.env`. Regions link to the hub over TLS with the same certificate, at the same domain (for
+  example `voice.example.com`).
+- TCP port `7422` open to the internet on this machine. Regions connect to it; nothing connects out.
+
+All commands run in your `fonoster` folder.
+
+## Add the region hub
+
+<Steps>
+  <Step title="Generate the hub's keys and config">
+    Run the hub setup from the API server image. It writes the hub's config, the region-signing
+    key and the hub's credentials into `config/`:
+
+    ```bash
+    docker run --rm --user "$(id -u):$(id -g)" -v "$PWD/config:/out" \
+      fonoster/apiserver:0.30.0 \
+      node /work/mods/apiserver/dist/bin/regionHubSetup.js /out \
+      --leaf-tls /etc/nats/tls/fullchain.pem /etc/nats/tls/privkey.pem
+    ```
+
+    It prints `region hub material in /out` and writes `config/region-hub.conf`,
+    `config/keys/region-signing.pem` and four files in `config/keys/region-hub/`. Running it again
+    leaves existing files alone.
+
+    The API server runs as another user, so let it read the new keys:
+
+    ```bash
+    chmod 644 config/keys/region-signing.pem config/keys/region-hub/*
+    ```
+
+    <Warning>
+      The files in `config/keys/region-hub/` can create credentials for any region. Back them up
+      with `.env` and keep them private.
+    </Warning>
+  </Step>
+
+  <Step title="Create an operator key">
+    The operator key protects the region admin API, which manages public regions. Create one:
+
+    ```bash
+    openssl rand -hex 24 > config/keys/region-operator.key
+    chmod 644 config/keys/region-operator.key
+    ```
+
+    You can skip it: private regions work without it, and the admin API stays off.
+  </Step>
+
+  <Step title="Run the hub">
+    Save this as `compose.regions.yaml`, next to `compose.yaml`. It runs the hub with your
+    certificate and makes the API server wait for it:
+
+    ```yaml
+    services:
+      region-hub:
+        image: nats:2.11.8-alpine
+        restart: unless-stopped
+        command: ["-c", "/etc/nats/nats.conf"]
+        ports:
+          - "7422:7422"
+        volumes:
+          - ./config/region-hub.conf:/etc/nats/nats.conf:ro
+          - ${TLS_CERT}:/etc/nats/tls/fullchain.pem:ro
+          - ${TLS_KEY}:/etc/nats/tls/privkey.pem:ro
+          - region-hub:/data
+        healthcheck:
+          test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+          interval: 5s
+          timeout: 3s
+          retries: 10
+      apiserver:
+        depends_on:
+          region-hub: { condition: service_healthy }
+    volumes:
+      region-hub:
+    ```
+
+    Then add it to `COMPOSE_FILE` in `.env`:
+
+    ```bash
+    COMPOSE_FILE=compose.yaml:compose.tls.yaml:compose.regions.yaml
+    ```
+  </Step>
+
+  <Step title="Connect the API server to the hub">
+    Open `config/fonoster.example.yaml`. Keep the `regions.public` list as it is and add these keys
+    under `regions`, with your domain in `leafUrl`:
+
+    ```yaml
+    regions:
+      public:
+        # ...keep the default region as it is
+      operatorKey: "secret://file/opt/fonoster/keys/region-operator.key"
+      leafUrl: "tls://voice.example.com:7422"
+      signingKey: { file: /opt/fonoster/keys/region-signing.pem }
+      hub:
+        url: "nats://region-hub:4222"
+        credentialsFile: /opt/fonoster/keys/region-hub/control-plane.creds
+        systemCredentialsFile: /opt/fonoster/keys/region-hub/system.creds
+        operatorSeedFile: /opt/fonoster/keys/region-hub/operator.seed
+        accountSeedFile: /opt/fonoster/keys/region-hub/account.seed
+    ```
+
+    | Key | What it is |
+    | --- | --- |
+    | `leafUrl` | Where regions reach the hub. Without it, it's `tls://<domain>:7422`, and the bundle's `domain` is `fonoster.local`, so set it. It must be `tls://` |
+    | `controlPlaneUrl` | Where regions reach the API. Defaults to `PUBLIC_URL`, so you can leave it out |
+    | `signingKey`, `hub` | Both turn private regions on. `/opt/fonoster/keys/` is your `config/keys/` folder |
+    | `operatorKey` | Turns the region admin API on. Leave it out if you skipped the operator key |
+
+    Edit the example, not `config/fonoster.yaml`: `init` writes that file again from the example.
+  </Step>
+
+  <Step title="Write the config and restart">
+    Write and check the config, then start the hub and recreate the API server:
+
+    ```bash
+    npx -p @fonoster/common fonoster-config init
+    npx -p @fonoster/common fonoster-config check
+    docker compose up -d --force-recreate apiserver
+    ```
+  </Step>
+</Steps>
+
+## Check that it works
+
+The API server says at start whether private regions are on:
+
+```bash
+docker compose logs apiserver | grep "regions:"
+```
+
+The line ends with `enrolled regions on; admin API on`. If it says `off`, check `signingKey` and
+`hub` in `config/fonoster.example.yaml`, and that `region-hub` is healthy in `docker compose ps`.
+
+With an operator key, list every region through the admin API:
+
+```bash
+curl -H "x-operator-key: $(cat config/keys/region-operator.key)" https://voice.example.com/api/admin/regions
+```
+
+Then sign in to the dashboard and open **Settings → Region**. From there, a workspace owner creates
+a private region and gets the command that installs and enrolls it on their own machine.

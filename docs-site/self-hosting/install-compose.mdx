@@ -50,8 +50,8 @@ You need:
     cd fonoster
     ```
 
-    The folder holds `compose.yaml`, `.env.example`, a `config` folder with one example per
-    service, and a `README.md`.
+    The folder holds `compose.yaml`, `compose.tls.yaml` (for HTTPS, below), `.env.example`, a
+    `config` folder with one example per service and their schemas, and a `README.md`.
   </Step>
 
   <Step title="Generate the configuration">
@@ -65,12 +65,13 @@ You need:
     It prints what it wrote:
 
     ```text
-    .env written (11 secrets generated)
-    keys: 10 files created in config/keys
-    config: config/autopilot.yaml, config/fonoster.yaml, config/gateway.yaml, config/routr-edgeport.yaml
+    .env written (10 secrets generated)
+    keys: 3 files created in config/keys
+    config: config/autopilot.yaml, config/fonoster.yaml, config/gateway.yaml, config/medianode.yaml, config/routr-edgeport.yaml
     host address: 192.0.2.10
 
     Next: docker compose up -d
+    Then: npx -p @fonoster/common fonoster-config info (dashboard URL and owner login)
     ```
 
     The host address is the one softphones, carriers and browsers use to reach this machine. To use a
@@ -79,7 +80,8 @@ You need:
     <Tip>
       To change a port, edit it in `.env` (for example `HTTP_PORT=8449` or `SIP_PORT=5060`) and run
       `init` again, then `docker compose up -d`. `init` keeps every secret and only updates the
-      configuration.
+      configuration. To run a second install on the same machine, also give it its own
+      `COMPOSE_PROJECT_NAME` and `SUBNET_PREFIX`, and move every port in the note above.
     </Tip>
   </Step>
 
@@ -131,6 +133,10 @@ You need:
     Owner       admin@fonoster.local / <generated password>
     API         192.0.2.10:8449 (gRPC and gRPC-Web, plain HTTP)
     SIP         192.0.2.10:5060 (UDP and TCP)
+
+    Files       /home/you/fonoster/.env   Compose settings and the generated secrets (back it up)
+                /home/you/fonoster/config/   service settings (from config/*.example.*)
+                /home/you/fonoster/config/keys/   signing keys
     ```
   </Step>
 
