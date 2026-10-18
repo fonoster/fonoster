@@ -29,6 +29,8 @@ import {
   ExchangeRefreshTokenRequest as ExchangeRefreshTokenRequestPB,
   ExchangeVerificationCodeRequest as ExchangeVerificationCodeRequestPB,
   ExchangeVerificationCodeResponse as ExchangeVerificationCodeResponsePB,
+  RevokeTokenRequest as RevokeTokenRequestPB,
+  RevokeTokenResponse as RevokeTokenResponsePB,
   SendVerificationCodeRequest as SendVerificationCodeRequestPB,
   VerifyCodeRequest as VerifyCodeRequestPB
 } from "../generated/node/identity_pb";
@@ -145,10 +147,38 @@ abstract class AbstractClient implements FonosterClient {
     this._idToken = idToken;
   }
 
-  logout() {
+  /**
+   * Signs out: forgets the tokens (right away, before the call returns) and
+   * revokes the refresh token on the server, so it can no longer be exchanged.
+   * Revocation is best effort: an unreachable server or an already-refused
+   * token does not make sign-out fail. Access tokens already issued stay valid
+   * until they expire.
+   */
+  async logout(): Promise<void> {
+    const refreshToken = this._refreshToken;
     this._refreshToken = "";
     this._accessToken = "";
     this._idToken = "";
+    if (!refreshToken) return;
+    await this.revokeToken(refreshToken).catch(() => undefined);
+  }
+
+  /**
+   * Revokes `refreshToken` and every token rotated from the same sign-in.
+   * Needs no access token: holding the refresh token is the authorization.
+   */
+  async revokeToken(refreshToken: string): Promise<void> {
+    await makeRpcRequest<
+      RevokeTokenRequestPB,
+      RevokeTokenResponsePB,
+      { token: string },
+      { token: string }
+    >({
+      method: this.identityClient.revokeToken.bind(this.identityClient),
+      requestPBObjectConstructor: RevokeTokenRequestPB,
+      metadata: {},
+      request: { token: refreshToken }
+    });
   }
 
   async loginWithRefreshToken(refreshToken: string): Promise<void> {

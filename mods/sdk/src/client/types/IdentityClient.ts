@@ -56,6 +56,8 @@ import {
   ResendWorkspaceMembershipInvitationRequest,
   ResendWorkspaceMembershipInvitationResponse,
   ResetPasswordRequest,
+  RevokeTokenRequest,
+  RevokeTokenResponse,
   SendResetPasswordCodeRequest,
   SendVerificationCodeRequest,
   UpdateUserRequest,
@@ -94,6 +96,7 @@ type IdentityClient = {
     ExchangeVerificationCodeRequest,
     ExchangeVerificationCodeResponse
   >;
+  revokeToken: ClientFunction<RevokeTokenRequest, RevokeTokenResponse>;
   // User
   createUser: ClientFunction<CreateUserRequest, CreateUserResponse>;
   createUserWithOauth2Code: ClientFunction<

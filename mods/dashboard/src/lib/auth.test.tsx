@@ -42,7 +42,10 @@ function fakeClient() {
   return {
     login: vi.fn(async () => issue()),
     loginWithRefreshToken: vi.fn(async () => issue()),
-    logout: vi.fn(),
+    logout: vi.fn(async () => {
+      tokens.access = tokens.refresh = tokens.id = "";
+    }),
+    revokeToken: vi.fn(async () => undefined),
     setAccessKeyId: vi.fn(),
     setAccessToken: vi.fn(),
     getAccessToken: () => tokens.access,
@@ -160,5 +163,43 @@ describe("AuthProvider", () => {
     expect(localStorage.getItem(STORAGE_KEYS.session)).toBeNull();
     expect(localStorage.getItem(STORAGE_KEYS.workspace)).toBeNull();
     expect(client.logout).toHaveBeenCalled();
+  });
+
+  it("revokes the stored refresh token when the client holds none", async () => {
+    // Restored while the API was unreachable: the token is only in storage.
+    storeSession();
+    const client = fakeClient();
+    client.loginWithRefreshToken.mockRejectedValue(
+      grpcError(GrpcCode.UNAVAILABLE)
+    );
+    renderProvider(client);
+    await waitFor(() =>
+      expect(screen.getByTestId("status")).toHaveTextContent("signedIn")
+    );
+    await act(async () => screen.getByText("out").click());
+    expect(client.revokeToken).toHaveBeenCalledWith("refresh-1");
+    expect(client.logout).toHaveBeenCalled();
+  });
+
+  it("leaves revoking to the SDK when the client holds the refresh token", async () => {
+    const client = fakeClient();
+    renderProvider(client);
+    await act(async () => screen.getByText("in").click());
+    await act(async () => screen.getByText("out").click());
+    expect(client.logout).toHaveBeenCalledTimes(1);
+    expect(client.revokeToken).not.toHaveBeenCalled();
+  });
+
+  it("does not revoke a refresh token the server already refused", async () => {
+    storeSession();
+    const client = fakeClient();
+    client.loginWithRefreshToken.mockRejectedValue(
+      grpcError(GrpcCode.UNAUTHENTICATED)
+    );
+    renderProvider(client);
+    await waitFor(() =>
+      expect(screen.getByTestId("status")).toHaveTextContent("signedOut")
+    );
+    expect(client.revokeToken).not.toHaveBeenCalled();
   });
 });

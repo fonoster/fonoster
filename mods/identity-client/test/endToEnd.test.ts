@@ -106,6 +106,18 @@ describe("@identity-client[end to end] (needs PERSISTENCE_TEST_DATABASE_URL)", f
     expect(invite!.data).to.include("Acme Corp");
   });
 
+  it("revokes the refresh token on sign-out", async function () {
+    const user = await signUp("Leaver", "leaver@identity.test");
+    await client.revokeToken(user.refreshToken);
+    const error = await client.exchangeRefreshToken(user.refreshToken).then(
+      () => undefined,
+      (e: { code: number }) => e
+    );
+    expect(error?.code, "exchange after revoke").to.equal(
+      status.UNAUTHENTICATED
+    );
+  });
+
   it("forwards each caller's own token through one client instance", async function () {
     const alice = await signUp("Alice", "alice@identity.test");
     const bob = await signUp("Bob", "bob@identity.test");
