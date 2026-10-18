@@ -22,6 +22,7 @@ SessionStart = TypedDict(
         "to": str,
         "metadata": dict[str, Any],
         "handoff": None | dict[str, Any],
+        "traceparent": NotRequired[str],
         "audio": dict[str, Any],
         "tracks": list[dict[str, Any]],
         "speech": dict[str, Any],
