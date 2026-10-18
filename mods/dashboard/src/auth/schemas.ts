@@ -36,3 +36,15 @@ export const newPasswordForm = z
     path: ["confirm"],
     message: "The passwords don't match"
   });
+
+/** Invitees replace the one-time password, which they must enter again. */
+export const setPasswordForm = z
+  .object({
+    currentPassword: z.string().min(1, "Enter the one-time password"),
+    password: newPassword,
+    confirm: z.string()
+  })
+  .refine((v) => v.password === v.confirm, {
+    path: ["confirm"],
+    message: "The passwords don't match"
+  });

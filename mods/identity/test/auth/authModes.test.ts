@@ -156,7 +156,10 @@ describe("@identity[auth modes]", function () {
           update,
           create: sandbox.stub()
         },
-        refreshToken: refreshTokenStore()
+        refreshToken: {
+          ...refreshTokenStore(),
+          updateMany: sandbox.stub().resolves({ count: 0 })
+        }
       } as unknown as Prisma;
 
       const { error, response } = await invoke(
@@ -166,7 +169,13 @@ describe("@identity[auth modes]", function () {
 
       expect(error).to.be.null;
       expect(response).to.have.keys("idToken", "accessToken", "refreshToken");
-      expect(update.firstCall.args[0].data).to.deep.equal({ emailVerified: true });
+      // The email was unverified, so its password is cleared too (M2).
+      expect(update.firstCall.args[0].data).to.deep.equal({
+        emailVerified: true,
+        password: null,
+        passwordDigest: null,
+        mustChangePassword: false
+      });
     });
 
     it("creates the account on first sign-in when sign-up is open", async function () {

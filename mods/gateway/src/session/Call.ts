@@ -829,7 +829,9 @@ export class AppSession {
         const socket = await Listener.connect(
           config.url,
           this.app.signingSecret,
-          { appRef: this.app.ref, workspaceRef: this.app.workspaceRef }
+          { appRef: this.app.ref, workspaceRef: this.app.workspaceRef },
+          undefined,
+          this.app.publicDestinationsOnly?.listeners ?? false
         );
         if (this.closed) {
           socket.close();

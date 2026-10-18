@@ -107,6 +107,7 @@ const updateUserRequestSchema = z.object({
     .string()
     .min(8, { message: PASSWORD_MESSAGE })
     .or(z.string().optional()),
+  currentPassword: z.string().max(1024).optional(),
   avatar: z.string().url().or(z.string().optional())
 });
 

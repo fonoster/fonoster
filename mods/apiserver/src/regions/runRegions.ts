@@ -89,6 +89,8 @@ export async function runRegions(
   deps: {
     db: RegionsDb;
     identityPublicKey: string;
+    /** Identity's issuer and audience, checked on user tokens. */
+    identityTokenOptions?: { issuer?: string; audience?: string };
     issuer: string;
     defaultControlPlaneUrl: string;
     defaultLeafUrl: string;
@@ -194,6 +196,7 @@ export async function runRegions(
     signer,
     publicRegions,
     identityPublicKey: deps.identityPublicKey,
+    identityTokenOptions: deps.identityTokenOptions,
     operatorKey: config.operatorKey,
     monthlyFeeCents: config.privateRegionMonthlyFeeCents
   });

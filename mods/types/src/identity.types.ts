@@ -60,7 +60,10 @@ type CreateApiKeyResponse = {
 type UpdateUserRequest = {
   ref: string;
   name?: string;
+  /** A new password; requires currentPassword. */
   password?: string;
+  /** The account's current password, required to set a new one. */
+  currentPassword?: string;
   avatar?: string;
   phone?: string;
 };

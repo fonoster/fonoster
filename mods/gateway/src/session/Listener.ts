@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SessionStart } from "@fonoster/common";
+import { publicWebSocketGuard, SessionStart } from "@fonoster/common";
 import WebSocket from "ws";
 import { convert, INTERNAL, parseCodec } from "../audio/pcm";
 import { AGENT_TRACK_ID, CALLER_TRACK_ID } from "../protocols/fonoster";
@@ -62,12 +62,16 @@ export class Listener {
     url: string,
     secret: string,
     binding: AppBinding,
-    timeoutMs = 2000
+    timeoutMs = 2000,
+    publicOnly = false
   ): Promise<WebSocket> {
+    // Tenant-chosen URLs must reach public addresses only (M14).
+    const guard = publicOnly ? publicWebSocketGuard(url) : undefined;
     return new Promise((resolve, reject) => {
       const socket = new WebSocket(url, {
         headers: signatureHeaders(url, secret, undefined, binding),
-        handshakeTimeout: timeoutMs
+        handshakeTimeout: timeoutMs,
+        ...(guard ? { lookup: guard.lookup } : {})
       });
       socket.once("open", () => resolve(socket));
       socket.once("unexpected-response", (_req, res) => {

@@ -25,8 +25,14 @@ import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { isMethodEnabled, methodDisabledError } from "../utils/authMethods";
+import { CallWithAddress, clientAddress } from "../utils/clientAddress";
 import { createGetUserByEmail } from "../utils/createGetUserByEmail";
 import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
+import {
+  createSignInThrottle,
+  SignInThrottle,
+  tooManySignInAttempts
+} from "../utils/signInThrottle";
 import { createVerifyUserPassword } from "../utils/userPasswords";
 import { ContactType } from "../verification";
 import { exchangeTokens } from "./exchangeTokens";
@@ -38,15 +44,20 @@ import {
 
 const logger = getLogger({ service: "identity", filePath: __filename });
 
+/**
+ * Password sign-in. Failed attempts are throttled per email and per client IP
+ * (see createSignInThrottle).
+ */
 function createExchangeCredentials(
   prisma: Prisma,
-  identityConfig: IdentityConfig
+  identityConfig: IdentityConfig,
+  throttle: SignInThrottle = createSignInThrottle()
 ) {
   const isValidVerificationCode = createIsValidVerificationCode(prisma);
   const verifyUserPassword = createVerifyUserPassword(prisma);
 
   const exchangeCredentials = async (
-    call: { request: ExchangeCredentialsRequest },
+    call: CallWithAddress & { request: ExchangeCredentialsRequest },
     callback: (error?: GrpcErrorMessage, response?: ExchangeResponse) => void
   ) => {
     const { request } = call;
@@ -58,9 +69,16 @@ function createExchangeCredentials(
       return callback(methodDisabledError("password"));
     }
 
+    const ip = clientAddress(call);
+
+    if (throttle.isBlocked(email, ip)) {
+      return callback(tooManySignInAttempts);
+    }
+
     const user = await createGetUserByEmail(prisma)(email);
 
     if (!user || !(await verifyUserPassword(user, password?.trim()))) {
+      throttle.recordFailure(email, ip);
       return callback({
         code: grpc.status.PERMISSION_DENIED,
         message: "Invalid credentials"
@@ -77,6 +95,7 @@ function createExchangeCredentials(
       });
 
       if (!isValid) {
+        throttle.recordFailure(email, ip);
         return callback({
           code: grpc.status.PERMISSION_DENIED,
           message: "Invalid 2FA code"

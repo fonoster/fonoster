@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { safeFetch } from "@fonoster/common";
 import {
   decodeWav,
   FRAME_BYTES,
@@ -109,8 +110,24 @@ export type OutputQueueOptions = {
   fetchMedia?: (url: string, signal: AbortSignal) => Promise<Buffer>;
 };
 
-async function defaultFetch(url: string, signal: AbortSignal): Promise<Buffer> {
-  const res = await fetch(url, { signal });
+/** Limits on media fetched for play (M13). */
+export const PLAY_FETCH_LIMITS = {
+  maxBytes: 20 * 1024 * 1024,
+  timeoutMs: 15_000,
+  maxRedirects: 3
+};
+
+/**
+ * Fetches media an app asked to play. The URL is the app's choice, so it goes
+ * through safeFetch: http(s) only, public destinations only (each redirect and
+ * the connected address re-checked; FONOSTER_ALLOWED_DESTINATIONS lists
+ * exceptions), a size cap and a timeout.
+ */
+export async function defaultFetch(
+  url: string,
+  signal: AbortSignal
+): Promise<Buffer> {
+  const res = await safeFetch(url, { signal, ...PLAY_FETCH_LIMITS });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return Buffer.from(await res.arrayBuffer());
 }

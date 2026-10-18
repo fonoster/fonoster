@@ -164,7 +164,14 @@ export class PrismaAppStore implements AppStore {
         const apps = new Map<string, AppConfig>();
         for (const row of rows) {
           const app = appFromRow(row);
-          if (app) apps.set(app.ref, app);
+          if (!app) continue;
+          // Tenant URLs: public destinations only. Autopilot apps point at the hosted
+          // Autopilot (configuration, checked by the apiserver when overridden).
+          app.publicDestinationsOnly = {
+            url: row.type !== "AUTOPILOT",
+            listeners: true
+          };
+          apps.set(app.ref, app);
         }
         this.apps = apps;
       } finally {

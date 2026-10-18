@@ -19,6 +19,7 @@
 import { configureLogger, LoggerOptions } from "./configureLogger";
 import { getLogger } from "./getLogger";
 import logger, { mute, unmute } from "./logger";
+import { redactSecrets } from "./redact";
 import { ULogType } from "./types";
 import ulogger from "./userLogger";
 
@@ -29,6 +30,7 @@ export {
   getLogger,
   LoggerOptions,
   mute,
+  redactSecrets,
   ulogger,
   unmute
 };

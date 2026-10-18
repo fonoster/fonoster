@@ -50,7 +50,8 @@ function createCall(
     const ref = uuidv4();
     const effectiveMetadata = metadata ? struct.decode(metadata) : {};
 
-    logger.verbose("call to createCall", { ...request, ref });
+    // Not the whole request: metadata may carry the app's secrets (M11).
+    logger.verbose("call to createCall", { ref, appRef });
 
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall

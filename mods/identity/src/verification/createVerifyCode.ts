@@ -37,6 +37,20 @@ function createVerifyCode(prisma: Prisma) {
     const { request } = call;
     const { username, contactType, value, verificationCode } = request;
     const actualContactType = contactType ?? ContactType.EMAIL;
+    const sameEmail = (a?: string, b?: string) =>
+      (a ?? "").trim().toLowerCase() === (b ?? "").trim().toLowerCase();
+
+    // A code proves only the address it was sent to: an email code verifies
+    // the account with that email, never another one (M2).
+    if (
+      actualContactType === ContactType.EMAIL &&
+      !sameEmail(value, username)
+    ) {
+      return callback({
+        code: status.PERMISSION_DENIED,
+        message: "Invalid verification code"
+      });
+    }
 
     const isValid = await isValidVerificationCode({
       type: actualContactType,

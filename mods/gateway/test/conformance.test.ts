@@ -57,6 +57,18 @@ for (const contract of [
   "turn-taking"
 ] as const) {
   describe(`@gateway conformance: ${contract}`, function () {
+    // The scenarios play media from the harness's local server; play fetches reach public
+    // addresses only unless allowed (M13).
+    let allowedDestinations: string | undefined;
+    before(function () {
+      allowedDestinations = process.env.FONOSTER_ALLOWED_DESTINATIONS;
+      process.env.FONOSTER_ALLOWED_DESTINATIONS = "127.0.0.1";
+    });
+    after(function () {
+      if (allowedDestinations === undefined)
+        delete process.env.FONOSTER_ALLOWED_DESTINATIONS;
+      else process.env.FONOSTER_ALLOWED_DESTINATIONS = allowedDestinations;
+    });
     this.timeout(15000);
     let nc: NatsConnection;
 

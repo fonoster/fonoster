@@ -42,3 +42,14 @@ receive every service's signals when enabled.
 - **WHEN** an operator disables the profile and points OTLP at an external endpoint
 - **THEN** no Grafana, Tempo, Loki or Prometheus container runs and signals reach the external endpoint
 
+
+### Requirement: Logs never carry secrets
+
+Services SHALL NOT log passwords, tokens or keys at any level. Handlers SHALL log refs and ids,
+not whole requests that may carry credentials, and the shared logger (`@fonoster/logger`) SHALL
+replace the values of secret fields (`password`, `secret`, `*Token`, `authorization`, `apiKey`,
+`accessKeySecret`, `privateKey` and the like, at any depth) with `[redacted]` before any transport.
+
+#### Scenario: Creating a SIP credential at verbose level
+- **WHEN** `CreateCredentials` is called with a password and logs are at `verbose`
+- **THEN** no log line contains the password

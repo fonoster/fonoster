@@ -55,12 +55,14 @@ describe("SetPasswordPage", () => {
       await screen.findByText("Use at least 8 characters")
     ).toBeInTheDocument();
     expect(screen.getByText("The passwords don't match")).toBeInTheDocument();
+    expect(screen.getByText("Enter the one-time password")).toBeInTheDocument();
     expect(auth.sdk.users.updateUser).not.toHaveBeenCalled();
   });
 
-  it("updates the password, refreshes the session and continues", async () => {
+  it("updates the password with the one-time password, then signs in again", async () => {
     const auth = fakeAuth({ status: "signedIn", user: invitee });
     const { user } = renderScreen(<SetPasswordPage />, { auth });
+    await user.type(screen.getByLabelText("One-time password"), "otp-123456");
     await user.type(screen.getByLabelText("New password"), "a-good-password");
     await user.type(
       screen.getByLabelText("Confirm password"),
@@ -71,8 +73,12 @@ describe("SetPasswordPage", () => {
     );
     expect(auth.sdk.users.updateUser).toHaveBeenCalledWith({
       ref: "u1",
-      password: "a-good-password"
+      password: "a-good-password",
+      currentPassword: "otp-123456"
     });
-    expect(auth.refreshSession).toHaveBeenCalled();
+    expect(auth.signInWithPassword).toHaveBeenCalledWith(
+      "maria@acme.com",
+      "a-good-password"
+    );
   });
 });

@@ -19,6 +19,7 @@
 import fluentLogger from "fluent-logger";
 import winston from "winston";
 import { getEnv } from "./getEnv";
+import { redactFormat } from "./redact";
 
 const FluentTransport = fluentLogger.support.winstonTransport();
 
@@ -68,8 +69,13 @@ buildTransports();
 
 function buildFormat() {
   return settings.format === "json"
-    ? winston.format.combine(winston.format.timestamp(), winston.format.json())
+    ? winston.format.combine(
+        redactFormat(),
+        winston.format.timestamp(),
+        winston.format.json()
+      )
     : winston.format.combine(
+        redactFormat(),
         winston.format.colorize(),
         winston.format.simple()
       );

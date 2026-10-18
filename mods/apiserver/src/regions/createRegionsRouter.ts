@@ -277,15 +277,18 @@ export function createRegionsRouter(deps: {
   signer?: RegionSigner;
   publicRegions: PublicRegion[];
   identityPublicKey: string;
+  /** Identity's issuer and audience; user tokens must carry them. */
+  identityTokenOptions?: { issuer?: string; audience?: string };
   /** PR-19: the only credential of the admin API; absent turns it off. */
   operatorKey?: string;
   monthlyFeeCents?: number;
 }): Router {
   const { service } = deps;
   const router = express.Router();
-  const workspaceAuth = createHttpAuth(deps.identityPublicKey);
-  const userAuth = createUserAuth(deps.identityPublicKey);
-  const maybeUser = optionalUser(deps.identityPublicKey);
+  const tokenOptions = deps.identityTokenOptions ?? {};
+  const workspaceAuth = createHttpAuth(deps.identityPublicKey, tokenOptions);
+  const userAuth = createUserAuth(deps.identityPublicKey, tokenOptions);
+  const maybeUser = optionalUser(deps.identityPublicKey, tokenOptions);
   const caller = (res: Response) => res.locals.caller as Caller;
   const user = (res: Response) => res.locals.user as UserCaller;
   const json = express.json({ limit: "64kb" });

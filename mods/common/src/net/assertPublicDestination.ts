@@ -209,6 +209,58 @@ export function assertPublicUrlShape(
   return url;
 }
 
+// The connection is checked when the socket resolves the name, so a DNS answer that changes
+// between the check and the request (rebinding) cannot reach a private address.
+function guardedLookup(host: string, allow: string[]): net.LookupFunction {
+  return (hostname, options, callback) => {
+    dns.lookup(hostname, { ...options, all: true }, (err, addrs) => {
+      if (err) return callback(err, "", 4);
+      const list = addrs as unknown as dns.LookupAddress[];
+      try {
+        for (const a of list) checkAddress(host, a.address, allow);
+      } catch (e) {
+        return callback(e as Error, "", 4);
+      }
+      if ((options as { all?: boolean }).all)
+        return (
+          callback as unknown as (e: null, a: dns.LookupAddress[]) => void
+        )(null, list);
+      callback(null, list[0].address, list[0].family);
+    });
+  };
+}
+
+/** A ws:// or wss:// URL as the http(s) URL its handshake uses. */
+function asHttpUrl(input: string | URL): string {
+  return String(input).replace(/^ws(s?):/i, "http$1:");
+}
+
+/**
+ * For WebSocket connections to tenant-chosen URLs (session apps, listeners): checks the URL's
+ * shape (ws/wss, no internal names or private literal IPs) and returns a socket `lookup` that
+ * refuses private addresses when the name resolves. Pass it as the `lookup` option of `ws`.
+ */
+export function publicWebSocketGuard(
+  input: string | URL,
+  policy?: DestinationPolicy
+): { lookup: net.LookupFunction } {
+  if (!/^wss?:\/\//i.test(String(input)))
+    throw new UnsafeDestinationError("unsupported scheme");
+  const allow = allowList(policy);
+  const url = assertPublicUrlShape(asHttpUrl(input), { allow });
+  return { lookup: guardedLookup(hostOf(url), allow) };
+}
+
+/** Synchronous shape check of a ws:// or wss:// URL (see assertPublicUrlShape). */
+export function assertPublicWebSocketUrlShape(
+  input: string | URL,
+  policy?: DestinationPolicy
+): URL {
+  if (!/^wss?:\/\//i.test(String(input)))
+    throw new UnsafeDestinationError("unsupported scheme");
+  return assertPublicUrlShape(asHttpUrl(input), policy);
+}
+
 export type SafeFetchInit = {
   method?: string;
   headers?: Record<string, string>;
@@ -233,25 +285,7 @@ function requestOnce(
   signal: AbortSignal,
   allow: string[]
 ): Promise<Response> {
-  const host = hostOf(url);
-  // The connection is checked when the socket resolves the name, so a DNS answer that changes
-  // between the check and the request (rebinding) cannot reach a private address.
-  const lookup: net.LookupFunction = (hostname, options, callback) => {
-    dns.lookup(hostname, { ...options, all: true }, (err, addrs) => {
-      if (err) return callback(err, "", 4);
-      const list = addrs as unknown as dns.LookupAddress[];
-      try {
-        for (const a of list) checkAddress(host, a.address, allow);
-      } catch (e) {
-        return callback(e as Error, "", 4);
-      }
-      if ((options as { all?: boolean }).all)
-        return (
-          callback as unknown as (e: null, a: dns.LookupAddress[]) => void
-        )(null, list);
-      callback(null, list[0].address, list[0].family);
-    });
-  };
+  const lookup = guardedLookup(hostOf(url), allow);
   const lib = url.protocol === "https:" ? https : http;
   return new Promise((resolve, reject) => {
     const req = lib.request(

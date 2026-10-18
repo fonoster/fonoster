@@ -5742,7 +5742,8 @@ ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
 password: jspb.Message.getFieldWithDefault(msg, 2, ""),
 name: jspb.Message.getFieldWithDefault(msg, 3, ""),
 avatar: jspb.Message.getFieldWithDefault(msg, 4, ""),
-phone: jspb.Message.getFieldWithDefault(msg, 5, "")
+phone: jspb.Message.getFieldWithDefault(msg, 5, ""),
+currentPassword: jspb.Message.getFieldWithDefault(msg, 6, "")
   };
 
   if (includeInstance) {
@@ -5798,6 +5799,10 @@ proto.fonoster.identity.v1beta2.UpdateUserRequest.deserializeBinaryFromReader = 
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setPhone(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setCurrentPassword(value);
       break;
     default:
       reader.skipField();
@@ -5860,6 +5865,13 @@ proto.fonoster.identity.v1beta2.UpdateUserRequest.serializeBinaryToWriter = func
   if (f.length > 0) {
     writer.writeString(
       5,
+      f
+    );
+  }
+  f = message.getCurrentPassword();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
       f
     );
   }
@@ -5953,6 +5965,24 @@ proto.fonoster.identity.v1beta2.UpdateUserRequest.prototype.getPhone = function(
  */
 proto.fonoster.identity.v1beta2.UpdateUserRequest.prototype.setPhone = function(value) {
   return jspb.Message.setProto3StringField(this, 5, value);
+};
+
+
+/**
+ * optional string current_password = 6;
+ * @return {string}
+ */
+proto.fonoster.identity.v1beta2.UpdateUserRequest.prototype.getCurrentPassword = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.identity.v1beta2.UpdateUserRequest} returns this
+ */
+proto.fonoster.identity.v1beta2.UpdateUserRequest.prototype.setCurrentPassword = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
 };
 
 

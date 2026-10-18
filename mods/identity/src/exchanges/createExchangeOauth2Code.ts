@@ -30,6 +30,7 @@ import {
   isOpenSignup,
   methodDisabledError
 } from "../utils/authMethods";
+import { createClaimUnverifiedAccount } from "../utils/claimUnverifiedAccount";
 import { createGetUserByGitHubEmails } from "../utils/createGetUserByGitHubEmails";
 import { getGitHubUserWithOauth2Code } from "../utils/getGitHubUserWithOauth2Code";
 import { exchangeTokens } from "./exchangeTokens";
@@ -77,11 +78,14 @@ function createExchangeOauth2Code(
     }
 
     // First GitHub sign-in creates the account when sign-up is open; invited
-    // users already exist (the invite created them).
+    // users already exist (the invite created them). GitHub verified the
+    // email, so an existing account whose email was never verified loses its
+    // password (M2).
+    const existing = await createGetUserByGitHubEmails(prisma)(
+      userData.verifiedEmails ?? [userData.email]
+    );
     const user =
-      (await createGetUserByGitHubEmails(prisma)(
-        userData.verifiedEmails ?? [userData.email]
-      )) ??
+      (existing && (await createClaimUnverifiedAccount(prisma)(existing))) ??
       (isOpenSignup(identityConfig)
         ? await createUserFromGitHub(prisma)({
             ...userData,

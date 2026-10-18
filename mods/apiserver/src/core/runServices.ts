@@ -105,6 +105,10 @@ async function runServices() {
   const regions = await runRegions(REGIONS as RegionsConfig, {
     db: prisma,
     identityPublicKey: IDENTITY_PUBLIC_KEY,
+    identityTokenOptions: {
+      issuer: IDENTITY_ISSUER,
+      audience: IDENTITY_AUDIENCE
+    },
     issuer: REGIONS.controlPlaneUrl ?? APP_URL,
     defaultControlPlaneUrl: APP_URL,
     defaultLeafUrl: `tls://${DOMAIN}:7422`,
