@@ -186,7 +186,7 @@ in the environment.
 | `MEDIANODE_NATS_URL / _NATS_USER / _NATS_PASSWORD` | `nats.url / user / password` |
 | `MEDIANODE_SIP_LISTEN / _SIP_ADVERTISE` | `sip.listen / advertise` |
 | `MEDIANODE_RTP_HOST / _RTP_ADVERTISE / _RTP_PORT_MIN / _RTP_PORT_MAX` | `rtp.host / advertise / portMin / portMax` |
-| `MEDIANODE_REGISTRAR / _DOMAIN / _USERNAME / _PASSWORD / _TRANSPORT / _REGISTER_EVERY` | `sip.registrations[]`: `registrar` (`;transport=` for tcp/tls), `aor` (`sip:<username>@<domain>`), `auth.username / auth.password`, `expires` (twice the old interval), `headers: { X-Session-Count: "{sessions}" }` (the old `registration` block still works, deprecated) |
+| `MEDIANODE_REGISTRAR / _DOMAIN / _USERNAME / _PASSWORD / _TRANSPORT / _REGISTER_EVERY` | `sip.registrations[]`: `registrar` (`;transport=` for tcp/tls), `aor` (`sip:<username>@<domain>`), `auth.username / auth.password`, `expires` (twice the old interval), `headers: { X-Session-Count: "{sessions}" }` (the old `registration` block and flags are removed) |
 | `MEDIANODE_OUTBOUND_PROXY / _OUTBOUND_TRANSPORT` | `outboundProxy / outboundTransport` |
 | `MEDIANODE_TLS_LISTEN / _TLS_CERT / _TLS_KEY / _TLS_CA / _TLS_CLIENT_CA` | `tls.listen / cert / key / ca / clientCa` |
 | `MEDIANODE_DEBUG_ADDR / _DRAIN_WAIT / _MAX_DURATION / _MAX_PARTICIPANTS / _MEDIA_TIMEOUT` | `debugAddr / drainWait / maxDuration / maxParticipants / mediaTimeout` |

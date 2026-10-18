@@ -71,9 +71,9 @@ sip:
 - Routr is one deployment of this: the bundle registers the media-node Peer with
   `X-Session-Count: "{sessions}"` for Routr's `LEAST_SESSIONS`. `participant.dial` and transfers
   (the NATS path) dial out as the Peer of the first registration (its AOR and `auth`).
-- The earlier single `registration:` block and the `-registrar`, `-domain`, `-username`,
-  `-password`, `-transport` and `-register-every` flags still work, as one registration with
-  `X-Session-Count`, and log a deprecation warning. Setting both forms is an error.
+- The earlier `registration:` block and the `-registrar`, `-domain`, `-username`, `-password`,
+  `-transport` and `-register-every` flags are gone; a file that still has `registration:` fails
+  at start (unknown key).
 
 ## Codecs
 

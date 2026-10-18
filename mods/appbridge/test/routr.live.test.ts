@@ -18,6 +18,9 @@
  */
 import { ChildProcess, spawn } from "child_process";
 import * as dgram from "dgram";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import * as readline from "readline";
 import {
   buildMediaNode,
@@ -53,6 +56,30 @@ const ROUTING: MediaNodeRouting = {
   number: "+17853178070",
   appRef: "app-rig"
 };
+
+/**
+ * The node's registration with Routr (sip.registrations): the Peer above, with the session count
+ * Routr's least-sessions reads. Small loads re-register on the timer (5+ rooms re-register at
+ * once), so the expiry is short here.
+ */
+function nodeConfig(): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "routr-live-"));
+  const file = path.join(dir, "medianode.yaml");
+  fs.writeFileSync(
+    file,
+    [
+      "sip:",
+      "  registrations:",
+      `    - registrar: "${ROUTR_SIP}"`,
+      `      aor: "${ROUTING.aor}"`,
+      "      expires: 4s",
+      `      auth: { username: "${ROUTING.username}", password: "${ROUTING.password}" }`,
+      '      headers: { X-Session-Count: "{sessions}" }',
+      ""
+    ].join("\n")
+  );
+  return file;
+}
 
 async function freeUdpPort(): Promise<number> {
   const s = dgram.createSocket("udp4");
@@ -171,19 +198,10 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
         "127.0.0.1",
         "-rtp-advertise",
         "127.0.0.1",
-        "-registrar",
-        ROUTR_SIP,
-        "-domain",
-        "rig.local",
-        "-username",
-        ROUTING.username,
-        "-password",
-        ROUTING.password,
         "-outbound-proxy",
         ROUTR_SIP,
-        // Small loads re-register on the timer (5+ rooms re-register at once); keep it short here.
-        "-register-every",
-        "2s"
+        "-config",
+        nodeConfig()
       ],
       /ready/
     );

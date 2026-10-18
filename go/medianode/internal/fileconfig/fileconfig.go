@@ -42,16 +42,6 @@ type File struct {
 		PortMin   int    `yaml:"portMin"`
 		PortMax   int    `yaml:"portMax"`
 	} `yaml:"rtp"`
-	// Registration is the single Routr registration of earlier releases (deprecated; use
-	// sip.registrations). It maps to one entry with X-Session-Count: "{sessions}".
-	Registration struct {
-		Registrar string `yaml:"registrar"`
-		Domain    string `yaml:"domain"`
-		Username  string `yaml:"username"`
-		Password  string `yaml:"password"` // or a secret:// reference
-		Transport string `yaml:"transport"`
-		Every     string `yaml:"every"`
-	} `yaml:"registration"`
 	OutboundProxy     string `yaml:"outboundProxy"`
 	OutboundTransport string `yaml:"outboundTransport"`
 	DebugAddr         string `yaml:"debugAddr"`
@@ -199,8 +189,7 @@ func Parse(data []byte, lookup func(string) (string, bool)) (*File, error) {
 	if err := dec.Decode(f); err != nil && !errors.Is(err, io.EOF) {
 		return nil, err
 	}
-	for name, d := range map[string]string{"registration.every": f.Registration.Every,
-		"drainWait": f.DrainWait, "maxDuration": f.MaxDuration, "mediaTimeout": f.MediaTimeout} {
+	for name, d := range map[string]string{"drainWait": f.DrainWait, "maxDuration": f.MaxDuration, "mediaTimeout": f.MediaTimeout} {
 		if d != "" {
 			if _, err := time.ParseDuration(d); err != nil {
 				return nil, fmt.Errorf("%s: %q is not a duration (e.g. 15s, 10m)", name, d)
@@ -220,9 +209,6 @@ func Parse(data []byte, lookup func(string) (string, bool)) (*File, error) {
 		if err := sipheader.Validate(r.Headers); err != nil {
 			return nil, fmt.Errorf("%s.headers: %w", name, err)
 		}
-	}
-	if len(f.SIP.Registrations) > 0 && f.Registration.Registrar != "" {
-		return nil, errors.New("registration and sip.registrations are both set; keep sip.registrations only")
 	}
 	return f, nil
 }

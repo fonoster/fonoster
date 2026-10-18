@@ -86,9 +86,9 @@ a real media-node Peer (see `docs/operators/cutover.md`).
 
 - Routr's update calls need the full object (`name` for Numbers; `name` and `username` for
   Credentials). A partial update fails with "Expected a string but received a undefined".
-- A killed node's route stays in Routr until it expires (twice the REGISTER interval; 30 s by
+- A killed node's route stays in Routr until it expires (the registration's `expires`; 30 s by
   default). Least-sessions can pick that dead route. The test waits until its node's route is the
   only one. A node stopped with SIGTERM now unregisters on exit (the test's last check), so only
   crashes leave dead routes.
 - The node re-registers right away only when its load changes by 5 or more rooms, or drops to 0.
-  Smaller changes wait for the timer. The test uses `-register-every 2s`.
+  Smaller changes wait for the timer. The test registers with `expires: 4s` (a refresh every 2 s).

@@ -35,9 +35,6 @@ type Config struct {
 	// OnRegistrationState reports a registration that succeeded, failed, expired or was removed
 	// (registration.state on NATS); nil drops the reports.
 	OnRegistrationState func(RegistrationState)
-	// Domain, Username and Password identify the node as a Routr peer on participant.dial and
-	// transfer INVITEs (the NATS media-control path).
-	Domain, Username, Password string
 	// OutboundProxy is where outbound INVITEs go (Routr, which picks the carrier trunk); empty
 	// disables participant.dial and transfers.
 	OutboundProxy string
@@ -533,19 +530,30 @@ func reasonPhrase(status int) string {
 // trunk by it (connect's peerToPSTN reads X-DOD-Number; SIP header names are case-insensitive).
 const DODNumberHeader = "X-DOD-Number"
 
-// peerUser is the node's Routr Peer username (outbound INVITEs).
+// The NATS participant.dial and transfer INVITEs (retired with media.<id>.commands) dial as the
+// Peer the node registers as: the first registration's AOR and auth.
+
+// peerUser is the Peer's username: the first registration's auth username, else its AOR user.
 func (u *UA) peerUser() string {
-	if u.cfg.Username != "" {
-		return u.cfg.Username
+	if len(u.regs) > 0 {
+		return orDefault(u.regs[0].cfg.Username, u.regs[0].aor.User)
 	}
 	return "medianode"
 }
 
-// peerDomain is the host in the Peer's From: the configured domain, else the outbound proxy's
-// host.
+// peerPassword answers the outbound proxy's challenge.
+func (u *UA) peerPassword() string {
+	if len(u.regs) > 0 {
+		return u.regs[0].cfg.Password
+	}
+	return ""
+}
+
+// peerDomain is the host in the Peer's From: the first registration's AOR host, else the
+// outbound proxy's host.
 func (u *UA) peerDomain() string {
-	if u.cfg.Domain != "" {
-		return u.cfg.Domain
+	if len(u.regs) > 0 {
+		return u.regs[0].aor.Host
 	}
 	for _, addr := range []string{u.cfg.OutboundProxy} {
 		if host, _, err := net.SplitHostPort(addr); err == nil && host != "" {
@@ -591,7 +599,7 @@ func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]strin
 		return nil, nil, err
 	}
 	// Routr challenges a Peer's INVITE (401) like its REGISTER: answer with the same credentials.
-	return u.awaitAnswer(ctx, session, user, u.cfg.Password, onProgress)
+	return u.awaitAnswer(ctx, session, user, u.peerPassword(), onProgress)
 }
 
 // awaitAnswer waits for a dialed INVITE's final response, answering a digest challenge with

@@ -476,7 +476,9 @@ func TestDialIntoRoom(t *testing.T) {
 // X-DOD-Number, which is what Routr's PEER_TO_PSTN routing needs.
 func TestDialAsPeer(t *testing.T) {
 	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
-		c.Domain, c.Username, c.Password = "default", "medianode", "peer-secret"
+		// The Peer the node registers as (its first registration's AOR and auth).
+		c.Registrations = []sipua.Registration{{Registrar: startRegistrar(t, "", "").addr,
+			AOR: "sip:medianode@default", Username: "medianode", Password: "peer-secret"}}
 	}})
 	r.callee.RequireAuth("medianode", "peer-secret")
 	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
@@ -501,7 +503,10 @@ func TestDialAsPeer(t *testing.T) {
 
 // TestDialAsPeerBadSecret: a wrong Peer password fails the dial with the proxy's 401.
 func TestDialAsPeerBadSecret(t *testing.T) {
-	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) { c.Username, c.Password = "medianode", "wrong" }})
+	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
+		c.Registrations = []sipua.Registration{{Registrar: startRegistrar(t, "", "").addr, Username: "medianode",
+			Password: "wrong"}}
+	}})
 	r.callee.RequireAuth("medianode", "peer-secret")
 	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
 	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room, "to": "+1555", "from": "+1785"})

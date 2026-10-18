@@ -109,15 +109,8 @@ func main() {
 	rtpAdvertise := flag.String("rtp-advertise", or(fc.RTP.Advertise, "127.0.0.1"), "address in SDP and rtp blocks")
 	rtpMin := flag.Int("rtp-port-min", orInt(fc.RTP.PortMin, 0), "lowest RTP port (0 with -rtp-port-max 0: any port)")
 	rtpMax := flag.Int("rtp-port-max", orInt(fc.RTP.PortMax, 0), "highest RTP port; publish exactly [min,max]/udp")
-	// The legacy single registration (prefer sip.registrations in the file).
-	registrar := flag.String("registrar", or(fc.Registration.Registrar, ""), "deprecated (use sip.registrations): registrar host:port, registered with X-Session-Count")
-	domain := flag.String("domain", or(fc.Registration.Domain, ""), "deprecated: the legacy registration's domain")
-	username := flag.String("username", or(fc.Registration.Username, ""), "deprecated: the legacy registration's username (default medianode)")
-	password := flag.String("password", or(fc.Registration.Password, ""), "deprecated: the legacy registration's password (or a secret:// reference)")
 	outbound := flag.String("outbound-proxy", or(fc.OutboundProxy, ""), "host:port outbound INVITEs go to (Routr); empty disables dial and transfers")
-	transport := flag.String("transport", or(fc.Registration.Transport, "udp"), "deprecated: the legacy registration's transport (udp or tcp)")
 	heartbeat := flag.Duration("heartbeat", 2*time.Second, "node.heartbeat period")
-	registerEvery := flag.Duration("register-every", orDuration(fc.Registration.Every, 15*time.Second), "deprecated: the legacy registration's interval (Expires is twice this)")
 	debugAddr := flag.String("debug", or(fc.DebugAddr, ""), "host:port for a debug HTTP endpoint (GET /rooms); empty disables it")
 	drainWait := flag.Duration("drain-wait", orDuration(fc.DrainWait, 10*time.Minute), "longest wait for rooms to end on SIGTERM")
 	maxDuration := flag.Duration("max-duration", orDuration(fc.MaxDuration, 4*time.Hour), "longest call (ended with reason timeout); apps can lower it per call")
@@ -195,14 +188,10 @@ func main() {
 		// let it read (nats-permissions/medianode.conf): no service reads another's replies.
 		natsOpts = append(natsOpts, nats.UserInfo(*natsUser, pass), nats.CustomInboxPrefix(natsInboxPrefix(*natsUser)))
 	}
-	sipCfg, err := buildSIP(fc, legacyRegistration{Registrar: *registrar, Domain: *domain, Username: *username,
-		Password: *password, Transport: *transport, Every: *registerEvery})
+	registrations, err := buildRegistrations(fc)
 	if err != nil {
 		logger.Error("sip", "err", err)
 		os.Exit(1)
-	}
-	if sipCfg.Legacy {
-		logger.Warn("registration and -registrar are deprecated; list it under sip.registrations (with headers: { X-Session-Count: \"{sessions}\" } to keep load reporting)")
 	}
 	nc, err := nats.Connect(*natsURL, natsOpts...)
 	if err != nil {
@@ -240,9 +229,8 @@ func main() {
 	_, portText, _ := net.SplitHostPort(*sipListen)
 	port, _ := strconv.Atoi(portText)
 	ua, err := sipua.New(n, sipua.Config{Listen: *sipListen, AdvertiseHost: *sipAdvertise, AdvertisePort: port,
-		Registrations: sipCfg.Registrations, OnRegistrationState: registrationStatePublisher(nc, *nodeID, logger),
-		ReregisterDelta: *reregisterDelta, OutboundProxy: *outbound, Domain: sipCfg.Domain, Username: sipCfg.Username,
-		Password: sipCfg.Password, TLSListen: *tlsListen, TLSConfig: serverTLS, ClientTLS: clientTLS,
+		Registrations: registrations, OnRegistrationState: registrationStatePublisher(nc, *nodeID, logger),
+		ReregisterDelta: *reregisterDelta, OutboundProxy: *outbound, TLSListen: *tlsListen, TLSConfig: serverTLS, ClientTLS: clientTLS,
 		RequireEncryption: *requireEnc, OutboundTransport: *outboundTransport,
 		TrustedSources: strings.Split(*trustedSources, ","), Logger: logger})
 	if err != nil {

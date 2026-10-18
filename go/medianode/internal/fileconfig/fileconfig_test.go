@@ -38,7 +38,7 @@ func TestParseTypesAndPlaceholders(t *testing.T) {
 nodeId: "${ID:-node-a}"
 nats: { url: "nats://nats:4222", user: medianode, password: "${NATS_PW}" }
 rtp: { portMin: "${MIN}", portMax: 11999 }
-registration: { password: "${SIP_PW}", every: 15s }
+sip: { registrations: [ { registrar: routr, expires: 30s, auth: { password: "${SIP_PW}" } } ] }
 trustedSources: ["${NET}.40"]
 sessionRegistry: false
 telemetry: { otlpEndpoint: "${OTEL:-}" }
@@ -50,7 +50,7 @@ telemetry: { otlpEndpoint: "${OTEL:-}" }
 		t.Fatalf("unexpected %+v", f)
 	}
 	// A numeric secret stays a string.
-	if f.Registration.Password != "123456" || f.TrustedSources[0] != "10.0.0.40" {
+	if f.SIP.Registrations[0].Auth.Password != "123456" || f.TrustedSources[0] != "10.0.0.40" {
 		t.Fatalf("unexpected %+v", f)
 	}
 	if f.SessionRegistry == nil || *f.SessionRegistry || f.Telemetry.OTLPEndpoint != "" {
@@ -66,8 +66,8 @@ func TestParseSpecialCharactersSurvive(t *testing.T) {
 }
 
 func TestParseErrorsNameKeyAndVariable(t *testing.T) {
-	_, err := Parse([]byte("registration:\n  password: ${SIP_PW}\n"), env(nil))
-	if err == nil || !strings.Contains(err.Error(), "registration.password") || !strings.Contains(err.Error(), "SIP_PW") {
+	_, err := Parse([]byte("sip:\n  registrations:\n    - registrar: r\n      auth:\n        password: ${SIP_PW}\n"), env(nil))
+	if err == nil || !strings.Contains(err.Error(), "sip.registrations[0].auth.password") || !strings.Contains(err.Error(), "SIP_PW") {
 		t.Fatalf("got %v", err)
 	}
 	_, err = Parse([]byte("nodeID: x\n"), env(nil))
@@ -124,7 +124,7 @@ sip:
 		"short":     "sip: { registrations: [ { registrar: a:5060, expires: 500ms } ] }",
 		"reserved":  "sip: { registrations: [ { registrar: a:5060, headers: { Contact: x } } ] }",
 		"unknown":   "sip: { registrations: [ { registrar: a:5060, every: 15s } ] }",
-		"both":      "registration: { registrar: a:5060 }\nsip: { registrations: [ { registrar: b:5060 } ] }",
+		"legacy":    "registration: { registrar: a:5060 }",
 	} {
 		if _, err := Parse([]byte(doc), env(nil)); err == nil {
 			t.Errorf("%s: want an error", name)

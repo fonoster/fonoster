@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/fonoster/fonoster/go/medianode/internal/fileconfig"
-	"github.com/fonoster/fonoster/go/medianode/internal/sipua"
 	"github.com/nats-io/nats.go"
 )
 
@@ -58,7 +57,7 @@ func TestIgnoredEnvNamesUnreferencedVariables(t *testing.T) {
 		"MEDIANODE_ID=node-a",
 		"MEDIANODE_TLS_KEY=-----BEGIN",
 	}
-	refs := []byte("-tls-key secret://env/MEDIANODE_TLS_KEY nodeId: \"${MEDIANODE_ID:-node-a}\"\nregistration: { password: \"${MEDIANODE_PASSWORD}\" }\n")
+	refs := []byte("-tls-key secret://env/MEDIANODE_TLS_KEY nodeId: \"${MEDIANODE_ID:-node-a}\"\nsip: { registrations: [ { registrar: routr, auth: { password: \"${MEDIANODE_PASSWORD}\" } } ] }\n")
 	got := ignoredEnv(environ, refs)
 	if want := []string{"MEDIANODE_NATS_URL"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("ignoredEnv = %v; want %v", got, want)
@@ -89,19 +88,15 @@ func TestShippedConfigsParse(t *testing.T) {
 		if f.NodeID != "node-a" || f.RTP.PortMin != 30000 || f.RTP.PortMax != 30199 || len(f.SIP.Registrations) != 1 {
 			t.Fatalf("%s: %+v", file, f)
 		}
-		// Routr is one registration templating its least-sessions header; dialed calls go out as
-		// the same peer.
-		s, err := buildSIP(f, legacyRegistration{})
+		// Routr is one registration templating its least-sessions header.
+		regs, err := buildRegistrations(f)
 		if err != nil {
 			t.Fatal(err)
 		}
-		reg := s.Registrations[0]
+		reg := regs[0]
 		if reg.AOR != "sip:medianode@default" || reg.Username != "medianode" || reg.Password != "p" ||
 			reg.Expires != 30*time.Second || reg.Headers["X-Session-Count"] != "{sessions}" {
 			t.Fatalf("%s: registration %+v", file, reg)
-		}
-		if s.Domain != "default" || s.Username != "medianode" || s.Password != "p" || s.Legacy {
-			t.Fatalf("%s: dial identity %+v", file, s)
 		}
 	}
 }
@@ -118,37 +113,5 @@ func TestNATSInboxPrefixIsPerUser(t *testing.T) {
 	}
 	if opts.InboxPrefix != "_INBOX_medianode" {
 		t.Fatalf("InboxPrefix %q", opts.InboxPrefix)
-	}
-}
-
-// The legacy registration block and flags still register with Routr, as one generic registration
-// with X-Session-Count, and keep the dial identity they had.
-func TestLegacyRegistrationMapsToRegistrations(t *testing.T) {
-	s, err := buildSIP(&fileconfig.File{}, legacyRegistration{Registrar: "routr:5060", Domain: "default",
-		Password: "pw", Transport: "tcp", Every: 15 * time.Second})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !s.Legacy || len(s.Registrations) != 1 {
-		t.Fatalf("%+v", s)
-	}
-	want := sipua.Registration{Registrar: "sip:routr:5060;transport=tcp", AOR: "sip:medianode@default",
-		Username: "medianode", Password: "pw", Expires: 30 * time.Second,
-		Headers: map[string]string{"X-Session-Count": "{sessions}"}}
-	if !reflect.DeepEqual(s.Registrations[0], want) {
-		t.Fatalf("registration = %+v, want %+v", s.Registrations[0], want)
-	}
-	if s.Domain != "default" || s.Username != "medianode" || s.Password != "pw" {
-		t.Fatalf("dial identity %+v", s)
-	}
-	// No registrar anywhere: no REGISTER.
-	if s, _ := buildSIP(&fileconfig.File{}, legacyRegistration{}); len(s.Registrations) != 0 {
-		t.Fatalf("registrations without configuration: %+v", s.Registrations)
-	}
-	// Both forms at once is a configuration error.
-	f := &fileconfig.File{}
-	f.SIP.Registrations = []fileconfig.Registration{{Registrar: "pbx:5060"}}
-	if _, err := buildSIP(f, legacyRegistration{Registrar: "routr:5060"}); err == nil {
-		t.Fatal("want an error for registration plus sip.registrations")
 	}
 }
