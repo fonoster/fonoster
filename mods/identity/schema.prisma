@@ -94,6 +94,17 @@ model ApiKey {
   @@map("api_keys")
 }
 
+/// Fixed-window counters of the send and reset limits (verification codes, password resets),
+/// shared by every Identity replica (ST-4). Rows of past windows are pruned.
+model RateLimitWindow {
+  key       String   @id @db.VarChar(255)
+  startedAt DateTime @map("started_at") @db.Timestamptz(3)
+  count     Int
+
+  @@index([startedAt])
+  @@map("rate_limit_windows")
+}
+
 model VerificationCode {
   ref       String           @id @default(uuid())
   type      VerificationType

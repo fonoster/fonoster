@@ -30,7 +30,7 @@ import { IdentityConfig } from "../exchanges";
 import { CallWithAddress, clientAddress } from "../utils/clientAddress";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
 import { createSendEmail } from "../utils/createSendEmail";
-import { createRateLimiter } from "../utils/rateLimiter";
+import { createSharedRateLimiter } from "../utils/rateLimiter";
 import { sendVerificationEmail } from "./sendVerificationEmail";
 import { sendVerificationMessage } from "./sendVerificationMessage";
 import { ContactType, SendVerificationCodeRequest } from "./types";
@@ -54,8 +54,16 @@ function createSendVerificationCode(
   const sendEmail = createSendEmail(identityConfig);
   const generateVerificationCode = createGenerateVerificationCode(prisma);
   const { perEmail, perIp, windowMs } = VERIFICATION_CODE_SEND_LIMITS;
-  const withinContactLimit = createRateLimiter({ limit: perEmail, windowMs });
-  const withinIpLimit = createRateLimiter({ limit: perIp, windowMs });
+  const withinContactLimit = createSharedRateLimiter(prisma, {
+    name: "verification:contact",
+    limit: perEmail,
+    windowMs
+  });
+  const withinIpLimit = createSharedRateLimiter(prisma, {
+    name: "verification:ip",
+    limit: perIp,
+    windowMs
+  });
 
   // The response never says whether the contact belongs to an account.
   const fn = async (
@@ -66,7 +74,10 @@ function createSendVerificationCode(
     const actualContactType = request.contactType ?? ContactType.EMAIL;
     const contact = `${actualContactType}:${request.value.toLowerCase()}`;
 
-    if (!withinIpLimit(clientAddress(call)) || !withinContactLimit(contact)) {
+    if (
+      !(await withinIpLimit(clientAddress(call))) ||
+      !(await withinContactLimit(contact))
+    ) {
       return callback(tooManyRequests);
     }
 

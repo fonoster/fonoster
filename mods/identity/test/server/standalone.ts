@@ -50,6 +50,8 @@ type StandaloneIdentity = {
   prisma: PrismaClient;
   /** The health check's status for the whole server (""). */
   health(): Promise<string>;
+  /** Another replica of the service on the same database (its own port). */
+  replica(): Promise<{ endpoint: string; stop(): Promise<void> }>;
   stop(): Promise<void>;
 };
 
@@ -190,23 +192,22 @@ async function startStandaloneIdentity(): Promise<
 
   const dir = mkdtempSync(join(tmpdir(), "fonoster-identity-"));
   const configPath = join(dir, "identity.json");
-  writeFileSync(
-    configPath,
-    JSON.stringify({
-      server: { bindAddr: endpoint, httpBridgePort: await freePort() },
-      logs: { level: "error" },
-      database: { url: databaseUrl },
-      encryptionKey: encryptionKey(),
-      issuer: "https://identity.test",
-      keys: { privateKey, publicKey },
-      auth: { methods: ["password"], signup: "open" },
-      smtp: {
-        host: "127.0.0.1",
-        port: smtp.port,
-        sender: "Identity <identity@identity.test>"
-      }
-    })
-  );
+  const sharedKey = encryptionKey();
+  const configFor = async (bindAddr: string) => ({
+    server: { bindAddr, httpBridgePort: await freePort() },
+    logs: { level: "error" },
+    database: { url: databaseUrl },
+    encryptionKey: sharedKey,
+    issuer: "https://identity.test",
+    keys: { privateKey, publicKey },
+    auth: { methods: ["password"], signup: "open" },
+    smtp: {
+      host: "127.0.0.1",
+      port: smtp.port,
+      sender: "Identity <identity@identity.test>"
+    }
+  });
+  writeFileSync(configPath, JSON.stringify(await configFor(endpoint)));
 
   // The provisioning entrypoint, the way the image runs it before the server.
   execFileSync(
@@ -234,7 +235,35 @@ async function startStandaloneIdentity(): Promise<
     datasources: { db: { url: databaseUrl } }
   });
 
+  const replicas: (() => Promise<void>)[] = [];
+  const replica = async () => {
+    const replicaEndpoint = `127.0.0.1:${await freePort()}`;
+    const replicaConfig = join(dir, `identity-${replicas.length + 1}.json`);
+    writeFileSync(
+      replicaConfig,
+      JSON.stringify(await configFor(replicaEndpoint))
+    );
+    let replicaOutput = "";
+    const p = spawn(
+      process.execPath,
+      ["dist/server/index.js", "--config", replicaConfig],
+      { cwd: IDENTITY_DIR, stdio: ["ignore", "pipe", "pipe"] }
+    );
+    p.stdout?.on("data", (chunk) => (replicaOutput += chunk));
+    p.stderr?.on("data", (chunk) => (replicaOutput += chunk));
+    const stopReplica = async () => {
+      if (p.exitCode !== null || p.signalCode !== null) return;
+      const exited = new Promise((done) => p.once("exit", done));
+      p.kill("SIGTERM");
+      await exited;
+    };
+    replicas.push(stopReplica);
+    await waitForServing(replicaEndpoint, p, () => replicaOutput);
+    return { endpoint: replicaEndpoint, stop: stopReplica };
+  };
+
   const stop = async () => {
+    for (const r of replicas) await r();
     if (child.exitCode === null) {
       const exited = new Promise((done) => child.once("exit", done));
       child.kill("SIGTERM");
@@ -264,6 +293,7 @@ async function startStandaloneIdentity(): Promise<
     emails,
     prisma,
     health: () => healthCheck(endpoint),
+    replica,
     stop
   };
 }
