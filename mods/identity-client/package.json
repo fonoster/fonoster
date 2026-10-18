@@ -3,6 +3,14 @@
   "version": "0.30.0",
   "description": "Lightweight client for the Fonoster Identity gRPC service",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "homepage": "https://github.com/fonoster/fonoster#readme",
   "main": "dist/index",
   "types": "dist/index",
   "scripts": {
