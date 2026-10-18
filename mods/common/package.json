@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/common",
-  "version": "0.27.0",
+  "version": "0.30.0",
   "description": "Common library for Fonoster projects",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -19,15 +19,15 @@
     "generate:session-schema": "tsx scripts/export-session-schema.ts"
   },
   "dependencies": {
+    "@fonoster/logger": "^0.30.0",
+    "@fonoster/types": "^0.30.0",
+    "@grpc/grpc-js": "~1.14.6",
+    "@grpc/proto-loader": "^0.7.15",
+    "@influxdata/influxdb-client": "^1.35.0",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/resources": "^2.12.0",
     "@opentelemetry/sdk-trace-base": "^2.12.0",
     "@opentelemetry/sdk-trace-node": "^2.12.0",
-    "@fonoster/logger": "^0.27.0",
-    "@fonoster/types": "^0.27.0",
-    "@grpc/grpc-js": "~1.14.6",
-    "@grpc/proto-loader": "^0.7.15",
-    "@influxdata/influxdb-client": "^1.35.0",
     "ajv": "^8.17.1",
     "grpc-health-check": "^2.0.2",
     "handlebars": "^4.7.8",
