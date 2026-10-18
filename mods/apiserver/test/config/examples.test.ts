@@ -21,7 +21,6 @@ import { loadServiceConfig } from "@fonoster/common";
 import { expect } from "chai";
 import {
   fonosterConfigSchema,
-  MOVED_KEYS,
   SHARED_VALUE_PATHS
 } from "../../src/config/schema";
 
@@ -44,8 +43,7 @@ const load = (file: string) =>
     schema: fonosterConfigSchema,
     argv: ["node", "apiserver", "--config", join(ROOT, "config", file)],
     env: ENV,
-    interpolatePaths: SHARED_VALUE_PATHS,
-    movedKeys: MOVED_KEYS
+    interpolatePaths: SHARED_VALUE_PATHS
   });
 
 describe("@apiserver[config/examples]", function () {

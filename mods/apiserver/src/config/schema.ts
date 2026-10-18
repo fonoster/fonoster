@@ -123,7 +123,6 @@ const catalogSchema = z.object({ file: z.string().min(1) }).optional();
 /**
  * Assistant evaluations (EvaluateIntelligence): platform model keys by credentialRef, used when a
  * workspace has no key of its own for the provider. Values take `secret://` references (D8).
- * `fonoster-migrate-legacy --integrations` writes them from the retired integrations.json.
  */
 const evaluationsSchema = z
   .object({ credentials: z.record(z.string().min(1)).default({}) })
@@ -383,26 +382,9 @@ type FonosterConfig = z.infer<typeof fonosterConfigSchema>;
  */
 const SHARED_VALUE_PATHS = ["*"];
 
-/** Keys people may carry over from identity.json or older drafts. */
-const MOVED_KEYS = {
-  encryptionKey: "encryption.key",
-  defaultUser: "identity.owner",
-  invite: "identity.invites",
-  issuer: "identity.issuer",
-  audience: "identity.audience",
-  keys: "identity.keys",
-  tokens: "identity.tokens",
-  oauth2: "identity.oauth2",
-  "smtp.auth": "smtp.user and smtp.password",
-  owner: "identity.owner",
-  integrationsFile:
-    "evaluations.credentials (run fonoster-migrate-legacy --integrations once)"
-};
-
 export {
   featuresSchema,
   fonosterConfigSchema,
   FonosterConfig,
-  MOVED_KEYS,
   SHARED_VALUE_PATHS
 };

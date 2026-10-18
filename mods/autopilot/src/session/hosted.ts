@@ -203,11 +203,7 @@ export function loadHostedConfig(
     schema: hostedConfigSchema,
     argv: ["--config", file],
     env,
-    interpolatePaths: ["*"],
-    // The URL no longer falls back to APISERVER_DATABASE_URL (fix-config-and-placement-gaps).
-    movedKeys: {
-      "database.urlEnv": 'database.url ("${APISERVER_DATABASE_URL}")'
-    }
+    interpolatePaths: ["*"]
   });
   const dir = path.dirname(file);
   const rel = (p: string) => (path.isAbsolute(p) ? p : path.join(dir, p));

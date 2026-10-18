@@ -91,8 +91,7 @@ to the call record with the transcript and recording.
 
 ## Migrating an assistant
 
-Stored assistants are converted once, at cutover, by `fonoster-migrate-legacy`
-(`docs/operators/cutover.md`, section 2; it runs `convertLegacyAssistant`). What changes:
+What changed from the previous assistant format:
 
 | Before | After |
 | --- | --- |
