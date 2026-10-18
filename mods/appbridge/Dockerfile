@@ -29,7 +29,7 @@ COPY mods/apiserver/schema.prisma ./mods/apiserver/schema.prisma
 RUN --mount=type=cache,target=/root/.npm \
     npm install --workspace @fonoster/appbridge --ignore-scripts --no-audit --no-fund
 
-RUN for p in types logger common callrecord identity-client community streams amd gateway; do \
+RUN for p in types logger common callrecord identity-client community streams amd appbridge; do \
       (cd mods/$p && npx tsc -b); \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
