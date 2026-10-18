@@ -35,8 +35,10 @@ every command with exactly one JSON reply: `{type: "ack", id, ...}` carrying any
 `roomRef`, `participantRef` or `rtp`), or `{type: "error", id, code, message}`. Outcomes that take
 time (dial progress, transfers, room end) SHALL arrive later as events. The node SHALL publish
 every event on `media.<nodeId>.events.<roomRef>`, so a gateway subscribes only to its room and the
-control plane to `media.*.events.>`. A sender SHALL treat a command with no reply within 2 seconds
-as failed.
+control plane to `media.*.events.>`. `room.create` MAY carry `callRef`, the API-originated call the
+room is for; the node SHALL then also publish the room's `call.progress`, `call.answered` and
+`room.ended` events, with `callRef` and `nodeId` added, on `calls.<callRef>.events`. A sender
+SHALL treat a command with no reply within 2 seconds as failed.
 
 #### Scenario: Ack carries results
 - **WHEN** the control plane sends `room.create` `{id: "c1"}` to `media.node-a.commands`
@@ -46,6 +48,11 @@ as failed.
 - **WHEN** the caller in room `r1` on node `node-a` presses `5`
 - **THEN** a `dtmf` event is published on `media.node-a.events.r1`
 - **AND** nothing is published on any other room's subject
+
+#### Scenario: Call events on the call's subject
+- **WHEN** the control plane sends `room.create` `{id: "c1", callRef: "call-1"}` and then dials the callee, who answers
+- **THEN** `call.progress` and `call.answered` are published on `calls.call-1.events` as well as on the room's subject
+- **AND** `participant.joined`, `dtmf` and other room events are not
 
 #### Scenario: No reply
 - **WHEN** a node does not reply to `hold` within 2 seconds
@@ -131,9 +138,9 @@ chooses the carrier trunk. Progress SHALL be reported as `call.progress` (`ringi
 ### Requirement: Outbound calls are placed on a node chosen by the control plane
 
 For an outbound call the control plane SHALL choose the node with the fewest active rooms among
-non-draining nodes in the session registry (NATS JetStream KV), SHALL ask it to `room.create` and
-`participant.dial`, and SHALL record the room-to-node mapping in the registry. The gateway SHALL
-open the app's session only after `call.answered`.
+non-draining nodes below their room limit in the session registry (NATS JetStream KV), SHALL ask
+it to `room.create` and `participant.dial`, and SHALL record the room-to-node mapping in the
+registry. The gateway SHALL open the app's session only after `call.answered`.
 
 #### Scenario: Least-loaded node chosen
 - **WHEN** the registry lists node A with 30 rooms, node B with 8 and node C draining, and an outbound call is requested
@@ -256,8 +263,9 @@ record instead of assuming `caller_hangup`.
 
 ### Requirement: Nodes report liveness
 
-Each node SHALL publish `node.heartbeat` `{nodeId, rooms, draining}` on `media.<nodeId>.heartbeat`
-every 2 seconds. A node stopping on purpose SHALL publish `node.down` `{nodeId}` after its last
+Each node SHALL publish `node.heartbeat` `{nodeId, rooms, maxRooms, draining}` on
+`media.<nodeId>.heartbeat` every 2 seconds, where `maxRooms` is its room limit (media-node "Call
+and room limits"). A node stopping on purpose SHALL publish `node.down` `{nodeId}` after its last
 room ends. A gateway SHALL treat a node as down after 3 missed heartbeats (6 seconds), SHALL end
 every session it owns on that node with `session.end` `reason: "error"`, and SHALL seal their
 records with `node_error`.
@@ -265,6 +273,11 @@ records with `node_error`.
 #### Scenario: Heartbeats while alive
 - **WHEN** a node is running
 - **THEN** it publishes `node.heartbeat` with its room count and `draining` at least every 2 seconds
+
+#### Scenario: Heartbeats report the room limit
+- **WHEN** a node with a limit of 1 room holds one room and is sent another `room.create`
+- **THEN** the reply is `{type: "error", code: "at_capacity"}`
+- **AND** its heartbeat carries `rooms: 1` and `maxRooms: 1`
 
 #### Scenario: Node killed
 - **WHEN** a node carrying two calls owned by one gateway is killed
@@ -277,10 +290,12 @@ records with `node_error`.
 
 ### Requirement: Outbound calls are owned by the replica that placed them
 
-An outbound call SHALL be placed by sending `gateway.outbound` as a NATS request to the gateway
-queue group; the replica that replies SHALL pick the node (MN5), send `room.create` and
-`participant.dial`, and own the call. `call.answered` and later events SHALL be handled only by
-that owner.
+The control plane SHALL send `gateway.outbound` `{nodeId, roomRef, appRef, callRef, from, to,
+metadata}` as a NATS request to the gateway queue group once it has created the outbound call's
+room (see "Outbound calls are placed on a node chosen by the control plane") and before dialing. The
+gateway replica that acks SHALL own the call, and its `gatewayRef` SHALL go with the
+`participant.dial` the control plane then sends. `call.answered` and later events SHALL be handled
+only by that owner. When no gateway acks, the control plane SHALL end the room and the call fails.
 
 #### Scenario: Owner handles the answer
 - **WHEN** replica G2 replies to an outbound request and the callee answers

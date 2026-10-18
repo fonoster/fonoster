@@ -23,6 +23,10 @@ call.
 - **WHEN** one of three apiserver replicas is killed during active calls
 - **THEN** no active call ends and the remaining replicas serve every management request
 
+#### Scenario: TrackCall always ends
+- **WHEN** a TrackCall stream is open and its client goes away, a second TrackCall opens for the same call, the call's media node misses 3 heartbeats (or says `node.down`), no node takes the call within 30 s, or no final status comes within the maximum call duration
+- **THEN** the replica forgets the first case's stream, serves both streams in the second, and ends the stream with `FAILED` in the others
+
 #### Scenario: Call status survives the placing replica
 - **WHEN** the replica that placed a call is killed while the call rings, and `TrackCall` for the call runs on another replica
 - **THEN** that `TrackCall` still receives `ANSWER` when the callee answers, and ends when the room ends

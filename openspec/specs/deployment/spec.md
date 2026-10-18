@@ -61,6 +61,10 @@ themselves. Third-party containers keep their own configuration.
 - **WHEN** a `.env` file in the working directory sets a value that the service's YAML sets differently
 - **THEN** the service uses the YAML value
 
+#### Scenario: Development mode reads no .env either
+- **WHEN** a service starts with `NODE_ENV=development` and a `.env` file exists in the repository
+- **THEN** the service does not load it
+
 ### Requirement: Each NATS user reads only its own replies
 
 Where NATS has per-service users (Compose, cell and Helm), each user SHALL be allowed to subscribe
@@ -88,7 +92,6 @@ addresses, so it can run on container platforms other than the official targets.
 - **WHEN** an operator runs the gateway image with `docker run`, its config file mounted and NATS reachable
 - **THEN** the gateway starts, registers its health and accepts sessions
 
-
 ### Requirement: Deployments are closed by default
 
 The Helm chart SHALL enable NATS users (`nats.auth.enabled: true`) by default and SHALL refuse to
@@ -107,3 +110,4 @@ node's builder image SHALL be pinned to a patched Go release by digest.
 #### Scenario: A copied development key
 - **WHEN** Identity starts with the signing key formerly at `config/keys/private.pem`
 - **THEN** it refuses to start and says to generate a key
+

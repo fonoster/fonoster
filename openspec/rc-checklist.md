@@ -26,6 +26,11 @@ the archived change named in brackets.
 - [ ] Load test one instance for calls per core and `UV_THREADPOOL_SIZE` (voice-audio-filters 7.2)
 - [ ] Enable for one application against a control, then widen (voice-audio-filters 7.3)
 
+## Load and runners (owner-deferred, needs budget)
+
+- [ ] Pick a runner for the nightly end-to-end and load suites: (a) a GitHub larger-runner group (e.g. 16-core Linux), (b) a self-hosted runner labelled `conformance`, or (c) stay on ubuntu-latest with T2 report-only; then set the repository variable `LOAD_RUNNER` to turn on `load-full` in conformance.yaml (harden-conformance 2.4)
+- [ ] T2 at full scale: ten gateway replicas at 1,000 calls with zero dropped frames (`scale.ts --replicas 10`, about 20 vCPU for the gateways plus a separate load generator). Today the nightly 2 × 200 profile is report-only and locally 1 × 100 delivered 99% of frames (harden-conformance 2.2)
+
 ## Release and docs
 
 - [ ] First release run after the owner re-enables `release.yaml` (revamp-ci-workflows 4.4)
