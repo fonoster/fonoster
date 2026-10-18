@@ -118,7 +118,7 @@ any agreed decision.
 ### MediaControl
 
 ```protobuf
-package media.v1;
+package roomr.v1;
 service MediaControl {
   rpc CreateCall(CreateCallRequest) returns (Call);   // dial out; room created or room_ref joined
   rpc EndCall(EndCallRequest) returns (Empty);        // any call, inbound or outbound
@@ -146,10 +146,10 @@ Typed errors: gRPC status codes (`RESOURCE_EXHAUSTED`, `UNAVAILABLE`, `NOT_FOUND
 
 ### Events and capacity on NATS
 
-Heartbeat every 2 s on `media.nodes.<node_ref>.heartbeat`: `node_ref`, `control_addr`,
+Heartbeat every 2 s on `roomr.nodes.<node_ref>.heartbeat`: `node_ref`, `control_addr`,
 `sip_addr`, `rtp_ports`, `rooms`, `participants`, `max_rooms`, `cpu_idle` (0–1), `codecs`,
 `draining`, `version`, `region`. `node.down` on clean exit. Events on
-`media.events.<call_ref>` (call-scoped) and `media.events.room.<room_ref>` (room-scoped):
+`roomr.events.<call_ref>` (call-scoped) and `roomr.events.room.<room_ref>` (room-scoped):
 `call.started`, `call.ringing`, `call.answered`, `call.ended` (SIP status + cause),
 `participant.joined`, `participant.left`, `operation.done`, `room.ended`; `registration.state`
 on the node subject. Each event carries `node_ref`, a per-call monotonic `seq` and the call's

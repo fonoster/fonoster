@@ -22,7 +22,7 @@
 **Reason**: Commands move to gRPC: `MediaControl` for the controller and one control stream per
 call for the app. NATS keeps capacity reports and events only.
 **Migration**: Replace `media.<nodeId>.commands` requests with `MediaControl` RPCs at the node's
-`control_addr`; subscribe to `media.events.<call_ref>` instead of `media.<nodeId>.events.<roomRef>`.
+`control_addr`; subscribe to `roomr.events.<call_ref>` instead of `media.<nodeId>.events.<roomRef>`.
 
 ### Requirement: Add a participant is the one primitive
 
@@ -43,13 +43,13 @@ Kubernetes Service picks the replica. There is no offer, no claim and no race.
 **Reason**: The node opens the control stream to the session endpoint when the callee answers, and
 events are keyed by call with sequence numbers, so no replica needs to own a call.
 **Migration**: Retire `gateway.outbound`; the controller calls `CreateCall` and follows
-`media.events.<call_ref>`.
+`roomr.events.<call_ref>`.
 
 ## MODIFIED Requirements
 
 ### Requirement: MediaControl is a gRPC service with three nouns
 
-`MediaControl` SHALL be a gRPC service (`media.v1.MediaControl`) served at the node's advertised
+`MediaControl` SHALL be a gRPC service (`roomr.v1.MediaControl`) served at the node's advertised
 control address, with three nouns, `Room`, `Call` and `Participant`, and these RPCs: `CreateCall`,
 `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record` and `SendDtmf`. A `Call`
 SHALL be a SIP leg with a lifecycle (`RINGING`, `ANSWERED`, `ENDED`) that always belongs to a room;
@@ -234,7 +234,7 @@ own end reasons instead of assuming `caller_hangup`.
 
 ### Requirement: Nodes report capacity and liveness
 
-Each node SHALL publish a heartbeat on `media.nodes.<node_ref>.heartbeat` every 2 seconds with
+Each node SHALL publish a heartbeat on `roomr.nodes.<node_ref>.heartbeat` every 2 seconds with
 `node_ref`, `control_addr`, `sip_addr`, `rtp_ports`, `rooms`, `participants`, `max_rooms`,
 `cpu_idle` (0 to 1), `codecs`, `draining`, `version` and `region`. A node stopping on purpose SHALL
 publish `node.down` `{ node_ref }` after its last room ends. A controller SHALL treat a node whose
@@ -357,14 +357,14 @@ control stream.
 ### Requirement: Events on NATS are keyed by call with sequence numbers and labels
 
 The node SHALL publish call events (`call.started`, `call.ringing`, `call.answered`, `call.ended`,
-`participant.joined`, `participant.left`, `operation.done`) on `media.events.<call_ref>` and
+`participant.joined`, `participant.left`, `operation.done`) on `roomr.events.<call_ref>` and
 room-scoped events (`room.ended`, and participant events for participants that are not calls) on
-`media.events.room.<room_ref>`, and `registration.state` on `media.nodes.<node_ref>.events`.
+`roomr.events.room.<room_ref>`, and `registration.state` on `roomr.nodes.<node_ref>.events`.
 Every event SHALL carry `node_ref`, a `seq` that increases by one per event of the same call, the
 call's `labels` and a timestamp. Receivers MUST ignore unknown event types and fields.
 
 #### Scenario: Another replica follows the call
-- **WHEN** controller replica A places call `c1` with `labels: { tenant: "t1" }` and replica B subscribes to `media.events.c1`
+- **WHEN** controller replica A places call `c1` with `labels: { tenant: "t1" }` and replica B subscribes to `roomr.events.c1`
 - **THEN** B receives `call.ringing`, `call.answered` and `call.ended` for `c1`, each with `labels.tenant: "t1"`
 
 #### Scenario: Sequence numbers are contiguous

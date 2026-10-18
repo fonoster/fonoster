@@ -23,7 +23,7 @@
 
 ## 4. Events keyed by call (S)
 
-- [ ] 4.1 Publish events on `media.events.<call_ref>` and `media.events.room.<room_ref>` with `node_ref`, per-call `seq` and `labels`
+- [ ] 4.1 Publish events on `roomr.events.<call_ref>` and `roomr.events.room.<room_ref>` with `node_ref`, per-call `seq` and `labels`
 - [ ] 4.2 `call.started`, `call.ringing`, `call.answered`, `call.ended` (SIP status + cause), `operation.done`, `room.ended`, `participant.joined`, `participant.left`
 - [ ] 4.3 Test: a second controller replica follows a call it did not place; `seq` is contiguous per call; labels from `CreateCall` are echoed
 
@@ -43,7 +43,7 @@
 
 ## 7. MediaControl over gRPC (M)
 
-- [ ] 7.1 `media.v1.MediaControl` server on the node: `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record`, `SendDtmf`; typed gRPC status codes
+- [ ] 7.1 `roomr.v1.MediaControl` server on the node: `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record`, `SendDtmf`; typed gRPC status codes
 - [ ] 7.2 `CreateCall`: idempotent `call_ref`, dial through `to.proxy` with `to.headers` and `to.auth`, `room_ref` join-or-create, `session` override, `ring_timeout_s`, `max_duration_s`, labels
 - [x] 7.3 `Join` with `listen` for listen-only per-track RTP destinations (recording, AMD); `Leave`
 - [ ] 7.4 Apiserver: `placeOutboundCall` calls `CreateCall` at the node's `control_addr`
