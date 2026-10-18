@@ -29,8 +29,9 @@ HOST_ENV="$LOCAL/host.env"
 SEED_FILE="$LOCAL/seed.json"
 BUNDLE="$ROOT/ops/bundle"
 BUNDLE_ENV="$LOCAL/bundle.env"
-# What Compose passes to the Fonoster containers (env_file), where config/*.yaml reference it as
-# ${NAME}: the stack's, the bundle's and the vendor keys present.
+# The values config/*.yaml reference as ${NAME} (the stack's, the bundle's and the vendor keys
+# present), for the renderer. Compose passes each container only its own (the per-service
+# `environment:` in ops/bundle/compose.yaml and compose.yaml), never this whole file.
 SERVICES_ENV="$LOCAL/services.env"
 OVERLAY="$LOCAL/overlay"
 CONFIG_CLI_DIR="$ROOT/mods/common/dist/config/cli"
@@ -175,7 +176,6 @@ render_configs() {
     echo "# Rendered by ops/rebuild/stack up: ops/bundle names from stack.env and host.env."
     echo "FONOSTER_VERSION=${RB_TAG:-dev}"
     echo "CONFIG_DIR=$RB_CONFIG_DIR"
-    echo "FONOSTER_ENV_FILE=./.local/services.env"
     echo "HOST_IP=$host_ip"
     echo "SUBNET_PREFIX=$net"
     echo "HTTP_PORT=$RB_API_PORT"
@@ -196,7 +196,7 @@ render_configs() {
   } > "$BUNDLE_ENV"
   chmod 600 "$BUNDLE_ENV"
   {
-    echo "# Rendered by ops/rebuild/stack up: the Fonoster containers' environment (env_file)."
+    echo "# Rendered by ops/rebuild/stack up: the values the service configs reference (renderer)."
     cat "$STACK_ENV" "$HOST_ENV" "$BUNDLE_ENV"
     local k
     for k in DEEPGRAM_API_KEY ELEVENLABS_API_KEY GROQ_API_KEY OPENAI_API_KEY \

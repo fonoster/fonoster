@@ -32,7 +32,10 @@ export type BufferedSocket = WebSocket & {
 function attempt(app: AppConfig, timeoutMs: number): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(app.url, {
-      headers: signatureHeaders(app.url, app.signingSecret),
+      headers: signatureHeaders(app.url, app.signingSecret, undefined, {
+        appRef: app.ref,
+        workspaceRef: app.workspaceRef
+      }),
       handshakeTimeout: timeoutMs
     });
     socket.once("open", () => {

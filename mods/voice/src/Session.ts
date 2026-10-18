@@ -95,6 +95,11 @@ export class Session {
   readonly speech: SessionStart["speech"];
   readonly audioFormat: SessionStart["audio"];
   readonly tracks: SessionStart["tracks"];
+  /**
+   * The app and workspace the gateway's app-bound signature named, when the server verified one
+   * (VoiceServer); undefined otherwise.
+   */
+  readonly signedFor?: { appRef: string; workspaceRef: string };
 
   /** Raw audio (the Audio layer). */
   readonly audio: {
@@ -119,8 +124,10 @@ export class Session {
 
   constructor(
     start: SessionStart,
-    private readonly transport: SessionTransport
+    private readonly transport: SessionTransport,
+    signedFor?: { appRef: string; workspaceRef: string }
   ) {
+    this.signedFor = signedFor;
     this.sessionRef = start.sessionRef;
     this.callRef = start.callRef;
     this.appRef = start.appRef;

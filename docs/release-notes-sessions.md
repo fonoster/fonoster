@@ -90,6 +90,21 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
 - **Telemetry**: every service exports OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; a call's trace
   runs from the media node through the gateway (a `traceparent` NATS header).
 
+## Isolation between services
+
+- **NATS replies are per user.** Each NATS user may read replies only under `_INBOX_<user>.>`, and
+  Fonoster's clients set that inbox prefix. A NATS client of your own that connects as one of the
+  service users must set the same prefix, or it gets no replies. Routr's user subscribes to
+  nothing.
+- **Compose passes each service only its own values.** The bundle's `compose.yaml` lists, per
+  service, the `.env` names its config file uses (no `env_file`). If you add a `${NAME}` to a
+  service's file, add `NAME` to that service's `environment:` too. The gateway mounts only
+  `keys/public.pem` and `keys/records.pem`; Identity's private key stays with the API server.
+- **The hosted Autopilot needs `publicUrl`**, the URL Autopilot apps point to (the API server's
+  `apps.autopilotUrl`, `ws://autopilot:3000` in the bundle). Autopilot checks signatures against it
+  only and requires the gateway's app-bound signature (`X-Fonoster-App-Signature`), so update the
+  gateway and Autopilot together.
+
 ## Upgrade
 
 See [What changed](./migrating-to-sessions.md).

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/fonoster/fonoster/go/medianode/internal/fileconfig"
+	"github.com/nats-io/nats.go"
 )
 
 // The node reads no MEDIANODE_* variables (fix-config-and-placement-gaps): a value set only in
@@ -87,5 +88,20 @@ func TestShippedConfigsParse(t *testing.T) {
 		if f.NodeID != "node-a" || f.RTP.PortMin != 30000 || f.RTP.PortMax != 30199 || f.Registration.Password != "p" {
 			t.Fatalf("%s: %+v", file, f)
 		}
+	}
+}
+
+// The media node's replies arrive under its own inbox prefix, the only inbox its NATS user may
+// subscribe to (nats-permissions/medianode.conf).
+func TestNATSInboxPrefixIsPerUser(t *testing.T) {
+	if got := natsInboxPrefix("medianode"); got != "_INBOX_medianode" {
+		t.Fatalf("prefix %q", got)
+	}
+	opts := nats.GetDefaultOptions()
+	if err := nats.CustomInboxPrefix(natsInboxPrefix("medianode"))(&opts); err != nil {
+		t.Fatalf("CustomInboxPrefix: %v", err)
+	}
+	if opts.InboxPrefix != "_INBOX_medianode" {
+		t.Fatalf("InboxPrefix %q", opts.InboxPrefix)
 	}
 }

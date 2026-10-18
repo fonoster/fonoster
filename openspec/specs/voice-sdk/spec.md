@@ -29,7 +29,12 @@ The SDK SHALL verify the gateway's HMAC-signed connection request with the app's
 as defined in `voice-session` ("Connection requests are signed": `X-Fonoster-Timestamp`,
 `X-Fonoster-Signature`, ±300 s), and MUST reject a connection whose signature is missing, invalid
 or outside the allowed time window before invoking the handler. Because proxies can rewrite the
-host, the SDK SHALL verify against the app's public URL when one is configured.
+host, the SDK SHALL verify against the app's public URL when one is configured, and then never
+against a URL built from the `Host` or `X-Forwarded-Host` header. When the request carries the
+app-bound signature (`voice-session`, "Connection requests are bound to the app") the SDK SHALL
+verify it too, refuse the connection if it is invalid, and close a session whose `session.start`
+names another app (1008). A server several apps share a secret with SHALL be able to require the
+app-bound signature.
 
 #### Scenario: Valid signature
 
@@ -43,6 +48,17 @@ host, the SDK SHALL verify against the app's public URL when one is configured.
   allowed window
 - **THEN** the SDK closes the connection without invoking the handler
 - **AND** logs the rejection reason
+
+#### Scenario: Signature for another app
+
+- **WHEN** a client presents a valid app-bound signature for app A and its `session.start` names app B
+- **THEN** the SDK closes the socket with 1008 without invoking the handler
+
+#### Scenario: Host header not trusted when a public URL is set
+
+- **WHEN** the server has a public URL configured and a client replays a signature made for another
+  URL with a `Host` header naming that URL's host
+- **THEN** the SDK refuses the connection (401)
 
 #### Scenario: Local development
 

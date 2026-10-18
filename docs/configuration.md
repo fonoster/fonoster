@@ -43,8 +43,10 @@ same into `.dev/`, then `npm run dev` (CONTRIBUTING.md).
   service in one directory stop it at boot.
 - **No environment variables of their own.** Services read only their file. A value
   may be a `${VAR}` or `${VAR:-default}` placeholder at any key; it is resolved from
-  the container's environment, which Compose fills from `.env` (`env_file`). Secrets
-  stay in `.env` this way; a service never reads `.env` itself. An unset variable
+  the container's environment, which Compose fills from `.env`: each service's
+  `environment:` list passes only the names its own file uses, never the whole `.env`
+  (a placeholder you add needs a line there too). Secrets stay in `.env` this way; a
+  service never reads `.env` itself. An unset variable
   without a default stops the service, naming the variable and the key. Inline
   secrets and `secret://` references still work (treat such a file as a secret).
 - **Telemetry.** `telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }`

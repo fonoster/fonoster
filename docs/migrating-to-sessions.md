@@ -153,7 +153,14 @@ def verify(configured_url: str, headers: dict[str, str], secret: str) -> bool:
 ```
 
 Behind a proxy, the URL the gateway signs is the one configured on the app, not the one your server
-sees. Pass the configured value, not `request.url`.
+sees. Pass the configured value, not `request.url` or the `Host` header.
+
+The gateway also binds each connection to its app: `X-Fonoster-App-Ref`, `X-Fonoster-Workspace-Ref`
+and `X-Fonoster-App-Signature`, the hex HMAC-SHA256 of
+`<timestamp>\n<url>\n<appRef>\n<workspaceRef>` (newline-separated) with the same secret. Checking
+it is optional for an app with its own secret; a server that several apps share a secret with
+should require it and serve only the `session.start` whose `appRef` matches
+(`new VoiceServer({ publicUrl, requireAppBinding: true })` does both).
 
 ## 4. Twilio protocol with Pipecat
 

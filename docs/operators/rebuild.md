@@ -23,8 +23,12 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | `sipcaller` (profile `tools`) | media node image | The SIP caller bot (smoke tests). |
 
 Each Fonoster service reads exactly one YAML file (mounted at `/config/<service>.yaml`) and never a
-`.env` file; secrets in it are `${NAME}` placeholders the container's environment fills (Compose
-passes `.env` with `env_file`). The media node reads `/config/medianode.yaml` (or `-config <file>`;
+`.env` file; secrets in it are `${NAME}` placeholders the container's environment fills. Compose
+passes each service only the `.env` values its own file names (its `environment:` list in
+`ops/bundle/compose.yaml`), never the whole `.env`, and only the API server mounts Identity's
+private key (`keys/private.pem`); the gateway gets `public.pem` and its `records.pem`. A
+placeholder you add to a service file needs a matching line in that service's `environment:`
+(for example `CLICKHOUSE_USER`). The media node reads `/config/medianode.yaml` (or `-config <file>`;
 see `ops/bundle/config/medianode.example.yaml`); flags win over it. It reads no `MEDIANODE_*`
 variables: a value from the environment goes in the file as a `${NAME}` placeholder, and a
 `MEDIANODE_*` variable the file does not reference is logged by name as ignored.
@@ -111,8 +115,13 @@ unchanged.
 - **Service config**: `nats: { url, user, password }` in fonoster.yaml, gateway.yaml and
   region-agent.yaml and medianode.yaml, with `password: secret://env/NATS_<SERVICE>_PASSWORD`. Routr's
   user goes in its URL (`nats://routr:<password>@nats:4222`), so use hex passwords.
-- **Not covered yet**: every service may subscribe to `_INBOX.>` (replies), so a compromised
-  service could read other services' replies; per-service inbox prefixes would close that.
+- **Replies**: each user receives replies (and JetStream deliveries) only under its own inbox
+  prefix, `_INBOX_<user>.>`; the services set it when they connect with a user
+  (`natsConnectOptions`, the media node's `CustomInboxPrefix`), so no service can read another's
+  replies, such as bring-your-own keys from the region agent. A client of your own that connects
+  as one of these users must use the same prefix (nats.js `inboxPrefix: "_INBOX_<user>"`, nats.go
+  `nats.CustomInboxPrefix`); with the default `_INBOX.` it gets no replies. Routr only publishes
+  and may subscribe to nothing; the region agent's inbox is `region.<ref>._INBOX`.
 - `NATS_ACL_TEST=docker npm test` runs both configs in Docker and checks every allowed and refused
   subject (`mods/conformance/test/natsPermissions.test.ts`).
 

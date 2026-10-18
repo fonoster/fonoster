@@ -84,6 +84,8 @@ autopilot:
     host: 0.0.0.0
     port: 3000
     signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
+    # apiserver.config.apps.autopilotUrl.
+    publicUrl: "ws://{{ .Release.Name }}-autopilot:3000"
     assistants: { source: database }
     registry: { source: database }
     # Workspaces bring their own LLM keys (dashboard). A platform key instead:

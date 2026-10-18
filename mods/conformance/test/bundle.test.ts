@@ -122,22 +122,62 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     );
   });
 
-  it("gives each Fonoster service its file at /config and .env through env_file", function () {
-    const files: Record<string, string> = {
-      apiserver: "fonoster",
-      gateway: "gateway",
-      autopilot: "autopilot",
-      medianode: "medianode"
-    };
-    for (const [svc, file] of Object.entries(files)) {
+  const FILES: Record<string, string> = {
+    apiserver: "fonoster",
+    gateway: "gateway",
+    autopilot: "autopilot",
+    medianode: "medianode"
+  };
+
+  /** The ${NAME}s a config example names (comments included: optional settings), but `NAME`. */
+  const placeholders = (file: string) =>
+    new Set(
+      [
+        ...fs
+          .readFileSync(path.join(BUNDLE, "config", file), "utf8")
+          .matchAll(/\$\{([A-Za-z_][A-Za-z0-9_]*)/g)
+      ]
+        .map((m) => m[1])
+        .filter((n) => n !== "NAME")
+    );
+
+  it("gives each Fonoster service its file at /config and only the values that file names", function () {
+    for (const [svc, file] of Object.entries(FILES)) {
       const s = services[svc];
-      expect(s.env_file, svc).to.equal("${FONOSTER_ENV_FILE:-.env}");
+      // Never the whole .env: a compromised service must not read the others' secrets.
+      expect(s.env_file, svc).to.equal(undefined);
       expect(s.volumes, svc).to.include(
         `\${CONFIG_DIR:-./config}/${file}.yaml:/config/${file}.yaml:ro`
       );
-      // Settings come from the file, not from per-service variables.
-      expect(s.environment, svc).to.equal(undefined);
+      expect(
+        Object.keys(s.environment ?? {}).sort(),
+        `${svc}: environment`
+      ).to.deep.equal([...placeholders(`${file}.example.yaml`)].sort());
+      for (const [k, v] of Object.entries(s.environment ?? {}))
+        expect(v, `${svc}: ${k}`).to.match(
+          new RegExp(`^\\$\\{${k}(:[-?].*)?\\}$`)
+        );
     }
+  });
+
+  it("mounts Identity's private signing key into the API server only", function () {
+    // The host side of a volume: the text before the container path.
+    const source = (v: string) => v.replace(/:\/[^:]*(:ro)?$/, "");
+    expect(services.apiserver.volumes?.map(source)).to.include(
+      "${CONFIG_DIR:-./config}/keys"
+    );
+    for (const [svc, s] of Object.entries(services)) {
+      if (svc === "apiserver") continue;
+      for (const src of (s.volumes ?? []).map(source)) {
+        // Neither the whole keys folder nor the private key itself.
+        expect(src, `${svc}: ${src}`).to.not.match(/\/keys\/?$/);
+        expect(src, `${svc}: ${src}`).to.not.contain("private.pem");
+      }
+    }
+    expect(services.gateway.volumes).to.include.members([
+      "${CONFIG_DIR:-./config}/keys/public.pem:/etc/fonoster/keys/public.pem:ro",
+      "${CONFIG_DIR:-./config}/keys/records.pem:/etc/fonoster/keys/records.pem:ro"
+    ]);
   });
 
   it("never reuses a legacy install's volumes (same project name, fonoster)", function () {
@@ -248,9 +288,14 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     };
   }
 
-  it("writes configs each service loads with .env's values, and no secret in them", function () {
+  it("writes configs each service loads with only its own values from .env, and no secret in them", function () {
     const { dir, env } = install();
-    const loaded = loadApiserver(dir, env);
+    // What Compose passes each container: its `environment:` names, not the whole .env.
+    const only = (svc: string) =>
+      Object.fromEntries(
+        Object.keys(services[svc].environment ?? {}).map((k) => [k, env[k]])
+      );
+    const loaded = loadApiserver(dir, only("apiserver"));
     expect(loaded.regions?.hub).to.equal(undefined);
     expect(loaded.regions?.public[0].endpoints?.sip[0]).to.deep.equal({
       host: "192.0.2.10",
@@ -259,13 +304,24 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     });
     expect(loaded.telemetry?.otlpEndpoint).to.equal("");
 
-    const gw = loadGatewayConfig(path.join(dir, "gateway.yaml"), env);
+    const gw = loadGatewayConfig(
+      path.join(dir, "gateway.yaml"),
+      only("gateway")
+    );
     expect(gw.callRecord?.analytics).to.equal(undefined);
     expect(gw.testMode).to.not.equal(true);
     expect(gw.nats.password).to.equal(env.NATS_GATEWAY_PASSWORD);
 
-    const ap = loadHostedConfig(path.join(dir, "autopilot.yaml"), env);
+    const ap = loadHostedConfig(
+      path.join(dir, "autopilot.yaml"),
+      only("autopilot")
+    );
     expect(ap.database?.url).to.contain("@postgres:5432/fonoster");
+    // Autopilot checks signatures against the URL Autopilot apps get (apps.autopilotUrl).
+    expect(ap.publicUrl).to.equal(
+      (loaded as unknown as { apps: { autopilotUrl: string } }).apps
+        .autopilotUrl
+    );
 
     for (const f of [
       "fonoster.yaml",

@@ -18,6 +18,7 @@
  */
 import * as fs from "fs";
 import * as os from "os";
+import * as net from "net";
 import * as path from "path";
 import { expect } from "chai";
 import { CellSecrets, Registry } from "@fonoster/common";
@@ -39,6 +40,7 @@ import {
   eagerKnowledge,
   s3Knowledge,
   sessionAssistantSchema,
+  signedWorkspaceOnly,
   startHostedAutopilot
 } from "../../src/session";
 
@@ -46,6 +48,21 @@ import {
 // assistant comes from the app's record, the model from the provider registry, the key through a
 // credential ref (task 3.1), never from the scenario or Autopilot's environment.
 const SECRET = "hosted-autopilot";
+const SESSION_START = {
+  type: "session.start",
+  protocol: "fonoster.session.v1",
+  sessionRef: "s1",
+  callRef: "c1",
+  appRef: "app-1",
+  direction: "inbound",
+  from: "+1",
+  to: "+2",
+  metadata: {},
+  handoff: null,
+  audio: { codec: "pcm16", rate: 16000 },
+  tracks: [{ id: 1, side: "inbound", kind: "audio", codec: "pcm16" }],
+  speech: { voice: "fake/default", language: "en-US" }
+};
 
 function catalog(dir: string, options: { deprecate?: boolean } = {}) {
   const file = path.join(dir, "registry.json");
@@ -87,12 +104,26 @@ function catalog(dir: string, options: { deprecate?: boolean } = {}) {
   return { file, registry };
 }
 
-function writeConfig(
+/** A free local port: the hosted Autopilot checks signatures against its configured URL. */
+function freePort(): Promise<number> {
+  return new Promise((resolve) => {
+    const probe = net.createServer().listen(0, "127.0.0.1", () => {
+      const { port } = probe.address() as net.AddressInfo;
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+/** The app the config's assistants file holds, as the gateway signs for it. */
+const APP = { appRef: "app-1", workspaceRef: "ws-1" };
+
+async function writeConfig(
   dir: string,
   llmUrl: string,
   assistant: unknown,
   extra: Record<string, unknown> = {}
 ) {
+  const port = await freePort();
   catalog(dir);
   fs.writeFileSync(
     path.join(dir, "assistants.json"),
@@ -103,7 +134,8 @@ function writeConfig(
     file,
     JSON.stringify({
       host: "127.0.0.1",
-      port: 0,
+      port,
+      publicUrl: `ws://127.0.0.1:${port}/`,
       signingSecret: { value: SECRET },
       assistants: { file: "assistants.json" },
       registry: { file: "registry.json" },
@@ -131,13 +163,13 @@ describe("@autopilot/session hosted Autopilot", function () {
       const harness = await new FakesHarness().start();
       const assistant = interpolate(scenario.setup!.assistant!, harness.vars());
       const server = await startHostedAutopilot(
-        loadHostedConfig(writeConfig(dir, harness.llm.url, assistant))
+        loadHostedConfig(await writeConfig(dir, harness.llm.url, assistant))
       );
       try {
         const result = await runScenario(scenario, {
           harness,
           connect: () =>
-            new FakeGateway({ signingSecret: SECRET }).dial(
+            new FakeGateway({ signingSecret: SECRET, app: APP }).dial(
               `ws://127.0.0.1:${server.port}/`
             )
         });
@@ -201,11 +233,80 @@ describe("@autopilot/session hosted Autopilot", function () {
     );
   });
 
+  it("needs the URL Autopilot apps point to (publicUrl)", async function () {
+    const file = await writeConfig(dir, "http://127.0.0.1:1", {});
+    const config = JSON.parse(fs.readFileSync(file, "utf8"));
+    delete config.publicUrl;
+    fs.writeFileSync(file, JSON.stringify(config));
+    expect(() => loadHostedConfig(file)).to.throw(/publicUrl/);
+    fs.writeFileSync(
+      file,
+      JSON.stringify({ ...config, publicUrl: "http://autopilot:3000" })
+    );
+    expect(() => loadHostedConfig(file)).to.throw(
+      /publicUrl.*ws:\/\/ or wss:\/\//
+    );
+  });
+
+  it("refuses a signature that is not bound to the app, or names another app", async function () {
+    const harness = await new FakesHarness().start();
+    const server = await startHostedAutopilot(
+      loadHostedConfig(await writeConfig(dir, harness.llm.url, {}))
+    );
+    const url = `ws://127.0.0.1:${server.port}/`;
+    try {
+      // The URL-only signature (what a listener or an older gateway sends) is refused.
+      const unbound = await new FakeGateway({ signingSecret: SECRET })
+        .dial(url)
+        .then(
+          () => "",
+          (e: Error) => e.message
+        );
+      expect(unbound).to.contain("401");
+      // A signature for another app cannot start app-1's agent.
+      const peer = await new FakeGateway({
+        signingSecret: SECRET,
+        app: { appRef: "app-other", workspaceRef: "ws-other" }
+      }).dial(url);
+      const code = new Promise<number>((r) =>
+        peer.socket.once("close", (c: number) => r(c))
+      );
+      peer.sendJson({ ...SESSION_START, appRef: "app-1" });
+      expect(await code).to.equal(1008);
+    } finally {
+      await server.close();
+      await harness.stop();
+    }
+  });
+
+  it("serves an app only for the workspace the gateway signed for", function () {
+    const loaded = { assistant: {}, workspaceRef: "ws-1" };
+    const session = (workspaceRef?: string) => ({
+      appRef: "app-1",
+      signedFor:
+        workspaceRef === undefined
+          ? undefined
+          : { appRef: "app-1", workspaceRef }
+    });
+    expect(signedWorkspaceOnly(session("ws-1"), loaded)).to.equal(loaded);
+    expect(signedWorkspaceOnly(session("ws-other"), loaded)).to.equal(
+      undefined
+    );
+    expect(signedWorkspaceOnly(session(""), loaded)).to.equal(undefined);
+    // Without verification (development) or a workspace on file, nothing to compare.
+    expect(signedWorkspaceOnly(session(), loaded)).to.equal(loaded);
+    const noWorkspace = { assistant: {} };
+    expect(signedWorkspaceOnly(session("ws-1"), noWorkspace)).to.equal(
+      noWorkspace
+    );
+    expect(signedWorkspaceOnly(session("ws-1"), undefined)).to.equal(undefined);
+  });
+
   it("rejects a connection with a bad signature before loading any assistant", async function () {
     const harness = await new FakesHarness().start();
     const server = await startHostedAutopilot(
       loadHostedConfig(
-        writeConfig(dir, harness.llm.url, { not: "an assistant" })
+        await writeConfig(dir, harness.llm.url, { not: "an assistant" })
       )
     );
     try {
@@ -309,7 +410,7 @@ describe("@autopilot/session language models through the registry", function () 
       languageModel: { model: "openai/gpt-4o-mini" }
     };
     const server = await startHostedAutopilot(
-      loadHostedConfig(writeConfig(dir, harness.llm.url, assistant))
+      loadHostedConfig(await writeConfig(dir, harness.llm.url, assistant))
     );
     try {
       const scenario = {
@@ -329,7 +430,7 @@ describe("@autopilot/session language models through the registry", function () 
       const result = await runScenario(scenario as never, {
         harness,
         connect: () =>
-          new FakeGateway({ signingSecret: SECRET }).dial(
+          new FakeGateway({ signingSecret: SECRET, app: APP }).dial(
             `ws://127.0.0.1:${server.port}/`
           )
       });
@@ -502,7 +603,7 @@ describe("@autopilot/session assistants and keys from the database (CP-B11)", fu
     const file = path.join(dir, "autopilot.yaml");
     fs.writeFileSync(
       file,
-      "signingSecret: { value: s }\nassistants: { source: database }\nregistry: { file: r.json }\n"
+      "signingSecret: { value: s }\npublicUrl: ws://autopilot:3000\nassistants: { source: database }\nregistry: { file: r.json }\n"
     );
     expect(() => loadHostedConfig(file)).to.throw(/database section/);
     fs.appendFileSync(file, "database: { url: postgres://x/y }\n");
@@ -516,7 +617,7 @@ describe("@autopilot/session assistants and keys from the database (CP-B11)", fu
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ap-db-url-"));
     const file = path.join(dir, "autopilot.yaml");
     const base =
-      "signingSecret: { value: s }\nassistants: { source: database }\nregistry: { file: r.json }\n";
+      "signingSecret: { value: s }\npublicUrl: ws://autopilot:3000\nassistants: { source: database }\nregistry: { file: r.json }\n";
     const env = { APISERVER_DATABASE_URL: "postgres://from-env/fonoster" };
     // No url: the variable is not a fallback.
     fs.writeFileSync(file, base + "database: {}\n");
@@ -549,7 +650,7 @@ describe("@autopilot/session cell secrets (add-private-regions PR-9)", function 
     const yaml = path.join(dir, "autopilot.yaml");
     fs.writeFileSync(
       yaml,
-      `signingSecret: { value: s }\nassistants: { file: a.json }\nregistry: { file: r.json }\nworkspaceSecrets: { cellSecrets: { file: ${file}, keyEnv: AP_CELL_KEY } }\n`
+      `signingSecret: { value: s }\npublicUrl: ws://autopilot:3000\nassistants: { file: a.json }\nregistry: { file: r.json }\nworkspaceSecrets: { cellSecrets: { file: ${file}, keyEnv: AP_CELL_KEY } }\n`
     );
     expect(loadHostedConfig(yaml).workspaceSecrets).to.deep.equal({
       cellSecrets: { file, keyEnv: "AP_CELL_KEY" }

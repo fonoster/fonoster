@@ -26,7 +26,7 @@ import {
   telemetrySchema
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { VoiceServer } from "@fonoster/voice";
+import { Session, VoiceServer } from "@fonoster/voice";
 import * as yaml from "js-yaml";
 import { z } from "zod";
 import { SessionAssistant } from "./config";
@@ -54,6 +54,8 @@ const secretRef = z.union([
   z.object({ value: z.string() }).strict()
 ]);
 
+const wsUrl = z.string().regex(/^wss?:\/\//, "must be a ws:// or wss:// URL");
+
 export const hostedConfigSchema = z
   .object({
     host: z.string().default("0.0.0.0"),
@@ -65,6 +67,21 @@ export const hostedConfigSchema = z
     allowedDestinations: z.array(z.string()).optional(),
     /** The secret the gateway signs Autopilot sessions with (one for every Autopilot app). */
     signingSecret: secretRef,
+    /**
+     * The URL Autopilot apps point to, exactly as the apps have it (the apiserver's
+     * `apps.autopilotUrl`, e.g. ws://autopilot:3000), or several. Signatures are checked against
+     * it, never against the request's Host header.
+     */
+    publicUrl: z.union([wsUrl, z.array(wsUrl).min(1)], {
+      errorMap: (issue, ctx) => ({
+        message:
+          issue.code !== "invalid_union"
+            ? ctx.defaultError
+            : ctx.data === undefined
+              ? "is required: the URL Autopilot apps point to (the apiserver's apps.autopilotUrl)"
+              : "must be a ws:// or wss:// URL, or a list of them"
+      })
+    }),
     /**
      * Apps and their assistants: a file `{apps: {<appRef>: {workspaceRef?, assistant}}}` (JSON or
      * YAML), or `database`: the apps' Intelligence rows, cached for `cacheMs` (CP-B11).
@@ -466,7 +483,8 @@ export function hostedOptions(
     ? s3Knowledge(config.knowledge, credentials)
     : undefined;
   return {
-    load: (session) => assistants.get(session.appRef),
+    load: async (session) =>
+      signedWorkspaceOnly(session, await assistants.get(session.appRef)),
     allowedDestinations: config.allowedDestinations,
     llm: new RegistryLlmResolver({
       registry,
@@ -507,6 +525,24 @@ export function eagerKnowledge(
   };
 }
 
+/**
+ * The app's assistant only when the app belongs to the workspace the gateway signed for: one
+ * secret serves every Autopilot app, so a session is bound to its app and workspace
+ * (voice-session, "Connection requests are bound to the app").
+ */
+export function signedWorkspaceOnly(
+  session: Pick<Session, "appRef" | "signedFor">,
+  loaded: LoadedAssistant | undefined
+): LoadedAssistant | undefined {
+  const signed = session.signedFor;
+  if (!loaded || !signed || loaded.workspaceRef === undefined) return loaded;
+  if (signed.workspaceRef === loaded.workspaceRef) return loaded;
+  logger.warn("refused a session: the app is not in the signed workspace", {
+    appRef: session.appRef
+  });
+  return undefined;
+}
+
 /** Starts the hosted Autopilot. */
 export async function startHostedAutopilot(config: HostedConfig) {
   const secret = resolveSecret(config.signingSecret);
@@ -514,7 +550,11 @@ export async function startHostedAutopilot(config: HostedConfig) {
   const server = await new VoiceServer({
     host: config.host,
     port: config.port,
-    signingSecret: secret
+    signingSecret: secret,
+    // Every Autopilot app shares this secret: check the configured URL only (never Host) and
+    // require the signature bound to the app and workspace.
+    publicUrl: config.publicUrl,
+    requireAppBinding: true
   }).listen(createAutopilotHandler(hostedOptions(config)));
   logger.info(`hosted autopilot listening on ${config.host}:${server.port}`);
   return server;

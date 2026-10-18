@@ -22,7 +22,12 @@ import { SessionStart } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import WebSocket from "ws";
 import { Session } from "./Session";
-import { verifySignature } from "./signature";
+import {
+  AppBinding,
+  hasAppSignature,
+  verifyAppSignature,
+  verifySignature
+} from "./signature";
 
 const logger = getLogger({ service: "voice", filePath: __filename });
 
@@ -38,8 +43,18 @@ export type VoiceServerOptions = {
   signingSecret?: string;
   /** Turn verification off for local development only; every connection then logs a warning. */
   verifySignature?: boolean;
-  /** The app's URL as configured in Fonoster, when a proxy changes the host or scheme. */
-  publicUrl?: string;
+  /**
+   * The app's URL as configured in Fonoster (one or more). When set, signatures are checked
+   * against it only, never against a URL built from the request's Host header. Set it whenever
+   * a proxy changes the host or scheme, and always for a server several apps share.
+   */
+  publicUrl?: string | string[];
+  /**
+   * Require the app-bound signature (X-Fonoster-App-Signature): a connection without it is
+   * refused, and session.start must be for the app it was signed for. For a server several apps
+   * share one secret with, such as the hosted Autopilot.
+   */
+  requireAppBinding?: boolean;
   /** How long to wait for session.start after the socket opens (default 5 s). */
   startTimeoutMs?: number;
 };
@@ -114,19 +129,24 @@ export class VoiceServer {
       socket.end("HTTP/1.1 404 Not Found\r\n\r\n");
       return;
     }
+    let binding: AppBinding | undefined;
     if (this.verify) {
-      const result = verifySignature(
-        this.candidateUrls(req),
-        req.headers,
-        this.secret!
-      );
+      const urls = this.candidateUrls(req);
+      // The app-bound signature when the gateway sent one (or it is required); a bad one is
+      // refused even if the URL-only signature matches.
+      const bound =
+        this.options.requireAppBinding || hasAppSignature(req.headers)
+          ? verifyAppSignature(urls, req.headers, this.secret!)
+          : undefined;
+      const result = bound ?? verifySignature(urls, req.headers, this.secret!);
       if (!result.ok) {
         logger.warn(
-          `rejected a session connection: signature ${result.reason}`
+          `rejected a session connection: ${bound ? "app " : ""}signature ${result.reason}`
         );
         socket.end("HTTP/1.1 401 Unauthorized\r\n\r\n");
         return;
       }
+      binding = bound?.binding;
     } else {
       logger.warn(
         "accepted a session connection without signature verification (development only)"
@@ -136,12 +156,14 @@ export class VoiceServer {
       req,
       socket as Parameters<WebSocket.Server["handleUpgrade"]>[1],
       head,
-      (ws) => this.run(ws)
+      (ws) => this.run(ws, binding)
     );
   }
 
   private candidateUrls(req: http.IncomingMessage): string[] {
-    if (this.options.publicUrl) return [this.options.publicUrl];
+    const configured = this.options.publicUrl;
+    if (configured)
+      return Array.isArray(configured) ? configured : [configured];
     const host = req.headers["x-forwarded-host"] ?? req.headers.host;
     // An app URL without a path (ws://autopilot:3000) arrives as "/": accept both spellings.
     const paths = req.url === "/" ? ["/", ""] : [req.url];
@@ -150,8 +172,9 @@ export class VoiceServer {
     );
   }
 
-  private run(ws: WebSocket) {
+  private run(ws: WebSocket, binding?: AppBinding) {
     let session: Session | undefined;
+    let refused = false;
     const timer = setTimeout(() => {
       if (!session) ws.close(1008, "no session.start");
     }, this.options.startTimeoutMs ?? 5000);
@@ -159,7 +182,7 @@ export class VoiceServer {
     ws.on("message", (raw: WebSocket.Data, isBinary: boolean) => {
       const data = raw as Buffer;
       if (session) return session.receive(data, isBinary);
-      if (isBinary) return;
+      if (isBinary || refused) return;
       let start: SessionStart;
       try {
         start = JSON.parse(data.toString());
@@ -168,13 +191,27 @@ export class VoiceServer {
       }
       if (start.type !== "session.start") return;
       clearTimeout(timer);
-      session = new Session(start, {
-        sendJson: (m) =>
-          ws.readyState === WebSocket.OPEN && ws.send(JSON.stringify(m)),
-        sendBinary: (b) =>
-          ws.readyState === WebSocket.OPEN && ws.send(b, { binary: true }),
-        close: () => ws.readyState === WebSocket.OPEN && ws.close(1000)
-      });
+      // A signature made for one app never opens a session for another.
+      if (binding && start.appRef !== binding.appRef) {
+        logger.warn("rejected a session: session.start names another app", {
+          signedFor: binding.appRef,
+          appRef: start.appRef
+        });
+        refused = true;
+        ws.close(1008, "session.start does not match the signed app");
+        return;
+      }
+      session = new Session(
+        start,
+        {
+          sendJson: (m) =>
+            ws.readyState === WebSocket.OPEN && ws.send(JSON.stringify(m)),
+          sendBinary: (b) =>
+            ws.readyState === WebSocket.OPEN && ws.send(b, { binary: true }),
+          close: () => ws.readyState === WebSocket.OPEN && ws.close(1000)
+        },
+        binding
+      );
       void this.invoke(session);
     });
     ws.on("close", () => {

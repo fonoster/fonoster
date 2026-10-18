@@ -6,6 +6,9 @@ host: 0.0.0.0
 port: 50061
 # The secret the gateway signs Autopilot sessions with (the same for every Autopilot app).
 signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
+# The URL Autopilot apps point to, exactly as the apiserver's apps.autopilotUrl (or a list):
+# signatures are checked against it, never against the request's Host header.
+publicUrl: "ws://autopilot:50061"
 # Apps and their assistants: {apps: {<appRef>: {workspaceRef, assistant}}} (JSON or YAML), or
 # the Autopilot apps managed in the dashboard/API (needs `database`):
 #   assistants: { source: database, cacheMs: 5000 }

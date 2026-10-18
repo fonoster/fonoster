@@ -30,7 +30,7 @@ import * as os from "os";
 import * as path from "path";
 import { expect } from "chai";
 import { connect, NatsConnection, StringCodec } from "nats";
-import { Sessions } from "@fonoster/common";
+import { natsInboxPrefix, Sessions } from "@fonoster/common";
 
 const ROOT = path.join(__dirname, "..", "..", "..");
 const ENABLED = process.env.NATS_ACL_TEST === "docker";
@@ -80,15 +80,28 @@ function stopServer(s?: Server) {
   }
 }
 
-async function as(server: Server, user: string): Promise<NatsConnection> {
+/**
+ * Connects as `user` the way the services do (natsConnectOptions): replies under the user's own
+ * inbox prefix. `inboxPrefix: null` keeps the client's default `_INBOX.` prefix.
+ */
+async function as(
+  server: Server,
+  user: string,
+  options: { inboxPrefix?: string | null } = {}
+): Promise<NatsConnection> {
   const deadline = Date.now() + 10000;
+  const inboxPrefix =
+    options.inboxPrefix === null
+      ? undefined
+      : (options.inboxPrefix ?? natsInboxPrefix(user));
   for (;;) {
     try {
       return await connect({
         servers: server.url,
         user,
         pass: password(user),
-        name: `acl-${user}`
+        name: `acl-${user}`,
+        ...(inboxPrefix ? { inboxPrefix } : {})
       });
     } catch (e) {
       if (Date.now() > deadline) throw e;
@@ -116,6 +129,30 @@ async function delivered(
   await from.flush().catch(() => undefined);
   await sleep(250);
   sub.unsubscribe();
+  return got;
+}
+
+/**
+ * Subscribes `listener` to each subject and reports whether any message arrived while `act` ran
+ * (a refused subscription calls back with an error, never with a message).
+ */
+async function overheard(
+  listener: NatsConnection,
+  subjects: string[],
+  act: () => Promise<unknown>
+): Promise<boolean> {
+  let got = false;
+  const subs = subjects.map((s) =>
+    listener.subscribe(s, {
+      callback: (err) => {
+        if (!err) got = true;
+      }
+    })
+  );
+  await listener.flush().catch(() => undefined);
+  await act();
+  await sleep(250);
+  for (const sub of subs) sub.unsubscribe();
   return got;
 }
 
@@ -286,6 +323,66 @@ describe("@conformance/nats permissions (per-service users)", function () {
     );
   });
 
+  it("keeps each service's replies to itself (per-user inbox prefixes)", async function () {
+    // The node answers the gateway's media-control request with something private.
+    const cmds = node.subscribe("media.n9.commands", {
+      callback: (_e, m) => m.respond(sc.encode('{"secret":"reply"}'))
+    });
+    await node.flush();
+    // Another service, a second media node and Routr try every inbox they could read.
+    const otherNode = await as(main!, "medianode");
+    conns.push(otherNode);
+    const inboxes = ["_INBOX.>", `${natsInboxPrefix("gateway")}.>`];
+    for (const eavesdropper of [api, otherNode, routr]) {
+      let answered = "";
+      const heard = await overheard(eavesdropper, inboxes, async () => {
+        const reply = await gw.request("media.n9.commands", sc.encode("{}"), {
+          timeout: 2000
+        });
+        answered = sc.decode(reply.data);
+      });
+      expect(answered).to.equal('{"secret":"reply"}');
+      expect(heard).to.equal(false);
+    }
+    // ...and the control plane's replies stay its own too.
+    const gwHeard = await overheard(
+      gw,
+      ["_INBOX.>", `${natsInboxPrefix("apiserver")}.>`],
+      () => api.request("media.n9.commands", sc.encode("{}"), { timeout: 2000 })
+    );
+    expect(gwHeard).to.equal(false);
+    cmds.unsubscribe();
+  });
+
+  it("refuses replies to a client that keeps the shared _INBOX prefix", async function () {
+    const cmds = node.subscribe("media.n8.commands", {
+      callback: (_e, m) => m.respond(sc.encode('{"type":"ack"}'))
+    });
+    await node.flush();
+    const shared = await as(main!, "gateway", { inboxPrefix: null });
+    conns.push(shared);
+    const ok = await shared
+      .request("media.n8.commands", sc.encode("{}"), { timeout: 1000 })
+      .then(
+        () => true,
+        () => false
+      );
+    expect(ok).to.equal(false);
+    // A prefix of another user is refused the same way.
+    const borrowed = await as(main!, "gateway", {
+      inboxPrefix: natsInboxPrefix("apiserver")
+    });
+    conns.push(borrowed);
+    const ok2 = await borrowed
+      .request("media.n8.commands", sc.encode("{}"), { timeout: 1000 })
+      .then(
+        () => true,
+        () => false
+      );
+    expect(ok2).to.equal(false);
+    cmds.unsubscribe();
+  });
+
   it("lets each service write only its own session-registry entries", async function () {
     const nodeKv = await Sessions.openSessions(node);
     const gwKv = await Sessions.openSessions(gw);
@@ -342,6 +439,16 @@ describe("@conformance/nats permissions (per-service users)", function () {
     await cgw.request("cell.workspacekeys.get", sc.encode("{}"), {
       timeout: 2000
     });
+    // The key in the reply reaches the gateway only: the media node cannot read its inbox.
+    const heard = await overheard(
+      cnode,
+      ["_INBOX.>", `${natsInboxPrefix("gateway")}.>`],
+      () =>
+        cgw.request("cell.workspacekeys.get", sc.encode("{}"), {
+          timeout: 2000
+        })
+    );
+    expect(heard).to.equal(false);
     keys.unsubscribe();
     expect(await delivered(cgw, agent, "callrecord.sealed")).to.equal(true);
     expect(await delivered(cnode, agent, "media.n1.heartbeat")).to.equal(true);

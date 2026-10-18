@@ -4,6 +4,8 @@ port: 3000
 # The secret the gateway signs Autopilot sessions with: every Autopilot app's signing secret
 # (the apiserver's apps.autopilotSigningSecret).
 signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
+# The URL the Autopilot apps point to (the apiserver's apps.autopilotUrl).
+publicUrl: "ws://autopilot:3000"
 # Assistants (the Autopilot apps' Intelligence rows), the catalog (registry tables) and workspace
 # vendor keys come from the apiserver's database.
 assistants: { source: database }

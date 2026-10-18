@@ -1,5 +1,6 @@
 {{- if .Values.autopilot.enabled }}
 {{- $a := .Values.autopilot }}
+{{- $cfg := tpl (toYaml $a.config) . | fromYaml }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,7 +9,7 @@ metadata:
     {{- include "fonoster-rebuild.labels" . | nindent 4 }}
 data:
   autopilot-session.yaml: |
-    {{- toYaml $a.config | nindent 4 }}
+    {{- toYaml $cfg | nindent 4 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,7 +30,7 @@ spec:
         app.kubernetes.io/name: autopilot
         app.kubernetes.io/instance: {{ .Release.Name }}
       annotations:
-        checksum/config: {{ toYaml $a.config | sha256sum }}
+        checksum/config: {{ toYaml $cfg | sha256sum }}
     spec:
       containers:
         - name: autopilot

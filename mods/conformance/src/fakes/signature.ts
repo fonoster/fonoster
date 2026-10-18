@@ -23,6 +23,11 @@ import { createHmac, timingSafeEqual } from "crypto";
 // ±300 s window.
 export const SIGNATURE_HEADER = "x-fonoster-signature";
 export const TIMESTAMP_HEADER = "x-fonoster-timestamp";
+// "Connection requests are bound to the app": the app, its workspace and an HMAC over
+// "<timestamp>\n<url>\n<appRef>\n<workspaceRef>".
+export const APP_REF_HEADER = "x-fonoster-app-ref";
+export const WORKSPACE_REF_HEADER = "x-fonoster-workspace-ref";
+export const APP_SIGNATURE_HEADER = "x-fonoster-app-signature";
 export const MAX_SKEW_SECONDS = 300;
 
 const nowSeconds = () => Math.floor(Date.now() / 1000);
@@ -33,14 +38,37 @@ export function sign(url: string, timestamp: number, secret: string): string {
     .digest("hex");
 }
 
+export type AppBinding = { appRef: string; workspaceRef?: string };
+
+export function signApp(
+  url: string,
+  timestamp: number,
+  binding: AppBinding,
+  secret: string
+): string {
+  return createHmac("sha256", secret)
+    .update(
+      [timestamp, url, binding.appRef, binding.workspaceRef ?? ""].join("\n")
+    )
+    .digest("hex");
+}
+
 export function signatureHeaders(
   url: string,
   secret: string,
-  now = nowSeconds()
+  now = nowSeconds(),
+  binding?: AppBinding
 ): Record<string, string> {
   return {
     [SIGNATURE_HEADER]: sign(url, now, secret),
-    [TIMESTAMP_HEADER]: String(now)
+    [TIMESTAMP_HEADER]: String(now),
+    ...(binding
+      ? {
+          [APP_REF_HEADER]: binding.appRef,
+          [WORKSPACE_REF_HEADER]: binding.workspaceRef ?? "",
+          [APP_SIGNATURE_HEADER]: signApp(url, now, binding, secret)
+        }
+      : {})
   };
 }
 

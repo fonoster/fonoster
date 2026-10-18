@@ -1,8 +1,10 @@
 # The development layer on the self-host bundle (add-self-host-installer D6). ops/bundle/compose.yaml
 # is the one Compose source; this override only adds what a checkout needs: images built from
-# source, the fake providers, the SIP caller bot, the region hub and the gateway's HTTP port. Vendor
-# keys reach the services through .local/services.env (env_file) as ${NAME} in the overlays. `ops/rebuild/stack up` (docs/try-the-new-platform.md) generates the secrets into
-# ops/rebuild/.local, renders the service configs from ops/bundle/config/*.example.* and runs
+# source, the fake providers, the SIP caller bot, the region hub and the gateway's HTTP port. The
+# stack's overlays name a few more ${NAME}s (vendor keys, the leaf port); each service below gets
+# only its own, added to the bundle's per-service `environment:`. `ops/rebuild/stack up`
+# (docs/try-the-new-platform.md) generates the secrets into ops/rebuild/.local, renders the
+# service configs from ops/bundle/config/*.example.* and runs
 #
 #   docker compose --project-directory ops/rebuild \
 #     -f ops/bundle/compose.yaml -f ops/rebuild/compose.yaml \
@@ -24,6 +26,10 @@ services:
       context: ../..
       dockerfile: mods/gateway/Dockerfile
     image: ${RB_REGISTRY:-fonoster}/gateway:${RB_TAG:-dev}
+    # Speech vendor keys named by the stack's gateway overlay (empty = the fake providers).
+    environment:
+      DEEPGRAM_API_KEY: ${DEEPGRAM_API_KEY:-}
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
     ports:
       - "${RB_GATEWAY_PORT:-8080}:8080"
 
@@ -32,12 +38,19 @@ services:
       context: ../..
       dockerfile: mods/autopilot/Dockerfile
     image: ${RB_REGISTRY:-fonoster}/autopilot:${RB_TAG:-dev}
+    # Language-model keys named by the stack's Autopilot overlay (empty = the fake LLM).
+    environment:
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
 
   apiserver:
     build:
       context: ../..
       dockerfile: ops/rebuild/docker/apiserver.Dockerfile
     image: ${RB_REGISTRY:-fonoster}/apiserver:${RB_TAG:-dev}
+    # The region hub's leaf port, named by the stack's API server overlay.
+    environment:
+      LEAF_PORT: ${LEAF_PORT:-7422}
     depends_on:
       nats-regions: { condition: service_healthy, required: false }
 

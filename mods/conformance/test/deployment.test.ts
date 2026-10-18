@@ -251,6 +251,9 @@ describe("@conformance/deployment (Helm chart)", function () {
       );
       expect(ap.port).to.equal(3000);
       expect(ap.database?.url).to.equal("postgresql://u:p@db:5432/fonoster");
+      // Autopilot checks signatures against the URL the apps get, never the Host header.
+      expect(ap.publicUrl).to.equal(api.apps.autopilotUrl);
+      expect(ap.publicUrl).to.equal("ws://fonoster-autopilot:3000");
     } finally {
       process.env = saved;
     }

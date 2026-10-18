@@ -20,7 +20,7 @@ import { SessionStart } from "@fonoster/common";
 import WebSocket from "ws";
 import { convert, INTERNAL, parseCodec } from "../audio/pcm";
 import { AGENT_TRACK_ID, CALLER_TRACK_ID } from "../protocols/fonoster";
-import { signatureHeaders } from "../signing";
+import { AppBinding, signatureHeaders } from "../signing";
 
 export type ListenerTracks = "inbound" | "outbound" | "both";
 
@@ -57,14 +57,16 @@ export class Listener {
     socket.on("error", () => undefined);
   }
 
+  /** Dials a listener, signed with the app's secret and bound to the app (and workspace). */
   static async connect(
     url: string,
     secret: string,
+    binding: AppBinding,
     timeoutMs = 2000
   ): Promise<WebSocket> {
     return new Promise((resolve, reject) => {
       const socket = new WebSocket(url, {
-        headers: signatureHeaders(url, secret),
+        headers: signatureHeaders(url, secret, undefined, binding),
         handshakeTimeout: timeoutMs
       });
       socket.once("open", () => resolve(socket));

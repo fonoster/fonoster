@@ -225,6 +225,11 @@ reached, and SHALL stop all work when the session ends.
 
 Autopilot SHALL run as a hosted `VoiceServer` and SHALL use only public session messages of the
 fonoster protocol. It MUST NOT depend on any private interface to the gateway or the media node.
+Because every Autopilot app shares one signing secret, the hosted Autopilot SHALL require its
+`publicUrl` (the URL Autopilot apps point to) and verify signatures against it only, never against
+the request's `Host` header; it SHALL require the app-bound signature (`voice-session`,
+"Connection requests are bound to the app") and serve a session only when `session.start` names
+the signed app and that app belongs to the signed workspace.
 
 #### Scenario: A call reaches Autopilot like any app
 
@@ -237,4 +242,15 @@ fonoster protocol. It MUST NOT depend on any private interface to the gateway or
 
 - **WHEN** a connection arrives without a valid signature
 - **THEN** Autopilot rejects it before loading any assistant
+
+#### Scenario: Signature for another tenant's app
+
+- **WHEN** a connection carries a valid signature bound to app A of workspace W1 and its
+  `session.start` names app B, or app A no longer belongs to W1
+- **THEN** Autopilot closes the session without running app B's (or A's) assistant
+
+#### Scenario: Missing public URL
+
+- **WHEN** the hosted Autopilot's config has no `publicUrl`
+- **THEN** it refuses to start, naming `publicUrl`
 
