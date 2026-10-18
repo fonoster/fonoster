@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
 	"google.golang.org/protobuf/encoding/protowire"
@@ -30,7 +31,7 @@ type fake struct {
 	url      string
 	digits   string
 	ended    string
-	maxDur   time.Duration
+	roomOpts node.RoomOptions
 	leaveRef string
 }
 
@@ -42,8 +43,8 @@ func (f *fake) CreateCall(req node.CallRequest) (node.CallInfo, error) {
 	return node.CallInfo{CallRef: req.CallRef, RoomRef: "room-1", State: node.CallRinging}, nil
 }
 func (f *fake) EndCall(ref string) error { f.ended = ref; return f.err }
-func (f *fake) CreateRoom(ref string, d time.Duration) (string, error) {
-	f.room, f.maxDur = ref, d
+func (f *fake) CreateRoom(ref string, o node.RoomOptions) (string, error) {
+	f.room, f.roomOpts = ref, o
 	if f.err != nil {
 		return "", f.err
 	}
@@ -133,7 +134,7 @@ func TestCreateCallPassesTheTargetThrough(t *testing.T) {
 	call, err := c.CreateCall(ctx(t), &roomrv1.CreateCallRequest{CallRef: "c1", From: "+15550001",
 		To: &roomrv1.SipTarget{Uri: "sip:+15551234567@carrier", Proxy: "sip:proxy:5060",
 			Headers: map[string]string{"X-Tenant": "t1"}, Auth: &roomrv1.SipAuth{Username: "u", Password: "p"}},
-		RoomRef: "r1", RingTimeoutS: 20, MaxDurationS: 600, Labels: map[string]string{"tenant": "t1"}})
+		RoomRef: "r1", RingTimeoutS: 20, MaxDurationS: 600, Metadata: map[string]string{"tenant": "t1"}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -143,7 +144,7 @@ func TestCreateCallPassesTheTargetThrough(t *testing.T) {
 	r := f.call
 	if r.To.URI != "sip:+15551234567@carrier" || r.To.Proxy != "sip:proxy:5060" || r.To.Headers["X-Tenant"] != "t1" ||
 		r.To.Username != "u" || r.To.Password != "p" || r.From != "+15550001" || r.RoomRef != "r1" ||
-		r.RingTimeout != 20*time.Second || r.MaxDuration != 10*time.Minute || r.Labels["tenant"] != "t1" {
+		r.RingTimeout != 20*time.Second || r.MaxDuration != 10*time.Minute || r.Metadata["tenant"] != "t1" {
 		t.Fatalf("request = %+v", r)
 	}
 }
@@ -159,7 +160,6 @@ func TestCreateCallRefusals(t *testing.T) {
 		{"no uri", nil, &roomrv1.CreateCallRequest{CallRef: "c1"}, codes.InvalidArgument, node.CodeBadMessage},
 		{"session override", nil, &roomrv1.CreateCallRequest{To: &roomrv1.SipTarget{Uri: "sip:a@b"}, Session: "x:1"},
 			codes.Unimplemented, node.CodeNotSupported},
-		{"draining", &node.Error{Code: node.CodeDraining}, nil, codes.Unavailable, node.CodeDraining},
 		{"at the room limit", &node.Error{Code: node.CodeAtCapacity}, nil, codes.ResourceExhausted, node.CodeAtCapacity},
 		{"bad header", &node.Error{Code: node.CodeBadMessage, Message: "header Via is set by the node"}, nil,
 			codes.InvalidArgument, node.CodeBadMessage},
@@ -216,16 +216,18 @@ func TestUnknownFieldIgnored(t *testing.T) {
 func TestRooms(t *testing.T) {
 	f := &fake{}
 	c := dial(t, f)
-	room, err := c.CreateRoom(ctx(t), &roomrv1.CreateRoomRequest{RoomRef: "lobby", MaxDurationS: 60})
-	if err != nil || room.RoomRef != "lobby" || f.maxDur != time.Minute {
-		t.Fatalf("room %v err %v", room, err)
+	room, err := c.CreateRoom(ctx(t), &roomrv1.CreateRoomRequest{RoomRef: "lobby", MaxDurationS: 60,
+		EmptyTimeoutS: 5, MaxParticipants: 3})
+	if err != nil || room.RoomRef != "lobby" || f.roomOpts != (node.RoomOptions{MaxDuration: time.Minute,
+		EmptyTimeout: 5 * time.Second, MaxParticipants: 3}) {
+		t.Fatalf("room %v err %v opts %+v", room, err, f.roomOpts)
 	}
 	f.err = &node.Error{Code: node.CodeRoomExists}
 	_, err = c.CreateRoom(ctx(t), &roomrv1.CreateRoomRequest{RoomRef: "lobby"})
 	wantCode(t, err, codes.AlreadyExists, node.CodeRoomExists)
-	f.err = &node.Error{Code: node.CodeDraining}
+	f.err = &node.Error{Code: node.CodeAtCapacity}
 	_, err = c.CreateRoom(ctx(t), &roomrv1.CreateRoomRequest{})
-	wantCode(t, err, codes.Unavailable, node.CodeDraining)
+	wantCode(t, err, codes.ResourceExhausted, node.CodeAtCapacity)
 	f.err = &node.Error{Code: node.CodeRoomNotFound}
 	_, err = c.EndRoom(ctx(t), &roomrv1.EndRoomRequest{RoomRef: "gone"})
 	wantCode(t, err, codes.NotFound, node.CodeRoomNotFound)
@@ -282,7 +284,6 @@ func TestJoin(t *testing.T) {
 		{node.CodeRoomFull, codes.ResourceExhausted},
 		{node.CodeRoomNotFound, codes.NotFound},
 		{"unsupported_codec", codes.InvalidArgument},
-		{node.CodeEncryptionRequired, codes.FailedPrecondition},
 		{node.CodeBadMessage, codes.InvalidArgument},
 	}
 	for _, tc := range backend {
@@ -340,9 +341,9 @@ func TestOperations(t *testing.T) {
 // TestEveryNodeCodeIsMapped: each code the node and its NATS handlers return has a deliberate
 // gRPC code (nothing falls through to INTERNAL by accident).
 func TestEveryNodeCodeIsMapped(t *testing.T) {
-	for _, code := range []string{node.CodeDraining, node.CodeAtCapacity, node.CodeRoomExists, node.CodeRoomNotFound,
+	for _, code := range []string{node.CodeAtCapacity, node.CodeRoomExists, node.CodeRoomNotFound,
 		node.CodeCallNotFound, node.CodeParticipantNotFound, node.CodeRoomFull, node.CodeBadMessage,
-		node.CodeNotSupported, node.CodeCallNotAnswered, node.CodeNoDTMF, node.CodeEncryptionRequired,
+		node.CodeNotSupported, node.CodeCallNotAnswered, node.CodeNoDTMF,
 		node.CodeInternal, "unsupported_codec", "unsupported_track_kind", "listener_not_found"} {
 		if _, ok := codeFor[code]; !ok {
 			t.Errorf("%s has no gRPC code", code)
@@ -365,5 +366,35 @@ func TestListenServesPlaintext(t *testing.T) {
 	room, err := roomrv1.NewRoomrClient(conn).CreateRoom(ctx(t), &roomrv1.CreateRoomRequest{})
 	if err != nil || room.RoomRef != "room-new" {
 		t.Fatalf("room %v err %v", room, err)
+	}
+}
+
+// The standard health service answers SERVING, then NOT_SERVING once a drain begins, while the
+// Roomr RPCs keep working for live calls.
+func TestHealthServingThenNotServing(t *testing.T) {
+	s, err := Listen("127.0.0.1:0", &fake{}, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	go func() { _ = s.Serve() }()
+	defer s.Stop()
+	conn, err := grpc.NewClient(s.Addr(), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+	h := healthpb.NewHealthClient(conn)
+	check := func(want healthpb.HealthCheckResponse_ServingStatus) {
+		t.Helper()
+		res, err := h.Check(ctx(t), &healthpb.HealthCheckRequest{})
+		if err != nil || res.Status != want {
+			t.Fatalf("health = %v, %v; want %v", res, err, want)
+		}
+	}
+	check(healthpb.HealthCheckResponse_SERVING)
+	s.NotServing()
+	check(healthpb.HealthCheckResponse_NOT_SERVING)
+	if _, err := roomrv1.NewRoomrClient(conn).CreateRoom(ctx(t), &roomrv1.CreateRoomRequest{}); err != nil {
+		t.Fatalf("CreateRoom while not serving: %v", err)
 	}
 }

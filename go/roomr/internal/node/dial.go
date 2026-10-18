@@ -60,11 +60,6 @@ func (r *Room) dialLeg(dial dialFunc, onRinging func()) (*Participant, error) {
 		}
 		offer.Codecs = append(offer.Codecs, sdp.Codec{PT: pt, Name: name})
 	}
-	localKey := ""
-	if r.node.cfg.RequireEncryption {
-		localKey = rtpio.NewSRTPKey()
-		offer.Crypto = &sdp.Crypto{Tag: 1, Suite: rtpio.SRTPSuite, Key: localKey}
-	}
 	ringing := false
 	leg, answer, err := dial(sdp.WriteDescription(offer), func(status int) {
 		if (status == 180 || status == 183) && !ringing {
@@ -94,21 +89,8 @@ func (r *Room) dialLeg(dial dialFunc, onRinging func()) (*Participant, error) {
 		ep.Close()
 		return nil, err
 	}
-	if localKey != "" {
-		remote := ""
-		for _, c := range media.Crypto {
-			if c.Suite == rtpio.SRTPSuite {
-				remote = c.Key
-			}
-		}
-		if !media.Secure || remote == "" || ep.SetSRTP(localKey, remote) != nil {
-			_ = leg.Bye()
-			ep.Close()
-			return nil, &DialError{Status: 488}
-		}
-	}
 	p := newParticipant(r.node.nextRef("p-dialed"), KindPhone, codecName, codec, ep, pt)
-	p.out, p.media, p.answered, p.srtpKey = leg, media, true, localKey
+	p.out, p.media, p.answered = leg, media, true
 	if err := r.add(p); err != nil {
 		_ = leg.Bye()
 		ep.Close()

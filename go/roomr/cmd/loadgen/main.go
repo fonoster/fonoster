@@ -9,9 +9,8 @@
 //   - optional impairment on the caller → node direction: -loss, -jitter, -reorder.
 //
 // At the end it prints one JSON report: frames the session side expected and received (sequence
-// gaps), the node's own counters (GET /stats on its debug endpoint: missed clock ticks, jitter
-// buffer late/overflow/lost), keypresses injected and reported, and the node's CPU when -pid is
-// given. Start the node with GOMAXPROCS=2 to approximate 2 vCPU.
+// gaps), the node's last heartbeat (rooms and participants it held), keypresses injected and
+// reported, and the node's CPU when -pid is given. Start the node with GOMAXPROCS=2 to approximate 2 vCPU.
 package main
 
 import (
@@ -21,7 +20,6 @@ import (
 	"log"
 	"math"
 	"math/rand"
-	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
@@ -81,7 +79,6 @@ func main() {
 	natsURL := flag.String("nats", "nats://127.0.0.1:4222", "NATS URL")
 	nodeID := flag.String("node-id", "", "the node's id")
 	target := flag.String("sip", "127.0.0.1:5060", "the node's SIP address")
-	debug := flag.String("debug", "", "the node's debug address (for /stats)")
 	calls := flag.Int("calls", 200, "concurrent calls")
 	rate := flag.Float64("rate", 20, "new calls per second")
 	duration := flag.Duration("duration", time.Minute, "how long all calls stay up together")
@@ -169,6 +166,14 @@ func main() {
 		dtmfByRoom[ev["roomRef"].(string)]++
 		mu.Unlock()
 	})
+	// The node's heartbeat (roomr.nodes.<id>.heartbeat) is what it reports about itself.
+	var beat atomic.Value
+	_, _ = nc.Subscribe("roomr.nodes."+*nodeID+".heartbeat", func(m *nats.Msg) {
+		var hb map[string]any
+		if json.Unmarshal(m.Data, &hb) == nil && hb["type"] == "node.heartbeat" {
+			beat.Store(hb)
+		}
+	})
 	_ = nc.Flush()
 
 	impair := ""
@@ -225,7 +230,6 @@ func main() {
 	log.Printf("%d/%d calls answered in %.1fs; holding for %v", answered, len(placed), setupSecs, *duration)
 
 	// Reset counters at the start of the measured window.
-	stats0 := nodeStats(*debug)
 	mu.Lock()
 	for _, s := range sessions {
 		s.mu.Lock()
@@ -311,7 +315,6 @@ func main() {
 		heardTotal += c.Status().HeardMs - heard0[c.ID]
 		heardExpected += int(window.Milliseconds())
 	}
-	stats1 := nodeStats(*debug)
 	time.Sleep(time.Second) // let the last keypresses land
 	close(stop)
 	wg.Wait()
@@ -333,7 +336,7 @@ func main() {
 		CallerSide:  map[string]any{"heardMs": heardTotal, "expectedMs": heardExpected},
 		DTMF: map[string]any{"injectedPerCall": injected, "expected": injected * answered, "reported": dtmfReported,
 			"roomsExact": roomsExact, "roomsWithAny": rooms},
-		Node: diffStats(stats0, stats1),
+		Node: beat.Load(),
 	}
 	if len(cpu) > 0 {
 		var sum, peak float64
@@ -350,40 +353,6 @@ func main() {
 		_ = c.Hangup()
 	}
 	time.Sleep(time.Second)
-}
-
-func nodeStats(debug string) map[string]any {
-	if debug == "" {
-		return nil
-	}
-	res, err := http.Get("http://" + debug + "/stats")
-	if err != nil {
-		return nil
-	}
-	defer res.Body.Close()
-	var s map[string]any
-	_ = json.NewDecoder(res.Body).Decode(&s)
-	return s
-}
-
-// diffStats subtracts numeric counters (nested one level) so the report covers the window only.
-func diffStats(a, b map[string]any) map[string]any {
-	if b == nil {
-		return nil
-	}
-	out := map[string]any{}
-	for k, v := range b {
-		switch bv := v.(type) {
-		case float64:
-			av, _ := a[k].(float64)
-			out[k] = bv - av
-		case map[string]any:
-			am, _ := a[k].(map[string]any)
-			out[k] = diffStats(am, bv)
-		}
-	}
-	out["rooms"] = b["rooms"]
-	return out
 }
 
 func psCPU(pid int) (float64, error) {

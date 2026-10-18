@@ -106,7 +106,7 @@ describe("@conformance Roomr CreateCall over gRPC (Go node)", function () {
   const received = async () =>
     (await node.botCalls()).calls.filter((c) => c.requestUri);
 
-  it("dials into a new room: Call RINGING, then call.ringing and call.answered with the labels; headers reach the INVITE byte for byte", async function () {
+  it("dials into a new room: Call RINGING, then call.ringing and call.answered with the metadata; headers reach the INVITE byte for byte", async function () {
     const ref = randomUUID();
     const headers = {
       "X-DOD-Number": "+15550002",
@@ -115,12 +115,12 @@ describe("@conformance Roomr CreateCall over gRPC (Go node)", function () {
     const call = await roomr.createCall(node.controlAddr, {
       callRef: ref,
       to: target(headers),
-      labels: { tenant: "t1" }
+      metadata: { tenant: "t1" }
     });
     expect(call).to.include({ callRef: ref, state: "RINGING" });
     expect(call.roomRef).to.not.equal("");
     const answered = await event(ref, "call.answered");
-    expect(answered.labels).to.deep.equal({ tenant: "t1" });
+    expect(answered.metadata).to.deep.equal({ tenant: "t1" });
     expect(typesOf(ref).slice(0, 3)).to.deep.equal([
       "call.started",
       "call.ringing",
@@ -234,13 +234,11 @@ describe("@conformance Roomr CreateCall over gRPC (Go node)", function () {
 });
 
 describe("@conformance fake Roomr node (controller fakes)", function () {
-  it("keeps the node's CreateCall contract: dedupe, ALREADY_EXISTS, limit and draining", async function () {
+  it("keeps the node's CreateCall contract: dedupe, ALREADY_EXISTS and the room limit", async function () {
     const full = new FakeRoomr({ maxRooms: 1 });
-    const draining = new FakeRoomr({ draining: true });
     const roomr = Roomr.createRoomrPool();
     try {
       await full.start();
-      await draining.start();
       const request = { callRef: "c1", to: { uri: "sip:+1@x" } };
       const first = await roomr.createCall(full.controlAddr, request);
       expect(await roomr.createCall(full.controlAddr, request)).to.include({
@@ -261,10 +259,6 @@ describe("@conformance fake Roomr node (controller fakes)", function () {
         })
       );
       expect(atLimit.code).to.equal(status.RESOURCE_EXHAUSTED);
-      const unavailable = await rejected(
-        roomr.createRoom(draining.controlAddr, {})
-      );
-      expect(unavailable.code).to.equal(status.UNAVAILABLE);
       full.failNext("EndCall", status.INTERNAL);
       expect(
         (await rejected(roomr.endCall(full.controlAddr, { callRef: "c1" })))
@@ -273,7 +267,6 @@ describe("@conformance fake Roomr node (controller fakes)", function () {
     } finally {
       roomr.close();
       await full.stop();
-      await draining.stop();
     }
   });
 });

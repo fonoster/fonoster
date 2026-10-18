@@ -105,9 +105,6 @@ func startWith(t *testing.T, o rigOptions) *rig {
 	if o.uaCfg != nil {
 		o.uaCfg(&uaCfg)
 	}
-	if uaCfg.RequireEncryption {
-		uaCfg.OutboundProxy = callee.TLSAddress()
-	}
 	ua, err := sipua.New(n, uaCfg)
 	if err != nil {
 		t.Fatal(err)
@@ -421,7 +418,7 @@ func TestHeartbeats(t *testing.T) {
 	}
 	var hb map[string]any
 	_ = json.Unmarshal(msg.Data, &hb)
-	if hb["type"] != "node.heartbeat" || hb["draining"] != false {
+	if hb["type"] != "node.heartbeat" {
 		t.Fatalf("heartbeat %v", hb)
 	}
 }

@@ -93,28 +93,22 @@ func edgeTLS(t *testing.T, p *testPKI, certPath, keyPath string) *tls.Config {
 	return c.Client
 }
 
-// startMutual runs a node whose TLS listener requires client certificates from the test CA. The
-// node's own certificate and the CA come in as secret:// references and file paths.
-func startMutual(t *testing.T, p *testPKI) *rig {
+// startTLS runs a node with the optional SIP-over-TLS listener (certificate only; no client
+// certificates). The node's certificate and key come in as secret:// references.
+func startTLS(t *testing.T, p *testPKI) *rig {
 	nodeCert, nodeKey := p.leaf("node")
 	t.Setenv("RB_TEST_NODE_KEY", string(mustRead(t, nodeKey)))
 	edge, err := edgetls.Build(edgetls.Options{Cert: "secret://file" + nodeCert, Key: "secret://env/RB_TEST_NODE_KEY",
-		CA: p.caPath(), ClientCA: p.caPath()})
+		CA: p.caPath()})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !edge.Mutual || edge.Server.ClientAuth != tls.RequireAndVerifyClientCert {
-		t.Fatalf("listener does not require client certificates: %+v", edge.Server)
-	}
-	routrCert, routrKey := p.leaf("routr")
 	tlsPort := freePort(t)
 	r := startWith(t, rigOptions{
 		uaCfg: func(c *sipua.Config) {
 			c.TLSListen, c.TLSConfig, c.ClientTLS = "127.0.0.1:"+strconv.Itoa(tlsPort), edge.Server, edge.Client
-			// The allowlist stays as an extra check (RV-B7).
-			c.TrustedSources = []string{"127.0.0.1"}
 		},
-		botOpts: caller.Options{ClientTLS: edgeTLS(t, p, routrCert, routrKey)},
+		botOpts: caller.Options{ClientTLS: edgeTLS(t, p, "", "")},
 	})
 	r.tlsAddr = "127.0.0.1:" + strconv.Itoa(tlsPort)
 	return r
@@ -128,43 +122,13 @@ func mustRead(t *testing.T, path string) []byte {
 	return b
 }
 
-func TestMutualTLSAcceptsTheEdge(t *testing.T) {
+func TestSIPTLSListenerAcceptsCalls(t *testing.T) {
 	p := newPKI(t, "fonoster-edge-ca")
-	r := startMutual(t, p)
-	if _, err := r.bot.DialWith(r.tlsAddr, "+15550003333", "", map[string]string{"X-App-Ref": "app-mtls"}, caller.DialOptions{Transport: "tls"}); err != nil {
+	r := startTLS(t, p)
+	if _, err := r.bot.DialWith(r.tlsAddr, "+15550003333", "", map[string]string{"X-App-Ref": "app-tls"}, caller.DialOptions{Transport: "tls"}); err != nil {
 		t.Fatal(err)
 	}
-	r.waitEvent(typed("call.incoming", "appRef", "app-mtls"), 3*time.Second)
-}
-
-func TestMutualTLSRefusesClientsWithoutAValidCertificate(t *testing.T) {
-	p := newPKI(t, "fonoster-edge-ca")
-	r := startMutual(t, p)
-	other := newPKI(t, "someone-else")
-	otherCert, otherKey := other.leaf("intruder")
-	intruderTLS := edgeTLS(t, other, otherCert, otherKey)
-	intruderTLS.RootCAs = edgeTLS(t, p, "", "").RootCAs // trusts the node, but its cert is foreign
-	for name, cfg := range map[string]*tls.Config{
-		"no certificate":      edgeTLS(t, p, "", ""),
-		"foreign certificate": intruderTLS,
-	} {
-		bot, err := caller.NewWithOptions(caller.Options{Host: "127.0.0.1", ClientTLS: cfg})
-		if err != nil {
-			t.Fatal(err)
-		}
-		call, err := bot.DialWith(r.tlsAddr, "+15550004444", "", map[string]string{"X-App-Ref": "app-" + name}, caller.DialOptions{Transport: "tls"})
-		if err == nil {
-			time.Sleep(1500 * time.Millisecond)
-			if s := call.Status(); s.State == "answered" || contains(s.SIP, 200) || contains(s.SIP, 180) {
-				t.Fatalf("%s: INVITE got %v", name, s.SIP)
-			}
-			_ = call.Hangup()
-		}
-		bot.Close()
-	}
-	if n := r.count(typed("call.incoming")); n != 0 {
-		t.Fatalf("%d calls reached the gateway without a valid client certificate", n)
-	}
+	r.waitEvent(typed("call.incoming", "appRef", "app-tls"), 3*time.Second)
 }
 
 func TestEdgeTLSValidation(t *testing.T) {

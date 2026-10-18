@@ -64,8 +64,9 @@ message CreateCallRequest {
   string session = 5;
   // How long the callee may ring (default 60 s).
   uint32 ring_timeout_s = 6;
-  // Echoed in the events the node publishes for this call.
-  map<string, string> labels = 7;
+  // Passed through untouched in the events the node publishes for this call (opaque to the
+  // node; callers use it for their own references, e.g. app_ref).
+  map<string, string> metadata = 7;
   // Lowers the node's maximum call duration for this call's room; higher values are ignored.
   uint32 max_duration_s = 8;
 }
@@ -91,6 +92,10 @@ message CreateRoomRequest {
   // Empty: the node picks one. A ref already in use fails with ALREADY_EXISTS.
   string room_ref = 1;
   uint32 max_duration_s = 2;
+  // Overrides the node's emptyRoomTimeout for this room; 0 keeps the node's setting.
+  uint32 empty_timeout_s = 3;
+  // Overrides the node's maxParticipants for this room; 0 keeps the node's setting.
+  uint32 max_participants = 4;
 }
 
 message Room {

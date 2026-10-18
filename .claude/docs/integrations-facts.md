@@ -31,7 +31,7 @@ page with /ps:docs.
   roomr YAML; empty = off. OTEL_* env still works as a fallback.
 - apiserver: `apiserver.grpc` spans, `grpc.requests`, `records.indexed`.
 - gateway: `gateway.call` and `roomr.command` spans, `calls.active`, `calls.total`.
-- autopilot: `sessions.total`. roomr: `rooms.active`, `draining`, `calls.incoming`, logs.
+- autopilot: `sessions.total`. roomr: `rooms.active`, `calls.incoming` (traces and metrics only; logs stay on stderr).
 - Every signal carries `fonoster.call_ref`.
 
 ## Host private regions (`private-regions/host-private-regions`) — all manual

@@ -62,13 +62,20 @@ const ROUTING: MediaNodeRouting = {
  * Routr's least-sessions reads. Small loads re-register on the timer (5+ rooms re-register at
  * once), so the expiry is short here.
  */
-function nodeConfig(): string {
+function nodeConfig(nodeId: string, sipPort: number): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "routr-live-"));
   const file = path.join(dir, "roomr.yaml");
   fs.writeFileSync(
     file,
     [
+      `nodeId: ${nodeId}`,
+      `nats: { url: "${NATS_URL}" }`,
+      "rtp: { host: 127.0.0.1, advertise: 127.0.0.1 }",
+      `outboundProxy: "${ROUTR_SIP}"`,
       "sip:",
+      `  listen: "0.0.0.0:${sipPort}"`,
+      `  advertise: "${HOST_ADDR}"`,
+      "  callRefHeader: X-Call-Ref",
       "  registrations:",
       `    - registrar: "${ROUTR_SIP}"`,
       `      aor: "${ROUTING.aor}"`,
@@ -185,26 +192,7 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
     nodePort = await freeUdpPort();
     const node = await start(
       bins.roomr,
-      [
-        "-node-id",
-        `routr-live-${Date.now()}`,
-        "-nats",
-        NATS_URL,
-        "-sip",
-        `0.0.0.0:${nodePort}`,
-        "-sip-advertise",
-        HOST_ADDR,
-        "-rtp",
-        "127.0.0.1",
-        "-rtp-advertise",
-        "127.0.0.1",
-        "-outbound-proxy",
-        ROUTR_SIP,
-        "-call-ref-header",
-        "X-Call-Ref",
-        "-config",
-        nodeConfig()
-      ],
+      ["-config", nodeConfig(`routr-live-${Date.now()}`, nodePort)],
       /ready/
     );
     procs.push(node.child);

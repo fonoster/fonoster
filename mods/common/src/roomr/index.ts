@@ -43,7 +43,8 @@ export type CreateCallRequest = {
   roomRef?: string;
   session?: string;
   ringTimeoutS?: number;
-  labels?: Record<string, string>;
+  /** Passed through untouched in the events for this call (e.g. { app_ref }). */
+  metadata?: Record<string, string>;
   maxDurationS?: number;
 };
 
@@ -54,7 +55,14 @@ export type Call = {
   participantRef: string;
 };
 
-export type CreateRoomRequest = { roomRef?: string; maxDurationS?: number };
+export type CreateRoomRequest = {
+  roomRef?: string;
+  maxDurationS?: number;
+  /** Overrides the node's emptyRoomTimeout for this room (0: the node's). */
+  emptyTimeoutS?: number;
+  /** Overrides the node's maxParticipants for this room (0: the node's). */
+  maxParticipants?: number;
+};
 export type Room = { roomRef: string };
 
 /** The RPCs the control plane uses, each against one node's control address. */

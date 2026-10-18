@@ -23,16 +23,20 @@ to pick the app.
 2. **Media nodes.** Run `go/roomr` (`cmd/roomr`) on each node:
 
    ```sh
-   roomr -node-id node-a -nats nats://nats:4222 \
-     -sip 0.0.0.0:5060 -sip-advertise <node IP Routr can reach> \
-     -rtp 0.0.0.0 -rtp-advertise <node IP carriers and gateways can reach> \
-     -outbound-proxy routr:5060 -config /config/roomr.yaml
+   roomr -config /config/roomr.yaml
    ```
 
-   with the registration in the file (the node registers nowhere unless told to):
+   with everything in the file (`-config` is the only flag; the node registers nowhere unless
+   told to):
 
    ```yaml
+   nodeId: node-a
+   nats: { url: nats://nats:4222 }
+   rtp: { host: 0.0.0.0, advertise: <node IP carriers and gateways can reach> }
+   outboundProxy: routr:5060
    sip:
+     listen: 0.0.0.0:5060
+     advertise: <node IP Routr can reach>
      registrations:
        - registrar: routr:5060
          aor: sip:medianode@default
@@ -150,15 +154,15 @@ cleanly.
 
 | Topic | Behavior today |
 | --- | --- |
-| Registration | Each `sip.registrations` entry REGISTERs at half its `expires` (30 s by default), with its header templates rendered (`X-Session-Count: "{sessions}"` = active rooms for Routr). It re-registers at once when the load changes by 5+ rooms (`-reregister-delta`) or drops to 0. Requests go out from the SIP port with `rport`, so NAT in front of the node works. |
+| Registration | Each `sip.registrations` entry REGISTERs at half its `expires` (30 s by default), with its header templates rendered (`X-Session-Count: "{sessions}"` = active rooms for Routr). It re-registers at once when the load changes by 5+ rooms (`reregisterDelta`) or drops to 0. Requests go out from the SIP port with `rport`, so NAT in front of the node works. |
 | Balancing | Routr picks the route with the lowest `X-Session-Count` (Peer `LEAST_SESSIONS`). A room stays on its node. |
-| RTP ports | One UDP port per participant, chosen by the OS from the ephemeral range on `-rtp`. Open that range (or use host networking) between nodes, carriers and gateways. A configurable port range is not built yet. |
-| Encryption | Plain RTP only. TLS and SRTP toward the edge (media-node 2.12) are not built. Keep nodes, Routr and gateways on a private network. |
+| RTP ports | One UDP port per participant, from `rtp.portMin`..`rtp.portMax` (one range for every leg; the OS picks when unset). Open that range (or use host networking) between nodes, carriers and gateways. |
+| Encryption | Plain by default. Optional SIP over TLS (`tls.listen`) and SDES-SRTP when a leg offers it. Keep nodes, Routr and gateways on a private network: the SIP port is reachable only from Routr. |
 | Codecs | PCMU, PCMA, G.722 and Opus on SIP legs (Opus only in images built with libopus); L16/16000 toward the gateway, which converts to each app's format (pcm16 at 8, 16 or 24 kHz, or pcmu at 8 kHz). |
-| Drain | On SIGTERM a node re-registers at once as full (Routr stops choosing it) and keeps its rooms. It exits when they end or after `-drain-wait` (10 min): first it unregisters (REGISTER with Expires 0), then it sends `node.down`. Use a pod termination grace of at least `-drain-wait`. |
+| Drain | On SIGTERM a node fails its gRPC health check, unregisters (REGISTER with Expires 0, so Routr stops choosing it), stops its heartbeat, sends `node.down` and keeps its rooms. It exits when they end or after `drainWait` (10 min). It refuses nothing while draining. Use a pod termination grace longer than `drainWait`. |
 | Crash | Gateways see heartbeats stop (2 s period) and end the sessions. Routr keeps the dead route until it expires (the registration's `expires`). |
 | Limits | 10 participants per room. Calls end after 4 h. 30 s without RTP ends a leg (media timeout). A warm transfer gives up after 30 s without an answer. |
-| Diagnostics | `-debug host:port` serves `GET /rooms` (rooms and hold state). It is not part of media-control; do not expose it publicly. |
+| Diagnostics | The `node.heartbeat` on `roomr.nodes.<node_ref>.heartbeat` (rooms, participants, limits) and the logs on stderr. There is no debug endpoint. |
 
 ## 6. What was retired (add-media-node 4.1–4.5)
 

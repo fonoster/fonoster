@@ -1,8 +1,5 @@
 {{- if .Values.roomr.enabled }}
 {{- $m := .Values.roomr }}
-{{- if and (not $m.trustedSources) (not $m.allowAnySource) }}
-{{- fail "roomr.trustedSources is empty: set it to Routr's addresses (IPs, CIDRs or host names), or set roomr.allowAnySource=true for development only" }}
-{{- end }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -30,14 +27,14 @@ spec:
       {{- if $m.hostNetwork }}
       dnsPolicy: ClusterFirstWithHostNet
       {{- end }}
-      # Drain grace = maxWait: the node drains for this long after SIGTERM, plus a little slack.
-      terminationGracePeriodSeconds: {{ add $m.drainGraceSeconds 15 }}
+      # The node drains for drainGraceSeconds after SIGTERM (roomr.yaml's drainWait); the pod's
+      # grace period is that plus a margin, so the kubelet never kills a pod that is still draining.
+      terminationGracePeriodSeconds: {{ add $m.drainGraceSeconds 30 }}
       containers:
         - name: roomr
           image: "{{ $m.image.repository }}:{{ $m.image.tag }}"
           imagePullPolicy: {{ $m.image.pullPolicy }}
-          args:
-            - -drain-wait={{ $m.drainGraceSeconds }}s
+          # The node's only flag is -config; the default is /config/roomr.yaml (mounted below).
           env:
             # Filled into roomr.yaml's ${VAR} placeholders (roomr-config.yaml).
             - name: POD_NAME
@@ -56,6 +53,16 @@ spec:
             {{- if $m.tls.enabled }}
             - { name: sip-tls, containerPort: {{ (splitList ":" $m.tls.listen | last) | int }}, protocol: TCP }
             {{- end }}
+          # Roomr serves the standard gRPC health service on the control port: SERVING normally,
+          # NOT_SERVING from SIGTERM on (readiness fails; live rooms keep running until they end).
+          startupProbe:
+            grpc: { port: {{ $m.controlPort | int }} }
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            grpc: { port: {{ $m.controlPort | int }} }
+            periodSeconds: 5
+            failureThreshold: 1
           volumeMounts:
             - { name: config, mountPath: /config/roomr.yaml, subPath: roomr.yaml, readOnly: true }
             {{- if $m.tls.enabled }}
@@ -72,4 +79,24 @@ spec:
         - name: tls
           secret: { secretName: {{ $m.tls.secret | quote }} }
       {{- end }}
+---
+{{- if $m.podDisruptionBudget }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ .Release.Name }}-roomr
+  labels:
+    app.kubernetes.io/name: roomr
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  {{- if hasKey $m.podDisruptionBudget "maxUnavailable" }}
+  maxUnavailable: {{ $m.podDisruptionBudget.maxUnavailable }}
+  {{- else }}
+  minAvailable: {{ $m.podDisruptionBudget.minAvailable | default 1 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: roomr
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
 {{- end }}

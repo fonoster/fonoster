@@ -23,6 +23,7 @@ import * as net from "net";
 import * as os from "os";
 import * as path from "path";
 import * as readline from "readline";
+import { connect, NatsConnection, StringCodec } from "nats";
 
 /** The Go media node's source, relative to this package. */
 export const ROOMR_DIR = path.join(
@@ -144,15 +145,18 @@ async function stopProcess(p: ChildProcess) {
 export class MediaNodeProcess {
   readonly nodeId = `go-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
   heartbeatMs = 2000;
-  /** The node's room limit (-max-rooms); unset keeps the node's default. */
+  /** The node's room limit (maxRooms); unset keeps the node's default. */
   maxRooms?: number;
   /** Extra environment for the node (e.g. OTEL_EXPORTER_OTLP_ENDPOINT). */
   env?: Record<string, string | undefined>;
   private node?: ChildProcess;
   private bot?: ChildProcess;
   private botUrl = "";
+  private configDir?: string;
   private sipPort = 0;
-  private debugPort = 0;
+  /** Whether the caller is on hold, from the hold and resume commands sent to the node. */
+  private holding = false;
+  private watch?: NatsConnection;
   /** Where the node serves Roomr (gRPC). */
   controlAddr = "";
   /** The bot's SIP address: the node's outbound proxy, and the proxy CreateCall may name. */
@@ -176,48 +180,73 @@ export class MediaNodeProcess {
         attempt < 3 ? startNode(attempt + 1) : Promise.reject(err)
       );
     this.node = await startNode(1);
+    await this.watchHold();
   }
 
   private async startNode(outboundProxy: string): Promise<ChildProcess> {
     this.sipPort = await freeSipPort();
-    // The debug endpoint is HTTP, so it needs a free TCP port; so does Roomr (gRPC).
-    this.debugPort = await freeTcpPort();
+    // Roomr (gRPC) needs a free TCP port too.
     this.controlAddr = `127.0.0.1:${await freeTcpPort()}`;
+    // The node's only flag is -config: everything else is in the file (JSON is YAML).
+    this.configDir ??= fs.mkdtempSync(path.join(os.tmpdir(), "roomr-config-"));
+    const configPath = path.join(this.configDir, "roomr.yaml");
+    fs.writeFileSync(
+      configPath,
+      JSON.stringify({
+        nodeId: this.nodeId,
+        nats: { url: this.bins.natsUrl },
+        sip: {
+          listen: `127.0.0.1:${this.sipPort}`,
+          advertise: "127.0.0.1",
+          // The deployments' call-ref header: the bot's X-Call-Ref names inbound calls.
+          callRefHeader: "X-Call-Ref"
+        },
+        rtp: { host: "127.0.0.1", advertise: "127.0.0.1" },
+        heartbeatInterval: `${this.heartbeatMs}ms`,
+        outboundProxy,
+        control: { grpc: { listen: this.controlAddr } },
+        ...(this.maxRooms !== undefined ? { maxRooms: this.maxRooms } : {})
+      })
+    );
     return (
       await startProcess(
         this.bins.roomr,
-        [
-          "-node-id",
-          this.nodeId,
-          "-nats",
-          this.bins.natsUrl,
-          "-sip",
-          `127.0.0.1:${this.sipPort}`,
-          "-sip-advertise",
-          "127.0.0.1",
-          "-rtp",
-          "127.0.0.1",
-          "-rtp-advertise",
-          "127.0.0.1",
-          "-heartbeat",
-          `${this.heartbeatMs}ms`,
-          "-outbound-proxy",
-          outboundProxy,
-          "-debug",
-          `127.0.0.1:${this.debugPort}`,
-          "-control-grpc",
-          this.controlAddr,
-          // The deployments' call-ref header: the bot's X-Call-Ref names inbound calls.
-          "-call-ref-header",
-          "X-Call-Ref",
-          ...(this.maxRooms !== undefined
-            ? ["-max-rooms", String(this.maxRooms)]
-            : [])
-        ],
+        ["-config", configPath],
         /ready/,
         this.env
       )
     ).child;
+  }
+
+  /** Follows the hold and resume commands sent to the node (media.held). */
+  private async watchHold() {
+    this.watch = await connect({ servers: this.bins.natsUrl });
+    const sc = StringCodec();
+    this.watch.subscribe(`media.${this.nodeId}.commands`, {
+      callback: (_err, msg) => {
+        try {
+          const cmd = JSON.parse(sc.decode(msg.data));
+          if (cmd.type === "hold") this.holding = true;
+          if (cmd.type === "resume") this.holding = false;
+          // A warm transfer holds the caller until it completes or fails.
+          if (cmd.type === "transfer" && cmd.mode === "warm")
+            this.holding = true;
+        } catch {
+          // not a command
+        }
+      }
+    });
+    this.watch.subscribe(`media.${this.nodeId}.events.*`, {
+      callback: (_err, msg) => {
+        try {
+          if (JSON.parse(sc.decode(msg.data)).type === "transfer.result")
+            this.holding = false;
+        } catch {
+          // not an event
+        }
+      }
+    });
+    await this.watch.flush();
   }
 
   /**
@@ -263,6 +292,9 @@ export class MediaNodeProcess {
 
   async stop() {
     await Promise.all([this.node, this.bot].map((p) => p && stopProcess(p)));
+    await this.watch?.close().catch(() => undefined);
+    if (this.configDir)
+      fs.rmSync(this.configDir, { recursive: true, force: true });
   }
 
   /**
@@ -358,11 +390,11 @@ export class MediaNodeProcess {
     return this.api(`/calls/${this.callId}/hangup`, {});
   }
 
-  /** Whether any room on the node has a participant on hold (from the node's debug endpoint). */
+  /** Whether the caller is on hold (the node has no debug endpoint: from its commands and events). */
   async held(): Promise<boolean> {
-    const res = await fetch(`http://127.0.0.1:${this.debugPort}/rooms`);
-    const rooms = (await res.json()) as { held: boolean }[];
-    return rooms.some((r) => r.held);
+    // Everything the server routed to the watcher before this point has been handled.
+    await this.watch?.flush();
+    return this.holding;
   }
 
   /** SIP statuses the caller received, without the 100 Trying transport detail. */

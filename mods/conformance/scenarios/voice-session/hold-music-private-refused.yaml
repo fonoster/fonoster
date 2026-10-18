@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+name: hold-music-private-refused
+contract: voice-session
+role: app
+spec: "Call control / Hold and resume"
+description: Hold music is a URL the node fetches, so the gateway refuses one that points inside the platform's network, before the node sees it.
+steps:
+  - expect: { type: session.start }
+  - send: { type: hold, id: h1, music: "http://169.254.169.254/latest/hold.wav" }
+  - expect: { type: error, code: bad_message, relatesTo: h1 }
+    within_ms: 2000
+  - assert:
+      media.held: false

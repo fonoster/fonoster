@@ -21,7 +21,6 @@ import (
 // keeps the code as the machine-readable reason. The NATS handlers' codes (bad_message,
 // room_full, unsupported_codec, ...) pass through unchanged.
 const (
-	CodeDraining            = "draining"
 	CodeAtCapacity          = "at_capacity"
 	CodeRoomExists          = "room_exists"
 	CodeCallExists          = "call_exists"
@@ -33,7 +32,6 @@ const (
 	CodeNotSupported        = "not_supported"
 	CodeCallNotAnswered     = "call_not_answered"
 	CodeNoDTMF              = "dtmf_not_negotiated"
-	CodeEncryptionRequired  = "encryption_required"
 	CodeInternal            = "internal"
 )
 
@@ -54,10 +52,8 @@ func errorf(code, format string, args ...any) *Error {
 	return &Error{Code: code, Message: fmt.Sprintf(format, args...)}
 }
 
-// Errors newRoomRef returns: the node is draining, the ref is taken, or the node holds MaxRooms
-// rooms.
+// Errors newRoomRef returns: the ref is taken, or the node holds MaxRooms rooms.
 var (
-	errDraining   = &Error{Code: CodeDraining}
 	errRoomExists = &Error{Code: CodeRoomExists}
 	errAtCapacity = &Error{Code: CodeAtCapacity}
 )
@@ -112,7 +108,6 @@ type callEntry struct {
 	info CallInfo
 	// req is the CreateCall that placed the call (zero for inbound calls): a repeat must match it.
 	req     CallRequest
-	labels  map[string]string
 	inbound bool
 	// removed is an EndCall while ringing: the dial was cancelled on purpose.
 	removed bool
@@ -120,8 +115,9 @@ type callEntry struct {
 	endedAt time.Time
 }
 
-// DefaultCallDedupeWindow is how long an ended call is remembered by default (Config).
-const DefaultCallDedupeWindow = 10 * time.Minute
+// CallDedupeWindow is how long an ended call is remembered: a repeated CreateCall for its
+// call_ref returns the call instead of dialing again.
+const CallDedupeWindow = 10 * time.Minute
 
 // headerValue looks a header up by name, ignoring case (SIP header names are case-insensitive).
 func headerValue(headers map[string]string, name string) (string, bool) {
@@ -162,7 +158,7 @@ func sameCall(a, b CallRequest) bool {
 		return true
 	}
 	return a.CallRef == b.CallRef && a.RoomRef == b.RoomRef && a.From == b.From &&
-		a.RingTimeout == b.RingTimeout && a.MaxDuration == b.MaxDuration && same(a.Labels, b.Labels) &&
+		a.RingTimeout == b.RingTimeout && a.MaxDuration == b.MaxDuration && same(a.Metadata, b.Metadata) &&
 		a.To.URI == b.To.URI && a.To.Proxy == b.To.Proxy && same(a.To.Headers, b.To.Headers) &&
 		a.To.Username == b.To.Username && a.To.Password == b.To.Password
 }
@@ -172,7 +168,7 @@ type callTable struct {
 	mu     sync.Mutex
 	calls  map[string]*callEntry
 	dialer TargetDialer
-	// window is the dedupe window (Config.CallDedupeWindow).
+	// window is the dedupe window (CallDedupeWindow).
 	window time.Duration
 }
 
@@ -276,7 +272,8 @@ type CallRequest struct {
 	To                     SipTarget
 	RingTimeout            time.Duration
 	MaxDuration            time.Duration
-	Labels                 map[string]string
+	// Metadata is passed through untouched to the call's events.
+	Metadata map[string]string
 }
 
 // createRoom is newRoomRef for Roomr: ref "" picks one, callRef ("" for none) is the
@@ -294,13 +291,29 @@ func maxDurationCmd(d time.Duration) Command {
 	return Command{"maxDurationSec": d.Seconds()}
 }
 
+// RoomOptions are CreateRoom's per-room overrides; zero keeps the node's setting. MaxDuration
+// can only lower the node's limit.
+type RoomOptions struct {
+	MaxDuration     time.Duration
+	EmptyTimeout    time.Duration
+	MaxParticipants int
+}
+
 // CreateRoom creates an empty room (ref "" picks one).
-func (n *Node) CreateRoom(ref string, maxDuration time.Duration) (string, error) {
+func (n *Node) CreateRoom(ref string, o RoomOptions) (string, error) {
 	r, err := n.createRoom(ref, "")
 	if err != nil {
 		return "", err
 	}
-	r.setMaxDuration(maxDurationCmd(maxDuration))
+	r.setMaxDuration(maxDurationCmd(o.MaxDuration))
+	r.mu.Lock()
+	if o.EmptyTimeout > 0 {
+		r.emptyTimeout = o.EmptyTimeout
+	}
+	if o.MaxParticipants > 0 {
+		r.maxParticipants = o.MaxParticipants
+	}
+	r.mu.Unlock()
 	return r.Ref, nil
 }
 
@@ -348,10 +361,6 @@ func (n *Node) CreateCall(req CallRequest) (CallInfo, error) {
 		n.ctl.mu.Unlock()
 		return CallInfo{}, errorf(CodeNotSupported, "this node has no SIP user agent")
 	}
-	if n.Draining() {
-		n.ctl.mu.Unlock()
-		return CallInfo{}, errDraining
-	}
 	var r *Room
 	if req.RoomRef != "" {
 		r = n.room(req.RoomRef)
@@ -369,13 +378,13 @@ func (n *Node) CreateCall(req CallRequest) (CallInfo, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	e := &callEntry{info: CallInfo{CallRef: req.CallRef, RoomRef: r.Ref, State: CallRinging},
-		req: req, labels: req.Labels, cancel: cancel}
+		req: req, cancel: cancel}
 	n.ctl.putLocked(e)
 	info := e.info
 	n.ctl.mu.Unlock()
 	// A room waiting on this dial is not an empty room (orphans.go).
 	r.dialStarted()
-	n.openCall(req.CallRef, r.Ref, "", req.Labels, Event{"direction": "outbound", "from": req.From, "to": req.To.URI})
+	n.openCall(req.CallRef, r.Ref, "", req.Metadata, Event{"direction": "outbound", "from": req.From, "to": req.To.URI})
 	r.setMaxDuration(maxDurationCmd(req.MaxDuration))
 	go n.runCall(ctx, cancel, r, e, req, dialer)
 	return info, nil
@@ -399,8 +408,8 @@ func (n *Node) runCall(ctx context.Context, cancel context.CancelFunc, r *Room, 
 	ref := req.CallRef
 	event := func(typ string, extra Event) Event {
 		ev := Event{"type": typ, "id": ref, "callRef": ref}
-		if len(req.Labels) > 0 {
-			ev["labels"] = req.Labels
+		if len(req.Metadata) > 0 {
+			ev["metadata"] = req.Metadata
 		}
 		for k, v := range extra {
 			ev[k] = v

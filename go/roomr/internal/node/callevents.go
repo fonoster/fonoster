@@ -6,9 +6,9 @@ import (
 )
 
 // Events keyed by call (redesign-media-node, media-control "Events on NATS are keyed by call with
-// sequence numbers and labels"). Every call with a call_ref (CreateCall, room.create with callRef,
+// sequence numbers and metadata"). Every call with a call_ref (CreateCall, room.create with callRef,
 // an inbound INVITE with X-Call-Ref) has its own subject; room-scoped events go to the room's.
-// Each event carries node_ref, a per-call (or per-room) seq starting at 1, the call's labels and
+// Each event carries node_ref, a per-call (or per-room) seq starting at 1, the call's metadata and
 // a timestamp, so any controller replica can follow a call it did not place.
 //
 // The room events on media.<nodeId>.events.<roomRef> are unchanged: the gateway's NATS command
@@ -29,7 +29,7 @@ type callStream struct {
 	// participant is the call's leg in the room, once known (inbound: the caller; outbound: the
 	// answered leg).
 	participant string
-	labels      map[string]string
+	metadata    map[string]string
 	seq         uint64
 	answered    bool
 }
@@ -46,7 +46,7 @@ func (n *Node) eventBase(typ string) Event {
 }
 
 // openCall starts a call's stream and publishes call.started (once per call_ref).
-func (n *Node) openCall(callRef, roomRef, participantRef string, labels map[string]string, extra Event) {
+func (n *Node) openCall(callRef, roomRef, participantRef string, metadata map[string]string, extra Event) {
 	if callRef == "" || !validToken(callRef) {
 		return
 	}
@@ -59,10 +59,10 @@ func (n *Node) openCall(callRef, roomRef, participantRef string, labels map[stri
 		s.mu.Unlock()
 		return
 	}
-	if labels == nil {
-		labels = map[string]string{}
+	if metadata == nil {
+		metadata = map[string]string{}
 	}
-	s.calls[callRef] = &callStream{ref: callRef, room: roomRef, participant: participantRef, labels: labels}
+	s.calls[callRef] = &callStream{ref: callRef, room: roomRef, participant: participantRef, metadata: metadata}
 	s.mu.Unlock()
 	n.callEvent(callRef, "call.started", extra, nil)
 }
@@ -86,7 +86,7 @@ func (n *Node) callEvent(callRef, typ string, extra Event, update func(*callStre
 	for k, v := range extra {
 		ev[k] = v
 	}
-	ev["call_ref"], ev["room_ref"], ev["seq"], ev["labels"] = c.ref, c.room, c.seq, c.labels
+	ev["call_ref"], ev["room_ref"], ev["seq"], ev["metadata"] = c.ref, c.room, c.seq, c.metadata
 	if typ == "call.ended" {
 		ev["answered"] = c.answered
 		delete(s.calls, callRef)

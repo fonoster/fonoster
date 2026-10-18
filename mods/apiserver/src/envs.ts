@@ -55,7 +55,7 @@ export const CALL_EVENTS_WILDCARD = "calls.*.events";
 /**
  * A call's events from its media node (media-control "Events on NATS are keyed by call"):
  * call.started, call.ringing, call.answered, call.ended and the call's participant and operation
- * events, each with node_ref, seq and labels.
+ * events, each with node_ref, seq and metadata.
  */
 export const mediaCallEventsSubject = (ref: string) => `roomr.events.${ref}`;
 

@@ -21,8 +21,22 @@ import (
 // DefaultPath is where the bundle mounts the file.
 const DefaultPath = "/config/roomr.yaml"
 
-// File is roomr.yaml. Every key is optional; flags win over it. ROOMR_* variables are not
-// read; reference one as a ${VAR} placeholder to use it.
+// Duration is a YAML duration such as 15s or 10m.
+type Duration time.Duration
+
+// UnmarshalYAML parses the scalar with time.ParseDuration.
+func (d *Duration) UnmarshalYAML(n *yaml.Node) error {
+	v, err := time.ParseDuration(n.Value)
+	if err != nil {
+		return fmt.Errorf("line %d: %q is not a duration (e.g. 15s, 10m)", n.Line, n.Value)
+	}
+	*d = Duration(v)
+	return nil
+}
+
+// File is roomr.yaml, the node's only configuration: the node takes a single command-line
+// argument, -config <path>. Every key is optional. ROOMR_* variables are not read; reference one
+// as a ${VAR} placeholder to use it.
 type File struct {
 	NodeID string `yaml:"nodeId"`
 	NATS   struct {
@@ -31,6 +45,8 @@ type File struct {
 		Password string `yaml:"password"` // or a secret:// reference
 	} `yaml:"nats"`
 	SIP struct {
+		// Listen is host:port for UDP and TCP (default 0.0.0.0:5060); Advertise is the host in
+		// Contact headers (default 127.0.0.1).
 		Listen    string `yaml:"listen"`
 		Advertise string `yaml:"advertise"`
 		// Registrations are the REGISTERs the node keeps; none (the default) sends no REGISTER.
@@ -39,31 +55,46 @@ type File struct {
 		// empty: none.
 		CallRefHeader string `yaml:"callRefHeader"`
 	} `yaml:"sip"`
-	// CallDedupeWindow is how long a CreateCall call_ref is remembered after its call ended
-	// (default 10m).
-	CallDedupeWindow string `yaml:"callDedupeWindow"`
-	RTP              struct {
+	RTP struct {
+		// Host is the address RTP sockets bind to (default 0.0.0.0); Advertise is what SDP and
+		// rtp blocks carry (default 127.0.0.1). One port range serves every leg; publish exactly
+		// [portMin, portMax]/udp. Both 0: any port.
 		Host      string `yaml:"host"`
 		Advertise string `yaml:"advertise"`
 		PortMin   int    `yaml:"portMin"`
 		PortMax   int    `yaml:"portMax"`
 	} `yaml:"rtp"`
-	OutboundProxy     string `yaml:"outboundProxy"`
-	OutboundTransport string `yaml:"outboundTransport"`
-	DebugAddr         string `yaml:"debugAddr"`
-	DrainWait         string `yaml:"drainWait"`
-	MaxDuration       string `yaml:"maxDuration"`
-	MaxParticipants   int    `yaml:"maxParticipants"`
-	MaxRooms          int    `yaml:"maxRooms"`
-	MediaTimeout      string `yaml:"mediaTimeout"`
-	EmptyRoomTimeout  string `yaml:"emptyRoomTimeout"`
-	OwnerTimeout      string `yaml:"ownerTimeout"`
-	TLS               struct {
-		Listen   string `yaml:"listen"`
-		Cert     string `yaml:"cert"`
-		Key      string `yaml:"key"`
-		CA       string `yaml:"ca"`
-		ClientCA string `yaml:"clientCa"`
+	// OutboundProxy is where outbound INVITEs go (Routr): host:port or a SIP URI whose transport
+	// parameter picks udp, tcp or tls (sip:host:port;transport=tcp). Empty disables dial and
+	// transfers.
+	OutboundProxy string `yaml:"outboundProxy"`
+	// DrainWait is the longest wait for rooms to end after SIGTERM (default 10m).
+	DrainWait Duration `yaml:"drainWait"`
+	// MaxDuration is the longest call (default 4h); apps can lower it per call.
+	MaxDuration Duration `yaml:"maxDuration"`
+	// MaxParticipants per room (default 10); CreateRoom can override it per room.
+	MaxParticipants int `yaml:"maxParticipants"`
+	// MaxRooms is the most rooms the node holds at once (default 200).
+	MaxRooms int `yaml:"maxRooms"`
+	// MediaTimeout ends an answered call whose caller or app leg sends no RTP for this long
+	// (default 30s).
+	MediaTimeout Duration `yaml:"mediaTimeout"`
+	// EmptyRoomTimeout ends a room with no participant and no dial in progress for this long
+	// (default 30s; negative: never). CreateRoom can override it per room.
+	EmptyRoomTimeout Duration `yaml:"emptyRoomTimeout"`
+	OwnerTimeout     Duration `yaml:"ownerTimeout"`
+	// HeartbeatInterval is the period of node.heartbeat (default 2s).
+	HeartbeatInterval Duration `yaml:"heartbeatInterval"`
+	// ReregisterDelta: every registration re-registers at once when the room count moved by this
+	// much since its last accepted REGISTER (default 5).
+	ReregisterDelta int `yaml:"reregisterDelta"`
+	// TLS is the optional SIP-over-TLS listener (off unless listen is set) and, with ca, the
+	// trust for TLS to the outbound proxy and registrars.
+	TLS struct {
+		Listen string `yaml:"listen"`
+		Cert   string `yaml:"cert"`
+		Key    string `yaml:"key"`
+		CA     string `yaml:"ca"`
 	} `yaml:"tls"`
 	// Control is Roomr over gRPC (redesign-media-node); off unless control.grpc.listen
 	// is set.
@@ -73,17 +104,14 @@ type File struct {
 			// Advertise is the host:port controllers dial (the heartbeat's control_addr);
 			// empty: the listen port on sip.advertise's host.
 			Advertise string `yaml:"advertise"`
-			TLS       struct {
+			// TLS is optional (off unless cert is set); clientCa turns on mutual TLS.
+			TLS struct {
 				Cert     string `yaml:"cert"`     // file path or secret:// reference
 				Key      string `yaml:"key"`      // file path or secret:// reference
 				ClientCA string `yaml:"clientCa"` // set: mutual TLS, client certificates required
 			} `yaml:"tls"`
 		} `yaml:"grpc"`
 	} `yaml:"control"`
-	SessionRegistry     *bool    `yaml:"sessionRegistry"`
-	RequireEncryption   *bool    `yaml:"requireEncryption"`
-	TrustedSources      []string `yaml:"trustedSources"`
-	AllowedDestinations []string `yaml:"allowedDestinations"`
 	// Codecs are the SIP-leg codecs in preference order (default opus, G722, PCMU, PCMA); leave
 	// opus out to disable it.
 	Codecs []string `yaml:"codecs"`
@@ -93,6 +121,23 @@ type File struct {
 	Telemetry struct {
 		OTLPEndpoint string `yaml:"otlpEndpoint"`
 	} `yaml:"telemetry"`
+}
+
+// Defaults fills what the node needs to run without a key. The node package defaults the rest
+// (limits, timeouts, heartbeat interval).
+func (f *File) Defaults() {
+	set := func(s *string, def string) {
+		if *s == "" {
+			*s = def
+		}
+	}
+	set(&f.SIP.Listen, "0.0.0.0:5060")
+	set(&f.SIP.Advertise, "127.0.0.1")
+	set(&f.RTP.Host, "0.0.0.0")
+	set(&f.RTP.Advertise, "127.0.0.1")
+	if f.DrainWait == 0 {
+		f.DrainWait = Duration(10 * time.Minute)
+	}
 }
 
 // Auth is a digest identity; Password may be a secret:// reference.
@@ -112,8 +157,7 @@ type Registration struct {
 	Auth *Auth `yaml:"auth"`
 	// Expires is the binding lifetime (default 30s); the node re-registers at half of it.
 	Expires string `yaml:"expires"`
-	// Headers are templates added to every REGISTER; "{sessions}" is the session count (the room
-	// limit while draining or full).
+	// Headers are templates added to every REGISTER; "{sessions}" is the active room count.
 	Headers map[string]string `yaml:"headers"`
 }
 
@@ -187,6 +231,7 @@ func Parse(data []byte, lookup func(string) (string, bool)) (*File, error) {
 	}
 	f := &File{}
 	if doc.Kind == 0 {
+		f.Defaults()
 		return f, nil
 	}
 	if err := expandNode(&doc, "", lookup); err != nil {
@@ -200,13 +245,6 @@ func Parse(data []byte, lookup func(string) (string, bool)) (*File, error) {
 	dec.KnownFields(true)
 	if err := dec.Decode(f); err != nil && !errors.Is(err, io.EOF) {
 		return nil, err
-	}
-	for name, d := range map[string]string{"drainWait": f.DrainWait, "maxDuration": f.MaxDuration, "mediaTimeout": f.MediaTimeout} {
-		if d != "" {
-			if _, err := time.ParseDuration(d); err != nil {
-				return nil, fmt.Errorf("%s: %q is not a duration (e.g. 15s, 10m)", name, d)
-			}
-		}
 	}
 	for i, r := range f.SIP.Registrations {
 		name := fmt.Sprintf("sip.registrations[%d]", i)
@@ -222,6 +260,7 @@ func Parse(data []byte, lookup func(string) (string, bool)) (*File, error) {
 			return nil, fmt.Errorf("%s.headers: %w", name, err)
 		}
 	}
+	f.Defaults()
 	return f, nil
 }
 
@@ -239,19 +278,4 @@ func Load(path string, explicit bool) (*File, error) {
 		return nil, fmt.Errorf("invalid roomr config at %s: %w", path, err)
 	}
 	return f, nil
-}
-
-// PathFromArgs returns the -config / --config value in args, if any.
-func PathFromArgs(args []string) (string, bool) {
-	for i, a := range args {
-		for _, name := range []string{"-config", "--config"} {
-			if a == name && i+1 < len(args) {
-				return args[i+1], true
-			}
-			if strings.HasPrefix(a, name+"=") {
-				return strings.TrimPrefix(a, name+"="), true
-			}
-		}
-	}
-	return "", false
 }

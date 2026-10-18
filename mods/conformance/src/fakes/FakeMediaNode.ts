@@ -325,8 +325,7 @@ export class FakeMediaNode extends EventEmitter {
         type: "node.heartbeat",
         node_ref: this.nodeId,
         rooms: this.activeRooms(),
-        max_rooms: this.maxRooms(),
-        draining: false
+        max_rooms: this.maxRooms()
       });
     beat();
     this.heartbeat = setInterval(beat, every);

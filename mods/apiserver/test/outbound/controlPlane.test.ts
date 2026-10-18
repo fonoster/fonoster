@@ -338,13 +338,15 @@ describe("@apiserver[control plane] stateless replicas", function () {
     }
   });
 
-  it("places a call on the least-loaded node that is not draining (heartbeats)", async function () {
+  it("places a call on the least-loaded node that is not down (heartbeats)", async function () {
     await replicas(["a"]);
     const tag = randomUUID().slice(0, 8);
     const busy = await node(`a-${tag}`, { rooms: 40 });
     const idle = await node(`b-${tag}`, { rooms: 12 });
-    const draining = await node(`c-${tag}`, { rooms: 3, draining: true });
+    const draining = await node(`c-${tag}`, { rooms: 3 });
     gateways();
+    await settle();
+    await draining.down(); // a draining node says node.down and is not offered
     await settle();
 
     expect(await requestCall(client, randomUUID())).to.include({
@@ -356,16 +358,18 @@ describe("@apiserver[control plane] stateless replicas", function () {
     expect(draining.requests).to.have.length(0);
   });
 
-  it("no capacity: with every node draining, gone or at its limit, CreateCall fails at once with RESOURCE_EXHAUSTED and no INVITE is sent", async function () {
+  it("no capacity: with every node down, gone or at its limit, CreateCall fails at once with RESOURCE_EXHAUSTED and no INVITE is sent", async function () {
     const [a] = await replicas(["a"]);
     const tag = randomUUID().slice(0, 8);
-    const d1 = await node(`d1-${tag}`, { draining: true });
-    const d2 = await node(`d2-${tag}`, { rooms: 2, draining: true });
+    const d1 = await node(`d1-${tag}`);
+    const d2 = await node(`d2-${tag}`, { rooms: 2 });
     const full = await node(`f-${tag}`, { rooms: 4, maxRooms: 4 });
     const gone = await node(`g-${tag}`);
     gateways();
     await settle();
     await gone.down();
+    await d1.down();
+    await d2.down();
     await settle();
 
     // The placement's reply to CreateCall.
@@ -525,15 +529,10 @@ describe("@apiserver[control plane] session registry", function () {
   it("survives a replica restart during 50 active calls", async function () {
     const kv = await Sessions.openSessions(client, { bucket });
     const nodeId = `n-${randomUUID()}`;
-    // What the node and the gateway keep in the registry while 50 calls are up.
+    // What the gateway keeps in the registry while 50 calls are up.
     const owners = new Sessions.SessionLeases(kv, { refreshMs: 1000 });
     const n = new FakeRoomr({ nc: client, nodeRef: nodeId, rooms: 50 });
     await n.start();
-    await owners.set("nodes", nodeId, {
-      node_ref: nodeId,
-      rooms: 50,
-      control_addr: n.controlAddr
-    });
     const calls = Array.from({ length: 50 }, (_, i) => ({
       callRef: randomUUID(),
       gatewayRef: "gw-1",
@@ -561,7 +560,8 @@ describe("@apiserver[control plane] session registry", function () {
             roomRef: call.roomRef
           });
         }
-        // The restarted replica places a call at once, from the registry.
+        // The restarted replica places a call as soon as it hears the node's heartbeat.
+        await new Promise((r) => setTimeout(r, 1500));
         const ref = randomUUID();
         const stream = restarted.track(ref);
         expect(await requestCall(client, ref)).to.include({ type: "ack" });

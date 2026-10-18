@@ -3,6 +3,7 @@ package fileconfig
 import (
 	"strings"
 	"testing"
+	"time"
 )
 
 func env(m map[string]string) func(string) (string, bool) {
@@ -39,8 +40,9 @@ nodeId: "${ID:-node-a}"
 nats: { url: "nats://nats:4222", user: roomr, password: "${NATS_PW}" }
 rtp: { portMin: "${MIN}", portMax: 11999 }
 sip: { registrations: [ { registrar: routr, expires: 30s, auth: { password: "${SIP_PW}" } } ] }
-trustedSources: ["${NET}.40"]
-sessionRegistry: false
+outboundProxy: "sip:${NET}.40:5060;transport=tcp"
+heartbeatInterval: 1s
+emptyRoomTimeout: -1s
 telemetry: { otlpEndpoint: "${OTEL:-}" }
 `), env(map[string]string{"NATS_PW": "n1", "MIN": "11000", "SIP_PW": "123456", "NET": "10.0.0"}))
 	if err != nil {
@@ -50,10 +52,10 @@ telemetry: { otlpEndpoint: "${OTEL:-}" }
 		t.Fatalf("unexpected %+v", f)
 	}
 	// A numeric secret stays a string.
-	if f.SIP.Registrations[0].Auth.Password != "123456" || f.TrustedSources[0] != "10.0.0.40" {
+	if f.SIP.Registrations[0].Auth.Password != "123456" || f.OutboundProxy != "sip:10.0.0.40:5060;transport=tcp" {
 		t.Fatalf("unexpected %+v", f)
 	}
-	if f.SessionRegistry == nil || *f.SessionRegistry || f.Telemetry.OTLPEndpoint != "" {
+	if f.HeartbeatInterval != Duration(time.Second) || f.EmptyRoomTimeout != Duration(-time.Second) || f.Telemetry.OTLPEndpoint != "" {
 		t.Fatalf("unexpected %+v", f)
 	}
 }
@@ -75,7 +77,7 @@ func TestParseErrorsNameKeyAndVariable(t *testing.T) {
 		t.Fatalf("unknown key: got %v", err)
 	}
 	_, err = Parse([]byte("drainWait: soon\n"), env(nil))
-	if err == nil || !strings.Contains(err.Error(), "drainWait") {
+	if err == nil || !strings.Contains(err.Error(), "soon") {
 		t.Fatalf("bad duration: got %v", err)
 	}
 }
@@ -90,12 +92,26 @@ func TestLoadMissingDefaultIsNotAnError(t *testing.T) {
 	}
 }
 
-func TestPathFromArgs(t *testing.T) {
-	if p, ok := PathFromArgs([]string{"-sip", "x", "-config", "/c.yaml"}); !ok || p != "/c.yaml" {
-		t.Fatalf("got %q %v", p, ok)
+// The config file is the only configuration: keys that moved elsewhere or went away are errors,
+// not silently ignored.
+func TestRemovedKeysAreRejected(t *testing.T) {
+	for _, key := range []string{"trustedSources: [a]", "sessionRegistry: false", "requireEncryption: true",
+		"allowedDestinations: [a]", "debugAddr: ':9000'", "outboundTransport: tcp", "callDedupeWindow: 1m",
+		"tls: { clientCa: /ca.pem }"} {
+		if _, err := Parse([]byte(key), env(nil)); err == nil {
+			t.Errorf("%q: want an error", key)
+		}
 	}
-	if p, ok := PathFromArgs([]string{"--config=/d.yaml"}); !ok || p != "/d.yaml" {
-		t.Fatalf("got %q %v", p, ok)
+}
+
+func TestDefaults(t *testing.T) {
+	f, err := Parse([]byte(""), env(nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if f.SIP.Listen != "0.0.0.0:5060" || f.SIP.Advertise != "127.0.0.1" || f.RTP.Host != "0.0.0.0" ||
+		f.RTP.Advertise != "127.0.0.1" || f.DrainWait != Duration(10*time.Minute) {
+		t.Fatalf("unexpected defaults %+v", f)
 	}
 }
 

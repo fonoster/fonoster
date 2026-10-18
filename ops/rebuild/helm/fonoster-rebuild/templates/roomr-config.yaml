@@ -1,6 +1,6 @@
 {{- if .Values.roomr.enabled }}
 {{- $m := .Values.roomr }}
-{{- /* The media node reads only this file and its flags (no ROOMR_* variables). Values the pod
+{{- /* The media node reads only this file (its one flag is -config; no ROOMR_* variables). Values the pod
 knows at start are ${VAR} placeholders the node fills from the env the StatefulSet sets: POD_NAME,
 HOST_IP and ROUTR_PEER_PASSWORD. */}}
 {{- $sipAdvertise := ternary "${HOST_IP}" $m.sip.advertise (eq $m.sip.advertise "hostIP") }}
@@ -22,19 +22,14 @@ roomr.sip.registrations replaces it with the registrars you list ([] sends no RE
 {{- $_ := set $cfg "sip" $sip }}
 {{- $_ := set $cfg "rtp" (dict "host" "0.0.0.0" "advertise" $rtpAdvertise "portMin" ($m.rtp.portMin | int) "portMax" ($m.rtp.portMax | int)) }}
 {{- $_ := set $cfg "outboundProxy" $m.routr.outboundProxy }}
+{{- /* Rooms get drainGraceSeconds to end after SIGTERM (the pod's grace period is longer). */}}
+{{- $_ := set $cfg "drainWait" (printf "%ds" ($m.drainGraceSeconds | int)) }}
 {{- /* Roomr for the apiserver; the node advertises it on sip.advertise's host. */}}
 {{- $_ := set $cfg "control" (dict "grpc" (dict "listen" (printf "0.0.0.0:%d" ($m.controlPort | int)))) }}
 {{- if $m.tls.enabled }}
-{{- /* SIP over TLS toward the edge; with mutual, Routr must present a certificate signed by ca.crt
-(add-platform 4.2). The trusted-source allowlist still applies. */}}
+{{- /* Optional SIP over TLS: the listener, and ca.crt to trust the edge's certificate. */}}
 {{- $tls := dict "listen" $m.tls.listen "cert" "/etc/roomr/tls/tls.crt" "key" "/etc/roomr/tls/tls.key" "ca" "/etc/roomr/tls/ca.crt" }}
-{{- if $m.tls.mutual }}{{- $_ := set $tls "clientCa" "/etc/roomr/tls/ca.crt" }}{{- end }}
 {{- $_ := set $cfg "tls" $tls }}
-{{- end }}
-{{- if $m.trustedSources }}
-{{- $sources := list }}
-{{- range splitList "," $m.trustedSources }}{{- if trim . }}{{- $sources = append $sources (trim .) }}{{- end }}{{- end }}
-{{- $_ := set $cfg "trustedSources" $sources }}
 {{- end }}
 apiVersion: v1
 kind: ConfigMap

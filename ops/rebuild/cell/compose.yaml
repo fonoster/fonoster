@@ -112,7 +112,7 @@ services:
       context: ../../../go/roomr
     image: ${RB_REGISTRY:-fonoster}/roomr:${RB_TAG:-dev}
     restart: unless-stopped
-    stop_grace_period: ${RB_DRAIN_GRACE:-10m}
+    stop_grace_period: ${RB_DRAIN_GRACE:-11m}
     depends_on:
       nats: { condition: service_healthy }
     environment:
@@ -124,7 +124,6 @@ services:
       ROOMR_RTP_PORT_MIN: ${RB_NODE_RTP_MIN:-30000}
       ROOMR_RTP_PORT_MAX: ${RB_NODE_RTP_MAX:-30199}
       ROOMR_PASSWORD: ${RB_NODE_PASSWORD:?set RB_NODE_PASSWORD}
-      ROOMR_TRUSTED_SOURCE: ${RB_NET:-10.216.17}.40
     volumes:
       - ./config/roomr.yaml:/config/roomr.yaml:ro
     ports:

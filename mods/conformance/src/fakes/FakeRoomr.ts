@@ -24,7 +24,7 @@ import { NatsConnection, StringCodec } from "nats";
 // several nodes"): a roomr.v1.Roomr gRPC server with CreateRoom, CreateCall, EndCall and EndRoom,
 // heartbeats on roomr.nodes.<node_ref>.heartbeat with its control_addr, and a call's events on
 // roomr.events.<call_ref>. It keeps the node's contract: the room limit (RESOURCE_EXHAUSTED),
-// draining (UNAVAILABLE), CreateRoom refs (ALREADY_EXISTS), CreateCall dedupe by call_ref (the
+// CreateRoom refs (ALREADY_EXISTS), CreateCall dedupe by call_ref (the
 // same Call again, ALREADY_EXISTS when the parameters differ) and NOT_FOUND for unknown refs.
 // Tests script refusals and timeouts per RPC and decide what each dialed party does.
 
@@ -43,7 +43,6 @@ export type FakeRoomrOptions = {
   maxRooms?: number;
   /** What heartbeats claim instead of the real count (a node that filled up since its beat). */
   reportedRooms?: number;
-  draining?: boolean;
   region?: string;
   heartbeatMs?: number;
   /** What each dialed party does (default "answer"); a function decides per call_ref. */
@@ -146,7 +145,7 @@ export class FakeRoomr {
       call_ref: c.call.callRef,
       room_ref: c.call.roomRef,
       seq: c.seq,
-      labels: (c.request.labels as Record<string, string>) ?? {},
+      metadata: (c.request.metadata as Record<string, string>) ?? {},
       ts: new Date().toISOString(),
       ...extra
     });
@@ -187,7 +186,6 @@ export class FakeRoomr {
       ...(this.options.maxRooms !== undefined
         ? { max_rooms: this.options.maxRooms }
         : {}),
-      draining: this.options.draining === true,
       ...(this.options.region ? { region: this.options.region } : {})
     });
   }
@@ -218,8 +216,6 @@ export class FakeRoomr {
       };
     return {
       CreateRoom: wrap("CreateRoom", (req, cb) => {
-        if (this.options.draining)
-          return refuse(cb, grpc.status.UNAVAILABLE, "draining");
         const ref = String(req.roomRef || `room-${this.rooms.size + 1}`);
         if (this.rooms.has(ref))
           return refuse(cb, grpc.status.ALREADY_EXISTS, "room_exists");
@@ -244,8 +240,6 @@ export class FakeRoomr {
             return refuse(cb, grpc.status.ALREADY_EXISTS, "call_exists");
           return cb(null, known.call);
         }
-        if (this.options.draining)
-          return refuse(cb, grpc.status.UNAVAILABLE, "draining");
         let roomRef = String(req.roomRef || "");
         if (!roomRef || !this.rooms.has(roomRef)) {
           if (this.full())

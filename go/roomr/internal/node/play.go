@@ -18,7 +18,7 @@ const (
 	OpStopped   = "stopped"
 )
 
-// play fetches the file through the node's guarded client (the same one hold music uses) and
+// play fetches the file with the node's HTTP client (the one hold music uses) and
 // starts it on the room's clock.
 func (r *Room) play(ref, target, fileURL string) {
 	frames, err := r.node.fetchWav(fileURL)

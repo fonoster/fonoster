@@ -113,8 +113,9 @@ func (r *Room) orphaned() string {
 	empty := len(r.participants) == 0 && r.orphan.dialing == 0
 	idle := time.Since(r.orphan.idleSince)
 	owner := r.orphan.owner
+	emptyTimeout := r.emptyTimeout
 	r.mu.Unlock()
-	if empty && cfg.EmptyRoomTimeout > 0 && idle > cfg.EmptyRoomTimeout {
+	if empty && emptyTimeout > 0 && idle > emptyTimeout {
 		return "empty"
 	}
 	if owner != "" && cfg.OwnerTimeout > 0 {

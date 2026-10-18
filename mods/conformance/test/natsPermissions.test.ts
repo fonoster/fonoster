@@ -408,30 +408,17 @@ describe("@conformance/nats permissions (per-service users)", function () {
     cmds.unsubscribe();
   });
 
-  it("lets each service write only its own session-registry entries", async function () {
-    const nodeKv = await Sessions.openSessions(node);
+  it("lets the gateway and the control plane write only their own session-registry entries", async function () {
     const gwKv = await Sessions.openSessions(gw);
     const apiKv = await Sessions.openSessions(api);
-    // The node writes nodes.*; the control plane reads it (get and watch).
-    await nodeKv.put("nodes.n1", sc.encode('{"nodeId":"n1","rooms":1}'));
-    expect(await Sessions.getSession(apiKv, "nodes", "n1")).to.include({
-      nodeId: "n1"
-    });
-    const seen: string[] = [];
-    const stop = await Sessions.watchSessions(apiKv, "nodes", (e) =>
-      seen.push(e.id)
-    );
-    await sleep(300);
-    stop();
-    expect(seen).to.include("n1");
     // The gateway writes calls.* and gateways.*.
     await gwKv.put("calls.c1", sc.encode('{"callRef":"c1"}'));
     await gwKv.put("gateways.g1", sc.encode('{"gatewayRef":"g1"}'));
     // The control plane writes placements.* (outbound calls being placed) and deletes them.
     await apiKv.put("placements.p1", sc.encode('{"callRef":"p1"}'));
     await apiKv.delete("placements.p1");
-    // Everything else is refused.
-    const refused = async (kv: typeof nodeKv, key: string) => {
+    // Everything else is refused; the media node writes nothing to the registry any more.
+    const refused = async (kv: typeof gwKv, key: string) => {
       const ok = await kv.put(key, sc.encode("{}"), { timeout: 1000 }).then(
         () => true,
         () => false
@@ -440,10 +427,9 @@ describe("@conformance/nats permissions (per-service users)", function () {
     };
     await refused(apiKv, "nodes.forged");
     await refused(gwKv, "nodes.forged");
-    await refused(nodeKv, "calls.forged");
+    await refused(gwKv, "rooms.forged");
     await refused(apiKv, "calls.forged");
     await refused(gwKv, "placements.forged");
-    await refused(nodeKv, "placements.forged");
     expect(await Sessions.getSession(apiKv, "nodes", "forged")).to.equal(
       undefined
     );
@@ -456,11 +442,13 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(deleted).to.equal(false);
   });
 
-  it("keeps the media node write-only on the session registry (M7)", async function () {
-    const nodeKv = await Sessions.openSessions(node);
-    await nodeKv.put("nodes.n7", sc.encode('{"nodeId":"n7"}'));
-    await nodeKv.put("rooms.r7", sc.encode('{"roomRef":"r7"}'));
-    // A JetStream API request the user may not publish gets no answer.
+  it("gives the media node core NATS only: no session registry and no JetStream", async function () {
+    // It can't open the bucket, write any entry, or reach the JetStream API.
+    const opened = await Sessions.openSessions(node).then(
+      () => true,
+      () => false
+    );
+    expect(opened).to.equal(false);
     const answered = (conn: NatsConnection, subject: string, body: unknown) =>
       conn
         .request(subject, sc.encode(JSON.stringify(body)), { timeout: 1000 })
@@ -468,45 +456,19 @@ describe("@conformance/nats permissions (per-service users)", function () {
           (m) => !sc.decode(m.data).includes('"error"'),
           () => false
         );
-    const getLast = {
-      last_by_subj: "$KV.fonoster_sessions.nodes.n7"
-    };
-    // The control plane reads the entry...
+    expect(await answered(node, "$JS.API.INFO", {})).to.equal(false);
     expect(
-      await answered(api, "$JS.API.DIRECT.GET.KV_fonoster_sessions", getLast)
-    ).to.equal(true);
-    // ...the node can't read any entry (its own, other nodes', calls)...
-    expect(
-      await answered(node, "$JS.API.DIRECT.GET.KV_fonoster_sessions", getLast)
+      await answered(node, "$JS.API.STREAM.INFO.KV_fonoster_sessions", {})
     ).to.equal(false);
     expect(
-      await answered(node, "$JS.API.STREAM.MSG.GET.KV_fonoster_sessions", {
-        last_by_subj: "$KV.fonoster_sessions.calls.c1"
+      await answered(node, "$JS.API.DIRECT.GET.KV_fonoster_sessions", {
+        last_by_subj: "$KV.fonoster_sessions.nodes.n7"
       })
     ).to.equal(false);
-    // ...watch the registry...
-    expect(
-      await answered(node, "$JS.API.CONSUMER.CREATE.KV_fonoster_sessions", {
-        stream_name: "KV_fonoster_sessions",
-        config: { deliver_policy: "last_per_subject", ack_policy: "none" }
-      })
-    ).to.equal(false);
-    // ...or delete another service's watcher.
-    expect(
-      await answered(
-        node,
-        "$JS.API.CONSUMER.DELETE.KV_fonoster_sessions.any-watcher",
-        {}
-      )
-    ).to.equal(false);
-    // It still can't write outside nodes.* and rooms.*.
-    const wrote = await nodeKv
-      .put("gateways.g7", sc.encode("{}"), { timeout: 1000 })
-      .then(
-        () => true,
-        () => false
-      );
-    expect(wrote).to.equal(false);
+    // The heartbeat still gets through to the control plane (core NATS).
+    expect(await delivered(node, api, "roomr.nodes.n7.heartbeat")).to.equal(
+      true
+    );
   });
 
   it("limits a cell's region agent to region.> and its local subjects", async function () {

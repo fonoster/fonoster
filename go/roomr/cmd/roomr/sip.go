@@ -33,7 +33,7 @@ func buildRegistrations(fc *fileconfig.File) ([]sipua.Registration, error) {
 }
 
 // registrationStatePublisher publishes registration.state on roomr.nodes.<id>.events
-// (media-control, "Events on NATS are keyed by call with sequence numbers and labels").
+// (media-control, "Events on NATS are keyed by call with sequence numbers and metadata").
 func registrationStatePublisher(nc *nats.Conn, nodeID string, logger *slog.Logger) func(sipua.RegistrationState) {
 	subject := "roomr.nodes." + nodeID + ".events"
 	return func(s sipua.RegistrationState) {

@@ -125,9 +125,10 @@ type Room struct {
 	listeners    map[string][]fork
 	// plays are Roomr Play operations in progress.
 	plays []*playback
-	// stats of participants that already left (the node's totals include them).
-	goneStats jitter.Stats
-	orphan    orphanState
+	// maxParticipants and emptyTimeout are the node's defaults, or the room's own (CreateRoom).
+	maxParticipants int
+	emptyTimeout    time.Duration
+	orphan          orphanState
 }
 
 // fork sends one participant's track, unmixed, to a listener's RTP destination.
@@ -213,10 +214,6 @@ func (r *Room) attachListener(cmd Command, ack replyFn, fail failFn) Command {
 			closeAll()
 			return fail("bad_message", block.badSRTP)
 		}
-		if r.node.cfg.RequireEncryption && !block.hasSRTP {
-			closeAll()
-			return fail("encryption_required", "this node requires srtp on every rtp block")
-		}
 		ep, err := rtpio.Listen(r.node.cfg.RTPHost)
 		if err != nil {
 			closeAll()
@@ -257,6 +254,7 @@ func (r *Room) detachListener(ref string) bool {
 func newRoom(n *Node, ref string) *Room {
 	now := time.Now()
 	return &Room{Ref: ref, node: n, created: now, maxDuration: n.cfg.MaxDuration,
+		maxParticipants: n.cfg.MaxParticipants, emptyTimeout: n.cfg.EmptyRoomTimeout,
 		participants: map[string]*Participant{}, done: make(chan struct{}), orphan: orphanState{idleSince: now}}
 }
 
@@ -269,7 +267,7 @@ func (r *Room) add(p *Participant) error {
 	if r.ended {
 		return fmt.Errorf("room ended")
 	}
-	if len(r.participants) >= r.node.cfg.MaxParticipants {
+	if len(r.participants) >= r.maxParticipants {
 		return errRoomFull
 	}
 	r.nextTrack++
@@ -312,7 +310,6 @@ func (r *Room) reportDTMF(p *Participant, digit, source string) {
 	if dup {
 		return
 	}
-	r.node.dtmfReported.Add(1)
 	r.node.emit(r.Ref, Event{"type": "dtmf", "participantRef": p.Ref, "digit": digit, "source": source})
 }
 
@@ -340,13 +337,10 @@ func (r *Room) infoDTMF(p *Participant, digit string) {
 	r.reportDTMF(p, digit, SourceSIPInfo)
 }
 
-// prepareSRTP checks an offer's encryption against the node's policy and, for SAVP offers, keys
-// the endpoint. It returns a SIP status on refusal.
+// prepareSRTP keys the endpoint when the offer is SAVP (SDES-SRTP is optional: a plain offer
+// stays plain). It returns a SIP status on refusal.
 func (r *Room) prepareSRTP(p *Participant, m sdp.Media) int {
 	if !m.Secure {
-		if r.node.cfg.RequireEncryption {
-			return 488
-		}
 		return 0
 	}
 	for _, c := range m.Crypto {
@@ -461,15 +455,12 @@ func (r *Room) addSession(cmd Command, ack replyFn, fail failFn) Command {
 	if block.badSRTP != "" {
 		return fail("bad_message", block.badSRTP)
 	}
-	if r.node.cfg.RequireEncryption && !block.hasSRTP {
-		return fail("encryption_required", "this node requires srtp on the gateway leg")
-	}
 	pt := block.payloadType
 	if pt < 0 {
 		pt = defaultPayloadType(block.codec)
 	}
 	r.mu.Lock()
-	full := len(r.participants) >= r.node.cfg.MaxParticipants
+	full := len(r.participants) >= r.maxParticipants
 	r.mu.Unlock()
 	if full {
 		return fail("room_full", "")
@@ -510,15 +501,9 @@ func (r *Room) addSession(cmd Command, ack replyFn, fail failFn) Command {
 	return ack(Command{"participantRef": p.Ref, "rtp": reply})
 }
 
-// retire closes a participant's endpoint and keeps its counters for the node's totals.
+// retire closes a participant's endpoint.
 func (r *Room) retire(p *Participant) {
 	p.endpoint.Close()
-	if p.jb != nil {
-		st := p.jb.Stats()
-		r.mu.Lock()
-		r.goneStats = r.goneStats.Add(st)
-		r.mu.Unlock()
-	}
 }
 
 // remove takes a participant out; a phone participant also gets a BYE.
@@ -706,12 +691,8 @@ func (r *Room) run() {
 		now := time.Now()
 		due := int(now.Sub(next)/period) + 1
 		if due > maxCatchUp {
-			r.node.missedTicks.Add(uint64(due - maxCatchUp))
 			next = next.Add(time.Duration(due-maxCatchUp) * period)
 			due = maxCatchUp
-		}
-		if due > 1 {
-			r.node.lateTicks.Add(uint64(due - 1))
 		}
 		for i := 0; i < due; i++ {
 			r.tick()
@@ -783,7 +764,6 @@ func (r *Room) tick() {
 		others = playsFor(p.Ref, plays, others)
 		p.endpoint.Send(audio.Mix(others...))
 	}
-	r.node.framesMixed.Add(uint64(len(parts)))
 }
 
 func (r *Room) checkLimits() {
@@ -823,17 +803,4 @@ func (r *Room) setMaxDuration(cmd Command) {
 		r.maxDuration = d
 	}
 	r.mu.Unlock()
-}
-
-// jitterStats sums the room's jitter buffers, including participants that left.
-func (r *Room) jitterStats() jitter.Stats {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	total := r.goneStats
-	for _, p := range r.participants {
-		if p.jb != nil {
-			total = total.Add(p.jb.Stats())
-		}
-	}
-	return total
 }

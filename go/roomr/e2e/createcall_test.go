@@ -78,7 +78,7 @@ func TestCreateCallDedupe(t *testing.T) {
 	r := start(t)
 	_, mc := r.withControl(nil)
 	ref := fmt.Sprintf("dedupe-%d", time.Now().UnixNano())
-	req := &roomrv1.CreateCallRequest{CallRef: ref, Labels: map[string]string{"k": "v"},
+	req := &roomrv1.CreateCallRequest{CallRef: ref, Metadata: map[string]string{"k": "v"},
 		To: &roomrv1.SipTarget{Uri: "sip:+1555@carrier.invalid", Proxy: r.callee.Address(),
 			Headers: map[string]string{"X-A": "1"}, Auth: &roomrv1.SipAuth{Username: "u", Password: "p"}}}
 	first, err := mc.CreateCall(rpcCtx(t), req)
@@ -103,11 +103,11 @@ func TestCreateCallDedupe(t *testing.T) {
 		"auth": func(q *roomrv1.CreateCallRequest) {
 			q.To.Auth = &roomrv1.SipAuth{Username: "u", Password: "zz-other-secret"}
 		},
-		"labels":   func(q *roomrv1.CreateCallRequest) { q.Labels = nil },
+		"metadata": func(q *roomrv1.CreateCallRequest) { q.Metadata = nil },
 		"ring":     func(q *roomrv1.CreateCallRequest) { q.RingTimeoutS = 5 },
 		"room_ref": func(q *roomrv1.CreateCallRequest) { q.RoomRef = "elsewhere" },
 	} {
-		q := &roomrv1.CreateCallRequest{CallRef: ref, Labels: map[string]string{"k": "v"},
+		q := &roomrv1.CreateCallRequest{CallRef: ref, Metadata: map[string]string{"k": "v"},
 			To: &roomrv1.SipTarget{Uri: req.To.Uri, Proxy: req.To.Proxy, Headers: map[string]string{"X-A": "1"},
 				Auth: &roomrv1.SipAuth{Username: "u", Password: "p"}}}
 		change(q)
@@ -233,28 +233,5 @@ func TestCreateCallHeadersByteForByte(t *testing.T) {
 	}
 	if len(st.Headers) != 2 {
 		t.Fatalf("INVITE X- headers = %v, want exactly the two given", st.Headers)
-	}
-}
-
-// TestCreateCallDedupeWindowEnds: once the dedupe window has passed since the call ended, its
-// call_ref is free again and a CreateCall with it dials anew.
-func TestCreateCallDedupeWindowEnds(t *testing.T) {
-	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.CallDedupeWindow = 300 * time.Millisecond }})
-	_, mc := r.withControl(nil)
-	r.callee.Callee("busy", 0)
-	ref := fmt.Sprintf("window-%d", time.Now().UnixNano())
-	req := &roomrv1.CreateCallRequest{CallRef: ref,
-		To: &roomrv1.SipTarget{Uri: "sip:+1555@carrier.invalid", Proxy: r.callee.Address()}}
-	if _, err := mc.CreateCall(rpcCtx(t), req); err != nil {
-		t.Fatal(err)
-	}
-	r.waitEvent(typed("call.progress", "callRef", ref, "cause", "busy"), 3*time.Second)
-	if again, err := mc.CreateCall(rpcCtx(t), req); err != nil || again.State != roomrv1.Call_ENDED {
-		t.Fatalf("within the window = %v %v", again, err)
-	}
-	time.Sleep(500 * time.Millisecond)
-	fresh, err := mc.CreateCall(rpcCtx(t), req)
-	if err != nil || fresh.State != roomrv1.Call_RINGING {
-		t.Fatalf("after the window = %v %v", fresh, err)
 	}
 }

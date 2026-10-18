@@ -25,7 +25,11 @@ export type MediaNodeStatus = {
   maxRooms?: number;
   /** The node's region; unset for nodes that report none. */
   region?: string;
-  draining: boolean;
+  /**
+   * The node said `node.down` (it is draining or exiting) and has not sent a heartbeat since: it
+   * takes no new calls, but its live calls are not failed for it (see `live`).
+   */
+  down: boolean;
   /** Where the node serves Roomr (the heartbeat's control_addr); unset: no calls placed on it. */
   controlAddr?: string;
   seenAt: number;
@@ -44,10 +48,11 @@ export const NODE_STALE_MS = 6000;
 export const NODE_FORGET_MS = 60_000;
 
 /**
- * The media nodes this replica knows, for placing outbound calls (add-media-node 3.3): fed by the
- * session registry's `nodes.` entries (JetStream KV, 3.2; read in full at start, so a restarted
- * replica places calls at once) and by `node.heartbeat` / `node.down` events on
- * `roomr.nodes.<node_ref>.heartbeat`.
+ * The media nodes this replica knows, for placing outbound calls (add-media-node 3.3): fed by
+ * the `node.heartbeat` / `node.down` events on `roomr.nodes.<node_ref>.heartbeat` (core NATS;
+ * nodes write nothing else). `node.down` only takes the node out of placement: a draining node
+ * keeps its live rooms and sends no heartbeats, so it is "gone" only after it stays silent for
+ * `staleMs` past its `node.down`.
  */
 export function createNodeDirectory(
   options: { staleMs?: number; forgetMs?: number; now?: () => number } = {}
@@ -74,7 +79,11 @@ export function createNodeDirectory(
       const nodeId = typeof event.node_ref === "string" ? event.node_ref : "";
       if (!nodeId) return;
       if (event.type === "node.down") {
-        nodes.delete(nodeId);
+        const known = nodes.get(nodeId);
+        if (known) {
+          known.down = true;
+          known.seenAt = seenAt ?? now();
+        }
       } else if (event.type === "node.heartbeat") {
         const at = seenAt ?? now();
         const known = nodes.get(nodeId);
@@ -90,7 +99,7 @@ export function createNodeDirectory(
             typeof event.region === "string" && event.region
               ? event.region
               : undefined,
-          draining: event.draining === true,
+          down: false,
           controlAddr:
             typeof event.control_addr === "string" && event.control_addr
               ? event.control_addr
@@ -101,7 +110,7 @@ export function createNodeDirectory(
       forget();
     },
     /**
-     * The eligible node with the most room to spare (control-plane): live, not draining, below
+     * The eligible node with the most room to spare (control-plane): live, not down, below
      * its room limit, with a control address and, when the call names a region, in that region; scored
      * `1 - rooms / max_rooms`, highest wins. Skips the nodes in `exclude` (already tried for
      * this call); undefined when there is none.
@@ -112,7 +121,7 @@ export function createNodeDirectory(
     ): string | undefined {
       let best: { node: MediaNodeStatus; score: number } | undefined;
       for (const n of nodes.values()) {
-        if (exclude.has(n.nodeId) || n.draining || !n.controlAddr) continue;
+        if (exclude.has(n.nodeId) || n.down || !n.controlAddr) continue;
         if (now() - n.seenAt > staleMs) continue;
         if (region && n.region !== region) continue;
         const limit = n.maxRooms ?? DEFAULT_MAX_ROOMS;
@@ -123,16 +132,19 @@ export function createNodeDirectory(
       return best?.node.nodeId;
     },
     /**
-     * A node refused a room because it is full or draining: no new call goes to it until its
-     * next heartbeat says otherwise.
+     * A node refused a room because it is full or unavailable: no new call goes to it until
+     * its next heartbeat says otherwise.
      */
     refused(nodeId: string, code: string) {
       const n = nodes.get(nodeId);
       if (!n) return;
-      if (code === "draining") n.draining = true;
+      if (code === "unavailable") n.down = true;
       else n.maxRooms = Math.min(n.maxRooms ?? n.rooms, n.rooms);
     },
-    /** Whether the node's last heartbeat is fresh (it is not down). */
+    /**
+     * Whether the node is still there: a heartbeat, or its `node.down`, is fresh. A node that
+     * said `node.down` stays live for `staleMs` more; after that, silence means it exited.
+     */
     live(nodeId: string): boolean {
       const n = nodes.get(nodeId);
       return !!n && now() - n.seenAt <= staleMs;

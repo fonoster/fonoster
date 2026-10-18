@@ -168,9 +168,13 @@ roomr:
   image: { repository: fonoster/roomr, tag: dev, pullPolicy: IfNotPresent }
   # Each pod is one node; its id is the pod name.
   replicas: 2
-  # Drain grace = the node's drain wait (maxWait): SIGTERM stops new rooms, existing ones may end
-  # naturally until this many seconds pass.
+  # Rollouts drain: on SIGTERM the node fails its gRPC readiness probe, unregisters, publishes
+  # node.down and keeps its live rooms until they end or this many seconds pass (roomr.yaml's
+  # drainWait). terminationGracePeriodSeconds is this plus a margin.
   drainGraceSeconds: 600
+  # Keeps voluntary disruptions (node drains, rollouts) from taking every node at once: set
+  # minAvailable (default 1) or maxUnavailable; null renders no PodDisruptionBudget.
+  podDisruptionBudget: { minAvailable: 1 }
   # RTP is UDP on a port range, so the pod uses the host network by default.
   hostNetwork: true
   rtp:
@@ -200,21 +204,15 @@ roomr:
   # The header that carries a call's ref: Routr's X-Call-Ref names inbound calls, and the
   # apiserver sends it on the calls it places.
   callRefHeader: X-Call-Ref
-  # IPs, CIDRs or host names allowed to send INVITEs: Routr's addresses. The node trusts
-  # X-App-Ref, X-Call-Ref and X-Call-Direction only from these (RV-B7); with hostNetwork, port
-  # 5060 is reachable on the node's address. The default keeps the private ranges only (no
-  # INVITE from the internet); narrow it to Routr's pod CIDR or address. Empty refuses to render
-  # unless allowAnySource is true (development only).
-  trustedSources: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
-  allowAnySource: false
-  # SIP over TLS toward the edge (add-platform 4.2). `secret` holds tls.crt and tls.key (the
-  # node's certificate) and ca.crt (the CA that signs the edge's certificates). mutual: the
-  # listener requires a client certificate signed by ca.crt from every connection (Routr's).
+  # The node's SIP port must be reachable only from Routr: a NetworkPolicy when it runs on the
+  # pod network, or a host firewall when hostNetwork is true (the default). Roomr trusts the
+  # X-App-Ref, X-Call-Ref and X-Call-Direction headers of whoever reaches it.
+  # Optional SIP over TLS (off by default). `secret` holds tls.crt and tls.key (the node's
+  # certificate) and ca.crt (the CA that signs the edge's certificates).
   tls:
     enabled: false
     listen: 0.0.0.0:5061
     secret: roomr-tls
-    mutual: true
   resources: {}
 
 # The hosted Autopilot session engine (Autopilot apps point to ws://<release>-autopilot:3000). A

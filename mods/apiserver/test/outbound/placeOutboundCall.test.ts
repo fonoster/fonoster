@@ -117,7 +117,7 @@ function nodesUpTo(count: number) {
 }
 
 describe("@apiserver[outbound/createNodeDirectory]", function () {
-  it("picks the least-loaded live node that is not draining", function () {
+  it("picks the least-loaded live node that is not down", function () {
     let now = 0;
     const nodes = createNodeDirectory({ staleMs: 100, now: () => now });
     nodes.note({
@@ -136,9 +136,9 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
       type: "node.heartbeat",
       control_addr: "127.0.0.1:1",
       node_ref: "c",
-      rooms: 0,
-      draining: true
+      rooms: 0
     });
+    nodes.note({ type: "node.down", node_ref: "c" });
     expect(nodes.pick()).to.equal("b");
 
     nodes.placed("b");
@@ -191,8 +191,8 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
       max_rooms: 20
     });
     expect(nodes.pick()).to.equal("b");
-    nodes.refused("b", "draining");
-    expect(nodes.list().find((n) => n.nodeId === "b")?.draining).to.equal(true);
+    nodes.refused("b", "unavailable");
+    expect(nodes.list().find((n) => n.nodeId === "b")?.down).to.equal(true);
     expect(nodes.pick()).to.equal("c");
   });
 
@@ -207,10 +207,11 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
         max_rooms: 200,
         ...extra
       });
-    // control-plane "Least-loaded node chosen": A 40 of 200, B 12 of 200, C draining with 3.
+    // control-plane "Least-loaded node chosen": A 40 of 200, B 12 of 200, C down with 3.
     beat("A", 40, { region: "us-east" });
     beat("B", 12, { region: "eu-west" });
-    beat("C", 3, { draining: true, region: "us-east" });
+    beat("C", 3, { region: "us-east" });
+    nodes.note({ type: "node.down", node_ref: "C" });
     expect(nodes.pick()).to.equal("B");
     // A higher limit wins over fewer rooms: 30 of 1000 scores above 12 of 200.
     beat("D", 30, { max_rooms: 1000, region: "us-east" });
@@ -221,23 +222,31 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
     expect(nodes.pick(new Set(), "ap-south")).to.equal(undefined);
   });
 
-  it("ignores cpu_idle: a busy CPU below its room limit is still the best node", function () {
-    const nodes = createNodeDirectory();
+  it("node.down only takes the node out of placement; it is gone after staleMs of silence", function () {
+    let now = 0;
+    const nodes = createNodeDirectory({ staleMs: 6000, now: () => now });
     nodes.note({
       type: "node.heartbeat",
-      node_ref: "busy-cpu",
-      rooms: 1,
-      cpu_idle: 0.02,
+      node_ref: "a",
+      rooms: 2,
       control_addr: "a1"
     });
+    now = 1000;
+    nodes.note({ type: "node.down", node_ref: "a" });
+    expect(nodes.pick()).to.equal(undefined);
+    expect(nodes.live("a")).to.equal(true); // draining, not gone
+    now = 1000 + 5000;
+    expect(nodes.live("a")).to.equal(true);
+    now = 1000 + 7000; // silent since node.down: the process exited
+    expect(nodes.live("a")).to.equal(false);
+    // A node that comes back (a restart) is offered again.
     nodes.note({
       type: "node.heartbeat",
-      node_ref: "idle-cpu",
-      rooms: 9,
-      cpu_idle: 0.99,
-      control_addr: "a2"
+      node_ref: "a",
+      rooms: 0,
+      control_addr: "a1"
     });
-    expect(nodes.pick()).to.equal("busy-cpu");
+    expect(nodes.pick()).to.equal("a");
   });
 
   it("offers only nodes with a control address", function () {
@@ -386,7 +395,7 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
         auth: OUTBOUND.auth
       },
       ringTimeoutS: 30,
-      labels: { appRef: "app-1" }
+      metadata: { app_ref: "app-1" }
     });
   });
 
@@ -636,67 +645,6 @@ describe("@apiserver[outbound/runOutboundCalls] with the session registry", func
       .delete(`KV_${bucket}`)
       .catch(() => undefined);
     await nc.close();
-  });
-
-  it("places a call at once after a restart, from nodes in the registry (no heartbeat)", async function () {
-    const kv = await Sessions.openSessions(nc, { bucket });
-    // Nodes without NATS: only their registry entries tell the replica about them.
-    const busy = new FakeRoomr();
-    const idle = new FakeRoomr();
-    const draining = new FakeRoomr();
-    for (const f of [busy, idle, draining]) await f.start();
-    const leases = new Sessions.SessionLeases(kv);
-    const entry = (f: FakeRoomr, rooms: number, extra = {}) =>
-      leases.set("nodes", f.nodeRef, {
-        node_ref: f.nodeRef,
-        rooms,
-        control_addr: f.controlAddr,
-        ...extra
-      });
-    await entry(busy, 40);
-    await entry(idle, 12);
-    await entry(draining, 3, { draining: true });
-    const gateway = nc.subscribe("gateway.outbound", {
-      queue: "gateway-outbound",
-      callback: (_e, msg) =>
-        msg.respond(sc.encode(JSON.stringify({ type: "ack" })))
-    });
-    // A replica that just started: it has never seen a heartbeat.
-    const stop = await runOutboundCalls({
-      nc,
-      sessionsBucket: bucket,
-      outbound: OUTBOUND
-    });
-    try {
-      await new Promise((r) => setTimeout(r, 100));
-      const reply = await nc.request(
-        "calls.create",
-        sc.encode(JSON.stringify(CALL)),
-        { timeout: 5000 }
-      );
-      expect(JSON.parse(sc.decode(reply.data))).to.include({
-        type: "ack",
-        nodeId: idle.nodeRef
-      });
-      expect(idle.of("CreateCall")).to.have.length(1);
-      // A node that leaves deletes its entry: no longer offered.
-      await leases.delete("nodes", idle.nodeRef);
-      await new Promise((r) => setTimeout(r, 100));
-      const second = await nc.request(
-        "calls.create",
-        sc.encode(JSON.stringify({ ...CALL, ref: "call-2" })),
-        { timeout: 5000 }
-      );
-      expect(JSON.parse(sc.decode(second.data))).to.include({
-        nodeId: busy.nodeRef
-      });
-      expect(draining.requests).to.have.length(0);
-    } finally {
-      await stop();
-      await leases.close();
-      gateway.unsubscribe();
-      for (const f of [busy, idle, draining]) await f.stop();
-    }
   });
 
   it("writes the placement before the RPC and deletes it after; the sweep ends a call whose placer died", async function () {

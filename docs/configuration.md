@@ -177,9 +177,9 @@ Autopilot no longer falls back to `APISERVER_DATABASE_URL` and `database.urlEnv`
 
 ### Media node → `roomr.yaml`
 
-The media node reads no `ROOMR_*` variables. Each one is a key (see
-`ops/bundle/config/roomr.example.yaml`); reference the variable as `${NAME}` to keep the value
-in the environment.
+The media node reads no `ROOMR_*` variables and takes one flag only, `-config <path>`. Each
+setting is a key in that file (see `ops/bundle/config/roomr.example.yaml`); reference the
+variable as `${NAME}` to keep the value in the environment.
 
 | Variable | Key |
 |---|---|
@@ -188,11 +188,11 @@ in the environment.
 | `ROOMR_SIP_LISTEN / _SIP_ADVERTISE` | `sip.listen / advertise` |
 | `ROOMR_RTP_HOST / _RTP_ADVERTISE / _RTP_PORT_MIN / _RTP_PORT_MAX` | `rtp.host / advertise / portMin / portMax` |
 | `ROOMR_REGISTRAR / _DOMAIN / _USERNAME / _PASSWORD / _TRANSPORT / _REGISTER_EVERY` | `sip.registrations[]`: `registrar` (`;transport=` for tcp/tls), `aor` (`sip:<username>@<domain>`), `auth.username / auth.password`, `expires` (twice the old interval), `headers: { X-Session-Count: "{sessions}" }` (the old `registration` block and flags are removed) |
-| `ROOMR_OUTBOUND_PROXY / _OUTBOUND_TRANSPORT` | `outboundProxy / outboundTransport` |
-| (new) | `sip.callRefHeader` (the header carrying a call's ref, `X-Call-Ref` with Routr), `callDedupeWindow` (how long an ended CreateCall `call_ref` is remembered, 10m) and `control.grpc.listen / advertise` (Roomr for the apiserver's outbound calls, port 50061) |
-| `ROOMR_TLS_LISTEN / _TLS_CERT / _TLS_KEY / _TLS_CA / _TLS_CLIENT_CA` | `tls.listen / cert / key / ca / clientCa` |
-| `ROOMR_DEBUG_ADDR / _DRAIN_WAIT / _MAX_DURATION / _MAX_PARTICIPANTS / _MEDIA_TIMEOUT` | `debugAddr / drainWait / maxDuration / maxParticipants / mediaTimeout` |
-| `ROOMR_SESSION_REGISTRY / _REQUIRE_ENCRYPTION / _TRUSTED_SOURCES` | `sessionRegistry / requireEncryption / trustedSources (a list)` |
+| `ROOMR_OUTBOUND_PROXY / _OUTBOUND_TRANSPORT` | `outboundProxy`, as a SIP URI when it needs a transport: `sip:host:5060;transport=tcp` (`outboundTransport` is removed) |
+| (new) | `sip.callRefHeader` (the header carrying a call's ref, `X-Call-Ref` with Routr), `heartbeatInterval` (2s), `reregisterDelta` (5) and `control.grpc.listen / advertise` (Roomr for the apiserver's outbound calls, port 50061) |
+| `ROOMR_TLS_LISTEN / _TLS_CERT / _TLS_KEY / _TLS_CA` | `tls.listen / cert / key / ca` (optional SIP over TLS; `tls.clientCa` is removed) |
+| `ROOMR_DRAIN_WAIT / _MAX_DURATION / _MAX_PARTICIPANTS / _MEDIA_TIMEOUT` | `drainWait / maxDuration / maxParticipants / mediaTimeout` (`debugAddr` is removed: the heartbeat and the gRPC health service replace it) |
+| `ROOMR_SESSION_REGISTRY / _REQUIRE_ENCRYPTION / _TRUSTED_SOURCES` | removed: the node writes nothing to the session registry, requires no encryption and filters no sources (network isolation is the boundary); `allowedDestinations` moved to the apiserver and appbridge (`FONOSTER_ALLOWED_DESTINATIONS`) |
 
 ### Easy to get wrong
 

@@ -142,31 +142,59 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(find(objs, "StatefulSet", "fonoster-nats")).to.not.exist;
   });
 
-  it("media nodes accept INVITEs only from trusted sources by default and refuse to render open (H9)", function () {
-    // The media node's config file, from the chart's ConfigMap.
-    const trustedOf = (objs: K8sObject[]) => {
-      const cm = find(objs, "ConfigMap", "fonoster-roomr");
-      const cfg = parseAllDocuments(
-        cm?.data?.["roomr.yaml"] ?? ""
-      )[0]?.toJS() as { trustedSources?: string[] } | undefined;
-      return cfg?.trustedSources;
+  it("rolls media nodes out by draining: gRPC readiness, a long grace period and a PodDisruptionBudget", function () {
+    const objs = render();
+    const sts = find(objs, "StatefulSet", "fonoster-roomr")!;
+    const spec = sts.spec as {
+      template: {
+        spec: {
+          terminationGracePeriodSeconds: number;
+          containers: {
+            args?: string[];
+            readinessProbe?: { grpc?: { port: number } };
+            startupProbe?: { grpc?: { port: number } };
+          }[];
+        };
+      };
     };
-    const trusted = trustedOf(render());
-    expect(trusted, "a default trusted-sources list").to.be.an("array").that.is
-      .not.empty;
-    expect(trusted).to.not.include("0.0.0.0/0");
-    expect(() =>
-      execFileSync(
-        "helm",
-        ["template", "fonoster", CHART, "--set=roomr.trustedSources="],
-        { stdio: "pipe" }
-      )
-    ).to.throw(/trustedSources is empty/);
+    const pod = spec.template.spec;
+    const c = pod.containers[0];
+    // The control port's gRPC health service is the readiness (and startup) probe.
+    expect(c.readinessProbe?.grpc?.port).to.equal(50061);
+    expect(c.startupProbe?.grpc?.port).to.equal(50061);
+    // No flags but the config file: drain wait and the rest are in roomr.yaml.
+    expect(c.args).to.equal(undefined);
+    const drainWait = roomrConfig(objs).drainWait as string;
+    expect(drainWait).to.equal("600s");
+    expect(pod.terminationGracePeriodSeconds).to.be.greaterThan(600);
+    const pdb = find(objs, "PodDisruptionBudget", "fonoster-roomr")!;
+    expect(pdb.spec).to.deep.include({ minAvailable: 1 });
+    // maxUnavailable instead, from values.
+    const alt = find(
+      render(
+        "--set=roomr.podDisruptionBudget.minAvailable=null",
+        "--set=roomr.podDisruptionBudget.maxUnavailable=1"
+      ),
+      "PodDisruptionBudget",
+      "fonoster-roomr"
+    )!;
+    expect(alt.spec).to.deep.include({ maxUnavailable: 1 });
+    expect(alt.spec).to.not.have.property("minAvailable");
+    // And no PodDisruptionBudget at all when disabled.
     expect(
-      trustedOf(
-        render("--set=roomr.trustedSources=", "--set=roomr.allowAnySource=true")
+      find(
+        render("--set=roomr.podDisruptionBudget=null"),
+        "PodDisruptionBudget",
+        "fonoster-roomr"
       )
     ).to.equal(undefined);
+  });
+
+  it("renders no trusted-sources setting for the media nodes (network isolation is the boundary)", function () {
+    const config = roomrConfig(render());
+    expect(config).to.not.have.property("trustedSources");
+    expect(config).to.not.have.property("debugAddr");
+    expect(config).to.not.have.property("sessionRegistry");
   });
 
   it("renders every deployable of the cloud install, with a migrations Job", function () {
@@ -434,14 +462,13 @@ describe("@conformance/deployment (Helm chart)", function () {
     ).to.not.include("records");
   });
 
-  it("renders the media nodes' mutual TLS toward the edge (add-platform 4.2)", function () {
+  it("renders the media nodes' optional SIP over TLS", function () {
     const objs = render("--set=roomr.tls.enabled=true");
     expect(roomrConfig(objs).tls).to.deep.equal({
       listen: "0.0.0.0:5061",
       cert: "/etc/roomr/tls/tls.crt",
       key: "/etc/roomr/tls/tls.key",
-      ca: "/etc/roomr/tls/ca.crt",
-      clientCa: "/etc/roomr/tls/ca.crt"
+      ca: "/etc/roomr/tls/ca.crt"
     });
     expect(
       JSON.stringify(find(objs, "StatefulSet", "fonoster-roomr")!.spec)
@@ -452,7 +479,7 @@ describe("@conformance/deployment (Helm chart)", function () {
   // fix-config-and-placement-gaps: the node reads no ROOMR_* variables, so the chart passes
   // everything in roomr.yaml, with the pod's own values as ${VAR} placeholders.
   it("configures the media nodes through roomr.yaml, not ROOMR_* variables", function () {
-    const objs = render("--set=roomr.trustedSources=10.0.0.1");
+    const objs = render();
     const node = find(objs, "StatefulSet", "fonoster-roomr")!;
     // (NATS_ROOMR_PASSWORD is the node's NATS password, nats.auth.)
     expect(JSON.stringify(node)).to.not.match(/"ROOMR_|\$\{ROOMR_/);
@@ -491,7 +518,6 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(config.outboundProxy).to.equal("routr:5060");
     // Roomr (gRPC) for the apiserver's CreateCall, advertised on sip.advertise's host.
     expect(config.control).to.deep.equal({ grpc: { listen: "0.0.0.0:50061" } });
-    expect(config.trustedSources).to.deep.equal(["10.0.0.1"]);
     // Every placeholder is a variable the pod sets.
     const env = JSON.stringify(node.spec);
     ["POD_NAME", "HOST_IP", "ROUTR_PEER_PASSWORD"].forEach((v) =>

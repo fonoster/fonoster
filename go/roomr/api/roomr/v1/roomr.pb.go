@@ -253,8 +253,9 @@ type CreateCallRequest struct {
 	Session string `protobuf:"bytes,5,opt,name=session,proto3" json:"session,omitempty"`
 	// How long the callee may ring (default 60 s).
 	RingTimeoutS uint32 `protobuf:"varint,6,opt,name=ring_timeout_s,json=ringTimeoutS,proto3" json:"ring_timeout_s,omitempty"`
-	// Echoed in the events the node publishes for this call.
-	Labels map[string]string `protobuf:"bytes,7,rep,name=labels,proto3" json:"labels,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	// Passed through untouched in the events the node publishes for this call (opaque to the
+	// node; callers use it for their own references, e.g. app_ref).
+	Metadata map[string]string `protobuf:"bytes,7,rep,name=metadata,proto3" json:"metadata,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Lowers the node's maximum call duration for this call's room; higher values are ignored.
 	MaxDurationS  uint32 `protobuf:"varint,8,opt,name=max_duration_s,json=maxDurationS,proto3" json:"max_duration_s,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -333,9 +334,9 @@ func (x *CreateCallRequest) GetRingTimeoutS() uint32 {
 	return 0
 }
 
-func (x *CreateCallRequest) GetLabels() map[string]string {
+func (x *CreateCallRequest) GetMetadata() map[string]string {
 	if x != nil {
-		return x.Labels
+		return x.Metadata
 	}
 	return nil
 }
@@ -463,10 +464,14 @@ func (x *EndCallRequest) GetCallRef() string {
 type CreateRoomRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Empty: the node picks one. A ref already in use fails with ALREADY_EXISTS.
-	RoomRef       string `protobuf:"bytes,1,opt,name=room_ref,json=roomRef,proto3" json:"room_ref,omitempty"`
-	MaxDurationS  uint32 `protobuf:"varint,2,opt,name=max_duration_s,json=maxDurationS,proto3" json:"max_duration_s,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	RoomRef      string `protobuf:"bytes,1,opt,name=room_ref,json=roomRef,proto3" json:"room_ref,omitempty"`
+	MaxDurationS uint32 `protobuf:"varint,2,opt,name=max_duration_s,json=maxDurationS,proto3" json:"max_duration_s,omitempty"`
+	// Overrides the node's emptyRoomTimeout for this room; 0 keeps the node's setting.
+	EmptyTimeoutS uint32 `protobuf:"varint,3,opt,name=empty_timeout_s,json=emptyTimeoutS,proto3" json:"empty_timeout_s,omitempty"`
+	// Overrides the node's maxParticipants for this room; 0 keeps the node's setting.
+	MaxParticipants uint32 `protobuf:"varint,4,opt,name=max_participants,json=maxParticipants,proto3" json:"max_participants,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *CreateRoomRequest) Reset() {
@@ -509,6 +514,20 @@ func (x *CreateRoomRequest) GetRoomRef() string {
 func (x *CreateRoomRequest) GetMaxDurationS() uint32 {
 	if x != nil {
 		return x.MaxDurationS
+	}
+	return 0
+}
+
+func (x *CreateRoomRequest) GetEmptyTimeoutS() uint32 {
+	if x != nil {
+		return x.EmptyTimeoutS
+	}
+	return 0
+}
+
+func (x *CreateRoomRequest) GetMaxParticipants() uint32 {
+	if x != nil {
+		return x.MaxParticipants
 	}
 	return 0
 }
@@ -1361,17 +1380,17 @@ const file_roomr_v1_roomr_proto_rawDesc = "" +
 	"\x04auth\x18\x04 \x01(\v2\x11.roomr.v1.SipAuthR\x04auth\x1a:\n" +
 	"\fHeadersEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe4\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xec\x02\n" +
 	"\x11CreateCallRequest\x12\x19\n" +
 	"\bcall_ref\x18\x01 \x01(\tR\acallRef\x12#\n" +
 	"\x02to\x18\x02 \x01(\v2\x13.roomr.v1.SipTargetR\x02to\x12\x12\n" +
 	"\x04from\x18\x03 \x01(\tR\x04from\x12\x19\n" +
 	"\broom_ref\x18\x04 \x01(\tR\aroomRef\x12\x18\n" +
 	"\asession\x18\x05 \x01(\tR\asession\x12$\n" +
-	"\x0ering_timeout_s\x18\x06 \x01(\rR\fringTimeoutS\x12?\n" +
-	"\x06labels\x18\a \x03(\v2'.roomr.v1.CreateCallRequest.LabelsEntryR\x06labels\x12$\n" +
-	"\x0emax_duration_s\x18\b \x01(\rR\fmaxDurationS\x1a9\n" +
-	"\vLabelsEntry\x12\x10\n" +
+	"\x0ering_timeout_s\x18\x06 \x01(\rR\fringTimeoutS\x12E\n" +
+	"\bmetadata\x18\a \x03(\v2).roomr.v1.CreateCallRequest.MetadataEntryR\bmetadata\x12$\n" +
+	"\x0emax_duration_s\x18\b \x01(\rR\fmaxDurationS\x1a;\n" +
+	"\rMetadataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc0\x01\n" +
 	"\x04Call\x12\x19\n" +
@@ -1384,10 +1403,12 @@ const file_roomr_v1_roomr_proto_rawDesc = "" +
 	"\bANSWERED\x10\x01\x12\t\n" +
 	"\x05ENDED\x10\x02\"+\n" +
 	"\x0eEndCallRequest\x12\x19\n" +
-	"\bcall_ref\x18\x01 \x01(\tR\acallRef\"T\n" +
+	"\bcall_ref\x18\x01 \x01(\tR\acallRef\"\xa7\x01\n" +
 	"\x11CreateRoomRequest\x12\x19\n" +
 	"\broom_ref\x18\x01 \x01(\tR\aroomRef\x12$\n" +
-	"\x0emax_duration_s\x18\x02 \x01(\rR\fmaxDurationS\"!\n" +
+	"\x0emax_duration_s\x18\x02 \x01(\rR\fmaxDurationS\x12&\n" +
+	"\x0fempty_timeout_s\x18\x03 \x01(\rR\remptyTimeoutS\x12)\n" +
+	"\x10max_participants\x18\x04 \x01(\rR\x0fmaxParticipants\"!\n" +
 	"\x04Room\x12\x19\n" +
 	"\broom_ref\x18\x01 \x01(\tR\aroomRef\"+\n" +
 	"\x0eEndRoomRequest\x12\x19\n" +
@@ -1487,13 +1508,13 @@ var file_roomr_v1_roomr_proto_goTypes = []any{
 	(*Operation)(nil),         // 18: roomr.v1.Operation
 	(*SendDtmfRequest)(nil),   // 19: roomr.v1.SendDtmfRequest
 	nil,                       // 20: roomr.v1.SipTarget.HeadersEntry
-	nil,                       // 21: roomr.v1.CreateCallRequest.LabelsEntry
+	nil,                       // 21: roomr.v1.CreateCallRequest.MetadataEntry
 }
 var file_roomr_v1_roomr_proto_depIdxs = []int32{
 	20, // 0: roomr.v1.SipTarget.headers:type_name -> roomr.v1.SipTarget.HeadersEntry
 	2,  // 1: roomr.v1.SipTarget.auth:type_name -> roomr.v1.SipAuth
 	3,  // 2: roomr.v1.CreateCallRequest.to:type_name -> roomr.v1.SipTarget
-	21, // 3: roomr.v1.CreateCallRequest.labels:type_name -> roomr.v1.CreateCallRequest.LabelsEntry
+	21, // 3: roomr.v1.CreateCallRequest.metadata:type_name -> roomr.v1.CreateCallRequest.MetadataEntry
 	0,  // 4: roomr.v1.Call.state:type_name -> roomr.v1.Call.State
 	10, // 5: roomr.v1.ListenTrack.rtp:type_name -> roomr.v1.MediaEndpoint
 	10, // 6: roomr.v1.JoinRequest.rtp:type_name -> roomr.v1.MediaEndpoint

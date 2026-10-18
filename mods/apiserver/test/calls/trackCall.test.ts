@@ -156,7 +156,7 @@ describe("@calls/trackCall", function () {
       room_ref: "r1",
       node_ref: "n1",
       seq,
-      labels: {},
+      metadata: {},
       ...extra
     });
     send(ev("call.started", 1));
@@ -286,24 +286,68 @@ describe("@calls/trackCall", function () {
       h.stop();
     });
 
-    it("ends with FAILED when the call's media node says node.down", async function () {
-      sandbox.useFakeTimers();
+    it("node.down alone does not fail a call: a draining node keeps its calls and still publishes their events", async function () {
+      const clock = sandbox.useFakeTimers();
       const { createTrackCallHandler } =
         await import("../../src/calls/createTrackCall");
       const { nc, send } = fakeNats();
-      const h = createTrackCallHandler(nc);
-      const ref = "down-ref";
+      const h = createTrackCallHandler(nc, { nodeStaleMs: 6000 });
+      const ref = "drain-ref";
       const s = fakeStream(ref);
       h.trackCall(s as never);
-      send(events(ref), { ref, node_ref: "n1" }); // the placing replica: the room is on n1
+      send(events(ref), { ref, node_ref: "n1" });
       send(media(ref), {
         type: "call.answered",
         call_ref: ref,
         node_ref: "n1"
       });
       send(heartbeats, { type: "node.down", node_ref: "n2" });
-      expect(s.end).to.not.have.been.called;
       send(heartbeats, { type: "node.down", node_ref: "n1" });
+      expect(s.end).to.not.have.been.called;
+      // The call goes on for minutes: its events keep the node "there"; no heartbeats come.
+      for (let i = 0; i < 6; i++) {
+        clock.tick(4000);
+        send(media(ref), {
+          type: "participant.joined",
+          call_ref: ref,
+          node_ref: "n1"
+        });
+      }
+      expect(s.end).to.not.have.been.called;
+      expect(
+        s.write.args.some((a) => a[0].status === DialStatus.FAILED)
+      ).to.equal(false);
+      send(media(ref), {
+        type: "call.ended",
+        call_ref: ref,
+        node_ref: "n1",
+        answered: true
+      });
+      clock.tick(600);
+      expect(s.end).to.have.been.calledOnce;
+      expect(s.write.lastCall.args[0].status).to.not.equal(DialStatus.FAILED);
+      expect(h.size()).to.equal(0);
+      h.stop();
+    });
+
+    it("ends with FAILED when the node says node.down and then stays silent (it exited)", async function () {
+      const clock = sandbox.useFakeTimers();
+      const { createTrackCallHandler } =
+        await import("../../src/calls/createTrackCall");
+      const { nc, send } = fakeNats();
+      const h = createTrackCallHandler(nc, { nodeStaleMs: 6000 });
+      const ref = "exit-ref";
+      const s = fakeStream(ref);
+      h.trackCall(s as never);
+      send(media(ref), {
+        type: "call.answered",
+        call_ref: ref,
+        node_ref: "n1"
+      });
+      send(heartbeats, { type: "node.down", node_ref: "n1" });
+      clock.tick(4000);
+      expect(s.end).to.not.have.been.called;
+      clock.tick(4000); // past nodeStaleMs since node.down, no events, no heartbeats
       expect(s.write.lastCall.args[0]).to.deep.equal({
         ref,
         status: DialStatus.FAILED

@@ -109,8 +109,8 @@ func (r *rig) calleeCall() *caller.Call {
 	return nil
 }
 
-func labelsOf(ev map[string]any) map[string]any {
-	l, _ := ev["labels"].(map[string]any)
+func metadataOf(ev map[string]any) map[string]any {
+	l, _ := ev["metadata"].(map[string]any)
 	return l
 }
 
@@ -118,7 +118,7 @@ func labelsOf(ev map[string]any) map[string]any {
 // the call connects with the headers on the INVITE, a prompt plays, DTMF goes out, an RTP
 // participant joins and leaves, and EndCall hangs up.
 func TestRoomrCreateCall(t *testing.T) {
-	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.AllowedDestinations = []string{"127.0.0.1"} }})
+	r := start(t)
 	_, mc := r.withControl(nil)
 	ctx := rpcCtx(t)
 	roomRef := fmt.Sprintf("lobby-%d", time.Now().UnixNano())
@@ -133,7 +133,7 @@ func TestRoomrCreateCall(t *testing.T) {
 	req := &roomrv1.CreateCallRequest{CallRef: callRef, From: "+15550001", RoomRef: roomRef,
 		To: &roomrv1.SipTarget{Uri: "sip:+15551234567@carrier.invalid", Proxy: "sip:" + r.callee.Address(),
 			Headers: map[string]string{"X-Tenant": "t1", "X-Correlation-Id": "abc-123"}},
-		Labels: map[string]string{"tenant": "t1"}, RingTimeoutS: 10}
+		Metadata: map[string]string{"tenant": "t1"}, RingTimeoutS: 10}
 	call, err := mc.CreateCall(ctx, req)
 	if err != nil {
 		t.Fatal(err)
@@ -142,8 +142,8 @@ func TestRoomrCreateCall(t *testing.T) {
 		t.Fatalf("CreateCall = %v", call)
 	}
 	answered := r.waitEvent(typed("call.answered", "callRef", callRef, "roomRef", roomRef), 5*time.Second)
-	if labelsOf(answered)["tenant"] != "t1" {
-		t.Fatalf("labels not echoed: %v", answered)
+	if metadataOf(answered)["tenant"] != "t1" {
+		t.Fatalf("metadata not echoed: %v", answered)
 	}
 	callee := r.calleeCall()
 	st := callee.Status()
@@ -296,7 +296,7 @@ func TestRoomrEndsInboundCalls(t *testing.T) {
 	r.waitEvent(typed("room.ended", "roomRef", in["roomRef"], "reason", "removed"), 2*time.Second)
 }
 
-// TestRoomrRefusals: typed status codes for a full room, a draining node and bad input.
+// TestRoomrRefusals: typed status codes for a full room and bad input.
 func TestRoomrRefusals(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.MaxParticipants = 1 }})
 	_, mc := r.withControl(nil)
@@ -326,14 +326,6 @@ func TestRoomrRefusals(t *testing.T) {
 	_, err = mc.SendDtmf(ctx, &roomrv1.SendDtmfRequest{Target: &roomrv1.SendDtmfRequest_CallRef{CallRef: "nope"}, Digits: "1"})
 	wantStatus(t, err, codes.NotFound, node.CodeCallNotFound)
 
-	r.node.Drain()
-	_, err = mc.CreateCall(ctx, &roomrv1.CreateCallRequest{To: &roomrv1.SipTarget{Uri: "sip:+1@carrier", Proxy: r.callee.Address()}})
-	wantStatus(t, err, codes.Unavailable, node.CodeDraining)
-	_, err = mc.CreateRoom(ctx, &roomrv1.CreateRoomRequest{})
-	wantStatus(t, err, codes.Unavailable, node.CodeDraining)
-	if n := len(r.callee.Calls()); n != 0 {
-		t.Fatalf("a draining node sent %d INVITEs", n)
-	}
 }
 
 // TestRoomrMutualTLS: with a client CA the listener serves only controllers that present

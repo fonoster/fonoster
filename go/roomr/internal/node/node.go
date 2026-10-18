@@ -9,14 +9,10 @@ import (
 	"net/http"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/fonoster/fonoster/go/roomr/internal/audio"
-	"github.com/fonoster/fonoster/go/roomr/internal/jitter"
 	"github.com/fonoster/fonoster/go/roomr/internal/telemetry"
-
-	"github.com/fonoster/fonoster/go/roomr/internal/netguard"
 	"github.com/nats-io/nats.go"
 	"go.opentelemetry.io/otel/attribute"
 )
@@ -47,18 +43,7 @@ type Config struct {
 	// MaxRooms is the most rooms the node holds at once (200, the capacity bar). room.create and
 	// INVITEs beyond it are refused, and heartbeats report it so placement skips a full node.
 	MaxRooms int
-	// RequireEncryption refuses plain RTP on every leg (MN6): SIP legs must offer RTP/SAVP with
-	// an SDES key, and the gateway's rtp blocks must carry srtp.
-	RequireEncryption bool
-	// AllowedDestinations are private hosts, IPs or CIDRs hold music may come from
-	// (FONOSTER_ALLOWED_DESTINATIONS); everything else must be public (RV-B2).
-	AllowedDestinations []string
-	Logger              *slog.Logger
-	// Registry, when set, receives this node's session-registry entries (nodes.<id> on every
-	// heartbeat, rooms.<ref> while a room lives; add-media-node 3.2). Nil keeps heartbeats only.
-	Registry Registry
-	// RoomRefresh is how often live room entries are rewritten (5 s; the bucket TTL is 15 s).
-	RoomRefresh time.Duration
+	Logger   *slog.Logger
 	// EmptyRoomTimeout ends a room with no participant and no dial in progress for this long
 	// (30 s; negative disables): whoever sent room.create is gone (orphans.go).
 	EmptyRoomTimeout time.Duration
@@ -73,21 +58,11 @@ type Config struct {
 	// none). An inbound INVITE's value becomes the call_ref when well formed (else the node picks
 	// one); a CreateCall's to.headers value is accepted as its call_ref.
 	CallRefHeader string
-	// CallDedupeWindow is how long a call_ref is remembered after its call ended, so a repeated
-	// CreateCall returns the call instead of dialing again (10 min).
-	CallDedupeWindow time.Duration
 	// Heartbeat facts for controllers (media-control "Heartbeat"): the Roomr address they
 	// dial, the SIP address, the RTP port range ([0, 0]: any), the node's version and region.
 	ControlAddr, SIPAddr string
 	RTPPorts             [2]int
 	Version, Region      string
-}
-
-// Registry is the slice of the session registry the node writes (registry.KV fits).
-type Registry interface {
-	Put(kind, id string, value any)
-	Delete(kind, id string)
-	Close()
 }
 
 func (c *Config) defaults() {
@@ -121,47 +96,33 @@ func (c *Config) defaults() {
 	if c.Logger == nil {
 		c.Logger = slog.Default()
 	}
-	if c.RoomRefresh == 0 {
-		c.RoomRefresh = 5 * time.Second
-	}
 	if c.EmptyRoomTimeout == 0 {
 		c.EmptyRoomTimeout = 30 * time.Second
 	}
 	if c.OwnerTimeout == 0 {
 		c.OwnerTimeout = 20 * time.Second
 	}
-	if c.CallDedupeWindow <= 0 {
-		c.CallDedupeWindow = DefaultCallDedupeWindow
-	}
 }
 
 // Node owns rooms and serves media-control over NATS.
 type Node struct {
-	cfg      Config
-	guard    *netguard.Guard
-	music    *http.Client
-	nc       *nats.Conn
-	mu       sync.Mutex
-	rooms    map[string]*Room
-	seq      int
-	draining bool
-	subs     []*nats.Subscription
+	cfg   Config
+	music *http.Client
+	nc    *nats.Conn
+	mu    sync.Mutex
+	rooms map[string]*Room
+	seq   int
+	subs  []*nats.Subscription
+	// stop ends the heartbeats (Down).
 	stop     chan struct{}
-	// roomsWritten is when live room entries were last rewritten in the registry.
-	roomsWritten time.Time
-	dialer       Dialer
-	gateways     gatewayWatch
+	downOnce sync.Once
+	dialer   Dialer
+	gateways gatewayWatch
 	// ctl is Roomr's call table (control.go).
 	ctl callTable
 	// events are the per-call event streams (callevents.go).
 	events eventStreams
-	cpu    cpuSampler
 
-	// Counters for the load harness (GET /stats on the debug endpoint).
-	framesMixed, lateTicks, missedTicks, dtmfReported atomic.Uint64
-	endedStats                                        jitter.Stats
-	// OnDrain is told when the node starts draining (Routr registration reports it full).
-	OnDrain func()
 	// OnRoomCount is told the number of active rooms whenever it changes (Routr registration).
 	OnRoomCount func(n int)
 }
@@ -169,9 +130,8 @@ type Node struct {
 // New creates a node; Start connects it to media-control.
 func New(nc *nats.Conn, cfg Config) *Node {
 	cfg.defaults()
-	guard := netguard.New(cfg.AllowedDestinations)
 	return &Node{cfg: cfg, nc: nc, rooms: map[string]*Room{}, stop: make(chan struct{}),
-		guard: guard, music: guard.Client(10 * time.Second), ctl: callTable{window: cfg.CallDedupeWindow}}
+		music: &http.Client{Timeout: 10 * time.Second}, ctl: callTable{window: CallDedupeWindow}}
 }
 
 // SetDialer gives the node a way to place outbound legs (participant.dial, transfers).
@@ -185,28 +145,15 @@ func (n *Node) Held(roomRef string) bool {
 	return false
 }
 
-// RoomState is a debug view of one room.
-type RoomState struct {
-	RoomRef      string   `json:"roomRef"`
-	Held         bool     `json:"held"`
-	Participants []string `json:"participants"`
-}
-
-// Rooms lists active rooms (the debug endpoint; not part of media-control).
-func (n *Node) Rooms() []RoomState {
-	n.mu.Lock()
-	rooms := make([]*Room, 0, len(n.rooms))
-	for _, r := range n.rooms {
-		rooms = append(rooms, r)
+// Participants counts a room's participants (-1: no such room; tests and debugging).
+func (n *Node) Participants(roomRef string) int {
+	r := n.room(roomRef)
+	if r == nil {
+		return -1
 	}
-	n.mu.Unlock()
-	out := make([]RoomState, 0, len(rooms))
-	for _, r := range rooms {
-		r.mu.Lock()
-		out = append(out, RoomState{RoomRef: r.Ref, Held: r.heldRef != "", Participants: append([]string(nil), r.order...)})
-		r.mu.Unlock()
-	}
-	return out
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return len(r.participants)
 }
 
 // ID is the node id used in every subject.
@@ -233,22 +180,20 @@ func (n *Node) Start() error {
 	return n.nc.Flush()
 }
 
-// Drain stops taking new rooms and reports the node full (MN9); existing rooms keep running.
-func (n *Node) Drain() {
-	n.mu.Lock()
-	n.draining = true
-	n.mu.Unlock()
-	n.beat()
-	if n.OnDrain != nil {
-		n.OnDrain()
-	}
+// Down stops the heartbeats and publishes node.down, so placement stops choosing this node. It
+// is the first step of a drain; rooms keep running (Shutdown ends what is left).
+func (n *Node) Down() {
+	n.downOnce.Do(func() {
+		close(n.stop)
+		n.publish(HeartbeatSubject(n.cfg.NodeID), Event{"type": "node.down", "node_ref": n.cfg.NodeID})
+		_ = n.nc.Flush()
+	})
 }
 
-// DrainAndWait drains and returns when the last room has ended, or ends the rooms still up after
-// maxWait with node_error (their apps get session.end reason "error"). Stop cuts the wait short.
-// It returns the number of rooms it had to end.
-func (n *Node) DrainAndWait(maxWait time.Duration, stop <-chan struct{}) int {
-	n.Drain()
+// WaitRooms returns when the last room has ended, or ends the rooms still up after maxWait with
+// node_error (their apps get session.end reason "error"). Stop cuts the wait short. It returns
+// the number of rooms it had to end.
+func (n *Node) WaitRooms(maxWait time.Duration, stop <-chan struct{}) int {
 	deadline := time.NewTimer(maxWait)
 	defer deadline.Stop()
 	poll := time.NewTicker(100 * time.Millisecond)
@@ -278,38 +223,6 @@ func (n *Node) endAll(reason string) int {
 	return len(rooms)
 }
 
-// Stats is what the load harness reads: frames mixed, clock stalls, jitter buffer counters and
-// keypresses reported.
-type Stats struct {
-	Rooms        int          `json:"rooms"`
-	FramesMixed  uint64       `json:"framesMixed"`
-	LateTicks    uint64       `json:"lateTicks"`
-	MissedTicks  uint64       `json:"missedTicks"`
-	DTMFReported uint64       `json:"dtmfReported"`
-	Jitter       jitter.Stats `json:"jitter"`
-	// DroppedFrames is every frame lost inside the node: missed clock ticks plus frames the jitter
-	// buffers discarded (late, overflow) or had to conceal (lost on the way in).
-	DroppedFrames uint64 `json:"droppedFrames"`
-}
-
-// Stats sums the node's counters, including rooms that already ended.
-func (n *Node) Stats() Stats {
-	n.mu.Lock()
-	rooms := make([]*Room, 0, len(n.rooms))
-	for _, r := range n.rooms {
-		rooms = append(rooms, r)
-	}
-	js := n.endedStats
-	n.mu.Unlock()
-	for _, r := range rooms {
-		js = js.Add(r.jitterStats())
-	}
-	s := Stats{Rooms: len(rooms), FramesMixed: n.framesMixed.Load(), LateTicks: n.lateTicks.Load(),
-		MissedTicks: n.missedTicks.Load(), DTMFReported: n.dtmfReported.Load(), Jitter: js}
-	s.DroppedFrames = s.MissedTicks + js.Dropped()
-	return s
-}
-
 // AtCapacity reports whether the node holds MaxRooms rooms (Routr registration reports it full).
 func (n *Node) AtCapacity() bool {
 	n.mu.Lock()
@@ -329,14 +242,7 @@ func (n *Node) ActiveRooms() int {
 	return len(n.rooms)
 }
 
-// Draining reports whether the node takes new rooms.
-func (n *Node) Draining() bool {
-	n.mu.Lock()
-	defer n.mu.Unlock()
-	return n.draining
-}
-
-// Shutdown ends every room and publishes node.down.
+// Shutdown ends every room and, unless Down already did, publishes node.down.
 func (n *Node) Shutdown() {
 	n.mu.Lock()
 	rooms := make([]*Room, 0, len(n.rooms))
@@ -347,16 +253,10 @@ func (n *Node) Shutdown() {
 	for _, r := range rooms {
 		r.hangupAll(ReasonNodeError, 0, "")
 	}
-	close(n.stop)
 	for _, s := range n.subs {
 		_ = s.Unsubscribe()
 	}
-	n.publish(HeartbeatSubject(n.cfg.NodeID), Event{"type": "node.down", "node_ref": n.cfg.NodeID})
-	_ = n.nc.Flush()
-	if reg := n.cfg.Registry; reg != nil {
-		reg.Delete("nodes", n.cfg.NodeID)
-		reg.Close()
-	}
+	n.Down()
 }
 
 func (n *Node) heartbeats() {
@@ -373,16 +273,16 @@ func (n *Node) heartbeats() {
 	}
 }
 
-// HeartbeatSubject is where node nodeRef publishes its heartbeat every 2 s and node.down on a
-// clean exit (media-control "Nodes report capacity and liveness").
+// HeartbeatSubject is where node nodeRef publishes its heartbeat every heartbeatInterval and
+// node.down when it starts draining (media-control "Nodes report capacity and liveness").
 func HeartbeatSubject(nodeRef string) string { return "roomr.nodes." + nodeRef + ".heartbeat" }
 
 // heartbeat is node.heartbeat with media-control's fields; type tells it from node.down on the
 // same subject.
-func (n *Node) heartbeat(rooms, participants int, draining bool) Event {
+func (n *Node) heartbeat(rooms, participants int) Event {
 	ev := Event{"type": "node.heartbeat", "node_ref": n.cfg.NodeID, "rooms": rooms,
-		"participants": participants, "max_rooms": n.cfg.MaxRooms, "cpu_idle": n.cpu.sample(),
-		"codecs": n.cfg.Codecs, "draining": draining, "version": n.cfg.Version, "region": n.cfg.Region,
+		"participants": participants, "max_rooms": n.cfg.MaxRooms,
+		"codecs": n.cfg.Codecs, "version": n.cfg.Version, "region": n.cfg.Region,
 		"control_addr": n.cfg.ControlAddr, "sip_addr": n.cfg.SIPAddr}
 	if p := n.cfg.RTPPorts; p[1] != 0 {
 		ev["rtp_ports"] = Event{"min": p[0], "max": p[1]}
@@ -396,15 +296,6 @@ func (n *Node) beat() {
 	for _, r := range n.rooms {
 		rooms = append(rooms, r)
 	}
-	draining := n.draining
-	var refresh []string
-	now := time.Now()
-	if n.cfg.Registry != nil && now.Sub(n.roomsWritten) >= n.cfg.RoomRefresh {
-		n.roomsWritten = now
-		for ref := range n.rooms {
-			refresh = append(refresh, ref)
-		}
-	}
 	n.mu.Unlock()
 	participants := 0
 	for _, r := range rooms {
@@ -412,25 +303,7 @@ func (n *Node) beat() {
 		participants += len(r.participants)
 		r.mu.Unlock()
 	}
-	ev := n.heartbeat(len(rooms), participants, draining)
-	n.publish(HeartbeatSubject(n.cfg.NodeID), ev)
-	if reg := n.cfg.Registry; reg != nil {
-		entry := Event{"at": now.UTC().Format(time.RFC3339Nano)}
-		for k, v := range ev {
-			if k != "type" && k != "cpu_idle" {
-				entry[k] = v
-			}
-		}
-		reg.Put("nodes", n.cfg.NodeID, entry)
-		for _, ref := range refresh {
-			n.writeRoom(ref, now)
-		}
-	}
-}
-
-func (n *Node) writeRoom(ref string, now time.Time) {
-	n.cfg.Registry.Put("rooms", ref, Event{"roomRef": ref, "nodeId": n.cfg.NodeID,
-		"at": now.UTC().Format(time.RFC3339Nano)})
+	n.publish(HeartbeatSubject(n.cfg.NodeID), n.heartbeat(len(rooms), participants))
 }
 
 func (n *Node) publish(subject string, ev Event) {
@@ -460,7 +333,7 @@ func (n *Node) nextRef(prefix string) string {
 func (n *Node) newRoom(callRef string) (*Room, error) { return n.newRoomRef("", callRef) }
 
 // newRoomRef opens a room with the given ref ("" picks one; a ref in use is refused) for callRef.
-// The draining, ref and limit checks and the insert share one lock, so concurrent room.create
+// The ref and limit checks and the insert share one lock, so concurrent room.create
 // commands and Roomr CreateRoom / CreateCall never take the node past MaxRooms.
 func (n *Node) newRoomRef(ref, callRef string) (*Room, error) {
 	if ref == "" {
@@ -469,10 +342,6 @@ func (n *Node) newRoomRef(ref, callRef string) (*Room, error) {
 	r := newRoom(n, ref)
 	r.callRef = callRef
 	n.mu.Lock()
-	if n.draining {
-		n.mu.Unlock()
-		return nil, errDraining
-	}
 	if _, taken := n.rooms[ref]; taken {
 		n.mu.Unlock()
 		return nil, errRoomExists
@@ -487,25 +356,17 @@ func (n *Node) newRoomRef(ref, callRef string) (*Room, error) {
 	if n.OnRoomCount != nil {
 		n.OnRoomCount(count)
 	}
-	if n.cfg.Registry != nil {
-		n.writeRoom(r.Ref, time.Now())
-	}
 	go r.run()
 	return r, nil
 }
 
 func (n *Node) roomEnded(r *Room) {
-	st := r.jitterStats()
 	n.mu.Lock()
-	n.endedStats = n.endedStats.Add(st)
 	delete(n.rooms, r.Ref)
 	count := len(n.rooms)
 	n.mu.Unlock()
 	if n.OnRoomCount != nil {
 		n.OnRoomCount(count)
-	}
-	if n.cfg.Registry != nil {
-		n.cfg.Registry.Delete("rooms", r.Ref)
 	}
 	n.callsRoomEnded(r.Ref)
 }
@@ -523,10 +384,6 @@ func (n *Node) Incoming(call IncomingCall) {
 	ctx, endSpan := telemetry.StartCall(context.Background(), "roomr.call.incoming", call.CallRef)
 	defer endSpan()
 	if _, _, ok := call.Media.ChoosePreferred(n.cfg.Codecs...); !ok {
-		_ = call.Leg.Reject(488)
-		return
-	}
-	if n.cfg.RequireEncryption && !call.Media.Secure {
 		_ = call.Leg.Reject(488)
 		return
 	}
@@ -548,12 +405,6 @@ func (n *Node) Incoming(call IncomingCall) {
 	n.trackInbound(call.CallRef, room.Ref, caller.Ref)
 	n.openCall(call.CallRef, room.Ref, caller.Ref, nil, Event{"direction": orDefault(call.Direction, "inbound"),
 		"from": call.From, "to": call.To, "participant_ref": caller.Ref})
-	if n.Draining() {
-		// Drain began while the room was set up.
-		_ = call.Leg.Reject(503)
-		room.end(ReasonNodeError, 503, "")
-		return
-	}
 	ev := Event{
 		"type":           "call.incoming",
 		"id":             n.nextRef("in"),
@@ -665,7 +516,7 @@ func (n *Node) Handle(_ context.Context, cmd Command) Command {
 			return fail("at_capacity", fmt.Sprintf("node %s holds its limit of %d rooms", n.cfg.NodeID, n.cfg.MaxRooms))
 		}
 		if err != nil {
-			return fail("draining", "")
+			return fail("room_exists", "")
 		}
 		r.setMaxDuration(cmd)
 		n.openCall(callRef, r.Ref, "", nil, Event{"direction": "outbound"})

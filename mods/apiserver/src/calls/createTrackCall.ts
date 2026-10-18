@@ -141,8 +141,10 @@ type Tracked = {
  * while and replayed (also to a second TrackCall for the same call).
  *
  * Every stream ends: on the call's final status, when the client goes away, with FAILED when
- * the call's media node stops sending heartbeats (or says node.down) before the final, when no
- * node ever takes the call, or after `maxMs` at most.
+ * the call's media node stops sending heartbeats before the final, when no node ever takes the
+ * call, or after `maxMs` at most. `node.down` alone does not fail a call: a draining node says it
+ * and keeps its live calls, so a call fails after `node.down` only when nothing (no heartbeat, no
+ * event of the call) comes from its node for `nodeStaleMs`, i.e. the node exited.
  */
 function createTrackCallHandler(
   nc: NatsConnection,
@@ -155,6 +157,8 @@ function createTrackCallHandler(
   const recent = new Map<string, { at: number; messages: TrackMessage[] }>();
   /** Last heartbeat per media node. */
   const beats = new Map<string, number>();
+  /** When each media node said node.down (cleared by its next heartbeat). */
+  const downAt = new Map<string, number>();
   const subscription = nc.subscribe(CALL_EVENTS_WILDCARD);
   const mediaEvents = nc.subscribe(MEDIA_CALL_EVENTS_WILDCARD);
 
@@ -182,8 +186,9 @@ function createTrackCallHandler(
     const { ref, status } = message;
     if (message.nodeRef && message.nodeRef !== t.nodeRef) {
       t.nodeRef = message.nodeRef;
-      t.nodeAt = now();
     }
+    // Any message of the call proves its node is still there (a draining node sends no heartbeats).
+    if (t.nodeRef) t.nodeAt = now();
     if (status) t.stream.write({ ref, status });
     const done =
       message.final === true || (!!status && FINAL_STATUSES.includes(status));
@@ -206,10 +211,14 @@ function createTrackCallHandler(
 
     let message: TrackMessage | undefined;
     try {
-      message = toTrackMessage(
-        msg?.json() as Record<string, unknown>,
-        msg?.subject
-      );
+      const event = msg?.json() as Record<string, unknown>;
+      // Any event of a call, status or not, shows its node is still there (a draining node
+      // sends no heartbeats).
+      const eventRef =
+        typeof event?.call_ref === "string" ? event.call_ref : "";
+      for (const t of tracked.get(eventRef) ?? [])
+        if (t.nodeRef && t.nodeRef === event.node_ref) t.nodeAt = now();
+      message = toTrackMessage(event, msg?.subject);
     } catch {
       return; // not JSON
     }
@@ -237,12 +246,12 @@ function createTrackCallHandler(
     }
     const nodeRef = typeof event?.node_ref === "string" ? event.node_ref : "";
     if (!nodeRef) return;
-    if (event.type === "node.heartbeat") beats.set(nodeRef, now());
-    else if (event.type === "node.down") {
-      beats.delete(nodeRef);
-      for (const set of [...tracked.values()])
-        for (const t of [...set])
-          if (t.nodeRef === nodeRef) fail(t, `media node ${nodeRef} is down`);
+    if (event.type === "node.heartbeat") {
+      beats.set(nodeRef, now());
+      downAt.delete(nodeRef);
+    } else if (event.type === "node.down") {
+      // Only a mark: the node may be draining with live calls (see the sweep).
+      downAt.set(nodeRef, now());
     }
   };
 
@@ -258,6 +267,8 @@ function createTrackCallHandler(
     }
     for (const [nodeRef, seen] of beats)
       if (at - seen > KEEP_MS) beats.delete(nodeRef);
+    for (const [nodeRef, down] of downAt)
+      if (at - down > KEEP_MS) downAt.delete(nodeRef);
     for (const set of [...tracked.values()])
       for (const t of [...set]) {
         if (at - t.startedAt > o.maxMs) {
@@ -266,7 +277,11 @@ function createTrackCallHandler(
           if (at - t.startedAt > o.noNodeMs)
             fail(t, "no media node took the call");
         } else {
-          const seen = Math.max(beats.get(t.nodeRef) ?? 0, t.nodeAt ?? 0);
+          const seen = Math.max(
+            beats.get(t.nodeRef) ?? 0,
+            downAt.get(t.nodeRef) ?? 0,
+            t.nodeAt ?? 0
+          );
           if (at - seen > o.nodeStaleMs)
             fail(t, `media node ${t.nodeRef} missed its heartbeats`);
         }

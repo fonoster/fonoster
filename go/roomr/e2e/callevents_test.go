@@ -14,7 +14,7 @@ import (
 
 // Events keyed by call (redesign-media-node task 4.3): a second controller replica, on its own
 // NATS connection, follows a call it did not place on roomr.events.<call_ref>; seq is contiguous
-// and the labels from CreateCall are echoed on every event.
+// and the metadata from CreateCall are echoed on every event.
 
 // replica is a second controller's view of one subject.
 func replica(t *testing.T, subject string) chan map[string]any {
@@ -64,8 +64,8 @@ func TestCallEventsFollowedByAnotherReplica(t *testing.T) {
 	events := replica(t, node.CallEventsSubject(callRef))
 	ctx := rpcCtx(t)
 	if _, err := mc.CreateCall(ctx, &roomrv1.CreateCallRequest{CallRef: callRef, From: "+15550001",
-		To:     &roomrv1.SipTarget{Uri: "sip:+15551234567@carrier.invalid", Proxy: r.callee.Address()},
-		Labels: map[string]string{"tenant": "t1"}, RingTimeoutS: 10}); err != nil {
+		To:       &roomrv1.SipTarget{Uri: "sip:+15551234567@carrier.invalid", Proxy: r.callee.Address()},
+		Metadata: map[string]string{"tenant": "t1"}, RingTimeoutS: 10}); err != nil {
 		t.Fatal(err)
 	}
 	got := expectSeq(t, events, callRef, r.node.ID(), 1, "call.started", "call.ringing", "call.answered", "participant.joined")
@@ -78,8 +78,8 @@ func TestCallEventsFollowedByAnotherReplica(t *testing.T) {
 		t.Fatalf("call.ended %v", ended)
 	}
 	for _, ev := range got {
-		if labelsOf(ev)["tenant"] != "t1" || ev["ts"] == nil {
-			t.Fatalf("labels or ts missing: %v", ev)
+		if metadataOf(ev)["tenant"] != "t1" || ev["ts"] == nil {
+			t.Fatalf("metadata or ts missing: %v", ev)
 		}
 	}
 }
@@ -127,16 +127,21 @@ func TestHeartbeatFields(t *testing.T) {
 	select {
 	case ev := <-beats:
 		for k, want := range map[string]any{"type": "node.heartbeat", "node_ref": r.node.ID(), "rooms": 0.0,
-			"participants": 0.0, "max_rooms": 200.0, "draining": false, "version": "1.4.0", "region": "us-east",
+			"participants": 0.0, "max_rooms": 200.0, "version": "1.4.0", "region": "us-east",
 			"control_addr": "10.0.0.5:50061", "sip_addr": "10.0.0.5:5060"} {
 			if ev[k] != want {
 				t.Fatalf("heartbeat %s = %v, want %v (%v)", k, ev[k], want, ev)
 			}
 		}
-		idle, ok := ev["cpu_idle"].(float64)
+		if _, has := ev["cpu_idle"]; has {
+			t.Fatalf("heartbeat still carries cpu_idle: %v", ev)
+		}
+		if _, has := ev["draining"]; has {
+			t.Fatalf("heartbeat still carries draining: %v", ev)
+		}
 		codecs, _ := ev["codecs"].([]any)
 		ports, _ := ev["rtp_ports"].(map[string]any)
-		if !ok || idle < 0 || idle > 1 || len(codecs) == 0 || ports["min"] != 10000.0 || ports["max"] != 20000.0 {
+		if len(codecs) == 0 || ports["min"] != 10000.0 || ports["max"] != 20000.0 {
 			t.Fatalf("heartbeat %v", ev)
 		}
 	case <-time.After(2 * time.Second):

@@ -3,7 +3,7 @@ package sipua
 // Registrations (media-node, "Registration is optional and configured"): the node keeps zero or
 // more REGISTERs from its configuration. Each names a registrar, an address of record, optional
 // digest credentials, an expiry and header templates; {sessions} in a template is rendered as the
-// node's active room count, or as its room limit while it is draining or full. A deployment that
+// node's active room count. A deployment that
 // balances by load (Routr's least-sessions) templates X-Session-Count: "{sessions}"; any other
 // registrar gets only the headers its configuration names.
 
@@ -30,8 +30,7 @@ const SessionsPlaceholder = "{sessions}"
 // Registration is one REGISTER the node keeps.
 type Registration struct {
 	// Registrar is where the REGISTER goes: host:port or a SIP URI; its transport parameter
-	// (sip:host:port;transport=tcp) picks udp (default), tcp or tls, and tls is forced when the
-	// node requires encryption.
+	// (sip:host:port;transport=tcp) picks udp (default), tcp or tls.
 	Registrar string
 	// AOR is the address of record in From and To (sip:user@domain); default
 	// sip:medianode@<registrar host>. Its user is the Contact's user too.
@@ -83,15 +82,12 @@ type registration struct {
 	okAt   time.Time
 }
 
-func newRegistration(r Registration, requireEncryption bool) (*registration, error) {
+func newRegistration(r Registration) (*registration, error) {
 	target, err := parseTarget(r.Registrar)
 	if err != nil {
 		return nil, fmt.Errorf("registration %q: registrar: %w", r.Registrar, err)
 	}
 	transport := orDefault(uriTransport(target), "udp")
-	if requireEncryption {
-		transport = "tls"
-	}
 	switch transport {
 	case "udp", "tcp", "tls":
 	default:
@@ -131,15 +127,6 @@ func renderHeaders(templates map[string]string, sessions int) map[string]string 
 	return out
 }
 
-// sessions is what {sessions} renders as now: active rooms, or the room limit while the node is
-// draining or full, so a load-balancing registrar stops choosing it.
-func (u *UA) sessions() int {
-	if u.node.Draining() || u.node.AtCapacity() {
-		return u.node.RoomLimit()
-	}
-	return u.node.ActiveRooms()
-}
-
 // loadChanged re-registers soon after a large change in active rooms (MN3).
 func (u *UA) loadChanged(count int) {
 	for _, r := range u.regs {
@@ -163,13 +150,6 @@ func (r *registration) poke() {
 	select {
 	case r.kick <- struct{}{}:
 	default:
-	}
-}
-
-// Kick re-registers every registration now (e.g. after Drain, so the registrar learns "full").
-func (u *UA) Kick() {
-	for _, r := range u.regs {
-		r.poke()
 	}
 }
 
@@ -274,7 +254,7 @@ func (u *UA) Unregister(ctx context.Context) error {
 
 // send sends one REGISTER and answers a digest challenge; it returns the final status.
 func (u *UA) send(ctx context.Context, r *registration, expires int) (int, error) {
-	count := u.sessions()
+	count := u.node.ActiveRooms()
 	req := sip.NewRequest(sip.REGISTER, sip.Uri{Host: r.aor.Host, Port: r.aor.Port})
 	req.SetDestination(r.dest)
 	req.SetTransport(strings.ToUpper(r.transport))

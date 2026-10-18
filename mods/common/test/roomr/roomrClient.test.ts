@@ -83,7 +83,7 @@ describe("@common[roomr] client", function () {
       const call = await pool.createCall(addr, {
         callRef: "c1",
         to: { uri: "sip:+1@x", headers: { "X-A": "1" } },
-        labels: { k: "v" }
+        metadata: { k: "v" }
       });
       expect(call).to.include({
         callRef: "c1",
@@ -98,7 +98,7 @@ describe("@common[roomr] client", function () {
           headers: { "X-A": "1" },
           auth: null
         },
-        labels: { k: "v" }
+        metadata: { k: "v" }
       });
       const notFound = await pool
         .endCall(addr, { callRef: "x" })

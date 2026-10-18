@@ -171,7 +171,7 @@ export async function placeOutboundCall(
         nodes.refused(
           nodeId,
           (e as Roomr.RoomrError).code === status.UNAVAILABLE
-            ? "draining"
+            ? "unavailable"
             : "at_capacity"
         );
         continue;
@@ -243,7 +243,7 @@ export async function placeOutboundCall(
           ...(deps.outbound.auth ? { auth: deps.outbound.auth } : {})
         },
         ringTimeoutS: call.timeout,
-        labels: { appRef: call.appRef }
+        metadata: { app_ref: call.appRef }
       })
     );
     return { nodeId, roomRef, callRef: placed.callRef };

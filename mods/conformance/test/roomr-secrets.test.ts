@@ -152,7 +152,7 @@ describe("@conformance[deployment] secret:// in the started media node", functio
   });
 
   // fix-config-and-placement-gaps: ROOMR_* variables are no longer a fallback for the file.
-  it("ignores ROOMR_* variables the file does not reference, naming them", async function () {
+  it("ignores ROOMR_* variables the file does not reference", async function () {
     const file = path.join(dir, "no-env.yaml");
     const sip = await freePort();
     const closed = await freePort();
@@ -176,16 +176,10 @@ describe("@conformance[deployment] secret:// in the started media node", functio
     const ignored = await runNode(bins!, file, env);
     expect(ignored.code).to.equal(1);
     expect(ignored.output).to.not.contain('"nodeId":"id-from-env"');
-    expect(ignored.output).to.match(
-      /no longer read.*"variables":"ROOMR_ID,ROOMR_MAX_PARTICIPANTS"/
-    );
     expect(ignored.output).to.not.contain("referenced-secret");
     // Referenced as a placeholder, the same variable is read.
     write('nodeId: "${ROOMR_ID}"');
     const referenced = await runNode(bins!, file, env);
     expect(referenced.output).to.contain('"nodeId":"id-from-env"');
-    expect(referenced.output).to.match(
-      /"variables":"ROOMR_MAX_PARTICIPANTS"/
-    );
   });
 });

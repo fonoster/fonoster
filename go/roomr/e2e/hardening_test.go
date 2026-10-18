@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/fonoster/fonoster/go/roomr/internal/caller"
-	"github.com/fonoster/fonoster/go/roomr/internal/sipua"
 )
 
 // rawRequest sends one SIP request over UDP and returns the status line of the first final
@@ -80,29 +79,6 @@ func TestMalformedInfoDoesNotKillTheNode(t *testing.T) {
 	call.DTMFVia("7", "info")
 	r.waitEvent(typed("dtmf", "roomRef", room, "digit", "7", "source", "sip_info"), 2*time.Second)
 	_ = call.Hangup()
-}
-
-func TestUntrustedSourceInviteRefused(t *testing.T) {
-	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) { c.TrustedSources = []string{"10.255.0.1", "192.0.2.0/24"} }})
-	call, err := r.bot.Dial(r.sip, "+15550002222", "", map[string]string{"X-App-Ref": "someone-elses-app"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	s := waitStatus(t, call, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
-	if !contains(s.SIP, 403) {
-		t.Fatalf("caller statuses %v, want 403", s.SIP)
-	}
-	if n := r.count(typed("call.incoming")); n != 0 {
-		t.Fatalf("%d call.incoming events from an untrusted source", n)
-	}
-}
-
-func TestTrustedSourceInviteAccepted(t *testing.T) {
-	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) { c.TrustedSources = []string{"localhost", "10.0.0.0/8"} }})
-	if _, err := r.bot.Dial(r.sip, "+15550002222", "", map[string]string{"X-App-Ref": "app-1"}); err != nil {
-		t.Fatal(err)
-	}
-	r.waitEvent(typed("call.incoming", "appRef", "app-1"), 2*time.Second)
 }
 
 func TestUnansweredDialogsAreClosed(t *testing.T) {

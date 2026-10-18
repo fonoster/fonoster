@@ -62,7 +62,7 @@ Routr runs in Docker. The node, the caller bot and the gateway run on the host.
 
 - **Routr to the host.** Routr reaches the host as `host.docker.internal` (IPv4 `192.168.65.254`;
   `rig.sh test` looks it up). The node and the bot put that address in Via and Contact
-  (`-sip-advertise`).
+  (`sip.advertise`).
 - **Routr stores the address a REGISTER came from**, not the Contact (`received`/`rport`). On
   Docker for Mac that is a NAT address. So the node sends every request from its listening UDP
   port and adds `rport`. Routr's INVITEs then come back through the same NAT mapping. The node now

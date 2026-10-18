@@ -312,14 +312,7 @@ func TestMixMinusThreeParticipants(t *testing.T) {
 	}
 }
 
-func roomParticipants(n *node.Node, room string) int {
-	for _, s := range n.Rooms() {
-		if s.RoomRef == room {
-			return len(s.Participants)
-		}
-	}
-	return -1
-}
+func roomParticipants(n *node.Node, room string) int { return n.Participants(room) }
 
 func TestRoomFullAndTrackKind(t *testing.T) {
 	r := start(t)
@@ -361,8 +354,12 @@ func TestMaximumDuration(t *testing.T) {
 	waitStatus(t, call, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
 }
 
+// A drain refuses nothing: Down stops the heartbeats and publishes node.down, new INVITEs and
+// rooms are still accepted, live rooms keep carrying audio, and WaitRooms returns when the last
+// one ends.
 func TestDrain(t *testing.T) {
 	r := start(t)
+	beats := replica(t, node.HeartbeatSubject(r.node.ID()))
 	calls := []*caller.Call{}
 	gws := []*gateway{}
 	for i := 0; i < 3; i++ {
@@ -370,18 +367,28 @@ func TestDrain(t *testing.T) {
 		calls, gws = append(calls, c), append(gws, g)
 	}
 	done := make(chan int, 1)
-	go func() { done <- r.node.DrainAndWait(10*time.Second, nil) }()
-	time.Sleep(100 * time.Millisecond)
+	r.node.Down()
+	go func() { done <- r.node.WaitRooms(10*time.Second, nil) }()
+	// node.down arrives, and no heartbeat follows it.
+	deadline := time.After(2 * time.Second)
+	for down := false; !down; {
+		select {
+		case ev := <-beats:
+			down = ev["type"] == "node.down"
+		case <-deadline:
+			t.Fatal("no node.down")
+		}
+	}
+	select {
+	case ev := <-beats:
+		t.Fatalf("a heartbeat after node.down: %v", ev)
+	case <-time.After(700 * time.Millisecond):
+	}
 
-	// No new rooms: INVITEs get 503 and room.create fails.
+	// Nothing is refused: a new INVITE is taken into a room.
 	late, _ := r.bot.Dial(r.sip, "+1777", "", map[string]string{"X-App-Ref": "a"})
-	s := waitStatus(t, late, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
-	if !contains(s.SIP, 503) {
-		t.Fatalf("INVITE while draining got %v", s.SIP)
-	}
-	if rep := r.command(map[string]any{"type": "room.create", "id": "x"}); rep["code"] != "draining" {
-		t.Fatalf("room.create while draining: %v", rep)
-	}
+	r.waitEvent(typed("call.incoming", "to", "+1777"), 2*time.Second)
+	_ = late.Hangup()
 	// The three rooms keep carrying audio.
 	for i, c := range calls {
 		c.Speak("tone:1000", 300)
@@ -411,7 +418,8 @@ func TestDrain(t *testing.T) {
 func TestDrainMaximumWait(t *testing.T) {
 	r := start(t)
 	call, room, _ := r.answeredCallWith(caller.DialOptions{}, "")
-	if forced := r.node.DrainAndWait(300*time.Millisecond, nil); forced != 1 {
+	r.node.Down()
+	if forced := r.node.WaitRooms(300*time.Millisecond, nil); forced != 1 {
 		t.Fatalf("drain ended %d rooms, want 1", forced)
 	}
 	// node_error is what the gateway maps to session.end reason "error".
@@ -419,7 +427,7 @@ func TestDrainMaximumWait(t *testing.T) {
 	waitStatus(t, call, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
 }
 
-// ---- encryption (MN6) ----------------------------------------------------------------------
+// ---- optional SIP over TLS and SDES-SRTP ----------------------------------------------------------------------
 
 func selfSigned(t *testing.T) tls.Certificate {
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
@@ -443,9 +451,8 @@ func startEncrypted(t *testing.T) *rig {
 	client := &tls.Config{InsecureSkipVerify: true} // test certificate
 	tlsPort := freePort(t)
 	r := startWith(t, rigOptions{
-		nodeCfg: func(c *node.Config) { c.RequireEncryption = true },
 		uaCfg: func(c *sipua.Config) {
-			c.RequireEncryption, c.TLSListen, c.TLSConfig, c.ClientTLS = true, "127.0.0.1:"+strconv.Itoa(tlsPort), server, client
+			c.TLSListen, c.TLSConfig, c.ClientTLS = "127.0.0.1:"+strconv.Itoa(tlsPort), server, client
 		},
 		botOpts: caller.Options{TLS: server, ClientTLS: client},
 	})
@@ -475,41 +482,9 @@ func TestEncryptedCall(t *testing.T) {
 	r.waitEvent(typed("room.ended", "roomRef", room), 3*time.Second)
 }
 
-func TestEncryptionRefusesPlainTraffic(t *testing.T) {
-	r := startEncrypted(t)
-	// Plain TCP to the node: there is no plain listener, and the TLS port refuses plain SIP.
-	for _, target := range []string{r.sip, r.tlsAddr} {
-		call, err := r.bot.DialWith(target, "+1", "", nil, caller.DialOptions{Transport: "tcp", SRTP: true})
-		if err == nil {
-			// The TLS listener drops the connection; the INVITE never gets an answer.
-			time.Sleep(1500 * time.Millisecond)
-			if s := call.Status(); s.State == "answered" || contains(s.SIP, 200) {
-				t.Fatalf("plain TCP INVITE to %s was answered: %v", target, s.SIP)
-			}
-			_ = call.Hangup()
-		}
-	}
-	// TLS signaling but plain RTP: 488.
-	call, err := r.bot.DialWith(r.tlsAddr, "+1", "", nil, caller.DialOptions{Transport: "tls"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	s := waitStatus(t, call, func(s caller.Status) bool { return s.State == "ended" }, 5*time.Second)
-	if !contains(s.SIP, 488) {
-		t.Fatalf("plain RTP offer over TLS got %v", s.SIP)
-	}
-	if n := r.count(typed("call.incoming")); n != 0 {
-		t.Fatalf("%d refused calls reached the gateway", n)
-	}
-}
-
 func TestGatewayLegSRTP(t *testing.T) {
 	r := startEncrypted(t)
 	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
-	// Without srtp the node refuses the gateway leg.
-	if _, rep := r.addSession(room, ""); rep["code"] != "encryption_required" {
-		t.Fatalf("plain gateway leg: %v", rep)
-	}
 	a, rep := r.addSession(room, rtpio.NewSRTPKey())
 	srtpBlock, _ := rep["rtp"].(map[string]any)["srtp"].(map[string]any)
 	if srtpBlock["suite"] != rtpio.SRTPSuite || srtpBlock["key"] == "" {
@@ -537,24 +512,4 @@ func TestGatewayLegSRTP(t *testing.T) {
 	if got := b.m.get(0); got > 0 {
 		t.Fatalf("plain RTP reached the room: %d audible frames", got)
 	}
-}
-
-func TestEncryptedDial(t *testing.T) {
-	r := startEncrypted(t)
-	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
-	g, _ := r.addSession(room, rtpio.NewSRTPKey())
-	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room, "to": "+15551234567"})
-	r.waitEvent(typed("call.answered", "id", "d1"), 3*time.Second)
-	time.Sleep(100 * time.Millisecond)
-	callee := r.callee.Get(r.callee.Calls()[0].ID)
-	if s := callee.Status(); !s.Secure {
-		t.Fatalf("dialed leg is not SRTP: %+v", s)
-	}
-	callee.Speak("tone:1000", 400)
-	time.Sleep(700 * time.Millisecond)
-	if got := g.m.get(1000); got < 10 {
-		t.Fatalf("gateway heard %d frames of the dialed party", got)
-	}
-	_ = callee.Hangup()
-	r.waitEvent(typed("room.ended", "roomRef", room), 3*time.Second)
 }

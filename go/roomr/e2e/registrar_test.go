@@ -201,13 +201,6 @@ func TestRegistersWithSessionCount(t *testing.T) {
 	c1, _, _ := r.answeredCallWith(caller.DialOptions{}, "")
 	c2, _, _ := r.answeredCallWith(caller.DialOptions{}, "")
 	reg.waitHeader(t, sessionCount, "2", 3*time.Second)
-	// Draining reports the node full (its room limit) at once, not on the next interval.
-	before := len(reg.snapshot())
-	r.node.Drain()
-	idx := reg.waitHeader(t, sessionCount, "50", 250*time.Millisecond)
-	if idx < before-1 {
-		t.Fatalf("full count came before the drain")
-	}
 	_ = c1.Hangup()
 	_ = c2.Hangup()
 	// Unregister: Expires 0 and an "unregistered" state.

@@ -35,8 +35,9 @@ type Config struct {
 	// OnRegistrationState reports a registration that succeeded, failed, expired or was removed
 	// (registration.state on NATS); nil drops the reports.
 	OnRegistrationState func(RegistrationState)
-	// OutboundProxy is where outbound INVITEs go (Routr, which picks the carrier trunk); empty
-	// disables participant.dial and transfers.
+	// OutboundProxy is where outbound INVITEs go (Routr, which picks the carrier trunk): host:port
+	// or a SIP URI whose transport parameter picks udp (default), tcp or tls
+	// (sip:host:port;transport=tcp); empty disables participant.dial and transfers.
 	OutboundProxy string
 	// ReregisterDelta is the load-change threshold: every registration re-registers at once when
 	// the room count moved by at least this much since its last accepted REGISTER (default 5).
@@ -46,17 +47,7 @@ type Config struct {
 	TLSListen string
 	TLSConfig *tls.Config
 	ClientTLS *tls.Config
-	// RequireEncryption serves SIP over TLS only and refuses INVITEs that arrive any other way
-	// (MN6); RTP must then be SRTP (node.Config.RequireEncryption).
-	RequireEncryption bool
-	// OutboundTransport is "udp" (default), "tcp" or "tls" for INVITEs to OutboundProxy; it is
-	// "tls" whenever encryption is required.
-	OutboundTransport string
-	// TrustedSources lists the addresses (IP, CIDR or host name) allowed to send INVITEs: the
-	// node trusts X-App-Ref, X-Call-Ref and X-Call-Direction only from the edge (Routr). Empty
-	// accepts INVITEs from anywhere (development); New logs a warning then (RV-B7).
-	TrustedSources []string
-	Logger         *slog.Logger
+	Logger    *slog.Logger
 }
 
 // UA serves SIP for one node.
@@ -67,13 +58,15 @@ type UA struct {
 	srv     *sipgo.Server
 	client  *sipgo.Client
 	dialogs *sipgo.DialogServerCache
-	out     *sipgo.DialogClientCache
-	regs    []*registration
+	// dialogsTLS answers INVITEs that arrived over the TLS listener, with a TLS Contact (nil
+	// without a TLS listener).
+	dialogsTLS *sipgo.DialogServerCache
+	out        *sipgo.DialogClientCache
+	regs       []*registration
 	// legs by dialog ID (Call-ID plus both tags), for SIP INFO keypresses.
 	legs sync.Map
 	// openDialogs counts INVITE dialogs in the server dialog cache (leak check, RV-B9).
 	openDialogs atomic.Int64
-	trust       *sourceFilter
 	// udp is the UDP listening socket, bound in New so requests can go out from it.
 	udp net.PacketConn
 	// tcp is the TCP listener on the same address, also bound in New so a taken port fails
@@ -89,15 +82,6 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if cfg.ReregisterDelta <= 0 {
 		cfg.ReregisterDelta = 5
 	}
-	if cfg.OutboundTransport == "" {
-		cfg.OutboundTransport = "udp"
-	}
-	if cfg.RequireEncryption {
-		cfg.OutboundTransport = "tls"
-		if cfg.TLSListen == "" || cfg.TLSConfig == nil {
-			return nil, errors.New("encryption required but no TLS listener or certificate configured")
-		}
-	}
 	opts := []sipgo.UserAgentOption{sipgo.WithUserAgent("fonoster-roomr")}
 	if cfg.ClientTLS != nil {
 		opts = append(opts, sipgo.WithUserAgenTLSConfig(cfg.ClientTLS))
@@ -112,54 +96,51 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	}
 	// rport (RFC 3581) and requests sent from the listening port: Routr stores the REGISTER's
 	// source address and port as the route, so INVITEs must be able to come back to it, behind NAT
-	// (Docker for Mac, cloud load balancers) as well as without it (CO-B2). With encryption
-	// required there is no plain listener at all (MN6).
-	var udp net.PacketConn
-	var tcp net.Listener
+	// (Docker for Mac, cloud load balancers) as well as without it (CO-B2).
 	clientOpts := []sipgo.ClientOption{sipgo.WithClientHostname(cfg.AdvertiseHost), sipgo.WithClientNAT()}
-	if !cfg.RequireEncryption {
-		udp, err = net.ListenPacket("udp4", cfg.Listen)
-		if err != nil {
-			return nil, err
-		}
-		tcp, err = net.Listen("tcp", cfg.Listen)
-		if err != nil {
-			_ = udp.Close()
-			return nil, err
-		}
-		clientOpts = append(clientOpts, sipgo.WithClientConnectionAddr(udp.LocalAddr().String()))
+	udp, err := net.ListenPacket("udp4", cfg.Listen)
+	if err != nil {
+		return nil, err
 	}
+	tcp, err := net.Listen("tcp", cfg.Listen)
+	if err != nil {
+		_ = udp.Close()
+		return nil, err
+	}
+	clientOpts = append(clientOpts, sipgo.WithClientConnectionAddr(udp.LocalAddr().String()))
 	client, err := sipgo.NewClient(ua, clientOpts...)
 	if err != nil {
 		return nil, err
 	}
 	contact := sip.ContactHeader{Address: sip.Uri{User: "medianode", Host: cfg.AdvertiseHost, Port: cfg.AdvertisePort}}
-	if cfg.RequireEncryption {
-		_, tlsPort, _ := net.SplitHostPort(cfg.TLSListen)
-		port, _ := strconv.Atoi(tlsPort)
-		params := sip.NewParams()
-		params.Add("transport", "tls")
-		contact.Address.Port, contact.Address.UriParams = port, params
-	}
-	trust, err := newSourceFilter(cfg.TrustedSources)
-	if err != nil {
-		return nil, err
-	}
-	if trust == nil {
-		cfg.Logger.Warn("no trusted SIP sources configured: INVITEs are accepted from any address")
-	}
-	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client, udp: udp, tcp: tcp, trust: trust,
+	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client, udp: udp, tcp: tcp,
 		dialogs: sipgo.NewDialogServerCache(client, contact), out: sipgo.NewDialogClientCache(client, contact)}
 	for _, r := range cfg.Registrations {
-		reg, err := newRegistration(r, cfg.RequireEncryption)
+		reg, err := newRegistration(r)
 		if err != nil {
 			return nil, err
 		}
 		u.regs = append(u.regs, reg)
 	}
+	if cfg.TLSListen != "" {
+		_, tlsPort, _ := net.SplitHostPort(cfg.TLSListen)
+		port, _ := strconv.Atoi(tlsPort)
+		params := sip.NewParams()
+		params.Add("transport", "tls")
+		tlsContact := sip.ContactHeader{Address: sip.Uri{User: "medianode", Host: cfg.AdvertiseHost, Port: port, UriParams: params}}
+		u.dialogsTLS = sipgo.NewDialogServerCache(client, tlsContact)
+	}
 	srv.OnInvite(u.guard(u.onInvite))
-	srv.OnAck(u.guard(func(req *sip.Request, tx sip.ServerTransaction) { _ = u.dialogs.ReadAck(req, tx) }))
+	srv.OnAck(u.guard(func(req *sip.Request, tx sip.ServerTransaction) {
+		if u.dialogsTLS != nil && u.dialogsTLS.ReadAck(req, tx) == nil {
+			return
+		}
+		_ = u.dialogs.ReadAck(req, tx)
+	}))
 	srv.OnBye(u.guard(func(req *sip.Request, tx sip.ServerTransaction) {
+		if u.dialogsTLS != nil && u.dialogsTLS.ReadBye(req, tx) == nil {
+			return
+		}
 		if err := u.dialogs.ReadBye(req, tx); err == nil {
 			return
 		}
@@ -172,7 +153,6 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 200, "OK", nil))
 	}))
 	n.OnRoomCount = func(count int) { u.loadChanged(count) }
-	n.OnDrain = func() { u.Kick() }
 	if cfg.OutboundProxy != "" {
 		n.SetDialer(u)
 	}
@@ -183,10 +163,8 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 // Serve listens on UDP and TCP until ctx ends.
 func (u *UA) Serve(ctx context.Context) error {
 	errs := make(chan error, 3)
-	if !u.cfg.RequireEncryption {
-		go func() { errs <- u.srv.ServeUDP(u.udp) }()
-		go func() { errs <- u.srv.ServeTCP(u.tcp) }()
-	}
+	go func() { errs <- u.srv.ServeUDP(u.udp) }()
+	go func() { errs <- u.srv.ServeTCP(u.tcp) }()
 	if u.cfg.TLSListen != "" && u.cfg.TLSConfig != nil {
 		go func() { errs <- u.srv.ListenAndServeTLS(ctx, "tcp", u.cfg.TLSListen, u.cfg.TLSConfig) }()
 	}
@@ -257,25 +235,16 @@ func respondSafely(req *sip.Request, tx sip.ServerTransaction, status int, reaso
 }
 
 func (u *UA) onInvite(req *sip.Request, tx sip.ServerTransaction) {
-	if !u.trust.allows(req.Source()) {
-		u.cfg.Logger.Warn("INVITE from an untrusted source refused", "source", req.Source())
-		_ = tx.Respond(sip.NewResponseFromRequest(req, 403, "Forbidden", nil))
-		return
-	}
-	if u.cfg.RequireEncryption && !strings.EqualFold(req.Transport(), "TLS") {
-		_ = tx.Respond(sip.NewResponseFromRequest(req, 403, "TLS Required", nil))
-		return
-	}
 	media, err := sdp.Parse(req.Body())
 	if err != nil {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 488, "Not Acceptable Here", nil))
 		return
 	}
-	if u.node.Draining() {
-		_ = tx.Respond(sip.NewResponseFromRequest(req, 503, "Service Unavailable", nil))
-		return
+	cache := u.dialogs
+	if u.dialogsTLS != nil && strings.EqualFold(req.Transport(), "TLS") {
+		cache = u.dialogsTLS
 	}
-	dlg, err := u.dialogs.ReadInvite(req, tx)
+	dlg, err := cache.ReadInvite(req, tx)
 	if err != nil {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 500, "Server Error", nil))
 		return
@@ -554,10 +523,8 @@ func (u *UA) peerDomain() string {
 	if len(u.regs) > 0 {
 		return u.regs[0].aor.Host
 	}
-	for _, addr := range []string{u.cfg.OutboundProxy} {
-		if host, _, err := net.SplitHostPort(addr); err == nil && host != "" {
-			return host
-		}
+	if proxy, err := parseTarget(u.cfg.OutboundProxy); err == nil {
+		return proxy.Host
 	}
 	return u.cfg.AdvertiseHost
 }
@@ -565,11 +532,10 @@ func (u *UA) peerDomain() string {
 // Dial sends an INVITE through the outbound proxy (node.Dialer).
 func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]string, offer []byte,
 	onProgress func(status int)) (node.OutLeg, []byte, error) {
-	host, portText, err := net.SplitHostPort(u.cfg.OutboundProxy)
+	proxy, err := parseTarget(u.cfg.OutboundProxy)
 	if err != nil {
 		return nil, nil, err
 	}
-	port, _ := strconv.Atoi(portText)
 	// The node calls as its Routr Peer, the way Asterisk's outbound endpoint did (from_user and
 	// outbound_auth): Routr finds the caller by the From user, so From is the Peer and the caller-id
 	// number travels in X-DOD-Number, which picks the trunk (PEER_TO_PSTN). A Number in From makes
@@ -588,10 +554,10 @@ func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]strin
 	if !hasDOD && from != "" {
 		hdrs = append(hdrs, sip.NewHeader(DODNumberHeader, from))
 	}
-	target := sip.Uri{User: to, Host: host, Port: port}
-	if u.cfg.OutboundTransport != "udp" {
+	target := sip.Uri{User: to, Host: proxy.Host, Port: proxy.Port}
+	if tr := uriTransport(proxy); tr != "" && tr != "udp" {
 		target.UriParams = sip.NewParams()
-		target.UriParams.Add("transport", u.cfg.OutboundTransport)
+		target.UriParams.Add("transport", tr)
 	}
 	session, err := u.out.Invite(ctx, target, offer, hdrs...)
 	if err != nil {
@@ -680,9 +646,6 @@ func (u *UA) DialTarget(ctx context.Context, t node.SipTarget, from string, offe
 	}
 	if transport == "" {
 		transport = "udp"
-	}
-	if u.cfg.RequireEncryption {
-		transport = "tls"
 	}
 	req := sip.NewRequest(sip.INVITE, recipient)
 	req.SetBody(offer)

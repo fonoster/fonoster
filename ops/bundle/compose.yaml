@@ -125,8 +125,9 @@ services:
   roomr:
     image: fonoster/roomr:${FONOSTER_VERSION:?set FONOSTER_VERSION}
     restart: unless-stopped
-    # SIGTERM drains: the node reports full and exits when its rooms end or the wait runs out.
-    stop_grace_period: ${ROOMR_DRAIN_GRACE:-10m}
+    # SIGTERM drains: the node unregisters, publishes node.down and exits when its rooms end or
+    # drainWait (config/roomr.yaml, 10m) runs out; the grace period is a little longer.
+    stop_grace_period: ${ROOMR_DRAIN_GRACE:-11m}
     depends_on:
       nats: { condition: service_healthy }
     # The ${NAME}s in config/roomr.yaml, nothing else from .env.

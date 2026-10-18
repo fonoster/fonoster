@@ -8,10 +8,11 @@ import (
 	"github.com/fonoster/fonoster/go/roomr/internal/audio"
 )
 
-// fetchWav reads a PCM16 WAV (8 or 16 kHz, mono) into internal frames. The URL is tenant
-// input: it goes through the node's guarded client (public destinations only, 10 s timeout).
+// fetchWav reads a PCM16 WAV (8 or 16 kHz, mono) into internal frames. The caller
+// (the appbridge) has already checked the URL is a public destination; the fetch times out after
+// 10 s.
 func (n *Node) fetchWav(url string) ([]audio.Frame, error) {
-	res, err := n.guard.Get(n.music, url)
+	res, err := n.music.Get(url)
 	if err != nil {
 		return nil, err
 	}

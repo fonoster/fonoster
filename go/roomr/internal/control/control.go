@@ -18,6 +18,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/health"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/status"
 )
@@ -29,7 +31,7 @@ const ErrorDomain = "roomr.fonoster.com"
 type Backend interface {
 	CreateCall(req node.CallRequest) (node.CallInfo, error)
 	EndCall(ref string) error
-	CreateRoom(ref string, maxDuration time.Duration) (string, error)
+	CreateRoom(ref string, o node.RoomOptions) (string, error)
 	EndRoom(ref string) error
 	JoinRTP(roomRef string, ep node.MediaEndpoint) (node.ParticipantInfo, error)
 	JoinListener(roomRef string, tracks []node.ListenTrack) (node.ParticipantInfo, error)
@@ -40,7 +42,6 @@ type Backend interface {
 
 // codeFor maps the node's error codes (node.Code* and the NATS handlers' codes) to gRPC codes.
 var codeFor = map[string]codes.Code{
-	node.CodeDraining:            codes.Unavailable,
 	node.CodeAtCapacity:          codes.ResourceExhausted,
 	node.CodeRoomFull:            codes.ResourceExhausted,
 	node.CodeRoomExists:          codes.AlreadyExists,
@@ -55,7 +56,6 @@ var codeFor = map[string]codes.Code{
 	node.CodeNotSupported:        codes.Unimplemented,
 	node.CodeCallNotAnswered:     codes.FailedPrecondition,
 	node.CodeNoDTMF:              codes.FailedPrecondition,
-	node.CodeEncryptionRequired:  codes.FailedPrecondition,
 	node.CodeInternal:            codes.Internal,
 }
 
@@ -124,7 +124,7 @@ func (s *Service) CreateCall(_ context.Context, req *roomrv1.CreateCallRequest) 
 		Username: to.GetAuth().GetUsername(), Password: to.GetAuth().GetPassword()}
 	info, err := s.backend.CreateCall(node.CallRequest{CallRef: req.GetCallRef(), RoomRef: req.GetRoomRef(),
 		From: req.GetFrom(), To: target, RingTimeout: seconds(req.GetRingTimeoutS()),
-		MaxDuration: seconds(req.GetMaxDurationS()), Labels: req.GetLabels()})
+		MaxDuration: seconds(req.GetMaxDurationS()), Metadata: req.GetMetadata()})
 	if err != nil {
 		return nil, toStatus(err)
 	}
@@ -145,7 +145,8 @@ func (s *Service) EndCall(_ context.Context, req *roomrv1.EndCallRequest) (*room
 
 // CreateRoom creates an empty room.
 func (s *Service) CreateRoom(_ context.Context, req *roomrv1.CreateRoomRequest) (*roomrv1.Room, error) {
-	ref, err := s.backend.CreateRoom(req.GetRoomRef(), seconds(req.GetMaxDurationS()))
+	ref, err := s.backend.CreateRoom(req.GetRoomRef(), node.RoomOptions{MaxDuration: seconds(req.GetMaxDurationS()),
+		EmptyTimeout: seconds(req.GetEmptyTimeoutS()), MaxParticipants: int(req.GetMaxParticipants())})
 	if err != nil {
 		return nil, toStatus(err)
 	}
@@ -275,11 +276,13 @@ func (s *Service) SendDtmf(_ context.Context, req *roomrv1.SendDtmfRequest) (*ro
 	return &roomrv1.Empty{}, nil
 }
 
-// Server is the gRPC server for Roomr.
+// Server is the gRPC server for Roomr and the standard health service (grpc.health.v1.Health),
+// SERVING until NotServing.
 type Server struct {
-	grpc *grpc.Server
-	lis  net.Listener
-	log  *slog.Logger
+	grpc   *grpc.Server
+	lis    net.Listener
+	log    *slog.Logger
+	health *health.Server
 }
 
 // Listen binds addr and prepares the server; tlsConfig nil serves plaintext (mTLS when it
@@ -301,7 +304,15 @@ func Listen(addr string, b Backend, tlsConfig *tls.Config, log *slog.Logger) (*S
 	}
 	g := grpc.NewServer(opts...)
 	roomrv1.RegisterRoomrServer(g, NewService(b))
-	return &Server{grpc: g, lis: lis, log: log}, nil
+	h := health.NewServer()
+	healthpb.RegisterHealthServer(g, h)
+	return &Server{grpc: g, lis: lis, log: log, health: h}, nil
+}
+
+// NotServing flips the health service to NOT_SERVING (a drain has begun): readiness probes fail
+// while the RPCs of live calls keep working.
+func (s *Server) NotServing() {
+	s.health.Shutdown()
 }
 
 // Addr is the bound address.

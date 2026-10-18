@@ -117,7 +117,7 @@ export async function runOutboundCalls(config: {
   const roomr = config.roomr ?? pool!;
   const outbound = config.outbound ?? configuredTarget();
 
-  // The session registry (add-media-node 3.2): every live node at once, then changes.
+  // The session registry holds the placements (the nodes come from their heartbeats).
   let stopWatch: (() => void) | undefined;
   let kv: KV | undefined;
   let sweep: Awaited<ReturnType<typeof createPlacementSweep>> | undefined;
@@ -128,14 +128,6 @@ export async function runOutboundCalls(config: {
         setTimeout(() => reject(new Error("timed out")), 5000).unref()
       )
     ]);
-    stopWatch = await Sessions.watchSessions(kv, "nodes", (e) =>
-      nodes.note(
-        e.value
-          ? { ...e.value, node_ref: e.id, type: "node.heartbeat" }
-          : { type: "node.down", node_ref: e.id },
-        e.writtenAt.getTime()
-      )
-    );
     sweep = await createPlacementSweep({
       kv,
       roomr,
