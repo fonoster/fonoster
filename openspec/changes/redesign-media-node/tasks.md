@@ -9,10 +9,10 @@
 
 ## 2. Registration as configuration (S)
 
-- [ ] 2.1 `sip.registrations[]` in the node config: `registrar`, `aor`, `auth`, `expires`, `headers` templates with `{sessions}`; zero entries disables REGISTER
-- [ ] 2.2 Digest authentication on REGISTER; re-register on the interval, on a load change past the threshold and on drain (reporting the limit as `{sessions}`)
-- [ ] 2.3 `registration.state` event on NATS
-- [ ] 2.4 Test with the fake registrar: header templates rendered, no REGISTER without configuration, "full" reported on drain
+- [x] 2.1 `sip.registrations[]` in the node config: `registrar`, `aor`, `auth`, `expires`, `headers` templates with `{sessions}`; zero entries disables REGISTER
+- [x] 2.2 Digest authentication on REGISTER; re-register on the interval, on a load change past the threshold and on drain (reporting the limit as `{sessions}`)
+- [x] 2.3 `registration.state` event on NATS
+- [x] 2.4 Test with the fake registrar: header templates rendered, no REGISTER without configuration, "full" reported on drain
 
 ## 3. Capacity in the heartbeat (S)
 
@@ -85,7 +85,7 @@
 - [ ] 13.1 Fake session endpoint (gRPC `Session` server) and fake controller (MediaControl client) in `mods/conformance`
 - [ ] 13.2 Rewrite the `kind: media-control` scenario files for MediaControl and the control stream; run them against the fake node and the Go node
 - [ ] 13.3 Mix-minus checker extended to RTP and WebRTC participants and to passthrough rooms
-- [ ] 13.4 Fake registrar records header templates per REGISTER
+- [x] 13.4 Fake registrar records header templates per REGISTER
 - [ ] 13.5 Re-run the 200-room load bar on 2 vCPU with the control stream in place; Opus run reported separately
 
 ## 14. Docs and cleanup
