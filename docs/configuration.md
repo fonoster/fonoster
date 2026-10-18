@@ -232,6 +232,14 @@ in the environment.
   re-stored as scrypt digests and the reversible copies are cleared. Take a
   database snapshot before upgrading. Self-service sign-up (`CreateUser`) now
   requires `features.auth.signup: open`.
+- **Dashboard sessions use a cookie.** The dashboard no longer keeps tokens in
+  `localStorage`: the refresh token lives in an httpOnly, `SameSite=Strict`
+  cookie the API server sets on `/api/session` (served through Envoy's existing
+  `/api` route, on the dashboard's origin; no CORS change). The cookie is
+  `Secure` when `appUrl` is https, so a plain-http deployment still works but
+  should move to TLS. Serve the dashboard and the API from the same origin, or
+  dashboard sessions end on every reload. A session an older dashboard stored
+  is moved into the cookie on first load; if that fails, users sign in once more.
 - **Verification codes are single use**, expire after 5 minutes, and stop
   working after 5 wrong guesses or when a newer code is sent.
 - **The apiserver image** starts through `dist/bin/entrypoint.js`, which waits for

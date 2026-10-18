@@ -20,9 +20,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./auth";
-import type { WebClient } from "./client";
+import type { DashboardClient } from "./client";
 import { GrpcCode } from "./errors";
-import { STORAGE_KEYS } from "./storage";
+import { LEGACY_SESSION_KEY, STORAGE_KEYS } from "./storage";
 import { grpcError } from "~/test/render";
 
 function jwt(claims: object) {
@@ -31,31 +31,37 @@ function jwt(claims: object) {
 
 const inAnHour = () => Math.floor(Date.now() / 1000) + 3600;
 
-/** A WebClient stand-in that hands out tokens like the SDK does. */
+/**
+ * A DashboardClient stand-in: sign-ins and refreshes hand out access and id
+ * tokens; the refresh token lives "in the cookie", out of the page's reach.
+ */
 function fakeClient() {
-  const tokens = { access: "", refresh: "", id: "" };
+  const tokens = { access: "", id: "" };
+  let n = 0;
   const issue = () => {
-    tokens.access = jwt({ exp: inAnHour() });
-    tokens.refresh = "refresh-2";
+    n += 1;
+    tokens.access = jwt({ exp: inAnHour(), n });
     tokens.id = jwt({ sub: "u1", email: "ada@acme.com", exp: inAnHour() });
   };
   return {
     login: vi.fn(async () => issue()),
-    loginWithRefreshToken: vi.fn(async () => issue()),
+    loginWithVerificationCode: vi.fn(async () => issue()),
+    loginWithOauth2Code: vi.fn(async () => issue()),
+    refreshToken: vi.fn(async () => issue()),
+    adoptRefreshToken: vi.fn(async (_token: string) => issue()),
     logout: vi.fn(async () => {
-      tokens.access = tokens.refresh = tokens.id = "";
+      tokens.access = tokens.id = "";
     }),
-    revokeToken: vi.fn(async () => undefined),
     setAccessKeyId: vi.fn(),
-    setAccessToken: vi.fn(),
     getAccessToken: () => tokens.access,
-    getRefreshToken: () => tokens.refresh,
+    getRefreshToken: () => "",
     getIdToken: () => tokens.id
   };
 }
 
 function Probe() {
-  const { status, user, signInWithPassword, signOut } = useAuth();
+  const { status, user, signInWithPassword, signOut, refreshSession } =
+    useAuth();
   const { pathname, search } = useLocation();
   return (
     <div>
@@ -65,6 +71,7 @@ function Probe() {
       <button onClick={() => void signInWithPassword("ada@acme.com", "pw")}>
         in
       </button>
+      <button onClick={() => void refreshSession()}>refresh</button>
       <button onClick={() => signOut()}>out</button>
     </div>
   );
@@ -75,7 +82,7 @@ function renderProvider(client: ReturnType<typeof fakeClient>, route = "/w/a") {
   render(
     <QueryClientProvider client={queryClient}>
       <MemoryRouter initialEntries={[route]}>
-        <AuthProvider client={client as unknown as WebClient}>
+        <AuthProvider client={client as unknown as DashboardClient}>
           <Routes>
             <Route path="*" element={<Probe />} />
           </Routes>
@@ -85,9 +92,24 @@ function renderProvider(client: ReturnType<typeof fakeClient>, route = "/w/a") {
   );
 }
 
-const storeSession = () =>
+const noSession = () =>
+  Object.assign(new Error("no session"), { code: GrpcCode.UNAUTHENTICATED });
+
+/** Nothing that looks like a token is in web storage (M4). */
+function expectNoTokensStored() {
+  for (const store of [localStorage, sessionStorage]) {
+    for (let i = 0; i < store.length; i++) {
+      const key = store.key(i)!;
+      const value = store.getItem(key) ?? "";
+      expect(key).not.toBe(LEGACY_SESSION_KEY);
+      expect(value).not.toMatch(/token|refresh|\w+\.\w+\.\w+/i);
+    }
+  }
+}
+
+const storeLegacySession = () =>
   localStorage.setItem(
-    STORAGE_KEYS.session,
+    LEGACY_SESSION_KEY,
     JSON.stringify({
       accessToken: jwt({ exp: 1 }),
       refreshToken: "refresh-1",
@@ -96,110 +118,124 @@ const storeSession = () =>
   );
 
 describe("AuthProvider", () => {
-  it("starts signed out with nothing stored", () => {
-    renderProvider(fakeClient());
-    expect(screen.getByTestId("status")).toHaveTextContent("signedOut");
-  });
-
-  it("stores the session after signing in", async () => {
+  it("asks the cookie session on load and signs out without one", async () => {
     const client = fakeClient();
-    renderProvider(client);
-    await act(async () => screen.getByText("in").click());
-    expect(screen.getByTestId("status")).toHaveTextContent("signedIn");
-    expect(screen.getByTestId("email")).toHaveTextContent("ada@acme.com");
-    expect(
-      JSON.parse(localStorage.getItem(STORAGE_KEYS.session)!).refreshToken
-    ).toBe("refresh-2");
-  });
-
-  it("renews a stored session on load", async () => {
-    storeSession();
-    const client = fakeClient();
+    client.refreshToken.mockRejectedValue(noSession());
     renderProvider(client);
     expect(screen.getByTestId("status")).toHaveTextContent("restoring");
     await waitFor(() =>
-      expect(screen.getByTestId("status")).toHaveTextContent("signedIn")
-    );
-    expect(client.loginWithRefreshToken).toHaveBeenCalledWith("refresh-1");
-  });
-
-  it("signs out and keeps the path when the refresh token is refused", async () => {
-    storeSession();
-    const client = fakeClient();
-    client.loginWithRefreshToken.mockRejectedValue(
-      grpcError(GrpcCode.UNAUTHENTICATED)
-    );
-    renderProvider(client, "/w/a?tab=calls");
-    await waitFor(() =>
       expect(screen.getByTestId("status")).toHaveTextContent("signedOut")
     );
-    expect(localStorage.getItem(STORAGE_KEYS.session)).toBeNull();
-    expect(screen.getByTestId("where")).toHaveTextContent(
-      "/sign-in?next=%2Fw%2Fa%3Ftab%3Dcalls"
-    );
+    expect(client.refreshToken).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps the session when the API is only unreachable", async () => {
-    storeSession();
+  it("restores the session from the cookie on load", async () => {
     const client = fakeClient();
-    client.loginWithRefreshToken.mockRejectedValue(
-      grpcError(GrpcCode.UNAVAILABLE)
-    );
     renderProvider(client);
     await waitFor(() =>
       expect(screen.getByTestId("status")).toHaveTextContent("signedIn")
     );
-    expect(localStorage.getItem(STORAGE_KEYS.session)).not.toBeNull();
+    expect(screen.getByTestId("email")).toHaveTextContent("ada@acme.com");
+    expect(client.refreshToken).toHaveBeenCalledTimes(1);
+    expectNoTokensStored();
   });
 
-  it("clears everything on sign-out and goes to a clean sign-in", async () => {
+  it("signs in without storing any token", async () => {
+    const client = fakeClient();
+    client.refreshToken.mockRejectedValueOnce(noSession());
+    renderProvider(client);
+    await waitFor(() =>
+      expect(screen.getByTestId("status")).toHaveTextContent("signedOut")
+    );
+    await act(async () => screen.getByText("in").click());
+    expect(screen.getByTestId("status")).toHaveTextContent("signedIn");
+    expect(screen.getByTestId("email")).toHaveTextContent("ada@acme.com");
+    expectNoTokensStored();
+
+    await act(async () => screen.getByText("refresh").click());
+    expect(client.refreshToken).toHaveBeenCalledTimes(2);
+    expectNoTokensStored();
+  });
+
+  it("moves an older dashboard's stored session into the cookie and deletes it", async () => {
+    storeLegacySession();
+    const client = fakeClient();
+    renderProvider(client);
+    expect(localStorage.getItem(LEGACY_SESSION_KEY)).toBeNull();
+    await waitFor(() =>
+      expect(screen.getByTestId("status")).toHaveTextContent("signedIn")
+    );
+    expect(client.adoptRefreshToken).toHaveBeenCalledWith("refresh-1");
+    expect(client.refreshToken).not.toHaveBeenCalled();
+    expectNoTokensStored();
+  });
+
+  it("falls back to the cookie when the stored session is refused", async () => {
+    storeLegacySession();
+    const client = fakeClient();
+    client.adoptRefreshToken.mockRejectedValue(noSession());
+    client.refreshToken.mockRejectedValue(noSession());
+    renderProvider(client);
+    await waitFor(() =>
+      expect(screen.getByTestId("status")).toHaveTextContent("signedOut")
+    );
+    expect(localStorage.getItem(LEGACY_SESSION_KEY)).toBeNull();
+    expect(client.refreshToken).toHaveBeenCalledTimes(1);
+  });
+
+  it("signs out and keeps the path when a renewal is refused", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const client = fakeClient();
+      renderProvider(client, "/w/a?tab=calls");
+      await waitFor(() =>
+        expect(screen.getByTestId("status")).toHaveTextContent("signedIn")
+      );
+      client.refreshToken.mockRejectedValue(
+        grpcError(GrpcCode.UNAUTHENTICATED)
+      );
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(3600_000);
+      });
+      expect(screen.getByTestId("status")).toHaveTextContent("signedOut");
+      expect(screen.getByTestId("where")).toHaveTextContent(
+        "/sign-in?next=%2Fw%2Fa%3Ftab%3Dcalls"
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("keeps the session when a renewal only finds the API unreachable", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const client = fakeClient();
+      renderProvider(client);
+      await waitFor(() =>
+        expect(screen.getByTestId("status")).toHaveTextContent("signedIn")
+      );
+      client.refreshToken.mockRejectedValue(grpcError(GrpcCode.UNAVAILABLE));
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(3600_000);
+      });
+      expect(screen.getByTestId("status")).toHaveTextContent("signedIn");
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("clears everything on sign-out, revokes on the server and goes to a clean sign-in", async () => {
     localStorage.setItem(STORAGE_KEYS.workspace, "a");
     const client = fakeClient();
     renderProvider(client);
-    await act(async () => screen.getByText("in").click());
-    await act(async () => screen.getByText("out").click());
-    expect(screen.getByTestId("status")).toHaveTextContent("signedOut");
-    expect(screen.getByTestId("where")).toHaveTextContent(/^\/sign-in$/);
-    expect(localStorage.getItem(STORAGE_KEYS.session)).toBeNull();
-    expect(localStorage.getItem(STORAGE_KEYS.workspace)).toBeNull();
-    expect(client.logout).toHaveBeenCalled();
-  });
-
-  it("revokes the stored refresh token when the client holds none", async () => {
-    // Restored while the API was unreachable: the token is only in storage.
-    storeSession();
-    const client = fakeClient();
-    client.loginWithRefreshToken.mockRejectedValue(
-      grpcError(GrpcCode.UNAVAILABLE)
-    );
-    renderProvider(client);
     await waitFor(() =>
       expect(screen.getByTestId("status")).toHaveTextContent("signedIn")
     );
     await act(async () => screen.getByText("out").click());
-    expect(client.revokeToken).toHaveBeenCalledWith("refresh-1");
-    expect(client.logout).toHaveBeenCalled();
-  });
-
-  it("leaves revoking to the SDK when the client holds the refresh token", async () => {
-    const client = fakeClient();
-    renderProvider(client);
-    await act(async () => screen.getByText("in").click());
-    await act(async () => screen.getByText("out").click());
+    expect(screen.getByTestId("status")).toHaveTextContent("signedOut");
+    expect(screen.getByTestId("where")).toHaveTextContent(/^\/sign-in$/);
+    expect(localStorage.getItem(STORAGE_KEYS.workspace)).toBeNull();
     expect(client.logout).toHaveBeenCalledTimes(1);
-    expect(client.revokeToken).not.toHaveBeenCalled();
-  });
-
-  it("does not revoke a refresh token the server already refused", async () => {
-    storeSession();
-    const client = fakeClient();
-    client.loginWithRefreshToken.mockRejectedValue(
-      grpcError(GrpcCode.UNAUTHENTICATED)
-    );
-    renderProvider(client);
-    await waitFor(() =>
-      expect(screen.getByTestId("status")).toHaveTextContent("signedOut")
-    );
-    expect(client.revokeToken).not.toHaveBeenCalled();
+    expectNoTokensStored();
   });
 });

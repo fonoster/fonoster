@@ -44,9 +44,14 @@ test("signs in with email and password and opens a workspace", async ({ page, ap
   await page.getByRole("link", { name: /Acme Support/ }).click();
   await expect(page).toHaveURL(/\/w\/ws-1$/);
 
-  // A reload keeps the session and returns to the remembered workspace.
+  // The refresh token went to the cookie session, not to storage.
+  expect(api.callsTo("session/adopt")).toHaveLength(1);
+  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toMatch(/refresh|[\w-]+\.[\w-]+\.e2e/);
+
+  // A reload restores the session from the cookie and returns to the remembered workspace.
   await page.goto("/");
   await expect(page).toHaveURL(/\/w\/ws-1$/);
+  expect(api.callsTo("session/refresh").length).toBeGreaterThan(0);
 });
 
 test("makes an invitee set a password before anything else", async ({ page, api }) => {
@@ -97,6 +102,9 @@ test("signs out to a clean sign-in page", async ({ page, api }) => {
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
   expect(await page.evaluate(() => localStorage.getItem("fonoster.session"))).toBeNull();
+  // Nothing token-like in storage at any point; sign-out revoked the cookie session (M4).
+  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toMatch(/refresh|[\w-]+\.[\w-]+\.e2e/);
+  expect(api.callsTo("session/logout")).toHaveLength(1);
 });
 
 // Runs the real SDK decoding on an application, Struct configs included

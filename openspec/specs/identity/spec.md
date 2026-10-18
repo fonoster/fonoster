@@ -121,6 +121,39 @@ an API key SHALL revoke the key's. Access tokens already issued stay valid until
 - **WHEN** a client calls `RevokeToken` with its refresh token
 - **THEN** that token and every token rotated from the same sign-in can no longer be exchanged
 
+### Requirement: Dashboard cookie session
+
+The apiserver SHALL serve, on its HTTP port behind Envoy's `/api` route (the dashboard's origin, so
+no CORS is involved), a cookie session for the dashboard (security review M4). `POST /api/session`
+with `{refreshToken}` SHALL rotate that token through `ExchangeRefreshToken` and set the new one in
+a cookie that is `HttpOnly`, `SameSite=Strict`, `Path=/api/session`, `Secure` when the app URL is
+https, and lives as long as the refresh token. `POST /api/session/refresh` SHALL rotate the cookie's
+token the same way. Both SHALL answer `{accessToken, idToken, expiresAt}` and never the refresh
+token. `POST /api/session/logout` SHALL revoke the cookie's token family (`RevokeToken`) and clear
+the cookie. Every request SHALL carry an `X-Requested-With` header (CSRF), or get 403. SDK and API
+clients keep exchanging refresh tokens over gRPC.
+
+#### Scenario: Refresh rotates the cookie
+
+- **WHEN** the dashboard posts to `/api/session/refresh` with a valid cookie
+- **THEN** it receives new access and id tokens and the cookie holds the next refresh token
+- **AND** the previous value can no longer be exchanged
+
+#### Scenario: No session
+
+- **WHEN** `/api/session/refresh` is called without the cookie, or Identity refuses its token
+- **THEN** the answer is 401 (and a refused cookie is cleared)
+
+#### Scenario: Logout revokes
+
+- **WHEN** the dashboard posts to `/api/session/logout`
+- **THEN** the cookie's sign-in is revoked and the cookie is cleared
+
+#### Scenario: Cross-site request
+
+- **WHEN** a request to `/api/session` lacks the `X-Requested-With` header
+- **THEN** it is refused with 403 and the cookie is neither used nor changed
+
 ### Requirement: Token verification via public key
 
 Identity SHALL sign JWTs with RS256 and SHALL expose the verification public key through the

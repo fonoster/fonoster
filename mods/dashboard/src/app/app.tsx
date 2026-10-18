@@ -25,7 +25,7 @@ import { Toaster } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import { AuthProvider } from "~/lib/auth";
 import { CapabilitiesProvider } from "~/lib/capabilities";
-import type { WebClient } from "~/lib/client";
+import type { DashboardClient } from "~/lib/client";
 import { RuntimeProvider } from "~/lib/runtime-context";
 
 export function App({
@@ -35,7 +35,7 @@ export function App({
   children
 }: {
   apiUrl: string;
-  client: WebClient;
+  client: DashboardClient;
   queryClient: QueryClient;
   children: ReactNode;
 }) {

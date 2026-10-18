@@ -29,7 +29,7 @@ import {
 } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { clearInvite } from "~/auth/invite";
-import { createSdk, type FonosterSdk, type WebClient } from "./client";
+import { createSdk, type DashboardClient, type FonosterSdk } from "./client";
 import { GrpcCode, grpcCode } from "./errors";
 import {
   decodeJwt,
@@ -37,11 +37,14 @@ import {
   type AccessTokenClaims,
   type IdTokenClaims
 } from "./jwt";
-import { STORAGE_KEYS, storage } from "./storage";
+import { LEGACY_SESSION_KEY, STORAGE_KEYS, storage } from "./storage";
 
+/**
+ * What the dashboard keeps, in memory only. The refresh token is in an
+ * httpOnly cookie the page can't read (M4).
+ */
 export type Session = {
   accessToken: string;
-  refreshToken: string;
   idToken: string;
 };
 
@@ -51,7 +54,7 @@ type AuthContextValue = {
   status: Status;
   /** Why the last session ended; the sign-in redirect keeps the path only when it expired. */
   endedBy: "user" | "expiry" | null;
-  client: WebClient;
+  client: DashboardClient;
   sdk: FonosterSdk;
   user: IdTokenClaims | null;
   /** The user's role per workspace, as of sign-in or the last refresh. */
@@ -76,19 +79,26 @@ const SIGNED_OUT_CODES: number[] = [
   GrpcCode.NOT_FOUND
 ];
 
-function sessionOf(client: WebClient): Session {
-  return {
-    accessToken: client.getAccessToken(),
-    refreshToken: client.getRefreshToken(),
-    idToken: client.getIdToken()
-  };
+/**
+ * Older dashboards kept the whole session in localStorage. Removes it (on
+ * every load, so nothing token-like stays behind) and returns its refresh
+ * token, so that sign-in can move into the cookie instead of being lost.
+ */
+function takeLegacyRefreshToken(): string | null {
+  const legacy = storage.getJson<{ refreshToken?: unknown }>(
+    LEGACY_SESSION_KEY
+  );
+  storage.remove(LEGACY_SESSION_KEY);
+  return typeof legacy?.refreshToken === "string" && legacy.refreshToken
+    ? legacy.refreshToken
+    : null;
 }
 
 export function AuthProvider({
   client,
   children
 }: {
-  client: WebClient;
+  client: DashboardClient;
   children: ReactNode;
 }) {
   const queryClient = useQueryClient();
@@ -96,39 +106,29 @@ export function AuthProvider({
   const location = useLocation();
   const here = useRef("/");
   here.current = location.pathname + location.search;
-  const [session, setSession] = useState<Session | null>(() =>
-    storage.getJson<Session>(STORAGE_KEYS.session)
-  );
-  const [status, setStatus] = useState<Status>(() =>
-    session ? "restoring" : "signedOut"
-  );
+  const [session, setSession] = useState<Session | null>(null);
+  // Only the server knows whether the cookie holds a session, so every load
+  // starts by asking.
+  const [status, setStatus] = useState<Status>("restoring");
   const [endedBy, setEndedBy] = useState<"user" | "expiry" | null>(null);
 
   const adopt = useCallback(() => {
-    const next = sessionOf(client);
-    storage.setJson(STORAGE_KEYS.session, next);
-    setSession(next);
+    setSession({
+      accessToken: client.getAccessToken(),
+      idToken: client.getIdToken()
+    });
     clearInvite();
     setEndedBy(null);
     setStatus("signedIn");
   }, [client]);
 
   // An expired session keeps the current path so sign-in can return to it.
-  // Signing out revokes the refresh token on the server (best effort, never
-  // awaited): the SDK revokes the one it holds; a session restored while the
-  // API was unreachable is only in storage, so that one is revoked directly.
+  // Signing out revokes the session on the server and clears its cookie (best
+  // effort, never awaited).
   const signOut = useCallback(
     (options?: { expired?: boolean }) => {
       const path = here.current;
-      const stored = storage.getJson<Session>(STORAGE_KEYS.session);
-      if (
-        !options?.expired &&
-        !client.getRefreshToken() &&
-        stored?.refreshToken
-      )
-        void client.revokeToken(stored.refreshToken).catch(() => undefined);
       void client.logout();
-      storage.remove(STORAGE_KEYS.session);
       storage.remove(STORAGE_KEYS.workspace);
       client.setAccessKeyId("");
       queryClient.clear();
@@ -144,31 +144,44 @@ export function AuthProvider({
     [client, queryClient, navigate]
   );
 
-  const renew = useCallback(
-    async (refreshToken: string) => {
-      try {
-        await client.loginWithRefreshToken(refreshToken);
-        adopt();
-      } catch (error) {
-        const code = grpcCode(error);
-        if (code === undefined || SIGNED_OUT_CODES.includes(code)) {
-          signOut({ expired: true });
-        } else {
-          // The API is unreachable, not refusing us: keep the session and let
-          // the screens show the API error. The next renewal tries again.
-          client.setAccessToken(
-            storage.getJson<Session>(STORAGE_KEYS.session)?.accessToken ?? ""
-          );
-          setStatus("signedIn");
-        }
+  const renew = useCallback(async () => {
+    try {
+      await client.refreshToken();
+      adopt();
+    } catch (error) {
+      const code = grpcCode(error);
+      if (code === undefined || SIGNED_OUT_CODES.includes(code)) {
+        signOut({ expired: true });
       }
-    },
-    [client, adopt, signOut]
-  );
+      // Otherwise the API is unreachable, not refusing us: keep the session
+      // (its access token works until it expires) and let the screens show
+      // the API error. The next renewal tries again.
+    }
+  }, [client, adopt, signOut]);
 
-  // A stored session is renewed once on load, which also checks it is still valid.
+  // On load, the cookie (or an older dashboard's stored session) restores
+  // the session. Without one, or with the API unreachable, the user signs in.
+  const restoring = useRef(false);
   useEffect(() => {
-    if (status === "restoring" && session) void renew(session.refreshToken);
+    if (restoring.current) return;
+    restoring.current = true;
+    const legacy = takeLegacyRefreshToken();
+    void (async () => {
+      try {
+        if (legacy) {
+          await client
+            .adoptRefreshToken(legacy)
+            .catch(() => client.refreshToken());
+        } else {
+          await client.refreshToken();
+        }
+        adopt();
+      } catch {
+        setStatus((current) =>
+          current === "restoring" ? "signedOut" : current
+        );
+      }
+    })();
     // Only on mount.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -180,10 +193,7 @@ export function AuthProvider({
       0,
       msUntilExpiry(session.accessToken) - REFRESH_MARGIN_MS
     );
-    const timer = window.setTimeout(
-      () => void renew(session.refreshToken),
-      delay
-    );
+    const timer = window.setTimeout(() => void renew(), delay);
     return () => window.clearTimeout(timer);
   }, [status, session, renew]);
 
@@ -216,9 +226,7 @@ export function AuthProvider({
         adopt();
       },
       refreshSession: async () => {
-        await client.loginWithRefreshToken(
-          client.getRefreshToken() || session?.refreshToken || ""
-        );
+        await client.refreshToken();
         adopt();
       },
       signOut
