@@ -96,14 +96,24 @@ one when they belong to none.
 
 ### Requirement: The session persists in the browser and ends cleanly
 
-The dashboard SHALL keep the session tokens in `localStorage`, renew them through the SDK, and clear
-them on sign-out or when renewal fails. It SHALL be served with a Content-Security-Policy that allows
-scripts only from its own origin.
+The dashboard SHALL NOT store any token in web storage. It SHALL keep the access and id tokens in
+memory only and hand each sign-in's refresh token to the apiserver's cookie session
+(`/api/session`, see identity "Dashboard cookie session"), which keeps it in an httpOnly cookie. On
+load it SHALL restore the session from that cookie, renew before the access token expires (one
+renewal at a time across tabs), and on sign-out call the session's logout, which revokes the
+sign-in. It SHALL remove a session stored by older versions on load (moving its refresh token into
+the cookie). It SHALL be served with a Content-Security-Policy that allows scripts only from its own
+origin.
 
 #### Scenario: Reload
 
 - WHEN a signed-in user reloads the page
-- THEN they stay signed in on the same route
+- THEN the cookie session restores them on the same route
+
+#### Scenario: No token in storage
+
+- WHEN a user signs in, the session renews, or the user signs out
+- THEN `localStorage` and `sessionStorage` hold no access, id or refresh token
 
 #### Scenario: Refresh token rejected
 
@@ -113,7 +123,13 @@ scripts only from its own origin.
 #### Scenario: Sign-out
 
 - WHEN the user signs out
-- THEN the stored session, the remembered workspace and cached API data are cleared
+- THEN the sign-in is revoked on the server, its cookie cleared, and the remembered workspace and
+  cached API data are cleared
+
+#### Scenario: Older stored session
+
+- WHEN the dashboard loads and finds a session an older version stored in `localStorage`
+- THEN it deletes it and moves its refresh token into the cookie session
 
 #### Scenario: Inline script blocked
 

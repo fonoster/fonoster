@@ -73,8 +73,37 @@ export class GrpcWebMock {
 
   constructor(private page: Page) {}
 
+  /** True while the mocked cookie session (/api/session, M4) holds a sign-in. */
+  sessionActive = false;
+
   async install() {
     await this.page.route(`${API_URL}/**`, (route) => this.handle(route));
+    await this.page.route(/\/api\/session(\/[a-z]+)?$/, (route) => this.handleSession(route));
+  }
+
+  /**
+   * The apiserver's cookie session on the dashboard's origin. Tokens come from the
+   * Identity/ExchangeRefreshToken mock, as the real endpoint gets them from Identity.
+   */
+  private async handleSession(route: Route) {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    this.calls.push({ method: `session${path.replace("/api/session", "") || "/adopt"}`, request: new Uint8Array() });
+    if (!request.headers()["x-requested-with"]) return route.fulfill({ status: 403 });
+    if (path === "/api/session/logout") {
+      this.sessionActive = false;
+      return route.fulfill({ status: 204 });
+    }
+    if (path === "/api/session") this.sessionActive = Boolean(request.postDataJSON()?.refreshToken);
+    const handler = this.handlers.get("Identity/ExchangeRefreshToken");
+    if (!this.sessionActive || !handler) return route.fulfill({ status: 401, json: { error: "no_session" } });
+    const reply = await handler(new Uint8Array());
+    if ("error" in reply) {
+      this.sessionActive = false;
+      return route.fulfill({ status: 401, json: { error: "invalid_session" } });
+    }
+    const tokens = reply as unknown as { getAccessToken(): string; getIdToken(): string };
+    return route.fulfill({ json: { accessToken: tokens.getAccessToken(), idToken: tokens.getIdToken() } });
   }
 
   /** `method` is the short name, e.g. "Identity/ExchangeCredentials". */
