@@ -28,6 +28,10 @@ jobs:
   npm:
     name: version and npm packages
     runs-on: ubuntu-latest
+    # id-token lets npm verify this run (trusted publishing), so no npm token is stored.
+    permissions:
+      contents: read
+      id-token: write
     outputs:
       release: ${{ steps.next.outputs.release }}
       version: ${{ steps.version.outputs.version }}
@@ -61,13 +65,17 @@ jobs:
       - name: Publish the packages to npm
         if: steps.next.outputs.release != 'none'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git checkout .
           npm run release
+
+      # Runs on every release run, even with no new commits: publishes any version already in
+      # package.json that npm doesn't have yet (a run that failed partway). Does nothing otherwise.
+      - name: Publish versions missing from npm
+        run: npx lerna publish from-package --yes --dist-tag latest
 
       - name: Released version and commit
         id: version
