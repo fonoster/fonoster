@@ -228,4 +228,6 @@ Everything else is ignored: there is no Speech layer, transfer or TwiML. To hang
 or call the compatible endpoint
 `POST {base}/2010-04-01/Accounts/{accountSid}/Calls/{callSid}.json` with `Status=completed` and HTTP
 Basic auth (it answers 200, or 404 with code `20404` for a call that already ended). With Pipecat, set
-`base_url` on the serializer and `auto_hang_up` works unchanged.
+`base_url` on the serializer and `auto_hang_up` works unchanged. The endpoint only ends calls of
+the AccountSid's own workspace: with the self-hosting `http.accountSid`/`authToken` pair, set the
+app's `workspaceRef` to that `accountSid`, or the endpoint answers 404.

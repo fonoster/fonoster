@@ -119,7 +119,9 @@ export type GatewayConfig = {
   /** The Twilio-compatible hang-up endpoint (twilio-media-streams-flavor). */
   /**
    * The Twilio-compatible Calls endpoint. With `identity`, workspace API keys are checked through
-   * Identity; otherwise the single accountSid/authToken pair applies (self-hosting).
+   * Identity; otherwise the single accountSid/authToken pair applies (self-hosting). Either way it
+   * ends only calls whose app's `workspaceRef` is the URL's AccountSid, so in self-hosting mode set
+   * the apps' `workspaceRef` to `accountSid`.
    */
   http?: {
     host?: string;
