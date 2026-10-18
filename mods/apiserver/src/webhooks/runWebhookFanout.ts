@@ -16,9 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Webhooks } from "@fonoster/common";
+import { Sessions, Webhooks } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { consumeDurable } from "../core/durableConsumer";
+import { createLostCallSweep } from "./lostCalls";
 import type { NatsConnection } from "nats";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -37,6 +38,10 @@ export type WebhookFanoutConfig = {
   allowedDestinations?: string[];
   /** How long a replica may hold an event before another one gets it (default 30 s). */
   ackWaitMs?: number;
+  /** How often calls of lost appbridges are looked for (default 5 s; 0 turns it off). */
+  lostCallSweepMs?: number;
+  /** The session registry's bucket (default Sessions.SESSIONS_BUCKET; tests). */
+  sessionsBucket?: string;
 };
 
 /** The slice of the apiserver's Prisma client the fan-out uses (with field encryption). */
@@ -117,6 +122,13 @@ export async function runWebhookFanout(
       );
     }
   });
+  // Calls whose appbridge died mid-call get their call.ended (reason appbridge-lost) here: every
+  // replica sweeps, and the event id depends on the call, so each endpoint gets one delivery.
+  const stopLost = await watchLostCalls(config, deps.nc, (event) =>
+    intakeEvent(event).catch((e) =>
+      logger.warn(`lost call fan-out failed: ${(e as Error).message}`)
+    )
+  );
   let unsubscribe: () => Promise<void> | void;
   try {
     unsubscribe = await consumeDurable(
@@ -163,10 +175,50 @@ export async function runWebhookFanout(
     runDue,
     async stop() {
       nodeReports.unsubscribe();
+      stopLost();
       await unsubscribe();
       timers.forEach(clearInterval);
       await running;
       await store.flush().catch(() => undefined);
     }
+  };
+}
+
+/** Follows the session registry's calls and appbridges and sweeps for lost calls. */
+async function watchLostCalls(
+  config: WebhookFanoutConfig,
+  nc: NatsConnection,
+  emit: (event: Webhooks.WebhookEvent) => unknown
+): Promise<() => void> {
+  const sweepMs = config.lostCallSweepMs ?? 5_000;
+  if (sweepMs === 0) return () => undefined;
+  const lost = createLostCallSweep({ emit });
+  const stops: (() => void)[] = [];
+  try {
+    const kv = await Promise.race([
+      Sessions.openSessions(nc, { bucket: config.sessionsBucket }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("timed out")), 5000).unref()
+      )
+    ]);
+    stops.push(await Sessions.watchSessions(kv, "gateways", lost.onEntry));
+    stops.push(await Sessions.watchSessions(kv, "calls", lost.onEntry));
+  } catch (e) {
+    stops.forEach((s) => s());
+    logger.warn(
+      `session registry unavailable; calls of lost appbridges get no call.ended: ${(e as Error).message}`
+    );
+    return () => undefined;
+  }
+  const timer = setInterval(() => {
+    for (const event of lost.sweep())
+      logger.warn(
+        `call ${(event.data as { callRef: string }).callRef}: its appbridge is gone; call.ended (appbridge-lost)`
+      );
+  }, sweepMs);
+  timer.unref();
+  return () => {
+    clearInterval(timer);
+    stops.forEach((s) => s());
   };
 }

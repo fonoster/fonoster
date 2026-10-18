@@ -45,7 +45,7 @@ Every request body is JSON with the same envelope:
 | Type | When | `data` |
 | --- | --- | --- |
 | `call.started` | A call reached an app. | `callRef`, `appRef`, `from`, `to`, `direction` (`inbound` or `outbound`) |
-| `call.ended` | A call that reached an app ended. | the `call.started` fields plus `durationSeconds`, `endReason` (a session end reason: `caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error`, `timeout`) |
+| `call.ended` | A call that reached an app ended. | the `call.started` fields plus `durationSeconds`, `endReason` (a session end reason: `caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error`, `timeout`; or `appbridge-lost` when the appbridge serving the call died mid-call: the control plane sends it about 15-20 s after the appbridge stopped, and `durationSeconds` counts until the appbridge was last seen) |
 | `call.failed` | A call never reached an app (busy, no answer, rejected, app unreachable, media node error). | `callRef`, `appRef` (may be absent), `from`, `to`, `direction`, `reason` (for example `busy`, `no_answer`, `app_unreachable`, `node_error`) |
 | `call_record.sealed` | A new version of the call record was sealed. | `callRef`, `version`, `recordUrl` |
 | `provider.deprecated` | A provider, model or voice your workspace uses was deprecated. | `id`, `replacement`, `retireOn` (YYYY-MM-DD) |

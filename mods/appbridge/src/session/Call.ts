@@ -141,6 +141,11 @@ export type CallDeps = {
   onCatalogUse?: (use: CatalogUse) => void;
   /** Classifies the caller's first seconds for apps with `amd` (add-media-node 4.3). */
   amd?: AmdClassifier;
+  /**
+   * The call reached an app (once, right after `call.started`): the control plane needs its
+   * parties to send `call.ended` (`appbridge-lost`) if this appbridge dies before the call ends.
+   */
+  onAnswered?: (call: Call) => void;
   onEnded: (call: Call) => void;
 };
 
@@ -390,6 +395,14 @@ export class Call {
     };
   }
 
+  /** The answering app's parties and when the call started (for the session registry). */
+  startedParties() {
+    return {
+      ...this.parties(this.answeredBy),
+      startedAt: new Date(this.startedAt).toISOString()
+    };
+  }
+
   /** The call never reached an app: a minimal record and `call.failed` (gateway B26). */
   failed(reason: string, sipStatus?: number) {
     if (this.answeredBy) return;
@@ -528,6 +541,7 @@ export class Call {
       this.deps.webhooks?.(
         Webhooks.callStarted(app.workspaceRef ?? "default", this.parties(app))
       );
+      this.deps.onAnswered?.(this);
     }
     this.session = new AppSession(this, app, socket, handoff, this.deps, (f) =>
       this.rtp.send(f)

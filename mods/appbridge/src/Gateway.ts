@@ -327,6 +327,15 @@ export class Gateway {
       amd: this.amdClassifier,
       onCatalogUse: (use) =>
         this.nc?.publish(REGISTRY_USED_SUBJECT, sc.encode(JSON.stringify(use))),
+      // With the app and parties, so the control plane can send call.ended (appbridge-lost)
+      // when this appbridge dies mid-call.
+      onAnswered: (c) => {
+        if (this.calls.get(c.callRef) === c)
+          void this.leases?.set("calls", c.callRef, {
+            ...lease,
+            ...c.startedParties()
+          });
+      },
       onEnded: (c) => {
         this.calls.delete(c.callRef);
         void this.leases?.delete("calls", c.callRef);
@@ -335,13 +344,14 @@ export class Gateway {
     });
     this.calls.set(info.callRef, call);
     // The call in the session registry: any replica (or the control plane) finds its owner.
-    void this.leases?.set("calls", info.callRef, {
+    const lease = {
       callRef: info.callRef,
       gatewayRef: this.gatewayRef,
       nodeId: info.nodeId,
       roomRef: info.roomRef,
       direction: info.direction
-    });
+    };
+    void this.leases?.set("calls", info.callRef, lease);
 
     // Call control from other replicas (the Twilio-compatible hang-up endpoint).
     sub = this.nc!.subscribe(callSubject(info.callRef), {
