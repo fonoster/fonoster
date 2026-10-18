@@ -18,7 +18,7 @@
  */
 // Scale harness (pass bar T2): N concurrent calls through one or more gateway processes.
 //
-//   npx tsx mods/gateway/scripts/scale.ts --calls 100 --seconds 30 [--replicas 1]
+//   npx tsx mods/appbridge/scripts/scale.ts --calls 100 --seconds 30 [--replicas 1]
 //     [--harness-workers <n>] [--nats nats://127.0.0.1:4222] [--gateway-node-args "<args>"]
 //
 // Each gateway runs as its own process (its own event loop, like a replica); the replicas share

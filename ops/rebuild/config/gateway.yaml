@@ -6,7 +6,7 @@ nats:
   password: secret://env/NATS_GATEWAY_PASSWORD
 rtp:
   host: 0.0.0.0
-  advertiseHost: gateway
+  advertiseHost: appbridge
 apps: []
 providers: {}
 # Twilio-compatible Calls endpoint and keys; uncomment to serve it on :8080.

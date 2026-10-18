@@ -20,7 +20,7 @@
 // prints the report (add-turn-taking tasks 1.6, TT-B9). The baseline stays the default; a
 // candidate's PASS only says it may be proposed as the default.
 //
-//   npx tsx mods/gateway/scripts/replay.ts [corpus.json] [--candidate backchannel-hold]...
+//   npx tsx mods/appbridge/scripts/replay.ts [corpus.json] [--candidate backchannel-hold]...
 //       [--patience low|normal|high] [--no-adapt] [--json]
 import * as fs from "fs";
 import * as path from "path";

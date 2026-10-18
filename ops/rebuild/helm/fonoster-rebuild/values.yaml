@@ -134,9 +134,9 @@ minio:
 
 # ---- data plane ----
 
-gateway:
+appbridge:
   enabled: true
-  image: { repository: fonoster/gateway, tag: dev, pullPolicy: IfNotPresent }
+  image: { repository: fonoster/appbridge, tag: dev, pullPolicy: IfNotPresent }
   replicas: 2
   # In-flight sessions are not moved between replicas; give calls time to finish on rollout.
   terminationGracePeriodSeconds: 30

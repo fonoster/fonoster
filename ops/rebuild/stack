@@ -410,7 +410,7 @@ cmd_ask() {
   wait_for "the caller bot" 30 curl -sf "http://localhost:$RB_CALLER_PORT/calls"
   RB_CALLER="http://localhost:$RB_CALLER_PORT" RB_TARGET="$RB_NET.40:$RB_SIP_PORT" \
     RB_REQUEST_HOST="$(seed_get trunk.inboundUri)" RB_TO="$number" \
-    RB_QUESTION="${RB_QUESTION:-$ROOT/mods/gateway/scripts/fixtures/question-fonoster.wav}" \
+    RB_QUESTION="${RB_QUESTION:-$ROOT/mods/appbridge/scripts/fixtures/question-fonoster.wav}" \
     RB_OUT="${RB_OUT:-$LOCAL/ask}" node "$HERE/ask.cjs"
 }
 
@@ -444,7 +444,7 @@ cmd_smoke() {
 # The nightly end-to-end call (conformance "End-to-end caller bot"): ops/rebuild/e2e.cjs.
 cmd_e2e() {
   RB_SMOKE_KEEP="${RB_KEEP:-}"
-  trap 'status=$?; if [ "$status" != 0 ]; then compose ps -a >&2 || true; compose logs --no-color --tail 60 apiserver gateway autopilot medianode routr >&2 || true; fi; [ -z "$RB_SMOKE_KEEP" ] && cmd_down >/dev/null 2>&1; exit $status' EXIT
+  trap 'status=$?; if [ "$status" != 0 ]; then compose ps -a >&2 || true; compose logs --no-color --tail 60 apiserver appbridge autopilot medianode routr >&2 || true; fi; [ -z "$RB_SMOKE_KEEP" ] && cmd_down >/dev/null 2>&1; exit $status' EXIT
   cmd_up
   cmd_seed
   # The gateway and the hosted Autopilot cache apps for 3 s: let them see the seeded voice/model.
@@ -455,7 +455,7 @@ cmd_e2e() {
   wait_for "the caller bot" 30 curl -sf "http://localhost:$RB_CALLER_PORT/calls"
   (cd "$ROOT" && RB_CALLER="http://localhost:$RB_CALLER_PORT" RB_TARGET="$RB_NET.40:$RB_SIP_PORT" \
     RB_REQUEST_HOST="$(seed_get trunk.inboundUri)" RB_TO="$number" \
-    RB_QUESTION="${RB_QUESTION:-$ROOT/mods/gateway/scripts/fixtures/question-fonoster.wav}" \
+    RB_QUESTION="${RB_QUESTION:-$ROOT/mods/appbridge/scripts/fixtures/question-fonoster.wav}" \
     RB_API_HTTP="http://localhost:$RB_API_PORT" RB_API_ENDPOINT="localhost:$RB_API_PORT" \
     RB_WORKSPACE="$(seed_get workspace.accessKeyId)" RB_APP_REF="$(seed_get app.ref)" \
     RB_RECORDS_KEY="$CONF/keys/records.pem" RB_OUT="${RB_OUT:-$LOCAL/e2e}" \

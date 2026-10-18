@@ -52,9 +52,9 @@ const ROOT = path.join(__dirname, "../../../..");
 const ELSEWHERE: Record<string, string> = {
   "The utility's database role is limited":
     "mods/common/test/persistence/prisma.test.ts",
-  "A workspace brings its own key": "mods/gateway/test/workspaceKeys.test.ts",
+  "A workspace brings its own key": "mods/appbridge/test/workspaceKeys.test.ts",
   "No workspace key falls back to the platform key":
-    "mods/gateway/test/workspaceKeys.test.ts",
+    "mods/appbridge/test/workspaceKeys.test.ts",
   "Autopilot resolves its LLM key":
     "mods/autopilot/test/session/hosted.test.ts",
   "A retired id sent at runtime resolves to its replacement":

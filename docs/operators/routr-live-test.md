@@ -18,7 +18,7 @@ It checks the parts that only a real Routr can show:
   ends the session.
 - A node stopped with SIGTERM removes its route from Routr.
 
-The test is `mods/gateway/test/routr.live.test.ts`. It is skipped unless `ROUTR_LIVE=1`.
+The test is `mods/appbridge/test/routr.live.test.ts`. It is skipped unless `ROUTR_LIVE=1`.
 
 ## Run it
 
@@ -26,9 +26,9 @@ You need Docker, Go 1.25, and a NATS server for media-control. Use your own NATS
 another gateway on the same NATS would claim the call.
 
 ```sh
-mods/gateway/test/routr/rig.sh up        # Postgres + Routr 2.15.1; about a minute the first time
-CONFORMANCE_NATS_URL=nats://127.0.0.1:4235 mods/gateway/test/routr/rig.sh test
-mods/gateway/test/routr/rig.sh down      # removes the containers and the database
+mods/appbridge/test/routr/rig.sh up        # Postgres + Routr 2.15.1; about a minute the first time
+CONFORMANCE_NATS_URL=nats://127.0.0.1:4235 mods/appbridge/test/routr/rig.sh test
+mods/appbridge/test/routr/rig.sh down      # removes the containers and the database
 ```
 
 `rig.sh logs` follows Routr's logs. The test can run many times against one rig: it creates or
@@ -36,7 +36,7 @@ updates its Routr resources by name each time.
 
 ## What the rig is
 
-`mods/gateway/test/routr/compose.yaml` starts two containers:
+`mods/appbridge/test/routr/compose.yaml` starts two containers:
 
 | Container | What | Host ports |
 | --- | --- | --- |
@@ -79,7 +79,7 @@ Routr runs in Docker. The node, the caller bot and the gateway run on the host.
 | Trunk | `trunk trunk.rig.local`: inboundUri `trunk.rig.local`, no ACL or inbound credentials |
 | Number | `tel:+17853178070`: aorLink `sip:medianode@rig.local`, trunkRef as above, extra header `x-app-ref: app-rig` |
 
-The code is in `mods/gateway/test/routr/provision.ts`. It also works as a reference for setting up
+The code is in `mods/appbridge/test/routr/provision.ts`. It also works as a reference for setting up
 a real media-node Peer (see `docs/operators/cutover.md`).
 
 ## Things that tripped the first run

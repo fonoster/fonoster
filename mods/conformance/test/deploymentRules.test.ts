@@ -26,7 +26,7 @@ import * as path from "path";
 import { expect } from "chai";
 import { pathToFileURL } from "url";
 import { parse } from "yaml";
-import { loadConfig as loadGatewayConfig } from "../../gateway/src/config";
+import { loadConfig as loadGatewayConfig } from "../../appbridge/src/config";
 
 const ROOT = path.join(__dirname, "..", "..", "..");
 const WORKFLOWS = path.join(ROOT, ".github", "workflows");
@@ -185,7 +185,7 @@ describe("@conformance[deployment] no .env, secret:// references", function () {
       ].join("\n")
     );
     // The gateway's entry point imports @fonoster/common first, as main.ts does.
-    const loader = path.join(ROOT, "mods", "gateway", "src", "config");
+    const loader = path.join(ROOT, "mods", "appbridge", "src", "config");
     const common = require.resolve("@fonoster/common");
     const out = runNode(
       `require(${JSON.stringify(common)}); const c = require(${JSON.stringify(loader)}).loadConfig(${JSON.stringify(file)}); console.log(JSON.stringify([c.nats.password, c.telemetry.otlpEndpoint]))`,

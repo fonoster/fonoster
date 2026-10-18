@@ -24,7 +24,7 @@
 //
 //   LIVE_CALL=1 CONFORMANCE_NATS_URL=nats://127.0.0.1:4222 \
 //   DEEPGRAM_API_KEY=… ELEVENLABS_API_KEY=… OPENAI_API_KEY=… \
-//   npx tsx mods/gateway/scripts/live-call.ts
+//   npx tsx mods/appbridge/scripts/live-call.ts
 //
 // Options (environment):
 //   LIVE_VOICE      catalog voice (default deepgram/aura-2-thalia-en; e.g. elevenlabs/EXAVITQu4vr4xnSDxMaL)

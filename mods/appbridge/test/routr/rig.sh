@@ -42,7 +42,7 @@ case "${1:-}" in
     ROUTR_LIVE_HOST_ADDR="${ROUTR_LIVE_HOST_ADDR:-$(host_addr)}"
     export ROUTR_LIVE=1 ROUTR_LIVE_HOST_ADDR
     cd "$ROOT"
-    LOGS_LEVEL="${LOGS_LEVEL:-none}" npx mocha --exit --timeout 60000 mods/gateway/test/routr.live.test.ts
+    LOGS_LEVEL="${LOGS_LEVEL:-none}" npx mocha --exit --timeout 60000 mods/appbridge/test/routr.live.test.ts
     ;;
   logs)
     docker logs -f rb-cutover-routr

@@ -19,7 +19,7 @@ to pick the app.
 1. **Media-node Peer in Routr.** Set `routr.mediaNodePeer.password` in `fonoster.yaml`. The
    apiserver then creates the Peer at start: AOR `sip:medianode@default`, username `medianode`,
    `LEAST_SESSIONS`, any number of contacts. To create it by hand, see
-   `mods/gateway/test/routr/provision.ts`.
+   `mods/appbridge/test/routr/provision.ts`.
 2. **Media nodes.** Run `go/medianode` (`cmd/medianode`) on each node:
 
    ```sh
@@ -35,7 +35,7 @@ to pick the app.
    through a `${VAR}` placeholder or `secret://env/` reference. Check that Routr has a route for
    `sip:medianode@default` for each node. The node logs `register failed` when it cannot
    register.
-3. **Gateway.** Deploy `mods/gateway` on the same NATS. Its `apps:` list comes from the app
+3. **Gateway.** Deploy `mods/appbridge` on the same NATS. Its `apps:` list comes from the app
    migration in step 2.
 4. **Hosted Autopilot.** Autopilot apps move to the hosted Autopilot. Note its session URL
    (`wss://.../session`).
@@ -54,7 +54,7 @@ fonoster-migrate-legacy --autopilot-url wss://autopilot.example.com/session \
 
 # Apply, and write the gateway's apps list (holds signing secrets; written with mode 0600)
 fonoster-migrate-legacy --apply --autopilot-url wss://autopilot.example.com/session \
-  --autopilot-secret-env AUTOPILOT_SIGNING_SECRET --gateway-apps /etc/fonoster/gateway-apps.json
+  --autopilot-secret-env AUTOPILOT_SIGNING_SECRET --gateway-apps /etc/fonoster/appbridge-apps.json
 ```
 
 Steps, in order:

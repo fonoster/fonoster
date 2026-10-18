@@ -21,7 +21,7 @@ with their evidence. Every open item has an **Owner:** note with what to do and 
   an outbound-call test.
 - [ ] The `aiCoustics` audio filter cannot run from the gateway image: `@ai-coustics/aic-sdk` is a
   dependency of `mods/apiserver` only, and `/work/node_modules/@ai-coustics` is missing from
-  `fonoster/gateway` (checked on the 0.30.0-rcprep build). Every app that turns it on gets
+  `fonoster/appbridge` (checked on the 0.30.0-rcprep build). Every app that turns it on gets
   unfiltered audio and a `filter.failed` event. See `docs/operators/audio-filters.md`.
   **Owner:** fix it before the release or hide the filter in the dashboard catalog
   (`mods/dashboard/src/agents/catalog.ts`); a decision, then ~1-2 h.

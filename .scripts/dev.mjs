@@ -21,7 +21,7 @@
 // dev container's other services.
 //
 //   node .scripts/dev.mjs                     every component, each line prefixed by its name
-//   node .scripts/dev.mjs gateway autopilot   only those
+//   node .scripts/dev.mjs appbridge autopilot   only those
 //
 // Each process gets the values of .dev/.env (with ${NAME} expanded, as Compose's env_file does)
 // for the ${NAME} placeholders of its config file, .dev/config/<service>.yaml (passed explicitly:
@@ -44,7 +44,7 @@ const COLORS = [36, 35, 33, 32, 34, 31];
 const NAMES = [
   "fakes",
   "apiserver",
-  "gateway",
+  "appbridge",
   "autopilot",
   "medianode",
   "dashboard"
@@ -213,8 +213,11 @@ const COMPONENTS = {
   // Autopilot at them, so calls work without vendor keys.
   fakes: () => run("fakes", TSX, ["mods/conformance/src/fakes/serve.ts"]),
   apiserver,
-  gateway: () =>
-    run("gateway", ...tsxWatch("mods/gateway/src/main.ts", config("gateway"))),
+  appbridge: () =>
+    run(
+      "appbridge",
+      ...tsxWatch("mods/appbridge/src/main.ts", config("gateway"))
+    ),
   autopilot: () =>
     run(
       "autopilot",

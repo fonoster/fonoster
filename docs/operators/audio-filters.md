@@ -8,7 +8,7 @@ through the vendor's Node SDK, `@ai-coustics/aic-sdk` (0.24.0 in `package-lock.j
 
 Filtering is fail-open. If a filter cannot be created, cannot start or fails mid-call, the call
 keeps going with unfiltered audio and the call record gets a `filter.failed` event with the reason
-(`mods/gateway/src/session/Call.ts`, `startFilters`; `mods/gateway/src/filters/createAudioFilterChain.ts`).
+(`mods/appbridge/src/session/Call.ts`, `startFilters`; `mods/appbridge/src/filters/createAudioFilterChain.ts`).
 
 > **Status for this release: not usable from the published gateway image.** See "Known gaps"
 > below. Every app that lists `aiCoustics` today gets unfiltered audio and a `filter.failed`
@@ -17,7 +17,7 @@ keeps going with unfiltered audio and the call record gets a `filter.failed` eve
 ## What an app may set
 
 Apps are untrusted input, so the gateway accepts only these options
-(`aiCousticsPublicOptionsSchema` in `mods/gateway/src/filters/aiCoustics/createAiCousticsFilter.ts`).
+(`aiCousticsPublicOptionsSchema` in `mods/appbridge/src/filters/aiCoustics/createAiCousticsFilter.ts`).
 Any other key is rejected and the filter is not built.
 
 | Option | Default | Meaning |
@@ -110,15 +110,15 @@ The server-side options (`modelDir` default `./models`, `modelFile`, `autoDownlo
   win32-x64-msvc and win32-arm64-msvc (`optionalDependencies` in `package-lock.json`). No Node
   binary for musl exists. **Alpine images can't load it.** The vendor's musl archives (C SDK 0.25.0+)
   are static C libraries, not Node bindings.
-- The gateway image is `node:22-slim` (Debian 12, glibc 2.36; `mods/gateway/Dockerfile`), which
+- The gateway image is `node:22-slim` (Debian 12, glibc 2.36; `mods/appbridge/Dockerfile`), which
   matches the glibc binaries.
 
 ## Known gaps (before this can be turned on)
 
 1. **The SDK isn't in the gateway image.** `@ai-coustics/aic-sdk` is an optional dependency of
-   `mods/apiserver` only. The gateway image installs only `@fonoster/gateway`'s dependencies, so
+   `mods/apiserver` only. The gateway image installs only `@fonoster/appbridge`'s dependencies, so
    `require` fails with "@ai-coustics/aic-sdk is not installed". This was checked in
-   `fonoster/gateway:0.0.0-smoke`: `/work/node_modules/@ai-coustics` does not exist.
+   `fonoster/appbridge:0.0.0-smoke`: `/work/node_modules/@ai-coustics` does not exist.
 2. **The license key isn't passed in.** Neither `ops/bundle/compose.yaml` nor the Helm gateway
    template passes `AIC_SDK_LICENSE` to the gateway.
 3. **No model in the image, and the auto-download can't write.** The default `modelDir` is

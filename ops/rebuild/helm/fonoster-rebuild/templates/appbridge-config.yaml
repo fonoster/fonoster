@@ -1,5 +1,5 @@
-{{- if .Values.gateway.enabled }}
-{{- $cfg := tpl (toYaml .Values.gateway.config) . | fromYaml }}
+{{- if .Values.appbridge.enabled }}
+{{- $cfg := tpl (toYaml .Values.appbridge.config) . | fromYaml }}
 {{- $_ := set $cfg "nats" (merge (default (dict) $cfg.nats) (include "fonoster-rebuild.natsConfig" (dict "root" $ "user" "gateway") | fromYaml)) }}
 {{- if .Values.regionAgent.enabled }}
 {{- /* A cell: provider keys from the mounted cell secrets; in a public region the workspace's own
@@ -13,7 +13,7 @@ key first, fetched from the cloud per call (add-private-regions 5.9). */}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-gateway
+  name: {{ .Release.Name }}-appbridge
   labels:
     {{- include "fonoster-rebuild.labels" . | nindent 4 }}
 data:

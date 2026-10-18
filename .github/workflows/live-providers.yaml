@@ -40,7 +40,7 @@ jobs:
             exit 1
           fi
           mkdir -p reports
-          npx tsx mods/gateway/scripts/live-check.ts | tee reports/live-check.json
+          npx tsx mods/appbridge/scripts/live-check.ts | tee reports/live-check.json
 
       - name: Publish report
         if: always()

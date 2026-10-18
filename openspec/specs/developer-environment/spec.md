@@ -46,7 +46,7 @@ Re-generating MUST keep every existing secret.
 ### Requirement: One reloading script per component
 
 Each component SHALL have one script inside the workspace (`npm run dev:apiserver`,
-`dev:gateway`, `dev:autopilot`, `dev:medianode`, `dev:dashboard`, `dev:fakes`) that runs one component from source with the dev config, and
+`dev:appbridge`, `dev:autopilot`, `dev:medianode`, `dev:dashboard`, `dev:fakes`) that runs one component from source with the dev config, and
 `npm run dev` SHALL run all of them with each output line prefixed by the component's name. A
 change to a component's source MUST restart (or hot-reload) that component only.
 
@@ -61,9 +61,9 @@ change to a component's source MUST restart (or hot-reload) that component only.
   Autopilot app (or "Talk to agent" is used in the dashboard)
 - **THEN** the media node answers it and the caller hears the agent (fake providers by default)
 
-#### Scenario: Gateway reload
-- **WHEN** a file under `mods/gateway/src` is saved while `npm run dev` runs
-- **THEN** the gateway restarts and the other components keep running
+#### Scenario: AppBridge reload
+- **WHEN** a file under `mods/appbridge/src` is saved while `npm run dev` runs
+- **THEN** the AppBridge restarts and the other components keep running
 
 #### Scenario: Media node rebuild
 - **WHEN** a `.go` file under `go/medianode` is saved while `npm run dev:medianode` runs
@@ -71,8 +71,8 @@ change to a component's source MUST restart (or hot-reload) that component only.
   process keeps running
 
 #### Scenario: One component alone
-- **WHEN** only `npm run dev:gateway` runs
-- **THEN** the gateway starts with `.dev/config/gateway.yaml` and the secrets from `.dev/.env`
+- **WHEN** only `npm run dev:appbridge` runs
+- **THEN** the AppBridge starts with `.dev/config/gateway.yaml` and the secrets from `.dev/.env`
 
 ### Requirement: Tests run inside the dev container
 

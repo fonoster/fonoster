@@ -21,11 +21,11 @@ services:
       context: ../../go/medianode
     image: ${RB_REGISTRY:-fonoster}/medianode:${RB_TAG:-dev}
 
-  gateway:
+  appbridge:
     build:
       context: ../..
-      dockerfile: mods/gateway/Dockerfile
-    image: ${RB_REGISTRY:-fonoster}/gateway:${RB_TAG:-dev}
+      dockerfile: mods/appbridge/Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/appbridge:${RB_TAG:-dev}
     # Speech vendor keys named by the stack's gateway overlay (empty = the fake providers).
     environment:
       DEEPGRAM_API_KEY: ${DEEPGRAM_API_KEY:-}

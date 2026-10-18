@@ -148,8 +148,8 @@ services:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.42
 
   # The voice gateway: config/gateway.yaml.
-  gateway:
-    image: fonoster/gateway:${FONOSTER_VERSION:?set FONOSTER_VERSION}
+  appbridge:
+    image: fonoster/appbridge:${FONOSTER_VERSION:?set FONOSTER_VERSION}
     restart: unless-stopped
     depends_on:
       nats: { condition: service_healthy }
