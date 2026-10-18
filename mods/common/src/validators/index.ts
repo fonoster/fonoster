@@ -22,3 +22,4 @@ export * from "./hostOrHostPortSchema";
 export * from "./identity";
 export * from "./secrets";
 export * from "./sipnet";
+export * from "./sip";

@@ -17,8 +17,10 @@
  * limitations under the License.
  */
 import { InfluxDBClient } from "@fonoster/common";
+import SDK from "@routr/sdk";
 import { connect } from "nats";
 import { prisma } from "../core/db";
+import { routrConfig } from "../core/routrConfig";
 import { CALL_RECORDS, NATS, NATS_CONNECTION } from "../envs";
 import {
   createFetchCallsFromIndex,
@@ -27,6 +29,7 @@ import {
 } from "../records";
 import { createCall } from "./createCall";
 import { createCallPublisher } from "./createCallPublisher";
+import { createIsWorkspaceNumber } from "./createIsWorkspaceNumber";
 import { createTrackCall } from "./createTrackCall";
 import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
@@ -43,7 +46,11 @@ async function buildService(influxdb: InfluxDBClient) {
       proto: "calls.proto"
     },
     handlers: {
-      createCall: createCall(prisma, callPublisher),
+      createCall: createCall(
+        prisma,
+        callPublisher,
+        createIsWorkspaceNumber(new SDK.Numbers(routrConfig))
+      ),
       // Call history from the call-record index (add-call-record 7.1) when the flag is on; the
       // InfluxDB CDR path stays until the migration is done.
       listCalls: CALL_RECORDS.listCallsFromIndex

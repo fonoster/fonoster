@@ -25,6 +25,7 @@ import {
   ListDomainsRequest,
   UpdateDomainRequest
 } from "@fonoster/types";
+import { CheckRefs, domainRefs, refsChecker } from "../resources/checkRefs";
 import { createResource } from "../resources/createResource";
 import { deleteResource } from "../resources/deleteResource";
 import { getResource } from "../resources/getResource";
@@ -33,19 +34,21 @@ import { updateResource } from "../resources/updateResource";
 
 const RESOURCE = "Domain";
 
-function createDomain(domains: DomainsApi) {
+function createDomain(domains: DomainsApi, checkRefs?: CheckRefs) {
   return createResource<CreateDomainRequestExtended, BaseApiObject, DomainsApi>(
     domains,
     RESOURCE,
-    V.createDomainRequestSchema
+    V.createDomainRequestSchema,
+    refsChecker(checkRefs, domainRefs)
   );
 }
 
-function updateDomain(domains: DomainsApi) {
+function updateDomain(domains: DomainsApi, checkRefs?: CheckRefs) {
   return updateResource<UpdateDomainRequest, BaseApiObject, DomainsApi>(
     domains,
     RESOURCE,
-    V.updateDomainRequestSchema
+    V.updateDomainRequestSchema,
+    refsChecker(checkRefs, domainRefs)
   );
 }
 

@@ -17,32 +17,32 @@
  * limitations under the License.
  */
 import {
-  GrpcErrorMessage,
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
+import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { BaseApiObject, NumbersApi } from "@fonoster/types";
 import { convertToFonosterNumber } from "./convertToFonosterNumber";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
+type OwnedLookup = Parameters<typeof withAccess>[1];
+
 function getNumber(api: NumbersApi) {
-  const fn = async (
-    call: { request: BaseApiObject },
-    callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
-  ) => {
-    const { request } = call;
-    const { ref } = request;
+  const fn = async (call: { request: BaseApiObject }) => {
+    const { ref } = call.request;
 
     logger.verbose("call to getNumber", { ref });
 
-    const response = await api.getNumber(ref);
-
-    callback(null, convertToFonosterNumber(response));
+    return convertToFonosterNumber(await api.getNumber(ref));
   };
 
-  return withErrorHandlingAndValidation(fn, V.emptySchema);
+  // Only the caller's own numbers can be read, like every other resource.
+  return withErrorHandlingAndValidation(
+    withAccess(fn, ((ref: string) => api.getNumber(ref)) as OwnedLookup),
+    V.emptySchema
+  );
 }
 
 export { getNumber };

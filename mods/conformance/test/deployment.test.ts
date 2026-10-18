@@ -142,6 +142,36 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(find(objs, "StatefulSet", "fonoster-nats")).to.not.exist;
   });
 
+  it("media nodes accept INVITEs only from trusted sources by default and refuse to render open (H9)", function () {
+    // The media node's config file, from the chart's ConfigMap.
+    const trustedOf = (objs: K8sObject[]) => {
+      const cm = find(objs, "ConfigMap", "fonoster-medianode");
+      const cfg = parseAllDocuments(cm?.data?.["medianode.yaml"] ?? "")[0]?.toJS() as
+        | { trustedSources?: string[] }
+        | undefined;
+      return cfg?.trustedSources;
+    };
+    const trusted = trustedOf(render());
+    expect(trusted, "a default trusted-sources list").to.be.an("array").that
+      .is.not.empty;
+    expect(trusted).to.not.include("0.0.0.0/0");
+    expect(() =>
+      execFileSync(
+        "helm",
+        ["template", "fonoster", CHART, "--set=medianode.trustedSources="],
+        { stdio: "pipe" }
+      )
+    ).to.throw(/trustedSources is empty/);
+    expect(
+      trustedOf(
+        render(
+          "--set=medianode.trustedSources=",
+          "--set=medianode.allowAnySource=true"
+        )
+      )
+    ).to.equal(undefined);
+  });
+
   it("renders every deployable of the cloud install, with a migrations Job", function () {
     const objs = render("values-cloud.yaml");
     [

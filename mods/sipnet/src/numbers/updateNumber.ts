@@ -18,11 +18,11 @@
  */
 import {
   getAccessKeyIdFromCall,
-  GrpcErrorMessage,
   NumberPreconditionsCheck,
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
+import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import {
   BaseApiObject,
@@ -30,20 +30,23 @@ import {
   UpdateNumberRequest
 } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
+import { CheckRefs, numberRefs } from "../resources/checkRefs";
 import { convertToRoutrNumberUpdate } from "./convertToRoutrNumber";
 import { NumberRouting } from "./engineRouting";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
+type OwnedLookup = Parameters<typeof withAccess>[1];
+
 function updateNumber(
   api: NumbersApi,
   checkNumberPreconditions: NumberPreconditionsCheck,
-  routing?: NumberRouting
+  routing?: NumberRouting,
+  checkRefs?: CheckRefs
 ) {
-  const fn = async (
-    call: { request: UpdateNumberRequest },
-    callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
-  ) => {
+  const fn = async (call: {
+    request: UpdateNumberRequest;
+  }): Promise<BaseApiObject> => {
     const { request } = call;
 
     // Validates that the appRef exists in the caller's workspace (RV-B4)
@@ -51,6 +54,8 @@ function updateNumber(
       call as unknown as ServerInterceptingCall
     );
     await checkNumberPreconditions({ ...request, accessKeyId });
+    // ...and the trunk too (H7)
+    await checkRefs?.(accessKeyId, numberRefs(request));
 
     logger.verbose("call to updateNumber", { ...request });
 
@@ -63,14 +68,16 @@ function updateNumber(
           })
         : undefined;
 
-    const response = await api.updateNumber(
+    return await api.updateNumber(
       convertToRoutrNumberUpdate(request, appPeerAor)
     );
-
-    callback(null, response);
   };
 
-  return withErrorHandlingAndValidation(fn, V.updateNumberRequestSchema);
+  // Only the caller's own numbers can be updated, like every other resource.
+  return withErrorHandlingAndValidation(
+    withAccess(fn, ((ref: string) => api.getNumber(ref)) as OwnedLookup),
+    V.updateNumberRequestSchema
+  );
 }
 
 export { updateNumber };

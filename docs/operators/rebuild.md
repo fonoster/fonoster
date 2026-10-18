@@ -76,6 +76,17 @@ publish the same range on the container, pod (host network) or firewall. `rtp.ad
 is the address that goes into SDP; it must be reachable from Routr and RTPEngine. Behind NAT, set
 it to the reachable address; on Kubernetes the chart defaults to the node's host IP.
 
+### Trusted SIP sources
+
+The media node takes `X-App-Ref`, `X-Call-Ref` and `X-Call-Direction` from the INVITE, so it must
+accept INVITEs from Routr only. `trustedSources` in `medianode.yaml` (flag `-trusted-sources`)
+lists Routr's addresses as IPs, CIDRs or host names; an INVITE from any other address is refused. The Compose
+bundle sets it to Routr's container address. The Helm chart defaults `medianode.trustedSources` to
+the private ranges (`10.0.0.0/8,172.16.0.0/12,192.168.0.0/16`), because with `hostNetwork` port
+5060 is open on the node's address; narrow it to Routr's pod CIDR or addresses. The chart refuses
+to render with an empty list unless `medianode.allowAnySource: true` (development only). The node
+binary itself still accepts any source when the list is empty and logs a warning.
+
 ## Encryption and mutual TLS toward the edge
 
 `requireEncryption: true` in `medianode.yaml` makes the node serve SIP over TLS only and require

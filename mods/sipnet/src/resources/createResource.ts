@@ -24,13 +24,15 @@ import {
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
+import { CheckRequestRefs } from "./checkRefs";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function createResource<T, R, U>(
   api: U,
   resource: string,
-  schema: z.ZodSchema
+  schema: z.ZodSchema,
+  checkRefs?: CheckRequestRefs<R>
 ) {
   const fn = async (
     call: { request: R },
@@ -43,6 +45,9 @@ function createResource<T, R, U>(
     );
 
     logger.verbose(`call to create${resource}`, { ...request, accessKeyId });
+
+    // Referenced credentials, ACLs, domains, numbers and trunks must be the caller's (H7).
+    await checkRefs?.(request, accessKeyId);
 
     const response = await api[`create${resource}`]({
       ...request,

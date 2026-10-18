@@ -18,21 +18,22 @@
  */
 import {
   getAccessKeyIdFromCall,
-  GrpcErrorMessage,
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
+import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
 import { AclsApi, BaseApiObject, UpdateAclRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
+type OwnedLookup = Parameters<typeof withAccess>[1];
+
 function updateAcl(api: AclsApi) {
-  const fn = async (
-    call: { request: UpdateAclRequest },
-    callback: (error?: GrpcErrorMessage, response?: BaseApiObject) => void
-  ) => {
+  const fn = async (call: {
+    request: UpdateAclRequest;
+  }): Promise<BaseApiObject> => {
     const { request } = call;
 
     const accessKeyId = getAccessKeyIdFromCall(
@@ -41,12 +42,14 @@ function updateAcl(api: AclsApi) {
 
     logger.verbose("call to updateAcl", { ...request, accessKeyId });
 
-    const response = await api.updateAcl({ ...request, deny: ["0.0.0.0/0"] });
-
-    callback(null, response);
+    return await api.updateAcl({ ...request, deny: ["0.0.0.0/0"] });
   };
 
-  return withErrorHandlingAndValidation(fn, V.updateAclRequestSchema);
+  // Only the caller's own ACLs can be updated, like every other resource.
+  return withErrorHandlingAndValidation(
+    withAccess(fn, ((ref: string) => api.getAcl(ref)) as OwnedLookup),
+    V.updateAclRequestSchema
+  );
 }
 
 export { updateAcl };

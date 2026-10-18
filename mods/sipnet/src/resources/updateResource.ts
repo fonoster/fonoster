@@ -16,22 +16,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { withErrorHandlingAndValidation } from "@fonoster/common";
+import {
+  getAccessKeyIdFromCall,
+  withErrorHandlingAndValidation
+} from "@fonoster/common";
 import { withAccess } from "@fonoster/identity";
 import { getLogger } from "@fonoster/logger";
+import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { z } from "zod";
+import { CheckRequestRefs } from "./checkRefs";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 function updateResource<T, R, U>(
   api: U,
   resource: string,
-  schema: z.ZodSchema
+  schema: z.ZodSchema,
+  checkRefs?: CheckRequestRefs<R>
 ) {
   const fn = async (call: { request: R }): Promise<T> => {
     const { request } = call;
 
     logger.verbose(`call to update${resource}`, { ...request });
+
+    // Referenced credentials, ACLs, domains, numbers and trunks must be the caller's (H7).
+    await checkRefs?.(
+      request,
+      getAccessKeyIdFromCall(call as unknown as ServerInterceptingCall)
+    );
 
     return await api[`update${resource}`](request);
   };

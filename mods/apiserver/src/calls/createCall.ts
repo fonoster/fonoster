@@ -29,11 +29,16 @@ import { struct } from "pb-util";
 import { v4 as uuidv4 } from "uuid";
 import { Prisma } from "../core/db";
 import { notFoundError } from "../core/notFoundError";
+import { IsWorkspaceNumber } from "./createIsWorkspaceNumber";
 import { CallPlacementError, CallPublisher } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function createCall(prisma: Prisma, publisher: CallPublisher) {
+function createCall(
+  prisma: Prisma,
+  publisher: CallPublisher,
+  isWorkspaceNumber: IsWorkspaceNumber
+) {
   const fn = async (
     call: {
       request: CreateCallRequest;
@@ -57,6 +62,16 @@ function createCall(prisma: Prisma, publisher: CallPublisher) {
 
     if (!app) {
       throw notFoundError(`Application with ref ${appRef} not found`);
+    }
+
+    // `from` picks the trunk the call leaves by (X-Dod-Number), so it must be one of the
+    // workspace's own Numbers; another workspace's number is reported like an unknown one.
+    if (!(await isWorkspaceNumber(accessKeyId, from))) {
+      callback({
+        code: status.PERMISSION_DENIED,
+        message: `The number ${from} is not a Number of this workspace`
+      });
+      return;
     }
 
     // Placement answers once a media node has accepted the call, so a call with no capacity

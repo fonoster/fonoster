@@ -30,15 +30,26 @@ change the room.
 When an INVITE arrives from Routr, the node SHALL create a room, add the caller as a SIP-leg
 participant, read `X-App-Ref`, `X-Call-Ref` and `X-Call-Direction` and the `To` user (the ingress
 number), and send `call.incoming` so that one gateway replica claims the call and opens the app's
-session (media-control). Routr's headers are the source of truth for which app gets the call. The
-node SHALL NOT answer the call until the gateway asks it to, and SHALL refuse it with `503` when no
-gateway claims it.
+session (media-control). Routr's headers are the source of truth for which app gets the call, so
+the node SHALL accept INVITEs only from its trusted sources (Routr's addresses). The deployments
+SHALL set them: the Compose bundle to Routr's address, the Helm chart to the private ranges by
+default, and the chart SHALL refuse to render an empty list unless `allowAnySource` is set for
+development. The node SHALL NOT answer the call until the gateway asks it to, and SHALL refuse it
+with `503` when no gateway claims it.
 
 #### Scenario: Inbound call reported with its headers
 - **WHEN** Routr sends an INVITE with `X-App-Ref: app-1`, `X-Call-Ref: call-9` and `To: sip:+15550001@...`
 - **THEN** the node creates one room with the caller as its only SIP-leg participant
 - **AND** sends a `call.incoming` request with `appRef: "app-1"`, `callRef: "call-9"` and `to: "+15550001"`
 - **AND** sends no 200 OK before an `answer` command
+
+#### Scenario: INVITE from an untrusted source
+- **WHEN** an INVITE with `X-App-Ref: app-1` arrives from an address outside the trusted sources
+- **THEN** the node refuses it and sends no `call.incoming`
+
+#### Scenario: Chart without trusted sources
+- **WHEN** the Helm chart is rendered with `medianode.trustedSources` empty and `allowAnySource` unset
+- **THEN** rendering fails with a message naming `medianode.trustedSources`
 
 ### Requirement: Supported codecs
 

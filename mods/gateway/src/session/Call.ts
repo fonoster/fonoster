@@ -20,9 +20,12 @@ import { randomUUID } from "crypto";
 import {
   APP_COMMAND_SCHEMAS,
   AppCommandType,
+  E164,
+  isSipTarget,
   SESSION_PROTOCOL,
   SessionEndReason,
   SessionStart,
+  sipHeadersProblem,
   SUBSCRIBABLE_EVENTS,
   Webhooks
 } from "@fonoster/common";
@@ -1176,6 +1179,25 @@ export class AppSession {
     }
   }
 
+  /**
+   * A transfer's headers: the app's custom ones plus the call's own workspace and number, so a
+   * transfer to the PSTN leaves by this workspace's trunk (X-Dod-Number picks it at Routr): the
+   * ingress number of an inbound call, the `from` of an outbound one.
+   */
+  private transferHeaders(
+    headers: Record<string, string> | undefined
+  ): Record<string, string> {
+    const { direction, from, to } = this.call.info;
+    const number = direction === "inbound" ? to : from;
+    return {
+      ...(headers ?? {}),
+      ...(number && E164.test(number) ? { "X-Dod-Number": number } : {}),
+      ...(this.app.workspaceRef
+        ? { "X-Access-Key-Id": this.app.workspaceRef }
+        : {})
+    };
+  }
+
   private async dispatch(
     type: AppCommandType,
     cmd: Record<string, unknown>,
@@ -1289,6 +1311,22 @@ export class AppSession {
       case "transfer": {
         const transferId = id ?? this.call.nextCommandId();
         const mode = (cmd.mode as string) ?? "cold";
+        // The target and headers go into the INVITE or REFER as they are (security review H11):
+        // only a plain target and custom X- headers without control characters; the headers the
+        // platform routes by are set here, never by the app.
+        const refusal = !isSipTarget(cmd.to)
+          ? `invalid transfer target ${JSON.stringify(cmd.to)}`
+          : sipHeadersProblem(cmd.headers);
+        if (refusal) {
+          this.emit({
+            type: "error",
+            code: "bad_message",
+            message: refusal,
+            fatal: false,
+            relatesTo: transferId
+          });
+          return;
+        }
         this.transfer = { id: transferId, mode };
         try {
           await this.call.mediaCommand(
@@ -1296,7 +1334,9 @@ export class AppSession {
               type: "transfer",
               to: cmd.to,
               mode,
-              headers: cmd.headers,
+              headers: this.transferHeaders(
+                cmd.headers as Record<string, string> | undefined
+              ),
               music: cmd.music
             },
             transferId

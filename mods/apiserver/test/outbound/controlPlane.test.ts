@@ -243,7 +243,7 @@ async function createCallRpc(nc: NatsConnection) {
   const prisma = {
     application: { findUnique: async () => ({ ref: TEST_UUID }) }
   } as unknown as Prisma;
-  const handler = createCall(prisma, callPublisher(nc));
+  const handler = createCall(prisma, callPublisher(nc), async () => true);
   const metadata = new Metadata();
   metadata.set("token", TEST_TOKEN);
   return new Promise<{

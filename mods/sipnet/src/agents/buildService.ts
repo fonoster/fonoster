@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import SDK from "@routr/sdk";
+import { createCheckRefs, createRefLookups } from "../resources/checkRefs";
 import { ClientOptions } from "../types";
 import {
   createAgent,
@@ -28,6 +29,7 @@ import {
 
 function buildService(clientOptions: ClientOptions) {
   const client = new SDK.Agents(clientOptions);
+  const checkRefs = createCheckRefs(createRefLookups(clientOptions));
 
   return {
     definition: {
@@ -37,8 +39,8 @@ function buildService(clientOptions: ClientOptions) {
       proto: "agents.proto"
     },
     handlers: {
-      createAgent: createAgent(client),
-      updateAgent: updateAgent(client),
+      createAgent: createAgent(client, checkRefs),
+      updateAgent: updateAgent(client, checkRefs),
       getAgent: getAgent(client),
       listAgents: listAgents(client),
       deleteAgent: deleteAgent(client)
