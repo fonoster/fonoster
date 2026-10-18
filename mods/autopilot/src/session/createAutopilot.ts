@@ -23,6 +23,7 @@ import { SessionAssistant, sessionAssistantSchema } from "./config";
 import { KnowledgePort } from "./knowledge";
 import { LlmResolver } from "./llm";
 import { autopilotMachine } from "./machine";
+import { telemetry } from "./telemetry";
 import { resolveThink, Think, ThinkProvider } from "./think";
 import { HttpToolPort, ToolPort } from "./tools";
 import type { Session } from "@fonoster/voice";
@@ -72,6 +73,29 @@ export type AutopilotOptions = {
  * runs the state machine on the session's public messages only.
  */
 export function createAutopilotHandler(options: AutopilotOptions) {
+  const run = createSessionRunner(options);
+  return async (session: Session): Promise<void> => {
+    // The session span joins the call's trace when the gateway sent a traceparent.
+    const span = telemetry.startCall(
+      session.callRef,
+      "autopilot.session",
+      {
+        "fonoster.app_ref": session.appRef,
+        "fonoster.session_ref": session.sessionRef
+      },
+      session.traceparent
+    );
+    try {
+      await run(session);
+      span.end();
+    } catch (e) {
+      span.end({}, (e as Error).message);
+      throw e;
+    }
+  };
+}
+
+function createSessionRunner(options: AutopilotOptions) {
   return async (session: Session): Promise<void> => {
     // Listen before any await: turn events that arrive while the assistant and model load are
     // held and delivered once the machine runs.

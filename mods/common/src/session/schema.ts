@@ -60,6 +60,8 @@ export const sessionStartSchema = {
     to: { type: "string" },
     metadata: { type: "object" },
     handoff: { oneOf: [{ type: "null" }, { type: "object" }] },
+    // W3C traceparent of the call's span, so the app's spans join the call's trace (optional).
+    traceparent: { type: "string" },
     audio: {
       type: "object",
       required: ["codec", "rate"],
