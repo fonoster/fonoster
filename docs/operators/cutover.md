@@ -26,8 +26,18 @@ to pick the app.
    medianode -node-id node-a -nats nats://nats:4222 \
      -sip 0.0.0.0:5060 -sip-advertise <node IP Routr can reach> \
      -rtp 0.0.0.0 -rtp-advertise <node IP carriers and gateways can reach> \
-     -registrar routr:5060 -username medianode -password secret://env/MEDIANODE_PASSWORD \
-     -outbound-proxy routr:5060
+     -outbound-proxy routr:5060 -config /config/medianode.yaml
+   ```
+
+   with the registration in the file (the node registers nowhere unless told to):
+
+   ```yaml
+   sip:
+     registrations:
+       - registrar: routr:5060
+         aor: sip:medianode@default
+         auth: { username: medianode, password: secret://env/MEDIANODE_PASSWORD }
+         headers: { X-Session-Count: "{sessions}" }
    ```
 
    Every flag also has a key in `/config/medianode.yaml` (`-config <file>`; see
@@ -140,13 +150,13 @@ cleanly.
 
 | Topic | Behavior today |
 | --- | --- |
-| Registration | REGISTER every `-register-every` (15 s; Expires is twice that), with `X-Session-Count` = active rooms. It re-registers at once when the load changes by 5+ rooms or drops to 0. Requests go out from the SIP port with `rport`, so NAT in front of the node works. |
+| Registration | Each `sip.registrations` entry REGISTERs at half its `expires` (30 s by default), with its header templates rendered (`X-Session-Count: "{sessions}"` = active rooms for Routr). It re-registers at once when the load changes by 5+ rooms (`-reregister-delta`) or drops to 0. Requests go out from the SIP port with `rport`, so NAT in front of the node works. |
 | Balancing | Routr picks the route with the lowest `X-Session-Count` (Peer `LEAST_SESSIONS`). A room stays on its node. |
 | RTP ports | One UDP port per participant, chosen by the OS from the ephemeral range on `-rtp`. Open that range (or use host networking) between nodes, carriers and gateways. A configurable port range is not built yet. |
 | Encryption | Plain RTP only. TLS and SRTP toward the edge (media-node 2.12) are not built. Keep nodes, Routr and gateways on a private network. |
 | Codecs | PCMU, PCMA, G.722 and Opus on SIP legs (Opus only in images built with libopus); L16/16000 toward the gateway, which converts to each app's format (pcm16 at 8, 16 or 24 kHz, or pcmu at 8 kHz). |
 | Drain | On SIGTERM a node re-registers at once as full (Routr stops choosing it) and keeps its rooms. It exits when they end or after `-drain-wait` (10 min): first it unregisters (REGISTER with Expires 0), then it sends `node.down`. Use a pod termination grace of at least `-drain-wait`. |
-| Crash | Gateways see heartbeats stop (2 s period) and end the sessions. Routr keeps the dead route until it expires (2 × the REGISTER interval). |
+| Crash | Gateways see heartbeats stop (2 s period) and end the sessions. Routr keeps the dead route until it expires (the registration's `expires`). |
 | Limits | 10 participants per room. Calls end after 4 h. 30 s without RTP ends a leg (media timeout). A warm transfer gives up after 30 s without an answer. |
 | Diagnostics | `-debug host:port` serves `GET /rooms` (rooms and hold state). It is not part of media-control; do not expose it publicly. |
 

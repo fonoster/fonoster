@@ -15,7 +15,7 @@ participants (mix-minus), driven by the VoiceSessionGateway over **media-control
 | `hold` / `resume` by mixing, hold music from a PCM16 WAV URL | done |
 | `participant.left` / `room.ended` reasons, media timeout (30 s), maximum duration (4 h) | done |
 | `node.heartbeat` every 2 s, drain on SIGTERM, `node.down` | done |
-| REGISTER to Routr with `X-Session-Count` (re-registers on load changes and drain, unregisters on exit) | done, verified against Routr 2.15.1 (`docs/operators/routr-live-test.md`) |
+| Registrations from configuration (`sip.registrations`, none by default): digest auth, header templates with `{sessions}`, re-registers on load changes and drain, unregisters on exit, `registration.state` on NATS (see Registrations) | done; Routr's least-sessions (`X-Session-Count`) verified against Routr 2.15.1 (`docs/operators/routr-live-test.md`) |
 | `participant.dial` and cold, warm and refer transfers through an outbound proxy (`-outbound-proxy`, Routr in production) | done |
 | Debug endpoint (`-debug host:port`, `GET /rooms`) for tests and operators | done |
 | `listener.attach` / `listener.detach`: one unmixed RTP stream per selected track | done |
@@ -29,7 +29,7 @@ participants (mix-minus), driven by the VoiceSessionGateway over **media-control
 cd go/medianode
 go build ./cmd/...
 ./medianode -node-id node-a -nats nats://127.0.0.1:4222 -sip 0.0.0.0:5060 \
-  -sip-advertise 10.0.0.5 -rtp-advertise 10.0.0.5 -registrar routr:5060
+  -sip-advertise 10.0.0.5 -rtp-advertise 10.0.0.5 -config medianode.yaml
 ```
 
 Every flag has a key in the config file (`-config`, default `/config/medianode.yaml`; see
@@ -38,6 +38,42 @@ Every flag has a key in the config file (`-config`, default `/config/medianode.y
 `${VAR}` placeholder (`nodeId: "${POD_NAME}"`), or as a `secret://env/NAME` reference for the
 passwords and TLS PEM settings. A `MEDIANODE_*` variable the file does not reference is logged
 by name at start as ignored.
+
+## Registrations
+
+The node registers only where its configuration says (Roomr, `redesign-media-node`
+"Registration is optional and configured"); with no `sip.registrations` it sends no REGISTER and
+still takes INVITEs. Each entry:
+
+```yaml
+sip:
+  registrations:
+    - registrar: routr:5060            # host:port or a SIP URI; ;transport=tcp|tls picks the transport (default udp)
+      aor: sip:medianode@default       # From/To and the Contact user (default sip:medianode@<registrar host>)
+      expires: 30s                     # Expires; the node re-registers at half of it (default 30s)
+      auth:                            # optional: answers a 401/407 digest challenge
+        username: medianode
+        password: secret://env/MEDIANODE_PASSWORD   # or "${VAR}"
+      headers:                         # templates; {sessions} = active rooms, the room limit while draining or full
+        X-Session-Count: "{sessions}"
+```
+
+- Every registration re-registers at once when the room count moves by `-reregister-delta`
+  (default 5) or drops to 0, and when the node starts draining (`{sessions}` then renders as
+  `maxRooms`). On exit it sends Expires 0. A challenge without `auth` fails the registration.
+- `headers` follow the pass-through rule: SIP tokens, one line, and none of the headers the node
+  sets itself (Via, From, To, Call-ID, CSeq, Contact, Max-Forwards, Route, Record-Route,
+  Authorization, Proxy-Authorization, Expires, `Content-*` and compact forms). The same rule
+  applies to `CreateCall`'s `to.headers`.
+- `registration.state` (`registered`, `failed`, `expired`, `unregistered`) is published on
+  `roomr.nodes.<node_ref>.events` when a registration's state (or a failure's SIP status) changes.
+  A failed REGISTER is retried after 1 s, doubling up to the refresh interval.
+- Routr is one deployment of this: the bundle registers the media-node Peer with
+  `X-Session-Count: "{sessions}"` for Routr's `LEAST_SESSIONS`. `participant.dial` and transfers
+  (the NATS path) dial out as the Peer of the first registration (its AOR and `auth`).
+- The earlier single `registration:` block and the `-registrar`, `-domain`, `-username`,
+  `-password`, `-transport` and `-register-every` flags still work, as one registration with
+  `X-Session-Count`, and log a deprecation warning. Setting both forms is an error.
 
 ## Codecs
 

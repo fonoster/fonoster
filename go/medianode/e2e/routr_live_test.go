@@ -29,10 +29,12 @@ func TestLiveRoutrLeastSessions(t *testing.T) {
 		t.Skip("set ROUTR_EDGEPORT and ROUTR_NODE_HOST to run against a live Routr")
 	}
 	peer := func(c *sipua.Config) {
-		c.Registrar, c.Domain, c.Username, c.Password = edge, "sip.local", "medianode", "s3cret"
-		c.RegisterEvery, c.ReregisterDelta = 2*time.Second, 1
-		c.AdvertiseHost = nodeHost
-		c.Transport = "tcp"
+		// Routr as one deployment of the generic registration: its least-sessions balancer reads
+		// X-Session-Count.
+		c.Registrations = []sipua.Registration{{Registrar: "sip:" + edge + ";transport=tcp", AOR: "sip:medianode@sip.local",
+			Username: "medianode", Password: "s3cret", Expires: 4 * time.Second,
+			Headers: map[string]string{"X-Session-Count": sipua.SessionsPlaceholder}}}
+		c.ReregisterDelta, c.AdvertiseHost = 1, nodeHost
 	}
 	a := startWith(t, rigOptions{uaCfg: peer})
 	b := startWith(t, rigOptions{uaCfg: peer})

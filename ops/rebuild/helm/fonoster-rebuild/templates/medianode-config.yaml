@@ -7,9 +7,19 @@ HOST_IP and ROUTR_PEER_PASSWORD. */}}
 {{- $rtpAdvertise := ternary "${HOST_IP}" $m.rtp.advertise (eq $m.rtp.advertise "hostIP") }}
 {{- $cfg := dict "nodeId" "${POD_NAME}" }}
 {{- $_ := set $cfg "nats" (include "fonoster-rebuild.natsConfig" (dict "root" $ "user" "medianode") | fromYaml) }}
-{{- $_ := set $cfg "sip" (dict "listen" $m.sip.listen "advertise" $sipAdvertise) }}
+{{- /* The node knows no registrar by name: medianode.routr fills one sip.registrations entry
+(Routr's least-sessions reads X-Session-Count; dialed calls go out as the same peer);
+medianode.sip.registrations replaces it with the registrars you list ([] sends no REGISTER). */}}
+{{- $user := $m.routr.username | default "${POD_NAME}" }}
+{{- $auth := dict "username" $user "password" "${ROUTR_PEER_PASSWORD:-}" }}
+{{- $sip := dict "listen" $m.sip.listen "advertise" $sipAdvertise }}
+{{- if kindIs "slice" $m.sip.registrations }}
+{{- $_ := set $sip "registrations" $m.sip.registrations }}
+{{- else if $m.routr.registrar }}
+{{- $_ := set $sip "registrations" (list (dict "registrar" $m.routr.registrar "aor" (printf "sip:%s@%s" $user $m.routr.domain) "auth" $auth "expires" "30s" "headers" (dict "X-Session-Count" "{sessions}"))) }}
+{{- end }}
+{{- $_ := set $cfg "sip" $sip }}
 {{- $_ := set $cfg "rtp" (dict "host" "0.0.0.0" "advertise" $rtpAdvertise "portMin" ($m.rtp.portMin | int) "portMax" ($m.rtp.portMax | int)) }}
-{{- $_ := set $cfg "registration" (dict "registrar" $m.routr.registrar "domain" $m.routr.domain "username" ($m.routr.username | default "${POD_NAME}") "password" "${ROUTR_PEER_PASSWORD:-}") }}
 {{- $_ := set $cfg "outboundProxy" $m.routr.outboundProxy }}
 {{- if $m.tls.enabled }}
 {{- /* SIP over TLS toward the edge; with mutual, Routr must present a certificate signed by ca.crt

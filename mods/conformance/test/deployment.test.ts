@@ -466,9 +466,20 @@ describe("@conformance/deployment (Helm chart)", function () {
     );
     const config = medianodeConfig(objs);
     expect(config.nodeId).to.equal("${POD_NAME}");
+    // Routr is this deployment's registrar: one generic registration templating its
+    // least-sessions header (redesign-media-node 2.1).
     expect(config.sip).to.deep.equal({
       listen: "0.0.0.0:5060",
-      advertise: "${HOST_IP}"
+      advertise: "${HOST_IP}",
+      registrations: [
+        {
+          registrar: "routr:5060",
+          aor: "sip:${POD_NAME}@nodes.fonoster.local",
+          auth: { username: "${POD_NAME}", password: "${ROUTR_PEER_PASSWORD:-}" },
+          expires: "30s",
+          headers: { "X-Session-Count": "{sessions}" }
+        }
+      ]
     });
     expect(config.rtp).to.deep.equal({
       host: "0.0.0.0",
@@ -476,12 +487,8 @@ describe("@conformance/deployment (Helm chart)", function () {
       portMin: 30000,
       portMax: 30199
     });
-    expect(config.registration).to.deep.equal({
-      registrar: "routr:5060",
-      domain: "nodes.fonoster.local",
-      username: "${POD_NAME}",
-      password: "${ROUTR_PEER_PASSWORD:-}"
-    });
+    expect(config.registration).to.equal(undefined);
+    expect(config.outboundProxy).to.equal("routr:5060");
     expect(config.trustedSources).to.deep.equal(["10.0.0.1"]);
     // Every placeholder is a variable the pod sets.
     const env = JSON.stringify(node.spec);

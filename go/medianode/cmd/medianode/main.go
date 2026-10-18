@@ -1,4 +1,4 @@
-// Command medianode runs one Fonoster media node: SIP legs from Routr become rooms, mixed and
+// Command medianode runs one Fonoster media node: SIP legs from the SIP proxy become rooms, mixed and
 // driven over media-control on NATS (add-media-node).
 package main
 
@@ -109,14 +109,15 @@ func main() {
 	rtpAdvertise := flag.String("rtp-advertise", or(fc.RTP.Advertise, "127.0.0.1"), "address in SDP and rtp blocks")
 	rtpMin := flag.Int("rtp-port-min", orInt(fc.RTP.PortMin, 0), "lowest RTP port (0 with -rtp-port-max 0: any port)")
 	rtpMax := flag.Int("rtp-port-max", orInt(fc.RTP.PortMax, 0), "highest RTP port; publish exactly [min,max]/udp")
-	registrar := flag.String("registrar", or(fc.Registration.Registrar, ""), "Routr host:port; empty disables REGISTER")
-	domain := flag.String("domain", or(fc.Registration.Domain, ""), "registration domain")
-	username := flag.String("username", or(fc.Registration.Username, "medianode"), "peer username at Routr")
-	password := flag.String("password", or(fc.Registration.Password, ""), "peer password at Routr")
+	// The legacy single registration (prefer sip.registrations in the file).
+	registrar := flag.String("registrar", or(fc.Registration.Registrar, ""), "deprecated (use sip.registrations): registrar host:port, registered with X-Session-Count")
+	domain := flag.String("domain", or(fc.Registration.Domain, ""), "deprecated: the legacy registration's domain")
+	username := flag.String("username", or(fc.Registration.Username, ""), "deprecated: the legacy registration's username (default medianode)")
+	password := flag.String("password", or(fc.Registration.Password, ""), "deprecated: the legacy registration's password (or a secret:// reference)")
 	outbound := flag.String("outbound-proxy", or(fc.OutboundProxy, ""), "host:port outbound INVITEs go to (Routr); empty disables dial and transfers")
-	transport := flag.String("transport", or(fc.Registration.Transport, "udp"), "REGISTER transport (udp or tcp)")
+	transport := flag.String("transport", or(fc.Registration.Transport, "udp"), "deprecated: the legacy registration's transport (udp or tcp)")
 	heartbeat := flag.Duration("heartbeat", 2*time.Second, "node.heartbeat period")
-	registerEvery := flag.Duration("register-every", orDuration(fc.Registration.Every, 15*time.Second), "REGISTER interval (Expires is twice this); load changes of 5+ rooms re-register at once")
+	registerEvery := flag.Duration("register-every", orDuration(fc.Registration.Every, 15*time.Second), "deprecated: the legacy registration's interval (Expires is twice this)")
 	debugAddr := flag.String("debug", or(fc.DebugAddr, ""), "host:port for a debug HTTP endpoint (GET /rooms); empty disables it")
 	drainWait := flag.Duration("drain-wait", orDuration(fc.DrainWait, 10*time.Minute), "longest wait for rooms to end on SIGTERM")
 	maxDuration := flag.Duration("max-duration", orDuration(fc.MaxDuration, 4*time.Hour), "longest call (ended with reason timeout); apps can lower it per call")
@@ -138,9 +139,9 @@ func main() {
 	natsUser := flag.String("nats-user", or(fc.NATS.User, ""), "NATS user (per-service users, add-platform 4.1); empty connects without one")
 	natsPassword := flag.String("nats-password", or(fc.NATS.Password, ""), "NATS password (or a secret:// reference)")
 	requireEnc := flag.Bool("require-encryption", orBool(fc.RequireEncryption, false), "SIP over TLS only and SRTP on every leg (MN6)")
-	reregisterDelta := flag.Int("reregister-delta", 5, "re-register at once when the room count moves by this much")
+	reregisterDelta := flag.Int("reregister-delta", 5, "every registration re-registers at once when the room count moves by this much")
 	outboundTransport := flag.String("outbound-transport", or(fc.OutboundTransport, "udp"), "transport to the outbound proxy (udp, tcp, tls)")
-	trustedSources := flag.String("trusted-sources", or(strings.Join(fc.TrustedSources, ","), ""), "comma-separated IPs, CIDRs or host names allowed to send INVITEs (the edge, Routr); empty accepts any source")
+	trustedSources := flag.String("trusted-sources", or(strings.Join(fc.TrustedSources, ","), ""), "comma-separated IPs, CIDRs or host names allowed to send INVITEs (the SIP proxy); empty accepts any source")
 	grpcListen := flag.String("control-grpc", or(fc.Control.GRPC.Listen, ""), "host:port for the MediaControl gRPC service; empty disables it (media-control stays on NATS either way)")
 	grpcCert := flag.String("control-grpc-cert", or(fc.Control.GRPC.TLS.Cert, ""), "PEM certificate for the MediaControl listener (file or secret://); empty: plaintext")
 	grpcKey := flag.String("control-grpc-key", or(fc.Control.GRPC.TLS.Key, ""), "PEM key for the MediaControl listener (file or secret://)")
@@ -194,10 +195,14 @@ func main() {
 		// let it read (nats-permissions/medianode.conf): no service reads another's replies.
 		natsOpts = append(natsOpts, nats.UserInfo(*natsUser, pass), nats.CustomInboxPrefix(natsInboxPrefix(*natsUser)))
 	}
-	sipPassword, err := secretref.Resolve(*password)
+	sipCfg, err := buildSIP(fc, legacyRegistration{Registrar: *registrar, Domain: *domain, Username: *username,
+		Password: *password, Transport: *transport, Every: *registerEvery})
 	if err != nil {
-		logger.Error("sip password", "err", err)
+		logger.Error("sip", "err", err)
 		os.Exit(1)
+	}
+	if sipCfg.Legacy {
+		logger.Warn("registration and -registrar are deprecated; list it under sip.registrations (with headers: { X-Session-Count: \"{sessions}\" } to keep load reporting)")
 	}
 	nc, err := nats.Connect(*natsURL, natsOpts...)
 	if err != nil {
@@ -235,9 +240,10 @@ func main() {
 	_, portText, _ := net.SplitHostPort(*sipListen)
 	port, _ := strconv.Atoi(portText)
 	ua, err := sipua.New(n, sipua.Config{Listen: *sipListen, AdvertiseHost: *sipAdvertise, AdvertisePort: port,
-		Registrar: *registrar, OutboundProxy: *outbound, Domain: *domain, Username: *username, Password: sipPassword, Transport: *transport,
-		TLSListen: *tlsListen, TLSConfig: serverTLS, ClientTLS: clientTLS, RequireEncryption: *requireEnc,
-		OutboundTransport: *outboundTransport, RegisterEvery: *registerEvery, ReregisterDelta: *reregisterDelta,
+		Registrations: sipCfg.Registrations, OnRegistrationState: registrationStatePublisher(nc, *nodeID, logger),
+		ReregisterDelta: *reregisterDelta, OutboundProxy: *outbound, Domain: sipCfg.Domain, Username: sipCfg.Username,
+		Password: sipCfg.Password, TLSListen: *tlsListen, TLSConfig: serverTLS, ClientTLS: clientTLS,
+		RequireEncryption: *requireEnc, OutboundTransport: *outboundTransport,
 		TrustedSources: strings.Split(*trustedSources, ","), Logger: logger})
 	if err != nil {
 		logger.Error("sip", "err", err)
@@ -312,7 +318,7 @@ func main() {
 		<-signals
 		close(stop)
 	}()
-	// Drain also re-registers at once (OnDrain → Kick), so Routr learns "full" now.
+	// Drain also re-registers at once (OnDrain → Kick), so registrars learn "full" now.
 	if forced := n.DrainAndWait(*drainWait, stop); forced > 0 {
 		logger.Warn("drain wait over; ended rooms", "rooms", forced)
 	}

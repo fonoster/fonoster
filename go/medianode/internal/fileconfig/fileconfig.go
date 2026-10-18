@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fonoster/fonoster/go/medianode/internal/sipheader"
 	"gopkg.in/yaml.v3"
 )
 
@@ -32,6 +33,8 @@ type File struct {
 	SIP struct {
 		Listen    string `yaml:"listen"`
 		Advertise string `yaml:"advertise"`
+		// Registrations are the REGISTERs the node keeps; none (the default) sends no REGISTER.
+		Registrations []Registration `yaml:"registrations"`
 	} `yaml:"sip"`
 	RTP struct {
 		Host      string `yaml:"host"`
@@ -39,6 +42,8 @@ type File struct {
 		PortMin   int    `yaml:"portMin"`
 		PortMax   int    `yaml:"portMax"`
 	} `yaml:"rtp"`
+	// Registration is the single Routr registration of earlier releases (deprecated; use
+	// sip.registrations). It maps to one entry with X-Session-Count: "{sessions}".
 	Registration struct {
 		Registrar string `yaml:"registrar"`
 		Domain    string `yaml:"domain"`
@@ -86,6 +91,28 @@ type File struct {
 	Telemetry struct {
 		OTLPEndpoint string `yaml:"otlpEndpoint"`
 	} `yaml:"telemetry"`
+}
+
+// Auth is a digest identity; Password may be a secret:// reference.
+type Auth struct {
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
+}
+
+// Registration is one entry of sip.registrations (media-node, "Registration is optional and
+// configured").
+type Registration struct {
+	// Registrar is host:port or a SIP URI (sip:host:port;transport=tcp). Required.
+	Registrar string `yaml:"registrar"`
+	// AOR is the address of record (sip:user@domain); default sip:medianode@<registrar host>.
+	AOR string `yaml:"aor"`
+	// Auth answers a digest challenge; without it a challenge fails the registration.
+	Auth *Auth `yaml:"auth"`
+	// Expires is the binding lifetime (default 30s); the node re-registers at half of it.
+	Expires string `yaml:"expires"`
+	// Headers are templates added to every REGISTER; "{sessions}" is the session count (the room
+	// limit while draining or full).
+	Headers map[string]string `yaml:"headers"`
 }
 
 var ref = regexp.MustCompile(`\$\{([A-Za-z_][A-Za-z0-9_]*)(:-([^}]*))?\}`)
@@ -179,6 +206,23 @@ func Parse(data []byte, lookup func(string) (string, bool)) (*File, error) {
 				return nil, fmt.Errorf("%s: %q is not a duration (e.g. 15s, 10m)", name, d)
 			}
 		}
+	}
+	for i, r := range f.SIP.Registrations {
+		name := fmt.Sprintf("sip.registrations[%d]", i)
+		if strings.TrimSpace(r.Registrar) == "" {
+			return nil, fmt.Errorf("%s.registrar is required", name)
+		}
+		if r.Expires != "" {
+			if d, err := time.ParseDuration(r.Expires); err != nil || d < time.Second {
+				return nil, fmt.Errorf("%s.expires: %q is not a duration of at least 1s (e.g. 30s, 5m)", name, r.Expires)
+			}
+		}
+		if err := sipheader.Validate(r.Headers); err != nil {
+			return nil, fmt.Errorf("%s.headers: %w", name, err)
+		}
+	}
+	if len(f.SIP.Registrations) > 0 && f.Registration.Registrar != "" {
+		return nil, errors.New("registration and sip.registrations are both set; keep sip.registrations only")
 	}
 	return f, nil
 }

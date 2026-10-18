@@ -181,6 +181,12 @@ medianode:
   sip:
     listen: 0.0.0.0:5060
     advertise: hostIP
+    # Unset: one registration to medianode.routr.registrar with X-Session-Count. A list replaces
+    # it (each entry: registrar, aor, expires, auth {username, password}, headers templating
+    # "{sessions}"); [] sends no REGISTER.
+    # registrations: []
+  # This deployment's SIP proxy and registrar (Routr): the node registers as <username>@<domain>
+  # unless sip.registrations is set; outbound INVITEs go to outboundProxy.
   routr:
     registrar: routr:5060
     domain: nodes.fonoster.local

@@ -1,5 +1,6 @@
-// Package sipua is the node's SIP side: INVITEs from Routr become rooms, and the node registers
-// to Routr with its session count (media-node, "Nodes register to Routr with their session count").
+// Package sipua is the node's SIP side: INVITEs from the SIP proxy become rooms, and the node
+// keeps the registrations its configuration lists, none by default (media-node, "Registration is
+// optional and configured").
 package sipua
 
 import (
@@ -29,19 +30,19 @@ type Config struct {
 	// AdvertiseHost and AdvertisePort go in Contact headers.
 	AdvertiseHost string
 	AdvertisePort int
-	// Registrar is Routr's address (host:port); empty disables registration.
-	Registrar string
-	// Domain, Username and Password identify the node as a Routr peer.
+	// Registrations are the REGISTERs the node keeps; none sends no REGISTER.
+	Registrations []Registration
+	// OnRegistrationState reports a registration that succeeded, failed, expired or was removed
+	// (registration.state on NATS); nil drops the reports.
+	OnRegistrationState func(RegistrationState)
+	// Domain, Username and Password identify the node as a Routr peer on participant.dial and
+	// transfer INVITEs (the NATS media-control path).
 	Domain, Username, Password string
-	// Transport for REGISTER: "udp" or "tcp".
-	Transport string
 	// OutboundProxy is where outbound INVITEs go (Routr, which picks the carrier trunk); empty
 	// disables participant.dial and transfers.
 	OutboundProxy string
-	// RegisterEvery is the re-register interval; re-registers also follow load changes.
-	RegisterEvery time.Duration
-	// ReregisterDelta re-registers at once when the room count moved by at least this much since
-	// the last REGISTER (default 5).
+	// ReregisterDelta is the load-change threshold: every registration re-registers at once when
+	// the room count moved by at least this much since its last accepted REGISTER (default 5).
 	ReregisterDelta int
 	// TLSListen is host:port for SIP over TLS (empty: no TLS listener); TLSConfig is its
 	// server certificate. ClientTLS verifies the edge when the node dials or registers over TLS.
@@ -70,9 +71,7 @@ type UA struct {
 	client  *sipgo.Client
 	dialogs *sipgo.DialogServerCache
 	out     *sipgo.DialogClientCache
-	kick    chan struct{}
-	lastReg int
-	mu      sync.Mutex
+	regs    []*registration
 	// legs by dialog ID (Call-ID plus both tags), for SIP INFO keypresses.
 	legs sync.Map
 	// openDialogs counts INVITE dialogs in the server dialog cache (leak check, RV-B9).
@@ -90,20 +89,14 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if cfg.Logger == nil {
 		cfg.Logger = slog.Default()
 	}
-	if cfg.RegisterEvery == 0 {
-		cfg.RegisterEvery = 15 * time.Second
-	}
 	if cfg.ReregisterDelta <= 0 {
 		cfg.ReregisterDelta = 5
-	}
-	if cfg.Transport == "" {
-		cfg.Transport = "udp"
 	}
 	if cfg.OutboundTransport == "" {
 		cfg.OutboundTransport = "udp"
 	}
 	if cfg.RequireEncryption {
-		cfg.Transport, cfg.OutboundTransport = "tls", "tls"
+		cfg.OutboundTransport = "tls"
 		if cfg.TLSListen == "" || cfg.TLSConfig == nil {
 			return nil, errors.New("encryption required but no TLS listener or certificate configured")
 		}
@@ -159,8 +152,14 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 		cfg.Logger.Warn("no trusted SIP sources configured: INVITEs are accepted from any address")
 	}
 	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client, udp: udp, tcp: tcp, trust: trust,
-		dialogs: sipgo.NewDialogServerCache(client, contact), out: sipgo.NewDialogClientCache(client, contact),
-		kick: make(chan struct{}, 1), lastReg: -1}
+		dialogs: sipgo.NewDialogServerCache(client, contact), out: sipgo.NewDialogClientCache(client, contact)}
+	for _, r := range cfg.Registrations {
+		reg, err := newRegistration(r, cfg.RequireEncryption)
+		if err != nil {
+			return nil, err
+		}
+		u.regs = append(u.regs, reg)
+	}
 	srv.OnInvite(u.guard(u.onInvite))
 	srv.OnAck(u.guard(func(req *sip.Request, tx sip.ServerTransaction) { _ = u.dialogs.ReadAck(req, tx) }))
 	srv.OnBye(u.guard(func(req *sip.Request, tx sip.ServerTransaction) {
@@ -194,8 +193,8 @@ func (u *UA) Serve(ctx context.Context) error {
 	if u.cfg.TLSListen != "" && u.cfg.TLSConfig != nil {
 		go func() { errs <- u.srv.ListenAndServeTLS(ctx, "tcp", u.cfg.TLSListen, u.cfg.TLSConfig) }()
 	}
-	if u.cfg.Registrar != "" {
-		go u.registerLoop(ctx)
+	for _, r := range u.regs {
+		go u.registerLoop(ctx, r)
 	}
 	select {
 	case <-ctx.Done():
@@ -528,121 +527,13 @@ func reasonPhrase(status int) string {
 	return "Error"
 }
 
-// ---- registration ---------------------------------------------------------------------------
-
-// loadChanged re-registers soon after a large change in active rooms (MN3).
-func (u *UA) loadChanged(count int) {
-	u.mu.Lock()
-	last := u.lastReg
-	u.mu.Unlock()
-	if last < 0 || abs(count-last) >= u.cfg.ReregisterDelta || count == 0 {
-		u.Kick()
-	}
-}
-
-func abs(i int) int {
-	if i < 0 {
-		return -i
-	}
-	return i
-}
-
-func (u *UA) registerLoop(ctx context.Context) {
-	t := time.NewTicker(u.cfg.RegisterEvery)
-	defer t.Stop()
-	for {
-		if err := u.register(ctx); err != nil {
-			u.cfg.Logger.Warn("register failed", "registrar", u.cfg.Registrar, "err", err)
-		}
-		select {
-		case <-ctx.Done():
-			return
-		case <-t.C:
-		case <-u.kick:
-		}
-	}
-}
-
-// Kick re-registers now (e.g. after Drain, so Routr stops choosing this node at once).
-func (u *UA) Kick() {
-	select {
-	case u.kick <- struct{}{}:
-	default:
-	}
-}
-
-// Unregister removes this node's route from Routr (REGISTER with Expires 0), so Routr stops
-// choosing a node that exits instead of waiting for its registration to expire (CO-B3).
-func (u *UA) Unregister(ctx context.Context) error {
-	if u.cfg.Registrar == "" {
-		return nil
-	}
-	return u.send(ctx, 0)
-}
-
-func (u *UA) register(ctx context.Context) error {
-	return u.send(ctx, int(u.cfg.RegisterEvery.Seconds()*2))
-}
-
-func (u *UA) send(ctx context.Context, expires int) error {
-	count := u.node.ActiveRooms()
-	if u.node.Draining() || u.node.AtCapacity() {
-		count = 1 << 20 // full: Routr stops choosing this node
-	}
-	host, portText, _ := strings.Cut(u.cfg.Registrar, ":")
-	port, _ := strconv.Atoi(portText)
-	domain := u.cfg.Domain
-	if domain == "" {
-		domain = host
-	}
-	req := sip.NewRequest(sip.REGISTER, sip.Uri{Host: domain})
-	req.SetDestination(fmt.Sprintf("%s:%d", host, port))
-	req.SetTransport(strings.ToUpper(u.cfg.Transport))
-	user := u.peerUser()
-	req.AppendHeader(&sip.FromHeader{Address: sip.Uri{User: user, Host: domain}, Params: sip.NewParams()})
-	req.AppendHeader(&sip.ToHeader{Address: sip.Uri{User: user, Host: domain}})
-	contactParams := sip.NewParams()
-	contactParams.Add("transport", u.cfg.Transport)
-	req.AppendHeader(&sip.ContactHeader{Address: sip.Uri{User: user, Host: u.cfg.AdvertiseHost, Port: u.cfg.AdvertisePort,
-		UriParams: contactParams}})
-	req.AppendHeader(sip.NewHeader("Expires", strconv.Itoa(expires)))
-	req.AppendHeader(sip.NewHeader("X-Session-Count", strconv.Itoa(count)))
-
-	cctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-	res, err := u.client.Do(cctx, req, sipgo.ClientRequestRegisterBuild)
-	if err != nil {
-		return err
-	}
-	// sipgo can end a canceled transaction with neither a response nor an error.
-	if res == nil {
-		return fmt.Errorf("REGISTER got no response")
-	}
-	if res.StatusCode == 401 || res.StatusCode == 407 {
-		res, err = u.client.DoDigestAuth(cctx, req, res, sipgo.DigestAuth{Username: user, Password: u.cfg.Password})
-		if err != nil {
-			return err
-		}
-		if res == nil {
-			return fmt.Errorf("REGISTER got no response")
-		}
-	}
-	if res.StatusCode != 200 {
-		return fmt.Errorf("REGISTER answered %d", res.StatusCode)
-	}
-	u.mu.Lock()
-	u.lastReg = count
-	u.mu.Unlock()
-	return nil
-}
-
 // ---- outbound legs --------------------------------------------------------------------------
 
 // DODNumberHeader carries the caller-id number of a Peer's call to the PSTN; Routr picks the
 // trunk by it (connect's peerToPSTN reads X-DOD-Number; SIP header names are case-insensitive).
 const DODNumberHeader = "X-DOD-Number"
 
-// peerUser is the node's Routr Peer username (REGISTER and outbound INVITEs).
+// peerUser is the node's Routr Peer username (outbound INVITEs).
 func (u *UA) peerUser() string {
 	if u.cfg.Username != "" {
 		return u.cfg.Username
@@ -650,13 +541,13 @@ func (u *UA) peerUser() string {
 	return "medianode"
 }
 
-// peerDomain is the host in the Peer's From: the configured domain, else the registrar's or
-// outbound proxy's host.
+// peerDomain is the host in the Peer's From: the configured domain, else the outbound proxy's
+// host.
 func (u *UA) peerDomain() string {
 	if u.cfg.Domain != "" {
 		return u.cfg.Domain
 	}
-	for _, addr := range []string{u.cfg.Registrar, u.cfg.OutboundProxy} {
+	for _, addr := range []string{u.cfg.OutboundProxy} {
 		if host, _, err := net.SplitHostPort(addr); err == nil && host != "" {
 			return host
 		}

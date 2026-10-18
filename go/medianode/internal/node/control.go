@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/fonoster/fonoster/go/medianode/internal/rtpio"
+	"github.com/fonoster/fonoster/go/medianode/internal/sipheader"
 )
 
 // MediaControl operations (redesign-media-node, "MediaControl is a gRPC service with three
@@ -81,29 +82,6 @@ func (n *Node) SetTargetDialer(d TargetDialer) {
 	n.ctl.mu.Unlock()
 }
 
-// reservedHeaders are the SIP headers the node owns on an INVITE; CreateCall cannot set them.
-var reservedHeaders = map[string]bool{
-	"via": true, "from": true, "to": true, "call-id": true, "cseq": true, "contact": true,
-	"content-type": true, "content-length": true, "max-forwards": true, "route": true,
-	"record-route": true, "authorization": true, "proxy-authorization": true,
-	"v": true, "f": true, "t": true, "i": true, "m": true, "c": true, "l": true,
-}
-
-func validHeaderName(name string) bool {
-	if name == "" {
-		return false
-	}
-	for _, c := range name {
-		ok := c == '-' || c == '_' || c == '.' || c == '!' || c == '%' || c == '*' || c == '+' ||
-			c == '`' || c == '\'' || c == '~' || (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') ||
-			(c >= 'A' && c <= 'Z')
-		if !ok {
-			return false
-		}
-	}
-	return true
-}
-
 func (t SipTarget) check() error {
 	if strings.TrimSpace(t.URI) == "" {
 		return errorf(CodeBadMessage, "to.uri is required")
@@ -111,16 +89,8 @@ func (t SipTarget) check() error {
 	if strings.ContainsAny(t.URI+t.Proxy, "\r\n") {
 		return errorf(CodeBadMessage, "to.uri and to.proxy must be one line")
 	}
-	for k, v := range t.Headers {
-		if !validHeaderName(k) {
-			return errorf(CodeBadMessage, "header name %q is not a SIP token", k)
-		}
-		if reservedHeaders[strings.ToLower(k)] {
-			return errorf(CodeBadMessage, "header %s is set by the node", k)
-		}
-		if strings.ContainsAny(v, "\r\n") {
-			return errorf(CodeBadMessage, "header %s must be one line", k)
-		}
+	if err := sipheader.Validate(t.Headers); err != nil {
+		return errorf(CodeBadMessage, "%s", err.Error())
 	}
 	return nil
 }

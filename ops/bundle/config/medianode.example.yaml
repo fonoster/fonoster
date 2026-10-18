@@ -3,20 +3,23 @@
 nodeId: "${MEDIANODE_ID:-node-a}"
 nats: { url: "nats://nats:4222", user: medianode, password: "${NATS_MEDIANODE_PASSWORD}" }
 # SIP and RTP on the node's fixed address; Compose publishes the RTP range on the host.
-sip: { listen: "0.0.0.0:5060", advertise: "${SUBNET_PREFIX}.42" }
+sip:
+  listen: "0.0.0.0:5060"
+  advertise: "${SUBNET_PREFIX}.42"
+  # The node knows no registrar by name; this deployment registers with Routr as the media-node
+  # Peer the API server creates (routr.mediaNodePeer in fonoster.yaml), and Routr's
+  # least-sessions balancer reads X-Session-Count. Dialed calls go out as the same Peer.
+  registrations:
+    - registrar: "routr:${SIP_PORT}"
+      aor: sip:medianode@default
+      expires: 30s
+      auth: { username: medianode, password: "${MEDIANODE_PASSWORD}" }
+      headers: { X-Session-Count: "{sessions}" }
 rtp:
   host: 0.0.0.0
   advertise: "${SUBNET_PREFIX}.42"
   portMin: "${MEDIANODE_RTP_PORT_MIN}"
   portMax: "${MEDIANODE_RTP_PORT_MAX}"
-# The media-node Peer the API server creates (routr.mediaNodePeer in fonoster.yaml).
-registration:
-  registrar: "routr:${SIP_PORT}"
-  domain: default
-  username: medianode
-  password: "${MEDIANODE_PASSWORD}"
-  transport: udp
-  every: 15s
 outboundProxy: "routr:${SIP_PORT}"
 debugAddr: "0.0.0.0:8099"
 # INVITEs (and their X-App-Ref/X-Call-Ref headers) only from Routr.

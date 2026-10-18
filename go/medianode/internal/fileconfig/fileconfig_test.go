@@ -98,3 +98,36 @@ func TestPathFromArgs(t *testing.T) {
 		t.Fatalf("got %q %v", p, ok)
 	}
 }
+
+func TestParseRegistrations(t *testing.T) {
+	f, err := Parse([]byte(`
+sip:
+  registrations:
+    - registrar: "sip:pbx.example:5080;transport=tcp"
+      aor: sip:node-1@pbx.example
+      expires: 60s
+      auth: { username: node-1, password: "${PW}" }
+      headers: { X-Session-Count: "{sessions}", X-Region: eu }
+    - registrar: 10.0.0.9:5060
+`), env(map[string]string{"PW": "s3cret"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	r := f.SIP.Registrations
+	if len(r) != 2 || r[0].Auth == nil || r[0].Auth.Password != "s3cret" || r[0].Headers["X-Region"] != "eu" ||
+		r[0].Expires != "60s" || r[1].Auth != nil {
+		t.Fatalf("%+v", r)
+	}
+	for name, doc := range map[string]string{
+		"registrar": "sip: { registrations: [ { aor: sip:a@b } ] }",
+		"expires":   "sip: { registrations: [ { registrar: a:5060, expires: soon } ] }",
+		"short":     "sip: { registrations: [ { registrar: a:5060, expires: 500ms } ] }",
+		"reserved":  "sip: { registrations: [ { registrar: a:5060, headers: { Contact: x } } ] }",
+		"unknown":   "sip: { registrations: [ { registrar: a:5060, every: 15s } ] }",
+		"both":      "registration: { registrar: a:5060 }\nsip: { registrations: [ { registrar: b:5060 } ] }",
+	} {
+		if _, err := Parse([]byte(doc), env(nil)); err == nil {
+			t.Errorf("%s: want an error", name)
+		}
+	}
+}
