@@ -21,6 +21,7 @@ import { expect } from "chai";
 import { connect, NatsConnection, StringCodec } from "nats";
 import {
   createNodeDirectory,
+  NODE_STALE_MS,
   MAX_PLACEMENT_ATTEMPTS,
   NO_CAPACITY,
   OutboundCallRequest,
@@ -136,6 +137,29 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
     now = 1050;
     expect(nodes.pick()).to.equal("a");
   });
+
+  it("stays bounded when nodes are replaced 50 times without node.down, and never picks a dead one", function () {
+    // A crashed or replaced node's KV lease expires without a delete event, so only its silence
+    // tells it apart (in-memory state audit, test 19).
+    let now = 0;
+    const nodes = createNodeDirectory({ now: () => now });
+    nodes.note({ type: "node.heartbeat", nodeId: "steady", rooms: 40 });
+    for (let i = 0; i < 50; i++) {
+      const id = `node-${i}`;
+      // Each node lives 20 s (heartbeats every 2 s), then a new id takes its place.
+      for (let t = 0; t < 20_000; t += 2000) {
+        now += 2000;
+        nodes.note({ type: "node.heartbeat", nodeId: id, rooms: 0 });
+        nodes.note({ type: "node.heartbeat", nodeId: "steady", rooms: 40 });
+      }
+      // The dead ones are idle (rooms 0) and would win on load: they must never be picked.
+      now += NODE_STALE_MS + 1;
+      nodes.note({ type: "node.heartbeat", nodeId: "steady", rooms: 40 });
+      expect(nodes.pick()).to.equal("steady");
+    }
+    expect(nodes.list().length).to.be.at.most(5);
+    expect(nodes.list().map((n) => n.nodeId)).to.include("steady");
+  });
 });
 
 describe("@apiserver[outbound/placeOutboundCall]", function () {
@@ -219,6 +243,23 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
     expect(
       refused.sent.some((s) => s.body.type === "participant.dial")
     ).to.equal(false);
+  });
+
+  it("names the gateway that acked the call as the room's owner in participant.dial", async function () {
+    // If that gateway dies while the callee rings, the node ends the room (media-node "Rooms
+    // without an owner end"; in-memory state audit, test 5).
+    const { sent, request } = fakeRequester({
+      gateway: { type: "ack", callRef: "call-1", gatewayRef: "gw-7" }
+    });
+    await placeOutboundCall(
+      request,
+      liveNodes({ nodeId: "n1", rooms: 0 }),
+      CALL
+    );
+    expect(sent[2].body).to.include({
+      type: "participant.dial",
+      gatewayRef: "gw-7"
+    });
   });
 
   it("does not retry a room.create refused for another reason", async function () {
