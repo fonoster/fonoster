@@ -21,7 +21,7 @@ import { tmpdir } from "os";
 import { join } from "path";
 import { expect } from "chai";
 import { z } from "zod";
-import { getIntegrationsFromFile, strictDeep } from "../../src";
+import { strictDeep } from "../../src";
 
 describe("@common[config/strictDeep]", function () {
   it("rejects unknown keys through defaults, optionals and arrays", function () {
@@ -65,43 +65,5 @@ describe("@common[config/strictDeep]", function () {
 
     expect(schema.safeParse({ credentials: { apiKey: "x", any: 1 } }).success)
       .to.be.true;
-  });
-});
-
-describe("@common[config/getIntegrationsFromFile]", function () {
-  let dir: string;
-
-  beforeEach(function () {
-    dir = mkdtempSync(join(tmpdir(), "fonoster-int-"));
-  });
-
-  afterEach(function () {
-    rmSync(dir, { recursive: true, force: true });
-  });
-
-  it("reads YAML and JSON alike", function () {
-    const yaml = join(dir, "integrations.yaml");
-    const json = join(dir, "integrations.json");
-    writeFileSync(
-      yaml,
-      "- name: Deepgram STT\n  productRef: stt.deepgram\n  type: stt\n  credentials:\n    apiKey: k\n"
-    );
-    writeFileSync(
-      json,
-      '[{"name":"Deepgram STT","productRef":"stt.deepgram","type":"stt","credentials":{"apiKey":"k"}}]'
-    );
-
-    expect(getIntegrationsFromFile(yaml)).to.deep.equal(
-      getIntegrationsFromFile(json)
-    );
-  });
-
-  it("throws with the file path instead of exiting", function () {
-    const path = join(dir, "integrations.yaml");
-    writeFileSync(path, "- name: x\n  type: video\n");
-
-    expect(() => getIntegrationsFromFile(path)).to.throw(
-      /invalid integrations at .*integrations\.yaml/
-    );
   });
 });

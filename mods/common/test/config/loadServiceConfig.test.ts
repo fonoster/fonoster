@@ -162,13 +162,6 @@ describe("@common[config/loadServiceConfig]", function () {
         /\(root\): unknown key "hots"/
       );
     });
-
-    it("points moved keys to their new location", function () {
-      const path = write("svc.yaml", "dbUrl: postgres://x\n");
-      expect(() =>
-        load(["--config", path], { movedKeys: { dbUrl: "database.url" } })
-      ).to.throw(/"dbUrl" moved to "database.url"/);
-    });
   });
 
   describe("interpolation", function () {

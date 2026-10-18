@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 export * from "./configHints";
-export * from "./integrationsSchema";
 export * from "./interpolateEnv";
 export * from "./loadServiceConfig";
 export * from "./logsSchema";

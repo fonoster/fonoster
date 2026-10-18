@@ -44,7 +44,6 @@ describe("@autopilot[turn-taking moved to the gateway]", function () {
     );
     expect(fs.existsSync(path.join(ROOT, "src", "vad"))).to.equal(false);
     const offenders = sources(path.join(ROOT, "src"))
-      .filter((f) => !f.endsWith("convertLegacyAssistant.ts"))
       .filter((f) =>
         /silero|maxSpeechWaitTimeout|hasLateSpeech|SPEECH_START|SPEECH_END|SPEECH_RESULT/i.test(
           fs.readFileSync(f, "utf8")

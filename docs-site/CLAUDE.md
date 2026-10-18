@@ -58,7 +58,7 @@ Vapi, Retell, Bland, LiveKit and Pipecat.
 
 - Internals the reader never touches: database tables and Prisma, NATS subjects, internal service
   names and classes, how the swarm was built.
-- Rebuild process notes (`docs/operators/rebuild.md`, `cutover.md`, `routr-live-test.md`,
+- Rebuild process notes (`docs/operators/rebuild.md`, `routr-live-test.md`,
   `conformance.md`) unless a reader needs them for a task.
 
 ## Assets
