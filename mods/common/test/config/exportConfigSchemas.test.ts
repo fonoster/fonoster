@@ -39,7 +39,7 @@ const yamlFile = (rel: string) =>
 
 const IDENTITY = {
   database: { url: "postgresql://postgres:postgres@postgres:5432/fnidentity" },
-  encryptionKey: "k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=",
+  encryptionKey: "k1.aesgcm256.QbAsmmaz84hmSaol9HreK-s91rE1Rk8YAAkTq48kZGw=",
   issuer: "https://fonoster.local",
   keys: {
     privateKeyPath: "/opt/fonoster/keys/private.pem",

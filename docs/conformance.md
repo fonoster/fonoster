@@ -11,7 +11,7 @@ send back. Any implementation, in any language, passes or fails the same files. 
 | Layer | Plays | Under test | Needs |
 | --- | --- | --- | --- |
 | Fake node | Fake media node and fake STT, TTS and LLM | VoiceSessionGateway (TypeScript) | NATS |
-| Go node | A SIP caller bot, the test plays the gateway | `go/medianode` | NATS, Go 1.25 |
+| Go node | A SIP caller bot, the test plays the gateway | `go/medianode` | NATS, Go 1.26 |
 | Real stack | Caller bot through Routr, real gateway and node | Everything together | Routr, node, gateway (nightly, not yet automated: conformance task 2.5 and 3.11) |
 
 ## Quick start

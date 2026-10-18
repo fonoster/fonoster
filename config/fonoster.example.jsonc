@@ -7,7 +7,7 @@
   "database": {
     "url": "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fonoster",
   },
-  "encryption": { "key": "k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=" },
+  "encryption": { "key": "k1.aesgcm256.GENERATE-YOUR-OWN-with-npx-47ng-cloak-gen00=" },
   "nats": { "url": "nats://nats:4222" },
   "influxdb": {
     "url": "http://influxdb:8086",

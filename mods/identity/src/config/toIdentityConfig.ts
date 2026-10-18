@@ -19,6 +19,7 @@
 import { readFileSync } from "fs";
 import { resolve } from "path";
 import { IdentityConfig } from "../exchanges/types";
+import { assertUnpublishedKeys } from "./publishedKeys";
 import {
   AuthFeatures,
   IdentitySection,
@@ -61,13 +62,27 @@ const trimSlash = (url: string) => url.replace(/\/+$/, "");
 function toIdentityConfig(inputs: IdentityConfigInputs): IdentityConfig {
   const { identity, smtp, twilio } = inputs;
   const appUrl = trimSlash(inputs.appUrl);
+  const privateKey = readKey(
+    identity.keys.privateKey,
+    identity.keys.privateKeyPath
+  );
+  const publicKey = readKey(
+    identity.keys.publicKey,
+    identity.keys.publicKeyPath
+  );
+
+  assertUnpublishedKeys({
+    privateKey,
+    publicKey,
+    encryptionKey: inputs.encryptionKey
+  });
 
   return {
     dbUrl: identity.database?.url ?? inputs.databaseUrl,
     issuer: identity.issuer ?? appUrl,
     audience: identity.audience,
-    privateKey: readKey(identity.keys.privateKey, identity.keys.privateKeyPath),
-    publicKey: readKey(identity.keys.publicKey, identity.keys.publicKeyPath),
+    privateKey,
+    publicKey,
     encryptionKey: inputs.encryptionKey,
     accessTokenExpiresIn: identity.tokens.accessTokenExpiresIn,
     refreshTokenExpiresIn: identity.tokens.refreshTokenExpiresIn,

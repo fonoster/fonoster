@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm
 
 ARG TARGETARCH
 # The media node's Go (go/medianode/go.mod). GOTOOLCHAIN=local: never download another one.
-ARG GO_VERSION=1.25.5
+ARG GO_VERSION=1.26.9
 ENV GOTOOLCHAIN=local \
     GOPATH=/home/node/go \
     PATH=/usr/local/go/bin:/home/node/go/bin:$PATH

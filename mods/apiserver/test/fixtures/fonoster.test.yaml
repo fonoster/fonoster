@@ -3,7 +3,7 @@ domain: fonoster.local
 database:
   url: postgresql://postgres:postgres@localhost:5432/fonoster
 encryption:
-  key: k1.aesgcm256.MmPSvzCG9fk654bAbl30tsqq4h9d3N4F11hlue8bGAY=
+  key: k1.aesgcm256.QbAsmmaz84hmSaol9HreK-s91rE1Rk8YAAkTq48kZGw=
 nats:
   url: nats://localhost:4222
 influxdb:
@@ -13,8 +13,8 @@ influxdb:
   password: changeme
   token: test-token
 identity:
-  # Test keys committed in config/keys; paths are relative to the repo root,
-  # where the tests run.
+  # setupConfig.ts replaces these with a key pair it generates for the run
+  # (no key is committed).
   keys:
-    privateKeyPath: config/keys/private.pem
-    publicKeyPath: config/keys/public.pem
+    privateKeyPath: generated-by-setupConfig/private.pem
+    publicKeyPath: generated-by-setupConfig/public.pem

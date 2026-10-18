@@ -1,7 +1,8 @@
 ##
 # Build stage
 ##
-FROM golang:1.25 AS builder
+# Pinned to a patched release by digest (M15); bump with go.mod's go line.
+FROM golang:1.26.9@sha256:37cfcca63222ec499bec5e8ad7aad52dbf7529db36d5812b8eae2f0621aa92d6 AS builder
 LABEL team="Fonoster Team <team@fonoster.com>"
 
 WORKDIR /src

@@ -146,14 +146,14 @@ describe("@conformance/deployment (Helm chart)", function () {
     // The media node's config file, from the chart's ConfigMap.
     const trustedOf = (objs: K8sObject[]) => {
       const cm = find(objs, "ConfigMap", "fonoster-medianode");
-      const cfg = parseAllDocuments(cm?.data?.["medianode.yaml"] ?? "")[0]?.toJS() as
-        | { trustedSources?: string[] }
-        | undefined;
+      const cfg = parseAllDocuments(
+        cm?.data?.["medianode.yaml"] ?? ""
+      )[0]?.toJS() as { trustedSources?: string[] } | undefined;
       return cfg?.trustedSources;
     };
     const trusted = trustedOf(render());
-    expect(trusted, "a default trusted-sources list").to.be.an("array").that
-      .is.not.empty;
+    expect(trusted, "a default trusted-sources list").to.be.an("array").that.is
+      .not.empty;
     expect(trusted).to.not.include("0.0.0.0/0");
     expect(() =>
       execFileSync(
@@ -194,6 +194,21 @@ describe("@conformance/deployment (Helm chart)", function () {
     ];
     expect(envoy).to.contain("address: fonoster-apiserver");
     expect(envoy).to.contain("address: fonoster-dashboard");
+    // CORS (M9): no wildcard; only the configured origins, none by default.
+    expect(envoy).to.not.contain('prefix: "*"');
+    expect(envoy).to.contain('- exact: "__CORS_ALLOWED_ORIGINS__"');
+    const allowed = find(
+      render(
+        "values-cloud.yaml",
+        "--set=envoy.corsAllowedOrigins={https://app.example.com,https://b.example.com}"
+      ),
+      "ConfigMap",
+      "fonoster-envoy"
+    )!.data!["envoy.yaml"];
+    expect(allowed).to.match(
+      /allow_origin_string_match:\n\s+- exact: "https:\/\/app\.example\.com"\n\s+- exact: "https:\/\/b\.example\.com"\n/
+    );
+    expect(allowed).to.not.contain("__CORS_ALLOWED_ORIGINS__");
   });
 
   it("never renders a raw secret: config secrets are secret:// references", function () {
@@ -301,7 +316,15 @@ describe("@conformance/deployment (Helm chart)", function () {
         "region-agent.yaml"
       ]
     );
-    expect(loadAgentConfig(file).nats.url).to.equal("nats://nats:4222");
+    // nats.auth (on by default): the agent's password comes from the pod's environment.
+    const saved = process.env.NATS_REGION_AGENT_PASSWORD;
+    process.env.NATS_REGION_AGENT_PASSWORD = "n0123456789abcdef";
+    try {
+      expect(loadAgentConfig(file).nats.url).to.equal("nats://nats:4222");
+    } finally {
+      if (saved === undefined) delete process.env.NATS_REGION_AGENT_PASSWORD;
+      else process.env.NATS_REGION_AGENT_PASSWORD = saved;
+    }
   });
 
   it("gives every service its NATS user and the chart's NATS the users (nats.auth)", function () {
@@ -344,12 +367,32 @@ describe("@conformance/deployment (Helm chart)", function () {
       user: "region-agent",
       password: "secret://env/NATS_REGION_AGENT_PASSWORD"
     });
-    // Without nats.auth (the default data plane) nothing changes.
-    const plain = render();
-    const gw = parseAllDocuments(
-      find(plain, "ConfigMap", "fonoster-gateway")!.data!["gateway.yaml"]
-    )[0].toJS();
-    expect(gw.nats).to.deep.equal({ url: "nats://nats:4222" });
+    // The default data plane has NATS users too (M8)...
+    const gatewayNats = (objs: K8sObject[]) =>
+      parseAllDocuments(
+        find(objs, "ConfigMap", "fonoster-gateway")!.data!["gateway.yaml"]
+      )[0].toJS().nats;
+    expect(gatewayNats(render())).to.deep.equal({
+      url: "nats://nats:4222",
+      user: "gateway",
+      password: "secret://env/NATS_GATEWAY_PASSWORD"
+    });
+    // ...and turning auth off must be explicit.
+    expect(() =>
+      execFileSync(
+        "helm",
+        ["template", "fonoster", CHART, "--set=nats.auth.enabled=false"],
+        { stdio: "pipe" }
+      )
+    ).to.throw(/allowUnauthenticated/);
+    expect(
+      gatewayNats(
+        render(
+          "--set=nats.auth.enabled=false",
+          "--set=nats.auth.allowUnauthenticated=true"
+        )
+      )
+    ).to.deep.equal({ url: "nats://nats:4222" });
   });
 
   it("renders workspaceKeysFromCloud for a public region's gateway (add-private-regions 5.9)", function () {
@@ -393,7 +436,8 @@ describe("@conformance/deployment (Helm chart)", function () {
   it("configures the media nodes through medianode.yaml, not MEDIANODE_* variables", function () {
     const objs = render("--set=medianode.trustedSources=10.0.0.1");
     const node = find(objs, "StatefulSet", "fonoster-medianode")!;
-    expect(JSON.stringify(node)).to.not.contain("MEDIANODE_");
+    // (NATS_MEDIANODE_PASSWORD is the node's NATS password, nats.auth.)
+    expect(JSON.stringify(node)).to.not.match(/"MEDIANODE_|\$\{MEDIANODE_/);
     expect(JSON.stringify(node.spec)).to.contain(
       '"mountPath":"/config/medianode.yaml","subPath":"medianode.yaml"'
     );

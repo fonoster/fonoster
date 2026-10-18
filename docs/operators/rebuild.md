@@ -319,9 +319,11 @@ kubectl port-forward svc/fonoster-grafana 3000
   start).
 - **Identity** is embedded in the apiserver, as in Compose; there is no separate deployable.
 - **NATS.** `nats.deploy: true` runs a single-node NATS with JetStream; for production use the
-  official nats chart and set `nats.url` (with `nats.deploy: false`). `nats.auth.enabled` (on in
-  values-cloud.yaml) gives each service its NATS user (see "NATS users and subject permissions");
-  Routr's NATS URL then carries the `routr` user and password.
+  official nats chart and set `nats.url` (with `nats.deploy: false`). `nats.auth.enabled` (on by
+  default) gives each service its NATS user (see "NATS users and subject permissions"); create
+  the `nats.auth.secret` Secret before installing. Routr's NATS URL then carries the `routr` user
+  and password. Turning auth off also needs `nats.auth.allowUnauthenticated: true` (development
+  only: any pod that reaches NATS could control media).
 - **Region hub.** `natsRegions.enabled` runs the hub that private cells link to. Its config is the
   `region-hub.conf` written by `fonoster-region-hub-setup`, stored in `natsRegions.configSecret`;
   the leaf port is a LoadBalancer Service (`<release>-nats-regions-leaf`, 7422). Put the setup's
