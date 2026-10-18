@@ -1,5 +1,4 @@
 import {
-  CALL_DETAIL_RECORD_MEASUREMENT,
   INFLUXDB_CALLS_BUCKET,
   logUnhandledRejections,
   setRootDomain
@@ -23,7 +22,6 @@ import {
 } from "./envs";
 import { createInfluxDbPub } from "./events/createInfluxDbPub";
 import { watchNats } from "./events/nats";
-import { transformEvent } from "./events/transformEvent";
 
 // Apply fonoster.yaml to the shared modules before serving. Loggers created
 // while the imports above ran switch to the file's settings here.
@@ -76,16 +74,8 @@ async function main() {
     bucket: INFLUXDB_CALLS_BUCKET
   });
 
-  // Subscribe to NATs events
-  watchNats(NATS_CONNECTION, (event: Record<string, unknown>) => {
-    logger.verbose("received nats event", { ...event });
-
-    pubToInfluxDb({
-      name: CALL_DETAIL_RECORD_MEASUREMENT,
-      tag: event.callId,
-      data: transformEvent(event)
-    });
-  });
+  // Routr's call events become CDR points (one replica per event, refs shared: ST-1)
+  watchNats(NATS_CONNECTION, pubToInfluxDb);
 }
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });

@@ -41,6 +41,27 @@ describe("@events/transformEvent", function () {
     expect(third.ref).to.equal(first.ref);
   });
 
+  it("should derive the same synthetic ref for a call id in any process (replicas, restarts)", async function () {
+    // Arrange
+    const { transformEvent } = await import("../../src/events/transformEvent");
+    const extraHeaders = { "X-Access-Key-Id": "accessKeyId" };
+    const before = transformEvent({ callId: "sip-call-r", extraHeaders });
+
+    // Act: a fresh copy of the module, as another replica or a restarted one has
+    const path = require.resolve("../../src/events/transformEvent");
+    delete require.cache[path];
+    const fresh = await import(
+      `../../src/events/transformEvent?fresh=${Date.now()}`
+    ).catch(() => import("../../src/events/transformEvent"));
+    const after = fresh.transformEvent({ callId: "sip-call-r", extraHeaders });
+
+    // Assert
+    expect(after.ref).to.equal(before.ref);
+    expect(before.ref).to.match(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    );
+  });
+
   it("should mint different refs for different SIP calls", async function () {
     // Arrange
     const { transformEvent } = await import("../../src/events/transformEvent");
