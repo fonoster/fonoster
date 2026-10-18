@@ -32,7 +32,10 @@ draining, `rooms < max_rooms`, in the call's region. It SHALL score each eligibl
 the carrier proxy and the pass-through headers the proxy routes on (`X-DOD-Number`). When the node
 answers `RESOURCE_EXHAUSTED` or `UNAVAILABLE` the control plane SHALL try the next eligible node,
 up to 3 nodes in all, and SHALL fail the API request synchronously with a capacity error when none
-accepts or none is eligible.
+accepts or none is eligible. It SHALL move to another node only on `RESOURCE_EXHAUSTED` or
+`UNAVAILABLE`; on an ambiguous outcome (deadline exceeded, connection lost after sending) it SHALL
+retry `CreateCall` on the same node with the same `call_ref` and parameters, and SHALL NOT dial the
+call on another node. `cpu_idle` SHALL NOT affect eligibility or score.
 
 #### Scenario: Least-loaded node chosen
 - **WHEN** heartbeats show node A with 40 rooms of 200, node B with 12 of 200 and node C draining with 3
@@ -49,6 +52,11 @@ accepts or none is eligible.
 #### Scenario: No capacity
 - **WHEN** every media node in the cell is draining or at its limit
 - **THEN** call creation fails with a capacity error before the API request returns and no INVITE is sent
+
+#### Scenario: Timeout retried on the same node
+- **WHEN** `CreateCall` on node B times out
+- **THEN** the control plane repeats `CreateCall` with the same `call_ref` on node B, never on another node
+- **AND** the callee receives one INVITE
 
 ### Requirement: NATS carries everything internal except audio
 
@@ -106,3 +114,48 @@ and labels"), so `TrackCall` on any replica follows any call.
 #### Scenario: Call status survives the placing replica
 - **WHEN** the replica that placed a call is killed while the call rings, and `TrackCall` for the call runs on another replica
 - **THEN** that `TrackCall` still receives `ANSWER` when the callee answers, and ends when the node publishes `call.ended` on `roomr.events.<call_ref>`
+
+## ADDED Requirements
+
+### Requirement: Outbound calls are registered before they are placed
+
+The control plane SHALL write the call's `call_ref` → `node_ref` entry to the session registry
+before it calls `CreateCall`, and SHALL update it when it moves to another node. A sweep SHALL
+remove an entry, and close its call record with `FAILED`, when the entry's node is down (no
+heartbeat for 6 s, or `node.down`) or the node answers `NOT_FOUND` for the call, so a replica that
+crashes between the write and the RPC leaves nothing behind.
+
+#### Scenario: Entry written first
+- **WHEN** an outbound call is placed
+- **THEN** the registry holds `call_ref` → `node_ref` before the node receives `CreateCall`
+
+#### Scenario: Replica crashes mid-call creation
+- **WHEN** a replica writes the entry and is killed before `CreateCall` reaches the node
+- **THEN** a sweep on another replica removes the entry and the call record ends `FAILED`
+
+### Requirement: NATS outages are best effort
+
+While NATS is unreachable live calls SHALL keep running, and events published during the outage
+MAY be lost. The control plane SHALL NOT replay or reconstruct lost events; the existing sweeps
+(node down, gateway lost, maximum duration) SHALL close the call records and registry entries
+those events would have closed once NATS returns.
+
+#### Scenario: call.ended lost
+- **WHEN** a call ends while NATS is unreachable and NATS then returns
+- **THEN** a sweep closes the call's record and removes its registry entry
+- **AND** no active call was ended by the outage
+
+### Requirement: The gateway drains on SIGTERM
+
+On SIGTERM a gateway replica SHALL fail its readiness probe, so the session endpoint stops sending
+it new streams, and SHALL keep its open control streams and app sockets until they end or the
+configured maximum wait (default 1 h) passes, then exit. Its `Session` gRPC server SHALL NOT set a
+maximum connection age.
+
+#### Scenario: Live sessions survive SIGTERM
+- **WHEN** a gateway replica with 5 live sessions receives SIGTERM
+- **THEN** its readiness fails, new calls land on other replicas and the 5 sessions run until they end
+
+#### Scenario: Maximum wait reached
+- **WHEN** a short maximum wait passes while a draining replica still has a session
+- **THEN** the replica ends the session and exits

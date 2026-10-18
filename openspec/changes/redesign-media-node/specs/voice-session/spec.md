@@ -6,9 +6,19 @@ A session SHALL end when the caller hangs up, when the app sends `hangup`, when 
 socket, on transfer, on handoff, on fatal error or on timeout. The gateway SHALL send `session.end`
 with a `reason` (`caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error`, `timeout`) as its
 last message when the socket is still open. The reason SHALL come from the media node's `Ended`
-`cause` on the control stream (media-control): `caller_hangup` and `callee_hangup` map to
-`caller_hangup`, `max_duration` to `timeout`, `media_timeout` and `node_error` to `error`, and a
-control stream that closes without `Ended` to `error`.
+`cause` on the control stream (media-control), mapped as follows:
+
+| `cause` | `session.end` `reason` |
+|---|---|
+| `caller_hangup`, `callee_hangup` | `caller_hangup` |
+| `removed` after the app's `hangup`, or after an `EndCall`/`EndRoom` from the control plane | `app_hangup` |
+| `removed` after a transfer (cold, `TransferComplete` or `refer`) | `transfer` |
+| `max_duration` | `timeout` |
+| `media_timeout`, `node_error`, `app_gone`, `encryption_required` | `error` |
+| any cause the gateway does not know | `error` |
+
+A control stream that closes without `Ended` SHALL map to `error`. `busy`, `no_answer` and
+`rejected` end outbound calls before any session opens, so they produce no `session.end`.
 
 #### Scenario: App hangs up
 - **WHEN** the app sends `{ "type": "hangup" }`
@@ -27,6 +37,14 @@ control stream that closes without `Ended` to `error`.
 #### Scenario: Node lost
 - **WHEN** the media node's control stream closes without an `Ended` event
 - **THEN** the app receives `session.end` with `reason: "error"` and the call record is sealed with `node_error`
+
+#### Scenario: Every cause mapped
+- **WHEN** the node sends `Ended` with each `cause` in the table in turn
+- **THEN** the app receives `session.end` with the `reason` the table gives
+
+#### Scenario: Unknown cause
+- **WHEN** the node sends `Ended` with `cause: "something_new"`
+- **THEN** the app receives `session.end` with `reason: "error"`
 
 ### Requirement: The media node receives only control
 

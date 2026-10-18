@@ -125,6 +125,15 @@ call with `call.ended` carrying the SIP status and a cause, with no room and no 
 receiving `RESOURCE_EXHAUSTED` or `UNAVAILABLE` SHALL try another node, up to 3 nodes, and SHALL
 report a capacity error synchronously when none accepts.
 
+The node SHALL remember the parameters of every `call_ref` it has seen, including ended calls, for
+a configurable dedupe window (default 10 minutes): a repeat with the same parameters SHALL return
+the existing `Call` (in its current state) without a new INVITE, and a repeat with different
+parameters SHALL fail with `ALREADY_EXISTS`. The `call_ref` MAY instead come from `to.headers`
+under the configured call-ref header (media-node "One call ref end to end"). The node SHALL answer
+a `407` or `401` digest challenge on the INVITE with `to.auth` and SHALL NOT log `to.auth` or echo
+it in any response, event or `Start`. `EndCall` on a `RINGING` call SHALL send `CANCEL` and end the
+call with `cause: "removed"`.
+
 #### Scenario: Dial into a new room
 - **WHEN** a controller calls `CreateCall` `{ call_ref: "d1", to: { uri: "sip:+15551234567@carrier", proxy: "sip:proxy:5060" }, from: "+15550001" }` and the callee answers
 - **THEN** the node sends the INVITE to `proxy:5060`, publishes `call.ringing` then `call.answered` for `d1`
@@ -147,6 +156,23 @@ report a capacity error synchronously when none accepts.
 #### Scenario: Retry is safe
 - **WHEN** a controller repeats `CreateCall` with the same `call_ref` after a timeout
 - **THEN** the node returns the existing `Call` and sends no second INVITE
+
+#### Scenario: Repeat after the call ended
+- **WHEN** call `d1` ended 2 minutes ago and `CreateCall` repeats `d1` with the same parameters
+- **THEN** the node returns `Call{ENDED}` and sends no INVITE
+
+#### Scenario: Same ref, different call
+- **WHEN** `CreateCall` repeats `d1` with a different `to.uri`
+- **THEN** it fails with `ALREADY_EXISTS` and no INVITE is sent
+
+#### Scenario: Digest challenge answered
+- **WHEN** the proxy answers the INVITE with `407` and a digest challenge and `to.auth` is set
+- **THEN** the node re-sends the INVITE with valid credentials
+- **AND** no log line, event or response carries the password
+
+#### Scenario: Cancel while ringing
+- **WHEN** a controller calls `EndCall` on a `RINGING` call
+- **THEN** the node sends `CANCEL` and publishes `call.ended` with `cause: "removed"`, with no room and no stream
 
 ### Requirement: Transfer modes
 
@@ -211,7 +237,8 @@ accepts the INVITE and before it opens the control stream. `Answer` on the strea
 Every ending SHALL carry a `cause`: `call.ended`, `participant.left` and `room.ended` on NATS, and
 `Ended` on the control stream, each with `cause` one of `caller_hangup`, `callee_hangup`, `busy`,
 `no_answer`, `rejected`, `media_timeout`, `node_error`, `max_duration`, `removed` (a `Leave`,
-`EndCall`, `EndRoom` or `Hangup`), `app_gone` (the control stream broke) and
+`EndCall`, `EndRoom` or `Hangup`), `app_gone` (the control stream broke, the session endpoint
+could not be reached, `Answer` or `Ready` never arrived, or the app leg sent no RTP) and
 `encryption_required`, plus `sip_status` when a SIP response or BYE `Reason` header gave one. Apps and controllers SHALL map `cause` to their
 own end reasons instead of assuming `caller_hangup`.
 
@@ -240,7 +267,8 @@ Each node SHALL publish a heartbeat on `roomr.nodes.<node_ref>.heartbeat` every 
 publish `node.down` `{ node_ref }` on the same subject, `roomr.nodes.<node_ref>.heartbeat`, with
 `type: "node.down"` (heartbeats carry `type: "node.heartbeat"`), after its last room ends. A
 controller SHALL treat a node whose
-last heartbeat is older than 6 seconds as down and SHALL not place calls on it.
+last heartbeat is older than 6 seconds as down and SHALL not place calls on it. `cpu_idle` SHALL be
+informational: neither the node nor a controller SHALL refuse or skip a node because of it.
 
 #### Scenario: Heartbeat content
 - **WHEN** a node with 12 rooms, a limit of 200 and version `1.4.0` in region `us-east` is running
@@ -253,6 +281,10 @@ last heartbeat is older than 6 seconds as down and SHALL not place calls on it.
 #### Scenario: Clean shutdown
 - **WHEN** a draining node's last room ends
 - **THEN** it publishes `{ type: "node.down", node_ref }` on `roomr.nodes.<node_ref>.heartbeat` and controllers stop expecting heartbeats from it
+
+#### Scenario: Busy CPU is not a refusal
+- **WHEN** a node reports `cpu_idle: 0.02` with `rooms` below `max_rooms`
+- **THEN** a controller may place a call on it and the node accepts the call
 
 ### Requirement: Hold silences the app and plays hold audio
 
@@ -292,7 +324,14 @@ from the node; `Answer`, `Ready`, `Reject`, `Play`, `Stop`, `Transfer`, `Transfe
 `Hold`, `Resume`, `SendDtmf`, `AttachListener`, `DetachListener`, `Record` and `Hangup` from the
 app. The node SHALL send gRPC keepalive pings every 10 seconds and SHALL treat the stream as dead
 after 2 missed pings, then hang the call up with `cause: "app_gone"`; it MUST NOT reconnect the
-call to another app instance. The connection SHALL use TLS or mTLS when configured.
+call to another app instance. The gateway SHALL also send keepalive pings on its side and SHALL end
+the session when the node misses 2 of them. The connection SHALL use TLS or mTLS when configured.
+
+For an outbound call that is answered, the node SHALL send BYE and end the call with
+`cause: "app_gone"` when the session endpoint cannot be reached or `Ready` does not arrive within
+the configured ready timeout (default 10 s). When an inbound caller sends `CANCEL` before the app's
+`Answer`, the node SHALL answer `487`, send `Ended` with `cause: "caller_hangup"` and close the
+stream.
 
 #### Scenario: One connection per call
 - **WHEN** 100 inbound calls arrive while the session endpoint fronts 4 app instances
@@ -309,6 +348,22 @@ call to another app instance. The connection SHALL use TLS or mTLS when configur
 #### Scenario: Stream breaks mid-call
 - **WHEN** the app instance holding a stream is killed
 - **THEN** within 30 seconds the node sends BYE to the caller and no new stream is opened for that call
+
+#### Scenario: Node gone, gateway notices
+- **WHEN** the node holding a stream is killed
+- **THEN** within 30 seconds the gateway ends the session and closes the app's socket
+
+#### Scenario: Ready never arrives
+- **WHEN** the callee answers an outbound call and the app opens the stream but never sends `Ready`
+- **THEN** after the ready timeout the node sends BYE to the callee and publishes `call.ended` with `cause: "app_gone"`
+
+#### Scenario: Session endpoint unreachable on answer
+- **WHEN** the callee answers an outbound call and the session endpoint refuses connections
+- **THEN** the node sends BYE to the callee and publishes `call.ended` with `cause: "app_gone"`
+
+#### Scenario: Caller cancels before Answer
+- **WHEN** an inbound caller sends `CANCEL` while the app has not sent `Answer`
+- **THEN** the caller receives `487`, the app receives `Ended` with `cause: "caller_hangup"` and the stream closes
 
 ### Requirement: Rooms and participants are managed with CreateRoom, EndRoom, Join and Leave
 
@@ -362,8 +417,9 @@ The node SHALL publish call events (`call.started`, `call.ringing`, `call.answer
 `participant.joined`, `participant.left`, `operation.done`) on `roomr.events.<call_ref>` and
 room-scoped events (`room.ended`, and participant events for participants that are not calls) on
 `roomr.events.room.<room_ref>`, and `registration.state` on `roomr.nodes.<node_ref>.events`.
-Every event SHALL carry `node_ref`, a `seq` that increases by one per event of the same call, the
-call's `labels` and a timestamp. Receivers MUST ignore unknown event types and fields.
+Every event SHALL carry `node_ref`, a `seq` that increases by one per event of the same call (for
+call events) or of the same room (for room-scoped events), the call's `labels` and a timestamp.
+Receivers MUST ignore unknown event types and fields.
 
 #### Scenario: Another replica follows the call
 - **WHEN** controller replica A places call `c1` with `labels: { tenant: "t1" }` and replica B subscribes to `roomr.events.c1`
@@ -373,6 +429,25 @@ call's `labels` and a timestamp. Receivers MUST ignore unknown event types and f
 - **WHEN** a call produces five events
 - **THEN** their `seq` values are 1 through 5 in publication order
 
+#### Scenario: Room events have their own sequence
+- **WHEN** an RTP participant joins and leaves room `lobby`, which has no call, and then the room ends
+- **THEN** the three events on `roomr.events.room.lobby` carry `seq` 1, 2 and 3
+
 #### Scenario: Unknown event ignored
 - **WHEN** a receiver gets an event with a type it does not know
 - **THEN** it ignores the event and keeps processing the stream
+
+### Requirement: Events are best effort while NATS is down
+
+Events and heartbeats SHALL be published on core NATS without delivery guarantees. When NATS is
+unreachable the node SHALL keep every live call and room running, SHALL keep serving `Roomr` RPCs
+and control streams, and SHALL drop events it cannot publish rather than block or buffer them.
+Calls MUST NOT end because NATS is down.
+
+#### Scenario: NATS outage mid-call
+- **WHEN** NATS becomes unreachable for 60 seconds during an answered call
+- **THEN** the caller and the app keep hearing each other and the call continues after NATS returns
+
+#### Scenario: Events lost, not replayed
+- **WHEN** a call ends while NATS is unreachable
+- **THEN** the node frees the room, and its `call.ended` is not published after NATS returns

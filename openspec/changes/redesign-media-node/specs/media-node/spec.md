@@ -46,8 +46,9 @@ session endpoint and SHALL send `Start` carrying `call_ref`, `direction: INBOUND
 node SHALL NOT send `200 OK` until the app sends `Answer` on that stream. It SHALL reject the
 INVITE with `503 Service Unavailable` when the session endpoint cannot be reached and with
 `480 Temporarily Unavailable` when neither `Answer` nor `Reject` arrives within the configured
-answer timeout. It MUST NOT interpret any header other than the configured room and token
-headers.
+answer timeout. A `CANCEL` from the caller before `Answer` SHALL end the call (media-control
+"Each call opens one control stream to the session endpoint"). It MUST NOT interpret any header
+other than the configured room, token and call-ref headers.
 
 #### Scenario: Inbound call reported with its headers
 - **WHEN** a peer sends an INVITE with `X-App-Ref: app-1`, `X-Anything: 42` and `To: sip:+15550001@...`
@@ -196,21 +197,18 @@ through a `Record` operation (media-control) and SHALL write nothing otherwise.
 
 ### Requirement: Rooms without an owner end
 
-The node SHALL end, with `reason: "node_error"`, a room that has no participant and no
-`participant.dial` in progress for 30 s (its placer is gone), and a room whose owning gateway
-(the `gatewayRef` of the claim reply, or of a command such as `participant.dial`) the node has
-heard on `gateway.heartbeat` and then not for 20 s. A dial that fails in an otherwise empty room
-SHALL end the room at once with the dial's outcome. Both times SHALL be configurable; a gateway
-the node never heard is never judged gone.
+The node SHALL end, with `cause: "node_error"`, a room that has had no participant and no
+`CreateCall` in progress for 30 s (configurable). A `CreateCall` that fails in an otherwise empty
+room SHALL end the room at once with the call's outcome. A call whose app is gone is ended by the
+control stream's keepalive (media-control), not by this rule.
 
-#### Scenario: Placer died before the dial
-- **WHEN** a room is created with `room.create` and nothing joins or dials into it for 30 s
-- **THEN** the node ends it, frees its slot and reports `room.ended` on `roomr.events.room.<room_ref>`
-- **AND** when the room was created for a call, publishes `call.ended` with `cause: "node_error"` on `roomr.events.<call_ref>`
+#### Scenario: Placer died before anything joined
+- **WHEN** a room is created with `CreateRoom` and nothing joins or dials into it for 30 s
+- **THEN** the node ends it, frees its slot and publishes `room.ended` with `cause: "node_error"` on `roomr.events.room.<room_ref>`
 
-#### Scenario: Gateway killed mid-call
-- **WHEN** the gateway that claimed an answered call stops sending heartbeats for 20 s
-- **THEN** the node sends BYE to the caller and ends the room with `reason: "node_error"`
+#### Scenario: Room emptied
+- **WHEN** the last participant leaves a room created with `CreateRoom` and nothing joins for 30 s
+- **THEN** the node ends the room with `cause: "node_error"`
 
 ## ADDED Requirements
 
@@ -282,6 +280,18 @@ When room-header authentication is configured as `jwt`, the node SHALL require a
 configured token header and SHALL verify its signature with the configured public key, its expiry,
 its audience and that its `room_ref` claim equals the room header. A missing, expired, malformed or
 mismatched token SHALL be refused with `403 Forbidden`. The node SHALL hold no private key.
+A token SHALL be bound to one `room_ref` and short-lived (its issuer sets a short `exp`); the node SHALL NOT track token ids, so a
+token may be replayed only until it expires. The node SHALL remove the token header from
+`Start.headers` and SHALL NOT log the token. Room refs the node generates SHALL be unguessable
+(at least 128 random bits).
+
+#### Scenario: Token not passed on
+- **WHEN** a caller joins `r1` with a valid token
+- **THEN** `Start.headers` does not contain the token header and no log line contains the token
+
+#### Scenario: Generated refs are random
+- **WHEN** the node creates 1,000 rooms without a given `room_ref`
+- **THEN** every `room_ref` is distinct and carries at least 128 bits from a random source
 
 #### Scenario: Valid token
 - **WHEN** an INVITE carries `X-Room-Ref: r1` and a token signed by the configured key with `aud: media` and `room_ref: r1`
@@ -334,3 +344,67 @@ SHALL be able to run with non-overlapping ranges.
 #### Scenario: Port announced on the stream
 - **WHEN** a call starts
 - **THEN** `Start` carries the node's RTP `ip` and `port` for that call, and RTP from the app to that address reaches the room
+
+### Requirement: One call ref end to end
+
+The node SHALL keep one call ref per call across SIP, `Start` and events, using an optional
+configured call-ref header (`call_ref_header`, for example `X-Call-Ref`). When an inbound INVITE carries that header with a well-formed value, the value SHALL be the call's
+`call_ref`; otherwise the node SHALL generate one. When `CreateCall`'s `to.headers` carries the
+configured header, its value SHALL be the call's `call_ref` and SHALL be sent on the INVITE; a
+`call_ref` field that is also set and differs SHALL fail with `INVALID_ARGUMENT` before any INVITE.
+The same ref SHALL appear in `Start`, in every event and on the SIP leg.
+
+#### Scenario: Inbound ref taken from the header
+- **WHEN** `call_ref_header: X-Call-Ref` is configured and an INVITE carries `X-Call-Ref: abc123`
+- **THEN** `Start` carries `call_ref: "abc123"` and events are published on `roomr.events.abc123`
+
+#### Scenario: Inbound ref generated
+- **WHEN** an INVITE has no `X-Call-Ref`, or a malformed one
+- **THEN** the node generates a `call_ref` and uses it in `Start` and every event
+
+#### Scenario: Outbound ref from the headers
+- **WHEN** `CreateCall` has no `call_ref` and `to.headers: { "X-Call-Ref": "out7" }`
+- **THEN** the `Call` has `call_ref: "out7"` and the INVITE carries `X-Call-Ref: out7`
+
+#### Scenario: Conflicting refs
+- **WHEN** `CreateCall` has `call_ref: "a"` and `to.headers: { "X-Call-Ref": "b" }`
+- **THEN** it fails with `INVALID_ARGUMENT` and no INVITE is sent
+
+### Requirement: A silent app leg ends the call
+
+The node SHALL end a call with `cause: "app_gone"` when the app leg of an answered call sends no
+RTP for the app media timeout (configurable, 30 s by default), sending BYE on the SIP leg.
+
+#### Scenario: App stops sending audio
+- **WHEN** the app's RTP stops while its control stream stays open
+- **THEN** after the app media timeout the node sends BYE to the caller and `Ended` with `cause: "app_gone"` on the stream
+
+### Requirement: Draining is a signal with a bounded wait
+
+On SIGTERM the node SHALL report that it is draining: `draining: true` in its heartbeat, its
+readiness probe failing and `{sessions}` rendered as its room limit on REGISTER. It SHALL keep
+serving its live rooms, their control streams and `Roomr` RPCs for them until every room has ended
+or the configured maximum wait (`drain.max_wait`, default 1 h) has passed, then exit. Keeping new
+calls away SHALL be the job of the layers that place them (controller placement and the SIP proxy
+through registration).
+
+#### Scenario: Readiness fails on SIGTERM
+- **WHEN** a node with 3 live rooms receives SIGTERM
+- **THEN** its readiness probe fails, its next heartbeat carries `draining: true` and the 3 rooms keep running
+
+#### Scenario: Exit after the last room
+- **WHEN** the last room of a draining node ends before `drain.max_wait`
+- **THEN** the node publishes `node.down` and exits
+
+#### Scenario: Maximum wait reached
+- **WHEN** a short `drain.max_wait` passes while a draining node still has a room
+- **THEN** the node ends it with `cause: "node_error"` and exits
+
+### Requirement: The room limit is the only admission limit
+
+The node SHALL refuse new calls for capacity only at `max_rooms`. It SHALL NOT refuse calls because
+of CPU, memory or `cpu_idle`; resource control belongs to Kubernetes requests and limits.
+
+#### Scenario: Loaded node still accepts
+- **WHEN** a node's CPU is saturated and its `rooms` is below `max_rooms`
+- **THEN** an INVITE is accepted and `CreateCall` succeeds
