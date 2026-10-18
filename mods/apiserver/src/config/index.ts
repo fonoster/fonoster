@@ -38,7 +38,7 @@ function getConfig(): FonosterConfig {
       service: "apiserver",
       fileBase: "fonoster",
       schema: fonosterConfigSchema,
-      interpolatePaths: SHARED_VALUE_PATHS,
+      interpolatePaths: SHARED_VALUE_PATHS
     });
   }
   return loaded;
