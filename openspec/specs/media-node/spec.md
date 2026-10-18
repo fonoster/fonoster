@@ -131,6 +131,23 @@ with `reason: "error"`. Gateways detect the loss from missed `node.heartbeat` me
 - **THEN** the app receives `session.end` with `reason: "error"`
 - **AND** the call record is sealed and lists the node failure
 
+### Requirement: Rooms without an owner end
+
+The node SHALL end, with `reason: "node_error"`, a room that has no participant and no
+`participant.dial` in progress for 30 s (its placer is gone), and a room whose owning gateway
+(the `gatewayRef` of the claim reply, or of a command such as `participant.dial`) the node has
+heard on `gateway.heartbeat` and then not for 20 s. A dial that fails in an otherwise empty room
+SHALL end the room at once with the dial's outcome. Both times SHALL be configurable; a gateway
+the node never heard is never judged gone.
+
+#### Scenario: Placer died before the dial
+- **WHEN** a room is created with `room.create` and nothing joins or dials into it for 30 s
+- **THEN** the node ends it, frees its slot and reports `room.ended`, also on `calls.<callRef>.events`
+
+#### Scenario: Gateway killed mid-call
+- **WHEN** the gateway that claimed an answered call stops sending heartbeats for 20 s
+- **THEN** the node sends BYE to the caller and ends the room with `reason: "node_error"`
+
 ### Requirement: Optional TLS and SRTP between the edge and the node
 
 The node SHALL support plain SIP and RTP, and TLS signaling with SRTP media, chosen per deployment.

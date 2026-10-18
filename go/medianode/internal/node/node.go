@@ -73,6 +73,12 @@ type Config struct {
 	Registry Registry
 	// RoomRefresh is how often live room entries are rewritten (5 s; the bucket TTL is 15 s).
 	RoomRefresh time.Duration
+	// EmptyRoomTimeout ends a room with no participant and no dial in progress for this long
+	// (30 s; negative disables): whoever sent room.create is gone (orphans.go).
+	EmptyRoomTimeout time.Duration
+	// OwnerTimeout ends a room whose gateway, once heard, sent no gateway.heartbeat for this
+	// long (20 s, four missed beats; negative disables).
+	OwnerTimeout time.Duration
 }
 
 // Registry is the slice of the session registry the node writes (registry.KV fits).
@@ -113,6 +119,12 @@ func (c *Config) defaults() {
 	if c.RoomRefresh == 0 {
 		c.RoomRefresh = 5 * time.Second
 	}
+	if c.EmptyRoomTimeout == 0 {
+		c.EmptyRoomTimeout = 30 * time.Second
+	}
+	if c.OwnerTimeout == 0 {
+		c.OwnerTimeout = 20 * time.Second
+	}
 }
 
 // Node owns rooms and serves media-control over NATS.
@@ -130,6 +142,7 @@ type Node struct {
 	// roomsWritten is when live room entries were last rewritten in the registry.
 	roomsWritten time.Time
 	dialer       Dialer
+	gateways     gatewayWatch
 
 	// Counters for the load harness (GET /stats on the debug endpoint).
 	framesMixed, lateTicks, missedTicks, dtmfReported atomic.Uint64
@@ -202,6 +215,7 @@ func (n *Node) Start() error {
 		return err
 	}
 	n.subs = append(n.subs, sub)
+	n.watchGateways()
 	go n.heartbeats()
 	return n.nc.Flush()
 }
@@ -519,6 +533,8 @@ func (n *Node) Incoming(call IncomingCall) {
 		}
 		var reply map[string]any
 		if json.Unmarshal(msg.Data, &reply) == nil && reply["type"] == "claimed" {
+			gatewayRef, _ := reply["gatewayRef"].(string)
+			room.setOwner(gatewayRef)
 			telemetry.CallIncoming(ctx, call.CallRef, "claimed")
 			return
 		}
@@ -607,6 +623,8 @@ func (n *Node) Handle(_ context.Context, cmd Command) Command {
 	if r == nil {
 		return fail("room_not_found", roomRef)
 	}
+	gatewayRef, _ := cmd["gatewayRef"].(string)
+	r.setOwner(gatewayRef)
 	switch typ {
 	case "ring":
 		if err := r.ring(); err != nil {

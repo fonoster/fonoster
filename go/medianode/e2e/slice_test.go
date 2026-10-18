@@ -35,6 +35,8 @@ type rig struct {
 	mu     sync.Mutex
 	events []map[string]any
 	claim  bool
+	// claimAs is the gatewayRef claim replies carry ("" for none).
+	claimAs string
 	// tlsAddr is the node's SIP-over-TLS address in encrypted runs.
 	tlsAddr string
 }
@@ -134,11 +136,12 @@ func startWith(t *testing.T, o rigOptions) *rig {
 			return
 		}
 		r.mu.Lock()
-		claim := r.claim
+		claim, claimAs := r.claim, r.claimAs
 		r.events = append(r.events, ev)
 		r.mu.Unlock()
 		if claim {
-			_ = m.Respond([]byte(`{"type":"claimed","id":"` + fmt.Sprint(ev["id"]) + `"}`))
+			reply, _ := json.Marshal(map[string]any{"type": "claimed", "id": fmt.Sprint(ev["id"]), "gatewayRef": claimAs})
+			_ = m.Respond(reply)
 		}
 	})
 	_ = nc.Flush()

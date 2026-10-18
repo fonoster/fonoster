@@ -41,10 +41,15 @@ export interface CallRecordSink {
   recordingDir?(callRef: string): string;
 }
 
-/** Keeps entries in memory; for tests and development. */
+/**
+ * Keeps entries in memory; for tests and development. Only the last `maxClosed` (1000) ended
+ * calls are kept, so a long-running process stays bounded.
+ */
 export class MemoryCallRecordSink implements CallRecordSink {
   readonly records = new Map<string, RecordEntry[]>();
   readonly closed = new Set<string>();
+
+  constructor(private readonly maxClosed = 1000) {}
 
   append(callRef: string, entry: RecordEntry) {
     const list = this.records.get(callRef) ?? [];
@@ -53,8 +58,23 @@ export class MemoryCallRecordSink implements CallRecordSink {
   }
 
   close(callRef: string) {
+    this.closed.delete(callRef);
     this.closed.add(callRef);
+    for (const oldest of this.closed) {
+      if (this.closed.size <= this.maxClosed) break;
+      this.closed.delete(oldest);
+      this.records.delete(oldest);
+    }
   }
+}
+
+/**
+ * Keeps nothing: the gateway's sink when no call record is configured (neither `callRecord` nor
+ * GATEWAY_RECORD_DIR), so such a gateway does not hold every call's messages forever.
+ */
+export class NullCallRecordSink implements CallRecordSink {
+  append() {}
+  close() {}
 }
 
 /** Appends one JSON line per entry to <dir>/<callRef>.jsonl, so a crash keeps what was written. */

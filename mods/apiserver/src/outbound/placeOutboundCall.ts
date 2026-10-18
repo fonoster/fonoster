@@ -171,6 +171,10 @@ export async function placeOutboundCall(
       to: call.to,
       from: call.from,
       timeout: call.timeout,
+      // The gateway that will own the call: the node ends the room if that gateway goes away.
+      ...(typeof claimed.gatewayRef === "string"
+        ? { gatewayRef: claimed.gatewayRef }
+        : {}),
       headers: {
         "X-Call-Ref": call.ref,
         "X-Dod-Number": call.from,

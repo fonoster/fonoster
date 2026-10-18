@@ -161,6 +161,11 @@ function fakeNode(
     stop() {
       clearInterval(timer);
       sub.unsubscribe();
+    },
+    /** Dies without a word: no node.down, no room.ended, no more heartbeats. */
+    kill() {
+      clearInterval(timer);
+      sub.unsubscribe();
     }
   };
 }
@@ -408,6 +413,34 @@ describe("@apiserver[control plane] stateless replicas", function () {
     for (const cmd of newRooms)
       expect(cmd.reply.startsWith(`_INBOX_${placer.name}.`)).to.equal(false);
     expect(n.of("room.end")).to.have.length(0);
+  });
+
+  it("losing a media node: TrackCall ends with FAILED on every replica", async function () {
+    const [a, b] = await replicas(["a"], ["b", { place: false }]);
+    const ref = randomUUID();
+    const n = node(`n-${randomUUID()}`, { holdAnswer: new Set([ref]) });
+    gateways();
+    await settle();
+
+    const streams = [a.track(ref), b.track(ref)];
+    expect(await requestCall(client, ref)).to.include({ type: "ack" });
+    for (const s of streams)
+      await until(() => s.statuses.includes("PROGRESS"), 3000, "PROGRESS");
+    n.answer(ref);
+    for (const s of streams)
+      await until(() => s.statuses.includes("ANSWER"), 3000, "ANSWER");
+
+    // The node is killed mid-call: no room.ended and no node.down ever come.
+    n.kill();
+    for (const s of streams) {
+      await until(() => s.ended, 9000, "the stream to end");
+      expect(s.statuses).to.deep.equal([
+        "TRYING",
+        "PROGRESS",
+        "ANSWER",
+        "FAILED"
+      ]);
+    }
   });
 
   it("places a call on the least-loaded node that is not draining (heartbeats)", async function () {

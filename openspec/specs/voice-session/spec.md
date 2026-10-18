@@ -68,6 +68,10 @@ record, not to the app.
 - **WHEN** an outbound call is answered
 - **THEN** the gateway opens the app's socket and sends `session.start` with `direction: "outbound"`
 
+#### Scenario: Room ends or node dies before the answer
+- **WHEN** the room of an unanswered outbound call ends, or nothing is heard about it for 75 s
+- **THEN** the gateway stops watching it, records `call.failed` (the room's reason, or `node_error`) and sends the `call.failed` webhook
+
 ### Requirement: Unreachable apps fall back
 
 If the app's socket cannot be opened, the gateway SHALL retry for about 2–3 seconds while the

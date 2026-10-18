@@ -97,7 +97,8 @@ export class RegionAgent {
   readonly subjects: ReturnType<typeof subjects>;
   readonly state: AgentState;
   private subs: Subscription[] = [];
-  private timers: ReturnType<typeof setTimeout>[] = [];
+  /** Pending timeouts (removed when they fire) and the heartbeat interval. */
+  private timers = new Set<ReturnType<typeof setTimeout>>();
   private nodes = new Map<string, { at: number; rooms: number }>();
   private gateways = new Map<string, { at: number; calls: number }>();
   private applying: Promise<unknown> = Promise.resolve();
@@ -227,12 +228,10 @@ export class RegionAgent {
 
     void this.requestConfig();
     const every = this.options.heartbeatMs ?? 30_000;
-    this.timers.push(
-      setTimeout(() => {
-        void this.heartbeat();
-        this.timers.push(setInterval(() => void this.heartbeat(), every));
-      }, this.options.firstHeartbeatMs ?? 6000)
-    );
+    this.later(() => {
+      void this.heartbeat();
+      this.timers.add(setInterval(() => void this.heartbeat(), every));
+    }, this.options.firstHeartbeatMs ?? 6000);
     this.publishUsage();
     this.publishEndpoints(true);
     logger.info(
@@ -243,14 +242,32 @@ export class RegionAgent {
 
   async stop() {
     this.stopped = true;
-    this.timers.forEach((t) =>
-      clearTimeout(t as ReturnType<typeof setTimeout>)
-    );
-    this.timers.forEach((t) =>
-      clearInterval(t as ReturnType<typeof setInterval>)
-    );
+    this.timers.forEach((t) => {
+      clearTimeout(t);
+      clearInterval(t);
+    });
+    this.timers.clear();
     this.subs.forEach((s) => s.unsubscribe());
     await this.applying.catch(() => undefined);
+  }
+
+  /** A timeout that forgets itself once it fired (stop() clears the ones still pending). */
+  private later(fn: () => void, ms: number) {
+    const t = setTimeout(() => {
+      this.timers.delete(t);
+      fn();
+    }, ms);
+    this.timers.add(t);
+  }
+
+  /** Timers held (tests). */
+  get timerCount() {
+    return this.timers.size;
+  }
+
+  /** Nodes and gateways remembered (tests). */
+  get componentCounts() {
+    return { nodes: this.nodes.size, gateways: this.gateways.size };
   }
 
   /** Asks for a snapshot until one arrives (the control plane may not be reachable yet). */
@@ -284,14 +301,11 @@ export class RegionAgent {
           }`
         );
         if (!this.stopped)
-          this.timers.push(
-            setTimeout(() => void this.requestConfig(), retry * 6)
-          );
+          this.later(() => void this.requestConfig(), retry * 6);
       } else logger.verbose("config is current");
     } catch (e) {
       logger.verbose(`config request: ${(e as Error).message}; retrying`);
-      if (!this.stopped)
-        this.timers.push(setTimeout(() => void this.requestConfig(), retry));
+      if (!this.stopped) this.later(() => void this.requestConfig(), retry);
     }
   }
 
@@ -489,12 +503,13 @@ export class RegionAgent {
   /** What the cell runs right now. */
   async components(): Promise<{ components: Components; activeCalls: number }> {
     const now = this.now();
-    const nodes = [...this.nodes.values()].filter(
-      (n) => now - n.at < NODE_FRESH_MS
-    );
-    const gateways = [...this.gateways.values()].filter(
-      (g) => now - g.at < GATEWAY_FRESH_MS
-    );
+    // Nodes and gateways that went away (a gateway's ref is new on every start) are forgotten.
+    for (const [id, n] of this.nodes)
+      if (now - n.at >= NODE_FRESH_MS) this.nodes.delete(id);
+    for (const [ref, g] of this.gateways)
+      if (now - g.at >= GATEWAY_FRESH_MS) this.gateways.delete(ref);
+    const nodes = [...this.nodes.values()];
+    const gateways = [...this.gateways.values()];
     const autopilot = this.options.autopilotProbe
       ? await this.options.autopilotProbe().catch(() => false)
       : false;

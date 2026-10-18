@@ -31,6 +31,8 @@ export function chainKeySources(
   if (!present.length) return undefined;
   if (present.length === 1) return present[0];
   return {
+    // One source whose keys must not be cached makes the chain's keys uncacheable.
+    cacheable: present.every((s) => s.cacheable !== false),
     async get(workspaceRef, providerId) {
       for (const s of present) {
         const key = await s.get(workspaceRef, providerId);

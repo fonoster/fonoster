@@ -111,6 +111,16 @@ func (r *Room) dialParty(ctx context.Context, to, from string, headers map[strin
 	return p, nil
 }
 
+// dialEndReason is the room.ended reason of a failed dial's call.progress status.
+func dialEndReason(progress string) string {
+	switch progress {
+	case "busy", "no_answer":
+		return progress
+	default:
+		return ReasonRejected
+	}
+}
+
 func dialStatus(err error) int {
 	var de *DialError
 	if errors.As(err, &de) {
@@ -138,12 +148,19 @@ func (r *Room) dial(cmd Command) {
 	from, _ := cmd["from"].(string)
 	ctx, cancel := context.WithTimeout(context.Background(), dialTimeout)
 	defer cancel()
+	r.dialStarted()
 	r.node.emit(r.Ref, Event{"type": "call.progress", "id": id, "status": "ringing"})
 	p, err := r.dialParty(ctx, to, from, stringMap(cmd["headers"]), func() {})
+	empty := r.dialEnded()
 	if err != nil {
 		status := dialStatus(err)
 		r.node.cfg.Logger.Warn("dial failed", "room", r.Ref, "to", to, "err", err)
-		r.node.emit(r.Ref, Event{"type": "call.progress", "id": id, "status": progressStatus(status), "sipStatus": status})
+		progress := progressStatus(status)
+		r.node.emit(r.Ref, Event{"type": "call.progress", "id": id, "status": progress, "sipStatus": status})
+		if empty {
+			// Nobody else is in the room (an API-originated call): the call is over.
+			r.end(dialEndReason(progress), status, "")
+		}
 		return
 	}
 	r.node.emit(r.Ref, Event{"type": "call.answered", "id": id, "participantRef": p.Ref})

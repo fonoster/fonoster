@@ -51,7 +51,22 @@ export type SttResolution = {
 /** A workspace's own vendor keys (bring your own key, registry 3.2). */
 export type WorkspaceKeySource = {
   get(workspaceRef: string, providerId: string): Promise<string | undefined>;
+  /**
+   * `false` for a source whose keys must not be cached (a public region's keys, asked of the
+   * region agent per call): adapters built with them are not kept for later calls.
+   */
+  readonly cacheable?: boolean;
 };
+
+/** Adapters built with workspace keys kept at most (least recently used go first). */
+export const KEYED_ADAPTERS_MAX = 256;
+/** A workspace key adapter unused this long is dropped. */
+export const KEYED_ADAPTERS_IDLE_MS = 10 * 60_000;
+/**
+ * A workspace's keys found at session start are dropped this long after (no call outlives the
+ * media node's 4 h MaxDuration), so removed keys and finished workspaces do not stay forever.
+ */
+export const WORKSPACE_KEYS_HOLD_MS = 4 * 60 * 60_000 + 5 * 60_000;
 
 type Adapters = { tts?: TtsAdapter; stt?: SttAdapter };
 
@@ -90,10 +105,15 @@ export class Catalog {
   };
   private tts = new Map<string, TtsAdapter>();
   private stt = new Map<string, SttAdapter>();
-  /** Workspace keys found by `prepare`, by workspace then provider. */
-  private workspaceKeys = new Map<string, Map<string, string>>();
-  /** Adapters built with a workspace key, by provider and key. */
-  private keyed = new Map<string, Adapters>();
+  /** Workspace keys found by `prepare`, by workspace then provider (insertion = prepare order). */
+  private workspaceKeys = new Map<
+    string,
+    { at: number; keys: Map<string, string> }
+  >();
+  /** Adapters built with a workspace key, by provider and key (insertion = last use). */
+  private keyed = new Map<string, { used: number; adapters: Adapters }>();
+  /** The clock (tests). */
+  now: () => number = Date.now;
 
   constructor(
     private readonly config: GatewayConfig,
@@ -138,7 +158,42 @@ export class Catalog {
         if (key) keys.set(name, key);
       })
     );
-    this.workspaceKeys.set(workspaceRef, keys);
+    this.workspaceKeys.delete(workspaceRef);
+    this.workspaceKeys.set(workspaceRef, { at: this.now(), keys });
+    this.prune();
+  }
+
+  /** Drops expired workspace keys and idle or excess keyed adapters. */
+  private prune() {
+    const now = this.now();
+    for (const [ref, entry] of this.workspaceKeys) {
+      if (now - entry.at <= WORKSPACE_KEYS_HOLD_MS) break;
+      this.workspaceKeys.delete(ref);
+    }
+    for (const [id, entry] of this.keyed) {
+      if (
+        this.keyed.size <= KEYED_ADAPTERS_MAX &&
+        now - entry.used <= KEYED_ADAPTERS_IDLE_MS
+      )
+        break;
+      this.keyed.delete(id);
+    }
+  }
+
+  /** Workspace keys and keyed adapters held (tests). */
+  get cached() {
+    return { workspaces: this.workspaceKeys.size, adapters: this.keyed.size };
+  }
+
+  private keysOf(workspaceRef?: string) {
+    if (!workspaceRef) return undefined;
+    const entry = this.workspaceKeys.get(workspaceRef);
+    if (!entry) return undefined;
+    if (this.now() - entry.at > WORKSPACE_KEYS_HOLD_MS) {
+      this.workspaceKeys.delete(workspaceRef);
+      return undefined;
+    }
+    return entry.keys;
   }
 
   /** The provider's adapters with the workspace's key, when it has one. */
@@ -146,25 +201,22 @@ export class Catalog {
     provider: string,
     workspaceRef?: string
   ): Adapters | undefined {
-    const key = workspaceRef
-      ? this.workspaceKeys.get(workspaceRef)?.get(provider)
-      : undefined;
+    const key = this.keysOf(workspaceRef)?.get(provider);
     const p = this.config.providers?.[provider];
     if (!key || !p) return undefined;
+    // Keys that must not be cached are never kept past this resolution.
+    if (this.keySource?.cacheable === false) return buildAdapters(p, key);
     const id = `${provider}\u0000${key}`;
-    let built = this.keyed.get(id);
-    if (!built) {
-      built = buildAdapters(p, key);
-      this.keyed.set(id, built);
-    }
+    const built = this.keyed.get(id)?.adapters ?? buildAdapters(p, key);
+    this.keyed.delete(id);
+    this.keyed.set(id, { used: this.now(), adapters: built });
+    this.prune();
     return built;
   }
 
   /** Whether calls of this workspace use its own key for a provider (for the call record). */
   usesWorkspaceKey(provider: string, workspaceRef?: string): boolean {
-    return Boolean(
-      workspaceRef && this.workspaceKeys.get(workspaceRef)?.has(provider)
-    );
+    return Boolean(this.keysOf(workspaceRef)?.has(provider));
   }
 
   /**

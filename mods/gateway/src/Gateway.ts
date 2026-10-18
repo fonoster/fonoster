@@ -48,7 +48,7 @@ import {
   NatsMediaControl,
   traceHeaders
 } from "./media/MediaControl";
-import { CallRecordSink, MemoryCallRecordSink } from "./record/CallRecordSink";
+import { CallRecordSink, NullCallRecordSink } from "./record/CallRecordSink";
 import { serveRecordMaintenance } from "./record/maintenance";
 import { Call, CallInfo } from "./session/Call";
 import { Catalog, WorkspaceKeySource } from "./speech/Catalog";
@@ -87,6 +87,8 @@ export type GatewayOptions = {
    * a string names another bucket (tests).
    */
   sessions?: boolean | string;
+  /** Gives up an unanswered outbound call after this long (default OUTBOUND_ANSWER_TIMEOUT_MS). */
+  outboundAnswerTimeoutMs?: number;
 };
 
 /** Gateways announce themselves here every 5 s (counted by a private region's agent). */
@@ -94,6 +96,12 @@ export const GATEWAY_HEARTBEAT_SUBJECT = "gateway.heartbeat";
 
 /** A node is down after this long without a heartbeat (3 missed beats of 2 s). */
 export const NODE_DOWN_AFTER_MS = 6000;
+
+/**
+ * An outbound call with no answer, failure or room.ended this long after `gateway.outbound` is
+ * given up (the node's dial timeout is 60 s, so a live node always reports first).
+ */
+export const OUTBOUND_ANSWER_TIMEOUT_MS = 75_000;
 
 export class Gateway {
   readonly calls = new Map<string, Call>();
@@ -108,6 +116,8 @@ export class Gateway {
   readonly gatewayRef = randomUUID();
   private server?: http.Server;
   private heartbeats = new Map<string, number>();
+  /** Stops the room watch of each outbound call not answered yet. */
+  private pendingOutbound = new Set<() => void>();
   readonly apps: AppStore;
   /** Where call.* and call_record.sealed events go (the dispatcher, or the bus in bus mode). */
   private webhooks?: (event: Webhooks.WebhookEvent) => void;
@@ -118,7 +128,8 @@ export class Gateway {
       throw new Error(
         `invalid gateway config:\n  - ${problems.join("\n  - ")}`
       );
-    this.record = options.record ?? new MemoryCallRecordSink();
+    // No call record configured: keep nothing (call-record, "No record store configured").
+    this.record = options.record ?? new NullCallRecordSink();
     this.catalog = new Catalog(
       options.config,
       options.registryStore,
@@ -152,7 +163,8 @@ export class Gateway {
       this.options.nats ??
       (await connect(natsConnectOptions(this.config.nats)));
     this.ownsNats = !this.options.nats;
-    this.media = new NatsMediaControl(this.nc);
+    // Claim replies carry this gateway's ref: the node ends the room if this gateway is lost.
+    this.media = new NatsMediaControl(this.nc, { gatewayRef: this.gatewayRef });
     if (
       !this.webhooks &&
       this.config.webhooks?.enabled &&
@@ -255,6 +267,7 @@ export class Gateway {
 
   async stop() {
     for (const stop of this.stops) stop();
+    for (const unsubscribe of [...this.pendingOutbound]) unsubscribe();
     this.apps.stop?.();
     for (const call of [...this.calls.values()]) call.finish("error");
     await this.leases?.close();
@@ -468,6 +481,9 @@ export class Gateway {
   /**
    * An outbound call placed by the control plane: the gateway watches the room and opens the
    * app's session only when the callee answers (VS13). Call progress is not sent to the app.
+   * The watch ends on answer, on a failed dial, on room.ended, or after `outboundAnswerTimeoutMs`
+   * without an answer (the node died while ringing); the last three get a minimal record and
+   * `call.failed`.
    */
   private onOutbound(request: {
     nodeId: string;
@@ -482,10 +498,48 @@ export class Gateway {
     if (!app) return { type: "error", code: "unknown_app" };
     const callRef = request.callRef ?? request.roomRef;
     let answered: Call | undefined;
-    let subscribed = true;
+    let settled = false;
+    let watching = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
     const unsubscribe = () => {
-      if (subscribed) stop();
-      subscribed = false;
+      if (!watching) return;
+      watching = false;
+      clearTimeout(timer);
+      stop();
+      this.pendingOutbound.delete(unsubscribe);
+    };
+    /** The call ended before anyone answered. */
+    const failed = (reason: string, progress?: string, sipStatus?: unknown) => {
+      unsubscribe();
+      if (settled) return;
+      settled = true;
+      const entry = (message: Record<string, unknown>) =>
+        this.record.append(callRef, {
+          at: Date.now(),
+          source: "event",
+          message
+        });
+      entry({
+        type: "call.started",
+        direction: "outbound",
+        appRef: app.ref,
+        workspaceRef: app.workspaceRef ?? null,
+        from: request.from ?? "",
+        to: request.to ?? ""
+      });
+      if (progress) entry({ type: "call.progress", status: progress });
+      entry({ type: "call.failed", reason, sipStatus });
+      this.record.close(callRef);
+      this.webhooks?.(
+        Webhooks.callFailed(app.workspaceRef ?? "default", {
+          callRef,
+          appRef: app.ref,
+          from: request.from ?? "",
+          to: request.to ?? "",
+          direction: "outbound",
+          reason
+        })
+      );
     };
     const stop = this.media!.subscribeRoom(
       request.nodeId,
@@ -497,7 +551,9 @@ export class Gateway {
             answered.recording.noteTracks(event.participantRef, event.tracks);
             unsubscribe();
           }
-        } else if (event.type === "call.answered") {
+        } else if (event.type === "call.answered" && !settled) {
+          settled = true;
+          clearTimeout(timer);
           setTimeout(unsubscribe, 5000);
           const call = this.newCall({
             nodeId: request.nodeId,
@@ -515,47 +571,26 @@ export class Gateway {
           event.type === "call.progress" &&
           event.status !== "ringing"
         ) {
-          unsubscribe();
-          this.record.append(callRef, {
-            at: Date.now(),
-            source: "event",
-            message: {
-              type: "call.started",
-              direction: "outbound",
-              appRef: app.ref,
-              workspaceRef: app.workspaceRef ?? null,
-              from: request.from ?? "",
-              to: request.to ?? ""
-            }
-          });
-          this.record.append(callRef, {
-            at: Date.now(),
-            source: "event",
-            message: { type: "call.progress", status: event.status }
-          });
-          this.record.append(callRef, {
-            at: Date.now(),
-            source: "event",
-            message: {
-              type: "call.failed",
-              reason: event.status,
-              sipStatus: event.sipStatus
-            }
-          });
-          this.record.close(callRef);
-          this.webhooks?.(
-            Webhooks.callFailed(app.workspaceRef ?? "default", {
-              callRef,
-              appRef: app.ref,
-              from: request.from ?? "",
-              to: request.to ?? "",
-              direction: "outbound",
-              reason: String(event.status)
-            })
-          );
+          failed(String(event.status), String(event.status), event.sipStatus);
+        } else if (event.type === "room.ended") {
+          // Ended before an answer (no call.progress came: the node ended an orphan room).
+          if (answered) unsubscribe();
+          else failed(String(event.reason ?? "node_error"));
         }
       }
     );
-    return { type: "ack", callRef };
+    // No answer, no failure and no room.ended in time: the node is gone.
+    timer = setTimeout(
+      () => failed("node_error"),
+      this.options.outboundAnswerTimeoutMs ?? OUTBOUND_ANSWER_TIMEOUT_MS
+    );
+    timer.unref?.();
+    this.pendingOutbound.add(unsubscribe);
+    return { type: "ack", callRef, gatewayRef: this.gatewayRef };
+  }
+
+  /** Outbound calls watched until answer (tests and metrics). */
+  get pendingOutboundCount() {
+    return this.pendingOutbound.size;
   }
 }
