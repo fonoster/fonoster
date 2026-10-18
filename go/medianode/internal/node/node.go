@@ -32,12 +32,6 @@ func CallEventsSubject(callRef string) string { return "calls." + callRef + ".ev
 // callEvents are the room events that make up a call's status.
 var callEvents = map[string]bool{"call.progress": true, "call.answered": true, "room.ended": true}
 
-// Errors newRoom returns: the node is draining, or holds MaxRooms rooms.
-var (
-	errDraining   = fmt.Errorf("draining")
-	errAtCapacity = fmt.Errorf("at_capacity")
-)
-
 // IncomingSubject is where calls are offered to the gateway replicas (media-control, "Incoming
 // calls are claimed by exactly one gateway replica").
 const IncomingSubject = "gateway.incoming"
@@ -143,6 +137,8 @@ type Node struct {
 	roomsWritten time.Time
 	dialer       Dialer
 	gateways     gatewayWatch
+	// ctl is MediaControl's call table (control.go).
+	ctl callTable
 
 	// Counters for the load harness (GET /stats on the debug endpoint).
 	framesMixed, lateTicks, missedTicks, dtmfReported atomic.Uint64
@@ -417,16 +413,27 @@ func (n *Node) nextRef(prefix string) string {
 	return fmt.Sprintf("%s-%s-%d-%d", prefix, n.cfg.NodeID, time.Now().UnixNano()%1_000_000, n.seq)
 }
 
-// newRoom opens a room; callRef ("" for none) is the API-originated call it was created for.
-// The limit check and the insert share one lock, so concurrent room.create commands never take
-// the node past MaxRooms.
-func (n *Node) newRoom(callRef string) (*Room, error) {
-	r := newRoom(n, n.nextRef("room"))
+// newRoom opens a room with a new ref; callRef ("" for none) is the API-originated call it was
+// created for.
+func (n *Node) newRoom(callRef string) (*Room, error) { return n.newRoomRef("", callRef) }
+
+// newRoomRef opens a room with the given ref ("" picks one; a ref in use is refused) for callRef.
+// The draining, ref and limit checks and the insert share one lock, so concurrent room.create
+// commands and MediaControl CreateRoom / CreateCall never take the node past MaxRooms.
+func (n *Node) newRoomRef(ref, callRef string) (*Room, error) {
+	if ref == "" {
+		ref = n.nextRef("room")
+	}
+	r := newRoom(n, ref)
 	r.callRef = callRef
 	n.mu.Lock()
 	if n.draining {
 		n.mu.Unlock()
 		return nil, errDraining
+	}
+	if _, taken := n.rooms[ref]; taken {
+		n.mu.Unlock()
+		return nil, errRoomExists
 	}
 	if len(n.rooms) >= n.cfg.MaxRooms {
 		n.mu.Unlock()
@@ -458,6 +465,7 @@ func (n *Node) roomEnded(r *Room) {
 	if n.cfg.Registry != nil {
 		n.cfg.Registry.Delete("rooms", r.Ref)
 	}
+	n.callsRoomEnded(r.Ref)
 }
 
 func (n *Node) room(ref string) *Room {
@@ -494,6 +502,7 @@ func (n *Node) Incoming(call IncomingCall) {
 	if call.OnRoom != nil {
 		call.OnRoom(room.Ref)
 	}
+	n.trackInbound(call.CallRef, room.Ref, caller.Ref)
 	if n.Draining() {
 		// Drain began while the room was set up.
 		_ = call.Leg.Reject(503)

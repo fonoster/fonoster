@@ -19,6 +19,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fonoster/fonoster/go/medianode/internal/control"
 	"github.com/fonoster/fonoster/go/medianode/internal/edgetls"
 	"github.com/fonoster/fonoster/go/medianode/internal/fileconfig"
 	"github.com/fonoster/fonoster/go/medianode/internal/node"
@@ -139,6 +140,10 @@ func main() {
 	reregisterDelta := flag.Int("reregister-delta", 5, "re-register at once when the room count moves by this much")
 	outboundTransport := flag.String("outbound-transport", or(fc.OutboundTransport, "udp"), "transport to the outbound proxy (udp, tcp, tls)")
 	trustedSources := flag.String("trusted-sources", or(strings.Join(fc.TrustedSources, ","), ""), "comma-separated IPs, CIDRs or host names allowed to send INVITEs (the edge, Routr); empty accepts any source")
+	grpcListen := flag.String("control-grpc", or(fc.Control.GRPC.Listen, ""), "host:port for the MediaControl gRPC service; empty disables it (media-control stays on NATS either way)")
+	grpcCert := flag.String("control-grpc-cert", or(fc.Control.GRPC.TLS.Cert, ""), "PEM certificate for the MediaControl listener (file or secret://); empty: plaintext")
+	grpcKey := flag.String("control-grpc-key", or(fc.Control.GRPC.TLS.Key, ""), "PEM key for the MediaControl listener (file or secret://)")
+	grpcClientCA := flag.String("control-grpc-client-ca", or(fc.Control.GRPC.TLS.ClientCA, ""), "PEM CA for mutual TLS on the MediaControl listener: controllers must present a certificate it signed")
 	flag.Parse()
 	if *rtpMax != 0 {
 		if *rtpMin <= 0 || *rtpMin > *rtpMax {
@@ -238,6 +243,27 @@ func main() {
 		os.Exit(1)
 	}
 
+	var mediaControl *control.Server
+	if *grpcListen != "" {
+		// Same PEM rules as the SIP listener (edgetls: file paths or secret:// references).
+		grpcTLS, err := edgetls.Build(edgetls.Options{Cert: *grpcCert, Key: *grpcKey, ClientCA: *grpcClientCA})
+		if err != nil {
+			logger.Error("media-control grpc tls", "err", err)
+			os.Exit(1)
+		}
+		mediaControl, err = control.Listen(*grpcListen, n, grpcTLS.Server, logger)
+		if err != nil {
+			logger.Error("media-control grpc listen", "addr", *grpcListen, "err", err)
+			os.Exit(1)
+		}
+		logger.Info("media-control grpc", "addr", mediaControl.Addr(), "tls", grpcTLS.Server != nil, "mutual", grpcTLS.Mutual)
+		go func() {
+			if err := mediaControl.Serve(); err != nil {
+				logger.Error("media-control grpc serve", "err", err)
+			}
+		}()
+	}
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	go func() {
@@ -288,6 +314,9 @@ func main() {
 		logger.Warn("unregister failed", "err", err)
 	}
 	ucancel()
+	if mediaControl != nil {
+		mediaControl.Stop()
+	}
 	n.Shutdown()
 	ua.Close()
 }

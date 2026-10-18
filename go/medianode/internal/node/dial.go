@@ -37,6 +37,17 @@ func (r *Room) dialParty(ctx context.Context, to, from string, headers map[strin
 	if dialer == nil {
 		return nil, fmt.Errorf("no outbound proxy configured")
 	}
+	return r.dialLeg(func(offer []byte, onProgress func(int)) (OutLeg, []byte, error) {
+		return dialer.Dial(ctx, to, from, headers, offer, onProgress)
+	}, onRinging)
+}
+
+// dialFunc sends the INVITE with the node's offer and waits for the answer.
+type dialFunc func(offer []byte, onProgress func(status int)) (OutLeg, []byte, error)
+
+// dialLeg offers the node's codecs through dial and, when answered, adds the party to the room
+// (participant.dial, transfers and MediaControl's CreateCall).
+func (r *Room) dialLeg(dial dialFunc, onRinging func()) (*Participant, error) {
 	ep, err := rtpio.Listen(r.node.cfg.RTPHost)
 	if err != nil {
 		return nil, err
@@ -55,7 +66,7 @@ func (r *Room) dialParty(ctx context.Context, to, from string, headers map[strin
 		offer.Crypto = &sdp.Crypto{Tag: 1, Suite: rtpio.SRTPSuite, Key: localKey}
 	}
 	ringing := false
-	leg, answer, err := dialer.Dial(ctx, to, from, headers, sdp.WriteDescription(offer), func(status int) {
+	leg, answer, err := dial(sdp.WriteDescription(offer), func(status int) {
 		if (status == 180 || status == 183) && !ringing {
 			ringing = true
 			onRinging()

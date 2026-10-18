@@ -120,6 +120,8 @@ type Call struct {
 	// from and headers are the received INVITE's From URI and X- headers (calls the bot answered).
 	from    string
 	headers map[string]string
+	// requestURI is the received INVITE's Request-URI (calls the bot answered).
+	requestURI string
 }
 
 // Status is what the bot observed on a call.
@@ -142,6 +144,11 @@ type Status struct {
 	// From and Headers (X- headers) of the INVITE the bot answered, for calls it received.
 	From    string            `json:"from,omitempty"`
 	Headers map[string]string `json:"headers,omitempty"`
+	// RequestURI of the INVITE the bot answered (it may differ from where the INVITE was sent,
+	// when it came through the bot as a proxy).
+	RequestURI string `json:"requestUri,omitempty"`
+	// Digits are the RFC 4733 keypresses the bot received.
+	Digits string `json:"digits,omitempty"`
 }
 
 // DialOptions shape one call's offer.
@@ -635,7 +642,8 @@ func (c *Call) StatusSince(since time.Time) Status {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	s := Status{ID: c.ID, SIP: append([]int(nil), c.statuses...), State: c.state, HeardMs: c.heardMs, AudibleMs: c.audibleMs,
-		Codec: c.codec, Secure: c.secure, FirstAudibleAfter: -1, From: c.from, Headers: c.headers}
+		Codec: c.codec, Secure: c.secure, FirstAudibleAfter: -1, From: c.from, Headers: c.headers,
+		RequestURI: c.requestURI, Digits: c.digits}
 	if !c.spokeUntil.IsZero() {
 		s.SpokeUntil = c.spokeUntil.UnixMilli()
 	}
@@ -726,6 +734,7 @@ func (b *Bot) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 	if f := req.From(); f != nil {
 		c.from = f.Address.String()
 	}
+	c.requestURI = req.Recipient.String()
 	for _, h := range req.Headers() {
 		if strings.HasPrefix(strings.ToLower(h.Name()), "x-") {
 			c.headers[h.Name()] = h.Value()
@@ -738,7 +747,11 @@ func (b *Bot) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 		ep.Close()
 		return
 	}
-	go ep.Serve(rtpio.Handlers{Audio: c.heard})
+	go ep.Serve(rtpio.Handlers{Audio: c.heard, DTMF: func(d string) {
+		c.mu.Lock()
+		c.digits += d
+		c.mu.Unlock()
+	}})
 	go c.talk()
 	go func() {
 		<-dlg.Context().Done()

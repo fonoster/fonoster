@@ -180,6 +180,7 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if cfg.OutboundProxy != "" {
 		n.SetDialer(u)
 	}
+	n.SetTargetDialer(u)
 	return u, nil
 }
 
@@ -699,7 +700,14 @@ func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]strin
 		return nil, nil, err
 	}
 	// Routr challenges a Peer's INVITE (401) like its REGISTER: answer with the same credentials.
-	err = session.WaitAnswer(ctx, sipgo.AnswerOptions{Username: user, Password: u.cfg.Password,
+	return u.awaitAnswer(ctx, session, user, u.cfg.Password, onProgress)
+}
+
+// awaitAnswer waits for a dialed INVITE's final response, answering a digest challenge with
+// user and password, and ACKs a 200.
+func (u *UA) awaitAnswer(ctx context.Context, session *sipgo.DialogClientSession, user, password string,
+	onProgress func(status int)) (node.OutLeg, []byte, error) {
+	err := session.WaitAnswer(ctx, sipgo.AnswerOptions{Username: user, Password: password,
 		OnResponse: func(res *sip.Response) error {
 			onProgress(int(res.StatusCode))
 			return nil
@@ -725,6 +733,105 @@ func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]strin
 		u.legs.Delete(legID)
 	}()
 	return leg, session.InviteResponse.Body(), nil
+}
+
+// parseTarget reads "sip:user@host:port;params", "sips:..." or a bare "host:port".
+func parseTarget(s string) (sip.Uri, error) {
+	s = strings.TrimSpace(s)
+	lower := strings.ToLower(s)
+	if !strings.HasPrefix(lower, "sip:") && !strings.HasPrefix(lower, "sips:") {
+		s = "sip:" + s
+	}
+	var uri sip.Uri
+	if err := sip.ParseUri(s, &uri); err != nil {
+		return sip.Uri{}, err
+	}
+	if uri.Host == "" {
+		return sip.Uri{}, fmt.Errorf("no host in %q", s)
+	}
+	return uri, nil
+}
+
+func uriTransport(uri sip.Uri) string {
+	if uri.UriParams != nil {
+		if tr, ok := uri.UriParams.Get("transport"); ok && tr != "" {
+			return strings.ToLower(tr)
+		}
+	}
+	if uri.Scheme == "sips" {
+		return "tls"
+	}
+	return ""
+}
+
+// DialTarget sends an INVITE to t.URI through t.Proxy, with t.Headers added untouched and
+// t's digest credentials for a challenge (node.TargetDialer, MediaControl CreateCall). Unlike
+// Dial it does not call as the Routr Peer: From is `from` and no header is added.
+func (u *UA) DialTarget(ctx context.Context, t node.SipTarget, from string, offer []byte,
+	onProgress func(status int)) (node.OutLeg, []byte, error) {
+	recipient, err := parseTarget(t.URI)
+	if err != nil {
+		return nil, nil, &node.Error{Code: node.CodeBadMessage, Message: "to.uri: " + err.Error()}
+	}
+	next, transport := recipient, uriTransport(recipient)
+	if t.Proxy != "" {
+		if next, err = parseTarget(t.Proxy); err != nil {
+			return nil, nil, &node.Error{Code: node.CodeBadMessage, Message: "to.proxy: " + err.Error()}
+		}
+		transport = uriTransport(next)
+	}
+	if transport == "" {
+		transport = "udp"
+	}
+	if u.cfg.RequireEncryption {
+		transport = "tls"
+	}
+	req := sip.NewRequest(sip.INVITE, recipient)
+	req.SetBody(offer)
+	req.SetTransport(strings.ToUpper(transport))
+	if t.Proxy != "" {
+		// The proxy as a loose route (RFC 3261 8.1.2): the INVITE, its CANCEL and the ACK of a
+		// failure all go to it while the Request-URI stays the callee's.
+		route := sip.Uri{Scheme: "sip", Host: next.Host, Port: next.Port, UriParams: sip.NewParams()}
+		if route.Port == 0 {
+			route.Port = 5060
+			if transport == "tls" {
+				route.Port = 5061
+			}
+		}
+		if transport != "udp" {
+			route.UriParams.Add("transport", transport)
+		}
+		route.UriParams.Add("lr", "")
+		req.AppendHeader(&sip.RouteHeader{Address: route})
+	}
+	var fromURI sip.Uri
+	if strings.Contains(from, "@") || strings.HasPrefix(strings.ToLower(from), "sip") {
+		if fromURI, err = parseTarget(from); err != nil {
+			return nil, nil, &node.Error{Code: node.CodeBadMessage, Message: "from: " + err.Error()}
+		}
+	} else {
+		fromURI = sip.Uri{User: orDefault(from, u.peerUser()), Host: u.peerDomain()}
+	}
+	fromHdr := &sip.FromHeader{Address: fromURI, Params: sip.NewParams()}
+	fromHdr.Params.Add("tag", sip.GenerateTagN(10))
+	req.AppendHeader(fromHdr)
+	req.AppendHeader(sip.NewHeader("Content-Type", "application/sdp"))
+	for k, v := range t.Headers {
+		req.AppendHeader(sip.NewHeader(k, v))
+	}
+	session, err := u.out.WriteInvite(ctx, req)
+	if err != nil {
+		return nil, nil, err
+	}
+	return u.awaitAnswer(ctx, session, t.Username, t.Password, onProgress)
+}
+
+func orDefault(s, d string) string {
+	if s == "" {
+		return d
+	}
+	return s
 }
 
 type outLeg struct {

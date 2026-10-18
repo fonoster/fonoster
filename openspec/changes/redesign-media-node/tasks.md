@@ -17,7 +17,7 @@
 ## 3. Capacity in the heartbeat (S)
 
 - [ ] 3.1 Add `max_rooms`, `cpu_idle`, `version`, `region`, `control_addr`, `sip_addr`, `rtp_ports`, `participants` and `codecs` to the heartbeat
-- [ ] 3.2 Refuse at the limit: `503` for inbound INVITEs, `RESOURCE_EXHAUSTED` for `CreateCall`; `UNAVAILABLE` while draining
+- [x] 3.2 Refuse at the limit: `503` for inbound INVITEs, `RESOURCE_EXHAUSTED` for `CreateCall`; `UNAVAILABLE` while draining
 - [ ] 3.3 Controller: score `1 - rooms / max_rooms` over eligible nodes (fresh, not draining, below limit, in region); retry up to 3 nodes; synchronous capacity error (`createNodeDirectory`, `placeOutboundCall`)
 - [ ] 3.4 Test: a node at its limit is skipped; two controllers picking the same node resolve by refusal and retry; every node refusing fails the API call at once
 
@@ -45,7 +45,7 @@
 
 - [ ] 7.1 `media.v1.MediaControl` server on the node: `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record`, `SendDtmf`; typed gRPC status codes
 - [ ] 7.2 `CreateCall`: idempotent `call_ref`, dial through `to.proxy` with `to.headers` and `to.auth`, `room_ref` join-or-create, `session` override, `ring_timeout_s`, `max_duration_s`, labels
-- [ ] 7.3 `Join` with `listen` for listen-only per-track RTP destinations (recording, AMD); `Leave`
+- [x] 7.3 `Join` with `listen` for listen-only per-track RTP destinations (recording, AMD); `Leave`
 - [ ] 7.4 Apiserver: `placeOutboundCall` calls `CreateCall` at the node's `control_addr`
 - [ ] 7.5 Retire the `media.<nodeId>.commands` subjects and the NATS command handlers
 - [ ] 7.6 Test: busy/no-answer/rejected calls create no room and no stream; `EndCall` ends inbound and outbound calls; `EndRoom` ends every call in the room

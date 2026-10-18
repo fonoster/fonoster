@@ -123,6 +123,8 @@ type Room struct {
 	ended        bool
 	done         chan struct{}
 	listeners    map[string][]fork
+	// plays are MediaControl Play operations in progress.
+	plays []*playback
 	// stats of participants that already left (the node's totals include them).
 	goneStats jitter.Stats
 	orphan    orphanState
@@ -614,8 +616,14 @@ func (r *Room) end(reason string, status int, id string) {
 	r.order = nil
 	listeners := r.listeners
 	r.listeners = nil
+	var stopped []string
+	for _, pb := range r.plays {
+		stopped = append(stopped, pb.ref)
+	}
+	r.plays = nil
 	r.mu.Unlock()
 	close(r.done)
+	r.playsDone(stopped, OpStopped)
 	for _, p := range parts {
 		r.retire(p)
 	}
@@ -662,12 +670,18 @@ func (r *Room) setHold(held bool, musicURL string) {
 }
 
 func (r *Room) sendDTMF(digits string) {
-	c := r.caller()
-	if c == nil || c.media.DTMF < 0 {
+	if c := r.caller(); c != nil {
+		sendDTMFOn(c, digits)
+	}
+}
+
+// sendDTMFOn sends RFC 4733 events on a SIP leg that negotiated telephone-event.
+func sendDTMFOn(p *Participant, digits string) {
+	if p.media.DTMF < 0 {
 		return
 	}
 	for _, d := range digits {
-		c.endpoint.SendDTMF(d, c.media.DTMF)
+		p.endpoint.SendDTMF(d, p.media.DTMF)
 	}
 }
 
@@ -722,7 +736,9 @@ func (r *Room) tick() {
 		musicFrame = r.music[r.musicPos%len(r.music)]
 		r.musicPos++
 	}
+	plays, playsDone := r.nextPlayFrames()
 	r.mu.Unlock()
+	r.playsDone(playsDone, OpCompleted)
 
 	frames := make([]audio.Frame, len(parts))
 	byTrack := map[int]audio.Frame{}
@@ -764,6 +780,7 @@ func (r *Room) tick() {
 			}
 			others = append(others, frames[j])
 		}
+		others = playsFor(p.Ref, plays, others)
 		p.endpoint.Send(audio.Mix(others...))
 	}
 	r.node.framesMixed.Add(uint64(len(parts)))

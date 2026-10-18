@@ -64,6 +64,18 @@ type File struct {
 		CA       string `yaml:"ca"`
 		ClientCA string `yaml:"clientCa"`
 	} `yaml:"tls"`
+	// Control is MediaControl over gRPC (redesign-media-node); off unless control.grpc.listen
+	// is set.
+	Control struct {
+		GRPC struct {
+			Listen string `yaml:"listen"`
+			TLS    struct {
+				Cert     string `yaml:"cert"`     // file path or secret:// reference
+				Key      string `yaml:"key"`      // file path or secret:// reference
+				ClientCA string `yaml:"clientCa"` // set: mutual TLS, client certificates required
+			} `yaml:"tls"`
+		} `yaml:"grpc"`
+	} `yaml:"control"`
 	SessionRegistry     *bool    `yaml:"sessionRegistry"`
 	RequireEncryption   *bool    `yaml:"requireEncryption"`
 	TrustedSources      []string `yaml:"trustedSources"`
