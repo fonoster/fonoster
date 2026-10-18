@@ -42,10 +42,13 @@ RUN for p in types logger common callrecord identity-client community streams am
 ##
 FROM node:22-slim
 
-# openssl: the Prisma query engine needs libssl to load.
+# openssl: the Prisma query engine needs libssl to load. /var/lib/fonoster/records holds call
+# records being written (config callRecord.dir), owned by the gateway's user: a named volume
+# mounted there starts with this ownership.
 RUN apt-get update && apt-get install -y --no-install-recommends openssl \
   && rm -rf /var/lib/apt/lists/* \
-  && groupadd -g 1001 appuser && useradd -u 1001 -g appuser -m appuser
+  && groupadd -g 1001 appuser && useradd -u 1001 -g appuser -m appuser \
+  && mkdir -p /var/lib/fonoster/records && chown -R appuser:appuser /var/lib/fonoster
 
 WORKDIR /work
 COPY --from=builder --chown=appuser:appuser /work/node_modules ./node_modules

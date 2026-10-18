@@ -152,6 +152,8 @@ services:
       - ./config/gateway.yaml:/etc/fonoster/gateway.yaml:ro
       - ${CELL_KEYS_DIR:-./.local/keys}:/etc/fonoster/keys:ro
       - secrets:/var/lib/fonoster-secrets:ro
+      # Call records in flight (config/gateway.yaml callRecord.dir), kept across recreation.
+      - records:/var/lib/fonoster/records
     networks:
       default:
         ipv4_address: ${RB_NET:-10.216.17}.43
@@ -232,3 +234,5 @@ volumes:
   region:
   # The cell's encrypted secret store.
   secrets:
+  # The gateway's call records in flight.
+  records:
