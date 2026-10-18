@@ -46,7 +46,7 @@ import { expandEnv, readEnvFile } from "../../common/src/config/cli/envFile";
 import { tlsEnabled } from "../../common/src/config/cli/exposure";
 import { renderConfigDir } from "../../common/src/config/cli/render";
 import { ensureKeys } from "../../common/src/config/cli/secrets";
-import { loadConfig as loadGatewayConfig } from "../../gateway/src/config";
+import { loadConfig as loadGatewayConfig } from "../../appbridge/src/config";
 
 const ROOT = path.join(__dirname, "..", "..", "..");
 const BUNDLE = path.join(ROOT, "ops", "bundle");
@@ -94,7 +94,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     }
     for (const svc of [
       "medianode",
-      "gateway",
+      "appbridge",
       "autopilot",
       "apiserver",
       "dashboard"
@@ -115,7 +115,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
         "autopilot",
         "dashboard",
         "envoy",
-        "gateway",
+        "appbridge",
         "medianode",
         "minio",
         "nats",
@@ -128,7 +128,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
 
   const FILES: Record<string, string> = {
     apiserver: "fonoster",
-    gateway: "gateway",
+    appbridge: "gateway",
     autopilot: "autopilot",
     medianode: "medianode"
   };
@@ -178,7 +178,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
         expect(src, `${svc}: ${src}`).to.not.contain("private.pem");
       }
     }
-    expect(services.gateway.volumes).to.include.members([
+    expect(services.appbridge.volumes).to.include.members([
       "${CONFIG_DIR:-./config}/keys/public.pem:/etc/fonoster/keys/public.pem:ro",
       "${CONFIG_DIR:-./config}/keys/records.pem:/etc/fonoster/keys/records.pem:ro"
     ]);
@@ -190,7 +190,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       .callRecord?.dir;
     expect(recordsDir).to.equal("/var/lib/fonoster/records");
     // Not under /tmp, and not lost when the container is recreated.
-    expect(services.gateway.volumes).to.include(
+    expect(services.appbridge.volumes).to.include(
       `gateway-records:${recordsDir}`
     );
     expect(Object.keys(compose.volumes as object)).to.include(
@@ -217,7 +217,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       "node",
       "/work/mods/apiserver/dist/bin/healthcheck.js"
     ]);
-    for (const svc of ["gateway", "autopilot"])
+    for (const svc of ["appbridge", "autopilot"])
       expect(services[svc].depends_on?.apiserver, svc).to.deep.equal({
         condition: "service_healthy"
       });
@@ -497,7 +497,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
 
     const gw = loadGatewayConfig(
       path.join(dir, "gateway.yaml"),
-      only("gateway")
+      only("appbridge")
     );
     expect(gw.callRecord?.analytics).to.equal(undefined);
     expect(gw.testMode).to.not.equal(true);

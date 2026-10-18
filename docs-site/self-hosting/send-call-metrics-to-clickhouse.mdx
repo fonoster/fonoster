@@ -64,7 +64,7 @@ You need:
     ```bash
     npx -p @fonoster/common fonoster-config init
     npx -p @fonoster/common fonoster-config check
-    docker compose up -d --force-recreate gateway
+    docker compose up -d --force-recreate appbridge
     ```
   </Step>
 </Steps>
@@ -110,7 +110,7 @@ If no row shows up, look for the gateway's warning. A failed load never affects 
 record:
 
 ```bash
-docker compose logs gateway | grep "analytics load"
+docker compose logs appbridge | grep "analytics load"
 ```
 
 ## Load calls made before analytics was on
@@ -120,7 +120,7 @@ record already stored, run `analytics rebuild` inside the gateway container. It 
 first, then loads each sealed record from the bundle's MinIO bucket:
 
 ```bash
-docker compose exec gateway sh -c '
+docker compose exec appbridge sh -c '
   printf "%s" "{\"s3\":{\"bucket\":\"records\",\"endpoint\":\"http://minio:9000\",\"region\":\"us-east-1\",\"forcePathStyle\":true,\"credentials\":{\"accessKeyId\":\"$MINIO_ROOT_USER\",\"secretAccessKey\":\"$MINIO_ROOT_PASSWORD\"}}}" > /tmp/store.json
   node /work/mods/callrecord/dist/cli.js analytics rebuild --store-config /tmp/store.json \
     --clickhouse-url https://clickhouse.example.com:8443 --clickhouse-database fonoster'

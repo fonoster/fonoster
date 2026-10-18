@@ -8,7 +8,7 @@ nats:
   password: secret://env/NATS_GATEWAY_PASSWORD
 rtp:
   host: 0.0.0.0
-  advertiseHost: gateway
+  advertiseHost: appbridge
 database:
   urlEnv: APISERVER_DATABASE_URL
 encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }

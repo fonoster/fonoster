@@ -133,11 +133,11 @@ services:
       default:
         ipv4_address: ${RB_NET:-10.216.17}.42
 
-  gateway:
+  appbridge:
     build:
       context: ../../..
-      dockerfile: mods/gateway/Dockerfile
-    image: ${RB_REGISTRY:-fonoster}/gateway:${RB_TAG:-dev}
+      dockerfile: mods/appbridge/Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/appbridge:${RB_TAG:-dev}
     restart: unless-stopped
     depends_on:
       nats: { condition: service_healthy }

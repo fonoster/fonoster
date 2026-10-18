@@ -34,7 +34,7 @@ import { MediaNodeRouting, provisionMediaNodeRouting } from "./routr/provision";
 // caller bot → Routr (Trunk by Request-URI host, Number → Peer `medianode`, least-sessions) →
 // Go media node (registered with X-Session-Count) → media-control → gateway → app.
 //
-// Needs the throwaway Routr rig (mods/gateway/test/routr/rig.sh up), NATS and Go. Skipped unless
+// Needs the throwaway Routr rig (mods/appbridge/test/routr/rig.sh up), NATS and Go. Skipped unless
 // ROUTR_LIVE=1. See docs/operators/routr-live-test.md.
 const LIVE = process.env.ROUTR_LIVE === "1";
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;

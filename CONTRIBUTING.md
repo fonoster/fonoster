@@ -93,7 +93,7 @@ and VS Code with the Dev Containers extension (or a Codespace, or the
 
 ```bash
 npm run dev            # all of them, with prefixed logs
-npm run dev:gateway    # or one: dev:apiserver, dev:gateway, dev:autopilot, dev:medianode, dev:dashboard, dev:fakes
+npm run dev:appbridge    # or one: dev:apiserver, dev:appbridge, dev:autopilot, dev:medianode, dev:dashboard, dev:fakes
 ```
 
 Each one reloads when you save its source (the media node is rebuilt). Open the dashboard at

@@ -75,7 +75,7 @@ regress on false cut-offs, delay after the true end of turn (median and p95), mi
 backchannel misfires:
 
 ```bash
-npx tsx mods/gateway/scripts/replay.ts --candidate backchannel-hold [--patience high] [--json]
+npx tsx mods/appbridge/scripts/replay.ts --candidate backchannel-hold [--patience high] [--json]
 ```
 
 The report shows the metrics overall and per category (clean turns, short and long pauses,

@@ -74,7 +74,7 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
 
 ## Deployables and operations
 
-- **New deployables.** The **VoiceSessionGateway** (`fonoster/gateway`: speech, turn-taking, app
+- **New deployables.** The **VoiceSessionGateway** (`fonoster/appbridge`: speech, turn-taking, app
   sessions) and the Go **media node** (`fonoster/medianode`: rooms, mixing, RTP) replace Asterisk
   and the voice code that lived in the apiserver. The apiserver keeps the management gRPC API,
   Identity, `GetCapabilities`, call creation and webhooks; it no longer talks ARI, AudioSocket or

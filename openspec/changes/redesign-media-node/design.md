@@ -5,7 +5,7 @@ https://claude.ai/code/artifact/2e54576e-d7d4-42af-ae84-5c249b6eb88c) and the de
 with the owner that day. Where the document still shows an open alternative, the agreed decision
 is recorded here and the alternative is listed under "Alternatives rejected".
 
-What exists today (`go/medianode`, `mods/apiserver/src/outbound`, `mods/gateway`): the node
+What exists today (`go/medianode`, `mods/apiserver/src/outbound`, `mods/appbridge`): the node
 registers to Routr with `X-Session-Count`, reads `X-App-Ref`/`X-Call-Ref`/`X-Call-Direction` from
 the INVITE, offers each call on `gateway.incoming` and waits 500 ms (twice) for a claim, serves
 commands on `media.<nodeId>.commands`, publishes events on `media.<nodeId>.events.<roomRef>` and a

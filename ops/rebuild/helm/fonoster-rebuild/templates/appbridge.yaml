@@ -1,36 +1,36 @@
-{{- if .Values.gateway.enabled }}
-{{- $recordsDir := dig "callRecord" "dir" "" (.Values.gateway.config | default dict) }}
+{{- if .Values.appbridge.enabled }}
+{{- $recordsDir := dig "callRecord" "dir" "" (.Values.appbridge.config | default dict) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-gateway
+  name: {{ .Release.Name }}-appbridge
   labels:
-    app.kubernetes.io/name: gateway
+    app.kubernetes.io/name: appbridge
     {{- include "fonoster-rebuild.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.gateway.replicas }}
+  replicas: {{ .Values.appbridge.replicas }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: gateway
+      app.kubernetes.io/name: appbridge
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: gateway
+        app.kubernetes.io/name: appbridge
         app.kubernetes.io/instance: {{ .Release.Name }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/gateway-config.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/appbridge-config.yaml") . | sha256sum }}
     spec:
-      terminationGracePeriodSeconds: {{ .Values.gateway.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.appbridge.terminationGracePeriodSeconds }}
       containers:
-        - name: gateway
-          image: "{{ .Values.gateway.image.repository }}:{{ .Values.gateway.image.tag }}"
-          imagePullPolicy: {{ .Values.gateway.image.pullPolicy }}
+        - name: appbridge
+          image: "{{ .Values.appbridge.image.repository }}:{{ .Values.appbridge.image.tag }}"
+          imagePullPolicy: {{ .Values.appbridge.image.pullPolicy }}
           env:
             {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "gateway" "nats" "gateway") | nindent 12 }}
             - name: POD_IP
               valueFrom: { fieldRef: { fieldPath: status.podIP } }
-            {{- $db := .Values.gateway.databaseSecret | default (and .Values.regionAgent.enabled .Values.regionAgent.databaseSecret) }}
+            {{- $db := .Values.appbridge.databaseSecret | default (and .Values.regionAgent.enabled .Values.regionAgent.databaseSecret) }}
             {{- if $db }}
             # Apps, catalog and webhooks from the control-plane (or, in a private cell, the cell) database.
             - name: APISERVER_DATABASE_URL
@@ -38,7 +38,7 @@ spec:
             - name: APISERVER_ENCRYPTION_KEY
               valueFrom: { secretKeyRef: { name: {{ $db | quote }}, key: key } }
             {{- end }}
-            {{- with .Values.gateway.analyticsSecret }}
+            {{- with .Values.appbridge.analyticsSecret }}
             # ClickHouse credentials for config callRecord.analytics.clickhouse (LO-B6).
             - name: CLICKHOUSE_USER
               valueFrom: { secretKeyRef: { name: {{ . | quote }}, key: user } }
@@ -49,7 +49,7 @@ spec:
             - { name: http, containerPort: 8080 }
           volumeMounts:
             - { name: config, mountPath: /etc/fonoster/gateway.yaml, subPath: gateway.yaml, readOnly: true }
-            {{- include "fonoster-rebuild.secretMounts" (dict "root" $ "names" .Values.gateway.secretMounts) | nindent 12 }}
+            {{- include "fonoster-rebuild.secretMounts" (dict "root" $ "names" .Values.appbridge.secretMounts) | nindent 12 }}
             {{- if .Values.regionAgent.enabled }}
             # A private cell's provider keys (config cellSecrets.dir: /var/lib/fonoster-secrets).
             - { name: cell-secrets, mountPath: /var/lib/fonoster-secrets, readOnly: true }
@@ -59,43 +59,43 @@ spec:
             - { name: records, mountPath: {{ . | quote }} }
             {{- end }}
           resources:
-            {{- toYaml .Values.gateway.resources | nindent 12 }}
+            {{- toYaml .Values.appbridge.resources | nindent 12 }}
       volumes:
         - name: config
           configMap:
-            name: {{ .Release.Name }}-gateway
-        {{- include "fonoster-rebuild.secretVolumes" (dict "root" $ "names" .Values.gateway.secretMounts) | nindent 8 }}
+            name: {{ .Release.Name }}-appbridge
+        {{- include "fonoster-rebuild.secretVolumes" (dict "root" $ "names" .Values.appbridge.secretMounts) | nindent 8 }}
         {{- if .Values.regionAgent.enabled }}
         - name: cell-secrets
           secret: { secretName: {{ .Values.regionAgent.secretsSecret | quote }}, optional: true }
         {{- end }}
         {{- if $recordsDir }}
         - name: records
-          {{- toYaml .Values.gateway.recordsVolume | nindent 10 }}
+          {{- toYaml .Values.appbridge.recordsVolume | nindent 10 }}
         {{- end }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}-gateway
+  name: {{ .Release.Name }}-appbridge
   labels:
     {{- include "fonoster-rebuild.labels" . | nindent 4 }}
 spec:
-  type: {{ .Values.gateway.service.type }}
+  type: {{ .Values.appbridge.service.type }}
   selector:
-    app.kubernetes.io/name: gateway
+    app.kubernetes.io/name: appbridge
     app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
-    - { name: http, port: {{ .Values.gateway.service.port }}, targetPort: http }
+    - { name: http, port: {{ .Values.appbridge.service.port }}, targetPort: http }
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ .Release.Name }}-gateway
+  name: {{ .Release.Name }}-appbridge
 spec:
-  minAvailable: {{ .Values.gateway.podDisruptionBudget.minAvailable }}
+  minAvailable: {{ .Values.appbridge.podDisruptionBudget.minAvailable }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: gateway
+      app.kubernetes.io/name: appbridge
       app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}

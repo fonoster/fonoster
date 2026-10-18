@@ -29,9 +29,9 @@ npm install && npm run build
 
 ```sh
 npx mocha --exit --timeout 30000 \
-  mods/gateway/test/conformance.test.ts \
-  mods/gateway/test/integration.test.ts \
-  mods/gateway/test/crash.test.ts \
+  mods/appbridge/test/conformance.test.ts \
+  mods/appbridge/test/integration.test.ts \
+  mods/appbridge/test/crash.test.ts \
   mods/autopilot/test/session/fullstack.test.ts
 ```
 
@@ -51,7 +51,7 @@ GOTOOLCHAIN=local go test -race ./...          # e2e tests run when CONFORMANCE_
 cd ../.. && npx mocha --exit --timeout 30000 \
   mods/conformance/test/media-control.test.ts \
   mods/conformance/test/media-control-go.test.ts \
-  mods/gateway/test/gonode.test.ts
+  mods/appbridge/test/gonode.test.ts
 ```
 
 `media-control.test.ts` runs the same `media-control` files against the fake node;
@@ -63,16 +63,16 @@ Real SIP calls need Routr and the whole platform up (the dev container's `npm ru
 `ops/rebuild/stack up`). The caller bot
 (`go/medianode/cmd/sipcaller`) places the calls; the nightly end-to-end suite is still to be wired
 (conformance tasks 2.5 and 3.11). Until then, run the Go node against the gateway with
-`mods/gateway/test/gonode.test.ts`, which is the closest automated check.
+`mods/appbridge/test/gonode.test.ts`, which is the closest automated check.
 
 ### Timing, load, turn-taking and Pipecat (nightly)
 
 ```sh
-CONFORMANCE_TIMING_RUNS=200 CONFORMANCE_REPORT_DIR=reports npx mocha --timeout 0 mods/gateway/test/timing.test.ts
-npx tsx mods/gateway/scripts/scale.ts --calls 100 --seconds 60
-npx tsx mods/gateway/scripts/replay.ts
+CONFORMANCE_TIMING_RUNS=200 CONFORMANCE_REPORT_DIR=reports npx mocha --timeout 0 mods/appbridge/test/timing.test.ts
+npx tsx mods/appbridge/scripts/scale.ts --calls 100 --seconds 60
+npx tsx mods/appbridge/scripts/replay.ts
 python -m pip install -r python/pipecat-golden/requirements.txt
-PIPECAT_PYTHON=python npx mocha --timeout 60000 mods/gateway/test/pipecat.test.ts
+PIPECAT_PYTHON=python npx mocha --timeout 60000 mods/appbridge/test/pipecat.test.ts
 ```
 
 The pass bars (T1 at 50 ms p95, and so on) hold only on dedicated runners. Shared CI runners
@@ -139,5 +139,5 @@ fixture.) Rules for a runner in a new language:
 
 Live provider tests have a manual trigger (`live-providers.yaml`, `workflow_dispatch` only; it needs the
 `DEEPGRAM_API_KEY` and `ELEVENLABS_API_KEY` repository secrets). Still to add: dedicated runners for the
-nightly job (task 4.2). `mods/gateway/scripts/live-check.ts` runs the same checks by hand with
+nightly job (task 4.2). `mods/appbridge/scripts/live-check.ts` runs the same checks by hand with
 your own provider keys; never put those keys in the repository.

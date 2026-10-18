@@ -108,7 +108,7 @@ bar"; `media-control` "Participants and tracks are kind-neutral".
   schema (`sip.registrations`, `sip.roomHeader`, `session.endpoint`), heartbeat fields, event
   keying, Opus-first SDP, passthrough, WebRTC transport, removal of the NATS command and offer
   paths.
-- `mods/gateway`: a gRPC server for the control stream behind a Kubernetes Service; `RtpLink`
+- `mods/appbridge`: a gRPC server for the control stream behind a Kubernetes Service; `RtpLink`
   keeps its RTP role, the `participant.add` offer and the `gateway.incoming` queue group go away.
 - `mods/apiserver/src/outbound`: `createNodeDirectory` scores by `1 - rooms / max_rooms`,
   `placeOutboundCall` calls `CreateCall` over gRPC with `X-DOD-Number` in the pass-through

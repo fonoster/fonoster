@@ -39,7 +39,7 @@
     "dev:config": "sh .devcontainer/initialize.sh --refresh",
     "dev:dashboard": "node .scripts/dev.mjs dashboard",
     "dev:fakes": "node .scripts/dev.mjs fakes",
-    "dev:gateway": "node .scripts/dev.mjs gateway",
+    "dev:appbridge": "node .scripts/dev.mjs appbridge",
     "dev:info": "node mods/common/dist/config/cli/index.js info --dir .dev",
     "dev:medianode": "node .scripts/dev.mjs medianode",
     "format": "prettier --write mods/**/src",

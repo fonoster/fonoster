@@ -1,14 +1,15 @@
 {
-  "name": "@fonoster/gateway",
+  "name": "@fonoster/appbridge",
   "version": "0.27.0",
-  "description": "VoiceSessionGateway: serves each call to its app over the Fonoster session protocol",
+  "private": true,
+  "description": "AppBridge (VoiceSessionGateway): serves each call to its app over the Fonoster session protocol",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
   "main": "dist/index",
   "types": "dist/index",
   "bin": {
-    "fonoster-gateway": "dist/main.js"
+    "fonoster-appbridge": "dist/main.js"
   },
   "directories": {
     "src": "src",
@@ -42,9 +43,6 @@
   "files": [
     "dist"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fonoster/fonoster.git"

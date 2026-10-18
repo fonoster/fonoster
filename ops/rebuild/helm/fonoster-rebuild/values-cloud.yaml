@@ -96,7 +96,7 @@ autopilot:
     database: { url: "${APISERVER_DATABASE_URL}" }
     encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }
 
-gateway:
+appbridge:
   secretMounts: [fonoster-db, fonoster-minio, fonoster-records-key, fonoster-vendors]
   databaseSecret: fonoster-db
   config:

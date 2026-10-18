@@ -1,6 +1,7 @@
 {
   "name": "@fonoster/region-agent",
   "version": "0.27.0",
+  "private": true,
   "description": "The region agent and the fonoster-region ops utility: public and private regions' enrollment, config sync, heartbeats, content relay and region secrets; public region administration",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -34,9 +35,6 @@
   "files": [
     "dist"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fonoster/fonoster.git"

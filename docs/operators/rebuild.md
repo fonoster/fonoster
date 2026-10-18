@@ -13,7 +13,7 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | `routr` | `fonoster/routr-one` | SIP edge. Nodes register to it with their session count. |
 | `rtpengine` | `fonoster/rtpengine` | Carrier-side media relay. |
 | `medianode` | `go/medianode/Dockerfile` | Rooms, mixing, RTP. Distroless static binary. |
-| `gateway` | `mods/gateway/Dockerfile` | VoiceSessionGateway: speech, turn-taking, app sessions. |
+| `appbridge` | `mods/appbridge/Dockerfile` | AppBridge (VoiceSessionGateway): speech, turn-taking, app sessions. |
 | `autopilot` (profile) | `mods/autopilot/Dockerfile` | Hosted Autopilot session engine. |
 | `minio` | `minio/minio` | Object storage for recordings and records. |
 | `apiserver` | `ops/rebuild/docker/apiserver.Dockerfile` | Control plane API with embedded Identity; applies migrations at start. |
@@ -347,9 +347,9 @@ helm install fonoster ops/rebuild/helm/fonoster-rebuild \
   --set medianode.rtp.portMin=30000 --set medianode.rtp.portMax=30199
 ```
 
-The gateway runs as a Deployment (ConfigMap with `gateway.yaml`, Service, PDB) and the media node as
-a StatefulSet (host network by default because RTP needs a UDP range, node id = pod name). Create the
-Secret named by `medianode.routr.passwordSecret` (key `password`) for the nodes' Routr peer.
+The gateway (`appbridge` in the chart values) runs as a Deployment (ConfigMap with `gateway.yaml`,
+Service, PDB) and the media node as a StatefulSet (host network by default because RTP needs a UDP
+range, node id = pod name). Create the Secret named by `medianode.routr.passwordSecret` (key `password`) for the nodes' Routr peer.
 
 `helm lint` and `helm template` run in the deployment suite (`mods/conformance/test/deployment.test.ts`),
 which also loads every rendered config through its service's loader with the Secrets mounted.

@@ -34,7 +34,7 @@ import { loadAgentConfig } from "../../region-agent/src/config";
 import {
   loadConfig as loadGatewayConfig,
   providerKey
-} from "../../gateway/src/config";
+} from "../../appbridge/src/config";
 
 const ROOT = path.join(__dirname, "..", "..", "..");
 const CHART = path.join(ROOT, "ops", "rebuild", "helm", "fonoster-rebuild");
@@ -136,7 +136,7 @@ describe("@conformance/deployment (Helm chart)", function () {
 
   it("renders only the data plane by default", function () {
     const objs = render();
-    expect(find(objs, "Deployment", "fonoster-gateway")).to.exist;
+    expect(find(objs, "Deployment", "fonoster-appbridge")).to.exist;
     expect(find(objs, "StatefulSet", "fonoster-medianode")).to.exist;
     expect(find(objs, "Deployment", "fonoster-apiserver")).to.not.exist;
     expect(find(objs, "StatefulSet", "fonoster-nats")).to.not.exist;
@@ -180,7 +180,7 @@ describe("@conformance/deployment (Helm chart)", function () {
       ["Deployment", "fonoster-dashboard"],
       ["Deployment", "fonoster-envoy"],
       ["Deployment", "fonoster-autopilot"],
-      ["Deployment", "fonoster-gateway"],
+      ["Deployment", "fonoster-appbridge"],
       ["StatefulSet", "fonoster-medianode"],
       ["StatefulSet", "fonoster-nats"],
       ["StatefulSet", "fonoster-postgres"],
@@ -223,7 +223,7 @@ describe("@conformance/deployment (Helm chart)", function () {
       else if (v && typeof v === "object")
         Object.entries(v).forEach(([k, x]) => walk(x, k, `${where}.${k}`));
     };
-    ["fonoster-apiserver", "fonoster-gateway"].forEach((name) => {
+    ["fonoster-apiserver", "fonoster-appbridge"].forEach((name) => {
       const cm = configs.find((c) => c.metadata.name === name)!;
       const file = Object.keys(cm.data!).find((k) => k.endsWith(".yaml"))!;
       walk(parseAllDocuments(cm.data![file])[0].toJS(), "", name);
@@ -234,7 +234,7 @@ describe("@conformance/deployment (Helm chart)", function () {
     const objs = render("values-cloud.yaml", "values-observability.yaml");
     expect(find(objs, "Deployment", "fonoster-otel-collector")).to.exist;
     expect(find(objs, "Deployment", "fonoster-grafana")).to.exist;
-    const text = JSON.stringify(find(objs, "Deployment", "fonoster-gateway"));
+    const text = JSON.stringify(find(objs, "Deployment", "fonoster-appbridge"));
     expect(text).to.contain("http://fonoster-otel-collector:4318");
     const cm = find(objs, "ConfigMap", "fonoster-observability")!.data!;
     expect(cm["otel-collector.yaml"]).to.contain("fonoster-tempo:4317");
@@ -285,7 +285,7 @@ describe("@conformance/deployment (Helm chart)", function () {
     const saved = { ...process.env };
     Object.assign(process.env, env, { POD_IP: "10.1.2.3" });
     try {
-      const gw = loadGatewayConfig(write("fonoster-gateway", "gateway.yaml"));
+      const gw = loadGatewayConfig(write("fonoster-appbridge", "gateway.yaml"));
       expect(providerKey(gw.providers.deepgram)).to.equal("dg-key");
       expect(gw.rtp?.advertiseHost).to.equal("10.1.2.3");
       expect(gw.database?.url).to.equal("postgresql://u:p@db:5432/fonoster");
@@ -346,7 +346,7 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(env("StatefulSet", "fonoster-nats")).to.contain(
       '"name":"NATS_ROUTR_PASSWORD"'
     );
-    expect(env("Deployment", "fonoster-gateway")).to.contain(
+    expect(env("Deployment", "fonoster-appbridge")).to.contain(
       '"name":"NATS_GATEWAY_PASSWORD","valueFrom":{"secretKeyRef":{"name":"fonoster-nats-users","key":"gateway"}}'
     );
     expect(env("StatefulSet", "fonoster-medianode")).to.contain(
@@ -370,7 +370,7 @@ describe("@conformance/deployment (Helm chart)", function () {
     // The default data plane has NATS users too (M8)...
     const gatewayNats = (objs: K8sObject[]) =>
       parseAllDocuments(
-        find(objs, "ConfigMap", "fonoster-gateway")!.data!["gateway.yaml"]
+        find(objs, "ConfigMap", "fonoster-appbridge")!.data!["gateway.yaml"]
       )[0].toJS().nats;
     expect(gatewayNats(render())).to.deep.equal({
       url: "nats://nats:4222",
@@ -398,7 +398,7 @@ describe("@conformance/deployment (Helm chart)", function () {
   it("renders workspaceKeysFromCloud for a public region's gateway (add-private-regions 5.9)", function () {
     const gatewayConfig = (...args: string[]) =>
       parseAllDocuments(
-        find(render(...args), "ConfigMap", "fonoster-gateway")!.data![
+        find(render(...args), "ConfigMap", "fonoster-appbridge")!.data![
           "gateway.yaml"
         ]
       )[0].toJS();
@@ -420,10 +420,11 @@ describe("@conformance/deployment (Helm chart)", function () {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pod = (objs: K8sObject[]): any =>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (find(objs, "Deployment", "fonoster-gateway") as any).spec.template.spec;
+      (find(objs, "Deployment", "fonoster-appbridge") as any).spec.template
+        .spec;
     const cloud = render("values-cloud.yaml");
     const dir = parseAllDocuments(
-      find(cloud, "ConfigMap", "fonoster-gateway")!.data!["gateway.yaml"]
+      find(cloud, "ConfigMap", "fonoster-appbridge")!.data!["gateway.yaml"]
     )[0].toJS().callRecord.dir;
     expect(dir).to.equal("/var/lib/fonoster/records");
     const spec = pod(cloud);

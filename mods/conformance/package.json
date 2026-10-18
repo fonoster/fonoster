@@ -1,6 +1,7 @@
 {
   "name": "@fonoster/conformance",
   "version": "0.27.0",
+  "private": true,
   "description": "Conformance harness for the Fonoster rebuild contracts: scenario files, runners and fakes",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -33,9 +34,6 @@
     "schema",
     "turn-corpus"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fonoster/fonoster.git"

@@ -27,7 +27,7 @@ import { z } from "zod";
 
 // The session app model on `applications` rows (voice-session G2; build log P-B8, CP-B1..CP-B4).
 // A row is a session app when it has `url` and `signingSecret`; the gateway reads those columns
-// (mods/gateway/src/apps/AppStore.ts).
+// (mods/appbridge/src/apps/AppStore.ts).
 
 /** The rebuild columns are newer than the shared generated client, so the slice is typed loosely. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

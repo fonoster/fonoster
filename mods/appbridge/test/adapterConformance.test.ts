@@ -33,7 +33,7 @@ import { ElevenLabsTtsAdapter } from "@fonoster/community/elevenlabs";
 // Adapter conformance per type (add-provider-registry task 1.5, build log LO-B14): every feature
 // a catalog model declares for a speech adapter is checked, cancelling is fast, and vendor errors
 // map to provider_unavailable. Runs against local stand-ins of the vendors; live runs are on demand
-// (mods/gateway/scripts/live-check.ts), never here.
+// (mods/appbridge/scripts/live-check.ts), never here.
 
 const SEED = path.join(
   __dirname,

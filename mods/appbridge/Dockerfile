@@ -20,20 +20,20 @@ COPY mods/community ./mods/community
 # AMD (add-media-node 4.3, AO-B2): the classifier and its ONNX model run in the gateway.
 COPY mods/streams ./mods/streams
 COPY mods/amd ./mods/amd
-COPY mods/gateway ./mods/gateway
+COPY mods/appbridge ./mods/appbridge
 # The apiserver schema: `appStore.source: database`, the database registry and webhooks read the
 # control-plane database through a client generated from it.
 COPY mods/apiserver/schema.prisma ./mods/apiserver/schema.prisma
 
 # Only the gateway's workspace closure is installed (not the whole monorepo).
 RUN --mount=type=cache,target=/root/.npm \
-    npm install --workspace @fonoster/gateway --ignore-scripts --no-audit --no-fund
+    npm install --workspace @fonoster/appbridge --ignore-scripts --no-audit --no-fund
 
 RUN for p in types logger common callrecord identity-client community streams amd gateway; do \
       (cd mods/$p && npx tsc -b); \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
-  && npm prune --omit=dev --workspace @fonoster/gateway \
+  && npm prune --omit=dev --workspace @fonoster/appbridge \
   && npx -y prisma@6.19.3 generate --schema mods/apiserver/schema.prisma \
   && find node_modules -name "*.map" -type f -delete
 
@@ -70,8 +70,8 @@ COPY --from=builder --chown=appuser:appuser /work/mods/streams/dist /work/mods/s
 COPY --from=builder --chown=appuser:appuser /work/mods/amd/package.json /work/mods/amd/
 COPY --from=builder --chown=appuser:appuser /work/mods/amd/dist /work/mods/amd/dist
 COPY --from=builder --chown=appuser:appuser /work/mods/amd/amd-model /work/mods/amd/amd-model
-COPY --from=builder --chown=appuser:appuser /work/mods/gateway/package.json /work/mods/gateway/
-COPY --from=builder --chown=appuser:appuser /work/mods/gateway/dist /work/mods/gateway/dist
+COPY --from=builder --chown=appuser:appuser /work/mods/appbridge/package.json /work/mods/appbridge/
+COPY --from=builder --chown=appuser:appuser /work/mods/appbridge/dist /work/mods/appbridge/dist
 
 USER appuser
 
@@ -80,4 +80,4 @@ USER appuser
 # Session HTTP endpoint (config http.port); the gateway also needs NATS reachable.
 EXPOSE 8080
 
-CMD ["node", "/work/mods/gateway/dist/main.js"]
+CMD ["node", "/work/mods/appbridge/dist/main.js"]
