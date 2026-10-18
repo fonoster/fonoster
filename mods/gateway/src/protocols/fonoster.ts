@@ -23,6 +23,14 @@ import { Incoming, ProtocolCodec } from "./types";
 export const CALLER_TRACK_ID = 1;
 export const AGENT_TRACK_ID = 2;
 
+/** A binary audio frame for an app socket: the track id byte, then the audio. */
+export function withTrackId(track: number, audio: Buffer): Buffer {
+  const out = Buffer.allocUnsafe(1 + audio.length);
+  out[0] = track;
+  audio.copy(out, 1);
+  return out;
+}
+
 /** The fonoster protocol: JSON text frames for messages, binary frames for audio. */
 export class FonosterCodec implements ProtocolCodec {
   readonly speechLayer = true;
@@ -46,10 +54,7 @@ export class FonosterCodec implements ProtocolCodec {
   callerAudio(frame: Buffer) {
     // Frames from the gateway start with their track id (voice-session, Listen-only sockets).
     this.send(
-      Buffer.concat([
-        Buffer.from([CALLER_TRACK_ID]),
-        convert(frame, INTERNAL, this.format)
-      ])
+      withTrackId(CALLER_TRACK_ID, convert(frame, INTERNAL, this.format))
     );
   }
 
