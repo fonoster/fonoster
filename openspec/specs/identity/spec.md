@@ -274,7 +274,8 @@ sends) SHALL be counted in the Identity database, so they hold across replicas a
 2FA code or email code) per email and per client IP. After 10 failures for an email, or 50 from
 an IP, within 15 minutes, sign-in for that email (or from that IP) SHALL fail with
 `RESOURCE_EXHAUSTED` for 15 minutes, even with the right password, without checking it. Successful
-sign-ins SHALL NOT count. Counts are kept in each process's memory, like the other limits.
+sign-ins SHALL NOT count. These counts are kept in each process's memory, so each replica
+enforces its own limit (unlike the reset and verification-code limits, which are in the database).
 
 #### Scenario: Guessing a password
 
@@ -283,10 +284,10 @@ sign-ins SHALL NOT count. Counts are kept in each process's memory, like the oth
 
 ### Requirement: An unverified account belongs to whoever proves its email
 
-When someone signs in with an emailed code (`ExchangeVerificationCode`) or GitHub
+Identity SHALL mark the email verified, clear the account's password and revoke all of its
+refresh tokens when someone signs in with an emailed code (`ExchangeVerificationCode`) or GitHub
 (`ExchangeOauth2Code`, by a verified GitHub email) to an existing account whose email was never
-verified, Identity SHALL mark the email verified, clear the account's password and revoke all of
-its refresh tokens: whoever set that password may not own the address. `VerifyCode` with an email
+verified: whoever set that password may not own the address. `VerifyCode` with an email
 code SHALL verify only the account whose email received the code.
 
 #### Scenario: Someone signed up with another person's email

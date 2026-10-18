@@ -33,6 +33,14 @@ except values the file explicitly references with `${VAR}`.
 - WHEN `fonoster.yaml` and `fonoster.jsonc` exist in the same directory
 - THEN the service refuses to start and names both files
 
+#### Scenario: Autopilot ignores the apiserver's database variable
+- WHEN Autopilot's config has no database URL and `APISERVER_DATABASE_URL` is set
+- THEN Autopilot does not use it
+
+#### Scenario: The media node ignores deprecated variables
+- WHEN the media node's config omits a value and the matching `MEDIANODE_*` variable is set
+- THEN the media node uses the schema default, not the variable
+
 ### Requirement: YAML and JSON with comments are both accepted
 
 The loader SHALL parse `.yaml`/`.yml` as YAML and `.json`/`.jsonc` as JSON with comments and
