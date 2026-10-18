@@ -121,16 +121,17 @@ export class RtpLink extends EventEmitter {
   send(frame: Buffer) {
     if (!this.remote || this.closed) return;
     const payload = fromInternal(frame, this.format);
-    const header = Buffer.alloc(12);
-    header[0] = 0x80;
-    header[1] = this.format.codec === "pcmu" ? 0 : 96;
-    header.writeUInt16BE(this.seq, 2);
-    header.writeUInt32BE(this.timestamp >>> 0, 4);
-    header.writeUInt32BE(this.ssrc >>> 0, 8);
+    // One allocation per packet: the 12-byte header, then the payload.
+    const packet = Buffer.allocUnsafe(12 + payload.length);
+    packet[0] = 0x80;
+    packet[1] = this.format.codec === "pcmu" ? 0 : 96;
+    packet.writeUInt16BE(this.seq, 2);
+    packet.writeUInt32BE(this.timestamp >>> 0, 4);
+    packet.writeUInt32BE(this.ssrc >>> 0, 8);
+    payload.copy(packet, 12);
     this.seq = (this.seq + 1) & 0xffff;
     this.timestamp =
       (this.timestamp + (this.format.rate / 1000) * FRAME_MS) >>> 0;
-    const packet = Buffer.concat([header, payload]);
     this.socket.send(
       this.outbound ? this.outbound.protect(packet) : packet,
       this.remote.port,

@@ -100,21 +100,50 @@ const MULAW_TABLE = Int16Array.from({ length: 256 }, (_, byte) => {
   return u & 0x80 ? -magnitude : magnitude;
 });
 
+/** linearToMulaw for every 16-bit sample, indexed by the sample's unsigned bit pattern. */
+const MULAW_ENCODE = Uint8Array.from({ length: 65536 }, (_, u) =>
+  linearToMulaw((u << 16) >> 16)
+);
+
+// The per-sample loops below run for every 20 ms frame of every call, so they index bytes
+// directly instead of calling Buffer.readInt16*/writeInt16* (same results, without the per-call
+// bounds checks). Int16Array and Buffer stores truncate to 16 and 8 bits as those would.
+
 function toSamples(buf: Buffer, codec: Codec): Int16Array {
-  if (codec === "pcmu") return Int16Array.from(buf, (b) => MULAW_TABLE[b]);
+  if (codec === "pcmu") {
+    const out = new Int16Array(buf.length);
+    for (let i = 0; i < buf.length; i++) out[i] = MULAW_TABLE[buf[i]];
+    return out;
+  }
   const n = Math.floor(buf.length / 2);
   const out = new Int16Array(n);
-  for (let i = 0; i < n; i++)
-    out[i] = codec === "l16" ? buf.readInt16BE(i * 2) : buf.readInt16LE(i * 2);
+  if (codec === "l16")
+    for (let i = 0, b = 0; i < n; i++, b += 2)
+      out[i] = (buf[b] << 8) | buf[b + 1];
+  else
+    for (let i = 0, b = 0; i < n; i++, b += 2)
+      out[i] = buf[b] | (buf[b + 1] << 8);
   return out;
 }
 
 function fromSamples(samples: Int16Array, codec: Codec): Buffer {
-  if (codec === "pcmu") return Buffer.from(Array.from(samples, linearToMulaw));
-  const out = Buffer.alloc(samples.length * 2);
-  for (let i = 0; i < samples.length; i++) {
-    if (codec === "l16") out.writeInt16BE(samples[i], i * 2);
-    else out.writeInt16LE(samples[i], i * 2);
+  if (codec === "pcmu") {
+    const out = Buffer.allocUnsafe(samples.length);
+    for (let i = 0; i < samples.length; i++)
+      out[i] = MULAW_ENCODE[samples[i] & 0xffff];
+    return out;
+  }
+  const out = Buffer.allocUnsafe(samples.length * 2);
+  if (codec === "l16") {
+    for (let i = 0, b = 0; i < samples.length; i++, b += 2) {
+      out[b] = samples[i] >> 8;
+      out[b + 1] = samples[i];
+    }
+  } else {
+    for (let i = 0, b = 0; i < samples.length; i++, b += 2) {
+      out[b] = samples[i];
+      out[b + 1] = samples[i] >> 8;
+    }
   }
   return out;
 }
@@ -142,6 +171,14 @@ export function resample(
 
 export function convert(buf: Buffer, from: Format, to: Format): Buffer {
   if (from.codec === to.codec && from.rate === to.rate) return buf;
+  // L16 and internal PCM16 at one rate differ only in byte order: a copy and a native swap.
+  // This is the media-node leg's conversion (L16/16000) for every frame in both directions.
+  if (from.rate === to.rate && from.codec !== "pcmu" && to.codec !== "pcmu") {
+    const n = buf.length & ~1;
+    const out = Buffer.allocUnsafe(n);
+    buf.copy(out, 0, 0, n);
+    return out.swap16();
+  }
   return fromSamples(
     resample(toSamples(buf, from.codec), from.rate, to.rate),
     to.codec

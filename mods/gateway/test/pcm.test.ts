@@ -27,6 +27,7 @@ import {
   rms,
   toFrames
 } from "../src";
+import { withTrackId } from "../src/protocols/fonoster";
 
 function wav(samples: Int16Array, rate: number): Buffer {
   const data = Buffer.alloc(samples.length * 2);
@@ -48,7 +49,79 @@ function wav(samples: Int16Array, rate: number): Buffer {
   return Buffer.concat([header, data]);
 }
 
+// The pre-optimization conversion, kept as the reference the fast paths must match exactly.
+function referenceConvert(
+  buf: Buffer,
+  from: { codec: string; rate: number },
+  to: { codec: string; rate: number }
+): Buffer {
+  if (from.codec === to.codec && from.rate === to.rate) return buf;
+  const mulaw = (sample: number) => {
+    const sign = sample < 0 ? 0x80 : 0;
+    const s = Math.min(Math.abs(sample), 32635) + 0x84;
+    let exponent = 7;
+    for (let mask = 0x4000; (s & mask) === 0 && exponent > 0; mask >>= 1)
+      exponent--;
+    return ~(sign | (exponent << 4) | ((s >> (exponent + 3)) & 0x0f)) & 0xff;
+  };
+  const decodeMulaw = (byte: number) => {
+    const u = ~byte & 0xff;
+    const exponent = (u >> 4) & 0x07;
+    const magnitude = ((((u & 0x0f) << 3) + 0x84) << exponent) - 0x84;
+    return u & 0x80 ? -magnitude : magnitude;
+  };
+  let samples: Int16Array;
+  if (from.codec === "pcmu") samples = Int16Array.from(buf, decodeMulaw);
+  else {
+    samples = new Int16Array(Math.floor(buf.length / 2));
+    for (let i = 0; i < samples.length; i++)
+      samples[i] =
+        from.codec === "l16" ? buf.readInt16BE(i * 2) : buf.readInt16LE(i * 2);
+  }
+  samples = resample(samples, from.rate, to.rate);
+  if (to.codec === "pcmu") return Buffer.from(Array.from(samples, mulaw));
+  const out = Buffer.alloc(samples.length * 2);
+  for (let i = 0; i < samples.length; i++) {
+    if (to.codec === "l16") out.writeInt16BE(samples[i], i * 2);
+    else out.writeInt16LE(samples[i], i * 2);
+  }
+  return out;
+}
+
 describe("@gateway/audio", function () {
+  it("converts exactly as the reference between every format pair", function () {
+    const formats = [
+      { codec: "pcm16", rate: 8000 },
+      { codec: "pcm16", rate: 16000 },
+      { codec: "pcm16", rate: 24000 },
+      { codec: "l16", rate: 16000 },
+      { codec: "l16", rate: 8000 },
+      { codec: "pcmu", rate: 8000 }
+    ] as const;
+    // Every 16-bit pattern, including the extremes, plus an odd trailing byte.
+    const all = Buffer.alloc(65536 * 2 + 1);
+    for (let u = 0; u < 65536; u++) all.writeUInt16LE(u, u * 2);
+    all[all.length - 1] = 0x7f;
+    for (const from of formats)
+      for (const to of formats)
+        expect(
+          convert(all, from, to).equals(referenceConvert(all, from, to)),
+          `${from.codec}/${from.rate} -> ${to.codec}/${to.rate}`
+        ).to.equal(true);
+  });
+
+  it("converts without touching its input", function () {
+    const be = Buffer.from([0x01, 0x02, 0x03, 0x04]);
+    convert(be, { codec: "l16", rate: 16000 }, { codec: "pcm16", rate: 16000 });
+    expect(be).to.deep.equal(Buffer.from([0x01, 0x02, 0x03, 0x04]));
+  });
+
+  it("prefixes app audio frames with their track id", function () {
+    expect(withTrackId(2, Buffer.from([7, 8]))).to.deep.equal(
+      Buffer.from([2, 7, 8])
+    );
+  });
+
   it("parses codec names", function () {
     expect(parseCodec("L16/16000")).to.deep.equal({
       codec: "l16",

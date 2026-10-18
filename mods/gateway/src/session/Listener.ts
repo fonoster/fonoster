@@ -19,7 +19,11 @@
 import { publicWebSocketGuard, SessionStart } from "@fonoster/common";
 import WebSocket from "ws";
 import { convert, INTERNAL, parseCodec } from "../audio/pcm";
-import { AGENT_TRACK_ID, CALLER_TRACK_ID } from "../protocols/fonoster";
+import {
+  AGENT_TRACK_ID,
+  CALLER_TRACK_ID,
+  withTrackId
+} from "../protocols/fonoster";
 import { AppBinding, signatureHeaders } from "../signing";
 
 export type ListenerTracks = "inbound" | "outbound" | "both";
@@ -109,10 +113,7 @@ export class Listener {
   private audio(track: number, frame: Buffer) {
     if (this.open)
       this.socket.send(
-        Buffer.concat([
-          Buffer.from([track]),
-          convert(frame, INTERNAL, this.format)
-        ])
+        withTrackId(track, convert(frame, INTERNAL, this.format))
       );
   }
 }
