@@ -18,6 +18,7 @@
  */
 import { Roomr, Sessions } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
+import { status } from "@grpc/grpc-js";
 import type { KV } from "nats";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -32,16 +33,23 @@ export const PLACEMENT_STALE_MS = 10_000;
 const SWEEP_EVERY_MS = 2_000;
 
 /**
- * Placements in the session registry (decision 3): before each RPC that could start a call, the
- * placing replica writes `placements.<callRef>` = { callRef, nodeRef, controlAddr, roomRef? } and
- * deletes it once CreateCall has answered (or the placement failed). Every replica follows the
- * entries; one that sits unchanged for `staleMs` belongs to a replica that died mid-placement,
- * and the sweep ends its call and room on the node (EndCall, EndRoom; NOT_FOUND is fine) and
- * deletes it. Registry writes are best effort and never fail a placement.
+ * Placements in the session registry (control-plane "Outbound calls are registered before they
+ * are placed"): before each RPC that could start a call, the placing replica writes
+ * `placements.<callRef>` = { callRef, nodeRef, controlAddr, roomRef? }, rewrites it when it moves
+ * to another node, and deletes it once CreateCall has answered (or the placement failed). Every
+ * replica follows the entries; one that sits unchanged for `staleMs` belongs to a replica that
+ * died mid-placement (its API caller got no answer, so the call must not go on). The sweep
+ * removes it, and reports the call FAILED (`failed`), when its node is down or answers
+ * `NOT_FOUND` for the call; a call the node does hold is ended (EndCall, then EndRoom for the
+ * room made for it). Registry writes are best effort and never fail a placement.
  */
 export async function createPlacementSweep(deps: {
   kv: KV;
   roomr: Roomr.RoomrCalls;
+  /** Whether the node is live (fresh heartbeat); a down node's placements fail at once. */
+  nodeUp?: (nodeRef: string) => boolean;
+  /** The call never got placed: its record ends FAILED (TrackCall). */
+  failed?: (callRef: string) => unknown;
   staleMs?: number;
   now?: () => number;
 }) {
@@ -76,16 +84,22 @@ export async function createPlacementSweep(deps: {
       seen.delete(id);
       const callRef = String(p.value.callRef ?? id);
       const addr = String(p.value.controlAddr ?? "");
+      const nodeRef = String(p.value.nodeRef ?? "");
       logger.warn(
-        `outbound call ${callRef} was left mid-placement on ${p.value.nodeRef}; ending it`
+        `outbound call ${callRef} was left mid-placement on ${nodeRef}; sweeping it`
       );
-      if (addr) {
-        await deps.roomr.endCall(addr, { callRef }).catch(() => undefined);
+      let notFound = !addr || deps.nodeUp?.(nodeRef) === false;
+      if (!notFound) {
+        notFound = await deps.roomr.endCall(addr, { callRef }).then(
+          () => false,
+          (e) => e instanceof Roomr.RoomrError && e.code === status.NOT_FOUND
+        );
         if (typeof p.value.roomRef === "string" && p.value.roomRef)
           await deps.roomr
             .endRoom(addr, { roomRef: p.value.roomRef })
             .catch(() => undefined);
       }
+      if (notFound) await deps.failed?.(callRef);
       await write(id);
       ended.push(callRef);
     }

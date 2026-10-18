@@ -221,6 +221,25 @@ describe("@apiserver[outbound/createNodeDirectory]", function () {
     expect(nodes.pick(new Set(), "ap-south")).to.equal(undefined);
   });
 
+  it("ignores cpu_idle: a busy CPU below its room limit is still the best node", function () {
+    const nodes = createNodeDirectory();
+    nodes.note({
+      type: "node.heartbeat",
+      node_ref: "busy-cpu",
+      rooms: 1,
+      cpu_idle: 0.02,
+      control_addr: "a1"
+    });
+    nodes.note({
+      type: "node.heartbeat",
+      node_ref: "idle-cpu",
+      rooms: 9,
+      cpu_idle: 0.99,
+      control_addr: "a2"
+    });
+    expect(nodes.pick()).to.equal("busy-cpu");
+  });
+
   it("offers only nodes with a control address", function () {
     const nodes = createNodeDirectory();
     nodes.note({ type: "node.heartbeat", node_ref: "old", rooms: 0 });
@@ -724,27 +743,43 @@ describe("@apiserver[outbound/runOutboundCalls] with the session registry", func
 
       // A placer that died after CreateCall: its entry stays; another replica's sweep ends it.
       let now = Date.now();
+      const failed: string[] = [];
+      const down = new Set<string>(["gone-node"]);
       sweeper = await createPlacementSweep({
         kv,
         roomr,
+        nodeUp: (ref) => !down.has(ref),
+        failed: (ref) => failed.push(ref),
         staleMs: 1000,
         now: () => now
       });
+      // Killed after CreateCall reached the node: the call is ended (the API caller got no
+      // answer), not reported FAILED by the sweep (the node's call.ended says how it ended).
       const lost = `lost-${Date.now()}`;
       await roomr.createCall(f.controlAddr, {
         callRef: lost,
         to: { uri: "sip:+1@routr" }
       });
       await placer.placing(lost, f.nodeRef, f.controlAddr, `room-${lost}`);
+      // Killed between the registry write and the RPC: NOT_FOUND on the node; and a placement
+      // on a node that is down since.
+      const early = `early-${Date.now()}`;
+      await placer.placing(early, f.nodeRef, f.controlAddr);
+      const orphan = `orphan-${Date.now()}`;
+      await placer.placing(orphan, "gone-node", "127.0.0.1:1");
       await new Promise((r) => setTimeout(r, 200));
       expect(await sweeper.sweep()).to.deep.equal([]);
       now += 1500;
-      expect(await sweeper.sweep()).to.deep.equal([lost]);
+      expect((await sweeper.sweep()).sort()).to.deep.equal(
+        [lost, early, orphan].sort()
+      );
       expect(f.calls.get(lost)?.call.state).to.equal("ENDED");
       expect(f.of("EndCall")).to.deep.include({ callRef: lost });
-      expect(await Sessions.getSession(kv, "placements", lost)).to.equal(
-        undefined
-      );
+      expect(failed.sort()).to.deep.equal([early, orphan].sort());
+      for (const ref of [lost, early, orphan])
+        expect(await Sessions.getSession(kv, "placements", ref)).to.equal(
+          undefined
+        );
     } finally {
       sweeper?.stop();
       stopWatch();

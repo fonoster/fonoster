@@ -132,6 +132,11 @@ export function createNodeDirectory(
       if (code === "draining") n.draining = true;
       else n.maxRooms = Math.min(n.maxRooms ?? n.rooms, n.rooms);
     },
+    /** Whether the node's last heartbeat is fresh (it is not down). */
+    live(nodeId: string): boolean {
+      const n = nodes.get(nodeId);
+      return !!n && now() - n.seenAt <= staleMs;
+    },
     /** The node's Roomr address (control_addr), if known. */
     addressOf(nodeId: string): string | undefined {
       return nodes.get(nodeId)?.controlAddr;

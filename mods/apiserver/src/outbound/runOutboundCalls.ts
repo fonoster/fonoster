@@ -139,6 +139,12 @@ export async function runOutboundCalls(config: {
     sweep = await createPlacementSweep({
       kv,
       roomr,
+      nodeUp: (nodeRef) => nodes.live(nodeRef),
+      failed: (ref) =>
+        nc.publish(
+          callEventsSubject(ref),
+          sc.encode(JSON.stringify({ ref, status: "FAILED" }))
+        ),
       staleMs: config.placementStaleMs
     });
   } catch (e) {
