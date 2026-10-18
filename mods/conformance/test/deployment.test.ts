@@ -490,6 +490,52 @@ describe("@conformance/deployment (Helm chart)", function () {
     );
   });
 
+  it("passes the OTLP headers (inline or from a Secret) and protocol to every service", function () {
+    const withEnv = (objs: K8sObject[]) =>
+      objs.filter((o) =>
+        JSON.stringify(o).includes('"name":"OTEL_EXPORTER_OTLP_ENDPOINT"')
+      );
+    const none = withEnv(render("values-cloud.yaml"));
+    expect(none.length).to.be.greaterThan(1);
+    none.forEach((o) =>
+      expect(JSON.stringify(o), o.metadata.name).to.not.contain(
+        "OTEL_EXPORTER_OTLP_HEADERS"
+      )
+    );
+    const inline = withEnv(
+      render(
+        "values-cloud.yaml",
+        "--set=otel.endpoint=https://otlp.example.com",
+        "--set=otel.headers=Authorization=Basic abc",
+        "--set=otel.protocol=http/protobuf"
+      )
+    );
+    expect(inline.length).to.equal(none.length);
+    inline.forEach((o) => {
+      const s = JSON.stringify(o);
+      expect(s, o.metadata.name).to.contain(
+        '"name":"OTEL_EXPORTER_OTLP_HEADERS","value":"Authorization=Basic abc"'
+      );
+      expect(s, o.metadata.name).to.contain(
+        '"name":"OTEL_EXPORTER_OTLP_PROTOCOL","value":"http/protobuf"'
+      );
+    });
+    withEnv(
+      render(
+        "values-cloud.yaml",
+        "--set=otel.endpoint=https://otlp.example.com",
+        "--set=otel.headersSecret.name=otlp-auth",
+        "--set=otel.headersSecret.key=h"
+      )
+    ).forEach((o) => {
+      const s = JSON.stringify(o);
+      expect(s, o.metadata.name).to.contain(
+        '"secretKeyRef":{"name":"otlp-auth","key":"h"}'
+      );
+      expect(s, o.metadata.name).to.not.contain("Authorization=Basic");
+    });
+  });
+
   it("keeps the chart's copies of the Compose configs in sync", function () {
     const same = (a: string, b: string) =>
       expect(fs.readFileSync(path.join(CHART, "files", a), "utf8"), a).to.equal(

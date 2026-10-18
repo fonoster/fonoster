@@ -133,6 +133,21 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     medianode: "medianode"
   };
 
+  const OTLP_PASSTHROUGH = [
+    "OTEL_EXPORTER_OTLP_HEADERS",
+    "OTEL_EXPORTER_OTLP_PROTOCOL"
+  ];
+
+  it("passes the OTLP headers and protocol through to every service that gets the endpoint", function () {
+    const env = readEnvFile(path.join(BUNDLE, ".env.example"));
+    for (const k of OTLP_PASSTHROUGH) expect(env.has(k), k).to.equal(true);
+    for (const [svc, s] of Object.entries(services)) {
+      if (!s.environment?.OTEL_EXPORTER_OTLP_ENDPOINT) continue;
+      for (const k of OTLP_PASSTHROUGH)
+        expect(s.environment[k], `${svc}: ${k}`).to.equal(`\${${k}:-}`);
+    }
+  });
+
   /** The ${NAME}s a config example names (comments included: optional settings), but `NAME`. */
   const placeholders = (file: string) =>
     new Set(
@@ -156,7 +171,13 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       expect(
         Object.keys(s.environment ?? {}).sort(),
         `${svc}: environment`
-      ).to.deep.equal([...placeholders(`${file}.example.yaml`)].sort());
+      ).to.deep.equal(
+        [
+          ...placeholders(`${file}.example.yaml`),
+          // Read by the OpenTelemetry SDK from the environment, not by the config file.
+          ...OTLP_PASSTHROUGH
+        ].sort()
+      );
       for (const [k, v] of Object.entries(s.environment ?? {}))
         expect(v, `${svc}: ${k}`).to.match(
           new RegExp(`^\\$\\{${k}(:[-?].*)?\\}$`)
@@ -447,6 +468,8 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       if (v === "") example.set(k, `x${k.length}secret${k}`);
     example.set("HOST_IP", "192.0.2.10");
     example.set("OTEL_EXPORTER_OTLP_ENDPOINT", "");
+    example.set("OTEL_EXPORTER_OTLP_HEADERS", "");
+    example.set("OTEL_EXPORTER_OTLP_PROTOCOL", "");
     example.set(
       "ENCRYPTION_KEY",
       "k1.aesgcm256.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="

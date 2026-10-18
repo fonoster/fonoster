@@ -40,6 +40,13 @@ natsRegions:
 # observability.enabled points every service at the chart's collector.
 otel:
   endpoint: ""
+  # For a hosted collector (Grafana Cloud, Honeycomb, ...): OTEL_EXPORTER_OTLP_HEADERS as
+  # "key=value,key=value". Prefer headersSecret (a Secret and key holding that string) so the
+  # credential is not in values; it wins over headers.
+  headers: ""
+  headersSecret: { name: "", key: headers }
+  # OTEL_EXPORTER_OTLP_PROTOCOL; the services export OTLP over HTTP. Empty leaves it unset.
+  protocol: ""
 
 # The default observability profile (OTel collector, Prometheus, Loki, Tempo, Grafana). Off by
 # default; values-observability.yaml turns it on. Single replica, emptyDir storage: for trials.

@@ -72,8 +72,25 @@ The services also read these standard OpenTelemetry variables:
 | `OTEL_SERVICE_NAME` | Replaces the `service.name` above |
 | `OTEL_SDK_DISABLED` | `true` turns telemetry off |
 
-Compose passes only `OTEL_EXPORTER_OTLP_ENDPOINT` from `.env`. To pass another one, add it to the
-service's `environment` in a Compose file of your own (see the next section for how to add one).
+Compose passes `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_EXPORTER_OTLP_HEADERS` and
+`OTEL_EXPORTER_OTLP_PROTOCOL` from `.env` to each of those services. For a hosted collector that
+needs an auth header (Grafana Cloud, Honeycomb), set both in `.env` (and keep the file private, it
+holds a credential):
+
+```bash
+OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-us-east-0.grafana.net/otlp
+OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic%20<base64 of instance:token>
+```
+
+With Helm, set `otel.endpoint` and either `otel.headers` or, to keep the credential out of values,
+`otel.headersSecret.name` (and `.key`, default `headers`) pointing at a Secret that holds the string.
+To pass any other variable, add it to the service's `environment` in a Compose file of your own (see
+the next section for how to add one).
+
+The hosted Autopilot reports `autopilot.session` (a child of the voice gateway's call span, so one
+trace covers the call), `autopilot.turn` (the caller's final transcript to the end of the reply) and
+`autopilot.llm.request` spans, plus `fonoster.autopilot.turns`, `fonoster.autopilot.llm.requests`
+and `fonoster.autopilot.llm.latency_ms` (the sum of the time to the first token; divide by requests).
 
 ## Try it with a local collector
 

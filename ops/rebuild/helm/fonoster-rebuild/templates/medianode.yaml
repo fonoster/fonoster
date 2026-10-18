@@ -48,6 +48,7 @@ spec:
               valueFrom: { secretKeyRef: { name: {{ $m.routr.passwordSecret | quote }}, key: password, optional: true } }
             {{- include "fonoster-rebuild.natsPasswordEnv" (dict "root" $ "user" "medianode") | nindent 12 }}
             - { name: OTEL_EXPORTER_OTLP_ENDPOINT, value: {{ include "fonoster-rebuild.otlpEndpoint" . | quote }} }
+            {{- include "fonoster-rebuild.otlpExtraEnv" . | nindent 12 }}
             - { name: OTEL_SERVICE_NAME, value: fonoster-medianode }
           ports:
             - { name: sip-udp, containerPort: 5060, protocol: UDP }
