@@ -5,7 +5,9 @@
 The apiserver SHALL read its configuration from one `fonoster` file, Autopilot from one
 `autopilot` file, the gateway from one `gateway` file and the media node from one `roomr`
 file. None SHALL read environment variables of its own; values are taken from the file only,
-except values the file explicitly references with `${VAR}`.
+except values the file explicitly references with `${VAR}`. The media node SHALL take no
+command-line flag other than `-config <path>`; every other setting lives in its file, where
+`${VAR}` and `secret://` references still work.
 
 #### Scenario: Explicit path
 
@@ -29,6 +31,10 @@ except values the file explicitly references with `${VAR}`.
 
 - WHEN `fonoster.yaml` and `fonoster.jsonc` exist in the same directory
 - THEN the service refuses to start and names both files
+
+#### Scenario: The media node is configured by its file only
+- WHEN the media node starts with `-config /etc/roomr/roomr.yaml` and any other setting is needed
+- THEN it reads that setting from the file and no other flag exists
 
 #### Scenario: Autopilot ignores the apiserver's database variable
 - WHEN Autopilot's config has no database URL and `APISERVER_DATABASE_URL` is set

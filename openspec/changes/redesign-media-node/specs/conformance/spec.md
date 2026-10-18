@@ -7,8 +7,8 @@ The framework SHALL provide a fake session endpoint (a gRPC `Session.Connect` se
 client), and SHALL run the `kind: media-control` scenario files against the fake media node and
 against the Go node. The suite SHALL cover every `Roomr` RPC, every control-stream message,
 the heartbeat and event subjects, registration templates against the fake registrar, the room
-header with and without a token, mix-minus across SIP, RTP and WebRTC participants, passthrough,
-and the capacity refusal and retry. The 200-room load bar SHALL be re-run with the control stream
+header, mix-minus across SIP and RTP participants, the gRPC health drain, and the capacity
+refusal and retry. The 200-room load bar SHALL be re-run with the control stream
 in place and reported as before, with an Opus run reported separately.
 
 #### Scenario: Node tested alone
@@ -30,8 +30,7 @@ The framework SHALL provide, for the Roomr suite: a gRPC `FakeRoomr` that replac
 of `FakeMediaNode`; a fake session endpoint that can answer, reject, stall (never `Answer` or
 `Ready`) or be killed on cue; a fake controller driving several fake or real nodes; the fake
 registrar, reachable from YAML scenarios; a fake SIP trunk/proxy that records each Request-URI and
-its headers and answers `200`, `486`, `407` or nothing on cue; a headless WebRTC peer (pion) with
-the mix-minus checker; NATS fault injection (drop the connection, drop messages); and config
+its headers and answers `200`, `486`, `407` or nothing on cue; NATS fault injection (drop the connection, drop messages); and config
 overrides that shorten every Roomr timeout and limit so scenarios run in seconds. Scenarios that
 test only the retired NATS command path (`one-replica-claims`, `no-gateway-answers`,
 `command-id-echoed`, `unknown-command-refused`, `ack-carries-results`) SHALL be removed.

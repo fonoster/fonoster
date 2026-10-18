@@ -26,8 +26,9 @@ replicas.
 ### Requirement: Call creation picks the least-loaded media node
 
 When creating an outbound call the control plane SHALL choose, from the media node heartbeats
-(media-control), an eligible node in the target cell: heartbeat younger than 6 seconds, not
-draining, `rooms < max_rooms`, in the call's region. It SHALL score each eligible node as
+(media-control), an eligible node in the target cell: heartbeat younger than 6 seconds (a node
+that stopped heartbeating or said `node.down` is not eligible), `rooms < max_rooms`, in the
+call's region. It SHALL score each eligible node as
 `1 - rooms / max_rooms` and SHALL call `CreateCall` on the highest-scoring node with the callee,
 the carrier proxy and the pass-through headers the proxy routes on (`X-DOD-Number`). When the node
 answers `RESOURCE_EXHAUSTED` or `UNAVAILABLE` the control plane SHALL try the next eligible node,
@@ -35,10 +36,10 @@ up to 3 nodes in all, and SHALL fail the API request synchronously with a capaci
 accepts or none is eligible. It SHALL move to another node only on `RESOURCE_EXHAUSTED` or
 `UNAVAILABLE`; on an ambiguous outcome (deadline exceeded, connection lost after sending) it SHALL
 retry `CreateCall` on the same node with the same `call_ref` and parameters, and SHALL NOT dial the
-call on another node. `cpu_idle` SHALL NOT affect eligibility or score.
+call on another node.
 
 #### Scenario: Least-loaded node chosen
-- **WHEN** heartbeats show node A with 40 rooms of 200, node B with 12 of 200 and node C draining with 3
+- **WHEN** heartbeats show node A with 40 rooms of 200, node B with 12 of 200 and node C whose heartbeats stopped
 - **THEN** `CreateCall` is sent to node B
 
 #### Scenario: Node at its limit skipped
@@ -50,7 +51,7 @@ call on another node. `cpu_idle` SHALL NOT affect eligibility or score.
 - **THEN** the control plane calls `CreateCall` on the next node and the API caller sees one successful call
 
 #### Scenario: No capacity
-- **WHEN** every media node in the cell is draining or at its limit
+- **WHEN** every media node in the cell has stopped heartbeating or is at its limit
 - **THEN** call creation fails with a capacity error before the API request returns and no INVITE is sent
 
 #### Scenario: Timeout retried on the same node
@@ -62,7 +63,8 @@ call on another node. `cpu_idle` SHALL NOT affect eligibility or score.
 
 Internal events, capacity reports, the session registry and webhook dispatch SHALL use NATS: media
 node heartbeats and call events as published messages (media-control), events on JetStream with
-queue groups, the session registry as a JetStream KV bucket, and webhook dispatch as a JetStream
+queue groups, the session registry as a JetStream KV bucket written by the control plane (the
+media node writes nothing to it and uses core NATS only), and webhook dispatch as a JetStream
 consumer. Media commands SHALL NOT travel over NATS: the control plane calls `Roomr` over
 gRPC and the gateway speaks the per-call control stream. Call audio MUST NOT travel over NATS.
 
@@ -93,7 +95,7 @@ subjects keyed by the call, published by the components that observe them: the r
 the call publishes `TRYING` and placement failures on `calls.<callRef>.events`, and the media node
 publishes the call's events (`call.ringing`, `call.answered`, `call.ended`) on
 `roomr.events.<call_ref>` (media-control "Events on NATS are keyed by call with sequence numbers
-and labels"), so `TrackCall` on any replica follows any call.
+and metadata"), so `TrackCall` on any replica follows any call.
 
 #### Scenario: Any replica serves any request
 - **WHEN** a call is created through replica A and `TrackCall` for it is opened through replica B
@@ -119,15 +121,15 @@ and labels"), so `TrackCall` on any replica follows any call.
 
 ### Requirement: Outbound calls are registered before they are placed
 
-The control plane SHALL write the call's `call_ref` → `node_ref` entry to the session registry
-before it calls `CreateCall`, and SHALL update it when it moves to another node. A sweep SHALL
+The control plane SHALL write the call's `placements.<callRef>` entry (`call_ref` → `node_ref`) to
+the session registry before it calls `CreateCall`, and SHALL update it when it moves to another node. A sweep SHALL
 remove an entry, and close its call record with `FAILED`, when the entry's node is down (no
 heartbeat for 6 s, or `node.down`) or the node answers `NOT_FOUND` for the call, so a replica that
 crashes between the write and the RPC leaves nothing behind.
 
 #### Scenario: Entry written first
 - **WHEN** an outbound call is placed
-- **THEN** the registry holds `call_ref` → `node_ref` before the node receives `CreateCall`
+- **THEN** the registry holds `placements.<callRef>` with the `node_ref` before the node receives `CreateCall`
 
 #### Scenario: Replica crashes mid-call creation
 - **WHEN** a replica writes the entry and is killed before `CreateCall` reaches the node
