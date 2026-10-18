@@ -22,7 +22,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { expect } from "chai";
-import { NatsConnection, connect } from "nats";
+import { NatsConnection, Subscription, connect } from "nats";
 import { stringify } from "yaml";
 import {
   CallRecordWriter,
@@ -31,6 +31,7 @@ import {
   verifyRecord
 } from "@fonoster/callrecord";
 import { FakesHarness } from "@fonoster/conformance";
+import { GATEWAY_HEARTBEAT_SUBJECT } from "../src";
 
 // Crash harness (call-record task 1.3, conformance 3.9): kill the gateway process mid-call and
 // check that a sealed, signed record still results, listing what is missing. Needs NATS.
@@ -49,6 +50,16 @@ async function waitFor<T>(
     if (Date.now() > deadline) throw new Error(`timed out waiting for ${what}`);
     await sleep(25);
   }
+}
+
+/** Resolves on the subscription's first message (the spawned gateway is up and claiming calls). */
+async function waitForHeartbeat(sub: Subscription, ms: number) {
+  const timer = setTimeout(() => sub.unsubscribe(), ms);
+  for await (const _ of sub) {
+    clearTimeout(timer);
+    return;
+  }
+  throw new Error(`the gateway sent no heartbeat within ${ms} ms`);
 }
 
 describe("@gateway call record after a crash", function () {
@@ -117,6 +128,11 @@ describe("@gateway call record after a crash", function () {
       }
     };
     fs.writeFileSync(path.join(dir, "gateway.yaml"), stringify(config));
+    // The gateway sends its first heartbeat once it claims call.incoming. A fixed sleep raced
+    // its start-up (module load, NATS connect, the session registry: measured 0.6-4.3 s on a busy
+    // host), and the node gives up on an unclaimed call after 2 x 500 ms.
+    const started = nc.subscribe(GATEWAY_HEARTBEAT_SUBJECT, { max: 1 });
+    await nc.flush();
     gateway = spawn(
       process.execPath,
       [
@@ -128,7 +144,7 @@ describe("@gateway call record after a crash", function () {
         stdio: "ignore"
       }
     );
-    await sleep(1500);
+    await waitForHeartbeat(started, 15000);
 
     const { roomRef } = harness.mediaNode.offerCall({
       from: "+15550001111",
