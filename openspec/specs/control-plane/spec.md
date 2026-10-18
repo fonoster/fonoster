@@ -1,18 +1,18 @@
 # control-plane Specification
 
 ## Purpose
-The apiserver as a stateless control plane and how it places and controls calls on media nodes.
+The apiserver as a stateless control plane and how it places and controls calls on Roomr nodes.
 ## Requirements
 ### Requirement: The gateway is its own TypeScript deployable
 
 The VoiceSessionGateway SHALL run as its own deployable, written in TypeScript, scaled
-independently of the apiserver and the media node. It SHALL host the STT, TTS and audio-filter
+independently of the apiserver and the Roomr node. It SHALL host the STT, TTS and audio-filter
 code that the apiserver runs today, and the apiserver MUST NOT run any of it.
 
 #### Scenario: Scaling gateways alone
-- **WHEN** an operator raises the gateway replica count from 2 to 4 and leaves the apiserver and media nodes unchanged
+- **WHEN** an operator raises the gateway replica count from 2 to 4 and leaves the apiserver and Roomr nodes unchanged
 - **THEN** new sessions are spread across 4 gateway replicas
-- **AND** no apiserver or media node restarts
+- **AND** no apiserver or Roomr node restarts
 
 #### Scenario: No speech in the apiserver
 - **WHEN** a call with STT, TTS and an audio filter runs end to end
@@ -25,7 +25,7 @@ the management gRPC API with the same services and messages as today, Identity,
 `GetCapabilities`, call creation and workspace webhook dispatch. It MUST NOT connect to Asterisk
 ARI, terminate AudioSocket or carry call audio. A call's status events SHALL travel on the call's
 own NATS subject, `calls.<callRef>.events`, published by the components that observe them (the
-replica placing the call publishes `TRYING` and placement failures, the media node the room's
+replica placing the call publishes `TRYING` and placement failures, the Roomr node the room's
 `call.progress`, `call.answered` and `room.ended`), so `TrackCall` on any replica follows any
 call.
 
@@ -42,17 +42,17 @@ call.
 - **THEN** no active call ends and the remaining replicas serve every management request
 
 #### Scenario: TrackCall always ends
-- **WHEN** a TrackCall stream is open and its client goes away, a second TrackCall opens for the same call, the call's media node misses 3 heartbeats (or says `node.down`), no node takes the call within 30 s, or no final status comes within the maximum call duration
+- **WHEN** a TrackCall stream is open and its client goes away, a second TrackCall opens for the same call, the call's Roomr node misses 3 heartbeats (or says `node.down`), no node takes the call within 30 s, or no final status comes within the maximum call duration
 - **THEN** the replica forgets the first case's stream, serves both streams in the second, and ends the stream with `FAILED` in the others
 
 #### Scenario: Call status survives the placing replica
 - **WHEN** the replica that placed a call is killed while the call rings, and `TrackCall` for the call runs on another replica
 - **THEN** that `TrackCall` still receives `ANSWER` when the callee answers, and ends when the room ends
 
-### Requirement: Call creation picks the least-loaded media node
+### Requirement: Call creation picks the least-loaded Roomr node
 
 When creating an outbound call the control plane SHALL choose, from the session registry, the
-media node in the target cell with the fewest active sessions that is not draining and is below
+Roomr node in the target cell with the fewest active sessions that is not draining and is below
 the session limit its heartbeat reports, and SHALL send it the `media-control` commands that
 create the room and dial the callee. When the chosen node refuses `room.create` because it is
 full or draining, or does not reply, the control plane SHALL try the next eligible node, at most
@@ -65,7 +65,7 @@ node is eligible or every node tried refuses, `CreateCall` SHALL fail at once wi
 - **THEN** the call is placed on node B
 
 #### Scenario: No capacity
-- **WHEN** every media node in the cell is draining or at its limit
+- **WHEN** every Roomr node in the cell is draining or at its limit
 - **THEN** call creation fails with a capacity error and no INVITE is sent
 
 #### Scenario: Node at its limit skipped
@@ -73,7 +73,7 @@ node is eligible or every node tried refuses, `CreateCall` SHALL fail at once wi
 - **THEN** the call is placed on node B
 
 #### Scenario: Capacity error is synchronous
-- **WHEN** a client calls `CreateCall` and no media node is eligible
+- **WHEN** a client calls `CreateCall` and no Roomr node is eligible
 - **THEN** `CreateCall` fails with `RESOURCE_EXHAUSTED` instead of returning a ref whose `TrackCall` reports `FAILED` later
 
 #### Scenario: A full node sends the call to the next one
@@ -90,7 +90,7 @@ CreateCall SHALL accept `from` only as an E.164 number that is one of the caller
 Numbers, because `from` travels as `X-Dod-Number` and picks the trunk the call leaves by. `to` SHALL
 be an E.164 number, a SIP user or a `sip:`/`sips:` URI without parameters. A malformed `from` or
 `to` SHALL fail with `INVALID_ARGUMENT`; a `from` that is not one of the workspace's Numbers (another
-workspace's or none) SHALL fail with `PERMISSION_DENIED`, before any media node is asked.
+workspace's or none) SHALL fail with `PERMISSION_DENIED`, before any Roomr node is asked.
 
 #### Scenario: Another workspace's number
 - **WHEN** workspace A calls CreateCall with `from` set to a Number of workspace B

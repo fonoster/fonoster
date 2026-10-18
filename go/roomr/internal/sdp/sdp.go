@@ -1,4 +1,4 @@
-// Package sdp reads and writes the small subset of SDP the media node needs: one audio stream,
+// Package sdp reads and writes the small subset of SDP the Roomr node needs: one audio stream,
 // its address, codecs and telephone-event.
 package sdp
 
@@ -140,7 +140,7 @@ func (m Media) Choose(supported ...string) (int, string, bool) {
 
 // ChoosePreferred returns the payload type of the first codec in supported (the node's order)
 // that the remote offered, so an offer of PCMU and Opus is answered with Opus whatever its order
-// (redesign-media-node, "Opus preferred when the peer accepts it"; RFC 3264 lets the answerer pick
+// (redesign-roomr, "Opus preferred when the peer accepts it"; RFC 3264 lets the answerer pick
 // any offered codec).
 func (m Media) ChoosePreferred(supported ...string) (int, string, bool) {
 	for _, s := range supported {

@@ -110,7 +110,7 @@ followed by hangup. Each failure SHALL be recorded as an event in the call recor
 A session SHALL end when the caller hangs up, when the app sends `hangup`, when the app closes its
 socket, on transfer, on handoff, on fatal error or on timeout. The gateway SHALL send `session.end`
 with a `reason` (`caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error`, `timeout`) as its
-last message when the socket is still open. The reason SHALL come from the media node's
+last message when the socket is still open. The reason SHALL come from the Roomr node's
 `participant.left` / `room.ended` `reason` (media-control): `caller_hangup` and `callee_hangup`
 map to `caller_hangup`, `max_duration` to `timeout`, `media_timeout` and `node_error` to `error`,
 and a missed node heartbeat to `error`.
@@ -301,7 +301,7 @@ them in the output queue and play them at real-time speed.
 
 A native app SHALL choose its format from this menu: `pcm16` (16-bit little-endian) at 8000, 16000
 or 24000 Hz, or `pcmu` (G.711 μ-law) at 8000 Hz; the default is `pcm16` at 16000 Hz. The format is
-independent of the caller's SIP codec: the media node negotiates PCMU, PCMA, G.722 or Opus with the
+independent of the caller's SIP codec: the Roomr node negotiates PCMU, PCMA, G.722 or Opus with the
 caller and transcodes to the gateway's leg, which is always L16 at 16000 Hz. Opus is not offered
 over WebSocket in v1.
 
@@ -341,7 +341,7 @@ dropped by `clear`.
 The gateway SHALL send `dtmf` with `digit` whenever the caller presses a key, at any point of the
 call. It SHALL accept `dtmf.send` (`id`, `digits`), `transfer` (`id`, `to`, optional `headers`,
 optional `mode`), `transfer.complete` (`id`), `hold` (`id`, optional `music`) and `resume` (`id`)
-and pass them to the media node.
+and pass them to the Roomr node.
 
 A `transfer`'s `to` SHALL be an E.164 number, a SIP user, a `tel:` URI or a `sip:`/`sips:` URI
 without parameters, and its `headers` SHALL be at most 16 custom `X-` headers (name `X-` and up to 64
@@ -350,23 +350,23 @@ The headers the platform routes by (`X-App-Ref`, `X-Call-Ref`, `X-Call-Direction
 `X-Dod-Number`, `X-Dod-Privacy`, `X-Access-Key-Id`, `X-Is-Api-Originated-Type`, `X-Connect-Token`
 and Routr's own `X-Edgeport-Ref`, `X-Gateway-Auth`, `X-Request-Uri`, `X-Session-Count`) are
 reserved, in any case. A transfer that breaks these rules SHALL be refused with `error`
-`bad_message` (`relatesTo` the transfer) and nothing is sent to the media node. The gateway SHALL
+`bad_message` (`relatesTo` the transfer) and nothing is sent to the Roomr node. The gateway SHALL
 add `X-Dod-Number` (the ingress number of an inbound call, the `from` of an outbound one) and
 `X-Access-Key-Id` (the app's workspace) itself, so a transfer to the PSTN leaves by the call's own
 workspace's trunk.
 
 `transfer.mode` SHALL be `cold` (the default), `warm` or `refer`:
 
-- `cold`: the media node dials `to` into the caller's room. When the new party answers, the app's
+- `cold`: the Roomr node dials `to` into the caller's room. When the new party answers, the app's
   session leaves the room and ends with `reason: "transfer"`; the caller and the new party stay in
   the room, and recording continues.
 - `warm`: the caller is put on hold (hold music from the transfer's optional `music`, or
-  silence), the media node dials `to`, and the app and the new party hear each other so the agent
+  silence), the Roomr node dials `to`, and the app and the new party hear each other so the agent
   can brief them. The session ends with `reason: "transfer"` when the app sends
   `transfer.complete` with the transfer's `id`, which connects the caller and the new party. If
   the new party does not answer within 30 seconds, the app receives `error` `transfer_failed` and
   the caller comes back to the app.
-- `refer`: the media node sends a SIP REFER on the caller's leg and leaves the call once the REFER
+- `refer`: the Roomr node sends a SIP REFER on the caller's leg and leaves the call once the REFER
   is accepted. The session ends with `reason: "transfer"`, and recording ends at that point.
 
 #### Scenario: Keypress while the agent speaks
@@ -388,17 +388,17 @@ workspace's trunk.
 #### Scenario: Transfer by SIP REFER
 - **WHEN** the app sends `transfer` `{id: "t3", to: "+15551234567", mode: "refer"}` and the REFER is accepted
 - **THEN** the app receives `session.end` with `reason: "transfer"`
-- **AND** the media node no longer carries the call
+- **AND** the Roomr node no longer carries the call
 - **AND** the call record notes that recording ended at the transfer
 
 #### Scenario: Transfer with a reserved header
 - **WHEN** the app sends `transfer` `{id: "t4", to: "+15551234567", headers: {"X-Dod-Number": "+15550009999"}}`
 - **THEN** the app receives `error` with `code: "bad_message"` and `relatesTo: "t4"`
-- **AND** the media node receives no `transfer`
+- **AND** the Roomr node receives no `transfer`
 
 #### Scenario: Transfer headers
 - **WHEN** an inbound call to `+15550002222` in workspace `W1` is transferred with `headers: {"X-Customer-Id": "c-42"}`
-- **THEN** the media node's `transfer` carries `X-Customer-Id: c-42`, `X-Dod-Number: +15550002222` and `X-Access-Key-Id: W1`
+- **THEN** the Roomr node's `transfer` carries `X-Customer-Id: c-42`, `X-Dod-Number: +15550002222` and `X-Access-Key-Id: W1`
 
 #### Scenario: Failed transfer
 - **WHEN** the transfer target cannot be reached
@@ -490,17 +490,17 @@ whose `data` is missing or too large SHALL be answered with `error` `bad_message
 #### Scenario: Autopilot records a turn trace
 - **WHEN** an app sends `{ "type": "record.note", "data": { "kind": "turn", "firstTokenMs": 420 } }`
 - **THEN** the call record contains that note with its timestamp
-- **AND** nothing is sent to the media node and no event is sent to the app
+- **AND** nothing is sent to the Roomr node and no event is sent to the app
 
-### Requirement: The media node receives only control
+### Requirement: The Roomr node receives only control
 
-The gateway SHALL send the media node only call-control commands through the `media-control`
+The gateway SHALL send the Roomr node only call-control commands through the `media-control`
 contract (answer, hangup, transfer, hold, resume, send DTMF, attach listener) and SHALL receive from it caller audio and call events. Speech,
 turn detection, format conversion and the output queue MUST stay in the gateway.
 
-#### Scenario: Speech never reaches the media node
+#### Scenario: Speech never reaches the Roomr node
 - **WHEN** an app sends `speak`
-- **THEN** the media node receives only audio frames for playout, never text or a speech command
+- **THEN** the Roomr node receives only audio frames for playout, never text or a speech command
 
 ### Requirement: The gateway produces call lifecycle events
 

@@ -4,7 +4,7 @@
 #   docker compose up -d                              start
 #   npx -p @fonoster/common fonoster-config info     dashboard URL, owner login, SIP address
 #
-# Services: NATS, Postgres, Routr, RTPEngine, the media node, the voice gateway, MinIO, the API
+# Services: NATS, Postgres, Routr, RTPEngine, the Roomr node, the voice gateway, MinIO, the API
 # server (with Identity), Envoy, the dashboard and the hosted Autopilot.
 #
 # Every Fonoster service reads one YAML file, mounted at /config/<service>.yaml from config/
@@ -113,7 +113,7 @@ services:
     environment:
       RTPENGINE_PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
       RTPENGINE_PORT_MAX: ${RTPENGINE_PORT_MAX:-10999}
-      # Written in SDP for both sides of a call: an address the media node and the far end reach.
+      # Written in SDP for both sides of a call: an address the Roomr node and the far end reach.
       RTPENGINE_PUBLIC_IP: ${HOST_IP}
     ports:
       - "${RTPENGINE_PORT_MIN:-10000}-${RTPENGINE_PORT_MAX:-10999}:${RTPENGINE_PORT_MIN:-10000}-${RTPENGINE_PORT_MAX:-10999}/udp"
@@ -121,7 +121,7 @@ services:
       default:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.41
 
-  # The media node: config/roomr.yaml.
+  # The Roomr node: config/roomr.yaml.
   roomr:
     image: fonoster/roomr:${FONOSTER_VERSION:?set FONOSTER_VERSION}
     restart: unless-stopped

@@ -18,16 +18,16 @@
  */
 import { expect } from "chai";
 import { NatsConnection, StringCodec, connect } from "nats";
-import { FakeMediaNode, INCOMING_SUBJECT } from "../src";
+import { FakeNatsRoomr, INCOMING_SUBJECT } from "../src";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 // Needs a NATS server; set CONFORMANCE_NATS_URL (e.g. nats://127.0.0.1:4222) to run.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
-describe("@conformance/FakeMediaNode over NATS", function () {
+describe("@conformance/FakeNatsRoomr over NATS", function () {
   let nc: NatsConnection;
-  let node: FakeMediaNode;
+  let node: FakeNatsRoomr;
 
   before(async function () {
     if (!NATS_URL) return this.skip();
@@ -43,7 +43,7 @@ describe("@conformance/FakeMediaNode over NATS", function () {
   });
 
   it("answers media-control requests and publishes events", async function () {
-    node = new FakeMediaNode({ nodeId: `test-${Date.now()}` });
+    node = new FakeNatsRoomr({ nodeId: `test-${Date.now()}` });
     const subjects = node.attachNats(nc);
     const sc = StringCodec();
     const events: Record<string, unknown>[] = [];
@@ -96,7 +96,7 @@ describe("@conformance/FakeMediaNode over NATS", function () {
   });
 
   it("refuses a call no gateway claims with 503", async function () {
-    node = new FakeMediaNode({
+    node = new FakeNatsRoomr({
       nodeId: `unclaimed-${Date.now()}`,
       claimTimeoutMs: 50
     });
@@ -113,7 +113,7 @@ describe("@conformance/FakeMediaNode over NATS", function () {
   });
 
   it("publishes heartbeats and node.down", async function () {
-    node = new FakeMediaNode({ nodeId: `beat-${Date.now()}`, heartbeatMs: 30 });
+    node = new FakeNatsRoomr({ nodeId: `beat-${Date.now()}`, heartbeatMs: 30 });
     const sc = StringCodec();
     const seen: Record<string, unknown>[] = [];
     const sub = nc.subscribe(`roomr.nodes.${node.nodeId}.heartbeat`, {

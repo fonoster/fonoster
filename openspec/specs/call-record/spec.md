@@ -38,7 +38,7 @@ A sealed call record SHALL contain:
 - the turn decisions with their outcomes
 - any provider substitution or deprecation warning
 
-SIP traces are out of scope for the first release (media-node MN10, owner decision 2026-10-15).
+SIP traces are out of scope for the first release (roomr MN10, owner decision 2026-10-15).
 
 It SHALL NOT contain full log output, LLM prompts or responses, or per-turn audio clips.
 
@@ -243,7 +243,7 @@ and MUST NOT include record contents in the webhook. Continuous export is not pa
 ### Requirement: Calls that never reach an app get a minimal record
 
 The platform SHALL seal a minimal record for every call that never reaches an app: rejected,
-busy, unanswered, app unreachable after retry and fallback, or lost to a media node crash before a
+busy, unanswered, app unreachable after retry and fallback, or lost to a Roomr node crash before a
 session opens. The gateway that owns the call writes it (voice-session). The record holds the
 parties, timing and failure reason (from media-control's `reason` and `sipStatus`, or
 `app_unreachable`, `no_app` or `node_error`). It MUST NOT contain a recording or transcript,

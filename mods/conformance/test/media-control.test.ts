@@ -18,10 +18,10 @@
  */
 import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
-import { loadScenarios, MediaNodeHarness, runScenario } from "../src";
+import { loadScenarios, RoomrHarness, runScenario } from "../src";
 
-// media-control scenarios (add-media-node task 1.0) against the FakeMediaNode over NATS. The Go
-// media node will run the same files with a SIP caller bot as its harness. Needs NATS: set
+// media-control scenarios (add-roomr task 1.0) against the FakeNatsRoomr over NATS. The Go
+// Roomr node will run the same files with a SIP caller bot as its harness. Needs NATS: set
 // CONFORMANCE_NATS_URL (e.g. nats://127.0.0.1:4222).
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
@@ -40,7 +40,7 @@ describe("@conformance media-control scenarios (fake node)", function () {
 
   for (const scenario of loadScenarios("media-control")) {
     it(scenario.name, async function () {
-      const harness = await new MediaNodeHarness(nc).start();
+      const harness = await new RoomrHarness(nc).start();
       try {
         const result = await runScenario(scenario, {
           harness,

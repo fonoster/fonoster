@@ -1,6 +1,6 @@
 // Package caller is a SIP caller bot for conformance tests: it places calls (adding Routr's
 // X-App-Ref headers itself), sends tones and RFC 4733 keypresses, records what it hears and the
-// SIP statuses it receives, and hangs up (add-conformance-framework 2.5, add-media-node 1.1).
+// SIP statuses it receives, and hangs up (add-conformance-framework 2.5, add-roomr 1.1).
 package caller
 
 import (

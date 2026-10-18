@@ -12,7 +12,7 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-// Events keyed by call (redesign-media-node task 4.3): a second controller replica, on its own
+// Events keyed by call (redesign-roomr task 4.3): a second controller replica, on its own
 // NATS connection, follows a call it did not place on roomr.events.<call_ref>; seq is contiguous
 // and the metadata from CreateCall are echoed on every event.
 
@@ -117,7 +117,7 @@ func TestCallEndedCarriesSIPStatusAndCause(t *testing.T) {
 	}
 }
 
-// The heartbeat carries media-control's fields (redesign-media-node task 3.1).
+// The heartbeat carries media-control's fields (redesign-roomr task 3.1).
 func TestHeartbeatFields(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) {
 		c.Version, c.Region, c.ControlAddr, c.SIPAddr = "1.4.0", "us-east", "10.0.0.5:50061", "10.0.0.5:5060"

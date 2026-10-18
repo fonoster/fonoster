@@ -26,12 +26,12 @@ const CONFIG = {
   username: "internal",
   domain: "internal",
   displayName: "Test Call Agent",
-  targetAor: "sip:medianode@default",
+  targetAor: "sip:roomr@default",
   signalingServer: "ws://localhost:8449/sip"
 };
 
 describe("@applications/createTestToken (add-talk-in-browser)", function () {
-  it("signs an RS256 token for the media-node Peer and the caller's workspace", async function () {
+  it("signs an RS256 token for the roomr Peer and the caller's workspace", async function () {
     const { createCreateTestToken } =
       await import("../../src/applications/createCreateTestToken");
     const metadata = new grpc.Metadata();
@@ -44,14 +44,14 @@ describe("@applications/createTestToken (add-talk-in-browser)", function () {
         )
     );
 
-    expect(response.targetAor).to.equal("sip:medianode@default");
+    expect(response.targetAor).to.equal("sip:roomr@default");
     expect(response.signalingServer).to.equal("ws://localhost:8449/sip");
     const payload = jwt.verify(response.token, IDENTITY_PUBLIC_KEY, {
       algorithms: ["RS256"]
     }) as Record<string, unknown>;
     expect(payload).to.include({
-      aorLink: "sip:medianode@default",
-      targetAor: "sip:medianode@default",
+      aorLink: "sip:roomr@default",
+      targetAor: "sip:roomr@default",
       accessKeyId: "WO00000000000000000000000000000001"
     });
     expect(payload.allowedMethods).to.deep.equal(["INVITE"]);

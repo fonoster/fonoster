@@ -3,12 +3,12 @@
 This test runs one real call through Routr into the new stack:
 
 ```
-caller bot ──INVITE sip:+17853178070@trunk.rig.local──▶ Routr ──▶ Go media node ──media-control──▶ gateway ──WebSocket──▶ app
+caller bot ──INVITE sip:+17853178070@trunk.rig.local──▶ Routr ──▶ Go Roomr node ──media-control──▶ gateway ──WebSocket──▶ app
 ```
 
 It checks the parts that only a real Routr can show:
 
-- The media node registers as Peer `medianode` (`sip:medianode@rig.local`, least-sessions), and
+- The Roomr node registers as Peer `roomr` (`sip:roomr@rig.local`, least-sessions), and
   Routr stores its `X-Session-Count`: 0 when idle, 1 during the call, 0 again after it.
 - Routr finds the Trunk by the Request-URI host (`trunk.rig.local`), the Number by the dialed
   number, and sends the call to the Peer whose AOR is the Number's `aorLink`.
@@ -74,13 +74,13 @@ Routr runs in Docker. The node, the caller bot and the gateway run on the host.
 
 | Resource | Values |
 | --- | --- |
-| Credentials | `medianode credentials`: username `medianode` |
-| Peer | `Media nodes`: aor `sip:medianode@rig.local`, `LEAST_SESSIONS`, `maxContacts: -1` |
+| Credentials | `roomr credentials`: username `roomr` |
+| Peer | `Roomr nodes`: aor `sip:roomr@rig.local`, `LEAST_SESSIONS`, `maxContacts: -1` |
 | Trunk | `trunk trunk.rig.local`: inboundUri `trunk.rig.local`, no ACL or inbound credentials |
-| Number | `tel:+17853178070`: aorLink `sip:medianode@rig.local`, trunkRef as above, extra header `x-app-ref: app-rig` |
+| Number | `tel:+17853178070`: aorLink `sip:roomr@rig.local`, trunkRef as above, extra header `x-app-ref: app-rig` |
 
 The code is in `mods/appbridge/test/routr/provision.ts`. It also works as a reference for setting up
-a real media-node Peer.
+a real roomr Peer.
 
 ## Things that tripped the first run
 

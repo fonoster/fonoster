@@ -3,18 +3,18 @@
 ## Purpose
 Calling a voice app from the browser without a phone.
 ## Requirements
-### Requirement: Test tokens target the media nodes
+### Requirement: Test tokens target the Roomr nodes
 
 `Applications.CreateTestToken` SHALL return an RS256 JWT signed with Identity's private key, valid
-for one hour, whose payload has `aorLink` and the response's `targetAor` equal to the media-node
-Peer AOR (`routr.mediaNodePeer.aor`), `allowedMethods` equal to `["INVITE"]`, and `accessKeyId`
+for one hour, whose payload has `aorLink` and the response's `targetAor` equal to the roomr
+Peer AOR (`routr.roomrPeer.aor`), `allowedMethods` equal to `["INVITE"]`, and `accessKeyId`
 equal to the caller's workspace access key. The response's `signalingServer` SHALL be the
 configured `signalingServer`, or, when unset, the `appUrl` origin with `http` replaced by `ws`
 (`https` by `wss`) and the path `/sip`.
 
 #### Scenario: Token for a workspace
 - **WHEN** a workspace member calls `CreateTestToken` with access key `WO123`
-- **THEN** the token verifies with Identity's public key, its `aorLink` is `sip:medianode@default`,
+- **THEN** the token verifies with Identity's public key, its `aorLink` is `sip:roomr@default`,
   its `allowedMethods` is `["INVITE"]` and its `accessKeyId` is `WO123`
 
 #### Scenario: Signaling URL from appUrl
@@ -41,11 +41,11 @@ its own port. Routr SHALL verify connect tokens with Identity's public key.
 
 The platform SHALL route an INVITE sent over the WebSocket to the token's `targetAor`, with
 headers `X-Connect-Token` (a valid test token) and `X-App-Ref` (an agent of the token's
-workspace), to a media node, bridge its WebRTC media (ICE, DTLS-SRTP) to plain RTP through
+workspace), to a Roomr node, bridge its WebRTC media (ICE, DTLS-SRTP) to plain RTP through
 RTPEngine, and run the app named by `X-App-Ref`, like a call from a number.
 
 #### Scenario: Call the saved agent
-- **WHEN** the browser INVITEs `sip:medianode@default` with a valid token and `X-App-Ref` of the
+- **WHEN** the browser INVITEs `sip:roomr@default` with a valid token and `X-App-Ref` of the
   workspace's Autopilot agent
 - **THEN** the call is answered, the hosted Autopilot opens a session for that agent, and the
   browser receives the agent's audio

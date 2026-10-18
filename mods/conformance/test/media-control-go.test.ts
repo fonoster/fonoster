@@ -19,25 +19,25 @@
 import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
 import {
-  buildMediaNode,
+  buildRoomr,
   loadScenarios,
-  MediaNodeBinaries,
-  ProcessMediaNodeHarness,
+  RoomrBinaries,
+  ProcessRoomrHarness,
   runScenario
 } from "../src";
 
-// The same media-control scenarios against the Go media node (go/roomr), with real SIP and
+// The same media-control scenarios against the Go Roomr node (go/roomr), with real SIP and
 // RTP from the caller bot. Needs NATS (CONFORMANCE_NATS_URL) and a Go toolchain.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
-describe("@conformance media-control scenarios (Go media node)", function () {
+describe("@conformance media-control scenarios (Go Roomr node)", function () {
   this.timeout(60000);
   let nc: NatsConnection;
-  let bins: MediaNodeBinaries | undefined;
+  let bins: RoomrBinaries | undefined;
 
   before(async function () {
     if (!NATS_URL) return this.skip();
-    bins = buildMediaNode(NATS_URL);
+    bins = buildRoomr(NATS_URL);
     if (!bins) return this.skip();
     nc = await connect({ servers: NATS_URL });
   });
@@ -48,7 +48,7 @@ describe("@conformance media-control scenarios (Go media node)", function () {
 
   for (const scenario of loadScenarios("media-control")) {
     it(scenario.name, async function () {
-      const harness = new ProcessMediaNodeHarness(nc, bins!);
+      const harness = new ProcessRoomrHarness(nc, bins!);
       try {
         const result = await runScenario(scenario, {
           harness,

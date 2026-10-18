@@ -28,7 +28,7 @@ import {
   loadAmdClassifier
 } from "../src";
 
-// AMD as a voice-worker listener (add-media-node 4.3): an app with `amd` gets one `amd.result`
+// AMD as a voice-worker listener (add-roomr 4.3): an app with `amd` gets one `amd.result`
 // event, classified from the caller's track only, received through media-control
 // listener.attach. Needs NATS.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
@@ -66,8 +66,8 @@ describe("@gateway AMD listener", function () {
 
   beforeEach(async () => {
     harness = await new FakesHarness().start();
-    harness.mediaNode.configure({ callerAudio: { kind: "tone", ms: 600 } });
-    harness.mediaNode.attachNats(nc);
+    harness.roomrNode.configure({ callerAudio: { kind: "tone", ms: 600 } });
+    harness.roomrNode.attachNats(nc);
     record = new MemoryCallRecordSink();
     heard = [];
   });
@@ -127,7 +127,7 @@ describe("@gateway AMD listener", function () {
 
   it("classifies the caller's track and sends amd.result to the session", async function () {
     await start({ amd: { windowMs: 500 } });
-    const { roomRef } = harness.mediaNode.offerCall();
+    const { roomRef } = harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const result = await waitFor(
       () => json(peer).find((m) => m.type === "amd.result"),
@@ -141,7 +141,7 @@ describe("@gateway AMD listener", function () {
     expect(result.audioMs).to.be.within(480, 520);
 
     // One listener with one track: the caller's.
-    const commands = harness.mediaNode.commands.map((c) => c.command);
+    const commands = harness.roomrNode.commands.map((c) => c.command);
     const attach = commands.find((c) => c.type === "listener.attach")!;
     const tracks = attach.tracks as {
       trackId: number;
@@ -150,12 +150,12 @@ describe("@gateway AMD listener", function () {
     expect(tracks).to.have.length(1);
     expect(tracks[0].rtp.codec).to.equal("L16/16000");
     await waitFor(() =>
-      harness.mediaNode.commands.find(
+      harness.roomrNode.commands.find(
         (c) => c.command.type === "listener.detach"
       )
     );
     // The fake honors the detach: the listener's forks are gone (AO-B3).
-    await waitFor(() => harness.mediaNode.activeListeners() === 0);
+    await waitFor(() => harness.roomrNode.activeListeners() === 0);
 
     // The classifier got 16 kHz PCM with the caller's tone in it.
     const pcm = heard[0];
@@ -170,7 +170,7 @@ describe("@gateway AMD listener", function () {
       (e) => (e.message as { type?: string }).type
     );
     expect(types).to.include.members(["amd.started", "amd.result"]);
-    harness.mediaNode.callerHangup(roomRef);
+    harness.roomrNode.callerHangup(roomRef);
   });
 
   it("starts the window when the caller starts speaking, not at answer", async function () {
@@ -182,11 +182,11 @@ describe("@gateway AMD listener", function () {
         Math.round(8000 * Math.sin((2 * Math.PI * 440 * i) / 16000)),
         i * 2
       );
-    harness.mediaNode.configure({
+    harness.roomrNode.configure({
       callerAudio: { pcm16le: Buffer.concat([silence, tone]) }
     });
     await start({ amd: { windowMs: 500 } });
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const result = await waitFor(
       () => json(peer).find((m) => m.type === "amd.result"),
@@ -206,9 +206,9 @@ describe("@gateway AMD listener", function () {
   });
 
   it("reports no_speech when the caller never speaks", async function () {
-    harness.mediaNode.configure({ callerAudio: { kind: "silence", ms: 8000 } });
+    harness.roomrNode.configure({ callerAudio: { kind: "silence", ms: 8000 } });
     await start({ amd: { windowMs: 500 } });
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const result = await waitFor(
       () => json(peer).find((m) => m.type === "amd.result"),
@@ -225,7 +225,7 @@ describe("@gateway AMD listener", function () {
 
   it("reports unknown without a classifier, and nothing for apps without amd", async function () {
     await start({ amd: true }, false);
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const result = await waitFor(
       () => json(peer).find((m) => m.type === "amd.result"),
@@ -239,7 +239,7 @@ describe("@gateway AMD listener", function () {
     gateway = undefined;
 
     await start({});
-    harness.mediaNode.offerCall();
+    harness.roomrNode.offerCall();
     const second = await harness.app.nextConnection();
     await waitFor(() =>
       json(second.peer).find((m) => m.type === "session.start")
@@ -249,7 +249,7 @@ describe("@gateway AMD listener", function () {
       false
     );
     expect(
-      harness.mediaNode.commands.some(
+      harness.roomrNode.commands.some(
         (c) => c.command.type === "listener.attach"
       )
     ).to.equal(false);

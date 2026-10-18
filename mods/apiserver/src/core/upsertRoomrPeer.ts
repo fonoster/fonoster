@@ -20,7 +20,7 @@ import { getLogger } from "@fonoster/logger";
 import { CommonTypes as CT } from "@routr/common";
 import SDK from "@routr/sdk";
 import { CreatePeerRequest } from "@routr/sdk/dist/peers/types";
-import { ROUTR_MEDIA_NODE_PEER } from "../envs";
+import { ROUTR_ROOMR_PEER } from "../envs";
 import { routrConfig } from "./routrConfig";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -29,14 +29,14 @@ const RETRY_DELAY_MS = 5_000;
 const MAX_ATTEMPTS = 60;
 
 /**
- * The peer Go media nodes register under: least-sessions over `X-Session-Count`, any number of
- * nodes (add-media-node 4.1). Created only when `routr.mediaNodePeer.password` is set.
+ * The peer Go Roomr nodes register under: least-sessions over `X-Session-Count`, any number of
+ * nodes (add-roomr 4.1). Created only when `routr.roomrPeer.password` is set.
  */
-async function upsertMediaNodePeer(
+async function upsertRoomrPeer(
   attempt = 1,
   delayMs = RETRY_DELAY_MS
 ): Promise<void> {
-  const { aor, name, username, password } = ROUTR_MEDIA_NODE_PEER;
+  const { aor, name, username, password } = ROUTR_ROOMR_PEER;
   if (!password) return;
   const peers = new SDK.Peers(routrConfig);
   const credentials = new SDK.Credentials(routrConfig);
@@ -59,21 +59,21 @@ async function upsertMediaNodePeer(
     });
     peer.credentialsRef = creds.ref;
     await peers.updatePeer(peer);
-    logger.info("media-node peer created", { peerRef: peer.ref, aor });
+    logger.info("roomr peer created", { peerRef: peer.ref, aor });
   } catch (err: unknown) {
     const error = err as { message: string; code: number };
     if (error.message.includes("already exist")) {
-      logger.info("media-node peer already exists");
+      logger.info("roomr peer already exists");
       return;
     }
     if (error.message.includes("Cannot connect") && attempt < MAX_ATTEMPTS) {
       await new Promise((resolve) => setTimeout(resolve, delayMs));
-      return upsertMediaNodePeer(attempt + 1, delayMs);
+      return upsertRoomrPeer(attempt + 1, delayMs);
     }
-    logger.error(`error creating the media-node peer: ${error.message}`, {
+    logger.error(`error creating the roomr peer: ${error.message}`, {
       code: error.code
     });
   }
 }
 
-export { upsertMediaNodePeer };
+export { upsertRoomrPeer };

@@ -23,9 +23,9 @@ export const GRPC_SERVING_STATUS = "SERVING" as ServingStatus;
 export const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
 export const INFLUXDB_CALLS_BUCKET = "calls";
 export const APP_REF_HEADER = "x-app-ref";
-// The peer app-linked numbers point at: the Go media nodes (least-sessions). Asterisk's
+// The peer app-linked numbers point at: the Go Roomr nodes (least-sessions). Asterisk's
 // sip:voice@default is gone (cleanbreak CB-B3).
-export const ROUTR_DEFAULT_PEER_AOR = "sip:medianode@default";
+export const ROUTR_DEFAULT_PEER_AOR = "sip:roomr@default";
 export const AUTOPILOT_SPECIAL_LOCAL_ADDRESS = "autopilot.fonoster.local";
 export const AUTOPILOT_INTERNAL_ADDRESS = "autopilot:50061";
 export const WELCOME_DEMO_SPECIAL_LOCAL_ADDRESS = "welcome.demo.fonoster.local";

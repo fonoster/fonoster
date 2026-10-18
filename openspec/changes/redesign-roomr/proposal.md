@@ -1,15 +1,15 @@
 ## Why
 
-The media node shipped by `add-media-node` works, but it is wired to Fonoster by name: it reads
+The Roomr node shipped by `add-roomr` works, but it is wired to Fonoster by name: it reads
 `X-App-Ref`, `X-Call-Ref` and `X-DOD-Number`, registers to Routr with `X-Session-Count`, offers
 every inbound call to the gateway replicas over NATS (`gateway.incoming`) and waits for one of
 them to claim it, and takes its commands as NATS request and reply. That coupling makes the node
 hard to reuse outside Fonoster, hard to test alone, and it puts a race (the claim) on the path of
-every call. The design document "Media Node: Target Design" (2026-10-17) settles a different
+every call. The design document "Roomr node: Target Design" (2026-10-17) settles a different
 shape: an isolated, generic mixer that speaks plain SIP and RTP, exposes one small gRPC
 service to its controller, opens one gRPC control stream per call to a configured session
 endpoint, and reports capacity and events on NATS. This change turns that design into
-requirements and supersedes the current `media-node` and `media-control` specs.
+requirements and supersedes the current `roomr` and `media-control` specs.
 
 Roomr is internal-only and is kept as light as possible: network isolation is the security
 boundary, and the change adds no hardening requirements beyond it.
@@ -97,17 +97,17 @@ package of the same name:
 **Chosen: Roomr** (repository `fonoster/roomr`). The room is the node's central idea, and the name
 sits beside Routr as a pair: "Routr routes, Roomr hosts the room." The near-collisions found are
 small and unrelated to telephony. This change uses Roomr as the product name in prose; the
-capability folders stay `media-node` and `media-control`. In code and deployment the node is
+capability folders stay `roomr` and `media-control`. In code and deployment the node is
 `roomr`: the gRPC service `roomr.v1.Roomr`, the Go module `go/roomr`, the image `fonoster/roomr`,
 the config file `roomr.yaml`, the `ROOMR_*` variables and the NATS user `roomr`. Its SIP identity
-at Routr (the Peer `sip:medianode@<domain>`, username `medianode`) is unchanged, since numbers
+at Routr (the Peer `sip:roomr@<domain>`, username `roomr`) is unchanged, since numbers
 already point at it.
 
 ## Capabilities
 
 ### Modified Capabilities
 
-- `media-node`: inbound calls open a control stream instead of a NATS offer; codec order puts Opus
+- `roomr`: inbound calls open a control stream instead of a NATS offer; codec order puts Opus
   first; registration becomes an optional configured capability (renamed from the Routr
   requirement); crash, limits and encryption are restated without component names; "Draining
   nodes take no new rooms" is removed in favour of a health-check drain; the "no recording"
@@ -124,16 +124,16 @@ already point at it.
 - `control-plane`: node selection uses the heartbeat score and retries up to 3 nodes with
   `CreateCall`; NATS no longer carries media commands; the gateway is reachable as a Service; the
   apiserver writes its own `placements.<callRef>` entries.
-- `voice-session`: session ending, "the media node receives only control" and app routing are
+- `voice-session`: session ending, "the Roomr node receives only control" and app routing are
   restated against the control stream (`Start` headers instead of `call.incoming`).
 - `deployment`: the chart allows pod-to-pod RTP, exposes the gateway's session endpoint, guards
   Roomr's ports by network isolation and drains by readiness.
-- `conformance`: a media node suite covering Roomr, the control stream and the mixer.
+- `conformance`: a Roomr node suite covering Roomr, the control stream and the mixer.
 - `developer-environment`, `service-config`: the node is named Roomr: its source is `go/roomr`, its
   dev script `dev:roomr`, its config file `roomr` (the only flag is `-config`) and its variables
   `ROOMR_*`.
 
-Requirements that stay as they are: `media-node` "DTMF is detected three ways" and "Capacity
+Requirements that stay as they are: `roomr` "DTMF is detected three ways" and "Capacity
 bar"; `media-control` "Participants and tracks are kind-neutral".
 
 ## Impact
@@ -152,7 +152,7 @@ bar"; `media-control` "Participants and tracks are kind-neutral".
 - Helm chart and Compose: gateway Service, NetworkPolicy for RTP, gRPC readiness probe, node RTP
   range (Compose publishes only RTP).
 - The open change `fix-config-and-placement-gaps` also modifies control-plane "Call creation
-  picks the least-loaded media node" (skip nodes at their limit). This change's version of that
+  picks the least-loaded Roomr node" (skip nodes at their limit). This change's version of that
   requirement includes the same scenario, so either archive order leaves the spec consistent.
 - Risk: the control stream is new code on every call; it runs beside the NATS offer behind a flag
   until the two measurements in design.md pass.

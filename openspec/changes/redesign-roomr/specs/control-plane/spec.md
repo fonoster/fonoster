@@ -3,17 +3,17 @@
 ### Requirement: The gateway is its own TypeScript deployable
 
 The VoiceSessionGateway SHALL run as its own deployable, written in TypeScript, scaled
-independently of the apiserver and the media node. It SHALL host the STT, TTS and audio-filter
+independently of the apiserver and the Roomr node. It SHALL host the STT, TTS and audio-filter
 code that the apiserver runs today, and the apiserver MUST NOT run any of it. The gateway SHALL
-serve the media node's control stream (`Session.Connect`, media-control) behind one stable session
-endpoint (a Kubernetes Service in Helm, a service name in Compose), which the media node is
+serve the Roomr node's control stream (`Session.Connect`, media-control) behind one stable session
+endpoint (a Kubernetes Service in Helm, a service name in Compose), which the Roomr node is
 configured with; the node opens one connection per call, so the endpoint spreads calls across
 replicas.
 
 #### Scenario: Scaling gateways alone
-- **WHEN** an operator raises the gateway replica count from 2 to 4 and leaves the apiserver and media nodes unchanged
+- **WHEN** an operator raises the gateway replica count from 2 to 4 and leaves the apiserver and Roomr nodes unchanged
 - **THEN** new sessions are spread across 4 gateway replicas
-- **AND** no apiserver or media node restarts
+- **AND** no apiserver or Roomr node restarts
 
 #### Scenario: No speech in the apiserver
 - **WHEN** a call with STT, TTS and an audio filter runs end to end
@@ -21,11 +21,11 @@ replicas.
 
 #### Scenario: Calls spread through the session endpoint
 - **WHEN** 100 inbound calls arrive while 4 gateway replicas sit behind the session endpoint
-- **THEN** the media node opens 100 control streams and more than one replica receives them
+- **THEN** the Roomr node opens 100 control streams and more than one replica receives them
 
-### Requirement: Call creation picks the least-loaded media node
+### Requirement: Call creation picks the least-loaded Roomr node
 
-When creating an outbound call the control plane SHALL choose, from the media node heartbeats
+When creating an outbound call the control plane SHALL choose, from the Roomr node heartbeats
 (media-control), an eligible node in the target cell: heartbeat younger than 6 seconds (a node
 that stopped heartbeating or said `node.down` is not eligible), `rooms < max_rooms`, in the
 call's region. It SHALL score each eligible node as
@@ -51,7 +51,7 @@ call on another node.
 - **THEN** the control plane calls `CreateCall` on the next node and the API caller sees one successful call
 
 #### Scenario: No capacity
-- **WHEN** every media node in the cell has stopped heartbeating or is at its limit
+- **WHEN** every Roomr node in the cell has stopped heartbeating or is at its limit
 - **THEN** call creation fails with a capacity error before the API request returns and no INVITE is sent
 
 #### Scenario: Timeout retried on the same node
@@ -64,7 +64,7 @@ call on another node.
 Internal events, capacity reports, the session registry and webhook dispatch SHALL use NATS: media
 node heartbeats and call events as published messages (media-control), events on JetStream with
 queue groups, the session registry as a JetStream KV bucket written by the control plane (the
-media node writes nothing to it and uses core NATS only), and webhook dispatch as a JetStream
+Roomr node writes nothing to it and uses core NATS only), and webhook dispatch as a JetStream
 consumer. Media commands SHALL NOT travel over NATS: the control plane calls `Roomr` over
 gRPC and the gateway speaks the per-call control stream. Call audio MUST NOT travel over NATS.
 
@@ -92,7 +92,7 @@ the management gRPC API with the same services and messages as today, Identity,
 `GetCapabilities`, call creation and workspace webhook dispatch. It MUST NOT connect to Asterisk
 ARI, terminate AudioSocket or carry call audio. A call's status events SHALL travel on NATS
 subjects keyed by the call, published by the components that observe them: the replica placing
-the call publishes `TRYING` and placement failures on `calls.<callRef>.events`, and the media node
+the call publishes `TRYING` and placement failures on `calls.<callRef>.events`, and the Roomr node
 publishes the call's events (`call.ringing`, `call.answered`, `call.ended`) on
 `roomr.events.<call_ref>` (media-control "Events on NATS are keyed by call with sequence numbers
 and metadata"), so `TrackCall` on any replica follows any call.
@@ -110,7 +110,7 @@ and metadata"), so `TrackCall` on any replica follows any call.
 - **THEN** no active call ends and the remaining replicas serve every management request
 
 #### Scenario: TrackCall always ends
-- **WHEN** a TrackCall stream is open and its client goes away, a second TrackCall opens for the same call, the call's media node misses 3 heartbeats (or says `node.down`), no node takes the call within 30 s, or no final status comes within the maximum call duration
+- **WHEN** a TrackCall stream is open and its client goes away, a second TrackCall opens for the same call, the call's Roomr node misses 3 heartbeats (or says `node.down`), no node takes the call within 30 s, or no final status comes within the maximum call duration
 - **THEN** the replica forgets the first case's stream, serves both streams in the second, and ends the stream with `FAILED` in the others
 
 #### Scenario: Call status survives the placing replica

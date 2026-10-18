@@ -1,11 +1,11 @@
-# media-node Specification
+# roomr Specification
 
 ## Purpose
-The Go media node: SIP and RTP handling, codecs, rooms and recording.
+The Go Roomr node: SIP and RTP handling, codecs, rooms and recording.
 ## Requirements
 ### Requirement: Rooms mix audio for their participants
 
-A room SHALL live on exactly one media node and SHALL mix audio so that each participant receives
+A room SHALL live on exactly one Roomr node and SHALL mix audio so that each participant receives
 the sum of every other participant's audio and never its own (mix-minus). Every participant SHALL
 have one or more tracks, each with a `kind` and a `codec`. In v1 the only supported `kind` SHALL be
 `audio`; a request for any other kind MUST be refused with `unsupported_track_kind` and MUST NOT
@@ -48,8 +48,8 @@ with `503` when no gateway claims it.
 - **THEN** the node refuses it and sends no `call.incoming`
 
 #### Scenario: Chart without trusted sources
-- **WHEN** the Helm chart is rendered with `medianode.trustedSources` empty and `allowAnySource` unset
-- **THEN** rendering fails with a message naming `medianode.trustedSources`
+- **WHEN** the Helm chart is rendered with `roomr.trustedSources` empty and `allowAnySource` unset
+- **THEN** rendering fails with a message naming `roomr.trustedSources`
 
 ### Requirement: Supported codecs
 

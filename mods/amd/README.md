@@ -127,7 +127,7 @@ npm run integration
 
 Asterisk is retired (cleanbreak CB-B6), so the AGI and AudioSocket front end has no caller and its
 Asterisk smoke test is gone. The classifier stays: it moves behind a voice-worker listener in
-`add-media-node` task 4.3.
+`add-roomr` task 4.3.
 
 ## Development
 

@@ -17,7 +17,7 @@ COPY mods/callrecord ./mods/callrecord
 COPY mods/identity-client ./mods/identity-client
 # Vendor adapters (@fonoster/community/<vendor>).
 COPY mods/community ./mods/community
-# AMD (add-media-node 4.3, AO-B2): the classifier and its ONNX model run in the gateway.
+# AMD (add-roomr 4.3, AO-B2): the classifier and its ONNX model run in the gateway.
 COPY mods/streams ./mods/streams
 COPY mods/amd ./mods/amd
 COPY mods/appbridge ./mods/appbridge

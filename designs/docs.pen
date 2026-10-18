@@ -968,7 +968,7 @@
                         {
                           "type": "frame",
                           "id": "oefZ4",
-                          "name": "medianode",
+                          "name": "roomr",
                           "gap": 12,
                           "alignItems": "center",
                           "children": [
@@ -987,7 +987,7 @@
                               "fill": "$ui:text-secondary",
                               "textGrowth": "fixed-width",
                               "width": 120,
-                              "content": "medianode",
+                              "content": "roomr",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 18,
                               "fontWeight": "normal"
@@ -1621,7 +1621,7 @@
                         {
                           "type": "frame",
                           "id": "PmDDN",
-                          "name": "medianode",
+                          "name": "roomr",
                           "gap": 12,
                           "alignItems": "center",
                           "children": [
@@ -1640,7 +1640,7 @@
                               "fill": "$ui:text-secondary",
                               "textGrowth": "fixed-width",
                               "width": 120,
-                              "content": "medianode",
+                              "content": "roomr",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 18,
                               "fontWeight": "normal"
@@ -2155,7 +2155,7 @@
                 {
                   "type": "frame",
                   "id": "x1VzQ7",
-                  "name": "Log medianode",
+                  "name": "Log roomr",
                   "gap": 12,
                   "children": [
                     {
@@ -2165,7 +2165,7 @@
                       "fill": "$ui:text-muted",
                       "textGrowth": "fixed-width",
                       "width": 150,
-                      "content": "[medianode]",
+                      "content": "[roomr]",
                       "fontFamily": "$ui:--font-primary",
                       "fontSize": 19,
                       "fontWeight": "normal"
@@ -2532,7 +2532,7 @@
                 {
                   "type": "frame",
                   "id": "k0AwW",
-                  "name": "Log medianode",
+                  "name": "Log roomr",
                   "gap": 12,
                   "children": [
                     {
@@ -2542,7 +2542,7 @@
                       "fill": "$ui:text-muted",
                       "textGrowth": "fixed-width",
                       "width": 150,
-                      "content": "[medianode]",
+                      "content": "[roomr]",
                       "fontFamily": "$ui:--font-primary",
                       "fontSize": 19,
                       "fontWeight": "normal"
@@ -3225,7 +3225,7 @@
           "id": "afsJF",
           "x": 736,
           "y": 602,
-          "name": "medianode",
+          "name": "roomr",
           "width": 228,
           "height": 64,
           "fill": "$ui:surface-sunken",
@@ -3251,9 +3251,9 @@
               "id": "og88q",
               "x": 52,
               "y": 20,
-              "name": "medianode",
+              "name": "roomr",
               "fill": "$ui:text-primary",
-              "content": "medianode",
+              "content": "roomr",
               "fontFamily": "$ui:--font-secondary",
               "fontSize": 18,
               "fontWeight": "600"
@@ -4679,7 +4679,7 @@
           "id": "P7zNLS",
           "x": 736,
           "y": 602,
-          "name": "medianode",
+          "name": "roomr",
           "width": 228,
           "height": 64,
           "fill": "$ui:surface-sunken",
@@ -4705,9 +4705,9 @@
               "id": "IInAg",
               "x": 52,
               "y": 20,
-              "name": "medianode",
+              "name": "roomr",
               "fill": "$ui:text-primary",
-              "content": "medianode",
+              "content": "roomr",
               "fontFamily": "$ui:--font-secondary",
               "fontSize": 18,
               "fontWeight": "600"

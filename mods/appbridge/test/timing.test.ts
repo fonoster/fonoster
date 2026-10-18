@@ -55,7 +55,7 @@ describe("@gateway timing (T1)", function () {
 
   async function makeRun() {
     const harness = await new FakesHarness({ vendorCalls: () => 0 }).start();
-    harness.mediaNode.attachNats(nc);
+    harness.roomrNode.attachNats(nc);
     const urls = harness.providerUrls;
     const gateway = await new Gateway({
       nats: nc,

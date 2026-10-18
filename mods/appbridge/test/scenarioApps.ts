@@ -121,7 +121,7 @@ export async function placeOutbound(
 ): Promise<Peer> {
   const sc = StringCodec();
   const call = scenario.setup?.call ?? {};
-  const room = await harness.mediaNode.handle({
+  const room = await harness.roomrNode.handle({
     type: "room.create",
     id: "c1"
   });
@@ -130,7 +130,7 @@ export async function placeOutbound(
     OUTBOUND_SUBJECT,
     sc.encode(
       JSON.stringify({
-        nodeId: harness.mediaNode.nodeId,
+        nodeId: harness.roomrNode.nodeId,
         roomRef: room.roomRef,
         appRef: scenario.setup?.media?.appRef ?? "app-1",
         ...(call.callRef ? { callRef: call.callRef } : {}),
@@ -140,7 +140,7 @@ export async function placeOutbound(
     ),
     { timeout: 2000 }
   );
-  await harness.mediaNode.handle({
+  await harness.roomrNode.handle({
     type: "participant.dial",
     id: "d1",
     roomRef: room.roomRef as string,

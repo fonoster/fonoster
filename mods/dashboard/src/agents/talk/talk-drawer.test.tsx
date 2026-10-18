@@ -79,7 +79,7 @@ const TOKEN = {
   domain: "internal",
   displayName: "Test Call Agent",
   signalingServer: "ws://localhost:8449/sip",
-  targetAor: "sip:medianode@default",
+  targetAor: "sip:roomr@default",
   username: "internal"
 };
 
@@ -148,7 +148,7 @@ describe("Talk drawer: browser call", () => {
     expect(sipAgent.options.aor).toBe("sip:internal@internal");
     expect(sipAgent.connect).toHaveBeenCalled();
     expect(sipAgent.call).toHaveBeenCalledWith(
-      "sip:medianode@default",
+      "sip:roomr@default",
       {
         extraHeaders: ["X-App-Ref: ap-7f3c91", "X-Connect-Token: jwt-1"]
       },

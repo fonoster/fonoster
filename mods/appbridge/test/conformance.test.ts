@@ -91,9 +91,9 @@ for (const contract of [
           webhookEvents: () =>
             webhooks.map((e) => ({ type: e.type, ...e.data }))
         }).start();
-        harness.mediaNode.attachNats(nc, {
-          commands: `media.${harness.mediaNode.nodeId}.commands`,
-          events: `media.${harness.mediaNode.nodeId}.events`
+        harness.roomrNode.attachNats(nc, {
+          commands: `media.${harness.roomrNode.nodeId}.commands`,
+          events: `media.${harness.roomrNode.nodeId}.events`
         });
         const gateway = await new Gateway({
           config: configFor(scenario, harness),

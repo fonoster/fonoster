@@ -1,10 +1,10 @@
 ## ADDED Requirements
 
-### Requirement: Media node suite
+### Requirement: Roomr node suite
 
 The framework SHALL provide a fake session endpoint (a gRPC `Session.Connect` server that records
 `Start`, answers or rejects on cue and asserts events) and a fake controller (a `Roomr`
-client), and SHALL run the `kind: media-control` scenario files against the fake media node and
+client), and SHALL run the `kind: media-control` scenario files against the fake Roomr node and
 against the Go node. The suite SHALL cover every `Roomr` RPC, every control-stream message,
 the heartbeat and event subjects, registration templates against the fake registrar, the room
 header, mix-minus across SIP and RTP participants, the gRPC health drain, and the capacity
@@ -12,7 +12,7 @@ refusal and retry. The 200-room load bar SHALL be re-run with the control stream
 in place and reported as before, with an Opus run reported separately.
 
 #### Scenario: Node tested alone
-- **WHEN** the media node suite runs
+- **WHEN** the Roomr node suite runs
 - **THEN** the Go node talks only to the caller bot, the fake registrar, the fake session endpoint, the fake controller and NATS
 - **AND** no gateway, apiserver or Routr process is started
 
@@ -27,7 +27,7 @@ in place and reported as before, with an Opus run reported separately.
 ### Requirement: Roomr fakes cover both sides of every Roomr contract
 
 The framework SHALL provide, for the Roomr suite: a gRPC `FakeRoomr` that replaces the NATS role
-of `FakeMediaNode`; a fake session endpoint that can answer, reject, stall (never `Answer` or
+of `FakeNatsRoomr`; a fake session endpoint that can answer, reject, stall (never `Answer` or
 `Ready`) or be killed on cue; a fake controller driving several fake or real nodes; the fake
 registrar, reachable from YAML scenarios; a fake SIP trunk/proxy that records each Request-URI and
 its headers and answers `200`, `486`, `407` or nothing on cue; NATS fault injection (drop the connection, drop messages); and config

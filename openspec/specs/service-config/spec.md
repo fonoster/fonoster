@@ -6,7 +6,7 @@ How each Fonoster service finds, validates and interpolates its single config fi
 ### Requirement: Each Fonoster service reads one config file
 
 The apiserver SHALL read its configuration from one `fonoster` file, Autopilot from one
-`autopilot` file, the gateway from one `gateway` file and the media node from one `medianode`
+`autopilot` file, the gateway from one `gateway` file and the Roomr node from one `roomr`
 file. None SHALL read environment variables of its own; values are taken from the file only,
 except values the file explicitly references with `${VAR}`.
 
@@ -37,9 +37,9 @@ except values the file explicitly references with `${VAR}`.
 - WHEN Autopilot's config has no database URL and `APISERVER_DATABASE_URL` is set
 - THEN Autopilot does not use it
 
-#### Scenario: The media node ignores deprecated variables
-- WHEN the media node's config omits a value and the matching `MEDIANODE_*` variable is set
-- THEN the media node uses the schema default, not the variable
+#### Scenario: The Roomr node ignores deprecated variables
+- WHEN the Roomr node's config omits a value and the matching `ROOMR_*` variable is set
+- THEN the Roomr node uses the schema default, not the variable
 
 ### Requirement: YAML and JSON with comments are both accepted
 

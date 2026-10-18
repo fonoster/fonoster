@@ -1,4 +1,4 @@
-# roomr.yaml: the cell's media node (one YAML, its only configuration; it reads no ROOMR_*
+# roomr.yaml: the cell's Roomr node (one YAML, its only configuration; it reads no ROOMR_*
 # variables of its own). Each ${NAME} is filled from the container environment compose.yaml sets.
 nodeId: "${ROOMR_ID:-node-a}"
 nats: { url: "nats://nats:4222", user: roomr, password: "secret://env/NATS_ROOMR_PASSWORD" }
@@ -9,9 +9,9 @@ sip:
   # balancer reads X-Session-Count. Dialed calls go out as the same peer.
   registrations:
     - registrar: routr:5060
-      aor: sip:medianode@default
+      aor: sip:roomr@default
       expires: 30s
-      auth: { username: medianode, password: "${ROOMR_PASSWORD}" }
+      auth: { username: roomr, password: "${ROOMR_PASSWORD}" }
       headers: { X-Session-Count: "{sessions}" }
   # Routr's X-Call-Ref names inbound calls; the control plane sends it on dialed calls too.
   callRefHeader: X-Call-Ref

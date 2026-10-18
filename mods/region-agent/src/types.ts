@@ -43,7 +43,7 @@ export type EnrollmentClaims = {
 export type RegionKind = "public" | "private";
 
 export type Components = {
-  mediaNodes: number;
+  roomrNodes: number;
   gateways: number;
   autopilot: boolean;
 };

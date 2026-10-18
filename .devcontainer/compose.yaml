@@ -7,7 +7,7 @@
 # `fonoster-config init` before the containers start (secrets are generated, never committed).
 name: ${COMPOSE_PROJECT_NAME:-fonoster-dev}
 
-# The bundle's network: Routr, RTPEngine and the workspace (standing in for the media node) need
+# The bundle's network: Routr, RTPEngine and the workspace (standing in for the Roomr node) need
 # fixed addresses for SIP and SDP.
 networks:
   default:
@@ -32,7 +32,7 @@ services:
       - go-cache:/home/node/go
       # The keys and the provider catalog at the paths the bundle's config files name. The
       # service files themselves are passed explicitly (npm run dev): mounted at /config they
-      # would also be picked up by the media nodes and gateways the tests start. As in the
+      # would also be picked up by the Roomr nodes and gateways the tests start. As in the
       # bundle, the gateway's path holds Identity's public key and the call-record key only.
       - ../.dev/config/keys:/opt/fonoster/keys:ro
       - ../.dev/config/keys/public.pem:/etc/fonoster/keys/public.pem:ro
@@ -44,7 +44,7 @@ services:
       PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster_test
     networks:
       default:
-        # The media node's fixed address (the bundle's roomr.yaml advertises it; Routr trusts
+        # The Roomr node's fixed address (the bundle's roomr.yaml advertises it; Routr trusts
         # INVITEs from it) and the names the bundle's Envoy and configs use for our services.
         ipv4_address: ${SUBNET_PREFIX}.42
         aliases: [apiserver, gateway, autopilot, roomr, dashboard, fakes]

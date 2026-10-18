@@ -52,7 +52,7 @@ themselves. Third-party containers keep their own configuration.
 
 #### Scenario: Each container gets only its own values
 - **WHEN** the self-host bundle starts
-- **THEN** the media node, gateway and Autopilot containers hold none of the values only another
+- **THEN** the Roomr node, gateway and Autopilot containers hold none of the values only another
   service's file names (for example the apiserver's NATS password or the owner's password)
 - **AND** only the apiserver container mounts `keys/private.pem`; the gateway mounts `public.pem`
   and its call-record key
@@ -75,7 +75,7 @@ nothing.
 
 #### Scenario: Another service's reply stays private
 - **WHEN** the gateway requests a workspace key and the region agent replies
-- **THEN** a media node subscribing to `_INBOX.>` or `_INBOX_gateway.>` is refused and receives nothing
+- **THEN** a Roomr node subscribing to `_INBOX.>` or `_INBOX_gateway.>` is refused and receives nothing
 - **AND** the gateway receives the reply
 
 #### Scenario: Session registry still works
@@ -84,7 +84,7 @@ nothing.
 
 ### Requirement: Every service is a plain container
 
-Every Fonoster deployable (apiserver, VoiceSessionGateway, media node, Autopilot, dashboard) SHALL
+Every Fonoster deployable (apiserver, VoiceSessionGateway, Roomr node, Autopilot, dashboard) SHALL
 be a single container image that needs only its config file, its ports and its dependencies'
 addresses, so it can run on container platforms other than the official targets.
 
@@ -97,7 +97,7 @@ addresses, so it can run on container platforms other than the official targets.
 The Helm chart SHALL enable NATS users (`nats.auth.enabled: true`) by default and SHALL refuse to
 render with auth off unless `nats.auth.allowUnauthenticated: true`. Envoy SHALL NOT allow every
 origin with CORS: only the origins the deployment lists (Compose `CORS_ALLOWED_ORIGINS`, Helm
-`envoy.corsAllowedOrigins`; none by default, the dashboard being same-origin). The media node's
+`envoy.corsAllowedOrigins`; none by default, the dashboard being same-origin). The Roomr node's
 NATS user SHALL only write its session-registry entries (no gets, consumers or consumer deletes).
 No signing or encryption key SHALL be committed; Identity SHALL refuse to start with a key that was
 once published in the repository, or with the example's placeholder encryption key. The media

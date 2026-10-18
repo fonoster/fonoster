@@ -1,5 +1,5 @@
-// Package node is the media node: rooms that mix audio for their participants, driven over
-// media-control (add-media-node/specs/media-control) and fed by SIP legs.
+// Package node is the Roomr node: rooms that mix audio for their participants, driven over
+// media-control (add-roomr/specs/media-control) and fed by SIP legs.
 package node
 
 import (

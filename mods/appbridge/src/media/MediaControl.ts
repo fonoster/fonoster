@@ -80,7 +80,7 @@ export interface MediaControl {
   onNodeStatus(handler: (event: MediaEvent) => void): () => void;
 }
 
-/** Subject media nodes send `call.incoming` requests to. */
+/** Subject Roomr nodes send `call.incoming` requests to. */
 export const INCOMING_SUBJECT = "gateway.incoming";
 /** A node's heartbeat and node.down subject (media-control "Nodes report capacity and liveness"). */
 export const heartbeatSubject = (nodeRef: string) =>
@@ -118,7 +118,7 @@ export class NatsMediaControl implements MediaControl {
     let reply: MediaReply;
     try {
       // The gateway names itself on every command: the node ends the room if this gateway
-      // goes away (media-node "Rooms without an owner end"), also for calls placed over Roomr,
+      // goes away (roomr "Rooms without an owner end"), also for calls placed over Roomr,
       // whose CreateCall names no gateway.
       const body = this.options.gatewayRef
         ? { ...command, gatewayRef: this.options.gatewayRef }

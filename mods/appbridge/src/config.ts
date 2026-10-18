@@ -68,7 +68,7 @@ export type AppConfig = {
   /** Recording policy for this app; overrides the workspace's and the region default. */
   recording?: RecordingPolicy;
   /**
-   * Answering-machine detection (add-media-node 4.3): `true`, or `{windowMs}` of caller audio to
+   * Answering-machine detection (add-roomr 4.3): `true`, or `{windowMs}` of caller audio to
    * classify from when the caller starts speaking (default 4000). The session gets one
    * `amd.result` event.
    */
@@ -97,7 +97,7 @@ export type GatewayConfig = {
    */
   nats: { url: string; user?: string; password?: string };
   /**
-   * The RTP leg to the media node. `srtp: true` encrypts it (SDES keys in participant.add,
+   * The RTP leg to the Roomr node. `srtp: true` encrypts it (SDES keys in participant.add,
    * AES_CM_128_HMAC_SHA1_80); required when the node runs with -require-encryption (MN6).
    */
   rtp?: {

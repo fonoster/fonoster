@@ -37,7 +37,7 @@ export const privateRegion = (
   status: "connected",
   version: "0.28.1",
   lastSeenAt: new Date().toISOString(),
-  mediaNodes: 2,
+  roomrNodes: 2,
   gateways: 1,
   activeCalls: 3,
   sipDomain: "sip.acme.com",

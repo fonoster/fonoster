@@ -111,7 +111,7 @@
 - [ ] 11.3 Mix-minus checker extended to RTP participants
 - [x] 11.4 Fake registrar records header templates per REGISTER
 - [ ] 11.5 Re-run the 200-room load bar on 2 vCPU with the control stream in place; Opus run reported separately; the load generator reads heartbeats
-- [ ] 11.6 gRPC `FakeRoomr` replacing the NATS role of `FakeMediaNode`
+- [ ] 11.6 gRPC `FakeRoomr` replacing the NATS role of `FakeNatsRoomr`
 - [ ] 11.7 Fake session endpoint modes: answer, reject, stall (no `Answer`/`Ready`), kill
 - [ ] 11.8 Fake controller driving several fake nodes
 - [ ] 11.9 Fake registrar reachable from YAML scenarios
@@ -124,7 +124,7 @@
 
 ## 12. Docs and cleanup
 
-- [ ] 12.1 Update `go/roomr/README.md`, `openspec/rebuild.md` (media node line) and the operator docs for the new config keys and ports (the minimal `roomr.yaml` in design.md)
+- [ ] 12.1 Update `go/roomr/README.md`, `openspec/rebuild.md` (Roomr node line) and the operator docs for the new config keys and ports (the minimal `roomr.yaml` in design.md)
 - [ ] 12.2 Remove the NATS offer path and flag once measurements pass; release note for the retired subjects
 
 ## 13. Drain and rollouts

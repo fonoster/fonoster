@@ -76,7 +76,7 @@ our components run from source with reload.
 | Components | Work on the API server        | H    | `hacking/apiserver`           |
 |            | Work on the gateway           | H    | `hacking/gateway`             |
 |            | Work on Autopilot             | H    | `hacking/autopilot`           |
-|            | Work on the media node        | H    | `hacking/roomr`           |
+|            | Work on the Roomr node        | H    | `hacking/roomr`           |
 |            | Work on the dashboard         | H    | `hacking/dashboard`           |
 | Contribute | Run the tests                 | H    | `hacking/tests`               |
 |            | Contributing                  | H    | `hacking/contributing`        |

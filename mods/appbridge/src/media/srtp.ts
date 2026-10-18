@@ -18,7 +18,7 @@
  */
 import * as crypto from "crypto";
 
-/** The one SDES suite media-control uses (media-node MN6, media-control "rtp" block). */
+/** The one SDES suite media-control uses (roomr MN6, media-control "rtp" block). */
 export const SRTP_SUITE = "AES_CM_128_HMAC_SHA1_80";
 
 const KEY_LEN = 16;

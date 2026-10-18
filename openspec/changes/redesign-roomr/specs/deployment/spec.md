@@ -2,9 +2,9 @@
 
 ### Requirement: Media paths are open between the node and the gateway
 
-The Helm chart SHALL expose the gateway's control-stream port as a Service that the media node is
+The Helm chart SHALL expose the gateway's control-stream port as a Service that the Roomr node is
 configured with as its session endpoint, and SHALL ship a NetworkPolicy that allows UDP between the
-media node's and the gateway's RTP port ranges and TCP from the node to the gateway's control port.
+Roomr node's and the gateway's RTP port ranges and TCP from the node to the gateway's control port.
 Both targets SHALL document the node's external RTP range and the one-node-per-host or
 non-overlapping-ranges rule for host networking. Compose SHALL reach the same result with its
 service names and SHALL publish only the node's RTP range.
@@ -36,7 +36,7 @@ control port or the SIP port on the host.
 ### Requirement: Rolling deploys drop no calls
 
 The Helm chart SHALL give the gateway and Roomr a `terminationGracePeriodSeconds` at least their
-drain maximum wait (control-plane "The gateway drains on SIGTERM", media-node "Draining is a health
+drain maximum wait (control-plane "The gateway drains on SIGTERM", roomr "Draining is a health
 signal with a bounded wait"), a readiness probe that fails while draining (for Roomr, the gRPC
 health check on its control port), and a PodDisruptionBudget each. Neither gRPC server SHALL set a
 maximum connection age.

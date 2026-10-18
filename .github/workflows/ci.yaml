@@ -109,7 +109,7 @@ jobs:
         run: npm test
 
   go:
-    name: go media node
+    name: go Roomr node
     needs: changes
     if: needs.changes.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest

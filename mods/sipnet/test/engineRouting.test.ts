@@ -27,7 +27,7 @@ import sinonChai from "sinon-chai";
 import {
   createNumberRouting,
   LEGACY_ASTERISK_PEER_AOR,
-  MEDIA_NODE_PEER_AOR
+  ROOMR_PEER_AOR
 } from "../src/numbers/engineRouting";
 import { RoutrNumber, repointNumbers } from "../src/numbers/repointNumbers";
 import { TEST_TOKEN } from "./testToken";
@@ -46,19 +46,19 @@ const sandbox = createSandbox();
 describe("@sipnet[numbers/engineRouting]", function () {
   afterEach(() => sandbox.restore());
 
-  it("points every app-linked number at the media nodes", async function () {
+  it("points every app-linked number at the Roomr nodes", async function () {
     const routing = createNumberRouting();
-    expect(ROUTR_DEFAULT_PEER_AOR).to.equal("sip:medianode@default");
-    expect(await routing.aorFor({ appRef: "a" })).to.equal(MEDIA_NODE_PEER_AOR);
+    expect(ROUTR_DEFAULT_PEER_AOR).to.equal("sip:roomr@default");
+    expect(await routing.aorFor({ appRef: "a" })).to.equal(ROOMR_PEER_AOR);
     expect(await routing.engineFor({ appRef: "b" })).to.equal("rebuild");
     expect(
-      await createNumberRouting({ mediaNodeAor: "sip:mn@x" }).aorFor({
+      await createNumberRouting({ roomrNodeAor: "sip:mn@x" }).aorFor({
         appRef: "a"
       })
     ).to.equal("sip:mn@x");
   });
 
-  it("createNumber points a rebuild app's number at the media-node peer", async function () {
+  it("createNumber points a rebuild app's number at the roomr peer", async function () {
     const { createNumber } = await import("../src/numbers/createNumber");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -90,7 +90,7 @@ describe("@sipnet[numbers/engineRouting]", function () {
 
     expect(callback).to.have.been.calledOnceWithExactly(null, { ref: "n1" });
     expect(numbers.createNumber).to.have.been.calledWithMatch({
-      aorLink: MEDIA_NODE_PEER_AOR,
+      aorLink: ROOMR_PEER_AOR,
       extraHeaders: [{ name: APP_REF_HEADER, value: "app-1" }]
     });
   });
@@ -116,11 +116,11 @@ describe("@sipnet[numbers/engineRouting]", function () {
 
     expect(numbers.updateNumber).to.have.been.calledWithMatch({
       ref: "n1",
-      aorLink: MEDIA_NODE_PEER_AOR
+      aorLink: ROOMR_PEER_AOR
     });
   });
 
-  it("without routing, create and update use the media-node peer", async function () {
+  it("without routing, create and update use the roomr peer", async function () {
     const { updateNumber } = await import("../src/numbers/updateNumber");
     const numbers = {
       getNumber: sandbox.stub().resolves({
@@ -173,7 +173,7 @@ describe("@sipnet[numbers/engineRouting]", function () {
         ref: "4",
         name: "four",
         telUrl: "tel:+15550000004",
-        aorLink: MEDIA_NODE_PEER_AOR,
+        aorLink: ROOMR_PEER_AOR,
         extraHeaders: header("app-a")
       }
     ];
@@ -189,14 +189,14 @@ describe("@sipnet[numbers/engineRouting]", function () {
       updateNumber: sandbox.stub().resolves({})
     });
 
-    it("moves pre-rebuild numbers to the media nodes and skips agent numbers", async function () {
+    it("moves pre-rebuild numbers to the Roomr nodes and skips agent numbers", async function () {
       const c = client(store());
       const changes = await repointNumbers(c, createNumberRouting());
       expect(changes.map((x) => x.ref)).to.deep.equal(["1", "2"]);
       expect(c.updateNumber).to.have.been.calledWithExactly({
         ref: "1",
         name: "one",
-        aorLink: MEDIA_NODE_PEER_AOR,
+        aorLink: ROOMR_PEER_AOR,
         extraHeaders: header("app-a")
       });
     });
@@ -208,7 +208,7 @@ describe("@sipnet[numbers/engineRouting]", function () {
         appRefs: ["app-b"]
       });
       expect(dry.map((x) => [x.ref, x.from, x.to])).to.deep.equal([
-        ["2", LEGACY_ASTERISK_PEER_AOR, MEDIA_NODE_PEER_AOR]
+        ["2", LEGACY_ASTERISK_PEER_AOR, ROOMR_PEER_AOR]
       ]);
       expect(c.updateNumber).to.not.have.been.called;
     });

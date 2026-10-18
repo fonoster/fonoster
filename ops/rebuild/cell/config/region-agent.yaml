@@ -6,10 +6,10 @@ database:
   encryptionKeyEnv: APISERVER_ENCRYPTION_KEY
 routr:
   endpoint: routr:51907
-  mediaNodePeer:
-    name: Media nodes
-    username: medianode
-    aor: sip:medianode@default
+  roomrPeer:
+    name: Roomr nodes
+    username: roomr
+    aor: sip:roomr@default
     passwordEnv: RB_NODE_PASSWORD
 records:
   store:

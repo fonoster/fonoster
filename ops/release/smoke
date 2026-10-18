@@ -12,7 +12,7 @@
 # Ports, the subnet and the project name come from the environment so a shared host can run it
 # next to other stacks: SMOKE_PROJECT (fonoster-smoke), SMOKE_SUBNET (10.216.30),
 # SMOKE_PORT_BASE (18000: HTTP on base+1, SIP base+2, NATS base+3, MinIO base+4/5, RTPEngine
-# base+10..39, media node base+40..69), SMOKE_TIMEOUT seconds (600), SMOKE_KEEP=1 keeps the stack.
+# base+10..39, Roomr node base+40..69), SMOKE_TIMEOUT seconds (600), SMOKE_KEEP=1 keeps the stack.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"

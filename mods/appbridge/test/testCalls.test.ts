@@ -55,7 +55,7 @@ function sign(
 
 const token = (extra: Record<string, unknown> = {}) =>
   sign({
-    aorLink: "sip:medianode@default",
+    aorLink: "sip:roomr@default",
     accessKeyId: "WO-A",
     allowedMethods: ["INVITE"],
     ...extra
@@ -134,7 +134,7 @@ describe("@gateway test calls (add-talk-in-browser)", function () {
 
     beforeEach(async () => {
       harness = await new FakesHarness().start();
-      harness.mediaNode.attachNats(nc);
+      harness.roomrNode.attachNats(nc);
       const app: AppConfig = {
         ref: "agent-a",
         url: harness.app.url,
@@ -178,23 +178,23 @@ describe("@gateway test calls (add-talk-in-browser)", function () {
     };
 
     it("answers a browser call with a token of the agent's workspace", async function () {
-      const { roomRef } = harness.mediaNode.offerCall({
+      const { roomRef } = harness.roomrNode.offerCall({
         appRef: "agent-a",
         headers: { "X-Connect-Token": token(), "X-App-Ref": "agent-a" }
       });
       const { peer } = await harness.app.nextConnection();
       expect(peer).to.exist;
-      await until(() => harness.mediaNode.sipStatuses(roomRef).includes(200));
-      harness.mediaNode.callerHangup(roomRef);
+      await until(() => harness.roomrNode.sipStatuses(roomRef).includes(200));
+      harness.roomrNode.callerHangup(roomRef);
     });
 
     it("rejects a token of another workspace with 403", async function () {
-      const { roomRef } = harness.mediaNode.offerCall({
+      const { roomRef } = harness.roomrNode.offerCall({
         appRef: "agent-a",
         headers: { "X-Connect-Token": token({ accessKeyId: "WO-B" }) }
       });
-      await until(() => harness.mediaNode.sipStatuses(roomRef).includes(403));
-      expect(harness.mediaNode.sipStatuses(roomRef)).to.not.include(200);
+      await until(() => harness.roomrNode.sipStatuses(roomRef).includes(403));
+      expect(harness.roomrNode.sipStatuses(roomRef)).to.not.include(200);
     });
   });
 });

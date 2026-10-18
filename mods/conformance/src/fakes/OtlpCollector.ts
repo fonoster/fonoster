@@ -27,7 +27,7 @@ export type OtlpExport = { signal: OtlpSignal; body: Buffer };
 /**
  * A test collector for OTLP/HTTP (observability: "Signals reach the collector"). It accepts
  * `/v1/traces`, `/v1/metrics` and `/v1/logs` in either encoding: the Node services post JSON, the
- * Go media node posts protobuf. Protobuf keeps attribute keys and string values as raw UTF-8, so
+ * Go Roomr node posts protobuf. Protobuf keeps attribute keys and string values as raw UTF-8, so
  * "does this export carry service.name X / fonoster.call_ref Y" is a byte search in both.
  */
 export class OtlpCollector {

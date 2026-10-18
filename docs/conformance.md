@@ -10,13 +10,13 @@ send back. Any implementation, in any language, passes or fails the same files. 
 
 | Layer | Plays | Under test | Needs |
 | --- | --- | --- | --- |
-| Fake node | Fake media node and fake STT, TTS and LLM | VoiceSessionGateway (TypeScript) | NATS |
+| Fake node | Fake Roomr node and fake STT, TTS and LLM | VoiceSessionGateway (TypeScript) | NATS |
 | Go node | A SIP caller bot, the test plays the gateway | `go/roomr` | NATS, Go 1.26 |
 | Real stack | Caller bot through Routr, real gateway and node | Everything together | Routr, node, gateway (nightly, not yet automated: conformance task 2.5 and 3.11) |
 
 ## Quick start
 
-NATS is the message bus for the gateway and media node suites. Use a throwaway server and never
+NATS is the message bus for the gateway and Roomr node suites. Use a throwaway server and never
 point tests at a shared one.
 
 ```sh
@@ -42,7 +42,7 @@ runner, the fakes and the SDK scenarios, and runs without NATS (`nats.test.ts` n
 npx mocha 'mods/conformance/test/**/*.test.ts' --exit --timeout 30000
 ```
 
-### Go media node
+### Go Roomr node
 
 ```sh
 cd go/roomr

@@ -339,7 +339,7 @@ describe("@conformance regions: control plane, hub and cell (harden-conformance 
     });
     agent.onApplied = (v) => applied.push(v);
     await agent.start();
-    // The cell's media node and gateway, as their heartbeats on the cell's own bus.
+    // The cell's Roomr node and gateway, as their heartbeats on the cell's own bus.
     const beats = cellNc;
     componentBeats = setInterval(() => {
       beats.publish(

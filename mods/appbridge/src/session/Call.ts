@@ -127,7 +127,7 @@ export type CallInfo = {
   metadata: Record<string, unknown>;
   /** The caller's tracks from call.incoming (the recording listener needs their ids). */
   callerTracks?: unknown[];
-  /** The media node's trace context from call.incoming: the call's span joins its trace. */
+  /** The Roomr node's trace context from call.incoming: the call's span joins its trace. */
   traceparent?: string;
 };
 
@@ -140,7 +140,7 @@ export type CallDeps = {
   webhooks?: (event: Webhooks.WebhookEvent) => void;
   /** Once per session and catalog id it resolved (registry usage and runtime warnings, LO-B11). */
   onCatalogUse?: (use: CatalogUse) => void;
-  /** Classifies the caller's first seconds for apps with `amd` (add-media-node 4.3). */
+  /** Classifies the caller's first seconds for apps with `amd` (add-roomr 4.3). */
   amd?: AmdClassifier;
   /**
    * The call reached an app (once, right after `call.started`): the control plane needs its
@@ -166,9 +166,9 @@ export type CatalogUse = {
 };
 
 /**
- * One call owned by this gateway: the room on the media node, the RTP link and, at any time, at
+ * One call owned by this gateway: the room on the Roomr node, the RTP link and, at any time, at
  * most one app session (handoff replaces it). Speech, turn-taking and the output queue live
- * here, never in the media node.
+ * here, never in the Roomr node.
  */
 
 /** Both apps belong to the same, known workspace (handoff never crosses workspaces, RV-B3). */
@@ -427,7 +427,7 @@ export class Call {
     this.finish("error");
   }
 
-  /** The media node stopped sending heartbeats: its calls are gone (media-control, liveness). */
+  /** The Roomr node stopped sending heartbeats: its calls are gone (media-control, liveness). */
   nodeLost() {
     if (this.ended) return;
     this.record("event", { type: "call.failure", reason: "node_error" });
@@ -1155,9 +1155,9 @@ export class AppSession {
   }
 
   /**
-   * Hold and transfer music is a URL the app chose and the media node fetches, so it is checked
+   * Hold and transfer music is a URL the app chose and the Roomr node fetches, so it is checked
    * here, where it enters the platform: http(s) only, public destinations only (the same rule as
-   * Play media and webhooks; FONOSTER_ALLOWED_DESTINATIONS lists exceptions). The media node
+   * Play media and webhooks; FONOSTER_ALLOWED_DESTINATIONS lists exceptions). The Roomr node
    * itself fetches whatever it is told.
    */
   private async musicAllowed(music: unknown, relatesTo?: string) {

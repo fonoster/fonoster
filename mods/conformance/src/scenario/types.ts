@@ -63,7 +63,7 @@ export type Setup = {
     from?: string;
     to?: string;
     metadata?: Record<string, unknown>;
-    /** The callRef the media node gives the call (Twilio's callSid). */
+    /** The callRef the Roomr node gives the call (Twilio's callSid). */
     callRef?: string;
   };
   app?: {

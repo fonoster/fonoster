@@ -47,7 +47,7 @@ const CALL: OutboundCallRequest = {
 
 const OUTBOUND = {
   proxy: "routr:5060",
-  auth: { username: "medianode", password: "s3cret" }
+  auth: { username: "roomr", password: "s3cret" }
 };
 
 type Sent = { subject: string; body: Record<string, unknown> };
@@ -406,7 +406,7 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
     expect(calleeUri("+1555", "10.0.0.2:5060")).to.equal("sip:+1555@10.0.0.2");
   });
 
-  it("fails with no_capacity without a live media node, sending nothing", async function () {
+  it("fails with no_capacity without a live Roomr node, sending nothing", async function () {
     const { roomr, log } = fakeRoomr();
     const gateway = fakeGateway();
     await place(roomr, createNodeDirectory(), gateway).then(

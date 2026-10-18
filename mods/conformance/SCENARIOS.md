@@ -1,7 +1,7 @@
 # Conformance scenario format (`fonoster.scenario.v1`)
 
 A scenario is a YAML file that scripts one side of a contract and states what the other side must
-send back, and how fast. Every runner (TypeScript here, the Python SDK suite, the Go media node
+send back, and how fast. Every runner (TypeScript here, the Python SDK suite, the Go Roomr node
 runner) executes the same files. The machine-readable definition is
 [`schema/scenario.schema.json`](./schema/scenario.schema.json); every file in `scenarios/` must
 validate against it.
@@ -17,7 +17,7 @@ scenarios/
   voice-session/                  # runner plays the app, the gateway is under test
   twilio-media-streams-flavor/    # runner plays a Twilio Media Streams app
   voice-sdk/                      # runner plays the gateway, an SDK fixture app is under test
-  media-control/                  # runner plays the gateway against a media node (fake or Go) over NATS
+  media-control/                  # runner plays the gateway against a Roomr node (fake or Go) over NATS
   autopilot/                      # runner plays the gateway, Autopilot (with setup.assistant) is under test
   turn-taking/                    # runner plays the app, the gateway's turn-taking is under test
   regions/                        # runner plays a region's cell, the control plane is under test
@@ -60,7 +60,7 @@ Each step has exactly one action key.
 | `assert: {name: value}` | Evaluate named harness assertions (see Assertions). |
 | `close: {code, reason}` | Close the socket from the runner's side. |
 | `control: {op, …}` | The harness acts on the implementation under test's management side. `regions`: `enroll` (`token`: `issued` (default), `reissued`, `expired` or `invalid`; the answer arrives as a `region.enrollment` frame with the HTTP `status`, and on success the runner's cell link opens), `reissue`, `disconnect`, and `relay` (`callRef`: a member reads that call's recording through the control plane; the answer arrives as a `relay.result` frame). |
-| `caller: {dtmf | hangup | audio | drop | nodeCrash}` | The fake media node acts as the caller: presses keys (`dtmf: "12#"`), hangs up (`hangup: true`) or speaks (`audio`, same shape as `send_audio`, replacing any caller audio still pending). `drop: {reason, sipStatus?}` makes the node end the room with a media-control reason; `nodeCrash: true` kills the node (no heartbeats, replies or events). |
+| `caller: {dtmf | hangup | audio | drop | nodeCrash}` | The fake Roomr node acts as the caller: presses keys (`dtmf: "12#"`), hangs up (`hangup: true`) or speaks (`audio`, same shape as `send_audio`, replacing any caller audio still pending). `drop: {reason, sipStatus?}` makes the node end the room with a media-control reason; `nodeCrash: true` kills the node (no heartbeats, replies or events). |
 
 With the `twilio` protocol, `send_audio` sends μ-law 8 kHz `media` events (base64 payloads) using the
 `streamSid` from the `start` message, and `expect_audio` counts incoming `media` events.
@@ -133,13 +133,13 @@ scenario rather than ignoring it.
 
 | Key | Meaning |
 | --- | --- |
-| `call` | The call the fake media node offers to the gateway: `direction`, `from`, `to`, `metadata`, `callRef`. With `direction: outbound` the runner places the call as the control plane does and the app's socket opens when the callee answers (`media.dialOutcome`). |
+| `call` | The call the fake Roomr node offers to the gateway: `direction`, `from`, `to`, `metadata`, `callRef`. With `direction: outbound` the runner places the call as the control plane does and the app's socket opens when the callee answers (`media.dialOutcome`). |
 | `app` | The app under test (`app-1`): `protocol`, `signingSecret` (what the gateway signs with), `verifySignature`, `verifySecret` (what the fake app checks, when a rotation has not reached it), `reachable`, `fallback` (`{app: app-2}` or `{message}`), `speech`, `filters`, `workspaceRef` (both apps' workspace; Twilio's `accountSid`). |
 | `listener` | `voice-session`: a listen-only socket on `app-2` with `tracks`; `peer: listener` makes the runner play the listener while `app-1` stays silent. |
 | `providers` | Initial fake provider behaviour (same shape as `inject`). |
-| `callerAudio` | Audio the fake media node plays as the caller once the call is answered. |
+| `callerAudio` | Audio the fake Roomr node plays as the caller once the call is answered. |
 | `assistant` | `autopilot` only: the assistant config Autopilot runs for this scenario. |
-| `media` | Fake media node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`); `appRef` sent as Routr's `X-App-Ref`; `heartbeatMs`; `maxRooms` (the node's room limit; `room.create` beyond it gets `at_capacity`); `claimCalls: false` (media-control only) makes the runner leave `call.incoming` unclaimed. |
+| `media` | Fake Roomr node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`); `appRef` sent as Routr's `X-App-Ref`; `heartbeatMs`; `maxRooms` (the node's room limit; `room.create` beyond it gets `at_capacity`); `claimCalls: false` (media-control only) makes the runner leave `call.incoming` unclaimed. |
 | `catalog` | `voice-session` only: the provider catalog the gateway resolves ids with. The runner registers the `fake` provider, a TTS model and `fake/default`, then each listed voice (`{id, state, replacement}`), deprecating or retiring it as `state` says. |
 
 #Besides the app under test (`app-1`), voice-session runners configure a second app, `app-2`,
@@ -188,15 +188,15 @@ matcher, compared with what the harness measured.
 
 | Assertion | Measured value |
 | --- | --- |
-| `media.output_silent_within_ms` | ms between the previous step and the last agent-audio packet the fake media node received |
-| `media.output_audio_ms` | ms of agent audio the fake media node has received since the previous step |
+| `media.output_silent_within_ms` | ms between the previous step and the last agent-audio packet the fake Roomr node received |
+| `media.output_audio_ms` | ms of agent audio the fake Roomr node has received since the previous step |
 | `media.commands` | the list of `media-control` commands received (for `$includes`) |
-| `media.held` | whether the fake media node has the caller on hold |
+| `media.held` | whether the fake Roomr node has the caller on hold |
 | `media.sip` | SIP statuses the caller received, in order (180 for `ring`, 200 for `answer`, refusals such as 404 or 503) |
 | `providers.vendor_calls` | network calls to anything other than the fakes (always expected to be `0`); needs a harness that watches egress, such as a proxy around the implementation |
 | `providers.tts.requests`, `providers.stt.requests`, `providers.llm.requests` | requests (or streams) the fake provider has served |
 | `providers.stt.streams` | STT streams opened so far, waiting up to 2 s for the first one (use before caller audio that must reach STT) |
-| `stt.caller_audio_lag_ms` | ms from the first audible caller packet the fake media node sent after the step's anchor to the first audible frame the fake STT received (pass bar T1, caller audio to STT); waits up to 2 s, `null` if none arrived |
+| `stt.caller_audio_lag_ms` | ms from the first audible caller packet the fake Roomr node sent after the step's anchor to the first audible frame the fake STT received (pass bar T1, caller audio to STT); waits up to 2 s, `null` if none arrived |
 | `providers.llm.last_messages` | the `messages` of the fake LLM's latest request (how history is checked) |
 | `record.events.<type>` | the call record's gateway events of that type, e.g. `record.events.turn.label` (needs a harness that can read the record) |
 | `record.messages.<type>` | the call record's entries of that type from any source (app commands, gateway messages, events), each with `source` and `at`, e.g. `record.messages.record.note` |
@@ -228,7 +228,7 @@ plays; and the signature headers (`X-Fonoster-Timestamp`, `X-Fonoster-Signature`
 `docs/session-protocol.md`) for roles that dial or verify an app. Steps run in order and the first
 failure fails the scenario. Report every scenario as passed, failed or skipped, never silently
 omitted, and fail any scenario that uses a `setup` key, action or assertion the runner does not
-implement. `python/fonoster-conformance` is the reference second implementation; the Go media node
+implement. `python/fonoster-conformance` is the reference second implementation; the Go Roomr node
 runs the `media-control` files through `mods/conformance/test/media-control-go.test.ts`.
 Point other runners at the published `@fonoster/conformance` package of the same version (the Python
 runner reads it from `FONOSTER_CONFORMANCE_DIR`) rather than copying the files.

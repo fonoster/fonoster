@@ -98,10 +98,10 @@ describe("@gateway call records", function () {
   beforeEach(async () => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "gateway-records-"));
     harness = await new FakesHarness().start();
-    harness.mediaNode.configure({
+    harness.roomrNode.configure({
       callerAudio: { kind: "tone", ms: 400 }
     });
-    harness.mediaNode.attachNats(nc);
+    harness.roomrNode.attachNats(nc);
     webhooks = [];
     indexed = [];
     const sub = nc.subscribe(RECORD_SEALED_SUBJECT, {
@@ -198,7 +198,7 @@ describe("@gateway call records", function () {
 
   it("records both sides when the policy is on, and the record references it with its hash", async function () {
     await start([app({ recording: "on" })]);
-    const { roomRef } = harness.mediaNode.offerCall();
+    const { roomRef } = harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     // The app cannot turn recording off: there is no command for it.
@@ -209,11 +209,11 @@ describe("@gateway call records", function () {
       last: true
     });
     await waitFor(() => json(peer).find((m) => m.type === "output.done"), 8000);
-    const attach = harness.mediaNode.commands.find(
+    const attach = harness.roomrNode.commands.find(
       (c) => c.command.type === "listener.attach"
     )!.command;
     expect((attach.tracks as unknown[]).length).to.equal(2);
-    harness.mediaNode.callerHangup(roomRef);
+    harness.roomrNode.callerHangup(roomRef);
 
     const sealed = await sealedRecord(roomRef);
     expect(verifyRecord(sealed, KEYS)).to.deep.include({ ok: true });
@@ -250,14 +250,14 @@ describe("@gateway call records", function () {
 
   it("makes no recording when the policy is off", async function () {
     await start([app()]);
-    const { roomRef } = harness.mediaNode.offerCall();
+    const { roomRef } = harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
-    harness.mediaNode.callerHangup(roomRef);
+    harness.roomrNode.callerHangup(roomRef);
     const vcon = decodeVcon((await sealedRecord(roomRef)).signed);
     expect(vcon.dialog.some((d) => d.type === "recording")).to.equal(false);
     expect(
-      harness.mediaNode.commands.some(
+      harness.roomrNode.commands.some(
         (c) => c.command.type === "listener.attach"
       )
     ).to.equal(false);
@@ -268,19 +268,19 @@ describe("@gateway call records", function () {
       consentPrompt: "This call is recorded for quality."
     });
     const since = Date.now();
-    const { roomRef } = harness.mediaNode.offerCall();
+    const { roomRef } = harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(
       () => json(peer).find((m) => m.type === "session.start"),
       8000
     );
     // The prompt played before the app's session started.
-    expect(harness.mediaNode.outputAudioMs(since)).to.be.greaterThan(200);
-    const types = harness.mediaNode.commands.map((c) => c.command.type);
+    expect(harness.roomrNode.outputAudioMs(since)).to.be.greaterThan(200);
+    const types = harness.roomrNode.commands.map((c) => c.command.type);
     expect(types.indexOf("answer")).to.be.lessThan(
       types.indexOf("listener.attach")
     );
-    harness.mediaNode.callerHangup(roomRef);
+    harness.roomrNode.callerHangup(roomRef);
     const vcon = decodeVcon((await sealedRecord(roomRef)).signed);
     expect(vcon.fonoster).to.deep.include({
       recording: { policy: "consent", consentRequested: true }
@@ -289,7 +289,7 @@ describe("@gateway call records", function () {
 
   it("seals a minimal record with call.failed for a call with no app", async function () {
     await start([app({ numbers: ["+1999"] })]);
-    const { roomRef } = harness.mediaNode.offerCall({
+    const { roomRef } = harness.roomrNode.offerCall({
       appRef: "missing",
       to: "+15550009999"
     } as never);
@@ -309,11 +309,11 @@ describe("@gateway call records", function () {
 
   it("deletes parts and erases records on request from the control plane", async function () {
     await start([app({ recording: "on" })]);
-    const { roomRef } = harness.mediaNode.offerCall();
+    const { roomRef } = harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     await sleep(300);
-    harness.mediaNode.callerHangup(roomRef);
+    harness.roomrNode.callerHangup(roomRef);
     await sealedRecord(roomRef);
 
     const request = async (body: Record<string, unknown>) =>
@@ -401,10 +401,10 @@ describe("@gateway call records", function () {
     });
     try {
       await start([app()], {}, true);
-      const { roomRef } = harness.mediaNode.offerCall();
+      const { roomRef } = harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
       await waitFor(() => json(peer).find((m) => m.type === "session.start"));
-      harness.mediaNode.callerHangup(roomRef);
+      harness.roomrNode.callerHangup(roomRef);
       await sealedRecord(roomRef);
       await waitFor(() => onBus.find((e) => e.type === "call_record.sealed"));
       const mine = onBus.filter(
@@ -429,7 +429,7 @@ describe("@gateway call records", function () {
     });
     try {
       await start([app()]);
-      const { roomRef } = harness.mediaNode.offerCall();
+      const { roomRef } = harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
       await waitFor(() => json(peer).find((m) => m.type === "session.start"));
       for (const id of ["s1", "s2"]) {
@@ -439,7 +439,7 @@ describe("@gateway call records", function () {
           8000
         );
       }
-      harness.mediaNode.callerHangup(roomRef);
+      harness.roomrNode.callerHangup(roomRef);
       await waitFor(() => used.length > 0);
       await sleep(100);
       const mine = used.filter((u) => u.callRef === roomRef);

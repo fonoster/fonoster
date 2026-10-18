@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Events keyed by call (redesign-media-node, media-control "Events on NATS are keyed by call with
+// Events keyed by call (redesign-roomr, media-control "Events on NATS are keyed by call with
 // sequence numbers and metadata"). Every call with a call_ref (CreateCall, room.create with callRef,
 // an inbound INVITE with X-Call-Ref) has its own subject; room-scoped events go to the room's.
 // Each event carries node_ref, a per-call (or per-room) seq starting at 1, the call's metadata and

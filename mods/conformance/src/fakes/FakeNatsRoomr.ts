@@ -33,7 +33,7 @@ import {
 import { AudioSource } from "../scenario/types";
 
 // The media-control message shapes, reply envelope ({type: "ack" | "error", id}) and NATS subjects
-// follow add-media-node/specs/media-control ("media-control runs over NATS request and reply").
+// follow add-roomr/specs/media-control ("media-control runs over NATS request and reply").
 
 export type MediaCommand = { type: string; id: string; [key: string]: unknown };
 export type MediaReply = {
@@ -84,7 +84,7 @@ const SIP_STATUS: Partial<Record<DialOutcome, number>> = {
   failed: 503
 };
 
-export type FakeMediaNodeOptions = {
+export type FakeNatsRoomrOptions = {
   nodeId?: string;
   /** Address the node's RTP sockets bind to and advertise (default 127.0.0.1). */
   host?: string;
@@ -287,11 +287,11 @@ let counter = 0;
 const ref = (prefix: string) => `${prefix}-${++counter}`;
 
 /**
- * Plays the media node for gateway suites: offers calls, plays recorded caller audio as RTP,
+ * Plays the Roomr node for gateway suites: offers calls, plays recorded caller audio as RTP,
  * records the agent audio it is sent and acknowledges media-control commands. It knows nothing
  * about speech; that is the point of the contract.
  */
-export class FakeMediaNode extends EventEmitter {
+export class FakeNatsRoomr extends EventEmitter {
   readonly nodeId: string;
   readonly commands: { at: number; command: MediaCommand }[] = [];
   readonly events: { at: number; event: MediaEvent }[] = [];
@@ -306,12 +306,12 @@ export class FakeMediaNode extends EventEmitter {
   private heartbeat?: ReturnType<typeof setInterval>;
   private crashed = false;
 
-  constructor(private readonly options: FakeMediaNodeOptions = {}) {
+  constructor(private readonly options: FakeNatsRoomrOptions = {}) {
     super();
     this.nodeId = options.nodeId ?? "fake-node";
   }
 
-  configure(options: Partial<FakeMediaNodeOptions>) {
+  configure(options: Partial<FakeNatsRoomrOptions>) {
     Object.assign(this.options, options);
     if (options.heartbeatMs !== undefined && this.nc) this.startHeartbeat();
   }

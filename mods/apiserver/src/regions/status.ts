@@ -76,7 +76,7 @@ export function regionStatus(
   }
   const c = (row.components ?? {}) as Partial<Components>;
   const down: string[] = [];
-  if (!c.mediaNodes) down.push("media nodes");
+  if (!c.roomrNodes) down.push("Roomr nodes");
   if (!c.gateways) down.push("gateways");
   if (c.autopilot === false) down.push("autopilot");
   if (down.length)

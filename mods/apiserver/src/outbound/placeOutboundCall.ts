@@ -118,7 +118,7 @@ export function calleeUri(to: string, proxy: string) {
 }
 
 /**
- * Places an API-originated call (CreateCall) on the media nodes over Roomr (gRPC, at the
+ * Places an API-originated call (CreateCall) on the Roomr nodes over Roomr (gRPC, at the
  * heartbeat's `control_addr`):
  *
  * 1. `CreateRoom` with the call's ref on the highest-scoring eligible node. `RESOURCE_EXHAUSTED`
@@ -185,8 +185,8 @@ export async function placeOutboundCall(
     throw new PlacementError(
       NO_CAPACITY,
       tried.size === 0
-        ? "no media node has room for the call"
-        : `no media node took the call (tried ${[...tried].join(", ")})`
+        ? "no Roomr node has room for the call"
+        : `no Roomr node took the call (tried ${[...tried].join(", ")})`
     );
   }
   const { nodeId, addr, roomRef } = placedOn;

@@ -123,7 +123,7 @@ describe("@calls/trackCall", function () {
     expect(call.end).to.have.been.calledOnce;
   });
 
-  it("translates the media node's call events on roomr.events.<ref>", async function () {
+  it("translates the Roomr node's call events on roomr.events.<ref>", async function () {
     const clock = sandbox.useFakeTimers();
     const { createTrackCall, toTrackMessage } =
       await import("../../src/calls/createTrackCall");
@@ -357,7 +357,7 @@ describe("@calls/trackCall", function () {
       h.stop();
     });
 
-    it("ends with FAILED when the call's media node stops sending heartbeats", async function () {
+    it("ends with FAILED when the call's Roomr node stops sending heartbeats", async function () {
       const clock = sandbox.useFakeTimers();
       const { createTrackCallHandler } =
         await import("../../src/calls/createTrackCall");
@@ -383,7 +383,7 @@ describe("@calls/trackCall", function () {
       h.stop();
     });
 
-    it("ends with FAILED when no media node ever takes the call, or after maxMs", async function () {
+    it("ends with FAILED when no Roomr node ever takes the call, or after maxMs", async function () {
       const clock = sandbox.useFakeTimers();
       const { createTrackCallHandler } =
         await import("../../src/calls/createTrackCall");

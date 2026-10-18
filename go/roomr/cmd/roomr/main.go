@@ -1,5 +1,5 @@
-// Command roomr runs one Fonoster media node: SIP legs from the SIP proxy become rooms, mixed and
-// driven over media-control on NATS (add-media-node) and Roomr on gRPC (redesign-media-node).
+// Command roomr runs one Fonoster Roomr node: SIP legs from the SIP proxy become rooms, mixed and
+// driven over media-control on NATS (add-roomr) and Roomr on gRPC (redesign-roomr).
 // Its only flag is -config <path>; everything else is in the config file (fileconfig).
 package main
 

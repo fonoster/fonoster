@@ -29,7 +29,7 @@ import {
   CALLS_CREATE_SUBJECT,
   DEFAULT_NATS_QUEUE_GROUP,
   NODE_HEARTBEAT_WILDCARD,
-  ROUTR_MEDIA_NODE_PEER,
+  ROUTR_ROOMR_PEER,
   ROUTR_SIP_PROXY
 } from "../envs";
 import { createNodeDirectory } from "./createNodeDirectory";
@@ -59,7 +59,7 @@ export function natsRequester(nc: NatsConnection): Requester {
  * The control plane's part of a call's status events for TrackCall: TRYING when placement starts,
  * `{ref, node_ref}` once a node holds the call's room (TrackCall then follows that node's
  * heartbeats), and FAILED when placement fails. Everything after that (call.ringing,
- * call.answered, call.ended) comes from the media node on `roomr.events.<ref>`, so the statuses
+ * call.answered, call.ended) comes from the Roomr node on `roomr.events.<ref>`, so the statuses
  * keep flowing to every replica's TrackCall even if this replica dies.
  */
 export function callTracker(nc: NatsConnection, ref: string) {
@@ -76,9 +76,9 @@ export function callTracker(nc: NatsConnection, ref: string) {
   };
 }
 
-/** Routr and the media-node peer from the config (fonoster.yaml `routr`). */
+/** Routr and the roomr peer from the config (fonoster.yaml `routr`). */
 function configuredTarget(): OutboundTarget {
-  const { username, password } = ROUTR_MEDIA_NODE_PEER;
+  const { username, password } = ROUTR_ROOMR_PEER;
   return {
     proxy: ROUTR_SIP_PROXY,
     ...(password ? { auth: { username, password } } : {})
@@ -86,7 +86,7 @@ function configuredTarget(): OutboundTarget {
 }
 
 /**
- * Serves `calls.create` (a request from CreateCall) by placing each call on the media nodes over
+ * Serves `calls.create` (a request from CreateCall) by placing each call on the Roomr nodes over
  * Roomr (placeOutboundCall). The reply comes once the node accepted CreateCall (`{type: "ack",
  * ref, nodeId}`), or with `{type: "error", code, message}` (`no_capacity` when no node took it),
  * so CreateCall fails at once instead of TrackCall reporting FAILED later. While a call is being

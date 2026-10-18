@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// One live call through the real stack pieces (VO-B6): a SIP caller bot dials the Go media node,
+// One live call through the real stack pieces (VO-B6): a SIP caller bot dials the Go Roomr node,
 // the gateway runs Deepgram STT and the app's TTS voice, and the hosted Autopilot answers with
 // OpenAI through the provider registry. The caller says a recorded question (PCMU, like the
 // PSTN); the script measures turn latency: caller stops speaking → first audible agent audio.
@@ -41,7 +41,7 @@ import * as os from "os";
 import * as path from "path";
 import { Registry } from "@fonoster/common";
 import { DeepgramSttAdapter } from "@fonoster/community/deepgram";
-import { buildMediaNode, MediaNodeProcess } from "@fonoster/conformance";
+import { buildRoomr, RoomrProcess } from "@fonoster/conformance";
 import { connect } from "nats";
 import {
   loadHostedConfig,
@@ -238,9 +238,9 @@ async function main() {
     }
   }).start();
 
-  const bins = buildMediaNode(natsUrl!);
-  if (!bins) throw new Error("no Go toolchain to build the media node");
-  const media = new MediaNodeProcess(bins);
+  const bins = buildRoomr(natsUrl!);
+  if (!bins) throw new Error("no Go toolchain to build the Roomr node");
+  const media = new RoomrProcess(bins);
   const report: Record<string, unknown> = { voice, sttModel, llm };
   try {
     await media.start();

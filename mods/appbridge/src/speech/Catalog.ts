@@ -64,7 +64,7 @@ export const KEYED_ADAPTERS_MAX = 256;
 export const KEYED_ADAPTERS_IDLE_MS = 10 * 60_000;
 /**
  * A workspace's keys found at session start are dropped this long after (no call outlives the
- * media node's 4 h MaxDuration), so removed keys and finished workspaces do not stay forever.
+ * Roomr node's 4 h MaxDuration), so removed keys and finished workspaces do not stay forever.
  */
 export const WORKSPACE_KEYS_HOLD_MS = 4 * 60 * 60_000 + 5 * 60_000;
 

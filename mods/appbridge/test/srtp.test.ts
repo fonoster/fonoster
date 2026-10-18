@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { buildMediaNode, MediaNodeBinaries } from "@fonoster/conformance";
+import { buildRoomr, RoomrBinaries } from "@fonoster/conformance";
 import { expect } from "chai";
 import { ChildProcess, execFileSync, spawn } from "child_process";
 import * as dgram from "dgram";
@@ -72,10 +72,10 @@ describe("@gateway SRTP (AES_CM_128_HMAC_SHA1_80)", function () {
 
 // The gateway leg against the Go node: pion/srtp must accept what RtpLink sends and the other
 // way round (SDES-SRTP is optional: a leg that offers srtp gets it, a plain leg stays plain).
-describe("@gateway SRTP leg against the Go media node", function () {
+describe("@gateway SRTP leg against the Go Roomr node", function () {
   this.timeout(30000);
   let nc: NatsConnection;
-  let bins: MediaNodeBinaries | undefined;
+  let bins: RoomrBinaries | undefined;
   let node: ChildProcess | undefined;
   const nodeId = `srtp-${Date.now()}`;
 
@@ -87,7 +87,7 @@ describe("@gateway SRTP leg against the Go media node", function () {
     } catch {
       return this.skip();
     }
-    bins = buildMediaNode(NATS_URL);
+    bins = buildRoomr(NATS_URL);
     if (!bins) return this.skip();
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "srtp-node-"));
     execFileSync(

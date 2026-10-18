@@ -1,4 +1,4 @@
-# The media node. `fonoster-config init` writes config/roomr.yaml from this file; each ${NAME}
+# The Roomr node. `fonoster-config init` writes config/roomr.yaml from this file; each ${NAME}
 # stays as written and is read from the node's environment (Compose passes .env). This file is
 # the node's only configuration (its one flag is -config). Roomr's SIP port is not published on
 # the host: only Routr reaches it, over the bundle's network.
@@ -8,14 +8,14 @@ nats: { url: "nats://nats:4222", user: roomr, password: "${NATS_ROOMR_PASSWORD}"
 sip:
   listen: "0.0.0.0:5060"
   advertise: "${SUBNET_PREFIX}.42"
-  # The node knows no registrar by name; this deployment registers with Routr as the media-node
-  # Peer the API server creates (routr.mediaNodePeer in fonoster.yaml), and Routr's
+  # The node knows no registrar by name; this deployment registers with Routr as the roomr
+  # Peer the API server creates (routr.roomrPeer in fonoster.yaml), and Routr's
   # least-sessions balancer reads X-Session-Count. Dialed calls go out as the same Peer.
   registrations:
     - registrar: "routr:${SIP_PORT}"
-      aor: sip:medianode@default
+      aor: sip:roomr@default
       expires: 30s
-      auth: { username: medianode, password: "${ROOMR_PASSWORD}" }
+      auth: { username: roomr, password: "${ROOMR_PASSWORD}" }
       headers: { X-Session-Count: "{sessions}" }
   # Routr's X-Call-Ref names inbound calls; the API server sends it on dialed calls too.
   callRefHeader: X-Call-Ref

@@ -25,7 +25,7 @@ import { DetachedPeer, Peer } from "../runner/Peer";
 import { SCENARIOS_DIR } from "../scenario/loadScenario";
 import { AudioSource, CallerAction, Providers, Setup } from "../scenario/types";
 import { FakeApp } from "./FakeApp";
-import { EndReason, FakeMediaNode } from "./FakeMediaNode";
+import { EndReason, FakeNatsRoomr } from "./FakeNatsRoomr";
 import { FakeLlm } from "./providers/FakeLlm";
 import { FakeStt } from "./providers/FakeStt";
 import { FakeTts } from "./providers/FakeTts";
@@ -35,7 +35,7 @@ export type FakesHarnessOptions = {
   app?: FakeApp;
   /** The second app (`app-2`): fallback, handoff and routing target, or a listen-only socket. */
   otherApp?: FakeApp;
-  mediaNode?: FakeMediaNode;
+  roomrNode?: FakeNatsRoomr;
   /**
    * Counts network calls that reached anything other than the fakes (for example from an egress
    * proxy around the implementation under test). Without it, providers.vendor_calls is not
@@ -67,7 +67,7 @@ export class FakesHarness implements Harness {
   readonly llm = new FakeLlm(this.ledger);
   readonly app: FakeApp;
   readonly otherApp: FakeApp;
-  readonly mediaNode: FakeMediaNode;
+  readonly roomrNode: FakeNatsRoomr;
   protected call: Setup["call"] = {};
   protected appSetup: Setup["app"] = {};
   protected listener?: Setup["listener"];
@@ -78,7 +78,7 @@ export class FakesHarness implements Harness {
   constructor(private readonly options: FakesHarnessOptions = {}) {
     this.app = options.app ?? new FakeApp();
     this.otherApp = options.otherApp ?? new FakeApp({ path: "/other" });
-    this.mediaNode = options.mediaNode ?? new FakeMediaNode();
+    this.roomrNode = options.roomrNode ?? new FakeNatsRoomr();
   }
 
   async start(): Promise<this> {
@@ -100,7 +100,7 @@ export class FakesHarness implements Harness {
       this.tts.stop(),
       this.stt.stop(),
       this.llm.stop(),
-      this.mediaNode.stop(),
+      this.roomrNode.stop(),
       new Promise<void>((r) =>
         this.mediaServer ? this.mediaServer.close(() => r()) : r()
       )
@@ -119,7 +119,7 @@ export class FakesHarness implements Harness {
   async setup(setup: Setup) {
     if (setup.providers) await this.inject(setup.providers);
     if (setup.callerAudio) {
-      this.mediaNode.configure({
+      this.roomrNode.configure({
         callerAudio: this.resolveAudio(setup.callerAudio)
       });
     }
@@ -130,7 +130,7 @@ export class FakesHarness implements Harness {
       });
       if (setup.app.reachable === false) await this.app.stop();
     }
-    if (setup.media) this.mediaNode.configure(setup.media);
+    if (setup.media) this.roomrNode.configure(setup.media);
     this.call = setup.call ?? {};
     this.appSetup = setup.app ?? {};
     this.listener = setup.listener;
@@ -149,16 +149,16 @@ export class FakesHarness implements Harness {
 
   caller(action: CallerAction) {
     if (action.dtmf)
-      for (const digit of action.dtmf) this.mediaNode.pressKey(digit);
+      for (const digit of action.dtmf) this.roomrNode.pressKey(digit);
     if (action.audio)
-      this.mediaNode.callerSpeaks(this.resolveAudio(action.audio));
-    if (action.hangup) this.mediaNode.callerHangup();
+      this.roomrNode.callerSpeaks(this.resolveAudio(action.audio));
+    if (action.hangup) this.roomrNode.callerHangup();
     if (action.drop)
-      this.mediaNode.dropRoom(
+      this.roomrNode.dropRoom(
         action.drop.reason as EndReason,
         action.drop.sipStatus
       );
-    if (action.nodeCrash) this.mediaNode.crash();
+    if (action.nodeCrash) this.roomrNode.crash();
   }
 
   private resolveAudio(source: AudioSource): AudioSource {
@@ -218,12 +218,12 @@ export class FakesHarness implements Harness {
   }
 
   /**
-   * Starts the scenario's call: the fake media node offers it and the runner gets the socket the
+   * Starts the scenario's call: the fake Roomr node offers it and the runner gets the socket the
    * gateway opens to the fake app.
    */
   async offerCallAndAccept(timeoutMs = 5000): Promise<Peer> {
     const mark = this.connectionMark();
-    this.mediaNode.offerCall(this.call);
+    this.roomrNode.offerCall(this.call);
     return this.acceptSession(mark, timeoutMs);
   }
 
@@ -301,15 +301,15 @@ export class FakesHarness implements Harness {
   measure(name: string, since: number): unknown {
     switch (name) {
       case "media.output_silent_within_ms":
-        return this.mediaNode.outputSilentWithinMs(since);
+        return this.roomrNode.outputSilentWithinMs(since);
       case "media.output_audio_ms":
-        return this.mediaNode.outputAudioMs(since);
+        return this.roomrNode.outputAudioMs(since);
       case "media.commands":
-        return this.mediaNode.commands.map((c) => c.command);
+        return this.roomrNode.commands.map((c) => c.command);
       case "media.held":
-        return this.mediaNode.isHeld();
+        return this.roomrNode.isHeld();
       case "media.sip":
-        return this.mediaNode.sipStatuses();
+        return this.roomrNode.sipStatuses();
       case "providers.tts.requests":
         return this.tts.requests;
       case "providers.stt.requests":
@@ -318,7 +318,7 @@ export class FakesHarness implements Harness {
         return this.until(() => this.stt.streams.length || undefined, 0);
       case "stt.caller_audio_lag_ms":
         return this.until(() => {
-          const sent = this.mediaNode.firstCallerAudibleSentAt(since);
+          const sent = this.roomrNode.firstCallerAudibleSentAt(since);
           const heard = sent && this.stt.firstAudibleAt(sent);
           return heard ? heard - sent! : undefined;
         }, null);

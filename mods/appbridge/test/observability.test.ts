@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import {
-  buildMediaNode,
-  MediaNodeBinaries,
+  buildRoomr,
+  RoomrBinaries,
   OtlpCollector,
   RealMediaHarness,
   Scenario
@@ -31,7 +31,7 @@ import { MemoryCallRecordSink } from "../src/record/CallRecordSink";
 import { startTelemetry, stopTelemetry } from "../src/telemetry";
 import { appsFor } from "./scenarioApps";
 
-// Observability (harden-conformance 1.3): one real call through the gateway and the Go media node,
+// Observability (harden-conformance 1.3): one real call through the gateway and the Go Roomr node,
 // both pointed at a test OTLP collector. Each must deliver traces, metrics and logs under its
 // service.name, and the call's spans and logs must carry its `fonoster.call_ref`. (The node writes
 // no log record for a normal call, only node-level ones, so its call-tagged signal is the span.) The apiserver's
@@ -59,22 +59,22 @@ function configFor(harness: RealMediaHarness, endpoint: string): GatewayConfig {
   } as GatewayConfig;
 }
 
-describe("@gateway OpenTelemetry signals from one real call (Go media node)", function () {
+describe("@gateway OpenTelemetry signals from one real call (Go Roomr node)", function () {
   this.timeout(60000);
   let nc: NatsConnection;
-  let bins: MediaNodeBinaries | undefined;
+  let bins: RoomrBinaries | undefined;
 
   before(async function () {
     this.timeout(120000);
     if (!NATS_URL) return this.skip();
-    bins = buildMediaNode(NATS_URL);
+    bins = buildRoomr(NATS_URL);
     if (!bins) return this.skip();
     nc = await connect({ servers: NATS_URL });
   });
 
   after(async () => nc?.close());
 
-  it("the gateway and the media node deliver traces and metrics (the node sends no OTLP logs) tagged with the call ref", async function () {
+  it("the gateway and the Roomr node deliver traces and metrics (the node sends no OTLP logs) tagged with the call ref", async function () {
     const collector = await new OtlpCollector().start();
     const callRef = `obs-${Date.now()}`;
     const harness = new RealMediaHarness(nc, bins!, { vendorCalls: () => 0 });
@@ -107,7 +107,7 @@ describe("@gateway OpenTelemetry signals from one real call (Go media node)", fu
           collector.has(gw, "metrics") &&
           collector.has(node, "traces", CALL_REF_ATTR, callRef) &&
           collector.has(node, "metrics"),
-        "every signal from the gateway and the media node"
+        "every signal from the gateway and the Roomr node"
       );
       expect(collector.has(gw, "metrics", "fonoster.gateway.calls.total")).to.be
         .true;

@@ -18,7 +18,7 @@
  */
 /**
  * A call from the browser to an agent over WebRTC (sip.js), add-talk-in-browser D7. The API
- * issues a short-lived test token; the call goes to the media nodes over SIP on a WebSocket
+ * issues a short-lived test token; the call goes to the Roomr nodes over SIP on a WebSocket
  * (Envoy's /sip), naming the agent with X-App-Ref.
  */
 import { useCallback, useEffect, useRef, useState } from "react";

@@ -69,10 +69,10 @@ features:
 
 routr:
   apiEndpoint: routr:51907
-  # The peer Go media nodes register under; every app-linked number points at it.
-  mediaNodePeer:
-    aor: sip:medianode@default
-    username: medianode
+  # The peer Go Roomr nodes register under; every app-linked number points at it.
+  roomrPeer:
+    aor: sip:roomr@default
+    username: roomr
     password: ${ROOMR_PASSWORD}             # the apiserver creates the peer when set
 
 nats:

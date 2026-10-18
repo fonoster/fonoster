@@ -95,11 +95,11 @@ describe("@gateway call record after a crash", function () {
 
     harness = await new FakesHarness().start();
     const nodeId = `crash-${Date.now()}`;
-    harness.mediaNode.attachNats(nc, {
+    harness.roomrNode.attachNats(nc, {
       commands: `media.${nodeId}.commands`,
       events: `media.${nodeId}.events`
     });
-    (harness.mediaNode as unknown as { nodeId: string }).nodeId = nodeId;
+    (harness.roomrNode as unknown as { nodeId: string }).nodeId = nodeId;
     const urls = harness.providerUrls;
     const config = {
       nats: { url: NATS_URL },
@@ -146,7 +146,7 @@ describe("@gateway call record after a crash", function () {
     );
     await waitForHeartbeat(started, 15000);
 
-    const { roomRef } = harness.mediaNode.offerCall({
+    const { roomRef } = harness.roomrNode.offerCall({
       from: "+15550001111",
       to: "+15550002222"
     });
@@ -201,7 +201,7 @@ describe("@gateway call record after a crash", function () {
     );
   });
 
-  // Pending (in-memory state audit, test 4): the media node ends the dead gateway's room
+  // Pending (in-memory state audit, test 4): the Roomr node ends the dead gateway's room
   // (go/roomr/e2e TestRoomEndsWhenItsGatewayIsLost) and a surviving replica seals the record
   // (above), but nothing sends the workspace `call.ended` (or `call.failed`) for the call: only
   // the owning gateway produces them (workspace-webhooks "v1 event types"), and it is dead. The

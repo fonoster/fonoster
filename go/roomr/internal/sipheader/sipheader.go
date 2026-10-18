@@ -1,5 +1,5 @@
 // Package sipheader holds the one rule for headers the node passes through untouched
-// (media-node, "The node knows no other component by name"): headers given with a dial
+// (roomr, "The node knows no other component by name"): headers given with a dial
 // (CreateCall's to.headers, participant.dial's and transfer's headers) go on the INVITE as they
 // are, and registration header templates go on the REGISTER. A caller only cannot set a header the
 // node itself owns on the request.

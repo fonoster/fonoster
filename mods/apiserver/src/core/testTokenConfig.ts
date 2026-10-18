@@ -20,14 +20,14 @@ import { TestTokenConfiguration } from "../applications/types";
 import { getConfig } from "../config";
 import { APISERVER_SIGNALING_SERVER } from "../envs";
 
-// Browser test calls reach the media nodes' Peer; the browser names the agent with X-App-Ref
+// Browser test calls reach the Roomr nodes' Peer; the browser names the agent with X-App-Ref
 // (add-talk-in-browser D1).
 
 const testTokenConfig = {
   username: "internal",
   domain: "internal",
   displayName: "Test Call Agent",
-  targetAor: getConfig().routr.mediaNodePeer.aor,
+  targetAor: getConfig().routr.roomrPeer.aor,
   signalingServer: APISERVER_SIGNALING_SERVER
 } as TestTokenConfiguration;
 

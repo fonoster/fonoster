@@ -172,7 +172,7 @@ async function runServices() {
     );
   }
 
-  // CreateCall: places API-originated calls on the media nodes (cleanbreak CB-B2)
+  // CreateCall: places API-originated calls on the Roomr nodes (cleanbreak CB-B2)
   await runOutboundCalls({ natsUrl: NATS_CONNECTION });
 
   server.bindAsync(APISERVER_BIND_ADDR, credentials, async () => {

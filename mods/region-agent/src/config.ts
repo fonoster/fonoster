@@ -66,11 +66,11 @@ export const agentConfigSchema = z
     routr: z
       .object({
         endpoint: z.string(),
-        mediaNodePeer: z
+        roomrPeer: z
           .object({
-            name: z.string().default("Media nodes"),
-            username: z.string().default("medianode"),
-            aor: z.string().default("sip:medianode@default"),
+            name: z.string().default("Roomr nodes"),
+            username: z.string().default("roomr"),
+            aor: z.string().default("sip:roomr@default"),
             passwordEnv: z.string().default("RB_NODE_PASSWORD")
           })
           .strict()

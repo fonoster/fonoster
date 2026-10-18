@@ -48,10 +48,10 @@ func infoRequest(target, callID, extra string) string {
 	if callID != "" {
 		callHdr = "Call-ID: " + callID + "\n"
 	}
-	return fmt.Sprintf(`INFO sip:medianode@%s SIP/2.0
+	return fmt.Sprintf(`INFO sip:roomr@%s SIP/2.0
 Via: SIP/2.0/UDP LOCAL;branch=z9hG4bK%d
 From: <sip:attacker@example.com>;tag=evil1
-To: <sip:medianode@%s>;tag=evil2
+To: <sip:roomr@%s>;tag=evil2
 %sCSeq: 2 INFO
 Max-Forwards: 70
 Content-Type: application/dtmf-relay
