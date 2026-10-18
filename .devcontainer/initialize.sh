@@ -36,11 +36,6 @@ if [ "$MODE" = "host" ]; then
 fi
 
 if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ]; then
-  # A moved or re-cloned checkout: Compose needs this checkout's absolute path.
-  if ! grep -qx "CONFIG_DIR=$DEV/config" "$DEV/.env"; then
-    sed "s#^CONFIG_DIR=.*#CONFIG_DIR=$DEV/config#" "$DEV/.env" > "$DEV/.env.tmp" && mv "$DEV/.env.tmp" "$DEV/.env"
-    log "pointed CONFIG_DIR at $DEV/config"
-  fi
   log "keeping $DEV (npm run dev:config renders it again)"
   exit 0
 fi
