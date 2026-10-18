@@ -428,6 +428,9 @@ model Region {
   secretsSet          String[]  @map("secrets_set")
   reportedConfig      Int       @default(0) @map("reported_config_version")
   configVersion       Int       @default(0) @map("config_version")
+  /// Set when a bound workspace's config changed and no snapshot carries it yet (ST-3): a replica
+  /// that dies inside the debounce window leaves it set, and another replica publishes.
+  configChangedAt     DateTime? @map("config_changed_at")
   lastHeartbeatAt     DateTime? @map("last_heartbeat_at")
   enrolledAt          DateTime? @map("enrolled_at")
   /// Connection details the cell reported (region.R.endpoints), cleaned.
@@ -441,6 +444,18 @@ model Region {
   // Uniqueness of ids is enforced by partial indexes in the migration (live rows only).
   @@index([ownerRef])
   @@map("regions")
+}
+
+/// A download relayed from a private region (ST-4): the relay limit is per region across every
+/// apiserver replica. A slot is a lease, refreshed while the download runs.
+model RegionRelaySlot {
+  regionRef String   @map("region_ref") @db.VarChar(64)
+  slot      Int
+  holder    String   @db.VarChar(64)
+  expiresAt DateTime @map("expires_at")
+
+  @@id([regionRef, slot])
+  @@map("region_relay_slots")
 }
 
 /// One enrollment token (single use, 24 h). Only its id is kept, never the token.

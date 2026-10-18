@@ -84,6 +84,15 @@ deadline. A sealed record SHALL never be modified.
 - **AND** it contains every message appended before the crash
 - **AND** it lists the parts that could not be collected as missing
 
+#### Scenario: Gateways sharing a record directory
+
+- **WHEN** two gateways share the working directory and a call on gateway A stays silent for longer
+  than the seal deadline
+- **THEN** gateway B does not seal it while A is alive (A keeps its live calls' working records
+  marked alive)
+- **AND** when A dies, the call is sealed exactly once (one version 1, one index entry, one
+  `call_record.sealed`), even with several gateways sweeping at the same moment
+
 #### Scenario: A sealed record cannot be edited
 
 - **WHEN** anything tries to change a sealed version

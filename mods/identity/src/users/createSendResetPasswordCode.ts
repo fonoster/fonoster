@@ -30,7 +30,7 @@ import { IdentityConfig } from "../exchanges/types";
 import { createSendEmail } from "../utils";
 import { CallWithAddress, clientAddress } from "../utils/clientAddress";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
-import { createRateLimiter } from "../utils/rateLimiter";
+import { createSharedRateLimiter } from "../utils/rateLimiter";
 import { sendResetPasswordEmail } from "./sendResetPasswordEmail";
 const logger = getLogger({ service: "identity", filePath: __filename });
 
@@ -51,8 +51,16 @@ function createSendResetPasswordCode(
 ) {
   const generateVerificationCode = createGenerateVerificationCode(prisma);
   const { perEmail, perIp, windowMs } = VERIFICATION_CODE_SEND_LIMITS;
-  const withinEmailLimit = createRateLimiter({ limit: perEmail, windowMs });
-  const withinIpLimit = createRateLimiter({ limit: perIp, windowMs });
+  const withinEmailLimit = createSharedRateLimiter(prisma, {
+    name: "reset-code:contact",
+    limit: perEmail,
+    windowMs
+  });
+  const withinIpLimit = createSharedRateLimiter(prisma, {
+    name: "reset-code:ip",
+    limit: perIp,
+    windowMs
+  });
   const resetPasswordUrl =
     identityConfig.resetPasswordUrl ??
     `${identityConfig.issuer.replace(/\/+$/, "")}/reset-password`;
@@ -68,8 +76,8 @@ function createSendResetPasswordCode(
 
     // Counted before the lookup, so the answer is the same for unknown emails.
     if (
-      !withinIpLimit(clientAddress(call)) ||
-      !withinEmailLimit(username.toLowerCase())
+      !(await withinIpLimit(clientAddress(call))) ||
+      !(await withinEmailLimit(username.toLowerCase()))
     ) {
       return callback(tooManyRequests);
     }

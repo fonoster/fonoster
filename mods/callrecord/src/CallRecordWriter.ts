@@ -97,7 +97,15 @@ export type CallRecordWriterOptions = {
   region: string;
   /** Called after each sealed version: index it, send `call_record.sealed`. */
   onSealed?: (entry: RecordIndexEntry) => void;
+  /**
+   * How often this writer marks its live calls' working records as alive (ST-5), so a writer
+   * sweeping the same directory leaves them alone. Well under the sweep's deadline.
+   */
+  heartbeatMs?: number;
 };
+
+/** How long a sealer waits for another writer's seal of the same call. */
+const OTHER_SEAL_WAIT_MS = 120_000;
 
 /**
  * Builds call records live and seals them at hangup (call-record "The record is built during the
@@ -109,6 +117,9 @@ export class CallRecordWriter {
   private readonly sealing = new Map<string, Promise<SealingVersion>>();
 
   private readonly custody: KeyCustody;
+  /** Names this writer in seal locks on a shared working directory. */
+  private readonly owner = randomUUID();
+  private heartbeat?: ReturnType<typeof setInterval>;
 
   constructor(private readonly options: CallRecordWriterOptions) {
     this.custody = isKeyCustody(options.key)
@@ -123,6 +134,26 @@ export class CallRecordWriter {
   append(callRef: string, entry: RecordEntry) {
     this.active.add(callRef);
     this.options.working.append(callRef, entry);
+    this.heartbeat ??= setInterval(
+      () => this.beat(),
+      this.options.heartbeatMs ?? 5_000
+    );
+    this.heartbeat.unref?.();
+  }
+
+  /** Marks every live call of this writer as alive (see `heartbeatMs`). */
+  beat() {
+    for (const callRef of this.active) this.options.working.touch(callRef);
+    if (!this.active.size && this.heartbeat) {
+      clearInterval(this.heartbeat);
+      this.heartbeat = undefined;
+    }
+  }
+
+  /** Stops the heartbeat (shutdown; a writer that dies stops it too). */
+  stop() {
+    if (this.heartbeat) clearInterval(this.heartbeat);
+    this.heartbeat = undefined;
   }
 
   /** Where the recorder writes this call's tracks (removed once the record is sealed). */
@@ -177,7 +208,44 @@ export class CallRecordWriter {
     return p;
   }
 
+  /** The sealed version 1 another writer stored, once its seal lock is gone. */
+  private async sealedByOther(callRef: string): Promise<SealingVersion> {
+    const { working } = this.options;
+    const end = Date.now() + OTHER_SEAL_WAIT_MS;
+    while (working.isSealLocked(callRef) && Date.now() < end)
+      await new Promise((r) => setTimeout(r, 200));
+    const entries = working.readWorking(callRef);
+    const existing = await this.storeFor(workspaceOf(entries)).getVersion(
+      callRef
+    );
+    if (!existing?.signed || !existing.redacted)
+      throw new Error(`${callRef} is being sealed by another writer`);
+    return {
+      version: existing.version,
+      signed: existing.signed,
+      redacted: existing.redacted,
+      parts: existing.manifest.parts.map(
+        (p): StoredPart => ({ ...p, stored: true })
+      )
+    };
+  }
+
+  /**
+   * Seals under a lock in the working directory, so of all the writers that share it exactly one
+   * seals a call (its hangup on the owner, or a sweep elsewhere), once (ST-5).
+   */
   private async doSeal(callRef: string): Promise<SealingVersion> {
+    const { working } = this.options;
+    if (!working.lockSeal(callRef, this.owner))
+      return this.sealedByOther(callRef);
+    try {
+      return await this.sealLocked(callRef);
+    } finally {
+      working.unlockSeal(callRef, this.owner);
+    }
+  }
+
+  private async sealLocked(callRef: string): Promise<SealingVersion> {
     const { working, region } = this.options;
     const entries = working.readWorking(callRef);
     const workspaceRef = workspaceOf(entries);
@@ -271,9 +339,14 @@ export class CallRecordWriter {
    */
   async sweep(now = Date.now(), deadlineMs = SEAL_DEADLINE_MS) {
     const sealed: string[] = [];
+    // Live calls of this writer first, so other writers see them alive.
+    this.beat();
     for (const w of this.options.working.listWorking()) {
       if (this.active.has(w.callRef) || this.sealing.has(w.callRef)) continue;
+      // Quiet for the deadline: neither appended to nor kept alive by its owner's heartbeat.
       if (now - w.lastAppendAt < deadlineMs) continue;
+      // Another writer is sealing it right now.
+      if (this.options.working.isSealLocked(w.callRef)) continue;
       try {
         await this.seal(w.callRef);
         sealed.push(w.callRef);

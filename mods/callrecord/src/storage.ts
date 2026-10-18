@@ -90,6 +90,79 @@ export class FsWorkingStore {
     fs.rmSync(this.workingFile(callRef), { force: true });
     fs.rmSync(this.recordingDir(callRef), { recursive: true, force: true });
   }
+
+  hasWorking(callRef: string) {
+    return fs.existsSync(this.workingFile(callRef));
+  }
+
+  /**
+   * The owner's heartbeat on a live call's working record (ST-5): moves its time of last append
+   * to now without writing, so a quiet call (hold, long silence) is not taken for an abandoned
+   * one by another gateway sweeping the same directory.
+   */
+  touch(callRef: string) {
+    const now = new Date();
+    try {
+      fs.utimesSync(this.workingFile(callRef), now, now);
+    } catch {
+      // not written yet, or sealed meanwhile
+    }
+  }
+
+  private sealLock(callRef: string) {
+    return path.join(this.dir, "working", `${safe(callRef)}.seal`);
+  }
+
+  /**
+   * Takes the right to seal a call's working record: one writer wins, across every process that
+   * shares the directory (an exclusive create). A lock older than `staleMs` belongs to a writer
+   * that died while sealing and is taken over. False when another writer holds it.
+   */
+  lockSeal(callRef: string, owner: string, staleMs = 10 * 60_000): boolean {
+    const file = this.sealLock(callRef);
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        fs.writeFileSync(file, owner, { flag: "wx" });
+        return true;
+      } catch (e) {
+        if ((e as { code?: string }).code !== "EEXIST") throw e;
+      }
+      let mtime: number;
+      try {
+        mtime = fs.statSync(file).mtimeMs;
+      } catch {
+        continue; // released meanwhile: try again
+      }
+      if (Date.now() - mtime < staleMs) return false;
+      // Stale: move it aside (only one writer's rename finds it), then try again.
+      const aside = `${file}.stale-${owner}`;
+      try {
+        fs.renameSync(file, aside);
+      } catch {
+        return false;
+      }
+      if (Date.now() - fs.statSync(aside).mtimeMs < staleMs) {
+        // Another writer took it over between our stat and rename: give it back.
+        fs.renameSync(aside, file);
+        return false;
+      }
+      fs.rmSync(aside, { force: true });
+    }
+    return false;
+  }
+
+  isSealLocked(callRef: string) {
+    return fs.existsSync(this.sealLock(callRef));
+  }
+
+  unlockSeal(callRef: string, owner: string) {
+    const file = this.sealLock(callRef);
+    try {
+      if (fs.readFileSync(file, "utf8") === owner) fs.rmSync(file);
+    } catch {
+      // gone already
+    }
+  }
 }
 
 export type ManifestPart = {

@@ -72,6 +72,23 @@ function toDelivery(r: Row): Delivery {
   return d;
 }
 
+/** A delivery's columns (without its ref). */
+function deliveryData(x: Delivery) {
+  return {
+    endpointRef: x.endpointId,
+    accessKeyId: x.event.workspaceRef,
+    eventId: x.event.id,
+    eventType: x.event.type,
+    event: x.event,
+    status: x.status,
+    attempts: x.attempts,
+    firstAttemptAt: date(x.firstAttemptAt),
+    lastAttemptAt: date(x.lastAttemptAt),
+    lastStatus: x.lastStatus ?? null,
+    nextAttemptAt: new Date(x.nextAttemptAt)
+  };
+}
+
 export class PrismaWebhookStore implements WebhookStore {
   private e = new Map<string, WebhookEndpoint>();
   private d = new Map<string, Delivery>();
@@ -129,6 +146,21 @@ export class PrismaWebhookStore implements WebhookStore {
     }
   }
 
+  /**
+   * Reloads one workspace's endpoints now. The fan-out calls it for each event, so an endpoint
+   * created, changed or deleted a moment ago through another replica counts at once instead of
+   * after the next `refresh()` (ST-2).
+   */
+  async refreshEndpoints(workspaceRef: string) {
+    await this.writes.flush();
+    const rows: Row[] = await this.prisma.webhookEndpoint.findMany({
+      where: { accessKeyId: workspaceRef }
+    });
+    for (const [id, e] of this.e)
+      if (e.workspaceRef === workspaceRef) this.e.delete(id);
+    for (const r of rows) this.e.set(r.ref as string, toEndpoint(r));
+  }
+
   endpoints(workspaceRef?: string) {
     return [...this.e.values()].filter(
       (x) => !workspaceRef || x.workspaceRef === workspaceRef
@@ -168,21 +200,32 @@ export class PrismaWebhookStore implements WebhookStore {
     );
   }
 
+  /**
+   * Stores new deliveries before returning (the fan-out acknowledges the bus message only then).
+   * Returns the ones it stored; a delivery that already exists (the same event fanned out again)
+   * is left as it is, and whoever owns it keeps it (ST-2).
+   */
+  async insertDeliveries(xs: Delivery[]): Promise<Delivery[]> {
+    await this.writes.flush();
+    const created: Delivery[] = [];
+    for (const x of xs) {
+      try {
+        await this.prisma.webhookDelivery.create({
+          data: { ref: x.id, ...deliveryData(x) }
+        });
+      } catch (e) {
+        if ((e as { code?: string }).code === "P2002") continue;
+        throw e;
+      }
+      this.d.set(x.id, x);
+      created.push(x);
+    }
+    return created;
+  }
+
   putDelivery(x: Delivery) {
     this.d.set(x.id, x);
-    const data = {
-      endpointRef: x.endpointId,
-      accessKeyId: x.event.workspaceRef,
-      eventId: x.event.id,
-      eventType: x.event.type,
-      event: x.event,
-      status: x.status,
-      attempts: x.attempts,
-      firstAttemptAt: date(x.firstAttemptAt),
-      lastAttemptAt: date(x.lastAttemptAt),
-      lastStatus: x.lastStatus ?? null,
-      nextAttemptAt: new Date(x.nextAttemptAt)
-    };
+    const data = deliveryData(x);
     this.writes.push(() =>
       this.prisma.webhookDelivery.upsert({
         where: { ref: x.id },

@@ -29,7 +29,7 @@ import { Prisma } from "../db";
 import { createRefreshTokenStore } from "../exchanges/refreshTokens";
 import { CallWithAddress, clientAddress } from "../utils/clientAddress";
 import { createIsValidVerificationCode } from "../utils/createIsValidVerificationCode";
-import { createRateLimiter } from "../utils/rateLimiter";
+import { createSharedRateLimiter } from "../utils/rateLimiter";
 import { passwordColumns } from "../utils/userPasswords";
 
 const logger = getLogger({ service: "identity", filePath: __filename });
@@ -43,8 +43,16 @@ function createResetPassword(prisma: Prisma) {
   const isValidVerificationCode = createIsValidVerificationCode(prisma);
   const refreshTokens = createRefreshTokenStore(prisma);
   const { perEmail, perIp, windowMs } = RESET_PASSWORD_ATTEMPT_LIMITS;
-  const withinEmailLimit = createRateLimiter({ limit: perEmail, windowMs });
-  const withinIpLimit = createRateLimiter({ limit: perIp, windowMs });
+  const withinEmailLimit = createSharedRateLimiter(prisma, {
+    name: "reset-password:contact",
+    limit: perEmail,
+    windowMs
+  });
+  const withinIpLimit = createSharedRateLimiter(prisma, {
+    name: "reset-password:ip",
+    limit: perIp,
+    windowMs
+  });
 
   const resetPassword = async (
     call: CallWithAddress & { request: ResetPasswordRequest },
@@ -56,8 +64,8 @@ function createResetPassword(prisma: Prisma) {
     logger.verbose("call to resetPassword", { username });
 
     if (
-      !withinIpLimit(clientAddress(call)) ||
-      !withinEmailLimit(username.toLowerCase())
+      !(await withinIpLimit(clientAddress(call))) ||
+      !(await withinEmailLimit(username.toLowerCase()))
     ) {
       return callback({
         code: status.RESOURCE_EXHAUSTED,

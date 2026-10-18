@@ -17,8 +17,7 @@
  * limitations under the License.
  */
 import { CallType } from "@fonoster/types";
-import { v4 as uuidv4 } from "uuid";
-import { createPerCallCache } from "./createPerCallCache";
+import { v5 as uuidv5 } from "uuid";
 import { mapCallDirectionToEnum } from "./mapCallDirectionToEnum";
 
 const ACCESS_KEY_ID_HEADER = "X-Access-Key-Id";
@@ -27,10 +26,16 @@ const CALL_DIRECTION_HEADER = "X-Call-Direction";
 const DOD_NUMBER_HEADER = "X-Dod-Number";
 const API_ORIGINATED_TYPE_HEADER = "X-Is-Api-Originated-Type";
 
-// SIP-originated calls don't carry a ref header, so we mint one. It must
-// stay the same across every event for the call, not just be unique per
-// event, since it's now used to tag and look up the call's record.
-const syntheticRefByCallId = createPerCallCache<string>(24 * 60 * 60 * 1000);
+// SIP-originated calls don't carry a ref header, so we derive one from Routr's call id. It must
+// be the same for every event of the call on every replica and after a restart (each replica
+// minting its own split one call into several CDR series), so it is a name-based UUID (v5)
+// rather than a remembered random one.
+const SIP_CALL_REF_NAMESPACE = "6f1d2c3e-8a4b-5c6d-9e0f-1a2b3c4d5e6f";
+
+/** The ref of a SIP-originated call: the same for a callId everywhere. */
+function syntheticRef(callId: string): string {
+  return uuidv5(String(callId), SIP_CALL_REF_NAMESPACE);
+}
 
 function transformEvent(
   event: Record<string, unknown>
@@ -70,13 +75,8 @@ function transformEvent(
     if (extraHeaders[CALL_REF_HEADER]) {
       transformedEvent.ref = extraHeaders[CALL_REF_HEADER];
     } else {
-      // SIP originated calls don't have a ref so we need to create one,
-      // reused across every event for this call rather than minted fresh
-      // each time.
-      const callId = event.callId as string;
-      const ref = syntheticRefByCallId.get(callId) || uuidv4();
-      syntheticRefByCallId.set(callId, ref);
-      transformedEvent.ref = ref;
+      // SIP originated calls don't have a ref: derive it from the call id.
+      transformedEvent.ref = syntheticRef(event.callId as string);
     }
 
     if (extraHeaders[DOD_NUMBER_HEADER]) {
@@ -101,4 +101,4 @@ function transformEvent(
   return transformedEvent;
 }
 
-export { transformEvent };
+export { syntheticRef, transformEvent };

@@ -18,7 +18,6 @@
  */
 import { getLogger } from "@fonoster/logger";
 import { InfluxDB, Point } from "@influxdata/influxdb-client";
-import { createPerCallCache } from "./createPerCallCache";
 
 type InfluxDbPub = {
   url: string;
@@ -27,15 +26,10 @@ type InfluxDbPub = {
   bucket: string;
 };
 
-type FonosterEvent = {
-  name: "cdr" | "error";
-  tag: string;
-  data: Record<string, string>;
-};
-
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function createInfluxDbPub(config) {
+/** Writes points to the calls bucket (built by createCdrWriter). */
+function createInfluxDbPub(config: InfluxDbPub) {
   const { url, token, org, bucket } = config;
 
   logger.info("creating influxdb client", { url, org, bucket });
@@ -43,40 +37,10 @@ function createInfluxDbPub(config) {
   const client = new InfluxDB({ url, token });
   const writeClient = client.getWriteApi(org, bucket, "ns");
 
-  // A call's fields arrive across multiple events over time, but not every
-  // event's payload carries "ref" (e.g. an update with just endedAt/status).
-  // Every point for a call must share the same tag set for pivot to merge
-  // them into one record, so we remember each call's ref and reapply it to
-  // every subsequent write.
-  const refByCallId = createPerCallCache<string>(24 * 60 * 60 * 1000);
-
-  return (event) => {
-    logger.verbose("writing event to InfluxDB", event);
-    const point = new Point(event.name).tag("callId", event.tag);
-
-    const ref = event.data.ref
-      ? String(event.data.ref)
-      : refByCallId.get(event.tag);
-
-    if (ref) {
-      point.tag("ref", ref);
-      refByCallId.set(event.tag, ref);
-    }
-
-    Object.entries(event.data).forEach(([key, value]) => {
-      if (key === "ref") {
-        return;
-      } else if (typeof value === "number") {
-        point.intField(key, value); // Or floatField for floating-point numbers
-      } else if (typeof value === "boolean") {
-        point.booleanField(key, value);
-      } else if (key === "startedAt" || key === "endedAt") {
-        point.stringField(key, new Date(value.toString()).getTime());
-      } else {
-        point.stringField(key, value);
-      }
+  return (point: Point) => {
+    logger.verbose("writing event to InfluxDB", {
+      line: point.toLineProtocol()
     });
-
     try {
       writeClient.writePoint(point);
       // flush() rejects when InfluxDB is unreachable; unhandled, that killed the process (ST-B8).
@@ -91,4 +55,4 @@ function createInfluxDbPub(config) {
   };
 }
 
-export { FonosterEvent, InfluxDbPub, createInfluxDbPub };
+export { InfluxDbPub, createInfluxDbPub };

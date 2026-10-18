@@ -28,6 +28,7 @@ import { DEFAULT_REGION_ID } from "./ids";
 import { startRegionLink } from "./link";
 import { createRegionNatsAuth, RegionNatsAuth } from "./natsAuth";
 import { createRelayClient, RelayClient } from "./relay";
+import { prismaRelaySlots } from "./relaySlots";
 import { createRegionService, RegionService } from "./service";
 import {
   PublicRegion,
@@ -171,7 +172,10 @@ export async function runRegions(
       debounceMs: config.configDebounceMs,
       rootDomain: deps.rootDomain
     });
-    relay = createRelayClient(nc, config.relay);
+    relay = createRelayClient(nc, {
+      ...config.relay,
+      slots: prismaRelaySlots(deps.db)
+    });
     stopLink = startRegionLink({ nc, db: deps.db, service, configSync });
     if (natsAuth && system)
       await service

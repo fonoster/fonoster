@@ -83,6 +83,8 @@ describe("@apiserver/webhooks fan-out from the bus (database, NATS)", function (
 
   after(async function () {
     await fanout?.stop();
+    const jsm = await nc?.jetstreamManager().catch(() => undefined);
+    await jsm?.streams.delete("FONOSTER_WEBHOOKS").catch(() => undefined);
     await nc?.close();
     await producer?.close();
     await receiver?.stop();

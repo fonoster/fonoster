@@ -13,6 +13,11 @@ on:
       - 'mods/apiserver/test/outbound/**'
       - 'mods/apiserver/src/regions/**'
       - 'mods/apiserver/src/records/**'
+      - 'mods/apiserver/src/events/**'
+      - 'mods/apiserver/src/webhooks/**'
+      - 'mods/apiserver/src/core/durableConsumer.ts'
+      - 'mods/apiserver/test/events/**'
+      - 'mods/apiserver/test/webhooks/**'
       - 'mods/apiserver/test/regions/**'
       - 'mods/region-agent/**'
       - 'mods/common/**'
@@ -112,6 +117,7 @@ jobs:
             | tar -xz -C "$RUNNER_TEMP"
           echo "NATS_SERVER_BIN=$RUNNER_TEMP/nats-server-v2.11.8-linux-amd64/nats-server" >> "$GITHUB_ENV"
 
+      # The region suites, and the replica suites that need both NATS (JetStream) and Postgres.
       - name: Run the region suites
         env:
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
@@ -122,7 +128,10 @@ jobs:
             'mods/conformance/test/regions.test.ts' \
             'mods/conformance/test/regionsScenarios.test.ts' \
             'mods/apiserver/test/regions/regions.test.ts' \
-            'mods/region-agent/test/cell.test.ts'
+            'mods/region-agent/test/cell.test.ts' \
+            'mods/apiserver/test/events/callEvents.test.ts' \
+            'mods/apiserver/test/webhooks/fanout.test.ts' \
+            'mods/apiserver/test/webhooks/sharedIntake.test.ts'
 
   nightly:
     name: timing (T1), load (T2), replay (T3) and Pipecat

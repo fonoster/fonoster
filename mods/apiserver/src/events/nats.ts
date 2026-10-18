@@ -18,46 +18,76 @@
  */
 import { natsConnectOptions, NatsTarget } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { connect } from "nats";
-import { NatsEventCallback } from "./types";
+import { Point } from "@influxdata/influxdb-client";
+import { connect, NatsConnection } from "nats";
+import { CallRefStore, openCallRefs } from "./callRefs";
+import { createCallEventHandler } from "./createCdrWriter";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 const ROUTR_CALL_SUBJECT = "routr.call.*";
 
-async function streamEvents(subscription, callback: NatsEventCallback) {
-  // eslint-disable-next-line no-loops/no-loops
-  for await (const m of subscription) {
-    const messageStr = m.data.toString();
-    callback({ ...JSON.parse(messageStr) });
-  }
+/**
+ * One replica of the queue group handles each Routr call event (control-plane "Events processed
+ * once"): without it every replica wrote its own CDR points for every call (ST-1).
+ */
+export const CALL_EVENTS_QUEUE = "apiserver-cdr";
+
+/**
+ * Subscribes to Routr's call events and writes one CDR point per event. Returns the unsubscribe
+ * function once the subscription is registered on the server.
+ */
+async function subscribeCallEvents(
+  nc: NatsConnection,
+  write: (point: Point) => void,
+  options: { refs?: CallRefStore; queue?: string } = {}
+) {
+  const refs = options.refs ?? (await openCallRefs(nc, logger));
+  const handle = createCallEventHandler({ refs, write });
+  const sub = nc.subscribe(ROUTR_CALL_SUBJECT, {
+    queue: options.queue ?? CALL_EVENTS_QUEUE,
+    callback: (err, m) => {
+      if (err) return;
+      let event: Record<string, unknown>;
+      try {
+        event = JSON.parse(m.data.toString());
+      } catch {
+        return;
+      }
+      logger.verbose("received nats event", { ...event });
+      handle(event).catch((e) =>
+        logger.warn(`could not write the CDR point: ${(e as Error).message}`)
+      );
+    }
+  });
+  await nc.flush();
+  logger.verbose("subscribed to subjects", {
+    subjects: [ROUTR_CALL_SUBJECT],
+    queue: options.queue ?? CALL_EVENTS_QUEUE
+  });
+  return () => sub.unsubscribe();
 }
 
 /**
- * This method listens for registration events from Routr.
+ * This method listens for call events from Routr and writes them as CDR points.
  *
  * @param {string} natsUrl - The NATS server URL
- * @param {RegisterEventCallback} callback - The callback function
+ * @param {Function} write - Writes one point (InfluxDB)
  * @return {void}
  */
-function watchNats(nats: NatsTarget, callback: NatsEventCallback) {
+function watchNats(nats: NatsTarget, write: (point: Point) => void) {
   (async () => {
     const nc = await connect({
       ...natsConnectOptions(nats),
       maxReconnectAttempts: -1
     });
 
-    const a = nc.subscribe(ROUTR_CALL_SUBJECT);
-
     logger.verbose("connected to nats", {
       natsUrl: natsConnectOptions(nats).servers
     });
-    logger.verbose("subscribed to subjects", {
-      subjects: [ROUTR_CALL_SUBJECT]
-    });
 
-    await Promise.all([streamEvents(a, callback)]);
-  })();
+    await subscribeCallEvents(nc, write);
+  })().catch((e) => logger.error(`call events: ${(e as Error).message}`));
 }
 
-export { watchNats };
+export { subscribeCallEvents, watchNats };
