@@ -301,7 +301,7 @@ export async function startControlPlane(
           token,
           publicKey,
           version: options.currentVersion ?? "0.27.0",
-          components: { mediaNodes: 1, gateways: 1, autopilot: true }
+          components: { roomrNodes: 1, gateways: 1, autopilot: true }
         }
       });
     },

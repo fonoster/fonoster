@@ -273,7 +273,7 @@ describe("@gateway apps", function () {
 
       it("routes a call to a database app and delivers call.started from the database endpoint", async function () {
         harness = await new FakesHarness().start();
-        harness.mediaNode.attachNats(nc);
+        harness.roomrNode.attachNats(nc);
         receiver = await new FakeWebhookReceiver().start();
         await encrypted.application.update({
           where: { ref: "support" },
@@ -322,7 +322,7 @@ describe("@gateway apps", function () {
           signingSecret: "app-secret",
           verifySignature: true
         });
-        harness.mediaNode.offerCall({ appRef: "support" });
+        harness.roomrNode.offerCall({ appRef: "support" });
         const { peer } = await harness.app.nextConnection();
         const json = (p: Peer) =>
           p.frames.items

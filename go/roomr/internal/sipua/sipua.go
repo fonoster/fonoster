@@ -1,5 +1,5 @@
 // Package sipua is the node's SIP side: INVITEs from the SIP proxy become rooms, and the node
-// keeps the registrations its configuration lists, none by default (media-node, "Registration is
+// keeps the registrations its configuration lists, none by default (roomr, "Registration is
 // optional and configured").
 package sipua
 
@@ -112,7 +112,7 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if err != nil {
 		return nil, err
 	}
-	contact := sip.ContactHeader{Address: sip.Uri{User: "medianode", Host: cfg.AdvertiseHost, Port: cfg.AdvertisePort}}
+	contact := sip.ContactHeader{Address: sip.Uri{User: "roomr", Host: cfg.AdvertiseHost, Port: cfg.AdvertisePort}}
 	u := &UA{cfg: cfg, node: n, ua: ua, srv: srv, client: client, udp: udp, tcp: tcp,
 		dialogs: sipgo.NewDialogServerCache(client, contact), out: sipgo.NewDialogClientCache(client, contact)}
 	for _, r := range cfg.Registrations {
@@ -127,7 +127,7 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 		port, _ := strconv.Atoi(tlsPort)
 		params := sip.NewParams()
 		params.Add("transport", "tls")
-		tlsContact := sip.ContactHeader{Address: sip.Uri{User: "medianode", Host: cfg.AdvertiseHost, Port: port, UriParams: params}}
+		tlsContact := sip.ContactHeader{Address: sip.Uri{User: "roomr", Host: cfg.AdvertiseHost, Port: port, UriParams: params}}
 		u.dialogsTLS = sipgo.NewDialogServerCache(client, tlsContact)
 	}
 	srv.OnInvite(u.guard(u.onInvite))
@@ -506,7 +506,7 @@ func (u *UA) peerUser() string {
 	if len(u.regs) > 0 {
 		return orDefault(u.regs[0].cfg.Username, u.regs[0].aor.User)
 	}
-	return "medianode"
+	return "roomr"
 }
 
 // peerPassword answers the outbound proxy's challenge.

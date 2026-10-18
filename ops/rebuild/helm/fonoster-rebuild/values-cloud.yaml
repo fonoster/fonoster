@@ -1,5 +1,5 @@
 # The whole platform in one release: control plane (apiserver with embedded Identity, Envoy,
-# dashboard, hosted Autopilot), NATS, dev-grade Postgres and MinIO, gateway and media nodes. It
+# dashboard, hosted Autopilot), NATS, dev-grade Postgres and MinIO, gateway and Roomr nodes. It
 # mirrors ops/rebuild/compose.yaml. Routr and RTPEngine come from their own charts (Routr at
 # `routr`, using this release's Postgres database `routr` and NATS).
 #
@@ -13,7 +13,7 @@
 #   fonoster-identity-keys private.pem, public.pem      (Identity's RSA pair)
 #   fonoster-apiserver     ownerPassword
 #   fonoster-autopilot     secret                       (Autopilot apps' signing secret)
-#   roomr-peer         password                     (the media nodes' Routr peer)
+#   roomr-peer         password                     (the Roomr nodes' Routr peer)
 #   fonoster-records-key   records.pem                  (EC P-256 key that signs call records)
 #   fonoster-vendors       deepgram                     (platform Deepgram key: TTS and STT)
 #   fonoster-nats-users    apiserver, gateway, roomr, routr   (NATS passwords, hex; Routr's
@@ -43,9 +43,9 @@ apiserver:
       auth: { methods: [password], signup: invite }
     routr:
       apiEndpoint: routr:51907
-      mediaNodePeer:
-        aor: "sip:medianode@default"
-        username: medianode
+      roomrPeer:
+        aor: "sip:roomr@default"
+        username: roomr
         password: "secret://k8s/roomr-peer#password"
     apps:
       autopilotUrl: "ws://{{ .Release.Name }}-autopilot:3000"
@@ -131,6 +131,6 @@ roomr:
   routr:
     registrar: routr:5060
     domain: default
-    username: medianode
+    username: roomr
     outboundProxy: routr:5060
     passwordSecret: roomr-peer

@@ -11,7 +11,7 @@
     trunkRef: trunk-01
     location:
       telUrl: tel:+15550001000
-      aorLink: sip:medianode@sip.local
+      aorLink: sip:roomr@sip.local
       extraHeaders:
         - name: X-App-Ref
           value: app-live

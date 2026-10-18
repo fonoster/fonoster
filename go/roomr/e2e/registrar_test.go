@@ -1,6 +1,6 @@
 package e2e
 
-// A fake registrar (redesign-media-node 13.4, conformance "registration templates against the
+// A fake registrar (redesign-roomr 13.4, conformance "registration templates against the
 // fake registrar"): it records every REGISTER with its headers and, when given credentials,
 // challenges REGISTERs with digest auth and checks the response, the way Routr checks a Peer's.
 // The node knows no registrar by name: Routr is one deployment that templates X-Session-Count.
@@ -172,23 +172,23 @@ const sessionCount = "X-Session-Count"
 // TestRegistersWithSessionCount: digest challenge answered, {sessions} rendered as the room count,
 // and "full" (the room limit) reported at once on drain.
 func TestRegistersWithSessionCount(t *testing.T) {
-	reg := startRegistrar(t, "medianode", "secret")
+	reg := startRegistrar(t, "roomr", "secret")
 	states := &stateLog{}
 	r := startWith(t, rigOptions{
 		nodeCfg: func(c *node.Config) { c.MaxRooms = 50 },
 		uaCfg: func(c *sipua.Config) {
-			c.Registrations = []sipua.Registration{{Registrar: reg.addr, AOR: "sip:medianode@sip.local",
-				Username: "medianode", Password: "secret", Expires: 2 * time.Second,
+			c.Registrations = []sipua.Registration{{Registrar: reg.addr, AOR: "sip:roomr@sip.local",
+				Username: "roomr", Password: "secret", Expires: 2 * time.Second,
 				Headers: map[string]string{sessionCount: sipua.SessionsPlaceholder, "X-Node-Load": "rooms={sessions}"}}}
 			c.OnRegistrationState = states.add
 		}})
 	// First REGISTER: no rooms, after a digest challenge.
 	reg.waitHeader(t, sessionCount, "0", 3*time.Second)
-	if s := states.wait(t, sipua.RegRegistered, time.Second); s.AOR != "sip:medianode@sip.local" || s.SIPStatus != 200 {
+	if s := states.wait(t, sipua.RegRegistered, time.Second); s.AOR != "sip:roomr@sip.local" || s.SIPStatus != 200 {
 		t.Fatalf("registered state = %+v", s)
 	}
 	first := reg.snapshot()[0]
-	if first.expires != "2" || first.headers["X-Node-Load"] != "rooms=0" || first.from != "sip:medianode@sip.local" {
+	if first.expires != "2" || first.headers["X-Node-Load"] != "rooms=0" || first.from != "sip:roomr@sip.local" {
 		t.Fatalf("REGISTER = %+v", first)
 	}
 	reg.mu.Lock()
@@ -215,7 +215,7 @@ func TestRegistersWithSessionCount(t *testing.T) {
 }
 
 func TestReregistersOnLoadChange(t *testing.T) {
-	reg := startRegistrar(t, "medianode", "secret")
+	reg := startRegistrar(t, "roomr", "secret")
 	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
 		c.Registrations = []sipua.Registration{{Registrar: reg.addr, Password: "secret", Expires: 2 * time.Minute,
 			Headers: map[string]string{sessionCount: sipua.SessionsPlaceholder}}}
@@ -251,14 +251,14 @@ func TestRegistersWithoutAuth(t *testing.T) {
 // TestRegistrationFailsOnChallengeWithoutAuth: a challenge with no credentials configured, or with
 // the wrong password, is a failed registration (registration.state failed with the status).
 func TestRegistrationFailsOnChallengeWithoutAuth(t *testing.T) {
-	reg := startRegistrar(t, "medianode", "secret")
+	reg := startRegistrar(t, "roomr", "secret")
 	noAuth, badAuth := &stateLog{}, &stateLog{}
 	startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
 		c.Registrations = []sipua.Registration{{Registrar: reg.addr}}
 		c.OnRegistrationState = noAuth.add
 	}})
 	startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
-		c.Registrations = []sipua.Registration{{Registrar: reg.addr, Username: "medianode", Password: "wrong"}}
+		c.Registrations = []sipua.Registration{{Registrar: reg.addr, Username: "roomr", Password: "wrong"}}
 		c.OnRegistrationState = badAuth.add
 	}})
 	if s := noAuth.wait(t, sipua.RegFailed, 4*time.Second, 401); s.SIPStatus != 401 {

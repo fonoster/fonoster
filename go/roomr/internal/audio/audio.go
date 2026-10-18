@@ -86,7 +86,7 @@ const (
 	NameL16  = "L16/16000"
 )
 
-// OfferOrder is the node's preference on SIP legs (redesign-media-node, "Supported codecs"):
+// OfferOrder is the node's preference on SIP legs (redesign-roomr, "Supported codecs"):
 // Opus, G.722, PCMU, PCMA. Opus is written as opus/48000/2 in SDP (RFC 7587).
 var OfferOrder = []string{NameOpus, NameG722, NamePCMU, NamePCMA}
 

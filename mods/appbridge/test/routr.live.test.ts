@@ -23,19 +23,19 @@ import * as os from "os";
 import * as path from "path";
 import * as readline from "readline";
 import {
-  buildMediaNode,
+  buildRoomr,
   FakesHarness,
-  MediaNodeBinaries
+  RoomrBinaries
 } from "@fonoster/conformance";
 import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
 import { Gateway } from "../src/Gateway";
 import { findRoutes, LocationRoute } from "./routr/location";
-import { MediaNodeRouting, provisionMediaNodeRouting } from "./routr/provision";
+import { RoomrRouting, provisionRoomrRouting } from "./routr/provision";
 
-// The first real call through Routr into the new stack (add-media-node 2.2 live check, 4.1):
-// caller bot → Routr (Trunk by Request-URI host, Number → Peer `medianode`, least-sessions) →
-// Go media node (registered with X-Session-Count) → media-control → gateway → app.
+// The first real call through Routr into the new stack (add-roomr 2.2 live check, 4.1):
+// caller bot → Routr (Trunk by Request-URI host, Number → Peer `roomr`, least-sessions) →
+// Go Roomr node (registered with X-Session-Count) → media-control → gateway → app.
 //
 // Needs the throwaway Routr rig (mods/appbridge/test/routr/rig.sh up), NATS and Go. Skipped unless
 // ROUTR_LIVE=1. See docs/operators/routr-live-test.md.
@@ -48,9 +48,9 @@ const ROUTR_LOCATION = process.env.ROUTR_LIVE_LOCATION ?? "127.0.0.1:15552";
 const HOST_ADDR = process.env.ROUTR_LIVE_HOST_ADDR ?? "192.168.65.254";
 const SECRET = "routr-live-secret";
 
-const ROUTING: MediaNodeRouting = {
-  aor: "sip:medianode@rig.local",
-  username: "medianode",
+const ROUTING: RoomrRouting = {
+  aor: "sip:roomr@rig.local",
+  username: "roomr",
   password: "rig-roomr-pass",
   inboundUri: "trunk.rig.local",
   number: "+17853178070",
@@ -154,7 +154,7 @@ function tone(ms: number): Buffer {
 describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
   this.timeout(60000);
   let nc: NatsConnection;
-  let bins: MediaNodeBinaries | undefined;
+  let bins: RoomrBinaries | undefined;
   const procs: ChildProcess[] = [];
   let harness: FakesHarness;
   let gateway: Gateway;
@@ -183,11 +183,11 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
   before(async function () {
     this.timeout(180000);
     if (!LIVE || !NATS_URL) return this.skip();
-    bins = buildMediaNode(NATS_URL);
+    bins = buildRoomr(NATS_URL);
     if (!bins) return this.skip();
     nc = await connect({ servers: NATS_URL });
 
-    await provisionMediaNodeRouting(ROUTR_API, ROUTING);
+    await provisionRoomrRouting(ROUTR_API, ROUTING);
 
     nodePort = await freeUdpPort();
     const node = await start(

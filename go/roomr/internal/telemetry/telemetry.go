@@ -1,4 +1,4 @@
-// Package telemetry wires OpenTelemetry traces and metrics for the media node (add-platform
+// Package telemetry wires OpenTelemetry traces and metrics for the Roomr node (add-platform
 // observability). It is driven by the standard OTEL_* environment variables and is a complete
 // no-op when no OTLP endpoint is configured. Logs are JSON on standard error only.
 package telemetry

@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 name: speech-never-reaches-node
 contract: voice-session
 role: app
-spec: "The media node receives only control / Speech never reaches the media node"
+spec: "The Roomr node receives only control / Speech never reaches the Roomr node"
 steps:
   - expect: { type: session.start }
   - send: { type: speak, id: r1, text: "Hello there, this is only audio to the node.", last: true }

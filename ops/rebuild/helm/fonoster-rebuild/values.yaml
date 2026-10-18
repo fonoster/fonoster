@@ -1,4 +1,4 @@
-# Defaults install the data plane only (gateway and media nodes, as in a private cell). For the
+# Defaults install the data plane only (gateway and Roomr nodes, as in a private cell). For the
 # whole platform with its control plane use values-cloud.yaml:
 #   helm install fonoster . -f values-cloud.yaml
 # and add values-observability.yaml for the default observability profile.

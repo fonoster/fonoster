@@ -1,4 +1,4 @@
-// End-to-end tests of CreateCall's contract with the controller (redesign-media-node, decisions
+// End-to-end tests of CreateCall's contract with the controller (redesign-roomr, decisions
 // 3 and 7): failed dials leave no room, a repeated call_ref is idempotent within the dedupe window
 // and refused when its parameters differ, the configured call-ref header names calls both ways,
 // a digest challenge is answered with to.auth, and to.headers reach the INVITE byte for byte.

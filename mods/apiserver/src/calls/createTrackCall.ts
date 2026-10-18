@@ -44,11 +44,11 @@ const KEEP_MS = 120_000;
 
 /** Timings of TrackCall's own end of a call (control-plane, "TrackCall always ends"). */
 export const TRACK_CALL_DEFAULTS = {
-  /** A stream whose call never reached a media node (no node in this long) ends FAILED. */
+  /** A stream whose call never reached a Roomr node (no node in this long) ends FAILED. */
   noNodeMs: 30_000,
-  /** The call's media node is gone after this long without its heartbeat (3 beats of 2 s). */
+  /** The call's Roomr node is gone after this long without its heartbeat (3 beats of 2 s). */
   nodeStaleMs: 6_000,
-  /** No call outlives the media node's MaxDuration (4 h); a stream ends FAILED after this. */
+  /** No call outlives the Roomr node's MaxDuration (4 h); a stream ends FAILED after this. */
   maxMs: 4 * 60 * 60_000 + 5 * 60_000,
   /** How often open streams are checked. */
   sweepMs: 1_000
@@ -62,7 +62,7 @@ type TrackMessage = Partial<TrackCallResponse> & {
   ref: string;
   /** The call is over (the room ended): close the stream. */
   final?: boolean;
-  /** The media node that holds the call, when the message says. */
+  /** The Roomr node that holds the call, when the message says. */
   nodeRef?: string;
 };
 
@@ -74,7 +74,7 @@ const UNANSWERED: Record<string, DialStatus> = {
 
 /**
  * One message as a TrackCall message: the control plane's `{ref, status}` (on
- * `calls.<ref>.events`) as is, and the media node's call.ringing, call.answered and call.ended
+ * `calls.<ref>.events`) as is, and the Roomr node's call.ringing, call.answered and call.ended
  * (on `roomr.events.<call_ref>`) translated. Undefined for anything else (receivers ignore
  * unknown event types).
  */
@@ -127,21 +127,21 @@ type Tracked = {
   ref: string;
   stream: CallStream;
   startedAt: number;
-  /** The media node holding the call, and when this stream learned it. */
+  /** The Roomr node holding the call, and when this stream learned it. */
   nodeRef?: string;
   nodeAt?: number;
 };
 
 /**
  * TrackCall: status updates of an API-originated call, from the call's own subjects. The replica
- * that placed the call publishes TRYING (and FAILED) on `calls.<ref>.events`, and the media node
+ * that placed the call publishes TRYING (and FAILED) on `calls.<ref>.events`, and the Roomr node
  * publishes the call's events on `roomr.events.<ref>`, so any replica serves TrackCall for any
  * call, even after the placing replica is gone. The SDK subscribes right after CreateCall
  * returns, and the first statuses can come before that, so each call's messages are kept for a
  * while and replayed (also to a second TrackCall for the same call).
  *
  * Every stream ends: on the call's final status, when the client goes away, with FAILED when
- * the call's media node stops sending heartbeats before the final, when no node ever takes the
+ * the call's Roomr node stops sending heartbeats before the final, when no node ever takes the
  * call, or after `maxMs` at most. `node.down` alone does not fail a call: a draining node says it
  * and keeps its live calls, so a call fails after `node.down` only when nothing (no heartbeat, no
  * event of the call) comes from its node for `nodeStaleMs`, i.e. the node exited.
@@ -155,9 +155,9 @@ function createTrackCallHandler(
   const tracked = new Map<string, Set<Tracked>>();
   /** Recent messages per call (insertion order is first-seen order). */
   const recent = new Map<string, { at: number; messages: TrackMessage[] }>();
-  /** Last heartbeat per media node. */
+  /** Last heartbeat per Roomr node. */
   const beats = new Map<string, number>();
-  /** When each media node said node.down (cleared by its next heartbeat). */
+  /** When each Roomr node said node.down (cleared by its next heartbeat). */
   const downAt = new Map<string, number>();
   const subscription = nc.subscribe(CALL_EVENTS_WILDCARD);
   const mediaEvents = nc.subscribe(MEDIA_CALL_EVENTS_WILDCARD);
@@ -275,7 +275,7 @@ function createTrackCallHandler(
           fail(t, "no final status in time");
         } else if (!t.nodeRef) {
           if (at - t.startedAt > o.noNodeMs)
-            fail(t, "no media node took the call");
+            fail(t, "no Roomr node took the call");
         } else {
           const seen = Math.max(
             beats.get(t.nodeRef) ?? 0,
@@ -283,7 +283,7 @@ function createTrackCallHandler(
             t.nodeAt ?? 0
           );
           if (at - seen > o.nodeStaleMs)
-            fail(t, `media node ${t.nodeRef} missed its heartbeats`);
+            fail(t, `Roomr node ${t.nodeRef} missed its heartbeats`);
         }
       }
   };

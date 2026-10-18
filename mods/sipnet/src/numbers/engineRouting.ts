@@ -19,19 +19,19 @@
 import { ROUTR_DEFAULT_PEER_AOR } from "@fonoster/common";
 
 /**
- * Where app-linked numbers point (add-media-node 4.1). Asterisk is retired (cleanbreak CB-B3):
- * every app-linked number goes to the media-node peer that Go media nodes register under with
+ * Where app-linked numbers point (add-roomr 4.1). Asterisk is retired (cleanbreak CB-B3):
+ * every app-linked number goes to the roomr peer that Go Roomr nodes register under with
  * least-sessions. `rebuild` is the only engine left; the type stays so repoint reports keep
  * their shape.
  */
 export type VoiceEngine = "rebuild";
 
 export type EngineRoutingConfig = {
-  /** The media-node peer AOR (default sip:medianode@default). */
-  mediaNodeAor?: string;
+  /** The roomr peer AOR (default sip:roomr@default). */
+  roomrNodeAor?: string;
 };
 
-export const MEDIA_NODE_PEER_AOR = ROUTR_DEFAULT_PEER_AOR;
+export const ROOMR_PEER_AOR = ROUTR_DEFAULT_PEER_AOR;
 
 /** The AOR of the retired Asterisk peer, for moving numbers created before the rebuild. */
 export const LEGACY_ASTERISK_PEER_AOR = "sip:voice@default";
@@ -48,7 +48,7 @@ export type NumberRouting = {
 export function createNumberRouting(
   config: EngineRoutingConfig = {}
 ): NumberRouting {
-  const aor = config.mediaNodeAor ?? MEDIA_NODE_PEER_AOR;
+  const aor = config.roomrNodeAor ?? ROOMR_PEER_AOR;
   return {
     engineFor: async () => "rebuild",
     aorFor: async () => aor,

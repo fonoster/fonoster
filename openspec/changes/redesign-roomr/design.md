@@ -1,6 +1,6 @@
 ## Context
 
-Source: the design document "Media Node: Target Design" (2026-10-17,
+Source: the design document "Roomr node: Target Design" (2026-10-17,
 https://claude.ai/code/artifact/2e54576e-d7d4-42af-ae84-5c249b6eb88c) and the decisions agreed
 with the owner that day. Where the document still shows an open alternative, the agreed decision
 is recorded here and the alternative is listed under "Alternatives rejected".
@@ -279,7 +279,7 @@ Kept out of the node's own capabilities on purpose:
 - A half-open stream would hold a call; keepalive plus the RTP media timeout bound it.
 - Private regions: control or RTP crossing a WAN to a central app is slow; the session endpoint
   is per region and the app runs in the cell.
-- Two open changes touch control-plane "Call creation picks the least-loaded media node"; both
+- Two open changes touch control-plane "Call creation picks the least-loaded Roomr node"; both
   carry the "node at its limit skipped" scenario so archive order does not matter.
 
 ## Open Questions
@@ -310,8 +310,8 @@ sip:
   roomHeader: X-Room-Ref              # (optional) join-or-create by header
   registrations:                      # (optional) none means no REGISTER
     - registrar: sip:routr:5060
-      aor: sip:medianode@default
-      auth: { username: medianode, password: ${SIP_PASSWORD} }   # (optional)
+      aor: sip:roomr@default
+      auth: { username: roomr, password: ${SIP_PASSWORD} }   # (optional)
       expires: 60
       headers: { X-Session-Count: "{sessions}" }                  # (optional)
 tls:                                  # (optional, off by default) SIP over TLS

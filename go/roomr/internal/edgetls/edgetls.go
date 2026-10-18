@@ -1,4 +1,4 @@
-// Package edgetls builds the TLS settings between the media node and the edge (Routr): the SIP
+// Package edgetls builds the TLS settings between the Roomr node and the edge (Routr): the SIP
 // listener's certificate, optional mutual TLS (client certificates required and verified against
 // a CA, add-platform 4.2) and the client side the node uses when it dials or registers over TLS.
 // Every PEM setting is a file path or a `secret://` reference (secretref).

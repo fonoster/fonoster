@@ -114,7 +114,7 @@ describe("@apiserver/webhooks fan-out from the bus (database, NATS)", function (
     ]);
   });
 
-  it("turns a media node's call.failed report into the app's workspace event (M6)", async function () {
+  it("turns a Roomr node's call.failed report into the app's workspace event (M6)", async function () {
     // The node reports on its own subject; a workspace it names is ignored.
     producer.publish(
       "media.n1.events.call-failed",

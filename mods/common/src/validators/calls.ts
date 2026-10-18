@@ -22,7 +22,7 @@ import { POSITIVE_INTEGER_MESSAGE, VALID_DATE } from "../messages";
 import { e164Schema, sipTargetSchema } from "./sip";
 
 // `from` is one of the workspace's Numbers (the Calls service checks ownership); it travels as
-// X-Dod-Number and picks the trunk, so it is an E.164 number. `to` is what the media node dials.
+// X-Dod-Number and picks the trunk, so it is an E.164 number. `to` is what the Roomr node dials.
 const createCallRequestSchema = z.object({
   from: e164Schema,
   to: sipTargetSchema,

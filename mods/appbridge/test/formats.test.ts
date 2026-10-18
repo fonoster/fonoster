@@ -24,7 +24,7 @@ import { APP_AUDIO_FORMATS, convert, INTERNAL } from "../src/audio/pcm";
 
 // The fonoster format menu end to end (voice-session "Raw audio in both directions", AO-B4): for
 // every format an app may pick, session.start announces it, caller frames are 20 ms of it, and
-// agent audio sent in it reaches the media node at real time. Needs NATS.
+// agent audio sent in it reaches the Roomr node at real time. Needs NATS.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -75,8 +75,8 @@ describe("@gateway audio format menu", function () {
 
   beforeEach(async () => {
     harness = await new FakesHarness().start();
-    harness.mediaNode.configure({ callerAudio: { kind: "tone", ms: 400 } });
-    harness.mediaNode.attachNats(nc);
+    harness.roomrNode.configure({ callerAudio: { kind: "tone", ms: 400 } });
+    harness.roomrNode.attachNats(nc);
   });
 
   afterEach(async () => {
@@ -116,7 +116,7 @@ describe("@gateway audio format menu", function () {
         record: new MemoryCallRecordSink()
       }).start();
 
-      harness.mediaNode.offerCall();
+      harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
       const start = await waitFor(() =>
         json(peer).find((m) => m.type === "session.start")
@@ -138,7 +138,7 @@ describe("@gateway audio format menu", function () {
       // Agent audio in the app's format, sent at once, is heard at real time.
       const since = Date.now();
       peer.sendBinary(convert(tone(600), INTERNAL, audio));
-      await waitFor(() => harness.mediaNode.outputAudioMs(since) >= 560, 3000);
+      await waitFor(() => harness.roomrNode.outputAudioMs(since) >= 560, 3000);
       expect(Date.now() - since).to.be.greaterThan(450);
     });
   }

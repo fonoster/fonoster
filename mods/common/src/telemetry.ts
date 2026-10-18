@@ -52,7 +52,7 @@ export interface Telemetry {
   enabled: boolean;
   /**
    * Starts the span of one call; the returned handle is a no-op when disabled. `parent` (a W3C
-   * traceparent from another service, e.g. the media node) makes it a child in that trace.
+   * traceparent from another service, e.g. the Roomr node) makes it a child in that trace.
    */
   startCall(
     callRef: string,

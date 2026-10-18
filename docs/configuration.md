@@ -7,7 +7,7 @@ Each Fonoster service reads one file, mounted at `/config/<name>.yaml` in its co
 | API server (with Identity) | `fonoster.yaml` | Everything; secrets as `${NAME}` placeholders |
 | Voice gateway | `gateway.yaml` | `encryption.key` is the API server's key |
 | Autopilot | `autopilot.yaml` | One file for every replica |
-| Media node | `roomr.yaml` | Flags win over it; `ROOMR_*` variables are not read |
+| Roomr node | `roomr.yaml` | Flags win over it; `ROOMR_*` variables are not read |
 | Dashboard | `DASHBOARD_API_URL` | Everything else comes from the API server |
 
 The Compose stack is `ops/bundle/compose.yaml` (with the development layer

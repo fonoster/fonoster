@@ -3,14 +3,14 @@
 FROM mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm
 
 ARG TARGETARCH
-# The media node's Go (go/roomr/go.mod). GOTOOLCHAIN=local: never download another one.
+# The Roomr node's Go (go/roomr/go.mod). GOTOOLCHAIN=local: never download another one.
 ARG GO_VERSION=1.26.9
 ENV GOTOOLCHAIN=local \
     GOPATH=/home/node/go \
     PATH=/usr/local/go/bin:/home/node/go/bin:$PATH
 
 # protoc + well-known types for `npm run generate:protos` (the plugins come from node_modules/.bin),
-# openssl for Prisma, libopus for the media node (cgo).
+# openssl for Prisma, libopus for the Roomr node (cgo).
 RUN apt-get update \
   && export DEBIAN_FRONTEND=noninteractive \
   && apt-get install -y --no-install-recommends protobuf-compiler libprotobuf-dev openssl libopus-dev \

@@ -473,7 +473,7 @@ export function createRegionService(deps: {
         }
       });
       const components = {
-        mediaNodes: Number(body.components?.mediaNodes ?? 0),
+        roomrNodes: Number(body.components?.roomrNodes ?? 0),
         gateways: Number(body.components?.gateways ?? 0),
         autopilot: Boolean(body.components?.autopilot)
       };
@@ -517,7 +517,7 @@ export function createRegionService(deps: {
         data: {
           version: hb.version ? String(hb.version) : row.version,
           components: {
-            mediaNodes: Number(c.mediaNodes ?? 0),
+            roomrNodes: Number(c.roomrNodes ?? 0),
             gateways: Number(c.gateways ?? 0),
             autopilot: Boolean(c.autopilot)
           },

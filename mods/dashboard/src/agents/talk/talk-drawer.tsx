@@ -48,7 +48,7 @@ function elapsed(since: number | undefined, now: number) {
 }
 
 /**
- * Talk to the saved agent: from the browser (WebRTC through Routr to the media nodes,
+ * Talk to the saved agent: from the browser (WebRTC through Routr to the Roomr nodes,
  * add-talk-in-browser) or by calling one of its numbers.
  */
 export function TalkDrawer({

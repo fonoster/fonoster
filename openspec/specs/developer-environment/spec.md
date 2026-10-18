@@ -9,14 +9,14 @@ The repository SHALL offer exactly one way to develop Fonoster: its dev containe
 (VS Code Dev Containers, a Codespace or the devcontainer CLI) MUST need only Docker and a
 dev-container client on the host, and MUST start the dependencies (Postgres, NATS, Routr,
 RTPEngine, MinIO, Envoy) as containers from the self-host bundle's service definitions. The
-components we develop (apiserver, gateway, Autopilot, media node, dashboard) MUST NOT run as
+components we develop (apiserver, gateway, Autopilot, Roomr node, dashboard) MUST NOT run as
 containers in development.
 
 #### Scenario: Open the dev container
 - **WHEN** a contributor opens a fresh clone in the dev container
 - **THEN** the dependency containers are running and healthy (NATS, Postgres and MinIO report
   healthy; Routr, RTPEngine and Envoy are running) without any further command
-- **AND** no container runs the apiserver, gateway, Autopilot, media node or dashboard
+- **AND** no container runs the apiserver, gateway, Autopilot, Roomr node or dashboard
 
 #### Scenario: Dependencies come from the bundle
 - **WHEN** `docker compose -f .devcontainer/compose.yaml config` is rendered
@@ -46,7 +46,7 @@ Re-generating MUST keep every existing secret.
 ### Requirement: One reloading script per component
 
 Each component SHALL have one script inside the workspace (`npm run dev:apiserver`,
-`dev:appbridge`, `dev:autopilot`, `dev:medianode`, `dev:dashboard`, `dev:fakes`) that runs one component from source with the dev config, and
+`dev:appbridge`, `dev:autopilot`, `dev:roomr`, `dev:dashboard`, `dev:fakes`) that runs one component from source with the dev config, and
 `npm run dev` SHALL run all of them with each output line prefixed by the component's name. A
 change to a component's source MUST restart (or hot-reload) that component only.
 
@@ -59,15 +59,15 @@ change to a component's source MUST restart (or hot-reload) that component only.
 #### Scenario: A call reaches an agent
 - **WHEN** `npm run dev` runs and a SIP call is placed through Routr to a number linked to an
   Autopilot app (or "Talk to agent" is used in the dashboard)
-- **THEN** the media node answers it and the caller hears the agent (fake providers by default)
+- **THEN** the Roomr node answers it and the caller hears the agent (fake providers by default)
 
 #### Scenario: AppBridge reload
 - **WHEN** a file under `mods/appbridge/src` is saved while `npm run dev` runs
 - **THEN** the AppBridge restarts and the other components keep running
 
-#### Scenario: Media node rebuild
-- **WHEN** a `.go` file under `go/medianode` is saved while `npm run dev:medianode` runs
-- **THEN** the media node is rebuilt and restarted; a build error is printed and the previous
+#### Scenario: Roomr node rebuild
+- **WHEN** a `.go` file under `go/roomr` is saved while `npm run dev:roomr` runs
+- **THEN** the Roomr node is rebuilt and restarted; a build error is printed and the previous
   process keeps running
 
 #### Scenario: One component alone
@@ -86,6 +86,6 @@ database reserved for tests.
 - **THEN** the suites that need NATS use the test NATS, not the dev stack's
 
 #### Scenario: Go tests
-- **WHEN** `GOTOOLCHAIN=local go test ./...` runs in `go/medianode`
+- **WHEN** `GOTOOLCHAIN=local go test ./...` runs in `go/roomr`
 - **THEN** it uses the image's Go 1.25 and the test NATS
 

@@ -507,7 +507,7 @@ export class Gateway {
     for (const [nodeId, at] of this.heartbeats) {
       if (now - at < NODE_DOWN_AFTER_MS) continue;
       this.heartbeats.delete(nodeId);
-      logger.warn(`media node ${nodeId} missed its heartbeats`);
+      logger.warn(`Roomr node ${nodeId} missed its heartbeats`);
       for (const call of [...this.calls.values()])
         if (call.info.nodeId === nodeId) call.nodeLost();
     }

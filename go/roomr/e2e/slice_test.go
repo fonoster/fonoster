@@ -1,4 +1,4 @@
-// End-to-end test of the first media node slice: a SIP caller bot calls the node, the test plays
+// End-to-end test of the first Roomr node slice: a SIP caller bot calls the node, the test plays
 // the gateway over media-control (NATS) and exchanges RTP as the session participant. Needs NATS:
 // set CONFORMANCE_NATS_URL (for example nats://127.0.0.1:4222).
 package e2e
@@ -476,9 +476,9 @@ func TestDialAsPeer(t *testing.T) {
 	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
 		// The Peer the node registers as (its first registration's AOR and auth).
 		c.Registrations = []sipua.Registration{{Registrar: startRegistrar(t, "", "").addr,
-			AOR: "sip:medianode@default", Username: "medianode", Password: "peer-secret"}}
+			AOR: "sip:roomr@default", Username: "roomr", Password: "peer-secret"}}
 	}})
-	r.callee.RequireAuth("medianode", "peer-secret")
+	r.callee.RequireAuth("roomr", "peer-secret")
 	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
 	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room, "to": "+15551234567",
 		"from": "+17853178070", "headers": map[string]any{"X-Call-Ref": "call-1"}})
@@ -491,8 +491,8 @@ func TestDialAsPeer(t *testing.T) {
 		t.Fatalf("callee saw %d calls", len(calls))
 	}
 	st := calls[0]
-	if !strings.HasPrefix(st.From, "sip:medianode@default") {
-		t.Fatalf("From = %q, want the Peer sip:medianode@default", st.From)
+	if !strings.HasPrefix(st.From, "sip:roomr@default") {
+		t.Fatalf("From = %q, want the Peer sip:roomr@default", st.From)
 	}
 	if st.Headers[sipua.DODNumberHeader] != "+17853178070" || st.Headers["X-Call-Ref"] != "call-1" {
 		t.Fatalf("headers = %v", st.Headers)
@@ -502,10 +502,10 @@ func TestDialAsPeer(t *testing.T) {
 // TestDialAsPeerBadSecret: a wrong Peer password fails the dial with the proxy's 401.
 func TestDialAsPeerBadSecret(t *testing.T) {
 	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
-		c.Registrations = []sipua.Registration{{Registrar: startRegistrar(t, "", "").addr, Username: "medianode",
+		c.Registrations = []sipua.Registration{{Registrar: startRegistrar(t, "", "").addr, Username: "roomr",
 			Password: "wrong"}}
 	}})
-	r.callee.RequireAuth("medianode", "peer-secret")
+	r.callee.RequireAuth("roomr", "peer-secret")
 	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
 	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room, "to": "+1555", "from": "+1785"})
 	r.waitEvent(typed("call.progress", "id", "d1", "status", "failed", "sipStatus", 401), 3*time.Second)

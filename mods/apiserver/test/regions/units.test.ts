@@ -163,7 +163,7 @@ describe("@apiserver[regions/units]", function () {
       lastHeartbeatAt: new Date(now.getTime() - 30_000),
       enrolledAt: new Date(now.getTime() - 3600_000),
       version: "0.27.1",
-      components: { mediaNodes: 1, gateways: 1, autopilot: true }
+      components: { roomrNodes: 1, gateways: 1, autopilot: true }
     };
     const st = (o: Partial<typeof base> = {}) =>
       regionStatus({ ...base, ...o } as never, {
@@ -175,7 +175,7 @@ describe("@apiserver[regions/units]", function () {
       expect(st({ state: "waiting" }).status).to.equal("waiting");
       expect(st().status).to.equal("connected");
       expect(
-        st({ components: { mediaNodes: 0, gateways: 1, autopilot: true } })
+        st({ components: { roomrNodes: 0, gateways: 1, autopilot: true } })
       ).to.include({
         status: "degraded"
       });

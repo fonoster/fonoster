@@ -23,7 +23,7 @@ import { z } from "zod";
 // URI users, so anything that reaches an INVITE or REFER must be safe as-is.
 
 /**
- * Headers the platform (Routr, the media node, the gateway, the apiserver) sets and trusts: they
+ * Headers the platform (Routr, the Roomr node, the gateway, the apiserver) sets and trusts: they
  * pick the app, the call, the workspace and the trunk. Callers and apps may never set them.
  */
 export const RESERVED_SIP_HEADERS: ReadonlySet<string> = new Set(
@@ -95,7 +95,7 @@ export function sipHeadersProblem(headers: unknown): string | undefined {
   return undefined;
 }
 
-/** Whether `to` is a target the media node may dial or refer to. */
+/** Whether `to` is a target the Roomr node may dial or refer to. */
 export function isSipTarget(to: unknown): to is string {
   return typeof to === "string" && SIP_TARGET.test(to);
 }

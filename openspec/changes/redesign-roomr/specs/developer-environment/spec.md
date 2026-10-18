@@ -16,15 +16,15 @@ change to a component's source MUST restart (or hot-reload) that component only.
 #### Scenario: A call reaches an agent
 - **WHEN** `npm run dev` runs and a SIP call is placed through Routr to a number linked to an
   Autopilot app (or "Talk to agent" is used in the dashboard)
-- **THEN** the media node answers it and the caller hears the agent (fake providers by default)
+- **THEN** the Roomr node answers it and the caller hears the agent (fake providers by default)
 
 #### Scenario: AppBridge reload
 - **WHEN** a file under `mods/appbridge/src` is saved while `npm run dev` runs
 - **THEN** the AppBridge restarts and the other components keep running
 
-#### Scenario: Media node rebuild
+#### Scenario: Roomr node rebuild
 - **WHEN** a `.go` file under `go/roomr` is saved while `npm run dev:roomr` runs
-- **THEN** the media node is rebuilt and restarted; a build error is printed and the previous
+- **THEN** the Roomr node is rebuilt and restarted; a build error is printed and the previous
   process keeps running
 
 #### Scenario: One component alone

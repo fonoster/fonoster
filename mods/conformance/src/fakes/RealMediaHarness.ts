@@ -23,27 +23,27 @@ import { Peer } from "../runner/Peer";
 import { SCENARIOS_DIR } from "../scenario/loadScenario";
 import { AudioSource, CallerAction, Setup } from "../scenario/types";
 import { FakesHarness, FakesHarnessOptions } from "./FakesHarness";
-import { MediaNodeBinaries, MediaNodeProcess } from "./MediaNodeProcess";
+import { RoomrBinaries, RoomrProcess } from "./RoomrProcess";
 
 /**
- * The gateway's fakes (app, providers) with a real media node and a SIP caller bot instead of the
- * fake media node: voice-session scenarios then cross real SIP, RTP and media-control.
+ * The gateway's fakes (app, providers) with a real Roomr node and a SIP caller bot instead of the
+ * fake Roomr node: voice-session scenarios then cross real SIP, RTP and media-control.
  */
 export class RealMediaHarness extends FakesHarness {
   private dialOutcome?: "answered" | "busy" | "no_answer" | "failed";
   private appRef?: string;
-  readonly media: MediaNodeProcess;
+  readonly media: RoomrProcess;
   private callerAudio?: AudioSource;
   private commands: Record<string, unknown>[] = [];
   private sub?: Subscription;
 
   constructor(
     private readonly nc: NatsConnection,
-    bins: MediaNodeBinaries,
+    bins: RoomrBinaries,
     options: FakesHarnessOptions = {}
   ) {
     super(options);
-    this.media = new MediaNodeProcess(bins);
+    this.media = new RoomrProcess(bins);
   }
 
   async start(): Promise<this> {

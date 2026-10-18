@@ -20,12 +20,12 @@ import { APP_REF_HEADER } from "@fonoster/common";
 import { CommonTypes as CT } from "@routr/common";
 import SDK from "@routr/sdk";
 
-// Routr resources for a media node behind Routr (add-media-node 4.1): Credentials + Peer (the
+// Routr resources for a Roomr node behind Routr (add-roomr 4.1): Credentials + Peer (the
 // node's AOR, least-sessions) + Trunk (inbound URI) + Number (aorLink = the peer's AOR, X-App-Ref).
 // Idempotent: existing resources with the same names are reused, so a rig can run many times.
 
-export type MediaNodeRouting = {
-  /** The peer AOR media nodes register under (Numbers point here). */
+export type RoomrRouting = {
+  /** The peer AOR Roomr nodes register under (Numbers point here). */
   aor: string;
   username: string;
   password: string;
@@ -61,9 +61,9 @@ async function listAll<T extends Named>(
   return out;
 }
 
-export async function provisionMediaNodeRouting(
+export async function provisionRoomrRouting(
   endpoint: string,
-  r: MediaNodeRouting
+  r: RoomrRouting
 ): Promise<Provisioned> {
   const opts = { endpoint, insecure: true };
   const credentials = new SDK.Credentials(opts);
@@ -93,7 +93,7 @@ export async function provisionMediaNodeRouting(
       (p) => p.username === r.username
     ) ??
     (await peers.createPeer({
-      name: "Media nodes",
+      name: "Roomr nodes",
       username: r.username,
       aor: r.aor,
       credentialsRef: cred.ref,

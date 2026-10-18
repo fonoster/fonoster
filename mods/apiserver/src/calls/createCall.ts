@@ -75,7 +75,7 @@ function createCall(
       return;
     }
 
-    // Placement answers once a media node has accepted the call, so a call with no capacity
+    // Placement answers once a Roomr node has accepted the call, so a call with no capacity
     // fails here (RESOURCE_EXHAUSTED) instead of TrackCall reporting FAILED later.
     try {
       await publisher.publishCall({

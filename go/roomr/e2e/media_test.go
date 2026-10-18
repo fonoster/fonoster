@@ -1,7 +1,7 @@
 package e2e
 
 // Media tests: codecs, DTMF three ways, mix-minus, limits, encryption, drain and maximum duration
-// (add-media-node tasks 1.4, 2.4, 2.5, 2.10, 2.12, 2.13).
+// (add-roomr tasks 1.4, 2.4, 2.5, 2.10, 2.12, 2.13).
 
 import (
 	"crypto/ecdsa"
@@ -278,7 +278,7 @@ func TestDTMFThreeWays(t *testing.T) {
 	})
 }
 
-// TestMixMinusThreeParticipants is the mix-minus checker (media-node "Mix-minus with three
+// TestMixMinusThreeParticipants is the mix-minus checker (roomr "Mix-minus with three
 // participants"): A and B send different tones, C is silent.
 func TestMixMinusThreeParticipants(t *testing.T) {
 	r := start(t)

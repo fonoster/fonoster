@@ -11,7 +11,7 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-// Rooms without an owner end (media-node "Rooms without an owner end"): a room nobody joins and
+// Rooms without an owner end (roomr "Rooms without an owner end"): a room nobody joins and
 // nobody dials into, and a room whose gateway stopped its heartbeats, are ended with node_error,
 // free their slot, and report room.ended (and call.ended on roomr.events.<callRef>, so TrackCall
 // ends).

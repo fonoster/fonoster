@@ -144,7 +144,7 @@ describe("@region-agent private cell against a fake control plane", function () 
         callback: (_e, m) => (got[s] ??= []).push(JSON.parse(sc.decode(m.data)))
       });
 
-    // 3. the cell: secrets, records, media nodes and gateways
+    // 3. the cell: secrets, records, Roomr nodes and gateways
     const secrets = new CellSecrets.EncryptedFileSecretStore(
       path.join(dir, "secrets.enc"),
       "cell-pass"
@@ -233,7 +233,7 @@ describe("@region-agent private cell against a fake control plane", function () 
       type: "region.heartbeat",
       regionRef: R,
       version: "0.28.1",
-      components: { mediaNodes: 1, gateways: 1, autopilot: true },
+      components: { roomrNodes: 1, gateways: 1, autopilot: true },
       activeCalls: 3,
       secretsSet: ["deepgram"]
     });

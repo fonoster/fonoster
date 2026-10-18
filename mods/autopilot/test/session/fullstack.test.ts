@@ -23,7 +23,7 @@ import { Gateway, MemoryCallRecordSink } from "@fonoster/appbridge";
 import { VoiceServer } from "@fonoster/voice";
 import { Agent, createAutopilotHandler } from "../../src/session";
 
-// The whole rebuilt call path with fakes at the edges: caller audio from the fake media node,
+// The whole rebuilt call path with fakes at the edges: caller audio from the fake Roomr node,
 // the real gateway (STT, turn detection, TTS, output queue), Autopilot over the session protocol,
 // and the fake LLM. Needs NATS: CONFORMANCE_NATS_URL=nats://127.0.0.1:4222.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
@@ -44,7 +44,7 @@ async function waitFor<T>(
   }
 }
 
-describe("@autopilot full stack: media node → gateway → Autopilot → LLM → speech", function () {
+describe("@autopilot full stack: Roomr node → gateway → Autopilot → LLM → speech", function () {
   this.timeout(20000);
   let nc: NatsConnection;
 
@@ -57,7 +57,7 @@ describe("@autopilot full stack: media node → gateway → Autopilot → LLM �
 
   it("answers a caller's question with spoken audio", async function () {
     const harness = await new FakesHarness().start();
-    harness.mediaNode.attachNats(nc);
+    harness.roomrNode.attachNats(nc);
     harness.stt.configure({
       script: [{ atMs: 600, text: "What are your hours?" }]
     });
@@ -118,7 +118,7 @@ describe("@autopilot full stack: media node → gateway → Autopilot → LLM �
 
     try {
       const start = Date.now();
-      harness.mediaNode.offerCall({ from: "+15550001111", to: "+15550002222" });
+      harness.roomrNode.offerCall({ from: "+15550001111", to: "+15550002222" });
 
       // The greeting is spoken, then the caller's question reaches the LLM as a user message.
       await waitFor(
@@ -144,7 +144,7 @@ describe("@autopilot full stack: media node → gateway → Autopilot → LLM �
         "the reply TTS"
       );
       await waitFor(
-        () => harness.mediaNode.outputAudioMs(start) > 2500,
+        () => harness.roomrNode.outputAudioMs(start) > 2500,
         8000,
         "the reply audio at the caller"
       );
@@ -169,7 +169,7 @@ describe("@autopilot full stack: media node → gateway → Autopilot → LLM �
 
   it("stops its reply when the caller cuts in (app-owned interruption)", async function () {
     const harness = await new FakesHarness().start();
-    harness.mediaNode.attachNats(nc);
+    harness.roomrNode.attachNats(nc);
     harness.stt.configure({
       script: [{ atMs: 600, text: "What are your hours?" }]
     });
@@ -230,7 +230,7 @@ describe("@autopilot full stack: media node → gateway → Autopilot → LLM �
     }).start();
 
     try {
-      harness.mediaNode.offerCall({ from: "+15550001111", to: "+15550002222" });
+      harness.roomrNode.offerCall({ from: "+15550001111", to: "+15550002222" });
       // The caller's question; Autopilot speaks without a greeting (none configured).
       harness.caller({ audio: { kind: "tone", ms: 700 } });
       const entries = () => [...record.records.values()][0] ?? [];

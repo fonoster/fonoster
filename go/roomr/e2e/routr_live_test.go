@@ -1,6 +1,6 @@
 package e2e
 
-// Live check against a real Routr (add-media-node 2.2): two media nodes register as one peer with
+// Live check against a real Routr (add-roomr 2.2): two Roomr nodes register as one peer with
 // least-sessions, a caller's INVITE goes through Routr's edgeport, and Routr picks the node that
 // reported fewer sessions, in both directions.
 //
@@ -31,8 +31,8 @@ func TestLiveRoutrLeastSessions(t *testing.T) {
 	peer := func(c *sipua.Config) {
 		// Routr as one deployment of the generic registration: its least-sessions balancer reads
 		// X-Session-Count.
-		c.Registrations = []sipua.Registration{{Registrar: "sip:" + edge + ";transport=tcp", AOR: "sip:medianode@sip.local",
-			Username: "medianode", Password: "s3cret", Expires: 4 * time.Second,
+		c.Registrations = []sipua.Registration{{Registrar: "sip:" + edge + ";transport=tcp", AOR: "sip:roomr@sip.local",
+			Username: "roomr", Password: "s3cret", Expires: 4 * time.Second,
 			Headers: map[string]string{"X-Session-Count": sipua.SessionsPlaceholder}}}
 		c.ReregisterDelta, c.AdvertiseHost = 1, nodeHost
 	}

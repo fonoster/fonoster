@@ -51,7 +51,7 @@ export type WebhookFanoutDb = any;
 /**
  * Event fan-out from the bus (add-workspace-webhooks 2.2, build log LO-B1, ST-2): consumes
  * `webhooks.events` through a JetStream durable consumer (one replica per event), fills in the
- * workspace from the app when a producer did not know it (and takes media nodes' call.failed
+ * workspace from the app when a producer did not know it (and takes Roomr nodes' call.failed
  * reports from their own subject), reloads that workspace's endpoints,
  * stores one delivery per subscribed endpoint and only then acknowledges the event, attempts the
  * new deliveries at once, and keeps retrying due deliveries (including ones adopted from replicas
@@ -108,7 +108,7 @@ export async function runWebhookFanout(
     const event = Webhooks.parseBusEvent(data);
     if (event) await intakeEvent(event);
   };
-  // Media nodes report calls no gateway claimed on their own subject (they may not publish
+  // Roomr nodes report calls no gateway claimed on their own subject (they may not publish
   // webhooks.events, M6); only a well-formed call.failed is accepted, its workspace from the app.
   // One replica per report (queue group); a repeated report has the same event id.
   const nodeReports = deps.nc.subscribe(Webhooks.NODE_CALL_FAILED_SUBJECT, {

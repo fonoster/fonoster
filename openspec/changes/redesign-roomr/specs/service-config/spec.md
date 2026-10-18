@@ -3,9 +3,9 @@
 ### Requirement: Each Fonoster service reads one config file
 
 The apiserver SHALL read its configuration from one `fonoster` file, Autopilot from one
-`autopilot` file, the gateway from one `gateway` file and the media node from one `roomr`
+`autopilot` file, the gateway from one `gateway` file and the Roomr node from one `roomr`
 file. None SHALL read environment variables of its own; values are taken from the file only,
-except values the file explicitly references with `${VAR}`. The media node SHALL take no
+except values the file explicitly references with `${VAR}`. The Roomr node SHALL take no
 command-line flag other than `-config <path>`; every other setting lives in its file, where
 `${VAR}` and `secret://` references still work.
 
@@ -32,14 +32,14 @@ command-line flag other than `-config <path>`; every other setting lives in its 
 - WHEN `fonoster.yaml` and `fonoster.jsonc` exist in the same directory
 - THEN the service refuses to start and names both files
 
-#### Scenario: The media node is configured by its file only
-- WHEN the media node starts with `-config /etc/roomr/roomr.yaml` and any other setting is needed
+#### Scenario: The Roomr node is configured by its file only
+- WHEN the Roomr node starts with `-config /etc/roomr/roomr.yaml` and any other setting is needed
 - THEN it reads that setting from the file and no other flag exists
 
 #### Scenario: Autopilot ignores the apiserver's database variable
 - WHEN Autopilot's config has no database URL and `APISERVER_DATABASE_URL` is set
 - THEN Autopilot does not use it
 
-#### Scenario: The media node ignores deprecated variables
-- WHEN the media node's config omits a value and the matching `ROOMR_*` variable is set
-- THEN the media node uses the schema default, not the variable
+#### Scenario: The Roomr node ignores deprecated variables
+- WHEN the Roomr node's config omits a value and the matching `ROOMR_*` variable is set
+- THEN the Roomr node uses the schema default, not the variable

@@ -10,7 +10,7 @@ import { applyCatalog } from "./core/applyCatalog";
 import { prisma } from "./core/db";
 import { identityConfig } from "./core/identityConfig";
 import runServices from "./core/runServices";
-import { upsertMediaNodePeer } from "./core/upsertMediaNodePeer";
+import { upsertRoomrPeer } from "./core/upsertRoomrPeer";
 import {
   INFLUXDB_ORG,
   INFLUXDB_TOKEN,
@@ -60,9 +60,9 @@ async function main() {
     }
   }
 
-  // The media-node peer every app-linked number points at (add-media-node 4.1). Runs in the
+  // The roomr peer every app-linked number points at (add-roomr 4.1). Runs in the
   // background: it waits for Routr, which may start after the API server.
-  upsertMediaNodePeer().catch(logger.error);
+  upsertRoomrPeer().catch(logger.error);
 
   // Start the gRPC server
   runServices().catch(logger.error);

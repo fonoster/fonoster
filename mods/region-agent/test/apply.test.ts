@@ -19,7 +19,7 @@
 import { expect } from "chai";
 import { createTestDb, TestDb } from "../../common/test/persistence/testDb";
 import { DatabaseApplier } from "../src/apply/DatabaseApplier";
-import { ensureMediaNodePeer, RoutrApplier } from "../src/apply/RoutrApplier";
+import { ensureRoomrPeer, RoutrApplier } from "../src/apply/RoutrApplier";
 import { regionDomainUri } from "../src/snapshot";
 import { FakeRoutr } from "./fakeRoutr";
 import {
@@ -124,16 +124,16 @@ describe("@region-agent Routr resources", function () {
     expect(r.created).to.equal(5);
   });
 
-  it("creates the media-node peer once", async function () {
+  it("creates the roomr peer once", async function () {
     const routr = new FakeRoutr();
     const peer = {
-      name: "Media nodes",
-      username: "medianode",
-      aor: "sip:medianode@default",
+      name: "Roomr nodes",
+      username: "roomr",
+      aor: "sip:roomr@default",
       password: "p"
     };
-    expect(await ensureMediaNodePeer(routr, peer)).to.equal("created");
-    expect(await ensureMediaNodePeer(routr, peer)).to.equal("exists");
+    expect(await ensureRoomrPeer(routr, peer)).to.equal("created");
+    expect(await ensureRoomrPeer(routr, peer)).to.equal("exists");
     expect(routr.of("peers")[0].credentialsRef).to.be.a("string");
   });
 });

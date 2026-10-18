@@ -39,7 +39,7 @@ one yet, [run a local collector](#try-it-with-a-local-collector) first.
   </Step>
 </Steps>
 
-Compose passes `OTEL_EXPORTER_OTLP_ENDPOINT` to the API server, the voice gateway, the media node
+Compose passes `OTEL_EXPORTER_OTLP_ENDPOINT` to the API server, the voice gateway, the Roomr node
 and the hosted Autopilot. Each one reads it through `telemetry.otlpEndpoint` in its file in
 `config/`:
 
@@ -57,10 +57,10 @@ again.
 | ------------- | -------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | API server    | `fonoster-apiserver` | One span per API request                  | `fonoster.apiserver.grpc.requests` (by method and status), `fonoster.apiserver.records.indexed` |
 | Voice gateway | `fonoster-gateway`   | `gateway.call`, one span per call         | `fonoster.gateway.calls.total`, `fonoster.gateway.calls.active`                                 |
-| Media node    | `fonoster-roomr`     | `roomr.call.incoming` and `roomr.command` | `fonoster.roomr.calls.incoming` (by outcome), `fonoster.roomr.rooms.active`                     |
+| Roomr node    | `fonoster-roomr`     | `roomr.call.incoming` and `roomr.command` | `fonoster.roomr.calls.incoming` (by outcome), `fonoster.roomr.rooms.active`                     |
 
-The gateway also sends its logs; the media node's logs and the API server's stay in
-`docker compose logs`. A call's trace starts at the media node and continues in the gateway.
+The gateway also sends its logs; the Roomr node's logs and the API server's stay in
+`docker compose logs`. A call's trace starts at the Roomr node and continues in the gateway.
 Metrics are sent every 15 seconds.
 
 ## Other settings

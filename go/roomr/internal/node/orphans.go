@@ -12,7 +12,7 @@ import (
 // ({type: "gateway.heartbeat", gatewayRef, calls}).
 const GatewayHeartbeatSubject = "gateway.heartbeat"
 
-// Orphan rooms (media-node "Rooms without an owner end"): a room whose owner is gone holds a
+// Orphan rooms (roomr "Rooms without an owner end"): a room whose owner is gone holds a
 // MaxRooms slot and, for an answered call, leaves the caller in dead air until MaxDuration. Two
 // owners can go away: the control-plane replica that sent room.create (before anyone joins), and
 // the gateway that claimed or will own the call.

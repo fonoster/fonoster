@@ -1,7 +1,7 @@
 # Fonoster rebuild: architecture specs
 
 Status: **build approved 2026-10-15.** The gateway, both SDKs, the Autopilot engine, call records,
-the registry core and the conformance framework are built side by side on `next`; the Go media node
+the registry core and the conformance framework are built side by side on `next`; the Go Roomr node
 is next, after the media-control amendments from the 2026-10-15 spec review. Decisions made while
 building live in each change's `build-log.md`.
 
@@ -16,7 +16,7 @@ Your code (apps, Autopilot, Pipecat bots)
    │  WebSocket session: native flavor or Twilio flavor
 VoiceSessionGateway (one per call, runs in the voice worker)
    │  Speech layer (STT, TTS, play, turn-taking) · Audio layer · Control
-Media node (Go, behind Routr)  ── rooms (audio mixer), SIP legs, forks; see add-media-node
+Roomr node (Go, behind Routr)  ── rooms (audio mixer), SIP legs, forks; see add-roomr
    │  SIP + RTP
 SIP edge (Routr + RTPEngine) ── carriers, WebRTC
 ```
@@ -34,12 +34,12 @@ conformance framework.
 | `add-call-record` | `call-record` | `voice-session` |
 | `rework-voice-sdk` | `voice-sdk` | `voice-session` |
 | `rework-autopilot` | `autopilot` | `voice-session`, `turn-taking`, `voice-sdk`, `provider-registry` |
-| `add-media-node` | `media-node`, `media-control` | `voice-session`, `call-record` |
+| `add-roomr` | `roomr`, `media-control` | `voice-session`, `call-record` |
 | `add-workspace-webhooks` | `workspace-webhooks` | `call-record`, `provider-registry` |
 | `add-platform` | `control-plane`, `observability`, `deployment`, `regions` | all of the above except `conformance` |
 | `add-conformance-framework` | `conformance` | all of the above |
 
-Media node in one line: rooms are audio mixers with a track-based (video-ready) contract; "add a
+Roomr node in one line: rooms are audio mixers with a track-based (video-ready) contract; "add a
 participant to a room" serves inbound, outbound and transfer (cold/warm in the room, optional SIP
 REFER); Routr balances nodes with least-sessions from `X-Session-Count`; rooms stay on one node;
 optional TLS + SRTP to the edge; sipgo and livekit/media-sdk are reused as libraries.
@@ -53,7 +53,7 @@ regions ship in v1 and are customer-operated (we only sync config).
 
 - **Session**: one call as seen by an app. It carries audio, emits events and accepts commands.
 - **VoiceSessionGateway** (the gateway): one per call. Speaks the session protocol to apps over
-  WebSocket and the MediaControl contract to the media node.
+  WebSocket and the MediaControl contract to the Roomr node.
 - **Flavors**: `native` (JSON text frames + binary audio frames) and `twilio` (Twilio Media
   Streams messages). WebSocket only; gRPC is not a session transport.
 - **Layers**: Speech (STT, TTS, play, turn events, interruption reports), Audio (raw frames,
@@ -65,10 +65,10 @@ regions ship in v1 and are customer-operated (we only sync config).
 - **Turn Detector**: lives in the gateway; produces an end-of-thought estimate (0–1) and turn
   events. **Pacing policy** turns the estimate into actions.
 - **Call record**: one vCon per call, built live, sealed and signed at hangup.
-- **Room**: lives on one media node and mixes audio for its participants (each hears everyone
+- **Room**: lives on one Roomr node and mixes audio for its participants (each hears everyone
   but themselves). Participants have **tracks** with a `kind` (`audio` in v1) and a codec.
 - **Participant**: a SIP leg, the gateway's session, or a listener (fork).
-- **MediaControl**: the contract between the gateway or control plane and the media node.
+- **MediaControl**: the contract between the gateway or control plane and the Roomr node.
 
 ## Retired by this rebuild
 
@@ -76,7 +76,7 @@ regions ship in v1 and are customer-operated (we only sync config).
   incompatible release (owner decision 2026-10-15): `@fonoster/voice` is the session SDK.
 - Verbs `record`, `setAudioFilters`, `mute`, `unmute` (recording and filters become app policy).
 - STT/TTS/audio filters inside the apiserver; the apiserver's ARI and AudioSocket handling;
-  Asterisk itself (every app-linked number points at the media nodes).
+  Asterisk itself (every app-linked number points at the Roomr nodes).
 - The previous Autopilot engine (xstate machine, Silero VAD, gRPC voice server).
 - Silero VAD inside Autopilot (turn-taking moves into the gateway).
 

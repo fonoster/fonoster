@@ -316,12 +316,12 @@ cmd_up() {
   wait_for "the apiserver (migrations, Identity, seed)" 120 api_ready \
     || { compose logs --tail 40 apiserver; die "apiserver did not start"; }
   # Routr's API comes up later (it migrates its own database first); seeding needs it. The
-  # apiserver logs the media-node peer once Routr answers.
+  # apiserver logs the roomr peer once Routr answers.
   wait_for "Routr" 90 routr_ready || { compose logs --tail 20 routr; die "Routr did not start"; }
   cmd_info
 }
 
-routr_ready() { compose logs apiserver 2>/dev/null | grep -q "media-node peer \(created\|already exists\)"; }
+routr_ready() { compose logs apiserver 2>/dev/null | grep -q "roomr peer \(created\|already exists\)"; }
 
 cmd_seed() {
   [ -f "$STACK_ENV" ] || die "run 'ops/rebuild/stack up' first"
@@ -379,7 +379,7 @@ cmd_call() {
   trunk="$(seed_get trunk.inboundUri)"
   wait_for "the caller bot" 30 curl -sf "$caller/calls"
   log "calling $number through Routr ($RB_NET.40:$RB_SIP_PORT, request host $trunk)"
-  # Routr answers 480 until the media node has registered (every 15 s): retry for a minute.
+  # Routr answers 480 until the Roomr node has registered (every 15 s): retry for a minute.
   local res state tries=0
   while :; do
     res="$(curl -sS -X POST "$caller/calls" -H 'content-type: application/json' \

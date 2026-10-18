@@ -20,22 +20,22 @@ import { NatsConnection } from "nats";
 import { Harness } from "../runner/Harness";
 import { NatsMediaControlPeer } from "../runner/NatsMediaControlPeer";
 import { CallerAction, Setup } from "../scenario/types";
-import { MediaNodeBinaries, MediaNodeProcess } from "./MediaNodeProcess";
+import { RoomrBinaries, RoomrProcess } from "./RoomrProcess";
 
 /**
- * Runs media-control scenarios against a real media node process (the Go node). `caller` steps
+ * Runs media-control scenarios against a real Roomr node process (the Go node). `caller` steps
  * drive the SIP caller bot, so calls arrive as real INVITEs with RTP.
  */
-export class ProcessMediaNodeHarness implements Harness {
+export class ProcessRoomrHarness implements Harness {
   private dialOutcome?: "answered" | "busy" | "no_answer" | "failed";
-  readonly media: MediaNodeProcess;
+  readonly media: RoomrProcess;
   private claimCalls = true;
 
   constructor(
     private readonly nc: NatsConnection,
-    bins: MediaNodeBinaries
+    bins: RoomrBinaries
   ) {
-    this.media = new MediaNodeProcess(bins);
+    this.media = new RoomrProcess(bins);
   }
 
   async setup(setup: Setup) {

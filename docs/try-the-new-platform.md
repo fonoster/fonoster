@@ -4,13 +4,13 @@
 > component as a container; it is what `ops/rebuild/stack smoke` and CI use.
 
 One command starts the whole rebuilt Fonoster on your laptop: the control plane (API server with
-Identity, dashboard) and the new voice path (Routr, Go media node, VoiceSessionGateway, hosted
+Identity, dashboard) and the new voice path (Routr, Go Roomr node, VoiceSessionGateway, hosted
 Autopilot), with call records in MinIO. Another seeds a demo workspace with an Autopilot app you
 can call from a softphone.
 
 ```
-softphone ──SIP──▶ Routr ──▶ media node ──media-control (NATS)──▶ gateway ──WebSocket──▶ hosted Autopilot
-            RTP ──▶ RTPEngine ──▶ media node ◀──RTP──▶ gateway        └─▶ call record ─▶ MinIO + index
+softphone ──SIP──▶ Routr ──▶ Roomr node ──media-control (NATS)──▶ gateway ──WebSocket──▶ hosted Autopilot
+            RTP ──▶ RTPEngine ──▶ Roomr node ◀──RTP──▶ gateway        └─▶ call record ─▶ MinIO + index
 ```
 
 This is a local try-out, not a production deployment: it generates development secrets, runs the
@@ -31,7 +31,7 @@ Ports are in 16000-16999, so the stack runs next to a legacy Fonoster stack. Cha
 | 16449 | Dashboard and API (Envoy: gRPC, gRPC-Web, `/api`, browser calls at `/sip`) |
 | 16060 | SIP (Routr), UDP and TCP |
 | 16100-16199/udp | Media (RTPEngine) |
-| 16200-16299/udp | Media node RTP |
+| 16200-16299/udp | Roomr node RTP |
 | 16900, 16901 | MinIO API, MinIO console |
 | 16222 | NATS (debugging) |
 | 16080 | The caller bot's HTTP control (smoke test) |
@@ -47,7 +47,7 @@ The first run builds every image from this checkout (several minutes) and create
 runs reuse them. `up` prints the dashboard URL and the login when the API server is ready.
 
 The stack runs: NATS, Postgres (Routr, the API server and Identity each have a database), Routr,
-RTPEngine, the media node, the gateway, the hosted Autopilot, MinIO, the API server (it applies
+RTPEngine, the Roomr node, the gateway, the hosted Autopilot, MinIO, the API server (it applies
 every migration, including `rebuild_persistence` and `add_call_records`, then Identity's), Envoy,
 the dashboard, the fake providers and the caller bot. No Asterisk. Once the API server is up, `up`
 loads the provider catalog (`ops/rebuild/config/catalog-seed.yaml`: Deepgram, ElevenLabs, OpenAI,
@@ -109,7 +109,7 @@ and enable "Outbound proxy". Zoiper: add a SIP account `softphone@demo.fonoster.
 Dial the demo number from the softphone as a call into the carrier trunk:
 `sip:+17853178070@carrier.fonoster.local` (the smoke test's caller bot dials exactly this; a
 softphone call has not been tried yet, see the build log ST-B10). Routr matches the trunk by the request host, finds the
-Number, and sends the call to the media node with the app in `X-App-Ref`. The gateway opens a
+Number, and sends the call to the Roomr node with the app in `X-App-Ref`. The gateway opens a
 session to the hosted Autopilot, which greets you.
 
 Without vendor keys the speech is fake: you hear tones whose length follows the text, and the fake
@@ -261,12 +261,12 @@ ops/rebuild/stack smoke              # up, seed, one call, checks, down (RB_KEEP
   media at the same address, which both your softphone and the containers can reach.
 - **Browser calls** ("Talk to agent"): the dashboard gets a test token from the API server
   (`CreateTestToken`), opens SIP over WebSocket at `ws://<LAN address>:16449/sip` (Envoy proxies it
-  to Routr's `ws` transport on 5062 in the container) and calls the media-node Peer with
+  to Routr's `ws` transport on 5062 in the container) and calls the roomr Peer with
   `X-App-Ref` naming the agent. Routr checks the token with Identity's public key; RTPEngine turns
   the browser's WebRTC (ICE, DTLS-SRTP) into plain RTP; the gateway answers only agents of the
   token's workspace.
-- **Media node**: registers to Routr (UDP, inside the Docker network) as the Peer `sip:medianode@default` that the API
-  server creates (`routr.mediaNodePeer`). Numbers of apps go to that Peer.
+- **Roomr node**: registers to Routr (UDP, inside the Docker network) as the Peer `sip:roomr@default` that the API
+  server creates (`routr.roomrPeer`). Numbers of apps go to that Peer.
 - **Gateway**: reads apps from the API server's database (`appStore.source: database`), delivers
   workspace webhooks, writes call records to MinIO and announces them to the index on NATS.
 - **Gateway** also reads the provider catalog (`registry.source: database`) and workspace vendor
@@ -284,7 +284,7 @@ ops/rebuild/stack smoke              # up, seed, one call, checks, down (RB_KEEP
   run `ops/rebuild/stack up` again; it re-detects it. Set `RB_HOST_IP` to force one.
 - **`up` waits for the apiserver forever.** `ops/rebuild/stack logs apiserver`. A port collision
   shows up as a Compose error instead: edit the port in `ops/rebuild/.local/stack.env`.
-- **Calls fail with 480 at Routr.** The media node is not registered yet: Routr takes about a
+- **Calls fail with 480 at Routr.** The Roomr node is not registered yet: Routr takes about a
   minute to start, and the node registers every 15 s (`ops/rebuild/stack logs roomr`).
 - **`seed` waits.** Routr-backed resources (domains, numbers) answer errors until Routr is up; the
   seed retries for about a minute and a half.

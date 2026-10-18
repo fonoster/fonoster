@@ -1,5 +1,5 @@
-// Roomr: the media node's control service for its controller.
-// Spec: openspec/changes/redesign-media-node/specs/media-control ("Roomr is a gRPC service with
+// Roomr: the Roomr node's control service for its controller.
+// Spec: openspec/changes/redesign-roomr/specs/media-control ("Roomr is a gRPC service with
 // three nouns"). Messages only grow: add fields, never renumber or reuse them, and receivers
 // ignore fields they do not know.
 //

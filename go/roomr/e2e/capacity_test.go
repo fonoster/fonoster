@@ -11,7 +11,7 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-// The node's room limit (media-node "Call and room limits"; fix-config-and-placement-gaps 1.1):
+// The node's room limit (roomr "Call and room limits"; fix-config-and-placement-gaps 1.1):
 // heartbeats report it, room.create beyond it is refused with at_capacity, and a room that ends
 // frees a place.
 func TestRoomLimitRefusesRoomCreate(t *testing.T) {

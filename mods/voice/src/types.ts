@@ -74,7 +74,7 @@ export type SessionEventMap = {
   "turn.backchannel": { text: string };
   "transcript.partial": { text: string; language?: string };
   "turn.estimate": { eot: number; speaking: boolean; kind: string };
-  /** Answering-machine detection, once per call, for apps with `amd` (add-media-node 4.3). */
+  /** Answering-machine detection, once per call, for apps with `amd` (add-roomr 4.3). */
   "amd.result": {
     status: "human" | "voicemail" | "ivr" | "machine" | "unknown";
     confidence: number;

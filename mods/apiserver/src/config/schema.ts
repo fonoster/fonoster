@@ -263,18 +263,18 @@ const fonosterConfigSchema = z
         apiEndpoint: z.string().default("routr:51907"),
         /**
          * host:port of Routr's SIP listener: API-originated calls are dialed through it
-         * (CreateCall's to.proxy), as the media-node peer below (to.auth).
+         * (CreateCall's to.proxy), as the roomr peer below (to.auth).
          */
         sipProxy: z.string().default("routr:5060"),
         /**
-         * The peer Go media nodes register under (least-sessions, add-media-node 4.1). Without a
+         * The peer Go Roomr nodes register under (least-sessions, add-roomr 4.1). Without a
          * password the apiserver does not create it.
          */
-        mediaNodePeer: z
+        roomrPeer: z
           .object({
-            aor: z.string().default("sip:medianode@default"),
-            name: z.string().default("Media Nodes"),
-            username: z.string().default("medianode"),
+            aor: z.string().default("sip:roomr@default"),
+            name: z.string().default("Roomr nodes"),
+            username: z.string().default("roomr"),
             password: z.string().optional()
           })
           .default({})

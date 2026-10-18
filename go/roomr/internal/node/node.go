@@ -17,7 +17,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 )
 
-// DefaultMaxRooms is the room limit when none is configured (media-node "Capacity bar").
+// DefaultMaxRooms is the room limit when none is configured (roomr "Capacity bar").
 const DefaultMaxRooms = 200
 
 // IncomingSubject is where calls are offered to the gateway replicas (media-control, "Incoming

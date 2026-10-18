@@ -10,7 +10,7 @@ Verify against code before drafting with /ps:docs.
 - What opening does: `initializeCommand` (on the host, shell + Docker only) builds the workspace image and, first
   time, runs `fonoster-config init` from source in a throwaway node:22-alpine to fill `.dev/`. Deps from
   `.devcontainer/compose.yaml` (extends ops/bundle/compose.yaml): nats, postgres, routr, rtpengine, minio, envoy,
-  plus nats-test and a fonoster_test DB. The workspace takes the media node's fixed address and the service
+  plus nats-test and a fonoster_test DB. The workspace takes the Roomr node's fixed address and the service
   names, so bundle Envoy routes and configs work unchanged. Fake speech/LLM providers on by default.
 - Commands: `dev` (all, prefixed logs) · `dev:apiserver` (migrations + seed once, then tsx watch) ·
   `dev:appbridge`, `dev:autopilot` (tsx watch) · `dev:roomr` (go build + restart on .go change; a failed build
@@ -22,7 +22,7 @@ Verify against code before drafting with /ps:docs.
   `.dev/overlay/<service>.yaml`. All git-ignored.
 - Tests: `npm test` (uses nats-test + fonoster_test via compose env) · `npm test -w @fonoster/dashboard` ·
   `cd go/roomr && go test -race ./...`.
-- Verified by the agent: deps healthy; `npm run dev` → migrations, catalog, media-node peer, dashboard 200; SDK
+- Verified by the agent: deps healthy; `npm run dev` → migrations, catalog, roomr peer, dashboard 200; SDK
   login + seed; two SIP calls to an Autopilot app (6 s audio, record completed); gateway reload ~2 s on save; .go
   save rebuilds roomr; Vite HMR and /sip WS through Envoy; npm test 1679/0; Go race; dashboard 290.
   NOT verified: Talk to agent in a real browser, Playwright e2e.

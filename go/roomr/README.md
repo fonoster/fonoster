@@ -1,8 +1,8 @@
-# Fonoster media node (Go)
+# Fonoster Roomr node (Go)
 
-The media node replaces Asterisk: SIP legs from Routr become **rooms** that mix audio for their
+The Roomr node replaces Asterisk: SIP legs from Routr become **rooms** that mix audio for their
 participants (mix-minus), driven by the VoiceSessionGateway over **media-control** on NATS. Specs:
-`openspec/changes/archive/2026-10-17-add-media-node` (media-node and media-control), decisions in its `build-log.md`.
+`openspec/changes/archive/2026-10-17-add-roomr` (roomr and media-control), decisions in its `build-log.md`.
 
 ## What this version does
 
@@ -75,7 +75,7 @@ The apiserver stops placing calls on a node at `node.down` or when its heartbeat
 
 ## Registrations
 
-The node registers only where its configuration says (Roomr, `redesign-media-node`
+The node registers only where its configuration says (Roomr, `redesign-roomr`
 "Registration is optional and configured"); with no `sip.registrations` it sends no REGISTER and
 still takes INVITEs. Each entry:
 
@@ -83,10 +83,10 @@ still takes INVITEs. Each entry:
 sip:
   registrations:
     - registrar: routr:5060            # host:port or a SIP URI; ;transport=tcp|tls picks the transport (default udp)
-      aor: sip:medianode@default       # From/To and the Contact user (default sip:medianode@<registrar host>)
+      aor: sip:roomr@default       # From/To and the Contact user (default sip:roomr@<registrar host>)
       expires: 30s                     # Expires; the node re-registers at half of it (default 30s)
       auth:                            # optional: answers a 401/407 digest challenge
-        username: medianode
+        username: roomr
         password: secret://env/ROOMR_PASSWORD   # or "${VAR}"
       headers:                         # templates; {sessions} = active rooms
         X-Session-Count: "{sessions}"
@@ -101,7 +101,7 @@ sip:
 - `registration.state` (`registered`, `failed`, `expired`, `unregistered`) is published on
   `roomr.nodes.<node_ref>.events` when a registration's state (or a failure's SIP status) changes.
   A failed REGISTER is retried after 1 s, doubling up to the refresh interval.
-- Routr is one deployment of this: the bundle registers the media-node Peer with
+- Routr is one deployment of this: the bundle registers the roomr Peer with
   `X-Session-Count: "{sessions}"` for Routr's `LEAST_SESSIONS`. `participant.dial` and transfers
   (the NATS path) dial out as the Peer of the first registration (its AOR and `auth`).
 - Unknown keys fail at start, so a file with the old `registration:` block or any removed key
@@ -111,7 +111,7 @@ sip:
 ## Codecs
 
 SIP legs use `opus/48000/2`, `G722/8000`, `PCMU/8000` and `PCMA/8000`, in that order of
-preference (Roomr, `redesign-media-node` "Supported codecs"):
+preference (Roomr, `redesign-roomr` "Supported codecs"):
 
 - **Outbound INVITEs** (`participant.dial`, transfers, `CreateCall`) offer them in that order,
   Opus as dynamic payload type 111 with
@@ -142,7 +142,7 @@ hardware). Size SIP capacity for the Opus share you expect.
 
 ## The Roomr gRPC service (`roomr.v1.Roomr`)
 
-Roomr is the redesigned media node (OpenSpec change `redesign-media-node`). Its first piece is
+Roomr is the redesigned Roomr node (OpenSpec change `redesign-roomr`). Its first piece is
 the `roomr.v1.Roomr` gRPC service (`api/roomr/v1/roomr.proto`): `CreateCall`,
 `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record` and `SendDtmf`. It runs
 **next to** the NATS commands: both work, every RPC calls the same room operation as the NATS

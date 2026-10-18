@@ -121,7 +121,7 @@ The node SHALL remember the parameters of every `call_ref` it has seen, includin
 a fixed dedupe window of 10 minutes: a repeat with the same parameters SHALL return
 the existing `Call` (in its current state) without a new INVITE, and a repeat with different
 parameters SHALL fail with `ALREADY_EXISTS`. The `call_ref` MAY instead come from `to.headers`
-under the configured call-ref header (media-node "One call ref end to end"). The node SHALL answer
+under the configured call-ref header (roomr "One call ref end to end"). The node SHALL answer
 a `407` or `401` digest challenge on the INVITE with `to.auth` and SHALL NOT log `to.auth` or echo
 it in any response, event or `Start`. `EndCall` on a `RINGING` call SHALL send `CANCEL` and end the
 call with `cause: "removed"`.
@@ -207,7 +207,7 @@ remove the listener.
 ### Requirement: Calls can carry a lower maximum duration
 
 `CreateCall` and `Answer` MAY carry `max_duration_s`, which SHALL lower the node's maximum call
-duration (media-node "Call and room limits") for that call; a value above the node's limit SHALL be
+duration (roomr "Call and room limits") for that call; a value above the node's limit SHALL be
 ignored. When it is reached the call ends with `cause: "max_duration"`.
 
 #### Scenario: App limit applied
@@ -258,7 +258,7 @@ Each node SHALL publish a heartbeat on `roomr.nodes.<node_ref>.heartbeat` every
 `rtp_ports`, `rooms`, `participants`, `max_rooms`, `codecs`, `version` and `region`. A node
 stopping on purpose SHALL stop heartbeating when it starts draining and SHALL publish `node.down`
 `{ node_ref }` on the same subject, `roomr.nodes.<node_ref>.heartbeat`, with `type: "node.down"`
-(heartbeats carry `type: "node.heartbeat"`), as media-node "Draining is a health signal with a
+(heartbeats carry `type: "node.heartbeat"`), as roomr "Draining is a health signal with a
 bounded wait" says. A controller SHALL treat a node whose last heartbeat is older than 6 seconds,
 or that said `node.down`, as down and SHALL not place calls on it. The node SHALL write nothing to
 the session registry: it uses core NATS only, for heartbeats and events.

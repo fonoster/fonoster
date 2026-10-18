@@ -1,5 +1,5 @@
 // Command sipcaller is the SIP caller bot behind a small HTTP API, so conformance harnesses in any
-// language can drive real calls into a media node:
+// language can drive real calls into a Roomr node:
 //
 //	POST /calls               {"target":"127.0.0.1:5060","to":"+1555","from":"+1444","headers":{"X-App-Ref":"app-1"},
 //	                           "requestHost":"<Request-URI host, e.g. a Routr Trunk's inboundUri>",

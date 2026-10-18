@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// secret:// in the started media node (harden-conformance 1.4, deployment: "Secret reference
+// secret:// in the started Roomr node (harden-conformance 1.4, deployment: "Secret reference
 // resolved"): the Go binary resolves its config's references at startup, and an unresolvable one
 // stops it with the reference named and no value. The node resolves its NATS and SIP passwords
 // before it connects, so it is pointed at a closed port: getting as far as the NATS connection
@@ -28,7 +28,7 @@ import * as net from "net";
 import * as os from "os";
 import * as path from "path";
 import { expect } from "chai";
-import { buildMediaNode, MediaNodeBinaries } from "../src";
+import { buildRoomr, RoomrBinaries } from "../src";
 
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
@@ -43,7 +43,7 @@ function freePort(): Promise<number> {
 
 /** Runs the node with `config` until it exits; returns its exit code and output. */
 function runNode(
-  bins: MediaNodeBinaries,
+  bins: RoomrBinaries,
   config: string,
   env: Record<string, string>
 ): Promise<{ code: number | null; output: string }> {
@@ -75,15 +75,15 @@ function resolvedThenConnected(result: {
   expect(result.code).to.equal(1);
 }
 
-describe("@conformance[deployment] secret:// in the started media node", function () {
+describe("@conformance[deployment] secret:// in the started Roomr node", function () {
   this.timeout(60000);
-  let bins: MediaNodeBinaries | undefined;
+  let bins: RoomrBinaries | undefined;
   let dir: string;
 
   before(function () {
     this.timeout(180000);
     if (!NATS_URL) return this.skip();
-    bins = buildMediaNode(NATS_URL);
+    bins = buildRoomr(NATS_URL);
     if (!bins) return this.skip();
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "roomr-secrets-"));
   });

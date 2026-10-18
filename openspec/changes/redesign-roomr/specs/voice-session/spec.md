@@ -5,7 +5,7 @@
 A session SHALL end when the caller hangs up, when the app sends `hangup`, when the app closes its
 socket, on transfer, on handoff, on fatal error or on timeout. The gateway SHALL send `session.end`
 with a `reason` (`caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error`, `timeout`) as its
-last message when the socket is still open. The reason SHALL come from the media node's `Ended`
+last message when the socket is still open. The reason SHALL come from the Roomr node's `Ended`
 `cause` on the control stream (media-control), mapped as follows:
 
 | `cause` | `session.end` `reason` |
@@ -35,7 +35,7 @@ A control stream that closes without `Ended` SHALL map to `error`. `busy`, `no_a
 - **THEN** the app receives `session.end` with `reason: "caller_hangup"`
 
 #### Scenario: Node lost
-- **WHEN** the media node's control stream closes without an `Ended` event
+- **WHEN** the Roomr node's control stream closes without an `Ended` event
 - **THEN** the app receives `session.end` with `reason: "error"` and the call record is sealed with `node_error`
 
 #### Scenario: Every cause mapped
@@ -46,17 +46,17 @@ A control stream that closes without `Ended` SHALL map to `error`. `busy`, `no_a
 - **WHEN** the node sends `Ended` with `cause: "something_new"`
 - **THEN** the app receives `session.end` with `reason: "error"`
 
-### Requirement: The media node receives only control
+### Requirement: The Roomr node receives only control
 
-The gateway SHALL send the media node only call-control commands on the per-call control stream
+The gateway SHALL send the Roomr node only call-control commands on the per-call control stream
 (`Answer`, `Reject`, `Hangup`, `Transfer`, `TransferComplete`, `Hold`, `Resume`, `SendDtmf`,
 `AttachListener`, `DetachListener`, `Play`, `Stop`) and SHALL receive from it call events and
 keypresses; caller audio arrives as RTP at the endpoint the gateway named in `Answer` or `Ready`.
 Speech, turn detection, format conversion and the output queue MUST stay in the gateway.
 
-#### Scenario: Speech never reaches the media node
+#### Scenario: Speech never reaches the Roomr node
 - **WHEN** an app sends `speak`
-- **THEN** the media node receives only audio frames for playout, never text or a speech command
+- **THEN** the Roomr node receives only audio frames for playout, never text or a speech command
 
 #### Scenario: Gateway answers on the stream
 - **WHEN** an inbound call's app socket opens and `session.start` is sent
@@ -67,7 +67,7 @@ Speech, turn detection, format conversion and the output queue MUST stay in the 
 The platform SHALL model every app as a WebSocket URL, a protocol (`fonoster` or `twilio`), a signing secret, speech
 defaults (voice and language as catalog ids), optional audio filters and an optional fallback. A
 number MUST point to an app. Routr resolves the number and passes the app in `X-App-Ref`; the
-media node passes every header through, and the gateway SHALL take the app from `X-App-Ref` in the
+Roomr node passes every header through, and the gateway SHALL take the app from `X-App-Ref` in the
 `headers` of the control stream's `Start` (media-control) or, for outbound calls, from `app_ref`
 in its `metadata`, which the caller of `CreateCall` sets. It SHALL use a number lookup only as a
 development fallback when `X-App-Ref` is missing and a routing file is configured, and SHALL

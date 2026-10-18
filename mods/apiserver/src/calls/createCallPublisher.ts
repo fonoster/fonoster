@@ -50,7 +50,7 @@ function callPublisher(nc: NatsConnection) {
   return {
     /**
      * Asks the outbound placement (any replica's `calls.create` queue group) to place the call,
-     * and resolves once a media node has accepted CreateCall. Rejects with a CallPlacementError:
+     * and resolves once a Roomr node has accepted CreateCall. Rejects with a CallPlacementError:
      * `no_capacity` when no node took it, `invalid_argument` or `already_exists` as the node
      * said, `unavailable` otherwise (no replica answered included).
      */

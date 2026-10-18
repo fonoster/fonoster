@@ -25,7 +25,7 @@ import * as path from "path";
 import * as readline from "readline";
 import { connect, NatsConnection, StringCodec } from "nats";
 
-/** The Go media node's source, relative to this package. */
+/** The Go Roomr node's source, relative to this package. */
 export const ROOMR_DIR = path.join(
   __dirname,
   "..",
@@ -37,7 +37,7 @@ export const ROOMR_DIR = path.join(
 );
 
 /** Builds roomr and sipcaller into a temp dir; undefined when there is no Go toolchain. */
-export function buildMediaNode(natsUrl: string): MediaNodeBinaries | undefined {
+export function buildRoomr(natsUrl: string): RoomrBinaries | undefined {
   try {
     execFileSync("go", ["version"], { stdio: "ignore" });
   } catch {
@@ -56,10 +56,10 @@ export function buildMediaNode(natsUrl: string): MediaNodeBinaries | undefined {
   };
 }
 
-// A real media node process (go/roomr) and the SIP caller bot (sipcaller) that calls it.
+// A real Roomr node process (go/roomr) and the SIP caller bot (sipcaller) that calls it.
 // Harnesses use it to run scenarios over real SIP and RTP.
 
-export type MediaNodeBinaries = {
+export type RoomrBinaries = {
   natsUrl: string;
   /** Paths of the built `roomr` and `sipcaller` binaries. */
   roomr: string;
@@ -142,7 +142,7 @@ async function stopProcess(p: ChildProcess) {
   await exited;
 }
 
-export class MediaNodeProcess {
+export class RoomrProcess {
   readonly nodeId = `go-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
   heartbeatMs = 2000;
   /** The node's room limit (maxRooms); unset keeps the node's default. */
@@ -164,7 +164,7 @@ export class MediaNodeProcess {
   /** The bot's current call. */
   callId?: string;
 
-  constructor(private readonly bins: MediaNodeBinaries) {}
+  constructor(private readonly bins: RoomrBinaries) {}
 
   async start() {
     // The bot first: it is also the callee the node dials (Routr's place in production).

@@ -39,14 +39,14 @@ func TestShippedConfigsParse(t *testing.T) {
 			t.Fatal(err)
 		}
 		reg := regs[0]
-		if reg.AOR != "sip:medianode@default" || reg.Username != "medianode" || reg.Password != "p" ||
+		if reg.AOR != "sip:roomr@default" || reg.Username != "roomr" || reg.Password != "p" ||
 			reg.Expires != 30*time.Second || reg.Headers["X-Session-Count"] != "{sessions}" {
 			t.Fatalf("%s: registration %+v", file, reg)
 		}
 	}
 }
 
-// The media node's replies arrive under its own inbox prefix, the only inbox its NATS user may
+// The Roomr node's replies arrive under its own inbox prefix, the only inbox its NATS user may
 // subscribe to (nats-permissions/roomr.conf).
 func TestNATSInboxPrefixIsPerUser(t *testing.T) {
 	if got := natsInboxPrefix("roomr"); got != "_INBOX_roomr" {

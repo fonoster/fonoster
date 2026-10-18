@@ -19,12 +19,12 @@ features:
   auth: { methods: [password], signup: invite }
   billing: { enabled: false }
   costs: { display: usage }
-# Numbers of apps route to the media nodes' Peer, created at start with this password.
+# Numbers of apps route to the Roomr nodes' Peer, created at start with this password.
 routr:
   apiEndpoint: routr:51907
-  # API-originated calls are dialed through Routr's SIP port as the media-node peer.
+  # API-originated calls are dialed through Routr's SIP port as the roomr peer.
   sipProxy: "routr:${SIP_PORT}"
-  mediaNodePeer: { aor: "sip:medianode@default", username: medianode, password: "${ROOMR_PASSWORD}" }
+  roomrPeer: { aor: "sip:roomr@default", username: roomr, password: "${ROOMR_PASSWORD}" }
 nats: { url: "nats://nats:4222", user: apiserver, password: "${NATS_APISERVER_PASSWORD}" }
 # Autopilot apps point at the hosted Autopilot and share its signing secret.
 apps: { autopilotUrl: "ws://autopilot:3000", autopilotSigningSecret: "${AUTOPILOT_SIGNING_SECRET}" }

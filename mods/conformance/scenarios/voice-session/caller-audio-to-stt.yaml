@@ -5,7 +5,7 @@ role: app
 spec: "Gateway latency pass bar (T1) / Caller audio to STT"
 tags: [timing]
 description: >
-  One sample of the T1 caller-audio leg: the time from the fake media node sending the first
+  One sample of the T1 caller-audio leg: the time from the fake Roomr node sending the first
   audible caller packet to that audio reaching the fake STT. On pull requests the limit is loose;
   the timing suite repeats this scenario and checks the p95 against 50 ms.
 steps:

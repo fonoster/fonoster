@@ -20,24 +20,24 @@ import { NatsConnection } from "nats";
 import { Harness } from "../runner/Harness";
 import { NatsMediaControlPeer } from "../runner/NatsMediaControlPeer";
 import { CallerAction, Setup } from "../scenario/types";
-import { EndReason, FakeMediaNode } from "./FakeMediaNode";
+import { EndReason, FakeNatsRoomr } from "./FakeNatsRoomr";
 
 /**
- * Runs `media-control` scenarios (role `media-control-client`) against a media node over NATS.
- * Here the node is the FakeMediaNode and `caller` steps drive it directly; for the Go node the
+ * Runs `media-control` scenarios (role `media-control-client`) against a Roomr node over NATS.
+ * Here the node is the FakeNatsRoomr and `caller` steps drive it directly; for the Go node the
  * same scenarios run with a harness whose `caller` is a SIP caller bot.
  */
-export class MediaNodeHarness implements Harness {
-  readonly node: FakeMediaNode;
+export class RoomrHarness implements Harness {
+  readonly node: FakeNatsRoomr;
   private claimCalls = true;
 
   constructor(
     private readonly nc: NatsConnection,
-    node?: FakeMediaNode
+    node?: FakeNatsRoomr
   ) {
     this.node =
       node ??
-      new FakeMediaNode({ nodeId: `mc-${Date.now()}`, answerAfterMs: 20 });
+      new FakeNatsRoomr({ nodeId: `mc-${Date.now()}`, answerAfterMs: 20 });
   }
 
   async start(): Promise<this> {

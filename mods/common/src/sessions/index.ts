@@ -19,7 +19,7 @@
 import type { KV, KvEntry, NatsConnection } from "nats";
 
 /**
- * The session registry (add-platform 2.3, add-media-node 3.2, decision D3): one NATS JetStream KV
+ * The session registry (add-platform 2.3, add-roomr 3.2, decision D3): one NATS JetStream KV
  * bucket shared by every service. Keys are `<kind>.<id>`:
  *
  *   calls.<callRef>       gateway:    { callRef, gatewayRef, nodeId, roomRef, direction, at }
@@ -28,7 +28,7 @@ import type { KV, KvEntry, NatsConnection } from "nats";
  *   placements.<callRef>  apiserver:  { callRef, nodeRef, controlAddr, roomRef?, at }
  *                                     while an outbound call is being placed (CreateCall)
  *
- * Media nodes write nothing here (core NATS only: heartbeat and events); the control plane learns
+ * Roomr nodes write nothing here (core NATS only: heartbeat and events); the control plane learns
  * nodes from their heartbeats.
  *
  * The control plane reads `calls` and `gateways`: a call whose entry and whose gateway's entry

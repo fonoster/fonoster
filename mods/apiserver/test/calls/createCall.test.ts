@@ -82,7 +82,7 @@ describe("@calls/createCall", function () {
     });
   });
 
-  it("fails with RESOURCE_EXHAUSTED when no media node takes the call", async function () {
+  it("fails with RESOURCE_EXHAUSTED when no Roomr node takes the call", async function () {
     const { createCall } = await import("../../src/calls/createCall");
     const { CallPlacementError } = await import("../../src/calls/types");
     const metadata = new Metadata();
@@ -90,7 +90,7 @@ describe("@calls/createCall", function () {
     const publisher = {
       publishCall: sandbox
         .stub()
-        .rejects(new CallPlacementError("no_capacity", "no media node"))
+        .rejects(new CallPlacementError("no_capacity", "no Roomr node"))
     };
     const applications = {
       application: {

@@ -12,7 +12,7 @@ import (
 	"github.com/fonoster/fonoster/go/roomr/internal/sipheader"
 )
 
-// Roomr operations (redesign-media-node, "Roomr is a gRPC service with three
+// Roomr operations (redesign-roomr, "Roomr is a gRPC service with three
 // nouns"). They sit next to the NATS command handlers and call the same room operations
 // (newRoom, addSession, attachListener, remove, hangupAll, dialParty's leg setup), so both
 // paths behave alike; internal/control serves them over gRPC.
