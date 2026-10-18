@@ -34,7 +34,8 @@ its own port. Routr SHALL verify connect tokens with Identity's public key.
 #### Scenario: Rendered bundle config
 - **WHEN** `fonoster-config init` renders the bundle
 - **THEN** `routr-edgeport.yaml` lists a `ws` transport on 5062, `envoy.yaml` routes `/sip` to it,
-  and `fonoster.yaml` has `signalingServer: ws://<HOST_IP>:<HTTP_PORT>/sip`
+  and `fonoster.yaml` sets no `signalingServer`, so browsers get `ws://<HOST_IP>:<HTTP_PORT>/sip`
+  from `appUrl` (`wss://<domain>/sip` with `PUBLIC_URL=https://<domain>`)
 
 ### Requirement: A browser call reaches the agent
 

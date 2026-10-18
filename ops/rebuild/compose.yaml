@@ -48,8 +48,9 @@ services:
       context: ../..
       dockerfile: ops/rebuild/docker/apiserver.Dockerfile
     image: ${RB_REGISTRY:-fonoster}/apiserver:${RB_TAG:-dev}
-    # The region hub's leaf port, named by the stack's API server overlay.
+    # The region hub's leaf port and the API port, named by the stack's API server overlay.
     environment:
+      HTTP_PORT: ${HTTP_PORT:-8449}
       LEAF_PORT: ${LEAF_PORT:-7422}
     depends_on:
       nats-regions: { condition: service_healthy, required: false }

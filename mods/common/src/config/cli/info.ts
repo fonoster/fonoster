@@ -18,7 +18,9 @@
  */
 import { existsSync } from "fs";
 import { join } from "path";
+import { URL } from "url";
 import { expandEnv, readEnvFile } from "./envFile";
+import { tlsEnabled } from "./exposure";
 import { Io } from "./types";
 
 export type InfoOptions = { dir: string };
@@ -36,10 +38,21 @@ export function runInfo(options: InfoOptions, io: Io): number {
   const host = env.HOST_IP || "localhost";
   const httpPort = env.HTTP_PORT || "8449";
   const sipPort = env.SIP_PORT || "5060";
+  const publicUrl = env.PUBLIC_URL || `http://${host}:${httpPort}`;
+  // compose.tls.yaml: Envoy serves HTTPS on 443 for PUBLIC_URL's host.
+  let tlsHost = host;
+  try {
+    tlsHost = new URL(publicUrl).hostname;
+  } catch {
+    // Not a URL: check and init say so.
+  }
+  const api = tlsEnabled(env)
+    ? `${tlsHost}:443 (gRPC and gRPC-Web, TLS)`
+    : `${host}:${httpPort} (gRPC and gRPC-Web, plain HTTP)`;
   const lines = [
-    `Dashboard   ${env.PUBLIC_URL || `http://${host}:${httpPort}`}`,
+    `Dashboard   ${publicUrl}`,
     `Owner       ${env.OWNER_EMAIL || "(OWNER_EMAIL not set)"} / ${env.OWNER_PASSWORD || "(OWNER_PASSWORD not set)"}`,
-    `API         ${host}:${httpPort} (gRPC and gRPC-Web, plain HTTP)`,
+    `API         ${api}`,
     `SIP         ${host}:${sipPort} (UDP and TCP)`,
     "",
     `Files       ${envFile}   Compose settings and the generated secrets (back it up)`,
