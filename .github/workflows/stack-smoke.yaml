@@ -10,6 +10,9 @@ name: Stack Smoke
 #                 (ops/rebuild/stack e2e; conformance "End-to-end caller bot")
 #   helm          lint and render the chart with each values file, validate with kubeconform
 #   devcontainer  build the dev container's image (when .devcontainer/ changes, and nightly)
+#
+# On pull requests it runs only when the packaging changes (ops/, a Dockerfile, compose.yaml, the
+# root package files); code changes in mods/ and go/ are covered by the nightly run.
 
 on:
   pull_request:
@@ -19,11 +22,6 @@ on:
       - '.devcontainer/**'
       - 'compose.yaml'
       - '**/Dockerfile'
-      - 'go/roomr/**'
-      - 'mods/**'
-      - '!mods/**/test/**'
-      - '!mods/**/*.md'
-      - '!mods/dashboard/e2e/**'
       - 'package.json'
       - 'package-lock.json'
   schedule:
