@@ -103,6 +103,20 @@
                   "workspace/secrets",
                   "workspace/mcp"
                 ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "reference/api",
+                  "reference/sdk",
+                  "reference/voice-sdk",
+                  "reference/session-protocol",
+                  "reference/twilio-compatibility",
+                  "reference/autopilot-config",
+                  "reference/webhook-events",
+                  "reference/cli",
+                  "reference/providers"
+                ]
               }
             ]
           },
@@ -150,6 +164,17 @@
                 "pages": [
                   "hacking/overview",
                   "hacking/run-from-source"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Changelog",
+            "groups": [
+              {
+                "group": "Changelog",
+                "pages": [
+                  "changelog"
                 ]
               }
             ]

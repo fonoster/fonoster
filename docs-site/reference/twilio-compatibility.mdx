@@ -1,0 +1,141 @@
+---
+title: "Twilio compatibility"
+sidebarTitle: "Twilio compatibility"
+description: "Which Twilio Media Streams messages a twilio-protocol stream sends and accepts, how their fields differ, what isn't supported, and the hang-up route."
+---
+
+A stream with protocol `twilio` speaks the bidirectional Twilio Media Streams protocol over its
+WebSocket. This page lists every message and field. To connect a bot, such as a Pipecat bot, see
+[Bring your Twilio or Pipecat app](/streams/bring-your-app).
+
+The connection itself works as for any stream: Fonoster dials the stream's URL and signs the
+request. See [Session protocol: Connection](/reference/session-protocol#connection) and
+[Verify request signatures](/streams/verify-signatures).
+
+## Messages Fonoster sends
+
+Every message except `connected` carries `sequenceNumber`, a string that counts up from `"1"`,
+and `streamSid`.
+
+<ResponseField name="connected" type="first message">
+  `{ "event": "connected", "protocol": "Call", "version": "1.0.0" }`
+</ResponseField>
+
+<ResponseField name="start" type="once, after connected">
+  <Expandable title="start fields">
+    <ResponseField name="streamSid" type="string">The session's ref.</ResponseField>
+    <ResponseField name="callSid" type="string">The call's ref.</ResponseField>
+    <ResponseField name="accountSid" type="string">Your workspace's access key ID (`WO…`).</ResponseField>
+    <ResponseField name="tracks" type="string[]">Always `["inbound"]`.</ResponseField>
+    <ResponseField name="customParameters" type="object">The call's metadata; `{}` when none.</ResponseField>
+    <ResponseField name="mediaFormat" type="object">Always `{ "encoding": "audio/x-mulaw", "sampleRate": 8000, "channels": 1 }`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="media" type="caller audio, every 20 ms">
+  `media.track` is always `"inbound"`. `media.chunk` is a string that counts up from `"1"`.
+  `media.timestamp` is milliseconds since the stream started, as a string. `media.payload` is
+  base64 μ-law, 8000 Hz, mono, without headers.
+</ResponseField>
+
+<ResponseField name="dtmf" type="caller keypress">
+  `dtmf.track` is always `"inbound_track"`. `dtmf.digit` is the key.
+</ResponseField>
+
+<ResponseField name="mark" type="answer to your mark">
+  `mark.name` is the name you sent. Sent when the audio queued before the mark has played, or
+  when `clear` drops it.
+</ResponseField>
+
+<ResponseField name="stop" type="last message">
+  `stop.accountSid` and `stop.callSid`, as in `start`. Fonoster then closes the socket.
+</ResponseField>
+
+This is what a bot receives at the start of a call:
+
+```json
+{ "event": "connected", "protocol": "Call", "version": "1.0.0" }
+{
+  "event": "start",
+  "sequenceNumber": "1",
+  "streamSid": "8aa0b7b7-3f75-427e-86c2-14c2834ed4b1",
+  "start": {
+    "streamSid": "8aa0b7b7-3f75-427e-86c2-14c2834ed4b1",
+    "accountSid": "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",
+    "callSid": "c41e9d27-5b8a-4f3c-9e61-2d7a0b8c4f15",
+    "tracks": ["inbound"],
+    "customParameters": {},
+    "mediaFormat": { "encoding": "audio/x-mulaw", "sampleRate": 8000, "channels": 1 }
+  }
+}
+{
+  "event": "media",
+  "sequenceNumber": "2",
+  "streamSid": "8aa0b7b7-3f75-427e-86c2-14c2834ed4b1",
+  "media": { "track": "inbound", "chunk": "1", "timestamp": "20", "payload": "fn5+fn5+..." }
+}
+```
+
+## Messages Fonoster accepts
+
+| Message | Fields read | Effect |
+| --- | --- | --- |
+| `media` | `media.payload` (base64 μ-law, 8000 Hz, mono) | Queues the audio. The caller hears it in the order received |
+| `mark` | `mark.name` (required) | Marks a position in the queue. Fonoster answers with `mark` when the audio before it has played |
+| `clear` | | Empties the queue. The caller hears silence within 40 ms, and every pending `mark` is sent back |
+
+Fonoster doesn't read `streamSid` on incoming messages. It ignores binary frames, invalid JSON,
+`media` without a payload, `mark` without a name, and any other `event`. The call continues.
+
+## Differences from Twilio
+
+| Item | Twilio | Fonoster |
+| --- | --- | --- |
+| `callSid`, `streamSid` | Twilio SIDs (`CA…`, `MZ…`) | Fonoster refs (UUIDs) |
+| `accountSid` | Your Twilio account SID (`AC…`) | Your workspace's access key ID (`WO…`) |
+| `customParameters` | From `<Parameter>` in TwiML | The call's metadata, for example from [`createCall`](/telephony/outbound-calls) |
+| `tracks` | Set by the TwiML `track` attribute | Always `["inbound"]`. You never receive the outbound track |
+| Audio format | μ-law 8 kHz | μ-law 8 kHz only. The stream's audio setting doesn't apply |
+
+## What isn't supported
+
+- **TwiML.** Fonoster doesn't fetch or run TwiML. The stream's URL is the WebSocket itself.
+- **A speech layer.** Fonoster doesn't transcribe the caller or speak text for you. The stream's
+  voice and speech settings don't apply.
+- **Call control.** No transfer, hold or sending keypresses. Use the `fonoster` protocol for
+  those.
+- **Events of the `fonoster` protocol**, such as turn events and the answering-machine verdict.
+  Your bot gets only the messages listed above.
+
+## Hanging up
+
+Closing the WebSocket hangs up the call, on every install.
+
+Fonoster can also serve Twilio's hang-up request, where the operator turns it on:
+
+```http
+POST {base}/2010-04-01/Accounts/{accountSid}/Calls/{callSid}.json
+Authorization: Basic <base64 of user:password>
+Content-Type: application/x-www-form-urlencoded
+
+Status=completed
+```
+
+`{accountSid}` is the workspace's access key ID and `{callSid}` the `callSid` from `start`. The
+operator configures how Basic auth is checked:
+
+- **Workspace API keys**: the user is an API key ID (`AP…`) and the password its secret. The key
+  must belong to the workspace in the URL.
+- **One fixed pair** (self-hosted installs): the user and the URL's `accountSid` are the pair's
+  `accountSid`, and the password its `authToken`.
+
+| Status | Twilio error code | When |
+| --- | --- | --- |
+| `200` | | The call was hung up. Body: `{ "sid": callSid, "account_sid": accountSid, "status": "completed" }` |
+| `400` | `21218` | `Status` isn't `completed` |
+| `401` | `20003` | Missing or wrong credentials |
+| `404` | `20404` | The call has already ended, belongs to another workspace, or the path or method is wrong |
+
+Error bodies have Twilio's shape: `{ code, message, more_info, status }`. With Pipecat, set
+`base_url` on `TwilioFrameSerializer` to the endpoint's address and `auto_hang_up` works
+unchanged.

@@ -1,0 +1,28 @@
+---
+title: "API"
+description: "Fonoster's API is gRPC, with grpc-web for browsers and a few HTTP routes. Use the Node SDK to call it."
+---
+
+{/* TODO asset: reference-api/banner — one endpoint (api.fonoster.com) in the middle; on the left three clients (Node SDK over gRPC, browser over grpc-web, HTTP client on /api/records); takeaway: one address, use the SDK */}
+
+Fonoster's API is gRPC. Every resource you manage (applications, numbers, trunks, domains, SIP
+agents, calls, webhooks, providers, secrets, API keys and workspaces) is a gRPC service in a
+`fonoster.<resource>.v1beta2` package. Browsers reach the same services through grpc-web, on the
+same endpoint: `api.fonoster.com` on Fonoster Cloud, or your install's address when you self-host.
+
+A few features are plain HTTP routes on that endpoint instead, such as call records under
+`/api/records` (search, recordings, erasure and retention) and regions under `/api/regions`. Every
+request names the workspace with its access key ID (`WO…`) and carries an access token from an
+API key.
+
+You don't need to call any of this directly. Use the Node SDK: it wraps every gRPC service and HTTP
+route, signs in with your API key and renews the token for you.
+
+<CardGroup cols={2}>
+  <Card title="@fonoster/sdk on npm" icon="npm" href="https://www.npmjs.com/package/@fonoster/sdk">
+    Install the SDK for Node.js and the browser.
+  </Card>
+  <Card title="Node SDK reference" icon="book" href="/reference/sdk">
+    Every client class and method, with its parameters and results.
+  </Card>
+</CardGroup>
