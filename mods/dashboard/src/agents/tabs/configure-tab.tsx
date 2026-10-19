@@ -359,7 +359,7 @@ function BehaviorRow({
 }
 
 const quietBox =
-  "w-auto border-transparent bg-transparent px-1.5 hover:border-input";
+  "w-auto px-1.5";
 
 function Behavior() {
   const { register } = useFormContext<AgentValues>();

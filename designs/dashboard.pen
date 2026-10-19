@@ -6288,14 +6288,32 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "vBxzt",
-                                  "name": "3 × 10 s",
-                                  "fill": "$ui:--foreground",
-                                  "content": "3 × 10 s",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "Fej6d",
+                                  "name": "Value box",
+                                  "height": 30,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": 8,
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    0,
+                                    6
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "puNpC",
+                                      "name": "3 × 10 s",
+                                      "fill": "$ui:--foreground",
+                                      "content": "3 × 10 s",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -6318,14 +6336,32 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "BjBXu",
-                                  "name": "30 min",
-                                  "fill": "$ui:--foreground",
-                                  "content": "30 min",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "pD294",
+                                  "name": "Value box",
+                                  "height": 30,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": 8,
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    0,
+                                    6
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "hOeQU",
+                                      "name": "30 min",
+                                      "fill": "$ui:--foreground",
+                                      "content": "30 min",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -6348,14 +6384,32 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "PQwaU",
-                                  "name": "+1 809 555 0100",
-                                  "fill": "$ui:--foreground",
-                                  "content": "+1 809 555 0100",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "s9KWra",
+                                  "name": "Value box",
+                                  "height": 30,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": 8,
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    0,
+                                    6
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "nLxPX",
+                                      "name": "+1 809 555 0100",
+                                      "fill": "$ui:--foreground",
+                                      "content": "+1 809 555 0100",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -41321,14 +41375,32 @@
                                       "fontWeight": "normal"
                                     },
                                     {
-                                      "type": "text",
-                                      "id": "s49q6y",
-                                      "name": "3 × 10 s",
-                                      "fill": "$ui:--foreground",
-                                      "content": "3 × 10 s",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
+                                      "type": "frame",
+                                      "id": "MaW3I",
+                                      "name": "Value box",
+                                      "height": 30,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": 8,
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        0,
+                                        6
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "U18pp",
+                                          "name": "3 × 10 s",
+                                          "fill": "$ui:--foreground",
+                                          "content": "3 × 10 s",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -41351,14 +41423,32 @@
                                       "fontWeight": "normal"
                                     },
                                     {
-                                      "type": "text",
-                                      "id": "GIFU3",
-                                      "name": "30 min",
-                                      "fill": "$ui:--foreground",
-                                      "content": "30 min",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
+                                      "type": "frame",
+                                      "id": "DkfKL",
+                                      "name": "Value box",
+                                      "height": 30,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": 8,
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        0,
+                                        6
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "GNLDz",
+                                          "name": "30 min",
+                                          "fill": "$ui:--foreground",
+                                          "content": "30 min",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -41381,14 +41471,32 @@
                                       "fontWeight": "normal"
                                     },
                                     {
-                                      "type": "text",
-                                      "id": "aFvWE",
-                                      "name": "+1 809 555 0100",
-                                      "fill": "$ui:--foreground",
-                                      "content": "+1 809 555 0100",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
+                                      "type": "frame",
+                                      "id": "MCMol",
+                                      "name": "Value box",
+                                      "height": 30,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": 8,
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        0,
+                                        6
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "RdH3A",
+                                          "name": "+1 809 555 0100",
+                                          "fill": "$ui:--foreground",
+                                          "content": "+1 809 555 0100",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -58757,14 +58865,32 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "R4p9bS",
-                                  "name": "3 × 10 s",
-                                  "fill": "$ui:--foreground",
-                                  "content": "3 × 10 s",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "EmRHv",
+                                  "name": "Value box",
+                                  "height": 30,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": 8,
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    0,
+                                    6
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "q4z2aX",
+                                      "name": "3 × 10 s",
+                                      "fill": "$ui:--foreground",
+                                      "content": "3 × 10 s",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -58787,14 +58913,32 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "RzJKp",
-                                  "name": "30 min",
-                                  "fill": "$ui:--foreground",
-                                  "content": "30 min",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "A7LUc",
+                                  "name": "Value box",
+                                  "height": 30,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": 8,
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    0,
+                                    6
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "c1LtNi",
+                                      "name": "30 min",
+                                      "fill": "$ui:--foreground",
+                                      "content": "30 min",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -58817,14 +58961,32 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "p8m3BJ",
-                                  "name": "+1 809 555 0100",
-                                  "fill": "$ui:--foreground",
-                                  "content": "+1 809 555 0100",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "iPe9w",
+                                  "name": "Value box",
+                                  "height": 30,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": 8,
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    0,
+                                    6
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "qgIop",
+                                      "name": "+1 809 555 0100",
+                                      "fill": "$ui:--foreground",
+                                      "content": "+1 809 555 0100",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             }
