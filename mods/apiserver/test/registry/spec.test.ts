@@ -413,33 +413,19 @@ describe("@registry scenario suite (spec.md, database)", function () {
     expect(list.items[0]).to.include({ providerId: "elevenlabs" });
   });
 
-  // ---- Only usable providers ------------------------------------------------------------------
+  // ---- Every catalog vendor is offered --------------------------------------------------------
 
-  scenario("A provider without a credential is hidden", async function () {
-    // The platform has a Deepgram key but none for ElevenLabs.
-    const { listCatalog } = createProvidersHandlers(db.prisma, {
-      platformCredentials: ["deepgram-default"]
-    });
+  scenario("A vendor without a key is offered", async function () {
+    // W2 stored no ElevenLabs key, and nothing says whether the platform has one.
+    const { listCatalog } = createProvidersHandlers(db.prisma);
     const ids = (
       await invoke<{ items: { id: string }[] }>(listCatalog, {}, W2)
     ).items.map((i) => i.id);
-    expect(ids).to.include("deepgram/nova-3");
-    expect(ids.filter((i) => i.startsWith("elevenlabs"))).to.deep.equal([]);
-  });
-
-  scenario("Bringing a key makes the provider appear", async function () {
-    const handlers = createProvidersHandlers(db.prisma, {
-      platformCredentials: ["deepgram-default"]
-    });
-    await invoke(
-      handlers.setProviderKey,
-      { providerId: "elevenlabs", key: "w2-el-key" },
-      W2
-    );
-    const ids = (
-      await invoke<{ items: { id: string }[] }>(handlers.listCatalog, {}, W2)
-    ).items.map((i) => i.id);
-    expect(ids).to.include.members(["elevenlabs", "elevenlabs/rachel"]);
+    expect(ids).to.include.members([
+      "deepgram/nova-3",
+      "elevenlabs",
+      "elevenlabs/rachel"
+    ]);
   });
 
   scenario("A keyless provider is listed without a key", async function () {
@@ -449,9 +435,7 @@ describe("@registry scenario suite (spec.md, database)", function () {
   - { kind: model, id: fake/tts, label: Fake voice model, type: tts, features: [streaming], languages: [multi], settings: [], state: active }
 `);
     await store.flush();
-    const { listCatalog } = createProvidersHandlers(db.prisma, {
-      platformCredentials: ["deepgram-default"]
-    });
+    const { listCatalog } = createProvidersHandlers(db.prisma);
     const items = (
       await invoke<{
         items: { id: string; keyless?: boolean; label?: string }[];

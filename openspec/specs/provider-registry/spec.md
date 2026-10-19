@@ -121,26 +121,24 @@ MUST be write-only.
 - **THEN** the response contains the Secret's name and metadata but never its value
 - **AND** neither logs nor the call record contain the value
 
-### Requirement: Only usable providers are offered
+### Requirement: Every catalog vendor is offered
 
-`GetCapabilities` and the dashboard SHALL list a provider, model or voice only when it is `active`
-or `deprecated`, its adapter exists in the running version, and a credential is available to the
-asking workspace or the provider is keyless. Provider items SHALL say whether they are keyless, and
-the dashboard MUST NOT ask for a key for a keyless provider. Retired items MUST NOT be offered.
+`GetCapabilities` and the dashboard SHALL list a provider, model or voice when it is `active` or
+`deprecated` and its adapter exists in the running version, whether or not a key is configured for
+it. The catalog is the list of vendors the platform offers: every install ships with platform keys
+for its vendors, as placeholders the operator replaces, and the operator removes the vendors it does
+not offer. The same rule applies to every deployment, the dev container included. Provider items
+SHALL say whether they are keyless, and the dashboard MUST NOT ask for a key for a keyless provider.
+Retired items MUST NOT be offered.
 
-#### Scenario: A provider without a credential is hidden
+#### Scenario: A vendor without a key is offered
 
-- **WHEN** provider `elevenlabs` is active, no platform credential `elevenlabs-default` is configured, and workspace W has no ElevenLabs key
-- **THEN** `GetCapabilities` for W does not list `elevenlabs` or its voices
-
-#### Scenario: Bringing a key makes the provider appear
-
-- **WHEN** workspace W then stores its own ElevenLabs key
+- **WHEN** provider `elevenlabs` is active and workspace W has no ElevenLabs key
 - **THEN** `GetCapabilities` for W lists `elevenlabs` and its active voices
 
 #### Scenario: A keyless provider is listed without a key
 
-- **WHEN** provider `fake` has no `credentialRef` and the platform's credentials do not include one for it
+- **WHEN** provider `fake` has no `credentialRef`
 - **THEN** `GetCapabilities` lists `fake` with `keyless: true` and its models and voices
 - **AND** the dashboard's vendor keys screen does not offer `fake`
 

@@ -192,28 +192,35 @@ never "stream", "assistant" or "Autopilot app". Old section paths (`/streams`, `
 
 ### Requirement: Agent pickers offer the catalog
 
-The agent editor's language model, voice and transcriber pickers SHALL offer only the catalog's
-usable providers, models and voices for the workspace (`GetCapabilities`), shown by label. A new
-agent SHALL default to offered items. A saved agent whose item is no longer offered SHALL keep it,
-shown as unavailable.
+The agent editor's language model, voice and transcriber pickers SHALL offer the catalog's
+providers, models and voices (`GetCapabilities`), shown by label. A new agent SHALL default to
+offered items, and to a keyless provider's items when the catalog has one, since those work with no
+key. A saved agent whose item is no longer offered SHALL keep it, shown as unavailable.
 
-#### Scenario: Only usable providers are offered
+#### Scenario: A new agent prefers keyless providers
 
-- **WHEN** the catalog lists `fake` and `deepgram` and the workspace can use only `fake`
-- **THEN** the voice, transcriber and language model pickers offer only `fake` items
+- **WHEN** the catalog lists `fake` and `deepgram`
+- **THEN** the voice, transcriber and language model pickers offer both
 - **AND** a new agent is created with `fake` models and voice
-
-#### Scenario: A key makes a vendor pickable
-
-- **WHEN** the owner stores a Deepgram key and reopens the agent
-- **THEN** the voice and transcriber pickers also offer Deepgram's voices and models
 
 #### Scenario: A saved item that is no longer offered
 
-- **WHEN** an agent uses `deepgram/aura-2-thalia-en` and the workspace's Deepgram key was removed
+- **WHEN** an agent uses `deepgram/aura-2-thalia-en` and Deepgram was removed from the catalog
 - **THEN** the voice picker shows it as unavailable and saving keeps it
 
 #### Scenario: Models Autopilot cannot run are not offered
 
 - **WHEN** the catalog has no model for a provider (Google, Anthropic)
 - **THEN** the language model picker does not offer that provider
+
+### Requirement: Vendor keys warn when no vendor is configured
+
+The vendor keys screen SHALL offer Add key for every keyed vendor in the catalog. When the catalog
+has no keyed vendor, it SHALL NOT offer Add key and SHALL say that calls need at least a
+text-to-speech vendor and that the operator configures vendors and their platform keys, with a link
+to the docs that show how.
+
+#### Scenario: Every vendor was removed
+
+- **WHEN** the catalog has only the keyless `fake` provider
+- **THEN** the vendor keys screen shows the platform keys note and no Add key button

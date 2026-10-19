@@ -377,4 +377,30 @@ describe("vendor keys", () => {
       )
     );
   });
+
+  it("shows the platform keys note instead of Add key when no vendor is configured", async () => {
+    const base = createMockSessionApi();
+    const catalog = await base.getCatalog();
+    const api = {
+      ...base,
+      getCatalog: async () => ({
+        ...catalog,
+        providers: catalog.providers.filter((p) => p.keyless)
+      }),
+      listVendorKeys: async () => []
+    };
+    renderScreen(
+      <SessionApiProvider value={api}>
+        <VendorKeysScreen />
+      </SessionApiProvider>,
+      { path: "/w/:workspaceRef/vendor-keys", route: "/w/ws-1/vendor-keys" }
+    );
+    expect(await screen.findByText("No vendors configured")).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: /Add platform keys/ })
+    ).toHaveAttribute("href", expect.stringContaining("#add-platform-keys"));
+    expect(
+      screen.queryByRole("button", { name: /Add key/ })
+    ).not.toBeInTheDocument();
+  });
 });

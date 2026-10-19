@@ -16,8 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { KeyRound, Plus, RefreshCw } from "lucide-react";
+import { ExternalLink, KeyRound, Plus, RefreshCw } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
+import { DOCS_URL } from "~/app/shell/nav";
 import { PageHeader } from "~/app/shell/page";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import {
@@ -40,6 +41,9 @@ import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
 import type { CatalogEntry } from "./types";
 
 type Row = { provider: CatalogEntry; updatedAt?: string };
+
+/** Where the operator learns to configure vendors and their platform keys. */
+const PLATFORM_KEYS_URL = `${DOCS_URL}self-hosting/install-compose#add-platform-keys`;
 
 const when = (iso?: string) =>
   iso ? new Date(iso).toLocaleString(undefined, { hour12: false }) : "";
@@ -137,16 +141,31 @@ export default function VendorKeysScreen() {
           error={loaded.error}
           onRetry={loaded.reload}
           empty={
-            <EmptyState
-              icon={KeyRound}
-              title="No vendor keys"
-              description={
-                providers.length
-                  ? "Calls use the platform's keys. Add your own to use your speech and language-model accounts."
-                  : "The operator adds providers with the fonoster-registry utility."
-              }
-              action={add}
-            />
+            providers.length ? (
+              <EmptyState
+                icon={KeyRound}
+                title="No vendor keys"
+                description="Calls use the platform's keys. Add your own to use your speech and language-model accounts."
+                action={add}
+              />
+            ) : (
+              <EmptyState
+                icon={KeyRound}
+                title="No vendors configured"
+                description="Calls need at least a text-to-speech vendor. The operator adds vendors and their platform keys to the server's config."
+                action={
+                  <Button variant="outline" asChild>
+                    <a
+                      href={PLATFORM_KEYS_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Add platform keys <ExternalLink aria-hidden />
+                    </a>
+                  </Button>
+                }
+              />
+            )
           }
         />
       </div>

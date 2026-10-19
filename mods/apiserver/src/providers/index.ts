@@ -18,14 +18,10 @@
  */
 import {
   createProvidersHandlers,
-  ProvidersDb,
-  ProvidersOptions
+  ProvidersDb
 } from "./createProvidersHandlers";
 
-function buildProvidersService(
-  db: ProvidersDb,
-  options: ProvidersOptions = {}
-) {
+function buildProvidersService(db: ProvidersDb) {
   return {
     definition: {
       serviceName: "Providers",
@@ -33,7 +29,7 @@ function buildProvidersService(
       version: "v1beta2",
       proto: "providers.proto"
     },
-    handlers: createProvidersHandlers(db, options)
+    handlers: createProvidersHandlers(db)
   };
 }
 

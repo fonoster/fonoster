@@ -723,6 +723,7 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(gw.providers.deepgram).to.deep.equal({
         adapter: "deepgram",
         capabilities: ["tts", "stt"],
+        credential: { value: "YOUR_DEEPGRAM_API_KEY" },
         tts: { url: "http://dg-proxy:${PROXY_PORT}" }
       });
       expect(gw.providers.elevenlabs.adapter).to.equal("elevenlabs");

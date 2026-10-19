@@ -98,8 +98,10 @@ remove entries an operator added.
 
 ### Requirement: No vendor keys at install
 
-A fresh install SHALL start and let the owner sign in without any speech or LLM vendor key. Vendor
-keys MUST be addable per workspace in the dashboard after install.
+A fresh install SHALL start and let the owner sign in without any speech or LLM vendor key. The
+bundle's `appbridge.yaml` and `autopilot.yaml` SHALL carry a platform key placeholder for every vendor
+in the bundle's catalog, for the operator to replace. Vendor keys MUST also be addable per workspace
+in the dashboard after install.
 
 #### Scenario: Add a key after install
 - **WHEN** the owner signs in to a fresh install and saves a Deepgram key in a workspace

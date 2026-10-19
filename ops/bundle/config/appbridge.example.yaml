@@ -3,11 +3,11 @@
 nats: { url: "nats://nats:4222", user: appbridge, password: "${NATS_APPBRIDGE_PASSWORD}" }
 # The RTP leg to the Roomr node, on AppBridge's fixed address.
 rtp: { host: 0.0.0.0, advertiseHost: "${SUBNET_PREFIX}.43" }
-# Speech vendors. No platform keys: each workspace adds its own in the dashboard (workspaceKeys).
-# For a platform key every workspace shares, add `credential: { value: "<key>" }`.
+# Speech vendors and their platform keys, shared by every workspace. Replace each placeholder with
+# your key. A workspace's own key (dashboard, Vendor keys) is used instead of the platform's.
 providers:
-  deepgram: { adapter: deepgram, capabilities: [tts, stt] }
-  elevenlabs: { adapter: elevenlabs, capabilities: [tts] }
+  deepgram: { adapter: deepgram, capabilities: [tts, stt], credential: { value: "YOUR_DEEPGRAM_API_KEY" } }
+  elevenlabs: { adapter: elevenlabs, capabilities: [tts], credential: { value: "YOUR_ELEVENLABS_API_KEY" } }
 stt: { provider: deepgram }
 # Apps, the catalog, workspace vendor keys and webhooks: the API server's database.
 database:

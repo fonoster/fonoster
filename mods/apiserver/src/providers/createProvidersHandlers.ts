@@ -50,20 +50,7 @@ export const providerKeySecretName = (providerId: string) =>
 const lifecycle = (state: string) => state.toLowerCase();
 const visible = { state: { not: "RETIRED" } };
 
-export type ProvidersOptions = {
-  /**
-   * The platform credentials (credentialRef names) the AppBridge replicas are configured with. When set,
-   * the catalog lists a provider (and its models and voices) only if its credential is here or
-   * the workspace stored its own key for it (add-provider-registry 4.1, LO-B12). Unset: no
-   * credential filtering (development).
-   */
-  platformCredentials?: string[];
-};
-
-export function createProvidersHandlers(
-  db: ProvidersDb,
-  options: ProvidersOptions = {}
-) {
+export function createProvidersHandlers(db: ProvidersDb) {
   const logger = getLogger({ service: "apiserver", filePath: __filename });
   const workspace = (call: unknown) =>
     getAccessKeyIdFromCall(call as ServerInterceptingCall);
@@ -76,7 +63,7 @@ export function createProvidersHandlers(
     const accessKeyId = workspace(call);
     const { kind, type } = call.request;
     const want = (k: string) => !kind || kind === k;
-    const [allProviders, models, voices, keys]: Row[][] = await Promise.all([
+    const [allProviders, models, voices]: Row[][] = await Promise.all([
       db.registryProvider.findMany({
         where: visible,
         orderBy: { id: "asc" }
@@ -96,27 +83,15 @@ export function createProvidersHandlers(
             include: { models: { orderBy: { position: "asc" } } },
             orderBy: { id: "asc" }
           })
-        : [],
-      options.platformCredentials
-        ? db.workspaceProviderKey.findMany({
-            where: { accessKeyId },
-            select: { providerId: true }
-          })
         : []
     ]);
-    // Only usable providers (4.1): an adapter in this version and, when the platform's
-    // credentials are configured, one of them, the workspace's own key, or no key needed.
-    const own = new Set(keys.map((k) => k.providerId as string));
+    // Every catalog provider with an adapter in this version (4.1). Whether its key works is the
+    // operator's config: the catalog is the list of vendors the platform offers.
     const keyless = (p: Row) => !p.credentialRef;
     const usable = new Set(
       allProviders
-        .filter(
-          (p) =>
-            RegistryNs.BUILT_IN_ADAPTERS.includes(p.adapter as string) &&
-            (!options.platformCredentials ||
-              keyless(p) ||
-              options.platformCredentials.includes(p.credentialRef as string) ||
-              own.has(p.id as string))
+        .filter((p) =>
+          RegistryNs.BUILT_IN_ADAPTERS.includes(p.adapter as string)
         )
         .map((p) => p.id as string)
     );

@@ -85,7 +85,9 @@ You need:
       The dev container uses fake speech and AI providers, so you need no vendor keys. You hear a
       beep, not a voice: each beep is something the agent says. The fake caller says two scripted
       lines, the agent answers each with "Echo: …", asks "Are you still there?" when nobody
-      talks, and then hangs up.
+      talks, and then hangs up. The real vendors are listed too, with placeholder platform keys. To
+      use one, add its key under **Vendor keys**, or set it in `.dev/overlay/appbridge.yaml` or
+      `.dev/overlay/autopilot.yaml` and run `npm run dev:config`.
     </Note>
 
     The call connects, you hear the beeps, and the call ends by itself.
