@@ -78,9 +78,10 @@ See proposal.md for the motivation. What exists today, and shapes the approach:
 
 5. **The dashboard derives the select from the catalog, not from a constant.** Apps get it in
    their Call handling tab; an agent gets its own *Noise cancelling* panel on the Advanced tab
-   (owner decision 2026-10-19, designed in `designs/dashboard.pen` first) whose select saves the
-   application as soon as it changes, and the agent's Call handling drawer hides the select so one
-   field is set in one place. `nc` providers come
+   (owner decision 2026-10-19, designed in `designs/dashboard.pen` first). The select is a field
+   of the agent form, saved with the rest of the agent (#1020 replaced the first cut's save on
+   change), and the agent's Call handling drawer hides the select so one field is set in one
+   place. `nc` providers come
    from `ListCatalog({ kind: "provider", type: "nc" })` (the handler already filters by
    `capabilities`; `type` widens to accept `nc`). The select maps `aicoustics` to the filter name
    `aiCoustics` through one table (provider id to filter name): `FILTER_BY_PROVIDER` in
