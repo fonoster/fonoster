@@ -64,14 +64,17 @@ intelligence:
 Deploy it with the command-line tool:
 
 ```sh
+# Install the fonoster command
+npm install -g @fonoster/ctl
+
 # Log in once with an API key from your workspace
-npx @fonoster/ctl workspaces:login
+fonoster workspaces:login
 
 # Create the agent
-npx @fonoster/ctl applications:create -f agent.yaml
+fonoster applications:create -f agent.yaml
 ```
 
-Then point a phone number at the new application (in the dashboard, or with `npx @fonoster/ctl sipnet:numbers:create`) and give it a call. Autopilot also supports tools, a knowledge base, and call transfers. See the [Autopilot docs](https://docs.fonoster.com/concepts/autopilot).
+Then point a phone number at the new application (in the dashboard, or with `fonoster sipnet:numbers:create`) and give it a call. Autopilot also supports tools, a knowledge base, and call transfers. See the [Autopilot docs](https://docs.fonoster.com/concepts/autopilot).
 
 ### Voice Applications
 
