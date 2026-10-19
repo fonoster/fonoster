@@ -157,11 +157,14 @@ Filtering never drops a call. A filter that can't start or fails mid-call leaves
 unfiltered and the call record says so. The filter phones home: the vendor's SDK authorizes the
 key and reports usage online, so AppBridge needs egress to ai-coustics at call time.
 
-<Note>
-The published AppBridge image doesn't ship the vendor's SDK and model yet
-([fonoster/fonoster#969](https://github.com/fonoster/fonoster/issues/969)). Until it does, the
-filter is not offered and applications that name it run unfiltered.
-</Note>
+The AppBridge image ships the vendor's SDK and the Voice Focus model, so nothing is downloaded at
+call time. To pin a model file or turn the download off, set the filter's server-side options in
+`appbridge.yaml`:
+
+```yaml
+audioFilters:
+  aiCoustics: { modelDir: /work/models, autoDownload: false }
+```
 
 ## Next steps
 

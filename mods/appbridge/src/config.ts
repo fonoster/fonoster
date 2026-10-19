@@ -264,6 +264,13 @@ export type AppBridgeConfig = {
    * when the token verifies with this RS256 public key (Identity's) and names the app's workspace.
    */
   testCalls?: { publicKeyFile?: string };
+  /**
+   * Server-side options of the audio filters, by filter name, merged over an app's public options
+   * when the filter is built: for `aiCoustics`, `modelDir` (default ./models, baked into the
+   * image), `modelFile` and `autoDownload` (default true). Never the credential: that is the
+   * provider's (`providers.<id>.credential`, or a workspace key).
+   */
+  audioFilters?: Record<string, Record<string, unknown>>;
 };
 
 export const DEFAULTS = {

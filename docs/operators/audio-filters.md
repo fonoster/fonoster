@@ -13,10 +13,10 @@ name and the reason (`mods/appbridge/src/session/Call.ts`, `startFilters`;
 `mods/appbridge/src/filters/createAudioFilterChain.ts`). The record's `fonoster.filters.failed`
 lists them and the dashboard shows an *Unfiltered* badge on the call.
 
-> **Status: hidden until the SDK ships in the image.** The SDK is not in the published appbridge
-> image yet (issue #969), so AppBridge registers `aiCoustics` only where `@ai-coustics/aic-sdk`
-> is installed. Elsewhere it is not listed, and an app that names it gets unfiltered audio and a
-> `filter.failed` event (unknown filter). See "Known gaps" below.
+> **Status: shipped in the image (#969).** `@ai-coustics/aic-sdk` is an optional dependency of
+> `@fonoster/appbridge`, installed in the published image with the platform's binary, and the
+> Voice Focus model is baked at `/work/models`. AppBridge registers `aiCoustics` only where the
+> SDK loads; elsewhere an app that names it gets unfiltered audio and a `filter.failed` event.
 
 ## The provider and its key
 
@@ -66,8 +66,13 @@ saved and by AppBridge when the filter is built (`aiCousticsPublicOptionsSchema`
 
 The dashboard's select writes `[{ "name": "aiCoustics" }]`; `enhancementLevel` and `model` are
 API, SDK and YAML options. The server-side options (`modelDir` default `./models`, `modelFile`,
-`autoDownload` default `true`) cannot be set by an app, and the AppBridge YAML has no key for them
-either, so the defaults always apply (see "Known gaps").
+`autoDownload` default `true`) cannot be set by an app; the operator sets them in AppBridge's
+YAML, by filter name:
+
+```yaml
+audioFilters:
+  aiCoustics: { modelDir: /work/models, autoDownload: false }
+```
 
 ## Turning it off
 
@@ -147,17 +152,7 @@ either, so the defaults always apply (see "Known gaps").
 - The appbridge image is `node:22-slim` (Debian 12, glibc 2.36; `mods/appbridge/Dockerfile`), which
   matches the glibc binaries.
 
-## Known gaps (before this can be turned on), tracked in #969
+## Known gaps
 
-1. **The SDK isn't in the appbridge image.** `@ai-coustics/aic-sdk` is an optional dependency of
-   `mods/apiserver` only. The appbridge image installs only `@fonoster/appbridge`'s dependencies, so
-   `require` fails with "@ai-coustics/aic-sdk is not installed". This was checked in
-   `fonoster/appbridge:0.0.0-smoke`: `/work/node_modules/@ai-coustics` does not exist.
-2. **No model in the image, and the auto-download can't write.** The default `modelDir` is
-   `./models`, which is `/work/models`. `/work` is owned by root and AppBridge runs as `appuser`,
-   so `Model.download` cannot create that folder (checked: `mkdir /work/models` returns
-   permission denied in the smoke image).
-3. **No operator config for the model.** The AppBridge YAML has no key for `modelDir`, `modelFile`
-   or `autoDownload`, so operators can't pin a model path or turn off downloading.
-4. **Narrowband calls.** The default model is 16 kHz wideband. PSTN audio is G.711 upsampled, so
+1. **Narrowband calls.** The default model is 16 kHz wideband. PSTN audio is G.711 upsampled, so
    the band above 4 kHz is empty. The archived design flags this to re-check per deployment.

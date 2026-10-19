@@ -36,6 +36,11 @@ RUN for p in types logger common callrecord identity-client community amd appbri
   && npx -y prisma@6.19.3 generate --schema mods/apiserver/schema.prisma \
   && find node_modules -name "*.map" -type f -delete
 
+# The ai-coustics Voice Focus model (apps' aiCoustics filter), fetched once here so AppBridge never
+# downloads at call time (filter default modelDir ./models = /work/models). The SDK itself is an
+# optional dependency of @fonoster/appbridge, installed above with the platform's binary.
+RUN node -e "require('@ai-coustics/aic-sdk').Model.download('quail-vf-2.2-s-16khz', '/work/models').then((f) => console.log('model:', f))"
+
 ##
 # Run stage
 ##
@@ -69,8 +74,13 @@ COPY --from=builder --chown=appuser:appuser /work/mods/amd/dist /work/mods/amd/d
 COPY --from=builder --chown=appuser:appuser /work/mods/amd/amd-model /work/mods/amd/amd-model
 COPY --from=builder --chown=appuser:appuser /work/mods/appbridge/package.json /work/mods/appbridge/
 COPY --from=builder --chown=appuser:appuser /work/mods/appbridge/dist /work/mods/appbridge/dist
+COPY --from=builder --chown=appuser:appuser /work/models /work/models
 
 USER appuser
+
+# The ai-coustics SDK reports errors to the vendor's PostHog unless told not to; authorization and
+# usage metering (needed for the key) are separate and stay on.
+ENV DO_NOT_TRACK=1
 
 # Audio filters (the ai-coustics SDK) run on libuv's thread pool, which is shared with fs, dns
 # and crypto; 4 threads by default. Raise it further for many filtered calls per instance.

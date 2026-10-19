@@ -38,6 +38,9 @@
     "yaml": "^2.9.0",
     "zod": "^3.25.76"
   },
+  "optionalDependencies": {
+    "@ai-coustics/aic-sdk": "^0.24.0"
+  },
   "devDependencies": {
     "@fonoster/conformance": "^0.30.0",
     "@routr/common": "^2.15.2"

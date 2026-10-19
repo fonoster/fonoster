@@ -241,7 +241,8 @@ export const appBridgeConfigSchema = z.object({
     .optional(),
   encryption: z.object({ key: z.string() }).optional(),
   telemetry: z.object({ otlpEndpoint: z.string().optional() }).optional(),
-  testCalls: z.object({ publicKeyFile: z.string().optional() }).optional()
+  testCalls: z.object({ publicKeyFile: z.string().optional() }).optional(),
+  audioFilters: z.record(z.record(z.unknown())).optional()
 });
 
 // Drift check: the schema and AppBridgeConfig must describe the same shape. Optionality is
