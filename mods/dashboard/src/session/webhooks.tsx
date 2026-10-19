@@ -16,11 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Plus, Webhook as WebhookIcon } from "lucide-react";
-import { useState } from "react";
+import { Plus, RefreshCw, Webhook as WebhookIcon } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 import { PageHeader } from "~/app/shell/page";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
-import { CopyField } from "~/components/data/copy-field";
 import {
   DataTable,
   MutedCell,
@@ -28,13 +27,17 @@ import {
   type Column
 } from "~/components/data/data-table";
 import { EmptyState } from "~/components/data/empty-state";
+import { RowActions } from "~/components/data/row-actions";
+import { SecretDialog } from "~/components/data/secret-dialog";
 import { Alert } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
+import { DropdownMenuItem } from "~/components/ui/dropdown-menu";
 import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
-import { errorMessage, useAsync, useSessionApi } from "./api";
+import { Sheet, SheetContent } from "~/components/ui/sheet";
+import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
 import type { Webhook, WebhookDelivery, WebhookEventType } from "./types";
 
 export const EVENT_TYPES: { value: WebhookEventType; label: string }[] = [
@@ -62,49 +65,37 @@ const DELIVERY_BADGE: Record<string, "success" | "warning" | "error"> = {
 const when = (iso?: string) =>
   iso ? new Date(iso).toLocaleString(undefined, { hour12: false }) : "";
 
+/** A signing secret shown once, after creating a webhook or rotating its secret. */
+type Shown = { url: string; secret: string };
+
 export default function WebhooksScreen() {
-  const api = useSessionApi();
-  const endpoints = useAsync(() => api.listWebhooks(), [api]);
-  const deliveries = useAsync(() => api.listDeliveries(), [api]);
-  const [adding, setAdding] = useState(false);
-  const [url, setUrl] = useState("");
-  const [events, setEvents] = useState<string[]>(["call.ended"]);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [shown, setShown] = useState<{ label: string; secret: string }>();
+  const endpoints = useSessionQuery(["webhooks"], (api) => api.listWebhooks());
+  const deliveries = useSessionQuery(["webhook-deliveries"], (api) =>
+    api.listDeliveries()
+  );
+  const rotate = useSessionMutation(
+    (api, ref: string) => api.rotateWebhookSecret(ref),
+    { success: "Signing secret rotated" }
+  );
+  const remove = useSessionMutation(
+    (api, ref: string) => api.deleteWebhook(ref),
+    { success: "Webhook deleted" }
+  );
+  const resend = useSessionMutation(
+    (api, ref: string) => api.resendDelivery(ref),
+    { success: "Delivery resent", toastErrors: true }
+  );
+  const [editing, setEditing] = useState<{ webhook?: Webhook }>();
+  const [shown, setShown] = useState<Shown>();
   const [rotating, setRotating] = useState<Webhook>();
   const [deleting, setDeleting] = useState<Webhook>();
-  const [busy, setBusy] = useState(false);
-  const [failure, setFailure] = useState<string>();
 
-  const run = async (work: () => Promise<void>) => {
-    setBusy(true);
-    setFailure(undefined);
-    try {
-      await work();
-    } catch (e) {
-      setFailure(errorMessage(e));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const create = () => {
-    const found = validateWebhook({ url, events });
-    setErrors(found);
-    if (Object.keys(found).length) return;
-    void run(async () => {
-      const { secret } = await api.createWebhook({ url: url.trim(), events });
-      setShown({ label: `Signing secret for ${url.trim()}`, secret });
-      setAdding(false);
-      setUrl("");
-      setEvents(["call.ended"]);
-      endpoints.reload();
-    });
-  };
+  const webhooks = endpoints.data ?? [];
+  const urlOf = (ref: string) => webhooks.find((w) => w.ref === ref)?.url;
 
   const add = (
-    <Button onClick={() => setAdding(true)}>
-      <Plus aria-hidden /> Add webhook
+    <Button onClick={() => setEditing({})}>
+      <Plus aria-hidden /> Create webhook
     </Button>
   );
 
@@ -115,7 +106,7 @@ export default function WebhooksScreen() {
     },
     {
       header: "Secret",
-      className: "w-48",
+      className: "w-72",
       cell: (w) => (
         <MutedCell>
           {w.secretHint}
@@ -126,26 +117,17 @@ export default function WebhooksScreen() {
     },
     {
       header: "",
-      className: "w-56",
+      className: "w-12",
       cell: (w) => (
-        <div className="flex justify-end gap-1">
-          <Button
-            size="sm"
-            variant="outline"
-            aria-label={`Rotate secret of ${w.url}`}
-            onClick={() => setRotating(w)}
-          >
-            Rotate secret
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            aria-label={`Delete ${w.url}`}
-            onClick={() => setDeleting(w)}
-          >
-            Delete
-          </Button>
-        </div>
+        <RowActions
+          label={w.url}
+          onEdit={() => setEditing({ webhook: w })}
+          onDelete={() => setDeleting(w)}
+        >
+          <DropdownMenuItem onSelect={() => setRotating(w)}>
+            <RefreshCw /> Rotate secret
+          </DropdownMenuItem>
+        </RowActions>
       )
     }
   ];
@@ -154,6 +136,15 @@ export default function WebhooksScreen() {
     {
       header: "Event",
       cell: (d) => <NameCell name={d.eventType} sub={d.eventId} />
+    },
+    {
+      header: "Endpoint",
+      className: "w-72",
+      cell: (d) => (
+        <span className="block truncate text-muted-foreground">
+          {urlOf(d.webhookRef) ?? "Deleted webhook"}
+        </span>
+      )
     },
     {
       header: "Created",
@@ -185,14 +176,9 @@ export default function WebhooksScreen() {
         <Button
           size="sm"
           variant="outline"
-          disabled={busy}
+          disabled={resend.isPending}
           aria-label={`Resend ${d.eventId}`}
-          onClick={() =>
-            void run(async () => {
-              await api.resendDelivery(d.ref);
-              deliveries.reload();
-            })
-          }
+          onClick={() => resend.mutate(d.ref)}
         >
           Resend
         </Button>
@@ -205,97 +191,25 @@ export default function WebhooksScreen() {
       <PageHeader
         title="Webhooks"
         description="Signed HTTPS callbacks for call events. Verify the X-Fonoster-Signature header with the endpoint's secret."
-        actions={(endpoints.data?.length ?? 0) > 0 && !adding && add}
+        actions={webhooks.length > 0 && add}
       />
       <div className="flex flex-col gap-6 px-4 pb-10 sm:px-8">
-        {shown && (
-          <Alert variant="warning">
-            <CopyField
-              label={`${shown.label} (shown once)`}
-              value={shown.secret}
-            />
-            <Button
-              size="sm"
-              variant="ghost"
-              className="mt-2"
-              onClick={() => setShown(undefined)}
-            >
-              I copied it
-            </Button>
-          </Alert>
-        )}
-        {failure && <Alert variant="error">{failure}</Alert>}
-        {adding && (
-          <section
-            aria-label="New webhook"
-            className="flex max-w-2xl flex-col gap-4 rounded-xl border border-border p-4"
-          >
-            <Field label="URL" error={errors.url}>
-              {(p) => (
-                <Input
-                  {...p}
-                  placeholder="https://example.com/fonoster/events"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                />
-              )}
-            </Field>
-            <fieldset className="flex flex-col gap-2">
-              <legend className="mb-1 text-sm font-medium">Events</legend>
-              {EVENT_TYPES.map((t) => (
-                <label
-                  key={t.value}
-                  className="flex items-center gap-2 text-sm"
-                >
-                  <Checkbox
-                    checked={events.includes(t.value)}
-                    onCheckedChange={(on) =>
-                      setEvents((list) =>
-                        on
-                          ? [...list, t.value]
-                          : list.filter((x) => x !== t.value)
-                      )
-                    }
-                  />
-                  {t.label}
-                  <span className="font-mono text-xs text-muted-foreground">
-                    {t.value}
-                  </span>
-                </label>
-              ))}
-              {errors.events && (
-                <p role="alert" className="text-xs text-destructive">
-                  {errors.events}
-                </p>
-              )}
-            </fieldset>
-            <div className="flex gap-2">
-              <Button disabled={busy} onClick={create}>
-                Create webhook
-              </Button>
-              <Button variant="ghost" onClick={() => setAdding(false)}>
-                Cancel
-              </Button>
-            </div>
-          </section>
-        )}
         <DataTable
           label="Webhooks"
           columns={columns}
-          rows={endpoints.data ?? []}
+          rows={webhooks}
           rowKey={(w) => w.ref}
+          onRowClick={(w) => setEditing({ webhook: w })}
           loading={endpoints.loading}
           error={endpoints.error}
           onRetry={endpoints.reload}
           empty={
-            !adding && (
-              <EmptyState
-                icon={WebhookIcon}
-                title="No webhooks yet"
-                description="Get call.ended, call_record.sealed and other events at your HTTPS endpoint."
-                action={add}
-              />
-            )
+            <EmptyState
+              icon={WebhookIcon}
+              title="No webhooks yet"
+              description="Get call.ended, call_record.sealed and other events at your HTTPS endpoint."
+              action={add}
+            />
           }
         />
         <section aria-label="Deliveries" className="flex flex-col gap-2">
@@ -316,41 +230,220 @@ export default function WebhooksScreen() {
           />
         </section>
       </div>
+      <WebhookDrawer
+        open={Boolean(editing)}
+        onOpenChange={(open) => !open && setEditing(undefined)}
+        webhook={editing?.webhook}
+        onCreated={setShown}
+        onDelete={(w) => {
+          setEditing(undefined);
+          setDeleting(w);
+        }}
+      />
+      <SecretDialog
+        title="Save your signing secret"
+        description={`This is the only time we'll show it. Use it to verify the X-Fonoster-Signature header on ${shown?.url ?? ""}.`}
+        fields={shown && [{ label: "Signing secret", value: shown.secret }]}
+        onDone={() => setShown(undefined)}
+      />
       <ConfirmDialog
         open={Boolean(rotating)}
-        onOpenChange={(open) => !open && setRotating(undefined)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setRotating(undefined);
+            rotate.reset();
+          }
+        }}
         title="Rotate the signing secret?"
         description="The previous secret keeps verifying for 24 hours, so you can roll out the new one."
         confirmLabel="Rotate"
-        pending={busy}
+        pending={rotate.isPending}
+        error={rotate.error}
         onConfirm={() =>
           rotating &&
-          void run(async () => {
-            const { secret } = await api.rotateWebhookSecret(rotating.ref);
-            setShown({
-              label: `New signing secret for ${rotating.url}`,
-              secret
-            });
-            setRotating(undefined);
-            endpoints.reload();
+          rotate.mutate(rotating.ref, {
+            onSuccess: ({ secret }) => {
+              setShown({ url: rotating.url, secret });
+              setRotating(undefined);
+            }
           })
         }
       />
       <ConfirmDialog
         open={Boolean(deleting)}
-        onOpenChange={(open) => !open && setDeleting(undefined)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleting(undefined);
+            remove.reset();
+          }
+        }}
         title="Delete this webhook?"
         description={`${deleting?.url ?? ""} stops receiving events. Pending deliveries fail.`}
-        pending={busy}
+        pending={remove.isPending}
+        error={remove.error}
         onConfirm={() =>
           deleting &&
-          void run(async () => {
-            await api.deleteWebhook(deleting.ref);
-            setDeleting(undefined);
-            endpoints.reload();
+          remove.mutate(deleting.ref, {
+            onSuccess: () => setDeleting(undefined)
           })
         }
       />
     </>
+  );
+}
+
+/** Create a webhook, or change an existing one's URL and events (its secret stays). */
+function WebhookDrawer({
+  open,
+  onOpenChange,
+  webhook,
+  onCreated,
+  onDelete
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /** The webhook to edit; creates a new one when absent. */
+  webhook?: Webhook;
+  onCreated: (shown: Shown) => void;
+  onDelete: (webhook: Webhook) => void;
+}) {
+  const [url, setUrl] = useState("");
+  const [events, setEvents] = useState<string[]>([]);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const create = useSessionMutation(
+    (api, input: { url: string; events: string[] }) => api.createWebhook(input),
+    { success: "Webhook created" }
+  );
+  const update = useSessionMutation(
+    (api, input: { ref: string; url: string; events: string[] }) =>
+      api.updateWebhook(input),
+    { success: "Webhook saved" }
+  );
+  const mutation = webhook ? update : create;
+
+  useEffect(() => {
+    if (!open) return;
+    setUrl(webhook?.url ?? "");
+    setEvents(webhook?.events ?? ["call.ended"]);
+    setErrors({});
+    create.reset();
+    update.reset();
+    // Reset when the drawer opens for a (different) webhook.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, webhook?.ref]);
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const found = validateWebhook({ url, events });
+    setErrors(found);
+    if (Object.keys(found).length) return;
+    const input = { url: url.trim(), events };
+    if (webhook) {
+      update.mutate(
+        { ref: webhook.ref, ...input },
+        { onSuccess: () => onOpenChange(false) }
+      );
+    } else {
+      create.mutate(input, {
+        onSuccess: ({ secret }) => {
+          onOpenChange(false);
+          onCreated({ url: input.url, secret });
+        }
+      });
+    }
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        title={webhook ? webhook.url : "New webhook"}
+        description={
+          webhook
+            ? `Signing secret ${webhook.secretHint}. Saving keeps the same secret.`
+            : "We sign every delivery. You'll see the signing secret once, after you create it."
+        }
+        footer={
+          <>
+            {webhook ? (
+              <button
+                type="button"
+                className="cursor-pointer font-display text-[13px] text-destructive hover:underline"
+                onClick={() => onDelete(webhook)}
+              >
+                Delete webhook
+              </button>
+            ) : (
+              <span />
+            )}
+            <div className="flex gap-2.5">
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                form="webhook-form"
+                loading={mutation.isPending}
+              >
+                {webhook ? "Save" : "Create webhook"}
+              </Button>
+            </div>
+          </>
+        }
+      >
+        <form
+          id="webhook-form"
+          onSubmit={submit}
+          className="flex flex-col gap-[22px]"
+          noValidate
+        >
+          {mutation.error && (
+            <Alert variant="error">{errorMessage(mutation.error)}</Alert>
+          )}
+          <Field label="URL" error={errors.url}>
+            {(p) => (
+              <Input
+                {...p}
+                placeholder="https://example.com/fonoster/events"
+                autoComplete="off"
+                spellCheck={false}
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+              />
+            )}
+          </Field>
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1 font-display text-[13px] font-medium">
+              Events
+            </legend>
+            {EVENT_TYPES.map((t) => (
+              <label
+                key={t.value}
+                className="flex items-center gap-2 font-display text-[13px]"
+              >
+                <Checkbox
+                  checked={events.includes(t.value)}
+                  onCheckedChange={(on) =>
+                    setEvents((list) =>
+                      on
+                        ? [...list, t.value]
+                        : list.filter((x) => x !== t.value)
+                    )
+                  }
+                />
+                {t.label}
+                <span className="font-mono text-xs text-muted-foreground">
+                  {t.value}
+                </span>
+              </label>
+            ))}
+            {errors.events && (
+              <p role="alert" className="text-xs text-destructive">
+                {errors.events}
+              </p>
+            )}
+          </fieldset>
+        </form>
+      </SheetContent>
+    </Sheet>
   );
 }

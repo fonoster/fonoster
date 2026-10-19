@@ -55,7 +55,7 @@ export default function SipAgentsScreen() {
 
   const add = (
     <Button onClick={() => openDrawer()}>
-      <Plus aria-hidden /> Add SIP agent
+      <Plus aria-hidden /> Create SIP agent
     </Button>
   );
 

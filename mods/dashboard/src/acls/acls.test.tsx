@@ -143,7 +143,7 @@ describe("ACLs screen", () => {
 
   it("creates an ACL with its allow list", async () => {
     const { user, sdk } = setup({ items: [] });
-    await user.click(await screen.findByRole("button", { name: /Add ACL/ }));
+    await user.click(await screen.findByRole("button", { name: /Create ACL/ }));
     await user.type(screen.getByLabelText("Name"), "Carrier");
     await user.type(
       screen.getByLabelText("Allowed address 1"),
@@ -151,7 +151,7 @@ describe("ACLs screen", () => {
     );
     await user.click(screen.getByRole("button", { name: /Add address/ }));
     await user.type(screen.getByLabelText("Allowed address 2"), "8.8.8.8");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Create ACL" }));
 
     expect(sdk.acls.createAcl).toHaveBeenCalledWith({
       name: "Carrier",
@@ -161,10 +161,10 @@ describe("ACLs screen", () => {
 
   it("rejects entries that aren't IPv4 addresses or ranges", async () => {
     const { user, sdk } = setup({ items: [] });
-    await user.click(await screen.findByRole("button", { name: /Add ACL/ }));
+    await user.click(await screen.findByRole("button", { name: /Create ACL/ }));
     await user.type(screen.getByLabelText("Name"), "Carrier");
     await user.type(screen.getByLabelText("Allowed address 1"), "10.0.0.0/40");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Create ACL" }));
 
     expect(
       await screen.findByText(/Use an IPv4 address or range/)

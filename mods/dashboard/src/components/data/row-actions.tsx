@@ -31,12 +31,15 @@ export function RowActions({
   label,
   onEdit,
   onDelete,
+  deleteLabel = "Delete",
   children
 }: {
   /** What the row is, e.g. the secret's name; used for the button's label. */
   label: string;
   onEdit?: () => void;
   onDelete?: () => void;
+  /** "Remove" where nothing is destroyed (a vendor key, a member). */
+  deleteLabel?: string;
   children?: ReactNode;
 }) {
   return (
@@ -62,7 +65,7 @@ export function RowActions({
             <>
               {(onEdit || children) && <DropdownMenuSeparator />}
               <DropdownMenuItem variant="destructive" onSelect={onDelete}>
-                <Trash2 /> Delete
+                <Trash2 /> {deleteLabel}
               </DropdownMenuItem>
             </>
           )}

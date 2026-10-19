@@ -57,7 +57,7 @@ export default function DomainsScreen() {
 
   const add = (
     <Button onClick={() => openDrawer()}>
-      <Plus aria-hidden /> Add domain
+      <Plus aria-hidden /> Create domain
     </Button>
   );
 

@@ -25,7 +25,7 @@ import { Link, useParams } from "react-router-dom";
 import { Alert } from "~/components/ui/alert";
 import { useRegion } from "~/regions/api";
 import { regionLink } from "~/regions/links";
-import { useAsync, useSessionApi } from "./api";
+import { useSessionQuery } from "./api";
 import type { SessionApp } from "./types";
 
 const provider = (id?: string) =>
@@ -60,16 +60,12 @@ export function missingKeys(app: SessionApp, ctx: KeyContext): string[] {
 
 /** The key context of the current workspace, once known; and where keys are fixed. */
 function useKeyContext(): { ctx?: KeyContext; fixLink?: string } {
-  const api = useSessionApi();
   const { workspaceRef } = useParams();
   const region = useRegion();
-  const pub = useAsync(async () => {
-    const [catalog, keys] = await Promise.all([
-      api.getCatalog(),
-      api.listVendorKeys()
-    ]);
-    return { catalog, keys };
-  }, [api]);
+  const pub = useSessionQuery(["vendor-keys"], async (api) => ({
+    catalog: await api.getCatalog(),
+    keys: await api.listVendorKeys()
+  }));
   if (region.isPrivate) {
     if (!region.data) return {};
     return {

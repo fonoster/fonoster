@@ -19,6 +19,7 @@
 import type { Secret } from "@fonoster/types";
 import { Lock, Plus } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import {
   DataTable,
@@ -31,6 +32,7 @@ import { RowActions } from "~/components/data/row-actions";
 import { Button } from "~/components/ui/button";
 import { PageHeader } from "~/app/shell/page";
 import { formatDate } from "~/lib/format";
+import { useWorkspace } from "~/lib/workspace";
 import { PrivateSecrets, useRegion } from "~/regions";
 import { SecretDrawer } from "./secret-drawer";
 import { useDeleteSecret, useSecrets } from "./secrets.service";
@@ -41,6 +43,7 @@ export default function SecretsScreen() {
 }
 
 function WorkspaceSecrets() {
+  const workspace = useWorkspace();
   const list = useSecrets();
   const remove = useDeleteSecret();
   const [editing, setEditing] = useState<Secret | undefined>();
@@ -54,7 +57,7 @@ function WorkspaceSecrets() {
 
   const add = (
     <Button onClick={() => openDrawer()}>
-      <Plus aria-hidden /> Add secret
+      <Plus aria-hidden /> Create secret
     </Button>
   );
 
@@ -89,7 +92,7 @@ function WorkspaceSecrets() {
     <>
       <PageHeader
         title="Secrets"
-        description="Encrypted values like provider API keys. Values can't be read back after saving."
+        description="Encrypted values for your agents' tools, like a CRM or helpdesk token. Your stream apps can reference them too. Values can't be read back."
         actions={list.items.length > 0 && add}
       />
       <div className="px-4 pb-8 sm:px-8">
@@ -109,7 +112,20 @@ function WorkspaceSecrets() {
             <EmptyState
               icon={Lock}
               title="No secrets yet"
-              description="Store provider API keys and tokens here, then reference them by name from agents and streams."
+              description={
+                <>
+                  Store the tokens your agents&apos; tools need, then reference
+                  them by name; your stream apps can use them too. For speech
+                  and language models, use{" "}
+                  <Link
+                    to={`/w/${workspace.ref}/vendor-keys`}
+                    className="text-foreground underline"
+                  >
+                    Vendor keys
+                  </Link>
+                  .
+                </>
+              }
               action={add}
             />
           }

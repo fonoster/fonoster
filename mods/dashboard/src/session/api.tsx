@@ -16,15 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState
-} from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createContext, useContext, useMemo } from "react";
 import { useParams } from "react-router-dom";
+import { toast } from "~/components/ui/sonner";
 import { useSdk } from "~/lib/auth";
 import { createSdkSessionApi } from "./sdk-api";
 import type { SessionApi } from "./types";
@@ -51,29 +46,61 @@ export function errorMessage(e: unknown): string {
   return e instanceof Error ? e.message : String(e);
 }
 
-/** Loads data for a page; `reload()` runs the loader again. */
-export function useAsync<T>(load: () => Promise<T>, deps: unknown[]) {
-  const [state, setState] = useState<{
-    data?: T;
-    error?: string;
-    loading: boolean;
-  }>({
-    loading: true
+/** The query key prefix of the current workspace's session data. */
+function useSessionKey() {
+  return ["session", useParams().workspaceRef];
+}
+
+/**
+ * Loads session data through React Query, keyed by workspace; `reload()` fetches it again and
+ * useSessionMutation refreshes it after every change.
+ */
+export function useSessionQuery<T>(
+  key: unknown[],
+  load: (api: SessionApi) => Promise<T | undefined>,
+  enabled = true
+) {
+  const api = useSessionApi();
+  const query = useQuery({
+    queryKey: [...useSessionKey(), ...key],
+    // React Query can't hold undefined; null stands for "not found".
+    queryFn: async () => (await load(api)) ?? null,
+    enabled
   });
-  const [tick, setTick] = useState(0);
-  useEffect(() => {
-    let live = true;
-    setState((s) => ({ ...s, loading: true }));
-    load().then(
-      (data) => live && setState({ data, loading: false }),
-      (e: unknown) =>
-        live && setState({ error: errorMessage(e), loading: false })
-    );
-    return () => {
-      live = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [...deps, tick]);
-  const reload = useCallback(() => setTick((t) => t + 1), []);
-  return { ...state, reload };
+  return {
+    data: query.data ?? undefined,
+    loading: query.isLoading,
+    error: query.error ? errorMessage(query.error) : undefined,
+    reload: () => void query.refetch()
+  };
+}
+
+/**
+ * A change to session data: refreshes the workspace's session queries and shows a toast on
+ * success (and on failure when toastErrors is set; forms show their own errors).
+ */
+export function useSessionMutation<Input, Output>(
+  change: (api: SessionApi, input: Input) => Promise<Output>,
+  options: {
+    success?: string | ((output: Output, input: Input) => string);
+    toastErrors?: boolean;
+  } = {}
+) {
+  const api = useSessionApi();
+  const queryClient = useQueryClient();
+  const key = useSessionKey();
+  return useMutation({
+    mutationFn: (input: Input) => change(api, input),
+    onSuccess: async (output, input) => {
+      await queryClient.invalidateQueries({ queryKey: key });
+      const message =
+        typeof options.success === "function"
+          ? options.success(output, input)
+          : options.success;
+      if (message) toast.success(message);
+    },
+    onError: (error) => {
+      if (options.toastErrors) toast.error(errorMessage(error));
+    }
+  });
 }

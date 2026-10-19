@@ -363,6 +363,10 @@ export function createMockSessionApi(): SessionApi {
       });
       return { ref, secret };
     },
+    updateWebhook: async ({ ref, url, events }) => {
+      const w = webhooks.get(ref);
+      if (w) webhooks.set(ref, { ...w, url, events });
+    },
     deleteWebhook: async (ref) => {
       webhooks.delete(ref);
     },

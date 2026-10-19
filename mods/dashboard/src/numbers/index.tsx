@@ -52,7 +52,7 @@ export default function NumbersScreen() {
 
   const add = (
     <Button onClick={() => openDrawer()}>
-      <Plus aria-hidden /> Add number
+      <Plus aria-hidden /> Create number
     </Button>
   );
 

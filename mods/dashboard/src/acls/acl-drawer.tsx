@@ -113,7 +113,7 @@ export function AclDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        title={acl ? acl.name : "Add ACL"}
+        title={acl ? acl.name : "New ACL"}
         description={
           acl
             ? acl.ref
@@ -141,7 +141,7 @@ export function AclDrawer({
                 form="acl-form"
                 loading={mutation.isPending}
               >
-                Save
+                {acl ? "Save" : "Create ACL"}
               </Button>
             </div>
           </>

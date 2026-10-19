@@ -26,7 +26,7 @@ import { usePrivateRegions } from "~/lib/capabilities";
 import { errorMessage } from "~/lib/errors";
 import { REGIONS_KEY, useRegions, useRegionsApi } from "./api";
 import { InstallCommand } from "./install-command";
-import { NewRegionDialog } from "./new-region-dialog";
+import { NewRegionDrawer } from "./new-region-drawer";
 import { RegionDrawer } from "./region-drawer";
 import { StatusDot } from "./status";
 import type { RegionToken } from "./types";
@@ -85,7 +85,7 @@ function PrivateRegionsSection() {
           className="font-display"
           onClick={() => setCreating(true)}
         >
-          <Plus className="size-4" aria-hidden /> New region
+          <Plus className="size-4" aria-hidden /> Create region
         </Button>
       </div>
       {error !== undefined && (
@@ -126,7 +126,7 @@ function PrivateRegionsSection() {
           ))}
         </ul>
       )}
-      <NewRegionDialog
+      <NewRegionDrawer
         open={creating}
         onOpenChange={setCreating}
         onCreated={({ ref, token, expiresAt }) =>

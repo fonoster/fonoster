@@ -272,7 +272,7 @@ export default function OverviewScreen() {
           <>
             <RangePicker value={range} onChange={setRange} />
             <Button onClick={() => setCreating(true)}>
-              <Plus aria-hidden /> New agent
+              <Plus aria-hidden /> Create agent
             </Button>
           </>
         }

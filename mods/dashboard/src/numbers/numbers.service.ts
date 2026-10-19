@@ -47,7 +47,7 @@ export function useCreateNumber() {
   return useResourceMutation(
     RESOURCE,
     (request: CreateNumberRequest) => sdk.numbers.createNumber(request),
-    { success: "Number added" }
+    { success: "Number created" }
   );
 }
 
@@ -56,7 +56,7 @@ export function useUpdateNumber() {
   return useResourceMutation(
     RESOURCE,
     (request: UpdateNumberRequest) => sdk.numbers.updateNumber(request),
-    { success: "Number updated" }
+    { success: "Number saved" }
   );
 }
 
@@ -65,6 +65,6 @@ export function useDeleteNumber() {
   return useResourceMutation(
     RESOURCE,
     (ref: string) => sdk.numbers.deleteNumber(ref),
-    { success: "Number removed" }
+    { success: "Number deleted" }
   );
 }

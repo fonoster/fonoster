@@ -105,16 +105,18 @@ describe("Domains", () => {
     setup([]);
     expect(await screen.findByText("No domains yet")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Add domain" })
+      screen.getByRole("button", { name: "Create domain" })
     ).toBeInTheDocument();
   });
 
   it("validates the URI against the root domain", async () => {
     const { user, domains } = setup([]);
-    await user.click(await screen.findByRole("button", { name: "Add domain" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Create domain" })
+    );
     await user.type(screen.getByLabelText("Name"), "Acme");
     await user.type(screen.getByLabelText("Domain URI"), "acme.example.com");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Create domain" }));
     expect(
       await screen.findByText("Must end with fonoster.local")
     ).toBeInTheDocument();
@@ -123,7 +125,9 @@ describe("Domains", () => {
 
   it("creates a domain with an ACL and egress rules", async () => {
     const { user, domains } = setup([]);
-    await user.click(await screen.findByRole("button", { name: "Add domain" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Create domain" })
+    );
     await user.type(screen.getByLabelText("Name"), "Acme HQ");
     await user.type(screen.getByLabelText("Domain URI"), "acme.fonoster.local");
     await user.click(screen.getByLabelText("Access control list"));
@@ -132,7 +136,7 @@ describe("Domains", () => {
     );
 
     await user.click(screen.getByRole("button", { name: /Add rule/ }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Create domain" }));
     expect(await screen.findByText("Enter a pattern")).toBeInTheDocument();
 
     await user.type(screen.getByLabelText("Rule 1 pattern"), "^[[+]34");
@@ -140,7 +144,7 @@ describe("Domains", () => {
     await user.click(
       await screen.findByRole("option", { name: /\+34910555210/ })
     );
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Create domain" }));
 
     expect(domains.createDomain).toHaveBeenCalledWith({
       name: "Acme HQ",

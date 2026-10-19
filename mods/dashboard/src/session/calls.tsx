@@ -31,7 +31,7 @@ import { Alert } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { useRegion } from "~/regions";
-import { errorMessage, useAsync, useSessionApi } from "./api";
+import { errorMessage, useSessionApi, useSessionQuery } from "./api";
 import type { CallRecordSummary, SessionMessage, Turn } from "./types";
 
 export function formatMs(ms: number): string {
@@ -78,11 +78,9 @@ const when = (iso: string) =>
   iso ? new Date(iso).toLocaleString(undefined, { hour12: false }) : "";
 
 export function CallRecordsList() {
-  const api = useSessionApi();
   const navigate = useNavigate();
-  const { data, loading, error, reload } = useAsync(
-    () => api.listCalls(),
-    [api]
+  const { data, loading, error, reload } = useSessionQuery(["calls"], (api) =>
+    api.listCalls()
   );
   const columns: Column<CallRecordSummary>[] = [
     {
@@ -153,7 +151,7 @@ export function CallRecordView() {
     data: call,
     loading,
     error
-  } = useAsync(() => api.getCall(callRef), [api, callRef]);
+  } = useSessionQuery(["calls", callRef], (api) => api.getCall(callRef));
   if (loading) return <p className="p-8">Loading…</p>;
   if (error)
     return (

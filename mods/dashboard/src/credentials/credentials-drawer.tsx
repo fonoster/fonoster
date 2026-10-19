@@ -112,7 +112,7 @@ export function CredentialsDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        title={credentials ? credentials.name : "Add credentials"}
+        title={credentials ? credentials.name : "New credentials"}
         description={
           credentials
             ? credentials.ref
@@ -140,7 +140,7 @@ export function CredentialsDrawer({
                 form="credentials-form"
                 loading={mutation.isPending}
               >
-                Save
+                {credentials ? "Save" : "Create credentials"}
               </Button>
             </div>
           </>

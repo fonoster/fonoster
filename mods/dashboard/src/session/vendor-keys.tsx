@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { KeyRound } from "lucide-react";
-import { useState } from "react";
+import { KeyRound, Plus, RefreshCw } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 import { PageHeader } from "~/app/shell/page";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import {
@@ -27,91 +27,95 @@ import {
   type Column
 } from "~/components/data/data-table";
 import { EmptyState } from "~/components/data/empty-state";
+import { RowActions } from "~/components/data/row-actions";
 import { Alert } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import { DropdownMenuItem } from "~/components/ui/dropdown-menu";
 import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
-import { errorMessage, useAsync, useSessionApi } from "./api";
+import { Sheet, SheetContent } from "~/components/ui/sheet";
+import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
 import type { CatalogEntry } from "./types";
 
-type Row = CatalogEntry & { keyUpdatedAt?: string; hasKey: boolean };
+type Row = { provider: CatalogEntry; updatedAt?: string };
 
 const when = (iso?: string) =>
   iso ? new Date(iso).toLocaleString(undefined, { hour12: false }) : "";
 
 /**
- * Bring your own vendor key (add-provider-registry P1): a key per catalog provider, stored as a
- * write-only Secret. Calls in this workspace use it instead of the platform's key.
+ * Bring your own vendor key (add-provider-registry P1): the keys this workspace added, one per
+ * catalog provider, stored write-only. Calls use them instead of the platform's key; providers
+ * without one here use the platform's key.
  */
 export default function VendorKeysScreen() {
-  const api = useSessionApi();
-  const loaded = useAsync(
-    async () => ({
-      catalog: await api.getCatalog(),
-      keys: await api.listVendorKeys()
-    }),
-    [api]
+  const loaded = useSessionQuery(["vendor-keys"], async (api) => ({
+    catalog: await api.getCatalog(),
+    keys: await api.listVendorKeys()
+  }));
+  const remove = useSessionMutation(
+    (api, providerId: string) => api.deleteVendorKey(providerId),
+    { success: "Vendor key removed" }
   );
-  const [providerId, setProviderId] = useState("");
-  const [key, setKey] = useState("");
-  const [removing, setRemoving] = useState<string>();
-  const [busy, setBusy] = useState(false);
-  const [failure, setFailure] = useState<string>();
-  const [saved, setSaved] = useState<string>();
-
-  const run = async (work: () => Promise<void>) => {
-    setBusy(true);
-    setFailure(undefined);
-    setSaved(undefined);
-    try {
-      await work();
-    } catch (e) {
-      setFailure(errorMessage(e));
-    } finally {
-      setBusy(false);
-    }
-  };
+  const [editing, setEditing] = useState<{ providerId?: string }>();
+  const [removing, setRemoving] = useState<Row>();
 
   // Keyless providers (the fakes, local models) take no key.
   const providers = (loaded.data?.catalog.providers ?? []).filter(
     (p) => !p.keyless
   );
-  const keys = loaded.data?.keys ?? [];
-  const rows: Row[] = providers.map((p) => {
-    const k = keys.find((x) => x.providerId === p.id);
-    return { ...p, hasKey: Boolean(k), keyUpdatedAt: k?.updatedAt };
-  });
+  const rows: Row[] = (loaded.data?.keys ?? []).map((k) => ({
+    provider: providers.find((p) => p.id === k.providerId) ?? {
+      id: k.providerId,
+      label: k.providerId,
+      state: "active"
+    },
+    updatedAt: k.updatedAt
+  }));
+  const available = providers.filter(
+    (p) => !rows.some((r) => r.provider.id === p.id)
+  );
+
+  const add = available.length > 0 && (
+    <Button onClick={() => setEditing({})}>
+      <Plus aria-hidden /> Add key
+    </Button>
+  );
 
   const columns: Column<Row>[] = [
-    { header: "Provider", cell: (r) => <NameCell name={r.label} /> },
     {
-      header: "Key",
-      className: "w-64",
-      cell: (r) =>
-        r.hasKey ? (
-          <MutedCell>Your key · updated {when(r.keyUpdatedAt)}</MutedCell>
-        ) : (
-          <MutedCell>Platform key</MutedCell>
-        )
+      header: "Provider",
+      cell: (r) => (
+        <div className="flex min-w-0 items-center gap-2">
+          <NameCell name={r.provider.label} sub={r.provider.id} />
+          {r.provider.state === "deprecated" && (
+            <Badge variant="warning">deprecated</Badge>
+          )}
+        </div>
+      )
+    },
+    {
+      header: "Updated",
+      className: "w-56",
+      cell: (r) => <MutedCell>{when(r.updatedAt)}</MutedCell>
     },
     {
       header: "",
-      className: "w-40",
-      cell: (r) =>
-        r.hasKey ? (
-          <Button
-            size="sm"
-            variant="ghost"
-            aria-label={`Remove key for ${r.id}`}
-            onClick={() => setRemoving(r.id)}
+      className: "w-12",
+      cell: (r) => (
+        <RowActions
+          label={r.provider.label}
+          onDelete={() => setRemoving(r)}
+          deleteLabel="Remove"
+        >
+          <DropdownMenuItem
+            onSelect={() => setEditing({ providerId: r.provider.id })}
           >
-            Remove key
-          </Button>
-        ) : r.state === "deprecated" ? (
-          <Badge variant="warning">deprecated</Badge>
-        ) : null
+            <RefreshCw /> Replace key
+          </DropdownMenuItem>
+        </RowActions>
+      )
     }
   ];
 
@@ -119,90 +123,175 @@ export default function VendorKeysScreen() {
     <>
       <PageHeader
         title="Vendor keys"
-        description="Use your own speech and language-model accounts. Keys are stored encrypted and can't be read back."
+        description="Use your own speech and language-model accounts. Providers without a key here use the platform's key. Keys are stored encrypted and can't be read back."
+        actions={rows.length > 0 && add}
       />
-      <div className="flex flex-col gap-6 px-4 pb-10 sm:px-8">
-        {failure && <Alert variant="error">{failure}</Alert>}
-        {saved && <Alert variant="success">{saved}</Alert>}
-        {providers.length > 0 && (
-          <section
-            aria-label="Add a key"
-            className="flex max-w-2xl flex-col gap-4 rounded-xl border border-border p-4"
-          >
-            <Field label="Provider">
-              {(p) => (
-                <Select
-                  {...p}
-                  value={providerId}
-                  placeholder="Choose a provider"
-                  options={providers.map((x) => ({ value: x.id, label: x.id }))}
-                  onValueChange={setProviderId}
-                />
-              )}
-            </Field>
-            <Field
-              label="API key"
-              hint="Replaces the key you stored before for this provider."
-            >
-              {(p) => (
-                <Input
-                  {...p}
-                  type="password"
-                  autoComplete="off"
-                  value={key}
-                  onChange={(e) => setKey(e.target.value)}
-                />
-              )}
-            </Field>
-            <Button
-              className="self-start"
-              disabled={busy || !providerId || !key.trim()}
-              onClick={() =>
-                void run(async () => {
-                  await api.setVendorKey(providerId, key.trim());
-                  setSaved(`Key saved for ${providerId}`);
-                  setKey("");
-                  loaded.reload();
-                })
-              }
-            >
-              Save key
-            </Button>
-          </section>
-        )}
+      <div className="px-4 pb-10 sm:px-8">
         <DataTable
           label="Vendor keys"
           columns={columns}
           rows={rows}
-          rowKey={(r) => r.id}
+          rowKey={(r) => r.provider.id}
+          onRowClick={(r) => setEditing({ providerId: r.provider.id })}
           loading={loaded.loading}
           error={loaded.error}
           onRetry={loaded.reload}
           empty={
             <EmptyState
               icon={KeyRound}
-              title="No providers in the catalog"
-              description="The operator adds providers with the fonoster-registry utility."
+              title="No vendor keys"
+              description={
+                providers.length
+                  ? "Calls use the platform's keys. Add your own to use your speech and language-model accounts."
+                  : "The operator adds providers with the fonoster-registry utility."
+              }
+              action={add}
             />
           }
         />
       </div>
+      <VendorKeyDrawer
+        open={Boolean(editing)}
+        onOpenChange={(open) => !open && setEditing(undefined)}
+        providerId={editing?.providerId}
+        providers={editing?.providerId ? providers : available}
+      />
       <ConfirmDialog
         open={Boolean(removing)}
-        onOpenChange={(open) => !open && setRemoving(undefined)}
-        title={`Remove your ${removing ?? ""} key?`}
+        onOpenChange={(open) => {
+          if (!open) {
+            setRemoving(undefined);
+            remove.reset();
+          }
+        }}
+        title={`Remove your ${removing?.provider.label ?? ""} key?`}
         description="Calls go back to the platform's key for this provider."
         confirmLabel="Remove"
-        pending={busy}
+        pending={remove.isPending}
+        error={remove.error}
         onConfirm={() =>
           removing &&
-          void run(async () => {
-            await api.deleteVendorKey(removing);
-            setRemoving(undefined);
-            loaded.reload();
+          remove.mutate(removing.provider.id, {
+            onSuccess: () => setRemoving(undefined)
           })
         }
       />
     </>
+  );
+}
+
+/** Add a key for a provider, or replace the stored one (providerId set). */
+function VendorKeyDrawer({
+  open,
+  onOpenChange,
+  providerId,
+  providers
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  providerId?: string;
+  providers: CatalogEntry[];
+}) {
+  const [provider, setProvider] = useState("");
+  const [key, setKey] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const label = (id: string) => providers.find((p) => p.id === id)?.label ?? id;
+  const save = useSessionMutation(
+    (api, input: { providerId: string; key: string }) =>
+      api.setVendorKey(input.providerId, input.key),
+    { success: (_, input) => `Key saved for ${label(input.providerId)}` }
+  );
+
+  useEffect(() => {
+    if (!open) return;
+    // With a single choice left, it's already picked.
+    setProvider(providerId ?? (providers.length === 1 ? providers[0].id : ""));
+    setKey("");
+    setErrors({});
+    save.reset();
+    // Reset when the drawer opens for a (different) provider.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, providerId]);
+
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    const found: Record<string, string> = {};
+    if (!provider) found.provider = "Choose a provider";
+    if (!key.trim()) found.key = "Enter the API key";
+    setErrors(found);
+    if (Object.keys(found).length) return;
+    save.mutate(
+      { providerId: provider, key: key.trim() },
+      { onSuccess: () => onOpenChange(false) }
+    );
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        title={
+          providerId ? `Replace ${label(providerId)} key` : "Add vendor key"
+        }
+        description="Calls in this workspace use it instead of the platform's key."
+        footer={
+          <>
+            <span />
+            <div className="flex gap-2.5">
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                form="vendor-key-form"
+                loading={save.isPending}
+              >
+                {providerId ? "Save" : "Add key"}
+              </Button>
+            </div>
+          </>
+        }
+      >
+        <form
+          id="vendor-key-form"
+          onSubmit={submit}
+          className="flex flex-col gap-[22px]"
+          noValidate
+        >
+          {save.error && (
+            <Alert variant="error">{errorMessage(save.error)}</Alert>
+          )}
+          <Field label="Provider" error={errors.provider}>
+            {(p) => (
+              <Select
+                {...p}
+                value={provider}
+                placeholder="Choose a provider"
+                disabled={Boolean(providerId)}
+                options={providers.map((x) => ({
+                  value: x.id,
+                  label: x.label
+                }))}
+                onValueChange={setProvider}
+              />
+            )}
+          </Field>
+          <Field
+            label="API key"
+            error={errors.key}
+            hint="Stored encrypted. It can't be read back."
+          >
+            {(p) => (
+              <Input
+                {...p}
+                type="password"
+                autoComplete="off"
+                value={key}
+                onChange={(e) => setKey(e.target.value)}
+              />
+            )}
+          </Field>
+        </form>
+      </SheetContent>
+    </Sheet>
   );
 }

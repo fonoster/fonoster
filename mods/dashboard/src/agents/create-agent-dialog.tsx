@@ -105,7 +105,7 @@ export function CreateAgentDialog({
     );
     const { ref } = await create.mutateAsync(request);
     onOpenChange(false);
-    navigate(`/w/${workspace.ref}/autopilot/${ref}`);
+    navigate(`/w/${workspace.ref}/agents/${ref}`);
   });
 
   return (

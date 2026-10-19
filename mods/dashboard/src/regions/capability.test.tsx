@@ -80,14 +80,14 @@ function render(
 describe("without private regions (Community)", () => {
   const caps = communityCapabilities;
 
-  it("start screen: no regions section or New region, and no regions call", async () => {
+  it("start screen: no regions section or Create region, and no regions call", async () => {
     const { listRegions } = render(<WorkspacesPage />, caps, {
       path: "/workspaces",
       route: "/workspaces"
     });
     expect(await screen.findByText(testWorkspace.name)).toBeInTheDocument();
     expect(screen.queryByRole("region", { name: "Your regions" })).toBeNull();
-    expect(screen.queryByRole("button", { name: /New region/ })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Create region/ })).toBeNull();
     expect(listRegions).not.toHaveBeenCalled();
   });
 
@@ -157,7 +157,7 @@ describe("without private regions (Community)", () => {
       privateWs
     );
     expect(
-      await screen.findByText(/Values can't be read back after saving/)
+      await screen.findByText(/Values can't be read back/)
     ).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Acme Dallas" })).toBeNull();
     expect(getRegion).not.toHaveBeenCalled();
@@ -178,7 +178,7 @@ describe("with private regions", () => {
         await screen.findByRole("region", { name: "Your regions" })
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: /New region/ })
+        screen.getByRole("button", { name: /Create region/ })
       ).toBeInTheDocument();
       landing.unmount();
 

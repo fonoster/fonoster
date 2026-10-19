@@ -94,16 +94,20 @@ describe("Credentials screen", () => {
   it("creates credentials, requiring a password", async () => {
     const { user, sdk } = setup({ items: [] });
     await user.click(
-      await screen.findByRole("button", { name: /Add credentials/ })
+      await screen.findByRole("button", { name: /Create credentials/ })
     );
     await user.type(screen.getByLabelText("Name"), "altice-acme");
     await user.type(screen.getByLabelText("Username"), "acme_do");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(
+      screen.getByRole("button", { name: "Create credentials" })
+    );
     expect(await screen.findByText("Enter a password")).toBeInTheDocument();
     expect(sdk.credentials.createCredentials).not.toHaveBeenCalled();
 
     await user.type(screen.getByLabelText("Password"), "s3cret!");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(
+      screen.getByRole("button", { name: "Create credentials" })
+    );
     expect(sdk.credentials.createCredentials).toHaveBeenCalledWith({
       name: "altice-acme",
       username: "acme_do",
@@ -114,12 +118,14 @@ describe("Credentials screen", () => {
   it("rejects usernames the API won't take", async () => {
     const { user, sdk } = setup({ items: [] });
     await user.click(
-      await screen.findByRole("button", { name: /Add credentials/ })
+      await screen.findByRole("button", { name: /Create credentials/ })
     );
     await user.type(screen.getByLabelText("Name"), "x");
     await user.type(screen.getByLabelText("Username"), "Acme User");
     await user.type(screen.getByLabelText("Password"), "p");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(
+      screen.getByRole("button", { name: "Create credentials" })
+    );
     expect(await screen.findByText(/Lowercase letters/)).toBeInTheDocument();
     expect(sdk.credentials.createCredentials).not.toHaveBeenCalled();
   });

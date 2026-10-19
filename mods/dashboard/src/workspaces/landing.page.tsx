@@ -84,7 +84,7 @@ export default function WorkspacesPage() {
             </div>
             <Button asChild className="font-display">
               <Link to="/workspaces/new">
-                <Plus className="size-4" aria-hidden /> New workspace
+                <Plus className="size-4" aria-hidden /> Create workspace
               </Link>
             </Button>
           </div>

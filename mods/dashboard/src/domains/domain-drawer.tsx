@@ -166,7 +166,7 @@ export function DomainDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        title={domain ? domain.name : "Add domain"}
+        title={domain ? domain.name : "New domain"}
         description={
           domain
             ? domain.ref
@@ -194,7 +194,7 @@ export function DomainDrawer({
                 form="domain-form"
                 loading={mutation.isPending}
               >
-                Save
+                {domain ? "Save" : "Create domain"}
               </Button>
             </div>
           </>

@@ -50,7 +50,7 @@ const streams = (route: string, api = createMockSessionApi()) => ({
   )
 });
 
-/** The mock workspace plus an Autopilot agent (agents belong under Autopilot). */
+/** The mock workspace plus an Autopilot agent (agents belong under Agents). */
 async function withAgent() {
   const api = createMockSessionApi();
   await api.saveApp({
@@ -95,9 +95,11 @@ describe("streams", () => {
 
   it("creates a stream in a dialog, then opens it and shows its secret once", async () => {
     const { user, api } = streams("/w/ws-1/streams");
-    await user.click(await screen.findByRole("button", { name: /New stream/ }));
+    await user.click(
+      await screen.findByRole("button", { name: /Create stream/ })
+    );
     const dialog = await screen.findByRole("dialog", { name: "New stream" });
-    // No Autopilot choice here: agents are created under Autopilot.
+    // No agent choice here: agents are created under Agents.
     expect(within(dialog).queryByLabelText("Type")).not.toBeInTheDocument();
     await user.click(
       within(dialog).getByRole("button", { name: "Create stream" })
@@ -119,10 +121,16 @@ describe("streams", () => {
     await user.click(
       within(dialog).getByRole("button", { name: "Create stream" })
     );
+    // The new stream's page opens behind its signing secret, shown once.
+    const secret = await screen.findByRole("dialog", {
+      name: "Save your signing secret"
+    });
+    expect(within(secret).getByLabelText("Signing secret")).toBeInTheDocument();
+    await user.click(within(secret).getByLabelText("I've saved it"));
+    await user.click(within(secret).getByRole("button", { name: "Done" }));
     expect(
       await screen.findByRole("heading", { name: "Bot" })
     ).toBeInTheDocument();
-    expect(screen.getByText(/shown once/)).toBeInTheDocument();
     const saved = (await api.listApps()).find((a) => a.name === "Bot");
     expect(saved).toMatchObject({
       type: "STREAM",
@@ -204,9 +212,14 @@ describe("streams", () => {
     await user.click(
       await screen.findByRole("button", { name: "Rotate secret" })
     );
-    expect(screen.getByText(/no overlap window/)).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Rotate now" }));
-    expect(await screen.findByText(/shown once/)).toBeInTheDocument();
+    const confirm = await screen.findByRole("dialog", {
+      name: "Rotate the signing secret?"
+    });
+    expect(within(confirm).getByText(/no overlap window/)).toBeInTheDocument();
+    await user.click(within(confirm).getByRole("button", { name: "Rotate" }));
+    expect(
+      await screen.findByRole("dialog", { name: "Save your signing secret" })
+    ).toBeInTheDocument();
   });
 
   it("sends an agent opened as a stream to the agent page", async () => {
@@ -214,7 +227,7 @@ describe("streams", () => {
     const agent = (await api.listApps()).find((a) => a.type === "AUTOPILOT")!;
     streams(`/w/ws-1/streams/${agent.ref}`, api);
     expect(await screen.findByTestId("location")).toHaveTextContent(
-      `/w/ws-1/autopilot/${agent.ref}`
+      `/w/ws-1/agents/${agent.ref}`
     );
   });
 
@@ -270,21 +283,54 @@ describe("webhooks", () => {
       "/w/:workspaceRef/webhooks",
       "/w/ws-1/webhooks"
     );
+    const table = await screen.findByRole("table", { name: "Webhooks" });
     expect(
-      await screen.findByText("https://hooks.example.com/fonoster")
+      await within(table).findByText("https://hooks.example.com/fonoster")
     ).toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: /add webhook/i }));
-    await user.type(screen.getByLabelText("URL"), "https://new.example.com");
-    await user.click(screen.getByRole("button", { name: "Create webhook" }));
-    expect(await screen.findByText(/shown once/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /Create webhook/ }));
+    const drawer = await screen.findByRole("dialog", { name: "New webhook" });
+    await user.type(
+      within(drawer).getByLabelText("URL"),
+      "https://new.example.com"
+    );
+    await user.click(
+      within(drawer).getByRole("button", { name: "Create webhook" })
+    );
+    const secret = await screen.findByRole("dialog", {
+      name: "Save your signing secret"
+    });
     expect((await api.listWebhooks()).map((w) => w.url)).toContain(
       "https://new.example.com"
     );
+    await user.click(within(secret).getByLabelText("I've saved it"));
+    await user.click(within(secret).getByRole("button", { name: "Done" }));
 
     await user.click(screen.getByRole("button", { name: "Resend evt_1" }));
     await waitFor(async () =>
       expect((await api.listDeliveries())[0].status).toBe("succeeded")
     );
+  });
+
+  it("edits an endpoint's events from its row menu, keeping its secret", async () => {
+    const { user, api } = render(
+      <WebhooksScreen />,
+      "/w/:workspaceRef/webhooks",
+      "/w/ws-1/webhooks"
+    );
+    const [before] = await api.listWebhooks();
+    await user.click(
+      await screen.findByRole("button", { name: `Actions for ${before.url}` })
+    );
+    await user.click(await screen.findByRole("menuitem", { name: "Edit" }));
+    const drawer = await screen.findByRole("dialog", { name: before.url });
+    await user.click(
+      within(drawer).getByRole("checkbox", { name: /Call failed/ })
+    );
+    await user.click(within(drawer).getByRole("button", { name: "Save" }));
+    await waitFor(async () =>
+      expect((await api.listWebhooks())[0].events).toContain("call.failed")
+    );
+    expect((await api.listWebhooks())[0].secretHint).toBe(before.secretHint);
   });
 
   it("validates endpoints", () => {
@@ -302,12 +348,37 @@ describe("vendor keys", () => {
       "/w/:workspaceRef/vendor-keys",
       "/w/ws-1/vendor-keys"
     );
-    expect(await screen.findByText(/Your key/)).toBeInTheDocument();
-    expect(screen.getByText("Platform key")).toBeInTheDocument();
+    const table = await screen.findByRole("table", { name: "Vendor keys" });
+    expect(await within(table).findByText("Deepgram")).toBeInTheDocument();
+    // Only the workspace's own keys are listed; ElevenLabs uses the platform's.
+    expect(within(table).queryByText("ElevenLabs")).not.toBeInTheDocument();
     await user.click(
-      screen.getByRole("button", { name: "Remove key for deepgram" })
+      screen.getByRole("button", { name: "Actions for Deepgram" })
     );
+    await user.click(await screen.findByRole("menuitem", { name: "Remove" }));
     await user.click(screen.getByRole("button", { name: "Remove" }));
     await waitFor(async () => expect(await api.listVendorKeys()).toEqual([]));
+    expect(await screen.findByText("No vendor keys")).toBeInTheDocument();
+  });
+
+  it("adds a key for a provider that uses the platform's key", async () => {
+    const { user, api } = render(
+      <VendorKeysScreen />,
+      "/w/:workspaceRef/vendor-keys",
+      "/w/ws-1/vendor-keys"
+    );
+    await user.click(await screen.findByRole("button", { name: /Add key/ }));
+    const drawer = await screen.findByRole("dialog", {
+      name: "Add vendor key"
+    });
+    await user.click(within(drawer).getByRole("button", { name: "Add key" }));
+    expect(within(drawer).getByText("Enter the API key")).toBeVisible();
+    await user.type(within(drawer).getByLabelText("API key"), "sk-test");
+    await user.click(within(drawer).getByRole("button", { name: "Add key" }));
+    await waitFor(async () =>
+      expect((await api.listVendorKeys()).map((k) => k.providerId)).toContain(
+        "elevenlabs"
+      )
+    );
   });
 });
