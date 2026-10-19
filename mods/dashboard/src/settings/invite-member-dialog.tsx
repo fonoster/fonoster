@@ -150,7 +150,7 @@ export function InviteMemberDialog({
           </Field>
         </form>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button type="submit" form="invite-form" loading={invite.isPending}>

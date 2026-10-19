@@ -22,7 +22,7 @@ import type { AuthContextValue } from "~/lib/auth";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { testWorkspace } from "~/test/workspace";
 import ApiKeysScreen from ".";
-import { SecretDialog } from "./secret-dialog";
+import { ApiKeySecretDialog } from "./secret-dialog";
 
 const created = {
   ref: "ak-new",
@@ -87,7 +87,7 @@ export const SaveSecret: Story = {
   render: () => (
     <WorkspaceProvider value={testWorkspace}>
       <ApiKeysScreen />
-      <SecretDialog
+      <ApiKeySecretDialog
         apiKey={created}
         workspaceAccessKeyId={testWorkspace.accessKeyId}
         onDone={fn()}

@@ -55,7 +55,7 @@ const withAgents = (items: object[]) => (auth: AuthContextValue) => ({
 });
 
 const route = (url: string) => ({
-  path: "/w/:workspaceRef/autopilot/*",
+  path: "/w/:workspaceRef/agents/*",
   url
 });
 
@@ -63,13 +63,13 @@ const detail = (tab: string) => ({
   parameters: {
     screen: {
       auth: withAgents([...sampleAgents, voiceApp]),
-      route: route(`/w/ws-1/autopilot/${billingAgent.ref}/${tab}`)
+      route: route(`/w/ws-1/agents/${billingAgent.ref}/${tab}`)
     }
   }
 });
 
 const meta = {
-  title: "Workspace/Autopilot",
+  title: "Workspace/Agents",
   render: () => (
     <WorkspaceProvider value={testWorkspace}>
       <AgentsScreen />
@@ -78,7 +78,7 @@ const meta = {
   parameters: {
     screen: {
       auth: withAgents([...sampleAgents, voiceApp]),
-      route: route("/w/ws-1/autopilot")
+      route: route("/w/ws-1/agents")
     }
   }
 } satisfies Meta;
@@ -90,7 +90,7 @@ export const List: Story = {};
 export const ListLight: Story = { globals: { theme: "light" } };
 export const Empty: Story = {
   parameters: {
-    screen: { auth: withAgents([voiceApp]), route: route("/w/ws-1/autopilot") }
+    screen: { auth: withAgents([voiceApp]), route: route("/w/ws-1/agents") }
   }
 };
 
@@ -98,7 +98,7 @@ export const CreateDialog: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await canvas.findByText("Billing reminders");
-    await userEvent.click(canvas.getByRole("button", { name: "New agent" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Create agent" }));
   }
 };
 

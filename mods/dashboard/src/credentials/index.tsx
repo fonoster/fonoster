@@ -52,7 +52,7 @@ export default function CredentialsScreen() {
 
   const add = (
     <Button onClick={() => openDrawer()}>
-      <Plus aria-hidden /> Add credentials
+      <Plus aria-hidden /> Create credentials
     </Button>
   );
 

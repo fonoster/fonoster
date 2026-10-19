@@ -144,6 +144,21 @@ export function toUpdateRequest(
   return mergeUpdate(current, edits);
 }
 
+/** Readable provider names; the catalog has only ids, so others show their id. */
+export const PROVIDER_NAMES: Record<string, string> = {
+  anthropic: "Anthropic",
+  assemblyai: "AssemblyAI",
+  azure: "Azure",
+  cartesia: "Cartesia",
+  deepgram: "Deepgram",
+  elevenlabs: "ElevenLabs",
+  google: "Google",
+  groq: "Groq",
+  ollama: "Ollama",
+  openai: "OpenAI",
+  playht: "PlayHT"
+};
+
 const entry = (item: CatalogItem): CatalogEntry => ({
   id: item.id,
   label: item.id,
@@ -169,7 +184,9 @@ export function toCatalog(items: CatalogItem[]): Catalog {
     llmModels: items
       .filter((i) => i.kind === "model" && i.type === "llm")
       .map(entry),
-    providers: items.filter((i) => i.kind === "provider").map(entry),
+    providers: items
+      .filter((i) => i.kind === "provider")
+      .map((i) => ({ ...entry(i), label: PROVIDER_NAMES[i.id] ?? i.id })),
     languages: [...languages]
       .sort()
       .map((id) => ({ id, label: id, state: "active" as const }))
@@ -368,6 +385,9 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
         createdAt: seconds(w.createdAt)
       })),
     createWebhook: (input) => sdk.webhooks.createWebhook(input),
+    updateWebhook: async (input) => {
+      await sdk.webhooks.updateWebhook(input);
+    },
     deleteWebhook: async (ref) => {
       await sdk.webhooks.deleteWebhook(ref);
     },

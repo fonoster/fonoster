@@ -93,7 +93,7 @@ describe("API keys", () => {
     });
 
     expect(
-      await screen.findByRole("heading", { name: "Save your secret key" })
+      await screen.findByRole("heading", { name: "Save your API key" })
     ).toBeInTheDocument();
     expect(screen.getByLabelText("API key")).toHaveTextContent(
       created.accessKeyId
@@ -107,7 +107,7 @@ describe("API keys", () => {
 
     const done = screen.getByRole("button", { name: "Done" });
     expect(done).toBeDisabled();
-    await user.click(screen.getByLabelText("I've saved the secret"));
+    await user.click(screen.getByLabelText("I've saved it"));
     expect(done).toBeEnabled();
     await user.click(done);
     expect(screen.queryByText("s3cr3t-value")).not.toBeInTheDocument();
@@ -134,8 +134,11 @@ describe("API keys", () => {
     const { user, apiKeys } = setup([key]);
     await user.click(
       await screen.findByRole("button", {
-        name: `Regenerate ${key.accessKeyId}`
+        name: `Actions for ${key.accessKeyId}`
       })
+    );
+    await user.click(
+      await screen.findByRole("menuitem", { name: "Regenerate" })
     );
     expect(apiKeys.regenerateApiKey).not.toHaveBeenCalled();
     await user.click(screen.getByRole("button", { name: "Regenerate" }));

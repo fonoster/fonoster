@@ -40,7 +40,7 @@ export function useCreateCredentials() {
     RESOURCE,
     (request: CreateCredentialsRequest) =>
       sdk.credentials.createCredentials(request),
-    { success: "Credentials saved" }
+    { success: "Credentials created" }
   );
 }
 
@@ -62,7 +62,7 @@ export function useUpdateCredentials() {
       sdk.credentials.updateCredentials(
         request as unknown as UpdateCredentialsRequest
       ),
-    { success: "Credentials updated" }
+    { success: "Credentials saved" }
   );
 }
 

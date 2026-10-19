@@ -20,13 +20,15 @@ import { AudioWaveform, Plus, Search, X } from "lucide-react";
 import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
-import { CopyField } from "~/components/data/copy-field";
+import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import {
   DataTable,
   MutedCell,
   NameCell,
   type Column
 } from "~/components/data/data-table";
+import { RowActions } from "~/components/data/row-actions";
+import { SecretDialog } from "~/components/data/secret-dialog";
 import { Alert } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -35,9 +37,8 @@ import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { Skeleton } from "~/components/ui/skeleton";
-import { toast } from "~/components/ui/sonner";
 import { Switch } from "~/components/ui/switch";
-import { errorMessage, useAsync, useSessionApi } from "./api";
+import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
 import { compatibleSttModels, compatibleVoices } from "./compat";
 import { CreateStreamDialog } from "./create-stream-dialog";
 import { MissingKeysWarning } from "./missing-keys";
@@ -55,7 +56,7 @@ import type {
 
 // "Streams" are the workspace's own WebSocket servers: SDK Applications that aren't
 // Autopilot. The list and detail page mirror Autopilot's (agents-list.tsx, agent-detail.tsx).
-// Agents (AUTOPILOT) live under Autopilot; their call handling (fallback, listeners,
+// Agents (AUTOPILOT) live under Agents; their call handling (fallback, listeners,
 // recording, AMD) opens CallHandlingDrawer from the agent page.
 
 /** Readable names for the stream protocols. */
@@ -192,22 +193,21 @@ export function CatalogWarnings({ warnings }: { warnings: CatalogWarning[] }) {
 
 /** /w/:ws/streams: the list, laid out like Autopilot's. /streams/new opens the create dialog. */
 export function StreamsList({ creating: startCreating = false }) {
-  const api = useSessionApi();
   const navigate = useNavigate();
   const { workspaceRef } = useParams();
   const base = `/w/${workspaceRef}/streams`;
-  const list = useAsync(
-    async () => (await api.listApps()).filter(isStream),
-    [api]
+  const list = useSessionQuery(["apps"], (api) => api.listApps());
+  const warnings = useSessionQuery(["catalog-warnings"], (api) =>
+    api.listCatalogWarnings().catch(() => [])
   );
-  const warnings = useAsync(
-    () => api.listCatalogWarnings().catch(() => []),
-    [api]
-  );
+  const remove = useSessionMutation((api, ref: string) => api.deleteApp(ref), {
+    success: "Stream deleted"
+  });
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(startCreating);
+  const [deleting, setDeleting] = useState<SessionApp>();
 
-  const items = useMemo(() => list.data ?? [], [list.data]);
+  const items = useMemo(() => (list.data ?? []).filter(isStream), [list.data]);
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
     return q
@@ -222,7 +222,7 @@ export function StreamsList({ creating: startCreating = false }) {
 
   const add = (
     <Button onClick={() => setCreating(true)}>
-      <Plus aria-hidden /> New stream
+      <Plus aria-hidden /> Create stream
     </Button>
   );
 
@@ -253,6 +253,11 @@ export function StreamsList({ creating: startCreating = false }) {
             "—"}
         </MutedCell>
       )
+    },
+    {
+      header: "",
+      className: "w-12",
+      cell: (a) => <RowActions label={a.name} onDelete={() => setDeleting(a)} />
     }
   ];
 
@@ -331,6 +336,25 @@ export function StreamsList({ creating: startCreating = false }) {
           setCreating(open);
           if (!open && startCreating) navigate(base, { replace: true });
         }}
+      />
+      <ConfirmDialog
+        open={Boolean(deleting)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleting(undefined);
+            remove.reset();
+          }
+        }}
+        title={`Delete ${deleting?.name ?? "stream"}?`}
+        description="Numbers that point to this stream stop answering until you point them elsewhere."
+        pending={remove.isPending}
+        error={remove.error}
+        onConfirm={() =>
+          deleting &&
+          remove.mutate(deleting.ref, {
+            onSuccess: () => setDeleting(undefined)
+          })
+        }
       />
     </>
   );
@@ -693,13 +717,21 @@ export function CallHandlingFields({
   );
 }
 
-/** A secret shown once (just created or rotated), with the copy-it-now warning. */
-export function FreshSecret({ secret }: { secret: string }) {
+/** A stream's signing secret, the only time it can be read (created or rotated). */
+export function SigningSecretDialog({
+  secret,
+  onDone
+}: {
+  secret?: string;
+  onDone: () => void;
+}) {
   return (
-    <>
-      <CopyField label="Signing secret (shown once)" value={secret} />
-      <Alert variant="warning">Copy it now. It is not shown again.</Alert>
-    </>
+    <SecretDialog
+      title="Save your signing secret"
+      description="This is the only time we'll show it. The gateway signs every connection with it; check the signature before accepting a call."
+      fields={secret ? [{ label: "Signing secret", value: secret }] : undefined}
+      onDone={onDone}
+    />
   );
 }
 
@@ -718,16 +750,13 @@ export function CallHandlingDrawer({
   appRef: string;
   onSaved?: (app: SessionApp) => void;
 }) {
-  const api = useSessionApi();
-  const loaded = useAsync(
-    async () =>
-      open
-        ? {
-            app: await api.getApp(appRef),
-            apps: await api.listApps()
-          }
-        : undefined,
-    [api, open, appRef]
+  const loaded = useSessionQuery(
+    ["apps", appRef, "call-handling"],
+    async (api) => ({
+      app: await api.getApp(appRef),
+      apps: await api.listApps()
+    }),
+    open
   );
   const app = loaded.data?.app;
   const formId = "call-handling-form";
@@ -793,37 +822,31 @@ function CallHandlingForm({
   otherApps: SessionApp[];
   onSaved: (app: SessionApp) => void;
 }) {
-  const api = useSessionApi();
   const [app, setApp] = useState<Draft>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [failure, setFailure] = useState<string>();
-  const [secret, setSecret] = useState<string>();
+  const save = useSessionMutation(
+    (api, draft: Omit<Draft, "signingSecretHint">) => api.saveApp(draft),
+    { success: "Call handling saved" }
+  );
   const set: SetDraft = (key, value) => setApp((a) => ({ ...a, [key]: value }));
 
-  const save = (event: FormEvent) => {
+  const submit = (event: FormEvent) => {
     event.preventDefault();
     const found = validateStream(app, "agent");
     setErrors(found);
     if (Object.keys(found).length) return;
     const { signingSecretHint: _hint, ...rest } = app;
-    setFailure(undefined);
-    api.saveApp(rest).then(
-      (result) => {
-        toast.success("Call handling saved");
-        onSaved(result);
-      },
-      (e: unknown) => setFailure(errorMessage(e))
-    );
+    save.mutate(rest, { onSuccess: onSaved });
   };
 
   return (
     <form
       id={formId}
-      onSubmit={save}
+      onSubmit={submit}
       className="flex flex-col gap-[22px]"
       noValidate
     >
-      {failure && <Alert variant="error">{failure}</Alert>}
+      {save.error && <Alert variant="error">{errorMessage(save.error)}</Alert>}
       {app.url && (
         <Group
           title="Signing secret"
@@ -832,11 +855,7 @@ function CallHandlingForm({
           <SecretControls
             appRef={app.ref}
             hint={app.signingSecretHint}
-            secret={secret}
-            onRotated={(r) => {
-              setSecret(r.signingSecret);
-              set("signingSecretHint", r.signingSecretHint);
-            }}
+            onRotated={(hint) => set("signingSecretHint", hint)}
           />
         </Group>
       )}
@@ -850,85 +869,61 @@ function CallHandlingForm({
   );
 }
 
-/** The secret's hint (or the new secret once) and Rotate, behind a confirmation. */
+/** The secret's hint and Rotate: a confirmation, then the new secret in a popup, once. */
 export function SecretControls({
   appRef,
   hint,
-  secret,
   onRotated
 }: {
   appRef: string;
   hint: string;
-  secret?: string;
-  onRotated: (result: {
-    signingSecret?: string;
-    signingSecretHint: string;
-  }) => void;
+  onRotated: (hint: string) => void;
 }) {
-  const api = useSessionApi();
+  const rotate = useSessionMutation(
+    (api, ref: string) => api.rotateSecret(ref),
+    { success: "Signing secret rotated" }
+  );
   const [confirming, setConfirming] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [failure, setFailure] = useState<string>();
-  const rotate = () => {
-    setBusy(true);
-    setFailure(undefined);
-    api.rotateSecret(appRef).then(
-      (result) => {
-        setBusy(false);
-        setConfirming(false);
-        onRotated(result);
-      },
-      (e: unknown) => {
-        setBusy(false);
-        setFailure(errorMessage(e));
-      }
-    );
-  };
+  const [secret, setSecret] = useState<string>();
   return (
     <>
-      {failure && <Alert variant="error">{failure}</Alert>}
-      {secret ? (
-        <FreshSecret secret={secret} />
-      ) : (
-        <p className="font-display text-xs text-muted-foreground">
-          {hint ? `Current secret ends in ${hint}` : "Managed by the platform."}
-        </p>
-      )}
-      {confirming ? (
-        <Alert variant="warning">
-          Rotating takes effect immediately and there is no overlap window:
-          deploy the new secret to your server at the same time.
-          <div className="mt-2 flex gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant="destructive"
-              disabled={busy}
-              onClick={rotate}
-            >
-              Rotate now
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => setConfirming(false)}
-            >
-              Cancel
-            </Button>
-          </div>
-        </Alert>
-      ) : (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          className="self-start"
-          onClick={() => setConfirming(true)}
-        >
-          Rotate secret
-        </Button>
-      )}
+      <p className="font-display text-xs text-muted-foreground">
+        {hint ? `Current secret ends in ${hint}` : "Managed by the platform."}
+      </p>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="self-start"
+        onClick={() => setConfirming(true)}
+      >
+        Rotate secret
+      </Button>
+      <ConfirmDialog
+        open={confirming}
+        onOpenChange={(open) => {
+          setConfirming(open);
+          if (!open) rotate.reset();
+        }}
+        title="Rotate the signing secret?"
+        description="It takes effect immediately, with no overlap window: deploy the new secret to your server at the same time."
+        confirmLabel="Rotate"
+        pending={rotate.isPending}
+        error={rotate.error}
+        onConfirm={() =>
+          rotate.mutate(appRef, {
+            onSuccess: (result) => {
+              setConfirming(false);
+              setSecret(result.signingSecret);
+              onRotated(result.signingSecretHint);
+            }
+          })
+        }
+      />
+      <SigningSecretDialog
+        secret={secret}
+        onDone={() => setSecret(undefined)}
+      />
     </>
   );
 }

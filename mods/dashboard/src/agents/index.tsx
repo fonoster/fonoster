@@ -20,7 +20,7 @@ import { Route, Routes } from "react-router-dom";
 import { AgentDetail } from "./agent-detail";
 import { AgentsList } from "./agents-list";
 
-/** AI agents (Autopilot applications): /w/:ws/autopilot and /w/:ws/autopilot/:ref/<tab>. */
+/** AI agents (Autopilot applications): /w/:ws/agents and /w/:ws/agents/:ref/<tab>. */
 export default function AgentsScreen() {
   return (
     <Routes>

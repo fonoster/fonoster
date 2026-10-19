@@ -42,7 +42,7 @@ export function useCreateAcl() {
   return useResourceMutation(
     RESOURCE,
     (request: CreateAclRequest) => sdk.acls.createAcl(request),
-    { success: "ACL saved" }
+    { success: "ACL created" }
   );
 }
 
@@ -52,7 +52,7 @@ export function useUpdateAcl() {
     RESOURCE,
     (request: { ref: string; name: string; allow: string[] }) =>
       sdk.acls.updateAcl({ ...request, deny: DENY_ALL }),
-    { success: "ACL updated" }
+    { success: "ACL saved" }
   );
 }
 

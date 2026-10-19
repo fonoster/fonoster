@@ -39,14 +39,14 @@ const withSecrets = (items: object[]) => (auth: AuthContextValue) => ({
 const sample = [
   {
     ref: "sc-1a20e9",
-    name: "OPENAI_API_KEY",
+    name: "CRM_API_TOKEN",
     secret: "",
     createdAt: Date.parse("2026-10-02") / 1000,
     updatedAt: Date.parse("2026-10-02") / 1000
   },
   {
     ref: "sc-7bd2c1",
-    name: "DEEPGRAM_API_KEY",
+    name: "ZENDESK_TOKEN",
     secret: "",
     createdAt: Date.parse("2026-09-30") / 1000,
     updatedAt: Date.parse("2026-09-30") / 1000

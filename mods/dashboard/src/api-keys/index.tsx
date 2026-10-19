@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { KeyRound, Plus } from "lucide-react";
+import { KeyRound, Plus, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import {
@@ -27,6 +27,7 @@ import {
 import { EmptyState } from "~/components/data/empty-state";
 import { RowActions } from "~/components/data/row-actions";
 import { Button } from "~/components/ui/button";
+import { DropdownMenuItem } from "~/components/ui/dropdown-menu";
 import { PageHeader } from "~/app/shell/page";
 import { formatDate, toDate } from "~/lib/format";
 import { useWorkspace } from "~/lib/workspace";
@@ -38,7 +39,7 @@ import {
   useRegenerateApiKey
 } from "./api-keys.service";
 import { CreateApiKeyDialog } from "./create-api-key-dialog";
-import { SecretDialog, type CreatedKey } from "./secret-dialog";
+import { ApiKeySecretDialog, type CreatedKey } from "./secret-dialog";
 
 /** "Never" for keys without an expiry; "Expired" once it has passed. */
 export function formatExpiry(expiresAt?: number, now = new Date()) {
@@ -88,19 +89,13 @@ export default function ApiKeysScreen() {
     },
     {
       header: "",
-      className: "w-40",
+      className: "w-12",
       cell: (k) => (
-        <div className="flex items-center justify-end gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            aria-label={`Regenerate ${k.accessKeyId}`}
-            onClick={() => setRegenerating(k)}
-          >
-            Regenerate
-          </Button>
-          <RowActions label={k.accessKeyId} onDelete={() => setDeleting(k)} />
-        </div>
+        <RowActions label={k.accessKeyId} onDelete={() => setDeleting(k)}>
+          <DropdownMenuItem onSelect={() => setRegenerating(k)}>
+            <RefreshCw /> Regenerate
+          </DropdownMenuItem>
+        </RowActions>
       )
     }
   ];
@@ -139,7 +134,7 @@ export default function ApiKeysScreen() {
         onOpenChange={setCreating}
         onCreated={setShown}
       />
-      <SecretDialog
+      <ApiKeySecretDialog
         apiKey={shown}
         workspaceAccessKeyId={workspace.accessKeyId}
         onDone={() => setShown(undefined)}

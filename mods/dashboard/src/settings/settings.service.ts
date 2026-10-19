@@ -41,7 +41,7 @@ export function useUpdateWorkspace() {
       sdk.workspaces.updateWorkspace(request),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: WORKSPACES_KEY });
-      toast.success("Workspace updated");
+      toast.success("Workspace saved");
     }
   });
 }

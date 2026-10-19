@@ -48,7 +48,6 @@ function screen(path: string, title: string) {
 /** Sections that were renamed: old path → new path (relative to /w/:workspaceRef). */
 export const RENAMED: Record<string, string> = {
   apps: "streams",
-  agents: "autopilot",
   "sip-users": "sip-agents"
 };
 

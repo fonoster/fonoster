@@ -39,7 +39,7 @@ export function useCreateSecret() {
     RESOURCE,
     (request: CreateSecretRequest) => sdk.secrets.createSecret(request),
     {
-      success: "Secret saved"
+      success: "Secret created"
     }
   );
 }
@@ -50,7 +50,7 @@ export function useUpdateSecret() {
     RESOURCE,
     (request: UpdateSecretRequest) => sdk.secrets.updateSecret(request),
     {
-      success: "Secret updated"
+      success: "Secret saved"
     }
   );
 }

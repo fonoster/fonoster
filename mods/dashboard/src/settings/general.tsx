@@ -225,7 +225,7 @@ function DangerZone({ isOwner }: { isOwner: boolean }) {
     remove.mutate(workspace.ref, {
       onSuccess: () => {
         setConfirming(false);
-        toast.success(`Deleted ${workspace.name}`);
+        toast.success("Workspace deleted");
         navigate("/", { replace: true });
         void queryClient.invalidateQueries({ queryKey: WORKSPACES_KEY });
       }

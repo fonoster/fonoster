@@ -204,6 +204,12 @@ export type SessionApi = {
     url: string;
     events: string[];
   }): Promise<{ ref: string; secret: string }>;
+  /** Changes the URL and events; the signing secret stays the same. */
+  updateWebhook(input: {
+    ref: string;
+    url: string;
+    events: string[];
+  }): Promise<void>;
   deleteWebhook(ref: string): Promise<void>;
   /** The previous secret keeps verifying for 24 hours. */
   rotateWebhookSecret(ref: string): Promise<{ secret: string }>;

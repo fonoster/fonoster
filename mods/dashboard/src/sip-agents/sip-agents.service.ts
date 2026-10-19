@@ -85,7 +85,7 @@ export function useCreateSipAgent() {
   return useResourceMutation(
     RESOURCE,
     (request: CreateAgentRequest) => sdk.agents.createAgent(request),
-    { success: "SIP agent added" }
+    { success: "SIP agent created" }
   );
 }
 
@@ -94,7 +94,7 @@ export function useUpdateSipAgent() {
   return useResourceMutation(
     RESOURCE,
     (request: UpdateAgentRequest) => sdk.agents.updateAgent(request),
-    { success: "SIP agent updated" }
+    { success: "SIP agent saved" }
   );
 }
 

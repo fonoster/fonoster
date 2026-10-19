@@ -134,8 +134,8 @@ export const catalog: Catalog = {
     }
   ],
   providers: [
-    { id: "deepgram", label: "deepgram", state: "active" },
-    { id: "elevenlabs", label: "elevenlabs", state: "active" }
+    { id: "deepgram", label: "Deepgram", state: "active" },
+    { id: "elevenlabs", label: "ElevenLabs", state: "active" }
   ]
 };
 
@@ -361,6 +361,10 @@ export function createMockSessionApi(): SessionApi {
         secretHint: `…${secret.slice(-4)}`
       });
       return { ref, secret };
+    },
+    updateWebhook: async ({ ref, url, events }) => {
+      const w = webhooks.get(ref);
+      if (w) webhooks.set(ref, { ...w, url, events });
     },
     deleteWebhook: async (ref) => {
       webhooks.delete(ref);
