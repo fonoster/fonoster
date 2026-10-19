@@ -332,7 +332,7 @@ sessionEndpoint: appbridge.fonoster:50071   # where the per-call control stream 
 maxRooms: 200
 maxParticipants: 10                   # (optional) per room; CreateRoom can override
 maxDuration: 4h                       # (optional)
-mediaTimeout: 30s                     # (optional) one key for caller and app legs
+mediaTimeout: 15s                     # (optional) one key for caller and app legs
 readyTimeout: 10s                     # (optional) Ready after answer on outbound calls
 emptyRoomTimeout: 30s                 # (optional) CreateRoom can override
 drainWait: 1h                         # (optional) longest wait after SIGTERM

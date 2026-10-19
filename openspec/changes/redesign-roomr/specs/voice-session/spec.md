@@ -46,6 +46,10 @@ A control stream that closes without `Ended` SHALL map to `error`. `busy`, `no_a
 - **WHEN** the node sends `Ended` with `cause: "something_new"`
 - **THEN** the app receives `session.end` with `reason: "error"`
 
+#### Scenario: Node's audio stops
+- **WHEN** the node's RTP to AppBridge stops for `mediaTimeout` (`appbridge.yaml`, 15 s by default) while the control stream stays open
+- **THEN** AppBridge ends the call, the app receives `session.end` with `reason: "error"` and the call record is sealed with `media_timeout`
+
 ### Requirement: The Roomr node receives only control
 
 AppBridge SHALL send the Roomr node only call-control commands on the per-call control stream
