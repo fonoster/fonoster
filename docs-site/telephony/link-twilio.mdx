@@ -80,7 +80,16 @@ You need:
 The command changes both your Twilio account and your Fonoster workspace. It names everything after
 your workspace's access key ID in lowercase, shown here as `wo7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3`.
 
-{/* TODO asset: link-twilio/what-it-creates: Twilio side (number, Elastic SIP trunk with ACL and origination URL) connected to the Fonoster side (Twilio Trunk, number, application) */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/link-twilio/what-it-creates-light.png"
+  alt="In your Twilio account, the number +1 809 555 0123 moves onto an Elastic SIP trunk with an IP ACL for Fonoster's address and an origination URL sip:wo7d….pstn.fonoster.com. In your Fonoster workspace, a Twilio Trunk with inbound URI wo7d….pstn.fonoster.com carries the same number, which points at the Front desk agent. Incoming calls flow from Twilio to Fonoster; outbound calls flow back to wo7d….pstn.twilio.com."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/link-twilio/what-it-creates-dark.png"
+  alt="In your Twilio account, the number +1 809 555 0123 moves onto an Elastic SIP trunk with an IP ACL for Fonoster's address and an origination URL sip:wo7d….pstn.fonoster.com. In your Fonoster workspace, a Twilio Trunk with inbound URI wo7d….pstn.fonoster.com carries the same number, which points at the Front desk agent. Incoming calls flow from Twilio to Fonoster; outbound calls flow back to wo7d….pstn.twilio.com."
+/>
 
 **In Twilio:**
 

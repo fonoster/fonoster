@@ -9,7 +9,16 @@ SDK, and can also brief the operator before connecting the caller.
 
 ## Pick a transfer mode
 
-{/* TODO asset: transfers/modes: three lanes (cold, warm, refer) showing caller, your app and operator over time; cold: app leaves when operator answers; warm: caller on hold while app and operator talk, then transfer.complete connects them; refer: app hands the call back to the carrier and leaves */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/transfers/modes-light.png"
+  alt="Three timelines of caller, your app and operator. Cold: after transfer(), the operator rings and answers, your app leaves, and the caller and operator talk; recording continues. Warm: after transfer({mode: warm}), the caller waits on hold with music while your app briefs the operator, then completeTransfer() connects them and your app leaves; recording continues. Refer: after transfer({mode: refer}), a SIP REFER goes back to the caller's side, your app leaves, and the call leaves Fonoster; recording stops."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/transfers/modes-dark.png"
+  alt="Three timelines of caller, your app and operator. Cold: after transfer(), the operator rings and answers, your app leaves, and the caller and operator talk; recording continues. Warm: after transfer({mode: warm}), the caller waits on hold with music while your app briefs the operator, then completeTransfer() connects them and your app leaves; recording continues. Refer: after transfer({mode: refer}), a SIP REFER goes back to the caller's side, your app leaves, and the call leaves Fonoster; recording stops."
+/>
 
 | Mode | What happens | Recording |
 | --- | --- | --- |

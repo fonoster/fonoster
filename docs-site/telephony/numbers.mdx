@@ -3,11 +3,31 @@ title: "Numbers and routing"
 description: "Add a phone number to your workspace and choose where its calls go: an Autopilot agent, a stream or a SIP agent."
 ---
 
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/telephony/banner-light.png"
+  alt="From phone line to agent: a call comes in on a phone line, reaches a trunk from your carrier (Claro), lands on the number +1 809 555 0123 and goes to the Front desk agent."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/telephony/banner-dark.png"
+  alt="From phone line to agent: a call comes in on a phone line, reaches a trunk from your carrier (Claro), lands on the number +1 809 555 0123 and goes to the Front desk agent."
+/>
+
 A number is a phone number that rings in your workspace. It belongs to a trunk, which is your
 connection to the carrier, and it points at one destination: an Autopilot agent, a stream or a SIP
 agent. This page shows how to add a number and how to change where it sends calls.
 
-{/* TODO asset: numbers/routing: a carrier and trunk feed one number, which points at exactly one of: Autopilot agent, stream, SIP agent */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/numbers/routing-light.png"
+  alt="A carrier sends calls for +1 809 555 0123 to the Claro trunk, which hands them to the number. The number points at one destination: here the Autopilot agent Front desk; it could instead be a stream (your WebSocket server) or a SIP agent (sip:maria@acme.sip.fonoster.com)."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/numbers/routing-dark.png"
+  alt="A carrier sends calls for +1 809 555 0123 to the Claro trunk, which hands them to the number. The number points at one destination: here the Autopilot agent Front desk; it could instead be a stream (your WebSocket server) or a SIP agent (sip:maria@acme.sip.fonoster.com)."
+/>
 
 ## Two ways to get a number
 

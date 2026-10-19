@@ -8,7 +8,16 @@ Fonoster. Outbound, Fonoster sends your calls to the carrier. Use a trunk to bri
 carrier that speaks SIP. For a Twilio number, [Link a Twilio number](/telephony/link-twilio) does
 all of this for you.
 
-{/* TODO asset: trunks/inbound-outbound: carrier on the left, Fonoster on the right; inbound arrow "calls for your numbers → inbound URI (checked by ACL or inbound credentials)"; outbound arrow "your calls → outbound URIs (with outbound credentials)" */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/trunks/inbound-outbound-light.png"
+  alt="One trunk between your carrier and Fonoster. Inbound, the carrier sends calls for your numbers to sip:claro.acme.sip.fonoster.com, checked by an ACL or inbound credentials. Outbound, Fonoster sends your calls to sip.claro.com.do:5060 over UDP with outbound credentials, trying outbound URIs by priority, then weight."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/trunks/inbound-outbound-dark.png"
+  alt="One trunk between your carrier and Fonoster. Inbound, the carrier sends calls for your numbers to sip:claro.acme.sip.fonoster.com, checked by an ACL or inbound credentials. Outbound, Fonoster sends your calls to sip.claro.com.do:5060 over UDP with outbound credentials, trying outbound URIs by priority, then weight."
+/>
 
 ## Before you begin
 

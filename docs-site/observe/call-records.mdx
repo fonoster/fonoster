@@ -64,7 +64,16 @@ Each version comes in two copies:
 
 ### How a record is signed
 
-{/* TODO asset: call-records/lifecycle: call ends, record sealed as version 1, split into original and redacted copies, each signed with the region's key; then a call_record.sealed webhook, a fetch through the API, and verification against the published key set */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/call-records/lifecycle-light.png"
+  alt="Inside the region, when a call ends the record is sealed as version 1 and split into an original copy (transcript, messages.ndjson and recording, for owners and admins) and a redacted copy (card numbers replaced, recording beeped, the default). Both are signed as ES256 JWS with the region's key. Outside the region, a call_record.sealed webhook reaches your endpoint, the SDK, CLI or HTTP API fetches the record with GET /api/records/<callRef>, and you verify either copy against the keys the region publishes at /.well-known/call-record-keys.json."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/call-records/lifecycle-dark.png"
+  alt="Inside the region, when a call ends the record is sealed as version 1 and split into an original copy (transcript, messages.ndjson and recording, for owners and admins) and a redacted copy (card numbers replaced, recording beeped, the default). Both are signed as ES256 JWS with the region's key. Outside the region, a call_record.sealed webhook reaches your endpoint, the SDK, CLI or HTTP API fetches the record with GET /api/records/<callRef>, and you verify either copy against the keys the region publishes at /.well-known/call-record-keys.json."
+/>
 
 Fonoster signs both copies of every version with the key of the region where the call ran. Each
 signature is a JWS with the ES256 algorithm. Each file the record points to, such as the recording,

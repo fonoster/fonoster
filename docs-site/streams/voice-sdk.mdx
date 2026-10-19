@@ -303,7 +303,16 @@ You need:
 
 ## What just happened
 
-{/* TODO asset: voice-sdk/session-flow-{light,dark}.png — a call reaches Fonoster, which opens one signed WebSocket to your server; commands go one way, events come back */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/voice-sdk/session-flow-light.png"
+  alt="A caller at +1 809 555 0123 dials your number. Fonoster answers, does speech-to-text and text-to-speech, and opens one WebSocket per call to your server (server.js, VoiceServer), signed with x-fonoster-signature. Your code sends commands (say, gather, transfer, hangup) and gets events back (call started, speech heard, key pressed, speech finished, call ended), working with text, not audio. A transfer goes from Fonoster to an operator at +1 809 555 0100."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/voice-sdk/session-flow-dark.png"
+  alt="A caller at +1 809 555 0123 dials your number. Fonoster answers, does speech-to-text and text-to-speech, and opens one WebSocket per call to your server (server.js, VoiceServer), signed with x-fonoster-signature. Your code sends commands (say, gather, transfer, hangup) and gets events back (call started, speech heard, key pressed, speech finished, call ended), working with text, not audio. A transfer goes from Fonoster to an operator at +1 809 555 0100."
+/>
 
 When you called, Fonoster answered the number and opened a WebSocket to your stream's URL, signed
 with the stream's secret. `VoiceServer` checked the signature and called your handler with a
