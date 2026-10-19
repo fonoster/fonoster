@@ -2,8 +2,6 @@
 # .dev/overlay/fonoster.yaml.
 #
 # The fake providers (npm run dev:fakes) join the catalog as one more provider, `fake`, which
-# needs no key. No platform credentials: a workspace is offered the fakes plus the vendors it
-# stored keys for (dashboard, Vendor keys), so new agents start on the fakes and a key switches a
-# vendor on.
+# needs no key, so new agents start on the fakes. The real vendors are offered as in any install:
+# put your keys in appbridge.yaml and autopilot.yaml (.dev/overlay), or add them in the dashboard.
 catalog: { files: [/workspaces/fonoster/mods/conformance/fakes.catalog.yaml] }
-registry: { platformCredentials: [] }

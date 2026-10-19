@@ -30,6 +30,7 @@ import {
   fakeCatalogItems,
   sampleCatalog,
   sampleCatalogItems,
+  vendorCatalogItems,
   voiceApp
 } from "./fixtures";
 
@@ -164,7 +165,10 @@ describe("Agents list", () => {
   });
 
   it("creates an agent from a template and opens it", async () => {
-    const { user, applications } = setup({ apps: [] });
+    const { user, applications } = setup({
+      apps: [],
+      catalog: vendorCatalogItems
+    });
     await user.click(
       await screen.findByRole("button", { name: "Create agent" })
     );

@@ -37,6 +37,8 @@ export type CatalogOption = {
 export type AgentCatalog = {
   /** Provider labels by provider id. */
   providers: Record<string, string>;
+  /** Providers that need no key (the fakes, local models). */
+  keyless?: string[];
   llm: CatalogOption[];
   voices: CatalogOption[];
   stt: CatalogOption[];
@@ -67,6 +69,9 @@ export function toAgentCatalog(items: CatalogItem[]): AgentCatalog {
     if (i.kind === "provider") providers[i.id] = i.label || i.id;
   return {
     providers,
+    keyless: items
+      .filter((i) => i.kind === "provider" && i.keyless)
+      .map((i) => i.id),
     llm: items
       .filter((i) => i.kind === "model" && i.type === "llm")
       .map(option),
@@ -179,17 +184,24 @@ const PREFERRED = {
 
 /**
  * A new agent's voice, transcriber and language model: the preferred ones when offered, else the
- * first offered that serves the language, else the first offered ("" when none is).
+ * first offered that serves the language, else the first offered ("" when none is). Keyless
+ * providers' items come first when there are any: they work with no key.
  */
 export function defaultsFor(
   catalog: AgentCatalog,
   languageCode: string
 ): { voice: string; stt: string; llm: string } {
-  const pick = (options: CatalogOption[], preferred?: string) =>
-    options.find((o) => o.id === preferred)?.id ??
-    options.find((o) => speaks(o, languageCode))?.id ??
-    options[0]?.id ??
-    "";
+  const free = new Set(catalog.keyless ?? []);
+  const pick = (all: CatalogOption[], preferred?: string) => {
+    const keyless = all.filter((o) => free.has(o.provider));
+    const options = keyless.length ? keyless : all;
+    return (
+      options.find((o) => o.id === preferred)?.id ??
+      options.find((o) => speaks(o, languageCode))?.id ??
+      options[0]?.id ??
+      ""
+    );
+  };
   return {
     voice: pick(catalog.voices, languageOf(languageCode)?.voice),
     stt: pick(

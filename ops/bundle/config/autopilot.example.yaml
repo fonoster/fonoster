@@ -17,7 +17,9 @@ database:
 encryption: { key: "${ENCRYPTION_KEY}" }
 # OTLP/HTTP export to your collector; empty (the default) is off.
 telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
-# Platform keys by the catalog's credentialRef, for every workspace (e.g.
-# `groq-default: { value: "<key>" }`). Without them each workspace uses its own keys.
-credentials: {}
+# Language-model platform keys by the catalog's credentialRef, shared by every workspace. Replace
+# each placeholder with your key. A workspace's own key (dashboard, Vendor keys) is used instead.
+credentials:
+  openai-default: { value: "YOUR_OPENAI_API_KEY" }
+  groq-default: { value: "YOUR_GROQ_API_KEY" }
 endpoints: {}

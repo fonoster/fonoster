@@ -19,7 +19,8 @@
 /**
  * App warnings for missing provider keys (add-private-regions 4.3). A private region's calls use
  * only the keys set in the region; a public region uses the workspace's own key, else the
- * platform's (the catalog lists only providers with one of those, registry 4.1).
+ * platform's. Every catalog vendor has a platform key (registry 4.1), so a public region only
+ * flags vendors that are no longer in the catalog.
  */
 import { Link, useParams } from "react-router-dom";
 import { Alert } from "~/components/ui/alert";

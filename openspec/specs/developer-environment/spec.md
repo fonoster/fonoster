@@ -94,9 +94,9 @@ database reserved for tests.
 ### Requirement: The dev stack offers fake providers next to the real ones
 
 The dev container SHALL add the fake provider to the catalog and leave every real provider as the
-bundle configures it: no dev config may point a real provider's name at a fake. The dev API server
-SHALL have no platform credentials, so a workspace is offered the fake provider plus the vendors it
-stored keys for, and a new agent works with no vendor key.
+bundle configures it: no dev config may point a real provider's name at a fake, and no code path may
+treat the dev container differently. A workspace is offered the fake provider and every real vendor,
+and a new agent works with no vendor key because new agents prefer keyless providers.
 
 #### Scenario: A fresh dev container needs no keys
 

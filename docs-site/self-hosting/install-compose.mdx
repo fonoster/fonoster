@@ -165,6 +165,33 @@ Everything lives in the `fonoster` folder:
   without it.
 </Warning>
 
+## Add platform keys
+
+Calls need at least a text-to-speech vendor. Fonoster offers every vendor in its catalog to every
+workspace, and calls use your platform key for that vendor unless the workspace added its own in the
+dashboard under **Vendor keys**.
+
+`init` writes a placeholder platform key for each vendor. Replace them with your keys:
+
+| Vendor            | File                    | Setting                                    |
+| ----------------- | ----------------------- | ------------------------------------------ |
+| Deepgram          | `config/appbridge.yaml` | `providers.deepgram.credential.value`      |
+| ElevenLabs        | `config/appbridge.yaml` | `providers.elevenlabs.credential.value`    |
+| OpenAI            | `config/autopilot.yaml` | `credentials.openai-default.value`         |
+| Groq              | `config/autopilot.yaml` | `credentials.groq-default.value`           |
+
+Then restart the two services that read them:
+
+```bash
+docker compose restart appbridge autopilot
+```
+
+<Note>
+  A vendor whose placeholder you leave in place is still offered, and its calls fail until a key is
+  set. If the dashboard's **Vendor keys** page says no vendors are configured, the catalog has no
+  vendor left that takes a key.
+</Note>
+
 ## Serve over HTTPS
 
 By default the dashboard and API use plain HTTP on port `8449`, on every interface. That's fine on

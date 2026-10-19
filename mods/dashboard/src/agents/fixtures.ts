@@ -284,4 +284,9 @@ export const sampleCatalogItems: CatalogItem[] = [
 ];
 
 export const sampleCatalog = toAgentCatalog(sampleCatalogItems);
+/** The vendors without the fakes, as in an install whose catalog has no keyless provider. */
+export const vendorCatalogItems = sampleCatalogItems.filter(
+  (i) => i.providerId !== "fake"
+);
+export const vendorCatalog = toAgentCatalog(vendorCatalogItems);
 export const fakeOnlyCatalog = toAgentCatalog(fakeCatalogItems);

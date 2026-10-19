@@ -23,7 +23,12 @@ import {
   toUpdateRequest,
   toValues
 } from "./agent-form";
-import { billingAgent, fakeOnlyCatalog, sampleCatalog } from "./fixtures";
+import {
+  billingAgent,
+  fakeOnlyCatalog,
+  sampleCatalog,
+  vendorCatalog
+} from "./fixtures";
 import { templateValues } from "./templates";
 
 describe("agent payload", () => {
@@ -191,7 +196,7 @@ describe("agent payload", () => {
 
   it("builds a create payload from a template", () => {
     const request = toRequest(
-      templateValues("reminders", "Cobros", "es-419", sampleCatalog)
+      templateValues("reminders", "Cobros", "es-419", vendorCatalog)
     );
     expect(request).toMatchObject({
       name: "Cobros",
@@ -219,6 +224,19 @@ describe("agent payload", () => {
         templateValues("blank", "x", "en-US", sampleCatalog)
       ).success
     ).toBe(true);
+  });
+
+  it("prefers the keyless fakes over vendors for a new agent", () => {
+    const request = toRequest(
+      templateValues("blank", "Dev", "en-US", sampleCatalog)
+    );
+    expect(request.speech).toMatchObject({
+      voice: "fake/default",
+      sttModel: "fake/stt"
+    });
+    expect((request.intelligence!.config as any).languageModel.model).toBe(
+      "fake/llm"
+    );
   });
 
   it("creates an agent on the fakes when the workspace can use only them", () => {

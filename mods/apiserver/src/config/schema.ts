@@ -103,17 +103,6 @@ const sessionAppsSchema = z
   .default({});
 
 /**
- * Provider registry (add-provider-registry 4.1): the platform credentials (credentialRef names)
- * the AppBridge replicas have. When set, the catalog only lists providers with one of them or with the
- * workspace's own key.
- */
-const registrySchema = z
-  .object({
-    platformCredentials: z.array(z.string().min(1)).optional()
-  })
-  .default({});
-
-/**
  * The provider catalog file (add-self-host-installer D7): applied to the registry tables on
  * every start with `fonoster-registry apply --store database` semantics. Listed entries are added
  * or updated; entries not in the file (operator-added) are kept. Absent: nothing is applied.
@@ -309,7 +298,6 @@ const fonosterConfigSchema = z
     callRecords: callRecordsSchema,
     apps: sessionAppsSchema,
     webhooks: webhooksSchema,
-    registry: registrySchema,
     catalog: catalogSchema,
     regions: regionsSchema
   })

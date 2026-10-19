@@ -378,7 +378,7 @@ describe("vendor keys", () => {
     );
   });
 
-  it("shows the CLI command instead of Add key when no vendor is offered", async () => {
+  it("shows the platform keys note instead of Add key when no vendor is configured", async () => {
     const base = createMockSessionApi();
     const catalog = await base.getCatalog();
     const api = {
@@ -395,9 +395,10 @@ describe("vendor keys", () => {
       </SessionApiProvider>,
       { path: "/w/:workspaceRef/vendor-keys", route: "/w/ws-1/vendor-keys" }
     );
-    expect(await screen.findByLabelText("Add a vendor key")).toHaveTextContent(
-      "fonoster providers:keys:set deepgram"
-    );
+    expect(await screen.findByText("No vendors configured")).toBeVisible();
+    expect(
+      screen.getByRole("link", { name: /Add platform keys/ })
+    ).toHaveAttribute("href", expect.stringContaining("#add-platform-keys"));
     expect(
       screen.queryByRole("button", { name: /Add key/ })
     ).not.toBeInTheDocument();
