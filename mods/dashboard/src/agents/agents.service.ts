@@ -30,6 +30,7 @@ import {
   useResourceMutation
 } from "~/lib/resource";
 import { useWorkspace } from "~/lib/workspace";
+import { toAgentCatalog } from "./catalog";
 
 /** Shared with the Streams and Numbers screens; filtered to AUTOPILOT here. */
 const RESOURCE = "applications";
@@ -85,6 +86,17 @@ export function useDeleteAgent() {
     (ref: string) => sdk.applications.deleteApplication(ref),
     { success: "Agent deleted" }
   );
+}
+
+/** What the workspace can pick for its agents: the usable catalog (ListCatalog). */
+export function useCatalog() {
+  const sdk = useSdk();
+  const workspace = useWorkspace();
+  return useQuery({
+    queryKey: ["catalog", workspace.ref],
+    queryFn: async () =>
+      toAgentCatalog((await sdk.providers.listCatalog()).items)
+  });
 }
 
 /** Hard stop so a misbehaving page token can't loop forever. */

@@ -91,7 +91,6 @@ describe("@autopilot full stack: Roomr node → gateway → Autopilot → LLM �
       record,
       config: {
         nats: { url: NATS_URL! },
-        testMode: true,
         apps: [
           {
             ref: "autopilot",
@@ -204,7 +203,6 @@ describe("@autopilot full stack: Roomr node → gateway → Autopilot → LLM �
       record,
       config: {
         nats: { url: NATS_URL! },
-        testMode: true,
         apps: [
           {
             ref: "autopilot",

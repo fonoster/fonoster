@@ -2,7 +2,9 @@
 
 ## Purpose
 The conformance harness: suites, fakes, pass bars and CI cadence that define when the platform is correct.
+
 ## Requirements
+
 ### Requirement: Suites test only through the public contract
 
 Every conformance suite SHALL interact with the implementation under test only through its public
@@ -45,9 +47,12 @@ calls.
 Every implementation that uses STT, TTS or LLM providers (the gateway, Autopilot) SHALL include a
 `fake` adapter per capability that speaks the fake provider protocol documented in
 `mods/conformance/PROVIDERS.md`: TTS as HTTP `POST /v1/synthesize`, STT as a WebSocket at
-`/v1/listen`, and LLM as OpenAI-compatible `POST /v1/chat/completions`. The `fake` adapters SHALL
-be available only when the deployment enables test mode, and the registry utility MUST refuse to
-add a provider with adapter `fake` otherwise.
+`/v1/listen`, and LLM as OpenAI-compatible `POST /v1/chat/completions`. The `fake` adapter SHALL
+be a built-in adapter like any vendor's, and a fake provider SHALL be an ordinary catalog provider:
+the registry, the API server, the services and the dashboard MUST NOT treat it differently from
+other providers, and services MUST NOT have a test-mode switch. The fake provider's catalog entries
+SHALL live in `mods/conformance/fakes.catalog.yaml`, which test and development stacks add to their
+catalog. The production catalog MUST NOT list a fake provider.
 
 #### Scenario: A rewrite uses the same fakes
 
@@ -57,8 +62,13 @@ add a provider with adapter `fake` otherwise.
 
 #### Scenario: Fakes are not available in production
 
-- **WHEN** an operator runs `add-provider fake --adapter fake --capabilities tts` on a deployment without test mode
-- **THEN** the command exits non-zero and the registry is unchanged
+- **WHEN** the bundle's test suite reads `ops/bundle/config/catalog.yaml`
+- **THEN** no provider in it uses the `fake` adapter
+
+#### Scenario: A stack adds the fakes like any catalog
+
+- **WHEN** the API server starts with `catalog.files` listing `mods/conformance/fakes.catalog.yaml`
+- **THEN** the registry has provider `fake` with its models and voice, and they are offered like any provider's
 
 ### Requirement: Scenarios are language-neutral and shared by the SDKs
 
@@ -287,4 +297,3 @@ bot, and MUST run on every nightly build.
 - **WHEN** the nightly build runs
 - **THEN** the caller bot completes a scripted conversation with the Autopilot
 - **AND** a sealed call record exists for that call
-

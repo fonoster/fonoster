@@ -303,7 +303,6 @@ describe("@gateway apps", function () {
         gateway = await new Gateway({
           config: {
             nats: { url: process.env.CONFORMANCE_NATS_URL! },
-            testMode: true,
             providers: {
               fake: {
                 adapter: "fake",

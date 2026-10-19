@@ -96,7 +96,7 @@ const app = z.object({
 });
 
 const provider = z.object({
-  adapter: z.enum(["fake", "deepgram", "elevenlabs"]),
+  adapter: z.string(),
   capabilities: z.array(z.enum(["tts", "stt"])),
   credential: z
     .object({ env: z.string().optional(), value: z.string().optional() })
@@ -241,8 +241,7 @@ export const gatewayConfigSchema = z.object({
     .optional(),
   encryption: z.object({ key: z.string() }).optional(),
   telemetry: z.object({ otlpEndpoint: z.string().optional() }).optional(),
-  testCalls: z.object({ publicKeyFile: z.string().optional() }).optional(),
-  testMode: z.boolean().optional()
+  testCalls: z.object({ publicKeyFile: z.string().optional() }).optional()
 });
 
 // Drift check: the schema and GatewayConfig must describe the same shape. Optionality is

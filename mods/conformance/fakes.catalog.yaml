@@ -1,0 +1,12 @@
+# The fake providers (src/fakes, PROVIDERS.md) as an ordinary catalog provider. Development and
+# test stacks add this file to the API server's catalog (fonoster.yaml: catalog.files); the
+# production catalog (ops/bundle/config/catalog.yaml) never lists it.
+#
+# Keyless (no credentialRef): every workspace can use it with no vendor key. The endpoints are the
+# fakes' default ports on the `fakes` host (the fakes service, or the dev workspace's alias).
+entries:
+  - { kind: provider, id: fake, label: Fakes, adapter: fake, capabilities: [stt, tts, llm], endpoints: { tts: "http://fakes:7001", stt: "ws://fakes:7002", llm: "http://fakes:7003" }, state: active }
+  - { kind: model, id: fake/stt, label: Fake transcriber, type: stt, features: [streaming, interim-results, multilingual], languages: [multi], settings: [], state: active }
+  - { kind: model, id: fake/tts, label: Fake voice, type: tts, features: [streaming], languages: [multi], settings: [], state: active }
+  - { kind: model, id: fake/llm, label: Fake LLM, type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
+  - { kind: voice, id: fake/default, label: Fake voice, models: [fake/tts], language: multi, state: active }

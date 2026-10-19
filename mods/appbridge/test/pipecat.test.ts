@@ -172,7 +172,6 @@ describe("@gateway Pipecat golden test (twilio protocol)", function () {
       record,
       config: {
         nats: { url: NATS_URL! },
-        testMode: true,
         http: {
           host: "127.0.0.1",
           port: httpPort,

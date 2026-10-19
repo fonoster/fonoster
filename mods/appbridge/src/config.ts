@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { loadServiceConfig } from "@fonoster/common";
+import { adapterFor } from "@fonoster/community";
 import { isAppAudioFormat } from "./audio/pcm";
 import { gatewayConfigSchema } from "./configSchema";
 import { isDetectorChoice } from "./turn/createDetector";
@@ -76,14 +77,15 @@ export type AppConfig = {
 };
 
 export type ProviderConfig = {
-  adapter: "fake" | "deepgram" | "elevenlabs";
+  /** A built-in adapter id (@fonoster/community), e.g. deepgram or elevenlabs. */
+  adapter: string;
   capabilities: ("tts" | "stt")[];
   /**
    * The platform key for this provider (P3: platform keys live in operator config, never in the
    * catalog): read from an environment variable, or given inline in the YAML.
    */
   credential?: { env?: string; value?: string };
-  /** Endpoint overrides (required for fake; optional for vendors, e.g. a regional host). */
+  /** Endpoint overrides (e.g. a regional host); the catalog's endpoints otherwise. */
   tts?: { url?: string; timeoutMs?: number; model?: string };
   stt?: { url?: string; model?: string };
   /** Voices offered under this provider's catalog ids (`<provider>/<voice>`); omit to allow any. */
@@ -261,8 +263,6 @@ export type GatewayConfig = {
    * when the token verifies with this RS256 public key (Identity's) and names the app's workspace.
    */
   testCalls?: { publicKeyFile?: string };
-  /** Enables the `fake` adapters (conformance "Implementations ship fake provider adapters"). */
-  testMode?: boolean;
 };
 
 export const DEFAULTS = {
@@ -371,15 +371,15 @@ export function validateConfig(config: GatewayConfig): string[] {
     problems.push("http: set identity.endpoint, or accountSid and authToken");
   }
   for (const [name, p] of Object.entries(config.providers ?? {})) {
-    if (p.adapter === "fake" && !config.testMode) {
-      problems.push(
-        `provider ${name}: the fake adapter is only available in test mode`
-      );
+    const adapter = adapterFor(p.adapter);
+    if (!adapter) {
+      problems.push(`provider ${name}: unknown adapter ${p.adapter}`);
+      continue;
     }
     // Without a platform key a provider still serves workspaces that saved their own key
     // (workspaceKeys, cellSecrets): a self-hosted install starts with no vendor keys.
     if (
-      p.adapter !== "fake" &&
+      !adapter.keyless &&
       !providerKey(p) &&
       !config.cellSecrets &&
       !config.workspaceKeys?.enabled

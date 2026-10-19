@@ -37,7 +37,6 @@ function configFor(scenario: Scenario, harness: FakesHarness): GatewayConfig {
   const urls = harness.providerUrls;
   return {
     nats: { url: NATS_URL! },
-    testMode: true,
     retry: { windowMs: 600, intervalMs: 100 },
     apps: appsFor(scenario, harness),
     providers: {

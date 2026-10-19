@@ -184,7 +184,7 @@ describe("@common/registry", function () {
     );
   });
 
-  it("accepts only built-in adapters, and the fake one only in test mode", function () {
+  it("accepts only built-in adapters, the fake one like any other", function () {
     const r = new Registry({ store: new MemoryRegistryStore() });
     expect(() =>
       r.addProvider({
@@ -194,14 +194,77 @@ describe("@common/registry", function () {
         credentialRef: "acme-default"
       })
     ).to.throw("unknown adapter: acme");
-    expect(() =>
+    // Keyless (no credentialRef) and labeled.
+    expect(
       r.addProvider({
         id: "fake",
         adapter: "fake",
         capabilities: ["tts"],
-        credentialRef: "none"
+        label: "Fakes"
       })
-    ).to.throw("test mode");
+    ).to.deep.include({ id: "fake", label: "Fakes" });
+    expect(r.show("fake")).to.not.have.property("credentialRef");
+    expect(() =>
+      r.addProvider({
+        id: "bad",
+        adapter: "openai",
+        capabilities: ["llm"],
+        credentialRef: "Not A Name"
+      })
+    ).to.throw("credentialRef must be a name");
+  });
+
+  it("applies labels and keyless providers from a file", function () {
+    const store = new MemoryRegistryStore();
+    expect(
+      new Registry({ store }).apply(`entries:
+  - { kind: provider, id: fake, label: Fakes, adapter: fake, capabilities: [tts], state: active }
+  - { kind: model, id: fake/tts, label: Fake voice model, type: tts, features: [], languages: [multi], settings: [], state: active }
+`)
+    ).to.deep.equal(["+ add provider fake", "+ add model fake/tts"]);
+    expect(store.get("fake/tts")).to.include({ label: "Fake voice model" });
+  });
+
+  it("keeps provider endpoints, and refuses ones that are not plain URLs", function () {
+    const r = new Registry({ store: new MemoryRegistryStore() });
+    r.addProvider({
+      id: "ollama",
+      adapter: "ollama",
+      capabilities: ["llm"],
+      credentialRef: "ollama-default",
+      endpoints: { llm: "http://ollama:11434" }
+    });
+    expect(r.show("ollama")).to.include({ adapter: "ollama" });
+    expect(
+      (r.show("ollama") as { endpoints: unknown }).endpoints
+    ).to.deep.equal({ llm: "http://ollama:11434" });
+    const add = (id: string, endpoints: Record<string, string>) => () =>
+      r.addProvider({
+        id,
+        adapter: "openai",
+        capabilities: ["llm"],
+        credentialRef: `${id}-default`,
+        endpoints
+      });
+    expect(add("a", { llm: "https://user:pass@llm.example.com" })).to.throw(
+      "user information"
+    );
+    expect(add("b", { llm: "ftp://llm.example.com" })).to.throw("http, https");
+    expect(add("c", { llm: "not a url" })).to.throw("must be a URL");
+    expect(add("d", { vad: "http://x" })).to.throw("unknown endpoint");
+  });
+
+  it("finds no change when only the order of endpoint keys differs", function () {
+    const store = new MemoryRegistryStore();
+    const r = new Registry({ store });
+    r.apply(`entries:
+  - { kind: provider, id: fake, adapter: fake, capabilities: [stt, tts], credentialRef: fake-default, endpoints: { tts: "http://fakes:7001", stt: "ws://fakes:7002" }, state: active }
+`);
+    expect(
+      r.plan(`entries:
+  - { kind: provider, id: fake, adapter: fake, capabilities: [stt, tts], credentialRef: fake-default, endpoints: { stt: "ws://fakes:7002", tts: "http://fakes:7001" }, state: active }
+`)
+    ).to.deep.equal([]);
   });
 
   it("refuses anything that looks like a secret, and exports none", function () {

@@ -46,17 +46,27 @@ async function main() {
   // The provider catalog (add-self-host-installer D7): applied on every start, idempotent. A
   // configured file that can't be read or applied stops the server (IC-B2).
   if (config.catalog) {
-    try {
-      const lines = await applyCatalog(config.catalog.file, prisma);
-      logger.info(
-        lines[0] === "no changes"
-          ? "catalog: no changes"
-          : `catalog: ${lines.length} entries added or changed`,
-        { file: config.catalog.file }
-      );
-    } catch (e) {
-      logger.error(`catalog: ${(e as Error).message}`);
-      process.exit(1);
+    // `file`, then each of `files` (a stack's own catalogs, e.g. the fakes in dev and tests).
+    const files = [
+      { file: config.catalog.file, key: "catalog.file" },
+      ...(config.catalog.files ?? []).map((file, i) => ({
+        file,
+        key: `catalog.files[${i}]`
+      }))
+    ];
+    for (const { file, key } of files) {
+      try {
+        const lines = await applyCatalog(file, prisma, key);
+        logger.info(
+          lines[0] === "no changes"
+            ? "catalog: no changes"
+            : `catalog: ${lines.length} entries added or changed`,
+          { file }
+        );
+      } catch (e) {
+        logger.error(`catalog: ${(e as Error).message}`);
+        process.exit(1);
+      }
     }
   }
 

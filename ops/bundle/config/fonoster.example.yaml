@@ -41,6 +41,7 @@ callRecords:
         forcePathStyle: true
         credentials: { accessKeyId: "${MINIO_ROOT_USER}", secretAccessKey: "${MINIO_ROOT_PASSWORD}" }
 # The provider catalog, loaded on every start (adds and updates entries, never removes any).
+# `files: [...]` adds more catalog files, applied after `file` in order.
 catalog: { file: /etc/fonoster/catalog.yaml }
 identity:
   database: { url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fnidentity" }

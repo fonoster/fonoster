@@ -50,7 +50,8 @@ function toItem(raw: Raw): CatalogItem {
   const out: Raw = {};
   for (const [key, value] of Object.entries(raw)) {
     const name = key.endsWith("List") ? key.slice(0, -4) : key;
-    if (value === "") continue;
+    // Proto3 defaults: "" is unset, and keyless is false for anything but a keyless provider.
+    if (value === "" || (name === "keyless" && !value)) continue;
     out[name] = value;
   }
   for (const list of ["capabilities", "languages", "features", "models"])
@@ -151,7 +152,8 @@ class Providers {
         const out: Raw = {};
         for (const [key, value] of Object.entries(w)) {
           const name = key.endsWith("List") ? key.slice(0, -4) : key;
-          if (value === "") continue;
+          // Proto3 defaults: "" is unset, and keyless is false for anything but a keyless provider.
+          if (value === "" || (name === "keyless" && !value)) continue;
           out[name] = value;
         }
         out.usedBy ??= [];

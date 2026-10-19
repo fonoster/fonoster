@@ -71,7 +71,6 @@ describe("@gateway session registry", function () {
     const urls = harness.providerUrls;
     const config: GatewayConfig = {
       nats: { url: URL! },
-      testMode: true,
       apps: [
         {
           ref: "a",

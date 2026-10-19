@@ -23,12 +23,19 @@ export type Lifecycle = "active" | "deprecated" | "retired";
 export type Capability = "stt" | "tts" | "llm";
 export type ItemKind = "provider" | "model" | "voice";
 
+/** Where a provider serves each capability; services use these unless their config overrides. */
+export type ProviderEndpoints = Partial<Record<Capability, string>>;
+
 export type ProviderEntry = {
   kind: "provider";
   id: string;
+  /** A display name ("Deepgram"); the dashboard shows the id without one. */
+  label?: string;
   adapter: string;
   capabilities: Capability[];
-  credentialRef: string;
+  /** The platform credential's name; omitted for a keyless provider (no key needed). */
+  credentialRef?: string;
+  endpoints?: ProviderEndpoints;
   state: Lifecycle;
   replacement?: string;
   retireOn?: string;
@@ -37,6 +44,8 @@ export type ProviderEntry = {
 export type ModelEntry = {
   kind: "model";
   id: string;
+  /** A display name ("Nova 3"); the dashboard shows the id without one. */
+  label?: string;
   type: Capability;
   features: string[];
   languages: string[];
@@ -50,6 +59,8 @@ export type ModelEntry = {
 export type VoiceEntry = {
   kind: "voice";
   id: string;
+  /** A display name ("Aura 2 Thalia"); the dashboard shows the id without one. */
+  label?: string;
   models: string[];
   language?: string;
   gender?: string;

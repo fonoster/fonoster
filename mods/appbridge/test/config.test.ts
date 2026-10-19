@@ -37,7 +37,6 @@ import { keySetHandler } from "../src/http/keySetRoute";
 
 const base = (): GatewayConfig => ({
   nats: { url: "nats://x" },
-  testMode: true,
   apps: [
     {
       ref: "a",
@@ -57,10 +56,10 @@ describe("@gateway/config", function () {
     expect(validateConfig(base())).to.deep.equal([]);
   });
 
-  it("refuses the fake adapter outside test mode", function () {
+  it("refuses an adapter this version does not ship", function () {
     const c = base();
-    c.testMode = false;
-    expect(validateConfig(c).join()).to.contain("only available in test mode");
+    c.providers.fake.adapter = "acme";
+    expect(validateConfig(c).join()).to.contain("unknown adapter acme");
   });
 
   it("checks app urls, protocols and fallbacks", function () {
@@ -226,7 +225,6 @@ describe("@gateway/call-record key set", function () {
       file,
       [
         "nats: { url: nats://x }",
-        "testMode: true",
         "providers:",
         "  deepgram:",
         "    adapter: deepgram",

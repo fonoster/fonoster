@@ -103,7 +103,6 @@ describe("@gateway call record after a crash", function () {
     const urls = harness.providerUrls;
     const config = {
       nats: { url: NATS_URL },
-      testMode: true,
       callRecord: {
         dir: path.join(dir, "records"),
         region: "test",

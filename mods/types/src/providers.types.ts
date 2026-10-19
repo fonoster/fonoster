@@ -21,11 +21,15 @@ type CatalogItem = {
   /** Catalog id, e.g. deepgram/nova-3; a provider's id has no slash. */
   id: string;
   kind: "provider" | "model" | "voice";
+  /** A display name; absent when the entry has none. */
+  label?: string;
   state: "active" | "deprecated";
   providerId: string;
   /** Models: stt, tts or llm. */
   type?: "stt" | "tts" | "llm";
   capabilities?: string[];
+  /** Providers: the adapter needs no key (fake, local models). */
+  keyless?: boolean;
   languages?: string[];
   features?: string[];
   models?: string[];

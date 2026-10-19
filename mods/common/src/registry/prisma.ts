@@ -81,7 +81,13 @@ export class PrismaRegistryStore extends MemoryRegistryStore {
           id: p.id,
           adapter: p.adapter,
           capabilities: p.capabilities,
-          credentialRef: p.credentialRef,
+          credentialRef: opt(p.credentialRef),
+          label: opt(p.label),
+          // Stored as {} when the provider names none.
+          endpoints:
+            p.endpoints && Object.keys(p.endpoints).length
+              ? (p.endpoints as Record<string, string>)
+              : undefined,
           state: fromState(p.state),
           replacement: opt(p.replacement),
           retireOn: opt(p.retireOn)
@@ -93,6 +99,7 @@ export class PrismaRegistryStore extends MemoryRegistryStore {
         clean({
           kind: "model",
           id: m.id,
+          label: opt(m.label),
           type: m.type,
           features: m.features,
           languages: m.languages,
@@ -108,6 +115,7 @@ export class PrismaRegistryStore extends MemoryRegistryStore {
         clean({
           kind: "voice",
           id: v.id,
+          label: opt(v.label),
           models: v.models.map((r: { modelId: string }) => r.modelId),
           language: opt(v.language),
           gender: opt(v.gender),
@@ -133,6 +141,7 @@ export class PrismaRegistryStore extends MemoryRegistryStore {
     super.put(entry);
     const e = JSON.parse(JSON.stringify(entry)) as CatalogEntry;
     const common = {
+      label: e.label ?? null,
       state: toState(e.state),
       replacement: e.replacement ?? null,
       retireOn: e.retireOn ?? null
@@ -143,7 +152,8 @@ export class PrismaRegistryStore extends MemoryRegistryStore {
         const data = {
           adapter: e.adapter,
           capabilities: e.capabilities,
-          credentialRef: e.credentialRef,
+          credentialRef: e.credentialRef ?? null,
+          endpoints: e.endpoints ?? {},
           ...common
         };
         await this.prisma.registryProvider.upsert({

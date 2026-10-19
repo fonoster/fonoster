@@ -32,9 +32,9 @@ Point the gateways at the same catalog: `registry: {source: database, refreshMs}
 ## Commands
 
 ```sh
-fonoster-registry add-provider <id> --adapter <a> --capabilities stt,tts --credential-ref <name>
-fonoster-registry add-model <provider/model> --type stt|tts|llm [--features a,b] [--languages en,es] [--settings s]
-fonoster-registry add-voice <provider/voice> --models <m1,m2> [--language en] [--gender female]
+fonoster-registry add-provider <id> --adapter <a> --capabilities stt,tts [--credential-ref <name>] [--endpoints tts=<url>,stt=<url>,llm=<url>] [--label <name>]
+fonoster-registry add-model <provider/model> --type stt|tts|llm [--features a,b] [--languages en,es] [--settings s] [--label <name>]
+fonoster-registry add-voice <provider/voice> --models <m1,m2> [--language en] [--gender female] [--label <name>]
 fonoster-registry deprecate-provider|deprecate-model|deprecate-voice <id> --replacement <id> --retire-on YYYY-MM-DD
 fonoster-registry retire-provider|retire-model|retire-voice <id> [--voice-map old=new,...] --yes
 fonoster-registry usage <id>
@@ -49,9 +49,18 @@ fonoster-registry apply -f <file>
 Rules:
 
 - Built-in adapters: `deepgram`, `elevenlabs`, `google`, `azure`, `openai`, `anthropic`, `groq`,
-  `ollama`, `fake`. `fake` needs `FONOSTER_TEST_MODE=true`. An entry whose adapter is not built
-  into the gateway is hidden from users. Adapters shipped for speech today: Deepgram and
-  ElevenLabs; for LLMs, OpenAI-compatible ones.
+  `ollama`, `fake`. An entry whose adapter is not built into the gateway is hidden from users.
+  Adapters shipped for speech today: Deepgram, ElevenLabs and the fakes' protocol; for LLMs,
+  OpenAI-compatible ones.
+- A provider without `--credential-ref` is keyless: it is called with no key and offered to every
+  workspace, and the dashboard asks no key for it (a local model server, the fakes).
+- `--endpoints` names where the provider serves each capability (`http`, `https`, `ws` or `wss`
+  URLs, no user information). The gateway's and Autopilot's own config wins over it (gateway
+  `providers.<id>.tts.url`, Autopilot `endpoints.<id>`); without either, the adapter's default.
+- `--label` is the name the dashboard shows ("Aura 2 Thalia"); without one it shows the id.
+- The fake providers are an ordinary keyless provider, `fake`, in
+  `mods/conformance/fakes.catalog.yaml`. Development and test stacks add it with the API server's
+  `catalog.files`; a production catalog does not list it.
 - Features describe what a model can do. Hard features break a config if missing:
   LLM `tool-calling`, `streaming`; TTS `streaming`; STT `streaming`. Soft ones only degrade:
   LLM `json-mode`, `vision`; TTS `word-timings`, `ssml`; STT `interim-results`, `word-timings`,

@@ -246,6 +246,42 @@ describe("@control: applications, webhooks and provider keys (database)", functi
       expect(bad.message).to.match(/invalid agent/);
     });
 
+    it("takes any catalog provider's model, and refuses one the catalog lacks", async function () {
+      const create = (model: string) =>
+        invoke<{ ref: string }>(createCreateApplication(db.prisma, CONFIG), {
+          name: `Agent on ${model}`,
+          type: "AUTOPILOT",
+          intelligence: {
+            config: struct.encode({
+              ...ASSISTANT,
+              languageModel: { ...ASSISTANT.languageModel, model }
+            })
+          }
+        });
+      const res = await create("fake/llm");
+      const row = await db.prisma.application.findUnique({
+        where: { ref: res.ref },
+        include: { intelligence: true }
+      });
+      expect(row.intelligence.productRef).to.equal("llm.fake");
+      expect(
+        await db.prisma.product.findUnique({ where: { ref: "llm.fake" } })
+      ).to.include({ vendor: "GENERIC", type: "LLM" });
+
+      // Once the catalog lists language models, the model must be one of them.
+      await db.prisma.registryProvider.create({
+        data: { id: "acme", adapter: "openai", capabilities: ["llm"] }
+      });
+      await db.prisma.registryModel.create({
+        data: { id: "acme/brain-1", providerId: "acme", type: "llm" }
+      });
+      expect((await create("acme/brain-1")).ref).to.be.a("string");
+      const missing = await create("acme/brain-2").catch((e) => e);
+      expect(missing.message).to.match(/acme\/brain-2 is not in the catalog/);
+      await db.prisma.registryModel.delete({ where: { id: "acme/brain-1" } });
+      await db.prisma.registryProvider.delete({ where: { id: "acme" } });
+    });
+
     it("Autopilot apps share the configured Autopilot secret", async function () {
       const config = { ...CONFIG, autopilotSigningSecret: "shared-secret-1" };
       const res = await invoke<{ ref: string; signingSecret: string }>(

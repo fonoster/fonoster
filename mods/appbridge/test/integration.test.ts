@@ -104,7 +104,6 @@ describe("@gateway integration", function () {
     const urls = harness.providerUrls;
     const config: GatewayConfig = {
       nats: { url: NATS_URL! },
-      testMode: true,
       retry: { windowMs: 500, intervalMs: 100 },
       apps,
       providers: {
@@ -680,8 +679,7 @@ describe("@gateway integration", function () {
       "registry.json"
     );
     const registry = new RegistryNs.Registry({
-      store: new RegistryNs.FileRegistryStore(file),
-      testMode: true
+      store: new RegistryNs.FileRegistryStore(file)
     });
     registry.addProvider({
       id: "fake",
@@ -744,8 +742,7 @@ describe("@gateway integration", function () {
       "registry.json"
     );
     const registry = new RegistryNs.Registry({
-      store: new RegistryNs.FileRegistryStore(file),
-      testMode: true
+      store: new RegistryNs.FileRegistryStore(file)
     });
     registry.addProvider({
       id: "fake",
@@ -796,8 +793,7 @@ describe("@gateway integration", function () {
       "registry.json"
     );
     const registry = new RegistryNs.Registry({
-      store: new RegistryNs.FileRegistryStore(file),
-      testMode: true
+      store: new RegistryNs.FileRegistryStore(file)
     });
     registry.addProvider({
       id: "fake",

@@ -16,8 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/** Sample agents and numbers for tests and stories. */
-import type { Application, INumber } from "@fonoster/types";
+/** Sample agents, numbers and provider catalog for tests and stories. */
+import type { Application, CatalogItem, INumber } from "@fonoster/types";
+import { toAgentCatalog } from "./catalog";
 
 const at = (iso: string) => new Date(iso);
 
@@ -211,3 +212,76 @@ export const sampleNumbers: INumber[] = [
   number("nm-3", "tel:+34910555210", "ap-2b8e04", "Telefonica"),
   number("nm-4", "tel:+14155550175", "ap-91d0aa", "Twilio")
 ];
+
+const item = (
+  id: string,
+  kind: CatalogItem["kind"],
+  label: string,
+  extra: Partial<CatalogItem> = {}
+): CatalogItem => ({
+  id,
+  kind,
+  label,
+  state: "active",
+  providerId: id.split("/")[0],
+  ...extra
+});
+
+/** The fake provider as ListCatalog returns it (mods/conformance/fakes.catalog.yaml). */
+export const fakeCatalogItems: CatalogItem[] = [
+  item("fake", "provider", "Fakes", {
+    capabilities: ["stt", "tts", "llm"],
+    keyless: true
+  }),
+  item("fake/llm", "model", "Fake LLM", { type: "llm" }),
+  item("fake/stt", "model", "Fake transcriber", {
+    type: "stt",
+    languages: ["multi"]
+  }),
+  item("fake/tts", "model", "Fake voice", {
+    type: "tts",
+    languages: ["multi"]
+  }),
+  item("fake/default", "voice", "Fake voice", {
+    type: "tts",
+    languages: ["multi"],
+    models: ["fake/tts"]
+  })
+];
+
+/** A workspace with Deepgram and OpenAI keys, and the fakes. */
+export const sampleCatalogItems: CatalogItem[] = [
+  item("deepgram", "provider", "Deepgram", { capabilities: ["stt", "tts"] }),
+  item("openai", "provider", "OpenAI", { capabilities: ["llm"] }),
+  item("deepgram/nova-2-phonecall", "model", "Nova 2 Phone Call", {
+    type: "stt",
+    languages: ["en"]
+  }),
+  item("deepgram/nova-3", "model", "Nova 3", {
+    type: "stt",
+    languages: ["en", "es", "multi"]
+  }),
+  item("deepgram/aura-2", "model", "Aura 2", {
+    type: "tts",
+    languages: ["en", "es"]
+  }),
+  item("openai/gpt-4o-mini", "model", "GPT-4o Mini", { type: "llm" }),
+  item("openai/gpt-4.1-mini", "model", "GPT-4.1 Mini", { type: "llm" }),
+  ...[
+    ["aura-2-thalia-en", "Aura 2 Thalia", "en-US"],
+    ["aura-2-andromeda-en", "Aura 2 Andromeda", "en-US"],
+    ["aura-2-draco-en", "Aura 2 Draco", "en-GB"],
+    ["aura-2-celeste-es", "Aura 2 Celeste", "es-CO"],
+    ["aura-2-nestor-es", "Aura 2 Nestor", "es-ES"]
+  ].map(([voice, label, language]) =>
+    item(`deepgram/${voice}`, "voice", label, {
+      type: "tts",
+      languages: [language],
+      models: ["deepgram/aura-2"]
+    })
+  ),
+  ...fakeCatalogItems
+];
+
+export const sampleCatalog = toAgentCatalog(sampleCatalogItems);
+export const fakeOnlyCatalog = toAgentCatalog(fakeCatalogItems);

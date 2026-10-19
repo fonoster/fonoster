@@ -74,7 +74,10 @@ export default function VendorKeysScreen() {
     }
   };
 
-  const providers = loaded.data?.catalog.providers ?? [];
+  // Keyless providers (the fakes, local models) take no key.
+  const providers = (loaded.data?.catalog.providers ?? []).filter(
+    (p) => !p.keyless
+  );
   const keys = loaded.data?.keys ?? [];
   const rows: Row[] = providers.map((p) => {
     const k = keys.find((x) => x.providerId === p.id);
@@ -82,7 +85,7 @@ export default function VendorKeysScreen() {
   });
 
   const columns: Column<Row>[] = [
-    { header: "Provider", cell: (r) => <NameCell name={r.id} /> },
+    { header: "Provider", cell: (r) => <NameCell name={r.label} /> },
     {
       header: "Key",
       className: "w-64",

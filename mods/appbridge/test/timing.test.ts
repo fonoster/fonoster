@@ -61,7 +61,6 @@ describe("@gateway timing (T1)", function () {
       nats: nc,
       config: {
         nats: { url: NATS_URL! },
-        testMode: true,
         apps: [
           {
             ref: "app-1",

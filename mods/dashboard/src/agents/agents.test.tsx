@@ -27,6 +27,9 @@ import {
   billingAgent,
   sampleAgents,
   sampleNumbers,
+  fakeCatalogItems,
+  sampleCatalog,
+  sampleCatalogItems,
   voiceApp
 } from "./fixtures";
 
@@ -35,8 +38,14 @@ const inboundCall = sampleCalls[2];
 function setup({
   route = "/w/ws-1/autopilot",
   apps = [...sampleAgents, voiceApp],
-  numbers = sampleNumbers
-}: { route?: string; apps?: object[]; numbers?: object[] } = {}) {
+  numbers = sampleNumbers,
+  catalog = sampleCatalogItems
+}: {
+  route?: string;
+  apps?: object[];
+  numbers?: object[];
+  catalog?: object[];
+} = {}) {
   const applications = {
     listApplications: vi.fn().mockResolvedValue({ items: apps }),
     getApplication: vi.fn().mockImplementation(async (ref: string) => {
@@ -55,7 +64,10 @@ function setup({
   const sdk = {
     applications,
     numbers: { listNumbers: vi.fn().mockResolvedValue({ items: numbers }) },
-    calls: { listCalls }
+    calls: { listCalls },
+    providers: {
+      listCatalog: vi.fn().mockResolvedValue({ items: catalog })
+    }
   };
   const auth = fakeAuth({ status: "signedIn", sdk: sdk as never });
   const view = renderScreen(
@@ -69,10 +81,15 @@ function setup({
 
 describe("Autopilot list", () => {
   it("maps an agent to its list columns", () => {
-    expect(agentRow(billingAgent, sampleNumbers)).toEqual({
+    expect(agentRow(billingAgent, sampleNumbers, sampleCatalog)).toEqual({
       numbers: "+1 829 555 0199 +1",
-      model: "openai · gpt-4o-mini",
+      model: "OpenAI · GPT-4o Mini",
       voice: "Aura 2 Celeste · es-419"
+    });
+    // Before the catalog loads, or for an item it no longer offers: the ids.
+    expect(agentRow(billingAgent, sampleNumbers)).toMatchObject({
+      model: "openai · gpt-4o-mini",
+      voice: "aura-2-celeste-es · es-419"
     });
     expect(agentRow(sampleAgents[3], sampleNumbers).numbers).toBe("No numbers");
   });
@@ -154,6 +171,27 @@ describe("Autopilot list", () => {
 
 describe("Agent detail", () => {
   const route = `/w/ws-1/autopilot/${billingAgent.ref}/configure`;
+
+  it("offers only what the workspace can use, keeping a saved voice it no longer can", async () => {
+    const { user, applications } = setup({ route, catalog: fakeCatalogItems });
+    await screen.findByRole("heading", { name: "Billing reminders" });
+    await user.click(screen.getByRole("button", { name: /^Voice/ }));
+    await user.click(screen.getByLabelText("Voice"));
+    expect(
+      (await screen.findAllByRole("option")).map((o) => o.textContent)
+    ).toEqual(["deepgram/aura-2-celeste-es (unavailable)"]);
+    await user.keyboard("{Escape}");
+    await user.click(screen.getByLabelText("Provider"));
+    expect(
+      (await screen.findAllByRole("option")).map((o) => o.textContent)
+    ).toEqual(["deepgram (unavailable)", "Fakes"]);
+    await user.click(screen.getByRole("option", { name: "Fakes" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(applications.updateApplication).toHaveBeenCalledTimes(1);
+    expect(
+      applications.updateApplication.mock.calls[0][0].speech
+    ).toMatchObject({ voice: "fake/default" });
+  });
 
   it("shows the header, numbers and configure fields", async () => {
     setup({ route });

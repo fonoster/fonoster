@@ -51,7 +51,8 @@ RTPEngine, the Roomr node, the gateway, the hosted Autopilot, MinIO, the API ser
 every migration, including `rebuild_persistence` and `add_call_records`, then Identity's), Envoy,
 the dashboard, the fake providers and the caller bot. No Asterisk. Once the API server is up, `up`
 loads the provider catalog (`ops/rebuild/config/catalog-seed.yaml`: Deepgram, ElevenLabs, OpenAI,
-Groq and their models and voices) into the registry tables.
+Groq and their models and voices, plus the fake provider with the `fakes` profile) into the
+registry tables.
 
 ## Seed the demo
 
@@ -214,21 +215,21 @@ OPENAI_API_KEY=...        # optional: OpenAI models (openai/gpt-4o-mini, openai/
 ops/rebuild/stack up && ops/rebuild/stack seed
 ```
 
-Exported shell variables work too. Each key switches on by itself; what you get:
+Exported shell variables work too. Each key becomes a platform key, and the catalog then offers
+every workspace that vendor's voices and models. With the `fakes` profile (on by default) the
+catalog also has the fake providers, `fake` (`mods/conformance/fakes.catalog.yaml`): a provider
+like any other that needs no key.
 
-| Keys present | Speech | Demo app's voice | Demo app's model |
-| --- | --- | --- | --- |
-| none | fake (tones, scripted recognizer) | `deepgram/aura-2-thalia-en` (fake) | `openai/gpt-4o-mini` (fake echo) |
-| `DEEPGRAM_API_KEY` | Deepgram `nova-3`, hint "Fonoster" | `deepgram/aura-2-thalia-en` | as below |
-| only `ELEVENLABS_API_KEY` (no Deepgram) | fake recognizer | `elevenlabs/EXAVITQu4vr4xnSDxMaL` (Sarah) | as below |
-| `GROQ_API_KEY` | | | `groq/openai/gpt-oss-120b` |
-| `OPENAI_API_KEY` without Groq | | | `openai/gpt-4o-mini` |
-
-`RB_DEFAULT_VOICE` and `RB_DEFAULT_MODEL` (catalog ids, in `vendor.env` too) override the demo
-app's voice and model, e.g. `RB_DEFAULT_VOICE=elevenlabs/JBFqnCBsd6RMkjVDRZzb` (George) or
-`RB_DEFAULT_MODEL=openai/gpt-4.1-mini`. Every voice and model in the catalog can also be picked per
-app or agent in the dashboard. Without its key, a language model answers through the fake model
-under the same id; a voice whose provider has no key is not available (pick another).
+`seed` gives the demo app what the catalog offers: Deepgram's `aura-2-thalia-en` voice and
+`nova-3` transcriber, and Groq's `gpt-oss-120b` (else OpenAI's `gpt-4o-mini`), when their keys
+are present; otherwise the first offered item for English. So with no keys at all the demo app
+runs on the fakes (tones for speech, a scripted recognizer, an echoing model), and with only an
+ElevenLabs key it gets an ElevenLabs voice and the fake transcriber.
+`RB_DEFAULT_VOICE`, `RB_DEFAULT_STT` and `RB_DEFAULT_MODEL` (catalog ids, in `vendor.env` too)
+override that, e.g. `RB_DEFAULT_VOICE=elevenlabs/JBFqnCBsd6RMkjVDRZzb` (George) or
+`RB_DEFAULT_MODEL=openai/gpt-4.1-mini`. Every voice and model in the catalog can also be picked
+per app or agent in the dashboard. A vendor's voices and models always need its key, the
+platform's or the workspace's; no vendor id is ever answered by a fake.
 
 Keys reach the containers by variable name only (the gateway for speech, the hosted Autopilot for
 language models) and are never written to the rendered configs. Workspace vendor keys added in

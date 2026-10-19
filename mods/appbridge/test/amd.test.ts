@@ -83,7 +83,6 @@ describe("@gateway AMD listener", function () {
     gateway = await new Gateway({
       config: {
         nats: { url: NATS_URL! },
-        testMode: true,
         ...(classifier ? {} : { amd: { enabled: false } }),
         retry: { windowMs: 300, intervalMs: 100 },
         apps: [

@@ -25,34 +25,41 @@ import AgentsScreen from ".";
 import { sampleCalls } from "~/calls/fixtures";
 import {
   billingAgent,
+  fakeCatalogItems,
   sampleAgents,
+  sampleCatalogItems,
   sampleNumbers,
   voiceApp
 } from "./fixtures";
 
-const withAgents = (items: object[]) => (auth: AuthContextValue) => ({
-  status: "signedIn" as const,
-  sdk: {
-    ...auth.sdk,
-    applications: {
-      listApplications: fn().mockResolvedValue({ items }),
-      getApplication: fn().mockImplementation(
-        async (ref: string) =>
-          sampleAgents.find((agent) => agent.ref === ref) ?? billingAgent
-      ),
-      createApplication: fn().mockResolvedValue({ ref: billingAgent.ref }),
-      updateApplication: fn().mockResolvedValue({ ref: billingAgent.ref }),
-      deleteApplication: fn().mockResolvedValue({ ref: billingAgent.ref })
-    },
-    numbers: { listNumbers: fn().mockResolvedValue({ items: sampleNumbers }) },
-    calls: {
-      listCalls: async (request: { to?: string }) => ({
-        items: request.to === "+18295550199" ? sampleCalls.slice(0, 3) : [],
-        nextPageToken: ""
-      })
-    }
-  } as never
-});
+const withAgents =
+  (items: object[], catalog: object[] = sampleCatalogItems) =>
+  (auth: AuthContextValue) => ({
+    status: "signedIn" as const,
+    sdk: {
+      ...auth.sdk,
+      applications: {
+        listApplications: fn().mockResolvedValue({ items }),
+        getApplication: fn().mockImplementation(
+          async (ref: string) =>
+            sampleAgents.find((agent) => agent.ref === ref) ?? billingAgent
+        ),
+        createApplication: fn().mockResolvedValue({ ref: billingAgent.ref }),
+        updateApplication: fn().mockResolvedValue({ ref: billingAgent.ref }),
+        deleteApplication: fn().mockResolvedValue({ ref: billingAgent.ref })
+      },
+      numbers: {
+        listNumbers: fn().mockResolvedValue({ items: sampleNumbers })
+      },
+      providers: { listCatalog: fn().mockResolvedValue({ items: catalog }) },
+      calls: {
+        listCalls: async (request: { to?: string }) => ({
+          items: request.to === "+18295550199" ? sampleCalls.slice(0, 3) : [],
+          nextPageToken: ""
+        })
+      }
+    } as never
+  });
 
 const route = (url: string) => ({
   path: "/w/:workspaceRef/autopilot/*",
@@ -113,6 +120,21 @@ export const ConfigureUnsaved: Story = {
     const canvas = within(canvasElement);
     const first = await canvas.findByLabelText("First message");
     await userEvent.type(first, " Gracias.");
+  }
+};
+/** A workspace with no vendor keys (a fresh dev container): only the fakes are offered. */
+export const ConfigureFakesOnly: Story = {
+  parameters: {
+    screen: {
+      auth: withAgents([...sampleAgents, voiceApp], fakeCatalogItems),
+      route: route(`/w/ws-1/autopilot/${billingAgent.ref}/configure`)
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole("button", { name: /^Voice/ })
+    );
   }
 };
 export const Tools: Story = detail("tools");

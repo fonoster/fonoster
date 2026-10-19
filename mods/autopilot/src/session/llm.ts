@@ -86,7 +86,7 @@ export interface LlmResolver {
 export type RegistryLlmResolverOptions = {
   registry: Registry.Registry;
   credentials: CredentialSource;
-  /** Endpoint overrides by adapter or provider id (required for fake; e.g. a local ollama). */
+  /** Endpoint overrides by provider or adapter id (e.g. a local ollama); win over the catalog's. */
   endpoints?: Record<string, string>;
 };
 
@@ -121,16 +121,17 @@ export class RegistryLlmResolver implements LlmResolver {
     const baseUrl =
       this.options.endpoints?.[provider.id] ??
       this.options.endpoints?.[provider.adapter] ??
+      provider.endpoints?.llm ??
       llm.defaultEndpoint;
     if (!baseUrl)
       throw new LlmResolutionError(
         `no endpoint for provider ${provider.id} (adapter ${provider.adapter})`
       );
-    const apiKey = await this.options.credentials.get(
-      provider.credentialRef,
-      scope
-    );
-    if (!apiKey && !adapterFor(provider.adapter)?.keyless)
+    // A provider without a credentialRef is keyless (local models, the fakes).
+    const apiKey = provider.credentialRef
+      ? await this.options.credentials.get(provider.credentialRef, scope)
+      : undefined;
+    if (provider.credentialRef && !apiKey)
       throw new LlmResolutionError(
         `no credential ${provider.credentialRef} for provider ${provider.id}`
       );

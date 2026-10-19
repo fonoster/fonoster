@@ -23,9 +23,9 @@
 //   Trunk, one Autopilot app, and a Number on that Trunk pointing at the app.
 //
 // Run by `ops/rebuild/stack seed`. Reads RB_API_ENDPOINT, RB_ADMIN_EMAIL, RB_ADMIN_PASSWORD,
-// RB_AGENT_PASSWORD, RB_SEED_FILE, RB_DEFAULT_VOICE and RB_DEFAULT_MODEL (catalog ids the stack picks
-// from the vendor keys present) from the environment and writes the result (refs and the local
-// credentials) to RB_SEED_FILE. Nothing here is meant for a shared or production deployment.
+// RB_AGENT_PASSWORD, RB_SEED_FILE and, to override what the catalog offers, RB_DEFAULT_VOICE,
+// RB_DEFAULT_STT and RB_DEFAULT_MODEL (catalog ids) from the environment, and writes the result
+// (refs and the local credentials) to RB_SEED_FILE. Nothing here is meant for a shared or production deployment.
 const fs = require("fs");
 const SDK = require("@fonoster/sdk");
 
@@ -47,16 +47,52 @@ const DEMO = {
   appName: "Demo Autopilot"
 };
 
-const MODEL = env("RB_DEFAULT_MODEL", "openai/gpt-4o-mini");
-const SPEECH = {
-  voice: env("RB_DEFAULT_VOICE", "deepgram/aura-2-thalia-en"),
-  language: "en-US",
-  sttModel: "deepgram/nova-3"
+const LANGUAGE = "en-US";
+
+// Picked when the workspace can use them (as the dashboard does for a new agent).
+const PREFERRED = {
+  voice: ["deepgram/aura-2-thalia-en"],
+  stt: ["deepgram/nova-3"],
+  llm: ["groq/openai/gpt-oss-120b", "openai/gpt-4o-mini"]
 };
+
+/** Whether a catalog item serves the app's language ("multi" or no languages: any). */
+const speaks = (item) =>
+  !item.languages?.length ||
+  item.languages.some(
+    (l) => l === "multi" || l.split("-")[0] === LANGUAGE.split("-")[0]
+  );
+
+/**
+ * The demo app's voice, transcriber and model: RB_DEFAULT_VOICE / RB_DEFAULT_STT /
+ * RB_DEFAULT_MODEL when set, else from what the workspace's catalog offers (the vendors with a
+ * platform key, and the providers that need none): a preferred item, else the first that serves
+ * the language.
+ */
+function choose(items) {
+  const offered = (kind, type) =>
+    items.filter((i) => i.kind === kind && (!type || i.type === type));
+  const pick = (name, options, preferred) => {
+    const id =
+      process.env[name] ||
+      preferred.find((p) => options.some((o) => o.id === p)) ||
+      options.find(speaks)?.id;
+    if (!id)
+      throw new Error(
+        `the catalog offers no ${name.slice(11).toLowerCase()} (set ${name})`
+      );
+    return id;
+  };
+  return {
+    voice: pick("RB_DEFAULT_VOICE", offered("voice"), PREFERRED.voice),
+    sttModel: pick("RB_DEFAULT_STT", offered("model", "stt"), PREFERRED.stt),
+    model: pick("RB_DEFAULT_MODEL", offered("model", "llm"), PREFERRED.llm)
+  };
+}
 
 // The session assistant schema (sessionAssistantSchema): the model is a catalog id, and the
 // recognition hints bias Deepgram toward the product name.
-const ASSISTANT = {
+const assistant = (model) => ({
   conversationSettings: {
     firstMessage:
       "Hello, this is the Fonoster demo assistant. How can I help you?",
@@ -72,11 +108,11 @@ const ASSISTANT = {
     hints: ["Fonoster"]
   },
   languageModel: {
-    model: MODEL,
+    model,
     temperature: 0.4,
     maxTokens: 250
   }
-};
+});
 
 async function login(accessKeyId) {
   const client = new SDK.Client({ endpoint, accessKeyId, allowInsecure: true });
@@ -114,6 +150,7 @@ async function main() {
   }
   // A fresh token carries the new workspace.
   const client = await login(ws.accessKeyId);
+  const picked = choose(items(await new SDK.Providers(client).listCatalog({})));
 
   const apiKeys = new SDK.ApiKeys(client);
   let apiKey = saved.apiKey;
@@ -185,10 +222,14 @@ async function main() {
   const appRequest = {
     name: DEMO.appName,
     type: "AUTOPILOT",
-    speech: SPEECH,
+    speech: {
+      voice: picked.voice,
+      language: LANGUAGE,
+      sttModel: picked.sttModel
+    },
     intelligence: {
-      productRef: `llm.${MODEL.split("/")[0]}`,
-      config: ASSISTANT
+      productRef: `llm.${picked.model.split("/")[0]}`,
+      config: assistant(picked.model)
     }
   };
   const existing = items(
@@ -240,8 +281,9 @@ async function main() {
       ok: true,
       app: result.app,
       number: telUrl,
-      model: MODEL,
-      voice: SPEECH.voice
+      model: picked.model,
+      voice: picked.voice,
+      sttModel: picked.sttModel
     })
   );
 }

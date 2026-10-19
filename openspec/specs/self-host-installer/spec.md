@@ -2,7 +2,9 @@
 
 ## Purpose
 The self-host bundle and the `fonoster-config` commands that install and check it.
+
 ## Requirements
+
 ### Requirement: One archive per release
 
 Each release SHALL produce `fonoster-<version>.tar.gz`, which unpacks into a `fonoster/` folder
@@ -78,8 +80,9 @@ through config keys.
 
 ### Requirement: Provider catalog on boot
 
-The apiserver SHALL apply the provider catalog file named in its config on every start. The apply
-MUST be idempotent and MUST NOT remove entries an operator added.
+The apiserver SHALL apply the provider catalog files named in its config on every start:
+`catalog.file`, then each of `catalog.files` in order. The apply MUST be idempotent and MUST NOT
+remove entries an operator added.
 
 #### Scenario: First boot
 - **WHEN** the apiserver starts on an empty database
@@ -88,6 +91,10 @@ MUST be idempotent and MUST NOT remove entries an operator added.
 #### Scenario: Restart
 - **WHEN** the apiserver restarts with the same catalog
 - **THEN** no catalog rows change
+
+#### Scenario: More than one catalog file
+- **WHEN** the config names `catalog.file` and `catalog.files: [extra.yaml]`
+- **THEN** the entries of both files are in the registry, and a file that cannot be applied stops the apiserver
 
 ### Requirement: No vendor keys at install
 
@@ -151,4 +158,3 @@ The archive's files and the output of `init`, `info` and `check` MUST NOT contai
 #### Scenario: Bundle scan
 - **WHEN** the archive's files and the three commands' output are searched for `rebuild` and `RB_`
 - **THEN** there are no matches
-

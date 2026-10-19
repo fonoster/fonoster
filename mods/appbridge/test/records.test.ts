@@ -147,7 +147,6 @@ describe("@gateway call records", function () {
     gateway = await new Gateway({
       config: {
         nats: { url: NATS_URL! },
-        testMode: true,
         retry: { windowMs: 300, intervalMs: 100 },
         apps,
         providers: {

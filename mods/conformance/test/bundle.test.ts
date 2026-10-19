@@ -244,6 +244,15 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       });
   });
 
+  it("lists no fake provider in its catalog (conformance: fakes are not available in production)", function () {
+    const { entries } = parse(
+      fs.readFileSync(path.join(BUNDLE, "config", "catalog.yaml"), "utf8")
+    ) as { entries: { kind: string; id: string; adapter?: string }[] };
+    expect(
+      entries.filter((e) => e.kind === "provider" && e.adapter === "fake")
+    ).to.deep.equal([]);
+  });
+
   it("never says rebuild or RB_", function () {
     for (const file of filesUnder(BUNDLE))
       expect(fs.readFileSync(file, "utf8"), file).to.not.match(/rebuild|RB_/i);
@@ -523,7 +532,6 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       only("appbridge")
     );
     expect(gw.callRecord?.analytics).to.equal(undefined);
-    expect(gw.testMode).to.not.equal(true);
     expect(gw.nats.password).to.equal(env.NATS_GATEWAY_PASSWORD);
 
     const ap = loadHostedConfig(

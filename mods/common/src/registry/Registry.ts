@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { URL } from "url";
 import { parse, stringify } from "yaml";
 import { FEATURES, unknownFeatures } from "./features";
 import {
@@ -23,6 +24,7 @@ import {
   CatalogEntry,
   ItemKind,
   ModelEntry,
+  ProviderEndpoints,
   ProviderEntry,
   RegistryStore,
   Usage,
@@ -43,6 +45,8 @@ export const BUILT_IN_ADAPTERS = [
   "fake"
 ];
 
+const ENDPOINT_SCHEMES = ["http:", "https:", "ws:", "wss:"];
+
 // provider/name; the name may have its own slashes, as hosted models do (groq/openai/gpt-oss-120b).
 const CATALOG_ID = /^[a-z0-9-]+(\/[A-Za-z0-9._-]+)+$/;
 const REF = /^[a-z0-9][a-z0-9-]*$/;
@@ -62,8 +66,6 @@ export type RegistryOptions = {
   store: RegistryStore;
   usages?: UsageSource;
   actor?: string;
-  /** Allows the fake adapter (test deployments only; conformance "Implementations ship fake adapters"). */
-  testMode?: boolean;
   now?: () => Date;
   /** The command line that made the change, stored in every audit entry (spec "Every write is audited"). */
   commandLine?: string;
@@ -117,6 +119,41 @@ export class Registry {
     }
   }
 
+  /**
+   * A provider names a built-in adapter, a credentialRef name when it needs a key (none:
+   * keyless), and plain endpoint URLs.
+   */
+  private assertProvider(p: {
+    adapter: string;
+    credentialRef?: string;
+    endpoints?: Record<string, unknown>;
+  }) {
+    if (!BUILT_IN_ADAPTERS.includes(p.adapter))
+      throw new RegistryError(`unknown adapter: ${p.adapter}`);
+    if (p.credentialRef !== undefined && !REF.test(p.credentialRef))
+      throw new RegistryError(
+        "credentialRef must be a name such as deepgram-default"
+      );
+    for (const [capability, url] of Object.entries(p.endpoints ?? {})) {
+      if (!["stt", "tts", "llm"].includes(capability))
+        throw new RegistryError(`unknown endpoint capability: ${capability}`);
+      let parsed: URL;
+      try {
+        parsed = new URL(String(url));
+      } catch {
+        throw new RegistryError(`endpoints.${capability} must be a URL`);
+      }
+      if (!ENDPOINT_SCHEMES.includes(parsed.protocol))
+        throw new RegistryError(
+          `endpoints.${capability} must be an http, https, ws or wss URL`
+        );
+      if (parsed.username || parsed.password)
+        throw new RegistryError(
+          `secrets cannot be stored in the catalog (endpoints.${capability} has user information)`
+        );
+    }
+  }
+
   private assertNew(id: string) {
     if (!CATALOG_ID.test(id) && !REF.test(id))
       throw new RegistryError(`invalid catalog id ${id}`);
@@ -143,28 +180,25 @@ export class Registry {
       id: string;
       adapter: string;
       capabilities: Capability[];
-      credentialRef: string;
+      /** Omitted: a keyless provider (no key needed). */
+      credentialRef?: string;
+      endpoints?: ProviderEndpoints;
+      label?: string;
     } & Record<string, unknown>
   ) {
     this.assertNoSecrets(input);
     this.assertNew(input.id);
-    if (!BUILT_IN_ADAPTERS.includes(input.adapter))
-      throw new RegistryError(`unknown adapter: ${input.adapter}`);
-    if (input.adapter === "fake" && !this.options.testMode) {
-      throw new RegistryError(
-        "the fake adapter is only available in test mode"
-      );
-    }
-    if (!REF.test(input.credentialRef))
-      throw new RegistryError(
-        "credentialRef must be a name such as deepgram-default"
-      );
+    this.assertProvider(input);
     const entry: ProviderEntry = {
       kind: "provider",
       id: input.id,
+      ...(input.label ? { label: input.label } : {}),
       adapter: input.adapter,
       capabilities: input.capabilities,
-      credentialRef: input.credentialRef,
+      ...(input.credentialRef ? { credentialRef: input.credentialRef } : {}),
+      ...(input.endpoints && Object.keys(input.endpoints).length
+        ? { endpoints: input.endpoints }
+        : {}),
       state: "active"
     };
     this.store.put(entry);
@@ -179,6 +213,7 @@ export class Registry {
       features?: string[];
       languages?: string[];
       settings?: string[];
+      label?: string;
     } & Record<string, unknown>
   ) {
     this.assertNoSecrets(input);
@@ -192,6 +227,7 @@ export class Registry {
     const entry: ModelEntry = {
       kind: "model",
       id: input.id,
+      ...(input.label ? { label: input.label } : {}),
       type: input.type,
       features: input.features ?? [],
       languages: input.languages ?? [],
@@ -210,6 +246,7 @@ export class Registry {
       language?: string;
       gender?: string;
       ownerWorkspace?: string;
+      label?: string;
     } & Record<string, unknown>
   ) {
     this.assertNoSecrets(input);
@@ -222,6 +259,7 @@ export class Registry {
     const entry: VoiceEntry = {
       kind: "voice",
       id: input.id,
+      ...(input.label ? { label: input.label } : {}),
       models: input.models,
       language: input.language,
       gender: input.gender,
@@ -502,6 +540,7 @@ export class Registry {
     const out: { line: string; entry: CatalogEntry }[] = [];
     for (const want of target) {
       this.assertNoSecrets(want as unknown as Record<string, unknown>);
+      if (want.kind === "provider") this.assertProvider(want);
       const have = this.store.get(want.id);
       if (!have)
         out.push({ line: `+ add ${want.kind} ${want.id}`, entry: want });
@@ -536,5 +575,16 @@ function canonical(e: CatalogEntry): Record<string, unknown> {
     Object.entries(e)
       .filter(([, v]) => v !== undefined)
       .sort(([a], [b]) => a.localeCompare(b))
+      .map(([k, v]) =>
+        k === "endpoints"
+          ? [k, sortedKeys(v as Record<string, unknown>)]
+          : [k, v]
+      )
+  );
+}
+
+function sortedKeys(o: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(
+    Object.entries(o).sort(([a], [b]) => a.localeCompare(b))
   );
 }
