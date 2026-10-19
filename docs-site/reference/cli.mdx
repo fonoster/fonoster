@@ -1,0 +1,348 @@
+---
+title: "CLI"
+description: "Every developer command of the fonoster CLI, with its arguments and flags."
+---
+
+The `fonoster` CLI manages a workspace from your terminal: applications, numbers, webhooks, call
+records and more. Commands are named `<topic>:<command>`, such as `applications:create`. Run any
+command with `--help` to see its flags.
+
+<Note>
+  This page covers the commands developers use. Operators of a self-hosted install also use
+  separate tools to run the platform. See the [Self-hosting](/self-hosting/overview) section.
+</Note>
+
+## Install
+
+The CLI is the `@fonoster/ctl` package on npm. It needs [Node.js](https://nodejs.org/) 22 or later.
+
+```bash
+npm install -g @fonoster/ctl
+```
+
+## Log in
+
+Create an API key in the dashboard under **API keys**, then link your workspace. The CLI asks for
+the endpoint (keep `api.fonoster.com` for Fonoster Cloud), the key ID and the secret:
+
+```bash
+fonoster workspaces:login
+```
+
+The CLI saves the workspace and its key in `~/.fonoster/config.json` and makes it the active
+workspace. Every other command runs against the active workspace.
+
+## Global flags
+
+Every command accepts this flag:
+
+| Flag | Short | Default | What it does |
+| --- | --- | --- | --- |
+| `--insecure` | `-i` | `false` | Connects to a server without TLS, such as a local install. |
+
+## Workspaces
+
+| Command | What it does |
+| --- | --- |
+| `workspaces:login` | Links a workspace to this machine. |
+| `workspaces:list` | Lists the linked workspaces. |
+| `workspaces:active` | Shows the active workspace. |
+| `workspaces:use <ref>` | Makes a linked workspace the active one. |
+| `workspaces:logout <ref>` | Unlinks a workspace. |
+
+`workspaces:login` asks for the endpoint, key ID and secret. Pass all three as flags to skip the
+questions, for example in CI:
+
+| Flag | Short | What it sets |
+| --- | --- | --- |
+| `--endpoint` | `-e` | The API endpoint. Default `api.fonoster.com`. |
+| `--access-key-id` | | An API key ID |
+| `--access-key-secret` | | The API key's secret |
+
+```bash
+fonoster workspaces:login --endpoint api.fonoster.com \
+  --access-key-id APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1 --access-key-secret "$FONOSTER_API_SECRET"
+```
+
+## API keys
+
+| Command | What it does |
+| --- | --- |
+| `apikeys:create` | Creates an API key and prints its ID and secret once. |
+| `apikeys:list` | Lists the workspace's API keys. |
+| `apikeys:regenerate <ref>` | Issues a new secret for an API key. |
+| `apikeys:delete <ref>` | Deletes an API key. |
+
+| Command | Flag | Short | Default | What it sets |
+| --- | --- | --- | --- | --- |
+| `apikeys:create` | `--role` | `-r` | `WORKSPACE_ADMIN` | The key's role |
+| `apikeys:list` | `--page-size` | `-s` | `1000` | How many keys to show |
+
+See [Workspaces, members and API keys](/workspace/access).
+
+## Applications
+
+Applications are your Autopilot agents and streams.
+
+| Command | What it does |
+| --- | --- |
+| `applications:create` | Creates an Autopilot agent or a stream. Without flags, it asks for the basics. |
+| `applications:update [ref]` | Changes an application. Only the fields you pass change. |
+| `applications:list` | Lists the workspace's applications. Flag: `--page-size`, `-s` (default `1000`). |
+| `applications:get <ref>` | Shows an application's settings. |
+| `applications:delete <ref>` | Deletes an application. |
+| `applications:rotate-secret <ref>` | Issues a new signing secret for a stream. The old one stops working at once. Autopilot agents use the platform's secret, so it's refused for them. |
+| `applications:eval` | Runs an agent's test cases. |
+
+### Create and update flags
+
+`applications:create` and `applications:update` take the same flags. `--agent` makes the
+application an Autopilot agent, and `--url` makes it a stream. The fields are described in
+[Autopilot configuration](/reference/autopilot-config#the-application).
+
+| Flag | Short | What it sets |
+| --- | --- | --- |
+| `--from-file` | `-f` | A YAML or JSON file with the whole application. An `assistant` key in it makes an Autopilot agent. With `applications:update`, the file can hold the `ref`. |
+| `--name` | `-n` | The name |
+| `--agent` | `-a` | A YAML or JSON agent file. Makes the application an Autopilot agent. |
+| `--url` | `-u` | A stream's WebSocket URL (`ws://` or `wss://`) |
+| `--protocol` | | A stream's protocol: `fonoster` or `twilio` |
+| `--voice` | | The voice, as a catalog ID |
+| `--language` | | The speech language, such as `en-US` |
+| `--stt-model` | | The speech-to-text model, as a catalog ID |
+| `--tts-model` | | The text-to-speech model, as a catalog ID |
+| `--silence-timeout` | | `speech.silenceTimeoutMs`, in milliseconds |
+| `--patience` | | `low`, `normal` or `high` |
+| `--audio-codec` | | A `fonoster` stream's audio: `pcm16` or `pcmu` |
+| `--audio-rate` | | A `fonoster` stream's sample rate: `8000`, `16000` or `24000` (`pcmu` is `8000` only) |
+| `--fallback-app` | | The application to hand the call to when this one fails |
+| `--fallback-message` | | What the caller hears when the application fails and no fallback answers |
+| `--listener` | `-l` | A listen-only socket: `<wss-url>[,inbound\|outbound\|both]`. Repeat it, up to 4. |
+| `--clear-listeners` | | Removes the current listeners (update). Combine it with `--listener` to replace them. |
+| `--recording` | | `off`, `on` or `consent` |
+| `--amd` / `--no-amd` | | Turns answering-machine detection on or off |
+| `--amd-window` | | Milliseconds of audio to classify, from `500` to `15000`. Turns detection on. |
+
+`--assistant` and `--flavor` were renamed to `--agent` and `--protocol` in 0.30. The CLI refuses
+the old names with that hint.
+
+```bash
+fonoster applications:create --name "Front desk" --agent agent.yaml \
+  --voice deepgram/aura-2-thalia-en --language en-US --stt-model deepgram/nova-3
+fonoster applications:create --name "Support bot" --url wss://bot.example.com/media --protocol twilio
+fonoster applications:update 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31 --patience high --recording on
+```
+
+### Evaluate an agent
+
+`applications:eval` runs an agent's test cases. It's marked experimental. It reads an eval file,
+not the plain agent file: the agent's configuration and its `testCases` nest under
+`intelligence.config`. See [Test your agent](/autopilot/test).
+
+| Flag | Short | Default | What it sets |
+| --- | --- | --- | --- |
+| `--file` | `-f` | | The eval file, with the agent and its `testCases` under `intelligence.config` (JSON, YAML or YML). Required. |
+| `--output` | `-o` | `pretty` | `pretty` or `json` |
+| `--output-file` | | | Also writes a JSON summary to this file |
+
+Run the test cases and also save a JSON summary:
+
+```bash
+fonoster applications:eval -f front-desk.eval.yaml -o json --output-file results.json
+```
+
+## Providers
+
+| Command | What it does |
+| --- | --- |
+| `providers:catalog` | Lists the providers, models and voices your workspace can use, by catalog ID. |
+| `providers:keys:set <provider>` | Sets the workspace's own key for a vendor. Replaces any previous key. |
+| `providers:keys:list` | Lists the vendors that have a workspace key. Never shows the keys. |
+| `providers:keys:delete <provider>` | Removes the workspace's key. Calls go back to the platform's key, if any. |
+
+| Command | Flag | Short | What it sets |
+| --- | --- | --- | --- |
+| `providers:catalog` | `--kind` | `-k` | Only `provider`, `model` or `voice` |
+| `providers:catalog` | `--type` | `-t` | Only `stt`, `tts` or `llm` |
+| `providers:keys:set` | `--key` | | The key. Leave it out to type it without echo. |
+
+See [Providers and models](/reference/providers) and
+[Use your own vendor keys](/workspace/provider-keys).
+
+## Numbers
+
+| Command | What it does |
+| --- | --- |
+| `sipnet:numbers:create` | Adds a number. Asks for a friendly name, the number (E.164), its trunk, its application, city and country. |
+| `sipnet:numbers:linkTwilioNumber` | Links a Twilio number to an application. Asks for a friendly name, the number, the application, and your Twilio Account SID and Auth Token. |
+| `sipnet:numbers:list` | Lists the workspace's numbers. Flag: `--page-size`, `-s` (default `1000`). |
+| `sipnet:numbers:get <ref>` | Shows a number. |
+| `sipnet:numbers:update <ref>` | Changes a number's friendly name, trunk or application. Asks for each. |
+| `sipnet:numbers:delete <ref>` | Deletes a number. |
+
+`sipnet:numbers:linkTwilioNumber` has two flags for a self-hosted install:
+
+| Flag | Short | Default | What it sets |
+| --- | --- | --- | --- |
+| `--outbound-uri-base` | `-b` | `pstn.fonoster.com` | The host Twilio sends calls to |
+| `--access-control-list` | `-a` | Fonoster Cloud's address | The addresses Twilio accepts calls from, comma-separated |
+
+See [Numbers and routing](/telephony/numbers) and [Link a Twilio number](/telephony/link-twilio).
+
+## Trunks
+
+| Command | What it does |
+| --- | --- |
+| `sipnet:trunks:create` | Adds a trunk. Asks for a friendly name, the inbound URI, an access control list and, if you need one, the outbound URI (credentials, host, port, transport, user). |
+| `sipnet:trunks:list` | Lists the trunks. Flag: `--page-size`, `-s` (default `1000`). |
+| `sipnet:trunks:get <ref>` | Shows a trunk. |
+| `sipnet:trunks:update <ref>` | Changes a trunk. Asks for the same values as create, plus inbound credentials. |
+| `sipnet:trunks:delete <ref>` | Deletes a trunk. |
+
+See [Connect a SIP trunk](/telephony/trunks).
+
+## SIP agents, domains and credentials
+
+SIP agents are softphones and desk phones. The CLI calls them `agents`.
+
+| Command | What it does |
+| --- | --- |
+| `sipnet:agents:create` | Adds a SIP agent. Asks for a name, username, domain, credentials, privacy, whether it's enabled, and its maximum contacts. |
+| `sipnet:agents:list` | Lists the SIP agents. Flag: `--page-size`, `-s` (default `1000`). |
+| `sipnet:agents:get <ref>` | Shows a SIP agent. |
+| `sipnet:agents:update <ref>` | Changes a SIP agent. Asks for the same values as create, except the username. |
+| `sipnet:agents:delete <ref>` | Deletes a SIP agent. |
+| `sipnet:domains:create` | Adds a domain. Asks for a name, the domain URI and an access control list. |
+| `sipnet:domains:list` | Lists the domains. Flag: `--page-size`, `-s` (default `1000`). |
+| `sipnet:domains:get <ref>` | Shows a domain. |
+| `sipnet:domains:update <ref>` | Changes a domain's name or access control list. |
+| `sipnet:domains:delete <ref>` | Deletes a domain. |
+| `sipnet:credentials:create` | Adds a username and password. |
+| `sipnet:credentials:list` | Lists the credentials. Flag: `--page-size`, `-s` (default `1000`). |
+| `sipnet:credentials:get <ref>` | Shows a set of credentials. |
+| `sipnet:credentials:update <ref>` | Renames a set of credentials. The username and password can't change: to change them, create new credentials. |
+| `sipnet:credentials:delete <ref>` | Deletes a set of credentials. |
+| `sipnet:acls:create` | Adds an access control list. Asks for a name and an allow list of IPs or CIDR ranges. |
+| `sipnet:acls:list` | Lists the access control lists. Flag: `--page-size`, `-s` (default `1000`). |
+| `sipnet:acls:get <ref>` | Shows an access control list. |
+| `sipnet:acls:update <ref>` | Changes an access control list. |
+| `sipnet:acls:delete <ref>` | Deletes an access control list. |
+
+See [SIP agents (softphones)](/telephony/sip-agents).
+
+## Calls
+
+| Command | What it does |
+| --- | --- |
+| `sipnet:calls:create` | Places an outbound call and follows its status until it ends. |
+| `sipnet:calls:list` | Lists the workspace's calls. Flag: `--page-size`, `-s` (default `1000`). |
+| `sipnet:calls:get <ref>` | Shows a call: status, parties, duration, direction and times. |
+
+`sipnet:calls:create` flags:
+
+| Flag | Short | Default | What it sets |
+| --- | --- | --- | --- |
+| `--from` | `-f` | | The number to call from. Required. |
+| `--to` | `-t` | | The number or SIP URI to call. Required. |
+| `--app-ref` | `-a` | | The application that handles the call. Required. |
+| `--timeout` | `-o` | `30` | Seconds to wait for an answer |
+| `--metadata` | `-m` | | A JSON object the application receives with the session |
+| `--detach` | `-d` | `false` | Prints the call's ref and returns without following the status |
+
+```bash
+fonoster sipnet:calls:create --from +18095550199 --to +18095550187 \
+  --app-ref 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31 --metadata '{"name": "Jane Doe"}'
+```
+
+See [Make outbound calls](/telephony/outbound-calls).
+
+## Webhooks
+
+| Command | What it does |
+| --- | --- |
+| `webhooks:create` | Subscribes an HTTPS endpoint to events and prints its signing secret once. |
+| `webhooks:list` | Lists the webhooks. Flag: `--page-size`, `-s` (default `1000`). |
+| `webhooks:get <ref>` | Shows a webhook. |
+| `webhooks:update <ref>` | Changes a webhook's URL or events. `--event` replaces the list. |
+| `webhooks:delete <ref>` | Deletes a webhook. |
+| `webhooks:rotate <ref>` | Issues a new signing secret. The old one keeps working for 24 hours. |
+| `webhooks:deliveries [ref]` | Shows the delivery log, for all webhooks or one. Flag: `--page-size`, `-s` (default `50`). |
+| `webhooks:resend <delivery-ref>` | Sends a delivery again, with the same event ID. |
+
+| Command | Flag | Short | What it sets |
+| --- | --- | --- | --- |
+| `webhooks:create`, `webhooks:update` | `--url` | `-u` | The `https://` endpoint. Required on create. |
+| `webhooks:create`, `webhooks:update` | `--event` | `-e` | An event to receive. Repeat it for each event. Required on create. |
+
+`--event` takes `call.started`, `call.ended`, `call.failed`, `call_record.sealed` or
+`provider.deprecated`. See [Webhook events](/reference/webhook-events).
+
+```bash
+fonoster webhooks:create --url https://hooks.example.com/fonoster -e call.ended -e call_record.sealed
+```
+
+## Call records
+
+| Command | What it does |
+| --- | --- |
+| `records:list` | Searches the workspace's call records, newest first. |
+| `records:get <call-ref>` | Shows a record's summary. |
+| `records:download <call-ref>` | Saves the recording, the vCon or the signed vCon to a file. |
+
+`records:list` flags:
+
+| Flag | Short | Default | What it sets |
+| --- | --- | --- | --- |
+| `--after` | | | Calls that started at or after this ISO date or time |
+| `--before` | | | Calls that started before this ISO date or time |
+| `--number` | | | Calls from or to this number |
+| `--app` | | | Calls handled by this application |
+| `--status` | | | The record status: `completed`, `failed` or `incomplete` |
+| `--page-size` | `-s` | `50` | How many records to show |
+| `--page-token` | `-t` | | The token for the next page, printed after a full page |
+
+`records:get` and `records:download` flags:
+
+| Flag | Short | Default | What it sets |
+| --- | --- | --- | --- |
+| `--version` | | Latest | A record version |
+| `--original` | | `false` | The unredacted copy. Needs the owner or admin role. |
+| `--part` | `-p` | `recording` | `records:download` only: `recording` (`.wav`), `vcon` (`.vcon.json`) or `signed` (`.vcon.jws.json`) |
+| `--output` | `-o` | `<call-ref>.<ext>` | `records:download` only: the file to write |
+
+```bash
+fonoster records:download 9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17 --part vcon -o call.json
+```
+
+See [Read and verify call records](/observe/call-records).
+
+## Secrets
+
+| Command | What it does |
+| --- | --- |
+| `secrets:create` | Adds a secret. Asks for a name and the value. |
+| `secrets:list` | Lists the secrets. Flag: `--page-size`, `-s` (default `1000`). |
+| `secrets:get <ref>` | Shows a secret. |
+| `secrets:update <ref>` | Changes a secret's name or value. |
+| `secrets:delete <ref>` | Deletes a secret. |
+
+See [Secrets](/workspace/secrets).
+
+## MCP
+
+`mcp:configure` adds Fonoster's MCP server to Claude Desktop's configuration, with the active
+workspace's API key. It works on macOS and Windows.
+
+| Flag | Short | Default | What it sets |
+| --- | --- | --- | --- |
+| `--client` | `-c` | `claude` | The MCP client. `claude` is the only one. |
+| `--workspace` | `-w` | The active workspace | The workspace ref to use |
+
+See [Use Fonoster from an AI client (MCP)](/workspace/mcp).
+
+## Help and feedback
+
+| Command | What it does |
+| --- | --- |
+| `bug` | Prints the link to report a bug on GitHub. |
+| `feedback` | Prints the link to a feedback form. |

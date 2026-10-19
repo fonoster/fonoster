@@ -1,0 +1,135 @@
+---
+title: "Record calls and ask for consent"
+sidebarTitle: "Record calls"
+description: "Turn call recording on or off for an application, play a consent prompt first, and find the recording after the call."
+---
+
+Fonoster records calls by policy, not from your code. You set a recording policy on the
+application, and every call it takes follows it. The recording is saved with the call's signed
+[call record](/observe/call-records).
+
+## The policies
+
+| Policy | What happens |
+| --- | --- |
+| `off` | Nothing is recorded. |
+| `on` | The whole call is recorded from the moment it reaches your application. |
+| `consent` | The caller first hears a consent prompt, then recording starts. |
+
+Your application can't start, stop or pause the recording during the call. The Voice SDK has no
+record verb.
+
+## Set the policy
+
+<Tabs>
+  <Tab title="Dashboard">
+    - **Stream**: go to **Streams**, open the stream, and go to the **Call handling** tab.
+    - **Autopilot agent**: open the agent, go to the **Advanced** tab, and choose **Edit** on the
+      **Call handling** panel.
+
+    Under **Recording**, choose **Off**, **On** or **On after consent prompt**, then choose
+    **Save**. **Workspace default** leaves the choice to the default (see below).
+  </Tab>
+  <Tab title="SDK">
+    Set `recording` when you create or update the application. An update replaces the whole
+    application, so read it first, change `recording`, and send all of it back:
+
+    ```javascript
+    const apps = new SDK.Applications(client);
+    const app = await apps.getApplication("6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31");
+    await apps.updateApplication({ ...app, recording: "consent" });
+    ```
+  </Tab>
+  <Tab title="CLI">
+    ```bash
+    fonoster applications:update 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31 --recording consent
+    ```
+
+    `--recording` takes `off`, `on` or `consent`.
+  </Tab>
+</Tabs>
+
+## Which policy applies
+
+Fonoster uses the first policy that's set, in this order:
+
+1. The application's policy.
+2. The workspace's policy.
+3. The region's default.
+4. `off`.
+
+An application left on **Workspace default** follows the workspace's policy, or the region's
+default if the workspace has none. To be sure a call is recorded, or not, set the policy on the
+application.
+
+<Note>
+  On your own install, the operator sets the workspace policies and the region default in the call
+  record configuration. See [Tune turn-taking and audio](/self-hosting/turn-taking-and-audio).
+</Note>
+
+If the call goes to the application's fallback because the application couldn't be reached, the
+fallback application's policy applies.
+
+## The consent prompt
+
+With `consent`, Fonoster answers the call and plays the consent prompt before your application
+starts. Your agent's first message, or your stream's first `say`, comes after it. The caller can't
+interrupt the prompt.
+
+- **Words**: "This call will be recorded." On your own install, the operator can change the
+  wording.
+- **Voice and language**: the application's voice and language, from its `speech` settings.
+
+The wording isn't translated: it's the same text for every application. A Spanish agent reads the
+English sentence in its Spanish voice. If your callers don't speak English, check what they hear,
+or ask for consent in your own words (see below).
+
+The call record notes that consent was requested. Recording starts after the prompt, whatever the
+caller does. If the caller doesn't agree, they hang up. To let callers decline and stay on the line,
+set the policy to `off`, ask for consent in your own words, and keep your own record of the answer.
+
+## What you get
+
+The recording is a stereo WAV file at 16 kHz:
+
+- **Left channel**: the caller.
+- **Right channel**: your agent or stream.
+
+Keeping the sides apart lets you transcribe or analyze each one alone.
+
+After a transfer, recording goes on for `cold` and `warm` transfers, so the operator's part of the
+call is in the file too. A `refer` transfer ends the recording at the transfer. See
+[Transfer calls](/telephony/transfers).
+
+## Get the recording
+
+When the call ends, Fonoster seals the call record with the recording in it. Open the call under
+**Calls** in the dashboard and download it there, or run:
+
+```bash
+fonoster records:download 1d7f3a9c-5e2b-4c8d-9a6f-3b1e7d5c2a94
+```
+
+It saves `1d7f3a9c-5e2b-4c8d-9a6f-3b1e7d5c2a94.wav`. To know when a recording is ready, subscribe to
+the `call_record.sealed` [webhook](/observe/webhooks). [Call records](/observe/call-records) covers
+fetching, verifying and redacted copies, and [Retention and erasure](/observe/retention) covers how
+long recordings are kept.
+
+The `recording` field is in [Autopilot configuration](/reference/autopilot-config#recording).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Call records" icon="file-signature" href="/observe/call-records">
+    Fetch the recording, transcript and signature of a call.
+  </Card>
+  <Card title="Retention and erasure" icon="trash" href="/observe/retention">
+    Delete recordings after a set time, or on request.
+  </Card>
+  <Card title="Webhooks" icon="bell" href="/observe/webhooks">
+    Get told when a recording is ready.
+  </Card>
+  <Card title="Transfer calls" icon="phone-arrow-right" href="/telephony/transfers">
+    How transfers affect the recording.
+  </Card>
+</CardGroup>

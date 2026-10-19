@@ -1,0 +1,281 @@
+---
+title: "Retention and erasure"
+description: "Delete recordings and transcripts after a set number of days, erase one call on request, and read the audit log."
+---
+
+Fonoster keeps call records forever unless you say otherwise. This guide shows how to set how long
+each part of a record is kept, how to delete one part of a call or erase the whole call when someone
+asks, and how to read the audit log that records every deletion.
+
+<Note>
+  Retention, deletion, erasure and the audit log are available from the SDK and the HTTP API only.
+  The dashboard and the CLI don't have them yet.
+</Note>
+
+## Before you begin
+
+You need:
+
+- The owner or admin role in the workspace. An API key has the role it was created with. Other roles
+  can read the retention policies but can't change them, delete anything or read the audit log.
+- An API key and [Node.js](https://nodejs.org/) 22 or later for the SDK, or an access token for the
+  HTTP API. The [quickstart](/quickstart) shows how to install the SDK and sign in.
+- Familiarity with [call records](/observe/call-records): their parts, versions and copies.
+
+## The parts you can delete
+
+A record has three parts that you can delete on their own:
+
+| Part | What it is | Deleting it also deletes |
+| --- | --- | --- |
+| `recording` | The call's WAV file | The redacted copy's beeped recording |
+| `transcript` | What was said: the text turns and the turn decisions | `messages`, and the contents of the record's earlier versions |
+| `messages` | `messages.ndjson`, every message of the session | Nothing else |
+
+Deleting the transcript takes the messages with it because the messages hold the same words.
+The record's details stay: who called, when, for how long, and why it ended.
+
+Every deletion seals a new signed version of the record. The new version says what was removed,
+when, why and by whom, under `fonoster.deletions`. A [webhook](/observe/webhooks) subscribed to
+`call_record.sealed` hears about it.
+
+## Set a retention policy
+
+A retention policy deletes one part of every record once the call is older than a number of days.
+For example, delete recordings after 90 days and keep transcripts. Each part has its own policy, and
+a part without a policy is kept forever.
+
+<Tabs>
+  <Tab title="SDK">
+    This script deletes recordings after 90 days and messages after 30, then prints the
+    workspace's policies:
+
+    ```javascript set-retention.js
+    const SDK = require("@fonoster/sdk");
+
+    async function main() {
+      const client = new SDK.Client({
+        accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+      });
+      await client.loginWithApiKey(
+        process.env.FONOSTER_API_KEY,
+        process.env.FONOSTER_API_SECRET
+      );
+
+      const records = new SDK.CallRecords(client);
+      await records.setRetention("recording", 90);
+      await records.setRetention("messages", 30);
+
+      console.log(await records.getRetention());
+    }
+
+    main().catch(console.error);
+    ```
+
+    It prints one entry per policy:
+
+    ```text
+    [ { part: 'recording', days: 90 }, { part: 'messages', days: 30 } ]
+    ```
+
+    To remove a policy and keep that part forever again, set its days to `null`:
+
+    ```javascript
+    await records.setRetention("messages", null);
+    ```
+  </Tab>
+  <Tab title="HTTP">
+    Set one policy per request. `days` is a whole number of at least 1:
+
+    ```bash
+    curl -X PUT https://api.fonoster.com/api/records/retention \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "x-accesskey-id: WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3" \
+      -H "content-type: application/json" \
+      -d '{"part":"recording","days":90}'
+    ```
+
+    Read the workspace's policies:
+
+    ```bash
+    curl https://api.fonoster.com/api/records/retention \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "x-accesskey-id: WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+    ```
+
+    ```json
+    { "items": [{ "part": "recording", "days": 90 }] }
+    ```
+
+    Send `"days": null` to remove a policy.
+  </Tab>
+</Tabs>
+
+Fonoster applies the policies every hour, so a part can outlive its policy by a little while. The
+age counts from when the call started. Each deletion is audited with the policy as its reason, such as
+`retention policy: recording after 90 days`.
+
+<Warning>
+  A policy applies to records you already have, not only to new calls. Setting `recording` to 90
+  days deletes every recording older than 90 days on the next run, and deleted parts can't be
+  brought back.
+</Warning>
+
+## Delete one part of a call
+
+Delete a part of one call when someone asks you to remove a recording, for example. Give a reason:
+it goes into the audit log.
+
+<Tabs>
+  <Tab title="SDK">
+    `deletePart` takes the call, the part and a reason:
+
+    ```javascript
+    const result = await records.deletePart(
+      "9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17",
+      "recording",
+      "Caller asked us to delete the recording"
+    );
+    console.log(result.version); // the new version that records the deletion
+    ```
+  </Tab>
+  <Tab title="HTTP">
+    Send the reason in the body:
+
+    ```bash
+    curl -X DELETE https://api.fonoster.com/api/records/9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17/parts/recording \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "x-accesskey-id: WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3" \
+      -H "content-type: application/json" \
+      -d '{"reason":"Caller asked us to delete the recording"}'
+    ```
+
+    The answer has the new version and the audit entries it wrote:
+
+    ```json
+    {
+      "version": 2,
+      "audit": [
+        {
+          "callRef": "9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17",
+          "workspaceRef": "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",
+          "action": "delete_part",
+          "part": "recording",
+          "reason": "Caller asked us to delete the recording",
+          "actor": "4f1d8b2e-7c3a-4e9f-a5b0-1d6e8c2f7a93",
+          "at": "2026-10-19T15:42:08.311Z",
+          "version": 2
+        }
+      ]
+    }
+    ```
+  </Tab>
+</Tabs>
+
+After the deletion, reading the record returns the new version without that part. Asking for the
+deleted recording answers `404`.
+
+## Erase a call
+
+Erasing a call deletes every file and every version of it. Use it for a privacy request such as a
+right-to-erasure request. In place of the record, Fonoster seals a signed tombstone that says when,
+why and by whom the call was erased. The tombstone holds no parties and no content.
+
+<Tabs>
+  <Tab title="SDK">
+    `eraseRecord` takes the call and a reason:
+
+    ```javascript
+    await records.eraseRecord(
+      "9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17",
+      "Erasure request from the caller, ticket 4821"
+    );
+    ```
+  </Tab>
+  <Tab title="HTTP">
+    Send the reason in the body:
+
+    ```bash
+    curl -X DELETE https://api.fonoster.com/api/records/9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17 \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "x-accesskey-id: WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3" \
+      -H "content-type: application/json" \
+      -d '{"reason":"Erasure request from the caller, ticket 4821"}'
+    ```
+  </Tab>
+</Tabs>
+
+After an erasure:
+
+- The call no longer shows up in searches or under **Calls**.
+- Reading the record answers `410` with `"error": "erased"`.
+- The phone numbers are cleared from the call's details.
+- The audit log still lists the erasure.
+- No `call_record.sealed` event is sent for the tombstone.
+
+<Warning>Erasure can't be undone.</Warning>
+
+If you leave the reason out, Fonoster records `erasure request` for an erasure and
+`deletion request` for a deleted part. Give a real reason, such as a ticket number, so the audit log
+can answer "why".
+
+## Read the audit log
+
+The audit log of a call lists every deletion and erasure, oldest first. It stays available after the
+call is erased.
+
+<Tabs>
+  <Tab title="SDK">
+    `getAudit` returns the call's entries:
+
+    ```javascript
+    const entries = await records.getAudit("9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17");
+    for (const e of entries) {
+      console.log(e.at, e.action, e.part, e.actor, e.reason);
+    }
+    ```
+  </Tab>
+  <Tab title="HTTP">
+    Read the call's audit log:
+
+    ```bash
+    curl https://api.fonoster.com/api/records/9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17/audit \
+      -H "Authorization: Bearer $TOKEN" \
+      -H "x-accesskey-id: WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+    ```
+  </Tab>
+</Tabs>
+
+Each entry has these fields:
+
+| Field | Value |
+| --- | --- |
+| `action` | `delete_part` or `erase` |
+| `part` | `recording`, `transcript` or `messages`, or `all` for an erasure |
+| `reason` | The reason you gave, or the retention policy |
+| `actor` | Who did it: the ref of the user or API key, or `system:retention` for a retention policy |
+| `version` | The record version that recorded the deletion |
+| `at` | When it happened, in ISO 8601 |
+
+## Errors
+
+| Status | Means |
+| --- | --- |
+| `400` | Unknown part, or `days` isn't a whole number of at least 1 |
+| `403` | You don't have the owner or admin role |
+| `404` | No such call in this workspace |
+| `410` | The call was already erased |
+
+The SDK methods for retention, erasure and the audit log are under `CallRecords` in the
+[Node SDK reference](/reference/sdk#callrecords).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Call records" icon="file-signature" href="/observe/call-records">
+    Read records, download recordings and verify signatures.
+  </Card>
+  <Card title="Record calls and ask for consent" icon="microphone" href="/telephony/recording">
+    Choose which calls are recorded in the first place.
+  </Card>
+</CardGroup>

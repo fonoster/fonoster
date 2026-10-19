@@ -1,0 +1,289 @@
+---
+title: "Voice SDK reference"
+sidebarTitle: "Voice SDK (Node and Python)"
+description: "Every option, method, event and error of @fonoster/voice (Node.js) and fonoster-voice (Python)."
+---
+
+The Voice SDKs answer calls for a stream that speaks the `fonoster` protocol. Each call is one
+`session`. Both SDKs send the same [session protocol](/reference/session-protocol) messages and
+have the same methods, in each language's naming. For a walkthrough, see
+[Build a stream with the Voice SDK](/streams/voice-sdk) or
+[Use the Python Voice SDK](/streams/python).
+
+| | Node.js | Python |
+| --- | --- | --- |
+| Package | `@fonoster/voice` | `fonoster-voice` (Python 3.11 or later, asyncio only) |
+| Install | `npm install @fonoster/voice` | `pip install fonoster-voice` |
+| Import | `const { VoiceServer } = require("@fonoster/voice")` | `from fonoster.voice import VoiceServer` |
+| Durations | milliseconds | seconds |
+
+## VoiceServer
+
+`VoiceServer` accepts Fonoster's WebSocket connections, checks each one's signature and runs your
+handler once per call with a `Session`.
+
+### Options
+
+<Tabs>
+  <Tab title="Node.js">
+    `new VoiceServer(options)`
+
+    | Option | Type | Default | Meaning |
+    | --- | --- | --- | --- |
+    | `port` | `number` | `3000` | Port for `listen()` |
+    | `host` | `string` | `"0.0.0.0"` | Address for `listen()` |
+    | `path` | `string` | any | Only accept connections on this path; others get `404` |
+    | `signingSecret` | `string` | `APP_SIGNING_SECRET` | The stream's signing secret. The constructor throws without one, unless `verifySignature` is `false` |
+    | `publicUrl` | `string \| string[]` | none | The stream's URL as configured in Fonoster. Signatures are checked against it only. Without it, the URL is rebuilt from the `X-Forwarded-Host` or `Host` header |
+    | `verifySignature` | `boolean` | `true` | `false` turns the check off and logs a warning per connection. Local experiments only |
+    | `requireAppBinding` | `boolean` | `false` | Refuse connections without `x-fonoster-app-signature`, and refuse a session whose `appRef` isn't the one the signature names |
+    | `startTimeoutMs` | `number` | `5000` | Close the socket (code `1008`) if `session.start` doesn't arrive in time |
+  </Tab>
+  <Tab title="Python">
+    `VoiceServer(port=3000, host="0.0.0.0", *, signing_secret=None, verify_signature=True, public_url=None, path=None, start_timeout=5.0)`
+
+    | Option | Type | Default | Meaning |
+    | --- | --- | --- | --- |
+    | `port` | `int` | `3000` | Port to listen on |
+    | `host` | `str` | `"0.0.0.0"` | Address to listen on |
+    | `path` | `str` | any | Only accept connections on this path; others get `404` |
+    | `signing_secret` | `str` | `APP_SIGNING_SECRET` | The stream's signing secret. The constructor raises `ValueError` without one, unless `verify_signature` is `False` |
+    | `public_url` | `str` | none | The stream's URL as configured in Fonoster. Signatures are checked against it only. Without it, the URL is rebuilt from the `X-Forwarded-Host` or `Host` header |
+    | `verify_signature` | `bool` | `True` | `False` turns the check off and logs a warning per connection. Local experiments only |
+    | `start_timeout` | `float` | `5.0` | Seconds to wait for `session.start` after the socket opens |
+
+    Python has no `requireAppBinding`.
+  </Tab>
+</Tabs>
+
+A connection whose signature is missing, more than 300 seconds old, or doesn't match gets HTTP
+`401`. In Node.js, plain HTTP requests to the `listen()` server get `426 WebSocket required`.
+
+### Methods
+
+| Node.js | Python | Purpose |
+| --- | --- | --- |
+| `listen(handler)` | `await listen(handler=None)` | Start a standalone server. Resolves once listening |
+| | `run()` | Start and block until stopped (for scripts) |
+| | `@server.handler` | Register the handler as a decorator |
+| `attach(httpServer, handler)` | | Serve sessions from an existing Node.js HTTP server (Express included), on `path` |
+| `close()` | `await close()` | Stop the server and drop its connections |
+| `port` | `port` | The port it listens on |
+
+The handler takes one argument, the session. In Python it must be an `async def` function with
+one parameter; anything else raises `TypeError`. If the handler throws, the SDK hangs up the call.
+
+### `voice_asgi_app` (Python)
+
+`voice_asgi_app(handler, *, signing_secret=None, verify_signature_=True, public_url=None)` returns
+an ASGI app to mount in FastAPI, Starlette or any ASGI framework:
+`app.mount("/voice", voice_asgi_app(on_call, signing_secret=..., public_url=...))`. HTTP requests
+get `426`; a bad signature closes the WebSocket with code `1008`. Note the trailing underscore in
+`verify_signature_`.
+
+## Session properties
+
+Read-only fields from the call's `session.start` message.
+
+| Node.js | Python | Holds |
+| --- | --- | --- |
+| `sessionRef` | `session_ref` | This session's ref |
+| `callRef` | `call_ref` | The call's ref |
+| `appRef` | `app_ref` | The stream's ref |
+| `direction` | `direction` | `"inbound"` or `"outbound"` |
+| `from` | `from_` | The caller, such as `+18095550123` |
+| `to` | `to` | The number called |
+| `metadata` | `metadata` | The call's metadata (for example from `createCall`) |
+| `handoffPayload` | `handoff_payload` | The payload when another application handed the call over, or `null` / `None` |
+| `speech` | `speech` | `{ voice, language }`, the stream's defaults |
+| `audioFormat` | `audio_format` | `{ codec, rate }` of the binary audio |
+| `tracks` | `tracks` | The audio tracks, `[{ id, side, kind, codec }]` |
+| `traceparent` | | The W3C `traceparent` of the call, when sent |
+| `signedFor` | | `{ appRef, workspaceRef }` when the server verified an app-bound signature |
+| `ended` | `ended` | `true` once the session is over |
+
+## Session methods
+
+### Speech
+
+<ResponseField name="say(text, options)" type="SayResult">
+  Speaks `text` and resolves when it has been heard or cut off. `text` can be a string or an
+  async iterable of strings: the pieces are spoken as one utterance as they arrive. If the
+  iterable throws, the SDK ends the utterance and rethrows.
+
+  Options: `voice` and `language` (catalog ids that override the stream's defaults for this
+  utterance), `interruptible` (default `true`), `preempt` (stop what is playing and speak this
+  first). Python takes them as keyword arguments.
+
+  Resolves to `{ interrupted, heardText, heardMs }` (Python: `SayResult(interrupted, heard_text,
+  heard_ms)`). `heardText` holds only the words the caller heard.
+</ResponseField>
+
+<ResponseField name="stopSay()" type="void">
+  Python: `stop_say()`. Sends `clear`: every pending `say` and `play` resolves with
+  `interrupted: true`.
+</ResponseField>
+
+<ResponseField name="play(url, options)" type="PlayResult">
+  Plays a WAV file from an `http` or `https` URL. Options: `loop`, `interruptible` (default
+  `true`), `preempt`. Resolves to `{ interrupted, heardMs }` (Python: `PlayResult(interrupted,
+  heard_ms)`).
+</ResponseField>
+
+<ResponseField name="gather(options)" type="GatherResult">
+  Waits for speech or keypresses, whichever comes first, and resolves to `{ speech }`,
+  `{ digits }`, or neither when the timeout passes (Python: `GatherResult(speech, digits)`).
+
+  | Node.js | Python | Default | Meaning |
+  | --- | --- | --- | --- |
+  | `source` | `source` | `"speech_and_dtmf"` | `"speech"`, `"dtmf"` or `"speech_and_dtmf"` |
+  | `maxDigits` | `max_digits` | none | Resolve once this many digits arrive |
+  | `finishOnKey` | `finish_on_key` | none | Resolve when this key is pressed (the key isn't included) |
+  | `timeout` | `timeout` | `4000` ms / `4.0` s | Time to wait for input. Restarts after each digit; paused while the caller is talking |
+
+  Once a digit arrives, speech is ignored. Only one `gather` can be pending; a second one
+  rejects. Speech and digits that arrive while no `gather` is pending are kept (up to 32) and
+  count toward the next one.
+</ResponseField>
+
+<ResponseField name="listen(options)" type="void">
+  Node.js only. Starts listening or changes how Fonoster listens: `language`, `hints` (words to
+  favor) and `patience` (`"low"`, `"normal"` or `"high"`). Sends `listen.update`.
+</ResponseField>
+
+<ResponseField name="subscribe(events)" type="void">
+  Turns on opt-in events: `"turn.estimate"` and `"transcript.partial"`.
+</ResponseField>
+
+<ResponseField name="on(event, callback) / off(event, callback)" type="Session">
+  Adds or removes an event listener. See [Events](#events). In Python the callback gets a dict and
+  can be a plain function or a coroutine. An error thrown by a listener is ignored.
+</ResponseField>
+
+### Call control
+
+<ResponseField name="transfer(to, options)" type="void">
+  Transfers the call to a phone number or SIP address. Options: `mode` (`"cold"`, the default,
+  `"warm"` or `"refer"`) and `headers` (custom `X-` SIP headers). Resolves when the session ends
+  with reason `transfer`. Rejects with `SessionError` code `transfer_failed` when the target can't
+  be reached. See [Transfer calls](/telephony/transfers).
+</ResponseField>
+
+<ResponseField name="completeTransfer()" type="void">
+  Python: `complete_transfer()`. Connects the caller to the party of the pending warm transfer and
+  ends your session. Throws if no warm transfer is pending.
+</ResponseField>
+
+<ResponseField name="playDtmf(digits)" type="void">
+  Python: `play_dtmf(digits)`. Sends keypresses on the call: `0`–`9`, `A`–`D`, `*`, `#`, and `w`
+  for a pause.
+</ResponseField>
+
+<ResponseField name="hold(options) / resume()" type="void">
+  Puts the caller on hold with optional `music` (a URL, looped), or takes them off hold. While on
+  hold you get no caller audio and no turn events; keypresses still arrive.
+</ResponseField>
+
+<ResponseField name="handoff(app, payload)" type="void">
+  Hands the call to another application in the workspace, by ref. That application gets the
+  `payload` (up to 16 KB) in `handoffPayload`. Resolves when your session ends. At most 5 handoffs
+  per call.
+</ResponseField>
+
+<ResponseField name="hangup()" type="void">
+  Hangs up and resolves when the session ends. Resolves at once if it already ended.
+</ResponseField>
+
+<ResponseField name="answer()" type="void">
+  Does nothing and resolves at once. Fonoster answers the call before your handler runs.
+</ResponseField>
+
+### Raw audio
+
+`session.audio` sends and receives audio in the session's `audioFormat`.
+
+| Node.js | Python | Purpose |
+| --- | --- | --- |
+| `audio.onFrame((frame, trackId) => …)` | `audio.on_frame(callback)` | Receive caller audio, one frame per 20 ms, without the track byte |
+| `audio.send(frame)` | `await audio.send(frame)` | Queue your audio. It plays after anything already queued |
+| `audio.mark(name)` | `await audio.mark(name)` | Resolves with `{ cleared }` when the audio queued before it was heard (`false`) or dropped by `clear` (`true`) |
+| `audio.clear()` | `await audio.clear()` | Empty the output queue |
+
+## Events
+
+Register listeners with `session.on(event, callback)`. The callback gets the event's fields.
+
+| Event | Fields | When |
+| --- | --- | --- |
+| `turn.user_started` | | The caller started talking |
+| `turn.likely_ended` | `text` | The caller probably finished |
+| `turn.resumed` | | The caller kept talking after `turn.likely_ended` |
+| `turn.ended` | `text`, `language`, `confidence`, `durationMs`, `abandoned` | The caller's turn is over |
+| `turn.backchannel` | `text` | A short acknowledgment, such as "uh-huh", that isn't a turn |
+| `transcript.partial` | `text`, `language` | Interim transcript. Opt-in with `subscribe` |
+| `turn.estimate` | `eot`, `speaking`, `kind` | The turn detector's end-of-turn estimate (0 to 1). Opt-in with `subscribe` |
+| `amd.result` | `status`, `confidence`, `detector`, `audioMs`, `speechOnsetMs`, `reason` | Answering-machine verdict, once per call, when the stream has `amd` on. `status` is `human`, `voicemail`, `ivr`, `machine` or `unknown` |
+| `dtmf` | `digit` | The caller pressed a key |
+| `error` | `code`, `message`, `fatal` | An error not tied to a pending command |
+| `end` | `reason` | The session ended |
+
+`end` reasons: `caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error`, `timeout`, and
+`closed` when the socket closed without a `session.end`.
+
+Speech recognition starts with your first `say`, `play`, `subscribe`, `listen` or speech
+`gather`. Until then there are no turn events.
+
+### Barge-in
+
+When the caller starts talking while a `say` or `play` is being heard, and every item playing is
+interruptible, the SDK sends `clear` and the call resolves with `interrupted: true`. Items sent
+with `interruptible: false` keep playing. Fonoster itself never cuts the agent off; see
+[Turn-taking and barge-in](/autopilot/turn-taking).
+
+## Errors
+
+Import both from `@fonoster/voice` or `fonoster.voice`.
+
+<ResponseField name="SessionError" type="Error">
+  Fonoster rejected a command. Fields: `code`, `message`, `fatal`. The codes are listed in the
+  [session protocol](/reference/session-protocol#errors). A fatal error also ends the session.
+</ResponseField>
+
+<ResponseField name="SessionEndedError" type="Error">
+  The session ended while a command was pending, or you sent a command after it ended. Field:
+  `reason`. Every pending `say`, `play`, `gather`, `transfer` and `handoff` rejects with it, so
+  your handler never hangs.
+</ResponseField>
+
+## Signature helpers
+
+Use these to verify Fonoster's connection signature in your own WebSocket server. See
+[Verify request signatures](/streams/verify-signatures).
+
+<Tabs>
+  <Tab title="Node.js">
+    Exported from `@fonoster/voice`:
+
+    | Export | Purpose |
+    | --- | --- |
+    | `verifySignature(urls, headers, secret, nowSeconds?)` | Checks `x-fonoster-signature` against each URL. Returns `{ ok, reason }`; `reason` is `"missing"`, `"stale"` or `"mismatch"` |
+    | `verifyAppSignature(urls, headers, secret, nowSeconds?)` | Checks `x-fonoster-app-signature`. Returns `{ ok, reason, binding: { appRef, workspaceRef } }` |
+    | `hasAppSignature(headers)` | Whether the request carries `x-fonoster-app-signature` |
+    | `sign(url, timestamp, secret)` | The hex HMAC-SHA256 of `<timestamp>.<url>` |
+    | `signApp(url, timestamp, { appRef, workspaceRef }, secret)` | The hex HMAC-SHA256 of `<timestamp>\n<url>\n<appRef>\n<workspaceRef>` |
+    | `SIGNATURE_HEADER`, `TIMESTAMP_HEADER`, `APP_SIGNATURE_HEADER`, `APP_REF_HEADER`, `WORKSPACE_REF_HEADER` | The header names, lowercase |
+    | `MAX_SKEW_SECONDS` | `300` |
+  </Tab>
+  <Tab title="Python">
+    In `fonoster.voice.signature`:
+
+    | Name | Purpose |
+    | --- | --- |
+    | `verify_signature(urls, headers, secret, now=None)` | Checks `x-fonoster-signature` against each URL. Returns `None` when valid, else `"missing"`, `"stale"` or `"mismatch"` |
+    | `sign(url, timestamp, secret)` | The hex HMAC-SHA256 of `<timestamp>.<url>` |
+    | `SIGNATURE_HEADER`, `TIMESTAMP_HEADER` | The header names, lowercase |
+    | `MAX_SKEW_SECONDS` | `300` |
+
+    Python has no app-bound signature helper.
+  </Tab>
+</Tabs>

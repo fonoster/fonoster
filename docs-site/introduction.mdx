@@ -1,6 +1,61 @@
 ---
 title: "Introduction"
-description: "Build, test, and run voice agents on real phone lines."
+description: "What Fonoster is, the two ways to build a voice agent on it, and where to start."
 ---
 
-This page is a placeholder. It will be written with `/ps:docs`. The planned menu is in `docs-site/MENU.md`.
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/introduction/banner-light.png"
+  alt="The AI that answers the phone: an incoming call answered by the Front desk agent, with the agent and the caller talking."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/introduction/banner-dark.png"
+  alt="The AI that answers the phone: an incoming call answered by the Front desk agent, with the agent and the caller talking."
+/>
+
+Fonoster is an open-source platform for building, testing and running voice agents on real phone
+lines. Your agent answers calls on your numbers, makes calls, transfers to people and keeps a record
+of every conversation.
+
+Use Fonoster Cloud, or run Fonoster on your own servers. Your agents and code work the same on both.
+
+## Two ways to build
+
+<CardGroup cols={2}>
+  <Card title="Autopilot" icon="robot" href="/quickstart">
+    Fonoster runs the agent for you. Write the prompt, pick the voice and the language model, and
+    give it tools. You don't run a server.
+  </Card>
+  <Card title="Streams" icon="code" href="/streams/voice-sdk">
+    You run the agent on your own WebSocket server. Write it with the Voice SDK for Node.js or
+    Python, or connect a Twilio or Pipecat bot you already have.
+  </Card>
+</CardGroup>
+
+## What every call gets
+
+Both ways share the same phone layer, so you don't build it yourself:
+
+- Numbers and SIP trunks from the carrier you choose
+- Transfers to a person, cold or warm
+- DTMF: read and send keypad tones
+- Answering-machine detection, most useful on outbound calls
+- Recording, with a consent prompt when you need one
+- A signed record of every call, with its transcript and recording
+- Webhooks when calls start and end
+
+## Start here
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Create an Autopilot agent and call it.
+  </Card>
+  <Card title="How Fonoster works" icon="diagram-project" href="/concepts/how-fonoster-works">
+    Learn how workspaces, numbers and applications fit together.
+  </Card>
+</CardGroup>
+
+To run Fonoster on your own servers, see [Self-hosting](/self-hosting/overview). To change
+Fonoster itself, see [Hacking Fonoster](/hacking/overview). The [SDK](/reference/sdk) and
+[CLI](/reference/cli) references are one click away in the top bar.

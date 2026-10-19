@@ -1,0 +1,271 @@
+---
+title: "Give your agent tools"
+sidebarTitle: "Tools"
+description: "Let your agent hang up, transfer the call to a person, and call your own HTTP API during a call."
+---
+
+Tools let your agent act during a call, not just talk. The model decides when to use a tool, and
+Fonoster runs it. Every agent has two built-in tools, `hangup` and `transfer`. You add your own
+HTTP tools to look up an order, book an appointment or update a record in your systems.
+
+<Note>
+  Autopilot runs built-in tools and HTTP tools only. It doesn't support MCP tools or code tools.
+  To reach an MCP server, put an HTTP endpoint in front of it, or build a
+  [stream](/streams/voice-sdk) and call it from your own code.
+</Note>
+
+## Before you begin
+
+You need an Autopilot agent. See [Build an Autopilot agent](/autopilot/build-an-agent).
+
+## Built-in tools
+
+| Tool | When the model can use it | What happens |
+| --- | --- | --- |
+| `hangup` | Always | The agent says the goodbye message, then hangs up. The caller can't interrupt the goodbye. |
+| `transfer` | Only when `transferOptions` is set | The agent says the transfer message, then transfers the call to the transfer number. |
+
+You don't add these tools to the tool list. Tell the model when to use them in the system prompt,
+for example: "When the caller has what they need, hang up." The model doesn't need to say goodbye
+itself, because Fonoster speaks the goodbye message for it.
+
+### Turn on transfers
+
+The `transfer` tool needs a number to send the caller to, and a message to say first.
+
+<Tabs>
+  <Tab title="Dashboard">
+    1. Open the agent and go to the **Configure** tab.
+    2. In the **Behavior** panel, enter a number under **Transfer to an operator**, such as
+       `+18095550100`.
+    3. Enter what the agent says before it transfers under **Transfer message**.
+    4. Choose **Save**.
+
+    The **Tools** tab now shows `transfer` as **On** with the number.
+  </Tab>
+  <Tab title="SDK">
+    Set `transferOptions` in the agent's `conversationSettings`:
+
+    ```javascript
+    conversationSettings: {
+      // ...the rest of the agent's settings
+      transferOptions: {
+        phoneNumber: "+18095550100",
+        message: "One moment, I'm transferring you to a person."
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="CLI">
+    Add `transferOptions` to your agent file:
+
+    ```yaml agent.yaml
+    conversationSettings:
+      # ...the rest of the agent's settings
+      transferOptions:
+        phoneNumber: "+18095550100"
+        message: "One moment, I'm transferring you to a person."
+    ```
+
+    Then update the agent:
+
+    ```bash
+    fonoster applications:update 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31 --agent agent.yaml
+    ```
+  </Tab>
+</Tabs>
+
+To learn how transfers reach the operator's phone, see [Transfer calls](/telephony/transfers).
+
+## Add an HTTP tool
+
+An HTTP tool is a description the model reads plus a request Fonoster makes. In this example, the
+agent looks up an order by its number.
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/tools/tool-editor-light.png"
+  alt="The Tools tab of the Front desk agent: built-in hangup and transfer tools, the get_order_status tool under Your tools, and its editor with a description, GET https://api.example.com/orders/status, a required order_number parameter, an x-api-key header, One moment while I check that as the message to say while it runs, and Wait for response on."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/tools/tool-editor-dark.png"
+  alt="The Tools tab of the Front desk agent: built-in hangup and transfer tools, the get_order_status tool under Your tools, and its editor with a description, GET https://api.example.com/orders/status, a required order_number parameter, an x-api-key header, One moment while I check that as the message to say while it runs, and Wait for response on."
+/>
+
+<Steps>
+  <Step title="Describe the tool">
+    Give the tool a name and a description. The model reads both to decide when to call it, so say
+    plainly what the tool does and when to use it.
+
+    - **Name**: letters, numbers, underscores and hyphens, up to 64 characters. `hangup` and
+      `transfer` are taken.
+    - **Description**: one or two sentences, such as "Look up the status of an order by its order
+      number. Use it when the caller asks where their order is."
+
+  </Step>
+
+  <Step title="Define the parameters">
+    Parameters are the values the model fills in from the conversation. Each parameter has a
+    name, a type such as `string` or `number`, and whether it's required. A string can also take
+    a `format` (`enum` or `date-time`) or a `pattern`, but not both.
+
+    A tool with no parameters is fine: the model calls it without arguments.
+
+  </Step>
+
+  <Step title="Point it at your API">
+    Set the request Fonoster makes when the model calls the tool:
+
+    | Field | Default | What it does |
+    | --- | --- | --- |
+    | `method` | `get` | `get` sends the parameters as query-string values. `post` sends them as a JSON body. |
+    | `url` | | Your endpoint. It must be reachable from the internet. |
+    | `headers` | None | Extra headers, such as an API key. Fonoster sets `Accept` and `Content-Type` to `application/json` for you, so you can't set them. |
+    | `waitForResponse` | `true` | With `false`, Fonoster sends the request and tells the model it was sent, without waiting for your answer. |
+    | `requestStartMessage` | None | What the agent says while the tool runs, such as "One moment while I check that." |
+
+  </Step>
+
+  <Step title="Save the tool">
+    <Tabs>
+      <Tab title="Dashboard">
+        1. Open the agent and go to the **Tools** tab.
+        2. Under **Your tools**, choose **+ Add tool**.
+        3. Enter the name, the **Description**, the **Method** and the **URL**.
+        4. Under **Parameters**, choose **+ Add parameter** for each value, such as `order_number`
+           of type `string`.
+        5. Under **Headers**, choose **+ Add header** if your API needs one, such as `x-api-key`.
+        6. Enter **Say while it runs**, and keep **Wait for response** on.
+        7. Choose **Save**.
+      </Tab>
+      <Tab title="SDK">
+        Add the tool to `languageModel.tools` in the agent's configuration:
+
+        ```javascript
+        languageModel: {
+          model: "openai/gpt-4o-mini",
+          tools: [
+            {
+              name: "get_order_status",
+              description:
+                "Look up the status of an order by its order number. Use it when the caller asks where their order is.",
+              parameters: {
+                type: "object",
+                properties: {
+                  order_number: { type: "string" }
+                },
+                required: ["order_number"]
+              },
+              requestStartMessage: "One moment while I check that.",
+              operation: {
+                method: "get",
+                url: "https://api.example.com/orders/status",
+                waitForResponse: true,
+                headers: {
+                  "x-api-key": "k7Qm2Rv9Tx4Lp8Wn3Zc6"
+                }
+              }
+            }
+          ]
+        }
+        ```
+      </Tab>
+      <Tab title="CLI">
+        Add the tool to `languageModel.tools` in your agent file:
+
+        ```yaml agent.yaml
+        languageModel:
+          model: openai/gpt-4o-mini
+          tools:
+            - name: get_order_status
+              description: >-
+                Look up the status of an order by its order number.
+                Use it when the caller asks where their order is.
+              parameters:
+                type: object
+                properties:
+                  order_number:
+                    type: string
+                required: [order_number]
+              requestStartMessage: "One moment while I check that."
+              operation:
+                method: get
+                url: https://api.example.com/orders/status
+                waitForResponse: true
+                headers:
+                  x-api-key: k7Qm2Rv9Tx4Lp8Wn3Zc6
+        ```
+
+        Then update the agent:
+
+        ```bash
+        fonoster applications:update 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31 --agent agent.yaml
+        ```
+      </Tab>
+    </Tabs>
+
+  </Step>
+</Steps>
+
+When the caller says "Where's my order 10482?", Fonoster calls:
+
+```http
+GET https://api.example.com/orders/status?order_number=10482
+x-api-key: k7Qm2Rv9Tx4Lp8Wn3Zc6
+```
+
+## What your API should return
+
+Return JSON with what the model needs to answer, and keep it small. For example:
+
+```json
+{ "status": "shipped", "carrier": "UPS", "eta": "Thursday" }
+```
+
+The model reads your response and continues the reply from it. If your endpoint answers with an
+error status, or doesn't answer within 10 seconds, the model gets the error instead and continues
+the reply. Tell it in the prompt what to say when a tool fails. A response that isn't JSON reaches
+the model as plain text.
+
+In one turn, the model can call tools and continue from their results a few times. Keep chains
+short: Autopilot runs at most four model rounds for each thing the caller says.
+
+## Keys in headers
+
+Header values are stored as plain text in the agent's configuration. Anyone who can read the agent
+in your workspace can see them. Fonoster doesn't fill headers from [Secrets](/workspace/secrets):
+those hold vendor keys for speech and models.
+
+Give each tool a key that only works for that tool's endpoint, and rotate it like any other
+credential.
+
+## Where tools can reach
+
+Tool URLs must be public. Fonoster blocks requests to private and local addresses, such as
+`localhost` or `10.0.0.0/8`, and checks every redirect. On your own install, the operator can allow
+specific internal hosts. See [Install with Docker Compose](/self-hosting/install-compose).
+
+## Check your tools
+
+- Call the agent with **Talk to agent** and ask for something that needs the tool. The
+  [call record](/observe/call-records) keeps each tool call and whether it worked.
+- Add tool expectations to your test cases. Test runs never call your endpoints. See
+  [Test your agent](/autopilot/test).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Write prompts for voice" icon="pen" href="/autopilot/prompting">
+    Tell the model when to use each tool.
+  </Card>
+  <Card title="Test your agent" icon="flask" href="/autopilot/test">
+    Check that the model picks the right tool with the right values.
+  </Card>
+  <Card title="Transfer calls" icon="phone-arrow-right" href="/telephony/transfers">
+    Cold, warm and refer transfers.
+  </Card>
+  <Card title="Autopilot configuration" icon="list" href="/reference/autopilot-config">
+    Every tool field and its limits.
+  </Card>
+</CardGroup>

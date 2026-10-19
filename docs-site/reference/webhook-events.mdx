@@ -1,0 +1,301 @@
+---
+title: "Webhook events"
+description: "The envelope, headers and payload of every workspace webhook event."
+---
+
+Fonoster sends these events to your [webhooks](/observe/webhooks) as HTTPS `POST` requests. Each
+request carries one event in a JSON envelope. To set up a webhook and check its signature, see
+[Receive events with webhooks](/observe/webhooks).
+
+| Event | When it's sent |
+| --- | --- |
+| [`call.started`](#call-started) | A call reached an application. |
+| [`call.ended`](#call-ended) | A call that reached an application ended. |
+| [`call.failed`](#call-failed) | A call never reached an application. |
+| [`call_record.sealed`](#call_record-sealed) | A new version of a call record was sealed. |
+| [`provider.deprecated`](#provider-deprecated) | A provider, model or voice your workspace uses was deprecated. |
+
+## Request
+
+### Headers
+
+| Header | Value |
+| --- | --- |
+| `Content-Type` | `application/json` |
+| `X-Fonoster-Timestamp` | When the request was signed, in Unix seconds. |
+| `X-Fonoster-Signature` | The lowercase hex HMAC-SHA256 of `<timestamp>.<raw body>`, keyed with the webhook's signing secret. For 24 hours after a rotation, two signatures separated by a comma: one per secret. |
+
+A receiver accepts a request when one of the signatures matches and the timestamp is within 300
+seconds of its clock. See [Verify the signature](/observe/webhooks#verify-the-signature).
+
+### Envelope
+
+Every event has the same envelope.
+
+<ResponseField name="id" type="string" required>
+  The event's ID, starting with `evt_`. It stays the same on every retry and every resend. Use it to
+  skip events you've already handled.
+</ResponseField>
+
+<ResponseField name="type" type="string" required>
+  The event name, such as `call.ended`.
+</ResponseField>
+
+<ResponseField name="createdAt" type="string" required>
+  When the event happened, in ISO 8601 UTC, such as `2026-10-15T14:03:22.114Z`. Events can arrive
+  out of order: sort by this field.
+</ResponseField>
+
+<ResponseField name="workspaceRef" type="string" required>
+  The workspace the event belongs to.
+</ResponseField>
+
+<ResponseField name="data" type="object" required>
+  The event's fields, described below for each event.
+</ResponseField>
+
+### Delivery
+
+| Rule | Value |
+| --- | --- |
+| Success | Any `2xx` within 10 seconds |
+| Redirects | Not followed. A `3xx` is a failed attempt. |
+| Retries | First after 10 seconds, then doubling, up to one hour apart |
+| Give up | 24 hours after the first attempt; the delivery is marked `failed` |
+| Guarantee | At least once, in no fixed order |
+
+Events never carry a transcript, a recording or a secret.
+
+## call.started
+
+Sent when a call reaches an application, inbound or outbound. If the call goes to the application's
+fallback, `appRef` is the application that answered.
+
+<ResponseField name="data.callRef" type="string" required>
+  The call's ref. The same ref names its [call record](/observe/call-records).
+</ResponseField>
+
+<ResponseField name="data.appRef" type="string" required>
+  The application that answered the call.
+</ResponseField>
+
+<ResponseField name="data.from" type="string" required>
+  The calling number or address.
+</ResponseField>
+
+<ResponseField name="data.to" type="string" required>
+  The called number or address.
+</ResponseField>
+
+<ResponseField name="data.direction" type="string" required>
+  `inbound` or `outbound`.
+</ResponseField>
+
+```json
+{
+  "id": "evt_2a7c4e91-6b0d-4f3a-8e15-9c2d7b4a6f08",
+  "type": "call.started",
+  "createdAt": "2026-10-15T14:02:00.031Z",
+  "workspaceRef": "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",
+  "data": {
+    "callRef": "9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17",
+    "appRef": "6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31",
+    "from": "+18095550123",
+    "to": "+18095550199",
+    "direction": "inbound"
+  }
+}
+```
+
+## call.ended
+
+Sent when a call that reached an application ends. A call that sent `call.started` sends
+`call.ended`.
+
+<ResponseField name="data.callRef" type="string" required>
+  The call's ref.
+</ResponseField>
+
+<ResponseField name="data.appRef" type="string" required>
+  The application that answered the call.
+</ResponseField>
+
+<ResponseField name="data.from" type="string" required>
+  The calling number or address.
+</ResponseField>
+
+<ResponseField name="data.to" type="string" required>
+  The called number or address.
+</ResponseField>
+
+<ResponseField name="data.direction" type="string" required>
+  `inbound` or `outbound`.
+</ResponseField>
+
+<ResponseField name="data.durationSeconds" type="integer" required>
+  The call's length in seconds, rounded. After a cold transfer, it counts until the transferred
+  call ends.
+</ResponseField>
+
+<ResponseField name="data.endReason" type="string" required>
+  Why the call ended. One of the values below.
+</ResponseField>
+
+| `endReason` | Meaning |
+| --- | --- |
+| `caller_hangup` | The other party hung up. On an outbound call, that's the person you called. |
+| `app_hangup` | The application hung up, such as an agent's `hangup` tool or a stream's `hangup()`. |
+| `transfer` | The call was transferred away. |
+| `handoff` | The call was handed to another application. |
+| `timeout` | The call reached its maximum length. |
+| `error` | The call ended because of an error, such as a media failure. |
+| `appbridge-lost` | Fonoster lost the part of the platform that was serving the call. This event comes about 15 to 20 seconds later, and `durationSeconds` counts until the call was last seen. |
+
+```json
+{
+  "id": "evt_6f1c0a52-3d1e-4b7f-9a53-0f4d5f6a7b8c",
+  "type": "call.ended",
+  "createdAt": "2026-10-15T14:03:22.114Z",
+  "workspaceRef": "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",
+  "data": {
+    "callRef": "9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17",
+    "appRef": "6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31",
+    "from": "+18095550123",
+    "to": "+18095550199",
+    "direction": "inbound",
+    "durationSeconds": 83,
+    "endReason": "caller_hangup"
+  }
+}
+```
+
+## call.failed
+
+Sent when a call never reaches an application: the number you called was busy or didn't answer,
+the call was rejected, or neither the application nor its fallback could be reached. A failed call
+sends no `call.started` or `call.ended`.
+
+<ResponseField name="data.callRef" type="string" required>
+  The call's ref.
+</ResponseField>
+
+<ResponseField name="data.appRef" type="string">
+  The application the call was meant for. It may be empty or missing.
+</ResponseField>
+
+<ResponseField name="data.from" type="string" required>
+  The calling number or address.
+</ResponseField>
+
+<ResponseField name="data.to" type="string" required>
+  The called number or address.
+</ResponseField>
+
+<ResponseField name="data.direction" type="string" required>
+  `inbound` or `outbound`.
+</ResponseField>
+
+<ResponseField name="data.reason" type="string" required>
+  Why the call failed. Common values are below; treat any other value as a generic failure.
+</ResponseField>
+
+| `reason` | Meaning |
+| --- | --- |
+| `busy` | The number you called was busy (SIP 486 or 600). |
+| `no_answer` | The number you called didn't answer (SIP 408, 480 or 487). |
+| `failed` | The outbound call failed for another reason. |
+| `rejected` | The call was rejected. |
+| `app_unreachable` | Neither the application nor its fallback application could be reached. If the application has a fallback message, the caller hears it. |
+| `node_error` | A media failure on Fonoster's side. |
+
+```json
+{
+  "id": "evt_c3e8b1f2-7a4d-4e9c-b605-1d8f2a7c9e43",
+  "type": "call.failed",
+  "createdAt": "2026-10-15T15:10:47.502Z",
+  "workspaceRef": "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",
+  "data": {
+    "callRef": "4e7a1c9b-2d5f-4a8e-9b13-6c0d8f2e7a54",
+    "appRef": "6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31",
+    "from": "+18095550199",
+    "to": "+18095550187",
+    "direction": "outbound",
+    "reason": "no_answer"
+  }
+}
+```
+
+## call_record.sealed
+
+Sent each time a new version of a [call record](/observe/call-records) is sealed. Version `1` is
+sealed after the call ends. Later versions come from changes, such as a part being deleted. No event is sent
+when a record is erased.
+
+<ResponseField name="data.callRef" type="string" required>
+  The call's ref.
+</ResponseField>
+
+<ResponseField name="data.version" type="integer" required>
+  The record version that was sealed, starting at `1`.
+</ResponseField>
+
+<ResponseField name="data.recordUrl" type="string" required>
+  Where to fetch that version: `/api/records/<callRef>?version=<version>`, relative to the API's
+  host. An operator can set a different base. Fetch it with your access token.
+</ResponseField>
+
+```json
+{
+  "id": "evt_8d4b2f6a-1c9e-4a7d-b350-e2f7c1a9d846",
+  "type": "call_record.sealed",
+  "createdAt": "2026-10-15T14:03:41.877Z",
+  "workspaceRef": "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",
+  "data": {
+    "callRef": "9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17",
+    "version": 1,
+    "recordUrl": "/api/records/9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17?version=1"
+  }
+}
+```
+
+## provider.deprecated
+
+Sent once to each workspace that names the item in a saved application or agent, when Fonoster
+deprecates a provider, model or voice. See [Providers and models](/reference/providers#deprecation-and-retirement).
+
+<ResponseField name="data.id" type="string" required>
+  The catalog ID that was deprecated, such as `groq/llama-3.3-70b-versatile`.
+</ResponseField>
+
+<ResponseField name="data.replacement" type="string" required>
+  The catalog ID to move to.
+</ResponseField>
+
+<ResponseField name="data.retireOn" type="string" required>
+  The retirement date, as `YYYY-MM-DD`.
+</ResponseField>
+
+```json
+{
+  "id": "evt_f1a6c3d9-4b2e-4f8a-a7c0-5e9d3b1f2c68",
+  "type": "provider.deprecated",
+  "createdAt": "2026-09-15T09:00:12.004Z",
+  "workspaceRef": "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",
+  "data": {
+    "id": "groq/llama-3.3-70b-versatile",
+    "replacement": "groq/openai/gpt-oss-120b",
+    "retireOn": "2026-10-15"
+  }
+}
+```
+
+## Retired events
+
+The 0.27 Autopilot `eventsHook` events are gone. Creating a webhook with one of their names is
+refused with the replacement.
+
+| 0.27 event | Subscribe to |
+| --- | --- |
+| `conversation.started` | `call.started` |
+| `conversation.ended` | `call.ended` and `call_record.sealed` |
+| `all` | `call.started`, `call.ended` and `call_record.sealed` |

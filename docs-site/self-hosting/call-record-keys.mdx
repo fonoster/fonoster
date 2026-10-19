@@ -1,0 +1,220 @@
+---
+title: "Rotate call-record keys"
+sidebarTitle: "Call-record keys"
+description: "Rotate the key that signs your install's call records, publish the public keys, and retire old private keys."
+---
+
+Your install signs every [call record](/observe/call-records) with its own key, so anyone holding
+the public key can check that a record wasn't changed. Use this page to rotate that key without a
+restart, publish the public keys where developers can fetch them, and delete old private keys
+safely.
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/call-record-keys/rotation-light.png"
+  alt="Three snapshots of config/record-keys. Before: local-1 signs and current points to it. After keys rotate: a new key local-20261019T143000 is added and signs, and current points to it. After keys retire local-1: the local-1 private key is gone and its public key stays for verifying only. The published call-record-keys.json lists local-1, then both keys, then both keys."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/call-record-keys/rotation-dark.png"
+  alt="Three snapshots of config/record-keys. Before: local-1 signs and current points to it. After keys rotate: a new key local-20261019T143000 is added and signs, and current points to it. After keys retire local-1: the local-1 private key is gone and its public key stays for verifying only. The published call-record-keys.json lists local-1, then both keys, then both keys."
+/>
+
+The Compose install starts with one fixed key, `local-1`, in `config/keys/records.pem`. To rotate,
+you move it into a key directory once. After that, each rotation is one command.
+
+## Before you begin
+
+You need:
+
+- Fonoster installed with Docker Compose. See [Install with Docker Compose](/self-hosting/install-compose).
+- Node.js 22 or later, to run `fonoster-callrecord` with `npx`.
+- `openssl`.
+
+Run the commands on this page from your `fonoster` folder.
+
+## Move to a key directory
+
+A key directory holds each key as `<kid>.key.pem` (private) and `<kid>.pub.pem` (public), plus a
+`current` file naming the key that signs. You do this once.
+
+<Steps>
+  <Step title="Put the current key in a directory">
+    Copy the install's key into a new `config/record-keys` folder under its ID, `local-1`, write
+    its public half next to it, and mark it current:
+
+    ```bash
+    mkdir -p config/record-keys
+    cp config/keys/records.pem config/record-keys/local-1.key.pem
+    openssl pkey -in config/keys/records.pem -pubout -out config/record-keys/local-1.pub.pem
+    echo local-1 > config/record-keys/current
+    ```
+
+    Keeping `local-1` in the directory keeps it published, so records already signed with it still
+    verify.
+  </Step>
+
+  <Step title="Point the gateway at the directory">
+    In `config/gateway.example.yaml`, change `signingKey` under `callRecord` to the directory as the
+    gateway sees it:
+
+    ```yaml
+    callRecord:
+      # ...
+      signingKey: { dir: /etc/fonoster/record-keys }
+    ```
+
+    Then write the configuration:
+
+    ```bash
+    npx -p @fonoster/common fonoster-config init
+    ```
+  </Step>
+
+  <Step title="Mount the directory in the gateway">
+    In `compose.yaml`, under the `appbridge` service's `volumes`, replace the `records.pem` line
+    with the directory:
+
+    ```yaml
+    # was: - ${CONFIG_DIR:-./config}/keys/records.pem:/etc/fonoster/keys/records.pem:ro
+    - ${CONFIG_DIR:-./config}/record-keys:/etc/fonoster/record-keys:ro
+    ```
+  </Step>
+
+  <Step title="Recreate the gateway">
+    Recreate the voice gateway so it gets the new mount. Calls in progress end, so do this when the
+    install is quiet:
+
+    ```bash
+    docker compose up -d --force-recreate appbridge
+    ```
+  </Step>
+</Steps>
+
+List the keys to check the directory:
+
+```bash
+npx -p @fonoster/callrecord fonoster-callrecord keys list --dir config/record-keys
+```
+
+The current key is marked with `*`:
+
+```text
+* local-1
+```
+
+## Rotate the key
+
+<Steps>
+  <Step title="Create a new key">
+    Create a new P-256 key and make it current. `--prefix` starts its ID, and the time is added
+    after it:
+
+    ```bash
+    npx -p @fonoster/callrecord fonoster-callrecord keys rotate --dir config/record-keys --prefix local
+    ```
+
+    ```text
+    new signing key local-20261019T143000 is current
+    ```
+
+    Pass `--kid <id>` instead to choose the whole ID (letters, digits, `.`, `_` and `-`, up to 64
+    characters). The tool never overwrites an existing key.
+  </Step>
+
+  <Step title="Let the gateway read it">
+    The tool writes the private key readable by you only, and the gateway runs as another user.
+    Make it readable, as `init` does for the install's other keys:
+
+    ```bash
+    chmod 644 config/record-keys/*.key.pem
+    ```
+  </Step>
+</Steps>
+
+The gateway picks up the new key on its next signature, without a restart. Records sealed from now
+on name the new key's ID (`kid`). The old key stays in the directory and in the published key set.
+
+## Publish the public keys
+
+Developers verify a record with the key set its `jku` header points to (see
+[Verify a record](/observe/call-records#verify-a-record)). The Compose install doesn't publish a key
+set and its records carry no `jku`, so publish one yourself.
+
+<Steps>
+  <Step title="Print the key set">
+    Print every public key in the directory as a JWK Set:
+
+    ```bash
+    npx -p @fonoster/callrecord fonoster-callrecord keys publish --dir config/record-keys > call-record-keys.json
+    ```
+
+    It holds the current key and every earlier one, so records signed before a rotation still
+    verify.
+  </Step>
+
+  <Step title="Host it">
+    Serve the file over HTTPS from a web server you run, at the path Fonoster uses for it:
+    `https://voice.example.com/.well-known/call-record-keys.json`.
+  </Step>
+
+  <Step title="Name the URL in records">
+    Add the URL as `jku` in `config/gateway.example.yaml`, run `init`, and recreate the gateway as
+    above:
+
+    ```yaml
+    signingKey: { dir: /etc/fonoster/record-keys, jku: "https://voice.example.com/.well-known/call-record-keys.json" }
+    ```
+
+    Records sealed from then on carry the URL. Earlier records don't.
+  </Step>
+</Steps>
+
+Publish the file again after every rotation, before the new key signs many records.
+
+## Retire an old private key
+
+Once a newer key is current, delete the old private key. Its public half stays, so its records keep
+verifying:
+
+```bash
+npx -p @fonoster/callrecord fonoster-callrecord keys retire local-1 --dir config/record-keys
+```
+
+```text
+local-1: private key deleted; its public key stays published
+```
+
+You can't retire the current key: the tool answers `local-1 is the current key; rotate first`.
+`keys list` then shows the old key as verify-only:
+
+```text
+  local-1 (retired: verify only)
+* local-20261019T143000
+```
+
+<Warning>
+  Never delete a `.pub.pem` file. Records signed with that key could no longer be verified.
+</Warning>
+
+Back up `config/record-keys` with `.env`. Without the current private key, the gateway can't seal
+records.
+
+## How long records are kept
+
+Your install keeps call records forever by default. Workspace owners and admins set retention per
+part (recording, transcript, messages) with the SDK or the HTTP API. See
+[Retention and erasure](/observe/retention). The API server applies those policies every 60
+minutes. To change how often, set `callRecords.retentionIntervalMinutes` in
+`config/fonoster.example.yaml` and run `init` again.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Read and verify call records" icon="file-signature" href="/observe/call-records">
+    How developers fetch a record and check its signature.
+  </Card>
+  <Card title="Send call metrics to ClickHouse" icon="database" href="/self-hosting/send-call-metrics-to-clickhouse">
+    Load every sealed record's metrics into your own ClickHouse.
+  </Card>
+</CardGroup>

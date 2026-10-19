@@ -1,0 +1,378 @@
+---
+title: "Read and verify call records"
+sidebarTitle: "Call records"
+description: "Fetch a call's signed record and recording, and prove that neither was changed."
+---
+
+Every call leaves a call record: who took part, what was said, how the agent decided each turn, and
+the recording if recording was on. Fonoster signs each record when the call ends, so you can prove
+later that nobody changed it. This guide shows how to find records, download them and their
+recordings, and check their signatures.
+
+## Before you begin
+
+You need:
+
+- A workspace with at least one finished call. The [quickstart](/quickstart) makes one in a few
+  minutes.
+- For the SDK or the CLI: an API key and [Node.js](https://nodejs.org/) 22 or later. The
+  [quickstart](/quickstart) shows how to install both and sign in.
+
+## What's in a record
+
+A record is a [vCon](https://datatracker.ietf.org/doc/draft-ietf-vcon-vcon-core/), an open JSON
+format for conversations. Fonoster writes version `0.4.0` of the format.
+
+| Section | What it holds |
+| --- | --- |
+| `parties` | The caller, the callee, and one `agent` party for each application that took the call. A call handed from one application to another is still one record. |
+| `dialog` | The recording, when there is one, and one text entry per turn: what the caller said and what the caller heard of each reply, marked when the caller interrupted it. |
+| `analysis` | `turn_decisions`, how each turn was decided, and `app_notes`, notes your application wrote into the record. |
+| `attachments` | `messages.ndjson`: every message of the session in both directions, in order, without audio. Only in the original copy. |
+| `fonoster` | The call's details: `callRef`, `region`, start and end times, `endReason`, `status` (`completed`, `failed` or `incomplete`), `direction`, `workspaceRef`, `appRefs`, the `recording` policy, and `missing`. |
+
+`fonoster.missing` lists what the record lacks: `hangup` when the call's end was never seen (the
+record was sealed shortly after its last entry), or `recording` when a recording was asked for and
+none was made.
+
+A record doesn't include logs, the language model's prompts and responses, or SIP traces. A call
+that never reached an application, because it was busy, wasn't answered or was rejected, gets a
+shorter record with the failure reason.
+
+### Versions
+
+A record is sealed when the call ends, as version 1. A sealed version is never edited. When
+something changes later, such as a part being deleted, Fonoster seals a new version that points to
+the one before it. Reads return the latest version unless you ask for another.
+
+### Two copies: redacted and original
+
+Each version comes in two copies:
+
+- **Redacted**, the copy you get by default. Payment card numbers, as digits or as number words in
+  English or Spanish, are replaced with `[card number]` in the transcript, the turn decisions and the notes. It has no
+  `messages.ndjson`. When a card number was redacted, the recording in this copy has a beep over
+  it. If Fonoster can't find the redacted words in the audio, this copy leaves the recording out and
+  sets `fonoster.recordingWithheld`.
+- **Original**, unredacted, with `messages.ndjson` and the recording without beeps. Only workspace
+  owners and admins can read it.
+
+<Note>
+  Redaction only finds card numbers. Other personal data, such as names or
+  addresses, isn't masked.
+</Note>
+
+### How a record is signed
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/call-records/lifecycle-light.png"
+  alt="Inside the region, when a call ends the record is sealed as version 1 and split into an original copy (transcript, messages.ndjson and recording, for owners and admins) and a redacted copy (card numbers replaced, recording beeped, the default). Both are signed as ES256 JWS with the region's key. Outside the region, a call_record.sealed webhook reaches your endpoint, the SDK, CLI or HTTP API fetches the record with GET /api/records/<callRef>, and you verify either copy against the keys the region publishes at /.well-known/call-record-keys.json."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/call-records/lifecycle-dark.png"
+  alt="Inside the region, when a call ends the record is sealed as version 1 and split into an original copy (transcript, messages.ndjson and recording, for owners and admins) and a redacted copy (card numbers replaced, recording beeped, the default). Both are signed as ES256 JWS with the region's key. Outside the region, a call_record.sealed webhook reaches your endpoint, the SDK, CLI or HTTP API fetches the record with GET /api/records/<callRef>, and you verify either copy against the keys the region publishes at /.well-known/call-record-keys.json."
+/>
+
+Fonoster signs both copies of every version with the key of the region where the call ran. Each
+signature is a JWS with the ES256 algorithm. Each file the record points to, such as the recording,
+is listed with its SHA-512 hash, so the signature covers the files too. The region publishes its
+public keys at `/.well-known/call-record-keys.json`, including old keys, so records signed before a
+key change still verify.
+
+Records stay in the region where the call ran.
+
+## Know when a record is ready
+
+Subscribe a [webhook](/observe/webhooks) to `call_record.sealed`. Fonoster sends it for every new
+version of a record:
+
+```json
+{
+  "id": "evt_2a7d9c14-6e3b-4f80-b1a5-7c9e0d3f6b28",
+  "type": "call_record.sealed",
+  "createdAt": "2026-10-15T14:03:24.902Z",
+  "workspaceRef": "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",
+  "data": {
+    "callRef": "9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17",
+    "version": 1,
+    "recordUrl": "/api/records/9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17?version=1"
+  }
+}
+```
+
+`recordUrl` is the record's path on the API. When it's a path, add your API's address in front, such
+as `https://api.fonoster.com`. The event never carries the transcript or the recording.
+
+## Find records
+
+<Tabs>
+  <Tab title="Dashboard">
+    Go to **Calls**. Each row is a call, newest first. Open one to read its turns and its turn
+    decisions. The dashboard shows the redacted copy.
+  </Tab>
+  <Tab title="SDK">
+    `CallRecords` searches the workspace's records, newest first. This script lists the calls to or
+    from one number since October 1:
+
+    ```javascript list-records.js
+    const SDK = require("@fonoster/sdk");
+
+    async function main() {
+      const client = new SDK.Client({
+        accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+      });
+      await client.loginWithApiKey(
+        process.env.FONOSTER_API_KEY,
+        process.env.FONOSTER_API_SECRET
+      );
+
+      const records = new SDK.CallRecords(client);
+      const { items, nextPageToken } = await records.listRecords({
+        after: "2026-10-01T00:00:00Z",
+        number: "+18095550123"
+      });
+
+      for (const r of items) {
+        console.log(r.callRef, r.startedAt, r.status, r.durationSeconds);
+      }
+    }
+
+    main().catch(console.error);
+    ```
+
+    To read the next page, pass `nextPageToken` back as `pageToken`.
+  </Tab>
+  <Tab title="CLI">
+    Search the workspace's records, newest first:
+
+    ```bash
+    fonoster records:list --after 2026-10-01 --number +18095550123
+    ```
+
+    When there are more results, it prints the flag for the next page, such as
+    `Next page: --page-token 1760536980114`.
+  </Tab>
+</Tabs>
+
+These filters work on every surface:
+
+| Filter | SDK and HTTP | CLI | Matches |
+| --- | --- | --- | --- |
+| After | `after` | `--after` | Calls that started at or after this ISO date or time |
+| Before | `before` | `--before` | Calls that started before this ISO date or time |
+| Number | `number` | `--number` | Calls from or to this number |
+| Application | `appRef` | `--app` | Calls handled by this application |
+| Status | `status` | `--status` | `completed`, `failed` or `incomplete` |
+| Page size | `pageSize` | `--page-size` | Default 50, up to 500 |
+
+## Get a record
+
+<Tabs>
+  <Tab title="Dashboard">
+    In **Calls**, open the call. The page header shows who called, the application, the length, why
+    the call ended, and the record's version.
+  </Tab>
+  <Tab title="SDK">
+    `getRecord` returns the call's details with the vCon (`vcon`) and its signed form (`jws`):
+
+    ```javascript
+    const record = await records.getRecord("9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17");
+    console.log(record.version, record.redacted, record.vcon.dialog.length);
+    ```
+
+    Pass `{ version: 1 }` for an earlier version, or `{ original: true }` for the original copy.
+  </Tab>
+  <Tab title="CLI">
+    Show a summary of the record:
+
+    ```bash
+    fonoster records:get 9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17
+    ```
+
+    Save the vCon as JSON, or its signed form to verify later:
+
+    ```bash
+    fonoster records:download 9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17 --part vcon
+    fonoster records:download 9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17 --part signed
+    ```
+
+    These write `<callRef>.vcon.json` and `<callRef>.vcon.jws.json`. Add `--version <n>` for an
+    earlier version, `--original` for the original copy, or `-o <file>` to pick the file name.
+  </Tab>
+</Tabs>
+
+`--original` and `{ original: true }` need the owner or admin role. Without it, the request is
+refused with `403`.
+
+## Download the recording
+
+The recording is a stereo WAV file at 16 kHz: the caller on the left channel, your application on
+the right. There's a recording only when the call's recording policy was on. See
+[Record calls and ask for consent](/telephony/recording).
+
+<Tabs>
+  <Tab title="Dashboard">
+    Open the call in **Calls** and choose **Download recording**, then **Save recording**. When
+    there's none, the page shows **No recording**.
+  </Tab>
+  <Tab title="SDK">
+    `getRecording` returns the file and its hash:
+
+    ```javascript
+    const fs = require("fs");
+
+    const { data, contentHash } = await records.getRecording(
+      "9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17"
+    );
+    fs.writeFileSync("call.wav", Buffer.from(data));
+    console.log(contentHash); // sha512-...
+    ```
+  </Tab>
+  <Tab title="CLI">
+    Save the recording as `<callRef>.wav`:
+
+    ```bash
+    fonoster records:download 9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17
+    ```
+  </Tab>
+</Tabs>
+
+By default you get the redacted copy's recording, with a beep over any card number. Add
+`--original` (CLI) or `{ original: true }` (SDK) for the recording without beeps. If the redacted
+copy withheld the recording, only the original has it.
+
+## Use the HTTP API
+
+The SDK and the CLI call these HTTP endpoints, which you can also call directly. Send your access
+token and your workspace with every request:
+
+```text
+Authorization: Bearer <access token>
+x-accesskey-id: WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3
+```
+
+With the SDK, `client.getAccessToken()` returns the token after you sign in.
+
+| Request | Returns |
+| --- | --- |
+| `GET /api/records` | Search results, with the filters above as query parameters |
+| `GET /api/records/<callRef>` | The record. Add `?version=<n>` or `?original=true`. |
+| `GET /api/records/<callRef>/recording` | The recording as WAV. The `x-content-hash` header carries its hash. Takes `version` and `original` too. |
+
+This request fetches a record:
+
+```bash
+curl https://api.fonoster.com/api/records/9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "x-accesskey-id: WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+```
+
+| Status | Means |
+| --- | --- |
+| `403` | You asked for the original without the owner or admin role, or for a recording only the original has. |
+| `404` | No such record in this workspace, or the call has no recording. |
+| `410` | The record was erased, or this part was deleted. See [Retention and erasure](/observe/retention). |
+
+## Verify a record
+
+Verification proves that a record and its recording are exactly what the region signed. You check
+two things: the signature over the vCon, and the hash of each file it points to.
+
+<Steps>
+  <Step title="Download the signed record and its recording">
+    Download the same copy of both. For the redacted copy:
+
+    ```bash
+    fonoster records:download 9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17 --part signed -o call.vcon.jws.json
+    fonoster records:download 9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17 -o call.wav
+    ```
+
+    For the original, add `--original` to both commands.
+  </Step>
+
+  <Step title="Check the signature and the recording">
+    The signed record is a JWS in JSON form. Its protected header holds `alg` (`ES256`), `typ`
+    (`vcon+jws`), `kid`, the ID of the signing key, and `jku`, the URL of the region's key set.
+
+    This script fetches the key set from `jku`, picks the key whose `kid` matches, checks the
+    signature, then compares the recording's SHA-512 hash with the one in the vCon:
+
+    ```javascript verify-record.js
+    const { createHash, createPublicKey, verify } = require("crypto");
+    const fs = require("fs");
+
+    async function main() {
+      const jws = JSON.parse(fs.readFileSync("call.vcon.jws.json", "utf8"));
+      const sig = jws.signatures[0];
+      const header = JSON.parse(Buffer.from(sig.protected, "base64url"));
+
+      const set = await (await fetch(header.jku)).json();
+      const jwk = set.keys.find((k) => k.kid === header.kid);
+      if (!jwk) throw new Error(`no published key ${header.kid}`);
+
+      const valid = verify(
+        "sha256",
+        Buffer.from(`${sig.protected}.${jws.payload}`),
+        { key: createPublicKey({ key: jwk, format: "jwk" }), dsaEncoding: "ieee-p1363" },
+        Buffer.from(sig.signature, "base64url")
+      );
+      console.log("signature", valid ? "valid" : "INVALID");
+
+      const vcon = JSON.parse(Buffer.from(jws.payload, "base64url"));
+      const recording = vcon.dialog.find((d) => d.type === "recording" && d.url);
+      if (recording) {
+        const wav = fs.readFileSync("call.wav");
+        const hash = "sha512-" + createHash("sha512").update(wav).digest("base64url");
+        console.log("recording", hash === recording.content_hash ? "matches" : "DIFFERS");
+      }
+    }
+
+    main().catch(console.error);
+    ```
+
+    Run it next to the two files:
+
+    ```bash
+    node verify-record.js
+    ```
+
+    ```text
+    signature valid
+    recording matches
+    ```
+  </Step>
+</Steps>
+
+<Check>The record and its recording are exactly what the region signed.</Check>
+
+A content hash is `sha512-` followed by the base64url SHA-512 of the file. The original copy also
+points to `messages.ndjson` in `attachments`, with its own `content_hash`, which you can check the
+same way. File `url`s in the vCon are relative, such as `parts/recording.wav`; download the files
+through the API.
+
+<Note>
+  A record proves it matches the key set its region publishes. The key isn't backed by a certificate
+  chain or an outside timestamp, so you trust the region's published keys.
+</Note>
+
+For every command and method, see Call records in the [CLI reference](/reference/cli#call-records)
+and `CallRecords` in the [Node SDK reference](/reference/sdk#callrecords).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Retention and erasure" icon="trash" href="/observe/retention">
+    Delete recordings after a number of days, or erase one call.
+  </Card>
+  <Card title="Record calls and ask for consent" icon="microphone" href="/telephony/recording">
+    Turn recording on, off, or on with consent.
+  </Card>
+  <Card title="Webhooks" icon="bell" href="/observe/webhooks">
+    Get `call_record.sealed` when a record is ready.
+  </Card>
+  <Card title="Node SDK" icon="node-js" href="/reference/sdk">
+    Every `CallRecords` method.
+  </Card>
+</CardGroup>

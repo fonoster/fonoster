@@ -1,0 +1,346 @@
+---
+title: "Build a stream with the Voice SDK"
+sidebarTitle: "Voice SDK (Node.js)"
+description: "Answer phone calls with your own Node.js code: speak, listen for speech and keypresses, transfer the call and hang up."
+---
+
+In this tutorial you write a small phone menu in Node.js and put it on a real call. It greets the
+caller, asks what they need, listens for speech or a keypress, and either transfers the call to a
+person or says goodbye. Your code runs on your machine; Fonoster handles the phone line and the
+speech.
+
+A **stream** is the kind of application that runs your own code. For every call, Fonoster opens a
+WebSocket to your server and keeps it open until the call ends. The Voice SDK (`@fonoster/voice`)
+accepts that connection and gives you one `session` object per call.
+
+## Before you begin
+
+You need:
+
+- A Fonoster account. Sign up at [app.fonoster.com](https://app.fonoster.com), or use the dashboard
+  of your own Fonoster install.
+- A phone number in your workspace. [Link a Twilio number](/telephony/link-twilio) if you don't
+  have one yet.
+- [Node.js](https://nodejs.org/) 22 or later.
+- A tunnel that gives your machine a public HTTPS address. This tutorial uses
+  [ngrok](https://ngrok.com/download).
+- A phone to call from.
+
+## Build it
+
+<Steps>
+  <Step title="Create the project">
+    Make a folder for the server and install the Voice SDK:
+
+    ```bash
+    mkdir front-desk-stream && cd front-desk-stream
+    npm init -y
+    npm install @fonoster/voice
+    ```
+
+  </Step>
+
+  <Step title="Open a tunnel">
+    Fonoster dials your server from the internet, so it needs a public address. It won't dial
+    `localhost` or a private IP unless the operator of a self-hosted install allows it.
+
+    Start a tunnel to port 3000, where your server will listen:
+
+    ```bash
+    ngrok http 3000
+    ```
+
+    ngrok prints a public HTTPS address:
+
+    ```text
+    Forwarding  https://f3a9-198-51-100-24.ngrok-free.app -> http://localhost:3000
+    ```
+
+    Your stream's URL is that address with `wss://` in place of `https://`:
+    `wss://f3a9-198-51-100-24.ngrok-free.app`. Copy it.
+
+    <Note>
+      Keep ngrok running for the rest of this tutorial. On the free plan the address changes each
+      time you restart it, and then you must update the stream's URL.
+    </Note>
+
+  </Step>
+
+  <Step title="Create the stream">
+    Tell Fonoster where your server is. When you create a stream, Fonoster gives you its
+    **signing secret**. Your server uses it to check that each connection really comes from
+    Fonoster.
+
+    <Tabs>
+      <Tab title="Dashboard">
+        1. Sign in to the dashboard and go to **Streams**.
+        2. Choose **New stream**.
+        3. Name it `Front desk stream`.
+        4. Paste your `wss://` address into **URL**.
+        5. Keep the protocol **Fonoster (session protocol)**.
+        6. Choose **Create stream**.
+
+        The dashboard opens your new stream and shows **Signing secret (shown once)**. Copy it now.
+        It isn't shown again.
+      </Tab>
+      <Tab title="SDK">
+        In the dashboard, go to **API keys** and create a key. Copy the key ID and the secret.
+        You also need your workspace's access key ID, which starts with `WO`.
+
+        Install the SDK next to the Voice SDK:
+
+        ```bash
+        npm install @fonoster/sdk
+        ```
+
+        Save this as `create-stream.js`. It creates a stream that speaks the `fonoster` protocol
+        and prints its signing secret:
+
+        ```javascript create-stream.js
+        const SDK = require("@fonoster/sdk");
+
+        async function main() {
+          const client = new SDK.Client({
+            accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+          });
+          await client.loginWithApiKey(
+            process.env.FONOSTER_API_KEY,
+            process.env.FONOSTER_API_SECRET
+          );
+
+          const apps = new SDK.Applications(client);
+          const { ref, signingSecret } = await apps.createApplication({
+            name: "Front desk stream",
+            type: "STREAM",
+            url: process.env.PUBLIC_URL,
+            protocol: "fonoster"
+          });
+
+          console.log(`Stream created: ${ref}`);
+          console.log(`Signing secret: ${signingSecret}`);
+        }
+
+        main().catch(console.error);
+        ```
+
+        Run it with your key and your tunnel address:
+
+        ```bash
+        FONOSTER_API_KEY=APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1 \
+        FONOSTER_API_SECRET=<your secret> \
+        PUBLIC_URL=wss://f3a9-198-51-100-24.ngrok-free.app \
+        node create-stream.js
+        ```
+
+        It prints the stream's ref and its signing secret. Copy the secret now. It isn't shown
+        again.
+
+        ```text
+        Stream created: 3f8b2c71-9d4e-4a6b-8c25-7e1f0a9b4d62
+        Signing secret: Jt4qXk9pV2mWc7yRb1sLd8nHf3aZe6uQo0iTg5xKwYv
+        ```
+      </Tab>
+      <Tab title="CLI">
+        Install the `fonoster` CLI and log in to your workspace if you haven't yet:
+
+        ```bash
+        npm install -g @fonoster/ctl
+        fonoster workspaces:login
+        ```
+
+        Create the stream with your tunnel address:
+
+        ```bash
+        fonoster applications:create --name "Front desk stream" \
+          --url wss://f3a9-198-51-100-24.ngrok-free.app --protocol fonoster
+        ```
+
+        It prints the stream's ref and its signing secret. Copy the secret now. It isn't shown
+        again.
+
+        ```text
+        Application created: 3f8b2c71-9d4e-4a6b-8c25-7e1f0a9b4d62
+        Signing secret: Jt4qXk9pV2mWc7yRb1sLd8nHf3aZe6uQo0iTg5xKwYv
+        Save it now: it is shown only once (rotate it with applications:rotate-secret).
+        ```
+      </Tab>
+    </Tabs>
+
+    The stream uses the platform's default voice (`deepgram/aura-2-thalia-en`) and language
+    (`en-US`). You can change both later.
+
+    <Check>You have a stream named **Front desk stream** and its signing secret.</Check>
+
+  </Step>
+
+  <Step title="Write the server">
+    Save this as `server.js`. `VoiceServer` listens on port 3000 and runs `handler` once for each
+    call. The handler greets the caller, waits for an answer, and then transfers the call or says
+    goodbye:
+
+    ```javascript server.js
+    const { VoiceServer } = require("@fonoster/voice");
+
+    // Who gets the call when the caller asks for a person.
+    const OPERATOR = "+18095550100";
+
+    async function handler(session) {
+      console.log(`Call from ${session.from}`);
+
+      await session.say(
+        "Thanks for calling. Say sales or support, or press 0 to talk to a person."
+      );
+
+      // Waits up to 6 seconds for speech or a keypress, whichever comes first.
+      const answer = await session.gather({ maxDigits: 1, timeout: 6000 });
+      console.log("Caller answered:", answer);
+
+      if (answer.digits === "0" || /person|operator|human/i.test(answer.speech ?? "")) {
+        await session.say("One moment. I'm connecting you.");
+        await session.transfer(OPERATOR);
+        return;
+      }
+
+      if (answer.speech) {
+        await session.say(`You said ${answer.speech}. We'll call you back soon. Goodbye.`);
+      } else {
+        await session.say("I didn't catch that. Please call again. Goodbye.");
+      }
+      await session.hangup();
+    }
+
+    new VoiceServer({
+      port: 3000,
+      signingSecret: process.env.APP_SIGNING_SECRET,
+      publicUrl: process.env.PUBLIC_URL
+    })
+      .listen(handler)
+      .then(() => console.log("Stream listening on port 3000"));
+    ```
+
+    Each verb sends one command over the call's WebSocket and waits for its result:
+
+    - `say(text)` speaks with the stream's voice and resolves when the caller has heard it.
+    - `gather()` resolves with `{ speech }` when the caller finishes talking, with `{ digits }`
+      when they press keys, or with neither when the timeout passes. `maxDigits: 1` ends it on
+      the first key.
+    - `transfer(number)` hands the call to the operator. The caller stays on the line and your
+      session ends.
+    - `hangup()` ends the call.
+
+    Change `OPERATOR` to a phone you can answer if you want to try the transfer.
+
+  </Step>
+
+  <Step title="Run it">
+    Start the server with the signing secret and the same `wss://` address you gave the stream:
+
+    ```bash
+    APP_SIGNING_SECRET=Jt4qXk9pV2mWc7yRb1sLd8nHf3aZe6uQo0iTg5xKwYv \
+    PUBLIC_URL=wss://f3a9-198-51-100-24.ngrok-free.app \
+    node server.js
+    ```
+
+    ```text
+    Stream listening on port 3000
+    ```
+
+    `VoiceServer` refuses to start without a signing secret, and it rejects any connection that
+    Fonoster didn't sign for `PUBLIC_URL`.
+
+  </Step>
+
+  <Step title="Point your number at the stream">
+    <Tabs>
+      <Tab title="Dashboard">
+        Go to **Numbers** and open your number. Under **When this number is called, send it to**,
+        choose **Stream**, then **Front desk stream**.
+      </Tab>
+      <Tab title="CLI">
+        Find your number's ref, then update it. The command asks for the name, the trunk and the
+        application. Pick **Front desk stream** as the application:
+
+        ```bash
+        fonoster sipnet:numbers:list
+        fonoster sipnet:numbers:update 9b2e4d18-6c3a-4f7e-a1d5-0c8f3b6e2a94
+        ```
+      </Tab>
+    </Tabs>
+
+  </Step>
+
+  <Step title="Call it">
+    Call your number from your phone. You hear "Thanks for calling. Say sales or support, or press
+    0 to talk to a person." Say "support".
+
+    Your terminal shows the call and what you said:
+
+    ```text
+    Call from +18095550123
+    Caller answered: { speech: 'support' }
+    ```
+
+    The stream answers "You said support. We'll call you back soon. Goodbye." and hangs up.
+
+    Call again and press **0**. You hear "One moment. I'm connecting you.", and the call rings
+    the operator's number.
+
+    <Check>Your own code answered a phone call.</Check>
+
+  </Step>
+</Steps>
+
+<Accordion title="The call rings and then ends, or the server never logs a call">
+  Fonoster tries your URL for about 2.5 seconds while the caller hears ringing. If it can't
+  connect, the call goes to the stream's fallback, or ends if there is none.
+
+  - Check that ngrok and `node server.js` are both running, and that the stream's URL is the
+    current ngrok address with `wss://`.
+  - If the server logs `rejected a session connection`, the signature didn't match. Check that
+    `APP_SIGNING_SECRET` is the stream's secret and that `PUBLIC_URL` is exactly the URL on the
+    stream. See [Verify request signatures](/streams/verify-signatures).
+</Accordion>
+
+## What just happened
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/voice-sdk/session-flow-light.png"
+  alt="A caller at +1 809 555 0123 dials your number. Fonoster answers, does speech-to-text and text-to-speech, and opens one WebSocket per call to your server (server.js, VoiceServer), signed with x-fonoster-signature. Your code sends commands (say, gather, transfer, hangup) and gets events back (call started, speech heard, key pressed, speech finished, call ended), working with text, not audio. A transfer goes from Fonoster to an operator at +1 809 555 0100."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/voice-sdk/session-flow-dark.png"
+  alt="A caller at +1 809 555 0123 dials your number. Fonoster answers, does speech-to-text and text-to-speech, and opens one WebSocket per call to your server (server.js, VoiceServer), signed with x-fonoster-signature. Your code sends commands (say, gather, transfer, hangup) and gets events back (call started, speech heard, key pressed, speech finished, call ended), working with text, not audio. A transfer goes from Fonoster to an operator at +1 809 555 0100."
+/>
+
+When you called, Fonoster answered the number and opened a WebSocket to your stream's URL, signed
+with the stream's secret. `VoiceServer` checked the signature and called your handler with a
+session for that call.
+
+From then on, the session carried messages both ways. Your code sent commands: speak this text,
+transfer to that number, hang up. Fonoster sent back events: the speech finished playing, the
+caller said "support", the caller pressed 0. Fonoster did the speech-to-text and text-to-speech,
+so your code worked with text, not audio.
+
+When the call ended, Fonoster closed the WebSocket.
+
+To see the messages on the wire, or to write a server without the SDK, read the
+[session protocol](/reference/session-protocol).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Verify request signatures" icon="shield-check" href="/streams/verify-signatures">
+    How the signature works, and how to rotate the secret.
+  </Card>
+  <Card title="Use the Python Voice SDK" icon="python" href="/streams/python">
+    The same session in Python, standalone or inside FastAPI.
+  </Card>
+  <Card title="Transfer calls" icon="phone-arrow-right" href="/telephony/transfers">
+    Cold, warm and SIP REFER transfers.
+  </Card>
+  <Card title="Voice SDK reference" icon="book" href="/reference/voice-sdk">
+    Every method, option and event, including barge-in and streaming text.
+  </Card>
+</CardGroup>

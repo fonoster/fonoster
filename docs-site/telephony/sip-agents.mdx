@@ -1,0 +1,205 @@
+---
+title: "SIP agents (softphones)"
+sidebarTitle: "SIP agents"
+description: "Sign a softphone or desk phone in to your workspace, so a number can ring it and your agents can transfer callers to it."
+---
+
+A SIP agent is a softphone or desk phone that signs in to your workspace. Use SIP agents for the
+people who take calls: a number can ring a SIP agent directly, and your Autopilot agent or stream
+can transfer callers to one. In these docs, the person on that phone is an **operator**.
+
+A SIP agent lives on a **domain**, such as `acme.sip.fonoster.com`, and signs in with
+**credentials**, a username and password. Its address is `sip:<username>@<domain>`, for example
+`sip:maria@acme.sip.fonoster.com`.
+
+<Note>
+  The API, the SDK and the CLI call SIP agents `Agents` (`SDK.Agents`, `fonoster sipnet:agents:*`).
+  They're the same thing. An Autopilot agent is something else: the AI that answers calls.
+</Note>
+
+## Before you begin
+
+You need a softphone, such as [Linphone](https://www.linphone.org/) or
+[Zoiper](https://www.zoiper.com/), or a desk phone that speaks SIP.
+
+## Set up a SIP agent
+
+<Steps>
+  <Step title="Create a domain">
+    A domain groups your SIP agents. Create one per company or team.
+
+    <Tabs>
+      <Tab title="Dashboard">
+        1. Go to **Domains** and choose **Add domain**.
+        2. Enter a **Name**, such as `Acme HQ`.
+        3. Enter the **Domain URI**, such as `acme.sip.fonoster.com`. It must end with the suffix
+           the field shows, and you can't change it later.
+        4. Choose **Save**.
+      </Tab>
+      <Tab title="CLI">
+        The command asks for a name, the domain URI and an optional access control list:
+
+        ```bash
+        fonoster sipnet:domains:create
+        ```
+      </Tab>
+    </Tabs>
+
+  </Step>
+
+  <Step title="Create credentials">
+    Create the username and password the phone signs in with.
+
+    <Tabs>
+      <Tab title="Dashboard">
+        Go to **Credentials**, choose **Add credentials**, and enter a **Name**, a **Username**
+        such as `maria`, and a **Password**. The password is never shown again, so keep it for the
+        next steps.
+      </Tab>
+      <Tab title="CLI">
+        ```bash
+        fonoster sipnet:credentials:create
+        ```
+      </Tab>
+    </Tabs>
+
+  </Step>
+
+  <Step title="Create the SIP agent">
+    <Tabs>
+      <Tab title="Dashboard">
+        1. Go to **SIP agents** and choose **Add SIP agent**.
+        2. Enter a **Name**, such as `Maria's softphone`.
+        3. Enter the **Username**, such as `maria`. It's the user part of the SIP address, and you
+           can't change it later.
+        4. Choose the **Domain** and the **Credentials** you created.
+        5. Choose **Save**.
+
+        Under **Softphone settings**, the drawer shows the **Server**, **Port** and **Transport**
+        to type into the phone.
+      </Tab>
+      <Tab title="SDK">
+        This script creates the SIP agent `maria` on a domain, signing in with existing
+        credentials:
+
+        ```javascript create-sip-agent.js
+        const SDK = require("@fonoster/sdk");
+
+        async function main() {
+          const client = new SDK.Client({
+            accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+          });
+          await client.loginWithApiKey(
+            process.env.FONOSTER_API_KEY,
+            process.env.FONOSTER_API_SECRET
+          );
+
+          const sipAgents = new SDK.Agents(client);
+          const { ref } = await sipAgents.createAgent({
+            name: "Maria's softphone",
+            username: "maria",
+            domainRef: "5a8c2e7f-4d1b-4b9e-a3f6-8c0d2e5b7a19",
+            credentialsRef: "7e3b9d1f-6a4c-4e8b-b2d5-9f1a7c3e5d80",
+            privacy: "NONE",
+            enabled: true,
+            maxContacts: 3
+          });
+
+          console.log(`SIP agent created: ${ref}`);
+        }
+
+        main().catch(console.error);
+        ```
+      </Tab>
+      <Tab title="CLI">
+        The command asks for the name, the username, the domain, the credentials, the privacy,
+        whether it's enabled and the maximum number of contacts:
+
+        ```bash
+        fonoster sipnet:agents:create
+        ```
+      </Tab>
+    </Tabs>
+
+    Usernames take lowercase letters, numbers, dots, underscores and hyphens.
+
+  </Step>
+
+  <Step title="Sign in from the softphone">
+    {/* TODO asset: sip-agents/softphone-settings: the SIP agent drawer for "Maria's softphone", with Domain, Credentials and the Softphone settings block (Server, Port, Transport) */}
+
+    Add a SIP account in the softphone with these values:
+
+    | Setting | Value |
+    | --- | --- |
+    | Username | `maria` |
+    | Password | The credentials' password |
+    | Domain | `acme.sip.fonoster.com` |
+    | Proxy or outbound proxy | The **Server** and **Port** from **Softphone settings** |
+    | Transport | The **Transport** from **Softphone settings** |
+
+    In Linphone, choose **Use a SIP account**, fill in the username, password, domain and
+    transport, then set the proxy in the account settings and turn on **Outbound proxy**. In
+    Zoiper, add the account as `maria@acme.sip.fonoster.com` and set the outbound proxy.
+
+    <Check>The softphone shows the account as registered.</Check>
+
+  </Step>
+</Steps>
+
+## Ring a SIP agent from a number
+
+To have a number ring the phone directly, with no application in between, point the number at the
+SIP agent. In the dashboard, open the number under **Numbers**, choose **SIP agent** under **When
+this number is called, send it to**, and pick the SIP agent. See
+[Numbers and routing](/telephony/numbers).
+
+## Transfer callers to a SIP agent
+
+An operator's softphone can take transfers from your agents. In a stream, pass the SIP agent's
+address to `transfer`:
+
+```javascript
+await session.transfer("sip:maria@acme.sip.fonoster.com");
+```
+
+See [Transfer calls](/telephony/transfers) for cold and warm transfers.
+
+## Call out from a SIP agent
+
+A SIP agent can dial phone numbers through one of your numbers. Add **egress rules** to the
+domain: each rule is a pattern for the dialed number and the number to call from. For example,
+`^\+1` → `+18095550123` sends every call to a `+1` number out with `+18095550123` as the caller
+ID, through that number's trunk.
+
+Add rules in the dashboard: open the domain under **Domains** and choose **Add rule** under
+**Egress rules**. You need at least one number in your workspace first.
+
+## SIP agent settings
+
+| Setting | What it does |
+| --- | --- |
+| **Privacy** | `None` shows the caller ID on calls the SIP agent makes. `Private` hides it. |
+| **Max contacts** | How many devices can be signed in as this SIP agent at once, from 1 to 100. |
+| **Enabled** | A disabled SIP agent can't sign in or make calls. |
+
+For every command and method, see the
+[CLI reference](/reference/cli#sip-agents-domains-and-credentials) and the
+[Node SDK reference](/reference/sdk#agents-sip-agents).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Transfer calls" icon="phone-arrow-right" href="/telephony/transfers">
+    Send callers from your agent to an operator.
+  </Card>
+  <Card title="Numbers and routing" icon="phone" href="/telephony/numbers">
+    Point a number at a SIP agent.
+  </Card>
+  <Card title="Connect a SIP trunk" icon="network-wired" href="/telephony/trunks">
+    Connect the carrier your SIP agents call out through.
+  </Card>
+  <Card title="How Fonoster works" icon="diagram-project" href="/concepts/how-fonoster-works">
+    Where SIP agents fit among numbers and applications.
+  </Card>
+</CardGroup>

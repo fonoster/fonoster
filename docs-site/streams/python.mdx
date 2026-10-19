@@ -1,0 +1,267 @@
+---
+title: "Use the Python Voice SDK"
+sidebarTitle: "Python Voice SDK"
+description: "Answer calls from Python with asyncio: run a standalone server or mount it in FastAPI, stream model output into speech, and handle barge-in."
+---
+
+The Python Voice SDK (`fonoster-voice`) answers calls for a stream that speaks the `fonoster`
+protocol. It has the same session and the same verbs as the [Node.js SDK](/streams/voice-sdk), in
+Python naming. Use it to put your Python agent code, or your model calls, on the phone.
+
+This page assumes you already have a stream and its signing secret. If not,
+[Build a stream with the Voice SDK](/streams/voice-sdk) shows how to create one and expose your
+machine with a tunnel.
+
+## Install the SDK
+
+Install the package from PyPI. It needs Python 3.11 or later, and its only dependency is
+`websockets`:
+
+```bash
+pip install fonoster-voice
+```
+
+The SDK is asyncio only. Handlers must be `async def` functions that take one argument, the
+session. The SDK raises `TypeError` for anything else.
+
+## Run a standalone server
+
+Use `VoiceServer` when the voice server is its own process. This one greets the caller, listens for
+speech or a keypress, and transfers to a person on request:
+
+```python server.py
+import os
+import re
+
+from fonoster.voice import VoiceServer
+
+server = VoiceServer(
+    port=3000,
+    signing_secret=os.environ["APP_SIGNING_SECRET"],
+    public_url=os.environ["PUBLIC_URL"],
+)
+
+
+@server.handler
+async def on_call(session):
+    await session.say("Thanks for calling. Say sales or support, or press 0 to talk to a person.")
+    answer = await session.gather(max_digits=1, timeout=6)  # seconds
+
+    if answer.digits == "0" or re.search(r"person|operator|human", answer.speech or "", re.I):
+        await session.say("One moment. I'm connecting you.")
+        await session.transfer("+18095550100")
+        return
+
+    await session.say(f"You said {answer.speech}. Goodbye." if answer.speech else "Goodbye.")
+    await session.hangup()
+
+
+if __name__ == "__main__":
+    server.run()
+```
+
+Run it with your stream's signing secret and its URL:
+
+```bash
+APP_SIGNING_SECRET=Jt4qXk9pV2mWc7yRb1sLd8nHf3aZe6uQo0iTg5xKwYv \
+PUBLIC_URL=wss://f3a9-198-51-100-24.ngrok-free.app \
+python server.py
+```
+
+`server.run()` blocks and serves until you stop it. Inside your own event loop, call
+`await server.listen()` instead; it returns once the server is listening.
+
+`VoiceServer` takes these options:
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `port` | `3000` | Port to listen on |
+| `host` | `"0.0.0.0"` | Address to listen on |
+| `signing_secret` | `APP_SIGNING_SECRET` | The stream's signing secret. The server won't start without one |
+| `public_url` | none | The stream's URL exactly as configured in Fonoster. Signatures are checked against it |
+| `path` | any | Only accept connections on this path; others get 404 |
+| `verify_signature` | `True` | Set `False` only for local experiments |
+| `start_timeout` | `5.0` | Seconds to wait for the call to start after the socket opens |
+
+<Tip>
+  Always set `public_url` when a tunnel, load balancer or proxy sits in front of your server.
+  Without it, the SDK rebuilds the URL from the request's `Host` header, which may not match the
+  URL Fonoster signed. See [Verify request signatures](/streams/verify-signatures).
+</Tip>
+
+## Mount it in FastAPI
+
+To serve calls from an app you already run, mount `voice_asgi_app` on a path. It works with
+FastAPI, Starlette and any other ASGI framework:
+
+```python main.py
+import os
+
+from fastapi import FastAPI
+
+from fonoster.voice import voice_asgi_app
+
+
+async def on_call(session):
+    await session.say("Hello from FastAPI.")
+    await session.hangup()
+
+
+app = FastAPI()
+
+
+@app.get("/health")
+async def health():
+    return {"ok": True}
+
+
+app.mount(
+    "/voice",
+    voice_asgi_app(
+        on_call,
+        signing_secret=os.environ["APP_SIGNING_SECRET"],
+        public_url="wss://bot.example.com/voice",
+    ),
+)
+```
+
+Run the app with any ASGI server:
+
+```bash
+uvicorn main:app --port 8080
+```
+
+Set the stream's URL to the mounted path, here `wss://bot.example.com/voice`, and pass that same
+URL as `public_url`. Plain HTTP requests to the path get `426 WebSocket required`.
+
+## Stream model output into speech
+
+Pass an async iterator to `say()` and the caller hears the text as it arrives, as one continuous
+utterance. You don't wait for the full reply before the caller hears the first words.
+
+This example streams a reply from an OpenAI-compatible model:
+
+```python
+from openai import AsyncOpenAI
+
+llm = AsyncOpenAI()
+
+
+async def reply(question):
+    stream = await llm.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "Answer in one or two short sentences."},
+            {"role": "user", "content": question},
+        ],
+        stream=True,
+    )
+    async for chunk in stream:
+        text = chunk.choices[0].delta.content
+        if text:
+            yield text
+
+
+@server.handler
+async def on_call(session):
+    await session.say("Ask me anything.")
+    question = await session.gather(timeout=6)
+    if question.speech:
+        await session.say(reply(question.speech))
+    await session.hangup()
+```
+
+If the iterator raises, the SDK ends the utterance and re-raises the error in your handler.
+
+## Handle barge-in
+
+By default the caller can talk over the agent. When they start talking during a `say()` or
+`play()`, the SDK stops the speech, and `say()` returns with `interrupted=True`. `heard_text`
+holds only the words the caller actually heard:
+
+```python
+result = await session.say("Your balance is forty two dollars, and your next payment is due soon.")
+if result.interrupted:
+    await session.say(f"Sorry, go ahead. I had only said: {result.heard_text}")
+```
+
+Pass `interruptible=False` for text the caller must hear in full, such as a legal notice. The
+caller can still talk; what they say is kept for the next `gather()`:
+
+```python
+await session.say("This call may be recorded.", interruptible=False)
+reply = await session.gather(timeout=5)
+```
+
+To cut the agent off yourself, call `await session.stop_say()`. Every pending `say()` and `play()`
+returns as interrupted.
+
+Speech and keypresses that arrive before you call `gather()` are kept (up to 32), so callers can
+answer before the question ends.
+
+<Note>
+  When the caller stops talking is decided by Fonoster's turn detector, not by silence alone. See
+  [Turn-taking and barge-in](/autopilot/turn-taking).
+</Note>
+
+## Listen to events
+
+Register callbacks with `session.on(event, callback)`. The callback gets the event's fields as a
+dict, and it can be a plain function or a coroutine:
+
+```python
+session.on("dtmf", lambda event: print("Key:", event["digit"]))
+session.on("end", lambda event: print("Call ended:", event["reason"]))
+```
+
+Two events are opt-in. Ask for interim transcripts or the turn detector's estimate with
+`subscribe()`:
+
+```python
+await session.subscribe(["transcript.partial"])
+session.on("transcript.partial", lambda event: print("So far:", event["text"]))
+```
+
+The [Voice SDK reference](/reference/voice-sdk) lists every event and its fields.
+
+## Handle errors
+
+- When Fonoster rejects a command, the call raises `SessionError` with `code`, `message` and
+  `fatal`. A failed transfer raises `SessionError` with code `transfer_failed`.
+- When the call ends while a command is pending, it raises `SessionEndedError` with `reason`, so
+  your handler never hangs.
+- If your handler raises, the SDK hangs up the call instead of leaving the caller in silence.
+
+Import both errors from `fonoster.voice`.
+
+## How the Python SDK differs from Node.js
+
+The verbs and results are the same. The names follow Python style:
+
+| Node.js | Python |
+| --- | --- |
+| `gather({ maxDigits, finishOnKey, timeout })`, timeout in milliseconds | `gather(max_digits=…, finish_on_key=…, timeout=…)`, timeout in **seconds** (default 4) |
+| `{ interrupted, heardText, heardMs }` | `SayResult(interrupted, heard_text, heard_ms)` |
+| `stopSay()`, `playDtmf()`, `completeTransfer()` | `stop_say()`, `play_dtmf()`, `complete_transfer()` |
+| `session.from`, `session.callRef`, `session.handoffPayload` | `session.from_`, `session.call_ref`, `session.handoff_payload` |
+| `audio.onFrame(cb)` | `audio.on_frame(cb)` |
+| `new VoiceServer({ requireAppBinding: true })` | Not available. See [Verify request signatures](/streams/verify-signatures) |
+
+Both SDKs speak the same wire format: see the [session protocol](/reference/session-protocol).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Verify request signatures" icon="shield-check" href="/streams/verify-signatures">
+    What the SDK checks, and how to rotate the secret.
+  </Card>
+  <Card title="Voice SDK reference" icon="book" href="/reference/voice-sdk">
+    Every method, option and event in Node.js and Python.
+  </Card>
+  <Card title="Bring your Twilio or Pipecat app" icon="plug" href="/streams/bring-your-app">
+    Already have a Pipecat bot? Run it unchanged.
+  </Card>
+  <Card title="Transfer calls" icon="phone-arrow-right" href="/telephony/transfers">
+    Cold, warm and SIP REFER transfers.
+  </Card>
+</CardGroup>

@@ -11,23 +11,28 @@ Guidance for everything under `docs-site/` (the Mintlify docs). Pages are writte
 - **Legacy (≤0.27)**: the old docs, frozen under `legacy/`. Don't edit them except to fix a broken
   link. Old URLs redirect to `legacy/…` in `docs.json` unless a v0.30 page takes the same path.
 
-## Readers: three tabs, one reader each
+## Layout and readers
 
-- **Docs**: developers building on Fonoster (Autopilot agents, voice apps, Twilio/Pipecat apps,
-  webhooks, the SDK, API and CLI). This is the main reader. Write for them first.
-- **Self-hosting**: people who install and run Fonoster on their own machines, on Docker Compose or
-  Kubernetes.
-- **Private regions**: operators who run a private region (a cell) that their workspaces use, joined
+Owner decision (2026-10-19): one **Docs** tab holds every guide, with a section per reader, plus
+**SDK**, **CLI** and **Changelog** tabs for one-click access to the references (like Vapi).
+
+- **Docs › Get started … Reference**: developers building on Fonoster (Autopilot agents, streams,
+  telephony, webhooks, call records). This is the main reader. Write for them first.
+- **Docs › Self-hosting**: people who install and run Fonoster on their own machines, on Docker
+  Compose or Kubernetes.
+- **Docs › Private regions**: operators who run a private region that their workspaces use, joined
   to a control plane.
-- **Hacking Fonoster**: contributors who run Fonoster from source and work on its components. The dev
-  container is the only supported way.
+- **Docs › Hacking Fonoster**: contributors who run Fonoster from source. The dev container is the
+  only supported way.
+- **SDK** tab: `@fonoster/sdk`, the Voice SDK (Node and Python), the session protocol, Twilio
+  compatibility and the API note. **CLI** tab: the developer `fonoster` CLI.
 
-A page belongs to one tab. When behavior differs between Fonoster Cloud and self-hosted, note it on
+A page belongs to one section. When behavior differs between Fonoster Cloud and self-hosted, note it on
 the page (a short note, or `<Tabs>`). Don't make a separate page for it.
 
 ## Tooling is documented
 
-Self-hosters and region operators work through tools, so each of those tabs has a **Tooling** group
+Self-hosters and region operators work through tools, so each of those sections has a **Tooling** group
 that documents them from source:
 
 - Self-hosting: the stack installer (`ops/rebuild/stack`), the `fonoster` CLI's operator commands
@@ -60,6 +65,17 @@ Vapi, Retell, Bland, LiveKit and Pipecat.
   names and classes, how the swarm was built.
 - Rebuild process notes (`docs/operators/rebuild.md`, `routr-live-test.md`,
   `conformance.md`) unless a reader needs them for a task.
+
+## Disclosure rule
+
+Document what the reader touches, configures or observes. Describe the behavior, not the mechanism.
+Organize by the reader's task, not by our components (recording lives under Telephony, not under the
+service that writes it). Never promise what isn't built: `MENU.md` lists those gaps.
+
+## Example values
+
+Use realistic values in the real formats the API returns (refs, numbers, keys), never `abc123` or
+`your-id-here`. Take the format from the code or a live response, then change the digits.
 
 ## Assets
 

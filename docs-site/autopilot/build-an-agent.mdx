@@ -1,0 +1,286 @@
+---
+title: "Build an Autopilot agent"
+sidebarTitle: "Build an agent"
+description: "Write your agent's prompt and messages, pick its model and voice, and set how its calls behave."
+---
+
+An Autopilot agent answers calls with a prompt, a language model and a voice that you choose.
+Fonoster runs it for you, so you don't run a server. This guide walks through every setting you
+need for a production agent: what it says, which model and voice it uses, and how its calls start,
+stall and end.
+
+If you haven't made an agent yet, start with the [quickstart](/quickstart). It creates one in a few
+minutes.
+
+## Before you begin
+
+You need:
+
+- An Autopilot agent, or the access to create one, in your workspace.
+- For the SDK or the CLI: an API key and [Node.js](https://nodejs.org/) 22 or later. The
+  [quickstart](/quickstart) shows how to install both and sign in.
+
+## How an agent is put together
+
+An agent has three parts. The first two live in the agent's configuration, and the third belongs to
+the application around it:
+
+| Part | What it holds | Field |
+| --- | --- | --- |
+| Conversation settings | The prompt, the fixed messages, and how calls behave | `conversationSettings` |
+| Language model | The model, its sampling settings, [tools](/autopilot/tools) and [knowledge base](/autopilot/knowledge-base) | `languageModel` |
+| Speech | The voice, the language and the speech-to-text model | `speech` on the application |
+
+In the dashboard, these settings are spread over the agent's **Configure**, **Tools** and
+**Advanced** tabs. With the SDK and the CLI, you send the conversation settings and the language
+model together as one agent configuration.
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/build-an-agent/configure-tab-light.png"
+  alt="The Configure tab of the Front desk agent: the Conversation panel with First message, System prompt, Goodbye message and Error message; Model & voice with the language model, voice and transcriber; and Behavior with Let callers interrupt, Hang up after silence 2 × 10 s, Max call length 10 min and a transfer number."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/build-an-agent/configure-tab-dark.png"
+  alt="The Configure tab of the Front desk agent: the Conversation panel with First message, System prompt, Goodbye message and Error message; Model & voice with the language model, voice and transcriber; and Behavior with Let callers interrupt, Hang up after silence 2 × 10 s, Max call length 10 min and a transfer number."
+/>
+
+## Set up the agent
+
+<Steps>
+  <Step title="Write the prompt and the fixed messages">
+    The system prompt tells the model who it is and how to behave. The other messages are fixed
+    text that Fonoster speaks at set moments, without asking the model.
+
+    | Setting | Field | When the caller hears it | Required |
+    | --- | --- | --- | --- |
+    | First message | `firstMessage` | When the call connects. Leave it empty to let the caller speak first. | No |
+    | System prompt | `systemPrompt` | Never. It instructs the model on every turn. | Yes |
+    | Goodbye message | `goodbyeMessage` | When the call ends: the model hangs up, the caller stays silent too long, or the call reaches its maximum length. | Yes |
+    | Error message | `systemErrorMessage` | When the model can't be reached or a reply fails. | Yes |
+
+    In the dashboard, these are in the **Conversation** panel on the **Configure** tab. The panel
+    shows an estimate of the prompt's size in tokens.
+
+    For help writing a prompt that sounds natural on the phone, see
+    [Write prompts for voice](/autopilot/prompting).
+
+  </Step>
+
+  <Step title="Pick the model, the voice and the transcriber">
+    The language model is a catalog ID in the form `<provider>/<model>`. Fonoster resolves the
+    provider and its key for you, so the agent never holds a key. To use your own key with a
+    provider, add it to your workspace: see [Use your own vendor keys](/workspace/provider-keys).
+
+    Live calls run models with an OpenAI-compatible API. These models are in the catalog:
+
+    | Model | Catalog ID |
+    | --- | --- |
+    | GPT-4o mini (OpenAI) | `openai/gpt-4o-mini` |
+    | GPT-4.1 mini (OpenAI) | `openai/gpt-4.1-mini` |
+    | gpt-oss-120b (Groq) | `groq/openai/gpt-oss-120b` |
+    | gpt-oss-20b (Groq) | `groq/openai/gpt-oss-20b` |
+
+    On your own install, you can also run a model with Ollama. The full list, with voices and
+    speech-to-text models, is in [Providers and models](/reference/providers).
+
+    Two settings shape the model's replies:
+
+    | Setting | Field | Default | Notes |
+    | --- | --- | --- | --- |
+    | Temperature | `temperature` | `0.4` | From 0 to 2. Lower is more consistent. |
+    | Max tokens | `maxTokens` | `400` | The longest reply the model can write in one turn. |
+
+    The voice, the language and the speech-to-text model belong to the application, as catalog
+    IDs: for example `deepgram/aura-2-thalia-en`, `en-US` and `deepgram/nova-3`. The voice must
+    speak the language you pick.
+
+    In the dashboard, the model, voice and transcriber are in the **Model & voice** panel on the
+    **Configure** tab. Temperature and max tokens are under **Language model** on the
+    **Advanced** tab.
+
+  </Step>
+
+  <Step title="Set how calls behave">
+    These settings control interruptions, silence and the length of a call.
+
+    | Setting | Field | Default | What it does |
+    | --- | --- | --- | --- |
+    | Let callers interrupt | `allowUserBargeIn` | `true` | When the caller talks over the agent, the agent stops. See [Turn-taking and barge-in](/autopilot/turn-taking). |
+    | Idle message | `idleOptions.message` | None | What the agent says when the caller goes quiet. Without it, the agent never prompts a silent caller. |
+    | Idle timeout | `idleOptions.timeout` | `30000` ms | How long the agent waits in silence before it speaks. |
+    | Idle repeats | `idleOptions.maxTimeoutCount` | `2` | The silent stretch that ends the call. With `2`, the agent says the idle message once, then the goodbye message, and hangs up. |
+    | Max call length | `maxSessionDuration` | `1800000` ms (30 minutes) | When the call reaches it, the agent says the goodbye message and hangs up. |
+    | Transfer to an operator | `transferOptions` | Off | A `phoneNumber` and a `message`. Turns on the `transfer` tool. See [Give your agent tools](/autopilot/tools). |
+    | Initial DTMF | `initialDtmf` | None | Keypad digits (`0`–`9`, `*`, `#`) the agent sends when the call connects, before the first message. Use it to get past a phone menu on outbound calls. |
+
+    The idle clock only runs while the agent is listening. A long reply never counts as
+    silence.
+
+    In the dashboard, **Let callers interrupt**, **Hang up after silence** (repeats × seconds),
+    **Max call length** and **Transfer to an operator** are in the **Behavior** panel on the
+    **Configure** tab. The idle message and initial DTMF are under **Call limits** on the
+    **Advanced** tab.
+
+  </Step>
+
+  <Step title="Save the agent">
+    <Tabs>
+      <Tab title="Dashboard">
+        Choose **Save**. Calls that start after you save use the new settings.
+      </Tab>
+      <Tab title="SDK">
+        This script creates an agent with every setting from this guide. It signs in with your API
+        key, as in the [quickstart](/quickstart):
+
+        ```javascript create-agent.js
+        const SDK = require("@fonoster/sdk");
+
+        async function main() {
+          const client = new SDK.Client({
+            accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+          });
+          await client.loginWithApiKey(
+            process.env.FONOSTER_API_KEY,
+            process.env.FONOSTER_API_SECRET
+          );
+
+          const apps = new SDK.Applications(client);
+          const { ref } = await apps.createApplication({
+            name: "Front desk",
+            type: "AUTOPILOT",
+            speech: {
+              voice: "deepgram/aura-2-thalia-en",
+              language: "en-US",
+              sttModel: "deepgram/nova-3"
+            },
+            intelligence: {
+              config: {
+                conversationSettings: {
+                  firstMessage: "Hi, thanks for calling. How can I help you today?",
+                  systemPrompt:
+                    "You are the receptionist for our company. Answer in one or two short sentences. Ask one question at a time.",
+                  goodbyeMessage: "Thanks for calling. Have a great day!",
+                  systemErrorMessage:
+                    "Sorry, something went wrong on our side. Please call again in a few minutes.",
+                  allowUserBargeIn: true,
+                  maxSessionDuration: 600000,
+                  idleOptions: {
+                    message: "Are you still there?",
+                    timeout: 10000,
+                    maxTimeoutCount: 2
+                  },
+                  transferOptions: {
+                    phoneNumber: "+18095550100",
+                    message: "One moment, I'm transferring you to a person."
+                  }
+                },
+                languageModel: {
+                  model: "openai/gpt-4o-mini",
+                  temperature: 0.4,
+                  maxTokens: 400
+                }
+              }
+            }
+          });
+
+          console.log(`Agent created: ${ref}`);
+        }
+
+        main().catch(console.error);
+        ```
+
+        <Warning>
+          `updateApplication` replaces the whole application: any field you leave out goes back to
+          its default. Read the application with `getApplication`, change what you need, and send
+          all of it back.
+        </Warning>
+      </Tab>
+      <Tab title="CLI">
+        Save the agent's configuration as `agent.yaml`:
+
+        ```yaml agent.yaml
+        conversationSettings:
+          firstMessage: "Hi, thanks for calling. How can I help you today?"
+          systemPrompt: |
+            You are the receptionist for our company.
+            Answer in one or two short sentences. Ask one question at a time.
+          goodbyeMessage: "Thanks for calling. Have a great day!"
+          systemErrorMessage: "Sorry, something went wrong on our side. Please call again in a few minutes."
+          allowUserBargeIn: true
+          maxSessionDuration: 600000
+          idleOptions:
+            message: "Are you still there?"
+            timeout: 10000
+            maxTimeoutCount: 2
+          transferOptions:
+            phoneNumber: "+18095550100"
+            message: "One moment, I'm transferring you to a person."
+        languageModel:
+          model: openai/gpt-4o-mini
+          temperature: 0.4
+          maxTokens: 400
+        ```
+
+        Create the agent with its voice, language and transcriber:
+
+        ```bash
+        fonoster applications:create --name "Front desk" --agent agent.yaml \
+          --voice deepgram/aura-2-thalia-en --language en-US --stt-model deepgram/nova-3
+        ```
+
+        To change an existing agent, edit the file and update it by its ref. The CLI keeps the
+        application's other settings:
+
+        ```bash
+        fonoster applications:update 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31 --agent agent.yaml
+        ```
+      </Tab>
+    </Tabs>
+
+    Fonoster checks the configuration when you save. It rejects unknown fields and fields from
+    older versions, such as `provider`, `apiKey` or `vad`, with a message that says where each one
+    moved. See [Migrate from 0.27](/migrate-from-0-27).
+
+  </Step>
+</Steps>
+
+## Settings only the SDK and the CLI set
+
+A few settings aren't in the dashboard. Set them in the agent's `conversationSettings` with the SDK
+or the CLI.
+
+| Field | What it does |
+| --- | --- |
+| `patience` | `low`, `normal` (default) or `high`: how long the agent waits before it decides the caller has finished. It wins over the application's `speech.patience` unless it's `normal`. See [Turn-taking and barge-in](/autopilot/turn-taking#patience). |
+| `hints` | Up to 100 words to help speech recognition, such as names and brands: `["Fonoster", "Aura"]`. |
+| `filler` | `{ url }`: a short WAV file played while the agent prepares a reply. The reply cuts it off. |
+| `voice`, `language` | Catalog IDs that override the application's voice and language for this agent. |
+
+<Warning>
+  The dashboard doesn't keep these four settings yet. If you save the agent in the dashboard, set
+  them again with the SDK or the CLI.
+</Warning>
+
+## Check your agent
+
+Call the agent from the dashboard with **Talk to agent**, then read the transcript under **Calls**.
+For repeatable checks, write test cases. [Test your agent](/autopilot/test) covers both.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Give your agent tools" icon="wrench" href="/autopilot/tools">
+    Let it hang up, transfer to a person, or call your API.
+  </Card>
+  <Card title="Write prompts for voice" icon="pen" href="/autopilot/prompting">
+    Write a prompt that sounds natural on the phone.
+  </Card>
+  <Card title="Test your agent" icon="flask" href="/autopilot/test">
+    Talk to it in the browser and run test cases.
+  </Card>
+  <Card title="Autopilot configuration" icon="list" href="/reference/autopilot-config">
+    Every field, default and limit.
+  </Card>
+</CardGroup>

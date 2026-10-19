@@ -1,0 +1,167 @@
+---
+title: "Turn-taking and barge-in"
+description: "How your agent knows the caller has finished, why it can answer quickly without cutting people off, and what happens when the caller talks over it."
+---
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/turn-taking/banner-light.png"
+  alt="Turn-taking and barge-in: the caller says their account number with a pause in the middle, and the agent answers only after the caller is done."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/turn-taking/banner-dark.png"
+  alt="Turn-taking and barge-in: the caller says their account number with a pause in the middle, and the agent answers only after the caller is done."
+/>
+
+The hardest part of a voice conversation isn't the answer. It's knowing when to give it. Answer
+too soon and the agent cuts people off mid-thought. Wait too long and every reply feels slow.
+This page explains how Fonoster decides when the caller has finished, how your agent answers
+quickly without jumping in, and what happens when the caller talks over the agent.
+
+Fonoster does all of this for you. Your agent never listens for silence itself.
+
+## Endpointing versus end of thought
+
+Most voice systems use **endpointing**: wait for a fixed stretch of silence, then reply. It's
+simple, and it's wrong in both directions. People pause mid-sentence to think ("My account
+number is... let me find it..."), and a fixed timer treats that pause as the end. People also
+finish a short answer ("Yes.") and then wait, and the same timer makes them sit through the full
+silence.
+
+Fonoster estimates **end of thought** instead. For each caller turn it keeps a running estimate,
+from 0 to 1, of how likely it is that the caller has finished. The estimate rises during silence
+after a complete sentence and falls the moment the caller speaks again. It uses the caller's
+audio, the transcript so far, and whether the agent is talking.
+
+## Three moments in a turn
+
+The estimate turns into three moments that your agent reacts to:
+
+| Moment | When | What Autopilot does |
+| --- | --- | --- |
+| Likely ended | The estimate crosses halfway | Starts preparing a reply, silently |
+| Resumed | The caller speaks again after "likely ended" | Throws the prepared reply away |
+| Ended | The estimate reaches the end | Speaks, using the prepared reply if it still fits |
+
+Preparing early is how the agent answers fast without answering early. The model starts writing
+while the caller might still be talking, but nothing plays until the turn has really ended. When
+the caller was only pausing, the work is dropped and the caller never knows.
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/turn-taking/timeline-light.png"
+  alt="A caller turn over time. The caller says “My account number is…”, pauses, then says “…4 8 1 0 2” and goes silent. The end-of-thought estimate rises during the pause and crosses halfway (1, likely ended: the agent prepares a reply silently), then drops when the caller resumes (2, resumed: the reply is dropped). During the final silence it crosses halfway again (3, likely ended: prepare reply) and reaches the end (4, ended: speak), and the agent says “Thanks. I found your account.” Patience stretches or shortens the final wait."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/turn-taking/timeline-dark.png"
+  alt="A caller turn over time. The caller says “My account number is…”, pauses, then says “…4 8 1 0 2” and goes silent. The end-of-thought estimate rises during the pause and crosses halfway (1, likely ended: the agent prepares a reply silently), then drops when the caller resumes (2, resumed: the reply is dropped). During the final silence it crosses halfway again (3, likely ended: prepare reply) and reaches the end (4, ended: speak), and the agent says “Thanks. I found your account.” Patience stretches or shortens the final wait."
+/>
+
+A turn can have several false alarms before it ends. Every turn ends exactly once.
+
+## Patience
+
+Patience is the one setting that changes the timing. It has three levels:
+
+| Patience | Waits | Use it for |
+| --- | --- | --- |
+| `low` | About 0.6 times as long as normal | Quick question-and-answer flows, such as confirming an appointment |
+| `normal` (default) | The install's standard timing | Most conversations |
+| `high` | About 1.6 times as long as normal | Callers who think aloud, read out long numbers, or speak a second language |
+
+At `low` and `normal`, Autopilot prepares replies at "likely ended". When the agent's own
+`conversationSettings.patience` is `high`, it waits for "ended", because a patient agent is one
+that shouldn't guess. High patience that comes only from the application's speech settings
+stretches the wait but doesn't stop early preparation.
+
+Patience also **adapts within a call**. Each time a caller resumes after a false alarm, Fonoster
+becomes a little more patient with that caller, up to 1.6 times the agent's level. It never
+becomes less patient than you asked for. After three false alarms in one call, Autopilot also
+stops preparing replies early for the rest of that call. None of this carries over: every call
+starts from the agent's setting.
+
+You set patience in the agent's `conversationSettings.patience`, or in the application's
+`speech.patience`. The agent's setting wins unless it's `normal`; then the application's
+`speech.patience` applies. See
+[Build an Autopilot agent](/autopilot/build-an-agent#settings-only-the-sdk-and-the-cli-set) and
+[Autopilot configuration](/reference/autopilot-config#speech).
+
+## Barge-in
+
+**Barge-in** is when the caller talks over the agent. Your agent's `allowUserBargeIn` setting
+(**Let callers interrupt** in the dashboard) decides what happens:
+
+- **On (default).** The agent stops talking as soon as the caller cuts in, and listens.
+- **Off.** The agent doesn't stop for the caller. When the caller's turn ends, the agent answers
+  what they said.
+
+When the agent is interrupted, the model remembers only the part the caller actually heard. If the
+agent was halfway through a price when the caller cut in, the model knows the caller didn't hear
+the price, and it doesn't assume they did. This is why [prompts for voice](/autopilot/prompting)
+should put the important part of a reply first.
+
+Some messages always play to the end, whatever the setting: the goodbye message before a hang-up,
+and the transfer message before a transfer.
+
+### Backchannels
+
+Short acknowledgments like "uh-huh" or "right" aren't interruptions. The caller is listening, not
+taking the turn. The default detector (`baseline`) treats any speech over the agent as speech, so
+on an agent with barge-in on, an "uh-huh" can stop it.
+
+## Silence and idle calls
+
+Turn-taking decides when a turn ends. Idle handling decides what to do when no turn starts at all.
+
+The idle clock runs only while the agent is listening. After `idleOptions.timeout` of silence, the
+agent says the idle message, such as "Are you still there?". When the caller stays silent for the
+last of `idleOptions.maxTimeoutCount` timeouts, the agent says the goodbye message and hangs up.
+
+A burst of line noise can look like the start of a turn. If no words follow within 10 seconds,
+that turn ends empty. The agent doesn't answer it, and it doesn't reset the idle count, so a
+silent caller still gets the goodbye on time.
+
+## The turn detector
+
+The part that produces the estimate is called the **turn detector**. Fonoster ships a default
+detector based on voice activity, transcripts and a silence timer, and supports others, such as a
+speech recognizer that reports the end of a turn itself.
+
+Agents created in the dashboard, the API or the CLI use the default detector. You can't choose a
+detector per agent. Your agent's code and settings are the same whichever detector runs. If you run
+your own install, see [Tune turn-taking and audio](/self-hosting/turn-taking-and-audio).
+
+## Reading turns in the call record
+
+Every [call record](/observe/call-records) keeps the turn decisions for the call, and labels each
+turn:
+
+| Label | Meaning |
+| --- | --- |
+| `ok` | Neither cut off nor slow |
+| `slow` | More than 2 seconds between the caller's last word and the reply |
+| `cut-off` | The caller spoke again within 1.5 seconds of the reply starting: the turn probably ended too early |
+| `missed-barge-in` | The caller talked over the agent for more than a second and the agent didn't stop |
+| `backchannel-misfire` | The agent stopped within a second of an acknowledgment like "uh-huh" |
+
+Many `cut-off` labels suggest more patience. Many `slow` labels suggest less, or a slow model or
+tool.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Build an Autopilot agent" icon="robot" href="/autopilot/build-an-agent">
+    Set patience, barge-in and idle handling.
+  </Card>
+  <Card title="Write prompts for voice" icon="pen" href="/autopilot/prompting">
+    Write replies that survive interruptions.
+  </Card>
+  <Card title="Call records" icon="file-shield" href="/observe/call-records">
+    Read turn decisions and labels.
+  </Card>
+  <Card title="Tune turn-taking and audio" icon="sliders" href="/self-hosting/turn-taking-and-audio">
+    Turn-taking and audio settings on your own install.
+  </Card>
+</CardGroup>

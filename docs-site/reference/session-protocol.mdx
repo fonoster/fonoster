@@ -1,0 +1,311 @@
+---
+title: "Session protocol"
+description: "The wire format of fonoster.session.v1: the connection, every message in both directions, audio frames, errors and limits."
+---
+
+`fonoster.session.v1` is the protocol a stream with protocol `fonoster` speaks. Each call is one
+WebSocket that Fonoster opens to your stream's URL. Your server receives the caller's audio and
+events, and sends commands. Use this page to write a client in a language without a
+[Voice SDK](/reference/voice-sdk). The machine-readable definition is the JSON Schema
+`mods/common/schema/session.v1.json`, one schema per message.
+
+## Connection
+
+Fonoster dials your server; your server never dials Fonoster.
+
+- **URL**: the stream's `url`, `ws://` or `wss://`. Fonoster dials public addresses only, unless
+  the operator of a self-hosted install allows others.
+- **Retries**: if the connection fails, Fonoster retries every 250 ms for 2.5 seconds while the
+  caller hears ringing. Then it applies the stream's fallback (`fallbackAppRef` or
+  `fallbackMessage`), or ends the call.
+- **Answering**: inbound calls are answered when `session.start` is sent. There is no answer
+  command. On outbound calls, the session opens when the callee answers.
+- **Keepalive**: Fonoster pings every 10 seconds. A socket that sends nothing (no pong, no frame)
+  for 30 seconds is dropped and the call is hung up.
+
+### Handshake headers
+
+Every connection request is signed with the stream's signing secret:
+
+| Header | Value |
+| --- | --- |
+| `X-Fonoster-Timestamp` | Signing time, in Unix seconds |
+| `X-Fonoster-Signature` | Lowercase hex HMAC-SHA256 of `<timestamp>.<url>` |
+| `X-Fonoster-App-Ref` | The stream's ref |
+| `X-Fonoster-Workspace-Ref` | The workspace that owns the stream |
+| `X-Fonoster-App-Signature` | Lowercase hex HMAC-SHA256 of `<timestamp>\n<url>\n<appRef>\n<workspaceRef>` |
+
+`<url>` is the stream's URL exactly as configured, query string included. Reject a request whose
+signature doesn't match, or whose timestamp is more than 300 seconds from your clock. See
+[Verify request signatures](/streams/verify-signatures).
+
+## Frames
+
+- **Text frames** carry one JSON message each. Every message has a `type`.
+- **Binary frames** carry audio. See [Audio](#audio).
+- **`id`**: commands can carry an `id`, a string of 1 to 128 characters. Events a command causes
+  echo it (`output.*` events as `id`, errors as `relatesTo`).
+- **Unknown types and fields**: ignore them. The protocol only adds types and fields; a breaking
+  change gets a new protocol name. Fonoster ignores unknown command types too.
+
+## Session lifecycle
+
+<ResponseField name="session.start" type="Fonoster → your server">
+  Always the first message.
+
+  <Expandable title="fields">
+    <ResponseField name="protocol" type="string" required>Always `fonoster.session.v1`.</ResponseField>
+    <ResponseField name="sessionRef" type="string" required>This session's ref.</ResponseField>
+    <ResponseField name="callRef" type="string" required>The call's ref.</ResponseField>
+    <ResponseField name="appRef" type="string" required>The stream's ref.</ResponseField>
+    <ResponseField name="direction" type="string" required>`inbound` or `outbound`.</ResponseField>
+    <ResponseField name="from" type="string" required>The caller.</ResponseField>
+    <ResponseField name="to" type="string" required>The number called.</ResponseField>
+    <ResponseField name="metadata" type="object" required>The call's metadata; `{}` when none.</ResponseField>
+    <ResponseField name="handoff" type="object | null" required>The payload when another application handed the call over, else `null`.</ResponseField>
+    <ResponseField name="audio" type="object" required>`{ codec, rate }`: `pcm16` at 8000, 16000 or 24000, or `pcmu` at 8000.</ResponseField>
+    <ResponseField name="tracks" type="object[]" required>`[{ id, side, kind, codec }]`. `id` is 0 to 255, `side` is `inbound` or `outbound`, `kind` is `audio`.</ResponseField>
+    <ResponseField name="speech" type="object" required>`{ voice, language }`, the stream's defaults as catalog ids.</ResponseField>
+    <ResponseField name="traceparent" type="string">The call's W3C trace context, when sent.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+```json
+{
+  "type": "session.start",
+  "protocol": "fonoster.session.v1",
+  "sessionRef": "8aa0b7b7-3f75-427e-86c2-14c2834ed4b1",
+  "callRef": "c41e9d27-5b8a-4f3c-9e61-2d7a0b8c4f15",
+  "appRef": "3f8b2c71-9d4e-4a6b-8c25-7e1f0a9b4d62",
+  "direction": "inbound",
+  "from": "+18095550123",
+  "to": "+18095550100",
+  "metadata": {},
+  "handoff": null,
+  "audio": { "codec": "pcm16", "rate": 16000 },
+  "tracks": [
+    { "id": 1, "side": "inbound", "kind": "audio", "codec": "pcm16" },
+    { "id": 2, "side": "outbound", "kind": "audio", "codec": "pcm16" }
+  ],
+  "speech": { "voice": "deepgram/aura-2-thalia-en", "language": "en-US" }
+}
+```
+
+<ResponseField name="session.end" type="Fonoster → your server">
+  The last message. `reason` is `caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error` or
+  `timeout`. Fonoster then closes the socket with code `1000`.
+</ResponseField>
+
+### Closing
+
+| Who closes | Result |
+| --- | --- |
+| Fonoster | After `session.end`, with code `1000`. The call may continue, for example after a transfer or handoff |
+| Your server | The call is hung up. Send `hangup` first if you want `session.end` with `app_hangup` |
+| Nobody, socket silent for 30 s | Fonoster drops the socket without a close frame and hangs up |
+
+## Commands (your server → Fonoster)
+
+Every command takes an optional `id`. Fields marked required must be present, or Fonoster answers
+`error` with code `bad_message`.
+
+### Speech
+
+<ResponseField name="speak" type="command">
+  Speaks text with text-to-speech.
+
+  | Field | Type | Required | Meaning |
+  | --- | --- | --- | --- |
+  | `text` | string | yes | Text to speak. May be empty on the last piece |
+  | `last` | boolean | no | Default `true`. Send several `speak` with one `id` and `last: false` to stream text into one utterance; the piece with `last: true` ends it |
+  | `voice` | string | no | Catalog id overriding the stream's voice for this item |
+  | `language` | string | no | Overrides the stream's language for this item |
+  | `interruptible` | boolean | no | Default `true`. A hint for your own barge-in logic. Fonoster never stops output on caller speech |
+  | `preempt` | boolean | no | Stop what is playing and play this first |
+
+  Without an `id`, Fonoster assigns one. A voice not in the catalog gets `error`
+  `invalid_catalog_id`.
+</ResponseField>
+
+<ResponseField name="play" type="command">
+  Plays a WAV file (PCM or μ-law, any rate), converted to the call's format.
+
+  | Field | Type | Required | Meaning |
+  | --- | --- | --- | --- |
+  | `url` | string | yes | `http://` or `https://` URL |
+  | `loop` | boolean | no | Default `false` |
+  | `interruptible` | boolean | no | Default `true` |
+  | `preempt` | boolean | no | Stop what is playing and play this first |
+
+  A file that can't be fetched gets `error` `play_fetch_failed`.
+</ResponseField>
+
+<ResponseField name="listen.update" type="command">
+  Starts listening, or changes recognition from now on. All fields optional: `language`, `hints`
+  (array of strings, added to the stream's hints) and `patience` (`low`, `normal` or `high`).
+</ResponseField>
+
+<ResponseField name="subscribe" type="command">
+  `events` (required): opt-in events to receive, from `turn.estimate` and `transcript.partial`.
+  Other names are ignored.
+</ResponseField>
+
+Fonoster starts speech recognition on the first `speak`, `play`, `subscribe` or `listen.update`.
+Before that it sends no turn events. Keypresses always arrive.
+
+### Output queue
+
+<ResponseField name="mark" type="command">
+  `name` (required, non-empty): marks a position in the output queue. Fonoster answers with a
+  `mark` event.
+</ResponseField>
+
+<ResponseField name="clear" type="command">
+  Empties the whole output queue. The caller hears silence within 40 ms. Pending items end with
+  `output.interrupted`, and pending marks are answered with `cleared: true`.
+</ResponseField>
+
+`speak`, `play` and the audio you send share one queue, played in real time. New items play after
+earlier ones. More than 120 seconds of queued output gets `error` `queue_full`.
+
+### Call control
+
+<ResponseField name="hangup" type="command">
+  Hangs up. You get `session.end` with `app_hangup`.
+</ResponseField>
+
+<ResponseField name="dtmf.send" type="command">
+  `digits` (required): keys to send on the call, matching `^[0-9A-D*#w]+$`. `w` is a pause.
+</ResponseField>
+
+<ResponseField name="transfer" type="command">
+  Transfers the call.
+
+  | Field | Type | Required | Meaning |
+  | --- | --- | --- | --- |
+  | `to` | string | yes | A phone number or SIP address |
+  | `mode` | string | no | `cold` (default), `warm` or `refer` |
+  | `headers` | object | no | Custom `X-` SIP headers, string values |
+  | `music` | string | no | Hold audio URL for the caller during a warm transfer |
+
+  - **cold**: the new party joins and your session ends with `transfer`.
+  - **warm**: the caller waits on hold while you talk to the new party. Send
+    `transfer.complete` to connect them and end your session. If nobody answers in 30 seconds you
+    get `error` `transfer_failed` and the caller is back with you.
+  - **refer**: a SIP REFER; your session ends with `transfer`.
+
+  An unreachable target gets `error` `transfer_failed`. See [Transfer calls](/telephony/transfers).
+</ResponseField>
+
+<ResponseField name="transfer.complete" type="command">
+  `id` (required): the `id` of the pending warm transfer. Connects the caller and the new party,
+  and ends your session with `transfer`.
+</ResponseField>
+
+<ResponseField name="hold" type="command">
+  Puts the caller on hold. `music` (optional): an `http` or `https` URL, looped; silence without
+  it. While on hold you get no caller audio and no turn events (keypresses still arrive), and
+  every command except `resume`, `hangup`, `transfer` and `handoff` gets `error` `on_hold`.
+</ResponseField>
+
+<ResponseField name="resume" type="command">
+  Takes the caller off hold.
+</ResponseField>
+
+<ResponseField name="handoff" type="command">
+  Hands the call to another application in the same workspace. `app` (required): its ref.
+  `payload` (optional): a JSON object up to 16 KB. You get `session.end` with `handoff`; the
+  other application gets `session.start` with your payload in `handoff`. At most 5 handoffs per
+  call. An unknown application gets `error` `bad_message`.
+</ResponseField>
+
+## Events (Fonoster → your server)
+
+### Output
+
+| Event | Fields | Meaning |
+| --- | --- | --- |
+| `output.started` | `id` | The item began to be heard |
+| `output.done` | `id`, `heardMs` | It was heard completely |
+| `output.interrupted` | `id`, `heardText`, `heardMs` | It was cut off by `clear` or `preempt`. `heardText` holds only the words already spoken. Items dropped before they started report `heardMs: 0` |
+| `mark` | `name`, `cleared` | `cleared: false` when everything queued before the mark was heard; `true` when `clear` dropped it |
+
+### Turns
+
+| Event | Fields | Meaning |
+| --- | --- | --- |
+| `turn.user_started` | | The caller started talking. Fonoster keeps playing; send `clear` to stop |
+| `turn.likely_ended` | `text` | The caller probably finished. A good moment to prepare a reply |
+| `turn.resumed` | | The caller kept talking after `turn.likely_ended` |
+| `turn.ended` | `text`, `language`, `confidence` (0 to 1), `durationMs`, `abandoned` | The turn is over; reply now. `abandoned: true` with empty `text` means 10 seconds passed with no speech after `turn.user_started` |
+| `turn.backchannel` | `text` | A short acknowledgment ("uh-huh"). It doesn't produce `turn.user_started` |
+| `turn.estimate` | `eot` (0 to 1), `speaking`, `kind` | Opt-in. The end-of-turn estimate, at most every 100 ms. `kind` is `speech`, `backchannel`, `interruption` or `none` |
+| `transcript.partial` | `text`, `language` | Opt-in. Interim transcript |
+
+A turn arrives as `turn.user_started`, zero or more `turn.likely_ended` and `turn.resumed`
+pairs, an optional `turn.likely_ended`, then `turn.ended`. See
+[Turn-taking and barge-in](/autopilot/turn-taking).
+
+### Other events
+
+| Event | Fields | Meaning |
+| --- | --- | --- |
+| `dtmf` | `digit` | The caller pressed a key: `0`–`9`, `A`–`D`, `*` or `#`. Arrives at any time |
+| `amd.result` | `status`, `confidence`, `detector`, `audioMs`, `speechOnsetMs`, `reason` | Answering-machine verdict, once per call, when the stream has `amd` on. `status` is `human`, `voicemail`, `ivr`, `machine` or `unknown`. See [Answering-machine detection](/telephony/amd) |
+| `error` | `code`, `message`, `fatal`, `relatesTo` | A command failed or something went wrong. `relatesTo` is the `id` of the command that caused it |
+
+## Audio
+
+| Direction | Frame | Content |
+| --- | --- | --- |
+| Fonoster → your server | Binary, one per 20 ms | One byte with the track id (from `tracks`), then audio in the session's format |
+| Your server → Fonoster | Binary, any length | Audio in the session's format, without a track byte. It joins the output queue |
+
+- `pcm16` is signed 16-bit little-endian, mono. `pcmu` is G.711 μ-law, mono, 8000 Hz.
+- The stream's `audio` setting picks the format. The default is `pcm16` at 16000 Hz.
+- Caller audio arrives on track `1` (side `inbound`).
+
+## Errors
+
+`error { code, message, fatal, relatesTo }`. In this version no error is fatal on its own; a
+session that can't continue ends with `session.end`.
+
+| Code | Meaning |
+| --- | --- |
+| `bad_message` | Unparseable JSON, a message without `type`, a missing or invalid field, or a limit exceeded |
+| `read_only` | A listen-only socket sent a command |
+| `provider_unavailable` | The speech or language provider failed |
+| `provider_timeout` | The provider didn't answer in time |
+| `invalid_catalog_id` | A voice or language id isn't in the catalog |
+| `feature_not_supported` | The provider can't do what was asked |
+| `transfer_failed` | The transfer target couldn't be reached |
+| `on_hold` | The command isn't allowed while the caller is on hold |
+| `queue_full` | More than 120 s of output is queued |
+| `play_fetch_failed` | The media couldn't be fetched |
+| `internal` | Anything else |
+
+Fonoster never switches providers on failure; it reports the error.
+
+## Listen-only sockets
+
+A stream can list up to 4 `listeners` (`url`, `tracks`: `inbound`, `outbound` or `both`, default
+`both`). Fonoster dials each one when the session starts, signed with the stream's secret.
+Listeners get `session.start`, the same events as your server, and the tracks they chose as
+separate binary frames, each with its track id. Sides are never mixed. Anything a listener sends
+gets `error` `read_only`, and its audio is dropped.
+
+## Limits
+
+| Limit | Value |
+| --- | --- |
+| Command `id` | 1 to 128 characters |
+| Connection retry window | 2.5 s, every 250 ms |
+| Signature timestamp skew | 300 s |
+| Keepalive | Ping every 10 s; dropped after 30 s of silence |
+| Queued output | 120 s |
+| `clear` to silence | 40 ms |
+| Handoff payload | 16 KB |
+| Handoffs per call | 5 |
+| Warm transfer answer | 30 s |
+| Listeners per stream | 4 |
+| Buffered type-ahead in the SDKs | 32 inputs (SDK behavior, not the protocol) |

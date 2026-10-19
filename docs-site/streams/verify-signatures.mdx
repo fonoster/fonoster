@@ -1,0 +1,315 @@
+---
+title: "Verify request signatures"
+sidebarTitle: "Verify signatures"
+description: "Check that every WebSocket connection to your stream comes from Fonoster, and rotate the signing secret safely."
+---
+
+Your stream's URL is public, so anyone who learns it can open a WebSocket to your server. To prove
+a connection comes from Fonoster, Fonoster signs every connection request with the stream's
+**signing secret**. Your server checks the signature before it accepts the connection.
+
+Every stream server must do this check. The Voice SDKs do it for you. If you run your own server,
+such as a [Pipecat bot](/streams/bring-your-app), add it yourself.
+
+## The headers
+
+Fonoster adds these headers to the WebSocket upgrade request it sends to your stream's URL:
+
+| Header | Value |
+| --- | --- |
+| `x-fonoster-timestamp` | When Fonoster signed the request, in Unix seconds |
+| `x-fonoster-signature` | Lowercase hex HMAC-SHA256 of `<timestamp>.<url>`, keyed with the signing secret |
+| `x-fonoster-app-ref` | The ref of the stream the call is for |
+| `x-fonoster-workspace-ref` | The workspace that owns the stream (its access key ID, starting with `WO`) |
+| `x-fonoster-app-signature` | Lowercase hex HMAC-SHA256 of `<timestamp>\n<url>\n<appRef>\n<workspaceRef>` (joined by newlines), keyed with the signing secret |
+
+`<url>` is the stream's URL exactly as you configured it in Fonoster, query string included.
+
+`x-fonoster-signature` proves the request came from Fonoster for this URL. `x-fonoster-app-signature`
+also binds it to one stream, so a signature made for one stream can't open a session for another.
+Check the app signature when several streams share one server and one secret.
+
+[Listen-only sockets](/reference/session-protocol) get the same headers, signed with the same
+secret.
+
+## Let the SDK check it
+
+`VoiceServer` checks the signature on every connection and answers `401 Unauthorized` when it
+doesn't match. It won't start without a secret: pass it as an option or set `APP_SIGNING_SECRET`.
+
+<Tabs>
+  <Tab title="Node.js">
+    Pass the secret and the stream's URL:
+
+    ```javascript
+    const { VoiceServer } = require("@fonoster/voice");
+
+    new VoiceServer({
+      port: 3000,
+      signingSecret: process.env.APP_SIGNING_SECRET,
+      publicUrl: "wss://bot.example.com/session"
+    }).listen(handler);
+    ```
+
+    The Node.js SDK also checks `x-fonoster-app-signature` whenever the request carries it, and
+    Fonoster always sends it. A request with a bad app signature is refused even if the URL
+    signature matches.
+
+    | Option | Meaning |
+    | --- | --- |
+    | `signingSecret` | The stream's signing secret (default: `APP_SIGNING_SECRET`) |
+    | `publicUrl` | The stream's URL as configured, or a list of them. Signatures are checked against these only |
+    | `requireAppBinding` | Refuse connections without `x-fonoster-app-signature`, and refuse a session whose stream isn't the one the signature names |
+    | `verifySignature` | `false` turns the check off. For local experiments only: every connection then logs a warning |
+
+    After the check, `session.signedFor` holds the `appRef` and `workspaceRef` the signature
+    named.
+  </Tab>
+  <Tab title="Python">
+    Pass the secret and the stream's URL:
+
+    ```python
+    import os
+
+    from fonoster.voice import VoiceServer
+
+    server = VoiceServer(
+        port=3000,
+        signing_secret=os.environ["APP_SIGNING_SECRET"],
+        public_url="wss://bot.example.com/session",
+    )
+    ```
+
+    `voice_asgi_app()` takes the same `signing_secret` and `public_url`.
+
+    The Python SDK checks `x-fonoster-signature` only. It doesn't check
+    `x-fonoster-app-signature`, so give each stream its own server, or check the app signature
+    yourself as shown in [Verify it yourself](#verify-it-yourself).
+  </Tab>
+</Tabs>
+
+### Set the URL when a proxy is in front
+
+Fonoster signs the URL configured on the stream, not the URL your server sees. Behind a tunnel,
+load balancer or proxy, the two can differ in scheme, host or path.
+
+Without `publicUrl` (`public_url` in Python), the SDK rebuilds the URL from the request's
+`X-Forwarded-Host` or `Host` header and tries both `ws://` and `wss://`. That works when the proxy
+keeps the host and path. If it rewrites either, the check fails. Set `publicUrl` to the configured
+URL and it always matches.
+
+## Check it in your own server
+
+The SDKs export their checks, so you can use them in a server that doesn't use `VoiceServer`.
+Check the headers before you accept the WebSocket.
+
+<Tabs>
+  <Tab title="Node.js">
+    `verifyAppSignature` checks the bound signature and returns which stream it was for.
+    `verifySignature` checks `x-fonoster-signature` only. Both take a list of URLs, the request's
+    headers and the secret, and return `{ ok, reason }`:
+
+    ```javascript
+    const http = require("http");
+    const { WebSocketServer } = require("ws");
+    const { verifyAppSignature } = require("@fonoster/voice");
+
+    const STREAM_URL = "wss://bot.example.com/media";
+    const wss = new WebSocketServer({ noServer: true });
+    const server = http.createServer();
+
+    server.on("upgrade", (req, socket, head) => {
+      const result = verifyAppSignature([STREAM_URL], req.headers, process.env.APP_SIGNING_SECRET);
+      if (!result.ok) {
+        console.warn(`Refused a connection: ${result.reason}`);
+        socket.end("HTTP/1.1 401 Unauthorized\r\n\r\n");
+        return;
+      }
+      wss.handleUpgrade(req, socket, head, (ws) => {
+        // Your WebSocket code. result.binding.appRef is the stream the call is for.
+      });
+    });
+
+    server.listen(3000);
+    ```
+
+    `reason` is `missing` (no signature headers), `stale` (timestamp more than 300 seconds from
+    your clock) or `mismatch`.
+  </Tab>
+  <Tab title="Python (FastAPI)">
+    `fonoster.voice.signature.verify_signature` checks `x-fonoster-signature`. It returns `None`
+    when the signature is valid, or the reason it isn't. This FastAPI route checks it before it
+    accepts the WebSocket, for example in front of a Pipecat bot:
+
+    ```python
+    import os
+
+    from fastapi import FastAPI, WebSocket
+    from fonoster.voice.signature import verify_signature
+
+    STREAM_URL = "wss://bot.example.com/ws"
+    app = FastAPI()
+
+
+    @app.websocket("/ws")
+    async def ws(websocket: WebSocket):
+        reason = verify_signature([STREAM_URL], dict(websocket.headers), os.environ["APP_SIGNING_SECRET"])
+        if reason:
+            await websocket.close(code=1008)
+            return
+        await websocket.accept()
+        # Your WebSocket code, such as the Pipecat transport.
+    ```
+
+    `reason` is `"missing"`, `"stale"` or `"mismatch"`.
+  </Tab>
+</Tabs>
+
+## Verify it yourself
+
+In any other language, check the headers by hand:
+
+1. Read `x-fonoster-timestamp` and `x-fonoster-signature`. Reject the request if either is missing.
+2. Reject it if the timestamp is more than 300 seconds from your clock.
+3. Compute the HMAC-SHA256 of `<timestamp>.<url>` with the signing secret, where `<url>` is the
+   stream's configured URL, and hex-encode it.
+4. Compare it with `x-fonoster-signature` in constant time. Reject the request if they differ.
+
+To check the app signature too, compute the HMAC-SHA256 of the timestamp, the URL,
+`x-fonoster-app-ref` and `x-fonoster-workspace-ref`, joined by newlines, and compare it with
+`x-fonoster-app-signature` the same way.
+
+<CodeGroup>
+```javascript Node.js
+const { createHmac, timingSafeEqual } = require("crypto");
+
+function verify(streamUrl, headers, secret) {
+  const timestamp = Number(headers["x-fonoster-timestamp"]);
+  const signature = headers["x-fonoster-signature"];
+  const appSignature = headers["x-fonoster-app-signature"];
+  if (typeof signature !== "string" || !Number.isFinite(timestamp)) return false;
+  if (Math.abs(Date.now() / 1000 - timestamp) > 300) return false;
+
+  const matches = (given, input) => {
+    const expected = createHmac("sha256", secret).update(input).digest();
+    const received = Buffer.from(given, "hex");
+    return received.length === expected.length && timingSafeEqual(received, expected);
+  };
+
+  if (!matches(signature, `${timestamp}.${streamUrl}`)) return false;
+  if (typeof appSignature === "string") {
+    const input = [
+      timestamp,
+      streamUrl,
+      headers["x-fonoster-app-ref"] ?? "",
+      headers["x-fonoster-workspace-ref"] ?? ""
+    ].join("\n");
+    if (!matches(appSignature, input)) return false;
+  }
+  return true;
+}
+```
+
+```python Python
+import hashlib
+import hmac
+import time
+
+
+def verify(stream_url: str, headers: dict[str, str], secret: str) -> bool:
+    h = {k.lower(): v for k, v in headers.items()}
+    try:
+        timestamp = int(h["x-fonoster-timestamp"])
+        signature = h["x-fonoster-signature"]
+    except (KeyError, ValueError):
+        return False
+    if abs(time.time() - timestamp) > 300:
+        return False
+
+    def matches(given: str, data: str) -> bool:
+        expected = hmac.new(secret.encode(), data.encode(), hashlib.sha256).hexdigest()
+        return hmac.compare_digest(expected, given)
+
+    if not matches(signature, f"{timestamp}.{stream_url}"):
+        return False
+    app_signature = h.get("x-fonoster-app-signature")
+    if app_signature is not None:
+        data = "\n".join([
+            str(timestamp),
+            stream_url,
+            h.get("x-fonoster-app-ref", ""),
+            h.get("x-fonoster-workspace-ref", ""),
+        ])
+        if not matches(app_signature, data):
+            return False
+    return True
+```
+</CodeGroup>
+
+## Rotate the signing secret
+
+Rotate the secret if it leaks, or on your regular schedule. Fonoster shows the new secret once.
+
+<Warning>
+  Rotation takes effect immediately, with no overlap window. From that moment, connections are
+  signed with the new secret, and a server that still holds the old one refuses every call. Rotate
+  during a quiet period and deploy the new secret right away.
+</Warning>
+
+<Tabs>
+  <Tab title="Dashboard">
+    1. Go to **Streams** and open the stream.
+    2. Open the **Advanced** tab.
+    3. Under **Signing secret**, choose **Rotate secret**, then **Rotate now**.
+    4. Copy the new secret from **Signing secret (shown once)**.
+  </Tab>
+  <Tab title="SDK">
+    Call `rotateSigningSecret` with the stream's ref. The response holds the new secret:
+
+    ```javascript
+    const apps = new SDK.Applications(client);
+    const { signingSecret } = await apps.rotateSigningSecret(
+      "3f8b2c71-9d4e-4a6b-8c25-7e1f0a9b4d62"
+    );
+    ```
+
+    The API method is `RotateSigningSecret`.
+  </Tab>
+  <Tab title="CLI">
+    Pass the stream's ref:
+
+    ```bash
+    fonoster applications:rotate-secret 3f8b2c71-9d4e-4a6b-8c25-7e1f0a9b4d62
+    ```
+
+    ```text
+    Signing secret: Qm7vR2xT9kLp4wNc8bYh1sDf6gJz3aUe0oXi5tKqWnE
+    Save it now: it is shown only once.
+    ```
+  </Tab>
+</Tabs>
+
+Then set the new secret as `APP_SIGNING_SECRET` on your server and restart it.
+
+After creation or rotation, Fonoster only shows the secret's last four characters, for example
+**Current secret ends in …qWnE** in the dashboard. Use them to check which secret a server has.
+
+## Troubleshooting
+
+| Symptom | Cause |
+| --- | --- |
+| The SDK logs `signature mismatch` | The secret is wrong, or the URL you check against isn't the stream's configured URL. Set `publicUrl` |
+| The SDK logs `signature stale` | Your server's clock is more than 300 seconds off. Sync it with NTP |
+| The SDK logs `signature missing` | The request didn't come from Fonoster, or a proxy dropped the `x-fonoster-*` headers |
+| Calls fail right after a rotation | The server still has the old secret. Deploy the new one |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Build a stream with the Voice SDK" icon="code" href="/streams/voice-sdk">
+    Put your own code on a call in Node.js.
+  </Card>
+  <Card title="Session protocol" icon="book" href="/reference/session-protocol">
+    The full wire protocol, for clients in other languages.
+  </Card>
+</CardGroup>

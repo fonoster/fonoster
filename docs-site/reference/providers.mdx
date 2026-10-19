@@ -1,0 +1,164 @@
+---
+title: "Providers and models"
+description: "The speech-to-text models, voices and language models in the default catalog, and how deprecations reach you."
+---
+
+Fonoster calls speech and language vendors for you. Every provider, model and voice has a
+**catalog ID** of the form `<provider>/<name>`, and your applications and agents name them by that
+ID. This page lists the default catalog and explains how a deprecation shows up.
+
+The catalog your workspace sees can differ: it lists only providers the platform or your workspace
+has a key for, and the operator of a self-hosted install can add or remove entries. To see yours,
+run:
+
+```bash
+fonoster providers:catalog
+```
+
+## Where catalog IDs go
+
+| Field | Kind | Example |
+| --- | --- | --- |
+| `speech.voice` (application) | Voice | `deepgram/aura-2-thalia-en` |
+| `speech.sttModel` (application) | Speech-to-text model | `deepgram/nova-3` |
+| `speech.ttsModel` (application) | Text-to-speech model | `elevenlabs/eleven_flash_v2_5` |
+| `languageModel.model` (agent) | Language model | `openai/gpt-4o-mini` |
+| `conversationSettings.voice` (agent) | Voice | `deepgram/aura-2-andromeda-en` |
+
+When you save an application, Fonoster checks its voice and speech models against the catalog. An
+ID that isn't in the catalog is refused, and so is a retired one, with its replacement in the
+message. See [Autopilot configuration](/reference/autopilot-config) for every field.
+
+## Providers
+
+| Provider | Catalog ID | Capabilities |
+| --- | --- | --- |
+| Deepgram | `deepgram` | Speech-to-text, text-to-speech |
+| ElevenLabs | `elevenlabs` | Text-to-speech |
+| OpenAI | `openai` | Language models |
+| Groq | `groq` | Language models |
+
+## Speech-to-text models
+
+| Catalog ID | Languages | Features |
+| --- | --- | --- |
+| `deepgram/nova-3` | `en`, `es`, `multi` | Streaming, interim results, word timings, multilingual |
+| `deepgram/nova-2-phonecall` | `en` | Streaming, interim results, word timings |
+
+`multi` means the model hears more than one language in the same call.
+
+## Text-to-speech models
+
+| Catalog ID | Languages | Features |
+| --- | --- | --- |
+| `deepgram/aura-2` | `en`, `es` | Streaming |
+| `elevenlabs/eleven_flash_v2_5` | `en`, `es`, `multi` | Streaming |
+
+## Voices
+
+Pick a voice that speaks the application's `speech.language`.
+
+### Deepgram Aura-2
+
+These voices run on `deepgram/aura-2`.
+
+| Catalog ID | Language | Gender |
+| --- | --- | --- |
+| `deepgram/aura-2-thalia-en` | `en-US` | Female |
+| `deepgram/aura-2-andromeda-en` | `en-US` | Female |
+| `deepgram/aura-2-helena-en` | `en-US` | Female |
+| `deepgram/aura-2-luna-en` | `en-US` | Female |
+| `deepgram/aura-2-asteria-en` | `en-US` | Female |
+| `deepgram/aura-2-apollo-en` | `en-US` | Male |
+| `deepgram/aura-2-arcas-en` | `en-US` | Male |
+| `deepgram/aura-2-orion-en` | `en-US` | Male |
+| `deepgram/aura-2-zeus-en` | `en-US` | Male |
+| `deepgram/aura-2-draco-en` | `en-GB` | Male |
+| `deepgram/aura-2-celeste-es` | `es-CO` | Female |
+| `deepgram/aura-2-estrella-es` | `es-MX` | Female |
+| `deepgram/aura-2-selena-es` | `es-419` | Female |
+| `deepgram/aura-2-aquila-es` | `es-419` | Male |
+| `deepgram/aura-2-javier-es` | `es-MX` | Male |
+| `deepgram/aura-2-nestor-es` | `es-ES` | Male |
+
+`deepgram/aura-2-thalia-en` is the default voice of a new application.
+
+### ElevenLabs
+
+These voices run on `elevenlabs/eleven_flash_v2_5` and speak several languages (`multi`). The
+catalog ID uses ElevenLabs' voice ID.
+
+| Catalog ID | Name | Gender |
+| --- | --- | --- |
+| `elevenlabs/21m00Tcm4TlvDq8ikWAM` | Rachel | Female |
+| `elevenlabs/EXAVITQu4vr4xnSDxMaL` | Sarah | Female |
+| `elevenlabs/cgSgspJ2msm6clMCkdW9` | Jessica | Female |
+| `elevenlabs/XrExE9yKIg1WjnnlVkGX` | Matilda | Female |
+| `elevenlabs/JBFqnCBsd6RMkjVDRZzb` | George | Male |
+| `elevenlabs/nPczCjzI2devNBz1zQrb` | Brian | Male |
+| `elevenlabs/cjVigY5qzO86Huf0OWal` | Eric | Male |
+| `elevenlabs/onwK4e9ZLuTAKqWW03F9` | Daniel | Male |
+
+## Language models
+
+Autopilot agents run language models with an OpenAI-compatible API. An agent with tools needs a
+model with tool calling; every model below has it.
+
+| Catalog ID | State | Features |
+| --- | --- | --- |
+| `openai/gpt-4o-mini` | Active | Streaming, tool calling, JSON mode |
+| `openai/gpt-4.1-mini` | Active | Streaming, tool calling, JSON mode |
+| `groq/openai/gpt-oss-120b` | Active | Streaming, tool calling |
+| `groq/openai/gpt-oss-20b` | Active | Streaming, tool calling |
+| `groq/llama-3.3-70b-versatile` | Retired on 2026-10-15 | Replaced by `groq/openai/gpt-oss-120b` |
+
+Groq models use Groq's own model name after `groq/`. On a self-hosted install, the operator can
+also add models served by Ollama.
+
+## Deprecation and retirement
+
+Each catalog entry is in one of three states:
+
+| State | What it means for you |
+| --- | --- |
+| `active` | Use it. |
+| `deprecated` | It still works. It has a replacement and a retirement date. Move to the replacement before that date. |
+| `retired` | It's gone from the catalog. Saved settings that named it were moved to the replacement. |
+
+### When an entry is deprecated
+
+Nothing changes for your calls until the retirement date. You find out in these places:
+
+- **Webhook**: a [`provider.deprecated`](/reference/webhook-events#provider-deprecated) event, sent
+  once to each workspace whose saved applications or agents name the entry. It carries `id`,
+  `replacement` and `retireOn`.
+- **CLI**: `fonoster providers:catalog` shows the state as `deprecated → <replacement>`.
+- **Dashboard**: a warning for each deprecated entry your applications name or used lately, with
+  the retirement date, the replacement and the applications that use it.
+- **Call record**: a call that used the entry notes `provider.deprecated_used`.
+
+To move, change the ID in each application and agent that names it, then make a test call. A
+replacement can sound or behave a little differently. See
+[Use your own vendor keys](/workspace/provider-keys#when-a-model-is-deprecated).
+
+### When an entry is retired
+
+On the retirement date, Fonoster moves saved applications and agents to the replacement. Settings
+the replacement doesn't accept are dropped. A setting that can't move, such as a voice that exists
+only on the old model, keeps the old ID, and calls use the replacement for it.
+
+After that:
+
+- The entry no longer appears in the catalog.
+- Saving an application with the retired ID is refused, with the replacement in the message.
+- A call that still names it runs on the replacement, and its call record notes
+  `provider.retired_used`.
+
+If a vendor is down, Fonoster doesn't switch your calls to another vendor on its own. A
+[stream](/streams/voice-sdk) gets a `provider_unavailable` error and decides what to do.
+
+## Bring your own keys
+
+By default, calls use the platform's account with each vendor. Set your own key for a provider, and
+your workspace's calls use your account instead. A provider the platform has no key for appears in
+your catalog once you set one. See [Use your own vendor keys](/workspace/provider-keys).

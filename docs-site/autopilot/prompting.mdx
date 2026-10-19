@@ -1,0 +1,207 @@
+---
+title: "Write prompts for voice"
+sidebarTitle: "Prompting"
+description: "Write a system prompt and messages that sound natural on a phone call, use tools well and recover from mishearings."
+---
+
+A prompt for a phone call is not a prompt for a chat window. The caller can't scroll back, skim a
+list or click a link. They hear one sentence at a time, they interrupt, and speech recognition
+sometimes gets their words wrong. This guide shows how to write the system prompt and the fixed
+messages for that.
+
+## Before you begin
+
+You need an Autopilot agent. See [Build an Autopilot agent](/autopilot/build-an-agent).
+
+## Know who says what
+
+Only the system prompt goes to the model. The other messages are fixed text that Fonoster speaks
+for the agent at set moments:
+
+| Message | Field | Spoken by |
+| --- | --- | --- |
+| First message | `firstMessage` | Fonoster, when the call connects |
+| Goodbye message | `goodbyeMessage` | Fonoster, when the agent hangs up or the call times out |
+| Transfer message | `transferOptions.message` | Fonoster, before it transfers the call |
+| Idle message | `idleOptions.message` | Fonoster, when the caller goes quiet |
+| Error message | `systemErrorMessage` | Fonoster, when a reply fails |
+| Tool start message | `requestStartMessage` | Fonoster, while a tool runs |
+| Everything else | | The model |
+
+This changes how you write the prompt:
+
+- **Don't greet in the prompt.** The first message already did, and the model sees it in the
+  history.
+- **Don't say goodbye before hanging up.** When the model calls `hangup`, the goodbye message
+  plays. If the model also says goodbye, the caller hears it twice. Tell the model to hang up, not
+  to say goodbye.
+- **Don't announce a transfer.** The transfer message covers it.
+
+## Structure the prompt
+
+Use short sections with headings. The model follows them more reliably than one long paragraph,
+and you can find what to change later. This shape works for most agents:
+
+```markdown
+# Role
+Who the agent is, who it works for, and its tone.
+
+# Goal
+What a successful call looks like.
+
+# Rules
+The few things it must always or never do.
+
+# Steps
+The flow of a typical call, in order.
+
+# Tools
+When to use each tool.
+```
+
+Keep it as short as it can be. Every line competes for the model's attention, and a long prompt
+slows the first reply.
+
+## Write for the ear
+
+<Steps>
+  <Step title="Keep replies short">
+    Ask for one or two sentences per reply, and one question at a time. A caller can't hold a
+    three-part question in their head.
+
+    ```text
+    Keep answers short: one or two sentences. This is a phone call.
+    Ask one question at a time.
+    ```
+
+  </Step>
+
+  <Step title="Put the important part first">
+    Callers interrupt. When they do, the agent stops, and the model only remembers the part the
+    caller heard. Lead with the answer, then the detail.
+
+    Instead of "Thanks for waiting, I looked into it, and it seems your order shipped Tuesday," the
+    agent should say "Your order shipped Tuesday."
+
+  </Step>
+
+  <Step title="Write the way people speak">
+    The voice reads every character. Tell the model not to use formatting that only makes sense on
+    a screen:
+
+    ```text
+    Speak in plain sentences. Don't use lists, headings, bold, emojis or links.
+    Say numbers the way a person would: "two thirty in the afternoon", not "14:30".
+    Read phone numbers and codes digit by digit.
+    ```
+
+  </Step>
+
+  <Step title="Plan for mishearings">
+    Speech recognition can get names, numbers and accents wrong. Tell the model to confirm what
+    matters and ask again when something doesn't make sense:
+
+    ```text
+    The caller's words come from speech recognition and may contain mistakes.
+    If something doesn't make sense, ask the caller to repeat it.
+    Read back order numbers, dates and amounts before you use them.
+    ```
+
+    If callers often say a name or brand that's misheard, add it to the agent's `hints`. See
+    [Build an Autopilot agent](/autopilot/build-an-agent#settings-only-the-sdk-and-the-cli-set).
+
+  </Step>
+
+  <Step title="Stick to one language">
+    Write the prompt in the language your callers speak, or say which language to answer in. The
+    agent's voice and transcriber must match that language.
+  </Step>
+</Steps>
+
+## Tell the model when to use tools
+
+The model picks a tool from its name, its description and your prompt. Be explicit about when to
+use each one, and what to do when it fails.
+
+```markdown
+# Tools
+- Use get_order_status when the caller asks where an order is. Ask for the order number first.
+- If get_order_status fails, apologize and offer to transfer the call.
+- If the caller asks for a person, or is upset, transfer the call.
+- When the caller has what they need, hang up. Don't say goodbye yourself.
+```
+
+Write each tool's description as an instruction: what it does and when to use it. Give it a
+`requestStartMessage`, such as "One moment while I check that," so the caller doesn't hear silence
+while it runs. Smaller models need more explicit tool instructions than larger ones, so test your
+tools with the model you deploy. See [Give your agent tools](/autopilot/tools).
+
+## Keep it honest
+
+An agent that makes something up on a call is worse than one that says it doesn't know.
+
+```text
+Never make up prices, policies or availability.
+If you don't know, offer to take a message or transfer the call.
+```
+
+If your agent has a [knowledge base](/autopilot/knowledge-base), tell it to answer from the
+information it's given and to say so when that information doesn't cover the question.
+
+## Tune the model settings
+
+- **Temperature.** Keep it low, around the default `0.4`, so the agent answers the same question
+  the same way.
+- **Max tokens.** It caps the length of one reply. The default `400` is plenty for short spoken
+  answers. Don't set it so low that replies stop mid-sentence.
+
+## A complete example
+
+This prompt puts the advice together for a receptionist that looks up orders and transfers to a
+person:
+
+```markdown
+# Role
+You are the receptionist for Northwind Supply. You answer calls in a warm, professional and brief way.
+
+# Goal
+Understand why the caller is calling and help them: answer simple questions, check an order, or transfer them to a person.
+
+# Rules
+- Keep answers short: one or two sentences. This is a phone call.
+- Ask one question at a time.
+- Speak in plain sentences. Don't use lists, bold, emojis or links.
+- The caller's words come from speech recognition and may contain mistakes. If something doesn't make sense, ask them to repeat it.
+- Never make up prices, policies or availability. If you don't know, offer to transfer the call.
+
+# Steps
+1. Find out what the caller needs.
+2. For an order, ask for the order number, read it back, then check it.
+3. Tell the caller the status in one sentence.
+4. Ask if there's anything else.
+
+# Tools
+- Use get_order_status to check an order.
+- If get_order_status fails, apologize and offer to transfer the call.
+- If the caller asks for a person, or is upset, transfer the call.
+- When the caller has what they need, hang up. Don't say goodbye yourself.
+```
+
+## Test every change
+
+A change that fixes one call can break another. Write test cases for the calls that matter, and
+run them after every prompt change. See [Test your agent](/autopilot/test).
+
+The prompt and the fixed messages are listed in
+[Autopilot configuration](/reference/autopilot-config#conversation-settings).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Test your agent" icon="flask" href="/autopilot/test">
+    Check your prompt with scripted conversations.
+  </Card>
+  <Card title="Turn-taking and barge-in" icon="comments" href="/autopilot/turn-taking">
+    How the agent knows when the caller has finished.
+  </Card>
+</CardGroup>

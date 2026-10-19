@@ -47,55 +47,175 @@
               {
                 "group": "Get started",
                 "pages": [
-                  "introduction"
-                ]
-              }
-            ]
-          },
-          {
-            "tab": "Self-hosting",
-            "groups": [
-              {
-                "group": "Start",
-                "pages": [
-                  "self-hosting/overview",
-                  "self-hosting/install-compose"
+                  "introduction",
+                  "quickstart",
+                  "concepts/how-fonoster-works",
+                  "migrate-from-0-27"
                 ]
               },
               {
-                "group": "Integrations",
+                "group": "Autopilot",
                 "pages": [
-                  "self-hosting/send-call-metrics-to-clickhouse",
-                  "self-hosting/send-telemetry"
+                  "autopilot/build-an-agent",
+                  "autopilot/tools",
+                  "autopilot/knowledge-base",
+                  "autopilot/test",
+                  "autopilot/prompting",
+                  "autopilot/turn-taking"
                 ]
-              }
-            ]
-          },
-          {
-            "tab": "Private regions",
-            "groups": [
+              },
+              {
+                "group": "Streams",
+                "pages": [
+                  "streams/voice-sdk",
+                  "streams/python",
+                  "streams/bring-your-app",
+                  "streams/verify-signatures"
+                ]
+              },
+              {
+                "group": "Telephony",
+                "pages": [
+                  "telephony/numbers",
+                  "telephony/link-twilio",
+                  "telephony/trunks",
+                  "telephony/sip-agents",
+                  "telephony/outbound-calls",
+                  "telephony/transfers",
+                  "telephony/dtmf",
+                  "telephony/amd",
+                  "telephony/recording"
+                ]
+              },
+              {
+                "group": "Observe",
+                "pages": [
+                  "observe/webhooks",
+                  "observe/call-records",
+                  "observe/retention"
+                ]
+              },
+              {
+                "group": "Workspace",
+                "pages": [
+                  "workspace/access",
+                  "workspace/provider-keys",
+                  "workspace/secrets",
+                  "workspace/mcp"
+                ]
+              },
+              {
+                "group": "Reference",
+                "pages": [
+                  "reference/autopilot-config",
+                  "reference/webhook-events",
+                  "reference/providers"
+                ]
+              },
+              {
+                "group": "Self-hosting",
+                "icon": "server",
+                "pages": [
+                  {
+                    "group": "Start",
+                    "pages": [
+                      "self-hosting/overview",
+                      "self-hosting/install-compose"
+                    ]
+                  },
+                  {
+                    "group": "Operate",
+                    "pages": [
+                      "self-hosting/provider-catalog",
+                      "self-hosting/call-record-keys",
+                      "self-hosting/turn-taking-and-audio"
+                    ]
+                  },
+                  {
+                    "group": "Integrations",
+                    "pages": [
+                      "self-hosting/send-call-metrics-to-clickhouse",
+                      "self-hosting/send-telemetry"
+                    ]
+                  }
+                ]
+              },
               {
                 "group": "Private regions",
+                "icon": "globe",
                 "pages": [
-                  "private-regions/overview"
+                  {
+                    "group": "Private regions",
+                    "pages": [
+                      "private-regions/overview"
+                    ]
+                  },
+                  {
+                    "group": "Control plane",
+                    "pages": [
+                      "private-regions/host-private-regions"
+                    ]
+                  }
                 ]
               },
               {
-                "group": "Control plane",
+                "group": "Hacking Fonoster",
+                "icon": "code",
                 "pages": [
-                  "private-regions/host-private-regions"
+                  {
+                    "group": "Start",
+                    "pages": [
+                      "hacking/overview",
+                      "hacking/run-from-source"
+                    ]
+                  }
                 ]
               }
             ]
           },
           {
-            "tab": "Hacking Fonoster",
+            "tab": "SDK",
             "groups": [
               {
-                "group": "Start",
+                "group": "SDK",
                 "pages": [
-                  "hacking/overview",
-                  "hacking/run-from-source"
+                  "reference/sdk",
+                  "reference/voice-sdk"
+                ]
+              },
+              {
+                "group": "Protocols",
+                "pages": [
+                  "reference/session-protocol",
+                  "reference/twilio-compatibility"
+                ]
+              },
+              {
+                "group": "API",
+                "pages": [
+                  "reference/api"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "CLI",
+            "groups": [
+              {
+                "group": "CLI",
+                "pages": [
+                  "reference/cli"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Changelog",
+            "groups": [
+              {
+                "group": "Changelog",
+                "pages": [
+                  "changelog"
                 ]
               }
             ]

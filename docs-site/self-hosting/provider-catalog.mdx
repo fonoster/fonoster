@@ -1,0 +1,280 @@
+---
+title: "Manage the provider catalog"
+sidebarTitle: "Provider catalog"
+description: "Add, deprecate and retire the speech and language models your install offers, with the fonoster-registry tool."
+---
+
+The provider catalog is the list of providers, models and voices your install offers. The
+dashboard's pickers show it, and every call resolves its voice, transcriber and language model
+through it. Use this page to add a model or voice, phase one out without breaking anyone's agents,
+and keep several installs on the same catalog.
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/provider-catalog/lifecycle-light.png"
+  alt="A voice moves from active to deprecated with registry deprecate-voice, then to retired with registry retire-voice, run by you on or after the date. Active: offered in pickers. Deprecated: still offered but marked, with a dashboard warning and a provider.deprecated webhook, and calls keep working. Retired: hidden from pickers, compatible configs rewritten to the replacement, and calls that still name it use the replacement. Nothing happens on its own when the date passes."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/provider-catalog/lifecycle-dark.png"
+  alt="A voice moves from active to deprecated with registry deprecate-voice, then to retired with registry retire-voice, run by you on or after the date. Active: offered in pickers. Deprecated: still offered but marked, with a dashboard warning and a provider.deprecated webhook, and calls keep working. Retired: hidden from pickers, compatible configs rewritten to the replacement, and calls that still name it use the replacement. Nothing happens on its own when the date passes."
+/>
+
+The catalog holds no keys. Each provider names a credential (`credentialRef`, such as
+`deepgram-default`), and the key comes from the workspace or from your configuration. See
+[Platform keys and workspace keys](#platform-keys-and-workspace-keys).
+
+## Before you begin
+
+You need Fonoster installed with Docker Compose. See
+[Install with Docker Compose](/self-hosting/install-compose). Run the commands on this page from
+your `fonoster` folder.
+
+## How the catalog is stored
+
+The catalog lives in the API server's database. Two things change it:
+
+- **`config/catalog.yaml`**: the API server applies this file on every start. It adds the entries
+  the file lists and updates the ones that differ. It never removes an entry the file doesn't list.
+- **`fonoster-registry`**: the operator tool. It adds entries, deprecates and retires them, reports
+  who uses them, and compares or applies catalog files.
+
+The voice gateway and Autopilot reload the catalog every 5 seconds, so a change reaches new calls
+without a restart.
+
+<Warning>
+  Because the API server applies `config/catalog.yaml` on every start, a deprecation or retirement
+  made with the tool is undone at the next start if the file still lists the item as `active`.
+  After each change, save the catalog back to the file. See
+  [Save the catalog to the file](#save-the-catalog-to-the-file).
+</Warning>
+
+## Run the tool
+
+`fonoster-registry` ships in the API server's image. Define a shell function that runs it there,
+against the install's database:
+
+```bash
+registry() {
+  docker compose exec -T apiserver sh -c '
+    FONOSTER_REGISTRY_STORE=database \
+    FONOSTER_REGISTRY_DATABASE_URL="postgresql://postgres:$POSTGRES_PASSWORD@postgres:5432/fonoster" \
+    FONOSTER_REGISTRY_ENCRYPTION_KEY="$ENCRYPTION_KEY" \
+    node /work/mods/common/dist/registry/cli.js "$@"' fonoster-registry "$@"
+}
+```
+
+The database password and the encryption key come from the container's environment, so they never
+appear on your command line. The encryption key lets the tool send the `provider.deprecated`
+webhook. Without it, the tool stores the notices and prints
+`note: no webhooks sent (set FONOSTER_REGISTRY_ENCRYPTION_KEY); notices were stored`.
+
+List the models to check it works:
+
+```bash
+registry list model
+```
+
+Each line shows the kind, the catalog ID and the state:
+
+```text
+model	deepgram/nova-3	active
+model	deepgram/nova-2-phonecall	active
+model	deepgram/aura-2	active
+model	elevenlabs/eleven_flash_v2_5	active
+model	openai/gpt-4o-mini	active
+model	groq/llama-3.3-70b-versatile	retired
+```
+
+`registry list` with no argument lists everything, and `registry list provider` or
+`registry list voice` narrows it. `registry show <id>` prints one entry as JSON.
+
+## Add a model or voice
+
+Add a model with its type, the features it supports, its languages and the settings it accepts:
+
+```bash
+registry add-model elevenlabs/eleven_turbo_v2_5 --type tts \
+  --features streaming --languages en,es,multi --settings stability,similarity_boost,style,speed
+```
+
+Then add the voices that work on it. `--models` takes one or more model IDs:
+
+```bash
+registry add-voice elevenlabs/pFZP5JQG7iQjIQuC4Bku --models elevenlabs/eleven_turbo_v2_5 \
+  --language multi --gender female
+```
+
+The catalog ID is `<provider>/<vendor's name>`: the model or voice name exactly as the vendor's API
+takes it. An ID that already exists is refused with `catalog id <id> already exists`.
+
+Features decide which apps a model can serve:
+
+| Type  | Required features (a config breaks without them) | Optional features (only degrade)                      |
+| ----- | ------------------------------------------------ | ----------------------------------------------------- |
+| `llm` | `tool-calling`, `streaming`                       | `json-mode`, `vision`                                  |
+| `tts` | `streaming`                                       | `word-timings`, `ssml`                                 |
+| `stt` | `streaming`                                       | `interim-results`, `word-timings`, `turn-detection`, `multilingual` |
+
+An agent with tools needs a language model with `tool-calling`, and the dashboard greys out the
+others. `--settings` lists the vendor settings the model accepts. When a model is retired, settings
+its replacement doesn't accept are dropped.
+
+Add only models Fonoster can run. Speech runs on Deepgram and ElevenLabs, and Autopilot's language
+models on OpenAI-compatible providers (OpenAI, Groq, Ollama). To add a provider
+or its keys, see [Install with Docker Compose](/self-hosting/install-compose).
+
+<Note>
+  The tool refuses keys. Write commands accept only their own options, so `--api-key` fails with
+  `unknown option: --api-key`, and a value that looks like a key is refused with a pointer to
+  `--credential-ref`.
+</Note>
+
+## Phase out a model or voice
+
+You never remove a catalog item. You deprecate it with a replacement and a date, give workspaces
+time to move, then retire it yourself. Nothing happens on its own when the date passes.
+
+<Steps>
+  <Step title="Make sure the replacement is active">
+    The replacement must be an `active` item of the same kind. For a model, it must also be the
+    same type (`stt`, `tts` or `llm`). Add it first if it's new.
+  </Step>
+
+  <Step title="Deprecate the item">
+    Give the replacement and the date you plan to retire it:
+
+    ```bash
+    registry deprecate-voice deepgram/aura-2-asteria-en \
+      --replacement deepgram/aura-2-thalia-en --retire-on 2026-12-01
+    ```
+
+    It prints the impact, one line per kind of effect with the number of apps:
+
+    ```text
+    ✓ works on the same model (12 apps)
+    ```
+
+    | Mark | Meaning |
+    | ---- | ------- |
+    | `✓`  | The config moves to the replacement cleanly |
+    | `~`  | It moves, but loses something soft, such as a setting the replacement doesn't accept |
+    | `✗`  | It can't move: the replacement lacks a required feature, or a voice exists only on the old model |
+
+    For a `✗` voice line, the output names the `--voice-map` you'll need at retirement.
+  </Step>
+
+  <Step title="Watch who still uses it">
+    Check usage as the date approaches:
+
+    ```bash
+    registry usage deepgram/aura-2-asteria-en
+    ```
+
+    For each workspace, it prints the calls that used the item in the last 30 days, then each app
+    or agent that names it:
+
+    ```text
+    WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3	sessions (30 days)	214
+    WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3	app	Front desk
+    ```
+  </Step>
+
+  <Step title="Retire the item">
+    On or after the date, run the retirement without `--yes` first. It only prints what would
+    change, then exits with code `1`:
+
+    ```bash
+    registry retire-voice deepgram/aura-2-asteria-en
+    ```
+
+    When the impact looks right, run it again with `--yes`:
+
+    ```bash
+    registry retire-voice deepgram/aura-2-asteria-en --yes
+    ```
+
+    Every config that can move is rewritten to the replacement. Configs marked `✗` keep the old ID.
+    When you retire a model whose voices don't exist on the replacement, map each voice by its
+    name, without the provider:
+
+    ```bash
+    registry retire-model elevenlabs/eleven_turbo_v2_5 \
+      --voice-map pFZP5JQG7iQjIQuC4Bku=21m00Tcm4TlvDq8ikWAM --yes
+    ```
+  </Step>
+
+  <Step title="Save the catalog to the file">
+    Write the catalog back to `config/catalog.yaml` so the next start keeps your change. See
+    [Save the catalog to the file](#save-the-catalog-to-the-file).
+  </Step>
+</Steps>
+
+Check the result with `registry list voice` (the item now shows `retired`) and
+`registry history deepgram/aura-2-asteria-en`, which prints every change to the item, newest first,
+with the time and who made it.
+
+## What workspaces see
+
+| State        | Dashboard pickers | What happens to calls | What the workspace gets |
+| ------------ | ----------------- | --------------------- | ----------------------- |
+| `active`     | Offered           | Normal                | Nothing |
+| `deprecated` | Offered, marked deprecated | Keep working. Each call that uses it is counted in `usage` and keeps the warning up | A dashboard warning naming the item, its replacement, the retire date and where it's used, and one [`provider.deprecated`](/reference/webhook-events) webhook with `id`, `replacement` and `retireOn` |
+| `retired`    | Hidden            | Keep working: a call that still names it uses the replacement | Configs that could move now name the replacement. The others keep a dashboard warning until someone picks a new model or voice |
+
+A workspace's warning goes away once none of its apps or agents use the item. Developers can
+subscribe to `provider.deprecated` to learn about a deprecation without opening the dashboard. See
+[Webhooks](/observe/webhooks).
+
+## Save the catalog to the file
+
+After you change the catalog with the tool, export it over `config/catalog.yaml`:
+
+```bash
+registry export > config/catalog.yaml
+```
+
+`export` prints the whole catalog as YAML, sorted, without keys. Two equal catalogs export
+byte for byte the same. The export drops the comments in the shipped file.
+
+## Keep several installs on the same catalog
+
+Treat one exported file as the source of truth and keep it in version control. On another install,
+see what applying it would change, then apply it. The file goes in through standard input:
+
+```bash
+registry plan -f /dev/stdin < catalog.yaml
+registry apply -f /dev/stdin < catalog.yaml
+```
+
+`plan` prints one line per change, such as `+ add model openai/gpt-4.1-mini` or
+`~ deprecate voice deepgram/aura-2-asteria-en → deepgram/aura-2-thalia-en`, or `no changes`.
+
+<Warning>
+  Applying a file sets each item's state and nothing else: it sends no webhooks and rewrites no
+  configs. To deprecate or retire an item that workspaces use, run `deprecate-*` and `retire-*` on
+  each install instead.
+</Warning>
+
+## Platform keys and workspace keys
+
+A call gets its vendor key from the first of these that has one:
+
+1. The workspace's own key for the provider, added in the dashboard. See
+   [Use your own vendor keys](/workspace/provider-keys).
+2. The install's platform key: the key your configuration gives the provider's `credentialRef`.
+
+The Compose install ships with no platform keys, so every workspace adds its own. A provider with
+no key for a workspace is hidden from that workspace's pickers. To give every workspace a shared
+key, see [Install with Docker Compose](/self-hosting/install-compose).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Install with Docker Compose" icon="docker" href="/self-hosting/install-compose">
+    Give your install platform keys for speech and language models.
+  </Card>
+  <Card title="Providers and models" icon="list" href="/reference/providers">
+    What developers see in the catalog.
+  </Card>
+</CardGroup>
