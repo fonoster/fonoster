@@ -63,6 +63,15 @@
                   "autopilot/prompting",
                   "autopilot/turn-taking"
                 ]
+              },
+              {
+                "group": "Streams",
+                "pages": [
+                  "streams/voice-sdk",
+                  "streams/python",
+                  "streams/bring-your-app",
+                  "streams/verify-signatures"
+                ]
               }
             ]
           },

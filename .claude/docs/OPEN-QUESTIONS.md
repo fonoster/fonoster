@@ -26,3 +26,18 @@ Collected from each page's checkpoint. Answer them in your review pass.
 - test: `applications:eval` is described as "experimental" in the CLI. Keep that label for 0.30?
 - test: SDK `evaluateIntelligence` calls `setProductRef(request.intelligence.productRef)`; the page passes `productRef: "llm.openai"` to be safe. Is it optional?
 - turn-taking: `docs/turn-taking.md` says the detector is chosen per app (`speech.detector`); it's in the gateway's app config, not the public app model, and MENU says per-app detectors aren't promised. Update the draft doc?
+
+## Streams
+- voice-sdk: Streams have no "Talk in browser" test, so the tutorial needs a real number. Add browser test calls for streams (it would remove the Twilio prerequisite)?
+- voice-sdk: Is `@fonoster/voice` 0.30 published on npm?
+- python: `python/fonoster-voice/pyproject.toml` says version 0.27.0 while npm is 0.30.0, and the README says they release together. Is `fonoster-voice` (session SDK) on PyPI, and under which version?
+- python: `voice_asgi_app` builds the signed URL from `root_path + path`. Recent Starlette/FastAPI `Mount` puts the prefix in both (ASGI spec), which would give `/voice/voice` and a signature mismatch unless `public_url` is set. The test only uses a hand-built scope. The page tells readers to always pass `public_url`. Worth a fix plus a real FastAPI test?
+- python: The Python SDK doesn't check `x-fonoster-app-signature` (no `require_app_binding`, no `signedFor`) and has no `listen()` (listen.update for language, hints, patience). Parity gap with Node. Planned?
+- python: `voice_asgi_app`'s keyword is `verify_signature_` (trailing underscore), unlike `VoiceServer(verify_signature=...)`. Rename? The page doesn't mention it.
+- python: `verify_signature` isn't exported from `fonoster.voice`; the page imports `fonoster.voice.signature`. Export it (and an app-signature check) at the top level?
+- bring-your-app: Pipecat's `auto_hang_up` sends `BasicAuth(account_sid, auth_token)` with the same `account_sid` in the URL. On Cloud the endpoint uses Identity (`exchangeApiKey(user, secret)`), so the user must be an API key ID while the URL's AccountSid must be the workspace ID (`WO...`). An unmodified Pipecat bot can't satisfy both, so the page tells readers to set `auto_hang_up=False` and close the socket. Is the endpoint exposed on Cloud at all, and at what base URL?
+- bring-your-app: The page says a Pipecat bot with the default `auto_hang_up=True` and Twilio credentials can't end a Fonoster call. Confirm the call still ends when the socket closes after Twilio's API answers 404.
+- bring-your-app: Self-hosted endpoint: `http` is commented out in `ops/rebuild/config/gateway.yaml`, it's plain HTTP on :8080, and the config `accountSid` must equal the app's workspace access key ID (one workspace only). The page says so briefly. Should it live on a self-hosting page instead?
+- verify-signatures: The dashboard shows the signing secret only on create and rotate, and the hint as `…` plus the last 4 characters. Correct to call this "the last four characters" in docs?
+- Code: `docs/migrating-to-sessions.md` §2 says recording options are `off`, `on`, `on after consent prompt` and "Apps cannot override it"; the app model has `recording` off|on|consent that overrides the workspace. Stale draft.
+

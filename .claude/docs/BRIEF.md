@@ -20,7 +20,7 @@ there are **no human gates**. Make sensible calls and record them in each page's
 3. **Outline** by the type's spine, then **draft** the MDX. Use `<Steps>`, `<Tabs>` (Dashboard / SDK / CLI where they all exist), `<CodeGroup>`, `<ParamField>`/`<ResponseField>` for reference, `<CardGroup>` for next steps, and `<Note>`/`<Warning>`.
 4. **Assets**: writers don't draw. A separate asset pass draws everything in Pencil after each group. Every overview or concept page gets a banner, and any explanation that needs a picture gets a diagram. Mark each spot with `{/* TODO asset: <slug>/<name> — <what it shows> */}`. Append a row to the Pending table in `.claude/docs/ASSET-QUEUE.md`. Never edit `docs-site/images/ASSETS.md`; the asset agent owns it. For a diagram, give its node/edge spec in text in that row: the boxes, the arrows and their labels, and what the reader should take away.
 5. **Proof**: re-check every claim against the source. Live-running a tutorial is NOT required (the local stack isn't free). Mark claims you couldn't verify in the checkpoint under "Unverified".
-6. **Wire**: add the page to `docs-site/docs.json` → v0.30 → tab "Docs". Groups in this order: Get started, Autopilot, Streams, Telephony, Observe, Workspace, Reference. Pages within a group follow MENU order. If a legacy redirect `source` equals the new path, remove that redirect.
+6. **Wire**: DON'T edit `docs.json` (writers run in parallel; the lead wires). List the nav entries (group and paths in order) in your report. For reference: pages go in `docs-site/docs.json` → v0.30 → tab "Docs". Groups in this order: Get started, Autopilot, Streams, Telephony, Observe, Workspace, Reference. Pages within a group follow MENU order. If a legacy redirect `source` equals the new path, remove that redirect.
 7. **Checkpoint**: `.claude/docs/<slug>.md` from the template, with stages done and the source list. Keep it short.
 
 ## Cross-links
@@ -42,6 +42,7 @@ Link freely to any path in MENU.md, even if it isn't written yet (other agents a
 - Don't edit `legacy/` (except redirects as above), or the Self-hosting, Private regions or Hacking pages, unless your assignment says so.
 - Don't document internals (NATS, Prisma, internal service names) or anything on the "never promised" list.
 - Don't use em dashes in prose.
+- Don't edit `docs.json`, `images/ASSETS.md` or `designs/*.pen`.
 
 ## Report back (under 300 words)
 - Pages written, with paths

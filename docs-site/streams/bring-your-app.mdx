@@ -1,0 +1,206 @@
+---
+title: "Bring your Twilio or Pipecat app"
+sidebarTitle: "Bring your Twilio or Pipecat app"
+description: "Answer Fonoster calls with a bot built for Twilio Media Streams, such as a Pipecat bot, without changing its code."
+---
+
+If you already have a bot that speaks Twilio Media Streams, you can point Fonoster calls at it. Set
+the stream's protocol to `twilio`, and Fonoster sends the same WebSocket messages Twilio sends. A
+Pipecat bot that uses `TwilioFrameSerializer` runs as it is.
+
+Use this when you already have the bot, or when your framework expects raw audio. To write new call
+logic, the [Voice SDK](/streams/voice-sdk) is simpler: Fonoster does the speech for you.
+
+## What works
+
+With the `twilio` protocol, Fonoster speaks the bidirectional Media Streams messages:
+
+| Direction | Messages |
+| --- | --- |
+| Fonoster to your bot | `connected`, `start`, `media`, `dtmf`, `mark`, `stop` |
+| Your bot to Fonoster | `media`, `mark`, `clear` |
+
+- **Audio** is μ-law at 8000 Hz, mono, base64 in `media.payload`, both ways. Caller audio has
+  `track: "inbound"`.
+- **Barge-in** works the Twilio way. `clear` empties the queued audio, and every pending `mark` is
+  echoed back.
+- **Keypresses** arrive as `dtmf` with `dtmf.track: "inbound_track"` and `dtmf.digit`.
+- **Hanging up**: close the WebSocket and Fonoster hangs up the call.
+
+The ids in `start` map to Fonoster's:
+
+| Field in `start` | Holds |
+| --- | --- |
+| `callSid` | The call's ref in Fonoster |
+| `streamSid` | The session's ref |
+| `accountSid` | Your workspace's access key ID (starts with `WO`) |
+| `customParameters` | The call's metadata |
+
+## What isn't supported
+
+The `twilio` protocol carries audio, marks and keypresses only. Fonoster ignores any other message
+and the call continues.
+
+- **No TwiML.** Fonoster doesn't fetch or run TwiML. The stream's URL is the WebSocket itself.
+- **No speech layer.** Fonoster doesn't transcribe the caller or speak text for your bot. Your bot
+  brings its own speech-to-text and text-to-speech, as it does on Twilio. The stream's voice and
+  speech settings don't apply.
+- **No call control.** Your bot can't transfer the call, put it on hold or send keypresses. If you
+  need those, use the `fonoster` protocol with the [Voice SDK](/streams/voice-sdk).
+- **Audio is μ-law 8 kHz only.** The audio format setting applies to `fonoster` streams.
+
+## Point Fonoster at your bot
+
+<Steps>
+  <Step title="Give your bot a public WebSocket address">
+    Fonoster dials your bot from the internet. Deploy the bot, or run it behind a tunnel, and note
+    the WebSocket URL it serves, such as `wss://bot.example.com/ws`. Fonoster won't dial
+    `localhost` or a private IP.
+  </Step>
+
+  <Step title="Create a stream with the twilio protocol">
+    <Tabs>
+      <Tab title="Dashboard">
+        1. Go to **Streams** and choose **New stream**.
+        2. Name it, for example `Pipecat bot`.
+        3. Enter the bot's WebSocket address in **URL**.
+        4. Set **Protocol** to **Twilio-compatible (Media Streams: Pipecat and others)**.
+        5. Choose **Create stream**.
+
+        Copy the **Signing secret (shown once)**. It isn't shown again.
+      </Tab>
+      <Tab title="SDK">
+        Create the stream with `protocol: "twilio"`. The response holds its signing secret:
+
+        ```javascript
+        const apps = new SDK.Applications(client);
+        const { ref, signingSecret } = await apps.createApplication({
+          name: "Pipecat bot",
+          type: "STREAM",
+          url: "wss://bot.example.com/ws",
+          protocol: "twilio"
+        });
+        ```
+      </Tab>
+      <Tab title="CLI">
+        Create the stream with `--protocol twilio`:
+
+        ```bash
+        fonoster applications:create --name "Pipecat bot" \
+          --url wss://bot.example.com/ws --protocol twilio
+        ```
+
+        It prints the stream's ref and its signing secret.
+      </Tab>
+    </Tabs>
+
+    Every connection to your bot is signed with this secret. Your bot runs without checking it,
+    but anyone who finds the URL can open a session. Add the check described in
+    [Verify request signatures](/streams/verify-signatures).
+
+  </Step>
+
+  <Step title="Point a number at the stream">
+    Go to **Numbers**, open the number, and under **When this number is called, send it to**
+    choose **Stream**, then your stream. See [Numbers and routing](/telephony/numbers) for the
+    SDK and CLI.
+  </Step>
+
+  <Step title="Call the number">
+    Your bot receives `connected` and `start`, then the caller's audio, just as it would from
+    Twilio.
+  </Step>
+</Steps>
+
+## Run a Pipecat bot
+
+A Pipecat bot built for Twilio needs no Fonoster-specific code. `parse_telephony_websocket`
+recognizes Fonoster's `start` message as Twilio's, and `TwilioFrameSerializer` handles the audio,
+marks and `clear`.
+
+The one setting to check is how the bot hangs up. By default, `TwilioFrameSerializer` hangs up by
+calling Twilio's REST API with your Twilio credentials, which can't end a Fonoster call. Turn that
+off and let the bot close the WebSocket instead. Fonoster hangs up when the socket closes:
+
+```python bot.py
+from fastapi import FastAPI, WebSocket
+from pipecat.runner.utils import parse_telephony_websocket
+from pipecat.serializers.twilio import TwilioFrameSerializer
+from pipecat.transports.websocket.fastapi import (
+    FastAPIWebsocketParams,
+    FastAPIWebsocketTransport,
+)
+
+app = FastAPI()
+
+
+@app.websocket("/ws")
+async def ws(websocket: WebSocket):
+    await websocket.accept()
+    _, call_data = await parse_telephony_websocket(websocket)
+
+    serializer = TwilioFrameSerializer(
+        stream_sid=call_data["stream_id"],
+        call_sid=call_data["call_id"],
+        params=TwilioFrameSerializer.InputParams(auto_hang_up=False),
+    )
+    transport = FastAPIWebsocketTransport(
+        websocket=websocket,
+        params=FastAPIWebsocketParams(
+            audio_in_enabled=True,
+            audio_out_enabled=True,
+            add_wav_header=False,
+            serializer=serializer,
+        ),
+    )
+
+    # Build and run your pipeline as usual:
+    # Pipeline([transport.input(), stt, llm, tts, transport.output()])
+```
+
+When the pipeline ends, for example after an `EndTaskFrame`, Pipecat closes the WebSocket and the
+call ends. Fonoster's tests run an unmodified Pipecat bot (pipecat-ai 1.12.0) this way: it hears the
+caller, the caller hears it, `clear` stops playback on barge-in, keypresses reach it, and it hangs
+up.
+
+<Accordion title="Self-hosted: hang up through the Twilio-compatible endpoint">
+  A self-hosted install can also serve Twilio's hang-up call:
+  `POST {base}/2010-04-01/Accounts/{accountSid}/Calls/{callSid}.json` with `Status=completed` and
+  HTTP Basic auth. It answers `200`, or `404` with code `20404` when the call has already ended.
+  The operator turns it on in the gateway's configuration with an `accountSid` and an
+  `authToken`; the `accountSid` must be your workspace's access key ID.
+
+  Then point Pipecat's `auto_hang_up` at it with `base_url`:
+
+  ```python
+  import os
+
+  serializer = TwilioFrameSerializer(
+      stream_sid=call_data["stream_id"],
+      call_sid=call_data["call_id"],
+      account_sid="WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",  # the gateway's accountSid
+      auth_token=os.environ["FONOSTER_HANGUP_TOKEN"],     # the gateway's authToken
+      base_url="http://gateway.example.com:8080",         # where the endpoint is served
+      params=TwilioFrameSerializer.InputParams(auto_hang_up=True),
+  )
+  ```
+
+  Closing the socket works on every install, so you don't need this to hang up.
+</Accordion>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Verify request signatures" icon="shield-check" href="/streams/verify-signatures">
+    Check that each connection comes from Fonoster.
+  </Card>
+  <Card title="Twilio compatibility" icon="list-check" href="/reference/twilio-compatibility">
+    Every Media Streams message and field Fonoster sends and accepts.
+  </Card>
+  <Card title="Build a stream with the Voice SDK" icon="code" href="/streams/voice-sdk">
+    Need transfers or text-in, text-out speech? Use the `fonoster` protocol.
+  </Card>
+  <Card title="Numbers and routing" icon="phone" href="/telephony/numbers">
+    Send a number's calls to your stream.
+  </Card>
+</CardGroup>
