@@ -1,25 +1,58 @@
-# Audio filters (noise suppression)
+# Audio filters (noise cancelling)
 
-An app can list audio filters in its configuration (the `filters` column of the application,
-`[{ name, options }]`). AppBridge runs them on the caller's audio before speech recognition and
-turn detection. One filter exists: **`aiCoustics`**, the ai-coustics Quail Voice Focus model, which
-keeps the main speaker and suppresses noise and background voices. It runs in AppBridge process
-through the vendor's Node SDK, `@ai-coustics/aic-sdk` (0.24.0 in `package-lock.json`).
+An app can list audio filters in its configuration (`filters: [{ name, options }]`, set through
+the Applications API, the SDK, the CLI or the dashboard's *Noise cancelling* select). The
+appbridge runs them on the caller's audio before speech recognition and turn detection. One filter
+exists: **`aiCoustics`**, the ai-coustics Quail Voice Focus model, which keeps the main speaker and
+suppresses noise and background voices. It runs in the AppBridge process through the vendor's Node
+SDK, `@ai-coustics/aic-sdk` (0.24.0 in `package-lock.json`).
 
 Filtering is fail-open. If a filter cannot be created, cannot start or fails mid-call, the call
-keeps going with unfiltered audio and the call record gets a `filter.failed` event with the reason
-(`mods/appbridge/src/session/Call.ts`, `startFilters`; `mods/appbridge/src/filters/createAudioFilterChain.ts`).
+keeps going with unfiltered audio and the call record gets a `filter.failed` event with the filter's
+name and the reason (`mods/appbridge/src/session/Call.ts`, `startFilters`;
+`mods/appbridge/src/filters/createAudioFilterChain.ts`). The record's `fonoster.filters.failed`
+lists them and the dashboard shows an *Unfiltered* badge on the call.
 
-> **Status for 0.30.0: hidden.** The SDK is not in the published appbridge image, so AppBridge
-> registers `aiCoustics` only where `@ai-coustics/aic-sdk` is installed. Elsewhere it is not
-> listed, and an app that names it gets unfiltered audio and a `filter.failed` event (unknown
-> filter). See "Known gaps" below.
+> **Status: hidden until the SDK ships in the image.** The SDK is not in the published appbridge
+> image yet (issue #969), so AppBridge registers `aiCoustics` only where `@ai-coustics/aic-sdk`
+> is installed. Elsewhere it is not listed, and an app that names it gets unfiltered audio and a
+> `filter.failed` event (unknown filter). See "Known gaps" below.
+
+## The provider and its key
+
+Noise cancelling is a catalog provider with the capability `nc`, backed by the built-in adapter
+`aicoustics`. Register it like any other provider:
+
+```sh
+fonoster-registry add-provider aicoustics --adapter aicoustics --capabilities nc \
+  --credential-ref aicoustics-default --label "ai-coustics"
+```
+
+The key resolves per session the way speech keys do (registry "Each layer resolves the credentials
+of the providers it calls"):
+
+1. the workspace's own key, added on the dashboard's Vendor keys page or with
+   `fonoster providers:keys:set aicoustics`;
+2. otherwise the platform key from the AppBridge config:
+
+```yaml
+providers:
+  aicoustics:
+    adapter: aicoustics
+    capabilities: [nc]
+    credential: { env: AIC_SDK_LICENSE } # or value: ...
+```
+
+Without either, the filter is not built: the call runs unfiltered and the record says
+`no credential for provider aicoustics`. The filter never reads the key from the environment on its
+own, and an app cannot pass one (`license` is refused as an option). Get a key at
+<https://developers.ai-coustics.com>.
 
 ## What an app may set
 
-Apps are untrusted input, so AppBridge accepts only these options
-(`aiCousticsPublicOptionsSchema` in `mods/appbridge/src/filters/aiCoustics/createAiCousticsFilter.ts`).
-Any other key is rejected and the filter is not built.
+Apps are untrusted input, so only these options are accepted, by the apiserver when the app is
+saved and by AppBridge when the filter is built (`aiCousticsPublicOptionsSchema` in
+`mods/common/src/filters/`). Any other key is rejected and the app is not saved.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
@@ -31,17 +64,20 @@ Any other key is rejected and the filter is not built.
 [{ "name": "aiCoustics", "options": { "enhancementLevel": 0.8 } }]
 ```
 
-The server-side options (`modelDir` default `./models`, `modelFile`, `autoDownload` default
-`true`, `licenseEnv` default `AIC_SDK_LICENSE`) cannot be set by an app. AppBridge's own
-`appbridge.yaml` has no key for them either, so the defaults always apply (see "Known gaps").
+The dashboard's select writes `[{ "name": "aiCoustics" }]`; `enhancementLevel` and `model` are
+API, SDK and YAML options. The server-side options (`modelDir` default `./models`, `modelFile`,
+`autoDownload` default `true`) cannot be set by an app, and the AppBridge YAML has no key for them
+either, so the defaults always apply (see "Known gaps").
 
 ## Turning it off
 
-- **For one app:** remove `aiCoustics` from the app's `filters`, or set the list to empty. With no
-  filters, no chain is created and the audio is passed through untouched.
+- **For one app:** pick *None* in the dashboard, run
+  `fonoster applications:update <ref> --noise-cancelling none`, or save an empty `filters` list.
+  With no filters, no chain is created and the audio is passed through untouched.
 - **For an A/B test:** set `bypass: true`. Timing stays the same and enhancement stops.
-- **For the whole AppBridge:** don't set `AIC_SDK_LICENSE`. Every `aiCoustics` request then fails at
-  creation, and its calls run unfiltered with a `filter.failed` event.
+- **For the whole AppBridge:** remove the provider's platform credential and the workspace keys.
+  Every `aiCoustics` request then fails at creation, and its calls run unfiltered with a
+  `filter.failed` event.
 
 ## Added delay
 
@@ -57,25 +93,22 @@ The server-side options (`modelDir` default `./models`, `modelFile`, `autoDownlo
 
 ## CPU per call
 
-- **Not measured in this repo.** The archived change estimated "roughly 1 ms of model time per
-  20 ms frame per call" (`openspec/changes/archive/2026-10-17-voice-audio-filters/design.md`), but
-  its measurement harness was not kept, and the load test (calls per core) is still open in the RC
-  checklist. An AppBridge smoke run noted that no filter ran because aiCoustics is CPU-heavy
-  (`openspec/changes/archive/2026-10-17-add-voice-session-appbridge/build-log.md`).
+- The September 2026 smoke test measured roughly 1 ms of model time per 20 ms frame per call,
+  about 5% of a core per filtered call (`openspec/changes/archive/2026-10-17-voice-audio-filters/design.md`).
+  Nothing in this repo re-measures it; the chain logs each filter's p50/p95/max per call.
 - The vendor publishes no CPU figures and says to measure on your own hardware
   (<https://docs.ai-coustics.com/reference/concepts/performance>).
 - The work runs on Node's libuv thread pool (`ProcessorAsync`). That pool has 4 threads by default
-  and is shared with `fs`, `dns` and `crypto`. To run more filtered calls in parallel, raise
-  `UV_THREADPOOL_SIZE` in AppBridge's environment. The SDK README says this, and
-  `AIC_NUM_THREADS` has no effect on these bindings. Size it from a load test.
+  and is shared with `fs`, `dns` and `crypto`. The appbridge image sets `UV_THREADPOOL_SIZE=8`;
+  raise it in the environment to run more filtered calls in parallel. The SDK README says this, and
+  `AIC_NUM_THREADS` has no effect on these bindings.
 - Model memory: the `-s` model file is 5.29 MB and is memory-mapped. Each call creates its own
   processor.
 
 ## The vendor's license check (it phones home)
 
-- A license key is required. Get one at <https://developers.ai-coustics.com>. AppBridge reads it
-  from the `AIC_SDK_LICENSE` environment variable only, because `setAiCousticsLicense` is never
-  called in AppBridge. Keep the key in a secret. Apps never send it.
+- A license key is required (see "The provider and its key"). Keep the platform key in a secret;
+  apps never send it.
 - **Network is required at call time.** Self-service keys authorize online and report usage. The
   vendor says that downloading the model in advance does not remove that requirement
   (<https://docs.ai-coustics.com/tutorials/sdk-quickstart>,
@@ -93,15 +126,15 @@ The server-side options (`modelDir` default `./models`, `modelFile`, `autoDownlo
   session id, processed or disallowed audio duration, and error messages. No audio, transcripts or
   model features are sent (sdk-telemetry page).
 - **What happens when the check fails:**
-  - A missing key fails at creation (`createAiCousticsFilter` throws), so the call runs
-    unfiltered.
+  - No credential for the provider: the filter is not built, so the call runs unfiltered and the
+    record says so.
   - A rejected or invalid key fails `ProcessorAsync.withConfig`. The chain disables the filter,
     so the call runs unfiltered. With SDK 0.24.0 and a malformed key, the error is "License key
-    format is invalid or corrupted".
+    format is invalid or corrupted", and that is what the call's *Unfiltered* badge shows.
   - The vendor says processing can also be disabled mid-session after "sustained usage-reporting
     failure" (a network outage), with no documented grace period. **Not verified** which way that
-    surfaces. If `process()` throws, AppBridge disables the filter for the rest of the call and
-    passes audio through. The binary also counts "audio that was bypassed … due to unauthorized
+    surfaces. If `process()` throws, AppBridge disables the filter for the rest of the call,
+    passes audio through and records `filter.failed`. The binary also counts "audio that was bypassed … due to unauthorized
     usage", so the SDK may instead return the audio unenhanced without an error. Either way the
     call continues, but in the second case no `filter.failed` event is recorded.
 
@@ -111,23 +144,20 @@ The server-side options (`modelDir` default `./models`, `modelFile`, `autoDownlo
   win32-x64-msvc and win32-arm64-msvc (`optionalDependencies` in `package-lock.json`). No Node
   binary for musl exists. **Alpine images can't load it.** The vendor's musl archives (C SDK 0.25.0+)
   are static C libraries, not Node bindings.
-- AppBridge image is `node:22-slim` (Debian 12, glibc 2.36; `mods/appbridge/Dockerfile`), which
+- The appbridge image is `node:22-slim` (Debian 12, glibc 2.36; `mods/appbridge/Dockerfile`), which
   matches the glibc binaries.
 
-## Known gaps (before this can be turned on)
+## Known gaps (before this can be turned on), tracked in #969
 
-1. **The SDK isn't in AppBridge image.** `@ai-coustics/aic-sdk` is an optional dependency of
-   `mods/apiserver` only. AppBridge image installs only `@fonoster/appbridge`'s dependencies, so
+1. **The SDK isn't in the appbridge image.** `@ai-coustics/aic-sdk` is an optional dependency of
+   `mods/apiserver` only. The appbridge image installs only `@fonoster/appbridge`'s dependencies, so
    `require` fails with "@ai-coustics/aic-sdk is not installed". This was checked in
    `fonoster/appbridge:0.0.0-smoke`: `/work/node_modules/@ai-coustics` does not exist.
-2. **The license key isn't passed in.** Neither `ops/bundle/compose.yaml` nor the Helm appbridge
-   template passes `AIC_SDK_LICENSE` to AppBridge.
-3. **No model in the image, and the auto-download can't write.** The default `modelDir` is
+2. **No model in the image, and the auto-download can't write.** The default `modelDir` is
    `./models`, which is `/work/models`. `/work` is owned by root and AppBridge runs as `appuser`,
    so `Model.download` cannot create that folder (checked: `mkdir /work/models` returns
    permission denied in the smoke image).
-4. **No operator config.** `appbridge.yaml` has no key for `modelDir`, `modelFile`, `autoDownload` or
-   the license, and `Call.ts` builds the chain as untrusted. Operators therefore can't pin a model
-   path or turn off downloading.
-5. **Narrowband calls.** The default model is 16 kHz wideband. PSTN audio is G.711 upsampled, so
+3. **No operator config for the model.** The AppBridge YAML has no key for `modelDir`, `modelFile`
+   or `autoDownload`, so operators can't pin a model path or turn off downloading.
+4. **Narrowband calls.** The default model is 16 kHz wideband. PSTN audio is G.711 upsampled, so
    the band above 4 kHz is empty. The archived design flags this to re-check per deployment.

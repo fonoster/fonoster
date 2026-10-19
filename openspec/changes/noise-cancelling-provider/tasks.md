@@ -45,6 +45,6 @@
 
 ## 6. Docs
 
-- [ ] 6.1 `docs/operators/audio-filters.md`: provider registration, key sources, remove the env-only and `fonoster.yaml` notes, update the status note and known gaps
-- [ ] 6.2 `docs-site`: a user page "Noise cancelling" (what it does, one-speaker caveat, how to turn it on in Streams and agents, SDK and CLI examples, the Unfiltered badge)
+- [x] 6.1 `docs/operators/audio-filters.md`: provider registration, key sources, remove the env-only and `fonoster.yaml` notes, update the status note and known gaps
+- [ ] 6.2 (deferred: the v0.30 Docs tab's Build pages are not on main yet, PR #1006) `docs-site`: a user page "Noise cancelling" (what it does, one-speaker caveat, how to turn it on in Streams and agents, SDK and CLI examples, the Unfiltered badge)
 - [ ] 6.3 Archive `openspec/changes/noise-cancelling-provider` after #969 verifies a filtered call on the published image

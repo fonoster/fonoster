@@ -64,6 +64,7 @@ describe("@fonoster/community adapter table", function () {
     expect(adapterFor("azure")).to.equal(undefined);
     expect(adapterFor("toString")).to.equal(undefined);
     expect(Object.keys(ADAPTERS).sort()).to.deep.equal([
+      "aicoustics",
       "deepgram",
       "elevenlabs",
       "fake",
