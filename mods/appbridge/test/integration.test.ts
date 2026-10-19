@@ -839,4 +839,23 @@ describe("@gateway integration", function () {
     const types = [...record.records.values()][0].map((e) => e.message.type);
     expect(types).to.include("app.dropped");
   });
+
+  it("does not record a drop when the app hangs up and closes at once", async function () {
+    // Pipecat's auto_hang_up: the hang-up request, then the socket closes before Roomr's ack.
+    await start([app("a", harness.app.url)]);
+    harness.roomrNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    peer.sendJson({ type: "hangup" });
+    peer.close();
+    await waitFor(() => commands().includes("hangup"));
+    await waitFor(() =>
+      [...record.records.values()][0]
+        .map((e) => e.message.type)
+        .includes("call.ended")
+    );
+    const types = [...record.records.values()][0].map((e) => e.message.type);
+    expect(types).not.to.include("app.dropped");
+    expect(commands().filter((c) => c === "hangup")).to.have.length(1);
+  });
 });
