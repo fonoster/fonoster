@@ -58,7 +58,7 @@ export function ConfirmDialog({
         </DialogHeader>
         {Boolean(error) && <Alert variant="error">{errorMessage(error)}</Alert>}
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button variant="destructive" loading={pending} onClick={onConfirm}>

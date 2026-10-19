@@ -28,8 +28,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "~/components/ui/dialog";
-import { toast } from "~/components/ui/sonner";
-import { errorMessage, useSessionApi } from "./api";
+import { errorMessage, useSessionMutation } from "./api";
 import {
   blankStream,
   ConnectionFields,
@@ -46,20 +45,22 @@ export function CreateStreamDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const api = useSessionApi();
   const navigate = useNavigate();
   const { workspaceRef } = useParams();
   const [app, setApp] = useState<Draft>(blankStream);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [failure, setFailure] = useState<string>();
-  const [busy, setBusy] = useState(false);
+  const create = useSessionMutation(
+    (api, draft: Omit<Draft, "signingSecretHint">) => api.saveApp(draft),
+    { success: "Stream created" }
+  );
   const set: SetDraft = (key, value) => setApp((a) => ({ ...a, [key]: value }));
 
   useEffect(() => {
     if (!open) return;
     setApp(blankStream);
     setErrors({});
-    setFailure(undefined);
+    create.reset();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const submit = (event: FormEvent) => {
@@ -68,22 +69,14 @@ export function CreateStreamDialog({
     setErrors(found);
     if (Object.keys(found).length) return;
     const { signingSecretHint: _hint, ...rest } = app;
-    setBusy(true);
-    setFailure(undefined);
-    api.saveApp(rest).then(
-      (saved) => {
-        setBusy(false);
-        toast.success("Stream created");
+    create.mutate(rest, {
+      onSuccess: (saved) => {
         onOpenChange(false);
         navigate(`/w/${workspaceRef}/streams/${saved.ref}`, {
           state: { secret: saved.signingSecret }
         });
-      },
-      (e: unknown) => {
-        setBusy(false);
-        setFailure(errorMessage(e));
       }
-    );
+    });
   };
 
   return (
@@ -102,14 +95,16 @@ export function CreateStreamDialog({
           noValidate
           className="flex flex-col gap-5"
         >
-          {failure && <Alert variant="error">{failure}</Alert>}
+          {create.error && (
+            <Alert variant="error">{errorMessage(create.error)}</Alert>
+          )}
           <ConnectionFields app={app} set={set} errors={errors} />
         </form>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button type="submit" form="create-stream-form" loading={busy}>
+          <Button type="submit" form="create-stream-form" loading={create.isPending}>
             Create stream
           </Button>
         </DialogFooter>

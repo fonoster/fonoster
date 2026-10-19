@@ -53,24 +53,17 @@ describe("Apps is now Streams", () => {
 });
 
 describe("renamed sections", () => {
-  it("the sidebar says Autopilot and SIP agents", () => {
+  it("the sidebar says Agents and SIP agents", () => {
     const items = NAVIGATION.flatMap((section) => section.items);
     expect(items).toContainEqual(
-      expect.objectContaining({ label: "Autopilot", path: "autopilot" })
+      expect.objectContaining({ label: "Agents", path: "agents" })
     );
     expect(items).toContainEqual(
       expect.objectContaining({ label: "SIP agents", path: "sip-agents" })
     );
     expect(
-      items.some((item) => ["Agents", "SIP users"].includes(item.label))
+      items.some((item) => ["Autopilot", "SIP users"].includes(item.label))
     ).toBe(false);
-  });
-
-  it("redirects /agents/:ref/<tab> to /autopilot/:ref/<tab>", async () => {
-    at("/w/ws-1/agents/ap-1/tools", "agents", "autopilot");
-    expect(await screen.findByTestId("location")).toHaveTextContent(
-      /^\/w\/ws-1\/autopilot\/ap-1\/tools$/
-    );
   });
 
   it("redirects /sip-users to /sip-agents", async () => {

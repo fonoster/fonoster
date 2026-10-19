@@ -34,17 +34,16 @@ import { Alert } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
-import { toast } from "~/components/ui/sonner";
-import { errorMessage, useAsync, useSessionApi } from "./api";
+import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
 import { MissingKeysWarning } from "./missing-keys";
 import {
   CallHandlingFields,
   ConnectionFields,
   EMPTY_CATALOG,
-  FreshSecret,
   isStream,
   PROTOCOL_LABELS,
   SecretControls,
+  SigningSecretDialog,
   SpeechFields,
   validateStream,
   type Draft,
@@ -67,17 +66,13 @@ const TAB_OF: Record<string, string> = {
 
 /** /w/:ws/streams/:ref/<tab>: one stream, laid out like an Autopilot agent's page. */
 export function StreamDetail() {
-  const api = useSessionApi();
   const { workspaceRef, ref = "" } = useParams();
   const base = `/w/${workspaceRef}/streams`;
-  const loaded = useAsync(
-    async () => ({
-      app: await api.getApp(ref),
-      catalog: await api.getCatalog().catch(() => EMPTY_CATALOG),
-      apps: await api.listApps()
-    }),
-    [api, ref]
-  );
+  const loaded = useSessionQuery(["apps", ref, "detail"], async (api) => ({
+    app: await api.getApp(ref),
+    catalog: await api.getCatalog().catch(() => EMPTY_CATALOG),
+    apps: await api.listApps()
+  }));
 
   if (loaded.loading && !loaded.data) {
     return (
@@ -107,9 +102,9 @@ export function StreamDetail() {
     );
   }
 
-  // An agent opened as a stream (e.g. an old /apps/:ref link): it's edited under Autopilot.
+  // An agent opened as a stream: it's edited under Agents.
   if (!isStream(app))
-    return <Navigate to={`/w/${workspaceRef}/autopilot/${app.ref}`} replace />;
+    return <Navigate to={`/w/${workspaceRef}/agents/${app.ref}`} replace />;
 
   return (
     <StreamEditor
@@ -117,7 +112,6 @@ export function StreamDetail() {
       app={app}
       catalog={loaded.data!.catalog}
       otherApps={loaded.data!.apps.filter((a) => a.ref !== app.ref)}
-      onSaved={loaded.reload}
     />
   );
 }
@@ -126,15 +120,12 @@ export function StreamDetail() {
 function StreamEditor({
   app: saved,
   catalog,
-  otherApps,
-  onSaved
+  otherApps
 }: {
   app: SessionApp;
   catalog: Catalog;
   otherApps: SessionApp[];
-  onSaved: () => void;
 }) {
-  const api = useSessionApi();
   const navigate = useNavigate();
   const location = useLocation();
   const { workspaceRef } = useParams();
@@ -143,11 +134,15 @@ function StreamEditor({
   const [app, setApp] = useState<Draft>(saved);
   const [dirty, setDirty] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [failure, setFailure] = useState<string>();
-  const [busy, setBusy] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [deletePending, setDeletePending] = useState(false);
-  const [deleteError, setDeleteError] = useState<string>();
+  const saveApp = useSessionMutation(
+    (api, draft: Omit<Draft, "signingSecretHint">) => api.saveApp(draft),
+    { success: "Stream saved" }
+  );
+  const remove = useSessionMutation(
+    (api, ref: string) => api.deleteApp(ref),
+    { success: "Stream deleted" }
+  );
   // A new stream's secret arrives in the navigation state, shown once.
   const [secret, setSecret] = useState(
     (location.state as { secret?: string } | null)?.secret
@@ -170,20 +165,7 @@ function StreamEditor({
     setErrors(found);
     if (Object.keys(found).length) return;
     const { signingSecretHint: _hint, ...rest } = app;
-    setBusy(true);
-    setFailure(undefined);
-    api.saveApp(rest).then(
-      () => {
-        setBusy(false);
-        setDirty(false);
-        toast.success("Stream saved");
-        onSaved();
-      },
-      (e: unknown) => {
-        setBusy(false);
-        setFailure(errorMessage(e));
-      }
-    );
+    saveApp.mutate(rest, { onSuccess: () => setDirty(false) });
   };
 
   const errorTabs = [...new Set(Object.keys(errors).map((k) => TAB_OF[k]))];
@@ -233,18 +215,19 @@ function StreamEditor({
               Unsaved changes
             </span>
           )}
-          <Button onClick={save} loading={busy} disabled={!dirty}>
+          <Button onClick={save} loading={saveApp.isPending} disabled={!dirty}>
             Save
           </Button>
         </div>
       </div>
 
-      {secret && (
-        <div className="flex flex-col gap-2">
-          <FreshSecret secret={secret} />
-        </div>
+      <SigningSecretDialog
+        secret={secret}
+        onDone={() => setSecret(undefined)}
+      />
+      {saveApp.error && (
+        <Alert variant="error">{errorMessage(saveApp.error)}</Alert>
       )}
-      {failure && <Alert variant="error">{failure}</Alert>}
       {errorTabs.length > 0 && (
         <Alert variant="error">
           Fix the highlighted fields in{" "}
@@ -322,13 +305,9 @@ function StreamEditor({
                   <SecretControls
                     appRef={saved.ref}
                     hint={app.signingSecretHint}
-                    onRotated={(r) => {
-                      setSecret(r.signingSecret);
-                      setApp((a) => ({
-                        ...a,
-                        signingSecretHint: r.signingSecretHint
-                      }));
-                    }}
+                    onRotated={(hint) =>
+                      setApp((a) => ({ ...a, signingSecretHint: hint }))
+                    }
                   />
                 </div>
               </Panel>
@@ -364,28 +343,20 @@ function StreamEditor({
         open={deleting}
         onOpenChange={(open) => {
           setDeleting(open);
-          if (!open) setDeleteError(undefined);
+          if (!open) remove.reset();
         }}
         title={`Delete ${saved.name}?`}
         description="Numbers that point to this stream stop answering until you point them elsewhere."
-        pending={deletePending}
-        error={deleteError}
-        onConfirm={() => {
-          setDeletePending(true);
-          setDeleteError(undefined);
-          api.deleteApp(saved.ref).then(
-            () => {
-              setDeletePending(false);
+        pending={remove.isPending}
+        error={remove.error}
+        onConfirm={() =>
+          remove.mutate(saved.ref, {
+            onSuccess: () => {
               setDeleting(false);
-              toast.success("Stream deleted");
               navigate(base);
-            },
-            (e: unknown) => {
-              setDeletePending(false);
-              setDeleteError(errorMessage(e));
             }
-          );
-        }}
+          })
+        }
       />
     </div>
   );

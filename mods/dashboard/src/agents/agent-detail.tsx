@@ -71,9 +71,9 @@ export const TABS = [
   { path: "advanced", label: "Advanced" }
 ] as const;
 
-/** /w/:ws/autopilot — built from the workspace, not relative to the splat route. */
+/** /w/:ws/agents — built from the workspace, not relative to the splat route. */
 function useAgentsBase() {
-  return `/w/${useWorkspace().ref}/autopilot`;
+  return `/w/${useWorkspace().ref}/agents`;
 }
 
 export function AgentDetail() {
@@ -101,7 +101,7 @@ export function AgentDetail() {
           to={base}
           className="flex items-center gap-1.5 font-display text-[13px] text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="size-3.5" aria-hidden /> Autopilot
+          <ArrowLeft className="size-3.5" aria-hidden /> Agents
         </Link>
         <Alert variant="error">
           {notFound
@@ -187,7 +187,7 @@ function AgentEditor({
           <ol className="flex items-center gap-2 text-muted-foreground">
             <li>
               <Link to={base} className="hover:text-foreground">
-                Autopilot
+                Agents
               </Link>
             </li>
             <li aria-hidden>/</li>

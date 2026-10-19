@@ -49,7 +49,7 @@ export const NAVIGATION: NavSection[] = [
   {
     items: [
       { label: "Overview", path: "", icon: SpaceDashboard },
-      { label: "Autopilot", path: "autopilot", icon: SmartToy },
+      { label: "Agents", path: "agents", icon: SmartToy },
       { label: "Streams", path: "streams", icon: StreamsIcon },
       { label: "Calls", path: "calls", icon: CallLog }
     ]

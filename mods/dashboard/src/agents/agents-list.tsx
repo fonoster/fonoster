@@ -20,12 +20,14 @@ import type { Application, INumber } from "@fonoster/types";
 import { Bot, Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import {
   DataTable,
   MutedCell,
   NameCell,
   type Column
 } from "~/components/data/data-table";
+import { RowActions } from "~/components/data/row-actions";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { PageHeader } from "~/app/shell/page";
@@ -35,7 +37,8 @@ import {
   formatNumber,
   numbersFor,
   useAgents,
-  useAllNumbers
+  useAllNumbers,
+  useDeleteAgent
 } from "./agents.service";
 import { voiceName } from "./catalog";
 import { CreateAgentDialog } from "./create-agent-dialog";
@@ -81,6 +84,8 @@ export function AgentsList() {
   const workspace = useWorkspace();
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
+  const [deleting, setDeleting] = useState<Application>();
+  const remove = useDeleteAgent();
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -95,7 +100,7 @@ export function AgentsList() {
 
   const add = (
     <Button onClick={() => setCreating(true)}>
-      <Plus aria-hidden /> New agent
+      <Plus aria-hidden /> Create agent
     </Button>
   );
 
@@ -132,6 +137,13 @@ export function AgentsList() {
       cell: (app) => (
         <MutedCell>{formatDate(app.updatedAt || app.createdAt)}</MutedCell>
       )
+    },
+    {
+      header: "",
+      className: "w-12",
+      cell: (app) => (
+        <RowActions label={app.name} onDelete={() => setDeleting(app)} />
+      )
     }
   ];
 
@@ -144,8 +156,8 @@ export function AgentsList() {
   return (
     <>
       <PageHeader
-        title="Autopilot"
-        description="AI agents that answer and place calls."
+        title="Agents"
+        description="AI agents that answer and place calls, powered by Autopilot."
         actions={!list.isPending && !empty && <>{add}</>}
       />
       <div className="flex flex-col gap-4 px-4 pb-8 sm:px-8">
@@ -197,7 +209,7 @@ export function AgentsList() {
               rows={rows}
               rowKey={(app) => app.ref}
               onRowClick={(app) =>
-                navigate(`/w/${workspace.ref}/autopilot/${app.ref}`)
+                navigate(`/w/${workspace.ref}/agents/${app.ref}`)
               }
               loading={list.isPending}
               error={list.error}
@@ -216,6 +228,25 @@ export function AgentsList() {
         )}
       </div>
       <CreateAgentDialog open={creating} onOpenChange={setCreating} />
+      <ConfirmDialog
+        open={Boolean(deleting)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleting(undefined);
+            remove.reset();
+          }
+        }}
+        title={`Delete ${deleting?.name ?? "agent"}?`}
+        description="Numbers pointing to this agent stop answering until you route them elsewhere."
+        pending={remove.isPending}
+        error={remove.error}
+        onConfirm={() =>
+          deleting &&
+          remove.mutate(deleting.ref, {
+            onSuccess: () => setDeleting(undefined)
+          })
+        }
+      />
     </>
   );
 }
