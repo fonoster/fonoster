@@ -9,7 +9,6 @@ WORKDIR /work
 COPY package.json package-lock.json lerna.json ./
 COPY mods ./mods
 COPY tsconfig.json ./
-COPY .scripts ./.scripts
 
 RUN --mount=type=cache,target=/root/.npm \
     apt-get update && apt-get install -y git wget \

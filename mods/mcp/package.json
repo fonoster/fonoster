@@ -18,8 +18,7 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
     "postbuild": "chmod +x ./dist/index.js",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "start:dev": "nodemon --exec tsx --watch src src/index.ts"
+    "dev": "nodemon --exec tsx --watch src src/index.ts"
   },
   "dependencies": {
     "@fonoster/common": "^0.30.0",

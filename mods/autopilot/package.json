@@ -14,9 +14,9 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "generate:readme": "node ../../.scripts/gen-readme.cjs",
-    "start:hosted": "node dist/session/main.js"
+    "generate:readme": "fonoster-readme",
+    "start:hosted": "node dist/session/main.js",
+    "test:evals": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --slow 50000 --timeout 60000 'test/**/*.integration.test.ts'"
   },
   "files": [
     "dist"

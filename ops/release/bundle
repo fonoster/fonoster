@@ -40,7 +40,7 @@ build_archive() {
   rm -rf "$STAGE/.env" "$STAGE/config/keys"
   sed -i.bak "s/^FONOSTER_VERSION=.*/FONOSTER_VERSION=$VERSION/" "$STAGE/.env.example"
   rm -f "$STAGE/.env.example.bak"
-  (cd "$ROOT" && npx tsx mods/common/scripts/export-config-schemas.ts "$STAGE/config/schemas" >/dev/null)
+  (cd "$ROOT" && npm run generate:config-schemas --silent -w @fonoster/common -- "$STAGE/config/schemas" >/dev/null)
   # Nothing a self-hoster reads names the rebuild (self-host-installer spec).
   if grep -rniE 'rebuild|RB_' "$STAGE" >&2; then
     log "the archive mentions the rebuild (above); fix ops/bundle"

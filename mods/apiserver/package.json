@@ -12,9 +12,9 @@
     "test": "test"
   },
   "scripts": {
-    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo && npm run generate:prisma",
     "build": "tsc -b tsconfig.json",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
+    "generate:prisma": "prisma generate --schema schema.prisma"
   },
   "bin": {
     "fonoster": "./dist/index.js",
@@ -70,5 +70,8 @@
   "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
   "optionalDependencies": {
     "@ai-coustics/aic-sdk": "^0.24.0"
+  },
+  "prisma": {
+    "seed": "tsx src/core/seed.ts"
   }
 }

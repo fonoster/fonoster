@@ -18,8 +18,10 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "start": "node dist/main.js"
+    "start": "node dist/main.js",
+    "replay": "tsx scripts/replay.ts",
+    "scale": "tsx scripts/scale.ts",
+    "live-check": "tsx scripts/live-check.ts"
   },
   "dependencies": {
     "@fonoster/amd": "^0.30.0",

@@ -77,7 +77,8 @@ jobs:
               - 'package.json'
               - 'package-lock.json'
               - 'tsconfig.json'
-              - '.mocharc.json'
+              - '.mocharc.cjs'
+              - 'tools/**'
             go:
               - *workflow
               - 'go/**'

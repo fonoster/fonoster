@@ -18,8 +18,7 @@
   },
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
+    "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "@fonoster/callrecord": "^0.30.0",

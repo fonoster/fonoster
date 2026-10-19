@@ -15,8 +15,7 @@
   "types": "dist/index",
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo && node scripts/sync-proto.mjs",
-    "build": "tsc -p tsconfig.json",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo proto"
+    "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
     "@grpc/grpc-js": "~1.14.6",

@@ -20,7 +20,7 @@
 // transcriptions of the Deepgram audio (without and with a "Fonoster" keyterm). Spends about a
 // cent; never run in CI or on a schedule.
 //
-//   DEEPGRAM_API_KEY=… ELEVENLABS_API_KEY=… npx tsx mods/appbridge/scripts/live-check.ts
+//   DEEPGRAM_API_KEY=… ELEVENLABS_API_KEY=… npm run live-check -w @fonoster/appbridge
 //
 // Keys come only from the environment and are never printed.
 import * as fs from "fs";

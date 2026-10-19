@@ -138,5 +138,5 @@ fixture.) Rules for a runner in a new language:
 | `nightly` | Nightly and manual (`workflow_dispatch`) | Timing, load, turn-taking replay and the Pipecat golden test; reports are uploaded as the `conformance-reports` artifact |
 
 Live provider tests run by hand with your own provider keys (never put them in the repository):
-`DEEPGRAM_API_KEY=… ELEVENLABS_API_KEY=… npx tsx mods/appbridge/scripts/live-check.ts`. Still to add:
+`DEEPGRAM_API_KEY=… ELEVENLABS_API_KEY=… npm run live-check -w @fonoster/appbridge`. Still to add:
 dedicated runners for the nightly job (task 4.2).

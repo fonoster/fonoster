@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /*
  * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
@@ -20,8 +21,8 @@
 // (CONTRIBUTING.md). The dependencies (Postgres, NATS, Routr, RTPEngine, MinIO, Envoy) are the
 // dev container's other services.
 //
-//   node .scripts/dev.mjs                     every component, each line prefixed by its name
-//   node .scripts/dev.mjs appbridge autopilot   only those
+//   npm run dev                       every component, each line prefixed by its name
+//   npm run dev -- appbridge autopilot   only those
 //
 // Each process gets the values of .dev/.env (with ${NAME} expanded, as Compose's env_file does)
 // for the ${NAME} placeholders of its config file, .dev/config/<service>.yaml (passed explicitly:
@@ -33,7 +34,7 @@ import { dirname, join } from "node:path";
 import { createInterface } from "node:readline";
 import { fileURLToPath } from "node:url";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const DEV = join(ROOT, ".dev");
 const TSX = join(ROOT, "node_modules", ".bin", "tsx");
 const ROOMR_SRC = join(ROOT, "go", "roomr");

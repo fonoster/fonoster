@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 /**
- * Loaded by mocha before any test file (see .mocharc.json): one test run at a time on the
+ * Loaded by mocha before any test file (see .mocharc.cjs): one test run at a time on the
  * conformance NATS server (CONFORMANCE_NATS_URL).
  *
  * The suites' gateways all join the `gateway-incoming` queue group on `gateway.incoming`, so two
