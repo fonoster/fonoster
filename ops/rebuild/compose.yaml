@@ -30,6 +30,7 @@ services:
     environment:
       DEEPGRAM_API_KEY: ${DEEPGRAM_API_KEY:-}
       ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+      AICOUSTICS_LICENSE_KEY: ${AICOUSTICS_LICENSE_KEY:-}
     ports:
       - "${RB_APPBRIDGE_PORT:-8080}:8080"
 

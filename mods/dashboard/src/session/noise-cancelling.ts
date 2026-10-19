@@ -18,11 +18,8 @@
  */
 import type { AudioFilterSetting } from "./types";
 
-/** A catalog provider as far as this select cares: its id, label and capabilities. */
-type Provider = { id: string; label: string; capabilities?: string[] };
-
-// Noise cancelling (dashboard "Call handling offers noise cancelling from the catalog"): one
-// select, None or a noise-cancelling (`nc`) provider the catalog offers. The app stores it as its
+// Noise cancelling (dashboard "Noise cancelling is one select fed by the catalog"): None or a
+// noise-cancelling (`nc`) provider the catalog offers. The app stores it as one entry of its
 // filters list; this table is the dashboard's copy of @fonoster/common's FILTER_BY_PROVIDER.
 
 export const NOISE_CANCELLING_FILTERS: Record<string, string> = {
@@ -31,24 +28,30 @@ export const NOISE_CANCELLING_FILTERS: Record<string, string> = {
 
 export const NC_NONE = "none";
 
-/** The nc provider behind the app's filters, or the first filter's name when none matches. */
+/** A noise-cancelling provider the catalog offers: its id and label. */
+export type NoiseCancellingProvider = { id: string; label: string };
+
+const isNoiseCancelling = (f: AudioFilterSetting) =>
+  Object.values(NOISE_CANCELLING_FILTERS).includes(f.name);
+
+const providerOf = (f: AudioFilterSetting) =>
+  Object.entries(NOISE_CANCELLING_FILTERS).find(
+    ([, name]) => name === f.name
+  )?.[0];
+
+/** The nc provider behind the app's filters, or None (other filters are not this select's). */
 export function noiseCancellingOf(
   filters: AudioFilterSetting[] | undefined
 ): string {
-  const first = filters?.[0];
-  if (!first) return NC_NONE;
-  const provider = Object.entries(NOISE_CANCELLING_FILTERS).find(
-    ([, name]) => name === first.name
-  )?.[0];
-  return provider ?? first.name;
+  const current = filters?.find(isNoiseCancelling);
+  return (current && providerOf(current)) ?? NC_NONE;
 }
 
 /** The select's options: None, the offered nc providers, and the saved one when not offered. */
 export function noiseCancellingOptions(
-  providers: Provider[],
+  offered: NoiseCancellingProvider[],
   filters: AudioFilterSetting[] | undefined
 ): { value: string; label: string }[] {
-  const offered = providers.filter((p) => p.capabilities?.includes("nc"));
   const current = noiseCancellingOf(filters);
   const options = [
     { value: NC_NONE, label: "None" },
@@ -59,12 +62,19 @@ export function noiseCancellingOptions(
   return options;
 }
 
-/** The filters for a select value; an unavailable saved value keeps the filters as they are. */
+/**
+ * The filters for a select value. Only the noise-cancelling entry changes: other filters stay,
+ * and the current entry keeps its options (set through the API) when the provider is the same.
+ */
 export function filtersFor(
   value: string,
   current: AudioFilterSetting[] | undefined
 ): AudioFilterSetting[] {
-  if (value === NC_NONE) return [];
+  const list = current ?? [];
+  const others = list.filter((f) => !isNoiseCancelling(f));
+  if (value === NC_NONE) return others;
   const name = NOISE_CANCELLING_FILTERS[value];
-  return name ? [{ name }] : (current ?? []);
+  if (!name) return list;
+  const existing = list.find((f) => f.name === name);
+  return [existing ?? { name }, ...others];
 }

@@ -30,8 +30,8 @@ import {
 } from "./types";
 
 const AI_COUSTICS_NAME = AudioFilters.AI_COUSTICS_FILTER;
-/** The catalog provider whose credential the filter runs with. */
-const AI_COUSTICS_PROVIDER = "aicoustics";
+/** The catalog provider whose credential the filter runs with (one table, in @fonoster/common). */
+const AI_COUSTICS_PROVIDER = AudioFilters.providerOfFilter(AI_COUSTICS_NAME)!;
 const PACKAGE = "@ai-coustics/aic-sdk";
 const FULL_SCALE = 32767;
 

@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { Select } from "~/components/ui/select";
+import { mergeUpdate } from "~/lib/app-request";
 import {
   filtersFor,
   noiseCancellingOf,
@@ -55,11 +56,9 @@ export function NoiseCancellingPanel({ appRef }: { appRef: string }) {
           disabled={!app || update.isPending}
           onValueChange={(v) =>
             app &&
-            update.mutate({
-              ...app,
-              ref: app.ref,
-              filters: filtersFor(v, app.filters)
-            })
+            update.mutate(
+              mergeUpdate(app, { filters: filtersFor(v, app.filters) })
+            )
           }
         />
       </SettingRow>

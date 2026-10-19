@@ -34,7 +34,7 @@ SHALL reject anything else before storing.
 
 #### Scenario: Clearing the filters
 
-- **WHEN** app `A` is updated with an empty `filters` list
+- **WHEN** app `A` is updated with an empty `filters` list, or with no `filters` at all (an update replaces the whole app)
 - **THEN** reading `A` returns no filters
 - **AND** the next call to `A` runs with unfiltered audio
 

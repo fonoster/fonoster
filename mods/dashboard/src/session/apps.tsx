@@ -595,7 +595,9 @@ export function CallHandlingFields({
     noiseCancelling
   );
   const noiseCancellingChoices = noiseCancellingOptions(
-    catalog.data?.providers ?? [],
+    (catalog.data?.providers ?? []).filter((p) =>
+      p.capabilities?.includes("nc")
+    ),
     app.filters
   );
   return (

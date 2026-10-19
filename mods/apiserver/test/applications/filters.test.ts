@@ -94,8 +94,8 @@ describe("@applications/filters", function () {
     );
   });
 
-  it("keeps the current filters when absent and clears them when empty", async function () {
-    expect(await columns({})).to.not.have.property("filters");
+  it("clears the filters when the list is empty or left out (update replaces the app)", async function () {
+    expect((await columns({})).filters).to.equal(null);
     expect((await columns({ filters: [] })).filters).to.equal(null);
   });
 

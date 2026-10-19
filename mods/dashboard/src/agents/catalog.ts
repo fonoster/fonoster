@@ -43,7 +43,7 @@ export type AgentCatalog = {
   voices: CatalogOption[];
   stt: CatalogOption[];
   /** Noise-cancelling (`nc`) providers the workspace can use, by label. */
-  ncProviders: { id: string; label: string; capabilities?: string[] }[];
+  ncProviders: { id: string; label: string }[];
 };
 
 export const EMPTY_CATALOG: AgentCatalog = {
@@ -84,11 +84,7 @@ export function toAgentCatalog(items: CatalogItem[]): AgentCatalog {
       .map(option),
     ncProviders: items
       .filter((i) => i.kind === "provider" && i.capabilities?.includes("nc"))
-      .map((i) => ({
-        id: i.id,
-        label: i.label || i.id,
-        capabilities: i.capabilities
-      }))
+      .map((i) => ({ id: i.id, label: i.label || i.id }))
   };
 }
 

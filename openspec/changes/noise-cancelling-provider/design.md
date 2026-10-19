@@ -68,8 +68,11 @@ See proposal.md for the motivation. What exists today, and shapes the approach:
 
 4. **Proto shape: `repeated AudioFilter filters = 20`** on `Application`, `CreateApplicationRequest`
    and `UpdateApplicationRequest`, with `message AudioFilter { string name = 1; google.protobuf.Struct options = 2; }`.
-   Update semantics follow `listeners`: an absent field keeps the current value, an empty list
-   clears it. The SDK and `@fonoster/types` expose `filters?: { name: string; options?: Record<string, unknown> }[]`.
+   Update semantics follow `listeners` and the rest of the app model: update replaces the whole
+   app, and a repeated field left out arrives as an empty list (the server loads protos with
+   `arrays: true`), so leaving `filters` out clears them. Every client that updates an app
+   therefore starts from the app's current state (the dashboard's `applicationToRequest`, the
+   CLI's, the session page's `toRequest`). The SDK and `@fonoster/types` expose `filters?: { name: string; options?: Record<string, unknown> }[]`.
    The CLI gets `--noise-cancelling none|aicoustics` on create and update (the array stays an
    SDK-level detail) and a `NOISE CANCELLING` line on get.
 

@@ -28,7 +28,7 @@
 
 ## 4. Apiserver, SDK and CLI
 
-- [x] 4.1 `applications/session/appModel.ts`: `filters` in `sessionAppInputSchema` through `parseFilters`; `toAppColumns` writes the column; absent keeps, empty clears (as `listeners`)
+- [x] 4.1 `applications/session/appModel.ts`: `filters` in `sessionAppInputSchema` through `parseFilters`; `toAppColumns` writes the column; left out or empty clears (update replaces the app, as `listeners`)
 - [x] 4.2 Get and list return `filters`; `ListCatalog` accepts `type: "nc"`
 - [x] 4.3 SDK `Applications`: `filters` on create, update and the returned app; docs comment with the ai-coustics example
 - [x] 4.4 CLI: `--noise-cancelling none|aicoustics` on `applications:create` and `applications:update`; `NOISE CANCELLING` line on `applications:get`

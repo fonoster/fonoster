@@ -70,7 +70,7 @@ type SessionAppFields = {
   recording?: RecordingPolicy | "";
   /** Off when unset. */
   amd?: AmdSettings;
-  /** Audio filters in order; absent on update keeps them, empty clears them. */
+  /** Audio filters in order. An update replaces the whole app: leave them out and they are cleared. */
   filters?: AudioFilter[];
 };
 

@@ -268,7 +268,7 @@ message UpdateApplicationRequest {
   string recording = 15;
   // Answering-machine detection (off when unset)
   AmdSettings amd = 16;
-  // Audio filters in order (absent keeps the current ones, empty clears them)
+  // Audio filters in order (the update replaces the app: left out clears them)
   repeated AudioFilter filters = 20;
 }
 

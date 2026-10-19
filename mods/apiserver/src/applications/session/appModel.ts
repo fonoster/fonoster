@@ -176,21 +176,19 @@ export const sessionAppInputSchema = z.object({
       .optional()
   ),
   // Audio filters (voice-session "An app's audio filters are set through the Applications
-  // API"): absent keeps the current list on update, empty clears it. Options arrive as a
+  // API"). Update replaces the whole app, and an omitted repeated field is an empty list on
+  // the wire, so a request without filters clears them (as listeners). Options arrive as a
   // Struct over gRPC; they are decoded and checked against each filter's public schema below.
   filters: z.preprocess(
-    (v) => v ?? undefined,
-    z
-      .array(z.object({ name: z.string(), options: z.unknown().optional() }))
-      .optional()
+    (v) => v ?? [],
+    z.array(z.object({ name: z.string(), options: z.unknown().optional() }))
   )
 });
 
 /** The app's filters as stored: decoded options, known names and public options only. */
 function toFilters(
   input: SessionAppInput["filters"]
-): AudioFilters.AudioFilterConfig[] | undefined {
-  if (!input) return undefined;
+): AudioFilters.AudioFilterConfig[] {
   const decoded = input.map((f) => {
     const raw = f.options as { fields?: unknown } | undefined;
     const options =
@@ -304,10 +302,7 @@ export async function toAppColumns(
     recording: input.recording ?? null,
     amd: input.amd?.enabled ?? false,
     amdWindowMs: input.amd?.enabled ? (input.amd.windowMs ?? null) : null,
-    // Undefined leaves the column alone (update keeps the filters); an empty list clears it.
-    ...(filters === undefined
-      ? {}
-      : { filters: filters.length ? filters : null })
+    filters: filters.length ? filters : null
   };
   return { columns, agent, autopilot };
 }

@@ -55,6 +55,11 @@ export const FILTER_BY_PROVIDER: Record<string, string> = {
 
 export const FILTER_NAMES = Object.keys(FILTER_SCHEMAS);
 
+/** The `nc` provider whose credential a filter runs with, or undefined for a filter without one. */
+export function providerOfFilter(name: string): string | undefined {
+  return Object.entries(FILTER_BY_PROVIDER).find(([, f]) => f === name)?.[0];
+}
+
 export type AudioFilterConfig = {
   name: string;
   options?: Record<string, unknown>;

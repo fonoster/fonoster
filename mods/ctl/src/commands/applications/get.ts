@@ -34,9 +34,8 @@ const or = (value: unknown, fallback = "-") =>
 function noiseCancelling(app: Application): string {
   const filters = app.filters ?? [];
   if (!filters.length) return "off";
-  const providers = Object.entries(AudioFilters.FILTER_BY_PROVIDER);
   return filters
-    .map((f) => providers.find(([, name]) => name === f.name)?.[0] ?? f.name)
+    .map((f) => AudioFilters.providerOfFilter(f.name) ?? f.name)
     .join(", ");
 }
 
