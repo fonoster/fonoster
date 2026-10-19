@@ -728,7 +728,7 @@ export function CallHandlingFields({
       {noiseCancelling && (
         <Field
           label="Noise cancelling"
-          hint="Removes background noise and other voices before your app listens. Keeps one speaker: not for speakerphone or IVR. Adds about 30 ms."
+          hint="Removes background noise and other voices before your app listens. Keeps one speaker: not for speakerphone or IVR."
         >
           {(p) => (
             <Select

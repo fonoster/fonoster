@@ -49,7 +49,7 @@ export function NoiseCancellingPanel({ appRef }: { appRef: string }) {
         <Select
           id="noise-cancelling"
           aria-label="Noise cancelling"
-          className="w-44"
+          className="h-[30px] w-[150px] shrink-0 px-2.5 font-mono text-xs"
           value={noiseCancellingOf(app?.filters)}
           options={options}
           disabled={!app || update.isPending}
