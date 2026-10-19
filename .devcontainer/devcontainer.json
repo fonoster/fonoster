@@ -43,6 +43,9 @@
   "otherPortsAttributes": { "onAutoForward": "ignore" },
   "customizations": {
     "vscode": {
+      // Forwarding a port the workspace does not open (8449 when a log prints its URL) would
+      // shadow the one Envoy publishes on the host.
+      "settings": { "remote.autoForwardPorts": false },
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
