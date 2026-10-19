@@ -148,7 +148,11 @@ export const agentSchema = z
       temperature: num().min(0, BETWEEN_0_AND_2).max(2, BETWEEN_0_AND_2),
       maxTokens: positiveInt()
     }),
-    tools: z.array(toolSchema)
+    tools: z.array(toolSchema),
+    // The app's audio filters (noise cancelling), set on the Advanced tab.
+    filters: z.array(
+      z.object({ name: z.string(), options: z.record(z.unknown()).optional() })
+    )
   })
   .superRefine((values, ctx) => {
     const names = new Set<string>();
@@ -280,7 +284,13 @@ export function toValues(app: Application): AgentValues {
     },
     tools: Array.isArray(languageModel.tools)
       ? languageModel.tools.map(toolToValues)
-      : []
+      : [],
+    filters: (app.filters ?? []).map((f) => ({
+      name: f.name,
+      ...(f.options && Object.keys(f.options).length
+        ? { options: f.options }
+        : {})
+    }))
   };
 }
 
@@ -390,6 +400,7 @@ export function toRequest(
       language: values.stt.languageCode,
       sttModel: values.stt.model
     },
+    filters: values.filters,
     intelligence: {
       config: {
         conversationSettings,

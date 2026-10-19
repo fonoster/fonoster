@@ -16,26 +16,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { useController, useFormContext } from "react-hook-form";
 import { Select } from "~/components/ui/select";
-import { mergeUpdate } from "~/lib/app-request";
 import {
   filtersFor,
   noiseCancellingOf,
   noiseCancellingOptions
 } from "~/session/noise-cancelling";
-import { useAgent, useCatalog, useUpdateAgentFilters } from "../agents.service";
+import { type AgentValues } from "../agent-form";
+import { useCatalog } from "../agents.service";
 import { Panel, SettingRow } from "../parts";
 
 // Layout and copy from designs/dashboard.pen "Agent / Detail / Advanced", Noise cancelling panel.
-// The setting is on the application (its filters), so it saves on its own, as soon as it changes.
-export function NoiseCancellingPanel({ appRef }: { appRef: string }) {
-  const agent = useAgent(appRef);
+// The setting is the app's filters, saved with the rest of the agent.
+export function NoiseCancellingPanel() {
+  const { control } = useFormContext<AgentValues>();
+  const { field } = useController({ control, name: "filters" });
   const catalog = useCatalog();
-  const update = useUpdateAgentFilters();
-  const app = agent.data;
   const options = noiseCancellingOptions(
     catalog.data?.ncProviders ?? [],
-    app?.filters
+    field.value
   );
   return (
     <Panel
@@ -50,16 +50,10 @@ export function NoiseCancellingPanel({ appRef }: { appRef: string }) {
         <Select
           id="noise-cancelling"
           aria-label="Noise cancelling"
-          className="h-[30px] w-[150px] shrink-0 px-2.5 font-mono text-xs"
-          value={noiseCancellingOf(app?.filters)}
+          className="h-[30px] w-[150px] shrink-0 px-2.5 text-xs"
+          value={noiseCancellingOf(field.value)}
           options={options}
-          disabled={!app || update.isPending}
-          onValueChange={(v) =>
-            app &&
-            update.mutate(
-              mergeUpdate(app, { filters: filtersFor(v, app.filters) })
-            )
-          }
+          onValueChange={(v) => field.onChange(filtersFor(v, field.value))}
         />
       </SettingRow>
     </Panel>

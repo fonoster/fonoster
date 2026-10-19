@@ -151,6 +151,7 @@ export function toUpdateRequest(
 
 /** Readable provider names; the catalog has only ids, so others show their id. */
 export const PROVIDER_NAMES: Record<string, string> = {
+  aicoustics: "ai-coustics",
   anthropic: "Anthropic",
   assemblyai: "AssemblyAI",
   azure: "Azure",

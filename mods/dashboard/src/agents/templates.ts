@@ -192,6 +192,7 @@ export function templateValues(
       temperature: DEFAULTS.temperature,
       maxTokens: DEFAULTS.maxTokens
     },
-    tools: []
+    tools: [],
+    filters: []
   };
 }

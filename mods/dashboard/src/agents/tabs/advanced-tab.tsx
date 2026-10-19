@@ -84,7 +84,7 @@ export function AdvancedTab({
         </Panel>
       </div>
       <div className="flex flex-col gap-5">
-        <NoiseCancellingPanel appRef={appRef} />
+        <NoiseCancellingPanel />
         <Panel
           title="Call handling"
           description="Fallback, listeners, recording and answering-machine detection."

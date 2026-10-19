@@ -79,17 +79,6 @@ export function useUpdateAgent() {
   );
 }
 
-/** The agent's audio filters (noise cancelling), saved on their own from the Advanced tab. */
-export function useUpdateAgentFilters() {
-  const sdk = useSdk();
-  return useResourceMutation(
-    RESOURCE,
-    (request: UpdateApplicationRequest) =>
-      sdk.applications.updateApplication(request),
-    { success: "Noise cancelling saved" }
-  );
-}
-
 export function useDeleteAgent() {
   const sdk = useSdk();
   return useResourceMutation(
