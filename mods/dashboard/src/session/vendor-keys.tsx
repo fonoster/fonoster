@@ -77,7 +77,8 @@ export default function VendorKeysScreen() {
     (p) => !rows.some((r) => r.provider.id === p.id)
   );
 
-  const add = available.length > 0 && (
+  // Always offered; with no provider left to add, the drawer's list is empty.
+  const add = (
     <Button onClick={() => setEditing({})}>
       <Plus aria-hidden /> Add key
     </Button>
