@@ -33,7 +33,6 @@ import { createGetApplication } from "../../src/applications/createGetApplicatio
 import { createListApplications } from "../../src/applications/createListApplications";
 import { createRotateSigningSecret } from "../../src/applications/createRotateSigningSecret";
 import { createUpdateApplication } from "../../src/applications/createUpdateApplication";
-import { getConfig } from "../../src/config";
 import { createProvidersHandlers } from "../../src/providers";
 import { createWebhooksHandlers } from "../../src/webhooks";
 import { PrismaAgentSource } from "../../../autopilot/src/session/hosted";
@@ -768,9 +767,5 @@ describe("@control: applications, webhooks and provider keys (database)", functi
       }).catch((e) => e);
       expect(gone.code).to.equal(grpc.status.NOT_FOUND);
     });
-  });
-
-  it("serves ListCalls from the call-record index by default", function () {
-    expect(getConfig().callRecords.listCallsFromIndex).to.equal(true);
   });
 });

@@ -28,7 +28,6 @@ import {
 } from "@fonoster/sipnet";
 import { buildApplicationsService } from "../applications";
 import { buildCallsService } from "../calls";
-import { influxdb } from "../calls/influxdb";
 import { buildCapabilitiesService } from "../capabilities";
 import { getConfig } from "../config";
 import { ROUTR_ROOMR_PEER } from "../envs";
@@ -44,7 +43,7 @@ import { testTokenConfig } from "./testTokenConfig";
 
 const applicationsService = buildApplicationsService(prisma, testTokenConfig);
 const secretsService = buildSecretsService(prisma);
-const callsService = buildCallsService(influxdb);
+const callsService = buildCallsService();
 const identityService = buildIdentityService({
   ...identityConfig,
   regions: workspaceRegionHooks

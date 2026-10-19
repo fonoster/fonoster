@@ -28,11 +28,8 @@ routr:
 nats: { url: "nats://nats:4222", user: apiserver, password: "${NATS_APISERVER_PASSWORD}" }
 # Autopilot apps point at the hosted Autopilot and share its signing secret.
 apps: { autopilotUrl: "ws://autopilot:3000", autopilotSigningSecret: "${AUTOPILOT_SIGNING_SECRET}" }
-# Required by the schema; unused with callRecords.listCallsFromIndex.
-influxdb: { url: "http://influxdb:8086", org: unused, username: unused, password: unused, token: unused }
 callRecords:
   enabled: true
-  listCallsFromIndex: true
   stores:
     - s3:
         bucket: records

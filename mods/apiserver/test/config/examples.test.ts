@@ -28,11 +28,7 @@ import {
 const ENV = {
   POSTGRES_USER: "postgres",
   POSTGRES_PASSWORD: "postgres",
-  ROOMR_PASSWORD: "changeme",
-  INFLUXDB_INIT_ORG: "fonoster",
-  INFLUXDB_INIT_USERNAME: "influxdb",
-  INFLUXDB_INIT_PASSWORD: "changeme",
-  INFLUXDB_INIT_TOKEN: "token"
+  ROOMR_PASSWORD: "changeme"
 };
 
 const ROOT = join(__dirname, "..", "..", "..", "..");
@@ -65,7 +61,6 @@ describe("@apiserver[config/examples]", function () {
     const yaml = load("fonoster.example.yaml");
     const jsonc = load("fonoster.example.jsonc");
     expect(jsonc.database).to.deep.equal(yaml.database);
-    expect(jsonc.influxdb).to.deep.equal(yaml.influxdb);
     expect(jsonc.routr.apiEndpoint).to.equal(yaml.routr.apiEndpoint);
   });
 });

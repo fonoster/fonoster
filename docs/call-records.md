@@ -162,6 +162,6 @@ download files through the API.
   `consentPrompt`, `recordUrl`.
 - Keys: `fonoster-callrecord keys rotate|list|retire|publish --dir <dir>`. Rotation takes effect
   without a restart. Retiring deletes an old private key but keeps its public half published.
-- Apiserver `callRecords`: `enabled`, `listCallsFromIndex`, `stores`, `retentionIntervalMinutes`.
+- Apiserver `callRecords`: `enabled`, `stores`, `retentionIntervalMinutes`.
 - Optional ClickHouse analytics are loaded from redacted copies and can be rebuilt with
   `fonoster-callrecord analytics rebuild`.

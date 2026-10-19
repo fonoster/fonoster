@@ -50,10 +50,8 @@ apiserver:
     apps:
       autopilotUrl: "ws://{{ .Release.Name }}-autopilot:3000"
       autopilotSigningSecret: "secret://k8s/fonoster-autopilot#secret"
-    influxdb: { url: "http://influxdb:8086", org: unused, username: unused, password: unused, token: unused }
     callRecords:
       enabled: true
-      listCallsFromIndex: true
       stores:
         - s3:
             bucket: records

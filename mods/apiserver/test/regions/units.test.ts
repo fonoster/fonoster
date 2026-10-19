@@ -385,13 +385,6 @@ describe("@apiserver[regions/units]", function () {
         database: { url: "postgres://x" },
         encryption: { key: "k".repeat(32) },
         nats: { url: "nats://x" },
-        influxdb: {
-          url: "u",
-          org: "o",
-          username: "u",
-          password: "p",
-          token: "t"
-        },
         identity: {}
       };
       const bad = fonosterConfigSchema.safeParse({

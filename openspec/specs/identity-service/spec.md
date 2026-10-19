@@ -33,7 +33,7 @@ public-method allow-list, and SHALL expose a gRPC health service.
 #### Scenario: No telephony subsystems are started
 
 - **WHEN** the standalone service runs
-- **THEN** it does not require or start NATS, InfluxDB, or Asterisk/ARI
+- **THEN** it does not require or start NATS or Asterisk/ARI
 
 #### Scenario: Library import stays server-free
 

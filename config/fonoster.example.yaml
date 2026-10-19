@@ -8,7 +8,7 @@
 #     environment variables of its own. Treat this file as a secret: chmod 600,
 #     never commit it, mount it from a Secret on Kubernetes.
 #   - ${VAR} only appears where a value is shared with a container configured
-#     through .env (Postgres, InfluxDB), so each value is written once.
+#     through .env (Postgres), so each value is written once.
 #   - Unknown or misspelled keys stop the API server at boot, naming the key.
 #   - JSON with comments works too (fonoster.jsonc). Keep only one of the two.
 
@@ -78,23 +78,15 @@ routr:
 nats:
   url: nats://nats:4222
 
-influxdb:                                        # call records
-  url: http://influxdb:8086
-  org: ${INFLUXDB_INIT_ORG}
-  username: ${INFLUXDB_INIT_USERNAME}
-  password: ${INFLUXDB_INIT_PASSWORD}
-  token: ${INFLUXDB_INIT_TOKEN}
-
 # Session apps: Autopilot apps point at the hosted Autopilot and share its signing secret.
 # apps:
 #   autopilotUrl: ws://autopilot:50061
 #   autopilotSigningSecret: ${AUTOPILOT_SIGNING_SECRET}
 
 # Call records (vCon, add-call-record): the index of sealed records, the /api/records API on the
-# HTTP bridge, retention, and call history from the index instead of InfluxDB. On by default.
+# HTTP bridge, retention, and call history (ListCalls, GetCall) from the index. On by default.
 # callRecords:
 #   enabled: true
-#   listCallsFromIndex: true
 #   retentionIntervalMinutes: 60
 #   stores:                                        # where the AppBridge replicas put records
 #     - s3:
