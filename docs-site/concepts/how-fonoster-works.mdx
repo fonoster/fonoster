@@ -3,13 +3,31 @@ title: "How Fonoster works"
 description: "How workspaces, numbers and applications fit together, and what happens during and after a call."
 ---
 
-{/* TODO asset: how-fonoster-works/banner: page banner for "How Fonoster works" (workspace, numbers, applications) */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/how-fonoster-works/banner-light.png"
+  alt="One path for every call: a caller reaches a number in your workspace, which routes to an application and on to an AI agent."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/how-fonoster-works/banner-dark.png"
+  alt="One path for every call: a caller reaches a number in your workspace, which routes to an application and on to an AI agent."
+/>
 
 Every call on Fonoster follows the same path. It arrives at a number or a SIP address in your
 workspace, Fonoster hands it to an application, and when it ends you get a signed record of what
 happened. This page explains each piece so you know where your settings live and why.
 
-{/* TODO asset: how-fonoster-works/call-path: how a call enters a workspace, reaches an Autopilot agent or a stream, and leaves a call record and webhooks, all inside a region */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/how-fonoster-works/call-path-light.png"
+  alt="Inside a region and a workspace, calls enter from a phone through a trunk and number, from a softphone through a SIP agent in a domain, or from your code as an outbound call. Each reaches one application, an Autopilot agent or a stream connected to your server over a signed WebSocket. At hangup the application writes a signed call record, and webhooks send call.started, call.ended, call.failed and call_record.sealed to your systems."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/how-fonoster-works/call-path-dark.png"
+  alt="Inside a region and a workspace, calls enter from a phone through a trunk and number, from a softphone through a SIP agent in a domain, or from your code as an outbound call. Each reaches one application, an Autopilot agent or a stream connected to your server over a signed WebSocket. At hangup the application writes a signed call record, and webhooks send call.started, call.ended, call.failed and call_record.sealed to your systems."
+/>
 
 ## The workspace
 
