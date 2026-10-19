@@ -112,6 +112,13 @@ describe("SDK adapter", () => {
         providerId: "deepgram"
       },
       {
+        id: "aicoustics",
+        kind: "provider",
+        state: "active",
+        providerId: "aicoustics",
+        capabilities: ["nc"]
+      },
+      {
         id: "deepgram/nova-3",
         kind: "model",
         type: "stt",
@@ -129,7 +136,10 @@ describe("SDK adapter", () => {
       }
     ] as CatalogItem[];
     const catalog = toCatalog(items);
-    expect(catalog.providers.map((p) => p.id)).toEqual(["deepgram"]);
+    expect(catalog.providers.map((p) => p.label)).toEqual([
+      "Deepgram",
+      "ai-coustics"
+    ]);
     expect(catalog.sttModels.map((p) => p.id)).toEqual(["deepgram/nova-3"]);
     expect(catalog.voices[0]).toMatchObject({
       state: "deprecated",

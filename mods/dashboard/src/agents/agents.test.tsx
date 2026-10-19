@@ -389,7 +389,7 @@ describe("Agent detail", () => {
     ).toBeInTheDocument();
   });
 
-  it("turns noise cancelling on from Advanced, saving at once", async () => {
+  it("turns noise cancelling on from Advanced, saved with the agent", async () => {
     const { user, applications } = setup({
       route: `/w/ws-1/agents/${billingAgent.ref}/advanced`,
       catalog: [...sampleCatalogItems, noiseCancellingProvider]
@@ -400,13 +400,17 @@ describe("Agent detail", () => {
     const select = within(panel).getByRole("combobox", {
       name: "Noise cancelling"
     });
-    await vi.waitFor(() => expect(select).toBeEnabled());
     await user.click(select);
-    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
-      "None",
-      "ai-coustics"
-    ]);
+    await vi.waitFor(() =>
+      expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
+        "None",
+        "ai-coustics"
+      ])
+    );
     await user.click(screen.getByRole("option", { name: "ai-coustics" }));
+    expect(applications.updateApplication).not.toHaveBeenCalled();
+    expect(screen.getByText("Unsaved changes")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Save" }));
     await vi.waitFor(() =>
       expect(applications.updateApplication).toHaveBeenCalledWith(
         expect.objectContaining({
