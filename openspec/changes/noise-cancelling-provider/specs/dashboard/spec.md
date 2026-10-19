@@ -32,8 +32,9 @@ strength control.
 
 #### Scenario: Agents set it on the Advanced tab
 
-- **WHEN** the user opens an Autopilot agent's Advanced tab and picks *ai-coustics* in the *Noise cancelling* panel
-- **THEN** the agent's application is saved at once with `filters: [{ name: "aiCoustics" }]`
+- **WHEN** the user opens an Autopilot agent's Advanced tab, picks *ai-coustics* in the *Noise cancelling* panel and saves the agent
+- **THEN** the agent's application is saved with `filters: [{ name: "aiCoustics" }]`
+- **AND** nothing is sent before the agent is saved
 - **AND** the agent's Call handling drawer shows no *Noise cancelling* select
 
 ### Requirement: Vendor keys offers noise-cancelling providers
