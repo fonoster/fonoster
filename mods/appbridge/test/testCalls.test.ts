@@ -147,7 +147,6 @@ describe("@gateway test calls (add-talk-in-browser)", function () {
       gateway = await new Gateway({
         config: {
           nats: { url: NATS_URL! },
-          testMode: true,
           apps: [app],
           testCalls: { publicKeyFile: keyFile },
           providers: {

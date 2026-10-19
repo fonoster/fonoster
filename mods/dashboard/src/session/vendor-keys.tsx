@@ -61,7 +61,10 @@ export default function VendorKeysScreen() {
   const [editing, setEditing] = useState<{ providerId?: string }>();
   const [removing, setRemoving] = useState<Row>();
 
-  const providers = loaded.data?.catalog.providers ?? [];
+  // Keyless providers (the fakes, local models) take no key.
+  const providers = (loaded.data?.catalog.providers ?? []).filter(
+    (p) => !p.keyless
+  );
   const rows: Row[] = (loaded.data?.keys ?? []).map((k) => ({
     provider: providers.find((p) => p.id === k.providerId) ?? {
       id: k.providerId,

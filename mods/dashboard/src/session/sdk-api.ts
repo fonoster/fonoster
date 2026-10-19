@@ -161,12 +161,13 @@ export const PROVIDER_NAMES: Record<string, string> = {
 
 const entry = (item: CatalogItem): CatalogEntry => ({
   id: item.id,
-  label: item.id,
+  label: item.label || item.id,
   state: item.state === "deprecated" ? "deprecated" : "active",
   ...(item.replacement ? { replacement: item.replacement } : {}),
   ...(item.languages?.length ? { languages: item.languages } : {}),
   ...(item.features?.length ? { features: item.features } : {}),
-  ...(item.models?.length ? { models: item.models } : {})
+  ...(item.models?.length ? { models: item.models } : {}),
+  ...(item.keyless ? { keyless: true } : {})
 });
 
 /** The catalog as the pickers need it; languages come from models and voices. */

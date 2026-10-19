@@ -68,7 +68,6 @@ function catalog(dir: string, options: { deprecate?: boolean } = {}) {
   const file = path.join(dir, "registry.json");
   const registry = new Registry.Registry({
     store: new Registry.FileRegistryStore(file),
-    testMode: true,
     actor: "test"
   });
   registry.addProvider({
@@ -142,7 +141,6 @@ async function writeConfig(
       credentials: { "fake-llm": { value: "unused" } },
       endpoints: { fake: llmUrl },
       allowedDestinations: ["127.0.0.1"],
-      testMode: true,
       ...extra
     })
   );
@@ -346,6 +344,44 @@ describe("@autopilot/session language models through the registry", function () 
     expect(r.id).to.equal("openai/gpt-4o-mini");
     expect(asked).to.deep.equal(["openai-default"]);
     expect(r.event).to.equal(undefined);
+  });
+
+  it("calls a keyless provider at its catalog endpoint unless the config overrides it", async function () {
+    const registry = new Registry.Registry({
+      store: new Registry.FileRegistryStore(path.join(dir, "keyless.json"))
+    });
+    registry.addProvider({
+      id: "fake",
+      adapter: "fake",
+      capabilities: ["llm"],
+      endpoints: { llm: "http://fakes:7003" }
+    });
+    registry.addModel({ id: "fake/llm", type: "llm", features: ["streaming"] });
+    const asked: string[] = [];
+    const credentials = {
+      get: (ref: string) => {
+        asked.push(ref);
+        return undefined;
+      }
+    };
+    const endpointOf = (r: { think: unknown }) =>
+      (r.think as unknown as { provider: { baseUrl: string; apiKey?: string } })
+        .provider;
+    const fromCatalog = await new RegistryLlmResolver({
+      registry,
+      credentials
+    }).resolve("fake/llm", settings, {});
+    expect(endpointOf(fromCatalog)).to.deep.include({
+      baseUrl: "http://fakes:7003",
+      apiKey: undefined
+    });
+    const overridden = await new RegistryLlmResolver({
+      registry,
+      credentials,
+      endpoints: { fake: "http://127.0.0.1:7003" }
+    }).resolve("fake/llm", settings, {});
+    expect(endpointOf(overridden).baseUrl).to.equal("http://127.0.0.1:7003");
+    expect(asked, "no credential is resolved").to.deep.equal([]);
   });
 
   it("prefers the workspace's own key over the platform key", async function () {

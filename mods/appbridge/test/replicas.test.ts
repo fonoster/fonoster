@@ -75,7 +75,6 @@ describe("@gateway replicas", function () {
     const urls = harness.providerUrls;
     const config: GatewayConfig = {
       nats: { url: NATS_URL! },
-      testMode: true,
       apps: [
         {
           ref: "a",

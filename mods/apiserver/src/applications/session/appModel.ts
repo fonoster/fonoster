@@ -279,39 +279,46 @@ export async function toAppColumns(
  * Catalog ids must exist (and not be retired) once the registry has entries of that kind; an
  * empty registry (a fresh install) accepts any well-formed id.
  */
-async function checkCatalogIds(db: AppsDb, speech: SessionAppInput["speech"]) {
-  if (!db.registryVoice || !db.registryModel) return;
-  const check = async (
-    table: "registryVoice" | "registryModel",
-    id: string | undefined,
-    what: string
-  ) => {
-    if (!id) return;
-    if ((await db[table].count()) === 0) return;
-    const row = await db[table].findUnique({ where: { id } });
-    if (!row) throw invalid(`${what} ${id} is not in the catalog`);
-    if (row.state === "RETIRED")
-      throw invalid(
-        `${what} ${id} is retired${row.replacement ? `; use ${row.replacement}` : ""}`
-      );
-  };
-  await check("registryVoice", speech.voice, "voice");
-  await check("registryModel", speech.sttModel, "speech.sttModel");
-  await check("registryModel", speech.ttsModel, "speech.ttsModel");
+async function checkCatalogId(
+  db: AppsDb,
+  table: "registryVoice" | "registryModel",
+  id: string | undefined,
+  what: string
+) {
+  if (!id || !db[table]) return;
+  if ((await db[table].count()) === 0) return;
+  const row = await db[table].findUnique({ where: { id } });
+  if (!row) throw invalid(`${what} ${id} is not in the catalog`);
+  if (row.state === "RETIRED")
+    throw invalid(
+      `${what} ${id} is retired${row.replacement ? `; use ${row.replacement}` : ""}`
+    );
 }
 
-/** The Intelligence row for an Autopilot app (productRef from the model's provider). */
+async function checkCatalogIds(db: AppsDb, speech: SessionAppInput["speech"]) {
+  await checkCatalogId(db, "registryVoice", speech.voice, "voice");
+  await checkCatalogId(db, "registryModel", speech.sttModel, "speech.sttModel");
+  await checkCatalogId(db, "registryModel", speech.ttsModel, "speech.ttsModel");
+}
+
+/**
+ * The Intelligence row for an Autopilot app. The model is a catalog id, checked like the app's
+ * speech ids; its provider's `llm.<provider>` product row (the legacy table Intelligence points
+ * to) is added on first use, so any catalog provider works without a seeded product.
+ */
 export async function assistantRow(
   db: AppsDb,
   assistant: Record<string, unknown>
 ) {
   const model = (assistant.languageModel as { model: string }).model;
-  const productRef = `llm.${model.split("/")[0]}`;
-  const product = await db.product.findUnique({ where: { ref: productRef } });
-  if (!product)
-    throw invalid(
-      `languageModel.model: no LLM product ${productRef} for ${model}`
-    );
+  await checkCatalogId(db, "registryModel", model, "languageModel.model");
+  const provider = model.split("/")[0];
+  const productRef = `llm.${provider}`;
+  await db.product.upsert({
+    where: { ref: productRef },
+    create: { ref: productRef, name: provider, vendor: "GENERIC", type: "LLM" },
+    update: {}
+  });
   return { productRef, config: assistant };
 }
 

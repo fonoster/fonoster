@@ -27,7 +27,7 @@ export function catalogFor(scenario: Scenario) {
   const c = scenario.setup?.catalog;
   if (!c) return undefined;
   const store = new RegistryNs.MemoryRegistryStore();
-  const r = new RegistryNs.Registry({ store, testMode: true });
+  const r = new RegistryNs.Registry({ store });
   r.addProvider({
     id: "fake",
     adapter: "fake",

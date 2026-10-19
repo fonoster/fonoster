@@ -39,8 +39,8 @@ import { errorMessage } from "~/lib/errors";
 import { cn } from "~/lib/utils";
 import { useWorkspace } from "~/lib/workspace";
 import { toRequest } from "./agent-form";
-import { useCreateAgent } from "./agents.service";
-import { LANGUAGES } from "./catalog";
+import { useCatalog, useCreateAgent } from "./agents.service";
+import { EMPTY_CATALOG, LANGUAGES } from "./catalog";
 import { TEMPLATES, templateValues, type TemplateId } from "./templates";
 
 const ICONS: Record<TemplateId, typeof Headset> = {
@@ -76,6 +76,7 @@ export function CreateAgentDialog({
   onOpenChange: (open: boolean) => void;
 }) {
   const create = useCreateAgent();
+  const catalog = useCatalog();
   const navigate = useNavigate();
   const workspace = useWorkspace();
   const form = useForm<Values>({
@@ -92,8 +93,15 @@ export function CreateAgentDialog({
   }, [open]);
 
   const onSubmit = form.handleSubmit(async (values) => {
+    const offered =
+      catalog.data ?? (await catalog.refetch()).data ?? EMPTY_CATALOG;
     const request = toRequest(
-      templateValues(values.template, values.name.trim(), values.languageCode)
+      templateValues(
+        values.template,
+        values.name.trim(),
+        values.languageCode,
+        offered
+      )
     );
     const { ref } = await create.mutateAsync(request);
     onOpenChange(false);

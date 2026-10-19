@@ -77,6 +77,8 @@ export type CatalogEntry = {
   models?: string[];
   /** Set by the pickers on a saved value that no longer fits the other settings. */
   incompatible?: boolean;
+  /** Providers: needs no key (the fakes, local models). */
+  keyless?: boolean;
 };
 export type Catalog = {
   voices: CatalogEntry[];

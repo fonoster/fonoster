@@ -20,7 +20,7 @@
  * Starting points for a new agent. Each template is a short, real-world
  * prompt with its messages, in English (en-*) or Spanish (es-*, multi).
  */
-import { languageOf } from "./catalog";
+import { defaultsFor, languageOf, type AgentCatalog } from "./catalog";
 import { DEFAULTS, type AgentValues } from "./agent-form";
 
 export type TemplateId = "receptionist" | "reminders" | "blank";
@@ -156,24 +156,23 @@ Recordarle al cliente lo que tiene pendiente y acordar una fecha. Confirma la fe
   }
 };
 
-/** The new agent's values for a template, name and language. */
+/** The new agent's values for a template, name and language, with what the catalog offers. */
 export function templateValues(
   template: TemplateId,
   name: string,
-  languageCode: string
+  languageCode: string,
+  catalog: AgentCatalog
 ): AgentValues {
   const language = languageOf(languageCode);
+  const picked = defaultsFor(catalog, languageCode);
   const locale = language?.locale ?? "en";
   const prompt = PROMPTS[template][locale];
   const copy = { ...COMMON[locale], ...prompt };
 
   return {
     name,
-    tts: {
-      productRef: "tts.deepgram",
-      voice: language?.voice ?? "aura-2-thalia-en"
-    },
-    stt: { model: "nova-3", languageCode },
+    tts: { voice: picked.voice },
+    stt: { model: picked.stt, languageCode },
     conversation: {
       firstMessage: copy.firstMessage,
       systemPrompt: copy.systemPrompt,
@@ -189,8 +188,7 @@ export function templateValues(
       transferMessage: copy.transferMessage
     },
     model: {
-      provider: "openai",
-      model: "gpt-4o-mini",
+      model: picked.llm,
       temperature: DEFAULTS.temperature,
       maxTokens: DEFAULTS.maxTokens
     },

@@ -357,7 +357,9 @@ featuresList: (f = jspb.Message.getRepeatedField(msg, 8)) == null ? undefined : 
 modelsList: (f = jspb.Message.getRepeatedField(msg, 9)) == null ? undefined : f,
 gender: jspb.Message.getFieldWithDefault(msg, 10, ""),
 replacement: jspb.Message.getFieldWithDefault(msg, 11, ""),
-retireOn: jspb.Message.getFieldWithDefault(msg, 12, "")
+retireOn: jspb.Message.getFieldWithDefault(msg, 12, ""),
+keyless: jspb.Message.getBooleanFieldWithDefault(msg, 13, false),
+label: jspb.Message.getFieldWithDefault(msg, 14, "")
   };
 
   if (includeInstance) {
@@ -441,6 +443,14 @@ proto.fonoster.providers.v1beta2.CatalogItem.deserializeBinaryFromReader = funct
     case 12:
       var value = /** @type {string} */ (reader.readString());
       msg.setRetireOn(value);
+      break;
+    case 13:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setKeyless(value);
+      break;
+    case 14:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setLabel(value);
       break;
     default:
       reader.skipField();
@@ -552,6 +562,20 @@ proto.fonoster.providers.v1beta2.CatalogItem.serializeBinaryToWriter = function(
   if (f.length > 0) {
     writer.writeString(
       12,
+      f
+    );
+  }
+  f = message.getKeyless();
+  if (f) {
+    writer.writeBool(
+      13,
+      f
+    );
+  }
+  f = message.getLabel();
+  if (f.length > 0) {
+    writer.writeString(
+      14,
       f
     );
   }
@@ -847,6 +871,42 @@ proto.fonoster.providers.v1beta2.CatalogItem.prototype.getRetireOn = function() 
  */
 proto.fonoster.providers.v1beta2.CatalogItem.prototype.setRetireOn = function(value) {
   return jspb.Message.setProto3StringField(this, 12, value);
+};
+
+
+/**
+ * optional bool keyless = 13;
+ * @return {boolean}
+ */
+proto.fonoster.providers.v1beta2.CatalogItem.prototype.getKeyless = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 13, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.fonoster.providers.v1beta2.CatalogItem} returns this
+ */
+proto.fonoster.providers.v1beta2.CatalogItem.prototype.setKeyless = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 13, value);
+};
+
+
+/**
+ * optional string label = 14;
+ * @return {string}
+ */
+proto.fonoster.providers.v1beta2.CatalogItem.prototype.getLabel = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 14, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.providers.v1beta2.CatalogItem} returns this
+ */
+proto.fonoster.providers.v1beta2.CatalogItem.prototype.setLabel = function(value) {
+  return jspb.Message.setProto3StringField(this, 14, value);
 };
 
 

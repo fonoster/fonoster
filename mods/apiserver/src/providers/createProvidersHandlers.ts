@@ -105,14 +105,16 @@ export function createProvidersHandlers(
         : []
     ]);
     // Only usable providers (4.1): an adapter in this version and, when the platform's
-    // credentials are configured, one of them or the workspace's own key.
+    // credentials are configured, one of them, the workspace's own key, or no key needed.
     const own = new Set(keys.map((k) => k.providerId as string));
+    const keyless = (p: Row) => !p.credentialRef;
     const usable = new Set(
       allProviders
         .filter(
           (p) =>
             RegistryNs.BUILT_IN_ADAPTERS.includes(p.adapter as string) &&
             (!options.platformCredentials ||
+              keyless(p) ||
               options.platformCredentials.includes(p.credentialRef as string) ||
               own.has(p.id as string))
         )
@@ -129,9 +131,11 @@ export function createProvidersHandlers(
         .map((p) => ({
           id: p.id,
           kind: "provider",
+          label: p.label ?? "",
           state: lifecycle(p.state as string),
           providerId: p.id,
           capabilities: p.capabilities,
+          keyless: keyless(p),
           replacement: p.replacement ?? "",
           retireOn: p.retireOn ?? ""
         })),
@@ -140,6 +144,7 @@ export function createProvidersHandlers(
         .map((m) => ({
           id: m.id,
           kind: "model",
+          label: m.label ?? "",
           state: lifecycle(m.state as string),
           providerId: m.providerId,
           type: m.type,
@@ -153,6 +158,7 @@ export function createProvidersHandlers(
         .map((v) => ({
           id: v.id,
           kind: "voice",
+          label: v.label ?? "",
           state: lifecycle(v.state as string),
           providerId: v.providerId,
           type: "tts",

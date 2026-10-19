@@ -29,22 +29,22 @@ async function applyCatalog(
   file: string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prisma: any,
-  options: { testMode?: boolean } = {}
+  /** The config key that names the file, for errors and the audit log. */
+  key = "catalog.file"
 ): Promise<string[]> {
   let content: string;
   try {
     content = fs.readFileSync(file, "utf8");
   } catch (e) {
     throw new Error(
-      `catalog.file ${file} could not be read: ${(e as Error).message}`
+      `${key} ${file} could not be read: ${(e as Error).message}`
     );
   }
   const store = await RegistryNs.PrismaRegistryStore.open(prisma);
   const registry = new RegistryNs.Registry({
     store,
     actor: "apiserver",
-    testMode: options.testMode,
-    commandLine: `apiserver catalog.file ${file}`
+    commandLine: `apiserver ${key} ${file}`
   });
   const lines = registry.apply(content);
   await store.flush();

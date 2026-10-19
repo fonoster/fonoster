@@ -58,6 +58,10 @@ message CatalogItem {
   // Deprecated items: the suggested replacement and the retirement date (YYYY-MM-DD)
   string replacement = 11;
   string retire_on = 12;
+  // Providers: the adapter needs no key (fake, local models); no vendor key to ask for
+  bool keyless = 13;
+  // A display name ("Aura 2 Thalia"); empty when the entry has none
+  string label = 14;
 }
 
 message ListCatalogRequest {

@@ -117,8 +117,16 @@ const registrySchema = z
  * The provider catalog file (add-self-host-installer D7): applied to the registry tables on
  * every start with `fonoster-registry apply --store database` semantics. Listed entries are added
  * or updated; entries not in the file (operator-added) are kept. Absent: nothing is applied.
+ *
+ * `files` are applied after `file`, in order (a stack's own catalogs, such as the fakes'
+ * mods/conformance/fakes.catalog.yaml in dev and test stacks).
  */
-const catalogSchema = z.object({ file: z.string().min(1) }).optional();
+const catalogSchema = z
+  .object({
+    file: z.string().min(1),
+    files: z.array(z.string().min(1)).optional()
+  })
+  .optional();
 
 /**
  * Assistant evaluations (EvaluateIntelligence): platform model keys by credentialRef, used when a

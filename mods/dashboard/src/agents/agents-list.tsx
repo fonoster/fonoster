@@ -38,9 +38,15 @@ import {
   numbersFor,
   useAgents,
   useAllNumbers,
+  useCatalog,
   useDeleteAgent
 } from "./agents.service";
-import { voiceName } from "./catalog";
+import {
+  EMPTY_CATALOG,
+  labelOf,
+  summaryOf,
+  type AgentCatalog
+} from "./catalog";
 import { CreateAgentDialog } from "./create-agent-dialog";
 import { CLI_COMMAND, CliHint } from "./parts";
 
@@ -50,18 +56,20 @@ const field = (config: Config, key: string) => {
   return typeof value === "string" ? value : "";
 };
 
-/** One list row's columns, derived from the agent and the workspace's numbers. */
-export function agentRow(app: Application, numbers: INumber[] | undefined) {
+/** One list row's columns, derived from the agent, the workspace's numbers and the catalog. */
+export function agentRow(
+  app: Application,
+  numbers: INumber[] | undefined,
+  catalog: AgentCatalog = EMPTY_CATALOG
+) {
   const routed = numbersFor(numbers, app.ref);
   const languageModel = (app.intelligence?.config as Config)?.languageModel as
     | Config
     | undefined;
   // The session model: catalog ids on the assistant and on the app's speech defaults.
-  const [provider, ...modelRest] = field(languageModel, "model").split("/");
-  const model = modelRest.join("/");
+  const model = field(languageModel, "model");
   const speech = (app as { speech?: Config }).speech;
-  const [voiceVendor, ...voiceRest] = field(speech, "voice").split("/");
-  const voice = voiceRest.join("/");
+  const voice = field(speech, "voice");
   const language = field(speech, "language");
   return {
     numbers:
@@ -69,9 +77,9 @@ export function agentRow(app: Application, numbers: INumber[] | undefined) {
         ? "No numbers"
         : formatNumber(routed[0].telUrl) +
           (routed.length > 1 ? ` +${routed.length - 1}` : ""),
-    model: [provider, model].filter(Boolean).join(" · ") || "—",
+    model: summaryOf(catalog, catalog.llm, model),
     voice:
-      [voice && voiceName(`tts.${voiceVendor}`, voice), language]
+      [voice && labelOf(catalog.voices, voice), language]
         .filter(Boolean)
         .join(" · ") || "—"
   };
@@ -80,6 +88,7 @@ export function agentRow(app: Application, numbers: INumber[] | undefined) {
 export function AgentsList() {
   const list = useAgents();
   const numbers = useAllNumbers();
+  const catalog = useCatalog().data;
   const navigate = useNavigate();
   const workspace = useWorkspace();
   const [query, setQuery] = useState("");
@@ -113,7 +122,7 @@ export function AgentsList() {
       header: "Numbers",
       className: "w-44",
       cell: (app) => {
-        const { numbers: text } = agentRow(app, numbers.data);
+        const { numbers: text } = agentRow(app, numbers.data, catalog);
         return text === "No numbers" ? (
           <MutedCell>{text}</MutedCell>
         ) : (
@@ -124,12 +133,16 @@ export function AgentsList() {
     {
       header: "Model",
       className: "w-48",
-      cell: (app) => <MutedCell>{agentRow(app, numbers.data).model}</MutedCell>
+      cell: (app) => (
+        <MutedCell>{agentRow(app, numbers.data, catalog).model}</MutedCell>
+      )
     },
     {
       header: "Voice · Language",
       className: "w-52",
-      cell: (app) => <MutedCell>{agentRow(app, numbers.data).voice}</MutedCell>
+      cell: (app) => (
+        <MutedCell>{agentRow(app, numbers.data, catalog).voice}</MutedCell>
+      )
     },
     {
       header: "Updated",

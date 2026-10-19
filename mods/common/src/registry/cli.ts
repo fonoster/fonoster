@@ -93,11 +93,16 @@ const str = (v: string | true | undefined, name: string) => {
   return v;
 };
 
+/** An optional string flag (`--label` given without a value is ignored). */
+const opt = (v: string | true | undefined) =>
+  typeof v === "string" && v ? v : undefined;
+
 const HELP = `fonoster-registry <command>
 
-  add-provider <id> --adapter <a> --capabilities stt,tts --credential-ref <name>
+  add-provider <id> --adapter <a> --capabilities stt,tts [--credential-ref <name>] [--endpoints tts=<url>,stt=<url>]
   add-model <provider/model> --type stt|tts|llm [--features a,b] [--languages en,es] [--settings s]
   add-voice <provider/voice> --models <m1,m2> [--language en] [--gender female]
+                          add-* take [--label "<display name>"]; no --credential-ref: keyless
   deprecate-provider|deprecate-model|deprecate-voice <id> --replacement <id> --retire-on YYYY-MM-DD
   retire-provider|retire-model|retire-voice <id> [--voice-map old=new,...] --yes
   usage <id> | list [provider|model|voice] | show <id> | history [<id>]
@@ -114,6 +119,8 @@ const OPTIONS: Record<string, string[]> = {
     "adapter",
     "capabilities",
     "credential-ref",
+    "endpoints",
+    "label",
     "type",
     "features",
     "languages",
@@ -137,7 +144,6 @@ export function run(
     store: new FileRegistryStore(
       process.env.FONOSTER_REGISTRY_FILE ?? "registry.json"
     ),
-    testMode: process.env.FONOSTER_TEST_MODE === "true",
     commandLine: commandLine(argv)
   });
   return execute(registry, command, positional, flags, out);
@@ -195,7 +201,6 @@ export async function runWithDatabase(
       store,
       usages,
       actor: deps.actor,
-      testMode: process.env.FONOSTER_TEST_MODE === "true",
       commandLine: commandLine(argv)
     });
     const sessions =
@@ -261,7 +266,18 @@ function execute(
           id,
           adapter: str(flags.adapter, "adapter"),
           capabilities: list(flags.capabilities) as Capability[],
-          credentialRef: str(flags["credential-ref"], "credential-ref")
+          credentialRef: opt(flags["credential-ref"]),
+          label: opt(flags.label),
+          endpoints: Object.fromEntries(
+            list(flags.endpoints).map((pair) => {
+              const at = pair.indexOf("=");
+              if (at <= 0)
+                throw new RegistryError(
+                  "--endpoints takes capability=url pairs, e.g. tts=http://fakes:7001"
+                );
+              return [pair.slice(0, at), pair.slice(at + 1)];
+            })
+          )
         });
         break;
       }
@@ -271,7 +287,8 @@ function execute(
           type: str(flags.type, "type") as Capability,
           features: list(flags.features),
           languages: list(flags.languages),
-          settings: list(flags.settings)
+          settings: list(flags.settings),
+          label: opt(flags.label)
         });
         break;
       case "add-voice":
@@ -279,7 +296,8 @@ function execute(
           id,
           models: list(flags.models),
           language: flags.language as string | undefined,
-          gender: flags.gender as string | undefined
+          gender: flags.gender as string | undefined,
+          label: opt(flags.label)
         });
         break;
       case "deprecate-provider":

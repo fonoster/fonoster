@@ -44,7 +44,6 @@ function configFor(harness: RealMediaHarness, endpoint: string): GatewayConfig {
   const urls = harness.providerUrls;
   return {
     nats: { url: NATS_URL! },
-    testMode: true,
     retry: { windowMs: 600, intervalMs: 100 },
     apps: appsFor({ name: "observability" } as Scenario, harness, "fonoster"),
     providers: {

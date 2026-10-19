@@ -68,7 +68,6 @@ function configFor(
   const urls = harness.providerUrls;
   return {
     nats: { url: NATS_URL! },
-    testMode: true,
     retry: { windowMs: 600, intervalMs: 100 },
     apps: appsFor(scenario, harness, "fonoster"),
     providers: {

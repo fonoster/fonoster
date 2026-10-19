@@ -5,45 +5,45 @@
 # dashboard (Settings, provider keys).
 entries:
   # ---- providers -------------------------------------------------------------------------
-  - { kind: provider, id: deepgram, adapter: deepgram, capabilities: [stt, tts], credentialRef: deepgram-default, state: active }
-  - { kind: provider, id: elevenlabs, adapter: elevenlabs, capabilities: [tts], credentialRef: elevenlabs-default, state: active }
-  - { kind: provider, id: openai, adapter: openai, capabilities: [llm], credentialRef: openai-default, state: active }
-  - { kind: provider, id: groq, adapter: groq, capabilities: [llm], credentialRef: groq-default, state: active }
+  - { kind: provider, id: deepgram, label: "Deepgram", adapter: deepgram, capabilities: [stt, tts], credentialRef: deepgram-default, state: active }
+  - { kind: provider, id: elevenlabs, label: "ElevenLabs", adapter: elevenlabs, capabilities: [tts], credentialRef: elevenlabs-default, state: active }
+  - { kind: provider, id: openai, label: "OpenAI", adapter: openai, capabilities: [llm], credentialRef: openai-default, state: active }
+  - { kind: provider, id: groq, label: "Groq", adapter: groq, capabilities: [llm], credentialRef: groq-default, state: active }
   # ---- models ----------------------------------------------------------------------------
-  - { kind: model, id: deepgram/nova-3, type: stt, features: [streaming, interim-results, word-timings, multilingual], languages: [en, es, multi], settings: [], state: active }
-  - { kind: model, id: deepgram/nova-2-phonecall, type: stt, features: [streaming, interim-results, word-timings], languages: [en], settings: [], state: active }
-  - { kind: model, id: deepgram/aura-2, type: tts, features: [streaming], languages: [en, es], settings: [], state: active }
-  - { kind: model, id: elevenlabs/eleven_flash_v2_5, type: tts, features: [streaming], languages: [en, es, multi], settings: [stability, similarity_boost, style, speed], state: active }
-  - { kind: model, id: openai/gpt-4o-mini, type: llm, features: [streaming, tool-calling, json-mode], languages: [], settings: [], state: active }
+  - { kind: model, id: deepgram/nova-3, label: "Nova 3", type: stt, features: [streaming, interim-results, word-timings, multilingual], languages: [en, es, multi], settings: [], state: active }
+  - { kind: model, id: deepgram/nova-2-phonecall, label: "Nova 2 Phone Call", type: stt, features: [streaming, interim-results, word-timings], languages: [en], settings: [], state: active }
+  - { kind: model, id: deepgram/aura-2, label: "Aura 2", type: tts, features: [streaming], languages: [en, es], settings: [], state: active }
+  - { kind: model, id: elevenlabs/eleven_flash_v2_5, label: "Eleven Flash v2.5", type: tts, features: [streaming], languages: [en, es, multi], settings: [stability, similarity_boost, style, speed], state: active }
+  - { kind: model, id: openai/gpt-4o-mini, label: "GPT-4o Mini", type: llm, features: [streaming, tool-calling, json-mode], languages: [], settings: [], state: active }
   # Groq serves OpenAI's open-weight models (catalog id = groq/<Groq model name>). Groq retired
   # Llama 3.3 70B; assistants that still name it run on gpt-oss-120b (FN-B5).
-  - { kind: model, id: groq/openai/gpt-oss-120b, type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
-  - { kind: model, id: groq/openai/gpt-oss-20b, type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
-  - { kind: model, id: groq/llama-3.3-70b-versatile, type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: retired, replacement: groq/openai/gpt-oss-120b, retireOn: "2026-10-15" }
-  - { kind: model, id: openai/gpt-4.1-mini, type: llm, features: [streaming, tool-calling, json-mode], languages: [], settings: [], state: active }
+  - { kind: model, id: groq/openai/gpt-oss-120b, label: "GPT-OSS 120B", type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
+  - { kind: model, id: groq/openai/gpt-oss-20b, label: "GPT-OSS 20B", type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
+  - { kind: model, id: groq/llama-3.3-70b-versatile, label: "Llama 3.3 70B Versatile", type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: retired, replacement: groq/openai/gpt-oss-120b, retireOn: "2026-10-15" }
+  - { kind: model, id: openai/gpt-4.1-mini, label: "GPT-4.1 Mini", type: llm, features: [streaming, tool-calling, json-mode], languages: [], settings: [], state: active }
   # ---- voices: Deepgram Aura-2 (catalog id = deepgram/<Deepgram model name>) ---------------
-  - { kind: voice, id: deepgram/aura-2-thalia-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-andromeda-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-helena-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-luna-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-asteria-en, models: [deepgram/aura-2], language: en-US, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-apollo-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-arcas-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-orion-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-zeus-en, models: [deepgram/aura-2], language: en-US, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-draco-en, models: [deepgram/aura-2], language: en-GB, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-celeste-es, models: [deepgram/aura-2], language: es-CO, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-estrella-es, models: [deepgram/aura-2], language: es-MX, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-selena-es, models: [deepgram/aura-2], language: es-419, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-aquila-es, models: [deepgram/aura-2], language: es-419, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-javier-es, models: [deepgram/aura-2], language: es-MX, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-nestor-es, models: [deepgram/aura-2], language: es-ES, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-thalia-en, label: "Aura 2 Thalia", models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-andromeda-en, label: "Aura 2 Andromeda", models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-helena-en, label: "Aura 2 Helena", models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-luna-en, label: "Aura 2 Luna", models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-asteria-en, label: "Aura 2 Asteria", models: [deepgram/aura-2], language: en-US, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-apollo-en, label: "Aura 2 Apollo", models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-arcas-en, label: "Aura 2 Arcas", models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-orion-en, label: "Aura 2 Orion", models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-zeus-en, label: "Aura 2 Zeus", models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-draco-en, label: "Aura 2 Draco", models: [deepgram/aura-2], language: en-GB, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-celeste-es, label: "Aura 2 Celeste", models: [deepgram/aura-2], language: es-CO, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-estrella-es, label: "Aura 2 Estrella", models: [deepgram/aura-2], language: es-MX, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-selena-es, label: "Aura 2 Selena", models: [deepgram/aura-2], language: es-419, gender: female, state: active }
+  - { kind: voice, id: deepgram/aura-2-aquila-es, label: "Aura 2 Aquila", models: [deepgram/aura-2], language: es-419, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-javier-es, label: "Aura 2 Javier", models: [deepgram/aura-2], language: es-MX, gender: male, state: active }
+  - { kind: voice, id: deepgram/aura-2-nestor-es, label: "Aura 2 Nestor", models: [deepgram/aura-2], language: es-ES, gender: male, state: active }
   # ---- voices: ElevenLabs premade (catalog id = elevenlabs/<voice id>) -------------------
-  - { kind: voice, id: elevenlabs/21m00Tcm4TlvDq8ikWAM, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Rachel
-  - { kind: voice, id: elevenlabs/EXAVITQu4vr4xnSDxMaL, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Sarah
-  - { kind: voice, id: elevenlabs/cgSgspJ2msm6clMCkdW9, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Jessica
-  - { kind: voice, id: elevenlabs/XrExE9yKIg1WjnnlVkGX, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active } # Matilda
-  - { kind: voice, id: elevenlabs/JBFqnCBsd6RMkjVDRZzb, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # George
-  - { kind: voice, id: elevenlabs/nPczCjzI2devNBz1zQrb, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # Brian
-  - { kind: voice, id: elevenlabs/cjVigY5qzO86Huf0OWal, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # Eric
-  - { kind: voice, id: elevenlabs/onwK4e9ZLuTAKqWW03F9, models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active } # Daniel
+  - { kind: voice, id: elevenlabs/21m00Tcm4TlvDq8ikWAM, label: "Rachel", models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active }
+  - { kind: voice, id: elevenlabs/EXAVITQu4vr4xnSDxMaL, label: "Sarah", models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active }
+  - { kind: voice, id: elevenlabs/cgSgspJ2msm6clMCkdW9, label: "Jessica", models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active }
+  - { kind: voice, id: elevenlabs/XrExE9yKIg1WjnnlVkGX, label: "Matilda", models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: female, state: active }
+  - { kind: voice, id: elevenlabs/JBFqnCBsd6RMkjVDRZzb, label: "George", models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active }
+  - { kind: voice, id: elevenlabs/nPczCjzI2devNBz1zQrb, label: "Brian", models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active }
+  - { kind: voice, id: elevenlabs/cjVigY5qzO86Huf0OWal, label: "Eric", models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active }
+  - { kind: voice, id: elevenlabs/onwK4e9ZLuTAKqWW03F9, label: "Daniel", models: [elevenlabs/eleven_flash_v2_5], language: multi, gender: male, state: active }

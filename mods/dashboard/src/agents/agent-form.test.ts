@@ -23,7 +23,7 @@ import {
   toUpdateRequest,
   toValues
 } from "./agent-form";
-import { billingAgent } from "./fixtures";
+import { billingAgent, fakeOnlyCatalog, sampleCatalog } from "./fixtures";
 import { templateValues } from "./templates";
 
 describe("agent payload", () => {
@@ -67,9 +67,9 @@ describe("agent payload", () => {
       speech: request.speech,
       intelligence: { productRef: "llm.openai", config }
     } as never);
-    expect(again.model.provider).toBe("openai");
-    expect(again.model.model).toBe("gpt-4o-mini");
-    expect(again.tts.voice).toBe("aura-2-celeste-es");
+    expect(again.model.model).toBe("openai/gpt-4o-mini");
+    expect(again.tts.voice).toBe("deepgram/aura-2-celeste-es");
+    expect(again.stt.model).toBe("deepgram/nova-3");
   });
 
   it("keeps the call handling the agent page doesn't edit", () => {
@@ -190,7 +190,9 @@ describe("agent payload", () => {
   });
 
   it("builds a create payload from a template", () => {
-    const request = toRequest(templateValues("reminders", "Cobros", "es-419"));
+    const request = toRequest(
+      templateValues("reminders", "Cobros", "es-419", sampleCatalog)
+    );
     expect(request).toMatchObject({
       name: "Cobros",
       type: "AUTOPILOT",
@@ -213,7 +215,23 @@ describe("agent payload", () => {
     expect(config.conversationSettings.firstMessage).toMatch(/^Hola/);
     expect(config).not.toHaveProperty("eventsHook");
     expect(
-      agentSchema.safeParse(templateValues("blank", "x", "en-US")).success
+      agentSchema.safeParse(
+        templateValues("blank", "x", "en-US", sampleCatalog)
+      ).success
     ).toBe(true);
+  });
+
+  it("creates an agent on the fakes when the workspace can use only them", () => {
+    const request = toRequest(
+      templateValues("blank", "Dev", "en-US", fakeOnlyCatalog)
+    );
+    expect(request.speech).toEqual({
+      voice: "fake/default",
+      language: "en-US",
+      sttModel: "fake/stt"
+    });
+    expect((request.intelligence!.config as any).languageModel.model).toBe(
+      "fake/llm"
+    );
   });
 });

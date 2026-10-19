@@ -188,7 +188,11 @@ model RegistryProvider {
   id            String        @id @db.VarChar(64)
   adapter       String        @db.VarChar(64)
   capabilities  String[]
-  credentialRef String        @map("credential_ref") @db.VarChar(128)
+  /// Null for a keyless provider (no key needed).
+  credentialRef String?       @map("credential_ref") @db.VarChar(128)
+  label         String?       @db.VarChar(255)
+  /// Where the provider serves each capability ({tts, stt, llm} URLs); {} when it names none.
+  endpoints     Json          @default("{}")
   state         RegistryState @default(ACTIVE)
   replacement   String?       @db.VarChar(255)
   retireOn      String?       @map("retire_on") @db.VarChar(10)
@@ -201,6 +205,7 @@ model RegistryProvider {
 model RegistryModel {
   id          String        @id @db.VarChar(255)
   providerId  String        @map("provider_id") @db.VarChar(64)
+  label       String?       @db.VarChar(255)
   type        String        @db.VarChar(8)
   features    String[]
   languages   String[]
@@ -218,6 +223,7 @@ model RegistryModel {
 model RegistryVoice {
   id             String        @id @db.VarChar(255)
   providerId     String        @map("provider_id") @db.VarChar(64)
+  label       String?       @db.VarChar(255)
   language       String?       @db.VarChar(64)
   gender         String?       @db.VarChar(32)
   ownerWorkspace String?       @map("owner_workspace")

@@ -702,7 +702,7 @@ describe("@common[config/cli] fonoster-config", function () {
       const overlay = mkdtempSync(join(tmpdir(), "overlay-"));
       writeFileSync(
         join(overlay, "gateway.yaml"),
-        'testMode: true\nproviders:\n  deepgram: { adapter: fake, tts: { url: "http://fakes:${FAKE_PORT}" } }\n'
+        'providers:\n  deepgram: { tts: { url: "http://dg-proxy:${PROXY_PORT}" } }\n'
       );
       const run = await cli([
         "render",
@@ -714,17 +714,16 @@ describe("@common[config/cli] fonoster-config", function () {
         overlay
       ]);
       expect(run.code, run.err).to.equal(1);
-      expect(run.err).to.contain("${FAKE_PORT} is not set");
-      appendFileSync(join(dir, ".env"), "FAKE_PORT=7001\n");
+      expect(run.err).to.contain("${PROXY_PORT} is not set");
+      appendFileSync(join(dir, ".env"), "PROXY_PORT=8080\n");
       expect(
         (await cli(["render", "--dir", dir, "--overlay", overlay])).code
       ).to.equal(0);
       const gw = yamlOf(dir, "gateway.yaml");
-      expect(gw.testMode).to.equal(true);
       expect(gw.providers.deepgram).to.deep.equal({
-        adapter: "fake",
+        adapter: "deepgram",
         capabilities: ["tts", "stt"],
-        tts: { url: "http://fakes:${FAKE_PORT}" }
+        tts: { url: "http://dg-proxy:${PROXY_PORT}" }
       });
       expect(gw.providers.elevenlabs.adapter).to.equal("elevenlabs");
     });
@@ -756,7 +755,7 @@ describe("@common[config/cli] fonoster-config", function () {
 
   describe("helpers and usage", function () {
     it("suggests the closest known key for a typo only", function () {
-      expect(suggestKey("turnTakng", ["turnTaking", "testMode"])).to.equal(
+      expect(suggestKey("turnTakng", ["turnTaking", "telemetry"])).to.equal(
         "turnTaking"
       );
       expect(suggestKey("databse", ["database", "nats"])).to.equal("database");

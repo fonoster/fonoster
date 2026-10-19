@@ -125,10 +125,10 @@ export function SelectField({
   const { field } = useController({ control, name });
   const error = useFieldError(name);
   const value = String(field.value ?? "");
-  // Keep values saved outside the catalog selectable.
+  // Keep a saved value the workspace can no longer pick, marked as such.
   const all =
     value && !options.some((o) => o.value === value)
-      ? [{ value, label: value }, ...options]
+      ? [{ value, label: `${value} (unavailable)` }, ...options]
       : options;
   return (
     <Field label={label} hint={hint} error={error}>

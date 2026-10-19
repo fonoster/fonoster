@@ -142,7 +142,7 @@ export const hostedConfigSchema = z
       })
       .strict()
       .optional(),
-    /** Endpoint overrides by adapter or provider id (e.g. a local ollama, the fake LLM). */
+    /** Endpoint overrides by provider or adapter id (e.g. a local ollama); the catalog's otherwise. */
     endpoints: z.record(z.string()).default({}),
     /** The S3 + Unstructured knowledge bases; keys by credentialRef (task 4.1). */
     knowledge: z
@@ -166,8 +166,7 @@ export const hostedConfigSchema = z
       .strict()
       .optional(),
     /** OTLP export (empty = off): `otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}"`. */
-    telemetry: telemetrySchema,
-    testMode: z.boolean().default(false)
+    telemetry: telemetrySchema
   })
   .strict();
 
@@ -436,18 +435,15 @@ export function hostedOptions(
   let prisma: any = deps.prisma;
   const db = () => (prisma ??= databaseOf(config));
   const store = registryStore(config, db);
-  const registry = new Registry.Registry({
-    store,
-    testMode: config.testMode
-  });
+  const registry = new Registry.Registry({ store });
   const providers = () =>
     store
       .all()
-      .filter((e) => e.kind === "provider")
-      .map((e) => ({
-        id: e.id,
-        credentialRef: (e as { credentialRef: string }).credentialRef
-      }));
+      .filter(
+        (e): e is Registry.ProviderEntry =>
+          e.kind === "provider" && Boolean(e.credentialRef)
+      )
+      .map((e) => ({ id: e.id, credentialRef: e.credentialRef! }));
   const workspace = config.workspaceSecrets;
   const credentials = new LayeredCredentials([
     ...(workspace

@@ -135,7 +135,8 @@ export const catalog: Catalog = {
   ],
   providers: [
     { id: "deepgram", label: "Deepgram", state: "active" },
-    { id: "elevenlabs", label: "ElevenLabs", state: "active" }
+    { id: "elevenlabs", label: "ElevenLabs", state: "active" },
+    { id: "fake", label: "Fakes", state: "active", keyless: true }
   ]
 };
 

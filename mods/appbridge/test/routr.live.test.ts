@@ -22,11 +22,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import * as readline from "readline";
-import {
-  buildRoomr,
-  FakesHarness,
-  RoomrBinaries
-} from "@fonoster/conformance";
+import { buildRoomr, FakesHarness, RoomrBinaries } from "@fonoster/conformance";
 import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
 import { Gateway } from "../src/Gateway";
@@ -212,7 +208,6 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
       nats: nc,
       config: {
         nats: { url: NATS_URL },
-        testMode: true,
         apps: [
           {
             ref: ROUTING.appRef,

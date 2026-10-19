@@ -29,7 +29,6 @@ import type {
 } from "@fonoster/types";
 import { z } from "zod";
 import { mergeUpdate } from "~/lib/app-request";
-import { MULTILINGUAL_MODELS, type LlmProvider } from "./catalog";
 
 const POSITIVE = "Must be a positive number";
 const NUMBER = "Enter a number";
@@ -116,8 +115,8 @@ export const agentSchema = z
       .trim()
       .min(1, "Name the agent")
       .max(255, "Use at most 255 characters"),
+    // Catalog ids (deepgram/aura-2-thalia-en); the provider is the id's prefix.
     tts: z.object({
-      productRef: z.enum(["tts.deepgram", "tts.elevenlabs"]),
       voice: z.string().min(1, "Pick a voice")
     }),
     stt: z.object({
@@ -145,7 +144,6 @@ export const agentSchema = z
       transferMessage: z.string()
     }),
     model: z.object({
-      provider: z.enum(["openai", "groq", "google", "anthropic", "ollama"]),
       model: z.string().trim().min(1, "Pick a model"),
       temperature: num().min(0, BETWEEN_0_AND_2).max(2, BETWEEN_0_AND_2),
       maxTokens: positiveInt()
@@ -153,15 +151,6 @@ export const agentSchema = z
     tools: z.array(toolSchema)
   })
   .superRefine((values, ctx) => {
-    if (
-      values.stt.languageCode === "multi" &&
-      !MULTILINGUAL_MODELS.includes(values.stt.model)
-    )
-      ctx.addIssue({
-        code: "custom",
-        message: "Multilingual needs Nova 3 or Nova 2",
-        path: ["stt", "model"]
-      });
     const names = new Set<string>();
     values.tools.forEach((tool, index) => {
       if (names.has(tool.name))
@@ -189,6 +178,8 @@ export const DEFAULTS = {
 
 /** The app's default voice when it names none (the API's DEFAULT_VOICE). */
 const DEFAULT_VOICE = "deepgram/aura-2-thalia-en";
+/** Shown for an agent saved before it named a transcriber. */
+const DEFAULT_STT = "deepgram/nova-3";
 
 export const EMPTY_TOOL: ToolValues = {
   name: "",
@@ -251,25 +242,16 @@ export function toValues(app: Application): AgentValues {
   const config = obj(app.intelligence?.config);
   // The session app model (CP-B13): catalog ids on the app's speech defaults.
   const speech = obj(app.speech);
-  const [voiceVendor, ...voiceRest] = (
-    str(speech.voice) || DEFAULT_VOICE
-  ).split("/");
-  const sttModel = str(speech.sttModel).split("/").slice(1).join("/");
   const conversation = obj(config.conversationSettings);
   const idle = obj(conversation.idleOptions);
   const transfer = obj(conversation.transferOptions);
   const languageModel = obj(config.languageModel);
-  const [modelVendor, ...modelRest] = str(languageModel.model).split("/");
 
   return {
     name: app.name ?? "",
-    tts: {
-      productRef:
-        voiceVendor === "elevenlabs" ? "tts.elevenlabs" : "tts.deepgram",
-      voice: voiceRest.join("/")
-    },
+    tts: { voice: str(speech.voice) || DEFAULT_VOICE },
     stt: {
-      model: sttModel || "nova-3",
+      model: str(speech.sttModel) || DEFAULT_STT,
       languageCode: str(speech.language, "en-US")
     },
     conversation: {
@@ -292,8 +274,7 @@ export function toValues(app: Application): AgentValues {
       transferMessage: str(transfer.message)
     },
     model: {
-      provider: (modelRest.length ? modelVendor : "openai") as LlmProvider,
-      model: modelRest.join("/"),
+      model: str(languageModel.model),
       temperature: numOr(languageModel.temperature, DEFAULTS.temperature),
       maxTokens: numOr(languageModel.maxTokens, DEFAULTS.maxTokens)
     },
@@ -391,7 +372,7 @@ export function toRequest(
   };
 
   const languageModel = {
-    model: `${m.provider}/${m.model.trim()}`,
+    model: m.model.trim(),
     temperature: m.temperature,
     maxTokens: m.maxTokens,
     tools: values.tools.map(toolToConfig),
@@ -405,9 +386,9 @@ export function toRequest(
     // @fonoster/types is CommonJS: no runtime enum imports in the browser.
     type: "AUTOPILOT" as CreateApplicationRequest["type"],
     speech: {
-      voice: `${values.tts.productRef.replace(/^tts\./, "")}/${values.tts.voice}`,
+      voice: values.tts.voice,
       language: values.stt.languageCode,
-      sttModel: `deepgram/${values.stt.model}`
+      sttModel: values.stt.model
     },
     intelligence: {
       config: {
@@ -446,10 +427,8 @@ export function tabsWithErrors(errors: object): string[] {
   if (e.name || e.tts || e.stt) tabs.add("configure");
   if (e.model) {
     const keys = Object.keys(e.model);
-    if (keys.some((k) => k === "provider" || k === "model"))
-      tabs.add("configure");
-    if (keys.some((k) => !["provider", "model"].includes(k)))
-      tabs.add("advanced");
+    if (keys.includes("model")) tabs.add("configure");
+    if (keys.some((k) => k !== "model")) tabs.add("advanced");
   }
   const onConfigure = [
     "firstMessage",

@@ -47,6 +47,12 @@ export class CatalogItem extends jspb.Message {
   getRetireOn(): string;
   setRetireOn(value: string): CatalogItem;
 
+  getKeyless(): boolean;
+  setKeyless(value: boolean): CatalogItem;
+
+  getLabel(): string;
+  setLabel(value: string): CatalogItem;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CatalogItem.AsObject;
   static toObject(includeInstance: boolean, msg: CatalogItem): CatalogItem.AsObject;
@@ -69,6 +75,8 @@ export namespace CatalogItem {
     gender: string,
     replacement: string,
     retireOn: string,
+    keyless: boolean,
+    label: string,
   }
 }
 

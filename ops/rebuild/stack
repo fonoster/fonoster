@@ -16,8 +16,8 @@
 #   ops/rebuild/stack reset     down and delete volumes and ops/rebuild/.local
 #
 # Real vendors: put DEEPGRAM_API_KEY, ELEVENLABS_API_KEY, GROQ_API_KEY and/or OPENAI_API_KEY in
-# ops/rebuild/.local/vendor.env (or export them) before `up` and `seed`. Without them the stack
-# uses the fake providers.
+# ops/rebuild/.local/vendor.env (or export them) before `up` and `seed`. The demo app gets what
+# the catalog then offers (docs/try-the-new-platform.md).
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -139,22 +139,6 @@ detect_host_ip() {
   echo "$ip"
 }
 
-# The seeded app's voice and model follow the keys present (docs/try-the-new-platform.md):
-# Deepgram Aura-2 (ElevenLabs when only its key is set), gpt-oss-120b on Groq (else OpenAI
-# gpt-4o-mini, which the fake LLM answers without a key). RB_DEFAULT_VOICE / RB_DEFAULT_MODEL
-# override them.
-default_voice() {
-  if [ -n "${RB_DEFAULT_VOICE:-}" ]; then echo "$RB_DEFAULT_VOICE"
-  elif [ -z "${DEEPGRAM_API_KEY:-}" ] && [ -n "${ELEVENLABS_API_KEY:-}" ]; then
-    echo "elevenlabs/${RB_ELEVENLABS_VOICE:-EXAVITQu4vr4xnSDxMaL}"
-  else echo "deepgram/aura-2-thalia-en"; fi
-}
-default_model() {
-  if [ -n "${RB_DEFAULT_MODEL:-}" ]; then echo "$RB_DEFAULT_MODEL"
-  elif [ -n "${GROQ_API_KEY:-}" ]; then echo "groq/openai/gpt-oss-120b"
-  else echo "openai/gpt-4o-mini"; fi
-}
-
 # ---- configs (rendered on every `up`, from stack.env and the vendor keys present) ----
 
 render_configs() {
@@ -213,45 +197,41 @@ render_configs() {
   fi
   chmod 644 "$CONF/keys/region-operator.key"
 
-  # The bundle's config folder (static files and examples), then the stack's own layer: fake
-  # providers or vendor keys (overlays deep-merged into the rendered YAML; ops/bundle has neither).
+  # The bundle's config folder (static files and examples), then the stack's own layer: vendor
+  # keys and, with the fakes profile, the fakes' catalog (overlays deep-merged into the rendered
+  # YAML; ops/bundle has neither).
   cp -R "$BUNDLE/config/." "$CONF/"
   rm -rf "$OVERLAY" && mkdir -p "$OVERLAY"
 
-  # Speech providers: the vendor when its key is present, else the fake (fakes service).
-  {
-    echo "# Fake adapters are allowed (test mode) so the stack runs without vendor keys."
-    echo "testMode: true"
-    echo "providers:"
-    if [ -n "${DEEPGRAM_API_KEY:-}" ]; then
-      echo "  deepgram: { credential: { value: \"\${DEEPGRAM_API_KEY}\" } }"
-    else
-      echo "  deepgram: { adapter: fake, tts: { url: \"http://fakes:7001\" }, stt: { url: \"ws://fakes:7002\" } }"
-    fi
-    if [ -n "${ELEVENLABS_API_KEY:-}" ]; then
-      echo "  elevenlabs: { credential: { value: \"\${ELEVENLABS_API_KEY}\" } }"
-    fi
-  } > "$OVERLAY/gateway.yaml"
+  # Vendor keys become the gateway's and Autopilot's platform keys, and the API server offers
+  # workspaces only the providers with one (platformCredentials below), a key of their own, or no
+  # key needed. Without one, a vendor waits for a workspace key.
+  local keys=""
+  [ -n "${DEEPGRAM_API_KEY:-}" ] && keys+="  deepgram: { credential: { value: \"\${DEEPGRAM_API_KEY}\" } }"$'\n'
+  [ -n "${ELEVENLABS_API_KEY:-}" ] && keys+="  elevenlabs: { credential: { value: \"\${ELEVENLABS_API_KEY}\" } }"$'\n'
+  # An empty `providers:` would be null, which removes the bundle's providers in the merge.
+  if [ -n "$keys" ]; then printf 'providers:\n%s' "$keys"; else echo "{}"; fi > "$OVERLAY/gateway.yaml"
 
-  # The hosted Autopilot: a language-model provider without a platform key answers through the
-  # fake LLM (same ids).
-  local creds="" endpoints="" llm=""
-  if [ -n "${GROQ_API_KEY:-}" ]; then
-    llm+="groq "; creds+="  groq-default: { value: \"\${GROQ_API_KEY}\" }"$'\n'
-  else
-    creds+="  groq-default: { value: fake }"$'\n'; endpoints+="  groq: \"http://fakes:7003\""$'\n'
-  fi
-  if [ -n "${OPENAI_API_KEY:-}" ]; then
-    llm+="openai "; creds+="  openai-default: { value: \"\${OPENAI_API_KEY}\" }"$'\n'
-  else
-    creds+="  openai-default: { value: fake }"$'\n'; endpoints+="  openai: \"http://fakes:7003\""$'\n'
-  fi
-  [ -n "$endpoints" ] || endpoints="  {}"
-  printf 'credentials:\n%sendpoints:\n%s\n' "$creds" "$endpoints" > "$OVERLAY/autopilot.yaml"
+  local creds=""
+  [ -n "${GROQ_API_KEY:-}" ] && creds+="  groq-default: { value: \"\${GROQ_API_KEY}\" }"$'\n'
+  [ -n "${OPENAI_API_KEY:-}" ] && creds+="  openai-default: { value: \"\${OPENAI_API_KEY}\" }"$'\n'
+  [ -n "$creds" ] || creds="  {}"$'\n'
+  printf 'credentials:\n%s' "$creds" > "$OVERLAY/autopilot.yaml"
 
   # The API server: the region admin API (operator key) and, with the regions profile, the region
   # hub private regions link to (the bundle leaves both out; ops/rebuild/compose.yaml runs the hub).
+  local refs=""
+  [ -n "${DEEPGRAM_API_KEY:-}" ] && refs+="deepgram-default,"
+  [ -n "${ELEVENLABS_API_KEY:-}" ] && refs+="elevenlabs-default,"
+  [ -n "${GROQ_API_KEY:-}" ] && refs+="groq-default,"
+  [ -n "${OPENAI_API_KEY:-}" ] && refs+="openai-default,"
+  refs="${refs%,}"
   {
+    # The fakes profile runs the fake providers; their catalog makes them one more provider.
+    if [[ ",$(profiles)," == *",fakes,"* ]]; then
+      echo "catalog: { files: [/etc/fonoster/catalog.fakes.yaml] }"
+    fi
+    echo "registry: { platformCredentials: [$refs] }"
     echo "regions:"
     echo "  operatorKey: \"secret://file/opt/fonoster/keys/region-operator.key\""
     if [[ ",$(profiles)," == *",regions,"* ]] && [ -f "$CONF/region-hub.conf" ]; then
@@ -282,8 +262,7 @@ YAML
   # Containers read these as another user (local only).
   chmod 644 "$CONF/fonoster.yaml" "$CONF/gateway.yaml" "$CONF/autopilot.yaml" \
     "$CONF/roomr.yaml" "$CONF/routr-edgeport.yaml"
-  local speech="${DEEPGRAM_API_KEY:+deepgram }${ELEVENLABS_API_KEY:+elevenlabs }"
-  log "host address $host_ip; speech: ${speech:-fake }llm: ${llm:-fake }app defaults: $(default_voice), $(default_model)"
+  log "host address $host_ip; platform keys: ${refs:-none}"
 }
 
 wait_for() {
@@ -329,7 +308,6 @@ cmd_seed() {
   command -v node >/dev/null || die "node is required (and 'npm install' in the repository)"
   log "seeding through the API at localhost:$RB_API_PORT"
   (cd "$ROOT" && RB_API_ENDPOINT="localhost:$RB_API_PORT" RB_SEED_FILE="$SEED_FILE" \
-    RB_DEFAULT_VOICE="$(default_voice)" RB_DEFAULT_MODEL="$(default_model)" \
     node "$HERE/seed.cjs")
   # The apiserver points Autopilot apps at the hosted Autopilot itself (apps.autopilotUrl).
   [ "$(psql_fonoster "select url from applications where ref='$(seed_get app.ref)'")" = "ws://autopilot:3000" ] \

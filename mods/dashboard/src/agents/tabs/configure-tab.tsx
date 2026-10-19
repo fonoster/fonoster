@@ -21,24 +21,28 @@ import { ChevronDown, Phone } from "lucide-react";
 import { useId, useState, type ReactNode } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { Link } from "react-router-dom";
+import { Field } from "~/components/ui/field";
+import { Select } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
 import { useWorkspace } from "~/lib/workspace";
 import { approximateTokens, type AgentValues } from "../agent-form";
-import { formatNumber } from "../agents.service";
+import { formatNumber, useCatalog } from "../agents.service";
 import {
+  EMPTY_CATALOG,
   LANGUAGES,
-  LLM_MODELS,
-  LLM_PROVIDERS,
-  STT_MODELS,
-  TTS_PROVIDERS,
-  voicesFor,
-  type LlmProvider
+  providerOf,
+  providerOptions,
+  speaks,
+  summaryOf,
+  type AgentCatalog,
+  type CatalogOption
 } from "../catalog";
 import {
   SelectField,
   SwitchControl,
   TextField,
-  useFieldError
+  useFieldError,
+  type AgentPath
 } from "../fields";
 import { Panel, ValueBox, ValueInput } from "../parts";
 
@@ -87,19 +91,6 @@ function Conversation() {
       </div>
     </Panel>
   );
-}
-
-const labelOf = (
-  options: readonly { value: string; label: string }[],
-  value: string
-) => options.find((o) => o.value === value)?.label ?? value;
-
-/** "Aura 2 Celeste (es-co)" → name "Aura 2 Celeste", locale "es-co". */
-function splitVoice(label: string) {
-  const match = /^(.*?)\s*\(([^)]+)\)$/.exec(label);
-  return match
-    ? { name: match[1], locale: match[2] }
-    : { name: label, locale: "" };
 }
 
 /** A summary box ("OpenAI · gpt-4o-mini   temp 0.4 ⌄") that expands to its fields. */
@@ -153,106 +144,132 @@ function PickerRow({
   );
 }
 
-function ModelAndVoice() {
+/**
+ * A provider and one of its catalog items (a voice, a model). Switching the provider picks its
+ * first item; a saved item the workspace can no longer use stays, marked unavailable.
+ */
+function CatalogPicker({
+  name,
+  label,
+  catalog,
+  options
+}: {
+  name: AgentPath;
+  label: string;
+  catalog: AgentCatalog;
+  options: CatalogOption[];
+}) {
   const { setValue } = useFormContext<AgentValues>();
-  const [provider, model, temperature, ttsProvider, voice, sttModel, language] =
-    useWatch<
-      AgentValues,
-      [
-        "model.provider",
-        "model.model",
-        "model.temperature",
-        "tts.productRef",
-        "tts.voice",
-        "stt.model",
-        "stt.languageCode"
-      ]
-    >({
-      name: [
-        "model.provider",
-        "model.model",
-        "model.temperature",
-        "tts.productRef",
-        "tts.voice",
-        "stt.model",
-        "stt.languageCode"
-      ]
-    });
-  const voiceLabel = splitVoice(labelOf(voicesFor(ttsProvider), voice));
+  const value = String(useWatch<AgentValues>({ name }) ?? "");
+  const [provider, setProvider] = useState(providerOf(value));
+  const providers = providerOptions(catalog, options);
+  return (
+    <>
+      <Field label="Provider">
+        {(a11y) => (
+          <Select
+            {...a11y}
+            value={provider}
+            options={
+              provider && !providers.some((p) => p.value === provider)
+                ? [
+                    { value: provider, label: `${provider} (unavailable)` },
+                    ...providers
+                  ]
+                : providers
+            }
+            onValueChange={(next) => {
+              setProvider(next);
+              setValue(
+                name,
+                options.find((o) => o.provider === next)?.id ?? "",
+                { shouldDirty: true }
+              );
+            }}
+          />
+        )}
+      </Field>
+      <SelectField
+        name={name}
+        label={label}
+        options={options
+          .filter((o) => o.provider === provider)
+          .map((o) => ({ value: o.id, label: o.label }))}
+      />
+    </>
+  );
+}
+
+function ModelAndVoice() {
+  const catalog = useCatalog().data ?? EMPTY_CATALOG;
+  const [model, temperature, voice, sttModel, language] = useWatch<
+    AgentValues,
+    [
+      "model.model",
+      "model.temperature",
+      "tts.voice",
+      "stt.model",
+      "stt.languageCode"
+    ]
+  >({
+    name: [
+      "model.model",
+      "model.temperature",
+      "tts.voice",
+      "stt.model",
+      "stt.languageCode"
+    ]
+  });
+  const sttOptions = catalog.stt.filter((o) => speaks(o, language));
+  const voiceLocale = catalog.voices.find((o) => o.id === voice)?.languages[0];
 
   return (
     <Panel title="Model & voice">
       <div className="flex flex-col gap-3">
         <PickerRow
           label="Language model"
-          value={`${labelOf(LLM_PROVIDERS, provider)} · ${model || "—"}`}
+          value={summaryOf(catalog, catalog.llm, model)}
           meta={
             Number.isFinite(temperature) ? `temp ${temperature}` : undefined
           }
         >
-          <SelectField
-            name="model.provider"
-            label="Provider"
-            options={[...LLM_PROVIDERS]}
-            onChange={(next) =>
-              setValue(
-                "model.model",
-                LLM_MODELS[next as LlmProvider]?.[0]?.value ?? "",
-                {
-                  shouldDirty: true
-                }
-              )
-            }
+          <CatalogPicker
+            name="model.model"
+            label="Model"
+            catalog={catalog}
+            options={catalog.llm}
           />
-          {provider === "ollama" ? (
-            <TextField
-              name="model.model"
-              label="Model"
-              placeholder="llama3.1"
-              hint="Any model your Ollama server has pulled. Set its base URL in Advanced."
-            />
-          ) : (
-            <SelectField
-              name="model.model"
-              label="Model"
-              options={LLM_MODELS[provider as LlmProvider] ?? []}
-            />
-          )}
           <p className="font-display text-[11px] text-muted-foreground">
             Temperature and max tokens are in Advanced.
           </p>
         </PickerRow>
         <PickerRow
           label="Voice"
-          value={`${labelOf(TTS_PROVIDERS, ttsProvider)} · ${voiceLabel.name || "—"}`}
-          meta={voiceLabel.locale || undefined}
+          value={summaryOf(catalog, catalog.voices, voice)}
+          meta={voiceLocale || undefined}
         >
-          <SelectField
-            name="tts.productRef"
-            label="Provider"
-            options={[...TTS_PROVIDERS]}
-            onChange={(next) =>
-              setValue("tts.voice", voicesFor(next)[0]?.value ?? "", {
-                shouldDirty: true
-              })
-            }
-          />
-          <SelectField
+          <CatalogPicker
             name="tts.voice"
             label="Voice"
-            options={voicesFor(ttsProvider)}
+            catalog={catalog}
+            options={catalog.voices}
           />
         </PickerRow>
         <PickerRow
           label="Transcriber"
-          value={`Deepgram · ${sttModel || "—"}`}
+          value={summaryOf(catalog, catalog.stt, sttModel)}
           meta={language || undefined}
         >
-          <SelectField name="stt.model" label="Model" options={STT_MODELS} />
           <SelectField
             name="stt.languageCode"
             label="Language"
             options={LANGUAGES}
+          />
+          <CatalogPicker
+            name="stt.model"
+            label="Model"
+            catalog={catalog}
+            options={sttOptions}
           />
         </PickerRow>
       </div>

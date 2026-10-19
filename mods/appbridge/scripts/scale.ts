@@ -251,7 +251,6 @@ async function main() {
     configFile,
     stringify({
       nats: { url: NATS_URL },
-      testMode: true,
       apps: ready.map((r, i) => ({
         ref: `load-${i}`,
         url: r.appUrl,

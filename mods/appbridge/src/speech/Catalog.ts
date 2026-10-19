@@ -72,7 +72,7 @@ type Adapters = { tts?: TtsAdapter; stt?: SttAdapter };
 
 /**
  * The adapters a provider gets with a given key, built by its catalog adapter id
- * (@fonoster/community). Keyless adapters (fake) are built without one.
+ * (@fonoster/community). Keyless providers are built without one.
  */
 function buildAdapters(p: ProviderConfig, apiKey?: string): Adapters {
   const factories = adapterFor(p.adapter);
@@ -93,9 +93,12 @@ function buildAdapters(p: ProviderConfig, apiKey?: string): Adapters {
   };
 }
 
-/** Whether a provider's adapter works without a credential (fake). */
-function keyless(p: ProviderConfig): boolean {
-  return Boolean(adapterFor(p.adapter)?.keyless);
+/** A provider known only from the catalog: keyless when it names no credentialRef. */
+type CatalogProvider = ProviderConfig & { keyless?: boolean };
+
+/** Whether a provider works without a credential (its catalog entry or its adapter says so). */
+function keyless(p: CatalogProvider): boolean {
+  return p.keyless ?? Boolean(adapterFor(p.adapter)?.keyless);
 }
 
 export class Catalog {
@@ -112,6 +115,8 @@ export class Catalog {
   >();
   /** Adapters built with a workspace key, by provider and key (insertion = last use). */
   private keyed = new Map<string, { used: number; adapters: Adapters }>();
+  /** Keyless catalog providers' adapters, by provider and its config (a catalog change rebuilds). */
+  private keylessBuilt = new Map<string, Adapters>();
   /** The clock (tests). */
   now: () => number = Date.now;
 
@@ -129,7 +134,9 @@ export class Catalog {
         registry: new RegistryNs.Registry({ store, actor: "gateway" })
       };
     }
-    for (const [name, p] of Object.entries(config.providers ?? {})) {
+    for (const name of Object.keys(config.providers ?? {})) {
+      // The YAML entry over the catalog's (endpoints), when the registry is loaded already.
+      const p = this.providerConfig(name)!;
       const apiKey = keyless(p) ? undefined : providerKey(p);
       if (!keyless(p) && !apiKey) continue;
       const built = buildAdapters(p, apiKey);
@@ -146,9 +153,10 @@ export class Catalog {
   async prepare(workspaceRef?: string): Promise<void> {
     if (!this.keySource || !workspaceRef) return;
     const keys = new Map<string, string>();
-    const names = Object.entries(this.config.providers ?? {})
-      .filter(([, p]) => !keyless(p))
-      .map(([name]) => name);
+    const names = this.providerNames().filter((name) => {
+      const p = this.providerConfig(name);
+      return p && !keyless(p);
+    });
     await Promise.all(
       names.map(async (name) => {
         const key = await Promise.race([
@@ -202,7 +210,7 @@ export class Catalog {
     workspaceRef?: string
   ): Adapters | undefined {
     const key = this.keysOf(workspaceRef)?.get(provider);
-    const p = this.config.providers?.[provider];
+    const p = key && this.providerConfig(provider);
     if (!key || !p) return undefined;
     // Keys that must not be cached are never kept past this resolution.
     if (this.keySource?.cacheable === false) return buildAdapters(p, key);
@@ -240,8 +248,9 @@ export class Catalog {
     const provider = resolved.slice(0, slash);
     const voice = resolved.slice(slash + 1);
     const adapter =
-      this.forWorkspace(provider, workspaceRef)?.tts ?? this.tts.get(provider);
-    const voices = this.config.providers[provider]?.voices;
+      this.forWorkspace(provider, workspaceRef)?.tts ??
+      this.platform(provider)?.tts;
+    const voices = this.config.providers?.[provider]?.voices;
     if (!adapter || (voices && !voices.includes(voice))) return undefined;
     return { adapter, voice, id: resolved, event, replacement };
   }
@@ -272,7 +281,8 @@ export class Catalog {
     if (slash <= 0) return undefined;
     const provider = resolved.slice(0, slash);
     const adapter =
-      this.forWorkspace(provider, workspaceRef)?.stt ?? this.stt.get(provider);
+      this.forWorkspace(provider, workspaceRef)?.stt ??
+      this.platform(provider)?.stt;
     if (!adapter) return undefined;
     return {
       adapter,
@@ -283,16 +293,85 @@ export class Catalog {
     };
   }
 
+  /** Providers in the gateway config or the catalog. */
+  private providerNames(): string[] {
+    const names = new Set(Object.keys(this.config.providers ?? {}));
+    for (const e of this.registry?.store.all() ?? [])
+      if (e.kind === "provider") names.add(e.id);
+    return [...names];
+  }
+
+  /**
+   * A provider's config: the gateway's YAML entry over its catalog entry (adapter, capabilities,
+   * endpoints). The YAML wins, so operators can still override a vendor's endpoint or model. A
+   * catalog provider needs no YAML entry; a retired one is not used.
+   */
+  private providerConfig(name: string): CatalogProvider | undefined {
+    const yaml = this.config.providers?.[name];
+    const entry = this.registry?.store.get(name);
+    const p =
+      entry?.kind === "provider" && entry.state !== "retired"
+        ? entry
+        : undefined;
+    if (!p) return yaml;
+    const capabilities = p.capabilities.filter(
+      (c): c is "tts" | "stt" => c === "tts" || c === "stt"
+    );
+    if (!adapterFor(p.adapter)) return yaml;
+    return {
+      adapter: p.adapter,
+      capabilities,
+      ...(yaml ? {} : { keyless: !p.credentialRef }),
+      ...yaml,
+      tts: { url: p.endpoints?.tts, ...withoutUndefined(yaml?.tts) },
+      stt: { url: p.endpoints?.stt, ...withoutUndefined(yaml?.stt) }
+    };
+  }
+
+  /**
+   * A provider's adapters with the platform's key: built at start for the gateway's YAML
+   * providers, and on first use for keyless catalog providers.
+   */
+  private platform(name: string): Adapters | undefined {
+    const tts = this.tts.get(name);
+    const stt = this.stt.get(name);
+    if (tts || stt) return { tts, stt };
+    if (this.config.providers?.[name]) return undefined;
+    const p = this.providerConfig(name);
+    if (!p || !keyless(p)) return undefined;
+    const id = `${name}\u0000${JSON.stringify(p)}`;
+    let built = this.keylessBuilt.get(id);
+    if (!built) {
+      for (const k of this.keylessBuilt.keys())
+        if (k.startsWith(`${name}\u0000`)) this.keylessBuilt.delete(k);
+      built = buildAdapters(p);
+      this.keylessBuilt.set(id, built);
+    }
+    return built;
+  }
+
   /** The STT adapter for the gateway (one STT provider per deployment for now). */
   defaultStt(workspaceRef?: string): SttAdapter | undefined {
+    const stt = (n: string) =>
+      Boolean(this.providerConfig(n)?.capabilities.includes("stt"));
     const name =
       this.config.stt?.provider ??
       (this.stt.keys().next().value as string) ??
-      // Keys only from the workspace or the cell (no platform key): the first STT provider.
-      Object.entries(this.config.providers ?? {}).find(([, p]) =>
-        p.capabilities.includes("stt")
-      )?.[0];
+      // No platform key: a keyless STT provider, else the first one (workspace or cell keys).
+      this.providerNames().find(
+        (n) => stt(n) && keyless(this.providerConfig(n)!)
+      ) ??
+      this.providerNames().find(stt);
     if (!name) return undefined;
-    return this.forWorkspace(name, workspaceRef)?.stt ?? this.stt.get(name);
+    return (
+      this.forWorkspace(name, workspaceRef)?.stt ?? this.platform(name)?.stt
+    );
   }
+}
+
+/** An object without its undefined values, so spreading it keeps earlier defaults. */
+function withoutUndefined<T extends object>(o?: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(o ?? {}).filter(([, v]) => v !== undefined)
+  ) as Partial<T>;
 }

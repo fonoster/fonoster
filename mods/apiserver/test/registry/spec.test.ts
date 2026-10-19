@@ -60,7 +60,17 @@ const ELSEWHERE: Record<string, string> = {
   "A retired id sent at runtime resolves to its replacement":
     "mods/conformance/scenarios/voice-session/retired-voice-resolves.yaml",
   "TTS vendor outage mid-call":
-    "mods/conformance/scenarios/voice-session/tts-outage-is-not-switched.yaml"
+    "mods/conformance/scenarios/voice-session/tts-outage-is-not-switched.yaml",
+  "A provider is reached at its catalog endpoint":
+    "mods/autopilot/test/session/hosted.test.ts",
+  "Service config wins over the catalog":
+    "mods/autopilot/test/session/hosted.test.ts",
+  "A keyless provider is called without a key":
+    "mods/autopilot/test/session/hosted.test.ts",
+  "A workspace key reaches a provider missing from the gateway config":
+    "mods/appbridge/test/catalogProviders.test.ts",
+  "A keyless catalog provider needs no gateway config":
+    "mods/appbridge/test/catalogProviders.test.ts"
 };
 
 const W1 = "WSregistry1000000000000000000000000";
@@ -430,6 +440,73 @@ describe("@registry scenario suite (spec.md, database)", function () {
       await invoke<{ items: { id: string }[] }>(handlers.listCatalog, {}, W2)
     ).items.map((i) => i.id);
     expect(ids).to.include.members(["elevenlabs", "elevenlabs/rachel"]);
+  });
+
+  scenario("A keyless provider is listed without a key", async function () {
+    const store = await RegistryNs.PrismaRegistryStore.open(db.prisma);
+    new RegistryNs.Registry({ store }).apply(`entries:
+  - { kind: provider, id: fake, label: Fakes, adapter: fake, capabilities: [stt, tts, llm], endpoints: { tts: "http://fakes:7001" }, state: active }
+  - { kind: model, id: fake/tts, label: Fake voice model, type: tts, features: [streaming], languages: [multi], settings: [], state: active }
+`);
+    await store.flush();
+    const { listCatalog } = createProvidersHandlers(db.prisma, {
+      platformCredentials: ["deepgram-default"]
+    });
+    const items = (
+      await invoke<{
+        items: { id: string; keyless?: boolean; label?: string }[];
+      }>(listCatalog, {}, W2)
+    ).items;
+    expect(items.find((i) => i.id === "fake")).to.include({
+      keyless: true,
+      label: "Fakes"
+    });
+    expect(items.find((i) => i.id === "fake/tts")).to.include({
+      label: "Fake voice model"
+    });
+    expect(items.find((i) => i.id === "deepgram")).to.include({
+      keyless: false
+    });
+    // The endpoints round-trip through the database.
+    const reopened = await RegistryNs.PrismaRegistryStore.open(db.prisma);
+    expect(
+      (reopened.get("fake") as RegistryNs.ProviderEntry).endpoints
+    ).to.deep.equal({ tts: "http://fakes:7001" });
+    expect(
+      (reopened.get("deepgram") as RegistryNs.ProviderEntry).endpoints
+    ).to.equal(undefined);
+  });
+
+  scenario("A labeled voice", async function () {
+    // The dashboard half (labels shown, ids without one): mods/dashboard/src/agents.
+    const store = await RegistryNs.PrismaRegistryStore.open(db.prisma);
+    new RegistryNs.Registry({ store }).apply(`entries:
+  - { kind: voice, id: fake/thalia, label: Aura 2 Thalia, models: [fake/tts], language: en-US, state: active }
+`);
+    await store.flush();
+    const { listCatalog } = createProvidersHandlers(db.prisma);
+    const items = (
+      await invoke<{ items: { id: string; label: string }[] }>(listCatalog, {
+        kind: "voice"
+      })
+    ).items;
+    expect(items.find((i) => i.id === "fake/thalia")?.label).to.equal(
+      "Aura 2 Thalia"
+    );
+    expect(items.find((i) => i.id === "elevenlabs/rachel")?.label).to.equal("");
+  });
+
+  scenario("An endpoint with a credential is refused", async function () {
+    const file = path.join(tmp, "endpoint-credential.yaml");
+    fs.writeFileSync(
+      file,
+      `entries:
+  - { kind: provider, id: acme-tts, adapter: elevenlabs, capabilities: [tts], credentialRef: acme-default, endpoints: { tts: "https://user:pass@tts.example.com" }, state: active }
+`
+    );
+    const before = await count();
+    expect(await cli("apply", "-f", file)).to.not.equal(0);
+    expect(await count()).to.equal(before);
   });
 
   // ---- Features ------------------------------------------------------------------------------
