@@ -296,7 +296,6 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(await delivered(api, api, "calls.create")).to.equal(true);
     // TrackCall: the placing replica reports its part of a call's status per ref.
     expect(await delivered(api, api, "calls.r1.events")).to.equal(true);
-    expect(await delivered(routr, api, "routr.call.started")).to.equal(true);
     expect(await delivered(api, gw, "callrecord.local.maintenance")).to.equal(
       true
     );
@@ -312,6 +311,8 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(await delivered(api, gw, "media.n1.events.r1")).to.equal(false);
     expect(await delivered(node, api, "callrecord.sealed")).to.equal(false);
     expect(await delivered(routr, api, "callrecord.sealed")).to.equal(false);
+    // The API server no longer reads Routr's call events (call history is the record index).
+    expect(await delivered(routr, api, "routr.call.started")).to.equal(false);
     // Calls are created by the control plane only.
     expect(await delivered(gw, api, "calls.create")).to.equal(false);
     expect(await delivered(node, api, "calls.create")).to.equal(false);
