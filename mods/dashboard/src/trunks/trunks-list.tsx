@@ -73,7 +73,7 @@ export function TrunksList() {
 
   const add = (
     <Button onClick={() => navigate("new")}>
-      <Plus aria-hidden /> Add trunk
+      <Plus aria-hidden /> Create trunk
     </Button>
   );
 

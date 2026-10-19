@@ -139,10 +139,9 @@ function StreamEditor({
     (api, draft: Omit<Draft, "signingSecretHint">) => api.saveApp(draft),
     { success: "Stream saved" }
   );
-  const remove = useSessionMutation(
-    (api, ref: string) => api.deleteApp(ref),
-    { success: "Stream deleted" }
-  );
+  const remove = useSessionMutation((api, ref: string) => api.deleteApp(ref), {
+    success: "Stream deleted"
+  });
   // A new stream's secret arrives in the navigation state, shown once.
   const [secret, setSecret] = useState(
     (location.state as { secret?: string } | null)?.secret

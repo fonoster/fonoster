@@ -93,7 +93,7 @@ export function SecretDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        title={secret ? secret.name : "Add secret"}
+        title={secret ? secret.name : "New secret"}
         description={
           secret
             ? secret.ref
@@ -121,7 +121,7 @@ export function SecretDrawer({
                 form="secret-form"
                 loading={mutation.isPending}
               >
-                Save
+                {secret ? "Save" : "Create secret"}
               </Button>
             </div>
           </>
@@ -139,13 +139,13 @@ export function SecretDrawer({
           <Field
             label="Name"
             error={errors.name?.message}
-            hint="Reference it from agents and streams by this name."
+            hint="Your agents' tools and your stream apps reference it by this name."
           >
             {(a11y) => (
               <Input
                 {...a11y}
                 {...form.register("name")}
-                placeholder="OPENAI_API_KEY"
+                placeholder="CRM_API_TOKEN"
                 autoComplete="off"
               />
             )}

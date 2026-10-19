@@ -289,7 +289,10 @@ describe("webhooks", () => {
     ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /Create webhook/ }));
     const drawer = await screen.findByRole("dialog", { name: "New webhook" });
-    await user.type(within(drawer).getByLabelText("URL"), "https://new.example.com");
+    await user.type(
+      within(drawer).getByLabelText("URL"),
+      "https://new.example.com"
+    );
     await user.click(
       within(drawer).getByRole("button", { name: "Create webhook" })
     );
@@ -320,7 +323,9 @@ describe("webhooks", () => {
     );
     await user.click(await screen.findByRole("menuitem", { name: "Edit" }));
     const drawer = await screen.findByRole("dialog", { name: before.url });
-    await user.click(within(drawer).getByRole("checkbox", { name: /Call failed/ }));
+    await user.click(
+      within(drawer).getByRole("checkbox", { name: /Call failed/ })
+    );
     await user.click(within(drawer).getByRole("button", { name: "Save" }));
     await waitFor(async () =>
       expect((await api.listWebhooks())[0].events).toContain("call.failed")
@@ -363,7 +368,9 @@ describe("vendor keys", () => {
       "/w/ws-1/vendor-keys"
     );
     await user.click(await screen.findByRole("button", { name: /Add key/ }));
-    const drawer = await screen.findByRole("dialog", { name: "Add vendor key" });
+    const drawer = await screen.findByRole("dialog", {
+      name: "Add vendor key"
+    });
     await user.click(within(drawer).getByRole("button", { name: "Add key" }));
     expect(within(drawer).getByText("Enter the API key")).toBeVisible();
     await user.type(within(drawer).getByLabelText("API key"), "sk-test");

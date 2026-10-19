@@ -136,7 +136,7 @@ export function CreateApiKeyDialog({
           </Field>
         </form>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button type="submit" form="api-key-form" loading={create.isPending}>

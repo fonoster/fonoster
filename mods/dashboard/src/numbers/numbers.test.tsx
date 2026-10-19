@@ -127,9 +127,13 @@ describe("numbers", () => {
 
   it("adds a number routed to an agent", async () => {
     const { user, sdk } = setup();
-    await user.click(await screen.findByRole("button", { name: "Add number" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Create number" })
+    );
     const drawer = await screen.findByRole("dialog");
-    await user.click(within(drawer).getByRole("button", { name: "Save" }));
+    await user.click(
+      within(drawer).getByRole("button", { name: "Create number" })
+    );
     expect(
       await within(drawer).findByText(/Enter the number in E.164 format/)
     ).toBeInTheDocument();
@@ -147,7 +151,9 @@ describe("numbers", () => {
     await user.click(
       within(drawer).getByRole("radio", { name: /Appointment booking/ })
     );
-    await user.click(within(drawer).getByRole("button", { name: "Save" }));
+    await user.click(
+      within(drawer).getByRole("button", { name: "Create number" })
+    );
 
     expect(sdk.numbers.createNumber).toHaveBeenCalledWith({
       name: "Sales",

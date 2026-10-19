@@ -149,26 +149,37 @@ describe("start screen", () => {
     expect(within(s).queryByLabelText("Helm")).toBeNull();
   }, 12000);
 
-  it("creates a region in a dialog and shows its command", async () => {
+  it("creates a region in a drawer and shows its command", async () => {
     const { user, api } = landing();
     const s = await section();
-    await user.click(within(s).getByRole("button", { name: /New region/ }));
-    await user.type(await screen.findByLabelText("ID"), "us-east-9");
-    await user.type(screen.getByLabelText("Display name"), "Acme");
-    await user.type(screen.getByLabelText("SIP domain"), "acme");
-    await user.click(screen.getByRole("button", { name: "Create region" }));
+    await user.click(within(s).getByRole("button", { name: /Create region/ }));
+    const drawer = await screen.findByRole("dialog", { name: "New region" });
+    await user.type(within(drawer).getByLabelText("ID"), "us-east-9");
+    await user.type(within(drawer).getByLabelText("Display name"), "Acme");
+    await user.type(within(drawer).getByLabelText("SIP domain"), "acme");
+    await user.click(
+      within(drawer).getByRole("button", { name: "Create region" })
+    );
     expect(await screen.findByText("This id is reserved")).toBeInTheDocument();
     expect(
       screen.getByText("Enter a domain like sip.acme.com")
     ).toBeInTheDocument();
     expect(api.state.createdRegions).toEqual([]);
-    await user.clear(screen.getByLabelText("ID"));
-    await user.type(screen.getByLabelText("ID"), "acme-houston");
-    await user.clear(screen.getByLabelText("Display name"));
-    await user.type(screen.getByLabelText("Display name"), "Acme Houston");
-    await user.clear(screen.getByLabelText("SIP domain"));
-    await user.type(screen.getByLabelText("SIP domain"), "sip.acme.com");
-    await user.click(screen.getByRole("button", { name: "Create region" }));
+    await user.clear(within(drawer).getByLabelText("ID"));
+    await user.type(within(drawer).getByLabelText("ID"), "acme-houston");
+    await user.clear(within(drawer).getByLabelText("Display name"));
+    await user.type(
+      within(drawer).getByLabelText("Display name"),
+      "Acme Houston"
+    );
+    await user.clear(within(drawer).getByLabelText("SIP domain"));
+    await user.type(
+      within(drawer).getByLabelText("SIP domain"),
+      "sip.acme.com"
+    );
+    await user.click(
+      within(drawer).getByRole("button", { name: "Create region" })
+    );
     await waitFor(() =>
       expect(api.state.createdRegions).toEqual([
         {

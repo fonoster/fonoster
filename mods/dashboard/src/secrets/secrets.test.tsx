@@ -59,15 +59,17 @@ describe("Secrets", () => {
     setup([]);
     expect(await screen.findByText("No secrets yet")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Add secret" })
+      screen.getByRole("button", { name: "Create secret" })
     ).toBeInTheDocument();
   });
 
   it("validates the name like the API and creates the secret", async () => {
     const { user, secrets } = setup([]);
-    await user.click(await screen.findByRole("button", { name: "Add secret" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Create secret" })
+    );
     await user.type(screen.getByLabelText("Name"), "bad name");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Create secret" }));
     expect(
       await screen.findByText("Letters, numbers, underscores and hyphens only")
     ).toBeInTheDocument();
@@ -76,7 +78,7 @@ describe("Secrets", () => {
     await user.clear(screen.getByLabelText("Name"));
     await user.type(screen.getByLabelText("Name"), "OPENAI_API_KEY");
     await user.type(screen.getByLabelText("Value"), "sk-test");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Create secret" }));
     expect(secrets.createSecret).toHaveBeenCalledWith({
       name: "OPENAI_API_KEY",
       secret: "sk-test"

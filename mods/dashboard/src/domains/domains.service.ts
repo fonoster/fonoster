@@ -82,7 +82,7 @@ export function useCreateDomain() {
   return useResourceMutation(
     RESOURCE,
     (request: CreateDomainRequest) => sdk.domains.createDomain(request),
-    { success: "Domain added" }
+    { success: "Domain created" }
   );
 }
 
@@ -91,7 +91,7 @@ export function useUpdateDomain() {
   return useResourceMutation(
     RESOURCE,
     (request: UpdateDomainRequest) => sdk.domains.updateDomain(request),
-    { success: "Domain updated" }
+    { success: "Domain saved" }
   );
 }
 

@@ -130,7 +130,7 @@ export function WorkspaceSwitcher({
           className="gap-2.5 rounded-lg px-2.5 py-2 font-display text-[13px]"
         >
           <Link to="/workspaces/new">
-            <Plus /> New workspace
+            <Plus /> Create workspace
           </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>

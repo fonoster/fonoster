@@ -184,7 +184,7 @@ export function NumberDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        title={number ? formatNumber(number.telUrl) : "Add number"}
+        title={number ? formatNumber(number.telUrl) : "New number"}
         description={description}
         footer={
           <>
@@ -208,7 +208,7 @@ export function NumberDrawer({
                 form="number-form"
                 loading={mutation.isPending}
               >
-                Save
+                {number ? "Save" : "Create number"}
               </Button>
             </div>
           </>

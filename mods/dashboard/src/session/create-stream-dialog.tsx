@@ -104,7 +104,11 @@ export function CreateStreamDialog({
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button type="submit" form="create-stream-form" loading={create.isPending}>
+          <Button
+            type="submit"
+            form="create-stream-form"
+            loading={create.isPending}
+          >
             Create stream
           </Button>
         </DialogFooter>

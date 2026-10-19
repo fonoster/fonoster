@@ -168,7 +168,7 @@ export function SipAgentDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        title={sipAgent ? sipAgent.name : "Add SIP agent"}
+        title={sipAgent ? sipAgent.name : "New SIP agent"}
         description={
           sipAgent
             ? sipUri(sipAgent)
@@ -196,7 +196,7 @@ export function SipAgentDrawer({
                 form="sip-agent-form"
                 loading={mutation.isPending}
               >
-                Save
+                {sipAgent ? "Save" : "Create SIP agent"}
               </Button>
             </div>
           </>

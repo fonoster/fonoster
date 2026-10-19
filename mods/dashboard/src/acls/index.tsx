@@ -48,7 +48,7 @@ export default function AclsScreen() {
 
   const add = (
     <Button onClick={() => openDrawer()}>
-      <Plus aria-hidden /> Add ACL
+      <Plus aria-hidden /> Create ACL
     </Button>
   );
 

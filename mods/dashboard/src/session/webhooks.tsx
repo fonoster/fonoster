@@ -311,8 +311,7 @@ function WebhookDrawer({
   const [events, setEvents] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const create = useSessionMutation(
-    (api, input: { url: string; events: string[] }) =>
-      api.createWebhook(input),
+    (api, input: { url: string; events: string[] }) => api.createWebhook(input),
     { success: "Webhook created" }
   );
   const update = useSessionMutation(

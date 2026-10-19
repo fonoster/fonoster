@@ -200,10 +200,9 @@ export function StreamsList({ creating: startCreating = false }) {
   const warnings = useSessionQuery(["catalog-warnings"], (api) =>
     api.listCatalogWarnings().catch(() => [])
   );
-  const remove = useSessionMutation(
-    (api, ref: string) => api.deleteApp(ref),
-    { success: "Stream deleted" }
-  );
+  const remove = useSessionMutation((api, ref: string) => api.deleteApp(ref), {
+    success: "Stream deleted"
+  });
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(startCreating);
   const [deleting, setDeleting] = useState<SessionApp>();
@@ -258,9 +257,7 @@ export function StreamsList({ creating: startCreating = false }) {
     {
       header: "",
       className: "w-12",
-      cell: (a) => (
-        <RowActions label={a.name} onDelete={() => setDeleting(a)} />
-      )
+      cell: (a) => <RowActions label={a.name} onDelete={() => setDeleting(a)} />
     }
   ];
 

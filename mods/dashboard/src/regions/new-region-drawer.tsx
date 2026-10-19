@@ -18,19 +18,14 @@
  */
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle
-} from "~/components/ui/dialog";
 import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
+import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { errorMessage } from "~/lib/errors";
 import { REGIONS_KEY, useRegionsApi } from "./api";
 import type { CreatedRegion } from "./types";
@@ -55,8 +50,8 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
-/** New region: ID, display name and SIP domain. `onCreated` gets the one-time token. */
-export function NewRegionDialog({
+/** New region, in the right-side drawer: ID, display name and SIP domain. `onCreated` gets the one-time token. */
+export function NewRegionDrawer({
   open,
   onOpenChange,
   onCreated
@@ -74,6 +69,13 @@ export function NewRegionDialog({
   });
   const { errors, isSubmitting } = form.formState;
 
+  useEffect(() => {
+    if (!open) return;
+    form.reset();
+    setError(undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   const onSubmit = form.handleSubmit(async (values) => {
     setError(undefined);
     try {
@@ -88,12 +90,30 @@ export function NewRegionDialog({
   });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>New region</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        title="New region"
+        description="Connect a private region to this workspace. You'll get a one-time token to enroll it."
+        footer={
+          <>
+            <span />
+            <div className="flex gap-2.5">
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" form="region-form" loading={isSubmitting}>
+                Create region
+              </Button>
+            </div>
+          </>
+        }
+      >
+        <form
+          id="region-form"
+          onSubmit={onSubmit}
+          className="flex flex-col gap-[22px]"
+          noValidate
+        >
           {error !== undefined && (
             <Alert variant="error">{errorMessage(error)}</Alert>
           )}
@@ -133,11 +153,8 @@ export function NewRegionDialog({
               />
             )}
           </Field>
-          <Button type="submit" loading={isSubmitting} className="self-start">
-            Create region
-          </Button>
         </form>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

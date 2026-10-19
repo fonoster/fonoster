@@ -96,7 +96,9 @@ describe("Agents list", () => {
   it("deletes an agent from its row menu, behind a confirmation", async () => {
     const { user, applications } = setup();
     await user.click(
-      await screen.findByRole("button", { name: "Actions for Billing reminders" })
+      await screen.findByRole("button", {
+        name: "Actions for Billing reminders"
+      })
     );
     await user.click(await screen.findByRole("menuitem", { name: "Delete" }));
     const confirm = await screen.findByRole("dialog", {
@@ -132,7 +134,9 @@ describe("Agents list", () => {
 
   it("creates an agent from a template and opens it", async () => {
     const { user, applications } = setup({ apps: [] });
-    await user.click(await screen.findByRole("button", { name: "Create agent" }));
+    await user.click(
+      await screen.findByRole("button", { name: "Create agent" })
+    );
     const dialog = await screen.findByRole("dialog");
     expect(
       within(dialog).queryByRole("radio", { name: /Knowledge FAQ/ })

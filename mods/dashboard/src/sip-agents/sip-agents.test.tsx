@@ -88,7 +88,7 @@ describe("SIP agents", () => {
   it("shows the server, port and transport for a softphone", async () => {
     const { user } = setup([]);
     await user.click(
-      await screen.findByRole("button", { name: "Add SIP agent" })
+      await screen.findByRole("button", { name: "Create SIP agent" })
     );
     const phone = await screen.findByRole("region", {
       name: "Softphone settings"
@@ -106,7 +106,7 @@ describe("SIP agents", () => {
   it("takes the softphone settings from the deployment's capabilities without private regions", async () => {
     const { user, regions } = setup([], communityCapabilities);
     await user.click(
-      await screen.findByRole("button", { name: "Add SIP agent" })
+      await screen.findByRole("button", { name: "Create SIP agent" })
     );
     const phone = await screen.findByRole("region", {
       name: "Softphone settings"
@@ -125,7 +125,7 @@ describe("SIP agents", () => {
       connection: { sip: [], signalingAddresses: [], mediaAddresses: [] }
     });
     await user.click(
-      await screen.findByRole("button", { name: "Add SIP agent" })
+      await screen.findByRole("button", { name: "Create SIP agent" })
     );
     await screen.findByRole("dialog");
     expect(
@@ -166,20 +166,20 @@ describe("SIP agents", () => {
     setup([]);
     expect(await screen.findByText("No SIP agents yet")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Add SIP agent" })
+      screen.getByRole("button", { name: "Create SIP agent" })
     ).toBeInTheDocument();
   });
 
   it("validates and creates a SIP agent", async () => {
     const { user, agents } = setup([]);
     await user.click(
-      await screen.findByRole("button", { name: "Add SIP agent" })
+      await screen.findByRole("button", { name: "Create SIP agent" })
     );
     await user.type(screen.getByLabelText("Name"), "Front desk");
     await user.type(screen.getByLabelText("Username"), "Front Desk");
     await user.clear(screen.getByLabelText("Max contacts"));
     await user.type(screen.getByLabelText("Max contacts"), "500");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Create SIP agent" }));
     expect(
       await screen.findByText(
         "Lowercase letters, numbers, dots, underscores and hyphens only"
@@ -203,7 +203,7 @@ describe("SIP agents", () => {
     );
     await user.click(screen.getByLabelText("Privacy"));
     await user.click(await screen.findByRole("option", { name: /Private/ }));
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Create SIP agent" }));
 
     expect(agents.createAgent).toHaveBeenCalledWith({
       name: "Front desk",

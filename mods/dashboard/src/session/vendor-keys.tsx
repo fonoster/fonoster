@@ -226,7 +226,9 @@ function VendorKeyDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        title={providerId ? `Replace ${label(providerId)} key` : "Add vendor key"}
+        title={
+          providerId ? `Replace ${label(providerId)} key` : "Add vendor key"
+        }
         description="Calls in this workspace use it instead of the platform's key."
         footer={
           <>
