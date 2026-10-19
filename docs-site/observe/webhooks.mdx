@@ -1,0 +1,395 @@
+---
+title: "Receive events with webhooks"
+sidebarTitle: "Webhooks"
+description: "Get a signed HTTPS request when a call starts, ends or fails, and when its record is ready."
+---
+
+A webhook sends an HTTPS POST to your server when something happens in your workspace: a call
+starts, ends or fails, a call record is sealed, or a model you use is deprecated. One webhook covers
+every application in the workspace, Autopilot agents and streams alike. This guide shows how to
+create one, check that each request really came from Fonoster, and handle retries.
+
+## Before you begin
+
+You need:
+
+- An HTTPS endpoint on a public host that answers `POST` requests. To test from your own machine,
+  expose your local server with an HTTPS tunnel such as ngrok or cloudflared.
+- For the SDK or the CLI: an API key and [Node.js](https://nodejs.org/) 22 or later. The
+  [quickstart](/quickstart) shows how to install both and sign in.
+
+## Choose your events
+
+Subscribe only to the events you handle. Fonoster refuses event names it doesn't know.
+
+| Event | When it's sent | `data` |
+| --- | --- | --- |
+| `call.started` | A call reached an application. | `callRef`, `appRef`, `from`, `to`, `direction` |
+| `call.ended` | A call that reached an application ended. | The `call.started` fields, plus `durationSeconds` and `endReason` |
+| `call.failed` | A call never reached an application: busy, no answer, rejected, or the application couldn't be reached. | `callRef`, `appRef` (may be missing), `from`, `to`, `direction`, `reason` |
+| `call_record.sealed` | A new version of a [call record](/observe/call-records) was sealed. | `callRef`, `version`, `recordUrl` |
+| `provider.deprecated` | A provider, model or voice your workspace uses was deprecated. | `id`, `replacement`, `retireOn` |
+
+Every request body uses the same envelope. Here is a `call.ended` event:
+
+```json
+{
+  "id": "evt_6f1c0a52-3d1e-4b7f-9a53-0f4d5f6a7b8c",
+  "type": "call.ended",
+  "createdAt": "2026-10-15T14:03:22.114Z",
+  "workspaceRef": "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",
+  "data": {
+    "callRef": "9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17",
+    "appRef": "6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31",
+    "from": "+18095550123",
+    "to": "+18095550199",
+    "direction": "inbound",
+    "durationSeconds": 83,
+    "endReason": "caller_hangup"
+  }
+}
+```
+
+Events are small on purpose. They never carry a transcript, a recording or a secret. To read what
+was said on a call, subscribe to `call_record.sealed` and fetch the record it points to. Every field
+of every event is in [Webhook events](/reference/webhook-events).
+
+<Tip>
+  To tell your applications apart, filter on `data.appRef`. There's one webhook per endpoint, not
+  one per application.
+</Tip>
+
+## Create a webhook
+
+<Tabs>
+  <Tab title="Dashboard">
+    1. Go to **Webhooks**, under **Workspace**.
+    2. Choose **Add webhook**.
+    3. Enter the **URL**, for example `https://hooks.example.com/fonoster`.
+    4. Under **Events**, check the events you want. **Call ended** is checked for you.
+    5. Choose **Create webhook**.
+
+    The page shows the signing secret once, starting with `whsec_`. Copy it, then choose
+    **I copied it**.
+
+    {/* TODO asset: webhooks/dashboard: the Webhooks page with one endpoint, the "shown once" signing secret alert, and Recent deliveries with a Resend button */}
+  </Tab>
+  <Tab title="SDK">
+    This script creates a webhook for `call.ended` and `call_record.sealed` and prints its signing
+    secret:
+
+    ```javascript create-webhook.js
+    const SDK = require("@fonoster/sdk");
+
+    async function main() {
+      const client = new SDK.Client({
+        accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+      });
+      await client.loginWithApiKey(
+        process.env.FONOSTER_API_KEY,
+        process.env.FONOSTER_API_SECRET
+      );
+
+      const webhooks = new SDK.Webhooks(client);
+      const { ref, secret } = await webhooks.createWebhook({
+        url: "https://hooks.example.com/fonoster",
+        events: ["call.ended", "call_record.sealed"]
+      });
+
+      console.log(`Webhook created: ${ref}`);
+      console.log(`Signing secret: ${secret}`);
+    }
+
+    main().catch(console.error);
+    ```
+  </Tab>
+  <Tab title="CLI">
+    Create the webhook. Repeat `-e` for each event:
+
+    ```bash
+    fonoster webhooks:create --url https://hooks.example.com/fonoster \
+      -e call.ended -e call_record.sealed
+    ```
+
+    It prints the webhook's ref and its signing secret:
+
+    ```text
+    Webhook created: whe_3f9a1c7e-5b2d-4e8f-a6c1-9d0b7e2f4a18
+    Signing secret: whsec_Q2u7kX9pL4mN8rT1vY6zB3cF5hJ0wE2s
+    Save it now: it is shown only once.
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  Fonoster shows the signing secret only when you create the webhook and when you rotate it. After
+  that you see only its last four characters. Store it in your server's secrets right away.
+</Warning>
+
+Fonoster checks the URL when you save it, and again before every delivery:
+
+- It must start with `https://`.
+- Its host must be public. Private, loopback and link-local addresses and internal host names are
+  refused.
+- Fonoster doesn't follow redirects. A `3xx` answer counts as a failed attempt.
+
+<Note>
+  On your own install, the operator can allow plain `http://` URLs for local testing, and can allow
+  chosen private hosts. See [Configure services](/self-hosting/configure).
+</Note>
+
+## Verify the signature
+
+Every request carries two headers:
+
+| Header | Value |
+| --- | --- |
+| `X-Fonoster-Timestamp` | When the request was signed, in Unix seconds. |
+| `X-Fonoster-Signature` | The lowercase hex HMAC-SHA256 of `<timestamp>.<raw body>`, keyed with your signing secret. Right after you rotate the secret, it holds two signatures separated by a comma. |
+
+To verify a request, compute the HMAC over the timestamp, a dot and the raw body bytes, and accept
+the request if it matches any of the signatures. Follow three rules:
+
+- Use the raw body exactly as it arrived. Parse the JSON only after the check passes.
+- Reject a timestamp more than 300 seconds away from your clock. This stops replays of old requests.
+- Compare signatures in constant time.
+
+This receiver checks the signature, then answers right away:
+
+<CodeGroup>
+
+```javascript Node.js (Express)
+const { createHmac, timingSafeEqual } = require("crypto");
+const express = require("express");
+
+const SECRET = process.env.FONOSTER_WEBHOOK_SECRET; // whsec_...
+
+function verify(body, headers) {
+  const timestamp = Number(headers["x-fonoster-timestamp"]);
+  const header = headers["x-fonoster-signature"];
+  if (!Number.isFinite(timestamp) || typeof header !== "string") return false;
+  if (Math.abs(Date.now() / 1000 - timestamp) > 300) return false;
+  const expected = createHmac("sha256", SECRET)
+    .update(`${timestamp}.${body}`)
+    .digest();
+  return header.split(",").some((sig) => {
+    const given = Buffer.from(sig.trim(), "hex");
+    return given.length === expected.length && timingSafeEqual(given, expected);
+  });
+}
+
+const app = express();
+
+// express.text keeps the body as the raw string that was signed.
+app.post("/fonoster", express.text({ type: "application/json" }), (req, res) => {
+  if (!verify(req.body, req.headers)) return res.sendStatus(401);
+  const event = JSON.parse(req.body);
+  res.sendStatus(200);
+  handle(event); // Do the work after you answer.
+});
+
+function handle(event) {
+  console.log(event.type, event.id);
+}
+
+app.listen(3000);
+```
+
+```python Python (Flask)
+import hashlib
+import hmac
+import os
+import time
+
+from flask import Flask, request
+
+SECRET = os.environ["FONOSTER_WEBHOOK_SECRET"].encode()  # whsec_...
+app = Flask(__name__)
+
+
+def verify(body: bytes, headers) -> bool:
+    try:
+        timestamp = int(headers["X-Fonoster-Timestamp"])
+        header = headers["X-Fonoster-Signature"]
+    except (KeyError, ValueError):
+        return False
+    if abs(time.time() - timestamp) > 300:
+        return False
+    expected = hmac.new(
+        SECRET, f"{timestamp}.".encode() + body, hashlib.sha256
+    ).hexdigest()
+    return any(hmac.compare_digest(sig.strip(), expected) for sig in header.split(","))
+
+
+@app.post("/fonoster")
+def fonoster():
+    if not verify(request.get_data(), request.headers):
+        return "", 401
+    event = request.get_json()
+    print(event["type"], event["id"])
+    return "", 200
+```
+
+</CodeGroup>
+
+<Tip>
+  In Node.js, `@fonoster/common` exports the same check as `Webhooks.verifyWebhook(body, headers,
+  secret)`. It returns `true` when the timestamp is fresh and one of the signatures matches.
+</Tip>
+
+Webhooks and [streams](/streams/verify-signatures) use different secrets. A webhook's secret starts
+with `whsec_` and belongs to the webhook.
+
+## Handle retries and duplicates
+
+A delivery succeeds when your endpoint answers any `2xx` within 10 seconds. Answer first and do slow
+work afterwards.
+
+When an attempt fails (an error status, a timeout, a redirect, or no answer), Fonoster tries again.
+The first retry comes 10 seconds later, and each wait doubles, up to one hour between attempts.
+Fonoster keeps trying for 24 hours after the first attempt, then marks the delivery `failed`.
+
+Delivery is **at least once**, so plan for two things:
+
+- **Duplicates.** You can get the same event more than once. Every retry and every resend carries
+  the same `id`. Store the ids you've handled and skip the ones you've seen.
+- **Order.** Events can arrive out of order. A `call_record.sealed` can arrive before the
+  `call.ended` of the same call. Use `createdAt` and `data.callRef` to put them together.
+
+If you delete a webhook, its pending deliveries fail.
+
+## Check the delivery log
+
+The delivery log lists each delivery, newest first: the event type and id, its status (`pending`,
+`succeeded` or `failed`), how many attempts it took, the HTTP status of the last attempt (`0` means
+no answer), and when the last and next attempts happen.
+
+<Tabs>
+  <Tab title="Dashboard">
+    Go to **Webhooks**. The log is under **Recent deliveries**, for all of the workspace's
+    webhooks.
+  </Tab>
+  <Tab title="SDK">
+    `listWebhookDeliveries` returns up to 50 deliveries by default and up to 200 with `pageSize`.
+    Pass `webhookRef` to see one webhook's deliveries:
+
+    ```javascript
+    const { items } = await webhooks.listWebhookDeliveries({
+      webhookRef: "whe_3f9a1c7e-5b2d-4e8f-a6c1-9d0b7e2f4a18",
+      pageSize: 20
+    });
+    ```
+  </Tab>
+  <Tab title="CLI">
+    Show the log for all webhooks, or pass a webhook's ref to see only its deliveries:
+
+    ```bash
+    fonoster webhooks:deliveries whe_3f9a1c7e-5b2d-4e8f-a6c1-9d0b7e2f4a18 --page-size 20
+    ```
+  </Tab>
+</Tabs>
+
+## Resend a delivery
+
+A resend sends the same event now, with the same `id`, a fresh timestamp and a fresh signature. Use
+it after you fix a receiver that was failing. If the resend fails, the delivery goes back on the
+retry schedule.
+
+<Tabs>
+  <Tab title="Dashboard">
+    Under **Recent deliveries**, choose **Resend** on the delivery.
+  </Tab>
+  <Tab title="SDK">
+    Resend a delivery by its ref:
+
+    ```javascript
+    const delivery = await webhooks.resendWebhookDelivery(
+      "whd_7c2e9a41-0b3d-4f6e-8a15-c9d2e7b4f031"
+    );
+    console.log(delivery.status);
+    ```
+  </Tab>
+  <Tab title="CLI">
+    Resend a delivery by its ref, from `webhooks:deliveries`:
+
+    ```bash
+    fonoster webhooks:resend whd_7c2e9a41-0b3d-4f6e-8a15-c9d2e7b4f031
+    ```
+  </Tab>
+</Tabs>
+
+## Rotate the secret
+
+Rotate the signing secret when it may have leaked, or on a schedule. The old secret keeps working
+for 24 hours. During that window, every request carries two signatures, one per secret, so a
+receiver that checks either one keeps working while you deploy the new secret.
+
+<Tabs>
+  <Tab title="Dashboard">
+    On **Webhooks**, choose **Rotate secret** on the webhook, then **Rotate**. Copy the new secret
+    from the alert.
+  </Tab>
+  <Tab title="SDK">
+    `rotateWebhookSecret` returns the new secret and when the old one stops working:
+
+    ```javascript
+    const { secret, previousSecretUntil } = await webhooks.rotateWebhookSecret(
+      "whe_3f9a1c7e-5b2d-4e8f-a6c1-9d0b7e2f4a18"
+    );
+    ```
+  </Tab>
+  <Tab title="CLI">
+    Rotate the secret by the webhook's ref:
+
+    ```bash
+    fonoster webhooks:rotate whe_3f9a1c7e-5b2d-4e8f-a6c1-9d0b7e2f4a18
+    ```
+
+    It prints the new secret and the end of the window:
+
+    ```text
+    Signing secret: whsec_Hn4pW8cR2tL6yV0xK3mQ9sD5fG1jB7zA
+    Save it now: it is shown only once.
+    The previous secret stays valid until 2026-10-16T14:03:22Z.
+    ```
+  </Tab>
+</Tabs>
+
+Deploy the new secret to your receiver before the window ends.
+
+## Change or delete a webhook
+
+With the SDK or the CLI, you can change a webhook's URL or its events. The dashboard can only
+create, rotate and delete webhooks.
+
+- SDK: `updateWebhook({ ref, url, events })`. Fields you leave out are kept.
+- CLI: `fonoster webhooks:update <ref> --url <url>` or `-e <event>`. The `-e` list replaces the
+  webhook's events.
+
+To delete a webhook, choose **Delete** in the dashboard, call `deleteWebhook(ref)`, or run
+`fonoster webhooks:delete <ref>`. `fonoster webhooks:list` and `fonoster webhooks:get <ref>` show
+what you have.
+
+## Coming from `eventsHook`
+
+In 0.27, an Autopilot agent sent its own events through `eventsHook`. Workspace webhooks replace it:
+
+| `eventsHook` | Webhook |
+| --- | --- |
+| `conversation.started` | `call.started` |
+| `conversation.ended` | `call.ended`, then read the transcript from the call record that `call_record.sealed` points to |
+| Custom `headers` for auth | Verify the signature. Fonoster sends no custom headers. |
+| One URL per agent | One webhook per endpoint for the whole workspace. Filter on `data.appRef`. |
+
+See [Migrate from 0.27](/migrate-from-0-27) for the other changes.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Call records" icon="file-signature" href="/observe/call-records">
+    Fetch the record that `call_record.sealed` points to.
+  </Card>
+  <Card title="Webhook events" icon="list" href="/reference/webhook-events">
+    Every event and every field.
+  </Card>
+</CardGroup>

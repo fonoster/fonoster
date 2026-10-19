@@ -41,3 +41,41 @@ Collected from each page's checkpoint. Answer them in your review pass.
 - verify-signatures: The dashboard shows the signing secret only on create and rotate, and the hint as `…` plus the last 4 characters. Correct to call this "the last four characters" in docs?
 - Code: `docs/migrating-to-sessions.md` §2 says recording options are `off`, `on`, `on after consent prompt` and "Apps cannot override it"; the app model has `recording` off|on|consent that overrides the workspace. Stale draft.
 
+
+## Telephony
+- outbound-calls: Live Autopilot sessions ignore `createCall` `metadata` (it reaches only the eval path via `createSystemPrompt`; `session/Agent.ts` sends `settings.systemPrompt` alone). The page says Autopilot doesn't read metadata yet. Wire it in (the old docs promised it), or keep the note?
+- outbound-calls: The MCP `create_call_batch` paces calls inside the MCP server process (fire-and-forget); calls not yet placed are lost if it stops. The page says so. OK to ship that way?
+- transfers: When an Autopilot `transfer` fails (`transfer_failed`), `Agent.transfer()` only logs it and the state machine stays in `transferring`: the caller hears silence until `maxSessionDuration`. The page warns about it. Fix (speak the error message and return to listening)?
+- transfers: Warm transfers send no event when the operator answers. The page waits for the operator's first words with `gather({ source: "speech" })`, assuming the operator's speech produces turn events during a warm transfer. Is that right, and should there be a `transfer.answered` event?
+- transfers: The protocol's `transfer` takes `music` (hold music for warm), but the Voice SDK's `TransferOptions` has only `mode` and `headers`. Add `music` to the SDKs?
+- transfers: The dashboard's "Transfer to an operator" accepts phone numbers only; SDK/CLI accept a SIP address (the gateway allows `sip:` targets). Should the dashboard allow a SIP agent?
+- recording: The workspace-level policy exists only in the operator's call-record config (`workspaces.<ref>.recording`); there's no workspace setting in the dashboard, API or CLI, yet the dashboard offers "Workspace default". On Cloud, what is the region default, and can a workspace set its own policy?
+- recording: The consent prompt wording is one operator-level string (default "This call will be recorded."), not translated per app language. Per-app or per-language prompts?
+- recording: If the app's voice can't be resolved, the consent prompt is skipped silently and recording still starts (`consentPrompt` returns early). Intended?
+- link-twilio: The command's default ACL entry is `165.22.7.155/32` (marked TODO in `mods/ctl/src/constants.ts`) and the origination base is `pstn.fonoster.com`. Are both still right for v0.30 Cloud?
+- link-twilio: The Fonoster trunk it creates has `sendRegister: true` toward Twilio, which doesn't accept REGISTER on Elastic SIP trunks. Same for every trunk made with `sipnet:trunks:create`. Set it to false?
+- link-twilio: No dashboard flow for Twilio linking. Planned?
+- trunks: Is the inbound URI still globally unique, and does Cloud resolve `*.sip.fonoster.com` (or another suffix) to the SIP edge? The pages use `acme.sip.fonoster.com` / `claro.acme.sip.fonoster.com`, from the dashboard placeholders.
+- trunks: The dashboard shows the region's connection details (SIP address, allowlist) only on the trunk form's hint and SIP agent drawer, plus Settings → Region for private regions. Should the public region's details have a home too?
+- sip-agents: Can a SIP agent call an application directly (dial a number that points at an agent and reach it inside Fonoster), and can two SIP agents on a domain call each other? Not documented until confirmed.
+- sip-agents: `Privacy` enum in `@fonoster/types` is `PRIVATE = "ID"` but the validator accepts `"PRIVATE"`; the page uses `"NONE"`. Which string should SDK users pass for private?
+- amd: The `amd.result` event also carries `speechOnsetMs`, not in the SDK types or spec. Document it?
+- Code: `sipnet:calls:get` describes its argument as "The ACL reference".
+
+## Observe
+- webhooks: On Fonoster Cloud, is `callRecord.recordUrl` set to an absolute URL, or do `call_record.sealed` events carry the relative `/api/records/...` path? The page tells readers to prefix the API address when it's a path.
+- webhooks: Is `@fonoster/common` (for `Webhooks.verifyWebhook`) published on npm for 0.30, and meant for app developers? The page mentions it as a tip.
+- webhooks: The dashboard can't edit a webhook's URL or events (create, rotate, delete only). Add edit, or keep it SDK/CLI only? The page says so plainly.
+- webhooks: `docs/webhooks.md` example shows `workspaceRef: "ws_..."`; the code fills it with the workspace access key ID (`WO...`). The page uses `WO...`. Confirm.
+- webhooks: Which roles can create, rotate and delete webhooks? The handlers don't check a role. Should members be able to?
+- call-records: Does every Fonoster Cloud region set `jku`, so the verify script can fetch the key set? If a region doesn't publish keys, how does a Cloud developer get them? (`/.well-known/call-record-keys.json` is served by the region's gateway.)
+- call-records: The openspec says redaction runs "when redaction is enabled for a workspace", but the code always writes both copies. The page says every version has both. Confirm there's no per-workspace switch.
+- call-records: `records:list --status` help text says "e.g. sealed, failed", but the index stores `completed`, `failed` and `incomplete`. Fix the CLI help? The page lists the real values.
+- call-records: `records:get` counts transcript entries from `vcon.analysis` type `transcript`, which the vCon builder never writes (turns are `dialog` text entries), so the TRANSCRIPT line never shows. Bug?
+- call-records: Is the HTTP API host on Cloud `https://api.fonoster.com` (the SDK's default `getHttpUrl`)? The curl examples use it.
+- call-records: There's no CLI command to print an access token for raw HTTP calls; the page points to `client.getAccessToken()`. Worth adding `fonoster workspaces:token` or similar?
+- retention: What role does an API key carry by default? Retention, deletion, erasure and audit need WORKSPACE_OWNER or WORKSPACE_ADMIN, checked against the token's role.
+- retention: Retention runs hourly but handles at most 500 records per policy per run, so a large backlog takes several hours on the first run. Worth stating, or raising the cap?
+- retention: Erasing a call sends no `call_record.sealed` (the gateway skips erased entries) and there's no `call_record.erased` event. Should there be one, so downstream copies can be purged?
+- retention: The audit endpoint returns raw rows (including internal `ref` and `accessKeyId`), unlike the typed `CallRecordAuditEntry`. Trim the response?
+

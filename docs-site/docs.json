@@ -72,6 +72,14 @@
                   "streams/bring-your-app",
                   "streams/verify-signatures"
                 ]
+              },
+              {
+                "group": "Observe",
+                "pages": [
+                  "observe/webhooks",
+                  "observe/call-records",
+                  "observe/retention"
+                ]
               }
             ]
           },
