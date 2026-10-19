@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ArrowLeft, AudioWaveform } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { Code } from "~/components/icons/material";
 import { useEffect, useState } from "react";
 import {
   Link,
@@ -188,7 +189,7 @@ function AppEditor({
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3.5">
           <span className="flex size-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary">
-            <AudioWaveform className="size-6 text-foreground" aria-hidden />
+            <Code className="size-6 text-foreground" aria-hidden />
           </span>
           <div className="flex min-w-0 flex-col gap-1">
             <h1 className="truncate text-[22px] font-semibold leading-tight">

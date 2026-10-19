@@ -16,11 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AudioWaveform } from "lucide-react";
-import { createElement, type ComponentType, type SVGProps } from "react";
+import type { ComponentType, SVGProps } from "react";
 import {
   Badge,
   CallLog,
+  Code,
   Dialpad,
   Dns,
   HeadsetMic,
@@ -35,13 +35,10 @@ import {
   Webhook
 } from "~/components/icons/material";
 
-/** Material Symbols, or a lucide icon where the set has no fit (the streams icon on Apps). */
+/** Material Symbols. */
 export type NavIcon = ComponentType<SVGProps<SVGSVGElement>>;
 export type NavItem = { label: string; path: string; icon: NavIcon };
 
-/** A live audio stream; a lighter stroke to sit with the weight-300 Material icons. */
-const StreamsIcon: NavIcon = (props) =>
-  createElement(AudioWaveform, { strokeWidth: 1.5, ...props });
 export type NavSection = { title?: string; items: NavItem[] };
 
 /** The sidebar, as in designs/dashboard.pen (Dashboard/App shell). Paths are relative to /w/:workspaceRef. */
@@ -50,7 +47,7 @@ export const NAVIGATION: NavSection[] = [
     items: [
       { label: "Overview", path: "", icon: SpaceDashboard },
       { label: "Agents", path: "agents", icon: SmartToy },
-      { label: "Apps", path: "apps", icon: StreamsIcon },
+      { label: "Apps", path: "apps", icon: Code },
       { label: "Calls", path: "calls", icon: CallLog }
     ]
   },

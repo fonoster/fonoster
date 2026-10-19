@@ -6288,36 +6288,14 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "frame",
-                                  "id": "Fej6d",
-                                  "name": "Input",
-                                  "width": 150,
-                                  "height": 30,
-                                  "fill": "$ui:--background",
-                                  "cornerRadius": "$ui:--radius-control",
-                                  "stroke": "$ui:--input",
-                                  "strokeWidth": 1,
-                                  "strokeAlignment": "inner",
-                                  "padding": [
-                                    7,
-                                    10
-                                  ],
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "puNpC",
-                                      "name": "3 × 10 s",
-                                      "fill": "$ui:--foreground",
-                                      "textGrowth": "fixed-width",
-                                      "width": "fill_container",
-                                      "content": "3 × 10 s",
-                                      "textAlign": "right",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
-                                    }
-                                  ]
+                                  "type": "text",
+                                  "id": "f2C3PW",
+                                  "name": "3 × 10 s",
+                                  "fill": "$ui:--foreground",
+                                  "content": "3 × 10 s",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -6340,36 +6318,14 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "frame",
-                                  "id": "pD294",
-                                  "name": "Input",
-                                  "width": 150,
-                                  "height": 30,
-                                  "fill": "$ui:--background",
-                                  "cornerRadius": "$ui:--radius-control",
-                                  "stroke": "$ui:--input",
-                                  "strokeWidth": 1,
-                                  "strokeAlignment": "inner",
-                                  "padding": [
-                                    7,
-                                    10
-                                  ],
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "hOeQU",
-                                      "name": "30 min",
-                                      "fill": "$ui:--foreground",
-                                      "textGrowth": "fixed-width",
-                                      "width": "fill_container",
-                                      "content": "30 min",
-                                      "textAlign": "right",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
-                                    }
-                                  ]
+                                  "type": "text",
+                                  "id": "KFWDm",
+                                  "name": "30 min",
+                                  "fill": "$ui:--foreground",
+                                  "content": "30 min",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -6392,36 +6348,14 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "frame",
-                                  "id": "s9KWra",
-                                  "name": "Input",
-                                  "width": 150,
-                                  "height": 30,
-                                  "fill": "$ui:--background",
-                                  "cornerRadius": "$ui:--radius-control",
-                                  "stroke": "$ui:--input",
-                                  "strokeWidth": 1,
-                                  "strokeAlignment": "inner",
-                                  "padding": [
-                                    7,
-                                    10
-                                  ],
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "nLxPX",
-                                      "name": "+1 809 555 0100",
-                                      "fill": "$ui:--foreground",
-                                      "textGrowth": "fixed-width",
-                                      "width": "fill_container",
-                                      "content": "+1 809 555 0100",
-                                      "textAlign": "right",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
-                                    }
-                                  ]
+                                  "type": "text",
+                                  "id": "RSmjx",
+                                  "name": "+1 809 555 0100",
+                                  "fill": "$ui:--foreground",
+                                  "content": "+1 809 555 0100",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }
@@ -8516,8 +8450,9 @@
                                   "name": "Icon",
                                   "width": 20,
                                   "height": 20,
-                                  "icon": "graphic_eq",
+                                  "icon": "code",
                                   "library": "Material Symbols Sharp",
+                                  "weight": 100,
                                   "fill": "$ui:--foreground"
                                 },
                                 {
@@ -41600,36 +41535,14 @@
                                       "fontWeight": "normal"
                                     },
                                     {
-                                      "type": "frame",
-                                      "id": "MaW3I",
-                                      "name": "Input",
-                                      "width": 150,
-                                      "height": 30,
-                                      "fill": "$ui:--background",
-                                      "cornerRadius": "$ui:--radius-control",
-                                      "stroke": "$ui:--input",
-                                      "strokeWidth": 1,
-                                      "strokeAlignment": "inner",
-                                      "padding": [
-                                        7,
-                                        10
-                                      ],
-                                      "alignItems": "center",
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "U18pp",
-                                          "name": "3 × 10 s",
-                                          "fill": "$ui:--foreground",
-                                          "textGrowth": "fixed-width",
-                                          "width": "fill_container",
-                                          "content": "3 × 10 s",
-                                          "textAlign": "right",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
-                                        }
-                                      ]
+                                      "type": "text",
+                                      "id": "BzTgD",
+                                      "name": "3 × 10 s",
+                                      "fill": "$ui:--foreground",
+                                      "content": "3 × 10 s",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 },
@@ -41652,36 +41565,14 @@
                                       "fontWeight": "normal"
                                     },
                                     {
-                                      "type": "frame",
-                                      "id": "DkfKL",
-                                      "name": "Input",
-                                      "width": 150,
-                                      "height": 30,
-                                      "fill": "$ui:--background",
-                                      "cornerRadius": "$ui:--radius-control",
-                                      "stroke": "$ui:--input",
-                                      "strokeWidth": 1,
-                                      "strokeAlignment": "inner",
-                                      "padding": [
-                                        7,
-                                        10
-                                      ],
-                                      "alignItems": "center",
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "GNLDz",
-                                          "name": "30 min",
-                                          "fill": "$ui:--foreground",
-                                          "textGrowth": "fixed-width",
-                                          "width": "fill_container",
-                                          "content": "30 min",
-                                          "textAlign": "right",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
-                                        }
-                                      ]
+                                      "type": "text",
+                                      "id": "z5CtL",
+                                      "name": "30 min",
+                                      "fill": "$ui:--foreground",
+                                      "content": "30 min",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 },
@@ -41704,36 +41595,14 @@
                                       "fontWeight": "normal"
                                     },
                                     {
-                                      "type": "frame",
-                                      "id": "MCMol",
-                                      "name": "Input",
-                                      "width": 150,
-                                      "height": 30,
-                                      "fill": "$ui:--background",
-                                      "cornerRadius": "$ui:--radius-control",
-                                      "stroke": "$ui:--input",
-                                      "strokeWidth": 1,
-                                      "strokeAlignment": "inner",
-                                      "padding": [
-                                        7,
-                                        10
-                                      ],
-                                      "alignItems": "center",
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "RdH3A",
-                                          "name": "+1 809 555 0100",
-                                          "fill": "$ui:--foreground",
-                                          "textGrowth": "fixed-width",
-                                          "width": "fill_container",
-                                          "content": "+1 809 555 0100",
-                                          "textAlign": "right",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
-                                        }
-                                      ]
+                                      "type": "text",
+                                      "id": "CovN3",
+                                      "name": "+1 809 555 0100",
+                                      "fill": "$ui:--foreground",
+                                      "content": "+1 809 555 0100",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
                                     }
                                   ]
                                 }
@@ -59102,36 +58971,14 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "frame",
-                                  "id": "EmRHv",
-                                  "name": "Input",
-                                  "width": 150,
-                                  "height": 30,
-                                  "fill": "$ui:--background",
-                                  "cornerRadius": "$ui:--radius-control",
-                                  "stroke": "$ui:--input",
-                                  "strokeWidth": 1,
-                                  "strokeAlignment": "inner",
-                                  "padding": [
-                                    7,
-                                    10
-                                  ],
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "q4z2aX",
-                                      "name": "3 × 10 s",
-                                      "fill": "$ui:--foreground",
-                                      "textGrowth": "fixed-width",
-                                      "width": "fill_container",
-                                      "content": "3 × 10 s",
-                                      "textAlign": "right",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
-                                    }
-                                  ]
+                                  "type": "text",
+                                  "id": "powhe",
+                                  "name": "3 × 10 s",
+                                  "fill": "$ui:--foreground",
+                                  "content": "3 × 10 s",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -59154,36 +59001,14 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "frame",
-                                  "id": "A7LUc",
-                                  "name": "Input",
-                                  "width": 150,
-                                  "height": 30,
-                                  "fill": "$ui:--background",
-                                  "cornerRadius": "$ui:--radius-control",
-                                  "stroke": "$ui:--input",
-                                  "strokeWidth": 1,
-                                  "strokeAlignment": "inner",
-                                  "padding": [
-                                    7,
-                                    10
-                                  ],
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "c1LtNi",
-                                      "name": "30 min",
-                                      "fill": "$ui:--foreground",
-                                      "textGrowth": "fixed-width",
-                                      "width": "fill_container",
-                                      "content": "30 min",
-                                      "textAlign": "right",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
-                                    }
-                                  ]
+                                  "type": "text",
+                                  "id": "gIqbM",
+                                  "name": "30 min",
+                                  "fill": "$ui:--foreground",
+                                  "content": "30 min",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -59206,36 +59031,14 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "frame",
-                                  "id": "iPe9w",
-                                  "name": "Input",
-                                  "width": 150,
-                                  "height": 30,
-                                  "fill": "$ui:--background",
-                                  "cornerRadius": "$ui:--radius-control",
-                                  "stroke": "$ui:--input",
-                                  "strokeWidth": 1,
-                                  "strokeAlignment": "inner",
-                                  "padding": [
-                                    7,
-                                    10
-                                  ],
-                                  "alignItems": "center",
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "qgIop",
-                                      "name": "+1 809 555 0100",
-                                      "fill": "$ui:--foreground",
-                                      "textGrowth": "fixed-width",
-                                      "width": "fill_container",
-                                      "content": "+1 809 555 0100",
-                                      "textAlign": "right",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
-                                    }
-                                  ]
+                                  "type": "text",
+                                  "id": "h310w",
+                                  "name": "+1 809 555 0100",
+                                  "fill": "$ui:--foreground",
+                                  "content": "+1 809 555 0100",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
                                 }
                               ]
                             }

@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { AudioWaveform, Plus, Search, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
+import { Code } from "~/components/icons/material";
 import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
@@ -281,7 +282,7 @@ export function AppsList({ creating: startCreating = false }) {
         {empty ? (
           <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-6 py-16 text-center">
             <span className="flex size-14 items-center justify-center rounded-xl bg-brand-subtle">
-              <AudioWaveform className="size-6 text-brand-text" aria-hidden />
+              <Code className="size-6 text-brand-text" aria-hidden />
             </span>
             <h2 className="font-display text-lg font-medium">
               Connect your first app

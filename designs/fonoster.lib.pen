@@ -5469,9 +5469,10 @@
                   "cornerRadius": "$--radius-control",
                   "descendants": {
                     "xGT5g": {
-                      "icon": "graphic_eq",
+                      "icon": "code",
                       "width": 20,
-                      "height": 20
+                      "height": 20,
+                      "library": "Material Symbols Sharp"
                     },
                     "TXca3": {
                       "content": "Apps",
@@ -6151,8 +6152,9 @@
                   "name": "Icon",
                   "width": 20,
                   "height": 20,
-                  "icon": "graphic_eq",
+                  "icon": "code",
                   "library": "Material Symbols Sharp",
+                  "weight": 100,
                   "fill": "$--sidebar-foreground"
                 }
               ]
