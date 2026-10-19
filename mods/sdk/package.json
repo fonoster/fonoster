@@ -18,10 +18,13 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "rollup -c rollup.config.mjs && tsc --project tsconfig.json",
     "postbuild": "mv dist/node/src/* dist/node && rm -rf dist/node/generated && cp -a src/generated dist/node/generated/ && cp dist/web/fonoster.min.js public/fonoster.min.js",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "generate:readme": "node ../../.scripts/gen-readme.cjs",
+    "generate:readme": "fonoster-readme",
+    "generate:protos": "sh scripts/gen-code-proto.sh",
     "start:demo": "npx serve -s public -l 9000",
-    "start:oauth2-demo": "npx serve public -l 9000"
+    "start:oauth2-demo": "npx serve public -l 9000",
+    "test:integration": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --slow 50000 --timeout 10000 test/integration/node.integration.ts",
+    "test:integration:web": "web-test-runner --node-resolve --playwright --browsers chromium webkit firefox",
+    "pretest:integration:web": "npx playwright install && npx playwright install-deps"
   },
   "keywords": [
     "sdk",

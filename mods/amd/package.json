@@ -14,9 +14,9 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "generate:readme": "node ../../.scripts/gen-readme.cjs",
-    "start:dev": "nodemon --exec tsx --watch src src/server.ts"
+    "generate:readme": "fonoster-readme",
+    "dev": "nodemon --exec tsx --watch src src/server.ts",
+    "test:integration": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --slow 50000 --timeout 10000 'test/**/*.integration.test.ts'"
   },
   "dependencies": {
     "@fonoster/common": "^0.30.0",

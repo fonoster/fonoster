@@ -90,7 +90,7 @@ features:
 - **`github`**: needs `identity.oauth2.github`. Uses the account's primary
   verified email. Register `<appUrl>/oauth/github/callback` as the OAuth app's
   callback URL. For local and end-to-end testing without a real OAuth app, run
-  the fake GitHub (`node .scripts/fake-github.mjs` in the dev container) and point
+  the fake GitHub (`npm run start:fake-github -w @fonoster/identity` in the dev container) and point
   `identity.oauth2.github.url` and `apiUrl` at `http://localhost:3999`.
 - **`signup: open`** lets people create their own account (password sign-up,
   or on first email-code/GitHub sign-in). With `invite`, only invited users and

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Conventional commits: the type drives .scripts/next-release.sh. Everything else is relaxed:
+// Conventional commits: the type drives ops/release/next-release.sh. Everything else is relaxed:
 // merge commits are skipped, and header length, subject case and body/footer line lengths are
 // not checked (revamp-ci-workflows CI-B3).
 module.exports = {

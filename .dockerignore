@@ -73,7 +73,7 @@ compose*.yaml
 docker-compose*.yml
 
 # Scripts (needed for build)
-# .scripts - keep this, needed for postbuild
+# (mods/*/scripts are needed for build; tools/ is not)
 scripts
 
 # Misc

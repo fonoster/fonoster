@@ -11,7 +11,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-cert
   && rm -rf /var/lib/apt/lists/*
 
 COPY package.json package-lock.json lerna.json tsconfig.json ./
-COPY .scripts ./.scripts
 COPY mods ./mods
 
 # Only the apiserver's workspace closure (not the whole monorepo).
@@ -25,8 +24,7 @@ RUN for p in types logger common identity authz streams sipnet callrecord voice 
       (cd mods/$p && npx tsc -b) || exit 1; \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
-  && node .scripts/copy-hbs.cjs \
-  && sh .scripts/copy-prisma-clients.sh
+  && node mods/identity/scripts/copy-assets.cjs
 
 ##
 # Run stage

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 /**
- * Loaded by mocha before any test file (see .mocharc.json), so modules that
+ * Loaded by mocha before any test file (see .mocharc.cjs), so modules that
  * read the API server's config at import time get the test fixture instead
  * of looking for fonoster.yaml.
  */

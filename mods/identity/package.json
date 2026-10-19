@@ -12,11 +12,13 @@
     "test": "test"
   },
   "scripts": {
-    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo && npm run generate:prisma",
     "build": "tsc -b tsconfig.json",
     "start": "node dist/server/index.js",
     "db:deploy": "node scripts/db-provision.mjs",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo"
+    "generate:prisma": "prisma generate --schema schema.prisma",
+    "postbuild": "node scripts/copy-assets.cjs",
+    "start:fake-github": "node scripts/fake-github.mjs"
   },
   "bin": {
     "fonoster": "./dist/index.js",

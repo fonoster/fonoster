@@ -2,7 +2,7 @@ name: release
 
 # Cuts a release, by hand only (Actions tab). Nothing here runs on merge.
 #
-#   1. version: .scripts/next-release.sh (conventional commits since the last tag; a
+#   1. version: ops/release/next-release.sh (conventional commits since the last tag; a
 #      `Release-As: x.y.z` footer pins it). "none" stops here.
 #   2. npm: `npm run release` (lerna publish, dist-tag latest), which commits the version bump,
 #      tags v<version> and pushes both to main.
@@ -61,7 +61,7 @@ jobs:
       - name: Next release
         id: next
         run: |
-          release="$(.scripts/next-release.sh)"
+          release="$(ops/release/next-release.sh)"
           echo "Next release: $release"
           echo "release=$release" >> "$GITHUB_OUTPUT"
 
@@ -152,7 +152,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           exclude_types: other,doc,chore
-          config_file: ./.scripts/tag-changelog-config.cjs
+          config_file: ./ops/release/tag-changelog-config.cjs
 
       - name: Draft release
         uses: softprops/action-gh-release@v2

@@ -23,48 +23,28 @@
     "dist"
   ],
   "workspaces": [
-    "mods/*"
+    "mods/*",
+    "tools/*"
   ],
   "scripts": {
     "build": "lerna run build",
-    "bump:version": "rimraf mods/**/.lerna-changed-buster-* && lerna exec -- touch .lerna-changed-buster-$RANDOM",
     "check:docs": "cd docs-site && npx --yes mint@4.2.1045 broken-links",
-    "check:updates": "lerna exec -- npx npm-check-updates",
-    "clean": "rimraf mods/**/dist mods/**/node_modules mods/**/package-lock.json node_modules package-lock.json",
-    "copy:hbstemplates": "node .scripts/copy-hbs.cjs",
-    "copy:prisma-clients": "sh ./.scripts/copy-prisma-clients.sh",
-    "dev": "node .scripts/dev.mjs",
-    "dev:apiserver": "node .scripts/dev.mjs apiserver",
-    "dev:autopilot": "node .scripts/dev.mjs autopilot",
+    "clean": "rimraf \"mods/*/dist\" \"mods/*/node_modules\" \"mods/*/tsconfig.tsbuildinfo\" \"mods/*/package-lock.json\" node_modules package-lock.json",
+    "dev": "fonoster-dev",
     "dev:config": "sh .devcontainer/initialize.sh --refresh",
-    "dev:dashboard": "node .scripts/dev.mjs dashboard",
     "dev:e2e-setup": "npx playwright install --with-deps chromium",
-    "dev:fakes": "node .scripts/dev.mjs fakes",
-    "dev:appbridge": "node .scripts/dev.mjs appbridge",
     "dev:info": "node mods/common/dist/config/cli/index.js info --dir .dev",
-    "dev:roomr": "node .scripts/dev.mjs roomr",
-    "format": "prettier --write mods/**/src",
-    "generate:prisma-clients": "npx prisma generate --schema mods/apiserver/schema.prisma && npx prisma generate --schema mods/identity/schema.prisma",
-    "generate:protos": ".scripts/gen-code-proto.sh",
+    "format": "prettier --write mods/*/src",
+    "generate:protos": "npm run generate:protos -w @fonoster/sdk && npm run build",
     "generate:readme": "lerna run generate:readme && git add mods/**/README.md",
-    "integration": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --slow 50000 --timeout 10000 'mods/**/node.integration.ts' 'mods/amd/**/*.integration.test.ts'",
-    "integration:evals": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --slow 50000 --timeout 60000 'mods/autopilot/**/*.integration.test.ts'",
-    "integration:web": "web-test-runner --node-resolve --playwright --browsers chromium webkit firefox",
+    "integration": "npm run test:integration --workspaces --if-present",
+    "integration:evals": "npm run test:evals -w @fonoster/autopilot",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "postbuild": "npm run copy:hbstemplates && npm run copy:prisma-clients",
-    "postgenerate:protos": "lerna run build",
-    "postinstall": "npm run generate:prisma-clients",
-    "prebuild": "npm run generate:prisma-clients",
-    "preintegration:web": "npx playwright install && npx playwright install-deps",
+    "postinstall": "npm run generate:prisma --workspaces --if-present",
     "prepare": "husky",
-    "release": "lerna publish --yes --no-git-reset --dist-tag latest $(./.scripts/next-release.sh) --message \"chore(release): publish %s [skip ci]\"",
-    "release:frompackages": "lerna publish from-package",
-    "release:prerelease": "lerna publish --dist-tag next",
+    "release": "lerna publish --yes --no-git-reset --dist-tag latest $(./ops/release/next-release.sh) --message \"chore(release): publish %s [skip ci]\"",
     "start:docs": "cd docs-site && npx --yes mint@4.2.1045 dev --port 3333",
-    "start:oauth2-demo": "npm run start:oauth2-demo -w @fonoster/sdk",
-    "start:sdk-demo": "npm run start:demo -w @fonoster/sdk",
-    "start:storybook": "cross-env NODE_ENV=development npm run storybook -w @fonoster/dashboard",
     "test": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --timeout 30000 --ignore 'mods/**/*.integration.test.ts' 'mods/!(dashboard)/**/*.test.ts'"
   },
   "dependencies": {
@@ -99,7 +79,6 @@
     "grpc_tools_node_protoc_ts": "^5.3.3",
     "grpc-tools": "^1.13.1",
     "husky": "^9.0.11",
-    "jsdoc-to-markdown": "^8.0.1",
     "lerna": "^9.0.3",
     "mocha": "^11.7.5",
     "nodemon": "^3.1.11",
@@ -121,9 +100,6 @@
   },
   "engines": {
     "node": ">=20.11.1"
-  },
-  "prisma": {
-    "seed": "tsx mods/apiserver/src/core/seed.ts"
   },
   "overrides": {
     "@grpc/grpc-js": "~1.14.6",

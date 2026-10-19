@@ -15,8 +15,8 @@
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
     "postbuild": "cp -a src/protos dist",
-    "clean": "rimraf ./dist node_modules tsconfig.tsbuildinfo",
-    "generate:session-schema": "tsx scripts/export-session-schema.ts"
+    "generate:session-schema": "tsx scripts/export-session-schema.ts",
+    "generate:config-schemas": "tsx scripts/export-config-schemas.ts"
   },
   "dependencies": {
     "@fonoster/logger": "^0.30.0",

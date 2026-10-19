@@ -16,15 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const sourceDir = path.resolve(__dirname, '../mods/identity/src/templates');
-const destDir = path.resolve(__dirname, '../mods/identity/dist/templates');
+const pkgDir = path.resolve(__dirname, "..");
+const src = path.join(pkgDir, "src");
+const dist = path.join(pkgDir, "dist");
 
-// Copies the identity email templates (*.hbs) next to the compiled code.
-fs.cpSync(sourceDir, destDir, {
+// The email templates (*.hbs) next to the compiled code.
+fs.cpSync(path.join(src, "templates"), path.join(dist, "templates"), {
   recursive: true,
-  filter: (source) =>
-    fs.statSync(source).isDirectory() || source.endsWith('.hbs')
+  filter: (source) => fs.statSync(source).isDirectory() || source.endsWith(".hbs")
 });
+
+// The generated Prisma client, where the compiled code imports it from.
+fs.mkdirSync(path.join(dist, "generated/@prisma"), { recursive: true });
+fs.cpSync(
+  path.join(src, "generated/@prisma/client"),
+  path.join(dist, "generated/@prisma/client"),
+  { recursive: true }
+);
