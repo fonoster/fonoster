@@ -80,6 +80,7 @@
     "grpc-tools": "^1.13.1",
     "husky": "^9.0.11",
     "lerna": "^9.0.3",
+    "lint-staged": "^16.4.0",
     "mocha": "^11.7.5",
     "nodemon": "^3.1.11",
     "nx": "^22.3.3",
@@ -108,5 +109,8 @@
     "js-yaml@^4": "^4.3.2",
     "nodemailer": "^10.1.2",
     "tar": "^7.5.22"
+  },
+  "lint-staged": {
+    "*.{js,cjs,mjs,ts,tsx}": "eslint --fix --no-warn-ignored"
   }
 }
