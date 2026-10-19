@@ -18026,7 +18026,7 @@
                         {
                           "type": "frame",
                           "id": "G9tJB",
-                          "name": "Audio filters",
+                          "name": "Noise cancelling",
                           "width": "fill_container",
                           "fill": "$ui:--card",
                           "cornerRadius": 12,
@@ -18048,22 +18048,12 @@
                                 {
                                   "type": "text",
                                   "id": "H34Uw",
-                                  "name": "Audio filters",
+                                  "name": "Noise cancelling",
                                   "fill": "$ui:--foreground",
-                                  "content": "Audio filters",
+                                  "content": "Noise cancelling",
                                   "fontFamily": "$ui:--font-secondary",
                                   "fontSize": 14,
                                   "fontWeight": "500"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "xWGFd",
-                                  "name": "Add",
-                                  "fill": "$ui:--muted-foreground",
-                                  "content": "+ Add",
-                                  "fontFamily": "$ui:--font-secondary",
-                                  "fontSize": 13,
-                                  "fontWeight": "normal"
                                 }
                               ]
                             },
@@ -18072,28 +18062,33 @@
                               "id": "oI59e",
                               "name": "Sub",
                               "fill": "$ui:--muted-foreground",
-                              "content": "Clean up caller audio before speech recognition.",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Removes background noise and other voices before the agent listens. Keeps one speaker: not for speakerphone or IVR. Adds about 30 ms.",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 12,
                               "fontWeight": "normal"
                             },
                             {
                               "type": "frame",
-                              "id": "Ckbry",
-                              "name": "Filter aiCoustics",
+                              "id": "n3dBB9",
+                              "name": "Row Provider",
                               "width": "fill_container",
-                              "fill": "$ui:--background",
-                              "cornerRadius": "$ui:--radius-control",
-                              "stroke": "$ui:--input",
-                              "strokeWidth": 1,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": {
+                                "top": 1
+                              },
                               "strokeAlignment": "inner",
-                              "gap": 10,
-                              "padding": 12,
+                              "gap": 16,
+                              "padding": [
+                                10,
+                                0
+                              ],
                               "alignItems": "center",
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "ly3UM",
+                                  "id": "GUsb9",
                                   "name": "Text",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -18101,22 +18096,22 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "RzBOy",
-                                      "name": "aiCoustics",
+                                      "id": "A65VU",
+                                      "name": "Provider",
                                       "fill": "$ui:--foreground",
-                                      "content": "aiCoustics",
-                                      "fontFamily": "$ui:--font-primary",
+                                      "content": "Provider",
+                                      "fontFamily": "$ui:--font-secondary",
                                       "fontSize": 13,
                                       "fontWeight": "normal"
                                     },
                                     {
                                       "type": "text",
-                                      "id": "RkDr1",
-                                      "name": "Keeps the main speaker, ",
+                                      "id": "bavi3",
+                                      "name": "Desc",
                                       "fill": "$ui:--muted-foreground",
                                       "textGrowth": "fixed-width",
                                       "width": "fill_container",
-                                      "content": "Keeps the main speaker, suppresses noise and background voices",
+                                      "content": "None, or a vendor your workspace can use",
                                       "fontFamily": "$ui:--font-secondary",
                                       "fontSize": 12,
                                       "fontWeight": "normal"
@@ -18124,14 +18119,45 @@
                                   ]
                                 },
                                 {
-                                  "type": "icon",
-                                  "id": "uIqrF",
-                                  "name": "More",
-                                  "width": 16,
-                                  "height": 16,
-                                  "icon": "ellipsis",
-                                  "library": "lucide",
-                                  "fill": "$ui:--muted-foreground"
+                                  "type": "frame",
+                                  "id": "HHkwa",
+                                  "name": "Input",
+                                  "width": 150,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "gap": 8,
+                                  "padding": [
+                                    7,
+                                    10
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "H0nCZ",
+                                      "name": "ai-coustics",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "ai-coustics",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "icon",
+                                      "id": "G9begU",
+                                      "name": "Chevron",
+                                      "width": 14,
+                                      "height": 14,
+                                      "icon": "chevron-down",
+                                      "library": "lucide",
+                                      "fill": "$ui:--muted-foreground"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -39153,7 +39179,6 @@
                   "id": "YyJ9n",
                   "name": "Body",
                   "width": "fill_container",
-                  "height": "fill_container",
                   "gap": 20,
                   "children": [
                     {
@@ -39517,6 +39542,194 @@
                                         {
                                           "type": "icon",
                                           "id": "HzEda",
+                                          "name": "Chevron",
+                                          "width": 14,
+                                          "height": 14,
+                                          "icon": "chevron-down",
+                                          "library": "lucide",
+                                          "fill": "$ui:--muted-foreground"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "P3imH7",
+                          "name": "Call handling",
+                          "width": "fill_container",
+                          "fill": "$ui:--card",
+                          "cornerRadius": 12,
+                          "stroke": "$ui:--border",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "layout": "vertical",
+                          "gap": 14,
+                          "padding": 20,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Nvk0S",
+                              "name": "Call handling",
+                              "fill": "$ui:--foreground",
+                              "content": "Call handling",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "rUQl6",
+                              "name": "Sub",
+                              "fill": "$ui:--muted-foreground",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Recording, noise cancelling and answering-machine detection run on Fonoster before your app hears the call. Noise cancelling keeps one speaker: not for speakerphone or IVR.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "O12FcI",
+                              "name": "Row",
+                              "width": "fill_container",
+                              "gap": 14,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "nNVMj",
+                                  "name": "Field Recording",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 6,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "i3r2t",
+                                      "name": "Label row",
+                                      "width": "fill_container",
+                                      "justifyContent": "space_between",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "C4qqmX",
+                                          "name": "Recording",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Recording",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "UXOQr",
+                                      "name": "Input",
+                                      "width": "fill_container",
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "gap": 8,
+                                      "padding": [
+                                        9,
+                                        12
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "a9SSSq",
+                                          "name": "Workspace default",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Workspace default",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "icon",
+                                          "id": "tbJAv",
+                                          "name": "Chevron",
+                                          "width": 14,
+                                          "height": 14,
+                                          "icon": "chevron-down",
+                                          "library": "lucide",
+                                          "fill": "$ui:--muted-foreground"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "ujm9i",
+                                  "name": "Field Noise cancelling",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 6,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "NWReY",
+                                      "name": "Label row",
+                                      "width": "fill_container",
+                                      "justifyContent": "space_between",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "Zhs2J",
+                                          "name": "Noise cancelling",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Noise cancelling",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "ggUoF",
+                                      "name": "Input",
+                                      "width": "fill_container",
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "gap": 8,
+                                      "padding": [
+                                        9,
+                                        12
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "y0PzY5",
+                                          "name": "ai-coustics",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "ai-coustics",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "icon",
+                                          "id": "tSrfA",
                                           "name": "Chevron",
                                           "width": 14,
                                           "height": 14,
