@@ -48,4 +48,4 @@
 
 - [x] 6.1 `docs/operators/audio-filters.md`: provider registration, key sources, remove the env-only and `fonoster.yaml` notes, update the status note and known gaps
 - [x] 6.2 `docs-site`: `telephony/noise-cancelling.mdx` plus the CLI, providers, vendor keys and self-hosting audio pages (what it does, one-speaker caveat, how to turn it on in Streams and agents, SDK and CLI examples, the Unfiltered badge)
-- [ ] 6.3 Archive `openspec/changes/noise-cancelling-provider` after #969 verifies a filtered call on the published image
+- [x] 6.3 Archive `openspec/changes/noise-cancelling-provider` (owner decision 2026-10-19: archived on the image verification of #1023, where the SDK loads, `aiCoustics` registers and the model is readable; a filtered call with a real key is a release check)
