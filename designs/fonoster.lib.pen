@@ -5408,7 +5408,7 @@
               ],
               "children": [
                 {
-                  "id": "RfVt8",
+                  "id": "jzgJQ",
                   "type": "ref",
                   "ref": "X6nwq",
                   "name": "Nav Overview",
@@ -5432,7 +5432,7 @@
                   }
                 },
                 {
-                  "id": "jzngQ",
+                  "id": "itw6f",
                   "type": "ref",
                   "ref": "X6nwq",
                   "name": "Nav Agents",
@@ -5456,10 +5456,10 @@
                   }
                 },
                 {
-                  "id": "tOlRI",
+                  "id": "fZcuM",
                   "type": "ref",
                   "ref": "X6nwq",
-                  "name": "Nav Voice apps",
+                  "name": "Nav Streams",
                   "width": "fill_container",
                   "padding": [
                     7,
@@ -5469,18 +5469,18 @@
                   "cornerRadius": "$--radius-control",
                   "descendants": {
                     "xGT5g": {
-                      "icon": "code_blocks",
+                      "icon": "graphic_eq",
                       "width": 20,
                       "height": 20
                     },
                     "TXca3": {
-                      "content": "Voice apps",
+                      "content": "Streams",
                       "fontSize": 14
                     }
                   }
                 },
                 {
-                  "id": "LTUsC",
+                  "id": "u1BV9C",
                   "type": "ref",
                   "ref": "X6nwq",
                   "name": "Nav Calls",
@@ -5504,7 +5504,7 @@
                   }
                 },
                 {
-                  "id": "NSscT",
+                  "id": "X5p5mS",
                   "type": "ref",
                   "ref": "h12kK",
                   "name": "Section SIP network",
@@ -5524,7 +5524,7 @@
                   }
                 },
                 {
-                  "id": "AmiUW",
+                  "id": "t1cKU",
                   "type": "ref",
                   "ref": "X6nwq",
                   "name": "Nav Numbers",
@@ -5548,7 +5548,7 @@
                   }
                 },
                 {
-                  "id": "CLFDM",
+                  "id": "LwoOt",
                   "type": "ref",
                   "ref": "X6nwq",
                   "name": "Nav Trunks",
@@ -5572,7 +5572,7 @@
                   }
                 },
                 {
-                  "id": "ZoDRM",
+                  "id": "igKVO",
                   "type": "ref",
                   "ref": "X6nwq",
                   "name": "Nav Domains",
@@ -5596,10 +5596,10 @@
                   }
                 },
                 {
-                  "id": "zFXAL",
+                  "id": "DTGY1",
                   "type": "ref",
                   "ref": "X6nwq",
-                  "name": "Nav SIP users",
+                  "name": "Nav SIP agents",
                   "width": "fill_container",
                   "padding": [
                     7,
@@ -5614,13 +5614,13 @@
                       "height": 20
                     },
                     "TXca3": {
-                      "content": "SIP users",
+                      "content": "SIP agents",
                       "fontSize": 14
                     }
                   }
                 },
                 {
-                  "id": "ZPKuO",
+                  "id": "ctmor",
                   "type": "ref",
                   "ref": "X6nwq",
                   "name": "Nav ACLs",
@@ -5644,7 +5644,7 @@
                   }
                 },
                 {
-                  "id": "s23CQ",
+                  "id": "c8DU7H",
                   "type": "ref",
                   "ref": "X6nwq",
                   "name": "Nav Credentials",
@@ -5668,7 +5668,7 @@
                   }
                 },
                 {
-                  "id": "c7goY",
+                  "id": "Guiot",
                   "type": "ref",
                   "ref": "h12kK",
                   "name": "Section Workspace",
@@ -5688,7 +5688,55 @@
                   }
                 },
                 {
-                  "id": "ddBtv",
+                  "id": "P3kyM",
+                  "type": "ref",
+                  "ref": "X6nwq",
+                  "name": "Nav Webhooks",
+                  "width": "fill_container",
+                  "padding": [
+                    7,
+                    12
+                  ],
+                  "gap": 12,
+                  "cornerRadius": "$--radius-control",
+                  "descendants": {
+                    "xGT5g": {
+                      "icon": "webhook",
+                      "width": 20,
+                      "height": 20
+                    },
+                    "TXca3": {
+                      "content": "Webhooks",
+                      "fontSize": 14
+                    }
+                  }
+                },
+                {
+                  "id": "WLfgQ",
+                  "type": "ref",
+                  "ref": "X6nwq",
+                  "name": "Nav Vendor keys",
+                  "width": "fill_container",
+                  "padding": [
+                    7,
+                    12
+                  ],
+                  "gap": 12,
+                  "cornerRadius": "$--radius-control",
+                  "descendants": {
+                    "xGT5g": {
+                      "icon": "vpn_key",
+                      "width": 20,
+                      "height": 20
+                    },
+                    "TXca3": {
+                      "content": "Vendor keys",
+                      "fontSize": 14
+                    }
+                  }
+                },
+                {
+                  "id": "RIyzq",
                   "type": "ref",
                   "ref": "X6nwq",
                   "name": "Nav Secrets",
@@ -5712,7 +5760,7 @@
                   }
                 },
                 {
-                  "id": "iLDyl",
+                  "id": "O8FwBY",
                   "type": "ref",
                   "ref": "X6nwq",
                   "name": "Nav API keys",
@@ -5736,7 +5784,7 @@
                   }
                 },
                 {
-                  "id": "is3tn",
+                  "id": "uRkwa",
                   "type": "ref",
                   "ref": "X6nwq",
                   "name": "Nav Settings",
@@ -6090,7 +6138,7 @@
             {
               "type": "frame",
               "id": "IG2uz",
-              "name": "Nav Voice apps",
+              "name": "Nav Streams",
               "width": 40,
               "height": 40,
               "cornerRadius": "$--radius-control",
@@ -6103,7 +6151,7 @@
                   "name": "Icon",
                   "width": 20,
                   "height": 20,
-                  "icon": "code_blocks",
+                  "icon": "graphic_eq",
                   "library": "Material Symbols Sharp",
                   "fill": "$--sidebar-foreground"
                 }
@@ -6219,7 +6267,7 @@
             {
               "type": "frame",
               "id": "zx2gN",
-              "name": "Nav SIP users",
+              "name": "Nav SIP agents",
               "width": 40,
               "height": 40,
               "cornerRadius": "$--radius-control",
@@ -6303,6 +6351,50 @@
             },
             {
               "type": "frame",
+              "id": "h7hPNh",
+              "name": "Nav Webhooks",
+              "width": 40,
+              "height": 40,
+              "cornerRadius": "$--radius-control",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "a1IXD",
+                  "name": "Icon",
+                  "width": 20,
+                  "height": 20,
+                  "icon": "webhook",
+                  "library": "Material Symbols Sharp",
+                  "fill": "$--sidebar-foreground"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "YJUzX",
+              "name": "Nav Vendor keys",
+              "width": 40,
+              "height": 40,
+              "cornerRadius": "$--radius-control",
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "pJ0gH",
+                  "name": "Icon",
+                  "width": 20,
+                  "height": 20,
+                  "icon": "vpn_key",
+                  "library": "Material Symbols Sharp",
+                  "fill": "$--sidebar-foreground"
+                }
+              ]
+            },
+            {
+              "type": "frame",
               "id": "JfA28",
               "name": "Nav Secrets",
               "width": 40,
@@ -6339,7 +6431,7 @@
                   "name": "Icon",
                   "width": 20,
                   "height": 20,
-                  "icon": "vpn_key",
+                  "icon": "key",
                   "library": "Material Symbols Sharp",
                   "fill": "$--sidebar-foreground"
                 }
