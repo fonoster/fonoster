@@ -6,7 +6,7 @@ Diátaxis type: T tutorial, H how-to, R reference, E explanation. ★ = next up.
 ## Docs (developers)
 
 Revised 2026-10-19 after studying Vapi, LiveKit, Daily/Pipecat and QCobro docs plus the v0.30 code.
-One Docs tab with groups (owner decision). WHY = the reason the page exists; Src = material to adapt.
+One Docs tab with groups; Self-hosting, Private regions and Hacking are sections inside it, and SDK, CLI and Changelog are tabs (owner decisions, 2026-10-19). WHY = the reason the page exists; Src = material to adapt.
 
 | Group | Page | Type | Path | WHY | Src |
 | --- | --- | --- | --- | --- | --- |
