@@ -127,7 +127,7 @@ export default function VendorKeysScreen() {
     <>
       <PageHeader
         title="Vendor keys"
-        description="Use your own speech and language-model accounts. Providers without a key here use the platform's key. Keys are stored encrypted and can't be read back."
+        description="Use your own speech, language-model and noise-cancelling accounts. Providers without a key here use the platform's key. Keys are stored encrypted and can't be read back."
         actions={rows.length > 0 && add}
       />
       <div className="px-4 pb-10 sm:px-8">
@@ -145,7 +145,7 @@ export default function VendorKeysScreen() {
               <EmptyState
                 icon={KeyRound}
                 title="No vendor keys"
-                description="Calls use the platform's keys. Add your own to use your speech and language-model accounts."
+                description="Calls use the platform's keys. Add your own to use your speech, language-model and noise-cancelling accounts."
                 action={add}
               />
             ) : (

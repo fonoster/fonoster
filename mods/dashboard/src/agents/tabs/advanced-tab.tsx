@@ -85,7 +85,7 @@ export function AdvancedTab({
       <div className="flex flex-col gap-5">
         <Panel
           title="Call handling"
-          description="Fallback, listeners, recording and answering-machine detection."
+          description="Fallback, listeners, recording, noise cancelling and answering-machine detection."
           action={
             <PanelAction accent onClick={() => setCallHandling(true)}>
               Edit

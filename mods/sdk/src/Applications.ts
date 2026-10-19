@@ -38,6 +38,7 @@ import {
   AmdSettings as AmdSettingsPB,
   Application as ApplicationPB,
   ApplicationType,
+  AudioFilter as AudioFilterPB,
   AudioFormat as AudioFormatPB,
   CreateApplicationRequest as CreateApplicationRequestPB,
   CreateApplicationResponse as CreateApplicationResponsePB,
@@ -102,15 +103,23 @@ const REQUEST_OBJECTS: [string, unknown][] = [
   ["speech", SpeechDefaultsPB],
   ["audio", AudioFormatPB],
   ["listeners", ListenerPB],
-  ["amd", AmdSettingsPB]
+  ["amd", AmdSettingsPB],
+  ["filters", AudioFilterPB]
 ];
+
+/** Repeated messages of an Application in responses (their options Structs are converted after). */
+const RESPONSE_REPEATED: [string, unknown][] = [["filtersList", AudioFilterPB]];
 
 /** Repeated fields come back as `listenersList` when empty; always return `listeners`. */
 function withSessionFields<T extends Record<string, unknown>>(app: T): T {
-  const { listenersList, ...rest } = app as Record<string, unknown>;
+  const { listenersList, filtersList, ...rest } = app as Record<
+    string,
+    unknown
+  >;
   return {
     ...rest,
-    listeners: (rest.listeners ?? listenersList ?? []) as unknown
+    listeners: (rest.listeners ?? listenersList ?? []) as unknown,
+    filters: (rest.filters ?? filtersList ?? []) as unknown
   } as unknown as T;
 }
 
@@ -202,7 +211,8 @@ class Applications {
       metadata: this.client.getMetadata(),
       request: { ref },
       enumMapping: [["type", ApplicationType]],
-      objectMapping: [["intelligence", ProductContainerPB]]
+      objectMapping: [["intelligence", ProductContainerPB]],
+      repeatableObjectMapping: RESPONSE_REPEATED
     });
 
     return withSessionFields(buildStructOverrideReverse(response));
@@ -289,7 +299,10 @@ class Applications {
       request,
       enumMapping: [["type", ApplicationType]],
       objectMapping: [["intelligence", ProductContainerPB]],
-      repeatableObjectMapping: [["itemsList", ApplicationPB]]
+      repeatableObjectMapping: [
+        ["itemsList", ApplicationPB],
+        ...RESPONSE_REPEATED
+      ]
     });
 
     return {

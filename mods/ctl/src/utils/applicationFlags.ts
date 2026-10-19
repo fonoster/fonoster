@@ -94,5 +94,9 @@ export const applicationFlags = {
   "amd-window": Flags.integer({
     description:
       "milliseconds of caller audio AMD classifies (500 to 15000, default 4000); implies --amd"
+  }),
+  "noise-cancelling": Flags.string({
+    description:
+      "noise cancelling on the caller's audio: none, or a noise-cancelling provider (aicoustics)"
   })
 };

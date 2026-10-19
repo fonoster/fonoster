@@ -33,6 +33,12 @@ export type Patience = "" | "low" | "normal" | "high";
 /** "" inherits the workspace's policy. */
 export type RecordingPolicy = "" | "off" | "on" | "consent";
 
+/** One audio filter of an app, as the API stores it. */
+export type AudioFilterSetting = {
+  name: string;
+  options?: Record<string, unknown>;
+};
+
 export type SessionApp = {
   /** Empty for an app not saved yet. */
   ref: string;
@@ -59,6 +65,8 @@ export type SessionApp = {
   /** Answering-machine detection (AO-B1); the window is kept as the API has it. */
   amd?: boolean;
   amdWindowMs?: number;
+  /** Audio filters on the caller's audio (noise cancelling); empty or absent: none. */
+  filters?: AudioFilterSetting[];
   /** Autopilot apps: the agent (sessionAgentSchema), as JSON. */
   agent?: Record<string, unknown>;
 };
@@ -79,6 +87,8 @@ export type CatalogEntry = {
   incompatible?: boolean;
   /** Providers: needs no key (the fakes, local models). */
   keyless?: boolean;
+  /** Providers: what they serve (stt, tts, llm, nc). */
+  capabilities?: string[];
 };
 export type Catalog = {
   voices: CatalogEntry[];
@@ -150,6 +160,8 @@ export type CallRecord = CallRecordSummary & {
   /** Turn decisions and app notes, in time order. */
   messages: SessionMessage[];
   warnings: string[];
+  /** Audio filters that failed: the call ran unfiltered (badge on the detail). */
+  unfiltered?: { name?: string; reason: string }[];
   recording?: { url?: string; sha256?: string; sizeBytes?: number };
 };
 

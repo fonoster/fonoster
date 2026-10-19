@@ -18,6 +18,7 @@
  */
 import { readFileSync } from "fs";
 import path from "path";
+import { AudioFilters } from "@fonoster/common";
 import {
   Application,
   AppListener,
@@ -49,6 +50,8 @@ type ApplicationFlags = {
   recording?: string;
   amd?: boolean;
   "amd-window"?: number;
+  /** none, or an nc provider id (aicoustics). */
+  "noise-cancelling"?: string;
 };
 
 type AppRequest = CreateApplicationRequest & { ref?: string };
@@ -115,7 +118,8 @@ function applicationToRequest(app: Application): AppRequest {
     recording: (app.recording || undefined) as AppRequest["recording"],
     amd: app.amd?.enabled
       ? compact({ enabled: true, windowMs: app.amd.windowMs })
-      : undefined
+      : undefined,
+    filters: app.filters ?? []
   };
   // Autopilot apps follow the operator's hosted Autopilot URL; only streams carry theirs.
   if (app.type !== "AUTOPILOT") request.url = app.url || app.endpoint;
@@ -209,8 +213,23 @@ function applyFlags(base: AppRequest, flags: ApplicationFlags): AppRequest {
     request.amd = windowMs ? { enabled: true, windowMs } : { enabled: true };
   }
 
+  if (flags["noise-cancelling"] !== undefined)
+    request.filters = noiseCancellingFilters(flags["noise-cancelling"]);
+
   if (!request.type) request.type = "STREAM" as AppRequest["type"];
   return request;
+}
+
+/** `--noise-cancelling none|<nc provider>` as the app's filters (one filter per provider). */
+function noiseCancellingFilters(value: string): AppRequest["filters"] {
+  const provider = value.trim().toLowerCase();
+  if (!provider || provider === "none" || provider === "off") return [];
+  const name = AudioFilters.FILTER_BY_PROVIDER[provider];
+  if (!name)
+    throw new Error(
+      `unknown noise-cancelling provider "${value}" (use none or ${Object.keys(AudioFilters.FILTER_BY_PROVIDER).join(", ")})`
+    );
+  return [{ name }];
 }
 
 /** Throws the errors the control plane would, before a round trip. */

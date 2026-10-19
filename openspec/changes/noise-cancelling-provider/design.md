@@ -76,8 +76,11 @@ See proposal.md for the motivation. What exists today, and shapes the approach:
 5. **The dashboard derives the select from the catalog, not from a constant.** `nc` providers come
    from `ListCatalog({ kind: "provider", type: "nc" })` (the handler already filters by
    `capabilities`; `type` widens to accept `nc`). The select maps `aicoustics` to the filter name
-   `aiCoustics` through one table in `mods/common/src/filters/` (provider id to filter name), so a
-   second provider later needs one row, not UI work. The stale `AUDIO_FILTERS` constant is removed.
+   `aiCoustics` through one table (provider id to filter name): `FILTER_BY_PROVIDER` in
+   `mods/common/src/filters/` for the apiserver and the CLI, and its copy
+   `NOISE_CANCELLING_FILTERS` in `mods/dashboard/src/session/noise-cancelling.ts`, since the
+   browser bundle does not take `@fonoster/common`. A second provider later needs one row in each,
+   not UI work. The stale `AUDIO_FILTERS` constant is removed.
    A saved filter whose provider is not usable is shown as unavailable and kept on save, like a
    saved voice (dashboard "Agent pickers offer the catalog").
 

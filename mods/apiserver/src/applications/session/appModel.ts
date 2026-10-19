@@ -19,6 +19,7 @@
 import { randomBytes } from "crypto";
 import {
   assertPublicWebSocketUrlShape,
+  AudioFilters,
   datesMapper,
   sessionAgentSchema
 } from "@fonoster/common";
@@ -173,8 +174,39 @@ export const sessionAppInputSchema = z.object({
         windowMs: optional(z.number().int().min(500).max(15_000))
       })
       .optional()
+  ),
+  // Audio filters (voice-session "An app's audio filters are set through the Applications
+  // API"): absent keeps the current list on update, empty clears it. Options arrive as a
+  // Struct over gRPC; they are decoded and checked against each filter's public schema below.
+  filters: z.preprocess(
+    (v) => v ?? undefined,
+    z
+      .array(z.object({ name: z.string(), options: z.unknown().optional() }))
+      .optional()
   )
 });
+
+/** The app's filters as stored: decoded options, known names and public options only. */
+function toFilters(
+  input: SessionAppInput["filters"]
+): AudioFilters.AudioFilterConfig[] | undefined {
+  if (!input) return undefined;
+  const decoded = input.map((f) => {
+    const raw = f.options as { fields?: unknown } | undefined;
+    const options =
+      raw && raw.fields !== undefined
+        ? struct.decode(raw as Parameters<typeof struct.decode>[0])
+        : (raw as Record<string, unknown> | undefined);
+    return options && Object.keys(options).length
+      ? { name: f.name, options }
+      : { name: f.name };
+  });
+  try {
+    return AudioFilters.parseFilters(decoded);
+  } catch (e) {
+    throw invalid(`filters: ${(e as Error).message}`);
+  }
+}
 
 export type SessionAppInput = z.infer<typeof sessionAppInputSchema>;
 
@@ -249,6 +281,7 @@ export async function toAppColumns(
   }
 
   await checkCatalogIds(db, input.speech);
+  const filters = toFilters(input.filters);
 
   const speech = input.speech;
   const columns = {
@@ -270,7 +303,11 @@ export async function toAppColumns(
     fallbackMessage: input.fallbackMessage ?? null,
     recording: input.recording ?? null,
     amd: input.amd?.enabled ?? false,
-    amdWindowMs: input.amd?.enabled ? (input.amd.windowMs ?? null) : null
+    amdWindowMs: input.amd?.enabled ? (input.amd.windowMs ?? null) : null,
+    // Undefined leaves the column alone (update keeps the filters); an empty list clears it.
+    ...(filters === undefined
+      ? {}
+      : { filters: filters.length ? filters : null })
   };
   return { columns, agent, autopilot };
 }
@@ -347,6 +384,14 @@ export function rowToApplication(row: Row) {
     listeners,
     recording: row.recording ?? "",
     amd: { enabled: row.amd === true, windowMs: row.amdWindowMs ?? 0 },
+    filters: (
+      (row.filters as AudioFilters.AudioFilterConfig[] | null) ?? []
+    ).map((f) => ({
+      name: f.name,
+      options: f.options
+        ? struct.encode(f.options as Record<string, never>)
+        : undefined
+    })),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt
   };

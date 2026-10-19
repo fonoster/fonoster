@@ -42,6 +42,11 @@ import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
 import { compatibleSttModels, compatibleVoices } from "./compat";
 import { CreateAppDialog } from "./create-app-dialog";
 import { MissingKeysWarning } from "./missing-keys";
+import {
+  filtersFor,
+  noiseCancellingOf,
+  noiseCancellingOptions
+} from "./noise-cancelling";
 import type {
   AudioCodec,
   Catalog,
@@ -571,7 +576,7 @@ export function SpeechFields({
   );
 }
 
-/** Fallback, listeners, recording and answering-machine detection. */
+/** Fallback, listeners, recording, noise cancelling and answering-machine detection. */
 export function CallHandlingFields({
   app,
   set,
@@ -579,6 +584,12 @@ export function CallHandlingFields({
   otherApps
 }: FieldsProps & { otherApps: SessionApp[] }) {
   const listenerError = errors.listeners;
+  // Noise cancelling: None or an nc provider the catalog offers (the app's filters).
+  const catalog = useSessionQuery(["catalog"], (api) => api.getCatalog());
+  const noiseCancelling = noiseCancellingOptions(
+    catalog.data?.providers ?? [],
+    app.filters
+  );
   return (
     <>
       <Group
@@ -702,6 +713,20 @@ export function CallHandlingFields({
             onValueChange={(v) =>
               set("recording", (v === "inherit" ? "" : v) as RecordingPolicy)
             }
+          />
+        )}
+      </Field>
+
+      <Field
+        label="Noise cancelling"
+        hint="Removes background noise and other voices before the agent listens. Keeps one speaker: not for speakerphone or IVR. Adds about 30 ms."
+      >
+        {(p) => (
+          <Select
+            {...p}
+            value={noiseCancellingOf(app.filters)}
+            options={noiseCancelling}
+            onValueChange={(v) => set("filters", filtersFor(v, app.filters))}
           />
         )}
       </Field>

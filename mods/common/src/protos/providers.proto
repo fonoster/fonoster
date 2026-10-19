@@ -67,7 +67,7 @@ message CatalogItem {
 message ListCatalogRequest {
   // Optional: provider, model or voice
   string kind = 1;
-  // Optional: stt, tts or llm (models and providers)
+  // Optional: stt, tts, llm or nc (models by type; providers by capability)
   string type = 2;
 }
 

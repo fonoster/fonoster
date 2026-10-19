@@ -136,7 +136,13 @@ export const catalog: Catalog = {
   providers: [
     { id: "deepgram", label: "Deepgram", state: "active" },
     { id: "elevenlabs", label: "ElevenLabs", state: "active" },
-    { id: "fake", label: "Fakes", state: "active", keyless: true }
+    { id: "fake", label: "Fakes", state: "active", keyless: true },
+    {
+      id: "aicoustics",
+      label: "ai-coustics",
+      state: "active",
+      capabilities: ["nc"]
+    }
   ]
 };
 
@@ -289,6 +295,12 @@ export function createMockSessionApi(): SessionApi {
       direction: "outbound" as const,
       durationMs: 9000,
       warnings: [],
+      unfiltered: [
+        {
+          name: "aiCoustics",
+          reason: "License key format is invalid or corrupted"
+        }
+      ],
       recording: undefined
     }
   ];

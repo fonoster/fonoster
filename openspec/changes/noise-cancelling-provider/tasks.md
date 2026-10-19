@@ -28,20 +28,20 @@
 
 ## 4. Apiserver, SDK and CLI
 
-- [ ] 4.1 `applications/session/appModel.ts`: `filters` in `sessionAppInputSchema` through `parseFilters`; `toAppColumns` writes the column; absent keeps, empty clears (as `listeners`)
-- [ ] 4.2 Get and list return `filters`; `ListCatalog` accepts `type: "nc"`
-- [ ] 4.3 SDK `Applications`: `filters` on create, update and the returned app; docs comment with the ai-coustics example
-- [ ] 4.4 CLI: `--noise-cancelling none|aicoustics` on `applications:create` and `applications:update`; `NOISE CANCELLING` line on `applications:get`
-- [ ] 4.5 Tests: update with a public option round-trips; a server-side option and an unknown filter return `INVALID_ARGUMENT` and leave the app unchanged; empty list clears; CLI flag maps to the array
+- [x] 4.1 `applications/session/appModel.ts`: `filters` in `sessionAppInputSchema` through `parseFilters`; `toAppColumns` writes the column; absent keeps, empty clears (as `listeners`)
+- [x] 4.2 Get and list return `filters`; `ListCatalog` accepts `type: "nc"`
+- [x] 4.3 SDK `Applications`: `filters` on create, update and the returned app; docs comment with the ai-coustics example
+- [x] 4.4 CLI: `--noise-cancelling none|aicoustics` on `applications:create` and `applications:update`; `NOISE CANCELLING` line on `applications:get`
+- [x] 4.5 Tests: update with a public option round-trips; a server-side option and an unknown filter return `INVALID_ARGUMENT` and leave the app unchanged; empty list clears; CLI flag maps to the array
 
 ## 5. Dashboard
 
-- [ ] 5.1 `session/sdk-api.ts`: `filters` on `SessionApp`, `toSessionApp` and `toRequest`; remove `AUDIO_FILTERS` from `agents/catalog.ts`
-- [ ] 5.2 `agents/catalog.ts`: `ncProviders` from catalog items with `capabilities` including `nc`, by label
-- [ ] 5.3 `session/streams.tsx` `CallHandlingFields`: *Noise cancelling* select (None + usable `nc` providers; unavailable state for a saved filter whose provider is not usable); hint "Keeps one speaker. Not for speakerphone or IVR. Adds about 30 ms."
-- [ ] 5.4 `session/vendor-keys.tsx`: copy mentions noise cancelling; rows show the catalog label
-- [ ] 5.5 `session/calls.tsx` `CallRecordView`: *Unfiltered* badge with the reason from `fonoster.filters.failed`
-- [ ] 5.6 Tests: select offers None only without an `nc` provider; picking ai-coustics saves `[{ name: "aiCoustics" }]`; None saves an empty list; unavailable state keeps the filter; the badge appears only with a failure
+- [x] 5.1 `session/sdk-api.ts`: `filters` on `SessionApp`, `toSessionApp` and `toRequest`; remove `AUDIO_FILTERS` from `agents/catalog.ts`
+- [x] 5.2 `agents/catalog.ts`: `ncProviders` from catalog items with `capabilities` including `nc`, by label
+- [x] 5.3 `session/streams.tsx` `CallHandlingFields`: *Noise cancelling* select (None + usable `nc` providers; unavailable state for a saved filter whose provider is not usable); hint "Keeps one speaker. Not for speakerphone or IVR. Adds about 30 ms."
+- [x] 5.4 `session/vendor-keys.tsx`: copy mentions noise cancelling; rows show the catalog label
+- [x] 5.5 `session/calls.tsx` `CallRecordView`: *Unfiltered* badge with the reason from `fonoster.filters.failed`
+- [x] 5.6 Tests: select offers None only without an `nc` provider; picking ai-coustics saves `[{ name: "aiCoustics" }]`; None saves an empty list; unavailable state keeps the filter; the badge appears only with a failure
 
 ## 6. Docs
 

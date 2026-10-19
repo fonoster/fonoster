@@ -187,6 +187,33 @@ describe("apps", () => {
     );
   });
 
+  it("turns noise cancelling on from Call handling, with the catalog's nc providers", async () => {
+    const { user, api } = apps("/w/ws-1/apps");
+    await user.click(await screen.findByText("Pipecat bot"));
+    await user.click(
+      await screen.findByRole("link", { name: "Call handling" })
+    );
+    await user.click(await screen.findByLabelText("Noise cancelling"));
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
+      "None",
+      "ai-coustics"
+    ]);
+    await user.click(screen.getByRole("option", { name: "ai-coustics" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(async () =>
+      expect(await api.getApp("pipecat-bot")).toMatchObject({
+        filters: [{ name: "aiCoustics" }]
+      })
+    );
+    // Back to None clears the filters.
+    await user.click(await screen.findByLabelText("Noise cancelling"));
+    await user.click(screen.getByRole("option", { name: "None" }));
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    await waitFor(async () =>
+      expect((await api.getApp("pipecat-bot"))?.filters).toEqual([])
+    );
+  });
+
   it("deletes an app from Advanced behind a confirmation", async () => {
     const { user, api } = apps("/w/ws-1/apps/pipecat-bot/advanced");
     await user.click(await screen.findByRole("button", { name: "Delete app" }));
@@ -258,6 +285,15 @@ describe("calls", () => {
     expect(
       await screen.findByRole("link", { name: /save recording/i })
     ).toHaveAttribute("href", "blob:recording-room-1");
+  });
+
+  it("flags a call that ran unfiltered, with the filter's reason", async () => {
+    render(<CallsScreen />, "/w/:workspaceRef/calls/*", "/w/ws-1/calls/room-2");
+    expect(await screen.findByText("Call room-2")).toBeInTheDocument();
+    expect(screen.getByText("Unfiltered")).toBeInTheDocument();
+    expect(
+      screen.getByText(/aiCoustics: License key format is invalid/)
+    ).toBeInTheDocument();
   });
 
   it("lists calls", async () => {
@@ -367,6 +403,9 @@ describe("vendor keys", () => {
     const drawer = await screen.findByRole("dialog", {
       name: "Add vendor key"
     });
+    // Several providers can take a key (ElevenLabs, ai-coustics), so one is picked.
+    await user.click(within(drawer).getByLabelText("Provider"));
+    await user.click(await screen.findByRole("option", { name: "ElevenLabs" }));
     await user.click(within(drawer).getByRole("button", { name: "Add key" }));
     expect(within(drawer).getByText("Enter the API key")).toBeVisible();
     await user.type(within(drawer).getByLabelText("API key"), "sk-test");

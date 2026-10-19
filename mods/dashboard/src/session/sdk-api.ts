@@ -85,6 +85,12 @@ export function toSessionApp(app: Application): SessionApp {
     ...(app.amd?.enabled && app.amd.windowMs
       ? { amdWindowMs: app.amd.windowMs }
       : {}),
+    filters: (app.filters ?? []).map((f) => ({
+      name: f.name,
+      ...(f.options && Object.keys(f.options).length
+        ? { options: f.options }
+        : {})
+    })),
     ...(config ? { agent: config as Record<string, unknown> } : {})
   };
 }
@@ -116,6 +122,7 @@ export function toRequest(
       .filter((l) => l.url.trim())
       .map((l) => ({ url: l.url.trim(), tracks: l.tracks })),
     recording: app.recording || undefined,
+    filters: app.filters ?? [],
     amd: app.amd
       ? {
           enabled: true,
@@ -165,7 +172,8 @@ const entry = (item: CatalogItem): CatalogEntry => ({
   ...(item.languages?.length ? { languages: item.languages } : {}),
   ...(item.features?.length ? { features: item.features } : {}),
   ...(item.models?.length ? { models: item.models } : {}),
-  ...(item.keyless ? { keyless: true } : {})
+  ...(item.keyless ? { keyless: true } : {}),
+  ...(item.capabilities?.length ? { capabilities: item.capabilities } : {})
 });
 
 /** The catalog as the pickers need it; languages come from models and voices. */
@@ -280,9 +288,16 @@ export function fromVcon(
       };
     })
   ].sort((a, b) => a.at - b.at);
+  // Failed audio filters get their own badge with the reason, not a bare "Problem" line.
+  const unfiltered = ((meta.filters as Raw | undefined)?.failed ?? []) as {
+    name?: string;
+    reason: string;
+  }[];
   const warnings = [
     ...((meta.missing ?? []) as string[]).map((m) => `Missing: ${m}`),
-    ...((meta.failures ?? []) as string[]).map((f) => `Problem: ${f}`)
+    ...((meta.failures ?? []) as string[])
+      .filter((f) => !(unfiltered.length && f === "filter.failed"))
+      .map((f) => `Problem: ${f}`)
   ];
   const recording = dialog.find((d) => d.type === "recording" && d.url);
   return {
@@ -293,6 +308,7 @@ export function fromVcon(
     turns,
     messages,
     warnings,
+    ...(unfiltered.length ? { unfiltered } : {}),
     ...(recording ? { recording: { sha256: str(recording.content_hash) } } : {})
   };
 }
