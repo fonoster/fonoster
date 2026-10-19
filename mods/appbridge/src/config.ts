@@ -79,7 +79,8 @@ export type AppConfig = {
 export type ProviderConfig = {
   /** A built-in adapter id (@fonoster/community), e.g. deepgram or elevenlabs. */
   adapter: string;
-  capabilities: ("tts" | "stt")[];
+  /** tts, stt, or nc (noise cancelling: the provider's key feeds an audio filter). */
+  capabilities: ("tts" | "stt" | "nc")[];
   /**
    * The platform key for this provider (P3: platform keys live in operator config, never in the
    * catalog): read from an environment variable, or given inline in the YAML.

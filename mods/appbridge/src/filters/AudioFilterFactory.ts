@@ -20,6 +20,7 @@ import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import {
   AI_COUSTICS_NAME,
+  AI_COUSTICS_PROVIDER,
   aiCousticsOptionsSchema,
   aiCousticsPublicOptionsSchema,
   createAiCousticsFilter
@@ -43,13 +44,30 @@ type FilterDefinition = {
   // What a voice application may set. Anything touching the filesystem or the
   // environment stays out of it, because applications are not trusted input.
   publicOptionsSchema: z.ZodObject<z.ZodRawShape>;
+  // The catalog provider whose credential the filter needs (an `nc` provider), if any. The
+  // session resolves it and hands it over through the trusted overlay.
+  provider?: string;
   create: (options: Record<string, unknown>) => AudioFilter;
 };
 
 type CreateOptions = {
   // True only for callers inside the media server (config, dev tools)
   trusted?: boolean;
+  // Server-side options merged over an application's, by filter name: the resolved credential,
+  // model paths. Parsed with the full schema, so they never come from the application.
+  trustedOverlay?: Record<string, Record<string, unknown>>;
 };
+
+type ChainOptions = CreateOptions & {
+  // Called when a filter is disabled, at start or mid-stream, with the reason
+  onDisabled?: (name: string, reason: string) => void;
+};
+
+function issuesOf(error: z.ZodError): string {
+  return error.issues
+    .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
+    .join("; ");
+}
 
 class AudioFilterFactory {
   private static filters: Map<string, FilterDefinition> = new Map();
@@ -59,9 +77,14 @@ class AudioFilterFactory {
     this.filters.set(name, definition);
   }
 
+  /** The provider whose credential a filter needs, or undefined for a filter without one. */
+  static providerOf(name: string): string | undefined {
+    return this.filters.get(name)?.provider;
+  }
+
   static createFilter(
     config: AudioFilterConfig,
-    { trusted = false }: CreateOptions = {}
+    { trusted = false, trustedOverlay }: CreateOptions = {}
   ): AudioFilter {
     const definition = this.filters.get(config.name);
 
@@ -79,20 +102,29 @@ class AudioFilterFactory {
     const parsed = schema.safeParse(config.options ?? {});
 
     if (!parsed.success) {
-      const issues = parsed.error.issues
-        .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
-        .join("; ");
       throw new Error(
-        `Invalid options for audio filter "${config.name}": ${issues}`
+        `Invalid options for audio filter "${config.name}": ${issuesOf(parsed.error)}`
       );
     }
 
-    return definition.create(parsed.data);
+    const overlay = trustedOverlay?.[config.name];
+    if (!overlay) return definition.create(parsed.data);
+
+    const merged = definition.optionsSchema.safeParse({
+      ...parsed.data,
+      ...overlay
+    });
+    if (!merged.success) {
+      throw new Error(
+        `Invalid server options for audio filter "${config.name}": ${issuesOf(merged.error)}`
+      );
+    }
+    return definition.create(merged.data);
   }
 
   static createChainFromConfig(
     configs: unknown,
-    options: CreateOptions = {}
+    { onDisabled, ...options }: ChainOptions = {}
   ): AudioFilterChain {
     const parsed = audioFiltersConfigSchema.parse(configs);
     const filters: AudioFilter[] = [];
@@ -114,7 +146,7 @@ class AudioFilterFactory {
       throw err;
     }
 
-    return createAudioFilterChain(filters);
+    return createAudioFilterChain(filters, { onDisabled });
   }
 
   static listFilters() {
@@ -143,6 +175,7 @@ if (hasAiCousticsSdk) {
       "ai-coustics speech enhancement: keeps the primary speaker, suppressing noise and competing voices",
     optionsSchema: aiCousticsOptionsSchema,
     publicOptionsSchema: aiCousticsPublicOptionsSchema,
+    provider: AI_COUSTICS_PROVIDER,
     create: (options) => createAiCousticsFilter(options)
   });
 }

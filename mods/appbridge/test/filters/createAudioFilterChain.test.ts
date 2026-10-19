@@ -221,6 +221,41 @@ describe("@voice/filters/createAudioFilterChain", function () {
     expect(chain.getStats().filters[1].disabled).to.be.true;
   });
 
+  it("tells onDisabled once when a filter is disabled, at start or mid-stream", async function () {
+    // Arrange
+    const disabled: [string, string][] = [];
+    let frames = 0;
+    const boom: AudioFilter = {
+      name: "boom",
+      delayMs: 0,
+      process: (frame) => {
+        if (++frames === 2) throw new Error("kaput");
+        return frame;
+      }
+    };
+    const stillborn: AudioFilter = {
+      name: "stillborn",
+      delayMs: 0,
+      ready: () => Promise.reject(new Error("no model")),
+      process: (frame) => frame
+    };
+    const chain = createAudioFilterChain([stillborn, boom], {
+      onDisabled: (name, reason) => disabled.push([name, reason])
+    });
+
+    // Act
+    await chain.ready();
+    await chain.process(new Int16Array(160));
+    await chain.process(new Int16Array(160));
+    await chain.process(new Int16Array(160));
+
+    // Assert
+    expect(disabled).to.deep.equal([
+      ["stillborn", "no model"],
+      ["boom", "kaput"]
+    ]);
+  });
+
   it("closes every filter even if one throws on close", function () {
     // Arrange
     const closeA = sandbox.stub().throws(new Error("close failed"));

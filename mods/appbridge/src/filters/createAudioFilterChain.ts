@@ -66,7 +66,10 @@ function createTimings() {
  * the rest of the stream and its input is passed through, so caller audio is
  * never dropped.
  */
-function createAudioFilterChain(filters: AudioFilter[]): AudioFilterChain {
+function createAudioFilterChain(
+  filters: AudioFilter[],
+  { onDisabled }: { onDisabled?: (name: string, reason: string) => void } = {}
+): AudioFilterChain {
   const slots = filters.map((filter) => ({
     filter,
     timings: createTimings(),
@@ -88,6 +91,7 @@ function createAudioFilterChain(filters: AudioFilter[]): AudioFilterChain {
       filter: slot.filter.name,
       reason
     });
+    onDisabled?.(slot.filter.name, reason);
   };
 
   const runSlot = async (

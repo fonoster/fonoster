@@ -228,6 +228,19 @@ export class Catalog {
   }
 
   /**
+   * The credential a session uses for a provider the gateway calls itself, such as a
+   * noise-cancelling (`nc`) provider: the workspace's own key when `prepare` found one, else the
+   * platform key from the gateway config. Undefined when there is neither (registry "Each layer
+   * resolves the credentials of the providers it calls").
+   */
+  credentialFor(provider: string, workspaceRef?: string): string | undefined {
+    const own = this.keysOf(workspaceRef)?.get(provider);
+    if (own) return own;
+    const p = this.providerConfig(provider);
+    return p && !keyless(p) ? providerKey(p) : undefined;
+  }
+
+  /**
    * The TTS adapter and provider voice for a catalog voice id, or undefined if not in the catalog.
    * With a registry, retired ids resolve to their replacement and `event` says what to record.
    */
@@ -315,7 +328,7 @@ export class Catalog {
         : undefined;
     if (!p) return yaml;
     const capabilities = p.capabilities.filter(
-      (c): c is "tts" | "stt" => c === "tts" || c === "stt"
+      (c): c is "tts" | "stt" | "nc" => c === "tts" || c === "stt" || c === "nc"
     );
     if (!adapterFor(p.adapter)) return yaml;
     return {

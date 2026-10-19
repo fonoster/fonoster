@@ -97,7 +97,7 @@ const app = z.object({
 
 const provider = z.object({
   adapter: z.string(),
-  capabilities: z.array(z.enum(["tts", "stt"])),
+  capabilities: z.array(z.enum(["tts", "stt", "nc"])),
   credential: z
     .object({ env: z.string().optional(), value: z.string().optional() })
     .optional(),

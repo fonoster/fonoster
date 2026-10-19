@@ -39,7 +39,7 @@ export default class Catalog extends AuthenticatedCommand<typeof Catalog> {
     type: Flags.string({
       char: "t",
       description: "only this capability",
-      options: ["stt", "tts", "llm"]
+      options: ["stt", "tts", "llm", "nc"]
     })
   };
 
@@ -50,7 +50,7 @@ export default class Catalog extends AuthenticatedCommand<typeof Catalog> {
       const client = await this.createSdkClient();
       const { items } = await new SDK.Providers(client).listCatalog({
         kind: flags.kind as "provider" | "model" | "voice" | undefined,
-        type: flags.type as "stt" | "tts" | "llm" | undefined
+        type: flags.type as "stt" | "tts" | "llm" | "nc" | undefined
       });
 
       const ui = cliui({ width: 200 });

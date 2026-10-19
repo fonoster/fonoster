@@ -182,6 +182,30 @@ export namespace ProductContainer {
   }
 }
 
+export class AudioFilter extends jspb.Message {
+  getName(): string;
+  setName(value: string): AudioFilter;
+
+  getOptions(): google_protobuf_struct_pb.Struct | undefined;
+  setOptions(value?: google_protobuf_struct_pb.Struct): AudioFilter;
+  hasOptions(): boolean;
+  clearOptions(): AudioFilter;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): AudioFilter.AsObject;
+  static toObject(includeInstance: boolean, msg: AudioFilter): AudioFilter.AsObject;
+  static serializeBinaryToWriter(message: AudioFilter, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): AudioFilter;
+  static deserializeBinaryFromReader(message: AudioFilter, reader: jspb.BinaryReader): AudioFilter;
+}
+
+export namespace AudioFilter {
+  export type AsObject = {
+    name: string,
+    options?: google_protobuf_struct_pb.Struct.AsObject,
+  }
+}
+
 export class Application extends jspb.Message {
   getRef(): string;
   setRef(value: string): Application;
@@ -254,6 +278,11 @@ export class Application extends jspb.Message {
   hasAmd(): boolean;
   clearAmd(): Application;
 
+  getFiltersList(): Array<AudioFilter>;
+  setFiltersList(value: Array<AudioFilter>): Application;
+  clearFiltersList(): Application;
+  addFilters(value?: AudioFilter, index?: number): AudioFilter;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Application.AsObject;
   static toObject(includeInstance: boolean, msg: Application): Application.AsObject;
@@ -283,6 +312,7 @@ export namespace Application {
     listenersList: Array<Listener.AsObject>,
     recording: string,
     amd?: AmdSettings.AsObject,
+    filtersList: Array<AudioFilter.AsObject>,
   }
 }
 
@@ -346,6 +376,11 @@ export class CreateApplicationRequest extends jspb.Message {
   hasAmd(): boolean;
   clearAmd(): CreateApplicationRequest;
 
+  getFiltersList(): Array<AudioFilter>;
+  setFiltersList(value: Array<AudioFilter>): CreateApplicationRequest;
+  clearFiltersList(): CreateApplicationRequest;
+  addFilters(value?: AudioFilter, index?: number): AudioFilter;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateApplicationRequest.AsObject;
   static toObject(includeInstance: boolean, msg: CreateApplicationRequest): CreateApplicationRequest.AsObject;
@@ -371,6 +406,7 @@ export namespace CreateApplicationRequest {
     listenersList: Array<Listener.AsObject>,
     recording: string,
     amd?: AmdSettings.AsObject,
+    filtersList: Array<AudioFilter.AsObject>,
   }
 }
 
@@ -527,6 +563,11 @@ export class UpdateApplicationRequest extends jspb.Message {
   hasAmd(): boolean;
   clearAmd(): UpdateApplicationRequest;
 
+  getFiltersList(): Array<AudioFilter>;
+  setFiltersList(value: Array<AudioFilter>): UpdateApplicationRequest;
+  clearFiltersList(): UpdateApplicationRequest;
+  addFilters(value?: AudioFilter, index?: number): AudioFilter;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): UpdateApplicationRequest.AsObject;
   static toObject(includeInstance: boolean, msg: UpdateApplicationRequest): UpdateApplicationRequest.AsObject;
@@ -553,6 +594,7 @@ export namespace UpdateApplicationRequest {
     listenersList: Array<Listener.AsObject>,
     recording: string,
     amd?: AmdSettings.AsObject,
+    filtersList: Array<AudioFilter.AsObject>,
   }
 }
 

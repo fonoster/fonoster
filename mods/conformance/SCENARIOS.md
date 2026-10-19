@@ -147,7 +147,8 @@ served by the harness: the target of `fallback`, `handoff` and routing (`media.a
 the listen-only socket. The runner plays whichever app AppBridge reaches first. A call set up
 never to reach an app (unreachable or refusing app without `fallback.app`, busy or unanswered
 outbound callee) gives the runner no socket: such scenarios use only `wait`, `caller` and `assert`.
-Every runner registers the audio filter `conformance-mute`, which silences every caller frame.
+Every runner registers two audio filters: `conformance-mute`, which silences every caller frame,
+and `conformance-boom`, which passes audio through and throws on the third frame.
 
 ## Fake provider behaviour
 

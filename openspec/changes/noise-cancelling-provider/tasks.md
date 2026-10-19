@@ -4,27 +4,27 @@
 
 ## 1. Registry and shared filter schemas (mods/common)
 
-- [ ] 1.1 Add `nc` to `Capability` (`src/registry/types.ts`) and an entry in `FEATURES` (`src/registry/features.ts`)
-- [ ] 1.2 Add `aicoustics` to `BUILT_IN_ADAPTERS` (`src/registry/Registry.ts`); the CLI help lists `nc`
-- [ ] 1.3 Create `src/filters/`: `aiCousticsPublicOptionsSchema` (`model`, `enhancementLevel`, `bypass`), `FILTER_SCHEMAS` by filter name, `FILTER_BY_PROVIDER` (`aicoustics` → `aiCoustics`), and `parseFilters(input)` that rejects unknown names and non-public keys
-- [ ] 1.4 Proto: `message AudioFilter { name, options (Struct) }`; `repeated AudioFilter filters = 20` on `Application`, `CreateApplicationRequest`, `UpdateApplicationRequest`; regenerate stubs; `filters` on the Application types in `mods/types`
-- [ ] 1.5 Tests: registry accepts `--capabilities nc` and refuses an unknown capability; `parseFilters` accepts `{ name: "aiCoustics", options: { enhancementLevel: 0.8 } }` and rejects `modelFile`, `license` and `krisp`
+- [x] 1.1 Add `nc` to `Capability` (`src/registry/types.ts`) and an entry in `FEATURES` (`src/registry/features.ts`)
+- [x] 1.2 Add `aicoustics` to `BUILT_IN_ADAPTERS` (`src/registry/Registry.ts`); the CLI help lists `nc`
+- [x] 1.3 Create `src/filters/`: `aiCousticsPublicOptionsSchema` (`model`, `enhancementLevel`, `bypass`), `FILTER_SCHEMAS` by filter name, `FILTER_BY_PROVIDER` (`aicoustics` → `aiCoustics`), and `parseFilters(input)` that rejects unknown names and non-public keys
+- [x] 1.4 Proto: `message AudioFilter { name, options (Struct) }`; `repeated AudioFilter filters = 20` on `Application`, `CreateApplicationRequest`, `UpdateApplicationRequest`; regenerate stubs; `filters` on the Application types in `mods/types`
+- [x] 1.5 Tests: registry accepts `--capabilities nc` and refuses an unknown capability; `parseFilters` accepts `{ name: "aiCoustics", options: { enhancementLevel: 0.8 } }` and rejects `modelFile`, `license` and `krisp`
 
 ## 2. Appbridge: key from the registry, mid-call failures recorded
 
-- [ ] 2.1 `configSchema.ts` / `config.ts`: provider `capabilities` enum accepts `nc`; `providers.aicoustics.credential` resolves like speech credentials
-- [ ] 2.2 `createAiCousticsFilter.ts`: take `license` as a trusted option; remove `licenseEnv`, `setAiCousticsLicense` and the `process.env` fallback; import the public schema from `mods/common`
-- [ ] 2.3 `AudioFilterFactory.createChainFromConfig(configs, { trustedOverlay })`: merge per-filter trusted options after parsing the public ones
-- [ ] 2.4 `Call.startFilters`: resolve the `aicoustics` credential for the session's workspace (workspace key, else platform key); build the chain with the overlay; with no credential record `filter.failed` with a reason naming the provider and continue
-- [ ] 2.5 `createAudioFilterChain`: `onDisabled(name, reason)` hook; `Call` records `filter.failed` from it once per slot
-- [ ] 2.6 `Dockerfile`: `ENV UV_THREADPOOL_SIZE=8`
-- [ ] 2.7 Tests (fake SDK): workspace key wins over platform key; platform key used when no workspace key; no credential → `filter.failed` and audio passes through; an option carrying `license` from the app is rejected; a filter that throws mid-call produces one `filter.failed` event with name and reason; the key never appears in logs or the record
-- [ ] 2.8 Conformance: `filter-configured` and `filter-unavailable` pass; add `filter-fails-mid-call`
+- [x] 2.1 `configSchema.ts` / `config.ts`: provider `capabilities` enum accepts `nc`; `providers.aicoustics.credential` resolves like speech credentials
+- [x] 2.2 `createAiCousticsFilter.ts`: take `license` as a trusted option; remove `licenseEnv`, `setAiCousticsLicense` and the `process.env` fallback; import the public schema from `mods/common`
+- [x] 2.3 `AudioFilterFactory.createChainFromConfig(configs, { trustedOverlay })`: merge per-filter trusted options after parsing the public ones
+- [x] 2.4 `Call.startFilters`: resolve the `aicoustics` credential for the session's workspace (workspace key, else platform key); build the chain with the overlay; with no credential record `filter.failed` with a reason naming the provider and continue
+- [x] 2.5 `createAudioFilterChain`: `onDisabled(name, reason)` hook; `Call` records `filter.failed` from it once per slot
+- [x] 2.6 `Dockerfile`: `ENV UV_THREADPOOL_SIZE=8`
+- [x] 2.7 Tests (fake SDK): workspace key wins over platform key; platform key used when no workspace key; no credential → `filter.failed` and audio passes through; an option carrying `license` from the app is rejected; a filter that throws mid-call produces one `filter.failed` event with name and reason; the key never appears in logs or the record
+- [x] 2.8 Conformance: `filter-configured` and `filter-unavailable` pass; add `filter-fails-mid-call`
 
 ## 3. Call record
 
-- [ ] 3.1 `mods/callrecord/src/vcon.ts`: `fonoster.filters.failed: [{ name, reason }]` from `filter.failed` events; `failures` unchanged
-- [ ] 3.2 Test: a record with one start-time and one mid-call failure lists both with reasons
+- [x] 3.1 `mods/callrecord/src/vcon.ts`: `fonoster.filters.failed: [{ name, reason }]` from `filter.failed` events; `failures` unchanged
+- [x] 3.2 Test: a record with one start-time and one mid-call failure lists both with reasons
 
 ## 4. Apiserver, SDK and CLI
 

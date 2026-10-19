@@ -36,7 +36,9 @@ export const FEATURES: Record<Capability, Record<string, "hard" | "soft">> = {
     "word-timings": "soft",
     "turn-detection": "soft",
     multilingual: "soft"
-  }
+  },
+  // Noise cancelling has no model entries yet; the provider itself is the unit.
+  nc: {}
 };
 
 export function unknownFeatures(

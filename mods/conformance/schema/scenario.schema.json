@@ -149,7 +149,7 @@
             },
             "filters": {
               "type": "array",
-              "description": "Audio filters for caller audio; every runner registers conformance-mute, which silences every frame",
+              "description": "Audio filters for caller audio; every runner registers conformance-mute (silences every frame) and conformance-boom (throws on the third frame)",
               "items": {
                 "type": "object",
                 "additionalProperties": false,

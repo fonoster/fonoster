@@ -214,6 +214,29 @@ describe("@common/registry", function () {
     ).to.throw("credentialRef must be a name");
   });
 
+  it("serves noise cancelling as a capability and refuses unknown ones", function () {
+    const r = new Registry({ store: new MemoryRegistryStore() });
+    expect(
+      r.addProvider({
+        id: "aicoustics",
+        adapter: "aicoustics",
+        capabilities: ["nc"],
+        credentialRef: "aicoustics-default"
+      })
+    ).to.deep.include({
+      state: "active",
+      capabilities: ["nc"],
+      credentialRef: "aicoustics-default"
+    });
+    expect(() =>
+      r.addProvider({
+        id: "denoiser",
+        adapter: "aicoustics",
+        capabilities: ["denoise" as never]
+      })
+    ).to.throw("unknown capability: denoise");
+  });
+
   it("applies labels and keyless providers from a file", function () {
     const store = new MemoryRegistryStore();
     expect(

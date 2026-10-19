@@ -18,6 +18,7 @@
  */
 import { existsSync, readdirSync } from "fs";
 import { join } from "path";
+import { AudioFilters } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { z } from "zod";
 import { AudioFilter, SAMPLE_RATE } from "../types";
@@ -28,48 +29,32 @@ import {
   ENHANCEMENT_LEVEL_PARAMETER
 } from "./types";
 
-const AI_COUSTICS_NAME = "aiCoustics";
+const AI_COUSTICS_NAME = AudioFilters.AI_COUSTICS_FILTER;
+/** The catalog provider whose credential the filter runs with. */
+const AI_COUSTICS_PROVIDER = "aicoustics";
 const PACKAGE = "@ai-coustics/aic-sdk";
 const FULL_SCALE = 32767;
 
 const logger = getLogger({ service: "appbridge", filePath: __filename });
 
-const aiCousticsOptionsSchema = z.object({
-  // Voice Focus suppresses competing speech; Multi Speaker keeps every voice
-  model: z.string().default("quail-vf-2.2-s-16khz"),
+// What a voice application may set (model, enhancementLevel, bypass) is the public schema shared
+// with the apiserver (@fonoster/common). The rest reads the media server's filesystem or carries
+// the vendor credential, so only the media server itself sets it (the factory's trusted overlay).
+const aiCousticsPublicOptionsSchema =
+  AudioFilters.aiCousticsPublicOptionsSchema;
+
+const aiCousticsOptionsSchema = aiCousticsPublicOptionsSchema.extend({
   modelDir: z.string().default("./models"),
   // Exact .aicmodel file to load; overrides model/modelDir lookup
   modelFile: z.string().optional(),
   // Download the model on first use when it isn't on disk yet
   autoDownload: z.boolean().default(true),
-  // Higher values suppress more, competing speech included
-  enhancementLevel: z.number().min(0).max(1).default(1),
-  // Keeps the delay but stops enhancing; useful for A/B tests
-  bypass: z.boolean().default(false),
-  // Name of the environment variable holding the license key. The key itself
-  // never goes in application config.
-  licenseEnv: z.string().default("AIC_SDK_LICENSE")
+  // The provider's key, resolved per session from the registry (the workspace's own key, else
+  // the platform key named by providers.aicoustics.credential). Never from application config.
+  license: z.string().min(1).optional()
 });
 
 type AiCousticsOptions = z.input<typeof aiCousticsOptionsSchema>;
-
-// What a voice application may set. modelDir, modelFile, autoDownload and
-// licenseEnv are deliberately absent: they read the media server's filesystem
-// and environment, and applications are untrusted input. The model name is
-// restricted to the vendor's id shape so it cannot walk the filesystem.
-const aiCousticsPublicOptionsSchema = aiCousticsOptionsSchema
-  .pick({ enhancementLevel: true, bypass: true })
-  .extend({
-    model: z
-      .string()
-      .regex(/^[a-z0-9]+(-[a-z0-9.]+)*$/, {
-        message: "Invalid model name"
-      })
-      .default("quail-vf-2.2-s-16khz")
-  })
-  // Reject anything else outright, so an application that sets a server-only
-  // option is told rather than having it quietly ignored
-  .strict();
 
 function loadSdk(): AiCousticsSdk {
   try {
@@ -109,17 +94,6 @@ function toInt16(samples: Float32Array, length: number): Int16Array {
   });
 }
 
-let configuredLicense: string | undefined;
-
-/**
- * Sets the license from fonoster.yaml (audioFilters.aiCoustics.license) at
- * boot. When unset, the filter falls back to the `licenseEnv` variable, which
- * keeps library use and tests working.
- */
-function setAiCousticsLicense(license: string | undefined) {
-  configuredLicense = license;
-}
-
 /**
  * ai-coustics speech enhancement (Quail Voice Focus by default), which keeps
  * the primary speaker and suppresses noise and competing voices.
@@ -136,11 +110,11 @@ function createAiCousticsFilter(
   deps: { loadSdk: () => AiCousticsSdk } = { loadSdk }
 ): AudioFilter {
   const options = aiCousticsOptionsSchema.parse(input);
-  const license = configuredLicense ?? process.env[options.licenseEnv];
+  const license = options.license;
 
   if (!license) {
     throw new Error(
-      `The ${AI_COUSTICS_NAME} filter needs a license key: set audioFilters.aiCoustics.license in fonoster.yaml (or ${options.licenseEnv}). Get one at https://developers.ai-coustics.com`
+      `The ${AI_COUSTICS_NAME} filter needs a credential for provider ${AI_COUSTICS_PROVIDER}: add a key on the Vendor keys page or set providers.${AI_COUSTICS_PROVIDER}.credential in gateway.yaml. Get one at https://developers.ai-coustics.com`
     );
   }
 
@@ -311,9 +285,9 @@ function createAiCousticsFilter(
 
 export {
   AI_COUSTICS_NAME,
+  AI_COUSTICS_PROVIDER,
   aiCousticsOptionsSchema,
   AiCousticsOptions,
   aiCousticsPublicOptionsSchema,
-  createAiCousticsFilter,
-  setAiCousticsLicense
+  createAiCousticsFilter
 };

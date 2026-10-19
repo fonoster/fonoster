@@ -37,6 +37,8 @@ const sandbox = createSandbox();
 const BLOCK_SIZE = 240;
 const MODEL_DIR = "/tmp/fonoster-aic-test-models";
 const DOWNLOADED_NAME = "quail_vf_2_2_s_16khz_gf70x7zf_v14.aicmodel";
+// The provider's credential, resolved per session by the gateway and passed as an option
+const LICENSE = "test-license";
 
 // Stands in for @ai-coustics/aic-sdk: halves every sample so the effect of
 // processing is visible, and records how it was driven. It mirrors the real
@@ -93,47 +95,51 @@ function fakeSdk(overrides: Partial<{ gain: number }> = {}) {
 }
 
 describe("@voice/filters/createAiCousticsFilter", function () {
-  beforeEach(function () {
-    process.env.AIC_SDK_LICENSE = "test-license";
-  });
-
   afterEach(function () {
-    delete process.env.AIC_SDK_LICENSE;
     rmSync(MODEL_DIR, { recursive: true, force: true });
     sandbox.restore();
   });
 
-  it("requires a license key in the environment", function () {
+  it("requires the provider's credential as an option", function () {
     // Arrange
-    delete process.env.AIC_SDK_LICENSE;
     const { sdk } = fakeSdk();
 
-    // Act & Assert
-    expect(() =>
-      createAiCousticsFilter({ modelDir: MODEL_DIR }, { loadSdk: () => sdk })
-    ).to.throw(/AIC_SDK_LICENSE/);
+    // Act & Assert: the session resolves it from the registry; nothing is read from the env
+    process.env.AIC_SDK_LICENSE = "ignored";
+    try {
+      expect(() =>
+        createAiCousticsFilter({ modelDir: MODEL_DIR }, { loadSdk: () => sdk })
+      ).to.throw(/credential for provider aicoustics/);
+    } finally {
+      delete process.env.AIC_SDK_LICENSE;
+    }
   });
 
-  it("reads the key from a custom environment variable", function () {
+  it("starts the processor with the credential it was given", async function () {
     // Arrange
-    process.env.OTHER_KEY = "other";
-    const { sdk } = fakeSdk();
+    const { sdk, processor } = fakeSdk();
+    const seen: unknown[] = [];
+    sdk.ProcessorAsync = function (_model: unknown, license: unknown) {
+      seen.push(license);
+      return processor;
+    } as unknown as AiCousticsSdk["ProcessorAsync"];
+    const filter = createAiCousticsFilter(
+      { license: "ws-key", modelDir: MODEL_DIR },
+      { loadSdk: () => sdk }
+    );
 
-    // Act & Assert
-    expect(() =>
-      createAiCousticsFilter(
-        { modelDir: MODEL_DIR, licenseEnv: "OTHER_KEY" },
-        { loadSdk: () => sdk }
-      )
-    ).to.not.throw();
-    delete process.env.OTHER_KEY;
+    // Act
+    await filter.ready!();
+
+    // Assert
+    expect(seen).to.deep.equal(["ws-key"]);
   });
 
   it("passes audio through untouched before the model is ready", async function () {
     // Arrange
     const { sdk } = fakeSdk();
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR },
+      { license: LICENSE, modelDir: MODEL_DIR },
       { loadSdk: () => sdk }
     );
     const frame = sineAtDb(-20, 20);
@@ -150,7 +156,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     // Arrange
     const { sdk, blocks } = fakeSdk();
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR },
+      { license: LICENSE, modelDir: MODEL_DIR },
       { loadSdk: () => sdk }
     );
     await filter.ready!();
@@ -176,7 +182,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     // Arrange
     const { sdk } = fakeSdk({ gain: 0.5 });
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR },
+      { license: LICENSE, modelDir: MODEL_DIR },
       { loadSdk: () => sdk }
     );
     await filter.ready!();
@@ -210,7 +216,12 @@ describe("@voice/filters/createAiCousticsFilter", function () {
 
     // Act
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR, enhancementLevel: 0.6, bypass: true },
+      {
+        license: LICENSE,
+        modelDir: MODEL_DIR,
+        enhancementLevel: 0.6,
+        bypass: true
+      },
       { loadSdk: () => sdk }
     );
     await filter.ready!();
@@ -224,7 +235,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     // Arrange
     const { sdk } = fakeSdk();
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR },
+      { license: LICENSE, modelDir: MODEL_DIR },
       { loadSdk: () => sdk }
     );
 
@@ -240,7 +251,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     // Arrange
     const { sdk, download, fromFile, downloadedFile } = fakeSdk();
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR, model: "quail-vf-2.2-s-16khz" },
+      { license: LICENSE, modelDir: MODEL_DIR, model: "quail-vf-2.2-s-16khz" },
       { loadSdk: () => sdk }
     );
 
@@ -258,7 +269,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     writeFileSync(join(MODEL_DIR, DOWNLOADED_NAME), "model");
     const { sdk, download, fromFile } = fakeSdk();
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR, model: "quail-vf-2.2-s-16khz" },
+      { license: LICENSE, modelDir: MODEL_DIR, model: "quail-vf-2.2-s-16khz" },
       { loadSdk: () => sdk }
     );
 
@@ -274,7 +285,11 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     // Arrange
     const { sdk, download, fromFile } = fakeSdk();
     const filter = createAiCousticsFilter(
-      { modelFile: "/opt/models/pinned.aicmodel", autoDownload: false },
+      {
+        license: LICENSE,
+        modelFile: "/opt/models/pinned.aicmodel",
+        autoDownload: false
+      },
       { loadSdk: () => sdk }
     );
 
@@ -290,7 +305,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     // Arrange
     const { sdk } = fakeSdk();
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR, autoDownload: false },
+      { license: LICENSE, modelDir: MODEL_DIR, autoDownload: false },
       { loadSdk: () => sdk }
     );
 
@@ -307,7 +322,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     });
 
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR },
+      { license: LICENSE, modelDir: MODEL_DIR },
       { loadSdk: () => sdk }
     );
 
@@ -318,7 +333,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
   it("explains how to install the SDK when it is missing", async function () {
     // Arrange
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR },
+      { license: LICENSE, modelDir: MODEL_DIR },
       {
         loadSdk: () => {
           throw new Error(
@@ -336,7 +351,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     // Arrange
     const { sdk } = fakeSdk();
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR, autoDownload: false },
+      { license: LICENSE, modelDir: MODEL_DIR, autoDownload: false },
       { loadSdk: () => sdk }
     );
     const chain = createAudioFilterChain([filter]);
@@ -356,7 +371,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     const { sdk, processor } = fakeSdk();
     processor.getContext = () => Promise.resolve({}) as never;
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR },
+      { license: LICENSE, modelDir: MODEL_DIR },
       { loadSdk: () => sdk }
     );
 
@@ -370,7 +385,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     // Arrange
     const { sdk } = fakeSdk();
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR, autoDownload: false },
+      { license: LICENSE, modelDir: MODEL_DIR, autoDownload: false },
       { loadSdk: () => sdk }
     );
     const chain = createAudioFilterChain([filter]);
@@ -390,7 +405,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
       () => new Promise<string>((resolve) => (finishDownload = resolve))
     );
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR },
+      { license: LICENSE, modelDir: MODEL_DIR },
       { loadSdk: () => sdk }
     );
     const ready = filter.ready!();
@@ -408,7 +423,7 @@ describe("@voice/filters/createAiCousticsFilter", function () {
     // Arrange
     const { sdk, dispose } = fakeSdk();
     const filter = createAiCousticsFilter(
-      { modelDir: MODEL_DIR },
+      { license: LICENSE, modelDir: MODEL_DIR },
       { loadSdk: () => sdk }
     );
     await filter.ready!();

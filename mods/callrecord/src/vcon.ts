@@ -77,6 +77,8 @@ export function buildVcon(
   let endedAt: number | undefined;
   let endReason: string | undefined;
   const failures: string[] = [];
+  // Audio filters that failed, at start or mid-call, with the reason (for the "Unfiltered" badge).
+  const filterFailures: { name?: string; reason: string }[] = [];
   let started: Record<string, unknown> | undefined;
   let failure: { reason: string; sipStatus?: number } | undefined;
   let recordingPolicy: string | undefined;
@@ -202,6 +204,12 @@ export function buildVcon(
         type === "app.dropped")
     ) {
       failures.push(type);
+      if (type === "filter.failed") {
+        filterFailures.push({
+          ...(m.name ? { name: String(m.name) } : {}),
+          reason: String(m.reason ?? "error")
+        });
+      }
     }
   }
 
@@ -319,6 +327,7 @@ export function buildVcon(
             }
           }
         : {}),
+      ...(filterFailures.length ? { filters: { failed: filterFailures } } : {}),
       complete: !missing.includes("hangup"),
       missing,
       failures

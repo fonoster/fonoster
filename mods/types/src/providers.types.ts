@@ -26,7 +26,7 @@ type CatalogItem = {
   state: "active" | "deprecated";
   providerId: string;
   /** Models: stt, tts or llm. */
-  type?: "stt" | "tts" | "llm";
+  type?: "stt" | "tts" | "llm" | "nc";
   capabilities?: string[];
   /** Providers: the adapter needs no key (fake, local models). */
   keyless?: boolean;
@@ -40,7 +40,8 @@ type CatalogItem = {
 
 type ListCatalogRequest = {
   kind?: "provider" | "model" | "voice";
-  type?: "stt" | "tts" | "llm";
+  /** Models by type, or providers serving the capability (`nc`: noise cancelling). */
+  type?: "stt" | "tts" | "llm" | "nc";
 };
 
 type ListCatalogResponse = { items: CatalogItem[] };
