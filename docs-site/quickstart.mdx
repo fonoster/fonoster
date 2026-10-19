@@ -1,0 +1,208 @@
+---
+title: "Your first AI call"
+sidebarTitle: "Quickstart"
+description: "Create an Autopilot agent, talk to it from your browser, then give it a phone number."
+---
+
+In this tutorial you create an Autopilot agent and talk to it. You don't need a carrier or a phone
+number: you call the agent from your browser. At the end, you give it a real number so anyone can
+call it.
+
+## Before you begin
+
+You need:
+
+- A Fonoster account. Sign up at [app.fonoster.com](https://app.fonoster.com), or use the dashboard
+  of your own Fonoster install.
+- A microphone and speakers (or a headset).
+- For the SDK or the CLI: [Node.js](https://nodejs.org/) 22 or later.
+
+<Note>
+  Calls from the browser need the dashboard on HTTPS or `localhost`. Fonoster Cloud is served over
+  HTTPS. On your own install, open the dashboard at `localhost` on the machine that runs it.
+</Note>
+
+## Make the call
+
+<Steps>
+  <Step title="Create an Autopilot agent">
+    An Autopilot agent is an AI that Fonoster runs for you. You give it a prompt, a voice and a
+    language model. You don't run a server.
+
+    <Tabs>
+      <Tab title="Dashboard">
+        1. Sign in to the dashboard and go to **Autopilot**.
+        2. Choose **New agent**.
+        3. Pick the **Receptionist** template.
+        4. Name it `Front desk` and keep the language **English (US)**.
+        5. Choose **Create agent**.
+
+        The dashboard opens your new agent on the **Configure** tab. The template wrote the
+        prompt and the greeting for you, and picked a matching voice and transcriber.
+      </Tab>
+      <Tab title="SDK">
+        In the dashboard, go to **API keys** and create a key. Copy the key ID and the secret.
+        You also need your workspace's access key ID, which starts with `WO`.
+
+        Install the SDK:
+
+        ```bash
+        npm install @fonoster/sdk
+        ```
+
+        Save this as `create-agent.js`. It signs in with your API key and creates an agent with a
+        short receptionist prompt:
+
+        ```javascript create-agent.js
+        const SDK = require("@fonoster/sdk");
+
+        async function main() {
+          const client = new SDK.Client({
+            accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+          });
+          await client.loginWithApiKey(
+            process.env.FONOSTER_API_KEY,
+            process.env.FONOSTER_API_SECRET
+          );
+
+          const apps = new SDK.Applications(client);
+          const { ref } = await apps.createApplication({
+            name: "Front desk",
+            type: "AUTOPILOT",
+            speech: {
+              voice: "deepgram/aura-2-thalia-en",
+              language: "en-US",
+              sttModel: "deepgram/nova-3"
+            },
+            intelligence: {
+              config: {
+                conversationSettings: {
+                  firstMessage: "Hi, thanks for calling. How can I help you today?",
+                  systemPrompt:
+                    "You are the receptionist for our company. Answer in one or two short sentences. Ask one question at a time.",
+                  goodbyeMessage: "Thanks for calling. Have a great day!",
+                  systemErrorMessage:
+                    "Sorry, something went wrong on our side. Please call again in a few minutes."
+                },
+                languageModel: {
+                  model: "openai/gpt-4o-mini"
+                }
+              }
+            }
+          });
+
+          console.log(`Agent created: ${ref}`);
+        }
+
+        main().catch(console.error);
+        ```
+
+        Run it with your key:
+
+        ```bash
+        FONOSTER_API_KEY=APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1 \
+        FONOSTER_API_SECRET=<your secret> \
+        node create-agent.js
+        ```
+
+        It prints the agent's ref:
+
+        ```text
+        Agent created: 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31
+        ```
+      </Tab>
+      <Tab title="CLI">
+        In the dashboard, go to **API keys** and create a key. Copy the key ID and the secret.
+
+        Install the `fonoster` CLI and log in to your workspace. It asks for the endpoint (keep
+        `api.fonoster.com` for Fonoster Cloud), the key ID and the secret:
+
+        ```bash
+        npm install -g @fonoster/ctl
+        fonoster workspaces:login
+        ```
+
+        Save the agent as `agent.yaml`. It holds the agent's messages and its language model:
+
+        ```yaml agent.yaml
+        conversationSettings:
+          firstMessage: "Hi, thanks for calling. How can I help you today?"
+          systemPrompt: |
+            You are the receptionist for our company.
+            Answer in one or two short sentences. Ask one question at a time.
+          goodbyeMessage: "Thanks for calling. Have a great day!"
+          systemErrorMessage: "Sorry, something went wrong on our side. Please call again in a few minutes."
+        languageModel:
+          model: openai/gpt-4o-mini
+        ```
+
+        Create the agent with a voice, a language and a transcriber:
+
+        ```bash
+        fonoster applications:create --name "Front desk" --agent agent.yaml \
+          --voice deepgram/aura-2-thalia-en --language en-US --stt-model deepgram/nova-3
+        ```
+
+        It prints the agent's ref:
+
+        ```text
+        Application created: 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31
+        ```
+      </Tab>
+    </Tabs>
+
+    <Check>You have an agent named **Front desk**. It shows up under **Autopilot** in the dashboard.</Check>
+
+  </Step>
+
+  <Step title="Talk to it from your browser">
+    In the dashboard, go to **Autopilot** and open **Front desk**. Choose **Talk to agent**, then
+    **Call**. Allow the microphone when the browser asks.
+
+    {/* TODO asset: quickstart/talk-to-agent: the "Talk to Front desk" panel while connected, with the call timer, Mute and Hang up */}
+
+    The panel shows **Connected** and a call timer. The agent greets you: "Hi, thanks for calling.
+    How can I help you today?" Ask it something, and it answers in a sentence or two.
+
+    Choose **Hang up** when you're done. Closing the panel also hangs up.
+
+    <Note>
+      The call reaches the saved version of the agent. If you edit the agent, choose **Save**
+      before you call again.
+    </Note>
+
+  </Step>
+
+  <Step title="See the call">
+    Go to **Calls**. Your browser call is at the top of the list. Open it to read the transcript.
+
+    <Check>You made your first AI call.</Check>
+
+  </Step>
+</Steps>
+
+## Give your agent a phone number
+
+To let people call your agent from a phone, link a number to it. The fastest way is a Twilio
+number: [Link a Twilio number](/telephony/link-twilio) walks you through it. You can also bring any
+carrier with a [SIP trunk](/telephony/trunks).
+
+Once the number is in your workspace, go to **Numbers** and open it. Under **When this number is
+called, send it to**, choose **Autopilot agent**, then **Front desk**. The **Talk to agent** panel then lists the number under **Call this number**.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Build an Autopilot agent" icon="robot" href="/autopilot/build-an-agent">
+    Write the prompt, pick the voice and model, and set how long calls last.
+  </Card>
+  <Card title="Give your agent tools" icon="wrench" href="/autopilot/tools">
+    Let it hang up, transfer to a person, or call your API.
+  </Card>
+  <Card title="How Fonoster works" icon="diagram-project" href="/concepts/how-fonoster-works">
+    Learn how workspaces, numbers and applications fit together.
+  </Card>
+  <Card title="Build a stream" icon="code" href="/streams/voice-sdk">
+    Run your own agent logic on your own server instead.
+  </Card>
+</CardGroup>

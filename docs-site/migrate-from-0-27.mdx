@@ -1,0 +1,311 @@
+---
+title: "Migrate from 0.27"
+description: "Update your applications, Autopilot agents, Voice SDK code and scripts from Fonoster 0.27 or earlier to 0.30."
+---
+
+Fonoster 0.30 is a new release that doesn't keep the old interfaces working. Use this page to update
+what you built on 0.27 or earlier: application settings, Autopilot agents, Voice SDK apps, CLI
+scripts and webhooks.
+
+For most old fields, the API answers with an error that names the new one, for example
+`type EXTERNAL was renamed to STREAM`. Fix what it names and send the request again. The API
+ignores `endpoint`, `textToSpeech` and `speechToText` without an error, so check those yourself.
+
+<Note>
+  On Fonoster Cloud, your saved agents, numbers and settings were moved for you. You only update
+  your code, files and scripts. If you run Fonoster yourself, upgrade your install first with
+  [Upgrade from 0.27](/self-hosting/upgrade-from-0-27).
+</Note>
+
+## What changed at a glance
+
+| 0.27 | 0.30 |
+| --- | --- |
+| `type: EXTERNAL` | `type: STREAM` |
+| `endpoint` (a gRPC address) | `url` (a `ws://` or `wss://` address) |
+| `flavor: native` / `twilio` | `protocol: fonoster` / `twilio` |
+| `textToSpeech`, `speechToText` | `speech`: `voice`, `language`, `sttModel`, `ttsModel` as catalog IDs |
+| `languageModel.provider` + `model` | `languageModel.model` as a catalog ID, such as `groq/openai/gpt-oss-120b` |
+| `languageModel.apiKey`, `baseUrl` | Removed. Add your key in **Vendor keys** |
+| `conversationSettings.vad`, `maxSpeechWaitTimeout` | Removed. Use `patience` |
+| `eventsHook` | Removed. Use workspace webhooks |
+| `audioFilters` | Removed |
+| CLI `--assistant` | `--agent` |
+| CLI `--flavor` | `--protocol` |
+| Voice SDK `(req, res)` handler | `(session)` handler and a signing secret |
+| `record()` | The recording policy on the application |
+
+## Update your applications
+
+An application is now a stream or an Autopilot agent. Speech settings moved from the vendor objects
+into `speech`, and use catalog IDs.
+
+<Steps>
+  <Step title="Rename the type">
+    Change `EXTERNAL` to `STREAM`. `AUTOPILOT` stays the same.
+  </Step>
+  <Step title="Replace the endpoint with a URL">
+    A stream is now a WebSocket server. Set `url` to its `ws://` or `wss://` address. Fonoster no
+    longer reads `endpoint`, so an application with only an `endpoint` gets no calls.
+
+    Autopilot agents need no URL: Fonoster runs them.
+  </Step>
+  <Step title="Set the protocol">
+    If you used `flavor`, rename it to `protocol`. `native` is now `fonoster`. Leave it out to get
+    `fonoster`. Autopilot agents always use `fonoster`.
+  </Step>
+  <Step title="Move the speech settings">
+    Replace `textToSpeech` and `speechToText` with `speech`. Fonoster ignores the old objects, so a
+    voice you set there is lost. Name each voice and model by its catalog ID, `<provider>/<id>`. To
+    list them, run `fonoster providers:catalog --kind voice`.
+  </Step>
+</Steps>
+
+This is the same stream before and after:
+
+<CodeGroup>
+
+```javascript 0.27
+const request = {
+  name: "Custom Voice App",
+  type: "EXTERNAL",
+  endpoint: "voice.example.com:50061",
+  speechToText: {
+    productRef: "stt.deepgram",
+    config: { languageCode: "en-US" }
+  },
+  textToSpeech: {
+    productRef: "tts.deepgram",
+    config: { voice: "aura-asteria-en" }
+  }
+};
+```
+
+```javascript 0.30
+const request = {
+  name: "Custom Voice App",
+  type: "STREAM",
+  url: "wss://voice.example.com/session",
+  protocol: "fonoster",
+  speech: {
+    voice: "deepgram/aura-2-thalia-en",
+    language: "en-US",
+    sttModel: "deepgram/nova-3"
+  }
+};
+```
+
+</CodeGroup>
+
+Creating a stream returns its signing secret once. Save it: your server needs it (see
+[Rewrite your Voice SDK app](#rewrite-your-voice-sdk-app)).
+
+## Update your Autopilot agents
+
+The agent's settings still live under `intelligence.config`, with `conversationSettings` and
+`languageModel`. A few fields changed:
+
+- **Model.** Put the provider and the model in one catalog ID: `provider: groq` and
+  `model: llama-3.3-70b-versatile` become `model: groq/openai/gpt-oss-120b`. Groq retired Llama 3.3
+  70B, so agents that still name it run on `groq/openai/gpt-oss-120b`.
+- **Keys and endpoints.** Delete `apiKey` and `baseUrl`. Fonoster uses its own provider accounts,
+  or yours if you add a key under **Vendor keys** (see
+  [Use your own provider keys](/workspace/provider-keys)).
+- **Voice activity detection.** Delete `vad` and `maxSpeechWaitTimeout`. Fonoster now decides when
+  the caller has finished talking. To make the agent wait longer or answer sooner, set
+  `conversationSettings.patience` to `low`, `normal` or `high` (see
+  [Turn-taking and barge-in](/autopilot/turn-taking)).
+- **Events hook.** Delete `eventsHook`, and subscribe a workspace webhook instead (see
+  [Replace the events hook](#replace-the-events-hook)).
+- **Audio filters.** Delete `audioFilters`. There is no per-agent setting for it.
+
+In a CLI file, put the agent under an `assistant` key and the speech settings under `speech`:
+
+<CodeGroup>
+
+```yaml 0.27
+name: "Front desk"
+type: "AUTOPILOT"
+speechToText:
+  productRef: "stt.deepgram"
+  config:
+    model: "nova-3"
+    languageCode: "en-US"
+textToSpeech:
+  productRef: "tts.deepgram"
+  config:
+    voice: "aura-asteria-en"
+intelligence:
+  productRef: "llm.groq"
+  config:
+    conversationSettings:
+      firstMessage: "Hi, thanks for calling. How can I help you today?"
+      systemPrompt: "You are the receptionist for our company."
+      goodbyeMessage: "Thanks for calling. Have a great day!"
+      systemErrorMessage: "Sorry, something went wrong on our side."
+      vad:
+        activationThreshold: 0.4
+    languageModel:
+      provider: "groq"
+      model: "llama-3.3-70b-versatile"
+      apiKey: "gsk_..."
+```
+
+```yaml 0.30
+name: "Front desk"
+speech:
+  voice: deepgram/aura-2-thalia-en
+  language: en-US
+  sttModel: deepgram/nova-3
+assistant:
+  conversationSettings:
+    firstMessage: "Hi, thanks for calling. How can I help you today?"
+    systemPrompt: "You are the receptionist for our company."
+    goodbyeMessage: "Thanks for calling. Have a great day!"
+    systemErrorMessage: "Sorry, something went wrong on our side."
+  languageModel:
+    model: groq/openai/gpt-oss-120b
+```
+
+</CodeGroup>
+
+Create it as before:
+
+```bash
+fonoster applications:create --from-file agent.yaml
+```
+
+## Update your CLI scripts
+
+Two `applications:create` and `applications:update` flags were renamed. The old names stop the
+command with an error that names the new one.
+
+| 0.27 | 0.30 |
+| --- | --- |
+| `--assistant agent.yaml` | `--agent agent.yaml` |
+| `--flavor native` | `--protocol fonoster` |
+| `--flavor twilio` | `--protocol twilio` |
+
+## Rewrite your Voice SDK app
+
+Your app is no longer a gRPC server. For every call, Fonoster opens one signed WebSocket to your
+app's `url`, and your handler gets a single argument: the session.
+
+<Steps>
+  <Step title="Update the package">
+    Install the latest Voice SDK:
+
+    ```bash
+    npm install @fonoster/voice@latest
+    ```
+
+    For Python, use `pip install fonoster-voice` (see [Use the Python Voice SDK](/streams/python)).
+  </Step>
+  <Step title="Change the handler">
+    Import `VoiceServer` by name, pass the signing secret, and take the session. You no longer call
+    `answer()`: the call is answered when your app connects.
+
+    <CodeGroup>
+
+    ```typescript 0.27
+    import VoiceServer from "@fonoster/voice";
+
+    new VoiceServer().listen(async (req, res) => {
+      await res.answer();
+      await res.say(`Hello, you called ${req.ingressNumber}`);
+      await res.hangup();
+    });
+    ```
+
+    ```typescript 0.30
+    import { VoiceServer } from "@fonoster/voice";
+
+    new VoiceServer({
+      port: 3000,
+      signingSecret: process.env.APP_SIGNING_SECRET
+    }).listen(async (session) => {
+      await session.say(`Hello, you called ${session.to}`);
+      await session.hangup();
+    });
+    ```
+
+    </CodeGroup>
+  </Step>
+  <Step title="Set the signing secret">
+    The server won't start without a signing secret, and it refuses connections that Fonoster
+    didn't sign. Set `APP_SIGNING_SECRET` to the secret you got when you created the stream. If you
+    lost it, make a new one:
+
+    ```bash
+    fonoster applications:rotate-secret 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31
+    ```
+
+    <Warning>
+      A new secret takes effect at once, with no overlap. Your app refuses calls until you deploy
+      the new secret, so rotate during a quiet period.
+    </Warning>
+  </Step>
+  <Step title="Replace the methods that changed">
+    Use this table to replace what your handler calls:
+
+    | 0.27 | 0.30 |
+    | --- | --- |
+    | `req.callerNumber`, `req.ingressNumber`, `req.appRef` | `session.from`, `session.to`, `session.appRef` |
+    | `answer()` | Remove it |
+    | `dial(number)` | `transfer(to, { mode })`, with `mode` `cold`, `warm` or `refer` |
+    | `sgather()` | `session.on("turn.ended" \| "transcript.partial" \| "dtmf")` |
+    | `stream()` | `session.audio` |
+    | `mute()`, `unmute()` | `hold()`, `resume()` |
+    | `record()` | The application's recording policy (see below) |
+    | `setAudioFilters()` | Removed |
+
+    [Voice SDK reference](/reference/voice-sdk) has every method and event.
+  </Step>
+</Steps>
+
+If your app speaks Twilio Media Streams, such as a Pipecat bot, you don't need the Voice SDK. Set the
+application's `protocol` to `twilio` and its `url` to your bot (see
+[Bring your Twilio or Pipecat app](/streams/bring-your-app)).
+
+## Replace the events hook
+
+The Autopilot events hook and its `conversation.started` and `conversation.ended` events are gone.
+Subscribe a workspace webhook to the events that replace them:
+
+| 0.27 event | 0.30 event |
+| --- | --- |
+| `conversation.started` | `call.started` |
+| `conversation.ended` | `call.ended` when the call is over, or `call_record.sealed` when its record, with the transcript and recording, is ready |
+
+Workspace webhooks work for every application, not only Autopilot agents:
+
+```bash
+fonoster webhooks:create --url https://example.com/hooks -e call.ended -e call_record.sealed
+```
+
+If you subscribe to an old event name, Fonoster refuses it and names the replacement. See
+[Webhooks](/observe/webhooks).
+
+## Get recordings from the call record
+
+Recording is no longer a step in your code. Set the application's `recording` policy to `off`,
+`on` or `consent` (a consent prompt plays first). See
+[Record calls and ask for consent](/telephony/recording).
+
+Recording URLs built from the app ref and an ID no longer exist. Each call's recording is part of
+its call record. List your calls with the CLI, then download a call's recording by its call ref:
+
+```bash
+fonoster records:list
+fonoster records:download <callRef>
+```
+
+You can also get it from the call's page under **Calls**, or from the HTTP API at
+`GET /api/records/{callRef}/recording`. See [Call records](/observe/call-records).
+
+## Check your work
+
+1. Create or update each application. Fix any old field the API names, and check that no
+   `endpoint`, `textToSpeech` or `speechToText` is left.
+2. Call each application, from **Talk to agent** in the dashboard or from a number.
+3. Open the call under **Calls** and check the transcript.

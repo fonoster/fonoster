@@ -61,6 +61,17 @@ Vapi, Retell, Bland, LiveKit and Pipecat.
 - Rebuild process notes (`docs/operators/rebuild.md`, `routr-live-test.md`,
   `conformance.md`) unless a reader needs them for a task.
 
+## Disclosure rule
+
+Document what the reader touches, configures or observes. Describe the behavior, not the mechanism.
+Organize by the reader's task, not by our components (recording lives under Telephony, not under the
+service that writes it). Never promise what isn't built: `MENU.md` lists those gaps.
+
+## Example values
+
+Use realistic values in the real formats the API returns (refs, numbers, keys), never `abc123` or
+`your-id-here`. Take the format from the code or a live response, then change the digits.
+
 ## Assets
 
 Diagrams and screenshots are drawn in Pencil, in their own file `designs/docs.pen`. Never put them in

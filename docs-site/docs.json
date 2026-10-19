@@ -47,7 +47,10 @@
               {
                 "group": "Get started",
                 "pages": [
-                  "introduction"
+                  "introduction",
+                  "quickstart",
+                  "concepts/how-fonoster-works",
+                  "migrate-from-0-27"
                 ]
               }
             ]
