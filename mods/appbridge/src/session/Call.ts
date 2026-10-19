@@ -221,6 +221,11 @@ export class Call {
     return this.info.callRef;
   }
 
+  /** A hang-up is in progress (waiting for Roomr's ack before the session ends). */
+  get isHangingUp() {
+    return this.hangingUp !== undefined;
+  }
+
   /** The workspace of the app currently running the call, when the app config names it. */
   get workspaceRef(): string | undefined {
     return this.session?.workspaceRef;
@@ -1113,11 +1118,15 @@ export class AppSession {
 
   private onSocketClosed() {
     if (this.closed) return;
+    // A socket closed while the call is already hanging up (an app that asks for the hang-up and
+    // closes at once, as Pipecat's auto_hang_up does) is not a drop.
+    const hangingUp = this.call.isHangingUp;
     // The app dropped mid-call: hang up (VS11).
-    this.call.record("event", {
-      type: "app.dropped",
-      sessionRef: this.sessionRef
-    });
+    if (!hangingUp)
+      this.call.record("event", {
+        type: "app.dropped",
+        sessionRef: this.sessionRef
+      });
     for (const l of this.listeners) l.close();
     this.listeners = [];
     this.closed = true;
@@ -1128,7 +1137,7 @@ export class AppSession {
     this.stt?.close();
     this.detector?.close?.();
     this.call.sessionDetached(this);
-    void this.call.hangup("app_hangup");
+    if (!hangingUp) void this.call.hangup("app_hangup");
   }
 
   private onFrame(raw: Buffer, isBinary: boolean) {

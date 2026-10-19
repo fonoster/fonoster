@@ -150,6 +150,7 @@ import headerPlugin from 'eslint-plugin-header'; export default [
       '**/*.d.ts',
       '**/bin/**',
       "tools/**",
+      ".worktrees/**",
       "ops/**",
       ".mocharc.cjs",
       "mods/*/scripts/**",

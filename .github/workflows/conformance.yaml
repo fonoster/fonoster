@@ -1,8 +1,8 @@
-name: conformance
+name: Conformance
 
 # Conformance suites (add-conformance-framework, C6). The suites that need NATS run on pull
 # requests that touch the voice path; timing (T1), load (T2), turn-taking replay (T3) and the
-# Pipecat golden test run nightly and on demand. Unit tests, Go and Python are in ci.yaml.
+# Pipecat golden test run nightly and on demand. Unit tests, Go and Python are in pr-checks.yaml.
 
 on:
   pull_request:

@@ -1,0 +1,40 @@
+name: PR Title
+
+# Pull requests are squash merged and the PR title becomes the commit on main, so the title is what
+# must be a conventional commit (ops/release/next-release.sh reads the type). Rules:
+# commitlint.config.cjs. Kept apart from pr-checks.yaml so an edit to the title or description
+# doesn't rerun the build.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  title:
+    name: conventional PR title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      # commitlint and its config are root devDependencies; no build needed.
+      - name: Install dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+
+      - name: Check the title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$TITLE" | npx commitlint --verbose

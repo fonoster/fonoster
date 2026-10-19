@@ -1,0 +1,9 @@
+# Security updates only (limit 0 disables version-update PRs); the labels keep Dependabot from re-adding "javascript".
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+    labels: [dependencies]
