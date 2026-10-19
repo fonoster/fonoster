@@ -34,7 +34,14 @@ describe("@appbridge/workspace vendor keys", function () {
       elevenlabs: {
         adapter: "elevenlabs" as const,
         capabilities: ["tts" as const]
-      }
+      },
+      // A noise-cancelling provider: no adapter, its key feeds the aiCoustics filter.
+      aicoustics: {
+        adapter: "aicoustics" as const,
+        capabilities: ["nc" as const],
+        credential: { value: "aic-platform" }
+      },
+      fake: { adapter: "fake" as const, capabilities: ["tts" as const] }
     }
   };
   const key = (adapter: unknown) =>
@@ -57,11 +64,14 @@ describe("@appbridge/workspace vendor keys", function () {
     );
     await catalog.prepare("WO1");
     await catalog.prepare("WO2");
+    // Every provider that takes a key is asked, the nc one included; keyless ones are not.
     expect(lookups).to.have.members([
       "WO1/deepgram",
       "WO1/elevenlabs",
+      "WO1/aicoustics",
       "WO2/deepgram",
-      "WO2/elevenlabs"
+      "WO2/elevenlabs",
+      "WO2/aicoustics"
     ]);
     expect(key(catalog.resolveVoice("deepgram/aura", "WO1")!.adapter)).to.equal(
       "ws-key"
@@ -83,6 +93,28 @@ describe("@appbridge/workspace vendor keys", function () {
       key(catalog.resolveVoice("elevenlabs/rachel", "WO1")!.adapter)
     ).to.equal("ws-el-key");
     expect(catalog.usesWorkspaceKey("deepgram", "WO1")).to.equal(true);
+  });
+
+  it("resolves the credential of a provider the gateway calls itself (nc)", async function () {
+    const catalog = new Catalog(config, undefined, {
+      get: async (workspaceRef, providerId) => {
+        if (workspaceRef === "WO1" && providerId === "aicoustics")
+          return "ws-aic";
+        if (workspaceRef === "WO1" && providerId === "elevenlabs")
+          return "ws-el-key";
+        return undefined;
+      }
+    });
+    await catalog.prepare("WO1");
+    await catalog.prepare("WO2");
+    // The workspace's own key, else the platform key, else nothing.
+    expect(catalog.credentialFor("aicoustics", "WO1")).to.equal("ws-aic");
+    expect(catalog.credentialFor("aicoustics", "WO2")).to.equal("aic-platform");
+    expect(catalog.credentialFor("aicoustics")).to.equal("aic-platform");
+    expect(catalog.credentialFor("elevenlabs", "WO1")).to.equal("ws-el-key");
+    expect(catalog.credentialFor("elevenlabs", "WO2")).to.equal(undefined);
+    expect(catalog.credentialFor("fake", "WO1")).to.equal(undefined);
+    expect(catalog.credentialFor("nope", "WO1")).to.equal(undefined);
   });
 
   it("falls back to platform keys when the lookup fails", async function () {

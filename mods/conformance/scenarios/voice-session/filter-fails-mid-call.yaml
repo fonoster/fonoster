@@ -1,0 +1,21 @@
+format: fonoster.scenario.v1
+name: filter-fails-mid-call
+contract: voice-session
+role: app
+spec: "Audio filters come from app configuration / Filter fails during the call"
+description: >
+  conformance-boom throws on the third caller frame. The filter is disabled for the rest of the
+  call, the call goes on with unfiltered audio, and the record names the filter and the reason.
+setup:
+  app: { filters: [{ name: conformance-boom }] }
+steps:
+  - expect: { type: session.start }
+  - send: { type: speak, id: r1, text: "Go on, I am listening.", last: true }
+  - expect: { type: output.started, id: r1 }
+  - caller: { audio: { kind: tone, ms: 400 } }
+  - expect: { type: output.done, id: r1 }
+    within_ms: 5000
+  - expect_none: { type: session.end }
+    for_ms: 500
+  - assert:
+      record.messages.filter.failed: { $includes: [{ name: conformance-boom, reason: kaput }] }

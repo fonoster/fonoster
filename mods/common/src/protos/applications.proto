@@ -114,6 +114,14 @@ message ProductContainer {
   google.protobuf.Struct credentials = 3;
 }
 
+// An audio filter run on the caller's audio before speech recognition
+message AudioFilter {
+  // Filter name (aiCoustics)
+  string name = 1;
+  // The filter's public options (model, enhancement_level, bypass)
+  google.protobuf.Struct options = 2;
+}
+
 // Application definition
 message Application {
   // Reference to the application
@@ -154,6 +162,8 @@ message Application {
   string recording = 18;
   // Answering-machine detection (off when unset)
   AmdSettings amd = 19;
+  // Audio filters in order (empty: none)
+  repeated AudioFilter filters = 20;
 }
 
 // Request to create a new application
@@ -188,6 +198,8 @@ message CreateApplicationRequest {
   string recording = 14;
   // Answering-machine detection (off when unset)
   AmdSettings amd = 15;
+  // Audio filters in order (empty: none)
+  repeated AudioFilter filters = 20;
 }
 
 // Response for create application
@@ -256,6 +268,8 @@ message UpdateApplicationRequest {
   string recording = 15;
   // Answering-machine detection (off when unset)
   AmdSettings amd = 16;
+  // Audio filters in order (the update replaces the app: left out clears them)
+  repeated AudioFilter filters = 20;
 }
 
 // Response for update application

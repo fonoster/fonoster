@@ -206,6 +206,17 @@ export function CallRecordView() {
         {isPrivate && !offline && (
           <Badge variant="info">Stored in your region</Badge>
         )}
+        {call.unfiltered?.map((u, i) => (
+          <Alert key={i} variant="warning">
+            <span className="flex flex-wrap items-center gap-2">
+              <Badge variant="warning">Unfiltered</Badge>
+              <span>
+                {u.name ? `${u.name}: ` : ""}
+                {u.reason}
+              </span>
+            </span>
+          </Alert>
+        ))}
         {offline && (
           <Alert variant="error">
             Your region is offline. Only call details are shown.

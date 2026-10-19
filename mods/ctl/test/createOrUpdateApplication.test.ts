@@ -224,6 +224,36 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     ]);
   });
 
+  it("maps --noise-cancelling to the app's filters", async function () {
+    await createOrUpdateApplication(client, undefined, "positional-ref", true, {
+      "noise-cancelling": "aicoustics"
+    });
+    expect(updateStub.firstCall.args[0].filters).to.deep.equal([
+      { name: "aiCoustics" }
+    ]);
+
+    await createOrUpdateApplication(client, undefined, "positional-ref", true, {
+      "noise-cancelling": "none"
+    });
+    expect(updateStub.secondCall.args[0].filters).to.deep.equal([]);
+
+    await expect(
+      createOrUpdateApplication(client, undefined, "positional-ref", true, {
+        "noise-cancelling": "krisp"
+      })
+    ).to.be.rejectedWith(/unknown noise-cancelling provider "krisp"/);
+  });
+
+  it("keeps the current filters when no flag names them", async function () {
+    getStub.resolves({ ...currentApp, filters: [{ name: "aiCoustics" }] });
+    await createOrUpdateApplication(client, undefined, "positional-ref", true, {
+      voice: "elevenlabs/rachel"
+    });
+    expect(updateStub.firstCall.args[0].filters).to.deep.equal([
+      { name: "aiCoustics" }
+    ]);
+  });
+
   it("keeps an Autopilot app's agent when updating other fields", async function () {
     getStub.resolves({
       ...currentApp,

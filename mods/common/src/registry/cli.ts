@@ -99,7 +99,7 @@ const opt = (v: string | true | undefined) =>
 
 const HELP = `fonoster-registry <command>
 
-  add-provider <id> --adapter <a> --capabilities stt,tts [--credential-ref <name>] [--endpoints tts=<url>,stt=<url>]
+  add-provider <id> --adapter <a> --capabilities stt,tts,llm,nc [--credential-ref <name>] [--endpoints tts=<url>,stt=<url>]
   add-model <provider/model> --type stt|tts|llm [--features a,b] [--languages en,es] [--settings s]
   add-voice <provider/voice> --models <m1,m2> [--language en] [--gender female]
                           add-* take [--label "<display name>"]; no --credential-ref: keyless

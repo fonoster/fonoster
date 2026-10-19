@@ -20,7 +20,9 @@
 // with a manual lifecycle. The catalog never holds a secret: providers name a credentialRef.
 
 export type Lifecycle = "active" | "deprecated" | "retired";
-export type Capability = "stt" | "tts" | "llm";
+/** What a provider or model serves: speech, language models, or noise cancelling (`nc`). */
+export type Capability = "stt" | "tts" | "llm" | "nc";
+export const CAPABILITIES: Capability[] = ["stt", "tts", "llm", "nc"];
 export type ItemKind = "provider" | "model" | "voice";
 
 /** Where a provider serves each capability; services use these unless their config overrides. */

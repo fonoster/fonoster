@@ -209,6 +209,7 @@ render_configs() {
   local keys=""
   [ -n "${DEEPGRAM_API_KEY:-}" ] && keys+="  deepgram: { credential: { value: \"\${DEEPGRAM_API_KEY}\" } }"$'\n'
   [ -n "${ELEVENLABS_API_KEY:-}" ] && keys+="  elevenlabs: { credential: { value: \"\${ELEVENLABS_API_KEY}\" } }"$'\n'
+  [ -n "${AICOUSTICS_LICENSE_KEY:-}" ] && keys+="  aicoustics: { credential: { value: \"\${AICOUSTICS_LICENSE_KEY}\" } }"$'\n'
   # An empty `providers:` would be null, which removes the bundle's providers in the merge.
   if [ -n "$keys" ]; then printf 'providers:\n%s' "$keys"; else echo "{}"; fi > "$OVERLAY/appbridge.yaml"
 
@@ -223,6 +224,7 @@ render_configs() {
   local refs=""
   [ -n "${DEEPGRAM_API_KEY:-}" ] && refs+="deepgram-default,"
   [ -n "${ELEVENLABS_API_KEY:-}" ] && refs+="elevenlabs-default,"
+  [ -n "${AICOUSTICS_LICENSE_KEY:-}" ] && refs+="aicoustics-default,"
   [ -n "${GROQ_API_KEY:-}" ] && refs+="groq-default,"
   [ -n "${OPENAI_API_KEY:-}" ] && refs+="openai-default,"
   refs="${refs%,}"

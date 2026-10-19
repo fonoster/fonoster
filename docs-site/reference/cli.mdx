@@ -122,6 +122,7 @@ application an Autopilot agent, and `--url` makes it a stream. The fields are de
 | `--recording` | | `off`, `on` or `consent` |
 | `--amd` / `--no-amd` | | Turns answering-machine detection on or off |
 | `--amd-window` | | Milliseconds of audio to classify, from `500` to `15000`. Turns detection on. |
+| `--noise-cancelling` | | `none`, or a noise-cancelling provider such as `aicoustics`. See [Cancel background noise](/telephony/noise-cancelling). |
 
 `--assistant` and `--flavor` were renamed to `--agent` and `--protocol` in 0.30. The CLI refuses
 the old names with that hint.

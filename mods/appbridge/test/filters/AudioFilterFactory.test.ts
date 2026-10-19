@@ -19,6 +19,7 @@
 import * as chai from "chai";
 import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { z } from "zod";
 import {
   AudioFilterFactory,
   audioFiltersConfigSchema
@@ -26,18 +27,18 @@ import {
 
 chai.use(chaiAsPromised);
 
+// The credential a session resolves for the filter's provider; never part of the app's options
+const LICENSED = {
+  trustedOverlay: { aiCoustics: { license: "test-license" } }
+};
+
 describe("@voice/filters/AudioFilterFactory", function () {
-  beforeEach(function () {
-    process.env.AIC_SDK_LICENSE = "test-license";
-  });
-
-  afterEach(function () {
-    delete process.env.AIC_SDK_LICENSE;
-  });
-
   it("creates the registered filter with default options", function () {
     // Act
-    const filter = AudioFilterFactory.createFilter({ name: "aiCoustics" });
+    const filter = AudioFilterFactory.createFilter(
+      { name: "aiCoustics" },
+      LICENSED
+    );
 
     // Assert
     expect(filter.name).to.equal("aiCoustics");
@@ -60,9 +61,10 @@ describe("@voice/filters/AudioFilterFactory", function () {
 
   it("builds a chain from config", async function () {
     // Arrange: the filter passes audio through until its model is ready
-    const chain = AudioFilterFactory.createChainFromConfig([
-      { name: "aiCoustics", options: { enhancementLevel: 0.5 } }
-    ]);
+    const chain = AudioFilterFactory.createChainFromConfig(
+      [{ name: "aiCoustics", options: { enhancementLevel: 0.5 } }],
+      LICENSED
+    );
 
     // Act
     await chain.process(new Int16Array(320));
@@ -98,7 +100,7 @@ describe("@voice/filters/AudioFilterFactory", function () {
       { modelDir: "/etc" },
       { modelFile: "/etc/passwd" },
       { autoDownload: false },
-      { licenseEnv: "AWS_SECRET_ACCESS_KEY" }
+      { license: "not-from-an-app" }
     ];
 
     // Act & Assert
@@ -112,10 +114,62 @@ describe("@voice/filters/AudioFilterFactory", function () {
   it("allows those options for callers inside the media server", function () {
     expect(() =>
       AudioFilterFactory.createFilter(
-        { name: "aiCoustics", options: { modelDir: "./models" } },
+        {
+          name: "aiCoustics",
+          options: { modelDir: "./models", license: "test-license" }
+        },
         { trusted: true }
       )
     ).to.not.throw();
+  });
+
+  it("needs the provider's credential, which the session hands over as a trusted overlay", function () {
+    // An app cannot set it (above); without it the filter is not built
+    expect(() =>
+      AudioFilterFactory.createFilter({ name: "aiCoustics" })
+    ).to.throw(/credential for provider aicoustics/);
+    expect(AudioFilterFactory.providerOf("aiCoustics")).to.equal("aicoustics");
+    expect(AudioFilterFactory.providerOf("nope")).to.equal(undefined);
+    // The overlay is parsed with the full schema, so a bad server option is still refused
+    expect(() =>
+      AudioFilterFactory.createFilter(
+        { name: "aiCoustics" },
+        { trustedOverlay: { aiCoustics: { license: "" } } }
+      )
+    ).to.throw(/Invalid server options.*license/);
+  });
+
+  it("reports a filter disabled mid-stream through onDisabled", async function () {
+    // Arrange
+    const disabled: [string, string][] = [];
+    AudioFilterFactory.registerFilter("test-boom", {
+      description: "throws on the second frame (test only)",
+      optionsSchema: z.object({}),
+      publicOptionsSchema: z.object({}),
+      create: () => {
+        let frames = 0;
+        return {
+          name: "test-boom",
+          delayMs: 0,
+          process: (frame: Int16Array) => {
+            if (++frames === 2) throw new Error("kaput");
+            return frame;
+          }
+        };
+      }
+    });
+    const chain = AudioFilterFactory.createChainFromConfig(
+      [{ name: "test-boom" }],
+      { onDisabled: (name, reason) => disabled.push([name, reason]) }
+    );
+
+    // Act
+    await chain.process(new Int16Array(320));
+    await chain.process(new Int16Array(320));
+    await chain.process(new Int16Array(320));
+
+    // Assert: once, with the reason; later frames pass through
+    expect(disabled).to.deep.equal([["test-boom", "kaput"]]);
   });
 
   it("rejects a model name that could walk the filesystem", function () {
@@ -142,10 +196,10 @@ describe("@voice/filters/AudioFilterFactory", function () {
     // Act
     try {
       expect(() =>
-        AudioFilterFactory.createChainFromConfig([
-          { name: "aiCoustics" },
-          { name: "nope" }
-        ])
+        AudioFilterFactory.createChainFromConfig(
+          [{ name: "aiCoustics" }, { name: "nope" }],
+          LICENSED
+        )
       ).to.throw(/Unknown audio filter/);
     } finally {
       AudioFilterFactory.createFilter = original;

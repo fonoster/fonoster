@@ -45,6 +45,9 @@ type AppListener = { url: string; tracks?: "inbound" | "outbound" | "both" };
 
 type RecordingPolicy = "off" | "on" | "consent";
 
+/** An audio filter run on the caller's audio before STT (voice-session, "Audio filters"). */
+type AudioFilter = { name: string; options?: Record<string, unknown> };
+
 /** Answering-machine detection: one `amd.result` event per call. */
 type AmdSettings = {
   enabled: boolean;
@@ -67,6 +70,8 @@ type SessionAppFields = {
   recording?: RecordingPolicy | "";
   /** Off when unset. */
   amd?: AmdSettings;
+  /** Audio filters in order. An update replaces the whole app: leave them out and they are cleared. */
+  filters?: AudioFilter[];
 };
 
 type Application = SessionAppFields & {
@@ -195,6 +200,7 @@ type CreateTestTokenResponse = {
 export {
   AmdSettings,
   AppListener,
+  AudioFilter,
   AudioFormat,
   CreateApplicationResponse,
   UpdateApplicationResponse,

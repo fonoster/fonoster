@@ -896,30 +896,49 @@ export class AppSession {
   }
 
   /**
-   * Builds the app's filter chain. A filter that cannot be created or started degrades to
-   * unfiltered audio and is recorded (voice-session, "Audio filters come from app configuration").
+   * Builds the app's filter chain. A filter that needs a vendor credential gets the one resolved
+   * for the session's workspace (its own key, else the platform key). A filter that cannot be
+   * created, cannot start or fails mid-call degrades to unfiltered audio and is recorded
+   * (voice-session, "Audio filters come from app configuration").
    */
   private async startFilters() {
     const configs = this.app.filters ?? [];
     if (!configs.length) return;
+    const failed = (name: string | undefined, reason: string) =>
+      this.call.record("event", {
+        type: "filter.failed",
+        ...(name ? { name } : {}),
+        reason
+      });
     try {
-      const chain = AudioFilterFactory.createChainFromConfig(configs);
+      const trustedOverlay: Record<string, Record<string, unknown>> = {};
+      const usable = configs.filter((c) => {
+        const provider = AudioFilterFactory.providerOf(c.name);
+        if (!provider) return true;
+        const license = this.deps.catalog.credentialFor(
+          provider,
+          this.app.workspaceRef
+        );
+        if (!license) {
+          failed(
+            c.name,
+            `no credential for provider ${provider}: add a key on the Vendor keys page or set providers.${provider}.credential in gateway.yaml`
+          );
+          return false;
+        }
+        trustedOverlay[c.name] = { license };
+        return true;
+      });
+      if (!usable.length) return;
+      const chain = AudioFilterFactory.createChainFromConfig(usable, {
+        trustedOverlay,
+        onDisabled: failed
+      });
       await chain.ready();
-      const failed = chain.getStats().filters.filter((f) => f.disabled);
-      for (const f of failed) {
-        this.call.record("event", {
-          type: "filter.failed",
-          name: f.name,
-          reason: f.error
-        });
-      }
       if (this.closed) return chain.close();
       this.filters = chain;
     } catch (e) {
-      this.call.record("event", {
-        type: "filter.failed",
-        reason: (e as Error).message
-      });
+      failed(undefined, (e as Error).message);
     }
   }
 

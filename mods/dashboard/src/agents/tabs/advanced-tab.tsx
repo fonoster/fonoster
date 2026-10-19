@@ -24,6 +24,7 @@ import { CallHandlingDrawer } from "~/session/apps";
 import { type AgentValues } from "../agent-form";
 import { useFieldError, type AgentPath } from "../fields";
 import { Panel, PanelAction, SettingRow, ValueBox, ValueInput } from "../parts";
+import { NoiseCancellingPanel } from "./noise-cancelling-panel";
 
 // Layout and copy from designs/dashboard.pen "Agent / Detail / Advanced".
 
@@ -83,6 +84,7 @@ export function AdvancedTab({
         </Panel>
       </div>
       <div className="flex flex-col gap-5">
+        <NoiseCancellingPanel appRef={appRef} />
         <Panel
           title="Call handling"
           description="Fallback, listeners, recording and answering-machine detection."

@@ -76,7 +76,7 @@ export type Setup = {
     /** `{app: "app-2"}` (the harness's second app) or `{message}`. */
     fallback?: { app?: string; message?: string };
     speech?: Record<string, unknown>;
-    /** Audio filters AppBridge applies to caller audio (`conformance-mute` silences it). */
+    /** Audio filters AppBridge applies to caller audio (`conformance-mute` silences it, `conformance-boom` fails mid-call). */
     filters?: { name: string; options?: Record<string, unknown> }[];
     /** The app's workspace (Twilio's accountSid). */
     workspaceRef?: string;

@@ -614,6 +614,109 @@ describe("@appbridge integration", function () {
     expect(String(failure?.message.reason)).to.contain("does-not-exist");
   });
 
+  it("records a filter that fails mid-call and keeps the call unfiltered", async function () {
+    let frames = 0;
+    AudioFilterFactory.registerFilter("test-boom", {
+      description: "throws on the third frame (test only)",
+      optionsSchema: z.object({}),
+      publicOptionsSchema: z.object({}),
+      create: () => ({
+        name: "test-boom",
+        delayMs: 0,
+        process: (frame: Int16Array) => {
+          if (++frames === 3) throw new Error("kaput");
+          return frame;
+        }
+      })
+    });
+    await start([
+      app("a", harness.app.url, { filters: [{ name: "test-boom" }] })
+    ]);
+    harness.roomrNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    peer.sendJson({ type: "speak", id: "r1", text: "Go on.", last: true });
+    await waitFor(() => json(peer).find((m) => m.type === "output.started"));
+    harness.roomrNode.callerSpeaks({ kind: "tone", ms: 400 });
+    const failure = await waitFor(
+      () =>
+        [...record.records.values()][0].find(
+          (e) => e.message.type === "filter.failed"
+        ),
+      4000
+    );
+    expect(failure?.message).to.include({ name: "test-boom", reason: "kaput" });
+    // The filter is disabled for the rest of the call, which goes on unfiltered.
+    await waitFor(
+      () =>
+        json(peer).find(
+          (m) => m.type === "output.done" || m.type === "output.interrupted"
+        ),
+      4000
+    );
+    expect(frames).to.equal(3);
+    expect(json(peer).find((m) => m.type === "session.end")).to.equal(
+      undefined
+    );
+  });
+
+  it("hands a filter its provider's credential, and fails open without one", async function () {
+    const seen: unknown[] = [];
+    const keyed = (name: string, provider: string) =>
+      AudioFilterFactory.registerFilter(name, {
+        description: "records the credential it got (test only)",
+        optionsSchema: z.object({ license: z.string() }),
+        publicOptionsSchema: z.object({}),
+        provider,
+        create: (options) => {
+          seen.push(options.license);
+          return {
+            name,
+            delayMs: 0,
+            process: (frame: Int16Array) => frame
+          };
+        }
+      });
+    keyed("test-keyed", "aicoustics");
+    keyed("test-keyed-missing", "elevenlabs");
+    await start(
+      [
+        app("a", harness.app.url, {
+          filters: [{ name: "test-keyed" }, { name: "test-keyed-missing" }]
+        })
+      ],
+      {
+        providers: {
+          fake: {
+            adapter: "fake",
+            capabilities: ["tts", "stt"],
+            tts: { url: harness.providerUrls.tts },
+            stt: { url: harness.providerUrls.stt }
+          },
+          aicoustics: {
+            adapter: "aicoustics",
+            capabilities: ["nc"],
+            credential: { value: "platform-aic" }
+          }
+        }
+      }
+    );
+    harness.roomrNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    peer.sendJson({ type: "speak", id: "r1", text: "Go on.", last: true });
+    await waitFor(() => json(peer).find((m) => m.type === "output.done"));
+    const failure = [...record.records.values()][0].find(
+      (e) => e.message.type === "filter.failed"
+    );
+    // The configured provider's platform key reached the filter; the other filter was skipped.
+    expect(seen).to.deep.equal(["platform-aic"]);
+    expect(failure?.message).to.include({ name: "test-keyed-missing" });
+    expect(String(failure?.message.reason)).to.contain(
+      "no credential for provider elevenlabs"
+    );
+  });
+
   it("records app notes and refuses oversized ones", async function () {
     await start([app("a", harness.app.url)]);
     harness.roomrNode.offerCall();

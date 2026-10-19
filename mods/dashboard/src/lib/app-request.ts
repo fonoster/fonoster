@@ -61,6 +61,12 @@ export function applicationToRequest(
       tracks: l.tracks ?? "both"
     })),
     recording: set(app.recording),
+    filters: (app.filters ?? []).map((f) => ({
+      name: f.name,
+      ...(f.options && Object.keys(f.options).length
+        ? { options: f.options }
+        : {})
+    })),
     amd: app.amd?.enabled
       ? {
           enabled: true,

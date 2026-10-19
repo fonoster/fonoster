@@ -29,6 +29,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     "<%= config.bin %> <%= command.id %> <ref> --voice elevenlabs/rachel --patience high",
     "<%= config.bin %> <%= command.id %> <ref> --agent agent.yaml",
     "<%= config.bin %> <%= command.id %> <ref> --clear-listeners --listener wss://rec.example.com/ws,inbound",
+    "<%= config.bin %> <%= command.id %> <ref> --noise-cancelling aicoustics",
     "<%= config.bin %> <%= command.id %> --from-file app.yaml   # with `ref` in the file"
   ];
   static override readonly args = {

@@ -23,9 +23,11 @@ type PartialApplicationInput = {
   intelligence?: {
     config: { [key: string]: unknown };
   } | null;
+  /** Audio filters; each filter's options travel as a protobuf Struct. */
+  filters?: { name: string; options?: { [key: string]: unknown } }[] | null;
 };
 
-/** The Autopilot agent (intelligence.config) travels as a protobuf Struct. */
+/** The Autopilot agent (intelligence.config) and filter options travel as protobuf Structs. */
 function buildStructOverride<T extends PartialApplicationInput>(request: T): T {
   return {
     ...request,
@@ -36,7 +38,13 @@ function buildStructOverride<T extends PartialApplicationInput>(request: T): T {
             ? Struct.fromJavaScript(request.intelligence.config)
             : undefined
         }
-      : undefined
+      : undefined,
+    filters: request.filters
+      ? request.filters.map((f) => ({
+          name: f.name,
+          options: f.options ? Struct.fromJavaScript(f.options) : undefined
+        }))
+      : request.filters
   };
 }
 
@@ -50,6 +58,17 @@ function buildStructOverrideReverse(request) {
             ? request.intelligence.config.toJavaScript()
             : undefined
         }
+      : undefined,
+    filters: Array.isArray(request.filters)
+      ? request.filters.map((f) => {
+          const options =
+            f.options && typeof f.options.toJavaScript === "function"
+              ? f.options.toJavaScript()
+              : f.options;
+          return options && Object.keys(options).length
+            ? { name: f.name, options }
+            : { name: f.name };
+        })
       : undefined
   };
 

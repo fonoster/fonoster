@@ -8,6 +8,8 @@ rtp: { host: 0.0.0.0, advertiseHost: "${SUBNET_PREFIX}.43" }
 providers:
   deepgram: { adapter: deepgram, capabilities: [tts, stt], credential: { value: "YOUR_DEEPGRAM_API_KEY" } }
   elevenlabs: { adapter: elevenlabs, capabilities: [tts], credential: { value: "YOUR_ELEVENLABS_API_KEY" } }
+  # Noise cancelling (apps' filters); the SDK and model must be in the image, see docs/operators/audio-filters.md.
+  aicoustics: { adapter: aicoustics, capabilities: [nc], credential: { value: "YOUR_AICOUSTICS_LICENSE_KEY" } }
 stt: { provider: deepgram }
 # Apps, the catalog, workspace vendor keys and webhooks: the API server's database.
 database:

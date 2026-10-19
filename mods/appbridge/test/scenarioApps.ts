@@ -45,6 +45,24 @@ AudioFilterFactory.registerFilter("conformance-mute", {
   })
 });
 
+/** `conformance-boom` (SCENARIOS.md): passes audio through, then throws on the third frame. */
+AudioFilterFactory.registerFilter("conformance-boom", {
+  description: "throws on the third frame (conformance only)",
+  optionsSchema: z.object({}),
+  publicOptionsSchema: z.object({}),
+  create: () => {
+    let frames = 0;
+    return {
+      name: "conformance-boom",
+      delayMs: 0,
+      process: (frame: Int16Array) => {
+        if (++frames === 3) throw new Error("kaput");
+        return frame;
+      }
+    };
+  }
+});
+
 export function appsFor(
   scenario: Scenario,
   harness: FakesHarness,

@@ -72,6 +72,10 @@ COPY --from=builder --chown=appuser:appuser /work/mods/appbridge/dist /work/mods
 
 USER appuser
 
+# Audio filters (the ai-coustics SDK) run on libuv's thread pool, which is shared with fs, dns
+# and crypto; 4 threads by default. Raise it further for many filtered calls per instance.
+ENV UV_THREADPOOL_SIZE=8
+
 # One YAML file, no .env (PL5). Mount it here or point APPBRIDGE_CONFIG elsewhere.
 # The config file: /config/appbridge.yaml, else /etc/fonoster/appbridge.yaml (or APPBRIDGE_CONFIG).
 # Session HTTP endpoint (config http.port); AppBridge also needs NATS reachable.

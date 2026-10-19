@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AudioFilters } from "@fonoster/common";
 import * as SDK from "@fonoster/sdk";
 import { Application } from "@fonoster/types";
 import { Args } from "@oclif/core";
@@ -28,6 +29,15 @@ const or = (value: unknown, fallback = "-") =>
   value === undefined || value === null || value === "" || value === 0
     ? fallback
     : String(value);
+
+/** The nc provider behind the app's filter, or the filter names for anything else. */
+function noiseCancelling(app: Application): string {
+  const filters = app.filters ?? [];
+  if (!filters.length) return "off";
+  return filters
+    .map((f) => AudioFilters.providerOfFilter(f.name) ?? f.name)
+    .join(", ");
+}
 
 export function formatApplication(app: Application): string {
   const speech = app.speech ?? {};
@@ -57,6 +67,7 @@ export function formatApplication(app: Application): string {
     `AUDIO: \t${app.audio?.codec ? `${app.audio.codec} ${app.audio.rate} Hz` : "default"}`,
     `RECORDING: \t${or(app.recording, "off")}`,
     `AMD: \t${app.amd?.enabled ? `on (${app.amd.windowMs || 4000} ms)` : "off"}`,
+    `NOISE CANCELLING: \t${noiseCancelling(app)}`,
     `FALLBACK APP: \t${or(app.fallbackAppRef)}`,
     `FALLBACK MESSAGE: \t${or(app.fallbackMessage)}`,
     `LISTENERS: \t${or(listeners)}`,

@@ -88,6 +88,9 @@ export const ADAPTERS: Readonly<Record<string, AdapterFactories>> = {
   openai: { llm: openAiCompatible("openai") },
   groq: { llm: openAiCompatible("groq") },
   ollama: { keyless: true, llm: openAiCompatible("ollama") },
+  // Noise cancelling (`nc`): served by the appbridge's aiCoustics filter with the provider's key,
+  // so the entry only makes the adapter known to the registry and the gateway config.
+  aicoustics: {},
   fake: {
     keyless: true,
     tts: (o) =>

@@ -20,6 +20,7 @@ import { URL } from "url";
 import { parse, stringify } from "yaml";
 import { FEATURES, unknownFeatures } from "./features";
 import {
+  CAPABILITIES,
   Capability,
   CatalogEntry,
   ItemKind,
@@ -42,6 +43,7 @@ export const BUILT_IN_ADAPTERS = [
   "anthropic",
   "groq",
   "ollama",
+  "aicoustics",
   "fake"
 ];
 
@@ -125,17 +127,21 @@ export class Registry {
    */
   private assertProvider(p: {
     adapter: string;
+    capabilities?: string[];
     credentialRef?: string;
     endpoints?: Record<string, unknown>;
   }) {
     if (!BUILT_IN_ADAPTERS.includes(p.adapter))
       throw new RegistryError(`unknown adapter: ${p.adapter}`);
+    for (const c of p.capabilities ?? [])
+      if (!(CAPABILITIES as string[]).includes(c))
+        throw new RegistryError(`unknown capability: ${c}`);
     if (p.credentialRef !== undefined && !REF.test(p.credentialRef))
       throw new RegistryError(
         "credentialRef must be a name such as deepgram-default"
       );
     for (const [capability, url] of Object.entries(p.endpoints ?? {})) {
-      if (!["stt", "tts", "llm"].includes(capability))
+      if (!(CAPABILITIES as string[]).includes(capability))
         throw new RegistryError(`unknown endpoint capability: ${capability}`);
       let parsed: URL;
       try {

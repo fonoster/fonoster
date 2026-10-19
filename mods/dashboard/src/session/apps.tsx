@@ -42,6 +42,11 @@ import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
 import { compatibleSttModels, compatibleVoices } from "./compat";
 import { CreateAppDialog } from "./create-app-dialog";
 import { MissingKeysWarning } from "./missing-keys";
+import {
+  filtersFor,
+  noiseCancellingOf,
+  noiseCancellingOptions
+} from "./noise-cancelling";
 import type {
   AudioCodec,
   Catalog,
@@ -571,14 +576,30 @@ export function SpeechFields({
   );
 }
 
-/** Fallback, listeners, recording and answering-machine detection. */
+/**
+ * Fallback, listeners, recording, noise cancelling and answering-machine detection. Agents set
+ * noise cancelling on their Advanced tab instead, so the drawer passes `noiseCancelling: false`.
+ */
 export function CallHandlingFields({
   app,
   set,
   errors,
-  otherApps
-}: FieldsProps & { otherApps: SessionApp[] }) {
+  otherApps,
+  noiseCancelling = true
+}: FieldsProps & { otherApps: SessionApp[]; noiseCancelling?: boolean }) {
   const listenerError = errors.listeners;
+  // Noise cancelling: None or an nc provider the catalog offers (the app's filters).
+  const catalog = useSessionQuery(
+    ["catalog"],
+    (api) => api.getCatalog(),
+    noiseCancelling
+  );
+  const noiseCancellingChoices = noiseCancellingOptions(
+    (catalog.data?.providers ?? []).filter((p) =>
+      p.capabilities?.includes("nc")
+    ),
+    app.filters
+  );
   return (
     <>
       <Group
@@ -706,6 +727,22 @@ export function CallHandlingFields({
         )}
       </Field>
 
+      {noiseCancelling && (
+        <Field
+          label="Noise cancelling"
+          hint="Removes background noise and other voices before your app listens. Keeps one speaker: not for speakerphone or IVR."
+        >
+          {(p) => (
+            <Select
+              {...p}
+              value={noiseCancellingOf(app.filters)}
+              options={noiseCancellingChoices}
+              onValueChange={(v) => set("filters", filtersFor(v, app.filters))}
+            />
+          )}
+        </Field>
+      )}
+
       <label className="flex items-center gap-3 font-display text-[13px]">
         <Switch
           checked={Boolean(app.amd)}
@@ -803,6 +840,7 @@ export function CallHandlingDrawer({
             formId={formId}
             initial={app}
             otherApps={loaded.data.apps.filter((a) => a.ref !== appRef)}
+            noiseCancelling={false}
             onSaved={(saved) => onSaved?.(saved)}
           />
         )}
@@ -815,11 +853,13 @@ function CallHandlingForm({
   formId,
   initial,
   otherApps,
+  noiseCancelling = true,
   onSaved
 }: {
   formId: string;
   initial: SessionApp;
   otherApps: SessionApp[];
+  noiseCancelling?: boolean;
   onSaved: (app: SessionApp) => void;
 }) {
   const [app, setApp] = useState<Draft>(initial);
@@ -864,6 +904,7 @@ function CallHandlingForm({
         set={set}
         errors={errors}
         otherApps={otherApps}
+        noiseCancelling={noiseCancelling}
       />
     </form>
   );
