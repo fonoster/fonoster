@@ -358,9 +358,6 @@ function BehaviorRow({
   );
 }
 
-const quietBox =
-  "w-auto px-1.5";
-
 function Behavior() {
   const { register } = useFormContext<AgentValues>();
   const transfer = useWatch<AgentValues, "conversation.transferPhoneNumber">({
@@ -384,10 +381,7 @@ function Behavior() {
           htmlFor="behavior-repeats"
           error={timeoutError ?? repeatsError}
         >
-          <ValueBox
-            className={quietBox}
-            invalid={Boolean(timeoutError ?? repeatsError)}
-          >
+          <ValueBox invalid={Boolean(timeoutError ?? repeatsError)}>
             <ValueInput
               id="behavior-repeats"
               type="number"
@@ -416,7 +410,7 @@ function Behavior() {
           htmlFor="behavior-length"
           error={lengthError}
         >
-          <ValueBox className={quietBox} invalid={Boolean(lengthError)}>
+          <ValueBox invalid={Boolean(lengthError)}>
             <ValueInput
               id="behavior-length"
               type="number"
@@ -434,10 +428,7 @@ function Behavior() {
           htmlFor="behavior-transfer"
           error={transferError}
         >
-          <ValueBox
-            className={cn(quietBox, "w-40")}
-            invalid={Boolean(transferError)}
-          >
+          <ValueBox invalid={Boolean(transferError)}>
             <ValueInput
               id="behavior-transfer"
               placeholder="Off"
@@ -451,7 +442,7 @@ function Behavior() {
             label="Transfer message"
             htmlFor="behavior-transfer-message"
           >
-            <ValueBox className={cn(quietBox, "w-40")}>
+            <ValueBox>
               <ValueInput
                 id="behavior-transfer-message"
                 {...register("conversation.transferMessage")}

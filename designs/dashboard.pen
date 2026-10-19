@@ -6290,16 +6290,17 @@
                                 {
                                   "type": "frame",
                                   "id": "Fej6d",
-                                  "name": "Value box",
+                                  "name": "Input",
+                                  "width": 150,
                                   "height": 30,
                                   "fill": "$ui:--background",
-                                  "cornerRadius": 8,
+                                  "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
                                   "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
-                                    0,
-                                    6
+                                    7,
+                                    10
                                   ],
                                   "alignItems": "center",
                                   "children": [
@@ -6308,7 +6309,10 @@
                                       "id": "puNpC",
                                       "name": "3 × 10 s",
                                       "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
                                       "content": "3 × 10 s",
+                                      "textAlign": "right",
                                       "fontFamily": "$ui:--font-primary",
                                       "fontSize": 12,
                                       "fontWeight": "normal"
@@ -6338,16 +6342,17 @@
                                 {
                                   "type": "frame",
                                   "id": "pD294",
-                                  "name": "Value box",
+                                  "name": "Input",
+                                  "width": 150,
                                   "height": 30,
                                   "fill": "$ui:--background",
-                                  "cornerRadius": 8,
+                                  "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
                                   "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
-                                    0,
-                                    6
+                                    7,
+                                    10
                                   ],
                                   "alignItems": "center",
                                   "children": [
@@ -6356,7 +6361,10 @@
                                       "id": "hOeQU",
                                       "name": "30 min",
                                       "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
                                       "content": "30 min",
+                                      "textAlign": "right",
                                       "fontFamily": "$ui:--font-primary",
                                       "fontSize": 12,
                                       "fontWeight": "normal"
@@ -6386,16 +6394,17 @@
                                 {
                                   "type": "frame",
                                   "id": "s9KWra",
-                                  "name": "Value box",
+                                  "name": "Input",
+                                  "width": 150,
                                   "height": 30,
                                   "fill": "$ui:--background",
-                                  "cornerRadius": 8,
+                                  "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
                                   "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
-                                    0,
-                                    6
+                                    7,
+                                    10
                                   ],
                                   "alignItems": "center",
                                   "children": [
@@ -6404,7 +6413,10 @@
                                       "id": "nLxPX",
                                       "name": "+1 809 555 0100",
                                       "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
                                       "content": "+1 809 555 0100",
+                                      "textAlign": "right",
                                       "fontFamily": "$ui:--font-primary",
                                       "fontSize": 12,
                                       "fontWeight": "normal"
@@ -41377,16 +41389,17 @@
                                     {
                                       "type": "frame",
                                       "id": "MaW3I",
-                                      "name": "Value box",
+                                      "name": "Input",
+                                      "width": 150,
                                       "height": 30,
                                       "fill": "$ui:--background",
-                                      "cornerRadius": 8,
+                                      "cornerRadius": "$ui:--radius-control",
                                       "stroke": "$ui:--input",
                                       "strokeWidth": 1,
                                       "strokeAlignment": "inner",
                                       "padding": [
-                                        0,
-                                        6
+                                        7,
+                                        10
                                       ],
                                       "alignItems": "center",
                                       "children": [
@@ -41395,7 +41408,10 @@
                                           "id": "U18pp",
                                           "name": "3 × 10 s",
                                           "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
                                           "content": "3 × 10 s",
+                                          "textAlign": "right",
                                           "fontFamily": "$ui:--font-primary",
                                           "fontSize": 12,
                                           "fontWeight": "normal"
@@ -41425,16 +41441,17 @@
                                     {
                                       "type": "frame",
                                       "id": "DkfKL",
-                                      "name": "Value box",
+                                      "name": "Input",
+                                      "width": 150,
                                       "height": 30,
                                       "fill": "$ui:--background",
-                                      "cornerRadius": 8,
+                                      "cornerRadius": "$ui:--radius-control",
                                       "stroke": "$ui:--input",
                                       "strokeWidth": 1,
                                       "strokeAlignment": "inner",
                                       "padding": [
-                                        0,
-                                        6
+                                        7,
+                                        10
                                       ],
                                       "alignItems": "center",
                                       "children": [
@@ -41443,7 +41460,10 @@
                                           "id": "GNLDz",
                                           "name": "30 min",
                                           "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
                                           "content": "30 min",
+                                          "textAlign": "right",
                                           "fontFamily": "$ui:--font-primary",
                                           "fontSize": 12,
                                           "fontWeight": "normal"
@@ -41473,16 +41493,17 @@
                                     {
                                       "type": "frame",
                                       "id": "MCMol",
-                                      "name": "Value box",
+                                      "name": "Input",
+                                      "width": 150,
                                       "height": 30,
                                       "fill": "$ui:--background",
-                                      "cornerRadius": 8,
+                                      "cornerRadius": "$ui:--radius-control",
                                       "stroke": "$ui:--input",
                                       "strokeWidth": 1,
                                       "strokeAlignment": "inner",
                                       "padding": [
-                                        0,
-                                        6
+                                        7,
+                                        10
                                       ],
                                       "alignItems": "center",
                                       "children": [
@@ -41491,7 +41512,10 @@
                                           "id": "RdH3A",
                                           "name": "+1 809 555 0100",
                                           "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
                                           "content": "+1 809 555 0100",
+                                          "textAlign": "right",
                                           "fontFamily": "$ui:--font-primary",
                                           "fontSize": 12,
                                           "fontWeight": "normal"
@@ -58867,16 +58891,17 @@
                                 {
                                   "type": "frame",
                                   "id": "EmRHv",
-                                  "name": "Value box",
+                                  "name": "Input",
+                                  "width": 150,
                                   "height": 30,
                                   "fill": "$ui:--background",
-                                  "cornerRadius": 8,
+                                  "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
                                   "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
-                                    0,
-                                    6
+                                    7,
+                                    10
                                   ],
                                   "alignItems": "center",
                                   "children": [
@@ -58885,7 +58910,10 @@
                                       "id": "q4z2aX",
                                       "name": "3 × 10 s",
                                       "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
                                       "content": "3 × 10 s",
+                                      "textAlign": "right",
                                       "fontFamily": "$ui:--font-primary",
                                       "fontSize": 12,
                                       "fontWeight": "normal"
@@ -58915,16 +58943,17 @@
                                 {
                                   "type": "frame",
                                   "id": "A7LUc",
-                                  "name": "Value box",
+                                  "name": "Input",
+                                  "width": 150,
                                   "height": 30,
                                   "fill": "$ui:--background",
-                                  "cornerRadius": 8,
+                                  "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
                                   "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
-                                    0,
-                                    6
+                                    7,
+                                    10
                                   ],
                                   "alignItems": "center",
                                   "children": [
@@ -58933,7 +58962,10 @@
                                       "id": "c1LtNi",
                                       "name": "30 min",
                                       "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
                                       "content": "30 min",
+                                      "textAlign": "right",
                                       "fontFamily": "$ui:--font-primary",
                                       "fontSize": 12,
                                       "fontWeight": "normal"
@@ -58963,16 +58995,17 @@
                                 {
                                   "type": "frame",
                                   "id": "iPe9w",
-                                  "name": "Value box",
+                                  "name": "Input",
+                                  "width": 150,
                                   "height": 30,
                                   "fill": "$ui:--background",
-                                  "cornerRadius": 8,
+                                  "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
                                   "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
-                                    0,
-                                    6
+                                    7,
+                                    10
                                   ],
                                   "alignItems": "center",
                                   "children": [
@@ -58981,7 +59014,10 @@
                                       "id": "qgIop",
                                       "name": "+1 809 555 0100",
                                       "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
                                       "content": "+1 809 555 0100",
+                                      "textAlign": "right",
                                       "fontFamily": "$ui:--font-primary",
                                       "fontSize": 12,
                                       "fontWeight": "normal"
