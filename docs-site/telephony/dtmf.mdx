@@ -1,0 +1,139 @@
+---
+title: "DTMF (keypad tones)"
+sidebarTitle: "DTMF"
+description: "Read the keys a caller presses, send keypad tones on a call, and dial through phone menus."
+---
+
+DTMF tones are the sounds a phone's keypad makes. Use them to build phone menus ("press 1 for
+sales"), collect a PIN or an account number, and get your own calls through another company's
+phone menu.
+
+| You want to | Use |
+| --- | --- |
+| Read keys the caller presses, in a stream | `gather` or the `dtmf` event |
+| Press keys on the call, in a stream | `playDtmf` |
+| Press keys as soon as an Autopilot agent's call connects | `initialDtmf` |
+
+## Read keypresses in a stream
+
+`gather` waits for the caller to speak or press keys, and resolves with whichever comes first. Set
+`source: "dtmf"` to accept keys only:
+
+<CodeGroup>
+```javascript Node.js
+await session.say("Enter your 6-digit account number, then press pound.");
+
+const { digits } = await session.gather({
+  source: "dtmf",
+  maxDigits: 6,
+  finishOnKey: "#",
+  timeout: 5000
+});
+
+if (digits) {
+  await session.say(`Thanks. Looking up account ${digits.split("").join(" ")}.`);
+} else {
+  await session.say("I didn't get any digits.");
+}
+```
+
+```python Python
+await session.say("Enter your 6-digit account number, then press pound.")
+
+result = await session.gather(source="dtmf", max_digits=6, finish_on_key="#", timeout=5)
+
+if result.digits:
+    await session.say(f"Thanks. Looking up account {' '.join(result.digits)}.")
+else:
+    await session.say("I didn't get any digits.")
+```
+</CodeGroup>
+
+| Option | Default | What it does |
+| --- | --- | --- |
+| `source` | `speech_and_dtmf` | `dtmf` for keys only, `speech` for speech only, `speech_and_dtmf` for either. |
+| `maxDigits` | None | Resolve once this many keys are pressed. |
+| `finishOnKey` | None | Resolve when the caller presses this key, such as `#`. The key itself isn't included in `digits`. |
+| `timeout` | 4 seconds | How long to wait for input. In Node.js it's in milliseconds, in Python in seconds. |
+
+The timeout restarts after every key, so a slow caller isn't cut off mid-number. When it runs out,
+`gather` resolves with the digits pressed so far, or with no `digits` at all if none were pressed.
+
+With `speech_and_dtmf`, the first input wins: once the caller presses a key, their speech is
+ignored for that `gather`, and a spoken answer ends it before any key.
+
+### Type-ahead
+
+Callers who know the menu often press keys before you finish talking. Keys pressed while no
+`gather` is waiting are kept, and the next `gather` counts them. A caller who presses `2` during
+your greeting gets `{ digits: "2" }` from a `gather({ maxDigits: 1 })` right away.
+
+### Every key, as it's pressed
+
+To react to keys at any point in the call, outside a `gather`, listen for the `dtmf` event:
+
+```javascript
+session.on("dtmf", ({ digit }) => {
+  if (digit === "0") console.log("Caller pressed 0");
+});
+```
+
+Keys arrive even while the caller is on hold.
+
+## Send keypresses
+
+`playDtmf` sends keypad tones on the call. Use it on outbound calls to get through a phone menu or
+dial an extension. Digits are `0` to `9`, `*` and `#`:
+
+<CodeGroup>
+```javascript Node.js
+// Choose option 2, then extension 104.
+await session.playDtmf("2");
+await session.playDtmf("104#");
+```
+
+```python Python
+await session.play_dtmf("2")
+await session.play_dtmf("104#")
+```
+</CodeGroup>
+
+## Dial through a menu with an Autopilot agent
+
+An Autopilot agent can send keys once, as soon as the call connects, before it speaks its first
+message. Set `initialDtmf` in the agent's `conversationSettings`. It takes `0` to `9`, `*` and `#`:
+
+```yaml agent.yaml
+conversationSettings:
+  # ...the rest of the agent's settings
+  initialDtmf: "2104#"
+```
+
+Use it when your agent calls a number that answers with a menu, such as a company's switchboard.
+
+<Note>
+  Autopilot agents don't read the caller's keypresses. To take a PIN or build a "press 1" menu,
+  use a stream, or put a stream in front of your agent and hand off to it.
+</Note>
+
+## Twilio-compatible streams
+
+Streams with the `twilio` protocol get each keypress as a Media Streams `dtmf` message. They can't
+send keys. See [Twilio compatibility](/reference/twilio-compatibility).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Build a stream with the Voice SDK" icon="code" href="/streams/voice-sdk">
+    Say, gather and transfer in Node.js.
+  </Card>
+  <Card title="Make outbound calls" icon="phone-arrow-up-right" href="/telephony/outbound-calls">
+    Call a number and dial through its menu.
+  </Card>
+  <Card title="Transfer calls" icon="phone-arrow-right" href="/telephony/transfers">
+    Send callers who press 0 to an operator.
+  </Card>
+  <Card title="Voice SDK reference" icon="book" href="/reference/voice-sdk">
+    Every option of `gather` and `playDtmf`.
+  </Card>
+</CardGroup>

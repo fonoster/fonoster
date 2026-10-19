@@ -1,0 +1,221 @@
+---
+title: "Connect a SIP trunk"
+description: "Connect any SIP carrier to Fonoster with a trunk, so its numbers ring your agents and your calls go out through it."
+---
+
+A trunk is your connection to a carrier. Inbound, the carrier sends calls for your numbers to
+Fonoster. Outbound, Fonoster sends your calls to the carrier. Use a trunk to bring numbers from any
+carrier that speaks SIP. For a Twilio number, [Link a Twilio number](/telephony/link-twilio) does
+all of this for you.
+
+{/* TODO asset: trunks/inbound-outbound: carrier on the left, Fonoster on the right; inbound arrow "calls for your numbers → inbound URI (checked by ACL or inbound credentials)"; outbound arrow "your calls → outbound URIs (with outbound credentials)" */}
+
+## Before you begin
+
+Ask your carrier for:
+
+- **How they authenticate you**: by IP address, by username and password, or both.
+- **Where to send outbound calls**: a host name or IP, a port and a transport (UDP, TCP or TLS).
+- **The addresses they send calls from**, if you want to accept calls from those addresses only.
+- **The format of your numbers** in the calls they send, so you can add them exactly as sent.
+
+## Find your connection details
+
+Your carrier needs to know where to send calls and which addresses to allow. The trunk form in the
+dashboard shows both, under **Inbound URI**:
+
+> Point your carrier at `<host>:<port>` (`<transport>`); allowlist `<addresses>`.
+
+Give your carrier the SIP address, and ask them to allowlist the listed addresses if they filter by
+IP. If your workspace runs in a [private region](/private-regions/overview), the region's own
+addresses are under **Settings** → **Region**, in **Connection details**.
+
+## Create the trunk
+
+<Steps>
+  <Step title="Add credentials (if your carrier uses them)">
+    If your carrier gave you a username and password, save them as credentials first. Fonoster uses
+    them to sign in when it sends calls to the carrier.
+
+    <Tabs>
+      <Tab title="Dashboard">
+        Go to **Credentials**, choose **Add credentials**, and enter a **Name**, the **Username**
+        and the **Password**. Passwords are never shown again.
+      </Tab>
+      <Tab title="CLI">
+        ```bash
+        fonoster sipnet:credentials:create
+        ```
+      </Tab>
+    </Tabs>
+
+    Usernames take lowercase letters, numbers, dots, underscores and hyphens.
+
+  </Step>
+
+  <Step title="Add an access control list (optional)">
+    An access control list (ACL) is an allowlist of IP addresses. Attach one to the trunk so only
+    your carrier's addresses can send calls in. Anything not listed is rejected.
+
+    <Tabs>
+      <Tab title="Dashboard">
+        Go to **ACLs**, choose **Add ACL**, name it (for example `Claro signaling IPs`), and add
+        each address or range, such as `200.88.12.0/24`.
+      </Tab>
+      <Tab title="CLI">
+        The command asks for a name and a comma-separated list of IPv4 addresses or CIDR ranges:
+
+        ```bash
+        fonoster sipnet:acls:create
+        ```
+      </Tab>
+    </Tabs>
+
+  </Step>
+
+  <Step title="Create the trunk">
+    <Tabs>
+      <Tab title="Dashboard">
+        Go to **Trunks** and choose **Add trunk**. The form has three parts.
+
+        **Inbound · carrier → Fonoster**
+
+        - **Name**: the carrier's name, such as `Claro`.
+        - **Inbound URI**: a host name that identifies this trunk, such as
+          `claro.acme.sip.fonoster.com`. Give it to your carrier: they send calls for your numbers
+          to this host. It must be unique, so if it's taken, pick another.
+
+        **Outbound · Fonoster → carrier**
+
+        Add a row for each address your carrier gave you, with its **Host**, **Port** and
+        **Transport**. Fill in **User** only if your carrier asks for one. Fonoster tries enabled
+        URIs by **Priority**, then spreads calls by **Weight**. A trunk without outbound URIs
+        takes calls in but can't send them out.
+
+        **Security**
+
+        - **Access control list**: the ACL from the previous step.
+        - **Inbound credentials**: credentials your carrier must sign in with when it sends you
+          calls. Use them if your carrier authenticates by password instead of IP.
+        - **Outbound credentials**: the credentials from the first step.
+        - **Send REGISTER**: turn on only if your carrier requires registration.
+
+        Choose **Create trunk**.
+      </Tab>
+      <Tab title="SDK">
+        This script creates a trunk with one outbound URI and the carrier's credentials:
+
+        ```javascript create-trunk.js
+        const SDK = require("@fonoster/sdk");
+
+        async function main() {
+          const client = new SDK.Client({
+            accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+          });
+          await client.loginWithApiKey(
+            process.env.FONOSTER_API_KEY,
+            process.env.FONOSTER_API_SECRET
+          );
+
+          const trunks = new SDK.Trunks(client);
+          const { ref } = await trunks.createTrunk({
+            name: "Claro",
+            inboundUri: "claro.acme.sip.fonoster.com",
+            accessControlListRef: "8e1d4b7a-3c9f-4e2a-b6d0-7a5c1f3e9b28",
+            outboundCredentialsRef: "2c6a9e4f-1b7d-4f3a-8e5c-0d9b3a7f1e64",
+            sendRegister: false,
+            uris: [
+              {
+                host: "sip.claro.com.do",
+                port: 5060,
+                transport: "UDP",
+                priority: 1,
+                weight: 10,
+                enabled: true
+              }
+            ]
+          });
+
+          console.log(`Trunk created: ${ref}`);
+        }
+
+        main().catch(console.error);
+        ```
+
+        `transport` is one of `UDP`, `TCP`, `TLS`, `SCTP`, `WS` or `WSS`. Hosts are an IPv4
+        address or a domain name.
+      </Tab>
+      <Tab title="CLI">
+        The command asks for the name, the inbound URI and the ACL, then whether you need an
+        outbound URI. If you do, it asks for the outbound credentials, host, port, transport (TCP
+        or UDP) and user:
+
+        ```bash
+        fonoster sipnet:trunks:create
+        ```
+
+        <Warning>
+          Trunks created with the CLI have **Send REGISTER** on. If your carrier doesn't expect
+          registration, turn it off on the trunk in the dashboard.
+        </Warning>
+      </Tab>
+    </Tabs>
+
+  </Step>
+
+  <Step title="Add your numbers">
+    Add each of your carrier's numbers to the trunk, in E.164 format, exactly as the carrier sends
+    them. Point each one at an agent, a stream or a SIP agent. See
+    [Numbers and routing](/telephony/numbers).
+
+  </Step>
+</Steps>
+
+## Configure your carrier
+
+In your carrier's portal, set up:
+
+- **Inbound (their origination)**: send calls for your numbers to `sip:<your inbound URI>`, such
+  as `sip:claro.acme.sip.fonoster.com`, at the SIP address from the trunk form.
+- **Authentication**: allowlist the addresses the trunk form lists, or give them the
+  inbound credentials you attached to the trunk.
+- **Outbound (their termination)**: accept calls from the addresses the trunk form lists,
+  signed in with the outbound credentials if you set them.
+
+Use the transport your carrier prefers, and the same one on both sides.
+
+## Check it
+
+1. Call one of the trunk's numbers from any phone. The agent, stream or SIP agent it points at
+   answers.
+2. Place an outbound call from the number. See [Make outbound calls](/telephony/outbound-calls).
+
+The trunk page lists the trunk's numbers under **Numbers on this trunk**.
+
+If calls don't arrive:
+
+- Check that the number in Fonoster matches what the carrier sends, `+` included.
+- If the trunk has an ACL, check that it lists every address the carrier sends from.
+- Check that the carrier sends to your inbound URI, not to a different host.
+
+## Delete a trunk
+
+Go to **Trunks**, open the trunk and choose **Delete**, or run
+`fonoster sipnet:trunks:delete <ref>`. Calls to and from the carrier stop.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Numbers and routing" icon="phone" href="/telephony/numbers">
+    Add the carrier's numbers and send their calls somewhere.
+  </Card>
+  <Card title="Make outbound calls" icon="phone-arrow-up-right" href="/telephony/outbound-calls">
+    Call out through the trunk.
+  </Card>
+  <Card title="SIP agents" icon="headset" href="/telephony/sip-agents">
+    Connect softphones and desk phones.
+  </Card>
+  <Card title="Transfer calls" icon="phone-arrow-right" href="/telephony/transfers">
+    Send callers to an operator through the same trunk.
+  </Card>
+</CardGroup>

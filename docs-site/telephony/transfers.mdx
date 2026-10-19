@@ -1,0 +1,190 @@
+---
+title: "Transfer calls"
+description: "Hand a caller from your Autopilot agent or stream to an operator, with a cold, warm or SIP REFER transfer."
+---
+
+A transfer sends the caller to a person, an **operator**, on a phone number or a SIP agent. An
+Autopilot agent transfers with its built-in `transfer` tool. A stream transfers with the Voice
+SDK, and can also brief the operator before connecting the caller.
+
+## Pick a transfer mode
+
+{/* TODO asset: transfers/modes: three lanes (cold, warm, refer) showing caller, your app and operator over time; cold: app leaves when operator answers; warm: caller on hold while app and operator talk, then transfer.complete connects them; refer: app hands the call back to the carrier and leaves */}
+
+| Mode | What happens | Recording |
+| --- | --- | --- |
+| `cold` (default) | Fonoster dials the operator. When they answer, your application leaves and the caller and operator talk. | Keeps going |
+| `warm` | The caller waits on hold while Fonoster dials the operator. Your application and the operator talk first, then you connect the caller and leave. | Keeps going |
+| `refer` | Fonoster asks the caller's side (your carrier or phone) to call the operator itself, with a SIP REFER, and leaves the call. | Stops at the transfer |
+
+Use `cold` for most transfers. Use `warm` when the operator should hear the context before they
+take the call. Use `refer` only when your carrier supports SIP REFER and you want the call off
+Fonoster after the transfer.
+
+The operator can be:
+
+- A phone number in E.164 format, such as `+18095550100`. The call goes out through the trunk of
+  the number the caller dialed (or, on an outbound call, the number you called from).
+- A SIP agent's address, such as `sip:maria@acme.sip.fonoster.com`. See
+  [SIP agents](/telephony/sip-agents).
+
+## Transfer from an Autopilot agent
+
+Set `transferOptions` on the agent: the operator's number and what the agent says first. The model
+can then call the built-in `transfer` tool. When it does, the agent says the message and makes a
+cold transfer.
+
+```yaml agent.yaml
+conversationSettings:
+  # ...the rest of the agent's settings
+  transferOptions:
+    phoneNumber: "+18095550100"
+    message: "One moment, I'm transferring you to a person."
+```
+
+In the dashboard, set **Transfer to an operator** in the agent's **Behavior** panel. Tell the model
+when to transfer in the system prompt, for example: "If the caller asks for a person, transfer the
+call." [Give your agent tools](/autopilot/tools#turn-on-transfers) has the steps for the dashboard,
+the SDK and the CLI.
+
+<Warning>
+  Check that the transfer number answers. If the operator can't be reached, the agent doesn't
+  return to the conversation, and the caller hears silence until the call reaches its maximum
+  length.
+</Warning>
+
+## Transfer from a stream
+
+Call `transfer` on the session. A cold transfer resolves when the operator answers and your session
+ends:
+
+<CodeGroup>
+```javascript Node.js
+await session.say("One moment. I'm connecting you.");
+await session.transfer("+18095550100");
+```
+
+```python Python
+await session.say("One moment. I'm connecting you.")
+await session.transfer("+18095550100")
+```
+</CodeGroup>
+
+If the operator can't be reached, `transfer` rejects with a `SessionError` whose `code` is
+`transfer_failed`. The call goes on, so tell the caller and carry on:
+
+```javascript
+try {
+  await session.transfer("+18095550100");
+} catch (e) {
+  if (e.code !== "transfer_failed") throw e;
+  await session.say("Nobody is available right now. Can I take a message?");
+}
+```
+
+### Warm transfer
+
+In a warm transfer, the caller hears hold audio while your application and the operator hear each
+other. Start the transfer without waiting on it, wait for the operator to say hello, brief them,
+then call `completeTransfer` to connect the caller:
+
+```javascript
+await session.say("Please hold while I find someone to help you.");
+
+// Resolves when your session ends, after completeTransfer.
+const transfer = session.transfer("+18095550100", { mode: "warm" });
+
+// The operator answers and says hello.
+await session.gather({ source: "speech", timeout: 30000 });
+await session.say(
+  "Hi, I have Ana Pérez on the line. She's asking about a refund for order 10482."
+);
+await session.completeTransfer();
+await transfer;
+```
+
+In Python, start it as a task, because `transfer` waits until the session ends:
+
+```python
+transfer = asyncio.create_task(session.transfer("+18095550100", mode="warm"))
+await session.gather(source="speech", timeout=30)
+await session.say("Hi, I have Ana Pérez on the line. She's asking about a refund.")
+await session.complete_transfer()
+await transfer
+```
+
+Fonoster doesn't send an event when the operator answers, which is why the example waits for them
+to speak.
+
+If the operator doesn't answer within 30 seconds, the transfer fails with `transfer_failed` and the
+caller is back with your application.
+
+### SIP REFER
+
+Pass `mode: "refer"`. Your session ends once the caller's side accepts the REFER:
+
+```javascript
+await session.transfer("sip:maria@acme.sip.fonoster.com", { mode: "refer" });
+```
+
+### Send data to the operator's phone
+
+Add custom SIP headers to tell the operator's system who's calling. Headers must start with `X-`,
+and you can send up to 16:
+
+```javascript
+await session.transfer("sip:maria@acme.sip.fonoster.com", {
+  headers: { "X-Customer-Id": "c-10482", "X-Reason": "refund" }
+});
+```
+
+| Limit | Value |
+| --- | --- |
+| Name | `X-` then up to 64 letters, digits or hyphens |
+| Value | A string of up to 256 characters, without line breaks |
+| Count | Up to 16 headers |
+
+Some headers are reserved for Fonoster, such as `X-App-Ref`, `X-Call-Ref` and `X-Dod-Number`. A
+transfer that sets one fails with `bad_message`.
+
+## Hold and resume
+
+To put the caller on hold without transferring, for example while you look something up, call
+`hold`. Pass a `music` URL to play while they wait, or leave it out for silence:
+
+```javascript
+await session.hold({ music: "https://example.com/audio/hold.wav" });
+const order = await lookUpOrder("10482");
+await session.resume();
+await session.say(`Your order ${order.status}.`);
+```
+
+While the caller is on hold, your application gets no caller audio and no speech events, but it
+still gets keypresses. Only `resume`, `hangup`, `transfer` and `handoff` work. Anything else, such
+as `say`, fails with `on_hold`.
+
+## Check it
+
+- Call your number, ask for a person, and check that the operator's phone rings.
+- In a stream, listen for the session's end. After a transfer, its reason is `transfer`:
+
+  ```javascript
+  session.on("end", ({ reason }) => console.log(`Session ended: ${reason}`));
+  ```
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="SIP agents" icon="headset" href="/telephony/sip-agents">
+    Give operators a softphone to take transfers.
+  </Card>
+  <Card title="Give your agent tools" icon="wrench" href="/autopilot/tools">
+    The `transfer` tool and the others.
+  </Card>
+  <Card title="Voice SDK reference" icon="book" href="/reference/voice-sdk">
+    Every method and option.
+  </Card>
+  <Card title="Record calls" icon="circle-dot" href="/telephony/recording">
+    What gets recorded after a transfer.
+  </Card>
+</CardGroup>

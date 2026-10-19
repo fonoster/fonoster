@@ -1,0 +1,214 @@
+---
+title: "Make outbound calls"
+description: "Call a phone number or a SIP address from one of your numbers, connect the person to an agent or a stream, and follow the call."
+---
+
+An outbound call starts from your code. You name the number to call from, who to call and the
+application that takes the call. Fonoster dials, and when the person answers, it connects them to
+your Autopilot agent or stream.
+
+## Before you begin
+
+You need:
+
+- A number in your workspace, on a trunk that can send calls out. See
+  [Link a Twilio number](/telephony/link-twilio) or [Connect a SIP trunk](/telephony/trunks).
+- An Autopilot agent or a stream, and its ref.
+- An API key. In the dashboard, go to **API keys** and create one.
+
+## Place a call
+
+Pass three things:
+
+| Field | What to pass |
+| --- | --- |
+| `from` | One of your workspace's numbers, in E.164 format, such as `+18095550123`. The call goes out through that number's trunk, and the person sees it as the caller ID. |
+| `to` | Who to call: a phone number in E.164 format, a `sip:` address such as `sip:maria@acme.sip.fonoster.com`, or a SIP user. |
+| `appRef` | The ref of the Autopilot agent or stream that takes the call. |
+
+You can also pass:
+
+| Field | Default | What it does |
+| --- | --- | --- |
+| `timeout` | `30` | Seconds to wait for an answer, up to `120`. |
+| `metadata` | None | A JSON object your stream receives with the call, such as the person's name. |
+
+<Tabs>
+  <Tab title="SDK">
+    This script calls a customer and connects them to the agent **Front desk**. It prints each
+    status as the call progresses:
+
+    ```javascript call.js
+    const SDK = require("@fonoster/sdk");
+
+    async function main() {
+      const client = new SDK.Client({
+        accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+      });
+      await client.loginWithApiKey(
+        process.env.FONOSTER_API_KEY,
+        process.env.FONOSTER_API_SECRET
+      );
+
+      const calls = new SDK.Calls(client);
+      const { ref, statusStream } = await calls.createCall({
+        from: "+18095550123",
+        to: "+18095550188",
+        appRef: "6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31",
+        timeout: 30,
+        metadata: { name: "Ana Pérez", reason: "appointment reminder" }
+      });
+
+      console.log(`Call created: ${ref}`);
+
+      for await (const { status } of statusStream) {
+        console.log(`Call status: ${status}`);
+      }
+    }
+
+    main().catch(console.error);
+    ```
+
+    Run it with your key:
+
+    ```bash
+    FONOSTER_API_KEY=APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1 \
+    FONOSTER_API_SECRET=<your secret> \
+    node call.js
+    ```
+
+    When the person answers, it prints:
+
+    ```text
+    Call created: 1d7f3a9c-5e2b-4c8d-9a6f-3b1e7d5c2a94
+    Call status: TRYING
+    Call status: PROGRESS
+    Call status: ANSWER
+    ```
+  </Tab>
+  <Tab title="CLI">
+    Place the call. The CLI prints the call's ref, then each status until the call is answered
+    or fails:
+
+    ```bash
+    fonoster sipnet:calls:create \
+      --from +18095550123 \
+      --to +18095550188 \
+      --app-ref 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31 \
+      --metadata '{"name": "Ana Pérez", "reason": "appointment reminder"}'
+    ```
+
+    ```text
+    Call created: 1d7f3a9c-5e2b-4c8d-9a6f-3b1e7d5c2a94
+    Call status: TRYING
+    Call status: PROGRESS
+    Call status: ANSWER
+    Answered. Its call record appears in records:list after hangup.
+    ```
+
+    | Flag | Short | Default | What it does |
+    | --- | --- | --- | --- |
+    | `--from` | `-f` | | The number to call from. Required. |
+    | `--to` | `-t` | | The number or SIP address to call. Required. |
+    | `--app-ref` | `-a` | | The application that takes the call. Required. |
+    | `--timeout` | `-o` | `30` | Seconds to wait for an answer. |
+    | `--metadata` | `-m` | | A JSON object for the application. |
+    | `--detach` | `-d` | off | Print the ref and return without following the status. |
+  </Tab>
+</Tabs>
+
+## Follow the call
+
+The SDK's `statusStream` and the CLI report the dial status:
+
+| Status | Meaning |
+| --- | --- |
+| `TRYING` | Fonoster is placing the call. |
+| `PROGRESS` | The phone is ringing. |
+| `ANSWER` | The person answered. Your application has the call now. |
+| `BUSY` | The line was busy. |
+| `NOANSWER` | Nobody answered before the timeout. |
+| `CANCEL` | The call was canceled before it was answered. |
+| `FAILED` | The call couldn't be placed. |
+
+Your application only gets the call once the person answers. On a busy line or no answer, it never
+hears about the call. To follow calls without keeping a stream open, use
+[webhooks](/observe/webhooks):
+
+- `call.started` when the person answers and the call reaches your application.
+- `call.ended` when it ends, with how long it lasted and why it ended.
+- `call.failed` when it never reached your application, with a `reason` such as `busy` or
+  `no_answer`.
+
+Each event carries the call's ref, the same one `createCall` returns. When the call ends, its
+[call record](/observe/call-records) has the transcript and, if recording is on, the recording.
+
+## Use the metadata
+
+A stream reads the `metadata` object from `session.metadata` when the call is answered. Use it to
+tell your code who it called and why. See
+[Build a stream with the Voice SDK](/streams/voice-sdk).
+
+```javascript
+const { name, reason } = session.metadata;
+await session.say(`Hi ${name}, I'm calling about your ${reason}.`);
+```
+
+Keep it small, and don't put secrets in it.
+
+<Note>
+  Autopilot agents don't read `metadata` on live calls yet. The agent's system prompt and first
+  message are the same for every call.
+</Note>
+
+## Detect voicemail
+
+If you call people who might not pick up, turn on answering-machine detection on the application.
+Your stream then learns whether a person or a voicemail answered, and can leave a message or hang
+up. See [Detect answering machines](/telephony/amd).
+
+## Call many people
+
+`createCall` places one call. To call a list of numbers, call it once per number from your own
+code, and spread the calls out so your carrier doesn't throttle you.
+
+From an AI assistant such as Claude or Cursor, the Fonoster MCP server has a `create_call_batch`
+tool. It takes one `from`, a list of numbers in `to_array`, the `app_ref`, an optional `timeout`
+and `metadata`, and `calls_per_minute` (1 to 60, default 20). It places the calls in the
+background at that rate and returns right away. See
+[Use Fonoster from an AI assistant](/workspace/mcp).
+
+<Note>
+  The MCP server places batch calls while it runs. If the assistant's MCP server stops, the calls
+  not placed yet are dropped.
+</Note>
+
+## Troubleshooting
+
+| Error | Cause |
+| --- | --- |
+| `The number … is not a Number of this workspace` | `from` must be one of your workspace's numbers, written exactly as it's stored (E.164). |
+| `Application with ref … not found` | The `appRef` isn't an application in this workspace. |
+| `Must be an E.164 number (e.g. +17853178070)` | `from` isn't in E.164 format. |
+| `Timeout must be less than 120s` | Lower `timeout`. |
+| `No capacity to place the call` | Fonoster has no room for the call right now. Try again. |
+
+If the call fails right after `TRYING`, check that the number's trunk has an outbound URI and that
+your carrier accepts calls from Fonoster. See [Connect a SIP trunk](/telephony/trunks).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Detect answering machines" icon="voicemail" href="/telephony/amd">
+    Know whether a person or a voicemail picked up.
+  </Card>
+  <Card title="Webhooks" icon="bell" href="/observe/webhooks">
+    Get told when calls start, end or fail.
+  </Card>
+  <Card title="Call records" icon="file-signature" href="/observe/call-records">
+    Read the transcript and recording of each call.
+  </Card>
+  <Card title="Use Fonoster from an AI assistant" icon="sparkles" href="/workspace/mcp">
+    Place calls and batches from Claude or Cursor.
+  </Card>
+</CardGroup>

@@ -1,0 +1,183 @@
+---
+title: "Numbers and routing"
+description: "Add a phone number to your workspace and choose where its calls go: an Autopilot agent, a stream or a SIP agent."
+---
+
+A number is a phone number that rings in your workspace. It belongs to a trunk, which is your
+connection to the carrier, and it points at one destination: an Autopilot agent, a stream or a SIP
+agent. This page shows how to add a number and how to change where it sends calls.
+
+{/* TODO asset: numbers/routing: a carrier and trunk feed one number, which points at exactly one of: Autopilot agent, stream, SIP agent */}
+
+## Two ways to get a number
+
+Fonoster doesn't sell numbers. You bring a number you already have from a carrier, in one of two
+ways:
+
+| | Twilio-linked number | Trunk-backed number |
+| --- | --- | --- |
+| Where the number comes from | Your Twilio account | Any carrier that speaks SIP |
+| How you set it up | One CLI command creates the trunk on both sides and the number | You create the trunk, then add the number to it |
+| Guide | [Link a Twilio number](/telephony/link-twilio) | [Connect a SIP trunk](/telephony/trunks) |
+
+Both end up the same in your workspace: a number on a trunk. Everything below works for either.
+
+<Tip>
+  If you only want to try your agent, you don't need a number. Call it from your browser with
+  **Talk to agent**. See the [Quickstart](/quickstart).
+</Tip>
+
+## Before you begin
+
+You need:
+
+- A trunk in your workspace. [Connect a SIP trunk](/telephony/trunks) shows how to create one.
+- An Autopilot agent, a stream or a SIP agent to send calls to.
+
+## Add a number
+
+Add the number exactly as your carrier sends it, in E.164 format (`+` then country code and
+number, no spaces), such as `+18095550123`. Fonoster matches incoming calls to the number by this
+value, so a number in another format never rings.
+
+<Tabs>
+  <Tab title="Dashboard">
+    {/* TODO asset: numbers/add-number: the Add number drawer with Number, Name, the "When this number is called, send it to" picker and Trunk filled in */}
+
+    1. Go to **Numbers** and choose **Add number**.
+    2. Under **Number**, enter `+18095550123`.
+    3. Under **Name**, enter a name you'll recognize, such as `Support desk`.
+    4. Under **When this number is called, send it to**, choose **Autopilot agent**, **Stream** or
+       **SIP agent**, then pick one from the list.
+    5. Under **Trunk**, choose the trunk the number belongs to.
+    6. Enter the **City** and choose the **Country**.
+    7. Choose **Save**.
+
+    The number shows up in the list with its destination under **Routes to**.
+  </Tab>
+  <Tab title="SDK">
+    This script adds the number to a trunk and sends its calls to an Autopilot agent:
+
+    ```javascript add-number.js
+    const SDK = require("@fonoster/sdk");
+
+    async function main() {
+      const client = new SDK.Client({
+        accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+      });
+      await client.loginWithApiKey(
+        process.env.FONOSTER_API_KEY,
+        process.env.FONOSTER_API_SECRET
+      );
+
+      const numbers = new SDK.Numbers(client);
+      const { ref } = await numbers.createNumber({
+        name: "Support desk",
+        telUrl: "tel:+18095550123",
+        city: "Santo Domingo",
+        country: "Dominican Republic",
+        countryIsoCode: "DO",
+        trunkRef: "3f9a1c7e-2b4d-4e8f-a1c3-5d7e9b2f4a60",
+        appRef: "6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31"
+      });
+
+      console.log(`Number created: ${ref}`);
+    }
+
+    main().catch(console.error);
+    ```
+
+    `telUrl` is the number with a `tel:` prefix. `countryIsoCode` is the two-letter ISO code.
+  </Tab>
+  <Tab title="CLI">
+    The command asks for each value in turn: the name, the number in E.164 format, the trunk, the
+    application, the city, the country and its ISO code.
+
+    ```bash
+    fonoster sipnet:numbers:create
+    ```
+
+    The **Application** list shows your Autopilot agents and streams. To send the number to a SIP
+    agent instead, use the dashboard or the SDK.
+  </Tab>
+</Tabs>
+
+## Choose where calls go
+
+A number sends every call to one destination:
+
+| Destination | What happens when someone calls | In the SDK |
+| --- | --- | --- |
+| Autopilot agent | Your agent answers. | `appRef`: the agent's ref |
+| Stream | Fonoster opens a WebSocket to your server. | `appRef`: the stream's ref |
+| SIP agent | The softphone or desk phone signed in as that SIP agent rings. | `agentAor`: the SIP agent's address, such as `sip:maria@acme.sip.fonoster.com` |
+
+Set `appRef` or `agentAor`, not both. A number with neither doesn't take calls.
+
+One agent or stream can answer as many numbers as you like. To move a number to a different
+destination, change it on the number:
+
+<Tabs>
+  <Tab title="Dashboard">
+    Go to **Numbers**, open the number, pick the new destination under **When this number is
+    called, send it to**, and choose **Save**.
+  </Tab>
+  <Tab title="SDK">
+    ```javascript
+    await numbers.updateNumber({
+      ref: "9b2e4d1a-7c3f-4a6e-8d2b-1f5c7e9a3b42",
+      agentAor: "sip:maria@acme.sip.fonoster.com"
+    });
+    ```
+  </Tab>
+  <Tab title="CLI">
+    The command shows the current values and asks for the new ones:
+
+    ```bash
+    fonoster sipnet:numbers:update 9b2e4d1a-7c3f-4a6e-8d2b-1f5c7e9a3b42
+    ```
+  </Tab>
+</Tabs>
+
+You can change a number's name, trunk and destination. To change the number itself, its city or
+its country, remove it and add it again.
+
+## Check it
+
+List your numbers to see each one's trunk and destination:
+
+```bash
+fonoster sipnet:numbers:list
+```
+
+Then call the number from any phone. Your agent or stream answers, or the SIP agent's phone
+rings. The call shows up under **Calls** in the dashboard.
+
+If the number doesn't ring:
+
+- Check that the number matches what your carrier sends, `+` included.
+- Check that the trunk's inbound settings match your carrier. See
+  [Connect a SIP trunk](/telephony/trunks).
+
+## Remove a number
+
+Go to **Numbers**, open the number and choose **Remove number**, or run
+`fonoster sipnet:numbers:delete <ref>`. Calls to the number stop reaching Fonoster. The number
+stays with your carrier.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Link a Twilio number" icon="link" href="/telephony/link-twilio">
+    The fastest way to a real number.
+  </Card>
+  <Card title="Connect a SIP trunk" icon="network-wired" href="/telephony/trunks">
+    Bring any carrier that speaks SIP.
+  </Card>
+  <Card title="Make outbound calls" icon="phone-arrow-up-right" href="/telephony/outbound-calls">
+    Call people from one of your numbers.
+  </Card>
+  <Card title="SIP agents" icon="headset" href="/telephony/sip-agents">
+    Ring a softphone or desk phone instead of an application.
+  </Card>
+</CardGroup>

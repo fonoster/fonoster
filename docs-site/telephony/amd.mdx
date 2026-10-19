@@ -1,0 +1,130 @@
+---
+title: "Detect answering machines"
+description: "Find out whether a person, a voicemail or a phone menu answered your call, and decide what to do."
+---
+
+When you call people, a voicemail or a phone menu often answers instead. Answering-machine
+detection (AMD) listens to the first seconds of the call and tells your application who picked up.
+Your application decides what to do: talk to the person, leave a message, or hang up. Fonoster
+never acts on the result for you.
+
+## Turn it on
+
+AMD is a setting on the application, off by default. Turn it on for the stream or Autopilot agent
+that takes your calls.
+
+<Tabs>
+  <Tab title="Dashboard">
+    - **Stream**: go to **Streams**, open the stream, go to the **Call handling** tab, and turn on
+      **Detect answering machines**.
+    - **Autopilot agent**: open the agent, go to the **Advanced** tab, choose **Edit** on the
+      **Call handling** panel, and turn on **Detect answering machines**.
+
+    Choose **Save**. The dashboard uses the default window of 4 seconds.
+  </Tab>
+  <Tab title="SDK">
+    Set `amd` when you create or update the application:
+
+    ```javascript
+    const apps = new SDK.Applications(client);
+    await apps.updateApplication({
+      ref: "4b01c9b1-8cb1-48fb-bd49-f3daf13463a9",
+      amd: { enabled: true, windowMs: 4000 }
+    });
+    ```
+  </Tab>
+  <Tab title="CLI">
+    Turn it on with `--amd`, or set the window with `--amd-window`, which turns it on too:
+
+    ```bash
+    fonoster applications:update 4b01c9b1-8cb1-48fb-bd49-f3daf13463a9 --amd-window 4000
+    ```
+
+    `--no-amd` turns it off.
+  </Tab>
+</Tabs>
+
+| Field | Default | What it does |
+| --- | --- | --- |
+| `amd.enabled` | `false` | Turns detection on. |
+| `amd.windowMs` | `4000` | How much of the answering side's speech to listen to, in milliseconds, from `500` to `15000`. |
+
+A longer window gives a surer answer, but your application waits longer for it. Voicemail
+greetings are often long and steady, so the default window is enough for most calls.
+
+## Read the result
+
+Once per call, a stream gets an `amd.result` event:
+
+```javascript
+session.on("amd.result", async ({ status, confidence }) => {
+  if (status === "voicemail" || status === "machine") {
+    await session.say(
+      "Hi, this is Acme Dental calling about your appointment tomorrow. Please call us back at 809 555 0123."
+    );
+    await session.hangup();
+  }
+});
+```
+
+The event has these fields:
+
+| Field | What it holds |
+| --- | --- |
+| `status` | Who answered: `human`, `voicemail`, `machine`, `ivr` (a phone menu) or `unknown`. |
+| `confidence` | How sure the detector is, from `0` to `1`. |
+| `detector` | The detector that decided, or `none` when detection couldn't run. |
+| `audioMs` | How many milliseconds of audio it listened to. |
+| `reason` | Only when `status` is `unknown` because detection couldn't run, for example `no_speech` when nobody spoke. |
+
+The call stays up while detection runs. Your application has the call from the moment it's
+answered, so it can speak right away, or wait for the result first.
+
+## How long it takes
+
+Detection starts listening when the call is answered and the window starts when the other side
+begins to speak. The result arrives shortly after the window ends.
+
+If nobody speaks within 4 seconds, the result is `unknown` with the reason `no_speech`. A person
+who picks up and stays quiet looks like that too, so treat `unknown` as "maybe a person": greet them
+and listen.
+
+## Pick a strategy
+
+| Goal | What to do |
+| --- | --- |
+| Leave a message on voicemail | On `voicemail` or `machine`, speak your message and hang up. Voicemail usually records after its beep, so wait a moment or keep the message short. |
+| Only talk to people | On `voicemail`, `machine` or `ivr`, hang up. |
+| Reach a person behind a menu | On `ivr`, send keys with `playDtmf`. See [DTMF](/telephony/dtmf). |
+| Lowest delay for people | Greet at once, and act on the result only if it's not `human`. |
+
+Use `confidence` to be careful: for example, hang up on `voicemail` only when `confidence` is above
+`0.8`.
+
+## Inbound calls and Autopilot agents
+
+AMD runs on every call the application takes, inbound too. It's most useful on outbound calls.
+
+Streams with the `twilio` protocol don't get the event, because Twilio Media Streams has no message
+for it. In Python, listen with `session.on("amd.result", handler)` the same way.
+
+An Autopilot agent doesn't act on the result: it talks to whoever answers. The result is still saved
+in the call's [call record](/observe/call-records), so you can see afterwards how many calls reached
+voicemail.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Make outbound calls" icon="phone-arrow-up-right" href="/telephony/outbound-calls">
+    Place the calls that AMD checks.
+  </Card>
+  <Card title="DTMF" icon="grid" href="/telephony/dtmf">
+    Get through phone menus with keypad tones.
+  </Card>
+  <Card title="Build a stream with the Voice SDK" icon="code" href="/streams/voice-sdk">
+    Handle the result in your own code.
+  </Card>
+  <Card title="Call records" icon="file-signature" href="/observe/call-records">
+    Find the AMD result of past calls.
+  </Card>
+</CardGroup>

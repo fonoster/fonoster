@@ -74,6 +74,20 @@
                 ]
               },
               {
+                "group": "Telephony",
+                "pages": [
+                  "telephony/numbers",
+                  "telephony/link-twilio",
+                  "telephony/trunks",
+                  "telephony/sip-agents",
+                  "telephony/outbound-calls",
+                  "telephony/transfers",
+                  "telephony/dtmf",
+                  "telephony/amd",
+                  "telephony/recording"
+                ]
+              },
+              {
                 "group": "Observe",
                 "pages": [
                   "observe/webhooks",
