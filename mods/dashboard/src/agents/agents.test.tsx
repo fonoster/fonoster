@@ -86,6 +86,20 @@ describe("Autopilot list", () => {
       model: "OpenAI · GPT-4o Mini",
       voice: "Aura 2 Celeste · es-419"
     });
+    // A model saved before catalog ids (no provider prefix) shows as saved.
+    const legacy = {
+      ...billingAgent,
+      intelligence: {
+        ...billingAgent.intelligence,
+        config: {
+          ...(billingAgent.intelligence!.config as object),
+          languageModel: { provider: "openai", model: "gpt-4o-mini" }
+        }
+      }
+    } as typeof billingAgent;
+    expect(agentRow(legacy, sampleNumbers, sampleCatalog).model).toBe(
+      "gpt-4o-mini"
+    );
     // Before the catalog loads, or for an item it no longer offers: the ids.
     expect(agentRow(billingAgent, sampleNumbers)).toMatchObject({
       model: "openai · gpt-4o-mini",

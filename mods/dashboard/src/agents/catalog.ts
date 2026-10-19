@@ -86,10 +86,23 @@ export function providerOptions(
 
 /** An option's label; without one (not offered), its id after the provider. */
 export function labelOf(options: CatalogOption[], id: string): string {
+  const provider = providerOf(id);
   return (
     options.find((o) => o.id === id)?.label ??
-    (id.slice(providerOf(id).length + 1) || id)
+    (provider ? id.slice(provider.length + 1) : id)
   );
+}
+
+/** "Deepgram · Aura 2 Thalia"; an id without a provider (saved before catalog ids) shows as is. */
+export function summaryOf(
+  catalog: AgentCatalog,
+  options: CatalogOption[],
+  id: string
+): string {
+  if (!id) return "—";
+  return providerOf(id)
+    ? `${providerLabel(catalog, id)} · ${labelOf(options, id)}`
+    : id;
 }
 
 /** The provider's label, or its id. */

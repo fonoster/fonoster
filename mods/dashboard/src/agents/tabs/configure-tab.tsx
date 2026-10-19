@@ -30,11 +30,10 @@ import { formatNumber, useCatalog } from "../agents.service";
 import {
   EMPTY_CATALOG,
   LANGUAGES,
-  labelOf,
-  providerLabel,
   providerOf,
   providerOptions,
   speaks,
+  summaryOf,
   type AgentCatalog,
   type CatalogOption
 } from "../catalog";
@@ -229,7 +228,7 @@ function ModelAndVoice() {
       <div className="flex flex-col gap-3">
         <PickerRow
           label="Language model"
-          value={`${providerLabel(catalog, model)} · ${model ? labelOf(catalog.llm, model) : "—"}`}
+          value={summaryOf(catalog, catalog.llm, model)}
           meta={
             Number.isFinite(temperature) ? `temp ${temperature}` : undefined
           }
@@ -246,7 +245,7 @@ function ModelAndVoice() {
         </PickerRow>
         <PickerRow
           label="Voice"
-          value={`${providerLabel(catalog, voice)} · ${voice ? labelOf(catalog.voices, voice) : "—"}`}
+          value={summaryOf(catalog, catalog.voices, voice)}
           meta={voiceLocale || undefined}
         >
           <CatalogPicker
@@ -258,7 +257,7 @@ function ModelAndVoice() {
         </PickerRow>
         <PickerRow
           label="Transcriber"
-          value={`${providerLabel(catalog, sttModel)} · ${sttModel ? labelOf(catalog.stt, sttModel) : "—"}`}
+          value={summaryOf(catalog, catalog.stt, sttModel)}
           meta={language || undefined}
         >
           <SelectField

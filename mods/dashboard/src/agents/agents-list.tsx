@@ -41,7 +41,7 @@ import {
 import {
   EMPTY_CATALOG,
   labelOf,
-  providerLabel,
+  summaryOf,
   type AgentCatalog
 } from "./catalog";
 import { CreateAgentDialog } from "./create-agent-dialog";
@@ -74,9 +74,7 @@ export function agentRow(
         ? "No numbers"
         : formatNumber(routed[0].telUrl) +
           (routed.length > 1 ? ` +${routed.length - 1}` : ""),
-    model: model
-      ? `${providerLabel(catalog, model)} · ${labelOf(catalog.llm, model)}`
-      : "—",
+    model: summaryOf(catalog, catalog.llm, model),
     voice:
       [voice && labelOf(catalog.voices, voice), language]
         .filter(Boolean)
