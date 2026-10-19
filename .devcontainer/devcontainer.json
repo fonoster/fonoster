@@ -34,7 +34,8 @@
   },
   // Envoy publishes the dashboard and the API on the host (HTTP_PORT in .dev/.env, 8449 by
   // default) and Routr publishes SIP (SIP_PORT, 5060): nothing to forward for them.
-  "forwardPorts": [6006],
+  // Storybook (`npm run storybook` in mods/dashboard) is forwarded on demand: add port 6006 in
+  // the Ports panel once it is running.
   "portsAttributes": {
     "6006": { "label": "Storybook" }
   },
