@@ -94,6 +94,15 @@
                   "observe/call-records",
                   "observe/retention"
                 ]
+              },
+              {
+                "group": "Workspace",
+                "pages": [
+                  "workspace/access",
+                  "workspace/provider-keys",
+                  "workspace/secrets",
+                  "workspace/mcp"
+                ]
               }
             ]
           },

@@ -1,0 +1,298 @@
+---
+title: "Workspaces, members and API keys"
+sidebarTitle: "Access"
+description: "Create and switch workspaces, invite your team, and create the API keys your code and the CLI sign in with."
+---
+
+Everything you build in Fonoster lives in a **workspace**: agents, streams, numbers, webhooks and
+call records. People join a workspace as **members**. Your code, the CLI and the MCP server sign in
+with an **API key** that belongs to one workspace.
+
+{/* TODO asset: access/credentials — diagram: a workspace (WO… ID) holding members (people, dashboard sign-in) and API keys (AP… ID + secret); SDK, CLI and MCP sign in with the WO ID plus one API key */}
+
+## Before you begin
+
+You need a Fonoster account. Sign up at [app.fonoster.com](https://app.fonoster.com), or use the
+dashboard of your own Fonoster install. To manage members and API keys, you must be the workspace's
+owner or an admin.
+
+## Create and switch workspaces
+
+The first time you sign in, the dashboard asks you to name your first workspace. To add another:
+
+1. Open the workspace menu at the top of the sidebar.
+2. Choose **New workspace**.
+3. Enter a name, up to 50 characters, such as `Acme Support`.
+4. Choose **Create**.
+
+You own the workspaces you create. To switch, open the same menu and pick another workspace. You
+see the workspaces you own and the ones you're an active member of.
+
+On an install with private regions, the form also asks for a **Region**. A workspace's region is
+fixed when you create it and can't change later. See
+[What a private region is](/private-regions/overview).
+
+To rename the workspace, go to **Settings** > **General** and change **Workspace name**. The owner
+and admins can rename it.
+
+## Invite members
+
+<Steps>
+  <Step title="Send the invite">
+    1. Go to **Settings** > **Members**.
+    2. Choose **Invite member**.
+    3. Enter their **Name** and **Email**.
+    4. Pick a **Role**: **Member** or **Admin**.
+    5. Choose **Send invite**.
+  </Step>
+  <Step title="They accept">
+    Fonoster emails them a link. Until they open it, they show as **Invite sent** in the members
+    list. Once they accept, they show as **Active** and the workspace appears in their workspace
+    menu.
+
+    If the link expired or they lost the email, open the member's **⋯** menu and choose
+    **Resend invite**.
+  </Step>
+</Steps>
+
+To remove someone, open their **⋯** menu and choose **Remove**. They lose access to the workspace
+right away. Removing a pending member cancels their invite.
+
+### Roles
+
+A workspace has three roles. You pick **Member** or **Admin** when you invite someone. **Owner**
+is whoever created the workspace.
+
+| Role | Can do |
+| --- | --- |
+| **Member** | Build and run everything in the workspace: agents, streams, numbers, trunks, webhooks, secrets, calls and call records. Can see the provider catalog and which vendor keys are set. |
+| **Admin** | Everything a member can do, plus invite and remove members, create and delete API keys, set [vendor keys](/workspace/provider-keys) and rename the workspace. |
+| **Owner** | Everything an admin can do, plus delete the workspace. |
+
+You can't change a member's role. To change it, remove them and invite them again with the new
+role.
+
+## Create an API key
+
+Your code and the CLI don't sign in with your email and password. They use an API key. Each API key
+belongs to one workspace and can do what an admin can do there, so treat its secret like a
+password.
+
+Owners and admins create API keys. Every key has the role **Workspace admin**: it's the only role
+an API key can have.
+
+<Tabs>
+  <Tab title="Dashboard">
+    1. Go to **API keys**.
+    2. Choose **Create API key**.
+    3. Keep the role **Workspace admin**.
+    4. Under **Expires**, choose **Never**, **In 30 days**, **In 90 days** or **In 1 year**.
+    5. Choose **Create API key**.
+
+    The **Save your secret key** dialog shows the **API key**, the **API secret** and an
+    **SDK snippet**. Copy the secret now, check **I've saved the secret** and choose **Done**. The
+    secret isn't shown again.
+
+    {/* TODO asset: access/save-secret — screenshot of the "Save your secret key" dialog: API key APk3n8…, API secret, SDK snippet, "I've saved the secret" */}
+  </Tab>
+  <Tab title="SDK">
+    Sign in with an existing key, then create a new one. `expiresAt` is optional, in seconds since
+    the epoch. Leave it out for a key that never expires:
+
+    ```javascript create-key.js
+    const SDK = require("@fonoster/sdk");
+
+    async function main() {
+      const client = new SDK.Client({
+        accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+      });
+      await client.loginWithApiKey(
+        process.env.FONOSTER_API_KEY,
+        process.env.FONOSTER_API_SECRET
+      );
+
+      const apiKeys = new SDK.ApiKeys(client);
+      const key = await apiKeys.createApiKey({
+        role: "WORKSPACE_ADMIN",
+        expiresAt: Math.floor(Date.now() / 1000) + 90 * 24 * 60 * 60
+      });
+
+      console.log(key);
+    }
+
+    main().catch(console.error);
+    ```
+
+    It prints the new key's ref, ID and secret:
+
+    ```text
+    {
+      ref: '0b8f3c2e-6d4a-4e1f-9a7b-3c5d2e8f1a64',
+      accessKeyId: 'APq7d0k2m9x4c8v1b6n3z5l0w2e7r9t4',
+      accessKeySecret: 'Hq3vT8kZ1mR6pW2xN9cL4bY7dF0sJ5gA8eU3oK6iV1nM4tB9rX2wC7yQ5hP0zL3a'
+    }
+    ```
+  </Tab>
+  <Tab title="CLI">
+    Once you're [logged in](#sign-in-from-the-cli), create a key for the active workspace:
+
+    ```bash
+    fonoster apikeys:create
+    ```
+
+    It prints the key ID and the secret, once:
+
+    ```text
+    Access Key ID: APq7d0k2m9x4c8v1b6n3z5l0w2e7r9t4
+    Access Key Secret: Hq3vT8kZ1mR6pW2xN9cL4bY7dF0sJ5gA8eU3oK6iV1nM4tB9rX2wC7yQ5hP0zL3a
+    ```
+
+    The CLI creates keys that never expire. To set an expiry, use the dashboard or the SDK.
+  </Tab>
+</Tabs>
+
+<Note>
+  Your very first API key comes from the dashboard: the SDK and the CLI need a key to sign in.
+</Note>
+
+## The IDs you sign in with
+
+To sign in from code, you need three values:
+
+| Value | Looks like | Where to find it |
+| --- | --- | --- |
+| Workspace access key ID | `WO` and 32 characters | **Settings** > **General** > **Access key ID**, or `fonoster workspaces:active` |
+| API key ID | `AP` and 32 characters | **API keys**, or `fonoster apikeys:list` |
+| API key secret | 64 characters | Shown once, when you create or regenerate the key |
+
+The workspace access key ID tells Fonoster which workspace a request is for. The API key ID and
+secret prove who you are. They're different values: don't put the API key ID where the workspace
+ID goes.
+
+## Sign in from the SDK
+
+Create a client with the workspace access key ID, then sign in with the API key:
+
+```javascript
+const SDK = require("@fonoster/sdk");
+
+const client = new SDK.Client({
+  accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+});
+await client.loginWithApiKey(
+  process.env.FONOSTER_API_KEY,
+  process.env.FONOSTER_API_SECRET
+);
+```
+
+The client connects to Fonoster Cloud (`api.fonoster.com`) unless you pass an `endpoint`. On your
+own install, set `endpoint` to your API's address. The client renews its session for you while
+your code runs.
+
+Keep the secret out of your code. Read it from an environment variable or your secret manager, as
+above.
+
+## Sign in from the CLI
+
+Install the `fonoster` CLI and log in. It asks for the endpoint (keep `api.fonoster.com` for
+Fonoster Cloud), the API key ID and the secret:
+
+```bash
+npm install -g @fonoster/ctl
+fonoster workspaces:login
+```
+
+To log in without the questions, for example in CI, pass the key as flags:
+
+```bash
+fonoster workspaces:login --access-key-id APq7d0k2m9x4c8v1b6n3z5l0w2e7r9t4 \
+  --access-key-secret "$FONOSTER_API_SECRET"
+```
+
+The CLI finds the workspace from the key and saves the login in `~/.fonoster/config.json`. The
+workspace you log in to becomes the active one, and every other command runs against it.
+
+You can log in to several workspaces, one API key each, and switch between them:
+
+| Command | What it does |
+| --- | --- |
+| `fonoster workspaces:list` | Lists the workspaces you're logged in to and marks the active one. |
+| `fonoster workspaces:active` | Shows the active workspace: name, ref, access key ID and endpoint. |
+| `fonoster workspaces:use <ref>` | Makes another workspace the active one. |
+| `fonoster workspaces:logout <ref>` | Removes a workspace's login from this machine. |
+
+<Note>
+  `workspaces:logout` only forgets the key on this machine. The key still works. To stop it,
+  delete it.
+</Note>
+
+## Regenerate or delete a key
+
+**Regenerate** a key when its secret may have leaked. The key keeps its ID and gets a new secret.
+The old secret stops working right away, and clients signed in with it can't renew their session.
+Anything that uses the key needs the new secret.
+
+**Delete** a key you no longer need. Apps and scripts that use it stop working, and it can't be
+undone.
+
+<Tabs>
+  <Tab title="Dashboard">
+    Go to **API keys**. Choose **Regenerate** on the key's row, or open its **⋯** menu and choose
+    **Delete**, then confirm.
+  </Tab>
+  <Tab title="SDK">
+    ```javascript
+    const apiKeys = new SDK.ApiKeys(client);
+
+    // A new secret for the same key
+    const { accessKeySecret } = await apiKeys.regenerateApiKey(
+      "0b8f3c2e-6d4a-4e1f-9a7b-3c5d2e8f1a64"
+    );
+
+    // Or remove the key
+    await apiKeys.deleteApiKey("0b8f3c2e-6d4a-4e1f-9a7b-3c5d2e8f1a64");
+    ```
+  </Tab>
+  <Tab title="CLI">
+    Find the key's ref, then regenerate or delete it:
+
+    ```bash
+    fonoster apikeys:list
+    fonoster apikeys:regenerate 0b8f3c2e-6d4a-4e1f-9a7b-3c5d2e8f1a64
+    fonoster apikeys:delete 0b8f3c2e-6d4a-4e1f-9a7b-3c5d2e8f1a64
+    ```
+  </Tab>
+</Tabs>
+
+An expired key stops working on its own. It stays in the list, marked **Expired**, until you
+delete it.
+
+## Delete a workspace
+
+Only the owner can delete a workspace. Go to **Settings** > **General** and, under
+**Danger zone**, choose **Delete workspace**. Everything in it is deleted for every member, and it
+can't be undone.
+
+## What's not available yet
+
+- API key roles other than **Workspace admin**. A key can't be limited to some resources or to
+  read-only access.
+- Changing a member's role in place.
+- Two-factor sign-in for your account.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Use your own provider keys" icon="key" href="/workspace/provider-keys">
+    Run calls on your own Deepgram, ElevenLabs, OpenAI or Groq account.
+  </Card>
+  <Card title="Use Fonoster from an AI assistant" icon="sparkles" href="/workspace/mcp">
+    Let Claude or Cursor list your numbers and place calls.
+  </Card>
+  <Card title="Node SDK" icon="js" href="/reference/sdk">
+    Every SDK class and method.
+  </Card>
+  <Card title="CLI" icon="terminal" href="/reference/cli">
+    Every developer command.
+  </Card>
+</CardGroup>

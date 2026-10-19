@@ -79,3 +79,23 @@ Collected from each page's checkpoint. Answer them in your review pass.
 - retention: Erasing a call sends no `call_record.sealed` (the gateway skips erased entries) and there's no `call_record.erased` event. Should there be one, so downstream copies can be purged?
 - retention: The audit endpoint returns raw rows (including internal `ref` and `accessKeyId`), unlike the typed `CallRecordAuditEntry`. Trim the response?
 
+
+## Workspace
+- secrets (SECURITY): `GetSecret` and `ListSecrets` return the decrypted `secret` value (`mods/apiserver/src/secrets/getSecret.ts`, `listSecrets.ts`; `Secret` type has `secret`), and members (`WORKSPACE_MEMBER`) have full Secrets access (`roles.ts`). Vendor keys are stored as secrets `provider-key/<provider>`, so a member can read the admin-only vendor keys through the API, and "write-only, can't be read back" (dashboard, `docs/providers.md`, SDK `Providers` doc) is only true in the UI. Strip the value from Get/List and restrict `provider-key/*`? The pages avoid claiming write-only for the API.
+- secrets: Nothing reads secrets by name: only vendor keys consume them. The dashboard Secrets page says "reference them by name from agents and streams", which isn't built. MENU's WHY ("credentials for tools") isn't either. The page says so in a Note. Planned (e.g. `{{secrets.NAME}}` in tool headers)? Otherwise fix the dashboard copy.
+- secrets: `provider-key/<id>` secrets show in the Secrets list; editing one in the dashboard fails name validation (`/` not allowed), deleting one silently removes the vendor key. Hide them from Secrets?
+- secrets: `UpdateSecret` validates with `listRequestSchema` instead of the create schema, so renames skip the name rules (`mods/apiserver/src/secrets/updateSecret.ts`).
+- access: `fonoster apikeys:create` ignores `--expiration` (never passed to the SDK) and `--role` accepts any string; it prints "Access Key regenerated successfully!" while `apikeys:regenerate` prints "created". The page shows only the ID/secret lines and says the CLI makes non-expiring keys.
+- access: Only `WORKSPACE_ADMIN` API keys exist (`createApiKeyRequestSchema`). This also answers the Observe/retention question: a key always carries `WORKSPACE_ADMIN`.
+- access: No API to change a member's role; the page says remove and re-invite. Planned?
+- access: Two-factor: `identity.security.twoFactorAuthenticationRequired` is an install-wide switch reusing the verification code; there's no per-user 2FA. The page lists "two-factor sign-in for your account" as not available. Right framing?
+- access: Invite links expire after `invites.expiration` (default `1d`). Is that Cloud's value? The page doesn't state a duration.
+- access: Regenerate/delete revoke refresh tokens, but access tokens stay valid until they expire (15 min default). The page says clients "can't renew their session". Enough?
+- provider-keys: `fonoster providers:keys:list` passes `updatedAt` (epoch seconds from the API) to `formatDate`, which treats it as milliseconds, so it likely prints a 1970 date. The page shows an ISO date.
+- provider-keys: Deprecation warnings render only on the Streams list (`CatalogWarnings` in `session/streams.tsx`), not on Autopilot. Agents using a deprecated model get no dashboard warning. Add it to Autopilot (or wait for the status page, #1002)?
+- provider-keys: Does Fonoster Cloud set platform keys for all four providers (deepgram, elevenlabs, openai, groq)? The page says Cloud's catalog has those four.
+- provider-keys: "Calls in progress keep the key they started with" is inferred (lookup at session start, 30 s cache). Confirm.
+- mcp: `mcp:configure` writes only the three key variables, not `MCP_ENDPOINT`/`MCP_ALLOW_INSECURE`, so self-hosted users must edit the file; it also fails on Linux ("Unsupported platform") and only supports `--client claude`. Add the endpoint and a Cursor target?
+- mcp: The prompt names tools `listNumbers`/`createCall` (camelCase) while the tools are `list_numbers`/`create_call`, and says 10-digit numbers are fine while the API requires E.164 for `from`. Fix the prompt text.
+- mcp: `create_call_batch` runs in the MCP process, fire-and-forget; its "batch ID" is `Date.now()` and can't be tracked. Worth a server-side batch, or keep as is?
+- mcp: Is `fonoster/mcp` published on Docker Hub (the README shows a docker config)? The page shows npx only.

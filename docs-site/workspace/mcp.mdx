@@ -1,0 +1,201 @@
+---
+title: "Use Fonoster from an AI assistant (MCP)"
+sidebarTitle: "MCP server"
+description: "Connect Claude Desktop or Cursor to your workspace with fonoster-mcp, so the assistant can list your numbers and agents and place calls."
+---
+
+`fonoster-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server for your
+workspace. Add it to an AI assistant such as Claude Desktop or Cursor, and you can ask in plain
+words: "Call +1 809 555 0123 from my main number with the Front desk agent." The assistant looks up
+your numbers and applications and places the call.
+
+{/* TODO asset: mcp/flow — diagram: AI assistant (Claude Desktop / Cursor) → fonoster-mcp on your computer (stdio, API key) → Fonoster API → outbound call to a phone, answered by an Autopilot agent or a stream */}
+
+<Note>
+  This page is about controlling Fonoster from an assistant. It isn't a way to give an Autopilot
+  agent MCP tools: agents run [built-in and HTTP tools](/autopilot/tools) only.
+</Note>
+
+## Before you begin
+
+You need:
+
+- An API key and your workspace access key ID (`WO…`). See
+  [Workspaces, members and API keys](/workspace/access).
+- A number in your workspace to call from. See [Numbers and routing](/telephony/numbers).
+- An Autopilot agent or a stream to handle the calls.
+- [Node.js](https://nodejs.org/) 22 or later. The assistant starts the server with `npx`.
+
+<Warning>
+  The server signs in with an API key, which has full access to the workspace. Anything you ask the
+  assistant to do, it can do, including calling many numbers. Use it only with numbers you have
+  consent to call.
+</Warning>
+
+## Connect your assistant
+
+<Tabs>
+  <Tab title="Claude Desktop (CLI)">
+    If you use the `fonoster` CLI, it can write Claude Desktop's configuration for you. Log in to
+    the workspace first:
+
+    ```bash
+    fonoster workspaces:login
+    ```
+
+    Then add the Fonoster server to Claude Desktop with the active workspace's login:
+
+    ```bash
+    fonoster mcp:configure
+    ```
+
+    It prints:
+
+    ```text
+    MCP client configured successfully for workspace: Acme Support
+    ```
+
+    To use another workspace you're logged in to, pass its ref with `--workspace`. The command
+    works on macOS and Windows, and keeps any other servers already in the file.
+
+    Restart Claude Desktop to load the server.
+  </Tab>
+  <Tab title="Claude Desktop (manual)">
+    Open `claude_desktop_config.json`:
+
+    - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
+    - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+
+    Add `fonoster` under `mcpServers`, with your workspace access key ID, API key ID and secret:
+
+    ```json claude_desktop_config.json
+    {
+      "mcpServers": {
+        "fonoster": {
+          "command": "npx",
+          "args": ["-y", "@fonoster/mcp@latest"],
+          "env": {
+            "MCP_WORKSPACE_ACCESS_KEY_ID": "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",
+            "MCP_APIKEY_ACCESS_KEY_ID": "APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1",
+            "MCP_APIKEY_ACCESS_KEY_SECRET": "<your secret>"
+          }
+        }
+      }
+    }
+    ```
+
+    Restart Claude Desktop to load the server.
+  </Tab>
+  <Tab title="Cursor">
+    Open Cursor's MCP configuration, `~/.cursor/mcp.json` for every project or `.cursor/mcp.json`
+    in one project. Add `fonoster` under `mcpServers`:
+
+    ```json mcp.json
+    {
+      "mcpServers": {
+        "fonoster": {
+          "command": "npx",
+          "args": ["-y", "@fonoster/mcp@latest"],
+          "env": {
+            "MCP_WORKSPACE_ACCESS_KEY_ID": "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",
+            "MCP_APIKEY_ACCESS_KEY_ID": "APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1",
+            "MCP_APIKEY_ACCESS_KEY_SECRET": "<your secret>"
+          }
+        }
+      }
+    }
+    ```
+
+    Don't commit a project's `mcp.json` with the secret in it.
+  </Tab>
+</Tabs>
+
+### Settings
+
+The server reads these environment variables:
+
+| Variable | Required | What it is |
+| --- | --- | --- |
+| `MCP_WORKSPACE_ACCESS_KEY_ID` | Yes | Your workspace access key ID, `WO…`. |
+| `MCP_APIKEY_ACCESS_KEY_ID` | Yes | The API key ID, `AP…`. |
+| `MCP_APIKEY_ACCESS_KEY_SECRET` | Yes | The API key secret. |
+| `MCP_ENDPOINT` | No | The API address. Defaults to Fonoster Cloud, `api.fonoster.com`. |
+| `MCP_ALLOW_INSECURE` | No | `true` to connect without TLS, for a local install. Defaults to `false`. |
+
+On your own install, add `MCP_ENDPOINT` with your API's address. `mcp:configure` doesn't write it,
+so add it to the file by hand.
+
+## Check it works
+
+In the assistant, ask: "List my Fonoster numbers." It uses the `list_numbers` tool and answers
+with your numbers. If it can't start the server or sign in, check the three IDs, and that the key
+hasn't expired or been deleted.
+
+## Place a call
+
+Ask for the call in plain words, with the number in E.164 format:
+
+```text
+Call +18095550123 from +18095550100 using the Front desk agent.
+```
+
+The assistant finds the agent's ref with `list_applications`, then uses `create_call`. Fonoster
+dials the number, and the agent or stream you named handles the call. The assistant answers with
+the call's ref, such as `Call created with REF: 3f6b1d8e-2a4c-4e9f-8b71-5c0d9e2a6f13`. Find the call
+under **Calls** in the dashboard.
+
+To call a list of numbers, ask for a batch:
+
+```text
+Call +18095550123, +18095550124 and +18095550125 from +18095550100
+with the Front desk agent, 10 calls per minute.
+```
+
+The assistant uses `create_call_batch`. It answers right away, and the calls go out one by one in
+the background at the rate you asked for (20 per minute by default).
+
+<Warning>
+  A batch runs inside the MCP server on your computer. If you quit the assistant before the batch
+  ends, the remaining calls aren't made. The assistant isn't told when a call in a batch fails:
+  check **Calls** in the dashboard.
+</Warning>
+
+For larger campaigns, place calls from your own code. See
+[Make outbound calls](/telephony/outbound-calls).
+
+## Tools
+
+| Tool | Inputs | What it does |
+| --- | --- | --- |
+| `list_numbers` | `page_size`, `page_token` (optional) | Lists the workspace's numbers: ref, name and number. |
+| `list_applications` | `page_size`, `page_token` (optional) | Lists Autopilot agents (`AUTOPILOT`) and streams (`STREAM`): ref, name, type and dates. |
+| `create_call` | `from`, `to`, `app_ref`; optional `timeout`, `metadata` | Places one call and returns its ref. |
+| `create_call_batch` | `from`, `to_array`, `app_ref`; optional `timeout`, `metadata`, `calls_per_minute` | Places calls to every number in `to_array`, `calls_per_minute` apart (1 to 60, default 20). |
+
+For both call tools:
+
+- `from` is a number in your workspace, in E.164 format, such as `+18095550100`.
+- `to` is an E.164 number, a SIP user or a `sip:` URI.
+- `app_ref` is the ref of the agent or stream that handles the call.
+- `timeout` is how many seconds to ring before giving up, up to 120. It defaults to 30.
+- `metadata` is a JSON object passed to your application with the call.
+
+The server also offers one prompt, `create_call_prompt`. It walks the assistant through a call
+step by step: ask for the numbers to call, offer your numbers to call from, pick the application,
+confirm the details, then place the call. In Claude Desktop, pick it from the prompts menu.
+
+## What it can't do yet
+
+The server only lists numbers and applications and places calls. It can't create or change
+agents, numbers or other resources, read call records, or hang up a call.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Make outbound calls" icon="phone-arrow-up-right" href="/telephony/outbound-calls">
+    Place calls from your own code with the SDK.
+  </Card>
+  <Card title="Build an Autopilot agent" icon="robot" href="/autopilot/build-an-agent">
+    Write the agent that handles the calls.
+  </Card>
+</CardGroup>

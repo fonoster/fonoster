@@ -1,0 +1,223 @@
+---
+title: "Use your own provider keys"
+sidebarTitle: "Provider keys"
+description: "Run your workspace's calls on your own Deepgram, ElevenLabs, OpenAI or Groq account, and keep up with model deprecations."
+---
+
+Fonoster calls speech and language vendors for you: a transcriber hears the caller, a voice speaks,
+and an agent's language model writes the replies. By default, calls use the platform's account
+with each vendor. Set your own key for a vendor, and your workspace's calls use your account
+instead: your rate limits, your voices and your contract with the vendor.
+
+## Before you begin
+
+- You must be the workspace's owner or an admin to set or remove keys. Members can see which
+  vendors have a key.
+- Have an API key from the vendor's own console.
+
+## See what you can use
+
+Every provider, model and voice has a **catalog ID** of the form `<provider>/<name>`, such as
+`deepgram/nova-3` or `openai/gpt-4o-mini`. Apps and agents name their transcriber, voice and model
+by these IDs.
+
+List the catalog your workspace can use:
+
+```bash
+fonoster providers:catalog
+```
+
+Narrow it with `--kind` (`provider`, `model` or `voice`) and `--type` (`stt`, `tts` or `llm`):
+
+```bash
+fonoster providers:catalog --kind provider
+fonoster providers:catalog --kind model --type stt
+```
+
+Each line shows the ID, its kind, type, state and languages:
+
+```text
+ID                      KIND      TYPE  STATE                                   LANGUAGES
+deepgram                provider  -     active
+elevenlabs              provider  -     active
+groq                    provider  -     active
+openai                  provider  -     active
+```
+
+On Fonoster Cloud the providers are `deepgram` (speech-to-text and voices), `elevenlabs` (voices),
+`openai` and `groq` (language models). On your own install, the operator decides. See
+[Providers and models](/reference/providers) for every model and voice.
+
+The catalog only lists providers your workspace can run: those the platform has a key for, plus
+those you set your own key for. Setting a key can add a provider to the list.
+
+## Set a key
+
+<Tabs>
+  <Tab title="Dashboard">
+    1. Go to **Vendor keys**.
+    2. Under **Provider**, choose the vendor, such as `deepgram`.
+    3. Paste your key under **API key**.
+    4. Choose **Save key**.
+
+    The vendor's row now says **Your key** and when you saved it. Rows without one say
+    **Platform key**.
+  </Tab>
+  <Tab title="SDK">
+    Set the key with the provider's ID:
+
+    ```javascript
+    const providers = new SDK.Providers(client);
+
+    await providers.setProviderKey({
+      providerId: "deepgram",
+      key: process.env.DEEPGRAM_API_KEY
+    });
+    ```
+
+    See [Workspaces, members and API keys](/workspace/access#sign-in-from-the-sdk) to create
+    `client`.
+  </Tab>
+  <Tab title="CLI">
+    Set the key. Without `--key`, the CLI asks for it and doesn't echo what you type:
+
+    ```bash
+    fonoster providers:keys:set deepgram
+    ```
+
+    To set it from an environment variable, pass `--key`:
+
+    ```bash
+    fonoster providers:keys:set elevenlabs --key "$ELEVENLABS_API_KEY"
+    ```
+  </Tab>
+</Tabs>
+
+Setting a key again replaces the old one. Fonoster stores it encrypted as a workspace
+[secret](/workspace/secrets) named `provider-key/<provider>`, such as `provider-key/deepgram`. The
+dashboard and the CLI never show the key again: they tell you which vendors have a key, not the key
+itself.
+
+Calls that start after you save use your key. A change can take up to 30 seconds to reach new
+calls. Calls already in progress keep the key they started with.
+
+<Note>
+  Fonoster doesn't check the key when you save it. If the vendor rejects it, calls fail at the
+  vendor. Make a test call after you set a key.
+</Note>
+
+## Check which keys are set
+
+<Tabs>
+  <Tab title="Dashboard">
+    Go to **Vendor keys**. Each provider shows **Your key** or **Platform key**.
+  </Tab>
+  <Tab title="SDK">
+    ```javascript
+    const { items } = await providers.listProviderKeys();
+    // [{ providerId: "deepgram", ref: "...", createdAt: ..., updatedAt: ... }]
+    ```
+  </Tab>
+  <Tab title="CLI">
+    ```bash
+    fonoster providers:keys:list
+    ```
+
+    ```text
+    PROVIDER            REF                                     UPDATED
+    deepgram            5e2a9c1d-7f3b-4a8e-b6d0-1c4f8e2a7b93    2026-10-19T14:02:11Z
+    ```
+  </Tab>
+</Tabs>
+
+## Remove a key
+
+Remove your key, and calls go back to the platform's key for that vendor.
+
+<Tabs>
+  <Tab title="Dashboard">
+    Go to **Vendor keys**, choose **Remove key** on the provider's row, then **Remove**.
+  </Tab>
+  <Tab title="SDK">
+    ```javascript
+    await providers.deleteProviderKey("deepgram");
+    ```
+  </Tab>
+  <Tab title="CLI">
+    ```bash
+    fonoster providers:keys:delete deepgram
+    ```
+  </Tab>
+</Tabs>
+
+If the platform has no key for that vendor either, the provider drops out of your catalog, and
+the **Streams** page warns about each stream that needs a key, with an **Add key** link.
+
+<Note>
+  In a private region, calls use only the keys set on the region, not the workspace's vendor keys.
+  See [Operate and monitor](/private-regions/operate).
+</Note>
+
+## When a model is deprecated
+
+Vendors retire models and voices. When Fonoster deprecates one, it names a replacement and a
+retirement date. Until that date nothing changes: your calls keep using the old ID.
+
+You hear about it in three places:
+
+- **Webhook**: a [`provider.deprecated`](/reference/webhook-events) event, once per workspace that
+  uses the item. Its `data` names the item, the replacement and the retirement date
+  (`YYYY-MM-DD`):
+
+  ```json
+  {
+    "id": "groq/llama-3.3-70b-versatile",
+    "replacement": "groq/openai/gpt-oss-120b",
+    "retireOn": "2026-10-15"
+  }
+  ```
+
+- **Dashboard**: the **Streams** page shows a warning for each deprecated item your apps name or
+  used lately, with the retirement date, the replacement and the apps that use it.
+- **CLI**: `fonoster providers:catalog` shows the item as `deprecated → <replacement>`.
+
+A call that uses a deprecated item also notes it in its [call record](/observe/call-records).
+
+### What to do
+
+<Steps>
+  <Step title="Switch to the replacement">
+    Change the transcriber, voice or model in each app and agent that uses the old ID. For an
+    agent, that's `languageModel.model` or the voice in [its settings](/autopilot/build-an-agent).
+  </Step>
+  <Step title="Listen to a test call">
+    A replacement can sound or behave a little differently. Call the agent with **Talk to agent**,
+    or call the number, before the retirement date.
+  </Step>
+</Steps>
+
+### On the retirement date
+
+When Fonoster retires the item, it moves your saved apps and agents to the replacement. Settings
+the replacement doesn't accept are dropped. If an app can't move, such as one with a voice that
+exists only on the old model, it keeps the old ID, calls use the replacement, and the dashboard
+warning stays until you pick a new model or voice yourself.
+
+If a vendor is down, Fonoster doesn't switch your calls to another vendor on its own.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Providers and models" icon="list" href="/reference/providers">
+    Every model and voice in the catalog, with its languages.
+  </Card>
+  <Card title="Build an Autopilot agent" icon="robot" href="/autopilot/build-an-agent">
+    Pick the agent's model, voice and transcriber.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/observe/webhooks">
+    Get `provider.deprecated` and call events on your server.
+  </Card>
+  <Card title="Secrets" icon="lock" href="/workspace/secrets">
+    Where your vendor keys are stored.
+  </Card>
+</CardGroup>
