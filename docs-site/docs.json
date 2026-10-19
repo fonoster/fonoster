@@ -52,6 +52,17 @@
                   "concepts/how-fonoster-works",
                   "migrate-from-0-27"
                 ]
+              },
+              {
+                "group": "Autopilot",
+                "pages": [
+                  "autopilot/build-an-agent",
+                  "autopilot/tools",
+                  "autopilot/knowledge-base",
+                  "autopilot/test",
+                  "autopilot/prompting",
+                  "autopilot/turn-taking"
+                ]
               }
             ]
           },

@@ -1,0 +1,151 @@
+---
+title: "Add a knowledge base"
+sidebarTitle: "Knowledge base"
+description: "Ground your agent's answers in your own PDF documents, looked up on every turn."
+---
+
+A knowledge base lets your agent answer from your own documents, such as a price list, a policy or
+a product manual, instead of only what's in its prompt. Use it when the facts are too long for the
+prompt or change often.
+
+## How it works
+
+Before each reply, Autopilot searches your documents for the passages closest to what the caller
+just said. It gives the two best passages to the model for that reply only. They never go into the
+conversation history, so the next turn gets a fresh search.
+
+The search has 800 ms. If it takes longer, the agent answers without it, so a slow search never
+holds the caller up.
+
+Autopilot reads your documents when each call starts. On a call that begins with a question, the
+first answer can come before the documents are ready. In that case the agent answers from its
+prompt alone.
+
+{/* TODO asset: knowledge-base/lookup: caller's words → document search (800 ms cap) → two passages → model, alongside the prompt and history; passages are dropped after the reply */}
+
+## Who sets up what
+
+A knowledge base needs storage for the documents, a document parser and an embeddings model. The
+operator of the install sets these up once. You, the developer, list the documents your agent
+uses.
+
+| Who | What they set up |
+| --- | --- |
+| The operator (Fonoster on Fonoster Cloud, or you on your own install) | The S3-compatible storage, the document parser and the embeddings key. See [Configure services](/self-hosting/configure). |
+| You, the developer | The list of documents in your agent's `languageModel.knowledgeBase`. |
+
+If the operator hasn't set up knowledge storage, Autopilot ignores the list, and your agent answers
+from its prompt alone.
+
+## Before you begin
+
+You need:
+
+- An Autopilot agent. See [Build an Autopilot agent](/autopilot/build-an-agent).
+- Your documents as PDF files. Other formats aren't supported.
+- A way to put files in your workspace's storage. Each workspace has its own bucket, named after
+  the workspace ref in lowercase. Fonoster has no upload in the dashboard, the SDK or the CLI, so
+  someone with access to the storage puts the files there.
+
+## Add documents to your agent
+
+<Steps>
+  <Step title="Store the documents">
+    Put each PDF in your workspace's bucket. Note each file's key (its path in the bucket), such as
+    `kb/price-list-2026.pdf`.
+  </Step>
+
+  <Step title="List them in the agent">
+    Add an entry for each document to `languageModel.knowledgeBase`. Each entry has three fields:
+
+    | Field | Value |
+    | --- | --- |
+    | `type` | `s3`, the only type |
+    | `title` | A short name for the document |
+    | `document` | The file's key in the bucket. It must end in `.pdf`. |
+
+    The dashboard doesn't show the knowledge base, but it keeps the list when you save the agent
+    there. Set it with the SDK or the CLI.
+
+    <Tabs>
+      <Tab title="SDK">
+        Add the list to the agent's `languageModel`:
+
+        ```javascript
+        languageModel: {
+          model: "openai/gpt-4o-mini",
+          knowledgeBase: [
+            {
+              type: "s3",
+              title: "Price list 2026",
+              document: "kb/price-list-2026.pdf"
+            },
+            {
+              type: "s3",
+              title: "Return policy",
+              document: "kb/return-policy.pdf"
+            }
+          ]
+        }
+        ```
+      </Tab>
+      <Tab title="CLI">
+        Add the list to your agent file:
+
+        ```yaml agent.yaml
+        languageModel:
+          model: openai/gpt-4o-mini
+          knowledgeBase:
+            - type: s3
+              title: Price list 2026
+              document: kb/price-list-2026.pdf
+            - type: s3
+              title: Return policy
+              document: kb/return-policy.pdf
+        ```
+
+        Then update the agent:
+
+        ```bash
+        fonoster applications:update 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31 --agent agent.yaml
+        ```
+      </Tab>
+    </Tabs>
+
+  </Step>
+
+  <Step title="Tell the model how to use it">
+    Add a line to the system prompt so the model leans on the passages and doesn't guess:
+
+    ```text
+    When relevant information is provided, answer from it. If it doesn't cover the question,
+    say you don't know and offer to transfer the call.
+    ```
+
+  </Step>
+
+  <Step title="Try it">
+    Call the agent with **Talk to agent** and ask about something that's only in your documents.
+    Give the call a moment after it connects, so the documents are ready.
+  </Step>
+</Steps>
+
+## Tips
+
+- Keep documents focused. A short, current price list answers better than a long catalog where
+  prices are buried.
+- Put facts that every call needs, such as opening hours, in the prompt instead. The prompt is
+  always there; a search can miss.
+- If you need live data, such as an order's status, use an [HTTP tool](/autopilot/tools). A
+  knowledge base is for documents that change rarely.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Give your agent tools" icon="wrench" href="/autopilot/tools">
+    Fetch live data from your API during the call.
+  </Card>
+  <Card title="Write prompts for voice" icon="pen" href="/autopilot/prompting">
+    Tell the model when to rely on your documents.
+  </Card>
+</CardGroup>

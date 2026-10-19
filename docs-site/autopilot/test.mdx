@@ -1,0 +1,244 @@
+---
+title: "Test your agent"
+sidebarTitle: "Test"
+description: "Talk to your agent from the browser, then write test cases and run them with the CLI or the SDK."
+---
+
+Test your agent two ways. Talk to it from the browser to hear how it sounds and how it handles a
+real conversation. Then write test cases that check its answers and its tool calls, and run them
+every time you change the prompt.
+
+## Talk to it in the browser
+
+A browser call needs no number and no carrier. It reaches the agent the same way a phone call
+does.
+
+<Steps>
+  <Step title="Save your changes">
+    Calls reach the saved version of the agent. If you've edited it, choose **Save** first.
+  </Step>
+
+  <Step title="Call the agent">
+    Open the agent and choose **Talk to agent**, then **Call**. Allow the microphone when the browser
+    asks.
+
+    The panel shows **Connected** and a call timer. Use **Mute** to stop sending your voice, and
+    **Hang up** to end the call. Closing the panel also hangs up.
+
+  </Step>
+
+  <Step title="Read the transcript">
+    Go to **Calls** and open the call to read the transcript.
+  </Step>
+</Steps>
+
+<Note>
+  Calls from the browser need the dashboard on HTTPS or `localhost`. Fonoster Cloud is served over
+  HTTPS. On your own install, open the dashboard at `localhost` on the machine that runs it.
+</Note>
+
+Once the agent has a number, the **Talk to agent** panel also lists it under **Call this number**,
+so you can test from a real phone. You can also call it from a softphone: see
+[SIP agents](/telephony/sip-agents).
+
+## Write test cases
+
+A test case is a scripted conversation. For each thing the caller says, you give the answer you
+expect and, optionally, the tools the agent should call. Fonoster runs the conversation through
+your agent and reports each step as passed or failed.
+
+Test runs use text, not audio, so they check what the agent decides and says, not how it sounds.
+They never call your tools' endpoints: every tool call succeeds with `{"status": "ok"}`.
+
+<Steps>
+  <Step title="Create the test file">
+    The test file holds the agent's configuration, the same `conversationSettings` and
+    `languageModel` you deploy, plus a `testCases` block. Nest them under `intelligence.config`.
+
+    This file tests a receptionist that looks up orders and transfers upset callers:
+
+    ```yaml front-desk.eval.yaml
+    intelligence:
+      config:
+        conversationSettings:
+          firstMessage: "Hi, thanks for calling. How can I help you today?"
+          systemPrompt: |
+            You are the receptionist for our company.
+            Answer in one or two short sentences. Ask one question at a time.
+            Use get_order_status when the caller asks about an order.
+            If the caller asks for a person, transfer the call.
+          goodbyeMessage: "Thanks for calling. Have a great day!"
+          systemErrorMessage: "Sorry, something went wrong on our side. Please call again in a few minutes."
+          transferOptions:
+            phoneNumber: "+18095550100"
+            message: "One moment, I'm transferring you to a person."
+        languageModel:
+          model: openai/gpt-4o-mini
+          tools:
+            - name: get_order_status
+              description: Look up the status of an order by its order number.
+              parameters:
+                type: object
+                properties:
+                  order_number:
+                    type: string
+                required: [order_number]
+              operation:
+                method: get
+                url: https://api.example.com/orders/status
+        testCases:
+          evalsLanguageModel:
+            provider: openai
+            model: gpt-4o-mini
+          scenarios:
+            - ref: order-status
+              description: The caller asks about an order
+              telephonyContext:
+                callDirection: FROM_PSTN
+                ingressNumber: "+18095550123"
+                callerNumber: "+18095550187"
+              conversation:
+                - userInput: "Hi, where is my order 10482?"
+                  expected:
+                    text:
+                      type: similar
+                      response: "Let me check the status of order 10482."
+                    tools:
+                      - tool: get_order_status
+                        parameters:
+                          order_number: "10482"
+            - ref: wants-a-person
+              description: The caller asks for a person
+              telephonyContext:
+                callDirection: FROM_PSTN
+                ingressNumber: "+18095550123"
+                callerNumber: "+18095550187"
+              conversation:
+                - userInput: "Can I talk to a real person, please?"
+                  expected:
+                    text:
+                      type: exact
+                      response: "One moment, I'm transferring you to a person."
+                    tools:
+                      - tool: transfer
+                        parameters: {}
+    ```
+
+  </Step>
+
+  <Step title="Run it">
+    <Tabs>
+      <Tab title="CLI">
+        Run the test file against your workspace:
+
+        ```bash
+        fonoster applications:eval -f front-desk.eval.yaml
+        ```
+
+        The CLI prints each step as it finishes:
+
+        ```text
+        Scenario: order-status
+        ————————————————————————————————————————————————————————————
+          Step: 1
+          Human:          Hi, where is my order 10482?
+          AI Expected:    Let me check the status of order 10482.
+          AI Actual:      Let me check order 10482 for you. It's on its way.
+          Tool:           get_order_status({  "order_number": "10482" })
+          Passed:         ✔ Passed
+          Overall: ✔ Passed
+        ```
+
+        To get JSON instead, add `-o json`. To save a JSON summary to a file, add
+        `--output-file results.json`. The command is marked experimental, so its output may
+        change.
+      </Tab>
+      <Tab title="SDK">
+        `evaluateIntelligence` streams one event per step, one per finished scenario, and one for
+        each error. Install the SDK and a YAML parser:
+
+        ```bash
+        npm install @fonoster/sdk js-yaml
+        ```
+
+        This script reads the test file and prints the results:
+
+        ```javascript run-evals.js
+        const fs = require("fs");
+        const yaml = require("js-yaml");
+        const SDK = require("@fonoster/sdk");
+
+        async function main() {
+          const client = new SDK.Client({
+            accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+          });
+          await client.loginWithApiKey(
+            process.env.FONOSTER_API_KEY,
+            process.env.FONOSTER_API_SECRET
+          );
+
+          const { intelligence } = yaml.load(
+            fs.readFileSync("front-desk.eval.yaml", "utf8")
+          );
+          const apps = new SDK.Applications(client);
+
+          for await (const event of apps.evaluateIntelligence({
+            intelligence: { productRef: "llm.openai", config: intelligence.config }
+          })) {
+            if (event.type === "stepResult")
+              console.log(event.scenarioRef, event.stepResult.passed, event.stepResult.aiResponse);
+            if (event.type === "scenarioSummary")
+              console.log(event.scenarioRef, event.overallPassed ? "passed" : "failed");
+            if (event.type === "evalError") console.error(event.message);
+          }
+        }
+
+        main().catch(console.error);
+        ```
+
+        With the SDK, write the text match types in capitals: `EXACT` or `SIMILAR`. The CLI
+        accepts either case.
+      </Tab>
+    </Tabs>
+
+  </Step>
+</Steps>
+
+## How steps are checked
+
+Each scenario is one conversation. Its steps run in order, so later steps see what was said
+before.
+
+| Check | Passes when |
+| --- | --- |
+| `text.type: exact` | The agent's reply is exactly `response`, character for character. |
+| `text.type: similar` | A judge model (`evalsLanguageModel`) decides the reply means the same as `response`. |
+| `tools` | The agent calls the same number of tools, in the same order, with the same names. Each parameter you list must have exactly that value. |
+
+A few details:
+
+- When the agent calls `hangup` or `transfer`, its reply is the goodbye message or the transfer
+  message. That's why the `wants-a-person` scenario uses an exact match.
+- To check that a parameter holds a date without fixing its value, set it to `valid-date`. The
+  step passes when the value is an ISO 8601 date.
+- A step that takes longer than 60 seconds fails.
+- `evalsSystemPrompt` replaces the judge's instructions for `similar` matches. Leave it out to use
+  the default.
+
+## Keys for test runs
+
+Test runs use your agent's model, with your workspace's key for that provider if it has one, or
+the platform's key otherwise. The judge for `similar` matches is always an OpenAI model and needs
+an OpenAI key the same way. Don't put keys in the test file. To add your own, see
+[Use your own provider keys](/workspace/provider-keys).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Write prompts for voice" icon="pen" href="/autopilot/prompting">
+    Fix what your tests find.
+  </Card>
+  <Card title="Call records" icon="file-shield" href="/observe/call-records">
+    Read what happened on real calls.
+  </Card>
+</CardGroup>
