@@ -1,4 +1,4 @@
-name: release
+name: Release
 
 # Cuts a release, by hand only (Actions tab). Nothing here runs on merge.
 #
