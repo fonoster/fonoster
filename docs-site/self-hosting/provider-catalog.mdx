@@ -113,7 +113,7 @@ its replacement doesn't accept are dropped.
 
 Add only models Fonoster can run. Speech runs on Deepgram and ElevenLabs, and Autopilot's language
 models on OpenAI-compatible providers (OpenAI, Groq, Ollama). To add a provider
-or its keys, see [Add providers and keys](/self-hosting/providers).
+or its keys, see [Install with Docker Compose](/self-hosting/install-compose).
 
 <Note>
   The tool refuses keys. Write commands accept only their own options, so `--api-key` fails with
@@ -257,12 +257,12 @@ A call gets its vendor key from the first of these that has one:
 
 The Compose install ships with no platform keys, so every workspace adds its own. A provider with
 no key for a workspace is hidden from that workspace's pickers. To give every workspace a shared
-key, see [Add providers and keys](/self-hosting/providers).
+key, see [Install with Docker Compose](/self-hosting/install-compose).
 
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Add providers and keys" icon="key" href="/self-hosting/providers">
+  <Card title="Install with Docker Compose" icon="docker" href="/self-hosting/install-compose">
     Give your install platform keys for speech and language models.
   </Card>
   <Card title="Providers and models" icon="list" href="/reference/providers">
