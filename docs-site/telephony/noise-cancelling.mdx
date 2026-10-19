@@ -1,0 +1,110 @@
+---
+title: "Cancel background noise"
+sidebarTitle: "Noise cancelling"
+description: "Remove background noise and other voices from the caller's audio before your agent or app hears it."
+---
+
+Callers phone from kitchens, cars and shop floors. A TV in the background, a second person talking
+or street noise reaches the transcriber as speech, and your agent answers things nobody said to it.
+Noise cancelling cleans the caller's audio before speech recognition and turn detection: it keeps
+the person on the call and suppresses noise and other voices around them.
+
+Noise cancelling runs on Fonoster, before your application gets the audio. You turn it on per
+application, and nothing in your code changes.
+
+## Turn it on
+
+Noise cancelling is a setting on the application, off by default. It needs a noise-cancelling
+provider in your workspace's catalog. Fonoster Cloud offers [ai-coustics](https://ai-coustics.com);
+a self-hosted install offers it once the operator adds the provider (see
+[Turn-taking and audio](/self-hosting/turn-taking-and-audio)).
+
+<Tabs>
+  <Tab title="Dashboard">
+    - **App**: go to **Apps**, open the app, go to the **Call handling** tab, and pick a provider
+      under **Noise cancelling**.
+    - **Autopilot agent**: open the agent, go to the **Advanced** tab, and pick a provider in the
+      **Noise cancelling** panel. It saves as soon as you pick.
+
+    The list shows **None** and every noise-cancelling provider your workspace can use. If it shows
+    **None** only, no provider is available to the workspace yet.
+  </Tab>
+  <Tab title="SDK">
+    Set `filters` when you create or update the application. An update replaces the whole
+    application, so read it first, change `filters`, and send all of it back:
+
+    ```javascript
+    const apps = new SDK.Applications(client);
+    const app = await apps.getApplication("4b01c9b1-8cb1-48fb-bd49-f3daf13463a9");
+    await apps.updateApplication({
+      ...app,
+      filters: [{ name: "aiCoustics" }]
+    });
+    ```
+
+    An empty list turns it off.
+  </Tab>
+  <Tab title="CLI">
+    Name the provider with `--noise-cancelling`:
+
+    ```bash
+    fonoster applications:update 4b01c9b1-8cb1-48fb-bd49-f3daf13463a9 --noise-cancelling aicoustics
+    ```
+
+    `--noise-cancelling none` turns it off.
+  </Tab>
+</Tabs>
+
+Each filter in `filters` has a `name` and optional `options`:
+
+| Field | Default | What it does |
+| --- | --- | --- |
+| `name` | | The filter. `aiCoustics` is the ai-coustics Voice Focus model. |
+| `options.enhancementLevel` | `1` | How much to suppress, from `0` to `1`. Lower values keep more of the room; higher values cut competing speech harder. |
+| `options.bypass` | `false` | Keeps the filter in place but stops enhancing. Useful to compare calls with and without it. |
+
+The dashboard sets the filter with its defaults. Use the SDK or the CLI's `--from-file` to change
+`enhancementLevel`.
+
+## What to expect
+
+- **One speaker.** The filter locks onto the main voice and suppresses the rest. That is what you
+  want for a person on a handset. It is wrong for speakerphone calls with several people, for a
+  phone menu that answers your outbound call, and for hold music. Turn it off on applications that
+  take those calls.
+- **A little delay.** Filtering adds about 30 milliseconds to the caller's audio.
+- **Recordings are not filtered.** Call recordings keep the audio as it arrived. Only what the
+  transcriber and your application hear is filtered.
+- **Twilio-compatible apps too.** The filter runs before the audio reaches your app, whatever the
+  protocol.
+
+## Bring your own key
+
+Fonoster Cloud runs the filter on the platform's ai-coustics account. To run it on your own
+account, add an ai-coustics key on the **Vendor keys** page, the same way as a speech or
+language-model key. Your workspace's calls then use it. See
+[Use your own vendor keys](/workspace/provider-keys).
+
+## When it can't run
+
+Noise cancelling never drops a call. If the filter can't start, for example because the provider
+rejected the key, or if it fails during a call, the call goes on with the caller's audio as it
+arrived. The call's [call record](/observe/call-records) notes it, and the call's page in the
+dashboard shows an **Unfiltered** badge with the reason.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Use your own vendor keys" icon="key" href="/workspace/provider-keys">
+    Run the filter on your own ai-coustics account.
+  </Card>
+  <Card title="Call records" icon="file-signature" href="/observe/call-records">
+    See which calls ran unfiltered, and why.
+  </Card>
+  <Card title="Detect answering machines" icon="voicemail" href="/telephony/amd">
+    Another per-application setting for the first seconds of a call.
+  </Card>
+  <Card title="Turn-taking" icon="comments" href="/autopilot/turn-taking">
+    How clean audio feeds turn detection.
+  </Card>
+</CardGroup>

@@ -130,8 +130,38 @@ detector.
 
 ## Audio filters
 
-The gateway doesn't run noise suppression or other filters on caller audio in this release.
-Callers' audio reaches speech recognition and turn detection as it arrives.
+Applications can turn on noise cancelling (see
+[Cancel background noise](/telephony/noise-cancelling)). The filter runs in AppBridge on the
+caller's audio before speech recognition and turn detection, and it needs a noise-cancelling
+provider in the catalog with a key.
+
+Register the provider once, with the capability `nc`:
+
+```bash
+fonoster-registry add-provider aicoustics --adapter aicoustics --capabilities nc \
+  --credential-ref aicoustics-default --label "ai-coustics"
+```
+
+Give it a platform key in AppBridge's configuration, as for a speech provider. Workspaces that add
+their own ai-coustics key on the Vendor keys page use that key instead.
+
+```yaml
+providers:
+  aicoustics:
+    adapter: aicoustics
+    capabilities: [nc]
+    credential: { env: AIC_SDK_LICENSE }
+```
+
+Filtering never drops a call. A filter that can't start or fails mid-call leaves the call
+unfiltered and the call record says so. The filter phones home: the vendor's SDK authorizes the
+key and reports usage online, so AppBridge needs egress to ai-coustics at call time.
+
+<Note>
+The published AppBridge image doesn't ship the vendor's SDK and model yet
+([fonoster/fonoster#969](https://github.com/fonoster/fonoster/issues/969)). Until it does, the
+filter is not offered and applications that name it run unfiltered.
+</Note>
 
 ## Next steps
 

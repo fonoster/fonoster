@@ -42,13 +42,16 @@ export type AgentCatalog = {
   llm: CatalogOption[];
   voices: CatalogOption[];
   stt: CatalogOption[];
+  /** Noise-cancelling (`nc`) providers the workspace can use, by label. */
+  ncProviders: { id: string; label: string; capabilities?: string[] }[];
 };
 
 export const EMPTY_CATALOG: AgentCatalog = {
   providers: {},
   llm: [],
   voices: [],
-  stt: []
+  stt: [],
+  ncProviders: []
 };
 
 /** The provider of a catalog id ("deepgram/nova-3" → "deepgram"). */
@@ -76,7 +79,16 @@ export function toAgentCatalog(items: CatalogItem[]): AgentCatalog {
       .filter((i) => i.kind === "model" && i.type === "llm")
       .map(option),
     voices: items.filter((i) => i.kind === "voice").map(option),
-    stt: items.filter((i) => i.kind === "model" && i.type === "stt").map(option)
+    stt: items
+      .filter((i) => i.kind === "model" && i.type === "stt")
+      .map(option),
+    ncProviders: items
+      .filter((i) => i.kind === "provider" && i.capabilities?.includes("nc"))
+      .map((i) => ({
+        id: i.id,
+        label: i.label || i.id,
+        capabilities: i.capabilities
+      }))
   };
 }
 

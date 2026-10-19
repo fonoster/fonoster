@@ -2,12 +2,13 @@
 
 ## ADDED Requirements
 
-### Requirement: Call handling offers noise cancelling from the catalog
+### Requirement: Noise cancelling is one select fed by the catalog
 
-The Call handling form of a Stream and of an Autopilot agent SHALL show a single *Noise
-cancelling* select whose options are *None* and each `nc` provider the catalog offers to the
-workspace (`GetCapabilities`), shown by label. Choosing a provider SHALL set the app's filter for it;
-choosing *None* SHALL clear the app's filters. The form SHALL show no strength control.
+An app's Call handling form, and a *Noise cancelling* panel on an Autopilot agent's Advanced tab,
+SHALL show a single *Noise cancelling* select whose options are *None* and each `nc` provider the
+catalog offers to the workspace (`GetCapabilities`), shown by label. Choosing a provider SHALL set
+the app's filter for it; choosing *None* SHALL clear the app's filters. Neither SHALL show a
+strength control.
 
 #### Scenario: No noise-cancelling provider is offered
 
@@ -29,10 +30,11 @@ choosing *None* SHALL clear the app's filters. The form SHALL show no strength c
 - **WHEN** the app has `filters: [{ name: "aiCoustics" }]` and the catalog no longer offers `aicoustics`
 - **THEN** the select shows *ai-coustics* as unavailable and saving keeps the filter
 
-#### Scenario: The same form serves agents
+#### Scenario: Agents set it on the Advanced tab
 
-- **WHEN** the user opens an Autopilot agent's Advanced tab
-- **THEN** the same *Noise cancelling* select is shown and behaves as on a Stream
+- **WHEN** the user opens an Autopilot agent's Advanced tab and picks *ai-coustics* in the *Noise cancelling* panel
+- **THEN** the agent's application is saved at once with `filters: [{ name: "aiCoustics" }]`
+- **AND** the agent's Call handling drawer shows no *Noise cancelling* select
 
 ### Requirement: Vendor keys offers noise-cancelling providers
 

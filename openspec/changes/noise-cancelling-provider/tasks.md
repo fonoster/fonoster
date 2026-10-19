@@ -41,10 +41,11 @@
 - [x] 5.3 `session/streams.tsx` `CallHandlingFields`: *Noise cancelling* select (None + usable `nc` providers; unavailable state for a saved filter whose provider is not usable); hint "Keeps one speaker. Not for speakerphone or IVR. Adds about 30 ms."
 - [x] 5.4 `session/vendor-keys.tsx`: copy mentions noise cancelling; rows show the catalog label
 - [x] 5.5 `session/calls.tsx` `CallRecordView`: *Unfiltered* badge with the reason from `fonoster.filters.failed`
+- [x] 5.7 Agents: *Noise cancelling* panel on the Advanced tab (`agents/tabs/noise-cancelling-panel.tsx`) saving on change; the Call handling drawer hides the select; designs updated in `designs/dashboard.pen` (Agent / Detail / Advanced, Apps / Detail)
 - [x] 5.6 Tests: select offers None only without an `nc` provider; picking ai-coustics saves `[{ name: "aiCoustics" }]`; None saves an empty list; unavailable state keeps the filter; the badge appears only with a failure
 
 ## 6. Docs
 
 - [x] 6.1 `docs/operators/audio-filters.md`: provider registration, key sources, remove the env-only and `fonoster.yaml` notes, update the status note and known gaps
-- [ ] 6.2 (deferred: the v0.30 Docs tab's Build pages are not on main yet, PR #1006) `docs-site`: a user page "Noise cancelling" (what it does, one-speaker caveat, how to turn it on in Streams and agents, SDK and CLI examples, the Unfiltered badge)
+- [x] 6.2 `docs-site`: `telephony/noise-cancelling.mdx` plus the CLI, providers, vendor keys and self-hosting audio pages (what it does, one-speaker caveat, how to turn it on in Streams and agents, SDK and CLI examples, the Unfiltered badge)
 - [ ] 6.3 Archive `openspec/changes/noise-cancelling-provider` after #969 verifies a filtered call on the published image

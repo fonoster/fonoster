@@ -16,7 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { AudioFilterSetting, CatalogEntry } from "./types";
+import type { AudioFilterSetting } from "./types";
+
+/** A catalog provider as far as this select cares: its id, label and capabilities. */
+type Provider = { id: string; label: string; capabilities?: string[] };
 
 // Noise cancelling (dashboard "Call handling offers noise cancelling from the catalog"): one
 // select, None or a noise-cancelling (`nc`) provider the catalog offers. The app stores it as its
@@ -42,7 +45,7 @@ export function noiseCancellingOf(
 
 /** The select's options: None, the offered nc providers, and the saved one when not offered. */
 export function noiseCancellingOptions(
-  providers: CatalogEntry[],
+  providers: Provider[],
   filters: AudioFilterSetting[] | undefined
 ): { value: string; label: string }[] {
   const offered = providers.filter((p) => p.capabilities?.includes("nc"));

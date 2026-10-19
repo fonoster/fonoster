@@ -249,6 +249,14 @@ export const fakeCatalogItems: CatalogItem[] = [
   })
 ];
 
+/** A noise-cancelling provider, as ListCatalog returns it. */
+export const noiseCancellingProvider: CatalogItem = item(
+  "aicoustics",
+  "provider",
+  "ai-coustics",
+  { capabilities: ["nc"] }
+);
+
 /** A workspace with Deepgram and OpenAI keys, and the fakes. */
 export const sampleCatalogItems: CatalogItem[] = [
   item("deepgram", "provider", "Deepgram", { capabilities: ["stt", "tts"] }),

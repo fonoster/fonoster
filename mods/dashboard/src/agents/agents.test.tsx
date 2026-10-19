@@ -28,6 +28,7 @@ import {
   sampleAgents,
   sampleNumbers,
   fakeCatalogItems,
+  noiseCancellingProvider,
   sampleCatalog,
   sampleCatalogItems,
   vendorCatalogItems,
@@ -386,6 +387,44 @@ describe("Agent detail", () => {
     expect(
       await screen.findByRole("heading", { name: "Agents" })
     ).toBeInTheDocument();
+  });
+
+  it("turns noise cancelling on from Advanced, saving at once", async () => {
+    const { user, applications } = setup({
+      route: `/w/ws-1/agents/${billingAgent.ref}/advanced`,
+      catalog: [...sampleCatalogItems, noiseCancellingProvider]
+    });
+    const panel = await screen.findByRole("region", {
+      name: "Noise cancelling"
+    });
+    const select = within(panel).getByRole("combobox", {
+      name: "Noise cancelling"
+    });
+    await vi.waitFor(() => expect(select).toBeEnabled());
+    await user.click(select);
+    expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
+      "None",
+      "ai-coustics"
+    ]);
+    await user.click(screen.getByRole("option", { name: "ai-coustics" }));
+    await vi.waitFor(() =>
+      expect(applications.updateApplication).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ref: billingAgent.ref,
+          filters: [{ name: "aiCoustics" }]
+        })
+      )
+    );
+    // The Call handling drawer no longer carries the select: it lives on this tab.
+    const callHandling = screen.getByRole("region", { name: "Call handling" });
+    await user.click(
+      within(callHandling).getByRole("button", { name: "Edit" })
+    );
+    const drawer = await screen.findByRole("dialog", { name: "Call handling" });
+    await within(drawer).findByLabelText("Fallback message");
+    expect(
+      within(drawer).queryByLabelText("Noise cancelling")
+    ).not.toBeInTheDocument();
   });
 
   it("edits the agent's call handling from Advanced (it used to live in Apps)", async () => {

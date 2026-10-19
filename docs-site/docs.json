@@ -84,7 +84,8 @@
                   "telephony/transfers",
                   "telephony/dtmf",
                   "telephony/amd",
-                  "telephony/recording"
+                  "telephony/recording",
+                  "telephony/noise-cancelling"
                 ]
               },
               {
