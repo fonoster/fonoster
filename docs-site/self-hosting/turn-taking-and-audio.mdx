@@ -1,0 +1,136 @@
+---
+title: "Tune turn-taking and audio"
+sidebarTitle: "Turn-taking and audio"
+description: "Set your install's default recording policy and consent prompt, and see which turn detector and audio processing your calls use."
+---
+
+The voice gateway decides when a caller's turn ends and whether a call is recorded. Developers set
+most of this per application, but some defaults belong to you as the operator. Use this page to set
+the recording policy for the whole install or for one workspace, change the consent prompt, and
+know which turn detector your calls use.
+
+Every setting on this page lives in the gateway's configuration, `config/gateway.yaml`.
+
+## Before you begin
+
+You need Fonoster installed with Docker Compose. See
+[Install with Docker Compose](/self-hosting/install-compose). Run the commands on this page from
+your `fonoster` folder.
+
+## Apply a change
+
+Each section below edits `config/gateway.example.yaml`. After you edit it, write the configuration
+and recreate the voice gateway:
+
+```bash
+npx -p @fonoster/common fonoster-config init
+docker compose up -d --force-recreate appbridge
+```
+
+Recreating the gateway ends the calls in progress, so do it when the install is quiet. Records of
+those calls are still sealed.
+
+## Set the default recording policy
+
+A call is recorded by the first policy that's set, in this order:
+
+1. The application's policy, set by the developer. See
+   [Record calls and ask for consent](/telephony/recording).
+2. The workspace's policy, set by you.
+3. The install's default, set by you.
+4. `off`.
+
+Each policy is `off`, `on` or `consent`. With `consent`, the caller hears a short prompt before
+recording starts.
+
+{/* TODO asset: turn-taking-and-audio/recording-precedence — four stacked layers (application, workspace, install default, off); a call falls through to the first one that's set */}
+
+<Steps>
+  <Step title="Set the install's default">
+    Under `callRecord`, set `recording`. The Compose install ships with `off`:
+
+    ```yaml
+    callRecord:
+      # ...
+      recording: consent
+    ```
+  </Step>
+
+  <Step title="Set a workspace's policy (optional)">
+    Under `callRecord`, add `workspaces`, keyed by the workspace's ID (`WO…`). The dashboard shows
+    it as **Access key ID** under **Settings**:
+
+    ```yaml
+    callRecord:
+      # ...
+      recording: off
+      workspaces:
+        WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3: { recording: on }
+    ```
+
+    That workspace's applications left on **Workspace default** are now recorded. Applications
+    with their own policy keep it.
+  </Step>
+
+  <Step title="Change the consent prompt (optional)">
+    The prompt is "This call will be recorded." by default. Set your own words under `callRecord`:
+
+    ```yaml
+    callRecord:
+      # ...
+      consentPrompt: "This call may be recorded for quality and training."
+    ```
+
+    The prompt is the same for every application, in the application's own voice. It isn't
+    translated, so write it in your callers' language.
+  </Step>
+
+  <Step title="Apply it">
+    Write the configuration and recreate the gateway, as in [Apply a change](#apply-a-change).
+  </Step>
+</Steps>
+
+<Check>
+  Make a test call to an application left on **Workspace default**. With `on`, its call record has
+  a recording. With `consent`, you hear the prompt first.
+</Check>
+
+The gateway doesn't start with any value other than `off`, `on` or `consent`. To catch a typo
+first, run `npx -p @fonoster/common fonoster-config check`.
+
+## Turn detection
+
+The gateway decides when the caller has finished speaking with a **turn detector**. Every
+application in the Compose install uses the default detector, `baseline`: voice activity, final
+transcripts and a silence timer. Developers tune it per application with `patience`. See
+[Turn-taking and barge-in](/autopilot/turn-taking).
+
+The gateway also has other detectors:
+
+| Detector | What it does |
+| --- | --- |
+| `baseline` (default) | Voice activity, final transcripts and a silence timeout |
+| `backchannel-hold` | Like `baseline`, but speech over the agent counts as an interruption only after 500 ms, and short acknowledgments such as "uh-huh" never do |
+| `stt` | A speech recognizer that reports the end of a turn itself decides. If it sends nothing for 2.5 seconds after a final transcript, the turn ends anyway |
+| `ws://…` | Your own detector, hosted next to the gateway, over a WebSocket. If it's unreachable or more than 200 ms behind, `baseline` answers instead |
+
+The detector is set per application, with `speech.detector`, only for applications listed in the
+gateway's own file. The Compose install keeps applications in its database, so the dashboard and
+the API create them, and they always use `baseline`. There's no install-wide setting for the
+detector.
+
+## Audio filters
+
+The gateway doesn't run noise suppression or other filters on caller audio in this release.
+Callers' audio reaches speech recognition and turn detection as it arrives.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Record calls and ask for consent" icon="microphone" href="/telephony/recording">
+    How developers set the policy per application.
+  </Card>
+  <Card title="Rotate call-record keys" icon="key" href="/self-hosting/call-record-keys">
+    Manage the key that signs your call records.
+  </Card>
+</CardGroup>

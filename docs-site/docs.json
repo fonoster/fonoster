@@ -131,6 +131,14 @@
                 ]
               },
               {
+                "group": "Operate",
+                "pages": [
+                  "self-hosting/provider-catalog",
+                  "self-hosting/call-record-keys",
+                  "self-hosting/turn-taking-and-audio"
+                ]
+              },
+              {
                 "group": "Integrations",
                 "pages": [
                   "self-hosting/send-call-metrics-to-clickhouse",

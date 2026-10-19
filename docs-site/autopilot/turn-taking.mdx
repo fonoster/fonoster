@@ -125,9 +125,9 @@ The part that produces the estimate is called the **turn detector**. Fonoster sh
 detector based on voice activity, transcripts and a silence timer, and supports others, such as a
 speech recognizer that reports the end of a turn itself.
 
-The detector is chosen by the operator for the whole install, not per agent. Your agent's code and
-settings are the same whichever detector runs. If you run your own install, see
-[Tune turn-taking and audio](/self-hosting/turn-taking-and-audio).
+Agents created in the dashboard, the API or the CLI use the default detector. You can't choose a
+detector per agent. Your agent's code and settings are the same whichever detector runs. If you run
+your own install, see [Tune turn-taking and audio](/self-hosting/turn-taking-and-audio).
 
 ## Reading turns in the call record
 
@@ -158,6 +158,6 @@ tool.
     Read turn decisions and labels.
   </Card>
   <Card title="Tune turn-taking and audio" icon="sliders" href="/self-hosting/turn-taking-and-audio">
-    Choose the detector on your own install.
+    Turn-taking and audio settings on your own install.
   </Card>
 </CardGroup>
