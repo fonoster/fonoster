@@ -665,11 +665,14 @@ describe("@appbridge integration", function () {
     const keyed = (name: string, provider: string) =>
       AudioFilterFactory.registerFilter(name, {
         description: "records the credential it got (test only)",
-        optionsSchema: z.object({ license: z.string() }),
+        optionsSchema: z.object({
+          license: z.string(),
+          tag: z.string().optional()
+        }),
         publicOptionsSchema: z.object({}),
         provider,
         create: (options) => {
-          seen.push(options.license);
+          seen.push(options.license, options.tag);
           return {
             name,
             delayMs: 0,
@@ -698,7 +701,9 @@ describe("@appbridge integration", function () {
             capabilities: ["nc"],
             credential: { value: "platform-aic" }
           }
-        }
+        },
+        // The operator's server-side options for a filter travel with the credential.
+        audioFilters: { "test-keyed": { tag: "from-config" } }
       }
     );
     harness.roomrNode.offerCall();
@@ -709,8 +714,9 @@ describe("@appbridge integration", function () {
     const failure = [...record.records.values()][0].find(
       (e) => e.message.type === "filter.failed"
     );
-    // The configured provider's platform key reached the filter; the other filter was skipped.
-    expect(seen).to.deep.equal(["platform-aic"]);
+    // The configured provider's platform key and the operator's options reached the filter; the
+    // other filter was skipped.
+    expect(seen).to.deep.equal(["platform-aic", "from-config"]);
     expect(failure?.message).to.include({ name: "test-keyed-missing" });
     expect(String(failure?.message.reason)).to.contain(
       "no credential for provider elevenlabs"

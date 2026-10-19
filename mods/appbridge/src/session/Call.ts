@@ -911,8 +911,12 @@ export class AppSession {
         reason
       });
     try {
+      // The operator's server-side options (model paths), then the provider credential.
       const trustedOverlay: Record<string, Record<string, unknown>> = {};
+      const serverOptions = this.deps.config.audioFilters ?? {};
       const usable = configs.filter((c) => {
+        if (serverOptions[c.name])
+          trustedOverlay[c.name] = { ...serverOptions[c.name] };
         const provider = AudioFilterFactory.providerOf(c.name);
         if (!provider) return true;
         const license = this.deps.catalog.credentialFor(
@@ -926,7 +930,7 @@ export class AppSession {
           );
           return false;
         }
-        trustedOverlay[c.name] = { license };
+        trustedOverlay[c.name] = { ...trustedOverlay[c.name], license };
         return true;
       });
       if (!usable.length) return;

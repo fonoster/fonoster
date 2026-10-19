@@ -19,6 +19,7 @@
 import * as http from "http";
 import { AddressInfo } from "net";
 import { expect } from "chai";
+import { appBridgeConfigSchema } from "../src/configSchema";
 import { NatsConnection } from "nats";
 import {
   AppBridgeConfig,
@@ -59,6 +60,20 @@ const base = (): AppBridgeConfig => ({
 describe("@appbridge/config", function () {
   it("accepts a valid config", function () {
     expect(validateConfig(base())).to.deep.equal([]);
+  });
+
+  it("takes the audio filters' server-side options by filter name", function () {
+    const c = base();
+    c.audioFilters = {
+      aiCoustics: { modelDir: "/work/models", autoDownload: false }
+    };
+    expect(validateConfig(c)).to.deep.equal([]);
+    expect(
+      appBridgeConfigSchema.safeParse({
+        ...c,
+        audioFilters: { aiCoustics: "not-an-object" }
+      }).success
+    ).to.equal(false);
   });
 
   it("refuses an adapter this version does not ship", function () {
