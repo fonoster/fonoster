@@ -6,12 +6,6 @@ encryption:
   key: k1.aesgcm256.QbAsmmaz84hmSaol9HreK-s91rE1Rk8YAAkTq48kZGw=
 nats:
   url: nats://localhost:4222
-influxdb:
-  url: http://localhost:8086
-  org: fonoster
-  username: influxdb
-  password: changeme
-  token: test-token
 identity:
   # setupConfig.ts replaces these with a key pair it generates for the run
   # (no key is committed).

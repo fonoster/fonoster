@@ -19,21 +19,21 @@
 import {
   getAccessKeyIdFromCall,
   GrpcErrorMessage,
-  InfluxDBClient,
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ListCallsRequest, ListCallsResponse } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
-import { createFetchCalls } from "./createFetchCalls";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-/** `fetchCalls` defaults to InfluxDB CDRs; the call-record index replaces it behind a flag. */
+/** Call history from the call-record index (`fetchCalls` is createFetchCallsFromIndex). */
 function listCalls(
-  influx: InfluxDBClient,
-  fetchCalls: ReturnType<typeof createFetchCalls> = createFetchCalls(influx)
+  fetchCalls: (
+    accessKeyId: string,
+    request: ListCallsRequest
+  ) => Promise<ListCallsResponse>
 ) {
   const fn = async (
     call: {

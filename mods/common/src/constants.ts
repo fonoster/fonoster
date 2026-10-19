@@ -20,8 +20,6 @@ import { ServingStatus } from "grpc-health-check";
 
 export const GRPC_NOT_SERVING_STATUS = "NOT_SERVING" as ServingStatus;
 export const GRPC_SERVING_STATUS = "SERVING" as ServingStatus;
-export const CALL_DETAIL_RECORD_MEASUREMENT = "cdr";
-export const INFLUXDB_CALLS_BUCKET = "calls";
 export const APP_REF_HEADER = "x-app-ref";
 // The peer app-linked numbers point at: the Go Roomr nodes (least-sessions). Asterisk's
 // sip:voice@default is gone (cleanbreak CB-B3).

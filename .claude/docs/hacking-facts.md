@@ -28,8 +28,7 @@ Verify against code before drafting with /ps:docs.
   NOT verified: Talk to agent in a real browser, Playwright e2e.
 - Problems: LAN IP changed → edit HOST_IP in .dev/.env and rebuild the container · real vendor key → per
   workspace in the dashboard, or overlay + key in .dev/.env then `dev:config` · don't commit the post-create diffs
-  in mods/identity/src/generated and mods/identity-client/proto (FIX: should not dirty the tree) · InfluxDB warnings
-  in the apiserver log are harmless (FIX: remove InfluxDB leftovers).
+  in mods/identity/src/generated and mods/identity-client/proto (FIX: should not dirty the tree).
 - Removed: compose.dev.yaml, .env.example.dev, devcontainer-lock.json, .scripts/check-preconditions.sh,
   .scripts/gen-keypair.sh, root scripts start:*/stop:services/db:*/generate:keypair/pretest, nodemon config.
   CI: publish-apiserver lost its SDK integration steps (they ran on compose.dev.yaml) — needs a new home.

@@ -97,7 +97,7 @@ export function toCallDetailRecord(row: CallRecordRow): CallDetailRecord {
       ? (FAILURE_STATUS[row.failureReason ?? ""] ??
         CallStatus.SERVICE_UNAVAILABLE)
       : CallStatus.NORMAL_CLEARING;
-  // Times in epoch milliseconds, as the InfluxDB CDR path returns them.
+  // Times in epoch milliseconds.
   return {
     ref: row.callRef,
     accessKeyId: row.accessKeyId ?? "",
@@ -128,8 +128,7 @@ const STATUS_FILTER: Partial<
 };
 
 /**
- * ListCalls served from the call-record index (task 7.1). It replaces the InfluxDB CDR query
- * when `callRecords.listCallsFromIndex` is on; the InfluxDB path stays for now.
+ * ListCalls served from the call-record index (task 7.1).
  */
 export function createFetchCallsFromIndex(db: RecordsDb) {
   const search = createSearchRecords(db);

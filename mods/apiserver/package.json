@@ -30,7 +30,6 @@
     "@fonoster/sipnet": "^0.30.0",
     "@fonoster/types": "^0.30.0",
     "@grpc/grpc-js": "~1.14.6",
-    "@influxdata/influxdb-client": "^1.33.2",
     "@prisma/client": "^6.19.1",
     "@routr/common": "^2.15.2",
     "@routr/sdk": "^2.15.2",

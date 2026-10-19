@@ -19,7 +19,6 @@
 import {
   getAccessKeyIdFromCall,
   GrpcErrorMessage,
-  InfluxDBClient,
   Validators as V,
   withErrorHandlingAndValidation
 } from "@fonoster/common";
@@ -27,20 +26,16 @@ import { getLogger } from "@fonoster/logger";
 import { CallDetailRecord } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { notFoundError } from "../core/notFoundError";
-import { createFetchSingleCall } from "./createFetchSingleCall";
 import { GetCallRequest } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-/** `fetchSingleCall` defaults to InfluxDB CDRs; the call-record index replaces it behind a flag. */
+/** One call from the call-record index (`fetchSingleCall` is createFetchSingleCallFromIndex). */
 function getCall(
-  influx: InfluxDBClient,
   fetchSingleCall: (
     accessKeyId: string,
     ref: string
-  ) => Promise<CallDetailRecord | null | undefined> = createFetchSingleCall(
-    influx
-  )
+  ) => Promise<CallDetailRecord | null | undefined>
 ) {
   const fn = async (
     call: {

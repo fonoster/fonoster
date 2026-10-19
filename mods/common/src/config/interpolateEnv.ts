@@ -60,7 +60,7 @@ function interpolateString(value: string, env: Env): string {
 
 type InterpolateOptions = {
   /**
-   * Key paths where `${VAR}` may appear, e.g. `database.url` or `influxdb.*`
+   * Key paths where `${VAR}` may appear, e.g. `database.url` or `nats.*`
    * (`*` matches the key and everything below it; `*` alone matches every key). When given,
    * `${...}` at any other path is an error. When omitted, every string is interpolated.
    */

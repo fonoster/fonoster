@@ -137,7 +137,7 @@ Every call is sealed as a signed record (vCon) in MinIO and indexed by the API s
 
 - In the database: `ops/rebuild/stack compose exec postgres psql -U postgres -d fonoster -c 'select call_ref, app_ref, status, duration_seconds, location from call_records order by started_at desc limit 5'`
 - Through the API: `GET http://localhost:16449/api/records` (a workspace token), or the dashboard's
-  call list (it reads the index: `callRecords.listCallsFromIndex`).
+  call list (it reads the index).
 - The objects: MinIO console <http://localhost:16901> (user and password in `info`), bucket
   `records`.
 

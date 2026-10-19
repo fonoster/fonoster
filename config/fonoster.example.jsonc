@@ -9,13 +9,6 @@
   },
   "encryption": { "key": "k1.aesgcm256.GENERATE-YOUR-OWN-with-npx-47ng-cloak-gen00=" },
   "nats": { "url": "nats://nats:4222" },
-  "influxdb": {
-    "url": "http://influxdb:8086",
-    "org": "${INFLUXDB_INIT_ORG}",
-    "username": "${INFLUXDB_INIT_USERNAME}",
-    "password": "${INFLUXDB_INIT_PASSWORD}",
-    "token": "${INFLUXDB_INIT_TOKEN}",
-  },
   "identity": {
     "database": {
       "url": "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fnidentity",

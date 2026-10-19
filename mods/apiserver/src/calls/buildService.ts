@@ -16,12 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { InfluxDBClient } from "@fonoster/common";
 import SDK from "@routr/sdk";
 import { connect } from "nats";
 import { prisma } from "../core/db";
 import { routrConfig } from "../core/routrConfig";
-import { CALL_RECORDS, NATS, NATS_CONNECTION } from "../envs";
+import { NATS, NATS_CONNECTION } from "../envs";
 import {
   createFetchCallsFromIndex,
   createFetchSingleCallFromIndex,
@@ -34,7 +33,7 @@ import { createTrackCall } from "./createTrackCall";
 import { getCall } from "./getCall";
 import { listCalls } from "./listCalls";
 
-async function buildService(influxdb: InfluxDBClient) {
+async function buildService() {
   const callPublisher = await createCallPublisher(NATS_CONNECTION);
   const nc = await connect({ ...NATS, maxReconnectAttempts: -1 });
 
@@ -51,20 +50,13 @@ async function buildService(influxdb: InfluxDBClient) {
         callPublisher,
         createIsWorkspaceNumber(new SDK.Numbers(routrConfig))
       ),
-      // Call history from the call-record index (add-call-record 7.1) when the flag is on; the
-      // InfluxDB CDR path stays until the migration is done.
-      listCalls: CALL_RECORDS.listCallsFromIndex
-        ? listCalls(
-            influxdb,
-            createFetchCallsFromIndex(prisma as unknown as RecordsDb)
-          )
-        : listCalls(influxdb),
-      getCall: CALL_RECORDS.listCallsFromIndex
-        ? getCall(
-            influxdb,
-            createFetchSingleCallFromIndex(prisma as unknown as RecordsDb)
-          )
-        : getCall(influxdb),
+      // Call history from the call-record index (add-call-record 7.1).
+      listCalls: listCalls(
+        createFetchCallsFromIndex(prisma as unknown as RecordsDb)
+      ),
+      getCall: getCall(
+        createFetchSingleCallFromIndex(prisma as unknown as RecordsDb)
+      ),
       trackCall: createTrackCall(nc)
     }
   };

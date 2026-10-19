@@ -3,7 +3,7 @@ context: |
 
   Fonoster is an open-source, programmable telephony platform (MIT). It is a TypeScript
   monorepo (`mods/*`) whose services are composed into a single gRPC `apiserver`
-  alongside voice/telephony infrastructure (Asterisk/ARI, NATS, InfluxDB).
+  alongside voice/telephony infrastructure (Asterisk/ARI, NATS).
 
   ## Relevant modules
 
@@ -13,7 +13,7 @@ context: |
     RS256 JWTs (id/access/refresh) with a single issuer/audience per instance.
   - `mods/apiserver` — composes identity + voice services into one gRPC server with an auth
     interceptor, a public-method allow-list, an accept-invite HTTP bridge, and default seeding.
-    Coupled to telephony infra (NATS/InfluxDB/Asterisk).
+    Coupled to telephony infra (NATS/Asterisk).
   - `mods/sdk` — `@fonoster/sdk`: client SDK with `Users`/`Workspaces`/`ApiKeys` wrappers over
     generated gRPC stubs, targeting a single Fonoster `apiserver` endpoint; stateful single-principal
     (accessKeyId + token refresher).
@@ -26,7 +26,7 @@ context: |
 
   Fonoster ships as three deployables — **apiserver** (with Identity embedded), **autopilot**,
   and **dashboard** — next to third-party containers (Routr, Asterisk, RTPEngine, Postgres,
-  InfluxDB, NATS) that keep their own env-based configuration. It is offered as a self-hosted
+  NATS) that keep their own env-based configuration. It is offered as a self-hosted
   Community install and as a Cloud service; behavior differences are expressed as `features`
   in config, never as an "edition" flag in code.
 

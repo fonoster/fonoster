@@ -1,8 +1,4 @@
-import {
-  INFLUXDB_CALLS_BUCKET,
-  logUnhandledRejections,
-  setRootDomain
-} from "@fonoster/common";
+import { logUnhandledRejections, setRootDomain } from "@fonoster/common";
 import { migratePasswordStorage, upsertDefaultUser } from "@fonoster/identity";
 import { configureLogger, getLogger } from "@fonoster/logger";
 import { getConfig } from "./config";
@@ -11,17 +7,7 @@ import { prisma } from "./core/db";
 import { identityConfig } from "./core/identityConfig";
 import runServices from "./core/runServices";
 import { upsertRoomrPeer } from "./core/upsertRoomrPeer";
-import {
-  INFLUXDB_ORG,
-  INFLUXDB_TOKEN,
-  INFLUXDB_URL,
-  NATS_CONNECTION,
-  OWNER_EMAIL,
-  OWNER_NAME,
-  OWNER_PASSWORD
-} from "./envs";
-import { createInfluxDbPub } from "./events/createInfluxDbPub";
-import { watchNats } from "./events/nats";
+import { OWNER_EMAIL, OWNER_NAME, OWNER_PASSWORD } from "./envs";
 
 // Apply fonoster.yaml to the shared modules before serving. Loggers created
 // while the imports above ran switch to the file's settings here.
@@ -76,16 +62,6 @@ async function main() {
 
   // Start the gRPC server
   runServices().catch(logger.error);
-
-  const pubToInfluxDb = createInfluxDbPub({
-    url: INFLUXDB_URL,
-    token: INFLUXDB_TOKEN,
-    org: INFLUXDB_ORG,
-    bucket: INFLUXDB_CALLS_BUCKET
-  });
-
-  // Routr's call events become CDR points (one replica per event, refs shared: ST-1)
-  watchNats(NATS_CONNECTION, pubToInfluxDb);
 }
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });

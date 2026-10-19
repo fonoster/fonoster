@@ -120,17 +120,6 @@ export const AUTHZ_SERVICE_HOST = config.authz.host;
 export const AUTHZ_SERVICE_PORT = config.authz.port;
 export const AUTHZ_SERVICE_METHODS = config.authz.methods;
 
-// InfluxDB configurations
-export const INFLUXDB_ORG = config.influxdb.org;
-
-export const INFLUXDB_PASSWORD = config.influxdb.password;
-
-export const INFLUXDB_TOKEN = config.influxdb.token;
-
-export const INFLUXDB_URL = config.influxdb.url;
-
-export const INFLUXDB_USERNAME = config.influxdb.username;
-
 // Platform model keys for agent evaluations, by credentialRef (rework-autopilot 8.2).
 export const EVALUATIONS = config.evaluations;
 

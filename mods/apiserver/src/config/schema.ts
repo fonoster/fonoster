@@ -69,14 +69,13 @@ const recordStoreSchema = z.union([
 ]);
 
 /**
- * Call records (add-call-record): the index, the records API, retention, and ListCalls from the
- * index instead of InfluxDB. `stores` are the record stores the API reads from (the regions' and
+ * Call records (add-call-record): the index, the records API (ListCalls and GetCall read the
+ * index), and retention. `stores` are the record stores the API reads from (the regions' and
  * any workspace buckets), matched by the location in each index entry.
  */
 const callRecordsSchema = z
   .object({
     enabled: z.boolean().default(true),
-    listCallsFromIndex: z.boolean().default(true),
     stores: z.array(recordStoreSchema).default([]),
     retentionIntervalMinutes: z.number().int().positive().default(60),
     maintenanceTimeoutMs: z.number().int().positive().default(30000)
@@ -283,13 +282,6 @@ const fonosterConfigSchema = z
       url: z.string().min(1),
       user: z.string().min(1).optional(),
       password: z.string().min(1).optional()
-    }),
-    influxdb: z.object({
-      url: z.string().min(1),
-      org: z.string().min(1),
-      username: z.string().min(1),
-      password: z.string().min(1),
-      token: z.string().min(1)
     }),
     evaluations: evaluationsSchema,
     templatesDir: z.string().optional(),
