@@ -377,4 +377,29 @@ describe("vendor keys", () => {
       )
     );
   });
+
+  it("shows the CLI command instead of Add key when no vendor is offered", async () => {
+    const base = createMockSessionApi();
+    const catalog = await base.getCatalog();
+    const api = {
+      ...base,
+      getCatalog: async () => ({
+        ...catalog,
+        providers: catalog.providers.filter((p) => p.keyless)
+      }),
+      listVendorKeys: async () => []
+    };
+    renderScreen(
+      <SessionApiProvider value={api}>
+        <VendorKeysScreen />
+      </SessionApiProvider>,
+      { path: "/w/:workspaceRef/vendor-keys", route: "/w/ws-1/vendor-keys" }
+    );
+    expect(await screen.findByLabelText("Add a vendor key")).toHaveTextContent(
+      "fonoster providers:keys:set deepgram"
+    );
+    expect(
+      screen.queryByRole("button", { name: /Add key/ })
+    ).not.toBeInTheDocument();
+  });
 });

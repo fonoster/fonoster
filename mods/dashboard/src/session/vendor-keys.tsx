@@ -26,6 +26,7 @@ import {
   NameCell,
   type Column
 } from "~/components/data/data-table";
+import { CopyField } from "~/components/data/copy-field";
 import { EmptyState } from "~/components/data/empty-state";
 import { RowActions } from "~/components/data/row-actions";
 import { Alert } from "~/components/ui/alert";
@@ -40,6 +41,9 @@ import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
 import type { CatalogEntry } from "./types";
 
 type Row = { provider: CatalogEntry; updatedAt?: string };
+
+/** No vendor is offered yet: the workspace adds its first key from the CLI. */
+const ADD_KEY_COMMAND = "fonoster providers:keys:set deepgram";
 
 const when = (iso?: string) =>
   iso ? new Date(iso).toLocaleString(undefined, { hour12: false }) : "";
@@ -77,8 +81,7 @@ export default function VendorKeysScreen() {
     (p) => !rows.some((r) => r.provider.id === p.id)
   );
 
-  // Always offered; with no provider left to add, the drawer's list is empty.
-  const add = (
+  const add = available.length > 0 && (
     <Button onClick={() => setEditing({})}>
       <Plus aria-hidden /> Add key
     </Button>
@@ -144,9 +147,17 @@ export default function VendorKeysScreen() {
               description={
                 providers.length
                   ? "Calls use the platform's keys. Add your own to use your speech and language-model accounts."
-                  : "The operator adds providers with the fonoster-registry utility."
+                  : "Calls need at least a text-to-speech vendor. Add a key with the Fonoster CLI, signed in to this workspace."
               }
-              action={add}
+              action={
+                add || (
+                  <CopyField
+                    label="Add a vendor key"
+                    value={ADD_KEY_COMMAND}
+                    className="w-80 text-left"
+                  />
+                )
+              }
             />
           }
         />
