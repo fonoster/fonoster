@@ -110,6 +110,8 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
+      # mode=min keeps only the final layers: mode=max (every stage, two architectures) filled the
+      # repository's 10 GB Actions cache and evicted the npm caches the PR checks use.
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -119,4 +121,4 @@ jobs:
           push: true
           tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha,scope=${{ matrix.image.name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.image.name }}
+          cache-to: type=gha,mode=min,scope=${{ matrix.image.name }}
