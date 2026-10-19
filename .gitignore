@@ -1,4 +1,5 @@
-node_modules/
+# No trailing slash: a worktree links node_modules as a symlink, which git sees as a file
+node_modules
 .env*
 !.env.example
 *.log
@@ -39,9 +40,6 @@ mods/common/test/.prisma-work
 # proto copy (mods/identity-client/scripts/sync-proto.mjs)
 mods/identity/src/generated/
 mods/identity-client/proto/
-
-# worktrees link node_modules as a symlink
-/node_modules
 
 # The rebuild stack generates configs, keys and secrets here (ops/rebuild/stack)
 ops/rebuild/.local/
