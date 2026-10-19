@@ -1,0 +1,500 @@
+---
+title: "Autopilot configuration"
+description: "Every field of an Autopilot agent and of the application around it, with types, defaults and limits."
+---
+
+An Autopilot agent is an application of type `AUTOPILOT`. Its configuration has two parts: the
+agent itself, sent as `intelligence.config`, and the application fields around it, such as
+`speech`, `recording`, `amd` and the fallback. For a guided walk through these settings, see
+[Build an Autopilot agent](/autopilot/build-an-agent).
+
+Fonoster checks the agent when you save it. Unknown fields are refused, and so are fields from 0.27,
+with a message that says where each one moved. See [Removed fields](#removed-fields).
+
+## The agent
+
+The agent has three top-level keys.
+
+| Key | Type | Required | What it holds |
+| --- | --- | --- | --- |
+| `conversationSettings` | object | Yes | The prompt, the fixed messages and how calls behave |
+| `languageModel` | object | Yes | The model, its sampling settings, tools and knowledge base |
+| `testCases` | object | No | Test scenarios, run outside calls. See [Test cases](#test-cases). |
+
+In a CLI agent file (`--agent agent.yaml`), these keys are at the top of the file. With the SDK,
+they go in `intelligence.config`.
+
+### Conversation settings
+
+<ParamField path="conversationSettings.systemPrompt" type="string" required>
+  Instructions the model gets on every turn. The caller never hears it.
+</ParamField>
+
+<ParamField path="conversationSettings.firstMessage" type="string">
+  What the agent says when the call connects. Leave it out to let the caller speak first.
+</ParamField>
+
+<ParamField path="conversationSettings.goodbyeMessage" type="string" required>
+  What the agent says before it hangs up: when the model uses the `hangup` tool, when the caller
+  stays silent too long, or when the call reaches `maxSessionDuration`. The caller can't
+  interrupt it.
+</ParamField>
+
+<ParamField path="conversationSettings.systemErrorMessage" type="string" required>
+  What the agent says when the model can't be reached or a reply fails.
+</ParamField>
+
+<ParamField path="conversationSettings.allowUserBargeIn" type="boolean" default="true">
+  Whether the agent stops talking when the caller talks over it. See
+  [Turn-taking and barge-in](/autopilot/turn-taking).
+</ParamField>
+
+<ParamField path="conversationSettings.maxSessionDuration" type="integer" default="1800000">
+  The longest a call can last, in milliseconds. A positive integer. The default is 30 minutes. When
+  the call reaches it, the agent says the goodbye message and hangs up.
+</ParamField>
+
+<ParamField path="conversationSettings.idleOptions" type="object">
+  What the agent does when the caller goes quiet. Without it, the agent never prompts a silent
+  caller.
+
+  <Expandable title="idleOptions">
+    <ParamField path="message" type="string" required>
+      What the agent says after `timeout` of silence.
+    </ParamField>
+    <ParamField path="timeout" type="integer" default="30000">
+      Milliseconds of silence before the agent speaks. A positive integer. The clock runs only
+      while the agent is listening.
+    </ParamField>
+    <ParamField path="maxTimeoutCount" type="integer" default="2">
+      The silent stretch, counted in timeouts, that ends the call with the goodbye message. A
+      positive integer.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="conversationSettings.transferOptions" type="object">
+  Turns on the built-in `transfer` tool. See [Give your agent tools](/autopilot/tools).
+
+  <Expandable title="transferOptions">
+    <ParamField path="phoneNumber" type="string" required>
+      The number the call is transferred to, such as `+18095550100`.
+    </ParamField>
+    <ParamField path="message" type="string" required>
+      What the agent says before it transfers.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="conversationSettings.initialDtmf" type="string">
+  Keypad digits the agent sends when the call connects, before the first message. Only `0`–`9`,
+  `*` and `#`.
+</ParamField>
+
+<ParamField path="conversationSettings.patience" type="string" default="normal">
+  How long the agent waits before it decides the caller has finished: `low`, `normal` or `high`.
+  The agent sends its value only when it isn't `normal`, so with `normal` the application's
+  `speech.patience` applies. See [Turn-taking and barge-in](/autopilot/turn-taking).
+</ParamField>
+
+<ParamField path="conversationSettings.hints" type="string[]">
+  Words that help speech recognition, such as names and brands. Up to 100 entries, none empty.
+</ParamField>
+
+<ParamField path="conversationSettings.filler" type="object">
+  A sound played while the agent prepares a reply. The reply cuts it off.
+
+  <Expandable title="filler">
+    <ParamField path="url" type="string" required>
+      The URL of a short WAV file.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="conversationSettings.voice" type="string">
+  A voice catalog ID that overrides the application's `speech.voice` for this agent.
+</ParamField>
+
+<ParamField path="conversationSettings.language" type="string">
+  A language that overrides the application's `speech.language` for this agent, such as `en-US`.
+</ParamField>
+
+<Warning>
+  The dashboard doesn't keep `patience`, `hints`, `filler`, `voice` and `language` yet. If you save
+  the agent in the dashboard, set them again with the SDK or the CLI.
+</Warning>
+
+### Language model
+
+<ParamField path="languageModel.model" type="string" required>
+  A catalog ID in the form `<provider>/<model>`, such as `openai/gpt-4o-mini`. It must match
+  `^[a-z0-9-]+/.+`. Live calls run models with an OpenAI-compatible API. See
+  [Providers and models](/reference/providers).
+</ParamField>
+
+<ParamField path="languageModel.temperature" type="number" default="0.4">
+  Sampling temperature, from `0` to `2`. Lower is more consistent.
+</ParamField>
+
+<ParamField path="languageModel.maxTokens" type="integer" default="400">
+  The longest reply the model can write in one turn. A positive integer.
+</ParamField>
+
+<ParamField path="languageModel.tools" type="object[]" default="[]">
+  HTTP tools the model can call. See [Tools](#tools).
+</ParamField>
+
+<ParamField path="languageModel.knowledgeBase" type="object[]" default="[]">
+  PDF documents the agent searches before each reply. See
+  [Add a knowledge base](/autopilot/knowledge-base).
+
+  <Expandable title="knowledgeBase[]">
+    <ParamField path="type" type="string" required>
+      `s3`, the only type.
+    </ParamField>
+    <ParamField path="title" type="string" required>
+      A short name for the document.
+    </ParamField>
+    <ParamField path="document" type="string" required>
+      The file's key in the workspace's bucket, ending in `.pdf`.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Tools
+
+Each entry in `languageModel.tools` is an HTTP tool. The built-in `hangup` and `transfer` tools
+aren't listed here. See [Give your agent tools](/autopilot/tools).
+
+<ParamField path="name" type="string" required>
+  The tool's name. The dashboard accepts letters, numbers, `_` and `-`, up to 64 characters, and
+  reserves `hangup` and `transfer`.
+</ParamField>
+
+<ParamField path="description" type="string" required>
+  What the tool does and when to use it. The model reads it.
+</ParamField>
+
+<ParamField path="parameters" type="object" required>
+  The values the model fills in.
+
+  <Expandable title="parameters">
+    <ParamField path="type" type="string" required>
+      `object` or `array`.
+    </ParamField>
+    <ParamField path="properties" type="object" required>
+      A map of parameter name to `{ type, format?, pattern? }`. `type` is a string such as
+      `string` or `number`. `format` is `enum` or `date-time`. A property can have `format` or
+      `pattern`, not both.
+    </ParamField>
+    <ParamField path="required" type="string[]">
+      The names of the required parameters.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="requestStartMessage" type="string">
+  What the agent says while the tool runs.
+</ParamField>
+
+<ParamField path="operation" type="object" required>
+  The request Fonoster makes.
+
+  <Expandable title="operation">
+    <ParamField path="url" type="string" required>
+      The endpoint. A valid URL on a public host.
+    </ParamField>
+    <ParamField path="method" type="string" default="get">
+      `get` sends the parameters as query-string values. `post` sends them as a JSON body.
+    </ParamField>
+    <ParamField path="waitForResponse" type="boolean" default="true">
+      With `false`, Fonoster sends the request and tells the model it was sent, without waiting.
+    </ParamField>
+    <ParamField path="headers" type="object">
+      A map of header name to value. `Accept` and `Content-Type` are refused, because Fonoster
+      sets them to `application/json`. Values are stored as plain text.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+Limits that apply while the agent runs:
+
+| Limit | Value |
+| --- | --- |
+| Time for a tool request to answer | 10 seconds |
+| Model rounds per caller turn | 4 |
+| Destinations | Public addresses only. Private and local addresses are refused, and so is every redirect to one. |
+
+### Test cases
+
+`testCases` holds scenarios for [Test your agent](/autopilot/test). They run outside calls and never
+call your tool endpoints.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `evalsLanguageModel.provider` | string | Yes | `openai`, the only value |
+| `evalsLanguageModel.model` | string | Yes | The judge model, such as `gpt-4o-mini` |
+| `evalsSystemPrompt` | string | No | Replaces the judge's instructions for `similar` matches |
+| `scenarios[].ref` | string | Yes | A name for the scenario |
+| `scenarios[].description` | string | Yes | |
+| `scenarios[].telephonyContext.callDirection` | string | Yes | `FROM_PSTN`, `TO_PSTN` or `INTRA_NETWORK` |
+| `scenarios[].telephonyContext.ingressNumber` | string | Yes | The number that was called |
+| `scenarios[].telephonyContext.callerNumber` | string | Yes | The caller's number |
+| `scenarios[].telephonyContext.metadata` | object | No | String values only |
+| `scenarios[].conversation[].userInput` | string | Yes | What the caller says |
+| `scenarios[].conversation[].expected.text.type` | string | Yes | `EXACT` or `SIMILAR` (the CLI also takes lowercase) |
+| `scenarios[].conversation[].expected.text.response` | string | Yes | The expected reply |
+| `scenarios[].conversation[].expected.tools[]` | object | No | `{ tool, parameters }` for each expected tool call |
+
+### Removed fields
+
+These 0.27 fields are refused with a message that names the replacement. See
+[Migrate from 0.27](/migrate-from-0-27).
+
+| Field | Use instead |
+| --- | --- |
+| `languageModel.provider` | A catalog ID in `model`, such as `openai/gpt-4o-mini` |
+| `languageModel.apiKey` | Your own key in [Vendor keys](/workspace/provider-keys) |
+| `languageModel.baseUrl` | Nothing. Endpoints come from the catalog. |
+| `conversationSettings.vad` | `patience`. Fonoster decides when the caller has finished. |
+| `conversationSettings.maxSpeechWaitTimeout` | `patience` |
+| `eventsHook` | Workspace [webhooks](/observe/webhooks): `call.started`, `call.ended`, `call_record.sealed` |
+| `audioFilters` | Nothing |
+
+## The application
+
+These application fields apply to an Autopilot agent. Set them on the application with the SDK
+(`createApplication`, `updateApplication`) or with [CLI flags](/reference/cli#applications).
+
+<ParamField path="name" type="string" required>
+  The agent's name, from 1 to 255 characters.
+</ParamField>
+
+<ParamField path="type" type="string" required>
+  `AUTOPILOT`. Autopilot agents always use the `fonoster` protocol and need no `url`.
+</ParamField>
+
+<ParamField path="intelligence.config" type="object" required>
+  The agent, as described in [The agent](#the-agent).
+</ParamField>
+
+### Speech
+
+<ParamField path="speech.voice" type="string" default="deepgram/aura-2-thalia-en">
+  The voice, as a catalog ID. It must be in the catalog and not retired. CLI: `--voice`.
+</ParamField>
+
+<ParamField path="speech.language" type="string" default="en-US">
+  The language the caller speaks and the agent answers in, from 2 to 64 characters. The voice must
+  speak it. CLI: `--language`.
+</ParamField>
+
+<ParamField path="speech.sttModel" type="string">
+  The speech-to-text model, as a catalog ID, such as `deepgram/nova-3`. CLI: `--stt-model`.
+</ParamField>
+
+<ParamField path="speech.ttsModel" type="string">
+  The text-to-speech model, as a catalog ID, such as `elevenlabs/eleven_flash_v2_5`. CLI:
+  `--tts-model`.
+</ParamField>
+
+<ParamField path="speech.patience" type="string">
+  `low`, `normal` or `high`. Applies when the agent's own `patience` is `normal`. CLI:
+  `--patience`.
+</ParamField>
+
+<ParamField path="speech.silenceTimeoutMs" type="integer">
+  The base stretch of caller silence, in milliseconds, that the turn detector works from. From
+  `100` to `120000`. Leave it out to use the platform's default. CLI: `--silence-timeout`.
+</ParamField>
+
+### Recording
+
+<ParamField path="recording" type="string">
+  `off`, `on` or `consent`. Leave it out to follow the workspace's policy. See
+  [Record calls and ask for consent](/telephony/recording). CLI: `--recording`.
+</ParamField>
+
+### Answering-machine detection
+
+<ParamField path="amd" type="object">
+  Off when unset. See [Detect answering machines](/telephony/amd).
+
+  <Expandable title="amd">
+    <ParamField path="enabled" type="boolean" default="false">
+      Turns detection on. CLI: `--amd`, `--no-amd`.
+    </ParamField>
+    <ParamField path="windowMs" type="integer" default="4000">
+      Milliseconds of answering-side audio to classify, from `500` to `15000`. CLI:
+      `--amd-window`, which also turns detection on.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Fallback
+
+When Fonoster can't reach the agent, the call goes to the fallback application. If there is none,
+or it can't be reached either, the caller hears the fallback message and the call ends. Without a
+message, the call ends at once.
+
+<ParamField path="fallbackAppRef" type="string">
+  The ref of another application in the same workspace. Up to 64 characters. An application can't
+  be its own fallback. CLI: `--fallback-app`.
+</ParamField>
+
+<ParamField path="fallbackMessage" type="string">
+  What the caller hears when no application answers, in the application's voice. Up to 1000
+  characters. CLI: `--fallback-message`.
+</ParamField>
+
+<Warning>
+  `updateApplication` in the SDK replaces the whole application: fields you leave out go back to
+  their defaults. The CLI's `applications:update` keeps the fields you don't pass.
+</Warning>
+
+## Full example
+
+This creates an Autopilot agent with every group set, using the SDK:
+
+```javascript create-agent.js
+const SDK = require("@fonoster/sdk");
+
+async function main() {
+  const client = new SDK.Client({
+    accessKeyId: "WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3"
+  });
+  await client.loginWithApiKey(
+    process.env.FONOSTER_API_KEY,
+    process.env.FONOSTER_API_SECRET
+  );
+
+  const apps = new SDK.Applications(client);
+  const { ref } = await apps.createApplication({
+    name: "Front desk",
+    type: "AUTOPILOT",
+    speech: {
+      voice: "deepgram/aura-2-thalia-en",
+      language: "en-US",
+      sttModel: "deepgram/nova-3",
+      patience: "normal"
+    },
+    recording: "consent",
+    amd: { enabled: false },
+    fallbackAppRef: "3a9d7c2e-5f1b-4c8a-9e60-7b2d4f1a8c35",
+    fallbackMessage: "Sorry, we can't take your call right now. Please call again later.",
+    intelligence: {
+      config: {
+        conversationSettings: {
+          firstMessage: "Hi, thanks for calling. How can I help you today?",
+          systemPrompt:
+            "You are the receptionist for our company. Answer in one or two short sentences. Ask one question at a time.",
+          goodbyeMessage: "Thanks for calling. Have a great day!",
+          systemErrorMessage:
+            "Sorry, something went wrong on our side. Please call again in a few minutes.",
+          allowUserBargeIn: true,
+          maxSessionDuration: 600000,
+          idleOptions: {
+            message: "Are you still there?",
+            timeout: 10000,
+            maxTimeoutCount: 2
+          },
+          transferOptions: {
+            phoneNumber: "+18095550100",
+            message: "One moment, I'm transferring you to a person."
+          },
+          patience: "high",
+          hints: ["Fonoster", "Aura"]
+        },
+        languageModel: {
+          model: "openai/gpt-4o-mini",
+          temperature: 0.4,
+          maxTokens: 400,
+          tools: [
+            {
+              name: "get_order_status",
+              description:
+                "Look up the status of an order by its order number. Use it when the caller asks where their order is.",
+              parameters: {
+                type: "object",
+                properties: { order_number: { type: "string" } },
+                required: ["order_number"]
+              },
+              requestStartMessage: "One moment while I check that.",
+              operation: {
+                method: "get",
+                url: "https://api.example.com/orders/status",
+                waitForResponse: true,
+                headers: { "x-api-key": "k7Qm2Rv9Tx4Lp8Wn3Zc6" }
+              }
+            }
+          ],
+          knowledgeBase: [
+            {
+              type: "s3",
+              title: "Price list",
+              document: "kb/price-list-2026.pdf"
+            }
+          ]
+        }
+      }
+    }
+  });
+
+  console.log(`Agent created: ${ref}`);
+}
+
+main().catch(console.error);
+```
+
+The same agent as a CLI agent file. Pass the application fields as flags:
+
+```yaml agent.yaml
+conversationSettings:
+  firstMessage: "Hi, thanks for calling. How can I help you today?"
+  systemPrompt: |
+    You are the receptionist for our company.
+    Answer in one or two short sentences. Ask one question at a time.
+  goodbyeMessage: "Thanks for calling. Have a great day!"
+  systemErrorMessage: "Sorry, something went wrong on our side. Please call again in a few minutes."
+  allowUserBargeIn: true
+  maxSessionDuration: 600000
+  idleOptions:
+    message: "Are you still there?"
+    timeout: 10000
+    maxTimeoutCount: 2
+  transferOptions:
+    phoneNumber: "+18095550100"
+    message: "One moment, I'm transferring you to a person."
+  patience: high
+  hints: [Fonoster, Aura]
+languageModel:
+  model: openai/gpt-4o-mini
+  temperature: 0.4
+  maxTokens: 400
+  tools:
+    - name: get_order_status
+      description: Look up the status of an order by its order number.
+      parameters:
+        type: object
+        properties:
+          order_number:
+            type: string
+        required: [order_number]
+      requestStartMessage: "One moment while I check that."
+      operation:
+        method: get
+        url: https://api.example.com/orders/status
+        headers:
+          x-api-key: k7Qm2Rv9Tx4Lp8Wn3Zc6
+  knowledgeBase:
+    - type: s3
+      title: Price list
+      document: kb/price-list-2026.pdf
+```
+
+```bash
+fonoster applications:create --name "Front desk" --agent agent.yaml \
+  --voice deepgram/aura-2-thalia-en --language en-US --stt-model deepgram/nova-3 \
+  --recording consent --fallback-app 3a9d7c2e-5f1b-4c8a-9e60-7b2d4f1a8c35 \
+  --fallback-message "Sorry, we can't take your call right now. Please call again later."
+```

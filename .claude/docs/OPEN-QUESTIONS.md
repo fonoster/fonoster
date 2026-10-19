@@ -99,3 +99,26 @@ Collected from each page's checkpoint. Answer them in your review pass.
 - mcp: The prompt names tools `listNumbers`/`createCall` (camelCase) while the tools are `list_numbers`/`create_call`, and says 10-digit numbers are fine while the API requires E.164 for `from`. Fix the prompt text.
 - mcp: `create_call_batch` runs in the MCP process, fire-and-forget; its "batch ID" is `Date.now()` and can't be tracked. Worth a server-side batch, or keep as is?
 - mcp: Is `fonoster/mcp` published on Docker Hub (the README shows a docker config)? The page shows npx only.
+
+## Reference
+- reference/sdk: `Calls.createCall`'s `statusStream` maps `NOANSWER` to the string `"ERROR"` (`mods/sdk/src/utils.ts` `dialStatusToString`), while `DialStatus` and `telephony/outbound-calls` say `NOANSWER`. The reference documents `ERROR (no answer)`. Bug? Fix the mapping and the page follows.
+- reference/sdk: `Users` is left out (sign-up, password reset: dashboard flows, not developer tasks). Include it?
+- reference/sdk: `Workspaces.inviteUserToWorkspace` JSDoc mentions `password` and `workspaceRef`, but the proto takes only `email`, `role`, `name`. The page documents the proto. Clean up the JSDoc/types (`InviteUserToWorkspaceRequest.password`).
+- reference/voice-sdk: The Python SDK has no `listen()` (listen.update), no `traceparent`/`signed_for`, no `requireAppBinding` and no app-bound signature helper. Parity planned?
+- reference/voice-sdk: `voice_asgi_app`'s flag is spelled `verify_signature_` (trailing underscore), unlike `VoiceServer(verify_signature=)`. Rename?
+- reference/voice-sdk: `python/fonoster-voice/pyproject.toml` says version 0.27.0. Is 0.30 on PyPI, and is `fonoster-voice` published at all?
+- reference/voice-sdk: The SDKs' `TransferOptions` lack `music`, which the protocol's `transfer` accepts (same as the transfers question above).
+- reference/twilio-compatibility: The hang-up endpoint supports workspace API keys (Basic auth = API key ID and secret) when the gateway has `http.identity`. Is it exposed on Fonoster Cloud, and at what base URL? `streams/bring-your-app` documents only the self-hosted fixed pair.
+- reference/api: Should the page list the gRPC packages/services (`fonoster.<resource>.v1beta2`) or publish the protos for other languages? Kept to two paragraphs per the owner decision.
+- reference/autopilot-config: The agent's `languageModel.model` and `conversationSettings.voice` aren't checked against the catalog on save (only the app's `speech.*` are); a typo fails at call time. Check them too?
+- reference/autopilot-config: The tool name rule (`^[a-zA-Z0-9_-]{1,64}$`, `hangup`/`transfer` reserved) is enforced only in the dashboard. The API accepts any name. Move it into `toolSchema`?
+- reference/autopilot-config: `testCases` is `z.any()` in the agent schema, so bad test cases save fine and fail only at eval. Validate with `testCasesSchema` on save?
+- reference/webhook-events: `call.failed` with reason `no_app` is published under workspace `"default"`, so no customer webhook gets it. Intended? The page leaves `no_app` out.
+- reference/webhook-events: `call.failed` reasons pass room/progress values through (`busy`, `no_answer`, `failed`, `rejected`, plus `app_unreachable`, `node_error`). Is that the closed set to promise?
+- reference/webhook-events: `appbridge-lost` is a public `endReason` value that names an internal service. Rename it (for example `lost`) before more receivers depend on it?
+- reference/cli: `apikeys:create --expiration` is defined but never sent to the API. The page leaves it out. Wire it or drop it?
+- reference/cli: Wrong arg/description strings: `apikeys:regenerate` ref says "the Application to update"; `workspaces:use` says "The Workspace to unlink from"; `sipnet:agents:update` says "add a new SIP Agent" and its ref "the ACL reference"; `sipnet:calls:get` says "get a specific Access Control List (ACL)". Fix in `mods/ctl`.
+- reference/cli: `mcp:configure` supports only Claude Desktop on macOS and Windows (throws on Linux). OK to document as is?
+- reference/providers: Is Fonoster Cloud's catalog the same as `ops/bundle/config/catalog.yaml`? The page says "the default catalog" until confirmed.
+- reference/providers: ElevenLabs model `settings` (`stability`, `similarity_boost`, `style`, `speed`) exist in the catalog, but no app, agent or SDK field sets them. Planned? The page leaves them out.
+- changelog: What date (or month) should the v0.30 entry show? It says "October 2026".

@@ -1,0 +1,98 @@
+---
+title: "Changelog"
+description: "What's new and what changed in each Fonoster release, from 0.30 on."
+rss: true
+---
+
+New releases are listed newest first. For releases up to 0.27, see the
+[legacy changelog](/legacy/changelog).
+
+<Update label="v0.30" description="October 2026" tags={["Breaking", "Autopilot", "Streams", "Telephony", "Observe"]}>
+
+Fonoster 0.30 is a new platform. Calls run on a new voice path, Autopilot is rebuilt, and your own
+voice apps talk to Fonoster over one signed WebSocket per call. It doesn't keep the 0.27 interfaces
+working. To update what you built, see [Migrate from 0.27](/migrate-from-0-27).
+
+## Breaking changes
+
+- **Applications are streams or Autopilot agents.** `type: EXTERNAL` is now `STREAM`. A stream has
+  a `url` (`ws://` or `wss://`) instead of a gRPC `endpoint`, and `flavor: native` / `twilio` is
+  now `protocol: fonoster` / `twilio`. An application with only an `endpoint` gets no calls.
+- **Speech settings use catalog IDs.** `textToSpeech` and `speechToText` are replaced by `speech`
+  (`voice`, `language`, `sttModel`, `ttsModel`), named by catalog IDs such as
+  `deepgram/aura-2-thalia-en`. See [Providers and models](/reference/providers).
+- **Autopilot agents changed shape.** `languageModel.model` is a catalog ID such as
+  `openai/gpt-4o-mini`. `provider`, `apiKey`, `baseUrl`, `vad`, `maxSpeechWaitTimeout`,
+  `eventsHook` and `audioFilters` are refused, with a message that says where each one moved. See
+  [Autopilot configuration](/reference/autopilot-config).
+- **The Voice SDK is a session SDK.** Handlers take one argument, the session. `(req, res)`
+  handlers, `VoiceResponse`, `stream()`, `sgather()` and `dial()` are gone. `record()`,
+  `setAudioFilters()`, `mute()` and `unmute()` are removed: recording is a policy on the
+  application, and `hold()` / `resume()` replace mute and unmute. `@fonoster/voice/session` stays
+  as an alias for this release only.
+- **Streams need a signing secret.** Creating a stream returns its signing secret once. The SDK
+  servers refuse to start without one and refuse connections Fonoster didn't sign. Rotating it is
+  immediate, with no overlap. See [Verify request signatures](/streams/verify-signatures).
+- **Assistant webhooks are retired.** `eventsHook` and its `conversation.started` and
+  `conversation.ended` events are gone. Subscribe a workspace webhook to `call.started`,
+  `call.ended` or `call_record.sealed` instead. See [Webhooks](/observe/webhooks).
+- **Recordings live in the call record.** Recording URLs are no longer built by convention. Get a
+  call's recording from its call record, with `GET /api/records/{callRef}/recording`, the
+  dashboard's **Calls** page or `fonoster records:download`.
+- **CLI flags renamed.** `--assistant` is now `--agent`, and `--flavor` is now `--protocol`.
+
+## New
+
+### Autopilot
+
+- **A rebuilt engine** with end-of-thought turn-taking instead of fixed silence timers, and a
+  `patience` setting (`low`, `normal`, `high`). See [Turn-taking and barge-in](/autopilot/turn-taking).
+- **Talk to your agent in the browser** from the dashboard, and run test cases with
+  `fonoster applications:eval`. See [Test your agent](/autopilot/test).
+- **Agent settings** for speech hints, a filler sound while the agent thinks, and a per-agent voice
+  and language. See [Build an Autopilot agent](/autopilot/build-an-agent).
+
+### Streams
+
+- **`(session)` handlers** with `say`, `gather`, `play`, `transfer`, `hold`, `handoff`, events and
+  raw audio. See [Build a stream with the Voice SDK](/streams/voice-sdk).
+- **`say()` reports what the caller heard** (`interrupted`, `heardText`, `heardMs`), and takes an
+  async iterable to stream model tokens into one utterance. Barge-in is your app's choice
+  (`interruptible`).
+- **A Python SDK**, `fonoster-voice`, with the same methods, events and errors as the Node.js SDK.
+  See [Use the Python Voice SDK](/streams/python).
+- **The Twilio Media Streams protocol** (`protocol: twilio`) for Pipecat and similar bots. See
+  [Bring your Twilio or Pipecat app](/streams/bring-your-app).
+- **Listen-only sockets** (`listeners`) that receive a call's audio for monitoring.
+
+### Telephony
+
+- **Cold, warm and refer transfers.** See [Transfer calls](/telephony/transfers).
+- **Answering-machine detection** per application. See
+  [Detect answering machines](/telephony/amd).
+- **Recording by policy**: `off`, `on` or `consent`, with a consent prompt. See
+  [Record calls and ask for consent](/telephony/recording).
+- **Fallbacks**: a fallback application and message for when an application can't be reached.
+
+### Observe
+
+- **Workspace webhooks**, signed, with retries, a delivery log and resends. See
+  [Webhook events](/reference/webhook-events).
+- **Call records** in the vCon format, signed by the region, with the transcript, turns, tool calls
+  and recording. See [Call records (vCon)](/observe/call-records).
+- **Retention and erasure** of record parts. See [Retention and erasure](/observe/retention).
+
+### Workspace
+
+- **A provider catalog** with deprecation notices and automatic moves on retirement. See
+  [Providers and models](/reference/providers).
+- **Your own provider keys** for Deepgram, ElevenLabs, OpenAI and Groq. See
+  [Use your own provider keys](/workspace/provider-keys).
+
+## Self-hosting
+
+The platform's services, configuration and deployment changed. Each service reads one YAML file,
+with references for secrets, and Docker Compose and Helm are the supported targets. To upgrade an
+install, see [Upgrade from 0.27](/self-hosting/upgrade-from-0-27).
+
+</Update>
