@@ -1,4 +1,4 @@
-name: stack smoke
+name: Stack Smoke
 
 # The deployment targets start (add-platform: Docker Compose and Helm are official targets):
 #   compose       build the bundle images and the install archive (ops/release/bundle), install it

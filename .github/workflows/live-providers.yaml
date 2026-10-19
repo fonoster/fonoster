@@ -1,4 +1,4 @@
-name: live-providers
+name: Live Providers
 
 # On-demand live provider check (conformance pass bar T4). It spends a few cents against the real
 # vendors, so it runs only when someone starts it from the Actions tab; never on pull requests or a

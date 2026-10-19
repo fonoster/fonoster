@@ -1,4 +1,4 @@
-name: images
+name: Images
 
 # Builds the Fonoster images for linux/amd64 and linux/arm64 and pushes them to Docker Hub as
 # fonoster/<name>:<version> (and :latest when asked). The list is ops/release/images.json, the same

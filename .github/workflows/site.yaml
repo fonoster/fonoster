@@ -1,4 +1,4 @@
-name: site
+name: Site
 
 # fonoster.com: site/ is published to GitHub Pages (gh-pages branch) on every push to main that
 # changes it. The docs (docs-site/, Mintlify, deployed by Mintlify itself) are checked for broken

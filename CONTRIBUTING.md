@@ -136,7 +136,7 @@ You can amend your commit with the sign-off by running if you forgot to do this 
 git commit --amend -s
 ```
 
-Please note that our commit messages use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).
+Pull requests are squash merged, and the pull request title becomes the commit message, so the title must follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (for example `fix(roomr): close idle rooms`). The commits on your branch can be anything.
 
 ## Pull Request Checklist
 
