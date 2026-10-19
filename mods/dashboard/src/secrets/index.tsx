@@ -92,7 +92,7 @@ function WorkspaceSecrets() {
     <>
       <PageHeader
         title="Secrets"
-        description="Encrypted values for your agents' tools, like a CRM or helpdesk token. Your stream apps can reference them too. Values can't be read back."
+        description="Encrypted values for your agents' tools, like a CRM or helpdesk token. Your apps can reference them too. Values can't be read back."
         actions={list.items.length > 0 && add}
       />
       <div className="px-4 pb-8 sm:px-8">
@@ -115,8 +115,8 @@ function WorkspaceSecrets() {
               description={
                 <>
                   Store the tokens your agents&apos; tools need, then reference
-                  them by name; your stream apps can use them too. For speech
-                  and language models, use{" "}
+                  them by name; your apps can use them too. For speech and
+                  language models, use{" "}
                   <Link
                     to={`/w/${workspace.ref}/vendor-keys`}
                     className="text-foreground underline"
@@ -149,7 +149,7 @@ function WorkspaceSecrets() {
           }
         }}
         title={`Delete ${deleting?.name ?? "secret"}?`}
-        description="Agents and streams that use it will stop working until you add it again."
+        description="Agents and apps that use it will stop working until you add it again."
         pending={remove.isPending}
         error={remove.error}
         onConfirm={() =>

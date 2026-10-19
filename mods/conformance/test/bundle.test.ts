@@ -46,7 +46,7 @@ import { expandEnv, readEnvFile } from "../../common/src/config/cli/envFile";
 import { tlsEnabled } from "../../common/src/config/cli/exposure";
 import { renderConfigDir } from "../../common/src/config/cli/render";
 import { ensureKeys } from "../../common/src/config/cli/secrets";
-import { loadConfig as loadGatewayConfig } from "../../appbridge/src/config";
+import { loadConfig as loadAppBridgeConfig } from "../../appbridge/src/config";
 
 const ROOT = path.join(__dirname, "..", "..", "..");
 const BUNDLE = path.join(ROOT, "ops", "bundle");
@@ -128,7 +128,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
 
   const FILES: Record<string, string> = {
     apiserver: "fonoster",
-    appbridge: "gateway",
+    appbridge: "appbridge",
     autopilot: "autopilot",
     roomr: "roomr"
   };
@@ -205,17 +205,19 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     ]);
   });
 
-  it("keeps the gateway's call records in flight in a named volume at callRecord.dir", function () {
+  it("keeps AppBridge's call records in flight in a named volume at callRecord.dir", function () {
     const { dir, env } = install();
-    const recordsDir = loadGatewayConfig(path.join(dir, "gateway.yaml"), env)
-      .callRecord?.dir;
+    const recordsDir = loadAppBridgeConfig(
+      path.join(dir, "appbridge.yaml"),
+      env
+    ).callRecord?.dir;
     expect(recordsDir).to.equal("/var/lib/fonoster/records");
     // Not under /tmp, and not lost when the container is recreated.
     expect(services.appbridge.volumes).to.include(
-      `gateway-records:${recordsDir}`
+      `appbridge-records:${recordsDir}`
     );
     expect(Object.keys(compose.volumes as object)).to.include(
-      "gateway-records"
+      "appbridge-records"
     );
   });
 
@@ -232,7 +234,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       }
   });
 
-  it("starts the gateway and Autopilot after the API server is migrated and serving", function () {
+  it("starts AppBridge and Autopilot after the API server is migrated and serving", function () {
     expect(services.apiserver.healthcheck?.test).to.deep.equal([
       "CMD",
       "node",
@@ -439,7 +441,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       expect(read(`ops/bundle/config/${f}`), f).to.equal(
         read(`ops/rebuild/config/${f}`)
       );
-    for (const u of ["apiserver", "gateway", "roomr", "routr"])
+    for (const u of ["apiserver", "appbridge", "roomr", "routr"])
       expect(
         body(read(`ops/bundle/config/nats-permissions/${u}.conf`)),
         u
@@ -527,12 +529,12 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     });
     expect(loaded.telemetry?.otlpEndpoint).to.equal("");
 
-    const gw = loadGatewayConfig(
-      path.join(dir, "gateway.yaml"),
+    const gw = loadAppBridgeConfig(
+      path.join(dir, "appbridge.yaml"),
       only("appbridge")
     );
     expect(gw.callRecord?.analytics).to.equal(undefined);
-    expect(gw.nats.password).to.equal(env.NATS_GATEWAY_PASSWORD);
+    expect(gw.nats.password).to.equal(env.NATS_APPBRIDGE_PASSWORD);
 
     const ap = loadHostedConfig(
       path.join(dir, "autopilot.yaml"),
@@ -547,7 +549,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
 
     for (const f of [
       "fonoster.yaml",
-      "gateway.yaml",
+      "appbridge.yaml",
       "autopilot.yaml",
       "roomr.yaml"
     ]) {
@@ -558,12 +560,12 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     }
   });
 
-  it("lets the gateway and Autopilot decrypt a vendor key the API server encrypted", function () {
+  it("lets AppBridge and Autopilot decrypt a vendor key the API server encrypted", function () {
     const { dir, env } = install();
     const apiKey = loadApiserver(dir, env).encryption.key;
     // What prisma-field-encryption stores for a workspace vendor key.
     const stored = encryptStringSync("dg-workspace-key", parseKeySync(apiKey));
-    const gwKey = loadGatewayConfig(path.join(dir, "gateway.yaml"), env)
+    const gwKey = loadAppBridgeConfig(path.join(dir, "appbridge.yaml"), env)
       .encryption?.key;
     const apKey = loadHostedConfig(path.join(dir, "autopilot.yaml"), env)
       .encryption?.key;
@@ -575,7 +577,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     }
     // A service without the key fails the same way it would at start.
     expect(() =>
-      loadGatewayConfig(path.join(dir, "gateway.yaml"), {
+      loadAppBridgeConfig(path.join(dir, "appbridge.yaml"), {
         ...env,
         ENCRYPTION_KEY: ""
       })

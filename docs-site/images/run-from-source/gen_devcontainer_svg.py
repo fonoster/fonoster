@@ -24,8 +24,8 @@ FLOWS = [
     ("M296,658 H400", "muted"),  # softphone -> Routr (SIP)
     ("M650,638 H736", "muted"),  # Routr -> Roomr node (calls)
     ("M650,768 H850 V666", "muted"),  # RTPEngine -> Roomr node (RTP media)
-    ("M850,506 V602", "accent"),  # gateway -> Roomr node
-    ("M850,602 V506", "accent"),  # Roomr node -> gateway
+    ("M850,506 V602", "accent"),  # appbridge -> Roomr node
+    ("M850,602 V506", "accent"),  # Roomr node -> appbridge
     ("M1232,388 H1252 V288 H1272", "muted"),  # workspace -> Postgres
     ("M1232,388 H1272", "muted"),  # workspace -> NATS
     ("M1232,388 H1252 V488 H1272", "muted"),  # workspace -> MinIO

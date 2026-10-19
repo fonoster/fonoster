@@ -30,7 +30,7 @@ import {
 } from "./types";
 
 /**
- * Working records live on the gateway's local disk while the call runs: one fsynced JSON line
+ * Working records live on AppBridge's local disk while the call runs: one fsynced JSON line
  * per entry, plus the raw recording tracks. Sealed records go to object storage (RecordStore).
  */
 export class FsWorkingStore {
@@ -98,7 +98,7 @@ export class FsWorkingStore {
   /**
    * The owner's heartbeat on a live call's working record (ST-5): moves its time of last append
    * to now without writing, so a quiet call (hold, long silence) is not taken for an abandoned
-   * one by another gateway sweeping the same directory.
+   * one by another AppBridge sweeping the same directory.
    */
   touch(callRef: string) {
     const now = new Date();

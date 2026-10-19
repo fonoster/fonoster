@@ -143,7 +143,7 @@ steps:
   it("requires a fixture for voice-sdk scenarios", function () {
     const s = base();
     s.contract = "voice-sdk";
-    s.role = "gateway";
+    s.role = "appbridge";
     expect(validateScenario(s).join()).to.contain("fixture");
   });
 

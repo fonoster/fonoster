@@ -54,7 +54,7 @@ type AmdSettings = {
 
 /** The application model (voice-session G2): a stream or an Autopilot agent. */
 type SessionAppFields = {
-  /** ws:// or wss:// URL the gateway dials (Autopilot agents: the hosted Autopilot). */
+  /** ws:// or wss:// URL AppBridge dials (Autopilot agents: the hosted Autopilot). */
   url?: string;
   /** The stream's wire protocol (default fonoster). */
   protocol?: "fonoster" | "twilio";
@@ -88,7 +88,7 @@ type CreateApplicationRequest = SessionAppFields & {
   name: string;
   type: ApplicationType;
   endpoint?: string;
-  /** Autopilot apps: the assistant (sessionAssistantSchema); productRef is derived from its model. */
+  /** Autopilot apps: the agent (sessionAgentSchema); productRef is derived from its model. */
   intelligence?: {
     productRef?: string;
     config: Record<string, unknown>;
@@ -125,9 +125,9 @@ type ListApplicationsResponse = ListResponse<Application>;
 
 type EvaluateIntelligenceRequest = {
   intelligence: {
-    /** Ignored: the assistant's catalog id names the provider. */
+    /** Ignored: the agent's catalog id names the provider. */
     productRef?: string;
-    /** A session assistant with testCases. */
+    /** A session agent with testCases. */
     config: Record<string, unknown>;
   };
 };

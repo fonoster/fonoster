@@ -100,13 +100,13 @@ describe("numbers", () => {
     });
   });
 
-  it("sends a number to a stream", async () => {
+  it("sends a number to an app", async () => {
     const { user, sdk } = setup();
     await user.click(await screen.findByText("Spare"));
     const drawer = await screen.findByRole("dialog");
-    await user.click(within(drawer).getByRole("radio", { name: "Stream" }));
+    await user.click(within(drawer).getByRole("radio", { name: "App" }));
     expect(
-      within(drawer).getByPlaceholderText("Search streams")
+      within(drawer).getByPlaceholderText("Search apps")
     ).toBeInTheDocument();
     expect(
       within(drawer).queryByText("Billing reminders")

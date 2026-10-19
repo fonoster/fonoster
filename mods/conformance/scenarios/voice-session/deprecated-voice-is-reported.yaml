@@ -5,7 +5,7 @@ role: app
 spec: "Deprecation is manual and warns every user / Runtime use is caught"
 description: >
   An app speaks with a deprecated voice that no saved config references. The call goes on with
-  that voice, and the gateway records provider.deprecated_used once per session with the
+  that voice, and AppBridge records provider.deprecated_used once per session with the
   replacement (the control plane turns it into the workspace's warning).
 setup:
   catalog:

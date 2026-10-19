@@ -1,5 +1,5 @@
 # The whole platform in one release: control plane (apiserver with embedded Identity, Envoy,
-# dashboard, hosted Autopilot), NATS, dev-grade Postgres and MinIO, gateway and Roomr nodes. It
+# dashboard, hosted Autopilot), NATS, dev-grade Postgres and MinIO, appbridge and Roomr nodes. It
 # mirrors ops/rebuild/compose.yaml. Routr and RTPEngine come from their own charts (Routr at
 # `routr`, using this release's Postgres database `routr` and NATS).
 #
@@ -16,7 +16,7 @@
 #   roomr-peer         password                     (the Roomr nodes' Routr peer)
 #   fonoster-records-key   records.pem                  (EC P-256 key that signs call records)
 #   fonoster-vendors       deepgram                     (platform Deepgram key: TTS and STT)
-#   fonoster-nats-users    apiserver, gateway, roomr, routr   (NATS passwords, hex; Routr's
+#   fonoster-nats-users    apiserver, appbridge, roomr, routr   (NATS passwords, hex; Routr's
 #                          NATS URL is nats://routr:<routr password>@fonoster-nats:4222)
 
 nats:
@@ -86,7 +86,7 @@ autopilot:
     signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
     # apiserver.config.apps.autopilotUrl.
     publicUrl: "ws://{{ .Release.Name }}-autopilot:3000"
-    assistants: { source: database }
+    agents: { source: database }
     registry: { source: database }
     # Workspaces bring their own LLM keys (dashboard). A platform key instead:
     #   credentials: { openai-default: { value: "secret://k8s/fonoster-vendors#openai" } }

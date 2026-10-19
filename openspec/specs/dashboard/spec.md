@@ -166,6 +166,30 @@ SHALL keep every item reachable when collapsed.
 - THEN it shows icons with tooltips, the bubble mark and the workspace avatar, and it stays collapsed
   after a reload
 
+### Requirement: The sidebar names Agents and Apps
+
+The sidebar SHALL list **Agents** (`/agents`, AI agents powered by Autopilot) and **Apps** (`/apps`,
+voice apps the workspace runs itself, shown with the streams icon), both backed by the API's
+`Application` resource (types `AUTOPILOT` and `STREAM`). User-facing text SHALL say "agent" and "app",
+never "stream", "assistant" or "Autopilot app". Old section paths (`/streams`, `/autopilot`,
+`/sip-users`) SHALL NOT be redirected.
+
+#### Scenario: Sidebar labels
+
+- WHEN a signed-in user opens a workspace
+- THEN the sidebar shows Agents linking to `/agents` and Apps linking to `/apps`
+- AND no item is labeled Streams or Autopilot
+
+#### Scenario: Creating an app
+
+- WHEN the user opens Apps and chooses Create app
+- THEN a dialog titled New app opens, and saving shows the toast "App created"
+
+#### Scenario: Old paths
+
+- WHEN the user opens `/w/<workspace>/streams`
+- THEN the dashboard treats it as an unknown section and goes to the workspace's Overview
+
 ### Requirement: Agent pickers offer the catalog
 
 The agent editor's language model, voice and transcriber pickers SHALL offer only the catalog's

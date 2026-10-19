@@ -23,7 +23,7 @@ import * as path from "path";
 import { expect } from "chai";
 import { CallRecordWriter, fsStores, RecordEntry } from "../src";
 
-// Two gateways sharing one record directory (ST-5, audit #47/#48): a quiet live call on A is not
+// Two AppBridge replicas sharing one record directory (ST-5, audit #47/#48): a quiet live call on A is not
 // sealed by B's sweep (A's heartbeat keeps it alive), and when A dies the call is sealed exactly
 // once even with two writers sweeping at the same moment.
 
@@ -55,7 +55,7 @@ function started(callRef: string): RecordEntry[] {
     },
     {
       at: at + 1,
-      source: "gateway",
+      source: "appbridge",
       message: {
         type: "session.start",
         callRef,

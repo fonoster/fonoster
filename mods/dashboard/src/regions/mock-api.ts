@@ -38,7 +38,7 @@ export const privateRegion = (
   version: "0.28.1",
   lastSeenAt: new Date().toISOString(),
   roomrNodes: 2,
-  gateways: 1,
+  appbridges: 1,
   activeCalls: 3,
   sipDomain: "sip.acme.com",
   workspaces: [{ ref: "ws-1", name: "Acme Support" }],

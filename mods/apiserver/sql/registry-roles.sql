@@ -3,9 +3,9 @@
 --
 -- fonoster_registry: the role the fonoster-registry utility connects as. It writes the registry
 --   and audit tables, stores workspace notices and webhook deliveries, and may change only the
---   speech fields of apps and the config of assistants (retire rewrites). Nothing else.
+--   speech fields of apps and the config of agents (retire rewrites). Nothing else.
 -- fonoster_registry_reader: read-only access to the registry tables. Grant it to the apiserver's
---   and the gateway's login roles. It only restricts a role that does not own the tables, so the
+--   and AppBridge's login roles. It only restricts a role that does not own the tables, so the
 --   services must not connect as the migration owner.
 --
 -- Login roles are created by the operator, e.g.:
@@ -34,7 +34,7 @@ GRANT USAGE, SELECT ON SEQUENCE registry_audit_seq_seq TO fonoster_registry;
 -- Runtime session counts for `usage` (written by the apiserver, LO-B11): read-only here.
 GRANT SELECT ON registry_usage TO fonoster_registry;
 
--- Usages: read apps and assistants; rewrite only their catalog ids.
+-- Usages: read apps and agents; rewrite only their catalog ids.
 GRANT SELECT ON applications, intelligence_services TO fonoster_registry;
 GRANT UPDATE (speech_voice, speech_tts_model, speech_stt_model, speech_settings, updated_at)
   ON applications TO fonoster_registry;

@@ -1,10 +1,10 @@
 # Pipecat golden test
 
 An unmodified Pipecat bot (`TwilioFrameSerializer` + `FastAPIWebsocketTransport`) answering calls
-through the gateway's `twilio` flavor. The test (`mods/appbridge/test/pipecat.test.ts`) checks that
+through AppBridge's `twilio` flavor. The test (`mods/appbridge/test/pipecat.test.ts`) checks that
 the bot hears the caller, the caller hears the bot, `clear` stops playback on barge-in, DTMF
 reaches the bot, and the call hangs up both through `auto_hang_up` with `base_url` pointing at the
-gateway's Calls endpoint and by closing the socket.
+appbridge's Calls endpoint and by closing the socket.
 
 ```sh
 cd python

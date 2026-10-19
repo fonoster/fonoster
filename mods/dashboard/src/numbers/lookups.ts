@@ -53,7 +53,7 @@ export function useAllOf<T>(
   });
 }
 
-/** AI agents and streams (SDK Applications). */
+/** AI agents and apps (SDK Applications). */
 export function useApplicationOptions() {
   const sdk = useSdk();
   return useAllOf<Application>("applications", (request) =>

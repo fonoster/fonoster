@@ -16,10 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/** One working-record entry, as the gateway appends it (voice-session, "Every message is part of the call record"). */
+/** One working-record entry, as AppBridge appends it (voice-session, "Every message is part of the call record"). */
 export type RecordEntry = {
   at: number;
-  source: "app" | "gateway" | "event";
+  source: "app" | "appbridge" | "event";
   message: Record<string, unknown>;
 };
 

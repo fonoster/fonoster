@@ -24,16 +24,16 @@ import {
   RecordIndexEntry,
   RecordStore
 } from "@fonoster/callrecord";
-import { GatewayConfig } from "../config";
+import { AppBridgeConfig } from "../config";
 import { keyCustody } from "./keyCustody";
 
 /**
- * The call-record writer from the gateway's `callRecord` config: working records on local disk,
+ * The call-record writer from AppBridge's `callRecord` config: working records on local disk,
  * sealed records in the region store (S3-compatible, or `<dir>/sealed` for development), and a
  * workspace's own bucket when it configured one.
  */
 export function createRecordWriter(
-  c: NonNullable<GatewayConfig["callRecord"]>,
+  c: NonNullable<AppBridgeConfig["callRecord"]>,
   onSealed?: (entry: RecordIndexEntry) => void
 ): CallRecordWriter {
   const store = new RecordStore(

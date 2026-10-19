@@ -23,12 +23,12 @@ import {
   createLostCallSweep
 } from "../../src/webhooks/lostCalls";
 
-// call.ended for calls whose appbridge died mid-call (reason appbridge-lost), from the session
-// registry's calls.* and gateways.* leases, with a fake clock.
+// call.ended for calls whose AppBridge died mid-call (reason appbridge-lost), from the session
+// registry's calls.* and AppBridge replicas.* leases, with a fake clock.
 
 const ANSWERED = {
   callRef: "call-1",
-  gatewayRef: "gw-a",
+  bridgeRef: "gw-a",
   nodeId: "n1",
   roomRef: "r1",
   direction: "inbound",
@@ -60,18 +60,18 @@ function replica() {
 }
 
 describe("@apiserver/webhooks lost appbridge calls", function () {
-  it("sends one call.ended (appbridge-lost) once the call and its appbridge go quiet", function () {
+  it("sends one call.ended (appbridge-lost) once the call and its AppBridge go quiet", function () {
     const r = replica();
-    r.sweep.onEntry(entry("gateways", "gw-a", { gatewayRef: "gw-a" }));
+    r.sweep.onEntry(entry("appbridges", "gw-a", { bridgeRef: "gw-a" }));
     r.sweep.onEntry(entry("calls", "call-1", ANSWERED));
     // Leases rewritten every 5 s: alive.
     for (const t of [5_000, 10_000, 15_000, 20_000]) {
       r.at(t);
-      r.sweep.onEntry(entry("gateways", "gw-a", { gatewayRef: "gw-a" }));
+      r.sweep.onEntry(entry("appbridges", "gw-a", { bridgeRef: "gw-a" }));
       r.sweep.onEntry(entry("calls", "call-1", ANSWERED));
       expect(r.sweep.sweep()).to.be.empty;
     }
-    // The appbridge dies at 20 s: nothing within the lease TTL, then call.ended.
+    // AppBridge dies at 20 s: nothing within the lease TTL, then call.ended.
     r.at(35_000);
     expect(r.sweep.sweep()).to.be.empty;
     r.at(35_001);
@@ -93,18 +93,18 @@ describe("@apiserver/webhooks lost appbridge calls", function () {
     expect(r.emitted).to.have.length(1);
   });
 
-  it("sends nothing for a call that ended or whose appbridge is alive", function () {
+  it("sends nothing for a call that ended or whose AppBridge is alive", function () {
     const r = replica();
-    r.sweep.onEntry(entry("gateways", "gw-a", { gatewayRef: "gw-a" }));
+    r.sweep.onEntry(entry("appbridges", "gw-a", { bridgeRef: "gw-a" }));
     r.sweep.onEntry(entry("calls", "call-1", ANSWERED));
     r.sweep.onEntry(
       entry("calls", "call-2", { ...ANSWERED, callRef: "call-2" })
     );
-    // call-1 ended normally (its appbridge sent call.ended and deleted the entry).
+    // call-1 ended normally (its AppBridge sent call.ended and deleted the entry).
     r.sweep.onEntry(entry("calls", "call-1"));
-    // call-2's entry stops being rewritten, but its appbridge is still alive.
+    // call-2's entry stops being rewritten, but its AppBridge is still alive.
     r.at(30_000);
-    r.sweep.onEntry(entry("gateways", "gw-a", { gatewayRef: "gw-a" }));
+    r.sweep.onEntry(entry("appbridges", "gw-a", { bridgeRef: "gw-a" }));
     expect(r.sweep.sweep()).to.be.empty;
     expect(r.sweep.size()).to.equal(1);
   });
@@ -134,7 +134,7 @@ describe("@apiserver/webhooks lost appbridge calls", function () {
     });
     const replicas = [replica(), replica()];
     for (const [i, r] of replicas.entries()) {
-      r.sweep.onEntry(entry("gateways", "gw-a", { gatewayRef: "gw-a" }));
+      r.sweep.onEntry(entry("appbridges", "gw-a", { bridgeRef: "gw-a" }));
       r.sweep.onEntry(entry("calls", "call-1", ANSWERED));
       r.at(20_000 + i * 3_000); // the replicas sweep at different times
       r.sweep.sweep();

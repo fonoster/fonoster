@@ -27,7 +27,7 @@ export async function evaluateStep({
   step,
   languageModel,
   testTextSimilarity,
-  assistantConfig
+  agentConfig
 }: EvaluateStepParams): Promise<StepEvaluationReport> {
   const stepResult: StepEvaluationReport = {
     humanInput: step.userInput,
@@ -39,7 +39,7 @@ export async function evaluateStep({
 
   try {
     const response = await languageModel.invoke(step.userInput);
-    stepResult.aiResponse = extractAiResponse(response, assistantConfig);
+    stepResult.aiResponse = extractAiResponse(response, agentConfig);
 
     const textEvaluation = await evaluateTextResponse(
       {

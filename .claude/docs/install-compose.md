@@ -50,11 +50,11 @@ judgement, not page content).
 
 Measured on the new installer (coordinator's clean-folder run, 2026-10-15, macOS, images local):
 - Archive 20 KB; `init` from the npm tarball ~7 s; `docker compose up -d` 8 s; dashboard answers ~2 s later.
-- Image sizes: apiserver 1.32 GB, autopilot 817 MB, gateway 796 MB, dashboard 53 MB, roomr 26 MB
+- Image sizes: apiserver 1.32 GB, autopilot 817 MB, appbridge 796 MB, dashboard 53 MB, roomr 26 MB
   (~3 GB of Fonoster images, before third-party ones). Heavy: the three Node images carry the whole
   monorepo `/work`.
 - Local image build ~3 min with warm layers.
-- Gateway logs a Prisma "table applications does not exist" error on first start (it reads apps before
+- AppBridge logs a Prisma "table applications does not exist" error on first start (it reads apps before
   the apiserver's migrations finish), then recovers. Looks alarming in `docker compose logs`.
 - Standard ports collide with any other Fonoster on the same host (here: platform-refresh on 8449/5060);
   moving them = edit `.env` + re-run `init` (worked). NATS host port 4222 also defaults to a common port.
@@ -66,9 +66,9 @@ Owner's run (2026-10-15, macOS, following the page; pre-release files):
 - `$R` / long `npx -p <tgz>` path is error-prone across terminals; an alias helped. Moot once published.
 - `check`: valid, but Ajv printed 6 "unknown format uri/email ignored" lines (noise). FIX NEEDED.
 - `docker compose up`: **project name `fonoster` collides with a legacy install** — reused the legacy
-  `fonoster_db` volume (2025-05), Postgres auth failed, gateway restart-looped. Workaround:
+  `fonoster_db` volume (2025-05), Postgres auth failed, appbridge restart-looped. Workaround:
   COMPOSE_PROJECT_NAME=fonoster-next. FIX NEEDED in the bundle (volume/project name) + a page note.
-- Gateway restarts once at startup (reads apps before apiserver migrations). FIX NEEDED (depends_on).
+- AppBridge restarts once at startup (reads apps before apiserver migrations). FIX NEEDED (depends_on).
 - After that: all 11 services up, catalog 37 entries, owner signed in to the dashboard.
 
 ## Decision log

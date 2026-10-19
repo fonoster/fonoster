@@ -1,5 +1,5 @@
 // End-to-end test of the first Roomr node slice: a SIP caller bot calls the node, the test plays
-// the gateway over media-control (NATS) and exchanges RTP as the session participant. Needs NATS:
+// AppBridge over media-control (NATS) and exchanges RTP as the session participant. Needs NATS:
 // set CONFORMANCE_NATS_URL (for example nats://127.0.0.1:4222).
 package e2e
 
@@ -35,7 +35,7 @@ type rig struct {
 	mu     sync.Mutex
 	events []map[string]any
 	claim  bool
-	// claimAs is the gatewayRef claim replies carry ("" for none).
+	// claimAs is the bridgeRef claim replies carry ("" for none).
 	claimAs string
 	// tlsAddr is the node's SIP-over-TLS address in encrypted runs.
 	tlsAddr string
@@ -138,7 +138,7 @@ func startWith(t *testing.T, o rigOptions) *rig {
 		r.events = append(r.events, ev)
 		r.mu.Unlock()
 		if claim {
-			reply, _ := json.Marshal(map[string]any{"type": "claimed", "id": fmt.Sprint(ev["id"]), "gatewayRef": claimAs})
+			reply, _ := json.Marshal(map[string]any{"type": "claimed", "id": fmt.Sprint(ev["id"]), "bridgeRef": claimAs})
 			_ = m.Respond(reply)
 		}
 	})
@@ -234,7 +234,7 @@ func TestInboundCallSlice(t *testing.T) {
 	room := incoming["roomRef"].(string)
 	callerRef := incoming["participantRef"].(string)
 
-	// ring, then the gateway's session participant, then answer.
+	// ring, then AppBridge's session participant, then answer.
 	if rep := r.command(map[string]any{"type": "ring", "id": "r1", "roomRef": room}); rep["type"] != "ack" {
 		t.Fatalf("ring: %v", rep)
 	}
@@ -275,7 +275,7 @@ func TestInboundCallSlice(t *testing.T) {
 		t.Fatalf("caller statuses %v", status.SIP)
 	}
 
-	// The caller's tone reaches the session participant (the gateway hears the caller).
+	// The caller's tone reaches the session participant (AppBridge hears the caller).
 	call.Speak("tone", 400)
 	time.Sleep(700 * time.Millisecond)
 	heardMu.Lock()
@@ -383,7 +383,7 @@ func TestUnclaimedCallGets503(t *testing.T) {
 
 func TestNodeHangupAndRejection(t *testing.T) {
 	r := start(t)
-	// Unrouted: the gateway claims, then hangs up with 404 before answering.
+	// Unrouted: AppBridge claims, then hangs up with 404 before answering.
 	call, _ := r.bot.Dial(r.sip, "+1", "", nil)
 	incoming := r.waitEvent(typed("call.incoming"), 2*time.Second)
 	if _, ok := incoming["appRef"]; ok {

@@ -57,7 +57,7 @@ const at = () => (t += 100);
 function normalCall(callRef: string): RecordEntry[] {
   const start = (appRef: string) => ({
     at: at(),
-    source: "gateway" as const,
+    source: "appbridge" as const,
     message: {
       type: "session.start",
       callRef,
@@ -93,14 +93,18 @@ function normalCall(callRef: string): RecordEntry[] {
     },
     {
       at: at(),
-      source: "gateway",
+      source: "appbridge",
       message: { type: "output.started", id: "r1" }
     },
-    { at: at(), source: "gateway", message: { type: "output.done", id: "r1" } },
-    { at: at(), source: "gateway", message: { type: "turn.user_started" } },
     {
       at: at(),
-      source: "gateway",
+      source: "appbridge",
+      message: { type: "output.done", id: "r1" }
+    },
+    { at: at(), source: "appbridge", message: { type: "turn.user_started" } },
+    {
+      at: at(),
+      source: "appbridge",
       message: {
         type: "turn.ended",
         text: "It is 4111 1111 1111 1111",
@@ -121,12 +125,12 @@ function normalCall(callRef: string): RecordEntry[] {
     },
     {
       at: at(),
-      source: "gateway",
+      source: "appbridge",
       message: { type: "output.started", id: "r2" }
     },
     {
       at: at(),
-      source: "gateway",
+      source: "appbridge",
       message: {
         type: "output.interrupted",
         id: "r2",
@@ -308,7 +312,7 @@ describe("@callrecord", function () {
     ).to.deep.include({ ok: true });
   });
 
-  it("seals records left behind by a crashed gateway, listing the missing hangup", async function () {
+  it("seals records left behind by a crashed AppBridge, listing the missing hangup", async function () {
     const entries = normalCall("call-6").slice(0, 7);
     // Appended by another (crashed) process: this writer never saw the call as active.
     const crashed = new FsWorkingStore(dir);

@@ -1,6 +1,6 @@
 {{- if .Values.appbridge.enabled }}
 {{- $cfg := tpl (toYaml .Values.appbridge.config) . | fromYaml }}
-{{- $_ := set $cfg "nats" (merge (default (dict) $cfg.nats) (include "fonoster-rebuild.natsConfig" (dict "root" $ "user" "gateway") | fromYaml)) }}
+{{- $_ := set $cfg "nats" (merge (default (dict) $cfg.nats) (include "fonoster-rebuild.natsConfig" (dict "root" $ "user" "appbridge") | fromYaml)) }}
 {{- if .Values.regionAgent.enabled }}
 {{- /* A cell: provider keys from the mounted cell secrets; in a public region the workspace's own
 key first, fetched from the cloud per call (add-private-regions 5.9). */}}
@@ -17,6 +17,6 @@ metadata:
   labels:
     {{- include "fonoster-rebuild.labels" . | nindent 4 }}
 data:
-  gateway.yaml: |
+  appbridge.yaml: |
     {{- toYaml $cfg | nindent 4 }}
 {{- end }}

@@ -20,7 +20,7 @@ import { CALL_REF_ATTR } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { SessionEndedError } from "@fonoster/voice";
 import { AsyncQueue } from "./AsyncQueue";
-import { SessionAssistant } from "./config";
+import { SessionAgent } from "./config";
 import { KNOWLEDGE_TIMEOUT_MS, KnowledgePort } from "./knowledge";
 import { sentences } from "./sentences";
 import { telemetry } from "./telemetry";
@@ -118,17 +118,17 @@ export class Agent {
 
   constructor(
     private readonly session: Session,
-    private readonly assistant: SessionAssistant,
+    private readonly agent: SessionAgent,
     private readonly think: Think,
     private readonly tools: ToolPort,
     private readonly recorder: Recorder = logRecorder,
     private readonly knowledge?: KnowledgePort
   ) {
-    this.prepareEarly = assistant.conversationSettings.patience !== "high";
+    this.prepareEarly = agent.conversationSettings.patience !== "high";
   }
 
   get settings() {
-    return this.assistant.conversationSettings;
+    return this.agent.conversationSettings;
   }
 
   // ---- lifecycle ----------------------------------------------------------------------
@@ -141,8 +141,8 @@ export class Agent {
     );
     await this.safely(async () => {
       await this.session.subscribe(["turn.estimate"]);
-      // The gateway's Pacing policy owns turn timing; Autopilot only tells it how patient to be.
-      // Recognition hints (names, brands) add to the app's defaults at the gateway (VO-B3).
+      // AppBridge's Pacing policy owns turn timing; Autopilot only tells it how patient to be.
+      // Recognition hints (names, brands) add to the app's defaults at AppBridge (VO-B3).
       const hints = this.settings.hints?.length
         ? this.settings.hints
         : undefined;
@@ -233,7 +233,7 @@ export class Agent {
     this.discardPrepared();
     this.resumes++;
     if (this.resumes >= 3 && this.prepareEarly) {
-      // A caller who pauses often: stop preparing early for the rest of this call. The gateway
+      // A caller who pauses often: stop preparing early for the rest of this call. AppBridge
       // adapts its own turn timing within the call (TT-B6), so Autopilot does not also change
       // the patience it asked for (AP-B2).
       this.prepareEarly = false;
@@ -460,10 +460,10 @@ export class Agent {
     trace: TurnTrace
   ) {
     for (const call of calls) {
-      const tool = this.assistant.languageModel.tools.find(
+      const tool = this.agent.languageModel.tools.find(
         (t) => t.name === call.name
       );
-      // The start message is spoken while the tool runs; the gateway queues the reply after it.
+      // The start message is spoken while the tool runs; AppBridge queues the reply after it.
       if (tool?.requestStartMessage) {
         void this.session
           .say(tool.requestStartMessage, this.speechOptions())
@@ -561,7 +561,7 @@ export class Agent {
   }
 
   private toolSpecs(): ToolSpec[] {
-    const own = this.assistant.languageModel.tools.map((t) => ({
+    const own = this.agent.languageModel.tools.map((t) => ({
       name: t.name,
       description: t.description,
       parameters: t.parameters as Record<string, unknown>

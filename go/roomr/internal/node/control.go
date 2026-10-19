@@ -527,7 +527,7 @@ func commandError(reply Command) error {
 	return &Error{Code: code, Message: msg}
 }
 
-// JoinRTP adds an RTP participant to a room, as participant.add does for the gateway's leg.
+// JoinRTP adds an RTP participant to a room, as participant.add does for AppBridge's leg.
 func (n *Node) JoinRTP(roomRef string, ep MediaEndpoint) (ParticipantInfo, error) {
 	r := n.room(roomRef)
 	if r == nil {

@@ -112,12 +112,12 @@ function shapeSchema(value: unknown): object {
 function writeSchemas(dir: string) {
   const schemas = join(dir, "config", "schemas");
   mkdirSync(schemas, { recursive: true });
-  for (const name of ["fonoster", "gateway", "autopilot", "routr-edgeport"]) {
+  for (const name of ["fonoster", "appbridge", "autopilot", "routr-edgeport"]) {
     const schema = shapeSchema(yamlOf(dir, `${name}.yaml`)) as {
       properties: Record<string, object>;
       required: string[];
     };
-    if (name === "gateway") schema.properties.turnTaking = { type: "object" };
+    if (name === "appbridge") schema.properties.turnTaking = { type: "object" };
     writeFileSync(join(schemas, `${name}.json`), JSON.stringify(schema));
   }
 }
@@ -134,7 +134,7 @@ describe("@common[config/cli] fonoster-config", function () {
       for (const f of [
         ".env",
         "config/fonoster.yaml",
-        "config/gateway.yaml",
+        "config/appbridge.yaml",
         "config/autopilot.yaml",
         "config/roomr.yaml",
         "config/routr-edgeport.yaml",
@@ -164,7 +164,7 @@ describe("@common[config/cli] fonoster-config", function () {
         "POSTGRES_PASSWORD",
         "MINIO_ROOT_PASSWORD",
         "NATS_APISERVER_PASSWORD",
-        "NATS_GATEWAY_PASSWORD",
+        "NATS_APPBRIDGE_PASSWORD",
         "NATS_ROOMR_PASSWORD",
         "NATS_ROUTR_PASSWORD",
         "AUTOPILOT_SIGNING_SECRET",
@@ -173,7 +173,7 @@ describe("@common[config/cli] fonoster-config", function () {
         "ENCRYPTION_KEY"
       ])
         expect(env.get(name), name).to.have.length.greaterThan(15);
-      for (const svc of ["APISERVER", "GATEWAY", "ROOMR", "ROUTR"])
+      for (const svc of ["APISERVER", "APPBRIDGE", "ROOMR", "ROUTR"])
         expect(env.get(`NATS_${svc}_PASSWORD`)).to.match(/^[a-z][0-9a-f]+$/);
       expect(env.get("ENCRYPTION_KEY")).to.match(
         /^k1\.aesgcm256\.[A-Za-z0-9_-]{43}=$/
@@ -202,7 +202,7 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(mode(join(dir, "config"))).to.equal(0o700);
       for (const f of [
         "config/fonoster.yaml",
-        "config/gateway.yaml",
+        "config/appbridge.yaml",
         "config/keys/private.pem",
         "config/keys/records.pem"
       ])
@@ -218,7 +218,7 @@ describe("@common[config/cli] fonoster-config", function () {
         "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster"
       );
       expect(fonoster.encryption.key).to.equal("${ENCRYPTION_KEY}");
-      expect(yamlOf(dir, "gateway.yaml").encryption.key).to.equal(
+      expect(yamlOf(dir, "appbridge.yaml").encryption.key).to.equal(
         "${ENCRYPTION_KEY}"
       );
       expect(yamlOf(dir, "autopilot.yaml").encryption.key).to.equal(
@@ -244,7 +244,7 @@ describe("@common[config/cli] fonoster-config", function () {
       // No private-region settings or ClickHouse by default.
       expect(fonoster.regions.hub).to.equal(undefined);
       expect(fonoster.regions.operatorKey).to.equal(undefined);
-      expect(yamlOf(dir, "gateway.yaml").callRecord.analytics).to.equal(
+      expect(yamlOf(dir, "appbridge.yaml").callRecord.analytics).to.equal(
         undefined
       );
       // Routr can't resolve placeholders: its file gets the values (no secrets in it).
@@ -258,7 +258,7 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(yamlOf(dir, "routr-edgeport.yaml").spec.transport).to.deep.include(
         { protocol: "ws", port: 5062 }
       );
-      expect(yamlOf(dir, "gateway.yaml").testCalls).to.deep.equal({
+      expect(yamlOf(dir, "appbridge.yaml").testCalls).to.deep.equal({
         publicKeyFile: "/etc/fonoster/keys/public.pem"
       });
       expect(readFileSync(join(dir, "config", "envoy.yaml"), "utf8")).to.match(
@@ -270,7 +270,7 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(secrets.length).to.be.greaterThan(8);
       for (const f of [
         "fonoster.yaml",
-        "gateway.yaml",
+        "appbridge.yaml",
         "autopilot.yaml",
         "roomr.yaml",
         "routr-edgeport.yaml"
@@ -529,7 +529,7 @@ describe("@common[config/cli] fonoster-config", function () {
       writeSchemas(dir);
       const run = await cli(["check", "--dir", dir]);
       expect(run.code, run.err).to.equal(0);
-      for (const f of ["fonoster", "gateway", "autopilot", "routr-edgeport"])
+      for (const f of ["fonoster", "appbridge", "autopilot", "routr-edgeport"])
         expect(run.out).to.contain(`config/${f}.yaml: valid`);
     });
 
@@ -539,14 +539,14 @@ describe("@common[config/cli] fonoster-config", function () {
       await exportConfigSchemas(join(dir, "config", "schemas"));
       const ok = await cli(["check", "--dir", dir]);
       expect(ok.code, ok.err).to.equal(0);
-      expect(ok.out).to.contain("config/gateway.yaml: valid");
+      expect(ok.out).to.contain("config/appbridge.yaml: valid");
       appendFileSync(
-        join(dir, "config/gateway.yaml"),
+        join(dir, "config/appbridge.yaml"),
         "turnTakng: { mode: auto }\n"
       );
       const bad = await cli(["check", "--dir", dir]);
       expect(bad.code).to.equal(1);
-      expect(bad.err).to.contain("config/gateway.yaml: turnTakng");
+      expect(bad.err).to.contain("config/appbridge.yaml: turnTakng");
     });
 
     it("prints no Ajv format warnings (formats are documentation only)", async function () {
@@ -577,13 +577,13 @@ describe("@common[config/cli] fonoster-config", function () {
       await init(dir);
       writeSchemas(dir);
       appendFileSync(
-        join(dir, "config/gateway.yaml"),
+        join(dir, "config/appbridge.yaml"),
         "turnTakng: { mode: auto }\n"
       );
       const run = await cli(["check", "--dir", dir]);
       expect(run.code).to.equal(1);
       expect(run.err).to.contain(
-        "config/gateway.yaml: turnTakng: unknown key (did you mean turnTaking?)"
+        "config/appbridge.yaml: turnTakng: unknown key (did you mean turnTaking?)"
       );
     });
 
@@ -608,13 +608,13 @@ describe("@common[config/cli] fonoster-config", function () {
       await init(dir);
       const env = readEnvFile(join(dir, ".env"));
       expect((await cli(["check", "--dir", dir])).code).to.equal(0);
-      const file = join(dir, "config/gateway.yaml");
+      const file = join(dir, "config/appbridge.yaml");
       writeFileSync(
         file,
         readFileSync(file, "utf8")
           .replace(
-            'password: "${NATS_GATEWAY_PASSWORD}"',
-            'password: "secret://env/NATS_GATEWAY_PASSWORD"'
+            'password: "${NATS_APPBRIDGE_PASSWORD}"',
+            'password: "secret://env/NATS_APPBRIDGE_PASSWORD"'
           )
           .replace(
             'encryption: { key: "${ENCRYPTION_KEY}" }',
@@ -652,7 +652,7 @@ describe("@common[config/cli] fonoster-config", function () {
       );
       const run = await cli(["check", "--dir", dir]);
       expect(run.code).to.equal(1);
-      for (const f of ["fonoster", "gateway", "autopilot"])
+      for (const f of ["fonoster", "appbridge", "autopilot"])
         expect(run.err).to.contain(
           `config/${f}.yaml: encryption.key: \${ENCRYPTION_KEY} not set in .env`
         );
@@ -701,7 +701,7 @@ describe("@common[config/cli] fonoster-config", function () {
       await init(dir);
       const overlay = mkdtempSync(join(tmpdir(), "overlay-"));
       writeFileSync(
-        join(overlay, "gateway.yaml"),
+        join(overlay, "appbridge.yaml"),
         'providers:\n  deepgram: { tts: { url: "http://dg-proxy:${PROXY_PORT}" } }\n'
       );
       const run = await cli([
@@ -719,7 +719,7 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(
         (await cli(["render", "--dir", dir, "--overlay", overlay])).code
       ).to.equal(0);
-      const gw = yamlOf(dir, "gateway.yaml");
+      const gw = yamlOf(dir, "appbridge.yaml");
       expect(gw.providers.deepgram).to.deep.equal({
         adapter: "deepgram",
         capabilities: ["tts", "stt"],
@@ -742,7 +742,7 @@ describe("@common[config/cli] fonoster-config", function () {
       env.SIP_PORT = "16060";
       expect(
         renderConfigDir({ configDir: join(dir, "config"), outDir: out, env })
-      ).to.include("gateway.yaml");
+      ).to.include("appbridge.yaml");
       expect(
         parse(readFileSync(join(out, "fonoster.yaml"), "utf8")).appUrl
       ).to.equal("${PUBLIC_URL}");

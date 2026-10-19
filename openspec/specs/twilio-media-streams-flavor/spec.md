@@ -5,7 +5,7 @@ The Twilio Media Streams compatible protocol for voice sessions.
 ## Requirements
 ### Requirement: Twilio Media Streams messages
 
-For streams with protocol `twilio`, the gateway SHALL speak the Twilio Media Streams bidirectional
+For streams with protocol `twilio`, AppBridge SHALL speak the Twilio Media Streams bidirectional
 protocol: `connected`, `start`, `media`, `dtmf`, `mark` and `stop` toward the app; `media`, `mark`
 and `clear` from the app. The session SHALL be the same one the `fonoster` protocol exposes, restricted
 to audio, marks, clears and caller DTMF.
@@ -53,7 +53,7 @@ finishes playing, and every mark still pending SHALL be echoed when `clear` empt
 
 ### Requirement: Caller DTMF
 
-The gateway SHALL send `dtmf` with `dtmf.track: "inbound_track"` and `dtmf.digit` when the caller
+AppBridge SHALL send `dtmf` with `dtmf.track: "inbound_track"` and `dtmf.digit` when the caller
 presses a key.
 
 #### Scenario: Keypress
@@ -96,5 +96,5 @@ Messages outside the Media Streams protocol SHALL be ignored.
 
 #### Scenario: Unknown event from a Twilio-protocol stream
 - **WHEN** a `twilio`-protocol stream sends `{ "event": "transfer" }`
-- **THEN** the gateway ignores it and the call continues
+- **THEN** AppBridge ignores it and the call continues
 

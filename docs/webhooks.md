@@ -4,7 +4,7 @@ A workspace webhook sends an HTTPS POST to your server when something happens in
 One system covers every app type. Payloads are small and point to the call record; they never
 carry transcripts, recordings or secrets.
 
-Webhooks replace the Autopilot assistant `eventsHook` (see "Migrating from eventsHook").
+Webhooks replace the Autopilot agent `eventsHook` (see "Migrating from eventsHook").
 
 ## Set up an endpoint
 
@@ -26,7 +26,7 @@ Rules:
 - The host must be public. Private, loopback, link-local and internal names are refused when you
   save the endpoint and again on every delivery. Operators who self-host and need to reach an
   internal receiver list it in `FONOSTER_ALLOWED_DESTINATIONS` (comma-separated host names, IPs or
-  CIDRs; empty by default) on the services that deliver (the API server and the gateways).
+  CIDRs; empty by default) on the services that deliver (the API server and the AppBridge replicas).
 - Redirects are not followed; a 3xx counts as a failed attempt.
 - Subscribe only to the events you need. Unknown event types are refused.
 
@@ -45,7 +45,7 @@ Every request body is JSON with the same envelope:
 | Type | When | `data` |
 | --- | --- | --- |
 | `call.started` | A call reached an app. | `callRef`, `appRef`, `from`, `to`, `direction` (`inbound` or `outbound`) |
-| `call.ended` | A call that reached an app ended. | the `call.started` fields plus `durationSeconds`, `endReason` (a session end reason: `caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error`, `timeout`; or `appbridge-lost` when the appbridge serving the call died mid-call: the control plane sends it about 15-20 s after the appbridge stopped, and `durationSeconds` counts until the appbridge was last seen) |
+| `call.ended` | A call that reached an app ended. | the `call.started` fields plus `durationSeconds`, `endReason` (a session end reason: `caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error`, `timeout`; or `appbridge-lost` when AppBridge serving the call died mid-call: the control plane sends it about 15-20 s after AppBridge stopped, and `durationSeconds` counts until AppBridge was last seen) |
 | `call.failed` | A call never reached an app (busy, no answer, rejected, app unreachable, Roomr node error). | `callRef`, `appRef` (may be absent), `from`, `to`, `direction`, `reason` (for example `busy`, `no_answer`, `app_unreachable`, `node_error`) |
 | `call_record.sealed` | A new version of the call record was sealed. | `callRef`, `version`, `recordUrl` |
 | `provider.deprecated` | A provider, model or voice your workspace uses was deprecated. | `id`, `replacement`, `retireOn` (YYYY-MM-DD) |
@@ -186,7 +186,7 @@ schedule.
 
 ## Migrating from `eventsHook`
 
-The assistant `eventsHook` (`url`, `headers`, `events`) is removed. Create a workspace webhook
+The agent `eventsHook` (`url`, `headers`, `events`) is removed. Create a workspace webhook
 instead:
 
 | `eventsHook` | Workspace webhook |
@@ -195,9 +195,9 @@ instead:
 | `conversation.ended` | `call.ended`, then fetch the transcript from the call record (`call_record.sealed` tells you when it is ready) |
 | `all` | subscribe to the events you need |
 | `headers` (custom auth) | verify the signature; custom headers are not sent |
-| one URL per assistant | one endpoint per workspace, for every app type; filter on `data.appRef` |
+| one URL per agent | one endpoint per workspace, for every app type; filter on `data.appRef` |
 
 The chat history is no longer in the payload. Read it from the call record's transcript.
-Converting an old assistant with `eventsHook` logs a reminder with its URL.
+Converting an old agent with `eventsHook` logs a reminder with its URL.
 
 Deliveries are signed and retried now: update your receiver to verify the signature and answer 2xx.

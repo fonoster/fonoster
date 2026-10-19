@@ -4,7 +4,7 @@ contract: voice-session
 role: app
 spec: "Output lifecycle and interruption report / Caller barges in"
 description: >
-  The app owns interruption (gateway B22): caller speech produces turn.user_started and the item
+  The app owns interruption (appbridge B22): caller speech produces turn.user_started and the item
   keeps playing until the app sends clear.
 steps:
   - expect: { type: session.start }

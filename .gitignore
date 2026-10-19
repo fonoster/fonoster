@@ -13,8 +13,8 @@ config/keys/
 *.tsbuildinfo
 tsconfig.tsbuildinfo
 integrations.json
-config/assistant*
-!assistant.example.json
+config/agent*
+!agent.example.json
 # Service config files hold secrets; only the *.example.* versions are committed
 config/fonoster.yaml
 config/fonoster.yml

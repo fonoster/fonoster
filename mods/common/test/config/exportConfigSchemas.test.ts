@@ -25,7 +25,7 @@ import { parse } from "yaml";
 import { z } from "zod";
 import { fonosterConfigSchema } from "../../../apiserver/src/config/schema";
 import { hostedConfigSchema } from "../../../autopilot/src/session/hosted";
-import { gatewayConfigSchema } from "../../../appbridge/src/configSchema";
+import { appBridgeConfigSchema } from "../../../appbridge/src/configSchema";
 import { identityServiceConfigSchema } from "../../../identity/src/server/config";
 import { exportConfigSchemas } from "../../scripts/export-config-schemas";
 import { strictDeep, toJsonSchema } from "../../src/config";
@@ -55,9 +55,9 @@ const EXAMPLES: Record<string, { schema: z.ZodTypeAny; configs: unknown[] }> = {
     configs: [yamlFile("config/fonoster.example.yaml")]
   },
   identity: { schema: identityServiceConfigSchema, configs: [IDENTITY] },
-  gateway: {
-    schema: gatewayConfigSchema,
-    configs: [yamlFile("ops/rebuild/config/gateway.yaml")]
+  appbridge: {
+    schema: appBridgeConfigSchema,
+    configs: [yamlFile("ops/rebuild/config/appbridge.yaml")]
   },
   autopilot: {
     schema: hostedConfigSchema,
@@ -89,7 +89,7 @@ describe("@common[config/exportConfigSchemas]", function () {
     expect(files.map((f) => path.basename(f))).to.deep.equal([
       "apiserver.json",
       "identity.json",
-      "gateway.json",
+      "appbridge.json",
       "autopilot.json"
     ]);
   });

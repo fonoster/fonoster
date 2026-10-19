@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: stop-say
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: stop-say
 spec: "stopSay clears queued output / Cutting the agent off"
 steps:

@@ -95,7 +95,7 @@ const speak = (
   adapter
 });
 
-describe("@gateway/OutputQueue", function () {
+describe("@appbridge/OutputQueue", function () {
   let q: ReturnType<typeof setup>;
   afterEach(() => q?.queue.stop());
 

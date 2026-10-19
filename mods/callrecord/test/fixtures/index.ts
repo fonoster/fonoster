@@ -30,7 +30,7 @@ export type FixtureCall = {
   name: string;
   description: string;
   callRef: string;
-  /** No hangup: the call is left open, as after a gateway crash (sealed by the sweep). */
+  /** No hangup: the call is left open, as after an AppBridge crash (sealed by the sweep). */
   open?: boolean;
   /** Recording: starts `startMs` after the first entry; tones where each side speaks. */
   audio?: { startMs: number; caller: ToneSpan[]; agent: ToneSpan[] };
@@ -119,7 +119,7 @@ export async function playFixtureCall(
       message: e.message
     });
   if (fixture.open) {
-    // A crashed gateway: another replica's sweep seals it after the deadline.
+    // A crashed appbridge: another replica's sweep seals it after the deadline.
     const other = writer as unknown as { active: Set<string> };
     other.active.delete(fixture.callRef);
     await writer.sweep(Date.now() + 10 * 60_000);

@@ -19,12 +19,12 @@
 import { expect } from "chai";
 import { NatsConnection, connect } from "nats";
 import { FakesHarness } from "@fonoster/conformance";
-import { Gateway, MemoryCallRecordSink } from "@fonoster/appbridge";
+import { AppBridge, MemoryCallRecordSink } from "@fonoster/appbridge";
 import { VoiceServer } from "@fonoster/voice";
 import { Agent, createAutopilotHandler } from "../../src/session";
 
 // The whole rebuilt call path with fakes at the edges: caller audio from the fake Roomr node,
-// the real gateway (STT, turn detection, TTS, output queue), Autopilot over the session protocol,
+// the real AppBridge (STT, turn detection, TTS, output queue), Autopilot over the session protocol,
 // and the fake LLM. Needs NATS: CONFORMANCE_NATS_URL=nats://127.0.0.1:4222.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 const SECRET = "fullstack";
@@ -44,7 +44,7 @@ async function waitFor<T>(
   }
 }
 
-describe("@autopilot full stack: Roomr node → gateway → Autopilot → LLM → speech", function () {
+describe("@autopilot full stack: Roomr node → appbridge → Autopilot → LLM → speech", function () {
   this.timeout(20000);
   let nc: NatsConnection;
 
@@ -71,7 +71,7 @@ describe("@autopilot full stack: Roomr node → gateway → Autopilot → LLM �
       signingSecret: SECRET
     }).listen(
       createAutopilotHandler({
-        assistant: {
+        agent: {
           conversationSettings: {
             firstMessage: "Hello, this is the clinic.",
             systemPrompt: "You are the receptionist of a dental clinic.",
@@ -86,7 +86,7 @@ describe("@autopilot full stack: Roomr node → gateway → Autopilot → LLM �
 
     const record = new MemoryCallRecordSink();
     const urls = harness.providerUrls;
-    const gateway = await new Gateway({
+    const appbridge = await new AppBridge({
       nats: nc,
       record,
       config: {
@@ -151,16 +151,16 @@ describe("@autopilot full stack: Roomr node → gateway → Autopilot → LLM �
       const entries = [...record.records.values()][0];
       const types = entries.map((e) => `${e.source}:${e.message.type}`);
       expect(types).to.include.members([
-        "gateway:session.start",
-        "gateway:turn.user_started",
-        "gateway:turn.ended",
+        "appbridge:session.start",
+        "appbridge:turn.user_started",
+        "appbridge:turn.ended",
         "app:speak",
-        "gateway:output.started"
+        "appbridge:output.started"
       ]);
       const ended = entries.find((e) => e.message.type === "turn.ended");
       expect(ended?.message).to.include({ text: "What are your hours?" });
     } finally {
-      await gateway.stop();
+      await appbridge.stop();
       await autopilot.close();
       await harness.stop();
     }
@@ -183,7 +183,7 @@ describe("@autopilot full stack: Roomr node → gateway → Autopilot → LLM �
       signingSecret: SECRET
     }).listen(
       createAutopilotHandler({
-        assistant: {
+        agent: {
           conversationSettings: {
             systemPrompt: "You are the receptionist of a dental clinic.",
             goodbyeMessage: "Goodbye!",
@@ -198,7 +198,7 @@ describe("@autopilot full stack: Roomr node → gateway → Autopilot → LLM �
 
     const record = new MemoryCallRecordSink();
     const urls = harness.providerUrls;
-    const gateway = await new Gateway({
+    const appbridge = await new AppBridge({
       nats: nc,
       record,
       config: {
@@ -246,9 +246,9 @@ describe("@autopilot full stack: Roomr node → gateway → Autopilot → LLM �
         "output.interrupted"
       );
       const types = entries().map((e) => `${e.source}:${e.message.type}`);
-      const startedAt = types.lastIndexOf("gateway:turn.user_started");
+      const startedAt = types.lastIndexOf("appbridge:turn.user_started");
       const clearAt = types.indexOf("app:clear");
-      // The gateway only reported the interruption; Autopilot (the app) stopped the output.
+      // AppBridge only reported the interruption; Autopilot (the app) stopped the output.
       expect(startedAt).to.be.greaterThan(-1);
       expect(clearAt).to.be.greaterThan(startedAt);
       const heard = String(interrupted.message.heardText ?? "");
@@ -262,7 +262,7 @@ describe("@autopilot full stack: Roomr node → gateway → Autopilot → LLM �
       const said = agent!.history.find((m) => m.role === "assistant")!;
       expect(said.content).to.equal(heard);
     } finally {
-      await gateway.stop();
+      await appbridge.stop();
       await autopilot.close();
       await harness.stop();
     }

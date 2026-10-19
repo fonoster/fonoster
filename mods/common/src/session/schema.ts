@@ -30,7 +30,7 @@ export const SESSION_PROTOCOL = "fonoster.session.v1";
 const id = { type: "string", minLength: 1, maxLength: 128 } as const;
 const catalogId = { type: "string", minLength: 1 } as const;
 
-// ---- gateway → app ---------------------------------------------------------------------
+// ---- appbridge → app ---------------------------------------------------------------------
 
 export const sessionStartSchema = {
   type: "object",
@@ -261,7 +261,7 @@ export const amdResultSchema = {
   }
 } as const;
 
-// ---- app → gateway ---------------------------------------------------------------------
+// ---- app → appbridge ---------------------------------------------------------------------
 
 export const speakSchema = {
   type: "object",
@@ -442,7 +442,7 @@ export type Resume = FromSchema<typeof resumeSchema>;
 export type Handoff = FromSchema<typeof handoffSchema>;
 export type RecordNote = FromSchema<typeof recordNoteSchema>;
 
-export type GatewayMessage =
+export type AppBridgeMessage =
   | SessionStart
   | SessionEnd
   | SessionError
@@ -477,7 +477,7 @@ export type AppCommand =
   | RecordNote;
 
 /** Schemas by message type, per direction. "mark" exists in both directions. */
-export const GATEWAY_MESSAGE_SCHEMAS = {
+export const APPBRIDGE_MESSAGE_SCHEMAS = {
   "session.start": sessionStartSchema,
   "session.end": sessionEndSchema,
   error: errorSchema,
@@ -514,7 +514,7 @@ export const APP_COMMAND_SCHEMAS = {
 } as const;
 
 export type AppCommandType = keyof typeof APP_COMMAND_SCHEMAS;
-export type GatewayMessageType = keyof typeof GATEWAY_MESSAGE_SCHEMAS;
+export type AppBridgeMessageType = keyof typeof APPBRIDGE_MESSAGE_SCHEMAS;
 
 /** The whole protocol as one JSON Schema document, as exported to schema/session.v1.json. */
 export function sessionProtocolDocument() {
@@ -525,7 +525,7 @@ export function sessionProtocolDocument() {
     description:
       "Messages of the Fonoster session protocol (a stream with protocol fonoster). Unknown types and fields must be ignored.",
     protocol: SESSION_PROTOCOL,
-    gatewayToApp: GATEWAY_MESSAGE_SCHEMAS,
-    appToGateway: APP_COMMAND_SCHEMAS
+    appBridgeToApp: APPBRIDGE_MESSAGE_SCHEMAS,
+    appToAppBridge: APP_COMMAND_SCHEMAS
   };
 }

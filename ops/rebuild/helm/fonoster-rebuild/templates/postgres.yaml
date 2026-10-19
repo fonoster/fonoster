@@ -77,7 +77,7 @@ spec:
 {{- $m := .Values.minio }}
 ---
 # Object storage for sealed call records and recordings (S3 API on 9000). For production use your
-# S3 or MinIO and set the store endpoints in the apiserver and gateway configs.
+# S3 or MinIO and set the store endpoints in the apiserver and AppBridge configs.
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:

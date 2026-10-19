@@ -171,9 +171,9 @@ The following is a list of built-in tools available for an agent:
 
 ### Custom tools
 
-You can add custom tools under `intelligence.config.languageModel.tools`, which is an array where each tool is defined as an object. These tools enable your assistant to interact with external services, APIs, or execute specific actions.
+You can add custom tools under `intelligence.config.languageModel.tools`, which is an array where each tool is defined as an object. These tools enable your agent to interact with external services, APIs, or execute specific actions.
 
-Each tool must follow the [tool schema](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts), for consistency and compatibility.
+Each tool must follow the [tool schema](https://github.com/fonoster/fonoster/blob/main/mods/common/src/agents/tools/toolSchema.ts), for consistency and compatibility.
 
 The following example demonstrates how to add a custom tool that fetches available appointment times for a specific date:
 
@@ -216,7 +216,7 @@ operation:
 
 An important consideration when implementing your endpoints is that, when using the `post` method, the parameters will arrive in the body of the request, while with `get`, the parameters will arrive as query parameters.
 
-For additional details, refer to the [tool schema documentation](https://github.com/fonoster/fonoster/blob/main/mods/common/src/assistants/tools/toolSchema.ts).
+For additional details, refer to the [tool schema documentation](https://github.com/fonoster/fonoster/blob/main/mods/common/src/agents/tools/toolSchema.ts).
 
 <Tip>
   Use `operation.method` `post` for POST requests. If don't want the Autopilot to wait for POST requests to complete, set `operation.waitForResponse` to `false`. For `get` requests, the Autopilot will wait for the response by default.

@@ -23,7 +23,7 @@ import * as path from "path";
 
 // Full-call recording (call-record "Recording is applied by policy", design V8): an internal
 // listener attached with media-control `listener.attach`, one unmixed RTP stream per side. The
-// recorder writes each side as raw 16 kHz PCM next to the working record, so a gateway crash
+// recorder writes each side as raw 16 kHz PCM next to the working record, so an AppBridge crash
 // keeps what was recorded; sealing turns the two sides into one stereo WAV (left: caller,
 // right: agent) and references it, with its hash, from the vCon dialog.
 
@@ -181,7 +181,7 @@ export function wavHeader(
 
 /**
  * Builds the stereo WAV (left: caller, right: agent) from a recorder's directory, or undefined
- * when nothing was recorded. Works on what a crashed gateway left behind as well.
+ * when nothing was recorded. Works on what a crashed AppBridge left behind as well.
  */
 export function assembleRecording(
   dir: string

@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Barge-in. The gateway never cuts the agent off by itself; the SDK sends `clear` when the caller
+// Barge-in. AppBridge never cuts the agent off by itself; the SDK sends `clear` when the caller
 // talks over a say() or play() that is interruptible (the default).
 import { Session, VoiceServer } from "@fonoster/voice";
 

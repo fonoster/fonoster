@@ -76,7 +76,7 @@ export type PacingHandlers = {
 };
 
 /**
- * The gateway's default Pacing policy (turn-taking TT3/TT4): reads the Detector's estimate and
+ * AppBridge's default Pacing policy (turn-taking TT3/TT4): reads the Detector's estimate and
  * emits turn events in the order user_started, (likely_ended, resumed)*, likely_ended?, ended.
  */
 export class Pacing {

@@ -94,7 +94,7 @@ init_local() {
   # NATS parses a variable's value as config, so a password starting with a digit fails to load:
   # each starts with a letter, and one generated before this rule is replaced.
   local svc var
-  for svc in APISERVER GATEWAY ROOMR ROUTR; do
+  for svc in APISERVER APPBRIDGE ROOMR ROUTR; do
     var="NATS_${svc}_PASSWORD"
     if grep -q "^$var=[0-9]" "$STACK_ENV"; then
       sed -i.bak "/^$var=/d" "$STACK_ENV" && rm -f "$STACK_ENV.bak"
@@ -203,14 +203,14 @@ render_configs() {
   cp -R "$BUNDLE/config/." "$CONF/"
   rm -rf "$OVERLAY" && mkdir -p "$OVERLAY"
 
-  # Vendor keys become the gateway's and Autopilot's platform keys, and the API server offers
+  # Vendor keys become AppBridge's and Autopilot's platform keys, and the API server offers
   # workspaces only the providers with one (platformCredentials below), a key of their own, or no
   # key needed. Without one, a vendor waits for a workspace key.
   local keys=""
   [ -n "${DEEPGRAM_API_KEY:-}" ] && keys+="  deepgram: { credential: { value: \"\${DEEPGRAM_API_KEY}\" } }"$'\n'
   [ -n "${ELEVENLABS_API_KEY:-}" ] && keys+="  elevenlabs: { credential: { value: \"\${ELEVENLABS_API_KEY}\" } }"$'\n'
   # An empty `providers:` would be null, which removes the bundle's providers in the merge.
-  if [ -n "$keys" ]; then printf 'providers:\n%s' "$keys"; else echo "{}"; fi > "$OVERLAY/gateway.yaml"
+  if [ -n "$keys" ]; then printf 'providers:\n%s' "$keys"; else echo "{}"; fi > "$OVERLAY/appbridge.yaml"
 
   local creds=""
   [ -n "${GROQ_API_KEY:-}" ] && creds+="  groq-default: { value: \"\${GROQ_API_KEY}\" }"$'\n'
@@ -260,7 +260,7 @@ YAML
   node "$CONFIG_CLI_DIR/index.js" render --config-dir "$CONF" --env-file "$SERVICES_ENV" \
     --overlay "$OVERLAY" ${mine[@]+"${mine[@]}"} >/dev/null || die "could not render the configs"
   # Containers read these as another user (local only).
-  chmod 644 "$CONF/fonoster.yaml" "$CONF/gateway.yaml" "$CONF/autopilot.yaml" \
+  chmod 644 "$CONF/fonoster.yaml" "$CONF/appbridge.yaml" "$CONF/autopilot.yaml" \
     "$CONF/roomr.yaml" "$CONF/routr-edgeport.yaml"
   log "host address $host_ip; platform keys: ${refs:-none}"
 }
@@ -412,7 +412,7 @@ cmd_smoke() {
   cmd_up
   cmd_seed
   RECORDS_BEFORE="$(psql_fonoster "select count(*) from call_records where app_ref='$(seed_get app.ref)'")"
-  # The gateway and the hosted Autopilot cache apps for 3 s: let them see the seeded voice/model.
+  # AppBridge and the hosted Autopilot cache apps for 3 s: let them see the seeded voice/model.
   sleep 4
   cmd_call
   check_call || die "smoke test failed (logs: ops/rebuild/stack logs)"
@@ -425,7 +425,7 @@ cmd_e2e() {
   trap 'status=$?; if [ "$status" != 0 ]; then compose ps -a >&2 || true; compose logs --no-color --tail 60 apiserver appbridge autopilot roomr routr >&2 || true; fi; [ -z "$RB_SMOKE_KEEP" ] && cmd_down >/dev/null 2>&1; exit $status' EXIT
   cmd_up
   cmd_seed
-  # The gateway and the hosted Autopilot cache apps for 3 s: let them see the seeded voice/model.
+  # AppBridge and the hosted Autopilot cache apps for 3 s: let them see the seeded voice/model.
   sleep 4
   load_env
   local number

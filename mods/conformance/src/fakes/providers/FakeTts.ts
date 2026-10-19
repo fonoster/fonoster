@@ -59,7 +59,7 @@ export function speechDurationMs(text: string): number {
  *        X-Fake-Duration-Ms, X-Fake-Word-Timings (JSON list of {word, startMs, endMs})
  *
  * The audio is a tone lasting MS_PER_CHAR per character, so durations and word timings are
- * predictable. The gateway's built-in "fake" adapter talks to this endpoint.
+ * predictable. AppBridge's built-in "fake" adapter talks to this endpoint.
  *
  * Implementations' built-in "fake" adapters speak this protocol (see PROVIDERS.md).
  */

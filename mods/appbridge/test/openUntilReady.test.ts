@@ -39,7 +39,7 @@ function clock() {
   };
 }
 
-describe("@gateway[startup] first database load", function () {
+describe("@appbridge[startup] first database load", function () {
   it("retries while the tables do not exist yet, with a warn line, then loads", async function () {
     const log = fakeLog();
     let calls = 0;

@@ -18,7 +18,7 @@
  */
 import { expect } from "chai";
 import {
-  FakeGateway,
+  FakeAppBridge,
   FakesHarness,
   interpolate,
   loadScenarios,
@@ -28,7 +28,7 @@ import { VoiceServer } from "@fonoster/voice";
 import { createAutopilotHandler } from "../../src/session";
 
 // The autopilot conformance scenarios, run against the session engine: the runner plays the
-// gateway, the fakes harness provides the LLM, tools and media.
+// appbridge, the fakes harness provides the LLM, tools and media.
 const SECRET = "autopilot-conformance";
 
 describe("@autopilot/session conformance (autopilot scenarios)", function () {
@@ -42,23 +42,23 @@ describe("@autopilot/session conformance (autopilot scenarios)", function () {
   for (const scenario of loadScenarios("autopilot")) {
     it(scenario.name, async function () {
       const harness = await new FakesHarness().start();
-      const assistant = interpolate(scenario.setup!.assistant!, harness.vars());
+      const agent = interpolate(scenario.setup!.agent!, harness.vars());
       const server = await new VoiceServer({
         port: 0,
         host: "127.0.0.1",
         signingSecret: SECRET
       }).listen(
         createAutopilotHandler({
-          assistant,
+          agent,
           providers: { fake: { baseUrl: harness.llm.url } },
           allowedDestinations: ["127.0.0.1"]
         })
       );
       try {
-        const gateway = new FakeGateway({ signingSecret: SECRET });
+        const appbridge = new FakeAppBridge({ signingSecret: SECRET });
         const result = await runScenario(scenario, {
           harness,
-          connect: () => gateway.dial(`ws://127.0.0.1:${server.port}/`)
+          connect: () => appbridge.dial(`ws://127.0.0.1:${server.port}/`)
         });
         expect(result.status, result.reason).to.equal("passed");
         expect(unhandled, "unhandled rejections").to.deep.equal([]);

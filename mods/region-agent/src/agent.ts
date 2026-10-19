@@ -46,13 +46,13 @@ const sc = StringCodec();
 // for public regions (PR-20). It talks to the cell's NATS; the cell's NATS carries
 // `region.<ref>.>` to the control plane over the leaf node.
 
-/** Where the cell's gateways publish sealed records' index entries (call-record). */
+/** Where the cell's AppBridge replicas publish sealed records' index entries (call-record). */
 export const RECORD_SEALED_SUBJECT = "callrecord.sealed";
-export const GATEWAY_HEARTBEAT_SUBJECT = "gateway.heartbeat";
+export const APPBRIDGE_HEARTBEAT_SUBJECT = "appbridge.heartbeat";
 /** A Roomr node counts while its heartbeats (every 2 s) are this fresh. */
 const NODE_FRESH_MS = 10_000;
-/** A gateway counts while its heartbeats (every 5 s) are this fresh. */
-const GATEWAY_FRESH_MS = 20_000;
+/** An AppBridge counts while its heartbeats (every 5 s) are this fresh. */
+const APPBRIDGE_FRESH_MS = 20_000;
 /** How long a bring-your-own key request waits for the control plane (contract 6). */
 const KEY_TIMEOUT_MS = 2000;
 
@@ -100,7 +100,7 @@ export class RegionAgent {
   /** Pending timeouts (removed when they fire) and the heartbeat interval. */
   private timers = new Set<ReturnType<typeof setTimeout>>();
   private nodes = new Map<string, { at: number; rooms: number }>();
-  private gateways = new Map<string, { at: number; calls: number }>();
+  private appbridges = new Map<string, { at: number; calls: number }>();
   private applying: Promise<unknown> = Promise.resolve();
   private routr?: RoutrApplier;
   private stopped = false;
@@ -207,10 +207,10 @@ export class RegionAgent {
       else if (e.type === "node.down" && e.node_ref)
         this.nodes.delete(e.node_ref);
     });
-    this.on(GATEWAY_HEARTBEAT_SUBJECT, (_m, b) => {
-      const e = b as { gatewayRef?: string; calls?: number };
-      if (e.gatewayRef)
-        this.gateways.set(e.gatewayRef, {
+    this.on(APPBRIDGE_HEARTBEAT_SUBJECT, (_m, b) => {
+      const e = b as { bridgeRef?: string; calls?: number };
+      if (e.bridgeRef)
+        this.appbridges.set(e.bridgeRef, {
           at: this.now(),
           calls: e.calls ?? 0
         });
@@ -266,9 +266,9 @@ export class RegionAgent {
     return this.timers.size;
   }
 
-  /** Nodes and gateways remembered (tests). */
+  /** Nodes and AppBridge replicas remembered (tests). */
   get componentCounts() {
-    return { nodes: this.nodes.size, gateways: this.gateways.size };
+    return { nodes: this.nodes.size, appbridges: this.appbridges.size };
   }
 
   /** Asks for a snapshot until one arrives (the control plane may not be reachable yet). */
@@ -402,7 +402,7 @@ export class RegionAgent {
   }
 
   /**
-   * A gateway asks for a workspace's bring-your-own key (contract 6): forwarded to the control
+   * An AppBridge asks for a workspace's bring-your-own key (contract 6): forwarded to the control
    * plane for this one call. Never cached, stored or logged; `{}` means "use the region's key".
    */
   private async onKeyRequest(msg: Msg, b: unknown) {
@@ -504,24 +504,24 @@ export class RegionAgent {
   /** What the cell runs right now. */
   async components(): Promise<{ components: Components; activeCalls: number }> {
     const now = this.now();
-    // Nodes and gateways that went away (a gateway's ref is new on every start) are forgotten.
+    // Nodes and AppBridge replicas that went away (an AppBridge's ref is new on every start) are forgotten.
     for (const [id, n] of this.nodes)
       if (now - n.at >= NODE_FRESH_MS) this.nodes.delete(id);
-    for (const [ref, g] of this.gateways)
-      if (now - g.at >= GATEWAY_FRESH_MS) this.gateways.delete(ref);
+    for (const [ref, g] of this.appbridges)
+      if (now - g.at >= APPBRIDGE_FRESH_MS) this.appbridges.delete(ref);
     const nodes = [...this.nodes.values()];
-    const gateways = [...this.gateways.values()];
+    const appbridges = [...this.appbridges.values()];
     const autopilot = this.options.autopilotProbe
       ? await this.options.autopilotProbe().catch(() => false)
       : false;
     return {
       components: {
         roomrNodes: nodes.length,
-        gateways: gateways.length,
+        appbridges: appbridges.length,
         autopilot
       },
-      activeCalls: gateways.length
-        ? gateways.reduce((n, g) => n + g.calls, 0)
+      activeCalls: appbridges.length
+        ? appbridges.reduce((n, g) => n + g.calls, 0)
         : nodes.reduce((n, x) => n + x.rooms, 0)
     };
   }

@@ -22,7 +22,7 @@ import Ajv from "ajv";
 import { expect } from "chai";
 import {
   APP_COMMAND_SCHEMAS,
-  GATEWAY_MESSAGE_SCHEMAS,
+  APPBRIDGE_MESSAGE_SCHEMAS,
   SESSION_PROTOCOL,
   sessionProtocolDocument
 } from "../../src/session";
@@ -40,7 +40,7 @@ describe("@common/session schema", function () {
 
   it("names every schema by its type", function () {
     for (const [type, schema] of [
-      ...Object.entries(GATEWAY_MESSAGE_SCHEMAS),
+      ...Object.entries(APPBRIDGE_MESSAGE_SCHEMAS),
       ...Object.entries(APP_COMMAND_SCHEMAS)
     ]) {
       expect((schema.properties.type as { const: string }).const).to.equal(
@@ -51,7 +51,7 @@ describe("@common/session schema", function () {
 
   it("accepts a session.start from the spec", function () {
     expect(
-      valid(GATEWAY_MESSAGE_SCHEMAS["session.start"], {
+      valid(APPBRIDGE_MESSAGE_SCHEMAS["session.start"], {
         type: "session.start",
         protocol: SESSION_PROTOCOL,
         sessionRef: "s1",

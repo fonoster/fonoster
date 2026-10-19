@@ -112,7 +112,7 @@ export function recordReaders(record: MemoryCallRecordSink) {
 
 /**
  * An outbound call as the control plane places it (Outbound sessions open at answer): a room,
- * `gateway.outbound`, then the dial. Busy, unanswered and failed callees reach no app.
+ * `appbridge.outbound`, then the dial. Busy, unanswered and failed callees reach no app.
  */
 export async function placeOutbound(
   nc: NatsConnection,

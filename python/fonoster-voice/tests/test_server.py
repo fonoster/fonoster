@@ -5,7 +5,7 @@ import json
 import time
 
 import pytest
-from fonoster_conformance import FakeGateway, signature_headers
+from fonoster_conformance import FakeAppBridge, signature_headers
 
 from fonoster.voice import (
     Session,
@@ -48,7 +48,7 @@ def test_runs_handler_once_with_valid_signature():
             calls.append(session.call_ref)
 
         server = await standalone(handler)
-        peer = await FakeGateway(SECRET).dial(f"ws://127.0.0.1:{server.port}/")
+        peer = await FakeAppBridge(SECRET).dial(f"ws://127.0.0.1:{server.port}/")
         await peer.send_json(START)
         await asyncio.sleep(0.05)
         await server.close()
@@ -58,11 +58,11 @@ def test_runs_handler_once_with_valid_signature():
 
 
 @pytest.mark.parametrize(
-    "gateway",
-    [FakeGateway("wrong"), FakeGateway(None), FakeGateway(SECRET, timestamp=int(time.time()) - 600)],
+    "appbridge",
+    [FakeAppBridge("wrong"), FakeAppBridge(None), FakeAppBridge(SECRET, timestamp=int(time.time()) - 600)],
     ids=["wrong secret", "no signature", "stale timestamp"],
 )
-def test_rejects_bad_signatures_before_the_handler(gateway):
+def test_rejects_bad_signatures_before_the_handler(appbridge):
     async def main():
         calls = []
 
@@ -72,7 +72,7 @@ def test_rejects_bad_signatures_before_the_handler(gateway):
         server = await standalone(handler)
         try:
             with pytest.raises(Exception, match="401"):
-                await gateway.dial(f"ws://127.0.0.1:{server.port}/")
+                await appbridge.dial(f"ws://127.0.0.1:{server.port}/")
         finally:
             await server.close()
         return calls
@@ -108,7 +108,7 @@ def test_gather_rejects_and_end_fires_when_caller_hangs_up():
                 outcome["error"] = e
 
         server = await standalone(handler)
-        peer = await FakeGateway(SECRET).dial(f"ws://127.0.0.1:{server.port}/")
+        peer = await FakeAppBridge(SECRET).dial(f"ws://127.0.0.1:{server.port}/")
         await peer.send_json(START)
         await asyncio.sleep(0.03)
         await peer.send_json({"type": "session.end", "reason": "caller_hangup"})
@@ -127,7 +127,7 @@ def test_crashing_handler_hangs_up():
             raise RuntimeError("boom")
 
         server = await standalone(handler)
-        peer = await FakeGateway(SECRET).dial(f"ws://127.0.0.1:{server.port}/")
+        peer = await FakeAppBridge(SECRET).dial(f"ws://127.0.0.1:{server.port}/")
         await peer.send_json(START)
         await asyncio.sleep(0.05)
         await server.close()
@@ -201,7 +201,7 @@ def test_amd_result_reaches_the_handler():
             await asyncio.sleep(0.2)
 
         server = await standalone(handler)
-        peer = await FakeGateway(SECRET).dial(f"ws://127.0.0.1:{server.port}/")
+        peer = await FakeAppBridge(SECRET).dial(f"ws://127.0.0.1:{server.port}/")
         await peer.send_json(START)
         await asyncio.sleep(0.03)
         await peer.send_json(

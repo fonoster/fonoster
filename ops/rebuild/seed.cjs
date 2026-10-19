@@ -90,12 +90,11 @@ function choose(items) {
   };
 }
 
-// The session assistant schema (sessionAssistantSchema): the model is a catalog id, and the
+// The session agent schema (sessionAgentSchema): the model is a catalog id, and the
 // recognition hints bias Deepgram toward the product name.
-const assistant = (model) => ({
+const agent = (model) => ({
   conversationSettings: {
-    firstMessage:
-      "Hello, this is the Fonoster demo assistant. How can I help you?",
+    firstMessage: "Hello, this is the Fonoster demo agent. How can I help you?",
     systemPrompt:
       "You are a friendly receptionist for a small business that answers the phone. Keep answers short: one or two sentences.",
     goodbyeMessage: "Thanks for calling. Goodbye!",
@@ -229,7 +228,7 @@ async function main() {
     },
     intelligence: {
       productRef: `llm.${picked.model.split("/")[0]}`,
-      config: assistant(picked.model)
+      config: agent(picked.model)
     }
   };
   const existing = items(

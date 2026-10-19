@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: say-stream
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: say-stream
 spec: "say streams text as it is produced / Streaming LLM tokens"
 steps:

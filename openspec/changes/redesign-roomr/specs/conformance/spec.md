@@ -14,7 +14,7 @@ in place and reported as before, with an Opus run reported separately.
 #### Scenario: Node tested alone
 - **WHEN** the Roomr node suite runs
 - **THEN** the Go node talks only to the caller bot, the fake registrar, the fake session endpoint, the fake controller and NATS
-- **AND** no gateway, apiserver or Routr process is started
+- **AND** no AppBridge, apiserver or Routr process is started
 
 #### Scenario: One scenario set for both nodes
 - **WHEN** the suite runs against the fake node and the Go node
@@ -32,7 +32,7 @@ of `FakeNatsRoomr`; a fake session endpoint that can answer, reject, stall (neve
 registrar, reachable from YAML scenarios; a fake SIP trunk/proxy that records each Request-URI and
 its headers and answers `200`, `486`, `407` or nothing on cue; NATS fault injection (drop the connection, drop messages); and config
 overrides that shorten every Roomr timeout and limit so scenarios run in seconds. Scenarios that
-test only the retired NATS command path (`one-replica-claims`, `no-gateway-answers`,
+test only the retired NATS command path (`one-replica-claims`, `no-appbridge-answers`,
 `command-id-echoed`, `unknown-command-refused`, `ack-carries-results`) SHALL be removed.
 
 #### Scenario: Stalled app

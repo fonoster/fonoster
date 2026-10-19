@@ -1,10 +1,10 @@
 format: fonoster.scenario.v1
 name: caller-hangs-up-mid-reply
 contract: autopilot
-role: gateway
+role: appbridge
 spec: "Session limits / Caller hangs up mid-reply"
 setup:
-  assistant:
+  agent:
     conversationSettings: { systemPrompt: "You are the receptionist of a dental clinic.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong." }
     languageModel: { model: fake/llm }
   providers:

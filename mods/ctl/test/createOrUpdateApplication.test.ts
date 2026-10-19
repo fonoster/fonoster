@@ -45,7 +45,7 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     protocol: "fonoster"
   };
 
-  const assistant = {
+  const agent = {
     name: "Receptionist",
     languageModel: { model: "openai/gpt-4o-mini", apiKey: "sk-should-go" }
   };
@@ -143,11 +143,11 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
   });
 
   it("makes an Autopilot agent from an agent file and drops any model key", async function () {
-    const assistantPath = writeConfig("json", assistant);
+    const agentPath = writeConfig("json", agent);
 
     await createOrUpdateApplication(client, undefined, undefined, false, {
       name: "Receptionist",
-      agent: assistantPath
+      agent: agentPath
     });
 
     const request = createStub.firstCall.args[0];
@@ -159,10 +159,10 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     });
   });
 
-  it("accepts an inline assistant in the app file (YAML)", async function () {
+  it("accepts an inline agent in the app file (YAML)", async function () {
     const filePath = writeConfig(
       "yaml",
-      "name: Bot\nassistant:\n  name: Bot\n  languageModel:\n    model: groq/llama\n"
+      "name: Bot\nagent:\n  name: Bot\n  languageModel:\n    model: groq/llama\n"
     );
 
     await createOrUpdateApplication(client, filePath);
@@ -182,11 +182,11 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
   });
 
   it("refuses an Autopilot agent on the twilio protocol", async function () {
-    const assistantPath = writeConfig("json", assistant);
+    const agentPath = writeConfig("json", agent);
     await expect(
       createOrUpdateApplication(client, undefined, undefined, false, {
         name: "x",
-        agent: assistantPath,
+        agent: agentPath,
         protocol: "twilio"
       })
     ).to.be.rejectedWith(/fonoster protocol/);
@@ -224,13 +224,13 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
     ]);
   });
 
-  it("keeps an Autopilot app's assistant when updating other fields", async function () {
+  it("keeps an Autopilot app's agent when updating other fields", async function () {
     getStub.resolves({
       ...currentApp,
       type: "AUTOPILOT",
       protocol: "fonoster",
       url: "ws://autopilot:8080/session",
-      intelligence: { productRef: "llm.openai", config: assistant }
+      intelligence: { productRef: "llm.openai", config: agent }
     } as never);
 
     await createOrUpdateApplication(client, undefined, "positional-ref", true, {

@@ -69,7 +69,7 @@ type Input =
   | { type: "turn.user_started" };
 
 const DEFAULT_GATHER_TIMEOUT_MS = 4000;
-/** Commands that make the gateway start listening (speech recognition and turn events). */
+/** Commands that make AppBridge start listening (speech recognition and turn events). */
 const SPEECH_COMMANDS = new Set([
   "speak",
   "play",
@@ -98,7 +98,7 @@ export class Session {
   readonly audioFormat: SessionStart["audio"];
   readonly tracks: SessionStart["tracks"];
   /**
-   * The app and workspace the gateway's app-bound signature named, when the server verified one
+   * The app and workspace AppBridge's app-bound signature named, when the server verified one
    * (VoiceServer); undefined otherwise.
    */
   readonly signedFor?: { appRef: string; workspaceRef: string };
@@ -195,7 +195,7 @@ export class Session {
         this.send({ type: "speak", id, text: piece, last: false, ...fields });
       }
     } catch (e) {
-      // End the utterance so the gateway does not wait for more pieces.
+      // End the utterance so AppBridge does not wait for more pieces.
       this.send({ type: "speak", id, text: "", last: true, ...fields });
       this.outputs.delete(id);
       done.catch(() => undefined);
@@ -227,7 +227,7 @@ export class Session {
     if (this.gatherState)
       return Promise.reject(new Error("a gather is already pending"));
     const source = options.source ?? "speech_and_dtmf";
-    // The gateway listens only after a Speech-layer command; a gather may be the first one.
+    // AppBridge listens only after a Speech-layer command; a gather may be the first one.
     if (source !== "dtmf" && !this.listening)
       this.send({ type: "listen.update" });
     return new Promise((resolve, reject) => {
@@ -254,7 +254,7 @@ export class Session {
   }
 
   /**
-   * Starts listening or changes how the gateway listens (`listen.update`): recognition language,
+   * Starts listening or changes how AppBridge listens (`listen.update`): recognition language,
    * hints, and the turn-taking patience knob (`low`, `normal` or `high`).
    */
   async listen(
@@ -298,7 +298,7 @@ export class Session {
     this.command({ type: "dtmf.send", digits });
   }
 
-  /** Transfers the call; resolves when the gateway ends the session with reason transfer. */
+  /** Transfers the call; resolves when AppBridge ends the session with reason transfer. */
   transfer(to: string, options: TransferOptions = {}): Promise<void> {
     const id = this.nextId("transfer");
     if (options.mode === "warm") this.lastWarmTransfer = id;
@@ -353,7 +353,7 @@ export class Session {
     this.command({ type: "record.note", data });
   }
 
-  /** Resolves at once: the gateway answers the call on connect (voice-sdk S2). */
+  /** Resolves at once: AppBridge answers the call on connect (voice-sdk S2). */
   async answer(): Promise<void> {}
 
   // ---- incoming ---------------------------------------------------------------------
@@ -539,7 +539,7 @@ export class Session {
   }
 
   /**
-   * The app owns interruption (gateway B22): when the caller starts talking over an interruptible
+   * The app owns interruption (appbridge B22): when the caller starts talking over an interruptible
    * say or play, the SDK cuts it off with clear; a non-interruptible one keeps playing.
    */
   private bargeIn() {

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import {
-  EvalAssistant,
+  EvalAgent,
   hangupToolDefinition,
   KnowledgeBase,
   LanguageModelFactory,
@@ -28,12 +28,12 @@ import {
 
 function createLanguageModel(params: {
   voice: Voice;
-  assistantConfig: EvalAssistant;
+  agentConfig: EvalAgent;
   knowledgeBase: KnowledgeBase;
   telephonyContext: TelephonyContext;
 }) {
-  const { voice, assistantConfig, knowledgeBase, telephonyContext } = params;
-  const { languageModel, conversationSettings } = assistantConfig;
+  const { voice, agentConfig, knowledgeBase, telephonyContext } = params;
+  const { languageModel, conversationSettings } = agentConfig;
 
   // The transfer tool is only added if the transfer options exist
   const tools = languageModel.tools.concat(

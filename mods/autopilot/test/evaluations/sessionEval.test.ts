@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { expect } from "chai";
-import { sessionAssistantSchema } from "@fonoster/common";
+import { sessionAgentSchema } from "@fonoster/common";
 import { FakesHarness } from "@fonoster/conformance";
 import { ProviderBehavior } from "@fonoster/conformance/dist/scenario/types";
 import { StepEvaluationReport } from "@fonoster/types";
@@ -52,8 +52,8 @@ const step = (
   expected: { text: { type, response }, ...(tools ? { tools } : {}) }
 });
 
-function assistantWith(scenarios: unknown[], extra: object = {}) {
-  return sessionAssistantSchema.parse({
+function agentWith(scenarios: unknown[], extra: object = {}) {
+  return sessionAgentSchema.parse({
     conversationSettings: {
       firstMessage: "Hello, how can I help?",
       systemPrompt: "You are a receptionist.",
@@ -104,7 +104,7 @@ describe("@autopilot[evaluations] session engine", function () {
     const summaries: [string, boolean][] = [];
     const reports: SessionScenarioReport[] = await runSessionEval(
       {
-        assistant: assistantWith(scenarios, options.extra),
+        agent: agentWith(scenarios, options.extra),
         think: resolveThink(
           "fake/llm",
           { fake: { baseUrl: harness.llm.url } },
@@ -250,7 +250,7 @@ describe("@autopilot[evaluations] session engine", function () {
 
   it("uses the session engine for OpenAI-compatible providers only", function () {
     const a = (model: string) =>
-      sessionAssistantSchema.parse({
+      sessionAgentSchema.parse({
         conversationSettings: {
           systemPrompt: "p",
           goodbyeMessage: "b",

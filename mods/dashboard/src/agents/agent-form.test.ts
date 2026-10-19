@@ -27,7 +27,7 @@ import { billingAgent, fakeOnlyCatalog, sampleCatalog } from "./fixtures";
 import { templateValues } from "./templates";
 
 describe("agent payload", () => {
-  it("round-trips a saved agent into the session assistant", () => {
+  it("round-trips a saved agent into the session agent", () => {
     const request = toUpdateRequest(
       billingAgent.ref,
       toValues(billingAgent),
@@ -42,7 +42,7 @@ describe("agent payload", () => {
     });
     const config = request.intelligence!.config as Record<string, any>;
     const saved = billingAgent.intelligence!.config as any;
-    // Only the session assistant's keys (sessionAssistantSchema is strict).
+    // Only the session agent's keys (sessionAgentSchema is strict).
     expect(Object.keys(config).sort()).toEqual([
       "conversationSettings",
       "languageModel",
@@ -112,7 +112,7 @@ describe("agent payload", () => {
     });
   });
 
-  it("maps an edited tool to the assistant tool schema", () => {
+  it("maps an edited tool to the agent tool schema", () => {
     const values = toValues(billingAgent);
     values.tools = [
       {

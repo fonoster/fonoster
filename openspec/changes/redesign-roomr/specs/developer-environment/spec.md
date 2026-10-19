@@ -20,7 +20,7 @@ change to a component's source MUST restart (or hot-reload) that component only.
 
 #### Scenario: AppBridge reload
 - **WHEN** a file under `mods/appbridge/src` is saved while `npm run dev` runs
-- **THEN** the AppBridge restarts and the other components keep running
+- **THEN** AppBridge restarts and the other components keep running
 
 #### Scenario: Roomr node rebuild
 - **WHEN** a `.go` file under `go/roomr` is saved while `npm run dev:roomr` runs
@@ -29,7 +29,7 @@ change to a component's source MUST restart (or hot-reload) that component only.
 
 #### Scenario: One component alone
 - **WHEN** only `npm run dev:appbridge` runs
-- **THEN** the AppBridge starts with `.dev/config/gateway.yaml` and the secrets from `.dev/.env`
+- **THEN** AppBridge starts with `.dev/config/appbridge.yaml` and the secrets from `.dev/.env`
 
 ### Requirement: Tests run inside the dev container
 

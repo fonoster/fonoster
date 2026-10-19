@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 // NATS users and subject permissions (add-platform 4.1, build log HD-B1): runs the checked-in
-// ops/rebuild/config/nats.conf (main stack: apiserver, gateway, roomr, routr) and
-// ops/rebuild/cell/config/nats.conf (a cell: gateway, roomr, routr, region-agent) in Docker
+// ops/rebuild/config/nats.conf (main stack: apiserver, appbridge, roomr, routr) and
+// ops/rebuild/cell/config/nats.conf (a cell: appbridge, roomr, routr, region-agent) in Docker
 // and proves each service reaches its own subjects and nothing else. Opt-in (starts containers):
 //
 //   NATS_ACL_TEST=docker [NATS_ACL_CONTAINER_PREFIX=fonoster-acl] [NATS_ACL_PORT=31400] npm test
@@ -209,18 +209,18 @@ describe("@conformance/nats permissions (per-service users)", function () {
     fs.chmodSync(work, 0o755);
     main = startServer("main", PORT, mainDir, [
       "apiserver",
-      "gateway",
+      "appbridge",
       "roomr",
       "routr"
     ]);
     cell = startServer("cell", PORT + 1, cellDir, [
-      "gateway",
+      "appbridge",
       "roomr",
       "routr",
       "region-agent"
     ]);
     api = await as(main, "apiserver");
-    gw = await as(main, "gateway");
+    gw = await as(main, "appbridge");
     node = await as(main, "roomr");
     routr = await as(main, "routr");
     conns.push(api, gw, node, routr);
@@ -239,7 +239,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     );
     await connect({
       servers: main!.url,
-      user: "gateway",
+      user: "appbridge",
       pass: "wrong",
       reconnect: false
     }).then(
@@ -249,7 +249,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
   });
 
   it("carries each service's own traffic", async function () {
-    // media-control: the gateway asks, the node answers (allow_responses).
+    // media-control: AppBridge asks, the node answers (allow_responses).
     const nodeId = "n1";
     const cmds = node.subscribe(`media.${nodeId}.commands`, {
       callback: (_e, m) => m.respond(sc.encode('{"type":"ack"}'))
@@ -264,13 +264,15 @@ describe("@conformance/nats permissions (per-service users)", function () {
     );
     expect(sc.decode(reply.data)).to.equal('{"type":"ack"}');
     cmds.unsubscribe();
-    // call.incoming: the node asks, a gateway claims.
-    const claims = gw.subscribe("gateway.incoming", {
-      queue: "gateway",
+    // call.incoming: the node asks, an AppBridge claims.
+    const claims = gw.subscribe("appbridge.incoming", {
+      queue: "appbridge",
       callback: (_e, m) => m.respond(sc.encode('{"type":"claimed"}'))
     });
     await gw.flush();
-    await node.request("gateway.incoming", sc.encode("{}"), { timeout: 2000 });
+    await node.request("appbridge.incoming", sc.encode("{}"), {
+      timeout: 2000
+    });
     claims.unsubscribe();
     expect(
       await delivered(node, api, `roomr.nodes.${nodeId}.heartbeat`)
@@ -301,7 +303,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
   });
 
   it("refuses publishing outside a service's subjects", async function () {
-    // Nobody but the node speaks for a node; nobody but a gateway files index entries.
+    // Nobody but the node speaks for a node; nobody but an AppBridge files index entries.
     expect(await delivered(gw, api, "roomr.nodes.n1.heartbeat")).to.equal(
       false
     );
@@ -319,14 +321,14 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(await delivered(node, gw, "callrecord.local.maintenance")).to.equal(
       false
     );
-    // Media-control commands come from gateways only: never Routr, a node or the control plane
+    // Media-control commands come from AppBridge replicas only: never Routr, a node or the control plane
     // (it places calls with Roomr over gRPC).
     expect(await delivered(api, node, "media.n1.commands")).to.equal(false);
     expect(await delivered(routr, node, "media.n1.commands")).to.equal(false);
     expect(await delivered(node, node, "media.n2.commands")).to.equal(false);
     // Routr's events are Routr's.
     expect(await delivered(gw, api, "routr.call.started")).to.equal(false);
-    // Catalog use comes from gateways.
+    // Catalog use comes from AppBridge replicas.
     expect(await delivered(node, api, "registry.used")).to.equal(false);
     // A node cannot speak for a workspace on the webhook bus (M6).
     expect(await delivered(node, api, "webhooks.events")).to.equal(false);
@@ -342,7 +344,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
   });
 
   it("keeps each service's replies to itself (per-user inbox prefixes)", async function () {
-    // The node answers the gateway's media-control request with something private.
+    // The node answers AppBridge's media-control request with something private.
     const cmds = node.subscribe("media.n9.commands", {
       callback: (_e, m) => m.respond(sc.encode('{"secret":"reply"}'))
     });
@@ -350,7 +352,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     // Another service, a second Roomr node and Routr try every inbox they could read.
     const otherNode = await as(main!, "roomr");
     conns.push(otherNode);
-    const inboxes = ["_INBOX.>", `${natsInboxPrefix("gateway")}.>`];
+    const inboxes = ["_INBOX.>", `${natsInboxPrefix("appbridge")}.>`];
     for (const eavesdropper of [api, otherNode, routr]) {
       let answered = "";
       const heard = await overheard(eavesdropper, inboxes, async () => {
@@ -363,17 +365,18 @@ describe("@conformance/nats permissions (per-service users)", function () {
       expect(heard).to.equal(false);
     }
     cmds.unsubscribe();
-    // ...and the control plane's replies stay its own too (the gateway's claim of an outbound
+    // ...and the control plane's replies stay its own too (AppBridge's claim of an outbound
     // call, overheard by a node).
-    const claims = gw.subscribe("gateway.outbound", {
-      queue: "gateway-outbound",
+    const claims = gw.subscribe("appbridge.outbound", {
+      queue: "appbridge-outbound",
       callback: (_e, m) => m.respond(sc.encode('{"type":"ack"}'))
     });
     await gw.flush();
     const nodeHeard = await overheard(
       otherNode,
       ["_INBOX.>", `${natsInboxPrefix("apiserver")}.>`],
-      () => api.request("gateway.outbound", sc.encode("{}"), { timeout: 2000 })
+      () =>
+        api.request("appbridge.outbound", sc.encode("{}"), { timeout: 2000 })
     );
     expect(nodeHeard).to.equal(false);
     claims.unsubscribe();
@@ -384,7 +387,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
       callback: (_e, m) => m.respond(sc.encode('{"type":"ack"}'))
     });
     await node.flush();
-    const shared = await as(main!, "gateway", { inboxPrefix: null });
+    const shared = await as(main!, "appbridge", { inboxPrefix: null });
     conns.push(shared);
     const ok = await shared
       .request("media.n8.commands", sc.encode("{}"), { timeout: 1000 })
@@ -394,7 +397,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
       );
     expect(ok).to.equal(false);
     // A prefix of another user is refused the same way.
-    const borrowed = await as(main!, "gateway", {
+    const borrowed = await as(main!, "appbridge", {
       inboxPrefix: natsInboxPrefix("apiserver")
     });
     conns.push(borrowed);
@@ -408,12 +411,12 @@ describe("@conformance/nats permissions (per-service users)", function () {
     cmds.unsubscribe();
   });
 
-  it("lets the gateway and the control plane write only their own session-registry entries", async function () {
+  it("lets AppBridge and the control plane write only their own session-registry entries", async function () {
     const gwKv = await Sessions.openSessions(gw);
     const apiKv = await Sessions.openSessions(api);
-    // The gateway writes calls.* and gateways.*.
+    // AppBridge writes calls.* and AppBridge replicas.*.
     await gwKv.put("calls.c1", sc.encode('{"callRef":"c1"}'));
-    await gwKv.put("gateways.g1", sc.encode('{"gatewayRef":"g1"}'));
+    await gwKv.put("appbridges.g1", sc.encode('{"bridgeRef":"g1"}'));
     // The control plane writes placements.* (outbound calls being placed) and deletes them.
     await apiKv.put("placements.p1", sc.encode('{"callRef":"p1"}'));
     await apiKv.delete("placements.p1");
@@ -473,10 +476,10 @@ describe("@conformance/nats permissions (per-service users)", function () {
 
   it("limits a cell's region agent to region.> and its local subjects", async function () {
     const agent = await as(cell!, "region-agent");
-    const cgw = await as(cell!, "gateway");
+    const cgw = await as(cell!, "appbridge");
     const cnode = await as(cell!, "roomr");
     conns.push(agent, cgw, cnode);
-    // Bring-your-own key requests: the gateway asks, the agent answers.
+    // Bring-your-own key requests: AppBridge asks, the agent answers.
     const keys = agent.subscribe("cell.workspacekeys.get", {
       callback: (_e, m) => m.respond(sc.encode('{"value":"k"}'))
     });
@@ -484,10 +487,10 @@ describe("@conformance/nats permissions (per-service users)", function () {
     await cgw.request("cell.workspacekeys.get", sc.encode("{}"), {
       timeout: 2000
     });
-    // The key in the reply reaches the gateway only: the Roomr node cannot read its inbox.
+    // The key in the reply reaches AppBridge only: the Roomr node cannot read its inbox.
     const heard = await overheard(
       cnode,
-      ["_INBOX.>", `${natsInboxPrefix("gateway")}.>`],
+      ["_INBOX.>", `${natsInboxPrefix("appbridge")}.>`],
       () =>
         cgw.request("cell.workspacekeys.get", sc.encode("{}"), {
           timeout: 2000

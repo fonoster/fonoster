@@ -30,7 +30,7 @@ import * as path from "path";
 //   - an encrypted file (Compose, bare metal): AES-256-GCM, key derived with scrypt from a
 //     passphrase in the environment (default FONOSTER_REGION_SECRETS_KEY);
 //   - a directory with one file per secret: a mounted Kubernetes Secret.
-// The gateway and the hosted Autopilot read it; `fonoster-region secrets` writes it. Values are
+// AppBridge and the hosted Autopilot read it; `fonoster-region secrets` writes it. Values are
 // never logged; `names()` is what the region agent reports in heartbeats.
 
 /** Secret names: provider ids and credential refs (`deepgram`, `groq`, `openai`, `s3.secret`). */
@@ -221,7 +221,7 @@ export function openCellSecrets(
 }
 
 /**
- * The cell's secrets as a workspace key source (gateway Catalog, Autopilot): a private region
+ * The cell's secrets as a workspace key source (appbridge Catalog, Autopilot): a private region
  * serves one workspace, so the provider name alone picks the key. Read errors count as unset.
  */
 export class CellSecretKeys {
@@ -278,7 +278,7 @@ export const CELL_WORKSPACE_KEYS_SUBJECT = "cell.workspacekeys.get";
  * workspace has none or the answer does not come within the timeout.
  */
 export class NatsWorkspaceKeys {
-  /** Never cached: the gateway keeps no adapter built with these keys past the call's lookup. */
+  /** Never cached: AppBridge keeps no adapter built with these keys past the call's lookup. */
   readonly cacheable = false;
 
   constructor(

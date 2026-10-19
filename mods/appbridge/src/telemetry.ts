@@ -23,11 +23,11 @@ import {
   telemetryEnv
 } from "@fonoster/common";
 
-let impl: Telemetry = initTelemetry("fonoster-gateway");
+let impl: Telemetry = initTelemetry("fonoster-appbridge");
 
 /**
- * The gateway's telemetry (add-platform observability): OTLP when `telemetry.otlpEndpoint` in
- * gateway.yaml (or OTEL_EXPORTER_OTLP_*) is set, a no-op otherwise. A stable handle: modules
+ * AppBridge's telemetry (add-platform observability): OTLP when `telemetry.otlpEndpoint` in
+ * appbridge.yaml (or OTEL_EXPORTER_OTLP_*) is set, a no-op otherwise. A stable handle: modules
  * import it before the config is read, and `startTelemetry` swaps what it delegates to. main.ts
  * flushes it on shutdown. Call spans, logs and metrics carry `fonoster.call_ref`.
  */
@@ -47,12 +47,12 @@ export const telemetry: Telemetry = {
 /** Flushes and stops telemetry; the handle is a no-op until `startTelemetry` runs again. */
 export async function stopTelemetry() {
   const stopping = impl;
-  impl = initTelemetry("fonoster-gateway", undefined, {});
+  impl = initTelemetry("fonoster-appbridge", undefined, {});
   await stopping.shutdown();
 }
 
 /** Starts telemetry with the config's endpoint, once the config is loaded. */
 export function startTelemetry(config: TelemetryConfig) {
   if (!config?.otlpEndpoint?.trim() || impl.enabled) return;
-  impl = initTelemetry("fonoster-gateway", undefined, telemetryEnv(config));
+  impl = initTelemetry("fonoster-appbridge", undefined, telemetryEnv(config));
 }

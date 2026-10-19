@@ -24,8 +24,8 @@ import { NatsConnection, StringCodec } from "nats";
 import * as sinon from "sinon";
 import { RegionAgent } from "../src";
 
-// The agent's long-lived maps and timers stay bounded (in-memory state audit, phase 4): gateways
-// that went away (a new gatewayRef on every start) are forgotten, and config retries while the
+// The agent's long-lived maps and timers stay bounded (in-memory state audit, phase 4): appbridges
+// that went away (a new bridgeRef on every start) are forgotten, and config retries while the
 // control plane is unreachable do not pile up timer handles.
 
 const sc = StringCodec();
@@ -88,11 +88,11 @@ describe("@region-agent bounded state", function () {
     expect(a.timerCount).to.be.at.most(2); // the next retry and the heartbeat interval
   });
 
-  it("forgets gateways and nodes that went away (100 gateway restarts)", async function () {
+  it("forgets appbridges and nodes that went away (100 appbridge restarts)", async function () {
     const { nc, send } = fakeNats();
     const a = await startAgent(nc);
     for (let i = 0; i < 100; i++) {
-      send("gateway.heartbeat", { gatewayRef: `gw-${i}`, calls: 1 });
+      send("appbridge.heartbeat", { bridgeRef: `gw-${i}`, calls: 1 });
       send("roomr.nodes.*.heartbeat", {
         type: "node.heartbeat",
         node_ref: `n-${i}`
@@ -101,9 +101,9 @@ describe("@region-agent bounded state", function () {
     }
     await a.heartbeat();
     const { components, activeCalls } = await a.components();
-    expect(components.gateways).to.be.at.most(4);
-    expect(activeCalls).to.equal(components.gateways);
-    expect(a.componentCounts.gateways).to.be.at.most(4);
+    expect(components.appbridges).to.be.at.most(4);
+    expect(activeCalls).to.equal(components.appbridges);
+    expect(a.componentCounts.appbridges).to.be.at.most(4);
     expect(a.componentCounts.nodes).to.be.at.most(2);
   });
 });

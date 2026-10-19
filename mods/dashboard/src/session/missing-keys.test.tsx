@@ -25,7 +25,7 @@ import { RegionsApiProvider } from "~/regions/api";
 import { createMockRegionsApi } from "~/regions/mock-api";
 import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
-import { StreamsScreen } from ".";
+import { AppsScreen } from ".";
 import { SessionApiProvider } from "./api";
 import { missingKeys, providersOf } from "./missing-keys";
 import { createMockSessionApi } from "./mock-api";
@@ -47,7 +47,7 @@ const app = (over: Partial<SessionApp> = {}): SessionApp => ({
   fallback: {},
   listeners: [],
   recording: "",
-  assistant: { languageModel: { model: "openai/gpt-4o-mini" } },
+  agent: { languageModel: { model: "openai/gpt-4o-mini" } },
   ...over
 });
 
@@ -62,12 +62,12 @@ function render(
       <RegionsApiProvider value={createMockRegionsApi()}>
         <WorkspaceProvider value={ws}>
           <SessionApiProvider value={api}>
-            <StreamsScreen />
+            <AppsScreen />
           </SessionApiProvider>
         </WorkspaceProvider>
       </RegionsApiProvider>,
       {
-        path: "/w/:workspaceRef/streams/*",
+        path: "/w/:workspaceRef/apps/*",
         route,
         auth: fakeAuth({ status: "signedIn", user: { sub: "u1" } as never }),
         capabilities: regionsCapabilities
@@ -113,7 +113,7 @@ describe("missing provider keys", () => {
   });
 
   it("warns on the streams list of a private workspace and links to the region", async () => {
-    render("/w/ws-1/streams", {
+    render("/w/ws-1/apps", {
       ...testWorkspace,
       region: "acme-dallas"
     } as Workspace);
@@ -137,9 +137,9 @@ describe("missing provider keys", () => {
       }),
       ref: ""
     });
-    render(`/w/ws-1/streams/${ref}`, testWorkspace, api);
+    render(`/w/ws-1/apps/${ref}`, testWorkspace, api);
     expect(
-      await screen.findByText(/This stream needs a key for openai\./)
+      await screen.findByText(/This app needs a key for openai\./)
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Add key" })).toHaveAttribute(
       "href",
@@ -148,7 +148,7 @@ describe("missing provider keys", () => {
   });
 
   it("says nothing when every key is there", async () => {
-    render("/w/ws-1/streams");
+    render("/w/ws-1/apps");
     expect(await screen.findByText("Support line")).toBeInTheDocument();
     expect(screen.queryByText(/Missing keys/)).not.toBeInTheDocument();
   });

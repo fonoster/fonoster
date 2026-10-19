@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: answer-is-a-no-op
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: answer-then-say
 spec: "answer is a no-op / Old apps that answer first"
 description: The fixture calls session.answer() first; the first command on the socket is the speak.

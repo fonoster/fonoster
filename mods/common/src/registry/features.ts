@@ -46,11 +46,11 @@ export function unknownFeatures(
   return features.filter((f) => !(f in FEATURES[type]));
 }
 
-/** Hard requirements derived from an assistant config: tools need tool calling, replies stream. */
-export function assistantRequirements(assistant: {
+/** Hard requirements derived from an agent config: tools need tool calling, replies stream. */
+export function agentRequirements(agent: {
   languageModel?: { tools?: unknown[] };
 }): string[] {
   const req = ["streaming"];
-  if ((assistant.languageModel?.tools ?? []).length) req.push("tool-calling");
+  if ((agent.languageModel?.tools ?? []).length) req.push("tool-calling");
   return req;
 }

@@ -50,7 +50,7 @@ export const subjects = (ref: string) => ({
 
 export type Components = {
   roomrNodes: number;
-  gateways: number;
+  appbridges: number;
   autopilot: boolean;
 };
 

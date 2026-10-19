@@ -210,7 +210,7 @@ USAGE
 
 FLAGS
   -a, --agent=<value>             a YAML or JSON agent file; makes it an Autopilot agent (hosted by Fonoster)
-  -f, --from-file=<value>         a YAML or JSON file with the Application (an `assistant` key makes it an Autopilot
+  -f, --from-file=<value>         a YAML or JSON file with the Application (an `agent` key makes it an Autopilot
                                   agent)
   -i, --insecure                  allow connections to a server with no TLS
   -l, --listener=<value>...       a listen-only socket: <wss-url>[,inbound|outbound|both] (repeatable, at most 4)
@@ -387,7 +387,7 @@ ARGUMENTS
 
 FLAGS
   -a, --agent=<value>             a YAML or JSON agent file; makes it an Autopilot agent (hosted by Fonoster)
-  -f, --from-file=<value>         a YAML or JSON file with the Application (an `assistant` key makes it an Autopilot
+  -f, --from-file=<value>         a YAML or JSON file with the Application (an `agent` key makes it an Autopilot
                                   agent)
   -i, --insecure                  allow connections to a server with no TLS
   -l, --listener=<value>...       a listen-only socket: <wss-url>[,inbound|outbound|both] (repeatable, at most 4)

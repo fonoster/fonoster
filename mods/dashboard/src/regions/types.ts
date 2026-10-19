@@ -27,7 +27,7 @@ export type RegionStatus =
 
 export type RegionSecret = {
   name: string;
-  /** Apps or assistants that need the key. */
+  /** Apps or agents that need the key. */
   usedBy: string[];
   set: boolean;
 };
@@ -58,7 +58,7 @@ export type RegionDetail = Region & {
   /** ISO time of the last heartbeat. */
   lastSeenAt?: string;
   roomrNodes?: number;
-  gateways?: number;
+  appbridges?: number;
   activeCalls?: number;
   /** Why config sync is paused (status `unsupported`). */
   unsupportedReason?: string;

@@ -449,7 +449,7 @@ function AgentName({
   );
 }
 
-/** The agent's (or stream's) ref in a muted chip with a copy button. */
+/** The agent's (or app's) ref in a muted chip with a copy button. */
 export function RefChip({
   value,
   label = "Copy agent ref"

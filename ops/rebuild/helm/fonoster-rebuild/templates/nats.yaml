@@ -6,7 +6,7 @@
 {{- /* NATS users of the services this release runs (nats.auth, add-platform 4.1). */}}
 {{- $users := list }}
 {{- if .Values.apiserver.enabled }}{{- $users = append $users "apiserver" }}{{- end }}
-{{- if .Values.appbridge.enabled }}{{- $users = append $users "gateway" }}{{- end }}
+{{- if .Values.appbridge.enabled }}{{- $users = append $users "appbridge" }}{{- end }}
 {{- if .Values.roomr.enabled }}{{- $users = append $users "roomr" }}{{- end }}
 {{- $users = append $users "routr" }}
 {{- if .Values.regionAgent.enabled }}{{- $users = append $users "region-agent" }}{{- end }}

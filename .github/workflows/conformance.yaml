@@ -178,9 +178,9 @@ jobs:
           mkdir -p reports
           npm run scale -w @fonoster/appbridge --silent -- --calls 100 --seconds 60 | tee reports/scale-100.json
           # A reduced multi-replica profile: the full bar (ten replicas, 1,000 calls) needs about
-          # 20 vCPU for the gateways alone, more than a hosted runner has (harden-conformance 2.2).
+          # 20 vCPU for the AppBridge replicas alone, more than a hosted runner has (harden-conformance 2.2).
           # The fakes run in their own worker processes (one per 100 calls, about as much CPU as
-          # the gateways they load); a report "warning" means a worker lagged and measured itself.
+          # the AppBridge replicas they load); a report "warning" means a worker lagged and measured itself.
           npm run scale -w @fonoster/appbridge --silent -- --calls 200 --seconds 60 --replicas 2 | tee reports/scale-2x200.json
 
       - name: Turn-taking replay (T3)
@@ -200,7 +200,7 @@ jobs:
           name: conformance-reports
           path: reports/
 
-  # The full T2 bar (ten replicas, 1,000 calls) needs about 20 vCPU for the gateways alone, more
+  # The full T2 bar (ten replicas, 1,000 calls) needs about 20 vCPU for the AppBridge replicas alone, more
   # than a hosted runner has. This job stays off until the repository variable LOAD_RUNNER names
   # a bigger runner (a GitHub larger-runner label or a self-hosted label); the nightly job above
   # keeps running the reduced profiles meanwhile.

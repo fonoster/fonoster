@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// The gateway works internally in PCM16 little-endian, mono, 16 kHz. Everything that enters
+// AppBridge works internally in PCM16 little-endian, mono, 16 kHz. Everything that enters
 // (caller RTP, app audio, TTS, played files) is converted to it, and everything that leaves is
 // converted from it.
 

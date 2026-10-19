@@ -10,9 +10,6 @@
     },
     {
       "path": "../logger"
-    },
-    {
-      "path": "../streams"
     }
   ],
   "exclude": ["node_modules", "dist", "test"]

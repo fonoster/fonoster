@@ -5,7 +5,7 @@ Each Fonoster service reads one file, mounted at `/config/<name>.yaml` in its co
 | Service | Reads | Notes |
 |---|---|---|
 | API server (with Identity) | `fonoster.yaml` | Everything; secrets as `${NAME}` placeholders |
-| Voice gateway | `gateway.yaml` | `encryption.key` is the API server's key |
+| AppBridge | `appbridge.yaml` | `encryption.key` is the API server's key |
 | Autopilot | `autopilot.yaml` | One file for every replica |
 | Roomr node | `roomr.yaml` | Flags win over it; `ROOMR_*` variables are not read |
 | Dashboard | `DASHBOARD_API_URL` | Everything else comes from the API server |
@@ -47,7 +47,7 @@ incomplete. SIP over TLS (Routr on 5061) is documented, commented out, in
 ## How the files work
 
 - **Where they're found.** `--config <path>`, otherwise `/config/<name>.<ext>`, then
-  `/opt/fonoster/<name>.<ext>` (`/etc/fonoster` for the gateway and Autopilot), then
+  `/opt/fonoster/<name>.<ext>` (`/etc/fonoster` for AppBridge and Autopilot), then
   `./config/<name>.<ext>`.
 - **YAML or JSON with comments.** `.yaml`/`.yml` or `.json`/`.jsonc`
   (`config/fonoster.example.jsonc` shows the JSONC form). Two files for the same

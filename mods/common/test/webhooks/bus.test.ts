@@ -108,7 +108,7 @@ describe("@common/webhooks bus fan-out (task 2.2)", function () {
       publish: (e) => dispatcher.publish(e),
       workspaceOfApp: async (appRef) => (appRef === "support" ? "W" : undefined)
     });
-    // A Roomr node refusing a call no gateway claimed knows only the app.
+    // A Roomr node refusing a call no AppBridge claimed knows only the app.
     busWebhookPublisher(bus)(callFailed("", { ...call, reason: "node_error" }));
     busWebhookPublisher(bus)(
       callFailed("", { ...call, appRef: "unknown", reason: "node_error" })

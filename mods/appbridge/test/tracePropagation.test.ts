@@ -25,13 +25,13 @@ import {
   traceHeaders
 } from "../src/media/MediaControl";
 
-// Trace propagation over NATS headers (add-platform 2.5): gateway -> Roomr node on commands,
-// Roomr node -> gateway on call.incoming. Needs CONFORMANCE_NATS_URL.
+// Trace propagation over NATS headers (add-platform 2.5): appbridge -> Roomr node on commands,
+// Roomr node -> appbridge on call.incoming. Needs CONFORMANCE_NATS_URL.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 const TP = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01";
 const sc = StringCodec();
 
-describe("@gateway/trace propagation over NATS", function () {
+describe("@appbridge/trace propagation over NATS", function () {
   let nc: NatsConnection;
 
   before(async function () {

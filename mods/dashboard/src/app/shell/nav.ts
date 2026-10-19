@@ -35,7 +35,7 @@ import {
   Webhook
 } from "~/components/icons/material";
 
-/** Material Symbols, or a lucide icon where the set has no fit (Streams). */
+/** Material Symbols, or a lucide icon where the set has no fit (the streams icon on Apps). */
 export type NavIcon = ComponentType<SVGProps<SVGSVGElement>>;
 export type NavItem = { label: string; path: string; icon: NavIcon };
 
@@ -50,7 +50,7 @@ export const NAVIGATION: NavSection[] = [
     items: [
       { label: "Overview", path: "", icon: SpaceDashboard },
       { label: "Agents", path: "agents", icon: SmartToy },
-      { label: "Streams", path: "streams", icon: StreamsIcon },
+      { label: "Apps", path: "apps", icon: StreamsIcon },
       { label: "Calls", path: "calls", icon: CallLog }
     ]
   },

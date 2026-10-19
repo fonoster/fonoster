@@ -92,11 +92,11 @@ drainWait: 30s
 	}
 	defer nc.Close()
 	beats := replica(t, "roomr.nodes."+nodeID+".heartbeat")
-	// The gateway claims every call, so the room stays up.
-	sub, _ := nc.Subscribe("gateway.incoming", func(m *nats.Msg) {
+	// AppBridge claims every call, so the room stays up.
+	sub, _ := nc.Subscribe("appbridge.incoming", func(m *nats.Msg) {
 		var ev map[string]any
 		if json.Unmarshal(m.Data, &ev) == nil && ev["nodeId"] == nodeID {
-			_ = m.Respond([]byte(`{"type":"claimed","gatewayRef":"gw-drain"}`))
+			_ = m.Respond([]byte(`{"type":"claimed","bridgeRef":"gw-drain"}`))
 		}
 	})
 	defer func() { _ = sub.Unsubscribe() }()

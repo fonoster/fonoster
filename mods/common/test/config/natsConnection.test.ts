@@ -24,14 +24,14 @@ describe("@common/config natsConnectOptions", function () {
     expect(
       natsConnectOptions({
         url: "nats://nats:4222",
-        user: "gateway",
+        user: "appbridge",
         password: "p"
       })
     ).to.deep.equal({
       servers: "nats://nats:4222",
-      user: "gateway",
+      user: "appbridge",
       pass: "p",
-      inboxPrefix: "_INBOX_gateway"
+      inboxPrefix: "_INBOX_appbridge"
     });
     expect(natsInboxPrefix("region-agent")).to.equal("_INBOX_region-agent");
   });

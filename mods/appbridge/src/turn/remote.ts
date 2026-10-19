@@ -27,15 +27,15 @@ import { Detector, Estimate, SpeechKind } from "./Detector";
 // carrying the Detector interface, protocol `fonoster.detector.v1` (contract:
 // mods/conformance/schema/detector.v1.schema.json). Any language can host a Detector behind it.
 //
-//   gateway → detector  text   {type: "hello", protocol, rate: 16000, frameMs: 20}
+//   appbridge → detector  text   {type: "hello", protocol, rate: 16000, frameMs: 20}
 //                       binary one 20 ms frame of caller audio, PCM16LE mono 16 kHz (640 bytes)
 //                       text   {type: "transcript", text, final, language, confidence, turn?}
 //                       text   {type: "output", playing}
 //                       text   {type: "patience", factor}
 //                       text   {type: "reset"}
-//   detector → gateway  text   {type: "estimate", frame, eot, speaking, kind}
+//   detector → appbridge  text   {type: "estimate", frame, eot, speaking, kind}
 //
-// `frame` counts binary frames from 1, so the detector's clock is frame × 20 ms. The gateway uses
+// `frame` counts binary frames from 1, so the detector's clock is frame × 20 ms. AppBridge uses
 // the latest estimate while it is at most `maxLagMs` behind; otherwise (not connected yet, slow,
 // or gone) it uses its local fallback Detector, so a broken detector never stalls a call.
 

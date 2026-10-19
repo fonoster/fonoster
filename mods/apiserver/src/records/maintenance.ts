@@ -26,7 +26,7 @@ const sc = StringCodec();
 
 /**
  * Retention and erasure run in the record's region (it holds the files and the signing key);
- * the control plane asks over NATS (`callrecord.<region>.maintenance`, served by the gateways).
+ * the control plane asks over NATS (`callrecord.<region>.maintenance`, served by the AppBridge replicas).
  */
 export function natsMaintenanceClient(
   nc: NatsConnection,

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 
 class SessionError(Exception):
-    """A command failed: the gateway sent ``error`` with ``relatesTo`` set to the command's id."""
+    """A command failed: AppBridge sent ``error`` with ``relatesTo`` set to the command's id."""
 
     def __init__(self, code: str, message: str, fatal: bool = False):
         super().__init__(message)

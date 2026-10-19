@@ -22,7 +22,7 @@ import { chainKeySources } from "../src/speech/keySources";
 
 // Workspace vendor keys (add-provider-registry 3.2, build log CP-B12).
 
-describe("@gateway/workspace vendor keys", function () {
+describe("@appbridge/workspace vendor keys", function () {
   const config = {
     nats: { url: "nats://x" },
     providers: {

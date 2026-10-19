@@ -22,8 +22,8 @@ import { FakeApp, FakesHarness, Peer } from "@fonoster/conformance";
 import {
   callSubject,
   AppConfig,
-  Gateway,
-  GatewayConfig,
+  AppBridge,
+  AppBridgeConfig,
   MemoryCallRecordSink,
   OUTBOUND_SUBJECT
 } from "../src";
@@ -34,7 +34,7 @@ import * as path from "path";
 import { Registry as RegistryNs } from "@fonoster/common";
 import { z } from "zod";
 
-// Gateway behaviour that needs more than one app or no app at all, so it is not expressed as a
+// AppBridge behaviour that needs more than one app or no app at all, so it is not expressed as a
 // single-peer scenario: signatures, fallback, handoff, outbound calls and the call record.
 // Needs NATS: set CONFORMANCE_NATS_URL.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
@@ -57,12 +57,12 @@ async function waitFor<T>(fn: () => T | undefined, ms = 3000): Promise<T> {
   }
 }
 
-describe("@gateway integration", function () {
+describe("@appbridge integration", function () {
   this.timeout(15000);
   let nc: NatsConnection;
   let harness: FakesHarness;
   let other: FakeApp;
-  let gateway: Gateway;
+  let appbridge: AppBridge;
   let record: MemoryCallRecordSink;
 
   before(async function () {
@@ -80,7 +80,7 @@ describe("@gateway integration", function () {
   });
 
   afterEach(async function () {
-    await gateway?.stop();
+    await appbridge?.stop();
     await harness?.stop();
     await other?.stop();
   });
@@ -100,9 +100,12 @@ describe("@gateway integration", function () {
     };
   }
 
-  async function start(apps: AppConfig[], extra: Partial<GatewayConfig> = {}) {
+  async function start(
+    apps: AppConfig[],
+    extra: Partial<AppBridgeConfig> = {}
+  ) {
     const urls = harness.providerUrls;
-    const config: GatewayConfig = {
+    const config: AppBridgeConfig = {
       nats: { url: NATS_URL! },
       retry: { windowMs: 500, intervalMs: 100 },
       apps,
@@ -116,7 +119,7 @@ describe("@gateway integration", function () {
       },
       ...extra
     };
-    gateway = await new Gateway({ config, nats: nc, record }).start();
+    appbridge = await new AppBridge({ config, nats: nc, record }).start();
   }
 
   const commands = () => harness.roomrNode.commands.map((c) => c.command.type);
@@ -365,8 +368,8 @@ describe("@gateway integration", function () {
     const find = (source: string, type: string) =>
       entries.find((e) => e.source === source && e.message.type === type);
     expect(find("app", "speak")?.message).to.include({ id: "r1" });
-    expect(find("gateway", "output.done")?.message).to.include({ id: "r1" });
-    expect(find("gateway", "session.end")?.message).to.include({
+    expect(find("appbridge", "output.done")?.message).to.include({ id: "r1" });
+    expect(find("appbridge", "session.end")?.message).to.include({
       reason: "app_hangup"
     });
     expect(entries.every((e) => typeof e.at === "number")).to.equal(true);

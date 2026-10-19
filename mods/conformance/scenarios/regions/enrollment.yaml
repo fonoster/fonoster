@@ -24,7 +24,7 @@ steps:
       type: region.heartbeat
       regionRef: "${region}"
       version: "0.27.0"
-      components: { roomrNodes: 1, gateways: 1, autopilot: true }
+      components: { roomrNodes: 1, appbridges: 1, autopilot: true }
       activeCalls: 0
       secretsSet: []
       configVersion: 1

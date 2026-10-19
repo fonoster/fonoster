@@ -43,7 +43,7 @@ export type EvalTelephony = {
 
 /**
  * An in-memory session for conversation evals (rework-autopilot 1.4): the session engine runs on
- * it exactly as on a call, but there is no gateway, socket or audio. Turns go in as `turn.ended`;
+ * it exactly as on a call, but there is no AppBridge, socket or audio. Turns go in as `turn.ended`;
  * every reply is "heard" in full (no barge-in in an eval).
  */
 export class EvalSession {

@@ -109,7 +109,7 @@ const OTHER_SEAL_WAIT_MS = 120_000;
 
 /**
  * Builds call records live and seals them at hangup (call-record "The record is built during the
- * call and sealed at hangup"). It implements the gateway's CallRecordSink interface.
+ * call and sealed at hangup"). It implements AppBridge's CallRecordSink interface.
  */
 export class CallRecordWriter {
   /** Calls appended in this process and not closed yet; the sweep leaves them alone. */
@@ -335,7 +335,7 @@ export class CallRecordWriter {
 
   /**
    * Seals records whose calls stopped appending more than `deadlineMs` ago without a hangup (a
-   * gateway that crashed). Returns the callRefs sealed.
+   * appbridge that crashed). Returns the callRefs sealed.
    */
   async sweep(now = Date.now(), deadlineMs = SEAL_DEADLINE_MS) {
     const sealed: string[] = [];

@@ -32,7 +32,7 @@ const AI_COUSTICS_NAME = "aiCoustics";
 const PACKAGE = "@ai-coustics/aic-sdk";
 const FULL_SCALE = 32767;
 
-const logger = getLogger({ service: "gateway", filePath: __filename });
+const logger = getLogger({ service: "appbridge", filePath: __filename });
 
 const aiCousticsOptionsSchema = z.object({
   // Voice Focus suppresses competing speech; Multi Speaker keeps every voice

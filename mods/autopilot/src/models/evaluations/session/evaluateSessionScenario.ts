@@ -22,7 +22,7 @@ import {
   StepEvaluationReport
 } from "@fonoster/types";
 import { Agent, TurnTrace } from "../../../session/Agent";
-import { SessionAssistant } from "../../../session/config";
+import { SessionAgent } from "../../../session/config";
 import { createAutopilotHandler } from "../../../session/createAutopilot";
 import { ChatMessage, Think, ToolCall } from "../../../session/think";
 import { ToolOutcome, ToolPort } from "../../../session/tools";
@@ -49,12 +49,12 @@ export type SessionScenarioReport = ScenarioEvaluationReport & {
 };
 
 export type SessionEvalOptions = {
-  assistant: SessionAssistant;
+  agent: SessionAgent;
   /** The language model the engine streams from (a registry adapter, or the fake LLM). */
   think: Think;
   testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;
   /**
-   * Runs the assistant's own tools. Defaults to `evalToolPort`: evals never call tool endpoints
+   * Runs the agent's own tools. Defaults to `evalToolPort`: evals never call tool endpoints
    * (an eval must not book an appointment), every call succeeds with `{ status: "ok" }`.
    */
   tools?: ToolPort;
@@ -105,7 +105,7 @@ export async function evaluateSessionScenario(
     report: StepEvaluationReport
   ) => void | Promise<void>
 ): Promise<SessionScenarioReport> {
-  const { assistant, testTextSimilarity } = options;
+  const { agent: agentConfig, testTextSimilarity } = options;
   const stepTimeoutMs = options.stepTimeoutMs ?? 60_000;
   const session = new EvalSession(scenario.telephonyContext);
 
@@ -131,7 +131,7 @@ export async function evaluateSessionScenario(
   };
 
   const handler = createAutopilotHandler({
-    assistant: { ...assistant, testCases: undefined },
+    agent: { ...agentConfig, testCases: undefined },
     think,
     tools: options.tools ?? evalToolPort,
     recorder: {
@@ -213,8 +213,8 @@ export async function evaluateSessionScenario(
       // engine says for it (as the legacy evals compared).
       report.aiResponse = builtIn
         ? builtIn.name === "hangup"
-          ? assistant.conversationSettings.goodbyeMessage
-          : (assistant.conversationSettings.transferOptions?.message ?? "")
+          ? agentConfig.conversationSettings.goodbyeMessage
+          : (agentConfig.conversationSettings.transferOptions?.message ?? "")
         : reply
             .map((s) => s.text)
             .join("")

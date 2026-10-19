@@ -24,7 +24,7 @@ import { es256, KeyCustodyLike, KeyHistory, SigningKey } from "./sign";
 // Region signing-key custody (add-call-record task 2.6, build log LO-B5). The writer never holds
 // a key itself: it asks a custody for the current key id and a signature. `FileKeyCustody` keeps
 // keys in a directory and supports rotation; a KMS or Vault custody implements the same interface
-// (sign remotely, list public keys) without the private key ever reaching the gateway.
+// (sign remotely, list public keys) without the private key ever reaching AppBridge.
 
 export interface KeyCustody extends KeyCustodyLike {
   /** The key that signs new records, and the published key set URL. */

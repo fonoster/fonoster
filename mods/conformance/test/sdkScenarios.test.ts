@@ -19,7 +19,7 @@
 import { expect } from "chai";
 import { AddressInfo } from "net";
 import WebSocket from "ws";
-import { FakeGateway, loadScenarios, runScenario, verify } from "../src";
+import { FakeAppBridge, loadScenarios, runScenario, verify } from "../src";
 
 // A deliberately tiny app that implements the voice-sdk fixtures on the raw protocol, the way an
 // SDK would. It proves the scenario files and the runner agree with each other; the real SDK
@@ -34,7 +34,7 @@ function session(socket: WebSocket) {
   // DTMF right after session.start), and an SDK must not lose them.
   const backlog: Json[] = [];
   const listeners = new Set<(m: Json) => boolean>();
-  // Outputs this app sent, so it can cut off interruptible ones on barge-in (gateway B22).
+  // Outputs this app sent, so it can cut off interruptible ones on barge-in (appbridge B22).
   const outputs = new Map<
     string,
     { interruptible: boolean; started: boolean }
@@ -120,7 +120,7 @@ const FIXTURES: Record<
     s.hangup();
   },
   "answer-then-say": async (s) => {
-    // answer() sends nothing: the gateway answered on connect.
+    // answer() sends nothing: AppBridge answered on connect.
     await s.say("Hello from the SDK.");
     s.hangup();
   },
@@ -183,9 +183,9 @@ describe("@conformance/voice-sdk scenarios against the reference fixtures", func
       it(scenario.name, async function () {
         const server = await startFixtureServer(scenario.fixture!);
         try {
-          const gateway = new FakeGateway({ signingSecret: SECRET });
+          const appbridge = new FakeAppBridge({ signingSecret: SECRET });
           const result = await runScenario(scenario, {
-            connect: () => gateway.dial(server.url)
+            connect: () => appbridge.dial(server.url)
           });
           expect(result.status, result.reason).to.equal("passed");
         } finally {

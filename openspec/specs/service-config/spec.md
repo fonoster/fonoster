@@ -6,7 +6,7 @@ How each Fonoster service finds, validates and interpolates its single config fi
 ### Requirement: Each Fonoster service reads one config file
 
 The apiserver SHALL read its configuration from one `fonoster` file, Autopilot from one
-`autopilot` file, the gateway from one `gateway` file and the Roomr node from one `roomr`
+`autopilot` file, AppBridge from one `appbridge` file and the Roomr node from one `roomr`
 file. None SHALL read environment variables of its own; values are taken from the file only,
 except values the file explicitly references with `${VAR}`.
 

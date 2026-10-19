@@ -30,7 +30,7 @@ export type Contract =
   | "turn-taking"
   | "regions";
 
-export type Role = "app" | "gateway" | "media-control-client" | "region-cell";
+export type Role = "app" | "appbridge" | "media-control-client" | "region-cell";
 
 export type ProviderFailure =
   | "provider_unavailable"
@@ -71,12 +71,12 @@ export type Setup = {
     signingSecret?: string;
     verifySignature?: boolean;
     reachable?: boolean;
-    /** The secret the fake app verifies with, when it is not the one the gateway signs with. */
+    /** The secret the fake app verifies with, when it is not the one AppBridge signs with. */
     verifySecret?: string;
     /** `{app: "app-2"}` (the harness's second app) or `{message}`. */
     fallback?: { app?: string; message?: string };
     speech?: Record<string, unknown>;
-    /** Audio filters the gateway applies to caller audio (`conformance-mute` silences it). */
+    /** Audio filters AppBridge applies to caller audio (`conformance-mute` silences it). */
     filters?: { name: string; options?: Record<string, unknown> }[];
     /** The app's workspace (Twilio's accountSid). */
     workspaceRef?: string;
@@ -97,8 +97,8 @@ export type Setup = {
     /** media-control: whether the runner claims call.incoming (default true). */
     claimCalls?: boolean;
   };
-  assistant?: Record<string, unknown>;
-  /** voice-session: the catalog the gateway resolves ids with (see SCENARIOS.md). */
+  agent?: Record<string, unknown>;
+  /** voice-session: the catalog AppBridge resolves ids with (see SCENARIOS.md). */
   catalog?: {
     voices?: {
       id: string;

@@ -16,8 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SessionAssistant, testCasesSchema } from "@fonoster/common";
-import { EvalAssistant, LlmProvider } from "../types";
+import { SessionAgent, testCasesSchema } from "@fonoster/common";
+import { EvalAgent, LlmProvider } from "../types";
 
 const LLM_PROVIDERS: LlmProvider[] = [
   "openai",
@@ -28,28 +28,28 @@ const LLM_PROVIDERS: LlmProvider[] = [
 ];
 
 /**
- * The session assistant as the evaluations run it: the catalog id split into provider and model,
- * with the keys the caller resolved (never stored in the assistant).
+ * The session agent as the evaluations run it: the catalog id split into provider and model,
+ * with the keys the caller resolved (never stored in the agent).
  */
 export function createEvalEffectiveConfig(
-  assistant: SessionAssistant,
+  agent: SessionAgent,
   keys: { apiKey?: string; evaluationApiKey?: string }
-): EvalAssistant {
-  const [provider, ...rest] = assistant.languageModel.model.split("/");
+): EvalAgent {
+  const [provider, ...rest] = agent.languageModel.model.split("/");
   if (!LLM_PROVIDERS.includes(provider as LlmProvider))
     throw new Error(`evaluations do not support ${provider} models`);
-  const testCases = testCasesSchema.parse(assistant.testCases);
+  const testCases = testCasesSchema.parse(agent.testCases);
   const {
     provider: _p,
     apiKey: _k,
     baseUrl: _b,
     ...languageModel
-  } = assistant.languageModel;
+  } = agent.languageModel;
   void _p;
   void _k;
   void _b;
   return {
-    conversationSettings: assistant.conversationSettings,
+    conversationSettings: agent.conversationSettings,
     languageModel: {
       ...languageModel,
       provider: provider as LlmProvider,

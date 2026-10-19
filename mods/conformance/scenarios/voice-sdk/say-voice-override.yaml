@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: say-voice-override
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: say-voice-override
 spec: "say speaks text and reports what was heard / Voice override"
 steps:

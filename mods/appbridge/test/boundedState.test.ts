@@ -19,8 +19,8 @@
 import { expect } from "chai";
 import { connect, NatsConnection, StringCodec } from "nats";
 import {
-  Gateway,
-  GatewayConfig,
+  AppBridge,
+  AppBridgeConfig,
   MemoryCallRecordSink,
   NullCallRecordSink,
   OUTBOUND_SUBJECT
@@ -32,7 +32,7 @@ import {
   WORKSPACE_KEYS_HOLD_MS
 } from "../src/speech/Catalog";
 
-// Long-lived gateway state stays bounded (in-memory state audit, phase 4): the call record sink
+// Long-lived appbridge state stays bounded (in-memory state audit, phase 4): the call record sink
 // without a record store, the speech catalog's workspace-key adapters, and the room watch of
 // outbound calls that are never answered.
 
@@ -50,13 +50,13 @@ async function waitFor<T>(fn: () => T | undefined | false, ms = 3000) {
   }
 }
 
-describe("@gateway bounded state", function () {
+describe("@appbridge bounded state", function () {
   describe("call record sinks", function () {
-    it("a gateway without a record store keeps nothing", function () {
-      const gateway = new Gateway({
+    it("an AppBridge without a record store keeps nothing", function () {
+      const appbridge = new AppBridge({
         config: { nats: { url: "nats://unused" }, providers: {} }
       });
-      expect(gateway.record).to.be.instanceOf(NullCallRecordSink);
+      expect(appbridge.record).to.be.instanceOf(NullCallRecordSink);
     });
 
     it("the memory sink keeps only the last ended calls (10k calls)", function () {
@@ -146,7 +146,7 @@ describe("@gateway bounded state", function () {
   describe("outbound calls never answered", function () {
     this.timeout(10_000);
     let nc: NatsConnection;
-    let gateway: Gateway | undefined;
+    let appbridge: AppBridge | undefined;
     let record: MemoryCallRecordSink;
     const failures: unknown[] = [];
 
@@ -156,14 +156,14 @@ describe("@gateway bounded state", function () {
     });
     after(async () => nc?.close());
     afterEach(async () => {
-      await gateway?.stop();
-      gateway = undefined;
+      await appbridge?.stop();
+      appbridge = undefined;
     });
 
     const start = async () => {
       record = new MemoryCallRecordSink();
       failures.length = 0;
-      const config: GatewayConfig = {
+      const config: AppBridgeConfig = {
         nats: { url: NATS_URL! },
         providers: {},
         apps: [
@@ -176,7 +176,7 @@ describe("@gateway bounded state", function () {
           }
         ]
       };
-      gateway = await new Gateway({
+      appbridge = await new AppBridge({
         config,
         nats: nc,
         record,
@@ -184,7 +184,7 @@ describe("@gateway bounded state", function () {
         outboundAnswerTimeoutMs: 400,
         webhooks: (e) => failures.push(e)
       }).start();
-      return gateway;
+      return appbridge;
     };
     const outbound = async (nodeId: string, roomRef: string) => {
       const reply = await nc.request(
@@ -203,7 +203,7 @@ describe("@gateway bounded state", function () {
       const gw = await start();
       const nodeId = `n-${Date.now()}`;
       const reply = await outbound(nodeId, "room-1");
-      expect(reply).to.include({ type: "ack", gatewayRef: gw.gatewayRef });
+      expect(reply).to.include({ type: "ack", bridgeRef: gw.bridgeRef });
       expect(gw.pendingOutboundCount).to.equal(1);
       nc.publish(
         `media.${nodeId}.events.room-1`,

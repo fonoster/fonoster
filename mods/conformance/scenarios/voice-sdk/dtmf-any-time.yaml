@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: dtmf-any-time
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: dtmf-listener
 spec: "Events are exposed as subscriptions / Listening for keypresses at any time"
 steps:

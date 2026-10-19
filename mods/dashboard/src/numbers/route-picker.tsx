@@ -46,7 +46,7 @@ function plural(count: number, other: boolean) {
 
 /**
  * "When this number is called, send it to": a segmented choice between
- * agents, streams and SIP agents, and a searchable list of the chosen kind.
+ * agents, apps and SIP agents, and a searchable list of the chosen kind.
  */
 export function RoutePicker({
   value,

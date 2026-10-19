@@ -60,8 +60,8 @@ export type VoiceServerOptions = {
 };
 
 /**
- * Accepts VoiceSessionGateway sessions over WebSocket and runs the handler once per session
- * (voice-sdk, "VoiceServer accepts gateway sessions over WebSocket").
+ * Accepts AppBridge sessions over WebSocket and runs the handler once per session
+ * (voice-sdk, "VoiceServer accepts AppBridge sessions over WebSocket").
  */
 export class VoiceServer {
   private wss = new WebSocket.Server({ noServer: true });
@@ -132,7 +132,7 @@ export class VoiceServer {
     let binding: AppBinding | undefined;
     if (this.verify) {
       const urls = this.candidateUrls(req);
-      // The app-bound signature when the gateway sent one (or it is required); a bad one is
+      // The app-bound signature when AppBridge sent one (or it is required); a bad one is
       // refused even if the URL-only signature matches.
       const bound =
         this.options.requireAppBinding || hasAppSignature(req.headers)

@@ -67,7 +67,7 @@ You need:
     ```text
     .env written (10 secrets generated)
     keys: 3 files created in config/keys
-    config: config/autopilot.yaml, config/fonoster.yaml, config/gateway.yaml, config/roomr.yaml, config/routr-edgeport.yaml
+    config: config/autopilot.yaml, config/fonoster.yaml, config/appbridge.yaml, config/roomr.yaml, config/routr-edgeport.yaml
     host address: 192.0.2.10
 
     Next: docker compose up -d
@@ -97,7 +97,7 @@ You need:
     ```text
     config/autopilot.yaml: valid
     config/fonoster.yaml: valid
-    config/gateway.yaml: valid
+    config/appbridge.yaml: valid
     config/roomr.yaml: valid (no schema; values only)
     config/routr-edgeport.yaml: valid (no schema; values only)
     ```
@@ -158,7 +158,7 @@ Everything lives in the `fonoster` folder:
 | -------------- | ---------------------------------------------------------------- |
 | `.env`         | Ports, the host address, the owner's login and every generated secret |
 | `config/`      | Each service's settings, written by `init` from the examples. They name secrets as `${NAME}`; Compose passes each container only the values its own file names (its `environment:` list in `compose.yaml`) |
-| `config/keys/` | The signing keys. Only the API server mounts Identity's private key; the gateway gets the public key and its call-record key |
+| `config/keys/` | The signing keys. Only the API server mounts Identity's private key; AppBridge gets the public key and its call-record key |
 
 <Warning>
   Back up `.env`. Its encryption key protects the vendor keys you store, and they can't be recovered

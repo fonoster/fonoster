@@ -23,8 +23,8 @@ import { UpdateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { createGetFnUtil } from "./createGetFnUtil";
 import {
+  agentRow,
   AppsDb,
-  assistantRow,
   newSigningSecret,
   secretHint,
   SessionAppsConfig,
@@ -60,14 +60,12 @@ function createUpdateApplication(prisma: AppsDb, config: SessionAppsConfig) {
 
     logger.verbose("call to updateApplication", { accessKeyId, ref });
 
-    const { columns, assistant, autopilot } = await toAppColumns(
-      prisma,
-      request,
-      { accessKeyId, ref, config }
-    );
-    const intelligence = assistant
-      ? await assistantRow(prisma, assistant)
-      : undefined;
+    const { columns, agent, autopilot } = await toAppColumns(prisma, request, {
+      accessKeyId,
+      ref,
+      config
+    });
+    const intelligence = agent ? await agentRow(prisma, agent) : undefined;
     // An app that became an Autopilot app takes the shared secret; one that stopped being one
     // needs its own.
     let signingSecret: string | undefined;

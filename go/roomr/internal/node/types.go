@@ -51,7 +51,7 @@ type IncomingCall struct {
 	Headers   map[string]string
 	Media     sdp.Media
 	Leg       CallLeg
-	// OnRoom is told the room the call joined, before it is offered to the gateways.
+	// OnRoom is told the room the call joined, before it is offered to the AppBridge replicas.
 	OnRoom func(roomRef string)
 }
 

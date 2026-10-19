@@ -53,7 +53,7 @@ message SpeechDefaults {
   string stt_model = 3;
   // Text-to-speech model (empty: the voice's default)
   string tts_model = 4;
-  // Silence timeout in milliseconds (0: the gateway default)
+  // Silence timeout in milliseconds (0: AppBridge default)
   int32 silence_timeout_ms = 5;
   // The Pacing policy's patience: low, normal or high (empty: normal)
   string patience = 6;
@@ -134,7 +134,7 @@ message Application {
   int32 created_at = 8;
   // Update time
   int32 updated_at = 9;
-  // The WebSocket URL the gateway dials
+  // The WebSocket URL AppBridge dials
   string url = 10;
   // Stream protocol: fonoster or twilio
   string protocol = 11;

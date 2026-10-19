@@ -18,7 +18,7 @@
  */
 import { expect } from "chai";
 import {
-  FakeGateway,
+  FakeAppBridge,
   FakesHarness,
   Scenario,
   runScenario
@@ -30,7 +30,7 @@ import {
   createAutopilotHandler,
   resolveThink,
   sentences,
-  sessionAssistantSchema,
+  sessionAgentSchema,
   KnowledgePort
 } from "../../src/session";
 
@@ -55,13 +55,13 @@ async function* tokens(list: string[]) {
 
 describe("@autopilot/session config", function () {
   it("accepts a catalog id and fills defaults", function () {
-    const a = sessionAssistantSchema.parse(base);
+    const a = sessionAgentSchema.parse(base);
     expect(a.languageModel.temperature).to.equal(0.4);
     expect(a.conversationSettings.allowUserBargeIn).to.equal(true);
   });
 
   it("rejects eventsHook, pointing to workspace webhooks", function () {
-    const r = sessionAssistantSchema.safeParse({
+    const r = sessionAgentSchema.safeParse({
       ...base,
       eventsHook: { url: "https://x" }
     });
@@ -70,7 +70,7 @@ describe("@autopilot/session config", function () {
   });
 
   it("rejects an inline apiKey, pointing to workspace secrets", function () {
-    const r = sessionAssistantSchema.safeParse({
+    const r = sessionAgentSchema.safeParse({
       ...base,
       languageModel: { ...base.languageModel, apiKey: "sk-123" }
     });
@@ -82,16 +82,14 @@ describe("@autopilot/session config", function () {
       ...base,
       languageModel: { ...base.languageModel, provider: "openai" }
     };
-    expect(sessionAssistantSchema.safeParse(withProvider).success).to.equal(
-      false
-    );
+    expect(sessionAgentSchema.safeParse(withProvider).success).to.equal(false);
     const withVad = {
       ...base,
       conversationSettings: { ...base.conversationSettings, vad: {} }
     };
     expect(
-      JSON.stringify(sessionAssistantSchema.safeParse(withVad).error?.issues)
-    ).to.contain("gateway");
+      JSON.stringify(sessionAgentSchema.safeParse(withVad).error?.issues)
+    ).to.contain("AppBridge");
   });
 });
 
@@ -128,7 +126,7 @@ describe("@autopilot/session call record traces", function () {
       signingSecret: "s"
     }).listen(
       createAutopilotHandler({
-        assistant: { ...base, languageModel: { model: "fake/llm" } },
+        agent: { ...base, languageModel: { model: "fake/llm" } },
         providers: { fake: { baseUrl: harness.llm.url } },
         recorder: { turn: (t) => traces.push(t), note: () => undefined }
       })
@@ -137,7 +135,7 @@ describe("@autopilot/session call record traces", function () {
 format: fonoster.scenario.v1
 name: traces
 contract: autopilot
-role: gateway
+role: appbridge
 setup:
   providers:
     llm: { script: [{ content: "One. Two." }, { content: "Three. Four." }] }
@@ -157,7 +155,7 @@ steps:
       const result = await runScenario(scenario, {
         harness,
         connect: () =>
-          new FakeGateway({ signingSecret: "s" }).dial(
+          new FakeAppBridge({ signingSecret: "s" }).dial(
             `ws://127.0.0.1:${server.port}/`
           )
       });
@@ -197,7 +195,7 @@ describe("@autopilot/session knowledge port", function () {
       signingSecret: "s"
     }).listen(
       createAutopilotHandler({
-        assistant: { ...base, languageModel: { model: "fake/llm" } },
+        agent: { ...base, languageModel: { model: "fake/llm" } },
         providers: { fake: { baseUrl: harness.llm.url } },
         knowledge
       })
@@ -216,7 +214,7 @@ describe("@autopilot/session knowledge port", function () {
 format: fonoster.scenario.v1
 name: knowledge
 contract: autopilot
-role: gateway
+role: appbridge
 steps:
   - send: { type: session.start, protocol: fonoster.session.v1, sessionRef: s, callRef: c, appRef: a, direction: inbound, from: "1", to: "2", metadata: {}, handoff: null, audio: { codec: pcm16, rate: 16000 }, tracks: [], speech: { voice: v, language: en } }${steps}
   - wait: { ms: 50 }
@@ -225,7 +223,7 @@ steps:
       const started = Date.now();
       const result = await runScenario(scenario, {
         connect: () =>
-          new FakeGateway({ signingSecret: "s" }).dial(
+          new FakeAppBridge({ signingSecret: "s" }).dial(
             `ws://127.0.0.1:${server.port}/`
           )
       });

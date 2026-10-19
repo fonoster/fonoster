@@ -31,9 +31,9 @@ import {
   verifyRecord
 } from "@fonoster/callrecord";
 import { FakesHarness } from "@fonoster/conformance";
-import { GATEWAY_HEARTBEAT_SUBJECT } from "../src";
+import { APPBRIDGE_HEARTBEAT_SUBJECT } from "../src";
 
-// Crash harness (call-record task 1.3, conformance 3.9): kill the gateway process mid-call and
+// Crash harness (call-record task 1.3, conformance 3.9): kill AppBridge process mid-call and
 // check that a sealed, signed record still results, listing what is missing. Needs NATS.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -52,20 +52,20 @@ async function waitFor<T>(
   }
 }
 
-/** Resolves on the subscription's first message (the spawned gateway is up and claiming calls). */
+/** Resolves on the subscription's first message (the spawned AppBridge is up and claiming calls). */
 async function waitForHeartbeat(sub: Subscription, ms: number) {
   const timer = setTimeout(() => sub.unsubscribe(), ms);
   for await (const _ of sub) {
     clearTimeout(timer);
     return;
   }
-  throw new Error(`the gateway sent no heartbeat within ${ms} ms`);
+  throw new Error(`AppBridge sent no heartbeat within ${ms} ms`);
 }
 
-describe("@gateway call record after a crash", function () {
+describe("@AppBridge call record after a crash", function () {
   this.timeout(30000);
   let nc: NatsConnection;
-  let gateway: ChildProcess | undefined;
+  let appbridge: ChildProcess | undefined;
   let harness: FakesHarness;
   let dir: string;
 
@@ -77,13 +77,13 @@ describe("@gateway call record after a crash", function () {
   after(async () => nc?.close());
 
   afterEach(async () => {
-    gateway?.kill("SIGKILL");
+    appbridge?.kill("SIGKILL");
     await harness?.stop();
     if (dir) fs.rmSync(dir, { recursive: true, force: true });
   });
 
-  it("seals a signed record with everything appended before the gateway was killed", async function () {
-    dir = fs.mkdtempSync(path.join(os.tmpdir(), "gateway-crash-"));
+  it("seals a signed record with everything appended before AppBridge was killed", async function () {
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), "appbridge-crash-"));
     const { privateKey, publicKey } = generateKeyPairSync("ec", {
       namedCurve: "P-256"
     });
@@ -126,17 +126,17 @@ describe("@gateway call record after a crash", function () {
         }
       }
     };
-    fs.writeFileSync(path.join(dir, "gateway.yaml"), stringify(config));
-    // The gateway sends its first heartbeat once it claims call.incoming. A fixed sleep raced
+    fs.writeFileSync(path.join(dir, "appbridge.yaml"), stringify(config));
+    // AppBridge sends its first heartbeat once it claims call.incoming. A fixed sleep raced
     // its start-up (module load, NATS connect, the session registry: measured 0.6-4.3 s on a busy
     // host), and the node gives up on an unclaimed call after 2 x 500 ms.
-    const started = nc.subscribe(GATEWAY_HEARTBEAT_SUBJECT, { max: 1 });
+    const started = nc.subscribe(APPBRIDGE_HEARTBEAT_SUBJECT, { max: 1 });
     await nc.flush();
-    gateway = spawn(
+    appbridge = spawn(
       process.execPath,
       [
         path.join(__dirname, "..", "dist", "main.js"),
-        path.join(dir, "gateway.yaml")
+        path.join(dir, "appbridge.yaml")
       ],
       {
         env: { ...process.env, LOGS_LEVEL: "error" },
@@ -167,7 +167,7 @@ describe("@gateway call record after a crash", function () {
       "output.started"
     );
 
-    gateway.kill("SIGKILL");
+    appbridge.kill("SIGKILL");
     await sleep(200);
 
     // Any surviving replica's sweep seals it once the deadline passes.
@@ -200,11 +200,11 @@ describe("@gateway call record after a crash", function () {
     );
   });
 
-  // Pending (in-memory state audit, test 4): the Roomr node ends the dead gateway's room
-  // (go/roomr/e2e TestRoomEndsWhenItsGatewayIsLost) and a surviving replica seals the record
+  // Pending (in-memory state audit, test 4): the Roomr node ends the dead appbridge's room
+  // (go/roomr/e2e TestRoomEndsWhenItsAppBridgeIsLost) and a surviving replica seals the record
   // (above), but nothing sends the workspace `call.ended` (or `call.failed`) for the call: only
-  // the owning gateway produces them (workspace-webhooks "v1 event types"), and it is dead. The
+  // the owning AppBridge produces them (workspace-webhooks "v1 event types"), and it is dead. The
   // fix needs a spec decision on who reports it (the node on an orphaned room, or the sweep that
   // seals an incomplete record), so this stays pending until then.
-  it("sends call.ended for a call whose gateway was killed mid-call");
+  it("sends call.ended for a call whose AppBridge was killed mid-call");
 });

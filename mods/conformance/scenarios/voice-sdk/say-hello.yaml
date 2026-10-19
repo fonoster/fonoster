@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: say-hello
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: say-hello
 spec: "say speaks text and reports what was heard / Fully heard"
 description: >

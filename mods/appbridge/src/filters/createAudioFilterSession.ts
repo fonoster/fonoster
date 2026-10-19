@@ -20,7 +20,7 @@ import { getLogger } from "@fonoster/logger";
 import { AudioFilterFactory } from "./AudioFilterFactory";
 import { AudioFilterChain, AudioFilterConfig, ChainStats } from "./types";
 
-const logger = getLogger({ service: "gateway", filePath: __filename });
+const logger = getLogger({ service: "appbridge", filePath: __filename });
 
 type AudioFilterSession = {
   // The chain the audio path should use right now, or null for no filtering

@@ -23,7 +23,7 @@ import * as path from "path";
 import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
 import { FakesHarness } from "@fonoster/conformance";
-import { AppConfig, Gateway } from "../src";
+import { AppConfig, AppBridge } from "../src";
 import { TestCallVerifier, verifyRs256 } from "../src/testCalls";
 
 // Browser test calls (add-talk-in-browser D4): a call with X-Connect-Token reaches only apps of
@@ -61,7 +61,7 @@ const token = (extra: Record<string, unknown> = {}) =>
     ...extra
   });
 
-describe("@gateway test calls (add-talk-in-browser)", function () {
+describe("@appbridge test calls (add-talk-in-browser)", function () {
   let keyFile: string;
 
   before(() => {
@@ -121,10 +121,10 @@ describe("@gateway test calls (add-talk-in-browser)", function () {
     });
   });
 
-  describe("gateway end to end", function () {
+  describe("AppBridge end to end", function () {
     let nc: NatsConnection;
     let harness: FakesHarness;
-    let gateway: Gateway | undefined;
+    let appbridge: AppBridge | undefined;
 
     before(async function () {
       if (!NATS_URL) return this.skip();
@@ -144,7 +144,7 @@ describe("@gateway test calls (add-talk-in-browser)", function () {
         speech: { voice: "fake/default", language: "en-US" }
       };
       const urls = harness.providerUrls;
-      gateway = await new Gateway({
+      appbridge = await new AppBridge({
         config: {
           nats: { url: NATS_URL! },
           apps: [app],
@@ -163,8 +163,8 @@ describe("@gateway test calls (add-talk-in-browser)", function () {
     });
 
     afterEach(async () => {
-      await gateway?.stop();
-      gateway = undefined;
+      await appbridge?.stop();
+      appbridge = undefined;
       await harness?.stop();
     });
 

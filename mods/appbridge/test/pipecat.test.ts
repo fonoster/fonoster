@@ -22,7 +22,7 @@ import * as path from "path";
 import { expect } from "chai";
 import { NatsConnection, connect } from "nats";
 import { FakesHarness } from "@fonoster/conformance";
-import { Gateway, MemoryCallRecordSink } from "../src";
+import { AppBridge, MemoryCallRecordSink } from "../src";
 
 // Golden test (task 1.6, conformance 3.3): an unmodified Pipecat bot (TwilioFrameSerializer +
 // FastAPIWebsocketTransport) against the twilio protocol. Needs NATS and a Python with pipecat-ai:
@@ -139,11 +139,11 @@ class Bot {
   }
 }
 
-describe("@gateway Pipecat golden test (twilio protocol)", function () {
+describe("@appbridge Pipecat golden test (twilio protocol)", function () {
   this.timeout(60000);
   let nc: NatsConnection;
   let harness: FakesHarness;
-  let gateway: Gateway;
+  let appbridge: AppBridge;
   let bot: Bot;
   let record: MemoryCallRecordSink;
 
@@ -156,7 +156,7 @@ describe("@gateway Pipecat golden test (twilio protocol)", function () {
 
   afterEach(async function () {
     bot?.stop();
-    await gateway?.stop();
+    await appbridge?.stop();
     await harness?.stop();
   });
 
@@ -167,7 +167,7 @@ describe("@gateway Pipecat golden test (twilio protocol)", function () {
     const botPort = await freePort();
     const httpPort = await freePort();
     record = new MemoryCallRecordSink();
-    gateway = await new Gateway({
+    appbridge = await new AppBridge({
       nats: nc,
       record,
       config: {

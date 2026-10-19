@@ -52,7 +52,7 @@ describe("@conformance/FakeNatsRoomr over NATS", function () {
     });
     await nc.flush();
 
-    // A gateway replica claims call.incoming (media-control, request and reply).
+    // An AppBridge replica claims call.incoming (media-control, request and reply).
     const incoming: Record<string, unknown>[] = [];
     const claimer = nc.subscribe(INCOMING_SUBJECT, {
       callback: (_e, m) => {
@@ -95,7 +95,7 @@ describe("@conformance/FakeNatsRoomr over NATS", function () {
     }
   });
 
-  it("refuses a call no gateway claims with 503", async function () {
+  it("refuses a call no AppBridge claims with 503", async function () {
     node = new FakeNatsRoomr({
       nodeId: `unclaimed-${Date.now()}`,
       claimTimeoutMs: 50

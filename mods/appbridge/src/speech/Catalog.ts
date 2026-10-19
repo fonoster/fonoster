@@ -19,15 +19,15 @@
 import { Registry as RegistryNs } from "@fonoster/common";
 import { adapterFor, SttAdapter, TtsAdapter } from "@fonoster/community";
 import {
+  AppBridgeConfig,
   DEFAULTS,
-  GatewayConfig,
   ProviderConfig,
   providerKey
 } from "../config";
 
 /**
  * Resolves catalog ids (`<provider>/<voice>`) to adapters. A stand-in for the provider registry
- * (add-provider-registry): providers and voices come from the gateway config for now.
+ * (add-provider-registry): providers and voices come from AppBridge config for now.
  */
 export type VoiceResolution = {
   adapter: TtsAdapter;
@@ -121,7 +121,7 @@ export class Catalog {
   now: () => number = Date.now;
 
   constructor(
-    private readonly config: GatewayConfig,
+    private readonly config: AppBridgeConfig,
     registryStore?: RegistryNs.RegistryStore,
     private readonly keySource?: WorkspaceKeySource
   ) {
@@ -131,7 +131,7 @@ export class Catalog {
         new RegistryNs.FileRegistryStore(config.registry!.file!);
       this.registry = {
         store,
-        registry: new RegistryNs.Registry({ store, actor: "gateway" })
+        registry: new RegistryNs.Registry({ store, actor: "appbridge" })
       };
     }
     for (const name of Object.keys(config.providers ?? {})) {
@@ -293,7 +293,7 @@ export class Catalog {
     };
   }
 
-  /** Providers in the gateway config or the catalog. */
+  /** Providers in AppBridge config or the catalog. */
   private providerNames(): string[] {
     const names = new Set(Object.keys(this.config.providers ?? {}));
     for (const e of this.registry?.store.all() ?? [])
@@ -302,7 +302,7 @@ export class Catalog {
   }
 
   /**
-   * A provider's config: the gateway's YAML entry over its catalog entry (adapter, capabilities,
+   * A provider's config: AppBridge's YAML entry over its catalog entry (adapter, capabilities,
    * endpoints). The YAML wins, so operators can still override a vendor's endpoint or model. A
    * catalog provider needs no YAML entry; a retired one is not used.
    */
@@ -329,7 +329,7 @@ export class Catalog {
   }
 
   /**
-   * A provider's adapters with the platform's key: built at start for the gateway's YAML
+   * A provider's adapters with the platform's key: built at start for AppBridge's YAML
    * providers, and on first use for keyless catalog providers.
    */
   private platform(name: string): Adapters | undefined {
@@ -350,7 +350,7 @@ export class Catalog {
     return built;
   }
 
-  /** The STT adapter for the gateway (one STT provider per deployment for now). */
+  /** The STT adapter for AppBridge (one STT provider per deployment for now). */
   defaultStt(workspaceRef?: string): SttAdapter | undefined {
     const stt = (n: string) =>
       Boolean(this.providerConfig(n)?.capabilities.includes("stt"));

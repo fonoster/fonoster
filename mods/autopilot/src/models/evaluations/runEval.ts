@@ -18,7 +18,7 @@
  */
 import { Voice } from "../../voice";
 import { createLanguageModel } from "../createLanguageModel";
-import { EvalAssistant, TelephonyContext } from "../types";
+import { EvalAgent, TelephonyContext } from "../types";
 import { createTestTextSimilarity } from "./createTestTextSimilarity";
 import { evaluateScenario } from "./evaluateScenario";
 import { textSimilaryPrompt } from "./textSimilaryPrompt";
@@ -26,7 +26,7 @@ import { EvalScenario, RunEvalCallbacks } from "./types";
 
 export type RunEvalConfig = {
   intelligence: {
-    config: EvalAssistant;
+    config: EvalAgent;
   };
 };
 
@@ -35,7 +35,7 @@ export async function runEval(
   callbacks: RunEvalCallbacks
 ): Promise<void> {
   const { testCases } = autopilotApplication.intelligence.config;
-  const assistantConfig = autopilotApplication.intelligence.config;
+  const agentConfig = autopilotApplication.intelligence.config;
   const voice = {
     say: async (_: string) => {}
   } as Voice;
@@ -45,7 +45,7 @@ export async function runEval(
   for (const scenario of scenarios as EvalScenario[]) {
     const languageModel = createLanguageModel({
       voice,
-      assistantConfig,
+      agentConfig,
       knowledgeBase: {
         load: async () => {},
         queryKnowledgeBase: async (query: string) => query
@@ -55,16 +55,16 @@ export async function runEval(
 
     const testTextSimilarity = createTestTextSimilarity(
       {
-        provider: assistantConfig.testCases?.evalsLanguageModel?.provider,
-        model: assistantConfig.testCases?.evalsLanguageModel?.model ?? "",
-        apiKey: assistantConfig.testCases?.evalsLanguageModel?.apiKey
+        provider: agentConfig.testCases?.evalsLanguageModel?.provider,
+        model: agentConfig.testCases?.evalsLanguageModel?.model ?? "",
+        apiKey: agentConfig.testCases?.evalsLanguageModel?.apiKey
       },
-      assistantConfig.testCases?.evalsSystemPrompt ?? textSimilaryPrompt
+      agentConfig.testCases?.evalsSystemPrompt ?? textSimilaryPrompt
     );
 
     const report = await evaluateScenario(
       {
-        assistantConfig,
+        agentConfig,
         scenario,
         languageModel,
         testTextSimilarity

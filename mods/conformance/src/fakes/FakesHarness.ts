@@ -57,7 +57,7 @@ export type FakesHarnessOptions = {
 export type ConnectionMark = { app: number; other: number };
 
 /**
- * The fakes around a gateway under test, exposed to the runner as a Harness: setup, provider
+ * The fakes around an AppBridge under test, exposed to the runner as a Harness: setup, provider
  * injection, provider-time accounting and the named assertions from SCENARIOS.md.
  */
 export class FakesHarness implements Harness {
@@ -219,7 +219,7 @@ export class FakesHarness implements Harness {
 
   /**
    * Starts the scenario's call: the fake Roomr node offers it and the runner gets the socket the
-   * gateway opens to the fake app.
+   * appbridge opens to the fake app.
    */
   async offerCallAndAccept(timeoutMs = 5000): Promise<Peer> {
     const mark = this.connectionMark();
@@ -246,7 +246,7 @@ export class FakesHarness implements Harness {
   }
 
   /**
-   * The socket the runner plays once a call was placed: the first app the gateway reached
+   * The socket the runner plays once a call was placed: the first app AppBridge reached
    * (`app-1`, or `app-2` for routing and fallback), the listener when `listener.peer` says so, or
    * a detached peer when the call is set up never to reach an app.
    */

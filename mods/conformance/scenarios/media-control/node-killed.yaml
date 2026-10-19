@@ -3,7 +3,7 @@ contract: media-control
 role: media-control-client
 name: node-killed
 spec: "Nodes report liveness / Node killed"
-description: A killed node stops its heartbeats; gateways count it down after 3 missed beats.
+description: A killed node stops its heartbeats; appbridges count it down after 3 missed beats.
 setup:
   media: { heartbeatMs: 200 }
 steps:

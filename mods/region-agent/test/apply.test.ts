@@ -147,13 +147,13 @@ describe("@region-agent database snapshot (needs PERSISTENCE_TEST_DATABASE_URL)"
   });
   after(async () => db?.drop());
 
-  it("writes apps, assistants, catalog and webhooks into the tables the gateway and Autopilot read", async function () {
+  it("writes apps, agents, catalog and webhooks into the tables AppBridge and Autopilot read", async function () {
     const applier = new DatabaseApplier(db!.prisma, {
       workspaceRef: WS,
       autopilot: { url: "ws://autopilot:3000", signingSecret: "cell-ap-secret" }
     });
     const r = await applier.apply(snapshot(1));
-    expect(r).to.include({ apps: 2, assistants: 1, catalog: 2, webhooks: 1 });
+    expect(r).to.include({ apps: 2, agents: 1, catalog: 2, webhooks: 1 });
     const apps = await db!.prisma.application.findMany({
       include: { intelligence: true },
       orderBy: { ref: "asc" }

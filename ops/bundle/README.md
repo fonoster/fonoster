@@ -23,9 +23,9 @@ again and `docker compose up -d`. Envoy then serves 443 with your certificate an
 Or keep plain HTTP behind your own TLS proxy with `HTTP_BIND=127.0.0.1`.
 Vendor keys (Deepgram, ElevenLabs, OpenAI, Groq...) are added per workspace in the dashboard.
 
-Call records being written live in the `gateway-records` volume (`callRecord.dir` in
-`config/gateway.yaml`, `/var/lib/fonoster/records`), so recreating the gateway container (an
-upgrade, a crash) does not lose the calls in flight. A `config/gateway.yaml` from an older release
+Call records being written live in the `appbridge-records` volume (`callRecord.dir` in
+`config/appbridge.yaml`, `/var/lib/fonoster/records`), so recreating AppBridge container (an
+upgrade, a crash) does not lose the calls in flight. A `config/appbridge.yaml` from an older release
 may still say `/tmp/fonoster-records`: change it to `/var/lib/fonoster/records`.
 
 Full guide: https://docs.fonoster.com/self-hosting/install-compose

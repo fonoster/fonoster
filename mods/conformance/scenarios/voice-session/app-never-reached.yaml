@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 name: app-never-reached
 contract: voice-session
 role: app
-spec: "The gateway produces call lifecycle events / App never reached"
+spec: "AppBridge produces call lifecycle events / App never reached"
 setup:
   app: { reachable: false }
 steps:

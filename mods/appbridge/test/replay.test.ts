@@ -54,7 +54,7 @@ const call = (c: Partial<CorpusCall>): CorpusCall => ({
   ...c
 });
 
-describe("@gateway turn-taking replay", function () {
+describe("@AppBridge turn-taking replay", function () {
   it("measures the delay from the true end of a turn to turn.ended", function () {
     const r = replayCall(
       call({

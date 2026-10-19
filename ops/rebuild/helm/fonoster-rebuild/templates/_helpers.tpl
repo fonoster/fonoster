@@ -67,7 +67,7 @@ references need (the pod's namespace and where Secrets are mounted). (dict "root
 
 {{/*
 A service's NATS password (nats.auth, add-platform 4.1) as NATS_<USER>_PASSWORD, from the
-nats.auth.secret key named after the user. (dict "root" $ "user" "gateway")
+nats.auth.secret key named after the user. (dict "root" $ "user" "appbridge")
 */}}
 {{- define "fonoster-rebuild.natsPasswordEnv" -}}
 {{- if .root.Values.nats.auth.enabled }}
@@ -78,7 +78,7 @@ nats.auth.secret key named after the user. (dict "root" $ "user" "gateway")
 
 {{/*
 A service's `nats` config: the URL and, with nats.auth, its user and a secret:// reference to the
-password env above. (dict "root" $ "user" "gateway") → YAML map
+password env above. (dict "root" $ "user" "appbridge") → YAML map
 */}}
 {{- define "fonoster-rebuild.natsConfig" -}}
 url: {{ include "fonoster-rebuild.natsUrl" .root | quote }}

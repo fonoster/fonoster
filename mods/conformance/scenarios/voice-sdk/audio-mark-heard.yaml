@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: audio-mark-heard
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: audio-mark
 spec: "Raw audio access / Bring-your-own TTS"
 steps:

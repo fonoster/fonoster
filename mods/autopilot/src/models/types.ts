@@ -32,10 +32,10 @@ import { Tool } from "../tools/types";
 type LlmProvider = "openai" | "groq" | "ollama" | "google" | "anthropic";
 
 /**
- * A session assistant as the evaluations run it (rework-autopilot 8.2): the catalog id split into
+ * A session agent as the evaluations run it (rework-autopilot 8.2): the catalog id split into
  * provider and model, and the keys the control plane resolved for this run. Never stored.
  */
-type EvalAssistant = {
+type EvalAgent = {
   conversationSettings: SessionConversationSettings;
   languageModel: Omit<
     SessionLanguageModel,
@@ -82,7 +82,7 @@ type TelephonyContext = {
 
 export {
   BaseModelParams,
-  EvalAssistant,
+  EvalAgent,
   LlmProvider,
   InvocationResult,
   LanguageModel,

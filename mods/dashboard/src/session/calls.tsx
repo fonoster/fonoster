@@ -54,7 +54,7 @@ const OUTCOME: Record<
 
 const SOURCE_BADGE = {
   app: "info",
-  gateway: "neutral",
+  appbridge: "neutral",
   event: "success"
 } as const;
 

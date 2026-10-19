@@ -1,8 +1,8 @@
 # Operating the provider registry
 
 The registry is the catalog of the speech and LLM vendors the platform can use: providers, the
-models they offer (STT, TTS, LLM) and voices. Apps and assistants name catalog ids such as
-`deepgram/nova-3`; the gateways and Autopilot resolve them at session start. The catalog holds no
+models they offer (STT, TTS, LLM) and voices. Apps and agents name catalog ids such as
+`deepgram/nova-3`; the AppBridge replicas and Autopilot resolve them at session start. The catalog holds no
 keys, only a `credentialRef` name per provider.
 
 You change it with `fonoster-registry` (installed with `@fonoster/common`). For what users see,
@@ -13,7 +13,7 @@ read [Providers](../providers.md).
 | Store | Select with | Notes |
 | --- | --- | --- |
 | File (default) | `FONOSTER_REGISTRY_FILE` (default `./registry.json`) | No usages are known, so impact reports are empty and nothing is rewritten. Fine for a laptop. |
-| Database | `--store database` or `FONOSTER_REGISTRY_STORE=database` | The registry tables of the control-plane database. Knows which apps and assistants use each id; deprecation stores workspace notices. |
+| Database | `--store database` or `FONOSTER_REGISTRY_STORE=database` | The registry tables of the control-plane database. Knows which apps and agents use each id; deprecation stores workspace notices. |
 
 For the database store, give the URL with `--database-url` or `FONOSTER_REGISTRY_DATABASE_URL`.
 Set `FONOSTER_REGISTRY_ENCRYPTION_KEY` (the API server's field-encryption key) to also send
@@ -24,9 +24,9 @@ command says so. The utility loads a Prisma client at run time (`FONOSTER_PRISMA
 Database roles: after migrations, run `mods/apiserver/sql/registry-roles.sql`. `fonoster_registry`
 is the utility's login (writes the catalog and audit, rewrites speech columns of apps and the
 config of intelligence services); `fonoster_registry_reader` is read-only for the API server and
-gateways. The roles restrict only logins that do not own the tables.
+appbridges. The roles restrict only logins that do not own the tables.
 
-Point the gateways at the same catalog: `registry: {source: database, refreshMs}` (with
+Point the AppBridge replicas at the same catalog: `registry: {source: database, refreshMs}` (with
 `database`), or `registry: {file}` for a file. They reload every 30 seconds by default.
 
 ## Commands
@@ -49,13 +49,13 @@ fonoster-registry apply -f <file>
 Rules:
 
 - Built-in adapters: `deepgram`, `elevenlabs`, `google`, `azure`, `openai`, `anthropic`, `groq`,
-  `ollama`, `fake`. An entry whose adapter is not built into the gateway is hidden from users.
+  `ollama`, `fake`. An entry whose adapter is not built into AppBridge is hidden from users.
   Adapters shipped for speech today: Deepgram, ElevenLabs and the fakes' protocol; for LLMs,
   OpenAI-compatible ones.
 - A provider without `--credential-ref` is keyless: it is called with no key and offered to every
   workspace, and the dashboard asks no key for it (a local model server, the fakes).
 - `--endpoints` names where the provider serves each capability (`http`, `https`, `ws` or `wss`
-  URLs, no user information). The gateway's and Autopilot's own config wins over it (gateway
+  URLs, no user information). AppBridge's and Autopilot's own config wins over it (appbridge
   `providers.<id>.tts.url`, Autopilot `endpoints.<id>`); without either, the adapter's default.
 - `--label` is the name the dashboard shows ("Aura 2 Thalia"); without one it shows the id.
 - The fake providers are an ordinary keyless provider, `fake`, in
@@ -64,12 +64,12 @@ Rules:
 - Features describe what a model can do. Hard features break a config if missing:
   LLM `tool-calling`, `streaming`; TTS `streaming`; STT `streaming`. Soft ones only degrade:
   LLM `json-mode`, `vision`; TTS `word-timings`, `ssml`; STT `interim-results`, `word-timings`,
-  `turn-detection`, `multilingual`. Assistants with tools need `tool-calling`.
+  `turn-detection`, `multilingual`. Agents with tools need `tool-calling`.
 - A model lists the `--settings` it accepts. Settings a replacement does not accept are dropped
   on retirement.
 - Keys never enter the catalog. Write commands refuse unknown options (`--api-key` fails with
   `unknown option`), and input that looks like a secret is refused with a pointer to
-  `--credential-ref`. `credentialRef` is a lowercase name that the gateway and Autopilot map to a
+  `--credential-ref`. `credentialRef` is a lowercase name that AppBridge and Autopilot map to a
   key in their own config.
 - Every write is audited (actor, time, command line without database flags, entry before and
   after). `history` prints newest first.
@@ -104,11 +104,11 @@ retire it yourself on or after that date. Nothing retires on its own.
    Every compatible config is rewritten to the replacement (each rewrite applies only if the field
    still holds the value read; a skipped one is printed and audited as `rewrite-skipped`).
    Configs that cannot move (the output marks them `✗`) keep the old id. At session start the
-   gateway still substitutes the replacement for a retired id, so change those configs by hand;
+   appbridge still substitutes the replacement for a retired id, so change those configs by hand;
    the dashboard keeps warning about them until you do.
 5. **Check**: `history <id>`, and `list` shows the state.
 
-A retired id is not an error at session start: the gateway uses the replacement and records
+A retired id is not an error at session start: AppBridge uses the replacement and records
 `provider.retired_used`.
 
 ## Keep regions identical (export, plan, apply)
@@ -133,7 +133,7 @@ Load it once after the API server has migrated:
   workspaces use through config sync; it does not run `fonoster-registry` itself.
 - Roll a catalog change region by region: `plan` first, then `apply`. Deprecate in the control
   plane first so every workspace gets its notice before any region retires the item.
-- Keys differ by region. A gateway picks a key in this order: a private region's own secret
+- Keys differ by region. An AppBridge picks a key in this order: a private region's own secret
   (`fonoster-region secrets set <provider>`), then the workspace's own key, then the platform
   key named by `credentialRef`. See [Running a region](./regions.md).
 - Retire in each region separately: `retire-*` rewrites that region's configs.

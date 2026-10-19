@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 import { z } from "zod";
-import type { GatewayConfig } from "./config";
+import type { AppBridgeConfig } from "./config";
 
-// gateway.yaml as a Zod schema (add-self-host-installer 4.1, build log IC-B4): the gateway
+// appbridge.yaml as a Zod schema (add-self-host-installer 4.1, build log IC-B4): AppBridge
 // validates with `validateConfig` (cross-field rules); this schema describes the file's shape so
-// the bundle can ship a JSON Schema for `fonoster-config check`. It must match `GatewayConfig`
+// the bundle can ship a JSON Schema for `fonoster-config check`. It must match `AppBridgeConfig`
 // exactly: the type check at the bottom fails the build when they drift.
 
 const recordingPolicy = z.enum(["off", "on", "consent"]);
@@ -114,7 +114,7 @@ const provider = z.object({
   voices: z.array(z.string()).optional()
 });
 
-export const gatewayConfigSchema = z.object({
+export const appBridgeConfigSchema = z.object({
   nats: z.object({
     url: z.string(),
     user: z.string().optional(),
@@ -244,7 +244,7 @@ export const gatewayConfigSchema = z.object({
   testCalls: z.object({ publicKeyFile: z.string().optional() }).optional()
 });
 
-// Drift check: the schema and GatewayConfig must describe the same shape. Optionality is
+// Drift check: the schema and AppBridgeConfig must describe the same shape. Optionality is
 // ignored (the package is not compiled with strictNullChecks, so Zod marks every key optional).
 type DeepRequired<T> = T extends (infer U)[]
   ? DeepRequired<U>[]
@@ -253,7 +253,7 @@ type DeepRequired<T> = T extends (infer U)[]
     : T;
 type Same<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false;
 const sameShape: Same<
-  DeepRequired<z.infer<typeof gatewayConfigSchema>>,
-  DeepRequired<GatewayConfig>
+  DeepRequired<z.infer<typeof appBridgeConfigSchema>>,
+  DeepRequired<AppBridgeConfig>
 > = true;
 void sameShape;

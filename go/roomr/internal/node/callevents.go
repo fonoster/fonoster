@@ -11,7 +11,7 @@ import (
 // Each event carries node_ref, a per-call (or per-room) seq starting at 1, the call's metadata and
 // a timestamp, so any controller replica can follow a call it did not place.
 //
-// The room events on media.<nodeId>.events.<roomRef> are unchanged: the gateway's NATS command
+// The room events on media.<nodeId>.events.<roomRef> are unchanged: AppBridge's NATS command
 // path reads them until it is retired (tasks 6.2, 7.5). Only the spec-named events below are
 // published on the new subjects; receivers ignore unknown types and fields.
 

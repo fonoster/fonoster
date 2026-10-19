@@ -1,7 +1,7 @@
 {
   "name": "@fonoster/amd",
   "version": "0.30.0",
-  "description": "Standalone answering-machine-detection sidecar for the Fonoster platform",
+  "description": "Answering-machine-detection model (ONNX) used by AppBridge",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
   "license": "MIT",
@@ -14,20 +14,12 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "generate:readme": "fonoster-readme",
-    "dev": "nodemon --exec tsx --watch src src/server.ts",
-    "test:integration": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --slow 50000 --timeout 10000 'test/**/*.integration.test.ts'"
+    "generate:readme": "fonoster-readme"
   },
   "dependencies": {
     "@fonoster/common": "^0.30.0",
-    "@fonoster/logger": "^0.30.0",
-    "@fonoster/streams": "^0.30.0",
     "@fonoster/types": "^0.30.0",
-    "onnxruntime-node": "1.21.1",
-    "uuid": "^11.0.3"
-  },
-  "devDependencies": {
-    "@types/uuid": "^10.0.0"
+    "onnxruntime-node": "1.21.1"
   },
   "files": [
     "dist",

@@ -44,7 +44,7 @@ export type RegionKind = "public" | "private";
 
 export type Components = {
   roomrNodes: number;
-  gateways: number;
+  appbridges: number;
   autopilot: boolean;
 };
 
@@ -128,7 +128,7 @@ export type RoutrKinds = {
 export type WorkspaceKinds = {
   numbers?: Row[];
   apps?: Row[];
-  assistants?: Row[];
+  agents?: Row[];
   routr?: RoutrKinds;
   /** Old single-workspace snapshots carried the catalog here. */
   catalog?: Row[];
@@ -223,5 +223,5 @@ export const subjects = (regionRef: string) => ({
   inbox: `region.${regionRef}._INBOX`
 });
 
-/** Cell-local subject the gateway asks for a workspace's key on (contract 6; never crosses the link). */
+/** Cell-local subject AppBridge asks for a workspace's key on (contract 6; never crosses the link). */
 export const CELL_WORKSPACE_KEYS_SUBJECT = "cell.workspacekeys.get";

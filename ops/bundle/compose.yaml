@@ -4,7 +4,7 @@
 #   docker compose up -d                              start
 #   npx -p @fonoster/common fonoster-config info     dashboard URL, owner login, SIP address
 #
-# Services: NATS, Postgres, Routr, RTPEngine, the Roomr node, the voice gateway, MinIO, the API
+# Services: NATS, Postgres, Routr, RTPEngine, the Roomr node, AppBridge, MinIO, the API
 # server (with Identity), Envoy, the dashboard and the hosted Autopilot.
 #
 # Every Fonoster service reads one YAML file, mounted at /config/<service>.yaml from config/
@@ -33,7 +33,7 @@ services:
     # One user per service, each limited to its own subjects (config/nats-permissions).
     environment:
       NATS_APISERVER_PASSWORD: ${NATS_APISERVER_PASSWORD:?run fonoster-config init}
-      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD:?run fonoster-config init}
+      NATS_APPBRIDGE_PASSWORD: ${NATS_APPBRIDGE_PASSWORD:?run fonoster-config init}
       NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD:?run fonoster-config init}
       NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD:?run fonoster-config init}
     ports:
@@ -150,41 +150,41 @@ services:
       default:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.42
 
-  # The voice gateway: config/gateway.yaml.
+  # AppBridge: config/appbridge.yaml.
   appbridge:
     image: fonoster/appbridge:${FONOSTER_VERSION:?set FONOSTER_VERSION}
     restart: unless-stopped
     depends_on:
       nats: { condition: service_healthy }
-      # Healthy = migrated and serving: the gateway reads the apps tables at start.
+      # Healthy = migrated and serving: AppBridge reads the apps tables at start.
       apiserver: { condition: service_healthy }
-    # The ${NAME}s in config/gateway.yaml (CLICKHOUSE_* only with call-record analytics).
+    # The ${NAME}s in config/appbridge.yaml (CLICKHOUSE_* only with call-record analytics).
     environment:
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-}
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fonoster}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run fonoster-config init}
-      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD:?run fonoster-config init}
+      NATS_APPBRIDGE_PASSWORD: ${NATS_APPBRIDGE_PASSWORD:?run fonoster-config init}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
       SUBNET_PREFIX: ${SUBNET_PREFIX:-10.216.30}
     volumes:
-      - ${CONFIG_DIR:-./config}/gateway.yaml:/config/gateway.yaml:ro
-      # Identity's public key (test-call tokens) and the gateway's own call-record key; never
+      - ${CONFIG_DIR:-./config}/appbridge.yaml:/config/appbridge.yaml:ro
+      # Identity's public key (test-call tokens) and AppBridge's own call-record key; never
       # Identity's private key, which only the API server holds.
       - ${CONFIG_DIR:-./config}/keys/public.pem:/etc/fonoster/keys/public.pem:ro
       - ${CONFIG_DIR:-./config}/keys/records.pem:/etc/fonoster/keys/records.pem:ro
-      # Call records in flight (config/gateway.yaml callRecord.dir): kept when the container is
+      # Call records in flight (config/appbridge.yaml callRecord.dir): kept when the container is
       # recreated (upgrade, crash), so they are still sealed.
-      - gateway-records:/var/lib/fonoster/records
+      - appbridge-records:/var/lib/fonoster/records
     networks:
       default:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.43
 
-  # The hosted Autopilot: Autopilot apps point to it (ws://autopilot:3000). Assistants, the catalog
+  # The hosted Autopilot: Autopilot apps point to it (ws://autopilot:3000). Agents, the catalog
   # and workspace vendor keys come from the API server's database (config/autopilot.yaml).
   autopilot:
     image: fonoster/autopilot:${FONOSTER_VERSION:?set FONOSTER_VERSION}
@@ -311,4 +311,4 @@ volumes:
   postgres-data:
   nats-data:
   minio-data:
-  gateway-records:
+  appbridge-records:

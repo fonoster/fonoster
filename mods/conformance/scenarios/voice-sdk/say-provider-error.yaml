@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: say-provider-error
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: say-error
 spec: "Errors and session end never leave promises hanging / Provider failure during say"
 steps:

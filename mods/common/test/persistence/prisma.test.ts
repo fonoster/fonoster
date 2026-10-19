@@ -205,7 +205,7 @@ describe("@common/persistence (Prisma stores)", function () {
       });
     });
 
-    it("finds usages in apps and assistants across workspaces", async function () {
+    it("finds usages in apps and agents across workspaces", async function () {
       const usages = await PrismaUsageSource.open(db.prisma);
       const r = new Registry({
         store: await PrismaRegistryStore.open(db.prisma),
@@ -216,9 +216,9 @@ describe("@common/persistence (Prisma stores)", function () {
       ).to.deep.equal(["a1", "a2", "a3", "a4"]);
       const llm = r.usage("openai/gpt-4o");
       expect(llm).to.have.length(1);
-      expect(llm[0].config).to.include({ kind: "assistant", ref: "bot" });
+      expect(llm[0].config).to.include({ kind: "agent", ref: "bot" });
       expect(llm[0].requires).to.include("tool-calling");
-      // gpt-5-mini lacks tool calling: the assistant cannot move.
+      // gpt-5-mini lacks tool calling: the agent cannot move.
       const impact = r.impact("openai/gpt-4o", "openai/gpt-5-mini");
       expect(impact.unmappable).to.have.length(1);
     });
@@ -291,7 +291,7 @@ describe("@common/persistence (Prisma stores)", function () {
       ).to.have.length(4);
     });
 
-    it("rewrites an assistant's model", async function () {
+    it("rewrites an agent's model", async function () {
       const usages = await PrismaUsageSource.open(db.prisma);
       const store = await PrismaRegistryStore.open(db.prisma);
       const r = new Registry({ store, usages, actor: "ops" });

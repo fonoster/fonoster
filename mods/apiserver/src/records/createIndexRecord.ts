@@ -86,12 +86,12 @@ export function createIndexRecord(db: RecordsDb) {
   };
 }
 
-/** The work queue that captures the gateways' index entries and its durable consumer (ST-2). */
+/** The work queue that captures the AppBridge replicas' index entries and its durable consumer (ST-2). */
 export const RECORD_INDEX_STREAM = "FONOSTER_RECORD_INDEX";
 export const RECORD_INDEX_DURABLE = "apiserver-call-records";
 
 /**
- * Consumes the gateways' index entries (one apiserver replica per entry) through a JetStream
+ * Consumes the AppBridge replicas' index entries (one apiserver replica per entry) through a JetStream
  * durable consumer: an entry is acknowledged once indexed, so one taken by a replica that dies is
  * indexed by another (indexing is an idempotent upsert). Without JetStream (or the permission),
  * a core NATS queue group, as before.
@@ -109,7 +109,7 @@ export async function subscribeRecordIndex(
     } catch {
       return;
     }
-    // One span per entry, in the gateway's trace when it sent a traceparent header.
+    // One span per entry, in AppBridge's trace when it sent a traceparent header.
     const telemetry = apiserverTelemetry();
     const span = telemetry.startSpan(
       "apiserver.records.index",

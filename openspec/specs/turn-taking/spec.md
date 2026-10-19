@@ -3,9 +3,9 @@
 ## Purpose
 Turn detection and pacing: when the caller has finished, barge-in and patience.
 ## Requirements
-### Requirement: Turn-taking runs in the gateway's Speech layer
+### Requirement: Turn-taking runs in AppBridge's Speech layer
 
-The VoiceSessionGateway SHALL run turn-taking for every session that uses the Speech layer, so
+AppBridge SHALL run turn-taking for every session that uses the Speech layer, so
 that apps receive turn events without implementing voice activity detection or endpointing
 themselves.
 
@@ -20,7 +20,7 @@ themselves.
 #### Scenario: Audio-only sessions do not require turn-taking
 
 - **WHEN** an app uses only the Audio layer and does not use the Speech layer
-- **THEN** the gateway does not emit `turn.*` events to it
+- **THEN** AppBridge does not emit `turn.*` events to it
 
 ### Requirement: The Detector publishes a continuous end-of-thought estimate
 
@@ -72,7 +72,7 @@ the caller resumes speaking or the estimate falls back below the prepare thresho
 
 ### Requirement: Backchannels do not interrupt the agent
 
-When caller speech of kind `backchannel` occurs while agent output is playing, the gateway SHALL
+When caller speech of kind `backchannel` occurs while agent output is playing, AppBridge SHALL
 emit `turn.backchannel` with the recognized `text` and MUST NOT stop the output.
 
 #### Scenario: "Uh-huh" while the agent talks
@@ -84,10 +84,10 @@ emit `turn.backchannel` with the recognized `text` and MUST NOT stop the output.
 
 ### Requirement: The app decides whether an interruption stops output
 
-The app owns interruption (owner decision 2026-10-15). While agent output plays, the gateway SHALL
+The app owns interruption (owner decision 2026-10-15). While agent output plays, AppBridge SHALL
 emit `turn.user_started` as soon as the Detector classifies caller speech as `interruption`, and
-SHALL NOT emit it for speech classified as `backchannel`. The gateway MUST NOT stop output on its
-own; output stops only when the app sends `clear` or a `preempt` item, and the gateway then reports
+SHALL NOT emit it for speech classified as `backchannel`. AppBridge MUST NOT stop output on its
+own; output stops only when the app sends `clear` or a `preempt` item, and AppBridge then reports
 what was heard through `output.interrupted`. The SDKs SHALL send `clear` on `turn.user_started`
 when the item playing was sent with `interruptible: true` (the default), so apps built on an SDK
 keep today's behavior.
@@ -116,7 +116,7 @@ A turn SHALL end with `turn.ended` `{text: "", abandoned: true}` when no speech 
 
 ### Requirement: The estimate is available on request
 
-The gateway SHALL send `turn.estimate` messages with `eot`, `speaking` and `kind` only to sessions
+AppBridge SHALL send `turn.estimate` messages with `eot`, `speaking` and `kind` only to sessions
 that subscribed to `turn.estimate` with the `subscribe` command. Sessions that did not subscribe
 MUST NOT receive `turn.estimate`.
 
@@ -124,7 +124,7 @@ MUST NOT receive `turn.estimate`.
 
 - **WHEN** an app sends `subscribe` with `events: ["turn.estimate"]`
 - **THEN** it receives `turn.estimate` messages while the caller speaks and while silence follows
-- **AND** it still receives the turn events from the gateway's Pacing policy
+- **AND** it still receives the turn events from AppBridge's Pacing policy
 
 #### Scenario: Not opted in
 
@@ -133,7 +133,7 @@ MUST NOT receive `turn.estimate`.
 
 ### Requirement: Patience is configurable per app and adapts only within a call
 
-Each app (or assistant) SHALL be able to set the patience of the gateway's default Pacing policy
+Each app (or agent) SHALL be able to set the patience of AppBridge's default Pacing policy
 as one knob, `low`, `normal` (the default) or `high`, in its configuration or at any time with
 `listen.update` `{patience}`. The policy MAY adapt within a call to the caller's observed pauses, and MUST NOT carry any
 adaptation or caller data to another call.
@@ -151,7 +151,7 @@ adaptation or caller data to another call.
 
 ### Requirement: Detectors are pluggable behind one interface
 
-The gateway SHALL accept any Detector that implements the Detector interface: input of caller
+AppBridge SHALL accept any Detector that implements the Detector interface: input of caller
 audio frames, transcript segments with timings, and agent output state; output of the estimate and
 facts. The Detector used by an app MUST be selectable without changing the session protocol or the
 app's code. A turn-aware STT provider (one with the `turn_detection` feature in the catalog) MUST
@@ -172,7 +172,7 @@ be usable as a Detector.
 
 ### Requirement: The baseline Detector reproduces today's behavior
 
-The gateway SHALL ship a baseline Detector, used by default, whose turn decisions on the same
+AppBridge SHALL ship a baseline Detector, used by default, whose turn decisions on the same
 input match today's Autopilot behavior: voice activity detection, final transcripts, and a silence
 timeout before the turn ends.
 
@@ -180,12 +180,12 @@ timeout before the turn ends.
 
 - **WHEN** the baseline Detector is used with a silence timeout of T milliseconds
 - **AND** the caller stops speaking and a final transcript has arrived
-- **THEN** `turn.ended` is emitted after T milliseconds of silence, within the gateway latency
+- **THEN** `turn.ended` is emitted after T milliseconds of silence, within AppBridge latency
   budget
 
 ### Requirement: Every turn decision is recorded with its outcome
 
-The gateway SHALL append to the call record every turn event it emits, with the estimate and facts
+AppBridge SHALL append to the call record every turn event it emits, with the estimate and facts
 that caused it and the Detector and policy versions. It MUST then label each `turn.ended` and each
 output stop with its observed outcome: `cut-off`, `slow`, `missed-barge-in`,
 `backchannel-misfire` or `ok`, and every label SHALL carry `labelVersion` so replays compare only
@@ -196,7 +196,7 @@ within the barge-in window after caller speech that the labeler judges a backcha
 
 #### Scenario: A cut-off is labeled
 
-- **WHEN** the gateway emits `turn.ended`
+- **WHEN** AppBridge emits `turn.ended`
 - **AND** agent output starts
 - **AND** the caller resumes speaking within the cut-off window after output started
 - **THEN** the call record holds that `turn.ended` labeled `cut-off`

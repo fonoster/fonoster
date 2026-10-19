@@ -140,11 +140,11 @@ export async function regionView(
     enrolledAt: row.enrolledAt?.toISOString(),
     components: {
       roomrNodes: c.roomrNodes ?? 0,
-      gateways: c.gateways ?? 0,
+      appbridges: c.appbridges ?? 0,
       autopilot: c.autopilot ?? false
     },
     roomrNodes: c.roomrNodes ?? 0,
-    gateways: c.gateways ?? 0,
+    appbridges: c.appbridges ?? 0,
     activeCalls: row.activeCalls,
     configVersion: row.configVersion,
     reportedConfigVersion: row.reportedConfig,
@@ -185,7 +185,7 @@ export function configuredView(r: PublicRegion) {
     default: !!r.default,
     status: "connected" as const,
     state: "connected" as const,
-    components: { roomrNodes: 0, gateways: 0, autopilot: false },
+    components: { roomrNodes: 0, appbridges: 0, autopilot: false },
     secretsNeeded: [] as string[],
     secretsSet: [] as string[],
     secrets: [] as unknown[],

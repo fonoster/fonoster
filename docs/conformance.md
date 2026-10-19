@@ -10,13 +10,13 @@ send back. Any implementation, in any language, passes or fails the same files. 
 
 | Layer | Plays | Under test | Needs |
 | --- | --- | --- | --- |
-| Fake node | Fake Roomr node and fake STT, TTS and LLM | VoiceSessionGateway (TypeScript) | NATS |
-| Go node | A SIP caller bot, the test plays the gateway | `go/roomr` | NATS, Go 1.26 |
-| Real stack | Caller bot through Routr, real gateway and node | Everything together | Routr, node, gateway (nightly, not yet automated: conformance task 2.5 and 3.11) |
+| Fake node | Fake Roomr node and fake STT, TTS and LLM | AppBridge (TypeScript) | NATS |
+| Go node | A SIP caller bot, the test plays AppBridge | `go/roomr` | NATS, Go 1.26 |
+| Real stack | Caller bot through Routr, real AppBridge and node | Everything together | Routr, node, appbridge (nightly, not yet automated: conformance task 2.5 and 3.11) |
 
 ## Quick start
 
-NATS is the message bus for the gateway and Roomr node suites. Use a throwaway server and never
+NATS is the message bus for AppBridge and Roomr node suites. Use a throwaway server and never
 point tests at a shared one.
 
 ```sh
@@ -62,7 +62,7 @@ cd ../.. && npx mocha --exit --timeout 30000 \
 Real SIP calls need Routr and the whole platform up (the dev container's `npm run dev`, or
 `ops/rebuild/stack up`). The caller bot
 (`go/roomr/cmd/sipcaller`) places the calls; the nightly end-to-end suite is still to be wired
-(conformance tasks 2.5 and 3.11). Until then, run the Go node against the gateway with
+(conformance tasks 2.5 and 3.11). Until then, run the Go node against AppBridge with
 `mods/appbridge/test/gonode.test.ts`, which is the closest automated check.
 
 ### Timing, load, turn-taking and Pipecat (nightly)
@@ -89,7 +89,7 @@ uv pip install --python .venv/bin/python -e fonoster-conformance -e "fonoster-vo
 
 ## Running the scenarios from a third-party SDK
 
-Your SDK is under test when the scenario's `role` is `gateway`: the runner plays the gateway and dials
+Your SDK is under test when the scenario's `role` is `appbridge`: the runner plays AppBridge and dials
 your app. For each `voice-sdk` scenario you ship one fixture app per name in
 `mods/conformance/scenarios/voice-sdk/FIXTURES.md` (for example `say-hello`, `gather-echo`) and the
 runner starts it.
@@ -98,7 +98,7 @@ Use the Python package as a library, or port its runner (`runner.py`) to your la
 
 ```python
 import asyncio
-from fonoster_conformance import FakeGateway, load_scenarios, run_scenario
+from fonoster_conformance import FakeAppBridge, load_scenarios, run_scenario
 from fonoster.voice import VoiceServer   # replace with your SDK
 
 SECRET = "sdk-conformance"
@@ -108,8 +108,8 @@ async def main():
         fixture = FIXTURES[scenario["fixture"]]   # the app for this fixture, written in your SDK
         server = await VoiceServer(port=0, host="127.0.0.1", signing_secret=SECRET).listen(fixture)
         try:
-            gateway = FakeGateway(signing_secret=SECRET)
-            result = await run_scenario(scenario, lambda: gateway.dial(f"ws://127.0.0.1:{server.port}/"))
+            appbridge = FakeAppBridge(signing_secret=SECRET)
+            result = await run_scenario(scenario, lambda: appbridge.dial(f"ws://127.0.0.1:{server.port}/"))
             print(scenario["name"], result.status, result.reason or "")
         finally:
             await server.close()
@@ -133,7 +133,7 @@ fixture.) Rules for a runner in a new language:
 
 | Job | When | Runs |
 | --- | --- | --- |
-| `suites` | Pull requests touching a contract, nightly, manual | Go node, gateway, SDK, media-control and Autopilot suites on NATS |
+| `suites` | Pull requests touching a contract, nightly, manual | Go node, appbridge, SDK, media-control and Autopilot suites on NATS |
 | `python` | Same | Python SDK and runner |
 | `nightly` | Nightly and manual (`workflow_dispatch`) | Timing, load, turn-taking replay and the Pipecat golden test; reports are uploaded as the `conformance-reports` artifact |
 

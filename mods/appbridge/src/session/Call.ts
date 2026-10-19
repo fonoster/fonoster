@@ -34,7 +34,12 @@ import { getLogger } from "@fonoster/logger";
 import Ajv, { ValidateFunction } from "ajv";
 import WebSocket from "ws";
 import { AmdClassifier, AmdListener, amdWindowMs } from "../amd/AmdListener";
-import { AppConfig, DEFAULTS, GatewayConfig, recordingPolicy } from "../config";
+import {
+  AppBridgeConfig,
+  AppConfig,
+  DEFAULTS,
+  recordingPolicy
+} from "../config";
 import {
   AudioFilterChain,
   AudioFilterFactory,
@@ -63,7 +68,7 @@ import { BufferedSocket, connectApp } from "./connectApp";
 import { Listener } from "./Listener";
 import { OutputEvent, OutputQueue } from "./OutputQueue";
 
-const logger = getLogger({ service: "gateway", filePath: __filename });
+const logger = getLogger({ service: "appbridge", filePath: __filename });
 
 const ajv = new Ajv({ strict: false, allErrors: false });
 const validators = Object.fromEntries(
@@ -89,7 +94,7 @@ const POLICY_VERSION = "default@2";
 /** How often turn.estimate is sent to subscribers. */
 const ESTIMATE_EVERY_MS = 100;
 
-/** Commands an app may send while the caller is on hold (gateway B24). */
+/** Commands an app may send while the caller is on hold (appbridge B24). */
 const ALLOWED_ON_HOLD = new Set([
   "resume",
   "hangup",
@@ -132,7 +137,7 @@ export type CallInfo = {
 };
 
 export type CallDeps = {
-  config: GatewayConfig;
+  config: AppBridgeConfig;
   media: MediaControl;
   catalog: Catalog;
   record: CallRecordSink;
@@ -144,7 +149,7 @@ export type CallDeps = {
   amd?: AmdClassifier;
   /**
    * The call reached an app (once, right after `call.started`): the control plane needs its
-   * parties to send `call.ended` (`appbridge-lost`) if this appbridge dies before the call ends.
+   * parties to send `call.ended` (`appbridge-lost`) if this AppBridge dies before the call ends.
    */
   onAnswered?: (call: Call) => void;
   onEnded: (call: Call) => void;
@@ -166,7 +171,7 @@ export type CatalogUse = {
 };
 
 /**
- * One call owned by this gateway: the room on the Roomr node, the RTP link and, at any time, at
+ * One call owned by this AppBridge: the room on the Roomr node, the RTP link and, at any time, at
  * most one app session (handoff replaces it). Speech, turn-taking and the output queue live
  * here, never in the Roomr node.
  */
@@ -203,11 +208,11 @@ export class Call {
   ) {
     this.span = telemetry.startCall(
       info.callRef,
-      "gateway.call",
+      "appbridge.call",
       undefined,
       info.traceparent
     );
-    telemetry.count("fonoster.gateway.calls.total");
+    telemetry.count("fonoster.appbridge.calls.total");
     telemetry.log("info", "call started", { callRef: info.callRef });
     this.recording = new CallRecording(
       this,
@@ -236,7 +241,7 @@ export class Call {
   }
 
   record(
-    source: "app" | "gateway" | "event",
+    source: "app" | "appbridge" | "event",
     message: Record<string, unknown>
   ) {
     this.deps.record.append(this.info.callRef, {
@@ -409,7 +414,7 @@ export class Call {
     };
   }
 
-  /** The call never reached an app: a minimal record and `call.failed` (gateway B26). */
+  /** The call never reached an app: a minimal record and `call.failed` (appbridge B26). */
   failed(reason: string, sipStatus?: number) {
     if (this.answeredBy) return;
     this.record("event", { type: "call.failed", reason, sipStatus });
@@ -805,7 +810,7 @@ export class AppSession {
     this.startKeepalive();
 
     this.codec.start(start);
-    this.call.record("gateway", start as unknown as Record<string, unknown>);
+    this.call.record("appbridge", start as unknown as Record<string, unknown>);
     for (const f of early) this.onFrame(f.data as Buffer, f.isBinary);
     void this.attachListeners(start);
     this.queue.start();
@@ -968,7 +973,7 @@ export class AppSession {
             kind: e.kind
           });
         },
-        // The app owns interruption (B22): the gateway only reports turn.user_started.
+        // The app owns interruption (B22): AppBridge only reports turn.user_started.
         interruption: () => this.labeler.interruption(Date.now()),
         patience: (change) =>
           this.call.record("event", { type: "turn.patience", ...change })
@@ -1102,7 +1107,7 @@ export class AppSession {
     this.listeners = [];
     if (this.socket.readyState === WebSocket.OPEN) {
       this.codec.end(end);
-      this.call.record("gateway", end);
+      this.call.record("appbridge", end);
       this.socket.close(1000);
     }
     this.call.sessionDetached(this);
@@ -1535,7 +1540,8 @@ export class AppSession {
     // Listeners get the same events as the controlling app (the fonoster view, whatever the protocol).
     if (message.type !== "turn.estimate")
       for (const l of this.listeners) l.json(message);
-    if (message.type !== "turn.estimate") this.call.record("gateway", message);
+    if (message.type !== "turn.estimate")
+      this.call.record("appbridge", message);
   }
 }
 

@@ -35,7 +35,7 @@
     "role": {
       "enum": [
         "app",
-        "gateway",
+        "appbridge",
         "media-control-client",
         "region-cell"
       ],
@@ -133,7 +133,7 @@
             },
             "verifySecret": {
               "type": "string",
-              "description": "The secret the fake app verifies signatures with when it differs from signingSecret (the gateway's): a rotation the app has not picked up"
+              "description": "The secret the fake app verifies signatures with when it differs from signingSecret (AppBridge's): a rotation the app has not picked up"
             },
             "fallback": {
               "type": "object",
@@ -212,14 +212,14 @@
             }
           }
         },
-        "assistant": {
+        "agent": {
           "type": "object",
-          "description": "autopilot only: the assistant config the implementation under test runs (strings may use ${media})"
+          "description": "autopilot only: the agent config the implementation under test runs (strings may use ${media})"
         },
         "catalog": {
           "type": "object",
           "additionalProperties": false,
-          "description": "voice-session: the provider catalog the gateway resolves catalog ids with. The runner registers the fake provider, its TTS model and the voice fake/default; each listed voice is added, then deprecated or retired (with its replacement) as its state says",
+          "description": "voice-session: the provider catalog AppBridge resolves catalog ids with. The runner registers the fake provider, its TTS model and the voice fake/default; each listed voice is added, then deprecated or retired (with its replacement) as its state says",
           "properties": {
             "voices": {
               "type": "array",

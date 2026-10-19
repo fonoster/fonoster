@@ -4,7 +4,7 @@
   "/ Light" (rbl5D). Light = copy of dark with `theme: { "ui:mode": "light" }`, fill `$ui:surface`; every
   color is a `$ui:` token.
 - **Content:** three zones (your machine, the dev container, data). The workspace holds the components that run
-  from source: apiserver, dashboard, gateway, autopilot, roomr, fakes. Accent edges = runs from your
+  from source: apiserver, dashboard, appbridge, autopilot, roomr, fakes. Accent edges = runs from your
   source; muted edges = containers you don't edit.
 - **Export:** `Export([LQHpg, rbl5D], "png", <dir>, {scale: 1})` → `dev-container-dark.png` /
   `dev-container-light.png` (1602 × 902: the frame plus its 1px stroke on each side).

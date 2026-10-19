@@ -24,7 +24,7 @@ import { OPENAI_COMPATIBLE, OpenAiCompatibleThink } from "./openai";
 import { SttAdapter, TtsAdapter } from "./speech";
 
 // Adapters by catalog adapter id (add-provider-registry P2): a registry provider row names its
-// `adapter`; the gateway (speech) and Autopilot (LLM) build vendor clients through this table.
+// `adapter`; AppBridge (speech) and Autopilot (LLM) build vendor clients through this table.
 
 /** How a speech adapter is reached: key, endpoint override, provider model, timeout. */
 export type SpeechAdapterOptions = {

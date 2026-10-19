@@ -19,7 +19,7 @@
 import { expect } from "chai";
 import { toAppColumns } from "../../src/applications/session/appModel";
 
-// M14: app and listener URLs must name public destinations (the gateway dials
+// M14: app and listener URLs must name public destinations (AppBridge dials
 // them); the hosted Autopilot URL from configuration is exempt.
 
 const CONFIG = { autopilotUrl: "ws://autopilot:50061" };

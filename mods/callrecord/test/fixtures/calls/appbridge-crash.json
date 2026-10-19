@@ -1,0 +1,17 @@
+{
+  "description": "AppBridge died mid-call: no hangup was recorded; the sweep seals an incomplete record.",
+  "callRef": "fx-appbridge-crash",
+  "open": true,
+  "entries": [
+    { "atMs": 0, "source": "event", "message": { "type": "call.started", "direction": "inbound", "appRef": "support", "workspaceRef": "ws-fixtures", "from": "+15550006666", "to": "+15550002222" } },
+    { "atMs": 100, "source": "appbridge", "message": { "type": "session.start", "callRef": "fx-appbridge-crash", "appRef": "support", "from": "+15550006666", "to": "+15550002222", "direction": "inbound" } },
+    { "atMs": 900, "source": "appbridge", "message": { "type": "turn.ended", "text": "Hello?", "durationMs": 400 } }
+  ],
+  "expect": {
+    "status": "incomplete",
+    "redactions": 0,
+    "missing": ["hangup"],
+    "agents": ["support"],
+    "recording": "none"
+  }
+}

@@ -20,7 +20,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState, type ComponentProps } from "react";
 import { useFormContext } from "react-hook-form";
 import { Button } from "~/components/ui/button";
-import { CallHandlingDrawer } from "~/session/streams";
+import { CallHandlingDrawer } from "~/session/apps";
 import { type AgentValues } from "../agent-form";
 import { useFieldError, type AgentPath } from "../fields";
 import { Panel, PanelAction, SettingRow, ValueBox, ValueInput } from "../parts";
@@ -106,9 +106,9 @@ export function AdvancedTab({
         </Panel>
         <Panel title="Moved out of the agent">
           <p className="font-display text-[12px] text-muted-foreground">
-            Turn detection runs in the voice gateway, call events go to
-            workspace Webhooks, and vendor keys and endpoints come from Vendor
-            keys and the provider catalog.
+            Turn detection runs in Fonoster, call events go to workspace
+            Webhooks, and vendor keys and endpoints come from Vendor keys and
+            the provider catalog.
           </p>
         </Panel>
         <section

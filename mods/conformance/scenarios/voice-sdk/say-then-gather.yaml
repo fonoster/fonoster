@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: say-then-gather
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: say-then-gather
 spec: "TypeScript and Python parity / A shared scenario"
 description: Say interrupted, then gather digits; both SDKs must send the same frames.

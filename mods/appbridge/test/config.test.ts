@@ -20,7 +20,12 @@ import * as http from "http";
 import { AddressInfo } from "net";
 import { expect } from "chai";
 import { NatsConnection } from "nats";
-import { GatewayConfig, loadConfig, providerKey, validateConfig } from "../src";
+import {
+  AppBridgeConfig,
+  loadConfig,
+  providerKey,
+  validateConfig
+} from "../src";
 import { APP_AUDIO_FORMATS } from "../src/audio/pcm";
 import {
   configPairAuthenticator,
@@ -35,7 +40,7 @@ import { FileKeyCustody, keyHistoryFromSet } from "@fonoster/callrecord";
 import { keyCustody } from "../src/record/keyCustody";
 import { keySetHandler } from "../src/http/keySetRoute";
 
-const base = (): GatewayConfig => ({
+const base = (): AppBridgeConfig => ({
   nats: { url: "nats://x" },
   apps: [
     {
@@ -51,7 +56,7 @@ const base = (): GatewayConfig => ({
   }
 });
 
-describe("@gateway/config", function () {
+describe("@appbridge/config", function () {
   it("accepts a valid config", function () {
     expect(validateConfig(base())).to.deep.equal([]);
   });
@@ -89,7 +94,7 @@ describe("@gateway/config", function () {
   });
 });
 
-describe("@gateway/hang-up endpoint", function () {
+describe("@appbridge/hang-up endpoint", function () {
   let server: http.Server;
   let base: string;
   // Calls this fake bus knows: callSid -> owning workspace.
@@ -174,7 +179,7 @@ describe("@gateway/hang-up endpoint", function () {
   });
 });
 
-describe("@gateway/call-record key set", function () {
+describe("@appbridge/call-record key set", function () {
   it("publishes the current key and the history, without private parts", async function () {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "keys-"));
     const current = generateKeyPairSync("ec", { namedCurve: "P-256" });
@@ -220,7 +225,7 @@ describe("@gateway/call-record key set", function () {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gw-secret-"));
     fs.mkdirSync(path.join(dir, "fonoster-deepgram"));
     fs.writeFileSync(path.join(dir, "fonoster-deepgram", "key"), "dg-secret\n");
-    const file = path.join(dir, "gateway.yaml");
+    const file = path.join(dir, "appbridge.yaml");
     fs.writeFileSync(
       file,
       [
@@ -259,13 +264,13 @@ describe("@gateway/call-record key set", function () {
       validateConfig({
         nats: { url: "nats://x" },
         callRecord: config
-      } as GatewayConfig)
+      } as AppBridgeConfig)
     ).to.deep.equal([]);
     expect(
       validateConfig({
         nats: { url: "nats://x" },
         callRecord: { dir, region: "eu", signingKey: { kid: "x" } }
-      } as GatewayConfig)
+      } as AppBridgeConfig)
     ).to.include("callRecord.signingKey: set dir, or kid and privateKeyFile");
     const custody = keyCustody(config);
     expect(custody.current().kid).to.equal("eu-1");

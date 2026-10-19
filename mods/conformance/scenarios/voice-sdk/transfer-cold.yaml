@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: transfer-cold
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: transfer-cold
 spec: "Call control methods map one to one / Transfer"
 steps:

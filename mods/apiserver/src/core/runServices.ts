@@ -158,7 +158,7 @@ async function runServices() {
     routers: [...records.routers, ...regions.routers, session]
   });
 
-  // Bus consumers: webhook fan-out (LO-B1) and the gateways' catalog use (LO-B11)
+  // Bus consumers: webhook fan-out (LO-B1) and the AppBridge replicas' catalog use (LO-B11)
   const bus = await connect({ ...NATS, maxReconnectAttempts: -1 });
   subscribeRegistryUsage(bus, prisma);
   if (WEBHOOKS.fanout) {

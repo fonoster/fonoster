@@ -121,30 +121,6 @@ describe("@ctl[applications]", function () {
     expect(error?.message).to.match(/Expected --protocol=plivo/);
   });
 
-  it("names the new flag when an old one is used", async function () {
-    const old = await runCommand([
-      "applications:create",
-      "--name",
-      "Bot",
-      "--url",
-      "wss://x.example.com",
-      "--flavor",
-      "native"
-    ]);
-    expect(old.error?.message).to.match(/--flavor was renamed to --protocol/);
-
-    const assistant = await runCommand([
-      "applications:create",
-      "--name",
-      "Bot",
-      "--assistant",
-      "agent.yaml"
-    ]);
-    expect(assistant.error?.message).to.match(
-      /--assistant was renamed to --agent/
-    );
-  });
-
   it("updates an app from its current state", async function () {
     sandbox
       .stub(SDK.Applications.prototype, "getApplication")

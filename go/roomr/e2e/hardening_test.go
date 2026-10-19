@@ -83,7 +83,7 @@ func TestMalformedInfoDoesNotKillTheNode(t *testing.T) {
 
 func TestUnansweredDialogsAreClosed(t *testing.T) {
 	r := start(t)
-	// Rejected by the gateway.
+	// Rejected by AppBridge.
 	call, _ := r.bot.Dial(r.sip, "+1", "", nil)
 	incoming := r.waitEvent(typed("call.incoming"), 2*time.Second)
 	r.command(map[string]any{"type": "hangup", "id": "hx", "roomRef": incoming["roomRef"], "sipStatus": 404})

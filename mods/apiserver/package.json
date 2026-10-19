@@ -28,7 +28,6 @@
     "@fonoster/identity": "^0.30.0",
     "@fonoster/logger": "^0.30.0",
     "@fonoster/sipnet": "^0.30.0",
-    "@fonoster/streams": "^0.30.0",
     "@fonoster/types": "^0.30.0",
     "@grpc/grpc-js": "~1.14.6",
     "@influxdata/influxdb-client": "^1.33.2",

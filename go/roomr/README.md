@@ -1,16 +1,16 @@
 # Fonoster Roomr node (Go)
 
 The Roomr node replaces Asterisk: SIP legs from Routr become **rooms** that mix audio for their
-participants (mix-minus), driven by the VoiceSessionGateway over **media-control** on NATS. Specs:
+participants (mix-minus), driven by AppBridge over **media-control** on NATS. Specs:
 `openspec/changes/archive/2026-10-17-add-roomr` (roomr and media-control), decisions in its `build-log.md`.
 
 ## What this version does
 
 | Area | State |
 | --- | --- |
-| Inbound INVITE, `X-App-Ref` / `X-Call-Ref` / `X-Call-Direction`, `call.incoming` claimed by one gateway (500 ms, one retry, then 503) | done |
+| Inbound INVITE, `X-App-Ref` / `X-Call-Ref` / `X-Call-Direction`, `call.incoming` claimed by one AppBridge (500 ms, one retry, then 503) | done |
 | `ring` (180), `answer` (200 + SDP), `hangup` with `sipStatus`, `room.end`, caller BYE / CANCEL | done |
-| PCMU on SIP legs, L16/16000 for the gateway's session participant, mix-minus every 20 ms | done |
+| PCMU on SIP legs, L16/16000 for AppBridge's session participant, mix-minus every 20 ms | done |
 | RFC 4733 keypresses in and out (`dtmf`, `dtmf.send`) | done |
 | `hold` / `resume` by mixing, hold music from a PCM16 WAV URL | done |
 | `participant.left` / `room.ended` reasons, media timeout (30 s), maximum duration (4 h) | done |
@@ -53,7 +53,7 @@ reference it in the file as a `${VAR}` placeholder (`nodeId: "${POD_NAME}"`), or
 A call's `call_ref` is remembered for 10 minutes after it ends (a constant). Session-registry
 writes, trusted-source filtering, required encryption, the debug HTTP endpoint and Play/hold URL
 screening are gone from the node: it uses core NATS only (heartbeat and events), network
-isolation is the boundary, and the appbridge screens hold music URLs before they reach it.
+isolation is the boundary, and AppBridge screens hold music URLs before they reach it.
 
 ## Draining
 
@@ -147,7 +147,7 @@ the `roomr.v1.Roomr` gRPC service (`api/roomr/v1/roomr.proto`): `CreateCall`,
 `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record` and `SendDtmf`. It runs
 **next to** the NATS commands: both work, every RPC calls the same room operation as the NATS
 command for the same action, and events stay on NATS (`media.<nodeId>.events.<roomRef>`). The
-apiserver places API-originated calls with `CreateRoom` and `CreateCall` here; the gateway's own
+apiserver places API-originated calls with `CreateRoom` and `CreateCall` here; AppBridge's own
 commands stay on NATS until the control stream replaces them.
 
 It is off unless a listen address is set:
@@ -191,8 +191,8 @@ Errors are gRPC codes with a `google.rpc.ErrorInfo` reason (domain `roomr.fonost
 ## Test
 
 - `go test ./...`: unit tests, plus end-to-end tests in `e2e/` when `CONFORMANCE_NATS_URL` is set
-  (a SIP caller bot calls the node; the test plays the gateway).
+  (a SIP caller bot calls the node; the test plays AppBridge).
 - `mods/conformance/test/media-control-go.test.ts`: the media-control scenario files against this
   node, with the caller bot (`cmd/sipcaller`, an HTTP-driven SIP UA) as the caller.
-- `mods/appbridge/test/gonode.test.ts`: the voice-session suite through gateway → this node → caller
+- `mods/appbridge/test/gonode.test.ts`: the voice-session suite through AppBridge → this node → caller
   bot, over real SIP and RTP.

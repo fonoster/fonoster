@@ -18,7 +18,7 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { sessionAssistantSchema } from "@fonoster/common";
+import { sessionAgentSchema } from "@fonoster/common";
 import * as SDK from "@fonoster/sdk";
 import { ExpectedTextType } from "@fonoster/types";
 import { Flags } from "@oclif/core";
@@ -122,9 +122,9 @@ export default class EvalIntelligence extends AuthenticatedCommand<
     rawAutopilotApplication.intelligence.config.testCases.scenarios =
       mappedScenarios;
 
-    // A session assistant (its catalog id names the provider; keys come from the workspace or
+    // A session agent (its catalog id names the provider; keys come from the workspace or
     // the platform, never from the file).
-    const parsedAutopilotApplication = sessionAssistantSchema.parse(
+    const parsedAutopilotApplication = sessionAgentSchema.parse(
       rawAutopilotApplication.intelligence.config
     );
     const autopilotApplication = {

@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: partial-transcripts
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: partials
 spec: "Events are exposed as subscriptions / Opting into partial transcripts"
 steps:

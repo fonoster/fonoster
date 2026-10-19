@@ -38,7 +38,7 @@ export type WebhookFanoutConfig = {
   allowedDestinations?: string[];
   /** How long a replica may hold an event before another one gets it (default 30 s). */
   ackWaitMs?: number;
-  /** How often calls of lost appbridges are looked for (default 5 s; 0 turns it off). */
+  /** How often calls of lost AppBridge replicas are looked for (default 5 s; 0 turns it off). */
   lostCallSweepMs?: number;
   /** The session registry's bucket (default Sessions.SESSIONS_BUCKET; tests). */
   sessionsBucket?: string;
@@ -108,7 +108,7 @@ export async function runWebhookFanout(
     const event = Webhooks.parseBusEvent(data);
     if (event) await intakeEvent(event);
   };
-  // Roomr nodes report calls no gateway claimed on their own subject (they may not publish
+  // Roomr nodes report calls no AppBridge claimed on their own subject (they may not publish
   // webhooks.events, M6); only a well-formed call.failed is accepted, its workspace from the app.
   // One replica per report (queue group); a repeated report has the same event id.
   const nodeReports = deps.nc.subscribe(Webhooks.NODE_CALL_FAILED_SUBJECT, {
@@ -122,7 +122,7 @@ export async function runWebhookFanout(
       );
     }
   });
-  // Calls whose appbridge died mid-call get their call.ended (reason appbridge-lost) here: every
+  // Calls whose AppBridge died mid-call get their call.ended (reason appbridge-lost) here: every
   // replica sweeps, and the event id depends on the call, so each endpoint gets one delivery.
   const stopLost = await watchLostCalls(config, deps.nc, (event) =>
     intakeEvent(event).catch((e) =>
@@ -184,7 +184,7 @@ export async function runWebhookFanout(
   };
 }
 
-/** Follows the session registry's calls and appbridges and sweeps for lost calls. */
+/** Follows the session registry's calls and AppBridge replicas and sweeps for lost calls. */
 async function watchLostCalls(
   config: WebhookFanoutConfig,
   nc: NatsConnection,
@@ -201,19 +201,19 @@ async function watchLostCalls(
         setTimeout(() => reject(new Error("timed out")), 5000).unref()
       )
     ]);
-    stops.push(await Sessions.watchSessions(kv, "gateways", lost.onEntry));
+    stops.push(await Sessions.watchSessions(kv, "appbridges", lost.onEntry));
     stops.push(await Sessions.watchSessions(kv, "calls", lost.onEntry));
   } catch (e) {
     stops.forEach((s) => s());
     logger.warn(
-      `session registry unavailable; calls of lost appbridges get no call.ended: ${(e as Error).message}`
+      `session registry unavailable; calls of lost AppBridge replicas get no call.ended: ${(e as Error).message}`
     );
     return () => undefined;
   }
   const timer = setInterval(() => {
     for (const event of lost.sweep())
       logger.warn(
-        `call ${(event.data as { callRef: string }).callRef}: its appbridge is gone; call.ended (appbridge-lost)`
+        `call ${(event.data as { callRef: string }).callRef}: its AppBridge is gone; call.ended (appbridge-lost)`
       );
   }, sweepMs);
   timer.unref();

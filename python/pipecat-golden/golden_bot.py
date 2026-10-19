@@ -1,4 +1,4 @@
-"""An unmodified Pipecat bot for the Twilio flavor golden test (gateway task 1.6).
+"""An unmodified Pipecat bot for the Twilio flavor golden test (appbridge task 1.6).
 
 It uses Pipecat's own pieces only: parse_telephony_websocket, TwilioFrameSerializer and
 FastAPIWebsocketTransport. Behaviour, driven by caller keypresses:

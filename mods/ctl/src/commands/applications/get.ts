@@ -34,7 +34,7 @@ export function formatApplication(app: Application): string {
   const listeners = (app.listeners ?? [])
     .map((l) => `${l.url} (${l.tracks ?? "both"})`)
     .join(", ");
-  const assistant = app.intelligence?.config as
+  const agent = app.intelligence?.config as
     | { languageModel?: { model?: string } }
     | undefined;
   const lines = [
@@ -46,7 +46,7 @@ export function formatApplication(app: Application): string {
     `URL: \t${or(app.url || app.endpoint)}`,
     `PROTOCOL: \t${or(app.protocol, "fonoster")}`,
     ...(app.type === "AUTOPILOT"
-      ? [`MODEL: \t${or(assistant?.languageModel?.model)}`]
+      ? [`MODEL: \t${or(agent?.languageModel?.model)}`]
       : []),
     `VOICE: \t${or(speech.voice)}`,
     `LANGUAGE: \t${or(speech.language)}`,

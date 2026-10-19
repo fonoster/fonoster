@@ -3,7 +3,7 @@ name: ring-before-answer
 contract: voice-session
 role: app
 spec: "Ringing before answer / Caller hears ringing while the app is unreachable"
-description: The gateway sends ring when it claims the call and answer once the session is open.
+description: AppBridge sends ring when it claims the call and answer once the session is open.
 steps:
   - expect: { type: session.start }
   - wait: { ms: 200 }

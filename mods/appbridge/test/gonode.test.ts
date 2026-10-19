@@ -38,13 +38,13 @@ import {
 import { expect } from "chai";
 import { Webhooks } from "@fonoster/common";
 import { connect, NatsConnection } from "nats";
-import { GatewayConfig } from "../src/config";
-import { Gateway } from "../src/Gateway";
+import { AppBridgeConfig } from "../src/config";
+import { AppBridge } from "../src/AppBridge";
 import { MemoryCallRecordSink } from "../src/record/CallRecordSink";
 import { catalogFor } from "./scenarioCatalog";
 import { appsFor, recordReaders } from "./scenarioApps";
 
-// The voice-session suite through the gateway, the Go Roomr node and a SIP caller bot: real SIP,
+// The voice-session suite through AppBridge, the Go Roomr node and a SIP caller bot: real SIP,
 // RTP and media-control end to end (add-roomr 3.x, the first-call milestone). Needs NATS
 // (CONFORMANCE_NATS_URL) and a Go toolchain.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
@@ -64,7 +64,7 @@ const NOT_YET: Record<string, string> = {
 function configFor(
   scenario: Scenario,
   harness: RealMediaHarness
-): GatewayConfig {
+): AppBridgeConfig {
   const urls = harness.providerUrls;
   return {
     nats: { url: NATS_URL! },
@@ -81,7 +81,7 @@ function configFor(
   };
 }
 
-describe("@gateway voice-session through the Go Roomr node", function () {
+describe("@appbridge voice-session through the Go Roomr node", function () {
   // The scenarios play media from the harness's local server; play fetches reach public
   // addresses only unless allowed (M13).
   let allowedDestinations: string | undefined;
@@ -121,7 +121,7 @@ describe("@gateway voice-session through the Go Roomr node", function () {
         ...recordReaders(record),
         webhookEvents: () => webhooks.map((e) => ({ type: e.type, ...e.data }))
       }).start();
-      const gateway = await new Gateway({
+      const appbridge = await new AppBridge({
         config: configFor(scenario, harness),
         registryStore: catalogFor(scenario),
         nats: nc,
@@ -135,7 +135,7 @@ describe("@gateway voice-session through the Go Roomr node", function () {
         });
         expect(result.status, result.reason).to.equal("passed");
       } finally {
-        await gateway.stop();
+        await appbridge.stop();
         await harness.stop();
       }
     });
@@ -143,8 +143,8 @@ describe("@gateway voice-session through the Go Roomr node", function () {
 });
 
 // Recording policy through the real node's listener.attach (add-call-record 3.2): one unmixed RTP
-// stream per side, written by the gateway's recorder and sealed into the record.
-describe("@gateway call recording through the Go Roomr node", function () {
+// stream per side, written by AppBridge's recorder and sealed into the record.
+describe("@AppBridge call recording through the Go Roomr node", function () {
   this.timeout(30000);
   let nc: NatsConnection;
   let bins: RoomrBinaries | undefined;
@@ -179,7 +179,7 @@ describe("@gateway call recording through the Go Roomr node", function () {
     }).start();
     const config = configFor({ name: "recording" } as Scenario, harness);
     config.apps[0].recording = "on";
-    const gateway = await new Gateway({
+    const appbridge = await new AppBridge({
       config: {
         ...config,
         callRecord: {
@@ -226,16 +226,16 @@ describe("@gateway call recording through the Go Roomr node", function () {
       expect(loud(caller)).to.be.greaterThan(1600);
       expect(loud(agent)).to.be.greaterThan(1600);
     } finally {
-      await gateway.stop();
+      await appbridge.stop();
       await harness.stop();
       fs.rmSync(dir, { recursive: true, force: true });
     }
   });
 });
 
-// Every SIP codec the node negotiates reaches the app in the app's format (AO-B4): the gateway leg
+// Every SIP codec the node negotiates reaches the app in the app's format (AO-B4): AppBridge leg
 // stays L16/16000 and the Roomr node transcodes PCMU, PCMA, G.722 and Opus.
-describe("@gateway SIP codecs through the Go Roomr node", function () {
+describe("@appbridge SIP codecs through the Go Roomr node", function () {
   this.timeout(30000);
   let nc: NatsConnection;
   let bins: RoomrBinaries | undefined;
@@ -255,7 +255,7 @@ describe("@gateway SIP codecs through the Go Roomr node", function () {
       const harness = await new RealMediaHarness(nc, bins!, {
         vendorCalls: () => 0
       }).start();
-      const gateway = await new Gateway({
+      const appbridge = await new AppBridge({
         config: configFor({ name: codec } as Scenario, harness),
         nats: nc,
         record: new MemoryCallRecordSink()
@@ -301,7 +301,7 @@ describe("@gateway SIP codecs through the Go Roomr node", function () {
           await new Promise((r) => setTimeout(r, 50));
         }
       } finally {
-        await gateway.stop();
+        await appbridge.stop();
         await harness.stop();
       }
     });
@@ -314,7 +314,7 @@ describe("@gateway SIP codecs through the Go Roomr node", function () {
 // RTP is not text) or as one subject at a media frame rate (50/s for 20 ms frames). Every message
 // must be text, and no subject may pass 10/s. The spec's call lasts 60 s; this one carries a few
 // seconds each way, which is enough to see a stream at frame rate.
-describe("@gateway no audio on the bus (Go Roomr node)", function () {
+describe("@appbridge no audio on the bus (Go Roomr node)", function () {
   this.timeout(30000);
   let nc: NatsConnection;
   let bins: RoomrBinaries | undefined;
@@ -351,7 +351,7 @@ describe("@gateway no audio on the bus (Go Roomr node)", function () {
     const harness = await new RealMediaHarness(nc, bins!, {
       vendorCalls: () => 0
     }).start();
-    const gateway = await new Gateway({
+    const appbridge = await new AppBridge({
       config: configFor({ name: "no-audio-on-bus" } as Scenario, harness),
       nats: nc,
       record: new MemoryCallRecordSink()
@@ -403,7 +403,7 @@ describe("@gateway no audio on the bus (Go Roomr node)", function () {
       ).to.be.below(10);
     } finally {
       observer.unsubscribe();
-      await gateway.stop();
+      await appbridge.stop();
       await harness.stop();
       await bus.close();
     }

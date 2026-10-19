@@ -22,7 +22,7 @@ import {
   KeyCustody,
   StaticKeyCustody
 } from "@fonoster/callrecord";
-import { GatewayConfig } from "../config";
+import { AppBridgeConfig } from "../config";
 
 /**
  * The region's key custody from `callRecord.signingKey` (task 2.6, LO-B5): `dir` is a key
@@ -30,7 +30,7 @@ import { GatewayConfig } from "../config";
  * key. `keyHistory` public keys are published in both cases.
  */
 export function keyCustody(
-  c: NonNullable<GatewayConfig["callRecord"]>
+  c: NonNullable<AppBridgeConfig["callRecord"]>
 ): KeyCustody {
   const earlier: Record<string, string> = {};
   for (const k of c.keyHistory ?? [])

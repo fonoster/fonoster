@@ -19,7 +19,7 @@
 import { loadServiceConfig } from "@fonoster/common";
 import { adapterFor } from "@fonoster/community";
 import { isAppAudioFormat } from "./audio/pcm";
-import { gatewayConfigSchema } from "./configSchema";
+import { appBridgeConfigSchema } from "./configSchema";
 import { isDetectorChoice } from "./turn/createDetector";
 import type { ObjectStoreConfig } from "@fonoster/callrecord";
 
@@ -92,9 +92,9 @@ export type ProviderConfig = {
   voices?: string[];
 };
 
-export type GatewayConfig = {
+export type AppBridgeConfig = {
   /**
-   * user/password: the gateway's NATS user when the server has per-service users (add-platform
+   * user/password: AppBridge's NATS user when the server has per-service users (add-platform
    * 4.1); password is usually a secret:// reference.
    */
   nats: { url: string; user?: string; password?: string };
@@ -145,7 +145,7 @@ export type GatewayConfig = {
   };
   /**
    * The control-plane database (the apiserver's), for `apps.source: database`, database registry
-   * and webhooks. The gateway only reads apps and the catalog; it writes webhook deliveries.
+   * and webhooks. AppBridge only reads apps and the catalog; it writes webhook deliveries.
    */
   database?: {
     url?: string;
@@ -171,7 +171,7 @@ export type GatewayConfig = {
     keyEnv?: string;
     /**
      * Public regions (PR-20): a workspace's own key is fetched per call from the cloud through the
-     * region agent (`cell.workspacekeys.get` on this gateway's NATS) before the region's keys.
+     * region agent (`cell.workspacekeys.get` on this AppBridge's NATS) before the region's keys.
      */
     workspaceKeysFromCloud?: boolean;
   };
@@ -208,7 +208,7 @@ export type GatewayConfig = {
     /**
      * The region's signing key: `dir`, a key directory managed with `fonoster-callrecord keys
      * rotate` (rotation without restart), or one fixed key (`kid` + `privateKeyFile`). jku: the
-     * HTTPS URL where this region's key set is published (KEY_SET_PATH on the gateway).
+     * HTTPS URL where this region's key set is published (KEY_SET_PATH on AppBridge).
      */
     signingKey: {
       kid?: string;
@@ -218,7 +218,7 @@ export type GatewayConfig = {
     };
     /** Earlier keys, still published so old records verify after rotation. */
     keyHistory?: { kid: string; publicKeyFile: string }[];
-    /** How often to seal records of calls whose gateway died (default 10 s). */
+    /** How often to seal records of calls whose AppBridge died (default 10 s). */
     sweepIntervalMs?: number;
     /**
      * The region's object storage for sealed records and recordings (default: `<dir>/sealed` on
@@ -279,7 +279,7 @@ export const DEFAULTS = {
   ttsTimeoutMs: 3000
 };
 
-export function validateConfig(config: GatewayConfig): string[] {
+export function validateConfig(config: AppBridgeConfig): string[] {
   const problems: string[] = [];
   if (!config.nats?.url) problems.push("nats.url is required");
   const refs = new Set<string>();
@@ -392,34 +392,34 @@ export function validateConfig(config: GatewayConfig): string[] {
   return problems;
 }
 
-/** Where the gateway looks for gateway.yaml when no file is named. */
-export const GATEWAY_CONFIG_DIRS = ["/config", "/etc/fonoster", "./config"];
+/** Where AppBridge looks for appbridge.yaml when no file is named. */
+export const APPBRIDGE_CONFIG_DIRS = ["/config", "/etc/fonoster", "./config"];
 
 /**
- * Loads the gateway's config (one file per service, PL5) the apiserver's way: `${VAR}`
+ * Loads AppBridge's config (one file per service, PL5) the apiserver's way: `${VAR}`
  * placeholders from the container environment, `secret://` references, then strict validation
- * (unify-config-placeholders). Without `file`, the first of GATEWAY_CONFIG_DIRS holding a
- * gateway.yaml (or .yml/.json/.jsonc) is used.
+ * (unify-config-placeholders). Without `file`, the first of APPBRIDGE_CONFIG_DIRS holding a
+ * appbridge.yaml (or .yml/.json/.jsonc) is used.
  */
 export function loadConfig(
   file?: string,
   env: Record<string, string | undefined> = process.env
-): GatewayConfig {
+): AppBridgeConfig {
   const config = loadServiceConfig({
-    service: "gateway",
-    schema: gatewayConfigSchema,
+    service: "appbridge",
+    schema: appBridgeConfigSchema,
     argv: file ? ["--config", file] : [],
     env,
-    searchDirs: GATEWAY_CONFIG_DIRS,
+    searchDirs: APPBRIDGE_CONFIG_DIRS,
     interpolatePaths: ["*"]
-  }) as GatewayConfig;
+  }) as AppBridgeConfig;
   const envHost = config.rtp?.advertiseHostEnv;
   if (config.rtp && envHost && !config.rtp.advertiseHost)
     config.rtp.advertiseHost = process.env[envHost] || undefined;
   const problems = validateConfig(config);
   if (problems.length)
     throw new Error(
-      `invalid gateway config ${file ?? "gateway.yaml"}:\n  - ${problems.join("\n  - ")}`
+      `invalid AppBridge config ${file ?? "appbridge.yaml"}:\n  - ${problems.join("\n  - ")}`
     );
   return config;
 }
@@ -433,7 +433,7 @@ export function providerKey(p: ProviderConfig): string | undefined {
 }
 
 /** The control-plane database URL, if configured. */
-export function databaseUrl(config: GatewayConfig): string | undefined {
+export function databaseUrl(config: AppBridgeConfig): string | undefined {
   const d = config.database;
   if (!d) return undefined;
   return d.url ?? process.env[d.urlEnv ?? "APISERVER_DATABASE_URL"];
@@ -441,7 +441,7 @@ export function databaseUrl(config: GatewayConfig): string | undefined {
 
 /** The recording policy for a call: the app's, else its workspace's, else the region default. */
 export function recordingPolicy(
-  config: GatewayConfig,
+  config: AppBridgeConfig,
   app: AppConfig
 ): RecordingPolicy {
   return (

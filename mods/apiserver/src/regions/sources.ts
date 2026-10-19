@@ -58,7 +58,7 @@ export async function listAll(
 
 const iso = (d: unknown) => (d instanceof Date ? d.toISOString() : d);
 
-/** An application row as the cell's gateway reads it (the gateway's `appFromRow` columns). */
+/** An application row as the cell's AppBridge reads it (AppBridge's `appFromRow` columns). */
 function appRow(row: Record<string, unknown>) {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(row)) {
@@ -70,7 +70,7 @@ function appRow(row: Record<string, unknown>) {
 }
 
 /**
- * The production snapshot sources: Prisma for apps, assistants, webhooks, the catalog and the
+ * The production snapshot sources: Prisma for apps, agents, webhooks, the catalog and the
  * recording policy; the Routr-backed gRPC handlers for numbers and Routr resources.
  */
 export function createSnapshotSources(deps: {
@@ -88,7 +88,7 @@ export function createSnapshotSources(deps: {
         include: { intelligence: true },
         orderBy: { createdAt: "asc" }
       });
-      const assistants: ConfigKinds["assistants"] = rows
+      const agents: ConfigKinds["agents"] = rows
         .filter((r) => r.intelligence)
         .map((r) => {
           const i = r.intelligence as { productRef: string; config: unknown };
@@ -98,7 +98,7 @@ export function createSnapshotSources(deps: {
             config: i.config
           };
         });
-      return { apps: rows.map(appRow), assistants };
+      return { apps: rows.map(appRow), agents };
     },
     numbers: (accessKeyId) => listAll(handlers.listNumbers, accessKeyId),
     async routr(accessKeyId) {

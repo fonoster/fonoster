@@ -20,7 +20,7 @@
 /**
  * Retries a store's first load while the control-plane database is not ready yet (the API server
  * applies its migrations at start, so its tables may not exist for a few seconds). Each failed
- * attempt logs one warn line; after `timeoutMs` the last error is thrown and the gateway exits.
+ * attempt logs one warn line; after `timeoutMs` the last error is thrown and AppBridge exits.
  */
 type Log = { warn: (message: string) => void; info: (message: string) => void };
 

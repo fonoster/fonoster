@@ -26,7 +26,7 @@ import { Catalog } from "../src/speech/Catalog";
 
 // A private region's cell secrets (add-private-regions PR-4, build log RC-B5).
 
-describe("@gateway/cell secrets", function () {
+describe("@appbridge/cell secrets", function () {
   it("accepts providers without a platform key and uses the cell's key", async function () {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gw-cell-"));
     const file = path.join(dir, "secrets.enc");

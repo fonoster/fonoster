@@ -19,7 +19,7 @@ plane keeps only an index entry (call, time, parties, status, size, location, ve
 | `attachments` | `messages.ndjson`: every session message in both directions, in order (audio frames excluded). Original copy only. |
 | `fonoster` | Fonoster fields: `callRef`, `region`, times, `endReason`, `status` (`completed`, `failed`, `incomplete`), `direction`, `workspaceRef`, `appRefs`, `failure` (`reason`, `sipStatus`), `recording` policy, `complete` and `missing`. |
 
-`fonoster.missing` lists what the record lacks: `hangup` (the gateway died mid-call; a sweep
+`fonoster.missing` lists what the record lacks: `hangup` (AppBridge died mid-call; a sweep
 sealed the record 30 seconds after the last entry) or `recording` (a recording was asked for and
 none was made). Not included: logs, LLM prompts and responses, per-turn audio, and SIP traces.
 
@@ -65,7 +65,7 @@ the HTTP API is under `/api/records` with `Authorization: Bearer <access token>`
 ## Recordings
 
 Recording is a policy, not an app decision: `off`, `on`, or `consent` (the caller hears a consent
-prompt first). The gateway applies the first one set of: the app, the workspace, the region
+prompt first). AppBridge applies the first one set of: the app, the workspace, the region
 default, and `off`. Apps cannot override it. The file is a stereo WAV at 16 kHz: left channel the
 caller, right channel the agent.
 
@@ -156,7 +156,7 @@ download files through the API.
 
 ## Operator notes
 
-- Gateway config `callRecord` turns records on: `dir` (working records), `region`, `signingKey`
+- AppBridge config `callRecord` turns records on: `dir` (working records), `region`, `signingKey`
   (`{dir, jku}` for a key directory, or `{kid, privateKeyFile}`), `store` (S3-compatible bucket;
   default a local `sealed` folder for development), `recording`, `workspaces.<ref>.{recording,store}`,
   `consentPrompt`, `recordUrl`.

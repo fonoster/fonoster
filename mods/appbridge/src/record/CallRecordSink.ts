@@ -20,13 +20,13 @@ import * as fs from "fs";
 import * as path from "path";
 
 // voice-session, "Every message is part of the call record". The call record itself (vCon,
-// sealing, signing, storage) is add-call-record; the gateway only appends entries through this
+// sealing, signing, storage) is add-call-record; AppBridge only appends entries through this
 // interface.
 
 export type RecordEntry = {
   at: number;
-  /** "app" = sent by the app, "gateway" = sent to the app, "event" = gateway-side event. */
-  source: "app" | "gateway" | "event";
+  /** "app" = sent by the app, "appbridge" = sent to the app, "event" = appbridge-side event. */
+  source: "app" | "appbridge" | "event";
   message: Record<string, unknown>;
 };
 
@@ -69,8 +69,8 @@ export class MemoryCallRecordSink implements CallRecordSink {
 }
 
 /**
- * Keeps nothing: the gateway's sink when no call record is configured (neither `callRecord` nor
- * GATEWAY_RECORD_DIR), so such a gateway does not hold every call's messages forever.
+ * Keeps nothing: AppBridge's sink when no call record is configured (neither `callRecord` nor
+ * APPBRIDGE_RECORD_DIR), so such an AppBridge does not hold every call's messages forever.
  */
 export class NullCallRecordSink implements CallRecordSink {
   append() {}

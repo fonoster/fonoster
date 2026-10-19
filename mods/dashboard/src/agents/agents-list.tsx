@@ -66,7 +66,7 @@ export function agentRow(
   const languageModel = (app.intelligence?.config as Config)?.languageModel as
     | Config
     | undefined;
-  // The session model: catalog ids on the assistant and on the app's speech defaults.
+  // The session model: catalog ids on the agent and on the app's speech defaults.
   const model = field(languageModel, "model");
   const speech = (app as { speech?: Config }).speech;
   const voice = field(speech, "voice");

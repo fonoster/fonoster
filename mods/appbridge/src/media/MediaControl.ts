@@ -71,7 +71,7 @@ export interface MediaControl {
   ): () => void;
   /**
    * Claims `call.incoming` requests (media-control, "Incoming calls are claimed by exactly one
-   * gateway replica"). Replicas share one queue group, so each call reaches one of them.
+   * AppBridge replica"). Replicas share one queue group, so each call reaches one of them.
    */
   onIncoming(
     handler: (nodeId: string, event: MediaEvent, traceparent?: string) => void
@@ -81,7 +81,7 @@ export interface MediaControl {
 }
 
 /** Subject Roomr nodes send `call.incoming` requests to. */
-export const INCOMING_SUBJECT = "gateway.incoming";
+export const INCOMING_SUBJECT = "appbridge.incoming";
 /** A node's heartbeat and node.down subject (media-control "Nodes report capacity and liveness"). */
 export const heartbeatSubject = (nodeRef: string) =>
   `roomr.nodes.${nodeRef}.heartbeat`;
@@ -106,7 +106,7 @@ export class NatsMediaControl implements MediaControl {
     private readonly options: {
       queue?: string;
       timeoutMs?: number;
-      gatewayRef?: string;
+      bridgeRef?: string;
     } = {}
   ) {}
 
@@ -117,11 +117,11 @@ export class NatsMediaControl implements MediaControl {
   ): Promise<MediaReply> {
     let reply: MediaReply;
     try {
-      // The gateway names itself on every command: the node ends the room if this gateway
+      // AppBridge names itself on every command: the node ends the room if this AppBridge
       // goes away (roomr "Rooms without an owner end"), also for calls placed over Roomr,
-      // whose CreateCall names no gateway.
-      const body = this.options.gatewayRef
-        ? { ...command, gatewayRef: this.options.gatewayRef }
+      // whose CreateCall names no AppBridge.
+      const body = this.options.bridgeRef
+        ? { ...command, bridgeRef: this.options.bridgeRef }
         : command;
       const msg = await this.nc.request(
         `media.${nodeId}.commands`,
@@ -163,9 +163,9 @@ export class NatsMediaControl implements MediaControl {
   onIncoming(
     handler: (nodeId: string, event: MediaEvent, traceparent?: string) => void
   ): () => void {
-    const gatewayRef = this.options.gatewayRef ?? "gateway";
+    const bridgeRef = this.options.bridgeRef ?? "appbridge";
     const sub: Subscription = this.nc.subscribe(INCOMING_SUBJECT, {
-      queue: this.options.queue ?? "gateway-incoming",
+      queue: this.options.queue ?? "appbridge-incoming",
       callback: (err, msg) => {
         if (err) return;
         let event: MediaEvent;
@@ -178,7 +178,7 @@ export class NatsMediaControl implements MediaControl {
         // Claim first: the node gives up after 500 ms. Routing happens after the claim.
         msg.respond(
           sc.encode(
-            JSON.stringify({ type: "claimed", id: event.id, gatewayRef })
+            JSON.stringify({ type: "claimed", id: event.id, bridgeRef })
           )
         );
         handler(

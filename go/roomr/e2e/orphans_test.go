@@ -12,7 +12,7 @@ import (
 )
 
 // Rooms without an owner end (roomr "Rooms without an owner end"): a room nobody joins and
-// nobody dials into, and a room whose gateway stopped its heartbeats, are ended with node_error,
+// nobody dials into, and a room whose AppBridge stopped its heartbeats, are ended with node_error,
 // free their slot, and report room.ended (and call.ended on roomr.events.<callRef>, so TrackCall
 // ends).
 
@@ -94,27 +94,27 @@ func TestFailedDialEndsEmptyRoom(t *testing.T) {
 	}
 }
 
-// The gateway that claimed an answered call dies: once its heartbeats stop, the node ends the
+// AppBridge that claimed an answered call dies: once its heartbeats stop, the node ends the
 // room and the caller gets BYE instead of dead air until MaxDuration.
-func TestRoomEndsWhenItsGatewayIsLost(t *testing.T) {
+func TestRoomEndsWhenItsAppBridgeIsLost(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.OwnerTimeout = 600 * time.Millisecond }})
-	gatewayRef := fmt.Sprintf("gw-%d", time.Now().UnixNano())
+	bridgeRef := fmt.Sprintf("gw-%d", time.Now().UnixNano())
 	r.mu.Lock()
-	r.claimAs = gatewayRef
+	r.claimAs = bridgeRef
 	r.mu.Unlock()
 	beat := func() {
-		_ = r.nc.Publish(node.GatewayHeartbeatSubject, []byte(`{"type":"gateway.heartbeat","gatewayRef":"`+gatewayRef+`","calls":1}`))
+		_ = r.nc.Publish(node.AppBridgeHeartbeatSubject, []byte(`{"type":"appbridge.heartbeat","bridgeRef":"`+bridgeRef+`","calls":1}`))
 		_ = r.nc.Flush()
 	}
 	beat()
 	call, room, _ := r.answeredCall()
-	// A live gateway keeps its rooms.
+	// A live AppBridge keeps its rooms.
 	for i := 0; i < 6; i++ {
 		beat()
 		time.Sleep(200 * time.Millisecond)
 	}
 	if r.count(typed("room.ended", "roomRef", room)) != 0 {
-		t.Fatal("the room of a live gateway ended")
+		t.Fatal("the room of a live AppBridge ended")
 	}
 	// Killed: no more heartbeats.
 	ended := r.waitEvent(typed("room.ended", "roomRef", room), 3*time.Second)
@@ -127,9 +127,9 @@ func TestRoomEndsWhenItsGatewayIsLost(t *testing.T) {
 	}
 }
 
-// A gateway the node never heard (no permission to see heartbeats, an older gateway) is never
+// An AppBridge the node never heard (no permission to see heartbeats, an older AppBridge) is never
 // judged gone.
-func TestUnheardGatewayKeepsItsRooms(t *testing.T) {
+func TestUnheardAppBridgeKeepsItsRooms(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.OwnerTimeout = 300 * time.Millisecond }})
 	r.mu.Lock()
 	r.claimAs = fmt.Sprintf("gw-silent-%d", time.Now().UnixNano())
@@ -137,23 +137,23 @@ func TestUnheardGatewayKeepsItsRooms(t *testing.T) {
 	_, room, _ := r.answeredCall()
 	time.Sleep(1500 * time.Millisecond)
 	if r.count(typed("room.ended", "roomRef", room)) != 0 {
-		t.Fatal("a room of a gateway never heard was ended")
+		t.Fatal("a room of an AppBridge never heard was ended")
 	}
 }
 
-// The gateway that acked an outbound call dies while it rings (in-memory state audit, test 5):
+// AppBridge that acked an outbound call dies while it rings (in-memory state audit, test 5):
 // participant.dial named it as owner, so once its heartbeats stop the node ends the room, also
 // after the callee answers into it, instead of leaving the callee in dead air.
-func TestOutboundRoomEndsWhenItsGatewayDiesWhileRinging(t *testing.T) {
+func TestOutboundRoomEndsWhenItsAppBridgeDiesWhileRinging(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.OwnerTimeout = 800 * time.Millisecond }})
-	gatewayRef := fmt.Sprintf("gw-out-%d", time.Now().UnixNano())
-	// The gateway is alive when it takes the call, then is killed: one heartbeat, no more.
-	_ = r.nc.Publish(node.GatewayHeartbeatSubject, []byte(`{"type":"gateway.heartbeat","gatewayRef":"`+gatewayRef+`","calls":0}`))
+	bridgeRef := fmt.Sprintf("gw-out-%d", time.Now().UnixNano())
+	// AppBridge is alive when it takes the call, then is killed: one heartbeat, no more.
+	_ = r.nc.Publish(node.AppBridgeHeartbeatSubject, []byte(`{"type":"appbridge.heartbeat","bridgeRef":"`+bridgeRef+`","calls":0}`))
 	_ = r.nc.Flush()
-	r.callee.Callee("answer", 300*time.Millisecond) // answers after the gateway is gone
+	r.callee.Callee("answer", 300*time.Millisecond) // answers after AppBridge is gone
 	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
 	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room,
-		"to": "+15551234567", "gatewayRef": gatewayRef})
+		"to": "+15551234567", "bridgeRef": bridgeRef})
 	r.waitEvent(typed("call.answered", "id", "d1"), 3*time.Second)
 	ended := r.waitEvent(typed("room.ended", "roomRef", room), 4*time.Second)
 	if ended["reason"] != node.ReasonNodeError {

@@ -18,7 +18,7 @@
  */
 import { expect } from "chai";
 import {
-  FakeGateway,
+  FakeAppBridge,
   FakesHarness,
   interpolate,
   loadScenarios,
@@ -47,7 +47,7 @@ describe("@autopilot/session latency stopwatch", function () {
         signingSecret: "t"
       }).listen(
         createAutopilotHandler({
-          assistant: interpolate(scenario.setup!.assistant!, harness.vars()),
+          agent: interpolate(scenario.setup!.agent!, harness.vars()),
           providers: { fake: { baseUrl: harness.llm.url } }
         })
       );
@@ -55,7 +55,7 @@ describe("@autopilot/session latency stopwatch", function () {
         options: {
           harness,
           connect: () =>
-            new FakeGateway({ signingSecret: "t" }).dial(
+            new FakeAppBridge({ signingSecret: "t" }).dial(
               `ws://127.0.0.1:${server.port}/`
             )
         },

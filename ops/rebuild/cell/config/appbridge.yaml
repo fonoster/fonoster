@@ -1,0 +1,36 @@
+# appbridge.yaml for a region's cell: apps, the catalog and webhook endpoints of every workspace of
+# the region come from the cell's database (written by the region agent from the control plane's
+# snapshots); provider keys come from the region's secret store (`fonoster-region secrets set
+# <provider>`), never from the cloud database.
+nats:
+  url: nats://nats:4222
+  user: appbridge
+  password: secret://env/NATS_APPBRIDGE_PASSWORD
+rtp:
+  host: 0.0.0.0
+  advertiseHost: appbridge
+database:
+  urlEnv: APISERVER_DATABASE_URL
+encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }
+appStore: { source: database, cacheMs: 5000 }
+registry: { source: database, refreshMs: 30000 }
+webhooks: { enabled: true }
+cellSecrets:
+  file: /var/lib/fonoster-secrets/secrets.enc
+  keyEnv: FONOSTER_REGION_SECRETS_KEY
+  # A public region (PR-20): a workspace's own keys are fetched per call from the cloud through
+  # the region agent, before the region's (Fonoster's) keys. Leave off for a private region.
+  # workspaceKeysFromCloud: true
+providers:
+  deepgram: { adapter: deepgram, capabilities: [stt, tts] }
+  elevenlabs: { adapter: elevenlabs, capabilities: [tts] }
+callRecord:
+  dir: /var/lib/fonoster/records
+  region: private
+  recording: off
+  store:
+    s3:
+      bucket: records
+      endpoint: http://minio:9000
+      forcePathStyle: true
+  signingKey: { kid: cell-records-1, privateKeyFile: /etc/fonoster/keys/records.pem }

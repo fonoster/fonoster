@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EvalAssistant, InvocationResult } from "../types";
+import { EvalAgent, InvocationResult } from "../types";
 
 /**
  * Maps language model invocation result to the text that should be compared
@@ -24,17 +24,15 @@ import { EvalAssistant, InvocationResult } from "../types";
  */
 export function extractAiResponse(
   response: InvocationResult,
-  assistantConfig: EvalAssistant
+  agentConfig: EvalAgent
 ): string {
   if (response.toolCalls && response.toolCalls.length > 0) {
     const topTool = response.toolCalls[0];
     if (topTool.name === "hangup") {
-      return assistantConfig.conversationSettings?.goodbyeMessage ?? "";
+      return agentConfig.conversationSettings?.goodbyeMessage ?? "";
     }
     if (topTool.name === "transfer") {
-      return (
-        assistantConfig.conversationSettings?.transferOptions?.message ?? ""
-      );
+      return agentConfig.conversationSettings?.transferOptions?.message ?? "";
     }
   }
   return response.content ?? "";

@@ -60,14 +60,14 @@ function call(callRef: string, turns: number): RecordEntry[] {
     },
     {
       at: at(),
-      source: "gateway",
+      source: "appbridge",
       message: { type: "session.start", callRef, appRef: "ivr" }
     }
   ];
   for (let i = 0; i < turns; i++)
     out.push({
       at: at(),
-      source: "gateway",
+      source: "appbridge",
       message: { type: "turn.ended", text: `question ${i}` }
     });
   out.push({

@@ -205,7 +205,7 @@ func TestRoomrCreateCall(t *testing.T) {
 	r.waitEvent(typed("participant.joined", "participantRef", p.ParticipantRef), 2*time.Second)
 	_ = ep.Configure(audio.L16{}, 96, -1, "127.0.0.1", int(p.Rtp.GetPort()))
 	before = callee.Status().AudibleMs
-	g := &gateway{ep: ep}
+	g := &appbridge{ep: ep}
 	g.play(1000, 600)
 	waitStatus(t, callee, func(s caller.Status) bool { return s.AudibleMs-before >= 300 }, 2*time.Second)
 	if _, err := mc.Leave(ctx, &roomrv1.LeaveRequest{RoomRef: roomRef, ParticipantRef: p.ParticipantRef}); err != nil {

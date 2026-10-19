@@ -47,8 +47,8 @@ export type OutboundTarget = {
   auth?: Roomr.SipAuth;
 };
 
-/** The gateway subject that opens the app session when the callee answers (gateway B8). */
-export const GATEWAY_OUTBOUND_SUBJECT = "gateway.outbound";
+/** AppBridge subject that opens the app session when the callee answers (appbridge B8). */
+export const APPBRIDGE_OUTBOUND_SUBJECT = "appbridge.outbound";
 
 const REPLY_TIMEOUT_MS = 2000;
 
@@ -125,7 +125,7 @@ export function calleeUri(to: string, proxy: string) {
  *    or `UNAVAILABLE` sends the call to the next node, up to MAX_PLACEMENT_ATTEMPTS nodes, then
  *    `no_capacity`; a timeout is retried on the same node (the ref makes the retry safe) and
  *    then fails the call.
- * 2. `gateway.outbound`, so a gateway watches the room and opens the app's session on
+ * 2. `appbridge.outbound`, so an AppBridge watches the room and opens the app's session on
  *    `call.answered` (until the control stream replaces it, tasks 5 and 6).
  * 3. `CreateCall` into that room with the call's ref (repeated on a timeout: the node dedupes
  *    it), dialing through the SIP proxy with the pass-through headers it routes on
@@ -197,7 +197,7 @@ export async function placeOutboundCall(
   let claimed: Record<string, unknown>;
   try {
     claimed = await deps.request(
-      GATEWAY_OUTBOUND_SUBJECT,
+      APPBRIDGE_OUTBOUND_SUBJECT,
       {
         nodeId,
         roomRef,
@@ -212,15 +212,15 @@ export async function placeOutboundCall(
   } catch (e) {
     await endRoom();
     throw new PlacementError(
-      "no_gateway",
-      `no gateway took the call: ${(e as Error).message}`
+      "no_appbridge",
+      `no AppBridge took the call: ${(e as Error).message}`
     );
   }
   if (claimed.type !== "ack") {
     await endRoom();
     throw new PlacementError(
       String(claimed.code ?? "error"),
-      `the gateway refused the call: ${claimed.code ?? "error"}`
+      `AppBridge refused the call: ${claimed.code ?? "error"}`
     );
   }
 

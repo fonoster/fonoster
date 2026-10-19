@@ -26,7 +26,7 @@ import * as path from "path";
 import { expect } from "chai";
 import { pathToFileURL } from "url";
 import { parse } from "yaml";
-import { loadConfig as loadGatewayConfig } from "../../appbridge/src/config";
+import { loadConfig as loadAppBridgeConfig } from "../../appbridge/src/config";
 
 const ROOT = path.join(__dirname, "..", "..", "..");
 const WORKFLOWS = path.join(ROOT, ".github", "workflows");
@@ -171,20 +171,20 @@ describe("@conformance[deployment] no .env, secret:// references", function () {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "dotenv-"));
     fs.writeFileSync(
       path.join(dir, ".env"),
-      "NATS_GATEWAY_PASSWORD=from-dotenv\nTEST_OTLP=http://from-dotenv:4318\n"
+      "NATS_APPBRIDGE_PASSWORD=from-dotenv\nTEST_OTLP=http://from-dotenv:4318\n"
     );
-    const file = path.join(dir, "gateway.yaml");
+    const file = path.join(dir, "appbridge.yaml");
     fs.writeFileSync(
       file,
       [
-        'nats: { url: "nats://nats:4222", user: gateway, password: "${NATS_GATEWAY_PASSWORD:-from-yaml}" }',
+        'nats: { url: "nats://nats:4222", user: appbridge, password: "${NATS_APPBRIDGE_PASSWORD:-from-yaml}" }',
         'telemetry: { otlpEndpoint: "${TEST_OTLP:-http://from-yaml:4318}" }',
         "apps: []",
         "providers: {}",
         ""
       ].join("\n")
     );
-    // The gateway's entry point imports @fonoster/common first, as main.ts does.
+    // AppBridge's entry point imports @fonoster/common first, as main.ts does.
     const loader = path.join(ROOT, "mods", "appbridge", "src", "config");
     const common = require.resolve("@fonoster/common");
     const out = runNode(
@@ -198,30 +198,29 @@ describe("@conformance[deployment] no .env, secret:// references", function () {
     ]);
   });
 
-  // mods/common and mods/amd used to load the repository's .env when NODE_ENV=development.
+  // mods/common used to load the repository's .env when NODE_ENV=development.
   it("ignores a .env in development too", function () {
     const dotenv = path.join(ROOT, ".env");
     // Never overwrite a developer's own file.
     if (fs.existsSync(dotenv)) return this.skip();
     fs.writeFileSync(
       dotenv,
-      "APISERVER_ROOT_DOMAIN=from-dotenv.example\nROOT_DOMAIN=from-dotenv.example\nAMD_PROBE_MS=1234\nNATS_GATEWAY_PASSWORD=from-dotenv\n"
+      "APISERVER_ROOT_DOMAIN=from-dotenv.example\nROOT_DOMAIN=from-dotenv.example\nNATS_APPBRIDGE_PASSWORD=from-dotenv\n"
     );
     try {
       const common = path.join(ROOT, "mods", "common", "src", "envs.ts");
-      const amd = path.join(ROOT, "mods", "amd", "src", "envs.ts");
       const out = runNode(
-        `const c = require(${JSON.stringify(common)}); const a = require(${JSON.stringify(amd)}); console.log(JSON.stringify([c.getRootDomain(), a.PROBE_MS, process.env.NATS_GATEWAY_PASSWORD ?? null]))`,
+        `const c = require(${JSON.stringify(common)}); console.log(JSON.stringify([c.getRootDomain(), process.env.NATS_APPBRIDGE_PASSWORD ?? null]))`,
         ROOT,
         { NODE_ENV: "development" }
       );
-      expect(JSON.parse(out)).to.deep.equal(["fonoster.local", 3000, null]);
+      expect(JSON.parse(out)).to.deep.equal(["fonoster.local", null]);
     } finally {
       fs.rmSync(dotenv, { force: true });
     }
   });
 
-  it("resolves secret://env, secret://file and secret://k8s in the gateway's config", function () {
+  it("resolves secret://env, secret://file and secret://k8s in AppBridge's config", function () {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "secret-refs-"));
     const secretsDir = path.join(dir, "secrets");
     fs.mkdirSync(path.join(secretsDir, "fonoster-vendors"), {
@@ -232,11 +231,11 @@ describe("@conformance[deployment] no .env, secret:// references", function () {
       "dg-from-k8s\n"
     );
     fs.writeFileSync(path.join(dir, "nats-password"), "nats-from-file\n");
-    const file = path.join(dir, "gateway.yaml");
+    const file = path.join(dir, "appbridge.yaml");
     fs.writeFileSync(
       file,
       [
-        `nats: { url: "nats://nats:4222", user: gateway, password: "secret://file${path.join(dir, "nats-password")}" }`,
+        `nats: { url: "nats://nats:4222", user: appbridge, password: "secret://file${path.join(dir, "nats-password")}" }`,
         'encryption: { key: "secret://env/TEST_ENCRYPTION_KEY" }',
         "apps: []",
         "providers:",
@@ -247,7 +246,7 @@ describe("@conformance[deployment] no .env, secret:// references", function () {
         ""
       ].join("\n")
     );
-    const config = loadGatewayConfig(file, {
+    const config = loadAppBridgeConfig(file, {
       ...process.env,
       TEST_ENCRYPTION_KEY: "key-from-env",
       FONOSTER_SECRETS_DIR: secretsDir,
@@ -262,13 +261,16 @@ describe("@conformance[deployment] no .env, secret:// references", function () {
 
   it("refuses to start on an unresolvable reference, naming it and never a value", function () {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "secret-refs-"));
-    const file = path.join(dir, "gateway.yaml");
+    const file = path.join(dir, "appbridge.yaml");
     fs.writeFileSync(
       file,
       'nats: { url: "nats://nats:4222", password: "secret://env/TEST_UNSET_SECRET" }\napps: []\nproviders: {}\n'
     );
     expect(() =>
-      loadGatewayConfig(file, { PATH: process.env.PATH, OTHER: "s3cr3t-value" })
+      loadAppBridgeConfig(file, {
+        PATH: process.env.PATH,
+        OTHER: "s3cr3t-value"
+      })
     ).to.throw(/nats\.password: secret:\/\/env\/TEST_UNSET_SECRET/);
   });
 });

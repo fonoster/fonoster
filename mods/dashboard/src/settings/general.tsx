@@ -241,8 +241,8 @@ function DangerZone({ isOwner }: { isOwner: boolean }) {
           Delete workspace
         </h2>
         <p className="font-display text-xs text-muted-foreground">
-          Removes agents, streams, numbers, trunks and call history. Can&apos;t
-          be undone.
+          Removes agents, apps, numbers, trunks and call history. Can&apos;t be
+          undone.
         </p>
       </div>
       <div className="flex flex-col items-start gap-1.5 md:items-end">

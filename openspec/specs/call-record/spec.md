@@ -23,7 +23,7 @@ session. The record SHALL be identified by the call's `callRef`.
 
 #### Scenario: No record store configured
 
-- **WHEN** a gateway runs without `callRecord` and without `GATEWAY_RECORD_DIR` (development)
+- **WHEN** an AppBridge runs without `callRecord` and without `APPBRIDGE_RECORD_DIR` (development)
 - **THEN** it keeps no record entries in memory, so its memory does not grow with each call
 
 ### Requirement: The record contains the call's parties, timing, transcript, messages and turns
@@ -44,13 +44,13 @@ It SHALL NOT contain full log output, LLM prompts or responses, or per-turn audi
 
 #### Scenario: Session messages are captured both ways
 
-- **WHEN** an app sends `speak` and the gateway answers with `output.started` and `output.done`
+- **WHEN** an app sends `speak` and AppBridge answers with `output.started` and `output.done`
 - **THEN** the record contains all three messages, in order, with their `id` and timestamps
 - **AND** contains no audio frame payloads
 
 #### Scenario: Turn decisions carry outcomes
 
-- **WHEN** the gateway emits `turn.ended` and the caller resumes speaking within the cut-off window
+- **WHEN** AppBridge emits `turn.ended` and the caller resumes speaking within the cut-off window
   after the agent starts
 - **THEN** the record holds that turn decision marked as a false cut-off
 
@@ -77,21 +77,21 @@ deadline. A sealed record SHALL never be modified.
 - **THEN** a sealed record is available within the seal deadline
 - **AND** its status is `sealed`
 
-#### Scenario: A gateway crash mid-call still yields a sealed record
+#### Scenario: An AppBridge crash mid-call still yields a sealed record
 
-- **WHEN** the gateway serving a call is killed mid-call after messages have been exchanged
+- **WHEN** AppBridge serving a call is killed mid-call after messages have been exchanged
 - **THEN** a sealed record exists for that call within the seal deadline after the call ends
 - **AND** it contains every message appended before the crash
 - **AND** it lists the parts that could not be collected as missing
 
-#### Scenario: Gateways sharing a record directory
+#### Scenario: AppBridges sharing a record directory
 
-- **WHEN** two gateways share the working directory and a call on gateway A stays silent for longer
+- **WHEN** two AppBridge replicas share the working directory and a call on appbridge A stays silent for longer
   than the seal deadline
-- **THEN** gateway B does not seal it while A is alive (A keeps its live calls' working records
+- **THEN** appbridge B does not seal it while A is alive (A keeps its live calls' working records
   marked alive)
 - **AND** when A dies, the call is sealed exactly once (one version 1, one index entry, one
-  `call_record.sealed`), even with several gateways sweeping at the same moment
+  `call_record.sealed`), even with several AppBridge replicas sweeping at the same moment
 
 #### Scenario: A sealed record cannot be edited
 
@@ -244,7 +244,7 @@ and MUST NOT include record contents in the webhook. Continuous export is not pa
 
 The platform SHALL seal a minimal record for every call that never reaches an app: rejected,
 busy, unanswered, app unreachable after retry and fallback, or lost to a Roomr node crash before a
-session opens. The gateway that owns the call writes it (voice-session). The record holds the
+session opens. AppBridge that owns the call writes it (voice-session). The record holds the
 parties, timing and failure reason (from media-control's `reason` and `sipStatus`, or
 `app_unreachable`, `no_app` or `node_error`). It MUST NOT contain a recording or transcript,
 and it SHALL use the same storage, retention, signing and index as any record. The platform SHALL

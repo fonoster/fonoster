@@ -26,9 +26,9 @@ import {
   loadScenarios,
   repeatScenario
 } from "@fonoster/conformance";
-import { Gateway } from "../src";
+import { AppBridge } from "../src";
 
-// Pass bar T1 (conformance "Gateway latency pass bar"): the gateway adds at most 50 ms at p95 from
+// Pass bar T1 (conformance "AppBridge latency pass bar"): AppBridge adds at most 50 ms at p95 from
 // speak to first audio and from caller audio to STT, and clear silences the call within 40 ms. Runs only when
 // CONFORMANCE_TIMING_RUNS is set (nightly, on a dedicated runner); writes a JSON report to
 // CONFORMANCE_REPORT_DIR when set.
@@ -42,7 +42,7 @@ function scenario(name: string): Scenario {
   return found;
 }
 
-describe("@gateway timing (T1)", function () {
+describe("@appbridge timing (T1)", function () {
   this.timeout(0);
   let nc: NatsConnection;
 
@@ -57,7 +57,7 @@ describe("@gateway timing (T1)", function () {
     const harness = await new FakesHarness({ vendorCalls: () => 0 }).start();
     harness.roomrNode.attachNats(nc);
     const urls = harness.providerUrls;
-    const gateway = await new Gateway({
+    const appbridge = await new AppBridge({
       nats: nc,
       config: {
         nats: { url: NATS_URL! },
@@ -83,7 +83,7 @@ describe("@gateway timing (T1)", function () {
     return {
       options: { harness, connect: () => harness.offerCallAndAccept() },
       cleanup: async () => {
-        await gateway.stop();
+        await appbridge.stop();
         await harness.stop();
       }
     };

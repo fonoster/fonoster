@@ -38,13 +38,13 @@ verify get the public key. Fonoster services MUST NOT read configuration from a 
 themselves. Third-party containers keep their own configuration.
 
 #### Scenario: Secret reference resolved
-- **WHEN** the gateway config sets a provider credential to `secret://k8s/fonoster/deepgram#key`
-- **THEN** the gateway starts with the resolved value and never logs it
+- **WHEN** AppBridge config sets a provider credential to `secret://k8s/fonoster/deepgram#key`
+- **THEN** AppBridge starts with the resolved value and never logs it
 
 #### Scenario: Placeholder resolved from the container environment
-- **WHEN** `gateway.yaml` sets `encryption.key` to `"${ENCRYPTION_KEY}"` and Compose passes
+- **WHEN** `appbridge.yaml` sets `encryption.key` to `"${ENCRYPTION_KEY}"` and Compose passes
   `ENCRYPTION_KEY` from `.env`
-- **THEN** the gateway decrypts workspace vendor keys the apiserver encrypted with the same key
+- **THEN** AppBridge decrypts workspace vendor keys the apiserver encrypted with the same key
 
 #### Scenario: Unset placeholder
 - **WHEN** a config value is `${VAR}`, `VAR` is unset or empty and no default is given
@@ -52,9 +52,9 @@ themselves. Third-party containers keep their own configuration.
 
 #### Scenario: Each container gets only its own values
 - **WHEN** the self-host bundle starts
-- **THEN** the Roomr node, gateway and Autopilot containers hold none of the values only another
+- **THEN** the Roomr node, appbridge and Autopilot containers hold none of the values only another
   service's file names (for example the apiserver's NATS password or the owner's password)
-- **AND** only the apiserver container mounts `keys/private.pem`; the gateway mounts `public.pem`
+- **AND** only the apiserver container mounts `keys/private.pem`; AppBridge mounts `public.pem`
   and its call-record key
 
 #### Scenario: A .env file is ignored
@@ -74,9 +74,9 @@ allowed `_INBOX.>` or another user's prefix; a user that only publishes (Routr) 
 nothing.
 
 #### Scenario: Another service's reply stays private
-- **WHEN** the gateway requests a workspace key and the region agent replies
-- **THEN** a Roomr node subscribing to `_INBOX.>` or `_INBOX_gateway.>` is refused and receives nothing
-- **AND** the gateway receives the reply
+- **WHEN** AppBridge requests a workspace key and the region agent replies
+- **THEN** a Roomr node subscribing to `_INBOX.>` or `_INBOX_appbridge.>` is refused and receives nothing
+- **AND** AppBridge receives the reply
 
 #### Scenario: Session registry still works
 - **WHEN** services with prefixed inboxes put, get and watch session-registry entries
@@ -84,13 +84,13 @@ nothing.
 
 ### Requirement: Every service is a plain container
 
-Every Fonoster deployable (apiserver, VoiceSessionGateway, Roomr node, Autopilot, dashboard) SHALL
+Every Fonoster deployable (apiserver, AppBridge, Roomr node, Autopilot, dashboard) SHALL
 be a single container image that needs only its config file, its ports and its dependencies'
 addresses, so it can run on container platforms other than the official targets.
 
 #### Scenario: Running with plain docker
-- **WHEN** an operator runs the gateway image with `docker run`, its config file mounted and NATS reachable
-- **THEN** the gateway starts, registers its health and accepts sessions
+- **WHEN** an operator runs AppBridge image with `docker run`, its config file mounted and NATS reachable
+- **THEN** AppBridge starts, registers its health and accepts sessions
 
 ### Requirement: Deployments are closed by default
 

@@ -1,10 +1,10 @@
 format: fonoster.scenario.v1
 name: recognition-hints
 contract: autopilot
-role: gateway
+role: appbridge
 spec: "Plugs, not vendors / Recognition hints"
 setup:
-  assistant:
+  agent:
     conversationSettings: { systemPrompt: "You are the receptionist of Fonoster.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong.", hints: [Fonoster, Routr] }
     languageModel: { model: fake/llm }
   providers:

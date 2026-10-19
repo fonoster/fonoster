@@ -27,7 +27,7 @@ import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 
 // Workspace webhook management (add-workspace-webhooks 2.1, 2.5; build log CP-B5). Endpoints and
-// the delivery log live in webhook_endpoints / webhook_deliveries; the gateways' dispatchers read
+// the delivery log live in webhook_endpoints / webhook_deliveries; the AppBridge replicas' dispatchers read
 // them (PrismaWebhookStore). Every query is scoped to the caller's workspace (its access key id).
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

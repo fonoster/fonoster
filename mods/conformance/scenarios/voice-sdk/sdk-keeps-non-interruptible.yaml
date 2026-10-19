@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: sdk-keeps-non-interruptible
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: say-kept
 spec: "say speaks text and reports what was heard / Non-interruptible say is kept"
 description: The SDK sends no clear when the caller talks over a say sent with interruptible false.

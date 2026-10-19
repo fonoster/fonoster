@@ -3,7 +3,7 @@
 ### Requirement: Session ending
 
 A session SHALL end when the caller hangs up, when the app sends `hangup`, when the app closes its
-socket, on transfer, on handoff, on fatal error or on timeout. The gateway SHALL send `session.end`
+socket, on transfer, on handoff, on fatal error or on timeout. AppBridge SHALL send `session.end`
 with a `reason` (`caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error`, `timeout`) as its
 last message when the socket is still open. The reason SHALL come from the Roomr node's `Ended`
 `cause` on the control stream (media-control), mapped as follows:
@@ -15,7 +15,7 @@ last message when the socket is still open. The reason SHALL come from the Roomr
 | `removed` after a transfer (cold, `TransferComplete` or `refer`) | `transfer` |
 | `max_duration` | `timeout` |
 | `media_timeout`, `node_error`, `app_gone` | `error` |
-| any cause the gateway does not know | `error` |
+| any cause AppBridge does not know | `error` |
 
 A control stream that closes without `Ended` SHALL map to `error`. `busy`, `no_answer` and
 `rejected` end outbound calls before any session opens, so they produce no `session.end`.
@@ -23,7 +23,7 @@ A control stream that closes without `Ended` SHALL map to `error`. `busy`, `no_a
 #### Scenario: App hangs up
 - **WHEN** the app sends `{ "type": "hangup" }`
 - **THEN** the call is hung up
-- **AND** the gateway sends `session.end` with `reason: "app_hangup"` and closes the socket
+- **AND** AppBridge sends `session.end` with `reason: "app_hangup"` and closes the socket
 
 #### Scenario: App drops mid-call
 - **WHEN** the app's socket closes unexpectedly during a call
@@ -48,26 +48,26 @@ A control stream that closes without `Ended` SHALL map to `error`. `busy`, `no_a
 
 ### Requirement: The Roomr node receives only control
 
-The gateway SHALL send the Roomr node only call-control commands on the per-call control stream
+AppBridge SHALL send the Roomr node only call-control commands on the per-call control stream
 (`Answer`, `Reject`, `Hangup`, `Transfer`, `TransferComplete`, `Hold`, `Resume`, `SendDtmf`,
 `AttachListener`, `DetachListener`, `Play`, `Stop`) and SHALL receive from it call events and
-keypresses; caller audio arrives as RTP at the endpoint the gateway named in `Answer` or `Ready`.
-Speech, turn detection, format conversion and the output queue MUST stay in the gateway.
+keypresses; caller audio arrives as RTP at the endpoint AppBridge named in `Answer` or `Ready`.
+Speech, turn detection, format conversion and the output queue MUST stay in AppBridge.
 
 #### Scenario: Speech never reaches the Roomr node
 - **WHEN** an app sends `speak`
 - **THEN** the Roomr node receives only audio frames for playout, never text or a speech command
 
-#### Scenario: Gateway answers on the stream
+#### Scenario: AppBridge answers on the stream
 - **WHEN** an inbound call's app socket opens and `session.start` is sent
-- **THEN** the gateway sends `Answer` on that call's control stream with its RTP endpoint and no other message
+- **THEN** AppBridge sends `Answer` on that call's control stream with its RTP endpoint and no other message
 
 ### Requirement: An app is a WebSocket URL, a protocol and speech defaults
 
 The platform SHALL model every app as a WebSocket URL, a protocol (`fonoster` or `twilio`), a signing secret, speech
 defaults (voice and language as catalog ids), optional audio filters and an optional fallback. A
 number MUST point to an app. Routr resolves the number and passes the app in `X-App-Ref`; the
-Roomr node passes every header through, and the gateway SHALL take the app from `X-App-Ref` in the
+Roomr node passes every header through, and AppBridge SHALL take the app from `X-App-Ref` in the
 `headers` of the control stream's `Start` (media-control) or, for outbound calls, from `app_ref`
 in its `metadata`, which the caller of `CreateCall` sets. It SHALL use a number lookup only as a
 development fallback when `X-App-Ref` is missing and a routing file is configured, and SHALL
@@ -75,17 +75,17 @@ development fallback when `X-App-Ref` is missing and a routing file is configure
 
 #### Scenario: Inbound routing
 - **WHEN** `Start.headers` carries `X-App-Ref` naming app `A`, whose URL is `wss://bot.example.com/agent`
-- **THEN** the gateway connects to `wss://bot.example.com/agent`
+- **THEN** AppBridge connects to `wss://bot.example.com/agent`
 
 #### Scenario: Outbound routing
 - **WHEN** `Start.metadata` carries `app_ref` naming app `A`
-- **THEN** the gateway connects to app `A`'s URL
+- **THEN** AppBridge connects to app `A`'s URL
 
 #### Scenario: Missing app reference
 - **WHEN** `Start.headers` has no `X-App-Ref` and no development routing file is configured
-- **THEN** the gateway sends `Reject` with `sip_status: 404` and no app socket is opened
+- **THEN** AppBridge sends `Reject` with `sip_status: 404` and no app socket is opened
 
 #### Scenario: Autopilot is an ordinary app
 - **WHEN** a number points to an Autopilot agent
-- **THEN** the gateway connects to the hosted Autopilot's URL with the `fonoster` protocol
+- **THEN** AppBridge connects to the hosted Autopilot's URL with the `fonoster` protocol
 - **AND** the protocol is identical to that of any other app

@@ -39,7 +39,7 @@ services:
     command: ["-c", "/etc/nats/nats.conf"]
     # One NATS user per service (add-platform 4.1); each service gets its password below.
     environment:
-      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD:?set NATS_GATEWAY_PASSWORD}
+      NATS_APPBRIDGE_PASSWORD: ${NATS_APPBRIDGE_PASSWORD:?set NATS_APPBRIDGE_PASSWORD}
       NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD:?set NATS_ROOMR_PASSWORD}
       NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD:?set NATS_ROUTR_PASSWORD}
       NATS_REGION_AGENT_PASSWORD: ${NATS_REGION_AGENT_PASSWORD:?set NATS_REGION_AGENT_PASSWORD}
@@ -145,15 +145,15 @@ services:
       region-agent: { condition: service_started }
     environment:
       <<: [*otel, *cell-db]
-      NATS_GATEWAY_PASSWORD: ${NATS_GATEWAY_PASSWORD}
+      NATS_APPBRIDGE_PASSWORD: ${NATS_APPBRIDGE_PASSWORD}
       # The call-record store (MinIO), through the AWS SDK's default credential chain.
       AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER:-minio}
       AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}
     volumes:
-      - ./config/gateway.yaml:/etc/fonoster/gateway.yaml:ro
+      - ./config/appbridge.yaml:/etc/fonoster/appbridge.yaml:ro
       - ${CELL_KEYS_DIR:-./.local/keys}:/etc/fonoster/keys:ro
       - secrets:/var/lib/fonoster-secrets:ro
-      # Call records in flight (config/gateway.yaml callRecord.dir), kept across recreation.
+      # Call records in flight (config/appbridge.yaml callRecord.dir), kept across recreation.
       - records:/var/lib/fonoster/records
     networks:
       default:
@@ -235,5 +235,5 @@ volumes:
   region:
   # The cell's encrypted secret store.
   secrets:
-  # The gateway's call records in flight.
+  # AppBridge's call records in flight.
   records:

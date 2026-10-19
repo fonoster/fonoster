@@ -38,7 +38,7 @@ export type SessionApp = {
   ref: string;
   name: string;
   type: AppType;
-  /** ws:// or wss:// address the gateway dials (Autopilot apps: the hosted Autopilot). */
+  /** ws:// or wss:// address AppBridge dials (Autopilot apps: the hosted Autopilot). */
   url: string;
   protocol: Protocol;
   /** Only returned when created or rotated; never on reads. */
@@ -59,8 +59,8 @@ export type SessionApp = {
   /** Answering-machine detection (AO-B1); the window is kept as the API has it. */
   amd?: boolean;
   amdWindowMs?: number;
-  /** Autopilot apps: the assistant (sessionAssistantSchema), as JSON. */
-  assistant?: Record<string, unknown>;
+  /** Autopilot apps: the agent (sessionAgentSchema), as JSON. */
+  agent?: Record<string, unknown>;
 };
 
 export type CatalogEntry = {
@@ -97,9 +97,9 @@ export type CatalogWarning = {
   state: "deprecated" | "retired";
   replacement?: string;
   retireOn?: string;
-  /** Saved apps and assistants that name it (and, for a TTS model, the voice they use). */
+  /** Saved apps and agents that name it (and, for a TTS model, the voice they use). */
   usedBy: {
-    kind: "app" | "assistant";
+    kind: "app" | "agent";
     ref: string;
     name: string;
     field: string;
@@ -128,7 +128,7 @@ export type CallRecordSummary = {
 
 export type SessionMessage = {
   at: number;
-  source: "app" | "gateway" | "event";
+  source: "app" | "appbridge" | "event";
   message: { type: string; [key: string]: unknown };
 };
 

@@ -105,7 +105,7 @@ message DeleteProviderKeyResponse {
 }
 
 message WarningUse {
-  // app or assistant
+  // app or agent
   string kind = 1;
   string ref = 2;
   string name = 3;

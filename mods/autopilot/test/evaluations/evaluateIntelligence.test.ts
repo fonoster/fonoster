@@ -16,16 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { sessionAssistantSchema } from "@fonoster/common";
+import { sessionAgentSchema } from "@fonoster/common";
 import { expect } from "chai";
 import { createEvalEffectiveConfig } from "../../src/models/evaluations/createEvalEffectiveConfig";
 import { createEvaluateIntelligence } from "../../src/models/evaluations/createEvaluateIntelligence";
 import { Metadata } from "@grpc/grpc-js";
 import { struct } from "pb-util";
 
-// Evaluations take session assistants (rework-autopilot 8.2); keys come from the caller.
+// Evaluations take session agents (rework-autopilot 8.2); keys come from the caller.
 
-const ASSISTANT = {
+const AGENT = {
   conversationSettings: {
     systemPrompt: "You are a receptionist.",
     goodbyeMessage: "Bye.",
@@ -40,10 +40,10 @@ const ASSISTANT = {
 
 describe("@autopilot[evaluations]", function () {
   it("splits the catalog id and adds the resolved keys", function () {
-    const config = createEvalEffectiveConfig(
-      sessionAssistantSchema.parse(ASSISTANT),
-      { apiKey: "gk", evaluationApiKey: "ok" }
-    );
+    const config = createEvalEffectiveConfig(sessionAgentSchema.parse(AGENT), {
+      apiKey: "gk",
+      evaluationApiKey: "ok"
+    });
     expect(config.languageModel).to.include({
       provider: "groq",
       model: "openai/gpt-oss-120b",
@@ -52,7 +52,7 @@ describe("@autopilot[evaluations]", function () {
     expect(config.testCases!.evalsLanguageModel.apiKey).to.equal("ok");
   });
 
-  it("reports a missing key and a legacy assistant as eval errors", async function () {
+  it("reports a missing key and a legacy agent as eval errors", async function () {
     const run = async (config: unknown, keys: Record<string, string>) => {
       const events: Record<string, unknown>[] = [];
       const metadata = new Metadata();
@@ -67,11 +67,11 @@ describe("@autopilot[evaluations]", function () {
       } as never);
       return JSON.stringify(events);
     };
-    expect(await run(ASSISTANT, { openai: "ok" })).to.match(/no groq key/);
+    expect(await run(AGENT, { openai: "ok" })).to.match(/no groq key/);
     expect(
       await run(
         {
-          ...ASSISTANT,
+          ...AGENT,
           languageModel: { provider: "openai", model: "gpt-4o" }
         },
         { openai: "ok" }

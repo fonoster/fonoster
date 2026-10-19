@@ -38,7 +38,7 @@ import { TEST_TOKEN } from "../utils";
 // The provider registry's scenario suite (add-provider-registry task 1.1, build log LO-B13): every
 // scenario in specs/provider-registry/spec.md, against a throwaway Postgres
 // (PERSISTENCE_TEST_DATABASE_URL) with providers, models, voices and apps across two workspaces.
-// Scenarios that run elsewhere (gateway conformance scenarios, Autopilot, dashboard) are listed
+// Scenarios that run elsewhere (AppBridge conformance scenarios, Autopilot, dashboard) are listed
 // in ELSEWHERE with the file that runs them; the last test checks that every spec scenario is
 // covered here or there.
 
@@ -67,9 +67,9 @@ const ELSEWHERE: Record<string, string> = {
     "mods/autopilot/test/session/hosted.test.ts",
   "A keyless provider is called without a key":
     "mods/autopilot/test/session/hosted.test.ts",
-  "A workspace key reaches a provider missing from the gateway config":
+  "A workspace key reaches a provider missing from AppBridge config":
     "mods/appbridge/test/catalogProviders.test.ts",
-  "A keyless catalog provider needs no gateway config":
+  "A keyless catalog provider needs no AppBridge config":
     "mods/appbridge/test/catalogProviders.test.ts"
 };
 

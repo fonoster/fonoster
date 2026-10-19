@@ -91,7 +91,7 @@ function call(callRef: string, opts: { recording?: boolean } = {}) {
     },
     {
       at: at(),
-      source: "gateway",
+      source: "appbridge",
       message: {
         type: "session.start",
         callRef,
@@ -111,7 +111,7 @@ function call(callRef: string, opts: { recording?: boolean } = {}) {
       : []),
     {
       at: at(),
-      source: "gateway",
+      source: "appbridge",
       message: { type: "turn.ended", text: "I want my balance" }
     },
     {

@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: gather-dtmf
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: gather-echo
 spec: "gather is built from events / Digits with a finish key"
 description: >

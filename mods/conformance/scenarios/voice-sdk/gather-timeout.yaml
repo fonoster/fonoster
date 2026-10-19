@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: gather-timeout
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: gather-timeout
 spec: "gather is built from events / Timeout"
 steps:

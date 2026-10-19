@@ -12,8 +12,8 @@ What is here:
 | Scenario format | `SCENARIOS.md`, `schema/scenario.schema.json` | The `fonoster.scenario.v1` format and its JSON Schema |
 | Fake provider protocol | `PROVIDERS.md` | What every implementation's `fake` adapters speak |
 | TypeScript runner | `src/runner` | `runScenario(scenario, { connect, harness })` |
-| Fake app | `src/fakes/FakeApp.ts` | WebSocket server the gateway dials; verifies signatures |
-| Fake gateway | `src/fakes/FakeGateway.ts` | Dials an SDK app with a signed request, for SDK suites |
+| Fake app | `src/fakes/FakeApp.ts` | WebSocket server AppBridge dials; verifies signatures |
+| Fake appbridge | `src/fakes/FakeAppBridge.ts` | Dials an SDK app with a signed request, for SDK suites |
 | Fake Roomr node | `src/fakes/FakeNatsRoomr.ts` | `media-control` commands (in process or over NATS), RTP caller audio out, agent audio recorded |
 | Fake providers | `src/fakes/providers` | Deterministic TTS (HTTP), STT (WebSocket) and LLM (OpenAI-compatible) with injectable delays and failures |
 | Harness | `src/fakes/FakesHarness.ts` | The fakes as a runner `Harness`: setup, injection, provider-time accounting, named assertions |
@@ -28,11 +28,11 @@ running it.
 ## Running a scenario
 
 ```ts
-import { FakeGateway, loadScenarios, runScenario } from "@fonoster/conformance";
+import { FakeAppBridge, loadScenarios, runScenario } from "@fonoster/conformance";
 
 for (const scenario of loadScenarios("voice-sdk")) {
-  const gateway = new FakeGateway({ signingSecret: process.env.APP_SECRET });
-  const result = await runScenario(scenario, { connect: () => gateway.dial("ws://localhost:3000") });
+  const appbridge = new FakeAppBridge({ signingSecret: process.env.APP_SECRET });
+  const result = await runScenario(scenario, { connect: () => appbridge.dial("ws://localhost:3000") });
   console.log(result.name, result.status, result.reason ?? "");
 }
 ```

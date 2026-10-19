@@ -85,7 +85,7 @@ export function toSessionApp(app: Application): SessionApp {
     ...(app.amd?.enabled && app.amd.windowMs
       ? { amdWindowMs: app.amd.windowMs }
       : {}),
-    ...(config ? { assistant: config as Record<string, unknown> } : {})
+    ...(config ? { agent: config as Record<string, unknown> } : {})
   };
 }
 
@@ -122,15 +122,13 @@ export function toRequest(
           ...(app.amdWindowMs ? { windowMs: app.amdWindowMs } : {})
         }
       : undefined,
-    ...(autopilot && app.assistant
-      ? { intelligence: { config: app.assistant } }
-      : {})
+    ...(autopilot && app.agent ? { intelligence: { config: app.agent } } : {})
   };
 }
 
 /**
  * The update for a drawer save. The API replaces every column, so it starts from the app as saved
- * now and overlays what the drawer edits. The drawer doesn't edit the assistant (the agent page
+ * now and overlays what the drawer edits. The drawer doesn't edit the agent (the agent page
  * does) or the TTS model and silence timeout, so those stay as saved; the audio format stays as
  * saved unless it was changed (the drawer shows a default when the app has none).
  */
@@ -269,7 +267,7 @@ export function fromVcon(
       const { at, ...message } = d;
       return {
         at: offset(at),
-        source: "gateway" as const,
+        source: "appbridge" as const,
         message: message as SessionMessage["message"]
       };
     }),
@@ -356,7 +354,7 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
         ...w,
         usedBy: w.usedBy.map((u) => ({
           ...u,
-          kind: u.kind as "app" | "assistant"
+          kind: u.kind as "app" | "agent"
         }))
       })),
     listCalls: async () => {

@@ -1,19 +1,19 @@
 # Autopilot
 
-Autopilot is the AI that answers the phone. It is an ordinary application: the gateway dials it
+Autopilot is the AI that answers the phone. It is an ordinary application: AppBridge dials it
 like any app, and it uses only the public [session protocol](./session-protocol.md). Anything
 Autopilot does, your own app can do too.
 
 ## How a call runs
 
-1. A number points to an app whose URL is the hosted Autopilot. The gateway opens a signed session.
-2. Autopilot verifies the signature, loads the app's assistant, subscribes to `turn.estimate` and
+1. A number points to an app whose URL is the hosted Autopilot. AppBridge opens a signed session.
+2. Autopilot verifies the signature, loads the app's agent, subscribes to `turn.estimate` and
    speaks the first message.
 3. It listens to [turn events](./turn-taking.md). On `turn.likely_ended` it may start a reply
    silently; on `turn.resumed` it drops it; on `turn.ended` it answers.
 4. The reply streams: language model tokens become sentence-sized `speak` pieces with one `id`, so
    the first sentence plays while the rest is still being written.
-5. When the caller talks over the agent, the gateway reports `turn.user_started`; with barge-in
+5. When the caller talks over the agent, AppBridge reports `turn.user_started`; with barge-in
    allowed, Autopilot sends `clear`. The history keeps only what the caller heard.
 
 States: greeting, listening, thinking, speaking, transferring, ended. The idle clock runs only
@@ -22,11 +22,11 @@ while listening.
 ## Pacing
 
 `conversationSettings.patience` is the turn-taking knob: `low`, `normal` (default) or `high`.
-Autopilot sends it to the gateway with `listen.update`, so the gateway's Pacing policy waits less
+Autopilot sends it to AppBridge with `listen.update`, so AppBridge's Pacing policy waits less
 or more before `turn.ended` (see [patience](./turn-taking.md#patience)). At `low` and `normal`
 Autopilot prepares a reply on `turn.likely_ended`; at `high` it waits for `turn.ended`.
 
-Within a call the gateway adapts its timing to a caller who pauses often. Autopilot adapts its own
+Within a call AppBridge adapts its timing to a caller who pauses often. Autopilot adapts its own
 preparation: after three `turn.resumed` in one call it stops preparing early for the rest of the
 call and notes it in the call record (`autopilot.note`, `pacing.adapted`). Nothing is remembered
 across calls.
@@ -58,7 +58,7 @@ is no synthetic "write a message based on the tool results" prompt.
 `languageModel.model` is one catalog id, `<provider>/<model>`, for example `openai/gpt-4o-mini`.
 Autopilot asks the provider registry which provider serves it and with which credential ref, then
 uses the workspace's own key for that ref if it has one, otherwise the platform key. No key lives
-in the assistant. A retired model resolves to its replacement; using a deprecated or retired model
+in the agent. A retired model resolves to its replacement; using a deprecated or retired model
 is noted in the call record (`provider.deprecated_used`, `provider.retired_used`). If the model
 cannot be reached, Autopilot says the `systemErrorMessage` and hangs up.
 
@@ -66,13 +66,13 @@ cannot be reached, Autopilot says the `systemErrorMessage` and hangs up.
 
 Each turn leaves a trace in the call record (`autopilot.turn`): the user text, the reply, what was
 heard, whether it was interrupted, tool calls, and timings from `turn.ended` to the first token and
-to the first `speak`. The gateway already records every session message.
+to the first `speak`. AppBridge already records every session message.
 
-The assistant webhooks (`eventsHook`, `conversation.started`, `conversation.ended`) are retired.
+The agent webhooks (`eventsHook`, `conversation.started`, `conversation.ended`) are retired.
 Use workspace webhooks instead: `call.started`, `call.ended`, and `call_record.sealed`, which links
 to the call record with the transcript and recording.
 
-## Assistant settings
+## Agent settings
 
 | Setting | Meaning |
 | --- | --- |
@@ -89,9 +89,9 @@ to the call record with the transcript and recording.
 | `languageModel.model` | Catalog id |
 | `languageModel.temperature`, `maxTokens`, `tools`, `knowledgeBase` | As before |
 
-## Migrating an assistant
+## Migrating an agent
 
-What changed from the previous assistant format:
+What changed from the previous agent format:
 
 | Before | After |
 | --- | --- |
@@ -99,8 +99,8 @@ What changed from the previous assistant format:
 | `languageModel.apiKey` | Removed. A real key becomes the workspace's vendor key for that provider (Secret `provider-key/<provider>`, the same as the dashboard's Vendor keys); a key the workspace already has wins. Placeholders are dropped |
 | `languageModel.baseUrl` | Removed; endpoints come from the provider registry |
 | `maxSpeechWaitTimeout: 0` (the default) | `patience: normal` (today's timing) |
-| `maxSpeechWaitTimeout` above 0 | `patience: high` (about 1.6 × the gateway's silence timeout, more as it adapts) |
-| `vad.*` | Removed; turn detection runs in the gateway. Custom values produce a notice: use the app's audio filters for noisy lines or a more patient setting |
+| `maxSpeechWaitTimeout` above 0 | `patience: high` (about 1.6 × AppBridge's silence timeout, more as it adapts) |
+| `vad.*` | Removed; turn detection runs in AppBridge. Custom values produce a notice: use the app's audio filters for noisy lines or a more patient setting |
 | `allowUserBargeIn` | Unchanged; sets `interruptible` on every `speak` and whether Autopilot sends `clear` |
 | `transferOptions.timeout` | Removed |
 | `eventsHook` | Removed; the migration creates a workspace webhook for the same URL |
@@ -117,6 +117,6 @@ cp config/autopilot-session.example.yaml config/autopilot-session.yaml
 node mods/autopilot/dist/session/main.js --config config/autopilot-session.yaml
 ```
 
-The file names the signing secret the gateway uses for Autopilot apps, where apps and assistants
+The file names the signing secret AppBridge uses for Autopilot apps, where apps and agents
 come from, the registry catalog, platform keys by credential ref, optional workspace Secrets,
 endpoint overrides and the knowledge settings.

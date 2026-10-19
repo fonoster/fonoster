@@ -1,18 +1,18 @@
 ## MODIFIED Requirements
 
-### Requirement: The gateway is its own TypeScript deployable
+### Requirement: AppBridge is its own TypeScript deployable
 
-The VoiceSessionGateway SHALL run as its own deployable, written in TypeScript, scaled
+AppBridge SHALL run as its own deployable, written in TypeScript, scaled
 independently of the apiserver and the Roomr node. It SHALL host the STT, TTS and audio-filter
-code that the apiserver runs today, and the apiserver MUST NOT run any of it. The gateway SHALL
+code that the apiserver runs today, and the apiserver MUST NOT run any of it. AppBridge SHALL
 serve the Roomr node's control stream (`Session.Connect`, media-control) behind one stable session
 endpoint (a Kubernetes Service in Helm, a service name in Compose), which the Roomr node is
 configured with; the node opens one connection per call, so the endpoint spreads calls across
 replicas.
 
-#### Scenario: Scaling gateways alone
-- **WHEN** an operator raises the gateway replica count from 2 to 4 and leaves the apiserver and Roomr nodes unchanged
-- **THEN** new sessions are spread across 4 gateway replicas
+#### Scenario: Scaling AppBridge replicas alone
+- **WHEN** an operator raises AppBridge replica count from 2 to 4 and leaves the apiserver and Roomr nodes unchanged
+- **THEN** new sessions are spread across 4 AppBridge replicas
 - **AND** no apiserver or Roomr node restarts
 
 #### Scenario: No speech in the apiserver
@@ -20,7 +20,7 @@ replicas.
 - **THEN** no STT, TTS or filter request originates from an apiserver process
 
 #### Scenario: Calls spread through the session endpoint
-- **WHEN** 100 inbound calls arrive while 4 gateway replicas sit behind the session endpoint
+- **WHEN** 100 inbound calls arrive while 4 AppBridge replicas sit behind the session endpoint
 - **THEN** the Roomr node opens 100 control streams and more than one replica receives them
 
 ### Requirement: Call creation picks the least-loaded Roomr node
@@ -66,7 +66,7 @@ node heartbeats and call events as published messages (media-control), events on
 queue groups, the session registry as a JetStream KV bucket written by the control plane (the
 Roomr node writes nothing to it and uses core NATS only), and webhook dispatch as a JetStream
 consumer. Media commands SHALL NOT travel over NATS: the control plane calls `Roomr` over
-gRPC and the gateway speaks the per-call control stream. Call audio MUST NOT travel over NATS.
+gRPC and AppBridge speaks the per-call control stream. Call audio MUST NOT travel over NATS.
 
 #### Scenario: Events processed once
 - **WHEN** three apiserver replicas consume `call.ended` events through one queue group
@@ -139,7 +139,7 @@ crashes between the write and the RPC leaves nothing behind.
 
 While NATS is unreachable live calls SHALL keep running, and events published during the outage
 MAY be lost. The control plane SHALL NOT replay or reconstruct lost events; the existing sweeps
-(node down, gateway lost, maximum duration) SHALL close the call records and registry entries
+(node down, appbridge lost, maximum duration) SHALL close the call records and registry entries
 those events would have closed once NATS returns.
 
 #### Scenario: call.ended lost
@@ -147,15 +147,15 @@ those events would have closed once NATS returns.
 - **THEN** a sweep closes the call's record and removes its registry entry
 - **AND** no active call was ended by the outage
 
-### Requirement: The gateway drains on SIGTERM
+### Requirement: AppBridge drains on SIGTERM
 
-On SIGTERM a gateway replica SHALL fail its readiness probe, so the session endpoint stops sending
+On SIGTERM an AppBridge replica SHALL fail its readiness probe, so the session endpoint stops sending
 it new streams, and SHALL keep its open control streams and app sockets until they end or the
 configured maximum wait (default 1 h) passes, then exit. Its `Session` gRPC server SHALL NOT set a
 maximum connection age.
 
 #### Scenario: Live sessions survive SIGTERM
-- **WHEN** a gateway replica with 5 live sessions receives SIGTERM
+- **WHEN** an AppBridge replica with 5 live sessions receives SIGTERM
 - **THEN** its readiness fails, new calls land on other replicas and the 5 sessions run until they end
 
 #### Scenario: Maximum wait reached

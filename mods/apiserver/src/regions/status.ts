@@ -77,7 +77,7 @@ export function regionStatus(
   const c = (row.components ?? {}) as Partial<Components>;
   const down: string[] = [];
   if (!c.roomrNodes) down.push("Roomr nodes");
-  if (!c.gateways) down.push("gateways");
+  if (!c.appbridges) down.push("appbridges");
   if (c.autopilot === false) down.push("autopilot");
   if (down.length)
     return { status: "degraded", reason: `no healthy ${down.join(", ")}` };

@@ -58,7 +58,7 @@ async function readForm(req: http.IncomingMessage): Promise<URLSearchParams> {
 /**
  * twilio-media-streams-flavor, "Hanging up from a Twilio-flavor app":
  * POST /2010-04-01/Accounts/{accountSid}/Calls/{callSid}.json with Status=completed and HTTP Basic
- * auth. The request is forwarded over NATS to whichever gateway replica owns the call.
+ * auth. The request is forwarded over NATS to whichever AppBridge replica owns the call.
  */
 /**
  * Checks Basic credentials for an account (workspace). Returns true when the key pair belongs to
@@ -146,7 +146,7 @@ export function createHangupHandler(
     let owned = false;
     try {
       const reply = await nc.request(
-        `gateway.calls.${callSid}`,
+        `appbridge.calls.${callSid}`,
         sc.encode(JSON.stringify({ type: "hangup", accountSid })),
         { timeout: 2000 }
       );

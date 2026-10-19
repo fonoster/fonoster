@@ -60,7 +60,7 @@ type ListProviderKeysResponse = { items: ProviderKey[] };
 
 /** Where a warned item is used in the workspace. */
 type WarningUse = {
-  kind: "app" | "assistant";
+  kind: "app" | "agent";
   ref: string;
   name: string;
   /** voice, ttsModel, sttModel or llm */

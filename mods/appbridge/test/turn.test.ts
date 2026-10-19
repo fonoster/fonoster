@@ -49,7 +49,7 @@ function setup(silenceTimeoutMs = 200) {
   return { pacing, events, feed, final, interruptions: () => interruptions };
 }
 
-describe("@gateway/turn-taking (baseline + pacing)", function () {
+describe("@appbridge/turn-taking (baseline + pacing)", function () {
   it("emits user_started, likely_ended and ended in order", function () {
     const s = setup();
     s.feed(voice, 20);

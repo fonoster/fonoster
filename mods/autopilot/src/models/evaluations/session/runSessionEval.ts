@@ -21,7 +21,7 @@ import {
   OPENAI_COMPATIBLE,
   OpenAiCompatibleThink
 } from "@fonoster/community/openai";
-import { SessionAssistant } from "../../../session/config";
+import { SessionAgent } from "../../../session/config";
 import { Think } from "../../../session/think";
 import { createTestTextSimilarity } from "../createTestTextSimilarity";
 import { textSimilaryPrompt } from "../textSimilaryPrompt";
@@ -36,27 +36,27 @@ export type RunSessionEvalOptions = Omit<
   SessionEvalOptions,
   "testTextSimilarity"
 > & {
-  /** Defaults to the OpenAI similarity judge from the assistant's testCases. */
+  /** Defaults to the OpenAI similarity judge from the agent's testCases. */
   testTextSimilarity?: SessionEvalOptions["testTextSimilarity"];
   /** The judge's key (the testCases model is always OpenAI). */
   evaluationApiKey?: string;
 };
 
 /**
- * The session-engine Think for an assistant whose catalog provider speaks OpenAI-compatible Chat
+ * The session-engine Think for an agent whose catalog provider speaks OpenAI-compatible Chat
  * Completions with a known endpoint (openai, groq, ollama); undefined otherwise.
  */
 export function sessionThinkFor(
-  assistant: SessionAssistant,
+  agent: SessionAgent,
   apiKey: string | undefined
 ): Think | undefined {
-  const id = assistant.languageModel.model;
+  const id = agent.languageModel.model;
   const slash = id.indexOf("/");
   const baseUrl = OPENAI_COMPATIBLE[id.slice(0, slash)];
   if (!baseUrl) return undefined;
   return new OpenAiCompatibleThink({ baseUrl, apiKey }, id.slice(slash + 1), {
-    temperature: assistant.languageModel.temperature,
-    maxTokens: assistant.languageModel.maxTokens
+    temperature: agent.languageModel.temperature,
+    maxTokens: agent.languageModel.maxTokens
   });
 }
 
@@ -65,7 +65,7 @@ export async function runSessionEval(
   options: RunSessionEvalOptions,
   callbacks?: Partial<RunEvalCallbacks>
 ): Promise<SessionScenarioReport[]> {
-  const testCases = testCasesSchema.parse(options.assistant.testCases);
+  const testCases = testCasesSchema.parse(options.agent.testCases);
   const testTextSimilarity =
     options.testTextSimilarity ??
     createTestTextSimilarity(

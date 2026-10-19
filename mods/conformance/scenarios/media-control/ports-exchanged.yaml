@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 contract: media-control
 role: media-control-client
 name: ports-exchanged
-spec: "Gateway audio is RTP negotiated in participant.add / Ports are exchanged in participant.add"
+spec: "AppBridge audio is RTP negotiated in participant.add / Ports are exchanged in participant.add"
 steps:
   - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
   - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }

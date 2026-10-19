@@ -88,13 +88,13 @@ describe("SDK adapter", () => {
     expect(toRequest({ ...off, amd: true }).amd).toEqual({ enabled: true });
   });
 
-  it("sends the assistant and no URL for an Autopilot app on the hosted Autopilot", () => {
+  it("sends the agent and no URL for an Autopilot app on the hosted Autopilot", () => {
     const request = toRequest({
       ...toSessionApp(app),
       type: "AUTOPILOT",
       url: "",
       protocol: "twilio",
-      assistant: { languageModel: { model: "openai/gpt-4o-mini" } }
+      agent: { languageModel: { model: "openai/gpt-4o-mini" } }
     });
     expect(request.url).toBeUndefined();
     expect(request.protocol).toBe("fonoster");
@@ -257,8 +257,8 @@ describe("SDK adapter saves", () => {
     return { api: createSdkSessionApi(sdk), updateApplication };
   };
 
-  it("call handling keeps the agent's assistant and speech", async () => {
-    // The drawer's draft is older: the agent page changed the assistant and voice since.
+  it("call handling keeps the agent's agent and speech", async () => {
+    // The drawer's draft is older: the agent page changed the agent and voice since.
     const drawerDraft = toSessionApp({
       ...agent,
       speech: { voice: "deepgram/old", language: "en-US" },
@@ -299,7 +299,7 @@ describe("SDK adapter saves", () => {
     expect(request.audio).toBeUndefined();
   });
 
-  it("a stream edit keeps the settings the drawer doesn't show", async () => {
+  it("an app edit keeps the settings the drawer doesn't show", async () => {
     const stream = {
       ...agent,
       ref: "st-1",

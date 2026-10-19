@@ -89,7 +89,7 @@ function entries(callRef: string): RecordEntry[] {
     },
     {
       at: at(),
-      source: "gateway",
+      source: "appbridge",
       message: { type: "session.start", callRef, appRef: "ivr" }
     },
     {

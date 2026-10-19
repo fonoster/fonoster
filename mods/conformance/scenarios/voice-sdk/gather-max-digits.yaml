@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: gather-max-digits
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: gather-max-digits
 spec: "gather is built from events / Digits up to the maximum"
 steps:

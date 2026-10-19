@@ -63,7 +63,7 @@ re-render the service YAMLs from the examples and the kept values. Edits the own
 ### Requirement: Start with plain Compose
 
 After `init`, `docker compose up -d` in the bundle folder SHALL start the core voice path (NATS,
-Postgres, Routr, RTPEngine, Roomr node, gateway, MinIO), the apiserver with Identity, Envoy, the
+Postgres, Routr, RTPEngine, Roomr node, appbridge, MinIO), the apiserver with Identity, Envoy, the
 dashboard and the hosted Autopilot, with no build step. The bundle MUST have no opt-in Compose
 profiles: hosting private regions is a manual addition (`fonoster-region-hub-setup` in the
 apiserver image), and telemetry and call metrics go to the owner's own collector and ClickHouse
@@ -130,13 +130,13 @@ MUST exit non-zero when any problem is found.
 - **THEN** it reports each service as valid and exits zero
 
 #### Scenario: Unset placeholder
-- **WHEN** `config/gateway.yaml` references `${ENCRYPTION_KEY}` and `.env` has no value for it
-- **THEN** `check` names `config/gateway.yaml`, the key path and `ENCRYPTION_KEY`, and exits
+- **WHEN** `config/appbridge.yaml` references `${ENCRYPTION_KEY}` and `.env` has no value for it
+- **THEN** `check` names `config/appbridge.yaml`, the key path and `ENCRYPTION_KEY`, and exits
   non-zero
 
 #### Scenario: Typo in a key
-- **WHEN** `config/gateway.yaml` contains an unknown key `turnTakng`
-- **THEN** `check` names `config/gateway.yaml` and `turnTakng`, suggests `turnTaking`, and exits
+- **WHEN** `config/appbridge.yaml` contains an unknown key `turnTakng`
+- **THEN** `check` names `config/appbridge.yaml` and `turnTakng`, suggests `turnTaking`, and exits
   non-zero
 
 ### Requirement: Local bundle build

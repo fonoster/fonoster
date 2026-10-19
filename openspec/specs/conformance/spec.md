@@ -8,13 +8,13 @@ The conformance harness: suites, fakes, pass bars and CI cadence that define whe
 ### Requirement: Suites test only through the public contract
 
 Every conformance suite SHALL interact with the implementation under test only through its public
-contract: WebSocket messages for the gateway and SDKs, the registry utility's commands and the
+contract: WebSocket messages for AppBridge and SDKs, the registry utility's commands and the
 registry database for `provider-registry`, and vCon files and their storage for `call-record`. A
 suite MUST NOT import, mock or inspect the implementation's internal modules.
 
 #### Scenario: A rewrite passes the same suite
 
-- **WHEN** the gateway is reimplemented in another language
+- **WHEN** AppBridge is reimplemented in another language
 - **THEN** the session protocol suite runs against it unchanged
 - **AND** a pass means the rewrite conforms to `voice-session`
 
@@ -26,25 +26,25 @@ suite MUST NOT import, mock or inspect the implementation's internal modules.
 ### Requirement: Every contract has a fake for each side
 
 The framework SHALL provide fakes so each side of a contract can be tested alone: a fake app and a
-fake gateway for the session protocol, a fake Roomr node, fake STT, TTS and LLM providers with
+fake AppBridge for the session protocol, a fake Roomr node, fake STT, TTS and LLM providers with
 deterministic output and injectable delays and failures, and a caller bot that places real SIP
 calls.
 
-#### Scenario: Gateway tested without real vendors
+#### Scenario: AppBridge tested without real vendors
 
 - **WHEN** the session protocol suite runs
-- **THEN** the gateway is connected to the fake Roomr node and fake providers
+- **THEN** AppBridge is connected to the fake Roomr node and fake providers
 - **AND** no vendor network call is made
 
 #### Scenario: Injected provider failure
 
 - **WHEN** a scenario configures the fake TTS to fail on the next request
-- **THEN** the gateway sends an `error` that names the failing command's `id` in `relatesTo`
+- **THEN** AppBridge sends an `error` that names the failing command's `id` in `relatesTo`
 - **AND** does not switch to another provider
 
 ### Requirement: Implementations ship fake provider adapters
 
-Every implementation that uses STT, TTS or LLM providers (the gateway, Autopilot) SHALL include a
+Every implementation that uses STT, TTS or LLM providers (AppBridge, Autopilot) SHALL include a
 `fake` adapter per capability that speaks the fake provider protocol documented in
 `mods/conformance/PROVIDERS.md`: TTS as HTTP `POST /v1/synthesize`, STT as a WebSocket at
 `/v1/listen`, and LLM as OpenAI-compatible `POST /v1/chat/completions`. The `fake` adapter SHALL
@@ -56,7 +56,7 @@ catalog. The production catalog MUST NOT list a fake provider.
 
 #### Scenario: A rewrite uses the same fakes
 
-- **WHEN** the gateway is reimplemented in another language
+- **WHEN** AppBridge is reimplemented in another language
 - **THEN** its `fake` adapters reach the same fake providers over the network
 - **AND** the session protocol suite runs with no change to the fakes
 
@@ -84,7 +84,7 @@ TypeScript and Python SDK suites MUST execute the same scenario files.
 #### Scenario: The old handler signature
 
 - **WHEN** an SDK scenario uses an app written with the `(req, res)` handler signature
-- **THEN** it passes against the fake gateway exactly as the `(session)` signature does
+- **THEN** it passes against the fake AppBridge exactly as the `(session)` signature does
 
 ### Requirement: The harness lives in `mods/conformance`
 
@@ -100,7 +100,7 @@ test runner consume the same files as the TypeScript tests.
 
 ### Requirement: Session protocol suite
 
-The session protocol suite SHALL drive the real gateway with a scripted fake app, a fake media
+The session protocol suite SHALL drive the real AppBridge with a scripted fake app, a fake media
 node and fake providers, and MUST cover every message in `voice-session`, ordering and `id`
 echoing, `clear`, `mark` and `preempt`, handoff, listener tracks, signature rejection,
 unreachable-app retry and fallback, and outbound sessions opening at answer.
@@ -108,25 +108,25 @@ unreachable-app retry and fallback, and outbound sessions opening at answer.
 #### Scenario: Clear drops queued output and returns marks
 
 - **WHEN** the fake app sends audio, then `mark` named `m1`, then `clear` before `m1` is heard
-- **THEN** the gateway sends `mark` with `name: m1` and `cleared: true`
+- **THEN** AppBridge sends `mark` with `name: m1` and `cleared: true`
 - **AND** no further queued audio reaches the fake Roomr node
 
 #### Scenario: Bad signature
 
-- **WHEN** a fake app verifies connection signatures and the gateway's signing secret is wrong
+- **WHEN** a fake app verifies connection signatures and AppBridge's signing secret is wrong
 - **THEN** the app refuses the connection
-- **AND** the gateway applies the app's fallback and records the failure as an event
+- **AND** AppBridge applies the app's fallback and records the failure as an event
 
 #### Scenario: Unreachable app
 
 - **WHEN** the app's URL refuses connections for longer than the retry window
 - **THEN** the caller hears ringing during the retry window
-- **AND** the gateway then uses the app's fallback
+- **AND** AppBridge then uses the app's fallback
 
-### Requirement: Gateway latency pass bar (T1)
+### Requirement: AppBridge latency pass bar (T1)
 
-The gateway timing suite SHALL measure the time the gateway itself adds, with provider time
-subtracted. At p95 the gateway MUST add at most 50 ms from `speak` text arriving to the first audio
+AppBridge timing suite SHALL measure the time AppBridge itself adds, with provider time
+subtracted. At p95 AppBridge MUST add at most 50 ms from `speak` text arriving to the first audio
 frame sent to the Roomr node, and at most 50 ms from caller audio arriving to it reaching STT. A
 `clear` MUST silence the call within 40 ms.
 
@@ -150,7 +150,7 @@ frame sent to the Roomr node, and at most 50 ms from caller audio arriving to it
 
 ### Requirement: Scale pass bar (T2)
 
-The scale suite SHALL load the gateway with concurrent fake calls. One replica of about 2 vCPU
+The scale suite SHALL load AppBridge with concurrent fake calls. One replica of about 2 vCPU
 MUST hold 100 concurrent calls with zero dropped audio frames while meeting T1, and ten replicas
 MUST hold 1,000 concurrent calls under the same conditions.
 
@@ -237,13 +237,13 @@ databases.
 
 The call record suite SHALL check that every call yields a vCon that is valid against the vCon
 schema, sealed within the deadline after hangup, with content hashes that match the stored
-recording and SIP trace and a signature that verifies. It MUST also kill the gateway mid-call and
+recording and SIP trace and a signature that verifies. It MUST also kill AppBridge mid-call and
 check a sealed record still results, and seed personal data to check it is masked in the redacted
 copy.
 
-#### Scenario: Gateway crash mid-call
+#### Scenario: AppBridge crash mid-call
 
-- **WHEN** the gateway process is killed during a call
+- **WHEN** AppBridge process is killed during a call
 - **THEN** a sealed, signed vCon for that call still exists containing everything appended before the crash
 
 #### Scenario: Redaction
@@ -257,9 +257,9 @@ copy.
 Fake-based suites SHALL run on every pull request. End-to-end and load suites SHALL run nightly.
 A failing suite MUST block the merge of a pull request that affects its contract.
 
-#### Scenario: Pull request touching the gateway
+#### Scenario: Pull request touching AppBridge
 
-- **WHEN** a pull request changes the gateway
+- **WHEN** a pull request changes AppBridge
 - **THEN** the session protocol, Twilio protocol (fake parts) and SDK suites run before merge
 
 ### Requirement: Architecture done is defined by specified suites
@@ -277,14 +277,14 @@ suite and the implementation MUST wait for the owner's approval.
 ### Requirement: Twilio protocol suite runs an unmodified Pipecat bot
 
 The Twilio protocol suite SHALL run an unmodified Pipecat bot using its Twilio serializer against
-the gateway, and MUST cover audio in both directions, barge-in through `clear`, caller DTMF,
+AppBridge, and MUST cover audio in both directions, barge-in through `clear`, caller DTMF,
 hangup by closing the socket, and hangup through Pipecat's `auto_hang_up` with `base_url` pointing
 at Fonoster.
 
 #### Scenario: Pipecat hangs up through the compatible endpoint
 
 - **WHEN** the Pipecat bot ends its pipeline with `auto_hang_up` enabled and `base_url` set to Fonoster
-- **THEN** the gateway receives the hang-up request and ends the call
+- **THEN** AppBridge receives the hang-up request and ends the call
 - **AND** the call record shows `session.end` with `reason: app_hangup`
 
 ### Requirement: End-to-end caller bot

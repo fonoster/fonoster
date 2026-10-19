@@ -7,12 +7,12 @@ is recorded here and the alternative is listed under "Alternatives rejected".
 
 What exists today (`go/roomr`, `mods/apiserver/src/outbound`, `mods/appbridge`): the node
 registers to Routr with `X-Session-Count`, reads `X-App-Ref`/`X-Call-Ref`/`X-Call-Direction` from
-the INVITE, offers each call on `gateway.incoming` and waits 500 ms (twice) for a claim, serves
+the INVITE, offers each call on `appbridge.incoming` and waits 500 ms (twice) for a claim, serves
 commands on `media.<nodeId>.commands`, publishes events on `media.<nodeId>.events.<roomRef>` and a
-heartbeat every 2 s. The gateway's `RtpLink` already exchanges L16/16000 RTP with the node, with
+heartbeat every 2 s. AppBridge's `RtpLink` already exchanges L16/16000 RTP with the node, with
 ports negotiated inside `participant.add`. The apiserver's `createNodeDirectory` picks the
 least-loaded non-draining node from heartbeats and `placeOutboundCall` sends `room.create`,
-`gateway.outbound` and `participant.dial` with `X-DOD-Number`. Most of the audio path survives
+`appbridge.outbound` and `participant.dial` with `X-DOD-Number`. Most of the audio path survives
 unchanged; what changes is signaling, control and configuration.
 
 Product name: **Roomr** (see proposal.md, "Naming"). This document says "the node".
@@ -29,7 +29,7 @@ server.
 Non-goals (agreed): video, rooms spanning nodes, 48 kHz mixing, seeding the proxy's session
 affinity for room-header joins, migrating live calls off a dead node, reconnecting a call to
 another app pod. Also not in the node: speech recognition, synthesis and turn detection (they stay
-above it, in the gateway), and SIP capture. Deferred to follow-up changes: WebRTC participants
+above it, in AppBridge), and SIP capture. Deferred to follow-up changes: WebRTC participants
 (browsers terminating on the node) and the two-party passthrough mode; browser calls keep
 RTPEngine meanwhile.
 
@@ -53,7 +53,7 @@ The node has three edges and all of them are generic: SIP to whatever proxy and 
 configuration names; Roomr for one controller; and, per call, a control stream to the session
 endpoint plus RTP straight to the app pod that answered. NATS carries only
 capacity reports and events. In Fonoster the proxy is Routr, the controller is the apiserver and
-the session endpoint is the gateway's Kubernetes Service; the node knows none of them by name.
+the session endpoint is AppBridge's Kubernetes Service; the node knows none of them by name.
 
 ### Inbound call
 
@@ -119,7 +119,7 @@ cause `app_gone` and never reconnects (agreed); TLS or mTLS on the connection is
 commands on one stream are ordered, so no command ids are needed on this path. The document's
 sketch of `AppMessage` lists only `Answer`, `Ready`, `Reject`, `Play`, `Stop`, `Transfer` and
 `Hangup`; `Hold`/`Resume`, `TransferComplete`, `SendDtmf`, listeners and `Record` are carried over
-from the current `media-control` requirements because the gateway uses them today (hold while
+from the current `media-control` requirements because AppBridge uses them today (hold while
 transferring, recording and AMD listeners). This is an addition to the sketch, not a change to
 any agreed decision.
 
@@ -207,7 +207,7 @@ when Roomr runs on the pod network, a documented host firewall when `hostNetwork
 Helm default stays `hostNetwork`; revisiting it is the owner's call). Compose publishes only the
 RTP range. `to.auth` secrets are never logged or echoed. SIP over TLS, SDES-SRTP and gRPC TLS are
 available and off by default. Tenant Play and Hold URLs are validated upstream by the apiserver
-and the appbridge, so the node fetches them as given.
+and AppBridge, so the node fetches them as given.
 
 ### Ports
 
@@ -217,8 +217,8 @@ and the appbridge, so the node fetches them as given.
 
 Today the Compose bundle publishes 11000–11999/udp for the node and 10000–10999/udp for
 RTPEngine; the Helm chart runs the node as a StatefulSet with host networking on 30000–30199 and
-has no NetworkPolicy. The chart needs a NetworkPolicy that allows node-to-gateway RTP and a
-Service for the gateway's control stream. Compose keeps publishing only the RTP range.
+has no NetworkPolicy. The chart needs a NetworkPolicy that allows node-to-appbridge RTP and a
+Service for AppBridge's control stream. Compose keeps publishing only the RTP range.
 
 ### Media model and codecs
 
@@ -263,8 +263,8 @@ Kept out of the node's own capabilities on purpose:
 | --- | --- |
 | SIP proxy / registrar | Routr; `sip.registrations[].headers` carries `X-Session-Count: "{sessions}"` for `least-sessions` |
 | Controller (Roomr client) | apiserver (`mods/apiserver/src/outbound`) |
-| Session endpoint | the gateway's Kubernetes Service; the gateway serves `Session.Connect` |
-| Pass-through headers (inbound `Start.headers`) | `X-App-Ref`, `X-Call-Ref`, `X-Call-Direction`, `X-Connect-Token` read by the gateway |
+| Session endpoint | AppBridge's Kubernetes Service; AppBridge serves `Session.Connect` |
+| Pass-through headers (inbound `Start.headers`) | `X-App-Ref`, `X-Call-Ref`, `X-Call-Direction`, `X-Connect-Token` read by AppBridge |
 | Pass-through headers (`CreateCall.to.headers`) | `X-DOD-Number` and whatever Routr routes on |
 | App reference on outbound calls | `CreateCall.metadata`, for example `app_ref` |
 | Room header | proposed `X-Room-Ref` |
@@ -328,7 +328,7 @@ control:
     listen: 0.0.0.0:50061             # Roomr and grpc.health.v1.Health
     advertise: roomr-0.roomr:50061    # control_addr in the heartbeat
     tls: { cert: ..., key: ..., clientCa: ... }   # (optional, off by default)
-sessionEndpoint: gateway.fonoster:50071   # where the per-call control stream goes
+sessionEndpoint: appbridge.fonoster:50071   # where the per-call control stream goes
 maxRooms: 200
 maxParticipants: 10                   # (optional) per room; CreateRoom can override
 maxDuration: 4h                       # (optional)

@@ -20,12 +20,12 @@ import { expect } from "chai";
 import { evaluateScenario } from "../../src/models/evaluations/evaluateScenario";
 
 describe("evaluateScenario", () => {
-  const assistantConfig = {
+  const agentConfig = {
     conversationSettings: {},
     languageModel: {},
     testCases: undefined,
     eventsHook: undefined
-  } as Parameters<typeof evaluateScenario>[0]["assistantConfig"];
+  } as Parameters<typeof evaluateScenario>[0]["agentConfig"];
 
   it("calls onStepResult for each step and returns summary", async () => {
     const stepsReceived: Array<{ scenarioRef: string; passed: boolean }> = [];
@@ -54,7 +54,7 @@ describe("evaluateScenario", () => {
 
     const report = await evaluateScenario(
       {
-        assistantConfig,
+        agentConfig,
         scenario,
         languageModel,
         testTextSimilarity
@@ -97,7 +97,7 @@ describe("evaluateScenario", () => {
     const testTextSimilarity = async () => false;
 
     const report = await evaluateScenario({
-      assistantConfig,
+      agentConfig,
       scenario,
       languageModel,
       testTextSimilarity

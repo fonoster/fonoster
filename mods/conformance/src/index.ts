@@ -18,7 +18,7 @@
  */
 export * from "./audio/codecs";
 export * from "./fakes/FakeApp";
-export * from "./fakes/FakeGateway";
+export * from "./fakes/FakeAppBridge";
 export * from "./fakes/FakeNatsRoomr";
 export * from "./fakes/FakesHarness";
 export * from "./fakes/providers/FakeLlm";
