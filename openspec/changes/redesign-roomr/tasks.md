@@ -52,7 +52,7 @@
 - [ ] 5.5 Test: inbound answered on `Answer` only, with `180 Ringing` within 200 ms; `Reject` yields the given SIP status; stream break sends BYE; no audio bytes on the stream
 - [ ] 5.6 AppBridge-side keepalive on the stream (end the session after 2 missed pings)
 - [ ] 5.7 Node: `readyTimeout` (default 10 s) and unreachable session endpoint on an answered outbound call → BYE, `cause: "app_gone"`; `CANCEL` before `Answer` → `487`, `Ended` `caller_hangup`, stream closed
-- [ ] 5.8 Node: one `mediaTimeout` (default 30 s) for the caller and app legs → BYE, `cause: "media_timeout"` or `"app_gone"`
+- [ ] 5.8 Node: one `mediaTimeout` (default 15 s) for the caller and app legs → BYE, `cause: "media_timeout"` or `"app_gone"`
 - [ ] 5.9 AppBridge: the `cause` → `session.end` `reason` table, unknown cause → `error`
 - [ ] 5.10 Test: appbridge ends the session when the node is killed; Ready never arrives; endpoint unreachable on answer; caller cancels before `Answer`; app stops sending RTP
 - [ ] 5.11 Test: `media_timeout` with a short limit; SRTP app leg when both endpoints carry `srtp_key`; `max_duration_s` from `CreateCall` and from `Answer`
@@ -145,3 +145,15 @@
 - [ ] 14.5 Test (service-config): the node starts with `-config` alone and reads every other setting from the file
 - [ ] 14.6 Remove `trustedSources`, `allowAnySource` and the Helm render-fail check
 - [ ] 14.7 Remove the OTLP logs bridge (logs go to stderr); keep OTLP metrics and traces
+
+## 15. Health and membership
+
+- [ ] 15.1 AppBridge: `mediaTimeout` in `appbridge.yaml` (default 15 s); end the call when the node's RTP stops for that long, seal the record with `media_timeout`
+- [ ] 15.2 AppBridge: serve `grpc.health.v1.Health` on the `Session` port (`SERVING`; `NOT_SERVING` on SIGTERM); Helm and Compose readiness probes use it
+- [ ] 15.3 Remove `appbridge.heartbeat` (AppBridge publisher, Roomr and region-agent subscribers, NATS permissions) and the `appbridges` registry lease; keep `calls.<callRef>` for call ownership
+- [ ] 15.4 Control plane: send `call.ended` with `endReason` `appbridge-lost` from the node's `call.ended` with `cause` `app_gone`, once per `callRef`, never after AppBridge's own; remove the lease-expiry path in `lostCalls`
+- [ ] 15.5 Region agent: report AppBridge readiness from its health check through the Service, and active calls as the sum of `rooms` in the nodes' heartbeats
+- [ ] 15.6 Test: a running replica reports `SERVING` and no `appbridge.heartbeat` or `appbridges.*` entry exists; SIGTERM reports `NOT_SERVING`
+- [ ] 15.7 Test: AppBridge killed mid-call yields exactly one `call.ended` (`appbridge-lost`) per call across two control-plane replicas
+- [ ] 15.8 Test: the node's RTP stopped with the stream open ends the session with `reason: "error"` and the record says `media_timeout`; NATS paused longer than `mediaTimeout` ends no call
+- [ ] 15.9 Test: a cell with no ready AppBridge shows `degraded` naming AppBridge; active calls equal the nodes' room count

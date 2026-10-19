@@ -45,6 +45,13 @@ boundary, and the change adds no hardening requirements beyond it.
   SIGTERM it reports `NOT_SERVING`, unregisters (`Expires: 0`), stops heartbeats, publishes
   `node.down`, keeps live rooms until they end or `drainWait`, then exits. It does not refuse
   calls while draining; only the `max_rooms` refusal stays.
+- **Liveness per call, health per process.** "When media is expected, media must be present":
+  Roomr and AppBridge each end a call whose RTP stops for `mediaTimeout` (15 s by default, like
+  LiveKit; one key in `roomr.yaml` and one in `appbridge.yaml`), and the control stream's
+  keepalive catches a dead peer. No component tracks another tier's members: node heartbeats go to
+  the control plane only, AppBridge serves `grpc.health.v1` and publishes no heartbeat or registry
+  lease, lost calls come from the node's `call.ended` (`app_gone`), sent once per `callRef`, and a
+  region's status uses AppBridge readiness and the nodes' room counts.
 - **Light configuration.** One `roomr.yaml` and a single `-config` flag. Optional features (SIP
   TLS, SDES-SRTP, gRPC TLS) are off by default. A minimal `roomr.yaml` is at the end of
   design.md.
@@ -129,6 +136,10 @@ already point at it.
 - `deployment`: the chart allows pod-to-pod RTP, exposes AppBridge's session endpoint, guards
   Roomr's ports by network isolation and drains by readiness.
 - `conformance`: a Roomr node suite covering Roomr, the control stream and the mixer.
+- `workspace-webhooks`: a crashed AppBridge's calls get `call.ended` (`appbridge-lost`) from the
+  node's `call.ended`, not from expired registry leases.
+- `private-regions`: region status reports AppBridge readiness (gRPC health) and active calls from
+  the nodes' heartbeats.
 - `developer-environment`, `service-config`: the node is named Roomr: its source is `go/roomr`, its
   dev script `dev:roomr`, its config file `roomr` (the only flag is `-config`) and its variables
   `ROOMR_*`.

@@ -139,7 +139,7 @@ crashes between the write and the RPC leaves nothing behind.
 
 While NATS is unreachable live calls SHALL keep running, and events published during the outage
 MAY be lost. The control plane SHALL NOT replay or reconstruct lost events; the existing sweeps
-(node down, appbridge lost, maximum duration) SHALL close the call records and registry entries
+(node down, maximum duration) SHALL close the call records and registry entries
 those events would have closed once NATS returns.
 
 #### Scenario: call.ended lost
@@ -149,10 +149,17 @@ those events would have closed once NATS returns.
 
 ### Requirement: AppBridge drains on SIGTERM
 
-On SIGTERM an AppBridge replica SHALL fail its readiness probe, so the session endpoint stops sending
-it new streams, and SHALL keep its open control streams and app sockets until they end or the
+AppBridge SHALL serve the standard gRPC health service (`grpc.health.v1.Health`) on its `Session`
+port: `SERVING` while it accepts calls. It SHALL publish no heartbeat and keep no membership entry
+in the session registry; orchestrators and the region agent learn its state from the health check.
+On SIGTERM an AppBridge replica SHALL report `NOT_SERVING` and fail its readiness probe, so the
+session endpoint stops sending it new streams, and SHALL keep its open control streams and app sockets until they end or the
 configured maximum wait (default 1 h) passes, then exit. Its `Session` gRPC server SHALL NOT set a
 maximum connection age.
+
+#### Scenario: Health check
+- **WHEN** a running replica's health check is called
+- **THEN** it reports `SERVING`, and no `appbridge.heartbeat` message or `appbridges.*` registry entry exists
 
 #### Scenario: Live sessions survive SIGTERM
 - **WHEN** an AppBridge replica with 5 live sessions receives SIGTERM

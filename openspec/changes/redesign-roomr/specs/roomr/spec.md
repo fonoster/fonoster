@@ -309,7 +309,7 @@ ref through this header or `call_ref`, and the app reference through `metadata` 
 ### Requirement: A silent leg ends the call
 
 The node SHALL end an answered call when a leg sends no RTP for the media timeout (`mediaTimeout`,
-one key for the caller leg and the app leg, 30 s by default), with `cause: "media_timeout"` when
+one key for the caller leg and the app leg, 15 s by default, like LiveKit), with `cause: "media_timeout"` when
 the caller's leg went silent and `cause: "app_gone"` when the app's did, sending BYE on the SIP
 leg.
 

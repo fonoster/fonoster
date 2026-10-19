@@ -37,8 +37,8 @@ control port or the SIP port on the host.
 
 The Helm chart SHALL give AppBridge and Roomr a `terminationGracePeriodSeconds` at least their
 drain maximum wait (control-plane "AppBridge drains on SIGTERM", roomr "Draining is a health
-signal with a bounded wait"), a readiness probe that fails while draining (for Roomr, the gRPC
-health check on its control port), and a PodDisruptionBudget each. Neither gRPC server SHALL set a
+signal with a bounded wait"), a readiness probe that fails while draining (the gRPC health check: Roomr's on its control
+port, AppBridge's on its `Session` port), and a PodDisruptionBudget each. Neither gRPC server SHALL set a
 maximum connection age.
 
 #### Scenario: Rollout with live calls

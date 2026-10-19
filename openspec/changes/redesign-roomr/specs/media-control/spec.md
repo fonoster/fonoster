@@ -243,7 +243,7 @@ could not be reached, `Answer` or `Ready` never arrived, or the app leg sent no 
 - **THEN** `call.ended` carries `cause: "busy"` and `sip_status: 486`
 
 #### Scenario: No RTP from the caller
-- **WHEN** the caller's leg sends no RTP for the media timeout (`mediaTimeout`, 30 s by default)
+- **WHEN** the caller's leg sends no RTP for the media timeout (`mediaTimeout`, 15 s by default)
 - **THEN** the node ends the call with `cause: "media_timeout"`
 
 #### Scenario: App pod dies
