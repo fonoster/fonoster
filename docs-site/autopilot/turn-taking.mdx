@@ -3,7 +3,16 @@ title: "Turn-taking and barge-in"
 description: "How your agent knows the caller has finished, why it can answer quickly without cutting people off, and what happens when the caller talks over it."
 ---
 
-{/* TODO asset: turn-taking/banner: page banner for "Turn-taking and barge-in" (a caller and an agent taking turns) */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/turn-taking/banner-light.png"
+  alt="Turn-taking and barge-in: the caller says their account number with a pause in the middle, and the agent answers only after the caller is done."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/turn-taking/banner-dark.png"
+  alt="Turn-taking and barge-in: the caller says their account number with a pause in the middle, and the agent answers only after the caller is done."
+/>
 
 The hardest part of a voice conversation isn't the answer. It's knowing when to give it. Answer
 too soon and the agent cuts people off mid-thought. Wait too long and every reply feels slow.
@@ -39,7 +48,16 @@ Preparing early is how the agent answers fast without answering early. The model
 while the caller might still be talking, but nothing plays until the turn has really ended. When
 the caller was only pausing, the work is dropped and the caller never knows.
 
-{/* TODO asset: turn-taking/timeline: a caller turn on a time axis: speech, a mid-thought pause that triggers "likely ended" then "resumed", more speech, silence, "likely ended" (reply prepared), "ended" (reply plays) */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/turn-taking/timeline-light.png"
+  alt="A caller turn over time. The caller says "My account number is…", pauses, then says "…4 8 1 0 2" and goes silent. The end-of-thought estimate rises during the pause and crosses halfway (1, likely ended: the agent prepares a reply silently), then drops when the caller resumes (2, resumed: the reply is dropped). During the final silence it crosses halfway again (3, likely ended: prepare reply) and reaches the end (4, ended: speak), and the agent says "Thanks. I found your account." Patience stretches or shortens the final wait."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/turn-taking/timeline-dark.png"
+  alt="A caller turn over time. The caller says "My account number is…", pauses, then says "…4 8 1 0 2" and goes silent. The end-of-thought estimate rises during the pause and crosses halfway (1, likely ended: the agent prepares a reply silently), then drops when the caller resumes (2, resumed: the reply is dropped). During the final silence it crosses halfway again (3, likely ended: prepare reply) and reaches the end (4, ended: speak), and the agent says "Thanks. I found your account." Patience stretches or shortens the final wait."
+/>
 
 A turn can have several false alarms before it ends. Every turn ends exactly once.
 

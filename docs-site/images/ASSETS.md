@@ -12,6 +12,9 @@ One row per asset.
 | `introduction/banner-dark.png`, `banner-light.png` | `introduction` | `designs/docs.pen` → "Docs / Introduction / Banner / Dark" (FfKOU), "… / Light" (ZTAsS) | 1600 × 600 (wide-flow preset, exported at 1×) | Build note: `images/introduction/banner.md` |
 | `how-fonoster-works/banner-dark.png`, `banner-light.png` | `concepts/how-fonoster-works` | `designs/docs.pen` → "Docs / How Fonoster works / Banner / Dark" (XdHCv), "… / Light" (viDXY) | 1600 × 600 (wide-flow preset, exported at 1×) | Build note: `images/how-fonoster-works/banner.md` |
 | `how-fonoster-works/call-path-dark.png`, `call-path-light.png` | `concepts/how-fonoster-works` | `designs/docs.pen` → "Docs / How Fonoster works / Call path / Dark" (qOjTY), "… / Light" (Xj5vj) | 1600 × 900 (16:9 preset, exported at 1×) | Diagram Kit v1; build note: `images/how-fonoster-works/call-path.md` |
+| `turn-taking/banner-dark.png`, `banner-light.png` | `autopilot/turn-taking` | `designs/docs.pen` → "Docs / Turn-taking / Banner / Dark" (qpDc4), "… / Light" (D9U7uE) | 1600 × 600 (wide-flow preset, exported at 1×) | Build note: `images/turn-taking/banner.md` |
+| `turn-taking/timeline-dark.png`, `timeline-light.png` | `autopilot/turn-taking` | `designs/docs.pen` → "Docs / Turn-taking / Timeline / Dark" (SsXUR), "… / Light" (EyUjx) | 1600 × 900 (16:9 preset, exported at 1×) | Diagram Kit v1; build note: `images/turn-taking/timeline.md` |
+| `knowledge-base/lookup-dark.png`, `lookup-light.png` | `autopilot/knowledge-base` | `designs/docs.pen` → "Docs / Knowledge base / Lookup / Dark" (DkAff), "… / Light" (In0cE) | 1600 × 900 (16:9 preset, exported at 1×) | Diagram Kit v1; build note: `images/knowledge-base/lookup.md` |
 
 ## Diagram Kit
 
