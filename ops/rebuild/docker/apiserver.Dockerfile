@@ -20,7 +20,7 @@ RUN --mount=type=cache,target=/root/.npm \
 RUN npx prisma generate --schema mods/apiserver/schema.prisma \
   && npx prisma generate --schema mods/identity/schema.prisma
 
-RUN for p in types logger common identity authz streams sipnet callrecord voice autopilot apiserver; do \
+RUN for p in types logger common identity authz sipnet callrecord voice autopilot apiserver; do \
       (cd mods/$p && npx tsc -b) || exit 1; \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
