@@ -8,7 +8,16 @@ Everything you build in Fonoster lives in a **workspace**: agents, streams, numb
 call records. People join a workspace as **members**. Your code, the CLI and the MCP server sign in
 with an **API key** that belongs to one workspace.
 
-{/* TODO asset: access/credentials — diagram: a workspace (WO… ID) holding members (people, dashboard sign-in) and API keys (AP… ID + secret); SDK, CLI and MCP sign in with the WO ID plus one API key */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/access/credentials-light.png"
+  alt="A workspace, Acme Support, with its workspace access key ID WO7d2kq9…. Members (Owner, Admin, Member) sign in to the dashboard with email. API keys APk3n8… and APq7d0…, each with a secret, have the Workspace admin role. The SDK, the fonoster CLI and fonoster-mcp sign in with the WO… ID plus an API key ID and secret."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/access/credentials-dark.png"
+  alt="A workspace, Acme Support, with its workspace access key ID WO7d2kq9…. Members (Owner, Admin, Member) sign in to the dashboard with email. API keys APk3n8… and APq7d0…, each with a secret, have the Workspace admin role. The SDK, the fonoster CLI and fonoster-mcp sign in with the WO… ID plus an API key ID and secret."
+/>
 
 ## Before you begin
 
@@ -93,7 +102,16 @@ an API key can have.
     **SDK snippet**. Copy the secret now, check **I've saved the secret** and choose **Done**. The
     secret isn't shown again.
 
-    {/* TODO asset: access/save-secret — screenshot of the "Save your secret key" dialog: API key APk3n8…, API secret, SDK snippet, "I've saved the secret" */}
+    <img
+      className="block dark:hidden rounded-xl"
+      src="/images/access/save-secret-light.png"
+      alt="The Save your secret key dialog: the API key APq7d0k2m9x4c8v1b6n3z5l0w2e7r9t4, the API secret, an SDK snippet with the workspace access key ID, I've saved the secret checked, and a Done button."
+    />
+    <img
+      className="hidden dark:block rounded-xl"
+      src="/images/access/save-secret-dark.png"
+      alt="The Save your secret key dialog: the API key APq7d0k2m9x4c8v1b6n3z5l0w2e7r9t4, the API secret, an SDK snippet with the workspace access key ID, I've saved the secret checked, and a Done button."
+    />
   </Tab>
   <Tab title="SDK">
     Sign in with an existing key, then create a new one. `expiresAt` is optional, in seconds since
@@ -128,7 +146,7 @@ an API key can have.
     ```text
     {
       ref: '0b8f3c2e-6d4a-4e1f-9a7b-3c5d2e8f1a64',
-      accessKeyId: 'APq7d0k2m9x4c8v1b6n3z5l0w2e7r9t4',
+      accessKeyId: 'APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1',
       accessKeySecret: 'Hq3vT8kZ1mR6pW2xN9cL4bY7dF0sJ5gA8eU3oK6iV1nM4tB9rX2wC7yQ5hP0zL3a'
     }
     ```
@@ -143,7 +161,7 @@ an API key can have.
     It prints the key ID and the secret, once:
 
     ```text
-    Access Key ID: APq7d0k2m9x4c8v1b6n3z5l0w2e7r9t4
+    Access Key ID: APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1
     Access Key Secret: Hq3vT8kZ1mR6pW2xN9cL4bY7dF0sJ5gA8eU3oK6iV1nM4tB9rX2wC7yQ5hP0zL3a
     ```
 
@@ -205,7 +223,7 @@ fonoster workspaces:login
 To log in without the questions, for example in CI, pass the key as flags:
 
 ```bash
-fonoster workspaces:login --access-key-id APq7d0k2m9x4c8v1b6n3z5l0w2e7r9t4 \
+fonoster workspaces:login --access-key-id APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1 \
   --access-key-secret "$FONOSTER_API_SECRET"
 ```
 
@@ -283,10 +301,10 @@ can't be undone.
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Use your own provider keys" icon="key" href="/workspace/provider-keys">
+  <Card title="Use your own vendor keys" icon="key" href="/workspace/provider-keys">
     Run calls on your own Deepgram, ElevenLabs, OpenAI or Groq account.
   </Card>
-  <Card title="Use Fonoster from an AI assistant" icon="sparkles" href="/workspace/mcp">
+  <Card title="Use Fonoster from an AI client" icon="sparkles" href="/workspace/mcp">
     Let Claude or Cursor list your numbers and place calls.
   </Card>
   <Card title="Node SDK" icon="js" href="/reference/sdk">

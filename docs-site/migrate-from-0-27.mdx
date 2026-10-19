@@ -110,7 +110,7 @@ The agent's settings still live under `intelligence.config`, with `conversationS
   70B, so agents that still name it run on `groq/openai/gpt-oss-120b`.
 - **Keys and endpoints.** Delete `apiKey` and `baseUrl`. Fonoster uses its own provider accounts,
   or yours if you add a key under **Vendor keys** (see
-  [Use your own provider keys](/workspace/provider-keys)).
+  [Use your own vendor keys](/workspace/provider-keys)).
 - **Voice activity detection.** Delete `vad` and `maxSpeechWaitTimeout`. Fonoster now decides when
   the caller has finished talking. To make the agent wait longer or answer sooner, set
   `conversationSettings.patience` to `low`, `normal` or `high` (see

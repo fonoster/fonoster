@@ -1,18 +1,27 @@
 ---
-title: "Use Fonoster from an AI assistant (MCP)"
+title: "Use Fonoster from an AI client (MCP)"
 sidebarTitle: "MCP server"
-description: "Connect Claude Desktop or Cursor to your workspace with fonoster-mcp, so the assistant can list your numbers and agents and place calls."
+description: "Connect Claude Desktop or Cursor to your workspace with fonoster-mcp, so the AI client can list your numbers and agents and place calls."
 ---
 
 `fonoster-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server for your
-workspace. Add it to an AI assistant such as Claude Desktop or Cursor, and you can ask in plain
-words: "Call +1 809 555 0123 from my main number with the Front desk agent." The assistant looks up
+workspace. Add it to an AI client such as Claude Desktop or Cursor, and you can ask in plain
+words: "Call +1 809 555 0123 from my main number with the Front desk agent." The AI client looks up
 your numbers and applications and places the call.
 
-{/* TODO asset: mcp/flow — diagram: AI assistant (Claude Desktop / Cursor) → fonoster-mcp on your computer (stdio, API key) → Fonoster API → outbound call to a phone, answered by an Autopilot agent or a stream */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/mcp/flow-light.png"
+  alt="An AI client such as Claude Desktop or Cursor asks to call +1 809 555 0123 with Front desk. It talks to fonoster-mcp on your computer over MCP (stdio); fonoster-mcp offers list_numbers, list_applications, create_call and create_call_batch and calls the Fonoster API with your API key. Fonoster places the outbound call, and the Front desk agent handles it."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/mcp/flow-dark.png"
+  alt="An AI client such as Claude Desktop or Cursor asks to call +1 809 555 0123 with Front desk. It talks to fonoster-mcp on your computer over MCP (stdio); fonoster-mcp offers list_numbers, list_applications, create_call and create_call_batch and calls the Fonoster API with your API key. Fonoster places the outbound call, and the Front desk agent handles it."
+/>
 
 <Note>
-  This page is about controlling Fonoster from an assistant. It isn't a way to give an Autopilot
+  This page is about controlling Fonoster from an AI client. It isn't a way to give an Autopilot
   agent MCP tools: agents run [built-in and HTTP tools](/autopilot/tools) only.
 </Note>
 
@@ -24,15 +33,15 @@ You need:
   [Workspaces, members and API keys](/workspace/access).
 - A number in your workspace to call from. See [Numbers and routing](/telephony/numbers).
 - An Autopilot agent or a stream to handle the calls.
-- [Node.js](https://nodejs.org/) 22 or later. The assistant starts the server with `npx`.
+- [Node.js](https://nodejs.org/) 22 or later. The AI client starts the server with `npx`.
 
 <Warning>
   The server signs in with an API key, which has full access to the workspace. Anything you ask the
-  assistant to do, it can do, including calling many numbers. Use it only with numbers you have
+  AI client to do, it can do, including calling many numbers. Use it only with numbers you have
   consent to call.
 </Warning>
 
-## Connect your assistant
+## Connect your AI client
 
 <Tabs>
   <Tab title="Claude Desktop (CLI)">
@@ -127,7 +136,7 @@ so add it to the file by hand.
 
 ## Check it works
 
-In the assistant, ask: "List my Fonoster numbers." It uses the `list_numbers` tool and answers
+In the AI client, ask: "List my Fonoster numbers." It uses the `list_numbers` tool and answers
 with your numbers. If it can't start the server or sign in, check the three IDs, and that the key
 hasn't expired or been deleted.
 
@@ -139,8 +148,8 @@ Ask for the call in plain words, with the number in E.164 format:
 Call +18095550123 from +18095550100 using the Front desk agent.
 ```
 
-The assistant finds the agent's ref with `list_applications`, then uses `create_call`. Fonoster
-dials the number, and the agent or stream you named handles the call. The assistant answers with
+The AI client finds the agent's ref with `list_applications`, then uses `create_call`. Fonoster
+dials the number, and the agent or stream you named handles the call. The AI client answers with
 the call's ref, such as `Call created with REF: 3f6b1d8e-2a4c-4e9f-8b71-5c0d9e2a6f13`. Find the call
 under **Calls** in the dashboard.
 
@@ -151,17 +160,20 @@ Call +18095550123, +18095550124 and +18095550125 from +18095550100
 with the Front desk agent, 10 calls per minute.
 ```
 
-The assistant uses `create_call_batch`. It answers right away, and the calls go out one by one in
+The AI client uses `create_call_batch`. It answers right away, and the calls go out one by one in
 the background at the rate you asked for (20 per minute by default).
 
 <Warning>
-  A batch runs inside the MCP server on your computer. If you quit the assistant before the batch
-  ends, the remaining calls aren't made. The assistant isn't told when a call in a batch fails:
+  A batch runs inside the MCP server on your computer. If you quit the AI client before the batch
+  ends, the remaining calls aren't made. The AI client isn't told when a call in a batch fails:
   check **Calls** in the dashboard.
 </Warning>
 
 For larger campaigns, place calls from your own code. See
 [Make outbound calls](/telephony/outbound-calls).
+
+The `fonoster mcp:configure` command and its flags are in the
+[CLI reference](/reference/cli#mcp).
 
 ## Tools
 
@@ -180,7 +192,7 @@ For both call tools:
 - `timeout` is how many seconds to ring before giving up, up to 120. It defaults to 30.
 - `metadata` is a JSON object passed to your application with the call.
 
-The server also offers one prompt, `create_call_prompt`. It walks the assistant through a call
+The server also offers one prompt, `create_call_prompt`. It walks the AI client through a call
 step by step: ask for the numbers to call, offer your numbers to call from, pick the application,
 confirm the details, then place the call. In Claude Desktop, pick it from the prompts menu.
 

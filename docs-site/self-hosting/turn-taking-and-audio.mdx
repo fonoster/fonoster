@@ -43,7 +43,16 @@ A call is recorded by the first policy that's set, in this order:
 Each policy is `off`, `on` or `consent`. With `consent`, the caller hears a short prompt before
 recording starts.
 
-{/* TODO asset: turn-taking-and-audio/recording-precedence — four stacked layers (application, workspace, install default, off); a call falls through to the first one that's set */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/turn-taking-and-audio/recording-precedence-light.png"
+  alt="Four stacked layers decide if a call is recorded: application policy, workspace policy, install default, and off. The application layer is set to Workspace default, so the call falls through to the workspace policy, which is on, and the call is recorded."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/turn-taking-and-audio/recording-precedence-dark.png"
+  alt="Four stacked layers decide if a call is recorded: application policy, workspace policy, install default, and off. The application layer is set to Workspace default, so the call falls through to the workspace policy, which is on, and the call is recorded."
+/>
 
 <Steps>
   <Step title="Set the install's default">

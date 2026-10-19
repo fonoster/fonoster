@@ -9,7 +9,16 @@ dashboard's pickers show it, and every call resolves its voice, transcriber and 
 through it. Use this page to add a model or voice, phase one out without breaking anyone's agents,
 and keep several installs on the same catalog.
 
-{/* TODO asset: provider-catalog/lifecycle — an item moves active → deprecated → retired; what workspaces see at each step */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/provider-catalog/lifecycle-light.png"
+  alt="A voice moves from active to deprecated with registry deprecate-voice, then to retired with registry retire-voice, run by you on or after the date. Active: offered in pickers. Deprecated: still offered but marked, with a dashboard warning and a provider.deprecated webhook, and calls keep working. Retired: hidden from pickers, compatible configs rewritten to the replacement, and calls that still name it use the replacement. Nothing happens on its own when the date passes."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/provider-catalog/lifecycle-dark.png"
+  alt="A voice moves from active to deprecated with registry deprecate-voice, then to retired with registry retire-voice, run by you on or after the date. Active: offered in pickers. Deprecated: still offered but marked, with a dashboard warning and a provider.deprecated webhook, and calls keep working. Retired: hidden from pickers, compatible configs rewritten to the replacement, and calls that still name it use the replacement. Nothing happens on its own when the date passes."
+/>
 
 The catalog holds no keys. Each provider names a credential (`credentialRef`, such as
 `deepgram-default`), and the key comes from the workspace or from your configuration. See
@@ -252,7 +261,7 @@ registry apply -f /dev/stdin < catalog.yaml
 A call gets its vendor key from the first of these that has one:
 
 1. The workspace's own key for the provider, added in the dashboard. See
-   [Use your own provider keys](/workspace/provider-keys).
+   [Use your own vendor keys](/workspace/provider-keys).
 2. The install's platform key: the key your configuration gives the provider's `credentialRef`.
 
 The Compose install ships with no platform keys, so every workspace adds its own. A provider with

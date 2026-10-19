@@ -32,7 +32,7 @@ happened. This page explains each piece so you know where your settings live and
 ## The workspace
 
 A workspace holds everything else: numbers, trunks, domains, applications, webhooks, secrets and
-provider keys. Your team members and your API keys belong to a workspace too, and an API key only
+vendor keys. Your team members and your API keys belong to a workspace too, and an API key only
 sees the workspace it was created in.
 
 You can have several workspaces. For example, keep testing and production apart with one workspace
@@ -72,12 +72,17 @@ one WebSocket to your server's URL and keeps it open until the call ends. The AP
 | `fonoster` | Apps written with the Voice SDK for Node.js or Python. Fonoster does the speech for you: your app says text and gets back what the caller said. |
 | `twilio` | Bots built for Twilio Media Streams, such as a Pipecat bot. They run unchanged and handle raw audio themselves. |
 
+The wire formats are in [Session protocol](/reference/session-protocol) and
+[Twilio compatibility](/reference/twilio-compatibility).
+
 Fonoster signs every connection it opens to a stream, so your server can check that the call really
 came from Fonoster. Each stream has its own signing secret.
 
-Both kinds share the same speech settings: a voice, a language and a speech-to-text model, named by
-catalog IDs such as `deepgram/aura-2-thalia-en` and `deepgram/nova-3`. Both can also name a
-fallback, another application or a message, for when the first one can't answer.
+Autopilot agents and `fonoster` streams share the same speech settings: a voice, a language and a
+speech-to-text model, named by catalog IDs such as `deepgram/aura-2-thalia-en` and
+`deepgram/nova-3`. `twilio` streams ignore them, because the bot brings its own speech. Every
+application can also name a fallback, another application or a message, for when the first one
+can't answer.
 
 ### Which one should you use?
 
@@ -87,9 +92,14 @@ already have a Twilio or Pipecat bot.
 
 ## During the call
 
-The phone features work the same for both kinds of application. Your application can transfer the
-call to a person (cold or warm), read and send keypad tones (DTMF), and on outbound calls find out
-whether a person or an answering machine picked up.
+A `fonoster` stream gets every phone feature: it can transfer the call to a person (cold or warm),
+read and send keypad tones (DTMF), and find out whether a person or an answering machine picked
+up. The others get part of it:
+
+- **Autopilot agents** transfer calls and can send keypad tones, but don't read the caller's
+  keypresses or act on answering-machine detection.
+- **`twilio` streams** receive keypresses but have no call control: no transfers, hold or sending
+  keypad tones.
 
 ## After the call
 

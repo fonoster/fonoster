@@ -82,7 +82,16 @@ To learn how transfers reach the operator's phone, see [Transfer calls](/telepho
 An HTTP tool is a description the model reads plus a request Fonoster makes. In this example, the
 agent looks up an order by its number.
 
-{/* TODO asset: tools/tool-editor: the agent's Tools tab with the Built-in panel, one tool under Your tools, and the tool editor open */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/tools/tool-editor-light.png"
+  alt="The Tools tab of the Front desk agent: built-in hangup and transfer tools, the get_order_status tool under Your tools, and its editor with a description, GET https://api.example.com/orders/status, a required order_number parameter, an x-api-key header, One moment while I check that as the message to say while it runs, and Wait for response on."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/tools/tool-editor-dark.png"
+  alt="The Tools tab of the Front desk agent: built-in hangup and transfer tools, the get_order_status tool under Your tools, and its editor with a description, GET https://api.example.com/orders/status, a required order_number parameter, an x-api-key header, One moment while I check that as the message to say while it runs, and Wait for response on."
+/>
 
 <Steps>
   <Step title="Describe the tool">
@@ -226,7 +235,7 @@ short: Autopilot runs at most four model rounds for each thing the caller says.
 
 Header values are stored as plain text in the agent's configuration. Anyone who can read the agent
 in your workspace can see them. Fonoster doesn't fill headers from [Secrets](/workspace/secrets):
-those hold provider keys for speech and models.
+those hold vendor keys for speech and models.
 
 Give each tool a key that only works for that tool's endpoint, and rotate it like any other
 credential.

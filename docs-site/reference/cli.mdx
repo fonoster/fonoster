@@ -61,7 +61,7 @@ questions, for example in CI:
 
 ```bash
 fonoster workspaces:login --endpoint api.fonoster.com \
-  --access-key-id APm3x8c1v6b9n2q5w7e4r0t8y1u6i3o9k2 --access-key-secret "$FONOSTER_API_SECRET"
+  --access-key-id APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1 --access-key-secret "$FONOSTER_API_SECRET"
 ```
 
 ## API keys
@@ -135,17 +135,20 @@ fonoster applications:update 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31 --patience hig
 
 ### Evaluate an agent
 
-`applications:eval` runs the test cases in an agent file. It's marked experimental. See
-[Test your agent](/autopilot/test).
+`applications:eval` runs an agent's test cases. It's marked experimental. It reads an eval file,
+not the plain agent file: the agent's configuration and its `testCases` nest under
+`intelligence.config`. See [Test your agent](/autopilot/test).
 
 | Flag | Short | Default | What it sets |
 | --- | --- | --- | --- |
-| `--file` | `-f` | | The agent file with `testCases` (JSON, YAML or YML). Required. |
+| `--file` | `-f` | | The eval file, with the agent and its `testCases` under `intelligence.config` (JSON, YAML or YML). Required. |
 | `--output` | `-o` | `pretty` | `pretty` or `json` |
 | `--output-file` | | | Also writes a JSON summary to this file |
 
+Run the test cases and also save a JSON summary:
+
 ```bash
-fonoster applications:eval -f agent.yaml -o json --output-file results.json
+fonoster applications:eval -f front-desk.eval.yaml -o json --output-file results.json
 ```
 
 ## Providers
@@ -164,7 +167,7 @@ fonoster applications:eval -f agent.yaml -o json --output-file results.json
 | `providers:keys:set` | `--key` | | The key. Leave it out to type it without echo. |
 
 See [Providers and models](/reference/providers) and
-[Use your own provider keys](/workspace/provider-keys).
+[Use your own vendor keys](/workspace/provider-keys).
 
 ## Numbers
 
@@ -217,7 +220,7 @@ SIP agents are softphones and desk phones. The CLI calls them `agents`.
 | `sipnet:credentials:create` | Adds a username and password. |
 | `sipnet:credentials:list` | Lists the credentials. Flag: `--page-size`, `-s` (default `1000`). |
 | `sipnet:credentials:get <ref>` | Shows a set of credentials. |
-| `sipnet:credentials:update <ref>` | Changes the name or password. |
+| `sipnet:credentials:update <ref>` | Renames a set of credentials. The username and password can't change: to change them, create new credentials. |
 | `sipnet:credentials:delete <ref>` | Deletes a set of credentials. |
 | `sipnet:acls:create` | Adds an access control list. Asks for a name and an allow list of IPs or CIDR ranges. |
 | `sipnet:acls:list` | Lists the access control lists. Flag: `--page-size`, `-s` (default `1000`). |
@@ -294,7 +297,7 @@ fonoster webhooks:create --url https://hooks.example.com/fonoster -e call.ended 
 | `--before` | | | Calls that started before this ISO date or time |
 | `--number` | | | Calls from or to this number |
 | `--app` | | | Calls handled by this application |
-| `--status` | | | The record status, such as `sealed` or `failed` |
+| `--status` | | | The record status: `completed`, `failed` or `incomplete` |
 | `--page-size` | `-s` | `50` | How many records to show |
 | `--page-token` | `-t` | | The token for the next page, printed after a full page |
 
@@ -311,7 +314,7 @@ fonoster webhooks:create --url https://hooks.example.com/fonoster -e call.ended 
 fonoster records:download 9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17 --part vcon -o call.json
 ```
 
-See [Call records (vCon)](/observe/call-records).
+See [Read and verify call records](/observe/call-records).
 
 ## Secrets
 
@@ -335,7 +338,7 @@ workspace's API key. It works on macOS and Windows.
 | `--client` | `-c` | `claude` | The MCP client. `claude` is the only one. |
 | `--workspace` | `-w` | The active workspace | The workspace ref to use |
 
-See [Use Fonoster from an AI assistant (MCP)](/workspace/mcp).
+See [Use Fonoster from an AI client (MCP)](/workspace/mcp).
 
 ## Help and feedback
 

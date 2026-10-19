@@ -117,6 +117,9 @@ You can also pass:
   </Tab>
 </Tabs>
 
+For every parameter, see `createCall` in the [Node SDK reference](/reference/sdk#calls) and
+`sipnet:calls:create` in the [CLI reference](/reference/cli#calls).
+
 ## Follow the call
 
 The SDK's `statusStream` and the CLI report the dial status:
@@ -127,7 +130,7 @@ The SDK's `statusStream` and the CLI report the dial status:
 | `PROGRESS` | The phone is ringing. |
 | `ANSWER` | The person answered. Your application has the call now. |
 | `BUSY` | The line was busy. |
-| `NOANSWER` | Nobody answered before the timeout. |
+| `ERROR` | Nobody answered before the timeout. |
 | `CANCEL` | The call was canceled before it was answered. |
 | `FAILED` | The call couldn't be placed. |
 
@@ -172,14 +175,14 @@ up. See [Detect answering machines](/telephony/amd).
 `createCall` places one call. To call a list of numbers, call it once per number from your own
 code, and spread the calls out so your carrier doesn't throttle you.
 
-From an AI assistant such as Claude or Cursor, the Fonoster MCP server has a `create_call_batch`
+From an AI client such as Claude or Cursor, the Fonoster MCP server has a `create_call_batch`
 tool. It takes one `from`, a list of numbers in `to_array`, the `app_ref`, an optional `timeout`
 and `metadata`, and `calls_per_minute` (1 to 60, default 20). It places the calls in the
 background at that rate and returns right away. See
-[Use Fonoster from an AI assistant](/workspace/mcp).
+[Use Fonoster from an AI client](/workspace/mcp).
 
 <Note>
-  The MCP server places batch calls while it runs. If the assistant's MCP server stops, the calls
+  The MCP server places batch calls while it runs. If the AI client's MCP server stops, the calls
   not placed yet are dropped.
 </Note>
 
@@ -208,7 +211,7 @@ your carrier accepts calls from Fonoster. See [Connect a SIP trunk](/telephony/t
   <Card title="Call records" icon="file-signature" href="/observe/call-records">
     Read the transcript and recording of each call.
   </Card>
-  <Card title="Use Fonoster from an AI assistant" icon="sparkles" href="/workspace/mcp">
+  <Card title="Use Fonoster from an AI client" icon="sparkles" href="/workspace/mcp">
     Place calls and batches from Claude or Cursor.
   </Card>
 </CardGroup>

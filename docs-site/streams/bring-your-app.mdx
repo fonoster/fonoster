@@ -1,6 +1,5 @@
 ---
 title: "Bring your Twilio or Pipecat app"
-sidebarTitle: "Bring your Twilio or Pipecat app"
 description: "Answer Fonoster calls with a bot built for Twilio Media Streams, such as a Pipecat bot, without changing its code."
 ---
 
@@ -163,14 +162,20 @@ call ends. Fonoster's tests run an unmodified Pipecat bot (pipecat-ai 1.12.0) th
 caller, the caller hears it, `clear` stops playback on barge-in, keypresses reach it, and it hangs
 up.
 
-<Accordion title="Self-hosted: hang up through the Twilio-compatible endpoint">
-  A self-hosted install can also serve Twilio's hang-up call:
+<Accordion title="Hang up through the Twilio-compatible endpoint">
+  Where the operator turns it on, Fonoster also serves Twilio's hang-up call:
   `POST {base}/2010-04-01/Accounts/{accountSid}/Calls/{callSid}.json` with `Status=completed` and
-  HTTP Basic auth. It answers `200`, or `404` with code `20404` when the call has already ended.
-  The operator turns it on in the gateway's configuration with an `accountSid` and an
-  `authToken`; the `accountSid` must be your workspace's access key ID.
+  HTTP Basic auth. `{accountSid}` is your workspace's access key ID. It answers `200`, or `404`
+  with code `20404` when the call has already ended.
 
-  Then point Pipecat's `auto_hang_up` at it with `base_url`:
+  Your install's configuration sets how Basic auth is checked:
+
+  - **Workspace API keys**: the user is an API key ID (`AP…`) and the password its secret. The key
+    must belong to the workspace in the URL.
+  - **One fixed pair** (on your own install): the user and the URL's `accountSid` are the pair's
+    `accountSid`, which must be your workspace's access key ID, and the password its `authToken`.
+
+  Then point Pipecat's `auto_hang_up` at it with `base_url`. This example uses a fixed pair:
 
   ```python
   import os
@@ -178,12 +183,14 @@ up.
   serializer = TwilioFrameSerializer(
       stream_sid=call_data["stream_id"],
       call_sid=call_data["call_id"],
-      account_sid="WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",  # the gateway's accountSid
-      auth_token=os.environ["FONOSTER_HANGUP_TOKEN"],     # the gateway's authToken
-      base_url="http://gateway.example.com:8080",         # where the endpoint is served
+      account_sid="WO7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3",  # your workspace's access key ID
+      auth_token=os.environ["FONOSTER_HANGUP_TOKEN"],     # the pair's authToken
+      base_url="http://voice.example.com:8080",           # where the endpoint is served
       params=TwilioFrameSerializer.InputParams(auto_hang_up=True),
   )
   ```
+
+  See [Twilio compatibility: Hanging up](/reference/twilio-compatibility#hanging-up).
 
   Closing the socket works on every install, so you don't need this to hang up.
 </Accordion>

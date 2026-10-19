@@ -71,8 +71,10 @@ Patience is the one setting that changes the timing. It has three levels:
 | `normal` (default) | The install's standard timing | Most conversations |
 | `high` | About 1.6 times as long as normal | Callers who think aloud, read out long numbers, or speak a second language |
 
-At `low` and `normal`, Autopilot prepares replies at "likely ended". At `high`, it waits for
-"ended", because a patient agent is one that shouldn't guess.
+At `low` and `normal`, Autopilot prepares replies at "likely ended". When the agent's own
+`conversationSettings.patience` is `high`, it waits for "ended", because a patient agent is one
+that shouldn't guess. High patience that comes only from the application's speech settings
+stretches the wait but doesn't stop early preparation.
 
 Patience also **adapts within a call**. Each time a caller resumes after a false alarm, Fonoster
 becomes a little more patient with that caller, up to 1.6 times the agent's level. It never
@@ -80,8 +82,11 @@ becomes less patient than you asked for. After three false alarms in one call, A
 stops preparing replies early for the rest of that call. None of this carries over: every call
 starts from the agent's setting.
 
-You set patience in the agent's `conversationSettings.patience`, or in the application's speech
-settings. See [Build an Autopilot agent](/autopilot/build-an-agent#settings-only-the-sdk-and-the-cli-set).
+You set patience in the agent's `conversationSettings.patience`, or in the application's
+`speech.patience`. The agent's setting wins unless it's `normal`; then the application's
+`speech.patience` applies. See
+[Build an Autopilot agent](/autopilot/build-an-agent#settings-only-the-sdk-and-the-cli-set) and
+[Autopilot configuration](/reference/autopilot-config#speech).
 
 ## Barge-in
 
@@ -103,9 +108,8 @@ and the transfer message before a transfer.
 ### Backchannels
 
 Short acknowledgments like "uh-huh" or "right" aren't interruptions. The caller is listening, not
-taking the turn. Whether Fonoster recognizes them depends on the turn detector the install uses.
-The default detector treats any speech over the agent as speech, so on an agent with barge-in on,
-an "uh-huh" can stop it.
+taking the turn. The default detector (`baseline`) treats any speech over the agent as speech, so
+on an agent with barge-in on, an "uh-huh" can stop it.
 
 ## Silence and idle calls
 

@@ -33,7 +33,7 @@ working. To update what you built, see [Migrate from 0.27](/migrate-from-0-27).
 - **Streams need a signing secret.** Creating a stream returns its signing secret once. The SDK
   servers refuse to start without one and refuse connections Fonoster didn't sign. Rotating it is
   immediate, with no overlap. See [Verify request signatures](/streams/verify-signatures).
-- **Assistant webhooks are retired.** `eventsHook` and its `conversation.started` and
+- **The Autopilot events hook (`eventsHook`) is retired.** It and its `conversation.started` and
   `conversation.ended` events are gone. Subscribe a workspace webhook to `call.started`,
   `call.ended` or `call_record.sealed` instead. See [Webhooks](/observe/webhooks).
 - **Recordings live in the call record.** Recording URLs are no longer built by convention. Get a
@@ -79,15 +79,15 @@ working. To update what you built, see [Migrate from 0.27](/migrate-from-0-27).
 - **Workspace webhooks**, signed, with retries, a delivery log and resends. See
   [Webhook events](/reference/webhook-events).
 - **Call records** in the vCon format, signed by the region, with the transcript, turns, tool calls
-  and recording. See [Call records (vCon)](/observe/call-records).
+  and recording. See [Read and verify call records](/observe/call-records).
 - **Retention and erasure** of record parts. See [Retention and erasure](/observe/retention).
 
 ### Workspace
 
 - **A provider catalog** with deprecation notices and automatic moves on retirement. See
   [Providers and models](/reference/providers).
-- **Your own provider keys** for Deepgram, ElevenLabs, OpenAI and Groq. See
-  [Use your own provider keys](/workspace/provider-keys).
+- **Your own vendor keys** for Deepgram, ElevenLabs, OpenAI and Groq. See
+  [Use your own vendor keys](/workspace/provider-keys).
 
 ## Self-hosting
 

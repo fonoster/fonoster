@@ -1,6 +1,5 @@
 ---
 title: "Node SDK"
-sidebarTitle: "Node SDK"
 description: "Every client class and method in @fonoster/sdk: what it does, the parameters it takes and what it returns."
 ---
 
@@ -30,7 +29,7 @@ const client = new SDK.Client({
 });
 
 await client.loginWithApiKey(
-  process.env.FONOSTER_API_KEY,     // APq7d0k2m9x4c8v1b6n3z5l0w2e7r9t4
+  process.env.FONOSTER_API_KEY,     // APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1
   process.env.FONOSTER_API_SECRET
 );
 
@@ -103,7 +102,7 @@ An application is a stream (`STREAM`) or an Autopilot agent (`AUTOPILOT`).
 | --- | --- | --- |
 | `createApplication(request)` | Create a stream or an agent | `{ ref, signingSecret, signingSecretHint }`. The secret is shown only here and on rotation; Autopilot agents get none |
 | `getApplication(ref)` | Get one application | `Application` |
-| `updateApplication({ ref, ...fields })` | Change any field of the request below | `{ ref }`, plus `signingSecret` when the update generated a new one |
+| `updateApplication({ ref, ...fields })` | Replace the application; fields you leave out reset to their defaults. Read it with `getApplication`, change what you need, and send all of it back | `{ ref }`, plus `signingSecret` when the update generated a new one |
 | `listApplications({ pageSize, pageToken })` | List applications | `{ items: Application[], nextPageToken }` |
 | `deleteApplication(ref)` | Delete an application | `{ ref }` |
 | `rotateSigningSecret(ref)` | Replace a stream's signing secret | `{ ref, signingSecret, signingSecretHint }` |
@@ -249,14 +248,13 @@ Start outbound calls and read call history. `new SDK.Calls(client)`.
 
 | Method | Purpose | Key params | Returns |
 | --- | --- | --- | --- |
-| `createCall(request)` | Dial a number and connect it to an application | `from`, `to`, `appRef` (default: the application of the `from` number), `timeout` (seconds, default 60), `metadata` | `{ ref, statusStream }` |
+| `createCall(request)` | Dial a number and connect it to an application | `from`, `to`, `appRef` (required), `timeout` (seconds, default 30, up to 120), `metadata` | `{ ref, statusStream }` |
 | `getCall(ref)` | Get one call | | `CallDetailRecord` |
 | `listCalls(request)` | List calls | `after`, `before`, `type`, `status`, `from`, `to`, `pageSize`, `pageToken` | `{ items, nextPageToken }` |
 
 `statusStream` is an async iterator of `{ status }` while the call is dialed. `status` is one of
 `TRYING`, `PROGRESS`, `ANSWER`, `BUSY`, `CANCEL`, `FAILED` or `ERROR` (no answer).
-`metadata` reaches the application in `session.start`; an Autopilot agent adds it to the
-conversation's context.
+`metadata` reaches the application in `session.start`.
 
 A `CallDetailRecord` has `ref`, `accessKeyId`, `status`, `type` (`SIP_ORIGINATED`,
 `API_ORIGINATED`), `from`, `to`, `duration`, `direction` (`FROM_PSTN`, `TO_PSTN`,
@@ -338,7 +336,7 @@ API keys for the workspace. `new SDK.ApiKeys(client)`. See [API keys and access]
 
 | Method | Purpose | Key params | Returns |
 | --- | --- | --- | --- |
-| `createApiKey(request)` | Create a key | `role` (`WORKSPACE_ADMIN`, `WORKSPACE_MEMBER`…), `expiresAt` (seconds since the epoch; omit for no expiry) | `{ ref, accessKeyId, accessKeySecret }`. The secret is shown only here |
+| `createApiKey(request)` | Create a key | `role` (`WORKSPACE_ADMIN`, the only role), `expiresAt` (seconds since the epoch; omit for no expiry) | `{ ref, accessKeyId, accessKeySecret }`. The secret is shown only here |
 | `regenerateApiKey(ref)` | Replace a key's secret | | `{ ref, accessKeyId, accessKeySecret }` |
 | `listApiKeys({ pageSize, pageToken })` | List keys (never the secrets) | | `{ items: [{ ref, accessKeyId, role, expiresAt, createdAt, updatedAt }], nextPageToken }` |
 | `deleteApiKey(ref)` | Delete a key | | `{ ref }` |

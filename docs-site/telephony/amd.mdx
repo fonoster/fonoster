@@ -23,12 +23,14 @@ that takes your calls.
     Choose **Save**. The dashboard uses the default window of 4 seconds.
   </Tab>
   <Tab title="SDK">
-    Set `amd` when you create or update the application:
+    Set `amd` when you create or update the application. An update replaces the whole
+    application, so read it first, change `amd`, and send all of it back:
 
     ```javascript
     const apps = new SDK.Applications(client);
+    const app = await apps.getApplication("4b01c9b1-8cb1-48fb-bd49-f3daf13463a9");
     await apps.updateApplication({
-      ref: "4b01c9b1-8cb1-48fb-bd49-f3daf13463a9",
+      ...app,
       amd: { enabled: true, windowMs: 4000 }
     });
     ```
@@ -74,7 +76,8 @@ The event has these fields:
 | `status` | Who answered: `human`, `voicemail`, `machine`, `ivr` (a phone menu) or `unknown`. |
 | `confidence` | How sure the detector is, from `0` to `1`. |
 | `detector` | The detector that decided, or `none` when detection couldn't run. |
-| `audioMs` | How many milliseconds of audio it listened to. |
+| `audioMs` | How many milliseconds of audio it listened to, from when the other side started speaking. |
+| `speechOnsetMs` | How many milliseconds of audio arrived before the other side started speaking. Not set when nobody spoke. |
 | `reason` | Only when `status` is `unknown` because detection couldn't run, for example `no_speech` when nobody spoke. |
 
 The call stays up while detection runs. Your application has the call from the moment it's
@@ -111,6 +114,10 @@ for it. In Python, listen with `session.on("amd.result", handler)` the same way.
 An Autopilot agent doesn't act on the result: it talks to whoever answers. The result is still saved
 in the call's [call record](/observe/call-records), so you can see afterwards how many calls reached
 voicemail.
+
+The `amd` fields are in
+[Autopilot configuration](/reference/autopilot-config#answering-machine-detection), and the
+`amd.result` event is in the [Voice SDK reference](/reference/voice-sdk#events).
 
 ## Next steps
 

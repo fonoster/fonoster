@@ -1,9 +1,18 @@
 ---
 title: "API"
-description: "Fonoster's API is gRPC, with grpc-web for browsers and a few HTTP routes. Use the Node SDK to call it."
+description: "Fonoster's API is gRPC, with grpc-web for browsers and a few HTTP routes, and the Node SDK is the way to call it."
 ---
 
-{/* TODO asset: reference-api/banner — one endpoint (api.fonoster.com) in the middle; on the left three clients (Node SDK over gRPC, browser over grpc-web, HTTP client on /api/records); takeaway: one address, use the SDK */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/reference-api/banner-light.png"
+  alt="API: one endpoint. The Node SDK over gRPC, the browser over grpc-web, and plain HTTP on /api/records and /api/regions all reach api.fonoster.com, or your install's address."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/reference-api/banner-dark.png"
+  alt="API: one endpoint. The Node SDK over gRPC, the browser over grpc-web, and plain HTTP on /api/records and /api/regions all reach api.fonoster.com, or your install's address."
+/>
 
 Fonoster's API is gRPC. Every resource you manage (applications, numbers, trunks, domains, SIP
 agents, calls, webhooks, providers, secrets, API keys and workspaces) is a gRPC service in a

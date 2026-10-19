@@ -35,7 +35,16 @@ In the dashboard, these settings are spread over the agent's **Configure**, **To
 **Advanced** tabs. With the SDK and the CLI, you send the conversation settings and the language
 model together as one agent configuration.
 
-{/* TODO asset: build-an-agent/configure-tab: the agent's Configure tab with the Conversation, Model & voice and Behavior panels */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/build-an-agent/configure-tab-light.png"
+  alt="The Configure tab of the Front desk agent: the Conversation panel with First message, System prompt, Goodbye message and Error message; Model & voice with the language model, voice and transcriber; and Behavior with Let callers interrupt, Hang up after silence 2 × 10 s, Max call length 10 min and a transfer number."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/build-an-agent/configure-tab-dark.png"
+  alt="The Configure tab of the Front desk agent: the Conversation panel with First message, System prompt, Goodbye message and Error message; Model & voice with the language model, voice and transcriber; and Behavior with Let callers interrupt, Hang up after silence 2 × 10 s, Max call length 10 min and a transfer number."
+/>
 
 ## Set up the agent
 
@@ -62,7 +71,7 @@ model together as one agent configuration.
   <Step title="Pick the model, the voice and the transcriber">
     The language model is a catalog ID in the form `<provider>/<model>`. Fonoster resolves the
     provider and its key for you, so the agent never holds a key. To use your own key with a
-    provider, add it to your workspace: see [Use your own provider keys](/workspace/provider-keys).
+    provider, add it to your workspace: see [Use your own vendor keys](/workspace/provider-keys).
 
     Live calls run models with an OpenAI-compatible API. These models are in the catalog:
 
@@ -244,7 +253,7 @@ or the CLI.
 
 | Field | What it does |
 | --- | --- |
-| `patience` | `low`, `normal` (default) or `high`: how long the agent waits before it decides the caller has finished. See [Turn-taking and barge-in](/autopilot/turn-taking). |
+| `patience` | `low`, `normal` (default) or `high`: how long the agent waits before it decides the caller has finished. It wins over the application's `speech.patience` unless it's `normal`. See [Turn-taking and barge-in](/autopilot/turn-taking#patience). |
 | `hints` | Up to 100 words to help speech recognition, such as names and brands: `["Fonoster", "Aura"]`. |
 | `filler` | `{ url }`: a short WAV file played while the agent prepares a reply. The reply cuts it off. |
 | `voice`, `language` | Catalog IDs that override the application's voice and language for this agent. |

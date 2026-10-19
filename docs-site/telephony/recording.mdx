@@ -31,14 +31,13 @@ record verb.
     **Save**. **Workspace default** leaves the choice to the default (see below).
   </Tab>
   <Tab title="SDK">
-    Set `recording` when you create or update the application:
+    Set `recording` when you create or update the application. An update replaces the whole
+    application, so read it first, change `recording`, and send all of it back:
 
     ```javascript
     const apps = new SDK.Applications(client);
-    await apps.updateApplication({
-      ref: "6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31",
-      recording: "consent"
-    });
+    const app = await apps.getApplication("6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31");
+    await apps.updateApplication({ ...app, recording: "consent" });
     ```
   </Tab>
   <Tab title="CLI">
@@ -115,6 +114,8 @@ It saves `1d7f3a9c-5e2b-4c8d-9a6f-3b1e7d5c2a94.wav`. To know when a recording is
 the `call_record.sealed` [webhook](/observe/webhooks). [Call records](/observe/call-records) covers
 fetching, verifying and redacted copies, and [Retention and erasure](/observe/retention) covers how
 long recordings are kept.
+
+The `recording` field is in [Autopilot configuration](/reference/autopilot-config#recording).
 
 ## Next steps
 

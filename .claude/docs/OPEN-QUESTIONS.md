@@ -134,3 +134,20 @@ Collected from each page's checkpoint. Answer them in your review pass.
 - call-record-keys: The page edits `compose.yaml` (gateway volume). Do upgrades replace `compose.yaml`? If so, the change needs to live somewhere that survives.
 - turn-taking-and-audio: `speech.detector` is read only for apps in gateway.yaml (`appStore.source: yaml`); database apps (Compose, dashboard, API) always get `baseline`, and there's no install-wide default. `autopilot/turn-taking.mdx` says "The detector is chosen by the operator for the whole install", which isn't true today. Add a gateway-wide `speech.detector` default, or correct that page?
 - turn-taking-and-audio: Audio filters (aiCoustics) can't run in 0.30 (SDK not in the image, no license passthrough, no operator config, `filters` not settable by the API). The page says no filters run in this release. Keep that line, or drop the section until it ships?
+
+## Cross-page review (lead decisions)
+- The Node SDK maps the dial status `NOANSWER` to `"ERROR"` (`mods/sdk/src/utils.ts`, `dialStatusToString`). Probably a bug: the CLI and SDK show `ERROR` for no answer. The docs (outbound-calls, reference/sdk) show `ERROR` to match today's behavior. Return `NOANSWER`?
+- `updateApplication` has PUT semantics (`mods/apiserver/src/applications/createUpdateApplication.ts`): fields left out reset to defaults, so a partial update wipes an Autopilot agent's config. The docs now show get → modify → update in the SDK. Consider a PATCH-style update (or a field mask) so partial updates are safe. The CLI already merges with the current app.
+- Naming chosen: "vendor keys" (the dashboard label) in prose and titles; the API/CLI keep "provider keys" (`SetProviderKey`, `providers:keys:*`), noted once on workspace/provider-keys. "AI client" (Claude Desktop, Cursor) instead of "AI assistant"; literal `assistant:` keys stay. The MCP flow image alt text and the save-secret image (APq7d0…) were left as they are (image blocks).
+- `fonoster records:list --status` help text says "e.g. sealed, failed" (`mods/ctl/src/commands/records/list.ts`), but record statuses are `completed | failed | incomplete` (`mods/callrecord/src/vcon.ts`). Fix the help text.
+
+## Assets (lead notes)
+- Three screenshots copied from `designs/dashboard.pen` show the design, which differs from the shipped dashboard code. Page text follows the code.
+  - Talk to agent: the design says "End call" with no Mute or "Call this number" card; the code has "Hang up", "Mute" and "Call this number".
+  - Webhooks: the design has Rotate and Delete in a ⋯ menu; the code has a "Rotate secret" button and "I copied it".
+  - New number: the design shows read-only Number and Location fields.
+  - Fix the design or re-take these screenshots from the running dashboard.
+- `dashboard.pen` is dark only; the light screenshots were made by switching the frame's `ui:mode`.
+- The SIP agent softphone-settings screenshot is still TODO (`telephony/sip-agents.mdx`): dashboard.pen has no SIP agent drawer.
+- The `access/credentials` diagram shows the older example key `APq7d0…`; the pages now use `APk3n8…`. Redraw if it matters.
+- Pencil has no save tool, so the asset agents saved `docs.pen` by sending Cmd+S to the Pen app with osascript, after checking that it was frontmost with docs.pen focused. `dashboard.pen` and `fonoster.lib.pen` were checksum-verified unchanged.

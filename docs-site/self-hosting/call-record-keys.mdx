@@ -9,7 +9,16 @@ the public key can check that a record wasn't changed. Use this page to rotate t
 restart, publish the public keys where developers can fetch them, and delete old private keys
 safely.
 
-{/* TODO asset: call-record-keys/rotation — key directory over time: key 1 signs, rotate makes key 2 current, key 1 retired (public half kept); the published key set always lists both */}
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/call-record-keys/rotation-light.png"
+  alt="Three snapshots of config/record-keys. Before: local-1 signs and current points to it. After keys rotate: a new key local-20261019T143000 is added and signs, and current points to it. After keys retire local-1: the local-1 private key is gone and its public key stays for verifying only. The published call-record-keys.json lists local-1, then both keys, then both keys."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/call-record-keys/rotation-dark.png"
+  alt="Three snapshots of config/record-keys. Before: local-1 signs and current points to it. After keys rotate: a new key local-20261019T143000 is added and signs, and current points to it. After keys retire local-1: the local-1 private key is gone and its public key stays for verifying only. The published call-record-keys.json lists local-1, then both keys, then both keys."
+/>
 
 The Compose install starts with one fixed key, `local-1`, in `config/keys/records.pem`. To rotate,
 you move it into a key directory once. After that, each rotation is one command.

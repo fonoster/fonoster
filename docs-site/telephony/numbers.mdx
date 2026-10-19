@@ -62,7 +62,16 @@ value, so a number in another format never rings.
 
 <Tabs>
   <Tab title="Dashboard">
-    {/* TODO asset: numbers/add-number: the Add number drawer with Number, Name, the "When this number is called, send it to" picker and Trunk filled in */}
+    <img
+      className="block dark:hidden rounded-xl"
+      src="/images/numbers/add-number-light.png"
+      alt="The New number drawer in the dashboard: Name Support desk, Agent selected under When this number is called, send it to, the Front desk agent checked, Trunk Claro, number +1 809 555 0123 in Santo Domingo, and the note that routing lives on the number."
+    />
+    <img
+      className="hidden dark:block rounded-xl"
+      src="/images/numbers/add-number-dark.png"
+      alt="The New number drawer in the dashboard: Name Support desk, Agent selected under When this number is called, send it to, the Front desk agent checked, Trunk Claro, number +1 809 555 0123 in Santo Domingo, and the note that routing lives on the number."
+    />
 
     1. Go to **Numbers** and choose **Add number**.
     2. Under **Number**, enter `+18095550123`.
@@ -184,6 +193,9 @@ If the number doesn't ring:
 Go to **Numbers**, open the number and choose **Remove number**, or run
 `fonoster sipnet:numbers:delete <ref>`. Calls to the number stop reaching Fonoster. The number
 stays with your carrier.
+
+For every command and method, see Numbers in the [CLI reference](/reference/cli#numbers) and the
+[Node SDK reference](/reference/sdk#numbers).
 
 ## Next steps
 

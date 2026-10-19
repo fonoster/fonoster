@@ -22,7 +22,9 @@ The agent has three top-level keys.
 | `testCases` | object | No | Test scenarios, run outside calls. See [Test cases](#test-cases). |
 
 In a CLI agent file (`--agent agent.yaml`), these keys are at the top of the file. With the SDK,
-they go in `intelligence.config`.
+they go in `intelligence.config`. The eval file that `fonoster applications:eval` reads is
+different: it nests the agent and its `testCases` under `intelligence.config`. See
+[Test your agent](/autopilot/test).
 
 ### Conversation settings
 

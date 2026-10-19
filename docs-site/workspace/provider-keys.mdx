@@ -1,6 +1,6 @@
 ---
-title: "Use your own provider keys"
-sidebarTitle: "Provider keys"
+title: "Use your own vendor keys"
+sidebarTitle: "Vendor keys"
 description: "Run your workspace's calls on your own Deepgram, ElevenLabs, OpenAI or Groq account, and keep up with model deprecations."
 ---
 
@@ -8,6 +8,9 @@ Fonoster calls speech and language vendors for you: a transcriber hears the call
 and an agent's language model writes the replies. By default, calls use the platform's account
 with each vendor. Set your own key for a vendor, and your workspace's calls use your account
 instead: your rate limits, your voices and your contract with the vendor.
+
+The dashboard calls them vendor keys. The API and the CLI call them provider keys
+(`SetProviderKey`, `providers:keys:*`).
 
 ## Before you begin
 
@@ -204,6 +207,9 @@ exists only on the old model, it keeps the old ID, calls use the replacement, an
 warning stays until you pick a new model or voice yourself.
 
 If a vendor is down, Fonoster doesn't switch your calls to another vendor on its own.
+
+For every command and method, see [Providers in the CLI reference](/reference/cli#providers) and
+[Providers in the Node SDK reference](/reference/sdk#providers).
 
 ## Next steps
 

@@ -72,7 +72,16 @@ of every event is in [Webhook events](/reference/webhook-events).
     The page shows the signing secret once, starting with `whsec_`. Copy it, then choose
     **I copied it**.
 
-    {/* TODO asset: webhooks/dashboard: the Webhooks page with one endpoint, the "shown once" signing secret alert, and Recent deliveries with a Resend button */}
+    <img
+      className="block dark:hidden rounded-xl"
+      src="/images/webhooks/dashboard-light.png"
+      alt="The Webhooks page in the dashboard: one endpoint, https://hooks.example.com/fonoster, subscribed to call.ended and call_record.sealed, and Recent deliveries with a delivered call.ended and a failed call_record.sealed (12 attempts, last 503), each with a Resend button."
+    />
+    <img
+      className="hidden dark:block rounded-xl"
+      src="/images/webhooks/dashboard-dark.png"
+      alt="The Webhooks page in the dashboard: one endpoint, https://hooks.example.com/fonoster, subscribed to call.ended and call_record.sealed, and Recent deliveries with a delivered call.ended and a failed call_record.sealed (12 attempts, last 503), each with a Resend button."
+    />
   </Tab>
   <Tab title="SDK">
     This script creates a webhook for `call.ended` and `call_record.sealed` and prints its signing
@@ -382,6 +391,9 @@ In 0.27, an Autopilot agent sent its own events through `eventsHook`. Workspace 
 | One URL per agent | One webhook per endpoint for the whole workspace. Filter on `data.appRef`. |
 
 See [Migrate from 0.27](/migrate-from-0-27) for the other changes.
+
+For every command and method, see Webhooks in the [CLI reference](/reference/cli#webhooks) and
+the [Node SDK reference](/reference/sdk#webhooks).
 
 ## Next steps
 
