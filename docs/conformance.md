@@ -137,7 +137,6 @@ fixture.) Rules for a runner in a new language:
 | `python` | Same | Python SDK and runner |
 | `nightly` | Nightly and manual (`workflow_dispatch`) | Timing, load, turn-taking replay and the Pipecat golden test; reports are uploaded as the `conformance-reports` artifact |
 
-Live provider tests have a manual trigger (`live-providers.yaml`, `workflow_dispatch` only; it needs the
-`DEEPGRAM_API_KEY` and `ELEVENLABS_API_KEY` repository secrets). Still to add: dedicated runners for the
-nightly job (task 4.2). `mods/appbridge/scripts/live-check.ts` runs the same checks by hand with
-your own provider keys; never put those keys in the repository.
+Live provider tests run by hand with your own provider keys (never put them in the repository):
+`DEEPGRAM_API_KEY=… ELEVENLABS_API_KEY=… npx tsx mods/appbridge/scripts/live-check.ts`. Still to add:
+dedicated runners for the nightly job (task 4.2).

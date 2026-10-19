@@ -9,7 +9,9 @@
 | `images.yaml` | Builds and pushes `fonoster/<name>:<version>` (amd64 + arm64) for every entry in `ops/release/images.json` | called by release; dispatch | `DOCKER_HUB_USERNAME`, `DOCKER_HUB_PASSWORD` |
 | `release.yaml` | Version (`.scripts/next-release.sh`), npm publish (lerna, dist-tag latest), images, install archive on a draft release, `release-approval` gate, publish | dispatch only | `GH_PAT`, Docker Hub (via images); npm uses trusted publishing, no token |
 | `site.yaml` | Deploys `site/` to GitHub Pages (fonoster.com); Mintlify broken-link check for `docs-site/` | push to main on site/; pull requests on docs-site/; dispatch | `GITHUB_TOKEN` only |
-| `live-providers.yaml` | Live Deepgram/ElevenLabs check (spends a few cents) | dispatch only | `DEEPGRAM_API_KEY`, `ELEVENLABS_API_KEY` |
+
+Live provider check (Deepgram, ElevenLabs; spends about a cent), by hand in the dev container:
+`DEEPGRAM_API_KEY=… ELEVENLABS_API_KEY=… npx tsx mods/appbridge/scripts/live-check.ts`.
 
 Required checks on main: **PR Checks passed** and **conventional PR title**.
 
