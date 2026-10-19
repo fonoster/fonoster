@@ -49,7 +49,7 @@ export class RenderError extends Error {
 export const FONOSTER_SERVICE_FILES = [
   "fonoster",
   "identity",
-  "gateway",
+  "appbridge",
   "autopilot",
   "roomr"
 ];
@@ -96,7 +96,7 @@ export function deepMerge(base: unknown, overlay: unknown): unknown {
 
 export const EXAMPLE = /^(.+)\.example\.([A-Za-z0-9]+)$/;
 
-/** The rendered name of an example (`gateway.example.yaml` → `gateway.yaml`). */
+/** The rendered name of an example (`appbridge.example.yaml` → `appbridge.yaml`). */
 export function renderedName(example: string): string | undefined {
   const m = EXAMPLE.exec(example);
   return m ? `${m[1]}.${m[2]}` : undefined;

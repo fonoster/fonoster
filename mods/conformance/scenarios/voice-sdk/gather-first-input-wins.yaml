@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: gather-first-input-wins
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: gather-echo
 spec: "gather is built from events / First input wins"
 steps:

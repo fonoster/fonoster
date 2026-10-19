@@ -25,8 +25,8 @@ import { getLogger } from "@fonoster/logger";
 import { CreateApplicationRequest } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import {
+  agentRow,
   AppsDb,
-  assistantRow,
   newSigningSecret,
   secretHint,
   SessionAppsConfig,
@@ -63,15 +63,14 @@ function createCreateApplication(prisma: AppsDb, config: SessionAppsConfig) {
       type: request.type
     });
 
-    const { columns, assistant, autopilot } = await toAppColumns(
-      prisma,
-      request,
-      { accessKeyId, config }
-    );
+    const { columns, agent, autopilot } = await toAppColumns(prisma, request, {
+      accessKeyId,
+      config
+    });
     const shared = autopilot ? config.autopilotSigningSecret : undefined;
     const signingSecret = shared ?? newSigningSecret();
-    const intelligence = assistant
-      ? { create: await assistantRow(prisma, assistant) }
+    const intelligence = agent
+      ? { create: await agentRow(prisma, agent) }
       : undefined;
 
     const result = await prisma.application.create({

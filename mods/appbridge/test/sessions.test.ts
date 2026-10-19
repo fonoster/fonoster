@@ -20,9 +20,9 @@ import { expect } from "chai";
 import { NatsConnection, connect } from "nats";
 import { FakesHarness } from "@fonoster/conformance";
 import { Sessions } from "@fonoster/common";
-import { Gateway, GatewayConfig, MemoryCallRecordSink } from "../src";
+import { AppBridge, AppBridgeConfig, MemoryCallRecordSink } from "../src";
 
-// The gateway's session-registry entries (add-platform 2.3): gateways.<ref> while it runs and
+// AppBridge's session-registry entries (add-platform 2.3): appbridges.<ref> while it runs and
 // calls.<callRef> while a call lives, removed on a clean stop. Needs JetStream:
 // CONFORMANCE_JETSTREAM_URL (or a CONFORMANCE_NATS_URL server with JetStream).
 const URL =
@@ -39,7 +39,7 @@ async function waitFor<T>(fn: () => Promise<T | undefined>, ms = 3000) {
   }
 }
 
-describe("@gateway session registry", function () {
+describe("@appbridge session registry", function () {
   this.timeout(15000);
   const bucket = `test_gw_sessions_${Date.now()}`;
   let nc: NatsConnection;
@@ -67,9 +67,9 @@ describe("@gateway session registry", function () {
     await nc.close();
   });
 
-  it("writes its gateway and call entries and removes them on stop", async function () {
+  it("writes its AppBridge and call entries and removes them on stop", async function () {
     const urls = harness.providerUrls;
-    const config: GatewayConfig = {
+    const config: AppBridgeConfig = {
       nats: { url: URL! },
       apps: [
         {
@@ -89,7 +89,7 @@ describe("@gateway session registry", function () {
         }
       }
     };
-    const gateway = await new Gateway({
+    const appbridge = await new AppBridge({
       config,
       nats: nc,
       record: new MemoryCallRecordSink(),
@@ -99,9 +99,9 @@ describe("@gateway session registry", function () {
     const callRef = `reg-${Date.now()}`;
     try {
       const own = await waitFor(() =>
-        Sessions.getSession(kv, "gateways", gateway.gatewayRef)
+        Sessions.getSession(kv, "appbridges", appbridge.bridgeRef)
       );
-      expect(own).to.include({ gatewayRef: gateway.gatewayRef });
+      expect(own).to.include({ bridgeRef: appbridge.bridgeRef });
       const offered = harness.roomrNode.offerCall({ callRef });
       await harness.app.nextConnection();
       const call = await waitFor(() =>
@@ -109,16 +109,16 @@ describe("@gateway session registry", function () {
       );
       expect(call).to.include({
         callRef,
-        gatewayRef: gateway.gatewayRef,
+        bridgeRef: appbridge.bridgeRef,
         roomRef: offered.roomRef,
         direction: "inbound"
       });
     } finally {
-      await gateway.stop();
+      await appbridge.stop();
     }
     expect(await Sessions.getSession(kv, "calls", callRef)).to.equal(undefined);
     expect(
-      await Sessions.getSession(kv, "gateways", gateway.gatewayRef)
+      await Sessions.getSession(kv, "appbridges", appbridge.bridgeRef)
     ).to.equal(undefined);
   });
 });

@@ -126,7 +126,7 @@ export default function NumbersScreen() {
             <EmptyState
               icon={Phone}
               title="No numbers yet"
-              description="Add a number from one of your trunks, then send its calls to an agent, a stream or a SIP agent."
+              description="Add a number from one of your trunks, then send its calls to an agent, an app or a SIP agent."
               action={add}
             />
           }

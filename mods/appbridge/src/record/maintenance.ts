@@ -24,7 +24,7 @@ import {
 import { getLogger } from "@fonoster/logger";
 import { NatsConnection, StringCodec } from "nats";
 
-const logger = getLogger({ service: "gateway", filePath: __filename });
+const logger = getLogger({ service: "appbridge", filePath: __filename });
 const sc = StringCodec();
 
 /**

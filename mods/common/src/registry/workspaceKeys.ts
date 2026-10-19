@@ -19,7 +19,7 @@
 import { PrismaLike } from "./prisma";
 
 // Workspace vendor keys (bring your own key, P1; registry 3.2): workspace_provider_keys binds a
-// catalog provider to an encrypted Secret. Readers (the gateway, the hosted Autopilot) need a
+// catalog provider to an encrypted Secret. Readers (AppBridge, the hosted Autopilot) need a
 // client with the apiserver's encryption key so the Secret decrypts. Keys are held in memory for
 // `cacheMs` only and never logged.
 

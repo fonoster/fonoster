@@ -331,5 +331,5 @@ RecordNote = TypedDict(
 )
 
 
-GatewayMessage = Union[SessionStart, SessionEnd, ErrorMessage, TurnUserStarted, TurnLikelyEnded, TurnEnded, TurnResumed, TurnBackchannel, TurnEstimate, TranscriptPartial, OutputStarted, OutputDone, OutputInterrupted, MarkEvent, Dtmf, AmdResult]
+AppBridgeMessage = Union[SessionStart, SessionEnd, ErrorMessage, TurnUserStarted, TurnLikelyEnded, TurnEnded, TurnResumed, TurnBackchannel, TurnEstimate, TranscriptPartial, OutputStarted, OutputDone, OutputInterrupted, MarkEvent, Dtmf, AmdResult]
 AppCommand = Union[Speak, Play, ListenUpdate, Subscribe, MarkCommand, Clear, Hangup, DtmfSend, Transfer, TransferComplete, Hold, Resume, Handoff, RecordNote]

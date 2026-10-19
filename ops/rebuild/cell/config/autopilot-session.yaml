@@ -1,10 +1,10 @@
-# The cell's hosted Autopilot (PR-9): assistants come from the cell's database (synced from the
+# The cell's hosted Autopilot (PR-9): agents come from the cell's database (synced from the
 # control plane); LLM keys from the cell's secret store. Conversations never leave the cell.
 port: 3000
 signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
 # The URL the cell's Autopilot apps point to (region-agent.yaml autopilot.url).
 publicUrl: "ws://autopilot:3000"
-assistants: { source: database }
+agents: { source: database }
 registry: { source: database }
 workspaceSecrets:
   cellSecrets:

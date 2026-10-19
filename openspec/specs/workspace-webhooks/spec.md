@@ -24,11 +24,11 @@ endpoint.
 ### Requirement: v1 event types and payloads
 
 The platform SHALL emit the event types `call.started`, `call.ended`, `call.failed`,
-`call_record.sealed` and `provider.deprecated`. The VoiceSessionGateway that owns a call SHALL
+`call_record.sealed` and `provider.deprecated`. AppBridge that owns a call SHALL
 produce `call.started`, `call.ended` and `call.failed` (voice-session); call ending reasons come
-from media-control's `reason`. When the gateway (appbridge) that owns an answered call dies before
+from media-control's `reason`. When AppBridge (appbridge) that owns an answered call dies before
 the call ends, the control plane SHALL send that call's `call.ended` with `endReason`
-`appbridge-lost`, exactly once across its replicas, once the call's and the gateway's session
+`appbridge-lost`, exactly once across its replicas, once the call's and AppBridge's session
 registry leases have gone unrenewed for the lease TTL. Every payload MUST use the envelope `id`, `type`,
 `createdAt`, `workspaceRef` and `data`. `call_record.sealed` MUST carry the `callRef` and a link to
 fetch the record and MUST NOT include the transcript or recording.
@@ -38,12 +38,12 @@ fetch the record and MUST NOT include the transcript or recording.
 - **WHEN** a call in a subscribed workspace ends after 42 seconds because the caller hung up
 - **THEN** a `call.ended` delivery has `data.callRef`, `data.appRef`, `data.from`, `data.to`, `data.direction`, `data.durationSeconds` equal to 42 and `data.endReason` equal to `caller_hangup`
 
-#### Scenario: The appbridge dies mid-call
+#### Scenario: AppBridge dies mid-call
 
 - **GIVEN** an answered call C in a subscribed workspace, owned by appbridge G, and two control-plane replicas
-- **WHEN** G's process dies and neither G's `gateways.<G>` lease nor C's `calls.<C>` lease is renewed for the lease TTL (15 s)
+- **WHEN** G's process dies and neither G's `appbridges.<G>` lease nor C's `calls.<C>` lease is renewed for the lease TTL (15 s)
 - **THEN** the endpoint receives exactly one `call.ended` delivery for C, with `data.endReason` equal to `appbridge-lost` and the `call.started` fields
-- **AND** a call whose appbridge ended it normally (and deleted its lease) gets no second `call.ended`
+- **AND** a call whose AppBridge ended it normally (and deleted its lease) gets no second `call.ended`
 
 #### Scenario: A call that never reaches an app
 

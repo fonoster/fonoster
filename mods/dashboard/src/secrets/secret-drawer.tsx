@@ -139,7 +139,7 @@ export function SecretDrawer({
           <Field
             label="Name"
             error={errors.name?.message}
-            hint="Your agents' tools and your stream apps reference it by this name."
+            hint="Your agents' tools and your apps reference it by this name."
           >
             {(a11y) => (
               <Input

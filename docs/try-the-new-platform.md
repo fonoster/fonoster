@@ -4,13 +4,13 @@
 > component as a container; it is what `ops/rebuild/stack smoke` and CI use.
 
 One command starts the whole rebuilt Fonoster on your laptop: the control plane (API server with
-Identity, dashboard) and the new voice path (Routr, Go Roomr node, VoiceSessionGateway, hosted
+Identity, dashboard) and the new voice path (Routr, Go Roomr node, AppBridge, hosted
 Autopilot), with call records in MinIO. Another seeds a demo workspace with an Autopilot app you
 can call from a softphone.
 
 ```
-softphone ──SIP──▶ Routr ──▶ Roomr node ──media-control (NATS)──▶ gateway ──WebSocket──▶ hosted Autopilot
-            RTP ──▶ RTPEngine ──▶ Roomr node ◀──RTP──▶ gateway        └─▶ call record ─▶ MinIO + index
+softphone ──SIP──▶ Routr ──▶ Roomr node ──media-control (NATS)──▶ appbridge ──WebSocket──▶ hosted Autopilot
+            RTP ──▶ RTPEngine ──▶ Roomr node ◀──RTP──▶ appbridge        └─▶ call record ─▶ MinIO + index
 ```
 
 This is a local try-out, not a production deployment: it generates development secrets, runs the
@@ -47,7 +47,7 @@ The first run builds every image from this checkout (several minutes) and create
 runs reuse them. `up` prints the dashboard URL and the login when the API server is ready.
 
 The stack runs: NATS, Postgres (Routr, the API server and Identity each have a database), Routr,
-RTPEngine, the Roomr node, the gateway, the hosted Autopilot, MinIO, the API server (it applies
+RTPEngine, the Roomr node, AppBridge, the hosted Autopilot, MinIO, the API server (it applies
 every migration, including `rebuild_persistence` and `add_call_records`, then Identity's), Envoy,
 the dashboard, the fake providers and the caller bot. No Asterisk. Once the API server is up, `up`
 loads the provider catalog (`ops/rebuild/config/catalog-seed.yaml`: Deepgram, ElevenLabs, OpenAI,
@@ -79,7 +79,7 @@ Open <http://localhost:16449> and sign in with the email and password `info` pri
 (`admin@fonoster.local` and a generated password). Pick the **Demo** workspace: the app, the
 number, the domain and the agent are there. Apps and agents you create in the dashboard answer
 calls right away: the API server points every Autopilot app at the hosted Autopilot, which reads
-the assistant from the database (edits apply within a few seconds). To talk to an agent, open it and click **Talk to agent**, then
+the agent from the database (edits apply within a few seconds). To talk to an agent, open it and click **Talk to agent**, then
 **Call**: the browser asks for the microphone and calls the saved version of the agent (Mute and
 Hang up are in the panel). The panel also lists the numbers that reach the agent.
 
@@ -100,7 +100,7 @@ Use the values from `ops/rebuild/stack info`:
 | Transport | TCP or UDP |
 | Register | on |
 
-Linphone: Assistant, "Use a SIP account", fill Username, Password, Domain `demo.fonoster.local`,
+Linphone: Agent, "Use a SIP account", fill Username, Password, Domain `demo.fonoster.local`,
 Transport TCP; then in the account settings set the proxy `sip:<LAN address>:16060;transport=tcp`
 and enable "Outbound proxy". Zoiper: add a SIP account `softphone@demo.fonoster.local`, password,
 "Outbound proxy" `<LAN address>:16060`, transport TCP. Turn off STUN/ICE in both.
@@ -110,11 +110,11 @@ and enable "Outbound proxy". Zoiper: add a SIP account `softphone@demo.fonoster.
 Dial the demo number from the softphone as a call into the carrier trunk:
 `sip:+17853178070@carrier.fonoster.local` (the smoke test's caller bot dials exactly this; a
 softphone call has not been tried yet, see the build log ST-B10). Routr matches the trunk by the request host, finds the
-Number, and sends the call to the Roomr node with the app in `X-App-Ref`. The gateway opens a
+Number, and sends the call to the Roomr node with the app in `X-App-Ref`. AppBridge opens a
 session to the hosted Autopilot, which greets you.
 
 Without vendor keys the speech is fake: you hear tones whose length follows the text, and the fake
-recognizer "hears" two scripted sentences (6 s and 16 s into the call), so the assistant answers
+recognizer "hears" two scripted sentences (6 s and 16 s into the call), so the agent answers
 twice (the fake model echoes them back). Add keys (below) for a real conversation.
 
 No softphone? The caller bot places a call and checks the answer:
@@ -172,7 +172,7 @@ fonoster applications:rotate-secret -i <app-ref>   # the new signing secret, sho
 `create` prints the app's signing secret once (Autopilot agents share the hosted Autopilot's, so
 none is shown). `update` changes only the flags you pass; `--from-file app.yaml` takes the same
 fields as the API (`url`, `protocol`, `speech`, `audio`, `listeners`, `recording`,
-`fallbackAppRef`, ... and `assistant` for an Autopilot agent).
+`fallbackAppRef`, ... and `agent` for an Autopilot agent).
 
 Voices and models are catalog ids; vendor keys are per workspace:
 
@@ -231,13 +231,13 @@ override that, e.g. `RB_DEFAULT_VOICE=elevenlabs/JBFqnCBsd6RMkjVDRZzb` (George) 
 per app or agent in the dashboard. A vendor's voices and models always need its key, the
 platform's or the workspace's; no vendor id is ever answered by a fake.
 
-Keys reach the containers by variable name only (the gateway for speech, the hosted Autopilot for
+Keys reach the containers by variable name only (AppBridge for speech, the hosted Autopilot for
 language models) and are never written to the rendered configs. Workspace vendor keys added in
 the dashboard (Vendor keys) replace the platform key for that workspace's calls, for speech and
 language models alike.
 
 Groq retired Llama 3.3 70B, so the catalog marks `groq/llama-3.3-70b-versatile` retired: an
-assistant that still names it runs on `groq/openai/gpt-oss-120b` (`groq/openai/gpt-oss-20b` is
+agent that still names it runs on `groq/openai/gpt-oss-120b` (`groq/openai/gpt-oss-20b` is
 there too).
 
 Measured on a laptop with `ops/rebuild/stack ask` (the caller asks "What is Fonoster?" over
@@ -264,19 +264,19 @@ ops/rebuild/stack smoke              # up, seed, one call, checks, down (RB_KEEP
   (`CreateTestToken`), opens SIP over WebSocket at `ws://<LAN address>:16449/sip` (Envoy proxies it
   to Routr's `ws` transport on 5062 in the container) and calls the roomr Peer with
   `X-App-Ref` naming the agent. Routr checks the token with Identity's public key; RTPEngine turns
-  the browser's WebRTC (ICE, DTLS-SRTP) into plain RTP; the gateway answers only agents of the
+  the browser's WebRTC (ICE, DTLS-SRTP) into plain RTP; AppBridge answers only agents of the
   token's workspace.
 - **Roomr node**: registers to Routr (UDP, inside the Docker network) as the Peer `sip:roomr@default` that the API
   server creates (`routr.roomrPeer`). Numbers of apps go to that Peer.
-- **Gateway**: reads apps from the API server's database (`appStore.source: database`), delivers
+- **AppBridge**: reads apps from the API server's database (`appStore.source: database`), delivers
   workspace webhooks, writes call records to MinIO and announces them to the index on NATS.
-- **Gateway** also reads the provider catalog (`registry.source: database`) and workspace vendor
+- **AppBridge** also reads the provider catalog (`registry.source: database`) and workspace vendor
   keys (`workspaceKeys.enabled`) from the same database.
 - **Hosted Autopilot** (`mods/autopilot/src/session/main.ts`): the URL every Autopilot app points
   to (`ws://autopilot:3000`, the API server's `apps.autopilotUrl`), with one signing secret
   (`apps.autopilotSigningSecret`). Its `publicUrl` must be that same URL: Autopilot checks
   signatures against it, never the `Host` header, and serves only the app and workspace each
-  signature is bound to. Assistants, the catalog and workspace vendor keys come from the
+  signature is bound to. Agents, the catalog and workspace vendor keys come from the
   API server's database (`source: database` in `autopilot-session.yaml`).
 
 ## Troubleshooting

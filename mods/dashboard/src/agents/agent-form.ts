@@ -19,7 +19,7 @@
 /**
  * The agent editor's form values, their validation, and the mapping to and
  * from the API's Application. Validation copies the rules of
- * @fonoster/common's sessionAssistantSchema (common/src/assistants), which
+ * @fonoster/common's sessionAgentSchema (common/src/agents), which
  * can't be imported into the browser bundle.
  */
 import type {
@@ -167,7 +167,7 @@ export type AgentValues = z.infer<typeof agentSchema>;
 export type ToolValues = AgentValues["tools"][number];
 export type ParameterValues = ToolValues["parameters"][number];
 
-// Defaults of common/src/assistants/sessionAssistantSchema.ts.
+// Defaults of common/src/agents/sessionAgentSchema.ts.
 export const DEFAULTS = {
   maxSessionDuration: 30 * 60 * 1000,
   idleTimeout: 30000,
@@ -338,7 +338,7 @@ export function toRequest(
   values: AgentValues,
   base?: Application
 ): CreateApplicationRequest {
-  // The session assistant (sessionAssistantSchema, CP-B13): strict, so only its keys are sent.
+  // The session agent (sessionAgentSchema, CP-B13): strict, so only its keys are sent.
   const previous = obj(base?.intelligence?.config);
   const previousModel = obj(previous.languageModel);
   const c = values.conversation;

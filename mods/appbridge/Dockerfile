@@ -1,5 +1,5 @@
 ##
-# Build stage: only the gateway and the workspace packages it needs
+# Build stage: only AppBridge and the workspace packages it needs
 ##
 FROM node:22-slim AS builder
 LABEL team="Fonoster Team <team@fonoster.com>"
@@ -17,19 +17,18 @@ COPY mods/callrecord ./mods/callrecord
 COPY mods/identity-client ./mods/identity-client
 # Vendor adapters (@fonoster/community/<vendor>).
 COPY mods/community ./mods/community
-# AMD (add-roomr 4.3, AO-B2): the classifier and its ONNX model run in the gateway.
-COPY mods/streams ./mods/streams
+# AMD (add-roomr 4.3, AO-B2): the classifier and its ONNX model run in AppBridge.
 COPY mods/amd ./mods/amd
 COPY mods/appbridge ./mods/appbridge
 # The apiserver schema: `appStore.source: database`, the database registry and webhooks read the
 # control-plane database through a client generated from it.
 COPY mods/apiserver/schema.prisma ./mods/apiserver/schema.prisma
 
-# Only the gateway's workspace closure is installed (not the whole monorepo).
+# Only AppBridge's workspace closure is installed (not the whole monorepo).
 RUN --mount=type=cache,target=/root/.npm \
     npm install --workspace @fonoster/appbridge --ignore-scripts --no-audit --no-fund
 
-RUN for p in types logger common callrecord identity-client community streams amd appbridge; do \
+RUN for p in types logger common callrecord identity-client community amd appbridge; do \
       (cd mods/$p && npx tsc -b); \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
@@ -43,7 +42,7 @@ RUN for p in types logger common callrecord identity-client community streams am
 FROM node:22-slim
 
 # openssl: the Prisma query engine needs libssl to load. /var/lib/fonoster/records holds call
-# records being written (config callRecord.dir), owned by the gateway's user: a named volume
+# records being written (config callRecord.dir), owned by AppBridge's user: a named volume
 # mounted there starts with this ownership.
 RUN apt-get update && apt-get install -y --no-install-recommends openssl \
   && rm -rf /var/lib/apt/lists/* \
@@ -65,8 +64,6 @@ COPY --from=builder --chown=appuser:appuser /work/mods/callrecord/dist /work/mod
 COPY --from=builder --chown=appuser:appuser /work/mods/identity-client /work/mods/identity-client
 COPY --from=builder --chown=appuser:appuser /work/mods/community/package.json /work/mods/community/
 COPY --from=builder --chown=appuser:appuser /work/mods/community/dist /work/mods/community/dist
-COPY --from=builder --chown=appuser:appuser /work/mods/streams/package.json /work/mods/streams/
-COPY --from=builder --chown=appuser:appuser /work/mods/streams/dist /work/mods/streams/dist
 COPY --from=builder --chown=appuser:appuser /work/mods/amd/package.json /work/mods/amd/
 COPY --from=builder --chown=appuser:appuser /work/mods/amd/dist /work/mods/amd/dist
 COPY --from=builder --chown=appuser:appuser /work/mods/amd/amd-model /work/mods/amd/amd-model
@@ -75,9 +72,9 @@ COPY --from=builder --chown=appuser:appuser /work/mods/appbridge/dist /work/mods
 
 USER appuser
 
-# One YAML file, no .env (PL5). Mount it here or point GATEWAY_CONFIG elsewhere.
-# The config file: /config/gateway.yaml, else /etc/fonoster/gateway.yaml (or GATEWAY_CONFIG).
-# Session HTTP endpoint (config http.port); the gateway also needs NATS reachable.
+# One YAML file, no .env (PL5). Mount it here or point APPBRIDGE_CONFIG elsewhere.
+# The config file: /config/appbridge.yaml, else /etc/fonoster/appbridge.yaml (or APPBRIDGE_CONFIG).
+# Session HTTP endpoint (config http.port); AppBridge also needs NATS reachable.
 EXPOSE 8080
 
 CMD ["node", "/work/mods/appbridge/dist/main.js"]

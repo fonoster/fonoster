@@ -339,7 +339,7 @@ describe("@conformance regions: control plane, hub and cell (harden-conformance 
     });
     agent.onApplied = (v) => applied.push(v);
     await agent.start();
-    // The cell's Roomr node and gateway, as their heartbeats on the cell's own bus.
+    // The cell's Roomr node and AppBridge, as their heartbeats on the cell's own bus.
     const beats = cellNc;
     componentBeats = setInterval(() => {
       beats.publish(
@@ -353,11 +353,11 @@ describe("@conformance regions: control plane, hub and cell (harden-conformance 
         )
       );
       beats.publish(
-        "gateway.heartbeat",
+        "appbridge.heartbeat",
         sc.encode(
           JSON.stringify({
-            type: "gateway.heartbeat",
-            gatewayRef: "gw-1",
+            type: "appbridge.heartbeat",
+            bridgeRef: "gw-1",
             calls: 1
           })
         )
@@ -465,7 +465,7 @@ describe("@conformance regions: control plane, hub and cell (harden-conformance 
       randomBytes(200 * 1024)
     ]);
     const { sealed, vcon } = await sealRecord(records, "call-1", audio);
-    // The gateway's sealed-record entry, built as the gateway builds it and published on the
+    // AppBridge's sealed-record entry, built as AppBridge builds it and published on the
     // cell's bus.
     const local = await connect({
       servers: (cellNc as NatsConnection).getServer()

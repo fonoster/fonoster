@@ -19,7 +19,7 @@
 import * as http from "http";
 import { AddressInfo } from "net";
 import { expect } from "chai";
-import { FakeGateway, Peer } from "@fonoster/conformance";
+import { FakeAppBridge, Peer } from "@fonoster/conformance";
 import { Session, SessionEndedError, VoiceServer } from "../src";
 
 const SECRET = "unit-secret";
@@ -77,7 +77,7 @@ describe("@voice VoiceServer", function () {
 
   it("runs the handler once per session with a valid signature", async function () {
     const calls = await standalone(async () => undefined);
-    const peer = await new FakeGateway({ signingSecret: SECRET }).dial(url());
+    const peer = await new FakeAppBridge({ signingSecret: SECRET }).dial(url());
     peer.sendJson(START);
     await sleep(50);
     expect(calls()).to.equal(1);
@@ -86,7 +86,7 @@ describe("@voice VoiceServer", function () {
   it("accepts a signature over the app URL without a trailing slash", async function () {
     const calls = await standalone(async () => undefined);
     const bare = url().replace(/\/$/, "");
-    const peer = await new FakeGateway({ signingSecret: SECRET }).dial(bare);
+    const peer = await new FakeAppBridge({ signingSecret: SECRET }).dial(bare);
     peer.sendJson(START);
     await sleep(50);
     expect(calls()).to.equal(1);
@@ -103,7 +103,7 @@ describe("@voice VoiceServer", function () {
     it(`rejects ${name} before the handler runs`, async function () {
       const calls = await standalone(async () => undefined);
       let error: Error | undefined;
-      await new FakeGateway(options).dial(url()).catch((e) => (error = e));
+      await new FakeAppBridge(options).dial(url()).catch((e) => (error = e));
       expect(error?.message).to.contain("401");
       expect(calls()).to.equal(0);
     });
@@ -115,7 +115,7 @@ describe("@voice VoiceServer", function () {
       host: "127.0.0.1",
       verifySignature: false
     }).listen(async () => undefined);
-    const peer = await new FakeGateway().dial(url());
+    const peer = await new FakeAppBridge().dial(url());
     expect(peer).to.exist;
     expect(() => new VoiceServer({ port: 0 })).to.throw("signingSecret");
   });
@@ -131,7 +131,7 @@ describe("@voice VoiceServer", function () {
       }
     );
     const port = (httpServer.address() as AddressInfo).port;
-    const peer = await new FakeGateway({ signingSecret: SECRET }).dial(
+    const peer = await new FakeAppBridge({ signingSecret: SECRET }).dial(
       `ws://127.0.0.1:${port}/voice`
     );
     peer.sendJson(START);
@@ -148,7 +148,7 @@ describe("@voice VoiceServer", function () {
       s.on("end", (e) => (endReason = e.reason));
       outcome = await s.gather({ timeout: 5000 }).catch((e) => e);
     });
-    const peer = await new FakeGateway({ signingSecret: SECRET }).dial(url());
+    const peer = await new FakeAppBridge({ signingSecret: SECRET }).dial(url());
     peer.sendJson(START);
     await sleep(30);
     peer.sendJson({ type: "session.end", reason: "caller_hangup" });
@@ -161,7 +161,7 @@ describe("@voice VoiceServer", function () {
     await standalone(async () => {
       throw new Error("boom");
     });
-    const peer = await new FakeGateway({ signingSecret: SECRET }).dial(url());
+    const peer = await new FakeAppBridge({ signingSecret: SECRET }).dial(url());
     peer.sendJson(START);
     await waitFor(() => json(peer).find((m) => m.type === "hangup"));
   });

@@ -1,4 +1,4 @@
-"""Mount the voice app into FastAPI. The gateway dials ws(s)://<host>/voice."""
+"""Mount the voice app into FastAPI. AppBridge dials ws(s)://<host>/voice."""
 import os
 
 from fastapi import FastAPI

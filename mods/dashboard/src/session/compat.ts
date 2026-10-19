@@ -19,7 +19,7 @@
 /**
  * Picker filtering by catalog compatibility (add-provider-registry 4.2): what fits the app's
  * language, which voices have a TTS model in the catalog, and which language models have the
- * features an assistant needs. Mirrors the registry's checker (mods/common registry/features.ts).
+ * features an agent needs. Mirrors the registry's checker (mods/common registry/features.ts).
  */
 import type { Catalog, CatalogEntry } from "./types";
 
@@ -33,9 +33,9 @@ export function fitsLanguage(entry: CatalogEntry, language?: string): boolean {
   return langs.some((l) => base(l) === base(language));
 }
 
-/** Hard requirements of an assistant: replies stream; tools need tool calling. */
-export function assistantRequirements(assistant: unknown): string[] {
-  const tools = (assistant as { languageModel?: { tools?: unknown[] } } | null)
+/** Hard requirements of an agent: replies stream; tools need tool calling. */
+export function agentRequirements(agent: unknown): string[] {
+  const tools = (agent as { languageModel?: { tools?: unknown[] } } | null)
     ?.languageModel?.tools;
   return Array.isArray(tools) && tools.length
     ? ["streaming", "tool-calling"]
@@ -77,10 +77,10 @@ export function compatibleSttModels(
 
 export function compatibleLlmModels(
   catalog: Catalog,
-  assistant: unknown,
+  agent: unknown,
   value?: string
 ): CatalogEntry[] {
-  const need = assistantRequirements(assistant);
+  const need = agentRequirements(agent);
   const fit = catalog.llmModels.filter(
     (m) => !m.features || need.every((f) => m.features!.includes(f))
   );

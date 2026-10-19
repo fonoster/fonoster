@@ -45,10 +45,10 @@ const SERVICES: Record<
       (await import("../../identity/src/server/config"))
         .identityServiceConfigSchema
   },
-  gateway: {
-    file: "gateway.yaml",
+  appbridge: {
+    file: "appbridge.yaml",
     schema: async () =>
-      (await import("../../appbridge/src/configSchema")).gatewayConfigSchema
+      (await import("../../appbridge/src/configSchema")).appBridgeConfigSchema
   },
   autopilot: {
     file: "autopilot.yaml",

@@ -33,7 +33,7 @@ export interface ProtocolCodec {
   readonly speechLayer: boolean;
   /** Opening messages, built from the fonoster session.start. */
   start(start: SessionStart): void;
-  /** A fonoster gateway → app message; protocols drop what they do not carry. */
+  /** A fonoster appbridge → app message; protocols drop what they do not carry. */
   event(message: Record<string, unknown>): void;
   /** One 20 ms internal frame of caller audio. */
   callerAudio(frame: Buffer): void;

@@ -69,7 +69,7 @@ async function drain(audio: AsyncIterable<Buffer>) {
   return out;
 }
 
-describe("@gateway vendor adapters", function () {
+describe("@appbridge vendor adapters", function () {
   it("Deepgram TTS asks for 16 kHz linear PCM and keeps samples whole", async function () {
     const v = await vendor((_req, res) => {
       res.writeHead(200, { "content-type": "audio/l16" });

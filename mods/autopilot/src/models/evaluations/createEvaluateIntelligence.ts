@@ -16,10 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  getAccessKeyIdFromCall,
-  sessionAssistantSchema
-} from "@fonoster/common";
+import { getAccessKeyIdFromCall, sessionAgentSchema } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { StepEvaluationReport } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
@@ -52,8 +49,8 @@ export type EvalKeySource = (
 ) => Promise<string | undefined>;
 
 /**
- * Runs an assistant's test cases (rework-autopilot 8.2: the assistant is a session assistant; its
- * catalog id picks the provider, and keys come from `keys`, never from the assistant).
+ * Runs an agent's test cases (rework-autopilot 8.2: the agent is a session agent; its
+ * catalog id picks the provider, and keys come from `keys`, never from the agent).
  */
 function createEvaluateIntelligence(keys: EvalKeySource) {
   const evaluateIntelligence = async (
@@ -68,11 +65,11 @@ function createEvaluateIntelligence(keys: EvalKeySource) {
 
     try {
       const config = struct.decode(intelligence.config as unknown as Struct);
-      const assistant = sessionAssistantSchema.parse(config);
-      const provider = assistant.languageModel.model.split("/")[0];
+      const agent = sessionAgentSchema.parse(config);
+      const provider = agent.languageModel.model.split("/")[0];
       logger.verbose("call to evaluateIntelligence", {
         accessKeyId,
-        model: assistant.languageModel.model
+        model: agent.languageModel.model
       });
       const apiKey = await keys(provider, accessKeyId);
       const evaluationApiKey = await keys("openai", accessKeyId);
@@ -97,13 +94,13 @@ function createEvaluateIntelligence(keys: EvalKeySource) {
 
       // The session engine (streaming replies, structured tool messages) for OpenAI-compatible
       // providers; the LangChain path stays for the rest until their adapters land (EV-B1).
-      const think = sessionThinkFor(assistant, apiKey);
+      const think = sessionThinkFor(agent, apiKey);
       if (think) {
-        await runSessionEval({ assistant, think, evaluationApiKey }, callbacks);
+        await runSessionEval({ agent, think, evaluationApiKey }, callbacks);
         return;
       }
 
-      const effectiveConfig = createEvalEffectiveConfig(assistant, {
+      const effectiveConfig = createEvalEffectiveConfig(agent, {
         apiKey,
         evaluationApiKey
       });

@@ -95,21 +95,21 @@ func toneFrame(freq float64, i int) audio.Frame {
 	return f
 }
 
-// gateway is a session participant played by the test: an RTP endpoint and what it hears.
-type gateway struct {
+// appbridge is a session participant played by the test: an RTP endpoint and what it hears.
+type appbridge struct {
 	ep  *rtpio.Endpoint
 	m   *meter
 	ref string
 }
 
-// addSession adds an L16 session participant; srtpKey, when set, is offered as the gateway's key.
-func (r *rig) addSession(room, srtpKey string) (*gateway, map[string]any) {
+// addSession adds an L16 session participant; srtpKey, when set, is offered as AppBridge's key.
+func (r *rig) addSession(room, srtpKey string) (*appbridge, map[string]any) {
 	ep, err := rtpio.Listen("127.0.0.1")
 	if err != nil {
 		r.t.Fatal(err)
 	}
 	r.t.Cleanup(ep.Close)
-	g := &gateway{ep: ep, m: newMeter()}
+	g := &appbridge{ep: ep, m: newMeter()}
 	block := map[string]any{"host": "127.0.0.1", "port": ep.Port(), "codec": "L16/16000", "payloadType": 96, "ptime": 20, "ssrc": 7}
 	if srtpKey != "" {
 		block["srtp"] = map[string]any{"suite": rtpio.SRTPSuite, "key": srtpKey}
@@ -132,7 +132,7 @@ func (r *rig) addSession(room, srtpKey string) (*gateway, map[string]any) {
 }
 
 // play sends a tone (or silence with freq 0) for ms milliseconds at real-time pace.
-func (g *gateway) play(freq float64, ms int) {
+func (g *appbridge) play(freq float64, ms int) {
 	for i := 0; i < ms/audio.FrameMs; i++ {
 		if freq == 0 {
 			g.ep.Send(audio.Silence())
@@ -143,8 +143,8 @@ func (g *gateway) play(freq float64, ms int) {
 	}
 }
 
-// answeredCallWith is answeredCall with a chosen offer; it returns the call, room and gateway.
-func (r *rig) answeredCallWith(o caller.DialOptions, srtpKey string) (*caller.Call, string, *gateway) {
+// answeredCallWith is answeredCall with a chosen offer; it returns the call, room and appbridge.
+func (r *rig) answeredCallWith(o caller.DialOptions, srtpKey string) (*caller.Call, string, *appbridge) {
 	to := fmt.Sprintf("+1%d", time.Now().UnixNano()%1e9)
 	call, err := r.bot.DialWith(r.sipTarget(o.Transport), to, "", map[string]string{"X-App-Ref": "app-1"}, o)
 	if err != nil {
@@ -361,7 +361,7 @@ func TestDrain(t *testing.T) {
 	r := start(t)
 	beats := replica(t, node.HeartbeatSubject(r.node.ID()))
 	calls := []*caller.Call{}
-	gws := []*gateway{}
+	gws := []*appbridge{}
 	for i := 0; i < 3; i++ {
 		c, _, g := r.answeredCallWith(caller.DialOptions{}, "")
 		calls, gws = append(calls, c), append(gws, g)
@@ -422,7 +422,7 @@ func TestDrainMaximumWait(t *testing.T) {
 	if forced := r.node.WaitRooms(300*time.Millisecond, nil); forced != 1 {
 		t.Fatalf("drain ended %d rooms, want 1", forced)
 	}
-	// node_error is what the gateway maps to session.end reason "error".
+	// node_error is what AppBridge maps to session.end reason "error".
 	r.waitEvent(typed("room.ended", "roomRef", room, "reason", "node_error"), 2*time.Second)
 	waitStatus(t, call, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
 }
@@ -470,7 +470,7 @@ func TestEncryptedCall(t *testing.T) {
 	call.Speak("tone:1000", 500)
 	time.Sleep(800 * time.Millisecond)
 	if got := g.m.get(1000); got < 10 {
-		t.Fatalf("gateway heard %d frames of the caller over SRTP", got)
+		t.Fatalf("appbridge heard %d frames of the caller over SRTP", got)
 	}
 	before := call.Status().AudibleMs
 	g.play(600, 400)
@@ -482,7 +482,7 @@ func TestEncryptedCall(t *testing.T) {
 	r.waitEvent(typed("room.ended", "roomRef", room), 3*time.Second)
 }
 
-func TestGatewayLegSRTP(t *testing.T) {
+func TestAppBridgeLegSRTP(t *testing.T) {
 	r := startEncrypted(t)
 	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
 	a, rep := r.addSession(room, rtpio.NewSRTPKey())

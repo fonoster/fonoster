@@ -6375,7 +6375,7 @@
       "id": "lzFGE",
       "type": "ref",
       "ref": "ui:Z4xcv",
-      "name": "Label · Streams · List & create",
+      "name": "Label · Apps · List & create",
       "x": 0,
       "y": 4560,
       "width": 9140,
@@ -6384,7 +6384,7 @@
       },
       "descendants": {
         "ui:E87RGF": {
-          "content": "Streams · List & create"
+          "content": "Apps · List & create"
         },
         "ui:G8OhZ": {
           "content": "Draft"
@@ -6401,7 +6401,7 @@
       "id": "JDOnP",
       "type": "ref",
       "ref": "ui:aqOKa",
-      "name": "Streams / List / Default",
+      "name": "Apps / List / Default",
       "x": 0,
       "y": 4780,
       "theme": {
@@ -6452,7 +6452,7 @@
                           "id": "YCofh",
                           "name": "Streams",
                           "fill": "$ui:--foreground",
-                          "content": "Streams",
+                          "content": "Apps",
                           "fontFamily": "$ui:--font-secondary",
                           "fontSize": 22,
                           "fontWeight": "600"
@@ -6462,7 +6462,7 @@
                           "id": "yGPos",
                           "name": "Subtitle",
                           "fill": "$ui:--muted-foreground",
-                          "content": "Your own code controls the call: IVR menus, audio streams, custom logic.",
+                          "content": "Voice apps you run yourself, connected over a stream. Pipecat, your own code, or any stream client.",
                           "fontFamily": "$ui:--font-secondary",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -6497,7 +6497,7 @@
                           "name": "Create stream",
                           "descendants": {
                             "ui:q5Hn5": {
-                              "content": "Create stream"
+                              "content": "Create app"
                             }
                           }
                         }
@@ -6546,7 +6546,7 @@
                           "id": "c7o4G",
                           "name": "Search streams",
                           "fill": "$ui:--muted-foreground",
-                          "content": "Search streams",
+                          "content": "Search apps",
                           "fontFamily": "$ui:--font-secondary",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -6558,7 +6558,7 @@
                       "id": "DfebQ",
                       "name": "Count",
                       "fill": "$ui:--muted-foreground",
-                      "content": "3 streams",
+                      "content": "3 apps",
                       "fontFamily": "$ui:--font-secondary",
                       "fontSize": 13,
                       "fontWeight": "normal"
@@ -7358,7 +7358,7 @@
       "id": "UwNgC",
       "x": 1540,
       "y": 4780,
-      "name": "Streams / Create / Dialog",
+      "name": "Apps / Create / Dialog",
       "theme": {
         "ui:mode": "dark"
       },
@@ -7419,7 +7419,7 @@
                               "id": "P0WiIV",
                               "name": "Streams",
                               "fill": "$ui:--foreground",
-                              "content": "Streams",
+                              "content": "Apps",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 22,
                               "fontWeight": "600"
@@ -7429,7 +7429,7 @@
                               "id": "Is5js",
                               "name": "Subtitle",
                               "fill": "$ui:--muted-foreground",
-                              "content": "Your own code controls the call: IVR menus, audio streams, custom logic.",
+                              "content": "Voice apps you run yourself, connected over a stream. Pipecat, your own code, or any stream client.",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -7464,7 +7464,7 @@
                               "name": "Create stream",
                               "descendants": {
                                 "ui:q5Hn5": {
-                                  "content": "Create stream"
+                                  "content": "Create app"
                                 }
                               }
                             }
@@ -7513,7 +7513,7 @@
                               "id": "zrKbW",
                               "name": "Search streams",
                               "fill": "$ui:--muted-foreground",
-                              "content": "Search streams",
+                              "content": "Search apps",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -7525,7 +7525,7 @@
                           "id": "OBPv2",
                           "name": "Count",
                           "fill": "$ui:--muted-foreground",
-                          "content": "3 streams",
+                          "content": "3 apps",
                           "fontFamily": "$ui:--font-secondary",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -8316,7 +8316,7 @@
                           "id": "DhdIQ",
                           "name": "New stream",
                           "fill": "$ui:--foreground",
-                          "content": "New stream",
+                          "content": "New app",
                           "fontFamily": "$ui:--font-secondary",
                           "fontSize": 18,
                           "fontWeight": "600"
@@ -9003,7 +9003,7 @@
                           "enabled": false
                         },
                         "ui:q5Hn5": {
-                          "content": "Create stream"
+                          "content": "Create app"
                         }
                       }
                     }
@@ -25965,7 +25965,7 @@
           "content": "/workspaces/:workspaceId/sip-network/numbers"
         },
         "ui:z4SKuT": {
-          "content": "Numbers own routing: each points to an Agent, a Stream (appRef) or straight to a SIP agent (agentAor). Edit opens a side drawer. Inbound number comes from a Trunk."
+          "content": "Numbers own routing: each points to an Agent, an App (appRef) or straight to a SIP agent (agentAor). Edit opens a side drawer. Inbound number comes from a Trunk."
         }
       }
     },
@@ -29172,7 +29172,7 @@
                               "id": "CWcFM",
                               "name": "Stream",
                               "fill": "$ui:--muted-foreground",
-                              "content": "Stream",
+                              "content": "App",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -29753,7 +29753,7 @@
                       "fill": "$ui:--muted-foreground",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Routing lives on the number. An agent or stream can answer any number of numbers.",
+                      "content": "Routing lives on the number. An agent or app can answer any number of numbers.",
                       "lineHeight": 1.5,
                       "fontFamily": "$ui:--font-secondary",
                       "fontSize": 12,
@@ -34846,7 +34846,7 @@
                           "id": "HwBau",
                           "name": "Subtitle",
                           "fill": "$ui:--muted-foreground",
-                          "content": "Encrypted values for your agents' tools, like a CRM or helpdesk token. Your stream apps can reference them too. Values can't be read back.",
+                          "content": "Encrypted values for your agents' tools, like a CRM or helpdesk token. Your apps can reference them too. Values can't be read back.",
                           "fontFamily": "$ui:--font-secondary",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -37060,7 +37060,7 @@
                               "fill": "$ui:--muted-foreground",
                               "textGrowth": "fixed-width",
                               "width": 320,
-                              "content": "Removes agents, streams, numbers, trunks and call history. Can't be undone.",
+                              "content": "Removes agents, apps, numbers, trunks and call history. Can't be undone.",
                               "lineHeight": 1.5,
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 12,
@@ -38848,7 +38848,7 @@
       "id": "Skkgu",
       "type": "ref",
       "ref": "ui:aqOKa",
-      "name": "Streams / Detail",
+      "name": "Apps / Detail",
       "x": 3080,
       "y": 4780,
       "theme": {
@@ -38893,7 +38893,7 @@
                       "id": "oVdPZ",
                       "name": "Streams",
                       "fill": "$ui:--muted-foreground",
-                      "content": "Streams",
+                      "content": "Apps",
                       "fontFamily": "$ui:--font-secondary",
                       "fontSize": 13,
                       "fontWeight": "normal"
@@ -39868,7 +39868,7 @@
                               "id": "imnam",
                               "name": "Delete stream",
                               "fill": "$ui:--foreground",
-                              "content": "Delete stream",
+                              "content": "Delete app",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 14,
                               "fontWeight": "500"
@@ -39896,7 +39896,7 @@
                                   "enabled": false
                                 },
                                 "ui:UQdcX": {
-                                  "content": "Delete stream"
+                                  "content": "Delete app"
                                 }
                               }
                             }
@@ -42427,7 +42427,7 @@
                               "id": "hVOD1",
                               "name": "Create an agent or voice",
                               "fill": "$ui:--muted-foreground",
-                              "content": "Create an agent or stream",
+                              "content": "Create an agent or app",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 15,
                               "fontWeight": "500"
@@ -49268,7 +49268,7 @@
                       "fill": "$ui:--muted-foreground",
                       "textGrowth": "fixed-width",
                       "width": 420,
-                      "content": "A workspace holds your agents, streams, numbers and calls. You name it now and invite your team later from Settings › Members.",
+                      "content": "A workspace holds your agents, apps, numbers and calls. You name it now and invite your team later from Settings › Members.",
                       "lineHeight": 1.5,
                       "textAlign": "center",
                       "fontFamily": "$ui:--font-secondary",
@@ -59321,7 +59321,7 @@
       "id": "kwfZO",
       "x": 3080,
       "y": 5764,
-      "name": "Gap note · Stream detail",
+      "name": "Gap note · App detail",
       "width": 420,
       "fill": "#FEF3C7",
       "cornerRadius": 10,
@@ -59336,7 +59336,7 @@
           "id": "sgDhd",
           "name": "Title",
           "fill": "#78350F",
-          "content": "Not in v1 · Stream detail",
+          "content": "Not in v1 · App detail",
           "fontFamily": "Poppins",
           "fontSize": 14,
           "fontWeight": "600"
@@ -87393,7 +87393,7 @@
                               "id": "LuaPx",
                               "name": "Stream",
                               "fill": "$ui:--muted-foreground",
-                              "content": "Stream",
+                              "content": "App",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -87980,7 +87980,7 @@
                       "fill": "$ui:--muted-foreground",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Routing lives on the number. An agent or stream can answer any number of numbers.",
+                      "content": "Routing lives on the number. An agent or app can answer any number of numbers.",
                       "lineHeight": 1.5,
                       "fontFamily": "$ui:--font-secondary",
                       "fontSize": 12,
@@ -90975,7 +90975,7 @@
       "id": "l6u73",
       "x": 4620,
       "y": 4780,
-      "name": "Streams / Created / Signing secret",
+      "name": "Apps / Created / Signing secret",
       "theme": {
         "ui:mode": "dark"
       },
@@ -91033,7 +91033,7 @@
                           "id": "ETzV4",
                           "name": "Streams",
                           "fill": "$ui:--muted-foreground",
-                          "content": "Streams",
+                          "content": "Apps",
                           "fontFamily": "$ui:--font-secondary",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -92008,7 +92008,7 @@
                                   "id": "FI6ca",
                                   "name": "Delete stream",
                                   "fill": "$ui:--foreground",
-                                  "content": "Delete stream",
+                                  "content": "Delete app",
                                   "fontFamily": "$ui:--font-secondary",
                                   "fontSize": 14,
                                   "fontWeight": "500"
@@ -92036,7 +92036,7 @@
                                       "enabled": false
                                     },
                                     "ui:UQdcX": {
-                                      "content": "Delete stream"
+                                      "content": "Delete app"
                                     }
                                   }
                                 }
@@ -92102,7 +92102,7 @@
                       "fill": "$ui:--muted-foreground",
                       "textGrowth": "fixed-width",
                       "width": 500,
-                      "content": "This is the only time we'll show it. Use it to verify requests from Fonoster at your stream's URL.",
+                      "content": "This is the only time we'll show it. Use it to verify requests from Fonoster at your app's URL.",
                       "lineHeight": 1.5,
                       "fontFamily": "$ui:--font-secondary",
                       "fontSize": 13,

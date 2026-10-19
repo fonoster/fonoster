@@ -5,7 +5,7 @@ The Autopilot AI voice agent: how it runs a conversation over a voice session an
 ## Requirements
 ### Requirement: Autopilot reacts to turn events and never detects turns itself
 
-Autopilot SHALL decide when to listen, prepare and speak only from the gateway's turn events and,
+Autopilot SHALL decide when to listen, prepare and speak only from AppBridge's turn events and,
 when subscribed, `turn.estimate`. It MUST NOT run voice activity detection or read raw caller
 audio.
 
@@ -27,13 +27,13 @@ audio.
 
 ### Requirement: Pacing policy
 
-Autopilot SHALL apply a pacing policy that sets how patient it is per assistant and MAY adapt
+Autopilot SHALL apply a pacing policy that sets how patient it is per agent and MAY adapt
 within a call. The policy MUST only change when Autopilot prepares and speaks, never what it
 says.
 
-#### Scenario: Patient assistant waits for the detector's final event
+#### Scenario: Patient agent waits for the detector's final event
 
-- **WHEN** an assistant is configured as patient and the session sends `turn.likely_ended`
+- **WHEN** an agent is configured as patient and the session sends `turn.likely_ended`
 - **THEN** Autopilot may prepare a reply but sends no `speak` until `turn.ended`
 
 #### Scenario: Adapting to a caller who pauses often
@@ -74,7 +74,7 @@ history only the text the caller heard.
 
 #### Scenario: Barge-in disabled
 
-- **WHEN** the assistant disallows barge-in and the session sends `turn.user_started` while Autopilot speaks
+- **WHEN** the agent disallows barge-in and the session sends `turn.user_started` while Autopilot speaks
 - **THEN** Autopilot sends no `clear`
 
 #### Scenario: A new turn cancels an in-flight reply
@@ -116,34 +116,34 @@ Autopilot SHALL offer `hangup` and `transfer` as built-in tools that end with th
 
 #### Scenario: Transfer tool
 
-- **WHEN** the fake LLM calls `transfer` and the assistant has a transfer number
+- **WHEN** the fake LLM calls `transfer` and the agent has a transfer number
 - **THEN** Autopilot speaks the transfer message, moves to transferring and sends `transfer` with that number
 
 ### Requirement: Plugs, not vendors
 
 Autopilot SHALL reach language models through the provider registry by catalog id, and knowledge
-and tools through ports. Assistant configs MUST NOT contain vendor credentials.
+and tools through ports. Agent configs MUST NOT contain vendor credentials.
 
 #### Scenario: Model chosen by catalog id
 
-- **WHEN** an assistant names `openai/gpt-4o-mini`
+- **WHEN** an agent names `openai/gpt-4o-mini`
 - **THEN** Autopilot obtains a streaming LLM from the provider registry for that id
-- **AND** no vendor key appears in the assistant config or Autopilot's environment
+- **AND** no vendor key appears in the agent config or Autopilot's environment
 
-#### Scenario: Assistant config with an inline key
+#### Scenario: Agent config with an inline key
 
-- **WHEN** an assistant config contains `apiKey`
+- **WHEN** an agent config contains `apiKey`
 - **THEN** validation rejects it with a message pointing to workspace secrets
 
 #### Scenario: Voice override
 
-- **WHEN** an assistant sets a voice different from the app default
+- **WHEN** an agent sets a voice different from the app default
 - **THEN** each `speak` Autopilot sends carries that voice's catalog id
 
 #### Scenario: Recognition hints
 
-- **WHEN** an assistant lists recognition `hints` (names, brands)
-- **THEN** Autopilot sends them with `listen.update` when the session starts, and the gateway adds
+- **WHEN** an agent lists recognition `hints` (names, brands)
+- **THEN** Autopilot sends them with `listen.update` when the session starts, and AppBridge adds
   them to the app's default hints
 
 ### Requirement: Idle handling
@@ -169,29 +169,29 @@ and end the call after the configured maximum number of idle announcements.
 
 ### Requirement: Optional filler while thinking
 
-When the assistant config sets a filler, Autopilot SHALL play it with `play` while it prepares a
+When the agent config sets a filler, Autopilot SHALL play it with `play` while it prepares a
 reply and MUST stop it when it speaks. Autopilot MUST NOT rely on any platform "thinking" signal,
 and MUST NOT play a filler when none is configured.
 
 #### Scenario: Filler configured
 
-- **WHEN** the assistant sets a filler URL and the session sends `turn.ended`
+- **WHEN** the agent sets a filler URL and the session sends `turn.ended`
 - **THEN** Autopilot sends `play` with that URL and `interruptible: true` before its first `speak`
 - **AND** its first `speak` for the reply carries `preempt: true`, so the filler stops
 
 #### Scenario: No filler configured
 
-- **WHEN** the assistant sets no filler and the session sends `turn.ended`
+- **WHEN** the agent sets no filler and the session sends `turn.ended`
 - **THEN** Autopilot sends no `play` before its first `speak`
 
-### Requirement: No assistant webhooks
+### Requirement: No agent webhooks
 
-Autopilot SHALL NOT send `conversation.started` or `conversation.ended` webhooks; the assistant
+Autopilot SHALL NOT send `conversation.started` or `conversation.ended` webhooks; the agent
 config MUST NOT accept an `eventsHook` block. Call notifications come from workspace webhooks.
 
 #### Scenario: Old config with eventsHook
 
-- **WHEN** an assistant config containing `eventsHook` is validated
+- **WHEN** an agent config containing `eventsHook` is validated
 - **THEN** validation fails with an error naming `eventsHook` and pointing to workspace webhooks
 
 ### Requirement: Conversation events in the call record
@@ -224,7 +224,7 @@ reached, and SHALL stop all work when the session ends.
 ### Requirement: Autopilot is an ordinary application
 
 Autopilot SHALL run as a hosted `VoiceServer` and SHALL use only public session messages of the
-fonoster protocol. It MUST NOT depend on any private interface to the gateway or the Roomr node.
+fonoster protocol. It MUST NOT depend on any private interface to AppBridge or the Roomr node.
 Because every Autopilot app shares one signing secret, the hosted Autopilot SHALL require its
 `publicUrl` (the URL Autopilot apps point to) and verify signatures against it only, never against
 the request's `Host` header; it SHALL require the app-bound signature (`voice-session`,
@@ -234,20 +234,20 @@ the signed app and that app belongs to the signed workspace.
 #### Scenario: A call reaches Autopilot like any app
 
 - **WHEN** a number points to an app whose URL is the hosted Autopilot
-- **AND** the gateway opens a signed fonoster-protocol session with `session.start`
-- **THEN** Autopilot verifies the signature, loads the assistant for that app and speaks the first message with `speak`
+- **AND** AppBridge opens a signed fonoster-protocol session with `session.start`
+- **THEN** Autopilot verifies the signature, loads the agent for that app and speaks the first message with `speak`
 - **AND** every message it sends is part of the public session protocol
 
 #### Scenario: Bad signature
 
 - **WHEN** a connection arrives without a valid signature
-- **THEN** Autopilot rejects it before loading any assistant
+- **THEN** Autopilot rejects it before loading any agent
 
 #### Scenario: Signature for another tenant's app
 
 - **WHEN** a connection carries a valid signature bound to app A of workspace W1 and its
   `session.start` names app B, or app A no longer belongs to W1
-- **THEN** Autopilot closes the session without running app B's (or A's) assistant
+- **THEN** Autopilot closes the session without running app B's (or A's) agent
 
 #### Scenario: Missing public URL
 

@@ -1,9 +1,9 @@
 format: fonoster.scenario.v1
 name: session-info
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: session-info
-spec: "VoiceServer accepts gateway sessions over WebSocket / A call reaches a standalone server"
+spec: "VoiceServer accepts AppBridge sessions over WebSocket / A call reaches a standalone server"
 steps:
   - send:
       type: session.start

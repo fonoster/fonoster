@@ -15,7 +15,7 @@ The autopilot module provides a way to create Voice AI applications in Fonoster.
 
 ## Installation
 
-Autopilot is an ordinary session app that the VoiceSessionGateway dials. Run the
+Autopilot is an ordinary session app that AppBridge dials. Run the
 `fonoster/autopilot` image (built from `mods/autopilot/Dockerfile`), or from the repository:
 
 ```sh-session
@@ -23,7 +23,7 @@ $ cp config/autopilot-session.example.yaml config/autopilot-session.yaml
 $ node mods/autopilot/dist/session/main.js --config config/autopilot-session.yaml
 ```
 
-See [docs/autopilot.md](../../docs/autopilot.md) for the engine, pacing and the assistant
+See [docs/autopilot.md](../../docs/autopilot.md) for the engine, pacing and the agent
 schema.
 
 ## Example
@@ -64,7 +64,7 @@ The configuration file has two major sections: `conversationSettings` and `langu
 To run the Autopilot, you can use the following command:
 
 ```sh-session
-$ ASSISTANTS=$(pwd)/assistants.json OPEN_API_KEY=your-key autopilot
+$ AGENT=$(pwd)/agents.json OPEN_API_KEY=your-key autopilot
 ```
 
 You will see a message like this:
@@ -187,8 +187,8 @@ For example:
 
 Autopilot reads `autopilot-session.yaml`, found via `--config <path>`, the
 `AUTOPILOT_SESSION_CONFIG` variable or `./config/autopilot-session.yaml`. It names the signing
-secret the gateway uses for Autopilot apps, where apps and assistants come from, the registry
+secret AppBridge uses for Autopilot apps, where apps and agents come from, the registry
 catalog, platform keys by credential ref and the knowledge settings. See
 `config/autopilot-session.example.yaml` for every key.
 
-Audio filters are part of the app's configuration (the gateway runs them), not the assistant's.
+Audio filters are part of the app's configuration (AppBridge runs them), not the agent's.

@@ -18,16 +18,16 @@
  */
 
 /**
- * Integration test for assistant evaluation scenarios (paid vendor calls; run on demand).
+ * Integration test for agent evaluation scenarios (paid vendor calls; run on demand).
  *
- * EVAL_ASSISTANT_FILE names a session assistant (JSON or YAML) with testCases; the model key comes
+ * EVAL_AGENT_FILE names a session agent (JSON or YAML) with testCases; the model key comes
  * from EVAL_API_KEY and the evaluation model's (OpenAI) key from OPENAI_API_KEY. Skips without
  * them.
  */
 import * as fs from "fs";
 import { expect } from "chai";
 import * as yaml from "js-yaml";
-import { sessionAssistantSchema } from "@fonoster/common";
+import { sessionAgentSchema } from "@fonoster/common";
 import { ScenarioEvaluationReport } from "@fonoster/types";
 import { createEvalEffectiveConfig } from "../../src/models/evaluations/createEvalEffectiveConfig";
 import { evalTestCases } from "../../src/models/evaluations/evalTestCases";
@@ -47,23 +47,21 @@ describe("Autopilot Evaluation Scenarios", function () {
   let reports: ScenarioEvaluationReport[];
 
   before(async function () {
-    const file = process.env.EVAL_ASSISTANT_FILE;
+    const file = process.env.EVAL_AGENT_FILE;
     if (!file || !fs.existsSync(file) || !process.env.OPENAI_API_KEY) {
-      console.log(
-        "[eval] skipping: set EVAL_ASSISTANT_FILE and OPENAI_API_KEY"
-      );
+      console.log("[eval] skipping: set EVAL_AGENT_FILE and OPENAI_API_KEY");
       this.skip();
       return;
     }
-    const assistant = sessionAssistantSchema.parse(
+    const agent = sessionAgentSchema.parse(
       yaml.load(fs.readFileSync(file, "utf8"))
     );
     reports = await evalTestCases({
       intelligence: {
         config: createEvalEffectiveConfig(
           {
-            ...assistant,
-            languageModel: { ...assistant.languageModel, temperature: 0 }
+            ...agent,
+            languageModel: { ...agent.languageModel, temperature: 0 }
           },
           {
             apiKey: process.env.EVAL_API_KEY ?? process.env.OPENAI_API_KEY,

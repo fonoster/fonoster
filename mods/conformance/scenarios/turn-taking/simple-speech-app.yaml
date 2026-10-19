@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 name: simple-speech-app
 contract: turn-taking
 role: app
-spec: "Turn-taking runs in the gateway's Speech layer / A simple speech app gets turn events"
+spec: "Turn-taking runs in AppBridge's Speech layer / A simple speech app gets turn events"
 description: A Speech-layer app gets turn events for a spoken sentence without touching audio.
 setup:
   providers:

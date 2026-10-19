@@ -1,17 +1,17 @@
 # voice-session Specification
 
 ## Purpose
-The VoiceSessionGateway: how calls reach apps as WebSocket sessions and what apps can do in them.
+AppBridge: how calls reach apps as WebSocket sessions and what apps can do in them.
 ## Requirements
 ### Requirement: Sessions are delivered over WebSocket only
 
-The VoiceSessionGateway SHALL deliver every session to an app over exactly one WebSocket
+AppBridge SHALL deliver every session to an app over exactly one WebSocket
 connection per call, in the app's configured protocol (`fonoster` or `twilio`). The platform MUST NOT
 accept `voice.proto` gRPC sessions.
 
 #### Scenario: Fonoster protocol framing
 - **WHEN** a call reaches an app configured with protocol `fonoster`
-- **THEN** the gateway opens one WebSocket to the app's URL
+- **THEN** AppBridge opens one WebSocket to the app's URL
 - **AND** sends every message as a JSON text frame
 - **AND** sends audio only as binary frames
 
@@ -22,7 +22,7 @@ accept `voice.proto` gRPC sessions.
 
 ### Requirement: Connection requests are signed
 
-The gateway SHALL sign every connection request with an HMAC-SHA256 over the URL and a timestamp,
+AppBridge SHALL sign every connection request with an HMAC-SHA256 over the URL and a timestamp,
 using the app's signing secret, and SHALL send the signature and timestamp as request headers:
 `X-Fonoster-Timestamp` carries the signing time in Unix seconds, and `X-Fonoster-Signature` carries
 the lowercase hex HMAC-SHA256 of `<timestamp>.<url>`, where `<url>` is the app's WebSocket URL
@@ -30,7 +30,7 @@ exactly as configured, query string included. Apps MUST reject a timestamp more 
 away from their own clock.
 
 #### Scenario: App verifies a genuine request
-- **WHEN** the gateway connects to an app
+- **WHEN** AppBridge connects to an app
 - **THEN** the request carries a signature header and a timestamp header
 - **AND** recomputing the HMAC over the URL and timestamp with the app's secret yields the same signature
 
@@ -45,7 +45,7 @@ away from their own clock.
 
 ### Requirement: Connection requests are bound to the app
 
-Besides the URL-only signature, the gateway SHALL send, on every app and listener connection,
+Besides the URL-only signature, AppBridge SHALL send, on every app and listener connection,
 `X-Fonoster-App-Ref` (the app), `X-Fonoster-Workspace-Ref` (the workspace that owns it, empty when
 unknown) and `X-Fonoster-App-Signature`: the lowercase hex HMAC-SHA256, with the same secret and
 timestamp, of `<timestamp>\n<url>\n<appRef>\n<workspaceRef>` (newline-separated). An app that
@@ -53,17 +53,17 @@ shares its secret with other apps (the hosted Autopilot) MUST require this signa
 against its configured URL only, and serve only the app and workspace it names.
 
 #### Scenario: A signature cannot be reused for another tenant's app
-- **WHEN** a signature the gateway made for one workspace's app (for example on that app's
+- **WHEN** a signature AppBridge made for one workspace's app (for example on that app's
   listener URL) is presented to the hosted Autopilot for another workspace's app
-- **THEN** Autopilot refuses the connection or the session, and loads no assistant for the other app
+- **THEN** Autopilot refuses the connection or the session, and loads no agent for the other app
 
 #### Scenario: Apps that verify only the URL keep working
 - **WHEN** an app verifies only `X-Fonoster-Signature`
-- **THEN** connections from a gateway that also sends the app-bound headers still verify
+- **THEN** connections from an AppBridge that also sends the app-bound headers still verify
 
 ### Requirement: Inbound calls are answered on verified connect
 
-The gateway SHALL answer an inbound call as soon as the app's socket is open and the start
+AppBridge SHALL answer an inbound call as soon as the app's socket is open and the start
 message has been sent. Apps MUST NOT need to send an answer command.
 
 #### Scenario: Auto-answer
@@ -73,7 +73,7 @@ message has been sent. Apps MUST NOT need to send an answer command.
 
 ### Requirement: Outbound sessions open at answer
 
-For outbound calls the gateway SHALL open the app's session only after the callee answers. Call
+For outbound calls AppBridge SHALL open the app's session only after the callee answers. Call
 progress (ringing, busy, no answer, failed) SHALL be reported to the API caller and the call
 record, not to the app.
 
@@ -84,21 +84,21 @@ record, not to the app.
 
 #### Scenario: Answered callee
 - **WHEN** an outbound call is answered
-- **THEN** the gateway opens the app's socket and sends `session.start` with `direction: "outbound"`
+- **THEN** AppBridge opens the app's socket and sends `session.start` with `direction: "outbound"`
 
 #### Scenario: Room ends or node dies before the answer
 - **WHEN** the room of an unanswered outbound call ends, or nothing is heard about it for 75 s
-- **THEN** the gateway stops watching it, records `call.failed` (the room's reason, or `node_error`) and sends the `call.failed` webhook
+- **THEN** AppBridge stops watching it, records `call.failed` (the room's reason, or `node_error`) and sends the `call.failed` webhook
 
 ### Requirement: Unreachable apps fall back
 
-If the app's socket cannot be opened, the gateway SHALL retry for about 2–3 seconds while the
+If the app's socket cannot be opened, AppBridge SHALL retry for about 2–3 seconds while the
 caller hears ringing, then SHALL apply the app's fallback: a fallback app URL, or a spoken message
 followed by hangup. Each failure SHALL be recorded as an event in the call record.
 
 #### Scenario: App down, fallback app configured
 - **WHEN** the app's URL refuses connections for 3 seconds and a fallback app is configured
-- **THEN** the gateway connects to the fallback app
+- **THEN** AppBridge connects to the fallback app
 - **AND** the call record contains an `app.unreachable` event naming the first URL
 
 #### Scenario: App down, no fallback app
@@ -108,7 +108,7 @@ followed by hangup. Each failure SHALL be recorded as an event in the call recor
 ### Requirement: Session ending
 
 A session SHALL end when the caller hangs up, when the app sends `hangup`, when the app closes its
-socket, on transfer, on handoff, on fatal error or on timeout. The gateway SHALL send `session.end`
+socket, on transfer, on handoff, on fatal error or on timeout. AppBridge SHALL send `session.end`
 with a `reason` (`caller_hangup`, `app_hangup`, `transfer`, `handoff`, `error`, `timeout`) as its
 last message when the socket is still open. The reason SHALL come from the Roomr node's
 `participant.left` / `room.ended` `reason` (media-control): `caller_hangup` and `callee_hangup`
@@ -118,7 +118,7 @@ and a missed node heartbeat to `error`.
 #### Scenario: App hangs up
 - **WHEN** the app sends `{ "type": "hangup" }`
 - **THEN** the call is hung up
-- **AND** the gateway sends `session.end` with `reason: "app_hangup"` and closes the socket
+- **AND** AppBridge sends `session.end` with `reason: "app_hangup"` and closes the socket
 
 #### Scenario: App drops mid-call
 - **WHEN** the app's socket closes unexpectedly during a call
@@ -137,7 +137,7 @@ fields. Changes to `fonoster.session.v1` SHALL only add types and fields.
 
 #### Scenario: Unknown message from the app
 - **WHEN** the app sends `{ "type": "future.thing" }`
-- **THEN** the gateway ignores it without ending the session
+- **THEN** AppBridge ignores it without ending the session
 
 #### Scenario: Id echo
 - **WHEN** the app sends `speak` with `id: "r1"`
@@ -145,23 +145,23 @@ fields. Changes to `fonoster.session.v1` SHALL only add types and fields.
 
 ### Requirement: Errors are events
 
-The gateway SHALL report problems with an `error` message carrying `code`, `message`, `fatal`
+AppBridge SHALL report problems with an `error` message carrying `code`, `message`, `fatal`
 and, when a command caused it, `relatesTo` (that command's `id`). A non-fatal error MUST NOT end
 the session.
 
 #### Scenario: Malformed command
 - **WHEN** the app sends `speak` without `text`
-- **THEN** the gateway sends `error` with `code: "bad_message"`, `fatal: false`, and the command's `id` in `relatesTo`
+- **THEN** AppBridge sends `error` with `code: "bad_message"`, `fatal: false`, and the command's `id` in `relatesTo`
 - **AND** the session continues
 
 #### Scenario: Provider fails mid-call
 - **WHEN** the TTS provider times out while speaking item `r2`
-- **THEN** the gateway sends `error` with `code: "provider_timeout"` and `relatesTo: "r2"`
-- **AND** the gateway does not switch to another provider
+- **THEN** AppBridge sends `error` with `code: "provider_timeout"` and `relatesTo: "r2"`
+- **AND** AppBridge does not switch to another provider
 
 ### Requirement: Streamed speech output
 
-The gateway SHALL accept `speak` with `id`, `text`, `last`, optional `voice`, optional `language`,
+AppBridge SHALL accept `speak` with `id`, `text`, `last`, optional `voice`, optional `language`,
 `interruptible` and optional `preempt`. Pieces with the same `id` SHALL be spoken as one continuous
 utterance, which ends with the piece marked `last: true`. `voice` and `language` SHALL be catalog
 ids that override the app's defaults for that item only.
@@ -178,11 +178,11 @@ ids that override the app's defaults for that item only.
 
 #### Scenario: Invalid catalog id
 - **WHEN** the app sends `speak` with a `voice` that is not in the catalog
-- **THEN** the gateway sends `error` with `code: "invalid_catalog_id"` and `relatesTo` set to the item's `id`
+- **THEN** AppBridge sends `error` with `code: "invalid_catalog_id"` and `relatesTo` set to the item's `id`
 
 ### Requirement: Playing media
 
-The gateway SHALL accept `play` with `id`, `url`, optional `loop`, `interruptible` and optional
+AppBridge SHALL accept `play` with `id`, `url`, optional `loop`, `interruptible` and optional
 `preempt`, fetch the media, convert it to the call's format and play it through the output queue.
 The URL is the app's choice, so the fetch SHALL reach public addresses only (http/https; private,
 loopback, link-local and metadata addresses refused, each redirect and the connected address
@@ -220,12 +220,12 @@ stop the current item and play first. `clear` SHALL empty the entire queue.
 
 ### Requirement: Output lifecycle and interruption report
 
-For every `speak` and `play` item the gateway SHALL send `output.started` when it begins to be
+For every `speak` and `play` item AppBridge SHALL send `output.started` when it begins to be
 heard, and then either `output.done` (with `heardMs`) when it has been fully heard or
 `output.interrupted` carrying `heardText` and `heardMs` when it was cut off. An item dropped before
 it started SHALL get `output.interrupted` with `heardMs: 0` and no `output.started`.
 
-The app owns interruption: the gateway SHALL NOT stop output because the caller speaks. It SHALL
+The app owns interruption: AppBridge SHALL NOT stop output because the caller speaks. It SHALL
 report `turn.user_started` (also while output is playing) and stop output only on `clear` or
 `preempt`. `interruptible` SHALL be accepted on `speak` and `play` and passed through unchanged;
 the SDKs use it to decide whether to send `clear` when the caller starts talking.
@@ -241,7 +241,7 @@ the SDKs use it to decide whether to send `clear` when the caller starts talking
 
 ### Requirement: Turn events reach every client
 
-The gateway SHALL deliver turn events produced by its Turn Detector (`turn.user_started`,
+AppBridge SHALL deliver turn events produced by its Turn Detector (`turn.user_started`,
 `turn.likely_ended`, `turn.ended`, `turn.resumed`, `turn.backchannel`) to every controlling client.
 `turn.estimate` and `transcript.partial` SHALL be sent only to clients that request them with
 `subscribe`. The detector itself is specified in `turn-taking`. Speech recognition and turn
@@ -268,10 +268,10 @@ app never waits forever.
 
 ### Requirement: Answering-machine detection reaches the app
 
-The gateway SHALL send exactly one `amd.result` per call to an app with answering-machine
+AppBridge SHALL send exactly one `amd.result` per call to an app with answering-machine
 detection on (the app setting `amd`, with an optional window of caller audio, default 4 s), with
 `status` (`human`, `voicemail`, `ivr`, `machine` or `unknown`), `confidence`, `detector`, `audioMs`
-and, when detection could not run, `reason`. It SHALL be sent whether or not the app uses the Speech layer. The gateway
+and, when detection could not run, `reason`. It SHALL be sent whether or not the app uses the Speech layer. AppBridge
 SHALL NOT act on the verdict: hanging up or leaving a message is the app's decision.
 
 #### Scenario: Voicemail answers an outbound call
@@ -285,7 +285,7 @@ SHALL NOT act on the verdict: hanging up or leaving a message is the app's decis
 
 ### Requirement: Changing how the caller is heard
 
-The gateway SHALL accept `listen.update` with optional `language` (a catalog id or language code),
+AppBridge SHALL accept `listen.update` with optional `language` (a catalog id or language code),
 optional `hints` and optional `patience` (`low`, `normal` or `high`, how long the Turn Detector
 waits for more speech before `turn.ended`; see `turn-taking`), and apply them from that point on.
 
@@ -295,14 +295,14 @@ waits for more speech before `turn.ended`; see `turn-taking`), and apply them fr
 
 ### Requirement: Raw audio in both directions
 
-The gateway SHALL send the caller's audio as binary frames of 20 ms in the format announced in
+AppBridge SHALL send the caller's audio as binary frames of 20 ms in the format announced in
 `session.start`. It SHALL accept agent audio as binary frames of any length in that format, queue
 them in the output queue and play them at real-time speed.
 
 A native app SHALL choose its format from this menu: `pcm16` (16-bit little-endian) at 8000, 16000
 or 24000 Hz, or `pcmu` (G.711 μ-law) at 8000 Hz; the default is `pcm16` at 16000 Hz. The format is
 independent of the caller's SIP codec: the Roomr node negotiates PCMU, PCMA, G.722 or Opus with the
-caller and transcodes to the gateway's leg, which is always L16 at 16000 Hz. Opus is not offered
+caller and transcodes to AppBridge's leg, which is always L16 at 16000 Hz. Opus is not offered
 over WebSocket in v1.
 
 #### Scenario: Any SIP codec reaches any app format
@@ -312,7 +312,7 @@ over WebSocket in v1.
 
 #### Scenario: Off-menu format
 - **WHEN** an app is configured with `opus` or `pcmu` at 16000 Hz
-- **THEN** the control plane (or the gateway's YAML check) rejects the app with a message naming the menu
+- **THEN** the control plane (or AppBridge's YAML check) rejects the app with a message naming the menu
 
 #### Scenario: Caller audio cadence
 - **WHEN** a session is active
@@ -324,7 +324,7 @@ over WebSocket in v1.
 
 ### Requirement: Marks
 
-The gateway SHALL accept `mark` with `name` and SHALL return `mark` with the same `name` and
+AppBridge SHALL accept `mark` with `name` and SHALL return `mark` with the same `name` and
 `cleared: false` when all output queued before it has been heard, or `cleared: true` when it was
 dropped by `clear`.
 
@@ -338,7 +338,7 @@ dropped by `clear`.
 
 ### Requirement: Call control
 
-The gateway SHALL send `dtmf` with `digit` whenever the caller presses a key, at any point of the
+AppBridge SHALL send `dtmf` with `digit` whenever the caller presses a key, at any point of the
 call. It SHALL accept `dtmf.send` (`id`, `digits`), `transfer` (`id`, `to`, optional `headers`,
 optional `mode`), `transfer.complete` (`id`), `hold` (`id`, optional `music`) and `resume` (`id`)
 and pass them to the Roomr node.
@@ -348,9 +348,9 @@ without parameters, and its `headers` SHALL be at most 16 custom `X-` headers (n
 letters, digits or dashes; value a string of at most 256 characters without control characters).
 The headers the platform routes by (`X-App-Ref`, `X-Call-Ref`, `X-Call-Direction`,
 `X-Dod-Number`, `X-Dod-Privacy`, `X-Access-Key-Id`, `X-Is-Api-Originated-Type`, `X-Connect-Token`
-and Routr's own `X-Edgeport-Ref`, `X-Gateway-Auth`, `X-Request-Uri`, `X-Session-Count`) are
+and Routr's own `X-Edgeport-Ref`, `X-AppBridge-Auth`, `X-Request-Uri`, `X-Session-Count`) are
 reserved, in any case. A transfer that breaks these rules SHALL be refused with `error`
-`bad_message` (`relatesTo` the transfer) and nothing is sent to the Roomr node. The gateway SHALL
+`bad_message` (`relatesTo` the transfer) and nothing is sent to the Roomr node. AppBridge SHALL
 add `X-Dod-Number` (the ingress number of an inbound call, the `from` of an outbound one) and
 `X-Access-Key-Id` (the app's workspace) itself, so a transfer to the PSTN leaves by the call's own
 workspace's trunk.
@@ -424,7 +424,7 @@ SHALL be answered with `error` `on_hold`.
 
 ### Requirement: Handoff between apps
 
-The gateway SHALL accept `handoff` with `app` and `payload`. It SHALL send `session.end` with
+AppBridge SHALL accept `handoff` with `app` and `payload`. It SHALL send `session.end` with
 `reason: "handoff"`, close the socket, connect to the target app and pass `payload` in that app's
 `session.start.handoff`. The call SHALL stay connected throughout.
 
@@ -439,7 +439,7 @@ The gateway SHALL accept `handoff` with `app` and `payload`. It SHALL send `sess
 The platform SHALL let a session have listen-only sockets in addition to the controlling app. A
 listener SHALL choose `tracks`: `inbound` (default), `outbound` or `both`. These options select
 track ids from the session's `tracks` list. With `both`, the two sides SHALL arrive as separate
-frames and MUST NOT be mixed. With the `fonoster` protocol every binary frame sent by the gateway SHALL
+frames and MUST NOT be mixed. With the `fonoster` protocol every binary frame sent by AppBridge SHALL
 begin with one byte holding the track id it belongs to, so new track kinds (such as video) can be
 added without changing the frame format. A listener SHALL receive the
 same events as the controlling app, and any command it sends SHALL be answered with `error`
@@ -457,7 +457,7 @@ same events as the controlling app, and any command it sends SHALL be answered w
 
 ### Requirement: Audio filters come from app configuration
 
-The gateway SHALL apply the app's configured audio filters to the caller's audio before speech
+AppBridge SHALL apply the app's configured audio filters to the caller's audio before speech
 recognition and turn detection. Filtering failures MUST degrade to unfiltered audio and SHALL be
 reported in the call record.
 
@@ -472,16 +472,16 @@ reported in the call record.
 
 ### Requirement: Every message is part of the call record
 
-The gateway SHALL append every session message in both directions, except audio frames, to the
+AppBridge SHALL append every session message in both directions, except audio frames, to the
 call's record as it happens.
 
 #### Scenario: Commands and events recorded
-- **WHEN** a call ends after the app sent `speak` `r1` and the gateway sent `output.done` `r1`
+- **WHEN** a call ends after the app sent `speak` `r1` and AppBridge sent `output.done` `r1`
 - **THEN** the sealed call record contains both messages with their timestamps
 
 ### Requirement: Apps can annotate the call record
 
-The gateway SHALL accept `record.note` with a JSON object in `data` (at most 16 KB) and SHALL append
+AppBridge SHALL accept `record.note` with a JSON object in `data` (at most 16 KB) and SHALL append
 it to the call's record as an app note, without any other effect on the session. `record.note` is
 reserved for Fonoster's own apps (Autopilot's turn traces): it SHALL NOT appear in the public
 protocol reference or SDK documentation, and it may change without a new protocol name. A `record.note`
@@ -494,17 +494,17 @@ whose `data` is missing or too large SHALL be answered with `error` `bad_message
 
 ### Requirement: The Roomr node receives only control
 
-The gateway SHALL send the Roomr node only call-control commands through the `media-control`
+AppBridge SHALL send the Roomr node only call-control commands through the `media-control`
 contract (answer, hangup, transfer, hold, resume, send DTMF, attach listener) and SHALL receive from it caller audio and call events. Speech,
-turn detection, format conversion and the output queue MUST stay in the gateway.
+turn detection, format conversion and the output queue MUST stay in AppBridge.
 
 #### Scenario: Speech never reaches the Roomr node
 - **WHEN** an app sends `speak`
 - **THEN** the Roomr node receives only audio frames for playout, never text or a speech command
 
-### Requirement: The gateway produces call lifecycle events
+### Requirement: AppBridge produces call lifecycle events
 
-The gateway that owns a call SHALL produce `call.started`, `call.ended` and `call.failed` for it,
+AppBridge that owns a call SHALL produce `call.started`, `call.ended` and `call.failed` for it,
 SHALL hand them to the workspace webhook dispatcher (`add-workspace-webhooks`), and SHALL write the
 minimal call record for a call that never reached an app (unreachable app with no fallback, missing
 app, busy or unanswered outbound). For a cold transfer, the call's `durationSeconds` SHALL run
@@ -523,17 +523,17 @@ until the room ends; the app's session duration SHALL be recorded separately.
 The platform SHALL model every app as a WebSocket URL, a protocol (`fonoster` or `twilio`), a signing secret, speech
 defaults (voice and language as catalog ids), optional audio filters and an optional fallback. A
 number MUST point to an app. Routr resolves the number and passes the app in `X-App-Ref`; the
-gateway SHALL take the app from the `appRef` of `call.incoming` (media-control) and SHALL use a
+appbridge SHALL take the app from the `appRef` of `call.incoming` (media-control) and SHALL use a
 number lookup only as a development fallback when `appRef` is missing and a routing file is
 configured. Outbound calls MUST name an app.
 
 #### Scenario: Inbound routing
 - **WHEN** Routr sends a call with `X-App-Ref` naming app `A`, whose URL is `wss://bot.example.com/agent`
-- **THEN** the gateway connects to `wss://bot.example.com/agent`
+- **THEN** AppBridge connects to `wss://bot.example.com/agent`
 
 #### Scenario: Autopilot is an ordinary app
 - **WHEN** a number points to an Autopilot agent
-- **THEN** the gateway connects to the hosted Autopilot's URL with the `fonoster` protocol
+- **THEN** AppBridge connects to the hosted Autopilot's URL with the `fonoster` protocol
 - **AND** the protocol is identical to that of any other app
 
 #### Scenario: App URLs are public destinations
@@ -542,12 +542,12 @@ configured. Outbound calls MUST name an app.
 - **THEN** the call fails with `INVALID_ARGUMENT`, unless the operator allows the destination
   (`apps.allowedDestinations` or `FONOSTER_ALLOWED_DESTINATIONS`); the hosted Autopilot URL from
   configuration is exempt
-- **AND** when dialing an app or listener from the database, the gateway refuses addresses that
+- **AND** when dialing an app or listener from the database, AppBridge refuses addresses that
   resolve to private ranges (Autopilot apps' URL and the operator's YAML apps are not checked)
 
 ### Requirement: session.start opens every fonoster-protocol session
 
-With the `fonoster` protocol the first message from the gateway SHALL be `session.start`, carrying
+With the `fonoster` protocol the first message from AppBridge SHALL be `session.start`, carrying
 `protocol` (`fonoster.session.v1`), `sessionRef`, `callRef`, `appRef`, `direction`, `from`, `to`,
 `metadata`, `handoff` (null unless handed off), `audio` (`codec`, `rate`), `tracks` (the list of
 track ids the session will carry, each with `id`, `side` (`inbound` or `outbound`), `kind`

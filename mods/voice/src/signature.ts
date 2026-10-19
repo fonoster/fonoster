@@ -39,7 +39,7 @@ export function sign(url: string, timestamp: number, secret: string): string {
     .digest("hex");
 }
 
-/** Checks the gateway's signature against each candidate URL (the URL as configured on the app). */
+/** Checks AppBridge's signature against each candidate URL (the URL as configured on the app). */
 export function verifySignature(
   urls: string[],
   headers: IncomingHttpHeaders,
@@ -89,7 +89,7 @@ export function hasAppSignature(headers: IncomingHttpHeaders): boolean {
 }
 
 /**
- * Checks the gateway's app-bound signature against each candidate URL and returns the app and
+ * Checks AppBridge's app-bound signature against each candidate URL and returns the app and
  * workspace it was made for; the session must then be for that app.
  */
 export function verifyAppSignature(

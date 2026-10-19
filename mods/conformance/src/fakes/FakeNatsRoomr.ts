@@ -76,8 +76,8 @@ export type EndReason =
   | "max_duration"
   | "removed";
 
-/** Where nodes send `call.incoming` requests (media-control, claimed by one gateway). */
-export const INCOMING_SUBJECT = "gateway.incoming";
+/** Where nodes send `call.incoming` requests (media-control, claimed by one AppBridge). */
+export const INCOMING_SUBJECT = "appbridge.incoming";
 const SIP_STATUS: Partial<Record<DialOutcome, number>> = {
   busy: 486,
   no_answer: 480,
@@ -96,7 +96,7 @@ export type FakeNatsRoomrOptions = {
   answerAfterMs?: number;
   /** Sent as `appRef` in call.incoming, as Routr's X-App-Ref would be. */
   appRef?: string;
-  /** How long to wait for a gateway to claim a call (default 500 ms, then one retry). */
+  /** How long to wait for an AppBridge to claim a call (default 500 ms, then one retry). */
   claimTimeoutMs?: number;
   /** Heartbeat period once attached to NATS (default 2000 ms; 0 disables). */
   heartbeatMs?: number;
@@ -184,7 +184,7 @@ class ForkRtp {
 
 class SessionRtp {
   readonly received: ReceivedPacket[] = [];
-  /** When each audible caller packet left for the gateway (pass bar T1, caller audio to STT). */
+  /** When each audible caller packet left for AppBridge (pass bar T1, caller audio to STT). */
   readonly sentAudible: number[] = [];
   /** Listener forks of the caller's track (what this sends) and of the session's (what it gets). */
   readonly callerForks: ForkRtp[] = [];
@@ -287,7 +287,7 @@ let counter = 0;
 const ref = (prefix: string) => `${prefix}-${++counter}`;
 
 /**
- * Plays the Roomr node for gateway suites: offers calls, plays recorded caller audio as RTP,
+ * Plays the Roomr node for AppBridge suites: offers calls, plays recorded caller audio as RTP,
  * records the agent audio it is sent and acknowledges media-control commands. It knows nothing
  * about speech; that is the point of the contract.
  */
@@ -334,7 +334,7 @@ export class FakeNatsRoomr extends EventEmitter {
   // ---- driving the call ------------------------------------------------------------------
 
   /**
-   * Offers an inbound call, as a SIP INVITE from Routr would: `call.incoming` goes to the gateway
+   * Offers an inbound call, as a SIP INVITE from Routr would: `call.incoming` goes to AppBridge
    * queue group as a request; no claim within the timeout, twice, refuses the call with 503.
    */
   offerCall(
@@ -394,7 +394,7 @@ export class FakeNatsRoomr extends EventEmitter {
         const reply = JSON.parse(sc.decode(msg.data));
         if (reply.type === "claimed") return true;
       } catch {
-        // no gateway answered in time
+        // no AppBridge answered in time
       }
     }
     room.sip.push(503);
@@ -663,7 +663,7 @@ export class FakeNatsRoomr extends EventEmitter {
       }
     });
     this.on("event", (event: MediaEvent) => {
-      // call.incoming is a request to the gateways (offerCall), not a room event.
+      // call.incoming is a request to the AppBridge replicas (offerCall), not a room event.
       if (event.type === "call.incoming" || this.crashed) return;
       nc.publish(
         `${events}.${event.roomRef}`,

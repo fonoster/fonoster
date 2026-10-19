@@ -36,7 +36,7 @@ import { createUpdateApplication } from "../../src/applications/createUpdateAppl
 import { getConfig } from "../../src/config";
 import { createProvidersHandlers } from "../../src/providers";
 import { createWebhooksHandlers } from "../../src/webhooks";
-import { PrismaAssistantSource } from "../../../autopilot/src/session/hosted";
+import { PrismaAgentSource } from "../../../autopilot/src/session/hosted";
 import { TEST_TOKEN } from "../utils";
 
 // The control-plane APIs (rebuild: control) against a throwaway Postgres
@@ -68,7 +68,7 @@ function invoke<T = Record<string, unknown>>(
   });
 }
 
-const ASSISTANT = {
+const AGENT = {
   conversationSettings: {
     firstMessage: "Hi, this is Ada.",
     systemPrompt: "You are a helpful receptionist.",
@@ -202,13 +202,13 @@ describe("@control: applications, webhooks and provider keys (database)", functi
       }
     });
 
-    it("creates an Autopilot app on the hosted Autopilot URL with its assistant", async function () {
+    it("creates an Autopilot app on the hosted Autopilot URL with its agent", async function () {
       const res = await invoke<{ ref: string }>(
         createCreateApplication(db.prisma, CONFIG),
         {
           name: "Receptionist",
           type: "AUTOPILOT",
-          intelligence: { config: struct.encode(ASSISTANT) },
+          intelligence: { config: struct.encode(AGENT) },
           speech: { patience: "high" },
           amd: { enabled: true, windowMs: 3000 }
         }
@@ -222,23 +222,23 @@ describe("@control: applications, webhooks and provider keys (database)", functi
       expect(row.patience).to.equal("high");
       expect(row).to.include({ amd: true, amdWindowMs: 3000 });
       expect(row.intelligence.productRef).to.equal("llm.openai");
-      expect(row.intelligence.config).to.deep.equal(ASSISTANT);
+      expect(row.intelligence.config).to.deep.equal(AGENT);
 
       const app = await invoke(createGetApplication(db.prisma), {
         ref: res.ref
       });
-      expect(struct.decode(app.intelligence.config)).to.deep.equal(ASSISTANT);
+      expect(struct.decode(app.intelligence.config)).to.deep.equal(AGENT);
       // The hosted Autopilot loads it from the same row (CP-B11).
-      expect(
-        await new PrismaAssistantSource(db.prisma).get(res.ref)
-      ).to.deep.equal({ assistant: ASSISTANT, workspaceRef: WS });
+      expect(await new PrismaAgentSource(db.prisma).get(res.ref)).to.deep.equal(
+        { agent: AGENT, workspaceRef: WS }
+      );
 
       const bad = await invoke(createCreateApplication(db.prisma, CONFIG), {
         name: "Bad",
         type: "AUTOPILOT",
         intelligence: {
           config: struct.encode({
-            ...ASSISTANT,
+            ...AGENT,
             languageModel: { provider: "openai", model: "gpt-4o" }
           })
         }
@@ -253,8 +253,8 @@ describe("@control: applications, webhooks and provider keys (database)", functi
           type: "AUTOPILOT",
           intelligence: {
             config: struct.encode({
-              ...ASSISTANT,
-              languageModel: { ...ASSISTANT.languageModel, model }
+              ...AGENT,
+              languageModel: { ...AGENT.languageModel, model }
             })
           }
         });
@@ -289,7 +289,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
         {
           name: "Shared",
           type: "AUTOPILOT",
-          intelligence: { config: ASSISTANT }
+          intelligence: { config: AGENT }
         }
       );
       expect(res.signingSecret).to.equal("");
@@ -748,7 +748,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
       );
       expect(other.items).to.deep.equal([]);
 
-      // What the gateway and the hosted Autopilot read back (CP-B11, CP-B12).
+      // What AppBridge and the hosted Autopilot read back (CP-B11, CP-B12).
       const keys = new Registry.PrismaWorkspaceKeys(db.prisma);
       expect(await keys.get(WS, "deepgram")).to.equal("dg-key-2");
       expect(await keys.get(OTHER, "deepgram")).to.equal(undefined);

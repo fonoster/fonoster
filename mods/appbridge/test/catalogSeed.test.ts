@@ -30,13 +30,13 @@ import {
 import { ElevenLabsTtsAdapter } from "@fonoster/community/elevenlabs";
 
 // The vendor catalog seed (VO-B5): it applies cleanly, every entry would pass the registry's own
-// add-* checks, and the gateway resolves the owner's speech defaults through it.
+// add-* checks, and AppBridge resolves the owner's speech defaults through it.
 const SEED = path.resolve(
   __dirname,
   "../../../ops/rebuild/config/catalog-seed.yaml"
 );
 
-describe("@gateway catalog seed", function () {
+describe("@appbridge catalog seed", function () {
   const text = fs.readFileSync(SEED, "utf8");
   const entries = (parse(text) as { entries: RegistryNs.CatalogEntry[] })
     .entries;
@@ -54,7 +54,7 @@ describe("@gateway catalog seed", function () {
     expect(registry.list().length).to.equal(entries.length);
   });
 
-  it("the gateway resolves Deepgram and ElevenLabs defaults through it", function () {
+  it("AppBridge resolves Deepgram and ElevenLabs defaults through it", function () {
     const file = path.join(
       fs.mkdtempSync(path.join(os.tmpdir(), "seed-")),
       "registry.json"

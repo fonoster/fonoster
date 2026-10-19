@@ -17,7 +17,11 @@
  * limitations under the License.
  */
 import { expect } from "chai";
-import { FakeGateway, loadScenarios, runScenario } from "@fonoster/conformance";
+import {
+  FakeAppBridge,
+  loadScenarios,
+  runScenario
+} from "@fonoster/conformance";
 import { Handler, Session, SessionError, VoiceServer } from "../src";
 
 // The voice-sdk conformance scenarios, run against this SDK. Each fixture is the app described
@@ -149,9 +153,9 @@ describe("@voice conformance (voice-sdk scenarios)", function () {
         signingSecret: SECRET
       }).listen(fixture);
       try {
-        const gateway = new FakeGateway({ signingSecret: SECRET });
+        const appbridge = new FakeAppBridge({ signingSecret: SECRET });
         const result = await runScenario(scenario, {
-          connect: () => gateway.dial(`ws://127.0.0.1:${server.port}/`)
+          connect: () => appbridge.dial(`ws://127.0.0.1:${server.port}/`)
         });
         expect(result.status, result.reason).to.equal("passed");
       } finally {

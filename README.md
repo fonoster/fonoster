@@ -90,7 +90,7 @@ Voice Application Example:
 ```typescript
 const { VoiceServer } = require("@fonoster/voice");
 
-// The gateway signs every connection; set APP_SIGNING_SECRET to the app's signing secret.
+// AppBridge signs every connection; set APP_SIGNING_SECRET to the app's signing secret.
 new VoiceServer({ port: 3000 }).listen(async (session) => {
   await session.say("Hi there! What's your name?");
 

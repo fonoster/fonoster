@@ -19,11 +19,11 @@
 import { createHash } from "crypto";
 import { Sessions, Webhooks } from "@fonoster/common";
 
-/** `call.ended`'s `endReason` when the appbridge that owned the call died mid-call. */
+/** `call.ended`'s `endReason` when AppBridge that owned the call died mid-call. */
 export const APPBRIDGE_LOST_REASON = "appbridge-lost";
 
 /**
- * The `call.ended` the control plane sends for a call whose appbridge is gone. Its id depends on
+ * The `call.ended` the control plane sends for a call whose AppBridge is gone. Its id depends on
  * the call only, so every replica that detects the loss builds the same event and the fan-out
  * stores one delivery per endpoint (delivery ids depend on the event id): delivered once.
  */
@@ -56,10 +56,10 @@ export function lostCallEnded(
 }
 
 /**
- * Finds calls whose appbridge died mid-call, from the session registry: an appbridge rewrites its
- * `gateways.<ref>` entry and each of its `calls.<callRef>` entries every SESSIONS_REFRESH_MS and
+ * Finds calls whose AppBridge died mid-call, from the session registry: an appbridge rewrites its
+ * `appbridges.<ref>` entry and each of its `calls.<callRef>` entries every SESSIONS_REFRESH_MS and
  * deletes a call's entry when the call ends. A call entry not rewritten for `staleMs` (the lease
- * TTL) whose appbridge's entry is not rewritten either is a lost call: `emit` gets its
+ * TTL) whose AppBridge's entry is not rewritten either is a lost call: `emit` gets its
  * `call.ended` (reason `appbridge-lost`) and the call is forgotten. Times are when this replica
  * saw each write, so a replica that just started waits a full `staleMs` before judging.
  */
@@ -74,15 +74,15 @@ export function createLostCallSweep(deps: {
     string,
     { value: Record<string, unknown>; seenAt: number }
   >();
-  const gateways = new Map<string, number>();
+  const appbridges = new Map<string, number>();
 
   const onEntry = (e: Sessions.SessionEntry) => {
     if (e.kind === "calls") {
       if (e.value) calls.set(e.id, { value: e.value, seenAt: now() });
-      else calls.delete(e.id); // ended: its appbridge sent call.ended
-    } else if (e.kind === "gateways") {
-      if (e.value) gateways.set(e.id, now());
-      else gateways.delete(e.id);
+      else calls.delete(e.id); // ended: its AppBridge sent call.ended
+    } else if (e.kind === "appbridges") {
+      if (e.value) appbridges.set(e.id, now());
+      else appbridges.delete(e.id);
     }
   };
 
@@ -91,14 +91,14 @@ export function createLostCallSweep(deps: {
     const lost: Webhooks.WebhookEvent[] = [];
     for (const [id, c] of calls) {
       if (at - c.seenAt <= staleMs) continue;
-      // Watched ids are the key after `gateways.` (sanitized like the key).
-      const gatewayId = Sessions.sessionKey(
-        "gateways",
-        String(c.value.gatewayRef ?? "")
-      ).slice("gateways.".length);
-      const gatewaySeen = gateways.get(gatewayId) ?? 0;
-      // The appbridge is alive: it will rewrite the entry (or delete it when the call ends).
-      if (at - gatewaySeen <= staleMs) continue;
+      // Watched ids are the key after `appbridges.` (sanitized like the key).
+      const bridgeId = Sessions.sessionKey(
+        "appbridges",
+        String(c.value.bridgeRef ?? "")
+      ).slice("appbridges.".length);
+      const appBridgeSeen = appbridges.get(bridgeId) ?? 0;
+      // AppBridge is alive: it will rewrite the entry (or delete it when the call ends).
+      if (at - appBridgeSeen <= staleMs) continue;
       calls.delete(id);
       const event = lostCallEnded(c.value, c.seenAt);
       if (!event) continue;

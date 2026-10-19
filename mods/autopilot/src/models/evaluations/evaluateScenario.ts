@@ -32,8 +32,7 @@ export async function evaluateScenario(
   config: ScenarioEvaluationRequest,
   onStepResult?: OnStepResultCallback
 ): Promise<ScenarioEvaluationReport> {
-  const { scenario, languageModel, testTextSimilarity, assistantConfig } =
-    config;
+  const { scenario, languageModel, testTextSimilarity, agentConfig } = config;
   const results: StepEvaluationReport[] = [];
   const steps = scenario.conversation;
 
@@ -43,7 +42,7 @@ export async function evaluateScenario(
       step,
       languageModel,
       testTextSimilarity,
-      assistantConfig
+      agentConfig
     });
     results.push(stepResult);
     if (onStepResult) await onStepResult(scenario.ref, stepResult);

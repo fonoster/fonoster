@@ -47,7 +47,7 @@ export type RecordIndexEntry = {
   parts: string[];
 };
 
-/** NATS subject the gateway publishes index entries on; the control plane consumes it. */
+/** NATS subject AppBridge publishes index entries on; the control plane consumes it. */
 export const RECORD_SEALED_SUBJECT = "callrecord.sealed";
 
 export function indexEntry(

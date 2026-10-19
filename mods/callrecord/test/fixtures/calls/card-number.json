@@ -11,16 +11,16 @@
   },
   "entries": [
     { "atMs": 0, "source": "event", "message": { "type": "call.started", "direction": "inbound", "appRef": "payments", "workspaceRef": "ws-fixtures", "from": "+15550001111", "to": "+15550002222" } },
-    { "atMs": 100, "source": "gateway", "message": { "type": "session.start", "callRef": "fx-card-number", "appRef": "payments", "from": "+15550001111", "to": "+15550002222", "direction": "inbound" } },
+    { "atMs": 100, "source": "appbridge", "message": { "type": "session.start", "callRef": "fx-card-number", "appRef": "payments", "from": "+15550001111", "to": "+15550002222", "direction": "inbound" } },
     { "atMs": 300, "source": "event", "message": { "type": "recording.started", "policy": "on" } },
     { "atMs": 850, "source": "app", "message": { "type": "speak", "id": "s1", "text": "What is your card number?", "last": true } },
-    { "atMs": 900, "source": "gateway", "message": { "type": "output.started", "id": "s1" } },
-    { "atMs": 2100, "source": "gateway", "message": { "type": "output.done", "id": "s1" } },
-    { "atMs": 2500, "source": "gateway", "message": { "type": "turn.user_started" } },
-    { "atMs": 6900, "source": "gateway", "message": { "type": "turn.ended", "text": "It is four one one one one one one one one one one one one one one one", "language": "en", "durationMs": 3800 } },
+    { "atMs": 900, "source": "appbridge", "message": { "type": "output.started", "id": "s1" } },
+    { "atMs": 2100, "source": "appbridge", "message": { "type": "output.done", "id": "s1" } },
+    { "atMs": 2500, "source": "appbridge", "message": { "type": "turn.user_started" } },
+    { "atMs": 6900, "source": "appbridge", "message": { "type": "turn.ended", "text": "It is four one one one one one one one one one one one one one one one", "language": "en", "durationMs": 3800 } },
     { "atMs": 7250, "source": "app", "message": { "type": "speak", "id": "s2", "text": "I have 4111 1111 1111 1111, thank you.", "last": true } },
-    { "atMs": 7300, "source": "gateway", "message": { "type": "output.started", "id": "s2" } },
-    { "atMs": 9800, "source": "gateway", "message": { "type": "output.done", "id": "s2" } },
+    { "atMs": 7300, "source": "appbridge", "message": { "type": "output.started", "id": "s2" } },
+    { "atMs": 9800, "source": "appbridge", "message": { "type": "output.done", "id": "s2" } },
     { "atMs": 10500, "source": "event", "message": { "type": "call.ended", "reason": "caller_hangup" } }
   ],
   "expect": {

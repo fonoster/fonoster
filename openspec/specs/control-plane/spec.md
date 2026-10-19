@@ -3,15 +3,15 @@
 ## Purpose
 The apiserver as a stateless control plane and how it places and controls calls on Roomr nodes.
 ## Requirements
-### Requirement: The gateway is its own TypeScript deployable
+### Requirement: AppBridge is its own TypeScript deployable
 
-The VoiceSessionGateway SHALL run as its own deployable, written in TypeScript, scaled
+AppBridge SHALL run as its own deployable, written in TypeScript, scaled
 independently of the apiserver and the Roomr node. It SHALL host the STT, TTS and audio-filter
 code that the apiserver runs today, and the apiserver MUST NOT run any of it.
 
-#### Scenario: Scaling gateways alone
-- **WHEN** an operator raises the gateway replica count from 2 to 4 and leaves the apiserver and Roomr nodes unchanged
-- **THEN** new sessions are spread across 4 gateway replicas
+#### Scenario: Scaling AppBridge replicas alone
+- **WHEN** an operator raises AppBridge replica count from 2 to 4 and leaves the apiserver and Roomr nodes unchanged
+- **THEN** new sessions are spread across 4 AppBridge replicas
 - **AND** no apiserver or Roomr node restarts
 
 #### Scenario: No speech in the apiserver

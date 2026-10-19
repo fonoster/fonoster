@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/** A command failed: the gateway sent `error` with `relatesTo` set to the command's id. */
+/** A command failed: AppBridge sent `error` with `relatesTo` set to the command's id. */
 export class SessionError extends Error {
   constructor(
     readonly code: string,

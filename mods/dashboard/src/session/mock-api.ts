@@ -28,7 +28,7 @@ import type {
   WebhookDelivery
 } from "./types";
 
-/** The mock workspace uses one deprecated STT model (the warnings on the Streams page). */
+/** The mock workspace uses one deprecated STT model (the warnings on the Apps page). */
 export const catalogWarnings: CatalogWarning[] = [
   {
     id: "deepgram/nova-2",
@@ -171,7 +171,7 @@ const seedApps = (): SessionApp[] => [
 
 const msg = (
   at: number,
-  source: "app" | "gateway" | "event",
+  source: "app" | "appbridge" | "event",
   message: { type: string; [key: string]: unknown }
 ) => ({ at, source, message });
 
@@ -231,7 +231,7 @@ const sampleCall = (): CallRecord => ({
     }
   ],
   messages: [
-    msg(0, "gateway", {
+    msg(0, "appbridge", {
       type: "session.start",
       protocol: "fonoster.session.v1",
       direction: "inbound"
@@ -241,8 +241,8 @@ const sampleCall = (): CallRecord => ({
       id: "s1",
       text: "Hi! What can I do for you?"
     }),
-    msg(420, "gateway", { type: "output.started", id: "s1" }),
-    msg(2100, "gateway", { type: "output.done", id: "s1", heardMs: 1680 }),
+    msg(420, "appbridge", { type: "output.started", id: "s1" }),
+    msg(2100, "appbridge", { type: "output.done", id: "s1", heardMs: 1680 }),
     msg(2600, "event", { type: "turn.user_started" }),
     msg(4800, "event", {
       type: "turn.ended",
@@ -255,10 +255,10 @@ const sampleCall = (): CallRecord => ({
       text: "Your balance is forty two dollars."
     }),
     msg(6000, "event", { type: "turn.backchannel", text: "uh-huh" }),
-    msg(7900, "gateway", { type: "output.done", id: "s2", heardMs: 2500 }),
+    msg(7900, "appbridge", { type: "output.done", id: "s2", heardMs: 2500 }),
     msg(10100, "event", { type: "turn.ended", text: "thanks, bye" }),
     msg(10300, "app", { type: "hangup" }),
-    msg(10400, "gateway", { type: "session.end", reason: "app_hangup" })
+    msg(10400, "appbridge", { type: "session.end", reason: "app_hangup" })
   ]
 });
 

@@ -23,7 +23,7 @@ Verify against code before drafting with /ps:docs.
 - Tests: `npm test` (uses nats-test + fonoster_test via compose env) · `npm test -w @fonoster/dashboard` ·
   `cd go/roomr && go test -race ./...`.
 - Verified by the agent: deps healthy; `npm run dev` → migrations, catalog, roomr peer, dashboard 200; SDK
-  login + seed; two SIP calls to an Autopilot app (6 s audio, record completed); gateway reload ~2 s on save; .go
+  login + seed; two SIP calls to an Autopilot app (6 s audio, record completed); appbridge reload ~2 s on save; .go
   save rebuilds roomr; Vite HMR and /sip WS through Envoy; npm test 1679/0; Go race; dashboard 290.
   NOT verified: Talk to agent in a real browser, Playwright e2e.
 - Problems: LAN IP changed → edit HOST_IP in .dev/.env and rebuild the container · real vendor key → per

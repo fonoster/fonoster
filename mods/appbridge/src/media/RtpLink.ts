@@ -30,11 +30,11 @@ import { newSrtpKey, SRTP_SUITE, SrtpContext } from "./srtp";
 /** media-control's optional `srtp` object in an rtp block (MN6, MN13). */
 export type SrtpBlock = { suite: string; key: string };
 
-/** The codec the gateway offers in participant.add: the internal format, so no transcoding. */
+/** The codec AppBridge offers in participant.add: the internal format, so no transcoding. */
 export const OFFERED_CODEC = "L16/16000";
 
 /**
- * The gateway's audio link to its room (MN13): plain RTP over UDP, ports exchanged in
+ * AppBridge's audio link to its room (MN13): plain RTP over UDP, ports exchanged in
  * participant.add. Emits "frame" with internal-format caller audio.
  */
 export class RtpLink extends EventEmitter {
@@ -91,7 +91,7 @@ export class RtpLink extends EventEmitter {
       host: advertiseHost ?? host,
       port: this.socket.address().port,
       codec: OFFERED_CODEC,
-      // The rtp block of media-control ("Gateway audio is RTP negotiated in participant.add").
+      // The rtp block of media-control ("AppBridge audio is RTP negotiated in participant.add").
       payloadType: this.format.codec === "pcmu" ? 0 : 96,
       ptime: 20,
       ssrc: this.ssrc >>> 0,

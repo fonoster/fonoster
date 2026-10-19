@@ -51,7 +51,7 @@ context: |
 
   A layered rebuild is being specified before any code is written. Read `openspec/rebuild.md`
   first: it holds the layer map, the change order and the vocabulary every rebuild change must
-  use (Session, VoiceSessionGateway, native/twilio flavors, Speech/Audio/Control layers, catalog
+  use (Session, AppBridge, native/twilio flavors, Speech/Audio/Control layers, catalog
   ids, Turn Detector, call record). Rebuild changes describe target behavior; the owner
   approved the build on 2026-10-15, and each change's build-log.md records decisions made while
   building. Spec scenarios double as conformance cases, so write

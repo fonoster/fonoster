@@ -23,7 +23,7 @@ import { z } from "zod";
 // URI users, so anything that reaches an INVITE or REFER must be safe as-is.
 
 /**
- * Headers the platform (Routr, the Roomr node, the gateway, the apiserver) sets and trusts: they
+ * Headers the platform (Routr, the Roomr node, AppBridge, the apiserver) sets and trusts: they
  * pick the app, the call, the workspace and the trunk. Callers and apps may never set them.
  */
 export const RESERVED_SIP_HEADERS: ReadonlySet<string> = new Set(
@@ -37,7 +37,7 @@ export const RESERVED_SIP_HEADERS: ReadonlySet<string> = new Set(
     "X-Is-Api-Originated-Type",
     "X-Connect-Token",
     "X-Edgeport-Ref",
-    "X-Gateway-Auth",
+    "X-AppBridge-Auth",
     "X-Request-Uri",
     "X-Session-Count"
   ].map((h) => h.toLowerCase())

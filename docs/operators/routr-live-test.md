@@ -3,7 +3,7 @@
 This test runs one real call through Routr into the new stack:
 
 ```
-caller bot ──INVITE sip:+17853178070@trunk.rig.local──▶ Routr ──▶ Go Roomr node ──media-control──▶ gateway ──WebSocket──▶ app
+caller bot ──INVITE sip:+17853178070@trunk.rig.local──▶ Routr ──▶ Go Roomr node ──media-control──▶ appbridge ──WebSocket──▶ app
 ```
 
 It checks the parts that only a real Routr can show:
@@ -23,7 +23,7 @@ The test is `mods/appbridge/test/routr.live.test.ts`. It is skipped unless `ROUT
 ## Run it
 
 You need Docker, Go 1.25, and a NATS server for media-control. Use your own NATS, not a shared one:
-another gateway on the same NATS would claim the call.
+another AppBridge on the same NATS would claim the call.
 
 ```sh
 mods/appbridge/test/routr/rig.sh up        # Postgres + Routr 2.15.4; about a minute the first time
@@ -58,7 +58,7 @@ Notes:
 
 ## Docker for Mac networking
 
-Routr runs in Docker. The node, the caller bot and the gateway run on the host.
+Routr runs in Docker. The node, the caller bot and AppBridge run on the host.
 
 - **Routr to the host.** Routr reaches the host as `host.docker.internal` (IPv4 `192.168.65.254`;
   `rig.sh test` looks it up). The node and the bot put that address in Via and Contact

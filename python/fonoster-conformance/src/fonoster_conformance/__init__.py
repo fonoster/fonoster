@@ -1,11 +1,11 @@
 """Python runner for the Fonoster conformance scenarios."""
 
 from .match import get_path, interpolate, match
-from .runner import FakeGateway, Peer, Result, run_scenario, signature_headers
+from .runner import FakeAppBridge, Peer, Result, run_scenario, signature_headers
 from .scenarios import ScenarioError, conformance_dir, load_scenario, load_scenarios
 
 __all__ = [
-    "FakeGateway",
+    "FakeAppBridge",
     "Peer",
     "Result",
     "ScenarioError",

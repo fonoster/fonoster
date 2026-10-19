@@ -18,7 +18,7 @@
  */
 import * as http from "http";
 import { keySet } from "@fonoster/callrecord";
-import { GatewayConfig } from "../config";
+import { AppBridgeConfig } from "../config";
 import { keyCustody } from "../record/keyCustody";
 
 /** Where the region's call-record keys are published (the records' jku points here). */
@@ -29,7 +29,7 @@ export const KEY_SET_PATH = "/.well-known/call-record-keys.json";
  * every earlier key in callRecord.keyHistory, so old records keep verifying after rotation.
  */
 export function keySetHandler(
-  config: GatewayConfig["callRecord"]
+  config: AppBridgeConfig["callRecord"]
 ): http.RequestListener | undefined {
   if (!config) return undefined;
   const custody = keyCustody(config);

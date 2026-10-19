@@ -20,9 +20,9 @@
  * Loaded by mocha before any test file (see .mocharc.cjs): one test run at a time on the
  * conformance NATS server (CONFORMANCE_NATS_URL).
  *
- * The suites' gateways all join the `gateway-incoming` queue group on `gateway.incoming`, so two
+ * The suites' AppBridge replicas all join the `appbridge-incoming` queue group on `appbridge.incoming`, so two
  * runs on one server (two worktrees, or the dev container and the host, sharing `nats-test`)
- * claim each other's calls: the call goes to the other run's gateway and the fake app of the run
+ * claim each other's calls: the call goes to the other run's AppBridge and the fake app of the run
  * that placed it fails with "no connection reached the fake app". The run holds a key in a
  * JetStream KV bucket for its whole duration; another run waits for it. The key expires 30 s after
  * its last refresh, so a killed run does not hold the server.

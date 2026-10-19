@@ -56,7 +56,7 @@ RTPEngine, and run the app named by `X-App-Ref`, like a call from a number.
 
 ### Requirement: Test tokens stay in their workspace
 
-The gateway SHALL answer a call whose headers include `X-Connect-Token` only when the token is an
+AppBridge SHALL answer a call whose headers include `X-Connect-Token` only when the token is an
 RS256 JWT that verifies with `testCalls.publicKeyFile`, is not expired, lists `INVITE` in
 `allowedMethods`, and has an `accessKeyId` equal to the app's workspace. Otherwise it SHALL reject
 the call with SIP 403 and record `call.failed` with reason `test_call_denied`. Without
@@ -64,15 +64,15 @@ the call with SIP 403 and record `call.failed` with reason `test_call_denied`. W
 
 #### Scenario: Another workspace's agent
 - **WHEN** a call carries a valid token for workspace `WO-A` and `X-App-Ref` of an app in `WO-B`
-- **THEN** the gateway rejects it with 403 and the app's session never opens
+- **THEN** AppBridge rejects it with 403 and the app's session never opens
 
 #### Scenario: Forged token
 - **WHEN** a call carries `X-Connect-Token` signed with another key
-- **THEN** the gateway rejects it with 403
+- **THEN** AppBridge rejects it with 403
 
 #### Scenario: Calls without a token
 - **WHEN** a call from a number carries no `X-Connect-Token`
-- **THEN** the gateway routes it as before
+- **THEN** AppBridge routes it as before
 
 ### Requirement: Talk drawer calls from the browser
 

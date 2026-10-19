@@ -22,7 +22,7 @@ import { FakesHarness, Peer } from "@fonoster/conformance";
 import {
   AmdVerdict,
   AppConfig,
-  Gateway,
+  AppBridge,
   MemoryCallRecordSink,
   amdWindowMs,
   loadAmdClassifier
@@ -49,11 +49,11 @@ const json = (peer: Peer) =>
     .filter((f) => f.kind === "json")
     .map((f) => f.data as Record<string, unknown>);
 
-describe("@gateway AMD listener", function () {
+describe("@appbridge AMD listener", function () {
   this.timeout(20000);
   let nc: NatsConnection;
   let harness: FakesHarness;
-  let gateway: Gateway | undefined;
+  let appbridge: AppBridge | undefined;
   let record: MemoryCallRecordSink;
   let heard: Buffer[];
 
@@ -73,14 +73,14 @@ describe("@gateway AMD listener", function () {
   });
 
   afterEach(async () => {
-    await gateway?.stop();
-    gateway = undefined;
+    await appbridge?.stop();
+    appbridge = undefined;
     await harness?.stop();
   });
 
   async function start(app: Partial<AppConfig>, classifier = true) {
     const urls = harness.providerUrls;
-    gateway = await new Gateway({
+    appbridge = await new AppBridge({
       config: {
         nats: { url: NATS_URL! },
         ...(classifier ? {} : { amd: { enabled: false } }),
@@ -234,8 +234,8 @@ describe("@gateway AMD listener", function () {
       status: "unknown",
       reason: "no_classifier"
     });
-    await gateway!.stop();
-    gateway = undefined;
+    await appbridge!.stop();
+    appbridge = undefined;
 
     await start({});
     harness.roomrNode.offerCall();
@@ -255,7 +255,7 @@ describe("@gateway AMD listener", function () {
   });
 });
 
-describe("@gateway AMD classifier", function () {
+describe("@appbridge AMD classifier", function () {
   it("resolves mods/amd's model module through the declared dependency (AO-B2)", async function () {
     // A missing model directory fails before ONNX Runtime starts its threads (which abort the
     // process at mocha --exit); reaching the model loader proves the dependency resolves.

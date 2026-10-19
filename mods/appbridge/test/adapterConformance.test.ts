@@ -284,7 +284,7 @@ const STT_FEATURES: Record<
 
 // ---- the suite --------------------------------------------------------------------------------
 
-describe("@gateway adapter conformance (registry 1.5)", function () {
+describe("@appbridge adapter conformance (registry 1.5)", function () {
   this.timeout(20000);
 
   const models = declared();

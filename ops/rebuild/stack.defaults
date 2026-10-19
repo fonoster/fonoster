@@ -16,7 +16,7 @@ RB_API_PORT=16449
 # in Via and Record-Route is the one softphones reach.
 RB_SIP_PORT=16060
 RB_NATS_PORT=16222
-RB_GATEWAY_PORT=16808
+RB_APPBRIDGE_PORT=16808
 RB_MINIO_PORT=16900
 RB_MINIO_CONSOLE_PORT=16901
 RB_CALLER_PORT=16080
@@ -26,6 +26,6 @@ RTPENGINE_PORT_MAX=16199
 RB_NODE_RTP_MIN=16200
 RB_NODE_RTP_MAX=16299
 
-# The stack's private network. Routr, RTPEngine, the Roomr node, the gateway and the caller bot get
+# The stack's private network. Routr, RTPEngine, the Roomr node, AppBridge and the caller bot get
 # fixed addresses in it (RB_NET.40-.44); change it if it collides with one of your networks.
 RB_NET=10.216.16

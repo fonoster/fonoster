@@ -4,7 +4,7 @@ contract: voice-session
 role: app
 spec: "An app is a WebSocket URL, a protocol and speech defaults / Inbound routing"
 description: >
-  Routr names app-2 in X-App-Ref (call.incoming appRef); the gateway dials app-2's URL and never
+  Routr names app-2 in X-App-Ref (call.incoming appRef); AppBridge dials app-2's URL and never
   the default app.
 setup:
   media: { appRef: app-2 }

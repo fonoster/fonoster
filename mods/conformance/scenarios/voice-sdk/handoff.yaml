@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: handoff
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: handoff
 spec: "Call control methods map one to one / Handoff"
 steps:

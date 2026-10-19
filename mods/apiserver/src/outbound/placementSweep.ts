@@ -25,7 +25,7 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 /**
  * A placement entry older than this was left by a replica that died mid-placement: every step of
- * a placement rewrites its entry well within it (one RPC and its retry, or the gateway request).
+ * a placement rewrites its entry well within it (one RPC and its retry, or AppBridge request).
  */
 export const PLACEMENT_STALE_MS = 10_000;
 

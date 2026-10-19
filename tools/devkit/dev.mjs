@@ -26,7 +26,7 @@
 //
 // Each process gets the values of .dev/.env (with ${NAME} expanded, as Compose's env_file does)
 // for the ${NAME} placeholders of its config file, .dev/config/<service>.yaml (passed explicitly:
-// the Roomr nodes and gateways the tests start look in /config).
+// the Roomr nodes and AppBridge replicas the tests start look in /config).
 import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, symlinkSync, watch } from "node:fs";
 import { createRequire } from "node:module";
@@ -210,14 +210,14 @@ function roomr() {
 }
 
 const COMPONENTS = {
-  // Fake TTS (:7001), STT (:7002) and LLM (:7003): .devcontainer/config points the gateway and
+  // Fake TTS (:7001), STT (:7002) and LLM (:7003): .devcontainer/config points AppBridge and
   // Autopilot at them, so calls work without vendor keys.
   fakes: () => run("fakes", TSX, ["mods/conformance/src/fakes/serve.ts"]),
   apiserver,
   appbridge: () =>
     run(
       "appbridge",
-      ...tsxWatch("mods/appbridge/src/main.ts", config("gateway"))
+      ...tsxWatch("mods/appbridge/src/main.ts", config("appbridge"))
     ),
   autopilot: () =>
     run(

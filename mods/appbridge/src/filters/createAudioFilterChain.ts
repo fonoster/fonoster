@@ -25,7 +25,7 @@ import {
   FilterTimingStats
 } from "./types";
 
-const logger = getLogger({ service: "gateway", filePath: __filename });
+const logger = getLogger({ service: "appbridge", filePath: __filename });
 
 // Keeps timing memory bounded on long calls
 const MAX_TIMING_SAMPLES = 10000;

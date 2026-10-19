@@ -3,16 +3,16 @@
 ## Purpose
 The voice SDK apps use to handle sessions over the native protocol.
 ## Requirements
-### Requirement: VoiceServer accepts gateway sessions over WebSocket
+### Requirement: VoiceServer accepts AppBridge sessions over WebSocket
 
 The SDK SHALL provide a `VoiceServer` that accepts WebSocket connections from the
-VoiceSessionGateway and runs the app's handler once per session. It MUST be usable standalone
+AppBridge and runs the app's handler once per session. It MUST be usable standalone
 (listening on its own port) or mounted into an existing Express (TypeScript) or ASGI/FastAPI
 (Python) application.
 
 #### Scenario: A call reaches a standalone server
 
-- **WHEN** the gateway opens a WebSocket to a `VoiceServer` listening on port 3000 and sends
+- **WHEN** AppBridge opens a WebSocket to a `VoiceServer` listening on port 3000 and sends
   `session.start`
 - **THEN** the SDK invokes the registered handler exactly once with a session for that call
 - **AND** the session exposes `callRef`, `sessionRef`, `appRef`, `direction`, `from`, `to`,
@@ -20,12 +20,12 @@ VoiceSessionGateway and runs the app's handler once per session. It MUST be usab
 
 #### Scenario: Mounted into an existing application
 
-- **WHEN** the app mounts the SDK middleware at `/voice` and the gateway connects to that path
+- **WHEN** the app mounts the SDK middleware at `/voice` and AppBridge connects to that path
 - **THEN** the handler runs exactly as it would on a standalone server
 
 ### Requirement: Connections are verified before the handler runs
 
-The SDK SHALL verify the gateway's HMAC-signed connection request with the app's signing secret,
+The SDK SHALL verify AppBridge's HMAC-signed connection request with the app's signing secret,
 as defined in `voice-session` ("Connection requests are signed": `X-Fonoster-Timestamp`,
 `X-Fonoster-Signature`, ±300 s), and MUST reject a connection whose signature is missing, invalid
 or outside the allowed time window before invoking the handler. Because proxies can rewrite the
@@ -38,7 +38,7 @@ app-bound signature.
 
 #### Scenario: Valid signature
 
-- **WHEN** the gateway connects with a signature computed from the URL and timestamp with the
+- **WHEN** AppBridge connects with a signature computed from the URL and timestamp with the
   app's signing secret
 - **THEN** the connection is accepted and the handler runs
 
@@ -86,35 +86,35 @@ Python SDK MUST refuse a handler that takes any other number of parameters with 
 ### Requirement: say speaks text and reports what was heard
 
 `say(text, options?)` SHALL send a `speak` command with a fresh `id`, the text, and `last: true`,
-and MUST resolve with `{ interrupted, heardText, heardMs }` when the gateway reports
+and MUST resolve with `{ interrupted, heardText, heardMs }` when AppBridge reports
 `output.done` or `output.interrupted` for that `id`. Options `voice`, `language`, `interruptible`
 and `preempt` MUST be passed through on the `speak` message.
 
-The app owns interruption (gateway B22): the gateway never stops output when the caller speaks.
+The app owns interruption (appbridge B22): AppBridge never stops output when the caller speaks.
 The SDK SHALL send `clear` when it receives `turn.user_started` while an item it sent with
 `interruptible` true (the default) is playing, and SHALL NOT send it while a non-interruptible item
 is playing. `say` and `play` behave the same in TypeScript and Python.
 
 #### Scenario: SDK clears on barge-in
 
-- **WHEN** the app calls `say("Your balance is ten dollars")` and the gateway sends `output.started` and then `turn.user_started`
+- **WHEN** the app calls `say("Your balance is ten dollars")` and AppBridge sends `output.started` and then `turn.user_started`
 - **THEN** the SDK sends `clear` without any app code
 
 #### Scenario: Non-interruptible say is kept
 
-- **WHEN** the app calls `say("Please hold.", { interruptible: false })` and the gateway sends `turn.user_started` while it plays
+- **WHEN** the app calls `say("Please hold.", { interruptible: false })` and AppBridge sends `turn.user_started` while it plays
 - **THEN** the SDK sends no `clear`
 
 #### Scenario: Fully heard
 
 - **WHEN** the app calls `say("Your balance is ten dollars")`
-- **AND** the gateway sends `output.done` with the same `id`
+- **AND** AppBridge sends `output.done` with the same `id`
 - **THEN** `say` resolves with `interrupted: false` and `heardText` equal to the full text
 
 #### Scenario: Interrupted
 
 - **WHEN** the app calls `say("Your balance is ten dollars")`
-- **AND** the gateway sends `output.interrupted` with `heardText: "Your balance"` and
+- **AND** AppBridge sends `output.interrupted` with `heardText: "Your balance"` and
   `heardMs: 900`
 - **THEN** `say` resolves with `interrupted: true`, `heardText: "Your balance"` and
   `heardMs: 900`
@@ -146,7 +146,7 @@ resolve exactly like `say(text)`.
 ### Requirement: stopSay clears queued output
 
 `stopSay()` SHALL send `clear`, and every pending `say` or `play` promise MUST resolve as
-interrupted when the gateway reports `output.interrupted` for its `id`.
+interrupted when AppBridge reports `output.interrupted` for its `id`.
 
 #### Scenario: Cutting the agent off
 
@@ -163,13 +163,13 @@ protocol message.
 #### Scenario: Speech
 
 - **WHEN** the app calls `gather({ source: "speech" })`
-- **AND** the gateway sends `turn.ended` with `text: "Pedro"`
+- **AND** AppBridge sends `turn.ended` with `text: "Pedro"`
 - **THEN** `gather` resolves with `{ speech: "Pedro" }`
 
 #### Scenario: Digits with a finish key
 
 - **WHEN** the app calls `gather({ maxDigits: 4, finishOnKey: "#" })`
-- **AND** the gateway sends `dtmf` events `1`, `2`, `#`
+- **AND** AppBridge sends `dtmf` events `1`, `2`, `#`
 - **THEN** `gather` resolves with `{ digits: "12" }`
 
 #### Scenario: Digits up to the maximum
@@ -218,7 +218,7 @@ each send exactly one corresponding session message (`play`, `dtmf.send`, `trans
 
 - **WHEN** the app calls `transfer("+15551234567")`
 - **THEN** the SDK sends `transfer` with `to: "+15551234567"`
-- **AND** when the gateway ends the session with `reason: transfer`, the call resolves
+- **AND** when AppBridge ends the session with `reason: transfer`, the call resolves
 
 #### Scenario: Warm transfer
 
@@ -236,13 +236,13 @@ each send exactly one corresponding session message (`play`, `dtmf.send`, `trans
 
 The session SHALL expose `audio.onFrame(cb)`, `audio.send(bytes)`, `audio.mark(name)` and
 `audio.clear()`, mapping to incoming binary frames, outgoing binary frames, `mark` and `clear`.
-`audio.mark` MUST resolve with `{ cleared }` when the gateway echoes that mark.
+`audio.mark` MUST resolve with `{ cleared }` when AppBridge echoes that mark.
 
 #### Scenario: Bring-your-own TTS
 
 - **WHEN** the app sends PCM frames with `audio.send` and then calls `audio.mark("r1")`
 - **THEN** the SDK sends binary frames followed by `mark` with `name: "r1"`
-- **AND** `mark` resolves with `cleared: false` when the gateway reports the mark was heard
+- **AND** `mark` resolves with `cleared: false` when AppBridge reports the mark was heard
 
 #### Scenario: Mark dropped by clear
 
@@ -251,7 +251,7 @@ The session SHALL expose `audio.onFrame(cb)`, `audio.send(bytes)`, `audio.mark(n
 
 ### Requirement: answer is a no-op
 
-`answer()` SHALL resolve immediately and MUST NOT send any message, because the gateway answers
+`answer()` SHALL resolve immediately and MUST NOT send any message, because AppBridge answers
 the call once the app's connection is verified.
 
 #### Scenario: Old apps that answer first
@@ -274,19 +274,19 @@ upgrade guide.
 
 ### Requirement: Errors and session end never leave promises hanging
 
-A gateway `error` whose `relatesTo` matches a command `id` SHALL reject that command's promise
+An AppBridge `error` whose `relatesTo` matches a command `id` SHALL reject that command's promise
 with a `SessionError` carrying `code`, `message` and `fatal`. When the session ends or a fatal
 error arrives, every pending promise MUST reject with `SessionEndedError`.
 
 #### Scenario: Provider failure during say
 
-- **WHEN** the app calls `say("Hi")` and the gateway sends `error` with `relatesTo` set to that
+- **WHEN** the app calls `say("Hi")` and AppBridge sends `error` with `relatesTo` set to that
   `speak` id and `code: provider_unavailable`
 - **THEN** `say` rejects with a `SessionError` whose `code` is `provider_unavailable`
 
 #### Scenario: Caller hangs up mid-gather
 
-- **WHEN** `gather()` is pending and the gateway sends `session.end` with
+- **WHEN** `gather()` is pending and AppBridge sends `session.end` with
   `reason: caller_hangup`
 - **THEN** `gather` rejects with `SessionEndedError`
 - **AND** `session.on("end")` callbacks receive `reason: caller_hangup`
@@ -294,7 +294,7 @@ error arrives, every pending promise MUST reject with `SessionEndedError`.
 ### Requirement: TypeScript and Python parity
 
 The TypeScript and Python SDKs SHALL be released together and MUST both pass every
-language-neutral SDK scenario from the conformance framework against the fake gateway before
+language-neutral SDK scenario from the conformance framework against the fake AppBridge before
 release.
 
 #### Scenario: A shared scenario

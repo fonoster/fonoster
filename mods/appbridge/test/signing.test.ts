@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 // voice-session, "Connection requests are signed" and "Connection requests are bound to the app":
-// the gateway's headers verify with the voice SDK's checks, and the bound signature names the app
+// AppBridge's headers verify with the voice SDK's checks, and the bound signature names the app
 // and workspace it was made for.
 import { expect } from "chai";
 import { verifyAppSignature, verifySignature } from "../../voice/src/signature";
@@ -26,7 +26,7 @@ import { signatureHeaders } from "../src/signing";
 const lower = (h: Record<string, string>) =>
   Object.fromEntries(Object.entries(h).map(([k, v]) => [k.toLowerCase(), v]));
 
-describe("@gateway connection signing", function () {
+describe("@appbridge connection signing", function () {
   const url = "ws://autopilot:3000";
   const binding = { appRef: "app-1", workspaceRef: "WS1" };
 

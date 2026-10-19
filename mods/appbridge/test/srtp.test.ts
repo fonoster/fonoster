@@ -40,7 +40,7 @@ function rtpPacket(seq: number, payload: Buffer, ssrc = 0x1234): Buffer {
   return Buffer.concat([header, payload]);
 }
 
-describe("@gateway SRTP (AES_CM_128_HMAC_SHA1_80)", function () {
+describe("@appbridge SRTP (AES_CM_128_HMAC_SHA1_80)", function () {
   it("round-trips packets, across a sequence number wrap", function () {
     const key = newSrtpKey();
     const tx = new SrtpContext(key);
@@ -70,9 +70,9 @@ describe("@gateway SRTP (AES_CM_128_HMAC_SHA1_80)", function () {
   });
 });
 
-// The gateway leg against the Go node: pion/srtp must accept what RtpLink sends and the other
+// AppBridge leg against the Go node: pion/srtp must accept what RtpLink sends and the other
 // way round (SDES-SRTP is optional: a leg that offers srtp gets it, a plain leg stays plain).
-describe("@gateway SRTP leg against the Go Roomr node", function () {
+describe("@appbridge SRTP leg against the Go Roomr node", function () {
   this.timeout(30000);
   let nc: NatsConnection;
   let bins: RoomrBinaries | undefined;

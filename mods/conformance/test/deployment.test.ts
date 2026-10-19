@@ -32,7 +32,7 @@ import { fonosterConfigSchema } from "../../apiserver/src/config/schema";
 import { loadHostedConfig } from "../../autopilot/src/session/hosted";
 import { loadAgentConfig } from "../../region-agent/src/config";
 import {
-  loadConfig as loadGatewayConfig,
+  loadConfig as loadAppBridgeConfig,
   providerKey
 } from "../../appbridge/src/config";
 
@@ -280,8 +280,8 @@ describe("@conformance/deployment (Helm chart)", function () {
       POD_NAMESPACE: "default",
       // nats.auth (values-cloud): each service's password env from fonoster-nats-users.
       NATS_APISERVER_PASSWORD: "nats-api",
-      NATS_GATEWAY_PASSWORD: "nats-gw",
-      // The pods' env from the database Secret (gateway and Autopilot `encryption.key`,
+      NATS_APPBRIDGE_PASSWORD: "nats-gw",
+      // The pods' env from the database Secret (appbridge and Autopilot `encryption.key`,
       // Autopilot's `database.url` placeholder).
       APISERVER_ENCRYPTION_KEY:
         "k1.aesgcm256.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
@@ -310,11 +310,13 @@ describe("@conformance/deployment (Helm chart)", function () {
     const saved = { ...process.env };
     Object.assign(process.env, env, { POD_IP: "10.1.2.3" });
     try {
-      const gw = loadGatewayConfig(write("fonoster-appbridge", "gateway.yaml"));
+      const gw = loadAppBridgeConfig(
+        write("fonoster-appbridge", "appbridge.yaml")
+      );
       expect(providerKey(gw.providers.deepgram)).to.equal("dg-key");
       expect(gw.rtp?.advertiseHost).to.equal("10.1.2.3");
       expect(gw.database?.url).to.equal("postgresql://u:p@db:5432/fonoster");
-      expect(gw.nats).to.include({ user: "gateway", password: "nats-gw" });
+      expect(gw.nats).to.include({ user: "appbridge", password: "nats-gw" });
       expect(gw.encryption?.key).to.equal(env.APISERVER_ENCRYPTION_KEY);
       const ap = loadHostedConfig(
         write("fonoster-autopilot", "autopilot-session.yaml")
@@ -355,22 +357,24 @@ describe("@conformance/deployment (Helm chart)", function () {
   it("gives every service its NATS user and the chart's NATS the users (nats.auth)", function () {
     const objs = render("values-cloud.yaml", "--set=regionAgent.enabled=true");
     const conf = find(objs, "ConfigMap", "fonoster-nats")!.data!;
-    ["apiserver", "gateway", "roomr", "routr", "region-agent"].forEach((u) => {
-      expect(conf["nats.conf"]).to.contain(`{ user: ${u}, password: $NATS_`);
-      expect(conf[`permissions-${u}.conf`], u).to.equal(
-        fs.readFileSync(
-          path.join(ROOT, "ops/rebuild/config/nats-permissions", `${u}.conf`),
-          "utf8"
-        )
-      );
-    });
+    ["apiserver", "appbridge", "roomr", "routr", "region-agent"].forEach(
+      (u) => {
+        expect(conf["nats.conf"]).to.contain(`{ user: ${u}, password: $NATS_`);
+        expect(conf[`permissions-${u}.conf`], u).to.equal(
+          fs.readFileSync(
+            path.join(ROOT, "ops/rebuild/config/nats-permissions", `${u}.conf`),
+            "utf8"
+          )
+        );
+      }
+    );
     const env = (kind: string, name: string) =>
       JSON.stringify(find(objs, kind, name)!.spec);
     expect(env("StatefulSet", "fonoster-nats")).to.contain(
       '"name":"NATS_ROUTR_PASSWORD"'
     );
     expect(env("Deployment", "fonoster-appbridge")).to.contain(
-      '"name":"NATS_GATEWAY_PASSWORD","valueFrom":{"secretKeyRef":{"name":"fonoster-nats-users","key":"gateway"}}'
+      '"name":"NATS_APPBRIDGE_PASSWORD","valueFrom":{"secretKeyRef":{"name":"fonoster-nats-users","key":"appbridge"}}'
     );
     expect(env("StatefulSet", "fonoster-roomr")).to.contain(
       '"name":"NATS_ROOMR_PASSWORD","valueFrom":{"secretKeyRef":{"name":"fonoster-nats-users","key":"roomr"}}'
@@ -391,14 +395,14 @@ describe("@conformance/deployment (Helm chart)", function () {
       password: "secret://env/NATS_REGION_AGENT_PASSWORD"
     });
     // The default data plane has NATS users too (M8)...
-    const gatewayNats = (objs: K8sObject[]) =>
+    const appBridgeNats = (objs: K8sObject[]) =>
       parseAllDocuments(
-        find(objs, "ConfigMap", "fonoster-appbridge")!.data!["gateway.yaml"]
+        find(objs, "ConfigMap", "fonoster-appbridge")!.data!["appbridge.yaml"]
       )[0].toJS().nats;
-    expect(gatewayNats(render())).to.deep.equal({
+    expect(appBridgeNats(render())).to.deep.equal({
       url: "nats://nats:4222",
-      user: "gateway",
-      password: "secret://env/NATS_GATEWAY_PASSWORD"
+      user: "appbridge",
+      password: "secret://env/NATS_APPBRIDGE_PASSWORD"
     });
     // ...and turning auth off must be explicit.
     expect(() =>
@@ -409,7 +413,7 @@ describe("@conformance/deployment (Helm chart)", function () {
       )
     ).to.throw(/allowUnauthenticated/);
     expect(
-      gatewayNats(
+      appBridgeNats(
         render(
           "--set=nats.auth.enabled=false",
           "--set=nats.auth.allowUnauthenticated=true"
@@ -418,15 +422,15 @@ describe("@conformance/deployment (Helm chart)", function () {
     ).to.deep.equal({ url: "nats://nats:4222" });
   });
 
-  it("renders workspaceKeysFromCloud for a public region's gateway (add-private-regions 5.9)", function () {
-    const gatewayConfig = (...args: string[]) =>
+  it("renders workspaceKeysFromCloud for a public region's AppBridge (add-private-regions 5.9)", function () {
+    const appBridgeConfig = (...args: string[]) =>
       parseAllDocuments(
         find(render(...args), "ConfigMap", "fonoster-appbridge")!.data![
-          "gateway.yaml"
+          "appbridge.yaml"
         ]
       )[0].toJS();
     expect(
-      gatewayConfig(
+      appBridgeConfig(
         "--set=regionAgent.enabled=true,regionAgent.workspaceKeysFromCloud=true"
       ).cellSecrets
     ).to.deep.equal({
@@ -434,12 +438,12 @@ describe("@conformance/deployment (Helm chart)", function () {
       workspaceKeysFromCloud: true
     });
     expect(
-      gatewayConfig("--set=regionAgent.enabled=true").cellSecrets
+      appBridgeConfig("--set=regionAgent.enabled=true").cellSecrets
     ).to.deep.equal({ dir: "/var/lib/fonoster-secrets" });
-    expect(gatewayConfig().cellSecrets).to.equal(undefined);
+    expect(appBridgeConfig().cellSecrets).to.equal(undefined);
   });
 
-  it("mounts a volume at the gateway's call-record dir, not under /tmp", function () {
+  it("mounts a volume at AppBridge's call-record dir, not under /tmp", function () {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pod = (objs: K8sObject[]): any =>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -447,7 +451,7 @@ describe("@conformance/deployment (Helm chart)", function () {
         .spec;
     const cloud = render("values-cloud.yaml");
     const dir = parseAllDocuments(
-      find(cloud, "ConfigMap", "fonoster-appbridge")!.data!["gateway.yaml"]
+      find(cloud, "ConfigMap", "fonoster-appbridge")!.data!["appbridge.yaml"]
     )[0].toJS().callRecord.dir;
     expect(dir).to.equal("/var/lib/fonoster/records");
     const spec = pod(cloud);

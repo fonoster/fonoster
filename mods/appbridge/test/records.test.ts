@@ -36,14 +36,14 @@ import { Webhooks } from "@fonoster/common";
 import { FakesHarness, Peer } from "@fonoster/conformance";
 import {
   AppConfig,
-  Gateway,
-  GatewayConfig,
+  AppBridge,
+  AppBridgeConfig,
   maintenanceSubject,
   REGISTRY_USED_SUBJECT,
   recordingPolicy
 } from "../src";
 
-// Call records from a running gateway (add-call-record): recording by policy through
+// Call records from a running AppBridge (add-call-record): recording by policy through
 // listener.attach, the consent prompt, minimal records, call_record.sealed and the index entry,
 // and retention or erasure requests from the control plane. Needs NATS.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
@@ -76,11 +76,11 @@ const KEYS = {
   "gw-test": publicKey.export({ type: "spki", format: "pem" }).toString()
 };
 
-describe("@gateway call records", function () {
+describe("@AppBridge call records", function () {
   this.timeout(20000);
   let nc: NatsConnection;
   let harness: FakesHarness;
-  let gateway: Gateway | undefined;
+  let appbridge: AppBridge | undefined;
   let writer: CallRecordWriter;
   let store: RecordStore;
   let dir: string;
@@ -96,7 +96,7 @@ describe("@gateway call records", function () {
   after(async () => nc?.close());
 
   beforeEach(async () => {
-    dir = fs.mkdtempSync(path.join(os.tmpdir(), "gateway-records-"));
+    dir = fs.mkdtempSync(path.join(os.tmpdir(), "appbridge-records-"));
     harness = await new FakesHarness().start();
     harness.roomrNode.configure({
       callerAudio: { kind: "tone", ms: 400 }
@@ -114,14 +114,14 @@ describe("@gateway call records", function () {
       ...stores,
       key: KEY,
       region: "test-region",
-      onSealed: (e) => gateway?.onRecordSealed(e)
+      onSealed: (e) => appbridge?.onRecordSealed(e)
     });
   });
 
   afterEach(async () => {
     stopIndex?.();
-    await gateway?.stop();
-    gateway = undefined;
+    await appbridge?.stop();
+    appbridge = undefined;
     await harness?.stop();
     fs.rmSync(dir, { recursive: true, force: true });
   });
@@ -140,11 +140,11 @@ describe("@gateway call records", function () {
 
   async function start(
     apps: AppConfig[],
-    callRecord: Partial<NonNullable<GatewayConfig["callRecord"]>> = {},
+    callRecord: Partial<NonNullable<AppBridgeConfig["callRecord"]>> = {},
     bus = false
   ) {
     const urls = harness.providerUrls;
-    gateway = await new Gateway({
+    appbridge = await new AppBridge({
       config: {
         nats: { url: NATS_URL! },
         retry: { windowMs: 300, intervalMs: 100 },
@@ -186,13 +186,13 @@ describe("@gateway call records", function () {
         recording: "on",
         workspaces: { "ws-2": { recording: "consent" } }
       }
-    } as unknown as GatewayConfig;
+    } as unknown as AppBridgeConfig;
     expect(recordingPolicy(config, app({ recording: "off" }))).to.equal("off");
     expect(recordingPolicy(config, app({ workspaceRef: "ws-2" }))).to.equal(
       "consent"
     );
     expect(recordingPolicy(config, app())).to.equal("on");
-    expect(recordingPolicy({} as GatewayConfig, app())).to.equal("off");
+    expect(recordingPolicy({} as AppBridgeConfig, app())).to.equal("off");
   });
 
   it("records both sides when the policy is on, and the record references it with its hash", async function () {

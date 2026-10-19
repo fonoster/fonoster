@@ -20,7 +20,7 @@ import { Recorder } from "@fonoster/callrecord";
 import { getLogger } from "@fonoster/logger";
 import { RecordingPolicy } from "../config";
 
-const logger = getLogger({ service: "gateway", filePath: __filename });
+const logger = getLogger({ service: "appbridge", filePath: __filename });
 
 /** How long to wait for the track ids of both sides before giving up on the recording. */
 const TRACKS_TIMEOUT_MS = 3000;

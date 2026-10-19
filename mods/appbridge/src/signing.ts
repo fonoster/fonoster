@@ -21,7 +21,7 @@ import { createHmac } from "crypto";
 // voice-session, "Connection requests are signed".
 export const SIGNATURE_HEADER = "X-Fonoster-Signature";
 export const TIMESTAMP_HEADER = "X-Fonoster-Timestamp";
-// voice-session, "Connection requests are bound to the app": the app and workspace the gateway
+// voice-session, "Connection requests are bound to the app": the app and workspace AppBridge
 // dials for, and an HMAC over them, so a signature made for one app cannot open a session for
 // another (Autopilot apps share one secret).
 export const APP_REF_HEADER = "X-Fonoster-App-Ref";

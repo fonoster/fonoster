@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: say-reports-interruption
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: say-reports-interruption
 spec: "say speaks text and reports what was heard / Interrupted"
 description: >

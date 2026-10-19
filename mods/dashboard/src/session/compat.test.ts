@@ -18,7 +18,7 @@
  */
 import { describe, expect, it } from "vitest";
 import {
-  assistantRequirements,
+  agentRequirements,
   compatibleLlmModels,
   compatibleSttModels,
   compatibleVoices,
@@ -77,12 +77,9 @@ describe("picker compatibility", () => {
     ]);
   });
 
-  it("offers language models with the features the assistant needs", () => {
+  it("offers language models with the features the agent needs", () => {
     const withTools = { languageModel: { tools: [{ name: "lookup" }] } };
-    expect(assistantRequirements(withTools)).toEqual([
-      "streaming",
-      "tool-calling"
-    ]);
+    expect(agentRequirements(withTools)).toEqual(["streaming", "tool-calling"]);
     expect(ids(compatibleLlmModels(catalog, withTools))).toEqual([
       "openai/gpt-4o-mini"
     ]);

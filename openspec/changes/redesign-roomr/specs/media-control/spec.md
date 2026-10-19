@@ -3,10 +3,10 @@
 - FROM: `### Requirement: Commands go down, audio and call events come up`
 - TO: `### Requirement: Roomr is a gRPC service with three nouns`
 
-- FROM: `### Requirement: The session participant carries the gateway's audio`
+- FROM: `### Requirement: The session participant carries AppBridge's audio`
 - TO: `### Requirement: The app leg carries the app's audio`
 
-- FROM: `### Requirement: Gateway audio is RTP negotiated in participant.add`
+- FROM: `### Requirement: AppBridge audio is RTP negotiated in participant.add`
 - TO: `### Requirement: App audio is RTP negotiated on the control stream`
 
 - FROM: `### Requirement: Outbound calls are placed on a node chosen by the control plane`
@@ -32,17 +32,17 @@ nouns: `CreateCall` dials, `Join` adds RTP participants.
 **Migration**: `participant.dial` becomes `CreateCall` with `room_ref`; `participant.add` for the
 app leg becomes `Answer`/`Ready` on the control stream; `participant.add` for RTP legs becomes `Join`.
 
-### Requirement: Incoming calls are claimed by exactly one gateway replica
+### Requirement: Incoming calls are claimed by exactly one AppBridge replica
 
 **Reason**: The node opens one control stream per call to a configured session endpoint; a
 Kubernetes Service picks the replica. There is no offer, no claim and no race.
-**Migration**: Retire the `gateway.incoming` queue group; serve `Session.Connect` behind a Service.
+**Migration**: Retire the `appbridge.incoming` queue group; serve `Session.Connect` behind a Service.
 
 ### Requirement: Outbound calls are owned by the replica that placed them
 
 **Reason**: The node opens the control stream to the session endpoint when the callee answers, and
 events are keyed by call with sequence numbers, so no replica needs to own a call.
-**Migration**: Retire `gateway.outbound`; the controller calls `CreateCall` and follows
+**Migration**: Retire `appbridge.outbound`; the controller calls `CreateCall` and follows
 `roomr.events.<call_ref>`.
 
 ## MODIFIED Requirements
@@ -285,7 +285,7 @@ the session registry: it uses core NATS only, for heartbeats and events.
 caller and the caller's audio to the app, and SHALL play `music` to the caller in a loop, or
 silence when none is given. The caller's leg SHALL stay `sendrecv` (no re-INVITE). The node SHALL
 fetch and loop the music file itself; the URL is fetched as given, because tenant-supplied URLs
-are validated upstream by the apiserver and the appbridge. `Resume` SHALL restore both
+are validated upstream by the apiserver and AppBridge. `Resume` SHALL restore both
 directions.
 
 #### Scenario: Hold with music
@@ -319,7 +319,7 @@ from the node; `Answer`, `Ready`, `Reject`, `Play`, `Stop`, `Transfer`, `Transfe
 `Hold`, `Resume`, `SendDtmf`, `AttachListener`, `DetachListener`, `Record` and `Hangup` from the
 app. The node SHALL send gRPC keepalive pings every 10 seconds and SHALL treat the stream as dead
 after 2 missed pings, then hang the call up with `cause: "app_gone"`; it MUST NOT reconnect the
-call to another app instance. The gateway SHALL also send keepalive pings on its side and SHALL end
+call to another app instance. AppBridge SHALL also send keepalive pings on its side and SHALL end
 the session when the node misses 2 of them. The connection SHALL use TLS or mTLS when configured.
 
 For an outbound call that is answered, the node SHALL send BYE and end the call with
@@ -344,9 +344,9 @@ stream.
 - **WHEN** the app instance holding a stream is killed
 - **THEN** within 30 seconds the node sends BYE to the caller and no new stream is opened for that call
 
-#### Scenario: Node gone, gateway notices
+#### Scenario: Node gone, appbridge notices
 - **WHEN** the node holding a stream is killed
-- **THEN** within 30 seconds the gateway ends the session and closes the app's socket
+- **THEN** within 30 seconds AppBridge ends the session and closes the app's socket
 
 #### Scenario: Ready never arrives
 - **WHEN** the callee answers an outbound call and the app opens the stream but never sends `Ready`
@@ -391,7 +391,7 @@ channel only: as an `Event` on the app's control stream when the app started the
 NATS when a controller did. `Stop` SHALL cancel a `Play`. `SendDtmf` SHALL send RFC 4733 events on
 the target leg. Apps SHALL be able to send the same actions on their control stream. The node
 fetches `Play` and `Hold` URLs as given; tenant-supplied URLs are validated upstream by the
-apiserver and the appbridge.
+apiserver and AppBridge.
 
 #### Scenario: Play completes
 - **WHEN** a controller calls `Play` with a 2-second file on call `c1`

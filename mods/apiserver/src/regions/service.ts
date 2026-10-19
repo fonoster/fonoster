@@ -474,7 +474,7 @@ export function createRegionService(deps: {
       });
       const components = {
         roomrNodes: Number(body.components?.roomrNodes ?? 0),
-        gateways: Number(body.components?.gateways ?? 0),
+        appbridges: Number(body.components?.appbridges ?? 0),
         autopilot: Boolean(body.components?.autopilot)
       };
       const updated: RegionRow = await db.region.update({
@@ -518,7 +518,7 @@ export function createRegionService(deps: {
           version: hb.version ? String(hb.version) : row.version,
           components: {
             roomrNodes: Number(c.roomrNodes ?? 0),
-            gateways: Number(c.gateways ?? 0),
+            appbridges: Number(c.appbridges ?? 0),
             autopilot: Boolean(c.autopilot)
           },
           activeCalls: Number(hb.activeCalls ?? 0),

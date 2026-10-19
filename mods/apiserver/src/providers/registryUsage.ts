@@ -20,7 +20,7 @@ import { getLogger } from "@fonoster/logger";
 import { NatsConnection, StringCodec } from "nats";
 import { ProvidersDb } from "./createProvidersHandlers";
 
-// Runtime catalog use (add-provider-registry, build log LO-B11). Gateways publish one
+// Runtime catalog use (add-provider-registry, build log LO-B11). AppBridges publish one
 // `registry.used` message per session and catalog id; the control plane counts sessions per
 // workspace, id and day (for `fonoster-registry usage`) and keeps one runtime notice per workspace
 // and deprecated or retired id. `listWarnings` turns the catalog's state, the workspace's saved
@@ -117,7 +117,7 @@ export function createRecordCatalogUse(db: ProvidersDb) {
   };
 }
 
-/** Consumes the gateways' `registry.used` messages (one apiserver replica per message). */
+/** Consumes the AppBridge replicas' `registry.used` messages (one apiserver replica per message). */
 export function subscribeRegistryUsage(nc: NatsConnection, db: ProvidersDb) {
   const record = createRecordCatalogUse(db);
   const sub = nc.subscribe(REGISTRY_USED_SUBJECT, {
@@ -139,7 +139,7 @@ export function subscribeRegistryUsage(nc: NatsConnection, db: ProvidersDb) {
 }
 
 export type WarningUse = {
-  kind: "app" | "assistant";
+  kind: "app" | "agent";
   ref: string;
   name: string;
   /** The config field that names the id: voice, ttsModel, sttModel, llm. */
@@ -248,7 +248,7 @@ export async function listWarnings(
 
   for (const app of apps as Record<string, unknown>[]) {
     const config = app.intelligence as { config?: unknown } | null;
-    const assistant = config?.config as
+    const agent = config?.config as
       | {
           languageModel?: { model?: string };
           conversationSettings?: { voice?: string };
@@ -258,8 +258,8 @@ export async function listWarnings(
       [app.speechVoice as string, "app", "voice"],
       [app.speechTtsModel as string, "app", "ttsModel"],
       [app.speechSttModel as string, "app", "sttModel"],
-      [assistant?.languageModel?.model, "assistant", "llm"],
-      [assistant?.conversationSettings?.voice, "assistant", "voice"]
+      [agent?.languageModel?.model, "agent", "llm"],
+      [agent?.conversationSettings?.voice, "agent", "voice"]
     ];
     for (const [id, kind, field] of refs) {
       if (!id) continue;

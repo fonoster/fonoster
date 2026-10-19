@@ -6,7 +6,7 @@ page with /ps:docs.
 
 ## Send call metrics to ClickHouse (`self-hosting/send-call-metrics-to-clickhouse`)
 
-- gateway.yaml:
+- appbridge.yaml:
   ```yaml
   callRecord:
     analytics:
@@ -27,10 +27,10 @@ page with /ps:docs.
 
 ## Send telemetry (`self-hosting/send-telemetry`)
 
-- `telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }` in fonoster, gateway, autopilot and
+- `telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }` in fonoster, appbridge, autopilot and
   roomr YAML; empty = off. OTEL_* env still works as a fallback.
 - apiserver: `apiserver.grpc` spans, `grpc.requests`, `records.indexed`.
-- gateway: `gateway.call` and `roomr.command` spans, `calls.active`, `calls.total`.
+- appbridge: `appbridge.call` and `roomr.command` spans, `calls.active`, `calls.total`.
 - autopilot: `sessions.total`. roomr: `rooms.active`, `calls.incoming` (traces and metrics only; logs stay on stderr).
 - Every signal carries `fonoster.call_ref`.
 

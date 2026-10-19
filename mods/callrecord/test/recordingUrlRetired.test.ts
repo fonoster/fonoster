@@ -27,7 +27,7 @@ import { expect } from "chai";
 const MODS = path.join(__dirname, "..", "..");
 const SERVICES = [
   "apiserver",
-  "gateway",
+  "appbridge",
   "autopilot",
   "voice",
   "sdk",

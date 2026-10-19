@@ -1,7 +1,7 @@
 /*
   Warnings:
 
-  - The values [ASSISTANT] on the enum `product_types` will be removed. If these variants are still used in the database, this will fail.
+  - The values [AGENT] on the enum `product_types` will be removed. If these variants are still used in the database, this will fail.
   - Added the required column `credentials_hash` to the `stt_services` table without a default value. This is not possible if the table is not empty.
   - Added the required column `credentials_hash` to the `tts_services` table without a default value. This is not possible if the table is not empty.
 

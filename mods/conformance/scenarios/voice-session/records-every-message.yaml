@@ -13,5 +13,5 @@ steps:
   - wait: { ms: 100 }
   - assert:
       record.messages.speak: [{ source: app, id: r1, text: "Bye.", at: { $gt: 0 } }]
-      record.messages.output.done: [{ source: gateway, id: r1, at: { $gt: 0 } }]
-      record.messages.session.end: [{ source: gateway, reason: app_hangup, at: { $gt: 0 } }]
+      record.messages.output.done: [{ source: appbridge, id: r1, at: { $gt: 0 } }]
+      record.messages.session.end: [{ source: appbridge, reason: app_hangup, at: { $gt: 0 } }]

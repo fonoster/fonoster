@@ -1,4 +1,4 @@
-# Defaults install the data plane only (gateway and Roomr nodes, as in a private cell). For the
+# Defaults install the data plane only (appbridge and Roomr nodes, as in a private cell). For the
 # whole platform with its control plane use values-cloud.yaml:
 #   helm install fonoster . -f values-cloud.yaml
 # and add values-observability.yaml for the default observability profile.
@@ -13,7 +13,7 @@ nats:
   resources: {}
   # One NATS user per service, limited to its subjects (add-platform 4.1; the permissions are
   # files/nats-permissions/, copies of ops/rebuild/config/nats-permissions/). `secret` holds one
-  # password per user: keys apiserver, gateway, roomr, routr, region-agent (those you run).
+  # password per user: keys apiserver, appbridge, roomr, routr, region-agent (those you run).
   # Services read theirs through secret://env/NATS_<USER>_PASSWORD. With nats.deploy the chart's
   # NATS gets the users; with your own NATS, give it the same users and permission files. Routr
   # connects as `routr` with the password in its NATS URL (hex passwords only). On by default:
@@ -147,7 +147,7 @@ appbridge:
   replicas: 2
   # In-flight sessions are not moved between replicas; give calls time to finish on rollout.
   terminationGracePeriodSeconds: 30
-  # Rendered into gateway.yaml next to nats.url. Secrets: inline or secret:// references.
+  # Rendered into appbridge.yaml next to nats.url. Secrets: inline or secret:// references.
   config:
     apps: []
     providers: {}
@@ -223,7 +223,7 @@ roomr:
   resources: {}
 
 # The hosted Autopilot session engine (Autopilot apps point to ws://<release>-autopilot:3000). A
-# private cell runs its own (PR-9) with assistants from the cell database and LLM keys from the
+# private cell runs its own (PR-9) with agents from the cell database and LLM keys from the
 # cell's secrets. Off by default.
 autopilot:
   enabled: false
@@ -233,14 +233,14 @@ autopilot:
   # database URL and encryption key (keys `url`, `key`).
   secret: fonoster-cell-autopilot
   databaseSecret: fonoster-cell-db
-  # Rendered as autopilot-session.yaml (templated, like the gateway's config).
+  # Rendered as autopilot-session.yaml (templated, like AppBridge's config).
   config:
     port: 3000
     signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
     # The URL the Autopilot apps point to (regionAgent.config.autopilot.url, or the apiserver's
     # apps.autopilotUrl): signatures are checked against it, never against the Host header.
     publicUrl: "ws://{{ .Release.Name }}-autopilot:3000"
-    assistants: { source: database }
+    agents: { source: database }
     registry: { source: database }
     workspaceSecrets: { cellSecrets: { dir: /var/lib/fonoster-secrets } }
     database: { url: "${APISERVER_DATABASE_URL}" }
@@ -273,7 +273,7 @@ regionAgent:
   # Existing Secret with the Autopilot signing secret (key `secret`) for the cell's Autopilot apps.
   autopilotSecret: fonoster-cell-autopilot
   # Secrets mounted for secret://k8s/<name>#<key> references in config.
-  # A public region (PR-20): the gateway fetches a workspace's own provider key from the cloud
+  # A public region (PR-20): AppBridge fetches a workspace's own provider key from the cloud
   # per call (through this agent) before the region's keys. Leave off for a private region.
   workspaceKeysFromCloud: false
   secretMounts: []

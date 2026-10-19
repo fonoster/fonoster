@@ -46,7 +46,7 @@ export type ConnectionAttempt = {
 };
 
 /**
- * Plays the app side of the session protocol. The gateway dials apps (voice-session VS6), so the
+ * Plays the app side of the session protocol. AppBridge dials apps (voice-session VS6), so the
  * fake app is a WebSocket server: each accepted connection becomes a peer the runner drives.
  */
 export class FakeApp {

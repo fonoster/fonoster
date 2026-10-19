@@ -1,6 +1,6 @@
 # Session protocol reference (`fonoster.session.v1`)
 
-Every call reaches your app as a **session**: one WebSocket connection that the VoiceSessionGateway
+Every call reaches your app as a **session**: one WebSocket connection that AppBridge
 opens to your app's URL. Over it you receive the caller's audio and events, and you send commands.
 This page is the wire reference. Most apps use an SDK instead
 ([voice SDK](./voice-sdk.md)), which builds `say`, `gather` and the rest from these messages.
@@ -10,11 +10,11 @@ message).
 
 ## Connecting
 
-The gateway dials your app; your app never dials Fonoster. An app is configured with:
+AppBridge dials your app; your app never dials Fonoster. An app is configured with:
 
 | Setting | Meaning |
 | --- | --- |
-| URL | `ws://` or `wss://` address the gateway connects to |
+| URL | `ws://` or `wss://` address AppBridge connects to |
 | Protocol | `fonoster` (this page) or `twilio` (Twilio Media Streams, see below) |
 | Signing secret | Used to sign every connection request |
 | Speech defaults | Default voice and language, as catalog ids |
@@ -36,18 +36,18 @@ signature does not match or whose timestamp is more than 300 seconds from your c
 Rotating the signing secret takes effect immediately; there is no overlap window, so deploy the new
 secret to your app at the same time.
 
-If the app's URL refuses connections, the gateway retries for about 2.5 seconds while the caller
+If the app's URL refuses connections, AppBridge retries for about 2.5 seconds while the caller
 hears ringing, then applies the fallback.
 
 ### Keepalive
 
-The gateway pings every 10 seconds. A socket that answers nothing (no pong, no frame) for 30 seconds
+AppBridge pings every 10 seconds. A socket that answers nothing (no pong, no frame) for 30 seconds
 is treated as dropped, and the call is hung up.
 
 ## Frames
 
 - **Text frames** carry JSON messages. Every message has a `type`.
-- **Binary frames** carry audio. Frames from the gateway start with **one byte holding the track id**
+- **Binary frames** carry audio. Frames from AppBridge start with **one byte holding the track id**
   (see `tracks` in `session.start`), followed by audio in the session's format. Frames you send are
   plain audio, without the byte.
 - Commands may carry an `id` (any string up to 128 characters). Every event a command causes echoes
@@ -57,7 +57,7 @@ is treated as dropped, and the call is hung up.
 
 ## Session lifecycle
 
-### `session.start` (gateway → app)
+### `session.start` (appbridge → app)
 
 Always the first message.
 
@@ -86,33 +86,33 @@ Inbound calls are answered as soon as this message is sent; there is no answer c
 calls open their session only when the callee answers. `handoff` holds the payload when another app
 handed the call to yours.
 
-### `session.end` (gateway → app)
+### `session.end` (appbridge → app)
 
 The last message, sent when the socket is still open, with a `reason`: `caller_hangup`,
-`app_hangup`, `transfer`, `handoff`, `error` or `timeout`. The gateway then closes the socket.
+`app_hangup`, `transfer`, `handoff`, `error` or `timeout`. AppBridge then closes the socket.
 
 Closing the socket yourself hangs up the call.
 
 ## Speech
 
-### `speak` (app → gateway)
+### `speak` (app → appbridge)
 
 | Field | Required | Meaning |
 | --- | --- | --- |
 | `text` | yes | Text to speak (may be empty on the last piece) |
-| `id` | no | Echoed by `output.*` events; the gateway assigns one if you leave it out |
+| `id` | no | Echoed by `output.*` events; AppBridge assigns one if you leave it out |
 | `last` | no | Default `true`. Send several `speak` with one `id` and `last: false` to stream text (for example LLM tokens) into one continuous utterance; the piece with `last: true` ends it |
 | `voice`, `language` | no | Catalog ids overriding the app's defaults for this item |
-| `interruptible` | no | Default `true`. A hint for your app: the gateway never stops output on caller speech (see "Interruptions"); the SDKs send `clear` when the caller starts talking over an interruptible item |
+| `interruptible` | no | Default `true`. A hint for your app: AppBridge never stops output on caller speech (see "Interruptions"); the SDKs send `clear` when the caller starts talking over an interruptible item |
 | `preempt` | no | Stop what is playing and play this first |
 
-### `play` (app → gateway)
+### `play` (app → appbridge)
 
 `{ "type": "play", "id": "p1", "url": "https://example.com/hold.wav", "loop": false }`. WAV files
 (PCM or μ-law, any rate) are converted to the call's format. Also takes `interruptible` and
 `preempt`. A file that cannot be fetched produces `error` `play_fetch_failed`.
 
-### Output events (gateway → app)
+### Output events (appbridge → app)
 
 | Event | Meaning |
 | --- | --- |
@@ -126,14 +126,14 @@ queue behind earlier ones.
 ### Interruptions
 
 Your app decides when the agent stops talking. When the caller starts talking over the agent, the
-gateway sends `turn.user_started` and keeps playing; send `clear` (or a `preempt` item) to stop.
+AppBridge sends `turn.user_started` and keeps playing; send `clear` (or a `preempt` item) to stop.
 Short acknowledgments ("uh-huh") arrive as `turn.backchannel` instead and do not produce
 `turn.user_started`. The SDKs do this for you: `say` and `play` with `interruptible: true` (the
 default) are cleared when the caller starts talking.
 
-### Turn events (gateway → app)
+### Turn events (appbridge → app)
 
-The gateway's turn detector decides when the caller starts and stops talking:
+AppBridge's turn detector decides when the caller starts and stops talking:
 
 | Event | Fields | Meaning |
 | --- | --- | --- |
@@ -146,7 +146,7 @@ The gateway's turn detector decides when the caller starts and stops talking:
 Each turn arrives as `turn.user_started`, zero or more (`turn.likely_ended`, `turn.resumed`) pairs,
 an optional `turn.likely_ended`, then `turn.ended`.
 
-### `subscribe` (app → gateway)
+### `subscribe` (app → appbridge)
 
 `{ "type": "subscribe", "events": ["turn.estimate", "transcript.partial"] }` turns on two opt-in
 events:
@@ -155,11 +155,11 @@ events:
   every 100 ms.
 - `transcript.partial { text, language }`: interim transcripts.
 
-### `listen.update` (app → gateway)
+### `listen.update` (app → appbridge)
 
 Changes recognition from now on: `{ "type": "listen.update", "language": "es", "hints": ["Fonoster"], "patience": "high" }`.
 `patience` (`low`, `normal` or `high`) sets how long the turn detector waits for more speech before
-`turn.ended`. See [turn-taking](./turn-taking.md) for what each level does and how the gateway adapts
+`turn.ended`. See [turn-taking](./turn-taking.md) for what each level does and how AppBridge adapts
 within a call.
 
 ## Audio
@@ -167,12 +167,12 @@ within a call.
 - **Caller audio:** one binary frame per 20 ms, starting with the caller's track id.
 - **Your audio:** send binary frames of any length in the session's format. They join the output
   queue and play in real time.
-- **`mark { name }`** (app → gateway) marks a position in the queue. The gateway answers
+- **`mark { name }`** (app → appbridge) marks a position in the queue. AppBridge answers
   `mark { name, cleared: false }` when everything queued before it was heard, or
   `mark { name, cleared: true }` when `clear` dropped it.
-- **`clear`** (app → gateway) empties the whole queue. The caller hears silence within 40 ms.
+- **`clear`** (app → appbridge) empties the whole queue. The caller hears silence within 40 ms.
 
-## Call control (app → gateway)
+## Call control (app → appbridge)
 
 | Command | Fields | Result |
 | --- | --- | --- |
@@ -205,11 +205,11 @@ version no error is fatal on its own; a session that cannot continue ends with `
 | `play_fetch_failed` | The media could not be fetched |
 | `internal` | Anything else |
 
-The gateway never switches providers on failure; it reports the error.
+AppBridge never switches providers on failure; it reports the error.
 
 ## Listen-only sockets
 
-An app can list listeners (`url`, `tracks`: `inbound`, `outbound` or `both`, up to 4). The gateway
+An app can list listeners (`url`, `tracks`: `inbound`, `outbound` or `both`, up to 4). AppBridge
 dials each one when the session starts, signed with the app's secret. Listeners receive
 `session.start`, the same events as your app, and the tracks they chose as separate binary frames
 (each with its track id; sides are never mixed). Anything they send gets `error` `read_only`.
@@ -217,12 +217,12 @@ dials each one when the session starts, signed with the app's secret. Listeners 
 ## Twilio protocol
 
 For apps built for Twilio Media Streams (Pipecat's `TwilioFrameSerializer`, for example). The
-gateway speaks the exact Media Streams messages:
+appbridge speaks the exact Media Streams messages:
 
 | Direction | Messages |
 | --- | --- |
-| Gateway → app | `connected`, `start` (with `streamSid` = `sessionRef`, `callSid` = `callRef`, `mediaFormat` μ-law 8 kHz), `media` (base64 μ-law, `track: inbound`), `dtmf`, `mark`, `stop` |
-| App → gateway | `media`, `mark`, `clear` |
+| AppBridge → app | `connected`, `start` (with `streamSid` = `sessionRef`, `callSid` = `callRef`, `mediaFormat` μ-law 8 kHz), `media` (base64 μ-law, `track: inbound`), `dtmf`, `mark`, `stop` |
+| App → appbridge | `media`, `mark`, `clear` |
 
 Everything else is ignored: there is no Speech layer, transfer or TwiML. To hang up, close the socket
 or call the compatible endpoint

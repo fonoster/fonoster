@@ -25,10 +25,10 @@ import {
   RecordingPolicy
 } from "../config";
 
-const logger = getLogger({ service: "gateway", filePath: __filename });
+const logger = getLogger({ service: "appbridge", filePath: __filename });
 
 /**
- * Where the gateway finds apps (voice-session G2). Lookups are synchronous: a store answers from
+ * Where AppBridge finds apps (voice-session G2). Lookups are synchronous: a store answers from
  * memory and refreshes in the background (build log P-B7).
  */
 export interface AppStore {
@@ -39,7 +39,7 @@ export interface AppStore {
   stop?(): void;
 }
 
-/** Apps from the gateway YAML (`apps:`): self-hosting without a database, and tests. */
+/** Apps from AppBridge YAML (`apps:`): self-hosting without a database, and tests. */
 export class YamlAppStore implements AppStore {
   constructor(private readonly apps: AppConfig[]) {}
 

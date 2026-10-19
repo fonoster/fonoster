@@ -264,7 +264,7 @@ func TestJoin(t *testing.T) {
 		{"webrtc", &roomrv1.JoinRequest{RoomRef: "r1", Endpoint: &roomrv1.JoinRequest_Webrtc{Webrtc: &roomrv1.WebRtcOffer{Sdp: "v=0"}}}, codes.Unimplemented},
 		{"no room", &roomrv1.JoinRequest{Endpoint: &roomrv1.JoinRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 1}}}, codes.InvalidArgument},
 		{"nothing to join", &roomrv1.JoinRequest{RoomRef: "r1"}, codes.InvalidArgument},
-		{"bad ip", &roomrv1.JoinRequest{RoomRef: "r1", Endpoint: &roomrv1.JoinRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "gateway", Port: 1}}}, codes.InvalidArgument},
+		{"bad ip", &roomrv1.JoinRequest{RoomRef: "r1", Endpoint: &roomrv1.JoinRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "appbridge", Port: 1}}}, codes.InvalidArgument},
 		{"bad port", &roomrv1.JoinRequest{RoomRef: "r1", Endpoint: &roomrv1.JoinRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 70000}}}, codes.InvalidArgument},
 		{"rtp and listen", &roomrv1.JoinRequest{RoomRef: "r1", Endpoint: &roomrv1.JoinRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 1}},
 			Listen: []*roomrv1.ListenTrack{{TrackId: 1, Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 2}}}}, codes.InvalidArgument},

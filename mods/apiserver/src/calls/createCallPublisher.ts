@@ -33,7 +33,7 @@ const sc = StringCodec();
 
 /**
  * How long CreateCall waits for the placement: CreateRoom (a retry on a timeout, up to three
- * nodes), the gateway's claim and CreateCall (a retry on a timeout), 2 s each, plus margin.
+ * nodes), AppBridge's claim and CreateCall (a retry on a timeout), 2 s each, plus margin.
  */
 const PLACE_TIMEOUT_MS = 15000;
 

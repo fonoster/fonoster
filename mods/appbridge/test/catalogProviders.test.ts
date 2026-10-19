@@ -18,13 +18,13 @@
  */
 import { Registry as RegistryNs } from "@fonoster/common";
 import { expect } from "chai";
-import { GatewayConfig } from "../src/config";
+import { AppBridgeConfig } from "../src/config";
 import { Catalog } from "../src/speech/Catalog";
 
-// Catalog providers the gateway config does not list (fake-providers): keyless ones work with no
+// Catalog providers AppBridge config does not list (fake-providers): keyless ones work with no
 // key, others with the workspace's key; the config still overrides a catalog endpoint.
 
-describe("@gateway/catalog providers", function () {
+describe("@appbridge/catalog providers", function () {
   const catalogStore = () => {
     const store = new RegistryNs.MemoryRegistryStore();
     new RegistryNs.Registry({ store, actor: "test" }).apply(`entries:
@@ -44,9 +44,9 @@ describe("@gateway/catalog providers", function () {
   const options = (adapter: unknown) =>
     (adapter as { options: Record<string, unknown> }).options;
 
-  it("uses a keyless catalog provider with no gateway config, at its catalog endpoints", function () {
+  it("uses a keyless catalog provider with no AppBridge config, at its catalog endpoints", function () {
     const catalog = new Catalog(
-      { nats: { url: "nats://x" }, providers: {} } as GatewayConfig,
+      { nats: { url: "nats://x" }, providers: {} } as AppBridgeConfig,
       catalogStore()
     );
     const voice = catalog.resolveVoice("fake/default");
@@ -59,9 +59,9 @@ describe("@gateway/catalog providers", function () {
     );
   });
 
-  it("reaches a provider missing from the gateway config with the workspace's key only", async function () {
+  it("reaches a provider missing from AppBridge config with the workspace's key only", async function () {
     const catalog = new Catalog(
-      { nats: { url: "nats://x" }, providers: {} } as GatewayConfig,
+      { nats: { url: "nats://x" }, providers: {} } as AppBridgeConfig,
       catalogStore(),
       {
         get: async (workspaceRef, providerId) =>
@@ -80,7 +80,7 @@ describe("@gateway/catalog providers", function () {
     );
   });
 
-  it("lets the gateway config override a catalog endpoint", function () {
+  it("lets AppBridge config override a catalog endpoint", function () {
     const providers = (tts?: { url: string }) => ({
       deepgram: {
         adapter: "deepgram",
@@ -92,7 +92,7 @@ describe("@gateway/catalog providers", function () {
     const from = (config: ReturnType<typeof providers>) =>
       options(
         new Catalog(
-          { nats: { url: "nats://x" }, providers: config } as GatewayConfig,
+          { nats: { url: "nats://x" }, providers: config } as AppBridgeConfig,
           catalogStore()
         ).resolveVoice("deepgram/aura-2-thalia-en")!.adapter
       ).baseUrl;
@@ -109,7 +109,7 @@ describe("@gateway/catalog providers", function () {
         providers: {
           deepgram: { adapter: "deepgram", capabilities: ["stt"] }
         }
-      } as GatewayConfig,
+      } as AppBridgeConfig,
       catalogStore()
     );
     const stt = catalog.resolveStt();

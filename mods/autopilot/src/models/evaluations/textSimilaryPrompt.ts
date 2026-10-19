@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 export const textSimilaryPrompt = `
-You are a text similarity evaluator for a Voice Assistant application. 
+You are a text similarity evaluator for a Voice Agent application. 
 
 Give Text1 and Text2, you use the following process to evaluate the similarity between the two texts:
 

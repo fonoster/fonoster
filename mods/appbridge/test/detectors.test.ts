@@ -68,7 +68,7 @@ function setup(
 const endedAt = (s: ReturnType<typeof setup>) =>
   s.events.find((e) => e.type === "turn.ended")?.at ?? Infinity;
 
-describe("@gateway/turn-taking patience", function () {
+describe("@appbridge/turn-taking patience", function () {
   function oneTurn(patience: "low" | "normal" | "high") {
     const s = setup(new BaselineDetector({ silenceTimeoutMs: 600 }), {
       patience
@@ -134,7 +134,7 @@ describe("@gateway/turn-taking patience", function () {
   });
 });
 
-describe("@gateway/turn-taking turn-aware STT Detector", function () {
+describe("@appbridge/turn-taking turn-aware STT Detector", function () {
   it("ends the turn when the recognizer says so, not on a silence timer", function () {
     const s = setup(new SttTurnDetector());
     s.feed(voice, 20);
@@ -177,7 +177,7 @@ describe("@gateway/turn-taking turn-aware STT Detector", function () {
   });
 });
 
-describe("@gateway/turn-taking out-of-process Detector (WebSocket)", function () {
+describe("@appbridge/turn-taking out-of-process Detector (WebSocket)", function () {
   it("drives the same turn events as the in-process baseline", async function () {
     const server = await serveDetector({
       makeDetector: () => new BaselineDetector({ silenceTimeoutMs: 300 })

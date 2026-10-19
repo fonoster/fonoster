@@ -25,8 +25,8 @@ run, or that have no key available to your workspace, are not listed.
 
 - **Apps**: `speech.voice` and `speech.sttModel` take catalog ids, for example
   `voice: deepgram/aura-2-thalia-en`, `sttModel: deepgram/nova-3`.
-- **Autopilot assistants**: the language model (`languageModel.model`) and voice
-  (`conversationSettings.voice`) take catalog ids. An assistant with tools needs an LLM that
+- **Autopilot agents**: the language model (`languageModel.model`) and voice
+  (`conversationSettings.voice`) take catalog ids. An agent with tools needs an LLM that
   supports tool calling.
 - An id that is not in the catalog is refused (the app gets an `invalid_catalog_id` error, which is not fatal to the call).
 
@@ -60,13 +60,13 @@ id.
 You are told in three places:
 
 - **Dashboard**: the Apps page shows a warning for each deprecated item that one of your apps or
-  assistants names (or that a call used in the last 7 days), with the retire date, the
+  agents names (or that a call used in the last 7 days), with the retire date, the
   replacement and the apps affected. It clears when you change every config away from the item.
 - **Webhook**: `provider.deprecated` with `id`, `replacement` and `retireOn`. See
   [webhooks](./webhooks.md).
 - **Call record**: a session that used the item records `provider.deprecated_used`.
 
-What to do: pick the replacement in your app or assistant before the retire date, and listen to a
+What to do: pick the replacement in your app or agent before the retire date, and listen to a
 test call. Models differ, and a replacement can sound or behave a little differently.
 
 On the retire date, Fonoster rewrites your configs that can move to the replacement. Settings

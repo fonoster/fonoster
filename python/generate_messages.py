@@ -71,8 +71,8 @@ def generate() -> str:
         f"PROTOCOL = {json.dumps(doc['protocol'])}",
         "",
     ]
-    names: dict[str, list[str]] = {"gatewayToApp": [], "appToGateway": []}
-    for direction, suffix in (("gatewayToApp", "Event"), ("appToGateway", "Command")):
+    names: dict[str, list[str]] = {"appBridgeToApp": [], "appToAppBridge": []}
+    for direction, suffix in (("appBridgeToApp", "Event"), ("appToAppBridge", "Command")):
         for message_type, schema in doc[direction].items():
             name = class_name(message_type) + ("Event" if message_type == "mark" and suffix == "Event" else "")
             if message_type == "mark" and suffix == "Command":
@@ -81,8 +81,8 @@ def generate() -> str:
             parts.append("")
             parts.append(typed_dict(name, schema))
     parts.append("")
-    parts.append("GatewayMessage = Union[" + ", ".join(names["gatewayToApp"]) + "]")
-    parts.append("AppCommand = Union[" + ", ".join(names["appToGateway"]) + "]")
+    parts.append("AppBridgeMessage = Union[" + ", ".join(names["appBridgeToApp"]) + "]")
+    parts.append("AppCommand = Union[" + ", ".join(names["appToAppBridge"]) + "]")
     parts.append("")
     return "\n".join(parts)
 

@@ -70,7 +70,7 @@ export type ReplayOptions = {
   language?: string;
   /** The app patience the policy runs with (default normal). */
   patience?: Patience;
-  /** Within-call adaptation (default on, as in the gateway). */
+  /** Within-call adaptation (default on, as in AppBridge). */
   adapt?: boolean;
 };
 

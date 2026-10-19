@@ -21,9 +21,6 @@
       "path": "../types",
     },
     {
-      "path": "../streams",
-    },
-    {
       "path": "../autopilot",
     },
     {

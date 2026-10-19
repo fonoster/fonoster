@@ -1,6 +1,6 @@
 apiVersion: v2
 name: fonoster-rebuild
-description: Fonoster VoiceSessionGateway and Roomr node (add-platform)
+description: Fonoster AppBridge and Roomr node (add-platform)
 type: application
 version: 0.1.0
 appVersion: "0.27.0"

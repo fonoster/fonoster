@@ -34,9 +34,6 @@ type ApplicationFlags = {
   url?: string;
   protocol?: string;
   agent?: string;
-  /** Renamed flags (0.30): rejected with a clear error. */
-  flavor?: string;
-  assistant?: string;
   voice?: string;
   language?: string;
   "stt-model"?: string;
@@ -95,13 +92,12 @@ function compact<T extends Record<string, unknown>>(obj: T): T {
   ) as T;
 }
 
-/** The LLM product the control plane files the assistant under (`llm.<provider>`). */
-function intelligenceFor(assistant: Record<string, unknown>) {
-  const model = (assistant.languageModel as { model?: string } | undefined)
-    ?.model;
+/** The LLM product the control plane files the agent under (`llm.<provider>`). */
+function intelligenceFor(agent: Record<string, unknown>) {
+  const model = (agent.languageModel as { model?: string } | undefined)?.model;
   return {
     productRef: model?.includes("/") ? `llm.${model.split("/")[0]}` : "",
-    config: assistant
+    config: agent
   };
 }
 
@@ -130,23 +126,17 @@ function applicationToRequest(app: Application): AppRequest {
   return compact(request as unknown as Record<string, unknown>) as AppRequest;
 }
 
-/** A file in the new app model; `assistant` (inline) makes it an Autopilot agent. */
+/** A file in the new app model; `agent` (inline) makes it an Autopilot agent. */
 function fileToRequest(raw: Record<string, unknown>): AppRequest {
-  if (raw.flavor !== undefined)
-    throw new Error(
-      "`flavor` was renamed to `protocol` (fonoster or twilio; native is now fonoster)"
-    );
-  if (raw.type === "EXTERNAL")
-    throw new Error("type EXTERNAL was renamed to STREAM");
-  const { assistant, ...rest } = raw as Record<string, unknown> & {
-    assistant?: Record<string, unknown>;
+  const { agent, ...rest } = raw as Record<string, unknown> & {
+    agent?: Record<string, unknown>;
   };
   const request = { ...rest } as AppRequest & { testCases?: unknown };
   // Test cases belong to applications:eval, not to the app.
   delete request.testCases;
-  if (assistant) {
+  if (agent) {
     request.type = "AUTOPILOT" as AppRequest["type"];
-    request.intelligence = intelligenceFor(assistant);
+    request.intelligence = intelligenceFor(agent);
   }
   // Never send a model key that sits in an agent file; keys live in the vendor keys.
   const lm = (
@@ -168,17 +158,11 @@ function applyFlags(base: AppRequest, flags: ApplicationFlags): AppRequest {
     listeners: [...(base.listeners ?? [])]
   };
 
-  if (flags.assistant !== undefined)
-    throw new Error("--assistant was renamed to --agent");
-  if (flags.flavor !== undefined)
-    throw new Error(
-      "--flavor was renamed to --protocol (fonoster or twilio; native is now fonoster)"
-    );
   if (flags.name !== undefined) request.name = flags.name;
   if (flags.agent) {
-    const assistant = readConfigFile(flags.agent);
+    const agent = readConfigFile(flags.agent);
     request.type = "AUTOPILOT" as AppRequest["type"];
-    request.intelligence = fileToRequest({ assistant }).intelligence;
+    request.intelligence = fileToRequest({ agent }).intelligence;
   }
   if (flags.url !== undefined) request.url = flags.url;
   if (flags.protocol !== undefined)

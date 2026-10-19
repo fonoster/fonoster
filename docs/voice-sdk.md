@@ -64,7 +64,7 @@ The Python SDK is asyncio only; plain `def` handlers are rejected.
 | `hold({ music })`, `resume()` | same | `hold`, `resume` |
 | `handoff(app, payload)` | same | `handoff` |
 | `hangup()` | same | `hangup` |
-| `answer()` | same | nothing (the gateway answers on connect) |
+| `answer()` | same | nothing (AppBridge answers on connect) |
 
 Session fields: `callRef`, `sessionRef`, `appRef`, `direction`, `from` (`from_` in Python), `to`,
 `metadata`, `handoffPayload` (`handoff_payload` in Python; the payload from another app's handoff), `speech`, `audioFormat`,
@@ -75,11 +75,11 @@ next `gather`, so callers can type ahead.
 
 When the caller starts talking over a `say` or `play` with `interruptible` true (the default), the
 SDK stops it with `clear` and the call resolves with `interrupted: true`. Pass
-`interruptible: false` to keep talking; the gateway itself never cuts the agent off.
+`interruptible: false` to keep talking; AppBridge itself never cuts the agent off.
 
 ## Errors
 
-- A command the gateway rejects (an `error` with `relatesTo` naming it) rejects its promise with
+- A command AppBridge rejects (an `error` with `relatesTo` naming it) rejects its promise with
   `SessionError` (`code`, `message`, `fatal`).
 - When the session ends, every pending call rejects with `SessionEndedError` (`reason`), so handlers
   never hang.

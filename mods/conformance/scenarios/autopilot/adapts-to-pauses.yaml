@@ -1,13 +1,13 @@
 format: fonoster.scenario.v1
 name: adapts-to-pauses
 contract: autopilot
-role: gateway
+role: appbridge
 spec: "Pacing policy / Adapting to a caller who pauses often"
 description: >
-  An eager assistant prepares on every turn.likely_ended; after three resumes in one call it
+  An eager agent prepares on every turn.likely_ended; after three resumes in one call it
   stops preparing early (the fourth likely_ended starts no generation).
 setup:
-  assistant:
+  agent:
     conversationSettings: { systemPrompt: "You are the receptionist of a dental clinic.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong." }
     languageModel: { model: fake/llm }
   providers:

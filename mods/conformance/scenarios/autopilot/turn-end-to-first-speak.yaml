@@ -1,7 +1,7 @@
 format: fonoster.scenario.v1
 name: turn-end-to-first-speak
 contract: autopilot
-role: gateway
+role: appbridge
 spec: "Replies stream into speech / First sentence starts before generation ends"
 tags: [timing]
 description: >
@@ -9,7 +9,7 @@ description: >
   with the fake LLM's 300 ms delay subtracted. One sample; the timing test repeats it and checks
   the p95 of Autopilot's own time.
 setup:
-  assistant:
+  agent:
     conversationSettings: { systemPrompt: "You are the receptionist of a dental clinic.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong." }
     languageModel: { model: fake/llm }
   providers:

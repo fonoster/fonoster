@@ -20,7 +20,7 @@ import { expect } from "chai";
 import { initTelemetry, Telemetry } from "@fonoster/common";
 import {
   Agent,
-  sessionAssistantSchema,
+  sessionAgentSchema,
   setTelemetry,
   telemetry
 } from "../../src/session";
@@ -64,7 +64,7 @@ function memory() {
   return { t, spans, counters };
 }
 
-const assistant = sessionAssistantSchema.parse({
+const agentConfig = sessionAgentSchema.parse({
   conversationSettings: {
     systemPrompt: "p",
     goodbyeMessage: "bye",
@@ -96,7 +96,7 @@ describe("@autopilot/session telemetry", function () {
     };
     const agent = new Agent(
       session as never,
-      assistant,
+      agentConfig,
       think as never,
       {} as never,
       { turn: () => undefined, note: () => undefined } as never
@@ -132,7 +132,7 @@ describe("@autopilot/session telemetry", function () {
     };
     const agent = new Agent(
       session as never,
-      assistant,
+      agentConfig,
       think as never,
       {} as never,
       { turn: () => undefined, note: () => undefined } as never

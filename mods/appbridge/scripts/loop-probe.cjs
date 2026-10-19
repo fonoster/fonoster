@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Preloaded into each gateway by scripts/scale.ts (`node --require`): once a second appends the
+// Preloaded into each AppBridge by scripts/scale.ts (`node --require`): once a second appends the
 // process's event-loop delay (ms) and CPU (% of one core) over that second to SCALE_PROBE_FILE.
 const { monitorEventLoopDelay } = require("perf_hooks");
 const fs = require("fs");

@@ -4,7 +4,7 @@ contract: turn-taking
 role: app
 spec: "The app decides whether an interruption stops output / The caller cuts in and the app clears"
 description: >
-  The gateway reports the interruption with turn.user_started and keeps playing; output stops only
+  AppBridge reports the interruption with turn.user_started and keeps playing; output stops only
   when the app sends clear, and output.interrupted reports what was heard.
 steps:
   - expect: { type: session.start }

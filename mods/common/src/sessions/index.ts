@@ -22,17 +22,17 @@ import type { KV, KvEntry, NatsConnection } from "nats";
  * The session registry (add-platform 2.3, add-roomr 3.2, decision D3): one NATS JetStream KV
  * bucket shared by every service. Keys are `<kind>.<id>`:
  *
- *   calls.<callRef>       gateway:    { callRef, gatewayRef, nodeId, roomRef, direction, at }
+ *   calls.<callRef>       appbridge:    { callRef, bridgeRef, nodeId, roomRef, direction, at }
  *                                     + once answered: { appRef, from, to, startedAt }
- *   gateways.<gatewayRef> gateway:    { gatewayRef, calls, at }
+ *   appbridges.<bridgeRef> appbridge:    { bridgeRef, calls, at }
  *   placements.<callRef>  apiserver:  { callRef, nodeRef, controlAddr, roomRef?, at }
  *                                     while an outbound call is being placed (CreateCall)
  *
  * Roomr nodes write nothing here (core NATS only: heartbeat and events); the control plane learns
  * nodes from their heartbeats.
  *
- * The control plane reads `calls` and `gateways`: a call whose entry and whose gateway's entry
- * both stop being rewritten lost its gateway mid-call, and gets `call.ended` (`appbridge-lost`).
+ * The control plane reads `calls` and `appbridges`: a call whose entry and whose AppBridge's entry
+ * both stop being rewritten lost its AppBridge mid-call, and gets `call.ended` (`appbridge-lost`).
  *
  * Entries are leases: the bucket keeps a value for SESSIONS_TTL_MS after its last write, owners
  * rewrite theirs every SESSIONS_REFRESH_MS, and a crashed owner's entries expire on their own.
@@ -45,7 +45,7 @@ export type SessionKind =
   | "nodes"
   | "rooms"
   | "calls"
-  | "gateways"
+  | "appbridges"
   | "placements";
 
 /** `<kind>.<id>` with characters KV keys do not allow replaced by `_`. */
@@ -63,7 +63,7 @@ export async function openSessions(
       history: 1,
       ttl: options.ttlMs ?? SESSIONS_TTL_MS,
       description:
-        "Fonoster session registry: nodes, rooms, calls, gateways (leases)"
+        "Fonoster session registry: nodes, rooms, calls, appbridges (leases)"
     });
   try {
     return await open();
@@ -78,7 +78,7 @@ export async function openSessions(
 type Logger = { warn(message: string): void };
 
 /**
- * An owner's entries, kept alive until deleted (the gateway's calls and its own gateway entry).
+ * An owner's entries, kept alive until deleted (AppBridge's calls and its own appbridge entry).
  * Writes never throw: the registry is best effort and entries are rewritten on the next refresh.
  */
 export class SessionLeases {

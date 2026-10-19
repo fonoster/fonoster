@@ -131,7 +131,7 @@ export const INFLUXDB_URL = config.influxdb.url;
 
 export const INFLUXDB_USERNAME = config.influxdb.username;
 
-// Platform model keys for assistant evaluations, by credentialRef (rework-autopilot 8.2).
+// Platform model keys for agent evaluations, by credentialRef (rework-autopilot 8.2).
 export const EVALUATIONS = config.evaluations;
 
 export const NATS_URL = config.nats.url;

@@ -85,7 +85,7 @@ const callRecordsSchema = z
 
 /**
  * Session apps (voice-session G2): the hosted Autopilot that Autopilot apps point at, and the
- * secret the gateway signs their sessions with (the hosted Autopilot verifies one secret for every
+ * secret AppBridge signs their sessions with (the hosted Autopilot verifies one secret for every
  * Autopilot app). Without `signingSecret` each Autopilot app gets its own random secret.
  */
 const sessionAppsSchema = z
@@ -104,7 +104,7 @@ const sessionAppsSchema = z
 
 /**
  * Provider registry (add-provider-registry 4.1): the platform credentials (credentialRef names)
- * the gateways have. When set, the catalog only lists providers with one of them or with the
+ * the AppBridge replicas have. When set, the catalog only lists providers with one of them or with the
  * workspace's own key.
  */
 const registrySchema = z
@@ -129,7 +129,7 @@ const catalogSchema = z
   .optional();
 
 /**
- * Assistant evaluations (EvaluateIntelligence): platform model keys by credentialRef, used when a
+ * Agent evaluations (EvaluateIntelligence): platform model keys by credentialRef, used when a
  * workspace has no key of its own for the provider. Values take `secret://` references (D8).
  */
 const evaluationsSchema = z

@@ -31,7 +31,7 @@ import { BaselineDetector } from "../src/turn/Detector";
 const quiet = { eot: 0, speaking: false, kind: "none" as const };
 const talking = { eot: 0, speaking: true, kind: "speech" as const };
 
-describe("@gateway turn labels", function () {
+describe("@AppBridge turn labels", function () {
   const sandbox = createSandbox();
   let clock: ReturnType<typeof sandbox.useFakeTimers>;
   let labels: TurnLabel[];
@@ -104,7 +104,7 @@ describe("@gateway turn labels", function () {
   });
 });
 
-describe("@gateway turn-taking test doubles", function () {
+describe("@AppBridge turn-taking test doubles", function () {
   it("drives Pacing from a scripted estimate timeline", function () {
     const events: TurnEvent[] = [];
     const detector = new ScriptedDetector([

@@ -146,7 +146,7 @@ export async function startControlPlane(
         signingSecret: "s3cr3t"
       }
     ],
-    assistants: [],
+    agents: [],
     routr: {
       domains: [{ ref: "d1", domainUri: "acme.fonoster.example" }],
       agents: [],
@@ -158,7 +158,7 @@ export async function startControlPlane(
     recordingPolicy: { recordings: { store: true } }
   };
   const sources: SnapshotSources = {
-    apps: async () => ({ apps: kinds.apps, assistants: kinds.assistants }),
+    apps: async () => ({ apps: kinds.apps, agents: kinds.agents }),
     numbers: async () => kinds.numbers,
     routr: async () => kinds.routr,
     catalog: async (ids, providers) =>
@@ -301,7 +301,7 @@ export async function startControlPlane(
           token,
           publicKey,
           version: options.currentVersion ?? "0.27.0",
-          components: { roomrNodes: 1, gateways: 1, autopilot: true }
+          components: { roomrNodes: 1, appbridges: 1, autopilot: true }
         }
       });
     },

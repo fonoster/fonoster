@@ -20,12 +20,12 @@ import { screen, waitFor, within } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
 import { renderScreen } from "~/test/render";
-import { CallsScreen, StreamsScreen } from ".";
+import { CallsScreen, AppsScreen } from ".";
 import { SessionApiProvider } from "./api";
 
 import { describeMessage } from "./calls";
 import { createMockSessionApi } from "./mock-api";
-import { validateStream } from "./streams";
+import { validateApp } from "./apps";
 import VendorKeysScreen from "./vendor-keys";
 import WebhooksScreen, { validateWebhook } from "./webhooks";
 
@@ -40,13 +40,13 @@ function render(element: ReactElement, path: string, route: string) {
   };
 }
 
-const streams = (route: string, api = createMockSessionApi()) => ({
+const apps = (route: string, api = createMockSessionApi()) => ({
   api,
   ...renderScreen(
     <SessionApiProvider value={api}>
-      <StreamsScreen />
+      <AppsScreen />
     </SessionApiProvider>,
-    { path: "/w/:workspaceRef/streams/*", route }
+    { path: "/w/:workspaceRef/apps/*", route }
   )
 });
 
@@ -68,11 +68,11 @@ async function withAgent() {
   return api;
 }
 
-describe("streams", () => {
-  it("lists only streams, with readable protocol names", async () => {
-    streams("/w/ws-1/streams", await withAgent());
+describe("apps", () => {
+  it("lists only apps, with readable protocol names", async () => {
+    apps("/w/ws-1/apps", await withAgent());
     expect(
-      await screen.findByRole("heading", { name: "Streams" })
+      await screen.findByRole("heading", { name: "Apps" })
     ).toBeInTheDocument();
     expect(await screen.findByText("Support line")).toBeInTheDocument();
     expect(screen.getByText("Pipecat bot")).toBeInTheDocument();
@@ -83,8 +83,8 @@ describe("streams", () => {
     expect(screen.queryByText("fonoster")).not.toBeInTheDocument();
   });
 
-  it("warns about deprecated catalog items and names the streams that use them", async () => {
-    streams("/w/ws-1/streams");
+  it("warns about deprecated catalog items and names the apps that use them", async () => {
+    apps("/w/ws-1/apps");
     expect(
       await screen.findByText(
         "The model deepgram/nova-2 is deprecated and will be retired on 2027-01-31. Use deepgram/nova-3 instead."
@@ -93,22 +93,20 @@ describe("streams", () => {
     expect(screen.getByText("Used by: Support line.")).toBeInTheDocument();
   });
 
-  it("creates a stream in a dialog, then opens it and shows its secret once", async () => {
-    const { user, api } = streams("/w/ws-1/streams");
-    await user.click(
-      await screen.findByRole("button", { name: /Create stream/ })
-    );
-    const dialog = await screen.findByRole("dialog", { name: "New stream" });
+  it("creates an app in a dialog, then opens it and shows its secret once", async () => {
+    const { user, api } = apps("/w/ws-1/apps");
+    await user.click(await screen.findByRole("button", { name: /Create app/ }));
+    const dialog = await screen.findByRole("dialog", { name: "New app" });
     // No agent choice here: agents are created under Agents.
     expect(within(dialog).queryByLabelText("Type")).not.toBeInTheDocument();
     await user.click(
-      within(dialog).getByRole("button", { name: "Create stream" })
+      within(dialog).getByRole("button", { name: "Create app" })
     );
     expect(within(dialog).getByText("Enter a name")).toBeVisible();
     await user.type(within(dialog).getByLabelText("Name"), "Bot");
     await user.type(within(dialog).getByLabelText("URL"), "http://bot");
     await user.click(
-      within(dialog).getByRole("button", { name: "Create stream" })
+      within(dialog).getByRole("button", { name: "Create app" })
     );
     expect(
       within(dialog).getByText("Must start with ws:// or wss://")
@@ -119,9 +117,9 @@ describe("streams", () => {
       "wss://bot.example.com"
     );
     await user.click(
-      within(dialog).getByRole("button", { name: "Create stream" })
+      within(dialog).getByRole("button", { name: "Create app" })
     );
-    // The new stream's page opens behind its signing secret, shown once.
+    // The new app's page opens behind its signing secret, shown once.
     const secret = await screen.findByRole("dialog", {
       name: "Save your signing secret"
     });
@@ -140,8 +138,8 @@ describe("streams", () => {
   });
 
   it("offers the protocols in plain words; audio format only for Fonoster", async () => {
-    const { user } = streams("/w/ws-1/streams/new");
-    const dialog = await screen.findByRole("dialog", { name: "New stream" });
+    const { user } = apps("/w/ws-1/apps/new");
+    const dialog = await screen.findByRole("dialog", { name: "New app" });
     expect(within(dialog).getByLabelText("Audio format")).toBeInTheDocument();
     await user.click(within(dialog).getByLabelText("Protocol"));
     expect(
@@ -156,8 +154,8 @@ describe("streams", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("opens a stream's page from its row and saves edits across tabs", async () => {
-    const { user, api } = streams("/w/ws-1/streams");
+  it("opens an app's page from its row and saves edits across tabs", async () => {
+    const { user, api } = apps("/w/ws-1/apps");
     await user.click(await screen.findByText("Pipecat bot"));
     expect(
       await screen.findByRole("heading", { name: "Pipecat bot" })
@@ -189,11 +187,9 @@ describe("streams", () => {
     );
   });
 
-  it("deletes a stream from Advanced behind a confirmation", async () => {
-    const { user, api } = streams("/w/ws-1/streams/pipecat-bot/advanced");
-    await user.click(
-      await screen.findByRole("button", { name: "Delete stream" })
-    );
+  it("deletes an app from Advanced behind a confirmation", async () => {
+    const { user, api } = apps("/w/ws-1/apps/pipecat-bot/advanced");
+    await user.click(await screen.findByRole("button", { name: "Delete app" }));
     const confirm = await screen.findByRole("dialog", {
       name: "Delete Pipecat bot?"
     });
@@ -202,13 +198,13 @@ describe("streams", () => {
       expect(await api.getApp("pipecat-bot")).toBeUndefined()
     );
     expect(
-      await screen.findByRole("heading", { name: "Streams" })
+      await screen.findByRole("heading", { name: "Apps" })
     ).toBeInTheDocument();
     expect(screen.queryByText("Pipecat bot")).not.toBeInTheDocument();
   });
 
   it("rotates the secret behind a confirmation", async () => {
-    const { user } = streams("/w/ws-1/streams/support-line/advanced");
+    const { user } = apps("/w/ws-1/apps/support-line/advanced");
     await user.click(
       await screen.findByRole("button", { name: "Rotate secret" })
     );
@@ -222,24 +218,24 @@ describe("streams", () => {
     ).toBeInTheDocument();
   });
 
-  it("sends an agent opened as a stream to the agent page", async () => {
+  it("sends an agent opened as an app to the agent page", async () => {
     const api = await withAgent();
     const agent = (await api.listApps()).find((a) => a.type === "AUTOPILOT")!;
-    streams(`/w/ws-1/streams/${agent.ref}`, api);
+    apps(`/w/ws-1/apps/${agent.ref}`, api);
     expect(await screen.findByTestId("location")).toHaveTextContent(
       `/w/ws-1/agents/${agent.ref}`
     );
   });
 
-  it("validates streams", () => {
+  it("validates apps", () => {
     const base = { name: "x", url: "wss://x", listeners: [] };
-    expect(validateStream(base)).toEqual({});
+    expect(validateApp(base)).toEqual({});
     expect(
-      Object.keys(validateStream({ ...base, name: "", url: "http://x" }))
+      Object.keys(validateApp({ ...base, name: "", url: "http://x" }))
     ).toEqual(["name", "url"]);
     // Agent mode checks only the call-handling fields it shows.
     expect(
-      validateStream(
+      validateApp(
         { name: "", url: "", listeners: [{ url: "x", tracks: "both" }] },
         "agent"
       )

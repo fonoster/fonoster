@@ -96,13 +96,13 @@ influxdb:                                        # call records
 #   enabled: true
 #   listCallsFromIndex: true
 #   retentionIntervalMinutes: 60
-#   stores:                                        # where the gateways put records
+#   stores:                                        # where the AppBridge replicas put records
 #     - s3:
 #         bucket: records
 #         endpoint: http://minio:9000
 #         credentials: { accessKeyId: ${RECORDS_S3_KEY}, secretAccessKey: ${RECORDS_S3_SECRET} }
 
-# Platform model keys for assistant evaluations, by credentialRef (secret:// references work).
+# Platform model keys for agent evaluations, by credentialRef (secret:// references work).
 # A workspace's own vendor key wins.
 # evaluations:
 #   credentials:

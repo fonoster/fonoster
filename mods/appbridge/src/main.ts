@@ -32,41 +32,41 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection } from "nats";
+import { AppBridge } from "./AppBridge";
 import { AppStore, PrismaAppStore } from "./apps/AppStore";
 import { openUntilReady } from "./apps/openUntilReady";
-import { databaseUrl, GatewayConfig, loadConfig } from "./config";
-import { Gateway } from "./Gateway";
+import { AppBridgeConfig, databaseUrl, loadConfig } from "./config";
 import { CallRecordSink, JsonlCallRecordSink } from "./record/CallRecordSink";
 import { createRecordWriter } from "./record/createRecordWriter";
 import { WorkspaceKeySource } from "./speech/Catalog";
 import { chainKeySources } from "./speech/keySources";
 import { startTelemetry, telemetry } from "./telemetry";
 
-const logger = getLogger({ service: "gateway", filePath: __filename });
+const logger = getLogger({ service: "appbridge", filePath: __filename });
 logUnhandledRejections(logger);
 
 async function main() {
-  // GATEWAY_CONFIG or the first argument names the file; else /config/gateway.yaml (or the
-  // older /etc/fonoster/gateway.yaml).
-  const config = loadConfig(process.env.GATEWAY_CONFIG ?? process.argv[2]);
+  // APPBRIDGE_CONFIG or the first argument names the file; else /config/appbridge.yaml (or the
+  // older /etc/fonoster/appbridge.yaml).
+  const config = loadConfig(process.env.APPBRIDGE_CONFIG ?? process.argv[2]);
   startTelemetry(config.telemetry);
   let record: CallRecordSink | undefined;
   let writer: CallRecordWriter | undefined;
   let sweeper: ReturnType<typeof setInterval> | undefined;
   // eslint-disable-next-line prefer-const
-  let gateway: Gateway | undefined;
+  let appbridge: AppBridge | undefined;
   if (config.callRecord) {
     const analytics = analyticsLoader(config.callRecord, () => writer);
     writer = createRecordWriter(config.callRecord, (entry) => {
-      gateway?.onRecordSealed(entry);
+      appbridge?.onRecordSealed(entry);
       analytics?.(entry);
     });
     record = writer;
-  } else if (process.env.GATEWAY_RECORD_DIR) {
-    record = new JsonlCallRecordSink(process.env.GATEWAY_RECORD_DIR);
+  } else if (process.env.APPBRIDGE_RECORD_DIR) {
+    record = new JsonlCallRecordSink(process.env.APPBRIDGE_RECORD_DIR);
   }
   const db = await openDatabase(config);
-  gateway = await new Gateway({
+  appbridge = await new AppBridge({
     config,
     record,
     apps: db.apps,
@@ -74,11 +74,11 @@ async function main() {
     workspaceKeys: keySource(config, db.workspaceKeys),
     webhooks: db.webhooks
   }).start();
-  const running = gateway;
-  telemetry.gauge("fonoster.gateway.calls.active", () => running.calls.size);
+  const running = appbridge;
+  telemetry.gauge("fonoster.appbridge.calls.active", () => running.calls.size);
   if (writer) {
     const w = writer;
-    // Records of calls whose gateway died are sealed by whichever replica sweeps first.
+    // Records of calls whose AppBridge died are sealed by whichever replica sweeps first.
     void w.sweep();
     sweeper = setInterval(
       () => void w.sweep(),
@@ -89,7 +89,7 @@ async function main() {
   const shutdown = async () => {
     logger.info("shutting down");
     if (sweeper) clearInterval(sweeper);
-    await gateway?.stop();
+    await appbridge?.stop();
     await writer?.flush();
     await db.close();
     await telemetry.shutdown();
@@ -105,7 +105,7 @@ async function main() {
  * the store from the records.
  */
 function analyticsLoader(
-  c: NonNullable<GatewayConfig["callRecord"]>,
+  c: NonNullable<AppBridgeConfig["callRecord"]>,
   writer: () => CallRecordWriter | undefined
 ) {
   const ch = c.analytics?.clickhouse;
@@ -135,7 +135,7 @@ function analyticsLoader(
  * database's workspace keys; any subset; or none (platform keys only).
  */
 function keySource(
-  config: GatewayConfig,
+  config: AppBridgeConfig,
   db?: WorkspaceKeySource
 ): WorkspaceKeySource | undefined {
   const cell = config.cellSecrets
@@ -150,7 +150,7 @@ function keySource(
         () =>
           (link ??= connect({
             ...natsConnectOptions(config.nats),
-            name: "gateway-workspace-keys",
+            name: "appbridge-workspace-keys",
             maxReconnectAttempts: -1
           }))
       )
@@ -163,7 +163,7 @@ function keySource(
  * `applications`, the registry tables, and a webhook dispatcher whose deliveries are stored, retried
  * here, and adopted from replicas that died.
  */
-async function openDatabase(config: GatewayConfig): Promise<{
+async function openDatabase(config: AppBridgeConfig): Promise<{
   apps?: AppStore;
   registryStore?: RegistryNs.RegistryStore;
   webhooks?: (event: Webhooks.WebhookEvent) => void;

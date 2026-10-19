@@ -26,7 +26,7 @@ import { FakesHarness, FakesHarnessOptions } from "./FakesHarness";
 import { RoomrBinaries, RoomrProcess } from "./RoomrProcess";
 
 /**
- * The gateway's fakes (app, providers) with a real Roomr node and a SIP caller bot instead of the
+ * AppBridge's fakes (app, providers) with a real Roomr node and a SIP caller bot instead of the
  * fake Roomr node: voice-session scenarios then cross real SIP, RTP and media-control.
  */
 export class RealMediaHarness extends FakesHarness {
@@ -48,7 +48,7 @@ export class RealMediaHarness extends FakesHarness {
 
   async start(): Promise<this> {
     await super.start();
-    // Every media-control command the gateway sends, as the fake node's media.commands.
+    // Every media-control command AppBridge sends, as the fake node's media.commands.
     this.sub = this.nc.subscribe(`media.${this.media.nodeId}.commands`, {
       callback: (err, msg) => {
         if (!err)

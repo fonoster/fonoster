@@ -52,7 +52,7 @@ func (PCMU) Encode(f Frame) []byte {
 	return out
 }
 
-// L16 is big-endian 16-bit PCM at 16 kHz (the gateway's session leg).
+// L16 is big-endian 16-bit PCM at 16 kHz (AppBridge's session leg).
 type L16 struct{}
 
 func (L16) Name() string   { return "L16" }

@@ -18,7 +18,7 @@
  */
 // What is left of the apiserver's speech engines after the rebuild (cleanbreak CB-B4): the
 // config and credential schemas that application validation still checks. Speech runs in the
-// gateway now (add-provider-registry).
+// appbridge now (add-provider-registry).
 enum DeepgramModel {
   NOVA_3 = "nova-3",
   NOVA_2 = "nova-2",

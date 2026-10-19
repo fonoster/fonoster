@@ -9,7 +9,7 @@ from __future__ import annotations
 import asyncio
 
 import pytest
-from fonoster_conformance import FakeGateway, load_scenarios, run_scenario
+from fonoster_conformance import FakeAppBridge, load_scenarios, run_scenario
 
 from fonoster.voice import SessionError, VoiceServer
 
@@ -178,8 +178,8 @@ def test_scenario(scenario):
     async def main():
         server = await VoiceServer(port=0, host="127.0.0.1", signing_secret=SECRET).listen(fixture)
         try:
-            gateway = FakeGateway(signing_secret=SECRET)
-            return await run_scenario(scenario, lambda: gateway.dial(f"ws://127.0.0.1:{server.port}/"))
+            appbridge = FakeAppBridge(signing_secret=SECRET)
+            return await run_scenario(scenario, lambda: appbridge.dial(f"ws://127.0.0.1:{server.port}/"))
         finally:
             await server.close()
 

@@ -19,7 +19,7 @@
 import { ScenarioEvaluationReport } from "@fonoster/types";
 import { Voice } from "../../voice";
 import { createLanguageModel } from "../createLanguageModel";
-import { EvalAssistant, TelephonyContext } from "../types";
+import { EvalAgent, TelephonyContext } from "../types";
 import { createTestTextSimilarity } from "./createTestTextSimilarity";
 import { evaluateScenario } from "./evaluateScenario";
 import { textSimilaryPrompt } from "./textSimilaryPrompt";
@@ -27,11 +27,11 @@ import { EvalScenario } from "./types";
 
 export async function evalTestCases(autopilotApplication: {
   intelligence: {
-    config: EvalAssistant;
+    config: EvalAgent;
   };
 }): Promise<ScenarioEvaluationReport[]> {
   const { testCases } = autopilotApplication.intelligence.config;
-  const { config: assistantConfig } = autopilotApplication.intelligence;
+  const { config: agentConfig } = autopilotApplication.intelligence;
   const voice = {
     say: async (_: string) => {}
   } as Voice;
@@ -43,7 +43,7 @@ export async function evalTestCases(autopilotApplication: {
     const scenario = scenarios[i];
     const languageModel = createLanguageModel({
       voice,
-      assistantConfig: autopilotApplication.intelligence.config,
+      agentConfig: autopilotApplication.intelligence.config,
       knowledgeBase: {
         load: async () => {},
         queryKnowledgeBase: async (query: string) => query
@@ -53,15 +53,15 @@ export async function evalTestCases(autopilotApplication: {
 
     const testTextSimilarity = createTestTextSimilarity(
       {
-        provider: assistantConfig.testCases?.evalsLanguageModel?.provider,
-        model: assistantConfig.testCases?.evalsLanguageModel?.model ?? "",
-        apiKey: assistantConfig.testCases?.evalsLanguageModel?.apiKey
+        provider: agentConfig.testCases?.evalsLanguageModel?.provider,
+        model: agentConfig.testCases?.evalsLanguageModel?.model ?? "",
+        apiKey: agentConfig.testCases?.evalsLanguageModel?.apiKey
       },
-      assistantConfig.testCases?.evalsSystemPrompt || textSimilaryPrompt
+      agentConfig.testCases?.evalsSystemPrompt || textSimilaryPrompt
     );
 
     const evaluationReport = await evaluateScenario({
-      assistantConfig,
+      agentConfig,
       scenario,
       languageModel,
       testTextSimilarity

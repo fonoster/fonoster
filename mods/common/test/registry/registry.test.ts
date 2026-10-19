@@ -23,7 +23,7 @@ import {
   RegistryError,
   Usage,
   UsageSource,
-  assistantRequirements
+  agentRequirements
 } from "../../src/registry";
 
 class Usages implements UsageSource {
@@ -409,10 +409,10 @@ describe("@common/registry", function () {
     const usages = new Usages([
       {
         workspace: "w",
-        config: { kind: "assistant", ref: "a1", name: "Billing" },
+        config: { kind: "agent", ref: "a1", name: "Billing" },
         model: "openai/gpt-4o-mini",
         settings: [],
-        requires: assistantRequirements({ languageModel: { tools: [{}] } })
+        requires: agentRequirements({ languageModel: { tools: [{}] } })
       }
     ]);
     const r = new Registry({ store, usages });

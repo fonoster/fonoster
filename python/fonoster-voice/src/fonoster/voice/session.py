@@ -15,7 +15,7 @@ from typing import Any, AsyncIterable, Awaitable, Callable, Protocol
 from .errors import SessionEndedError, SessionError
 
 DEFAULT_GATHER_TIMEOUT = 4.0
-#: Commands that make the gateway start listening (speech recognition and turn events).
+#: Commands that make AppBridge start listening (speech recognition and turn events).
 SPEECH_COMMANDS = {"speak", "play", "subscribe", "listen.update"}
 MAX_BUFFERED_INPUTS = 32
 
@@ -156,7 +156,7 @@ class Session:
                 full += piece
                 await self._send({"type": "speak", "id": id_, "text": piece, "last": False, **fields})
         except Exception:
-            # End the utterance so the gateway does not wait for more pieces.
+            # End the utterance so AppBridge does not wait for more pieces.
             await self._send({"type": "speak", "id": id_, "text": "", "last": True, **fields})
             self._outputs.pop(id_, None)
             future.cancel()
@@ -189,7 +189,7 @@ class Session:
             raise SessionEndedError(self._ended_reason)
         if self._gather:
             raise RuntimeError("a gather is already pending")
-        # The gateway listens only after a Speech-layer command; a gather may be the first one.
+        # AppBridge listens only after a Speech-layer command; a gather may be the first one.
         if source != "dtmf" and not self._listening:
             await self._send({"type": "listen.update"})
         future = asyncio.get_running_loop().create_future()
@@ -221,7 +221,7 @@ class Session:
         await self._command({"type": "dtmf.send", "digits": digits})
 
     async def transfer(self, to: str, *, mode: str | None = None, headers: dict[str, str] | None = None) -> None:
-        """Transfers the call; returns when the gateway ends the session with reason transfer."""
+        """Transfers the call; returns when AppBridge ends the session with reason transfer."""
         id_ = self._next_id("transfer")
         if mode == "warm":
             self._last_warm_transfer = id_
@@ -256,7 +256,7 @@ class Session:
         await self._command({"type": "record.note", "data": data})
 
     async def answer(self) -> None:
-        """Returns at once: the gateway answers the call on connect."""
+        """Returns at once: AppBridge answers the call on connect."""
 
     # ---- incoming ---------------------------------------------------------------------
 
@@ -403,7 +403,7 @@ class Session:
         await self._send({**message, "id": self._next_id(str(message["type"]).replace(".", "-"))})
 
     def _barge_in(self) -> None:
-        """The app owns interruption (gateway B22): clear when every playing output is interruptible."""
+        """The app owns interruption (appbridge B22): clear when every playing output is interruptible."""
         playing = [i for i, entry in self._outputs.items() if entry[2][0] is not None]
         if playing and not any(i in self._kept for i in playing):
             task = asyncio.get_running_loop().create_task(self._send({"type": "clear"}))

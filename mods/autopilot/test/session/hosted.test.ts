@@ -23,7 +23,7 @@ import * as path from "path";
 import { expect } from "chai";
 import { CellSecrets, Registry } from "@fonoster/common";
 import {
-  FakeGateway,
+  FakeAppBridge,
   FakesHarness,
   interpolate,
   loadScenarios,
@@ -34,18 +34,18 @@ import {
   ConfigCredentials,
   DatabaseWorkspaceSecrets,
   LayeredCredentials,
-  PrismaAssistantSource,
+  PrismaAgentSource,
   loadHostedConfig,
   RegistryLlmResolver,
   eagerKnowledge,
   s3Knowledge,
-  sessionAssistantSchema,
+  sessionAgentSchema,
   signedWorkspaceOnly,
   startHostedAutopilot
 } from "../../src/session";
 
 // The hosted Autopilot (task 4.3) runs the whole autopilot suite the way production does: the
-// assistant comes from the app's record, the model from the provider registry, the key through a
+// agent comes from the app's record, the model from the provider registry, the key through a
 // credential ref (task 3.1), never from the scenario or Autopilot's environment.
 const SECRET = "hosted-autopilot";
 const SESSION_START = {
@@ -113,20 +113,20 @@ function freePort(): Promise<number> {
   });
 }
 
-/** The app the config's assistants file holds, as the gateway signs for it. */
+/** The app the config's agents file holds, as AppBridge signs for it. */
 const APP = { appRef: "app-1", workspaceRef: "ws-1" };
 
 async function writeConfig(
   dir: string,
   llmUrl: string,
-  assistant: unknown,
+  agent: unknown,
   extra: Record<string, unknown> = {}
 ) {
   const port = await freePort();
   catalog(dir);
   fs.writeFileSync(
-    path.join(dir, "assistants.json"),
-    JSON.stringify({ apps: { "app-1": { workspaceRef: "ws-1", assistant } } })
+    path.join(dir, "agents.json"),
+    JSON.stringify({ apps: { "app-1": { workspaceRef: "ws-1", agent } } })
   );
   const file = path.join(dir, "autopilot.json");
   fs.writeFileSync(
@@ -136,7 +136,7 @@ async function writeConfig(
       port,
       publicUrl: `ws://127.0.0.1:${port}/`,
       signingSecret: { value: SECRET },
-      assistants: { file: "assistants.json" },
+      agents: { file: "agents.json" },
       registry: { file: "registry.json" },
       credentials: { "fake-llm": { value: "unused" } },
       endpoints: { fake: llmUrl },
@@ -159,15 +159,15 @@ describe("@autopilot/session hosted Autopilot", function () {
   for (const scenario of loadScenarios("autopilot")) {
     it(`passes ${scenario.name} through the registry`, async function () {
       const harness = await new FakesHarness().start();
-      const assistant = interpolate(scenario.setup!.assistant!, harness.vars());
+      const agent = interpolate(scenario.setup!.agent!, harness.vars());
       const server = await startHostedAutopilot(
-        loadHostedConfig(await writeConfig(dir, harness.llm.url, assistant))
+        loadHostedConfig(await writeConfig(dir, harness.llm.url, agent))
       );
       try {
         const result = await runScenario(scenario, {
           harness,
           connect: () =>
-            new FakeGateway({ signingSecret: SECRET, app: APP }).dial(
+            new FakeAppBridge({ signingSecret: SECRET, app: APP }).dial(
               `ws://127.0.0.1:${server.port}/`
             )
         });
@@ -253,8 +253,8 @@ describe("@autopilot/session hosted Autopilot", function () {
     );
     const url = `ws://127.0.0.1:${server.port}/`;
     try {
-      // The URL-only signature (what a listener or an older gateway sends) is refused.
-      const unbound = await new FakeGateway({ signingSecret: SECRET })
+      // The URL-only signature (what a listener or an older AppBridge sends) is refused.
+      const unbound = await new FakeAppBridge({ signingSecret: SECRET })
         .dial(url)
         .then(
           () => "",
@@ -262,7 +262,7 @@ describe("@autopilot/session hosted Autopilot", function () {
         );
       expect(unbound).to.contain("401");
       // A signature for another app cannot start app-1's agent.
-      const peer = await new FakeGateway({
+      const peer = await new FakeAppBridge({
         signingSecret: SECRET,
         app: { appRef: "app-other", workspaceRef: "ws-other" }
       }).dial(url);
@@ -277,8 +277,8 @@ describe("@autopilot/session hosted Autopilot", function () {
     }
   });
 
-  it("serves an app only for the workspace the gateway signed for", function () {
-    const loaded = { assistant: {}, workspaceRef: "ws-1" };
+  it("serves an app only for the workspace AppBridge signed for", function () {
+    const loaded = { agent: {}, workspaceRef: "ws-1" };
     const session = (workspaceRef?: string) => ({
       appRef: "app-1",
       signedFor:
@@ -293,23 +293,23 @@ describe("@autopilot/session hosted Autopilot", function () {
     expect(signedWorkspaceOnly(session(""), loaded)).to.equal(undefined);
     // Without verification (development) or a workspace on file, nothing to compare.
     expect(signedWorkspaceOnly(session(), loaded)).to.equal(loaded);
-    const noWorkspace = { assistant: {} };
+    const noWorkspace = { agent: {} };
     expect(signedWorkspaceOnly(session("ws-1"), noWorkspace)).to.equal(
       noWorkspace
     );
     expect(signedWorkspaceOnly(session("ws-1"), undefined)).to.equal(undefined);
   });
 
-  it("rejects a connection with a bad signature before loading any assistant", async function () {
+  it("rejects a connection with a bad signature before loading any agent", async function () {
     const harness = await new FakesHarness().start();
     const server = await startHostedAutopilot(
       loadHostedConfig(
-        await writeConfig(dir, harness.llm.url, { not: "an assistant" })
+        await writeConfig(dir, harness.llm.url, { not: "an agent" })
       )
     );
     try {
       let failed = false;
-      await new FakeGateway({ signingSecret: "wrong" })
+      await new FakeAppBridge({ signingSecret: "wrong" })
         .dial(`ws://127.0.0.1:${server.port}/`)
         .catch(() => (failed = true));
       expect(failed).to.equal(true);
@@ -436,7 +436,7 @@ describe("@autopilot/session language models through the registry", function () 
 
   it("apologises and hangs up when the model cannot be resolved", async function () {
     const harness = await new FakesHarness().start();
-    const assistant = {
+    const agent = {
       conversationSettings: {
         firstMessage: "Hello",
         systemPrompt: "p",
@@ -446,7 +446,7 @@ describe("@autopilot/session language models through the registry", function () 
       languageModel: { model: "openai/gpt-4o-mini" }
     };
     const server = await startHostedAutopilot(
-      loadHostedConfig(await writeConfig(dir, harness.llm.url, assistant))
+      loadHostedConfig(await writeConfig(dir, harness.llm.url, agent))
     );
     try {
       const scenario = {
@@ -466,7 +466,7 @@ describe("@autopilot/session language models through the registry", function () 
       const result = await runScenario(scenario as never, {
         harness,
         connect: () =>
-          new FakeGateway({ signingSecret: SECRET, app: APP }).dial(
+          new FakeAppBridge({ signingSecret: SECRET, app: APP }).dial(
             `ws://127.0.0.1:${server.port}/`
           )
       });
@@ -525,7 +525,7 @@ describe("@autopilot/session knowledge port wiring", function () {
         };
       }
     );
-    const assistant = sessionAssistantSchema.parse({
+    const agent = sessionAgentSchema.parse({
       conversationSettings: {
         systemPrompt: "p",
         goodbyeMessage: "b",
@@ -536,7 +536,7 @@ describe("@autopilot/session knowledge port wiring", function () {
         knowledgeBase: [{ type: "s3", title: "Menu", document: "menu.pdf" }]
       }
     });
-    const port = await factory(assistant, { workspaceRef: "WS-1" });
+    const port = await factory(agent, { workspaceRef: "WS-1" });
     expect(await port!.find("hours", new AbortController().signal)).to.equal(
       "about hours"
     );
@@ -550,15 +550,15 @@ describe("@autopilot/session knowledge port wiring", function () {
       (made[0].s3Config as { credentials: unknown }).credentials
     ).to.deep.equal({ accessKeyId: "AK", secretAccessKey: "SK" });
     // No documents, no port.
-    const none = sessionAssistantSchema.parse({
-      ...assistant,
+    const none = sessionAgentSchema.parse({
+      ...agent,
       languageModel: { model: "fake/llm" }
     });
     expect(await factory(none, { workspaceRef: "ws-1" })).to.equal(undefined);
   });
 });
 
-describe("@autopilot/session assistants and keys from the database (CP-B11)", function () {
+describe("@autopilot/session agents and keys from the database (CP-B11)", function () {
   const rows: Record<string, unknown> = {
     ap1: {
       ref: "ap1",
@@ -576,7 +576,7 @@ describe("@autopilot/session assistants and keys from the database (CP-B11)", fu
     }
   };
 
-  it("loads an Autopilot app's assistant and caches it", async function () {
+  it("loads an Autopilot app's agent and caches it", async function () {
     let calls = 0;
     let now = 0;
     const prisma = {
@@ -587,12 +587,12 @@ describe("@autopilot/session assistants and keys from the database (CP-B11)", fu
         }
       }
     };
-    const source = new PrismaAssistantSource(prisma, {
+    const source = new PrismaAgentSource(prisma, {
       cacheMs: 5000,
       now: () => now
     });
     expect(await source.get("ap1")).to.deep.equal({
-      assistant: { languageModel: { model: "openai/gpt-4o-mini" } },
+      agent: { languageModel: { model: "openai/gpt-4o-mini" } },
       workspaceRef: "WO1"
     });
     expect(await source.get("ext")).to.equal(undefined);
@@ -639,11 +639,11 @@ describe("@autopilot/session assistants and keys from the database (CP-B11)", fu
     const file = path.join(dir, "autopilot.yaml");
     fs.writeFileSync(
       file,
-      "signingSecret: { value: s }\npublicUrl: ws://autopilot:3000\nassistants: { source: database }\nregistry: { file: r.json }\n"
+      "signingSecret: { value: s }\npublicUrl: ws://autopilot:3000\nagents: { source: database }\nregistry: { file: r.json }\n"
     );
     expect(() => loadHostedConfig(file)).to.throw(/database section/);
     fs.appendFileSync(file, "database: { url: postgres://x/y }\n");
-    expect(loadHostedConfig(file).assistants).to.deep.equal({
+    expect(loadHostedConfig(file).agents).to.deep.equal({
       source: "database",
       cacheMs: 5000
     });
@@ -653,7 +653,7 @@ describe("@autopilot/session assistants and keys from the database (CP-B11)", fu
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ap-db-url-"));
     const file = path.join(dir, "autopilot.yaml");
     const base =
-      "signingSecret: { value: s }\npublicUrl: ws://autopilot:3000\nassistants: { source: database }\nregistry: { file: r.json }\n";
+      "signingSecret: { value: s }\npublicUrl: ws://autopilot:3000\nagents: { source: database }\nregistry: { file: r.json }\n";
     const env = { APISERVER_DATABASE_URL: "postgres://from-env/fonoster" };
     // No url: the variable is not a fallback.
     fs.writeFileSync(file, base + "database: {}\n");
@@ -684,7 +684,7 @@ describe("@autopilot/session cell secrets (add-private-regions PR-9)", function 
     const yaml = path.join(dir, "autopilot.yaml");
     fs.writeFileSync(
       yaml,
-      `signingSecret: { value: s }\npublicUrl: ws://autopilot:3000\nassistants: { file: a.json }\nregistry: { file: r.json }\nworkspaceSecrets: { cellSecrets: { file: ${file}, keyEnv: AP_CELL_KEY } }\n`
+      `signingSecret: { value: s }\npublicUrl: ws://autopilot:3000\nagents: { file: a.json }\nregistry: { file: r.json }\nworkspaceSecrets: { cellSecrets: { file: ${file}, keyEnv: AP_CELL_KEY } }\n`
     );
     expect(loadHostedConfig(yaml).workspaceSecrets).to.deep.equal({
       cellSecrets: { file, keyEnv: "AP_CELL_KEY" }

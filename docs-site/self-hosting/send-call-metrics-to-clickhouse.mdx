@@ -3,7 +3,7 @@ title: "Send call metrics to ClickHouse"
 description: "Load one row of metrics per call into your own ClickHouse, for dashboards and reports."
 ---
 
-When a call ends, the voice gateway seals its call record. With analytics on, it also writes one
+When a call ends, AppBridge seals its call record. With analytics on, it also writes one
 row of metrics for that call to your ClickHouse. Fonoster doesn't run ClickHouse for you: bring
 your own server or a ClickHouse Cloud service.
 
@@ -12,7 +12,7 @@ your own server or a ClickHouse Cloud service.
 You need:
 
 - Fonoster installed with Docker Compose. See [Install with Docker Compose](/self-hosting/install-compose).
-- A ClickHouse server the gateway container can reach over HTTP or HTTPS (port `8123` or `8443`).
+- A ClickHouse server AppBridge container can reach over HTTP or HTTPS (port `8123` or `8443`).
   `localhost` inside the container is the container itself, not your machine.
 - A ClickHouse user that can run `CREATE DATABASE`, `CREATE TABLE`, `INSERT`, `DELETE` and
   `SELECT` on the database you pick.
@@ -28,12 +28,12 @@ You need:
     CLICKHOUSE_PASSWORD=<password>
     ```
 
-    Compose passes these two values to the gateway container only. Add them before the next step:
-    `init` stops if `config/gateway.example.yaml` names a value that `.env` doesn't set.
+    Compose passes these two values to AppBridge container only. Add them before the next step:
+    `init` stops if `config/appbridge.example.yaml` names a value that `.env` doesn't set.
   </Step>
 
   <Step title="Uncomment the analytics block">
-    Open `config/gateway.example.yaml`. Under `callRecord`, uncomment `analytics` and set the URL of
+    Open `config/appbridge.example.yaml`. Under `callRecord`, uncomment `analytics` and set the URL of
     your ClickHouse HTTP interface:
 
     ```yaml
@@ -55,11 +55,11 @@ You need:
     | `user`     | none           | Sent as the ClickHouse user |
     | `password` | none           | Sent as the ClickHouse password |
 
-    Edit the example, not `config/gateway.yaml`: `init` writes that file again from the example.
+    Edit the example, not `config/appbridge.yaml`: `init` writes that file again from the example.
   </Step>
 
-  <Step title="Write the config and restart the gateway">
-    Write `config/gateway.yaml`, check it, and recreate the gateway:
+  <Step title="Write the config and restart AppBridge">
+    Write `config/appbridge.yaml`, check it, and recreate AppBridge:
 
     ```bash
     npx -p @fonoster/common fonoster-config init
@@ -69,7 +69,7 @@ You need:
   </Step>
 </Steps>
 
-You don't create the table yourself. The first time the gateway writes a row, it creates the
+You don't create the table yourself. The first time AppBridge writes a row, it creates the
 database and this table:
 
 ```sql
@@ -106,7 +106,7 @@ ORDER BY started_at DESC
 LIMIT 10
 ```
 
-If no row shows up, look for the gateway's warning. A failed load never affects the call or its
+If no row shows up, look for AppBridge's warning. A failed load never affects the call or its
 record:
 
 ```bash
@@ -115,8 +115,8 @@ docker compose logs appbridge | grep "analytics load"
 
 ## Load calls made before analytics was on
 
-The gateway only loads records it seals after you turn analytics on. To fill the table from every
-record already stored, run `analytics rebuild` inside the gateway container. It empties the table
+AppBridge only loads records it seals after you turn analytics on. To fill the table from every
+record already stored, run `analytics rebuild` inside AppBridge container. It empties the table
 first, then loads each sealed record from the bundle's MinIO bucket:
 
 ```bash

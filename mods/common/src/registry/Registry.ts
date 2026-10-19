@@ -452,7 +452,7 @@ export class Registry {
     return report;
   }
 
-  /** What the gateway does with an id at session start: retired ids resolve to their replacement. */
+  /** What AppBridge does with an id at session start: retired ids resolve to their replacement. */
   resolve(id: string): {
     id: string;
     event?: "provider.deprecated_used" | "provider.retired_used";

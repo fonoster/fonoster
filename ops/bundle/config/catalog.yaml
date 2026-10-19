@@ -16,7 +16,7 @@ entries:
   - { kind: model, id: elevenlabs/eleven_flash_v2_5, label: "Eleven Flash v2.5", type: tts, features: [streaming], languages: [en, es, multi], settings: [stability, similarity_boost, style, speed], state: active }
   - { kind: model, id: openai/gpt-4o-mini, label: "GPT-4o Mini", type: llm, features: [streaming, tool-calling, json-mode], languages: [], settings: [], state: active }
   # Groq serves OpenAI's open-weight models (catalog id = groq/<Groq model name>). Groq retired
-  # Llama 3.3 70B; assistants that still name it run on gpt-oss-120b (FN-B5).
+  # Llama 3.3 70B; agents that still name it run on gpt-oss-120b (FN-B5).
   - { kind: model, id: groq/openai/gpt-oss-120b, label: "GPT-OSS 120B", type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
   - { kind: model, id: groq/openai/gpt-oss-20b, label: "GPT-OSS 20B", type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: active }
   - { kind: model, id: groq/llama-3.3-70b-versatile, label: "Llama 3.3 70B Versatile", type: llm, features: [streaming, tool-calling], languages: [], settings: [], state: retired, replacement: groq/openai/gpt-oss-120b, retireOn: "2026-10-15" }

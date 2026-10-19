@@ -19,7 +19,7 @@
 /**
  * The knowledge port (rework-autopilot A8): one operation, find what is relevant to a question.
  * Implementations (S3 + Unstructured today) are wired by the operator; their keys never live in
- * the assistant config.
+ * the agent config.
  */
 export interface KnowledgePort {
   find(question: string, signal: AbortSignal): Promise<string>;

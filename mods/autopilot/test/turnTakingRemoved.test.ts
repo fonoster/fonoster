@@ -18,11 +18,11 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { sessionAssistantSchema } from "@fonoster/common";
+import { sessionAgentSchema } from "@fonoster/common";
 import { expect } from "chai";
 
-// add-turn-taking 3.1: turn-taking lives in the gateway. Autopilot carries no VAD, no speech-wait
-// timer, no late-speech or barge-in detection of its own; assistants that still name those
+// add-turn-taking 3.1: turn-taking lives in AppBridge. Autopilot carries no VAD, no speech-wait
+// timer, no late-speech or barge-in detection of its own; agents that still name those
 // settings are rejected with a message saying where they moved.
 
 const ROOT = path.join(__dirname, "..");
@@ -34,7 +34,7 @@ function sources(dir: string): string[] {
   });
 }
 
-describe("@autopilot[turn-taking moved to the gateway]", function () {
+describe("@autopilot[turn-taking moved to AppBridge]", function () {
   it("ships no VAD model or runtime", function () {
     const pkg = JSON.parse(
       fs.readFileSync(path.join(ROOT, "package.json"), "utf8")
@@ -53,8 +53,8 @@ describe("@autopilot[turn-taking moved to the gateway]", function () {
     expect(offenders).to.deep.equal([]);
   });
 
-  it("rejects VAD-era assistant settings", function () {
-    const result = sessionAssistantSchema.safeParse({
+  it("rejects VAD-era agent settings", function () {
+    const result = sessionAgentSchema.safeParse({
       conversationSettings: {
         systemPrompt: "x",
         goodbyeMessage: "x",
@@ -65,6 +65,6 @@ describe("@autopilot[turn-taking moved to the gateway]", function () {
       languageModel: { model: "openai/gpt-4o-mini" }
     });
     expect(result.success).to.equal(false);
-    expect(JSON.stringify(result.error?.issues)).to.match(/gateway/);
+    expect(JSON.stringify(result.error?.issues)).to.match(/AppBridge/);
   });
 });

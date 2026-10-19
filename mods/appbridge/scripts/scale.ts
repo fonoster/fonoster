@@ -16,23 +16,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Scale harness (pass bar T2): N concurrent calls through one or more gateway processes.
+// Scale harness (pass bar T2): N concurrent calls through one or more appbridge processes.
 //
 //   npx tsx mods/appbridge/scripts/scale.ts --calls 100 --seconds 30 [--replicas 1]
-//     [--harness-workers <n>] [--nats nats://127.0.0.1:4222] [--gateway-node-args "<args>"]
+//     [--harness-workers <n>] [--nats nats://127.0.0.1:4222] [--appbridge-node-args "<args>"]
 //
-// Each gateway runs as its own process (its own event loop, like a replica); the replicas share
+// Each appbridge runs as its own process (its own event loop, like a replica); the replicas share
 // the calls through the claim on NATS. The fakes (Roomr node, app, providers) run in their own
 // worker processes, by default one per 100 calls, so the load generator does not share an event
-// loop with the gateways or saturate one of its own: each worker has its own Roomr node, app and
+// loop with the AppBridge replicas or saturate one of its own: each worker has its own Roomr node, app and
 // fake providers and offers its share of the calls to its own app. Every call speaks every 3 s.
 //
-// Reported: dropped frames in both directions, speak → output.started latency, each gateway's
+// Reported: dropped frames in both directions, speak → output.started latency, each AppBridge's
 // CPU, memory and event-loop delay, and each harness worker's CPU and event-loop delay. When a
-// worker's loop lags (p99 over 20 ms) its numbers measure the harness, not the gateway, and the
+// worker's loop lags (p99 over 20 ms) its numbers measure the harness, not AppBridge, and the
 // report says so.
 //
-// --gateway-node-args passes node flags to the gateways, e.g. "--cpu-prof --cpu-prof-dir=/tmp/p".
+// --appbridge-node-args passes node flags to the AppBridge replicas, e.g. "--cpu-prof --cpu-prof-dir=/tmp/p".
 import { ChildProcess, execFileSync, fork, spawn } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
@@ -55,7 +55,7 @@ const WORKERS = Math.max(
   Math.min(CALLS, Number(args["harness-workers"] ?? Math.ceil(CALLS / 100)))
 );
 const NATS_URL = args.nats ?? "nats://127.0.0.1:4222";
-const GATEWAY_NODE_ARGS = (args["gateway-node-args"] ?? "")
+const APPBRIDGE_NODE_ARGS = (args["appbridge-node-args"] ?? "")
   .split(" ")
   .filter(Boolean);
 const PROBE = path.join(__dirname, "loop-probe.cjs");
@@ -222,7 +222,7 @@ function readProbe(file: string, from: number, to: number) {
 }
 
 async function main() {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gateway-scale-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "appbridge-scale-"));
   const probeFile = (name: string) => path.join(dir, `probe-${name}.jsonl`);
 
   const workers = Array.from({ length: WORKERS }, (_, i) =>
@@ -246,7 +246,7 @@ async function main() {
     });
   const ready = await Promise.all(workers.map((w) => next<Ready>(w, "ready")));
 
-  const configFile = path.join(dir, "gateway.yaml");
+  const configFile = path.join(dir, "appbridge.yaml");
   fs.writeFileSync(
     configFile,
     stringify({
@@ -275,13 +275,13 @@ async function main() {
       )
     })
   );
-  const gateways: ChildProcess[] = Array.from({ length: REPLICAS }, (_, i) =>
+  const appbridges: ChildProcess[] = Array.from({ length: REPLICAS }, (_, i) =>
     spawn(
       process.execPath,
       [
         "--require",
         PROBE,
-        ...GATEWAY_NODE_ARGS,
+        ...APPBRIDGE_NODE_ARGS,
         path.join(__dirname, "..", "dist", "main.js"),
         configFile
       ],
@@ -289,7 +289,7 @@ async function main() {
         env: {
           ...process.env,
           LOGS_LEVEL: "error",
-          SCALE_PROBE_FILE: probeFile(`gateway-${i}`)
+          SCALE_PROBE_FILE: probeFile(`appbridge-${i}`)
         },
         stdio: "ignore"
       }
@@ -306,17 +306,17 @@ async function main() {
   for (const w of workers) w.send(go);
 
   // Per replica: CPU % and RSS MB samples (ps), alongside the in-process probe.
-  const cpu: number[][] = gateways.map(() => []);
-  const rss: number[][] = gateways.map(() => []);
+  const cpu: number[][] = appbridges.map(() => []);
+  const rss: number[][] = appbridges.map(() => []);
   while (Date.now() < end) {
     await sleep(1000);
     if (Date.now() < measureFrom) continue;
-    for (const [i, gateway] of gateways.entries()) {
+    for (const [i, appbridge] of appbridges.entries()) {
       const out = execFileSync("ps", [
         "-o",
         "%cpu=,rss=",
         "-p",
-        String(gateway.pid)
+        String(appbridge.pid)
       ])
         .toString()
         .trim()
@@ -360,11 +360,11 @@ async function main() {
       ratio: +(inbound / expected).toFixed(4)
     },
     speakToStartedMs: latencies.length ? distribution(latencies) : null,
-    gatewayCpuPercent: cpu.map((samples) => distribution(samples)),
-    gatewayRssMb: rss.map((samples) => distribution(samples)),
-    gatewayEventLoopDelayMs: gateways.map(
+    appBridgeCpuPercent: cpu.map((samples) => distribution(samples)),
+    appBridgeRssMb: rss.map((samples) => distribution(samples)),
+    appBridgeEventLoopDelayMs: appbridges.map(
       (_, i) =>
-        readProbe(probeFile(`gateway-${i}`), measureFrom, end + 1000)
+        readProbe(probeFile(`appbridge-${i}`), measureFrom, end + 1000)
           ?.eventLoopDelayMs ?? null
     ),
     harness,
@@ -378,9 +378,9 @@ async function main() {
   console.log(JSON.stringify(report, null, 2));
 
   for (const w of workers) w.send({ type: "stop" });
-  for (const gateway of gateways) gateway.kill("SIGTERM");
+  for (const appbridge of appbridges) appbridge.kill("SIGTERM");
   await Promise.all(
-    [...workers, ...gateways].map(
+    [...workers, ...appbridges].map(
       (p) =>
         new Promise((r) =>
           p.exitCode !== null ? r(undefined) : p.once("exit", r)

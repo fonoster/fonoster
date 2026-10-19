@@ -20,7 +20,7 @@ import { streamingPost } from "../http";
 import { Synthesis, TtsAdapter } from "../speech";
 
 // ElevenLabs TTS, ported from mods/apiserver/src/voice/tts/ElevenLabs.ts onto the streaming
-// adapter interface. Asks for raw 16 kHz PCM (the gateway's internal format), so no conversion.
+// adapter interface. Asks for raw 16 kHz PCM (AppBridge's internal format), so no conversion.
 // Word timings (the with-timestamps endpoint) are not used yet; heardText then falls back to a
 // proportional cut.
 

@@ -92,7 +92,7 @@ export function buildVcon(
   for (const e of entries) {
     const m = e.message;
     const type = m.type as string | undefined;
-    if (e.source === "gateway" && type === "session.start") {
+    if (e.source === "appbridge" && type === "session.start") {
       if (!parties.length) {
         startedAt = e.at;
         parties.push(
@@ -107,7 +107,7 @@ export function buildVcon(
           parties.push({ name: appRef, role: "agent", meta: { appRef } }) - 1
         );
       currentApp = appParty.get(appRef)!;
-    } else if (e.source === "gateway" && type === "turn.ended") {
+    } else if (e.source === "appbridge" && type === "turn.ended") {
       const turn = {
         type: "text",
         start: iso(e.at),
@@ -130,11 +130,11 @@ export function buildVcon(
       });
       userStartedAt = undefined;
       decisions.push({ at: iso(e.at), ...m });
-    } else if (e.source === "gateway" && type === "turn.user_started") {
+    } else if (e.source === "appbridge" && type === "turn.user_started") {
       userStartedAt ??= e.at;
       decisions.push({ at: iso(e.at), ...m });
     } else if (
-      e.source === "gateway" &&
+      e.source === "appbridge" &&
       type?.startsWith("turn.") &&
       type !== "turn.estimate"
     ) {
@@ -144,11 +144,11 @@ export function buildVcon(
       const s = speech.get(id) ?? { text: "", party: currentApp };
       s.text += String(m.text ?? "");
       speech.set(id, s);
-    } else if (e.source === "gateway" && type === "output.started") {
+    } else if (e.source === "appbridge" && type === "output.started") {
       const s = speech.get(String(m.id));
       if (s) s.startedAt = e.at;
     } else if (
-      e.source === "gateway" &&
+      e.source === "appbridge" &&
       (type === "output.done" || type === "output.interrupted")
     ) {
       const s = speech.get(String(m.id));

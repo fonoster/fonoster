@@ -5,7 +5,7 @@ role: app
 spec: "The baseline Detector reproduces today's behavior / Silence timeout ends the turn"
 description: >
   Baseline with a 1,000 ms silence timeout: turn.ended about 1.2 s after the caller stops
-  (200 ms voice debounce + 1,000 ms), within the gateway budget.
+  (200 ms voice debounce + 1,000 ms), within AppBridge budget.
 setup:
   app: { speech: { silenceTimeoutMs: 1000 } }
   providers:

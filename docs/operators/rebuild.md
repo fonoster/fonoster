@@ -1,7 +1,7 @@
 # Operating the Fonoster rebuild stack
 
 This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/helm/fonoster-rebuild`
-(Helm): the VoiceSessionGateway, the Go Roomr node, and the services around them. It follows
+(Helm): AppBridge, the Go Roomr node, and the services around them. It follows
 `openspec/changes/archive/2026-10-17-add-platform`.
 
 ## What runs
@@ -13,7 +13,7 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | `routr` | `fonoster/routr-one` | SIP edge. Nodes register to it with their session count. |
 | `rtpengine` | `fonoster/rtpengine` | Carrier-side media relay. |
 | `roomr` | `go/roomr/Dockerfile` | Rooms, mixing, RTP. Distroless static binary. |
-| `appbridge` | `mods/appbridge/Dockerfile` | AppBridge (VoiceSessionGateway): speech, turn-taking, app sessions. |
+| `appbridge` | `mods/appbridge/Dockerfile` | AppBridge: speech, turn-taking, app sessions. |
 | `autopilot` (profile) | `mods/autopilot/Dockerfile` | Hosted Autopilot session engine. |
 | `minio` | `minio/minio` | Object storage for recordings and records. |
 | `apiserver` | `ops/rebuild/docker/apiserver.Dockerfile` | Control plane API with embedded Identity; applies migrations at start. |
@@ -26,7 +26,7 @@ Each Fonoster service reads exactly one YAML file (mounted at `/config/<service>
 `.env` file; secrets in it are `${NAME}` placeholders the container's environment fills. Compose
 passes each service only the `.env` values its own file names (its `environment:` list in
 `ops/bundle/compose.yaml`), never the whole `.env`, and only the API server mounts Identity's
-private key (`keys/private.pem`); the gateway gets `public.pem` and its `records.pem`. A
+private key (`keys/private.pem`); AppBridge gets `public.pem` and its `records.pem`. A
 placeholder you add to a service file needs a matching line in that service's `environment:`
 (for example `CLICKHOUSE_USER`). The Roomr node reads `/config/roomr.yaml` (or `-config <file>`, its only flag;
 see `ops/bundle/config/roomr.example.yaml`). It reads no `ROOMR_*`
@@ -55,7 +55,7 @@ Neither is a development setup: contributors use the dev container (CONTRIBUTING
 takes the dependencies from `ops/bundle/compose.yaml` and runs our services from source.
 
 Compose-level knobs (host ports, tags, ranges) are `${VAR:-default}` values in the file:
-`RB_NATS_PORT`, `RB_SIP_PORT`, `RB_GATEWAY_PORT`, `RB_NODE_*`, `RTPENGINE_PORT_MIN/MAX`, and so on.
+`RB_NATS_PORT`, `RB_SIP_PORT`, `RB_APPBRIDGE_PORT`, `RB_NODE_*`, `RTPENGINE_PORT_MIN/MAX`, and so on.
 Set `COMPOSE_PROJECT_NAME` to run several stacks on one host.
 
 ## Ports
@@ -68,7 +68,7 @@ Set `COMPOSE_PROJECT_NAME` to run several stacks on one host.
 | 5060 | UDP/TCP | Roomr node | Internal SIP from Routr; do not expose to the internet. |
 | 10000-10100 | UDP | RTPEngine | Carrier-facing media (`RTPENGINE_PORT_MIN/MAX`). Size to your concurrent calls. |
 | 30000-30199 | UDP | Roomr node RTP | `rtp.portMin/portMax` in `roomr.yaml`. Two ports per call leg (RTP and the session leg); publish exactly this range. |
-| 8080 | TCP | Gateway | Twilio-compatible Calls endpoint when `http` is set in `gateway.yaml`. |
+| 8080 | TCP | AppBridge | Twilio-compatible Calls endpoint when `http` is set in `appbridge.yaml`. |
 
 ### RTP ranges
 
@@ -101,20 +101,20 @@ certificates on the SIP edge and refusing plain traffic are not options.
 
 NATS is a trust boundary (add-platform 4.1): every service connects as its own user and may publish
 and subscribe only on its subjects. The permission files are
-`ops/rebuild/config/nats-permissions/<service>.conf` (apiserver, gateway, roomr, routr,
+`ops/rebuild/config/nats-permissions/<service>.conf` (apiserver, appbridge, roomr, routr,
 region-agent); the main NATS, the cell's NATS and the chart (`nats.auth`) include the ones they
-serve. In short: only Roomr nodes publish heartbeats, room events and `gateway.incoming`; only
-gateways publish `callrecord.sealed` (index entries) and `registry.used`; only the apiserver
+serve. In short: only Roomr nodes publish heartbeats, room events and `appbridge.incoming`; only
+appbridges publish `callrecord.sealed` (index entries) and `registry.used`; only the apiserver
 publishes `calls.create` and `callrecord.<region>.maintenance`; media-control commands come from
-gateways and the apiserver; Routr publishes `routr.>` only; the region agent alone talks
+appbridges and the apiserver; Routr publishes `routr.>` only; the region agent alone talks
 `region.>`. The region hub is a separate server in operator mode with per-cell users and is
 unchanged.
 
 - **Passwords**: one per service. `ops/rebuild/stack` generates them into `.local/stack.env`
   (`NATS_<SERVICE>_PASSWORD`, added to older files on the next `up`); a cell takes them from
-  `cell.env`; the chart from the Secret `nats.auth.secret` (keys `apiserver`, `gateway`,
+  `cell.env`; the chart from the Secret `nats.auth.secret` (keys `apiserver`, `appbridge`,
   `roomr`, `routr`, `region-agent`).
-- **Service config**: `nats: { url, user, password }` in fonoster.yaml, gateway.yaml and
+- **Service config**: `nats: { url, user, password }` in fonoster.yaml, appbridge.yaml and
   region-agent.yaml and roomr.yaml, with `password: secret://env/NATS_<SERVICE>_PASSWORD`. Routr's
   user goes in its URL (`nats://routr:<password>@nats:4222`), so use hex passwords.
 - **Replies**: each user receives replies (and JetStream deliveries) only under its own inbox
@@ -130,7 +130,7 @@ unchanged.
 ## Session registry
 
 The session registry (D3) is the JetStream KV bucket `fonoster_sessions`: `calls.<ref>` and
-`gateways.<ref>` (written by gateways) and `placements.<ref>` (written by the apiserver for
+`appbridges.<ref>` (written by appbridges) and `placements.<ref>` (written by the apiserver for
 outbound calls being placed). Roomr nodes write nothing there: they use core NATS only (heartbeat
 and events), and the apiserver learns nodes from their heartbeats (a restarted replica places
 calls after the next heartbeat, within `heartbeatInterval`). Entries are leases: the bucket keeps
@@ -155,9 +155,9 @@ must wait longer than `drainWait`:
   (startup and readiness) and renders a PodDisruptionBudget (`roomr.podDisruptionBudget`:
   `minAvailable` or `maxUnavailable`). Roll nodes one at a time (StatefulSet default).
 
-Gateway replicas are stateless between calls, but a call lives on the replica that claimed it; roll
-them one at a time (`gateway.podDisruptionBudget`) and give calls time via
-`gateway.terminationGracePeriodSeconds`.
+AppBridge replicas are stateless between calls, but a call lives on the replica that claimed it; roll
+them one at a time (`appbridge.podDisruptionBudget`) and give calls time via
+`appbridge.terminationGracePeriodSeconds`.
 
 ## Limits
 
@@ -168,21 +168,21 @@ them one at a time (`gateway.podDisruptionBudget`) and give calls time via
 | Rooms per Roomr node | 200 | `maxRooms` (heartbeats report it; placement skips a full node and `room.create` beyond it gets `at_capacity`) |
 | Silent media timeout (caller and app legs) | 30 s | `mediaTimeout` |
 | Room with nobody in it (its placer is gone) | 30 s | `emptyRoomTimeout` (negative: never; `CreateRoom` can set it per room) |
-| Room whose gateway stopped its heartbeats | 20 s | `ownerTimeout` (needs the node to receive `gateway.heartbeat`; negative: never) |
+| Room whose AppBridge stopped its heartbeats | 20 s | `ownerTimeout` (needs the node to receive `appbridge.heartbeat`; negative: never) |
 | Heartbeat | 2 s | `heartbeatInterval` |
 | Drain wait after SIGTERM | 10 min | `drainWait` |
-| Call claim by a gateway | 500 ms, one retry, then 503 | fixed by the spec |
+| Call claim by an AppBridge | 500 ms, one retry, then 503 | fixed by the spec |
 
 ## Analytics
 
 ClickHouse holds one row per call (`fonoster.call_metrics`: status, duration, turns,
-interruptions, false cut-offs, recording) for dashboards and SQL. The gateway loads every sealed
+interruptions, false cut-offs, recording) for dashboards and SQL. AppBridge loads every sealed
 record's redacted copy after sealing; a failed load is logged and never touches the call or the
-record. Neither the bundle nor the local stack runs ClickHouse: point the gateway at yours
+record. Neither the bundle nor the local stack runs ClickHouse: point AppBridge at yours
 (`CLICKHOUSE_USER` and `CLICKHOUSE_PASSWORD` in `.env`):
 
 ```yaml
-# gateway.yaml
+# appbridge.yaml
 callRecord:
   analytics:
     clickhouse:
@@ -216,14 +216,14 @@ collector that needs an auth header, also set `OTEL_EXPORTER_OTLP_HEADERS` (and,
 endpoint. With Helm, set `otel.endpoint` and `otel.headers`, or `otel.headersSecret.name`/`key` to
 read the headers from a Secret.
 
-Metrics: `fonoster.gateway.calls.active`, `fonoster.gateway.calls.total`,
+Metrics: `fonoster.appbridge.calls.active`, `fonoster.appbridge.calls.total`,
 `fonoster.roomr.rooms.active`, `fonoster.roomr.calls.incoming`,
 `fonoster.autopilot.sessions.total`, `fonoster.apiserver.grpc.requests` (by `rpc.method` and
 `rpc.grpc.status_code`), `fonoster.apiserver.records.indexed` (by `outcome`),
 `fonoster.registry.commands` (the `fonoster-registry` utility, by `command` and `outcome`).
 
 Traces cross services with a W3C `traceparent` header: the Roomr node sends it on `call.incoming`
-(the gateway's `gateway.call` span becomes its child), the gateway sends it on every media-control
+(AppBridge's `appbridge.call` span becomes its child), AppBridge sends it on every media-control
 command (`roomr.command` spans) and on a record's index entry while the call's span is open
 (`apiserver.records.index`). The apiserver makes a span per gRPC request (`apiserver.grpc`) and joins
 a `traceparent` metadata entry when a client sends one.
@@ -231,7 +231,7 @@ a `traceparent` metadata entry when a client sends one.
 ## Regions and cells
 
 One global control plane (apiserver, Identity, dashboard) serves many cells. A cell is the data plane:
-Routr, RTPEngine, Roomr nodes, gateways, object storage. This stack is one cell. Cells link to the
+Routr, RTPEngine, Roomr nodes, appbridges, object storage. This stack is one cell. Cells link to the
 control plane only through an **outbound** NATS leaf-node connection over TLS, so a private cell needs
 no inbound port other than SIP and RTP from its carriers. Call content (recordings, transcripts,
 records, provider keys) stays in the cell; only the call-record index, config and health cross the
@@ -245,7 +245,7 @@ changes until you roll the images.
 ## Secrets in config files (`secret://`)
 
 A config value may be a reference instead of the secret itself (decision D8). Every Fonoster service
-(apiserver and its Identity, gateway, Autopilot, region agent) resolves references once at startup,
+(apiserver and its Identity, appbridge, Autopilot, region agent) resolves references once at startup,
 before validating its config, and never logs the value; an error names the key path and the
 reference only.
 
@@ -259,7 +259,7 @@ reference only.
 The whole value must be the reference; text that merely contains `secret://` is left alone. The
 services do not call the Kubernetes API: the chart mounts each Secret listed in a service's
 `secretMounts` at `/var/run/fonoster/secrets/<secret>` and sets `FONOSTER_SECRETS_DIR` and
-`POD_NAMESPACE`. For example, in `gateway.yaml`:
+`POD_NAMESPACE`. For example, in `appbridge.yaml`:
 
 ```yaml
 providers:
@@ -275,8 +275,8 @@ The chart `ops/rebuild/helm/fonoster-rebuild` has three values files:
 
 | File | Installs |
 | --- | --- |
-| `values.yaml` (default) | The data plane only: gateway and Roomr nodes (and, opt-in, the hosted Autopilot and a private cell's region agent). NATS, Routr, RTPEngine, Postgres and MinIO are external. |
-| `values-cloud.yaml` | The whole platform, mirroring `ops/rebuild/compose.yaml`: apiserver (embedded Identity, migrations Job), Envoy, dashboard, hosted Autopilot, single-node NATS with JetStream, dev-grade Postgres and MinIO, gateway and Roomr nodes. |
+| `values.yaml` (default) | The data plane only: appbridge and Roomr nodes (and, opt-in, the hosted Autopilot and a private cell's region agent). NATS, Routr, RTPEngine, Postgres and MinIO are external. |
+| `values-cloud.yaml` | The whole platform, mirroring `ops/rebuild/compose.yaml`: apiserver (embedded Identity, migrations Job), Envoy, dashboard, hosted Autopilot, single-node NATS with JetStream, dev-grade Postgres and MinIO, appbridge and Roomr nodes. |
 | `values-observability.yaml` | The default observability profile: OTel collector, Prometheus, Loki, Tempo and Grafana; every service exports to the collector. Combine it with either file above. |
 
 Routr and RTPEngine come from their own charts (Routr at `routr:5060` / `routr:51907`, using the
@@ -302,7 +302,7 @@ kubectl create secret generic roomr-peer --from-literal=password="$(openssl rand
 kubectl create secret generic fonoster-records-key --from-file=records.pem   # EC P-256
 kubectl create secret generic fonoster-vendors --from-literal=deepgram="$DEEPGRAM_API_KEY"
 kubectl create secret generic fonoster-nats-users \
-  --from-literal=apiserver="$(openssl rand -hex 16)" --from-literal=gateway="$(openssl rand -hex 16)" \
+  --from-literal=apiserver="$(openssl rand -hex 16)" --from-literal=appbridge="$(openssl rand -hex 16)" \
   --from-literal=roomr="$(openssl rand -hex 16)" --from-literal=routr="$(openssl rand -hex 16)"
 
 helm install fonoster ops/rebuild/helm/fonoster-rebuild \
@@ -333,7 +333,7 @@ kubectl port-forward svc/fonoster-grafana 3000
   `apiserver.keysSecret`.
 - **Postgres and MinIO** (`postgres.deploy`, `minio.deploy`) are single-replica and for trying the
   platform; point the database and store URLs in your Secrets at managed services instead.
-- **Gateway RTP.** The gateway advertises its pod IP to the Roomr nodes (`rtp.advertiseHostEnv:
+- **AppBridge RTP.** AppBridge advertises its pod IP to the Roomr nodes (`rtp.advertiseHostEnv:
   POD_IP`) unless `rtp.advertiseHost` is set.
 - **Observability.** With `observability.enabled` and no `otel.endpoint`, every service exports to
   `<release>-otel-collector:4318`. To use your own backend, leave the profile off and set
@@ -349,7 +349,7 @@ helm install fonoster ops/rebuild/helm/fonoster-rebuild \
   --set roomr.rtp.portMin=30000 --set roomr.rtp.portMax=30199
 ```
 
-The gateway (`appbridge` in the chart values) runs as a Deployment (ConfigMap with `gateway.yaml`,
+AppBridge (`appbridge` in the chart values) runs as a Deployment (ConfigMap with `appbridge.yaml`,
 Service, PDB) and the Roomr node as a StatefulSet (host network by default because RTP needs a UDP
 range, node id = pod name). Create the Secret named by `roomr.routr.passwordSecret` (key `password`) for the nodes' Routr peer.
 

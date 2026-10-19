@@ -174,7 +174,7 @@ export async function enroll(options: EnrollOptions): Promise<RegionIdentity> {
       version: options.version,
       components: options.components ?? {
         roomrNodes: 1,
-        gateways: 1,
+        appbridges: 1,
         autopilot: true
       }
     })

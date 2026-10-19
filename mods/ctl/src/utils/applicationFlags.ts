@@ -23,7 +23,7 @@ export const applicationFlags = {
   "from-file": Flags.string({
     char: "f",
     description:
-      "a YAML or JSON file with the Application (an `assistant` key makes it an Autopilot agent)"
+      "a YAML or JSON file with the Application (an `agent` key makes it an Autopilot agent)"
   }),
   name: Flags.string({ char: "n", description: "the Application name" }),
   url: Flags.string({
@@ -39,9 +39,6 @@ export const applicationFlags = {
     description:
       "a YAML or JSON agent file; makes it an Autopilot agent (hosted by Fonoster)"
   }),
-  // Renamed in 0.30; kept hidden so old scripts get a clear error.
-  flavor: Flags.string({ hidden: true }),
-  assistant: Flags.string({ hidden: true }),
   voice: Flags.string({
     description: "TTS voice as a catalog id (e.g. deepgram/aura-2-thalia-en)"
   }),

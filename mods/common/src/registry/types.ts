@@ -81,10 +81,10 @@ export type AuditEntry = {
   details?: Record<string, unknown>;
 };
 
-/** One place a catalog id is used: an app's speech config or an assistant's model config. */
+/** One place a catalog id is used: an app's speech config or an agent's model config. */
 export type Usage = {
   workspace: string;
-  config: { kind: "app" | "assistant"; ref: string; name: string };
+  config: { kind: "app" | "agent"; ref: string; name: string };
   model?: string;
   voice?: string;
   /** Settings the config sets on the model (dropped when the replacement does not accept them). */
@@ -93,7 +93,7 @@ export type Usage = {
   requires: string[];
 };
 
-/** Where usages come from (apps and assistants in the control-plane database). */
+/** Where usages come from (apps and agents in the control-plane database). */
 export interface UsageSource {
   find(id: string): Usage[];
   /** Rewrites one config; returns false if it changed since it was read. */

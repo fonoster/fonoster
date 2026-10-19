@@ -1,10 +1,10 @@
 format: fonoster.scenario.v1
 name: tool-call
 contract: autopilot
-role: gateway
+role: appbridge
 spec: "Tools are structured and behind a port / Tool call during a turn"
 setup:
-  assistant:
+  agent:
     conversationSettings: { systemPrompt: "You are the receptionist of a dental clinic.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong." }
     languageModel: { model: fake/llm, tools: [{ name: getHours, description: "Opening hours", parameters: { type: object, properties: {} }, operation: { method: get, url: "${media}/tool/hours" } }] }
   providers:

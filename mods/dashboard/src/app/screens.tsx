@@ -26,8 +26,8 @@ import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 export const SCREENS: Record<string, LazyExoticComponent<ComponentType>> = {
   "": lazy(() => import("~/overview")),
   agents: lazy(() => import("~/agents")),
-  streams: lazy(() =>
-    import("~/session").then((m) => ({ default: m.StreamsScreen }))
+  apps: lazy(() =>
+    import("~/session").then((m) => ({ default: m.AppsScreen }))
   ),
   webhooks: lazy(() => import("~/session/webhooks")),
   "vendor-keys": lazy(() => import("~/session/vendor-keys")),

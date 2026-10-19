@@ -39,7 +39,7 @@ function call(callRef: string): RecordEntry[] {
   return [
     {
       at: (t += 100),
-      source: "gateway",
+      source: "appbridge",
       message: { type: "session.start", callRef, appRef: "ivr" }
     },
     {

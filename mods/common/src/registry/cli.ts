@@ -38,7 +38,7 @@ import { Capability, ItemKind } from "./types";
 //   usages are known.
 // - database (`--store database` or FONOSTER_REGISTRY_STORE=database): the registry tables of the
 //   control-plane database at FONOSTER_REGISTRY_DATABASE_URL (or --database-url). Usages come
-//   from apps and assistants; deprecations store workspace notices and, with
+//   from apps and agents; deprecations store workspace notices and, with
 //   FONOSTER_REGISTRY_ENCRYPTION_KEY (the apiserver's encryption key, to sign with endpoint
 //   secrets), send `provider.deprecated` workspace webhooks.
 
@@ -342,7 +342,7 @@ function execute(
           break;
         }
         // With the database: per workspace, its sessions that resolved the id in the last 30
-        // days (from the gateways' registry.used events, LO-B11), then its configs.
+        // days (from the AppBridge replicas' registry.used events, LO-B11), then its configs.
         const workspaces = [
           ...new Set([
             ...usages.map((u) => u.workspace),

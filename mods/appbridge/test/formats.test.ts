@@ -19,7 +19,7 @@
 import { expect } from "chai";
 import { NatsConnection, connect } from "nats";
 import { FakesHarness, Peer } from "@fonoster/conformance";
-import { Gateway, MemoryCallRecordSink } from "../src";
+import { AppBridge, MemoryCallRecordSink } from "../src";
 import { APP_AUDIO_FORMATS, convert, INTERNAL } from "../src/audio/pcm";
 
 // The fonoster format menu end to end (voice-session "Raw audio in both directions", AO-B4): for
@@ -60,11 +60,11 @@ function tone(ms: number) {
   return out;
 }
 
-describe("@gateway audio format menu", function () {
+describe("@AppBridge audio format menu", function () {
   this.timeout(20000);
   let nc: NatsConnection;
   let harness: FakesHarness;
-  let gateway: Gateway | undefined;
+  let appbridge: AppBridge | undefined;
 
   before(async function () {
     if (!NATS_URL) return this.skip();
@@ -80,15 +80,15 @@ describe("@gateway audio format menu", function () {
   });
 
   afterEach(async () => {
-    await gateway?.stop();
-    gateway = undefined;
+    await appbridge?.stop();
+    appbridge = undefined;
     await harness?.stop();
   });
 
   for (const audio of APP_AUDIO_FORMATS) {
     it(`${audio.codec} at ${audio.rate} Hz`, async function () {
       const urls = harness.providerUrls;
-      gateway = await new Gateway({
+      appbridge = await new AppBridge({
         config: {
           nats: { url: NATS_URL! },
           retry: { windowMs: 300, intervalMs: 100 },

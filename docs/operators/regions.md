@@ -18,7 +18,7 @@ Two tools, two places:
   anywhere with the operator key; `enroll`, `secrets`, `status` and `run` run on the region's
   machine.
 
-The region runs NATS, Postgres, Routr, RTPEngine, a Roomr node, the VoiceSessionGateway, the hosted
+The region runs NATS, Postgres, Routr, RTPEngine, a Roomr node, AppBridge, the hosted
 Autopilot, MinIO and the **region agent**. Region operations use one utility, `fonoster-region`
 (`fonoster-region` still works as a deprecated alias); it is not part of the `fonoster` CLI.
 
@@ -63,7 +63,7 @@ The region's connection details in the dashboard include the SIP domain.
 | Job | How |
 | --- | --- |
 | Enrollment | `fonoster-region enroll <token>` checks the one-time token, creates the region's key pair, gets the region's leaf credentials and stores them (files `0600` or a Kubernetes Secret). |
-| Heartbeat | Every 30 s: version, Roomr nodes, gateways, Autopilot, active calls, the **names** of the secrets set, and the config version. |
+| Heartbeat | Every 30 s: version, Roomr nodes, appbridges, Autopilot, active calls, the **names** of the secrets set, and the config version. |
 | Config sync | Applies the control plane's snapshots to the region for every workspace of the region: streams, Autopilot agents, the provider catalog and webhook endpoints into the region database; domains (under the region's SIP domain), SIP agents, trunks, ACLs and numbers into the region's Routr. A workspace that is deleted leaves the region and its config is removed from the region. Autopilot agents are pointed at the region's own Autopilot. |
 | Workspace keys (public regions) | A workspace's own provider keys are fetched from Fonoster for each call over the link and never stored or logged in the region; Fonoster's keys are set on the region with `secrets set`. |
 | Relay | Answers the dashboard's requests for a record or recording by reading the region's storage, in chunks. Every read is written to `relay-audit.jsonl` in the region. |
@@ -129,7 +129,7 @@ regionAgent:
     autopilot: { url: "ws://<release>-autopilot:3000" }   # = autopilot.config.publicUrl
 autopilot:
   enabled: true                            # the cell's own Autopilot (PR-9)
-gateway:
+appbridge:
   config:
     cellSecrets: { dir: /var/lib/fonoster-secrets }
     appStore: { source: database }
@@ -149,7 +149,7 @@ NATS users: the Compose region gives each service its own NATS user (`NATS_*_PAS
 permissions in `ops/rebuild/config/nats-permissions/`). Start each password with a letter (for example
 `n$(openssl rand -hex 16)`): NATS can't load a password that starts with a digit. On Kubernetes, give your NATS the same users
 and permission files and create the Secret `nats.auth.secret` (`nats.auth.enabled` is on by default; keys
-`gateway`, `roomr`, `routr`, `region-agent`); see the operator guide, "NATS users and subject
+`appbridge`, `roomr`, `routr`, `region-agent`); see the operator guide, "NATS users and subject
 permissions".
 
 ## Firewall
@@ -161,9 +161,9 @@ permissions".
 | Inbound | Your SIP port(s) (5060 UDP/TCP, 5061 TLS) from your carriers and softphones | Calls. |
 | Inbound | RTPEngine's UDP range from your carriers and softphones | Call audio. |
 | Inbound | Envoy/dashboard ports | None: the dashboard is the control plane's. |
-| Internal only | NATS 4222, Postgres 5432, MinIO 9000, the gateway 8080, the Roomr nodes' SIP and RTP range | Keep them on the region's private network. |
+| Internal only | NATS 4222, Postgres 5432, MinIO 9000, AppBridge 8080, the Roomr nodes' SIP and RTP range | Keep them on the region's private network. |
 
-Provider APIs (Deepgram, ElevenLabs, your LLM) are outbound HTTPS from the gateway and Autopilot.
+Provider APIs (Deepgram, ElevenLabs, your LLM) are outbound HTTPS from AppBridge and Autopilot.
 
 ## Upgrades
 
@@ -173,7 +173,7 @@ Upgrades are yours: nothing changes in the region until you roll its images.
    of the control plane (see Versions below).
 2. Compose: set the image tags (`RB_TAG`) and `docker compose -f ops/rebuild/cell/compose.yaml up -d`.
    Helm: `helm upgrade` with the new image tags. The Roomr nodes drain (calls in progress finish, up
-   to `roomr.drainGraceSeconds`) and the gateways keep in-flight sessions until they end.
+   to `roomr.drainGraceSeconds`) and the AppBridge replicas keep in-flight sessions until they end.
 3. The region agent reports the new version on its next heartbeat; the dashboard's Region page
    shows it. Config sync resumes on its own if it had paused for an unsupported version.
 
@@ -225,7 +225,7 @@ fonoster-region create us-east-2 --name "US East (Ohio)" [--sip-domain sip.us-ea
 # on the new location: install as above, then
 fonoster-region enroll <token>
 fonoster-region secrets set deepgram < deepgram.key   # Fonoster's own provider keys
-# set `cellSecrets.workspaceKeysFromCloud: true` in the gateway config (workspaces' own keys per
+# set `cellSecrets.workspaceKeysFromCloud: true` in AppBridge config (workspaces' own keys per
 # call); on Kubernetes: --set regionAgent.workspaceKeysFromCloud=true
 fonoster-region publish us-east-2     # offered in pickers while it is connected
 fonoster-region list [--json]         # every region (public and private) with status

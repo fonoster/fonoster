@@ -21,7 +21,7 @@ import { expect } from "chai";
 import WebSocket from "ws";
 import {
   FakeApp,
-  FakeGateway,
+  FakeAppBridge,
   FakeLlm,
   FakeNatsRoomr,
   FakeStt,
@@ -34,7 +34,7 @@ import {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-describe("@conformance/FakeApp and FakeGateway", function () {
+describe("@conformance/FakeApp and FakeAppBridge", function () {
   let app: FakeApp;
 
   afterEach(async function () {
@@ -46,19 +46,19 @@ describe("@conformance/FakeApp and FakeGateway", function () {
       signingSecret: "s3cret",
       verifySignature: true
     }).start();
-    const gatewaySide = await new FakeGateway({ signingSecret: "s3cret" }).dial(
-      app.url
-    );
+    const appBridgeSide = await new FakeAppBridge({
+      signingSecret: "s3cret"
+    }).dial(app.url);
     const appSide = (await app.nextConnection()).peer;
 
-    gatewaySide.sendJson({ type: "session.start" });
+    appBridgeSide.sendJson({ type: "session.start" });
     const frame = await appSide.frames.waitUntil(
       () => appSide.frames.items[0],
       Date.now() + 1000
     );
     expect(frame?.kind).to.equal("json");
     expect(app.attempts[0].accepted).to.equal(true);
-    gatewaySide.close();
+    appBridgeSide.close();
   });
 
   it("refuses a connection signed with the wrong secret", async function () {
@@ -67,7 +67,7 @@ describe("@conformance/FakeApp and FakeGateway", function () {
       verifySignature: true
     }).start();
     let error: Error | undefined;
-    await new FakeGateway({ signingSecret: "wrong" })
+    await new FakeAppBridge({ signingSecret: "wrong" })
       .dial(app.url)
       .catch((e) => (error = e));
     expect(error?.message).to.contain("401");
@@ -80,7 +80,7 @@ describe("@conformance/FakeApp and FakeGateway", function () {
       verifySignature: true
     }).start();
     let error: Error | undefined;
-    await new FakeGateway({
+    await new FakeAppBridge({
       signingSecret: "s3cret",
       timestamp: Math.floor(Date.now() / 1000) - 10 * 60
     })
@@ -122,10 +122,10 @@ describe("@conformance/FakeNatsRoomr", function () {
       roomRef
     });
 
-    const gateway = dgram.createSocket("udp4");
+    const appbridge = dgram.createSocket("udp4");
     const received: Buffer[] = [];
-    gateway.on("message", (m) => received.push(m));
-    await new Promise<void>((r) => gateway.bind(0, "127.0.0.1", r));
+    appbridge.on("message", (m) => received.push(m));
+    await new Promise<void>((r) => appbridge.bind(0, "127.0.0.1", r));
 
     const ack = await node.handle({
       type: "participant.add",
@@ -134,7 +134,7 @@ describe("@conformance/FakeNatsRoomr", function () {
       kind: "session",
       rtp: {
         host: "127.0.0.1",
-        port: gateway.address().port,
+        port: appbridge.address().port,
         codec: "L16/16000"
       }
     });
@@ -154,8 +154,8 @@ describe("@conformance/FakeNatsRoomr", function () {
     for (let i = 0; i < 320; i++)
       tone.writeInt16BE(Math.round(8000 * Math.sin(i / 3)), i * 2);
     for (let i = 0; i < 5; i++)
-      gateway.send(Buffer.concat([header, tone]), nodeRtp.port, nodeRtp.host);
-    gateway.send(
+      appbridge.send(Buffer.concat([header, tone]), nodeRtp.port, nodeRtp.host);
+    appbridge.send(
       Buffer.concat([header, Buffer.alloc(640)]),
       nodeRtp.port,
       nodeRtp.host
@@ -163,7 +163,7 @@ describe("@conformance/FakeNatsRoomr", function () {
     await sleep(50);
     expect(node.outputAudioMs(since)).to.equal(100);
     expect(node.outputSilentWithinMs(since)).to.be.lessThan(50);
-    gateway.close();
+    appbridge.close();
   });
 
   it("reports dial progress and outcomes", async function () {

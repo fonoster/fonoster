@@ -26,7 +26,7 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 export type ConfigKinds = {
   numbers: unknown[];
   apps: Record<string, unknown>[];
-  assistants: { appRef: string; productRef?: string; config: unknown }[];
+  agents: { appRef: string; productRef?: string; config: unknown }[];
   routr: {
     domains: unknown[];
     agents: unknown[];
@@ -42,7 +42,7 @@ export type ConfigKinds = {
 export type SnapshotSources = {
   apps(accessKeyId: string): Promise<{
     apps: Record<string, unknown>[];
-    assistants: ConfigKinds["assistants"];
+    agents: ConfigKinds["agents"];
   }>;
   numbers(accessKeyId: string): Promise<unknown[]>;
   routr(accessKeyId: string): Promise<ConfigKinds["routr"]>;
@@ -55,7 +55,7 @@ export type SnapshotSources = {
   recordingPolicy(accessKeyId: string): Promise<Record<string, unknown>>;
 };
 
-/** The gateway's defaults when an app names no voice or STT model. */
+/** AppBridge's defaults when an app names no voice or STT model. */
 export const DEFAULT_SPEECH = {
   voice: "deepgram/aura-2-thalia-en",
   sttModel: "deepgram/nova-3"
@@ -67,12 +67,12 @@ const providerOf = (catalogId?: unknown) =>
     : undefined;
 
 /**
- * The catalog ids each app and assistant uses, and the secret names (provider ids) they need,
+ * The catalog ids each app and agent uses, and the secret names (provider ids) they need,
  * with who needs them (PR-4: names only, never values).
  */
 export function catalogUse(
   apps: Record<string, unknown>[],
-  assistants: ConfigKinds["assistants"]
+  agents: ConfigKinds["agents"]
 ) {
   const ids = new Set<string>();
   const usedBy = new Map<string, Set<string>>();
@@ -90,7 +90,7 @@ export function catalogUse(
     use((app.speechSttModel as string) || DEFAULT_SPEECH.sttModel, name);
     if (app.speechTtsModel) use(app.speechTtsModel as string, name);
   }
-  for (const a of assistants) {
+  for (const a of agents) {
     const app = apps.find((x) => x.ref === a.appRef);
     const name = String(app?.name ?? a.appRef);
     const config = (a.config ?? {}) as Record<string, unknown>;
@@ -174,7 +174,7 @@ export function createConfigSync(deps: {
   const rootDomain = () => deps.rootDomain?.() ?? "";
 
   const workspaceKinds = async (accessKeyId: string) => {
-    const [{ apps, assistants }, numbers, routr, webhooks, recordingPolicy] =
+    const [{ apps, agents }, numbers, routr, webhooks, recordingPolicy] =
       await Promise.all([
         sources.apps(accessKeyId),
         sources.numbers(accessKeyId),
@@ -182,7 +182,7 @@ export function createConfigSync(deps: {
         sources.webhooks(accessKeyId),
         sources.recordingPolicy(accessKeyId)
       ]);
-    return { numbers, apps, assistants, routr, webhooks, recordingPolicy };
+    return { numbers, apps, agents, routr, webhooks, recordingPolicy };
   };
 
   const snapshot = async (
@@ -194,7 +194,7 @@ export function createConfigSync(deps: {
     const providers = new Set<string>();
     for (const ws of bound) {
       const kinds = await workspaceKinds(ws.accessKeyId);
-      const use = catalogUse(kinds.apps, kinds.assistants);
+      const use = catalogUse(kinds.apps, kinds.agents);
       use.ids.forEach((i) => ids.add(i));
       use.secrets.forEach((s) => providers.add(s.name));
       const first = (kinds.routr.domains as { domainUri?: string }[])[0]
@@ -233,8 +233,8 @@ export function createConfigSync(deps: {
     const perWorkspace: Record<string, string[]> = {};
     const usedBy = new Map<string, Set<string>>();
     for (const ws of bound) {
-      const { apps, assistants } = await sources.apps(ws.accessKeyId);
-      const secrets = catalogUse(apps, assistants).secrets;
+      const { apps, agents } = await sources.apps(ws.accessKeyId);
+      const secrets = catalogUse(apps, agents).secrets;
       perWorkspace[ws.accessKeyId] = secrets.map((s) => s.name);
       for (const s of secrets) {
         if (!usedBy.has(s.name)) usedBy.set(s.name, new Set());

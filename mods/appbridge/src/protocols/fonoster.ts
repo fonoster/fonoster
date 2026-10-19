@@ -52,7 +52,7 @@ export class FonosterCodec implements ProtocolCodec {
   }
 
   callerAudio(frame: Buffer) {
-    // Frames from the gateway start with their track id (voice-session, Listen-only sockets).
+    // Frames from AppBridge start with their track id (voice-session, Listen-only sockets).
     this.send(
       withTrackId(CALLER_TRACK_ID, convert(frame, INTERNAL, this.format))
     );

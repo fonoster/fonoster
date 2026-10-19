@@ -97,9 +97,9 @@ type Region = {
   /** Same as lastHeartbeatAt. */
   lastSeenAt?: string;
   enrolledAt?: string;
-  components?: { roomrNodes: number; gateways: number; autopilot: boolean };
+  components?: { roomrNodes: number; appbridges: number; autopilot: boolean };
   roomrNodes?: number;
-  gateways?: number;
+  appbridges?: number;
   activeCalls?: number;
   configVersion?: number;
   /** Owner views: the workspaces the region serves. */

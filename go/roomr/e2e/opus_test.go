@@ -23,7 +23,7 @@ func needOpus(t *testing.T) {
 
 // bothWays checks freq from the caller reaches the session participant and the participant's
 // audio reaches the caller.
-func bothWays(t *testing.T, call *caller.Call, g *gateway, freq float64) {
+func bothWays(t *testing.T, call *caller.Call, g *appbridge, freq float64) {
 	t.Helper()
 	call.Speak("tone:"+strconv.FormatFloat(freq, 'f', -1, 64), 600)
 	time.Sleep(900 * time.Millisecond)
@@ -74,7 +74,7 @@ func TestOpusDisabledByConfig(t *testing.T) {
 }
 
 // dialed dials the callee bot into a room with a session participant and returns both.
-func (r *rig) dialed(id string) (*caller.Call, *gateway, string) {
+func (r *rig) dialed(id string) (*caller.Call, *appbridge, string) {
 	room := r.command(map[string]any{"type": "room.create", "id": "c-" + id})["roomRef"].(string)
 	g, rep := r.addSession(room, "")
 	if rep["type"] != "ack" {

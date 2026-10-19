@@ -1,4 +1,4 @@
-"""Accepts VoiceSessionGateway sessions over WebSocket (voice-sdk S7)."""
+"""Accepts AppBridge sessions over WebSocket (voice-sdk S7)."""
 
 from __future__ import annotations
 

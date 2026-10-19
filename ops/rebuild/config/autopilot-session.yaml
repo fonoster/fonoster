@@ -1,14 +1,14 @@
 # autopilot-session.yaml: the hosted Autopilot (profile `autopilot`), an ordinary session app the
-# gateway dials at ws://autopilot:3000. Format: config/autopilot-session.example.yaml.
+# appbridge dials at ws://autopilot:3000. Format: config/autopilot-session.example.yaml.
 port: 3000
-# The secret the gateway signs Autopilot sessions with: every Autopilot app's signing secret
+# The secret AppBridge signs Autopilot sessions with: every Autopilot app's signing secret
 # (the apiserver's apps.autopilotSigningSecret).
 signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
 # The URL the Autopilot apps point to (the apiserver's apps.autopilotUrl).
 publicUrl: "ws://autopilot:3000"
-# Assistants (the Autopilot apps' Intelligence rows), the catalog (registry tables) and workspace
+# Agents (the Autopilot apps' Intelligence rows), the catalog (registry tables) and workspace
 # vendor keys come from the apiserver's database.
-assistants: { source: database }
+agents: { source: database }
 registry: { source: database }
 workspaceSecrets: { source: database }
 database: { url: "${APISERVER_DATABASE_URL}" }

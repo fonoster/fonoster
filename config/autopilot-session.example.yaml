@@ -1,18 +1,18 @@
-# The hosted Autopilot (rework-autopilot): an ordinary session app the gateway dials.
+# The hosted Autopilot (rework-autopilot): an ordinary session app AppBridge dials.
 #   node mods/autopilot/dist/session/main.js --config config/autopilot-session.yaml
 # Keys are named by credentialRef (the provider registry's catalog says which ref a provider
 # uses); each ref reads an environment variable of your choosing or an inline value.
 host: 0.0.0.0
 port: 50061
-# The secret the gateway signs Autopilot sessions with (the same for every Autopilot app).
+# The secret AppBridge signs Autopilot sessions with (the same for every Autopilot app).
 signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
 # The URL Autopilot apps point to, exactly as the apiserver's apps.autopilotUrl (or a list):
 # signatures are checked against it, never against the request's Host header.
 publicUrl: "ws://autopilot:50061"
-# Apps and their assistants: {apps: {<appRef>: {workspaceRef, assistant}}} (JSON or YAML), or
+# Apps and their agents: {apps: {<appRef>: {workspaceRef, agent}}} (JSON or YAML), or
 # the Autopilot apps managed in the dashboard/API (needs `database`):
-#   assistants: { source: database, cacheMs: 5000 }
-assistants: { file: ./assistants.json }
+#   agents: { source: database, cacheMs: 5000 }
+agents: { file: ./agents.json }
 # The catalog written by the fonoster-registry utility.
 registry: { file: ./registry.json }
 # Platform keys by credentialRef.

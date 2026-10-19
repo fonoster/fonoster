@@ -25,13 +25,13 @@ import * as readline from "readline";
 import { buildRoomr, FakesHarness, RoomrBinaries } from "@fonoster/conformance";
 import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
-import { Gateway } from "../src/Gateway";
+import { AppBridge } from "../src/AppBridge";
 import { findRoutes, LocationRoute } from "./routr/location";
 import { RoomrRouting, provisionRoomrRouting } from "./routr/provision";
 
 // The first real call through Routr into the new stack (add-roomr 2.2 live check, 4.1):
 // caller bot → Routr (Trunk by Request-URI host, Number → Peer `roomr`, least-sessions) →
-// Go Roomr node (registered with X-Session-Count) → media-control → gateway → app.
+// Go Roomr node (registered with X-Session-Count) → media-control → appbridge → app.
 //
 // Needs the throwaway Routr rig (mods/appbridge/test/routr/rig.sh up), NATS and Go. Skipped unless
 // ROUTR_LIVE=1. See docs/operators/routr-live-test.md.
@@ -147,13 +147,13 @@ function tone(ms: number): Buffer {
   return buf;
 }
 
-describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
+describe("@appbridge live call through Routr (ROUTR_LIVE=1)", function () {
   this.timeout(60000);
   let nc: NatsConnection;
   let bins: RoomrBinaries | undefined;
   const procs: ChildProcess[] = [];
   let harness: FakesHarness;
-  let gateway: Gateway;
+  let appbridge: AppBridge;
   let botUrl = "";
   let nodePort = 0;
   let nodeProc: ChildProcess | undefined;
@@ -204,7 +204,7 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
 
     harness = await new FakesHarness().start();
     const urls = harness.providerUrls;
-    gateway = await new Gateway({
+    appbridge = await new AppBridge({
       nats: nc,
       config: {
         nats: { url: NATS_URL },
@@ -230,7 +230,7 @@ describe("@gateway live call through Routr (ROUTR_LIVE=1)", function () {
   });
 
   after(async function () {
-    await gateway?.stop();
+    await appbridge?.stop();
     await harness?.stop();
     for (const p of procs) p.kill("SIGKILL");
     await nc?.close();

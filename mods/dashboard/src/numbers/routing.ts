@@ -20,7 +20,7 @@ import type { Agent, Application, INumber } from "@fonoster/types";
 
 /**
  * Where a number sends its calls. In this UI "agents" are AI agents
- * (Autopilot applications), "streams" are the other applications (your own WebSocket servers), and
+ * (Autopilot applications), "apps" are the other applications (your own WebSocket servers), and
  * "SIP agents" are sipnet Agents, reached through their address of record.
  */
 export type RouteKind = "agent" | "app" | "sip";
@@ -30,7 +30,7 @@ export type Route = { kind: RouteKind; to: string };
 export const ROUTE_KINDS: { value: RouteKind; label: string; noun: string }[] =
   [
     { value: "agent", label: "Agent", noun: "agents" },
-    { value: "app", label: "Stream", noun: "streams" },
+    { value: "app", label: "App", noun: "apps" },
     { value: "sip", label: "SIP agent", noun: "SIP agents" }
   ];
 

@@ -33,7 +33,7 @@ const provider = (id?: string) =>
 
 /** Provider ids an app's saved settings name (voice, STT model, Autopilot language model). */
 export function providersOf(app: SessionApp): string[] {
-  const llm = (app.assistant as { languageModel?: { model?: unknown } })
+  const llm = (app.agent as { languageModel?: { model?: unknown } })
     ?.languageModel?.model;
   const ids = [
     provider(app.speech.voice),
@@ -98,7 +98,7 @@ export function MissingKeysWarning({ apps }: { apps: SessionApp[] }) {
   if (!missing.length) return null;
   const text =
     apps.length === 1
-      ? `This stream needs a key for ${missing[0].ids.join(", ")}.`
+      ? `This app needs a key for ${missing[0].ids.join(", ")}.`
       : `Missing keys: ${missing.map((m) => `${m.app.name} (${m.ids.join(", ")})`).join(", ")}.`;
   return (
     <Alert variant="warning">

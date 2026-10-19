@@ -113,7 +113,7 @@ function call(
       : [
           {
             at: at(),
-            source: "gateway" as const,
+            source: "appbridge" as const,
             message: {
               type: "session.start",
               callRef,
@@ -132,7 +132,7 @@ function call(
             : []),
           {
             at: at(),
-            source: "gateway" as const,
+            source: "appbridge" as const,
             message: { type: "turn.ended", text: o.text ?? "Hello" }
           }
         ]),
@@ -170,7 +170,7 @@ describe("@apiserver call records", function () {
       region: "us-east",
       onSealed: (e: RecordIndexEntry) => pending.push(index(e))
     });
-    // What the region's gateways do for maintenance requests (gateway record/maintenance.ts).
+    // What the region's AppBridge replicas do for maintenance requests (appbridge record/maintenance.ts).
     maintenance = async (_region, req) => {
       try {
         if (req.op === "erase") {

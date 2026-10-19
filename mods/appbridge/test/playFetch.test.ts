@@ -39,7 +39,7 @@ async function refused(url: string) {
   throw new Error(`fetched ${url}`);
 }
 
-describe("@gateway[play fetch]", function () {
+describe("@appbridge[play fetch]", function () {
   let server: http.Server;
   let base: string;
   let saved: string | undefined;

@@ -1,9 +1,9 @@
 // Command loadgen is the Roomr node's load harness (add-roomr 1.5 and 1.6). It plays both
-// the callers and the gateway against a running node:
+// the callers and AppBridge against a running node:
 //
 //   - a caller bot places -calls SIP calls (one codec, -codec) at -rate calls per second;
 //   - for each call it claims call.incoming on NATS, adds a session participant (L16/16000 RTP
-//     from this process) and answers, like the gateway;
+//     from this process) and answers, like AppBridge;
 //   - both sides send audio every 20 ms for -duration; every -dtmf-every each caller presses a
 //     key (RFC 4733), and the harness counts the dtmf events the node reports;
 //   - optional impairment on the caller → node direction: -loss, -jitter, -reorder.
@@ -121,8 +121,8 @@ func main() {
 		dtmfByRoom = map[string]int{}
 		setupErrs  atomic.Int64
 	)
-	// The gateway: claim, add the session participant, answer.
-	_, err = nc.Subscribe("gateway.incoming", func(m *nats.Msg) {
+	// AppBridge: claim, add the session participant, answer.
+	_, err = nc.Subscribe("appbridge.incoming", func(m *nats.Msg) {
 		var ev map[string]any
 		if json.Unmarshal(m.Data, &ev) != nil || ev["nodeId"] != *nodeID {
 			return

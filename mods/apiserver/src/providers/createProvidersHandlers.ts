@@ -52,7 +52,7 @@ const visible = { state: { not: "RETIRED" } };
 
 export type ProvidersOptions = {
   /**
-   * The platform credentials (credentialRef names) the gateways are configured with. When set,
+   * The platform credentials (credentialRef names) the AppBridge replicas are configured with. When set,
    * the catalog lists a provider (and its models and voices) only if its credential is here or
    * the workspace stored its own key for it (add-provider-registry 4.1, LO-B12). Unset: no
    * credential filtering (development).

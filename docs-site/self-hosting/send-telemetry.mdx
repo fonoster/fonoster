@@ -39,7 +39,7 @@ one yet, [run a local collector](#try-it-with-a-local-collector) first.
   </Step>
 </Steps>
 
-Compose passes `OTEL_EXPORTER_OTLP_ENDPOINT` to the API server, the voice gateway, the Roomr node
+Compose passes `OTEL_EXPORTER_OTLP_ENDPOINT` to the API server, AppBridge, the Roomr node
 and the hosted Autopilot. Each one reads it through `telemetry.otlpEndpoint` in its file in
 `config/`:
 
@@ -53,14 +53,14 @@ again.
 
 ## What each service sends
 
-| Service       | `service.name`       | Traces                                    | Metrics                                                                                         |
-| ------------- | -------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| API server    | `fonoster-apiserver` | One span per API request                  | `fonoster.apiserver.grpc.requests` (by method and status), `fonoster.apiserver.records.indexed` |
-| Voice gateway | `fonoster-gateway`   | `gateway.call`, one span per call         | `fonoster.gateway.calls.total`, `fonoster.gateway.calls.active`                                 |
-| Roomr node    | `fonoster-roomr`     | `roomr.call.incoming` and `roomr.command` | `fonoster.roomr.calls.incoming` (by outcome), `fonoster.roomr.rooms.active`                     |
+| Service    | `service.name`       | Traces                                    | Metrics                                                                                         |
+| ---------- | -------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| API server | `fonoster-apiserver` | One span per API request                  | `fonoster.apiserver.grpc.requests` (by method and status), `fonoster.apiserver.records.indexed` |
+| AppBridge  | `fonoster-appbridge` | `appbridge.call`, one span per call       | `fonoster.appbridge.calls.total`, `fonoster.appbridge.calls.active`                             |
+| Roomr node | `fonoster-roomr`     | `roomr.call.incoming` and `roomr.command` | `fonoster.roomr.calls.incoming` (by outcome), `fonoster.roomr.rooms.active`                     |
 
-The gateway also sends its logs; the Roomr node's logs and the API server's stay in
-`docker compose logs`. A call's trace starts at the Roomr node and continues in the gateway.
+AppBridge also sends its logs; the Roomr node's logs and the API server's stay in
+`docker compose logs`. A call's trace starts at the Roomr node and continues in AppBridge.
 Metrics are sent every 15 seconds.
 
 ## Other settings
@@ -80,7 +80,7 @@ needs an auth header (Grafana Cloud, Honeycomb), set both in `.env` (and keep th
 holds a credential):
 
 ```bash
-OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-gateway-prod-us-east-0.grafana.net/otlp
+OTEL_EXPORTER_OTLP_ENDPOINT=https://otlp-appbridge-prod-us-east-0.grafana.net/otlp
 OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic%20<base64 of instance:token>
 ```
 
@@ -89,7 +89,7 @@ With Helm, set `otel.endpoint` and either `otel.headers` or, to keep the credent
 To pass any other variable, add it to the service's `environment` in a Compose file of your own (see
 the next section for how to add one).
 
-The hosted Autopilot reports `autopilot.session` (a child of the voice gateway's call span, so one
+The hosted Autopilot reports `autopilot.session` (a child of AppBridge's call span, so one
 trace covers the call), `autopilot.turn` (the caller's final transcript to the end of the reply) and
 `autopilot.llm.request` spans, plus `fonoster.autopilot.turns`, `fonoster.autopilot.llm.requests`
 and `fonoster.autopilot.llm.latency_ms` (the sum of the time to the first token; divide by requests).
@@ -149,8 +149,8 @@ and `fonoster.autopilot.llm.latency_ms` (the sum of the time to the first token;
     docker compose logs -f otel-collector
     ```
 
-    Within 15 seconds, metrics arrive from `fonoster-gateway` and `fonoster-roomr`. Sign in to
-    the dashboard to see API server spans. Make a call to see its `gateway.call` span.
+    Within 15 seconds, metrics arrive from `fonoster-appbridge` and `fonoster-roomr`. Sign in to
+    the dashboard to see API server spans. Make a call to see its `appbridge.call` span.
 
   </Step>
 </Steps>

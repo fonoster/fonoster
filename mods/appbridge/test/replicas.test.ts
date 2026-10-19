@@ -20,9 +20,9 @@ import { expect } from "chai";
 import { NatsConnection, connect } from "nats";
 import { FakesHarness } from "@fonoster/conformance";
 import { Sessions } from "@fonoster/common";
-import { Gateway, GatewayConfig, MemoryCallRecordSink } from "../src";
+import { AppBridge, AppBridgeConfig, MemoryCallRecordSink } from "../src";
 
-// Two gateway replicas on one NATS (in-memory state audit, test 6): a caller-supplied X-Call-Ref
+// Two AppBridge replicas on one NATS (in-memory state audit, test 6): a caller-supplied X-Call-Ref
 // that names a live call on the other replica never takes that call's ref (RV-B7 across
 // replicas). Needs NATS with JetStream: set CONFORMANCE_NATS_URL.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
@@ -41,12 +41,12 @@ async function waitFor<T>(
   }
 }
 
-describe("@gateway replicas", function () {
+describe("@AppBridge replicas", function () {
   this.timeout(20000);
   const bucket = `test_gw_replicas_${Date.now()}`;
   let nc: NatsConnection;
   let harness: FakesHarness;
-  const gateways: Gateway[] = [];
+  const appbridges: AppBridge[] = [];
 
   before(async function () {
     if (!NATS_URL) return this.skip();
@@ -62,7 +62,7 @@ describe("@gateway replicas", function () {
   });
 
   after(async () => {
-    for (const g of gateways) await g.stop();
+    for (const g of appbridges) await g.stop();
     await harness?.stop();
     if (!nc || nc.isClosed()) return;
     await (await nc.jetstreamManager()).streams
@@ -71,9 +71,9 @@ describe("@gateway replicas", function () {
     await nc.close();
   });
 
-  async function startGateway() {
+  async function startAppBridge() {
     const urls = harness.providerUrls;
-    const config: GatewayConfig = {
+    const config: AppBridgeConfig = {
       nats: { url: NATS_URL! },
       apps: [
         {
@@ -93,31 +93,31 @@ describe("@gateway replicas", function () {
         }
       }
     };
-    const g = await new Gateway({
+    const g = await new AppBridge({
       config,
       nats: nc,
       record: new MemoryCallRecordSink(),
       sessions: bucket
     }).start();
-    gateways.push(g);
+    appbridges.push(g);
     return g;
   }
 
-  it("gives a new ref to a call whose X-Call-Ref is live on another gateway; the lease keeps its owner (RV-B7)", async function () {
+  it("gives a new ref to a call whose X-Call-Ref is live on another AppBridge; the lease keeps its owner (RV-B7)", async function () {
     const kv = await Sessions.openSessions(nc, { bucket });
     const callRef = `live-${Date.now()}`;
     // Only g1 runs: the live call is g1's.
-    const g1 = await startGateway();
+    const g1 = await startAppBridge();
     harness.roomrNode.offerCall({ callRef });
     await harness.app.nextConnection();
     const lease = await waitFor(() =>
       Sessions.getSession(kv, "calls", callRef)
     );
-    expect(lease.gatewayRef).to.equal(g1.gatewayRef);
+    expect(lease.bridgeRef).to.equal(g1.bridgeRef);
 
     // A second replica joins; the queue group sends each call.incoming to one of them. Offer the
     // same X-Call-Ref until g2 takes one (g1 refuses it locally either way).
-    const g2 = await startGateway();
+    const g2 = await startAppBridge();
     let onG2 = false;
     for (let i = 0; i < 12 && !onG2; i++) {
       const before = g1.calls.size + g2.calls.size;
@@ -131,13 +131,15 @@ describe("@gateway replicas", function () {
       expect(all.filter((r) => r === callRef)).to.have.length(1);
       expect(all).to.include(roomRef);
     }
-    expect(onG2, "no call.incoming reached the second gateway").to.equal(true);
+    expect(onG2, "no call.incoming reached the second appbridge").to.equal(
+      true
+    );
     expect([...g2.calls.keys()]).to.not.include(callRef);
     expect(g1.calls.has(callRef)).to.equal(true);
     // The live call's lease (and so its hang-up subject) still names g1.
     await sleep(100);
     expect(
-      (await Sessions.getSession(kv, "calls", callRef))?.gatewayRef
-    ).to.equal(g1.gatewayRef);
+      (await Sessions.getSession(kv, "calls", callRef))?.bridgeRef
+    ).to.equal(g1.bridgeRef);
   });
 });

@@ -1,6 +1,6 @@
 ## Why
 
-`@fonoster/identity-client` shipped and the gateway uses it (`identity-client`, archived
+`@fonoster/identity-client` shipped and AppBridge uses it (`identity-client`, archived
 2026-10-17), but it does not cover the whole Identity surface yet, and it has no single-principal
 mode.
 

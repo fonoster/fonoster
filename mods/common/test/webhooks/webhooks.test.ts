@@ -102,7 +102,7 @@ describe("@common/webhooks", function () {
     ).to.throw(WebhookError, "webhook URLs must use HTTPS");
   });
 
-  it("points the retired assistant webhook events to their replacements", function () {
+  it("points the retired agent webhook events to their replacements", function () {
     const d = new WebhookDispatcher({ store: new MemoryWebhookStore() });
     expect(() =>
       d.createEndpoint({

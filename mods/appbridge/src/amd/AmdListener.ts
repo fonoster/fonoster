@@ -19,10 +19,10 @@
 import * as dgram from "dgram";
 import { getLogger } from "@fonoster/logger";
 
-const logger = getLogger({ service: "gateway", filePath: __filename });
+const logger = getLogger({ service: "appbridge", filePath: __filename });
 
 // Answering-machine detection as a voice-worker listener (add-roomr 4.3, design: "AMD via
-// AMD() or the ML sidecar over AGI/AudioSocket → a listener in the voice worker"). The gateway
+// AMD() or the ML sidecar over AGI/AudioSocket → a listener in the voice worker"). AppBridge
 // attaches a listen-only participant to the room with one RTP stream: the caller's track. It
 // collects `windowMs` of the caller's audio (16 kHz L16, the recording format) from the moment the
 // caller starts speaking, asks the classifier, detaches, and reports `amd.result` to the session and
@@ -269,7 +269,7 @@ export class AmdListener {
 
 /**
  * The production classifier: mods/amd's ONNX model, loaded on first use. `@fonoster/amd` is a
- * dependency of the gateway (and its image, model included; AO-B2).
+ * dependency of AppBridge (and its image, model included; AO-B2).
  */
 export function loadAmdClassifier(modelDir?: string): AmdClassifier {
   let classify:
@@ -277,7 +277,7 @@ export function loadAmdClassifier(modelDir?: string): AmdClassifier {
     | undefined;
   return async (pcm) => {
     if (!classify) {
-      // The model module only (not the AGI/AudioSocket servers in the package index).
+      // Loaded lazily: onnxruntime is heavy and only AMD calls need it.
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const amd = require("@fonoster/amd/dist/amd/AmdModel") as {
         classifyPcm: (pcm: Buffer, dir?: string) => Promise<AmdVerdict>;

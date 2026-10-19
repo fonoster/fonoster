@@ -1,7 +1,7 @@
 # fonoster-voice
 
 The Fonoster Voice SDK for Python. Apps receive each call as a session over the Fonoster session
-protocol (`fonoster.session.v1`) from the VoiceSessionGateway. Asyncio only.
+protocol (`fonoster.session.v1`) from AppBridge. Asyncio only.
 
 ```python
 import os

@@ -5,7 +5,7 @@ incompatible release: there are no compatibility shims.
 
 ## Breaking changes
 
-1. **`voice.proto` is retired.** Apps are no longer gRPC servers. The VoiceSessionGateway
+1. **`voice.proto` is retired.** Apps are no longer gRPC servers. AppBridge
    opens one signed WebSocket to your app's URL for every call. Apps that speak `voice.proto`
    directly must move to an SDK or to the [session protocol](./session-protocol.md). An app record
    that only has a gRPC endpoint is not dialed: its calls follow the app's fallback.
@@ -22,7 +22,7 @@ incompatible release: there are no compatibility shims.
 5. **Autopilot is the hosted session engine.** The previous engine (xstate machine, Silero VAD,
    gRPC voice server) is gone; `fonoster/autopilot` runs `mods/autopilot/src/session` and reads
    `autopilot-session.yaml`.
-6. **Assistant webhooks are retired.** `eventsHook` and its `conversation.started` /
+6. **Agent webhooks are retired.** `eventsHook` and its `conversation.started` /
    `conversation.ended` events are gone. Subscribe a workspace webhook to `call.started`,
    `call.ended` (the call is over) or `call_record.sealed` (the record, with transcript, turns and
    recording, is ready). Creating a webhook with a retired event name is refused with the
@@ -32,7 +32,7 @@ incompatible release: there are no compatibility shims.
    the dashboard's Calls page, `fonoster records:download`).
 
 Also required: a **signing secret**. The SDK servers refuse to start without one and refuse
-connections that are not signed by the gateway. Rotation is immediate, with no overlap window.
+connections that are not signed by AppBridge. Rotation is immediate, with no overlap window.
 
 ## Configuration: no environment fallbacks
 
@@ -74,7 +74,7 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
 
 ## Deployables and operations
 
-- **New deployables.** The **VoiceSessionGateway** (`fonoster/appbridge`: speech, turn-taking, app
+- **New deployables.** The **AppBridge** (`fonoster/appbridge`: speech, turn-taking, app
   sessions) and the Go **Roomr node** (`fonoster/roomr`: rooms, mixing, RTP) replace Asterisk
   and the voice code that lived in the apiserver. The apiserver keeps the management gRPC API,
   Identity, `GetCapabilities`, call creation and webhooks; it no longer talks ARI, AudioSocket or
@@ -88,7 +88,7 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
   data plane and upgrades it; the region links to the control plane only through an outbound NATS
   leaf node ([Running a region](./operators/regions.md)).
 - **Telemetry**: every service exports OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; a call's trace
-  runs from the Roomr node through the gateway (a `traceparent` NATS header).
+  runs from the Roomr node through AppBridge (a `traceparent` NATS header).
 
 ## Isolation between services
 
@@ -98,12 +98,12 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
   nothing.
 - **Compose passes each service only its own values.** The bundle's `compose.yaml` lists, per
   service, the `.env` names its config file uses (no `env_file`). If you add a `${NAME}` to a
-  service's file, add `NAME` to that service's `environment:` too. The gateway mounts only
+  service's file, add `NAME` to that service's `environment:` too. AppBridge mounts only
   `keys/public.pem` and `keys/records.pem`; Identity's private key stays with the API server.
 - **The hosted Autopilot needs `publicUrl`**, the URL Autopilot apps point to (the API server's
   `apps.autopilotUrl`, `ws://autopilot:3000` in the bundle). Autopilot checks signatures against it
-  only and requires the gateway's app-bound signature (`X-Fonoster-App-Signature`), so update the
-  gateway and Autopilot together.
+  only and requires AppBridge's app-bound signature (`X-Fonoster-App-Signature`), so update the
+  appbridge and Autopilot together.
 
 ## Upgrade
 

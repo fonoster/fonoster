@@ -93,7 +93,7 @@ operator's config or secret store.
 ### Requirement: Each layer resolves the credentials of the providers it calls
 
 Each consumer SHALL resolve credentials only for the provider kinds it calls itself, once, at
-session start: the VoiceSessionGateway for speech providers (STT and TTS), and Autopilot for its
+session start: AppBridge for speech providers (STT and TTS), and Autopilot for its
 LLM provider, through the same registry API scoped to the session's workspace. The credential is
 the workspace's own key for that provider if one is stored, otherwise the platform key named by
 `credentialRef`. Credentials MUST NOT travel in the session protocol. Workspace keys SHALL be stored as encrypted workspace Secrets and
@@ -102,18 +102,18 @@ MUST be write-only.
 #### Scenario: A workspace brings its own key
 
 - **WHEN** workspace W stored its own Deepgram key and a session in W uses `deepgram/nova-3`
-- **THEN** the gateway calls Deepgram with W's key, not the platform key
+- **THEN** AppBridge calls Deepgram with W's key, not the platform key
 
 #### Scenario: No workspace key falls back to the platform key
 
 - **WHEN** workspace W stored no Deepgram key and the platform credential `deepgram-default` is configured
-- **THEN** the gateway calls Deepgram with the platform key
+- **THEN** AppBridge calls Deepgram with the platform key
 
 #### Scenario: Autopilot resolves its LLM key
 
 - **WHEN** an Autopilot session in workspace W uses `openai/gpt-4o-mini` and W stored its own OpenAI key
 - **THEN** Autopilot resolves W's OpenAI key from the registry and calls OpenAI with it
-- **AND** the gateway never resolves or sees an LLM credential
+- **AND** AppBridge never resolves or sees an LLM credential
 
 #### Scenario: A workspace key is never returned
 
@@ -152,7 +152,7 @@ its config, and users MUST NOT be asked to declare them.
 
 #### Scenario: Tools require tool calling
 
-- **WHEN** an assistant config defines at least one tool
+- **WHEN** an agent config defines at least one tool
 - **THEN** its derived requirements include the hard feature `tool-calling`
 - **AND** the dashboard greys out LLMs without `tool-calling`, labelled `doesn't support tools`
 
@@ -167,7 +167,7 @@ its config, and users MUST NOT be asked to declare them.
 when the replacement is an active item of the same kind, and SHALL print an impact report. While
 deprecated, every workspace that uses the item SHALL see a dashboard warning naming where it is
 used, each such workspace SHALL receive one `provider.deprecated` workspace webhook naming the
-item, its replacement and the retire date, and the gateway SHALL emit `provider.deprecated_used`
+item, its replacement and the retire date, and AppBridge SHALL emit `provider.deprecated_used`
 for every session that resolves it.
 Nothing SHALL happen automatically when the retire date arrives.
 
@@ -192,7 +192,7 @@ Nothing SHALL happen automatically when the retire date arrives.
 #### Scenario: Runtime use is caught
 
 - **WHEN** an app in workspace W sends `listen.update` with `language` resolving to `deepgram/nova-2` for the app's STT settings during a session, and no saved config of W references it
-- **THEN** the gateway emits `provider.deprecated_used` with the session, the id and the replacement
+- **THEN** AppBridge emits `provider.deprecated_used` with the session, the id and the replacement
 - **AND** W's dashboard shows the warning
 
 #### Scenario: Switching clears the warning
@@ -222,7 +222,7 @@ workspace.
 #### Scenario: A retired id sent at runtime resolves to its replacement
 
 - **WHEN** an app whose TTS settings name model `elevenlabs/turbo-v2` sends `speak` with `voice: elevenlabs/rachel` after `turbo-v2` was retired
-- **THEN** the gateway uses `elevenlabs/flash-v2.5`
+- **THEN** AppBridge uses `elevenlabs/flash-v2.5`
 - **AND** emits `provider.retired_used`, and the call continues
 
 ### Requirement: Unmappable usages do not block retirement
@@ -244,9 +244,9 @@ by name.
 
 ### Requirement: Provider failure is reported, never switched
 
-When a provider fails or times out during a session, the gateway SHALL send the app an `error`
+When a provider fails or times out during a session, AppBridge SHALL send the app an `error`
 message with `code: provider_unavailable` and `relatesTo` the command id, and SHALL record it in
-the call record. The gateway MUST NOT switch to another provider.
+the call record. AppBridge MUST NOT switch to another provider.
 
 #### Scenario: TTS vendor outage mid-call
 
@@ -279,7 +279,7 @@ sessions per workspace that resolved it in the last 30 days.
 #### Scenario: Checking exposure before retiring
 
 - **WHEN** an operator runs `fonoster-registry usage deepgram/nova-2`
-- **THEN** it prints each workspace, the configs (app or assistant names) that reference the id, and each workspace's session count in the last 30 days
+- **THEN** it prints each workspace, the configs (app or agent names) that reference the id, and each workspace's session count in the last 30 days
 
 ### Requirement: A provider may name its endpoints
 
@@ -291,7 +291,7 @@ order: its own config's endpoint for that provider, the catalog's endpoint, the 
 #### Scenario: A provider is reached at its catalog endpoint
 
 - **WHEN** provider `fake` names `endpoints.llm: http://fakes:7003` and Autopilot's config has no endpoint for `fake`
-- **THEN** an assistant using `fake/llm` calls `http://fakes:7003`
+- **THEN** an agent using `fake/llm` calls `http://fakes:7003`
 
 #### Scenario: Service config wins over the catalog
 
@@ -310,7 +310,7 @@ keyless: services SHALL call it without a key, and it SHALL be usable by every w
 
 #### Scenario: A keyless provider is called without a key
 
-- **WHEN** provider `fake` has no `credentialRef` and an assistant uses `fake/llm`
+- **WHEN** provider `fake` has no `credentialRef` and an agent uses `fake/llm`
 - **THEN** Autopilot calls the fake LLM with no key and resolves no credential
 
 ### Requirement: Catalog entries may carry a display label
@@ -326,17 +326,17 @@ label when it has one and its catalog id otherwise.
 
 ### Requirement: Services reach catalog providers they do not configure
 
-The gateway SHALL be able to use any active catalog provider whose adapter ships in the running
+AppBridge SHALL be able to use any active catalog provider whose adapter ships in the running
 version, also when its own config does not list it: a keyless provider with no key, any other
 with the workspace's own key. Its config remains the place for platform keys and per-provider
 overrides.
 
-#### Scenario: A workspace key reaches a provider missing from the gateway config
+#### Scenario: A workspace key reaches a provider missing from AppBridge config
 
-- **WHEN** the catalog has provider `elevenlabs`, the gateway config does not list it, and workspace W stored its own ElevenLabs key
+- **WHEN** the catalog has provider `elevenlabs`, AppBridge config does not list it, and workspace W stored its own ElevenLabs key
 - **THEN** a session in W using an ElevenLabs voice calls ElevenLabs with W's key
 
-#### Scenario: A keyless catalog provider needs no gateway config
+#### Scenario: A keyless catalog provider needs no AppBridge config
 
-- **WHEN** the catalog has keyless provider `fake` with `endpoints.tts` and the gateway config does not list it
+- **WHEN** the catalog has keyless provider `fake` with `endpoints.tts` and AppBridge config does not list it
 - **THEN** a session using a `fake/` voice synthesizes through the fake TTS

@@ -2,7 +2,7 @@
 
 Fonoster used to run your app as a gRPC server (`voice.proto`) that the apiserver talked to,
 with Asterisk in front. Every call now reaches your app as one WebSocket **session** that the
-VoiceSessionGateway opens to your app's URL ([session protocol](./session-protocol.md)), and the Go
+AppBridge opens to your app's URL ([session protocol](./session-protocol.md)), and the Go
 Roomr nodes carry the audio. This is a new, incompatible release: nothing from the gRPC stack keeps
 working, and there are no compatibility shims.
 
@@ -24,7 +24,7 @@ What is gone:
 | `@fonoster/voice` with `new VoiceServer().listen(async (req, res) => ...)` | [Rewrite the handler](#1-sdk-users-rewrite-the-handler) to take the session, set the signing secret |
 | A Twilio Media Streams bot (Pipecat, for example) | [Use the Twilio protocol](#4-twilio-protocol-with-pipecat), no code change |
 | Your own gRPC server speaking `voice.proto` | Use an SDK, or implement [the protocol](./session-protocol.md) |
-| An Autopilot assistant | Nothing. Autopilot is an ordinary app of the platform |
+| An Autopilot agent | Nothing. Autopilot is an ordinary app of the platform |
 | Numbers created before this release | Run `repointNumbersCli` (sipnet) to move them from `sip:voice@default` to the roomr peer |
 
 ## 1. SDK users: rewrite the handler
@@ -55,7 +55,7 @@ new VoiceServer({ port: 3000, signingSecret: process.env.APP_SIGNING_SECRET }).l
 
 `@fonoster/voice/session` still resolves to the same SDK for one release. The server refuses to
 start without a signing secret (set `signingSecret` or `APP_SIGNING_SECRET`) and refuses any
-connection that is not signed by the gateway. See [the voice SDK](./voice-sdk.md) and
+connection that is not signed by AppBridge. See [the voice SDK](./voice-sdk.md) and
 `mods/voice/examples`.
 
 ### Methods
@@ -63,7 +63,7 @@ connection that is not signed by the gateway. See [the voice SDK](./voice-sdk.md
 | Before | After |
 | --- | --- |
 | `req.callerNumber`, `req.ingressNumber`, `req.appRef` | `session.from`, `session.to`, `session.appRef` |
-| `answer()` | Nothing to do: the gateway answers when your socket connects. `session.answer()` resolves at once |
+| `answer()` | Nothing to do: AppBridge answers when your socket connects. `session.answer()` resolves at once |
 | `dial(number)` | `transfer(to, { mode })`; `mode` is `cold`, `warm` (use `completeTransfer()`) or `refer` |
 | `stream()` | `session.audio` (`onFrame`, `send`, `mark`, `clear`): raw audio in the session's format (PCM16 16 kHz by default), not the old WAV stream |
 | `sgather()` | `session.on("turn.ended" \| "transcript.partial" \| "dtmf")` |
@@ -73,14 +73,14 @@ connection that is not signed by the gateway. See [the voice SDK](./voice-sdk.md
 
 ### Behavior that changed
 
-- **Barge-in is your app's decision.** The gateway never stops the agent on its own. `say()` and
+- **Barge-in is your app's decision.** AppBridge never stops the agent on its own. `say()` and
   `play()` are `interruptible` by default and the SDK clears them when the caller starts talking;
   pass `interruptible: false` to keep talking. The result of `say()` tells you what was heard:
   `{ interrupted, heardText, heardMs }`.
 - **Type-ahead.** Keypresses and speech that arrive before `gather()` count toward the next
   `gather()` (up to 32).
 - **Timeouts.** `gather({ timeout })` is milliseconds in TypeScript and seconds in Python.
-- **Errors.** A command the gateway rejects rejects its promise with `SessionError`; when the
+- **Errors.** A command AppBridge rejects rejects its promise with `SessionError`; when the
   session ends, pending calls reject with `SessionEndedError`.
 
 ## 2. App model changes
@@ -89,7 +89,7 @@ An app is now a record with these fields (Dashboard: Streams):
 
 | Field | Meaning |
 | --- | --- |
-| `url` | `ws://` or `wss://` address the gateway dials. Replaces the gRPC endpoint. Apps that only have a gRPC endpoint are **not** dialed; their calls follow the fallback |
+| `url` | `ws://` or `wss://` address AppBridge dials. Replaces the gRPC endpoint. Apps that only have a gRPC endpoint are **not** dialed; their calls follow the fallback |
 | `protocol` | `fonoster` (session protocol) or `twilio` (Twilio Media Streams) |
 | `signingSecret` | Signs every connection request. Shown once when created or rotated |
 | `speech` | Default `voice` and `language` as **catalog ids** (`elevenlabs/rachel`, `en-US`) rather than vendor settings |
@@ -98,7 +98,7 @@ An app is now a record with these fields (Dashboard: Streams):
 | `listeners` | Up to 4 listen-only sockets (`url`, `tracks`: `inbound`, `outbound`, `both`) for monitoring and analytics |
 | recording policy | `off`, `on`, `on after consent prompt`. Apps cannot override it |
 
-A number points to an app; Routr passes the app to the gateway, which connects to its URL.
+A number points to an app; Routr passes the app to AppBridge, which connects to its URL.
 
 ### Signing secret
 
@@ -152,10 +152,10 @@ def verify(configured_url: str, headers: dict[str, str], secret: str) -> bool:
     return hmac.compare_digest(expected, signature)
 ```
 
-Behind a proxy, the URL the gateway signs is the one configured on the app, not the one your server
+Behind a proxy, the URL AppBridge signs is the one configured on the app, not the one your server
 sees. Pass the configured value, not `request.url` or the `Host` header.
 
-The gateway also binds each connection to its app: `X-Fonoster-App-Ref`, `X-Fonoster-Workspace-Ref`
+AppBridge also binds each connection to its app: `X-Fonoster-App-Ref`, `X-Fonoster-Workspace-Ref`
 and `X-Fonoster-App-Signature`, the hex HMAC-SHA256 of
 `<timestamp>\n<url>\n<appRef>\n<workspaceRef>` (newline-separated) with the same secret. Checking
 it is optional for an app with its own secret; a server that several apps share a secret with
@@ -165,7 +165,7 @@ should require it and serve only the `session.start` whose `appRef` matches
 ## 4. Twilio protocol with Pipecat
 
 An app built for Twilio Media Streams needs no code change: set `protocol` to `twilio` and `url` to
-its WebSocket address. The gateway sends `connected`, `start` (`streamSid` is the `sessionRef`,
+its WebSocket address. AppBridge sends `connected`, `start` (`streamSid` is the `sessionRef`,
 `callSid` is the `callRef`, μ-law 8 kHz), `media`, `dtmf`, `mark` and `stop`, and accepts `media`,
 `mark` and `clear`. Barge-in works the way Pipecat expects: its `clear` empties the output queue.
 
@@ -179,13 +179,13 @@ serializer = TwilioFrameSerializer(
     call_sid=call_data["call_id"],
     account_sid=ACCOUNT_SID,
     auth_token=AUTH_TOKEN,
-    base_url="https://<your-gateway>",   # points auto_hang_up at Fonoster instead of Twilio
+    base_url="https://<your-appbridge>",   # points auto_hang_up at Fonoster instead of Twilio
     params=TwilioFrameSerializer.InputParams(auto_hang_up=True),
 )
 ```
 
 `python/pipecat-golden/golden_bot.py` is an unmodified Pipecat bot that the conformance suite runs
-against the gateway.
+against AppBridge.
 
 ## 5. Checklist
 

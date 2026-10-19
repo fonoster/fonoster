@@ -34,7 +34,7 @@ describe("@fonoster/common telemetry", () => {
       OTEL_EXPORTER_OTLP_ENDPOINT: `http://127.0.0.1:${port}`
     });
     expect(t.enabled).to.equal(true);
-    const span = t.startCall("call-42", "gateway.call");
+    const span = t.startCall("call-42", "appbridge.call");
     t.log("info", "call started", { callRef: "call-42" });
     t.count("calls", 2, { kind: "inbound" });
     t.gauge("active", () => 3);
@@ -73,7 +73,7 @@ describe("@fonoster/common telemetry", () => {
     const t = initTelemetry("svc", "i2", {
       OTEL_EXPORTER_OTLP_ENDPOINT: `http://127.0.0.1:${port}`
     });
-    const call = t.startCall("call-7", "gateway.call");
+    const call = t.startCall("call-7", "appbridge.call");
     const parent = t.traceparent("call-7")!;
     expect(parent).to.match(/^00-[0-9a-f]{32}-[0-9a-f]{16}-0[01]$/);
     const child = t.startSpan(
@@ -89,7 +89,7 @@ describe("@fonoster/common telemetry", () => {
     server.close();
     const spans = got["/v1/traces"].resourceSpans[0].scopeSpans[0].spans;
     const c = spans.find((s: any) => s.name === "media.command");
-    const p = spans.find((s: any) => s.name === "gateway.call");
+    const p = spans.find((s: any) => s.name === "appbridge.call");
     expect(c.traceId).to.equal(p.traceId);
     expect(c.parentSpanId).to.equal(p.spanId);
   });

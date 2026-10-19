@@ -14,12 +14,12 @@ own JSON Schema library, so they all reject the same malformed files.
 
 ```
 scenarios/
-  voice-session/                  # runner plays the app, the gateway is under test
+  voice-session/                  # runner plays the app, AppBridge is under test
   twilio-media-streams-flavor/    # runner plays a Twilio Media Streams app
-  voice-sdk/                      # runner plays the gateway, an SDK fixture app is under test
-  media-control/                  # runner plays the gateway against a Roomr node (fake or Go) over NATS
-  autopilot/                      # runner plays the gateway, Autopilot (with setup.assistant) is under test
-  turn-taking/                    # runner plays the app, the gateway's turn-taking is under test
+  voice-sdk/                      # runner plays AppBridge, an SDK fixture app is under test
+  media-control/                  # runner plays AppBridge against a Roomr node (fake or Go) over NATS
+  autopilot/                      # runner plays AppBridge, Autopilot (with setup.agent) is under test
+  turn-taking/                    # runner plays the app, AppBridge's turn-taking is under test
   regions/                        # runner plays a region's cell, the control plane is under test
   audio/                          # recorded caller audio (raw PCM16LE mono 16 kHz)
 ```
@@ -33,7 +33,7 @@ The file name is the scenario `name` plus `.yaml`. A scenario belongs to exactly
 | `format` | yes | Always `fonoster.scenario.v1`. A breaking change to this format gets a new value. |
 | `name` | yes | Kebab-case, equal to the file name. |
 | `contract` | yes | `voice-session`, `twilio-media-streams-flavor`, `voice-sdk`, `media-control`, `autopilot`, `turn-taking` or `regions`. |
-| `role` | yes | The side the runner plays: `app`, `gateway`, `media-control-client` or `region-cell`. |
+| `role` | yes | The side the runner plays: `app`, `appbridge`, `media-control-client` or `region-cell`. |
 | `spec` | no | The requirement and scenario this file proves: `"Requirement / Scenario"`. |
 | `description` | no | Free text. |
 | `fixture` | `voice-sdk` | The fixture app the SDK runner starts (see Fixtures). |
@@ -107,7 +107,7 @@ Any `expect`, `expect_audio` or `expect_close` step can carry:
 | Key | Meaning |
 | --- | --- |
 | `within_ms` | The match must arrive within this wall-clock time of the anchor. |
-| `budget_ms` | Like `within_ms`, but fake-provider delays that overlap the interval are subtracted first. This is how the gateway's own added time is measured (pass bar T1). |
+| `budget_ms` | Like `within_ms`, but fake-provider delays that overlap the interval are subtracted first. This is how AppBridge's own added time is measured (pass bar T1). |
 | `not_before_ms` | The match must not arrive earlier than this. Used for marks, which return only after the audio queued before them has played. |
 | `from` | The `label` of an earlier step to measure from. The default anchor is the end of the previous step. |
 
@@ -133,18 +133,18 @@ scenario rather than ignoring it.
 
 | Key | Meaning |
 | --- | --- |
-| `call` | The call the fake Roomr node offers to the gateway: `direction`, `from`, `to`, `metadata`, `callRef`. With `direction: outbound` the runner places the call as the control plane does and the app's socket opens when the callee answers (`media.dialOutcome`). |
-| `app` | The app under test (`app-1`): `protocol`, `signingSecret` (what the gateway signs with), `verifySignature`, `verifySecret` (what the fake app checks, when a rotation has not reached it), `reachable`, `fallback` (`{app: app-2}` or `{message}`), `speech`, `filters`, `workspaceRef` (both apps' workspace; Twilio's `accountSid`). |
+| `call` | The call the fake Roomr node offers to AppBridge: `direction`, `from`, `to`, `metadata`, `callRef`. With `direction: outbound` the runner places the call as the control plane does and the app's socket opens when the callee answers (`media.dialOutcome`). |
+| `app` | The app under test (`app-1`): `protocol`, `signingSecret` (what AppBridge signs with), `verifySignature`, `verifySecret` (what the fake app checks, when a rotation has not reached it), `reachable`, `fallback` (`{app: app-2}` or `{message}`), `speech`, `filters`, `workspaceRef` (both apps' workspace; Twilio's `accountSid`). |
 | `listener` | `voice-session`: a listen-only socket on `app-2` with `tracks`; `peer: listener` makes the runner play the listener while `app-1` stays silent. |
 | `providers` | Initial fake provider behaviour (same shape as `inject`). |
 | `callerAudio` | Audio the fake Roomr node plays as the caller once the call is answered. |
-| `assistant` | `autopilot` only: the assistant config Autopilot runs for this scenario. |
+| `agent` | `autopilot` only: the agent config Autopilot runs for this scenario. |
 | `media` | Fake Roomr node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`); `appRef` sent as Routr's `X-App-Ref`; `heartbeatMs`; `maxRooms` (the node's room limit; `room.create` beyond it gets `at_capacity`); `claimCalls: false` (media-control only) makes the runner leave `call.incoming` unclaimed. |
-| `catalog` | `voice-session` only: the provider catalog the gateway resolves ids with. The runner registers the `fake` provider, a TTS model and `fake/default`, then each listed voice (`{id, state, replacement}`), deprecating or retiring it as `state` says. |
+| `catalog` | `voice-session` only: the provider catalog AppBridge resolves ids with. The runner registers the `fake` provider, a TTS model and `fake/default`, then each listed voice (`{id, state, replacement}`), deprecating or retiring it as `state` says. |
 
 #Besides the app under test (`app-1`), voice-session runners configure a second app, `app-2`,
 served by the harness: the target of `fallback`, `handoff` and routing (`media.appRef: app-2`), and
-the listen-only socket. The runner plays whichever app the gateway reaches first. A call set up
+the listen-only socket. The runner plays whichever app AppBridge reaches first. A call set up
 never to reach an app (unreachable or refusing app without `fallback.app`, busy or unanswered
 outbound callee) gives the runner no socket: such scenarios use only `wait`, `caller` and `assert`.
 Every runner registers the audio filter `conformance-mute`, which silences every caller frame.
@@ -159,7 +159,7 @@ Every runner registers the audio filter `conformance-mute`, which silences every
 
 ## media-control scenarios
 
-With `role: media-control-client` the runner plays the gateway and control plane against a media
+With `role: media-control-client` the runner plays AppBridge and control plane against a media
 node over NATS: `send` is a command (a NATS request on `media.<nodeId>.commands`) and its reply
 (`ack` or `error`, or `no_reply` after 2 s) arrives as a frame; room events, `node.heartbeat`,
 `node.down` and `call.incoming` (which the runner claims unless `claimCalls: false`) arrive as
@@ -198,9 +198,9 @@ matcher, compared with what the harness measured.
 | `providers.stt.streams` | STT streams opened so far, waiting up to 2 s for the first one (use before caller audio that must reach STT) |
 | `stt.caller_audio_lag_ms` | ms from the first audible caller packet the fake Roomr node sent after the step's anchor to the first audible frame the fake STT received (pass bar T1, caller audio to STT); waits up to 2 s, `null` if none arrived |
 | `providers.llm.last_messages` | the `messages` of the fake LLM's latest request (how history is checked) |
-| `record.events.<type>` | the call record's gateway events of that type, e.g. `record.events.turn.label` (needs a harness that can read the record) |
-| `record.messages.<type>` | the call record's entries of that type from any source (app commands, gateway messages, events), each with `source` and `at`, e.g. `record.messages.record.note` |
-| `webhooks.events` | the lifecycle events the gateway handed to the webhook dispatcher, in order, each as `{type, ...data}` |
+| `record.events.<type>` | the call record's AppBridge events of that type, e.g. `record.events.turn.label` (needs a harness that can read the record) |
+| `record.messages.<type>` | the call record's entries of that type from any source (app commands, appbridge messages, events), each with `source` and `at`, e.g. `record.messages.record.note` |
+| `webhooks.events` | the lifecycle events AppBridge handed to the webhook dispatcher, in order, each as `{type, ...data}` |
 | `app.attempts` | `app-1`'s connection attempts, each `{accepted, reason?}` (refused signatures show as `accepted: false`) |
 | `app.text_frames` | text frames `app-1` received that were not JSON objects (always `0` with the `fonoster` protocol) |
 | `other_app.messages` | every JSON message `app-2` received (fallback, handoff target or listener) |

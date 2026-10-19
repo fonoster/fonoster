@@ -1,10 +1,10 @@
 format: fonoster.scenario.v1
 name: normal-turn
 contract: autopilot
-role: gateway
+role: appbridge
 spec: "Autopilot reacts to turn events and never detects turns itself / Normal turn"
 setup:
-  assistant:
+  agent:
     conversationSettings: { systemPrompt: "You are the receptionist of a dental clinic.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong." }
     languageModel: { model: fake/llm }
   providers:

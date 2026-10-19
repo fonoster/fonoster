@@ -1,10 +1,10 @@
 format: fonoster.scenario.v1
 name: subscribes-to-estimate
 contract: autopilot
-role: gateway
+role: appbridge
 spec: "Autopilot reacts to turn events and never detects turns itself / Subscribing to the estimate"
 setup:
-  assistant:
+  agent:
     conversationSettings: { systemPrompt: "You are the receptionist of a dental clinic.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong." }
     languageModel: { model: fake/llm }
 steps:

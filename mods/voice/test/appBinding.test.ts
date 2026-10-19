@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 // voice-session, "Connection requests are bound to the app": a server several apps share one
-// secret with (the hosted Autopilot) accepts only the gateway's app-bound signature, over its
+// secret with (the hosted Autopilot) accepts only AppBridge's app-bound signature, over its
 // configured URL, and only for the app session.start names.
 import * as net from "net";
 import { expect } from "chai";
-import { FakeGateway, WebSocketPeer } from "@fonoster/conformance";
+import { FakeAppBridge, WebSocketPeer } from "@fonoster/conformance";
 import { Session, VoiceServer } from "../src";
 
 const SECRET = "shared-secret";
@@ -86,7 +86,7 @@ describe("@voice VoiceServer app-bound signatures", function () {
 
   it("opens a session for the app the signature names and exposes the binding", async function () {
     const url = await shared();
-    const peer = await new FakeGateway({
+    const peer = await new FakeAppBridge({
       signingSecret: SECRET,
       app: VICTIM
     }).dial(url);
@@ -98,7 +98,7 @@ describe("@voice VoiceServer app-bound signatures", function () {
 
   it("refuses a URL-only signature when the binding is required", async function () {
     const url = await shared();
-    const error = await new FakeGateway({ signingSecret: SECRET })
+    const error = await new FakeAppBridge({ signingSecret: SECRET })
       .dial(url)
       .then(
         () => undefined,
@@ -110,7 +110,7 @@ describe("@voice VoiceServer app-bound signatures", function () {
 
   it("refuses a session.start for another app than the one signed", async function () {
     const url = await shared();
-    const peer = await new FakeGateway({
+    const peer = await new FakeAppBridge({
       signingSecret: SECRET,
       app: TENANT
     }).dial(url);
@@ -126,7 +126,7 @@ describe("@voice VoiceServer app-bound signatures", function () {
       { "x-fonoster-app-ref": VICTIM.appRef },
       { "x-fonoster-workspace-ref": VICTIM.workspaceRef }
     ]) {
-      const error = await new FakeGateway({
+      const error = await new FakeAppBridge({
         signingSecret: SECRET,
         app: TENANT,
         headers
@@ -143,9 +143,9 @@ describe("@voice VoiceServer app-bound signatures", function () {
 
   it("checks the configured URL, never one built from the Host header", async function () {
     const url = await shared();
-    // A genuine signature the gateway made for another URL (a tenant's own listener), replayed
+    // A genuine signature AppBridge made for another URL (a tenant's own listener), replayed
     // with a Host header naming that URL's host.
-    const error = await new FakeGateway({
+    const error = await new FakeAppBridge({
       signingSecret: SECRET,
       app: VICTIM,
       signedUrl: "ws://tenant.example/",
@@ -170,13 +170,13 @@ describe("@voice VoiceServer app-bound signatures", function () {
     });
     const url = `ws://127.0.0.1:${server.port}/`;
     // Without the binding, a URL-only signature still works (apps with their own secret).
-    const plain = await new FakeGateway({ signingSecret: SECRET }).dial(url);
+    const plain = await new FakeAppBridge({ signingSecret: SECRET }).dial(url);
     plain.sendJson(start("a1"));
     await sleep(50);
     expect(sessions).to.have.length(1);
     expect(sessions[0].signedFor).to.equal(undefined);
     // A forged binding is refused.
-    const error = await new FakeGateway({
+    const error = await new FakeAppBridge({
       signingSecret: SECRET,
       app: TENANT,
       headers: { "x-fonoster-app-ref": VICTIM.appRef }

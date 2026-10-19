@@ -144,7 +144,7 @@ describe("@region-agent private cell against a fake control plane", function () 
         callback: (_e, m) => (got[s] ??= []).push(JSON.parse(sc.decode(m.data)))
       });
 
-    // 3. the cell: secrets, records, Roomr nodes and gateways
+    // 3. the cell: secrets, records, Roomr nodes and AppBridge replicas
     const secrets = new CellSecrets.EncryptedFileSecretStore(
       path.join(dir, "secrets.enc"),
       "cell-pass"
@@ -196,19 +196,19 @@ describe("@region-agent private cell against a fake control plane", function () 
           })
         )
       );
-    const beatGateway = () =>
+    const beatAppBridge = () =>
       nc.publish(
-        "gateway.heartbeat",
+        "appbridge.heartbeat",
         sc.encode(
           JSON.stringify({
-            type: "gateway.heartbeat",
-            gatewayRef: "gw-1",
+            type: "appbridge.heartbeat",
+            bridgeRef: "gw-1",
             calls: 3
           })
         )
       );
     beatNode();
-    beatGateway();
+    beatAppBridge();
 
     // config: requested on start, applied to Routr and the database
     await waitFor(() => applied.includes(1));
@@ -233,7 +233,7 @@ describe("@region-agent private cell against a fake control plane", function () 
       type: "region.heartbeat",
       regionRef: R,
       version: "0.28.1",
-      components: { roomrNodes: 1, gateways: 1, autopilot: true },
+      components: { roomrNodes: 1, appbridges: 1, autopilot: true },
       activeCalls: 3,
       secretsSet: ["deepgram"]
     });

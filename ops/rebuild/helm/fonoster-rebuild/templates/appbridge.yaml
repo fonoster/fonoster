@@ -27,7 +27,7 @@ spec:
           image: "{{ .Values.appbridge.image.repository }}:{{ .Values.appbridge.image.tag }}"
           imagePullPolicy: {{ .Values.appbridge.image.pullPolicy }}
           env:
-            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "gateway" "nats" "gateway") | nindent 12 }}
+            {{- include "fonoster-rebuild.commonEnv" (dict "root" $ "service" "appbridge" "nats" "appbridge") | nindent 12 }}
             - name: POD_IP
               valueFrom: { fieldRef: { fieldPath: status.podIP } }
             {{- $db := .Values.appbridge.databaseSecret | default (and .Values.regionAgent.enabled .Values.regionAgent.databaseSecret) }}
@@ -48,7 +48,7 @@ spec:
           ports:
             - { name: http, containerPort: 8080 }
           volumeMounts:
-            - { name: config, mountPath: /etc/fonoster/gateway.yaml, subPath: gateway.yaml, readOnly: true }
+            - { name: config, mountPath: /etc/fonoster/appbridge.yaml, subPath: appbridge.yaml, readOnly: true }
             {{- include "fonoster-rebuild.secretMounts" (dict "root" $ "names" .Values.appbridge.secretMounts) | nindent 12 }}
             {{- if .Values.regionAgent.enabled }}
             # A private cell's provider keys (config cellSecrets.dir: /var/lib/fonoster-secrets).

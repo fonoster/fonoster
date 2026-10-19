@@ -557,8 +557,8 @@ class Run {
       });
       return;
     }
-    if (this.scenario.role === "gateway") {
-      // Frames from the gateway start with the track id (voice-session, Listen-only sockets).
+    if (this.scenario.role === "appbridge") {
+      // Frames from AppBridge start with the track id (voice-session, Listen-only sockets).
       this.peer.sendBinary(Buffer.concat([Buffer.from([track ?? 1]), chunk]));
       return;
     }

@@ -1,10 +1,10 @@
 format: fonoster.scenario.v1
 name: patient-waits
 contract: autopilot
-role: gateway
-spec: "Pacing policy / Patient assistant waits for the detector's final event"
+role: appbridge
+spec: "Pacing policy / Patient agent waits for the detector's final event"
 setup:
-  assistant:
+  agent:
     conversationSettings: { systemPrompt: "You are the receptionist of a dental clinic.", goodbyeMessage: "Goodbye!", systemErrorMessage: "Sorry, something went wrong.", patience: high }
     languageModel: { model: fake/llm }
   providers:

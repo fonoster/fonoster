@@ -26,11 +26,11 @@ import {
 let impl: Telemetry = initTelemetry("fonoster-autopilot");
 
 /**
- * Autopilot's telemetry: a stable handle (like the gateway's) that delegates to what
+ * Autopilot's telemetry: a stable handle (like AppBridge's) that delegates to what
  * `startTelemetry`/`setTelemetry` installed. OTLP when an endpoint is configured
  * (telemetry.otlpEndpoint or OTEL_EXPORTER_OTLP_*), a no-op otherwise.
  *
- * Spans: autopilot.session (child of the gateway's call span, via session.start `traceparent`),
+ * Spans: autopilot.session (child of AppBridge's call span, via session.start `traceparent`),
  * autopilot.turn (STT final to the end of the reply) and autopilot.llm.request. Metrics:
  * fonoster.autopilot.turns, fonoster.autopilot.llm.requests and fonoster.autopilot.llm.latency_ms
  * (the sum of the time to the first token; divide by requests for the mean).

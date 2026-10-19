@@ -52,8 +52,8 @@ const OUTBOUND = {
 
 type Sent = { subject: string; body: Record<string, unknown> };
 
-/** gateway.outbound stand-in: acks (or answers `reply`), recording what it got. */
-function fakeGateway(reply: Record<string, unknown> = { type: "ack" }) {
+/** appbridge.outbound stand-in: acks (or answers `reply`), recording what it got. */
+function fakeAppBridge(reply: Record<string, unknown> = { type: "ack" }) {
   const sent: Sent[] = [];
   const request: Requester = async (subject, body) => {
     sent.push({ subject, body });
@@ -346,17 +346,17 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
   const place = (
     roomr: Roomr.RoomrCalls,
     nodes: ReturnType<typeof createNodeDirectory>,
-    gateway = fakeGateway()
+    appbridge = fakeAppBridge()
   ) =>
     placeOutboundCall(
-      { roomr, request: gateway.request, nodes, outbound: OUTBOUND },
+      { roomr, request: appbridge.request, nodes, outbound: OUTBOUND },
       CALL
     );
 
-  it("creates the room, hands it to a gateway, then calls CreateCall through Routr", async function () {
+  it("creates the room, hands it to an AppBridge, then calls CreateCall through Routr", async function () {
     const { roomr, log, requests } = fakeRoomr();
-    const gateway = fakeGateway();
-    const placed = await place(roomr, nodesUpTo(1), gateway);
+    const appbridge = fakeAppBridge();
+    const placed = await place(roomr, nodesUpTo(1), appbridge);
     expect(placed).to.deep.equal({
       nodeId: "n1",
       roomRef: "call-1",
@@ -364,9 +364,9 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
     });
     expect(log).to.deep.equal(["a1 CreateRoom", "a1 CreateCall"]);
     expect(requests[0].request).to.deep.equal({ roomRef: "call-1" });
-    expect(gateway.sent).to.deep.equal([
+    expect(appbridge.sent).to.deep.equal([
       {
-        subject: "gateway.outbound",
+        subject: "appbridge.outbound",
         body: {
           nodeId: "n1",
           roomRef: "call-1",
@@ -408,13 +408,13 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
 
   it("fails with no_capacity without a live Roomr node, sending nothing", async function () {
     const { roomr, log } = fakeRoomr();
-    const gateway = fakeGateway();
-    await place(roomr, createNodeDirectory(), gateway).then(
+    const appbridge = fakeAppBridge();
+    await place(roomr, createNodeDirectory(), appbridge).then(
       () => expect.fail("placed"),
       (e) => expect(e.code).to.equal(NO_CAPACITY)
     );
     expect(log).to.have.length(0);
-    expect(gateway.sent).to.have.length(0);
+    expect(appbridge.sent).to.have.length(0);
   });
 
   it("fails over only on RESOURCE_EXHAUSTED or UNAVAILABLE, up to three nodes", async function () {
@@ -435,13 +435,13 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
       a2: { CreateRoom: [status.UNAVAILABLE] },
       a3: { CreateRoom: [status.RESOURCE_EXHAUSTED] }
     });
-    const gateway = fakeGateway();
-    await place(none.roomr, nodesUpTo(4), gateway).then(
+    const appbridge = fakeAppBridge();
+    await place(none.roomr, nodesUpTo(4), appbridge).then(
       () => expect.fail("placed"),
       (e) => expect(e.code).to.equal(NO_CAPACITY)
     );
     expect(none.log).to.have.length(MAX_PLACEMENT_ATTEMPTS);
-    expect(gateway.sent).to.have.length(0);
+    expect(appbridge.sent).to.have.length(0);
   });
 
   it("retries the same node on a timeout and never moves on after one", async function () {
@@ -495,17 +495,17 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
         (e) => expect(e.code).to.equal(want)
       );
       expect(log.at(-1)).to.equal("a1 EndRoom");
-      // The gateway already watches this room: no other node is tried.
+      // AppBridge already watches this room: no other node is tried.
       expect(log.some((l) => l.startsWith("a2"))).to.equal(false);
     }
   });
 
-  it("ends the room when no gateway takes the call", async function () {
+  it("ends the room when no AppBridge takes the call", async function () {
     const { roomr, log } = fakeRoomr();
     await place(
       roomr,
       nodesUpTo(1),
-      fakeGateway({ type: "error", code: "unknown_app" })
+      fakeAppBridge({ type: "error", code: "unknown_app" })
     ).then(
       () => expect.fail("placed"),
       (e) => expect(e.code).to.equal("unknown_app")
@@ -538,9 +538,9 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
     return f;
   };
 
-  const gatewayAcks = () =>
-    nc.subscribe("gateway.outbound", {
-      queue: "gateway-outbound",
+  const appBridgeAcks = () =>
+    nc.subscribe("appbridge.outbound", {
+      queue: "appbridge-outbound",
       callback: (_e, msg) =>
         msg.respond(sc.encode(JSON.stringify({ type: "ack" })))
     });
@@ -548,7 +548,7 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
   it("answers CreateCall once the node accepted it, after TRYING and the node on the call's subject", async function () {
     const bucket = `test_grpc_${Date.now()}`;
     const f = await node({});
-    const gateway = gatewayAcks();
+    const appbridge = appBridgeAcks();
     const ref = `call-ack-${Date.now()}`;
     const statuses: Record<string, unknown>[] = [];
     const track = nc.subscribe(`calls.${ref}.events`, {
@@ -581,7 +581,7 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
     } finally {
       await stop();
       track.unsubscribe();
-      gateway.unsubscribe();
+      appbridge.unsubscribe();
       const jsm = await nc.jetstreamManager().catch(() => undefined);
       await jsm?.streams.delete(`KV_${bucket}`).catch(() => undefined);
     }
@@ -669,7 +669,7 @@ describe("@apiserver[outbound/runOutboundCalls] with the session registry", func
     let sweeper: Awaited<ReturnType<typeof createPlacementSweep>> | undefined;
     try {
       await placeOutboundCall(
-        { roomr, request: fakeGateway().request, nodes, outbound: OUTBOUND },
+        { roomr, request: fakeAppBridge().request, nodes, outbound: OUTBOUND },
         { ...CALL, ref },
         {
           onAttempt: async (nodeId, addr) => {

@@ -1,6 +1,6 @@
 # Turn-taking
 
-The gateway decides when the caller starts and stops talking, for every app that uses the Speech
+AppBridge decides when the caller starts and stops talking, for every app that uses the Speech
 layer. Your app reacts to turn events; it never runs voice activity detection or reads raw audio to
 find the end of a turn. This page explains the events, the patience knob, how to choose a Detector,
 and how to read turn labels in the call record. The wire messages are in the
@@ -35,10 +35,10 @@ pairs, an optional `turn.likely_ended`, then exactly one `turn.ended`.
 
 ### Interruptions are yours to decide
 
-When the caller talks over the agent, the gateway sends `turn.user_started` and keeps playing. To
-stop, send `clear` (or a `preempt` item); the gateway then reports `output.interrupted` with what
+When the caller talks over the agent, AppBridge sends `turn.user_started` and keeps playing. To
+stop, send `clear` (or a `preempt` item); AppBridge then reports `output.interrupted` with what
 the caller heard. The SDKs send `clear` for you when the item playing was sent with
-`interruptible: true` (the default). Autopilot clears when the assistant allows barge-in
+`interruptible: true` (the default). Autopilot clears when the agent allows barge-in
 (`allowUserBargeIn`, default true).
 
 ## Patience
@@ -67,8 +67,8 @@ session protocol do not change.
 | --- | --- | --- |
 | `baseline` (default) | Energy voice activity, final transcripts and a silence timeout: today's behaviour | Always, unless a replay shows a better one |
 | `backchannel-hold` | Like the baseline, but speech over the agent counts as an interruption only after 500 ms, and known acknowledgments never do | Agents that talk at length; fewer "uh-huh" interruptions, slightly slower barge-in |
-| `stt` | A turn-aware speech recognizer (catalog feature `turn-detection`) decides; the gateway keeps its voice activity for `speaking` and `kind`. With no signal for 2.5 s after a final transcript the turn ends anyway | Recognizers that report end of turn themselves |
-| `ws://…` | An out-of-process Detector over a local WebSocket, protocol `fonoster.detector.v1` (contract: `mods/conformance/schema/detector.v1.schema.json`) | A model you host next to the gateway, in any language. If it is unreachable or more than 200 ms behind, the baseline answers and the call record shows `detector.source` |
+| `stt` | A turn-aware speech recognizer (catalog feature `turn-detection`) decides; AppBridge keeps its voice activity for `speaking` and `kind`. With no signal for 2.5 s after a final transcript the turn ends anyway | Recognizers that report end of turn themselves |
+| `ws://…` | An out-of-process Detector over a local WebSocket, protocol `fonoster.detector.v1` (contract: `mods/conformance/schema/detector.v1.schema.json`) | A model you host next to AppBridge, in any language. If it is unreachable or more than 200 ms behind, the baseline answers and the call record shows `detector.source` |
 
 A Detector becomes the default only after a replay of the evaluation corpus shows it does not
 regress on false cut-offs, delay after the true end of turn (median and p95), missed barge-ins or

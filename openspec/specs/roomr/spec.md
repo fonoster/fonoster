@@ -29,13 +29,13 @@ change the room.
 
 When an INVITE arrives from Routr, the node SHALL create a room, add the caller as a SIP-leg
 participant, read `X-App-Ref`, `X-Call-Ref` and `X-Call-Direction` and the `To` user (the ingress
-number), and send `call.incoming` so that one gateway replica claims the call and opens the app's
+number), and send `call.incoming` so that one AppBridge replica claims the call and opens the app's
 session (media-control). Routr's headers are the source of truth for which app gets the call, so
 the node SHALL accept INVITEs only from its trusted sources (Routr's addresses). The deployments
 SHALL set them: the Compose bundle to Routr's address, the Helm chart to the private ranges by
 default, and the chart SHALL refuse to render an empty list unless `allowAnySource` is set for
-development. The node SHALL NOT answer the call until the gateway asks it to, and SHALL refuse it
-with `503` when no gateway claims it.
+development. The node SHALL NOT answer the call until AppBridge asks it to, and SHALL refuse it
+with `503` when no AppBridge claims it.
 
 #### Scenario: Inbound call reported with its headers
 - **WHEN** Routr sends an INVITE with `X-App-Ref: app-1`, `X-Call-Ref: call-9` and `To: sip:+15550001@...`
@@ -123,7 +123,7 @@ passed.
 
 When a node stops without draining, every call it carried SHALL end, each affected call record
 SHALL be sealed with the failure `node_error`, and each affected app SHALL receive `session.end`
-with `reason: "error"`. Gateways detect the loss from missed `node.heartbeat` messages
+with `reason: "error"`. AppBridges detect the loss from missed `node.heartbeat` messages
 (media-control). Calls MUST NOT be migrated to another node.
 
 #### Scenario: Node killed mid-call
@@ -134,18 +134,18 @@ with `reason: "error"`. Gateways detect the loss from missed `node.heartbeat` me
 ### Requirement: Rooms without an owner end
 
 The node SHALL end, with `reason: "node_error"`, a room that has no participant and no
-`participant.dial` in progress for 30 s (its placer is gone), and a room whose owning gateway
-(the `gatewayRef` of the claim reply, or of a command such as `participant.dial`) the node has
-heard on `gateway.heartbeat` and then not for 20 s. A dial that fails in an otherwise empty room
-SHALL end the room at once with the dial's outcome. Both times SHALL be configurable; a gateway
+`participant.dial` in progress for 30 s (its placer is gone), and a room whose owning AppBridge
+(the `bridgeRef` of the claim reply, or of a command such as `participant.dial`) the node has
+heard on `appbridge.heartbeat` and then not for 20 s. A dial that fails in an otherwise empty room
+SHALL end the room at once with the dial's outcome. Both times SHALL be configurable; an AppBridge
 the node never heard is never judged gone.
 
 #### Scenario: Placer died before the dial
 - **WHEN** a room is created with `room.create` and nothing joins or dials into it for 30 s
 - **THEN** the node ends it, frees its slot and reports `room.ended`, also on `calls.<callRef>.events`
 
-#### Scenario: Gateway killed mid-call
-- **WHEN** the gateway that claimed an answered call stops sending heartbeats for 20 s
+#### Scenario: AppBridge killed mid-call
+- **WHEN** AppBridge that claimed an answered call stops sending heartbeats for 20 s
 - **THEN** the node sends BYE to the caller and ends the room with `reason: "node_error"`
 
 ### Requirement: Optional TLS and SRTP between the edge and the node

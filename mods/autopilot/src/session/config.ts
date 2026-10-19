@@ -16,15 +16,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// The session assistant schema lives in @fonoster/common (rework-autopilot 5.1), so the control
-// plane validates assistants with the same rules Autopilot runs with.
+// The session agent schema lives in @fonoster/common (rework-autopilot 5.1), so the control
+// plane validates agents with the same rules Autopilot runs with.
 export {
-  sessionAssistantSchema,
+  sessionAgentSchema,
   sessionConversationSettingsSchema,
   sessionLanguageModelSchema
 } from "@fonoster/common";
 export type {
-  SessionAssistant,
+  SessionAgent,
   SessionConversationSettings,
   SessionLanguageModel,
   ToolDefinition

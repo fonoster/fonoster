@@ -20,13 +20,13 @@ import { randomBytes } from "crypto";
 import {
   assertPublicWebSocketUrlShape,
   datesMapper,
-  sessionAssistantSchema
+  sessionAgentSchema
 } from "@fonoster/common";
 import { struct } from "pb-util";
 import { z } from "zod";
 
 // The session app model on `applications` rows (voice-session G2; build log P-B8, CP-B1..CP-B4).
-// A row is a session app when it has `url` and `signingSecret`; the gateway reads those columns
+// A row is a session app when it has `url` and `signingSecret`; AppBridge reads those columns
 // (mods/appbridge/src/apps/AppStore.ts).
 
 /** The rebuild columns are newer than the shared generated client, so the slice is typed loosely. */
@@ -46,10 +46,10 @@ export type SessionAppsConfig = {
 };
 
 /**
- * App and listener URLs are the tenant's choice and the gateway dials them, so they must not
+ * App and listener URLs are the tenant's choice and AppBridge dials them, so they must not
  * name the platform's own network: no internal names (localhost, *.svc, single labels) and no
  * private, loopback or metadata IPs, unless allowed by the operator. The hosted Autopilot URL
- * comes from configuration and is exempt. The gateway re-checks resolved addresses on connect.
+ * comes from configuration and is exempt. AppBridge re-checks resolved addresses on connect.
  */
 function checkDestination(
   value: string,
@@ -196,7 +196,7 @@ export const invalid = (message: string): BadRequest => ({
 /**
  * Validates the request and returns the columns to write (without the secret). Autopilot apps get
  * the hosted Autopilot URL and the fonoster protocol; the agent is checked with
- * sessionAssistantSchema and kept on the Intelligence row as before.
+ * sessionAgentSchema and kept on the Intelligence row as before.
  */
 export async function toAppColumns(
   db: AppsDb,
@@ -216,7 +216,7 @@ export async function toAppColumns(
   if (autopilot && protocol !== "fonoster")
     throw invalid("Autopilot agents use the fonoster protocol");
 
-  let assistant: Record<string, unknown> | undefined;
+  let agent: Record<string, unknown> | undefined;
   if (autopilot) {
     const intelligence = request.intelligence as
       | { config?: unknown }
@@ -227,14 +227,14 @@ export async function toAppColumns(
       (raw as { fields?: unknown }).fields !== undefined
         ? struct.decode(raw as Parameters<typeof struct.decode>[0])
         : (raw as Record<string, unknown>);
-    const parsed = sessionAssistantSchema.safeParse(decoded);
+    const parsed = sessionAgentSchema.safeParse(decoded);
     if (!parsed.success)
       throw invalid(
         `invalid agent: ${parsed.error.issues
           .map((i) => `${i.path.join(".")}: ${i.message}`)
           .join("; ")}`
       );
-    assistant = decoded;
+    agent = decoded;
   }
 
   if (input.fallbackAppRef) {
@@ -272,7 +272,7 @@ export async function toAppColumns(
     amd: input.amd?.enabled ?? false,
     amdWindowMs: input.amd?.enabled ? (input.amd.windowMs ?? null) : null
   };
-  return { columns, assistant, autopilot };
+  return { columns, agent, autopilot };
 }
 
 /**
@@ -306,11 +306,8 @@ async function checkCatalogIds(db: AppsDb, speech: SessionAppInput["speech"]) {
  * speech ids; its provider's `llm.<provider>` product row (the legacy table Intelligence points
  * to) is added on first use, so any catalog provider works without a seeded product.
  */
-export async function assistantRow(
-  db: AppsDb,
-  assistant: Record<string, unknown>
-) {
-  const model = (assistant.languageModel as { model: string }).model;
+export async function agentRow(db: AppsDb, agent: Record<string, unknown>) {
+  const model = (agent.languageModel as { model: string }).model;
   await checkCatalogId(db, "registryModel", model, "languageModel.model");
   const provider = model.split("/")[0];
   const productRef = `llm.${provider}`;
@@ -319,7 +316,7 @@ export async function assistantRow(
     create: { ref: productRef, name: provider, vendor: "GENERIC", type: "LLM" },
     update: {}
   });
-  return { productRef, config: assistant };
+  return { productRef, config: agent };
 }
 
 type Row = Record<string, unknown> & {

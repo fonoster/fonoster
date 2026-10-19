@@ -1,11 +1,11 @@
 format: fonoster.scenario.v1
 name: sdk-clears-on-barge-in
 contract: voice-sdk
-role: gateway
+role: appbridge
 fixture: say-reports-interruption
 spec: "say speaks text and reports what was heard / SDK clears on barge-in"
 description: >
-  The app owns interruption (gateway B22). The SDK sends clear on turn.user_started while an
+  The app owns interruption (appbridge B22). The SDK sends clear on turn.user_started while an
   interruptible say plays, with no app code.
 steps:
   - send:

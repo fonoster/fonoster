@@ -30,7 +30,7 @@ const sc = StringCodec();
 
 export type NatsMediaControlPeerOptions = {
   nodeId: string;
-  /** Claim call.incoming requests, as a gateway replica would (default true). */
+  /** Claim call.incoming requests, as an AppBridge replica would (default true). */
   claimCalls?: boolean;
 };
 
@@ -68,7 +68,7 @@ export class NatsMediaControlPeer implements Peer {
                 JSON.stringify({
                   type: "claimed",
                   id: event.id,
-                  gatewayRef: "conformance"
+                  bridgeRef: "conformance"
                 })
               )
             );

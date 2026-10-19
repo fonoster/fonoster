@@ -98,7 +98,7 @@ describe("@region-agent enrollment", function () {
     expect(sent.version).to.equal("0.28.1");
     expect(sent.components).to.deep.equal({
       roomrNodes: 1,
-      gateways: 1,
+      appbridges: 1,
       autopilot: true
     });
     for (const f of ["region.json", "leaf.creds", "cell.key", "leaf.conf"])

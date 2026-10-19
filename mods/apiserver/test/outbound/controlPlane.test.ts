@@ -32,7 +32,7 @@ import { TEST_TOKEN, TEST_UUID } from "../utils";
 // The apiserver as a stateless control plane (control-plane spec; harden-conformance 1.1, 1.2):
 // several replicas on one NATS, each running the outbound placement (`calls.create`, one queue
 // group) and TrackCall. Roomr nodes are fake Roomr servers (gRPC, heartbeats and call events on
-// NATS) and gateways are stand-ins on NATS. Needs
+// NATS) and AppBridge replicas are stand-ins on NATS. Needs
 // CONFORMANCE_NATS_URL; the registry cases also need JetStream (CONFORMANCE_JETSTREAM_URL, or the
 // same server started with -js).
 const URL =
@@ -57,10 +57,10 @@ const callFor = (ref: string) => ({
   accessKeyId: "WO00000000000000000000000000000000"
 });
 
-/** The gateways' queue group: takes every `gateway.outbound`. */
-function fakeGateways(nc: NatsConnection) {
-  return nc.subscribe("gateway.outbound", {
-    queue: "gateway-outbound",
+/** The AppBridge replicas' queue group: takes every `appbridge.outbound`. */
+function fakeAppBridges(nc: NatsConnection) {
+  return nc.subscribe("appbridge.outbound", {
+    queue: "appbridge-outbound",
     callback: (_e, msg) => msg.respond(encode({ type: "ack" }))
   });
 }
@@ -207,8 +207,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
     return n;
   };
 
-  const gateways = () => {
-    const g = fakeGateways(client);
+  const appbridges = () => {
+    const g = fakeAppBridges(client);
     cleanup.push(() => g.unsubscribe());
   };
 
@@ -225,7 +225,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
   it("any replica serves any request: a call placed by A is tracked through B", async function () {
     const [, b] = await replicas(["a"], ["b", { place: false }]);
     const n = await node(`n-${randomUUID()}`);
-    gateways();
+    appbridges();
     await settle();
 
     const ref = randomUUID();
@@ -256,7 +256,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const n = await node(`n-${randomUUID()}`, {
       callee: (ref) => (ref === refs[0] ? "ring" : "answer")
     });
-    gateways();
+    appbridges();
     await settle();
 
     // TrackCall for the first call on every replica.
@@ -314,7 +314,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const [a, b] = await replicas(["a"], ["b", { place: false }]);
     const ref = randomUUID();
     const n = await node(`n-${randomUUID()}`, { callee: "ring" });
-    gateways();
+    appbridges();
     await settle();
 
     const streams = [a.track(ref), b.track(ref)];
@@ -344,7 +344,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const busy = await node(`a-${tag}`, { rooms: 40 });
     const idle = await node(`b-${tag}`, { rooms: 12 });
     const draining = await node(`c-${tag}`, { rooms: 3 });
-    gateways();
+    appbridges();
     await settle();
     await draining.down(); // a draining node says node.down and is not offered
     await settle();
@@ -365,7 +365,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const d2 = await node(`d2-${tag}`, { rooms: 2 });
     const full = await node(`f-${tag}`, { rooms: 4, maxRooms: 4 });
     const gone = await node(`g-${tag}`);
-    gateways();
+    appbridges();
     await settle();
     await gone.down();
     await d1.down();
@@ -398,7 +398,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
     // A has fewer sessions but is at its limit; B has more and is below its limit.
     const atLimit = await node(`a-${tag}`, { rooms: 5, maxRooms: 5 });
     const below = await node(`b-${tag}`, { rooms: 8, maxRooms: 20 });
-    gateways();
+    appbridges();
     await settle();
 
     expect(await requestCall(client, randomUUID())).to.include({
@@ -419,7 +419,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
       maxRooms: 10
     });
     const next = await node(`b-${tag}`, { rooms: 3, maxRooms: 10 });
-    gateways();
+    appbridges();
     await settle();
 
     expect(await requestCall(client, randomUUID())).to.include({
@@ -441,7 +441,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
       maxRooms: 10
     });
     const next = await node(`b-${tag}`, { rooms: 5, maxRooms: 100 });
-    gateways();
+    appbridges();
     await settle();
 
     const replies = await Promise.all(
@@ -461,7 +461,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const tag = randomUUID().slice(0, 8);
     const slow = await node(`a-${tag}`, { rooms: 0 });
     const other = await node(`b-${tag}`, { rooms: 5 });
-    gateways();
+    appbridges();
     await settle();
 
     // The first CreateCall answers after the 2 s deadline; the retry finds the call (dedupe).
@@ -488,7 +488,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
         })
       )
     );
-    gateways();
+    appbridges();
     await settle();
 
     const created = await createCallRpc(client);
@@ -529,13 +529,13 @@ describe("@apiserver[control plane] session registry", function () {
   it("survives a replica restart during 50 active calls", async function () {
     const kv = await Sessions.openSessions(client, { bucket });
     const nodeId = `n-${randomUUID()}`;
-    // What the gateway keeps in the registry while 50 calls are up.
+    // What AppBridge keeps in the registry while 50 calls are up.
     const owners = new Sessions.SessionLeases(kv, { refreshMs: 1000 });
     const n = new FakeRoomr({ nc: client, nodeRef: nodeId, rooms: 50 });
     await n.start();
     const calls = Array.from({ length: 50 }, (_, i) => ({
       callRef: randomUUID(),
-      gatewayRef: "gw-1",
+      bridgeRef: "gw-1",
       nodeId,
       roomRef: `room-${i}`,
       appRef: "app-1"
@@ -547,7 +547,7 @@ describe("@apiserver[control plane] session registry", function () {
       });
       await owners.set("calls", call.callRef, call);
     }
-    const g = fakeGateways(client);
+    const g = fakeAppBridges(client);
     try {
       const first = await startReplica("a", { sessionsBucket: bucket });
       await first.stop();

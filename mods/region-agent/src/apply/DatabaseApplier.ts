@@ -25,8 +25,8 @@ import { ConfigSnapshot, Row, WorkspaceKinds } from "../types";
 const logger = getLogger({ service: "region-agent", filePath: __filename });
 
 // Applies a config snapshot to the cell's database (RC-B6): the apiserver's own schema and tables,
-// so the cell's gateway (`appStore`/`registry`/`webhooks: database`) and hosted Autopilot
-// (`assistants: database`) read them exactly as they do in a public region. A snapshot is
+// so the cell's AppBridge (`appStore`/`registry`/`webhooks: database`) and hosted Autopilot
+// (`agents: database`) read them exactly as they do in a public region. A snapshot is
 // authoritative and carries every workspace of the region (PR-14): apps and webhook endpoints of a
 // workspace that are not in it are removed, and a workspace missing from it is removed entirely.
 
@@ -70,14 +70,14 @@ const VENDORS: Record<string, string> = {
 export type CellAutopilot = {
   /** The cell's hosted Autopilot (PR-9), e.g. ws://autopilot:3000. */
   url?: string;
-  /** The secret the cell's gateway signs Autopilot sessions with. */
+  /** The secret the cell's AppBridge signs Autopilot sessions with. */
   signingSecret?: string;
 };
 
 export type ApplyResult = {
   apps: number;
   removedApps: number;
-  assistants: number;
+  agents: number;
   catalog: number;
   webhooks: number;
   removedWebhooks: number;
@@ -111,22 +111,22 @@ function appColumns(row: Row): Record<string, unknown> {
   return out;
 }
 
-/** The assistant of an app: from `assistants` ({appRef, config}) or the row's `intelligence`. */
-function assistantsOf(kinds: WorkspaceKinds) {
+/** The agent of an app: from `agents` ({appRef, config}) or the row's `intelligence`. */
+function agentsOf(kinds: WorkspaceKinds) {
   const out = new Map<string, { config: unknown; productRef?: string }>();
   for (const app of kinds.apps ?? []) {
-    const intel = (app.intelligence ?? app.assistant) as Row | undefined;
+    const intel = (app.intelligence ?? app.agent) as Row | undefined;
     if (intel)
       out.set(String(app.ref), {
         config: intel.config ?? intel,
         productRef: intel.productRef as string | undefined
       });
   }
-  for (const a of kinds.assistants ?? []) {
+  for (const a of kinds.agents ?? []) {
     const ref = String(a.appRef ?? a.applicationRef ?? a.ref ?? "");
     if (ref)
       out.set(ref, {
-        config: a.config ?? a.assistant,
+        config: a.config ?? a.agent,
         productRef: a.productRef as string | undefined
       });
   }
@@ -173,14 +173,14 @@ export class DatabaseApplier {
     const result: ApplyResult = {
       apps: 0,
       removedApps: 0,
-      assistants: 0,
+      agents: 0,
       catalog: 0,
       webhooks: 0,
       removedWebhooks: 0,
       workspaces: [],
       removedWorkspaces: []
     };
-    // The catalog first: apps and assistants name catalog ids.
+    // The catalog first: apps and agents name catalog ids.
     if (n.catalog) result.catalog = await this.applyCatalog(n.catalog);
     for (const [ws, w] of Object.entries(n.workspaces)) {
       if (ws === UNKNOWN_WORKSPACE) {
@@ -190,7 +190,7 @@ export class DatabaseApplier {
       const r = await this.applyWorkspace(ws, w.kinds);
       result.apps += r.apps;
       result.removedApps += r.removedApps;
-      result.assistants += r.assistants;
+      result.agents += r.agents;
       result.webhooks += r.webhooks;
       result.removedWebhooks += r.removedWebhooks;
       if (r.retention !== undefined)
@@ -219,7 +219,7 @@ export class DatabaseApplier {
     const r = {
       apps: 0,
       removedApps: 0,
-      assistants: 0,
+      agents: 0,
       webhooks: 0,
       removedWebhooks: 0,
       retention: undefined as number | undefined
@@ -233,8 +233,7 @@ export class DatabaseApplier {
       r.apps = a.apps;
       r.removedApps = a.removed;
     }
-    if (k.apps || k.assistants)
-      r.assistants = await this.applyAssistants(ws, k);
+    if (k.apps || k.agents) r.agents = await this.applyAgents(ws, k);
     if (k.recordingPolicy && typeof k.recordingPolicy === "object")
       r.retention = await this.applyRetention(
         ws,
@@ -319,10 +318,10 @@ export class DatabaseApplier {
     });
   }
 
-  private async applyAssistants(ws: string, kinds: WorkspaceKinds) {
-    const assistants = assistantsOf(kinds);
+  private async applyAgents(ws: string, kinds: WorkspaceKinds) {
+    const agents = agentsOf(kinds);
     let n = 0;
-    for (const [appRef, a] of assistants) {
+    for (const [appRef, a] of agents) {
       const app = await this.db.application.findUnique({
         where: { ref: appRef }
       });

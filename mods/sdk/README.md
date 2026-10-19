@@ -956,7 +956,7 @@ const request = {
     config: {
       conversationSettings: {
         firstMessage: "Hello, how can I help you today?",
-        systemPrompt: "You are a helpful assistant.",
+        systemPrompt: "You are a helpful agent.",
         systemErrorMessage: "I'm sorry, I didn't catch that. Can you say that again?",
         goodbyeMessage: "Thank you for calling. Have a great day!",
         languageModel: {

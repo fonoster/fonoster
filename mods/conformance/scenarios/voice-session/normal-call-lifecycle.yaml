@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 name: normal-call-lifecycle
 contract: voice-session
 role: app
-spec: "The gateway produces call lifecycle events / Normal call"
+spec: "AppBridge produces call lifecycle events / Normal call"
 steps:
   - expect: { type: session.start }
   - caller: { hangup: true }

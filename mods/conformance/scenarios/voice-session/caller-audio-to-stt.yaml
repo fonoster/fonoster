@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 name: caller-audio-to-stt
 contract: voice-session
 role: app
-spec: "Gateway latency pass bar (T1) / Caller audio to STT"
+spec: "AppBridge latency pass bar (T1) / Caller audio to STT"
 tags: [timing]
 description: >
   One sample of the T1 caller-audio leg: the time from the fake Roomr node sending the first

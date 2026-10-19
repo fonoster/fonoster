@@ -41,7 +41,7 @@ export const billingAgent = {
         firstMessage:
           "Hola, le llamo de Acme sobre su factura pendiente. ¿Tiene un minuto?",
         systemPrompt:
-          "# Role\nYou are Sofía, a friendly billing assistant for Acme.\n\n# Goal\nRemind the customer about their open invoice and agree on a payment date.",
+          "# Role\nYou are Sofía, a friendly billing agent for Acme.\n\n# Goal\nRemind the customer about their open invoice and agree on a payment date.",
         goodbyeMessage: "Gracias por su tiempo. ¡Que tenga buen día!",
         systemErrorMessage: "Disculpe, hubo un error. Le llamamos luego.",
         maxSessionDuration: 1800000,

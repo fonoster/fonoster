@@ -11,14 +11,14 @@ The repository SHALL offer exactly one way to develop Fonoster: its dev containe
 (VS Code Dev Containers, a Codespace or the devcontainer CLI) MUST need only Docker and a
 dev-container client on the host, and MUST start the dependencies (Postgres, NATS, Routr,
 RTPEngine, MinIO, Envoy) as containers from the self-host bundle's service definitions. The
-components we develop (apiserver, gateway, Autopilot, Roomr node, dashboard) MUST NOT run as
+components we develop (apiserver, appbridge, Autopilot, Roomr node, dashboard) MUST NOT run as
 containers in development.
 
 #### Scenario: Open the dev container
 - **WHEN** a contributor opens a fresh clone in the dev container
 - **THEN** the dependency containers are running and healthy (NATS, Postgres and MinIO report
   healthy; Routr, RTPEngine and Envoy are running) without any further command
-- **AND** no container runs the apiserver, gateway, Autopilot, Roomr node or dashboard
+- **AND** no container runs the apiserver, appbridge, Autopilot, Roomr node or dashboard
 
 #### Scenario: Dependencies come from the bundle
 - **WHEN** `docker compose -f .devcontainer/compose.yaml config` is rendered
@@ -65,7 +65,7 @@ change to a component's source MUST restart (or hot-reload) that component only.
 
 #### Scenario: AppBridge reload
 - **WHEN** a file under `mods/appbridge/src` is saved while `npm run dev` runs
-- **THEN** the AppBridge restarts and the other components keep running
+- **THEN** AppBridge restarts and the other components keep running
 
 #### Scenario: Roomr node rebuild
 - **WHEN** a `.go` file under `go/roomr` is saved while `npm run dev:roomr` runs
@@ -74,7 +74,7 @@ change to a component's source MUST restart (or hot-reload) that component only.
 
 #### Scenario: One component alone
 - **WHEN** only `npm run dev:appbridge` runs
-- **THEN** the AppBridge starts with `.dev/config/gateway.yaml` and the secrets from `.dev/.env`
+- **THEN** AppBridge starts with `.dev/config/appbridge.yaml` and the secrets from `.dev/.env`
 
 ### Requirement: Tests run inside the dev container
 

@@ -29,11 +29,11 @@ import { getLogger } from "@fonoster/logger";
 import { Session, VoiceServer } from "@fonoster/voice";
 import * as yaml from "js-yaml";
 import { z } from "zod";
-import { SessionAssistant } from "./config";
+import { SessionAgent } from "./config";
 import {
   AutopilotOptions,
   createAutopilotHandler,
-  LoadedAssistant
+  LoadedAgent
 } from "./createAutopilot";
 import { fromKnowledgeBase, KnowledgePort } from "./knowledge";
 import {
@@ -43,7 +43,7 @@ import {
   RegistryLlmResolver
 } from "./llm";
 
-// The hosted Autopilot (rework-autopilot A2, task 4.3): an ordinary VoiceServer that the gateway
+// The hosted Autopilot (rework-autopilot A2, task 4.3): an ordinary VoiceServer that AppBridge
 // dials like any app. Everything it needs comes from one operator config file; no vendor key is
 // read from Autopilot's environment by name (A8, A11), only through credential refs.
 
@@ -65,7 +65,7 @@ export const hostedConfigSchema = z
      * FONOSTER_ALLOWED_DESTINATIONS.
      */
     allowedDestinations: z.array(z.string()).optional(),
-    /** The secret the gateway signs Autopilot sessions with (one for every Autopilot app). */
+    /** The secret AppBridge signs Autopilot sessions with (one for every Autopilot app). */
     signingSecret: secretRef,
     /**
      * The URL Autopilot apps point to, exactly as the apps have it (the apiserver's
@@ -83,10 +83,10 @@ export const hostedConfigSchema = z
       })
     }),
     /**
-     * Apps and their assistants: a file `{apps: {<appRef>: {workspaceRef?, assistant}}}` (JSON or
+     * Apps and their agents: a file `{apps: {<appRef>: {workspaceRef?, agent}}}` (JSON or
      * YAML), or `database`: the apps' Intelligence rows, cached for `cacheMs` (CP-B11).
      */
-    assistants: z.union([
+    agents: z.union([
       z.object({ file: z.string() }).strict(),
       z
         .object({
@@ -209,7 +209,7 @@ export function loadHostedConfig(
   const withFile = <T extends object>(c: T): T =>
     "file" in c ? ({ ...c, file: rel(c.file as string) } as T) : c;
   const needsDb =
-    !("file" in config.assistants) ||
+    !("file" in config.agents) ||
     !("file" in config.registry) ||
     (config.workspaceSecrets &&
       "source" in config.workspaceSecrets &&
@@ -218,7 +218,7 @@ export function loadHostedConfig(
     throw new Error("source: database needs a database section");
   return {
     ...config,
-    assistants: withFile(config.assistants),
+    agents: withFile(config.agents),
     registry: withFile(config.registry),
     ...(config.workspaceSecrets
       ? { workspaceSecrets: withFile(config.workspaceSecrets) }
@@ -229,22 +229,22 @@ export function loadHostedConfig(
 const resolveSecret = (s: { env?: string; value?: string }) =>
   "value" in s && s.value !== undefined ? s.value : process.env[s.env ?? ""];
 
-/** Apps and assistants from a file (a stand-in until assistants come from the control plane). */
-export class FileAssistantSource {
+/** Apps and agents from a file (a stand-in until agents come from the control plane). */
+export class FileAgentSource {
   constructor(private readonly file: string) {}
 
-  async get(appRef: string): Promise<LoadedAssistant | undefined> {
+  async get(appRef: string): Promise<LoadedAgent | undefined> {
     const data = readStructured(this.file) as {
-      apps?: Record<string, { workspaceRef?: string; assistant: unknown }>;
+      apps?: Record<string, { workspaceRef?: string; agent: unknown }>;
     };
     const app = data.apps?.[appRef];
     return app
-      ? { assistant: app.assistant, workspaceRef: app.workspaceRef }
+      ? { agent: app.agent, workspaceRef: app.workspaceRef }
       : undefined;
   }
 }
 
-type AssistantRow = {
+type AgentRow = {
   ref: string;
   accessKeyId: string;
   type: string;
@@ -252,11 +252,11 @@ type AssistantRow = {
 };
 
 /**
- * Assistants from the control plane: an Autopilot app's Intelligence row holds its assistant
+ * Agents from the control plane: an Autopilot app's Intelligence row holds its agent
  * (CP-B3). Each app is cached for `cacheMs` (misses too), so edits show up within seconds.
  */
-export class PrismaAssistantSource {
-  private cache = new Map<string, { at: number; value?: LoadedAssistant }>();
+export class PrismaAgentSource {
+  private cache = new Map<string, { at: number; value?: LoadedAgent }>();
 
   constructor(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -264,17 +264,17 @@ export class PrismaAssistantSource {
     private readonly options: { cacheMs?: number; now?: () => number } = {}
   ) {}
 
-  async get(appRef: string): Promise<LoadedAssistant | undefined> {
+  async get(appRef: string): Promise<LoadedAgent | undefined> {
     const now = this.options.now?.() ?? Date.now();
     const hit = this.cache.get(appRef);
     if (hit && now - hit.at < (this.options.cacheMs ?? 5000)) return hit.value;
-    const row: AssistantRow | null = await this.prisma.application.findUnique({
+    const row: AgentRow | null = await this.prisma.application.findUnique({
       where: { ref: appRef },
       include: { intelligence: true }
     });
     const value =
       row && row.type === "AUTOPILOT" && row.intelligence?.config
-        ? { assistant: row.intelligence.config, workspaceRef: row.accessKeyId }
+        ? { agent: row.intelligence.config, workspaceRef: row.accessKeyId }
         : undefined;
     this.cache.set(appRef, { at: now, value });
     return value;
@@ -330,7 +330,7 @@ type KnowledgeBaseLike = {
 };
 
 /**
- * Builds the knowledge port for an assistant from the operator's S3 + Unstructured settings,
+ * Builds the knowledge port for an agent from the operator's S3 + Unstructured settings,
  * with keys from the credential source (never Autopilot's environment). The bucket is the
  * workspace's, as today. `make` is the knowledge base constructor (the S3 one by default).
  */
@@ -340,12 +340,10 @@ export function s3Knowledge(
   make?: (params: Record<string, unknown>) => KnowledgeBaseLike
 ) {
   return async (
-    assistant: SessionAssistant,
+    agent: SessionAgent,
     scope: { workspaceRef?: string }
   ): Promise<KnowledgePort | undefined> => {
-    const documents = assistant.languageModel.knowledgeBase.map(
-      (d) => d.document
-    );
+    const documents = agent.languageModel.knowledgeBase.map((d) => d.document);
     if (!documents.length || !scope.workspaceRef) return undefined;
     const key = (ref: string) => credentials.get(ref, scope);
     const [accessKeyId, secretAccessKey, unstructuredKey, embeddingsKey] =
@@ -465,18 +463,18 @@ export function hostedOptions(
       : []),
     new ConfigCredentials(config.credentials)
   ]);
-  const assistants =
-    "file" in config.assistants
-      ? new FileAssistantSource(config.assistants.file)
-      : new PrismaAssistantSource(db(), {
-          cacheMs: (config.assistants as { cacheMs?: number }).cacheMs
+  const agents =
+    "file" in config.agents
+      ? new FileAgentSource(config.agents.file)
+      : new PrismaAgentSource(db(), {
+          cacheMs: (config.agents as { cacheMs?: number }).cacheMs
         });
   const knowledge = config.knowledge
     ? s3Knowledge(config.knowledge, credentials)
     : undefined;
   return {
     load: async (session) =>
-      signedWorkspaceOnly(session, await assistants.get(session.appRef)),
+      signedWorkspaceOnly(session, await agents.get(session.appRef)),
     allowedDestinations: config.allowedDestinations,
     llm: new RegistryLlmResolver({
       registry,
@@ -494,16 +492,16 @@ export function hostedOptions(
  */
 export function eagerKnowledge(
   build: (
-    assistant: SessionAssistant,
+    agent: SessionAgent,
     scope: { workspaceRef?: string }
   ) => Promise<KnowledgePort | undefined>
 ) {
   return (
-    assistant: SessionAssistant,
+    agent: SessionAgent,
     scope: { workspaceRef?: string }
   ): KnowledgePort => {
     const port = Promise.resolve()
-      .then(() => build(assistant, scope))
+      .then(() => build(agent, scope))
       .catch((e: Error) => {
         logger.warn(`knowledge port unavailable: ${e?.message ?? e}`);
         return undefined;
@@ -518,14 +516,14 @@ export function eagerKnowledge(
 }
 
 /**
- * The app's assistant only when the app belongs to the workspace the gateway signed for: one
+ * The app's agent only when the app belongs to the workspace AppBridge signed for: one
  * secret serves every Autopilot app, so a session is bound to its app and workspace
  * (voice-session, "Connection requests are bound to the app").
  */
 export function signedWorkspaceOnly(
   session: Pick<Session, "appRef" | "signedFor">,
-  loaded: LoadedAssistant | undefined
-): LoadedAssistant | undefined {
+  loaded: LoadedAgent | undefined
+): LoadedAgent | undefined {
   const signed = session.signedFor;
   if (!loaded || !signed || loaded.workspaceRef === undefined) return loaded;
   if (signed.workspaceRef === loaded.workspaceRef) return loaded;

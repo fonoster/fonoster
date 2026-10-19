@@ -27,7 +27,7 @@ import {
 import { createAudioFilterChain } from "./createAudioFilterChain";
 import { AudioFilter, AudioFilterChain, AudioFilterConfig } from "./types";
 
-const logger = getLogger({ service: "gateway", filePath: __filename });
+const logger = getLogger({ service: "appbridge", filePath: __filename });
 
 const audioFiltersConfigSchema = z.array(
   z.object({

@@ -25,15 +25,15 @@ import {
   loadScenarios,
   runScenario
 } from "@fonoster/conformance";
-import { Gateway, GatewayConfig, MemoryCallRecordSink } from "../src";
+import { AppBridge, AppBridgeConfig, MemoryCallRecordSink } from "../src";
 import { catalogFor } from "./scenarioCatalog";
 import { appsFor, placeOutbound, recordReaders } from "./scenarioApps";
 
 // The conformance suites for voice-session and twilio-media-streams-flavor, run against this
-// gateway with the fakes. Needs NATS: set CONFORMANCE_NATS_URL (e.g. nats://127.0.0.1:4222).
+// AppBridge with the fakes. Needs NATS: set CONFORMANCE_NATS_URL (e.g. nats://127.0.0.1:4222).
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
-function configFor(scenario: Scenario, harness: FakesHarness): GatewayConfig {
+function configFor(scenario: Scenario, harness: FakesHarness): AppBridgeConfig {
   const urls = harness.providerUrls;
   return {
     nats: { url: NATS_URL! },
@@ -55,7 +55,7 @@ for (const contract of [
   "twilio-media-streams-flavor",
   "turn-taking"
 ] as const) {
-  describe(`@gateway conformance: ${contract}`, function () {
+  describe(`@AppBridge conformance: ${contract}`, function () {
     // The scenarios play media from the harness's local server; play fetches reach public
     // addresses only unless allowed (M13).
     let allowedDestinations: string | undefined;
@@ -94,7 +94,7 @@ for (const contract of [
           commands: `media.${harness.roomrNode.nodeId}.commands`,
           events: `media.${harness.roomrNode.nodeId}.events`
         });
-        const gateway = await new Gateway({
+        const appbridge = await new AppBridge({
           config: configFor(scenario, harness),
           nats: nc,
           record,
@@ -111,7 +111,7 @@ for (const contract of [
           });
           expect(result.status, result.reason).to.equal("passed");
         } finally {
-          await gateway.stop();
+          await appbridge.stop();
           await harness.stop();
         }
       });

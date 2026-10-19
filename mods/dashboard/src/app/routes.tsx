@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { lazy, Suspense } from "react";
-import { Navigate, Route, Routes, useParams } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { Splash } from "~/components/status/splash";
 import { InviteFailedPage, InvitesPage } from "~/auth/invites.page";
 import { PublicOnly, RequireAuth } from "./guards";
@@ -43,23 +43,6 @@ const CreateWorkspace = lazy(
 function screen(path: string, title: string) {
   const Screen = SCREENS[path];
   return Screen ? <Screen /> : <PendingScreen title={title} />;
-}
-
-/** Sections that were renamed: old path → new path (relative to /w/:workspaceRef). */
-export const RENAMED: Record<string, string> = {
-  apps: "streams",
-  "sip-users": "sip-agents"
-};
-
-/** Sends an old section link (and anything under it) to the renamed section. */
-export function RenamedRedirect({ to }: { to: string }) {
-  const { workspaceRef, "*": rest } = useParams();
-  return (
-    <Navigate
-      to={`/w/${workspaceRef}/${to}${rest ? `/${rest}` : ""}`}
-      replace
-    />
-  );
 }
 
 export function AppRoutes() {
@@ -100,13 +83,6 @@ export function AppRoutes() {
                   />
                 )
               )}
-              {Object.entries(RENAMED).map(([from, to]) => (
-                <Route
-                  key={from}
-                  path={`${from}/*`}
-                  element={<RenamedRedirect to={to} />}
-                />
-              ))}
               <Route path="*" element={<Navigate to="." replace />} />
             </Route>
           </Route>

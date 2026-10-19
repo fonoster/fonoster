@@ -1,9 +1,0 @@
-# Dev layer over .dev/config/gateway.yaml (fonoster-config render --overlay; objects merge, `null`
-# removes a key). Your own overrides: .dev/overlay/gateway.yaml.
-#
-# The gateway runs in the workspace, which has the Roomr node's address.
-rtp: { advertiseHost: "${SUBNET_PREFIX}.42" }
-# Call records: a directory and signing key the workspace user can write and read.
-callRecord:
-  dir: /workspaces/fonoster/.dev/records
-  signingKey: { privateKeyFile: /workspaces/fonoster/.dev/config/keys/records.pem }

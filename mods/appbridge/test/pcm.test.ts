@@ -88,7 +88,7 @@ function referenceConvert(
   return out;
 }
 
-describe("@gateway/audio", function () {
+describe("@appbridge/audio", function () {
   it("converts exactly as the reference between every format pair", function () {
     const formats = [
       { codec: "pcm16", rate: 8000 },

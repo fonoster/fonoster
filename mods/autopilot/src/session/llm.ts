@@ -21,10 +21,10 @@ import { adapterFor, Think } from "@fonoster/community";
 import { OPENAI_COMPATIBLE } from "@fonoster/community/openai";
 
 // Language models through the provider registry (rework-autopilot A8, A11, task 3.1; registry
-// PR6: Autopilot resolves its own LLM credential, the gateway resolves speech). The assistant
+// PR6: Autopilot resolves its own LLM credential, AppBridge resolves speech). The agent
 // names a catalog id; the registry says which provider serves it, through which adapter, with
 // which credentialRef; a CredentialSource turns the ref into a key. No key lives in the
-// assistant config or in Autopilot's environment by name.
+// agent config or in Autopilot's environment by name.
 
 /** Where keys come from: workspace Secrets first (bring your own key), then platform keys. */
 export interface CredentialSource {

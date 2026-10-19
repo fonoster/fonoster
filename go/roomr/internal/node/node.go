@@ -20,9 +20,9 @@ import (
 // DefaultMaxRooms is the room limit when none is configured (roomr "Capacity bar").
 const DefaultMaxRooms = 200
 
-// IncomingSubject is where calls are offered to the gateway replicas (media-control, "Incoming
-// calls are claimed by exactly one gateway replica").
-const IncomingSubject = "gateway.incoming"
+// IncomingSubject is where calls are offered to AppBridge replicas (media-control, "Incoming
+// calls are claimed by exactly one AppBridge replica").
+const IncomingSubject = "appbridge.incoming"
 
 // Config is the node's runtime configuration.
 type Config struct {
@@ -30,7 +30,7 @@ type Config struct {
 	// RTPHost is the address RTP sockets bind to; AdvertiseHost is what SDP and rtp blocks carry.
 	RTPHost       string
 	AdvertiseHost string
-	// ClaimTimeout is how long a gateway has to claim a call (500 ms; one retry).
+	// ClaimTimeout is how long an AppBridge has to claim a call (500 ms; one retry).
 	ClaimTimeout time.Duration
 	// Heartbeat is the node.heartbeat period (2 s).
 	Heartbeat time.Duration
@@ -47,7 +47,7 @@ type Config struct {
 	// EmptyRoomTimeout ends a room with no participant and no dial in progress for this long
 	// (30 s; negative disables): whoever sent room.create is gone (orphans.go).
 	EmptyRoomTimeout time.Duration
-	// OwnerTimeout ends a room whose gateway, once heard, sent no gateway.heartbeat for this
+	// OwnerTimeout ends a room whose AppBridge replica, once heard, sent no appbridge.heartbeat for this
 	// long (20 s, four missed beats; negative disables).
 	OwnerTimeout time.Duration
 	// Codecs are the SIP-leg codecs in the node's order of preference: what its INVITEs offer,
@@ -114,10 +114,10 @@ type Node struct {
 	seq   int
 	subs  []*nats.Subscription
 	// stop ends the heartbeats (Down).
-	stop     chan struct{}
-	downOnce sync.Once
-	dialer   Dialer
-	gateways gatewayWatch
+	stop       chan struct{}
+	downOnce   sync.Once
+	dialer     Dialer
+	appbridges appBridgeWatch
 	// ctl is Roomr's call table (control.go).
 	ctl callTable
 	// events are the per-call event streams (callevents.go).
@@ -162,7 +162,7 @@ func (n *Node) ID() string { return n.cfg.NodeID }
 // Start serves commands and publishes heartbeats.
 func (n *Node) Start() error {
 	sub, err := n.nc.Subscribe(fmt.Sprintf("media.%s.commands", n.cfg.NodeID), func(m *nats.Msg) {
-		// The gateway's traceparent header: this command's span joins the call's trace.
+		// AppBridge's traceparent header: this command's span joins the call's trace.
 		ctx := context.Background()
 		if m.Header != nil {
 			ctx = telemetry.Extract(ctx, m.Header.Get(telemetry.TraceparentHeader))
@@ -175,7 +175,7 @@ func (n *Node) Start() error {
 		return err
 	}
 	n.subs = append(n.subs, sub)
-	n.watchGateways()
+	n.watchAppBridges()
 	go n.heartbeats()
 	return n.nc.Flush()
 }
@@ -377,7 +377,7 @@ func (n *Node) room(ref string) *Room {
 	return n.rooms[ref]
 }
 
-// Incoming handles an INVITE: a room with the caller, then call.incoming until a gateway claims
+// Incoming handles an INVITE: a room with the caller, then call.incoming until an AppBridge claims
 // it; no claim within the timeout, twice, refuses the call with 503.
 func (n *Node) Incoming(call IncomingCall) {
 	call.CallRef = n.inboundCallRef(call.Headers)
@@ -424,7 +424,7 @@ func (n *Node) Incoming(call IncomingCall) {
 	}
 	ev["callRef"] = call.CallRef
 	data, _ := json.Marshal(ev)
-	// The call's trace continues in the gateway that claims it (traceparent header).
+	// The call's trace continues in AppBridge that claims it (traceparent header).
 	req := &nats.Msg{Subject: IncomingSubject, Data: data, Header: nats.Header{}}
 	if tp := telemetry.Traceparent(ctx); tp != "" {
 		req.Header.Set(telemetry.TraceparentHeader, tp)
@@ -436,14 +436,14 @@ func (n *Node) Incoming(call IncomingCall) {
 		}
 		var reply map[string]any
 		if json.Unmarshal(msg.Data, &reply) == nil && reply["type"] == "claimed" {
-			gatewayRef, _ := reply["gatewayRef"].(string)
-			room.setOwner(gatewayRef)
+			bridgeRef, _ := reply["bridgeRef"].(string)
+			room.setOwner(bridgeRef)
 			telemetry.CallIncoming(ctx, call.CallRef, "claimed")
 			return
 		}
 	}
 	telemetry.CallIncoming(ctx, call.CallRef, "unclaimed")
-	n.cfg.Logger.Warn("no gateway claimed the call", "room", room.Ref, telemetry.CallRefKey, call.CallRef)
+	n.cfg.Logger.Warn("no AppBridge claimed the call", "room", room.Ref, telemetry.CallRefKey, call.CallRef)
 	_ = call.Leg.Reject(503)
 	room.end(ReasonNodeError, 503, "")
 	n.publishCallFailed(call.CallRef, call, ReasonNodeError)
@@ -527,8 +527,8 @@ func (n *Node) Handle(_ context.Context, cmd Command) Command {
 	if r == nil {
 		return fail("room_not_found", roomRef)
 	}
-	gatewayRef, _ := cmd["gatewayRef"].(string)
-	r.setOwner(gatewayRef)
+	bridgeRef, _ := cmd["bridgeRef"].(string)
+	r.setOwner(bridgeRef)
 	switch typ {
 	case "ring":
 		if err := r.ring(); err != nil {

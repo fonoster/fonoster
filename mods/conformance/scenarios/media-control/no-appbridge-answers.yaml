@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: no-appbridge-answers
+spec: "Incoming calls are claimed by exactly one AppBridge replica / No AppBridge answers"
+setup:
+  media: { claimCalls: false }
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: room.ended, reason: node_error, sipStatus: 503 }
+    within_ms: 3000
+  - assert:
+      media.sip: [503]

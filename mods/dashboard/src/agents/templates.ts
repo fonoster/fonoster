@@ -117,7 +117,7 @@ Entender el motivo de la llamada y ayudar: responder preguntas sencillas, tomar 
       firstMessage:
         "Hi, I'm calling from our billing team about an open invoice. Do you have a minute?",
       systemPrompt: `# Role
-You are a friendly assistant who calls customers about upcoming payments and appointments.
+You are a friendly agent who calls customers about upcoming payments and appointments.
 
 # Goal
 Remind the customer of what's due and agree on a date. Confirm the date back before ending the call.
@@ -147,7 +147,7 @@ Recordarle al cliente lo que tiene pendiente y acordar una fecha. Confirma la fe
   blank: {
     en: {
       firstMessage: "Hi, how can I help you?",
-      systemPrompt: "You are a helpful voice assistant. Keep answers short."
+      systemPrompt: "You are a helpful voice agent. Keep answers short."
     },
     es: {
       firstMessage: "Hola, ¿en qué le puedo ayudar?",

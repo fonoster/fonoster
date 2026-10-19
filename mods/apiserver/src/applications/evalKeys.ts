@@ -18,7 +18,7 @@
  */
 import { Registry } from "@fonoster/common";
 
-// Keys for assistant evaluations (rework-autopilot 8.2): the workspace's own vendor key first, then
+// Keys for agent evaluations (rework-autopilot 8.2): the workspace's own vendor key first, then
 // the platform key named by the provider's credentialRef in the catalog. Same order as the hosted
 // Autopilot (AP-B4); the retired integrations.json is not read.
 

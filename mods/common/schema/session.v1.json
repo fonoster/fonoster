@@ -4,7 +4,7 @@
   "title": "fonoster.session.v1",
   "description": "Messages of the Fonoster session protocol (a stream with protocol fonoster). Unknown types and fields must be ignored.",
   "protocol": "fonoster.session.v1",
-  "gatewayToApp": {
+  "appBridgeToApp": {
     "session.start": {
       "type": "object",
       "required": [
@@ -464,7 +464,7 @@
       }
     }
   },
-  "appToGateway": {
+  "appToAppBridge": {
     "speak": {
       "type": "object",
       "required": [

@@ -19,7 +19,7 @@
 import { getLogger } from "@fonoster/logger";
 import { createActor } from "xstate";
 import { Agent, AgentEvent, Recorder, sessionRecorder } from "./Agent";
-import { SessionAssistant, sessionAssistantSchema } from "./config";
+import { SessionAgent, sessionAgentSchema } from "./config";
 import { KnowledgePort } from "./knowledge";
 import { LlmResolver } from "./llm";
 import { autopilotMachine } from "./machine";
@@ -31,20 +31,20 @@ import type { Session } from "@fonoster/voice";
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
 /** What the hosted Autopilot knows about the app a session belongs to. */
-export type LoadedAssistant = {
-  assistant: unknown;
+export type LoadedAgent = {
+  agent: unknown;
   /** The workspace that owns the app: scope for its own keys (BYOK) and knowledge. */
   workspaceRef?: string;
 };
 
 export type AutopilotOptions = {
-  /** The assistant for a session (validated with the session assistant schema). */
-  assistant?: unknown | ((session: Session) => Promise<unknown> | unknown);
+  /** The agent for a session (validated with the session agent schema). */
+  agent?: unknown | ((session: Session) => Promise<unknown> | unknown);
   /**
-   * The hosted path: loads the app's assistant and workspace for a session; undefined means the
-   * app has no assistant (the call is ended).
+   * The hosted path: loads the app's agent and workspace for a session; undefined means the
+   * app has no agent (the call is ended).
    */
-  load?: (session: Session) => Promise<LoadedAssistant | undefined>;
+  load?: (session: Session) => Promise<LoadedAgent | undefined>;
   /** Language models through the provider registry (task 3.1). */
   llm?: LlmResolver;
   /** Language model endpoints by provider name (the stand-in used before the registry). */
@@ -58,9 +58,9 @@ export type AutopilotOptions = {
   allowedDestinations?: string[];
   /** Finds what is relevant to the caller's question (the knowledge port). */
   knowledge?: KnowledgePort;
-  /** Builds the knowledge port for an assistant (operator wiring, task 4.1). */
+  /** Builds the knowledge port for an agent (operator wiring, task 4.1). */
   knowledgeFor?: (
-    assistant: SessionAssistant,
+    agent: SessionAgent,
     scope: { workspaceRef?: string }
   ) => KnowledgePort | undefined;
   recorder?: Recorder;
@@ -75,7 +75,7 @@ export type AutopilotOptions = {
 export function createAutopilotHandler(options: AutopilotOptions) {
   const run = createSessionRunner(options);
   return async (session: Session): Promise<void> => {
-    // The session span joins the call's trace when the gateway sent a traceparent.
+    // The session span joins the call's trace when AppBridge sent a traceparent.
     const span = telemetry.startCall(
       session.callRef,
       "autopilot.session",
@@ -97,7 +97,7 @@ export function createAutopilotHandler(options: AutopilotOptions) {
 
 function createSessionRunner(options: AutopilotOptions) {
   return async (session: Session): Promise<void> => {
-    // Listen before any await: turn events that arrive while the assistant and model load are
+    // Listen before any await: turn events that arrive while the agent and model load are
     // held and delivered once the machine runs.
     const early: AgentEvent[] = [];
     let deliver: (event: AgentEvent) => void = (event) => early.push(event);
@@ -121,36 +121,34 @@ function createSessionRunner(options: AutopilotOptions) {
       })
     );
 
-    const loaded: LoadedAssistant | undefined = options.load
+    const loaded: LoadedAgent | undefined = options.load
       ? await options.load(session)
       : {
-          assistant:
-            typeof options.assistant === "function"
-              ? await options.assistant(session)
-              : options.assistant
+          agent:
+            typeof options.agent === "function"
+              ? await options.agent(session)
+              : options.agent
         };
     if (!loaded) {
-      logger.warn("no assistant for this app; ending the call", {
+      logger.warn("no agent for this app; ending the call", {
         appRef: session.appRef,
         callRef: session.callRef
       });
       await session.hangup().catch(() => undefined);
       return;
     }
-    const assistant: SessionAssistant = sessionAssistantSchema.parse(
-      loaded.assistant
-    );
+    const agentConfig: SessionAgent = sessionAgentSchema.parse(loaded.agent);
     const scope = { workspaceRef: loaded.workspaceRef };
     const recorder = options.recorder ?? sessionRecorder(session);
     const settings = {
-      temperature: assistant.languageModel.temperature,
-      maxTokens: assistant.languageModel.maxTokens
+      temperature: agentConfig.languageModel.temperature,
+      maxTokens: agentConfig.languageModel.maxTokens
     };
     let think = options.think;
     if (!think && options.llm) {
       try {
         const resolved = await options.llm.resolve(
-          assistant.languageModel.model,
+          agentConfig.languageModel.model,
           settings,
           scope
         );
@@ -166,7 +164,7 @@ function createSessionRunner(options: AutopilotOptions) {
           reason: (e as Error).message
         });
         await session
-          .say(assistant.conversationSettings.systemErrorMessage, {
+          .say(agentConfig.conversationSettings.systemErrorMessage, {
             interruptible: false
           })
           .catch(() => undefined);
@@ -175,20 +173,20 @@ function createSessionRunner(options: AutopilotOptions) {
       }
     }
     think ??= resolveThink(
-      assistant.languageModel.model,
+      agentConfig.languageModel.model,
       options.providers ?? {},
       settings
     );
     const agent = new Agent(
       session,
-      assistant,
+      agentConfig,
       think,
       options.tools ??
-        new HttpToolPort(assistant.languageModel.tools, {
+        new HttpToolPort(agentConfig.languageModel.tools, {
           allow: options.allowedDestinations
         }),
       recorder,
-      options.knowledge ?? options.knowledgeFor?.(assistant, scope)
+      options.knowledge ?? options.knowledgeFor?.(agentConfig, scope)
     );
     options.onAgent?.(agent);
 

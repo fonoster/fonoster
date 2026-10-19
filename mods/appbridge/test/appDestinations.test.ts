@@ -24,11 +24,11 @@ import { AppConfig } from "../src/config";
 import { connectApp } from "../src/session/connectApp";
 import { Listener } from "../src/session/Listener";
 
-// M14: the gateway dials tenant app and listener URLs (database apps) only at
+// M14: AppBridge dials tenant app and listener URLs (database apps) only at
 // public addresses, re-checking what the name resolves to; operator apps and
 // FONOSTER_ALLOWED_DESTINATIONS are exempt.
 
-describe("@gateway[app destinations]", function () {
+describe("@appbridge[app destinations]", function () {
   let wss: WebSocketServer;
   let port: number;
   let saved: string | undefined;

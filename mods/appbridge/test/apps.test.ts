@@ -28,15 +28,15 @@ import {
 } from "../../common/test/persistence/testDb";
 import {
   AppConfig,
-  Gateway,
-  GatewayConfig,
+  AppBridge,
+  AppBridgeConfig,
   PrismaAppStore,
   YamlAppStore,
   appFromRow,
   validateConfig
 } from "../src";
 
-// The app store (voice-session G2 app model) and the database-backed gateway wiring. Database
+// The app store (voice-session G2 app model) and the database-backed appbridge wiring. Database
 // tests need PERSISTENCE_TEST_DATABASE_URL; the end-to-end one also needs CONFORMANCE_NATS_URL.
 
 const CLIENT = path.resolve(__dirname, "../../common/test/.prisma-client");
@@ -51,7 +51,7 @@ const yamlApp = (ref: string, extra: Partial<AppConfig> = {}): AppConfig => ({
   ...extra
 });
 
-describe("@gateway apps", function () {
+describe("@appbridge apps", function () {
   it("YAML store: by ref, by number, catch-all", function () {
     const store = new YamlAppStore([
       yamlApp("sales", { numbers: ["+1555"] }),
@@ -152,7 +152,7 @@ describe("@gateway apps", function () {
   });
 
   it("config: database features need a database URL", function () {
-    const base: GatewayConfig = {
+    const base: AppBridgeConfig = {
       nats: { url: "nats://x" },
       providers: {},
       appStore: { source: "database" },
@@ -244,12 +244,12 @@ describe("@gateway apps", function () {
       }
     });
 
-    describe("gateway end to end", function () {
+    describe("AppBridge end to end", function () {
       this.timeout(20_000);
       let nc: NatsConnection;
       let harness: FakesHarness;
       let receiver: FakeWebhookReceiver;
-      let gateway: Gateway;
+      let appbridge: AppBridge;
       let allowed: string | undefined;
 
       before(async function () {
@@ -266,7 +266,7 @@ describe("@gateway apps", function () {
         await nc?.close();
       });
       afterEach(async () => {
-        await gateway?.stop();
+        await appbridge?.stop();
         await harness?.stop();
         await receiver?.stop();
       });
@@ -300,7 +300,7 @@ describe("@gateway apps", function () {
           allowedDestinations: ["127.0.0.1"]
         });
         const urls = harness.providerUrls;
-        gateway = await new Gateway({
+        appbridge = await new AppBridge({
           config: {
             nats: { url: process.env.CONFORMANCE_NATS_URL! },
             providers: {

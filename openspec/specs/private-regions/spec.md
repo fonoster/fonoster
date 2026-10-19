@@ -135,7 +135,7 @@ call, only for workspaces bound to it, and SHALL NOT cache, store or log them be
 
 #### Scenario: Bring-your-own key in a public region
 - **WHEN** a workspace on public region `us-east-2` has its own `deepgram` key and receives a call
-- **THEN** the region's gateway uses that key for the call, fetched from the cloud for that call only
+- **THEN** the region's AppBridge uses that key for the call, fetched from the cloud for that call only
 
 #### Scenario: Private regions never get values
 - **WHEN** a private region asks the cloud for a workspace key
@@ -184,7 +184,7 @@ running on the last synced config.
 ### Requirement: Config syncs from the control plane to the region
 
 The control plane SHALL sync to a region one snapshot holding, per bound workspace, its numbers,
-apps (including assistants), Routr resources (domains, agents, trunks, ACLs), webhook endpoint
+apps (including agents), Routr resources (domains, agents, trunks, ACLs), webhook endpoint
 configuration and recording policy, plus the provider catalog those apps use. Central config SHALL be
 authoritative; the cell SHALL own only its secrets. Webhooks SHALL be delivered from the cell. A
 workspace missing from a snapshot SHALL be removed from the region.
@@ -205,13 +205,13 @@ workspace missing from a snapshot SHALL be removed from the region.
 ### Requirement: Private cells run their own Autopilot
 
 A private cell SHALL run the hosted Autopilot service itself. Autopilot apps of a private workspace
-SHALL point to the cell's Autopilot; their assistants SHALL sync to the cell and their LLM keys
+SHALL point to the cell's Autopilot; their agents SHALL sync to the cell and their LLM keys
 SHALL stay in the cell. No conversation data of a private workspace SHALL reach Fonoster's hosted
 Autopilot.
 
 #### Scenario: Autopilot call in a private region
 - **WHEN** a caller reaches an Autopilot app of a private workspace
-- **THEN** the cell's gateway dials the cell's Autopilot, which uses the cell's LLM key
+- **THEN** the cell's AppBridge dials the cell's Autopilot, which uses the cell's LLM key
 - **AND** no transcript or LLM request leaves the cell
 
 ### Requirement: Public regions are created by an operator; `default` is always offered

@@ -2,7 +2,7 @@
 
 The Roomr node shipped by `add-roomr` works, but it is wired to Fonoster by name: it reads
 `X-App-Ref`, `X-Call-Ref` and `X-DOD-Number`, registers to Routr with `X-Session-Count`, offers
-every inbound call to the gateway replicas over NATS (`gateway.incoming`) and waits for one of
+every inbound call to AppBridge replicas over NATS (`appbridge.incoming`) and waits for one of
 them to claim it, and takes its commands as NATS request and reply. That coupling makes the node
 hard to reuse outside Fonoster, hard to test alone, and it puts a race (the claim) on the path of
 every call. The design document "Roomr node: Target Design" (2026-10-17) settles a different
@@ -21,7 +21,7 @@ boundary, and the change adds no hardening requirements beyond it.
   session endpoint and the names of two optional headers (room, call ref). Every other SIP header
   is passed through untouched, inbound (in `Start`) and outbound (from `CreateCall`).
 - **One control stream per call, audio stays on RTP.** For every call the node opens a new gRPC
-  connection to the session endpoint (in Fonoster, the gateway behind a Kubernetes Service) and
+  connection to the session endpoint (in Fonoster, AppBridge behind a Kubernetes Service) and
   sends `Start` with the call's identity, headers and the node's RTP endpoint; the app answers with
   `Answer` (inbound) or `Ready` (outbound) carrying its own RTP endpoint. Commands and events travel
   on that stream; audio is RTP pod to pod. If the stream breaks the node hangs up. This replaces
@@ -51,7 +51,7 @@ boundary, and the change adds no hardening requirements beyond it.
 - **Ports.** Inside the cluster no coordination is needed (pod IPs are unique and ports travel on
   the control stream); one RTP range serves every leg, advertised for legs that leave the
   cluster.
-- **BREAKING (internal contracts):** `gateway.incoming`, `gateway.outbound`, the
+- **BREAKING (internal contracts):** `appbridge.incoming`, `appbridge.outbound`, the
   `media.<nodeId>.commands` subjects, `call.incoming`, `participant.add`, `participant.dial`,
   `ring`, `answer` and the `X-Session-Count` and `X-DOD-Number` built-ins are retired. Apps are not
   affected: the session protocol (`voice-session`) is unchanged.
@@ -72,7 +72,7 @@ Two things from the target design are not part of this change and become follow-
 
 Room token (JWT) for joins; edge mTLS and `requireEncryption`; Roomr's session-registry KV writes;
 netguard and `allowedDestinations` in Roomr (tenant Play and Hold URLs are validated upstream by
-the apiserver and the appbridge); the duplicate command-line flags; `trustedSources`; `cpu_idle`;
+the apiserver and AppBridge); the duplicate command-line flags; `trustedSources`; `cpu_idle`;
 refusal while draining and the `draining` heartbeat field; the debug HTTP server; the OTLP log
 bridge; separate public and app-leg RTP ranges; `onMissingRoom`; the unknown-field scenarios; the
 `callDedupeWindow` and `outboundTransport` keys.
@@ -117,16 +117,16 @@ already point at it.
 - `media-control`: the NATS command contract is replaced by gRPC. Renamed and modified: the
   command list (now the Roomr RPC list), the app leg and its RTP negotiation (now on the
   control stream), outbound placement (now `CreateCall`), liveness (now capacity). Removed: NATS
-  request and reply, "add a participant is the one primitive", the gateway claim, replica
+  request and reply, "add a participant is the one primitive", AppBridge claim, replica
   ownership of outbound calls. Added: the control stream, room and participant RPCs, operations,
   events keyed by call. Transfer, listeners, hold, maximum duration, ringing and endings are
   modified to travel on the stream.
 - `control-plane`: node selection uses the heartbeat score and retries up to 3 nodes with
-  `CreateCall`; NATS no longer carries media commands; the gateway is reachable as a Service; the
+  `CreateCall`; NATS no longer carries media commands; AppBridge is reachable as a Service; the
   apiserver writes its own `placements.<callRef>` entries.
 - `voice-session`: session ending, "the Roomr node receives only control" and app routing are
   restated against the control stream (`Start` headers instead of `call.incoming`).
-- `deployment`: the chart allows pod-to-pod RTP, exposes the gateway's session endpoint, guards
+- `deployment`: the chart allows pod-to-pod RTP, exposes AppBridge's session endpoint, guards
   Roomr's ports by network isolation and drains by readiness.
 - `conformance`: a Roomr node suite covering Roomr, the control stream and the mixer.
 - `developer-environment`, `service-config`: the node is named Roomr: its source is `go/roomr`, its
@@ -143,13 +143,13 @@ bar"; `media-control` "Participants and tracks are kind-neutral".
   keying, Opus-first SDP, removal of the NATS command and offer paths and of the items under
   "Removed from the first draft".
 - `mods/appbridge`: a gRPC server for the control stream behind a Kubernetes Service; `RtpLink`
-  keeps its RTP role, the `participant.add` offer and the `gateway.incoming` queue group go away.
+  keeps its RTP role, the `participant.add` offer and the `appbridge.incoming` queue group go away.
 - `mods/apiserver/src/outbound`: `createNodeDirectory` scores by `1 - rooms / max_rooms`,
   `placeOutboundCall` calls `CreateCall` over gRPC with `X-DOD-Number` in the pass-through
   headers and retries up to 3 nodes.
 - `mods/conformance`: fakes for the session endpoint and the controller; scenario files move
   from NATS commands to gRPC.
-- Helm chart and Compose: gateway Service, NetworkPolicy for RTP, gRPC readiness probe, node RTP
+- Helm chart and Compose: appbridge Service, NetworkPolicy for RTP, gRPC readiness probe, node RTP
   range (Compose publishes only RTP).
 - The open change `fix-config-and-placement-gaps` also modifies control-plane "Call creation
   picks the least-loaded Roomr node" (skip nodes at their limit). This change's version of that

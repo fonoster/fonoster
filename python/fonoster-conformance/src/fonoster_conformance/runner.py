@@ -1,6 +1,6 @@
 """Runs fonoster.scenario.v1 scenarios. Mirrors mods/conformance/src/runner/runScenario.ts.
 
-This runner covers what SDK suites need (role "gateway"): send, send_audio, expect, expect_none,
+This runner covers what SDK suites need (role "appbridge"): send, send_audio, expect, expect_none,
 expect_audio, expect_close, wait and close. Steps that need the fakes harness (inject, assert,
 caller) fail with a clear reason instead of passing.
 """
@@ -103,8 +103,8 @@ def signature_headers(url: str, secret: str, timestamp: int | None = None) -> di
     return {"X-Fonoster-Signature": sig, "X-Fonoster-Timestamp": str(ts)}
 
 
-class FakeGateway:
-    """Dials an app the way the VoiceSessionGateway does, with a signed request."""
+class FakeAppBridge:
+    """Dials an app the way AppBridge does, with a signed request."""
 
     def __init__(self, signing_secret: str | None = None, timestamp: int | None = None):
         self.signing_secret = signing_secret

@@ -32,7 +32,7 @@ export interface ToolPort {
 }
 
 /**
- * HTTP tools from the assistant config (`operation.method`, `url`, `headers`). Tool URLs are
+ * HTTP tools from the agent config (`operation.method`, `url`, `headers`). Tool URLs are
  * tenant input: they go through safeFetch (public destinations only, redirects re-checked,
  * 10 s timeout; RV-B2).
  */

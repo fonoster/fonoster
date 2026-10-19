@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// Serve sessions from an existing Express app. The gateway dials ws(s)://<host>/voice.
+// Serve sessions from an existing Express app. AppBridge dials ws(s)://<host>/voice.
 import { Session, VoiceServer } from "@fonoster/voice";
 import express from "express";
 

@@ -73,7 +73,7 @@ describe("@callrecord fixture calls", function () {
       "handoff",
       "failed-busy",
       "recorded-call",
-      "gateway-crash"
+      "appbridge-crash"
     ]);
   });
 
