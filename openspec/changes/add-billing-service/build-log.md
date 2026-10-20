@@ -85,7 +85,7 @@ The spec (#1046) has open questions Q1–Q7. Every proposed answer is a setting 
 - The portal session creates the Stripe customer at once (not through the outbox), because the
   owner is waiting for the link. Top-ups are refused until a payment method was added there.
 - The Stripe fake gained `POST /v1/billing_portal/sessions` (on #1045).
-- Not in the SDK yet; the dashboard work (6.3) adds it with the page.
+- Not in the SDK yet; add-billing-page adds it with the page.
 
 ### BS8. Stack (7.1, partly done)
 
