@@ -221,7 +221,23 @@ export const meterRoutes: Route[] = [
     handler: ({ fake, body }) => {
       if (!body.event_name) throw missing("event_name");
       const payload = (body.payload as Json) ?? {};
-      const now = fake.now();
+      const meter = fake.all(
+        "billing.meter",
+        (m) => m.event_name === body.event_name
+      )[0];
+      const customerKey =
+        ((meter?.customer_mapping as Json)?.event_payload_key as string) ??
+        "stripe_customer_id";
+      const valueKey =
+        ((meter?.value_settings as Json)?.event_payload_key as string) ??
+        "value";
+      // A test-clock customer's events are timed by its clock, as in Stripe.
+      const customerId = payload[customerKey] as string | undefined;
+      const now = fake.now(
+        customerId && fake.objects.has(customerId)
+          ? fake.clockOf(customerId)
+          : null
+      );
       const timestamp = int(body.timestamp, now)!;
       if (timestamp < now - 35 * DAY)
         throw new StripeError(
@@ -238,16 +254,6 @@ export const meterRoutes: Route[] = [
           { param: "timestamp" }
         );
       const identifier = (body.identifier as string) ?? fake.id("mevt");
-      const meter = fake.all(
-        "billing.meter",
-        (m) => m.event_name === body.event_name
-      )[0];
-      const customerKey =
-        ((meter?.customer_mapping as Json)?.event_payload_key as string) ??
-        "stripe_customer_id";
-      const valueKey =
-        ((meter?.value_settings as Json)?.event_payload_key as string) ??
-        "value";
       // Stripe keeps identifiers unique for 24 hours: a repeat counts once (unverified against a
       // sandbox whether it answers 200 or 400; the nightly contract run settles it).
       const repeat = fake.meterEvents.find(

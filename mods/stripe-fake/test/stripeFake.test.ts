@@ -168,6 +168,33 @@ describe("@stripe-fake", function () {
     expect(summaries.data.map((s) => s.aggregated_value)).to.deep.equal([60]);
   });
 
+  it("times a test-clock customer's meter events by its clock", async () => {
+    const frozen = Math.floor(Date.now() / 1000) + 40 * DAY;
+    const clock = await stripe.testHelpers.testClocks.create({
+      frozen_time: frozen
+    });
+    const customer = await stripe.customers.create({ test_clock: clock.id });
+    await stripe.billing.meters.create({
+      display_name: "Call seconds",
+      event_name: "call_seconds",
+      default_aggregation: { formula: "sum" }
+    });
+    await stripe.billing.meterEvents.create({
+      event_name: "call_seconds",
+      payload: { stripe_customer_id: customer.id, value: "60" },
+      timestamp: frozen - 60
+    });
+    let error: Stripe.errors.StripeError | undefined;
+    await stripe.billing.meterEvents
+      .create({
+        event_name: "call_seconds",
+        payload: { stripe_customer_id: customer.id, value: "60" },
+        timestamp: frozen + 3600
+      })
+      .catch((e) => (error = e));
+    expect(error?.message).to.match(/5 minutes in the future/);
+  });
+
   it("accepts an event for an unknown customer, then reports it in a thin event", async () => {
     await stripe.webhookEndpoints.create({
       url: hooksUrl,
@@ -262,7 +289,7 @@ describe("@stripe-fake", function () {
     await stripe.billing.meterEvents.create({
       event_name: "ai_cents",
       payload: { stripe_customer_id: customer.id, value: "3000" },
-      timestamp: start + DAY
+      timestamp: start + 60
     });
     await new Promise((r) => setTimeout(r, 20));
     await stripe.testHelpers.testClocks.advance(clock.id, {
@@ -302,7 +329,7 @@ describe("@stripe-fake", function () {
     await stripe.billing.meterEvents.create({
       event_name: "ai_cents",
       payload: { stripe_customer_id: customer.id, value: "9480" },
-      timestamp: start + DAY
+      timestamp: start + 60
     });
     await new Promise((r) => setTimeout(r, 20));
     const before = (await stripe.events.list({ limit: 100 })).data.length;
