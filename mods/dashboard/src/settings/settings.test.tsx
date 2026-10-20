@@ -175,6 +175,23 @@ describe("Settings · General", () => {
     expect(await screen.findByTestId("location")).toHaveTextContent("/");
   });
 
+  it("switches the theme from Appearance, above the danger zone", async () => {
+    const { user } = setup();
+    const appearance = screen.getByRole("region", { name: "Appearance" });
+    const danger = screen.getByRole("region", { name: "Danger zone" });
+    expect(
+      appearance.compareDocumentPosition(danger) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    await user.click(within(appearance).getByRole("radio", { name: "Light" }));
+    expect(document.documentElement.dataset.theme).toBe("light");
+    expect(
+      within(appearance).getByRole("radio", { name: "Light" })
+    ).toBeChecked();
+    await user.click(within(appearance).getByRole("radio", { name: "Dark" }));
+    expect(document.documentElement.dataset.theme).toBe("dark");
+  });
+
   it("doesn't let other members delete it", () => {
     setup({ workspace: { ...testWorkspace, ownerRef: "someone-else" } });
     expect(

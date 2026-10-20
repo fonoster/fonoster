@@ -28,6 +28,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { toast } from "~/components/ui/sonner";
 import { useAuth } from "~/lib/auth";
+import { useTheme, type ThemePreference } from "~/lib/theme";
 import { errorMessage } from "~/lib/errors";
 import { useWorkspace } from "~/lib/workspace";
 import {
@@ -122,6 +123,7 @@ export function GeneralSettings() {
           <Owner isOwner={isOwner} />
         </SettingRow>
       </section>
+      <Appearance />
       <DangerZone isOwner={isOwner} />
     </div>
   );
@@ -213,6 +215,44 @@ function Owner({ isOwner }: { isOwner: boolean }) {
       </span>
       <span className="text-muted-foreground">{owner.email}</span>
     </p>
+  );
+}
+
+const THEMES: { value: ThemePreference; label: string }[] = [
+  { value: "dark", label: "Dark" },
+  { value: "light", label: "Light" },
+  { value: "system", label: "System" }
+];
+
+/** The theme is a preference of this browser, not of the workspace. */
+function Appearance() {
+  const { preference, setPreference } = useTheme();
+
+  return (
+    <section
+      aria-label="Appearance"
+      className="rounded-xl border border-border bg-card"
+    >
+      <SettingRow
+        title="Theme"
+        description="Choose how the dashboard looks on this device."
+      >
+        <div role="radiogroup" aria-label="Theme" className="flex gap-2.5">
+          {THEMES.map(({ value, label }) => (
+            <Button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={preference === value}
+              variant={preference === value ? "secondary" : "outline"}
+              onClick={() => setPreference(value)}
+            >
+              {label}
+            </Button>
+          ))}
+        </div>
+      </SettingRow>
+    </section>
   );
 }
 

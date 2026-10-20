@@ -35719,9 +35719,6 @@
                       "name": "Row Workspace name",
                       "width": "fill_container",
                       "stroke": "$ui:--border",
-                      "strokeWidth": {
-                        "top": 1
-                      },
                       "strokeAlignment": "inner",
                       "gap": 20,
                       "padding": [
@@ -35996,6 +35993,125 @@
                 },
                 {
                   "type": "frame",
+                  "id": "BefKc",
+                  "name": "Appearance",
+                  "width": "fill_container",
+                  "fill": "$ui:--card",
+                  "cornerRadius": 12,
+                  "stroke": "$ui:--border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "layout": "vertical",
+                  "padding": [
+                    6,
+                    20
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "pi4m7",
+                      "name": "Row Theme",
+                      "width": "fill_container",
+                      "stroke": "$ui:--border",
+                      "strokeAlignment": "inner",
+                      "gap": 20,
+                      "padding": [
+                        14,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "SJdAT",
+                          "name": "Text",
+                          "width": 320,
+                          "layout": "vertical",
+                          "gap": 3,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "LSVG1",
+                              "name": "Theme",
+                              "fill": "$ui:--foreground",
+                              "content": "Theme",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "text",
+                              "id": "GNkLV",
+                              "name": "Desc",
+                              "fill": "$ui:--muted-foreground",
+                              "textGrowth": "fixed-width",
+                              "width": 320,
+                              "content": "Choose how the dashboard looks on this device.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "m8cBIU",
+                          "name": "Value",
+                          "width": "fill_container",
+                          "gap": 10,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "id": "AT7ri",
+                              "type": "ref",
+                              "ref": "ui:U83R7",
+                              "name": "Dark",
+                              "descendants": {
+                                "ui:mM3qB": {
+                                  "enabled": false
+                                },
+                                "ui:M4KCH": {
+                                  "content": "Dark"
+                                }
+                              }
+                            },
+                            {
+                              "id": "XZETR",
+                              "type": "ref",
+                              "ref": "ui:4x7RU",
+                              "name": "Light",
+                              "descendants": {
+                                "ui:r97g1": {
+                                  "enabled": false
+                                },
+                                "ui:7ZVG7": {
+                                  "content": "Light"
+                                }
+                              }
+                            },
+                            {
+                              "id": "oywNo",
+                              "type": "ref",
+                              "ref": "ui:4x7RU",
+                              "name": "System",
+                              "descendants": {
+                                "ui:r97g1": {
+                                  "enabled": false
+                                },
+                                "ui:7ZVG7": {
+                                  "content": "System"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "wavFk",
                   "name": "Danger zone",
                   "width": "fill_container",
@@ -36016,9 +36132,6 @@
                       "name": "Row Delete workspace",
                       "width": "fill_container",
                       "stroke": "$ui:--border",
-                      "strokeWidth": {
-                        "top": 1
-                      },
                       "strokeAlignment": "inner",
                       "gap": 20,
                       "padding": [
@@ -60291,9 +60404,6 @@
                       "name": "Row Region",
                       "width": "fill_container",
                       "stroke": "$ui:--border",
-                      "strokeWidth": {
-                        "top": 1
-                      },
                       "strokeAlignment": "inner",
                       "gap": 20,
                       "padding": [
