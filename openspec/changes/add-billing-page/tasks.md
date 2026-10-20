@@ -8,9 +8,9 @@
 
 ## 3. Dashboard
 
-- [ ] 3.1 `/billing` route outside the workspaces with the account top bar, and the Billing item in the account menu, both only with `billing.enabled` and for users who own a workspace (D0–D2); verify unit tests for the "no billing" and "billing page" scenarios
-- [ ] 3.2 Billing page per the approved design: plan, balance and overdraft, sources with expiry, auto-recharge, portal link, past-due and Trial-ended notices (D3–D6, D8); verify stories and unit tests
-- [ ] 3.3 Top-up, auto-recharge and upgrade flows with the portal round trip and bounded polling (D5, D7); verify unit tests for the upgrade, top-up, below-minimum, failed-payment and Trial-ended scenarios
+- [x] 3.1 `/billing` route outside the workspaces with the account top bar, and the Billing item in the account menu, both only with `billing.enabled` and for users who own a workspace (D0–D2); verify unit tests for the "no billing" and "billing page" scenarios
+- [x] 3.2 Billing page per the approved design: plan, balance and overdraft, sources with expiry, auto-recharge, portal link, past-due and Trial-ended notices (D3–D6, D8); verify stories and unit tests
+- [x] 3.3 Top-up, auto-recharge and upgrade flows with the portal round trip and bounded polling (D5, D7); verify unit tests for the upgrade, top-up, below-minimum, failed-payment and Trial-ended scenarios
 
 ## 4. Verification
 

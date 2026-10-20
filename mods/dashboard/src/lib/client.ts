@@ -108,6 +108,7 @@ export function createSdk(client: SDK.WebClient) {
     acls: new SDK.Acls(client),
     agents: new SDK.Agents(client),
     apiKeys: new SDK.ApiKeys(client),
+    billing: new SDK.Billing(client),
     applications: new SDK.Applications(client),
     calls: new SDK.Calls(client),
     callRecords: new SDK.CallRecords(client),

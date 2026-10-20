@@ -16,21 +16,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LogOut } from "lucide-react";
+import { ArrowLeft, LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Logo } from "~/components/brand/logo";
 import { Avatar, AvatarFallback, initials } from "~/components/ui/avatar";
 import { useAuth } from "~/lib/auth";
 import { useCurrentUser } from "./workspaces.service";
 
-/** Top bar of the screens shown before a workspace is open. */
-export function UserBar() {
+/**
+ * Top bar of the screens outside a workspace. `back` adds a way back to the workspace the user
+ * came from (Billing).
+ */
+export function UserBar({
+  back
+}: { back?: { to: string; label: string } } = {}) {
   const { user, signOut } = useAuth();
   const { data: profile } = useCurrentUser();
   const name = profile?.name || user?.email || "";
 
   return (
     <header className="flex items-center justify-between px-6 py-5 sm:px-10">
-      <Logo />
+      <div className="flex items-center gap-6">
+        <Logo />
+        {back && (
+          <Link
+            to={back.to}
+            className="inline-flex items-center gap-1.5 font-display text-[13px] text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="size-[15px]" aria-hidden /> {back.label}
+          </Link>
+        )}
+      </div>
       <div className="flex items-center gap-3 font-display">
         <Avatar>
           <AvatarFallback className="bg-muted text-foreground">

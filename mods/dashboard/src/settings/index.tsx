@@ -33,8 +33,8 @@ import { RegionSettings } from "~/regions";
 import { MembersSettings } from "./members";
 
 /**
- * Workspace settings, one tab per sub-route: General and Members. Billing
- * isn't in this release; it comes back as a tab when `billing.enabled`.
+ * Workspace settings, one tab per sub-route: General and Members. Billing is
+ * the owner's, not the workspace's: it has its own page (/billing).
  */
 export default function SettingsScreen() {
   const workspace = useWorkspace();

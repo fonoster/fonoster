@@ -16,7 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LogOut } from "lucide-react";
+import { CreditCard, LayoutGrid, LogOut } from "lucide-react";
+import { Link } from "react-router-dom";
+import {
+  useBilling,
+  useBillingAvailable,
+  useOwnedWorkspaces
+} from "~/billing/billing.service";
+import { credits } from "~/billing/format";
 import { KeyboardArrowDown } from "~/components/icons/material";
 import { Avatar, AvatarFallback, initials } from "~/components/ui/avatar";
 import {
@@ -29,13 +36,23 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { useAuth } from "~/lib/auth";
 import { cn } from "~/lib/utils";
+import { useWorkspace } from "~/lib/workspace";
 import { useCurrentUser } from "~/workspaces/workspaces.service";
 
-/** The signed-in user at the bottom of the sidebar: sign-out. */
+/**
+ * The signed-in user at the bottom of the sidebar: Billing (Fonoster Cloud, for owners), all
+ * workspaces and sign-out.
+ */
 export function UserMenu({ collapsed }: { collapsed: boolean }) {
   const { user, signOut } = useAuth();
   const { data: profile } = useCurrentUser();
   const name = profile?.name || user?.email || "";
+  const workspace = useWorkspace();
+  const billingAvailable = useBillingAvailable();
+  const owned = useOwnedWorkspaces();
+  // The balance, when this workspace is one the user owns (the API checks it per workspace).
+  const own = owned?.find((w) => w.ref === workspace.ref);
+  const { data: billing } = useBilling(billingAvailable ? own : undefined);
 
   return (
     <DropdownMenu>
@@ -74,6 +91,24 @@ export function UserMenu({ collapsed }: { collapsed: boolean }) {
         <DropdownMenuLabel className="truncate font-display">
           {user?.email}
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {billingAvailable && (
+          <DropdownMenuItem asChild className="font-display">
+            <Link to={`/billing?from=${workspace.ref}`}>
+              <CreditCard /> <span className="flex-1">Billing</span>
+              {billing && (
+                <span className="font-mono text-xs text-muted-foreground">
+                  {credits(billing.balance)} credits
+                </span>
+              )}
+            </Link>
+          </DropdownMenuItem>
+        )}
+        <DropdownMenuItem asChild className="font-display">
+          <Link to="/workspaces">
+            <LayoutGrid /> All workspaces
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => signOut()} className="font-display">
           <LogOut /> Sign out

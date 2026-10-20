@@ -106,16 +106,6 @@ export const MembersLight: Story = {
   globals: { theme: "light" }
 };
 
-/** Fonoster Cloud shows the Billing tab (its content comes later). */
-export const BillingCloud: Story = {
-  parameters: {
-    screen: {
-      route: at("/settings/billing"),
-      auth: signedIn(me),
-      capabilities: cloudCapabilities
-    }
-  }
-};
 export const GeneralCloud: Story = {
   parameters: {
     screen: {
