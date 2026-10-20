@@ -116,6 +116,23 @@ subscribes, whatever the balance.
 - **THEN** it ends 45 days after it started, with the credits it has left; a Trial that had ended
   and now ends later opens again with the credits it had left when it ended, given back once
 
+### Requirement: An operator adds credits
+
+An operator SHALL be able to add credits to one owner under the rules of the owner's plan: on the
+Trial they SHALL be Trial credits that end with the Trial; on Pay-as-you-go they SHALL follow the
+top-up rules (12 months, spent like top-ups) and SHALL reach Stripe as a credit grant, as a paid
+top-up would.
+
+#### Scenario: Credits for a Trial
+
+- **WHEN** an operator adds 500 credits to an owner on the Trial
+- **THEN** the balance grows by 500 credits, which expire when the Trial ends
+
+#### Scenario: Credits for Pay-as-you-go
+
+- **WHEN** an operator adds 500 credits to an owner on Pay-as-you-go
+- **THEN** a 500-credit top-up grant expiring in 12 months is in the ledger and in Stripe
+
 ### Requirement: Admission from the ledger
 
 The billing service SHALL implement `CheckSessionAuthorized` from its own ledger, without calling

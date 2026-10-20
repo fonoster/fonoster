@@ -20,7 +20,7 @@
   },
   "bin": {
     "fonoster-billing": "dist/main.js",
-    "fonoster-billing-trial": "dist/trialCli.js"
+    "fonoster-billing-admin": "dist/adminCli.js"
   },
   "dependencies": {
     "@fonoster/authz": "^0.30.0",

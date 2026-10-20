@@ -30,7 +30,8 @@ import {
 
 const DAY_MS = 24 * 3600_000;
 
-export class TrialError extends Error {}
+/** A request an operator made that billing refuses, with a message for them. */
+export class OperatorError extends Error {}
 
 export type TrialChange = {
   accountId: string;
@@ -56,7 +57,7 @@ export async function setTrialDays(
   now: Date
 ): Promise<TrialChange> {
   if (!Number.isInteger(days) || days < 0)
-    throw new TrialError("days must be a whole number, 0 or more");
+    throw new OperatorError("days must be a whole number, 0 or more");
   const created = await ensureAccount(prisma, ownerRef, plans, now);
   const change = await prisma.$transaction(async (tx) => {
     await lockAccount(tx, created.id);
@@ -64,7 +65,7 @@ export async function setTrialDays(
       where: { id: created.id }
     });
     if (account.plan !== "trial")
-      throw new TrialError(
+      throw new OperatorError(
         "the owner is on Pay-as-you-go: there is no Trial to change"
       );
     const endsAt = new Date(account.billingStartedAt.getTime() + days * DAY_MS);

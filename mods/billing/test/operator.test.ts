@@ -17,15 +17,22 @@
  * limitations under the License.
  */
 import { expect } from "chai";
+import { addCredits } from "../src/addCredits";
 import { ensureAccount } from "../src/admission";
 import { DEFAULT_PLANS } from "../src/config";
-import { balanceOf, debit, expireDue, lockAccount } from "../src/ledger";
+import {
+  balanceOf,
+  debit,
+  expireDue,
+  grantsOf,
+  lockAccount
+} from "../src/ledger";
 import { credits } from "../src/money";
-import { setTrialDays, TrialError } from "../src/trial";
+import { setTrialDays, OperatorError } from "../src/trial";
 import { BillingTestDb, createBillingTestDb } from "./testDb";
 
-// The Trial's length (billing "The Trial ends"): a default from the configuration, changed per
-// owner by an operator. On a real Postgres (PERSISTENCE_TEST_DATABASE_URL); skipped without one.
+// An operator's changes to one owner (billing "The Trial ends", "An operator adds credits"): the
+// Trial's length, a default from the configuration changed per owner, and credits added by hand. On a real Postgres (PERSISTENCE_TEST_DATABASE_URL); skipped without one.
 
 const DAY = 86_400_000;
 const START = new Date("2026-11-01T00:00:00Z");
@@ -115,6 +122,62 @@ describe("@billing trial length", function () {
     expect(await balanceOf(db!.prisma, a.id)).to.equal(0n);
   });
 
+  it("adds credits to a Trial as Trial credits, ending with the Trial", async () => {
+    const { owner, a } = await trialOwner();
+    const added = await addCredits(
+      db!.prisma,
+      owner,
+      500,
+      DEFAULT_PLANS,
+      at(2),
+      "pilot"
+    );
+    expect(added).to.include({ plan: "trial" });
+    expect(added.expiresAt).to.deep.equal(at(30));
+    expect(await balanceOf(db!.prisma, a.id)).to.equal(credits(1500));
+    await expireDue(db!.prisma, at(31));
+    expect(await balanceOf(db!.prisma, a.id)).to.equal(0n);
+  });
+
+  it("refuses credits for a Trial that ended until it is extended", async () => {
+    const { owner } = await trialOwner();
+    await expireDue(db!.prisma, at(31));
+    const error = await addCredits(
+      db!.prisma,
+      owner,
+      500,
+      DEFAULT_PLANS,
+      at(32)
+    ).catch((e) => e);
+    expect(error).to.be.instanceOf(OperatorError);
+  });
+
+  it("adds credits to Pay-as-you-go like a top-up, mirrored to Stripe", async () => {
+    const { owner, a } = await trialOwner();
+    await db!.prisma.billingAccount.update({
+      where: { id: a.id },
+      data: { plan: "payg" }
+    });
+    const added = await addCredits(
+      db!.prisma,
+      owner,
+      500,
+      DEFAULT_PLANS,
+      at(2),
+      "goodwill"
+    );
+    expect(added.expiresAt).to.deep.equal(new Date("2027-11-03T00:00:00Z"));
+    const topups = (await grantsOf(db!.prisma, a.id)).filter(
+      (g) => g.bucket === "topup"
+    );
+    expect(topups.map((g) => g.remaining)).to.deep.equal([credits(500)]);
+    const outbox = await db!.prisma.stripeOutbox.findMany({
+      where: { accountId: a.id, kind: "credit_grant" }
+    });
+    expect(outbox).to.have.length(1);
+    expect(outbox[0].payload).to.deep.include({ cents: 500, category: "paid" });
+  });
+
   it("refuses to change the Trial of an owner on Pay-as-you-go", async () => {
     const { owner, a } = await trialOwner();
     await db!.prisma.billingAccount.update({
@@ -128,6 +191,6 @@ describe("@billing trial length", function () {
       DEFAULT_PLANS,
       at(1)
     ).catch((e) => e);
-    expect(error).to.be.instanceOf(TrialError);
+    expect(error).to.be.instanceOf(OperatorError);
   });
 });

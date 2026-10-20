@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 export * from "./activeCalls";
+export * from "./addCredits";
 export * from "./admission";
 export * from "./api";
 export * from "./applyUsage";
