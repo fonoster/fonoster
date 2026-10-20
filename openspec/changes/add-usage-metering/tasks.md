@@ -39,8 +39,8 @@
 
 ## 5. Usage API and SDK
 
-- [ ] 5.1 `Usage` service (`src/usage/createGetUsage.ts`, `buildService.ts`, registered in `core/services.ts`, not public): reads `usage_daily`, groups by the requested dimensions, `all_owned` checked against Identity; verify tests: grouping by meter + key source, `PERMISSION_DENIED` for another workspace, owner across two workspaces, no money fields
-- [ ] 5.2 SDK `Usage.getUsage` with docs comment; verify an SDK unit test and the generated reference lists it
+- [x] 5.1 `Usage` service (`src/usage/createGetUsage.ts`, `buildService.ts`, registered in `core/services.ts`, not public): reads `usage_daily`, groups by the requested dimensions, `all_owned` checked against Identity; verify tests: grouping by meter + key source, `PERMISSION_DENIED` for another workspace, owner across two workspaces, no money fields
+- [x] 5.2 SDK `Usage.getUsage` with docs comment; verify an SDK unit test (the hand-written reference, docs-site/reference/sdk.mdx, is updated in 7.3)
 
 ## 6. Dashboard Usage page
 

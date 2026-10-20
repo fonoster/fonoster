@@ -33,6 +33,8 @@ import { getConfig } from "../config";
 import { DOMAIN_NAMES_ROOT, ROUTR_ROOMR_PEER, TRUNK_NAMES_ROOT } from "../envs";
 import { buildProvidersService } from "../providers";
 import { buildSecretsService } from "../secrets";
+import { buildService as buildUsageService } from "../usage/buildService";
+import { UsageSql } from "../usage/types";
 import { createCheckNumberPreconditions } from "../utils";
 import { buildWebhooksService } from "../webhooks";
 import { prisma } from "./db";
@@ -69,6 +71,7 @@ const aclsService = buildAclsService(routrConfig);
 const capabilitiesService = buildCapabilitiesService(getConfig());
 const webhooksService = buildWebhooksService(prisma);
 const providersService = buildProvidersService(prisma);
+const usageService = buildUsageService(prisma as unknown as UsageSql);
 
 const services = Promise.all([
   applicationsService,
@@ -83,7 +86,8 @@ const services = Promise.all([
   domainsService,
   capabilitiesService,
   webhooksService,
-  providersService
+  providersService,
+  usageService
 ]);
 
 export default services;

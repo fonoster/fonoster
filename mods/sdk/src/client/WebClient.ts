@@ -28,6 +28,7 @@ import { NumbersClient } from "../generated/web/NumbersServiceClientPb";
 import { ProvidersClient } from "../generated/web/ProvidersServiceClientPb";
 import { SecretsClient } from "../generated/web/SecretsServiceClientPb";
 import { TrunksClient } from "../generated/web/TrunksServiceClientPb";
+import { UsageClient } from "../generated/web/UsageServiceClientPb";
 import { WebhooksClient } from "../generated/web/WebhooksServiceClientPb";
 import { AbstractClient } from "./AbstractClient";
 import { TokenRefresherWeb } from "./TokenRefresherWeb";
@@ -130,6 +131,12 @@ export class WebClient extends AbstractClient {
 
   getProvidersClient() {
     return new ProvidersClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    });
+  }
+
+  getUsageClient() {
+    return new UsageClient(this.url, null, {
       streamInterceptors: [new TokenRefresherWeb(this)]
     });
   }
