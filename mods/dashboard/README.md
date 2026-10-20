@@ -10,7 +10,6 @@ sign-up, billing and cost display come from the API's `GetCapabilities`.
 npm run dev            # http://localhost:3030, API from public/config.js (Envoy on :8449)
 npm test               # Vitest
 npm run storybook      # stories per state, Community/Cloud and dark/light in the toolbar
-npm run test:storybook # runs every story with an axe check (needs Storybook running or built)
 npm run test:e2e       # Playwright, "community" and "cloud" projects, API mocked
 npm run gen:tokens     # design/tokens.json → src/styles/tokens.css
 ```
