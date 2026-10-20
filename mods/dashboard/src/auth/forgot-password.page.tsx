@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, KeyRound } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
@@ -58,6 +58,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthLayout
+      icon={KeyRound}
       title="Reset your password"
       description="Enter your email and we'll send you a link to choose a new password."
       footer={
@@ -91,6 +92,9 @@ export default function ForgotPasswordPage() {
           <Button type="submit" className={authButton} loading={isSubmitting}>
             Send reset link
           </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            If an account exists for that email, the link arrives in a minute.
+          </p>
         </form>
       )}
     </AuthLayout>

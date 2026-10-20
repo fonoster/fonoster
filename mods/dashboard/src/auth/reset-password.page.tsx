@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Lock } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -111,6 +111,7 @@ function ResetPasswordForm({
 
   return (
     <AuthLayout
+      icon={Lock}
       title="Choose a new password"
       description={`For ${token.username}. You'll sign in with it next time.`}
       footer={footer}

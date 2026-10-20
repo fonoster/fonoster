@@ -378,12 +378,15 @@ describe("create workspace with a region", () => {
 
   it("creates the workspace in the picked region id, no confirm step", async () => {
     const { user, api } = create();
-    await user.type(await screen.findByLabelText("Name"), "Acme Private");
+    await user.type(
+      await screen.findByLabelText("Workspace name"),
+      "Acme Private"
+    );
     await user.click(screen.getByLabelText("Region"));
     await user.click(
       await screen.findByRole("option", { name: "Acme Dallas" })
     );
-    await user.click(screen.getByRole("button", { name: "Create" }));
+    await user.click(screen.getByRole("button", { name: "Create workspace" }));
     await waitFor(() =>
       expect(api.state.created).toEqual([
         { name: "Acme Private", region: "acme-dallas" }

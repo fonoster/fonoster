@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 import { Logo } from "~/components/brand/logo";
 
 /**
@@ -24,11 +24,14 @@ import { Logo } from "~/components/brand/logo";
  * in a near-black card, and the hint line below it.
  */
 export function AuthLayout({
+  icon: Icon,
   title,
   description,
   children,
   footer
 }: {
+  /** A tile above the title, for screens that aren't the sign-in itself. */
+  icon?: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
   title: string;
   description?: ReactNode;
   children: ReactNode;
@@ -40,6 +43,11 @@ export function AuthLayout({
         <Logo />
         <section className="flex w-full flex-col gap-7 rounded-m border border-border bg-card p-6 sm:p-8 dark:border-[#262626] dark:bg-[#0f0f0f] [&_[data-slot=label]]:text-[13px]">
           <div className="flex flex-col items-center gap-2 text-center">
+            {Icon && (
+              <span className="mb-4 flex size-[52px] items-center justify-center rounded-xl border border-border bg-muted dark:border-[#2e2e2e] dark:bg-[#1f1f1f]">
+                <Icon className="size-5 text-foreground" aria-hidden />
+              </span>
+            )}
             <h1 className="text-[26px] font-semibold leading-tight">{title}</h1>
             {description && (
               <p className="font-display text-sm leading-normal text-muted-foreground">

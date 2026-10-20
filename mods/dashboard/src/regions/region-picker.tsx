@@ -16,6 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Lock } from "lucide-react";
+import { authInput } from "~/auth/auth-layout";
+import { Field } from "~/components/ui/field";
 import { Select } from "~/components/ui/select";
 import { useRegions } from "./api";
 import { DEFAULT_REGION, isUsable, type RegionStatus } from "./types";
@@ -37,26 +40,28 @@ export function RegionPicker({
   const { data } = useRegions();
   const regions = data?.length ? data : [DEFAULT_REGION];
   return (
-    <div className="flex flex-col gap-2">
-      <label
-        htmlFor="workspace-region"
-        className="font-display text-sm font-medium"
-      >
-        Region
-      </label>
-      <Select
-        id="workspace-region"
-        value={value}
-        onValueChange={onChange}
-        options={regions.map((r) => ({
-          value: r.id,
-          label: `${r.displayName}${SUFFIX[r.status] ?? ""}`,
-          disabled: !isUsable(r)
-        }))}
-      />
-      <p className="font-display text-xs text-muted-foreground">
-        You can't change the region later.
-      </p>
-    </div>
+    <Field
+      label="Region"
+      hint={
+        <span className="flex items-center gap-1.5">
+          <Lock className="size-3" aria-hidden /> You can't change the region
+          later.
+        </span>
+      }
+    >
+      {(a11y) => (
+        <Select
+          {...a11y}
+          className={authInput}
+          value={value}
+          onValueChange={onChange}
+          options={regions.map((r) => ({
+            value: r.id,
+            label: `${r.displayName}${SUFFIX[r.status] ?? ""}`,
+            disabled: !isUsable(r)
+          }))}
+        />
+      )}
+    </Field>
   );
 }
