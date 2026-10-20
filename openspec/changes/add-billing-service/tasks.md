@@ -5,13 +5,13 @@
 
 ## 1. Admission hooks
 
-- [ ] 1.1 `authz.proto`: `string reason = 2` on `CheckSessionAuthorizedResponse`; `AuthzHandler.checkSessionAuthorized` returns `{authorized, reason?}`; Dummy answers `{authorized: true}`; verify old clients still decode the response
-- [ ] 1.2 AppBridge: admission after the test-call check (`AppBridge.ts`), 500 ms timeout admits and logs, refusal records `call.failed` with the reason and rejects 402/503; verify tests for each outcome with a fake Authz server
-- [ ] 1.3 apiserver `CreateCall`: admission before any SIP, `FAILED_PRECONDITION` with the reason; verify tests
+- [x] 1.1 `authz.proto`: `string reason = 2` on `CheckSessionAuthorizedResponse`; `AuthzHandler.checkSessionAuthorized` returns `{authorized, reason?}`; Dummy answers `{authorized: true}`; verify old clients still decode the response
+- [x] 1.2 AppBridge: admission after the test-call check (`AppBridge.ts`), 500 ms timeout admits and logs, refusal records `call.failed` with the reason and rejects 402/503; verify tests for each outcome with a fake Authz server
+- [x] 1.3 apiserver `CreateCall`: admission before any SIP, `FAILED_PRECONDITION` with the reason; verify tests
 
 ## 2. Usage feed
 
-- [ ] 2.1 `usage_events.published_at` migration and the publisher loop on `FONOSTER_USAGE_RECORDED` (`Nats-Msg-Id` = usage id), only with billing on; verify the restart scenario with the NATS harness and that nothing is published with billing off
+- [x] 2.1 `usage_events.published_at` migration and the publisher loop on `FONOSTER_USAGE_RECORDED` (`Nats-Msg-Id` = usage id), only with billing on; verify the restart scenario with the NATS harness and that nothing is published with billing off
 
 ## 3. Service skeleton and ledger
 

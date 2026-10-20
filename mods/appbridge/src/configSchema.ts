@@ -243,6 +243,12 @@ export const appBridgeConfigSchema = z.object({
   encryption: z.object({ key: z.string() }).optional(),
   telemetry: z.object({ otlpEndpoint: z.string().optional() }).optional(),
   testCalls: z.object({ publicKeyFile: z.string().optional() }).optional(),
+  authz: z
+    .object({
+      address: z.string().min(1),
+      timeoutMs: z.number().int().positive().optional()
+    })
+    .optional(),
   audioFilters: z.record(z.record(z.unknown())).optional()
 });
 

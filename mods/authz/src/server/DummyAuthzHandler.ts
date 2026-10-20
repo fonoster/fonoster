@@ -21,14 +21,17 @@ import {
   AddBillingMeterEventRequest,
   AuthzHandler,
   CheckMethodAuthorizedRequest,
+  SessionDecision,
   VoiceRequest
 } from "../types";
 const logger = getLogger({ service: "authz", filePath: __filename });
 
 class DummyAuthzHandler implements AuthzHandler {
-  async checkSessionAuthorized(request: VoiceRequest): Promise<boolean> {
+  async checkSessionAuthorized(
+    request: VoiceRequest
+  ): Promise<SessionDecision> {
     logger.verbose("checkSessionAuthorized called", request);
-    return true;
+    return { authorized: true };
   }
 
   async checkMethodAuthorized(

@@ -35,6 +35,7 @@ import {
   AUTHZ_SERVICE_HOST,
   AUTHZ_SERVICE_METHODS,
   AUTHZ_SERVICE_PORT,
+  BILLING_ENABLED,
   CALL_RECORDS,
   DOMAIN,
   HTTP_BRIDGE_PORT,
@@ -62,6 +63,7 @@ import {
   identityFromHandlers,
   SESSION_PATH
 } from "../session";
+import { runRecordedUsagePublisher } from "../usage/publishRecordedUsage";
 import { attachUsagePublisher } from "../usage/publishUsage";
 import { runUsageConsumer } from "../usage/runUsageConsumer";
 import { runStorageSnapshots } from "../usage/snapshotStorage";
@@ -174,6 +176,11 @@ async function runServices() {
     db: prisma as unknown as UsageDb,
     directory: () => workspaceRegionHooks.directory()
   });
+  if (BILLING_ENABLED)
+    await runRecordedUsagePublisher({
+      nc: bus,
+      db: prisma as unknown as UsageDb
+    });
   runStorageSnapshots({
     db: prisma as unknown as UsageDb,
     directory: () => workspaceRegionHooks.directory()

@@ -34,10 +34,23 @@ import { CallPlacementError, CallPublisher } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
+/**
+ * Asks whether an outbound call may start (add-billing-service D7). A refusal names its reason;
+ * an unanswered or failed check admits the call.
+ */
+type AdmitCall = (request: {
+  callRef: string;
+  appRef: string;
+  accessKeyId: string;
+  from: string;
+  to: string;
+}) => Promise<{ authorized: boolean; reason?: string }>;
+
 function createCall(
   prisma: Prisma,
   publisher: CallPublisher,
-  isWorkspaceNumber: IsWorkspaceNumber
+  isWorkspaceNumber: IsWorkspaceNumber,
+  admitCall?: AdmitCall
 ) {
   const fn = async (
     call: {
@@ -73,6 +86,26 @@ function createCall(
         message: `The number ${from} is not a Number of this workspace`
       });
       return;
+    }
+
+    // Admission before any SIP (voice-session, "Calls are admitted before they start").
+    if (admitCall) {
+      const decision = await admitCall({
+        callRef: ref,
+        appRef,
+        accessKeyId,
+        from,
+        to
+      });
+      if (!decision.authorized) {
+        const reason = decision.reason ?? "not_authorized";
+        logger.info("call refused", { ref, reason });
+        callback({
+          code: status.FAILED_PRECONDITION,
+          message: `The call was refused: ${reason}`
+        });
+        return;
+      }
     }
 
     // Placement answers once a Roomr node has accepted the call, so a call with no capacity
@@ -112,4 +145,4 @@ function createCall(
   return withErrorHandlingAndValidation(fn, V.createCallRequestSchema);
 }
 
-export { createCall };
+export { AdmitCall, createCall };

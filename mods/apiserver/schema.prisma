@@ -519,6 +519,8 @@ model UsageEvent {
   keySource    String?  @map("key_source") @db.VarChar(16)
   occurredAt   DateTime @map("occurred_at") @db.Timestamptz(3)
   recordedAt   DateTime @default(now()) @map("recorded_at") @db.Timestamptz(3)
+  /// Set once the billing outbox published the event (add-billing-service D2); null until then.
+  publishedAt  DateTime? @map("published_at") @db.Timestamptz(3)
 
   @@index([workspaceRef, occurredAt])
   @@index([callRef])

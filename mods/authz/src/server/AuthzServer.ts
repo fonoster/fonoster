@@ -34,17 +34,20 @@ const logger = getLogger({ service: "authz", filePath: __filename });
 
 class AuthzServer {
   config: ServerConfig;
+  private server?: grpc.Server;
 
   constructor(config: ServerConfig = defaultServerConfig) {
     this.config = merge(defaultServerConfig, config);
   }
 
-  async listen(handler: AuthzHandler) {
+  /** Serves the handler; resolves with the bound port (undefined if binding failed). */
+  async listen(handler: AuthzHandler): Promise<number | undefined> {
     try {
       const healthImpl = new HealthImplementation(statusMap);
       const credentials = await getServerCredentials({});
 
       const server: grpc.Server = new grpc.Server();
+      this.server = server;
 
       server.addService(serviceDefinition, {
         checkSessionAuthorized: async (
@@ -59,10 +62,13 @@ class AuthzServer {
           });
 
           try {
-            const authorized = await handler.checkSessionAuthorized(
-              call.request
+            const decision = await handler.checkSessionAuthorized(call.request);
+            callback(
+              null,
+              typeof decision === "boolean"
+                ? { authorized: decision }
+                : { authorized: decision.authorized, reason: decision.reason }
             );
-            callback(null, { authorized });
           } catch (error) {
             logger.error("error in checkSessionAuthorized:", error);
             callback({
@@ -123,17 +129,26 @@ class AuthzServer {
 
       const bindAddr = `${this.config.bind}:${this.config.port}`;
 
-      server.bindAsync(bindAddr, credentials, async (err, port) => {
-        if (err) {
-          logger.error("Failed to bind server:", err);
-          return;
-        }
-        healthImpl.setStatus("", GRPC_SERVING_STATUS);
-        logger.info(`Authz server started at ${this.config.bind}:${port}`);
-      });
+      return await new Promise<number | undefined>((resolve) =>
+        server.bindAsync(bindAddr, credentials, async (err, port) => {
+          if (err) {
+            logger.error("Failed to bind server:", err);
+            return resolve(undefined);
+          }
+          healthImpl.setStatus("", GRPC_SERVING_STATUS);
+          logger.info(`Authz server started at ${this.config.bind}:${port}`);
+          resolve(port);
+        })
+      );
     } catch (err) {
       logger.error("Error starting AuthzServer:", err);
+      return undefined;
     }
+  }
+
+  /** Stops serving at once. */
+  close() {
+    this.server?.forceShutdown();
   }
 }
 

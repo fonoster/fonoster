@@ -20,6 +20,7 @@ export * from "./amd/AmdListener";
 export * from "./audio/pcm";
 export * from "./config";
 export * from "./AppBridge";
+export * from "./admission";
 export * from "./media/MediaControl";
 export * from "./media/RtpLink";
 export * from "./record/CallRecordSink";

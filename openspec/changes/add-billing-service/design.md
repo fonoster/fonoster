@@ -56,13 +56,18 @@ there; it also needs different scaling (the admission check is hot) and differen
 
 `usage_events` gains `published_at` (null until published). In the same transaction as the insert,
 nothing changes; a publisher loop in the apiserver reads unpublished rows in `recorded_at` order,
-publishes each on `usage.recorded.<ownerRef>` to stream `FONOSTER_USAGE_RECORDED` with the usage id
+publishes each on `billing.usage.<ownerRef>` to stream `FONOSTER_USAGE_RECORDED` (not under `usage.>`, which
+`FONOSTER_USAGE` owns) with the usage id
 as `Nats-Msg-Id` (JetStream deduplication), and sets `published_at`. It runs only when
 `features.billing.enabled` is true.
 
 Billing consumes the stream durably and stores each event once (`rated_lines` is keyed by usage
 id). A crash between publish and marking only republishes; deduplication and the key make that
 harmless.
+
+When billing is first turned on, all stored usage is unpublished and goes out once. Billing rates
+only usage that happened after the account's billing started; earlier usage is stored as not
+billable with reason `before_billing`.
 
 Alternatives: billing reading `usage_events` directly (breaks "one owner per store"); a cursor RPC
 over a sequence column (sequences are not commit-ordered, so a cursor can skip rows).

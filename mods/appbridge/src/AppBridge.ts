@@ -33,6 +33,13 @@ import {
 import { IdentityClient } from "@fonoster/identity-client";
 import { getLogger } from "@fonoster/logger";
 import { connect, NatsConnection, StringCodec, Subscription } from "nats";
+import {
+  Admission,
+  ADMISSION_TIMEOUT_MS,
+  admit,
+  grpcAdmission,
+  refusalStatus
+} from "./admission";
 import { AmdClassifier, loadAmdClassifier } from "./amd/AmdListener";
 import { AppStore, YamlAppStore } from "./apps/AppStore";
 import { AppBridgeConfig, AppConfig, validateConfig } from "./config";
@@ -89,6 +96,8 @@ export type AppBridgeOptions = {
   sessions?: boolean | string;
   /** Gives up an unanswered outbound call after this long (default OUTBOUND_ANSWER_TIMEOUT_MS). */
   outboundAnswerTimeoutMs?: number;
+  /** Asked before a call starts (default: the config's `authz` service; none admits every call). */
+  admission?: Admission;
 };
 
 /** AppBridges announce themselves here every 5 s (counted by a private region's agent). */
@@ -152,6 +161,14 @@ export class AppBridge {
   private readonly testCalls = new TestCallVerifier(
     this.options.config.testCalls?.publicKeyFile
   );
+  private readonly admission?: Admission =
+    this.options.admission ??
+    (this.options.config.authz
+      ? grpcAdmission(
+          this.options.config.authz.address,
+          this.options.config.authz.timeoutMs
+        )
+      : undefined);
 
   get config() {
     return this.options.config;
@@ -277,6 +294,7 @@ export class AppBridge {
     await new Promise<void>((r) =>
       this.server ? this.server.close(() => r()) : r()
     );
+    this.admission?.close?.();
     if (this.ownsNats) await this.nc?.drain();
   }
 
@@ -459,6 +477,50 @@ export class AppBridge {
       return call.reject(403);
     }
     if (test.test) call.origin = "browser_test";
+    // Admission before the caller hears ringing (add-billing-service D7).
+    if (this.admission) {
+      const decision = await admit(
+        this.admission,
+        {
+          callRef: info.callRef,
+          appRef: app.ref,
+          workspaceRef: app.workspaceRef ?? "",
+          direction: "inbound",
+          origin: test.test ? "browser_test" : "call",
+          from: info.from,
+          to
+        },
+        this.options.config.authz?.timeoutMs ?? ADMISSION_TIMEOUT_MS
+      );
+      if (decision.failed)
+        logger.warn(
+          `call ${info.callRef}: admitted without an answer from authorization (${decision.failed})`
+        );
+      if (!decision.authorized) {
+        const reason = decision.reason ?? "not_authorized";
+        logger.info(`call ${info.callRef}: refused (${reason})`);
+        call.record("event", {
+          type: "call.started",
+          direction: "inbound",
+          appRef: app.ref,
+          workspaceRef: app.workspaceRef ?? null,
+          from: info.from,
+          to
+        });
+        call.record("event", { type: "call.failed", reason });
+        this.webhooks?.(
+          Webhooks.callFailed(app.workspaceRef ?? "default", {
+            callRef: info.callRef,
+            appRef: app.ref,
+            from: info.from,
+            to,
+            direction: "inbound",
+            reason
+          })
+        );
+        return call.reject(refusalStatus(decision.reason));
+      }
+    }
     // The caller hears ringing while the app is dialed (media-control, "Ringing before answer").
     void call
       .mediaCommand({ type: "ring", participantRef: info.callerRef })
