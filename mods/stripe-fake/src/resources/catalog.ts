@@ -192,7 +192,9 @@ export const catalogRoutes: Route[] = [
           "price",
           (p) =>
             (!body.product || p.product === body.product) &&
-            (body.active === undefined || String(p.active) === body.active)
+            (body.active === undefined || String(p.active) === body.active) &&
+            (!body.lookup_keys ||
+              Object.values(body.lookup_keys as object).includes(p.lookup_key))
         ),
         body
       )

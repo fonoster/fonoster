@@ -419,6 +419,23 @@ describe("@stripe-fake", function () {
     expect(ok.unit_amount).to.equal(2500);
   });
 
+  it("finds prices by lookup key", async () => {
+    const product = await stripe.products.create({ name: "Plan" });
+    await stripe.prices.create({
+      product: product.id,
+      currency: "usd",
+      unit_amount: 2500,
+      lookup_key: "plan_payg"
+    });
+    await stripe.prices.create({
+      product: product.id,
+      currency: "usd",
+      unit_amount: 100
+    });
+    const found = await stripe.prices.list({ lookup_keys: ["plan_payg"] });
+    expect(found.data.map((p) => p.unit_amount)).to.deep.equal([2500]);
+  });
+
   it("refunds part of a payment", async () => {
     const customer = await stripe.customers.create();
     const intent = await stripe.paymentIntents.create({
