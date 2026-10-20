@@ -10,7 +10,7 @@ COPY package.json package-lock.json lerna.json tsconfig.json ./
 COPY mods/stripe-fake ./mods/stripe-fake
 RUN --mount=type=cache,target=/root/.npm \
     npm install --workspace @fonoster/stripe-fake --include-workspace-root --ignore-scripts --no-audit --no-fund
-RUN (cd mods/stripe-fake && npx tsc -b) \
+RUN (cd mods/stripe-fake && npx tsc -b && npx vite build --config viewer/vite.config.ts --logLevel warn) \
   && npm prune --omit=dev --workspace @fonoster/stripe-fake --include-workspace-root
 
 FROM node:22-slim

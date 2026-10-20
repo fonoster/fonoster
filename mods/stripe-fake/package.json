@@ -14,7 +14,9 @@
   },
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json",
+    "build": "tsc -b tsconfig.json && vite build --config viewer/vite.config.ts --logLevel warn",
+    "dev:viewer": "vite --config viewer/vite.config.ts",
+    "test:viewer": "playwright test --config viewer/playwright.config.ts",
     "extract:openapi": "tsx scripts/extract-openapi.ts"
   },
   "dependencies": {
@@ -26,7 +28,8 @@
   },
   "files": [
     "dist",
-    "spec"
+    "spec",
+    "viewer/dist"
   ],
   "repository": {
     "type": "git",
@@ -36,7 +39,19 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "devDependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/source-code-pro": "^5.3.1",
+    "@playwright/test": "^1.64.1",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/ws": "^8.5.12",
+    "@vitejs/plugin-react": "^5.2.0",
+    "lucide-react": "^0.540.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "stripe": "^23.0.0",
-    "@types/ws": "^8.5.12"
+    "tailwindcss": "^4.3.3",
+    "vite": "^6.4.4"
   }
 }

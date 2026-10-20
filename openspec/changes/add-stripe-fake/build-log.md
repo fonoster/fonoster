@@ -50,3 +50,24 @@ The nightly sandbox run (add-billing-service, task 7.3) settles these:
 
 - Pencil only reads a `.pen` file open in the app, and `designs/stripe-fake.pen` was not open. The
   server already serves a viewer directory and the `/_fake/ws` live feed; the Vite app comes next.
+
+### SF7. The viewer (7.1)
+
+- `mods/stripe-fake/viewer`: React 19, Vite 6 and Tailwind 4 like the dashboard, built into
+  `viewer/dist` and served at `/`. Hash routes (`#/webhooks`), so the server's fallback to
+  `index.html` is enough.
+- Live: one `GET /_fake/state`, then again after each change on `/_fake/ws` (debounced 80 ms). A
+  dot next to the host shows whether the feed is connected.
+- `/_fake/state` gained `balances` (per customer: usable promotional and paid credits) and
+  `grantRemaining`, computed with the fake's own credit rules, and `prices`, to tell usage lines
+  from the plan. The viewer repeats no Stripe rule.
+- Look (owner, 2026-10-20): Stripe-like, blurple `#635BFF`, Inter with monospace for ids, a
+  "stripe fake" wordmark, and a light/dark switch remembered per browser (the first visit follows
+  the system). Dark is neutral charcoal (`#14171D`), not Stripe's marketing navy.
+- Differences from the frames: the design shows one customer's data; with several customers the
+  Customers screen lists them all and the controls act on the one selected. Meters have no unit in
+  Stripe, so the column shows the meter's display name. "Sample data" notes are gone.
+- Playwright (`npm run test:viewer -w mods/stripe-fake`, after a build): the two spec scenarios
+  and the theme switch, each against a real fake on a free port.
+- Root ESLint skips `viewer/**` like the dashboard: its rules assume Node globals.
+

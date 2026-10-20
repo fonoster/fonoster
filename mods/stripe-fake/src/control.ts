@@ -19,6 +19,7 @@
 import { StripeError } from "./errors";
 import { Json, PaymentOutcome, StripeFake } from "./fake";
 import { advance, resetBilling } from "./resources/billing";
+import { remaining, usable } from "./resources/credits";
 
 const OUTCOMES: PaymentOutcome[] = [
   "succeed",
@@ -144,13 +145,38 @@ export async function control(
   }
 }
 
+/** What each customer's grants can pay now, by category, in cents (1 credit = 1 cent). */
+function balances(fake: StripeFake): Json {
+  return Object.fromEntries(
+    fake.all("customer").map((c) => {
+      const at = fake.now(fake.clockOf(c.id as string));
+      const usableGrants = fake.all(
+        "billing.credit_grant",
+        (g) => g.customer === c.id && usable(g, at)
+      );
+      const sum = (category: string) =>
+        usableGrants
+          .filter((g) => g.category === category)
+          .reduce((n, g) => n + remaining(fake, g), 0);
+      const promotional = sum("promotional");
+      const paid = sum("paid");
+      return [c.id, { promotional, paid, available: promotional + paid }];
+    })
+  );
+}
+
 /** Everything the viewer shows (D7). */
 export function state(fake: StripeFake): Json {
   const by = (object: string) => fake.all(object);
   return {
+    balances: balances(fake),
+    grantRemaining: Object.fromEntries(
+      by("billing.credit_grant").map((g) => [g.id, remaining(fake, g)])
+    ),
     now: fake.now(),
     clocks: by("test_helpers.test_clock"),
     customers: by("customer"),
+    prices: by("price"),
     paymentMethods: by("payment_method"),
     subscriptions: by("subscription"),
     invoices: by("invoice"),

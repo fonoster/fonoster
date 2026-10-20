@@ -1,0 +1,56 @@
+@import "tailwindcss";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/800.css";
+@import "@fontsource/source-code-pro/400.css";
+
+/* designs/stripe-fake.pen: the sf-* tokens, light and dark. */
+:root,
+[data-theme="light"] {
+  --sf-bg: #f6f9fc;
+  --sf-surface: #ffffff;
+  --sf-muted: #eeedff;
+  --sf-border: #e3e8ee;
+  --sf-text: #0a2540;
+  --sf-text-muted: #596171;
+  --sf-accent: #635bff;
+  --sf-on-accent: #ffffff;
+  --sf-danger: #df1b41;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --sf-bg: #14171d;
+  --sf-surface: #1b1f27;
+  --sf-muted: #272c38;
+  --sf-border: #2c313c;
+  --sf-text: #e6e8ec;
+  --sf-text-muted: #8c93a1;
+  --sf-accent: #857fff;
+  --sf-on-accent: #ffffff;
+  --sf-danger: #ff7a8f;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--sf-bg);
+  --color-surface: var(--sf-surface);
+  --color-muted: var(--sf-muted);
+  --color-border: var(--sf-border);
+  --color-text: var(--sf-text);
+  --color-text-muted: var(--sf-text-muted);
+  --color-accent: var(--sf-accent);
+  --color-on-accent: var(--sf-on-accent);
+  --color-danger: var(--sf-danger);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Source Code Pro", ui-monospace, monospace;
+}
+
+body {
+  margin: 0;
+  background: var(--sf-bg);
+  color: var(--sf-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
