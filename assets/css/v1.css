@@ -3062,8 +3062,25 @@ section[id] {
   width: 16px;
   height: 16px;
 }
+.rprice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+.rprice__copy {
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  text-align: center;
+}
+.rprice .rplan {
+  max-width: 520px;
+}
 .rplan .plan__amount {
-  font-size: 34px;
+  font-size: 48px;
   letter-spacing: -0.02em;
 }
 .rplan .plan__per {
@@ -3216,9 +3233,6 @@ section[id] {
     height: 1px;
     margin: 0 24px;
     background: repeating-linear-gradient(to right, var(--text-4) 0 6px, transparent 6px 12px);
-  }
-  .split--plan {
-    align-items: stretch;
   }
 }
 
