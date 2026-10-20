@@ -29125,7 +29125,7 @@
                               "id": "Nq1qX",
                               "name": "claro.acme.sip.fonoster.",
                               "fill": "$ui:--muted-foreground",
-                              "content": "claro.acme.sip.fonoster.io",
+                              "content": "claro.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -29290,7 +29290,7 @@
                               "id": "IVe7b",
                               "name": "altice.acme.sip.fonoster",
                               "fill": "$ui:--muted-foreground",
-                              "content": "altice.acme.sip.fonoster.io",
+                              "content": "altice.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -29455,7 +29455,7 @@
                               "id": "msCb9",
                               "name": "telnyx.acme.sip.fonoster",
                               "fill": "$ui:--muted-foreground",
-                              "content": "telnyx.acme.sip.fonoster.io",
+                              "content": "telnyx.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -29597,7 +29597,7 @@
                               "id": "PSNRg",
                               "name": "twilio.acme.sip.fonoster",
                               "fill": "$ui:--muted-foreground",
-                              "content": "twilio.acme.sip.fonoster.io",
+                              "content": "twilio.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -30023,11 +30023,21 @@
                                         {
                                           "type": "text",
                                           "id": "QRXul",
-                                          "name": "claro.acme.sip.fonoster.",
+                                          "name": "Label",
                                           "fill": "$ui:--foreground",
                                           "textGrowth": "fixed-width",
                                           "width": "fill_container",
-                                          "content": "claro.acme.sip.fonoster.io",
+                                          "content": "claro",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "v8yRj",
+                                          "name": "Suffix",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": ".sip.fonoster.com",
                                           "fontFamily": "$ui:--font-primary",
                                           "fontSize": 13,
                                           "fontWeight": "normal"
