@@ -29,7 +29,14 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { expect } from "chai";
-import { connect, NatsConnection, StringCodec } from "nats";
+import {
+  AckPolicy,
+  connect,
+  NatsConnection,
+  RetentionPolicy,
+  StorageType,
+  StringCodec
+} from "nats";
 import { natsInboxPrefix, Sessions } from "@fonoster/common";
 
 const ROOT = path.join(__dirname, "..", "..", "..");
@@ -444,6 +451,38 @@ describe("@conformance/nats permissions (per-service users)", function () {
       () => false
     );
     expect(deleted).to.equal(false);
+  });
+
+  it("lets the control plane store usage from its own FONOSTER_USAGE stream", async function () {
+    // The apiserver's usage consumer (add-usage-metering D5): creates the work-queue stream and
+    // its durable consumer, publishes usage outside a call and takes it back to store it.
+    const jsm = await api.jetstreamManager({ checkAPI: false });
+    await jsm.streams.add({
+      name: "FONOSTER_USAGE",
+      subjects: ["usage.>"],
+      retention: RetentionPolicy.Workqueue,
+      storage: StorageType.Memory
+    });
+    await jsm.consumers.add("FONOSTER_USAGE", {
+      durable_name: "apiserver-usage",
+      ack_policy: AckPolicy.Explicit,
+      filter_subject: "usage.>"
+    });
+    api.publish("usage.WO1.tts.characters", sc.encode('{"id":"usg_1"}'));
+    await api.flush();
+    const consumer = await api
+      .jetstream()
+      .consumers.get("FONOSTER_USAGE", "apiserver-usage");
+    const m = await consumer.next({ expires: 5000 });
+    expect(m && sc.decode(m.data)).to.equal('{"id":"usg_1"}');
+    m!.ack();
+    // AppBridge reports call usage in the sealed record, not here.
+    const gwJsm = await gw.jetstreamManager({ checkAPI: false });
+    const seen = await gwJsm.streams.info("FONOSTER_USAGE").then(
+      () => true,
+      () => false
+    );
+    expect(seen).to.equal(false);
   });
 
   it("gives the Roomr node core NATS only: no session registry and no JetStream", async function () {
