@@ -24,8 +24,7 @@ import { Terminal } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { cn } from "~/lib/utils";
 
-export const CLI_COMMAND =
-  "npx @fonoster/ctl applications:create -f agent.yaml";
+export const CLI_COMMAND = "fonoster applications:create -f agent.yaml";
 
 /** A titled card section of a detail page (14/500 title, 12 muted subtitle). */
 export function Panel({
