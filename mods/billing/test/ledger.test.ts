@@ -144,7 +144,11 @@ describe("@billing ledger", function () {
     expect(await balanceOf(db!.prisma, a.id)).to.equal(credits(900));
     // The old grant is empty; the carried one outlives the Trial's 30 days, through the grace.
     expect(await expireGrants(db!.prisma, a.id, PERIOD_END)).to.equal(0);
-    expect(await left(a.id)).to.deep.equal({ trial: 900 });
+    const trials = (await grantsOf(db!.prisma, a.id))
+      .filter((g) => g.bucket === "trial")
+      .map((g) => Number(g.remaining) / 1000)
+      .sort((x, y) => x - y);
+    expect(trials).to.deep.equal([0, 900]);
     expect(await expireGrants(db!.prisma, a.id, GRACE_END)).to.equal(1);
     expect(await balanceOf(db!.prisma, a.id)).to.equal(0n);
   });
