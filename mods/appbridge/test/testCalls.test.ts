@@ -77,13 +77,17 @@ describe("@appbridge test calls (add-talk-in-browser)", function () {
 
     it("passes calls without a token", function () {
       expect(new TestCallVerifier().check({}, "WO-A")).to.deep.equal({
-        ok: true
+        ok: true,
+        test: false
       });
     });
 
     it("accepts a token of the app's workspace (header name in any case)", function () {
       const v = new TestCallVerifier(keyFile);
-      expect(v.check(headers(token()), "WO-A").ok).to.equal(true);
+      expect(v.check(headers(token()), "WO-A")).to.deep.equal({
+        ok: true,
+        test: true
+      });
       expect(v.check({ "x-connect-token": token() }, "WO-A").ok).to.equal(true);
       // YAML apps have no workspace: the signature is enough.
       expect(v.check(headers(token()), undefined).ok).to.equal(true);

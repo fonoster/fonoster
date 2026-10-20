@@ -27,8 +27,22 @@ export type ChatMessage =
   | { role: "assistant"; content: string; tool_calls?: ToolCall[] }
   | { role: "tool"; tool_call_id: string; content: string };
 
+/** Token counts as the vendor reports them for one request (add-usage-metering). */
+export type TokenUsage = {
+  inputTokens: number;
+  outputTokens: number;
+  /** Input tokens served from the vendor's prompt cache (part of inputTokens). */
+  cachedTokens: number;
+};
+
+/**
+ * A stream ends with at most one `usage` chunk, after the text and tool calls, when the vendor
+ * reports usage. Its absence means the vendor reported none (or the stream was cut short).
+ */
 export type ThinkChunk =
-  { type: "text"; text: string } | { type: "tool_calls"; calls: ToolCall[] };
+  | { type: "text"; text: string }
+  | { type: "tool_calls"; calls: ToolCall[] }
+  | { type: "usage"; usage: TokenUsage };
 
 export type ToolSpec = {
   name: string;

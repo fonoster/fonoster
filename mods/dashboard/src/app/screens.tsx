@@ -34,6 +34,7 @@ export const SCREENS: Record<string, LazyExoticComponent<ComponentType>> = {
   secrets: lazy(() => import("~/secrets")),
   "api-keys": lazy(() => import("~/api-keys")),
   settings: lazy(() => import("~/settings")),
+  usage: lazy(() => import("~/usage")),
   numbers: lazy(() => import("~/numbers")),
   trunks: lazy(() => import("~/trunks")),
   domains: lazy(() => import("~/domains")),

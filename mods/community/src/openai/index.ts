@@ -23,6 +23,7 @@ import {
   ThinkChunk,
   ThinkError,
   ThinkProvider,
+  TokenUsage,
   ToolCall,
   ToolSpec
 } from "../llm";
@@ -58,6 +59,8 @@ export class OpenAiCompatibleThink implements Think {
     const body = {
       model: this.model,
       stream: true,
+      // The final chunk carries the request's token usage (add-usage-metering D6).
+      stream_options: { include_usage: true },
       temperature: this.options.temperature,
       max_tokens: this.options.maxTokens,
       messages: messages.map(toOpenAi),
@@ -103,6 +106,7 @@ export class OpenAiCompatibleThink implements Think {
       );
 
     const calls = new Map<number, ToolCall>();
+    let usage: TokenUsage | undefined;
     const decoder = new TextDecoder();
     let buffer = "";
     const reader = res.body.getReader();
@@ -127,7 +131,9 @@ export class OpenAiCompatibleThink implements Think {
         if (!line.startsWith("data:")) continue;
         const data = line.slice(5).trim();
         if (data === "[DONE]") continue;
-        const delta = JSON.parse(data).choices?.[0]?.delta ?? {};
+        const parsed = JSON.parse(data);
+        if (parsed.usage) usage = toTokenUsage(parsed.usage);
+        const delta = parsed.choices?.[0]?.delta ?? {};
         if (delta.content) yield { type: "text", text: delta.content };
         for (const tc of delta.tool_calls ?? []) {
           const call = calls.get(tc.index) ?? {
@@ -142,7 +148,21 @@ export class OpenAiCompatibleThink implements Think {
       }
     }
     if (calls.size) yield { type: "tool_calls", calls: [...calls.values()] };
+    if (usage) yield { type: "usage", usage };
   }
+}
+
+/** OpenAI's usage object as TokenUsage; cached tokens are optional in OpenAI-compatible APIs. */
+function toTokenUsage(u: {
+  prompt_tokens?: number;
+  completion_tokens?: number;
+  prompt_tokens_details?: { cached_tokens?: number };
+}): TokenUsage {
+  return {
+    inputTokens: u.prompt_tokens ?? 0,
+    outputTokens: u.completion_tokens ?? 0,
+    cachedTokens: u.prompt_tokens_details?.cached_tokens ?? 0
+  };
 }
 
 function toOpenAi(m: ChatMessage) {

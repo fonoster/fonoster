@@ -23,7 +23,8 @@ import {
   calls,
   grpcError,
   numbers,
-  struct
+  struct,
+  usage
 } from "./grpc-web";
 
 test.use({ variant: "community" });
@@ -283,4 +284,66 @@ test.skip("lists calls, filters by status on the server and opens one", async ({
   ).toBeVisible();
   await expect(page.getByText("Answered by human")).toBeVisible();
   await expect(page.getByRole("region", { name: "Cost" })).toHaveCount(0);
+});
+
+test("shows the workspace's usage with no money in a community install", async ({
+  page,
+  api
+}) => {
+  const row = (
+    meter: string,
+    quantity: number,
+    fields: Record<string, string> = {}
+  ) => {
+    const r = new usage.UsageRow();
+    r.setMeter(meter);
+    r.setQuantity(quantity);
+    r.setOrigin(fields.origin ?? "call");
+    if (fields.provider) r.setProvider(fields.provider);
+    if (fields.model) r.setModel(fields.model);
+    if (fields.keySource) r.setKeySource(fields.keySource);
+    return r;
+  };
+  api
+    .on("Identity/ExchangeCredentials", () => tokens(ada))
+    .on("Usage/GetUsage", () => {
+      const response = new usage.GetUsageResponse();
+      response.setRowsList([
+        row("call.seconds", 77_040),
+        row("call.seconds", 5_760, { origin: "browser_test" }),
+        row("stt.seconds", 21_840, {
+          provider: "deepgram",
+          model: "deepgram/nova-3",
+          keySource: "workspace"
+        }),
+        row("tts.characters", 182_400, {
+          provider: "elevenlabs",
+          model: "elevenlabs/rachel",
+          keySource: "platform"
+        })
+      ]);
+      return response;
+    });
+
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(ada.email);
+  await page.getByLabel("Password", { exact: true }).fill("pw");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("link", { name: /Acme Support/ }).click();
+  await page.getByRole("link", { name: "Usage", exact: true }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "Usage", exact: true })
+  ).toBeVisible();
+  await expect(page.getByText("1,284")).toBeVisible();
+  const table = page.getByRole("table", { name: "AI usage" });
+  await expect(
+    table.getByRole("row", { name: /deepgram\/nova-3/ }).getByText("Your key")
+  ).toBeVisible();
+  await expect(
+    table
+      .getByRole("row", { name: /elevenlabs\/rachel/ })
+      .getByText("Fonoster key")
+  ).toBeVisible();
+  await expect(page.getByText(/\$|price|balance/i)).toHaveCount(0);
 });

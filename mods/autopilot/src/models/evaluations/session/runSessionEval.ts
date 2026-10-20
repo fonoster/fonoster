@@ -40,6 +40,8 @@ export type RunSessionEvalOptions = Omit<
   testTextSimilarity?: SessionEvalOptions["testTextSimilarity"];
   /** The judge's key (the testCases model is always OpenAI). */
   evaluationApiKey?: string;
+  /** Meters the judge's tokens (add-usage-metering). */
+  judgeUsage?: Parameters<typeof createTestTextSimilarity>[2];
 };
 
 /**
@@ -74,7 +76,8 @@ export async function runSessionEval(
         model: testCases.evalsLanguageModel.model,
         apiKey: options.evaluationApiKey ?? testCases.evalsLanguageModel.apiKey
       },
-      testCases.evalsSystemPrompt || textSimilaryPrompt
+      testCases.evalsSystemPrompt || textSimilaryPrompt,
+      options.judgeUsage
     );
   const reports: SessionScenarioReport[] = [];
   for (const scenario of testCases.scenarios as EvalScenario[]) {

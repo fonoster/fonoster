@@ -39,6 +39,8 @@ export type ProviderBehavior = {
   delayMs?: number;
   failNext?: ProviderFailure;
   script?: Record<string, unknown>[];
+  /** LLM only: leave out the usage report, as a vendor that reports no usage would. */
+  omitUsage?: boolean;
 };
 
 export type Providers = {

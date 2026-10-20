@@ -499,3 +499,48 @@ model RegionUsage {
   @@id([regionRef, accessKeyId, period])
   @@map("region_usage")
 }
+
+/// One usage line (add-usage-metering): a fact, never a price. Append-only; the id is derived from
+/// what it measures, so the same usage reported twice is stored once.
+model UsageEvent {
+  id           String   @id @db.VarChar(40)
+  ownerRef     String   @map("owner_ref") @db.VarChar(255)
+  workspaceRef String   @map("workspace_ref") @db.VarChar(255)
+  appRef       String?  @map("app_ref") @db.VarChar(255)
+  callRef      String?  @map("call_ref") @db.VarChar(255)
+  region       String   @db.VarChar(64)
+  regionKind   String   @map("region_kind") @db.VarChar(16)
+  origin       String   @db.VarChar(16)
+  meter        String   @db.VarChar(64)
+  unit         String   @db.VarChar(16)
+  quantity     BigInt
+  provider     String?  @db.VarChar(64)
+  model        String?  @db.VarChar(255)
+  keySource    String?  @map("key_source") @db.VarChar(16)
+  occurredAt   DateTime @map("occurred_at") @db.Timestamptz(3)
+  recordedAt   DateTime @default(now()) @map("recorded_at") @db.Timestamptz(3)
+
+  @@index([workspaceRef, occurredAt])
+  @@index([callRef])
+  @@map("usage_events")
+}
+
+/// Daily usage totals, derived only from usage_events and rebuildable from them (fonoster-usage
+/// rebuild). Absent dimensions are '' so the key is unique.
+model UsageDaily {
+  ownerRef     String   @map("owner_ref") @db.VarChar(255)
+  workspaceRef String   @map("workspace_ref") @db.VarChar(255)
+  day          DateTime @db.Date
+  meter        String   @db.VarChar(64)
+  provider     String   @default("") @db.VarChar(64)
+  model        String   @default("") @db.VarChar(255)
+  keySource    String   @default("") @map("key_source") @db.VarChar(16)
+  origin       String   @db.VarChar(16)
+  regionKind   String   @map("region_kind") @db.VarChar(16)
+  quantity     BigInt
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@id([ownerRef, workspaceRef, day, meter, provider, model, keySource, origin, regionKind])
+  @@index([workspaceRef, day])
+  @@map("usage_daily")
+}

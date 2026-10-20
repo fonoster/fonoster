@@ -49,17 +49,50 @@ export class ConfigCredentials implements CredentialSource {
   }
 }
 
+/** A key and whose it is: the workspace's own (or its private region's), or the platform's. */
+export type ResolvedCredential = {
+  key: string;
+  source: "workspace" | "platform";
+};
+
 /** Workspace Secrets (BYOK) in front of platform credentials. */
 export class LayeredCredentials implements CredentialSource {
   constructor(private readonly sources: CredentialSource[]) {}
 
   async get(ref: string, scope: { workspaceRef?: string }) {
+    return (await this.resolve(ref, scope))?.key;
+  }
+
+  /**
+   * The first key found and whose it is (add-usage-metering): the operator's config holds the
+   * platform keys; every other source holds the workspace's own.
+   */
+  async resolve(
+    ref: string,
+    scope: { workspaceRef?: string }
+  ): Promise<ResolvedCredential | undefined> {
     for (const s of this.sources) {
-      const v = await s.get(ref, scope);
-      if (v) return v;
+      const key = await s.get(ref, scope);
+      if (key)
+        return {
+          key,
+          source: s instanceof ConfigCredentials ? "platform" : "workspace"
+        };
     }
     return undefined;
   }
+}
+
+/** A credential and its source; a source that cannot tell is the platform's. */
+export async function resolveCredential(
+  credentials: CredentialSource,
+  ref: string,
+  scope: { workspaceRef?: string }
+): Promise<ResolvedCredential | undefined> {
+  if (credentials instanceof LayeredCredentials)
+    return credentials.resolve(ref, scope);
+  const key = await credentials.get(ref, scope);
+  return key ? { key, source: "platform" } : undefined;
 }
 
 /** Adapters whose LLMs speak OpenAI-compatible Chat Completions (moved to @fonoster/community/openai). */
@@ -71,6 +104,8 @@ export type ResolvedLlm = {
   think: Think;
   /** The id actually used (a retired id resolves to its replacement). */
   id: string;
+  /** Whose key the model is called with; keyless providers count as the platform's. */
+  keySource: "workspace" | "platform";
   /** For the call record: provider.deprecated_used / provider.retired_used (registry PR4). */
   event?: { type: string; id: string; replacement?: string };
 };
@@ -128,15 +163,21 @@ export class RegistryLlmResolver implements LlmResolver {
         `no endpoint for provider ${provider.id} (adapter ${provider.adapter})`
       );
     // A provider without a credentialRef is keyless (local models, the fakes).
-    const apiKey = provider.credentialRef
-      ? await this.options.credentials.get(provider.credentialRef, scope)
+    const credential = provider.credentialRef
+      ? await resolveCredential(
+          this.options.credentials,
+          provider.credentialRef,
+          scope
+        )
       : undefined;
+    const apiKey = credential?.key;
     if (provider.credentialRef && !apiKey)
       throw new LlmResolutionError(
         `no credential ${provider.credentialRef} for provider ${provider.id}`
       );
     return {
       id,
+      keySource: credential?.source ?? "platform",
       think: llm.create(
         { baseUrl, apiKey },
         id.slice(providerId.length + 1),

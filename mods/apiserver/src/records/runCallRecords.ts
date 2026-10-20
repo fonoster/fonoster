@@ -21,7 +21,7 @@ import { natsConnectOptions, NatsTarget } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { Router } from "express";
 import { connect } from "nats";
-import { subscribeRecordIndex } from "./createIndexRecord";
+import { IndexUsageDeps, subscribeRecordIndex } from "./createIndexRecord";
 import { createRecordsRouter, RecordsRouterDeps } from "./createRecordsRouter";
 import { natsMaintenanceClient, runRetention } from "./maintenance";
 import { createStoreResolver } from "./stores";
@@ -49,6 +49,7 @@ export async function runCallRecords(
     db: RecordsDb;
     relay?: RecordsRouterDeps["relay"];
     onConfigChange?: (accessKeyId: string) => void;
+    usage?: IndexUsageDeps;
   }
 ): Promise<{ routers: { path: string; router: Router }[] }> {
   if (!config.enabled) return { routers: [] };
@@ -56,7 +57,7 @@ export async function runCallRecords(
     ...natsConnectOptions(deps.natsUrl),
     maxReconnectAttempts: -1
   });
-  await subscribeRecordIndex(nc, deps.db);
+  await subscribeRecordIndex(nc, deps.db, { usage: deps.usage });
   const maintenance = natsMaintenanceClient(nc, config.maintenanceTimeoutMs);
   const retention = setInterval(
     () =>

@@ -395,6 +395,43 @@ export const handoffSchema = {
   }
 } as const;
 
+/**
+ * Model token usage from Fonoster's own Autopilot (add-usage-metering D4). Reserved like
+ * record.note: accepted only from Autopilot agents and left out of the public docs.
+ */
+export const usageReportSchema = {
+  type: "object",
+  required: ["type", "lines"],
+  properties: {
+    type: { const: "usage.report" },
+    id,
+    lines: {
+      type: "array",
+      minItems: 1,
+      maxItems: 64,
+      items: {
+        type: "object",
+        required: ["meter", "quantity", "provider", "keySource"],
+        additionalProperties: false,
+        properties: {
+          meter: {
+            enum: [
+              "llm.tokens.in",
+              "llm.tokens.out",
+              "llm.tokens.cached",
+              "embedding.tokens"
+            ]
+          },
+          quantity: { type: "integer", minimum: 0 },
+          provider: { type: "string", minLength: 1 },
+          model: { type: "string", minLength: 1 },
+          keySource: { enum: ["platform", "workspace"] }
+        }
+      }
+    }
+  }
+} as const;
+
 export const recordNoteSchema = {
   type: "object",
   required: ["type", "data"],
@@ -510,7 +547,8 @@ export const APP_COMMAND_SCHEMAS = {
   hold: holdSchema,
   resume: resumeSchema,
   handoff: handoffSchema,
-  "record.note": recordNoteSchema
+  "record.note": recordNoteSchema,
+  "usage.report": usageReportSchema
 } as const;
 
 export type AppCommandType = keyof typeof APP_COMMAND_SCHEMAS;

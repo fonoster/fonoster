@@ -19,6 +19,7 @@
 import { createEvaluateIntelligence } from "@fonoster/autopilot";
 import { Prisma } from "../core/db";
 import { EVALUATIONS, SESSION_APPS } from "../envs";
+import { reportEvalUsage } from "../usage/publishUsage";
 import { createCreateApplication } from "./createCreateApplication";
 import { createCreateTestToken } from "./createCreateTestToken";
 import { createDeleteApplication } from "./createDeleteApplication";
@@ -36,7 +37,8 @@ function buildService(
   config: SessionAppsConfig = SESSION_APPS as SessionAppsConfig
 ) {
   const evaluateIntelligence = createEvaluateIntelligence(
-    createEvalKeys(prisma, EVALUATIONS.credentials)
+    createEvalKeys(prisma, EVALUATIONS.credentials),
+    reportEvalUsage
   );
 
   return {

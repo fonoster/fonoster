@@ -88,7 +88,7 @@ dashboard don't change.
 | `eval.*` (`llm.tokens.*`, origin `eval`) | apiserver eval path (D5) | same as LLM |
 | `storage.bytes` | nightly job in the apiserver (D8) | bytes held per workspace that day |
 
-The provider is the catalog id's prefix. The model is the catalog id when the line has one.
+The provider is the catalog id's prefix. The model is the catalog id when the line has one; for TTS it is the voice's catalog id, since apps name a voice, not a model. With no STT model configured, the line names the deployment's default STT provider.
 
 ### D4. Autopilot reports tokens with `usage.report`
 
@@ -190,6 +190,12 @@ before coding (Pencil first, the project rule).
   `llm.tokens.out`.
 - [Groq's streaming usage is confirmed only by secondhand sources] → Operators verify it against the
   live API before offering Groq models on platform keys.
+- [A barge-in right before hangup] → The session ends while the reply is still draining, so its usage
+  can no longer reach the call. Session end closes open drains and counts them in
+  `fonoster.usage.missing`; in practice the last reply finishes before the caller hangs up.
+- [Evals on the older LangChain path are not metered] → That path only serves providers with no
+  session adapter yet (Anthropic, Google). Every provider we ship (openai, groq, ollama, fake) uses
+  the metered session path.
 - [A drain holds a vendor connection after the turn moved on] → One drain per interrupted request,
   30 s deadline, closed when the session ends.
 - [An Autopilot bug under-reports tokens] → A conformance scenario compares reported tokens with

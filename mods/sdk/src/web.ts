@@ -36,6 +36,7 @@ export * from "./Domains";
 export * from "./Numbers";
 
 export * from "./Providers";
+export * from "./Usage";
 
 export * from "./Secrets";
 

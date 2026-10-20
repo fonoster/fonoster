@@ -85,6 +85,7 @@ export function appFromRow(row: Row): AppConfig | undefined {
     },
     workspaceRef: row.accessKeyId as string
   };
+  if (row.type === "AUTOPILOT" || row.type === "STREAM") app.type = row.type;
   if (row.speechSttModel) app.speech.sttModel = row.speechSttModel as string;
   // speech_settings.hints (or keyterms): the app's default recognition hints (VO-B3).
   const settings = (row.speechSettings ?? {}) as Record<string, unknown>;

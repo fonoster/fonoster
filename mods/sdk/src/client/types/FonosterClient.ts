@@ -28,6 +28,7 @@ import { NumbersClient } from "./NumbersClient";
 import { ProvidersClient } from "./ProvidersClient";
 import { SecretsClient } from "./SecretsClient";
 import { TrunksClient } from "./TrunksClient";
+import { UsageClient } from "./UsageClient";
 import { WebhooksClient } from "./WebhooksClient";
 
 interface FonosterClient {
@@ -46,6 +47,7 @@ interface FonosterClient {
   getAclsClient(): AclsClient;
   getWebhooksClient(): WebhooksClient;
   getProvidersClient(): ProvidersClient;
+  getUsageClient(): UsageClient;
   /** Base URL of the HTTP API (/api/records), e.g. https://api.fonoster.com. */
   getHttpUrl?(): string;
   getMetadata(): unknown;

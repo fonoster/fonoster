@@ -53,6 +53,8 @@ export type AppConfig = {
   audio?: { codec: "pcm16" | "pcmu"; rate: number };
   /** The workspace that owns the app (its access key id); the Twilio protocol's AccountSid. */
   workspaceRef?: string;
+  /** The Application type from the database; only AUTOPILOT apps may send usage.report. */
+  type?: "AUTOPILOT" | "STREAM";
   /** Numbers routed to this app (inbound). */
   numbers?: string[];
   fallback?: { app?: string; message?: string };

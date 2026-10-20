@@ -17,21 +17,44 @@
  * limitations under the License.
  */
 import { RECORD_SEALED_SUBJECT } from "@fonoster/callrecord";
-import { CALL_REF_ATTR, TRACEPARENT_HEADER } from "@fonoster/common";
+import { CALL_REF_ATTR, TRACEPARENT_HEADER, Usage } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { MsgHdrs, NatsConnection, StringCodec } from "nats";
 import { consumeDurable } from "../core/durableConsumer";
 import { apiserverTelemetry } from "../core/telemetry";
+import { isPrivateRegionRef } from "../regions/types";
+import { ingestUsageIn } from "../usage/ingestUsage";
+import { UsageDb, UsageDirectory } from "../usage/types";
 import { RecordIndexEntry, RecordsDb } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 const sc = StringCodec();
 
+/** Where a call's usage lines go: owners come from Identity's workspaces once attached. */
+export type IndexUsageDeps = { directory: () => UsageDirectory | undefined };
+
+/** The usage events of an index entry, attributed from the entry (design D1). */
+export function usageEvents(entry: RecordIndexEntry, workspaceRef: string) {
+  const origin = entry.origin === "browser_test" ? "browser_test" : "call";
+  return (entry.usage ?? []).map((line) => ({
+    ...line,
+    id: Usage.usageId(entry.callRef, line as Usage.UsageLine),
+    workspaceRef,
+    ...(entry.appRef ? { appRef: entry.appRef } : {}),
+    callRef: entry.callRef,
+    region: entry.region,
+    regionKind: isPrivateRegionRef(entry.region) ? "private" : "public",
+    origin,
+    occurredAt: new Date(entry.endedAt ?? entry.startedAt).toISOString()
+  }));
+}
+
 /**
  * Upserts a record's index entry. Entries arrive at least once and possibly out of order, so a
  * lower version never overwrites a higher one. An erased record keeps its row, without numbers.
+ * The call's usage lines are stored in the same transaction as the row (add-usage-metering D1).
  */
-export function createIndexRecord(db: RecordsDb) {
+export function createIndexRecord(db: RecordsDb, usage?: IndexUsageDeps) {
   return async (entry: RecordIndexEntry) => {
     const existing = await db.callRecord.findUnique({
       where: { callRef: entry.callRef }
@@ -77,11 +100,26 @@ export function createIndexRecord(db: RecordsDb) {
       parts: entry.parts,
       erasedAt: erased ? new Date() : null
     };
-    await db.callRecord.upsert({
+    const upsert = {
       where: { callRef: entry.callRef },
       create: { callRef: entry.callRef, ...data },
       update: data
-    });
+    };
+    const directory = usage?.directory();
+    const workspaceRef = data.accessKeyId;
+    if (!erased && directory && workspaceRef && entry.usage?.length) {
+      const events = usageEvents(entry, workspaceRef);
+      await (db as RecordsDb & UsageDb).$transaction(async (tx) => {
+        await (tx as unknown as RecordsDb).callRecord.upsert(upsert);
+        await ingestUsageIn(tx, directory, events);
+      });
+      return true;
+    }
+    if (!erased && !directory && entry.usage?.length)
+      logger.warn(
+        `usage for ${entry.callRef} not stored: no workspace directory yet`
+      );
+    await db.callRecord.upsert(upsert);
     return true;
   };
 }
@@ -99,9 +137,9 @@ export const RECORD_INDEX_DURABLE = "apiserver-call-records";
 export async function subscribeRecordIndex(
   nc: NatsConnection,
   db: RecordsDb,
-  options: { ackWaitMs?: number } = {}
+  options: { ackWaitMs?: number; usage?: IndexUsageDeps } = {}
 ): Promise<() => Promise<void> | void> {
-  const index = createIndexRecord(db);
+  const index = createIndexRecord(db, options.usage);
   const handle = async (data: Uint8Array, headers?: MsgHdrs) => {
     let entry: RecordIndexEntry;
     try {

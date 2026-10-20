@@ -31,5 +31,6 @@ export * from "./SecretsClient";
 export * from "./common";
 
 export * from "./ProvidersClient";
+export * from "./UsageClient";
 
 export * from "./WebhooksClient";

@@ -16,11 +16,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { getAccessKeyIdFromCall, sessionAgentSchema } from "@fonoster/common";
+import { randomUUID } from "crypto";
+import {
+  getAccessKeyIdFromCall,
+  sessionAgentSchema,
+  Usage
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { StepEvaluationReport } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Struct, struct } from "pb-util";
+import { meteredThink, UsageSink } from "../../session/meteredThink";
 import { createEvalEffectiveConfig } from "./createEvalEffectiveConfig";
 import { runEval } from "./runEval";
 import { runSessionEval, sessionThinkFor } from "./session";
@@ -46,13 +52,32 @@ type ServerStreamCall = {
 export type EvalKeySource = (
   providerId: string,
   workspaceRef: string
-) => Promise<string | undefined>;
+) => Promise<EvalKey | string | undefined>;
+
+/** A key and whose it is; a bare string is the platform's. */
+export type EvalKey = { key: string; source: Usage.KeySource };
+
+/**
+ * Where an eval's usage goes (add-usage-metering D5): the workspace, the lines, and a scope that
+ * is unique per request within the run, for the lines' ids.
+ */
+export type EvalUsageReporter = (
+  workspaceRef: string,
+  lines: Usage.UsageLine[],
+  scope: string
+) => void;
+
+const keyOf = (k: EvalKey | string | undefined): EvalKey | undefined =>
+  typeof k === "string" ? { key: k, source: "platform" } : k;
 
 /**
  * Runs an agent's test cases (rework-autopilot 8.2: the agent is a session agent; its
  * catalog id picks the provider, and keys come from `keys`, never from the agent).
  */
-function createEvaluateIntelligence(keys: EvalKeySource) {
+function createEvaluateIntelligence(
+  keys: EvalKeySource,
+  reportUsage?: EvalUsageReporter
+) {
   const evaluateIntelligence = async (
     call: ServerStreamCall
   ): Promise<void> => {
@@ -71,8 +96,19 @@ function createEvaluateIntelligence(keys: EvalKeySource) {
         accessKeyId,
         model: agent.languageModel.model
       });
-      const apiKey = await keys(provider, accessKeyId);
-      const evaluationApiKey = await keys("openai", accessKeyId);
+      const agentKey = keyOf(await keys(provider, accessKeyId));
+      const judgeKey = keyOf(await keys("openai", accessKeyId));
+      const apiKey = agentKey?.key;
+      const evaluationApiKey = judgeKey?.key;
+      // Eval tokens are metered with origin eval, one scope per request of this run.
+      const runId = randomUUID();
+      let request = 0;
+      const sink: UsageSink = {
+        usage: (lines) =>
+          reportUsage?.(accessKeyId, lines, `eval|${runId}|${request++}`),
+        missing: (catalogId) =>
+          logger.warn(`eval: ${catalogId} reported no usage`, { accessKeyId })
+      };
       if (!apiKey && provider !== "ollama")
         throw new Error(`no ${provider} key for this workspace or platform`);
       if (!evaluationApiKey)
@@ -94,9 +130,25 @@ function createEvaluateIntelligence(keys: EvalKeySource) {
 
       // The session engine (streaming replies, structured tool messages) for OpenAI-compatible
       // providers; the LangChain path stays for the rest until their adapters land (EV-B1).
-      const think = sessionThinkFor(agent, apiKey);
-      if (think) {
-        await runSessionEval({ agent, think, evaluationApiKey }, callbacks);
+      const sessionThink = sessionThinkFor(agent, apiKey);
+      if (sessionThink) {
+        const think = meteredThink(
+          sessionThink,
+          {
+            catalogId: agent.languageModel.model,
+            keySource: agentKey?.source ?? "platform"
+          },
+          sink
+        );
+        await runSessionEval(
+          {
+            agent,
+            think,
+            evaluationApiKey,
+            judgeUsage: { sink, keySource: judgeKey?.source ?? "platform" }
+          },
+          callbacks
+        );
         return;
       }
 

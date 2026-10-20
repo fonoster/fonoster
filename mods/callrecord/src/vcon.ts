@@ -79,6 +79,8 @@ export function buildVcon(
   const failures: string[] = [];
   // Audio filters that failed, at start or mid-call, with the reason (for the "Unfiltered" badge).
   const filterFailures: { name?: string; reason: string }[] = [];
+  // The call's usage: each snapshot holds all of it, so the last one wins (add-usage-metering).
+  let usage: unknown[] | undefined;
   let started: Record<string, unknown> | undefined;
   let failure: { reason: string; sipStatus?: number } | undefined;
   let recordingPolicy: string | undefined;
@@ -194,6 +196,8 @@ export function buildVcon(
       recordingFailed = String(m.reason ?? "error");
     } else if (e.source === "event" && type === "recording.consent_requested") {
       consentRequested = true;
+    } else if (e.source === "event" && type === "usage.snapshot") {
+      if (Array.isArray(m.lines)) usage = m.lines;
     } else if (e.source === "event" && type === "call.ended") {
       endedAt = e.at;
       endReason = String(m.reason);
@@ -328,6 +332,8 @@ export function buildVcon(
           }
         : {}),
       ...(filterFailures.length ? { filters: { failed: filterFailures } } : {}),
+      ...(started?.origin ? { origin: started.origin } : {}),
+      ...(usage?.length ? { usage } : {}),
       complete: !missing.includes("hangup"),
       missing,
       failures

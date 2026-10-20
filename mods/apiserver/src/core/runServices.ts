@@ -62,6 +62,10 @@ import {
   identityFromHandlers,
   SESSION_PATH
 } from "../session";
+import { attachUsagePublisher } from "../usage/publishUsage";
+import { runUsageConsumer } from "../usage/runUsageConsumer";
+import { runStorageSnapshots } from "../usage/snapshotStorage";
+import { UsageDb } from "../usage/types";
 import {
   runWebhookFanout,
   WebhookFanoutConfig
@@ -143,7 +147,8 @@ async function runServices() {
     },
     db: prisma as unknown as RecordsDb,
     relay: { regionOf: regions.regionOf, client: regions.relay },
-    onConfigChange: regions.onConfigChange
+    onConfigChange: regions.onConfigChange,
+    usage: { directory: () => workspaceRegionHooks.directory() }
   });
 
   // The dashboard's cookie session (M4): refresh token in an httpOnly cookie on its origin
@@ -163,6 +168,16 @@ async function runServices() {
   // Bus consumers: webhook fan-out (LO-B1) and the AppBridge replicas' catalog use (LO-B11)
   const bus = await connect({ ...NATS, maxReconnectAttempts: -1 });
   subscribeRegistryUsage(bus, prisma);
+  attachUsagePublisher(bus);
+  await runUsageConsumer({
+    nc: bus,
+    db: prisma as unknown as UsageDb,
+    directory: () => workspaceRegionHooks.directory()
+  });
+  runStorageSnapshots({
+    db: prisma as unknown as UsageDb,
+    directory: () => workspaceRegionHooks.directory()
+  });
   if (WEBHOOKS.fanout) {
     await runWebhookFanout(
       {

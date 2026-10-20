@@ -35,6 +35,11 @@ type ChatMessage = { role: string; content?: string };
  * Replies come from the script in order ({content} or {tool_calls}); with an empty script the
  * reply is "Echo: <last user message>". Streaming sends one chunk per word.
  *
+ * Usage is deterministic, so tests know the exact counts (add-usage-metering): prompt tokens are
+ * the words of every message's content, completion tokens the words of the reply (10 for tool
+ * calls), no cached tokens. A streamed reply reports it in a final chunk with no choices when the
+ * request sets stream_options.include_usage; `omitUsage` leaves it out.
+ *
  * Implementations' built-in "fake" adapters speak this protocol (see PROVIDERS.md).
  */
 export class FakeLlm extends FakeProvider {
@@ -61,9 +66,10 @@ export class FakeLlm extends FakeProvider {
     ) {
       return this.json(res, 404, { error: { code: "not_found" } });
     }
-    const { messages, stream } = (body ?? {}) as {
+    const { messages, stream, stream_options } = (body ?? {}) as {
       messages?: ChatMessage[];
       stream?: boolean;
+      stream_options?: { include_usage?: boolean };
     };
     if (!Array.isArray(messages)) {
       return this.json(res, 400, {
@@ -77,6 +83,8 @@ export class FakeLlm extends FakeProvider {
       content: `Echo: ${lastUser?.content ?? ""}`
     };
     const id = `chatcmpl-fake-${this.requests}`;
+    const usage = fakeUsage(messages, reply);
+    const reportUsage = !this.behavior.omitUsage;
     const created = Math.floor(Date.now() / 1000);
 
     await this.delay();
@@ -107,7 +115,8 @@ export class FakeLlm extends FakeProvider {
             },
             finish_reason: toolCalls ? "tool_calls" : "stop"
           }
-        ]
+        ],
+        ...(reportUsage ? { usage } : {})
       });
     }
 
@@ -137,6 +146,25 @@ export class FakeLlm extends FakeProvider {
       send({ tool_calls: toolCalls });
       send({}, "tool_calls");
     }
+    if (reportUsage && stream_options?.include_usage)
+      res.write(
+        `data: ${JSON.stringify({ id, object: "chat.completion.chunk", created, model: "fake", choices: [], usage })}\n\n`
+      );
     res.end("data: [DONE]\n\n");
   }
+}
+
+const words = (text?: string | null) =>
+  (text ?? "").split(/\s+/).filter(Boolean).length;
+
+/** The fake's fixed token counts for a request and its reply (see the class comment). */
+export function fakeUsage(messages: ChatMessage[], reply: LlmReply) {
+  const prompt = messages.reduce((n, m) => n + words(m.content), 0);
+  const completion = "content" in reply ? words(reply.content) : 10;
+  return {
+    prompt_tokens: prompt,
+    completion_tokens: completion,
+    total_tokens: prompt + completion,
+    prompt_tokens_details: { cached_tokens: 0 }
+  };
 }

@@ -1,0 +1,58 @@
+---
+title: "See what your workspace used"
+sidebarTitle: "Usage"
+description: "Call minutes, browser tests, transcription, voices, language-model tokens, noise cancelling, machine detection, recordings and storage, and whose vendor key each one ran on."
+---
+
+Fonoster measures what every call, test and eval uses: minutes, transcription, speech, language-model
+tokens and the rest. The Usage page and the API show it in quantities only, never money. That's the
+same on Fonoster Cloud and on your own install.
+
+## Open the Usage page
+
+In the dashboard, open **Usage** in the sidebar. Pick a month at the top right; the page shows:
+
+- **Calls**: minutes from the moment a call is answered until it ends. Ringing isn't counted.
+- **Browser tests**: minutes of calls you made from the dashboard, apart from real calls.
+- **Noise cancelling**, **Recordings**: minutes each ran.
+- **Machine detection**: how many outbound calls were checked for an answering machine.
+- **AI usage**: transcription minutes, speech characters, language-model and knowledge-base
+  tokens, by vendor and model. **Your key** means the vendor was called with
+  [your own vendor key](/workspace/provider-keys), so that vendor bills you directly.
+  **Fonoster key** means the platform's key was used.
+- **Storage**: the most your call records and recordings took up during the month.
+
+Usage shows up once a call ends. A month with nothing in it says so.
+
+## Get it from the API
+
+`Usage/GetUsage` returns totals for a range of days, split by meter and by any of `day`,
+`workspace`, `provider`, `model`, `key_source` and `origin`:
+
+```ts
+const usage = new SDK.Usage(client);
+const { rows } = await usage.getUsage({
+  fromDay: "2026-10-01",
+  toDay: "2026-10-31",
+  groupBy: ["key_source", "origin"]
+});
+```
+
+Each row has a `meter`, its `unit` and a `quantity`. Workspace owners can pass `allOwned: true` to
+get every workspace they own. See [the SDK reference](/reference/sdk#usage) for every meter.
+
+## How it's counted
+
+| What | Counted by | How |
+| --- | --- | --- |
+| Call minutes | the platform | from answer to hangup, including time after a transfer |
+| Transcription | the platform | seconds of caller audio sent to the vendor |
+| Speech | the platform | characters of each text sent to the vendor |
+| Language-model and knowledge-base tokens | the vendor | the counts the vendor reports for each request, also for a reply the caller cut into |
+| Noise cancelling, recordings | the platform | seconds each one ran |
+| Machine detection | the platform | one per outbound call that was checked |
+| Storage | the platform | the size of your call records and recordings, once a day |
+
+Evals count only their language-model tokens and show up with origin `eval`. Calls in a
+[private region](/private-regions/overview) are counted the same way; only quantities leave the
+region, never call content.

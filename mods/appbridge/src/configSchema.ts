@@ -60,6 +60,7 @@ const app = z.object({
     .object({ codec: z.enum(["pcm16", "pcmu"]), rate: z.number() })
     .optional(),
   workspaceRef: z.string().optional(),
+  type: z.enum(["AUTOPILOT", "STREAM"]).optional(),
   numbers: z.array(z.string()).optional(),
   fallback: z
     .object({ app: z.string().optional(), message: z.string().optional() })

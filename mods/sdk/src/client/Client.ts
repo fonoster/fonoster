@@ -34,6 +34,7 @@ import { NumbersClient } from "../generated/node/numbers_grpc_pb";
 import { ProvidersClient } from "../generated/node/providers_grpc_pb";
 import { SecretsClient } from "../generated/node/secrets_grpc_pb";
 import { TrunksClient } from "../generated/node/trunks_grpc_pb";
+import { UsageClient } from "../generated/node/usage_grpc_pb";
 import { WebhooksClient } from "../generated/node/webhooks_grpc_pb";
 import { AbstractClient } from "./AbstractClient";
 import { TokenRefresherNode } from "./TokenRefresherNode";
@@ -153,6 +154,12 @@ export class Client extends AbstractClient {
 
   getProvidersClient() {
     return new ProvidersClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
+  }
+
+  getUsageClient() {
+    return new UsageClient(this.endpoint, this.channelCredentials, {
       interceptors: [this.tokenRefresherInterceptor]
     });
   }

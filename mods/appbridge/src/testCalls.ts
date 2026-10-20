@@ -21,7 +21,8 @@ import { readFileSync } from "fs";
 
 export const CONNECT_TOKEN_HEADER = "x-connect-token";
 
-export type TestCallCheck = { ok: boolean; reason?: string };
+/** `test` is true when the call carried a valid test token (a browser test call). */
+export type TestCallCheck = { ok: boolean; reason?: string; test?: boolean };
 
 /** A header's value, matched case-insensitively (SIP header names are). */
 export function headerValue(
@@ -75,7 +76,7 @@ export class TestCallVerifier {
     workspaceRef: string | undefined
   ): TestCallCheck {
     const token = headerValue(headers, CONNECT_TOKEN_HEADER);
-    if (!token) return { ok: true };
+    if (!token) return { ok: true, test: false };
     if (!this.publicKeyFile) return { ok: false, reason: "not_configured" };
     try {
       this.key ??= createPublicKey(readFileSync(this.publicKeyFile, "utf8"));
@@ -90,6 +91,6 @@ export class TestCallVerifier {
       return { ok: false, reason: "method" };
     if (workspaceRef !== undefined && payload.accessKeyId !== workspaceRef)
       return { ok: false, reason: "workspace" };
-    return { ok: true };
+    return { ok: true, test: true };
   }
 }

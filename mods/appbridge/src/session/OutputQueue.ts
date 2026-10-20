@@ -69,6 +69,7 @@ type SpeakItem = Base & {
   language: string;
   adapter: TtsAdapter;
   failed: boolean;
+  onSynthesize?: (characters: number) => void;
 };
 
 type PlayItem = Base & {
@@ -91,6 +92,8 @@ export type SpeakRequest = {
   voice: string;
   language: string;
   adapter: TtsAdapter;
+  /** Called with the characters (code points) of each text sent to the vendor (usage). */
+  onSynthesize?: (characters: number) => void;
 };
 
 export type PlayRequest = {
@@ -225,6 +228,7 @@ export class OutputQueue {
       voice: req.voice,
       language: req.language,
       adapter: req.adapter,
+      onSynthesize: req.onSynthesize,
       interruptible: req.interruptible,
       started: false,
       sentMs: 0,
@@ -366,6 +370,7 @@ export class OutputQueue {
       if (item.abort.signal.aborted || item.failed) return;
       if (text) {
         const offset = item.synthesizedMs;
+        item.onSynthesize?.([...text].length);
         try {
           const synthesis = await item.adapter.synthesize(
             { text, voice: item.voice, language: item.language },

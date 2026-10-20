@@ -23,6 +23,7 @@ import { SessionAgent, sessionAgentSchema } from "./config";
 import { KnowledgePort } from "./knowledge";
 import { LlmResolver } from "./llm";
 import { autopilotMachine } from "./machine";
+import { meteredThink, UsageSink } from "./meteredThink";
 import { telemetry } from "./telemetry";
 import { resolveThink, Think, ThinkProvider } from "./think";
 import { HttpToolPort, ToolPort } from "./tools";
@@ -61,7 +62,8 @@ export type AutopilotOptions = {
   /** Builds the knowledge port for an agent (operator wiring, task 4.1). */
   knowledgeFor?: (
     agent: SessionAgent,
-    scope: { workspaceRef?: string }
+    scope: { workspaceRef?: string },
+    usage?: UsageSink
   ) => KnowledgePort | undefined;
   recorder?: Recorder;
   /** Called with each session's Agent, for tests and observability. */
@@ -114,8 +116,12 @@ function createSessionRunner(options: AutopilotOptions) {
       if (e.text.trim()) deliver({ type: "TURN_ENDED", text: e.text });
     });
     session.on("turn.backchannel", () => deliver({ type: "TURN_BACKCHANNEL" }));
+    // Open drains of interrupted replies stop with the session: their usage can no longer
+    // reach the call (add-usage-metering D6).
+    const closed = new AbortController();
     const ended = new Promise<void>((resolve) =>
       session.on("end", () => {
+        closed.abort();
         deliver({ type: "SESSION_END" });
         resolve();
       })
@@ -144,6 +150,13 @@ function createSessionRunner(options: AutopilotOptions) {
       temperature: agentConfig.languageModel.temperature,
       maxTokens: agentConfig.languageModel.maxTokens
     };
+    const sink: UsageSink = {
+      usage: (lines) => recorder.usage?.(lines),
+      missing: (catalogId) => {
+        telemetry.count("fonoster.usage.missing", 1, { catalog_id: catalogId });
+        recorder.note({ type: "usage_missing", catalogId });
+      }
+    };
     let think = options.think;
     if (!think && options.llm) {
       try {
@@ -152,7 +165,12 @@ function createSessionRunner(options: AutopilotOptions) {
           settings,
           scope
         );
-        think = resolved.think;
+        think = meteredThink(
+          resolved.think,
+          { catalogId: resolved.id, keySource: resolved.keySource },
+          sink,
+          { closed: closed.signal }
+        );
         if (resolved.event) recorder.note(resolved.event);
       } catch (e) {
         // A model the registry cannot serve: apologise and end the call, never a silent line.
@@ -172,10 +190,15 @@ function createSessionRunner(options: AutopilotOptions) {
         return;
       }
     }
-    think ??= resolveThink(
-      agentConfig.languageModel.model,
-      options.providers ?? {},
-      settings
+    think ??= meteredThink(
+      resolveThink(
+        agentConfig.languageModel.model,
+        options.providers ?? {},
+        settings
+      ),
+      { catalogId: agentConfig.languageModel.model, keySource: "platform" },
+      sink,
+      { closed: closed.signal }
     );
     const agent = new Agent(
       session,
@@ -186,7 +209,7 @@ function createSessionRunner(options: AutopilotOptions) {
           allow: options.allowedDestinations
         }),
       recorder,
-      options.knowledge ?? options.knowledgeFor?.(agentConfig, scope)
+      options.knowledge ?? options.knowledgeFor?.(agentConfig, scope, sink)
     );
     options.onAgent?.(agent);
 

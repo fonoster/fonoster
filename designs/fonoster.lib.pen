@@ -5785,6 +5785,30 @@
                   }
                 },
                 {
+                  "id": "g6Q2sr",
+                  "type": "ref",
+                  "ref": "X6nwq",
+                  "name": "Nav Usage",
+                  "width": "fill_container",
+                  "padding": [
+                    7,
+                    12
+                  ],
+                  "gap": 12,
+                  "cornerRadius": "$--radius-control",
+                  "descendants": {
+                    "xGT5g": {
+                      "icon": "data_usage",
+                      "width": 20,
+                      "height": 20
+                    },
+                    "TXca3": {
+                      "content": "Usage",
+                      "fontSize": 14
+                    }
+                  }
+                },
+                {
                   "id": "uRkwa",
                   "type": "ref",
                   "ref": "X6nwq",

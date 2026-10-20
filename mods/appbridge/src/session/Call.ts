@@ -28,12 +28,14 @@ import {
   SessionStart,
   sipHeadersProblem,
   SUBSCRIBABLE_EVENTS,
+  Usage,
   Webhooks
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import Ajv, { ValidateFunction } from "ajv";
 import WebSocket from "ws";
 import { AmdClassifier, AmdListener, amdWindowMs } from "../amd/AmdListener";
+import { FRAME_MS } from "../audio/pcm";
 import {
   AppBridgeConfig,
   AppConfig,
@@ -100,7 +102,8 @@ const ALLOWED_ON_HOLD = new Set([
   "hangup",
   "transfer",
   "handoff",
-  "record.note"
+  "record.note",
+  "usage.report"
 ]);
 
 /** media-control ending reasons → session.end reasons (voice-session, "Session ending"). */
@@ -199,6 +202,13 @@ export class Call {
   readonly recording: CallRecording;
   /** The AMD listener while it runs. */
   private amd?: AmdListener;
+  /** What the call consumed so far (add-usage-metering D1). */
+  readonly usage = new Usage.CallUsage();
+  /** When the first app answered; `call.seconds` count from here (D2). */
+  private answeredAt?: number;
+  private usageTimer?: ReturnType<typeof setInterval>;
+  /** How the call started: a browser test or any other call (D9). */
+  origin: "call" | "browser_test" = "call";
 
   private readonly span: ReturnType<typeof telemetry.startCall>;
 
@@ -236,6 +246,42 @@ export class Call {
     return this.session?.workspaceRef;
   }
 
+  /**
+   * The usage attribution of a vendor the call uses: the catalog id's provider, the id itself as
+   * the model when it names one, and whose key the workspace uses for that provider.
+   */
+  vendorUsage(catalogId: string, workspaceRef?: string) {
+    const provider = catalogId.split("/")[0];
+    return {
+      provider,
+      ...(catalogId.includes("/") ? { model: catalogId } : {}),
+      keySource: this.deps.catalog.usesWorkspaceKey(provider, workspaceRef)
+        ? ("workspace" as const)
+        : ("platform" as const)
+    };
+  }
+
+  /** Counts the characters each TTS request sends to the vendor. */
+  ttsUsage(voiceId: string, workspaceRef?: string) {
+    const key = this.vendorUsage(voiceId, workspaceRef);
+    return (characters: number) =>
+      this.usage.add({ meter: "tts.characters", quantity: characters, ...key });
+  }
+
+  /**
+   * Writes the call's usage so far into its record. Each snapshot holds all of it, so the last one
+   * is the call's usage, also after a crash (design D1, Risks).
+   */
+  flushUsage(at = Date.now()) {
+    const lines: Usage.UsageLine[] = this.usage.lines();
+    if (this.answeredAt !== undefined) {
+      const seconds = Math.round((at - this.answeredAt) / 1000);
+      if (seconds > 0)
+        lines.unshift({ meter: "call.seconds", quantity: seconds });
+    }
+    if (lines.length) this.record("event", { type: "usage.snapshot", lines });
+  }
+
   nextCommandId(): string {
     return `gw-${this.info.callRef}-${++this.seq}`;
   }
@@ -265,7 +311,8 @@ export class Call {
       appRef: app.ref,
       workspaceRef: app.workspaceRef ?? null,
       from: this.info.from,
-      to: this.info.to
+      to: this.info.to,
+      origin: this.origin
     });
     // The workspace's own vendor keys, looked up once per session (registry 3.2).
     await this.deps.catalog.prepare(app.workspaceRef);
@@ -344,6 +391,11 @@ export class Call {
     this.record("event", { type: "amd.started", windowMs });
     const result = await listener.run(track, windowMs);
     this.amd = undefined;
+    // A detection is metered when the classifier ran on the audio (add-usage-metering D3).
+    if (result.detector !== "none") {
+      this.usage.add({ meter: "amd.detections", quantity: 1 });
+      this.usage.addMillis({ meter: "amd.seconds" }, result.audioMs);
+    }
     report(result);
   }
 
@@ -537,7 +589,8 @@ export class Call {
       preempt: false,
       voice: voice.voice,
       language: app.speech.language,
-      adapter: voice.adapter
+      adapter: voice.adapter,
+      onSynthesize: this.ttsUsage(voice.id, app.workspaceRef)
     });
   }
 
@@ -549,6 +602,9 @@ export class Call {
   ) {
     if (!this.answeredBy) {
       this.answeredBy = app;
+      this.answeredAt = Date.now();
+      this.usageTimer = setInterval(() => this.flushUsage(), 60_000);
+      this.usageTimer.unref?.();
       this.deps.webhooks?.(
         Webhooks.callStarted(app.workspaceRef ?? "default", this.parties(app))
       );
@@ -641,6 +697,8 @@ export class Call {
     // The recording is flushed before the record is closed, so sealing finds all of it.
     this.recording.stop();
     this.amd?.stop();
+    clearInterval(this.usageTimer);
+    this.flushUsage();
     this.record("event", { type: "call.ended", reason: recordReason });
     if (this.answeredBy)
       this.deps.webhooks?.(
@@ -727,6 +785,13 @@ export class AppSession {
   private listeners: Listener[] = [];
   private keepalive?: ReturnType<typeof setInterval>;
   private filters?: AudioFilterChain;
+  /** The STT vendor this session sends audio to, for `stt.seconds`. */
+  private sttUsage?: ReturnType<Call["vendorUsage"]> & { meter: "stt.seconds" };
+  /** The noise-cancelling vendors filtering the caller, by filter name, for `nc.seconds`. */
+  private readonly ncUsage = new Map<
+    string,
+    ReturnType<Call["vendorUsage"]> & { meter: "nc.seconds" }
+  >();
   private lastEstimate?: Estimate;
   private speechStarted = false;
   /** The last 500 ms of caller audio, for STT when speech starts late. */
@@ -824,7 +889,7 @@ export class AppSession {
     this.speechStarted = true;
     void this.startFilters();
     this.startSpeech();
-    for (const frame of this.recentCaller) this.stt?.write(frame);
+    for (const frame of this.recentCaller) this.toStt(frame);
     this.recentCaller = [];
   }
 
@@ -904,12 +969,16 @@ export class AppSession {
   private async startFilters() {
     const configs = this.app.filters ?? [];
     if (!configs.length) return;
-    const failed = (name: string | undefined, reason: string) =>
+    const failed = (name: string | undefined, reason: string) => {
+      // A filter that failed open no longer filters, so it stops counting.
+      if (name) this.ncUsage.delete(name);
+      else this.ncUsage.clear();
       this.call.record("event", {
         type: "filter.failed",
         ...(name ? { name } : {}),
         reason
       });
+    };
     try {
       // The operator's server-side options (model paths), then the provider credential.
       const trustedOverlay: Record<string, Record<string, unknown>> = {};
@@ -934,6 +1003,14 @@ export class AppSession {
         return true;
       });
       if (!usable.length) return;
+      usable.forEach((c) => {
+        const provider = AudioFilterFactory.providerOf(c.name);
+        if (provider)
+          this.ncUsage.set(c.name, {
+            meter: "nc.seconds",
+            ...this.call.vendorUsage(provider, this.app.workspaceRef)
+          });
+      });
       const chain = AudioFilterFactory.createChainFromConfig(usable, {
         trustedOverlay,
         onDisabled: failed
@@ -1034,6 +1111,12 @@ export class AppSession {
       hints: mergeHints(this.app.speech.hints),
       model: stt.model
     });
+    const sttCatalogId = stt.id ?? sttId ?? stt.provider;
+    if (sttCatalogId)
+      this.sttUsage = {
+        meter: "stt.seconds",
+        ...this.call.vendorUsage(sttCatalogId, this.app.workspaceRef)
+      };
     this.stt.on("transcript", (t) => this.pacing?.onTranscript(t, Date.now()));
     this.stt.on("error", (e: SpeechError) =>
       this.emit({
@@ -1064,7 +1147,10 @@ export class AppSession {
     const at = Date.now();
     this.filtering = this.filtering
       .then(() => chain.process(bufferToInt16(frame)))
-      .then((out) => this.hear(int16ToBuffer(out), at))
+      .then((out) => {
+        this.ncUsage.forEach((key) => this.call.usage.addMillis(key, FRAME_MS));
+        this.hear(int16ToBuffer(out), at);
+      })
       .catch(() => this.hear(frame, at));
   }
 
@@ -1075,9 +1161,16 @@ export class AppSession {
   }
 
   /** Caller audio after filtering: what speech recognition and turn detection get. */
+  /** Sends caller audio to the STT vendor, counting what it is sent (stt.seconds). */
+  private toStt(frame: Buffer) {
+    if (!this.stt) return;
+    if (this.sttUsage) this.call.usage.addMillis(this.sttUsage, FRAME_MS);
+    this.stt.write(frame);
+  }
+
   private hear(frame: Buffer, at: number) {
     if (this.closed) return;
-    this.stt?.write(frame);
+    this.toStt(frame);
     this.pacing?.onAudio(frame, at);
   }
 
@@ -1322,7 +1415,8 @@ export class AppSession {
           preempt: (cmd.preempt as boolean) ?? false,
           voice: voice.voice,
           language: (cmd.language as string) ?? this.app.speech.language,
-          adapter: voice.adapter
+          adapter: voice.adapter,
+          onSynthesize: this.call.ttsUsage(voice.id, this.app.workspaceRef)
         });
         return;
       }
@@ -1467,6 +1561,24 @@ export class AppSession {
           });
         }
         return;
+      case "usage.report": {
+        // Autopilot's model tokens join the call's usage (voice-session, "Autopilot reports
+        // model usage to the call"); the schema already limits the meters.
+        if (this.app.type !== "AUTOPILOT") {
+          this.emit({
+            type: "error",
+            code: "bad_message",
+            message: "usage.report is reserved for Autopilot agents",
+            fatal: false,
+            relatesTo: id
+          });
+          return;
+        }
+        (cmd.lines as Usage.UsageLine[]).forEach((line) =>
+          this.call.usage.add(line)
+        );
+        return;
+      }
       case "handoff": {
         const target = cmd.app as string;
         const targetApp = this.deps.findApp(target);

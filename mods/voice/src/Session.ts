@@ -353,6 +353,15 @@ export class Session {
     this.command({ type: "record.note", data });
   }
 
+  /**
+   * Adds model token usage to the call (usage.report, add-usage-metering).
+   *
+   * @internal Reserved for Fonoster's own Autopilot; AppBridge refuses it from other apps.
+   */
+  async reportUsage(lines: Record<string, unknown>[]): Promise<void> {
+    this.command({ type: "usage.report", lines });
+  }
+
   /** Resolves at once: AppBridge answers the call on connect (voice-sdk S2). */
   async answer(): Promise<void> {}
 

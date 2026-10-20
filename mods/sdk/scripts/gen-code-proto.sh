@@ -9,7 +9,7 @@ OUT_DIR_NODE=$DIRNAME/../src/generated/node
 OUT_DIR_WEB=$DIRNAME/../src/generated/web
 BIN="$ROOT/node_modules/.bin"
 
-FILES="acls agents applications calls capabilities credentials domains identity numbers secrets trunks webhooks providers"
+FILES="acls agents applications calls capabilities credentials domains identity numbers secrets trunks webhooks providers usage"
 PROTO_FILES=""
 for f in $FILES; do PROTO_FILES="$PROTO_FILES $PROTOS/$f.proto"; done
 
