@@ -31,13 +31,13 @@ import { EmptyState } from "~/components/data/empty-state";
 import { RowActions } from "~/components/data/row-actions";
 import { SecretDialog } from "~/components/data/secret-dialog";
 import { Alert } from "~/components/ui/alert";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import { DropdownMenuItem } from "~/components/ui/dropdown-menu";
 import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
+import { cn } from "~/lib/utils";
 import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
 import type { Webhook, WebhookDelivery, WebhookEventType } from "./types";
 
@@ -57,11 +57,17 @@ export function validateWebhook(input: { url: string; events: string[] }) {
   return errors;
 }
 
-const DELIVERY_BADGE: Record<string, "success" | "warning" | "error"> = {
-  succeeded: "success",
-  pending: "warning",
-  failed: "error"
+/** Delivery states read as colored words, as in the designs. */
+const DELIVERY_STATUS: Record<string, { label: string; className: string }> = {
+  succeeded: { label: "delivered", className: "text-(--fn-success)" },
+  pending: { label: "retrying", className: "text-(--fn-warning)" },
+  failed: { label: "failed", className: "text-destructive" }
 };
+
+/** "https://hooks.example.com/fonoster" → "hooks.example.com/fonoster", for drawer titles. */
+function hostAndPath(url: string) {
+  return url.replace(/^https?:\/\//, "");
+}
 
 /** List dates read like the rest of the dashboard ("Today 14:31", "Oct 2"). */
 const when = (iso?: string) => formatStarted(iso);
@@ -165,9 +171,14 @@ export default function WebhooksScreen() {
       header: "Status",
       className: "w-28",
       cell: (d) => (
-        <Badge variant={DELIVERY_BADGE[d.status] ?? "neutral"}>
-          {d.status}
-        </Badge>
+        <span
+          className={cn(
+            "text-[13px]",
+            DELIVERY_STATUS[d.status]?.className ?? "text-muted-foreground"
+          )}
+        >
+          {DELIVERY_STATUS[d.status]?.label ?? d.status}
+        </span>
       )
     },
     {
@@ -358,7 +369,7 @@ function WebhookDrawer({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         monoTitle
-        title={webhook ? webhook.url : "New webhook"}
+        title={webhook ? hostAndPath(webhook.url) : "Create webhook"}
         description={
           webhook
             ? `Signing secret ${webhook.secretHint}. Saving keeps the same secret.`

@@ -17,7 +17,9 @@
  * limitations under the License.
  */
 import type { Agent, Application, INumber } from "@fonoster/types";
-import { Bot, Check, Search, UserRound, Workflow } from "lucide-react";
+import { Check, Search } from "lucide-react";
+import type { ComponentType } from "react";
+import { Code, HeadsetMic, SmartToy } from "~/components/icons/material";
 import { useEffect, useId, useMemo, useState } from "react";
 import { Skeleton } from "~/components/ui/skeleton";
 import { errorMessage } from "~/lib/errors";
@@ -30,10 +32,14 @@ import {
   type RouteKind
 } from "./routing";
 
-export const ROUTE_ICONS: Record<RouteKind, typeof Bot> = {
-  agent: Bot,
-  app: Workflow,
-  sip: UserRound
+/** The same icons as the sidebar's Agents, Apps and SIP agents. */
+export const ROUTE_ICONS: Record<
+  RouteKind,
+  ComponentType<{ className?: string; "aria-hidden"?: boolean }>
+> = {
+  agent: SmartToy,
+  app: Code,
+  sip: HeadsetMic
 };
 
 type Option = { value: string; name: string; sub: string };
@@ -171,6 +177,7 @@ export function RoutePicker({
             </p>
           ) : (
             visible.map((option) => {
+              const OptionIcon = ROUTE_ICONS[kind];
               const checked = value?.kind === kind && value.to === option.value;
               return (
                 <button
@@ -184,6 +191,10 @@ export function RoutePicker({
                     checked && "bg-accent"
                   )}
                 >
+                  <OptionIcon
+                    className="size-4 shrink-0 text-muted-foreground"
+                    aria-hidden
+                  />
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="truncate text-[13px] text-foreground">
                       {option.name}
@@ -193,7 +204,7 @@ export function RoutePicker({
                     </span>
                   </span>
                   {checked && (
-                    <Check className="size-4 text-primary" aria-hidden />
+                    <Check className="size-4 text-foreground" aria-hidden />
                   )}
                 </button>
               );

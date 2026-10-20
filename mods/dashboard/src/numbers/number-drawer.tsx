@@ -18,7 +18,8 @@
  */
 import type { INumber } from "@fonoster/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useMemo } from "react";
+import { Lock } from "lucide-react";
+import { useEffect, useMemo, type ComponentProps } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Alert } from "~/components/ui/alert";
@@ -28,6 +29,7 @@ import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { errorMessage } from "~/lib/errors";
+import { cn } from "~/lib/utils";
 import { useAllTrunks } from "~/trunks/trunks.service";
 import { COUNTRY_OPTIONS, countryName } from "./countries";
 import { useApplicationOptions, useSipAgentOptions } from "./lookups";
@@ -299,23 +301,16 @@ export function NumberDrawer({
             <div className="grid grid-cols-2 gap-3">
               <Field label="Number">
                 {(a11y) => (
-                  <Input
+                  <LockedInput
                     {...a11y}
                     value={formatNumber(number.telUrl)}
-                    readOnly
                     className="font-mono"
-                    disabled
                   />
                 )}
               </Field>
               <Field label="Location">
                 {(a11y) => (
-                  <Input
-                    {...a11y}
-                    value={formatLocation(number)}
-                    readOnly
-                    disabled
-                  />
+                  <LockedInput {...a11y} value={formatLocation(number)} />
                 )}
               </Field>
             </div>
@@ -357,5 +352,21 @@ export function NumberDrawer({
         </form>
       </SheetContent>
     </Sheet>
+  );
+}
+
+/** A value set when the number was added, shown with a lock: it can't change. */
+function LockedInput({
+  className,
+  ...props
+}: Omit<ComponentProps<"input">, "readOnly" | "disabled">) {
+  return (
+    <div className="relative">
+      <Input {...props} readOnly disabled className={cn("pr-9", className)} />
+      <Lock
+        className="pointer-events-none absolute right-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground"
+        aria-hidden
+      />
+    </div>
   );
 }

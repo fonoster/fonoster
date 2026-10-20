@@ -32,7 +32,7 @@ import {
 import { Label } from "~/components/ui/label";
 import { toast } from "~/components/ui/sonner";
 
-export type SecretField = { label: string; value: string };
+export type SecretField = { label: string; value: string; emphasis?: boolean };
 
 /**
  * A secret the only time it can be read (an API key, a signing secret): copy fields, an
@@ -80,7 +80,12 @@ export function SecretDialog({
         {fields && (
           <div className="flex flex-col gap-4">
             {fields.map((f) => (
-              <CopyField key={f.label} label={f.label} value={f.value} />
+              <CopyField
+                key={f.label}
+                label={f.label}
+                value={f.value}
+                emphasis={f.emphasis}
+              />
             ))}
             {children}
           </div>

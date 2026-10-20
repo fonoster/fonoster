@@ -333,7 +333,9 @@ describe("webhooks", () => {
       await within(table).findByText("https://hooks.example.com/fonoster")
     ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /Create webhook/ }));
-    const drawer = await screen.findByRole("dialog", { name: "New webhook" });
+    const drawer = await screen.findByRole("dialog", {
+      name: "Create webhook"
+    });
     await user.type(
       within(drawer).getByLabelText("URL"),
       "https://new.example.com"
@@ -367,7 +369,9 @@ describe("webhooks", () => {
       await screen.findByRole("button", { name: `Actions for ${before.url}` })
     );
     await user.click(await screen.findByRole("menuitem", { name: "Edit" }));
-    const drawer = await screen.findByRole("dialog", { name: before.url });
+    const drawer = await screen.findByRole("dialog", {
+      name: before.url.replace(/^https?:\/\//, "")
+    });
     await user.click(
       within(drawer).getByRole("checkbox", { name: /Call failed/ })
     );

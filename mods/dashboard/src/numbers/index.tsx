@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import type { INumber } from "@fonoster/types";
-import { Phone, Plus } from "lucide-react";
+import { Ban, Phone, Plus } from "lucide-react";
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
@@ -74,13 +74,19 @@ export default function NumbersScreen() {
       header: "Routes to",
       cell: (n) => {
         const route = routeLabel(n, apps.data ?? [], sipAgents.data ?? []);
-        if (!route) return <MutedCell>Not routed</MutedCell>;
+        if (!route)
+          return (
+            <span className="flex items-center gap-2 text-muted-foreground">
+              <Ban className="size-3.5" aria-hidden /> Not routed
+            </span>
+          );
         const Icon = ROUTE_ICONS[route.kind];
         return (
           <span className="flex min-w-0 items-center gap-2">
-            <span className="flex size-6 shrink-0 items-center justify-center rounded-[6px] bg-muted">
-              <Icon className="size-3.5 text-muted-foreground" aria-hidden />
-            </span>
+            <Icon
+              className="size-4 shrink-0 text-muted-foreground"
+              aria-hidden
+            />
             <span className="truncate">{route.label}</span>
           </span>
         );

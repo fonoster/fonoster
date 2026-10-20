@@ -25,10 +25,13 @@ import { cn } from "~/lib/utils";
 export function CopyField({
   label,
   value,
+  emphasis,
   className
 }: {
   label: string;
   value: string;
+  /** An amber border: the secret to save now, as in the designs' created-once dialogs. */
+  emphasis?: boolean;
   className?: string;
 }) {
   const [copied, setCopied] = useState(false);
@@ -48,7 +51,12 @@ export function CopyField({
       <span className="font-display text-xs text-muted-foreground">
         {label}
       </span>
-      <div className="flex h-10 items-center gap-2.5 rounded-control border border-input bg-background px-3">
+      <div
+        className={cn(
+          "flex h-10 items-center gap-2.5 rounded-control border bg-background px-3",
+          emphasis ? "border-(--fn-warning)" : "border-input"
+        )}
+      >
         <code
           className="flex-1 truncate text-[13px] text-foreground"
           aria-label={label}
