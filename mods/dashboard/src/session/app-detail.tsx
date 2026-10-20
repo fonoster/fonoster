@@ -264,7 +264,7 @@ function AppEditor({
           {app.protocol === "fonoster" && (
             <Panel
               title="Speech"
-              description="Used when your server doesn't pick a voice or model for the call."
+              description="Optional. Used when your server doesn't pick a voice or model for the call."
             >
               <SpeechFields app={app} set={set} catalog={catalog} />
             </Panel>

@@ -676,7 +676,8 @@ const providerOf = (id: string) =>
   id.includes("/") ? id.slice(0, id.indexOf("/")) : "";
 
 /**
- * A provider, then one of its catalog items, as on an agent's page. Without a catalog
+ * A provider, then one of its catalog items, as on an agent's page; None (the
+ * default) leaves it unset, since an app may do its own speech. Without a catalog
  * it's one text box for the full id.
  */
 function ProviderCatalogField({
@@ -714,7 +715,9 @@ function ProviderCatalogField({
   const ids = [...new Set(entries.map((e) => providerOf(e.id)))].filter(
     Boolean
   );
+  // Speech is optional for an app (unlike an agent): None leaves it unset.
   const options = [
+    { value: NONE, label: "None" },
     ...(provider && !ids.includes(provider) ? [provider] : []).map((id) => ({
       value: id,
       label: `${id} (unavailable)`
@@ -731,13 +734,15 @@ function ProviderCatalogField({
           <Select
             {...p}
             aria-label={`${label} provider`}
-            value={provider}
-            placeholder="Choose a provider"
+            value={provider || NONE}
             options={options}
             onValueChange={(next) => {
-              setProvider(next);
+              const chosen = next === NONE ? "" : next;
+              setProvider(chosen);
               onChange(
-                entries.find((e) => providerOf(e.id) === next)?.id ?? ""
+                chosen
+                  ? (entries.find((e) => providerOf(e.id) === chosen)?.id ?? "")
+                  : ""
               );
             }}
           />
@@ -753,18 +758,7 @@ function ProviderCatalogField({
           onChange={onChange}
         />
       ) : (
-        <Field label={label}>
-          {(p) => (
-            <Select
-              {...p}
-              disabled
-              value=""
-              placeholder="Choose a provider first"
-              options={[]}
-              onValueChange={() => undefined}
-            />
-          )}
-        </Field>
+        <span aria-hidden className="hidden sm:block" />
       )}
     </>
   );
