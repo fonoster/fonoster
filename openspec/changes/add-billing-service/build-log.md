@@ -133,3 +133,24 @@ The spec (#1046) has open questions Q1–Q7. Every proposed answer is a setting 
   chart's NATS, with the password from the `billing` key of `nats.auth.secret`. Community
   installs don't change, and the compose stack and installer still leave billing out.
 - The deployment suite checks both settings.
+
+### BS11. Billing in the local stack (7.1)
+
+- A `billing` Compose profile (not in the default profiles): the billing service and the Stripe
+  fake, which sends its webhooks to billing. `ops/rebuild/stack` with `RB_PROFILES` naming
+  `billing` adds billing's NATS user to `nats.conf`, renders `billing.yaml`, and turns admission on
+  for AppBridge (`authz.address`) and the apiserver (`authz`, `features.billing`). Billing's tables
+  are in the `fonoster` database, schema `billing`.
+- The stack's rate cards are the repository's with card 1 starting 2026-01-01: card 1 starts
+  2026-11-01, and until then nothing is priced.
+- `ops/rebuild/stack billing-e2e`: a Trial of 2 credits, a call held 40 s (billed as 60 s, rule 6:
+  4.8 credits), then a later call refused with SIP 402. Passed on the full stack; the balance ends
+  at -2.8 credits.
+- Billing allows `${NAME}`s in `billing.yaml` (`interpolatePaths: ["*"]`, like AppBridge).
+- Found on the way, all on main and fixed here: the stack wrote `registry.platformCredentials`,
+  gone from the apiserver since #1011, so the apiserver refused its config; the AppBridge image
+  copied no package's `node_modules`, and since #1033 `ws` 8 lives in `mods/community/node_modules`
+  ("Cannot find module 'ws'"); the seed's SIP-agent variable shadowed the `agent()` helper since
+  #1012, so the app was never created, and each retry then failed creating the agent again; the
+  stack's Routr check used `grep -q` under `pipefail`, which reads a long log as not ready.
+

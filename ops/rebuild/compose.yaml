@@ -14,8 +14,14 @@
 # 16000 range (stack.defaults), so the stack runs next to a self-hosted install.
 #
 #   Profiles added: `fakes` (fake TTS/STT/LLM, no vendor keys), `tools` (the SIP caller bot),
-#   `regions` (the region hub).
+#   `regions` (the region hub), `billing` (Fonoster Cloud's billing service with the Stripe fake;
+#   not in the default profiles).
 services:
+  # The billing user (nats-permissions/billing.conf), added to nats.conf with the billing profile.
+  nats:
+    environment:
+      NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:-}
+
   roomr:
     build:
       context: ../../go/roomr
@@ -96,16 +102,48 @@ services:
       - 7002
       - 7003
 
-  # ---- profile `fakes`: the Stripe fake (API, /_fake control API and viewer on :12111) ----
+  # ---- profiles `fakes` and `billing`: the Stripe fake (API, /_fake control API and viewer on
+  # :12111). With billing, it sends Stripe's webhooks to the billing service. ----
   stripe-fake:
-    profiles: ["fakes"]
+    profiles: ["fakes", "billing"]
     build:
       context: ../..
       dockerfile: ops/rebuild/docker/stripe-fake.Dockerfile
     image: ${RB_REGISTRY:-fonoster}/stripe-fake:${RB_TAG:-dev}
     restart: unless-stopped
+    environment:
+      STRIPE_FAKE_WEBHOOKS: "http://billing:50072/stripe/webhooks|${BILLING_WEBHOOK_SECRET:-whsec_stack}"
     ports:
       - "${RB_STRIPE_FAKE_PORT:-12111}:12111"
+
+  # ---- profile `billing`: Fonoster Cloud's billing service (add-billing-service; Cloud only, so not
+  # in the bundle). Admission for AppBridge and the apiserver (:50071), Stripe's webhooks (:50072),
+  # the Billing API (:50073). Its tables live in the fonoster database, schema `billing`. The stack
+  # renders config/billing.yaml. ----
+  billing:
+    profiles: ["billing"]
+    build:
+      context: ../..
+      dockerfile: ops/rebuild/docker/billing.Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/billing:${RB_TAG:-dev}
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      nats: { condition: service_healthy }
+      stripe-fake: { condition: service_started }
+    environment:
+      BILLING_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster?schema=billing
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
+      NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:-}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
+      BILLING_WEBHOOK_SECRET: ${BILLING_WEBHOOK_SECRET:-whsec_stack}
+    volumes:
+      - ${CONFIG_DIR:-./config}/billing.yaml:/etc/fonoster/billing.yaml:ro
+      - ${CONFIG_DIR:-./config}/rate-cards:/etc/fonoster/rate-cards:ro
+    expose:
+      - 50071
+      - 50072
+      - 50073
 
   # ---- profile `tools`: the SIP caller bot (go/roomr/cmd/sipcaller), HTTP on RB_CALLER_PORT ----
   sipcaller:

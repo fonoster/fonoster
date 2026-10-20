@@ -119,7 +119,9 @@ export function loadBillingConfig(argv = process.argv): BillingConfig {
   return loadServiceConfig({
     service: "billing",
     schema: billingConfigSchema,
-    argv
+    argv,
+    // Passwords and keys come from the container's environment, as for the other services.
+    interpolatePaths: ["*"]
   });
 }
 

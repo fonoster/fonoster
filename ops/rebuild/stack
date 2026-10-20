@@ -7,6 +7,9 @@
 #   ops/rebuild/stack smoke     up + seed + one call through Routr to the app + checks + down
 #   ops/rebuild/stack e2e       up + seed + a scripted conversation (greeting, one turn, hang-up)
 #                               + a sealed, verified call record + down (the nightly e2e call)
+#   ops/rebuild/stack billing-e2e
+#                               up with billing (Trial of 2 credits) + seed + one held call + a
+#                               later call refused with SIP 402 + down (add-billing-service 7.1)
 #   ops/rebuild/stack call      place one test call with the caller bot (stack must be up)
 #   ops/rebuild/stack ask       call, say a recorded question, report the turn latency
 #                               (RB_QUESTION=<16 kHz WAV>, RB_TURNS, RB_TRANSCRIBE=1 transcribes)
@@ -14,6 +17,9 @@
 #   ops/rebuild/stack ps        list containers
 #   ops/rebuild/stack down      stop and remove containers (keeps data)
 #   ops/rebuild/stack reset     down and delete volumes and ops/rebuild/.local
+#
+# Billing (Fonoster Cloud only): RB_PROFILES=fakes,tools,billing adds the billing service and the
+# Stripe fake (viewer on RB_STRIPE_FAKE_PORT, 12111); calls are then admitted by billing.
 #
 # Real vendors: put DEEPGRAM_API_KEY, ELEVENLABS_API_KEY, GROQ_API_KEY and/or OPENAI_API_KEY in
 # ops/rebuild/.local/vendor.env (or export them) before `up` and `seed`. The demo app gets what
@@ -57,6 +63,8 @@ load_env() {
 }
 
 profiles() { echo "${RB_PROFILES:-fakes,tools,regions}"; }
+# Fonoster Cloud's billing service with the Stripe fake (RB_PROFILES=fakes,tools,billing).
+with_billing() { [[ ",$(profiles)," == *",billing,"* ]]; }
 
 # The bundle's compose file (ops/bundle, the one Compose source) with this stack's override.
 compose() {
@@ -94,7 +102,7 @@ init_local() {
   # NATS parses a variable's value as config, so a password starting with a digit fails to load:
   # each starts with a letter, and one generated before this rule is replaced.
   local svc var
-  for svc in APISERVER APPBRIDGE ROOMR ROUTR; do
+  for svc in APISERVER APPBRIDGE ROOMR ROUTR BILLING; do
     var="NATS_${svc}_PASSWORD"
     if grep -q "^$var=[0-9]" "$STACK_ENV"; then
       sed -i.bak "/^$var=/d" "$STACK_ENV" && rm -f "$STACK_ENV.bak"
@@ -211,7 +219,12 @@ render_configs() {
   [ -n "${ELEVENLABS_API_KEY:-}" ] && keys+="  elevenlabs: { credential: { value: \"\${ELEVENLABS_API_KEY}\" } }"$'\n'
   [ -n "${AICOUSTICS_LICENSE_KEY:-}" ] && keys+="  aicoustics: { credential: { value: \"\${AICOUSTICS_LICENSE_KEY}\" } }"$'\n'
   # An empty `providers:` would be null, which removes the bundle's providers in the merge.
-  if [ -n "$keys" ]; then printf 'providers:\n%s' "$keys"; else echo "{}"; fi > "$OVERLAY/appbridge.yaml"
+  {
+    if [ -n "$keys" ]; then printf 'providers:\n%s' "$keys"; fi
+    # With billing, every call asks it first (add-billing-service, admission).
+    if with_billing; then echo "authz: { address: \"billing:50071\", timeoutMs: 500 }"; fi
+  } > "$OVERLAY/appbridge.yaml"
+  [ -s "$OVERLAY/appbridge.yaml" ] || echo "{}" > "$OVERLAY/appbridge.yaml"
 
   local creds=""
   [ -n "${GROQ_API_KEY:-}" ] && creds+="  groq-default: { value: \"\${GROQ_API_KEY}\" }"$'\n'
@@ -233,7 +246,11 @@ render_configs() {
     if [[ ",$(profiles)," == *",fakes,"* ]]; then
       echo "catalog: { files: [/etc/fonoster/catalog.fakes.yaml] }"
     fi
-    echo "registry: { platformCredentials: [$refs] }"
+    # With billing: CreateCall asks it first, stored usage goes to it, and the Billing API is on.
+    if with_billing; then
+      echo "authz: { enabled: true, host: billing }"
+      echo "features: { billing: { enabled: true, address: \"billing:50073\" } }"
+    fi
     echo "regions:"
     echo "  operatorKey: \"secret://file/opt/fonoster/keys/region-operator.key\""
     if [[ ",$(profiles)," == *",regions,"* ]] && [ -f "$CONF/region-hub.conf" ]; then
@@ -256,6 +273,8 @@ YAML
   local mine=()
   [ -d "$LOCAL/overlay.local" ] && mine=(--overlay "$LOCAL/overlay.local")
 
+  if with_billing; then render_billing; fi
+
   # The same renderer `fonoster-config init` uses (mods/common: fonoster-config render).
   [ -f "$CONFIG_CLI_DIR/index.js" ] \
     || die "build @fonoster/common first: (cd mods/common && npx tsc -b && cp -a src/protos dist)"
@@ -265,6 +284,42 @@ YAML
   chmod 644 "$CONF/fonoster.yaml" "$CONF/appbridge.yaml" "$CONF/autopilot.yaml" \
     "$CONF/roomr.yaml" "$CONF/routr-edgeport.yaml"
   log "host address $host_ip; platform keys: ${refs:-none}"
+}
+
+# The billing profile: billing's NATS user next to the others, and its config. Its ${NAME}s come
+# from the billing container's environment (ops/rebuild/compose.yaml). RB_BILLING_TRIAL_CREDITS
+# sets the Trial's credits (the e2e check uses a few, to run out within one call). The rate cards
+# are the repository's, the first one starting in the past: it starts at launch, and until then
+# nothing would be priced here.
+render_billing() {
+  rm -rf "$CONF/rate-cards" && mkdir -p "$CONF/rate-cards"
+  cp "$ROOT"/mods/billing/rate-cards/*.yaml "$CONF/rate-cards/"
+  sed -i.bak 's/^startsAt: .*/startsAt: 2026-01-01T00:00:00Z/' "$CONF/rate-cards/1.yaml"
+  rm -f "$CONF/rate-cards/1.yaml.bak"
+  chmod 644 "$CONF/rate-cards/"*.yaml
+  cp "$HERE/config/nats-permissions/billing.conf" "$CONF/nats-permissions/billing.conf"
+  awk '
+    /^include \.\/nats-permissions\/routr\.conf/ { print; print "include ./nats-permissions/billing.conf"; next }
+    /user: routr,/ { print; print "    { user: billing, password: $NATS_BILLING_PASSWORD, permissions: $BILLING_PERMISSIONS }"; next }
+    { print }
+  ' "$CONF/nats.conf" > "$CONF/nats.conf.tmp" && mv "$CONF/nats.conf.tmp" "$CONF/nats.conf"
+  grep -q "user: billing" "$CONF/nats.conf" || die "could not add the billing user to nats.conf"
+  cat > "$CONF/billing.yaml" <<YAML
+# Rendered by ops/rebuild/stack (billing profile). Local only: a fixed Stripe test key and webhook
+# secret the Stripe fake accepts.
+database: { url: "postgresql://postgres:\${POSTGRES_PASSWORD}@postgres:5432/fonoster?schema=billing" }
+nats: { url: "nats://nats:4222", user: billing, password: "\${NATS_BILLING_PASSWORD}" }
+identity:
+  databaseUrl: "postgresql://postgres:\${POSTGRES_PASSWORD}@postgres:5432/fnidentity"
+  encryptionKey: "\${ENCRYPTION_KEY}"
+rateCards: { dir: /etc/fonoster/rate-cards }
+plans: { trialCredits: ${RB_BILLING_TRIAL_CREDITS:-1000} }
+stripe:
+  secretKey: sk_test_stack
+  webhookSecret: "\${BILLING_WEBHOOK_SECRET}"
+  apiBase: http://stripe-fake:12111
+YAML
+  chmod 644 "$CONF/billing.yaml" "$CONF/nats.conf"
 }
 
 wait_for() {
@@ -302,7 +357,9 @@ cmd_up() {
   cmd_info
 }
 
-routr_ready() { compose logs apiserver 2>/dev/null | grep -q "roomr peer \(created\|already exists\)"; }
+# grep reads all of it: `grep -q` stops at the first match and, with pipefail, the SIGPIPE it
+# leaves `compose logs` on a long log reads as "not ready".
+routr_ready() { compose logs apiserver 2>/dev/null | grep "roomr peer \(created\|already exists\)" >/dev/null; }
 
 cmd_seed() {
   [ -f "$STACK_ENV" ] || die "run 'ops/rebuild/stack up' first"
@@ -443,6 +500,30 @@ cmd_e2e() {
   log "end-to-end call passed"
 }
 
+# A call is refused once the balance is gone (add-billing-service 7.1): ops/rebuild/billing-e2e.cjs.
+cmd_billing_e2e() {
+  export RB_PROFILES="fakes,tools,billing" RB_BILLING_TRIAL_CREDITS="${RB_BILLING_TRIAL_CREDITS:-2}"
+  RB_SMOKE_KEEP="${RB_KEEP:-}"
+  trap 'status=$?; if [ "$status" != 0 ]; then compose ps -a >&2 || true; compose logs --no-color --tail 60 billing apiserver appbridge >&2 || true; fi; [ -z "$RB_SMOKE_KEEP" ] && cmd_down >/dev/null 2>&1; exit $status' EXIT
+  cmd_up
+  cmd_seed
+  # A fresh account each run: the data volume outlives the stack, and a used-up Trial stays used.
+  psql_fonoster "drop schema if exists billing cascade" >/dev/null
+  compose restart billing >/dev/null
+  wait_for "billing (migrations)" 60 billing_ready || die "billing did not start"
+  sleep 4
+  load_env
+  local number
+  number="$(seed_get number.telUrl)"; number="${number#tel:}"
+  wait_for "the caller bot" 30 curl -sf "http://localhost:$RB_CALLER_PORT/calls"
+  (cd "$ROOT" && RB_CALLER="http://localhost:$RB_CALLER_PORT" RB_TARGET="$RB_NET.40:$RB_SIP_PORT" \
+    RB_REQUEST_HOST="$(seed_get trunk.inboundUri)" RB_TO="$number" \
+    node "$HERE/billing-e2e.cjs")
+  log "billing end-to-end passed"
+}
+
+billing_ready() { [ "$(psql_fonoster "select count(*) from billing._prisma_migrations")" -ge 1 ]; }
+
 cmd_down() { [ -f "$STACK_ENV" ] && compose down --remove-orphans; }
 
 cmd_reset() {
@@ -463,6 +544,7 @@ case "${1:-}" in
     ;;
   smoke) cmd_smoke ;;
   e2e) cmd_e2e ;;
+  billing-e2e) cmd_billing_e2e ;;
   ask) cmd_ask ;;
   logs) shift; compose logs -f --tail 100 "$@" ;;
   ps) compose ps ;;
