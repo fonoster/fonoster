@@ -155,20 +155,24 @@ export class AppBridge {
       (options.config.amd?.enabled === false
         ? undefined
         : loadAmdClassifier(options.config.amd?.modelDir));
+    // Set here, not as field initializers: with define semantics those run before `options` is
+    // assigned.
+    this.testCalls = new TestCallVerifier(
+      options.config.testCalls?.publicKeyFile
+    );
+    this.admission =
+      options.admission ??
+      (options.config.authz
+        ? grpcAdmission(
+            options.config.authz.address,
+            options.config.authz.timeoutMs
+          )
+        : undefined);
   }
 
   private readonly amdClassifier?: AmdClassifier;
-  private readonly testCalls = new TestCallVerifier(
-    this.options.config.testCalls?.publicKeyFile
-  );
-  private readonly admission?: Admission =
-    this.options.admission ??
-    (this.options.config.authz
-      ? grpcAdmission(
-          this.options.config.authz.address,
-          this.options.config.authz.timeoutMs
-        )
-      : undefined);
+  private readonly testCalls: TestCallVerifier;
+  private readonly admission?: Admission;
 
   get config() {
     return this.options.config;
