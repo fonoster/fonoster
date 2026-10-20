@@ -14,7 +14,7 @@ network.
 
 - **WHEN** the billing suite runs a scenario whose `stripe:` block declines the next payment
 - **THEN** it runs against the Stripe fake with no network access and checks that
-  `payment_intent.payment_failed` reached the billing service and no credits were added
+  `invoice.payment_failed` reached the billing service and no credits were added
 
 #### Scenario: A month of usage
 

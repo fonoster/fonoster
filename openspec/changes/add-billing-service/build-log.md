@@ -154,3 +154,23 @@ The spec (#1046) has open questions Q1–Q7. Every proposed answer is a setting 
   #1012, so the app was never created, and each retry then failed creating the agent again; the
   stack's Routr check used `grep -q` under `pipefail`, which reads a long log as not ready.
 
+### BS12. The billing conformance suite (7.2, partly)
+
+- `contract: billing`, `role: platform`: the runner plays the platform (subscribe, top-up, usage
+  through `control`) against billing with the Stripe fake. A new step, `stripe:` (next payment
+  outcome, clock, webhook failures, meter error reports), and assertions on both sides: ledger
+  balance, top-up credits, notices, Stripe events, the first period's invoice, and the ledger less
+  Stripe's credit balance. Documented in SCENARIOS.md; runs on every pull request with Postgres.
+- The spec's "A declined top-up in CI" now names `invoice.payment_failed`: top-ups are invoices
+  since Stripe Tax (BS9).
+- `declined-top-up` passes. `month-of-usage` is skipped with its reason: it found a real drift.
+  The ledger debits usage when it is rated, from the Trial first while the Trial lasts; Stripe
+  applies credits when the invoice is finalized, after the period and its grace. A Trial that
+  expires before then (30 days, Q2; the first period of an owner who subscribed on day 0 ends the
+  day the Trial does) is gone in Stripe, so Stripe's plan credits pay what the ledger charged to the
+  Trial: the invoice is the same, the balances differ by the usage (13 credits here). With more
+  usage than the plan's credits, Stripe would charge money for usage the ledger says the Trial
+  paid. Needs the owner's decision (proposed: an owner who subscribes keeps the Trial's remaining
+  credits until the first period's grant expires, in both places).
+- Not done: the nightly sandbox run (7.3), deferred by the owner (real-service testing comes later).
+

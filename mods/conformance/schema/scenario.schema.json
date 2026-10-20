@@ -29,7 +29,8 @@
         "media-control",
         "autopilot",
         "turn-taking",
-        "regions"
+        "regions",
+        "billing"
       ]
     },
     "role": {
@@ -37,7 +38,8 @@
         "app",
         "appbridge",
         "media-control-client",
-        "region-cell"
+        "region-cell",
+        "platform"
       ],
       "description": "The side the runner plays. The implementation under test is the other side."
     },
@@ -456,9 +458,35 @@
         "control": {
           "type": "object",
           "required": ["op"],
-          "description": "The harness acts on the implementation under test through its management side (regions: enroll, reissue, disconnect, relay)",
+          "description": "The harness acts on the implementation under test through its management side (regions: enroll, reissue, disconnect, relay; billing: subscribe, top-up, usage)",
           "properties": {
             "op": { "type": "string", "pattern": "^[a-z]+(-[a-z]+)*$" }
+          }
+        },
+        "stripe": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "description": "billing: the harness sets the Stripe fake's state and failures through its control API",
+          "properties": {
+            "next_payment": {
+              "enum": ["succeed", "decline", "requires_action", "timeout"],
+              "description": "The outcome of the account's next payment"
+            },
+            "advance_days": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Moves the test clock, and billing's clock, this many days ahead"
+            },
+            "fail_webhooks": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The next N webhook deliveries fail with 500"
+            },
+            "meter_error_report": {
+              "const": true,
+              "description": "Stripe reports a meter event error (v1.billing.meter.error_report_triggered)"
+            }
           }
         },
         "next": {
@@ -527,6 +555,11 @@
         {
           "required": [
             "control"
+          ]
+        },
+        {
+          "required": [
+            "stripe"
           ]
         }
       ]

@@ -1,0 +1,19 @@
+format: fonoster.scenario.v1
+name: declined-top-up
+contract: billing
+role: platform
+spec: "Billing scenarios drive the Stripe fake / A declined top-up in CI"
+description: >
+  A Pay-as-you-go owner buys 1,000 credits and the card is declined. Billing hears
+  invoice.payment_failed from Stripe, tells the owner, and adds no credits.
+steps:
+  - control: { op: subscribe }
+  # The Trial's 1,000 credits and the plan's 2,500.
+  - assert: { balance: 3500 }
+  - stripe: { next_payment: decline }
+  - control: { op: top-up, credits: 1000 }
+  - assert:
+      stripeEvents: { $includes: [invoice.payment_failed] }
+      notices: { $includes: [topup_failed] }
+      topupCredits: 0
+      balance: 3500
