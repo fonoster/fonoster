@@ -141,6 +141,8 @@ describe("@billing admission", function () {
 
   it("answers in under 5 ms at p99", async () => {
     await payg("owner-fast", "WO-fast", 1000);
+    // Warm up first: the first checks pay for connections and query plans, not admission.
+    for (let i = 0; i < 50; i++) await check("WO-fast");
     const times: number[] = [];
     for (let i = 0; i < 300; i++) {
       const t = process.hrtime.bigint();
