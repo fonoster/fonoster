@@ -3994,9 +3994,9 @@
                 {
                   "type": "text",
                   "id": "OGvEz",
-                  "name": "Docs",
+                  "name": "Products",
                   "fill": "$text-secondary",
-                  "content": "Autopilot",
+                  "content": "Products ⌄",
                   "fontFamily": "Poppins",
                   "fontSize": 15,
                   "fontWeight": "normal"
@@ -4004,7 +4004,10 @@
                 {
                   "type": "text",
                   "id": "y3dccE",
+                  "x": 104,
+                  "y": 0,
                   "name": "Pricing",
+                  "enabled": false,
                   "fill": "$text-secondary",
                   "content": "Use cases",
                   "fontFamily": "Poppins",
@@ -12473,9 +12476,9 @@
                 {
                   "type": "text",
                   "id": "BC8Sy",
-                  "name": "Docs",
-                  "fill": "$text-secondary",
-                  "content": "Autopilot",
+                  "name": "Products",
+                  "fill": "$text-primary",
+                  "content": "Products ⌄",
                   "fontFamily": "Poppins",
                   "fontSize": 15,
                   "fontWeight": "normal"
@@ -12483,7 +12486,10 @@
                 {
                   "type": "text",
                   "id": "tkZBs",
+                  "x": 104,
+                  "y": 0,
                   "name": "Pricing",
+                  "enabled": false,
                   "fill": "$text-secondary",
                   "content": "Use cases",
                   "fontFamily": "Poppins",
@@ -20680,9 +20686,9 @@
                 {
                   "type": "text",
                   "id": "tFOna",
-                  "name": "Docs",
+                  "name": "Products",
                   "fill": "$text-secondary",
-                  "content": "Autopilot",
+                  "content": "Products ⌄",
                   "fontFamily": "Poppins",
                   "fontSize": 15,
                   "fontWeight": "normal"
@@ -20690,7 +20696,10 @@
                 {
                   "type": "text",
                   "id": "oVHBC",
+                  "x": 104,
+                  "y": 0,
                   "name": "Pricing",
+                  "enabled": false,
                   "fill": "$text-secondary",
                   "content": "Use cases",
                   "fontFamily": "Poppins",
@@ -20825,7 +20834,7 @@
               "fill": "$text-secondary",
               "textGrowth": "fixed-width",
               "width": 640,
-              "content": "One plan with everything you need. Start with $10 in credits.",
+              "content": "One plan, paid in credits. Start with 1,000 free credits.",
               "lineHeight": 1.5,
               "textAlign": "center",
               "fontFamily": "Poppins",
@@ -20910,7 +20919,7 @@
                           "id": "VpLoD",
                           "name": "Label",
                           "fill": "$text-secondary",
-                          "content": "$10 in credits to start",
+                          "content": "1,000 credits to start",
                           "fontFamily": "Poppins",
                           "fontSize": 13,
                           "fontWeight": "normal"
@@ -21078,7 +21087,7 @@
                     {
                       "type": "frame",
                       "id": "BB8tD",
-                      "name": "520 minutes/month free, then pay-as-you-go",
+                      "name": "2,500 credits every month",
                       "width": "fill_container",
                       "gap": 12,
                       "alignItems": "center",
@@ -21100,7 +21109,39 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "520 minutes/month free, then pay‑as‑you‑go",
+                          "content": "2,500 credits every month",
+                          "fontFamily": "Poppins",
+                          "fontSize": 16,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "c1DWGz",
+                      "name": "Top-up credits last 12 months",
+                      "width": "fill_container",
+                      "gap": 12,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "A9OoiU",
+                          "name": "Check",
+                          "width": 18,
+                          "height": 18,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$text-primary"
+                        },
+                        {
+                          "type": "text",
+                          "id": "T0aDr",
+                          "name": "Text",
+                          "fill": "$text-primary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Top-ups anytime, valid 12 months",
                           "fontFamily": "Poppins",
                           "fontSize": 16,
                           "fontWeight": "normal"
@@ -21462,7 +21503,7 @@
               "fill": "$text-secondary",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "One plan with everything you need. Start with $10 in credits.",
+              "content": "One plan, paid in credits. Start with 1,000 free credits.",
               "lineHeight": 1.5,
               "textAlign": "center",
               "fontFamily": "Poppins",
@@ -21547,7 +21588,7 @@
                           "id": "R3tqM",
                           "name": "Label",
                           "fill": "$text-secondary",
-                          "content": "$10 in credits to start",
+                          "content": "1,000 credits to start",
                           "fontFamily": "Poppins",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -21715,7 +21756,7 @@
                     {
                       "type": "frame",
                       "id": "N3THZw",
-                      "name": "520 minutes/month free, then pay-as-you-go",
+                      "name": "2,500 credits every month",
                       "width": "fill_container",
                       "gap": 10,
                       "children": [
@@ -21736,7 +21777,39 @@
                           "fill": "$text-primary",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "520 minutes/month free, then pay‑as‑you‑go",
+                          "content": "2,500 credits every month",
+                          "lineHeight": 1.4,
+                          "fontFamily": "Poppins",
+                          "fontSize": 15,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "J1MUr",
+                      "name": "Top-up credits last 12 months",
+                      "width": "fill_container",
+                      "gap": 10,
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "m48xEC",
+                          "name": "Check",
+                          "width": 16,
+                          "height": 16,
+                          "icon": "check",
+                          "library": "lucide",
+                          "fill": "$text-primary"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Xstqh",
+                          "name": "Text",
+                          "fill": "$text-primary",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Top-ups anytime, valid 12 months",
                           "lineHeight": 1.4,
                           "fontFamily": "Poppins",
                           "fontSize": 15,
@@ -22639,9 +22712,9 @@
                 {
                   "type": "text",
                   "id": "yAxgT",
-                  "name": "Docs",
+                  "name": "Products",
                   "fill": "$text-secondary",
-                  "content": "Autopilot",
+                  "content": "Products ⌄",
                   "fontFamily": "Poppins",
                   "fontSize": 15,
                   "fontWeight": "normal"
@@ -22649,7 +22722,10 @@
                 {
                   "type": "text",
                   "id": "UTviw",
+                  "x": 104,
+                  "y": 0,
                   "name": "Pricing",
+                  "enabled": false,
                   "fill": "$text-secondary",
                   "content": "Use cases",
                   "fontFamily": "Poppins",
@@ -29133,7 +29209,7 @@
                   "fill": "$text-muted",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "One flat monthly fee per region. No per-minute platform fees, no matter how many calls you run.",
+                  "content": "One flat yearly license per region. No per-minute platform fees, no matter how many calls you run.",
                   "lineHeight": 1.5,
                   "fontFamily": "Poppins",
                   "fontSize": 17,
@@ -29167,7 +29243,7 @@
                       "id": "voyno",
                       "name": "Name",
                       "fill": "$text-secondary",
-                      "content": "Per region, per month",
+                      "content": "Per region, per year",
                       "fontFamily": "Poppins",
                       "fontSize": 15,
                       "fontWeight": "normal"
@@ -29177,7 +29253,7 @@
                       "id": "Fvhys",
                       "name": "Price",
                       "fill": "$text-primary",
-                      "content": "One flat fee",
+                      "content": "$25,000",
                       "fontFamily": "Poppins",
                       "fontSize": 34,
                       "fontWeight": "600",
@@ -35251,7 +35327,7 @@
                   "fill": "$text-muted",
                   "textGrowth": "fixed-width",
                   "width": "fill_container",
-                  "content": "One flat monthly fee per region. No per-minute platform fees, no matter how many calls you run.",
+                  "content": "One flat yearly license per region. No per-minute platform fees, no matter how many calls you run.",
                   "lineHeight": 1.5,
                   "fontFamily": "Poppins",
                   "fontSize": 15,
@@ -35284,7 +35360,7 @@
                       "id": "S7JRO",
                       "name": "Name",
                       "fill": "$text-secondary",
-                      "content": "Per region, per month",
+                      "content": "Per region, per year",
                       "fontFamily": "Poppins",
                       "fontSize": 13,
                       "fontWeight": "normal"
@@ -35294,7 +35370,7 @@
                       "id": "i7l6D",
                       "name": "Price",
                       "fill": "$text-primary",
-                      "content": "One flat fee",
+                      "content": "$25,000",
                       "fontFamily": "Poppins",
                       "fontSize": 28,
                       "fontWeight": "600",
