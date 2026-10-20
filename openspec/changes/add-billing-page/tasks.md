@@ -14,5 +14,5 @@
 
 ## 4. Verification
 
-- [ ] 4.1 End-to-end test against the compose stack with the `billing` profile and the Stripe fake: upgrade, top up, see the credits; verify with Playwright
-- [ ] 4.2 `openspec validate add-billing-page --strict` passes
+- [x] 4.1 End-to-end test against the compose stack with the `billing` profile and the Stripe fake: upgrade, top up, see the credits; verify with Playwright
+- [x] 4.2 `openspec validate add-billing-page --strict` passes

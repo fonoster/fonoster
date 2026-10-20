@@ -1,5 +1,5 @@
 {
-  "include": ["src", "scripts", "e2e", ".storybook", "vite.config.ts", "playwright.config.ts"],
+  "include": ["src", "scripts", "e2e", "e2e-stack", ".storybook", "vite.config.ts", "playwright.config.ts", "playwright.stack.config.ts"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["vite/client", "vitest/globals", "@testing-library/jest-dom", "node"],
