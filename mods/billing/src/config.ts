@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { loadServiceConfig } from "@fonoster/common";
+import { loadServiceConfig, natsConnectionSchema } from "@fonoster/common";
 import { z } from "zod";
 
 /**
@@ -27,7 +27,8 @@ import { z } from "zod";
 export const billingConfigSchema = z
   .object({
     database: z.object({ url: z.string().min(1) }),
-    nats: z.object({ url: z.string().min(1) }),
+    /** The bus: URL, and the `billing` user's password where NATS has per-service users. */
+    nats: natsConnectionSchema,
     /**
      * Identity's database, read for who owns a workspace (as the apiserver reads it). Without it
      * no workspace has an owner, and every call is admitted.

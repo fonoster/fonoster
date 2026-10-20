@@ -22,6 +22,7 @@
  */
 import { createServer } from "http";
 import { AuthzServer } from "@fonoster/authz";
+import { natsConnectOptions } from "@fonoster/common";
 import {
   createWorkspaceDirectory,
   createPrismaClient as identityClient
@@ -91,7 +92,7 @@ async function main() {
   } else logger.warn("no identity database: every call is admitted");
 
   const nc = await connect({
-    servers: config.nats.url,
+    ...natsConnectOptions(config.nats),
     maxReconnectAttempts: -1
   });
   await runUsageConsumer({ nc, prisma, cards, clock, plans: config.plans });

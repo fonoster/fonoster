@@ -86,3 +86,19 @@ The spec (#1046) has open questions Q1–Q7. Every proposed answer is a setting 
   owner is waiting for the link. Top-ups are refused until a payment method was added there.
 - The Stripe fake gained `POST /v1/billing_portal/sessions` (on #1045).
 - Not in the SDK yet; the dashboard work (6.3) adds it with the page.
+
+### BS8. Stack (7.1, partly done)
+
+- `ops/rebuild/docker/billing.Dockerfile` builds (migrations run before the service starts;
+  `billing.yaml` at `/etc/fonoster/billing.yaml`).
+- The billing service connects with the shared NATS settings (`nats.user`/`password`, its own
+  `_INBOX_billing` prefix).
+- `nats-permissions/billing.conf` is written but no `nats.conf` includes it yet. Including it makes
+  every install define `NATS_BILLING_PASSWORD` (installer, bundle, Helm), and Community installs
+  don't run billing. Where Cloud runs billing is the owner's call (morning notes).
+- The apiserver may publish `billing.usage.>` and create `FONOSTER_USAGE_RECORDED` (all three
+  copies of `apiserver.conf`).
+- Checked by hand against NATS 2.11.8 with both users: the apiserver publishes stored usage, the
+  billing user consumes it with its durable consumer and watches `calls.*`, and cannot write the
+  session registry.
+- Not done: a compose service, and the end-to-end "a call is refused once the balance is gone".
