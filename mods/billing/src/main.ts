@@ -30,6 +30,7 @@ import { getLogger } from "@fonoster/logger";
 import { connect } from "nats";
 import { RegistryActiveCalls } from "./activeCalls";
 import { BillingAuthzHandler } from "./admission";
+import { billingApi, serveBillingApi } from "./api";
 import { systemClock } from "./clock";
 import { loadBillingConfig } from "./config";
 import { createPrismaClient } from "./db";
@@ -111,11 +112,17 @@ async function main() {
 
   every(EXPIRY_SWEEP_MS, "expiry sweep", () => expireDue(prisma, clock.now()));
 
-  if (!config.stripe) {
+  const stripe = config.stripe ? createStripe(config.stripe) : undefined;
+  await serveBillingApi(
+    billingApi({ prisma, plans: config.plans, clock, stripe }),
+    config.grpc.bind,
+    config.grpc.apiPort
+  );
+
+  if (!config.stripe || !stripe) {
     logger.warn("no stripe section: balances are kept but nothing is invoiced");
     return;
   }
-  const stripe = createStripe(config.stripe);
   const catalog = await ensureCatalog(stripe, config.plans);
   const receive = webhookReceiver({
     prisma,

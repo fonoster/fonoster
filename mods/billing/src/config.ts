@@ -42,7 +42,9 @@ export const billingConfigSchema = z
     grpc: z
       .object({
         bind: z.string().default("0.0.0.0"),
-        port: z.number().int().positive().default(50071)
+        port: z.number().int().positive().default(50071),
+        /** The Billing API (billing.proto), for the apiserver. */
+        apiPort: z.number().int().positive().default(50073)
       })
       .default({}),
     /** The HTTP server for Stripe's webhooks (`POST /stripe/webhooks`). */

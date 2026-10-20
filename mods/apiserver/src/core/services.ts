@@ -27,10 +27,17 @@ import {
   createNumberRouting
 } from "@fonoster/sipnet";
 import { buildApplicationsService } from "../applications";
+import { buildService as buildBillingService } from "../billing/buildService";
 import { buildCallsService } from "../calls";
 import { buildCapabilitiesService } from "../capabilities";
 import { getConfig } from "../config";
-import { DOMAIN_NAMES_ROOT, ROUTR_ROOMR_PEER, TRUNK_NAMES_ROOT } from "../envs";
+import {
+  BILLING_ADDRESS,
+  BILLING_ENABLED,
+  DOMAIN_NAMES_ROOT,
+  ROUTR_ROOMR_PEER,
+  TRUNK_NAMES_ROOT
+} from "../envs";
 import { buildProvidersService } from "../providers";
 import { buildSecretsService } from "../secrets";
 import { buildService as buildUsageService } from "../usage/buildService";
@@ -87,7 +94,9 @@ const services = Promise.all([
   capabilitiesService,
   webhooksService,
   providersService,
-  usageService
+  usageService,
+  // Billing (Fonoster Cloud): only when it is on (add-billing-service 6.1).
+  ...(BILLING_ENABLED ? [buildBillingService(BILLING_ADDRESS)] : [])
 ]);
 
 export default services;

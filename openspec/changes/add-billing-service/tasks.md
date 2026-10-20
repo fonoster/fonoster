@@ -36,7 +36,7 @@
 
 ## 6. Billing API
 
-- [ ] 6.1 `Billing` gRPC service (balance by bucket, plan, auto-recharge settings, create top-up, Customer Portal session) proxied by the apiserver for owners only; verify tests
+- [x] 6.1 `Billing` gRPC service (balance by bucket, plan, auto-recharge settings, create top-up, Customer Portal session) proxied by the apiserver for owners only; verify tests
 
 ## 7. Stack, conformance and docs
 

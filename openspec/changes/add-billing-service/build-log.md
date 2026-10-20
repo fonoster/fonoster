@@ -72,3 +72,17 @@ The spec (#1046) has open questions Q1–Q7. Every proposed answer is a setting 
   not the customer's clock. Also added: `lookup_keys` on the price list.
 - `feat/billing-stripe` merges `feat/stripe-fake` for its tests. It becomes a PR once #1045 is on
   main.
+
+### BS7. Billing API (6.1)
+
+- `billing.proto` (`fonoster.billing.v1beta2.Billing`): GetBilling, UpdateAutoRecharge,
+  CreateTopUp, Subscribe, CreatePortalSession. The billing service serves it on `grpc.apiPort`
+  (50073); the apiserver serves the same service to the dashboard only when billing is on
+  (`features.billing.address`, default `authz.host:50073`).
+- Owners only: the methods are granted to WORKSPACE_OWNER alone, and the apiserver also checks
+  that the caller owns the workspace of the call. `owner_ref` is always the caller (`sub`), never
+  taken from the request.
+- The portal session creates the Stripe customer at once (not through the outbox), because the
+  owner is waiting for the link. Top-ups are refused until a payment method was added there.
+- The Stripe fake gained `POST /v1/billing_portal/sessions` (on #1045).
+- Not in the SDK yet; the dashboard work (6.3) adds it with the page.
