@@ -19,6 +19,7 @@
 import { Usage } from "@fonoster/common";
 import { expect } from "chai";
 import { NatsConnection, StringCodec } from "nats";
+import { createEvalKeys } from "../../src/applications/evalKeys";
 import {
   attachUsagePublisher,
   reportEvalUsage
@@ -71,5 +72,33 @@ describe("@apiserver/usage eval usage", function () {
     });
     expect(sent[0].event.id).to.equal(Usage.usageId("eval|run-1|0", lines[0]));
     expect(new Set(sent.map((s) => s.event.id)).size).to.equal(4);
+  });
+
+  it("names key_unavailable when the workspace's key can't be read", async () => {
+    const db = {
+      secret: {
+        findFirst: async () => {
+          throw new Error("db down");
+        },
+        findMany: async () => {
+          throw new Error("db down");
+        }
+      },
+      providerKey: {
+        findUnique: async () => {
+          throw new Error("db down");
+        },
+        findFirst: async () => {
+          throw new Error("db down");
+        }
+      },
+      registryProvider: {
+        findUnique: async () => ({ credentialRef: "openai-default" })
+      }
+    };
+    const keys = createEvalKeys(db, { "openai-default": "platform-key" });
+    let message = "";
+    await keys("openai", "WS1").catch((e: Error) => (message = e.message));
+    expect(message).to.match(/^key_unavailable/);
   });
 });

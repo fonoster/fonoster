@@ -297,6 +297,21 @@ export class Call {
     });
   }
 
+  /** Providers the app uses from the start (voice, STT, filters) whose workspace key was unreadable. */
+  private unavailableProviders(app: AppConfig): string[] {
+    const catalog = this.deps.catalog;
+    const providers = new Set<string>(
+      [
+        app.speech.voice?.split("/")[0],
+        catalog.sttProvider(app.speech.sttModel),
+        ...(app.filters ?? []).map((f) => AudioFilterFactory.providerOf(f.name))
+      ].filter((p): p is string => Boolean(p))
+    );
+    return [...providers].filter((p) =>
+      catalog.keyUnavailable(p, app.workspaceRef)
+    );
+  }
+
   /** Runs an inbound or answered outbound call with its app. */
   async run(app: AppConfig) {
     this.routedTo = app;
@@ -316,6 +331,29 @@ export class Call {
     });
     // The workspace's own vendor keys, looked up once per session (registry 3.2).
     await this.deps.catalog.prepare(app.workspaceRef);
+    // A key that could not be read never falls back to the platform's: a provider the app uses
+    // from the start stops the call before it is answered (remove-platform-key-fallback D2).
+    const unavailable = this.unavailableProviders(app);
+    if (unavailable.length) {
+      telemetry.count("fonoster.appbridge.keys.unavailable", 1, {
+        provider: unavailable.join(",")
+      });
+      this.record("event", {
+        type: "call.failed",
+        reason: "key_unavailable",
+        provider: unavailable.join(","),
+        sipStatus: 503
+      });
+      this.deps.webhooks?.(
+        Webhooks.callFailed(app.workspaceRef ?? "default", {
+          ...this.parties(app),
+          reason: "key_unavailable"
+        })
+      );
+      if (this.info.direction === "inbound") await this.reject(503);
+      else await this.hangup("error");
+      return;
+    }
 
     const reached = await this.dial(app);
     const socket = reached?.socket;
@@ -1385,10 +1423,16 @@ export class AppSession {
           this.app.workspaceRef
         );
         if (!voice) {
+          const provider = voiceId?.split("/")[0];
+          const unreadable =
+            provider &&
+            this.deps.catalog.keyUnavailable(provider, this.app.workspaceRef);
           this.emit({
             type: "error",
-            code: "invalid_catalog_id",
-            message: `voice ${voiceId} is not in the catalog`,
+            code: unreadable ? "key_unavailable" : "invalid_catalog_id",
+            message: unreadable
+              ? `the workspace's ${provider} key could not be read`
+              : `voice ${voiceId} is not in the catalog`,
             fatal: false,
             relatesTo: id
           });

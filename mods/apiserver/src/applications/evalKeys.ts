@@ -28,7 +28,14 @@ type EvalDb = any;
 export function createEvalKeys(db: EvalDb, platform: Record<string, string>) {
   const workspaceKeys = new Registry.PrismaWorkspaceKeys(db);
   return async (providerId: string, workspaceRef: string) => {
-    const own = await workspaceKeys.get(workspaceRef, providerId);
+    // An unreadable key never falls back to the platform's (remove-platform-key-fallback).
+    const own = await workspaceKeys
+      .get(workspaceRef, providerId)
+      .catch((e: Error) => {
+        throw new Error(
+          `key_unavailable: the workspace's ${providerId} key could not be read (${e.message})`
+        );
+      });
     if (own) return { key: own, source: "workspace" as const };
     const provider = await db.registryProvider.findUnique({
       where: { id: providerId }
