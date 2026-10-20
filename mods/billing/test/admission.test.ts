@@ -139,7 +139,10 @@ describe("@billing admission", function () {
     expect(await check("WO-unknown")).to.deep.equal({ authorized: true });
   });
 
-  it("answers in under 5 ms at p99", async () => {
+  // A wall-clock bound: like the other timing tests (T1) it runs only when asked
+  // (CONFORMANCE_TIMING_RUNS), not on shared PR runners where Postgres alone can take longer.
+  it("answers in under 5 ms at p99", async function () {
+    if (!Number(process.env.CONFORMANCE_TIMING_RUNS ?? 0)) return this.skip();
     await payg("owner-fast", "WO-fast", 1000);
     // Warm up first: the first checks pay for connections and query plans, not admission.
     for (let i = 0; i < 50; i++) await check("WO-fast");
