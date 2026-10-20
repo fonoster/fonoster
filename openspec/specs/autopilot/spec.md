@@ -2,7 +2,9 @@
 
 ## Purpose
 The Autopilot AI voice agent: how it runs a conversation over a voice session and how it is configured.
+
 ## Requirements
+
 ### Requirement: Autopilot reacts to turn events and never detects turns itself
 
 Autopilot SHALL decide when to listen, prepare and speak only from AppBridge's turn events and,
@@ -63,7 +65,8 @@ complete. All pieces of one reply MUST share one `speak` `id`, and the last piec
 ### Requirement: Barge-in stops speech and keeps history honest
 
 When the caller interrupts, Autopilot SHALL stop its speech with `clear` and SHALL store in the
-history only the text the caller heard.
+history only the text the caller heard. It SHALL keep reading the interrupted model response to its
+end without speaking it, so the vendor's usage report for the request is received.
 
 #### Scenario: Interrupted reply
 
@@ -80,8 +83,15 @@ history only the text the caller heard.
 #### Scenario: A new turn cancels an in-flight reply
 
 - **WHEN** Autopilot is thinking about turn A and the session sends `turn.ended` for turn B
-- **THEN** the generation for turn A is aborted and nothing from it enters the history
+- **THEN** the generation for turn A is discarded, read to its end for its usage, and nothing from it
+  enters the history
 - **AND** Autopilot answers turn B with turns A and B in the history as user messages
+
+#### Scenario: An interrupted reply is still metered
+
+- **WHEN** the caller interrupts reply `r1` while the model is still streaming it
+- **THEN** no further text from `r1` is spoken or added to the history
+- **AND** Autopilot reads the response to its end and reports the vendor's token counts for it
 
 ### Requirement: Tools are structured and behind a port
 
@@ -253,4 +263,3 @@ the signed app and that app belongs to the signed workspace.
 
 - **WHEN** the hosted Autopilot's config has no `publicUrl`
 - **THEN** it refuses to start, naming `publicUrl`
-
