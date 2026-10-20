@@ -190,16 +190,18 @@ Every rated line keeps its workspace so the Billing page can split by workspace.
 
 Rollback: turn `features.billing.enabled` off; admission returns to Dummy; the ledger is kept.
 
-## Open Questions
+## Decisions (owner, 2026-10-20)
 
-- **Q1.** Plan credits expire at period end + grace (D9) rather than at period end. Confirm.
-- **Q2.** Trial: 1,000 credits with no card. Do they expire (proposed: 30 days)? Is a card required
-  to start, or only to go past the trial?
-- **Q3.** Billing service unreachable at admission: admit (proposed, D7) or refuse?
-- **Q4.** Concurrency limits per plan (proposed: Trial 2, Pay-as-you-go 20, raised on request).
-- **Q5.** Top-up sizes (proposed: minimum $10 = 1,000 credits) and auto-recharge defaults (off;
-  when on, threshold 500 credits, amount 2,500).
-- **Q6.** Tax: turn on Stripe Tax (automatic tax on the subscription and top-ups)? Needs the owner's
-  Stripe settings.
-- **Q7.** The Billing page could be its own change (`add-billing-page`) to keep this one smaller.
-  Proposed: keep it here as the last task group.
+- **Q1.** Plan credits expire at period end + 72 h, paying only for usage of their own period (D9).
+- **Q2.** Trial: 1,000 credits, no card needed, expiring 30 days after the grant; no overdraft.
+- **Q3.** Billing unreachable at admission: the call is admitted and the timeout logged (D7).
+- **Q4.** Concurrent answered calls per owner: Trial 2, Pay-as-you-go 20, raised per account.
+- **Q5.** Smallest top-up $10 (1,000 credits). Auto-recharge is off until the owner turns it on;
+  the form suggests a 500-credit threshold and a 2,500-credit amount.
+- **Q6.** Stripe Tax on: automatic tax on the subscription and on top-ups. The owner enables Stripe
+  Tax in the Stripe account.
+- **Q7.** The Billing page is its own change, `add-billing-page`, with its Pencil design.
+- **Q8.** The per-minute price is configuration (the rate card), defaulting to 4.8 credits a
+  minute (0.08 a second). To be reviewed by the owner.
+- **Q9.** The billing NATS user exists only in Cloud's deployment (a Helm value, off by default);
+  self-hosted `nats.conf` files don't change.

@@ -39,8 +39,8 @@ billed.
   the customer's threshold. After 3 failed attempts auto-recharge turns off and the customer is told.
 - **Usage reaches billing through an outbox in the apiserver**: each new `usage_events` row is
   published once on a JetStream stream, so billing never reads the apiserver's database.
-- **A Billing page** in the dashboard, shown only when billing is on: balance, plan, credit sources,
-  auto-recharge, top-up, and a link to the Stripe Customer Portal for cards and invoices.
+- **A Billing API** for the dashboard (owners only). The Billing page itself is its own change,
+  `add-billing-page`.
 - **Billing scenarios in conformance** that drive the Stripe fake (moved here from
   `add-stripe-fake`, whose system under test this service is), and the nightly run against a real
   Stripe sandbox.
@@ -60,7 +60,6 @@ Enterprise tier, retention of usage and billing records (not decided).
 - `usage-metering`: stored usage events are published once for billing.
 - `voice-session`: AppBridge asks for admission before answering, and records `call.failed` with the
   refusal reason.
-- `dashboard`: the Billing page replaces "no Billing tab in this release".
 - `conformance`: billing scenarios with a `stripe:` block, on every pull request and nightly
   against a Stripe sandbox.
 
@@ -73,7 +72,6 @@ Enterprise tier, retention of usage and billing records (not decided).
 - `mods/apiserver`: usage outbox publisher; admission check in `CreateCall`; a proxy for the Billing
   API.
 - `mods/appbridge`: admission check at session start.
-- `mods/dashboard`: Billing page.
 - `mods/conformance`: `stripe:` scenario block and the billing suite; a nightly workflow.
 - Community installs: no change. Billing is off, `DummyAuthzHandler` keeps answering yes, and no
   billing code runs.

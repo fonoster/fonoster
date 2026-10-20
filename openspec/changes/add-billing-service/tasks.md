@@ -31,21 +31,20 @@
 - [ ] 5.2 Accounts: customer, Pay-as-you-go subscription ($25 licensed + metered milli-credit price), trial grant; plan grant per paid period expiring at period end + grace (D9); verify "a paid month" and "usage in the last hour" with a test clock
 - [ ] 5.3 Billable rated lines as meter events in milli-credits; verify an invoice total equals the ledger after a test-clock month
 - [ ] 5.4 Top-ups, auto-recharge (one per crossing, off after 3 failures, notice), authentication-required handling, operator refund; verify the three top-up scenarios
+- [ ] 5.6 Stripe Tax: automatic tax on the subscription and on top-ups (Q6); verify the requests ask for it, against the Stripe fake
 - [ ] 5.5 Nightly reconciliation job; verify the "drift" scenario by changing the fake's state through `/_fake`
 
-## 6. Billing API and page
+## 6. Billing API
 
 - [ ] 6.1 `Billing` gRPC service (balance by bucket, plan, auto-recharge settings, create top-up, Customer Portal session) proxied by the apiserver for owners only; verify tests
-- [ ] 6.2 Pencil design of the Billing tab in `designs/dashboard.pen` (owner approval)
-- [ ] 6.3 Dashboard Billing tab per the design, behind `billing.enabled`; verify the dashboard scenarios with Playwright against the stack and the Stripe fake
 
 ## 7. Stack, conformance and docs
 
-- [ ] 7.1 Billing service in `ops/rebuild` (compose service on a `billing` profile with the Stripe fake, config); verify a call is refused once the balance is gone, end to end
+- [ ] 7.1 Billing service in `ops/rebuild` (compose service on a `billing` profile with the Stripe fake, config; the billing NATS user only where billing runs, a Helm value off by default, Q9); verify a call is refused once the balance is gone, end to end
 - [ ] 7.2 The `stripe:` scenario block and the billing suite in `mods/conformance`, on PR CI against the fake; verify "a declined top-up" and "a month of usage"
 - [ ] 7.3 Nightly workflow against a Stripe test-mode sandbox with the diff report and issue (needs the owner's test-mode key as a CI secret); verify one manual run
 - [ ] 7.4 Docs: Billing for Cloud users (credits, plans, top-ups, auto-recharge) and the self-hosting note that billing is off; verify the docs build has no broken links
 
 ## Workflow follow-up
 
-- Archive after merge. Next change: private-region licenses.
+- Archive after merge. Next changes: `add-billing-page` (the dashboard Billing tab, Q7), then private-region licenses.

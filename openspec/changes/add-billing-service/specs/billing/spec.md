@@ -161,3 +161,13 @@ invoices, and SHALL alert on any difference, naming the account and both amounts
 
 - **WHEN** Stripe's remaining credit for an account differs from the ledger after finalization
 - **THEN** the job alerts with the account and both values, and changes nothing
+
+### Requirement: Stripe computes tax
+
+The subscription and top-ups SHALL ask Stripe to compute tax automatically. The ledger SHALL count
+credits before tax: tax is charged on top and never becomes credits.
+
+#### Scenario: A taxed top-up
+
+- **WHEN** an owner in a taxed location buys 1,000 credits
+- **THEN** Stripe charges $10 plus the tax it computes, and the ledger gains 1,000 credits
