@@ -70,7 +70,13 @@ const ELSEWHERE: Record<string, string> = {
   "A workspace key reaches a provider missing from AppBridge config":
     "mods/appbridge/test/catalogProviders.test.ts",
   "A keyless catalog provider needs no AppBridge config":
-    "mods/appbridge/test/catalogProviders.test.ts"
+    "mods/appbridge/test/catalogProviders.test.ts",
+  "The noise-cancelling filter uses the workspace's key":
+    "mods/appbridge/test/workspaceKeys.test.ts",
+  "The noise-cancelling filter falls back to the platform key":
+    "mods/appbridge/test/workspaceKeys.test.ts",
+  "No credential at all for the filter":
+    "mods/appbridge/test/integration.test.ts"
 };
 
 const W1 = "WSregistry1000000000000000000000000";
@@ -459,6 +465,60 @@ describe("@registry scenario suite (spec.md, database)", function () {
     expect(
       (reopened.get("deepgram") as RegistryNs.ProviderEntry).endpoints
     ).to.equal(undefined);
+  });
+
+  // ---- Noise cancelling is a provider capability ----------------------------------------------
+
+  scenario("Registering the ai-coustics provider", async function () {
+    expect(
+      await cli(
+        "add-provider",
+        "aicoustics",
+        "--adapter",
+        "aicoustics",
+        "--capabilities",
+        "nc",
+        "--credential-ref",
+        "aicoustics-default"
+      )
+    ).to.equal(0);
+    expect(
+      await db.prisma.registryProvider.findUnique({
+        where: { id: "aicoustics" }
+      })
+    ).to.deep.include({
+      state: "ACTIVE",
+      capabilities: ["nc"],
+      credentialRef: "aicoustics-default"
+    });
+  });
+
+  scenario("An unknown capability is refused", async function () {
+    const before = await count();
+    expect(
+      await cli(
+        "add-provider",
+        "aicoustics2",
+        "--adapter",
+        "aicoustics",
+        "--capabilities",
+        "denoise"
+      )
+    ).to.equal(1);
+    expect(lines.join("\n")).to.contain("unknown capability: denoise");
+    expect(await count()).to.equal(before);
+  });
+
+  scenario("The provider is listed with its capability", async function () {
+    const { listCatalog } = createProvidersHandlers(db.prisma);
+    const items = (
+      await invoke<{
+        items: { id: string; capabilities?: string[]; keyless?: boolean }[];
+      }>(listCatalog, {}, W1)
+    ).items;
+    const aic = items.find((i) => i.id === "aicoustics");
+    expect(aic).to.include({ keyless: false });
+    expect(aic?.capabilities).to.deep.equal(["nc"]);
   });
 
   scenario("A labeled voice", async function () {
