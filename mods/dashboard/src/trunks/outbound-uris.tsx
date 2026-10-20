@@ -30,7 +30,7 @@ import { NEW_URI, TRANSPORTS, type TrunkValues } from "./trunk-form";
 
 const TRANSPORT_OPTIONS = TRANSPORTS.map((t) => ({ value: t, label: t }));
 
-const cellInput = "h-8 rounded-[6px] px-2.5 text-xs";
+const cellInput = "font-mono h-8 rounded-[6px] px-2.5 text-xs";
 
 /** The editable table of a trunk's outbound SIP URIs. */
 export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
@@ -148,7 +148,7 @@ export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
                             value={transport.value}
                             onValueChange={transport.onChange}
                             options={TRANSPORT_OPTIONS}
-                            className="h-8 rounded-[6px] px-2.5 text-xs"
+                            className="h-8 rounded-[6px] px-2.5 font-mono text-xs"
                           />
                         )}
                       />

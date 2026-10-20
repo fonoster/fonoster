@@ -55,7 +55,8 @@
   --color-surface-sunken: var(--fn-surface-sunken);
   --color-logo-ink: var(--fn-logo-ink);
 
-  --font-sans: var(--font-primary), ui-monospace, monospace;
+  /* UI text is Poppins; ids, numbers, code and buttons opt into mono. */
+  --font-sans: var(--font-secondary), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-primary), ui-monospace, monospace;
   --font-display: var(--font-secondary), ui-sans-serif, system-ui, sans-serif;
 

@@ -62,11 +62,14 @@ function WorkspaceSecrets() {
   );
 
   const columns: Column<Secret>[] = [
-    { header: "Name", cell: (s) => <NameCell name={s.name} sub={s.ref} /> },
+    {
+      header: "Name",
+      cell: (s) => <NameCell mono name={s.name} sub={s.ref} />
+    },
     {
       header: "Value",
       className: "w-56",
-      cell: () => <MutedCell>••••••••••••</MutedCell>
+      cell: () => <MutedCell mono>••••••••••••</MutedCell>
     },
     {
       header: "Updated",

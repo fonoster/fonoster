@@ -92,7 +92,7 @@ export default function VendorKeysScreen() {
       header: "Provider",
       cell: (r) => (
         <div className="flex min-w-0 items-center gap-2">
-          <NameCell name={r.provider.label} sub={r.provider.id} />
+          <NameCell mono name={r.provider.label} sub={r.provider.id} />
           {r.provider.state === "deprecated" && (
             <Badge variant="warning">deprecated</Badge>
           )}
@@ -248,6 +248,7 @@ function VendorKeyDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
+        monoTitle
         title={
           providerId ? `Replace ${label(providerId)} key` : "Add vendor key"
         }

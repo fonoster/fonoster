@@ -184,6 +184,7 @@ export function NumberDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
+        monoTitle
         title={number ? formatNumber(number.telUrl) : "New number"}
         description={description}
         footer={
@@ -302,6 +303,7 @@ export function NumberDrawer({
                     {...a11y}
                     value={formatNumber(number.telUrl)}
                     readOnly
+                    className="font-mono"
                     disabled
                   />
                 )}

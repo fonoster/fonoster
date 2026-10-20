@@ -25,6 +25,7 @@ import type {
 import { mergeUpdate } from "~/lib/app-request";
 import type { FonosterSdk } from "~/lib/client";
 import type {
+  AppNumber,
   AudioCodec,
   CallRecord,
   CallRecordSummary,
@@ -374,6 +375,24 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
           kind: u.kind as "app" | "agent"
         }))
       })),
+    listNumbers: async () => {
+      const items: AppNumber[] = [];
+      let pageToken: string | undefined;
+      for (let page = 0; page < MAX_PAGES; page++) {
+        const res = await sdk.numbers.listNumbers({ pageSize: 100, pageToken });
+        items.push(
+          ...(res.items ?? []).map((n) => ({
+            ref: n.ref,
+            telUrl: n.telUrl,
+            appRef: n.appRef,
+            trunkName: n.trunk?.name
+          }))
+        );
+        pageToken = res.nextPageToken || undefined;
+        if (!pageToken) break;
+      }
+      return items;
+    },
     listCalls: async () => {
       const { items } = await sdk.callRecords.listRecords({ pageSize: 100 });
       return (items as unknown as Summary[]).map(toSummary);

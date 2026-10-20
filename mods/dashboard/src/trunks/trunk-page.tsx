@@ -274,6 +274,7 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
                   <Input
                     {...a11y}
                     {...form.register("inboundUri")}
+                    className="font-mono"
                     placeholder="claro.acme.sip.fonoster.io"
                     autoComplete="off"
                     spellCheck={false}
@@ -348,7 +349,9 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
                 <ul className="flex flex-col gap-2 text-[13px]">
                   {onTrunk.map((n) => (
                     <li key={n.ref} className="flex justify-between gap-3">
-                      <span>{formatNumber(n.telUrl)}</span>
+                      <span className="font-mono">
+                        {formatNumber(n.telUrl)}
+                      </span>
                       <span className="truncate text-muted-foreground">
                         {n.name}
                       </span>

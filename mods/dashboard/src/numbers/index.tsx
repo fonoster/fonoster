@@ -60,7 +60,11 @@ export default function NumbersScreen() {
     {
       header: "Number",
       cell: (n) => (
-        <NameCell name={formatNumber(n.telUrl)} sub={n.name || undefined} />
+        <NameCell
+          mono
+          name={formatNumber(n.telUrl)}
+          sub={n.name || undefined}
+        />
       )
     },
     {

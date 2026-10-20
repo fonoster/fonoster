@@ -66,7 +66,7 @@ export const Add: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByRole("button", { name: "Add number" })
+      await canvas.findByRole("button", { name: "Create number" })
     );
   }
 };

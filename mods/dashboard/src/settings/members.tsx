@@ -86,6 +86,7 @@ export function MembersSettings() {
           <NameCell
             name={m.name || m.email}
             sub={m.name ? m.email : undefined}
+            plainSub
           />
         </div>
       )

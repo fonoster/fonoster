@@ -85,7 +85,9 @@ export function CallRecordsList() {
   const columns: Column<CallRecordSummary>[] = [
     {
       header: "Call",
-      cell: (c) => <NameCell name={`${c.from} → ${c.to}`} sub={c.callRef} />
+      cell: (c) => (
+        <NameCell mono name={`${c.from} → ${c.to}`} sub={c.callRef} />
+      )
     },
     {
       header: "Started",

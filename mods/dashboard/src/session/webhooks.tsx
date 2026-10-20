@@ -102,13 +102,13 @@ export default function WebhooksScreen() {
   const columns: Column<Webhook>[] = [
     {
       header: "Endpoint",
-      cell: (w) => <NameCell name={w.url} sub={w.events.join(", ")} />
+      cell: (w) => <NameCell mono name={w.url} sub={w.events.join(", ")} />
     },
     {
       header: "Secret",
       className: "w-72",
       cell: (w) => (
-        <MutedCell>
+        <MutedCell mono>
           {w.secretHint}
           {w.previousSecretUntil &&
             ` · previous valid until ${when(w.previousSecretUntil)}`}
@@ -135,13 +135,13 @@ export default function WebhooksScreen() {
   const deliveryColumns: Column<WebhookDelivery>[] = [
     {
       header: "Event",
-      cell: (d) => <NameCell name={d.eventType} sub={d.eventId} />
+      cell: (d) => <NameCell mono name={d.eventType} sub={d.eventId} />
     },
     {
       header: "Endpoint",
       className: "w-72",
       cell: (d) => (
-        <span className="block truncate text-muted-foreground">
+        <span className="block truncate font-mono text-[12px] text-muted-foreground">
           {urlOf(d.webhookRef) ?? "Deleted webhook"}
         </span>
       )
@@ -356,6 +356,7 @@ function WebhookDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
+        monoTitle
         title={webhook ? webhook.url : "New webhook"}
         description={
           webhook

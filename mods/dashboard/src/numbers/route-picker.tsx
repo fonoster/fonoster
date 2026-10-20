@@ -188,7 +188,7 @@ export function RoutePicker({
                     <span className="truncate text-[13px] text-foreground">
                       {option.name}
                     </span>
-                    <span className="truncate text-[11px] text-muted-foreground">
+                    <span className="truncate font-mono text-[11px] text-muted-foreground">
                       {option.sub}
                     </span>
                   </span>

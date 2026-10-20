@@ -20,7 +20,9 @@ import { Plus, Search, X } from "lucide-react";
 import { Code } from "~/components/icons/material";
 import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { DOCS_URL } from "~/app/shell/nav";
 import { PageHeader } from "~/app/shell/page";
+import { formatNumber } from "~/lib/format";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import {
   DataTable,
@@ -28,10 +30,10 @@ import {
   NameCell,
   type Column
 } from "~/components/data/data-table";
+import { EmptyState } from "~/components/data/empty-state";
 import { RowActions } from "~/components/data/row-actions";
 import { SecretDialog } from "~/components/data/secret-dialog";
 import { Alert } from "~/components/ui/alert";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
@@ -101,6 +103,27 @@ const PATIENCE = [
   { value: "high", label: "High: wait for pauses" }
 ];
 const NONE = "none";
+export const STREAMS_DOCS_URL = `${DOCS_URL}streams/bring-your-app`;
+
+/** The app icon in a tile, as in the list rows and the page header. */
+export function AppTile({ size = "sm" }: { size?: "sm" | "lg" }) {
+  return (
+    <span
+      className={
+        size === "lg"
+          ? "flex size-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary"
+          : "flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary"
+      }
+    >
+      <Code
+        className={
+          size === "lg" ? "size-6 text-foreground" : "size-4 text-foreground"
+        }
+        aria-hidden
+      />
+    </span>
+  );
+}
 
 export const EMPTY_CATALOG: Catalog = {
   voices: [],
@@ -203,6 +226,7 @@ export function AppsList({ creating: startCreating = false }) {
   const { workspaceRef } = useParams();
   const base = `/w/${workspaceRef}/apps`;
   const list = useSessionQuery(["apps"], (api) => api.listApps());
+  const numbers = useSessionQuery(["numbers"], (api) => api.listNumbers());
   const warnings = useSessionQuery(["catalog-warnings"], (api) =>
     api.listCatalogWarnings().catch(() => [])
   );
@@ -231,9 +255,27 @@ export function AppsList({ creating: startCreating = false }) {
       <Plus aria-hidden /> Create app
     </Button>
   );
+  const docs = (
+    <Button variant="outline" asChild>
+      <a href={STREAMS_DOCS_URL} target="_blank" rel="noreferrer">
+        SDK docs
+      </a>
+    </Button>
+  );
+
+  const numbersOf = (ref: string) =>
+    (numbers.data ?? []).filter((n) => n.appRef === ref);
 
   const columns: Column<SessionApp>[] = [
-    { header: "App", cell: (a) => <NameCell name={a.name} sub={a.ref} /> },
+    {
+      header: "App",
+      cell: (a) => (
+        <span className="flex min-w-0 items-center gap-3">
+          <AppTile />
+          <NameCell name={a.name} sub={a.ref} />
+        </span>
+      )
+    },
     {
       header: "URL",
       className: "w-64",
@@ -242,22 +284,39 @@ export function AppsList({ creating: startCreating = false }) {
       )
     },
     {
-      header: "Protocol",
-      className: "w-40",
+      header: "Numbers",
+      className: "w-44",
+      cell: (a) => {
+        const routed = numbersOf(a.ref);
+        return routed.length ? (
+          <span className="font-mono text-[12px]">
+            {formatNumber(routed[0].telUrl)}
+            {routed.length > 1 && ` +${routed.length - 1}`}
+          </span>
+        ) : (
+          <MutedCell>
+            <span className="font-display">No numbers</span>
+          </MutedCell>
+        );
+      }
+    },
+    {
+      header: "Voice · Transcriber",
+      className: "w-56",
       cell: (a) => (
-        <Badge variant={a.protocol === "fonoster" ? "success" : "neutral"}>
-          {PROTOCOL_LABELS[a.protocol]}
-        </Badge>
+        <span className="font-display text-muted-foreground">
+          {[a.speech.voice, a.speech.sttModel].filter(Boolean).join(" · ") ||
+            "—"}
+        </span>
       )
     },
     {
-      header: "Voice · Language",
-      className: "w-52",
+      header: "Protocol",
+      className: "w-40",
       cell: (a) => (
-        <MutedCell>
-          {[a.speech.voice, a.speech.language].filter(Boolean).join(" · ") ||
-            "—"}
-        </MutedCell>
+        <span className="font-display text-muted-foreground">
+          {PROTOCOL_LABELS[a.protocol]}
+        </span>
       )
     },
     {
@@ -274,27 +333,31 @@ export function AppsList({ creating: startCreating = false }) {
       <PageHeader
         title="Apps"
         description="Voice apps you run yourself, connected over a stream. Pipecat, your own code, or any stream client."
-        actions={!list.loading && !empty && add}
+        actions={
+          !list.loading &&
+          !empty && (
+            <>
+              {docs}
+              {add}
+            </>
+          )
+        }
       />
       <div className="flex flex-col gap-4 px-4 pb-8 sm:px-8">
         <CatalogWarnings warnings={warnings.data ?? []} />
         <MissingKeysWarning apps={items} />
         {empty ? (
-          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-6 py-16 text-center">
-            <span className="flex size-14 items-center justify-center rounded-xl bg-brand-subtle">
-              <Code className="size-6 text-brand-text" aria-hidden />
-            </span>
-            <h2 className="font-display text-lg font-medium">
-              Connect your first app
-            </h2>
-            <p className="max-w-md font-display text-sm text-muted-foreground">
-              Add the WebSocket URL of your own voice server, then point a
-              number at it.
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 pt-2">
-              {add}
-            </div>
-          </div>
+          <EmptyState
+            icon={Code}
+            title="Connect your first app"
+            description="Add the WebSocket URL of your own voice server, then point a number at it."
+            action={
+              <>
+                {docs}
+                {add}
+              </>
+            }
+          />
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-3">
@@ -455,10 +518,29 @@ type FieldsProps = {
   app: Draft;
   set: SetDraft;
   errors: Record<string, string>;
+  /** Pairs short fields side by side (the app page); dialogs and drawers stack them. */
+  columns?: boolean;
 };
 
+/** Two fields side by side when `columns` is on, stacked otherwise. */
+function Pair({
+  columns,
+  children
+}: {
+  columns?: boolean;
+  children: ReactNode;
+}) {
+  return columns ? (
+    <div className="grid items-start gap-x-4 gap-y-[22px] sm:grid-cols-2">
+      {children}
+    </div>
+  ) : (
+    <>{children}</>
+  );
+}
+
 /** Name, URL, protocol and audio format. */
-export function ConnectionFields({ app, set, errors }: FieldsProps) {
+export function ConnectionFields({ app, set, errors, columns }: FieldsProps) {
   return (
     <>
       <Field label="Name" error={errors.name}>
@@ -489,28 +571,30 @@ export function ConnectionFields({ app, set, errors }: FieldsProps) {
           />
         )}
       </Field>
-      <Field label="Protocol">
-        {(p) => (
-          <Select
-            {...p}
-            value={app.protocol}
-            options={PROTOCOLS}
-            onValueChange={(v) => set("protocol", v as Protocol)}
-          />
-        )}
-      </Field>
-      {app.protocol === "fonoster" && (
-        <Field label="Audio format">
+      <Pair columns={columns}>
+        <Field label="Protocol">
           {(p) => (
             <Select
               {...p}
-              value={app.audio}
-              options={AUDIO}
-              onValueChange={(v) => set("audio", v as AudioCodec)}
+              value={app.protocol}
+              options={PROTOCOLS}
+              onValueChange={(v) => set("protocol", v as Protocol)}
             />
           )}
         </Field>
-      )}
+        {app.protocol === "fonoster" && (
+          <Field label="Audio format">
+            {(p) => (
+              <Select
+                {...p}
+                value={app.audio}
+                options={AUDIO}
+                onValueChange={(v) => set("audio", v as AudioCodec)}
+              />
+            )}
+          </Field>
+        )}
+      </Pair>
     </>
   );
 }
@@ -586,7 +670,8 @@ export function CallHandlingFields({
   set,
   errors,
   otherApps,
-  noiseCancelling = true
+  noiseCancelling = true,
+  columns
 }: FieldsProps & { otherApps: SessionApp[]; noiseCancelling?: boolean }) {
   const listenerError = errors.listeners;
   // Noise cancelling: None or an nc provider the catalog offers (the app's filters).
@@ -607,41 +692,43 @@ export function CallHandlingFields({
         title="Fallback"
         hint="Used when the URL can't be reached (after about 2.5 seconds of ringing)."
       >
-        <Field label="Fallback">
-          {(p) => (
-            <Select
-              {...p}
-              value={app.fallback.appRef ?? NONE}
-              options={[
-                { value: NONE, label: "None" },
-                ...otherApps.map((a) => ({ value: a.ref, label: a.name }))
-              ]}
-              onValueChange={(v) =>
-                set("fallback", {
-                  ...app.fallback,
-                  appRef: v === NONE ? undefined : v
-                })
-              }
-            />
-          )}
-        </Field>
-        <Field
-          label="Fallback message"
-          hint="Spoken before hanging up when no fallback is set."
-        >
-          {(p) => (
-            <Input
-              {...p}
-              value={app.fallback.message ?? ""}
-              onChange={(e) =>
-                set("fallback", {
-                  ...app.fallback,
-                  message: e.target.value || undefined
-                })
-              }
-            />
-          )}
-        </Field>
+        <Pair columns={columns}>
+          <Field label="Fallback">
+            {(p) => (
+              <Select
+                {...p}
+                value={app.fallback.appRef ?? NONE}
+                options={[
+                  { value: NONE, label: "None" },
+                  ...otherApps.map((a) => ({ value: a.ref, label: a.name }))
+                ]}
+                onValueChange={(v) =>
+                  set("fallback", {
+                    ...app.fallback,
+                    appRef: v === NONE ? undefined : v
+                  })
+                }
+              />
+            )}
+          </Field>
+          <Field
+            label="Fallback message"
+            hint="Spoken before hanging up when no fallback is set."
+          >
+            {(p) => (
+              <Input
+                {...p}
+                value={app.fallback.message ?? ""}
+                onChange={(e) =>
+                  set("fallback", {
+                    ...app.fallback,
+                    message: e.target.value || undefined
+                  })
+                }
+              />
+            )}
+          </Field>
+        </Pair>
       </Group>
 
       <Group
@@ -715,34 +802,38 @@ export function CallHandlingFields({
         </Button>
       </Group>
 
-      <Field label="Recording">
-        {(p) => (
-          <Select
-            {...p}
-            value={app.recording || "inherit"}
-            options={RECORDING}
-            onValueChange={(v) =>
-              set("recording", (v === "inherit" ? "" : v) as RecordingPolicy)
-            }
-          />
-        )}
-      </Field>
-
-      {noiseCancelling && (
-        <Field
-          label="Noise cancelling"
-          hint="Removes background noise and other voices before your app listens. Keeps one speaker: not for speakerphone or IVR."
-        >
+      <Pair columns={columns}>
+        <Field label="Recording">
           {(p) => (
             <Select
               {...p}
-              value={noiseCancellingOf(app.filters)}
-              options={noiseCancellingChoices}
-              onValueChange={(v) => set("filters", filtersFor(v, app.filters))}
+              value={app.recording || "inherit"}
+              options={RECORDING}
+              onValueChange={(v) =>
+                set("recording", (v === "inherit" ? "" : v) as RecordingPolicy)
+              }
             />
           )}
         </Field>
-      )}
+
+        {noiseCancelling && (
+          <Field
+            label="Noise cancelling"
+            hint="Removes background noise and other voices before your app listens. Keeps one speaker: not for speakerphone or IVR."
+          >
+            {(p) => (
+              <Select
+                {...p}
+                value={noiseCancellingOf(app.filters)}
+                options={noiseCancellingChoices}
+                onValueChange={(v) =>
+                  set("filters", filtersFor(v, app.filters))
+                }
+              />
+            )}
+          </Field>
+        )}
+      </Pair>
 
       <label className="flex items-center gap-3 font-display text-[13px]">
         <Switch

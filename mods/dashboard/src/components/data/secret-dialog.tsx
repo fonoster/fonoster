@@ -68,6 +68,7 @@ export function SecretDialog({
       }}
     >
       <DialogContent
+        variant="plain"
         className="sm:max-w-[560px]"
         onEscapeKeyDown={(event) => !saved && event.preventDefault()}
         onPointerDownOutside={(event) => event.preventDefault()}
