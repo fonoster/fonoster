@@ -28,10 +28,9 @@ show what Stripe would see.
   reports, add latency, rate-limit.
 - A viewer at `/`: Customers, Meters, Credit grants, Invoices and Webhooks, with the test clock and
   the controls (design: `designs/stripe-fake.pen`).
-- Conformance: scenarios gain a `stripe:` block that drives the fake; the same billing scenarios run
-  nightly against a real Stripe sandbox, and differences fail the job.
 
-Out of scope here: the billing service itself, alerts, the tax engine (a flat-rate stub only),
+Out of scope here: the billing service itself, and the conformance billing scenarios and nightly
+Stripe sandbox run (both in `add-billing-service`, since the billing service is what they test), alerts, the tax engine (a flat-rate stub only),
 Checkout and the customer portal, and the v2 high-volume meter stream (later, when billing needs it).
 
 ## Capabilities
@@ -42,14 +41,11 @@ Checkout and the customer portal, and the v2 high-volume meter stream (later, wh
 
 ### Modified Capabilities
 
-- `conformance`: billing scenarios drive the Stripe fake in PR CI, and the same scenarios run nightly
-  against a Stripe sandbox.
+None.
 
 ## Impact
 
 - New `mods/stripe-fake` (TypeScript, Node 20; ajv, ws and yaml as conformance already uses) and its
   Dockerfile; the viewer as a small Vite app inside it.
 - `ops/rebuild/compose.yaml`: a `stripe-fake` service on the `fakes` profile.
-- `mods/conformance`: the `stripe:` scenario block and a `stripe` suite; a nightly workflow.
-- A Stripe test-mode key as a CI secret for the nightly run (owner action, at build time).
 - No change to any production service.

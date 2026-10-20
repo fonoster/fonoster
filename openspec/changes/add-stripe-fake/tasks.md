@@ -36,12 +36,10 @@
 
 - [ ] 7.1 The Vite viewer per `designs/stripe-fake.pen` with live updates; verify Playwright tests for the two viewer scenarios
 
-## 8. Stack and conformance
+## 8. Stack and docs
 
 - [ ] 8.1 Dockerfile and a `stripe-fake` service on the `fakes` profile (`ops/rebuild/compose.yaml`); verify `docker compose --profile fakes up stripe-fake` serves `/v1/customers` and `/`
-- [ ] 8.2 The `stripe:` scenario block and the `stripe` suite in `mods/conformance`, run on PR CI against the fake; verify the "declined top-up" scenario
-- [ ] 8.3 The nightly workflow against a Stripe test-mode sandbox with the diff report and issue (needs the owner's test-mode key as a CI secret); verify one manual run with the secret set
-- [ ] 8.4 Docs: a Hacking page for the Stripe fake (run it, the viewer, the control API); verify the docs build has no broken links
+- [ ] 8.2 Docs: a Hacking page for the Stripe fake (run it, the viewer, the control API); verify the docs build has no broken links
 
 ## Workflow follow-up
 

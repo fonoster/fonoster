@@ -13,7 +13,7 @@ as paid grants valid 12 months) is in the planning doc and drives the sample dat
 ## Goals / Non-Goals
 
 **Goals:** Stripe-compatible enough that the official SDK and Fonoster's billing run unchanged
-against it; fidelity proven nightly against real Stripe; failures injectable; state visible.
+against it; fidelity proven against Stripe's own schema now and nightly against real Stripe with the billing service; failures injectable; state visible.
 
 **Non-Goals:** emulating all of Stripe; a tax engine; Checkout, the customer portal and Connect; the
 v2 meter event stream (added when billing needs its throughput); production use.
@@ -74,10 +74,11 @@ Money in credits and dollars, as billing shows it.
 
 ### D8. The nightly contract run
 
-Conformance gains a `stripe:` block in scenarios and a `stripe` suite. In PR CI it runs against the
-fake. A nightly workflow runs the same scenarios against a Stripe test-mode sandbox (key in a CI
-secret), records event sequences, invoice totals and balance summaries for both, and opens an issue
-on any difference.
+The billing scenarios check that Stripe events reach the billing service, so they are built with
+`add-billing-service`: a `stripe:` block in conformance scenarios, run against this fake in PR CI,
+and nightly against a Stripe test-mode sandbox, with any difference opening an issue. Until then the
+fake's own tests drive it through the Stripe SDK and validate every response against Stripe's
+schema.
 
 ## Risks / Trade-offs
 
