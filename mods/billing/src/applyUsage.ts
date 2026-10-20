@@ -17,10 +17,13 @@
  * limitations under the License.
  */
 import { getLogger } from "@fonoster/logger";
+import { DEFAULT_PLANS, PlanSettings } from "./config";
 import { Db, PrismaClient } from "./db";
 import { debit, lockAccount } from "./ledger";
 import { cardAt, RateCard } from "./rateCards";
 import { rate, Rated } from "./rater";
+import { maybeRecharge } from "./stripe/accounts";
+import { enqueue } from "./stripe/outbox";
 import { RecordedUsage } from "./usage";
 
 const logger = getLogger({ service: "billing", filePath: __filename });
@@ -39,7 +42,8 @@ export async function applyUsage(
   prisma: PrismaClient,
   cards: RateCard[],
   usage: RecordedUsage,
-  now: Date
+  now: Date,
+  plans: PlanSettings = DEFAULT_PLANS
 ): Promise<Applied> {
   return prisma.$transaction(async (tx: Db) => {
     const account = await tx.billingAccount.findUnique({
@@ -95,6 +99,17 @@ export async function applyUsage(
       occurredAt,
       now
     );
+    // Billable usage of a subscribed account reaches Stripe for its invoice (D5, D8).
+    if (account.stripeSubscriptionId)
+      await enqueue(tx, account.id, {
+        kind: "meter_event",
+        payload: {
+          usageId: usage.id,
+          value: String(rated.amount),
+          timestamp: Math.floor(occurredAt.getTime() / 1000)
+        }
+      });
+    await maybeRecharge(tx, account, balance, plans, now);
     return { status: "rated", ...rated, balance } as const;
   });
 }

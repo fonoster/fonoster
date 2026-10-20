@@ -45,6 +45,13 @@ export const billingConfigSchema = z
         port: z.number().int().positive().default(50071)
       })
       .default({}),
+    /** The HTTP server for Stripe's webhooks (`POST /stripe/webhooks`). */
+    http: z
+      .object({
+        bind: z.string().default("0.0.0.0"),
+        port: z.number().int().positive().default(50072)
+      })
+      .default({}),
     /** Where the rate card YAML files are (one per version). */
     rateCards: z.object({ dir: z.string().min(1) }),
     plans: z

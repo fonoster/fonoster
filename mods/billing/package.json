@@ -44,5 +44,8 @@
   },
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
+  },
+  "devDependencies": {
+    "@fonoster/stripe-fake": "^0.30.0"
   }
 }

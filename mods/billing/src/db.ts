@@ -16,9 +16,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Prisma, PrismaClient } from "./generated/@prisma/client";
+import {
+  BillingAccount,
+  Prisma,
+  PrismaClient
+} from "./generated/@prisma/client";
 
-export { Prisma, PrismaClient };
+export { BillingAccount, Prisma, PrismaClient };
 
 /** The client or a transaction: everything the ledger and the rater's consumer use. */
 export type Db = PrismaClient | Prisma.TransactionClient;
