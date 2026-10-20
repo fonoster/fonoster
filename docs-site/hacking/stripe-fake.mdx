@@ -1,0 +1,116 @@
+---
+title: "Stripe fake"
+description: "Run billing code against a local Stripe: the API subset billing uses, test clocks, signed webhooks and a control API."
+---
+
+The Stripe fake answers the part of the Stripe API that Fonoster's billing uses, so billing code and
+its tests run with no Stripe account and no network. It lives in `mods/stripe-fake`.
+
+Its answers follow Stripe's own OpenAPI schema at a pinned version (API `2026-09-30.endive`,
+`stripe` npm 23), and its tests check every response against that schema. It covers customers and
+payment methods, products and prices, billing meters and meter events, credit grants,
+subscriptions and invoices under test clocks, payment intents and refunds, events, and signed
+webhooks.
+
+<Warning>
+  The fake is for development and tests only. It keeps everything in memory and accepts any
+  `sk_test_` key.
+</Warning>
+
+## Run it
+
+With Docker Compose, the fake is a service on the `fakes` profile:
+
+```bash
+docker compose -f ops/rebuild/compose.yaml --profile fakes up stripe-fake
+```
+
+It listens on port `12111` (set `RB_STRIPE_FAKE_PORT` to change the host port). From source:
+
+```bash
+npm run build -w mods/stripe-fake
+node mods/stripe-fake/dist/main.js
+```
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `STRIPE_FAKE_PORT` | `12111` | Port to listen on |
+| `STRIPE_FAKE_WEBHOOKS` | none | Webhook endpoints to create at start (see below) |
+
+## Point the Stripe SDK at it
+
+```ts
+import Stripe from "stripe";
+
+const stripe = new Stripe("sk_test_anything", {
+  host: "127.0.0.1",
+  port: 12111,
+  protocol: "http"
+});
+
+const customer = await stripe.customers.create({ email: "ada@acme.com" });
+```
+
+Requests need a `sk_test_` or `rk_test_` key. A `Stripe-Version` header, when sent, must be the
+pinned version. Unknown parameters and paths are refused with Stripe's error shape, and
+`Idempotency-Key` replays work as in Stripe.
+
+Stripe's test payment methods work: `pm_card_visa`, `pm_card_mastercard`,
+`pm_card_chargeDeclined`, `pm_card_chargeDeclinedInsufficientFunds` and
+`pm_card_authenticationRequired`.
+
+## Move time
+
+Create a test clock and attach customers to it, as in Stripe. Advancing the clock runs the
+billing cycle: renewals, invoices finalized after the grace period (one hour by default), credit
+grants applied to metered lines, payment, and retries after 3, 5 and 7 days.
+
+```ts
+const clock = await stripe.testHelpers.testClocks.create({ frozen_time: start });
+const customer = await stripe.customers.create({ test_clock: clock.id });
+// … subscribe, send meter events …
+await stripe.testHelpers.testClocks.advance(clock.id, { frozen_time: periodEnd + 7200 });
+```
+
+## Webhooks
+
+Create endpoints with `stripe.webhookEndpoints.create`, or at start with `STRIPE_FAKE_WEBHOOKS`:
+a URL and its signing secret joined by `|`, with commas between endpoints.
+
+```bash
+STRIPE_FAKE_WEBHOOKS="http://localhost:3000/stripe|whsec_test" node mods/stripe-fake/dist/main.js
+```
+ Deliveries are
+signed like Stripe's, so `stripe.webhooks.constructEvent` verifies them. A delivery that doesn't
+get a 2xx is retried with backoff. Meter event errors arrive as thin `v2.core.event` events; read
+the full event at `GET /v2/core/events/{id}`.
+
+## Control API
+
+Tests set the fake's state through `/_fake`, which is not part of Stripe's API. Bodies are JSON.
+
+| Request | What it does |
+| --- | --- |
+| `GET /_fake/state` | Everything the fake holds |
+| `POST /_fake/reset` | Empties the fake and starts ids over |
+| `GET /_fake/snapshot`, `POST /_fake/restore` | Saves and restores the whole state |
+| `POST /_fake/clock/advance` `{seconds}` | Moves the fake's time and every test clock forward |
+| `POST /_fake/customers/{id}/next_payment` `{outcome}` | The customer's next payment `succeed`s, gets a `decline`, `requires_action` or a `timeout` |
+| `POST /_fake/webhooks/fail_next` `{n}` | The next `n` deliveries fail |
+| `POST /_fake/webhooks/replay/{event}` | Delivers an event again |
+| `POST /_fake/meters/inject_error_report` `{meter, code}` | Sends a meter error report |
+| `POST /_fake/latency` `{ms}` | Delays every answer |
+| `POST /_fake/rate_limit` `{on}` | Answers `429` while on |
+| `POST /_fake/config` `{grace_seconds, tax_rates}` | Sets the grace period and tax rates |
+
+`/_fake/ws` is a WebSocket that sends a message on every change, for watching the fake live.
+
+## Run its tests
+
+```bash
+npx mocha mods/stripe-fake/test/stripeFake.test.ts
+```
+
+The tests drive the fake through the official Stripe SDK. To refresh the schema after moving to a
+new Stripe API version, change `OPENAPI_RELEASE` in `scripts/extract-openapi.ts` and run
+`npm run extract:openapi -w mods/stripe-fake`.

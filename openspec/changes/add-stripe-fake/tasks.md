@@ -39,7 +39,7 @@
 ## 8. Stack and docs
 
 - [x] 8.1 Dockerfile and a `stripe-fake` service on the `fakes` profile (`ops/rebuild/compose.yaml`); verify `docker compose --profile fakes up stripe-fake` serves `/v1/customers` and `/`
-- [ ] 8.2 Docs: a Hacking page for the Stripe fake (run it, the viewer, the control API); verify the docs build has no broken links
+- [x] 8.2 Docs: a Hacking page for the Stripe fake (run it, the viewer, the control API); verify the docs build has no broken links
 
 ## Workflow follow-up
 

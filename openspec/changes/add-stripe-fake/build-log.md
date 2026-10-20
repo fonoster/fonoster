@@ -39,3 +39,14 @@ The nightly sandbox run (8.3) settles these:
 
 - Lists are newest first; objects created in the same second keep insertion order (newest first),
   so event order in a clock advance is stable.
+
+### SF5. Conformance and nightly moved to add-billing-service (tasks 8.2, 8.3)
+
+- The `stripe:` scenario block checks that Stripe events reached the billing service. That service
+  is the system under test and does not exist yet, so the block, the `stripe` suite and the nightly
+  sandbox run are built with `add-billing-service`. The fake's own SDK tests cover its behavior now.
+
+### SF6. Viewer not built yet (task 7.1)
+
+- Pencil only reads a `.pen` file open in the app, and `designs/stripe-fake.pen` was not open. The
+  server already serves a viewer directory and the `/_fake/ws` live feed; the Vite app comes next.
