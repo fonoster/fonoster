@@ -107,6 +107,10 @@
     "axios": "^1.20.0",
     "form-data": "^4.0.6",
     "js-yaml@^4": "^4.3.2",
+    "adm-zip": "^0.6.1",
+    "basic-ftp": "^6.2.3",
+    "compression": "^1.8.2",
+    "handlebars": "^4.7.10",
     "nodemailer": "^10.1.2",
     "@prisma/config": {
       "deepmerge-ts": "^8.0.2"
