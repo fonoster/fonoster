@@ -18,6 +18,7 @@
  */
 import SDK from "@routr/sdk";
 import { createCheckRefs, createRefLookups } from "../resources/checkRefs";
+import { withSipNameCheck } from "../resources/sipNames";
 import { ClientOptions } from "../types";
 import {
   createTrunk,
@@ -26,7 +27,6 @@ import {
   listTrunks,
   updateTrunk
 } from "./operations";
-import { withSipNameCheck } from "../resources/sipNames";
 
 /**
  * `namesRoot` (e.g. `sip.example.com`) makes every inbound URI one label under

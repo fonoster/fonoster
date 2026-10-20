@@ -37,7 +37,6 @@ import {
   AUTHZ_SERVICE_PORT,
   CALL_RECORDS,
   DOMAIN,
-  SIP_ROOT,
   HTTP_BRIDGE_PORT,
   IDENTITY_AUDIENCE,
   IDENTITY_ISSUER,
@@ -46,6 +45,7 @@ import {
   NATS_CONNECTION,
   REGIONS,
   SESSION_APPS,
+  SIP_ROOT,
   WEBHOOKS
 } from "../envs";
 import { runOutboundCalls } from "../outbound";

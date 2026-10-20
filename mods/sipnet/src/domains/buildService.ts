@@ -18,6 +18,7 @@
  */
 import SDK from "@routr/sdk";
 import { createCheckRefs, createRefLookups } from "../resources/checkRefs";
+import { withSipNameCheck } from "../resources/sipNames";
 import { ClientOptions } from "../types";
 import {
   createDomain,
@@ -26,7 +27,6 @@ import {
   listDomains,
   updateDomain
 } from "./operations";
-import { withSipNameCheck } from "../resources/sipNames";
 
 /**
  * `namesRoot` (e.g. `sip.example.com`) makes every domain one label under it;

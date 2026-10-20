@@ -325,7 +325,8 @@ abstract class AbstractClient implements FonosterClient {
             connection: toConnectionDetails(response),
             sip: {
               // Older servers don't send it; they checked nothing.
-              names: response.getSip()?.getNames() === "domain" ? "domain" : "any"
+              names:
+                response.getSip()?.getNames() === "domain" ? "domain" : "any"
             }
           });
         }

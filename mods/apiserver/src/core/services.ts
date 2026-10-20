@@ -30,11 +30,7 @@ import { buildApplicationsService } from "../applications";
 import { buildCallsService } from "../calls";
 import { buildCapabilitiesService } from "../capabilities";
 import { getConfig } from "../config";
-import {
-  DOMAIN_NAMES_ROOT,
-  ROUTR_ROOMR_PEER,
-  TRUNK_NAMES_ROOT
-} from "../envs";
+import { DOMAIN_NAMES_ROOT, ROUTR_ROOMR_PEER, TRUNK_NAMES_ROOT } from "../envs";
 import { buildProvidersService } from "../providers";
 import { buildSecretsService } from "../secrets";
 import { createCheckNumberPreconditions } from "../utils";

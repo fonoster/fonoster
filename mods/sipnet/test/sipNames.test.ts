@@ -17,10 +17,7 @@
  * limitations under the License.
  */
 import { expect } from "chai";
-import {
-  isSipNameAllowed,
-  withSipNameCheck
-} from "../src/resources/sipNames";
+import { isSipNameAllowed, withSipNameCheck } from "../src/resources/sipNames";
 
 describe("@sipnet[resources/sipNames]", function () {
   const root = "pstn.example.com";
