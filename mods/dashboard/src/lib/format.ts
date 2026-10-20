@@ -51,9 +51,42 @@ export function formatDate(
     : LONG.format(date);
 }
 
-/** "tel:+18295550110" or "+18295550110" → "+1 829 555 0110"; other numbers stay as they are. */
+/** Two-digit country calling codes (ITU E.164); 1 and 7 are one digit, the rest three. */
+const TWO_DIGIT_CODES = new Set(
+  "20 27 30 31 32 33 34 36 39 40 41 43 44 45 46 47 48 49 51 52 53 54 55 56 57 58 60 61 62 63 64 65 66 81 82 84 86 90 91 92 93 94 95 98".split(
+    " "
+  )
+);
+
+/** National digits in readable groups: 3-3-4, 3-3-3, 4-4, else threes. */
+function groupNational(digits: string): string {
+  const sizes =
+    digits.length === 10
+      ? [3, 3, 4]
+      : digits.length === 9
+        ? [3, 3, 3]
+        : digits.length === 8
+          ? [4, 4]
+          : [];
+  if (!sizes.length) return digits.replace(/(\d{3})(?=\d{2,})/g, "$1 ");
+  let at = 0;
+  return sizes.map((size) => digits.slice(at, (at += size))).join(" ");
+}
+
+/**
+ * "tel:+18295550110" → "+1 829 555 0110", "+34910555211" → "+34 910 555 211".
+ * Anything that isn't an E.164 number (SIP URIs, short codes) stays as it is.
+ */
 export function formatNumber(telUrl: string): string {
   const raw = telUrl.replace(/^tel:/, "");
-  const nanp = /^\+1(\d{3})(\d{3})(\d{4})$/.exec(raw);
-  return nanp ? `+1 ${nanp[1]} ${nanp[2]} ${nanp[3]}` : raw;
+  const e164 = /^\+(\d{8,15})$/.exec(raw);
+  if (!e164) return raw;
+  const digits = e164[1];
+  const codeLength =
+    digits[0] === "1" || digits[0] === "7"
+      ? 1
+      : TWO_DIGIT_CODES.has(digits.slice(0, 2))
+        ? 2
+        : 3;
+  return `+${digits.slice(0, codeLength)} ${groupNational(digits.slice(codeLength))}`;
 }

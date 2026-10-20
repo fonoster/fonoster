@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn } from "@storybook/test";
+import { fn, userEvent, within } from "@storybook/test";
 import type { AuthContextValue } from "~/lib/auth";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { testWorkspace } from "~/test/workspace";
@@ -98,4 +98,16 @@ export const SaveSecret: Story = {
 export const SaveSecretLight: Story = {
   ...SaveSecret,
   globals: { theme: "light" }
+};
+
+/** The row "…" menu, open on the first key. */
+export const RowMenu: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole("button", {
+        name: `Actions for ${sample[0].accessKeyId}`
+      })
+    );
+  }
 };

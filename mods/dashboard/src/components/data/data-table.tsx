@@ -21,6 +21,7 @@ import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { errorMessage } from "~/lib/errors";
+import { formatNumber } from "~/lib/format";
 import { cn } from "~/lib/utils";
 
 export type Column<T> = {
@@ -210,6 +211,21 @@ export function MutedCell({
       className={cn("text-muted-foreground", mono && "font-mono text-[12px]")}
     >
       {children}
+    </span>
+  );
+}
+
+/** The first number routed to a row, plus a "+N" pill for the rest; "No numbers" when none. */
+export function NumbersCell({ telUrls }: { telUrls: string[] }) {
+  if (!telUrls.length) return <MutedCell>No numbers</MutedCell>;
+  return (
+    <span className="flex items-center gap-1.5 whitespace-nowrap">
+      <span className="font-mono text-[12px]">{formatNumber(telUrls[0])}</span>
+      {telUrls.length > 1 && (
+        <span className="rounded-full bg-muted px-1.5 py-px font-mono text-[11px] text-muted-foreground">
+          +{telUrls.length - 1}
+        </span>
+      )}
     </span>
   );
 }

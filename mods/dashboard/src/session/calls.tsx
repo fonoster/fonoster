@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { formatStarted } from "~/calls/format";
 import { PhoneCall } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -74,8 +75,8 @@ export function describeMessage(m: SessionMessage["message"]): string {
   return type;
 }
 
-const when = (iso: string) =>
-  iso ? new Date(iso).toLocaleString(undefined, { hour12: false }) : "";
+/** List dates read like the rest of the dashboard ("Today 14:31", "Oct 2"). */
+const when = (iso?: string) => formatStarted(iso);
 
 export function CallRecordsList() {
   const navigate = useNavigate();

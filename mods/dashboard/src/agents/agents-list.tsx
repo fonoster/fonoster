@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import type { Application, INumber } from "@fonoster/types";
-import { Bot, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
@@ -25,9 +25,12 @@ import {
   DataTable,
   MutedCell,
   NameCell,
+  NumbersCell,
   type Column
 } from "~/components/data/data-table";
 import { EmptyState } from "~/components/data/empty-state";
+import { IconTile } from "~/components/data/icon-tile";
+import { SmartToy } from "~/components/icons/material";
 import { RowActions } from "~/components/data/row-actions";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -117,32 +120,38 @@ export function AgentsList() {
   const columns: Column<Application>[] = [
     {
       header: "Agent",
-      cell: (app) => <NameCell name={app.name} sub={app.ref} />
+      cell: (app) => (
+        <span className="flex min-w-0 items-center gap-3">
+          <IconTile icon={SmartToy} />
+          <NameCell name={app.name} sub={app.ref} />
+        </span>
+      )
     },
     {
       header: "Numbers",
       className: "w-44",
-      cell: (app) => {
-        const { numbers: text } = agentRow(app, numbers.data, catalog);
-        return text === "No numbers" ? (
-          <MutedCell>{text}</MutedCell>
-        ) : (
-          <span className="font-mono text-[12px]">{text}</span>
-        );
-      }
+      cell: (app) => (
+        <NumbersCell
+          telUrls={numbersFor(numbers.data, app.ref).map((n) => n.telUrl)}
+        />
+      )
     },
     {
       header: "Model",
       className: "w-48",
       cell: (app) => (
-        <MutedCell>{agentRow(app, numbers.data, catalog).model}</MutedCell>
+        <span className="block truncate text-muted-foreground">
+          {agentRow(app, numbers.data, catalog).model}
+        </span>
       )
     },
     {
       header: "Voice · Language",
       className: "w-52",
       cell: (app) => (
-        <MutedCell>{agentRow(app, numbers.data, catalog).voice}</MutedCell>
+        <span className="block truncate text-muted-foreground">
+          {agentRow(app, numbers.data, catalog).voice}
+        </span>
       )
     },
     {
@@ -177,7 +186,7 @@ export function AgentsList() {
       <div className="flex flex-col gap-4 px-4 pb-8 sm:px-8">
         {empty ? (
           <EmptyState
-            icon={Bot}
+            icon={SmartToy}
             title="Build your first agent"
             description="Write a prompt, pick a voice, point a number at it. Most teams get a first call working in minutes."
             action={add}

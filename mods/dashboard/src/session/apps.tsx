@@ -22,15 +22,15 @@ import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { DOCS_URL } from "~/app/shell/nav";
 import { PageHeader } from "~/app/shell/page";
-import { formatNumber } from "~/lib/format";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import {
   DataTable,
-  MutedCell,
   NameCell,
+  NumbersCell,
   type Column
 } from "~/components/data/data-table";
 import { EmptyState } from "~/components/data/empty-state";
+import { IconTile } from "~/components/data/icon-tile";
 import { RowActions } from "~/components/data/row-actions";
 import { SecretDialog } from "~/components/data/secret-dialog";
 import { Alert } from "~/components/ui/alert";
@@ -107,22 +107,7 @@ export const STREAMS_DOCS_URL = `${DOCS_URL}streams/bring-your-app`;
 
 /** The app icon in a tile, as in the list rows and the page header. */
 export function AppTile({ size = "sm" }: { size?: "sm" | "lg" }) {
-  return (
-    <span
-      className={
-        size === "lg"
-          ? "flex size-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary"
-          : "flex size-8 shrink-0 items-center justify-center rounded-lg bg-secondary"
-      }
-    >
-      <Code
-        className={
-          size === "lg" ? "size-6 text-foreground" : "size-4 text-foreground"
-        }
-        aria-hidden
-      />
-    </span>
-  );
+  return <IconTile icon={Code} size={size} />;
 }
 
 export const EMPTY_CATALOG: Catalog = {
@@ -286,19 +271,9 @@ export function AppsList({ creating: startCreating = false }) {
     {
       header: "Numbers",
       className: "w-44",
-      cell: (a) => {
-        const routed = numbersOf(a.ref);
-        return routed.length ? (
-          <span className="font-mono text-[12px]">
-            {formatNumber(routed[0].telUrl)}
-            {routed.length > 1 && ` +${routed.length - 1}`}
-          </span>
-        ) : (
-          <MutedCell>
-            <span className="font-display">No numbers</span>
-          </MutedCell>
-        );
-      }
+      cell: (a) => (
+        <NumbersCell telUrls={numbersOf(a.ref).map((n) => n.telUrl)} />
+      )
     },
     {
       header: "Voice · Transcriber",

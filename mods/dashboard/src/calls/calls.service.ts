@@ -73,29 +73,34 @@ export function useCall(ref: string) {
   });
 }
 
-const RECENT_DAYS = "30";
-const RECENT_LIMIT = 20;
+const RECENT_LIMIT = 100;
 
 /**
  * Recent calls to or from some of the workspace's numbers, newest first. Call
  * records don't say which app answered, so an app's calls are the calls on the
- * numbers routed to it now.
+ * numbers routed to it now. The range and status filters run on the server.
  */
-export function useCallsForNumbers(telUrls: string[]) {
+export function useCallsForNumbers(
+  telUrls: string[],
+  filters: CallFilters = { range: "30", status: "" }
+) {
   const sdk = useSdk();
   const workspace = useWorkspace();
   const numbers = telUrls.map((telUrl) => telUrl.replace(/^tel:/, "")).sort();
   return useQuery({
-    queryKey: [RESOURCE, workspace.ref, "numbers", numbers],
+    queryKey: [RESOURCE, workspace.ref, "numbers", numbers, filters],
     enabled: numbers.length > 0,
     queryFn: async () => {
-      const after = rangeStart(RECENT_DAYS);
+      const after = rangeStart(filters.range);
       const pages = await Promise.all(
         numbers.flatMap((number) =>
           (["to", "from"] as const).map((side) =>
             sdk.calls.listCalls({
               after,
               [side]: number,
+              ...(filters.status && {
+                status: filters.status as ListCallsRequest["status"]
+              }),
               pageSize: RECENT_LIMIT
             })
           )

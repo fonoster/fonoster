@@ -154,3 +154,14 @@ export const TalkToAgent: Story = {
     );
   }
 };
+
+/** The agent name in edit mode, after clicking the rename pencil. */
+export const Rename: Story = {
+  ...detail("configure"),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole("button", { name: "Rename agent" })
+    );
+  }
+};

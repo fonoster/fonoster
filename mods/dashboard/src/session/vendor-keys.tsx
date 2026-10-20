@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { formatDate } from "~/lib/format";
 import { ExternalLink, KeyRound, Plus, RefreshCw } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { DOCS_URL } from "~/app/shell/nav";
@@ -45,8 +46,8 @@ type Row = { provider: CatalogEntry; updatedAt?: string };
 /** Where the operator learns to configure vendors and their platform keys. */
 const PLATFORM_KEYS_URL = `${DOCS_URL}self-hosting/install-compose#add-platform-keys`;
 
-const when = (iso?: string) =>
-  iso ? new Date(iso).toLocaleString(undefined, { hour12: false }) : "";
+/** List dates read like the rest of the dashboard ("Today 14:31", "Oct 2"). */
+const when = (iso?: string) => formatDate(iso);
 
 /**
  * Bring your own vendor key (add-provider-registry P1): the keys this workspace added, one per

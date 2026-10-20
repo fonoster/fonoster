@@ -118,9 +118,11 @@ describe("Agents list", () => {
     ).toBeInTheDocument();
     expect(within(table).queryByText("IVR (external)")).not.toBeInTheDocument();
     expect(screen.getByText("4 agents")).toBeInTheDocument();
+    // The first number, plus a pill for the other one.
     expect(
-      await within(table).findByText("+1 829 555 0199 +1")
+      await within(table).findByText("+1 829 555 0199")
     ).toBeInTheDocument();
+    expect(within(table).getByText("+1")).toBeInTheDocument();
     expect(
       within(table).getByText("groq · llama-3.3-70b-versatile")
     ).toBeInTheDocument();

@@ -48,7 +48,10 @@ describe("call formatting", () => {
         from: "+18095550142",
         to: "+34910555211"
       } as never)
-    ).toEqual({ customer: "+1 809 555 0142", fonosterNumber: "+34910555211" });
+    ).toEqual({
+      customer: "+1 809 555 0142",
+      fonosterNumber: "+34 910 555 211"
+    });
     expect(
       callParties({
         direction: "TO_PSTN",

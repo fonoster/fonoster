@@ -52,7 +52,7 @@ export function RowActions({
           aria-label={`Actions for ${label}`}
           className="flex size-8 cursor-pointer items-center justify-center rounded-[8px] text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <MoreHorizontal className="size-4" />
+          <MoreHorizontal className="size-4 text-text-muted" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-40">
           {onEdit && (

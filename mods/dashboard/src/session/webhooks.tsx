@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { formatStarted } from "~/calls/format";
 import { Plus, RefreshCw, Webhook as WebhookIcon } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { PageHeader } from "~/app/shell/page";
@@ -62,8 +63,8 @@ const DELIVERY_BADGE: Record<string, "success" | "warning" | "error"> = {
   failed: "error"
 };
 
-const when = (iso?: string) =>
-  iso ? new Date(iso).toLocaleString(undefined, { hour12: false }) : "";
+/** List dates read like the rest of the dashboard ("Today 14:31", "Oct 2"). */
+const when = (iso?: string) => formatStarted(iso);
 
 /** A signing secret shown once, after creating a webhook or rotating its secret. */
 type Shown = { url: string; secret: string };
