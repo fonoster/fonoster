@@ -29095,7 +29095,7 @@
                               "id": "l7FA02",
                               "name": "Claro",
                               "fill": "$ui:--foreground",
-                              "content": "Claro",
+                              "content": "Acme",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 13,
                               "fontWeight": "500"
@@ -29125,7 +29125,7 @@
                               "id": "Nq1qX",
                               "name": "claro.acme.sip.fonoster.",
                               "fill": "$ui:--muted-foreground",
-                              "content": "claro.sip.fonoster.com",
+                              "content": "acme.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -29145,7 +29145,7 @@
                               "id": "DSA0L",
                               "name": "sip.claro.com.do:5060 · ",
                               "fill": "$ui:--muted-foreground",
-                              "content": "sip.claro.com.do:5060 · UDP",
+                              "content": "sip.acme.com:5060 · UDP",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -29779,7 +29779,7 @@
                       "id": "gu6ud",
                       "name": "Current",
                       "fill": "$ui:--foreground",
-                      "content": "Claro",
+                      "content": "Acme",
                       "fontFamily": "$ui:--font-secondary",
                       "fontSize": 13,
                       "fontWeight": "normal"
@@ -29806,7 +29806,7 @@
                           "id": "z00Ai",
                           "name": "Claro",
                           "fill": "$ui:--foreground",
-                          "content": "Claro",
+                          "content": "Acme",
                           "fontFamily": "$ui:--font-secondary",
                           "fontSize": 22,
                           "fontWeight": "600"
@@ -29957,7 +29957,7 @@
                                           "fill": "$ui:--foreground",
                                           "textGrowth": "fixed-width",
                                           "width": "fill_container",
-                                          "content": "Claro",
+                                          "content": "Acme",
                                           "fontFamily": "$ui:--font-secondary",
                                           "fontSize": 13,
                                           "fontWeight": "normal"
@@ -30027,7 +30027,7 @@
                                           "fill": "$ui:--foreground",
                                           "textGrowth": "fixed-width",
                                           "width": "fill_container",
-                                          "content": "claro",
+                                          "content": "acme",
                                           "fontFamily": "$ui:--font-primary",
                                           "fontSize": 13,
                                           "fontWeight": "normal"
@@ -30292,7 +30292,7 @@
                                           "id": "b7ov41",
                                           "name": "sip.claro.com.do",
                                           "fill": "$ui:--foreground",
-                                          "content": "sip.claro.com.do",
+                                          "content": "sip.acme.com",
                                           "fontFamily": "$ui:--font-primary",
                                           "fontSize": 12,
                                           "fontWeight": "normal"
@@ -30448,7 +30448,7 @@
                                           "id": "dBZR3",
                                           "name": "sip2.claro.com.do",
                                           "fill": "$ui:--foreground",
-                                          "content": "sip2.claro.com.do",
+                                          "content": "sip2.acme.com",
                                           "fontFamily": "$ui:--font-primary",
                                           "fontSize": 12,
                                           "fontWeight": "normal"
@@ -30675,7 +30675,7 @@
                                       "fill": "$ui:--foreground",
                                       "textGrowth": "fixed-width",
                                       "width": "fill_container",
-                                      "content": "Claro signaling IPs",
+                                      "content": "Acme signaling IPs",
                                       "fontFamily": "$ui:--font-secondary",
                                       "fontSize": 13,
                                       "fontWeight": "normal"
@@ -30815,7 +30815,7 @@
                                       "fill": "$ui:--foreground",
                                       "textGrowth": "fixed-width",
                                       "width": "fill_container",
-                                      "content": "claro-acme",
+                                      "content": "acme-outbound",
                                       "fontFamily": "$ui:--font-secondary",
                                       "fontSize": 13,
                                       "fontWeight": "normal"
