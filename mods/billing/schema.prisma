@@ -17,7 +17,7 @@ model BillingAccount {
   ownerRef             String    @unique @map("owner_ref") @db.VarChar(255)
   /// trial | payg
   plan                 String    @db.VarChar(16)
-  /// active | past_due | closed
+  /// active | past_due | closed | ended (a Trial past its 30 days)
   status               String    @default("active") @db.VarChar(16)
   /// Usage before this is not billed (reason before_billing).
   billingStartedAt     DateTime  @default(now()) @map("billing_started_at") @db.Timestamptz(3)

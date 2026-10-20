@@ -298,7 +298,20 @@ export async function expireDue(
       await lockAccount(tx, account_id);
       return expireGrants(tx, account_id, now);
     });
+  await endTrials(prisma, now);
   return expired;
+}
+
+/**
+ * Ends every Trial whose credits' time is up (30 days, Q2): the account's status becomes `ended`
+ * and admission refuses its calls until the owner subscribes. Returns how many ended.
+ */
+export async function endTrials(prisma: PrismaClient, now: Date) {
+  return prisma.$executeRaw`
+    UPDATE billing_accounts a SET status = 'ended', updated_at = ${now}
+     WHERE a.plan = 'trial' AND a.status = 'active'
+       AND EXISTS (SELECT 1 FROM balance_ledger g
+                    WHERE g.account_id = a.id AND g.kind = 'trial_grant' AND g.expires_at <= ${now})`;
 }
 
 /** The overdraft an account may use: the larger of a floor and a share of the last top-up. */

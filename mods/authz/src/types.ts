@@ -47,8 +47,9 @@ type AddBillingMeterEventRequest = {
   payload: Record<string, unknown>;
 };
 
-/** Why a session was refused (add-billing-service D7). */
-type SessionRefusal = "insufficient_balance" | "concurrency_limit";
+/** Why a session was refused (add-billing-service D7; trial_ended: a Trial past its 30 days). */
+type SessionRefusal =
+  "insufficient_balance" | "concurrency_limit" | "trial_ended";
 
 /** A session admission answer: a refusal names its reason. */
 type SessionDecision = { authorized: boolean; reason?: SessionRefusal };

@@ -31,7 +31,7 @@ type CreditSource = {
 type BillingSummary = {
   /** trial or payg */
   plan: string;
-  /** active, past_due or closed */
+  /** active, past_due, closed, or ended (a Trial past its 30 days) */
   status: string;
   /** Credits; negative while in the overdraft */
   balance: number;

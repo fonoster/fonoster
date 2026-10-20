@@ -213,3 +213,6 @@ Rollback: turn `features.billing.enabled` off; admission returns to Dummy; the l
 - **Q10.** An owner who subscribes during the Trial keeps its remaining credits until the first
   plan credits expire (period end + 72 h), in the ledger and in Stripe (found by the billing
   conformance suite, build log BS12).
+- **Q11.** The Trial plan expires: 30 days after it starts the account's status becomes `ended` and
+  admission refuses with `trial_ended` until the owner subscribes, whatever the balance (owner,
+  2026-10-20).

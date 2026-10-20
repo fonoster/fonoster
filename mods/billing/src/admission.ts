@@ -96,6 +96,9 @@ export class BillingAuthzHandler implements AuthzHandler {
       return { authorized: true };
     }
     const account = await ensureAccount(prisma, owner, plans, clock.now());
+    // A Trial past its 30 days: nothing runs until the owner subscribes, whatever the balance.
+    if (account.status === "ended")
+      return { authorized: false, reason: "trial_ended" };
     const snapshot = await prisma.balanceSnapshot.findUnique({
       where: { accountId: account.id }
     });

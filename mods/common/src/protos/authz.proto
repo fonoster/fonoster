@@ -60,8 +60,8 @@ message CheckSessionAuthorizedResponse {
   // to determine if the request is authorized. If the request is authorized, the
   // response will have the value true.
   bool authorized = 1;
-  // Why the session was refused, when it was: insufficient_balance or concurrency_limit
-  // (add-billing-service D7). Empty when authorized.
+  // Why the session was refused, when it was: insufficient_balance, concurrency_limit or
+  // trial_ended (add-billing-service D7). Empty when authorized.
   string reason = 2;
 }
 

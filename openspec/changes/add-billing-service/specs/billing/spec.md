@@ -97,6 +97,18 @@ long as the first plan credits. Top-up credits SHALL expire 12 months after purc
 - **WHEN** usage from the period's last hour is rated during the grace window
 - **THEN** it is paid from that period's plan credits
 
+### Requirement: The Trial ends
+
+The Trial SHALL end 30 days after it starts. Its unused credits SHALL expire, the account SHALL show
+that it ended, and admission SHALL refuse calls with reason `trial_ended` until the owner
+subscribes, whatever the balance.
+
+#### Scenario: The Trial ends
+
+- **WHEN** 30 days pass since an owner's Trial started and they have not subscribed
+- **THEN** the unused Trial credits expire, the account's status is `ended`, and the next call is
+  refused with `trial_ended` even if top-up credits remain; subscribing ends the refusal
+
 ### Requirement: Admission from the ledger
 
 The billing service SHALL implement `CheckSessionAuthorized` from its own ledger, without calling
