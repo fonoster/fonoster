@@ -23,14 +23,15 @@ import { status } from "@grpc/grpc-js";
 const LABEL = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/;
 
 /**
- * Whether an inbound URI is one label under `root` (e.g. `claro.sip.acme.com`
- * under `sip.acme.com`). Without a root (features.trunks.inboundUri: any) every
- * host passes; the request schema still checks it's a host or an IP.
+ * Whether a SIP name (a trunk's inbound URI, a domain) is one label under `root`
+ * (e.g. `acme.sip.example.com` under `sip.example.com`). Without a root
+ * (features.sip.names: any) every name passes; the request schema still checks
+ * it's a host or an IP.
  */
-export function isInboundUriAllowed(uri: string, root?: string): boolean {
+export function isSipNameAllowed(name: string, root?: string): boolean {
   if (!root) return true;
   const suffix = `.${root}`;
-  return uri.endsWith(suffix) && LABEL.test(uri.slice(0, -suffix.length));
+  return name.endsWith(suffix) && LABEL.test(name.slice(0, -suffix.length));
 }
 
 type Handler<R> = (
@@ -39,19 +40,23 @@ type Handler<R> = (
 ) => Promise<void>;
 
 /**
- * Rejects a create or update whose inbound URI isn't under `root` with
- * INVALID_ARGUMENT. An update that leaves the URI blank keeps the current one.
+ * Rejects a create or update whose `field` isn't one label under `root` with
+ * INVALID_ARGUMENT. An update that leaves the field blank keeps the current value.
  */
-export function withInboundUriCheck<R extends { inboundUri?: string }>(
+export function withSipNameCheck<R>(
   handler: Handler<R>,
+  field: string,
+  what: string,
   root?: string
 ): Handler<R> {
   return async (call, callback) => {
-    const uri = call.request.inboundUri;
-    if (uri && !isInboundUriAllowed(uri, root)) {
+    const name = (call.request as Record<string, unknown>)[field] as
+      | string
+      | undefined;
+    if (name && !isSipNameAllowed(name, root)) {
       callback({
         code: status.INVALID_ARGUMENT,
-        message: `The inbound URI must be one label under ${root}, such as carrier.${root}`
+        message: `The ${what} must be one label under ${root}, such as acme.${root}`
       });
       return;
     }

@@ -109,21 +109,21 @@ export namespace RegionsCapabilities {
   }
 }
 
-export class TrunksCapabilities extends jspb.Message {
-  getInboundUri(): string;
-  setInboundUri(value: string): TrunksCapabilities;
+export class SipCapabilities extends jspb.Message {
+  getNames(): string;
+  setNames(value: string): SipCapabilities;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): TrunksCapabilities.AsObject;
-  static toObject(includeInstance: boolean, msg: TrunksCapabilities): TrunksCapabilities.AsObject;
-  static serializeBinaryToWriter(message: TrunksCapabilities, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): TrunksCapabilities;
-  static deserializeBinaryFromReader(message: TrunksCapabilities, reader: jspb.BinaryReader): TrunksCapabilities;
+  toObject(includeInstance?: boolean): SipCapabilities.AsObject;
+  static toObject(includeInstance: boolean, msg: SipCapabilities): SipCapabilities.AsObject;
+  static serializeBinaryToWriter(message: SipCapabilities, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SipCapabilities;
+  static deserializeBinaryFromReader(message: SipCapabilities, reader: jspb.BinaryReader): SipCapabilities;
 }
 
-export namespace TrunksCapabilities {
+export namespace SipCapabilities {
   export type AsObject = {
-    inboundUri: string,
+    names: string,
   }
 }
 
@@ -245,10 +245,10 @@ export class GetCapabilitiesResponse extends jspb.Message {
   hasConnection(): boolean;
   clearConnection(): GetCapabilitiesResponse;
 
-  getTrunks(): TrunksCapabilities | undefined;
-  setTrunks(value?: TrunksCapabilities): GetCapabilitiesResponse;
-  hasTrunks(): boolean;
-  clearTrunks(): GetCapabilitiesResponse;
+  getSip(): SipCapabilities | undefined;
+  setSip(value?: SipCapabilities): GetCapabilitiesResponse;
+  hasSip(): boolean;
+  clearSip(): GetCapabilitiesResponse;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetCapabilitiesResponse.AsObject;
@@ -267,7 +267,7 @@ export namespace GetCapabilitiesResponse {
     appUrl: string,
     regions?: RegionsCapabilities.AsObject,
     connection?: ConnectionCapabilities.AsObject,
-    trunks?: TrunksCapabilities.AsObject,
+    sip?: SipCapabilities.AsObject,
   }
 }
 

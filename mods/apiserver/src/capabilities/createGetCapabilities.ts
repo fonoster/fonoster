@@ -30,7 +30,7 @@ type GetCapabilitiesResponse = {
   appUrl: string;
   regions: { private: boolean };
   connection: ConnectionCapabilities;
-  trunks: { inboundUri: string };
+  sip: { names: string };
 };
 
 type ConnectionCapabilities = {
@@ -102,7 +102,7 @@ function createGetCapabilities(config: FonosterConfig) {
     appUrl: getAppUrl(config),
     regions: { private: supportsPrivateRegions(config) },
     connection: connectionDetails(config),
-    trunks: { inboundUri: config.features.trunks.inboundUri }
+    sip: { names: config.features.sip.names }
   };
 
   return async (

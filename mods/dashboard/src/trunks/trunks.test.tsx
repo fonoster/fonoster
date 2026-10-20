@@ -55,7 +55,7 @@ describe("trunks list", () => {
     setup();
     await screen.findByText("tk-31a0c2");
     const claro = row("tk-31a0c2");
-    expect(claro.getByText("claro.sip.fonoster.local")).toBeInTheDocument();
+    expect(claro.getByText("claro.pstn.fonoster.local")).toBeInTheDocument();
     expect(claro.getByText("sip.claro.com.do · UDP +1")).toBeInTheDocument();
     expect(claro.getByText("ACL")).toBeInTheDocument();
     expect(claro.getByText("Credentials")).toBeInTheDocument();
@@ -158,7 +158,7 @@ describe("trunk page", () => {
     expect(sdk.trunks.updateTrunk).toHaveBeenCalledWith({
       ref: "tk-31a0c2",
       name: "Claro",
-      inboundUri: "claro.sip.fonoster.local",
+      inboundUri: "claro.pstn.fonoster.local",
       sendRegister: true,
       accessControlListRef: undefined,
       inboundCredentialsRef: "cr2",
@@ -227,7 +227,7 @@ describe("trunk page", () => {
     await user.type(screen.getByLabelText("Host, URI 1"), "sip.claro.com.do");
     await user.click(screen.getByRole("button", { name: "Create trunk" }));
     expect(sdk.trunks.createTrunk).toHaveBeenCalledWith(
-      expect.objectContaining({ inboundUri: "claro-rd.sip.fonoster.local" })
+      expect.objectContaining({ inboundUri: "claro-rd.pstn.fonoster.local" })
     );
     expect(
       await screen.findByText("That inbound URI is taken. Pick another.")
@@ -249,7 +249,7 @@ describe("trunk page", () => {
     expect(await screen.findByLabelText("Inbound URI")).toHaveValue("claro");
     expect(
       screen.getByText(
-        /Was claro\.com\. Saving moves it under sip\.fonoster\.local/
+        /Was claro\.com\. Saving moves it under pstn\.fonoster\.local/
       )
     ).toBeInTheDocument();
   });
@@ -257,7 +257,7 @@ describe("trunk page", () => {
   it("takes any host when the install allows it", async () => {
     const { user, sdk } = setup("/w/ws1/trunks/new", undefined, {
       ...regionsCapabilities,
-      trunks: { inboundUri: "any" }
+      sip: { names: "any" }
     });
     await user.type(await screen.findByLabelText("Name"), "Lab");
     await user.type(screen.getByLabelText("Inbound URI"), "10.0.0.5");
@@ -276,7 +276,7 @@ describe("trunk page", () => {
     await user.type(screen.getByLabelText("Name"), "Twilio");
     // The label follows the name; the install's .sip.<domain> is fixed.
     expect(screen.getByLabelText("Inbound URI")).toHaveValue("twilio");
-    expect(screen.getByText(".sip.fonoster.local")).toBeInTheDocument();
+    expect(screen.getByText(".pstn.fonoster.local")).toBeInTheDocument();
     await user.type(
       screen.getByLabelText("Host, URI 1"),
       "acme.pstn.twilio.com"
@@ -285,7 +285,7 @@ describe("trunk page", () => {
 
     expect(sdk.trunks.createTrunk).toHaveBeenCalledWith({
       name: "Twilio",
-      inboundUri: "twilio.sip.fonoster.local",
+      inboundUri: "twilio.pstn.fonoster.local",
       sendRegister: false,
       accessControlListRef: undefined,
       inboundCredentialsRef: undefined,

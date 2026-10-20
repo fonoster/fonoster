@@ -29125,7 +29125,7 @@
                               "id": "Nq1qX",
                               "name": "claro.acme.sip.fonoster.",
                               "fill": "$ui:--muted-foreground",
-                              "content": "acme.sip.fonoster.com",
+                              "content": "acme.pstn.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -29290,7 +29290,7 @@
                               "id": "IVe7b",
                               "name": "altice.acme.sip.fonoster",
                               "fill": "$ui:--muted-foreground",
-                              "content": "altice.sip.fonoster.com",
+                              "content": "altice.pstn.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -29455,7 +29455,7 @@
                               "id": "msCb9",
                               "name": "telnyx.acme.sip.fonoster",
                               "fill": "$ui:--muted-foreground",
-                              "content": "telnyx.sip.fonoster.com",
+                              "content": "telnyx.pstn.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -29597,7 +29597,7 @@
                               "id": "PSNRg",
                               "name": "twilio.acme.sip.fonoster",
                               "fill": "$ui:--muted-foreground",
-                              "content": "twilio.sip.fonoster.com",
+                              "content": "twilio.pstn.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -30037,7 +30037,7 @@
                                           "id": "v8yRj",
                                           "name": "Suffix",
                                           "fill": "$ui:--muted-foreground",
-                                          "content": ".sip.fonoster.com",
+                                          "content": ".pstn.fonoster.com",
                                           "fontFamily": "$ui:--font-primary",
                                           "fontSize": 13,
                                           "fontWeight": "normal"
@@ -31267,7 +31267,7 @@
                               "id": "DAEN4",
                               "name": "acme.sip.fonoster.io",
                               "fill": "$ui:--muted-foreground",
-                              "content": "acme.sip.fonoster.io",
+                              "content": "acme.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -31376,7 +31376,7 @@
                               "id": "TAYGF",
                               "name": "madrid.acme.sip.fonoster",
                               "fill": "$ui:--muted-foreground",
-                              "content": "madrid.acme.sip.fonoster.io",
+                              "content": "madrid.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -31746,7 +31746,7 @@
                               "id": "y6SGT",
                               "name": "sip:maria@acme.sip.fonos",
                               "fill": "$ui:--muted-foreground",
-                              "content": "sip:maria@acme.sip.fonoster.io",
+                              "content": "sip:maria@acme.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -31786,7 +31786,7 @@
                               "id": "m1LCXw",
                               "name": "acme.sip.fonoster.io",
                               "fill": "$ui:--muted-foreground",
-                              "content": "acme.sip.fonoster.io",
+                              "content": "acme.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -31906,7 +31906,7 @@
                               "id": "mqtkU",
                               "name": "sip:desk@acme.sip.fonost",
                               "fill": "$ui:--muted-foreground",
-                              "content": "sip:desk@acme.sip.fonoster.io",
+                              "content": "sip:desk@acme.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -31946,7 +31946,7 @@
                               "id": "OpDjw",
                               "name": "acme.sip.fonoster.io",
                               "fill": "$ui:--muted-foreground",
-                              "content": "acme.sip.fonoster.io",
+                              "content": "acme.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -32066,7 +32066,7 @@
                               "id": "H5KGA",
                               "name": "sip:lucia@madrid.acme.si",
                               "fill": "$ui:--muted-foreground",
-                              "content": "sip:lucia@madrid.acme.sip.fonoster.io",
+                              "content": "sip:lucia@madrid.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -32106,7 +32106,7 @@
                               "id": "TUUxn",
                               "name": "madrid.acme.sip.fonoster",
                               "fill": "$ui:--muted-foreground",
-                              "content": "madrid.acme.sip.fonoster.io",
+                              "content": "madrid.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -32226,7 +32226,7 @@
                               "id": "VZL4d",
                               "name": "sip:test@acme.sip.fonost",
                               "fill": "$ui:--muted-foreground",
-                              "content": "sip:test@acme.sip.fonoster.io",
+                              "content": "sip:test@acme.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 11,
                               "fontWeight": "normal"
@@ -32266,7 +32266,7 @@
                               "id": "r7mi0",
                               "name": "acme.sip.fonoster.io",
                               "fill": "$ui:--muted-foreground",
-                              "content": "acme.sip.fonoster.io",
+                              "content": "acme.sip.fonoster.com",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -58913,8 +58913,8 @@
     {
       "type": "frame",
       "id": "kwfZO",
-      "x": 3080,
-      "y": 5764,
+      "x": 2643,
+      "y": 5840,
       "name": "Gap note · App detail",
       "width": 420,
       "fill": "#FEF3C7",

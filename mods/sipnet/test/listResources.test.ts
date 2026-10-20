@@ -18,7 +18,12 @@
  */
 import { getExtendedFieldsHelper } from "@fonoster/sipnet/test/getExtendedFieldsHelper";
 import { TEST_TOKEN } from "@fonoster/sipnet/test/testToken";
-import { Domain, DomainExtended, DomainsApi, ListDomainsRequest } from "@fonoster/types";
+import {
+  Domain,
+  DomainExtended,
+  DomainsApi,
+  ListDomainsRequest
+} from "@fonoster/types";
 import * as grpc from "@grpc/grpc-js";
 import * as chai from "chai";
 import { expect } from "chai";
@@ -84,7 +89,10 @@ describe("@sipnet[resources/listResources]", function () {
           // Assert
           expect(error).to.be.null;
           expect(response).to.not.be.null;
-          const typedResponse = response as { items: DomainExtended[]; nextPageToken?: string };
+          const typedResponse = response as {
+            items: DomainExtended[];
+            nextPageToken?: string;
+          };
           expect(typedResponse.items).to.have.length(1);
           expect(typedResponse.items[0].ref).to.equal("123");
           // When items.length < pageSize, nextPageToken should be empty string
@@ -201,16 +209,21 @@ describe("@sipnet[resources/listResources]", function () {
           // Assert
           expect(error).to.be.null;
           expect(response).to.not.be.null;
-          const typedResponse = response as { items: DomainExtended[]; nextPageToken?: string };
+          const typedResponse = response as {
+            items: DomainExtended[];
+            nextPageToken?: string;
+          };
           expect(typedResponse.items).to.have.length(2);
           expect(typedResponse.items[0].ref).to.equal("current-1");
           expect(typedResponse.items[1].ref).to.equal("current-2");
-          expect((typedResponse.items[0].extended as { accessKeyId: string }).accessKeyId).to.equal(
-            currentAccessKeyId
-          );
-          expect((typedResponse.items[1].extended as { accessKeyId: string }).accessKeyId).to.equal(
-            currentAccessKeyId
-          );
+          expect(
+            (typedResponse.items[0].extended as { accessKeyId: string })
+              .accessKeyId
+          ).to.equal(currentAccessKeyId);
+          expect(
+            (typedResponse.items[1].extended as { accessKeyId: string })
+              .accessKeyId
+          ).to.equal(currentAccessKeyId);
           // Backend returned fewer items than requested (2 < 40), so this is the last page
           expect(typedResponse.nextPageToken).to.equal("");
 
@@ -305,7 +318,10 @@ describe("@sipnet[resources/listResources]", function () {
           // Assert
           expect(error).to.be.null;
           expect(response).to.not.be.null;
-          const typedResponse = response as { items: DomainExtended[]; nextPageToken?: string };
+          const typedResponse = response as {
+            items: DomainExtended[];
+            nextPageToken?: string;
+          };
           expect(typedResponse.items).to.have.length(3);
 
           // CRITICAL: Since backend returned fewer items than requested (3 < 20),
@@ -370,7 +386,10 @@ describe("@sipnet[resources/listResources]", function () {
           // Assert
           expect(error).to.be.null;
           expect(response).to.not.be.null;
-          const typedResponse = response as { items: DomainExtended[]; nextPageToken?: string };
+          const typedResponse = response as {
+            items: DomainExtended[];
+            nextPageToken?: string;
+          };
           expect(typedResponse.items).to.have.length(1);
           expect(typedResponse.items[0].ref).to.equal("123");
 

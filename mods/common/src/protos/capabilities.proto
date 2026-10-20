@@ -61,11 +61,11 @@ message RegionsCapabilities {
   bool private = 1;
 }
 
-// How trunk inbound URIs are checked (features.trunks.inboundUri).
-message TrunksCapabilities {
+// How SIP names (trunk inbound URIs, domains) are checked (features.sip.names).
+message SipCapabilities {
   // "domain": one DNS label under sip.<domain> (the default). "any": any host
-  // or IP, for installs whose carriers reach them by address.
-  string inbound_uri = 1;
+  // or IP, for installs whose carriers and phones reach them by address.
+  string names = 1;
 }
 
 message SipEndpoint {
@@ -98,5 +98,5 @@ message GetCapabilitiesResponse {
   string app_url = 5;
   RegionsCapabilities regions = 6;
   ConnectionCapabilities connection = 7;
-  TrunksCapabilities trunks = 8;
+  SipCapabilities sip = 8;
 }

@@ -1377,7 +1377,7 @@ FLAGS
   -a, --access-control-list=<value>  [default: 165.22.7.155/32] the access control list to allow (use if running your
                                      Fonoster instance)
   -b, --outbound-uri-base=<value>    the host Twilio sends calls to, under which the trunk's inbound URI is made
-                                     (default: sip.<the server's domain>)
+                                     (default: pstn.<the server's domain>)
   -i, --insecure                     allow connections to a server with no TLS
 
 DESCRIPTION

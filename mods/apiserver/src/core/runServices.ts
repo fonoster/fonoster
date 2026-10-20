@@ -37,6 +37,7 @@ import {
   AUTHZ_SERVICE_PORT,
   CALL_RECORDS,
   DOMAIN,
+  SIP_ROOT,
   HTTP_BRIDGE_PORT,
   IDENTITY_AUDIENCE,
   IDENTITY_ISSUER,
@@ -124,7 +125,8 @@ async function runServices() {
       handlers,
       callFeatures: getConfig().features.calls
     }),
-    rootDomain: () => DOMAIN
+    // Workspace domains are <label>.sip.<domain>; a region rewrites them to its own.
+    rootDomain: () => SIP_ROOT
   });
   workspaceRegionHooks.attach(regions);
 
