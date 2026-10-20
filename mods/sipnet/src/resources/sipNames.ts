@@ -50,9 +50,8 @@ export function withSipNameCheck<R>(
   root?: string
 ): Handler<R> {
   return async (call, callback) => {
-    const name = (call.request as Record<string, unknown>)[field] as
-      | string
-      | undefined;
+    const value = (call.request as Record<string, unknown>)[field];
+    const name = typeof value === "string" ? value : undefined;
     if (name && !isSipNameAllowed(name, root)) {
       callback({
         code: status.INVALID_ARGUMENT,
