@@ -34,7 +34,8 @@ import {
   Routes,
   useMatch,
   useNavigate,
-  useParams
+  useParams,
+  useSearchParams
 } from "react-router-dom";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import { Alert } from "~/components/ui/alert";
@@ -143,7 +144,9 @@ function AgentEditor({
   const update = useUpdateAgent();
   const remove = useDeleteAgent();
   const [invalidTabs, setInvalidTabs] = useState<string[]>([]);
-  const [talking, setTalking] = useState(false);
+  // ?talk=1 (the Overview checklist) opens Talk to agent.
+  const [search] = useSearchParams();
+  const [talking, setTalking] = useState(search.get("talk") === "1");
   const [deleting, setDeleting] = useState(false);
 
   const form = useForm<AgentValues>({

@@ -207,7 +207,9 @@ export function CallRecordView() {
       />
       <div className="flex flex-col gap-5 px-4 pb-10 sm:px-8">
         {isPrivate && !offline && (
-          <Badge variant="info">Stored in your region</Badge>
+          <Badge variant="info" className="self-start">
+            Stored in your region
+          </Badge>
         )}
         {call.unfiltered?.map((u, i) => (
           <Alert key={i} variant="warning">

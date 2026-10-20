@@ -19,6 +19,7 @@
 import type { INumber } from "@fonoster/types";
 import { Phone, Plus } from "lucide-react";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import {
@@ -42,7 +43,9 @@ export default function NumbersScreen() {
   const apps = useApplicationOptions();
   const sipAgents = useSipAgentOptions();
   const [editing, setEditing] = useState<INumber | undefined>();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  // ?new=1 (the Overview checklist) opens the create drawer.
+  const [search] = useSearchParams();
+  const [drawerOpen, setDrawerOpen] = useState(search.get("new") === "1");
   const [deleting, setDeleting] = useState<INumber | undefined>();
 
   const openDrawer = (number?: INumber) => {
