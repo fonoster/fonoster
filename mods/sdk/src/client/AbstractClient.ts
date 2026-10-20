@@ -45,6 +45,7 @@ import {
 } from "./types";
 import { AclsClient } from "./types/AclsClient";
 import { AgentsClient } from "./types/AgentsClient";
+import { BillingClient } from "./types/BillingClient";
 import { CredentialsClient } from "./types/CredentialsClient";
 import { DomainsClient } from "./types/DomainsClient";
 import { NumbersClient } from "./types/NumbersClient";
@@ -426,6 +427,7 @@ abstract class AbstractClient implements FonosterClient {
   abstract getWebhooksClient(): WebhooksClient;
   abstract getProvidersClient(): ProvidersClient;
   abstract getUsageClient(): UsageClient;
+  abstract getBillingClient(): BillingClient;
   abstract getHttpUrl(): string;
 }
 

@@ -34,3 +34,4 @@ export * from "./webhooks.types";
 export * from "./records.types";
 export * from "./regions.types";
 export * from "./usage.types";
+export * from "./billing.types";

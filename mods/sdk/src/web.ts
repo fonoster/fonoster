@@ -37,6 +37,7 @@ export * from "./Numbers";
 
 export * from "./Providers";
 export * from "./Usage";
+export * from "./Billing";
 
 export * from "./Secrets";
 

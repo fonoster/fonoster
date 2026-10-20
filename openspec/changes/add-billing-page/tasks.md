@@ -4,7 +4,7 @@
 
 ## 2. SDK
 
-- [ ] 2.1 `Billing` client in `@fonoster/sdk` (getBilling, updateAutoRecharge, createTopUp, subscribe, createPortalSession) with docs comments; verify SDK unit tests
+- [x] 2.1 `Billing` client in `@fonoster/sdk` (getBilling, updateAutoRecharge, createTopUp, subscribe, createPortalSession) with docs comments; verify SDK unit tests
 
 ## 3. Dashboard
 

@@ -19,6 +19,7 @@
 import { AclsClient } from "../generated/web/AclsServiceClientPb";
 import { AgentsClient } from "../generated/web/AgentsServiceClientPb";
 import { ApplicationsClient } from "../generated/web/ApplicationsServiceClientPb";
+import { BillingClient } from "../generated/web/BillingServiceClientPb";
 import { CallsClient } from "../generated/web/CallsServiceClientPb";
 import { CapabilitiesClient } from "../generated/web/CapabilitiesServiceClientPb";
 import { CredentialsServiceClient } from "../generated/web/CredentialsServiceClientPb";
@@ -137,6 +138,12 @@ export class WebClient extends AbstractClient {
 
   getUsageClient() {
     return new UsageClient(this.url, null, {
+      streamInterceptors: [new TokenRefresherWeb(this)]
+    });
+  }
+
+  getBillingClient() {
+    return new BillingClient(this.url, null, {
       streamInterceptors: [new TokenRefresherWeb(this)]
     });
   }

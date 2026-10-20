@@ -25,6 +25,7 @@ import {
 import { AclsClient } from "../generated/node/acls_grpc_pb";
 import { AgentsClient } from "../generated/node/agents_grpc_pb";
 import { ApplicationsClient } from "../generated/node/applications_grpc_pb";
+import { BillingClient } from "../generated/node/billing_grpc_pb";
 import { CallsClient } from "../generated/node/calls_grpc_pb";
 import { CapabilitiesClient } from "../generated/node/capabilities_grpc_pb";
 import { CredentialsServiceClient } from "../generated/node/credentials_grpc_pb";
@@ -160,6 +161,12 @@ export class Client extends AbstractClient {
 
   getUsageClient() {
     return new UsageClient(this.endpoint, this.channelCredentials, {
+      interceptors: [this.tokenRefresherInterceptor]
+    });
+  }
+
+  getBillingClient() {
+    return new BillingClient(this.endpoint, this.channelCredentials, {
       interceptors: [this.tokenRefresherInterceptor]
     });
   }
