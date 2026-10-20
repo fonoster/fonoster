@@ -22,12 +22,12 @@
 
 ## 3. AppBridge counters (mods/appbridge)
 
-- [ ] 3.1 `answeredAt` set with `answeredBy` (attach and outbound `call.answered`); `call.seconds` from it at `finish()`, none when unanswered; verify tests: 20 s ring + 65 s talk = 65, unanswered = no line, `durationSeconds` unchanged
-- [ ] 3.2 STT, TTS and noise-cancelling counters (D3) with provider from the catalog id and `keySource` from `Catalog.usesWorkspaceKey`; verify tests with the fake provider: 3 s of frames = 3 `stt.seconds`, a 42-character `speak` = 42 `tts.characters`, a failed filter slot stops counting, a workspace key gives `keySource: workspace`
-- [ ] 3.3 AMD and recording counters; verify tests: one classification of 4,000 ms = 1 detection and 4 `amd.seconds`; a recording stopped and restarted sums both spans
-- [ ] 3.4 Origin (D9): `TestCallVerifier.check` returns `test`; `Call` carries `origin`; verify tests: a valid test token gives `browser_test`, no token gives `call`
-- [ ] 3.5 `usage.report` handling: accepted only from `AUTOPILOT` apps and only for `llm.tokens.*` and `embedding.tokens`, merged into `CallUsage`; otherwise `error bad_message`; not in the public protocol docs; verify the three voice-session delta scenarios as tests
-- [ ] 3.6 Write `CallUsage` into the working record every 60 s and at `finish()`; `callrecord` puts `usage` in the vCon and in `RecordIndexEntry` (signed); verify tests: the sealed record and index carry the lines, the signature covers them, a recovered seal keeps the last flush, a minimal record of a rejected call has no lines; `fonoster-usage rebuild --from-records` restores the lines of a sealed record missing from the ledger (deferred here from 2.5)
+- [x] 3.1 `answeredAt` set with `answeredBy` (attach and outbound `call.answered`); `call.seconds` from it at `finish()`, none when unanswered; verify tests: 20 s ring + 65 s talk = 65, unanswered = no line, `durationSeconds` unchanged
+- [x] 3.2 STT, TTS and noise-cancelling counters (D3) with provider from the catalog id and `keySource` from `Catalog.usesWorkspaceKey`; verify tests with the fake provider: 3 s of frames = 3 `stt.seconds`, a 42-character `speak` = 42 `tts.characters`, a workspace key gives `keySource: workspace` (the noise-cancelling counter, including a failed slot that stops counting, is verified with the fake filter in 7.1: the only provider-backed filter needs the vendor SDK)
+- [x] 3.3 AMD and recording counters; verify tests: one classification of 4,000 ms = 1 detection and 4 `amd.seconds`; a recording's seconds run from `recording.started` to stop (the recorder runs once per call)
+- [x] 3.4 Origin (D9): `TestCallVerifier.check` returns `test`; `Call` carries `origin`; verify tests: a valid test token gives `browser_test`, no token gives `call`
+- [x] 3.5 `usage.report` handling: accepted only from `AUTOPILOT` apps and only for `llm.tokens.*` and `embedding.tokens`, merged into `CallUsage`; otherwise `error bad_message`; not in the public protocol docs; verify the three voice-session delta scenarios as tests
+- [x] 3.6 Write `CallUsage` into the working record every 60 s and at `finish()`; `callrecord` puts `usage` in the vCon and in `RecordIndexEntry` (signed); verify tests: the sealed record and index carry the lines, the signature covers them, a recovered seal keeps the last flush, a minimal record of a rejected call has no lines; `fonoster-usage rebuild --from-records` restores the lines of a sealed record missing from the ledger (deferred here from 2.5)
 
 ## 4. Model usage (mods/community, mods/autopilot)
 

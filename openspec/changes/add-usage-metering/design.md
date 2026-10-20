@@ -88,7 +88,7 @@ dashboard don't change.
 | `eval.*` (`llm.tokens.*`, origin `eval`) | apiserver eval path (D5) | same as LLM |
 | `storage.bytes` | nightly job in the apiserver (D8) | bytes held per workspace that day |
 
-The provider is the catalog id's prefix. The model is the catalog id when the line has one.
+The provider is the catalog id's prefix. The model is the catalog id when the line has one; for TTS it is the voice's catalog id, since apps name a voice, not a model. With no STT model configured, the line names the deployment's default STT provider.
 
 ### D4. Autopilot reports tokens with `usage.report`
 

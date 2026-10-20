@@ -789,6 +789,66 @@
           "type": "object"
         }
       }
+    },
+    "usage.report": {
+      "type": "object",
+      "required": [
+        "type",
+        "lines"
+      ],
+      "properties": {
+        "type": {
+          "const": "usage.report"
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "lines": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "type": "object",
+            "required": [
+              "meter",
+              "quantity",
+              "provider",
+              "keySource"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "meter": {
+                "enum": [
+                  "llm.tokens.in",
+                  "llm.tokens.out",
+                  "llm.tokens.cached",
+                  "embedding.tokens"
+                ]
+              },
+              "quantity": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "provider": {
+                "type": "string",
+                "minLength": 1
+              },
+              "model": {
+                "type": "string",
+                "minLength": 1
+              },
+              "keySource": {
+                "enum": [
+                  "platform",
+                  "workspace"
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

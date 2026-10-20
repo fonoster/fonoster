@@ -106,6 +106,10 @@ export function indexEntry(
       : 0,
     region: where.region,
     location: where.location,
+    ...(f.origin ? { origin: String(f.origin) } : {}),
+    ...(Array.isArray(f.usage) && f.usage.length
+      ? { usage: f.usage as IndexUsageLine[] }
+      : {}),
     version: sealed.version,
     size,
     parts: [

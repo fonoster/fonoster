@@ -16,12 +16,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { generateKeyPairSync } from "crypto";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
+import {
+  CallRecordWriter,
+  fsStores,
+  RecordIndexEntry as SealedIndexEntry
+} from "@fonoster/callrecord";
 import { Usage } from "@fonoster/common";
 import { expect } from "chai";
 import { createIndexRecord } from "../../src/records/createIndexRecord";
 import { RecordIndexEntry, RecordsDb } from "../../src/records/types";
 import { ingestUsageIn } from "../../src/usage/ingestUsage";
-import { rebuildUsageDaily } from "../../src/usage/rebuildUsage";
+import {
+  rebuildUsageDaily,
+  recoverUsageFromRecords
+} from "../../src/usage/rebuildUsage";
 import { snapshotStorage } from "../../src/usage/snapshotStorage";
 import { UsageDirectory } from "../../src/usage/types";
 import { createTestDb, TestDb } from "../../../common/test/persistence/testDb";
@@ -381,5 +393,75 @@ describe("@apiserver/usage ledger", function () {
       [WS, "storage.bytes", 1500, "api"],
       [WS2, "storage.bytes", 300, "api"]
     ]);
+  });
+
+  it("recovers usage from sealed records that never reached the ledger", async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "usage-records-"));
+    try {
+      const { privateKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });
+      const stores = fsStores(dir);
+      let sealedEntry: SealedIndexEntry | undefined;
+      const writer = new CallRecordWriter({
+        ...stores,
+        key: {
+          kid: "k",
+          privateKeyPem: privateKey
+            .export({ type: "pkcs8", format: "pem" })
+            .toString()
+        },
+        region: "default",
+        onSealed: (e) => (sealedEntry = e)
+      });
+      const at = Date.parse("2026-10-20T09:00:00.000Z");
+      const append = (offset: number, message: Record<string, unknown>) =>
+        writer.append("rec-1", { at: at + offset, source: "event", message });
+      append(0, {
+        type: "call.started",
+        direction: "inbound",
+        workspaceRef: WS,
+        from: "+1",
+        to: "+2"
+      });
+      append(30_000, {
+        type: "usage.snapshot",
+        lines: [
+          { meter: "call.seconds", quantity: 30 },
+          {
+            meter: "tts.characters",
+            quantity: 90,
+            provider: "fake",
+            keySource: "platform"
+          }
+        ]
+      });
+      append(30_001, { type: "call.ended", reason: "caller_hangup" });
+      writer.close("rec-1");
+      await writer.flush();
+      expect(sealedEntry?.usage).to.have.length(2);
+      // The index row arrived without its usage (the usage was lost on the way).
+      const index = createIndexRecord(db!.prisma as RecordsDb, {
+        directory: () => directory
+      });
+      await index({ ...sealedEntry!, usage: undefined });
+      expect(await db!.prisma.usageEvent.count()).to.equal(0);
+
+      const recover = () =>
+        recoverUsageFromRecords({
+          db: db!.prisma,
+          directory,
+          storeFor: (location) =>
+            location === stores.store.location ? stores.store : undefined,
+          fromDay: "2026-10-20",
+          toDay: "2026-10-20"
+        });
+      expect(await recover()).to.equal(2);
+      expect(await recover()).to.equal(0);
+      expect((await daily()).map((r) => [r.meter, r.quantity])).to.deep.equal([
+        ["call.seconds", 30],
+        ["tts.characters", 90]
+      ]);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

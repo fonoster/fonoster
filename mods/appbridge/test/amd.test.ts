@@ -170,6 +170,18 @@ describe("@appbridge AMD listener", function () {
     );
     expect(types).to.include.members(["amd.started", "amd.result"]);
     harness.roomrNode.callerHangup(roomRef);
+
+    // One metered detection of the audio it classified (add-usage-metering D3).
+    const snapshot = await waitFor(() =>
+      (record.records.get(roomRef) ?? [])
+        .map((e) => e.message as { type?: string; lines?: unknown[] })
+        .filter((m) => m.type === "usage.snapshot")
+        .pop()
+    );
+    expect(snapshot.lines).to.deep.include.members([
+      { meter: "amd.detections", quantity: 1 },
+      { meter: "amd.seconds", quantity: 1 }
+    ]);
   });
 
   it("starts the window when the caller starts speaking, not at answer", async function () {

@@ -32,6 +32,8 @@ type Host = {
     type: string;
     [k: string]: unknown;
   }): Promise<Record<string, unknown>>;
+  /** Where `recording.seconds` is counted (add-usage-metering). */
+  usage?: { addMillis(key: { meter: "recording.seconds" }, ms: number): void };
 };
 
 /**
@@ -46,6 +48,7 @@ export class CallRecording {
   private waiters: (() => void)[] = [];
   private recorder?: Recorder;
   private stopped = false;
+  private recordingSince?: number;
   private listenerRef?: string;
 
   constructor(
@@ -121,6 +124,7 @@ export class CallRecording {
         ]
       });
       this.listenerRef = ack.listenerRef as string | undefined;
+      this.recordingSince = Date.now();
       this.host.record("event", {
         type: "recording.started",
         policy,
@@ -142,6 +146,12 @@ export class CallRecording {
   /** Stops and flushes the recording; must run before the record is closed. */
   stop() {
     this.stopped = true;
+    if (this.recordingSince !== undefined)
+      this.host.usage?.addMillis(
+        { meter: "recording.seconds" },
+        Date.now() - this.recordingSince
+      );
+    this.recordingSince = undefined;
     for (const w of this.waiters.splice(0)) w();
     this.recorder?.stop();
   }

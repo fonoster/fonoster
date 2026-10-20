@@ -458,6 +458,7 @@ export class AppBridge {
       call.record("event", { type: "call.failed", reason: "test_call_denied" });
       return call.reject(403);
     }
+    if (test.test) call.origin = "browser_test";
     // The caller hears ringing while the app is dialed (media-control, "Ringing before answer").
     void call
       .mediaCommand({ type: "ring", participantRef: info.callerRef })

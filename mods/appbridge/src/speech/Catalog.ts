@@ -41,6 +41,8 @@ export type VoiceResolution = {
 
 export type SttResolution = {
   adapter: SttAdapter;
+  /** The provider used when no model id was given (the deployment's default STT). */
+  provider?: string;
   /** The provider's own model name; undefined uses the provider's configured model. */
   model?: string;
   id?: string;
@@ -275,8 +277,9 @@ export class Catalog {
    */
   resolveStt(id?: string, workspaceRef?: string): SttResolution | undefined {
     if (!id) {
+      const provider = this.defaultSttProvider();
       const adapter = this.defaultStt(workspaceRef);
-      return adapter && { adapter };
+      return adapter && { adapter, provider };
     }
     let resolved = id;
     let event: VoiceResolution["event"];
@@ -364,17 +367,23 @@ export class Catalog {
   }
 
   /** The STT adapter for AppBridge (one STT provider per deployment for now). */
-  defaultStt(workspaceRef?: string): SttAdapter | undefined {
+  /** The provider of the deployment's default STT. */
+  private defaultSttProvider(): string | undefined {
     const stt = (n: string) =>
       Boolean(this.providerConfig(n)?.capabilities.includes("stt"));
-    const name =
+    return (
       this.config.stt?.provider ??
       (this.stt.keys().next().value as string) ??
       // No platform key: a keyless STT provider, else the first one (workspace or cell keys).
       this.providerNames().find(
         (n) => stt(n) && keyless(this.providerConfig(n)!)
       ) ??
-      this.providerNames().find(stt);
+      this.providerNames().find(stt)
+    );
+  }
+
+  defaultStt(workspaceRef?: string): SttAdapter | undefined {
+    const name = this.defaultSttProvider();
     if (!name) return undefined;
     return (
       this.forWorkspace(name, workspaceRef)?.stt ?? this.platform(name)?.stt
