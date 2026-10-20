@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useEffect, useState } from "react";
+import { Mail } from "lucide-react";
+import { Fragment, useEffect, useState } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
@@ -107,6 +108,7 @@ function CheckEmail({
 
   return (
     <AuthLayout
+      icon={Mail}
       title="Check your email"
       description={
         <>
@@ -115,9 +117,30 @@ function CheckEmail({
         </>
       }
       footer={
-        <span>
-          The code expires in 5 minutes. Check spam if it's not there.
-        </span>
+        <div className="flex flex-col items-center gap-3">
+          <span>
+            Didn't get it?{" "}
+            {wait > 0 ? (
+              <span aria-live="polite">
+                Resend in {minutes}:{seconds}
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void resend()}
+                className="cursor-pointer font-medium text-foreground hover:underline"
+              >
+                Resend code
+              </button>
+            )}
+          </span>
+          <Link to="/sign-in" className="text-foreground hover:underline">
+            Use a different email
+          </Link>
+          <span className="text-xs">
+            The code expires in 5 minutes. Check spam if it's not there.
+          </span>
+        </div>
       }
     >
       {failure && <Alert variant="error">{failure}</Alert>}
@@ -139,15 +162,26 @@ function CheckEmail({
           aria-label="Sign-in code"
           aria-invalid={Boolean(failure)}
         >
-          <InputOTPGroup>
-            {Array.from({ length: CODE_LENGTH }, (_, index) => (
-              <InputOTPSlot
-                key={index}
-                index={index}
-                aria-invalid={Boolean(failure)}
-              />
-            ))}
-          </InputOTPGroup>
+          {/* Two groups of three, as the code reads in the email. */}
+          {[0, CODE_LENGTH / 2].map((start) => (
+            <Fragment key={start}>
+              {start > 0 && (
+                <span aria-hidden className="text-muted-foreground">
+                  –
+                </span>
+              )}
+              <InputOTPGroup>
+                {Array.from({ length: CODE_LENGTH / 2 }, (_, i) => (
+                  <InputOTPSlot
+                    key={start + i}
+                    index={start + i}
+                    className="h-[60px] w-[52px] bg-card text-2xl font-normal"
+                    aria-invalid={Boolean(failure)}
+                  />
+                ))}
+              </InputOTPGroup>
+            </Fragment>
+          ))}
         </InputOTP>
         <Button
           type="submit"
@@ -158,27 +192,6 @@ function CheckEmail({
           Continue
         </Button>
       </form>
-      <div className="flex items-center justify-between font-display text-[13px] text-muted-foreground">
-        <span>
-          Didn't get it?{" "}
-          {wait > 0 ? (
-            <span aria-live="polite">
-              Resend in {minutes}:{seconds}
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={() => void resend()}
-              className="cursor-pointer font-medium text-brand-text hover:underline"
-            >
-              Resend code
-            </button>
-          )}
-        </span>
-        <Link to="/sign-in" className="hover:text-foreground hover:underline">
-          Use a different email
-        </Link>
-      </div>
     </AuthLayout>
   );
 }

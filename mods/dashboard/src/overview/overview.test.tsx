@@ -85,9 +85,22 @@ describe("Overview", () => {
     ).toBeInTheDocument();
   });
 
-  it("says when there are no calls instead of drawing empty charts", async () => {
+  it("shows the steps to a first call instead of drawing empty charts", async () => {
     setup(vi.fn().mockResolvedValue({ items: [], nextPageToken: "" }));
-    expect(await screen.findByText("No calls last 7 days")).toBeInTheDocument();
+    // Nothing is set up (the lists aren't mocked), so the first step is next.
+    expect(
+      await screen.findByRole("heading", { name: "Welcome to Acme Support" })
+    ).toBeInTheDocument();
+    const steps = screen.getByRole("list", {
+      name: "Steps to your first call"
+    });
+    expect(within(steps).getAllByRole("listitem")).toHaveLength(4);
+    expect(
+      within(steps).getByRole("button", { name: "Create agent" })
+    ).toBeInTheDocument();
+    expect(
+      within(steps).getByRole("link", { name: "Create number" })
+    ).toHaveAttribute("href", "/w/ws-1/numbers?new=1");
     expect(
       screen.queryByRole("region", { name: "Call volume" })
     ).not.toBeInTheDocument();

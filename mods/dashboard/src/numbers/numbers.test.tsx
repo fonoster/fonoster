@@ -173,6 +173,7 @@ describe("numbers", () => {
     );
     await user.click(await screen.findByRole("menuitem", { name: /Delete/ }));
     const dialog = await screen.findByRole("dialog");
+    await user.type(within(dialog).getByLabelText(/to confirm/), "DELETE");
     await user.click(within(dialog).getByRole("button", { name: "Remove" }));
     expect(sdk.numbers.deleteNumber).toHaveBeenCalledWith("n5");
   });
@@ -181,7 +182,7 @@ describe("numbers", () => {
 describe("number formatting", () => {
   it("formats NANP numbers and normalizes input", () => {
     expect(formatNumber("tel:+18095550177")).toBe("+1 809 555 0177");
-    expect(formatNumber("tel:+34910555210")).toBe("+34910555210");
+    expect(formatNumber("tel:+34910555210")).toBe("+34 910 555 210");
     expect(toTelUrl("+1 (809) 555-0177")).toBe("tel:+18095550177");
   });
 });

@@ -26,13 +26,14 @@ import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
+import { PasswordInput } from "~/components/ui/password-input";
 import { LabeledSeparator } from "~/components/ui/separator";
 import { useAuth } from "~/lib/auth";
 import { useAuthMethods } from "~/lib/capabilities";
 import { GrpcCode, errorMessage, grpcCode } from "~/lib/errors";
 import { AuthLayout, authButton, authInput } from "./auth-layout";
 import { startGitHubSignIn } from "./github";
-import { inviteInFlight } from "./invite";
+import { holdSignInPassword, inviteInFlight } from "./invite";
 import { EMAIL_CONTACT, email } from "./schemas";
 
 /** The same message for a wrong password and an unknown email. */
@@ -63,7 +64,7 @@ export default function SignInPage() {
         <span>No account?</span>
         <Link
           to="/sign-up"
-          className="font-medium text-brand-text hover:underline"
+          className="font-medium text-foreground hover:underline"
         >
           Create an account
         </Link>
@@ -141,6 +142,7 @@ function PasswordForm({ next }: { next: string }) {
     setFailure(null);
     try {
       await signInWithPassword(email, password);
+      holdSignInPassword(password);
       navigate(next, { replace: true });
     } catch (error) {
       const code = grpcCode(error);
@@ -179,17 +181,16 @@ function PasswordForm({ next }: { next: string }) {
         action={
           <Link
             to="/forgot-password"
-            className="font-display text-[13px] text-brand-text hover:underline"
+            className="font-display text-[13px] text-foreground hover:underline"
           >
             Forgot password?
           </Link>
         }
       >
         {(a11y) => (
-          <Input
+          <PasswordInput
             {...a11y}
             {...form.register("password")}
-            type="password"
             autoComplete="current-password"
             className={authInput}
           />

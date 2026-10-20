@@ -91,15 +91,15 @@ describe("without private regions (Community)", () => {
     expect(listRegions).not.toHaveBeenCalled();
   });
 
-  it("start screen: no workspaces goes straight to the first workspace", async () => {
+  it("start screen: no workspaces offers the first workspace", async () => {
     const { listRegions } = render(<WorkspacesPage />, caps, {
       path: "/workspaces",
       route: "/workspaces",
       workspaces: []
     });
-    expect(await screen.findByTestId("location")).toHaveTextContent(
-      "/workspaces/new"
-    );
+    expect(
+      await screen.findByRole("link", { name: "Create workspace" })
+    ).toHaveAttribute("href", "/workspaces/new");
     expect(listRegions).not.toHaveBeenCalled();
   });
 
@@ -118,9 +118,12 @@ describe("without private regions (Community)", () => {
       path: "/workspaces/new",
       route: "/workspaces/new"
     });
-    await user.type(await screen.findByLabelText("Name"), "Acme Support");
+    await user.type(
+      await screen.findByLabelText("Workspace name"),
+      "Acme Support"
+    );
     expect(screen.queryByLabelText("Region")).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Create" }));
+    await user.click(screen.getByRole("button", { name: "Create workspace" }));
     await waitFor(() =>
       expect(api.state.created).toEqual([
         { name: "Acme Support", region: "default" }

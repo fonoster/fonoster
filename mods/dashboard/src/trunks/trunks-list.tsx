@@ -81,9 +81,12 @@ export function TrunksList() {
     { header: "Trunk", cell: (t) => <NameCell name={t.name} sub={t.ref} /> },
     {
       header: "Inbound URI",
-      cell: (t) => <MutedCell>{t.inboundUri || "—"}</MutedCell>
+      cell: (t) => <MutedCell mono>{t.inboundUri || "—"}</MutedCell>
     },
-    { header: "Outbound", cell: (t) => <MutedCell>{outbound(t)}</MutedCell> },
+    {
+      header: "Outbound",
+      cell: (t) => <MutedCell mono>{outbound(t)}</MutedCell>
+    },
     {
       header: "Security",
       className: "w-56",
@@ -92,7 +95,9 @@ export function TrunksList() {
         return badges.length ? (
           <div className="flex flex-wrap gap-1.5">
             {badges.map((badge) => (
-              <Badge key={badge}>{badge}</Badge>
+              <Badge key={badge} className="font-mono">
+                {badge}
+              </Badge>
             ))}
           </div>
         ) : (

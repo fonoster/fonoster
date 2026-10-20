@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { formatDate, toDate } from "./format";
+import { formatDate, formatNumber, toDate } from "./format";
 
 describe("format", () => {
   const now = new Date("2026-10-14T12:00:00Z");
@@ -35,5 +35,13 @@ describe("format", () => {
       "Oct 2, 2025"
     );
     expect(formatDate(null, now)).toBe("—");
+  });
+
+  it("groups phone numbers by country code", () => {
+    expect(formatNumber("tel:+18295550110")).toBe("+1 829 555 0110");
+    expect(formatNumber("+34910555211")).toBe("+34 910 555 211");
+    expect(formatNumber("+442071838750")).toBe("+44 207 183 8750");
+    expect(formatNumber("+50622345678")).toBe("+506 2234 5678");
+    expect(formatNumber("sip:alice@acme.com")).toBe("sip:alice@acme.com");
   });
 });

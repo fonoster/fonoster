@@ -260,6 +260,7 @@ describe("trunk page", () => {
     await screen.findByRole("heading", { name: "Telnyx EU" });
     await user.click(screen.getByRole("button", { name: "Delete" }));
     const dialog = await screen.findByRole("dialog");
+    await user.type(within(dialog).getByLabelText(/to confirm/), "DELETE");
     await user.click(within(dialog).getByRole("button", { name: "Delete" }));
     expect(sdk.trunks.deleteTrunk).toHaveBeenCalledWith("tk-0b5f48");
     expect(

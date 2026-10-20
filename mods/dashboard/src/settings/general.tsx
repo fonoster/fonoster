@@ -62,7 +62,7 @@ function SettingRow({
 }) {
   return (
     <div className="flex flex-col gap-3 border-t border-border px-5 py-5 first:border-t-0 md:flex-row md:items-center md:gap-8">
-      <div className="flex flex-col gap-1 md:w-80 md:shrink-0">
+      <div className="flex flex-col gap-1 md:w-[340px] md:shrink-0">
         {htmlFor ? (
           <label
             htmlFor={htmlFor}
@@ -81,7 +81,9 @@ function SettingRow({
           </p>
         )}
       </div>
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="min-w-0 flex-1 [&>*]:md:max-w-[420px] [&>form]:md:max-w-[500px]">
+        {children}
+      </div>
     </div>
   );
 }
@@ -100,7 +102,7 @@ export function GeneralSettings() {
     );
 
   return (
-    <div className="flex max-w-4xl flex-col gap-6">
+    <div className="flex flex-col gap-6">
       <section
         aria-label="Workspace"
         className="rounded-xl border border-border bg-card"
@@ -234,9 +236,9 @@ function DangerZone({ isOwner }: { isOwner: boolean }) {
   return (
     <section
       aria-label="Danger zone"
-      className="flex max-w-4xl flex-col gap-4 rounded-xl border border-destructive/60 bg-card px-5 py-5 md:flex-row md:items-center md:justify-between md:gap-8"
+      className="flex flex-col gap-4 rounded-xl border border-destructive/60 bg-card px-5 py-5 md:flex-row md:items-center md:gap-8"
     >
-      <div className="flex flex-col gap-1 md:w-80 md:shrink-0">
+      <div className="flex flex-col gap-1 md:w-[340px] md:shrink-0">
         <h2 className="font-display text-sm font-medium text-foreground">
           Delete workspace
         </h2>
@@ -245,7 +247,7 @@ function DangerZone({ isOwner }: { isOwner: boolean }) {
           undone.
         </p>
       </div>
-      <div className="flex flex-col items-start gap-1.5 md:items-end">
+      <div className="flex flex-col items-start gap-1.5">
         <Button
           variant="destructive"
           disabled={!isOwner}

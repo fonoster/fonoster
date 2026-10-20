@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Lock } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -24,10 +25,11 @@ import type { z } from "zod";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
+import { PasswordInput } from "~/components/ui/password-input";
 import { useAuth } from "~/lib/auth";
 import { errorMessage } from "~/lib/errors";
 import { AuthLayout, authButton, authInput } from "./auth-layout";
+import { takeSignInPassword } from "./invite";
 import { NewPasswordFields } from "./password-fields";
 import { setPasswordForm } from "./schemas";
 
@@ -36,9 +38,11 @@ export default function SetPasswordPage() {
   const { user, sdk, signInWithPassword, signOut } = useAuth();
   const navigate = useNavigate();
   const [failure, setFailure] = useState<string | null>(null);
+  // Straight from sign-in, the one-time password is already known; after a reload, ask.
+  const [known] = useState(takeSignInPassword);
   const form = useForm<z.infer<typeof setPasswordForm>>({
     resolver: zodResolver(setPasswordForm),
-    defaultValues: { currentPassword: "", password: "", confirm: "" }
+    defaultValues: { currentPassword: known ?? "", password: "", confirm: "" }
   });
 
   const onSubmit = form.handleSubmit(async ({ currentPassword, password }) => {
@@ -56,6 +60,7 @@ export default function SetPasswordPage() {
 
   return (
     <AuthLayout
+      icon={Lock}
       title="Set your password"
       description={
         <>
@@ -76,20 +81,22 @@ export default function SetPasswordPage() {
     >
       <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
         {failure && <Alert variant="error">{failure}</Alert>}
-        <Field
-          label="One-time password"
-          error={form.formState.errors.currentPassword?.message}
-        >
-          {(a11y) => (
-            <Input
-              {...a11y}
-              {...form.register("currentPassword")}
-              type="password"
-              autoComplete="current-password"
-              className={authInput}
-            />
-          )}
-        </Field>
+        {!known && (
+          <Field
+            label="One-time password"
+            hint="From your invite email."
+            error={form.formState.errors.currentPassword?.message}
+          >
+            {(a11y) => (
+              <PasswordInput
+                {...a11y}
+                {...form.register("currentPassword")}
+                autoComplete="current-password"
+                className={authInput}
+              />
+            )}
+          </Field>
+        )}
         <NewPasswordFields form={form} />
         <Button
           type="submit"

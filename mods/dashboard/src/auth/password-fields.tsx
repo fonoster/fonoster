@@ -18,7 +18,7 @@
  */
 import type { UseFormReturn } from "react-hook-form";
 import { Field } from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
+import { PasswordInput } from "~/components/ui/password-input";
 import { authInput } from "./auth-layout";
 
 type PasswordPair = { password: string; confirm: string };
@@ -39,10 +39,9 @@ export function NewPasswordFields<T extends PasswordPair>({
         hint="At least 8 characters."
       >
         {(a11y) => (
-          <Input
+          <PasswordInput
             {...a11y}
             {...f.register("password")}
-            type="password"
             autoComplete="new-password"
             className={authInput}
           />
@@ -50,10 +49,9 @@ export function NewPasswordFields<T extends PasswordPair>({
       </Field>
       <Field label="Confirm password" error={errors.confirm?.message}>
         {(a11y) => (
-          <Input
+          <PasswordInput
             {...a11y}
             {...f.register("confirm")}
-            type="password"
             autoComplete="new-password"
             className={authInput}
           />

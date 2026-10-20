@@ -17,13 +17,12 @@
  * limitations under the License.
  */
 import type { CallDetailRecord } from "@fonoster/types";
-import { ArrowRight, PhoneCall, Plus } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { CreateAgentDialog } from "~/agents/create-agent-dialog";
 import { Panel } from "~/agents/parts";
 import { DataTable, type Column } from "~/components/data/data-table";
-import { EmptyState } from "~/components/data/empty-state";
 import { PageHeader } from "~/app/shell/page";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
@@ -38,7 +37,8 @@ import { DirectionIcon, StatusDot } from "~/calls/parts";
 import { errorMessage } from "~/lib/errors";
 import { cn } from "~/lib/utils";
 import { useWorkspace } from "~/lib/workspace";
-import { MAX_CALLS, useRangeCalls } from "./overview.service";
+import { MAX_CALLS, useRangeCalls, useSetup } from "./overview.service";
+import { SetupChecklist } from "./setup-checklist";
 import { RANGES, callStats, type Bucket, type Range } from "./stats";
 
 const RANGE_TITLE: Record<Range, string> = {
@@ -220,11 +220,20 @@ export default function OverviewScreen() {
   const [range, setRange] = useRange();
   const [creating, setCreating] = useState(false);
   const query = useRangeCalls(range);
+  const setup = useSetup();
   const callsBase = `/w/${workspace.ref}/calls`;
 
   const calls = query.data?.items ?? [];
   const stats = callStats(calls, range);
   const plus = query.data?.capped ? "+" : "";
+  // No calls in the range: show the steps to a first call instead of empty charts.
+  const noCalls = !query.isPending && !query.error && stats.calls === 0;
+  const settingUp =
+    noCalls &&
+    Boolean(
+      setup.data &&
+      !(setup.data.hasApp && setup.data.hasTrunk && setup.data.hasRoutedNumber)
+    );
 
   const columns: Column<CallDetailRecord>[] = [
     {
@@ -265,18 +274,25 @@ export default function OverviewScreen() {
 
   return (
     <>
-      <PageHeader
-        title="Overview"
-        description={`Calls in ${workspace.name}, ${RANGE_TITLE[range]}.`}
-        actions={
-          <>
-            <RangePicker value={range} onChange={setRange} />
-            <Button onClick={() => setCreating(true)}>
-              <Plus aria-hidden /> Create agent
-            </Button>
-          </>
-        }
-      />
+      {settingUp ? (
+        <PageHeader
+          title={`Welcome to ${workspace.name}`}
+          description="Four steps to your first call. Metrics show up here once calls start flowing."
+        />
+      ) : (
+        <PageHeader
+          title="Overview"
+          description={`Calls in ${workspace.name}, ${RANGE_TITLE[range]}.`}
+          actions={
+            <>
+              <RangePicker value={range} onChange={setRange} />
+              <Button onClick={() => setCreating(true)}>
+                <Plus aria-hidden /> Create agent
+              </Button>
+            </>
+          }
+        />
+      )}
       <div className="flex flex-col gap-5 px-4 pb-8 sm:px-8">
         {query.error ? (
           <Alert variant="error">
@@ -298,6 +314,12 @@ export default function OverviewScreen() {
             </div>
             <Skeleton className="h-72 rounded-xl" />
           </>
+        ) : noCalls ? (
+          <SetupChecklist
+            setup={setup.data}
+            loading={setup.isPending}
+            onCreateAgent={() => setCreating(true)}
+          />
         ) : (
           <>
             <dl
@@ -328,20 +350,7 @@ export default function OverviewScreen() {
                 calls in this range.
               </p>
             )}
-            {stats.calls === 0 ? (
-              <EmptyState
-                icon={PhoneCall}
-                title={`No calls ${RANGE_TITLE[range]}`}
-                description="Point a number at an agent or app and its calls show up here."
-                action={
-                  <Button asChild variant="outline">
-                    <Link to={`/w/${workspace.ref}/numbers`}>
-                      Route a number
-                    </Link>
-                  </Button>
-                }
-              />
-            ) : (
+            {
               <>
                 <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
                   <Panel
@@ -359,17 +368,19 @@ export default function OverviewScreen() {
                     <Reasons reasons={stats.reasons} />
                   </Panel>
                 </div>
-                <Panel
-                  title="Recent calls"
-                  action={
+                <section
+                  aria-label="Recent calls"
+                  className="flex flex-col gap-3"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <h2 className="text-sm font-medium">Recent calls</h2>
                     <Link
                       to={callsBase}
-                      className="flex items-center gap-1 font-display text-xs text-muted-foreground hover:text-foreground"
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
                     >
                       View all <ArrowRight className="size-3" aria-hidden />
                     </Link>
-                  }
-                >
+                  </div>
                   <DataTable
                     label="Recent calls"
                     columns={columns}
@@ -377,9 +388,9 @@ export default function OverviewScreen() {
                     rowKey={(c) => c.ref}
                     onRowClick={(c) => navigate(`${callsBase}/${c.ref}`)}
                   />
-                </Panel>
+                </section>
               </>
-            )}
+            }
           </>
         )}
       </div>

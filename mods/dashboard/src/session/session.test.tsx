@@ -78,7 +78,7 @@ describe("apps", () => {
     expect(screen.getByText("Pipecat bot")).toBeInTheDocument();
     expect(screen.queryByText("Receptionist agent")).not.toBeInTheDocument();
     expect(screen.getByText("Fonoster")).toBeInTheDocument();
-    expect(screen.getByText("Twilio-compatible")).toBeInTheDocument();
+    expect(screen.getByText("Twilio")).toBeInTheDocument();
     expect(screen.queryByText("twilio")).not.toBeInTheDocument();
     expect(screen.queryByText("fonoster")).not.toBeInTheDocument();
   });
@@ -144,17 +144,14 @@ describe("apps", () => {
     await user.click(within(dialog).getByLabelText("Protocol"));
     expect(
       (await screen.findAllByRole("option")).map((o) => o.textContent)
-    ).toEqual([
-      "Fonoster (session protocol)",
-      "Twilio-compatible (Media Streams: Pipecat and others)"
-    ]);
-    await user.click(screen.getByRole("option", { name: /Twilio-compatible/ }));
+    ).toEqual(["Fonoster", "Twilio"]);
+    await user.click(screen.getByRole("option", { name: "Twilio" }));
     expect(
       within(dialog).queryByLabelText("Audio format")
     ).not.toBeInTheDocument();
   });
 
-  it("opens an app's page from its row and saves edits across tabs", async () => {
+  it("opens an app's page from its row and saves edits across its cards", async () => {
     const { user, api } = apps("/w/ws-1/apps");
     await user.click(await screen.findByText("Pipecat bot"));
     expect(
@@ -163,7 +160,6 @@ describe("apps", () => {
     const name = await screen.findByLabelText("Name");
     await user.clear(name);
     await user.type(name, "Pipecat bot v2");
-    await user.click(screen.getByRole("link", { name: "Call handling" }));
     await user.click(
       await screen.findByRole("button", { name: /Add listener/ })
     );
@@ -172,7 +168,7 @@ describe("apps", () => {
     expect(
       screen.getByText("Listener URLs must start with ws:// or wss://")
     ).toBeVisible();
-    expect(screen.getByText(/Fix the highlighted fields in Call handling/));
+    expect(screen.getByText("Fix the highlighted fields before saving."));
     await user.click(screen.getByRole("button", { name: "Remove listener 1" }));
     await user.click(
       screen.getByRole("switch", { name: "Detect answering machines" })
@@ -190,9 +186,6 @@ describe("apps", () => {
   it("turns noise cancelling on from Call handling, with the catalog's nc providers", async () => {
     const { user, api } = apps("/w/ws-1/apps");
     await user.click(await screen.findByText("Pipecat bot"));
-    await user.click(
-      await screen.findByRole("link", { name: "Call handling" })
-    );
     await user.click(await screen.findByLabelText("Noise cancelling"));
     expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
       "None",
@@ -214,12 +207,44 @@ describe("apps", () => {
     );
   });
 
-  it("deletes an app from Advanced behind a confirmation", async () => {
-    const { user, api } = apps("/w/ws-1/apps/pipecat-bot/advanced");
+  it("shows speech settings only for Fonoster apps, provider first", async () => {
+    const { user } = apps("/w/ws-1/apps/pipecat-bot");
+    // pipecat-bot speaks Twilio: its own server does speech.
+    expect(
+      await screen.findByRole("heading", { name: "Pipecat bot" })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Speech" })).toBeNull();
+    await user.click(screen.getByLabelText("Protocol"));
+    await user.click(await screen.findByRole("option", { name: "Fonoster" }));
+    const speech = await screen.findByRole("region", { name: "Speech" });
+    expect(within(speech).getByLabelText("Voice provider")).toBeInTheDocument();
+    expect(within(speech).getByLabelText("Model provider")).toBeInTheDocument();
+  });
+
+  it("shows the numbers that reach an app and its recent calls", async () => {
+    apps("/w/ws-1/apps/support-line");
+    const reachable = await screen.findByRole("region", {
+      name: "Reachable at"
+    });
+    expect(within(reachable).getByText("+1 809 555 0123")).toBeInTheDocument();
+    expect(
+      within(reachable).getByText("Trunk · Telnyx EU")
+    ).toBeInTheDocument();
+    // +1 809 555 0140 points nowhere, so it isn't listed.
+    expect(within(reachable).queryByText("+1 809 555 0140")).toBeNull();
+    const recent = screen.getByRole("region", { name: "Recent calls" });
+    expect(
+      within(recent).getByRole("link", { name: /\+1 555 000 1111/ })
+    ).toHaveAttribute("href", "/w/ws-1/calls/room-1");
+  });
+
+  it("deletes an app from its page behind a confirmation", async () => {
+    const { user, api } = apps("/w/ws-1/apps/pipecat-bot");
     await user.click(await screen.findByRole("button", { name: "Delete app" }));
     const confirm = await screen.findByRole("dialog", {
       name: "Delete Pipecat bot?"
     });
+    await user.type(within(confirm).getByLabelText(/to confirm/), "DELETE");
     await user.click(within(confirm).getByRole("button", { name: "Delete" }));
     await waitFor(async () =>
       expect(await api.getApp("pipecat-bot")).toBeUndefined()
@@ -231,7 +256,7 @@ describe("apps", () => {
   });
 
   it("rotates the secret behind a confirmation", async () => {
-    const { user } = apps("/w/ws-1/apps/support-line/advanced");
+    const { user } = apps("/w/ws-1/apps/support-line");
     await user.click(
       await screen.findByRole("button", { name: "Rotate secret" })
     );
@@ -320,7 +345,9 @@ describe("webhooks", () => {
       await within(table).findByText("https://hooks.example.com/fonoster")
     ).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: /Create webhook/ }));
-    const drawer = await screen.findByRole("dialog", { name: "New webhook" });
+    const drawer = await screen.findByRole("dialog", {
+      name: "Create webhook"
+    });
     await user.type(
       within(drawer).getByLabelText("URL"),
       "https://new.example.com"
@@ -354,7 +381,9 @@ describe("webhooks", () => {
       await screen.findByRole("button", { name: `Actions for ${before.url}` })
     );
     await user.click(await screen.findByRole("menuitem", { name: "Edit" }));
-    const drawer = await screen.findByRole("dialog", { name: before.url });
+    const drawer = await screen.findByRole("dialog", {
+      name: before.url.replace(/^https?:\/\//, "")
+    });
     await user.click(
       within(drawer).getByRole("checkbox", { name: /Call failed/ })
     );
@@ -388,6 +417,7 @@ describe("vendor keys", () => {
       screen.getByRole("button", { name: "Actions for Deepgram" })
     );
     await user.click(await screen.findByRole("menuitem", { name: "Remove" }));
+    await user.type(screen.getByLabelText(/to confirm/), "DELETE");
     await user.click(screen.getByRole("button", { name: "Remove" }));
     await waitFor(async () => expect(await api.listVendorKeys()).toEqual([]));
     expect(await screen.findByText("No vendor keys")).toBeInTheDocument();

@@ -30,7 +30,9 @@ import { NEW_URI, TRANSPORTS, type TrunkValues } from "./trunk-form";
 
 const TRANSPORT_OPTIONS = TRANSPORTS.map((t) => ({ value: t, label: t }));
 
-const cellInput = "h-8 rounded-[6px] px-2.5 text-xs";
+/** Row cells read as plain text, as in the designs, and show their box on hover or focus. */
+const cellInput =
+  "h-8 rounded-[6px] border-transparent bg-transparent px-2.5 font-mono text-xs hover:border-input";
 
 /** The editable table of a trunk's outbound SIP URIs. */
 export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
@@ -54,7 +56,7 @@ export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
         <button
           type="button"
           onClick={() => append({ ...NEW_URI, priority: fields.length + 1 })}
-          className="flex cursor-pointer items-center gap-1 rounded-[6px] px-1.5 py-1 font-display text-[13px] text-brand-text outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex cursor-pointer items-center gap-1 rounded-[6px] px-1.5 py-1 font-display text-[13px] text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
         >
           <Plus className="size-3.5" aria-hidden /> Add URI
         </button>
@@ -148,7 +150,7 @@ export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
                             value={transport.value}
                             onValueChange={transport.onChange}
                             options={TRANSPORT_OPTIONS}
-                            className="h-8 rounded-[6px] px-2.5 text-xs"
+                            className={cellInput}
                           />
                         )}
                       />

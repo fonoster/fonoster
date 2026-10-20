@@ -118,9 +118,11 @@ describe("Agents list", () => {
     ).toBeInTheDocument();
     expect(within(table).queryByText("IVR (external)")).not.toBeInTheDocument();
     expect(screen.getByText("4 agents")).toBeInTheDocument();
+    // The first number, plus a pill for the other one.
     expect(
-      await within(table).findByText("+1 829 555 0199 +1")
+      await within(table).findByText("+1 829 555 0199")
     ).toBeInTheDocument();
+    expect(within(table).getByText("+1")).toBeInTheDocument();
     expect(
       within(table).getByText("groq · llama-3.3-70b-versatile")
     ).toBeInTheDocument();
@@ -137,6 +139,7 @@ describe("Agents list", () => {
     const confirm = await screen.findByRole("dialog", {
       name: "Delete Billing reminders?"
     });
+    await user.type(within(confirm).getByLabelText(/to confirm/), "DELETE");
     await user.click(within(confirm).getByRole("button", { name: "Delete" }));
     expect(applications.deleteApplication).toHaveBeenCalledWith(
       billingAgent.ref
@@ -380,6 +383,7 @@ describe("Agent detail", () => {
       await screen.findByRole("button", { name: "Delete agent" })
     );
     const dialog = await screen.findByRole("dialog");
+    await user.type(within(dialog).getByLabelText(/to confirm/), "DELETE");
     await user.click(within(dialog).getByRole("button", { name: "Delete" }));
     expect(applications.deleteApplication).toHaveBeenCalledWith(
       billingAgent.ref

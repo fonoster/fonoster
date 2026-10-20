@@ -67,11 +67,11 @@ export default function SipAgentsScreen() {
     {
       header: "Username",
       className: "w-32",
-      cell: (u) => <MutedCell>{u.username}</MutedCell>
+      cell: (u) => <MutedCell mono>{u.username}</MutedCell>
     },
     {
       header: "Domain",
-      cell: (u) => <MutedCell>{u.domain?.domainUri ?? "—"}</MutedCell>
+      cell: (u) => <MutedCell mono>{u.domain?.domainUri ?? "—"}</MutedCell>
     },
     {
       header: "Privacy",

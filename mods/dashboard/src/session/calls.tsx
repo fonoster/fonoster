@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { formatStarted } from "~/calls/format";
 import { PhoneCall } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -74,8 +75,8 @@ export function describeMessage(m: SessionMessage["message"]): string {
   return type;
 }
 
-const when = (iso: string) =>
-  iso ? new Date(iso).toLocaleString(undefined, { hour12: false }) : "";
+/** List dates read like the rest of the dashboard ("Today 14:31", "Oct 2"). */
+const when = (iso?: string) => formatStarted(iso);
 
 export function CallRecordsList() {
   const navigate = useNavigate();
@@ -85,7 +86,9 @@ export function CallRecordsList() {
   const columns: Column<CallRecordSummary>[] = [
     {
       header: "Call",
-      cell: (c) => <NameCell name={`${c.from} → ${c.to}`} sub={c.callRef} />
+      cell: (c) => (
+        <NameCell mono name={`${c.from} → ${c.to}`} sub={c.callRef} />
+      )
     },
     {
       header: "Started",
@@ -204,7 +207,9 @@ export function CallRecordView() {
       />
       <div className="flex flex-col gap-5 px-4 pb-10 sm:px-8">
         {isPrivate && !offline && (
-          <Badge variant="info">Stored in your region</Badge>
+          <Badge variant="info" className="self-start">
+            Stored in your region
+          </Badge>
         )}
         {call.unfiltered?.map((u, i) => (
           <Alert key={i} variant="warning">

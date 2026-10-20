@@ -69,7 +69,9 @@ export default function ApiKeysScreen() {
     {
       header: "API key",
       cell: (k) => (
-        <span className="block truncate text-foreground">{k.accessKeyId}</span>
+        <span className="block truncate font-mono text-[12px] text-foreground">
+          {k.accessKeyId}
+        </span>
       )
     },
     {

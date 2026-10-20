@@ -52,12 +52,12 @@ export const NewApp: Story = {
   parameters: { screen: { route: route("/w/ws-1/apps/new") } }
 };
 export const Detail: Story = {
-  parameters: {
-    screen: { route: route("/w/ws-1/apps/pipecat-bot/configure") }
-  }
+  parameters: { screen: { route: route("/w/ws-1/apps/support-line") } }
 };
-export const DetailCallHandling: Story = {
-  parameters: {
-    screen: { route: route("/w/ws-1/apps/pipecat-bot/call-handling") }
-  }
+export const DetailLight: Story = {
+  ...Detail,
+  globals: { theme: "light" }
+};
+export const DetailNoNumbers: Story = {
+  parameters: { screen: { route: route("/w/ws-1/apps/pipecat-bot") } }
 };

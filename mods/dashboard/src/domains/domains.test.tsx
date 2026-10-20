@@ -180,6 +180,7 @@ describe("Domains", () => {
     expect(
       screen.getByRole("heading", { name: "Delete Acme HQ?" })
     ).toBeInTheDocument();
+    await user.type(screen.getByLabelText(/to confirm/), "DELETE");
     await user.click(screen.getByRole("button", { name: "Delete" }));
     expect(domains.deleteDomain).toHaveBeenCalledWith("dm-1f02aa");
   });

@@ -51,3 +51,22 @@ export function clearInvite() {
     // Ignored.
   }
 }
+
+/*
+ * An invitee signs in with the invite's one-time password and then has to
+ * replace it. Sign-in holds the password it just used, in memory only and for
+ * a minute, so Set password doesn't ask for it a second time.
+ */
+const HOLD_MS = 60_000;
+let held: { password: string; until: number } | undefined;
+
+export function holdSignInPassword(password: string, now = Date.now()) {
+  held = { password, until: now + HOLD_MS };
+}
+
+/** The password sign-in just used, once; undefined after a minute or a reload. */
+export function takeSignInPassword(now = Date.now()): string | undefined {
+  const password = held && now < held.until ? held.password : undefined;
+  held = undefined;
+  return password;
+}

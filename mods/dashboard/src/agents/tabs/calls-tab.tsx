@@ -18,16 +18,13 @@
  */
 import type { INumber } from "@fonoster/types";
 import { RecentCalls } from "~/calls/recent-calls";
-import { Panel } from "../parts";
 
 export function CallsTab({ numbers }: { numbers: INumber[] }) {
   return (
-    <Panel title="Recent calls">
-      <RecentCalls
-        numbers={numbers}
-        label="Recent calls"
-        noNumbers="No number is routed to this agent, so it hasn't taken any calls. Route one from Numbers."
-      />
-    </Panel>
+    <RecentCalls
+      numbers={numbers}
+      label="Calls"
+      noNumbers="No number is routed to this agent, so it hasn't taken any calls. Route one from Numbers."
+    />
   );
 }

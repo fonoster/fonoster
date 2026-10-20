@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import type { Application, INumber } from "@fonoster/types";
-import { Bot, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
@@ -25,8 +25,11 @@ import {
   DataTable,
   MutedCell,
   NameCell,
+  NumbersCell,
   type Column
 } from "~/components/data/data-table";
+import { EmptyState } from "~/components/data/empty-state";
+import { SmartToy } from "~/components/icons/material";
 import { RowActions } from "~/components/data/row-actions";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -121,27 +124,28 @@ export function AgentsList() {
     {
       header: "Numbers",
       className: "w-44",
-      cell: (app) => {
-        const { numbers: text } = agentRow(app, numbers.data, catalog);
-        return text === "No numbers" ? (
-          <MutedCell>{text}</MutedCell>
-        ) : (
-          <span className="font-mono text-[12px]">{text}</span>
-        );
-      }
+      cell: (app) => (
+        <NumbersCell
+          telUrls={numbersFor(numbers.data, app.ref).map((n) => n.telUrl)}
+        />
+      )
     },
     {
       header: "Model",
       className: "w-48",
       cell: (app) => (
-        <MutedCell>{agentRow(app, numbers.data, catalog).model}</MutedCell>
+        <span className="block truncate text-muted-foreground">
+          {agentRow(app, numbers.data, catalog).model}
+        </span>
       )
     },
     {
       header: "Voice · Language",
       className: "w-52",
       cell: (app) => (
-        <MutedCell>{agentRow(app, numbers.data, catalog).voice}</MutedCell>
+        <span className="block truncate text-muted-foreground">
+          {agentRow(app, numbers.data, catalog).voice}
+        </span>
       )
     },
     {
@@ -175,24 +179,17 @@ export function AgentsList() {
       />
       <div className="flex flex-col gap-4 px-4 pb-8 sm:px-8">
         {empty ? (
-          <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border px-6 py-16 text-center">
-            <span className="flex size-14 items-center justify-center rounded-xl bg-brand-subtle">
-              <Bot className="size-6 text-brand-text" aria-hidden />
-            </span>
-            <h2 className="font-display text-lg font-medium">
-              Build your first agent
-            </h2>
-            <p className="max-w-md font-display text-sm text-muted-foreground">
-              Write a prompt, pick a voice, point a number at it. Most teams get
-              a first call working in minutes.
-            </p>
-            <div className="flex flex-wrap justify-center gap-2 pt-2">
-              {add}
-            </div>
-            <code className="mt-2 rounded-control bg-muted px-3 py-1 font-mono text-[12px] text-muted-foreground">
-              $ {CLI_COMMAND}
-            </code>
-          </div>
+          <EmptyState
+            icon={SmartToy}
+            title="Build your first agent"
+            description="Write a prompt, pick a voice, point a number at it. Most teams get a first call working in minutes."
+            action={add}
+            footer={
+              <code className="mt-2 rounded-control bg-muted px-3 py-1 font-mono text-[12px] text-muted-foreground">
+                $ {CLI_COMMAND}
+              </code>
+            }
+          />
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-3">

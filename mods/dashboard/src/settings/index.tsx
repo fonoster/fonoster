@@ -16,9 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { TabLink } from "~/components/data/tab-link";
 import {
   Navigate,
-  NavLink,
   Outlet,
   Route,
   Routes,
@@ -26,7 +26,6 @@ import {
   useParams
 } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
-import { cn } from "~/lib/utils";
 import { usePrivateRegions } from "~/lib/capabilities";
 import { useWorkspace } from "~/lib/workspace";
 import { GeneralSettings } from "./general";
@@ -88,22 +87,10 @@ function SettingsTabs({
     <div className="flex flex-col gap-6 px-4 pb-8 sm:px-8">
       <nav
         aria-label="Settings"
-        className="inline-flex items-center gap-1 self-start rounded-full bg-muted p-1"
+        className="flex gap-6 overflow-x-auto border-b border-border"
       >
         {tabs.map((tab) => (
-          <NavLink
-            key={tab.to}
-            to={tab.to}
-            end={tab.end}
-            className={({ isActive }) =>
-              cn(
-                "inline-flex cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 font-display text-sm font-medium text-text-secondary transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                isActive && "bg-background text-foreground"
-              )
-            }
-          >
-            {tab.label}
-          </NavLink>
+          <TabLink key={tab.to} to={tab.to} label={tab.label} />
         ))}
       </nav>
       <Outlet />

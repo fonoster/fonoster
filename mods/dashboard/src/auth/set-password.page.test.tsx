@@ -19,6 +19,7 @@
 import { screen } from "@testing-library/react";
 import type { IdTokenClaims } from "~/lib/jwt";
 import { fakeAuth, renderScreen } from "~/test/render";
+import { holdSignInPassword, takeSignInPassword } from "./invite";
 import SetPasswordPage from "./set-password.page";
 
 const invitee = {
@@ -80,5 +81,33 @@ describe("SetPasswordPage", () => {
       "maria@acme.com",
       "a-good-password"
     );
+  });
+
+  it("reuses the one-time password just used to sign in", async () => {
+    holdSignInPassword("otp-123456");
+    const auth = fakeAuth({ status: "signedIn", user: invitee });
+    const { user } = renderScreen(<SetPasswordPage />, { auth });
+    expect(screen.queryByLabelText("One-time password")).toBeNull();
+    await user.type(screen.getByLabelText("New password"), "a-good-password");
+    await user.type(
+      screen.getByLabelText("Confirm password"),
+      "a-good-password"
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Set password and continue" })
+    );
+    expect(auth.sdk.users.updateUser).toHaveBeenCalledWith({
+      ref: "u1",
+      password: "a-good-password",
+      currentPassword: "otp-123456"
+    });
+  });
+
+  it("forgets the held password after a minute", () => {
+    holdSignInPassword("otp-123456", 0);
+    expect(takeSignInPassword(60_001)).toBeUndefined();
+    holdSignInPassword("otp-123456", 0);
+    expect(takeSignInPassword(1000)).toBe("otp-123456");
+    expect(takeSignInPassword(1000)).toBeUndefined();
   });
 });

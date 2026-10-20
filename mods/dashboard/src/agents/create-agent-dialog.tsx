@@ -152,7 +152,7 @@ export function CreateAgentDialog({
                         className={cn(
                           "flex cursor-pointer items-start gap-3 rounded-control border p-3.5 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
                           selected
-                            ? "border-primary bg-brand-subtle"
+                            ? "border-foreground"
                             : "border-border hover:bg-accent"
                         )}
                       >
