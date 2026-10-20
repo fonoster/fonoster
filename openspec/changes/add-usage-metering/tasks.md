@@ -7,9 +7,10 @@
 ## 1. Meter registry and `usage.v1` (mods/common)
 
 - [ ] 1.1 Add `src/usage/meters.ts`: the declared meters (name, unit, aggregation `sum` or `snapshot`, reporter, `vendor: boolean`), and `isMeter(name)`; verify a unit test lists exactly the twelve meters of the spec with their units
-- [ ] 1.2 Add `src/usage/types.ts`: `UsageLine` (meter, quantity, provider?, model?, keySource?, estimated) and `UsageEvent` (line + owner/workspace/app/call/region/regionKind/origin/occurredAt/id) with Zod schemas that reject an undeclared meter, a `keySource` on a non-vendor meter, and any price-like field; verify with unit tests
-- [ ] 1.3 Add `src/usage/usageId.ts` (D7) and `CallUsage` (accumulator keyed by meter, provider, model, keySource; ORs `estimated`; `lines()` rounds seconds up); verify tests: same inputs give the same id, merges add up, `estimated` survives a merge
-- [ ] 1.4 Add `src/protos/usage.proto` (`service Usage`, `GetUsage`, D10) and regenerate stubs; verify the build and that `mods/types` exports the request/response types
+- [ ] 1.2 Add `src/usage/types.ts`: `UsageLine` (meter, quantity, provider?, model?, keySource?) and `UsageEvent` (line + owner/workspace/app/call/region/regionKind/origin/occurredAt/id) with Zod schemas that reject an undeclared meter, a `keySource` on a non-vendor meter, and any price-like field; verify with unit tests
+- [ ] 1.3 Add `src/usage/usageId.ts` (D7) and `CallUsage` (accumulator keyed by meter, provider, model, keySource; `lines()` rounds seconds up); verify tests: same inputs give the same id, merges add up
+- [ ] 1.4 Registry: hard feature `usage` in the `llm` vocabulary; `add-model`/activation of an `llm` without it fails with `llm models must declare the usage feature`; existing `openai`, `groq` and `fake` llm entries get `usage` in the seed/export only after task 7.1 passes for them; verify CLI tests for the provider-registry delta scenarios
+- [ ] 1.5 Add `src/protos/usage.proto` (`service Usage`, `GetUsage`, D10) and regenerate stubs; verify the build and that `mods/types` exports the request/response types
 
 ## 2. Ledger and ingest (mods/apiserver)
 
@@ -33,8 +34,9 @@
 
 - [ ] 4.1 `community`: optional final `usage` chunk on `Think.stream` and usage on embeddings; OpenAI-compatible adapters send `stream_options.include_usage` and parse it; other adapters return none; verify adapter tests against recorded vendor responses
 - [ ] 4.2 `LayeredCredentials.get` returns `{key, source}`; callers updated; verify tests: workspace key → `workspace`, platform → `platform`
-- [ ] 4.3 Autopilot sends `usage.report` after each turn and for knowledge-base load and search, with the D6 estimate when the vendor reported nothing; verify tests with the fake LLM: reported tokens equal the fake's fixed counts; a vendor with no usage yields `estimated: true`
-- [ ] 4.4 Eval path publishes `llm.tokens.*` with `origin: eval` to `usage.<ws>.<meter>` per step (agent and judge); verify a test: three scenarios produce eval lines only for token meters, with no call reference, and re-running the same eval run id adds nothing
+- [ ] 4.3 Autopilot sends `usage.report` after each turn and for knowledge-base load and search; a completed request without usage sends a `usage_missing` note and increments `fonoster.usage.missing{catalog_id}`; verify tests with the fake LLM: reported tokens equal the fake's fixed counts; a fake configured to omit usage yields no token line, one `usage_missing` and the call continues
+- [ ] 4.4 Drain on barge-in and on a superseded turn (D6): stop speech/history at once, read the stream to its end in the background with a 30 s deadline, then report usage; verify tests: an interrupted reply's tokens equal the fake's full-request counts, no text after the interruption is spoken or stored, a drain past the deadline records `usage_missing`, session end closes open drains
+- [ ] 4.5 Eval path publishes `llm.tokens.*` with `origin: eval` to `usage.<ws>.<meter>` per step (agent and judge); verify a test: three scenarios produce eval lines only for token meters, with no call reference, and re-running the same eval run id adds nothing
 
 ## 5. Usage API and SDK
 
@@ -43,12 +45,12 @@
 
 ## 6. Dashboard Usage page
 
-- [ ] 6.1 Design the Usage page in `designs/dashboard.pen` (period picker, minutes vs tests, add-on minutes, AI usage by provider and model with Your key / Fonoster key, estimated marker, empty state; settles the long-period open question); verify the owner approves the frames
-- [ ] 6.2 `NAVIGATION` entry `Usage` (`/usage`) and screen; `useUsage` over `sdk.usage.getUsage`; components per the design; verify unit tests and an e2e test covering the dashboard delta scenarios (Community install with billing off, Last month, no usage, own vs Fonoster key, estimated)
+- [ ] 6.1 Design the Usage page in `designs/dashboard.pen` (period picker, minutes vs tests, add-on minutes, AI usage by provider and model with Your key / Fonoster key, empty state; settles the long-period open question); verify the owner approves the frames
+- [ ] 6.2 `NAVIGATION` entry `Usage` (`/usage`) and screen; `useUsage` over `sdk.usage.getUsage`; components per the design; verify unit tests and an e2e test covering the dashboard delta scenarios (Community install with billing off, Last month, no usage, own vs Fonoster key)
 
 ## 7. Integration
 
-- [ ] 7.1 Conformance scenario on the local stack: an Autopilot call on fake providers, one on a workspace key, and a browser test; assert exact usage lines in the sealed record, `usage_events` and `GetUsage`, and that replaying the record changes nothing; verify it passes in CI
+- [ ] 7.1 Conformance scenario on the local stack: an Autopilot call on fake providers, one on a workspace key, one with a barge-in, and a browser test; plus a `usage` feature check that runs against each active `llm` model's live API (completed and interrupted streams), Groq included; assert exact usage lines in the sealed record, `usage_events` and `GetUsage`, and that replaying the record changes nothing; verify it passes in CI
 - [ ] 7.2 Metering never blocks: stop Postgres during 10 fake calls, start it again; verify all calls completed and all usage lines arrive
 - [ ] 7.3 `openspec validate add-usage-metering --strict` passes and docs mention the Usage page and `GetUsage`
 

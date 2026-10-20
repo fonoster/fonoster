@@ -56,7 +56,7 @@ is a separate service added later) is in the planning doc "Metering & Billing: H
 ### D1. Call usage rides in the sealed record
 
 AppBridge keeps a `CallUsage` accumulator per call: a map keyed by
-`(meter, provider, model, keySource)` holding a quantity and an `estimated` flag. At `finish()` it
+`(meter, provider, model, keySource)` holding a quantity. At `finish()` it
 writes the lines into the working record. The sealed record and the index entry both carry
 `usage: UsageLine[]`, so the lines are signed with the record.
 
@@ -84,7 +84,7 @@ dashboard don't change.
 | `nc.seconds` | each filter slot in `createAudioFilterChain` | frames processed × 20 ms, per filter provider; a slot that failed open stops counting |
 | `amd.detections`, `amd.seconds` | `AmdListener.run` after classification | 1 detection per classification; seconds = the result's `audioMs` / 1000 |
 | `recording.seconds` | `CallRecording.start` / `stop` | wall time between them, summed over restarts |
-| `llm.tokens.*`, `embedding.tokens` | Autopilot, reported with `usage.report` (D4) | vendor counts; otherwise an estimate (D6) |
+| `llm.tokens.*`, `embedding.tokens` | Autopilot, reported with `usage.report` (D4) | vendor counts only (D6) |
 | `eval.*` (`llm.tokens.*`, origin `eval`) | apiserver eval path (D5) | same as LLM |
 | `storage.bytes` | nightly job in the apiserver (D8) | bytes held per workspace that day |
 
@@ -112,12 +112,23 @@ Subject `usage.<workspaceRef>.<meter>`, JetStream stream `FONOSTER_USAGE`, durab
 stream, but they can be replayed from stored records; see Risks). The eval path publishes one
 message per step with `origin: eval` and an id built from `evalRunId + step + meter + provider`.
 
-### D6. Estimates
+### D6. Vendor counts only, and draining
 
-When a vendor reports no usage, Autopilot estimates tokens as `ceil(characters / 4)` of the prompt
-text it sent and the completion text it received, and marks the line `estimated: true`. The
-accumulator ORs `estimated` when it merges lines. Billing decides later what to do with estimated
-lines.
+Token counts are never estimated (owner, 2026-10-20). Every LLM vendor we ship or plan reports usage
+on streams: OpenAI-compatible APIs in a final chunk when `stream_options.include_usage` is set,
+Anthropic in `message_start` and a cumulative `message_delta`, and Gemini in `usageMetadata`.
+OpenAI warns that an interrupted or cancelled stream may not deliver the final usage chunk, and a
+voice agent cancels streams on every barge-in. So Autopilot no longer aborts the HTTP stream when it
+stops a reply. It stops consuming text for speech and history, and a background reader drains the
+stream to its end and takes the usage chunk. The extra cost is the rest of the interrupted reply's
+output tokens, bounded by the agent's `maxTokens`. A drain has a 30 s deadline; when it expires the
+request is recorded as `usage_missing`.
+
+A completed request without a usage report produces no token line. It adds a `usage_missing`
+record error naming the catalog id (sent as a `record.note` of kind `usage_missing`) and increments
+the OpenTelemetry counter `fonoster.usage.missing{catalog_id}`, which the operator alert reads. The
+registry's hard feature `usage` (provider-registry delta) keeps models that don't report usage from
+being made active. Conformance proves the feature for each active model.
 
 ### D7. Deterministic ids and the ledger
 
@@ -127,9 +138,9 @@ storage. Prisma models:
 
 - `UsageEvent` (`usage_events`): `id` primary key, `ownerRef`, `workspaceRef`, `appRef?`,
   `callRef?`, `region`, `regionKind`, `origin`, `meter`, `unit`, `quantity` (Decimal), `provider?`,
-  `model?`, `keySource?`, `estimated`, `occurredAt`, `recordedAt`.
+  `model?`, `keySource?`, `occurredAt`, `recordedAt`.
 - `UsageDaily` (`usage_daily`): unique on `(ownerRef, workspaceRef, day, meter, provider, model,
-  keySource, origin, regionKind)` with `quantity` and an `estimated` flag (true when any line was).
+  keySource, origin, regionKind)` with `quantity`.
 
 Ingest: `INSERT … ON CONFLICT (id) DO NOTHING`. Only when a row was inserted is `usage_daily`
 incremented, in the same transaction, so a replay changes nothing. The owner is resolved at ingest
@@ -152,8 +163,7 @@ metadata, so it works the same for private regions.
 ### D10. `Usage/GetUsage`
 
 `usage.proto`: `GetUsage(GetUsageRequest{from_day, to_day, group_by[], all_owned})` returns
-`rows[]{day?, workspace_ref?, meter, unit, provider?, model?, key_source?, origin?, quantity,
-estimated}`. The workspace comes from the caller's access key. `all_owned` requires the caller to
+`rows[]{day?, workspace_ref?, meter, unit, provider?, model?, key_source?, origin?, quantity}`. The workspace comes from the caller's access key. `all_owned` requires the caller to
 be the owner and spans every workspace they own (checked in Identity). The service reads only
 `usage_daily`. It is registered in `apiserver/src/core/services.ts` and not allow-listed as public.
 The SDK gets `Usage.getUsage`.
@@ -175,8 +185,13 @@ before coding (Pencil first, the project rule).
   records for a period.
 - [Owner changes after ingest] → `ownerRef` is a fact at the time of use. Billing later attributes
   by the line's owner, which is the correct owner for that period.
-- [Estimates differ from vendor bills] → Lines are marked; the main adapters (OpenAI-compatible)
-  report real counts.
+- [Draining costs output tokens on every barge-in] → Bounded by `maxTokens`; most of an
+  interrupted reply is usually generated already. Measured in conformance and visible as
+  `llm.tokens.out`.
+- [Groq's streaming usage is confirmed only by secondhand sources] → Groq models get the `usage`
+  feature only after the conformance check passes against the live API.
+- [A drain holds a vendor connection after the turn moved on] → One drain per interrupted request,
+  30 s deadline, closed when the session ends.
 - [An Autopilot bug under-reports tokens] → A conformance scenario compares reported tokens with
   the fake LLM's fixed counts (task 8).
 - [`usage_daily` hot rows for busy workspaces] → One row per day per dimension combination; the

@@ -105,21 +105,36 @@ meters, since it uses no media.
 - **THEN** usage lines with origin `eval` exist only for `llm.tokens.*` meters, with no call
   reference
 
-### Requirement: Vendor-reported and estimated quantities
+### Requirement: Token counts come only from the vendor
 
-LLM and embedding token counts SHALL come from the vendor's usage report. When a vendor reports no
-usage, the line SHALL carry an estimate and be marked `estimated: true`.
+LLM and embedding token counts SHALL be the counts the vendor reports for each request, never an
+estimate. A turn the caller interrupts SHALL still be metered with the vendor's counts for the whole
+request.
 
 #### Scenario: Vendor reports usage
 
-- **WHEN** the LLM vendor reports 1,200 input and 340 output tokens for a turn
-- **THEN** the call's `llm.tokens.in` and `llm.tokens.out` include exactly those counts, not marked
-  estimated
+- **WHEN** the LLM vendor reports 1,200 input, 340 output and 800 cached input tokens for a turn
+- **THEN** the call's `llm.tokens.in`, `llm.tokens.out` and `llm.tokens.cached` include exactly
+  those counts
 
-#### Scenario: Vendor reports nothing
+#### Scenario: Interrupted turn
 
-- **WHEN** an LLM vendor returns a completion with no usage report
-- **THEN** the turn's token lines are recorded and marked `estimated: true`
+- **WHEN** the caller interrupts a reply after two seconds and the vendor's request totals 1,200
+  input and 180 output tokens
+- **THEN** the call's token lines include 1,200 input and 180 output tokens for that turn
+
+### Requirement: Missing usage is an error
+
+When a completed LLM or embedding request returns no usage report, the platform SHALL record no
+token line for it, SHALL add a `usage_missing` error naming the catalog id to the call record and
+SHALL raise an operator alert. The call SHALL continue.
+
+#### Scenario: Vendor omits usage
+
+- **WHEN** a model returns a complete reply with no usage report
+- **THEN** the caller hears the reply and the call continues
+- **AND** the call record holds a `usage_missing` error naming the model's catalog id
+- **AND** no token line exists for that request
 
 ### Requirement: Usage is recorded exactly once
 

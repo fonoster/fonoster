@@ -38,14 +38,9 @@ minutes of noise cancelling, answering-machine detections and recording minutes.
 
 The Usage page SHALL list AI usage (transcription seconds, speech characters, language-model and
 embedding tokens) by provider and model, and SHALL say for each whether it ran on the workspace's own
-key ("Your key") or the platform's ("Fonoster key"). Estimated token counts SHALL be marked.
+key ("Your key") or the platform's ("Fonoster key").
 
 #### Scenario: Own key and platform key
 
 - **WHEN** a month has STT on the workspace's own key and TTS on the platform key
 - **THEN** the STT row says Your key and the TTS row says Fonoster key
-
-#### Scenario: Estimated tokens
-
-- **WHEN** a provider's token counts were estimated
-- **THEN** that row marks its tokens as estimated
