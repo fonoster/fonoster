@@ -283,7 +283,7 @@ export function AppsList({ creating: startCreating = false }) {
                 labelOf(catalog.data?.sttModels, a.speech.sttModel)
               ]
                 .filter(Boolean)
-                .join(" · ") || "Platform default"}
+                .join(" · ") || "—"}
         </span>
       )
     },
@@ -414,14 +414,18 @@ function CatalogField({
   entries,
   placeholder,
   incompatibleHint,
+  choose,
   onChange
 }: {
   label: string;
   hint?: string;
   value: string;
   entries: CatalogEntry[];
+  /** The text box's example id when there's no catalog. */
   placeholder: string;
   incompatibleHint?: string;
+  /** The select's prompt while nothing is picked. */
+  choose?: string;
   onChange: (value: string) => void;
 }) {
   const known = entries.find((e) => e.id === value);
@@ -440,9 +444,9 @@ function CatalogField({
         entries.length ? (
           <Select
             {...p}
-            value={value || "default"}
+            value={value}
+            placeholder={choose ?? `Choose a ${label.toLowerCase()}`}
             options={[
-              { value: "default", label: "Platform default" },
               ...entries.map((e) => ({
                 value: e.id,
                 label:
@@ -453,7 +457,7 @@ function CatalogField({
                       : e.label
               }))
             ]}
-            onValueChange={(v) => onChange(v === "default" ? "" : v)}
+            onValueChange={onChange}
           />
         ) : (
           <Input
@@ -672,8 +676,8 @@ const providerOf = (id: string) =>
   id.includes("/") ? id.slice(0, id.indexOf("/")) : "";
 
 /**
- * A provider, then one of its catalog items, as on an agent's page. "Platform default"
- * leaves both unset. Without a catalog it's one text box for the full id.
+ * A provider, then one of its catalog items, as on an agent's page. Without a catalog
+ * it's one text box for the full id.
  */
 function ProviderCatalogField({
   label,
@@ -711,14 +715,13 @@ function ProviderCatalogField({
     Boolean
   );
   const options = [
-    { value: "default", label: "Platform default" },
     ...(provider && !ids.includes(provider) ? [provider] : []).map((id) => ({
       value: id,
       label: `${id} (unavailable)`
     })),
     ...ids.map((id) => ({
       value: id,
-      label: providers.find((p) => p.id === id)?.label ?? id
+      label: providers.find((p) => p.id === id)?.label || id
     }))
   ];
   return (
@@ -728,15 +731,13 @@ function ProviderCatalogField({
           <Select
             {...p}
             aria-label={`${label} provider`}
-            value={provider || "default"}
+            value={provider}
+            placeholder="Choose a provider"
             options={options}
             onValueChange={(next) => {
-              const chosen = next === "default" ? "" : next;
-              setProvider(chosen);
+              setProvider(next);
               onChange(
-                chosen
-                  ? (entries.find((e) => providerOf(e.id) === chosen)?.id ?? "")
-                  : ""
+                entries.find((e) => providerOf(e.id) === next)?.id ?? ""
               );
             }}
           />
@@ -752,13 +753,14 @@ function ProviderCatalogField({
           onChange={onChange}
         />
       ) : (
-        <Field label={label} hint="The platform picks it.">
+        <Field label={label}>
           {(p) => (
             <Select
               {...p}
               disabled
-              value="default"
-              options={[{ value: "default", label: "Platform default" }]}
+              value=""
+              placeholder="Choose a provider first"
+              options={[]}
               onValueChange={() => undefined}
             />
           )}

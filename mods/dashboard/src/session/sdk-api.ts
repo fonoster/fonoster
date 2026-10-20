@@ -195,7 +195,11 @@ export function toCatalog(items: CatalogItem[]): Catalog {
       .map(entry),
     providers: items
       .filter((i) => i.kind === "provider")
-      .map((i) => ({ ...entry(i), label: PROVIDER_NAMES[i.id] ?? i.id })),
+      // The catalog's own label ("Fakes"), then ours, then the id.
+      .map((i) => ({
+        ...entry(i),
+        label: i.label || PROVIDER_NAMES[i.id] || i.id
+      })),
     languages: [...languages]
       .sort()
       .map((id) => ({ id, label: id, state: "active" as const }))

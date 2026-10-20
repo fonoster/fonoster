@@ -88,13 +88,13 @@ export const catalog: Catalog = {
   sttModels: [
     {
       id: "deepgram/nova-3",
-      label: "deepgram/nova-3",
+      label: "Nova 3",
       state: "active",
       languages: ["en", "es", "multi"]
     },
     {
       id: "deepgram/nova-2-phonecall",
-      label: "deepgram/nova-2-phonecall",
+      label: "Nova 2 Phonecall",
       state: "active",
       languages: ["en"]
     }
