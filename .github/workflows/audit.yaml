@@ -1,0 +1,44 @@
+name: Audit
+
+# Production dependency audit. Fails when a dependency that ships (everything outside
+# devDependencies) has a high or critical advisory. Dev and build tooling is reported by
+# `npm audit` but doesn't gate this badge. It also runs weekly, since advisories are
+# published without any change to the repo.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'package-lock.json'
+      - '**/package.json'
+      - '.github/workflows/audit.yaml'
+  pull_request:
+    paths:
+      - 'package-lock.json'
+      - '**/package.json'
+      - '.github/workflows/audit.yaml'
+  schedule:
+    - cron: '0 12 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: production dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Full report (informational)
+        if: always()
+        run: npm audit || true
