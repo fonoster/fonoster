@@ -484,6 +484,16 @@ describe("@stripe-fake", function () {
     expect(found.data.map((p) => p.unit_amount)).to.deep.equal([2500]);
   });
 
+  it("opens a Customer Portal session for a customer", async () => {
+    const customer = await stripe.customers.create();
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customer.id,
+      return_url: "https://app.fonoster.com/settings/billing"
+    });
+    expect(session.url).to.match(/^https:\/\//);
+    expect(session.customer).to.equal(customer.id);
+  });
+
   it("refunds part of a payment", async () => {
     const customer = await stripe.customers.create();
     const intent = await stripe.paymentIntents.create({

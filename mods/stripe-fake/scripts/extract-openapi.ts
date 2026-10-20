@@ -47,6 +47,7 @@ export const SERVED_PATHS = [
   "/v1/billing/meters/{id}/deactivate",
   "/v1/billing/meters/{id}/event_summaries",
   "/v1/billing/meters/{id}/reactivate",
+  "/v1/billing_portal/sessions",
   "/v1/customers",
   "/v1/customers/{customer}",
   "/v1/customers/{customer}/payment_methods",

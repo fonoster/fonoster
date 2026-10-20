@@ -16,10 +16,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { missing } from "../errors";
 import { list, metadataOf, Route } from "../router";
 
-/** Customers (add-stripe-fake 2.1). */
+/** Customers (add-stripe-fake 2.1), and the Customer Portal sessions that manage them. */
 export const customerRoutes: Route[] = [
+  {
+    method: "post",
+    path: "/v1/billing_portal/sessions",
+    handler: ({ fake, body }) => {
+      const customer = body.customer as string;
+      if (!customer) throw missing("customer");
+      fake.get(customer, "customer", "customer");
+      const id = fake.id("bps");
+      // The portal itself is Stripe's page; the fake hands out a link that only names the session.
+      return fake.create("billing_portal.session", "bps", {
+        id,
+        object: "billing_portal.session",
+        configuration: "bpc_fake_default",
+        customer,
+        return_url: body.return_url ?? null,
+        url: `https://billing.stripe.com/p/session/test_${id}`
+      });
+    }
+  },
   {
     method: "post",
     path: "/v1/customers",
