@@ -73,6 +73,21 @@ const ELSEWHERE: Record<string, string> = {
     "mods/appbridge/test/catalogProviders.test.ts",
   "The noise-cancelling filter uses the workspace's key":
     "mods/appbridge/test/workspaceKeys.test.ts",
+  // remove-platform-key-fallback: an unreadable workspace key fails instead of using the platform's.
+  "The key store fails before an inbound call is answered":
+    "mods/appbridge/test/keyUnavailable.test.ts",
+  "A slow key store is the same as a failed one":
+    "mods/appbridge/test/workspaceKeys.test.ts",
+  "No key stored still uses the platform key":
+    "mods/appbridge/test/keyUnavailable.test.ts",
+  "A provider first needed mid-call":
+    "mods/appbridge/test/keyUnavailable.test.ts",
+  "Noise cancelling with an unreadable key":
+    "mods/appbridge/test/keyUnavailable.test.ts",
+  "Autopilot cannot read the workspace's LLM key":
+    "mods/autopilot/test/session/hosted.test.ts",
+  "An eval cannot read the workspace's key":
+    "mods/apiserver/test/usage/evalUsage.test.ts",
   "The noise-cancelling filter falls back to the platform key":
     "mods/appbridge/test/workspaceKeys.test.ts",
   "No credential at all for the filter":
