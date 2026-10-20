@@ -19,6 +19,9 @@ features:
   auth: { methods: [password], signup: invite }
   billing: { enabled: false }
   costs: { display: usage }
+  # Trunk inbound URIs: "domain" requires <label>.sip.<domain> (point *.sip.<domain> at your SIP
+  # address); "any" takes any host or IP, for carriers that reach you by address.
+  trunks: { inboundUri: domain }
 # Numbers of apps route to the Roomr nodes' Peer, created at start with this password.
 routr:
   apiEndpoint: routr:51907

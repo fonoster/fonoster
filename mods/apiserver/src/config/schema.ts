@@ -44,6 +44,14 @@ const featuresSchema = z
           .default({}),
         recordings: z.object({ store: z.boolean().default(false) }).default({})
       })
+      .default({}),
+    /**
+     * Trunk inbound URIs: "domain" requires one DNS label under `sip.<domain>`
+     * (carriers reach a wildcard `*.sip.<domain>`); "any" accepts any host or IP,
+     * for installs whose carriers reach them by address.
+     */
+    trunks: z
+      .object({ inboundUri: z.enum(["domain", "any"]).default("domain") })
       .default({})
   })
   .default({});

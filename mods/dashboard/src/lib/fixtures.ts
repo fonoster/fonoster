@@ -34,7 +34,8 @@ export const communityCapabilities: Capabilities = {
     signalingAddresses: ["192.0.2.10"],
     mediaAddresses: ["192.0.2.10"],
     rtpPorts: { min: 10000, max: 10999 }
-  }
+  },
+  trunks: { inboundUri: "domain" }
 };
 
 /** Fonoster Cloud: GitHub and emailed codes, open sign-up, billing. */
@@ -56,7 +57,8 @@ export const cloudCapabilities: Capabilities = {
     sip: [{ host: "sip.us-east-1.fonoster.com", port: 5060, transport: "udp" }],
     signalingAddresses: ["198.51.100.1"],
     mediaAddresses: ["198.51.100.2"]
-  }
+  },
+  trunks: { inboundUri: "domain" }
 };
 
 /** Self-hosted with the region hub added: private regions on, billing off. */

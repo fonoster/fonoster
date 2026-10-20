@@ -62,44 +62,57 @@ import {
 } from "./trunks.service";
 
 /**
- * The inbound URI as a label plus the install's fixed `.sip.<domain>`. A new
- * trunk's label follows its name until edited. A trunk whose URI isn't under
- * that root (made before, or elsewhere) shows and keeps the full host.
+ * The inbound URI as a label plus the install's fixed `.sip.<domain>`, which
+ * the API requires (features.trunks.inboundUri: domain). A new trunk's label
+ * follows its name until edited. With `any`, it's a free host or IP.
  */
+/** The install's inbound URI rule, from GetCapabilities. */
+function useInboundUriRule() {
+  const capabilities = useCapabilities();
+  return {
+    // "domain" (default): one label under sip.<domain>. "any": any host or IP.
+    strict: capabilities.trunks?.inboundUri !== "any",
+    suffix: inboundSuffix(capabilities.domain)
+  };
+}
+
 function InboundUriField({
   form,
-  isNew
+  isNew,
+  previous
 }: {
   form: UseFormReturn<TrunkValues>;
   isNew: boolean;
+  /** The saved URI when it isn't under the root (a trunk made before the rule). */
+  previous?: string;
 }) {
-  const suffix = inboundSuffix(useCapabilities().domain);
+  const { strict, suffix } = useInboundUriRule();
   const [uri, name] = useWatch({
     control: form.control,
     name: ["inboundUri", "name"]
   });
-  const [custom] = useState(() => inboundLabel(uri, suffix) === undefined);
   const [edited, setEdited] = useState(!isNew);
   const error = form.formState.errors.inboundUri?.message;
 
   useEffect(() => {
-    if (custom || edited) return;
+    if (!strict || edited) return;
     const label = toLabel(name ?? "");
     form.setValue("inboundUri", label ? label + suffix : "");
-  }, [name, custom, edited, suffix, form]);
+  }, [name, strict, edited, suffix, form]);
 
-  if (custom) {
+  if (!strict) {
     return (
       <Field
         label="Inbound URI"
         error={error}
-        hint="Give this to your carrier."
+        hint="Give this to your carrier: a host name or IP that reaches this install."
       >
         {(a11y) => (
           <Input
             {...a11y}
             {...form.register("inboundUri")}
             className="font-mono"
+            placeholder={`telnyx${suffix}`}
             autoComplete="off"
             spellCheck={false}
           />
@@ -117,7 +130,11 @@ function InboundUriField({
           ? "Use lowercase letters, digits and dashes."
           : error
       }
-      hint="Give this to your carrier."
+      hint={
+        previous
+          ? `Was ${previous}. Saving moves it under ${suffix.slice(1)}; update your carrier.`
+          : "Give this to your carrier."
+      }
     >
       {(a11y) => (
         <div className="flex h-[38px] items-center rounded-control border border-input bg-background focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30">
@@ -243,8 +260,24 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
   });
   const { errors } = form.formState;
 
+  const rule = useInboundUriRule();
+  // A trunk made before the inbound URI rule moves under the root on save.
+  const previous =
+    rule.strict &&
+    trunk?.inboundUri &&
+    inboundLabel(trunk.inboundUri, rule.suffix) === undefined
+      ? trunk.inboundUri
+      : undefined;
+
   useEffect(() => {
-    if (trunk) form.reset(toValues(trunk));
+    if (!trunk) return;
+    form.reset(toValues(trunk));
+    if (previous) {
+      const label = toLabel(previous.split(".")[0] ?? "");
+      form.setValue("inboundUri", label ? label + rule.suffix : "", {
+        shouldDirty: true
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trunk]);
 
@@ -365,7 +398,7 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
                   />
                 )}
               </Field>
-              <InboundUriField form={form} isNew={!trunk} />
+              <InboundUriField form={form} isNew={!trunk} previous={previous} />
             </div>
             <CarrierHint />
           </Section>

@@ -26,8 +26,16 @@ import {
   listTrunks,
   updateTrunk
 } from "./operations";
+import { withInboundUriCheck } from "./inboundUri";
 
-function buildService(clientOptions: ClientOptions) {
+/**
+ * `inboundUriRoot` (e.g. `sip.acme.com`) makes every inbound URI one label under
+ * it; leave it out to accept any host or IP.
+ */
+function buildService(
+  clientOptions: ClientOptions,
+  options: { inboundUriRoot?: string } = {}
+) {
   const client = new SDK.Trunks(clientOptions);
   const checkRefs = createCheckRefs(createRefLookups(clientOptions));
 
@@ -39,8 +47,14 @@ function buildService(clientOptions: ClientOptions) {
       proto: "trunks.proto"
     },
     handlers: {
-      createTrunk: createTrunk(client, checkRefs),
-      updateTrunk: updateTrunk(client, checkRefs),
+      createTrunk: withInboundUriCheck(
+        createTrunk(client, checkRefs),
+        options.inboundUriRoot
+      ),
+      updateTrunk: withInboundUriCheck(
+        updateTrunk(client, checkRefs),
+        options.inboundUriRoot
+      ),
       getTrunk: getTrunk(client),
       listTrunks: listTrunks(client),
       deleteTrunk: deleteTrunk(client)

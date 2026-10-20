@@ -180,3 +180,12 @@ export const WEBHOOKS = config.webhooks;
 export const REGIONS = config.regions;
 
 export const DOMAIN = config.domain;
+
+/**
+ * Where trunk inbound URIs must live (`<label>.sip.<domain>`), or undefined when
+ * features.trunks.inboundUri is "any".
+ */
+export const TRUNK_INBOUND_URI_ROOT =
+  config.features.trunks.inboundUri === "domain"
+    ? `sip.${config.domain}`
+    : undefined;
