@@ -1,0 +1,147 @@
+// The billing service's own database (add-billing-service D1). No other service reads or writes it.
+// Money is integer milli-credits: 1 credit = 1000 milli-credits = $0.01 (D5).
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "src/generated/@prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("BILLING_DATABASE_URL")
+}
+
+/// One per owner, shared by the owner's workspaces (D11), with its one subscription.
+model BillingAccount {
+  id                   String    @id @default(uuid())
+  ownerRef             String    @unique @map("owner_ref") @db.VarChar(255)
+  /// trial | payg
+  plan                 String    @db.VarChar(16)
+  /// active | past_due | closed
+  status               String    @default("active") @db.VarChar(16)
+  /// Usage before this is not billed (reason before_billing).
+  billingStartedAt     DateTime  @default(now()) @map("billing_started_at") @db.Timestamptz(3)
+  stripeCustomerId     String?   @unique @map("stripe_customer_id") @db.VarChar(64)
+  stripeSubscriptionId String?   @unique @map("stripe_subscription_id") @db.VarChar(64)
+  periodStart          DateTime? @map("period_start") @db.Timestamptz(3)
+  periodEnd            DateTime? @map("period_end") @db.Timestamptz(3)
+  autoRecharge         Boolean   @default(false) @map("auto_recharge")
+  rechargeThreshold    BigInt?   @map("recharge_threshold_milli")
+  rechargeAmount       BigInt?   @map("recharge_amount_milli")
+  rechargeFailures     Int       @default(0) @map("recharge_failures")
+  /// Set while a recharge payment is in flight, so a crossing starts one payment.
+  rechargePendingAt    DateTime? @map("recharge_pending_at") @db.Timestamptz(3)
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  entries LedgerEntry[]
+  lines   RatedLine[]
+
+  @@map("billing_accounts")
+}
+
+/// Versioned prices, never edited after they start (D3).
+model RateCard {
+  version   Int      @id
+  startsAt  DateTime @map("starts_at") @db.Timestamptz(3)
+  /// Prices in credits per unit, by meter, then provider and model.
+  body      Json
+  /// Where the vendor prices came from, and when.
+  source    String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("rate_cards")
+}
+
+/// What one usage event was charged, and why (D4). Never edited.
+model RatedLine {
+  usageId         String         @id @map("usage_id") @db.VarChar(40)
+  accountId       String         @map("account_id")
+  account         BillingAccount @relation(fields: [accountId], references: [id])
+  workspaceRef    String         @map("workspace_ref") @db.VarChar(255)
+  callRef         String?        @map("call_ref") @db.VarChar(255)
+  meter           String         @db.VarChar(64)
+  quantity        BigInt
+  provider        String?        @db.VarChar(64)
+  model           String?        @db.VarChar(255)
+  keySource       String?        @map("key_source") @db.VarChar(16)
+  origin          String         @db.VarChar(16)
+  billable        Boolean
+  reason          String         @db.VarChar(32)
+  amount          BigInt         @map("amount_milli")
+  rateCardVersion Int?           @map("rate_card_version")
+  category        String?        @db.VarChar(32)
+  occurredAt      DateTime       @map("occurred_at") @db.Timestamptz(3)
+  ratedAt         DateTime       @default(now()) @map("rated_at") @db.Timestamptz(3)
+
+  @@index([accountId, occurredAt])
+  @@map("rated_lines")
+}
+
+/// The balance, append-only (D6). Grants add; debits, expiries and refunds take from one grant
+/// (grant_id) or from the overdraft (bucket overdraft, no grant).
+model LedgerEntry {
+  id          String         @id @default(uuid())
+  accountId   String         @map("account_id")
+  account     BillingAccount @relation(fields: [accountId], references: [id])
+  /// trial_grant | plan_grant | topup_grant | debit | expiry | refund | adjustment
+  kind        String         @db.VarChar(16)
+  /// trial | plan | topup | overdraft
+  bucket      String         @db.VarChar(16)
+  /// Signed: grants are positive, everything else negative (adjustments either).
+  amount      BigInt         @map("amount_milli")
+  /// The grant a debit, expiry or refund takes from.
+  grantId     String?        @map("grant_id")
+  /// Grants: when what is left expires.
+  expiresAt   DateTime?      @map("expires_at") @db.Timestamptz(3)
+  /// Plan grants: the usage they pay for happened in [effective_at, covers_until) (D9).
+  effectiveAt DateTime?      @map("effective_at") @db.Timestamptz(3)
+  coversUntil DateTime?      @map("covers_until") @db.Timestamptz(3)
+  /// What caused it: a rated line's usage id, a Stripe event id, an operator note.
+  source      String         @db.VarChar(255)
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([accountId, createdAt])
+  @@index([grantId])
+  @@map("balance_ledger")
+}
+
+/// The balance as the ledger sums it, kept for admission (rebuilt from the ledger at any time).
+model BalanceSnapshot {
+  accountId String   @id @map("account_id")
+  balance   BigInt   @map("balance_milli")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("balance_snapshot")
+}
+
+/// What Stripe must be told, written with the ledger change and sent by a worker (D8).
+model StripeOutbox {
+  id            String    @id @default(uuid())
+  accountId     String?   @map("account_id")
+  /// customer | subscription | meter_event | credit_grant | payment_intent | refund
+  kind          String    @db.VarChar(32)
+  payload       Json
+  attempts      Int       @default(0)
+  lastError     String?   @map("last_error")
+  nextAttemptAt DateTime  @default(now()) @map("next_attempt_at") @db.Timestamptz(3)
+  sentAt        DateTime? @map("sent_at") @db.Timestamptz(3)
+  /// What Stripe answered (ids of what it created).
+  result        Json?
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([sentAt, nextAttemptAt])
+  @@map("stripe_outbox")
+}
+
+/// Stripe's webhooks, stored once per event id and applied once (D8).
+model StripeEvent {
+  id         String    @id @db.VarChar(64)
+  type       String    @db.VarChar(64)
+  payload    Json
+  receivedAt DateTime  @default(now()) @map("received_at") @db.Timestamptz(3)
+  appliedAt  DateTime? @map("applied_at") @db.Timestamptz(3)
+
+  @@index([appliedAt])
+  @@map("stripe_events")
+}

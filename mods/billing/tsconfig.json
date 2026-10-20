@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "target": "es2020",
+    "strictNullChecks": true
+  },
+  "references": [
+    { "path": "../authz" },
+    { "path": "../common" },
+    { "path": "../logger" }
+  ],
+  "exclude": ["node_modules", "dist", "test"]
+}

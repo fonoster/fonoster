@@ -15,15 +15,15 @@
 
 ## 3. Service skeleton and ledger
 
-- [ ] 3.1 Scaffold `mods/billing` (config file, Prisma schema for `billing_accounts`, `subscriptions`, `rate_cards`, `rated_lines`, `balance_ledger`, `balance_snapshot`, `stripe_outbox`, `stripe_events`), `fonoster-billing` bin, the `Clock` (D10); verify migrations apply on an empty database
-- [ ] 3.2 Rate cards: YAML seed, loader, card-at-time lookup; verify the "new card" scenario
-- [ ] 3.3 The rater (D4) as a pure function with a table-driven test per rule and for rule order; verify every scenario under "Rated lines follow fixed rules"
-- [ ] 3.4 The ledger (D6): entries, bucket order, overdraft, expiry, snapshot rebuild; verify "plan credits first" and "plan credits expire"
-- [ ] 3.5 Usage consumer: durable consumer, rate, debit, all in one transaction keyed by usage id; verify "the same usage twice"
+- [x] 3.1 Scaffold `mods/billing` (config file, Prisma schema for `billing_accounts`, `subscriptions`, `rate_cards`, `rated_lines`, `balance_ledger`, `balance_snapshot`, `stripe_outbox`, `stripe_events`), `fonoster-billing` bin, the `Clock` (D10); verify migrations apply on an empty database
+- [x] 3.2 Rate cards: YAML seed, loader, card-at-time lookup; verify the "new card" scenario
+- [x] 3.3 The rater (D4) as a pure function with a table-driven test per rule and for rule order; verify every scenario under "Rated lines follow fixed rules"
+- [x] 3.4 The ledger (D6): entries, bucket order, overdraft, expiry, snapshot rebuild; verify "plan credits first" and "plan credits expire"
+- [x] 3.5 Usage consumer: durable consumer, rate, debit, all in one transaction keyed by usage id; verify "the same usage twice"
 
 ## 4. Admission service
 
-- [ ] 4.1 Authz server in billing: `CheckSessionAuthorized` from the snapshot and active-call counts (from lifecycle events); verify "balance gone", "a long call crosses zero" and a benchmark for p99 < 5 ms
+- [x] 4.1 Authz server in billing: `CheckSessionAuthorized` from the snapshot and active-call counts (from lifecycle events); verify "balance gone", "a long call crosses zero" and a benchmark for p99 < 5 ms
 
 ## 5. Stripe
 

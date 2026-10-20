@@ -39,6 +39,7 @@ mods/common/test/.prisma-work
 # Generated on install and build, never committed: the Prisma clients (postinstall) and the Identity
 # proto copy (mods/identity-client/scripts/sync-proto.mjs)
 mods/identity/src/generated/
+mods/billing/src/generated/
 mods/identity-client/proto/
 
 # The rebuild stack generates configs, keys and secrets here (ops/rebuild/stack)

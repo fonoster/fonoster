@@ -351,7 +351,9 @@ export class AppBridge {
         if (this.calls.get(c.callRef) === c)
           void this.leases?.set("calls", c.callRef, {
             ...lease,
-            ...c.startedParties()
+            ...c.startedParties(),
+            // Billing counts an owner's active calls from these entries (add-billing-service D7).
+            workspaceRef: c.workspaceRef ?? null
           });
       },
       onEnded: (c) => {

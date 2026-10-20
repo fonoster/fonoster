@@ -1,0 +1,48 @@
+{
+  "name": "@fonoster/billing",
+  "version": "0.30.0",
+  "description": "Billing for Fonoster Cloud: rate cards, the credit ledger, admission and Stripe (off by default)",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
+  "license": "MIT",
+  "private": true,
+  "main": "dist/index",
+  "types": "dist/index",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo && npm run generate:prisma",
+    "build": "tsc -b tsconfig.json",
+    "postbuild": "node scripts/copy-assets.cjs",
+    "generate:prisma": "prisma generate --schema schema.prisma"
+  },
+  "bin": {
+    "fonoster-billing": "dist/main.js"
+  },
+  "dependencies": {
+    "@fonoster/authz": "^0.30.0",
+    "@fonoster/common": "^0.30.0",
+    "@fonoster/identity": "^0.30.0",
+    "@fonoster/logger": "^0.30.0",
+    "@prisma/client": "^6.19.1",
+    "nats": "^2.25.0",
+    "stripe": "^23.0.0",
+    "yaml": "^2.9.0",
+    "zod": "^3.25.76"
+  },
+  "files": [
+    "dist",
+    "migrations",
+    "rate-cards",
+    "schema.prisma"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  }
+}
