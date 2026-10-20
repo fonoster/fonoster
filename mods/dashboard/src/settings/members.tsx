@@ -28,7 +28,6 @@ import {
 import { EmptyState } from "~/components/data/empty-state";
 import { RowActions } from "~/components/data/row-actions";
 import { Avatar, AvatarFallback, initials } from "~/components/ui/avatar";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
   DropdownMenuItem,
@@ -105,9 +104,9 @@ export function MembersSettings() {
       className: "w-36",
       cell: (m) =>
         isPending(m) ? (
-          <Badge variant="warning">Invite sent</Badge>
+          <StatusText tone="warning">Invite sent</StatusText>
         ) : (
-          <Badge variant="success">Active</Badge>
+          <StatusText tone="success">Active</StatusText>
         )
     },
     {
@@ -191,5 +190,28 @@ export function MembersSettings() {
         }
       />
     </div>
+  );
+}
+
+/** A status as a colored dot and text, as in the designs' tables. */
+function StatusText({
+  tone,
+  children
+}: {
+  tone: "success" | "warning";
+  children: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-2 whitespace-nowrap text-[13px]">
+      <span
+        aria-hidden
+        className={
+          tone === "success"
+            ? "size-1.5 rounded-full bg-(--fn-success)"
+            : "size-1.5 rounded-full bg-(--fn-warning)"
+        }
+      />
+      {children}
+    </span>
   );
 }

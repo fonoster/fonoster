@@ -18,7 +18,6 @@
  */
 import type { Trunk } from "@fonoster/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronRight } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -76,16 +75,14 @@ function Section({
 
 function Breadcrumb({ current }: { current: string }) {
   return (
-    <nav aria-label="Breadcrumb" className="px-4 pt-2 sm:px-8">
-      <ol className="flex items-center gap-1.5 font-display text-[13px] text-muted-foreground">
+    <nav aria-label="Breadcrumb" className="px-4 pt-6 sm:px-8">
+      <ol className="flex items-center gap-2 font-display text-[13px] text-muted-foreground">
         <li>
           <Link to=".." relative="path" className="hover:text-foreground">
             Trunks
           </Link>
         </li>
-        <li aria-hidden>
-          <ChevronRight className="size-3.5" />
-        </li>
+        <li aria-hidden>/</li>
         <li aria-current="page" className="truncate text-foreground">
           {current}
         </li>
