@@ -209,6 +209,10 @@ export function AppsList({ creating: startCreating = false }) {
   const base = `/w/${workspaceRef}/apps`;
   const list = useSessionQuery(["apps"], (api) => api.listApps());
   const numbers = useSessionQuery(["numbers"], (api) => api.listNumbers());
+  const catalog = useSessionQuery(["catalog"], (api) => api.getCatalog());
+  // A catalog id as its readable label ("elevenlabs/rachel" → "ElevenLabs Rachel").
+  const labelOf = (entries: CatalogEntry[] | undefined, id?: string) =>
+    id ? (entries?.find((e) => e.id === id)?.label ?? id) : "";
   const warnings = useSessionQuery(["catalog-warnings"], (api) =>
     api.listCatalogWarnings().catch(() => [])
   );
@@ -272,8 +276,14 @@ export function AppsList({ creating: startCreating = false }) {
       className: "w-56",
       cell: (a) => (
         <span className="font-display text-muted-foreground">
-          {[a.speech.voice, a.speech.sttModel].filter(Boolean).join(" · ") ||
-            "—"}
+          {a.protocol === "twilio"
+            ? "—"
+            : [
+                labelOf(catalog.data?.voices, a.speech.voice),
+                labelOf(catalog.data?.sttModels, a.speech.sttModel)
+              ]
+                .filter(Boolean)
+                .join(" · ") || "Platform default"}
         </span>
       )
     },
@@ -566,64 +576,194 @@ export function ConnectionFields({ app, set, errors, columns }: FieldsProps) {
   );
 }
 
-/** Voice, language, speech-to-text model and patience. */
+/**
+ * Speech for Fonoster-protocol apps, laid out like an agent's Model & voice: the voice's
+ * provider and voice, the transcriber's provider and model, then language and patience.
+ * Twilio apps bring their own speech, so their pages don't show this.
+ */
 export function SpeechFields({
   app,
   set,
   catalog
 }: Omit<FieldsProps, "errors"> & { catalog: Catalog }) {
   return (
+    <div className="flex flex-col gap-6">
+      <SpeechGroup title="Voice">
+        <ProviderCatalogField
+          label="Voice"
+          value={app.speech.voice}
+          entries={compatibleVoices(
+            catalog,
+            app.speech.language,
+            app.speech.voice
+          )}
+          providers={catalog.providers}
+          placeholder="deepgram/aura-2-thalia-en"
+          incompatibleHint="This voice doesn't speak the selected language."
+          onChange={(v) => set("speech", { ...app.speech, voice: v })}
+        />
+      </SpeechGroup>
+      <SpeechGroup title="Transcriber">
+        <ProviderCatalogField
+          label="Model"
+          value={app.speech.sttModel ?? ""}
+          entries={compatibleSttModels(
+            catalog,
+            app.speech.language,
+            app.speech.sttModel
+          )}
+          providers={catalog.providers}
+          placeholder="deepgram/nova-3"
+          incompatibleHint="This model doesn't understand the selected language."
+          onChange={(v) => set("speech", { ...app.speech, sttModel: v })}
+        />
+        <CatalogField
+          label="Language"
+          value={app.speech.language}
+          entries={catalog.languages}
+          placeholder="en-US"
+          onChange={(v) => set("speech", { ...app.speech, language: v })}
+        />
+        <Field
+          label="Patience"
+          hint="How long Fonoster waits before deciding the caller finished."
+        >
+          {(p) => (
+            <Select
+              {...p}
+              value={app.speech.patience || "default"}
+              options={PATIENCE}
+              onValueChange={(v) =>
+                set("speech", {
+                  ...app.speech,
+                  patience: (v === "default" ? "" : v) as Patience
+                })
+              }
+            />
+          )}
+        </Field>
+      </SpeechGroup>
+    </div>
+  );
+}
+
+/** A titled pair of columns inside the Speech card. */
+function SpeechGroup({
+  title,
+  children
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <fieldset className="flex flex-col gap-3">
+      <legend className="mb-3 text-[13px] font-medium text-foreground">
+        {title}
+      </legend>
+      <div className="grid items-start gap-x-4 gap-y-[22px] sm:grid-cols-2">
+        {children}
+      </div>
+    </fieldset>
+  );
+}
+
+/** "deepgram/nova-3" → "deepgram". */
+const providerOf = (id: string) =>
+  id.includes("/") ? id.slice(0, id.indexOf("/")) : "";
+
+/**
+ * A provider, then one of its catalog items, as on an agent's page. "Platform default"
+ * leaves both unset. Without a catalog it's one text box for the full id.
+ */
+function ProviderCatalogField({
+  label,
+  value,
+  entries,
+  providers,
+  placeholder,
+  incompatibleHint,
+  onChange
+}: {
+  label: string;
+  value: string;
+  entries: CatalogEntry[];
+  providers: CatalogEntry[];
+  placeholder: string;
+  incompatibleHint?: string;
+  onChange: (value: string) => void;
+}) {
+  const [provider, setProvider] = useState(providerOf(value));
+  if (!entries.length) {
+    return (
+      <div className="sm:col-span-2">
+        <CatalogField
+          label={label}
+          hint="A catalog id: provider/name."
+          value={value}
+          entries={entries}
+          placeholder={placeholder}
+          onChange={onChange}
+        />
+      </div>
+    );
+  }
+  const ids = [...new Set(entries.map((e) => providerOf(e.id)))].filter(
+    Boolean
+  );
+  const options = [
+    { value: "default", label: "Platform default" },
+    ...(provider && !ids.includes(provider) ? [provider] : []).map((id) => ({
+      value: id,
+      label: `${id} (unavailable)`
+    })),
+    ...ids.map((id) => ({
+      value: id,
+      label: providers.find((p) => p.id === id)?.label ?? id
+    }))
+  ];
+  return (
     <>
-      <CatalogField
-        label="Voice"
-        value={app.speech.voice}
-        entries={compatibleVoices(
-          catalog,
-          app.speech.language,
-          app.speech.voice
-        )}
-        placeholder="deepgram/aura-2-thalia-en"
-        hint="A catalog id: provider/voice."
-        incompatibleHint="This voice doesn't speak the selected language."
-        onChange={(v) => set("speech", { ...app.speech, voice: v })}
-      />
-      <CatalogField
-        label="Language"
-        value={app.speech.language}
-        entries={catalog.languages}
-        placeholder="en-US"
-        onChange={(v) => set("speech", { ...app.speech, language: v })}
-      />
-      <CatalogField
-        label="Speech-to-text model"
-        value={app.speech.sttModel ?? ""}
-        entries={compatibleSttModels(
-          catalog,
-          app.speech.language,
-          app.speech.sttModel
-        )}
-        incompatibleHint="This model doesn't understand the selected language."
-        placeholder="deepgram/nova-3"
-        onChange={(v) => set("speech", { ...app.speech, sttModel: v })}
-      />
-      <Field
-        label="Patience"
-        hint="How long Fonoster waits before deciding the caller finished."
-      >
+      <Field label="Provider">
         {(p) => (
           <Select
             {...p}
-            value={app.speech.patience || "default"}
-            options={PATIENCE}
-            onValueChange={(v) =>
-              set("speech", {
-                ...app.speech,
-                patience: (v === "default" ? "" : v) as Patience
-              })
-            }
+            aria-label={`${label} provider`}
+            value={provider || "default"}
+            options={options}
+            onValueChange={(next) => {
+              const chosen = next === "default" ? "" : next;
+              setProvider(chosen);
+              onChange(
+                chosen
+                  ? (entries.find((e) => providerOf(e.id) === chosen)?.id ?? "")
+                  : ""
+              );
+            }}
           />
         )}
       </Field>
+      {provider ? (
+        <CatalogField
+          label={label}
+          value={value}
+          entries={entries.filter((e) => providerOf(e.id) === provider)}
+          placeholder={placeholder}
+          incompatibleHint={incompatibleHint}
+          onChange={onChange}
+        />
+      ) : (
+        <Field label={label} hint="The platform picks it.">
+          {(p) => (
+            <Select
+              {...p}
+              disabled
+              value="default"
+              options={[{ value: "default", label: "Platform default" }]}
+              onValueChange={() => undefined}
+            />
+          )}
+        </Field>
+      )}
     </>
   );
 }

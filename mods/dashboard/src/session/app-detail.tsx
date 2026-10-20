@@ -260,14 +260,15 @@ function AppEditor({
               <ConnectionFields app={app} set={set} errors={errors} columns />
             </div>
           </Panel>
-          <Panel
-            title="Speech"
-            description="Used when your server doesn't pick a voice or model for the call."
-          >
-            <div className="grid gap-x-4 gap-y-[22px] sm:grid-cols-2">
+          {/* Twilio apps run their own speech; only Fonoster-protocol apps use these. */}
+          {app.protocol === "fonoster" && (
+            <Panel
+              title="Speech"
+              description="Used when your server doesn't pick a voice or model for the call."
+            >
               <SpeechFields app={app} set={set} catalog={catalog} />
-            </div>
-          </Panel>
+            </Panel>
+          )}
           <Panel
             title="Call handling"
             description="Runs on Fonoster before your app hears the call."

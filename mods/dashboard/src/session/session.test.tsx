@@ -207,6 +207,20 @@ describe("apps", () => {
     );
   });
 
+  it("shows speech settings only for Fonoster apps, provider first", async () => {
+    const { user } = apps("/w/ws-1/apps/pipecat-bot");
+    // pipecat-bot speaks Twilio: its own server does speech.
+    expect(
+      await screen.findByRole("heading", { name: "Pipecat bot" })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Speech" })).toBeNull();
+    await user.click(screen.getByLabelText("Protocol"));
+    await user.click(await screen.findByRole("option", { name: "Fonoster" }));
+    const speech = await screen.findByRole("region", { name: "Speech" });
+    expect(within(speech).getByLabelText("Voice provider")).toBeInTheDocument();
+    expect(within(speech).getByLabelText("Model provider")).toBeInTheDocument();
+  });
+
   it("shows the numbers that reach an app and its recent calls", async () => {
     apps("/w/ws-1/apps/support-line");
     const reachable = await screen.findByRole("region", {
