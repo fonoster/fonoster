@@ -114,6 +114,9 @@ export const IDENTITY_WORKSPACE_INVITE_URL = identity.workspaceInviteUrl;
 
 export const IDENTITY_DATABASE_URL = identity.dbUrl;
 
+/** Billing is on (Cloud): stored usage is published for the billing service (add-billing-service D2). */
+export const BILLING_ENABLED = config.features.billing.enabled;
+
 // Authz configurations
 export const AUTHZ_SERVICE_ENABLED = config.authz.enabled;
 export const AUTHZ_SERVICE_HOST = config.authz.host;

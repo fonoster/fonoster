@@ -47,8 +47,17 @@ type AddBillingMeterEventRequest = {
   payload: Record<string, unknown>;
 };
 
+/** Why a session was refused (add-billing-service D7). */
+type SessionRefusal = "insufficient_balance" | "concurrency_limit";
+
+/** A session admission answer: a refusal names its reason. */
+type SessionDecision = { authorized: boolean; reason?: SessionRefusal };
+
 type AuthzHandler = {
-  checkSessionAuthorized(request: VoiceRequest): Promise<boolean>;
+  /** A plain boolean is still accepted from handlers written before reasons existed. */
+  checkSessionAuthorized(
+    request: VoiceRequest
+  ): Promise<boolean | SessionDecision>;
   checkMethodAuthorized(
     request: CheckMethodAuthorizedRequest
   ): Promise<boolean>;
@@ -58,6 +67,8 @@ type AuthzHandler = {
 export {
   ServerConfig,
   AuthzHandler,
+  SessionDecision,
+  SessionRefusal,
   VoiceRequest,
   CheckMethodAuthorizedRequest,
   AddBillingMeterEventRequest

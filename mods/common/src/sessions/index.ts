@@ -23,7 +23,7 @@ import type { KV, KvEntry, NatsConnection } from "nats";
  * bucket shared by every service. Keys are `<kind>.<id>`:
  *
  *   calls.<callRef>       appbridge:    { callRef, bridgeRef, nodeId, roomRef, direction, at }
- *                                     + once answered: { appRef, from, to, startedAt }
+ *                                     + once answered: { appRef, workspaceRef, from, to, startedAt }
  *   appbridges.<bridgeRef> appbridge:    { bridgeRef, calls, at }
  *   placements.<callRef>  apiserver:  { callRef, nodeRef, controlAddr, roomRef?, at }
  *                                     while an outbound call is being placed (CreateCall)

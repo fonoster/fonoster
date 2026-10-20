@@ -267,6 +267,12 @@ export type AppBridgeConfig = {
    */
   testCalls?: { publicKeyFile?: string };
   /**
+   * The authorization service asked before a call starts (add-billing-service D7): its gRPC
+   * address (host:port) and how long to wait (default 500 ms; slower answers admit the call).
+   * Absent: every call is admitted.
+   */
+  authz?: { address: string; timeoutMs?: number };
+  /**
    * Server-side options of the audio filters, by filter name, merged over an app's public options
    * when the filter is built: for `aiCoustics`, `modelDir` (default ./models, baked into the
    * image), `modelFile` and `autoDownload` (default true). Never the credential: that is the

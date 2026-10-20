@@ -1,0 +1,13 @@
+# Rate card 1 (add-billing-service D3). Prices are credits per unit; 1 credit = $0.01.
+# A card is never edited once it starts: add <version+1>.yaml with a later startsAt.
+#
+# NOT FINAL. Waiting for the owner:
+#   - call.seconds: the published per-minute price. Proposed 4.8 credits/min (the old $25 for 520
+#     minutes), i.e. 0.08 credits per second.
+#   - Vendor prices (stt, tts, llm, embedding, nc) at cost, from each vendor's price page, with the
+#     date in `source`. Usage with no price here is not billed (reason unpriced) and raises an alert.
+version: 1
+startsAt: 2026-11-01T00:00:00Z
+source: "Proposal, 2026-10-21; vendor prices not filled in yet"
+prices:
+  call.seconds: 0.08

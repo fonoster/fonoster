@@ -21,6 +21,8 @@ import { serviceDefinition } from "../serviceDefinition";
 import {
   AddBillingMeterEventRequest,
   CheckMethodAuthorizedRequest,
+  SessionDecision,
+  SessionRefusal,
   VoiceRequest
 } from "../types";
 import { AuthzServiceClient } from "./AuthzServiceClient";
@@ -70,6 +72,44 @@ export class AuthzClient {
           );
         }
       });
+    });
+  }
+
+  /**
+   * Asks whether a session may start; a refusal names its reason (add-billing-service D7).
+   * @param request VoiceRequest containing session details.
+   * @param deadlineMs How long to wait for the answer before failing.
+   */
+  async checkSession(
+    request: Partial<VoiceRequest>,
+    deadlineMs?: number
+  ): Promise<SessionDecision> {
+    const options = deadlineMs
+      ? { deadline: new Date(Date.now() + deadlineMs) }
+      : {};
+    return new Promise<SessionDecision>((resolve, reject) => {
+      this.client.checkSessionAuthorized(
+        request,
+        options,
+        (error, response) => {
+          if (error) {
+            reject(new Error(`checkSession failed: ${error.message || error}`));
+          } else if (response && typeof response.authorized === "boolean") {
+            resolve(
+              response.authorized
+                ? { authorized: true }
+                : {
+                    authorized: false,
+                    ...(response.reason
+                      ? { reason: response.reason as SessionRefusal }
+                      : {})
+                  }
+            );
+          } else {
+            reject(new Error("checkSession failed: Invalid response format."));
+          }
+        }
+      );
     });
   }
 

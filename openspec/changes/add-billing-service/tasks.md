@@ -5,25 +5,25 @@
 
 ## 1. Admission hooks
 
-- [ ] 1.1 `authz.proto`: `string reason = 2` on `CheckSessionAuthorizedResponse`; `AuthzHandler.checkSessionAuthorized` returns `{authorized, reason?}`; Dummy answers `{authorized: true}`; verify old clients still decode the response
-- [ ] 1.2 AppBridge: admission after the test-call check (`AppBridge.ts`), 500 ms timeout admits and logs, refusal records `call.failed` with the reason and rejects 402/503; verify tests for each outcome with a fake Authz server
-- [ ] 1.3 apiserver `CreateCall`: admission before any SIP, `FAILED_PRECONDITION` with the reason; verify tests
+- [x] 1.1 `authz.proto`: `string reason = 2` on `CheckSessionAuthorizedResponse`; `AuthzHandler.checkSessionAuthorized` returns `{authorized, reason?}`; Dummy answers `{authorized: true}`; verify old clients still decode the response
+- [x] 1.2 AppBridge: admission after the test-call check (`AppBridge.ts`), 500 ms timeout admits and logs, refusal records `call.failed` with the reason and rejects 402/503; verify tests for each outcome with a fake Authz server
+- [x] 1.3 apiserver `CreateCall`: admission before any SIP, `FAILED_PRECONDITION` with the reason; verify tests
 
 ## 2. Usage feed
 
-- [ ] 2.1 `usage_events.published_at` migration and the publisher loop on `FONOSTER_USAGE_RECORDED` (`Nats-Msg-Id` = usage id), only with billing on; verify the restart scenario with the NATS harness and that nothing is published with billing off
+- [x] 2.1 `usage_events.published_at` migration and the publisher loop on `FONOSTER_USAGE_RECORDED` (`Nats-Msg-Id` = usage id), only with billing on; verify the restart scenario with the NATS harness and that nothing is published with billing off
 
 ## 3. Service skeleton and ledger
 
-- [ ] 3.1 Scaffold `mods/billing` (config file, Prisma schema for `billing_accounts`, `subscriptions`, `rate_cards`, `rated_lines`, `balance_ledger`, `balance_snapshot`, `stripe_outbox`, `stripe_events`), `fonoster-billing` bin, the `Clock` (D10); verify migrations apply on an empty database
-- [ ] 3.2 Rate cards: YAML seed, loader, card-at-time lookup; verify the "new card" scenario
-- [ ] 3.3 The rater (D4) as a pure function with a table-driven test per rule and for rule order; verify every scenario under "Rated lines follow fixed rules"
-- [ ] 3.4 The ledger (D6): entries, bucket order, overdraft, expiry, snapshot rebuild; verify "plan credits first" and "plan credits expire"
-- [ ] 3.5 Usage consumer: durable consumer, rate, debit, all in one transaction keyed by usage id; verify "the same usage twice"
+- [x] 3.1 Scaffold `mods/billing` (config file, Prisma schema for `billing_accounts`, `subscriptions`, `rate_cards`, `rated_lines`, `balance_ledger`, `balance_snapshot`, `stripe_outbox`, `stripe_events`), `fonoster-billing` bin, the `Clock` (D10); verify migrations apply on an empty database
+- [x] 3.2 Rate cards: YAML seed, loader, card-at-time lookup; verify the "new card" scenario
+- [x] 3.3 The rater (D4) as a pure function with a table-driven test per rule and for rule order; verify every scenario under "Rated lines follow fixed rules"
+- [x] 3.4 The ledger (D6): entries, bucket order, overdraft, expiry, snapshot rebuild; verify "plan credits first" and "plan credits expire"
+- [x] 3.5 Usage consumer: durable consumer, rate, debit, all in one transaction keyed by usage id; verify "the same usage twice"
 
 ## 4. Admission service
 
-- [ ] 4.1 Authz server in billing: `CheckSessionAuthorized` from the snapshot and active-call counts (from lifecycle events); verify "balance gone", "a long call crosses zero" and a benchmark for p99 < 5 ms
+- [x] 4.1 Authz server in billing: `CheckSessionAuthorized` from the snapshot and active-call counts (from lifecycle events); verify "balance gone", "a long call crosses zero" and a benchmark for p99 < 5 ms
 
 ## 5. Stripe
 

@@ -301,4 +301,75 @@ describe("@calls/createCall", function () {
     }
     expect(publisher.publishCall).to.not.have.been.called;
   });
+
+  it("refuses a call the authorization service refuses, before placing it", async function () {
+    const { createCall } = await import("../../src/calls/createCall");
+    const metadata = new Metadata();
+    metadata.set("token", TEST_TOKEN);
+    const publisher = { publishCall: sandbox.stub() };
+    const applications = {
+      application: {
+        findUnique: sandbox.stub().resolves({ ref: TEST_UUID })
+      }
+    } as unknown as Prisma;
+    const admit = sandbox
+      .stub()
+      .resolves({ authorized: false, reason: "insufficient_balance" });
+    const callback = sandbox.stub();
+
+    await createCall(
+      applications,
+      publisher,
+      ownNumber,
+      admit
+    )(
+      {
+        metadata,
+        request: { from: "+1234567890", to: "+1234567891", appRef: TEST_UUID }
+      },
+      callback
+    );
+
+    expect(admit).to.have.been.calledWithMatch({
+      appRef: TEST_UUID,
+      from: "+1234567890",
+      to: "+1234567891"
+    });
+    expect(publisher.publishCall).to.not.have.been.called;
+    expect(callback.firstCall.args[0]).to.include({
+      code: status.FAILED_PRECONDITION
+    });
+    expect(callback.firstCall.args[0].message).to.include(
+      "insufficient_balance"
+    );
+  });
+
+  it("places a call the authorization service admits", async function () {
+    const { createCall } = await import("../../src/calls/createCall");
+    const metadata = new Metadata();
+    metadata.set("token", TEST_TOKEN);
+    const publisher = { publishCall: sandbox.stub().resolves() };
+    const applications = {
+      application: {
+        findUnique: sandbox.stub().resolves({ ref: TEST_UUID })
+      }
+    } as unknown as Prisma;
+    const callback = sandbox.stub();
+
+    await createCall(
+      applications,
+      publisher,
+      ownNumber,
+      sandbox.stub().resolves({ authorized: true })
+    )(
+      {
+        metadata,
+        request: { from: "+1234567890", to: "+1234567891", appRef: TEST_UUID }
+      },
+      callback
+    );
+
+    expect(publisher.publishCall).to.have.been.calledOnce;
+    expect(callback.firstCall.args[1]).to.have.property("ref");
+  });
 });
