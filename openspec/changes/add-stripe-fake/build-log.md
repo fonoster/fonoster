@@ -26,7 +26,7 @@ Decisions taken while building, for the owner to review. Each can be reversed.
 
 ### SF3. Behaviors written from the docs, not checked against a live account
 
-The nightly sandbox run (8.3) settles these:
+The nightly sandbox run (add-billing-service, task 7.3) settles these:
 
 - A repeated meter event `identifier` within 24 h: the fake answers 200 and counts it once.
 - Thin v2 events (`v1.billing.meter.error_report_triggered`, `GET /v2/core/events/{id}`): the public
@@ -40,11 +40,11 @@ The nightly sandbox run (8.3) settles these:
 - Lists are newest first; objects created in the same second keep insertion order (newest first),
   so event order in a clock advance is stable.
 
-### SF5. Conformance and nightly moved to add-billing-service (tasks 8.2, 8.3)
+### SF5. Conformance and nightly moved to add-billing-service (#1046)
 
 - The `stripe:` scenario block checks that Stripe events reached the billing service. That service
-  is the system under test and does not exist yet, so the block, the `stripe` suite and the nightly
-  sandbox run are built with `add-billing-service`. The fake's own SDK tests cover its behavior now.
+  is the system under test and does not exist yet, so the block, the suite and the nightly sandbox
+  run moved to `add-billing-service` (tasks 7.2 and 7.3); the spec here no longer lists them. The fake's own SDK tests cover its behavior now.
 
 ### SF6. Viewer not built yet (task 7.1)
 
