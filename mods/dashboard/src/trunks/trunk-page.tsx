@@ -19,7 +19,12 @@
 import type { Trunk } from "@fonoster/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState, type ReactNode } from "react";
-import { Controller, useForm } from "react-hook-form";
+import {
+  Controller,
+  useForm,
+  useWatch,
+  type UseFormReturn
+} from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
@@ -30,13 +35,18 @@ import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Switch } from "~/components/ui/switch";
-import { errorMessage } from "~/lib/errors";
+import { useCapabilities } from "~/lib/capabilities";
+import { errorMessage, GrpcCode, grpcCode } from "~/lib/errors";
 import { useAllNumbers } from "~/numbers/numbers.service";
 import { CarrierHint } from "~/regions/connection";
 import { formatNumber } from "~/numbers/routing";
 import { OutboundUris } from "./outbound-uris";
 import {
+  inboundLabel,
+  inboundSuffix,
+  LABEL,
   NONE,
+  toLabel,
   toRequest,
   toValues,
   trunkSchema,
@@ -50,6 +60,91 @@ import {
   useTrunk,
   useUpdateTrunk
 } from "./trunks.service";
+
+/**
+ * The inbound URI as a label plus the install's fixed `.sip.<domain>`. A new
+ * trunk's label follows its name until edited. A trunk whose URI isn't under
+ * that root (made before, or elsewhere) shows and keeps the full host.
+ */
+function InboundUriField({
+  form,
+  isNew
+}: {
+  form: UseFormReturn<TrunkValues>;
+  isNew: boolean;
+}) {
+  const suffix = inboundSuffix(useCapabilities().domain);
+  const [uri, name] = useWatch({
+    control: form.control,
+    name: ["inboundUri", "name"]
+  });
+  const [custom] = useState(() => inboundLabel(uri, suffix) === undefined);
+  const [edited, setEdited] = useState(!isNew);
+  const error = form.formState.errors.inboundUri?.message;
+
+  useEffect(() => {
+    if (custom || edited) return;
+    const label = toLabel(name ?? "");
+    form.setValue("inboundUri", label ? label + suffix : "");
+  }, [name, custom, edited, suffix, form]);
+
+  if (custom) {
+    return (
+      <Field
+        label="Inbound URI"
+        error={error}
+        hint="Give this to your carrier."
+      >
+        {(a11y) => (
+          <Input
+            {...a11y}
+            {...form.register("inboundUri")}
+            className="font-mono"
+            autoComplete="off"
+            spellCheck={false}
+          />
+        )}
+      </Field>
+    );
+  }
+
+  const label = inboundLabel(uri, suffix) ?? "";
+  return (
+    <Field
+      label="Inbound URI"
+      error={
+        error && label && !LABEL.test(label)
+          ? "Use lowercase letters, digits and dashes."
+          : error
+      }
+      hint="Give this to your carrier."
+    >
+      {(a11y) => (
+        <div className="flex h-[38px] items-center rounded-control border border-input bg-background focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30">
+          <input
+            {...a11y}
+            value={label}
+            onChange={(event) => {
+              setEdited(true);
+              const next = event.target.value.trim().toLowerCase();
+              form.setValue("inboundUri", next ? next + suffix : "", {
+                shouldDirty: true,
+                shouldValidate: form.formState.isSubmitted
+              });
+            }}
+            placeholder="telnyx"
+            autoComplete="off"
+            spellCheck={false}
+            className="h-full min-w-0 flex-1 bg-transparent pl-3 font-mono text-[13px] outline-none placeholder:text-text-muted"
+          />
+          <span className="shrink-0 pr-3 font-mono text-[13px] text-muted-foreground">
+            {suffix}
+          </span>
+        </div>
+      )}
+    </Field>
+  );
+}
 
 function Section({
   title,
@@ -173,11 +268,19 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
 
   const onSubmit = form.handleSubmit(async (values) => {
     const request = toRequest(values);
-    if (trunk) {
-      await update.mutateAsync({ ref: trunk.ref, ...request });
-    } else {
-      const created = await create.mutateAsync(request);
-      navigate(`../${created.ref}`, { relative: "path", replace: true });
+    try {
+      if (trunk) {
+        await update.mutateAsync({ ref: trunk.ref, ...request });
+      } else {
+        const created = await create.mutateAsync(request);
+        navigate(`../${created.ref}`, { relative: "path", replace: true });
+      }
+    } catch (error) {
+      // Inbound URIs are unique across the install.
+      if (grpcCode(error) === GrpcCode.ALREADY_EXISTS)
+        form.setError("inboundUri", {
+          message: "That inbound URI is taken. Pick another."
+        });
     }
   });
 
@@ -257,27 +360,12 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
                   <Input
                     {...a11y}
                     {...form.register("name")}
-                    placeholder="Claro"
+                    placeholder="Telnyx"
                     autoComplete="off"
                   />
                 )}
               </Field>
-              <Field
-                label="Inbound URI"
-                error={errors.inboundUri?.message}
-                hint="Give this to your carrier."
-              >
-                {(a11y) => (
-                  <Input
-                    {...a11y}
-                    {...form.register("inboundUri")}
-                    className="font-mono"
-                    placeholder="claro.acme.sip.fonoster.io"
-                    autoComplete="off"
-                    spellCheck={false}
-                  />
-                )}
-              </Field>
+              <InboundUriField form={form} isNew={!trunk} />
             </div>
             <CarrierHint />
           </Section>

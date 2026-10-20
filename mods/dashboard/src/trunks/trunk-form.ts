@@ -64,6 +64,34 @@ export const trunkSchema = z.object({
 });
 
 export type TrunkValues = z.infer<typeof trunkSchema>;
+
+/**
+ * Inbound URIs live under the install's SIP root: `<label>.sip.<domain>`, where
+ * `domain` comes from GetCapabilities (fonoster.yaml `domain`). The form asks
+ * only for the label.
+ */
+export const inboundSuffix = (domain: string) => `.sip.${domain}`;
+
+/** The label of an inbound URI under `suffix`, or undefined for any other host. */
+export function inboundLabel(uri: string, suffix: string): string | undefined {
+  if (!uri) return "";
+  return uri.endsWith(suffix) ? uri.slice(0, -suffix.length) : undefined;
+}
+
+/** A trunk name as an inbound URI label: "Claro RD" → "claro-rd". */
+export function toLabel(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 63)
+    .replace(/-+$/, "");
+}
+
+/** One DNS label: letters, digits and inner dashes. */
+export const LABEL = /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/;
 export type UriValues = z.infer<typeof uriSchema>;
 
 export const NEW_URI: UriValues = {
