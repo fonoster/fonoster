@@ -70,8 +70,7 @@ export function callMetrics(vcon: Vcon): CallMetrics {
   const endedAt = f.endedAt ? String(f.endedAt) : undefined;
   const decisions =
     (vcon.analysis.find((a) => a.type === "turn_decisions")?.body as
-      | Record<string, unknown>[]
-      | undefined) ?? [];
+      Record<string, unknown>[] | undefined) ?? [];
   return {
     callRef: String(f.callRef ?? vcon.uuid),
     workspaceRef: (f.workspaceRef as string) ?? null,

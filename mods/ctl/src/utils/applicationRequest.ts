@@ -145,8 +145,7 @@ function fileToRequest(raw: Record<string, unknown>): AppRequest {
   // Never send a model key that sits in an agent file; keys live in the vendor keys.
   const lm = (
     request.intelligence?.config as
-      | { languageModel?: Record<string, unknown> }
-      | undefined
+      { languageModel?: Record<string, unknown> } | undefined
   )?.languageModel;
   if (lm) delete lm.apiKey;
   return request;
@@ -184,8 +183,7 @@ function applyFlags(base: AppRequest, flags: ApplicationFlags): AppRequest {
 
   if (flags["audio-codec"] !== undefined || flags["audio-rate"] !== undefined) {
     const codec = (flags["audio-codec"] ?? request.audio?.codec ?? "pcm16") as
-      | "pcm16"
-      | "pcmu";
+      "pcm16" | "pcmu";
     const rate =
       flags["audio-rate"] ??
       (codec === "pcmu" ? 8000 : (request.audio?.rate ?? 16000));

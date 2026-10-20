@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import { z } from "zod";
 import { withErrorHandling } from "./withErrorHandling";
 import { withValidation } from "./withValidation";

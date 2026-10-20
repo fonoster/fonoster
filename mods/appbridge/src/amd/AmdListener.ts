@@ -273,8 +273,7 @@ export class AmdListener {
  */
 export function loadAmdClassifier(modelDir?: string): AmdClassifier {
   let classify:
-    | ((pcm: Buffer, dir?: string) => Promise<AmdVerdict>)
-    | undefined;
+    ((pcm: Buffer, dir?: string) => Promise<AmdVerdict>) | undefined;
   return async (pcm) => {
     if (!classify) {
       // Loaded lazily: onnxruntime is heavy and only AMD calls need it.

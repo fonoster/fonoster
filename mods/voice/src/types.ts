@@ -41,10 +41,7 @@ export type PlayResult = { interrupted: boolean; heardMs: number };
 
 /** "speech_and_dtmf" is the new name; "speech,dtmf" is today's GatherSource value. */
 export type GatherSourceName =
-  | "speech"
-  | "dtmf"
-  | "speech_and_dtmf"
-  | "speech,dtmf";
+  "speech" | "dtmf" | "speech_and_dtmf" | "speech,dtmf";
 
 export type GatherOptions = {
   source?: GatherSourceName;

@@ -42,11 +42,7 @@ export const SESSIONS_TTL_MS = 15_000;
 export const SESSIONS_REFRESH_MS = 5_000;
 
 export type SessionKind =
-  | "nodes"
-  | "rooms"
-  | "calls"
-  | "appbridges"
-  | "placements";
+  "nodes" | "rooms" | "calls" | "appbridges" | "placements";
 
 /** `<kind>.<id>` with characters KV keys do not allow replaced by `_`. */
 export const sessionKey = (kind: SessionKind, id: string) =>
