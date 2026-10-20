@@ -285,8 +285,8 @@ Then uncomment the `routr` lines in `compose.tls.yaml` and the `tls` transport i
 ## Let carriers reach your trunks
 
 A trunk's inbound URI is the host your carrier sends calls to. Fonoster makes it one label under
-`sip.<domain>`, where `<domain>` is the `domain` in `config/fonoster.yaml`: a trunk named Claro gets
-`claro.sip.example.com`. The API rejects any other host.
+`sip.<domain>`, where `<domain>` is the `domain` in `config/fonoster.yaml`: a trunk named Acme gets
+`acme.sip.example.com`. The API rejects any other host.
 
 Point a wildcard DNS record for `*.sip.<domain>` at your SIP address, so every trunk's inbound URI
 resolves without a new record.

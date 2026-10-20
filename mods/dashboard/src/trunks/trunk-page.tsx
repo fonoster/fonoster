@@ -112,7 +112,7 @@ function InboundUriField({
             {...a11y}
             {...form.register("inboundUri")}
             className="font-mono"
-            placeholder={`telnyx${suffix}`}
+            placeholder={`acme${suffix}`}
             autoComplete="off"
             spellCheck={false}
           />
@@ -149,7 +149,7 @@ function InboundUriField({
                 shouldValidate: form.formState.isSubmitted
               });
             }}
-            placeholder="telnyx"
+            placeholder="acme"
             autoComplete="off"
             spellCheck={false}
             className="h-full min-w-0 flex-1 bg-transparent pl-3 font-mono text-[13px] outline-none placeholder:text-text-muted"
@@ -393,7 +393,7 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
                   <Input
                     {...a11y}
                     {...form.register("name")}
-                    placeholder="Telnyx"
+                    placeholder="Acme"
                     autoComplete="off"
                   />
                 )}
