@@ -13,9 +13,9 @@
 
 ## 2. Ledger and ingest (mods/apiserver)
 
-- [ ] 2.1 Prisma `UsageEvent` and `UsageDaily` (D7) with migration `<ts>_usage_metering`; verify `prisma migrate dev` applies on an empty and on a current database
-- [ ] 2.2 `src/usage/ingestUsage.ts`: insert with `ON CONFLICT DO NOTHING` and increment `usage_daily` only for inserted rows, in one transaction; owner resolved from the workspace; verify tests: duplicate ingest changes nothing, an undeclared meter is rejected and logged
-- [ ] 2.3 `records/createIndexRecord.ts`: accept an optional `usage` on the index entry and ingest it in the same transaction as the index row; entries without `usage` keep working; region kind from the region; verify tests for both shapes and for a private region
+- [x] 2.1 Prisma `UsageEvent` and `UsageDaily` (D7) with migration `<ts>_usage_metering`; verify `prisma migrate dev` applies on an empty and on a current database
+- [x] 2.2 `src/usage/ingestUsage.ts`: insert with `ON CONFLICT DO NOTHING` and increment `usage_daily` only for inserted rows, in one transaction; owner resolved from the workspace; verify tests: duplicate ingest changes nothing, an undeclared meter is rejected and logged
+- [x] 2.3 `records/createIndexRecord.ts`: accept an optional `usage` on the index entry and ingest it in the same transaction as the index row; entries without `usage` keep working; region kind from the region; verify tests for both shapes and for a private region
 - [ ] 2.4 `src/usage/runUsageConsumer.ts`: durable consumer `apiserver-usage` on `FONOSTER_USAGE` (`usage.>`, 7-day max age, D5); verify a test with the NATS test harness: messages published while the database is down are ingested once it is back
 - [ ] 2.5 `fonoster-usage rebuild --from --to [--from-records]` bin (D7, Risks); verify a test: rebuilt `usage_daily` equals the pre-rebuild table, and `--from-records` restores lines from stored records
 - [ ] 2.6 Nightly `storage.bytes` job (D8) on the apiserver scheduler; verify a test: two workspaces with indexed record sizes get one line each per day and a rerun the same day adds nothing

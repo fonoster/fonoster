@@ -45,6 +45,19 @@ export type RecordIndexEntry = {
   size: number;
   /** Parts present in this version: recording, messages, transcript. */
   parts: string[];
+  /** How the call started: call or browser_test (add-usage-metering). */
+  origin?: string;
+  /** The call's usage lines, signed with the record (add-usage-metering). */
+  usage?: IndexUsageLine[];
+};
+
+/** One usage line as the index carries it; the control plane validates it against its meters. */
+export type IndexUsageLine = {
+  meter: string;
+  quantity: number;
+  provider?: string;
+  model?: string;
+  keySource?: "platform" | "workspace";
 };
 
 /** NATS subject AppBridge publishes index entries on; the control plane consumes it. */

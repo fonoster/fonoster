@@ -143,7 +143,8 @@ async function runServices() {
     },
     db: prisma as unknown as RecordsDb,
     relay: { regionOf: regions.regionOf, client: regions.relay },
-    onConfigChange: regions.onConfigChange
+    onConfigChange: regions.onConfigChange,
+    usage: { directory: () => workspaceRegionHooks.directory() }
   });
 
   // The dashboard's cookie session (M4): refresh token in an httpOnly cookie on its origin

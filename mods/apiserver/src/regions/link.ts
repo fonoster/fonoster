@@ -56,7 +56,7 @@ export function startRegionLink(deps: {
   configSync: ConfigSync;
 }) {
   const { nc, db, service, configSync } = deps;
-  const index = createIndexRecord(db);
+  const index = createIndexRecord(db, { directory: () => service.directory });
 
   const enrolled = async (msg: Msg): Promise<RegionRow | undefined> => {
     const ref = msg.subject.split(".")[1];

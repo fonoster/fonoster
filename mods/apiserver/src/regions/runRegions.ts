@@ -276,6 +276,10 @@ export function createWorkspaceRegionHooks(publicRegions: PublicRegion[]) {
       directory = d;
       connect();
     },
+    /** Identity's workspaces once attached (usage ingest resolves owners with it). */
+    directory(): WorkspaceDirectory | undefined {
+      return directory;
+    },
     /**
      * The `Workspace.region` value for what the caller picked: an offered public region id, or
      * one of the caller's private regions (id or ref). Throws RegionError 400 otherwise.
