@@ -16,34 +16,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { LogOut, Monitor, Moon, Sun } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { KeyboardArrowDown } from "~/components/icons/material";
 import { Avatar, AvatarFallback, initials } from "~/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "~/components/ui/dropdown-menu";
 import { useAuth } from "~/lib/auth";
-import { useTheme, type ThemePreference } from "~/lib/theme";
 import { cn } from "~/lib/utils";
 import { useCurrentUser } from "~/workspaces/workspaces.service";
 
-const THEMES: { value: ThemePreference; label: string; icon: typeof Sun }[] = [
-  { value: "dark", label: "Dark", icon: Moon },
-  { value: "light", label: "Light", icon: Sun },
-  { value: "system", label: "System", icon: Monitor }
-];
-
-/** The signed-in user at the bottom of the sidebar: theme and sign-out. */
+/** The signed-in user at the bottom of the sidebar: sign-out. */
 export function UserMenu({ collapsed }: { collapsed: boolean }) {
   const { user, signOut } = useAuth();
   const { data: profile } = useCurrentUser();
-  const { preference, setPreference } = useTheme();
   const name = profile?.name || user?.email || "";
 
   return (
@@ -83,29 +74,6 @@ export function UserMenu({ collapsed }: { collapsed: boolean }) {
         <DropdownMenuLabel className="truncate font-display">
           {user?.email}
         </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuLabel className="text-[11px] uppercase tracking-wide">
-          Theme
-        </DropdownMenuLabel>
-        <DropdownMenuGroup>
-          {THEMES.map(({ value, label, icon: Icon }) => (
-            <DropdownMenuItem
-              key={value}
-              onSelect={(event) => {
-                event.preventDefault();
-                setPreference(value);
-              }}
-              aria-checked={preference === value}
-              role="menuitemradio"
-              className={cn(
-                "font-display",
-                preference === value && "bg-accent"
-              )}
-            >
-              <Icon /> {label}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => signOut()} className="font-display">
           <LogOut /> Sign out

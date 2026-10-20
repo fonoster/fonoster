@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { STORAGE_KEYS, storage } from "./storage";
 
 export type ThemePreference = "dark" | "light" | "system";
@@ -33,21 +33,38 @@ export function readThemePreference(): ThemePreference {
   return stored === "light" || stored === "system" ? stored : "dark";
 }
 
-/** The theme preference, applied to <html data-theme> (public/theme.js sets it before paint). */
+const listeners = new Set<() => void>();
+const subscribe = (listener: () => void) => {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+};
+
+function apply(preference: ThemePreference) {
+  document.documentElement.dataset.theme = resolve(preference);
+}
+
+function setThemePreference(preference: ThemePreference) {
+  storage.set(STORAGE_KEYS.theme, preference);
+  apply(preference);
+  listeners.forEach((listener) => listener());
+}
+
+/**
+ * The theme preference, applied to <html data-theme> (public/theme.js sets it
+ * before paint). Every caller shares one preference; mount it once in the
+ * shell so "system" keeps following the OS wherever the user is.
+ */
 export function useTheme() {
-  const [preference, setPreference] =
-    useState<ThemePreference>(readThemePreference);
+  const preference = useSyncExternalStore(subscribe, readThemePreference);
 
   useEffect(() => {
-    document.documentElement.dataset.theme = resolve(preference);
-    storage.set(STORAGE_KEYS.theme, preference);
+    apply(preference);
     if (preference !== "system") return;
     const query = window.matchMedia?.("(prefers-color-scheme: light)");
-    const follow = () =>
-      (document.documentElement.dataset.theme = resolve("system"));
+    const follow = () => apply("system");
     query?.addEventListener("change", follow);
     return () => query?.removeEventListener("change", follow);
   }, [preference]);
 
-  return { preference, setPreference };
+  return { preference, setPreference: setThemePreference };
 }

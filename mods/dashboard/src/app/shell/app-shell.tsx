@@ -19,6 +19,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { STORAGE_KEYS, storage } from "~/lib/storage";
+import { useTheme } from "~/lib/theme";
 import { useMediaQuery } from "~/lib/use-media-query";
 import { useWorkspace } from "~/lib/workspace";
 import { DOCS_URL, SUPPORT_URL } from "./nav";
@@ -28,6 +29,7 @@ import { Sidebar } from "./sidebar";
 /** The signed-in frame: sidebar (240px, or a 64px rail) and a top bar over the page. */
 export function AppShell() {
   const workspace = useWorkspace();
+  useTheme();
   const wide = useMediaQuery("(min-width: 768px)");
   // Collapsed (icon rail) unless the user chose to expand it; the choice is
   // remembered under "fonoster.nav". Narrow screens are always a rail.
