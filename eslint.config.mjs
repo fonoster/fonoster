@@ -158,6 +158,8 @@ import headerPlugin from 'eslint-plugin-header'; export default [
       "mods/*/scripts/**",
       'site/**',
       'mods/dashboard/**',
+      // Browser code, like the dashboard: these rules are for the Node services
+      'mods/stripe-fake/viewer/**',
       'mods/**/*.test.ts',
       'mods/**/*.proto',
       '**/generated/**',

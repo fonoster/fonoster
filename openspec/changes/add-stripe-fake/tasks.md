@@ -34,7 +34,7 @@
 
 ## 7. Viewer
 
-- [ ] 7.1 The Vite viewer per `designs/stripe-fake.pen` with live updates; verify Playwright tests for the two viewer scenarios
+- [x] 7.1 The Vite viewer per `designs/stripe-fake.pen` with live updates; verify Playwright tests for the two viewer scenarios
 
 ## 8. Stack and docs
 

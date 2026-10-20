@@ -46,7 +46,7 @@ export function remaining(fake: StripeFake, grant: Json): number {
 }
 
 /** Whether a grant can pay at a moment: effective, not expired, not voided. */
-function usable(grant: Json, at: number): boolean {
+export function usable(grant: Json, at: number): boolean {
   return (
     !grant.voided_at &&
     (grant.effective_at as number) <= at &&

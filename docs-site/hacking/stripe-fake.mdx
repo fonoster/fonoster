@@ -38,6 +38,28 @@ node mods/stripe-fake/dist/main.js
 | `STRIPE_FAKE_PORT` | `12111` | Port to listen on |
 | `STRIPE_FAKE_WEBHOOKS` | none | Webhook endpoints to create at start (see below) |
 
+## Watch it
+
+Open `http://localhost:12111` for the viewer: what Stripe would see, updated live as your code or
+tests call the fake.
+
+- **Customers**: the credit balance (1 credit = $0.01), plan and top-up credits, meter totals and
+  recent webhooks.
+- **Meters**: each meter and its recent events, accepted or rejected.
+- **Credit grants**, **Invoices** (with line items) and **Webhooks** (each delivery's attempts,
+  payload and a Replay button).
+
+The top bar moves the test clock a month ahead and switches between light and dark. The sidebar
+can make the next payment fail or reset everything.
+
+To work on the viewer itself, run a fake on `12111` and then:
+
+```bash
+npm run dev:viewer -w mods/stripe-fake
+```
+
+It serves on `12112` and sends API calls to the fake (`STRIPE_FAKE_URL` to change it).
+
 ## Point the Stripe SDK at it
 
 ```ts
