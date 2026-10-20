@@ -10,6 +10,10 @@ the design.
 
 ## What Changes
 
+**Fonoster Cloud only.** The tab exists only where the capabilities say `billing.enabled`, which
+only Fonoster Cloud turns on. Self-hosted and Community installs never show it, and nothing about
+billing appears there.
+
 - A **Billing** tab in Settings, shown only when the capabilities say `billing.enabled` and only to
   the owner of the workspace. Billing belongs to the owner, so the tab shows one account that
   covers every workspace they own, and says so.

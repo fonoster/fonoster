@@ -25,6 +25,12 @@ dashboard spec today says there is no Billing tab in this release.
 Billing is an account matter visited rarely, like Members. It goes in Settings at
 `settings/billing`, after Members. Usage stays its own page, in every edition.
 
+### D0. Fonoster Cloud only (owner, 2026-10-20)
+
+The Billing tab shows up only on Fonoster Cloud: `billing.enabled` is on only there. Self-hosted and
+Community installs never see the tab, its route, or any billing copy. Every screen of the design is
+a Cloud screen; there is no self-hosted variant to design.
+
 ### D2. Owners only, decided on the client and enforced on the server
 
 The tab shows when `billing.enabled` and the signed-in user is the workspace's owner
