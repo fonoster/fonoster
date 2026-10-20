@@ -201,16 +201,14 @@ export class WebhookDispatcher {
     return this.options.store
       .endpoints(event.workspaceRef)
       .filter((e) => e.events.includes(event.type))
-      .map(
-        (e): Delivery => ({
-          id: deliveryId(event.id, e.id),
-          endpointId: e.id,
-          event,
-          status: "pending",
-          attempts: 0,
-          nextAttemptAt: this.now()
-        })
-      );
+      .map((e): Delivery => ({
+        id: deliveryId(event.id, e.id),
+        endpointId: e.id,
+        event,
+        status: "pending",
+        attempts: 0,
+        nextAttemptAt: this.now()
+      }));
   }
 
   /** Fans an event out to every endpoint of its workspace subscribed to its type. */

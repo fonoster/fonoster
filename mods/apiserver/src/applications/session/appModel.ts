@@ -249,8 +249,7 @@ export async function toAppColumns(
   let agent: Record<string, unknown> | undefined;
   if (autopilot) {
     const intelligence = request.intelligence as
-      | { config?: unknown }
-      | undefined;
+      { config?: unknown } | undefined;
     const raw = intelligence?.config;
     if (!raw) throw invalid("intelligence.config (the agent) is required");
     const decoded =

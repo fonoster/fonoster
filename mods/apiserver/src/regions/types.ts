@@ -68,11 +68,7 @@ export type Heartbeat = {
 };
 
 export type RegionStatus =
-  | "waiting"
-  | "connected"
-  | "degraded"
-  | "offline"
-  | "unsupported";
+  "waiting" | "connected" | "degraded" | "offline" | "unsupported";
 
 export type RegionKind = "public" | "private";
 

@@ -75,8 +75,7 @@ const userOf = (
   tokenOptions: TokenVerifyOptions
 ) => {
   const decoded = verifyAccessToken(token, identityPublicKey, tokenOptions) as
-    | Decoded
-    | undefined;
+    Decoded | undefined;
   return decoded?.sub ? ({ userRef: decoded.sub } as UserCaller) : undefined;
 };
 

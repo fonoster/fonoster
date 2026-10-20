@@ -33,9 +33,7 @@ export type Contract =
 export type Role = "app" | "appbridge" | "media-control-client" | "region-cell";
 
 export type ProviderFailure =
-  | "provider_unavailable"
-  | "provider_timeout"
-  | "bad_request";
+  "provider_unavailable" | "provider_timeout" | "bad_request";
 
 export type ProviderBehavior = {
   delayMs?: number;

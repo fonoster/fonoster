@@ -20,8 +20,7 @@ import { contentHash, decodeVcon, KeyHistory, verifySignature } from "./sign";
 import { SealedVersion } from "./types";
 
 export type Verification =
-  | { ok: true; kid: string }
-  | { ok: false; failure: string };
+  { ok: true; kid: string } | { ok: false; failure: string };
 
 /**
  * Checks a sealed version: both signatures against the region's key history, then every part's

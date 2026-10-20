@@ -64,8 +64,7 @@ export function indexEntry(
   const startedAt = String(f.startedAt ?? vcon.created_at);
   const endedAt = (f.endedAt as string | null) ?? null;
   const failure = f.failure as
-    | { reason?: string; sipStatus?: number }
-    | undefined;
+    { reason?: string; sipStatus?: number } | undefined;
   const hasRecording = vcon.dialog.some((d) => d.type === "recording" && d.url);
   const hasTranscript = vcon.dialog.some((d) => d.type === "text");
   const hasMessages = vcon.attachments.some((a) => a.url);

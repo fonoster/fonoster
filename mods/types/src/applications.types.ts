@@ -159,9 +159,7 @@ type EvalErrorEvent = {
 
 /** Single event in the EvaluateIntelligence server stream */
 type EvaluateIntelligenceEvent =
-  | StepEvaluationResultEvent
-  | ScenarioSummaryEvent
-  | EvalErrorEvent;
+  StepEvaluationResultEvent | ScenarioSummaryEvent | EvalErrorEvent;
 
 type ScenarioEvaluationReport = {
   scenarioRef: string;
