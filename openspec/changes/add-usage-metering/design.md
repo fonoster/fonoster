@@ -126,9 +126,9 @@ request is recorded as `usage_missing`.
 
 A completed request without a usage report produces no token line. It adds a `usage_missing`
 record error naming the catalog id (sent as a `record.note` of kind `usage_missing`) and increments
-the OpenTelemetry counter `fonoster.usage.missing{catalog_id}`, which the operator alert reads. The
-registry's hard feature `usage` (provider-registry delta) keeps models that don't report usage from
-being made active. Conformance proves the feature for each active model.
+the OpenTelemetry counter `fonoster.usage.missing{catalog_id}`, which the operator alert reads. Checking
+that a model reports usage before offering it, and retiring one that stops, are operator tasks done
+outside the platform with the existing registry commands.
 
 ### D7. Deterministic ids and the ledger
 
@@ -188,8 +188,8 @@ before coding (Pencil first, the project rule).
 - [Draining costs output tokens on every barge-in] → Bounded by `maxTokens`; most of an
   interrupted reply is usually generated already. Measured in conformance and visible as
   `llm.tokens.out`.
-- [Groq's streaming usage is confirmed only by secondhand sources] → Groq models get the `usage`
-  feature only after the conformance check passes against the live API.
+- [Groq's streaming usage is confirmed only by secondhand sources] → Operators verify it against the
+  live API before offering Groq models on platform keys.
 - [A drain holds a vendor connection after the turn moved on] → One drain per interrupted request,
   30 s deadline, closed when the session ends.
 - [An Autopilot bug under-reports tokens] → A conformance scenario compares reported tokens with

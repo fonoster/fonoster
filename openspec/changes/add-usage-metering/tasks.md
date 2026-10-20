@@ -9,8 +9,7 @@
 - [ ] 1.1 Add `src/usage/meters.ts`: the declared meters (name, unit, aggregation `sum` or `snapshot`, reporter, `vendor: boolean`), and `isMeter(name)`; verify a unit test lists exactly the twelve meters of the spec with their units
 - [ ] 1.2 Add `src/usage/types.ts`: `UsageLine` (meter, quantity, provider?, model?, keySource?) and `UsageEvent` (line + owner/workspace/app/call/region/regionKind/origin/occurredAt/id) with Zod schemas that reject an undeclared meter, a `keySource` on a non-vendor meter, and any price-like field; verify with unit tests
 - [ ] 1.3 Add `src/usage/usageId.ts` (D7) and `CallUsage` (accumulator keyed by meter, provider, model, keySource; `lines()` rounds seconds up); verify tests: same inputs give the same id, merges add up
-- [ ] 1.4 Registry: hard feature `usage` in the `llm` vocabulary; `add-model`/activation of an `llm` without it fails with `llm models must declare the usage feature`; existing `openai`, `groq` and `fake` llm entries get `usage` in the seed/export only after task 7.1 passes for them; verify CLI tests for the provider-registry delta scenarios
-- [ ] 1.5 Add `src/protos/usage.proto` (`service Usage`, `GetUsage`, D10) and regenerate stubs; verify the build and that `mods/types` exports the request/response types
+- [ ] 1.4 Add `src/protos/usage.proto` (`service Usage`, `GetUsage`, D10) and regenerate stubs; verify the build and that `mods/types` exports the request/response types
 
 ## 2. Ledger and ingest (mods/apiserver)
 
@@ -50,7 +49,7 @@
 
 ## 7. Integration
 
-- [ ] 7.1 Conformance scenario on the local stack: an Autopilot call on fake providers, one on a workspace key, one with a barge-in, and a browser test; plus a `usage` feature check that runs against each active `llm` model's live API (completed and interrupted streams), Groq included; assert exact usage lines in the sealed record, `usage_events` and `GetUsage`, and that replaying the record changes nothing; verify it passes in CI
+- [ ] 7.1 Conformance scenario on the local stack: an Autopilot call on fake providers, one on a workspace key, one with a barge-in, and a browser test; assert exact usage lines in the sealed record, `usage_events` and `GetUsage`, and that replaying the record changes nothing; verify it passes in CI
 - [ ] 7.2 Metering never blocks: stop Postgres during 10 fake calls, start it again; verify all calls completed and all usage lines arrive
 - [ ] 7.3 `openspec validate add-usage-metering --strict` passes and docs mention the Usage page and `GetUsage`
 
