@@ -33,6 +33,7 @@ import {
   CellSecretCredentials,
   ConfigCredentials,
   DatabaseWorkspaceSecrets,
+  KeyUnavailableError,
   LayeredCredentials,
   PrismaAgentSource,
   loadHostedConfig,
@@ -400,6 +401,38 @@ describe("@autopilot/session language models through the registry", function () 
     expect(
       await credentials.get("openai-default", { workspaceRef: "ws-2" })
     ).to.equal("platform-key");
+  });
+
+  it("never uses the platform key when the workspace's key can't be read", async function () {
+    let platformAsked = false;
+    const credentials = new LayeredCredentials([
+      {
+        get: () => {
+          throw new Error("key store down");
+        }
+      },
+      {
+        get: () => {
+          platformAsked = true;
+          return "platform-key";
+        }
+      } as unknown as ConfigCredentials
+    ]);
+    let error: unknown;
+    await credentials
+      .get("openai-default", { workspaceRef: "ws-1" })
+      .catch((e) => (error = e));
+    expect(error).to.be.instanceOf(KeyUnavailableError);
+    expect((error as KeyUnavailableError).reason).to.equal("key_unavailable");
+    expect(platformAsked).to.equal(false);
+
+    const { registry } = catalog(dir);
+    const resolver = new RegistryLlmResolver({ registry, credentials });
+    let resolved: unknown;
+    await resolver
+      .resolve("openai/gpt-4o-mini", settings, { workspaceRef: "ws-1" })
+      .catch((e) => (resolved = e));
+    expect(resolved).to.be.instanceOf(KeyUnavailableError);
   });
 
   it("refuses a model without a credential and an id that is not a language model", async function () {

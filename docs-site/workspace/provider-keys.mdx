@@ -162,6 +162,20 @@ the **Streams** page warns about each stream that needs a key, with an **Add key
   See [Private regions](/private-regions/overview).
 </Note>
 
+## If your key can't be read
+
+A call never runs on the platform's key when your own key for a vendor can't be read, for example
+when the key store is down or takes longer than 3 seconds. Instead:
+
+- If the app uses that vendor from the start (its voice, its transcriber or its noise-cancelling
+  filter), the call is rejected before it's answered, with SIP 503. The `call.failed` webhook and the
+  call record give the reason `key_unavailable` and name the vendor.
+- If the app asks for that vendor later in the call, for example `speak` with another voice, that
+  command gets an `error` with code `key_unavailable`, and the call goes on.
+- An agent whose language-model key can't be read says its error message and hangs up.
+
+A workspace with no key for a vendor still uses the platform's key, as before.
+
 ## When a model is deprecated
 
 Vendors retire models and voices. When Fonoster deprecates one, it names a replacement and a

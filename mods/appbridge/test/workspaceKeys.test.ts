@@ -117,16 +117,41 @@ describe("@appbridge/workspace vendor keys", function () {
     expect(catalog.credentialFor("nope", "WO1")).to.equal(undefined);
   });
 
-  it("falls back to platform keys when the lookup fails", async function () {
+  it("never falls back to the platform key when the lookup fails", async function () {
     const catalog = new Catalog(config, undefined, {
       get: async () => {
         throw new Error("db down");
       }
     });
     await catalog.prepare("WO1");
+    expect(catalog.keyUnavailable("deepgram", "WO1")).to.equal(true);
+    expect(catalog.resolveVoice("deepgram/aura", "WO1")).to.equal(undefined);
+    expect(catalog.resolveStt("deepgram/nova-3", "WO1")).to.equal(undefined);
+    expect(catalog.credentialFor("aicoustics", "WO1")).to.equal(undefined);
+    // Another workspace whose lookup answered is unaffected.
+    expect(catalog.keyUnavailable("deepgram", "WO2")).to.equal(false);
+  });
+
+  it("treats a lookup slower than the budget as failed", async function () {
+    const catalog = new Catalog(config, undefined, {
+      get: () => new Promise((r) => setTimeout(() => r("late-key"), 200))
+    });
+    catalog.keyLookupMs = 50;
+    await catalog.prepare("WO1");
+    expect(catalog.keyUnavailable("deepgram", "WO1")).to.equal(true);
+    expect(catalog.resolveVoice("deepgram/aura", "WO1")).to.equal(undefined);
+  });
+
+  it("uses the platform key when the lookup answers that there is no key", async function () {
+    const catalog = new Catalog(config, undefined, {
+      get: async () => undefined
+    });
+    await catalog.prepare("WO1");
+    expect(catalog.keyUnavailable("deepgram", "WO1")).to.equal(false);
     expect(key(catalog.resolveVoice("deepgram/aura", "WO1")!.adapter)).to.equal(
       "platform-key"
     );
+    expect(catalog.credentialFor("aicoustics", "WO1")).to.equal("aic-platform");
   });
 
   it("resolves in order: cell secrets, then the workspace's key, then the platform key", async function () {

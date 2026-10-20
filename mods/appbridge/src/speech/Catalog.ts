@@ -69,6 +69,8 @@ export const KEYED_ADAPTERS_IDLE_MS = 10 * 60_000;
  * Roomr node's 4 h MaxDuration), so removed keys and finished workspaces do not stay forever.
  */
 export const WORKSPACE_KEYS_HOLD_MS = 4 * 60 * 60_000 + 5 * 60_000;
+/** How long a workspace key lookup may take before the provider counts as unavailable. */
+export const KEY_LOOKUP_MS = 3000;
 
 type Adapters = { tts?: TtsAdapter; stt?: SttAdapter };
 
@@ -110,10 +112,14 @@ export class Catalog {
   };
   private tts = new Map<string, TtsAdapter>();
   private stt = new Map<string, SttAdapter>();
-  /** Workspace keys found by `prepare`, by workspace then provider (insertion = prepare order). */
+  /**
+   * Workspace keys found by `prepare`, by workspace then provider (insertion = prepare order),
+   * and the providers whose lookup failed or timed out: those never fall back to the platform key
+   * (remove-platform-key-fallback).
+   */
   private workspaceKeys = new Map<
     string,
-    { at: number; keys: Map<string, string> }
+    { at: number; keys: Map<string, string>; failed: Set<string> }
   >();
   /** Adapters built with a workspace key, by provider and key (insertion = last use). */
   private keyed = new Map<string, { used: number; adapters: Adapters }>();
@@ -121,6 +127,8 @@ export class Catalog {
   private keylessBuilt = new Map<string, Adapters>();
   /** The clock (tests). */
   now: () => number = Date.now;
+  /** How long a key lookup may take (tests shorten it). */
+  keyLookupMs = KEY_LOOKUP_MS;
 
   constructor(
     private readonly config: AppBridgeConfig,
@@ -149,28 +157,50 @@ export class Catalog {
 
   /**
    * Looks up the workspace's own vendor keys at session start (registry 3.2): resolutions for
-   * that workspace then use them instead of the platform keys. A lookup that fails or takes more
-   * than a second falls back to the platform keys.
+   * that workspace then use them instead of the platform keys. Only a lookup that answers "no
+   * key" lets a provider use the platform key; one that fails or takes longer than
+   * KEY_LOOKUP_MS marks the provider unavailable for the workspace (remove-platform-key-fallback).
    */
   async prepare(workspaceRef?: string): Promise<void> {
     if (!this.keySource || !workspaceRef) return;
     const keys = new Map<string, string>();
+    const failed = new Set<string>();
     const names = this.providerNames().filter((name) => {
       const p = this.providerConfig(name);
       return p && !keyless(p);
     });
     await Promise.all(
       names.map(async (name) => {
-        const key = await Promise.race([
-          this.keySource!.get(workspaceRef, name).catch(() => undefined),
-          new Promise<undefined>((r) => setTimeout(() => r(undefined), 1000))
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        const result = await Promise.race([
+          this.keySource!.get(workspaceRef, name).then(
+            (key) => ({ key }),
+            () => "failed" as const
+          ),
+          new Promise<"failed">((r) => {
+            timer = setTimeout(() => r("failed"), this.keyLookupMs);
+          })
         ]);
-        if (key) keys.set(name, key);
+        clearTimeout(timer);
+        if (result === "failed") failed.add(name);
+        else if (result.key) keys.set(name, result.key);
       })
     );
     this.workspaceKeys.delete(workspaceRef);
-    this.workspaceKeys.set(workspaceRef, { at: this.now(), keys });
+    this.workspaceKeys.set(workspaceRef, { at: this.now(), keys, failed });
     this.prune();
+  }
+
+  /** Whether the workspace's key for a provider could not be read at session start. */
+  keyUnavailable(provider: string, workspaceRef?: string): boolean {
+    if (!workspaceRef) return false;
+    const entry = this.workspaceKeys.get(workspaceRef);
+    return Boolean(entry?.failed.has(provider));
+  }
+
+  /** The provider of the STT a session uses (its model's, or the deployment's default). */
+  sttProvider(sttModel?: string): string | undefined {
+    return sttModel ? sttModel.split("/")[0] : this.defaultSttProvider();
   }
 
   /** Drops expired workspace keys and idle or excess keyed adapters. */
@@ -238,6 +268,7 @@ export class Catalog {
   credentialFor(provider: string, workspaceRef?: string): string | undefined {
     const own = this.keysOf(workspaceRef)?.get(provider);
     if (own) return own;
+    if (this.keyUnavailable(provider, workspaceRef)) return undefined;
     const p = this.providerConfig(provider);
     return p && !keyless(p) ? providerKey(p) : undefined;
   }
@@ -262,6 +293,7 @@ export class Catalog {
     if (slash <= 0) return undefined;
     const provider = resolved.slice(0, slash);
     const voice = resolved.slice(slash + 1);
+    if (this.keyUnavailable(provider, workspaceRef)) return undefined;
     const adapter =
       this.forWorkspace(provider, workspaceRef)?.tts ??
       this.platform(provider)?.tts;
@@ -296,6 +328,7 @@ export class Catalog {
     const slash = resolved.indexOf("/");
     if (slash <= 0) return undefined;
     const provider = resolved.slice(0, slash);
+    if (this.keyUnavailable(provider, workspaceRef)) return undefined;
     const adapter =
       this.forWorkspace(provider, workspaceRef)?.stt ??
       this.platform(provider)?.stt;
@@ -384,7 +417,7 @@ export class Catalog {
 
   defaultStt(workspaceRef?: string): SttAdapter | undefined {
     const name = this.defaultSttProvider();
-    if (!name) return undefined;
+    if (!name || this.keyUnavailable(name, workspaceRef)) return undefined;
     return (
       this.forWorkspace(name, workspaceRef)?.stt ?? this.platform(name)?.stt
     );

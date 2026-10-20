@@ -21,7 +21,7 @@ import { createActor } from "xstate";
 import { Agent, AgentEvent, Recorder, sessionRecorder } from "./Agent";
 import { SessionAgent, sessionAgentSchema } from "./config";
 import { KnowledgePort } from "./knowledge";
-import { LlmResolver } from "./llm";
+import { KeyUnavailableError, LlmResolver } from "./llm";
 import { autopilotMachine } from "./machine";
 import { meteredThink, UsageSink } from "./meteredThink";
 import { telemetry } from "./telemetry";
@@ -179,7 +179,8 @@ function createSessionRunner(options: AutopilotOptions) {
         );
         recorder.note({
           type: "llm.unavailable",
-          reason: (e as Error).message
+          reason:
+            e instanceof KeyUnavailableError ? e.reason : (e as Error).message
         });
         await session
           .say(agentConfig.conversationSettings.systemErrorMessage, {

@@ -49,6 +49,22 @@ export class ConfigCredentials implements CredentialSource {
   }
 }
 
+/**
+ * A workspace's own key could not be read (its store failed). It never falls back to the platform
+ * key (remove-platform-key-fallback): the session ends with reason key_unavailable.
+ */
+export class KeyUnavailableError extends Error {
+  readonly reason = "key_unavailable";
+  constructor(
+    readonly ref: string,
+    cause?: unknown
+  ) {
+    super(
+      `the workspace's key ${ref} could not be read: ${(cause as Error)?.message ?? cause}`
+    );
+  }
+}
+
 /** A key and whose it is: the workspace's own (or its private region's), or the platform's. */
 export type ResolvedCredential = {
   key: string;
@@ -72,7 +88,13 @@ export class LayeredCredentials implements CredentialSource {
     scope: { workspaceRef?: string }
   ): Promise<ResolvedCredential | undefined> {
     for (const s of this.sources) {
-      const key = await s.get(ref, scope);
+      let key: string | undefined;
+      try {
+        key = await s.get(ref, scope);
+      } catch (e) {
+        if (s instanceof ConfigCredentials) throw e;
+        throw new KeyUnavailableError(ref, e);
+      }
       if (key)
         return {
           key,

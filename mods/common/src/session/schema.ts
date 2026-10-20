@@ -123,6 +123,7 @@ export const ERROR_CODES = [
   "on_hold",
   "queue_full",
   "play_fetch_failed",
+  "key_unavailable",
   "internal"
 ] as const;
 
