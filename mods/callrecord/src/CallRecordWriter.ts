@@ -224,9 +224,10 @@ export class CallRecordWriter {
       version: existing.version,
       signed: existing.signed,
       redacted: existing.redacted,
-      parts: existing.manifest.parts.map(
-        (p): StoredPart => ({ ...p, stored: true })
-      )
+      parts: existing.manifest.parts.map((p): StoredPart => ({
+        ...p,
+        stored: true
+      }))
     };
   }
 
@@ -257,9 +258,10 @@ export class CallRecordWriter {
         version: existing.version,
         signed: existing.signed,
         redacted: existing.redacted,
-        parts: existing.manifest.parts.map(
-          (p): StoredPart => ({ ...p, stored: true })
-        )
+        parts: existing.manifest.parts.map((p): StoredPart => ({
+          ...p,
+          stored: true
+        }))
       };
     }
     // Streamed to a file next to the tracks and uploaded from there (LO-B7); the working
@@ -374,9 +376,10 @@ export class CallRecordWriter {
       version: stored.version,
       signed: stored.signed,
       redacted: stored.redacted,
-      parts: stored.manifest.parts.map(
-        (p): StoredPart => ({ ...p, stored: true })
-      )
+      parts: stored.manifest.parts.map((p): StoredPart => ({
+        ...p,
+        stored: true
+      }))
     };
     if (checkWorkspace)
       assertSameWorkspace(callRef, decodeVcon(current.signed), workspaceRef);

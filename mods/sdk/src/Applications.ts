@@ -397,9 +397,7 @@ class Applications {
     requestPB.setIntelligence(productContainer);
 
     const metadata = this.client.getMetadata() as
-      | Record<string, string>
-      | null
-      | undefined;
+      Record<string, string> | null | undefined;
     const call = applicationsClient.evaluateIntelligence(requestPB, metadata);
 
     return this.evaluateIntelligenceStreamGenerator(
@@ -452,11 +450,9 @@ class Applications {
           getActualTool: () => string;
           getPassed: () => boolean;
           getExpectedParameters: () =>
-            | { toJavaScript: () => Record<string, unknown> }
-            | undefined;
+            { toJavaScript: () => Record<string, unknown> } | undefined;
           getActualParameters: () =>
-            | { toJavaScript: () => Record<string, unknown> }
-            | undefined;
+            { toJavaScript: () => Record<string, unknown> } | undefined;
           getErrorMessage: () => string;
         }>;
       };

@@ -45,8 +45,7 @@ export function formatApplication(app: Application): string {
     .map((l) => `${l.url} (${l.tracks ?? "both"})`)
     .join(", ");
   const agent = app.intelligence?.config as
-    | { languageModel?: { model?: string } }
-    | undefined;
+    { languageModel?: { model?: string } } | undefined;
   const lines = [
     "APPLICATION DETAILS",
     "------------------",
