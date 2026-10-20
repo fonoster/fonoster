@@ -34,7 +34,10 @@ RUN for p in types logger common callrecord identity-client community amd appbri
   && cp -a mods/common/src/protos mods/common/dist/ \
   && npm prune --omit=dev --workspace @fonoster/appbridge \
   && npx -y prisma@6.19.3 generate --schema mods/apiserver/schema.prisma \
-  && find node_modules -name "*.map" -type f -delete
+  && find node_modules -name "*.map" -type f -delete \
+  && for p in types logger common callrecord community amd appbridge; do \
+      mkdir -p mods/$p/node_modules; \
+    done
 
 # The ai-coustics Voice Focus model (apps' aiCoustics filter), fetched once here so AppBridge never
 # downloads at call time (filter default modelDir ./models = /work/models). The SDK itself is an
@@ -57,23 +60,32 @@ RUN apt-get update && apt-get install -y --no-install-recommends openssl \
 WORKDIR /work
 COPY --from=builder --chown=appuser:appuser /work/node_modules ./node_modules
 COPY --from=builder --chown=appuser:appuser /work/package.json ./package.json
+# Each package's own node_modules too: dependencies npm could not hoist to the root (community's
+# ws 8 next to the root's ws 7) live there.
 COPY --from=builder --chown=appuser:appuser /work/mods/types/package.json /work/mods/types/
 COPY --from=builder --chown=appuser:appuser /work/mods/types/dist /work/mods/types/dist
+COPY --from=builder --chown=appuser:appuser /work/mods/types/node_modules /work/mods/types/node_modules
 COPY --from=builder --chown=appuser:appuser /work/mods/logger/package.json /work/mods/logger/
 COPY --from=builder --chown=appuser:appuser /work/mods/logger/dist /work/mods/logger/dist
+COPY --from=builder --chown=appuser:appuser /work/mods/logger/node_modules /work/mods/logger/node_modules
 COPY --from=builder --chown=appuser:appuser /work/mods/common/package.json /work/mods/common/
 COPY --from=builder --chown=appuser:appuser /work/mods/common/dist /work/mods/common/dist
+COPY --from=builder --chown=appuser:appuser /work/mods/common/node_modules /work/mods/common/node_modules
 COPY --from=builder --chown=appuser:appuser /work/mods/callrecord/package.json /work/mods/callrecord/
 COPY --from=builder --chown=appuser:appuser /work/mods/callrecord/dist /work/mods/callrecord/dist
+COPY --from=builder --chown=appuser:appuser /work/mods/callrecord/node_modules /work/mods/callrecord/node_modules
 # identity-client loads its .proto at runtime, so the package is copied whole.
 COPY --from=builder --chown=appuser:appuser /work/mods/identity-client /work/mods/identity-client
 COPY --from=builder --chown=appuser:appuser /work/mods/community/package.json /work/mods/community/
 COPY --from=builder --chown=appuser:appuser /work/mods/community/dist /work/mods/community/dist
+COPY --from=builder --chown=appuser:appuser /work/mods/community/node_modules /work/mods/community/node_modules
 COPY --from=builder --chown=appuser:appuser /work/mods/amd/package.json /work/mods/amd/
 COPY --from=builder --chown=appuser:appuser /work/mods/amd/dist /work/mods/amd/dist
+COPY --from=builder --chown=appuser:appuser /work/mods/amd/node_modules /work/mods/amd/node_modules
 COPY --from=builder --chown=appuser:appuser /work/mods/amd/amd-model /work/mods/amd/amd-model
 COPY --from=builder --chown=appuser:appuser /work/mods/appbridge/package.json /work/mods/appbridge/
 COPY --from=builder --chown=appuser:appuser /work/mods/appbridge/dist /work/mods/appbridge/dist
+COPY --from=builder --chown=appuser:appuser /work/mods/appbridge/node_modules /work/mods/appbridge/node_modules
 COPY --from=builder --chown=appuser:appuser /work/models /work/models
 
 USER appuser

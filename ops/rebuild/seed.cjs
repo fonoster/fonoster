@@ -192,19 +192,33 @@ async function main() {
 
   const agents = new SDK.Agents(client);
   // listAgents fails to decode agents that have credentials (SDK: credentials.toObject is not a
-  // function), so a re-run reuses the ref it saved instead of listing (ST-B9).
-  const agent =
+  // function), so a re-run reuses the ref it saved instead of listing (ST-B9). The ref is saved as
+  // soon as the agent exists: a later step failing (Routr still starting) retries the whole seed,
+  // and creating the agent again would fail with ALREADY_EXISTS.
+  let sipAgent =
     saved.agent?.ref && saved.workspace?.ref === ws.ref
       ? { ref: saved.agent.ref }
-      : await agents.createAgent({
-          name: "Softphone",
-          username: DEMO.agentUser,
-          domainRef: domain.ref,
-          credentialsRef: cred.ref,
-          privacy: "NONE",
-          enabled: true,
-          maxContacts: 3
-        });
+      : undefined;
+  if (!sipAgent) {
+    sipAgent = await agents.createAgent({
+      name: "Softphone",
+      username: DEMO.agentUser,
+      domainRef: domain.ref,
+      credentialsRef: cred.ref,
+      privacy: "NONE",
+      enabled: true,
+      maxContacts: 3
+    });
+    fs.writeFileSync(
+      seedFile,
+      JSON.stringify(
+        { ...saved, workspace: { ref: ws.ref }, agent: { ref: sipAgent.ref } },
+        null,
+        2
+      ) + "\n",
+      { mode: 0o600 }
+    );
+  }
 
   const trunks = new SDK.Trunks(client);
   const trunk =
@@ -266,7 +280,7 @@ async function main() {
     apiKey,
     domain: { ref: domain.ref, domainUri: DEMO.domainUri },
     agent: {
-      ref: agent.ref,
+      ref: sipAgent.ref,
       username: DEMO.agentUser,
       password: DEMO.agentPassword
     },
