@@ -41,7 +41,7 @@
 ## 7. Stack, conformance and docs
 
 - [x] 7.1 Billing service in `ops/rebuild` (compose service on a `billing` profile with the Stripe fake, config; the billing NATS user only where billing runs, a Helm value off by default, Q9); verify a call is refused once the balance is gone, end to end
-- [ ] 7.2 The `stripe:` scenario block and the billing suite in `mods/conformance`, on PR CI against the fake; verify "a declined top-up" and "a month of usage"
+- [x] 7.2 The `stripe:` scenario block and the billing suite in `mods/conformance`, on PR CI against the fake; verify "a declined top-up" and "a month of usage"
 - [ ] 7.3 Nightly workflow against a Stripe test-mode sandbox with the diff report and issue (needs the owner's test-mode key as a CI secret); verify one manual run
 - [ ] 7.4 Docs: Billing for Cloud users (credits, plans, top-ups, auto-recharge) and the self-hosting note that billing is off; verify the docs build has no broken links
 

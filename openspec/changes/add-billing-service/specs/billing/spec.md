@@ -77,12 +77,20 @@ Unused grants SHALL be removed by an expiry entry when they expire.
 
 The service SHALL support a Trial (1,000 credits once, no overdraft) and Pay-as-you-go ($25 a month,
 2,500 plan credits each paid period). Plan credits SHALL stay spendable for usage of their period
-until the period's invoice is finalized. Top-up credits SHALL expire 12 months after purchase.
+until the period's invoice is finalized. Trial credits left when an owner subscribes SHALL last as
+long as the first plan credits. Top-up credits SHALL expire 12 months after purchase.
 
 #### Scenario: A paid month
 
 - **WHEN** a Pay-as-you-go period's $25 payment succeeds
 - **THEN** the ledger gains a 2,500-credit plan grant expiring at period end plus the grace period
+
+#### Scenario: Subscribing during the Trial
+
+- **WHEN** an owner with Trial credits left subscribes, uses some, and the first period's invoice is
+  finalized after the Trial's 30 days
+- **THEN** the Trial credits paid for that usage both in the ledger and in Stripe, and the two
+  balances agree
 
 #### Scenario: Usage in the last hour of the period
 

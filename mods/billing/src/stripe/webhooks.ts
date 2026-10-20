@@ -22,7 +22,7 @@ import Stripe from "stripe";
 import { Clock } from "../clock";
 import { PlanSettings } from "../config";
 import { Db, Prisma, PrismaClient } from "../db";
-import { grant, grantsOf, lockAccount } from "../ledger";
+import { carryOver, grant, grantsOf, lockAccount } from "../ledger";
 import { credits } from "../money";
 import { Notifier } from "../notices";
 import { StripeCatalog } from "./catalog";
@@ -123,23 +123,29 @@ async function invoicePaid(tx: Db, deps: Deps, invoice: Stripe.Invoice) {
   const start = new Date(planLine.period.start * 1000);
   const end = new Date(planLine.period.end * 1000);
   const expiresAt = new Date(end.getTime() + deps.plans.graceHours * HOUR_MS);
-  // Leaving the Trial: what is left of it is mirrored too, so Stripe never charges for usage the
-  // trial paid.
+  // Leaving the Trial (owner, 2026-10-20): what is left of it lasts as long as the first plan
+  // grant, here and in Stripe. Stripe applies credits when the period's invoice is finalized, after
+  // the 30-day Trial would have expired; without this the plan credits (or a charge) would pay
+  // for usage the ledger charged to the Trial.
   if (account.plan === "trial")
     for (const g of await grantsOf(tx, account.id))
-      if (g.bucket === "trial" && g.remaining > 0n)
+      if (g.bucket === "trial" && g.remaining > 0n) {
+        const carried = (await carryOver(tx, account.id, g, {
+          coversUntil: end,
+          expiresAt,
+          source: `trial:${invoice.id}`
+        }))!;
         await enqueue(tx, account.id, {
           kind: "credit_grant",
           payload: {
-            ledgerEntryId: g.id,
+            ledgerEntryId: carried.id,
             cents: Number(g.remaining / 1000n),
             category: "promotional",
-            ...(g.expiresAt
-              ? { expiresAt: Math.floor(g.expiresAt.getTime() / 1000) }
-              : {}),
+            expiresAt: Math.floor(expiresAt.getTime() / 1000),
             name: "Trial credits"
           }
         });
+      }
   await tx.billingAccount.update({
     where: { id: account.id },
     data: { plan: "payg", status: "active", periodStart: start, periodEnd: end }

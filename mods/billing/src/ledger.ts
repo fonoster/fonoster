@@ -248,6 +248,41 @@ export async function expireGrants(
   return expired.length;
 }
 
+/**
+ * Moves what is left of a grant to a new grant of the same kind with a later reach: the old one
+ * expires now and the new one pays for usage until `coversUntil` and expires at `expiresAt`. The
+ * ledger stays append-only. Returns the new grant, or undefined when nothing was left.
+ */
+export async function carryOver(
+  tx: Db,
+  accountId: string,
+  from: GrantRemaining,
+  to: { coversUntil: Date; expiresAt: Date; source: string }
+) {
+  if (from.remaining <= 0n) return undefined;
+  const kind = (Object.keys(BUCKET_OF) as GrantKind[]).find(
+    (k) => BUCKET_OF[k] === from.bucket
+  )!;
+  await tx.ledgerEntry.create({
+    data: {
+      accountId,
+      kind: "expiry",
+      bucket: from.bucket,
+      amount: -from.remaining,
+      grantId: from.id,
+      source: `carry:${from.id}`
+    }
+  });
+  return grant(tx, accountId, {
+    kind,
+    amount: from.remaining,
+    source: to.source,
+    effectiveAt: from.effectiveAt ?? undefined,
+    coversUntil: to.coversUntil,
+    expiresAt: to.expiresAt
+  });
+}
+
 /** Expires what is left of every grant that expired by `now`, account by account. */
 export async function expireDue(
   prisma: PrismaClient,

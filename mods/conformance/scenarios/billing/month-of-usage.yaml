@@ -7,11 +7,6 @@ description: >
   A Pay-as-you-go owner makes 160 s of calls (12.8 credits at 0.08 a second), then the test clock
   passes the period's end and its grace. The finalized invoice is $25 for the next month plus the
   usage less the credits that paid for it, and the ledger agrees with Stripe's credit balance.
-skip: >
-  Fails today (ledger 13 credits above Stripe): the ledger debits usage from the Trial when it is
-  rated, but Stripe applies credits when the invoice is finalized, after the Trial expired, so the
-  plan credits pay instead. Waits on the owner's decision on how the Trial expires once an owner
-  subscribes (add-billing-service build log BS12).
 steps:
   - control: { op: subscribe }
   - control: { op: usage, meter: call.seconds, quantity: 160 }

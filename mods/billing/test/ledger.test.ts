@@ -20,6 +20,7 @@ import { expect } from "chai";
 import { DEFAULT_PLANS } from "../src/config";
 import {
   balanceOf,
+  carryOver,
   debit,
   expireDue,
   expireGrants,
@@ -118,6 +119,34 @@ describe("@billing ledger", function () {
     // Usage of the next period during the grace does not touch it.
     await spend(a.id, 100, new Date("2026-12-01T10:00:00Z"), graceNow);
     expect(await left(a.id)).to.deep.equal({ plan: 2400, topup: 900 });
+  });
+
+  it("carries what is left of the Trial to the first period's end and grace, balance unchanged", async () => {
+    const a = await account("trial");
+    await db!.prisma.$transaction((tx) =>
+      grant(tx, a.id, {
+        kind: "trial_grant",
+        amount: credits(1000),
+        source: "trial",
+        expiresAt: PERIOD_END
+      })
+    );
+    await spend(a.id, 100);
+    const [trial] = await grantsOf(db!.prisma, a.id);
+    const carried = await db!.prisma.$transaction((tx) =>
+      carryOver(tx, a.id, trial, {
+        coversUntil: PERIOD_END,
+        expiresAt: GRACE_END,
+        source: "trial:in_1"
+      })
+    );
+    expect(carried!.expiresAt).to.deep.equal(GRACE_END);
+    expect(await balanceOf(db!.prisma, a.id)).to.equal(credits(900));
+    // The old grant is empty; the carried one outlives the Trial's 30 days, through the grace.
+    expect(await expireGrants(db!.prisma, a.id, PERIOD_END)).to.equal(0);
+    expect(await left(a.id)).to.deep.equal({ trial: 900 });
+    expect(await expireGrants(db!.prisma, a.id, GRACE_END)).to.equal(1);
+    expect(await balanceOf(db!.prisma, a.id)).to.equal(0n);
   });
 
   it("goes into the overdraft, and the next grant pays it back first", async () => {
