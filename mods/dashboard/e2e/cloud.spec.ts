@@ -23,25 +23,33 @@ test.use({ variant: "cloud" });
 
 test("signs in with an emailed code", async ({ page, api }) => {
   api.on("Identity/ExchangeVerificationCode", (request) => {
-    const { email, code } = identity.ExchangeVerificationCodeRequest.deserializeBinary(request).toObject();
+    const { email, code } =
+      identity.ExchangeVerificationCodeRequest.deserializeBinary(
+        request
+      ).toObject();
     expect({ email, code }).toEqual({ email: ada.email, code: "482913" });
     return tokens(ada, identity.ExchangeVerificationCodeResponse);
   });
 
   await page.goto("/sign-in");
-  await expect(page.getByLabel("Password")).toHaveCount(0);
+  await expect(page.getByLabel("Password", { exact: true })).toHaveCount(0);
   await page.getByLabel("Work email").fill(ada.email);
   await page.getByRole("button", { name: "Email me a sign-in code" }).click();
-  await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Check your email" })
+  ).toBeVisible();
   expect(api.callsTo("Identity/SendVerificationCode")).toHaveLength(1);
 
   await page.getByLabel("Sign-in code").fill("482913");
-  await expect(page.getByRole("heading", { name: "Choose a workspace" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Choose a workspace" })
+  ).toBeVisible();
 });
 
 test("signs in with GitHub and checks the state", async ({ page, api }) => {
   api.on("Identity/ExchangeOauth2Code", (request) => {
-    const { code } = identity.ExchangeOauth2CodeRequest.deserializeBinary(request).toObject();
+    const { code } =
+      identity.ExchangeOauth2CodeRequest.deserializeBinary(request).toObject();
     expect(code).toBe("gh-code");
     return tokens(ada, identity.ExchangeOauth2CodeResponse);
   });
@@ -51,17 +59,24 @@ test("signs in with GitHub and checks the state", async ({ page, api }) => {
     const back = new URL(url.searchParams.get("redirect_uri")!);
     back.searchParams.set("code", "gh-code");
     back.searchParams.set("state", url.searchParams.get("state")!);
-    return route.fulfill({ status: 302, headers: { location: back.toString() } });
+    return route.fulfill({
+      status: 302,
+      headers: { location: back.toString() }
+    });
   });
 
   await page.goto("/sign-in");
   await page.getByRole("button", { name: "Continue with GitHub" }).click();
-  await expect(page.getByRole("heading", { name: "Choose a workspace" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Choose a workspace" })
+  ).toBeVisible();
 });
 
 test("refuses a GitHub callback it didn't start", async ({ page, api }) => {
   await page.goto("/oauth/github/callback?code=stolen&state=forged");
-  await expect(page.getByRole("heading", { name: "Couldn't sign in with GitHub" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Couldn't sign in with GitHub" })
+  ).toBeVisible();
   expect(api.callsTo("Identity/ExchangeOauth2Code")).toHaveLength(0);
 });
 
@@ -69,7 +84,9 @@ test("refuses a GitHub callback it didn't start", async ({ page, api }) => {
 // these gRPC-mocked flows need an HTTP mock before they come back.
 test.skip("shows a call record on Cloud", async ({ page, api }) => {
   api
-    .on("Identity/ExchangeVerificationCode", () => tokens(ada, identity.ExchangeVerificationCodeResponse))
+    .on("Identity/ExchangeVerificationCode", () =>
+      tokens(ada, identity.ExchangeVerificationCodeResponse)
+    )
     .on("Calls/GetCall", () =>
       callRecord({
         ref: "cl-e7f1c2",
@@ -86,11 +103,23 @@ test.skip("shows a call record on Cloud", async ({ page, api }) => {
   await page.getByLabel("Work email").fill(ada.email);
   await page.getByRole("button", { name: "Email me a sign-in code" }).click();
   await page.getByLabel("Sign-in code").fill("482913");
-  await expect(page.getByRole("heading", { name: "Choose a workspace" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Choose a workspace" })
+  ).toBeVisible();
 
   await page.goto("/w/ws-1/calls/cl-e7f1c2");
-  await expect(page.getByRole("heading", { name: /\+1 809 555 0142/ })).toBeVisible();
-  await expect(page.getByRole("list", { name: "Summary" }).getByText("2:05")).toBeVisible();
-  await expect(page.getByRole("region", { name: "Answering machine detection" })).toHaveCount(0);
-  await expect(page.getByRole("region", { name: "Call record" }).getByText("NORMAL_CLEARING")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /\+1 809 555 0142/ })
+  ).toBeVisible();
+  await expect(
+    page.getByRole("list", { name: "Summary" }).getByText("2:05")
+  ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Answering machine detection" })
+  ).toHaveCount(0);
+  await expect(
+    page
+      .getByRole("region", { name: "Call record" })
+      .getByText("NORMAL_CLEARING")
+  ).toBeVisible();
 });

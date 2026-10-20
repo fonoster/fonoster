@@ -127,7 +127,7 @@ export const ConfigureFakesOnly: Story = {
   parameters: {
     screen: {
       auth: withAgents([...sampleAgents, voiceApp], fakeCatalogItems),
-      route: route(`/w/ws-1/autopilot/${billingAgent.ref}/configure`)
+      route: route(`/w/ws-1/agents/${billingAgent.ref}/configure`)
     }
   },
   play: async ({ canvasElement }) => {

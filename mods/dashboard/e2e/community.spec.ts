@@ -17,13 +17,24 @@
  * limitations under the License.
  */
 import { ada, expect, identity, test, tokens, workspace } from "./fixtures";
-import { applications, callRecord, calls, grpcError, numbers, struct } from "./grpc-web";
+import {
+  applications,
+  callRecord,
+  calls,
+  grpcError,
+  numbers,
+  struct
+} from "./grpc-web";
 
 test.use({ variant: "community" });
 
-test("signs in with email and password and opens a workspace", async ({ page, api }) => {
+test("signs in with email and password and opens a workspace", async ({
+  page,
+  api
+}) => {
   api.on("Identity/ExchangeCredentials", (request) => {
-    const { username, password } = identity.ExchangeCredentialsRequest.deserializeBinary(request).toObject();
+    const { username, password } =
+      identity.ExchangeCredentialsRequest.deserializeBinary(request).toObject();
     return username === ada.email && password === "correct-horse"
       ? tokens(ada)
       : grpcError(7, "Invalid credentials");
@@ -34,19 +45,23 @@ test("signs in with email and password and opens a workspace", async ({ page, ap
   await expect(page.getByRole("button", { name: /GitHub/ })).toHaveCount(0);
 
   await page.getByLabel("Email").fill(ada.email);
-  await page.getByLabel("Password").fill("wrong");
+  await page.getByLabel("Password", { exact: true }).fill("wrong");
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByText("Invalid credentials")).toBeVisible();
 
-  await page.getByLabel("Password").fill("correct-horse");
+  await page.getByLabel("Password", { exact: true }).fill("correct-horse");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByRole("heading", { name: "Choose a workspace" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Choose a workspace" })
+  ).toBeVisible();
   await page.getByRole("link", { name: /Acme Support/ }).click();
   await expect(page).toHaveURL(/\/w\/ws-1$/);
 
   // The refresh token went to the cookie session, not to storage.
   expect(api.callsTo("session/adopt")).toHaveLength(1);
-  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toMatch(/refresh|[\w-]+\.[\w-]+\.e2e/);
+  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toMatch(
+    /refresh|[\w-]+\.[\w-]+\.e2e/
+  );
 
   // A reload restores the session from the cookie and returns to the remembered workspace.
   await page.goto("/");
@@ -54,21 +69,38 @@ test("signs in with email and password and opens a workspace", async ({ page, ap
   expect(api.callsTo("session/refresh").length).toBeGreaterThan(0);
 });
 
-test("makes an invitee set a password before anything else", async ({ page, api }) => {
-  const maria = { ref: "u-maria", email: "maria@acme.com", name: "Maria", mustChangePassword: true };
+test("makes an invitee set a password before anything else", async ({
+  page,
+  api
+}) => {
+  const maria = {
+    ref: "u-maria",
+    email: "maria@acme.com",
+    name: "Maria",
+    mustChangePassword: true
+  };
   let changed = false;
   api
     // After the change the dashboard signs in again with the new password (M3).
-    .on("Identity/ExchangeCredentials", () => tokens({ ...maria, mustChangePassword: !changed }))
+    .on("Identity/ExchangeCredentials", () =>
+      tokens({ ...maria, mustChangePassword: !changed })
+    )
     .on("Identity/UpdateUser", (request) => {
-      const { ref, password, currentPassword } = identity.UpdateUserRequest.deserializeBinary(request).toObject();
-      changed = ref === maria.ref && password === "a-new-password" && currentPassword === "one-time-pw";
+      const { ref, password, currentPassword } =
+        identity.UpdateUserRequest.deserializeBinary(request).toObject();
+      changed =
+        ref === maria.ref &&
+        password === "a-new-password" &&
+        currentPassword === "one-time-pw";
       const response = new identity.UpdateUserResponse();
       response.setRef(maria.ref);
       return response;
     })
     .on("Identity/ExchangeRefreshToken", () =>
-      tokens({ ...maria, mustChangePassword: !changed }, identity.ExchangeRefreshTokenResponse)
+      tokens(
+        { ...maria, mustChangePassword: !changed },
+        identity.ExchangeRefreshTokenResponse
+      )
     )
     .on("Identity/ListWorkspaces", () => {
       const list = new identity.ListWorkspacesResponse();
@@ -78,7 +110,7 @@ test("makes an invitee set a password before anything else", async ({ page, api 
 
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(maria.email);
-  await page.getByLabel("Password").fill("one-time-pw");
+  await page.getByLabel("Password", { exact: true }).fill("one-time-pw");
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/set-password$/);
 
@@ -86,10 +118,14 @@ test("makes an invitee set a password before anything else", async ({ page, api 
   await expect(page).toHaveURL(/\/set-password$/);
 
   await page.getByLabel("One-time password").fill("one-time-pw");
-  await page.getByLabel("New password").fill("a-new-password");
-  await page.getByLabel("Confirm password").fill("a-new-password");
+  await page.getByLabel("New password", { exact: true }).fill("a-new-password");
+  await page
+    .getByLabel("Confirm password", { exact: true })
+    .fill("a-new-password");
   await page.getByRole("button", { name: "Set password and continue" }).click();
-  await expect(page.getByRole("heading", { name: "Choose a workspace" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Choose a workspace" })
+  ).toBeVisible();
   expect(changed).toBe(true);
 });
 
@@ -97,19 +133,27 @@ test("signs out to a clean sign-in page", async ({ page, api }) => {
   api.on("Identity/ExchangeCredentials", () => tokens(ada));
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(ada.email);
-  await page.getByLabel("Password").fill("pw");
+  await page.getByLabel("Password", { exact: true }).fill("pw");
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
-  expect(await page.evaluate(() => localStorage.getItem("fonoster.session"))).toBeNull();
+  expect(
+    await page.evaluate(() => localStorage.getItem("fonoster.session"))
+  ).toBeNull();
   // Nothing token-like in storage at any point; sign-out revoked the cookie session (M4).
-  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toMatch(/refresh|[\w-]+\.[\w-]+\.e2e/);
-  expect(api.callsTo("session/logout")).toHaveLength(1);
+  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toMatch(
+    /refresh|[\w-]+\.[\w-]+\.e2e/
+  );
+  // Sign-out doesn't wait for the revoke, so the call can land just after the redirect.
+  await expect.poll(() => api.callsTo("session/logout")).toHaveLength(1);
 });
 
 // Runs the real SDK decoding on an application, Struct configs included
 // (regression: "textToSpeech.config.toJavaScript is not a function").
-test("lists and opens an agent with its saved configuration", async ({ page, api }) => {
+test("lists and opens an agent with its saved configuration", async ({
+  page,
+  api
+}) => {
   const product = (productRef: string, config: object) => {
     const container = new applications.ProductContainer();
     container.setProductRef(productRef);
@@ -121,7 +165,9 @@ test("lists and opens an agent with its saved configuration", async ({ page, api
   agent.setName("Front desk");
   agent.setType(applications.ApplicationType.AUTOPILOT);
   agent.setTextToSpeech(product("tts.deepgram", { voice: "aura-2-thalia-en" }));
-  agent.setSpeechToText(product("stt.deepgram", { model: "nova-3", languageCode: "en-US" }));
+  agent.setSpeechToText(
+    product("stt.deepgram", { model: "nova-3", languageCode: "en-US" })
+  );
   agent.setIntelligence(
     product("llm.openai", {
       conversationSettings: {
@@ -129,9 +175,19 @@ test("lists and opens an agent with its saved configuration", async ({ page, api
         systemPrompt: "You are a receptionist.",
         goodbyeMessage: "Bye",
         systemErrorMessage: "Sorry",
-        idleOptions: { message: "Still there?", timeout: 10000, maxTimeoutCount: 2 }
+        idleOptions: {
+          message: "Still there?",
+          timeout: 10000,
+          maxTimeoutCount: 2
+        }
       },
-      languageModel: { provider: "openai", model: "gpt-4o-mini", temperature: 0.4, maxTokens: 240, tools: [] }
+      languageModel: {
+        provider: "openai",
+        model: "gpt-4o-mini",
+        temperature: 0.4,
+        maxTokens: 240,
+        tools: []
+      }
     })
   );
   api
@@ -146,7 +202,7 @@ test("lists and opens an agent with its saved configuration", async ({ page, api
 
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(ada.email);
-  await page.getByLabel("Password").fill("pw");
+  await page.getByLabel("Password", { exact: true }).fill("pw");
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.getByRole("link", { name: /Acme Support/ }).click();
   await page.getByRole("link", { name: "Agents", exact: true }).click();
@@ -154,14 +210,21 @@ test("lists and opens an agent with its saved configuration", async ({ page, api
   await expect(page.getByText("Front desk")).toBeVisible();
   await expect(page.getByText(/gpt-4o-mini/)).toBeVisible();
   await page.getByText("Front desk").click();
-  await expect(page.getByLabel("System prompt")).toHaveValue("You are a receptionist.");
-  await expect(page.getByLabel("First message")).toHaveValue("Hi, how can I help?");
+  await expect(page.getByLabel("System prompt")).toHaveValue(
+    "You are a receptionist."
+  );
+  await expect(page.getByLabel("First message")).toHaveValue(
+    "Hi, how can I help?"
+  );
 });
 
 // Runs the real SDK decoding on call records: epoch seconds, enum numbers.
 // The Calls screen now reads call records from /api/records (rebuild: control, CP-B9);
 // these gRPC-mocked flows need an HTTP mock before they come back.
-test.skip("lists calls, filters by status on the server and opens one", async ({ page, api }) => {
+test.skip("lists calls, filters by status on the server and opens one", async ({
+  page,
+  api
+}) => {
   const now = Math.floor(Date.now() / 1000);
   const answered = callRecord({
     ref: "cl-9b21e7",
@@ -185,16 +248,19 @@ test.skip("lists calls, filters by status on the server and opens one", async ({
   api
     .on("Identity/ExchangeCredentials", () => tokens(ada))
     .on("Calls/ListCalls", (request) => {
-      const { status } = calls.ListCallsRequest.deserializeBinary(request).toObject();
+      const { status } =
+        calls.ListCallsRequest.deserializeBinary(request).toObject();
       const list = new calls.ListCallsResponse();
-      list.setItemsList(status === calls.CallStatus.USER_BUSY ? [busy] : [answered, busy]);
+      list.setItemsList(
+        status === calls.CallStatus.USER_BUSY ? [busy] : [answered, busy]
+      );
       return list;
     })
     .on("Calls/GetCall", () => answered);
 
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(ada.email);
-  await page.getByLabel("Password").fill("pw");
+  await page.getByLabel("Password", { exact: true }).fill("pw");
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.getByRole("link", { name: /Acme Support/ }).click();
   await page.getByRole("link", { name: "Calls" }).click();
@@ -212,7 +278,9 @@ test.skip("lists calls, filters by status on the server and opens one", async ({
   await expect(table.getByText("+1 809 555 0142")).toBeVisible();
 
   await page.goto("/w/ws-1/calls/cl-9b21e7");
-  await expect(page.getByRole("heading", { name: /\+1 829 555 0110/ })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: /\+1 829 555 0110/ })
+  ).toBeVisible();
   await expect(page.getByText("Answered by human")).toBeVisible();
   await expect(page.getByRole("region", { name: "Cost" })).toHaveCount(0);
 });

@@ -39,6 +39,7 @@ export function DialogContent({
   className,
   children,
   variant = "sectioned",
+  onOpenAutoFocus,
   ...props
 }: ComponentProps<typeof DialogPrimitive.Content> & {
   variant?: "sectioned" | "plain";
@@ -62,6 +63,14 @@ export function DialogContent({
           sectioned ? "gap-0" : "gap-5 p-7",
           className
         )}
+        onOpenAutoFocus={(event) => {
+          onOpenAutoFocus?.(event);
+          // A secret popup opens on itself, not on its first Copy button.
+          if (!sectioned && !event.defaultPrevented) {
+            event.preventDefault();
+            (event.currentTarget as HTMLElement | null)?.focus();
+          }
+        }}
         {...props}
       >
         {sectioned ? (

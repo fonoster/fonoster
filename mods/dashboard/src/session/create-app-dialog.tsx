@@ -165,14 +165,21 @@ function StarterPane({ protocol }: { protocol: Draft["protocol"] }) {
           {copied ? "Copied" : "Copy"}
         </button>
       </div>
-      <pre className="flex-1 overflow-x-auto text-[12px] leading-5 text-foreground">
+      {/* Focusable so keyboard users can scroll a long line. */}
+      <pre
+        tabIndex={0}
+        className="flex-1 overflow-x-auto rounded-[6px] text-[12px] leading-5 text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      >
         <code>{starter.code}</code>
       </pre>
       <div className="flex flex-col gap-1 border-t border-border pt-3">
         <span className="text-xs text-muted-foreground">
           Run it locally and expose it, each in its own terminal:
         </span>
-        <pre className="overflow-x-auto text-[12px] leading-5 text-foreground">
+        <pre
+          tabIndex={0}
+          className="overflow-x-auto rounded-[6px] text-[12px] leading-5 text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
           <code>{starter.run}</code>
         </pre>
         <a
