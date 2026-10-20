@@ -327,7 +327,7 @@ test("shows the workspace's usage with no money in a community install", async (
 
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(ada.email);
-  await page.getByLabel("Password").fill("pw");
+  await page.getByLabel("Password", { exact: true }).fill("pw");
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.getByRole("link", { name: /Acme Support/ }).click();
   await page.getByRole("link", { name: "Usage", exact: true }).click();
