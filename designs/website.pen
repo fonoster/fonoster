@@ -29176,7 +29176,8 @@
             "top": 1,
             "bottom": 1
           },
-          "gap": 80,
+          "layout": "vertical",
+          "gap": 48,
           "padding": [
             112,
             80
@@ -29187,9 +29188,10 @@
               "type": "frame",
               "id": "Sh2LT",
               "name": "Copy",
-              "width": "fill_container",
+              "width": 720,
               "layout": "vertical",
               "gap": 20,
+              "alignItems": "center",
               "children": [
                 {
                   "type": "text",
@@ -29197,6 +29199,7 @@
                   "name": "Title",
                   "fill": "$text-primary",
                   "content": "Simple pricing.",
+                  "textAlign": "center",
                   "fontFamily": "Poppins",
                   "fontSize": 56,
                   "fontWeight": "600",
@@ -29211,6 +29214,7 @@
                   "width": "fill_container",
                   "content": "One flat yearly license per region. No per-minute platform fees, no matter how many calls you run.",
                   "lineHeight": 1.5,
+                  "textAlign": "center",
                   "fontFamily": "Poppins",
                   "fontSize": 17,
                   "fontWeight": "normal"
@@ -29255,9 +29259,9 @@
                       "fill": "$text-primary",
                       "content": "$25,000",
                       "fontFamily": "Poppins",
-                      "fontSize": 34,
+                      "fontSize": 48,
                       "fontWeight": "600",
-                      "letterSpacing": -1
+                      "letterSpacing": -1.5
                     }
                   ]
                 },
@@ -35315,6 +35319,7 @@
                   "width": "fill_container",
                   "content": "Simple pricing.",
                   "lineHeight": 1.1,
+                  "textAlign": "center",
                   "fontFamily": "Poppins",
                   "fontSize": 34,
                   "fontWeight": "600",
@@ -35329,6 +35334,7 @@
                   "width": "fill_container",
                   "content": "One flat yearly license per region. No per-minute platform fees, no matter how many calls you run.",
                   "lineHeight": 1.5,
+                  "textAlign": "center",
                   "fontFamily": "Poppins",
                   "fontSize": 15,
                   "fontWeight": "normal"
