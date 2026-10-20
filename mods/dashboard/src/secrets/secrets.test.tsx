@@ -111,6 +111,7 @@ describe("Secrets", () => {
     expect(
       screen.getByRole("heading", { name: "Delete OLD?" })
     ).toBeInTheDocument();
+    await user.type(screen.getByLabelText(/to confirm/), "DELETE");
     await user.click(screen.getByRole("button", { name: "Delete" }));
     expect(secrets.deleteSecret).toHaveBeenCalledWith("sc-1");
   });

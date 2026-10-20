@@ -139,6 +139,7 @@ describe("Agents list", () => {
     const confirm = await screen.findByRole("dialog", {
       name: "Delete Billing reminders?"
     });
+    await user.type(within(confirm).getByLabelText(/to confirm/), "DELETE");
     await user.click(within(confirm).getByRole("button", { name: "Delete" }));
     expect(applications.deleteApplication).toHaveBeenCalledWith(
       billingAgent.ref
@@ -382,6 +383,7 @@ describe("Agent detail", () => {
       await screen.findByRole("button", { name: "Delete agent" })
     );
     const dialog = await screen.findByRole("dialog");
+    await user.type(within(dialog).getByLabelText(/to confirm/), "DELETE");
     await user.click(within(dialog).getByRole("button", { name: "Delete" }));
     expect(applications.deleteApplication).toHaveBeenCalledWith(
       billingAgent.ref

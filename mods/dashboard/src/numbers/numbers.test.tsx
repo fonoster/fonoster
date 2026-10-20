@@ -173,6 +173,7 @@ describe("numbers", () => {
     );
     await user.click(await screen.findByRole("menuitem", { name: /Delete/ }));
     const dialog = await screen.findByRole("dialog");
+    await user.type(within(dialog).getByLabelText(/to confirm/), "DELETE");
     await user.click(within(dialog).getByRole("button", { name: "Remove" }));
     expect(sdk.numbers.deleteNumber).toHaveBeenCalledWith("n5");
   });

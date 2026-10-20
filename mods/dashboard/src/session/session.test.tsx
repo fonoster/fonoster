@@ -244,6 +244,7 @@ describe("apps", () => {
     const confirm = await screen.findByRole("dialog", {
       name: "Delete Pipecat bot?"
     });
+    await user.type(within(confirm).getByLabelText(/to confirm/), "DELETE");
     await user.click(within(confirm).getByRole("button", { name: "Delete" }));
     await waitFor(async () =>
       expect(await api.getApp("pipecat-bot")).toBeUndefined()
@@ -416,6 +417,7 @@ describe("vendor keys", () => {
       screen.getByRole("button", { name: "Actions for Deepgram" })
     );
     await user.click(await screen.findByRole("menuitem", { name: "Remove" }));
+    await user.type(screen.getByLabelText(/to confirm/), "DELETE");
     await user.click(screen.getByRole("button", { name: "Remove" }));
     await waitFor(async () => expect(await api.listVendorKeys()).toEqual([]));
     expect(await screen.findByText("No vendor keys")).toBeInTheDocument();

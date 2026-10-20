@@ -207,6 +207,7 @@ describe("ACLs screen", () => {
     expect(
       within(dialog).getByText(/It's attached to Trunk · Claro/)
     ).toBeInTheDocument();
+    await user.type(within(dialog).getByLabelText(/to confirm/), "DELETE");
     await user.click(within(dialog).getByRole("button", { name: "Delete" }));
     expect(sdk.acls.deleteAcl).toHaveBeenCalledWith("acl-1");
   });
