@@ -320,6 +320,31 @@ A `CatalogItem` has `id` (such as `deepgram/nova-3`), `kind`, `state` (`active`,
 `providerId`, and when they apply `type`, `capabilities`, `languages`, `features`, `models`,
 `gender`, `replacement` and `retireOn`.
 
+## Usage
+
+What the workspace consumed, in quantities, never money. `new SDK.Usage(client)`.
+
+| Method | Purpose | Key params | Returns |
+| --- | --- | --- | --- |
+| `getUsage(request)` | Usage totals for a range of days (UTC, inclusive), split by meter | `fromDay`, `toDay` (`YYYY-MM-DD`), `groupBy` (any of `day`, `workspace`, `provider`, `model`, `key_source`, `origin`), `allOwned` (owners: every workspace they own) | `{ rows: UsageRow[] }` |
+
+A `UsageRow` has `meter`, `unit` and `quantity`, plus the dimensions you grouped by. Meters:
+`call.seconds` (from answer to hangup), `stt.seconds`, `tts.characters`, `llm.tokens.in`,
+`llm.tokens.out`, `llm.tokens.cached`, `embedding.tokens`, `nc.seconds` (noise cancelling),
+`amd.detections`, `amd.seconds`, `recording.seconds` and `storage.bytes` (the peak in the range,
+or the day's reading when grouped by `day`). `keySource` says whether a vendor was called with your
+own key (`workspace`) or the platform's (`platform`); `origin` tells calls (`call`) from browser
+tests (`browser_test`) and evals (`eval`).
+
+```ts
+const usage = new SDK.Usage(client);
+const { rows } = await usage.getUsage({
+  fromDay: "2026-10-01",
+  toDay: "2026-10-31",
+  groupBy: ["key_source"]
+});
+```
+
 ## Secrets
 
 Named secret values stored in the workspace. `new SDK.Secrets(client)`.

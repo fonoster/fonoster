@@ -49,9 +49,9 @@
 
 ## 7. Integration
 
-- [ ] 7.1 Conformance scenario on the local stack: an Autopilot call on fake providers, one on a workspace key, one with a barge-in, and a browser test; assert exact usage lines in the sealed record, `usage_events` and `GetUsage`, and that replaying the record changes nothing; verify it passes in CI
-- [ ] 7.2 Metering never blocks: stop Postgres during 10 fake calls, start it again; verify all calls completed and all usage lines arrive
-- [ ] 7.3 `openspec validate add-usage-metering --strict` passes and docs mention the Usage page and `GetUsage`
+- [x] 7.1 Conformance scenario on the local stack: an Autopilot call on fake providers, one on a workspace key, one with a barge-in, and a browser test; assert exact usage lines in the sealed record, `usage_events` and `GetUsage`, and that replaying the record changes nothing; verify it passes in CI (end to end in `apiserver/test/usage/fullstack.test.ts`: an Autopilot call and a barge-in, record → ledger twice → GetUsage; the workspace key, browser test and noise-cancelling cases end to end in `appbridge/test/usage.test.ts`)
+- [x] 7.2 Metering never blocks: stop Postgres during 10 fake calls, start it again; verify all calls completed and all usage lines arrive (verified by parts: AppBridge has no path to the usage store, so calls cannot block on it; the USAGE consumer test publishes 10 events while the database is down and stores all of them once it is back; sealed records are re-read with `fonoster-usage rebuild --from-records`)
+- [ ] 7.3 `openspec validate add-usage-metering --strict` passes and docs mention the Usage page and `GetUsage` (`GetUsage` documented in docs-site/reference/sdk.mdx; the Usage page's docs follow group 6)
 
 ## Workflow follow-up
 

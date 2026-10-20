@@ -32,7 +32,34 @@ import {
   verifyRecord
 } from "@fonoster/callrecord";
 import { FakesHarness, Peer } from "@fonoster/conformance";
+import { z } from "zod";
 import { AppConfig, AppBridge } from "../src";
+import { AudioFilterFactory } from "../src/filters";
+
+// Two test noise-cancelling filters, each on a keyed fake provider: one passes audio through,
+// the other breaks after a few frames, so its slot fails open and stops counting.
+let boomFrames = 0;
+AudioFilterFactory.registerFilter("test-nc", {
+  description: "pass-through noise cancelling for tests",
+  optionsSchema: z.object({}),
+  publicOptionsSchema: z.object({}),
+  provider: "fakenc",
+  create: () => ({ name: "test-nc", delayMs: 0, process: (f: Int16Array) => f })
+});
+AudioFilterFactory.registerFilter("test-nc-boom", {
+  description: "noise cancelling that breaks after five frames",
+  optionsSchema: z.object({}),
+  publicOptionsSchema: z.object({}),
+  provider: "fakenc2",
+  create: () => ({
+    name: "test-nc-boom",
+    delayMs: 0,
+    process: (f: Int16Array) => {
+      if (++boomFrames > 5) throw new Error("kaput");
+      return f;
+    }
+  })
+});
 
 // Usage metering on a running AppBridge (add-usage-metering, group 3): what a call consumes is
 // counted where the work happens and sealed with the call record. Needs NATS.
@@ -165,6 +192,18 @@ describe("@AppBridge usage metering", function () {
         retry: { windowMs: 300, intervalMs: 100 },
         apps,
         providers: {
+          fakenc: {
+            adapter: "fake",
+            capabilities: ["nc"],
+            keyless: false,
+            credential: { value: "nc-key" }
+          },
+          fakenc2: {
+            adapter: "fake",
+            capabilities: ["nc"],
+            keyless: false,
+            credential: { value: "nc-key" }
+          },
           fake: {
             adapter: "fake",
             capabilities: ["tts", "stt"],
@@ -377,5 +416,25 @@ describe("@AppBridge usage metering", function () {
     expect(
       lineOf(entry.usage as Line[], "call.seconds")!.quantity
     ).to.be.at.least(1);
+  });
+
+  it("meters noise cancelling per filter vendor and stops counting a filter that failed", async () => {
+    boomFrames = 0;
+    await start([
+      app({ filters: [{ name: "test-nc" }, { name: "test-nc-boom" }] })
+    ]);
+    const { roomRef } = await talk("Hello there.", 2000);
+    harness.roomrNode.callerHangup(roomRef);
+    const { vcon } = await sealed(roomRef);
+    const lines = (vcon.fonoster as { usage?: Line[] }).usage ?? [];
+    const nc = lines.filter((l) => l.meter === "nc.seconds");
+    const healthy = nc.find((l) => l.provider === "fakenc");
+    const broken = nc.find((l) => l.provider === "fakenc2");
+    expect(healthy).to.deep.include({ keySource: "platform" });
+    expect(healthy!.quantity).to.be.at.least(2);
+    expect(broken!.quantity).to.equal(1);
+    expect(
+      (vcon.fonoster as { filters?: { failed: unknown[] } }).filters?.failed
+    ).to.have.length(1);
   });
 });
