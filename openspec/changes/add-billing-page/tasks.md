@@ -1,6 +1,6 @@
 ## 1. Design
 
-- [ ] 1.1 Billing frames in `designs/dashboard.pen` ("Billing (cloud only)"): account-menu entry, Pay-as-you-go, Trial, Trial ended, top-up dialog, auto-recharge dialog, payment in progress, payment failed; verify the owner approves them
+- [x] 1.1 Billing frames in `designs/dashboard.pen` ("Billing (cloud only)"): account-menu entry, Pay-as-you-go, Trial, Trial ended, top-up dialog, auto-recharge dialog, payment in progress, payment failed; verify the owner approves them
 
 ## 2. SDK
 
