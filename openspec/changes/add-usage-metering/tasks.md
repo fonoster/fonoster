@@ -6,10 +6,10 @@
 
 ## 1. Meter registry and `usage.v1` (mods/common)
 
-- [ ] 1.1 Add `src/usage/meters.ts`: the declared meters (name, unit, aggregation `sum` or `snapshot`, reporter, `vendor: boolean`), and `isMeter(name)`; verify a unit test lists exactly the twelve meters of the spec with their units
-- [ ] 1.2 Add `src/usage/types.ts`: `UsageLine` (meter, quantity, provider?, model?, keySource?) and `UsageEvent` (line + owner/workspace/app/call/region/regionKind/origin/occurredAt/id) with Zod schemas that reject an undeclared meter, a `keySource` on a non-vendor meter, and any price-like field; verify with unit tests
-- [ ] 1.3 Add `src/usage/usageId.ts` (D7) and `CallUsage` (accumulator keyed by meter, provider, model, keySource; `lines()` rounds seconds up); verify tests: same inputs give the same id, merges add up
-- [ ] 1.4 Add `src/protos/usage.proto` (`service Usage`, `GetUsage`, D10) and regenerate stubs; verify the build and that `mods/types` exports the request/response types
+- [x] 1.1 Add `src/usage/meters.ts`: the declared meters (name, unit, aggregation `sum` or `snapshot`, reporter, `vendor: boolean`), and `isMeter(name)`; verify a unit test lists exactly the twelve meters of the spec with their units
+- [x] 1.2 Add `src/usage/types.ts`: `UsageLine` (meter, quantity, provider?, model?, keySource?) and `UsageEvent` (line + owner/workspace/app/call/region/regionKind/origin/occurredAt/id) with Zod schemas that reject an undeclared meter, a `keySource` on a non-vendor meter, and any price-like field; verify with unit tests
+- [x] 1.3 Add `src/usage/usageId.ts` (D7) and `CallUsage` (accumulator keyed by meter, provider, model, keySource; `lines()` rounds seconds up); verify tests: same inputs give the same id, merges add up
+- [x] 1.4 Add `src/protos/usage.proto` (`service Usage`, `GetUsage`, D10) and regenerate stubs; verify the build and that `mods/types` exports the request/response types
 
 ## 2. Ledger and ingest (mods/apiserver)
 

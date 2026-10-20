@@ -38,6 +38,7 @@ export * from "./session";
 export * as Registry from "./registry";
 export * as AudioFilters from "./filters";
 export * as Webhooks from "./webhooks";
+export * as Usage from "./usage";
 export * as CellSecrets from "./cellsecrets";
 export * from "./telemetry";
 export * from "./net";

@@ -1,0 +1,59 @@
+/*
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.usage.v1beta2;
+
+// What the workspace consumed: quantities only, never money (usage-metering spec).
+service Usage {
+  // Gets usage totals for a range of days, grouped as requested
+  rpc GetUsage (GetUsageRequest) returns (GetUsageResponse) {}
+}
+
+message GetUsageRequest {
+  // First day of the range, YYYY-MM-DD (UTC), inclusive
+  string from_day = 1;
+  // Last day of the range, YYYY-MM-DD (UTC), inclusive
+  string to_day = 2;
+  // Dimensions to group by: day | workspace | meter | provider | model | key_source | origin.
+  // Totals are always split by meter, so meter is implied.
+  repeated string group_by = 3;
+  // Owners only: every workspace the caller owns, instead of the caller's workspace
+  bool all_owned = 4;
+}
+
+message UsageRow {
+  // Set only for the dimensions requested in group_by
+  string day = 1;
+  string workspace_ref = 2;
+  string meter = 3;
+  // second | character | token | count | byte
+  string unit = 4;
+  string provider = 5;
+  string model = 6;
+  // platform | workspace; empty for meters that call no vendor
+  string key_source = 7;
+  // call | browser_test | eval | api
+  string origin = 8;
+  double quantity = 9;
+}
+
+message GetUsageResponse {
+  repeated UsageRow rows = 1;
+}
