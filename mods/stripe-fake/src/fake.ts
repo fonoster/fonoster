@@ -271,16 +271,27 @@ export class StripeFake {
   }
 
   private delivering = false;
+  private deliverAgain = false;
 
-  /** Attempts every delivery that is due by fake time; failures are retried later (D5). */
+  /**
+   * Attempts every delivery that is due by fake time; failures are retried later (D5). Events
+   * queued while a round runs are delivered by another round right after, in order.
+   */
   async deliverDue(): Promise<void> {
-    if (this.delivering) return;
+    if (this.delivering) {
+      this.deliverAgain = true;
+      return;
+    }
     this.delivering = true;
     try {
-      for (const d of this.deliveries) {
-        if (d.done || d.nextAt === undefined || d.nextAt > this.now()) continue;
-        await this.attempt(d);
-      }
+      do {
+        this.deliverAgain = false;
+        for (const d of this.deliveries) {
+          if (d.done || d.nextAt === undefined || d.nextAt > this.now())
+            continue;
+          await this.attempt(d);
+        }
+      } while (this.deliverAgain);
     } finally {
       this.delivering = false;
     }
