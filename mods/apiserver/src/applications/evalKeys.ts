@@ -29,11 +29,12 @@ export function createEvalKeys(db: EvalDb, platform: Record<string, string>) {
   const workspaceKeys = new Registry.PrismaWorkspaceKeys(db);
   return async (providerId: string, workspaceRef: string) => {
     const own = await workspaceKeys.get(workspaceRef, providerId);
-    if (own) return own;
+    if (own) return { key: own, source: "workspace" as const };
     const provider = await db.registryProvider.findUnique({
       where: { id: providerId }
     });
     const ref = provider?.credentialRef ?? `${providerId}-default`;
-    return platform[ref] || undefined;
+    const key = platform[ref];
+    return key ? { key, source: "platform" as const } : undefined;
   };
 }

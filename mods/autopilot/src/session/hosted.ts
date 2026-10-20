@@ -29,6 +29,7 @@ import { getLogger } from "@fonoster/logger";
 import { Session, VoiceServer } from "@fonoster/voice";
 import * as yaml from "js-yaml";
 import { z } from "zod";
+import { MeteredEmbeddings } from "../knowledge/MeteredEmbeddings";
 import { SessionAgent } from "./config";
 import {
   AutopilotOptions,
@@ -40,8 +41,10 @@ import {
   ConfigCredentials,
   CredentialSource,
   LayeredCredentials,
-  RegistryLlmResolver
+  RegistryLlmResolver,
+  resolveCredential
 } from "./llm";
+import { UsageSink } from "./meteredThink";
 
 // The hosted Autopilot (rework-autopilot A2, task 4.3): an ordinary VoiceServer that AppBridge
 // dials like any app. Everything it needs comes from one operator config file; no vendor key is
@@ -341,7 +344,8 @@ export function s3Knowledge(
 ) {
   return async (
     agent: SessionAgent,
-    scope: { workspaceRef?: string }
+    scope: { workspaceRef?: string },
+    usage?: UsageSink
   ): Promise<KnowledgePort | undefined> => {
     const documents = agent.languageModel.knowledgeBase.map((d) => d.document);
     if (!documents.length || !scope.workspaceRef) return undefined;
@@ -351,7 +355,7 @@ export function s3Knowledge(
         key(config.s3.accessKeyIdRef),
         key(config.s3.secretAccessKeyRef),
         key(config.unstructured.apiKeyRef),
-        key(config.embeddings.apiKeyRef)
+        resolveCredential(credentials, config.embeddings.apiKeyRef, scope)
       ]);
     const params = {
       bucket: scope.workspaceRef.toLowerCase(),
@@ -367,7 +371,9 @@ export function s3Knowledge(
       },
       unstructuredAPIURL: config.unstructured.url,
       unstructuredAPIKey: unstructuredKey ?? "",
-      embeddingsApiKey: embeddingsKey ?? ""
+      embeddingsApiKey: embeddingsKey?.key ?? "",
+      embeddingsKeySource: embeddingsKey?.source ?? "platform",
+      usage
     };
     const kb = (make ?? defaultKnowledgeBase)(params);
     kb.load().catch((e: Error) =>
@@ -382,11 +388,14 @@ function defaultKnowledgeBase(params: Record<string, unknown>) {
   // port still uses.
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { S3KnowledgeBase } = require("../knowledge/S3KnowledgeBase");
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { OpenAIEmbeddings } = require("@langchain/openai");
   return new S3KnowledgeBase({
     ...params,
-    embeddings: new OpenAIEmbeddings({ apiKey: params.embeddingsApiKey })
+    // Metered: the vendor's token usage reaches the call (add-usage-metering).
+    embeddings: new MeteredEmbeddings({
+      apiKey: String(params.embeddingsApiKey ?? ""),
+      keySource: params.embeddingsKeySource as "workspace" | "platform",
+      sink: params.usage as UsageSink | undefined
+    })
   }) as KnowledgeBaseLike;
 }
 
@@ -493,15 +502,17 @@ export function hostedOptions(
 export function eagerKnowledge(
   build: (
     agent: SessionAgent,
-    scope: { workspaceRef?: string }
+    scope: { workspaceRef?: string },
+    usage?: UsageSink
   ) => Promise<KnowledgePort | undefined>
 ) {
   return (
     agent: SessionAgent,
-    scope: { workspaceRef?: string }
+    scope: { workspaceRef?: string },
+    usage?: UsageSink
   ): KnowledgePort => {
     const port = Promise.resolve()
-      .then(() => build(agent, scope))
+      .then(() => build(agent, scope, usage))
       .catch((e: Error) => {
         logger.warn(`knowledge port unavailable: ${e?.message ?? e}`);
         return undefined;

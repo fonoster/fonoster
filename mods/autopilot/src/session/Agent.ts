@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { CALL_REF_ATTR } from "@fonoster/common";
+import { CALL_REF_ATTR, Usage } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { SessionEndedError } from "@fonoster/voice";
 import { AsyncQueue } from "./AsyncQueue";
@@ -76,6 +76,8 @@ export type TurnTrace = {
 export interface Recorder {
   turn(trace: TurnTrace): void;
   note(event: Record<string, unknown>): void;
+  /** Model token usage for the call (usage.report); absent where there is no call. */
+  usage?(lines: Usage.UsageLine[]): void;
 }
 
 /** Writes turn traces and notes to the call record through the session (record.note). */
@@ -84,7 +86,8 @@ export function sessionRecorder(session: Session): Recorder {
     void session.note(data).catch(() => undefined);
   return {
     turn: (trace) => write({ kind: "autopilot.turn", ...trace }),
-    note: (event) => write({ kind: "autopilot.note", ...event })
+    note: (event) => write({ kind: "autopilot.note", ...event }),
+    usage: (lines) => void session.reportUsage(lines).catch(() => undefined)
   };
 }
 
@@ -414,7 +417,7 @@ export class Agent {
               trace.firstTokenMs = Date.now() - turnEnded;
             full += chunk.text;
             text.push(chunk.text);
-          } else toolCalls = chunk.calls;
+          } else if (chunk.type === "tool_calls") toolCalls = chunk.calls;
         }
         text.end();
       } catch (e) {

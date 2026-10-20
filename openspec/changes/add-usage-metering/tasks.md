@@ -31,11 +31,11 @@
 
 ## 4. Model usage (mods/community, mods/autopilot)
 
-- [ ] 4.1 `community`: optional final `usage` chunk on `Think.stream` and usage on embeddings; OpenAI-compatible adapters send `stream_options.include_usage` and parse it; other adapters return none; verify adapter tests against recorded vendor responses
-- [ ] 4.2 `LayeredCredentials.get` returns `{key, source}`; callers updated; verify tests: workspace key → `workspace`, platform → `platform`
-- [ ] 4.3 Autopilot sends `usage.report` after each turn and for knowledge-base load and search; a completed request without usage sends a `usage_missing` note and increments `fonoster.usage.missing{catalog_id}`; verify tests with the fake LLM: reported tokens equal the fake's fixed counts; a fake configured to omit usage yields no token line, one `usage_missing` and the call continues
-- [ ] 4.4 Drain on barge-in and on a superseded turn (D6): stop speech/history at once, read the stream to its end in the background with a 30 s deadline, then report usage; verify tests: an interrupted reply's tokens equal the fake's full-request counts, no text after the interruption is spoken or stored, a drain past the deadline records `usage_missing`, session end closes open drains
-- [ ] 4.5 Eval path publishes `llm.tokens.*` with `origin: eval` to `usage.<ws>.<meter>` per step (agent and judge); verify a test: three scenarios produce eval lines only for token meters, with no call reference, and re-running the same eval run id adds nothing
+- [x] 4.1 `community`: optional final `usage` chunk on `Think.stream` and usage on embeddings; OpenAI-compatible adapters send `stream_options.include_usage` and parse it; other adapters return none; verify adapter tests against recorded vendor responses
+- [x] 4.2 `LayeredCredentials.get` returns `{key, source}`; callers updated; verify tests: workspace key → `workspace`, platform → `platform`
+- [x] 4.3 Autopilot sends `usage.report` after each turn and for knowledge-base load and search; a completed request without usage sends a `usage_missing` note and increments `fonoster.usage.missing{catalog_id}`; verify tests with the fake LLM: reported tokens equal the fake's fixed counts; a fake configured to omit usage yields no token line, one `usage_missing` and the call continues
+- [x] 4.4 Drain on barge-in and on a superseded turn (D6): stop speech/history at once, read the stream to its end in the background with a 30 s deadline, then report usage; verify tests: an interrupted reply's tokens equal the fake's full-request counts, no text after the interruption is spoken or stored, a drain past the deadline records `usage_missing`, session end closes open drains
+- [x] 4.5 Eval path publishes `llm.tokens.*` with `origin: eval` to `usage.<ws>.<meter>` per step (agent and judge); verify a test: three scenarios produce eval lines only for token meters, with no call reference, and re-running the same eval run id adds nothing
 
 ## 5. Usage API and SDK
 

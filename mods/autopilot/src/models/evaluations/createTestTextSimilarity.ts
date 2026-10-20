@@ -18,6 +18,11 @@
  */
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { ChatOpenAI } from "@langchain/openai";
+import {
+  MeteredModel,
+  usageLines,
+  UsageSink
+} from "../../session/meteredThink";
 
 export function createTestTextSimilarity(
   evalsLanguageModel: {
@@ -26,7 +31,9 @@ export function createTestTextSimilarity(
     baseUrl?: string;
     apiKey?: string;
   },
-  systemPrompt: string
+  systemPrompt: string,
+  /** Meters the judge's tokens (add-usage-metering); the judge is always OpenAI. */
+  usage?: { sink: UsageSink; keySource: MeteredModel["keySource"] }
 ) {
   if (!evalsLanguageModel.apiKey) {
     throw new Error("API key is required for text similarity evaluation.");
@@ -49,6 +56,28 @@ export function createTestTextSimilarity(
     ];
 
     const response = await llm.invoke(messages);
+    if (usage) {
+      const model = {
+        catalogId: `openai/${evalsLanguageModel.model}`,
+        keySource: usage.keySource
+      };
+      const m = response.usage_metadata as
+        | {
+            input_tokens: number;
+            output_tokens: number;
+            input_token_details?: { cache_read?: number };
+          }
+        | undefined;
+      if (m)
+        usage.sink.usage(
+          usageLines(model, {
+            inputTokens: m.input_tokens,
+            outputTokens: m.output_tokens,
+            cachedTokens: m.input_token_details?.cache_read ?? 0
+          })
+        );
+      else usage.sink.missing(model.catalogId);
+    }
     const reply = response.content?.toString().trim().toLowerCase();
 
     return reply === "true" || reply === "yes";
