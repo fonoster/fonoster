@@ -494,6 +494,75 @@ describe("@stripe-fake", function () {
     expect(session.customer).to.equal(customer.id);
   });
 
+  it("computes tax on a one-off invoice that asks for it, on top of its own items only", async () => {
+    await fake("config", { tax_rates: { US: 10 } });
+    const customer = await stripe.customers.create({
+      address: { country: "US", postal_code: "10001" }
+    });
+    const pm = await stripe.paymentMethods.attach("pm_card_visa", {
+      customer: customer.id
+    });
+    await stripe.customers.update(customer.id, {
+      invoice_settings: { default_payment_method: pm.id }
+    });
+    // A pending item the one-off invoice must leave for the next subscription invoice.
+    await stripe.invoiceItems.create({ customer: customer.id, amount: 500 });
+    const draft = await stripe.invoices.create({
+      customer: customer.id,
+      automatic_tax: { enabled: true },
+      pending_invoice_items_behavior: "exclude",
+      auto_advance: false
+    });
+    const refused = await stripe.invoiceItems
+      .create({ customer: customer.id, invoice: draft.id, amount: 1000 })
+      .catch((e: Stripe.errors.StripeError) => e);
+    expect(refused).to.be.instanceOf(Stripe.errors.StripeInvalidRequestError);
+    await stripe.invoiceItems.create({
+      customer: customer.id,
+      invoice: draft.id,
+      amount: 1000,
+      tax_behavior: "exclusive"
+    });
+    const paid = await stripe.invoices.pay(draft.id!);
+    expect(paid).to.include({ status: "paid", subtotal: 1000, total: 1100 });
+    expect(paid.automatic_tax).to.include({
+      enabled: true,
+      status: "complete"
+    });
+    const untaxed = await stripe.invoices.create({ customer: customer.id });
+    await stripe.invoiceItems.create({
+      customer: customer.id,
+      invoice: untaxed.id,
+      amount: 1000
+    });
+    expect(await stripe.invoices.pay(untaxed.id!)).to.include({ total: 1000 });
+  });
+
+  it("refuses automatic tax on a subscription whose prices have no tax behavior", async () => {
+    const { customer, plan } = await cloudCustomer();
+    const refused = await stripe.subscriptions
+      .create({
+        customer: customer.id,
+        items: [{ price: plan.id }],
+        automatic_tax: { enabled: true }
+      })
+      .catch((e: Stripe.errors.StripeError) => e);
+    expect(refused).to.be.instanceOf(Stripe.errors.StripeInvalidRequestError);
+    await stripe.prices.update(plan.id, { tax_behavior: "exclusive" });
+    const sub = await stripe.subscriptions.create({
+      customer: customer.id,
+      items: [{ price: plan.id }],
+      automatic_tax: { enabled: true }
+    });
+    expect(sub.automatic_tax.enabled).to.equal(true);
+    const first = await stripe.invoices.retrieve(sub.latest_invoice as string);
+    // The customer has no address: Stripe can't place them, so no tax.
+    expect(first.automatic_tax).to.include({
+      enabled: true,
+      status: "requires_location_inputs"
+    });
+  });
+
   it("refunds part of a payment", async () => {
     const customer = await stripe.customers.create();
     const intent = await stripe.paymentIntents.create({

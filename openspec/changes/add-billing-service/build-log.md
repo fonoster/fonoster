@@ -102,3 +102,27 @@ The spec (#1046) has open questions Q1–Q7. Every proposed answer is a setting 
   billing user consumes it with its durable consumer and watches `calls.*`, and cannot write the
   session registry.
 - Not done: a compose service, and the end-to-end "a call is refused once the balance is gone".
+
+### BS9. Stripe Tax (5.6, Q6)
+
+- The subscription asks for `automatic_tax`, and both prices are tax-exclusive, so tax is added on
+  top. `ensureCatalog` sets `tax_behavior: exclusive` on prices made before (Stripe allows setting
+  it once). `stripe.automaticTax` in `billing.yaml` turns it off (default on).
+- Top-ups are now one-off invoices, not bare PaymentIntents: Stripe Tax does not compute tax on a
+  PaymentIntent. The outbox kind `topup_invoice` creates the invoice (`automatic_tax`,
+  `pending_invoice_items_behavior: exclude`, `auto_advance: false`, metadata `purpose`/`credits`),
+  attaches one tax-exclusive item and pays it, each call under its own idempotency key.
+- A declined top-up's invoice is voided, so it can't be paid later outside the ledger. One that
+  needs the owner to authenticate stays open for them to finish; paying it credits them through
+  `invoice.paid`.
+- Webhooks: `invoice.paid`, `invoice.payment_failed` and `invoice.payment_action_required` with a
+  `purpose` are top-ups; the `payment_intent.*` handlers are gone. Credits come from the invoice's
+  `credits` metadata, so tax never becomes credits.
+- The Stripe fake: `automatic_tax` on invoices and subscriptions (renewals inherit it), tax only
+  when it is on, `status: requires_location_inputs` without a country; invoice items onto a given
+  draft invoice; one-off invoices leave other pending items alone unless asked; automatic tax is
+  refused for prices or items with no tax behavior; `/pay` answers
+  `invoice_payment_intent_requires_action` when the card needs authentication.
+- Open: real Stripe refuses to finalize an automatic-tax invoice when it can't place the customer.
+  The fake finalizes with no tax. The Customer Portal must collect a billing address
+  (portal setting) before the owner subscribes or tops up. That's a setup step for the owner.

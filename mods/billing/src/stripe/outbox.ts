@@ -43,7 +43,7 @@ export type OutboxIntent =
       };
     }
   | {
-      kind: "payment_intent";
+      kind: "topup_invoice";
       payload: {
         cents: number;
         credits: number;
@@ -75,6 +75,8 @@ type Deps = {
   clock: Clock;
   /** New customers join this Stripe test clock (tests, D10). */
   testClock?: string;
+  /** Stripe Tax on the subscription and top-ups (Q6); on unless turned off. */
+  automaticTax?: boolean;
 };
 
 type Row = {
@@ -97,6 +99,7 @@ async function customerOf(deps: Deps, accountId: string) {
 async function send(deps: Deps, row: Row): Promise<Prisma.InputJsonValue> {
   const { prisma, stripe, catalog } = deps;
   const idempotencyKey = row.id;
+  const automaticTax = { enabled: deps.automaticTax ?? true };
   const accountId = row.accountId!;
   const p = row.payload as Record<string, unknown>;
   switch (row.kind) {
@@ -127,6 +130,7 @@ async function send(deps: Deps, row: Row): Promise<Prisma.InputJsonValue> {
         {
           customer,
           items: [{ price: catalog.planPrice }, { price: catalog.usagePrice }],
+          automatic_tax: automaticTax,
           metadata: { account_id: accountId }
         },
         { idempotencyKey }
@@ -169,35 +173,66 @@ async function send(deps: Deps, row: Row): Promise<Prisma.InputJsonValue> {
       );
       return { creditGrant: g.id };
     }
-    case "payment_intent": {
+    case "topup_invoice": {
+      // A one-off invoice, not a bare payment, so Stripe Tax can add tax on top (Q6). Each call has
+      // its own key under the row's, so a retry finds what an earlier attempt made.
       const { account, customer } = await customerOf(deps, accountId);
       const c = (await stripe.customers.retrieve(customer)) as Stripe.Customer;
-      const method = c.invoice_settings?.default_payment_method as
-        string | null;
-      if (!method)
+      if (!c.invoice_settings?.default_payment_method)
         throw new NotReady("the customer has no default payment method");
+      const description = `${p.credits} credits`;
+      const created = await stripe.invoices.create(
+        {
+          customer,
+          automatic_tax: automaticTax,
+          pending_invoice_items_behavior: "exclude",
+          auto_advance: false,
+          description,
+          metadata: {
+            account_id: account.id,
+            purpose: p.purpose as string,
+            credits: String(p.credits)
+          }
+        },
+        { idempotencyKey: `${idempotencyKey}:invoice` }
+      );
+      await stripe.invoiceItems.create(
+        {
+          customer,
+          invoice: created.id,
+          amount: p.cents as number,
+          currency: "usd",
+          tax_behavior: "exclusive",
+          description
+        },
+        { idempotencyKey: `${idempotencyKey}:item` }
+      );
+      const invoice = await stripe.invoices.retrieve(created.id!);
+      if (invoice.status === "paid")
+        return { invoice: invoice.id!, status: invoice.status };
       try {
-        const pi = await stripe.paymentIntents.create(
-          {
-            amount: p.cents as number,
-            currency: "usd",
-            customer,
-            payment_method: method,
-            off_session: true,
-            confirm: true,
-            metadata: {
-              account_id: account.id,
-              purpose: p.purpose as string,
-              credits: String(p.credits)
-            }
-          },
-          { idempotencyKey }
+        const paid = await stripe.invoices.pay(
+          invoice.id!,
+          {},
+          { idempotencyKey: `${idempotencyKey}:pay` }
         );
-        return { paymentIntent: pi.id, status: pi.status };
+        return { invoice: paid.id!, status: paid.status };
       } catch (e) {
-        // A decline is an answer, not a failure to send: the payment_failed webhook handles it.
-        if (e instanceof Stripe.errors.StripeCardError)
-          return { declined: e.decline_code ?? e.code ?? "card_error" };
+        // A decline is an answer, not a failure to send: the webhooks handle it. A declined invoice
+        // is voided so nobody pays it later by mistake; one that needs the owner to authenticate
+        // stays open for them to finish.
+        if (e instanceof Stripe.errors.StripeCardError) {
+          if (e.code !== "invoice_payment_intent_requires_action")
+            await stripe.invoices.voidInvoice(
+              invoice.id!,
+              {},
+              { idempotencyKey: `${idempotencyKey}:void` }
+            );
+          return {
+            invoice: invoice.id!,
+            declined: e.decline_code ?? e.code ?? "card_error"
+          };
+        }
         throw e;
       }
     }

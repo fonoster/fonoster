@@ -122,8 +122,8 @@ describe("@billing stripe", function () {
     await db?.drop();
   });
 
-  /** A trial owner who added a card (as the Customer Portal would) and subscribed. */
-  async function subscribed(cardMethod = "pm_card_visa") {
+  /** A trial owner who added a card and an address (as the Customer Portal would) and subscribed. */
+  async function subscribed(cardMethod = "pm_card_visa", country = "US") {
     const owner = `owner-${++n}`;
     const account = await ensureAccount(
       db!.prisma,
@@ -141,7 +141,8 @@ describe("@billing stripe", function () {
       customer: stripeCustomerId!
     });
     await stripe.customers.update(stripeCustomerId!, {
-      invoice_settings: { default_payment_method: pm.id }
+      invoice_settings: { default_payment_method: pm.id },
+      address: { country }
     });
     await db!.prisma.$transaction((tx) => subscribe(tx, account.id));
     await pump();
@@ -257,6 +258,30 @@ describe("@billing stripe", function () {
     expect(paid.map((g) => g.amount.monetary!.value)).to.deep.equal([1000]);
   });
 
+  it("asks Stripe for tax on the subscription and top-ups, and credits only what was bought", async () => {
+    await control("config", { tax_rates: { US: 10 } });
+    try {
+      const { account, customer } = await subscribed();
+      const [sub] = (await stripe.subscriptions.list({ customer })).data;
+      expect(sub.automatic_tax.enabled).to.equal(true);
+      const before = await balanceOf(db!.prisma, account.id);
+      await db!.prisma.$transaction((tx) =>
+        topUp(tx, account.id, 1000, DEFAULT_PLANS)
+      );
+      await pump();
+      const topup = (await stripe.invoices.list({ customer })).data.find(
+        (i) => i.metadata?.purpose === "topup"
+      )!;
+      expect(topup).to.include({ status: "paid", subtotal: 1000, total: 1100 });
+      expect(topup.automatic_tax.enabled).to.equal(true);
+      expect(await balanceOf(db!.prisma, account.id)).to.equal(
+        before + credits(1000)
+      );
+    } finally {
+      await control("config", { tax_rates: {} });
+    }
+  });
+
   it("turns auto-recharge off after three declined recharges and tells the owner", async () => {
     const { owner, account } = await subscribed();
     await db!.prisma.billingAccount.update({
@@ -296,7 +321,7 @@ describe("@billing stripe", function () {
     );
     await pump();
     const succeeded = await db!.prisma.stripeEvent.findFirst({
-      where: { type: "payment_intent.succeeded" },
+      where: { type: "invoice.paid" },
       orderBy: { receivedAt: "desc" }
     });
     await control(`webhooks/replay/${succeeded!.id}`);

@@ -36,7 +36,7 @@ export type StripeCatalog = {
 
 /**
  * Finds or creates what Stripe needs (D8): the product, the monthly plan price, the usage meter
- * and the metered usage price.
+ * and the metered usage price. Prices exclude tax, so Stripe Tax adds it on top (Q6).
  */
 export async function ensureCatalog(
   stripe: Stripe,
@@ -67,6 +67,7 @@ export async function ensureCatalog(
     currency: "usd",
     unit_amount: plans.planFeeCents,
     recurring: { interval: "month" },
+    tax_behavior: "exclusive",
     lookup_key: PLAN_LOOKUP_KEY
   });
   usage ??= await stripe.prices.create({
@@ -74,8 +75,13 @@ export async function ensureCatalog(
     currency: "usd",
     unit_amount_decimal: Stripe.Decimal.from(MILLI_CREDIT_CENTS),
     recurring: { interval: "month", usage_type: "metered", meter: meter.id },
+    tax_behavior: "exclusive",
     lookup_key: USAGE_LOOKUP_KEY
   });
+  // Prices made before Stripe Tax have none; Stripe lets it be set once.
+  for (const price of [plan, usage])
+    if (price.tax_behavior === "unspecified")
+      await stripe.prices.update(price.id, { tax_behavior: "exclusive" });
   return {
     product: productId,
     planPrice: plan.id,

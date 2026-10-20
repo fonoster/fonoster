@@ -141,6 +141,7 @@ async function main() {
     catalog,
     clock,
     plans: config.plans,
+    automaticTax: config.stripe.automaticTax,
     notifier: logNotifier
   };
   every(STRIPE_LOOP_MS, "stripe outbox", () => runOutboxOnce(deps));

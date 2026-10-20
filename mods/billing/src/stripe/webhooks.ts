@@ -105,8 +105,15 @@ async function accountOfCustomer(tx: Db, customer: unknown) {
   return account ?? undefined;
 }
 
+/** A top-up or recharge invoice carries its purpose; subscription invoices carry none. */
+const topupPurpose = (invoice: Stripe.Invoice) => {
+  const purpose = invoice.metadata?.purpose;
+  return purpose === "topup" || purpose === "recharge" ? purpose : undefined;
+};
+
 /** A paid subscription invoice starts a period: its plan credits, here and in Stripe (D9). */
 async function invoicePaid(tx: Db, deps: Deps, invoice: Stripe.Invoice) {
+  if (topupPurpose(invoice)) return topupPaid(tx, deps, invoice);
   const account = await accountOfCustomer(tx, invoice.customer);
   if (!account) return;
   const planLine = invoice.lines.data.find(
@@ -157,18 +164,20 @@ async function invoicePaid(tx: Db, deps: Deps, invoice: Stripe.Invoice) {
   });
 }
 
-/** A paid top-up or recharge adds credits that last 12 months, here and in Stripe. */
-async function paymentSucceeded(tx: Db, deps: Deps, pi: Stripe.PaymentIntent) {
-  const purpose = pi.metadata?.purpose;
-  if (purpose !== "topup" && purpose !== "recharge") return;
-  const account = await accountOfCustomer(tx, pi.customer);
+/**
+ * A paid top-up or recharge adds credits that last 12 months, here and in Stripe. The credits are
+ * what was bought; tax on top never becomes credits (Q6).
+ */
+async function topupPaid(tx: Db, deps: Deps, invoice: Stripe.Invoice) {
+  const purpose = topupPurpose(invoice)!;
+  const account = await accountOfCustomer(tx, invoice.customer);
   if (!account) return;
-  const amount = Number(pi.metadata.credits);
+  const amount = Number(invoice.metadata!.credits);
   const expiresAt = addMonths(deps.clock.now(), deps.plans.topupMonths);
   const entry = await grant(tx, account.id, {
     kind: "topup_grant",
     amount: credits(amount),
-    source: `payment_intent:${pi.id}`,
+    source: `invoice:${invoice.id}`,
     expiresAt
   });
   await tx.billingAccount.update({
@@ -191,15 +200,14 @@ async function paymentSucceeded(tx: Db, deps: Deps, pi: Stripe.PaymentIntent) {
 }
 
 /** A failed recharge counts; the third in a row turns auto-recharge off and tells the owner. */
-async function paymentFailed(
+async function topupFailed(
   tx: Db,
   deps: Deps,
-  pi: Stripe.PaymentIntent,
+  invoice: Stripe.Invoice,
   auth: boolean
 ) {
-  const purpose = pi.metadata?.purpose;
-  if (purpose !== "topup" && purpose !== "recharge") return;
-  const account = await accountOfCustomer(tx, pi.customer);
+  const purpose = topupPurpose(invoice)!;
+  const account = await accountOfCustomer(tx, invoice.customer);
   if (!account) return;
   if (auth) {
     await tx.billingAccount.update({
@@ -207,13 +215,13 @@ async function paymentFailed(
       data: { rechargePendingAt: null }
     });
     deps.notifier.notify(account.ownerRef, "authentication_required", {
-      paymentIntent: pi.id
+      invoice: invoice.id
     });
     return;
   }
   if (purpose === "topup") {
     deps.notifier.notify(account.ownerRef, "topup_failed", {
-      paymentIntent: pi.id
+      invoice: invoice.id
     });
     return;
   }
@@ -240,6 +248,7 @@ export async function applyEvent(tx: Db, deps: Deps, event: Stripe.Event) {
       return invoicePaid(tx, deps, event.data.object as Stripe.Invoice);
     case "invoice.payment_failed": {
       const invoice = event.data.object as Stripe.Invoice;
+      if (topupPurpose(invoice)) return topupFailed(tx, deps, invoice, false);
       const account = await accountOfCustomer(tx, invoice.customer);
       if (!account) return;
       await tx.billingAccount.update({
@@ -251,26 +260,11 @@ export async function applyEvent(tx: Db, deps: Deps, event: Stripe.Event) {
       });
       return;
     }
-    case "payment_intent.succeeded":
-      return paymentSucceeded(
-        tx,
-        deps,
-        event.data.object as Stripe.PaymentIntent
-      );
-    case "payment_intent.payment_failed":
-      return paymentFailed(
-        tx,
-        deps,
-        event.data.object as Stripe.PaymentIntent,
-        false
-      );
-    case "payment_intent.requires_action":
-      return paymentFailed(
-        tx,
-        deps,
-        event.data.object as Stripe.PaymentIntent,
-        true
-      );
+    case "invoice.payment_action_required": {
+      const invoice = event.data.object as Stripe.Invoice;
+      if (topupPurpose(invoice)) return topupFailed(tx, deps, invoice, true);
+      return;
+    }
     case "customer.subscription.deleted": {
       const sub = event.data.object as Stripe.Subscription;
       const account = await accountOfCustomer(tx, sub.customer);

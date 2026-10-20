@@ -48,7 +48,7 @@ export async function ensureCustomer(tx: Db, accountId: string) {
   if (!pending) await enqueue(tx, accountId, { kind: "customer", payload: {} });
 }
 
-/** Buys top-up credits; they reach the ledger when Stripe confirms the payment. */
+/** Buys top-up credits; they reach the ledger when Stripe confirms the payment, before tax (Q6). */
 export async function topUp(
   tx: Db,
   accountId: string,
@@ -61,7 +61,7 @@ export async function topUp(
       `a top-up is at least ${plans.topupMinCredits} credits`
     );
   await enqueue(tx, accountId, {
-    kind: "payment_intent",
+    kind: "topup_invoice",
     payload: {
       cents: Number(centsOf(credits(amountCredits))),
       credits: amountCredits,

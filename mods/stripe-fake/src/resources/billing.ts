@@ -109,6 +109,20 @@ function lineFor(
   };
 }
 
+/**
+ * Stripe computes tax only when it knows whether a price includes it: with no tax behavior and no
+ * default in the Tax settings (the fake has none), automatic tax is refused.
+ */
+function requireTaxBehavior(prices: Json[], param: string) {
+  if (prices.some((p) => (p.tax_behavior ?? "unspecified") === "unspecified"))
+    throw new StripeError(
+      400,
+      "invalid_request_error",
+      "Automatic tax needs a tax behavior on every price, or a default in the Tax settings.",
+      { param }
+    );
+}
+
 function totals(invoice: Json) {
   const lines = (invoice.lines as Json).data as Json[];
   const subtotal = lines.reduce((n, l) => n + (l.amount as number), 0);
@@ -127,7 +141,47 @@ function totals(invoice: Json) {
   };
 }
 
-/** A draft invoice with the given lines and the customer's pending invoice items. */
+/** The invoice line for an invoice item. */
+function itemLine(fake: StripeFake, ii: Json, invoice: string): Json {
+  ii.invoice = invoice;
+  return {
+    id: fake.id("il"),
+    object: "line_item",
+    amount: ii.amount,
+    subtotal: ii.amount,
+    currency: ii.currency,
+    description: ii.description,
+    invoice,
+    period: ii.period,
+    quantity: 1,
+    quantity_decimal: "1",
+    pricing: null,
+    parent: {
+      type: "invoice_item_details",
+      invoice_item_details: {
+        invoice_item: ii.id,
+        proration: false,
+        proration_details: { credited_items: null },
+        subscription: null
+      },
+      subscription_item_details: null
+    },
+    subscription: null,
+    pretax_credit_amounts: [],
+    discount_amounts: [],
+    discountable: true,
+    discounts: [],
+    metadata: {},
+    taxes: [],
+    livemode: false,
+    fake_metered: false
+  };
+}
+
+/**
+ * A draft invoice with the given lines. Subscription invoices take the customer's pending invoice
+ * items; a one-off invoice takes them only when asked (`pending_invoice_items_behavior=include`).
+ */
 export function createInvoice(
   fake: StripeFake,
   args: {
@@ -139,49 +193,20 @@ export function createInvoice(
     collection?: string;
     lines: (invoice: string) => Json[];
     finalizeAt?: number | null;
+    automaticTax?: boolean;
+    includePending?: boolean;
   }
 ): Json {
   const clock = fake.clockOf(args.customer);
   const id = fake.id("in");
-  const pending = fake.all(
-    "invoiceitem",
-    (ii) => ii.customer === args.customer && ii.invoice === null
-  );
-  const pendingLines = pending.map((ii) => {
-    ii.invoice = id;
-    return {
-      id: fake.id("il"),
-      object: "line_item",
-      amount: ii.amount,
-      subtotal: ii.amount,
-      currency: ii.currency,
-      description: ii.description,
-      invoice: id,
-      period: ii.period,
-      quantity: 1,
-      quantity_decimal: "1",
-      pricing: null,
-      parent: {
-        type: "invoice_item_details",
-        invoice_item_details: {
-          invoice_item: ii.id,
-          proration: false,
-          proration_details: { credited_items: null },
-          subscription: null
-        },
-        subscription_item_details: null
-      },
-      subscription: null,
-      pretax_credit_amounts: [],
-      discount_amounts: [],
-      discountable: true,
-      discounts: [],
-      metadata: {},
-      taxes: [],
-      livemode: false,
-      fake_metered: false
-    };
-  });
+  const pending =
+    (args.includePending ?? true)
+      ? fake.all(
+          "invoiceitem",
+          (ii) => ii.customer === args.customer && ii.invoice === null
+        )
+      : [];
+  const pendingLines = pending.map((ii) => itemLine(fake, ii, id));
   const lines = [...args.lines(id), ...pendingLines];
   const invoice = fake.create(
     "invoice",
@@ -194,6 +219,13 @@ export function createInvoice(
       billing_reason: args.reason,
       collection_method: args.collection ?? "charge_automatically",
       currency: (lines[0]?.currency as string) ?? "usd",
+      automatic_tax: {
+        enabled: args.automaticTax ?? false,
+        disabled_reason: null,
+        liability: null,
+        provider: null,
+        status: null
+      },
       lines: {
         object: "list",
         data: lines,
@@ -294,10 +326,15 @@ export function finalize(fake: StripeFake, invoice: Json): Json {
         }
       ];
   });
+  // Tax only when the invoice asks Stripe to compute it; without the customer's country it can't.
   const customer = fake.objects.get(invoice.customer as string);
   const country = (customer?.address as Json | null)?.country as
     string | undefined;
-  const rate = country ? (fake.taxRates[country] ?? 0) : 0;
+  const automaticTax = invoice.automatic_tax as Json;
+  if (automaticTax.enabled)
+    automaticTax.status = country ? "complete" : "requires_location_inputs";
+  const rate =
+    automaticTax.enabled && country ? (fake.taxRates[country] ?? 0) : 0;
   const taxable =
     lines.reduce((n, l) => n + (l.amount as number), 0) -
     (invoice.total_pretax_credit_amounts as Json[]).reduce(
@@ -434,6 +471,7 @@ function renew(fake: StripeFake, sub: Json, clock: string | null) {
     reason: "subscription_cycle",
     start,
     end,
+    automaticTax: (sub.automatic_tax as Json).enabled as boolean,
     finalizeAt: end + fake.graceSeconds,
     lines: (invoice) =>
       items.map((item) => {
@@ -575,6 +613,9 @@ export const billingRoutes: Route[] = [
       const prices = items.map((it, i) =>
         fake.get(it.price as string, "price", `items[${i}][price]`)
       );
+      const automaticTax =
+        (body.automatic_tax as Json | undefined)?.enabled === "true";
+      if (automaticTax) requireTaxBehavior(prices, "items");
       const recurring = prices[0].recurring as Json | null;
       if (!recurring)
         throw new StripeError(
@@ -626,6 +667,11 @@ export const billingRoutes: Route[] = [
             (body.collection_method as string) ?? "charge_automatically",
           default_payment_method:
             (body.default_payment_method as string) ?? null,
+          automatic_tax: {
+            enabled: automaticTax,
+            disabled_reason: null,
+            liability: null
+          },
           cancel_at_period_end: body.cancel_at_period_end === "true",
           billing_cycle_anchor: now,
           billing_mode: {
@@ -654,6 +700,7 @@ export const billingRoutes: Route[] = [
         reason: "subscription_create",
         start: now,
         end: now,
+        automaticTax,
         collection: sub.collection_method as string,
         lines: (inv) =>
           licensed.map((it) =>
@@ -760,6 +807,19 @@ export const billingRoutes: Route[] = [
       if (amount === undefined) throw missing("amount");
       const clock = fake.clockOf(body.customer as string);
       const now = fake.now(clock);
+      const invoice = body.invoice
+        ? fake.get(body.invoice as string, "invoice", "invoice")
+        : undefined;
+      if (invoice && invoice.status !== "draft")
+        throw new StripeError(
+          400,
+          "invalid_request_error",
+          "Invoice items can only be added to draft invoices.",
+          { param: "invoice", code: "invoice_not_editable" }
+        );
+      const taxBehavior = (body.tax_behavior as string) ?? "unspecified";
+      if (invoice && (invoice.automatic_tax as Json).enabled)
+        requireTaxBehavior([{ tax_behavior: taxBehavior }], "tax_behavior");
       const item = fake.create(
         "invoiceitem",
         "ii",
@@ -773,11 +833,20 @@ export const billingRoutes: Route[] = [
           period: { start: now, end: now },
           metadata: metadataOf(body),
           date: now,
-          quantity: 1
+          quantity: 1,
+          quantity_decimal: "1",
+          pricing: null,
+          fake_tax_behavior: taxBehavior
         },
         clock
       );
       fake.emit("invoiceitem.created", item, undefined, clock);
+      if (invoice) {
+        ((invoice.lines as Json).data as Json[]).push(
+          itemLine(fake, item, invoice.id as string)
+        );
+        Object.assign(invoice, totals(invoice));
+      }
       return item;
     }
   },
@@ -795,6 +864,9 @@ export const billingRoutes: Route[] = [
         end: now,
         collection:
           (body.collection_method as string) ?? "charge_automatically",
+        automaticTax:
+          (body.automatic_tax as Json | undefined)?.enabled === "true",
+        includePending: body.pending_invoice_items_behavior === "include",
         lines: () => []
       });
       fake.update(invoice, {
@@ -864,10 +936,21 @@ export const billingRoutes: Route[] = [
       if (body.payment_method)
         invoice.default_payment_method = body.payment_method;
       pay(fake, invoice);
-      if ((invoice.status as string) !== "paid")
+      if ((invoice.status as string) !== "paid") {
+        const intent = fake
+          .all("payment_intent", (pi) => pi.fake_invoice === invoice.id)
+          .pop();
+        if (intent?.status === "requires_action")
+          throw new StripeError(
+            402,
+            "card_error",
+            "This payment requires additional user action before it can be completed.",
+            { code: "invoice_payment_intent_requires_action" }
+          );
         throw new StripeError(402, "card_error", "Your card was declined.", {
           code: "card_declined"
         });
+      }
       return invoice;
     }
   },

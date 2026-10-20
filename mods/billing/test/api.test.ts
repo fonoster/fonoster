@@ -137,7 +137,7 @@ describe("@billing API", function () {
     // Now a top-up is accepted (it is added once the payment succeeds).
     await call("createTopUp", { ownerRef: "owner-api", credits: 1000 });
     expect(
-      await db!.prisma.stripeOutbox.count({ where: { kind: "payment_intent" } })
+      await db!.prisma.stripeOutbox.count({ where: { kind: "topup_invoice" } })
     ).to.equal(1);
   });
 });

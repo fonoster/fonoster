@@ -31,7 +31,7 @@
 - [x] 5.2 Accounts: customer, Pay-as-you-go subscription ($25 licensed + metered milli-credit price), trial grant; plan grant per paid period expiring at period end + grace (D9); verify "a paid month" and "usage in the last hour" with a test clock
 - [x] 5.3 Billable rated lines as meter events in milli-credits; verify an invoice total equals the ledger after a test-clock month
 - [x] 5.4 Top-ups, auto-recharge (one per crossing, off after 3 failures, notice), authentication-required handling, operator refund; verify the three top-up scenarios
-- [ ] 5.6 Stripe Tax: automatic tax on the subscription and on top-ups (Q6); verify the requests ask for it, against the Stripe fake
+- [x] 5.6 Stripe Tax: automatic tax on the subscription and on top-ups (Q6); verify the requests ask for it, against the Stripe fake
 - [x] 5.5 Nightly reconciliation job; verify the "drift" scenario by changing the fake's state through `/_fake`
 
 ## 6. Billing API
