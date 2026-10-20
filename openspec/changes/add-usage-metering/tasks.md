@@ -44,7 +44,7 @@
 
 ## 6. Dashboard Usage page
 
-- [ ] 6.1 Design the Usage page in `designs/dashboard.pen` (period picker, minutes vs tests, add-on minutes, AI usage by provider and model with Your key / Fonoster key, empty state; settles the long-period open question); verify the owner approves the frames
+- [x] 6.1 Design the Usage page in `designs/dashboard.pen` (period picker, minutes vs tests, add-on minutes, AI usage by provider and model with Your key / Fonoster key, empty state; settles the long-period open question); verify the owner approves the frames
 - [ ] 6.2 `NAVIGATION` entry `Usage` (`/usage`) and screen; `useUsage` over `sdk.usage.getUsage`; components per the design; verify unit tests and an e2e test covering the dashboard delta scenarios (Community install with billing off, Last month, no usage, own vs Fonoster key)
 
 ## 7. Integration
