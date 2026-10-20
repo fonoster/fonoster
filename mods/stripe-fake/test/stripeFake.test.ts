@@ -382,6 +382,27 @@ describe("@stripe-fake", function () {
     ]);
   });
 
+  it("delivers events of a test-clock customer as they happen", async () => {
+    await stripe.webhookEndpoints.create({
+      url: hooksUrl,
+      enabled_events: ["*"]
+    });
+    // A clock frozen in the future: its events still go out now.
+    const clock = await stripe.testHelpers.testClocks.create({
+      frozen_time: Math.floor(Date.now() / 1000) + 30 * DAY
+    });
+    await stripe.customers.create({ test_clock: clock.id });
+    for (
+      let i = 0;
+      i < 50 && !received.some((r) => r.body.includes("customer.created"));
+      i++
+    )
+      await new Promise((r) => setTimeout(r, 20));
+    expect(received.map((r) => JSON.parse(r.body).type)).to.include(
+      "customer.created"
+    );
+  });
+
   it("fails the next payment on request, then follows the card again", async () => {
     const { clock, customer, plan } = await cloudCustomer();
     await fake(`customers/${customer.id}/next_payment`, { outcome: "decline" });

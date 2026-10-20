@@ -200,7 +200,7 @@ export class StripeFake {
       request: { id: null, idempotency_key: null }
     });
     this.events.push(event);
-    this.queue(event, clock);
+    this.queue(event);
     this.notify({ kind: "event", id: event.id as string });
     return event;
   }
@@ -223,7 +223,7 @@ export class StripeFake {
       data
     };
     this.events.push(event);
-    this.queue(thinOf(event), clock);
+    this.queue(thinOf(event));
     this.notify({ kind: "event", id: event.id });
     return event;
   }
@@ -243,8 +243,12 @@ export class StripeFake {
     return [...config, ...api];
   }
 
-  private queue(event: Json, clock: string | null) {
-    const now = this.now(clock);
+  /**
+   * Queues an event's deliveries. They are due now in real (fake global) time, also for events of
+   * test-clock objects: Stripe sends those as they happen, whatever the clock's frozen time.
+   */
+  private queue(event: Json) {
+    const now = this.now();
     const targets = this.endpoints().filter((endpoint) => {
       const api = this.objects.get(endpoint.id);
       const enabled = (api?.enabled_events as string[] | undefined) ?? ["*"];
@@ -353,7 +357,7 @@ export class StripeFake {
   async replay(eventId: string): Promise<void> {
     const event = this.events.find((e) => e.id === eventId);
     if (!event) throw notFound("event", eventId);
-    this.queue(event, null);
+    this.queue(event);
     await this.deliverDue();
   }
 
