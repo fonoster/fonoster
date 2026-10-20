@@ -49,8 +49,9 @@ export async function ensureAccount(
   });
   if (existing) return existing;
   return prisma.$transaction(async (tx) => {
+    const trialEndsAt = new Date(now.getTime() + plans.trialDays * DAY_MS);
     const [account] = await tx.billingAccount.createManyAndReturn({
-      data: [{ ownerRef, plan: "trial", billingStartedAt: now }],
+      data: [{ ownerRef, plan: "trial", billingStartedAt: now, trialEndsAt }],
       skipDuplicates: true
     });
     // Another replica created it at the same moment.
@@ -60,7 +61,7 @@ export async function ensureAccount(
       kind: "trial_grant",
       amount: credits(plans.trialCredits),
       source: `trial:${account.id}`,
-      expiresAt: new Date(now.getTime() + plans.trialDays * DAY_MS)
+      expiresAt: trialEndsAt
     });
     return account;
   });

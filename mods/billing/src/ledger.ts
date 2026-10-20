@@ -257,7 +257,7 @@ export async function carryOver(
   tx: Db,
   accountId: string,
   from: GrantRemaining,
-  to: { coversUntil: Date; expiresAt: Date; source: string }
+  to: { coversUntil?: Date; expiresAt: Date; source: string }
 ) {
   if (from.remaining <= 0n) return undefined;
   const kind = (Object.keys(BUCKET_OF) as GrantKind[]).find(
@@ -303,15 +303,14 @@ export async function expireDue(
 }
 
 /**
- * Ends every Trial whose credits' time is up (30 days, Q2): the account's status becomes `ended`
- * and admission refuses its calls until the owner subscribes. Returns how many ended.
+ * Ends every Trial whose time is up (the account's `trialEndsAt`: 30 days by default, Q2, or what an
+ * operator set): the status becomes `ended` and admission refuses its calls until the owner
+ * subscribes. Returns how many ended.
  */
 export async function endTrials(prisma: PrismaClient, now: Date) {
   return prisma.$executeRaw`
-    UPDATE billing_accounts a SET status = 'ended', updated_at = ${now}
-     WHERE a.plan = 'trial' AND a.status = 'active'
-       AND EXISTS (SELECT 1 FROM balance_ledger g
-                    WHERE g.account_id = a.id AND g.kind = 'trial_grant' AND g.expires_at <= ${now})`;
+    UPDATE billing_accounts SET status = 'ended', updated_at = ${now}
+     WHERE plan = 'trial' AND status = 'active' AND trial_ends_at <= ${now}`;
 }
 
 /** The overdraft an account may use: the larger of a floor and a share of the last top-up. */

@@ -19,6 +19,8 @@ model BillingAccount {
   plan                 String    @db.VarChar(16)
   /// active | past_due | closed | ended (a Trial past its 30 days)
   status               String    @default("active") @db.VarChar(16)
+  /// When the Trial ends: the configured default from its start, or what an operator set.
+  trialEndsAt          DateTime? @map("trial_ends_at") @db.Timestamptz(3)
   /// Usage before this is not billed (reason before_billing).
   billingStartedAt     DateTime  @default(now()) @map("billing_started_at") @db.Timestamptz(3)
   stripeCustomerId     String?   @unique @map("stripe_customer_id") @db.VarChar(64)

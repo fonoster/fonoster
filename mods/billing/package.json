@@ -19,7 +19,8 @@
     "generate:prisma": "prisma generate --schema schema.prisma"
   },
   "bin": {
-    "fonoster-billing": "dist/main.js"
+    "fonoster-billing": "dist/main.js",
+    "fonoster-billing-trial": "dist/trialCli.js"
   },
   "dependencies": {
     "@fonoster/authz": "^0.30.0",

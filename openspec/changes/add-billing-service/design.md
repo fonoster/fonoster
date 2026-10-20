@@ -216,3 +216,7 @@ Rollback: turn `features.billing.enabled` off; admission returns to Dummy; the l
 - **Q11.** The Trial plan expires: 30 days after it starts the account's status becomes `ended` and
   admission refuses with `trial_ended` until the owner subscribes, whatever the balance (owner,
   2026-10-20).
+- **Q12.** The Trial's length is a default (`plans.trialDays`, 30) that an operator changes per
+  owner: each account stores when its Trial ends (`trial_ends_at`), and `fonoster-billing-trial
+  --email <email> --days <n>` sets it from the Trial's start. Extending an ended Trial reopens it
+  with the credits it had left (owner, 2026-10-20).
