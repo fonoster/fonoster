@@ -234,7 +234,7 @@ describe("trunk page", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps an older trunk's inbound URI outside the install's root", async () => {
+  it("moves an older trunk's inbound URI under the install's root", async () => {
     setup("/w/ws1/trunks/tk-old", {
       trunks: [
         {
@@ -246,10 +246,26 @@ describe("trunk page", () => {
         }
       ]
     });
-    expect(await screen.findByLabelText("Inbound URI")).toHaveValue(
-      "claro.com"
+    expect(await screen.findByLabelText("Inbound URI")).toHaveValue("claro");
+    expect(
+      screen.getByText(
+        /Was claro\.com\. Saving moves it under sip\.fonoster\.local/
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("takes any host when the install allows it", async () => {
+    const { user, sdk } = setup("/w/ws1/trunks/new", undefined, {
+      ...regionsCapabilities,
+      trunks: { inboundUri: "any" }
+    });
+    await user.type(await screen.findByLabelText("Name"), "Lab");
+    await user.type(screen.getByLabelText("Inbound URI"), "10.0.0.5");
+    await user.type(screen.getByLabelText("Host, URI 1"), "10.0.0.9");
+    await user.click(screen.getByRole("button", { name: "Create trunk" }));
+    expect(sdk.trunks.createTrunk).toHaveBeenCalledWith(
+      expect.objectContaining({ inboundUri: "10.0.0.5" })
     );
-    expect(screen.queryByText(".sip.fonoster.local")).toBeNull();
   });
 
   it("creates a trunk and opens it", async () => {
