@@ -168,7 +168,8 @@
                     "group": "Start",
                     "pages": [
                       "hacking/overview",
-                      "hacking/run-from-source"
+                      "hacking/run-from-source",
+                      "hacking/stripe-fake"
                     ]
                   }
                 ]
