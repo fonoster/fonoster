@@ -28,8 +28,7 @@ export type ChatMessage =
   | { role: "tool"; tool_call_id: string; content: string };
 
 export type ThinkChunk =
-  | { type: "text"; text: string }
-  | { type: "tool_calls"; calls: ToolCall[] };
+  { type: "text"; text: string } | { type: "tool_calls"; calls: ToolCall[] };
 
 export type ToolSpec = {
   name: string;

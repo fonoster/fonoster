@@ -24,10 +24,7 @@ export type WordTiming = { word: string; startMs: number; endMs: number };
 export class SpeechError extends Error {
   constructor(
     readonly code:
-      | "provider_unavailable"
-      | "provider_timeout"
-      | "bad_message"
-      | "internal",
+      "provider_unavailable" | "provider_timeout" | "bad_message" | "internal",
     message: string
   ) {
     super(message);

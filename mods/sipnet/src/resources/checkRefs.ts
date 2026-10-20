@@ -31,9 +31,7 @@ import { ClientOptions } from "../types";
 type RefKind = "Acl" | "Credentials" | "Domain" | "Number" | "Trunk";
 
 type OwnedResource =
-  | { extended?: Record<string, unknown> | null }
-  | null
-  | undefined;
+  { extended?: Record<string, unknown> | null } | null | undefined;
 
 type RefLookups = Record<RefKind, (ref: string) => Promise<OwnedResource>>;
 

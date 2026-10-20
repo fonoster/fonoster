@@ -18,11 +18,7 @@
  */
 /** Regions (add-private-regions). */
 type RegionStatus =
-  | "waiting"
-  | "connected"
-  | "degraded"
-  | "offline"
-  | "unsupported";
+  "waiting" | "connected" | "degraded" | "offline" | "unsupported";
 
 type RegionKind = "public" | "private";
 

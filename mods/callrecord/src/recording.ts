@@ -331,7 +331,7 @@ export function beepRecordingFile(
     const size = fs.fstatSync(input).size;
     const chunk = Buffer.alloc(CHUNK_SAMPLES * frameBytes);
     let frame = 0;
-    for (let pos = 44; pos < size; ) {
+    for (let pos = 44; pos < size;) {
       const n = fs.readSync(input, chunk, 0, chunk.length, pos);
       if (n <= 0) break;
       const data = chunk.subarray(0, n);

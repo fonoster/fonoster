@@ -386,8 +386,7 @@ export class AppBridge {
     traceparent?: string
   ) {
     const participant = event.participant as
-      | { participantRef: string; tracks?: unknown[] }
-      | undefined;
+      { participantRef: string; tracks?: unknown[] } | undefined;
     const roomRef = event.roomRef as string;
     const to = String(event.to ?? "");
     const appRef = event.appRef as string | undefined;
