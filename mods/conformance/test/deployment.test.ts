@@ -354,6 +354,23 @@ describe("@conformance/deployment (Helm chart)", function () {
     }
   });
 
+  it("adds the billing NATS user only when asked (Cloud runs billing)", function () {
+    const conf = (...sets: string[]) =>
+      find(render("values-cloud.yaml", ...sets), "ConfigMap", "fonoster-nats")!
+        .data!;
+    expect(conf()["nats.conf"]).not.to.contain("user: billing");
+    const on = conf("--set=nats.auth.billingUser=true");
+    expect(on["nats.conf"]).to.contain(
+      "{ user: billing, password: $NATS_BILLING_PASSWORD"
+    );
+    expect(on["permissions-billing.conf"]).to.equal(
+      fs.readFileSync(
+        path.join(ROOT, "ops/rebuild/config/nats-permissions/billing.conf"),
+        "utf8"
+      )
+    );
+  });
+
   it("gives every service its NATS user and the chart's NATS the users (nats.auth)", function () {
     const objs = render("values-cloud.yaml", "--set=regionAgent.enabled=true");
     const conf = find(objs, "ConfigMap", "fonoster-nats")!.data!;

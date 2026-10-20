@@ -23,6 +23,9 @@ nats:
     enabled: true
     secret: fonoster-nats-users
     allowUnauthenticated: false
+    # Fonoster Cloud's billing service (not in this chart) reads stored usage and active calls.
+    # true adds its NATS user (files/nats-permissions/billing.conf; Secret key `billing`).
+    billingUser: false
 
 # The region hub (add-private-regions; control plane side). Run `fonoster-region-hub-setup <dir>`
 # once, then: kubectl create secret generic fonoster-region-hub-config

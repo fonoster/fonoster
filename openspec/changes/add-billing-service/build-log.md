@@ -126,3 +126,10 @@ The spec (#1046) has open questions Q1–Q7. Every proposed answer is a setting 
 - Open: real Stripe refuses to finalize an automatic-tax invoice when it can't place the customer.
   The fake finalizes with no tax. The Customer Portal must collect a billing address
   (portal setting) before the owner subscribes or tops up. That's a setup step for the owner.
+
+### BS10. The billing NATS user in Helm (7.1, Q9)
+
+- `nats.auth.billingUser` (default false) adds the `billing` user and its permission file to the
+  chart's NATS, with the password from the `billing` key of `nats.auth.secret`. Community
+  installs don't change, and the compose stack and installer still leave billing out.
+- The deployment suite checks both settings.
