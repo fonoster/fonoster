@@ -78,7 +78,7 @@ describe("apps", () => {
     expect(screen.getByText("Pipecat bot")).toBeInTheDocument();
     expect(screen.queryByText("Receptionist agent")).not.toBeInTheDocument();
     expect(screen.getByText("Fonoster")).toBeInTheDocument();
-    expect(screen.getByText("Twilio-compatible")).toBeInTheDocument();
+    expect(screen.getByText("Twilio")).toBeInTheDocument();
     expect(screen.queryByText("twilio")).not.toBeInTheDocument();
     expect(screen.queryByText("fonoster")).not.toBeInTheDocument();
   });
@@ -144,11 +144,8 @@ describe("apps", () => {
     await user.click(within(dialog).getByLabelText("Protocol"));
     expect(
       (await screen.findAllByRole("option")).map((o) => o.textContent)
-    ).toEqual([
-      "Fonoster (session protocol)",
-      "Twilio-compatible (Media Streams: Pipecat and others)"
-    ]);
-    await user.click(screen.getByRole("option", { name: /Twilio-compatible/ }));
+    ).toEqual(["Fonoster", "Twilio"]);
+    await user.click(screen.getByRole("option", { name: "Twilio" }));
     expect(
       within(dialog).queryByLabelText("Audio format")
     ).not.toBeInTheDocument();

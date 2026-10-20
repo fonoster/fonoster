@@ -70,14 +70,11 @@ import type {
 /** Readable names for the app protocols. */
 export const PROTOCOL_LABELS: Record<Protocol, string> = {
   fonoster: "Fonoster",
-  twilio: "Twilio-compatible"
+  twilio: "Twilio"
 };
 export const PROTOCOLS = [
-  { value: "fonoster", label: "Fonoster (session protocol)" },
-  {
-    value: "twilio",
-    label: "Twilio-compatible (Media Streams: Pipecat and others)"
-  }
+  { value: "fonoster", label: PROTOCOL_LABELS.fonoster },
+  { value: "twilio", label: PROTOCOL_LABELS.twilio }
 ];
 const AUDIO = [
   { value: "pcm16-8000", label: "PCM16 8 kHz" },
@@ -254,12 +251,7 @@ export function AppsList({ creating: startCreating = false }) {
   const columns: Column<SessionApp>[] = [
     {
       header: "App",
-      cell: (a) => (
-        <span className="flex min-w-0 items-center gap-3">
-          <AppTile />
-          <NameCell name={a.name} sub={a.ref} />
-        </span>
-      )
+      cell: (a) => <NameCell name={a.name} sub={a.ref} />
     },
     {
       header: "URL",

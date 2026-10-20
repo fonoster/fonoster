@@ -29,7 +29,6 @@ import {
   type Column
 } from "~/components/data/data-table";
 import { EmptyState } from "~/components/data/empty-state";
-import { IconTile } from "~/components/data/icon-tile";
 import { SmartToy } from "~/components/icons/material";
 import { RowActions } from "~/components/data/row-actions";
 import { Button } from "~/components/ui/button";
@@ -120,12 +119,7 @@ export function AgentsList() {
   const columns: Column<Application>[] = [
     {
       header: "Agent",
-      cell: (app) => (
-        <span className="flex min-w-0 items-center gap-3">
-          <IconTile icon={SmartToy} />
-          <NameCell name={app.name} sub={app.ref} />
-        </span>
-      )
+      cell: (app) => <NameCell name={app.name} sub={app.ref} />
     },
     {
       header: "Numbers",
