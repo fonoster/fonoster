@@ -32,5 +32,6 @@ export * from "./common";
 
 export * from "./ProvidersClient";
 export * from "./UsageClient";
+export * from "./BillingClient";
 
 export * from "./WebhooksClient";
