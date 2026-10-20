@@ -66,14 +66,19 @@ describe("workspace landing", () => {
     );
   });
 
-  it("goes to Create workspace when there are none", async () => {
+  it("offers to create the first workspace when there are none", async () => {
     renderScreen(<WorkspacesPage />, {
       path: "/workspaces",
       auth: withWorkspaces([])
     });
-    expect(await screen.findByTestId("location")).toHaveTextContent(
-      "/workspaces/new"
-    );
+    expect(
+      await screen.findByRole("heading", {
+        name: "Create your first workspace"
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Create workspace" })
+    ).toHaveAttribute("href", "/workspaces/new");
   });
 
   it("creates the first workspace and opens it", async () => {
@@ -85,8 +90,8 @@ describe("workspace landing", () => {
     expect(
       await screen.findByRole("heading", { name: "Welcome, Ada" })
     ).toBeInTheDocument();
-    await user.type(screen.getByLabelText("Name"), "Acme Support");
-    await user.click(screen.getByRole("button", { name: "Create" }));
+    await user.type(screen.getByLabelText("Workspace name"), "Acme Support");
+    await user.click(screen.getByRole("button", { name: "Create workspace" }));
     expect(auth.sdk.workspaces.createWorkspace).toHaveBeenCalledWith({
       name: "Acme Support",
       region: "default"

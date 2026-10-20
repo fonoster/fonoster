@@ -108,12 +108,14 @@ describe("SDK adapter", () => {
       {
         id: "deepgram",
         kind: "provider",
+        label: "Deepgram",
         state: "active",
         providerId: "deepgram"
       },
       {
         id: "aicoustics",
         kind: "provider",
+        label: "ai-coustics",
         state: "active",
         providerId: "aicoustics",
         capabilities: ["nc"]
@@ -136,6 +138,7 @@ describe("SDK adapter", () => {
       }
     ] as CatalogItem[];
     const catalog = toCatalog(items);
+    // Names come from the catalog, not from a list in the dashboard.
     expect(catalog.providers.map((p) => p.label)).toEqual([
       "Deepgram",
       "ai-coustics"

@@ -18,7 +18,6 @@
  */
 import type { Trunk } from "@fonoster/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronRight } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -76,16 +75,14 @@ function Section({
 
 function Breadcrumb({ current }: { current: string }) {
   return (
-    <nav aria-label="Breadcrumb" className="px-4 pt-2 sm:px-8">
-      <ol className="flex items-center gap-1.5 font-display text-[13px] text-muted-foreground">
+    <nav aria-label="Breadcrumb" className="px-4 pt-6 sm:px-8">
+      <ol className="flex items-center gap-2 font-display text-[13px] text-muted-foreground">
         <li>
           <Link to=".." relative="path" className="hover:text-foreground">
             Trunks
           </Link>
         </li>
-        <li aria-hidden>
-          <ChevronRight className="size-3.5" />
-        </li>
+        <li aria-hidden>/</li>
         <li aria-current="page" className="truncate text-foreground">
           {current}
         </li>
@@ -274,6 +271,7 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
                   <Input
                     {...a11y}
                     {...form.register("inboundUri")}
+                    className="font-mono"
                     placeholder="claro.acme.sip.fonoster.io"
                     autoComplete="off"
                     spellCheck={false}
@@ -348,7 +346,9 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
                 <ul className="flex flex-col gap-2 text-[13px]">
                   {onTrunk.map((n) => (
                     <li key={n.ref} className="flex justify-between gap-3">
-                      <span>{formatNumber(n.telUrl)}</span>
+                      <span className="font-mono">
+                        {formatNumber(n.telUrl)}
+                      </span>
                       <span className="truncate text-muted-foreground">
                         {n.name}
                       </span>

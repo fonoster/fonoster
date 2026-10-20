@@ -262,6 +262,7 @@ describe("Settings · Members", () => {
       screen.queryByRole("menuitem", { name: "Resend invite" })
     ).not.toBeInTheDocument();
     await user.click(screen.getByRole("menuitem", { name: "Remove" }));
+    await user.type(screen.getByLabelText(/to confirm/), "DELETE");
     await user.click(screen.getByRole("button", { name: "Remove" }));
     expect(workspaces.removeUserFromWorkspace).toHaveBeenCalledWith("u2");
   });

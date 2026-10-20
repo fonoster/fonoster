@@ -121,6 +121,14 @@ export type CatalogWarning = {
   lastUsedAt?: string;
 };
 
+/** A phone number as the app pages show it (routing lives on the number). */
+export type AppNumber = {
+  ref: string;
+  telUrl: string;
+  appRef?: string;
+  trunkName?: string;
+};
+
 export type CallStatus = string;
 
 export type CallRecordSummary = {
@@ -208,6 +216,8 @@ export type SessionApi = {
   getCatalog(): Promise<Catalog>;
   /** Deprecated or retired catalog items this workspace uses, and where. */
   listCatalogWarnings(): Promise<CatalogWarning[]>;
+  /** The workspace's numbers; an app is reachable at the ones whose appRef points to it. */
+  listNumbers(): Promise<AppNumber[]>;
   listCalls(): Promise<CallRecordSummary[]>;
   getCall(callRef: string): Promise<CallRecord | undefined>;
   /** The recording as a downloadable object URL (the API needs the access token). */

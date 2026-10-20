@@ -52,7 +52,7 @@ Vapi, Retell, Bland, LiveKit and Pipecat.
 | Hosted AI product | **Agents** (powered by **Autopilot**) | Dashboard section "Agents". Autopilot is the engine, never a thing you create |
 | One AI item | **agent** | "New agent". API type `AUTOPILOT`; CLI `--agent`. Never "assistant" |
 | Your own WebSocket server | **Apps** / an **app** | Dashboard section "Apps" (streams icon), mirrors the Agents layout. API type `STREAM`. "Stream" names only the session connection |
-| Wire protocol of an app | **protocol**: `fonoster` / `twilio` | Was `flavor: native/twilio`. UI: "Fonoster" / "Twilio-compatible" |
+| Wire protocol of an app | **protocol**: `fonoster` / `twilio` | Was `flavor: native/twilio`. UI: "Fonoster" / "Twilio" |
 | Umbrella resource | **Application** | API/SDK/CLI only (`applications:*`); never shown in the dashboard |
 | SIP endpoint (softphone) | **SIP agent** | API/SDK/CLI keep `Agents` (`sipnet:agents:*`); always written "SIP agent" in UI and docs |
 | A person on a transfer | **operator** | Never "agent" |

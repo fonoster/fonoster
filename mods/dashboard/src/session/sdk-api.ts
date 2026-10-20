@@ -25,6 +25,7 @@ import type {
 import { mergeUpdate } from "~/lib/app-request";
 import type { FonosterSdk } from "~/lib/client";
 import type {
+  AppNumber,
   AudioCodec,
   CallRecord,
   CallRecordSummary,
@@ -149,22 +150,6 @@ export function toUpdateRequest(
   return mergeUpdate(current, edits);
 }
 
-/** Readable provider names; the catalog has only ids, so others show their id. */
-export const PROVIDER_NAMES: Record<string, string> = {
-  aicoustics: "ai-coustics",
-  anthropic: "Anthropic",
-  assemblyai: "AssemblyAI",
-  azure: "Azure",
-  cartesia: "Cartesia",
-  deepgram: "Deepgram",
-  elevenlabs: "ElevenLabs",
-  google: "Google",
-  groq: "Groq",
-  ollama: "Ollama",
-  openai: "OpenAI",
-  playht: "PlayHT"
-};
-
 const entry = (item: CatalogItem): CatalogEntry => ({
   id: item.id,
   label: item.label || item.id,
@@ -194,7 +179,8 @@ export function toCatalog(items: CatalogItem[]): Catalog {
       .map(entry),
     providers: items
       .filter((i) => i.kind === "provider")
-      .map((i) => ({ ...entry(i), label: PROVIDER_NAMES[i.id] ?? i.id })),
+      // Every catalog entry carries its own label ("Deepgram", "Fakes").
+      .map((i) => ({ ...entry(i), label: i.label || i.id })),
     languages: [...languages]
       .sort()
       .map((id) => ({ id, label: id, state: "active" as const }))
@@ -374,6 +360,24 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
           kind: u.kind as "app" | "agent"
         }))
       })),
+    listNumbers: async () => {
+      const items: AppNumber[] = [];
+      let pageToken: string | undefined;
+      for (let page = 0; page < MAX_PAGES; page++) {
+        const res = await sdk.numbers.listNumbers({ pageSize: 100, pageToken });
+        items.push(
+          ...(res.items ?? []).map((n) => ({
+            ref: n.ref,
+            telUrl: n.telUrl,
+            appRef: n.appRef,
+            trunkName: n.trunk?.name
+          }))
+        );
+        pageToken = res.nextPageToken || undefined;
+        if (!pageToken) break;
+      }
+      return items;
+    },
     listCalls: async () => {
       const { items } = await sdk.callRecords.listRecords({ pageSize: 100 });
       return (items as unknown as Summary[]).map(toSummary);

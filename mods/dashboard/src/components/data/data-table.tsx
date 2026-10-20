@@ -21,6 +21,7 @@ import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { errorMessage } from "~/lib/errors";
+import { formatNumber } from "~/lib/format";
 import { cn } from "~/lib/utils";
 
 export type Column<T> = {
@@ -157,12 +158,39 @@ export function DataTable<T>({
 }
 
 /** A name over a smaller muted line (usually the ref), the first cell of most tables. */
-export function NameCell({ name, sub }: { name: ReactNode; sub?: ReactNode }) {
+/**
+ * A row's name and, below it, its ref. Names are UI text; refs, ids and URIs are mono.
+ * `mono` sets the name in mono too (phone numbers, URLs); `plainSub` keeps the sub in
+ * UI text (an email).
+ */
+export function NameCell({
+  name,
+  sub,
+  mono,
+  plainSub
+}: {
+  name: ReactNode;
+  sub?: ReactNode;
+  mono?: boolean;
+  plainSub?: boolean;
+}) {
   return (
     <div className="flex min-w-0 flex-col gap-0.5">
-      <span className="truncate font-medium text-foreground">{name}</span>
+      <span
+        className={cn(
+          "truncate font-medium text-foreground",
+          mono && "font-mono font-normal"
+        )}
+      >
+        {name}
+      </span>
       {sub && (
-        <span className="truncate text-[11px] text-muted-foreground">
+        <span
+          className={cn(
+            "truncate text-[11px] text-muted-foreground",
+            !plainSub && "font-mono"
+          )}
+        >
           {sub}
         </span>
       )}
@@ -170,6 +198,34 @@ export function NameCell({ name, sub }: { name: ReactNode; sub?: ReactNode }) {
   );
 }
 
-export function MutedCell({ children }: { children: ReactNode }) {
-  return <span className="text-muted-foreground">{children}</span>;
+/** Secondary cell text; `mono` for refs, URIs, hosts and other machine values. */
+export function MutedCell({
+  children,
+  mono
+}: {
+  children: ReactNode;
+  mono?: boolean;
+}) {
+  return (
+    <span
+      className={cn("text-muted-foreground", mono && "font-mono text-[12px]")}
+    >
+      {children}
+    </span>
+  );
+}
+
+/** The first number routed to a row, plus a "+N" pill for the rest; "No numbers" when none. */
+export function NumbersCell({ telUrls }: { telUrls: string[] }) {
+  if (!telUrls.length) return <MutedCell>No numbers</MutedCell>;
+  return (
+    <span className="flex items-center gap-1.5 whitespace-nowrap">
+      <span className="font-mono text-[12px]">{formatNumber(telUrls[0])}</span>
+      {telUrls.length > 1 && (
+        <span className="rounded-full bg-muted px-1.5 py-px font-mono text-[11px] text-muted-foreground">
+          +{telUrls.length - 1}
+        </span>
+      )}
+    </span>
+  );
 }

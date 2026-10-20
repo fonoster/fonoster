@@ -17,8 +17,9 @@
  * limitations under the License.
  */
 import type { INumber } from "@fonoster/types";
-import { Phone, Plus } from "lucide-react";
+import { Ban, Phone, Plus } from "lucide-react";
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import {
@@ -42,7 +43,9 @@ export default function NumbersScreen() {
   const apps = useApplicationOptions();
   const sipAgents = useSipAgentOptions();
   const [editing, setEditing] = useState<INumber | undefined>();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  // ?new=1 (the Overview checklist) opens the create drawer.
+  const [search] = useSearchParams();
+  const [drawerOpen, setDrawerOpen] = useState(search.get("new") === "1");
   const [deleting, setDeleting] = useState<INumber | undefined>();
 
   const openDrawer = (number?: INumber) => {
@@ -60,20 +63,30 @@ export default function NumbersScreen() {
     {
       header: "Number",
       cell: (n) => (
-        <NameCell name={formatNumber(n.telUrl)} sub={n.name || undefined} />
+        <NameCell
+          mono
+          name={formatNumber(n.telUrl)}
+          sub={n.name || undefined}
+        />
       )
     },
     {
       header: "Routes to",
       cell: (n) => {
         const route = routeLabel(n, apps.data ?? [], sipAgents.data ?? []);
-        if (!route) return <MutedCell>Not routed</MutedCell>;
+        if (!route)
+          return (
+            <span className="flex items-center gap-2 text-muted-foreground">
+              <Ban className="size-3.5" aria-hidden /> Not routed
+            </span>
+          );
         const Icon = ROUTE_ICONS[route.kind];
         return (
           <span className="flex min-w-0 items-center gap-2">
-            <span className="flex size-6 shrink-0 items-center justify-center rounded-[6px] bg-muted">
-              <Icon className="size-3.5 text-muted-foreground" aria-hidden />
-            </span>
+            <Icon
+              className="size-4 shrink-0 text-muted-foreground"
+              aria-hidden
+            />
             <span className="truncate">{route.label}</span>
           </span>
         );

@@ -59,3 +59,45 @@ export function useRangeCalls(range: Range) {
     }
   });
 }
+
+export type Setup = {
+  /** Any agent or app. */
+  hasApp: boolean;
+  /** The first Autopilot agent, which "Talk to agent" opens. */
+  agentRef?: string;
+  hasTrunk: boolean;
+  /** A number that sends its calls somewhere (an app or a SIP agent). */
+  hasRoutedNumber: boolean;
+};
+
+/**
+ * What a new workspace has set up, for the Overview's first-call checklist. A
+ * list that fails to load counts as not set up, so the step stays offered.
+ */
+export function useSetup() {
+  const sdk = useSdk();
+  const workspace = useWorkspace();
+  return useQuery<Setup>({
+    queryKey: ["overview", workspace.ref, "setup"],
+    queryFn: async () => {
+      const load = async <T>(list: () => Promise<{ items: T[] }>) => {
+        try {
+          return (await list()).items;
+        } catch {
+          return [] as T[];
+        }
+      };
+      const [apps, trunks, numbers] = await Promise.all([
+        load(() => sdk.applications.listApplications({ pageSize: PAGE_SIZE })),
+        load(() => sdk.trunks.listTrunks({ pageSize: 1 })),
+        load(() => sdk.numbers.listNumbers({ pageSize: PAGE_SIZE }))
+      ]);
+      return {
+        hasApp: apps.length > 0,
+        agentRef: apps.find((a) => a.type === "AUTOPILOT")?.ref,
+        hasTrunk: trunks.length > 0,
+        hasRoutedNumber: numbers.some((n) => Boolean(n.appRef || n.agentAor))
+      };
+    }
+  });
+}

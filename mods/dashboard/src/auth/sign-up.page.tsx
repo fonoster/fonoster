@@ -25,6 +25,7 @@ import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
+import { PasswordInput } from "~/components/ui/password-input";
 import { useAuth } from "~/lib/auth";
 import { useAuthMethods } from "~/lib/capabilities";
 import { GrpcCode, errorMessage, grpcCode } from "~/lib/errors";
@@ -78,7 +79,7 @@ function SignUpForm() {
           <span>Already have an account?</span>
           <Link
             to="/sign-in"
-            className="font-medium text-brand-text hover:underline"
+            className="font-medium text-foreground hover:underline"
           >
             Sign in
           </Link>
@@ -114,10 +115,9 @@ function SignUpForm() {
           hint="At least 8 characters."
         >
           {(a11y) => (
-            <Input
+            <PasswordInput
               {...a11y}
               {...form.register("password")}
-              type="password"
               autoComplete="new-password"
               className={authInput}
             />

@@ -30,7 +30,8 @@ const badgeVariants = cva(
           "bg-success text-(--fn-fonoster-06) dark:text-success-foreground",
         warning: "bg-warning text-warning-foreground",
         error: "bg-error text-error-foreground",
-        info: "bg-info text-info-foreground"
+        // The light theme's info blue is a shade short of AA at 12px; darken it there.
+        info: "bg-info text-blue-700 dark:text-info-foreground"
       }
     },
     defaultVariants: { variant: "neutral" }

@@ -87,7 +87,7 @@ export const SigningSecretOnce: Story = {
     );
     await userEvent.click(
       within(
-        await body.findByRole("dialog", { name: "New webhook" })
+        await body.findByRole("dialog", { name: "Create webhook" })
       ).getByRole("button", { name: "Create webhook" })
     );
   }

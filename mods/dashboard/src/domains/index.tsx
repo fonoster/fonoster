@@ -65,7 +65,7 @@ export default function DomainsScreen() {
     { header: "Domain", cell: (d) => <NameCell name={d.name} sub={d.ref} /> },
     {
       header: "URI",
-      cell: (d) => <MutedCell>{d.domainUri}</MutedCell>
+      cell: (d) => <MutedCell mono>{d.domainUri}</MutedCell>
     },
     {
       header: "Access control",
@@ -81,8 +81,9 @@ export default function DomainsScreen() {
           <ul className="flex flex-col gap-0.5 text-muted-foreground">
             {d.egressPolicies.map((policy, index) => (
               <li key={index} className="truncate">
-                <span className="font-mono">{policy.rule}</span> →{" "}
-                {numberLabel(policy.numberRef)}
+                <span className="font-mono">
+                  {policy.rule} → {numberLabel(policy.numberRef)}
+                </span>
               </li>
             ))}
           </ul>

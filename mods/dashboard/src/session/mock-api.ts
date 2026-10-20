@@ -88,13 +88,13 @@ export const catalog: Catalog = {
   sttModels: [
     {
       id: "deepgram/nova-3",
-      label: "deepgram/nova-3",
+      label: "Nova 3",
       state: "active",
       languages: ["en", "es", "multi"]
     },
     {
       id: "deepgram/nova-2-phonecall",
-      label: "deepgram/nova-2-phonecall",
+      label: "Nova 2 Phonecall",
       state: "active",
       languages: ["en"]
     }
@@ -360,6 +360,21 @@ export function createMockSessionApi(): SessionApi {
     },
     getCatalog: async () => catalog,
     listCatalogWarnings: async () => catalogWarnings,
+    listNumbers: async () => [
+      {
+        ref: "nb-1",
+        telUrl: "tel:+18095550123",
+        appRef: "support-line",
+        trunkName: "Telnyx US"
+      },
+      {
+        ref: "nb-2",
+        telUrl: "tel:+34910555211",
+        appRef: "support-line",
+        trunkName: "Telnyx EU"
+      },
+      { ref: "nb-3", telUrl: "tel:+18095550140", trunkName: "Telnyx US" }
+    ],
     listCalls: async () => calls.map(summary),
     getCall: async (ref) => calls.find((c) => c.callRef === ref),
     recordingUrl: async (ref) => `blob:recording-${ref}`,

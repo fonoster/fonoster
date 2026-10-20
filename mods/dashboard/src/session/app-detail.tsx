@@ -16,28 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ArrowLeft } from "lucide-react";
-import { Code } from "~/components/icons/material";
+import { ArrowLeft, Phone } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Link,
   Navigate,
-  Route,
-  Routes,
   useLocation,
   useNavigate,
   useParams
 } from "react-router-dom";
 import { Panel } from "~/agents/parts";
-import { RefChip, TabLink } from "~/agents/agent-detail";
+import { RefChip } from "~/agents/agent-detail";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import { Alert } from "~/components/ui/alert";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
+import { formatNumber } from "~/lib/format";
+import { cn } from "~/lib/utils";
 import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
 import { MissingKeysWarning } from "./missing-keys";
 import {
+  AppTile,
   CallHandlingFields,
   ConnectionFields,
   EMPTY_CATALOG,
@@ -50,29 +49,32 @@ import {
   type Draft,
   type SetDraft
 } from "./apps";
-import type { Catalog, SessionApp } from "./types";
+import type {
+  AppNumber,
+  Catalog,
+  CallRecordSummary,
+  SessionApp
+} from "./types";
 
-export const APP_TABS = [
-  { path: "configure", label: "Configure" },
-  { path: "call-handling", label: "Call handling" },
-  { path: "advanced", label: "Advanced" }
-] as const;
+/** How many calls the Recent calls card shows. */
+const RECENT_CALLS = 3;
 
-/** Which tab shows each validated field. */
-const TAB_OF: Record<string, string> = {
-  name: "configure",
-  url: "configure",
-  listeners: "call-handling"
+/** 125000 → "2:05". */
+const clock = (ms: number) => {
+  const s = Math.round(ms / 1000);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 };
 
-/** /w/:ws/apps/:ref/<tab>: one app, laid out like an Autopilot agent's page. */
+/** /w/:ws/apps/:ref: one app on one page, settings on the left and its numbers and calls on the right. */
 export function AppDetail() {
   const { workspaceRef, ref = "" } = useParams();
   const base = `/w/${workspaceRef}/apps`;
   const loaded = useSessionQuery(["apps", ref, "detail"], async (api) => ({
     app: await api.getApp(ref),
     catalog: await api.getCatalog().catch(() => EMPTY_CATALOG),
-    apps: await api.listApps()
+    apps: await api.listApps(),
+    numbers: await api.listNumbers().catch(() => [] as AppNumber[]),
+    calls: await api.listCalls().catch(() => [] as CallRecordSummary[])
   }));
 
   if (loaded.loading && !loaded.data) {
@@ -113,25 +115,33 @@ export function AppDetail() {
       app={app}
       catalog={loaded.data!.catalog}
       otherApps={loaded.data!.apps.filter((a) => a.ref !== app.ref)}
+      numbers={loaded.data!.numbers.filter((n) => n.appRef === app.ref)}
+      calls={loaded
+        .data!.calls.filter((c) => c.appRef === app.ref)
+        .sort((a, b) => b.startedAt.localeCompare(a.startedAt))
+        .slice(0, RECENT_CALLS)}
     />
   );
 }
 
-/** The whole app is one form, so edits across tabs save together. */
+/** The whole app is one form: every card saves together. */
 function AppEditor({
   app: saved,
   catalog,
-  otherApps
+  otherApps,
+  numbers,
+  calls
 }: {
   app: SessionApp;
   catalog: Catalog;
   otherApps: SessionApp[];
+  numbers: AppNumber[];
+  calls: CallRecordSummary[];
 }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { workspaceRef } = useParams();
   const base = `/w/${workspaceRef}/apps`;
-  const detailBase = `${base}/${saved.ref}`;
   const [app, setApp] = useState<Draft>(saved);
   const [dirty, setDirty] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -168,7 +178,7 @@ function AppEditor({
     saveApp.mutate(rest, { onSuccess: () => setDirty(false) });
   };
 
-  const errorTabs = [...new Set(Object.keys(errors).map((k) => TAB_OF[k]))];
+  const invalid = Object.keys(errors).length > 0;
 
   return (
     <div className="flex flex-col gap-5 px-4 pb-10 pt-6 sm:px-8">
@@ -188,19 +198,29 @@ function AppEditor({
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3.5">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-[10px] bg-secondary">
-            <Code className="size-6 text-foreground" aria-hidden />
-          </span>
+          <AppTile size="lg" />
           <div className="flex min-w-0 flex-col gap-1">
             <h1 className="truncate text-[22px] font-semibold leading-tight">
               {app.name.trim() || saved.name}
             </h1>
             <div className="flex flex-wrap items-center gap-2.5 font-display text-xs">
-              <Badge
-                variant={saved.protocol === "fonoster" ? "success" : "neutral"}
-              >
-                {PROTOCOL_LABELS[saved.protocol]}
-              </Badge>
+              <span className="flex items-center gap-1.5">
+                <span
+                  aria-hidden
+                  className={cn(
+                    "size-1.5 rounded-full",
+                    numbers.length > 0
+                      ? "bg-(--fn-success)"
+                      : "bg-muted-foreground"
+                  )}
+                />
+                <span className="text-muted-foreground">
+                  {numbers.length > 0
+                    ? `Reachable at ${numbers.length} ${numbers.length === 1 ? "number" : "numbers"}`
+                    : "No numbers yet"}{" "}
+                  · {PROTOCOL_LABELS[saved.protocol]}
+                </span>
+              </span>
               <RefChip value={saved.ref} label="Copy app ref" />
             </div>
           </div>
@@ -228,114 +248,171 @@ function AppEditor({
       {saveApp.error && (
         <Alert variant="error">{errorMessage(saveApp.error)}</Alert>
       )}
-      {errorTabs.length > 0 && (
-        <Alert variant="error">
-          Fix the highlighted fields in{" "}
-          {errorTabs
-            .map((tab) => APP_TABS.find((t) => t.path === tab)?.label)
-            .join(" and ")}{" "}
-          before saving.
-        </Alert>
+      {invalid && (
+        <Alert variant="error">Fix the highlighted fields before saving.</Alert>
       )}
       <MissingKeysWarning apps={[saved]} />
 
-      <nav
-        aria-label="App sections"
-        className="flex gap-6 overflow-x-auto border-b border-border"
-      >
-        {APP_TABS.map((tab) => (
-          <TabLink
-            key={tab.path}
-            to={`${detailBase}/${tab.path}`}
-            label={tab.label}
-            invalid={errorTabs.includes(tab.path)}
-          />
-        ))}
-      </nav>
-
-      <Routes>
-        <Route
-          index
-          element={<Navigate to={`${detailBase}/configure`} replace />}
-        />
-        <Route
-          path="configure"
-          element={
-            <div className="grid items-start gap-5 lg:grid-cols-2">
-              <Panel title="Connection">
-                <div className="flex flex-col gap-[22px]">
-                  <ConnectionFields app={app} set={set} errors={errors} />
-                </div>
-              </Panel>
-              <Panel
-                title="Speech defaults"
-                description="Used when your server doesn't pick a voice or model for the call."
-              >
-                <div className="flex flex-col gap-[22px]">
-                  <SpeechFields app={app} set={set} catalog={catalog} />
-                </div>
-              </Panel>
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="flex min-w-0 flex-col gap-5">
+          <Panel title="Connection">
+            <div className="flex flex-col gap-[22px]">
+              <ConnectionFields app={app} set={set} errors={errors} columns />
             </div>
-          }
-        />
-        <Route
-          path="call-handling"
-          element={
-            <Panel title="Call handling">
-              <div className="flex flex-col gap-[22px]">
-                <CallHandlingFields
-                  app={app}
-                  set={set}
-                  errors={errors}
-                  otherApps={otherApps}
-                />
-              </div>
+          </Panel>
+          {/* Twilio apps run their own speech; only Fonoster-protocol apps use these. */}
+          {app.protocol === "fonoster" && (
+            <Panel
+              title="Speech"
+              description="Optional. Used when your server doesn't pick a voice or model for the call."
+            >
+              <SpeechFields app={app} set={set} catalog={catalog} />
             </Panel>
-          }
-        />
-        <Route
-          path="advanced"
-          element={
-            <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_420px]">
-              <Panel
-                title="Signing secret"
-                description="Fonoster signs every connection with this secret. Check the signature before accepting a call."
-              >
-                <div className="flex flex-col gap-3">
-                  <SecretControls
-                    appRef={saved.ref}
-                    hint={app.signingSecretHint}
-                    onRotated={(hint) =>
-                      setApp((a) => ({ ...a, signingSecretHint: hint }))
-                    }
-                  />
-                </div>
-              </Panel>
-              <section
-                aria-label="Danger zone"
-                className="flex flex-col gap-3 rounded-xl border border-destructive p-5"
-              >
-                <h2 className="font-display text-sm font-medium">Delete app</h2>
-                <p className="font-display text-xs text-muted-foreground">
-                  Numbers that point to this app stop answering until you point
-                  them elsewhere.
-                </p>
-                <Button
-                  variant="destructive"
-                  className="self-start"
-                  onClick={() => setDeleting(true)}
-                >
-                  Delete app
-                </Button>
-              </section>
+          )}
+          <Panel
+            title="Call handling"
+            description="Runs on Fonoster before your app hears the call."
+          >
+            <div className="flex flex-col gap-[22px]">
+              <CallHandlingFields
+                app={app}
+                set={set}
+                errors={errors}
+                otherApps={otherApps}
+                columns
+              />
             </div>
-          }
-        />
-        <Route
-          path="*"
-          element={<Navigate to={`${detailBase}/configure`} replace />}
-        />
-      </Routes>
+          </Panel>
+          <Panel
+            title="Signing secret"
+            description="Fonoster signs every connection with this secret. Check the signature before accepting a call."
+          >
+            <div className="flex flex-col gap-3">
+              <SecretControls
+                appRef={saved.ref}
+                hint={app.signingSecretHint}
+                onRotated={(hint) =>
+                  setApp((a) => ({ ...a, signingSecretHint: hint }))
+                }
+              />
+            </div>
+          </Panel>
+        </div>
+
+        <div className="flex flex-col gap-5">
+          <Panel
+            title="Reachable at"
+            action={
+              <Link
+                to={`/w/${workspaceRef}/numbers`}
+                className="shrink-0 font-display text-xs text-muted-foreground hover:text-foreground"
+              >
+                Manage in Numbers →
+              </Link>
+            }
+          >
+            {numbers.length === 0 ? (
+              <p className="font-display text-xs text-muted-foreground">
+                No numbers point here yet. Route one from Numbers.
+              </p>
+            ) : (
+              <ul className="flex flex-col gap-2.5">
+                {numbers.map((n) => (
+                  <li key={n.ref} className="flex items-center gap-2.5">
+                    <Phone
+                      className="size-3.5 text-muted-foreground"
+                      aria-hidden
+                    />
+                    <span className="font-mono text-[13px]">
+                      {formatNumber(n.telUrl)}
+                    </span>
+                    {n.trunkName && (
+                      <span className="ml-auto truncate font-display text-xs text-muted-foreground">
+                        Trunk · {n.trunkName}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+
+          <Panel
+            title="Recent calls"
+            action={
+              <Link
+                to={`/w/${workspaceRef}/calls`}
+                className="shrink-0 font-display text-xs text-muted-foreground hover:text-foreground"
+              >
+                View all →
+              </Link>
+            }
+          >
+            {calls.length === 0 ? (
+              <p className="font-display text-xs text-muted-foreground">
+                No calls yet.
+              </p>
+            ) : (
+              <ul className="flex flex-col">
+                {calls.map((c) => (
+                  <li
+                    key={c.callRef}
+                    className="border-t border-border first:border-t-0"
+                  >
+                    <Link
+                      to={`/w/${workspaceRef}/calls/${c.callRef}`}
+                      className="flex items-center gap-2.5 py-2.5 hover:text-foreground"
+                    >
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "size-1.5 shrink-0 rounded-full",
+                          c.status === "completed"
+                            ? "bg-(--fn-success)"
+                            : "bg-destructive"
+                        )}
+                      />
+                      <span className="font-mono text-[12px]">
+                        {formatNumber(
+                          c.direction === "outbound" ? c.to : c.from
+                        )}
+                      </span>
+                      <span className="ml-auto font-mono text-[12px] text-muted-foreground">
+                        {clock(c.durationMs)}
+                      </span>
+                      <span className="w-11 text-right font-display text-xs text-muted-foreground">
+                        {new Date(c.startedAt).toLocaleTimeString(undefined, {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          hour12: false
+                        })}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+
+          <section
+            aria-label="Danger zone"
+            className="flex flex-col gap-3 rounded-xl border border-destructive p-5"
+          >
+            <h2 className="font-display text-sm font-medium">Delete app</h2>
+            <p className="font-display text-xs text-muted-foreground">
+              Numbers pointing here stop answering until you route them
+              elsewhere.
+            </p>
+            <Button
+              variant="destructive"
+              className="self-start"
+              onClick={() => setDeleting(true)}
+            >
+              Delete app
+            </Button>
+          </section>
+        </div>
+      </div>
 
       <ConfirmDialog
         open={deleting}

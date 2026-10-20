@@ -175,6 +175,7 @@ describe("Credentials screen", () => {
     expect(
       within(dialog).getByText(/used by SIP agent · María Rodríguez/)
     ).toBeInTheDocument();
+    await user.type(within(dialog).getByLabelText(/to confirm/), "DELETE");
     await user.click(within(dialog).getByRole("button", { name: "Delete" }));
     expect(sdk.credentials.deleteCredentials).toHaveBeenCalledWith("cr-2");
   });

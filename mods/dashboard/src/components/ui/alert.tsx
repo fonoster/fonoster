@@ -22,16 +22,17 @@ import type { ComponentProps } from "react";
 import { cn } from "~/lib/utils";
 
 const alertVariants = cva(
-  "flex items-start gap-3 rounded-control px-4 py-3 text-sm [&_svg]:mt-0.5 [&_svg]:size-4 [&_svg]:shrink-0",
+  "flex items-start gap-3 rounded-control border px-4 py-3 font-display text-[13px] text-foreground [&_svg]:mt-0.5 [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
+      // Outlined, as in the designs: the border and icon carry the color, the text stays readable.
       variant: {
-        info: "bg-info text-info-foreground",
-        success: "bg-success text-success-foreground",
-        warning: "bg-warning text-warning-foreground",
-        error: "bg-error text-error-foreground",
+        info: "border-border bg-muted [&_svg]:text-muted-foreground",
+        success: "border-(--fn-success) [&_svg]:text-(--fn-success)",
+        warning: "border-(--fn-warning) [&_svg]:text-(--fn-warning)",
+        error: "border-destructive [&_svg]:text-destructive",
         /** A muted hint, e.g. the notes under forms in the designs. */
-        note: "bg-muted font-display text-xs text-muted-foreground"
+        note: "border-transparent bg-muted text-xs text-muted-foreground"
       }
     },
     defaultVariants: { variant: "info" }

@@ -21,14 +21,13 @@ import { ArrowLeft, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { authButton, authInput } from "~/auth/auth-layout";
+import { AuthLayout, authButton, authInput } from "~/auth/auth-layout";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { useAuth } from "~/lib/auth";
 import { errorMessage } from "~/lib/errors";
-import { UserBar } from "./user-bar";
 import { rememberWorkspace, workspacePath } from "./workspace-session";
 import { usePrivateRegions } from "~/lib/capabilities";
 import { useRegionsApi } from "~/regions/api";
@@ -80,57 +79,53 @@ export default function CreateWorkspacePage() {
   });
 
   return (
-    <div className="flex min-h-full flex-col bg-background">
-      <UserBar />
-      <main className="flex flex-1 justify-center px-4 pb-20 pt-10">
-        <div className="flex w-full max-w-[420px] flex-col gap-7">
-          <h1 className="text-[26px] font-semibold">
-            {first
-              ? `Welcome${firstName ? `, ${firstName}` : ""}`
-              : "New workspace"}
-          </h1>
-          <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
-            {create.error && (
-              <Alert variant="error">{errorMessage(create.error)}</Alert>
-            )}
-            <Field label="Name" error={form.formState.errors.name?.message}>
-              {(a11y) => (
-                <Input
-                  {...a11y}
-                  {...form.register("name")}
-                  placeholder="Acme Support"
-                  autoFocus
-                  className={authInput}
-                />
-              )}
-            </Field>
-            {privateRegions && (
-              <RegionPicker value={region} onChange={setRegion} />
-            )}
-            <Button
-              type="submit"
-              className={authButton}
-              loading={create.isPending}
-            >
-              Create
-            </Button>
-          </form>
-          {first ? (
-            <p className="flex items-center gap-2 font-display text-[13px] text-muted-foreground">
-              <Mail className="size-[15px]" aria-hidden />
-              Expecting an invite? Open the link in the email; the workspace
-              shows up here.
-            </p>
-          ) : (
-            <Link
-              to="/workspaces"
-              className="inline-flex items-center gap-1.5 font-display text-[13px] text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="size-4" aria-hidden /> Back to workspaces
-            </Link>
+    <AuthLayout
+      title={
+        first ? `Welcome${firstName ? `, ${firstName}` : ""}` : "New workspace"
+      }
+      description={
+        privateRegions ? "Name it and pick where it runs." : "Name it to start."
+      }
+      footer={
+        first ? (
+          <>
+            <Mail className="size-[15px]" aria-hidden />
+            Expecting an invite? Open the link in the email; the workspace shows
+            up here.
+          </>
+        ) : (
+          <Link
+            to="/workspaces"
+            className="inline-flex items-center gap-1.5 hover:text-foreground"
+          >
+            <ArrowLeft className="size-4" aria-hidden /> Back to workspaces
+          </Link>
+        )
+      }
+    >
+      <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
+        {create.error && (
+          <Alert variant="error">{errorMessage(create.error)}</Alert>
+        )}
+        <Field
+          label="Workspace name"
+          error={form.formState.errors.name?.message}
+        >
+          {(a11y) => (
+            <Input
+              {...a11y}
+              {...form.register("name")}
+              placeholder="Acme Support"
+              autoFocus
+              className={authInput}
+            />
           )}
-        </div>
-      </main>
-    </div>
+        </Field>
+        {privateRegions && <RegionPicker value={region} onChange={setRegion} />}
+        <Button type="submit" className={authButton} loading={create.isPending}>
+          Create workspace
+        </Button>
+      </form>
+    </AuthLayout>
   );
 }

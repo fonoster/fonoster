@@ -156,6 +156,7 @@ describe("API keys", () => {
       })
     );
     await user.click(await screen.findByRole("menuitem", { name: "Delete" }));
+    await user.type(screen.getByLabelText(/to confirm/), "DELETE");
     await user.click(screen.getByRole("button", { name: "Delete" }));
     expect(apiKeys.deleteApiKey).toHaveBeenCalledWith("ak-1");
   });

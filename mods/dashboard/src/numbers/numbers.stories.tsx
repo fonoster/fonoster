@@ -66,7 +66,35 @@ export const Add: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByRole("button", { name: "Add number" })
+      await canvas.findByRole("button", { name: "Create number" })
     );
+  }
+};
+
+/** Fills and submits the create drawer: the success toast shows. */
+export const Created: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await canvas.findByRole("button", { name: "Create number" })
+    );
+    const drawer = within(await body.findByRole("dialog"));
+    await userEvent.type(drawer.getByLabelText("Number"), "+1 809 555 0111");
+    await userEvent.type(drawer.getByLabelText("Name"), "Sales");
+    await userEvent.type(drawer.getByLabelText("City"), "Santiago");
+    await userEvent.click(drawer.getByLabelText("Country"));
+    await userEvent.click(
+      await body.findByRole("option", { name: "Dominican Republic" })
+    );
+    await userEvent.click(drawer.getByLabelText("Trunk"));
+    await userEvent.click(await body.findByRole("option", { name: "Claro" }));
+    await userEvent.click(
+      drawer.getByRole("radio", { name: /Appointment booking/ })
+    );
+    await userEvent.click(
+      drawer.getByRole("button", { name: "Create number" })
+    );
+    await expect(await body.findByText("Number created")).toBeInTheDocument();
   }
 };

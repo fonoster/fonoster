@@ -18,17 +18,33 @@
  */
 import type { CallDetailRecord, INumber } from "@fonoster/types";
 import { ChevronRight } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DataTable, type Column } from "~/components/data/data-table";
+import { Select } from "~/components/ui/select";
 import { Skeleton } from "~/components/ui/skeleton";
+import { formatNumber } from "~/lib/format";
 import { useWorkspace } from "~/lib/workspace";
 import { useCallsForNumbers } from "./calls.service";
-import { callParties, formatDuration, formatStarted } from "./format";
+import {
+  DIRECTION_LABEL,
+  RANGES,
+  STATUS_FILTERS,
+  answeredBy,
+  callDirection,
+  callParties,
+  formatDuration,
+  formatStarted
+} from "./format";
 import { DirectionIcon, StatusDot } from "./parts";
 
+const ALL = "all";
+const filterClass = "h-8 w-auto gap-2 rounded-control px-3 text-[13px]";
+
 /**
- * The latest calls on an app's numbers, linking to each call. Used where the
- * designs show "calls this agent handled", which the API can't answer yet.
+ * The calls on an app's numbers, filtered by range, direction, number and status, each
+ * linking to the call. Used where the designs show "calls this agent handled", which the
+ * API can't answer yet: calls to or from the numbers routed to it now.
  */
 export function RecentCalls({
   numbers,
@@ -44,13 +60,28 @@ export function RecentCalls({
 }) {
   const navigate = useNavigate();
   const base = `/w/${useWorkspace().ref}/calls`;
-  const calls = useCallsForNumbers(numbers.map((n) => n.telUrl));
+  const [range, setRange] = useState("7");
+  const [direction, setDirection] = useState(ALL);
+  const [number, setNumber] = useState(ALL);
+  const [status, setStatus] = useState(ALL);
+  const telUrls = numbers
+    .map((n) => n.telUrl)
+    .filter((t) => number === ALL || t === number);
+  const calls = useCallsForNumbers(telUrls, {
+    range,
+    status: status === ALL ? "" : status
+  });
+  const rows = useMemo(
+    () =>
+      (calls.data ?? []).filter(
+        (c) => direction === ALL || callDirection(c.direction) === direction
+      ),
+    [calls.data, direction]
+  );
 
   if (loadingNumbers) return <Skeleton className="h-24 w-full" />;
   if (numbers.length === 0) {
-    return (
-      <p className="font-display text-xs text-muted-foreground">{noNumbers}</p>
-    );
+    return <p className="text-xs text-muted-foreground">{noNumbers}</p>;
   }
 
   const columns: Column<CallDetailRecord>[] = [
@@ -58,7 +89,7 @@ export function RecentCalls({
       header: "Started",
       className: "w-36 whitespace-nowrap",
       cell: (c) => (
-        <span className="font-display text-muted-foreground">
+        <span className="text-muted-foreground">
           {formatStarted(c.startedAt)}
         </span>
       )
@@ -73,6 +104,15 @@ export function RecentCalls({
       )
     },
     {
+      header: "Agent's number",
+      className: "w-44",
+      cell: (c) => (
+        <span className="whitespace-nowrap font-mono text-muted-foreground">
+          {callParties(c).fonosterNumber}
+        </span>
+      )
+    },
+    {
       header: "Duration",
       className: "w-24",
       cell: (c) => (
@@ -81,10 +121,15 @@ export function RecentCalls({
     },
     {
       header: "Status",
+      className: "w-36",
+      cell: (c) => <StatusDot status={c.status} />
+    },
+    {
+      header: "Answered by",
       className: "w-32",
       cell: (c) => (
-        <span className="font-display">
-          <StatusDot status={c.status} />
+        <span className="text-muted-foreground">
+          {answeredBy(c.amdStatus) ?? "—"}
         </span>
       )
     },
@@ -98,29 +143,68 @@ export function RecentCalls({
   ];
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <Select
+          aria-label="Range"
+          className={filterClass}
+          value={range}
+          options={RANGES}
+          onValueChange={setRange}
+        />
+        <Select
+          aria-label="Direction"
+          className={filterClass}
+          value={direction}
+          options={[
+            { value: ALL, label: "All directions" },
+            { value: "inbound", label: DIRECTION_LABEL.inbound },
+            { value: "outbound", label: DIRECTION_LABEL.outbound }
+          ]}
+          onValueChange={setDirection}
+        />
+        <Select
+          aria-label="Number"
+          className={filterClass}
+          value={number}
+          options={[
+            { value: ALL, label: "All numbers" },
+            ...numbers.map((n) => ({
+              value: n.telUrl,
+              label: formatNumber(n.telUrl)
+            }))
+          ]}
+          onValueChange={setNumber}
+        />
+        <Select
+          aria-label="Status"
+          className={filterClass}
+          value={status}
+          options={[{ value: ALL, label: "Any status" }, ...STATUS_FILTERS]}
+          onValueChange={setStatus}
+        />
+        {!calls.isPending && (
+          <span className="ml-auto text-[13px] text-muted-foreground">
+            {rows.length.toLocaleString("en-US")}{" "}
+            {rows.length === 1 ? "call" : "calls"}
+          </span>
+        )}
+      </div>
       <DataTable
         label={label}
         columns={columns}
-        rows={calls.data ?? []}
+        rows={rows}
         rowKey={(c) => c.ref}
         onRowClick={(c) => navigate(`${base}/${c.ref}`)}
         loading={calls.isPending}
         error={calls.error}
         onRetry={() => void calls.refetch()}
         empty={
-          <p className="font-display text-xs text-muted-foreground">
-            No calls on these numbers in the last 30 days.
+          <p className="rounded-xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
+            No calls on these numbers match the filters.
           </p>
         }
       />
-      <p className="font-display text-xs text-muted-foreground">
-        Calls to and from {numbers.length === 1 ? "its number" : "its numbers"}{" "}
-        in the last 30 days.{" "}
-        <Link to={base} className="underline hover:text-foreground">
-          All calls
-        </Link>
-      </p>
     </div>
   );
 }

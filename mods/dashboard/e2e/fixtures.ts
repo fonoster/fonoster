@@ -25,20 +25,40 @@ const inAnHour = () => Math.floor(Date.now() / 1000) + 3600;
 
 /** An unsigned JWT; the dashboard only reads claims, the server verifies. */
 export function jwt(claims: object) {
-  const encode = (value: object) => Buffer.from(JSON.stringify(value)).toString("base64url");
+  const encode = (value: object) =>
+    Buffer.from(JSON.stringify(value)).toString("base64url");
   return `${encode({ alg: "none" })}.${encode({ exp: inAnHour(), ...claims })}.e2e`;
 }
 
-export type TestUser = { ref: string; email: string; name: string; mustChangePassword?: boolean };
+export type TestUser = {
+  ref: string;
+  email: string;
+  name: string;
+  mustChangePassword?: boolean;
+};
 
-export const ada: TestUser = { ref: "u-ada", email: "ada@acme.com", name: "Ada Lovelace" };
+export const ada: TestUser = {
+  ref: "u-ada",
+  email: "ada@acme.com",
+  name: "Ada Lovelace"
+};
 
-export function tokens(user: TestUser, Response = identity.ExchangeCredentialsResponse) {
+export function tokens(
+  user: TestUser,
+  Response = identity.ExchangeCredentialsResponse
+) {
   const response = new Response();
-  response.setAccessToken(jwt({ sub: user.ref, accessKeyId: `US${user.ref}`, access: [] }));
+  response.setAccessToken(
+    jwt({ sub: user.ref, accessKeyId: `US${user.ref}`, access: [] })
+  );
   response.setRefreshToken(`refresh-${user.ref}`);
   response.setIdToken(
-    jwt({ sub: user.ref, email: user.email, accessKeyId: `US${user.ref}`, mustChangePassword: user.mustChangePassword ?? false })
+    jwt({
+      sub: user.ref,
+      email: user.email,
+      accessKeyId: `US${user.ref}`,
+      mustChangePassword: user.mustChangePassword ?? false
+    })
   );
   return response;
 }
@@ -91,7 +111,9 @@ export const test = base.extend<{ variant: Variant; api: GrpcWebMock }>({
     const api = new GrpcWebMock(page)
       .on("Capabilities/GetCapabilities", () => capabilitiesFor(variant))
       .on("Identity/SendVerificationCode", () => emptyReply())
-      .on("Identity/ExchangeRefreshToken", () => tokens(ada, identity.ExchangeRefreshTokenResponse))
+      .on("Identity/ExchangeRefreshToken", () =>
+        tokens(ada, identity.ExchangeRefreshTokenResponse)
+      )
       .on("Identity/GetUser", () => {
         const user = new identity.User();
         user.setRef(ada.ref);

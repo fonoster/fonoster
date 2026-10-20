@@ -27,7 +27,8 @@ import type { Page, Route } from "@playwright/test";
 
 const require = createRequire(import.meta.url);
 const sdkDir = dirname(require.resolve("@fonoster/sdk/package.json"));
-const pb = (name: string) => require(join(sdkDir, "src/generated/web", `${name}_pb.js`));
+const pb = (name: string) =>
+  require(join(sdkDir, "src/generated/web", `${name}_pb.js`));
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const identity: any = pb("identity");
@@ -35,8 +36,22 @@ export const capabilities: any = pb("capabilities");
 export const applications: any = pb("applications");
 export const numbers: any = pb("numbers");
 export const calls: any = pb("calls");
-export const struct: any = require(join(dirname(require.resolve("google-protobuf/package.json", { paths: [sdkDir] })), "google/protobuf/struct_pb.js"));
-const empty: any = require(join(dirname(require.resolve("google-protobuf/package.json", { paths: [sdkDir] })), "google/protobuf/empty_pb.js"));
+export const struct: any = require(
+  join(
+    dirname(
+      require.resolve("google-protobuf/package.json", { paths: [sdkDir] })
+    ),
+    "google/protobuf/struct_pb.js"
+  )
+);
+const empty: any = require(
+  join(
+    dirname(
+      require.resolve("google-protobuf/package.json", { paths: [sdkDir] })
+    ),
+    "google/protobuf/empty_pb.js"
+  )
+);
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const API_URL = "http://localhost:8449";
@@ -78,7 +93,9 @@ export class GrpcWebMock {
 
   async install() {
     await this.page.route(`${API_URL}/**`, (route) => this.handle(route));
-    await this.page.route(/\/api\/session(\/[a-z]+)?$/, (route) => this.handleSession(route));
+    await this.page.route(/\/api\/session(\/[a-z]+)?$/, (route) =>
+      this.handleSession(route)
+    );
   }
 
   /**
@@ -88,22 +105,36 @@ export class GrpcWebMock {
   private async handleSession(route: Route) {
     const request = route.request();
     const path = new URL(request.url()).pathname;
-    this.calls.push({ method: `session${path.replace("/api/session", "") || "/adopt"}`, request: new Uint8Array() });
-    if (!request.headers()["x-requested-with"]) return route.fulfill({ status: 403 });
+    this.calls.push({
+      method: `session${path.replace("/api/session", "") || "/adopt"}`,
+      request: new Uint8Array()
+    });
+    if (!request.headers()["x-requested-with"])
+      return route.fulfill({ status: 403 });
     if (path === "/api/session/logout") {
       this.sessionActive = false;
       return route.fulfill({ status: 204 });
     }
-    if (path === "/api/session") this.sessionActive = Boolean(request.postDataJSON()?.refreshToken);
+    if (path === "/api/session")
+      this.sessionActive = Boolean(request.postDataJSON()?.refreshToken);
     const handler = this.handlers.get("Identity/ExchangeRefreshToken");
-    if (!this.sessionActive || !handler) return route.fulfill({ status: 401, json: { error: "no_session" } });
+    if (!this.sessionActive || !handler)
+      return route.fulfill({ status: 401, json: { error: "no_session" } });
     const reply = await handler(new Uint8Array());
     if ("error" in reply) {
       this.sessionActive = false;
       return route.fulfill({ status: 401, json: { error: "invalid_session" } });
     }
-    const tokens = reply as unknown as { getAccessToken(): string; getIdToken(): string };
-    return route.fulfill({ json: { accessToken: tokens.getAccessToken(), idToken: tokens.getIdToken() } });
+    const tokens = reply as unknown as {
+      getAccessToken(): string;
+      getIdToken(): string;
+    };
+    return route.fulfill({
+      json: {
+        accessToken: tokens.getAccessToken(),
+        idToken: tokens.getIdToken()
+      }
+    });
   }
 
   /** `method` is the short name, e.g. "Identity/ExchangeCredentials". */
@@ -118,10 +149,14 @@ export class GrpcWebMock {
 
   private async handle(route: Route) {
     const request = route.request();
-    if (request.method() === "OPTIONS") return route.fulfill({ status: 204, headers: CORS });
+    if (request.method() === "OPTIONS")
+      return route.fulfill({ status: 204, headers: CORS });
 
     const path = new URL(request.url()).pathname;
-    const method = path.split(".").pop()!.replace(/^v1beta2\./, "");
+    const method = path
+      .split(".")
+      .pop()!
+      .replace(/^v1beta2\./, "");
     const short = path.replace(/^\/fonoster\.[a-z]+\.v1beta2\./, "");
     const body = decodeRequest(request.postData());
     this.calls.push({ method: short, request: body });
@@ -131,17 +166,33 @@ export class GrpcWebMock {
       ? await handler(body)
       : { error: { code: 12, message: `no mock for ${short} (${method})` } };
 
-    const headers = { ...CORS, "content-type": "application/grpc-web-text+proto" };
+    const headers = {
+      ...CORS,
+      "content-type": "application/grpc-web-text+proto"
+    };
     if ("error" in reply) {
       return route.fulfill({
         status: 200,
-        headers: { ...headers, "grpc-status": String(reply.error.code), "grpc-message": encodeURIComponent(reply.error.message) },
+        headers: {
+          ...headers,
+          "grpc-status": String(reply.error.code),
+          "grpc-message": encodeURIComponent(reply.error.message)
+        },
         body: ""
       });
     }
-    const trailer = new TextEncoder().encode("grpc-status:0\r\ngrpc-message:\r\n");
-    const data = Buffer.concat([frame(0x00, reply.serializeBinary()), frame(0x80, trailer)]);
-    return route.fulfill({ status: 200, headers, body: data.toString("base64") });
+    const trailer = new TextEncoder().encode(
+      "grpc-status:0\r\ngrpc-message:\r\n"
+    );
+    const data = Buffer.concat([
+      frame(0x00, reply.serializeBinary()),
+      frame(0x80, trailer)
+    ]);
+    return route.fulfill({
+      status: 200,
+      headers,
+      body: data.toString("base64")
+    });
   }
 }
 
@@ -165,7 +216,11 @@ export function callRecord(fields: {
   const record = new calls.CallDetailRecord();
   record.setRef(fields.ref);
   record.setCallId(`call-${fields.ref}`);
-  record.setType(fields.direction === "TO_PSTN" ? calls.CallType.API_ORIGINATED : calls.CallType.SIP_ORIGINATED);
+  record.setType(
+    fields.direction === "TO_PSTN"
+      ? calls.CallType.API_ORIGINATED
+      : calls.CallType.SIP_ORIGINATED
+  );
   record.setStatus(calls.CallStatus[fields.status]);
   record.setStartedAt(fields.startedAt);
   record.setEndedAt(fields.startedAt + fields.duration);

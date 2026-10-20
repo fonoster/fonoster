@@ -127,7 +127,7 @@ export const ConfigureFakesOnly: Story = {
   parameters: {
     screen: {
       auth: withAgents([...sampleAgents, voiceApp], fakeCatalogItems),
-      route: route(`/w/ws-1/autopilot/${billingAgent.ref}/configure`)
+      route: route(`/w/ws-1/agents/${billingAgent.ref}/configure`)
     }
   },
   play: async ({ canvasElement }) => {
@@ -151,6 +151,17 @@ export const TalkToAgent: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(
       await canvas.findByRole("button", { name: "Talk to agent" })
+    );
+  }
+};
+
+/** The agent name in edit mode, after clicking the rename pencil. */
+export const Rename: Story = {
+  ...detail("configure"),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole("button", { name: "Rename agent" })
     );
   }
 };

@@ -84,6 +84,12 @@ export const Select: Story = {
 
 export const SelectLight: Story = { ...Select, globals: { theme: "light" } };
 
+/** In no workspace yet: the landing offers the first one. */
+export const Empty: Story = {
+  render: () => <WorkspacesPage />,
+  parameters: { screen: { route: { path: "/" }, auth: signedIn([]) } }
+};
+
 export const CreateFirst: Story = {
   render: () => <CreateWorkspacePage />,
   parameters: { screen: { route: { path: "/" }, auth: signedIn([]) } }

@@ -59,3 +59,27 @@ export const Cloud: Story = { globals: { variant: "cloud" } };
 export const NoCalls: Story = {
   parameters: { screen: { auth: withCalls([]) } }
 };
+
+/** A new workspace with an agent but no trunk yet: the checklist's second step is next. */
+export const NewWorkspace: Story = {
+  parameters: {
+    screen: {
+      auth: (auth: AuthContextValue) => {
+        const base = withCalls([])(auth);
+        return {
+          ...base,
+          sdk: {
+            ...(base.sdk as object),
+            applications: {
+              listApplications: async () => ({
+                items: [{ ref: "ap-7f3c91", type: "AUTOPILOT" }]
+              })
+            },
+            trunks: { listTrunks: async () => ({ items: [] }) },
+            numbers: { listNumbers: async () => ({ items: [] }) }
+          } as never
+        };
+      }
+    }
+  }
+};

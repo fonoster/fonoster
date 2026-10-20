@@ -32,11 +32,12 @@ import {
   Navigate,
   Route,
   Routes,
-  useMatch,
   useNavigate,
-  useParams
+  useParams,
+  useSearchParams
 } from "react-router-dom";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
+import { TabLink } from "~/components/data/tab-link";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
@@ -143,7 +144,9 @@ function AgentEditor({
   const update = useUpdateAgent();
   const remove = useDeleteAgent();
   const [invalidTabs, setInvalidTabs] = useState<string[]>([]);
-  const [talking, setTalking] = useState(false);
+  // ?talk=1 (the Overview checklist) opens Talk to agent.
+  const [search] = useSearchParams();
+  const [talking, setTalking] = useState(search.get("talk") === "1");
   const [deleting, setDeleting] = useState(false);
 
   const form = useForm<AgentValues>({
@@ -336,45 +339,6 @@ function AgentEditor({
   );
 }
 
-export function TabLink({
-  to,
-  label,
-  count,
-  invalid
-}: {
-  to: string;
-  label: string;
-  count?: number;
-  invalid?: boolean;
-}) {
-  const active = Boolean(useMatch({ path: to, end: true }));
-  return (
-    <Link
-      to={to}
-      aria-current={active ? "page" : undefined}
-      className={cn(
-        "-mb-px flex shrink-0 items-center gap-2 border-b-2 pb-3 pt-1 font-display text-sm outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
-        active
-          ? "border-foreground font-medium text-foreground"
-          : "border-transparent text-muted-foreground hover:text-foreground"
-      )}
-    >
-      {label}
-      {count !== undefined && count > 0 && (
-        <span className="rounded-[4px] bg-muted px-1.5 font-mono text-[11px] font-normal text-muted-foreground">
-          {count}
-        </span>
-      )}
-      {invalid && (
-        <span
-          className="size-1.5 rounded-full bg-destructive"
-          aria-label="Has errors"
-        />
-      )}
-    </Link>
-  );
-}
-
 /**
  * The agent's name as the page title. The pencil turns it into an inline
  * field (designs: "Agent / Detail / Rename"): Enter saves, Esc cancels.
@@ -481,3 +445,4 @@ export function RefChip({
     </span>
   );
 }
+

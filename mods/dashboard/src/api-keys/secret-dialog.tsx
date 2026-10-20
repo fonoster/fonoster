@@ -43,7 +43,11 @@ export function ApiKeySecretDialog({
       fields={
         apiKey && [
           { label: "API key", value: apiKey.accessKeyId },
-          { label: "API secret", value: apiKey.accessKeySecret }
+          {
+            label: "API secret",
+            value: apiKey.accessKeySecret,
+            emphasis: true
+          }
         ]
       }
       onDone={onDone}
