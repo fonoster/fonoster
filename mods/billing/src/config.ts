@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { loadServiceConfig } from "@fonoster/common";
+import { loadServiceConfig, natsConnectionSchema } from "@fonoster/common";
 import { z } from "zod";
 
 /**
@@ -27,7 +27,8 @@ import { z } from "zod";
 export const billingConfigSchema = z
   .object({
     database: z.object({ url: z.string().min(1) }),
-    nats: z.object({ url: z.string().min(1) }),
+    /** The bus: URL, and the `billing` user's password where NATS has per-service users. */
+    nats: natsConnectionSchema,
     /**
      * Identity's database, read for who owns a workspace (as the apiserver reads it). Without it
      * no workspace has an owner, and every call is admitted.
@@ -42,7 +43,16 @@ export const billingConfigSchema = z
     grpc: z
       .object({
         bind: z.string().default("0.0.0.0"),
-        port: z.number().int().positive().default(50071)
+        port: z.number().int().positive().default(50071),
+        /** The Billing API (billing.proto), for the apiserver. */
+        apiPort: z.number().int().positive().default(50073)
+      })
+      .default({}),
+    /** The HTTP server for Stripe's webhooks (`POST /stripe/webhooks`). */
+    http: z
+      .object({
+        bind: z.string().default("0.0.0.0"),
+        port: z.number().int().positive().default(50072)
       })
       .default({}),
     /** Where the rate card YAML files are (one per version). */
@@ -51,7 +61,7 @@ export const billingConfigSchema = z
       .object({
         /** Trial credits, granted once (no overdraft). */
         trialCredits: z.number().int().nonnegative().default(1000),
-        /** Proposed (Q2): trial credits expire this many days after the grant. */
+        /** Q2: trial credits expire this many days after the grant. */
         trialDays: z.number().int().positive().default(30),
         /** Pay-as-you-go: the monthly fee in cents and the plan credits it buys. */
         planFeeCents: z.number().int().positive().default(2500),
@@ -60,12 +70,12 @@ export const billingConfigSchema = z
         graceHours: z.number().int().nonnegative().default(72),
         /** Top-up credits last this long. */
         topupMonths: z.number().int().positive().default(12),
-        /** Proposed (Q5): the smallest top-up, in credits. */
+        /** Q5: the smallest top-up, in credits. */
         topupMinCredits: z.number().int().positive().default(1000),
         /** The overdraft: the larger of a floor and a share of the last top-up. */
         overdraftMinCredits: z.number().int().nonnegative().default(200),
         overdraftPercent: z.number().nonnegative().default(10),
-        /** Proposed (Q4): concurrent calls per plan. */
+        /** Q4: concurrent calls per plan. */
         concurrency: z
           .object({
             trial: z.number().int().positive().default(2),
@@ -89,7 +99,9 @@ export const billingConfigSchema = z
         secretKey: z.string().min(1),
         webhookSecret: z.string().min(1),
         /** Another Stripe API host (the Stripe fake in dev and CI), e.g. http://stripe-fake:12111. */
-        apiBase: z.string().url().optional()
+        apiBase: z.string().url().optional(),
+        /** Stripe Tax computes tax on the subscription and top-ups (Q6); needs Tax set up in Stripe. */
+        automaticTax: z.boolean().default(true)
       })
       .optional(),
     logs: z

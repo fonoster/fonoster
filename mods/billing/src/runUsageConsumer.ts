@@ -27,6 +27,7 @@ import {
 } from "nats";
 import { applyUsage } from "./applyUsage";
 import { Clock } from "./clock";
+import { PlanSettings } from "./config";
 import { PrismaClient } from "./db";
 import { RateCard } from "./rateCards";
 import {
@@ -54,6 +55,7 @@ export async function runUsageConsumer(deps: {
   prisma: PrismaClient;
   cards: RateCard[];
   clock: Clock;
+  plans?: PlanSettings;
   retryDelayMs?: number;
   ackWaitMs?: number;
 }): Promise<() => Promise<void>> {
@@ -94,7 +96,13 @@ export async function runUsageConsumer(deps: {
         m.ack();
         continue;
       }
-      applyUsage(deps.prisma, deps.cards, usage, deps.clock.now()).then(
+      applyUsage(
+        deps.prisma,
+        deps.cards,
+        usage,
+        deps.clock.now(),
+        deps.plans
+      ).then(
         () => m.ack(),
         (e: Error) => {
           logger.warn(

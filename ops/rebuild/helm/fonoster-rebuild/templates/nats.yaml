@@ -10,6 +10,7 @@
 {{- if .Values.roomr.enabled }}{{- $users = append $users "roomr" }}{{- end }}
 {{- $users = append $users "routr" }}
 {{- if .Values.regionAgent.enabled }}{{- $users = append $users "region-agent" }}{{- end }}
+{{- if .Values.nats.auth.billingUser }}{{- $users = append $users "billing" }}{{- end }}
 # The platform's NATS (JetStream for the session registry KV). Single node: enough to try the
 # platform; use the official nats chart (cluster) for production and set nats.url instead.
 apiVersion: v1

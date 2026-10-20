@@ -1,0 +1,91 @@
+/*
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+syntax = "proto3";
+
+package fonoster.billing.v1beta2;
+
+// Billing for Fonoster Cloud (add-billing-service): the owner's credits, plan, auto-recharge,
+// top-ups and the Stripe Customer Portal. The billing service serves it with owner_ref set; the
+// apiserver serves it to the dashboard for workspace owners and sets owner_ref from the caller.
+service Billing {
+  // The balance by source, the plan and auto-recharge
+  rpc GetBilling (GetBillingRequest) returns (BillingSummary) {}
+  // Turns auto-recharge on or off, with its threshold and amount in credits
+  rpc UpdateAutoRecharge (UpdateAutoRechargeRequest) returns (BillingSummary) {}
+  // Buys top-up credits; they are added once the payment succeeds
+  rpc CreateTopUp (CreateTopUpRequest) returns (BillingSummary) {}
+  // Moves the owner to Pay-as-you-go (needs a payment method, added in the portal)
+  rpc Subscribe (SubscribeRequest) returns (BillingSummary) {}
+  // A Stripe Customer Portal link for payment methods and invoices
+  rpc CreatePortalSession (CreatePortalSessionRequest) returns (CreatePortalSessionResponse) {}
+}
+
+message GetBillingRequest {
+  string owner_ref = 1;
+}
+
+// Credits of one source: plan, top-up or trial
+message CreditSource {
+  string kind = 1;
+  double credits = 2;
+  // ISO 8601; empty when it does not expire
+  string expires_at = 3;
+}
+
+message BillingSummary {
+  // trial or payg
+  string plan = 1;
+  // active, past_due or closed
+  string status = 2;
+  // Credits; negative while in the overdraft
+  double balance = 3;
+  // How far below zero the balance may go, in credits
+  double overdraft = 4;
+  repeated CreditSource sources = 5;
+  // ISO 8601; empty on the trial
+  string period_end = 6;
+  bool auto_recharge = 7;
+  double recharge_threshold = 8;
+  double recharge_amount = 9;
+}
+
+message UpdateAutoRechargeRequest {
+  string owner_ref = 1;
+  bool enabled = 2;
+  double threshold = 3;
+  double amount = 4;
+}
+
+message CreateTopUpRequest {
+  string owner_ref = 1;
+  int32 credits = 2;
+}
+
+message SubscribeRequest {
+  string owner_ref = 1;
+}
+
+message CreatePortalSessionRequest {
+  string owner_ref = 1;
+  string return_url = 2;
+}
+
+message CreatePortalSessionResponse {
+  string url = 1;
+}

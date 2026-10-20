@@ -30,7 +30,13 @@ import { z } from "zod";
 const featuresSchema = z
   .object({
     auth: authFeaturesSchema,
-    billing: z.object({ enabled: z.boolean().default(false) }).default({}),
+    billing: z
+      .object({
+        enabled: z.boolean().default(false),
+        /** The billing service's Billing API (host:port); defaults to authz.host:50073. */
+        address: z.string().min(1).optional()
+      })
+      .default({}),
     costs: z
       .object({ display: z.enum(["none", "usage", "prices"]).default("usage") })
       .default({}),

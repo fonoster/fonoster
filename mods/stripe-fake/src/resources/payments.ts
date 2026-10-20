@@ -170,7 +170,8 @@ export function charge(
       last_payment_error: null,
       latest_charge: null,
       next_action: null,
-      setup_future_usage: null
+      setup_future_usage: null,
+      fake_invoice: args.invoice ?? null
     },
     clock
   );

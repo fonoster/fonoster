@@ -99,6 +99,15 @@ const workspaceResourceOwnerOrAdminAccess = [
   "/fonoster.identity.v1beta2.Identity/RegenerateApiKey"
 ];
 
+// Billing belongs to the owner (add-billing-service): only owners see or change it.
+const workspaceOwnerAccess = [
+  "/fonoster.billing.v1beta2.Billing/GetBilling",
+  "/fonoster.billing.v1beta2.Billing/UpdateAutoRecharge",
+  "/fonoster.billing.v1beta2.Billing/CreateTopUp",
+  "/fonoster.billing.v1beta2.Billing/Subscribe",
+  "/fonoster.billing.v1beta2.Billing/CreatePortalSession"
+];
+
 const fullIdentityAccess = [
   "/fonoster.identity.v1beta2.Identity/GetUser",
   "/fonoster.identity.v1beta2.Identity/UpdateUser",
@@ -123,7 +132,8 @@ const roles = [
     access: [
       ...fullIdentityAccess,
       ...workspaceResourceAccess,
-      ...workspaceResourceOwnerOrAdminAccess
+      ...workspaceResourceOwnerOrAdminAccess,
+      ...workspaceOwnerAccess
     ]
   },
   {
