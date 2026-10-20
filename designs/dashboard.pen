@@ -4852,7 +4852,7 @@
                           "id": "Hd5ke",
                           "name": "Cmd text",
                           "fill": "$ui:--foreground",
-                          "content": "npx @fonoster/ctl applications:create -f agent.yaml",
+                          "content": "fonoster applications:create -f agent.yaml",
                           "fontFamily": "$ui:--font-primary",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -42631,9 +42631,9 @@
                         {
                           "type": "text",
                           "id": "QzZ54",
-                          "name": "$ npx @fonoster/ctl appl",
+                          "name": "$ fonoster appl",
                           "fill": "$ui:--muted-foreground",
-                          "content": "$ npx @fonoster/ctl applications:create -f agent.yaml",
+                          "content": "$ fonoster applications:create -f agent.yaml",
                           "fontFamily": "$ui:--font-primary",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -44492,7 +44492,7 @@
                               "id": "op2TW",
                               "name": "Cmd text",
                               "fill": "$ui:--foreground",
-                              "content": "npx @fonoster/ctl applications:create -f agent.yaml",
+                              "content": "fonoster applications:create -f agent.yaml",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 12,
                               "fontWeight": "normal"
@@ -46367,7 +46367,7 @@
                           "id": "w2PFl",
                           "name": "Cmd text",
                           "fill": "$ui:--foreground",
-                          "content": "npx @fonoster/ctl applications:create -f agent.yaml",
+                          "content": "fonoster applications:create -f agent.yaml",
                           "fontFamily": "$ui:--font-primary",
                           "fontSize": 12,
                           "fontWeight": "normal"
@@ -59481,7 +59481,7 @@
           "fill": "#451A03",
           "textGrowth": "fixed-width",
           "width": "fill_container",
-          "content": "• Knowledge + Tests tabs → hidden (5.7); run tests with npx @fonoster/ctl applications:eval",
+          "content": "• Knowledge + Tests tabs → hidden (5.7); run tests with fonoster applications:eval",
           "lineHeight": 1.45,
           "fontFamily": "Poppins",
           "fontSize": 12,
@@ -59666,7 +59666,7 @@
           "fill": "#451A03",
           "textGrowth": "fixed-width",
           "width": "fill_container",
-          "content": "• Whole tab → hidden for v1 (5.7); tests run with npx @fonoster/ctl applications:eval",
+          "content": "• Whole tab → hidden for v1 (5.7); tests run with fonoster applications:eval",
           "lineHeight": 1.45,
           "fontFamily": "Poppins",
           "fontSize": 12,
@@ -93414,9 +93414,9 @@
                         {
                           "type": "text",
                           "id": "D285I",
-                          "name": "$ npx @fonoster/ctl appl",
+                          "name": "$ fonoster appl",
                           "fill": "$ui:--muted-foreground",
-                          "content": "$ npx @fonoster/ctl applications:create -f agent.yaml",
+                          "content": "$ fonoster applications:create -f agent.yaml",
                           "fontFamily": "$ui:--font-primary",
                           "fontSize": 12,
                           "fontWeight": "normal"
