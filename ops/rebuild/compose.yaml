@@ -96,6 +96,17 @@ services:
       - 7002
       - 7003
 
+  # ---- profile `fakes`: the Stripe fake (API, /_fake control API and viewer on :12111) ----
+  stripe-fake:
+    profiles: ["fakes"]
+    build:
+      context: ../..
+      dockerfile: ops/rebuild/docker/stripe-fake.Dockerfile
+    image: ${RB_REGISTRY:-fonoster}/stripe-fake:${RB_TAG:-dev}
+    restart: unless-stopped
+    ports:
+      - "${RB_STRIPE_FAKE_PORT:-12111}:12111"
+
   # ---- profile `tools`: the SIP caller bot (go/roomr/cmd/sipcaller), HTTP on RB_CALLER_PORT ----
   sipcaller:
     profiles: ["tools"]
