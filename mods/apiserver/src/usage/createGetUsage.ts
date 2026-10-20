@@ -127,21 +127,19 @@ export function createGetUsage(db: UsageSql) {
           ? ""
           : String(v);
     callback(null, {
-      rows: rows.map(
-        (r): UsageRow => ({
-          day: text(r.day),
-          workspaceRef: text(r.workspace_ref),
-          meter: String(r.meter),
-          unit: Usage.isMeter(String(r.meter))
-            ? Usage.METERS[r.meter as Usage.MeterName].unit
-            : "",
-          provider: text(r.provider),
-          model: text(r.model),
-          keySource: text(r.key_source),
-          origin: text(r.origin),
-          quantity: Number(r.quantity)
-        })
-      )
+      rows: rows.map((r): UsageRow => ({
+        day: text(r.day),
+        workspaceRef: text(r.workspace_ref),
+        meter: String(r.meter),
+        unit: Usage.isMeter(String(r.meter))
+          ? Usage.METERS[r.meter as Usage.MeterName].unit
+          : "",
+        provider: text(r.provider),
+        model: text(r.model),
+        keySource: text(r.key_source),
+        origin: text(r.origin),
+        quantity: Number(r.quantity)
+      }))
     });
   };
   return withErrorHandlingAndValidation(fn, schema);
