@@ -21,6 +21,8 @@ import { expect } from "chai";
 import { createIndexRecord } from "../../src/records/createIndexRecord";
 import { RecordIndexEntry, RecordsDb } from "../../src/records/types";
 import { ingestUsageIn } from "../../src/usage/ingestUsage";
+import { rebuildUsageDaily } from "../../src/usage/rebuildUsage";
+import { snapshotStorage } from "../../src/usage/snapshotStorage";
 import { UsageDirectory } from "../../src/usage/types";
 import { createTestDb, TestDb } from "../../../common/test/persistence/testDb";
 
@@ -274,6 +276,110 @@ describe("@apiserver/usage ledger", function () {
         ownerRef: OWNER,
         quantity: 30
       }
+    ]);
+  });
+
+  it("rebuilds daily totals that equal the ones built while ingesting", async () => {
+    const stt = {
+      meter: "stt.seconds" as const,
+      provider: "deepgram",
+      keySource: "platform" as const
+    };
+    const storage = { meter: "storage.bytes" as const };
+    const at = (call: string, day: string, line: Usage.UsageLine) =>
+      event(line, {
+        id: Usage.usageId(`${call}|${day}`, line),
+        callRef: call,
+        occurredAt: `${day}T10:00:00.000Z`
+      });
+    await db!.prisma.$transaction((tx: never) =>
+      ingestUsageIn(tx, directory, [
+        at("c1", "2026-10-18", { ...stt, quantity: 30 }),
+        at("c2", "2026-10-18", { ...stt, quantity: 12 }),
+        at("c3", "2026-10-19", { ...stt, quantity: 7 }),
+        at("s1", "2026-10-19", { ...storage, quantity: 500 }),
+        {
+          ...at("s2", "2026-10-19", { ...storage, quantity: 800 }),
+          occurredAt: "2026-10-19T23:00:00.000Z"
+        }
+      ])
+    );
+    const before = await daily();
+    await db!.prisma.$executeRawUnsafe(
+      "UPDATE usage_daily SET quantity = 999999"
+    );
+    await db!.prisma.$executeRawUnsafe(
+      "INSERT INTO usage_daily (owner_ref, workspace_ref, day, meter, origin, region_kind, quantity) VALUES ('x', 'y', '2026-10-19', 'call.seconds', 'call', 'public', 5)"
+    );
+    expect(
+      await rebuildUsageDaily(db!.prisma, "2026-10-18", "2026-10-19")
+    ).to.equal(3);
+    expect(await daily()).to.deep.equal(before);
+    expect(before.map((r) => [r.meter, r.quantity])).to.deep.equal(
+      [
+        ["stt.seconds", 42],
+        ["stt.seconds", 7],
+        ["storage.bytes", 800]
+      ].sort((a, b) => String(a[0]).localeCompare(String(b[0])))
+    );
+  });
+
+  it("records storage per workspace for a completed day, once", async () => {
+    const index = createIndexRecord(db!.prisma as RecordsDb, {
+      directory: () => directory
+    });
+    await index(
+      entry({
+        callRef: "s-1",
+        size: 1000,
+        usage: undefined,
+        startedAt: "2026-10-19T10:00:00.000Z"
+      })
+    );
+    await index(
+      entry({
+        callRef: "s-2",
+        size: 500,
+        usage: undefined,
+        startedAt: "2026-10-19T11:00:00.000Z"
+      })
+    );
+    await index(
+      entry({
+        callRef: "s-3",
+        workspaceRef: WS2,
+        size: 300,
+        usage: undefined,
+        startedAt: "2026-10-19T12:00:00.000Z"
+      })
+    );
+    await index(
+      entry({
+        callRef: "s-4",
+        size: 9999,
+        usage: undefined,
+        startedAt: "2026-10-20T01:00:00.000Z"
+      })
+    );
+    expect(await snapshotStorage(db!.prisma, directory, "2026-10-19")).to.equal(
+      2
+    );
+    expect(await snapshotStorage(db!.prisma, directory, "2026-10-19")).to.equal(
+      0
+    );
+    const rows = await db!.prisma.usageDaily.findMany({
+      orderBy: { quantity: "desc" }
+    });
+    expect(
+      rows.map((r: Record<string, unknown>) => [
+        r.workspaceRef,
+        r.meter,
+        Number(r.quantity),
+        r.origin
+      ])
+    ).to.deep.equal([
+      [WS, "storage.bytes", 1500, "api"],
+      [WS2, "storage.bytes", 300, "api"]
     ]);
   });
 });

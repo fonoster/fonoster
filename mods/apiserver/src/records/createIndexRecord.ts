@@ -34,7 +34,7 @@ const sc = StringCodec();
 export type IndexUsageDeps = { directory: () => UsageDirectory | undefined };
 
 /** The usage events of an index entry, attributed from the entry (design D1). */
-function usageEvents(entry: RecordIndexEntry, workspaceRef: string) {
+export function usageEvents(entry: RecordIndexEntry, workspaceRef: string) {
   const origin = entry.origin === "browser_test" ? "browser_test" : "call";
   return (entry.usage ?? []).map((line) => ({
     ...line,

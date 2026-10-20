@@ -62,6 +62,9 @@ import {
   identityFromHandlers,
   SESSION_PATH
 } from "../session";
+import { runUsageConsumer } from "../usage/runUsageConsumer";
+import { runStorageSnapshots } from "../usage/snapshotStorage";
+import { UsageDb } from "../usage/types";
 import {
   runWebhookFanout,
   WebhookFanoutConfig
@@ -164,6 +167,15 @@ async function runServices() {
   // Bus consumers: webhook fan-out (LO-B1) and the AppBridge replicas' catalog use (LO-B11)
   const bus = await connect({ ...NATS, maxReconnectAttempts: -1 });
   subscribeRegistryUsage(bus, prisma);
+  await runUsageConsumer({
+    nc: bus,
+    db: prisma as unknown as UsageDb,
+    directory: () => workspaceRegionHooks.directory()
+  });
+  runStorageSnapshots({
+    db: prisma as unknown as UsageDb,
+    directory: () => workspaceRegionHooks.directory()
+  });
   if (WEBHOOKS.fanout) {
     await runWebhookFanout(
       {

@@ -18,7 +18,8 @@
   },
   "bin": {
     "fonoster": "./dist/index.js",
-    "fonoster-region-hub-setup": "./dist/bin/regionHubSetup.js"
+    "fonoster-region-hub-setup": "./dist/bin/regionHubSetup.js",
+    "fonoster-usage": "./dist/bin/usage.js"
   },
   "dependencies": {
     "@fonoster/authz": "^0.30.0",

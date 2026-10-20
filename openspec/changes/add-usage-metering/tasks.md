@@ -16,9 +16,9 @@
 - [x] 2.1 Prisma `UsageEvent` and `UsageDaily` (D7) with migration `<ts>_usage_metering`; verify `prisma migrate dev` applies on an empty and on a current database
 - [x] 2.2 `src/usage/ingestUsage.ts`: insert with `ON CONFLICT DO NOTHING` and increment `usage_daily` only for inserted rows, in one transaction; owner resolved from the workspace; verify tests: duplicate ingest changes nothing, an undeclared meter is rejected and logged
 - [x] 2.3 `records/createIndexRecord.ts`: accept an optional `usage` on the index entry and ingest it in the same transaction as the index row; entries without `usage` keep working; region kind from the region; verify tests for both shapes and for a private region
-- [ ] 2.4 `src/usage/runUsageConsumer.ts`: durable consumer `apiserver-usage` on `FONOSTER_USAGE` (`usage.>`, 7-day max age, D5); verify a test with the NATS test harness: messages published while the database is down are ingested once it is back
-- [ ] 2.5 `fonoster-usage rebuild --from --to [--from-records]` bin (D7, Risks); verify a test: rebuilt `usage_daily` equals the pre-rebuild table, and `--from-records` restores lines from stored records
-- [ ] 2.6 Nightly `storage.bytes` job (D8) on the apiserver scheduler; verify a test: two workspaces with indexed record sizes get one line each per day and a rerun the same day adds nothing
+- [x] 2.4 `src/usage/runUsageConsumer.ts`: durable consumer `apiserver-usage` on `FONOSTER_USAGE` (`usage.>`, 7-day max age, D5); verify a test with the NATS test harness: messages published while the database is down are ingested once it is back
+- [x] 2.5 `fonoster-usage rebuild --from --to [--from-records]` bin (D7, Risks); verify a test: rebuilt `usage_daily` equals the pre-rebuild table, and `--from-records` restores lines from stored records
+- [x] 2.6 Nightly `storage.bytes` job (D8) on the apiserver scheduler; verify a test: two workspaces with indexed record sizes get one line each per day and a rerun the same day adds nothing
 
 ## 3. AppBridge counters (mods/appbridge)
 
@@ -27,7 +27,7 @@
 - [ ] 3.3 AMD and recording counters; verify tests: one classification of 4,000 ms = 1 detection and 4 `amd.seconds`; a recording stopped and restarted sums both spans
 - [ ] 3.4 Origin (D9): `TestCallVerifier.check` returns `test`; `Call` carries `origin`; verify tests: a valid test token gives `browser_test`, no token gives `call`
 - [ ] 3.5 `usage.report` handling: accepted only from `AUTOPILOT` apps and only for `llm.tokens.*` and `embedding.tokens`, merged into `CallUsage`; otherwise `error bad_message`; not in the public protocol docs; verify the three voice-session delta scenarios as tests
-- [ ] 3.6 Write `CallUsage` into the working record every 60 s and at `finish()`; `callrecord` puts `usage` in the vCon and in `RecordIndexEntry` (signed); verify tests: the sealed record and index carry the lines, the signature covers them, a recovered seal keeps the last flush, a minimal record of a rejected call has no lines
+- [ ] 3.6 Write `CallUsage` into the working record every 60 s and at `finish()`; `callrecord` puts `usage` in the vCon and in `RecordIndexEntry` (signed); verify tests: the sealed record and index carry the lines, the signature covers them, a recovered seal keeps the last flush, a minimal record of a rejected call has no lines; `fonoster-usage rebuild --from-records` restores the lines of a sealed record missing from the ledger (deferred here from 2.5)
 
 ## 4. Model usage (mods/community, mods/autopilot)
 
