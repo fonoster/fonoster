@@ -21,6 +21,7 @@ scenarios/
   autopilot/                      # runner plays AppBridge, Autopilot (with setup.agent) is under test
   turn-taking/                    # runner plays the app, AppBridge's turn-taking is under test
   regions/                        # runner plays a region's cell, the control plane is under test
+  billing/                        # runner plays the platform, billing (with the Stripe fake) is under test
   audio/                          # recorded caller audio (raw PCM16LE mono 16 kHz)
 ```
 
@@ -32,8 +33,8 @@ The file name is the scenario `name` plus `.yaml`. A scenario belongs to exactly
 | --- | --- | --- |
 | `format` | yes | Always `fonoster.scenario.v1`. A breaking change to this format gets a new value. |
 | `name` | yes | Kebab-case, equal to the file name. |
-| `contract` | yes | `voice-session`, `twilio-media-streams-flavor`, `voice-sdk`, `media-control`, `autopilot`, `turn-taking` or `regions`. |
-| `role` | yes | The side the runner plays: `app`, `appbridge`, `media-control-client` or `region-cell`. |
+| `contract` | yes | `voice-session`, `twilio-media-streams-flavor`, `voice-sdk`, `media-control`, `autopilot`, `turn-taking`, `regions` or `billing`. |
+| `role` | yes | The side the runner plays: `app`, `appbridge`, `media-control-client`, `region-cell` or `platform`. |
 | `spec` | no | The requirement and scenario this file proves: `"Requirement / Scenario"`. |
 | `description` | no | Free text. |
 | `fixture` | `voice-sdk` | The fixture app the SDK runner starts (see Fixtures). |
@@ -59,7 +60,8 @@ Each step has exactly one action key.
 | `inject: {tts|stt|llm: {…}}` | Change a fake provider's behaviour from this point on. |
 | `assert: {name: value}` | Evaluate named harness assertions (see Assertions). |
 | `close: {code, reason}` | Close the socket from the runner's side. |
-| `control: {op, …}` | The harness acts on the implementation under test's management side. `regions`: `enroll` (`token`: `issued` (default), `reissued`, `expired` or `invalid`; the answer arrives as a `region.enrollment` frame with the HTTP `status`, and on success the runner's cell link opens), `reissue`, `disconnect`, and `relay` (`callRef`: a member reads that call's recording through the control plane; the answer arrives as a `relay.result` frame). |
+| `control: {op, …}` | The harness acts on the implementation under test's management side. `regions`: `enroll` (`token`: `issued` (default), `reissued`, `expired` or `invalid`; the answer arrives as a `region.enrollment` frame with the HTTP `status`, and on success the runner's cell link opens), `reissue`, `disconnect`, and `relay` (`callRef`: a member reads that call's recording through the control plane; the answer arrives as a `relay.result` frame). `billing`: see billing scenarios. |
+| `stripe: {…}` | `billing`: the harness sets Stripe's state and failures (see billing scenarios). |
 | `caller: {dtmf | hangup | audio | drop | nodeCrash}` | The fake Roomr node acts as the caller: presses keys (`dtmf: "12#"`), hangs up (`hangup: true`) or speaks (`audio`, same shape as `send_audio`, replacing any caller audio still pending). `drop: {reason, sipStatus?}` makes the node end the room with a media-control reason; `nodeCrash: true` kills the node (no heartbeats, replies or events). |
 
 With the `twilio` protocol, `send_audio` sends μ-law 8 kHz `media` events (base64 payloads) using the
@@ -180,6 +182,28 @@ The link opens after a successful `control: {op: enroll}`. `${region}` is the re
 `${workspace}` the workspace it serves. The control plane's link messages and the harness's HTTP
 results travel separately, so expect only orders the contract guarantees.
 
+## billing scenarios
+
+With `role: platform` the runner plays the Fonoster platform against the billing service, with the
+Stripe fake as Stripe (and, nightly, a Stripe test-mode sandbox). Each scenario gets a new owner.
+There is no socket: scenarios use `control`, `stripe` and `assert` only.
+
+| `control` op | What the platform does |
+| --- | --- |
+| `subscribe` | The owner's Trial starts, they add a card and a US address in the Customer Portal, and move to Pay-as-you-go |
+| `top-up` | The owner buys `credits` |
+| `usage` | The apiserver publishes stored usage: `meter` and `quantity`, from a call on Fonoster's keys |
+
+| `stripe` key | Effect |
+| --- | --- |
+| `next_payment` | The outcome of the account's next payment: `succeed`, `decline`, `requires_action` or `timeout` |
+| `advance_days` | Moves the test clock, and billing's clock, ahead; billing's expiry sweep runs |
+| `fail_webhooks` | The next N webhook deliveries fail with 500 |
+| `meter_error_report: true` | Stripe reports a meter event error |
+
+After each `control` and `stripe` step the harness lets billing send what it owes Stripe and apply
+what Stripe reported, until both are quiet.
+
 ## Assertions
 
 `assert` names checks that a harness evaluates against its fakes. Measurements that refer to a
@@ -210,6 +234,12 @@ matcher, compared with what the harness measured.
 | `regionStatus` | `regions`: the region's status as its owner sees it (`waiting`, `connected`, `degraded`, `offline`, `unsupported`) |
 | `liveCredentials`, `revokedCredentials` | `regions`: how many of the region's issued credentials are live or revoked |
 | `tools.calls` | names of the fake tools called (`${media}/tool/hours` answers `{"open":"9"}`, `${media}/tool/error` fails) |
+| `balance` | `billing`: the owner's ledger balance, in credits |
+| `topupCredits` | `billing`: credits left in top-up grants |
+| `notices` | `billing`: the kinds of notice sent to the owner, in order (`topup_failed`, `payment_failed`, …) |
+| `stripeEvents` | `billing`: the types of the Stripe events about the owner's customer that billing received, in order |
+| `cycleInvoice` | `billing`: the invoice that closed the first period, in cents: `{status, plan, usage, credits, total}` (`{status: none}` before it exists) |
+| `ledgerMinusStripe` | `billing`: the ledger balance less Stripe's available credit balance, in credits |
 
 A runner that does not know an assertion name fails the step; it never passes it silently.
 

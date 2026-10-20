@@ -28,9 +28,11 @@ export type Contract =
   | "media-control"
   | "autopilot"
   | "turn-taking"
-  | "regions";
+  | "regions"
+  | "billing";
 
-export type Role = "app" | "appbridge" | "media-control-client" | "region-cell";
+export type Role =
+  "app" | "appbridge" | "media-control-client" | "region-cell" | "platform";
 
 export type ProviderFailure =
   "provider_unavailable" | "provider_timeout" | "bad_request";
@@ -121,6 +123,21 @@ export type CallerAction = {
 /** `control` steps: the harness acts on the implementation's management side (regions). */
 export type ControlAction = { op: string } & Record<string, unknown>;
 
+/**
+ * `stripe` steps (billing): the harness sets the Stripe fake's state and failures through its
+ * control API. Against a Stripe sandbox, a runner applies what Stripe's test mode supports.
+ */
+export type StripeAction = {
+  /** The outcome of the account's next payment. */
+  next_payment?: "succeed" | "decline" | "requires_action" | "timeout";
+  /** Moves the test clock (and billing's clock) this many days ahead. */
+  advance_days?: number;
+  /** The next N webhook deliveries fail with 500. */
+  fail_webhooks?: number;
+  /** Stripe reports a meter event error (v1.billing.meter.error_report_triggered). */
+  meter_error_report?: true;
+};
+
 export type Timing = {
   within_ms?: number;
   budget_ms?: number;
@@ -144,6 +161,7 @@ export type Step = Timing & {
   close?: { code?: number; reason?: string };
   caller?: CallerAction;
   control?: ControlAction;
+  stripe?: StripeAction;
   next?: true;
 };
 
@@ -176,7 +194,8 @@ export const STEP_ACTIONS = [
   "assert",
   "close",
   "caller",
-  "control"
+  "control",
+  "stripe"
 ] as const;
 
 export type StepAction = (typeof STEP_ACTIONS)[number];

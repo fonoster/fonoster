@@ -20,7 +20,8 @@ import {
   CallerAction,
   ControlAction,
   Providers,
-  Setup
+  Setup,
+  StripeAction
 } from "../scenario/types";
 
 /**
@@ -47,6 +48,8 @@ export interface Harness {
   caller?(action: CallerAction): Promise<void> | void;
   /** Acts on the implementation's management side (`control` steps), e.g. enroll a region. */
   control?(action: ControlAction): Promise<void> | void;
+  /** Sets the Stripe fake's state and failures (`stripe` steps, billing). */
+  stripe?(action: StripeAction): Promise<void> | void;
   /** Extra variables available to every scenario, such as `media` (base URL of test media). */
   vars?(): Record<string, unknown>;
 }

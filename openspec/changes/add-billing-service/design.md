@@ -210,3 +210,6 @@ Rollback: turn `features.billing.enabled` off; admission returns to Dummy; the l
   minute (0.08 a second). To be reviewed by the owner.
 - **Q9.** The billing NATS user exists only in Cloud's deployment (a Helm value, off by default);
   self-hosted `nats.conf` files don't change.
+- **Q10.** An owner who subscribes during the Trial keeps its remaining credits until the first
+  plan credits expire (period end + 72 h), in the ledger and in Stripe (found by the billing
+  conformance suite, build log BS12).
