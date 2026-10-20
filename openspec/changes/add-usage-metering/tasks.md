@@ -45,13 +45,13 @@
 ## 6. Dashboard Usage page
 
 - [x] 6.1 Design the Usage page in `designs/dashboard.pen` (period picker, minutes vs tests, add-on minutes, AI usage by provider and model with Your key / Fonoster key, empty state; settles the long-period open question); verify the owner approves the frames
-- [ ] 6.2 `NAVIGATION` entry `Usage` (`/usage`) and screen; `useUsage` over `sdk.usage.getUsage`; components per the design; verify unit tests and an e2e test covering the dashboard delta scenarios (Community install with billing off, Last month, no usage, own vs Fonoster key)
+- [x] 6.2 `NAVIGATION` entry `Usage` (`/usage`) and screen; `useUsage` over `sdk.usage.getUsage`; components per the design; verify unit tests and an e2e test covering the dashboard delta scenarios (Community install with billing off, Last month, no usage, own vs Fonoster key)
 
 ## 7. Integration
 
 - [x] 7.1 Conformance scenario on the local stack: an Autopilot call on fake providers, one on a workspace key, one with a barge-in, and a browser test; assert exact usage lines in the sealed record, `usage_events` and `GetUsage`, and that replaying the record changes nothing; verify it passes in CI (end to end in `apiserver/test/usage/fullstack.test.ts`: an Autopilot call and a barge-in, record → ledger twice → GetUsage; the workspace key, browser test and noise-cancelling cases end to end in `appbridge/test/usage.test.ts`)
 - [x] 7.2 Metering never blocks: stop Postgres during 10 fake calls, start it again; verify all calls completed and all usage lines arrive (verified by parts: AppBridge has no path to the usage store, so calls cannot block on it; the USAGE consumer test publishes 10 events while the database is down and stores all of them once it is back; sealed records are re-read with `fonoster-usage rebuild --from-records`)
-- [ ] 7.3 `openspec validate add-usage-metering --strict` passes and docs mention the Usage page and `GetUsage` (`GetUsage` documented in docs-site/reference/sdk.mdx; the Usage page's docs follow group 6)
+- [x] 7.3 `openspec validate add-usage-metering --strict` passes and docs mention the Usage page and `GetUsage` (`GetUsage` documented in docs-site/reference/sdk.mdx; the Usage page in docs-site/observe/usage.mdx)
 
 ## Workflow follow-up
 

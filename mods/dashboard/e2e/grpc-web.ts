@@ -36,6 +36,7 @@ export const capabilities: any = pb("capabilities");
 export const applications: any = pb("applications");
 export const numbers: any = pb("numbers");
 export const calls: any = pb("calls");
+export const usage: any = pb("usage");
 export const struct: any = require(
   join(
     dirname(

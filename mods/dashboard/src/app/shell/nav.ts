@@ -21,6 +21,7 @@ import {
   Badge,
   CallLog,
   Code,
+  DataUsage,
   Dialpad,
   Dns,
   HeadsetMic,
@@ -69,6 +70,7 @@ export const NAVIGATION: NavSection[] = [
       { label: "Vendor keys", path: "vendor-keys", icon: VpnKey },
       { label: "Secrets", path: "secrets", icon: Lock },
       { label: "API keys", path: "api-keys", icon: Key },
+      { label: "Usage", path: "usage", icon: DataUsage },
       { label: "Settings", path: "settings", icon: Settings }
     ]
   }
