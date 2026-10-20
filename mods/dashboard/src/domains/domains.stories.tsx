@@ -27,14 +27,14 @@ const sampleDomains = [
   {
     ref: "dm-1f02aa",
     name: "Acme HQ",
-    domainUri: "acme.fonoster.local",
+    domainUri: "acme.sip.fonoster.local",
     accessControlList: { ref: "acl-1", name: "Office network" },
     egressPolicies: [{ rule: ".*", numberRef: "nb-1" }]
   },
   {
     ref: "dm-8c41d0",
     name: "Madrid office",
-    domainUri: "madrid.acme.fonoster.local",
+    domainUri: "madrid.sip.fonoster.local",
     egressPolicies: [{ rule: "^\\+34", numberRef: "nb-2" }]
   }
 ];

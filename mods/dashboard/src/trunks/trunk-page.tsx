@@ -19,10 +19,22 @@
 import type { Trunk } from "@fonoster/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState, type ReactNode } from "react";
-import { Controller, useForm } from "react-hook-form";
+import {
+  Controller,
+  useForm,
+  useWatch,
+  type UseFormReturn
+} from "react-hook-form";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
+import {
+  SIP_LABEL,
+  SipNameInput,
+  sipNameLabel,
+  toSipLabel,
+  useSipNameRule
+} from "~/components/data/sip-name-input";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
@@ -30,7 +42,7 @@ import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Switch } from "~/components/ui/switch";
-import { errorMessage } from "~/lib/errors";
+import { errorMessage, GrpcCode, grpcCode } from "~/lib/errors";
 import { useAllNumbers } from "~/numbers/numbers.service";
 import { CarrierHint } from "~/regions/connection";
 import { formatNumber } from "~/numbers/routing";
@@ -50,6 +62,95 @@ import {
   useTrunk,
   useUpdateTrunk
 } from "./trunks.service";
+
+/**
+ * The inbound URI as a label plus the install's fixed `.sip.<domain>`, which
+ * the API requires (features.trunks.inboundUri: domain). A new trunk's label
+ * follows its name until edited. With `any`, it's a free host or IP.
+ */
+/**
+ * The inbound URI as a label plus the install's fixed `.pstn.<domain>`, which
+ * the API requires (features.sip.names: domain). A new trunk's label follows its
+ * name until edited. With `any`, it's a free host or IP.
+ */
+function InboundUriField({
+  form,
+  isNew,
+  previous
+}: {
+  form: UseFormReturn<TrunkValues>;
+  isNew: boolean;
+  /** The saved URI when it isn't under the root (a trunk made before the rule). */
+  previous?: string;
+}) {
+  const { strict, suffix } = useSipNameRule("pstn");
+  const [uri, name] = useWatch({
+    control: form.control,
+    name: ["inboundUri", "name"]
+  });
+  const [edited, setEdited] = useState(!isNew);
+  const error = form.formState.errors.inboundUri?.message;
+
+  useEffect(() => {
+    if (!strict || edited) return;
+    const label = toSipLabel(name ?? "");
+    form.setValue("inboundUri", label ? label + suffix : "");
+  }, [name, strict, edited, suffix, form]);
+
+  if (!strict) {
+    return (
+      <Field
+        label="Inbound URI"
+        error={error}
+        hint="Give this to your carrier: a host name or IP that reaches this install."
+      >
+        {(a11y) => (
+          <Input
+            {...a11y}
+            {...form.register("inboundUri")}
+            className="font-mono"
+            placeholder={`acme${suffix}`}
+            autoComplete="off"
+            spellCheck={false}
+          />
+        )}
+      </Field>
+    );
+  }
+
+  const label = sipNameLabel(uri, suffix) ?? "";
+  return (
+    <Field
+      label="Inbound URI"
+      error={
+        error && label && !SIP_LABEL.test(label)
+          ? "Use lowercase letters, digits and dashes."
+          : error
+      }
+      hint={
+        previous
+          ? `Was ${previous}. Saving moves it under ${suffix.slice(1)}; update your carrier.`
+          : "Give this to your carrier."
+      }
+    >
+      {(a11y) => (
+        <SipNameInput
+          {...a11y}
+          value={uri}
+          suffix={suffix}
+          placeholder="acme"
+          onChange={(next) => {
+            setEdited(true);
+            form.setValue("inboundUri", next, {
+              shouldDirty: true,
+              shouldValidate: form.formState.isSubmitted
+            });
+          }}
+        />
+      )}
+    </Field>
+  );
+}
 
 function Section({
   title,
@@ -148,8 +249,24 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
   });
   const { errors } = form.formState;
 
+  const rule = useSipNameRule("pstn");
+  // A trunk made before the inbound URI rule moves under the root on save.
+  const previous =
+    rule.strict &&
+    trunk?.inboundUri &&
+    sipNameLabel(trunk.inboundUri, rule.suffix) === undefined
+      ? trunk.inboundUri
+      : undefined;
+
   useEffect(() => {
-    if (trunk) form.reset(toValues(trunk));
+    if (!trunk) return;
+    form.reset(toValues(trunk));
+    if (previous) {
+      const label = toSipLabel(previous.split(".")[0] ?? "");
+      form.setValue("inboundUri", label ? label + rule.suffix : "", {
+        shouldDirty: true
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trunk]);
 
@@ -173,11 +290,19 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
 
   const onSubmit = form.handleSubmit(async (values) => {
     const request = toRequest(values);
-    if (trunk) {
-      await update.mutateAsync({ ref: trunk.ref, ...request });
-    } else {
-      const created = await create.mutateAsync(request);
-      navigate(`../${created.ref}`, { relative: "path", replace: true });
+    try {
+      if (trunk) {
+        await update.mutateAsync({ ref: trunk.ref, ...request });
+      } else {
+        const created = await create.mutateAsync(request);
+        navigate(`../${created.ref}`, { relative: "path", replace: true });
+      }
+    } catch (error) {
+      // Inbound URIs are unique across the install.
+      if (grpcCode(error) === GrpcCode.ALREADY_EXISTS)
+        form.setError("inboundUri", {
+          message: "That inbound URI is taken. Pick another."
+        });
     }
   });
 
@@ -257,27 +382,12 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
                   <Input
                     {...a11y}
                     {...form.register("name")}
-                    placeholder="Claro"
+                    placeholder="Acme"
                     autoComplete="off"
                   />
                 )}
               </Field>
-              <Field
-                label="Inbound URI"
-                error={errors.inboundUri?.message}
-                hint="Give this to your carrier."
-              >
-                {(a11y) => (
-                  <Input
-                    {...a11y}
-                    {...form.register("inboundUri")}
-                    className="font-mono"
-                    placeholder="claro.acme.sip.fonoster.io"
-                    autoComplete="off"
-                    spellCheck={false}
-                  />
-                )}
-              </Field>
+              <InboundUriField form={form} isNew={!trunk} previous={previous} />
             </div>
             <CarrierHint />
           </Section>

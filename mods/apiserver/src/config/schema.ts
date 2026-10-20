@@ -44,6 +44,14 @@ const featuresSchema = z
           .default({}),
         recordings: z.object({ store: z.boolean().default(false) }).default({})
       })
+      .default({}),
+    /**
+     * SIP names (trunk inbound URIs, domains): "domain" requires one DNS label
+     * under `sip.<domain>` (carriers and phones reach a wildcard `*.sip.<domain>`);
+     * "any" accepts any host or IP, for installs reached by address.
+     */
+    sip: z
+      .object({ names: z.enum(["domain", "any"]).default("domain") })
       .default({})
   })
   .default({});

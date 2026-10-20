@@ -20170,7 +20170,7 @@
               "content": "Fonoster"
             },
             "RXa3g": {
-              "content": "trunk Claro"
+              "content": "trunk Acme"
             }
           }
         },
@@ -20214,7 +20214,7 @@
           "y": 365,
           "name": "Inbound text",
           "fill": "$ui:text-secondary",
-          "content": "calls for your numbers → sip:claro.acme.sip.fonoster.com",
+          "content": "calls for your numbers → sip:acme.pstn.fonoster.com",
           "fontFamily": "$ui:--font-primary",
           "fontSize": 14,
           "fontWeight": "normal"
@@ -20298,7 +20298,7 @@
           "y": 597,
           "name": "Outbound text",
           "fill": "$ui:text-secondary",
-          "content": "your calls → sip.claro.com.do:5060 (UDP)",
+          "content": "your calls → sip.acme.com:5060 (UDP)",
           "fontFamily": "$ui:--font-primary",
           "fontSize": 14,
           "fontWeight": "normal"
@@ -20424,7 +20424,7 @@
                   "id": "J9ywn",
                   "name": "URI",
                   "fill": "$ui:text-primary",
-                  "content": "sip.claro.com.do:5060",
+                  "content": "sip.acme.com:5060",
                   "fontFamily": "$ui:--font-primary",
                   "fontSize": 13,
                   "fontWeight": "normal"
@@ -20592,7 +20592,7 @@
               "content": "Fonoster"
             },
             "RXa3g": {
-              "content": "trunk Claro"
+              "content": "trunk Acme"
             }
           }
         },
@@ -20636,7 +20636,7 @@
           "y": 365,
           "name": "Inbound text",
           "fill": "$ui:text-secondary",
-          "content": "calls for your numbers → sip:claro.acme.sip.fonoster.com",
+          "content": "calls for your numbers → sip:acme.pstn.fonoster.com",
           "fontFamily": "$ui:--font-primary",
           "fontSize": 14,
           "fontWeight": "normal"
@@ -20720,7 +20720,7 @@
           "y": 597,
           "name": "Outbound text",
           "fill": "$ui:text-secondary",
-          "content": "your calls → sip.claro.com.do:5060 (UDP)",
+          "content": "your calls → sip.acme.com:5060 (UDP)",
           "fontFamily": "$ui:--font-primary",
           "fontSize": 14,
           "fontWeight": "normal"
@@ -20846,7 +20846,7 @@
                   "id": "m1xE8U",
                   "name": "URI",
                   "fill": "$ui:text-primary",
-                  "content": "sip.claro.com.do:5060",
+                  "content": "sip.acme.com:5060",
                   "fontFamily": "$ui:--font-primary",
                   "fontSize": 13,
                   "fontWeight": "normal"

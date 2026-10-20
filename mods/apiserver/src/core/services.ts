@@ -30,7 +30,7 @@ import { buildApplicationsService } from "../applications";
 import { buildCallsService } from "../calls";
 import { buildCapabilitiesService } from "../capabilities";
 import { getConfig } from "../config";
-import { ROUTR_ROOMR_PEER } from "../envs";
+import { DOMAIN_NAMES_ROOT, ROUTR_ROOMR_PEER, TRUNK_NAMES_ROOT } from "../envs";
 import { buildProvidersService } from "../providers";
 import { buildSecretsService } from "../secrets";
 import { createCheckNumberPreconditions } from "../utils";
@@ -49,9 +49,13 @@ const identityService = buildIdentityService({
   regions: workspaceRegionHooks
 });
 const agentsService = buildAgentsService(routrConfig);
-const domainsService = buildDomainsService(routrConfig);
+const domainsService = buildDomainsService(routrConfig, {
+  namesRoot: DOMAIN_NAMES_ROOT
+});
 const credentialsService = buildCredentialsService(routrConfig);
-const trunksService = buildTrunksService(routrConfig);
+const trunksService = buildTrunksService(routrConfig, {
+  namesRoot: TRUNK_NAMES_ROOT
+});
 // App-linked numbers point at the roomr peer (Asterisk is retired, cleanbreak CB-B3).
 const numberRouting = createNumberRouting({
   roomrNodeAor: ROUTR_ROOMR_PEER.aor

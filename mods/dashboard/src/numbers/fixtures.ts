@@ -30,13 +30,13 @@ export const sipAgents = [
     ref: "ag1",
     name: "Maria Lopez",
     username: "maria",
-    domain: { ref: "d1", name: "Acme", domainUri: "acme.sip.fonoster.io" }
+    domain: { ref: "d1", name: "Acme", domainUri: "acme.sip.fonoster.local" }
   },
   {
     ref: "ag2",
     name: "Juan Perez",
     username: "juan",
-    domain: { ref: "d1", name: "Acme", domainUri: "acme.sip.fonoster.io" }
+    domain: { ref: "d1", name: "Acme", domainUri: "acme.sip.fonoster.local" }
   }
 ];
 
@@ -51,7 +51,7 @@ export const trunks = [
     ref: "tk-31a0c2",
     name: "Claro",
     sendRegister: false,
-    inboundUri: "claro.acme.sip.fonoster.io",
+    inboundUri: "claro.pstn.fonoster.local",
     accessControlListRef: "acl1",
     outboundCredentialsRef: "cr1",
     uris: [
@@ -79,7 +79,7 @@ export const trunks = [
     ref: "tk-77d9e1",
     name: "Altice",
     sendRegister: true,
-    inboundUri: "altice.acme.sip.fonoster.io",
+    inboundUri: "altice.pstn.fonoster.local",
     inboundCredentialsRef: "cr2",
     uris: [
       {
@@ -96,7 +96,7 @@ export const trunks = [
     ref: "tk-0b5f48",
     name: "Telnyx EU",
     sendRegister: false,
-    inboundUri: "telnyx.acme.sip.fonoster.io",
+    inboundUri: "telnyx.pstn.fonoster.local",
     // listTrunks returns the nested object rather than the ref.
     accessControlList: { ref: "acl2", name: "Telnyx EU IPs" },
     uris: []
@@ -134,7 +134,7 @@ export const numbers = [
     ref: "n4",
     name: "Support desk",
     telUrl: "tel:+18095550100",
-    agentAor: "sip:maria@acme.sip.fonoster.io",
+    agentAor: "sip:maria@acme.sip.fonoster.local",
     trunk: { ref: "tk-31a0c2", name: "Claro" },
     ...location
   },

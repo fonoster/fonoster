@@ -77,6 +77,11 @@ type Capabilities = {
    * Empty lists when the operator listed none or the server is older.
    */
   connection: ConnectionDetails;
+  /**
+   * How SIP names (trunk inbound URIs, domains) are checked: "domain" (one
+   * label under `sip.<domain>`, the default) or "any" (any host or IP).
+   */
+  sip: { names: "domain" | "any" };
 };
 
 type SipTransport = "udp" | "tcp" | "tls" | "ws" | "wss";
@@ -317,7 +322,12 @@ abstract class AbstractClient implements FonosterClient {
             regions: {
               private: response.getRegions()?.getPrivate() ?? false
             },
-            connection: toConnectionDetails(response)
+            connection: toConnectionDetails(response),
+            sip: {
+              // Older servers don't send it; they checked nothing.
+              names:
+                response.getSip()?.getNames() === "domain" ? "domain" : "any"
+            }
           });
         }
       );

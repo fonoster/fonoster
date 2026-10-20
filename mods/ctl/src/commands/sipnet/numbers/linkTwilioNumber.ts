@@ -22,11 +22,7 @@ import { Flags } from "@oclif/core";
 import { Twilio } from "twilio";
 import { AuthenticatedCommand } from "../../../AuthenticatedCommand";
 import { getActiveWorkspace, getConfig } from "../../../config";
-import {
-  CONFIG_FILE,
-  FONOSTER_ACCESS_CONTROL_LIST,
-  FONOSTER_ORIGINATION_URI_BASE
-} from "../../../constants";
+import { CONFIG_FILE, FONOSTER_ACCESS_CONTROL_LIST } from "../../../constants";
 import { linkTwilioNumberToApplication } from "../../../utils";
 
 export default class LinkTwilioNumber extends AuthenticatedCommand<
@@ -39,8 +35,7 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
     "outbound-uri-base": Flags.string({
       char: "b",
       description:
-        "the uri to point twilio to for outbound calls (use if running your Fonoster instance)",
-      default: FONOSTER_ORIGINATION_URI_BASE,
+        "the host Twilio sends calls to, under which the trunk's inbound URI is made (default: pstn.<the server's domain>)",
       required: false
     }),
     "access-control-list": Flags.string({
@@ -108,7 +103,10 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
         phoneNumber: answers.number,
         accessKeyId,
         aclEntries: flags["access-control-list"].split(","),
-        originationUriBase: flags["outbound-uri-base"],
+        // Trunk inbound URIs live under pstn.<domain> (features.sip.names).
+        originationUriBase:
+          flags["outbound-uri-base"] ??
+          `pstn.${(await fonosterClient.getCapabilities()).domain}`,
         applicationRef: answers.applicationRef,
         friendlyName: answers.friendlyName
       });

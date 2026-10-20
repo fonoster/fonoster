@@ -203,7 +203,9 @@ SIP domains that SIP agents register to. `new SDK.Domains(client)`.
 | `listDomains({ pageSize, pageToken })` | List domains | | `{ items, nextPageToken }` |
 | `deleteDomain(ref)` | Remove a domain | | `{ ref }` |
 
-`domainUri` can't change after creation.
+`domainUri` can't change after creation. Names are one label under your install's roots:
+`<label>.sip.<domain>` for a domain and `<label>.pstn.<domain>` for a trunk's `inboundUri`
+(self-hosted installs can allow any host).
 
 ## Agents (SIP agents)
 

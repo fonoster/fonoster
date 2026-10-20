@@ -16,6 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {
+  SIP_LABEL,
+  SipNameInput,
+  useSipNameRule
+} from "~/components/data/sip-name-input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, X } from "lucide-react";
 import { useEffect, useMemo } from "react";
@@ -27,7 +32,6 @@ import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
-import { useCapabilities } from "~/lib/capabilities";
 import { errorMessage } from "~/lib/errors";
 import {
   phoneOf,
@@ -49,20 +53,31 @@ function isRegex(value: string) {
   }
 }
 
-// Same rules as the API (common/src/validators/sipnet/domains.ts).
-export function domainSchema(rootDomain: string) {
+/**
+ * Same rules as the API: with features.sip.names "domain" (the default) a domain
+ * is one label under `sip.<domain>`; with "any", any domain.
+ */
+export function domainSchema(suffix: string, strict: boolean) {
   return z.object({
     name: z.string().trim().min(1, "Enter a name"),
-    domainUri: z
-      .string()
-      .trim()
-      .regex(
-        /^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+$/,
-        `Use a domain like acme.${rootDomain}`
-      )
-      .refine((uri) => uri.endsWith(rootDomain), {
-        message: `Must end with ${rootDomain}`
-      }),
+    domainUri: strict
+      ? z
+          .string()
+          .trim()
+          .min(suffix.length + 1, "Enter a label")
+          .refine(
+            (uri) =>
+              uri.endsWith(suffix) &&
+              SIP_LABEL.test(uri.slice(0, -suffix.length)),
+            { message: "Use lowercase letters, digits and dashes." }
+          )
+      : z
+          .string()
+          .trim()
+          .regex(
+            /^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}$/,
+            "Use a domain like acme.example.com"
+          ),
     aclRef: z.string(),
     egressPolicies: z.array(
       z.object({
@@ -93,13 +108,13 @@ export function DomainDrawer({
   domain?: DomainRow;
   onDelete?: (domain: DomainRow) => void;
 }) {
-  const { domain: rootDomain } = useCapabilities();
+  const { strict, suffix } = useSipNameRule("sip");
   const create = useCreateDomain();
   const update = useUpdateDomain();
   const mutation = domain ? update : create;
   const acls = useAclLookup();
   const numbers = useNumberLookup();
-  const schema = useMemo(() => domainSchema(rootDomain), [rootDomain]);
+  const schema = useMemo(() => domainSchema(suffix, strict), [suffix, strict]);
   const form = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { name: "", domainUri: "", aclRef: NONE, egressPolicies: [] }
@@ -225,20 +240,36 @@ export function DomainDrawer({
             hint={
               domain
                 ? "The URI can't be changed. Add a new domain instead."
-                : `Must end with ${rootDomain}.`
+                : "Phones register here, as sip:<user>@<domain URI>."
             }
           >
-            {(a11y) => (
-              <Input
-                {...a11y}
-                {...form.register("domainUri")}
-                placeholder={`acme.${rootDomain}`}
-                autoComplete="off"
-                spellCheck={false}
-                disabled={Boolean(domain)}
-                className="font-mono"
-              />
-            )}
+            {(a11y) =>
+              strict && !domain ? (
+                <Controller
+                  control={form.control}
+                  name="domainUri"
+                  render={({ field }) => (
+                    <SipNameInput
+                      {...a11y}
+                      value={field.value}
+                      onChange={field.onChange}
+                      suffix={suffix}
+                      placeholder="acme"
+                    />
+                  )}
+                />
+              ) : (
+                <Input
+                  {...a11y}
+                  {...form.register("domainUri")}
+                  placeholder={`acme${suffix}`}
+                  autoComplete="off"
+                  spellCheck={false}
+                  disabled={Boolean(domain)}
+                  className="font-mono"
+                />
+              )
+            }
           </Field>
           <Field
             label="Access control list"

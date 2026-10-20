@@ -130,7 +130,7 @@ fonoster sipnet:numbers:linkTwilioNumber \
 
 | Flag | Short | What it sets |
 | --- | --- | --- |
-| `--outbound-uri-base` | `-b` | The host Twilio sends calls to. The command prefixes it with your access key ID, so `<access key ID>.sip.example.com` must resolve to your SIP address. Default `pstn.fonoster.com`. |
+| `--outbound-uri-base` | `-b` | The host Twilio sends calls to. The command prefixes it with your access key ID, so `<access key ID>.pstn.example.com` must resolve to your SIP address. Default `pstn.<domain>`, from the server you're signed in to. |
 | `--access-control-list` | `-a` | The addresses your install sends calls from, comma-separated, as IPs or CIDR ranges. Twilio accepts outbound calls only from these. |
 
 ## Troubleshooting

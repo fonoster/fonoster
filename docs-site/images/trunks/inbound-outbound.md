@@ -23,12 +23,12 @@ Inbound and outbound are configured separately on one trunk.
 ## Node / edge spec
 
 ```
-Left: Your carrier ("speaks SIP", tall Node, 260 high) · Right: Fonoster ("trunk Claro", tall Node Accent)
-Inbound (accent, y 410, →): pill "Inbound"; text above "calls for your numbers → sip:claro.acme.sip.fonoster.com";
+Left: Your carrier ("speaks SIP", tall Node, 260 high) · Right: Fonoster ("trunk Acme", tall Node Accent)
+Inbound (accent, y 410, →): pill "Inbound"; text above "calls for your numbers → sip:acme.pstn.fonoster.com";
   chip under the Fonoster end (shield, accent) "checked by ACL or inbound credentials"
-Outbound (muted, y 570, ←): pill "Outbound"; text below "your calls → sip.claro.com.do:5060 (UDP)";
+Outbound (muted, y 570, ←): pill "Outbound"; text below "your calls → sip.acme.com:5060 (UDP)";
   chip above the Fonoster end (key) "outbound credentials"
-Under it: a stack of three URI cards (front: "1 sip.claro.com.do:5060"), note "outbound URIs, tried by priority, then weight"
+Under it: a stack of three URI cards (front: "1 sip.acme.com:5060"), note "outbound URIs, tried by priority, then weight"
 Legend: accent = inbound: calls for your numbers · muted = outbound: calls you make
 ```
 

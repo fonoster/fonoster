@@ -109,6 +109,24 @@ export namespace RegionsCapabilities {
   }
 }
 
+export class SipCapabilities extends jspb.Message {
+  getNames(): string;
+  setNames(value: string): SipCapabilities;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): SipCapabilities.AsObject;
+  static toObject(includeInstance: boolean, msg: SipCapabilities): SipCapabilities.AsObject;
+  static serializeBinaryToWriter(message: SipCapabilities, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): SipCapabilities;
+  static deserializeBinaryFromReader(message: SipCapabilities, reader: jspb.BinaryReader): SipCapabilities;
+}
+
+export namespace SipCapabilities {
+  export type AsObject = {
+    names: string,
+  }
+}
+
 export class SipEndpoint extends jspb.Message {
   getHost(): string;
   setHost(value: string): SipEndpoint;
@@ -227,6 +245,11 @@ export class GetCapabilitiesResponse extends jspb.Message {
   hasConnection(): boolean;
   clearConnection(): GetCapabilitiesResponse;
 
+  getSip(): SipCapabilities | undefined;
+  setSip(value?: SipCapabilities): GetCapabilitiesResponse;
+  hasSip(): boolean;
+  clearSip(): GetCapabilitiesResponse;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetCapabilitiesResponse.AsObject;
   static toObject(includeInstance: boolean, msg: GetCapabilitiesResponse): GetCapabilitiesResponse.AsObject;
@@ -244,6 +267,7 @@ export namespace GetCapabilitiesResponse {
     appUrl: string,
     regions?: RegionsCapabilities.AsObject,
     connection?: ConnectionCapabilities.AsObject,
+    sip?: SipCapabilities.AsObject,
   }
 }
 

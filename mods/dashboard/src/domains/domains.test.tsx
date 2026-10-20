@@ -33,7 +33,7 @@ beforeAll(() => {
 const acmeHq = {
   ref: "dm-1f02aa",
   name: "Acme HQ",
-  domainUri: "acme.fonoster.local",
+  domainUri: "acme.sip.fonoster.local",
   accessControlList: { ref: "acl-1", name: "Office network" },
   egressPolicies: [{ rule: ".*", numberRef: "nb-1" }]
 };
@@ -79,7 +79,9 @@ describe("Domains", () => {
     setup([acmeHq]);
     const table = await screen.findByRole("table", { name: "Domains" });
     expect(await within(table).findByText("Acme HQ")).toBeInTheDocument();
-    expect(within(table).getByText("acme.fonoster.local")).toBeInTheDocument();
+    expect(
+      within(table).getByText("acme.sip.fonoster.local")
+    ).toBeInTheDocument();
     expect(within(table).getByText("Office network")).toBeInTheDocument();
     expect(await within(table).findByText(/\+18095550100/)).toBeInTheDocument();
     expect(
@@ -91,7 +93,7 @@ describe("Domains", () => {
     const row = toDomainRow({
       ref: "d",
       name: "D",
-      domainUri: "d.fonoster.local",
+      domainUri: "d.sip.fonoster.local",
       accessControlList: { toObject: () => ({ ref: "a", name: "ACL" }) },
       egressPoliciesList: [
         { toObject: () => ({ rule: "^\\+1", numberRef: "n" }) }
@@ -109,16 +111,17 @@ describe("Domains", () => {
     ).toBeInTheDocument();
   });
 
-  it("validates the URI against the root domain", async () => {
+  it("asks for one label under sip.<domain>", async () => {
     const { user, domains } = setup([]);
     await user.click(
       await screen.findByRole("button", { name: "Create domain" })
     );
     await user.type(screen.getByLabelText("Name"), "Acme");
-    await user.type(screen.getByLabelText("Domain URI"), "acme.example.com");
+    expect(screen.getByText(".sip.fonoster.local")).toBeInTheDocument();
+    await user.type(screen.getByLabelText("Domain URI"), "acme_hq");
     await user.click(screen.getByRole("button", { name: "Create domain" }));
     expect(
-      await screen.findByText("Must end with fonoster.local")
+      await screen.findByText("Use lowercase letters, digits and dashes.")
     ).toBeInTheDocument();
     expect(domains.createDomain).not.toHaveBeenCalled();
   });
@@ -129,7 +132,7 @@ describe("Domains", () => {
       await screen.findByRole("button", { name: "Create domain" })
     );
     await user.type(screen.getByLabelText("Name"), "Acme HQ");
-    await user.type(screen.getByLabelText("Domain URI"), "acme.fonoster.local");
+    await user.type(screen.getByLabelText("Domain URI"), "acme");
     await user.click(screen.getByLabelText("Access control list"));
     await user.click(
       await screen.findByRole("option", { name: "Office network" })
@@ -148,7 +151,7 @@ describe("Domains", () => {
 
     expect(domains.createDomain).toHaveBeenCalledWith({
       name: "Acme HQ",
-      domainUri: "acme.fonoster.local",
+      domainUri: "acme.sip.fonoster.local",
       accessControlListRef: "acl-1",
       egressPolicies: [{ rule: "^[+]34", numberRef: "nb-2" }]
     });

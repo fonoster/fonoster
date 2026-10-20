@@ -61,6 +61,13 @@ message RegionsCapabilities {
   bool private = 1;
 }
 
+// How SIP names (trunk inbound URIs, domains) are checked (features.sip.names).
+message SipCapabilities {
+  // "domain": one DNS label under sip.<domain> (the default). "any": any host
+  // or IP, for installs whose carriers and phones reach them by address.
+  string names = 1;
+}
+
 message SipEndpoint {
   string host = 1;
   int32 port = 2;
@@ -91,4 +98,5 @@ message GetCapabilitiesResponse {
   string app_url = 5;
   RegionsCapabilities regions = 6;
   ConnectionCapabilities connection = 7;
+  SipCapabilities sip = 8;
 }

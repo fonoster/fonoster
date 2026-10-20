@@ -96,7 +96,7 @@ describe("numbers", () => {
       ref: "n2",
       name: "Billing inbound",
       trunkRef: "tk-77d9e1",
-      agentAor: "sip:juan@acme.sip.fonoster.io"
+      agentAor: "sip:juan@acme.sip.fonoster.local"
     });
   });
 

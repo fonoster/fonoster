@@ -63,8 +63,8 @@ ops/rebuild/stack seed
 It uses the API (as the owner account) to create, once:
 
 - the workspace **Demo** and a workspace API key,
-- a SIP Domain `demo.fonoster.local` with the Agent `softphone` (a generated password),
-- a Trunk `carrier.fonoster.local` (stands in for a carrier),
+- a SIP Domain `demo.sip.fonoster.local` with the Agent `softphone` (a generated password),
+- a Trunk `carrier.pstn.fonoster.local` (stands in for a carrier),
 - the Autopilot app **Demo Autopilot** (a short receptionist prompt; its model and voice follow
   your keys, see "Real voices" below; Deepgram `nova-3` recognition with the hint "Fonoster"),
 - the Number `+17853178070` on that Trunk, pointing at the app.
@@ -95,20 +95,20 @@ Use the values from `ops/rebuild/stack info`:
 | --- | --- |
 | Username | `softphone` |
 | Password | the generated agent password |
-| Domain | `demo.fonoster.local` |
+| Domain | `demo.sip.fonoster.local` |
 | Proxy / outbound proxy | `<your LAN address>:16060` (printed as "proxy") |
 | Transport | TCP or UDP |
 | Register | on |
 
-Linphone: Agent, "Use a SIP account", fill Username, Password, Domain `demo.fonoster.local`,
+Linphone: Agent, "Use a SIP account", fill Username, Password, Domain `demo.sip.fonoster.local`,
 Transport TCP; then in the account settings set the proxy `sip:<LAN address>:16060;transport=tcp`
-and enable "Outbound proxy". Zoiper: add a SIP account `softphone@demo.fonoster.local`, password,
+and enable "Outbound proxy". Zoiper: add a SIP account `softphone@demo.sip.fonoster.local`, password,
 "Outbound proxy" `<LAN address>:16060`, transport TCP. Turn off STUN/ICE in both.
 
 ## Call the app
 
 Dial the demo number from the softphone as a call into the carrier trunk:
-`sip:+17853178070@carrier.fonoster.local` (the smoke test's caller bot dials exactly this; a
+`sip:+17853178070@carrier.pstn.fonoster.local` (the smoke test's caller bot dials exactly this; a
 softphone call has not been tried yet, see the build log ST-B10). Routr matches the trunk by the request host, finds the
 Number, and sends the call to the Roomr node with the app in `X-App-Ref`. AppBridge opens a
 session to the hosted Autopilot, which greets you.

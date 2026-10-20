@@ -18,6 +18,7 @@
  */
 import SDK from "@routr/sdk";
 import { createCheckRefs, createRefLookups } from "../resources/checkRefs";
+import { withSipNameCheck } from "../resources/sipNames";
 import { ClientOptions } from "../types";
 import {
   createTrunk,
@@ -27,7 +28,14 @@ import {
   updateTrunk
 } from "./operations";
 
-function buildService(clientOptions: ClientOptions) {
+/**
+ * `namesRoot` (e.g. `sip.example.com`) makes every inbound URI one label under
+ * it; leave it out to accept any host or IP.
+ */
+function buildService(
+  clientOptions: ClientOptions,
+  options: { namesRoot?: string } = {}
+) {
   const client = new SDK.Trunks(clientOptions);
   const checkRefs = createCheckRefs(createRefLookups(clientOptions));
 
@@ -39,8 +47,18 @@ function buildService(clientOptions: ClientOptions) {
       proto: "trunks.proto"
     },
     handlers: {
-      createTrunk: createTrunk(client, checkRefs),
-      updateTrunk: updateTrunk(client, checkRefs),
+      createTrunk: withSipNameCheck(
+        createTrunk(client, checkRefs),
+        "inboundUri",
+        "inbound URI",
+        options.namesRoot
+      ),
+      updateTrunk: withSipNameCheck(
+        updateTrunk(client, checkRefs),
+        "inboundUri",
+        "inbound URI",
+        options.namesRoot
+      ),
       getTrunk: getTrunk(client),
       listTrunks: listTrunks(client),
       deleteTrunk: deleteTrunk(client)

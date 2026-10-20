@@ -45,6 +45,7 @@ import {
   NATS_CONNECTION,
   REGIONS,
   SESSION_APPS,
+  SIP_ROOT,
   WEBHOOKS
 } from "../envs";
 import { runOutboundCalls } from "../outbound";
@@ -124,7 +125,8 @@ async function runServices() {
       handlers,
       callFeatures: getConfig().features.calls
     }),
-    rootDomain: () => DOMAIN
+    // Workspace domains are <label>.sip.<domain>; a region rewrites them to its own.
+    rootDomain: () => SIP_ROOT
   });
   workspaceRegionHooks.attach(regions);
 

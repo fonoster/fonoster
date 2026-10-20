@@ -11,12 +11,12 @@ all of this for you.
 <img
   className="block dark:hidden rounded-xl"
   src="/images/trunks/inbound-outbound-light.png"
-  alt="One trunk between your carrier and Fonoster. Inbound, the carrier sends calls for your numbers to sip:claro.acme.sip.fonoster.com, checked by an ACL or inbound credentials. Outbound, Fonoster sends your calls to sip.claro.com.do:5060 over UDP with outbound credentials, trying outbound URIs by priority, then weight."
+  alt="One trunk between your carrier and Fonoster. Inbound, the carrier sends calls for your numbers to sip:acme.pstn.fonoster.com, checked by an ACL or inbound credentials. Outbound, Fonoster sends your calls to sip.acme.com:5060 over UDP with outbound credentials, trying outbound URIs by priority, then weight."
 />
 <img
   className="hidden dark:block rounded-xl"
   src="/images/trunks/inbound-outbound-dark.png"
-  alt="One trunk between your carrier and Fonoster. Inbound, the carrier sends calls for your numbers to sip:claro.acme.sip.fonoster.com, checked by an ACL or inbound credentials. Outbound, Fonoster sends your calls to sip.claro.com.do:5060 over UDP with outbound credentials, trying outbound URIs by priority, then weight."
+  alt="One trunk between your carrier and Fonoster. Inbound, the carrier sends calls for your numbers to sip:acme.pstn.fonoster.com, checked by an ACL or inbound credentials. Outbound, Fonoster sends your calls to sip.acme.com:5060 over UDP with outbound credentials, trying outbound URIs by priority, then weight."
 />
 
 ## Before you begin
@@ -68,7 +68,7 @@ addresses are under **Settings** → **Region**, in **Connection details**.
 
     <Tabs>
       <Tab title="Dashboard">
-        Go to **ACLs**, choose **Add ACL**, name it (for example `Claro signaling IPs`), and add
+        Go to **ACLs**, choose **Add ACL**, name it (for example `Acme signaling IPs`), and add
         each address or range, such as `200.88.12.0/24`.
       </Tab>
       <Tab title="CLI">
@@ -89,10 +89,11 @@ addresses are under **Settings** → **Region**, in **Connection details**.
 
         **Inbound · carrier → Fonoster**
 
-        - **Name**: the carrier's name, such as `Claro`.
-        - **Inbound URI**: a host name that identifies this trunk, such as
-          `claro.acme.sip.fonoster.com`. Give it to your carrier: they send calls for your numbers
-          to this host. It must be unique, so if it's taken, pick another.
+        - **Name**: the carrier's name, such as `Acme`.
+        - **Inbound URI**: a short label that identifies this trunk, such as `acme`. The form
+          adds your install's `.pstn.<domain>`, so the URI reads `acme.pstn.fonoster.com`. Give it
+          to your carrier: they send calls for your numbers to this host. It must be unique, so if
+          it's taken, pick another.
 
         **Outbound · Fonoster → carrier**
 
@@ -128,14 +129,14 @@ addresses are under **Settings** → **Region**, in **Connection details**.
 
           const trunks = new SDK.Trunks(client);
           const { ref } = await trunks.createTrunk({
-            name: "Claro",
-            inboundUri: "claro.acme.sip.fonoster.com",
+            name: "Acme",
+            inboundUri: "acme.pstn.fonoster.com", // one label under pstn.<domain>
             accessControlListRef: "8e1d4b7a-3c9f-4e2a-b6d0-7a5c1f3e9b28",
             outboundCredentialsRef: "2c6a9e4f-1b7d-4f3a-8e5c-0d9b3a7f1e64",
             sendRegister: false,
             uris: [
               {
-                host: "sip.claro.com.do",
+                host: "sip.acme.com",
                 port: 5060,
                 transport: "UDP",
                 priority: 1,
@@ -155,7 +156,8 @@ addresses are under **Settings** → **Region**, in **Connection details**.
         address or a domain name.
       </Tab>
       <Tab title="CLI">
-        The command asks for the name, the inbound URI and the ACL, then whether you need an
+        The command asks for the name, the inbound URI (one label under `pstn.<domain>`, such as
+        `acme.pstn.fonoster.com`) and the ACL, then whether you need an
         outbound URI. If you do, it asks for the outbound credentials, host, port, transport (TCP
         or UDP) and user:
 
@@ -185,7 +187,7 @@ addresses are under **Settings** → **Region**, in **Connection details**.
 In your carrier's portal, set up:
 
 - **Inbound (their origination)**: send calls for your numbers to `sip:<your inbound URI>`, such
-  as `sip:claro.acme.sip.fonoster.com`, at the SIP address from the trunk form.
+  as `sip:acme.pstn.fonoster.com`, at the SIP address from the trunk form.
 - **Authentication**: allowlist the addresses the trunk form lists, or give them the
   inbound credentials you attached to the trunk.
 - **Outbound (their termination)**: accept calls from the addresses the trunk form lists,

@@ -41,6 +41,19 @@ function getCapabilities(config: FonosterConfig) {
 }
 
 describe("@apiserver[capabilities/getCapabilities]", function () {
+  it("reports how SIP names are checked", async function () {
+    const strict = await getCapabilities(configWith({}));
+    expect(strict.sip).to.deep.equal({ names: "domain" });
+
+    const raw = configWith({});
+    const open = await getCapabilities(
+      configWith({
+        features: { ...raw.features, sip: { names: "any" } }
+      })
+    );
+    expect(open.sip).to.deep.equal({ names: "any" });
+  });
+
   it("reports Community defaults from fonoster.yaml", async function () {
     const response = await getCapabilities(configWith({}));
 

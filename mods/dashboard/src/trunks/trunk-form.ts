@@ -64,6 +64,7 @@ export const trunkSchema = z.object({
 });
 
 export type TrunkValues = z.infer<typeof trunkSchema>;
+
 export type UriValues = z.infer<typeof uriSchema>;
 
 export const NEW_URI: UriValues = {
