@@ -39,11 +39,12 @@ const endpoint = env("RB_API_ENDPOINT", "localhost:16449");
 const seedFile = env("RB_SEED_FILE");
 const DEMO = {
   workspace: "Demo",
-  domainUri: env("RB_SIP_DOMAIN", "demo.fonoster.local"),
+  // SIP names follow the API's rule (features.sip.names): domains under sip.<domain>,
+  // trunk inbound URIs under pstn.<domain>.
+  domainUri: env("RB_SIP_DOMAIN", "demo.sip.fonoster.local"),
   agentUser: "softphone",
   agentPassword: env("RB_AGENT_PASSWORD"),
-  // One label under sip.<domain>: the API requires it (features.trunks.inboundUri).
-  trunkUri: env("RB_CARRIER_URI", "carrier.sip.fonoster.local"),
+  trunkUri: env("RB_CARRIER_URI", "carrier.pstn.fonoster.local"),
   number: env("RB_DEMO_NUMBER", "+17853178070"),
   appName: "Demo Autopilot"
 };

@@ -182,10 +182,14 @@ export const REGIONS = config.regions;
 export const DOMAIN = config.domain;
 
 /**
- * Where trunk inbound URIs must live (`<label>.sip.<domain>`), or undefined when
- * features.trunks.inboundUri is "any".
+ * The install's SIP roots, split as Twilio does: carriers reach trunks at
+ * `<label>.pstn.<domain>`, phones register on domains at `<label>.sip.<domain>`.
  */
-export const TRUNK_INBOUND_URI_ROOT =
-  config.features.trunks.inboundUri === "domain"
-    ? `sip.${config.domain}`
-    : undefined;
+export const PSTN_ROOT = `pstn.${config.domain}`;
+export const SIP_ROOT = `sip.${config.domain}`;
+
+const strictNames = config.features.sip.names === "domain";
+/** Where trunk inbound URIs must live, or undefined when features.sip.names is "any". */
+export const TRUNK_NAMES_ROOT = strictNames ? PSTN_ROOT : undefined;
+/** Where domains must live, or undefined when features.sip.names is "any". */
+export const DOMAIN_NAMES_ROOT = strictNames ? SIP_ROOT : undefined;

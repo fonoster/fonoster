@@ -282,24 +282,32 @@ Then uncomment the `routr` lines in `compose.tls.yaml` and the `tls` transport i
 `<password>`, and run `init` and `docker compose up -d`. Carriers and softphones then use
 `transport=tls` on port `5061`. Call media (RTP) isn't encrypted by this.
 
-## Let carriers reach your trunks
+## Let carriers and phones reach you
 
-A trunk's inbound URI is the host your carrier sends calls to. Fonoster makes it one label under
-`sip.<domain>`, where `<domain>` is the `domain` in `config/fonoster.yaml`: a trunk named Acme gets
-`acme.sip.example.com`. The API rejects any other host.
+Fonoster names SIP addresses after your `domain` in `config/fonoster.yaml`, the way Twilio does:
 
-Point a wildcard DNS record for `*.sip.<domain>` at your SIP address, so every trunk's inbound URI
-resolves without a new record.
+- **Trunks**: a trunk's inbound URI, where your carrier sends calls, is one label under
+  `pstn.<domain>`. A trunk named Acme gets `acme.pstn.example.com`.
+- **Domains**: a domain, where SIP agents register, is one label under `sip.<domain>`, such as
+  `acme.sip.example.com`.
 
-If your carriers reach you by IP address, or you can't add a wildcard record, accept any host or IP
-instead. Set this in `config/fonoster.yaml`, then restart the API server:
+The API rejects any other name. Point two wildcard DNS records at your SIP address, so every new
+trunk and domain resolves without a new record:
+
+```text
+*.pstn.example.com  →  your SIP address
+*.sip.example.com   →  your SIP address
+```
+
+If your carriers and phones reach you by IP address, or you can't add wildcard records, accept any
+host or IP instead. Set this in `config/fonoster.yaml`, then restart the API server:
 
 ```yaml
 features:
-  trunks: { inboundUri: any }
+  sip: { names: any }
 ```
 
-The dashboard then asks for the full inbound URI instead of a label.
+The dashboard then asks for the full name instead of a label.
 
 ## Next steps
 

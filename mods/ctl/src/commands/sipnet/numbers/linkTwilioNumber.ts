@@ -35,7 +35,7 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
     "outbound-uri-base": Flags.string({
       char: "b",
       description:
-        "the host Twilio sends calls to, under which the trunk's inbound URI is made (default: sip.<the server's domain>)",
+        "the host Twilio sends calls to, under which the trunk's inbound URI is made (default: pstn.<the server's domain>)",
       required: false
     }),
     "access-control-list": Flags.string({
@@ -103,10 +103,10 @@ export default class LinkTwilioNumber extends AuthenticatedCommand<
         phoneNumber: answers.number,
         accessKeyId,
         aclEntries: flags["access-control-list"].split(","),
-        // Inbound URIs live under sip.<domain> (features.trunks.inboundUri).
+        // Trunk inbound URIs live under pstn.<domain> (features.sip.names).
         originationUriBase:
           flags["outbound-uri-base"] ??
-          `sip.${(await fonosterClient.getCapabilities()).domain}`,
+          `pstn.${(await fonosterClient.getCapabilities()).domain}`,
         applicationRef: answers.applicationRef,
         friendlyName: answers.friendlyName
       });

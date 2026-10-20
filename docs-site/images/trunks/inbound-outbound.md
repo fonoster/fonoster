@@ -24,7 +24,7 @@ Inbound and outbound are configured separately on one trunk.
 
 ```
 Left: Your carrier ("speaks SIP", tall Node, 260 high) · Right: Fonoster ("trunk Acme", tall Node Accent)
-Inbound (accent, y 410, →): pill "Inbound"; text above "calls for your numbers → sip:acme.sip.fonoster.com";
+Inbound (accent, y 410, →): pill "Inbound"; text above "calls for your numbers → sip:acme.pstn.fonoster.com";
   chip under the Fonoster end (shield, accent) "checked by ACL or inbound credentials"
 Outbound (muted, y 570, ←): pill "Outbound"; text below "your calls → sip.acme.com:5060 (UDP)";
   chip above the Fonoster end (key) "outbound credentials"

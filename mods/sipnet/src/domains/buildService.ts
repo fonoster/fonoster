@@ -26,8 +26,16 @@ import {
   listDomains,
   updateDomain
 } from "./operations";
+import { withSipNameCheck } from "../resources/sipNames";
 
-function buildService(clientOptions: ClientOptions) {
+/**
+ * `namesRoot` (e.g. `sip.example.com`) makes every domain one label under it;
+ * leave it out to accept any domain.
+ */
+function buildService(
+  clientOptions: ClientOptions,
+  options: { namesRoot?: string } = {}
+) {
   const client = new SDK.Domains(clientOptions);
   const checkRefs = createCheckRefs(createRefLookups(clientOptions));
 
@@ -39,8 +47,18 @@ function buildService(clientOptions: ClientOptions) {
       proto: "domains.proto"
     },
     handlers: {
-      createDomain: createDomain(client, checkRefs),
-      updateDomain: updateDomain(client, checkRefs),
+      createDomain: withSipNameCheck(
+        createDomain(client, checkRefs),
+        "domainUri",
+        "domain",
+        options.namesRoot
+      ),
+      updateDomain: withSipNameCheck(
+        updateDomain(client, checkRefs),
+        "domainUri",
+        "domain",
+        options.namesRoot
+      ),
       getDomain: getDomain(client),
       listDomains: listDomains(client),
       deleteDomain: deleteDomain(client)

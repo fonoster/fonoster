@@ -26,15 +26,15 @@ import {
   listTrunks,
   updateTrunk
 } from "./operations";
-import { withInboundUriCheck } from "./inboundUri";
+import { withSipNameCheck } from "../resources/sipNames";
 
 /**
- * `inboundUriRoot` (e.g. `sip.acme.com`) makes every inbound URI one label under
+ * `namesRoot` (e.g. `sip.example.com`) makes every inbound URI one label under
  * it; leave it out to accept any host or IP.
  */
 function buildService(
   clientOptions: ClientOptions,
-  options: { inboundUriRoot?: string } = {}
+  options: { namesRoot?: string } = {}
 ) {
   const client = new SDK.Trunks(clientOptions);
   const checkRefs = createCheckRefs(createRefLookups(clientOptions));
@@ -47,13 +47,17 @@ function buildService(
       proto: "trunks.proto"
     },
     handlers: {
-      createTrunk: withInboundUriCheck(
+      createTrunk: withSipNameCheck(
         createTrunk(client, checkRefs),
-        options.inboundUriRoot
+        "inboundUri",
+        "inbound URI",
+        options.namesRoot
       ),
-      updateTrunk: withInboundUriCheck(
+      updateTrunk: withSipNameCheck(
         updateTrunk(client, checkRefs),
-        options.inboundUriRoot
+        "inboundUri",
+        "inbound URI",
+        options.namesRoot
       ),
       getTrunk: getTrunk(client),
       listTrunks: listTrunks(client),

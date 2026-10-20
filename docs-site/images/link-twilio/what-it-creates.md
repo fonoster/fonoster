@@ -24,10 +24,10 @@ One command sets up both sides of the trunk and the number.
 
 ```
 Group "YOUR TWILIO ACCOUNT" (x 48):
-  Elastic SIP trunk (Trunk-wo7d…) holding chips "IP ACL: Fonoster's address", "Origination URL: sip:wo7d….sip.fonoster.com"
+  Elastic SIP trunk (Trunk-wo7d…) holding chips "IP ACL: Fonoster's address", "Origination URL: sip:wo7d….pstn.fonoster.com"
   Number +1 809 555 0123 ↑ into the trunk; note "moved onto the trunk"
 Group "YOUR FONOSTER WORKSPACE" (x 992):
-  Twilio Trunk (inbound URI wo7d….sip.fonoster.com) holding chip "outbound URI wo7d….pstn.twilio.com"
+  Twilio Trunk (inbound URI wo7d….pstn.fonoster.com) holding chip "outbound URI wo7d….pstn.twilio.com"
   ↓ Number +1 809 555 0123 → Front desk (Node Accent, Autopilot agent); note "points at the app you pick"
 Between the trunks: accent → "incoming calls (origination)" (y 340); muted ← "outbound calls (termination)" (y 420),
   note "to wo7d….pstn.twilio.com"

@@ -28,6 +28,13 @@ import {
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
+import {
+  SIP_LABEL,
+  SipNameInput,
+  sipNameLabel,
+  toSipLabel,
+  useSipNameRule
+} from "~/components/data/sip-name-input";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Field } from "~/components/ui/field";
@@ -35,18 +42,13 @@ import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Switch } from "~/components/ui/switch";
-import { useCapabilities } from "~/lib/capabilities";
 import { errorMessage, GrpcCode, grpcCode } from "~/lib/errors";
 import { useAllNumbers } from "~/numbers/numbers.service";
 import { CarrierHint } from "~/regions/connection";
 import { formatNumber } from "~/numbers/routing";
 import { OutboundUris } from "./outbound-uris";
 import {
-  inboundLabel,
-  inboundSuffix,
-  LABEL,
   NONE,
-  toLabel,
   toRequest,
   toValues,
   trunkSchema,
@@ -66,16 +68,11 @@ import {
  * the API requires (features.trunks.inboundUri: domain). A new trunk's label
  * follows its name until edited. With `any`, it's a free host or IP.
  */
-/** The install's inbound URI rule, from GetCapabilities. */
-function useInboundUriRule() {
-  const capabilities = useCapabilities();
-  return {
-    // "domain" (default): one label under sip.<domain>. "any": any host or IP.
-    strict: capabilities.trunks?.inboundUri !== "any",
-    suffix: inboundSuffix(capabilities.domain)
-  };
-}
-
+/**
+ * The inbound URI as a label plus the install's fixed `.pstn.<domain>`, which
+ * the API requires (features.sip.names: domain). A new trunk's label follows its
+ * name until edited. With `any`, it's a free host or IP.
+ */
 function InboundUriField({
   form,
   isNew,
@@ -86,7 +83,7 @@ function InboundUriField({
   /** The saved URI when it isn't under the root (a trunk made before the rule). */
   previous?: string;
 }) {
-  const { strict, suffix } = useInboundUriRule();
+  const { strict, suffix } = useSipNameRule("pstn");
   const [uri, name] = useWatch({
     control: form.control,
     name: ["inboundUri", "name"]
@@ -96,7 +93,7 @@ function InboundUriField({
 
   useEffect(() => {
     if (!strict || edited) return;
-    const label = toLabel(name ?? "");
+    const label = toSipLabel(name ?? "");
     form.setValue("inboundUri", label ? label + suffix : "");
   }, [name, strict, edited, suffix, form]);
 
@@ -121,12 +118,12 @@ function InboundUriField({
     );
   }
 
-  const label = inboundLabel(uri, suffix) ?? "";
+  const label = sipNameLabel(uri, suffix) ?? "";
   return (
     <Field
       label="Inbound URI"
       error={
-        error && label && !LABEL.test(label)
+        error && label && !SIP_LABEL.test(label)
           ? "Use lowercase letters, digits and dashes."
           : error
       }
@@ -137,27 +134,19 @@ function InboundUriField({
       }
     >
       {(a11y) => (
-        <div className="flex h-[38px] items-center rounded-control border border-input bg-background focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30">
-          <input
-            {...a11y}
-            value={label}
-            onChange={(event) => {
-              setEdited(true);
-              const next = event.target.value.trim().toLowerCase();
-              form.setValue("inboundUri", next ? next + suffix : "", {
-                shouldDirty: true,
-                shouldValidate: form.formState.isSubmitted
-              });
-            }}
-            placeholder="acme"
-            autoComplete="off"
-            spellCheck={false}
-            className="h-full min-w-0 flex-1 bg-transparent pl-3 font-mono text-[13px] outline-none placeholder:text-text-muted"
-          />
-          <span className="shrink-0 pr-3 font-mono text-[13px] text-muted-foreground">
-            {suffix}
-          </span>
-        </div>
+        <SipNameInput
+          {...a11y}
+          value={uri}
+          suffix={suffix}
+          placeholder="acme"
+          onChange={(next) => {
+            setEdited(true);
+            form.setValue("inboundUri", next, {
+              shouldDirty: true,
+              shouldValidate: form.formState.isSubmitted
+            });
+          }}
+        />
       )}
     </Field>
   );
@@ -260,12 +249,12 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
   });
   const { errors } = form.formState;
 
-  const rule = useInboundUriRule();
+  const rule = useSipNameRule("pstn");
   // A trunk made before the inbound URI rule moves under the root on save.
   const previous =
     rule.strict &&
     trunk?.inboundUri &&
-    inboundLabel(trunk.inboundUri, rule.suffix) === undefined
+    sipNameLabel(trunk.inboundUri, rule.suffix) === undefined
       ? trunk.inboundUri
       : undefined;
 
@@ -273,7 +262,7 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
     if (!trunk) return;
     form.reset(toValues(trunk));
     if (previous) {
-      const label = toLabel(previous.split(".")[0] ?? "");
+      const label = toSipLabel(previous.split(".")[0] ?? "");
       form.setValue("inboundUri", label ? label + rule.suffix : "", {
         shouldDirty: true
       });

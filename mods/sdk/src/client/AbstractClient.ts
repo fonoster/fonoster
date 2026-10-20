@@ -78,10 +78,10 @@ type Capabilities = {
    */
   connection: ConnectionDetails;
   /**
-   * How trunk inbound URIs are checked: "domain" (one label under
-   * `sip.<domain>`, the default) or "any" (any host or IP).
+   * How SIP names (trunk inbound URIs, domains) are checked: "domain" (one
+   * label under `sip.<domain>`, the default) or "any" (any host or IP).
    */
-  trunks: { inboundUri: "domain" | "any" };
+  sip: { names: "domain" | "any" };
 };
 
 type SipTransport = "udp" | "tcp" | "tls" | "ws" | "wss";
@@ -323,12 +323,9 @@ abstract class AbstractClient implements FonosterClient {
               private: response.getRegions()?.getPrivate() ?? false
             },
             connection: toConnectionDetails(response),
-            trunks: {
+            sip: {
               // Older servers don't send it; they checked nothing.
-              inboundUri:
-                response.getTrunks()?.getInboundUri() === "domain"
-                  ? "domain"
-                  : "any"
+              names: response.getSip()?.getNames() === "domain" ? "domain" : "any"
             }
           });
         }

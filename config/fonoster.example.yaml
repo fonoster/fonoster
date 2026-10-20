@@ -66,8 +66,8 @@ features:
   calls:
     transcripts: { store: true, retentionDays: 30 }
     recordings: { store: false }
-  trunks:
-    inboundUri: domain                           # domain: <label>.sip.<domain> | any: any host or IP
+  sip:
+    names: domain                                # domain: trunks <label>.pstn.<domain>, domains <label>.sip.<domain> | any: any host or IP
 
 routr:
   apiEndpoint: routr:51907

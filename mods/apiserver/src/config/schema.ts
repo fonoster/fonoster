@@ -46,12 +46,12 @@ const featuresSchema = z
       })
       .default({}),
     /**
-     * Trunk inbound URIs: "domain" requires one DNS label under `sip.<domain>`
-     * (carriers reach a wildcard `*.sip.<domain>`); "any" accepts any host or IP,
-     * for installs whose carriers reach them by address.
+     * SIP names (trunk inbound URIs, domains): "domain" requires one DNS label
+     * under `sip.<domain>` (carriers and phones reach a wildcard `*.sip.<domain>`);
+     * "any" accepts any host or IP, for installs reached by address.
      */
-    trunks: z
-      .object({ inboundUri: z.enum(["domain", "any"]).default("domain") })
+    sip: z
+      .object({ names: z.enum(["domain", "any"]).default("domain") })
       .default({})
   })
   .default({});

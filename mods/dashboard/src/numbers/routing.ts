@@ -38,7 +38,7 @@ export function applicationKind(app: Pick<Application, "type">): RouteKind {
   return String(app.type) === "AUTOPILOT" ? "agent" : "app";
 }
 
-/** A SIP agent's address of record, e.g. sip:maria@acme.sip.fonoster.io. */
+/** A SIP agent's address of record, e.g. sip:maria@acme.sip.fonoster.local. */
 export function sipAgentAor(user: Agent): string | undefined {
   const domain = user.domain?.domainUri;
   return domain ? `sip:${user.username}@${domain}` : undefined;
