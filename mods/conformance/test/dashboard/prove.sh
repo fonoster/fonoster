@@ -21,6 +21,8 @@ if [ "${QA_RUN:-}" = 1 ]; then
       node e2e/real-env.cjs --grep "\[$id\]" --reporter=junit || status=1
   fi
   if [ "${QA_BILLING:-}" = 1 ]; then
+    # The calls above used Trial credits: the Billing page case starts from a fresh account.
+    ../../ops/rebuild/stack billing-reset >/dev/null || status=1
     . ../../ops/rebuild/.local/stack.env
     PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/billing.xml" \
       RB_DASHBOARD_URL="http://localhost:$RB_API_PORT" RB_ADMIN_EMAIL="$RB_ADMIN_EMAIL" \
@@ -39,6 +41,7 @@ if grep -q "\[$id\]" e2e/*.real.spec.ts e2e-stack/*.spec.ts 2>/dev/null; then
   trap 'kill $vite 2>/dev/null' EXIT
   for _ in $(seq 1 60); do curl -sf "http://localhost:$port/config.js" >/dev/null && break; sleep 1; done
   if grep -q "\[$id\]" e2e-stack/*.spec.ts; then
+    ../../ops/rebuild/stack billing-reset >/dev/null || exit 1
     . ../../ops/rebuild/.local/stack.env
     RB_DASHBOARD_URL="http://localhost:$port" RB_ADMIN_EMAIL="$RB_ADMIN_EMAIL" \
       RB_ADMIN_PASSWORD="$RB_ADMIN_PASSWORD" \

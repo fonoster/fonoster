@@ -600,7 +600,7 @@ The test from #1058, now tagged: the owner's real account in the billing service
 - **Spec:** dashboard / Resource screens share one shape / Delete needs DELETE
 - **Priority:** P0
 - **Tier:** nightly
-- **Proof:** Create domains without their URI (`domains/domain-drawer.tsx`); the API refuses it and the test must go red at Create domain.
+- **Proof:** Create domains under another name than the one typed (`domains/domain-drawer.tsx`); the test must go red on the new domain's row.
 - **Fault:** faults/DSH-041.patch
 - **Test:** mods/dashboard/e2e/resources.real.spec.ts (the `real` project, `npm run test:e2e:real` against `ops/rebuild/stack up && seed`)
 
