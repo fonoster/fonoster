@@ -32,7 +32,7 @@ const spec = [
 module.exports = {
   "node-option": ["import=tsx"],
   spec: process.env.BIL_SPEC
-    ? process.env.BIL_SPEC.split(" ").filter(Boolean)
+    ? process.env.BIL_SPEC.split(/\s+/).filter(Boolean)
     : spec.map((f) => path.join(root, f)),
   require: [
     path.join(root, "mods/apiserver/test/setupConfig.ts"),
