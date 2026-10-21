@@ -4,6 +4,9 @@ name: Release
 #
 #   1. version: ops/release/next-release.sh (conventional commits since the last tag; a
 #      `Release-As: x.y.z` footer pins it). "none" stops here.
+#   1b. qa: the QA gate (qa-proofs.yaml) on the commit being released: every catalog case runs and
+#      is proven on its fault, and the release report decides. A failed gate stops the release
+#      before anything is published; the report is attached to the draft release.
 #   2. npm: `npm run release` (lerna publish, dist-tag latest), which commits the version bump,
 #      tags v<version> and pushes both to main.
 #   3. images: images.yaml at the release commit (every image in ops/release/images.json).
@@ -34,8 +37,43 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  plan:
+    name: next version
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.next.outputs.release }}
+      sha: ${{ steps.next.outputs.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Next release
+        id: next
+        run: |
+          release="$(ops/release/next-release.sh)"
+          echo "Next release: $release"
+          echo "release=$release" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  # The gate. Skipped when there is nothing to release, and when resuming a version already tagged
+  # (its gate ran when it was cut).
+  qa:
+    name: QA gate
+    needs: plan
+    if: needs.plan.outputs.release != 'none' && !inputs.resume
+    uses: ./.github/workflows/qa-proofs.yaml
+    with:
+      version: ${{ needs.plan.outputs.release }}
+      ref: ${{ needs.plan.outputs.sha }}
+    secrets: inherit
+
   npm:
     name: version and npm packages
+    needs: [plan, qa]
+    # Only after the gate passed, or when it was skipped (nothing new, or a resume).
+    if: ${{ !cancelled() && (needs.qa.result == 'success' || needs.qa.result == 'skipped') }}
     runs-on: ubuntu-latest
     # id-token lets npm verify this run (trusted publishing), so no npm token is stored.
     permissions:
@@ -51,6 +89,17 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GH_PAT }}
+
+      # The gate tested the plan's commit; publishing anything newer would skip it.
+      - name: Publish only what the gate tested
+        if: needs.qa.result == 'success'
+        env:
+          TESTED: ${{ needs.plan.outputs.sha }}
+        run: |
+          if [ "$(git rev-parse HEAD)" != "$TESTED" ]; then
+            echo "::error::main moved to $(git rev-parse --short HEAD) while the QA gate tested ${TESTED:0:9}. Run the release again."
+            exit 1
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -146,6 +195,14 @@ jobs:
       - name: Build the archive
         run: SKIP_IMAGES=1 ops/release/bundle "$VERSION"
 
+      # The QA report of the gate that let this release through (absent on a resume).
+      - name: QA report
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: qa-report
+          path: dist/qa
+
       - name: Release notes
         id: changelog
         uses: loopwerk/tag-changelog@v1
@@ -164,6 +221,7 @@ jobs:
           files: |
             dist/release/${{ env.VERSION }}/fonoster-${{ env.VERSION }}.tar.gz
             dist/release/${{ env.VERSION }}/fonoster-common-${{ env.VERSION }}.tgz
+            dist/qa/qa-report.md
 
   approval:
     name: approve the release
@@ -175,8 +233,9 @@ jobs:
         env:
           VERSION: ${{ needs.npm.outputs.version }}
         run: |
-          echo "Release v$VERSION: npm packages published, images pushed (fonoster/<name>:$VERSION"
-          echo "for every entry in ops/release/images.json), draft release with the install archive."
+          echo "Release v$VERSION: QA gate passed (qa-report.md on the draft), npm packages published,"
+          echo "images pushed (fonoster/<name>:$VERSION for every entry in ops/release/images.json),"
+          echo "draft release with the install archive."
           echo "Review the draft release and the images, then approve to publish the release."
 
   publish:

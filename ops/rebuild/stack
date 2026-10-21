@@ -13,6 +13,8 @@
 #   ops/rebuild/stack billing-page-e2e
 #                               up with billing + seed + the dashboard's Billing page with Playwright
 #                               (upgrade from the Trial, top up) + down (add-billing-page 4.1)
+#   ops/rebuild/stack billing-reset
+#                               a fresh Billing account on the Trial and an empty Stripe fake
 #   ops/rebuild/stack call      place one test call with the caller bot (stack must be up)
 #   ops/rebuild/stack ask       call, say a recorded question, report the turn latency
 #                               (RB_QUESTION=<16 kHz WAV>, RB_TURNS, RB_TRANSCRIBE=1 transcribes)
@@ -532,17 +534,22 @@ cmd_billing_page_e2e() {
   trap 'status=$?; if [ "$status" != 0 ]; then compose logs --no-color --tail 60 billing apiserver stripe-fake >&2 || true; fi; [ -z "$RB_SMOKE_KEEP" ] && cmd_down >/dev/null 2>&1; exit $status' EXIT
   cmd_up
   cmd_seed
-  # A fresh account and an empty Stripe each run: the fake keeps everything in memory.
-  psql_fonoster "drop schema if exists billing cascade" >/dev/null
-  compose restart stripe-fake >/dev/null
-  compose restart billing >/dev/null
-  wait_for "billing (migrations)" 60 billing_ready || die "billing did not start"
+  cmd_billing_reset
   load_env
   (cd "$ROOT/mods/dashboard" && RB_DASHBOARD_URL="http://localhost:$RB_API_PORT" \
     RB_STRIPE_FAKE_URL="http://localhost:${RB_STRIPE_FAKE_PORT:-12111}" \
     RB_ADMIN_EMAIL="$RB_ADMIN_EMAIL" RB_ADMIN_PASSWORD="$RB_ADMIN_PASSWORD" \
     npx playwright test -c playwright.stack.config.ts)
   log "Billing page end to end passed"
+}
+
+# A fresh Billing account (back on the Trial) and an empty Stripe: the fake keeps everything in
+# memory. The QA run calls it before the Billing page case, after other cases made calls.
+cmd_billing_reset() {
+  psql_fonoster "drop schema if exists billing cascade" >/dev/null
+  compose restart stripe-fake >/dev/null
+  compose restart billing >/dev/null
+  wait_for "billing (migrations)" 60 billing_ready || die "billing did not start"
 }
 
 billing_ready() { [ "$(psql_fonoster "select count(*) from billing._prisma_migrations")" -ge 1 ]; }
@@ -569,6 +576,7 @@ case "${1:-}" in
   e2e) cmd_e2e ;;
   billing-e2e) cmd_billing_e2e ;;
   billing-page-e2e) cmd_billing_page_e2e ;;
+  billing-reset) load_env; cmd_billing_reset ;;
   ask) cmd_ask ;;
   logs) shift; compose logs -f --tail 100 "$@" ;;
   ps) compose ps ;;

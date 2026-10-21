@@ -1,13 +1,27 @@
-name: QA proofs
+name: QA
 
-# Sees every case of an area red on its seeded fault (mods/conformance/catalog/prove.cjs) and keeps
-# the proof records for the release report. One run per case, so nightly and on demand, not on
-# every pull request.
+# The QA catalog's gate (mods/conformance/catalog). Each area job runs every case once and keeps
+# its JUnit (run.cjs), then sees every case red on its seeded fault (prove.cjs) and keeps the proof
+# records; the report job builds the release report from all of them (report.cjs) and fails when
+# the gate fails. Nightly and on demand, and called by release.yaml before anything is published.
+#
+# A new area adds a job here like the others (artifact `qa-<area>`, reports/junit/) and joins the
+# report job's needs.
 
 on:
   schedule:
     - cron: "17 6 * * *"
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        description: "The version the report is for (the release's, or empty for a nightly)"
+        type: string
+        default: ""
+      ref:
+        description: "The commit to test (default: the run's)"
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -36,6 +50,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       - name: Start Routr
         run: |
@@ -56,19 +72,21 @@ jobs:
 
       # The API cases run every @fonoster package from source; the standalone Identity and client
       # cases run their build, which prove.sh rebuilds around a fault in them.
-      - name: Prove
+      - name: Run and prove
         env:
           PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
           ROUTR_API_ENDPOINT: 127.0.0.1:51907
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
           LOGS_LEVEL: none
-        run: node mods/conformance/catalog/prove.cjs --area API --out reports/junit/proofs-API.xml
+        run: |
+          node mods/conformance/catalog/run.cjs --area API
+          node mods/conformance/catalog/prove.cjs --area API --out reports/junit/proofs-API.xml
 
       - name: Proof records
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: proofs-api
+          name: qa-api
           path: reports/junit/
           if-no-files-found: ignore
 
@@ -79,6 +97,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       # The full-stack case (APT-020) runs AppBridge on NATS, with JetStream as in conformance.yaml.
       - name: Start NATS with JetStream
@@ -100,22 +120,174 @@ jobs:
 
       # Autopilot runs from source; a fault in @fonoster/common (APT-013) is rebuilt by prove.sh
       # and again by the area's reset.
-      - name: Prove
+      - name: Run and prove
         env:
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
           LOGS_LEVEL: none
-        run: node mods/conformance/catalog/prove.cjs --area APT --out reports/junit/proofs-APT.xml
+        run: |
+          node mods/conformance/catalog/run.cjs --area APT
+          node mods/conformance/catalog/prove.cjs --area APT --out reports/junit/proofs-APT.xml
 
       - name: Proof records
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: proofs-apt
+          name: qa-apt
           path: reports/junit/
           if-no-files-found: ignore
 
+  appbridge:
+    name: AppBridge area
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Start NATS with JetStream
+        run: |
+          docker run -d --name nats -p 4222:4222 -p 8222:8222 nats:2.11.8 -js -m 8222
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8222/healthz && exit 0; sleep 1; done
+          docker logs nats; exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Run and prove
+        env:
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          LOGS_LEVEL: none
+        run: |
+          node mods/conformance/catalog/run.cjs --area APB
+          node mods/conformance/catalog/prove.cjs --area APB --out reports/junit/proofs-APB.xml
+
+      - name: Results and proof records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-apb
+          path: reports/junit/
+          if-no-files-found: ignore
+
+  voice-sdk:
+    name: Voice SDK area
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Start NATS with JetStream
+        run: |
+          docker run -d --name nats -p 4222:4222 -p 8222:8222 nats:2.11.8 -js -m 8222
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8222/healthz && exit 0; sleep 1; done
+          docker logs nats; exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+          python -m pip install -e python/fonoster-conformance -e "python/fonoster-voice[test]"
+          python -m venv "$RUNNER_TEMP/pipecat"
+          "$RUNNER_TEMP/pipecat/bin/pip" install -r python/pipecat-golden/requirements.txt
+
+      # The Python SDK runs in both; VSD-016 runs an unmodified Pipecat bot.
+      - name: Run and prove
+        env:
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          PYTHON: python
+          LOGS_LEVEL: none
+        run: |
+          export PIPECAT_PYTHON="$RUNNER_TEMP/pipecat/bin/python"
+          node mods/conformance/catalog/run.cjs --area VSD
+          node mods/conformance/catalog/prove.cjs --area VSD --out reports/junit/proofs-VSD.xml
+
+      - name: Results and proof records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-vsd
+          path: reports/junit/
+          if-no-files-found: ignore
+
+  dashboard:
+    name: Dashboard area
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      # The real-stack cases need the fake providers, the caller bot and Billing (DSH-039).
+      RB_PROFILES: fakes,tools,billing
+      RB_BILLING_TRIAL_CREDITS: "1000"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies, build and Chromium
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+          (cd mods/dashboard && npx playwright install --with-deps chromium)
+
+      # The whole stack with Billing on, seeded: the real project and the Billing page run against
+      # it, and the stack cases' proofs serve the patched SPA in front of it (vite.prove.config.ts).
+      - name: Start the stack
+        run: |
+          ops/rebuild/stack up
+          ops/rebuild/stack seed
+
+      - name: Run and prove
+        env:
+          QA_BILLING: "1"
+          LOGS_LEVEL: none
+        run: |
+          node mods/conformance/catalog/run.cjs --area DSH
+          node mods/conformance/catalog/prove.cjs --area DSH --out reports/junit/proofs-DSH.xml
+
+      - name: Results and proof records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-dsh
+          path: reports/junit/
+          if-no-files-found: ignore
+
+      - name: Stack logs on failure
+        if: failure()
+        run: ops/rebuild/stack compose logs --no-color --tail 80 apiserver appbridge billing || true
+
   billing:
-    name: Billing area proofs
+    name: Billing area
     runs-on: ubuntu-latest
     timeout-minutes: 120
     services:
@@ -133,6 +305,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
 
       # The usage streams are JetStream, as in conformance.yaml.
       - name: Start NATS with JetStream
@@ -155,17 +329,60 @@ jobs:
 
       # The mocha cases run every package from source; the viewer's cases run its build, which
       # prove.sh rebuilds around a fault in it and the area's reset rebuilds after.
-      - name: Prove
+      - name: Run and prove
         env:
           PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
           LOGS_LEVEL: none
-        run: node mods/conformance/catalog/prove.cjs --area BIL --out reports/junit/proofs-BIL.xml
+        run: |
+          node mods/conformance/catalog/run.cjs --area BIL
+          node mods/conformance/catalog/prove.cjs --area BIL --out reports/junit/proofs-BIL.xml
 
-      - name: Proof records
+      - name: Results and proof records
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: proofs-bil
+          name: qa-bil
           path: reports/junit/
           if-no-files-found: ignore
+
+  report:
+    name: release report and gate
+    needs: [api, autopilot, appbridge, voice-sdk, dashboard, billing]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+
+      - name: Results from every area
+        uses: actions/download-artifact@v4
+        with:
+          pattern: qa-*
+          path: reports/junit
+
+      # Every P0 case passes and is proven, every P1 passes or is waived (report.cjs).
+      - name: Report and gate
+        env:
+          VERSION: ${{ inputs.version || 'nightly' }}
+        run: |
+          mkdir -p reports
+          node mods/conformance/catalog/report.cjs --results reports/junit \
+            --version "$VERSION" --sha "$(git rev-parse --short HEAD)" --out reports/qa-report.md
+          cat reports/qa-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: The report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-report
+          path: reports/qa-report.md
+          if-no-files-found: ignore
+
