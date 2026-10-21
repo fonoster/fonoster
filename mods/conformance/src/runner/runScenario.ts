@@ -134,6 +134,8 @@ class Run {
   private readonly vars: Record<string, unknown>;
   private readonly labels = new Map<string, number>();
   private cursor = 0;
+  /** Expect cursors per channel, for peers that merge unordered sources (Peer.channel). */
+  private cursors = new Map<string, number>();
   private audioCursor = 0;
   private audio: AudioTally[] = [];
   private format?: AudioFormat;
@@ -225,7 +227,73 @@ class Run {
         return this.options.harness.control(
           interpolate(step.control!, this.vars)
         );
+      case "rpc":
+        return this.rpc(step);
+      case "app":
+      case "trunk":
+      case "nats":
+      case "node":
+      case "rtp": {
+        const act = this.options.harness?.[`${action}Step` as const] as
+          ((a: unknown) => Promise<void> | void) | undefined;
+        if (!act) throw new StepFailure(`the harness has no ${action} side`);
+        return act.call(
+          this.options.harness,
+          interpolate(step[action] as Record<string, unknown>, this.vars)
+        );
+      }
     }
+  }
+
+  /** A Roomr RPC through the fake controller: it must succeed (`reply`) or fail (`error`). */
+  private async rpc(step: Step) {
+    const harness = this.options.harness;
+    if (!harness?.rpc) throw new StepFailure("the harness has no controller");
+    const action = interpolate(step.rpc!, this.vars);
+    const result = await harness.rpc(action);
+    let source: Record<string, unknown>;
+    if (action.error) {
+      if (result.ok)
+        throw new StepFailure(
+          `${action.method} succeeded (${JSON.stringify(result.reply)}), expected an error`
+        );
+      source = {
+        code: result.code,
+        reason: result.reason,
+        message: result.message
+      };
+      const r = match(action.error, source);
+      if (!r.ok) throw new StepFailure(`${action.method} error: ${r.reason}`);
+    } else {
+      if (!result.ok)
+        throw new StepFailure(
+          `${action.method} failed with ${result.code} (${result.reason ?? result.message ?? ""})`
+        );
+      source = result.reply ?? {};
+      if (action.reply) {
+        const r = match(action.reply, source);
+        if (!r.ok) throw new StepFailure(`${action.method} reply: ${r.reason}`);
+      }
+    }
+    for (const [name, p] of Object.entries(step.capture ?? {})) {
+      const value = getPath(source, p);
+      if (value === undefined)
+        throw new StepFailure(
+          `capture ${name}: ${p} is not in the ${action.method} result`
+        );
+      this.vars[name] = value;
+    }
+  }
+
+  /** The channel of a frame or pattern, when the peer has channels. */
+  private channelOf(data: Record<string, unknown>): string | undefined {
+    return this.peer.channel?.(data);
+  }
+
+  private startOf(channel: string | undefined): number {
+    return channel === undefined
+      ? this.cursor
+      : (this.cursors.get(channel) ?? 0);
   }
 
   // ---- incoming frames -------------------------------------------------------------------
@@ -352,7 +420,8 @@ class Run {
     const pattern = interpolate(step.expect!, this.vars);
     const anchor = this.anchor(step);
     const items = this.peer.frames.items;
-    let scanned = this.cursor;
+    const channel = this.channelOf(pattern);
+    let scanned = this.startOf(channel);
     let closest: string | undefined;
 
     const found = await this.peer.frames.waitUntil(
@@ -361,6 +430,8 @@ class Run {
         for (; scanned < items.length; scanned++) {
           const frame = items[scanned];
           if (frame.kind !== "json") continue;
+          if (channel !== undefined && this.channelOf(frame.data) !== channel)
+            continue;
           const type = this.typeOf(frame.data);
           if (type && this.ignore.has(type)) continue;
           const r = match(pattern, frame.data);
@@ -391,7 +462,8 @@ class Run {
         `the next frame did not match: ${JSON.stringify(found.frame.data)} (${found.mismatch})`
       );
     }
-    this.cursor = found.index + 1;
+    if (channel === undefined) this.cursor = found.index + 1;
+    else this.cursors.set(channel, found.index + 1);
     this.checkTiming(index, step, anchor, found.frame.at);
 
     for (const [name, p] of Object.entries(step.capture ?? {})) {
@@ -410,13 +482,16 @@ class Run {
   private async expectNone(step: Step) {
     const pattern = interpolate(step.expect_none!, this.vars);
     const items = this.peer.frames.items;
-    let scanned = this.cursor;
+    const channel = this.channelOf(pattern);
+    let scanned = this.startOf(channel);
 
     const violation = await this.peer.frames.waitUntil(() => {
       this.absorb();
       for (; scanned < items.length; scanned++) {
         const frame = items[scanned];
         if (frame.kind !== "json") continue;
+        if (channel !== undefined && this.channelOf(frame.data) !== channel)
+          continue;
         const type = this.typeOf(frame.data);
         if (type && this.ignore.has(type)) continue;
         if (match(pattern, frame.data).ok) return frame;

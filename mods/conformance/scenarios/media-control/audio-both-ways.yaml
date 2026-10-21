@@ -1,0 +1,27 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: audio-both-ways
+spec: "App audio is RTP negotiated on the control stream / Endpoints exchanged on the stream"
+description: "RTP flows both ways between the endpoints exchanged in Start and Answer: the app hears the caller, the caller hears the app, and nobody hears their own audio."
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }
+  - caller: { audio: { kind: tone, hz: 440, ms: 1000 } }
+    label: spoke
+  - wait: { ms: 1300 }
+  - assert:
+      app.heard_ms: { $gte: 600 }
+      caller.heard_ms: { $lt: 100 }
+    from: spoke
+  - app: { audio: { kind: tone, hz: 1000, ms: 1000 } }
+    label: played
+  - wait: { ms: 1300 }
+  - assert:
+      caller.heard_ms: { $gte: 600 }
+    from: played

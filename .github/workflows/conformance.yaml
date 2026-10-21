@@ -100,7 +100,6 @@ jobs:
             'mods/appbridge/test/conformance.test.ts' \
             'mods/appbridge/test/integration.test.ts' \
             'mods/appbridge/test/crash.test.ts' \
-            'mods/conformance/test/nats.test.ts' \
             'mods/appbridge/test/gonode.test.ts' \
             'mods/appbridge/test/observability.test.ts' \
             'mods/conformance/test/roomr-secrets.test.ts' \

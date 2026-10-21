@@ -1,0 +1,36 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: nats-outage
+spec: "Events are best effort while NATS is down / NATS outage mid-call"
+description: "With the node's NATS connection cut, the call keeps running and audio keeps flowing; the call.ended published during the outage is dropped, never replayed once NATS is back (heartbeats resume). The spec's 60 s outage is shortened to seconds."
+setup:
+  roomr: { config: { heartbeatInterval: 200ms } }
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }
+  - nats: { drop: connection }
+  - wait: { ms: 1500 }
+  - caller: { audio: { kind: tone, ms: 800 } }
+    label: spoke
+  - wait: { ms: 1100 }
+  - assert:
+      app.heard_ms: { $gte: 300 }
+      caller.state: answered
+    from: spoke
+  - caller: { hangup: true }
+  - expect: { type: stream.ended, cause: caller_hangup }
+    within_ms: 2000
+  - nats: { restore: true }
+    label: restored
+  - wait: { ms: 3000 }
+  - assert:
+      heartbeats: { $gte: 1 }
+    from: restored
+  - expect_none: { type: call.ended }
+    for_ms: 500

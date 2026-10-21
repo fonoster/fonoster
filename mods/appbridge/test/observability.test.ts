@@ -80,7 +80,7 @@ describe("@appbridge OpenTelemetry signals from one real call (Go Roomr node)", 
   it("AppBridge and the Roomr node deliver traces and metrics (the node sends no OTLP logs) tagged with the call ref", async function () {
     const collector = await new OtlpCollector().start();
     const callRef = `obs-${Date.now()}`;
-    const harness = new RealMediaHarness(nc, bins!, { vendorCalls: () => 0 });
+    const harness = new RealMediaHarness(bins!, { vendorCalls: () => 0 });
     // The node reads the standard OTEL_* variables when its file sets no endpoint.
     harness.media.env = { OTEL_EXPORTER_OTLP_ENDPOINT: collector.endpoint };
     await harness.start();

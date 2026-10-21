@@ -4,10 +4,21 @@ role: media-control-client
 name: listener-destination
 spec: "Listeners fork audio by track / Listener audio destination"
 steps:
-  - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
-  - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }
-    within_ms: 1000
-    capture: { room: roomRef, caller: participantRef }
-  - send: { type: listener.attach, id: l1, roomRef: "${room}", tracks: [{ trackId: 1, rtp: { host: 127.0.0.1, port: 40100, codec: "L16/16000" } }] }
-  - expect: { type: ack, id: l1, listenerRef: { $re: ".+" } }
-    within_ms: 2000
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }
+  - rpc:
+      method: AddParticipant
+      request:
+        { room_ref: "${room}", listen: [{ track_id: 1, rtp: "${rtp_a}" }] }
+      reply: { participant_ref: { $re: ".+" } }
+  - caller: { audio: { kind: tone, ms: 800 } }
+    label: spoke
+  - wait: { ms: 1100 }
+  - assert:
+      rtp.a.heard_ms: { $gte: 300 }
+    from: spoke

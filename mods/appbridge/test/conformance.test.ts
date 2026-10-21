@@ -34,9 +34,6 @@ import { appsFor, placeOutbound, recordReaders } from "./scenarioApps";
 // AppBridge with the fakes. Needs NATS: set CONFORMANCE_NATS_URL (e.g. nats://127.0.0.1:4222).
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
-/** Scenarios whose assertions moved to the control plane with the control stream. */
-const MOVED_TO_CONTROL_PLANE = new Set(["outbound-busy"]);
-
 function configFor(scenario: Scenario, harness: FakesHarness): AppBridgeConfig {
   const urls = harness.providerUrls;
   return {
@@ -88,9 +85,6 @@ for (const contract of [
     for (const scenario of loadScenarios(contract)) {
       // The catalog case that runs this file, when its area is brought (twilio: VSD).
       it(`${scenarioCase(contract, scenario.name)}${scenario.name}`, async function () {
-        // Recorded by the control plane now (redesign-roomr): an unanswered outbound call opens
-        // no control stream, so AppBridge cannot record its progress.
-        if (MOVED_TO_CONTROL_PLANE.has(scenario.name)) return this.skip();
         const record = new MemoryCallRecordSink();
         const webhooks: Webhooks.WebhookEvent[] = [];
         const harness = await new FakesHarness({
@@ -112,7 +106,9 @@ for (const contract of [
             harness,
             connect: () =>
               scenario.setup?.call?.direction === "outbound"
-                ? placeOutbound(harness, scenario)
+                ? // An unanswered outbound call opens no control stream: the control plane
+                  // records it from the node's call.ended (outbound-busy).
+                  placeOutbound(harness, scenario, { nc, record })
                 : harness.offerCallAndAccept()
           });
           expect(result.status, result.reason).to.equal("passed");

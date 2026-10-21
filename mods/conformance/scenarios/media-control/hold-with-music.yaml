@@ -3,18 +3,23 @@ contract: media-control
 role: media-control-client
 name: hold-with-music
 spec: "Hold silences the app and plays hold audio / Hold with music"
+description: "Observed on the node: while held, the app's leg hears none of the caller's speech and the caller hears the hold music (served by the harness); Resume restores both directions."
 steps:
-  - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
-  - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }
-    within_ms: 1000
-    capture: { room: roomRef, caller: participantRef }
-  - send: { type: hold, id: h1, roomRef: "${room}", participantRef: "${caller}", music: "https://example.com/hold.wav" }
-  - expect: { type: ack, id: h1 }
-    within_ms: 2000
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }
+  - assert:
+      media.held: false
+  - app: { send: { hold: { music: "${media}/hold.wav" } } }
+  - wait: { ms: 300 }
   - assert:
       media.held: true
-  - send: { type: resume, id: h2, roomRef: "${room}", participantRef: "${caller}" }
-  - expect: { type: ack, id: h2 }
-    within_ms: 2000
+      media.hold_audio_ms: { $gte: 200 }
+  - app: { send: { resume: {} } }
+  - wait: { ms: 100 }
   - assert:
       media.held: false

@@ -18,14 +18,22 @@
  */
 import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
-import { loadScenarios, RoomrHarness, runScenario } from "../src";
+import {
+  FakeNodeDriver,
+  loadScenarios,
+  RoomrSuiteHarness,
+  runScenario,
+  scenarioCase
+} from "../src";
 
-// media-control scenarios (add-roomr task 1.0) against the FakeNatsRoomr over NATS. The Go
-// Roomr node will run the same files with a SIP caller bot as its harness. Needs NATS: set
-// CONFORMANCE_NATS_URL (e.g. nats://127.0.0.1:4222).
+// The media-control scenarios (redesign-roomr 11.2) against the fake Roomr node: Roomr over
+// gRPC, one control stream per call to the fake session endpoint, events and heartbeats on NATS,
+// and the caller, trunk and registrar in memory. The Go node runs the same files
+// (media-control-go.test.ts). Scenarios tagged `go-node` need a real SIP stack (codecs, TLS,
+// files on disk) and run there only. Needs NATS: set CONFORMANCE_NATS_URL.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
-describe("@conformance media-control scenarios (fake node)", function () {
+describe("@conformance media-control scenarios (fake Roomr node)", function () {
   this.timeout(40000);
   let nc: NatsConnection;
 
@@ -39,8 +47,13 @@ describe("@conformance media-control scenarios (fake node)", function () {
   });
 
   for (const scenario of loadScenarios("media-control")) {
-    it(scenario.name, async function () {
-      const harness = await new RoomrHarness(nc).start();
+    it(`${scenarioCase("media-control", scenario.name)}${scenario.name}`, async function () {
+      if (scenario.tags?.includes("go-node")) return this.skip();
+      const harness = await new RoomrSuiteHarness(
+        new FakeNodeDriver(),
+        nc,
+        NATS_URL!
+      ).start();
       try {
         const result = await runScenario(scenario, {
           harness,

@@ -16,12 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Roomr, Webhooks } from "@fonoster/common";
 import {
   DetachedPeer,
+  FakeCallee,
+  FakeRoomr,
   FakesHarness,
   Peer,
   Scenario
 } from "@fonoster/conformance";
+import { NatsConnection, StringCodec } from "nats";
 import { z } from "zod";
 import { AppConfig, MemoryCallRecordSink } from "../src";
 import { AudioFilterFactory } from "../src/filters";
@@ -135,11 +139,20 @@ export function recordReaders(record: MemoryCallRecordSink) {
  */
 export async function placeOutbound(
   harness: FakesHarness,
-  scenario: Scenario
+  scenario: Scenario,
+  controlPlane?: { nc: NatsConnection; record: MemoryCallRecordSink }
 ): Promise<Peer> {
   const call = scenario.setup?.call ?? {};
   const outcome = scenario.setup?.media?.dialOutcome ?? "answered";
-  if (outcome !== "answered") return new DetachedPeer();
+  if (outcome !== "answered") {
+    if (controlPlane)
+      await recordUnansweredCall(
+        controlPlane.nc,
+        controlPlane.record,
+        scenario
+      );
+    return new DetachedPeer();
+  }
   const mark = harness.connectionMark();
   await harness.roomrNode.placeCall({
     appRef: scenario.setup?.media?.appRef ?? "app-1",
@@ -151,4 +164,84 @@ export async function placeOutbound(
       : {})
   });
   return harness.acceptSession(mark);
+}
+
+const sc = StringCodec();
+
+const CALLEE_FOR: Record<string, FakeCallee> = {
+  busy: "busy",
+  no_answer: "no_answer",
+  failed: "decline"
+};
+
+/**
+ * An unanswered outbound call as the control plane records it (redesign-roomr; voice-session
+ * "Busy callee"): the controller places the call with CreateCall on a fake Roomr node whose
+ * callee refuses, the node publishes call.ended (answered false, the SIP status, the metadata
+ * the controller set), and the control plane's reading of that event (the apiserver's
+ * createNodeCallEvents and failedCallEntries) becomes the call's minimal record: call.started,
+ * call.progress and call.failed, sealed at once, in the record sink the scenario reads. No
+ * AppBridge ever sees the call.
+ */
+export async function recordUnansweredCall(
+  nc: NatsConnection,
+  record: MemoryCallRecordSink,
+  scenario: Scenario
+) {
+  const call = scenario.setup?.call ?? {};
+  const outcome = scenario.setup?.media?.dialOutcome ?? "busy";
+  const callRef = call.callRef ?? `out-${Date.now()}`;
+  const appRef = scenario.setup?.media?.appRef ?? "app-1";
+  const from = call.from ?? "+15550001111";
+  const to = call.to ?? "+15551234567";
+  const node = new FakeRoomr({ nc, callee: CALLEE_FOR[outcome] ?? "fail" });
+  const addr = await node.start();
+  const pool = Roomr.createRoomrPool();
+  const ended = new Promise<Record<string, unknown>>((resolve) => {
+    const sub = nc.subscribe(`roomr.events.${callRef}`, {
+      callback: (err, msg) => {
+        if (err) return;
+        const event = JSON.parse(sc.decode(msg.data));
+        if (event.type !== "call.ended") return;
+        sub.unsubscribe();
+        resolve(event);
+      }
+    });
+  });
+  try {
+    await nc.flush();
+    await pool.createCall(addr, {
+      callRef,
+      to: { uri: `sip:${to}@carrier` },
+      from,
+      metadata: { app_ref: appRef, from, to }
+    });
+    const event = await ended;
+    const unanswered = Webhooks.unansweredOutboundCall(
+      `roomr.events.${callRef}`,
+      event
+    );
+    if (!unanswered)
+      throw new Error("the node's call.ended reports no unanswered call");
+    const sip = unanswered.sipStatus ? { sipStatus: unanswered.sipStatus } : {};
+    const entries = [
+      {
+        type: "call.started",
+        direction: "outbound",
+        appRef: unanswered.appRef,
+        workspaceRef: null,
+        from: unanswered.from,
+        to: unanswered.to
+      },
+      { type: "call.progress", status: unanswered.reason, ...sip },
+      { type: "call.failed", reason: unanswered.reason, ...sip }
+    ];
+    const at = Date.now();
+    for (const message of entries)
+      record.append(callRef, { at, source: "event", message });
+    record.close(callRef);
+  } finally {
+    pool.close();
+    await node.stop();
+  }
 }

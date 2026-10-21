@@ -2,8 +2,28 @@ format: fonoster.scenario.v1
 contract: media-control
 role: media-control-client
 name: heartbeat
-spec: "Nodes report liveness / Heartbeats while alive"
-description: A live node publishes node.heartbeat at least every 2 s.
+spec: "Nodes report capacity and liveness / Heartbeat content"
+description: "A live node heartbeats its room count, limit, version, region and a dialable control_addr."
+setup:
+  roomr: { config: { maxRooms: 7, region: us-east, heartbeatInterval: 300ms } }
 steps:
-  - expect: { type: node.heartbeat, node_ref: { $re: ".+" }, rooms: { $gte: 0 }, max_rooms: { $gte: 1 } }
-    within_ms: 2500
+  - expect:
+      {
+        type: node.heartbeat,
+        node_ref: { $re: ".+" },
+        rooms: 0,
+        max_rooms: 7,
+        region: us-east,
+        version: { $re: ".+" },
+        control_addr: { $re: ":[0-9]+$" }
+      }
+    within_ms: 1000
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }
+  - expect: { type: node.heartbeat, rooms: 1, participants: { $gte: 2 } }
+    within_ms: 1500

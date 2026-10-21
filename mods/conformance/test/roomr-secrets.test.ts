@@ -103,6 +103,8 @@ describe("@conformance[deployment] secret:// in the started Roomr node", functio
         `nats: { url: "nats://127.0.0.1:${closed}", user: roomr, password: "${natsPassword}" }`,
         `sip: { listen: "127.0.0.1:${sip}", advertise: 127.0.0.1, registrations: [ { registrar: "127.0.0.1:${closed}", auth: { password: "${sipPassword}" } } ] }`,
         "rtp: { host: 127.0.0.1, advertise: 127.0.0.1 }",
+        // Required by the node; no call reaches it in these tests.
+        `sessionEndpoint: "127.0.0.1:${closed}"`,
         ""
       ].join("\n")
     );

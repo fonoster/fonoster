@@ -16,12 +16,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { RpcResult } from "../roomr/FakeController";
 import {
+  AppAction,
   CallerAction,
   ControlAction,
+  NatsAction,
+  NodeAction,
   Providers,
+  RpcAction,
+  RtpAction,
   Setup,
-  StripeAction
+  StripeAction,
+  TrunkAction
 } from "../scenario/types";
 
 /**
@@ -50,6 +57,18 @@ export interface Harness {
   control?(action: ControlAction): Promise<void> | void;
   /** Sets the Stripe fake's state and failures (`stripe` steps, billing). */
   stripe?(action: StripeAction): Promise<void> | void;
+  /** media-control: the fake controller calls a Roomr RPC (`rpc` steps). */
+  rpc?(action: RpcAction): Promise<RpcResult>;
+  /** media-control: the fake session endpoint (`app` steps). */
+  appStep?(action: AppAction): Promise<void> | void;
+  /** media-control: the fake trunk (`trunk` steps). */
+  trunkStep?(action: TrunkAction): Promise<void> | void;
+  /** media-control: NATS fault injection (`nats` steps). */
+  natsStep?(action: NatsAction): Promise<void> | void;
+  /** media-control: the node process (`node` steps). */
+  nodeStep?(action: NodeAction): Promise<void> | void;
+  /** media-control: the harness's RTP parties (`rtp` steps). */
+  rtpStep?(action: RtpAction): Promise<void> | void;
   /** Extra variables available to every scenario, such as `media` (base URL of test media). */
   vars?(): Record<string, unknown>;
 }

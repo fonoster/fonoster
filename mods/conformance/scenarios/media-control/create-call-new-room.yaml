@@ -1,0 +1,58 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: create-call-new-room
+spec: "CreateCall dials out on the node the controller chose / Dial into a new room"
+description: "The INVITE goes through to.proxy with to.headers byte for byte; call events carry contiguous seq and the metadata untouched, as does Start (OUTBOUND, the new room_ref); the app's Ready completes the call."
+steps:
+  - rpc:
+      method: CreateCall
+      request:
+        call_ref: d1
+        to:
+          {
+            uri: "sip:+15551234567@carrier.invalid",
+            proxy: "${trunk}",
+            headers: { X-DOD-Number: "+15550002", X-Foo: 'bar;baz="q u"' }
+          }
+        from: "+15550001"
+        metadata: { tenant: t1, app_ref: app-1 }
+      reply:
+        {
+          call_ref: d1,
+          state: RINGING,
+          room_ref: { $re: "^room-[0-9a-f]{32}$" }
+        }
+    capture: { room: room_ref }
+  - expect:
+      {
+        type: call.started,
+        call_ref: d1,
+        direction: outbound,
+        seq: 1,
+        metadata: { tenant: t1, app_ref: app-1 }
+      }
+    within_ms: 2000
+  - expect:
+      { type: call.ringing, call_ref: d1, seq: 2, metadata: { tenant: t1 } }
+    within_ms: 2000
+  - expect:
+      {
+        type: stream.start,
+        call_ref: d1,
+        direction: OUTBOUND,
+        room_ref: "${room}",
+        metadata: { tenant: t1, app_ref: app-1 }
+      }
+    within_ms: 3000
+  - expect:
+      { type: call.answered, call_ref: d1, seq: 3, metadata: { tenant: t1 } }
+    within_ms: 2000
+  - assert:
+      trunk.invites:
+        [
+          {
+            requestUri: { $contains: "+15551234567@carrier.invalid" },
+            headers: { X-DOD-Number: "+15550002", X-Foo: 'bar;baz="q u"' }
+          }
+        ]

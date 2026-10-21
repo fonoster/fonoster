@@ -5,13 +5,7 @@
   "description": "A language-neutral conformance scenario. See mods/conformance/SCENARIOS.md.",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "format",
-    "name",
-    "contract",
-    "role",
-    "steps"
-  ],
+  "required": ["format", "name", "contract", "role", "steps"],
   "properties": {
     "format": {
       "const": "fonoster.scenario.v1"
@@ -85,6 +79,102 @@
     }
   },
   "definitions": {
+    "nodeOverrides": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "media-control: Roomr node config overrides (short timeouts and limits, headers, registrations against the fake registrar)",
+      "properties": {
+        "maxRooms": { "type": "integer", "minimum": 1 },
+        "maxParticipants": { "type": "integer", "minimum": 1 },
+        "maxDuration": { "type": "string" },
+        "mediaTimeout": { "type": "string" },
+        "answerTimeout": { "type": "string" },
+        "readyTimeout": { "type": "string" },
+        "emptyRoomTimeout": { "type": "string" },
+        "drainWait": { "type": "string" },
+        "heartbeatInterval": { "type": "string" },
+        "reregisterDelta": { "type": "integer", "minimum": 1 },
+        "region": { "type": "string" },
+        "roomHeader": { "type": "string" },
+        "callRefHeader": { "type": "string" },
+        "codecs": { "type": "array", "items": { "type": "string" } },
+        "registrations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "aor": { "type": "string" },
+              "expires": { "type": "string" },
+              "headers": {
+                "type": "object",
+                "additionalProperties": { "type": "string" }
+              },
+              "auth": { "$ref": "#/definitions/credentials" }
+            }
+          }
+        }
+      }
+    },
+    "credentials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["username", "password"],
+      "properties": {
+        "username": { "type": "string" },
+        "password": { "type": "string" }
+      }
+    },
+    "roomrSetup": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "media-control: the Roomr node(s) under test and the fakes' initial behaviour",
+      "properties": {
+        "nodes": { "type": "integer", "minimum": 1, "maximum": 3 },
+        "config": { "$ref": "#/definitions/nodeOverrides" },
+        "node_config": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/nodeOverrides" }
+        },
+        "app": { "$ref": "#/definitions/appAction" },
+        "trunk": { "$ref": "#/definitions/trunkAction" },
+        "registrar": { "$ref": "#/definitions/credentials" }
+      }
+    },
+    "appAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "description": "media-control: the fake session endpoint: its mode for new streams (answer, reject, stall, down), a message or audio on a stream, or a kill",
+      "properties": {
+        "mode": { "enum": ["answer", "reject", "stall", "down"] },
+        "sip_status": { "type": "integer" },
+        "answer_after_ms": { "type": "integer", "minimum": 0 },
+        "max_duration_s": { "type": "integer", "minimum": 0 },
+        "call_ref": { "type": "string" },
+        "answer": { "const": true },
+        "send": {
+          "type": "object",
+          "description": "One AppMessage in snake_case, e.g. { hold: { music } }"
+        },
+        "audio": { "$ref": "#/definitions/audioSource" },
+        "mute": { "type": "boolean" },
+        "kill": { "const": true }
+      }
+    },
+    "trunkAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "media-control: how the fake trunk answers what a node dials",
+      "properties": {
+        "mode": {
+          "enum": ["answer", "busy", "no_answer", "unavailable", "decline"]
+        },
+        "after_ms": { "type": "integer", "minimum": 0 },
+        "auth": { "$ref": "#/definitions/credentials" },
+        "challenge": { "enum": [401, 407] }
+      }
+    },
     "setup": {
       "type": "object",
       "additionalProperties": false,
@@ -94,10 +184,7 @@
           "additionalProperties": false,
           "properties": {
             "direction": {
-              "enum": [
-                "inbound",
-                "outbound"
-              ]
+              "enum": ["inbound", "outbound"]
             },
             "from": {
               "type": "string"
@@ -119,10 +206,7 @@
           "additionalProperties": false,
           "properties": {
             "protocol": {
-              "enum": [
-                "fonoster",
-                "twilio"
-              ]
+              "enum": ["fonoster", "twilio"]
             },
             "signingSecret": {
               "type": "string"
@@ -188,12 +272,7 @@
           "additionalProperties": false,
           "properties": {
             "dialOutcome": {
-              "enum": [
-                "answered",
-                "busy",
-                "no_answer",
-                "failed"
-              ]
+              "enum": ["answered", "busy", "no_answer", "failed"]
             },
             "appRef": {
               "type": "string",
@@ -207,12 +286,11 @@
               "type": "integer",
               "minimum": 1,
               "description": "The Roomr node's room limit; room.create beyond it is refused with at_capacity"
-            },
-            "claimCalls": {
-              "type": "boolean",
-              "description": "media-control: whether the runner claims call.incoming (default true)"
             }
           }
+        },
+        "roomr": {
+          "$ref": "#/definitions/roomrSetup"
         },
         "agent": {
           "type": "object",
@@ -264,11 +342,7 @@
           "minimum": 0
         },
         "failNext": {
-          "enum": [
-            "provider_unavailable",
-            "provider_timeout",
-            "bad_request"
-          ]
+          "enum": ["provider_unavailable", "provider_timeout", "bad_request"]
         },
         "script": {
           "type": "array",
@@ -288,15 +362,16 @@
           "minimum": 0
         },
         "kind": {
-          "enum": [
-            "silence",
-            "tone",
-            "file"
-          ]
+          "enum": ["silence", "tone", "file"]
         },
         "file": {
           "type": "string",
           "description": "Path relative to scenarios/audio"
+        },
+        "hz": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "media-control: the tone's frequency (each party its own, for the mix-minus checker)"
         },
         "track": {
           "type": "integer",
@@ -366,9 +441,7 @@
         "wait": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "ms"
-          ],
+          "required": ["ms"],
           "properties": {
             "ms": {
               "type": "integer",
@@ -433,7 +506,17 @@
               "description": "The node ends the room with a media-control reason (for example media_timeout)",
               "properties": {
                 "reason": {
-                  "enum": ["caller_hangup", "callee_hangup", "busy", "no_answer", "rejected", "media_timeout", "node_error", "max_duration", "removed"]
+                  "enum": [
+                    "caller_hangup",
+                    "callee_hangup",
+                    "busy",
+                    "no_answer",
+                    "rejected",
+                    "media_timeout",
+                    "node_error",
+                    "max_duration",
+                    "removed"
+                  ]
                 },
                 "sipStatus": { "type": "integer" }
               }
@@ -450,8 +533,34 @@
                 "from": { "type": "string" },
                 "to": { "type": "string" },
                 "appRef": { "type": "string" },
-                "callRef": { "type": "string" }
+                "callRef": { "type": "string" },
+                "name": {
+                  "type": "string",
+                  "description": "media-control: names the call for later caller steps and measurements"
+                },
+                "node": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "media-control: the node called (default 0)"
+                },
+                "headers": {
+                  "type": "object",
+                  "additionalProperties": { "type": "string" }
+                },
+                "codecs": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "media-control: the offer, in order (default PCMU/8000)"
+                }
               }
+            },
+            "name": {
+              "type": "string",
+              "description": "media-control: the caller call the action applies to (default the last placed)"
+            },
+            "mute": {
+              "type": "boolean",
+              "description": "media-control: the caller sends no RTP at all (true) or resumes (false)"
             }
           }
         },
@@ -489,6 +598,71 @@
             }
           }
         },
+        "rpc": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["method"],
+          "description": "media-control: the fake controller calls a Roomr RPC on a node, or places a call across the nodes (method place); the RPC must succeed (reply pattern) or fail (error pattern on code, reason, message); capture reads the reply or the error",
+          "properties": {
+            "method": {
+              "enum": [
+                "CreateCall",
+                "EndCall",
+                "CreateRoom",
+                "EndRoom",
+                "AddParticipant",
+                "RemoveParticipant",
+                "place"
+              ]
+            },
+            "node": { "type": "integer", "minimum": 0 },
+            "request": {
+              "type": "object",
+              "description": "The request in the proto's snake_case"
+            },
+            "reply": { "type": "object" },
+            "error": { "type": "object" },
+            "order": {
+              "type": "array",
+              "items": { "type": "integer", "minimum": 0 }
+            }
+          }
+        },
+        "app": { "$ref": "#/definitions/appAction" },
+        "trunk": { "$ref": "#/definitions/trunkAction" },
+        "nats": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "description": "media-control: NATS fault injection between the nodes and NATS",
+          "properties": {
+            "drop": { "enum": ["connection", "messages"] },
+            "prefix": { "type": "string" },
+            "restore": { "const": true }
+          }
+        },
+        "node": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "description": "media-control: the node process is killed (SIGKILL) or told to drain (SIGTERM)",
+          "properties": {
+            "index": { "type": "integer", "minimum": 0 },
+            "kill": { "const": true },
+            "sigterm": { "const": true }
+          }
+        },
+        "rtp": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name"],
+          "description": "media-control: one of the harness's RTP parties (rtp_a .. rtp_d) plays a tone or goes silent",
+          "properties": {
+            "name": { "enum": ["a", "b", "c", "d"] },
+            "audio": { "$ref": "#/definitions/audioSource" },
+            "mute": { "type": "boolean" }
+          }
+        },
         "next": {
           "const": true,
           "description": "expect only: the match must be the next unconsumed JSON frame (no skipping)"
@@ -497,71 +671,50 @@
       "additionalProperties": false,
       "oneOf": [
         {
-          "required": [
-            "send"
-          ]
+          "required": ["send"]
         },
         {
-          "required": [
-            "send_audio"
-          ]
+          "required": ["send_audio"]
         },
         {
-          "required": [
-            "expect"
-          ]
+          "required": ["expect"]
         },
         {
-          "required": [
-            "expect_none",
-            "for_ms"
-          ]
+          "required": ["expect_none", "for_ms"]
         },
         {
-          "required": [
-            "expect_audio"
-          ]
+          "required": ["expect_audio"]
         },
         {
-          "required": [
-            "expect_close"
-          ]
+          "required": ["expect_close"]
         },
         {
-          "required": [
-            "wait"
-          ]
+          "required": ["wait"]
         },
         {
-          "required": [
-            "inject"
-          ]
+          "required": ["inject"]
         },
         {
-          "required": [
-            "assert"
-          ]
+          "required": ["assert"]
         },
         {
-          "required": [
-            "close"
-          ]
+          "required": ["close"]
         },
         {
-          "required": [
-            "caller"
-          ]
+          "required": ["caller"]
         },
         {
-          "required": [
-            "control"
-          ]
+          "required": ["control"]
         },
         {
-          "required": [
-            "stripe"
-          ]
-        }
+          "required": ["stripe"]
+        },
+        { "required": ["rpc"] },
+        { "required": ["app"] },
+        { "required": ["trunk"] },
+        { "required": ["nats"] },
+        { "required": ["node"] },
+        { "required": ["rtp"] }
       ]
     },
     "numberOrMatcher": {

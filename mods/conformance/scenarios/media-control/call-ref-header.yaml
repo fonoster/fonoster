@@ -1,0 +1,44 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: call-ref-header
+spec: "One call ref end to end / Outbound ref from the headers"
+description: "The configured call-ref header names an outbound call and goes out on the INVITE; a different call_ref is INVALID_ARGUMENT before any INVITE; a malformed inbound header gets a generated ref."
+steps:
+  - rpc:
+      method: CreateCall
+      request:
+        {
+          to:
+            {
+              uri: "sip:+15551234567@carrier.invalid",
+              proxy: "${trunk}",
+              headers: { X-Call-Ref: out7 }
+            }
+        }
+      reply: { call_ref: out7 }
+  - expect: { type: call.answered, call_ref: out7 }
+    within_ms: 3000
+  - assert:
+      trunk.invites: [{ headers: { X-Call-Ref: out7 } }]
+  - rpc:
+      method: CreateCall
+      request:
+        {
+          call_ref: a,
+          to:
+            {
+              uri: "sip:+15551234567@carrier.invalid",
+              proxy: "${trunk}",
+              headers: { X-Call-Ref: b }
+            }
+        }
+      error: { code: INVALID_ARGUMENT }
+  - caller: { call: { appRef: app-1, headers: { X-Call-Ref: "bad.ref" } } }
+  - expect:
+      {
+        type: stream.start,
+        direction: INBOUND,
+        call_ref: { $re: "^call-[0-9a-f]{32}$" }
+      }
+    within_ms: 2000

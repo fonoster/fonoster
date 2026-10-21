@@ -17,7 +17,7 @@ scenarios/
   voice-session/                  # runner plays the app, AppBridge is under test
   twilio-media-streams-flavor/    # runner plays a Twilio Media Streams app
   voice-sdk/                      # runner plays AppBridge, an SDK fixture app is under test
-  media-control/                  # runner plays AppBridge against a Roomr node (fake or Go) over NATS
+  media-control/                  # runner plays the controller and the app against a Roomr node (fake or Go)
   autopilot/                      # runner plays AppBridge, Autopilot (with setup.agent) is under test
   turn-taking/                    # runner plays the app, AppBridge's turn-taking is under test
   regions/                        # runner plays a region's cell, the control plane is under test
@@ -141,7 +141,8 @@ scenario rather than ignoring it.
 | `providers` | Initial fake provider behaviour (same shape as `inject`). |
 | `callerAudio` | Audio the fake Roomr node plays as the caller once the call is answered. |
 | `agent` | `autopilot` only: the agent config Autopilot runs for this scenario. |
-| `media` | Fake Roomr node behaviour: `dialOutcome` for `participant.dial` and transfers (`answered`, `busy`, `no_answer`, `failed`); `appRef` sent as Routr's `X-App-Ref`; `heartbeatMs`; `maxRooms` (the node's room limit; `room.create` beyond it gets `at_capacity`); `claimCalls: false` (media-control only) makes the runner leave `call.incoming` unclaimed. |
+| `media` | Fake Roomr node behaviour: `dialOutcome` for outbound calls and transfers (`answered`, `busy`, `no_answer`, `failed`); `appRef` sent as Routr's `X-App-Ref`; `heartbeatMs`; `maxRooms` (the Go node's room limit, real-media harness). |
+| `roomr` | `media-control` only: the node(s) under test and the fakes around them (see media-control scenarios). |
 | `catalog` | `voice-session` only: the provider catalog AppBridge resolves ids with. The runner registers the `fake` provider, a TTS model and `fake/default`, then each listed voice (`{id, state, replacement}`), deprecating or retiring it as `state` says. |
 
 #Besides the app under test (`app-1`), voice-session runners configure a second app, `app-2`,
@@ -162,14 +163,45 @@ and `conformance-boom`, which passes audio through and throws on the third frame
 
 ## media-control scenarios
 
-With `role: media-control-client` the runner plays AppBridge and control plane against a media
-node over NATS: `send` is a command (a NATS request on `media.<nodeId>.commands`) and its reply
-(`ack` or `error`, or `no_reply` after 2 s) arrives as a frame; room events, `node.heartbeat`,
-`node.down` and `call.incoming` (which the runner claims unless `claimCalls: false`) arrive as
-frames too. `caller: {call: {to, from, appRef, callRef}}` makes a call arrive at the node, as an
-INVITE from Routr would. Replies and events travel on different subjects, so do not rely on their
-relative order. Against the fake node `caller` steps drive the fake; against a real node the
-harness drives a SIP caller bot.
+With `role: media-control-client` the runner plays the controller and the app against a Roomr node
+(redesign-roomr): the fake node (`test/media-control.test.ts`) or the Go node
+(`test/media-control-go.test.ts`), alone. Around the node the harness runs the caller bot (the
+caller, the fake trunk the node dials through, and the fake registrar it registers with; in memory
+against the fake node), the fake session endpoint (the app side of every control stream, with a
+real UDP RTP app leg per call), the fake controller (a `roomr.v1.Roomr` client over every node),
+four RTP parties (`rtp_a` .. `rtp_d`, for RTP participants and listener destinations), a local
+HTTP server for hold music, and a TCP fault proxy between the nodes and NATS.
+
+Frames: every event the node publishes (`roomr.events.<call_ref>`, `roomr.events.room.<room_ref>`,
+`roomr.nodes.<node_ref>.events`, heartbeats and `node.down`), as published, and every message the
+node sends on a control stream, as `stream.<member>` in snake_case: `stream.start`, `stream.dtmf`,
+`stream.participant_joined`, `stream.participant_left`, `stream.transfer_result`, `stream.ended`,
+and `stream.closed` when the stream ends. The three sources (events, heartbeats, streams) are not
+ordered among each other, so `expect` keeps one cursor per source.
+
+| Step | Effect |
+| --- | --- |
+| `rpc: {method, node?, request, reply?, error?, order?}` | The fake controller calls a Roomr RPC (`CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `AddParticipant`, `RemoveParticipant`) on node `node` (default 0), with the request in the proto's snake_case. It must succeed and its reply match `reply`, or fail and `{code, reason, message}` match `error` (`code` is the gRPC status name, `reason` the ErrorInfo reason). `method: place` places a `CreateCall` across the nodes as a controller does (best heartbeat score first, the next on `RESOURCE_EXHAUSTED` or `UNAVAILABLE`, up to 3; `order` forces the order). `capture` reads the reply (or the error). An `AddParticipant` naming `${rtp_x}` starts that party's RTP to the node's side of the leg. |
+| `caller: {call, name, audio, dtmf, mute, hangup}` | `call: {to, from, appRef, callRef, headers, codecs, name, node}` sends an INVITE to a node (`appRef` and `callRef` become `X-App-Ref` and `X-Call-Ref`); the other actions apply to the call `name` (default the last): a tone (`audio: {kind, ms, hz}`), RFC 4733 keys, no RTP at all (`mute: true`), BYE or CANCEL (`hangup`). |
+| `app: {mode, sip_status, answer_after_ms, max_duration_s, call_ref, answer, send, audio, mute, kill}` | The fake session endpoint: `mode` for new streams (`answer` with Answer or Ready, `reject` with `sip_status`, `stall` never answering, `down` refusing connections), `answer` a stalled stream now, `send` one AppMessage in snake_case (`{hold: {music: "${media}/hold.wav"}}`, `{transfer: {to, mode}}`, `{send_dtmf: {digits}}`, `{add_listener: {...}}`), the app leg plays a tone (`audio`) or sends no RTP (`mute`), or every stream breaks (`kill`). |
+| `trunk: {mode, after_ms, auth, challenge}` | How the trunk answers what a node dials: `answer`, `busy` (486), `unavailable` (480), `decline` (603), `no_answer` (rings until cancelled); with `auth` every INVITE is challenged (`challenge: 401` or `407`) until it carries those credentials. |
+| `rtp: {name, audio, mute}` | An RTP party plays a tone or goes silent. |
+| `nats: {drop, prefix, restore}` | Fault injection: `drop: connection` cuts the nodes' NATS connections and refuses new ones; `drop: messages` discards their publishes on subjects starting with `prefix` (default `roomr.`) while the connection stays up; `restore` ends both. |
+| `node: {index, kill, sigterm}` | SIGKILL or SIGTERM a node. |
+
+`setup.roomr`: `nodes` (default 1), `config` and `node_config[i]` (config overrides that shorten
+timeouts and limits: `maxRooms`, `maxParticipants`, `maxDuration`, `mediaTimeout`,
+`answerTimeout`, `readyTimeout`, `emptyRoomTimeout`, `drainWait`, `heartbeatInterval`,
+`reregisterDelta`; and `region`, `roomHeader`, `callRefHeader` (default `X-Call-Ref`), `codecs`,
+`registrations` against the fake registrar), `app`, `trunk` (initial behaviour, as the steps) and
+`registrar: {username, password}` (the registrar requires digest auth). Variables: `${trunk}` (the
+trunk's SIP URI, for `to.proxy`), `${media}` (the hold-music server), `${session}`, `${rtp_a}` ..
+`${rtp_d}` (each an RTP endpoint `{ip, port, codec}`), `${node_kind}` (`go` or `fake`).
+Scenarios tagged `go-node` need a real SIP stack and run against the Go node only.
+
+The NATS-only scenarios of the retired offer-and-command contract (`one-replica-claims`,
+`no-appbridge-answers`, `command-id-echoed`, `unknown-command-refused`, `ack-carries-results`,
+`unknown-field-ignored`, `dtmf-scoped`) are gone with it.
 
 ## regions scenarios
 
@@ -215,9 +247,20 @@ matcher, compared with what the harness measured.
 | --- | --- |
 | `media.output_silent_within_ms` | ms between the previous step and the last agent-audio packet the fake Roomr node received |
 | `media.output_audio_ms` | ms of agent audio the fake Roomr node has received since the previous step |
-| `media.commands` | the list of `media-control` commands received (for `$includes`) |
-| `media.held` | whether the fake Roomr node has the caller on hold |
-| `media.sip` | SIP statuses the caller received, in order (180 for `ring`, 200 for `answer`, refusals such as 404 or 503) |
+| `media.commands` | voice-session: the control-stream messages AppBridge sent the node, each `{type, ...}` (for `$includes`) |
+| `media.held` | whether the caller is on hold. media-control observes it on the node: while the caller speaks a tone the app leg hears less than 100 ms of it (a ~0.8 s probe). voice-session: what the fake node did with Hold and Resume |
+| `media.hold_audio_ms` | media-control: ms of audible audio the caller heard during the hold probe (its hold music) |
+| `media.sip`, `caller.sip` | SIP statuses the caller received, in order (180, 200, refusals such as 404 or 503) |
+| `caller.state`, `caller.digits`, `caller.codec`, `caller.secure`, `caller.heard_ms` | media-control: the last caller call's state (`calling`, `answered`, `ended`), the RFC 4733 digits it received, its negotiated codec, whether its media is SRTP, ms of audible audio it heard since the anchor; `caller.<name>.<field>` for a named call |
+| `app.heard_ms`, `app.streams` | media-control: ms of audible audio the last stream's app leg heard since the anchor; how many control streams the node opened |
+| `rtp.<x>.heard_ms` | media-control: ms of audible audio RTP party `x` heard since the anchor |
+| `mix` | media-control: for every party (caller calls by name, RTP parties, `app`), the senders whose tone it heard since the anchor, sorted (the mix-minus checker: `{sip: [b], b: [sip], c: [b, sip]}`) |
+| `trunk.invites`, `trunk.challenged`, `trunk.refers`, `trunk.calls`, `trunk.state`, `trunk.heard_ms` | media-control: every INVITE the trunk received (`requestUri`, X- `headers`, `authorized`), the challenges it sent, the REFER targets it accepted, the calls it answered, the last one's state and what it heard |
+| `registrar.registers` | media-control: every REGISTER the registrar received (`expires`, X- `headers`, `challenged`) |
+| `heartbeats`, `node.<i>.heartbeats` | media-control: heartbeats node 0 (or `i`) published since the anchor |
+| `node.health`, `node.alive`, `node.files` (or `node.<i>.…`) | media-control: the node's gRPC health (`SERVING`, `NOT_SERVING`, `DOWN`), whether its process runs, the files it wrote |
+| `secrets.leaked` | media-control: whether a password from the scenario (trunk or registrar auth) appears in any frame, RPC result or node log |
+| `controller.attempts` | media-control: the fake controller's placement attempts, each `{node, node_ref, code}` |
 | `providers.vendor_calls` | network calls to anything other than the fakes (always expected to be `0`); needs a harness that watches egress, such as a proxy around the implementation |
 | `providers.tts.requests`, `providers.stt.requests`, `providers.llm.requests` | requests (or streams) the fake provider has served |
 | `providers.stt.streams` | STT streams opened so far, waiting up to 2 s for the first one (use before caller audio that must reach STT) |
@@ -260,7 +303,8 @@ plays; and the signature headers (`X-Fonoster-Timestamp`, `X-Fonoster-Signature`
 failure fails the scenario. Report every scenario as passed, failed or skipped, never silently
 omitted, and fail any scenario that uses a `setup` key, action or assertion the runner does not
 implement. `python/fonoster-conformance` is the reference second implementation; the Go Roomr node
-runs the `media-control` files through `mods/conformance/test/media-control-go.test.ts`.
+runs the `media-control` files through `mods/conformance/test/media-control-go.test.ts` (the fake
+node through `media-control.test.ts`).
 Point other runners at the published `@fonoster/conformance` package of the same version (the Python
 runner reads it from `FONOSTER_CONFORMANCE_DIR`) rather than copying the files.
 

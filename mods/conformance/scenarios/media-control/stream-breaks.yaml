@@ -1,0 +1,21 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: stream-breaks
+spec: "Each call opens one control stream to the session endpoint / Stream breaks mid-call"
+description: "The app instance dies: the node sends BYE to the caller with app_gone and never opens another stream for the call."
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }
+  - app: { kill: true }
+  - expect: { type: call.ended, call_ref: "${call}", cause: app_gone }
+    within_ms: 30000
+  - wait: { ms: 300 }
+  - assert:
+      caller.state: ended
+      app.streams: 1

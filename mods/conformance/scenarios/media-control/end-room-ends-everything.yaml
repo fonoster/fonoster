@@ -1,0 +1,28 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: end-room-ends-everything
+spec: "Rooms and participants are managed with CreateRoom, EndRoom, AddParticipant and RemoveParticipant / EndRoom ends everything"
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }
+  - rpc:
+      method: AddParticipant
+      request: { room_ref: "${room}", rtp: "${rtp_a}" }
+    capture: { pa: participant_ref }
+  - rpc:
+      method: EndRoom
+      request: { room_ref: "${room}" }
+  - expect: { type: stream.ended, cause: removed }
+    within_ms: 2000
+  - expect: { type: call.ended, call_ref: "${call}", cause: removed }
+    within_ms: 2000
+  - expect: { type: participant.left, participant_ref: "${pa}", cause: removed }
+    within_ms: 2000
+  - expect: { type: room.ended, room_ref: "${room}", cause: removed }
+    within_ms: 2000

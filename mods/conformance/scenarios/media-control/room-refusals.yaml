@@ -1,0 +1,26 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: room-refusals
+spec: "Rooms and participants are managed with CreateRoom, EndRoom, AddParticipant and RemoveParticipant / Unknown room"
+steps:
+  - rpc:
+      method: CreateRoom
+      request: { room_ref: taken }
+      reply: { room_ref: taken }
+  - rpc:
+      method: CreateRoom
+      request: { room_ref: taken }
+      error: { code: ALREADY_EXISTS, reason: room_exists }
+  - rpc:
+      method: AddParticipant
+      request: { room_ref: nowhere, rtp: "${rtp_a}" }
+      error: { code: NOT_FOUND, reason: room_not_found }
+  - rpc:
+      method: RemoveParticipant
+      request: { room_ref: taken, participant_ref: p-none }
+      error: { code: NOT_FOUND, reason: participant_not_found }
+  - rpc:
+      method: EndRoom
+      request: { room_ref: nowhere }
+      error: { code: NOT_FOUND, reason: room_not_found }

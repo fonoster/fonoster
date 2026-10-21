@@ -109,19 +109,44 @@ func main() {
 		writeJSON(w, c.Status())
 	}))
 
+	mux.HandleFunc("POST /calls/{id}/mute", withCall(func(c *caller.Call, w http.ResponseWriter, r *http.Request) {
+		req := struct{ Muted *bool }{}
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		c.Mute(req.Muted == nil || *req.Muted)
+		writeJSON(w, c.Status())
+	}))
+
 	mux.HandleFunc("GET /calls", func(w http.ResponseWriter, _ *http.Request) {
-		writeJSON(w, map[string]any{"calls": bot.Calls(), "refers": bot.Refers(), "challenged": bot.Challenged()})
+		writeJSON(w, map[string]any{"calls": bot.Calls(), "refers": bot.Refers(), "challenged": bot.Challenged(),
+			"invites": bot.Invites(), "registers": bot.Registers(), "registerChallenged": bot.RegisterChallenged()})
+	})
+	// The bot as a fake trunk: every INVITE it received as a callee (Request-URI, X- headers).
+	mux.HandleFunc("GET /invites", func(w http.ResponseWriter, _ *http.Request) {
+		writeJSON(w, map[string]any{"invites": bot.Invites(), "challenged": bot.Challenged()})
+	})
+	// The bot as a fake registrar: every REGISTER, and the digest it requires.
+	mux.HandleFunc("GET /registers", func(w http.ResponseWriter, _ *http.Request) {
+		writeJSON(w, map[string]any{"registers": bot.Registers(), "challenged": bot.RegisterChallenged()})
+	})
+	mux.HandleFunc("POST /registrar", func(w http.ResponseWriter, r *http.Request) {
+		var req struct{ Username, Password string }
+		_ = json.NewDecoder(r.Body).Decode(&req)
+		bot.RequireRegisterAuth(req.Username, req.Password)
+		w.WriteHeader(204)
 	})
 	mux.HandleFunc("POST /callee", func(w http.ResponseWriter, r *http.Request) {
 		var req struct {
 			Mode    string
 			AfterMs int
-			// Username and Password make the bot challenge INVITEs like Routr does a Peer's.
+			// Username and Password make the bot challenge INVITEs like Routr does a Peer's;
+			// Challenge picks 401 (default) or 407, as a proxy.
 			Username, Password string
+			Challenge          int
 		}
 		_ = json.NewDecoder(r.Body).Decode(&req)
 		bot.Callee(req.Mode, time.Duration(req.AfterMs)*time.Millisecond)
 		bot.RequireAuth(req.Username, req.Password)
+		bot.ChallengeWith(req.Challenge)
 		w.WriteHeader(204)
 	})
 	// The bot's own SIP address, for the node's outbound proxy in tests.

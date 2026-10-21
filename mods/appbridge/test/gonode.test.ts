@@ -117,7 +117,7 @@ describe("@appbridge voice-session through the Go Roomr node", function () {
       if (NOT_YET[scenario.name]) return this.skip();
       const record = new MemoryCallRecordSink();
       const webhooks: Webhooks.WebhookEvent[] = [];
-      const harness = await new RealMediaHarness(nc, bins!, {
+      const harness = await new RealMediaHarness(bins!, {
         vendorCalls: () => 0,
         ...recordReaders(record),
         webhookEvents: () => webhooks.map((e) => ({ type: e.type, ...e.data }))
@@ -178,7 +178,7 @@ describe("@AppBridge call recording through the Go Roomr node", function () {
       },
       onSealed: (e) => sealed.push(e)
     });
-    const harness = await new RealMediaHarness(nc, bins!, {
+    const harness = await new RealMediaHarness(bins!, {
       vendorCalls: () => 0
     }).start();
     const config = configFor({ name: "recording" } as Scenario, harness);
@@ -259,7 +259,7 @@ describe("@appbridge SIP codecs through the Go Roomr node", function () {
 
   for (const codec of ["PCMU/8000", "PCMA/8000", "G722/8000", "opus/48000"]) {
     it(`a ${codec} caller and a pcm16 app hear each other`, async function () {
-      const harness = await new RealMediaHarness(nc, bins!, {
+      const harness = await new RealMediaHarness(bins!, {
         vendorCalls: () => 0
       }).start();
       const appbridge = await new AppBridge({
@@ -359,7 +359,7 @@ describe("@appbridge no audio on the bus (Go Roomr node)", function () {
       }
     });
     await bus.flush();
-    const harness = await new RealMediaHarness(nc, bins!, {
+    const harness = await new RealMediaHarness(bins!, {
       vendorCalls: () => 0
     }).start();
     const appbridge = await new AppBridge({

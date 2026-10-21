@@ -83,7 +83,7 @@ export type BotCallStatus = {
   spokeUntilMs?: number;
 };
 
-async function freeTcpPort(): Promise<number> {
+export async function freeTcpPort(): Promise<number> {
   const s = net.createServer();
   await new Promise<void>((r) => s.listen(0, "127.0.0.1", r));
   const port = (s.address() as net.AddressInfo).port;
@@ -92,7 +92,7 @@ async function freeTcpPort(): Promise<number> {
 }
 
 /** A port free for both UDP and TCP: the node listens for SIP on both. */
-async function freeSipPort(): Promise<number> {
+export async function freeSipPort(): Promise<number> {
   const port = await freeTcpPort();
   const udp = dgram.createSocket("udp4");
   const bound = await new Promise<boolean>((r) => {
@@ -104,16 +104,18 @@ async function freeSipPort(): Promise<number> {
 }
 
 /** Spawns a process and resolves with the first stdout line that matches. */
-function startProcess(
+export function startProcess(
   bin: string,
   args: string[],
   ready: RegExp,
-  env?: Record<string, string | undefined>
+  env?: Record<string, string | undefined>,
+  options: { cwd?: string; onOutput?: (text: string) => void } = {}
 ): Promise<{ child: ChildProcess; line: string }> {
   return new Promise((resolve, reject) => {
     const child = spawn(bin, args, {
       stdio: ["ignore", "pipe", "pipe"],
-      env: env && { ...process.env, ...env }
+      env: env && { ...process.env, ...env },
+      cwd: options.cwd
     });
     const lines = readline.createInterface({ input: child.stdout! });
     const timer = setTimeout(() => {
@@ -121,12 +123,13 @@ function startProcess(
       reject(new Error(`${bin} did not start`));
     }, 10000);
     lines.on("line", (line) => {
+      options.onOutput?.(line + "\n");
       if (ready.test(line)) {
         clearTimeout(timer);
         resolve({ child, line });
       }
     });
-    child.stderr!.on("data", () => undefined);
+    child.stderr!.on("data", (d: Buffer) => options.onOutput?.(d.toString()));
     child.on("exit", (code) => {
       clearTimeout(timer);
       reject(new Error(`${bin} exited with ${code}`));
@@ -134,7 +137,7 @@ function startProcess(
   });
 }
 
-async function stopProcess(p: ChildProcess) {
+export async function stopProcess(p: ChildProcess) {
   if (p.exitCode !== null || p.signalCode !== null) return;
   const exited = new Promise((r) => p.once("exit", r));
   p.kill("SIGKILL");
@@ -198,11 +201,12 @@ export class RoomrProcess {
           listen: `127.0.0.1:${this.sipPort}`,
           advertise: "127.0.0.1",
           // The deployments' call-ref header: the bot's X-Call-Ref names inbound calls.
-          callRefHeader: "X-Call-Ref"
+          callRefHeader: "X-Call-Ref",
+          // Where dials go when CreateCall names no proxy (the bot, Routr's place).
+          outboundProxy: `sip:${outboundProxy}`
         },
         rtp: { host: "127.0.0.1", advertise: "127.0.0.1" },
         heartbeatInterval: `${this.heartbeatMs}ms`,
-        outboundProxy,
         control: { grpc: { listen: this.controlAddr } },
         // Each call's control stream (redesign-roomr): the AppBridge under test.
         ...(this.sessionEndpoint

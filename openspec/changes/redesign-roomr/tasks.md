@@ -105,19 +105,19 @@
 
 ## 11. Conformance
 
-- [ ] 11.1 Fake session endpoint (gRPC `Session` server) and fake controller (Roomr client) in `mods/conformance`
-- [ ] 11.2 Rewrite the `kind: media-control` scenario files for Roomr and the control stream; run them against the fake node and the Go node
-- [ ] 11.3 Mix-minus checker extended to RTP participants
+- [x] 11.1 Fake session endpoint (gRPC `Session` server) and fake controller (Roomr client) in `mods/conformance`
+- [x] 11.2 Rewrite the `kind: media-control` scenario files for Roomr and the control stream; run them against the fake node and the Go node
+- [x] 11.3 Mix-minus checker extended to RTP participants
 - [x] 11.4 Fake registrar records header templates per REGISTER
 - [ ] 11.5 Re-run the 200-room load bar on 2 vCPU with the control stream in place; Opus run reported separately; the load generator reads heartbeats
-- [ ] 11.6 gRPC `FakeRoomr` replacing the NATS role of `FakeNatsRoomr`
-- [ ] 11.7 Fake session endpoint modes: answer, reject, stall (no `Answer`/`Ready`), kill
-- [ ] 11.8 Fake controller driving several fake nodes
-- [ ] 11.9 Fake registrar reachable from YAML scenarios
-- [ ] 11.10 Fake SIP trunk/proxy recording Request-URI and headers, answering `200`, `486`, `407` or nothing on cue
-- [ ] 11.11 NATS fault injection (drop the connection, drop messages)
-- [ ] 11.12 Config overrides for short timeouts and limits (answer, `readyTimeout`, `mediaTimeout`, `emptyRoomTimeout`, `drainWait`, max duration)
-- [ ] 11.13 Retire the NATS-only scenarios `one-replica-claims`, `no-appbridge-answers`, `command-id-echoed`, `unknown-command-refused`, `ack-carries-results`
+- [x] 11.6 gRPC `FakeRoomr` replacing the NATS role of `FakeNatsRoomr`
+- [x] 11.7 Fake session endpoint modes: answer, reject, stall (no `Answer`/`Ready`), kill
+- [x] 11.8 Fake controller driving several fake nodes
+- [x] 11.9 Fake registrar reachable from YAML scenarios
+- [x] 11.10 Fake SIP trunk/proxy recording Request-URI and headers, answering `200`, `486`, `407` or nothing on cue
+- [x] 11.11 NATS fault injection (drop the connection, drop messages)
+- [x] 11.12 Config overrides for short timeouts and limits (answer, `readyTimeout`, `mediaTimeout`, `emptyRoomTimeout`, `drainWait`, max duration)
+- [x] 11.13 Retire the NATS-only scenarios `one-replica-claims`, `no-appbridge-answers`, `command-id-echoed`, `unknown-command-refused`, `ack-carries-results`
 - [ ] 11.14 Test: the node writes no audio file, with or without a recording listener
 - [ ] 11.15 Test: SIP over TLS with SDES-SRTP answers with SRTP; with no `tls` configured calls are plain
 

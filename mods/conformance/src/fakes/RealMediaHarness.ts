@@ -18,7 +18,6 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { NatsConnection } from "nats";
 import { Peer } from "../runner/Peer";
 import { SCENARIOS_DIR } from "../scenario/loadScenario";
 import { AudioSource, CallerAction, Setup } from "../scenario/types";
@@ -36,11 +35,7 @@ export class RealMediaHarness extends FakesHarness {
   private callerAudio?: AudioSource;
   private commands: Record<string, unknown>[] = [];
 
-  constructor(
-    private readonly nc: NatsConnection,
-    bins: RoomrBinaries,
-    options: FakesHarnessOptions = {}
-  ) {
+  constructor(bins: RoomrBinaries, options: FakesHarnessOptions = {}) {
     super(options);
     this.media = new RoomrProcess(bins);
   }

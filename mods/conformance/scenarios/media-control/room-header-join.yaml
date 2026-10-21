@@ -1,0 +1,31 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: room-header-join
+spec: "Inbound calls can join a room by header / Join an existing room"
+description: "The first INVITE with X-Room-Ref creates room r1, the second joins it; Start names the room, each call has its own stream, and the two callers hear each other."
+setup:
+  roomr: { config: { roomHeader: X-Room-Ref } }
+steps:
+  - caller: { call: { name: one, appRef: app-1, headers: { X-Room-Ref: r1 } } }
+  - expect: { type: stream.start, room_ref: r1 }
+    within_ms: 3000
+    capture: { first: call_ref }
+  - expect:
+      { type: stream.participant_joined, call_ref: "${first}", track_id: 2 }
+    within_ms: 3000
+  - caller: { call: { name: two, appRef: app-1, headers: { X-Room-Ref: r1 } } }
+  - expect: { type: stream.start, room_ref: r1 }
+    within_ms: 3000
+    capture: { second: call_ref }
+  - expect:
+      { type: stream.participant_joined, call_ref: "${second}", track_id: 4 }
+    within_ms: 3000
+  - caller: { name: one, audio: { kind: tone, hz: 440, ms: 1800 } }
+  - caller: { name: two, audio: { kind: tone, hz: 1000, ms: 1800 } }
+    label: playing
+  - wait: { ms: 1200 }
+  - assert:
+      mix: { one: [two], two: [one] }
+      app.streams: 2
+    from: playing

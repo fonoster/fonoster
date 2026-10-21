@@ -1,0 +1,45 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: recording-listener
+spec: "Listeners fork audio by track / Recording listener gets both sides"
+description: "A listener added on the stream receives each selected track as its own stream, never mixed (the caller's tone on one, the app's on the other); RemoveListener stops it."
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }
+  - app:
+      {
+        send:
+          {
+            add_listener:
+              {
+                listener_ref: rec-1,
+                listen:
+                  [
+                    { track_id: 1, rtp: "${rtp_a}" },
+                    { track_id: 2, rtp: "${rtp_b}" }
+                  ]
+              }
+          }
+      }
+  - wait: { ms: 200 }
+  - caller: { audio: { kind: tone, hz: 440, ms: 1500 } }
+  - app: { audio: { kind: tone, hz: 1000, ms: 1500 } }
+    label: playing
+  - wait: { ms: 1200 }
+  - assert:
+      mix: { a: [caller], b: [app] }
+    from: playing
+  - app: { send: { remove_listener: { listener_ref: rec-1 } } }
+  - wait: { ms: 300 }
+    label: removed
+  - caller: { audio: { kind: tone, ms: 800 } }
+  - wait: { ms: 900 }
+  - assert:
+      rtp.a.heard_ms: 0
+    from: removed

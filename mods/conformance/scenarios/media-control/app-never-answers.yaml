@@ -1,0 +1,17 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: app-never-answers
+spec: "Inbound calls become rooms / App never answers"
+setup:
+  roomr: { app: { mode: stall }, config: { answerTimeout: 1s } }
+steps:
+  - caller: { call: { appRef: app-1 } }
+  - expect: { type: stream.start }
+    within_ms: 2000
+  - expect: { type: stream.ended, cause: app_gone, sip_status: 480 }
+    within_ms: 2500
+  - expect: { type: stream.closed }
+    within_ms: 1000
+  - assert:
+      caller.sip: [180, 480]

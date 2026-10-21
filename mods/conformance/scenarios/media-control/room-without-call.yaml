@@ -1,0 +1,47 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: room-without-call
+spec: "Rooms and participants are managed with CreateRoom, EndRoom, AddParticipant and RemoveParticipant / Room without a call"
+description: "An RTP participant joins and leaves a room with no call, and the room ends: three events on roomr.events.room.lobby with seq 1, 2 and 3."
+steps:
+  - rpc:
+      method: CreateRoom
+      request: { room_ref: lobby }
+      reply: { room_ref: lobby }
+  - rpc:
+      method: AddParticipant
+      request: { room_ref: lobby, rtp: "${rtp_a}" }
+      reply:
+        {
+          participant_ref: { $re: ".+" },
+          track_id: 1,
+          rtp: { port: { $gt: 0 } }
+        }
+    capture: { pa: participant_ref }
+  - expect:
+      {
+        type: participant.joined,
+        room_ref: lobby,
+        participant_ref: "${pa}",
+        kind: rtp,
+        seq: 1
+      }
+    within_ms: 1000
+  - rpc:
+      method: RemoveParticipant
+      request: { room_ref: lobby, participant_ref: "${pa}" }
+  - expect:
+      {
+        type: participant.left,
+        room_ref: lobby,
+        participant_ref: "${pa}",
+        cause: removed,
+        seq: 2
+      }
+    within_ms: 1000
+  - rpc:
+      method: EndRoom
+      request: { room_ref: lobby }
+  - expect: { type: room.ended, room_ref: lobby, cause: removed, seq: 3 }
+    within_ms: 1000

@@ -1,0 +1,36 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: create-call-digest
+spec: "CreateCall dials out on the node the controller chose / Digest challenge answered"
+description: "The proxy's 407 is answered with to.auth; the password appears in no reply, event, stream message or node log."
+setup:
+  roomr:
+    {
+      trunk:
+        {
+          mode: answer,
+          auth: { username: peer, password: s3cret-pw-77 },
+          challenge: 407
+        }
+    }
+steps:
+  - rpc:
+      method: CreateCall
+      request:
+        {
+          call_ref: a1,
+          to:
+            {
+              uri: "sip:+15551234567@carrier.invalid",
+              proxy: "${trunk}",
+              auth: { username: peer, password: s3cret-pw-77 }
+            }
+        }
+      reply: { state: RINGING }
+  - expect: { type: call.answered, call_ref: a1 }
+    within_ms: 3000
+  - assert:
+      trunk.challenged: 1
+      trunk.invites: [{ authorized: false }, { authorized: true }]
+      secrets.leaked: false
