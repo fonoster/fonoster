@@ -142,7 +142,7 @@ describe("@appbridge AMD listener", function () {
 
     // One listener with one track: the caller's.
     const commands = harness.roomrNode.commands.map((c) => c.command);
-    const attach = commands.find((c) => c.type === "attachListener")!;
+    const attach = commands.find((c) => c.type === "addListener")!;
     const tracks = attach.listen as {
       trackId: number;
       rtp: { codec: string };
@@ -151,7 +151,7 @@ describe("@appbridge AMD listener", function () {
     expect(tracks[0].rtp.codec).to.equal("L16/16000");
     await waitFor(() =>
       harness.roomrNode.commands.find(
-        (c) => c.command.type === "detachListener"
+        (c) => c.command.type === "removeListener"
       )
     );
     // The fake honors the detach: the listener's forks are gone (AO-B3).
@@ -261,9 +261,7 @@ describe("@appbridge AMD listener", function () {
       false
     );
     expect(
-      harness.roomrNode.commands.some(
-        (c) => c.command.type === "attachListener"
-      )
+      harness.roomrNode.commands.some((c) => c.command.type === "addListener")
     ).to.equal(false);
   });
 });

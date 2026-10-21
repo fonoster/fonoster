@@ -146,7 +146,7 @@ describe("@appbridge voice-session through the Go Roomr node", function () {
   }
 });
 
-// Recording policy through the real node's AttachListener (add-call-record 3.2): one unmixed RTP
+// Recording policy through the real node's AddListener (add-call-record 3.2): one unmixed RTP
 // stream per side, written by AppBridge's recorder and sealed into the record.
 describe("@AppBridge call recording through the Go Roomr node", function () {
   this.timeout(30000);

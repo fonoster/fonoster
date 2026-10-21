@@ -123,9 +123,10 @@ func (c *Config) defaults() {
 
 // Node owns rooms and calls.
 type Node struct {
-	cfg   Config
-	music *http.Client
-	nc    *nats.Conn
+	cfg Config
+	// holdAudio fetches hold music (Hold{music}, warm-transfer music).
+	holdAudio *http.Client
+	nc        *nats.Conn
 
 	mu    sync.Mutex
 	rooms map[string]*Room
@@ -133,9 +134,7 @@ type Node struct {
 	// created only on 200 OK, but the place counts toward MaxRooms meanwhile.
 	reserved map[string]int
 	// calls by call_ref, ended calls included for CallDedupeWindow.
-	calls map[string]*call
-	// ops are Play operations in progress, by operation_ref.
-	ops    map[string]*playback
+	calls  map[string]*call
 	dialer TargetDialer
 	window time.Duration
 
@@ -152,8 +151,8 @@ type Node struct {
 func New(nc *nats.Conn, cfg Config) *Node {
 	cfg.defaults()
 	return &Node{cfg: cfg, nc: nc, rooms: map[string]*Room{}, reserved: map[string]int{},
-		calls: map[string]*call{}, ops: map[string]*playback{}, stop: make(chan struct{}),
-		music: &http.Client{Timeout: 10 * time.Second}, window: CallDedupeWindow}
+		calls: map[string]*call{}, stop: make(chan struct{}),
+		holdAudio: &http.Client{Timeout: 10 * time.Second}, window: CallDedupeWindow}
 }
 
 // SetDialer gives the node a way to place outbound legs (CreateCall and transfers).

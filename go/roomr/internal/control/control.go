@@ -33,12 +33,9 @@ type Backend interface {
 	EndCall(ref string) error
 	CreateRoom(ref string, o node.RoomOptions) (string, error)
 	EndRoom(ref string) error
-	JoinRTP(roomRef string, ep node.MediaEndpoint) (node.ParticipantInfo, error)
-	JoinListener(roomRef string, tracks []node.ListenTrack) (node.ParticipantInfo, error)
-	Leave(roomRef, ref string) error
-	Play(t node.Target, url string) (string, error)
-	SendDTMF(t node.Target, digits string) error
-	Stop(operationRef string) error
+	AddRTPParticipant(roomRef string, ep node.MediaEndpoint) (node.ParticipantInfo, error)
+	AddListenerParticipant(roomRef string, tracks []node.ListenTrack) (node.ParticipantInfo, error)
+	RemoveParticipant(roomRef, ref string) error
 }
 
 // codeFor maps the node's error codes to gRPC codes.
@@ -50,13 +47,9 @@ var codeFor = map[string]codes.Code{
 	node.CodeRoomNotFound:        codes.NotFound,
 	node.CodeCallNotFound:        codes.NotFound,
 	node.CodeParticipantNotFound: codes.NotFound,
-	node.CodeOperationNotFound:   codes.NotFound,
-	node.CodeOperationExists:     codes.AlreadyExists,
 	node.CodeBadMessage:          codes.InvalidArgument,
 	node.CodeUnsupportedCodec:    codes.InvalidArgument,
 	node.CodeNotSupported:        codes.Unimplemented,
-	node.CodeCallNotAnswered:     codes.FailedPrecondition,
-	node.CodeNoDTMF:              codes.FailedPrecondition,
 	node.CodeInternal:            codes.Internal,
 }
 
@@ -184,8 +177,8 @@ func participant(p node.ParticipantInfo) *roomrv1.Participant {
 	return out
 }
 
-// Join adds an RTP participant or a listener. WebRTC is not implemented yet.
-func (s *Service) Join(_ context.Context, req *roomrv1.JoinRequest) (*roomrv1.Participant, error) {
+// AddParticipant adds an RTP participant or a listener. WebRTC is not implemented yet.
+func (s *Service) AddParticipant(_ context.Context, req *roomrv1.AddParticipantRequest) (*roomrv1.Participant, error) {
 	if req.GetRoomRef() == "" {
 		return nil, invalid("room_ref is required")
 	}
@@ -201,7 +194,7 @@ func (s *Service) Join(_ context.Context, req *roomrv1.JoinRequest) (*roomrv1.Pa
 		if err != nil {
 			return nil, err
 		}
-		p, err := s.backend.JoinRTP(req.GetRoomRef(), ep)
+		p, err := s.backend.AddRTPParticipant(req.GetRoomRef(), ep)
 		if err != nil {
 			return nil, toStatus(err)
 		}
@@ -218,7 +211,7 @@ func (s *Service) Join(_ context.Context, req *roomrv1.JoinRequest) (*roomrv1.Pa
 			}
 			tracks = append(tracks, node.ListenTrack{TrackID: int(t.GetTrackId()), RTP: ep})
 		}
-		p, err := s.backend.JoinListener(req.GetRoomRef(), tracks)
+		p, err := s.backend.AddListenerParticipant(req.GetRoomRef(), tracks)
 		if err != nil {
 			return nil, toStatus(err)
 		}
@@ -227,59 +220,12 @@ func (s *Service) Join(_ context.Context, req *roomrv1.JoinRequest) (*roomrv1.Pa
 	return nil, invalid("an rtp endpoint, a webrtc offer or listen is required")
 }
 
-// Leave removes a participant or listener.
-func (s *Service) Leave(_ context.Context, req *roomrv1.LeaveRequest) (*roomrv1.Empty, error) {
+// RemoveParticipant removes a participant or listener.
+func (s *Service) RemoveParticipant(_ context.Context, req *roomrv1.RemoveParticipantRequest) (*roomrv1.Empty, error) {
 	if req.GetParticipantRef() == "" {
 		return nil, invalid("participant_ref is required")
 	}
-	if err := s.backend.Leave(req.GetRoomRef(), req.GetParticipantRef()); err != nil {
-		return nil, toStatus(err)
-	}
-	return &roomrv1.Empty{}, nil
-}
-
-// Play plays a file to a call, participant or room.
-func (s *Service) Play(_ context.Context, req *roomrv1.PlayRequest) (*roomrv1.Operation, error) {
-	t := node.Target{CallRef: req.GetCallRef(), ParticipantRef: req.GetParticipantRef(), RoomRef: req.GetRoomRef()}
-	if t == (node.Target{}) {
-		return nil, invalid("a call_ref, participant_ref or room_ref is required")
-	}
-	if req.GetUrl() == "" {
-		return nil, invalid("url is required")
-	}
-	ref, err := s.backend.Play(t, req.GetUrl())
-	if err != nil {
-		return nil, toStatus(err)
-	}
-	return &roomrv1.Operation{OperationRef: ref}, nil
-}
-
-// Record is not implemented yet: the node has no recorder (recording runs through listeners).
-func (s *Service) Record(context.Context, *roomrv1.RecordRequest) (*roomrv1.Operation, error) {
-	return nil, refusal(codes.Unimplemented, node.CodeNotSupported, "Record is not implemented yet; attach a listener with Join")
-}
-
-// SendDtmf sends RFC 4733 events on a SIP leg.
-func (s *Service) SendDtmf(_ context.Context, req *roomrv1.SendDtmfRequest) (*roomrv1.Empty, error) {
-	t := node.Target{CallRef: req.GetCallRef(), ParticipantRef: req.GetParticipantRef()}
-	if t == (node.Target{}) {
-		return nil, invalid("a call_ref or participant_ref is required")
-	}
-	if req.GetDigits() == "" {
-		return nil, invalid("digits are required")
-	}
-	if err := s.backend.SendDTMF(t, req.GetDigits()); err != nil {
-		return nil, toStatus(err)
-	}
-	return &roomrv1.Empty{}, nil
-}
-
-// Stop cancels a Play the controller started.
-func (s *Service) Stop(_ context.Context, req *roomrv1.StopRequest) (*roomrv1.Empty, error) {
-	if req.GetOperationRef() == "" {
-		return nil, invalid("operation_ref is required")
-	}
-	if err := s.backend.Stop(req.GetOperationRef()); err != nil {
+	if err := s.backend.RemoveParticipant(req.GetRoomRef(), req.GetParticipantRef()); err != nil {
 		return nil, toStatus(err)
 	}
 	return &roomrv1.Empty{}, nil

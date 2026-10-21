@@ -342,13 +342,6 @@ func dtmfMsg(digit, source string) func(*sessionv1.NodeMessage) bool {
 	}
 }
 
-func opDoneMsg(ref, st string) func(*sessionv1.NodeMessage) bool {
-	return func(m *sessionv1.NodeMessage) bool {
-		d := m.GetEvent().GetOperationDone()
-		return d != nil && d.GetOperationRef() == ref && (st == "" || d.GetStatus() == st)
-	}
-}
-
 func transferMsg(st string) func(*sessionv1.NodeMessage) bool {
 	return func(m *sessionv1.NodeMessage) bool {
 		r := m.GetEvent().GetTransferResult()
@@ -722,7 +715,7 @@ func toneFrame(freq float64, i int) audio.Frame {
 	return f
 }
 
-// rtpParty is an RTP participant added with Join, played by the test.
+// rtpParty is an RTP participant added with AddParticipant, played by the test.
 type rtpParty struct {
 	ep  *rtpio.Endpoint
 	m   *meter
@@ -737,7 +730,7 @@ func (r *rig) join(room, srtpKey string) (*rtpParty, *roomrv1.Participant, error
 	}
 	r.t.Cleanup(ep.Close)
 	g := &rtpParty{ep: ep, m: newMeter()}
-	p, err := r.mc.Join(rpcCtx(r.t), &roomrv1.JoinRequest{RoomRef: room, Endpoint: &roomrv1.JoinRequest_Rtp{
+	p, err := r.mc.AddParticipant(rpcCtx(r.t), &roomrv1.AddParticipantRequest{RoomRef: room, Endpoint: &roomrv1.AddParticipantRequest_Rtp{
 		Rtp: &roomrv1.MediaEndpoint{Ip: "127.0.0.1", Port: uint32(ep.Port()), Codec: audio.NameL16, SrtpKey: srtpKey}}})
 	if err != nil {
 		return g, nil, err

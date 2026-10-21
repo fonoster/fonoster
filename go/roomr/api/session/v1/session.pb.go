@@ -5,7 +5,7 @@
 // Spec: openspec/changes/redesign-roomr/specs/media-control ("Each call opens one control stream
 // to the session endpoint", "App audio is RTP negotiated on the control stream", "Transfer modes",
 // "Hold silences the app and plays hold audio", "Listeners fork audio by track", "Endings carry a
-// reason", "Play, Record and SendDtmf are operations"). Messages only grow: add fields, never
+// reason", "The app sends DTMF on the caller's leg"). Messages only grow: add fields, never
 // renumber or reuse them, and receivers ignore fields they do not know.
 //
 // Regenerate the Go code with go/roomr/api/generate.sh.
@@ -537,7 +537,6 @@ type Event struct {
 	//
 	//	*Event_ParticipantJoined
 	//	*Event_ParticipantLeft
-	//	*Event_OperationDone
 	//	*Event_TransferResult
 	//	*Event_Ended
 	Event         isEvent_Event `protobuf_oneof:"event"`
@@ -600,15 +599,6 @@ func (x *Event) GetParticipantLeft() *ParticipantLeft {
 	return nil
 }
 
-func (x *Event) GetOperationDone() *OperationDone {
-	if x != nil {
-		if x, ok := x.Event.(*Event_OperationDone); ok {
-			return x.OperationDone
-		}
-	}
-	return nil
-}
-
 func (x *Event) GetTransferResult() *TransferResult {
 	if x != nil {
 		if x, ok := x.Event.(*Event_TransferResult); ok {
@@ -639,10 +629,6 @@ type Event_ParticipantLeft struct {
 	ParticipantLeft *ParticipantLeft `protobuf:"bytes,2,opt,name=participant_left,json=participantLeft,proto3,oneof"`
 }
 
-type Event_OperationDone struct {
-	OperationDone *OperationDone `protobuf:"bytes,3,opt,name=operation_done,json=operationDone,proto3,oneof"`
-}
-
 type Event_TransferResult struct {
 	TransferResult *TransferResult `protobuf:"bytes,4,opt,name=transfer_result,json=transferResult,proto3,oneof"`
 }
@@ -654,8 +640,6 @@ type Event_Ended struct {
 func (*Event_ParticipantJoined) isEvent_Event() {}
 
 func (*Event_ParticipantLeft) isEvent_Event() {}
-
-func (*Event_OperationDone) isEvent_Event() {}
 
 func (*Event_TransferResult) isEvent_Event() {}
 
@@ -765,67 +749,6 @@ func (x *ParticipantLeft) GetCause() string {
 	return ""
 }
 
-type OperationDone struct {
-	state        protoimpl.MessageState `protogen:"open.v1"`
-	OperationRef string                 `protobuf:"bytes,1,opt,name=operation_ref,json=operationRef,proto3" json:"operation_ref,omitempty"`
-	// completed, stopped or failed
-	Status        string `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	Error         string `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *OperationDone) Reset() {
-	*x = OperationDone{}
-	mi := &file_session_v1_session_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *OperationDone) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*OperationDone) ProtoMessage() {}
-
-func (x *OperationDone) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use OperationDone.ProtoReflect.Descriptor instead.
-func (*OperationDone) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *OperationDone) GetOperationRef() string {
-	if x != nil {
-		return x.OperationRef
-	}
-	return ""
-}
-
-func (x *OperationDone) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *OperationDone) GetError() string {
-	if x != nil {
-		return x.Error
-	}
-	return ""
-}
-
 type TransferResult struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// completed, referred or failed
@@ -838,7 +761,7 @@ type TransferResult struct {
 
 func (x *TransferResult) Reset() {
 	*x = TransferResult{}
-	mi := &file_session_v1_session_proto_msgTypes[10]
+	mi := &file_session_v1_session_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -850,7 +773,7 @@ func (x *TransferResult) String() string {
 func (*TransferResult) ProtoMessage() {}
 
 func (x *TransferResult) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[10]
+	mi := &file_session_v1_session_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -863,7 +786,7 @@ func (x *TransferResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransferResult.ProtoReflect.Descriptor instead.
 func (*TransferResult) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{10}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *TransferResult) GetStatus() string {
@@ -899,7 +822,7 @@ type Ended struct {
 
 func (x *Ended) Reset() {
 	*x = Ended{}
-	mi := &file_session_v1_session_proto_msgTypes[11]
+	mi := &file_session_v1_session_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -911,7 +834,7 @@ func (x *Ended) String() string {
 func (*Ended) ProtoMessage() {}
 
 func (x *Ended) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[11]
+	mi := &file_session_v1_session_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -924,7 +847,7 @@ func (x *Ended) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Ended.ProtoReflect.Descriptor instead.
 func (*Ended) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{11}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *Ended) GetCause() string {
@@ -948,16 +871,13 @@ type AppMessage struct {
 	//	*AppMessage_Answer
 	//	*AppMessage_Ready
 	//	*AppMessage_Reject
-	//	*AppMessage_Play
-	//	*AppMessage_Stop
 	//	*AppMessage_Transfer
 	//	*AppMessage_TransferComplete
 	//	*AppMessage_Hold
 	//	*AppMessage_Resume
 	//	*AppMessage_SendDtmf
-	//	*AppMessage_AttachListener
-	//	*AppMessage_DetachListener
-	//	*AppMessage_Record
+	//	*AppMessage_AddListener
+	//	*AppMessage_RemoveListener
 	//	*AppMessage_Hangup
 	Msg           isAppMessage_Msg `protobuf_oneof:"msg"`
 	unknownFields protoimpl.UnknownFields
@@ -966,7 +886,7 @@ type AppMessage struct {
 
 func (x *AppMessage) Reset() {
 	*x = AppMessage{}
-	mi := &file_session_v1_session_proto_msgTypes[12]
+	mi := &file_session_v1_session_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -978,7 +898,7 @@ func (x *AppMessage) String() string {
 func (*AppMessage) ProtoMessage() {}
 
 func (x *AppMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[12]
+	mi := &file_session_v1_session_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -991,7 +911,7 @@ func (x *AppMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AppMessage.ProtoReflect.Descriptor instead.
 func (*AppMessage) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{12}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *AppMessage) GetMsg() isAppMessage_Msg {
@@ -1023,24 +943,6 @@ func (x *AppMessage) GetReject() *Reject {
 	if x != nil {
 		if x, ok := x.Msg.(*AppMessage_Reject); ok {
 			return x.Reject
-		}
-	}
-	return nil
-}
-
-func (x *AppMessage) GetPlay() *Play {
-	if x != nil {
-		if x, ok := x.Msg.(*AppMessage_Play); ok {
-			return x.Play
-		}
-	}
-	return nil
-}
-
-func (x *AppMessage) GetStop() *Stop {
-	if x != nil {
-		if x, ok := x.Msg.(*AppMessage_Stop); ok {
-			return x.Stop
 		}
 	}
 	return nil
@@ -1091,28 +993,19 @@ func (x *AppMessage) GetSendDtmf() *SendDtmf {
 	return nil
 }
 
-func (x *AppMessage) GetAttachListener() *AttachListener {
+func (x *AppMessage) GetAddListener() *AddListener {
 	if x != nil {
-		if x, ok := x.Msg.(*AppMessage_AttachListener); ok {
-			return x.AttachListener
+		if x, ok := x.Msg.(*AppMessage_AddListener); ok {
+			return x.AddListener
 		}
 	}
 	return nil
 }
 
-func (x *AppMessage) GetDetachListener() *DetachListener {
+func (x *AppMessage) GetRemoveListener() *RemoveListener {
 	if x != nil {
-		if x, ok := x.Msg.(*AppMessage_DetachListener); ok {
-			return x.DetachListener
-		}
-	}
-	return nil
-}
-
-func (x *AppMessage) GetRecord() *Record {
-	if x != nil {
-		if x, ok := x.Msg.(*AppMessage_Record); ok {
-			return x.Record
+		if x, ok := x.Msg.(*AppMessage_RemoveListener); ok {
+			return x.RemoveListener
 		}
 	}
 	return nil
@@ -1143,14 +1036,6 @@ type AppMessage_Reject struct {
 	Reject *Reject `protobuf:"bytes,3,opt,name=reject,proto3,oneof"`
 }
 
-type AppMessage_Play struct {
-	Play *Play `protobuf:"bytes,4,opt,name=play,proto3,oneof"`
-}
-
-type AppMessage_Stop struct {
-	Stop *Stop `protobuf:"bytes,5,opt,name=stop,proto3,oneof"`
-}
-
 type AppMessage_Transfer struct {
 	Transfer *Transfer `protobuf:"bytes,6,opt,name=transfer,proto3,oneof"`
 }
@@ -1171,16 +1056,12 @@ type AppMessage_SendDtmf struct {
 	SendDtmf *SendDtmf `protobuf:"bytes,10,opt,name=send_dtmf,json=sendDtmf,proto3,oneof"`
 }
 
-type AppMessage_AttachListener struct {
-	AttachListener *AttachListener `protobuf:"bytes,11,opt,name=attach_listener,json=attachListener,proto3,oneof"`
+type AppMessage_AddListener struct {
+	AddListener *AddListener `protobuf:"bytes,11,opt,name=add_listener,json=addListener,proto3,oneof"`
 }
 
-type AppMessage_DetachListener struct {
-	DetachListener *DetachListener `protobuf:"bytes,12,opt,name=detach_listener,json=detachListener,proto3,oneof"`
-}
-
-type AppMessage_Record struct {
-	Record *Record `protobuf:"bytes,13,opt,name=record,proto3,oneof"`
+type AppMessage_RemoveListener struct {
+	RemoveListener *RemoveListener `protobuf:"bytes,12,opt,name=remove_listener,json=removeListener,proto3,oneof"`
 }
 
 type AppMessage_Hangup struct {
@@ -1193,10 +1074,6 @@ func (*AppMessage_Ready) isAppMessage_Msg() {}
 
 func (*AppMessage_Reject) isAppMessage_Msg() {}
 
-func (*AppMessage_Play) isAppMessage_Msg() {}
-
-func (*AppMessage_Stop) isAppMessage_Msg() {}
-
 func (*AppMessage_Transfer) isAppMessage_Msg() {}
 
 func (*AppMessage_TransferComplete) isAppMessage_Msg() {}
@@ -1207,11 +1084,9 @@ func (*AppMessage_Resume) isAppMessage_Msg() {}
 
 func (*AppMessage_SendDtmf) isAppMessage_Msg() {}
 
-func (*AppMessage_AttachListener) isAppMessage_Msg() {}
+func (*AppMessage_AddListener) isAppMessage_Msg() {}
 
-func (*AppMessage_DetachListener) isAppMessage_Msg() {}
-
-func (*AppMessage_Record) isAppMessage_Msg() {}
+func (*AppMessage_RemoveListener) isAppMessage_Msg() {}
 
 func (*AppMessage_Hangup) isAppMessage_Msg() {}
 
@@ -1227,7 +1102,7 @@ type Answer struct {
 
 func (x *Answer) Reset() {
 	*x = Answer{}
-	mi := &file_session_v1_session_proto_msgTypes[13]
+	mi := &file_session_v1_session_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1239,7 +1114,7 @@ func (x *Answer) String() string {
 func (*Answer) ProtoMessage() {}
 
 func (x *Answer) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[13]
+	mi := &file_session_v1_session_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1252,7 +1127,7 @@ func (x *Answer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Answer.ProtoReflect.Descriptor instead.
 func (*Answer) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{13}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Answer) GetMedia() *MediaEndpoint {
@@ -1279,7 +1154,7 @@ type Ready struct {
 
 func (x *Ready) Reset() {
 	*x = Ready{}
-	mi := &file_session_v1_session_proto_msgTypes[14]
+	mi := &file_session_v1_session_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1291,7 +1166,7 @@ func (x *Ready) String() string {
 func (*Ready) ProtoMessage() {}
 
 func (x *Ready) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[14]
+	mi := &file_session_v1_session_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1304,7 +1179,7 @@ func (x *Ready) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Ready.ProtoReflect.Descriptor instead.
 func (*Ready) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{14}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *Ready) GetMedia() *MediaEndpoint {
@@ -1325,7 +1200,7 @@ type Reject struct {
 
 func (x *Reject) Reset() {
 	*x = Reject{}
-	mi := &file_session_v1_session_proto_msgTypes[15]
+	mi := &file_session_v1_session_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1337,7 +1212,7 @@ func (x *Reject) String() string {
 func (*Reject) ProtoMessage() {}
 
 func (x *Reject) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[15]
+	mi := &file_session_v1_session_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1350,7 +1225,7 @@ func (x *Reject) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Reject.ProtoReflect.Descriptor instead.
 func (*Reject) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{15}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *Reject) GetSipStatus() uint32 {
@@ -1363,110 +1238,6 @@ func (x *Reject) GetSipStatus() uint32 {
 func (x *Reject) GetReason() string {
 	if x != nil {
 		return x.Reason
-	}
-	return ""
-}
-
-type Play struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OperationRef  string                 `protobuf:"bytes,1,opt,name=operation_ref,json=operationRef,proto3" json:"operation_ref,omitempty"`
-	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
-	Loop          bool                   `protobuf:"varint,3,opt,name=loop,proto3" json:"loop,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Play) Reset() {
-	*x = Play{}
-	mi := &file_session_v1_session_proto_msgTypes[16]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Play) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Play) ProtoMessage() {}
-
-func (x *Play) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[16]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Play.ProtoReflect.Descriptor instead.
-func (*Play) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{16}
-}
-
-func (x *Play) GetOperationRef() string {
-	if x != nil {
-		return x.OperationRef
-	}
-	return ""
-}
-
-func (x *Play) GetUrl() string {
-	if x != nil {
-		return x.Url
-	}
-	return ""
-}
-
-func (x *Play) GetLoop() bool {
-	if x != nil {
-		return x.Loop
-	}
-	return false
-}
-
-type Stop struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OperationRef  string                 `protobuf:"bytes,1,opt,name=operation_ref,json=operationRef,proto3" json:"operation_ref,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Stop) Reset() {
-	*x = Stop{}
-	mi := &file_session_v1_session_proto_msgTypes[17]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Stop) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Stop) ProtoMessage() {}
-
-func (x *Stop) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[17]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Stop.ProtoReflect.Descriptor instead.
-func (*Stop) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{17}
-}
-
-func (x *Stop) GetOperationRef() string {
-	if x != nil {
-		return x.OperationRef
 	}
 	return ""
 }
@@ -1485,7 +1256,7 @@ type Transfer struct {
 
 func (x *Transfer) Reset() {
 	*x = Transfer{}
-	mi := &file_session_v1_session_proto_msgTypes[18]
+	mi := &file_session_v1_session_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1497,7 +1268,7 @@ func (x *Transfer) String() string {
 func (*Transfer) ProtoMessage() {}
 
 func (x *Transfer) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[18]
+	mi := &file_session_v1_session_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1510,7 +1281,7 @@ func (x *Transfer) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Transfer.ProtoReflect.Descriptor instead.
 func (*Transfer) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{18}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *Transfer) GetTo() *SipTarget {
@@ -1549,7 +1320,7 @@ type TransferComplete struct {
 
 func (x *TransferComplete) Reset() {
 	*x = TransferComplete{}
-	mi := &file_session_v1_session_proto_msgTypes[19]
+	mi := &file_session_v1_session_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1561,7 +1332,7 @@ func (x *TransferComplete) String() string {
 func (*TransferComplete) ProtoMessage() {}
 
 func (x *TransferComplete) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[19]
+	mi := &file_session_v1_session_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1574,7 +1345,7 @@ func (x *TransferComplete) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransferComplete.ProtoReflect.Descriptor instead.
 func (*TransferComplete) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{19}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{16}
 }
 
 type Hold struct {
@@ -1586,7 +1357,7 @@ type Hold struct {
 
 func (x *Hold) Reset() {
 	*x = Hold{}
-	mi := &file_session_v1_session_proto_msgTypes[20]
+	mi := &file_session_v1_session_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1598,7 +1369,7 @@ func (x *Hold) String() string {
 func (*Hold) ProtoMessage() {}
 
 func (x *Hold) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[20]
+	mi := &file_session_v1_session_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1611,7 +1382,7 @@ func (x *Hold) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Hold.ProtoReflect.Descriptor instead.
 func (*Hold) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{20}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *Hold) GetMusic() string {
@@ -1629,7 +1400,7 @@ type Resume struct {
 
 func (x *Resume) Reset() {
 	*x = Resume{}
-	mi := &file_session_v1_session_proto_msgTypes[21]
+	mi := &file_session_v1_session_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1641,7 +1412,7 @@ func (x *Resume) String() string {
 func (*Resume) ProtoMessage() {}
 
 func (x *Resume) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[21]
+	mi := &file_session_v1_session_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1654,19 +1425,21 @@ func (x *Resume) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Resume.ProtoReflect.Descriptor instead.
 func (*Resume) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{21}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{18}
 }
 
+// RFC 4733 events on the caller's leg, in order.
 type SendDtmf struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Digits        string                 `protobuf:"bytes,1,opt,name=digits,proto3" json:"digits,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// 0-9, *, #, A-D.
+	Digits        string `protobuf:"bytes,1,opt,name=digits,proto3" json:"digits,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SendDtmf) Reset() {
 	*x = SendDtmf{}
-	mi := &file_session_v1_session_proto_msgTypes[22]
+	mi := &file_session_v1_session_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1678,7 +1451,7 @@ func (x *SendDtmf) String() string {
 func (*SendDtmf) ProtoMessage() {}
 
 func (x *SendDtmf) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[22]
+	mi := &file_session_v1_session_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1691,7 +1464,7 @@ func (x *SendDtmf) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendDtmf.ProtoReflect.Descriptor instead.
 func (*SendDtmf) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{22}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *SendDtmf) GetDigits() string {
@@ -1711,7 +1484,7 @@ type ListenTrack struct {
 
 func (x *ListenTrack) Reset() {
 	*x = ListenTrack{}
-	mi := &file_session_v1_session_proto_msgTypes[23]
+	mi := &file_session_v1_session_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1723,7 +1496,7 @@ func (x *ListenTrack) String() string {
 func (*ListenTrack) ProtoMessage() {}
 
 func (x *ListenTrack) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[23]
+	mi := &file_session_v1_session_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1736,7 +1509,7 @@ func (x *ListenTrack) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListenTrack.ProtoReflect.Descriptor instead.
 func (*ListenTrack) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{23}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ListenTrack) GetTrackId() uint32 {
@@ -1753,7 +1526,7 @@ func (x *ListenTrack) GetRtp() *MediaEndpoint {
 	return nil
 }
 
-type AttachListener struct {
+type AddListener struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ListenerRef   string                 `protobuf:"bytes,1,opt,name=listener_ref,json=listenerRef,proto3" json:"listener_ref,omitempty"`
 	Listen        []*ListenTrack         `protobuf:"bytes,2,rep,name=listen,proto3" json:"listen,omitempty"`
@@ -1761,21 +1534,21 @@ type AttachListener struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AttachListener) Reset() {
-	*x = AttachListener{}
-	mi := &file_session_v1_session_proto_msgTypes[24]
+func (x *AddListener) Reset() {
+	*x = AddListener{}
+	mi := &file_session_v1_session_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AttachListener) String() string {
+func (x *AddListener) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AttachListener) ProtoMessage() {}
+func (*AddListener) ProtoMessage() {}
 
-func (x *AttachListener) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[24]
+func (x *AddListener) ProtoReflect() protoreflect.Message {
+	mi := &file_session_v1_session_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1786,47 +1559,47 @@ func (x *AttachListener) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AttachListener.ProtoReflect.Descriptor instead.
-func (*AttachListener) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{24}
+// Deprecated: Use AddListener.ProtoReflect.Descriptor instead.
+func (*AddListener) Descriptor() ([]byte, []int) {
+	return file_session_v1_session_proto_rawDescGZIP(), []int{21}
 }
 
-func (x *AttachListener) GetListenerRef() string {
+func (x *AddListener) GetListenerRef() string {
 	if x != nil {
 		return x.ListenerRef
 	}
 	return ""
 }
 
-func (x *AttachListener) GetListen() []*ListenTrack {
+func (x *AddListener) GetListen() []*ListenTrack {
 	if x != nil {
 		return x.Listen
 	}
 	return nil
 }
 
-type DetachListener struct {
+type RemoveListener struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	ListenerRef   string                 `protobuf:"bytes,1,opt,name=listener_ref,json=listenerRef,proto3" json:"listener_ref,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DetachListener) Reset() {
-	*x = DetachListener{}
-	mi := &file_session_v1_session_proto_msgTypes[25]
+func (x *RemoveListener) Reset() {
+	*x = RemoveListener{}
+	mi := &file_session_v1_session_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DetachListener) String() string {
+func (x *RemoveListener) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DetachListener) ProtoMessage() {}
+func (*RemoveListener) ProtoMessage() {}
 
-func (x *DetachListener) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[25]
+func (x *RemoveListener) ProtoReflect() protoreflect.Message {
+	mi := &file_session_v1_session_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1837,66 +1610,14 @@ func (x *DetachListener) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DetachListener.ProtoReflect.Descriptor instead.
-func (*DetachListener) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{25}
+// Deprecated: Use RemoveListener.ProtoReflect.Descriptor instead.
+func (*RemoveListener) Descriptor() ([]byte, []int) {
+	return file_session_v1_session_proto_rawDescGZIP(), []int{22}
 }
 
-func (x *DetachListener) GetListenerRef() string {
+func (x *RemoveListener) GetListenerRef() string {
 	if x != nil {
 		return x.ListenerRef
-	}
-	return ""
-}
-
-type Record struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	OperationRef  string                 `protobuf:"bytes,1,opt,name=operation_ref,json=operationRef,proto3" json:"operation_ref,omitempty"`
-	Destination   string                 `protobuf:"bytes,2,opt,name=destination,proto3" json:"destination,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Record) Reset() {
-	*x = Record{}
-	mi := &file_session_v1_session_proto_msgTypes[26]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Record) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Record) ProtoMessage() {}
-
-func (x *Record) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[26]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Record.ProtoReflect.Descriptor instead.
-func (*Record) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{26}
-}
-
-func (x *Record) GetOperationRef() string {
-	if x != nil {
-		return x.OperationRef
-	}
-	return ""
-}
-
-func (x *Record) GetDestination() string {
-	if x != nil {
-		return x.Destination
 	}
 	return ""
 }
@@ -1911,7 +1632,7 @@ type Hangup struct {
 
 func (x *Hangup) Reset() {
 	*x = Hangup{}
-	mi := &file_session_v1_session_proto_msgTypes[27]
+	mi := &file_session_v1_session_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1923,7 +1644,7 @@ func (x *Hangup) String() string {
 func (*Hangup) ProtoMessage() {}
 
 func (x *Hangup) ProtoReflect() protoreflect.Message {
-	mi := &file_session_v1_session_proto_msgTypes[27]
+	mi := &file_session_v1_session_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1936,7 +1657,7 @@ func (x *Hangup) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Hangup.ProtoReflect.Descriptor instead.
 func (*Hangup) Descriptor() ([]byte, []int) {
-	return file_session_v1_session_proto_rawDescGZIP(), []int{27}
+	return file_session_v1_session_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *Hangup) GetSipStatus() uint32 {
@@ -2001,24 +1722,19 @@ const file_session_v1_session_proto_rawDesc = "" +
 	"\bOUTBOUND\x10\x01\"4\n" +
 	"\x04Dtmf\x12\x14\n" +
 	"\x05digit\x18\x01 \x01(\tR\x05digit\x12\x16\n" +
-	"\x06source\x18\x02 \x01(\tR\x06source\"\xe0\x02\n" +
+	"\x06source\x18\x02 \x01(\tR\x06source\"\xb2\x02\n" +
 	"\x05Event\x12N\n" +
 	"\x12participant_joined\x18\x01 \x01(\v2\x1d.session.v1.ParticipantJoinedH\x00R\x11participantJoined\x12H\n" +
-	"\x10participant_left\x18\x02 \x01(\v2\x1b.session.v1.ParticipantLeftH\x00R\x0fparticipantLeft\x12B\n" +
-	"\x0eoperation_done\x18\x03 \x01(\v2\x19.session.v1.OperationDoneH\x00R\roperationDone\x12E\n" +
+	"\x10participant_left\x18\x02 \x01(\v2\x1b.session.v1.ParticipantLeftH\x00R\x0fparticipantLeft\x12E\n" +
 	"\x0ftransfer_result\x18\x04 \x01(\v2\x1a.session.v1.TransferResultH\x00R\x0etransferResult\x12)\n" +
 	"\x05ended\x18\x05 \x01(\v2\x11.session.v1.EndedH\x00R\x05endedB\a\n" +
-	"\x05event\"W\n" +
+	"\x05eventJ\x04\b\x03\x10\x04R\x0eoperation_done\"W\n" +
 	"\x11ParticipantJoined\x12'\n" +
 	"\x0fparticipant_ref\x18\x01 \x01(\tR\x0eparticipantRef\x12\x19\n" +
 	"\btrack_id\x18\x02 \x01(\rR\atrackId\"P\n" +
 	"\x0fParticipantLeft\x12'\n" +
 	"\x0fparticipant_ref\x18\x01 \x01(\tR\x0eparticipantRef\x12\x14\n" +
-	"\x05cause\x18\x02 \x01(\tR\x05cause\"b\n" +
-	"\rOperationDone\x12#\n" +
-	"\roperation_ref\x18\x01 \x01(\tR\foperationRef\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\x12\x14\n" +
-	"\x05error\x18\x03 \x01(\tR\x05error\"]\n" +
+	"\x05cause\x18\x02 \x01(\tR\x05cause\"]\n" +
 	"\x0eTransferResult\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12\x14\n" +
 	"\x05cause\x18\x02 \x01(\tR\x05cause\x12\x1d\n" +
@@ -2027,25 +1743,22 @@ const file_session_v1_session_proto_rawDesc = "" +
 	"\x05Ended\x12\x14\n" +
 	"\x05cause\x18\x01 \x01(\tR\x05cause\x12\x1d\n" +
 	"\n" +
-	"sip_status\x18\x02 \x01(\rR\tsipStatus\"\xe0\x05\n" +
+	"sip_status\x18\x02 \x01(\rR\tsipStatus\"\xff\x04\n" +
 	"\n" +
 	"AppMessage\x12,\n" +
 	"\x06answer\x18\x01 \x01(\v2\x12.session.v1.AnswerH\x00R\x06answer\x12)\n" +
 	"\x05ready\x18\x02 \x01(\v2\x11.session.v1.ReadyH\x00R\x05ready\x12,\n" +
-	"\x06reject\x18\x03 \x01(\v2\x12.session.v1.RejectH\x00R\x06reject\x12&\n" +
-	"\x04play\x18\x04 \x01(\v2\x10.session.v1.PlayH\x00R\x04play\x12&\n" +
-	"\x04stop\x18\x05 \x01(\v2\x10.session.v1.StopH\x00R\x04stop\x122\n" +
+	"\x06reject\x18\x03 \x01(\v2\x12.session.v1.RejectH\x00R\x06reject\x122\n" +
 	"\btransfer\x18\x06 \x01(\v2\x14.session.v1.TransferH\x00R\btransfer\x12K\n" +
 	"\x11transfer_complete\x18\a \x01(\v2\x1c.session.v1.TransferCompleteH\x00R\x10transferComplete\x12&\n" +
 	"\x04hold\x18\b \x01(\v2\x10.session.v1.HoldH\x00R\x04hold\x12,\n" +
 	"\x06resume\x18\t \x01(\v2\x12.session.v1.ResumeH\x00R\x06resume\x123\n" +
 	"\tsend_dtmf\x18\n" +
-	" \x01(\v2\x14.session.v1.SendDtmfH\x00R\bsendDtmf\x12E\n" +
-	"\x0fattach_listener\x18\v \x01(\v2\x1a.session.v1.AttachListenerH\x00R\x0eattachListener\x12E\n" +
-	"\x0fdetach_listener\x18\f \x01(\v2\x1a.session.v1.DetachListenerH\x00R\x0edetachListener\x12,\n" +
-	"\x06record\x18\r \x01(\v2\x12.session.v1.RecordH\x00R\x06record\x12,\n" +
+	" \x01(\v2\x14.session.v1.SendDtmfH\x00R\bsendDtmf\x12<\n" +
+	"\fadd_listener\x18\v \x01(\v2\x17.session.v1.AddListenerH\x00R\vaddListener\x12E\n" +
+	"\x0fremove_listener\x18\f \x01(\v2\x1a.session.v1.RemoveListenerH\x00R\x0eremoveListener\x12,\n" +
 	"\x06hangup\x18\x0e \x01(\v2\x12.session.v1.HangupH\x00R\x06hangupB\x05\n" +
-	"\x03msg\"_\n" +
+	"\x03msgJ\x04\b\x04\x10\x05J\x04\b\x05\x10\x06J\x04\b\r\x10\x0eR\x04playR\x04stopR\x06record\"_\n" +
 	"\x06Answer\x12/\n" +
 	"\x05media\x18\x01 \x01(\v2\x19.session.v1.MediaEndpointR\x05media\x12$\n" +
 	"\x0emax_duration_s\x18\x02 \x01(\rR\fmaxDurationS\"8\n" +
@@ -2054,13 +1767,7 @@ const file_session_v1_session_proto_rawDesc = "" +
 	"\x06Reject\x12\x1d\n" +
 	"\n" +
 	"sip_status\x18\x01 \x01(\rR\tsipStatus\x12\x16\n" +
-	"\x06reason\x18\x02 \x01(\tR\x06reason\"Q\n" +
-	"\x04Play\x12#\n" +
-	"\roperation_ref\x18\x01 \x01(\tR\foperationRef\x12\x10\n" +
-	"\x03url\x18\x02 \x01(\tR\x03url\x12\x12\n" +
-	"\x04loop\x18\x03 \x01(\bR\x04loop\"+\n" +
-	"\x04Stop\x12#\n" +
-	"\roperation_ref\x18\x01 \x01(\tR\foperationRef\"\x81\x01\n" +
+	"\x06reason\x18\x02 \x01(\tR\x06reason\"\x81\x01\n" +
 	"\bTransfer\x12%\n" +
 	"\x02to\x18\x01 \x01(\v2\x15.session.v1.SipTargetR\x02to\x12\x12\n" +
 	"\x04mode\x18\x02 \x01(\tR\x04mode\x12\x14\n" +
@@ -2074,15 +1781,12 @@ const file_session_v1_session_proto_rawDesc = "" +
 	"\x06digits\x18\x01 \x01(\tR\x06digits\"U\n" +
 	"\vListenTrack\x12\x19\n" +
 	"\btrack_id\x18\x01 \x01(\rR\atrackId\x12+\n" +
-	"\x03rtp\x18\x02 \x01(\v2\x19.session.v1.MediaEndpointR\x03rtp\"d\n" +
-	"\x0eAttachListener\x12!\n" +
+	"\x03rtp\x18\x02 \x01(\v2\x19.session.v1.MediaEndpointR\x03rtp\"a\n" +
+	"\vAddListener\x12!\n" +
 	"\flistener_ref\x18\x01 \x01(\tR\vlistenerRef\x12/\n" +
 	"\x06listen\x18\x02 \x03(\v2\x17.session.v1.ListenTrackR\x06listen\"3\n" +
-	"\x0eDetachListener\x12!\n" +
-	"\flistener_ref\x18\x01 \x01(\tR\vlistenerRef\"O\n" +
-	"\x06Record\x12#\n" +
-	"\roperation_ref\x18\x01 \x01(\tR\foperationRef\x12 \n" +
-	"\vdestination\x18\x02 \x01(\tR\vdestination\"?\n" +
+	"\x0eRemoveListener\x12!\n" +
+	"\flistener_ref\x18\x01 \x01(\tR\vlistenerRef\"?\n" +
 	"\x06Hangup\x12\x1d\n" +
 	"\n" +
 	"sip_status\x18\x01 \x01(\rR\tsipStatus\x12\x16\n" +
@@ -2103,7 +1807,7 @@ func file_session_v1_session_proto_rawDescGZIP() []byte {
 }
 
 var file_session_v1_session_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_session_v1_session_proto_msgTypes = make([]protoimpl.MessageInfo, 31)
+var file_session_v1_session_proto_msgTypes = make([]protoimpl.MessageInfo, 27)
 var file_session_v1_session_proto_goTypes = []any{
 	(Start_Direction)(0),      // 0: session.v1.Start.Direction
 	(*MediaEndpoint)(nil),     // 1: session.v1.MediaEndpoint
@@ -2115,70 +1819,62 @@ var file_session_v1_session_proto_goTypes = []any{
 	(*Event)(nil),             // 7: session.v1.Event
 	(*ParticipantJoined)(nil), // 8: session.v1.ParticipantJoined
 	(*ParticipantLeft)(nil),   // 9: session.v1.ParticipantLeft
-	(*OperationDone)(nil),     // 10: session.v1.OperationDone
-	(*TransferResult)(nil),    // 11: session.v1.TransferResult
-	(*Ended)(nil),             // 12: session.v1.Ended
-	(*AppMessage)(nil),        // 13: session.v1.AppMessage
-	(*Answer)(nil),            // 14: session.v1.Answer
-	(*Ready)(nil),             // 15: session.v1.Ready
-	(*Reject)(nil),            // 16: session.v1.Reject
-	(*Play)(nil),              // 17: session.v1.Play
-	(*Stop)(nil),              // 18: session.v1.Stop
-	(*Transfer)(nil),          // 19: session.v1.Transfer
-	(*TransferComplete)(nil),  // 20: session.v1.TransferComplete
-	(*Hold)(nil),              // 21: session.v1.Hold
-	(*Resume)(nil),            // 22: session.v1.Resume
-	(*SendDtmf)(nil),          // 23: session.v1.SendDtmf
-	(*ListenTrack)(nil),       // 24: session.v1.ListenTrack
-	(*AttachListener)(nil),    // 25: session.v1.AttachListener
-	(*DetachListener)(nil),    // 26: session.v1.DetachListener
-	(*Record)(nil),            // 27: session.v1.Record
-	(*Hangup)(nil),            // 28: session.v1.Hangup
-	nil,                       // 29: session.v1.SipTarget.HeadersEntry
-	nil,                       // 30: session.v1.Start.HeadersEntry
-	nil,                       // 31: session.v1.Start.MetadataEntry
+	(*TransferResult)(nil),    // 10: session.v1.TransferResult
+	(*Ended)(nil),             // 11: session.v1.Ended
+	(*AppMessage)(nil),        // 12: session.v1.AppMessage
+	(*Answer)(nil),            // 13: session.v1.Answer
+	(*Ready)(nil),             // 14: session.v1.Ready
+	(*Reject)(nil),            // 15: session.v1.Reject
+	(*Transfer)(nil),          // 16: session.v1.Transfer
+	(*TransferComplete)(nil),  // 17: session.v1.TransferComplete
+	(*Hold)(nil),              // 18: session.v1.Hold
+	(*Resume)(nil),            // 19: session.v1.Resume
+	(*SendDtmf)(nil),          // 20: session.v1.SendDtmf
+	(*ListenTrack)(nil),       // 21: session.v1.ListenTrack
+	(*AddListener)(nil),       // 22: session.v1.AddListener
+	(*RemoveListener)(nil),    // 23: session.v1.RemoveListener
+	(*Hangup)(nil),            // 24: session.v1.Hangup
+	nil,                       // 25: session.v1.SipTarget.HeadersEntry
+	nil,                       // 26: session.v1.Start.HeadersEntry
+	nil,                       // 27: session.v1.Start.MetadataEntry
 }
 var file_session_v1_session_proto_depIdxs = []int32{
-	29, // 0: session.v1.SipTarget.headers:type_name -> session.v1.SipTarget.HeadersEntry
+	25, // 0: session.v1.SipTarget.headers:type_name -> session.v1.SipTarget.HeadersEntry
 	2,  // 1: session.v1.SipTarget.auth:type_name -> session.v1.SipAuth
 	5,  // 2: session.v1.NodeMessage.start:type_name -> session.v1.Start
 	6,  // 3: session.v1.NodeMessage.dtmf:type_name -> session.v1.Dtmf
 	7,  // 4: session.v1.NodeMessage.event:type_name -> session.v1.Event
 	0,  // 5: session.v1.Start.direction:type_name -> session.v1.Start.Direction
-	30, // 6: session.v1.Start.headers:type_name -> session.v1.Start.HeadersEntry
-	31, // 7: session.v1.Start.metadata:type_name -> session.v1.Start.MetadataEntry
+	26, // 6: session.v1.Start.headers:type_name -> session.v1.Start.HeadersEntry
+	27, // 7: session.v1.Start.metadata:type_name -> session.v1.Start.MetadataEntry
 	1,  // 8: session.v1.Start.media:type_name -> session.v1.MediaEndpoint
 	8,  // 9: session.v1.Event.participant_joined:type_name -> session.v1.ParticipantJoined
 	9,  // 10: session.v1.Event.participant_left:type_name -> session.v1.ParticipantLeft
-	10, // 11: session.v1.Event.operation_done:type_name -> session.v1.OperationDone
-	11, // 12: session.v1.Event.transfer_result:type_name -> session.v1.TransferResult
-	12, // 13: session.v1.Event.ended:type_name -> session.v1.Ended
-	14, // 14: session.v1.AppMessage.answer:type_name -> session.v1.Answer
-	15, // 15: session.v1.AppMessage.ready:type_name -> session.v1.Ready
-	16, // 16: session.v1.AppMessage.reject:type_name -> session.v1.Reject
-	17, // 17: session.v1.AppMessage.play:type_name -> session.v1.Play
-	18, // 18: session.v1.AppMessage.stop:type_name -> session.v1.Stop
-	19, // 19: session.v1.AppMessage.transfer:type_name -> session.v1.Transfer
-	20, // 20: session.v1.AppMessage.transfer_complete:type_name -> session.v1.TransferComplete
-	21, // 21: session.v1.AppMessage.hold:type_name -> session.v1.Hold
-	22, // 22: session.v1.AppMessage.resume:type_name -> session.v1.Resume
-	23, // 23: session.v1.AppMessage.send_dtmf:type_name -> session.v1.SendDtmf
-	25, // 24: session.v1.AppMessage.attach_listener:type_name -> session.v1.AttachListener
-	26, // 25: session.v1.AppMessage.detach_listener:type_name -> session.v1.DetachListener
-	27, // 26: session.v1.AppMessage.record:type_name -> session.v1.Record
-	28, // 27: session.v1.AppMessage.hangup:type_name -> session.v1.Hangup
-	1,  // 28: session.v1.Answer.media:type_name -> session.v1.MediaEndpoint
-	1,  // 29: session.v1.Ready.media:type_name -> session.v1.MediaEndpoint
-	3,  // 30: session.v1.Transfer.to:type_name -> session.v1.SipTarget
-	1,  // 31: session.v1.ListenTrack.rtp:type_name -> session.v1.MediaEndpoint
-	24, // 32: session.v1.AttachListener.listen:type_name -> session.v1.ListenTrack
-	4,  // 33: session.v1.Session.Connect:input_type -> session.v1.NodeMessage
-	13, // 34: session.v1.Session.Connect:output_type -> session.v1.AppMessage
-	34, // [34:35] is the sub-list for method output_type
-	33, // [33:34] is the sub-list for method input_type
-	33, // [33:33] is the sub-list for extension type_name
-	33, // [33:33] is the sub-list for extension extendee
-	0,  // [0:33] is the sub-list for field type_name
+	10, // 11: session.v1.Event.transfer_result:type_name -> session.v1.TransferResult
+	11, // 12: session.v1.Event.ended:type_name -> session.v1.Ended
+	13, // 13: session.v1.AppMessage.answer:type_name -> session.v1.Answer
+	14, // 14: session.v1.AppMessage.ready:type_name -> session.v1.Ready
+	15, // 15: session.v1.AppMessage.reject:type_name -> session.v1.Reject
+	16, // 16: session.v1.AppMessage.transfer:type_name -> session.v1.Transfer
+	17, // 17: session.v1.AppMessage.transfer_complete:type_name -> session.v1.TransferComplete
+	18, // 18: session.v1.AppMessage.hold:type_name -> session.v1.Hold
+	19, // 19: session.v1.AppMessage.resume:type_name -> session.v1.Resume
+	20, // 20: session.v1.AppMessage.send_dtmf:type_name -> session.v1.SendDtmf
+	22, // 21: session.v1.AppMessage.add_listener:type_name -> session.v1.AddListener
+	23, // 22: session.v1.AppMessage.remove_listener:type_name -> session.v1.RemoveListener
+	24, // 23: session.v1.AppMessage.hangup:type_name -> session.v1.Hangup
+	1,  // 24: session.v1.Answer.media:type_name -> session.v1.MediaEndpoint
+	1,  // 25: session.v1.Ready.media:type_name -> session.v1.MediaEndpoint
+	3,  // 26: session.v1.Transfer.to:type_name -> session.v1.SipTarget
+	1,  // 27: session.v1.ListenTrack.rtp:type_name -> session.v1.MediaEndpoint
+	21, // 28: session.v1.AddListener.listen:type_name -> session.v1.ListenTrack
+	4,  // 29: session.v1.Session.Connect:input_type -> session.v1.NodeMessage
+	12, // 30: session.v1.Session.Connect:output_type -> session.v1.AppMessage
+	30, // [30:31] is the sub-list for method output_type
+	29, // [29:30] is the sub-list for method input_type
+	29, // [29:29] is the sub-list for extension type_name
+	29, // [29:29] is the sub-list for extension extendee
+	0,  // [0:29] is the sub-list for field type_name
 }
 
 func init() { file_session_v1_session_proto_init() }
@@ -2194,24 +1890,20 @@ func file_session_v1_session_proto_init() {
 	file_session_v1_session_proto_msgTypes[6].OneofWrappers = []any{
 		(*Event_ParticipantJoined)(nil),
 		(*Event_ParticipantLeft)(nil),
-		(*Event_OperationDone)(nil),
 		(*Event_TransferResult)(nil),
 		(*Event_Ended)(nil),
 	}
-	file_session_v1_session_proto_msgTypes[12].OneofWrappers = []any{
+	file_session_v1_session_proto_msgTypes[11].OneofWrappers = []any{
 		(*AppMessage_Answer)(nil),
 		(*AppMessage_Ready)(nil),
 		(*AppMessage_Reject)(nil),
-		(*AppMessage_Play)(nil),
-		(*AppMessage_Stop)(nil),
 		(*AppMessage_Transfer)(nil),
 		(*AppMessage_TransferComplete)(nil),
 		(*AppMessage_Hold)(nil),
 		(*AppMessage_Resume)(nil),
 		(*AppMessage_SendDtmf)(nil),
-		(*AppMessage_AttachListener)(nil),
-		(*AppMessage_DetachListener)(nil),
-		(*AppMessage_Record)(nil),
+		(*AppMessage_AddListener)(nil),
+		(*AppMessage_RemoveListener)(nil),
 		(*AppMessage_Hangup)(nil),
 	}
 	type x struct{}
@@ -2220,7 +1912,7 @@ func file_session_v1_session_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_session_v1_session_proto_rawDesc), len(file_session_v1_session_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   31,
+			NumMessages:   27,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

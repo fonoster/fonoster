@@ -432,9 +432,9 @@ export class FakeSessionCall extends EventEmitter {
     });
   }
 
-  // ---- listeners ----------------------------------------------------------------------
+  // ---- listeners (AddListener / RemoveListener; named apart from EventEmitter's) ----------
 
-  attachListener(ref: string, listen: Roomr.ListenTrack[]) {
+  addTrackListener(ref: string, listen: Roomr.ListenTrack[]) {
     const forks: Fork[] = [];
     for (const t of listen) {
       if (!t.rtp?.ip || !t.rtp.port) continue;
@@ -447,7 +447,7 @@ export class FakeSessionCall extends EventEmitter {
     this.listenerForks.set(ref, forks);
   }
 
-  detachListener(ref: string) {
+  removeTrackListener(ref: string) {
     const forks = this.listenerForks.get(ref);
     if (!forks) return;
     this.listenerForks.delete(ref);
@@ -658,39 +658,13 @@ export class FakeSessionNode extends EventEmitter {
       case "resume":
         c.held = false;
         return;
-      case "play":
-        return this.later(
-          () =>
-            c.event({
-              operationDone: {
-                operationRef: String(body.operationRef ?? ""),
-                status: "completed"
-              }
-            }),
-          10
-        );
-      case "stop":
-        return c.event({
-          operationDone: {
-            operationRef: String(body.operationRef ?? ""),
-            status: "stopped"
-          }
-        });
-      case "record":
-        return c.event({
-          operationDone: {
-            operationRef: String(body.operationRef ?? ""),
-            status: "failed",
-            error: "not implemented: attach a listener to record"
-          }
-        });
-      case "attachListener":
-        return c.attachListener(
+      case "addListener":
+        return c.addTrackListener(
           String(body.listenerRef ?? ""),
           (body.listen as Roomr.ListenTrack[]) ?? []
         );
-      case "detachListener":
-        return c.detachListener(String(body.listenerRef ?? ""));
+      case "removeListener":
+        return c.removeTrackListener(String(body.listenerRef ?? ""));
       case "transfer":
         return this.transfer(c, body);
       case "transferComplete": {

@@ -31,21 +31,21 @@ export type TrackRole = "caller" | "app";
 type Host = {
   callRef: string;
   record(source: "event", message: Record<string, unknown>): void;
-  /** AttachListener on the call's control stream; resolves with the listener's ref. */
-  attachListener(
+  /** AddListener on the call's control stream; resolves with the listener's ref. */
+  addListener(
     listen: {
       trackId: number;
       rtp: { ip: string; port: number; codec?: string };
     }[]
   ): Promise<string>;
-  detachListener?(listenerRef: string): Promise<void>;
+  removeListener?(listenerRef: string): Promise<void>;
   /** Where `recording.seconds` is counted (add-usage-metering). */
   usage?: { addMillis(key: { meter: "recording.seconds" }, ms: number): void };
 };
 
 /**
  * The platform's recording listener for one call (call-record "Recording is applied by policy",
- * design V8). It attaches through `AttachListener` on the control stream with one unmixed RTP
+ * design V8). It attaches through `AddListener` on the control stream with one unmixed RTP
  * stream per side (the caller's track and the app leg's track) straight to a Recorder, which
  * writes next to the working record. Apps cannot start or stop it: it follows the policy only.
  */
@@ -120,7 +120,7 @@ export class CallRecording {
         port: r.port,
         codec: r.codec
       });
-      this.listenerRef = await this.host.attachListener([
+      this.listenerRef = await this.host.addListener([
         { trackId: caller, rtp: endpoint(rtp.caller) },
         { trackId: agent, rtp: endpoint(rtp.agent) }
       ]);

@@ -76,16 +76,10 @@ export type SessionDtmf = { digit: string; source?: string };
 export type SessionEvent = {
   participantJoined?: { participantRef: string; trackId: number };
   participantLeft?: { participantRef: string; cause: string };
-  operationDone?: { operationRef: string; status: string; error?: string };
   transferResult?: { status: string; cause?: string; sipStatus?: number };
   ended?: { cause: string; sipStatus?: number };
   /** The oneof member that is set (protoLoader `oneofs: true`). */
-  event?:
-    | "participantJoined"
-    | "participantLeft"
-    | "operationDone"
-    | "transferResult"
-    | "ended";
+  event?: "participantJoined" | "participantLeft" | "transferResult" | "ended";
 };
 
 /** A message from the node. */
@@ -103,8 +97,6 @@ export type AppMessage = {
   answer?: { media: MediaEndpoint; maxDurationS?: number };
   ready?: { media: MediaEndpoint };
   reject?: { sipStatus: number; reason?: string };
-  play?: { operationRef: string; url: string; loop?: boolean };
-  stop?: { operationRef: string };
   transfer?: {
     to: SessionSipTarget;
     mode: "cold" | "warm" | "refer";
@@ -112,12 +104,13 @@ export type AppMessage = {
     ringTimeoutS?: number;
   };
   transferComplete?: Record<string, never>;
+  /** Cuts the caller off from the app; the node loops `music` (a WAV URL) to the caller alone. */
   hold?: { music?: string };
   resume?: Record<string, never>;
+  /** RFC 4733 events on the caller's leg, in order. */
   sendDtmf?: { digits: string };
-  attachListener?: { listenerRef: string; listen: ListenTrack[] };
-  detachListener?: { listenerRef: string };
-  record?: { operationRef: string; destination: string };
+  addListener?: { listenerRef: string; listen: ListenTrack[] };
+  removeListener?: { listenerRef: string };
   hangup?: { sipStatus?: number; reason?: string };
   msg?: AppMessageType;
 };
@@ -126,16 +119,13 @@ export type AppMessageType =
   | "answer"
   | "ready"
   | "reject"
-  | "play"
-  | "stop"
   | "transfer"
   | "transferComplete"
   | "hold"
   | "resume"
   | "sendDtmf"
-  | "attachListener"
-  | "detachListener"
-  | "record"
+  | "addListener"
+  | "removeListener"
   | "hangup";
 
 /** The member a message carries (the oneof's name), for logs and fakes. */
@@ -151,16 +141,13 @@ export const APP_MESSAGE_TYPES: readonly AppMessageType[] = [
   "answer",
   "ready",
   "reject",
-  "play",
-  "stop",
   "transfer",
   "transferComplete",
   "hold",
   "resume",
   "sendDtmf",
-  "attachListener",
-  "detachListener",
-  "record",
+  "addListener",
+  "removeListener",
   "hangup"
 ];
 
@@ -169,7 +156,6 @@ export const NODE_MESSAGE_TYPES = ["start", "dtmf", "event"] as const;
 export const SESSION_EVENT_TYPES = [
   "participantJoined",
   "participantLeft",
-  "operationDone",
   "transferResult",
   "ended"
 ] as const;

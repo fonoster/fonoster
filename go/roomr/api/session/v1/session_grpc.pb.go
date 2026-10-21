@@ -5,7 +5,7 @@
 // Spec: openspec/changes/redesign-roomr/specs/media-control ("Each call opens one control stream
 // to the session endpoint", "App audio is RTP negotiated on the control stream", "Transfer modes",
 // "Hold silences the app and plays hold audio", "Listeners fork audio by track", "Endings carry a
-// reason", "Play, Record and SendDtmf are operations"). Messages only grow: add fields, never
+// reason", "The app sends DTMF on the caller's leg"). Messages only grow: add fields, never
 // renumber or reuse them, and receivers ignore fields they do not know.
 //
 // Regenerate the Go code with go/roomr/api/generate.sh.

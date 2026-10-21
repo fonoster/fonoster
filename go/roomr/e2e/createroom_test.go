@@ -20,7 +20,7 @@ func TestRoomrCreateRoomOverrides(t *testing.T) {
 	}
 	other := r.createRoom()
 	join := func(room string) error {
-		_, err := r.mc.Join(ctx, &roomrv1.JoinRequest{RoomRef: room, Endpoint: &roomrv1.JoinRequest_Rtp{
+		_, err := r.mc.AddParticipant(ctx, &roomrv1.AddParticipantRequest{RoomRef: room, Endpoint: &roomrv1.AddParticipantRequest_Rtp{
 			Rtp: &roomrv1.MediaEndpoint{Ip: "127.0.0.1", Port: 40000, Codec: "L16/16000"}}})
 		return err
 	}

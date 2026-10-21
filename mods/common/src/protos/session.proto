@@ -5,7 +5,7 @@
 // Spec: openspec/changes/redesign-roomr/specs/media-control ("Each call opens one control stream
 // to the session endpoint", "App audio is RTP negotiated on the control stream", "Transfer modes",
 // "Hold silences the app and plays hold audio", "Listeners fork audio by track", "Endings carry a
-// reason", "Play, Record and SendDtmf are operations"). Messages only grow: add fields, never
+// reason", "The app sends DTMF on the caller's leg"). Messages only grow: add fields, never
 // renumber or reuse them, and receivers ignore fields they do not know.
 //
 // Regenerate the Go code with go/roomr/api/generate.sh.
@@ -76,10 +76,12 @@ message Dtmf {
 }
 
 message Event {
+  // 3 was operation_done (Play and Record left the node).
+  reserved 3;
+  reserved "operation_done";
   oneof event {
     ParticipantJoined participant_joined = 1;
     ParticipantLeft participant_left = 2;
-    OperationDone operation_done = 3;
     TransferResult transfer_result = 4;
     Ended ended = 5;
   }
@@ -93,13 +95,6 @@ message ParticipantJoined {
 message ParticipantLeft {
   string participant_ref = 1;
   string cause = 2;
-}
-
-message OperationDone {
-  string operation_ref = 1;
-  // completed, stopped or failed
-  string status = 2;
-  string error = 3;
 }
 
 message TransferResult {
@@ -119,20 +114,21 @@ message Ended {
 // ---- app to node
 
 message AppMessage {
+  // 4, 5 and 13 were play, stop and record: the node is the SIP and media edge, not an app server
+  // (an app plays its own audio on its RTP leg; recording is a listener).
+  reserved 4, 5, 13;
+  reserved "play", "stop", "record";
   oneof msg {
     Answer answer = 1;
     Ready ready = 2;
     Reject reject = 3;
-    Play play = 4;
-    Stop stop = 5;
     Transfer transfer = 6;
     TransferComplete transfer_complete = 7;
     Hold hold = 8;
     Resume resume = 9;
     SendDtmf send_dtmf = 10;
-    AttachListener attach_listener = 11;
-    DetachListener detach_listener = 12;
-    Record record = 13;
+    AddListener add_listener = 11;
+    RemoveListener remove_listener = 12;
     Hangup hangup = 14;
   }
 }
@@ -155,16 +151,6 @@ message Reject {
   string reason = 2;
 }
 
-message Play {
-  string operation_ref = 1;
-  string url = 2;
-  bool loop = 3;
-}
-
-message Stop {
-  string operation_ref = 1;
-}
-
 message Transfer {
   SipTarget to = 1;
   // cold, warm or refer
@@ -182,7 +168,9 @@ message Hold {
 
 message Resume {}
 
+// RFC 4733 events on the caller's leg, in order.
 message SendDtmf {
+  // 0-9, *, #, A-D.
   string digits = 1;
 }
 
@@ -191,18 +179,13 @@ message ListenTrack {
   MediaEndpoint rtp = 2;
 }
 
-message AttachListener {
+message AddListener {
   string listener_ref = 1;
   repeated ListenTrack listen = 2;
 }
 
-message DetachListener {
+message RemoveListener {
   string listener_ref = 1;
-}
-
-message Record {
-  string operation_ref = 1;
-  string destination = 2;
 }
 
 message Hangup {

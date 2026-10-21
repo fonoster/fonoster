@@ -215,19 +215,23 @@ func TestNodeHangupAndRejection(t *testing.T) {
 	}
 }
 
-// TestCommandsAreOrdered: Play then Hangup on the stream: the playback is started before the
-// hangup (its operation ends stopped), never the reverse.
-func TestCommandsAreOrdered(t *testing.T) {
+// TestHoldLoopsHoldMusic: Hold{music} loops the hold audio to the caller alone; Resume stops it.
+func TestHoldLoopsHoldMusic(t *testing.T) {
 	r := start(t)
 	call, ac := r.answeredCall()
-	url := promptServer(t, toneWav(440, 2000))
-	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_Play{Play: &sessionv1.Play{OperationRef: "op-a", Url: url}}})
-	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_Hangup{Hangup: &sessionv1.Hangup{}}})
-	waitStatus(t, call, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
-	ac.waitMsg(t, opDoneMsg("op-a", ""), 2*time.Second)
-	if e := ac.ended(t, 2*time.Second); e.GetCause() != "removed" {
-		t.Fatalf("Ended = %v", e)
+	url := promptServer(t, toneWav(440, 400))
+	before := call.Status().AudibleMs
+	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_Hold{Hold: &sessionv1.Hold{Music: url}}})
+	// 400 ms of tone, looped: well past one pass.
+	waitStatus(t, call, func(s caller.Status) bool { return s.AudibleMs-before >= 700 }, 3*time.Second)
+	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_Resume{Resume: &sessionv1.Resume{}}})
+	time.Sleep(200 * time.Millisecond)
+	before = call.Status().AudibleMs
+	time.Sleep(500 * time.Millisecond)
+	if got := call.Status().AudibleMs - before; got > 100 {
+		t.Fatalf("the caller still hears hold music after Resume (%d ms)", got)
 	}
+	_ = call.Hangup()
 }
 
 func TestHeartbeats(t *testing.T) {
@@ -408,7 +412,7 @@ func TestListenerGetsTracksUnmixed(t *testing.T) {
 	_ = tap.Configure(audio.L16{}, 96, -1, "127.0.0.1", 9)
 	m := newMeter()
 	go tap.Serve(rtpio.Handlers{Audio: m.hear})
-	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_AttachListener{AttachListener: &sessionv1.AttachListener{
+	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_AddListener{AddListener: &sessionv1.AddListener{
 		ListenerRef: "rec-1", Listen: []*sessionv1.ListenTrack{{TrackId: callerTrack,
 			Rtp: &sessionv1.MediaEndpoint{Ip: "127.0.0.1", Port: uint32(tap.Port()), Codec: audio.NameL16}}}}}})
 	time.Sleep(100 * time.Millisecond)
@@ -423,7 +427,7 @@ func TestListenerGetsTracksUnmixed(t *testing.T) {
 	if n := m.get(0); n < 10 {
 		t.Fatalf("listener heard %d frames of the caller", n)
 	}
-	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_DetachListener{DetachListener: &sessionv1.DetachListener{ListenerRef: "rec-1"}}})
+	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_RemoveListener{RemoveListener: &sessionv1.RemoveListener{ListenerRef: "rec-1"}}})
 }
 
 // TestRoomHeaderJoinsOrCreates: with sip.roomHeader, the first INVITE naming room r creates it,

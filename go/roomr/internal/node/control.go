@@ -24,14 +24,10 @@ const (
 	CodeRoomNotFound        = "room_not_found"
 	CodeCallNotFound        = "call_not_found"
 	CodeParticipantNotFound = "participant_not_found"
-	CodeOperationNotFound   = "operation_not_found"
-	CodeOperationExists     = "operation_exists"
 	CodeRoomFull            = "room_full"
 	CodeBadMessage          = "bad_message"
 	CodeUnsupportedCodec    = "unsupported_codec"
 	CodeNotSupported        = "not_supported"
-	CodeCallNotAnswered     = "call_not_answered"
-	CodeNoDTMF              = "dtmf_not_negotiated"
 	CodeInternal            = "internal"
 )
 
@@ -435,8 +431,8 @@ type ListenTrack struct {
 	RTP     MediaEndpoint
 }
 
-// JoinRTP adds an RTP participant to a room.
-func (n *Node) JoinRTP(roomRef string, m MediaEndpoint) (ParticipantInfo, error) {
+// AddRTPParticipant adds an RTP participant to a room (AddParticipant with an rtp endpoint).
+func (n *Node) AddRTPParticipant(roomRef string, m MediaEndpoint) (ParticipantInfo, error) {
 	r := n.room(roomRef)
 	if r == nil {
 		return ParticipantInfo{}, errorf(CodeRoomNotFound, "%s", roomRef)
@@ -485,13 +481,13 @@ func (n *Node) JoinRTP(roomRef string, m MediaEndpoint) (ParticipantInfo, error)
 		RTP: &MediaEndpoint{IP: n.cfg.AdvertiseHost, Port: ep.Port(), Codec: codecName, SRTPKey: p.srtpKey}}, nil
 }
 
-// JoinListener attaches a listen-only participant.
-func (n *Node) JoinListener(roomRef string, tracks []ListenTrack) (ParticipantInfo, error) {
+// AddListenerParticipant adds a listen-only participant (AddParticipant with listen tracks).
+func (n *Node) AddListenerParticipant(roomRef string, tracks []ListenTrack) (ParticipantInfo, error) {
 	r := n.room(roomRef)
 	if r == nil {
 		return ParticipantInfo{}, errorf(CodeRoomNotFound, "%s", roomRef)
 	}
-	ref, err := r.attachListener("", tracks)
+	ref, err := r.addListener("", tracks)
 	if err != nil {
 		return ParticipantInfo{}, err
 	}
@@ -521,9 +517,9 @@ func (n *Node) findParticipant(roomRef, ref string) (*Room, *Participant) {
 	return nil, nil
 }
 
-// Leave removes a participant or a listener (cause removed). A call's SIP leg leaving ends the
-// call.
-func (n *Node) Leave(roomRef, ref string) error {
+// RemoveParticipant removes a participant or a listener (cause removed). Removing a call's SIP
+// leg ends the call.
+func (n *Node) RemoveParticipant(roomRef, ref string) error {
 	if roomRef != "" && n.room(roomRef) == nil {
 		return errorf(CodeRoomNotFound, "%s", roomRef)
 	}
@@ -534,76 +530,10 @@ func (n *Node) Leave(roomRef, ref string) error {
 	case p != nil:
 		go r.remove(ref, ReasonRemoved)
 	default:
-		r.detachListener(ref)
+		r.removeListener(ref)
 	}
 	return nil
 }
-
-// Target names what Play and SendDtmf act on: a call, a participant or (Play only) a room.
-type Target struct {
-	CallRef, ParticipantRef, RoomRef string
-}
-
-// resolve finds the room and, unless the target is the room, the participant.
-func (n *Node) resolve(t Target) (*Room, *Participant, error) {
-	switch {
-	case t.CallRef != "":
-		c := n.call(t.CallRef)
-		if c == nil {
-			return nil, nil, errorf(CodeCallNotFound, "%s", t.CallRef)
-		}
-		c.mu.Lock()
-		state, room, leg := c.state, c.room, c.leg
-		c.mu.Unlock()
-		switch {
-		case state == CallEnded:
-			return nil, nil, errorf(CodeCallNotFound, "%s has ended", t.CallRef)
-		case state == CallRinging || leg == nil || room == nil || (c.inbound && !leg.answered.Load()):
-			return nil, nil, errorf(CodeCallNotAnswered, "%s", t.CallRef)
-		}
-		return room, leg, nil
-	case t.ParticipantRef != "":
-		r, p := n.findParticipant(t.RoomRef, t.ParticipantRef)
-		if p == nil {
-			return nil, nil, errorf(CodeParticipantNotFound, "%s", t.ParticipantRef)
-		}
-		return r, p, nil
-	case t.RoomRef != "":
-		r := n.room(t.RoomRef)
-		if r == nil {
-			return nil, nil, errorf(CodeRoomNotFound, "%s", t.RoomRef)
-		}
-		return r, nil, nil
-	}
-	return nil, nil, errorf(CodeBadMessage, "a call_ref, participant_ref or room_ref is required")
-}
-
-// Play fetches a WAV and plays it to the target (everyone in a room target); operation.done on
-// NATS reports the end: on the call's subject for a call (or a call's participant), else on
-// the room's.
-func (n *Node) Play(t Target, fileURL string) (string, error) {
-	if !validPlayURL(fileURL) {
-		return "", errorf(CodeBadMessage, "url must be an http(s) URL")
-	}
-	r, p, err := n.resolve(t)
-	if err != nil {
-		return "", err
-	}
-	pb := &playback{ref: newRef("op"), room: r, callRef: t.CallRef}
-	if p != nil {
-		pb.target = p.Ref
-		if pb.callRef == "" && p.call != nil {
-			pb.callRef = p.call.ref
-		}
-	}
-	if err := n.startPlay(pb, fileURL); err != nil {
-		return "", err
-	}
-	return pb.ref, nil
-}
-
-// Stop cancels a Play; its operation.done reports stopped.
-func (n *Node) Stop(operationRef string) error { return n.stopPlay(operationRef) }
 
 func validDigits(digits string) bool {
 	if digits == "" {
@@ -615,26 +545,4 @@ func validDigits(digits string) bool {
 		}
 	}
 	return true
-}
-
-// SendDTMF sends RFC 4733 events on the target SIP leg.
-func (n *Node) SendDTMF(t Target, digits string) error {
-	if !validDigits(digits) {
-		return errorf(CodeBadMessage, "digits must be 0-9, *, # or A-D")
-	}
-	if t.CallRef == "" && t.ParticipantRef == "" {
-		return errorf(CodeBadMessage, "a call_ref or participant_ref is required")
-	}
-	_, p, err := n.resolve(t)
-	if err != nil {
-		return err
-	}
-	if p.Kind != KindPhone {
-		return errorf(CodeBadMessage, "%s is not a SIP leg", p.Ref)
-	}
-	if p.media.DTMF < 0 {
-		return errorf(CodeNoDTMF, "%s did not negotiate telephone-event", p.Ref)
-	}
-	go sendDTMFOn(p, digits)
-	return nil
 }

@@ -210,7 +210,7 @@ describe("@AppBridge call records", function () {
     });
     await waitFor(() => json(peer).find((m) => m.type === "output.done"), 8000);
     const attach = harness.roomrNode.commands.find(
-      (c) => c.command.type === "attachListener"
+      (c) => c.command.type === "addListener"
     )!.command;
     expect((attach.listen as unknown[]).length).to.equal(2);
     harness.roomrNode.callerHangup(callRef);
@@ -257,9 +257,7 @@ describe("@AppBridge call records", function () {
     const vcon = decodeVcon((await sealedRecord(callRef)).signed);
     expect(vcon.dialog.some((d) => d.type === "recording")).to.equal(false);
     expect(
-      harness.roomrNode.commands.some(
-        (c) => c.command.type === "attachListener"
-      )
+      harness.roomrNode.commands.some((c) => c.command.type === "addListener")
     ).to.equal(false);
   });
 
@@ -278,7 +276,7 @@ describe("@AppBridge call records", function () {
     expect(harness.roomrNode.outputAudioMs(since)).to.be.greaterThan(200);
     const types = harness.roomrNode.commands.map((c) => c.command.type);
     expect(types.indexOf("answer")).to.be.lessThan(
-      types.indexOf("attachListener")
+      types.indexOf("addListener")
     );
     harness.roomrNode.callerHangup(callRef);
     const vcon = decodeVcon((await sealedRecord(callRef)).signed);

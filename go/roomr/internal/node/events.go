@@ -8,12 +8,11 @@ import "time"
 // a timestamp; call events carry the call's metadata, passed through untouched.
 
 // CallEventsSubject is where a call's events go: call.started, call.ringing, call.answered,
-// call.ended, participant.joined and participant.left for its legs, and operation.done for
-// operations a controller started on it.
+// call.ended, and participant.joined and participant.left for its legs.
 func CallEventsSubject(callRef string) string { return "roomr.events." + callRef }
 
-// RoomEventsSubject is where a room's own events go: room.ended, participant events for
-// participants that belong to no call, and operation.done for room-wide operations.
+// RoomEventsSubject is where a room's own events go: room.ended, and participant events for
+// participants that belong to no call.
 func RoomEventsSubject(roomRef string) string { return "roomr.events.room." + roomRef }
 
 func (n *Node) eventBase(typ string) Event {

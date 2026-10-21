@@ -72,14 +72,14 @@ export function amdWindowMs(option?: AmdAppOption): number | undefined {
 
 type Host = {
   callRef: string;
-  /** AttachListener on the call's control stream; resolves with the listener's ref. */
-  attachListener(
+  /** AddListener on the call's control stream; resolves with the listener's ref. */
+  addListener(
     listen: {
       trackId: number;
       rtp: { ip: string; port: number; codec?: string };
     }[]
   ): Promise<string>;
-  detachListener(listenerRef: string): Promise<void>;
+  removeListener(listenerRef: string): Promise<void>;
 };
 
 export type AmdResult = AmdVerdict & {
@@ -187,7 +187,7 @@ export class AmdListener {
     const bindHost = this.rtp.host ?? "127.0.0.1";
     await new Promise<void>((resolve) => socket.bind(0, bindHost, resolve));
     if (this.done) return this.close();
-    this.listenerRef = await this.host.attachListener([
+    this.listenerRef = await this.host.addListener([
       {
         trackId: callerTrack,
         rtp: {
@@ -252,7 +252,7 @@ export class AmdListener {
     const listenerRef = this.listenerRef;
     this.listenerRef = undefined;
     if (!listenerRef) return;
-    await this.host.detachListener(listenerRef).catch(() => undefined);
+    await this.host.removeListener(listenerRef).catch(() => undefined);
   }
 
   private close() {

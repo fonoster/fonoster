@@ -776,14 +776,14 @@ export class Call {
   }
 
   /** Attaches a listen-only fork of some tracks (recording, AMD); resolves with its ref. */
-  async attachListener(listen: Roomr.ListenTrack[]): Promise<string> {
+  async addListener(listen: Roomr.ListenTrack[]): Promise<string> {
     const listenerRef = randomUUID();
-    this.command({ attachListener: { listenerRef, listen } });
+    this.command({ addListener: { listenerRef, listen } });
     return listenerRef;
   }
 
-  async detachListener(listenerRef: string) {
-    this.command({ detachListener: { listenerRef } });
+  async removeListener(listenerRef: string) {
+    this.command({ removeListener: { listenerRef } });
   }
 
   get callerParticipantRef() {
@@ -1064,7 +1064,7 @@ export class AppSession {
     this.codec.start(start);
     this.call.record("appbridge", start as unknown as Record<string, unknown>);
     for (const f of early) this.onFrame(f.data as Buffer, f.isBinary);
-    void this.attachListeners(start);
+    void this.addListeners(start);
     this.queue.start();
     // Speech recognition starts with the app's first Speech-layer command, so audio-only apps
     // never pay for it (build log B18).
@@ -1102,7 +1102,7 @@ export class AppSession {
     }, interval);
   }
 
-  private async attachListeners(start: SessionStart) {
+  private async addListeners(start: SessionStart) {
     const audio = this.app.audio ?? { codec: "pcm16", rate: 16000 };
     for (const config of (this.app.listeners ?? []).slice(0, 4)) {
       try {

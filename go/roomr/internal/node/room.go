@@ -150,7 +150,6 @@ type Room struct {
 	ended        bool
 	done         chan struct{}
 	listeners    map[string][]fork
-	plays        []*playback
 	calls        map[string]*call
 	// maxDuration, maxParticipants and emptyTimeout are the node's, or the room's own
 	// (CreateRoom).
@@ -388,7 +387,7 @@ func (r *Room) retire(p *Participant, cause string) {
 	}
 }
 
-// end ends the room: every call in it, every participant and listener, its operations; then
+// end ends the room: every call in it, every participant and listener; then
 // room.ended (cause, sip_status) and the node forgets it. It runs once.
 func (r *Room) end(cause string, status int) {
 	r.mu.Lock()
@@ -413,13 +412,8 @@ func (r *Room) end(cause string, status int) {
 	r.participants, r.order, r.held = map[string]*Participant{}, nil, map[string]*hold{}
 	listeners := r.listeners
 	r.listeners = nil
-	plays := r.plays
-	r.plays = nil
 	r.mu.Unlock()
 	close(r.done)
-	for _, pb := range plays {
-		r.node.opDone(pb, OpStopped, "")
-	}
 	for _, p := range parts {
 		removed := cause
 		if p.Kind == KindRTP {
@@ -440,7 +434,7 @@ func (r *Room) end(cause string, status int) {
 	r.node.roomEnded(r)
 }
 
-// setHold cuts a participant off from the others and plays music (or silence) to it; Resume
+// setHold cuts a participant off from the others and loops hold audio (or silence) to it; Resume
 // (held false) restores both directions.
 func (r *Room) setHold(p *Participant, held bool, musicURL string) {
 	if p == nil {
@@ -459,7 +453,7 @@ func (r *Room) setHold(p *Participant, held bool, musicURL string) {
 		return
 	}
 	go func() {
-		frames, err := r.node.fetchWav(musicURL)
+		frames, err := r.node.fetchHoldAudio(musicURL)
 		if err != nil {
 			r.node.cfg.Logger.Warn("hold music", "url", musicURL, "err", err)
 			return
@@ -552,15 +546,11 @@ func (r *Room) tick() {
 		}
 		music[ref] = f
 	}
-	plays, finished := r.nextPlayFrames()
 	var forks []fork
 	for _, fs := range r.listeners {
 		forks = append(forks, fs...)
 	}
 	r.mu.Unlock()
-	for _, pb := range finished {
-		r.node.opDone(pb, OpCompleted, "")
-	}
 
 	frames := make([]audio.Frame, len(parts))
 	byTrack := map[int]audio.Frame{}
@@ -601,7 +591,6 @@ func (r *Room) tick() {
 			}
 			others = append(others, frames[j])
 		}
-		others = playsFor(p.Ref, plays, others)
 		p.endpoint.Send(audio.Mix(others...))
 	}
 }
@@ -646,9 +635,9 @@ func (r *Room) setMaxDuration(d time.Duration) {
 	r.mu.Unlock()
 }
 
-// attachListener adds a listen-only participant: one RTP stream per selected track, never
+// addListener adds a listen-only participant: one RTP stream per selected track, never
 // mixed, receive-only. ref "" picks one.
-func (r *Room) attachListener(ref string, tracks []ListenTrack) (string, error) {
+func (r *Room) addListener(ref string, tracks []ListenTrack) (string, error) {
 	if len(tracks) == 0 {
 		return "", errorf(CodeBadMessage, "a listener needs tracks")
 	}
@@ -710,7 +699,8 @@ func (r *Room) attachListener(ref string, tracks []ListenTrack) (string, error) 
 	return ref, nil
 }
 
-func (r *Room) detachListener(ref string) bool {
+// removeListener closes a listener's streams; false when there was none.
+func (r *Room) removeListener(ref string) bool {
 	r.mu.Lock()
 	forks, ok := r.listeners[ref]
 	delete(r.listeners, ref)

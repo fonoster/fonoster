@@ -49,8 +49,13 @@ for passwords and TLS PEM settings.
 A `CreateCall` `call_ref` is remembered for 10 minutes after the call ends (a constant). The node
 writes nothing to the session registry, has no room token, no source filtering, no debug HTTP
 server and no URL screening: network isolation is the boundary (its SIP port reachable only from
-the proxy, its control port only from the controller), and tenant Play and hold URLs are checked
+the proxy, its control port only from the controller), and tenant hold-music URLs are checked
 upstream.
+
+Roomr is the SIP and media edge, not an app server: it does not play prompts, record or send DTMF
+on a controller's behalf. An app plays its own audio on its RTP leg, records by adding a listener,
+and sends DTMF on its call's control stream. The one audio the node fetches itself is hold music
+(`Hold{music}`, warm-transfer `music`), because only the node can play to the caller alone.
 
 ## Calls and the control stream
 
@@ -71,15 +76,15 @@ and `cause`) with no room and no stream: the room is created, or `room_ref` join
 (its `media`) completes the call (`call.answered`).
 
 **The stream.** `Start` first; then `Dtmf` and `Event` (`ParticipantJoined`/`Left`,
-`OperationDone`, `TransferResult`, `Ended` with `cause` and `sip_status`) from the node, and
-`Play`, `Stop`, `Transfer` (cold, warm, refer), `TransferComplete`, `Hold`/`Resume`, `SendDtmf`,
-`AttachListener`/`DetachListener`, `Record` and `Hangup` from the app, handled in order. Keepalive
+`TransferResult`, `Ended` with `cause` and `sip_status`) from the node, and `Transfer` (cold,
+warm, refer), `TransferComplete`, `Hold` (optional looped hold music)/`Resume`, `SendDtmf` (RFC
+4733 on the caller's leg), `AddListener`/`RemoveListener` and `Hangup` from the app, handled in
+order. Keepalive
 pings every 10 s (the server must allow them); a stream that breaks or misses two pings hangs the
 call up with `app_gone` and is never reconnected. After `Ended` the node half-closes the stream.
 Audio never travels on it: the app leg is RTP L16/16000 (payload type 96, 20 ms) between the two
 `MediaEndpoint`s. `Start.media.srtp_key` is always set; an app that answers with its own
-`srtp_key` gets SRTP, one that leaves it empty gets plain RTP. `Record` answers `OperationDone
-failed` (not implemented: attach a listener).
+`srtp_key` gets SRTP, one that leaves it empty gets plain RTP.
 
 ## Events and heartbeats on NATS
 
@@ -92,13 +97,10 @@ is down, buffers nothing and drops events it cannot publish (no replay).
 - `roomr.nodes.<node_ref>.events`: `registration.state`.
 - `roomr.events.<call_ref>`: `call.started`, `call.ringing`, `call.answered`, `call.ended`
   (`cause`, `sip_status`, `answered`), `participant.joined`/`left` for the call's legs (`kind`
-  `phone` or `app`), and `operation.done` for a controller's `Play` on the call. Each carries
+  `phone` or `app`). Each carries
   `node_ref`, a per-call `seq` from 1, the call's `metadata` and `ts`.
-- `roomr.events.room.<room_ref>`: `room.ended` (`cause`), participant events of RTP participants,
-  `operation.done` for room-wide plays, with a per-room `seq`.
-
-`operation.done` goes on one channel only: the app's stream when the app started the operation,
-NATS when a controller did.
+- `roomr.events.room.<room_ref>`: `room.ended` (`cause`) and participant events of RTP
+  participants, with a per-room `seq`.
 
 ## Draining
 
@@ -183,25 +185,20 @@ hardware). Size SIP capacity for the Opus share you expect.
 
 ## The Roomr gRPC service (`roomr.v1.Roomr`)
 
-`api/roomr/v1/roomr.proto`: `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`,
-`Play`, `Stop`, `Record` and `SendDtmf`, on `control.grpc.listen`.
+`api/roomr/v1/roomr.proto`: `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `AddParticipant`
+and `RemoveParticipant`, on `control.grpc.listen`.
 
 | RPC | |
 | --- | --- |
 | `CreateCall` | see Calls; `call_ref` idempotent for 10 minutes (same params: the existing `Call`, no INVITE; other params: `ALREADY_EXISTS`); `sip.callRefHeader` in `to.headers` is the `call_ref` (both set and different: `INVALID_ARGUMENT`); a CR or LF in a header value or a header the node sets: `INVALID_ARGUMENT`; `ring_timeout_s` (60 s), `max_duration_s`, `session`, `metadata` |
 | `EndCall` | CANCEL while ringing, BYE once answered, 480 to an unanswered inbound caller; cause `removed` |
 | `CreateRoom` / `EndRoom` | optional ref (`ALREADY_EXISTS` when taken), `max_duration_s`, `empty_room_timeout_s`, `max_participants` / ends every call (`removed`) and participant |
-| `Join` / `Leave` | RTP participants and listen-only participants (`listen`); WebRTC: `UNIMPLEMENTED` |
-| `Play` / `Stop` | a PCM16 WAV URL into a call, participant or room; `operation.done` (`completed`, `failed`, `stopped`) |
-| `SendDtmf` | RFC 4733 on the target SIP leg |
-| `Record` | `UNIMPLEMENTED` (record through a listener) |
+| `AddParticipant` / `RemoveParticipant` | RTP participants and listen-only participants (`listen`); WebRTC: `UNIMPLEMENTED` |
 
 Errors are gRPC codes with a `google.rpc.ErrorInfo` reason (domain `roomr.fonoster.com`):
 `RESOURCE_EXHAUSTED` (`at_capacity`, `room_full`), `NOT_FOUND` (`room_not_found`,
-`call_not_found`, `participant_not_found`, `operation_not_found`), `ALREADY_EXISTS`
-(`room_exists`, `call_exists`), `INVALID_ARGUMENT` (`bad_message`, `unsupported_codec`),
-`FAILED_PRECONDITION` (`call_not_answered`, `dtmf_not_negotiated`), `UNIMPLEMENTED`
-(`not_supported`). Regenerate the Go code with `api/generate.sh`.
+`call_not_found`, `participant_not_found`), `ALREADY_EXISTS` (`room_exists`, `call_exists`),
+`INVALID_ARGUMENT` (`bad_message`, `unsupported_codec`), `UNIMPLEMENTED` (`not_supported`). Regenerate the Go code with `api/generate.sh`.
 
 ## Test
 

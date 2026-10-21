@@ -166,13 +166,6 @@ func (c *call) streamDTMF(digit, source string) {
 	}
 }
 
-func (c *call) streamOpDone(ref, status, errText string) {
-	if s := c.stream(); s != nil {
-		s.sendEvent(&sessionv1.Event{Event: &sessionv1.Event_OperationDone{OperationDone: &sessionv1.OperationDone{
-			OperationRef: ref, Status: status, Error: errText}}})
-	}
-}
-
 func (c *call) streamTransferResult(status, cause string, sipStatus int) {
 	if s := c.stream(); s != nil {
 		s.sendEvent(&sessionv1.Event{Event: &sessionv1.Event_TransferResult{TransferResult: &sessionv1.TransferResult{
@@ -253,7 +246,6 @@ func (c *call) end(cause string, status int) {
 	if appEP != nil && app == nil {
 		appEP.Close()
 	}
-	c.n.stopOpsOf(c)
 	ev := Event{"cause": cause, "answered": answered}
 	if status != 0 {
 		ev["sip_status"] = status
@@ -680,27 +672,6 @@ func (c *call) handle(m *sessionv1.AppMessage) {
 		return
 	}
 	switch msg := m.GetMsg().(type) {
-	case *sessionv1.AppMessage_Play:
-		ref := msg.Play.GetOperationRef()
-		if ref == "" {
-			ref = newRef("op")
-		}
-		if !validPlayURL(msg.Play.GetUrl()) {
-			c.streamOpDone(ref, OpFailed, "url must be an http(s) URL")
-			return
-		}
-		pb := &playback{ref: ref, room: room, target: leg.Ref, loop: msg.Play.GetLoop(), origin: c}
-		if err := c.n.startPlay(pb, msg.Play.GetUrl()); err != nil {
-			c.streamOpDone(ref, OpFailed, err.Error())
-		}
-	case *sessionv1.AppMessage_Stop:
-		_ = c.n.stopPlay(msg.Stop.GetOperationRef())
-	case *sessionv1.AppMessage_Record:
-		ref := msg.Record.GetOperationRef()
-		if ref == "" {
-			ref = newRef("op")
-		}
-		c.streamOpDone(ref, OpFailed, "not implemented: attach a listener to record")
 	case *sessionv1.AppMessage_Hold:
 		room.setHold(leg, true, msg.Hold.GetMusic())
 	case *sessionv1.AppMessage_Resume:
@@ -709,17 +680,17 @@ func (c *call) handle(m *sessionv1.AppMessage) {
 		if validDigits(msg.SendDtmf.GetDigits()) {
 			go sendDTMFOn(leg, msg.SendDtmf.GetDigits())
 		}
-	case *sessionv1.AppMessage_AttachListener:
-		tracks := make([]ListenTrack, 0, len(msg.AttachListener.GetListen()))
-		for _, t := range msg.AttachListener.GetListen() {
+	case *sessionv1.AppMessage_AddListener:
+		tracks := make([]ListenTrack, 0, len(msg.AddListener.GetListen()))
+		for _, t := range msg.AddListener.GetListen() {
 			tracks = append(tracks, ListenTrack{TrackID: int(t.GetTrackId()), RTP: MediaEndpoint{IP: t.GetRtp().GetIp(),
 				Port: int(t.GetRtp().GetPort()), Codec: t.GetRtp().GetCodec(), SRTPKey: t.GetRtp().GetSrtpKey()}})
 		}
-		if _, err := room.attachListener(msg.AttachListener.GetListenerRef(), tracks); err != nil {
-			c.n.cfg.Logger.Warn("attach listener", "callRef", c.ref, "err", err)
+		if _, err := room.addListener(msg.AddListener.GetListenerRef(), tracks); err != nil {
+			c.n.cfg.Logger.Warn("add listener", "callRef", c.ref, "err", err)
 		}
-	case *sessionv1.AppMessage_DetachListener:
-		room.detachListener(msg.DetachListener.GetListenerRef())
+	case *sessionv1.AppMessage_RemoveListener:
+		room.removeListener(msg.RemoveListener.GetListenerRef())
 	case *sessionv1.AppMessage_Transfer:
 		c.transfer(msg.Transfer)
 	case *sessionv1.AppMessage_TransferComplete:
@@ -728,20 +699,5 @@ func (c *call) handle(m *sessionv1.AppMessage) {
 		c.end(ReasonRemoved, 0)
 	default:
 		// Answer, Ready and Reject after the answer change nothing.
-	}
-}
-
-// stopOpsOf stops the Play operations a call's app started (its stream is closing).
-func (n *Node) stopOpsOf(c *call) {
-	n.mu.Lock()
-	var refs []string
-	for ref, pb := range n.ops {
-		if pb.origin == c {
-			refs = append(refs, ref)
-		}
-	}
-	n.mu.Unlock()
-	for _, ref := range refs {
-		_ = n.stopPlay(ref)
 	}
 }

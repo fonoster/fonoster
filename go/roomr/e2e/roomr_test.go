@@ -71,8 +71,7 @@ func promptServer(t *testing.T, wav []byte) string {
 
 // TestRoomrCreateCall: a room, then CreateCall into it through a proxy with extra headers;
 // the call connects with the headers on the INVITE, the app gets Start (OUTBOUND, the room, the
-// metadata) and sends Ready, a prompt plays, DTMF goes out, an RTP participant joins and
-// leaves, and EndCall hangs up.
+// metadata) and sends Ready, an RTP participant is added and removed, and EndCall hangs up.
 func TestRoomrCreateCall(t *testing.T) {
 	r := start(t)
 	mc := r.mc
@@ -131,40 +130,20 @@ func TestRoomrCreateCall(t *testing.T) {
 		t.Fatalf("callee saw %d calls", n)
 	}
 
-	// Play a 1 s prompt to the call: the callee hears it and operation.done follows on NATS.
-	before := callee.Status().AudibleMs
-	op, err := mc.Play(ctx, &roomrv1.PlayRequest{Target: &roomrv1.PlayRequest_CallRef{CallRef: callRef},
-		Url: promptServer(t, toneWav(440, 1000))})
-	if err != nil || op.OperationRef == "" {
-		t.Fatalf("Play: %v %v", op, err)
-	}
-	r.waitEvent(typed("operation.done", "operation_ref", op.OperationRef, "status", "completed", "call_ref", callRef), 4*time.Second)
-	waitStatus(t, callee, func(s caller.Status) bool { return s.AudibleMs-before >= 700 }, 2*time.Second)
-	if n := ac.countMsgs(func(m *sessionv1.NodeMessage) bool { return m.GetEvent().GetOperationDone() != nil }); n != 0 {
-		t.Fatalf("a controller's operation.done reached the app's stream (%d)", n)
-	}
-
-	// DTMF on the call's leg.
-	if _, err := mc.SendDtmf(ctx, &roomrv1.SendDtmfRequest{Target: &roomrv1.SendDtmfRequest_CallRef{CallRef: callRef},
-		Digits: "12#"}); err != nil {
-		t.Fatal(err)
-	}
-	waitStatus(t, callee, func(s caller.Status) bool { return s.Digits == "12#" }, 3*time.Second)
-
 	// An RTP participant joins: the callee hears it; then it leaves.
 	g, p, err := r.join(roomRef, "")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if p.Rtp.GetPort() == 0 || p.TrackId == 0 {
-		t.Fatalf("Join = %v", p)
+		t.Fatalf("AddParticipant = %v", p)
 	}
 	r.waitEvent(typed("participant.joined", "participant_ref", p.ParticipantRef, "room_ref", roomRef), 2*time.Second)
 	ac.waitMsg(t, joinedMsg(p.ParticipantRef), 2*time.Second)
-	before = callee.Status().AudibleMs
+	before := callee.Status().AudibleMs
 	g.play(1000, 600)
 	waitStatus(t, callee, func(s caller.Status) bool { return s.AudibleMs-before >= 300 }, 2*time.Second)
-	if _, err := mc.Leave(ctx, &roomrv1.LeaveRequest{RoomRef: roomRef, ParticipantRef: p.ParticipantRef}); err != nil {
+	if _, err := mc.RemoveParticipant(ctx, &roomrv1.RemoveParticipantRequest{RoomRef: roomRef, ParticipantRef: p.ParticipantRef}); err != nil {
 		t.Fatal(err)
 	}
 	r.waitEvent(typed("participant.left", "participant_ref", p.ParticipantRef, "cause", "removed"), 2*time.Second)
@@ -190,7 +169,7 @@ func TestRoomrCreateCall(t *testing.T) {
 		t.Fatal(err)
 	}
 	r.waitEvent(typed("room.ended", "room_ref", roomRef, "cause", "removed"), 2*time.Second)
-	_, err = mc.Join(ctx, &roomrv1.JoinRequest{RoomRef: roomRef, Endpoint: &roomrv1.JoinRequest_Rtp{
+	_, err = mc.AddParticipant(ctx, &roomrv1.AddParticipantRequest{RoomRef: roomRef, Endpoint: &roomrv1.AddParticipantRequest_Rtp{
 		Rtp: &roomrv1.MediaEndpoint{Ip: "127.0.0.1", Port: 4000}}})
 	wantStatus(t, err, codes.NotFound, node.CodeRoomNotFound)
 }
@@ -282,17 +261,17 @@ func TestRoomrRefusals(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	join := &roomrv1.JoinRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.JoinRequest_Rtp{
+	join := &roomrv1.AddParticipantRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.AddParticipantRequest_Rtp{
 		Rtp: &roomrv1.MediaEndpoint{Ip: "127.0.0.1", Port: 40000, Codec: "L16/16000"}}}
-	if _, err := mc.Join(ctx, join); err != nil {
+	if _, err := mc.AddParticipant(ctx, join); err != nil {
 		t.Fatal(err)
 	}
-	_, err = mc.Join(ctx, join)
+	_, err = mc.AddParticipant(ctx, join)
 	wantStatus(t, err, codes.ResourceExhausted, node.CodeRoomFull)
-	_, err = mc.Join(ctx, &roomrv1.JoinRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.JoinRequest_Webrtc{
+	_, err = mc.AddParticipant(ctx, &roomrv1.AddParticipantRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.AddParticipantRequest_Webrtc{
 		Webrtc: &roomrv1.WebRtcOffer{Sdp: "v=0"}}})
 	wantStatus(t, err, codes.Unimplemented, node.CodeNotSupported)
-	_, err = mc.Join(ctx, &roomrv1.JoinRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.JoinRequest_Rtp{
+	_, err = mc.AddParticipant(ctx, &roomrv1.AddParticipantRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.AddParticipantRequest_Rtp{
 		Rtp: &roomrv1.MediaEndpoint{Ip: "127.0.0.1", Port: 40000, Codec: "GSM/8000"}}})
 	if st, _ := status.FromError(err); st.Code() != codes.InvalidArgument && st.Code() != codes.ResourceExhausted {
 		t.Fatalf("unsupported codec: %v", err)
@@ -307,10 +286,6 @@ func TestRoomrRefusals(t *testing.T) {
 	if n := len(r.callee.Calls()); n != 0 {
 		t.Fatalf("a refused CreateCall sent %d INVITEs", n)
 	}
-	_, err = mc.SendDtmf(ctx, &roomrv1.SendDtmfRequest{Target: &roomrv1.SendDtmfRequest_CallRef{CallRef: "nope"}, Digits: "1"})
-	wantStatus(t, err, codes.NotFound, node.CodeCallNotFound)
-	_, err = mc.Stop(ctx, &roomrv1.StopRequest{OperationRef: "op-nope"})
-	wantStatus(t, err, codes.NotFound, node.CodeOperationNotFound)
 }
 
 // TestRoomrMutualTLS: with a client CA the control listener serves only controllers that
@@ -385,46 +360,6 @@ func TestRoomrAtCapacity(t *testing.T) {
 	}
 }
 
-// TestPlayStopRecordOperations: Stop cancels a controller's Play (operation.done stopped on
-// NATS); an app's Play reports operation.done on its stream only; Record is not implemented.
-func TestPlayStopRecordOperations(t *testing.T) {
-	r := start(t)
-	call, ac := r.answeredCall()
-	callRef := ac.start.GetCallRef()
-	url := promptServer(t, toneWav(440, 10000))
-	op, err := r.mc.Play(rpcCtx(t), &roomrv1.PlayRequest{Target: &roomrv1.PlayRequest_CallRef{CallRef: callRef}, Url: url})
-	if err != nil {
-		t.Fatal(err)
-	}
-	waitStatus(t, call, func(s caller.Status) bool { return s.AudibleMs > 200 }, 3*time.Second)
-	if _, err := r.mc.Stop(rpcCtx(t), &roomrv1.StopRequest{OperationRef: op.OperationRef}); err != nil {
-		t.Fatal(err)
-	}
-	r.waitEvent(typed("operation.done", "operation_ref", op.OperationRef, "status", "stopped"), 2*time.Second)
-	time.Sleep(200 * time.Millisecond)
-	before := call.Status().AudibleMs
-	time.Sleep(500 * time.Millisecond)
-	if got := call.Status().AudibleMs - before; got > 100 {
-		t.Fatalf("the caller still hears the stopped prompt (%d ms)", got)
-	}
-
-	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_Play{Play: &sessionv1.Play{OperationRef: "app-op-1",
-		Url: promptServer(t, toneWav(440, 400))}}})
-	ac.waitMsg(t, opDoneMsg("app-op-1", "completed"), 3*time.Second)
-	if r.find(typed("operation.done", "operation_ref", "app-op-1")) != nil {
-		t.Fatal("an app's operation.done went to NATS")
-	}
-	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_Play{Play: &sessionv1.Play{OperationRef: "app-op-2", Url: url, Loop: true}}})
-	time.Sleep(300 * time.Millisecond)
-	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_Stop{Stop: &sessionv1.Stop{OperationRef: "app-op-2"}}})
-	ac.waitMsg(t, opDoneMsg("app-op-2", "stopped"), 2*time.Second)
-	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_Record{Record: &sessionv1.Record{OperationRef: "rec-1"}}})
-	ac.waitMsg(t, opDoneMsg("rec-1", "failed"), 2*time.Second)
-	_, err = r.mc.Record(rpcCtx(t), &roomrv1.RecordRequest{Target: &roomrv1.RecordRequest_CallRef{CallRef: callRef}})
-	wantStatus(t, err, codes.Unimplemented, node.CodeNotSupported)
-	_ = call.Hangup()
-}
-
 // TestRoomEventsHaveTheirOwnSequence: an RTP participant joins and leaves a room with no call,
 // then the room ends: seq 1, 2 and 3 on roomr.events.room.<room_ref>.
 func TestRoomEventsHaveTheirOwnSequence(t *testing.T) {
@@ -438,7 +373,7 @@ func TestRoomEventsHaveTheirOwnSequence(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := r.mc.Leave(rpcCtx(t), &roomrv1.LeaveRequest{RoomRef: ref, ParticipantRef: p.ParticipantRef}); err != nil {
+	if _, err := r.mc.RemoveParticipant(rpcCtx(t), &roomrv1.RemoveParticipantRequest{RoomRef: ref, ParticipantRef: p.ParticipantRef}); err != nil {
 		t.Fatal(err)
 	}
 	if _, err := r.mc.EndRoom(rpcCtx(t), &roomrv1.EndRoomRequest{RoomRef: ref}); err != nil {
