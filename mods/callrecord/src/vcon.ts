@@ -217,6 +217,13 @@ export function buildVcon(
     }
   }
 
+  // Each spoken turn starts when that side began speaking and lasts until it stopped (vCon
+  // dialog `duration`, seconds): the transcript's timings per turn and per side.
+  for (const [turn, span] of heard) {
+    turn.start = iso(span.from);
+    turn.duration = Math.max(0, span.to - span.from) / 1000;
+  }
+
   // A call that never reached an app has no session.start: its parties come from call.started
   // (minimal record, call-record "Calls that never reach an app get a minimal record").
   if (!parties.length && started) {
