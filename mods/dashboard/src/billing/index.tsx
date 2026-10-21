@@ -18,7 +18,7 @@
  */
 import type { BillingSummary, Workspace } from "@fonoster/types";
 import { ExternalLink, Plus } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, useSearchParams } from "react-router-dom";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
@@ -116,8 +116,12 @@ function Billing({ workspace }: { workspace: Workspace }) {
   const s = billing.data;
   // Back from the portal with a card: finish the upgrade the owner asked for, once.
   const resumeUpgrade = params.get("upgrade") === "1" && s?.plan === "trial";
+  const resumed = useRef(false);
+  const { mutate: startSubscription } = subscribe;
   useEffect(() => {
-    if (!resumeUpgrade) return;
+    // The mutation object changes every render; the ref keeps this to one call.
+    if (!resumeUpgrade || resumed.current) return;
+    resumed.current = true;
     setParams(
       (p) => {
         p.delete("upgrade");
@@ -125,8 +129,8 @@ function Billing({ workspace }: { workspace: Workspace }) {
       },
       { replace: true }
     );
-    subscribe.mutate();
-  }, [resumeUpgrade, setParams, subscribe]);
+    startSubscription();
+  }, [resumeUpgrade, setParams, startSubscription]);
   const arrived =
     s !== undefined &&
     balanceBefore !== undefined &&
