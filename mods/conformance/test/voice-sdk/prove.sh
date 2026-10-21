@@ -17,11 +17,13 @@ npx mocha --timeout 60000 --exit --grep "\[$id\]" \
   mods/appbridge/test/hangupEndpoint.test.ts || status=1
 python="${PYTHON:-python3}"
 if "$python" -c "import fonoster.voice" 2>/dev/null; then
-  # pytest -k can't take a hyphen; the id's two halves pick the same tests.
-  (cd python/fonoster-voice && "$python" -m pytest -q -k "${id%-*} and ${id#*-}" \
+  # pytest -k can't take a hyphen; the id's two halves pick the same tests. A whole-area run
+  # (run.cjs, QA_RUN=1) takes every test.
+  if [ "${QA_RUN:-}" = 1 ]; then select=""; else select="${id%-*} and ${id#*-}"; fi
+  (cd python/fonoster-voice && "$python" -m pytest -q ${select:+-k "$select"} \
     --junitxml="$out/python.xml" tests/test_server.py tests/test_conformance.py) || status=1
 fi
-if [ "$id" = "VSD-016" ]; then
+if [ "$id" = "VSD-016" ] || { [ "${QA_RUN:-}" = 1 ] && [ -n "${PIPECAT_PYTHON:-}" ]; }; then
   npx mocha --timeout 60000 --exit --grep "\[$id\]" \
     --reporter xunit --reporter-option "output=$out/pipecat.xml" \
     mods/appbridge/test/pipecat.test.ts || status=1

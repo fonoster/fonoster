@@ -87,6 +87,22 @@ Two other ways, for tests whose titles aren't written by hand:
 - **Python tests.** Mark the test `@case("VSD-001")` (from the suite's `conftest.py`); the id is added
   to the test's name in the JUnit results, and `build.cjs` reads the decorator.
 
+## The gate in CI
+
+`.github/workflows/qa-proofs.yaml` (workflow "QA") has one job per area. Each runs every case once
+(`run.cjs`) and proves every case on its fault (`prove.cjs`), and uploads its JUnit as `qa-<area>`. The
+report job reads all of them, writes the release report and fails when the gate fails. It runs
+nightly and on demand, and `release.yaml` calls it on the commit being released before anything is
+published, then attaches the report to the draft release.
+
+```sh
+node mods/conformance/catalog/run.cjs --area DSH        # every case once, JUnit in reports/junit/run-DSH
+```
+
+`run.cjs` runs the area's `run:` command, or its `prove:` command with `{id}` set to a pattern matching
+every case (`DSH-\d{3}`) and `QA_RUN=1`. A new area adds its job to the workflow and to the report
+job's `needs`.
+
 ## The release report
 
 ```sh

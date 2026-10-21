@@ -10,6 +10,26 @@ id="$1"
 out="$2"
 cd mods/dashboard
 export CI=1 PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/dashboard.xml"
+# The whole area (run.cjs, QA_RUN=1): the mocked projects, then the real project when the stack is
+# up and seeded, then the Billing page when its profile is on (QA_BILLING=1), each against the
+# stack's own dashboard.
+if [ "${QA_RUN:-}" = 1 ]; then
+  status=0
+  npx playwright test --grep "\[$id\]" --reporter=junit || status=1
+  if [ -f ../../ops/rebuild/.local/seed.json ]; then
+    PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/real.xml" \
+      node e2e/real-env.cjs --grep "\[$id\]" --reporter=junit || status=1
+  fi
+  if [ "${QA_BILLING:-}" = 1 ]; then
+    . ../../ops/rebuild/.local/stack.env
+    PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/billing.xml" \
+      RB_DASHBOARD_URL="http://localhost:$RB_API_PORT" RB_ADMIN_EMAIL="$RB_ADMIN_EMAIL" \
+      RB_ADMIN_PASSWORD="$RB_ADMIN_PASSWORD" \
+      RB_STRIPE_FAKE_URL="http://localhost:${RB_STRIPE_FAKE_PORT:-12111}" \
+      npx playwright test -c playwright.stack.config.ts --grep "\[$id\]" --reporter=junit || status=1
+  fi
+  exit $status
+fi
 if grep -q "\[$id\]" e2e/*.real.spec.ts e2e-stack/*.spec.ts 2>/dev/null; then
   port="${PROVE_SPA_PORT:-16480}"
   npx vite build --config vite.prove.config.ts --outDir "$out/spa" --logLevel warn || exit 1
