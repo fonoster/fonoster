@@ -1,6 +1,6 @@
 ## 1. Surface
 
-- [ ] 1.1 Wrap `ExchangeVerificationCode`
+- [x] 1.1 Wrap `ExchangeVerificationCode`
 - [ ] 1.2 Wrap `RevokeToken`
 - [ ] 1.3 Configured-token mode for single-principal use
 

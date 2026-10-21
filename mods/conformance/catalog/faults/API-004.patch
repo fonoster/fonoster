@@ -1,0 +1,13 @@
+diff --git a/mods/common/src/validators/secrets.ts b/mods/common/src/validators/secrets.ts
+index 70cab2621..b951763ea 100644
+--- a/mods/common/src/validators/secrets.ts
++++ b/mods/common/src/validators/secrets.ts
+@@ -19,7 +19,7 @@
+ import { z } from "zod";
+ 
+ // Allows only letters, numbers, underscores, and hyphens
+-const validNameRegex = /^[a-zA-Z0-9_-]+$/;
++const validNameRegex = /^.*$/;
+ 
+ const createSecretRequestSchema = z.object({
+   name: z

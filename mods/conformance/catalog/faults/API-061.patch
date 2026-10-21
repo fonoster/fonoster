@@ -1,0 +1,18 @@
+diff --git a/mods/identity/src/server/config.ts b/mods/identity/src/server/config.ts
+index ba75c3fb3..bbe3a1782 100644
+--- a/mods/identity/src/server/config.ts
++++ b/mods/identity/src/server/config.ts
+@@ -48,9 +48,11 @@ const identityServiceConfigSchema = z.object({
+     })
+     .default({}),
+   logs: logsSchema,
+-  database: z.object({ url: z.string().min(1) }),
++  database: z
++    .object({ url: z.string().min(1) })
++    .default({ url: "postgresql://postgres:postgres@localhost:5432/identity" }),
+   encryptionKey: encryptionKeySchema,
+-  issuer: z.string().min(1),
++  issuer: z.string().min(1).default("https://identity.localhost"),
+   audience: z.string().min(1).default("api"),
+   /** Where the accept-invite bridge redirects. Defaults to the issuer. */
+   appUrl: z.string().min(1).optional(),

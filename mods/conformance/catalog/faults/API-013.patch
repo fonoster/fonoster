@@ -1,0 +1,15 @@
+diff --git a/mods/common/src/identity/roles.ts b/mods/common/src/identity/roles.ts
+index aece1fb40..96f51f602 100644
+--- a/mods/common/src/identity/roles.ts
++++ b/mods/common/src/identity/roles.ts
+@@ -152,7 +152,9 @@ const roles = [
+       "/fonoster.identity.v1beta2.Identity/GetUser",
+       "/fonoster.identity.v1beta2.Identity/GetWorkspace",
+       "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
+-      ...workspaceResourceAccess
++      ...workspaceResourceAccess.filter(
++        (method) => !method.endsWith("/ListApplications")
++      )
+     ]
+   },
+   {

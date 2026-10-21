@@ -1,0 +1,16 @@
+diff --git a/mods/sipnet/src/resources/createResource.ts b/mods/sipnet/src/resources/createResource.ts
+index 52cf1b1a3..8ba1368d8 100644
+--- a/mods/sipnet/src/resources/createResource.ts
++++ b/mods/sipnet/src/resources/createResource.ts
+@@ -51,10 +51,7 @@ function createResource<T, R, U>(
+     await checkRefs?.(request, accessKeyId);
+ 
+     const response = await api[`create${resource}`]({
+-      ...request,
+-      extended: {
+-        accessKeyId
+-      }
++      ...request
+     });
+ 
+     callback(null, response);

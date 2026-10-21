@@ -38,6 +38,7 @@ describe("@secrets/getSecret", function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
+    metadata.set("accessKeyId", "GRahn02s8tgdfghz72vb0fz538qpb5z35p");
 
     const call = {
       metadata,
@@ -81,6 +82,7 @@ describe("@secrets/getSecret", function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
+    metadata.set("accessKeyId", "GRahn02s8tgdfghz72vb0fz538qpb5z35p");
 
     const call = {
       metadata,

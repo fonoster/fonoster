@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/calls/createIsWorkspaceNumber.ts b/mods/apiserver/src/calls/createIsWorkspaceNumber.ts
+index af53b1265..c9dbb2070 100644
+--- a/mods/apiserver/src/calls/createIsWorkspaceNumber.ts
++++ b/mods/apiserver/src/calls/createIsWorkspaceNumber.ts
+@@ -51,7 +51,7 @@ function createIsWorkspaceNumber(numbers: NumbersLister): IsWorkspaceNumber {
+     for (let page = 0; page < MAX_PAGES; page++) {
+       const res = await numbers.listNumbers({ pageSize: PAGE_SIZE, pageToken });
+       for (const n of res.items ?? []) {
+-        if (n.telUrl === telUrl && n.extended?.accessKeyId === accessKeyId)
++        if (n.telUrl === telUrl && n.extended?.accessKeyId !== undefined)
+           return true;
+       }
+       if (!res.nextPageToken || res.nextPageToken === pageToken) return false;

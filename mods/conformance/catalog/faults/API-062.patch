@@ -1,0 +1,12 @@
+diff --git a/mods/identity/src/server/index.ts b/mods/identity/src/server/index.ts
+index 965dc7d5d..a42a48f78 100644
+--- a/mods/identity/src/server/index.ts
++++ b/mods/identity/src/server/index.ts
+@@ -26,6 +26,7 @@ import {
+ import { configureLogger, getLogger } from "@fonoster/logger";
+ import * as grpc from "@grpc/grpc-js";
+ import { HealthImplementation } from "grpc-health-check";
++import "nats";
+ import {
+   buildIdentityService,
+   identityAllowList,

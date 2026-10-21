@@ -40,6 +40,7 @@ describe("@sipnet[resources/deleteResource]", function () {
     const { deleteResource } = await import("../src/resources/deleteResource");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
+    metadata.set("accessKeyId", "GRahn02s8tgdfghz72vb0fz538qpb5z35p");
 
     const domains = {
       deleteDomain: sandbox.stub().resolves({ ref: "123" }),

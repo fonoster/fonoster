@@ -1,4 +1,344 @@
 {
+  "API-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-002": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-003": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-004": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-005": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-006": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-007": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-008": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-009": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "API-010": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-011": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-012": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "API-013": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-014": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-015": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-016": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-017": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-018": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-019": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-020": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-021": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-022": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-023": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-024": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-025": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-026": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-027": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-028": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-029": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-030": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-031": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-032": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-033": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-034": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-035": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-036": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-037": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-038": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-039": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-040": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-041": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-042": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-043": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-044": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-045": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-046": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-047": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-048": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-049": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-050": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-051": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-052": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-053": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-054": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-055": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-056": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-057": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-058": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-059": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-060": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-061": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-062": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-063": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-064": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-065": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-066": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-067": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-068": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
   "APB-001": {
     "tier": "pr",
     "pri": "P0",

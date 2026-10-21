@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/server/index.ts b/mods/identity/src/server/index.ts
+index 965dc7d5d..624fc80f1 100644
+--- a/mods/identity/src/server/index.ts
++++ b/mods/identity/src/server/index.ts
+@@ -80,7 +80,7 @@ async function main() {
+ 
+   startHttpBridge(identityConfig, { port: httpBridgePort, appUrl });
+ 
+-  server.bindAsync(bindAddr, credentials, (error) => {
++  server.bindAsync("0.0.0.0:50051", credentials, (error) => {
+     if (error) {
+       logger.error("failed to start Identity service", error);
+       process.exit(1);

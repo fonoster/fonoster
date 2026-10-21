@@ -1,0 +1,12 @@
+diff --git a/mods/identity/src/allowList.ts b/mods/identity/src/allowList.ts
+index 6a96a590e..cc1bd8f8b 100644
+--- a/mods/identity/src/allowList.ts
++++ b/mods/identity/src/allowList.ts
+@@ -28,7 +28,6 @@
+  */
+ const identityAllowList = [
+   "/grpc.health.v1.Health/Check",
+-  "/fonoster.identity.v1beta2.Identity/CreateUser",
+   "/fonoster.identity.v1beta2.Identity/CreateUserWithOauth2Code",
+   "/fonoster.identity.v1beta2.Identity/ExchangeApiKey",
+   "/fonoster.identity.v1beta2.Identity/ExchangeCredentials",

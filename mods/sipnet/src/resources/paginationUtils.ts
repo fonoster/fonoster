@@ -57,12 +57,13 @@ export function filterByAccessKeyId<
 }
 
 /**
- * Handles pagination with filtering, continuing to fetch pages until:
- * - We have enough items (pageSize)
- * - We run out of pages
- * - We hit the max iterations limit
+ * Pages through Routr's items keeping only the caller's, so that following `nextPageToken` returns
+ * every kept item exactly once (management-api, "Lists page through every item once").
  *
- * This handles the case where the first pages contain items from other customers.
+ * Routr's page token is a cursor on the last ref it returned, so a page can end on any item: when
+ * the page fills in the middle of a backend batch, the token is the ref of the last item kept and
+ * the next call resumes right after it. Batches with none of the caller's items are skipped, up to
+ * `maxIterations` of them; the token then points past the last batch read.
  *
  * @template TInput - The type of items returned from the API
  * @template TOutput - The type of items after filtering/transformation (defaults to TInput)
@@ -78,68 +79,37 @@ export async function paginateWithFiltering<TInput, TOutput = TInput>(
     maxIterations = 10
   } = options;
 
-  const normalizedPageToken = normalizePageToken(pageToken);
   const items: TOutput[] = [];
-  let nextPageToken: string = "";
-  let currentPageToken: string | undefined = normalizedPageToken;
-  let hasMorePages = true;
-  let iterations = 0;
+  let cursor = normalizePageToken(pageToken);
 
-  while (
-    items.length < pageSize &&
-    hasMorePages &&
-    iterations < maxIterations
-  ) {
-    iterations++;
+  for (let i = 0; i < maxIterations; i++) {
+    const requested = pageSize * 2;
+    const response = await fetchPage(cursor, requested);
+    const batch = response?.items ?? [];
+    const next = normalizeNextPageToken(response?.nextPageToken);
+    // Routr may answer a token on its last page too: a short batch that had some of the caller's
+    // items is the end; a short one with none of them is followed, as before.
+    const short = batch.length < requested;
+    let kept = 0;
 
-    // Request more items to account for filtering
-    const backendRequestedSize = pageSize * 2;
-    const response = await fetchPage(currentPageToken, backendRequestedSize);
-
-    if (!response || !response.items) {
-      hasMorePages = false;
-      nextPageToken = "";
-      break;
+    for (const [index, item] of batch.entries()) {
+      const mine = filterItems([item]);
+      if (mine.length === 0) continue;
+      kept += mine.length;
+      items.push(...mine);
+      if (items.length >= pageSize) {
+        const lastOfAll = (!next || short) && index === batch.length - 1;
+        return {
+          items,
+          nextPageToken: lastOfAll ? "" : ((item as { ref?: string }).ref ?? "")
+        };
+      }
     }
 
-    const filteredItems = filterItems(response.items);
-    items.push(...filteredItems);
-
-    const backendNextPageToken = normalizeNextPageToken(response.nextPageToken);
-
-    // If we got no items from backend or no nextPageToken, we're done
-    if (response.items.length === 0 || !backendNextPageToken) {
-      hasMorePages = false;
-      nextPageToken = "";
-      break;
-    }
-
-    // Check if backend returned fewer items than requested (indicating last page)
-    // If backend returned exactly what we asked for or more, there might be more items
-    const backendHasMoreItems = response.items.length >= backendRequestedSize;
-
-    // If we've filled the page, we're done
-    if (items.length >= pageSize) {
-      // We filled the page, so there might be more items
-      // Only return nextPageToken if backend indicates there are more items
-      nextPageToken = backendHasMoreItems ? backendNextPageToken : "";
-      break;
-    }
-
-    // If we got filtered items in this iteration, return them
-    // Only continue if we got 0 filtered items (meaning all items were from other customers)
-    if (filteredItems.length === 0) {
-      // No items matched in this page, continue to next page
-      currentPageToken = backendNextPageToken;
-      nextPageToken = backendNextPageToken;
-    } else {
-      nextPageToken = backendHasMoreItems ? backendNextPageToken : "";
-      break;
-    }
+    if (batch.length === 0 || !next || (short && kept > 0))
+      return { items, nextPageToken: "" };
+    cursor = next;
   }
 
-  return {
-    items: items.slice(0, pageSize),
-    nextPageToken
-  };
+  return { items, nextPageToken: cursor ?? "" };
 }

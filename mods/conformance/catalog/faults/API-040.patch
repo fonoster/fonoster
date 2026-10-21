@@ -1,0 +1,29 @@
+diff --git a/mods/common/src/identity/roles.ts b/mods/common/src/identity/roles.ts
+index aece1fb40..70a4a48a9 100644
+--- a/mods/common/src/identity/roles.ts
++++ b/mods/common/src/identity/roles.ts
+@@ -152,6 +152,7 @@ const roles = [
+       "/fonoster.identity.v1beta2.Identity/GetUser",
+       "/fonoster.identity.v1beta2.Identity/GetWorkspace",
+       "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
++      "/fonoster.identity.v1beta2.Identity/CreateApiKey",
+       ...workspaceResourceAccess
+     ]
+   },
+diff --git a/mods/identity/src/utils/isWorkspaceAdminCall.ts b/mods/identity/src/utils/isWorkspaceAdminCall.ts
+index ad2a2927b..a544200d2 100644
+--- a/mods/identity/src/utils/isWorkspaceAdminCall.ts
++++ b/mods/identity/src/utils/isWorkspaceAdminCall.ts
+@@ -25,7 +25,11 @@ import {
+ import { Role } from "@fonoster/types";
+ import { ServerInterceptingCall } from "@grpc/grpc-js";
+ 
+-const ADMIN_ROLES: string[] = [Role.WORKSPACE_OWNER, Role.WORKSPACE_ADMIN];
++const ADMIN_ROLES: string[] = [
++  Role.WORKSPACE_OWNER,
++  Role.WORKSPACE_ADMIN,
++  Role.WORKSPACE_MEMBER
++];
+ 
+ /**
+  * Whether the caller is an owner or admin of the workspace the call names

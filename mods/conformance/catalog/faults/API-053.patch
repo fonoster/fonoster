@@ -1,0 +1,13 @@
+diff --git a/mods/sipnet/src/resources/checkRefs.ts b/mods/sipnet/src/resources/checkRefs.ts
+index afe4dfd83..2916579fe 100644
+--- a/mods/sipnet/src/resources/checkRefs.ts
++++ b/mods/sipnet/src/resources/checkRefs.ts
+@@ -74,7 +74,7 @@ function createCheckRefs(lookups: Partial<RefLookups>): CheckRefs {
+       }
+       // Another workspace's resource is reported like a missing one, so refs of other
+       // workspaces are not confirmed.
+-      if (resource?.extended?.accessKeyId !== accessKeyId) {
++      if (!resource) {
+         throw new GrpcError(
+           status.INVALID_ARGUMENT,
+           `${field} ${ref} not found`

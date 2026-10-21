@@ -169,6 +169,8 @@ import headerPlugin from 'eslint-plugin-header'; export default [
       'mods/common/test/.prisma-client/**',
       'mods/sdk/public/fonoster.min.js',
       'mods/**/*.integration.ts',
+      // The QA areas' mocha cases (mods/conformance/test/api), like the *.test.ts files
+      'mods/**/*.api.ts',
       // TODO: Avoid ignoring this file after we fix the issue addign the headers
       'mods/autopilot/src/server.ts',
       'mods/apiserver/src/index.ts',

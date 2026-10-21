@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/config/schemas.ts b/mods/identity/src/config/schemas.ts
+index c796d7824..230a8aafa 100644
+--- a/mods/identity/src/config/schemas.ts
++++ b/mods/identity/src/config/schemas.ts
+@@ -81,7 +81,7 @@ const authFeaturesSchema = z
+     methods: z
+       .array(z.enum(["password", "email_code", "github"]))
+       .nonempty()
+-      .default(["password"]),
++      .default(["password", "email_code"]),
+     signup: z.enum(["invite", "open"]).default("invite")
+   })
+   .default({});

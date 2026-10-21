@@ -1,0 +1,21 @@
+diff --git a/mods/identity/src/exchanges/createExchangeRefreshToken.ts b/mods/identity/src/exchanges/createExchangeRefreshToken.ts
+index 3b95a3e65..627735516 100644
+--- a/mods/identity/src/exchanges/createExchangeRefreshToken.ts
++++ b/mods/identity/src/exchanges/createExchangeRefreshToken.ts
+@@ -117,12 +117,10 @@ function createExchangeRefreshToken(
+       return callback(invalidRefreshToken);
+     }
+ 
+-    callback(
+-      null,
+-      await exchangeTokens(prisma, identityConfig)(accessKeyId, {
+-        familyId: consumed.familyId
+-      })
+-    );
++    const tokens = await exchangeTokens(prisma, identityConfig)(accessKeyId, {
++      familyId: consumed.familyId
++    });
++    callback(null, { ...tokens, refreshToken: call.request.refreshToken });
+   };
+ 
+   return withErrorHandlingAndValidation(

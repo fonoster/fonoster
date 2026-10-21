@@ -1,0 +1,13 @@
+diff --git a/mods/sipnet/src/resources/paginationUtils.ts b/mods/sipnet/src/resources/paginationUtils.ts
+index 196eab17e..7ca984914 100644
+--- a/mods/sipnet/src/resources/paginationUtils.ts
++++ b/mods/sipnet/src/resources/paginationUtils.ts
+@@ -96,7 +96,7 @@ export async function paginateWithFiltering<TInput, TOutput = TInput>(
+         const lastOfAll = (!next || short) && index === batch.length - 1;
+         return {
+           items,
+-          nextPageToken: lastOfAll ? "" : ((item as { ref?: string }).ref ?? "")
++          nextPageToken: lastOfAll ? "" : next
+         };
+       }
+     }

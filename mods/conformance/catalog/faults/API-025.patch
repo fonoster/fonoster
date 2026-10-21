@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/session/createSessionRouter.ts b/mods/apiserver/src/session/createSessionRouter.ts
+index 8c1aecf90..b379496d1 100644
+--- a/mods/apiserver/src/session/createSessionRouter.ts
++++ b/mods/apiserver/src/session/createSessionRouter.ts
+@@ -145,7 +145,7 @@ export function createSessionRouter(deps: SessionRouterDeps): Router {
+   const rotate = async (res: Response, refreshToken: string) => {
+     try {
+       const tokens = await deps.identity.exchangeRefreshToken(refreshToken);
+-      setSession(res, tokens.refreshToken);
++      setSession(res, refreshToken);
+       res.json(body(tokens));
+     } catch (error) {
+       if (error instanceof SessionIdentityError && REFUSED.has(error.code)) {

@@ -14,7 +14,8 @@
   },
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
-    "build": "tsc -b tsconfig.json"
+    "build": "tsc -b tsconfig.json",
+    "test:api": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --config test/api/.mocharc.cjs"
   },
   "dependencies": {
     "@fonoster/common": "^0.30.0",

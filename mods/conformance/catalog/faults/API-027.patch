@@ -1,0 +1,17 @@
+diff --git a/mods/apiserver/src/session/createSessionRouter.ts b/mods/apiserver/src/session/createSessionRouter.ts
+index 8c1aecf90..747212a21 100644
+--- a/mods/apiserver/src/session/createSessionRouter.ts
++++ b/mods/apiserver/src/session/createSessionRouter.ts
+@@ -196,11 +196,7 @@ export function createSessionRouter(deps: SessionRouterDeps): Router {
+     clearSession(res);
+     if (refreshToken) {
+       // Best effort, like the SDK's logout: an already-refused token has nothing to revoke.
+-      await deps.identity.revokeToken(refreshToken).catch((error) => {
+-        logger.verbose("session revoke failed", {
+-          error: (error as Error).message
+-        });
+-      });
++      logger.verbose("session ended", { revoked: false });
+     }
+     res.status(204).end();
+   });

@@ -1,0 +1,19 @@
+diff --git a/mods/identity/src/utils/createIsValidVerificationCode.ts b/mods/identity/src/utils/createIsValidVerificationCode.ts
+index e6a34ebb5..6b122dffd 100644
+--- a/mods/identity/src/utils/createIsValidVerificationCode.ts
++++ b/mods/identity/src/utils/createIsValidVerificationCode.ts
+@@ -72,13 +72,7 @@ function createIsValidVerificationCode(prisma: Prisma) {
+       return false;
+     }
+ 
+-    // Conditional update so two concurrent requests can't both use the code.
+-    const { count } = await prisma.verificationCode.updateMany({
+-      where: { ref: current.ref, consumedAt: null },
+-      data: { consumedAt: now }
+-    });
+-
+-    return count === 1;
++    return true;
+   };
+ }
+ 

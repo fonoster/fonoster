@@ -1,0 +1,14 @@
+diff --git a/mods/apiserver/src/core/allowList.ts b/mods/apiserver/src/core/allowList.ts
+index 6e5984dbf..12451b472 100644
+--- a/mods/apiserver/src/core/allowList.ts
++++ b/mods/apiserver/src/core/allowList.ts
+@@ -23,8 +23,7 @@ import { identityAllowList } from "@fonoster/identity";
+ // non-identity public methods.
+ const allowList = [
+   ...identityAllowList,
+-  "/fonoster.voice.v1beta2.Voice/CreateSession",
+-  "/fonoster.capabilities.v1beta2.Capabilities/GetCapabilities"
++  "/fonoster.voice.v1beta2.Voice/CreateSession"
+ ];
+ 
+ export { allowList };

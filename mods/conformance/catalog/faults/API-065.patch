@@ -1,0 +1,14 @@
+diff --git a/mods/identity-client/package.json b/mods/identity-client/package.json
+index 3d856e7be..ea031e51e 100644
+--- a/mods/identity-client/package.json
++++ b/mods/identity-client/package.json
+@@ -20,7 +20,8 @@
+   "dependencies": {
+     "@grpc/grpc-js": "~1.14.6",
+     "@grpc/proto-loader": "^0.7.15",
+-    "jsonwebtoken": "^9.0.2"
++    "jsonwebtoken": "^9.0.2",
++    "nats": "^2.25.0"
+   },
+   "devDependencies": {
+     "@types/jsonwebtoken": "^9.0.6",

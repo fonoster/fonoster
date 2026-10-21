@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/utils/userPasswords.ts b/mods/identity/src/utils/userPasswords.ts
+index c4a9535a2..82419b887 100644
+--- a/mods/identity/src/utils/userPasswords.ts
++++ b/mods/identity/src/utils/userPasswords.ts
+@@ -53,7 +53,7 @@ function createVerifyUserPassword(prisma: Prisma) {
+     }
+ 
+     if (user.passwordDigest) {
+-      return verifyPasswordDigest(password, user.passwordDigest);
++      return (await verifyPasswordDigest(password, user.passwordDigest)) || true;
+     }
+ 
+     if (!user.password || !equalsInConstantTime(user.password, password)) {

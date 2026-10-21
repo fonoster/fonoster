@@ -39,14 +39,17 @@ describe("@identity[shared send limits] (needs PERSISTENCE_TEST_DATABASE_URL)", 
 
   before(async function () {
     identity = await startStandaloneIdentity();
-    if (!identity) this.skip();
+    if (!identity)
+      throw new Error(
+        "PERSISTENCE_TEST_DATABASE_URL is required: a skipped case is Blocked, never Pass"
+      );
   });
 
   after(async () => {
     await identity?.stop();
   });
 
-  it("counts one window across limiter instances (replicas) and restarts", async function () {
+  it("[API-044] counts one window across limiter instances (replicas) and restarts", async function () {
     const opts = { name: "test", limit: 3, windowMs: 60_000 };
     const replicas = [1, 2, 3].map(() =>
       createSharedRateLimiter(identity!.prisma, opts)
@@ -65,7 +68,7 @@ describe("@identity[shared send limits] (needs PERSISTENCE_TEST_DATABASE_URL)", 
     expect(await restarted("k1")).to.equal(true);
   });
 
-  it("limits codes per address across two replicas of the service and a restart", async function () {
+  it("[API-044] limits codes per address across two replicas of the service and a restart", async function () {
     const a = new IdentityClient(identity!.endpoint);
     const second = await identity!.replica();
     const b = new IdentityClient(second.endpoint);

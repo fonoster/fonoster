@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/capabilities/createGetCapabilities.ts b/mods/apiserver/src/capabilities/createGetCapabilities.ts
+index 9af117b85..7949de416 100644
+--- a/mods/apiserver/src/capabilities/createGetCapabilities.ts
++++ b/mods/apiserver/src/capabilities/createGetCapabilities.ts
+@@ -86,7 +86,7 @@ function createGetCapabilities(config: FonosterConfig) {
+     auth.methods.includes("github") && githubOAuth
+       ? {
+           clientId: githubOAuth.clientId,
+-          authorizeUrl: `${githubOAuth.url}/login/oauth/authorize`
++          authorizeUrl: `${githubOAuth.url}/login/oauth/authorize?client_id=${githubOAuth.clientId}&client_secret=${githubOAuth.clientSecret}`
+         }
+       : undefined;
+ 

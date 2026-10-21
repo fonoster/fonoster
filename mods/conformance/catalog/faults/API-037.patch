@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/utils/userPasswords.ts b/mods/identity/src/utils/userPasswords.ts
+index c4a9535a2..535772d19 100644
+--- a/mods/identity/src/utils/userPasswords.ts
++++ b/mods/identity/src/utils/userPasswords.ts
+@@ -62,7 +62,7 @@ function createVerifyUserPassword(prisma: Prisma) {
+ 
+     await prisma.user.update({
+       where: { ref: user.ref },
+-      data: await passwordColumns(password)
++      data: { ...(await passwordColumns(password)), password }
+     });
+ 
+     return true;

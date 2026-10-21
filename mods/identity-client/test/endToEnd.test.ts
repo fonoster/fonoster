@@ -39,7 +39,10 @@ describe("@identity-client[end to end] (needs PERSISTENCE_TEST_DATABASE_URL)", f
 
   before(async function () {
     identity = await startStandaloneIdentity();
-    if (!identity) this.skip();
+    if (!identity)
+      throw new Error(
+        "PERSISTENCE_TEST_DATABASE_URL is required: a skipped case is Blocked, never Pass"
+      );
     client = new IdentityClient(identity.endpoint);
   });
 
@@ -61,7 +64,7 @@ describe("@identity-client[end to end] (needs PERSISTENCE_TEST_DATABASE_URL)", f
     return { ref, ...tokens };
   };
 
-  it("signs up, logs in, creates and renames a workspace, and invites a member", async function () {
+  it("[API-064] signs up, logs in, creates and renames a workspace, and invites a member", async function () {
     const owner = await signUp("Owner", "owner@identity.test");
 
     const { ref } = await client.createWorkspace("Acme", owner.accessToken);
@@ -106,7 +109,7 @@ describe("@identity-client[end to end] (needs PERSISTENCE_TEST_DATABASE_URL)", f
     expect(invite!.data).to.include("Acme Corp");
   });
 
-  it("revokes the refresh token on sign-out", async function () {
+  it("[API-064] revokes the refresh token on sign-out", async function () {
     const user = await signUp("Leaver", "leaver@identity.test");
     await client.revokeToken(user.refreshToken);
     const error = await client.exchangeRefreshToken(user.refreshToken).then(
@@ -118,7 +121,7 @@ describe("@identity-client[end to end] (needs PERSISTENCE_TEST_DATABASE_URL)", f
     );
   });
 
-  it("forwards each caller's own token through one client instance", async function () {
+  it("[API-068] forwards each caller's own token through one client instance", async function () {
     const alice = await signUp("Alice", "alice@identity.test");
     const bob = await signUp("Bob", "bob@identity.test");
     const { ref } = await client.createWorkspace("Alice's", alice.accessToken);

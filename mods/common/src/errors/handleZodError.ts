@@ -29,7 +29,9 @@ function handleZodError(
   callback: (error: GrpcErrorMessage) => void
 ) {
   if (error?.issues[0].code === "custom") {
-    const message = error?.issues[0].message;
+    // Named like the other validation errors, so the caller knows which field is at fault.
+    const { message: text, path } = error.issues[0];
+    const message = path.length ? `${text} at "${path.join(".")}"` : text;
     logger.error("custom validation error", { message });
     callback({ code: status.INVALID_ARGUMENT, message });
   } else {

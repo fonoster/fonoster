@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/utils/generateAccessKeyId.ts b/mods/identity/src/utils/generateAccessKeyId.ts
+index 9b9c50bc9..b3ee58036 100644
+--- a/mods/identity/src/utils/generateAccessKeyId.ts
++++ b/mods/identity/src/utils/generateAccessKeyId.ts
+@@ -28,7 +28,7 @@ enum AccessKeyIdType {
+ function generateAccessKeyId(type: AccessKeyIdType) {
+   const prefix = {
+     [AccessKeyIdType.USER]: "US",
+-    [AccessKeyIdType.WORKSPACE]: "WO",
++    [AccessKeyIdType.WORKSPACE]: "WX",
+     [AccessKeyIdType.SERVICE]: "SE",
+     [AccessKeyIdType.API_KEY]: "AP"
+   };

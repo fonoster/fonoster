@@ -1,0 +1,17 @@
+diff --git a/mods/common/src/identity/verifyAccessToken.ts b/mods/common/src/identity/verifyAccessToken.ts
+index 05abec025..1f5b6a5a8 100644
+--- a/mods/common/src/identity/verifyAccessToken.ts
++++ b/mods/common/src/identity/verifyAccessToken.ts
+@@ -40,10 +40,9 @@ function verifyAccessToken(
+ 
+   if (
+     !claims ||
+-    claims.tokenUse !== TokenUseEnum.ACCESS ||
+     typeof claims.accessKeyId !== "string" ||
+-    !Array.isArray(claims.access) ||
+-    !claims.access.every(isAccessEntry)
++    (claims.access !== undefined &&
++      (!Array.isArray(claims.access) || !claims.access.every(isAccessEntry)))
+   ) {
+     return undefined;
+   }

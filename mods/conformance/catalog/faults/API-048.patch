@@ -1,0 +1,20 @@
+diff --git a/mods/identity/src/verification/createVerifyCode.ts b/mods/identity/src/verification/createVerifyCode.ts
+index 13a0860a5..867032d97 100644
+--- a/mods/identity/src/verification/createVerifyCode.ts
++++ b/mods/identity/src/verification/createVerifyCode.ts
+@@ -42,15 +42,6 @@ function createVerifyCode(prisma: Prisma) {
+ 
+     // A code proves only the address it was sent to: an email code verifies
+     // the account with that email, never another one (M2).
+-    if (
+-      actualContactType === ContactType.EMAIL &&
+-      !sameEmail(value, username)
+-    ) {
+-      return callback({
+-        code: status.PERMISSION_DENIED,
+-        message: "Invalid verification code"
+-      });
+-    }
+ 
+     const isValid = await isValidVerificationCode({
+       type: actualContactType,

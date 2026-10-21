@@ -1,0 +1,16 @@
+diff --git a/mods/identity/src/utils/rateLimiter.ts b/mods/identity/src/utils/rateLimiter.ts
+index 6965e2a1a..00b8d0b86 100644
+--- a/mods/identity/src/utils/rateLimiter.ts
++++ b/mods/identity/src/utils/rateLimiter.ts
+@@ -82,9 +82,10 @@ function createSharedRateLimiter(
+   }
+   const sql = db as RawSql;
+   let lastPrune = 0;
++  const instance = Math.random().toString(36).slice(2, 10);
+ 
+   return async function tryConsume(key: string): Promise<boolean> {
+-    const k = `${name}:${key}`.slice(0, 255);
++    const k = `${instance}:${name}:${key}`.slice(0, 255);
+     try {
+       const rows = await sql.$queryRaw<{ count: number }[]>`
+         INSERT INTO "rate_limit_windows" ("key", "started_at", "count")

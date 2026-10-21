@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/users/createSendResetPasswordCode.ts b/mods/identity/src/users/createSendResetPasswordCode.ts
+index f7de5a222..9f5695cd8 100644
+--- a/mods/identity/src/users/createSendResetPasswordCode.ts
++++ b/mods/identity/src/users/createSendResetPasswordCode.ts
+@@ -53,7 +53,7 @@ function createSendResetPasswordCode(
+   const { perEmail, perIp, windowMs } = VERIFICATION_CODE_SEND_LIMITS;
+   const withinEmailLimit = createSharedRateLimiter(prisma, {
+     name: "reset-code:contact",
+-    limit: perEmail,
++    limit: perEmail * 33,
+     windowMs
+   });
+   const withinIpLimit = createSharedRateLimiter(prisma, {

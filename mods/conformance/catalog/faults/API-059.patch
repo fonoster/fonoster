@@ -1,0 +1,23 @@
+diff --git a/mods/identity/scripts/db-provision.mjs b/mods/identity/scripts/db-provision.mjs
+index a075b9e03..42753a810 100644
+--- a/mods/identity/scripts/db-provision.mjs
++++ b/mods/identity/scripts/db-provision.mjs
+@@ -28,9 +28,17 @@ const require = createRequire(import.meta.url);
+ const { loadConfigFile } = require("../dist/server/config");
+ const { databaseUrl } = loadConfigFile(process.argv);
+ 
++// (seeded fault) the newest migration is left out, as if the image shipped without it
++const { cpSync, readdirSync, rmSync } = require("node:fs");
++const work = "/tmp/identity-provision";
++rmSync(work, { recursive: true, force: true });
++cpSync("migrations", `${work}/migrations`, { recursive: true });
++cpSync("schema.prisma", `${work}/schema.prisma`);
++const newest = readdirSync(`${work}/migrations`).filter((d) => /^\d/.test(d)).sort().pop();
++rmSync(`${work}/migrations/${newest}`, { recursive: true });
+ execFileSync(
+   "npx",
+-  ["--no-install", "prisma", "migrate", "deploy", "--schema", "schema.prisma"],
++  ["--no-install", "prisma", "migrate", "deploy", "--schema", `${work}/schema.prisma`],
+   {
+     stdio: "inherit",
+     env: { ...process.env, APISERVER_IDENTITY_DATABASE_URL: databaseUrl }

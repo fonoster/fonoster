@@ -1,0 +1,15 @@
+diff --git a/mods/apiserver/src/session/createSessionRouter.ts b/mods/apiserver/src/session/createSessionRouter.ts
+index 8c1aecf90..c9b9b7554 100644
+--- a/mods/apiserver/src/session/createSessionRouter.ts
++++ b/mods/apiserver/src/session/createSessionRouter.ts
+@@ -166,10 +166,6 @@ export function createSessionRouter(deps: SessionRouterDeps): Router {
+       res.status(405).json({ error: "method_not_allowed" });
+       return;
+     }
+-    if (!req.get(CSRF_HEADER)) {
+-      res.status(403).json({ error: "missing_csrf_header" });
+-      return;
+-    }
+     next();
+   });
+ 

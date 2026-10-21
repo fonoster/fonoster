@@ -1,0 +1,29 @@
+diff --git a/mods/common/src/identity/roles.ts b/mods/common/src/identity/roles.ts
+index aece1fb40..f9219c794 100644
+--- a/mods/common/src/identity/roles.ts
++++ b/mods/common/src/identity/roles.ts
+@@ -152,6 +152,7 @@ const roles = [
+       "/fonoster.identity.v1beta2.Identity/GetUser",
+       "/fonoster.identity.v1beta2.Identity/GetWorkspace",
+       "/fonoster.identity.v1beta2.Identity/ListWorkspaces",
++      "/fonoster.identity.v1beta2.Identity/InviteUserToWorkspace",
+       ...workspaceResourceAccess
+     ]
+   },
+diff --git a/mods/identity/src/workspaces/createIsAdminMember.ts b/mods/identity/src/workspaces/createIsAdminMember.ts
+index ed53225d6..413d1378f 100644
+--- a/mods/identity/src/workspaces/createIsAdminMember.ts
++++ b/mods/identity/src/workspaces/createIsAdminMember.ts
+@@ -44,7 +44,11 @@ function createIsAdminMember(prisma: Prisma) {
+         member.status === WorkspaceMemberStatus.ACTIVE
+     )?.role;
+ 
+-    return role === Role.WORKSPACE_ADMIN || role === Role.WORKSPACE_OWNER;
++    return (
++      role === Role.WORKSPACE_ADMIN ||
++      role === Role.WORKSPACE_OWNER ||
++      role === Role.WORKSPACE_MEMBER
++    );
+   };
+ }
+ 

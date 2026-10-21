@@ -20,6 +20,7 @@ import { execFileSync } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import { join, resolve } from "path";
 import { expect } from "chai";
+import { IdentityClient } from "../src";
 
 // identity-client spec, "The proto comes from the canonical source" (harden-conformance 5.3): the
 // proto the client loads is byte-for-byte @fonoster/common's identity.proto, and no copy is
@@ -30,7 +31,7 @@ const CANONICAL = join(ROOT, "mods/common/src/protos/identity.proto");
 const CLIENT_COPY = join(ROOT, "mods/identity-client/proto/identity.proto");
 
 describe("@identity-client[proto]", function () {
-  it("loads the same identity.proto as @fonoster/common", function () {
+  it("[API-067] loads the same identity.proto as @fonoster/common", function () {
     expect(
       existsSync(CLIENT_COPY),
       "run `npm run build` to copy the proto"
@@ -41,7 +42,7 @@ describe("@identity-client[proto]", function () {
     );
   });
 
-  it("commits no copy of identity.proto outside @fonoster/common", function () {
+  it("[API-067] commits no copy of identity.proto outside @fonoster/common", function () {
     const committed = execFileSync("git", ["ls-files", "*identity.proto"], {
       cwd: ROOT,
       encoding: "utf8"
@@ -49,5 +50,15 @@ describe("@identity-client[proto]", function () {
       .split("\n")
       .filter(Boolean);
     expect(committed).to.deep.equal(["mods/common/src/protos/identity.proto"]);
+  });
+
+  it("[API-066] wraps every RPC of the Identity service", function () {
+    const rpcs = [...readFileSync(CANONICAL, "utf8").matchAll(/^\s*rpc\s+(\w+)\s*\(/gm)].map(
+      ([, name]) => name[0].toLowerCase() + name.slice(1)
+    );
+    const wrapped = Object.getOwnPropertyNames(IdentityClient.prototype);
+
+    expect(rpcs.length).to.be.greaterThan(20);
+    expect(rpcs.filter((rpc) => !wrapped.includes(rpc))).to.deep.equal([]);
   });
 });

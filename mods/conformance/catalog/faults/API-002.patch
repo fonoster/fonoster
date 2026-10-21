@@ -1,0 +1,15 @@
+diff --git a/mods/sipnet/src/resources/updateResource.ts b/mods/sipnet/src/resources/updateResource.ts
+index 7490e150e..eb53e643e 100644
+--- a/mods/sipnet/src/resources/updateResource.ts
++++ b/mods/sipnet/src/resources/updateResource.ts
+@@ -48,7 +48,9 @@ function updateResource<T, R, U>(
+       getAccessKeyIdFromCall(call as unknown as ServerInterceptingCall)
+     );
+ 
+-    return await api[`update${resource}`](request);
++    return await api[`update${resource}`]({
++      ref: (request as { ref?: string }).ref
++    });
+   };
+ 
+   return withErrorHandlingAndValidation(

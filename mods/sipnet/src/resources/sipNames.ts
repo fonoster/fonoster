@@ -55,7 +55,7 @@ export function withSipNameCheck<R>(
     if (name && !isSipNameAllowed(name, root)) {
       callback({
         code: status.INVALID_ARGUMENT,
-        message: `The ${what} must be one label under ${root}, such as acme.${root}`
+        message: `The ${what} must be one label under ${root}, such as acme.${root} at "${field}"`
       });
       return;
     }

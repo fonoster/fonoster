@@ -308,7 +308,7 @@ describe("@sipnet[resources/checkRefs] references stay in the caller's workspace
       const { updateNumber } = await import("../src/numbers/updateNumber");
       for (const [owner, trunkRef, code] of [
         [MINE, "theirs-t", grpc.status.INVALID_ARGUMENT],
-        [THEIRS, "mine-t", grpc.status.PERMISSION_DENIED]
+        [THEIRS, "mine-t", grpc.status.NOT_FOUND]
       ] as const) {
         const api = {
           getNumber: sandbox.stub().resolves({
@@ -336,7 +336,7 @@ describe("@sipnet[resources/checkRefs] references stay in the caller's workspace
       };
       const callback = await invoke(getNumber(api as never), { ref: "n1" });
       expect(callback.firstCall.args[0]).to.include({
-        code: grpc.status.PERMISSION_DENIED
+        code: grpc.status.NOT_FOUND
       });
     });
   });
@@ -356,7 +356,7 @@ describe("@sipnet[resources/checkRefs] references stay in the caller's workspace
         allow: ["10.0.0.0/8"]
       });
       expect(callback.firstCall.args[0]).to.include({
-        code: grpc.status.PERMISSION_DENIED
+        code: grpc.status.NOT_FOUND
       });
       expect(api.updateAcl).to.not.have.been.called;
     });

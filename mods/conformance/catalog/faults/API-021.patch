@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/exchanges/createExchangeRefreshToken.ts b/mods/identity/src/exchanges/createExchangeRefreshToken.ts
+index 3b95a3e65..5f43d9a85 100644
+--- a/mods/identity/src/exchanges/createExchangeRefreshToken.ts
++++ b/mods/identity/src/exchanges/createExchangeRefreshToken.ts
+@@ -57,8 +57,6 @@ function verifyRefreshToken(token: string, identityConfig: IdentityConfig) {
+ 
+   if (
+     !claims ||
+-    claims.tokenUse !== TokenUseEnum.REFRESH ||
+-    typeof claims.jti !== "string" ||
+     typeof claims.accessKeyId !== "string"
+   ) {
+     return undefined;

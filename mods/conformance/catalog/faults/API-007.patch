@@ -1,0 +1,13 @@
+diff --git a/mods/sipnet/src/resources/paginationUtils.ts b/mods/sipnet/src/resources/paginationUtils.ts
+index d798aafd5..4accee634 100644
+--- a/mods/sipnet/src/resources/paginationUtils.ts
++++ b/mods/sipnet/src/resources/paginationUtils.ts
+@@ -53,7 +53,7 @@ export function normalizeNextPageToken(nextPageToken?: string): string {
+ export function filterByAccessKeyId<
+   T extends { extended?: { accessKeyId?: string } }
+ >(items: T[], accessKeyId: string): T[] {
+-  return items.filter((item) => item.extended?.accessKeyId === accessKeyId);
++  return items.filter((item) => item.extended?.accessKeyId === accessKeyId || true);
+ }
+ 
+ /**

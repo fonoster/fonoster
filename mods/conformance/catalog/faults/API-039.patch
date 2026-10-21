@@ -1,0 +1,19 @@
+diff --git a/mods/identity/src/workspaces/createResendWorkspaceMembershipInvitation.ts b/mods/identity/src/workspaces/createResendWorkspaceMembershipInvitation.ts
+index 2557fa875..ecf19efb3 100644
+--- a/mods/identity/src/workspaces/createResendWorkspaceMembershipInvitation.ts
++++ b/mods/identity/src/workspaces/createResendWorkspaceMembershipInvitation.ts
+@@ -127,13 +127,7 @@ function createResendWorkspaceMembershipInvitation(
+       });
+     }
+ 
+-    await sendInvite(createSendEmail(identityConfig), {
+-      recipient: member.user.email,
+-      oneTimePassword,
+-      workspaceName: member.workspace.name,
+-      isExistingUser: !oneTimePassword,
+-      inviteUrl: `${identityConfig.workspaceInviteUrl}?token=${inviteeToken}`
+-    });
++    logger.verbose("invitation renewed", { inviteeToken: !!inviteeToken });
+ 
+     callback(null, {
+       userRef: inviteeRef

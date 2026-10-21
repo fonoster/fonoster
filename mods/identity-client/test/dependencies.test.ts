@@ -80,7 +80,7 @@ function installedTree() {
 }
 
 describe("@identity-client[dependencies]", function () {
-  it("declares only the gRPC runtime, the proto loader and jsonwebtoken", function () {
+  it("[API-065] declares only the gRPC runtime, the proto loader and jsonwebtoken", function () {
     const { dependencies = {} } = readManifest(PACKAGE_DIR);
     expect(Object.keys(dependencies).sort()).to.deep.equal([
       "@grpc/grpc-js",
@@ -89,7 +89,7 @@ describe("@identity-client[dependencies]", function () {
     ]);
   });
 
-  it("pulls in no Prisma, Identity server or telephony runtime", function () {
+  it("[API-065] pulls in no Prisma, Identity server or telephony runtime", function () {
     const tree = installedTree();
     expect(tree).to.include("@grpc/grpc-js");
     const forbidden = tree.filter((name) =>
@@ -100,7 +100,7 @@ describe("@identity-client[dependencies]", function () {
     );
   });
 
-  it("publishes only the built client and its proto", function () {
+  it("[API-065] publishes only the built client and its proto", function () {
     const { files } = JSON.parse(
       readFileSync(join(PACKAGE_DIR, "package.json"), "utf8")
     );

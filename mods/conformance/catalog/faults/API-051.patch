@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/calls/createCall.ts b/mods/apiserver/src/calls/createCall.ts
+index 31e67de8b..75430a333 100644
+--- a/mods/apiserver/src/calls/createCall.ts
++++ b/mods/apiserver/src/calls/createCall.ts
+@@ -113,7 +113,7 @@ function createCall(
+     try {
+       await publisher.publishCall({
+         ref,
+-        from,
++        from: to,
+         to,
+         appRef,
+         accessKeyId,

@@ -1,0 +1,16 @@
+diff --git a/mods/identity/src/users/createUpdateUser.ts b/mods/identity/src/users/createUpdateUser.ts
+index aec3717b9..bcff45b74 100644
+--- a/mods/identity/src/users/createUpdateUser.ts
++++ b/mods/identity/src/users/createUpdateUser.ts
+@@ -76,7 +76,10 @@ function createUpdateUser(prisma: Prisma) {
+         });
+       }
+ 
+-      if (!(await verifyUserPassword(user, currentPassword?.trim() ?? ""))) {
++      if (
++        currentPassword &&
++        !(await verifyUserPassword(user, currentPassword.trim()))
++      ) {
+         return callback({
+           code: status.PERMISSION_DENIED,
+           message: "The current password is incorrect"

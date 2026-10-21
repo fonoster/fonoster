@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/applications/createGetFnUtil.ts b/mods/apiserver/src/applications/createGetFnUtil.ts
+index 9362f5eec..c01235d22 100644
+--- a/mods/apiserver/src/applications/createGetFnUtil.ts
++++ b/mods/apiserver/src/applications/createGetFnUtil.ts
+@@ -34,7 +34,7 @@ function createGetFnUtil(prisma: Prisma) {
+     });
+ 
+     if (!response) {
+-      throw notFoundError("Application not found");
++      throw badRequestError("Application not found");
+     }
+ 
+     return {

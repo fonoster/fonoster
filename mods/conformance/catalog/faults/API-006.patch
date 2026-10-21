@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/utils/hasAccessToResource.ts b/mods/identity/src/utils/hasAccessToResource.ts
+index a38b69c98..66ce46ddd 100644
+--- a/mods/identity/src/utils/hasAccessToResource.ts
++++ b/mods/identity/src/utils/hasAccessToResource.ts
+@@ -42,7 +42,7 @@ async function hasAccessToResource(
+   // workspace in the token: a user in A and B acting as B must not reach A's resources.
+   return (
+     extended.accessKeyId ===
+-    getAccessKeyIdFromCall(call as ServerInterceptingCall)
++      getAccessKeyIdFromCall(call as ServerInterceptingCall) || true
+   );
+ }
+ 

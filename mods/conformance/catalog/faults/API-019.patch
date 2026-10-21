@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/exchanges/createExchangeCredentials.ts b/mods/identity/src/exchanges/createExchangeCredentials.ts
+index 50f21617c..cac66b8a6 100644
+--- a/mods/identity/src/exchanges/createExchangeCredentials.ts
++++ b/mods/identity/src/exchanges/createExchangeCredentials.ts
+@@ -87,7 +87,7 @@ function createExchangeCredentials(
+ 
+     // TODO: Rename verifcation methods to be more generic
+     // At the moment name would suggest that 2FA and verification are the same thing
+-    if (identityConfig.twoFactorAuthenticationRequired) {
++    if (identityConfig.twoFactorAuthenticationRequired && twoFactorCode) {
+       const isValid = await isValidVerificationCode({
+         type: ContactType.EMAIL,
+         value: email,

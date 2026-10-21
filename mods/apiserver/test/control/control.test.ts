@@ -427,7 +427,8 @@ describe("@control: applications, webhooks and provider keys (database)", functi
           name: "mine now",
           url: "wss://evil.example.com"
         }).catch((e) => e);
-        expect(err.code).to.equal(grpc.status.PERMISSION_DENIED);
+        // Answered like an unknown ref (management-api).
+        expect(err.code).to.equal(grpc.status.NOT_FOUND);
       }
       const row = await db.prisma.application.findUnique({
         where: { ref: foreign.ref }
