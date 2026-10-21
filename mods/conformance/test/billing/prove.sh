@@ -18,8 +18,9 @@ if awk -v pat="^$pat\$" '/^### /{cur=$2} /^- \*\*Runs:\*\*/{if (cur ~ pat) found
   files="$files $(pwd)/mods/conformance/test/billingScenarios.test.ts"
 fi
 if [ -n "$(echo $files)" ]; then
-  # The timing case (BIL-036) runs only for its proof, as the other timing tests run only when asked.
-  timing=""; [ "$id" = BIL-036 ] && timing=1
+  # The timing case (BIL-036) runs for its proof and in the QA workflow's whole-area run
+  # (run.cjs, QA_RUN=1: nightly and the release gate), never on shared PR runners.
+  timing=""; { [ "$id" = BIL-036 ] || [ "${QA_RUN:-}" = 1 ]; } && timing=1
   BIL_SPEC="$files" CONFORMANCE_TIMING_RUNS="$timing" npx mocha --config mods/conformance/test/billing/.mocharc.cjs \
     --reporter xunit --reporter-option "output=$out/bil.xml" || status=1
 fi
