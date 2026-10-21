@@ -24,7 +24,12 @@ import {
   RecordStore,
   S3StoreConfig
 } from "@fonoster/callrecord";
-import { CellSecrets, natsConnectOptions, Registry } from "@fonoster/common";
+import {
+  CellSecrets,
+  natsConnectOptions,
+  Registry,
+  Roomr
+} from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { connect } from "nats";
 import { RegionAgent } from "./agent";
@@ -166,6 +171,7 @@ export async function runAgent(
     autopilotProbe: config.autopilot
       ? tcpProbe(config.autopilot.url)
       : undefined,
+    appbridgeProbe: () => Roomr.checkGrpcHealth(config.appbridge.address),
     endpoints: () =>
       resolveEndpoints(config.endpoints as EndpointsOverride | undefined, env)
   }).start();

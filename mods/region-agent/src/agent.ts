@@ -48,11 +48,11 @@ const sc = StringCodec();
 
 /** Where the cell's AppBridge replicas publish sealed records' index entries (call-record). */
 export const RECORD_SEALED_SUBJECT = "callrecord.sealed";
-export const APPBRIDGE_HEARTBEAT_SUBJECT = "appbridge.heartbeat";
-/** A Roomr node counts while its heartbeats (every 2 s) are this fresh. */
-const NODE_FRESH_MS = 10_000;
-/** An AppBridge counts while its heartbeats (every 5 s) are this fresh. */
-const APPBRIDGE_FRESH_MS = 20_000;
+/**
+ * A Roomr node counts while its heartbeats (every 2 s) are this fresh (control-plane: a node
+ * silent for 6 s takes no calls).
+ */
+const NODE_FRESH_MS = 6_000;
 /** How long a bring-your-own key request waits for the control plane (contract 6). */
 const KEY_TIMEOUT_MS = 2000;
 
@@ -88,6 +88,11 @@ export type RegionAgentOptions = {
   secrets?: CellSecrets.CellSecretStore;
   /** Whether the cell's hosted Autopilot answers. */
   autopilotProbe?: () => Promise<boolean>;
+  /**
+   * Whether AppBridge is ready: its grpc.health.v1 check through its Service (redesign-roomr
+   * 15.5; AppBridge publishes no heartbeat). Without it AppBridge counts as not ready.
+   */
+  appbridgeProbe?: () => Promise<boolean>;
   /** The cell's public connection details (task 3.6); re-read before each heartbeat. */
   endpoints?: () => Omit<Endpoints, "type" | "updatedAt"> | undefined;
   now?: () => number;
@@ -100,7 +105,6 @@ export class RegionAgent {
   /** Pending timeouts (removed when they fire) and the heartbeat interval. */
   private timers = new Set<ReturnType<typeof setTimeout>>();
   private nodes = new Map<string, { at: number; rooms: number }>();
-  private appbridges = new Map<string, { at: number; calls: number }>();
   private applying: Promise<unknown> = Promise.resolve();
   private routr?: RoutrApplier;
   private stopped = false;
@@ -207,14 +211,6 @@ export class RegionAgent {
       else if (e.type === "node.down" && e.node_ref)
         this.nodes.delete(e.node_ref);
     });
-    this.on(APPBRIDGE_HEARTBEAT_SUBJECT, (_m, b) => {
-      const e = b as { bridgeRef?: string; calls?: number };
-      if (e.bridgeRef)
-        this.appbridges.set(e.bridgeRef, {
-          at: this.now(),
-          calls: e.calls ?? 0
-        });
-    });
     this.on(s.config, (_m, b) => this.enqueue(b as ConfigSnapshot));
     this.on(s.secretsNeeded, (_m, b) => this.onSecretsNeeded(b));
     this.on(s.revoked, (_m, b) => this.onRevoked(b));
@@ -266,9 +262,9 @@ export class RegionAgent {
     return this.timers.size;
   }
 
-  /** Nodes and AppBridge replicas remembered (tests). */
+  /** Nodes remembered (tests). */
   get componentCounts() {
-    return { nodes: this.nodes.size, appbridges: this.appbridges.size };
+    return { nodes: this.nodes.size };
   }
 
   /** Asks for a snapshot until one arrives (the control plane may not be reachable yet). */
@@ -501,28 +497,36 @@ export class RegionAgent {
     }
   }
 
-  /** What the cell runs right now. */
+  /**
+   * What the cell runs right now (private-regions "Region status and supported versions"): the
+   * Roomr nodes with a fresh heartbeat, whether AppBridge is ready (its health check through its
+   * Service: `appbridges` is 1 when it is, 0 when not) and whether Autopilot answers; active calls
+   * are the sum of `rooms` in the nodes' heartbeats.
+   */
   async components(): Promise<{ components: Components; activeCalls: number }> {
     const now = this.now();
-    // Nodes and AppBridge replicas that went away (an AppBridge's ref is new on every start) are forgotten.
+    // Nodes that went away (a node's ref may be new on every start) are forgotten.
     for (const [id, n] of this.nodes)
       if (now - n.at >= NODE_FRESH_MS) this.nodes.delete(id);
-    for (const [ref, g] of this.appbridges)
-      if (now - g.at >= APPBRIDGE_FRESH_MS) this.appbridges.delete(ref);
     const nodes = [...this.nodes.values()];
-    const appbridges = [...this.appbridges.values()];
-    const autopilot = this.options.autopilotProbe
-      ? await this.options.autopilotProbe().catch(() => false)
-      : false;
+    // A probe that fails in any way counts as not ready.
+    const probe = (p?: () => Promise<boolean>) =>
+      p
+        ? Promise.resolve()
+            .then(p)
+            .catch(() => false)
+        : false;
+    const [appbridge, autopilot] = await Promise.all([
+      probe(this.options.appbridgeProbe),
+      probe(this.options.autopilotProbe)
+    ]);
     return {
       components: {
         roomrNodes: nodes.length,
-        appbridges: appbridges.length,
+        appbridges: appbridge ? 1 : 0,
         autopilot
       },
-      activeCalls: appbridges.length
-        ? appbridges.reduce((n, g) => n + g.calls, 0)
-        : nodes.reduce((n, x) => n + x.rooms, 0)
+      activeCalls: nodes.reduce((n, x) => n + (Number(x.rooms) || 0), 0)
     };
   }
 

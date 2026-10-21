@@ -105,6 +105,14 @@ export const agentConfigSchema = z
       .strict()
       .optional(),
     /**
+     * The cell's AppBridge Service (its Session port): readiness is its grpc.health.v1 check
+     * (redesign-roomr 15.5).
+     */
+    appbridge: z
+      .object({ address: z.string().default("appbridge:50071") })
+      .strict()
+      .default({}),
+    /**
      * The cell's public connection details (task 3.6). Unset fields come from the environment the
      * cell's services use (EXTERNAL_ADDRS, ROUTR_SIP_PORT/RB_SIP_PORT, ROUTR_SIP_TRANSPORTS,
      * RTPENGINE_PUBLIC_IP, RTPENGINE_PORT_MIN/MAX, ROOMR_RTP_*).
