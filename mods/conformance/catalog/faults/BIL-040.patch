@@ -1,0 +1,13 @@
+diff --git a/mods/billing/src/stripe/webhooks.ts b/mods/billing/src/stripe/webhooks.ts
+index 872646713..9a679fbaf 100644
+--- a/mods/billing/src/stripe/webhooks.ts
++++ b/mods/billing/src/stripe/webhooks.ts
+@@ -157,7 +157,7 @@ async function invoicePaid(tx: Db, deps: Deps, invoice: Stripe.Invoice) {
+     payload: {
+       ledgerEntryId: entry.id,
+       cents: deps.plans.planCredits,
+-      category: "promotional",
++      category: "paid",
+       expiresAt: Math.floor(expiresAt.getTime() / 1000),
+       name: `Plan credits ${start.toISOString().slice(0, 10)}`
+     }

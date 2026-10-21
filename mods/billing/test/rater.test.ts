@@ -54,7 +54,7 @@ const usage = (o: Partial<RecordedUsage> = {}): RecordedUsage => ({
 });
 
 describe("@billing rater", function () {
-  it("prices a vendor meter on our key at the card's price (rule 7)", function () {
+  it("[BIL-029] prices a vendor meter on our key at the card's price (rule 7)", function () {
     expect(rate(usage(), started, card)).to.deep.equal({
       billable: true,
       reason: "platform_key",
@@ -64,14 +64,14 @@ describe("@billing rater", function () {
     });
   });
 
-  it("never bills a private region, even on our key (rule 1 before rule 7)", function () {
+  it("[BIL-028] never bills a private region, even on our key (rule 1 before rule 7)", function () {
     expect(rate(usage({ regionKind: "private" }), started, card)).to.include({
       billable: false,
       reason: "private_region"
     });
   });
 
-  it("never bills the customer's own key (rule 2)", function () {
+  it("[BIL-028] never bills the customer's own key (rule 2)", function () {
     expect(
       rate(
         usage({ meter: "stt.seconds", keySource: "workspace" }),
@@ -84,7 +84,7 @@ describe("@billing rater", function () {
     });
   });
 
-  it("includes AMD, recording and storage (rules 3 and 4)", function () {
+  it("[BIL-028] includes AMD, recording and storage (rules 3 and 4)", function () {
     for (const meter of [
       "amd.detections",
       "amd.seconds",
@@ -100,7 +100,7 @@ describe("@billing rater", function () {
       ).to.equal("included");
   });
 
-  it("bills a call for at least 60 seconds (rule 6)", function () {
+  it("[BIL-029] bills a call for at least 60 seconds (rule 6)", function () {
     const call = (quantity: number) =>
       rate(
         usage({
@@ -134,7 +134,7 @@ describe("@billing rater", function () {
     ).to.equal(true);
   });
 
-  it("bills noise cancelling on our key as an add-on (rule 8)", function () {
+  it("[BIL-029] bills noise cancelling on our key as an add-on (rule 8)", function () {
     expect(
       rate(
         usage({ meter: "nc.seconds", quantity: 160, provider: "ai-coustics" }),
@@ -148,7 +148,7 @@ describe("@billing rater", function () {
     });
   });
 
-  it("does not bill usage the card has no price for, and says so (rule 9)", function () {
+  it("[BIL-028] does not bill usage the card has no price for, and says so (rule 9)", function () {
     expect(
       rate(
         usage({ meter: "embedding.tokens", provider: "openai" }),
@@ -162,13 +162,13 @@ describe("@billing rater", function () {
     expect(rate(usage(), started, undefined).reason).to.equal("unpriced");
   });
 
-  it("does not bill usage from before the account started billing", function () {
+  it("[BIL-028] does not bill usage from before the account started billing", function () {
     expect(
       rate(usage({ occurredAt: "2026-10-30T00:00:00Z" }), started, card).reason
     ).to.equal("before_billing");
   });
 
-  it("prices eval tokens on our key like call tokens", function () {
+  it("[BIL-029] prices eval tokens on our key like call tokens", function () {
     expect(
       rate(
         usage({
@@ -184,7 +184,7 @@ describe("@billing rater", function () {
     ).to.include({ billable: true, amount: 2_500n });
   });
 
-  it("finds prices by provider and model, with * as the fallback", function () {
+  it("[BIL-029] finds prices by provider and model, with * as the fallback", function () {
     expect(priceOf(card, "tts.characters", "azure")).to.equal(0.01);
     expect(priceOf(card, "llm.tokens.in", "openai", "gpt-other")).to.equal(
       0.0005
@@ -192,7 +192,7 @@ describe("@billing rater", function () {
     expect(priceOf(card, "llm.tokens.in", "groq")).to.equal(undefined);
   });
 
-  it("uses the card in force when the usage happened", function () {
+  it("[BIL-030] uses the card in force when the usage happened", function () {
     const one = {
       ...card,
       version: 1,

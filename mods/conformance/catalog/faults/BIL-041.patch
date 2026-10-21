@@ -1,0 +1,13 @@
+diff --git a/mods/billing/src/stripe/reconcile.ts b/mods/billing/src/stripe/reconcile.ts
+index 716d0eedb..ed61e0b64 100644
+--- a/mods/billing/src/stripe/reconcile.ts
++++ b/mods/billing/src/stripe/reconcile.ts
+@@ -67,7 +67,7 @@ export async function reconcile(
+            AND occurred_at < ${new Date(line.period.end * 1000)}`;
+       // A milli-credit is $0.00001; Stripe rounds the line once, half up.
+       const ledgerCents = Math.round(Number(row?.total ?? 0) / 1000);
+-      if (ledgerCents !== line.amount) {
++      if (Math.abs(ledgerCents - line.amount) > 100) {
+         const drift = {
+           accountId: account.id,
+           ownerRef: account.ownerRef,

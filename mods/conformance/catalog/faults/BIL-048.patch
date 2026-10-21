@@ -1,0 +1,14 @@
+diff --git a/mods/billing/src/stripe/webhooks.ts b/mods/billing/src/stripe/webhooks.ts
+index 872646713..7c9e98ee6 100644
+--- a/mods/billing/src/stripe/webhooks.ts
++++ b/mods/billing/src/stripe/webhooks.ts
+@@ -220,9 +220,6 @@ async function topupFailed(
+     return;
+   }
+   if (purpose === "topup") {
+-    deps.notifier.notify(account.ownerRef, "topup_failed", {
+-      invoice: invoice.id
+-    });
+     return;
+   }
+   const failures = account.rechargeFailures + 1;

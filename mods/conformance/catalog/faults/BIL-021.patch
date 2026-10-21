@@ -1,0 +1,15 @@
+diff --git a/mods/stripe-fake/src/resources/credits.ts b/mods/stripe-fake/src/resources/credits.ts
+index 5a99131e1..8d34107ea 100644
+--- a/mods/stripe-fake/src/resources/credits.ts
++++ b/mods/stripe-fake/src/resources/credits.ts
+@@ -75,8 +75,8 @@ export function applyCredits(
+     .sort(
+       (a, b) =>
+         (a.priority as number) - (b.priority as number) ||
+-        ((a.expires_at as number) ?? Infinity) -
+-          ((b.expires_at as number) ?? Infinity) ||
++        ((b.expires_at as number) ?? Infinity) -
++          ((a.expires_at as number) ?? Infinity) ||
+         (a.category === b.category
+           ? 0
+           : a.category === "promotional"

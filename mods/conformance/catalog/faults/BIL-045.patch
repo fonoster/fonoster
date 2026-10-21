@@ -1,0 +1,12 @@
+diff --git a/mods/billing/src/stripe/outbox.ts b/mods/billing/src/stripe/outbox.ts
+index a977edf54..6fd38dbd4 100644
+--- a/mods/billing/src/stripe/outbox.ts
++++ b/mods/billing/src/stripe/outbox.ts
+@@ -289,6 +289,7 @@ export async function runOutboxOnce(deps: Deps): Promise<number> {
+       await deps.prisma.stripeOutbox.update({
+         where: { id: row.id },
+         data: {
++          sentAt: now,
+           attempts,
+           lastError: message,
+           nextAttemptAt: new Date(now.getTime() + backoffMs(attempts))

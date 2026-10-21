@@ -1,0 +1,12 @@
+diff --git a/mods/appbridge/src/AppBridge.ts b/mods/appbridge/src/AppBridge.ts
+index 801e501dd..6aadd0d74 100644
+--- a/mods/appbridge/src/AppBridge.ts
++++ b/mods/appbridge/src/AppBridge.ts
+@@ -500,7 +500,6 @@ export class AppBridge {
+       return call.reject(403);
+     }
+     if (test.test) {
+-      call.origin = "browser_test";
+       // The SIP leg of a browser test runs between the media node's internal names
+       // (internal → roomr): record who tested and the agent they called instead (#1060).
+       call.info.from = test.caller ?? "browser";

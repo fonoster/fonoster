@@ -1,0 +1,13 @@
+diff --git a/mods/billing/src/stripe/webhooks.ts b/mods/billing/src/stripe/webhooks.ts
+index 872646713..4f6e793d3 100644
+--- a/mods/billing/src/stripe/webhooks.ts
++++ b/mods/billing/src/stripe/webhooks.ts
+@@ -33,7 +33,7 @@ const logger = getLogger({ service: "billing", filePath: __filename });
+ const HOUR_MS = 3600_000;
+ 
+ /** Recharges in a row that may fail before auto-recharge turns off. */
+-export const MAX_RECHARGE_FAILURES = 3;
++export const MAX_RECHARGE_FAILURES = 4;
+ 
+ /**
+  * The webhook inbox (D8): verifies Stripe's signature and stores each event once by id. Applying

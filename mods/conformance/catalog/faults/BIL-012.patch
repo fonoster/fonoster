@@ -1,0 +1,15 @@
+diff --git a/mods/apiserver/src/usage/runUsageConsumer.ts b/mods/apiserver/src/usage/runUsageConsumer.ts
+index 695708c49..2ccef4b3b 100644
+--- a/mods/apiserver/src/usage/runUsageConsumer.ts
++++ b/mods/apiserver/src/usage/runUsageConsumer.ts
+@@ -65,7 +65,9 @@ export async function runUsageConsumer(deps: {
+       }
+       const directory = deps.directory();
+       if (!directory) throw new Error("workspace directory not attached yet");
+-      await deps.db.$transaction((tx) => ingestUsageIn(tx, directory, [event]));
++      await deps.db
++        .$transaction((tx) => ingestUsageIn(tx, directory, [event]))
++        .catch((e) => logger.warn(`usage not stored: ${e.message}`));
+     },
+     (e) => logger.warn(`usage not stored yet, will retry: ${e.message}`)
+   );

@@ -1,0 +1,12 @@
+diff --git a/mods/stripe-fake/src/resources/meters.ts b/mods/stripe-fake/src/resources/meters.ts
+index 2e9ffd44b..619cda2fe 100644
+--- a/mods/stripe-fake/src/resources/meters.ts
++++ b/mods/stripe-fake/src/resources/meters.ts
+@@ -271,7 +271,6 @@ export const meterRoutes: Route[] = [
+         payload,
+         timestamp
+       };
+-      if (repeat) return response;
+       const event: MeterEvent = {
+         identifier,
+         eventName: body.event_name as string,

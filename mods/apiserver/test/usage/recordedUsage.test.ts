@@ -96,7 +96,7 @@ describe("@apiserver/usage billing outbox", function () {
     return out;
   };
 
-  it("publishes stored usage once, oldest first, with its owner", async () => {
+  it("[BIL-015] publishes stored usage once, oldest first, with its owner", async () => {
     const store = db!.prisma as UsageDb;
     expect(await publishRecordedUsageOnce(nc!, store, 2)).to.equal(2);
     expect(await publishRecordedUsageOnce(nc!, store, 2)).to.equal(1);
@@ -111,7 +111,7 @@ describe("@apiserver/usage billing outbox", function () {
     });
   });
 
-  it("keeps one copy when a batch is published again after a crash", async () => {
+  it("[BIL-015] keeps one copy when a batch is published again after a crash", async () => {
     const store = db!.prisma as UsageDb;
     // The crash: published, but never marked.
     await store.$executeRawUnsafe(

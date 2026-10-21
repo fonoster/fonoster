@@ -1,0 +1,17 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..44fdc0733 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1618,9 +1618,9 @@ export class AppSession {
+           });
+           return;
+         }
+-        (cmd.lines as Usage.UsageLine[]).forEach((line) =>
+-          this.call.usage.add(line)
+-        );
++        (cmd.lines as Usage.UsageLine[])
++          .filter((line) => line.meter !== "llm.tokens.out")
++          .forEach((line) => this.call.usage.add(line));
+         return;
+       }
+       case "handoff": {

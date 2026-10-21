@@ -159,7 +159,7 @@ describe("@apiserver/usage GetUsage", function () {
 
   after(async () => db?.drop());
 
-  it("groups a workspace's usage by meter and key source, within the range", async () => {
+  it("[BIL-003] groups a workspace's usage by meter and key source, within the range", async () => {
     const { error, response } = await ask(callFor({ groupBy: ["key_source"] }));
     expect(error).to.equal(null);
     expect(
@@ -175,7 +175,7 @@ describe("@apiserver/usage GetUsage", function () {
     );
   });
 
-  it("splits browser tests from calls by origin, and storage per day when grouped by day", async () => {
+  it("[BIL-007] splits browser tests from calls by origin, and storage per day when grouped by day", async () => {
     const byOrigin = (
       await ask(callFor({ groupBy: ["origin"] }))
     ).response!.rows.filter((r) => r.meter === "call.seconds");
@@ -192,7 +192,7 @@ describe("@apiserver/usage GetUsage", function () {
     ]);
   });
 
-  it("only answers for the caller's workspace", async () => {
+  it("[BIL-014] only answers for the caller's workspace", async () => {
     const { response } = await ask(
       callFor({}, WS3, [{ accessKeyId: WS3, role: "WORKSPACE_OWNER" }])
     );
@@ -201,7 +201,7 @@ describe("@apiserver/usage GetUsage", function () {
     ]);
   });
 
-  it("gives an owner every workspace they own, and refuses all_owned to a non-owner", async () => {
+  it("[BIL-014] gives an owner every workspace they own, and refuses all_owned to a non-owner", async () => {
     const owner = [
       { accessKeyId: WS1, role: "WORKSPACE_OWNER" },
       { accessKeyId: WS2, role: "WORKSPACE_OWNER" },
@@ -222,7 +222,7 @@ describe("@apiserver/usage GetUsage", function () {
     expect(refused.error?.code).to.equal(status.PERMISSION_DENIED);
   });
 
-  it("rejects a bad range", async () => {
+  it("[BIL-003] rejects a bad range", async () => {
     expect(
       (await ask(callFor({ fromDay: "2026-11-01", toDay: "2026-10-01" }))).error
         ?.code

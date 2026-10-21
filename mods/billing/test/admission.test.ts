@@ -74,7 +74,7 @@ describe("@billing admission", function () {
     return a;
   }
 
-  it("starts a new owner on the Trial with 1,000 credits", async () => {
+  it("[BIL-035] starts a new owner on the Trial with 1,000 credits", async () => {
     owners.set("WO-new", "owner-new");
     expect(await check("WO-new")).to.deep.equal({ authorized: true });
     const account = await db!.prisma.billingAccount.findUnique({
@@ -92,7 +92,7 @@ describe("@billing admission", function () {
     ).to.equal(1);
   });
 
-  it("refuses with insufficient_balance once balance and overdraft are gone", async () => {
+  it("[BIL-034] refuses with insufficient_balance once balance and overdraft are gone", async () => {
     const a = await payg("owner-broke", "WO-broke", 100);
     const spend = (n: number) =>
       db!.prisma.$transaction(async (tx) => {
@@ -109,7 +109,7 @@ describe("@billing admission", function () {
     });
   });
 
-  it("refuses a trial at zero, which has no overdraft", async () => {
+  it("[BIL-034] refuses a trial at zero, which has no overdraft", async () => {
     owners.set("WO-trial0", "owner-trial0");
     const a = await ensureAccount(
       db!.prisma,
@@ -124,7 +124,7 @@ describe("@billing admission", function () {
     expect((await check("WO-trial0")).reason).to.equal("insufficient_balance");
   });
 
-  it("ends the Trial after its 30 days and refuses calls until the owner subscribes", async () => {
+  it("[BIL-037] ends the Trial after its 30 days and refuses calls until the owner subscribes", async () => {
     owners.set("WO-trial-end", "owner-trial-end");
     const started = new Date(NOW.getTime() - 31 * 86_400_000);
     const a = await ensureAccount(
@@ -153,7 +153,7 @@ describe("@billing admission", function () {
     });
   });
 
-  it("refuses with concurrency_limit at the plan's limit", async () => {
+  it("[BIL-035] refuses with concurrency_limit at the plan's limit", async () => {
     await payg("owner-busy", "WO-busy", 1000);
     active.set("owner-busy", DEFAULT_PLANS.concurrency.payg);
     expect(await check("WO-busy")).to.deep.equal({
@@ -164,13 +164,13 @@ describe("@billing admission", function () {
     expect(await check("WO-busy")).to.deep.equal({ authorized: true });
   });
 
-  it("admits apps without an owner", async () => {
+  it("[BIL-035] admits apps without an owner", async () => {
     expect(await check("WO-unknown")).to.deep.equal({ authorized: true });
   });
 
   // A wall-clock bound: like the other timing tests (T1) it runs only when asked
   // (CONFORMANCE_TIMING_RUNS), not on shared PR runners where Postgres alone can take longer.
-  it("answers in under 5 ms at p99", async function () {
+  it("[BIL-036] answers in under 5 ms at p99", async function () {
     if (!Number(process.env.CONFORMANCE_TIMING_RUNS ?? 0)) return this.skip();
     await payg("owner-fast", "WO-fast", 1000);
     // Warm up first: the first checks pay for connections and query plans, not admission.
@@ -187,7 +187,7 @@ describe("@billing admission", function () {
 });
 
 describe("@billing active calls", function () {
-  it("counts an owner's answered calls until they end or their lease lapses", async () => {
+  it("[BIL-035] counts an owner's answered calls until they end or their lease lapses", async () => {
     let now = 0;
     const calls = new RegistryActiveCalls(
       { ownerOf: async (ws) => (ws === "WO-A" ? "owner-a" : undefined) },

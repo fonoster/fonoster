@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/usage/createGetUsage.ts b/mods/apiserver/src/usage/createGetUsage.ts
+index 7bc666f74..3f7ca9833 100644
+--- a/mods/apiserver/src/usage/createGetUsage.ts
++++ b/mods/apiserver/src/usage/createGetUsage.ts
+@@ -49,7 +49,7 @@ const COLUMNS = {
+   meter: "meter",
+   provider: "provider",
+   model: "model",
+-  key_source: "key_source",
++  key_source: "provider",
+   origin: "origin"
+ } as const;
+ type Dimension = keyof typeof COLUMNS;

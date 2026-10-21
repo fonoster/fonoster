@@ -92,7 +92,7 @@ describe("@stripe-fake", function () {
     failHooks = 0;
   });
 
-  it("is a drop-in Stripe endpoint for the SDK", async () => {
+  it("[BIL-016] is a drop-in Stripe endpoint for the SDK", async () => {
     const created = await stripe.customers.create({ email: "ada@acme.com" });
     expect(created.id).to.match(/^cus_/);
     expect(created.livemode).to.equal(false);
@@ -100,7 +100,7 @@ describe("@stripe-fake", function () {
     expect(again).to.deep.include({ id: created.id, email: "ada@acme.com" });
   });
 
-  it("refuses an unknown parameter and an unknown path in Stripe's error shape", async () => {
+  it("[BIL-017] refuses an unknown parameter and an unknown path in Stripe's error shape", async () => {
     const res = await raw("POST", "/v1/customers", "colour=red");
     expect(res.status).to.equal(400);
     expect((await res.json()).error).to.include({
@@ -112,7 +112,7 @@ describe("@stripe-fake", function () {
     expect((await missing.json()).error.type).to.equal("invalid_request_error");
   });
 
-  it("replays an idempotent request instead of granting twice", async () => {
+  it("[BIL-018] replays an idempotent request instead of granting twice", async () => {
     const customer = await stripe.customers.create();
     const params = {
       customer: customer.id,
@@ -143,7 +143,7 @@ describe("@stripe-fake", function () {
     expect(error?.type).to.equal("StripeIdempotencyError");
   });
 
-  it("counts a repeated meter event identifier once, in minute-aligned summaries", async () => {
+  it("[BIL-019] counts a repeated meter event identifier once, in minute-aligned summaries", async () => {
     const customer = await stripe.customers.create();
     const meter = await stripe.billing.meters.create({
       display_name: "Call seconds",
@@ -168,7 +168,7 @@ describe("@stripe-fake", function () {
     expect(summaries.data.map((s) => s.aggregated_value)).to.deep.equal([60]);
   });
 
-  it("times a test-clock customer's meter events by its clock", async () => {
+  it("[BIL-019] times a test-clock customer's meter events by its clock", async () => {
     const frozen = Math.floor(Date.now() / 1000) + 40 * DAY;
     const clock = await stripe.testHelpers.testClocks.create({
       frozen_time: frozen
@@ -195,7 +195,7 @@ describe("@stripe-fake", function () {
     expect(error?.message).to.match(/5 minutes in the future/);
   });
 
-  it("accepts an event for an unknown customer, then reports it in a thin event", async () => {
+  it("[BIL-020] accepts an event for an unknown customer, then reports it in a thin event", async () => {
     await stripe.webhookEndpoints.create({
       url: hooksUrl,
       enabled_events: ["*"]
@@ -264,7 +264,7 @@ describe("@stripe-fake", function () {
     return { clock, customer, plan, usage, start };
   }
 
-  it("applies credit grants to metered usage only, promotional first, at finalization", async () => {
+  it("[BIL-021] applies credit grants to metered usage only, promotional first, at finalization", async () => {
     const { clock, customer, plan, usage, start } = await cloudCustomer();
     await stripe.subscriptions.create({
       customer: customer.id,
@@ -316,7 +316,7 @@ describe("@stripe-fake", function () {
     void promo;
   });
 
-  it("runs a month under a test clock: renew, finalize after grace, charge, paid, in order", async () => {
+  it("[BIL-022] runs a month under a test clock: renew, finalize after grace, charge, paid, in order", async () => {
     await stripe.webhookEndpoints.create({
       url: hooksUrl,
       enabled_events: ["*"]
@@ -362,7 +362,7 @@ describe("@stripe-fake", function () {
     ).to.deep.equal([2500, 9480]);
   });
 
-  it("declines insufficient funds with Stripe's decline code and event", async () => {
+  it("[BIL-023] declines insufficient funds with Stripe's decline code and event", async () => {
     const customer = await stripe.customers.create();
     let error: Stripe.errors.StripeCardError | undefined;
     await stripe.paymentIntents
@@ -382,7 +382,7 @@ describe("@stripe-fake", function () {
     ).to.have.length(1);
   });
 
-  it("signs webhooks so Stripe's library verifies them, and retries a failed delivery", async () => {
+  it("[BIL-024] signs webhooks so Stripe's library verifies them, and retries a failed delivery", async () => {
     const endpoint = await stripe.webhookEndpoints.create({
       url: hooksUrl,
       enabled_events: ["*"]
@@ -409,7 +409,7 @@ describe("@stripe-fake", function () {
     ]);
   });
 
-  it("delivers events of a test-clock customer as they happen", async () => {
+  it("[BIL-024] delivers events of a test-clock customer as they happen", async () => {
     await stripe.webhookEndpoints.create({
       url: hooksUrl,
       enabled_events: ["*"]
@@ -430,7 +430,7 @@ describe("@stripe-fake", function () {
     );
   });
 
-  it("fails the next payment on request, then follows the card again", async () => {
+  it("[BIL-025] fails the next payment on request, then follows the card again", async () => {
     const { clock, customer, plan } = await cloudCustomer();
     await fake(`customers/${customer.id}/next_payment`, { outcome: "decline" });
     const sub = await stripe.subscriptions.create({
@@ -453,7 +453,7 @@ describe("@stripe-fake", function () {
     );
   });
 
-  it("refuses to change a price's amount, which Stripe keeps immutable", async () => {
+  it("[BIL-016] refuses to change a price's amount, which Stripe keeps immutable", async () => {
     const product = await stripe.products.create({ name: "Plan" });
     const price = await stripe.prices.create({
       product: product.id,
@@ -467,7 +467,7 @@ describe("@stripe-fake", function () {
     expect(ok.unit_amount).to.equal(2500);
   });
 
-  it("finds prices by lookup key", async () => {
+  it("[BIL-016] finds prices by lookup key", async () => {
     const product = await stripe.products.create({ name: "Plan" });
     await stripe.prices.create({
       product: product.id,
@@ -484,7 +484,7 @@ describe("@stripe-fake", function () {
     expect(found.data.map((p) => p.unit_amount)).to.deep.equal([2500]);
   });
 
-  it("opens a Customer Portal session for a customer", async () => {
+  it("[BIL-016] opens a Customer Portal session for a customer", async () => {
     const customer = await stripe.customers.create();
     const session = await stripe.billingPortal.sessions.create({
       customer: customer.id,
@@ -494,7 +494,7 @@ describe("@stripe-fake", function () {
     expect(session.customer).to.equal(customer.id);
   });
 
-  it("computes tax on a one-off invoice that asks for it, on top of its own items only", async () => {
+  it("[BIL-042] computes tax on a one-off invoice that asks for it, on top of its own items only", async () => {
     await fake("config", { tax_rates: { US: 10 } });
     const customer = await stripe.customers.create({
       address: { country: "US", postal_code: "10001" }
@@ -538,7 +538,7 @@ describe("@stripe-fake", function () {
     expect(await stripe.invoices.pay(untaxed.id!)).to.include({ total: 1000 });
   });
 
-  it("refuses automatic tax on a subscription whose prices have no tax behavior", async () => {
+  it("[BIL-042] refuses automatic tax on a subscription whose prices have no tax behavior", async () => {
     const { customer, plan } = await cloudCustomer();
     const refused = await stripe.subscriptions
       .create({
@@ -563,7 +563,7 @@ describe("@stripe-fake", function () {
     });
   });
 
-  it("refunds part of a payment", async () => {
+  it("[BIL-016] refunds part of a payment", async () => {
     const customer = await stripe.customers.create();
     const intent = await stripe.paymentIntents.create({
       amount: 1000,
@@ -584,12 +584,12 @@ describe("@stripe-fake", function () {
     ).to.have.length(1);
   });
 
-  it("keeps the control API out of the Stripe API", async () => {
+  it("[BIL-025] keeps the control API out of the Stripe API", async () => {
     const res = await raw("GET", "/v1/_fake/state");
     expect(res.status).to.equal(404);
   });
 
-  it("resets everything and starts ids over", async () => {
+  it("[BIL-025] resets everything and starts ids over", async () => {
     const a = await stripe.customers.create();
     await fake("reset");
     expect((await stripe.customers.list()).data).to.have.length(0);

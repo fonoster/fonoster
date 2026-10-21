@@ -1,0 +1,12 @@
+diff --git a/mods/billing/src/rater.ts b/mods/billing/src/rater.ts
+index aefedd2f3..23911b3fc 100644
+--- a/mods/billing/src/rater.ts
++++ b/mods/billing/src/rater.ts
+@@ -74,7 +74,6 @@ export function rate(
+ ): Rated {
+   if (new Date(usage.occurredAt).getTime() < billingStartedAt.getTime())
+     return free("before_billing");
+-  if (usage.regionKind === "private") return free("private_region");
+   if (isVendor(usage.meter) && usage.keySource === "workspace")
+     return free("byok");
+   if (INCLUDED.has(usage.meter)) return free("included");

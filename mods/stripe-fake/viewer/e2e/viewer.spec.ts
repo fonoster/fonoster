@@ -78,7 +78,7 @@ test.afterAll(async () => {
   hooks?.close();
 });
 
-test("shows credits as billing shows them", async ({ page }) => {
+test("[BIL-026] shows credits as billing shows them", async ({ page }) => {
   await page.goto(fake.url);
   await expect(
     page.getByRole("group", { name: "Credit balance" })
@@ -91,7 +91,9 @@ test("shows credits as billing shows them", async ({ page }) => {
   ).toContainText("600");
 });
 
-test("shows a failed payment as it happens, with Replay", async ({ page }) => {
+test("[BIL-027] shows a failed payment as it happens, with Replay", async ({
+  page
+}) => {
   await page.goto(`${fake.url}/#/webhooks`);
   await expect(page.getByRole("heading", { name: "Webhooks" })).toBeVisible();
   await expect(page.getByText("invoice.payment_failed")).toHaveCount(0);
@@ -115,7 +117,9 @@ test("shows a failed payment as it happens, with Replay", async ({ page }) => {
   await expect(row.getByRole("button", { name: "Replay" })).toBeVisible();
 });
 
-test("switches between light and dark, and remembers it", async ({ page }) => {
+test("[BIL-026] switches between light and dark, and remembers it", async ({
+  page
+}) => {
   await page.emulateMedia({ colorScheme: "light" });
   await page.goto(fake.url);
   const html = page.locator("html");

@@ -1,0 +1,13 @@
+diff --git a/mods/billing/src/ledger.ts b/mods/billing/src/ledger.ts
+index 005f20678..511e7025a 100644
+--- a/mods/billing/src/ledger.ts
++++ b/mods/billing/src/ledger.ts
+@@ -37,7 +37,7 @@ const BUCKET_OF: Record<GrantKind, Bucket> = {
+ };
+ 
+ /** Plan and trial credits are spent before top-ups (billing "The balance is a ledger"). */
+-const PRIORITY: Record<string, number> = { plan: 0, trial: 0, topup: 1 };
++const PRIORITY: Record<string, number> = { plan: 1, trial: 1, topup: 0 };
+ 
+ export type GrantRemaining = {
+   id: string;

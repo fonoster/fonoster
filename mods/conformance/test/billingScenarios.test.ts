@@ -48,6 +48,7 @@ import {
   Harness,
   loadScenarios,
   runScenario,
+  scenarioCase,
   StripeAction
 } from "../src";
 
@@ -322,7 +323,7 @@ describe("@conformance billing scenarios (runner plays the platform)", function 
   });
 
   for (const scenario of loadScenarios("billing")) {
-    it(scenario.name, async function () {
+    it(`${scenarioCase("billing", scenario.name)}${scenario.name}`, async function () {
       if (!world) return this.skip();
       const harness = new BillingHarness(world, `owner-${scenario.name}`);
       const result = await runScenario(scenario, {

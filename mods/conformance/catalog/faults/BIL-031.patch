@@ -1,0 +1,12 @@
+diff --git a/mods/billing/src/applyUsage.ts b/mods/billing/src/applyUsage.ts
+index 7d2ec8a1d..4a12dca34 100644
+--- a/mods/billing/src/applyUsage.ts
++++ b/mods/billing/src/applyUsage.ts
+@@ -80,7 +80,6 @@ export async function applyUsage(
+       ],
+       skipDuplicates: true
+     });
+-    if (!count) return { status: "duplicate" } as const;
+     if (rated.reason === "unpriced")
+       // An alert: the rate card lacks a price, so this usage is given away until it has one.
+       logger.error("usage has no price on the rate card; not billed", {

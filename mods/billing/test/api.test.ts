@@ -83,7 +83,7 @@ describe("@billing API", function () {
     await db?.drop();
   });
 
-  it("shows a new owner's trial credits", async () => {
+  it("[BIL-046] shows a new owner's trial credits", async () => {
     const summary = await call("getBilling", { ownerRef: "owner-api" });
     expect(summary).to.include({
       plan: "trial",
@@ -96,7 +96,7 @@ describe("@billing API", function () {
     ]);
   });
 
-  it("sets auto-recharge, and refuses an amount below the smallest top-up", async () => {
+  it("[BIL-046] sets auto-recharge, and refuses an amount below the smallest top-up", async () => {
     const summary = await call("updateAutoRecharge", {
       ownerRef: "owner-api",
       enabled: true,
@@ -119,7 +119,7 @@ describe("@billing API", function () {
     );
   });
 
-  it("refuses a top-up before a payment method, and opens the portal to add one", async () => {
+  it("[BIL-046] refuses a top-up before a payment method, and opens the portal to add one", async () => {
     const refused = (await call("createTopUp", {
       ownerRef: "owner-api",
       credits: 1000

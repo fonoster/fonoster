@@ -99,6 +99,8 @@ describe("@apiserver/usage end to end", function () {
     reply: string;
     chunkDelayMs?: number;
     bargeIn?: boolean;
+    /** The fake LLM leaves its usage report out (usage-metering "Missing usage is an error"). */
+    omitUsage?: boolean;
   }) {
     const harness = await new FakesHarness().start();
     harness.roomrNode.attachNats(nc);
@@ -106,7 +108,8 @@ describe("@apiserver/usage end to end", function () {
       script: [{ atMs: 600, text: "What are your hours?" }]
     });
     harness.llm.configure({
-      script: [{ content: options.reply, chunkDelayMs: options.chunkDelayMs }]
+      script: [{ content: options.reply, chunkDelayMs: options.chunkDelayMs }],
+      ...(options.omitUsage ? { omitUsage: true } : {})
     });
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "usage-fullstack-"));
     const sealed: RecordIndexEntry[] = [];
@@ -197,9 +200,15 @@ describe("@apiserver/usage end to end", function () {
         );
       }
       await waitFor(
-        () => appended.find((e) => e.message.type === "usage.report"),
+        () =>
+          appended.find((e) =>
+            options.omitUsage
+              ? (e.message as { data?: { type?: string } }).data?.type ===
+                "usage_missing"
+              : e.message.type === "usage.report"
+          ),
         10_000,
-        "usage.report"
+        options.omitUsage ? "usage_missing" : "usage.report"
       );
       await sleep(300);
       harness.roomrNode.callerHangup(roomRef);
@@ -245,7 +254,7 @@ describe("@apiserver/usage end to end", function () {
     return { events: await db!.prisma.usageEvent.count(), rows: response.rows };
   }
 
-  it("meters an Autopilot call exactly, from the sealed record to GetUsage", async () => {
+  it("[BIL-001] meters an Autopilot call exactly, from the sealed record to GetUsage", async () => {
     const reply = "We open at nine. We close at five.";
     const { entry, conversations } = await call({ reply });
     const lines = entry.usage as Line[];
@@ -273,7 +282,7 @@ describe("@apiserver/usage end to end", function () {
     );
   });
 
-  it("meters the whole request of a reply the caller cut into", async () => {
+  it("[BIL-009] meters the whole request of a reply the caller cut into", async () => {
     const reply =
       "We open at nine in the morning. We close at five in the afternoon. On Saturdays we open at ten and close at two. On Sundays the clinic stays closed.";
     const { entry, conversations, appended } = await call({
@@ -299,5 +308,28 @@ describe("@apiserver/usage end to end", function () {
           "usage_missing"
       )
     ).to.equal(false);
+  });
+
+  it("[BIL-010] records usage_missing and no token line when the vendor reports no usage, and the call goes on", async () => {
+    const reply = "We open at nine. We close at five.";
+    const { entry, appended } = await call({ reply, omitUsage: true });
+    expect(appended.some((e) => e.message.type === "output.started")).to.equal(
+      true
+    );
+    const missing = appended.find(
+      (e) =>
+        (e.message as { data?: { type?: string } }).data?.type ===
+        "usage_missing"
+    );
+    expect(
+      (missing!.message as { data: { catalogId?: string } }).data.catalogId
+    ).to.equal("fake/llm");
+    const lines = (entry.usage ?? []) as Line[];
+    expect(
+      lines.filter((l) => l.meter.startsWith("llm.tokens")).map((l) => l.meter)
+    ).to.deep.equal([]);
+    expect(lines.find((l) => l.meter === "tts.characters")!.quantity).to.equal(
+      reply.length
+    );
   });
 });

@@ -62,12 +62,12 @@ describe("@billing trial length", function () {
       return debit(tx, id, credits(amount), `use-${amount}`, when, when);
     });
 
-  it("lasts the configured default from its start", async () => {
+  it("[BIL-037] lasts the configured default from its start", async () => {
     const { a } = await trialOwner();
     expect((await account(a.id)).trialEndsAt).to.deep.equal(at(30));
   });
 
-  it("extends a Trial before it ends, keeping its credits", async () => {
+  it("[BIL-038] extends a Trial before it ends, keeping its credits", async () => {
     const { owner, a } = await trialOwner();
     await spend(a.id, 140, at(5));
     const change = await setTrialDays(
@@ -88,7 +88,7 @@ describe("@billing trial length", function () {
     expect(await balanceOf(db!.prisma, a.id)).to.equal(0n);
   });
 
-  it("reopens an ended Trial with the credits it had left, once", async () => {
+  it("[BIL-038] reopens an ended Trial with the credits it had left, once", async () => {
     const { owner, a } = await trialOwner();
     await spend(a.id, 300, at(3));
     await expireDue(db!.prisma, at(31));
@@ -108,7 +108,7 @@ describe("@billing trial length", function () {
     expect(await balanceOf(db!.prisma, a.id)).to.equal(credits(700));
   });
 
-  it("ends a Trial cut short at once", async () => {
+  it("[BIL-037] ends a Trial cut short at once", async () => {
     const { owner, a } = await trialOwner();
     const change = await setTrialDays(
       db!.prisma,
@@ -122,7 +122,7 @@ describe("@billing trial length", function () {
     expect(await balanceOf(db!.prisma, a.id)).to.equal(0n);
   });
 
-  it("adds credits to a Trial as Trial credits, ending with the Trial", async () => {
+  it("[BIL-039] adds credits to a Trial as Trial credits, ending with the Trial", async () => {
     const { owner, a } = await trialOwner();
     const added = await addCredits(
       db!.prisma,
@@ -139,7 +139,7 @@ describe("@billing trial length", function () {
     expect(await balanceOf(db!.prisma, a.id)).to.equal(0n);
   });
 
-  it("refuses credits for a Trial that ended until it is extended", async () => {
+  it("[BIL-039] refuses credits for a Trial that ended until it is extended", async () => {
     const { owner } = await trialOwner();
     await expireDue(db!.prisma, at(31));
     const error = await addCredits(
@@ -152,7 +152,7 @@ describe("@billing trial length", function () {
     expect(error).to.be.instanceOf(OperatorError);
   });
 
-  it("adds credits to Pay-as-you-go like a top-up, mirrored to Stripe", async () => {
+  it("[BIL-039] adds credits to Pay-as-you-go like a top-up, mirrored to Stripe", async () => {
     const { owner, a } = await trialOwner();
     await db!.prisma.billingAccount.update({
       where: { id: a.id },
@@ -178,7 +178,7 @@ describe("@billing trial length", function () {
     expect(outbox[0].payload).to.deep.include({ cents: 500, category: "paid" });
   });
 
-  it("refuses to change the Trial of an owner on Pay-as-you-go", async () => {
+  it("[BIL-038] refuses to change the Trial of an owner on Pay-as-you-go", async () => {
     const { owner, a } = await trialOwner();
     await db!.prisma.billingAccount.update({
       where: { id: a.id },

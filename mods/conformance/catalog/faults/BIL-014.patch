@@ -1,0 +1,12 @@
+diff --git a/mods/apiserver/src/usage/createGetUsage.ts b/mods/apiserver/src/usage/createGetUsage.ts
+index 7bc666f74..87917d529 100644
+--- a/mods/apiserver/src/usage/createGetUsage.ts
++++ b/mods/apiserver/src/usage/createGetUsage.ts
+@@ -80,7 +80,6 @@ function workspacesOf(call: unknown, allOwned: boolean): string[] {
+   if (!allOwned) return [getAccessKeyIdFromCall(grpcCall)];
+   const token = decodeToken<TokenUseEnum.ACCESS>(getTokenFromCall(grpcCall));
+   const owned = (token.access ?? [])
+-    .filter((a) => a.role === Role.WORKSPACE_OWNER)
+     .map((a) => a.accessKeyId);
+   if (!owned.length)
+     throw new GrpcError(

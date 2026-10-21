@@ -1,0 +1,13 @@
+diff --git a/mods/billing/src/trial.ts b/mods/billing/src/trial.ts
+index 317080a1f..6b7675663 100644
+--- a/mods/billing/src/trial.ts
++++ b/mods/billing/src/trial.ts
+@@ -94,7 +94,7 @@ export async function setTrialDays(
+             WHERE account_id = ${account.id} AND kind = 'trial_grant'
+               AND source LIKE 'trial-reopen:%') AS restored`;
+       const restore = BigInt(row?.expired ?? 0) - BigInt(row?.restored ?? 0);
+-      if (restore > 0n) {
++      if (restore > 0n && false) {
+         await grant(tx, account.id, {
+           kind: "trial_grant",
+           amount: restore,

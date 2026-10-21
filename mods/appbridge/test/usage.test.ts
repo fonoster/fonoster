@@ -255,7 +255,7 @@ describe("@AppBridge usage metering", function () {
     return { roomRef, peer };
   }
 
-  it("seals a call's usage, signed, in the record and its index entry", async () => {
+  it("[BIL-001] seals a call's usage, signed, in the record and its index entry", async () => {
     await start([app({ recording: "on" })]);
     const { roomRef } = await talk("Hello there.", 1600);
     harness.roomrNode.callerHangup(roomRef);
@@ -283,7 +283,7 @@ describe("@AppBridge usage metering", function () {
     expect(entry.origin).to.equal("call");
   });
 
-  it("says keySource workspace when the workspace has its own key for the vendor", async () => {
+  it("[BIL-005] says keySource workspace when the workspace has its own key for the vendor", async () => {
     await start([app({ workspaceRef: "ws-keyed" })], "ws-keyed");
     const { roomRef } = await talk("Hi.", 0);
     harness.roomrNode.callerHangup(roomRef);
@@ -296,7 +296,7 @@ describe("@AppBridge usage metering", function () {
     });
   });
 
-  it("adds an Autopilot agent's usage.report to the call", async () => {
+  it("[BIL-009] adds an Autopilot agent's usage.report to the call", async () => {
     await start([app({ type: "AUTOPILOT" })]);
     const { roomRef, peer } = await talk("Hi.", 0);
     peer.sendJson({
@@ -339,7 +339,7 @@ describe("@AppBridge usage metering", function () {
     expect(lineOf(lines, "llm.tokens.out")!.quantity).to.equal(340);
   });
 
-  it("refuses usage.report from an app that is not an Autopilot agent", async () => {
+  it("[BIL-009] refuses usage.report from an app that is not an Autopilot agent", async () => {
     await start([app({ type: "STREAM" })]);
     const { roomRef, peer } = await talk("Hi.", 0);
     peer.sendJson({
@@ -365,7 +365,7 @@ describe("@AppBridge usage metering", function () {
     ).to.equal(undefined);
   });
 
-  it("refuses usage.report for a meter Autopilot does not report", async () => {
+  it("[BIL-009] refuses usage.report for a meter Autopilot does not report", async () => {
     await start([app({ type: "AUTOPILOT" })]);
     const { roomRef, peer } = await talk("Hi.", 0);
     peer.sendJson({
@@ -392,7 +392,7 @@ describe("@AppBridge usage metering", function () {
     ).to.be.below(999);
   });
 
-  it("seals no usage for a call that never reached an app", async () => {
+  it("[BIL-006] seals no usage for a call that never reached an app", async () => {
     await start([]);
     const { roomRef } = harness.roomrNode.offerCall();
     const { entry, vcon } = await sealed(roomRef);
@@ -400,7 +400,7 @@ describe("@AppBridge usage metering", function () {
     expect(vcon.fonoster).to.not.have.property("usage");
   });
 
-  it("marks a browser test call's usage with origin browser_test", async () => {
+  it("[BIL-007] marks a browser test call's usage with origin browser_test", async () => {
     await start([app()]);
     const { roomRef } = harness.roomrNode.offerCall({
       appRef: "a",
@@ -418,7 +418,7 @@ describe("@AppBridge usage metering", function () {
     ).to.be.at.least(1);
   });
 
-  it("meters noise cancelling per filter vendor and stops counting a filter that failed", async () => {
+  it("[BIL-005] meters noise cancelling per filter vendor and stops counting a filter that failed", async () => {
     boomFrames = 0;
     await start([
       app({ filters: [{ name: "test-nc" }, { name: "test-nc-boom" }] })

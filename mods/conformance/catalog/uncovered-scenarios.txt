@@ -1,3 +1,5 @@
+billing / Billing runs only when enabled / Community install
+billing / Top-ups and auto-recharge / Refund of unused top-up
 control-plane / AppBridge drains on SIGTERM / Health check
 control-plane / AppBridge drains on SIGTERM / Live sessions survive SIGTERM
 control-plane / AppBridge drains on SIGTERM / Maximum wait reached
@@ -67,6 +69,9 @@ turn-taking / Detectors are compared by replay before adoption / A regressing ca
 turn-taking / Detectors are compared by replay before adoption / Non-consented calls are excluded
 turn-taking / Patience is configurable per app and adapts only within a call / Nothing is remembered across calls
 turn-taking / Turn-taking runs in AppBridge's Speech layer / Audio-only sessions do not require turn-taking
+usage-metering / Call seconds count from answer / Ringing is not metered
+usage-metering / Stored usage is published for billing / Billing off
+usage-metering / Usage records facts, not prices / Billing disabled
 voice-session / An app is a WebSocket URL, a protocol and speech defaults / Autopilot is an ordinary app
 voice-session / An app is a WebSocket URL, a protocol and speech defaults / Missing app reference
 voice-session / An app is a WebSocket URL, a protocol and speech defaults / Outbound routing

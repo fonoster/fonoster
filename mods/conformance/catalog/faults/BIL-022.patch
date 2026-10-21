@@ -1,0 +1,12 @@
+diff --git a/mods/stripe-fake/src/resources/billing.ts b/mods/stripe-fake/src/resources/billing.ts
+index 86cf721b8..219c5fbf2 100644
+--- a/mods/stripe-fake/src/resources/billing.ts
++++ b/mods/stripe-fake/src/resources/billing.ts
+@@ -352,7 +352,6 @@ export function finalize(fake: StripeFake, invoice: Json): Json {
+       finalized_at: now
+     }
+   });
+-  fake.emit("invoice.finalized", invoice, previous, clock);
+   if (invoice.collection_method === "charge_automatically") pay(fake, invoice);
+   return invoice;
+ }

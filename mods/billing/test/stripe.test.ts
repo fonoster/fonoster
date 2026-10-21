@@ -166,7 +166,7 @@ describe("@billing stripe", function () {
     ...o
   });
 
-  it("starts Pay-as-you-go on the first paid invoice, with the plan credits here and in Stripe", async () => {
+  it("[BIL-040] starts Pay-as-you-go on the first paid invoice, with the plan credits here and in Stripe", async () => {
     const { account, customer } = await subscribed();
     const after = await db!.prisma.billingAccount.findUniqueOrThrow({
       where: { id: account.id }
@@ -184,7 +184,7 @@ describe("@billing stripe", function () {
     ]);
   });
 
-  it("invoices a month of usage less the credits, and renews the plan credits", async () => {
+  it("[BIL-040] invoices a month of usage less the credits, and renews the plan credits", async () => {
     const { owner, account, customer } = await subscribed();
     await applyUsage(db!.prisma, [card], usage(owner), clock.now());
     await pump();
@@ -210,7 +210,7 @@ describe("@billing stripe", function () {
     expect(plans).to.have.length(2);
   });
 
-  it("finds where the ledger and Stripe's invoices disagree, and changes nothing", async () => {
+  it("[BIL-041] finds where the ledger and Stripe's invoices disagree, and changes nothing", async () => {
     const since = new Date((START - DAY) * 1000);
     expect(await reconcile(deps(), since)).to.deep.equal([]);
     // The ledger rated something Stripe never heard of.
@@ -242,7 +242,7 @@ describe("@billing stripe", function () {
     });
   });
 
-  it("adds top-up credits once Stripe confirms the payment", async () => {
+  it("[BIL-042] adds top-up credits once Stripe confirms the payment", async () => {
     const { account, customer } = await subscribed();
     const before = await balanceOf(db!.prisma, account.id);
     await db!.prisma.$transaction((tx) =>
@@ -258,7 +258,7 @@ describe("@billing stripe", function () {
     expect(paid.map((g) => g.amount.monetary!.value)).to.deep.equal([1000]);
   });
 
-  it("asks Stripe for tax on the subscription and top-ups, and credits only what was bought", async () => {
+  it("[BIL-042] asks Stripe for tax on the subscription and top-ups, and credits only what was bought", async () => {
     await control("config", { tax_rates: { US: 10 } });
     try {
       const { account, customer } = await subscribed();
@@ -282,7 +282,7 @@ describe("@billing stripe", function () {
     }
   });
 
-  it("turns auto-recharge off after three declined recharges and tells the owner", async () => {
+  it("[BIL-043] turns auto-recharge off after three declined recharges and tells the owner", async () => {
     const { owner, account } = await subscribed();
     await db!.prisma.billingAccount.update({
       where: { id: account.id },
@@ -313,7 +313,31 @@ describe("@billing stripe", function () {
     expect(notices).to.deep.include({ owner, kind: "auto_recharge_disabled" });
   });
 
-  it("applies a webhook Stripe delivers twice once", async () => {
+  it("[BIL-043] recharges once per crossing of the threshold, and adds the credits once Stripe is paid", async () => {
+    const { owner, account, customer } = await subscribed();
+    await db!.prisma.billingAccount.update({
+      where: { id: account.id },
+      data: {
+        autoRecharge: true,
+        rechargeThreshold: credits(4000),
+        rechargeAmount: credits(2500)
+      }
+    });
+    const before = await balanceOf(db!.prisma, account.id);
+    // Two calls below the threshold before Stripe answers: one recharge.
+    await applyUsage(db!.prisma, [card], usage(owner), clock.now());
+    await applyUsage(db!.prisma, [card], usage(owner), clock.now());
+    await pump();
+    const paid = (
+      await stripe.billing.creditGrants.list({ customer })
+    ).data.filter((g) => g.category === "paid");
+    expect(paid.map((g) => g.amount.monetary!.value)).to.deep.equal([2500]);
+    expect(await balanceOf(db!.prisma, account.id)).to.equal(
+      before - credits(25.6) + credits(2500)
+    );
+  });
+
+  it("[BIL-044] applies a webhook Stripe delivers twice once", async () => {
     const { account } = await subscribed();
     const before = await balanceOf(db!.prisma, account.id);
     await db!.prisma.$transaction((tx) =>
@@ -331,7 +355,7 @@ describe("@billing stripe", function () {
     );
   });
 
-  it("keeps rating while Stripe is down, then sends everything once", async () => {
+  it("[BIL-045] keeps rating while Stripe is down, then sends everything once", async () => {
     const { owner, customer } = await subscribed();
     await control("rate_limit", { on: true });
     await applyUsage(db!.prisma, [card], usage(owner), clock.now());

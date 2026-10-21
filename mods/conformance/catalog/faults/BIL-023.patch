@@ -1,0 +1,13 @@
+diff --git a/mods/stripe-fake/src/resources/payments.ts b/mods/stripe-fake/src/resources/payments.ts
+index 8b4ad8485..57ef3c067 100644
+--- a/mods/stripe-fake/src/resources/payments.ts
++++ b/mods/stripe-fake/src/resources/payments.ts
+@@ -104,7 +104,7 @@ const DECLINES: Record<
+   },
+   insufficient_funds: {
+     code: "card_declined",
+-    decline_code: "insufficient_funds",
++    decline_code: "generic_decline",
+     message: "Your card has insufficient funds."
+   },
+   requires_action: {

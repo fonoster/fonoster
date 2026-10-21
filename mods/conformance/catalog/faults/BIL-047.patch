@@ -1,0 +1,16 @@
+diff --git a/mods/billing/src/stripe/outbox.ts b/mods/billing/src/stripe/outbox.ts
+index a977edf54..899de40e6 100644
+--- a/mods/billing/src/stripe/outbox.ts
++++ b/mods/billing/src/stripe/outbox.ts
+@@ -148,7 +148,10 @@ async function send(deps: Deps, row: Row): Promise<Prisma.InputJsonValue> {
+           event_name: USAGE_METER_EVENT,
+           identifier: p.usageId as string,
+           timestamp: p.timestamp as number,
+-          payload: { stripe_customer_id: customer, value: p.value as string }
++          payload: {
++            stripe_customer_id: customer,
++            value: String(Number(p.value) * 2)
++          }
+         },
+         { idempotencyKey }
+       );

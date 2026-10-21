@@ -1,0 +1,13 @@
+diff --git a/mods/stripe-fake/src/schema.ts b/mods/stripe-fake/src/schema.ts
+index 08690b7ab..3dad215ab 100644
+--- a/mods/stripe-fake/src/schema.ts
++++ b/mods/stripe-fake/src/schema.ts
+@@ -102,7 +102,7 @@ function template(s: Schema): Json {
+ export function stripeObject(schemaName: string, fields: Json): Json {
+   const s = schemas[schemaName];
+   if (!s) throw new Error(`unknown schema ${schemaName}`);
+-  return { ...template(s), ...fields, livemode: false };
++  return { ...template(s), ...fields, livemode: true };
+ }
+ 
+ /** The parameters a path and method accepts: the form body's properties and the query parameters. */

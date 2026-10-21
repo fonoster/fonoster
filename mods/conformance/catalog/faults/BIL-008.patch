@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/records/createIndexRecord.ts b/mods/apiserver/src/records/createIndexRecord.ts
+index 6522a4920..e9745175f 100644
+--- a/mods/apiserver/src/records/createIndexRecord.ts
++++ b/mods/apiserver/src/records/createIndexRecord.ts
+@@ -43,7 +43,7 @@ export function usageEvents(entry: RecordIndexEntry, workspaceRef: string) {
+     ...(entry.appRef ? { appRef: entry.appRef } : {}),
+     callRef: entry.callRef,
+     region: entry.region,
+-    regionKind: isPrivateRegionRef(entry.region) ? "private" : "public",
++    regionKind: "public",
+     origin,
+     occurredAt: new Date(entry.endedAt ?? entry.startedAt).toISOString()
+   }));

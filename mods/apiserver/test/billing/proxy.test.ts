@@ -79,7 +79,7 @@ describe("@apiserver/billing proxy", function () {
       )
     );
 
-  it("asks for the caller's billing, whatever owner the request names", async () => {
+  it("[BIL-046] asks for the caller's billing, whatever owner the request names", async () => {
     const { error, response } = await invoke("user-1", "getBilling", {
       ownerRef: "someone-else"
     });
@@ -88,12 +88,12 @@ describe("@apiserver/billing proxy", function () {
     expect(seen.at(-1)).to.include({ ownerRef: "user-1" });
   });
 
-  it("refuses a caller who does not own the workspace", async () => {
+  it("[BIL-046] refuses a caller who does not own the workspace", async () => {
     const { error } = await invoke(undefined, "getBilling", {});
     expect(error).to.include({ code: grpc.status.PERMISSION_DENIED });
   });
 
-  it("passes the billing service's refusals through", async () => {
+  it("[BIL-046] passes the billing service's refusals through", async () => {
     const { error } = await invoke("user-1", "createTopUp", { credits: 1000 });
     expect(error).to.include({
       code: grpc.status.FAILED_PRECONDITION,
