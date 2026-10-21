@@ -6,6 +6,7 @@
 //
 // A test belongs to a catalog case when its name contains the case id, for example
 //   it("[MQ-004] packet loss 5% (random)", ...)   or   func TestMQ004_Loss5Random
+// Proof records from prove.cjs (property proof=true) mark a case proven and never count as a run.
 // Results: Pass, Fail, Blocked (skipped or errored before running), Waived (mods/conformance/catalog/waivers.json), Not run.
 // Exit code 1 when the release gate fails, so the release pipeline can stop.
 const fs = require("fs");
@@ -45,7 +46,7 @@ const quarantine = new Map((fs.existsSync(qFile) ? JSON.parse(fs.readFileSync(qF
 const daysSince = (d) => Math.floor((Date.parse(today) - Date.parse(d)) / 86400000);
 const expiredQuarantine = [...quarantine.values()].filter((q) => daysSince(q.since) > QUARANTINE_DAYS);
 
-// ---- JUnit parsing (mocha-junit-reporter, Playwright, go-junit-report, pytest)
+// ---- JUnit parsing (mocha xunit, mocha-junit-reporter, Playwright, go-junit-report, pytest)
 const unesc = (s) => s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
 const attr = (s, k) => { const m = s.match(new RegExp(`\\b${k}="([^"]*)"`)); return m ? unesc(m[1]) : ""; };
 const rank = { Fail: 4, Blocked: 3, Pass: 1 };
@@ -67,6 +68,12 @@ for (const file of walk(resultsDir)) {
     else if (/<skipped\b/.test(body)) { status = "Blocked"; message = "skipped"; }
     const props = [...body.matchAll(/<property\b([^>]*)\/>/g)].map((p) => [attr(p[1], "name"), attr(p[1], "value")]);
     const cur = found.get(id) || { status: "Pass", message: "", seconds: 0, props: [], tests: 0, runs: [], proven: false, rerun: false };
+    // A proof record (prove.cjs) only says whether the case was seen red on its fault; it is not a run.
+    if (props.some(([k, v]) => k === "proof" && v === "true")) {
+      if (props.some(([k, v]) => k === "proven" && v === "true")) cur.proven = true;
+      found.set(id, cur);
+      continue;
+    }
     if ((rank[status] || 0) >= (rank[cur.status] || 0)) { cur.status = status; if (message) cur.message = message; }
     cur.seconds += parseFloat(attr(head, "time") || "0");
     cur.props.push(...props.filter(([k]) => !["proven", "rerun", "trial"].includes(k)));
@@ -82,7 +89,7 @@ for (const file of walk(resultsDir)) {
 const rows = cases.map((t) => {
   const r = found.get(t.id);
   const meta = tiers[t.id] || {};
-  let status = r ? r.status : "Not run";
+  let status = r && r.tests ? r.status : "Not run";
   let note = "";
   if (r && meta.trials) {
     const passed = r.runs.filter((x) => x === "Pass").length;
