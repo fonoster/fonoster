@@ -2,7 +2,9 @@
 
 ## Purpose
 The apiserver as a stateless control plane and how it places and controls calls on Roomr nodes.
+
 ## Requirements
+
 ### Requirement: AppBridge is its own TypeScript deployable
 
 AppBridge SHALL run as its own deployable, written in TypeScript, scaled
@@ -110,9 +112,9 @@ Creating or updating an agent, trunk, number or domain SHALL check that every re
 (`domainRef`, `credentialsRef`, `accessControlListRef`, `inboundCredentialsRef`,
 `outboundCredentialsRef`, `trunkRef`, each egress policy's `numberRef`) belongs to the caller's
 workspace. A reference to another workspace's resource SHALL fail with `INVALID_ARGUMENT`, reported
-like a missing one. Reading or updating a number or ACL of another workspace SHALL fail with
-`PERMISSION_DENIED`, as for every other resource. Routr has no notion of workspaces; the apiserver
-enforces this.
+like a missing one. Reading, updating or deleting a number or ACL of another workspace SHALL fail
+with `NOT_FOUND`, as for every other resource (management-api). Routr has no notion of workspaces;
+the apiserver enforces this.
 
 #### Scenario: Trunk with another workspace's credentials
 - **WHEN** workspace A creates a trunk whose `outboundCredentialsRef` names workspace B's credentials
@@ -141,4 +143,3 @@ over NATS.
 #### Scenario: No audio on the bus
 - **WHEN** a 60-second call runs end to end
 - **THEN** no NATS message carries audio frames
-
