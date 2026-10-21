@@ -118,7 +118,9 @@ export function toCallDetailRecord(row: CallRecordRow): CallDetailRecord {
     endedAt: (row.endedAt ?? row.startedAt).getTime(),
     from: row.fromNumber ?? "",
     to: row.toNumber ?? "",
-    duration: row.durationSeconds
+    duration: row.durationSeconds,
+    // AmdStatus enum names are the index's words in capitals.
+    ...(row.amdStatus ? { amdStatus: row.amdStatus.toUpperCase() } : {})
   } as unknown as CallDetailRecord;
 }
 

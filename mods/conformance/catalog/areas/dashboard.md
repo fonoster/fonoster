@@ -467,6 +467,18 @@ The record carries tool names and outcomes (Autopilot's `autopilot.turn` note) a
 
 **Pass.** The answer to the caller shows first audio 100 ms and Response time p50 100 ms; the timeline shows the `get_hours` tool call as ok; Usage lists Speech-to-text · deepgram 0:04 and LLM input · gpt-4o-mini 1.2K tokens with no price; In this call reads 2 agent · 1 caller and names get_hours; the Events tab lists `turn.ended`; Export JSON saves `call-1.vcon.json` with its dialog; a call where the caller cut the agent off says interrupted at 0:03 and counts one interruption. **Fail.** A missing or estimated figure, a price, or a vCon that isn't the record's.
 
+### DSH-045 Calls say who answered, by answering machine detection
+
+- **Spec:** dashboard / Calls say who answered / A call that reached voicemail
+- **Spec:** dashboard / Calls say who answered / A call without AMD
+- **Priority:** P2
+- **Proof:** Leave the verdict out of the vCon (`buildVcon` in `mods/callrecord/src/vcon.ts`); the test must go red on Voicemail in the list.
+- **Test:** mods/dashboard/e2e/calls.community.spec.ts
+
+The record builder, the index and the records API carry the verdict since #1066; their unit tests are in `mods/callrecord/test/vconAmd.test.ts` and `mods/apiserver/test/records/records.test.ts`.
+
+**Pass.** The call where AMD found voicemail reads Voicemail under Answered by; the call without AMD shows neither Human nor Voicemail; the detail says Answered by voicemail, and its Call answered row shows AMD, voicemail 0.94 and 820 ms. **Fail.** No verdict, a verdict on a call where AMD didn't run, or a verdict missing from the detail.
+
 ### DSH-035 Billing is offered only to an owner on Cloud
 
 - **Spec:** dashboard / Cloud-only screens follow capabilities and ownership / No billing for users who own no workspace

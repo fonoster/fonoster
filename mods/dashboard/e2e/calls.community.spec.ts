@@ -288,6 +288,55 @@ test("[DSH-044] shows how the agent did: response time, tools, usage and interru
   ).toContainText(/Interruptions\s*1/);
 });
 
+test("[DSH-045] says who answered a call, by answering machine detection", async ({
+  page,
+  api
+}) => {
+  const amd = {
+    atMs: 900,
+    source: "event",
+    message: {
+      type: "amd.result",
+      status: "voicemail",
+      confidence: 0.94,
+      detector: "amd-onnx",
+      audioMs: 820
+    }
+  };
+  await signIn(page, api, [
+    fromFixture("recorded-call", {
+      callRef: "call-vm",
+      appRef: "app-1",
+      startedAt: today,
+      extra: [amd]
+    }),
+    fromFixture("recorded-call", {
+      callRef: "call-plain",
+      appRef: "app-2",
+      startedAt: today - day
+    })
+  ]);
+  await page.getByRole("link", { name: "Calls", exact: true }).click();
+  const rows = page.getByRole("table", { name: "Calls" }).getByRole("row");
+  await expect(rows.first()).toContainText("Answered by");
+  await expect(rows.nth(1)).toContainText("Voicemail");
+  // No AMD, no verdict: a dash, never a guess.
+  await expect(rows.nth(2)).toContainText("Billing reminders");
+  await expect(rows.nth(2)).not.toContainText("Human");
+  await expect(rows.nth(2)).not.toContainText("Voicemail");
+
+  await rows.nth(1).click();
+  await expect(page.getByText("Answered by voicemail")).toBeVisible();
+  const answered = page
+    .getByRole("region", { name: "Transcript" })
+    .getByRole("listitem")
+    .first();
+  await expect(answered).toContainText("Call answered");
+  await expect(answered).toContainText("AMD");
+  await expect(answered).toContainText("voicemail 0.94");
+  await expect(answered).toContainText("820 ms");
+});
+
 test("[DSH-032] says why a failed call failed, with its SIP status and no transcript", async ({
   page,
   api

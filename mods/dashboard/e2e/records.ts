@@ -148,6 +148,7 @@ export function fromFixture(
       (meta.failure as { reason?: string } | undefined)?.reason ?? null,
     sipStatus:
       (meta.failure as { sipStatus?: number } | undefined)?.sipStatus ?? null,
+    amdStatus: (meta.amd as { status?: string } | undefined)?.status ?? null,
     startedAt: new Date(T0).toISOString(),
     endedAt: new Date(endedAt).toISOString(),
     durationSeconds: Math.round((endedAt - T0) / 1000),

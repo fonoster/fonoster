@@ -83,6 +83,8 @@ function call(
     to?: string;
     direction?: string;
     text?: string;
+    /** AppBridge's answering machine verdict, when AMD ran. */
+    amd?: string;
     failed?: string;
     recording?: boolean;
   } = {}
@@ -103,6 +105,21 @@ function call(
         ...parties
       }
     },
+    ...(o.amd
+      ? [
+          {
+            at: at(),
+            source: "event" as const,
+            message: {
+              type: "amd.result",
+              status: o.amd,
+              confidence: 0.9,
+              detector: "test",
+              audioMs: 800
+            }
+          }
+        ]
+      : []),
     ...(o.failed
       ? [
           {
@@ -218,7 +235,11 @@ describe("@apiserver call records", function () {
     };
     await seal(
       "call-card",
-      call("call-card", { text: "It is 4111 1111 1111 1111", recording: true }),
+      call("call-card", {
+        text: "It is 4111 1111 1111 1111",
+        recording: true,
+        amd: "voicemail"
+      }),
       true
     );
     await seal(
@@ -390,6 +411,18 @@ describe("@apiserver call records", function () {
         .status
     ).to.equal(200);
     expect((await get("/call-busy/recording")).status).to.equal(404);
+  });
+
+  it("says who answered, by AMD, in the search and in ListCalls (#1066)", async function () {
+    const all = await (await get("/")).json();
+    const byRef = (ref: string) =>
+      all.items.find((i: { callRef: string }) => i.callRef === ref);
+    expect(byRef("call-card").amdStatus).to.equal("voicemail");
+    expect(byRef("call-rec").amdStatus).to.equal(null);
+    const list = await createFetchCallsFromIndex(mem.db)("ws-1", {});
+    expect(list.items.find((c) => c.ref === "call-card")!.amdStatus).to.equal(
+      "VOICEMAIL"
+    );
   });
 
   it("serves ListCalls from the index", async function () {

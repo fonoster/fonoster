@@ -119,6 +119,7 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
     endReason: row.endReason,
     failureReason: row.failureReason,
     sipStatus: row.sipStatus,
+    amdStatus: row.amdStatus ?? null,
     startedAt: row.startedAt.toISOString(),
     endedAt: row.endedAt?.toISOString() ?? null,
     durationSeconds: row.durationSeconds,

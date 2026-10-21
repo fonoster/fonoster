@@ -359,6 +359,7 @@ model CallRecord {
   endReason       String?   @map("end_reason")
   failureReason   String?   @map("failure_reason")
   sipStatus       Int?      @map("sip_status")
+  amdStatus       String?   @map("amd_status")
   startedAt       DateTime  @map("started_at")
   endedAt         DateTime? @map("ended_at")
   durationSeconds Int       @default(0) @map("duration_seconds")

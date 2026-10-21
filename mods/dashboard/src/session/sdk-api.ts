@@ -200,6 +200,7 @@ type Summary = {
   endReason?: string | null;
   failureReason?: string | null;
   sipStatus?: number | null;
+  amdStatus?: string | null;
 };
 
 const toSummary = (r: Summary): CallRecordSummary => ({
@@ -214,7 +215,8 @@ const toSummary = (r: Summary): CallRecordSummary => ({
   version: r.version,
   ...(r.endReason ? { endReason: r.endReason } : {}),
   ...(r.failureReason ? { failureReason: r.failureReason } : {}),
-  ...(typeof r.sipStatus === "number" ? { sipStatus: r.sipStatus } : {})
+  ...(typeof r.sipStatus === "number" ? { sipStatus: r.sipStatus } : {}),
+  ...(r.amdStatus ? { amdStatus: r.amdStatus } : {})
 });
 
 /** Turns, decisions and warnings from a record's vCon (add-call-record "The record contains"). */
@@ -334,6 +336,7 @@ export function fromVcon(
       .map((f) => `Problem: ${f}`)
   ];
   const recording = dialog.find((d) => d.type === "recording" && d.url);
+  const amd = meta.amd as Raw | undefined;
   const failure = meta.failure as
     | { reason?: unknown; sipStatus?: unknown }
     | undefined;
@@ -358,6 +361,18 @@ export function fromVcon(
       : {}),
     ...(recording
       ? { recording: { sha256: str(recording.content_hash) } }
+      : {}),
+    ...(amd && typeof amd.status === "string"
+      ? {
+          amd: {
+            status: amd.status,
+            at: offset(amd.at),
+            ...(typeof amd.confidence === "number"
+              ? { confidence: amd.confidence }
+              : {}),
+            ...(typeof amd.audioMs === "number" ? { audioMs: amd.audioMs } : {})
+          }
+        }
       : {}),
     toolCalls,
     usage,

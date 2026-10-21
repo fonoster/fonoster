@@ -45,6 +45,7 @@ import {
   recordParties,
   recordStatus,
   recordsToCsv,
+  answeredByWord,
   responseTimes,
   usageRow
 } from "~/calls/records";
@@ -213,6 +214,15 @@ export function CallRecordsList() {
       header: "Status",
       className: "w-32",
       cell: (c) => <StatusWord call={c} />
+    },
+    {
+      header: "Answered by",
+      className: "w-32",
+      cell: (c) => (
+        <span className="text-muted-foreground">
+          {answeredByWord(c.amdStatus) ?? "—"}
+        </span>
+      )
     },
     {
       header: "",
@@ -436,7 +446,31 @@ function Timeline({ call, app }: { call: CallRecord; app?: SessionApp }) {
   const AgentIcon = app?.type === "STREAM" ? Code : SmartToy;
   return (
     <ol className="flex flex-col">
-      {!failed && <Row at={0} icon={<PhoneIncoming />} title="Call answered" />}
+      {!failed && (
+        <Row
+          at={0}
+          icon={<PhoneIncoming />}
+          title={
+            <>
+              Call answered
+              {call.amd && (
+                <>
+                  <Tag>AMD</Tag>
+                  <Tag>
+                    {call.amd.status}
+                    {call.amd.confidence !== undefined
+                      ? ` ${call.amd.confidence.toFixed(2)}`
+                      : ""}
+                  </Tag>
+                  {call.amd.audioMs !== undefined && (
+                    <Tag>{call.amd.audioMs} ms</Tag>
+                  )}
+                </>
+              )}
+            </>
+          }
+        />
+      )}
       {entries.map((e) =>
         e.kind === "tool" ? (
           <Row
@@ -726,6 +760,11 @@ export function CallRecordView() {
                 call={{ ...call, failureReason: call.failure?.reason }}
               />
             </Chip>
+            {answeredByWord(call.amd?.status) && (
+              <Chip>
+                Answered by {answeredByWord(call.amd?.status)!.toLowerCase()}
+              </Chip>
+            )}
             {fonosterNumber && <Chip>via {fonosterNumber}</Chip>}
             {isPrivate && !offline && <Chip>Stored in your region</Chip>}
           </div>
