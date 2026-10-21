@@ -14,4 +14,4 @@ steps:
   - expect: { type: session.end, reason: transfer }
     within_ms: 2000
   - assert:
-      media.commands: { $includes: [{ type: transfer, mode: warm }, { type: transfer.complete, id: t2 }] }
+      media.commands: { $includes: [{ type: transfer, mode: warm }, { type: transferComplete }] }

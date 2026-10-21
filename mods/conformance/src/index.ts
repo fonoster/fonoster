@@ -20,6 +20,7 @@ export * from "./audio/codecs";
 export * from "./fakes/FakeApp";
 export * from "./fakes/FakeAppBridge";
 export * from "./fakes/FakeNatsRoomr";
+export * from "./fakes/FakeSessionNode";
 export * from "./fakes/FakesHarness";
 export * from "./fakes/providers/FakeLlm";
 export * from "./fakes/providers/FakeProvider";

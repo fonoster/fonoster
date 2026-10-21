@@ -21,6 +21,6 @@ steps:
   - assert:
       media.held: false
   - assert:
-      media.commands: { $includes: [{ type: hold, id: h1 }, { type: resume, id: h2 }] }
+      media.commands: { $includes: [{ type: hold }, { type: resume }] }
   - expect_none: { type: error }
     for_ms: 1

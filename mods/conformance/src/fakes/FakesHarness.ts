@@ -25,7 +25,7 @@ import { DetachedPeer, Peer } from "../runner/Peer";
 import { SCENARIOS_DIR } from "../scenario/loadScenario";
 import { AudioSource, CallerAction, Providers, Setup } from "../scenario/types";
 import { FakeApp } from "./FakeApp";
-import { EndReason, FakeNatsRoomr } from "./FakeNatsRoomr";
+import { FakeSessionNode } from "./FakeSessionNode";
 import { FakeLlm } from "./providers/FakeLlm";
 import { FakeStt } from "./providers/FakeStt";
 import { FakeTts } from "./providers/FakeTts";
@@ -35,7 +35,8 @@ export type FakesHarnessOptions = {
   app?: FakeApp;
   /** The second app (`app-2`): fallback, handoff and routing target, or a listen-only socket. */
   otherApp?: FakeApp;
-  roomrNode?: FakeNatsRoomr;
+  /** The fake Roomr node: opens a control stream per call to the AppBridge under test. */
+  roomrNode?: FakeSessionNode;
   /**
    * Counts network calls that reached anything other than the fakes (for example from an egress
    * proxy around the implementation under test). Without it, providers.vendor_calls is not
@@ -67,7 +68,7 @@ export class FakesHarness implements Harness {
   readonly llm = new FakeLlm(this.ledger);
   readonly app: FakeApp;
   readonly otherApp: FakeApp;
-  readonly roomrNode: FakeNatsRoomr;
+  readonly roomrNode: FakeSessionNode;
   protected call: Setup["call"] = {};
   protected appSetup: Setup["app"] = {};
   protected listener?: Setup["listener"];
@@ -78,7 +79,7 @@ export class FakesHarness implements Harness {
   constructor(private readonly options: FakesHarnessOptions = {}) {
     this.app = options.app ?? new FakeApp();
     this.otherApp = options.otherApp ?? new FakeApp({ path: "/other" });
-    this.roomrNode = options.roomrNode ?? new FakeNatsRoomr();
+    this.roomrNode = options.roomrNode ?? new FakeSessionNode();
   }
 
   async start(): Promise<this> {
@@ -154,10 +155,7 @@ export class FakesHarness implements Harness {
       this.roomrNode.callerSpeaks(this.resolveAudio(action.audio));
     if (action.hangup) this.roomrNode.callerHangup();
     if (action.drop)
-      this.roomrNode.dropRoom(
-        action.drop.reason as EndReason,
-        action.drop.sipStatus
-      );
+      this.roomrNode.endCall(action.drop.reason, action.drop.sipStatus);
     if (action.nodeCrash) this.roomrNode.crash();
   }
 
@@ -218,12 +216,36 @@ export class FakesHarness implements Harness {
   }
 
   /**
-   * Starts the scenario's call: the fake Roomr node offers it and the runner gets the socket the
-   * appbridge opens to the fake app.
+   * Starts the scenario's call: the fake Roomr node opens its control stream to the AppBridge
+   * under test (`roomrNode.configure({ endpoint })`) and the runner gets the socket AppBridge
+   * opens to the fake app.
    */
   async offerCallAndAccept(timeoutMs = 5000): Promise<Peer> {
     const mark = this.connectionMark();
-    this.roomrNode.offerCall(this.call);
+    const call = this.call ?? {};
+    const metadata = Object.fromEntries(
+      Object.entries(call.metadata ?? {}).map(([k, v]) => [
+        k,
+        typeof v === "string" ? v : JSON.stringify(v)
+      ])
+    );
+    if (call.direction === "outbound")
+      await this.roomrNode.placeCall({
+        appRef: this.roomrNode.options.appRef,
+        callRef: call.callRef,
+        from: call.from,
+        to: call.to,
+        metadata: call.metadata
+          ? { app_metadata: JSON.stringify(call.metadata) }
+          : {}
+      });
+    else
+      await this.roomrNode.offerCall({
+        from: call.from,
+        to: call.to,
+        callRef: call.callRef,
+        metadata
+      });
     return this.acceptSession(mark, timeoutMs);
   }
 
