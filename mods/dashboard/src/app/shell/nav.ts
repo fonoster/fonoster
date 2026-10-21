@@ -22,6 +22,7 @@ import {
   CallLog,
   Code,
   DataUsage,
+  Extension,
   Dialpad,
   Dns,
   HeadsetMic,
@@ -32,7 +33,6 @@ import {
   SmartToy,
   SpaceDashboard,
   Key,
-  VpnKey,
   Webhook
 } from "~/components/icons/material";
 
@@ -67,7 +67,7 @@ export const NAVIGATION: NavSection[] = [
     title: "Workspace",
     items: [
       { label: "Webhooks", path: "webhooks", icon: Webhook },
-      { label: "Vendor keys", path: "vendor-keys", icon: VpnKey },
+      { label: "Vendor keys", path: "vendor-keys", icon: Extension },
       { label: "Secrets", path: "secrets", icon: Lock },
       { label: "API keys", path: "api-keys", icon: Key },
       { label: "Usage", path: "usage", icon: DataUsage },
