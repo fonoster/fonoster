@@ -47,6 +47,7 @@ function configFor(
   const urls = harness.providerUrls;
   return {
     nats: { url: NATS_URL! },
+    session: { listen: "127.0.0.1:0" },
     retry: { windowMs: 600, intervalMs: 100 },
     apps: appsFor({ name: "observability" } as Scenario, harness, "fonoster"),
     providers: {
@@ -86,10 +87,13 @@ describe("@appbridge OpenTelemetry signals from one real call (Go Roomr node)", 
     const config = configFor(harness, collector.endpoint);
     startTelemetry(config.telemetry);
     const appbridge = await new AppBridge({
+      tap: harness.tap,
       config,
       nats: nc,
       record: new MemoryCallRecordSink()
     }).start();
+    // The node opens each call's control stream to this AppBridge.
+    harness.sessionEndpoint = appbridge.sessionEndpoint;
     try {
       await harness.offerCallAndAccept(5000, { callRef });
       await harness.caller({ audio: { kind: "tone", ms: 300 } });

@@ -34,10 +34,14 @@ import { appsFor, placeOutbound, recordReaders } from "./scenarioApps";
 // AppBridge with the fakes. Needs NATS: set CONFORMANCE_NATS_URL (e.g. nats://127.0.0.1:4222).
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
+/** Scenarios whose assertions moved to the control plane with the control stream. */
+const MOVED_TO_CONTROL_PLANE = new Set(["outbound-busy"]);
+
 function configFor(scenario: Scenario, harness: FakesHarness): AppBridgeConfig {
   const urls = harness.providerUrls;
   return {
     nats: { url: NATS_URL! },
+    session: { listen: "127.0.0.1:0" },
     retry: { windowMs: 600, intervalMs: 100 },
     apps: appsFor(scenario, harness),
     providers: {
@@ -84,6 +88,9 @@ for (const contract of [
     for (const scenario of loadScenarios(contract)) {
       // The catalog case that runs this file, when its area is brought (twilio: VSD).
       it(`${scenarioCase(contract, scenario.name)}${scenario.name}`, async function () {
+        // Recorded by the control plane now (redesign-roomr): an unanswered outbound call opens
+        // no control stream, so AppBridge cannot record its progress.
+        if (MOVED_TO_CONTROL_PLANE.has(scenario.name)) return this.skip();
         const record = new MemoryCallRecordSink();
         const webhooks: Webhooks.WebhookEvent[] = [];
         const harness = await new FakesHarness({
@@ -92,10 +99,6 @@ for (const contract of [
           webhookEvents: () =>
             webhooks.map((e) => ({ type: e.type, ...e.data }))
         }).start();
-        harness.roomrNode.attachNats(nc, {
-          commands: `media.${harness.roomrNode.nodeId}.commands`,
-          events: `media.${harness.roomrNode.nodeId}.events`
-        });
         const appbridge = await new AppBridge({
           config: configFor(scenario, harness),
           nats: nc,
@@ -103,12 +106,13 @@ for (const contract of [
           registryStore: catalogFor(scenario),
           webhooks: (e) => webhooks.push(e)
         }).start();
+        harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
         try {
           const result = await runScenario(scenario, {
             harness,
             connect: () =>
               scenario.setup?.call?.direction === "outbound"
-                ? placeOutbound(nc, harness, scenario)
+                ? placeOutbound(harness, scenario)
                 : harness.offerCallAndAccept()
           });
           expect(result.status, result.reason).to.equal("passed");

@@ -45,7 +45,7 @@ import { catalogFor } from "./scenarioCatalog";
 import { appsFor, recordReaders } from "./scenarioApps";
 
 // The voice-session suite through AppBridge, the Go Roomr node and a SIP caller bot: real SIP,
-// RTP and media-control end to end (add-roomr 3.x, the first-call milestone). Needs NATS
+// RTP and the per-call control stream end to end (add-roomr 3.x, redesign-roomr 5.3). Needs NATS
 // (CONFORMANCE_NATS_URL) and a Go toolchain.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
@@ -54,7 +54,7 @@ const NOT_YET: Record<string, string> = {
   "caller-audio-to-stt":
     "times the caller's packets from the fake node's send log (the real node keeps none)",
   "media-timeout-ends-session":
-    "drop is a fake-node action (the real timeout is 30 s)",
+    "drop is a fake-node action (the real timeout is 15 s)",
   "outbound-answered":
     "outbound calls need a callee bot answering the node's INVITE (not in the real-media harness)",
   "outbound-busy":
@@ -68,6 +68,7 @@ function configFor(
   const urls = harness.providerUrls;
   return {
     nats: { url: NATS_URL! },
+    session: { listen: "127.0.0.1:0" },
     retry: { windowMs: 600, intervalMs: 100 },
     apps: appsFor(scenario, harness, "fonoster"),
     providers: {
@@ -122,12 +123,15 @@ describe("@appbridge voice-session through the Go Roomr node", function () {
         webhookEvents: () => webhooks.map((e) => ({ type: e.type, ...e.data }))
       }).start();
       const appbridge = await new AppBridge({
+        tap: harness.tap,
         config: configFor(scenario, harness),
         registryStore: catalogFor(scenario),
         nats: nc,
         record,
         webhooks: (e) => webhooks.push(e)
       }).start();
+      // The node opens each call's control stream to this AppBridge.
+      harness.sessionEndpoint = appbridge.sessionEndpoint;
       try {
         const result = await runScenario(scenario, {
           harness,
@@ -142,7 +146,7 @@ describe("@appbridge voice-session through the Go Roomr node", function () {
   }
 });
 
-// Recording policy through the real node's listener.attach (add-call-record 3.2): one unmixed RTP
+// Recording policy through the real node's AttachListener (add-call-record 3.2): one unmixed RTP
 // stream per side, written by AppBridge's recorder and sealed into the record.
 describe("@AppBridge call recording through the Go Roomr node", function () {
   this.timeout(30000);
@@ -180,6 +184,7 @@ describe("@AppBridge call recording through the Go Roomr node", function () {
     const config = configFor({ name: "recording" } as Scenario, harness);
     config.apps[0].recording = "on";
     const appbridge = await new AppBridge({
+      tap: harness.tap,
       config: {
         ...config,
         callRecord: {
@@ -191,6 +196,8 @@ describe("@AppBridge call recording through the Go Roomr node", function () {
       nats: nc,
       record: writer
     }).start();
+    // The node opens each call's control stream to this AppBridge.
+    harness.sessionEndpoint = appbridge.sessionEndpoint;
     try {
       const peer = await harness.offerCallAndAccept();
       await harness.caller({ audio: { kind: "tone", ms: 600 } });
@@ -256,10 +263,13 @@ describe("@appbridge SIP codecs through the Go Roomr node", function () {
         vendorCalls: () => 0
       }).start();
       const appbridge = await new AppBridge({
+        tap: harness.tap,
         config: configFor({ name: codec } as Scenario, harness),
         nats: nc,
         record: new MemoryCallRecordSink()
       }).start();
+      // The node opens each call's control stream to this AppBridge.
+      harness.sessionEndpoint = appbridge.sessionEndpoint;
       try {
         let peer;
         try {
@@ -270,12 +280,13 @@ describe("@appbridge SIP codecs through the Go Roomr node", function () {
           throw e;
         }
         expect((await harness.media.status()).codec).to.equal(codec);
+        // AppBridge's leg stays L16/16000 whatever the caller's codec (its Answer's media).
         const commands = (await harness.measure("media.commands", 0)) as {
           type: string;
-          rtp?: { codec?: string };
+          media?: { codec?: string };
         }[];
-        const gateLeg = commands.find((c) => c.type === "participant.add");
-        expect(gateLeg?.rtp?.codec).to.equal("L16/16000");
+        const answer = commands.find((c) => c.type === "answer");
+        expect(answer?.media?.codec).to.equal("L16/16000");
 
         const before = peer.frames.items.length;
         await harness.caller({ audio: { kind: "tone", ms: 600 } });
@@ -352,10 +363,13 @@ describe("@appbridge no audio on the bus (Go Roomr node)", function () {
       vendorCalls: () => 0
     }).start();
     const appbridge = await new AppBridge({
+      tap: harness.tap,
       config: configFor({ name: "no-audio-on-bus" } as Scenario, harness),
       nats: nc,
       record: new MemoryCallRecordSink()
     }).start();
+    // The node opens each call's control stream to this AppBridge.
+    harness.sessionEndpoint = appbridge.sessionEndpoint;
     const started = Date.now();
     try {
       const peer = await harness.offerCallAndAccept();

@@ -24,8 +24,7 @@ import {
   AppConfig,
   AppBridge,
   AppBridgeConfig,
-  MemoryCallRecordSink,
-  OUTBOUND_SUBJECT
+  MemoryCallRecordSink
 } from "../src";
 import { AudioFilterFactory } from "../src/filters";
 import * as fs from "fs";
@@ -75,7 +74,6 @@ describe("@appbridge integration", function () {
   beforeEach(async function () {
     harness = await new FakesHarness().start();
     other = await new FakeApp().start();
-    harness.roomrNode.attachNats(nc);
     record = new MemoryCallRecordSink();
   });
 
@@ -107,6 +105,7 @@ describe("@appbridge integration", function () {
     const urls = harness.providerUrls;
     const config: AppBridgeConfig = {
       nats: { url: NATS_URL! },
+      session: { listen: "127.0.0.1:0" },
       retry: { windowMs: 500, intervalMs: 100 },
       apps,
       providers: {
@@ -120,6 +119,7 @@ describe("@appbridge integration", function () {
       ...extra
     };
     appbridge = await new AppBridge({ config, nats: nc, record }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
   }
 
   const commands = () => harness.roomrNode.commands.map((c) => c.command.type);
@@ -127,7 +127,7 @@ describe("@appbridge integration", function () {
   it("[APB-001] signs connections so a verifying app accepts them", async function () {
     harness.app.configure({ signingSecret: "secret", verifySignature: true });
     await start([app("a", harness.app.url)]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     expect(harness.app.attempts[0]).to.include({ accepted: true });
@@ -141,7 +141,7 @@ describe("@appbridge integration", function () {
       })
     ]);
     const since = Date.now();
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     await waitFor(() => commands().includes("hangup"), 6000);
     expect(harness.app.attempts.every((a) => !a.accepted)).to.equal(true);
     expect(harness.roomrNode.outputAudioMs(since)).to.be.greaterThan(500);
@@ -156,7 +156,7 @@ describe("@appbridge integration", function () {
       app("a", downUrl, { fallback: { app: "b" } }),
       app("b", other.url, { numbers: ["+0"] })
     ]);
-    harness.roomrNode.offerCall({ to: "+15550002222" });
+    await harness.roomrNode.offerCall({ to: "+15550002222" });
     const { peer } = await other.nextConnection(5000);
     const startMsg = await waitFor(() =>
       json(peer).find((m) => m.type === "session.start")
@@ -173,7 +173,7 @@ describe("@appbridge integration", function () {
       app("ivr", harness.app.url, { workspaceRef: "W1" }),
       app("billing", other.url, { numbers: ["+0"], workspaceRef: "W1" })
     ]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const first = (await harness.app.nextConnection()).peer;
     await waitFor(() => json(first).find((m) => m.type === "session.start"));
     first.sendJson({
@@ -196,12 +196,12 @@ describe("@appbridge integration", function () {
 
   it("[APB-005] never merges a call into a live call with the same callRef (RV-B7)", async function () {
     await start([app("a", harness.app.url)]);
-    harness.roomrNode.offerCall({ callRef: "dup" });
+    await harness.roomrNode.offerCall({ callRef: "dup" });
     const first = (await harness.app.nextConnection()).peer;
     const start1 = await waitFor(() =>
       json(first).find((m) => m.type === "session.start")
     );
-    const second = harness.roomrNode.offerCall({ callRef: "dup" });
+    const second = await harness.roomrNode.offerCall({ callRef: "dup" });
     const peer2 = (await harness.app.nextConnection()).peer;
     const start2 = await waitFor(() =>
       json(peer2).find((m) => m.type === "session.start")
@@ -227,7 +227,7 @@ describe("@appbridge integration", function () {
           ).data
         )
       );
-    harness.roomrNode.offerCall({
+    await harness.roomrNode.offerCall({
       to: "+1000",
       appRef: "none",
       callRef: "c-none"
@@ -236,7 +236,7 @@ describe("@appbridge integration", function () {
     await waitFor(() => json(p1).find((m) => m.type === "session.start"));
     expect(await hangup("c-none", "W1")).to.include({ code: "not_found" });
 
-    harness.roomrNode.offerCall({
+    await harness.roomrNode.offerCall({
       to: "+2000",
       appRef: "mine",
       callRef: "c-mine"
@@ -250,65 +250,31 @@ describe("@appbridge integration", function () {
 
   it("[APB-003] opens outbound sessions only when the callee answers", async function () {
     await start([app("a", harness.app.url)]);
-    const room = await harness.roomrNode.handle({
-      type: "room.create",
-      id: "c1"
-    });
-    const reply = await nc.request(
-      OUTBOUND_SUBJECT,
-      sc.encode(
-        JSON.stringify({
-          nodeId: harness.roomrNode.nodeId,
-          roomRef: room.roomRef,
-          appRef: "a",
-          to: "+15551234567"
-        })
-      )
-    );
-    expect(JSON.parse(sc.decode(reply.data))).to.include({ type: "ack" });
+    // The node opens the stream only once the callee answered (redesign-roomr): until then
+    // AppBridge has nothing to dial.
     expect(harness.app.attempts).to.have.length(0);
-
-    await harness.roomrNode.handle({
-      type: "participant.dial",
-      id: "d1",
-      roomRef: room.roomRef as string,
-      to: "+15551234567"
-    });
+    await harness.roomrNode.placeCall({ appRef: "a", to: "+15551234567" });
     const { peer } = await harness.app.nextConnection();
     const startMsg = await waitFor(() =>
       json(peer).find((m) => m.type === "session.start")
     );
     expect(startMsg.direction).to.equal("outbound");
+    expect(startMsg.to).to.equal("+15551234567");
+    // Ready, never Answer, for an answered outbound call.
+    await waitFor(() => commands().includes("ready"));
     expect(commands()).not.to.include("answer");
   });
 
   it("[APB-003] records callee_hangup when the dialed party hangs up (the app sees caller_hangup)", async function () {
     await start([app("a", harness.app.url)]);
-    const room = await harness.roomrNode.handle({
-      type: "room.create",
-      id: "c1"
-    });
-    await nc.request(
-      OUTBOUND_SUBJECT,
-      sc.encode(
-        JSON.stringify({
-          nodeId: harness.roomrNode.nodeId,
-          roomRef: room.roomRef,
-          appRef: "a",
-          callRef: "out-2",
-          to: "+15551234567"
-        })
-      )
-    );
-    await harness.roomrNode.handle({
-      type: "participant.dial",
-      id: "d1",
-      roomRef: room.roomRef as string,
+    await harness.roomrNode.placeCall({
+      appRef: "a",
+      callRef: "out-2",
       to: "+15551234567"
     });
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
-    harness.roomrNode.calleeHangup(room.roomRef as string);
+    harness.roomrNode.calleeHangup("out-2");
     const end = await waitFor(() =>
       json(peer).find((m) => m.type === "session.end")
     );
@@ -322,41 +288,26 @@ describe("@appbridge integration", function () {
     expect(ended).to.include({ reason: "callee_hangup" });
   });
 
-  it("[APB-003] never dials the app when the callee is busy", async function () {
-    harness.roomrNode.configure({ dialOutcome: "busy" });
+  it("[APB-003] hangs up an answered outbound call naming no known app, with a minimal record", async function () {
+    // A busy or unanswered callee opens no stream at all (the node reports it on NATS for the
+    // control plane); what reaches AppBridge is always answered, and needs an app.
     await start([app("a", harness.app.url)]);
-    const room = await harness.roomrNode.handle({
-      type: "room.create",
-      id: "c1"
-    });
-    await nc.request(
-      OUTBOUND_SUBJECT,
-      sc.encode(
-        JSON.stringify({
-          nodeId: harness.roomrNode.nodeId,
-          roomRef: room.roomRef,
-          appRef: "a",
-          callRef: "out-1"
-        })
-      )
-    );
-    await harness.roomrNode.handle({
-      type: "participant.dial",
-      id: "d1",
-      roomRef: room.roomRef as string,
-      to: "+1"
-    });
-    await sleep(300);
+    await harness.roomrNode.placeCall({ appRef: "nope", callRef: "out-1" });
+    const ended = await harness.roomrNode.ended("out-1");
+    expect(ended.cause).to.equal("removed");
     expect(harness.app.attempts).to.have.length(0);
+    expect(commands()).to.include("hangup");
+    expect(commands()).not.to.include("ready");
     const entries = record.records.get("out-1")!.map((e) => e.message);
-    // The minimal record carries the parties (call.started), then the progress and the failure.
-    expect(entries[0]).to.include({ type: "call.started", to: "" });
-    expect(entries[1]).to.include({ type: "call.progress", status: "busy" });
+    expect(entries[0]).to.include({ type: "call.started", appRef: "nope" });
+    expect(entries.find((m) => m.type === "call.failed")).to.include({
+      reason: "unknown_app"
+    });
   });
 
   it("[APB-017] appends every message in both directions to the call record", async function () {
     await start([app("a", harness.app.url)]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({ type: "speak", id: "r1", text: "Bye.", last: true });
@@ -381,7 +332,7 @@ describe("@appbridge integration", function () {
         listeners: [{ url: other.url, tracks: "both" }]
       })
     ]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const listener = (await other.nextConnection()).peer;
     await waitFor(() => json(listener).find((m) => m.type === "session.start"));
@@ -409,7 +360,7 @@ describe("@appbridge integration", function () {
     await start([
       app("a", harness.app.url, { listeners: [{ url: other.url }] })
     ]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const listener = (await other.nextConnection()).peer;
     await waitFor(() => json(listener).find((m) => m.type === "session.start"));
@@ -434,7 +385,7 @@ describe("@appbridge integration", function () {
     await start([app("a", harness.app.url)], {
       keepalive: { pingIntervalMs: 100, idleTimeoutMs: 350 }
     });
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     // Stop reading the socket: no pongs, no frames.
@@ -455,7 +406,7 @@ describe("@appbridge integration", function () {
         app("ivr", harness.app.url, { workspaceRef: "W1" }),
         app("theirs", other.url, { numbers: ["+0"], workspaceRef: target })
       ]);
-      harness.roomrNode.offerCall();
+      await harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
       await waitFor(() => json(peer).find((m) => m.type === "session.start"));
       peer.sendJson({ type: "handoff", id: "h1", app: "theirs", payload: {} });
@@ -495,7 +446,7 @@ describe("@appbridge integration", function () {
   ] as const) {
     it(`[APB-013] refuses a transfer with ${name} and sends nothing to the node (H11)`, async function () {
       await start([app("ivr", harness.app.url, { workspaceRef: "W1" })]);
-      harness.roomrNode.offerCall();
+      await harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
       await waitFor(() => json(peer).find((m) => m.type === "session.start"));
       peer.sendJson({ type: "transfer", id: "t1", ...transfer });
@@ -511,7 +462,10 @@ describe("@appbridge integration", function () {
 
   it("[APB-013] transfers with the app's custom headers and the call's own number and workspace (H11)", async function () {
     await start([app("ivr", harness.app.url, { workspaceRef: "W1" })]);
-    harness.roomrNode.offerCall({ from: "+15550001111", to: "+15550002222" });
+    await harness.roomrNode.offerCall({
+      from: "+15550001111",
+      to: "+15550002222"
+    });
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({
@@ -525,8 +479,11 @@ describe("@appbridge integration", function () {
         .map((c) => c.command)
         .find((c) => c.type === "transfer")
     );
-    expect(transfer).to.include({ to: "+15551234567" });
-    expect(transfer.headers).to.deep.equal({
+    // On the control stream: Transfer { to: { uri, headers }, mode }.
+    const to = transfer.to as { uri: string; headers: Record<string, string> };
+    expect(to.uri).to.equal("+15551234567");
+    expect(transfer.mode).to.equal("cold");
+    expect(to.headers).to.deep.equal({
       "X-Customer-Id": "c-42",
       "X-Dod-Number": "+15550002222",
       "X-Access-Key-Id": "W1"
@@ -538,7 +495,7 @@ describe("@appbridge integration", function () {
       app("ivr", harness.app.url, { workspaceRef: "W1" }),
       app("billing", other.url, { numbers: ["+0"], workspaceRef: "W1" })
     ]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({
@@ -574,7 +531,7 @@ describe("@appbridge integration", function () {
     await start([
       app("a", harness.app.url, { filters: [{ name: "test-mute" }] })
     ]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({
@@ -603,7 +560,7 @@ describe("@appbridge integration", function () {
     await start([
       app("a", harness.app.url, { filters: [{ name: "does-not-exist" }] })
     ]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({ type: "speak", id: "r1", text: "Still here.", last: true });
@@ -632,7 +589,7 @@ describe("@appbridge integration", function () {
     await start([
       app("a", harness.app.url, { filters: [{ name: "test-boom" }] })
     ]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({ type: "speak", id: "r1", text: "Go on.", last: true });
@@ -706,7 +663,7 @@ describe("@appbridge integration", function () {
         audioFilters: { "test-keyed": { tag: "from-config" } }
       }
     );
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({ type: "speak", id: "r1", text: "Go on.", last: true });
@@ -725,7 +682,7 @@ describe("@appbridge integration", function () {
 
   it("[APB-017] records app notes and refuses oversized ones", async function () {
     await start([app("a", harness.app.url)]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({
@@ -757,7 +714,7 @@ describe("@appbridge integration", function () {
       script: [{ atMs: 400, text: "What are your hours?" }]
     });
     await start([app("a", harness.app.url)]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     peer.sendJson({ type: "listen.update" });
     await waitFor(() => json(peer).find((m) => m.type === "turn.ended"), 5000);
@@ -813,7 +770,7 @@ describe("@appbridge integration", function () {
       ],
       { registry: { file } }
     );
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({ type: "speak", id: "r1", text: "Hello.", last: true });
@@ -882,7 +839,7 @@ describe("@appbridge integration", function () {
       ],
       { registry: { file } }
     );
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     peer.sendJson({ type: "listen.update" });
     const first = await waitFor(
@@ -927,7 +884,7 @@ describe("@appbridge integration", function () {
       ],
       { registry: { file } }
     );
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     peer.sendJson({ type: "listen.update" });
     const error = await waitFor(() =>
@@ -939,7 +896,7 @@ describe("@appbridge integration", function () {
 
   it("[APB-005] hangs up when the app drops mid-call", async function () {
     await start([app("a", harness.app.url)]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.close();
@@ -951,7 +908,7 @@ describe("@appbridge integration", function () {
   it("[APB-005] does not record a drop when the app hangs up and closes at once", async function () {
     // Pipecat's auto_hang_up: the hang-up request, then the socket closes before Roomr's ack.
     await start([app("a", harness.app.url)]);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({ type: "hangup" });

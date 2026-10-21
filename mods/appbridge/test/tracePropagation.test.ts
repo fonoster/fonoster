@@ -17,64 +17,15 @@
  * limitations under the License.
  */
 import { expect } from "chai";
-import { connect, NatsConnection, StringCodec } from "nats";
-import {
-  INCOMING_SUBJECT,
-  NatsMediaControl,
-  readTraceparent,
-  traceHeaders
-} from "../src/media/MediaControl";
+import { traceHeaders } from "../src";
 
-// Trace propagation over NATS headers (add-platform 2.5): appbridge -> Roomr node on commands,
-// Roomr node -> appbridge on call.incoming. Needs CONFORMANCE_NATS_URL.
-const NATS_URL = process.env.CONFORMANCE_NATS_URL;
+// Trace propagation (add-platform 2.5). Media-control commands and call.incoming no longer travel
+// over NATS (redesign-roomr: a control stream per call), so what is left on NATS is AppBridge's
+// own messages, such as callrecord.sealed, which carry the call's traceparent as a header.
 const TP = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01";
-const sc = StringCodec();
 
 describe("@appbridge/trace propagation over NATS", function () {
-  let nc: NatsConnection;
-
-  before(async function () {
-    if (!NATS_URL) this.skip();
-    nc = await connect({ servers: NATS_URL });
-  });
-
-  after(async () => nc?.close());
-
-  it("sends the call's traceparent with media-control commands", async function () {
-    const node = `trace-node-${Date.now()}`;
-    let seen: string | undefined;
-    const sub = nc.subscribe(`media.${node}.commands`, {
-      callback: (_e, msg) => {
-        seen = readTraceparent(msg.headers);
-        const cmd = JSON.parse(sc.decode(msg.data));
-        msg.respond(sc.encode(JSON.stringify({ type: "ack", id: cmd.id })));
-      }
-    });
-    const media = new NatsMediaControl(nc);
-    await media.command(node, { type: "hangup", id: "c1" }, TP);
-    expect(seen).to.equal(TP);
-    await media.command(node, { type: "hangup", id: "c2" });
-    expect(seen).to.equal(undefined);
-    sub.unsubscribe();
-  });
-
-  it("hands call.incoming's traceparent to the handler", async function () {
-    const media = new NatsMediaControl(nc, { queue: `trace-${Date.now()}` });
-    const got = new Promise<string | undefined>((resolve) => {
-      const stop = media.onIncoming((_node, _event, tp) => {
-        stop();
-        resolve(tp);
-      });
-    });
-    await nc.flush();
-    await nc.request(
-      INCOMING_SUBJECT,
-      sc.encode(
-        JSON.stringify({ type: "call.incoming", id: "i1", nodeId: "n" })
-      ),
-      { timeout: 2000, headers: traceHeaders(TP) }
-    );
-    expect(await got).to.equal(TP);
+  it("puts the call's traceparent on the NATS headers it publishes", function () {
+    expect(traceHeaders(TP).get("traceparent")).to.equal(TP);
   });
 });

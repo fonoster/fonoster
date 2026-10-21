@@ -24,9 +24,11 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import * as readline from "readline";
-import { connect, NatsConnection } from "nats";
+import * as net from "net";
+import { Roomr } from "@fonoster/common";
+import * as grpc from "@grpc/grpc-js";
 import { RtpLink } from "../src/media/RtpLink";
-import { newSrtpKey, SrtpContext } from "../src/media/srtp";
+import { newSrtpKey, SRTP_SUITE, SrtpContext } from "../src/media/srtp";
 
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
@@ -72,11 +74,13 @@ describe("@appbridge SRTP (AES_CM_128_HMAC_SHA1_80)", function () {
 
 // AppBridge leg against the Go node: pion/srtp must accept what RtpLink sends and the other
 // way round (SDES-SRTP is optional: a leg that offers srtp gets it, a plain leg stays plain).
+// The node's side of an SRTP leg (SDES keys exchanged in the endpoints, as in Answer/Ready on
+// the control stream), reached here through Roomr's Join: two RTP participants in one room.
 describe("@appbridge SRTP leg against the Go Roomr node", function () {
   this.timeout(30000);
-  let nc: NatsConnection;
   let bins: RoomrBinaries | undefined;
   let node: ChildProcess | undefined;
+  let client: grpc.Client | undefined;
   const nodeId = `srtp-${Date.now()}`;
 
   before(async function () {
@@ -118,6 +122,13 @@ describe("@appbridge SRTP leg against the Go Roomr node", function () {
     };
     const sip = await free();
     const tlsPort = await free();
+    const control = await new Promise<number>((resolve) => {
+      const server = net.createServer();
+      server.listen(0, "127.0.0.1", () => {
+        const port = (server.address() as net.AddressInfo).port;
+        server.close(() => resolve(port));
+      });
+    });
     const config = path.join(dir, "roomr.yaml");
     fs.writeFileSync(
       config,
@@ -126,6 +137,7 @@ describe("@appbridge SRTP leg against the Go Roomr node", function () {
         nats: { url: NATS_URL },
         sip: { listen: `127.0.0.1:${sip}` },
         rtp: { host: "127.0.0.1", advertise: "127.0.0.1" },
+        control: { grpc: { listen: `127.0.0.1:${control}` } },
         tls: {
           listen: `127.0.0.1:${tlsPort}`,
           cert: path.join(dir, "cert.pem"),
@@ -142,55 +154,77 @@ describe("@appbridge SRTP leg against the Go Roomr node", function () {
       lines.on("line", (l) => l.includes("ready") && resolve());
       node!.on("exit", (code) => reject(new Error(`roomr exited ${code}`)));
     });
-    nc = await connect({ servers: NATS_URL });
+    const Client = Roomr.roomrPackage().Roomr as grpc.ServiceClientConstructor;
+    client = new Client(
+      `127.0.0.1:${control}`,
+      grpc.credentials.createInsecure()
+    );
   });
 
   after(async function () {
+    client?.close();
     node?.kill("SIGKILL");
-    await nc?.close();
   });
 
-  async function command(cmd: Record<string, unknown>) {
-    const msg = await nc.request(
-      `media.${nodeId}.commands`,
-      Buffer.from(JSON.stringify(cmd)),
-      { timeout: 2000 }
+  function rpc<T>(method: string, request: Record<string, unknown>) {
+    return new Promise<T>((resolve, reject) =>
+      (
+        client as unknown as Record<
+          string,
+          (
+            r: unknown,
+            o: grpc.CallOptions,
+            cb: (e: grpc.ServiceError | null, res: T) => void
+          ) => void
+        >
+      )[method](request, { deadline: Date.now() + 2000 }, (e, res) =>
+        e ? reject(e) : resolve(res)
+      )
     );
-    return JSON.parse(Buffer.from(msg.data).toString()) as Record<
-      string,
-      unknown
-    >;
   }
+
+  type Participant = {
+    participantRef: string;
+    rtp: { ip: string; port: number; srtpKey?: string };
+  };
 
   async function join(roomRef: string, srtp: boolean) {
     const link = new RtpLink();
     if (srtp) link.enableSrtp();
     const offer = await link.bind("127.0.0.1");
-    const ack = await command({
-      type: "participant.add",
-      id: `p-${Math.random()}`,
+    const joined = await rpc<Participant>("Join", {
       roomRef,
-      kind: "session",
-      rtp: offer
+      rtp: {
+        ip: offer.host,
+        port: offer.port,
+        codec: offer.codec,
+        srtpKey: offer.srtp?.key ?? ""
+      }
     });
-    return { link, ack };
+    return { link, joined };
   }
 
+  /** Points a link at the node's side of its leg (with the node's key on an SRTP leg). */
+  const connect = (link: RtpLink, p: Participant) =>
+    link.connect({
+      host: p.rtp.ip,
+      port: p.rtp.port,
+      ...(p.rtp.srtpKey
+        ? { srtp: { suite: SRTP_SUITE, key: p.rtp.srtpKey } }
+        : {})
+    });
+
   it("carries audio between two SRTP legs (pion interop) and keeps a plain leg plain", async function () {
-    const room = (await command({ type: "room.create", id: "c1" }))
-      .roomRef as string;
+    const room = (await rpc<{ roomRef: string }>("CreateRoom", {})).roomRef;
     const plain = await join(room, false);
-    expect(plain.ack.type).to.equal("ack");
-    expect((plain.ack.rtp as { srtp?: unknown }).srtp).to.equal(undefined);
+    expect(plain.joined.rtp.srtpKey ?? "").to.equal("");
     plain.link.close();
 
     const a = await join(room, true);
     const b = await join(room, true);
-    expect(a.ack.type).to.equal("ack");
-    const block = a.ack.rtp as { srtp?: { suite: string; key: string } };
-    expect(block.srtp?.suite).to.equal("AES_CM_128_HMAC_SHA1_80");
-    a.link.connect(a.ack.rtp as never);
-    b.link.connect(b.ack.rtp as never);
+    expect(a.joined.rtp.srtpKey).to.match(/^[A-Za-z0-9+/=]{40}$/);
+    connect(a.link, a.joined);
+    connect(b.link, b.joined);
 
     let loud = 0;
     b.link.on("frame", (f: Buffer) => {

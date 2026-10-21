@@ -22,9 +22,8 @@ import {
   Peer,
   Scenario
 } from "@fonoster/conformance";
-import { NatsConnection, StringCodec } from "nats";
 import { z } from "zod";
-import { AppConfig, MemoryCallRecordSink, OUTBOUND_SUBJECT } from "../src";
+import { AppConfig, MemoryCallRecordSink } from "../src";
 import { AudioFilterFactory } from "../src/filters";
 
 // What both voice-session runners (fake node, Go node) need from a scenario's setup: the apps
@@ -129,42 +128,27 @@ export function recordReaders(record: MemoryCallRecordSink) {
 }
 
 /**
- * An outbound call as the control plane places it (Outbound sessions open at answer): a room,
- * `appbridge.outbound`, then the dial. Busy, unanswered and failed callees reach no app.
+ * An outbound call as the node opens it once the callee answered (Outbound sessions open at
+ * answer): a control stream whose Start carries CreateCall's metadata (`app_ref`). A busy,
+ * unanswered or failed callee opens no stream, so AppBridge never hears of it (the control
+ * plane records those from the node's call.ended).
  */
 export async function placeOutbound(
-  nc: NatsConnection,
   harness: FakesHarness,
   scenario: Scenario
 ): Promise<Peer> {
-  const sc = StringCodec();
   const call = scenario.setup?.call ?? {};
-  const room = await harness.roomrNode.handle({
-    type: "room.create",
-    id: "c1"
-  });
-  const mark = harness.connectionMark();
-  await nc.request(
-    OUTBOUND_SUBJECT,
-    sc.encode(
-      JSON.stringify({
-        nodeId: harness.roomrNode.nodeId,
-        roomRef: room.roomRef,
-        appRef: scenario.setup?.media?.appRef ?? "app-1",
-        ...(call.callRef ? { callRef: call.callRef } : {}),
-        to: call.to ?? "+15551234567",
-        from: call.from ?? "+15550001111"
-      })
-    ),
-    { timeout: 2000 }
-  );
-  await harness.roomrNode.handle({
-    type: "participant.dial",
-    id: "d1",
-    roomRef: room.roomRef as string,
-    to: call.to ?? "+15551234567"
-  });
   const outcome = scenario.setup?.media?.dialOutcome ?? "answered";
   if (outcome !== "answered") return new DetachedPeer();
+  const mark = harness.connectionMark();
+  await harness.roomrNode.placeCall({
+    appRef: scenario.setup?.media?.appRef ?? "app-1",
+    ...(call.callRef ? { callRef: call.callRef } : {}),
+    to: call.to ?? "+15551234567",
+    from: call.from ?? "+15550001111",
+    ...(call.metadata
+      ? { metadata: { app_metadata: JSON.stringify(call.metadata) } }
+      : {})
+  });
   return harness.acceptSession(mark);
 }

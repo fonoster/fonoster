@@ -148,7 +148,6 @@ describe("@AppBridge usage metering", function () {
     fs.writeFileSync(path.join(dir, "identity.pem"), IDENTITY.publicKey);
     harness = await new FakesHarness().start();
     harness.roomrNode.configure({ callerAudio: { kind: "tone", ms: 400 } });
-    harness.roomrNode.attachNats(nc);
     indexed = [];
     const sub = nc.subscribe(RECORD_SEALED_SUBJECT, {
       callback: (_e, msg) => indexed.push(JSON.parse(sc.decode(msg.data)))
@@ -189,6 +188,7 @@ describe("@AppBridge usage metering", function () {
     appbridge = await new AppBridge({
       config: {
         nats: { url: NATS_URL! },
+        session: { listen: "127.0.0.1:0" },
         retry: { windowMs: 300, intervalMs: 100 },
         apps,
         providers: {
@@ -232,6 +232,7 @@ describe("@AppBridge usage metering", function () {
           }
         : undefined
     }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
   }
 
   async function sealed(callRef: string) {
@@ -246,20 +247,20 @@ describe("@AppBridge usage metering", function () {
 
   /** Answers a call, has the app speak, waits, then the caller hangs up. */
   async function talk(text: string, holdMs: number) {
-    const { roomRef } = harness.roomrNode.offerCall();
+    const { callRef } = await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({ type: "speak", id: "s1", text, last: true });
     await waitFor(() => json(peer).find((m) => m.type === "output.done"), 8000);
     await sleep(holdMs);
-    return { roomRef, peer };
+    return { callRef, peer };
   }
 
   it("[BIL-001] seals a call's usage, signed, in the record and its index entry", async () => {
     await start([app({ recording: "on" })]);
-    const { roomRef } = await talk("Hello there.", 1600);
-    harness.roomrNode.callerHangup(roomRef);
-    const { entry, record, vcon } = await sealed(roomRef);
+    const { callRef } = await talk("Hello there.", 1600);
+    harness.roomrNode.callerHangup(callRef);
+    const { entry, record, vcon } = await sealed(callRef);
     expect(verifyRecord(record, KEYS)).to.deep.include({ ok: true });
     const lines = (vcon.fonoster as { usage?: Line[] }).usage;
     expect(lineOf(lines, "tts.characters")).to.deep.equal({
@@ -285,9 +286,9 @@ describe("@AppBridge usage metering", function () {
 
   it("[BIL-005] says keySource workspace when the workspace has its own key for the vendor", async () => {
     await start([app({ workspaceRef: "ws-keyed" })], "ws-keyed");
-    const { roomRef } = await talk("Hi.", 0);
-    harness.roomrNode.callerHangup(roomRef);
-    const { vcon } = await sealed(roomRef);
+    const { callRef } = await talk("Hi.", 0);
+    harness.roomrNode.callerHangup(callRef);
+    const { vcon } = await sealed(callRef);
     expect(
       lineOf((vcon.fonoster as { usage?: Line[] }).usage, "tts.characters")
     ).to.deep.include({
@@ -298,7 +299,7 @@ describe("@AppBridge usage metering", function () {
 
   it("[BIL-009] adds an Autopilot agent's usage.report to the call", async () => {
     await start([app({ type: "AUTOPILOT" })]);
-    const { roomRef, peer } = await talk("Hi.", 0);
+    const { callRef, peer } = await talk("Hi.", 0);
     peer.sendJson({
       type: "usage.report",
       lines: [
@@ -332,8 +333,8 @@ describe("@AppBridge usage metering", function () {
     });
     await sleep(200);
     expect(json(peer).filter((m) => m.type === "error")).to.deep.equal([]);
-    harness.roomrNode.callerHangup(roomRef);
-    const { vcon } = await sealed(roomRef);
+    harness.roomrNode.callerHangup(callRef);
+    const { vcon } = await sealed(callRef);
     const lines = (vcon.fonoster as { usage?: Line[] }).usage;
     expect(lineOf(lines, "llm.tokens.in")!.quantity).to.equal(1500);
     expect(lineOf(lines, "llm.tokens.out")!.quantity).to.equal(340);
@@ -341,7 +342,7 @@ describe("@AppBridge usage metering", function () {
 
   it("[BIL-009] refuses usage.report from an app that is not an Autopilot agent", async () => {
     await start([app({ type: "STREAM" })]);
-    const { roomRef, peer } = await talk("Hi.", 0);
+    const { callRef, peer } = await talk("Hi.", 0);
     peer.sendJson({
       type: "usage.report",
       id: "u1",
@@ -358,8 +359,8 @@ describe("@AppBridge usage metering", function () {
       json(peer).find((m) => m.type === "error" && m.relatesTo === "u1")
     );
     expect(error.code).to.equal("bad_message");
-    harness.roomrNode.callerHangup(roomRef);
-    const { vcon } = await sealed(roomRef);
+    harness.roomrNode.callerHangup(callRef);
+    const { vcon } = await sealed(callRef);
     expect(
       lineOf((vcon.fonoster as { usage?: Line[] }).usage, "llm.tokens.in")
     ).to.equal(undefined);
@@ -367,7 +368,7 @@ describe("@AppBridge usage metering", function () {
 
   it("[BIL-009] refuses usage.report for a meter Autopilot does not report", async () => {
     await start([app({ type: "AUTOPILOT" })]);
-    const { roomRef, peer } = await talk("Hi.", 0);
+    const { callRef, peer } = await talk("Hi.", 0);
     peer.sendJson({
       type: "usage.report",
       id: "u2",
@@ -384,8 +385,8 @@ describe("@AppBridge usage metering", function () {
       json(peer).find((m) => m.type === "error" && m.relatesTo === "u2")
     );
     expect(error.code).to.equal("bad_message");
-    harness.roomrNode.callerHangup(roomRef);
-    const { vcon } = await sealed(roomRef);
+    harness.roomrNode.callerHangup(callRef);
+    const { vcon } = await sealed(callRef);
     expect(
       lineOf((vcon.fonoster as { usage?: Line[] }).usage, "call.seconds")
         ?.quantity ?? 0
@@ -394,23 +395,23 @@ describe("@AppBridge usage metering", function () {
 
   it("[BIL-006] seals no usage for a call that never reached an app", async () => {
     await start([]);
-    const { roomRef } = harness.roomrNode.offerCall();
-    const { entry, vcon } = await sealed(roomRef);
+    const { callRef } = await harness.roomrNode.offerCall();
+    const { entry, vcon } = await sealed(callRef);
     expect(entry.usage).to.equal(undefined);
     expect(vcon.fonoster).to.not.have.property("usage");
   });
 
   it("[BIL-007] marks a browser test call's usage with origin browser_test", async () => {
     await start([app()]);
-    const { roomRef } = harness.roomrNode.offerCall({
+    const { callRef } = await harness.roomrNode.offerCall({
       appRef: "a",
       headers: { "X-Connect-Token": testToken(), "X-App-Ref": "a" }
     });
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     await sleep(1200);
-    harness.roomrNode.callerHangup(roomRef);
-    const { entry, vcon } = await sealed(roomRef);
+    harness.roomrNode.callerHangup(callRef);
+    const { entry, vcon } = await sealed(callRef);
     expect(entry.origin).to.equal("browser_test");
     expect(vcon.fonoster).to.deep.include({ origin: "browser_test" });
     expect(
@@ -423,9 +424,9 @@ describe("@AppBridge usage metering", function () {
     await start([
       app({ filters: [{ name: "test-nc" }, { name: "test-nc-boom" }] })
     ]);
-    const { roomRef } = await talk("Hello there.", 2000);
-    harness.roomrNode.callerHangup(roomRef);
-    const { vcon } = await sealed(roomRef);
+    const { callRef } = await talk("Hello there.", 2000);
+    harness.roomrNode.callerHangup(callRef);
+    const { vcon } = await sealed(callRef);
     const lines = (vcon.fonoster as { usage?: Line[] }).usage ?? [];
     const nc = lines.filter((l) => l.meter === "nc.seconds");
     const healthy = nc.find((l) => l.provider === "fakenc");

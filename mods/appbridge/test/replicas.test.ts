@@ -22,9 +22,10 @@ import { FakesHarness } from "@fonoster/conformance";
 import { Sessions } from "@fonoster/common";
 import { AppBridge, AppBridgeConfig, MemoryCallRecordSink } from "../src";
 
-// Two AppBridge replicas on one NATS (in-memory state audit, test 6): a caller-supplied X-Call-Ref
-// that names a live call on the other replica never takes that call's ref (RV-B7 across
-// replicas). Needs NATS with JetStream: set CONFORMANCE_NATS_URL.
+// Two AppBridge replicas on one NATS (in-memory state audit, test 6): a call whose ref names a
+// live call on the other replica never takes that call's ref (RV-B7 across replicas): it gets its
+// room's. The fake node opens each stream to the replica it is pointed at (a Service would pick
+// one). Needs NATS with JetStream: set CONFORMANCE_NATS_URL.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -58,14 +59,15 @@ describe("@AppBridge replicas", function () {
       return this.skip();
     }
     harness = await new FakesHarness().start();
-    harness.roomrNode.attachNats(nc);
   });
 
   after(async () => {
     for (const g of appbridges) await g.stop();
     await harness?.stop();
     if (!nc || nc.isClosed()) return;
-    await (await nc.jetstreamManager()).streams
+    await (
+      await nc.jetstreamManager()
+    ).streams
       .delete(`KV_${bucket}`)
       .catch(() => undefined);
     await nc.close();
@@ -75,6 +77,7 @@ describe("@AppBridge replicas", function () {
     const urls = harness.providerUrls;
     const config: AppBridgeConfig = {
       nats: { url: NATS_URL! },
+      session: { listen: "127.0.0.1:0" },
       apps: [
         {
           ref: "a",
@@ -99,6 +102,7 @@ describe("@AppBridge replicas", function () {
       record: new MemoryCallRecordSink(),
       sessions: bucket
     }).start();
+    harness.roomrNode.configure({ endpoint: g.sessionEndpoint });
     appbridges.push(g);
     return g;
   }
@@ -108,32 +112,23 @@ describe("@AppBridge replicas", function () {
     const callRef = `live-${Date.now()}`;
     // Only g1 runs: the live call is g1's.
     const g1 = await startAppBridge();
-    harness.roomrNode.offerCall({ callRef });
+    await harness.roomrNode.offerCall({ callRef });
     await harness.app.nextConnection();
     const lease = await waitFor(() =>
       Sessions.getSession(kv, "calls", callRef)
     );
     expect(lease.bridgeRef).to.equal(g1.bridgeRef);
 
-    // A second replica joins; the queue group sends each call.incoming to one of them. Offer the
-    // same X-Call-Ref until g2 takes one (g1 refuses it locally either way).
+    // A second replica joins; the node's next stream with the same call ref lands on it (the
+    // Service's choice). g2 sees the ref live on g1 and takes the room's ref instead.
     const g2 = await startAppBridge();
-    let onG2 = false;
-    for (let i = 0; i < 12 && !onG2; i++) {
-      const before = g1.calls.size + g2.calls.size;
-      const g2Before = g2.calls.size;
-      const { roomRef } = harness.roomrNode.offerCall({ callRef });
-      await harness.app.nextConnection();
-      await waitFor(() => g1.calls.size + g2.calls.size > before || undefined);
-      onG2 = g2.calls.size > g2Before;
-      // Whoever took it, it got its room's ref, never the live call's.
-      const all = [...g1.calls.keys(), ...g2.calls.keys()];
-      expect(all.filter((r) => r === callRef)).to.have.length(1);
-      expect(all).to.include(roomRef);
-    }
-    expect(onG2, "no call.incoming reached the second appbridge").to.equal(
-      true
-    );
+    const g2Before = g2.calls.size;
+    const second = await harness.roomrNode.offerCall({ callRef });
+    await harness.app.nextConnection();
+    await waitFor(() => g2.calls.size > g2Before || undefined);
+    const all = [...g1.calls.keys(), ...g2.calls.keys()];
+    expect(all.filter((r) => r === callRef)).to.have.length(1);
+    expect([...g2.calls.keys()]).to.include(second.roomRef);
     expect([...g2.calls.keys()]).to.not.include(callRef);
     expect(g1.calls.has(callRef)).to.equal(true);
     // The live call's lease (and so its hang-up subject) still names g1.

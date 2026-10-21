@@ -101,7 +101,6 @@ describe("@AppBridge call records", function () {
     harness.roomrNode.configure({
       callerAudio: { kind: "tone", ms: 400 }
     });
-    harness.roomrNode.attachNats(nc);
     webhooks = [];
     indexed = [];
     const sub = nc.subscribe(RECORD_SEALED_SUBJECT, {
@@ -147,6 +146,7 @@ describe("@AppBridge call records", function () {
     appbridge = await new AppBridge({
       config: {
         nats: { url: NATS_URL! },
+        session: { listen: "127.0.0.1:0" },
         retry: { windowMs: 300, intervalMs: 100 },
         apps,
         providers: {
@@ -172,6 +172,7 @@ describe("@AppBridge call records", function () {
       record: writer,
       webhooks: bus ? undefined : (e) => webhooks.push(e)
     }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
   }
 
   async function sealedRecord(callRef: string) {
@@ -197,7 +198,7 @@ describe("@AppBridge call records", function () {
 
   it("records both sides when the policy is on, and the record references it with its hash", async function () {
     await start([app({ recording: "on" })]);
-    const { roomRef } = harness.roomrNode.offerCall();
+    const { callRef } = await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     // The app cannot turn recording off: there is no command for it.
@@ -209,12 +210,12 @@ describe("@AppBridge call records", function () {
     });
     await waitFor(() => json(peer).find((m) => m.type === "output.done"), 8000);
     const attach = harness.roomrNode.commands.find(
-      (c) => c.command.type === "listener.attach"
+      (c) => c.command.type === "attachListener"
     )!.command;
-    expect((attach.tracks as unknown[]).length).to.equal(2);
-    harness.roomrNode.callerHangup(roomRef);
+    expect((attach.listen as unknown[]).length).to.equal(2);
+    harness.roomrNode.callerHangup(callRef);
 
-    const sealed = await sealedRecord(roomRef);
+    const sealed = await sealedRecord(callRef);
     expect(verifyRecord(sealed, KEYS)).to.deep.include({ ok: true });
     const vcon = decodeVcon(sealed.signed);
     const rec = vcon.dialog.find((d) => d.type === "recording")!;
@@ -229,7 +230,7 @@ describe("@AppBridge call records", function () {
       status: "completed"
     });
 
-    const entry = indexed.find((e) => e.callRef === roomRef)!;
+    const entry = indexed.find((e) => e.callRef === callRef)!;
     expect(entry).to.deep.include({
       workspaceRef: "ws-1",
       appRef: "a",
@@ -240,24 +241,24 @@ describe("@AppBridge call records", function () {
     const sealedHook = webhooks.find((w) => w.type === "call_record.sealed")!;
     expect(sealedHook.workspaceRef).to.equal("ws-1");
     expect(sealedHook.data).to.deep.equal({
-      callRef: roomRef,
+      callRef,
       version: 1,
-      recordUrl: `https://api.example.com/api/records/${roomRef}?version=1`
+      recordUrl: `https://api.example.com/api/records/${callRef}?version=1`
     });
     expect(JSON.stringify(sealedHook)).to.not.contain("Hello there");
   });
 
   it("makes no recording when the policy is off", async function () {
     await start([app()]);
-    const { roomRef } = harness.roomrNode.offerCall();
+    const { callRef } = await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
-    harness.roomrNode.callerHangup(roomRef);
-    const vcon = decodeVcon((await sealedRecord(roomRef)).signed);
+    harness.roomrNode.callerHangup(callRef);
+    const vcon = decodeVcon((await sealedRecord(callRef)).signed);
     expect(vcon.dialog.some((d) => d.type === "recording")).to.equal(false);
     expect(
       harness.roomrNode.commands.some(
-        (c) => c.command.type === "listener.attach"
+        (c) => c.command.type === "attachListener"
       )
     ).to.equal(false);
   });
@@ -267,7 +268,7 @@ describe("@AppBridge call records", function () {
       consentPrompt: "This call is recorded for quality."
     });
     const since = Date.now();
-    const { roomRef } = harness.roomrNode.offerCall();
+    const { callRef } = await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(
       () => json(peer).find((m) => m.type === "session.start"),
@@ -277,10 +278,10 @@ describe("@AppBridge call records", function () {
     expect(harness.roomrNode.outputAudioMs(since)).to.be.greaterThan(200);
     const types = harness.roomrNode.commands.map((c) => c.command.type);
     expect(types.indexOf("answer")).to.be.lessThan(
-      types.indexOf("listener.attach")
+      types.indexOf("attachListener")
     );
-    harness.roomrNode.callerHangup(roomRef);
-    const vcon = decodeVcon((await sealedRecord(roomRef)).signed);
+    harness.roomrNode.callerHangup(callRef);
+    const vcon = decodeVcon((await sealedRecord(callRef)).signed);
     expect(vcon.fonoster).to.deep.include({
       recording: { policy: "consent", consentRequested: true }
     });
@@ -288,11 +289,11 @@ describe("@AppBridge call records", function () {
 
   it("seals a minimal record with call.failed for a call with no app", async function () {
     await start([app({ numbers: ["+1999"] })]);
-    const { roomRef } = harness.roomrNode.offerCall({
+    const { callRef } = await harness.roomrNode.offerCall({
       appRef: "missing",
       to: "+15550009999"
     } as never);
-    const sealed = await sealedRecord(roomRef);
+    const sealed = await sealedRecord(callRef);
     expect(verifyRecord(sealed, KEYS)).to.deep.include({ ok: true });
     const vcon = decodeVcon(sealed.signed);
     expect(vcon.fonoster).to.deep.include({
@@ -308,12 +309,12 @@ describe("@AppBridge call records", function () {
 
   it("deletes parts and erases records on request from the control plane", async function () {
     await start([app({ recording: "on" })]);
-    const { roomRef } = harness.roomrNode.offerCall();
+    const { callRef } = await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     await sleep(300);
-    harness.roomrNode.callerHangup(roomRef);
-    await sealedRecord(roomRef);
+    harness.roomrNode.callerHangup(callRef);
+    await sealedRecord(callRef);
 
     const request = async (body: Record<string, unknown>) =>
       JSON.parse(
@@ -331,7 +332,7 @@ describe("@AppBridge call records", function () {
     expect(
       await request({
         op: "delete_parts",
-        callRef: roomRef,
+        callRef,
         parts: ["recording"],
         reason: "x",
         actor: "y"
@@ -340,7 +341,7 @@ describe("@AppBridge call records", function () {
     expect(
       await request({
         op: "erase",
-        callRef: roomRef,
+        callRef,
         workspaceRef: "ws-2",
         reason: "x",
         actor: "y"
@@ -349,7 +350,7 @@ describe("@AppBridge call records", function () {
 
     const deleted = await request({
       op: "delete_parts",
-      callRef: roomRef,
+      callRef,
       workspaceRef: "ws-1",
       parts: ["recording"],
       reason: "retention policy: recording after 90 days",
@@ -360,20 +361,20 @@ describe("@AppBridge call records", function () {
       part: "recording",
       workspaceRef: "ws-1"
     });
-    expect(await store.getPart(roomRef, "recording.wav")).to.equal(undefined);
+    expect(await store.getPart(callRef, "recording.wav")).to.equal(undefined);
 
     const erased = await request({
       op: "erase",
-      callRef: roomRef,
+      callRef,
       workspaceRef: "ws-1",
       reason: "erasure request",
       actor: "user-1"
     });
     expect(erased).to.deep.include({ type: "ack", version: 3 });
-    expect(await store.getVersion(roomRef, 1)).to.equal(undefined);
+    expect(await store.getVersion(callRef, 1)).to.equal(undefined);
     // erasure is indexed (status erased) but sends no call_record.sealed
     await waitFor(() =>
-      indexed.find((e) => e.callRef === roomRef && e.status === "erased")
+      indexed.find((e) => e.callRef === callRef && e.status === "erased")
     );
     expect(
       webhooks.filter((w) => w.type === "call_record.sealed").length
@@ -400,14 +401,14 @@ describe("@AppBridge call records", function () {
     });
     try {
       await start([app()], {}, true);
-      const { roomRef } = harness.roomrNode.offerCall();
+      const { callRef } = await harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
       await waitFor(() => json(peer).find((m) => m.type === "session.start"));
-      harness.roomrNode.callerHangup(roomRef);
-      await sealedRecord(roomRef);
+      harness.roomrNode.callerHangup(callRef);
+      await sealedRecord(callRef);
       await waitFor(() => onBus.find((e) => e.type === "call_record.sealed"));
       const mine = onBus.filter(
-        (e) => (e.data as { callRef?: string }).callRef === roomRef
+        (e) => (e.data as { callRef?: string }).callRef === callRef
       );
       expect(mine.map((e) => e.type)).to.include.members([
         "call.started",
@@ -428,7 +429,7 @@ describe("@AppBridge call records", function () {
     });
     try {
       await start([app()]);
-      const { roomRef } = harness.roomrNode.offerCall();
+      const { callRef } = await harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
       await waitFor(() => json(peer).find((m) => m.type === "session.start"));
       for (const id of ["s1", "s2"]) {
@@ -438,10 +439,10 @@ describe("@AppBridge call records", function () {
           8000
         );
       }
-      harness.roomrNode.callerHangup(roomRef);
+      harness.roomrNode.callerHangup(callRef);
       await waitFor(() => used.length > 0);
       await sleep(100);
-      const mine = used.filter((u) => u.callRef === roomRef);
+      const mine = used.filter((u) => u.callRef === callRef);
       expect(mine).to.have.length(1);
       expect(mine[0]).to.deep.include({
         workspaceRef: "ws-1",

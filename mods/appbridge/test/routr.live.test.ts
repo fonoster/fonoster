@@ -58,7 +58,11 @@ const ROUTING: RoomrRouting = {
  * Routr's least-sessions reads. Small loads re-register on the timer (5+ rooms re-register at
  * once), so the expiry is short here.
  */
-function nodeConfig(nodeId: string, sipPort: number): string {
+function nodeConfig(
+  nodeId: string,
+  sipPort: number,
+  sessionEndpoint: string
+): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "routr-live-"));
   const file = path.join(dir, "roomr.yaml");
   fs.writeFileSync(
@@ -68,6 +72,8 @@ function nodeConfig(nodeId: string, sipPort: number): string {
       `nats: { url: "${NATS_URL}" }`,
       "rtp: { host: 127.0.0.1, advertise: 127.0.0.1 }",
       `outboundProxy: "${ROUTR_SIP}"`,
+      // Each call's control stream goes to the AppBridge under test.
+      `sessionEndpoint: "${sessionEndpoint}"`,
       "sip:",
       `  listen: "0.0.0.0:${sipPort}"`,
       `  advertise: "${HOST_ADDR}"`,
@@ -185,29 +191,13 @@ describe("@appbridge live call through Routr (ROUTR_LIVE=1)", function () {
 
     await provisionRoomrRouting(ROUTR_API, ROUTING);
 
-    nodePort = await freeUdpPort();
-    const node = await start(
-      bins.roomr,
-      ["-config", nodeConfig(`routr-live-${Date.now()}`, nodePort)],
-      /ready/
-    );
-    procs.push(node.child);
-    nodeProc = node.child;
-
-    const caller = await start(
-      bins.sipcaller,
-      ["-host", "127.0.0.1", "-sip-advertise", HOST_ADDR],
-      /^listening /
-    );
-    procs.push(caller.child);
-    botUrl = `http://${caller.line.split(" ")[1]}`;
-
     harness = await new FakesHarness().start();
     const urls = harness.providerUrls;
     appbridge = await new AppBridge({
       nats: nc,
       config: {
         nats: { url: NATS_URL },
+        session: { listen: "127.0.0.1:0" },
         apps: [
           {
             ref: ROUTING.appRef,
@@ -227,6 +217,30 @@ describe("@appbridge live call through Routr (ROUTR_LIVE=1)", function () {
         }
       }
     }).start();
+
+    nodePort = await freeUdpPort();
+    const node = await start(
+      bins.roomr,
+      [
+        "-config",
+        nodeConfig(
+          `routr-live-${Date.now()}`,
+          nodePort,
+          appbridge.sessionEndpoint
+        )
+      ],
+      /ready/
+    );
+    procs.push(node.child);
+    nodeProc = node.child;
+
+    const caller = await start(
+      bins.sipcaller,
+      ["-host", "127.0.0.1", "-sip-advertise", HOST_ADDR],
+      /^listening /
+    );
+    procs.push(caller.child);
+    botUrl = `http://${caller.line.split(" ")[1]}`;
   });
 
   after(async function () {
