@@ -33,6 +33,8 @@
   "DSH-032": "A failed call says why, with its SIP status",
   "DSH-033": "Erased and unknown records say so",
   "DSH-034": "A browser call shows up in Calls with its transcript and a playable recording",
+  "DSH-043": "Calls filter by direction and by agent, and export as CSV",
+  "DSH-044": "The call detail shows how the agent did, and exports the vCon",
   "DSH-035": "Billing is offered only to an owner on Cloud",
   "DSH-036": "The account at a glance, a failed payment and an ended Trial",
   "DSH-037": "A top-up arrives, and auto-recharge refuses less than the smallest top-up",

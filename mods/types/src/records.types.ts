@@ -44,6 +44,8 @@ type ListCallRecordsRequest = {
   /** Matches the from or to number. */
   number?: string;
   appRef?: string;
+  /** inbound, outbound or internal. */
+  direction?: string;
   status?: string;
   pageSize?: number;
   pageToken?: string;

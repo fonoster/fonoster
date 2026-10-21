@@ -137,6 +137,7 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
         before: q.before,
         number: q.number,
         appRef: q.appRef,
+        direction: q.direction,
         status: q.status,
         pageSize: q.pageSize ? Number(q.pageSize) : undefined,
         pageToken: q.pageToken

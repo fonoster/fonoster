@@ -472,7 +472,7 @@ describe("call detail", () => {
     ).toBeInTheDocument();
     expect(screen.queryByRole("region", { name: "Transcript" })).toBeNull();
     expect(
-      screen.getByRole("heading", { name: /\+15550001111/ })
+      screen.getByRole("heading", { name: /\+1 555 000 1111/ })
     ).toBeInTheDocument();
   });
 });

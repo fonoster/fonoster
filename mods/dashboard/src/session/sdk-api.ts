@@ -197,6 +197,9 @@ type Summary = {
   startedAt: string;
   durationSeconds: number;
   version: number;
+  endReason?: string | null;
+  failureReason?: string | null;
+  sipStatus?: number | null;
 };
 
 const toSummary = (r: Summary): CallRecordSummary => ({
@@ -208,7 +211,10 @@ const toSummary = (r: Summary): CallRecordSummary => ({
   startedAt: r.startedAt,
   durationMs: (r.durationSeconds ?? 0) * 1000,
   status: r.status,
-  version: r.version
+  version: r.version,
+  ...(r.endReason ? { endReason: r.endReason } : {}),
+  ...(r.failureReason ? { failureReason: r.failureReason } : {}),
+  ...(typeof r.sipStatus === "number" ? { sipStatus: r.sipStatus } : {})
 });
 
 /** Turns, decisions and warnings from a record's vCon (add-call-record "The record contains"). */
@@ -244,6 +250,7 @@ export function fromVcon(
           ? at + Math.round(d.duration * 1000)
           : at;
       const m = (d.meta ?? {}) as Raw;
+      const heard = typeof m.heardMs === "number" ? m.heardMs : undefined;
       // The caller's turn ends where its turn.ended decision was made.
       const decision = caller
         ? decisions.find(
@@ -262,9 +269,41 @@ export function fromVcon(
             : "ok"
           : m.interrupted
             ? "interrupted"
-            : undefined
-      };
+            : undefined,
+        ...(heard !== undefined ? { heardMs: heard } : {})
+      } as Turn;
     });
+  // An agent turn that follows a caller turn answered it: the gap is the response time. Turns
+  // that overlap (the caller still talking) are not an answer.
+  turns.forEach((t, i) => {
+    const before = turns[i - 1];
+    if (
+      t.side === "agent" &&
+      before?.side === "caller" &&
+      t.startMs >= before.endMs
+    )
+      t.firstAudioMs = t.startMs - before.endMs;
+  });
+  // Autopilot writes one autopilot.turn note per turn, with the tools it called.
+  const toolCalls = notes
+    .filter((n) => n.kind === "autopilot.turn" && Array.isArray(n.toolCalls))
+    .flatMap((n) =>
+      (n.toolCalls as Raw[]).map((c) => ({
+        at: offset(n.at),
+        name: str(c.name),
+        ok: c.ok !== false
+      }))
+    );
+  const usage = (Array.isArray(meta.usage) ? (meta.usage as Raw[]) : [])
+    .filter(
+      (l) => typeof l.meter === "string" && typeof l.quantity === "number"
+    )
+    .map((l) => ({
+      meter: str(l.meter),
+      quantity: l.quantity as number,
+      ...(l.provider ? { provider: str(l.provider) } : {}),
+      ...(l.model ? { model: str(l.model) } : {})
+    }));
   const messages: SessionMessage[] = [
     ...decisions.map((d) => {
       const { at, ...message } = d;
@@ -317,7 +356,12 @@ export function fromVcon(
           }
         }
       : {}),
-    ...(recording ? { recording: { sha256: str(recording.content_hash) } } : {})
+    ...(recording
+      ? { recording: { sha256: str(recording.content_hash) } }
+      : {}),
+    toolCalls,
+    usage,
+    vcon
   };
 }
 
@@ -405,6 +449,7 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
         ...(filter.status ? { status: filter.status } : {}),
         ...(filter.after ? { after: filter.after } : {}),
         ...(filter.appRef ? { appRef: filter.appRef } : {}),
+        ...(filter.direction ? { direction: filter.direction } : {}),
         ...(filter.pageToken ? { pageToken: filter.pageToken } : {})
       });
       return {

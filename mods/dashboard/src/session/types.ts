@@ -142,6 +142,11 @@ export type CallRecordSummary = {
   /** completed, failed, incomplete, erased */
   status: CallStatus;
   version: number;
+  /** caller_hangup, app_hangup, …; empty while unknown. */
+  endReason?: string;
+  /** Why a call that never reached an app failed (busy, no_answer, rejected, …). */
+  failureReason?: string;
+  sipStatus?: number;
 };
 
 export type CallFilter = {
@@ -149,6 +154,8 @@ export type CallFilter = {
   /** ISO time: only calls that started after it. */
   after?: string;
   appRef?: string;
+  /** inbound, outbound or internal. */
+  direction?: string;
   pageToken?: string;
 };
 
@@ -168,6 +175,21 @@ export type Turn = {
   endMs: number;
   /** Turn decision outcome for caller turns; interrupted agent turns. */
   outcome?: "ok" | "false_cutoff" | "abandoned" | "backchannel" | "interrupted";
+  /** Agent turns cut off by the caller: how much was heard, in ms. */
+  heardMs?: number;
+  /** Agent turns: from the caller's last word to the agent's first audio, in ms. */
+  firstAudioMs?: number;
+};
+
+/** A tool the agent called during a turn (the autopilot.turn note has names and outcomes only). */
+export type ToolCall = { at: number; name: string; ok: boolean };
+
+/** One usage line of the call (add-usage-metering): what was used, not what it costs. */
+export type UsageLine = {
+  meter: string;
+  quantity: number;
+  provider?: string;
+  model?: string;
 };
 
 export type CallRecord = CallRecordSummary & {
@@ -183,6 +205,10 @@ export type CallRecord = CallRecordSummary & {
   /** Audio filters that failed: the call ran unfiltered (badge on the detail). */
   unfiltered?: { name?: string; reason: string }[];
   recording?: { url?: string; sha256?: string; sizeBytes?: number };
+  toolCalls: ToolCall[];
+  usage: UsageLine[];
+  /** The vCon as the API returned it, for Export JSON. */
+  vcon: unknown;
 };
 
 export type WebhookEventType =

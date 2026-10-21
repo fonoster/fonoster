@@ -217,7 +217,8 @@ const sampleCall = (): CallRecord => ({
       side: "agent",
       text: "Your balance is forty two dollars.",
       startMs: 5400,
-      endMs: 7900
+      endMs: 7900,
+      firstAudioMs: 600
     },
     {
       index: 3,
@@ -265,7 +266,15 @@ const sampleCall = (): CallRecord => ({
     msg(10100, "event", { type: "turn.ended", text: "thanks, bye" }),
     msg(10300, "app", { type: "hangup" }),
     msg(10400, "appbridge", { type: "session.end", reason: "app_hangup" })
-  ]
+  ],
+  toolCalls: [{ at: 5000, name: "get_balance", ok: true }],
+  usage: [
+    { meter: "call.seconds", quantity: 42 },
+    { meter: "stt.seconds", quantity: 40, provider: "deepgram" },
+    { meter: "llm.tokens.in", quantity: 1900, model: "gpt-4o-mini" },
+    { meter: "tts.characters", quantity: 62, provider: "elevenlabs" }
+  ],
+  vcon: { vcon: "0.0.1", uuid: "room-1" }
 });
 
 const summary = (c: CallRecord): CallRecordSummary => ({
@@ -277,7 +286,8 @@ const summary = (c: CallRecord): CallRecordSummary => ({
   startedAt: c.startedAt,
   durationMs: c.durationMs,
   status: c.status,
-  version: c.version
+  version: c.version,
+  endReason: c.endReason
 });
 
 const randomSecret = () =>
@@ -379,6 +389,7 @@ export function createMockSessionApi(): SessionApi {
       items: calls
         .filter((c) => !filter.status || c.status === filter.status)
         .filter((c) => !filter.appRef || c.appRef === filter.appRef)
+        .filter((c) => !filter.direction || c.direction === filter.direction)
         .map(summary)
     }),
     getCall: async (ref) => calls.find((c) => c.callRef === ref),

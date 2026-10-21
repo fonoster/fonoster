@@ -16,23 +16,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { RANGES, formatStarted, rangeStart } from "~/calls/format";
+/*
+ * The Calls page and a call's record (dashboard-call-records), laid out as the Calls frames in
+ * designs/dashboard.pen. What a record does not carry yet (answering machine result, tool
+ * parameters, knowledge searches, per-stage latency, cost) is left out, not faked.
+ */
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { PhoneCall } from "lucide-react";
+import {
+  ChevronRight,
+  PhoneCall,
+  PhoneIncoming,
+  PhoneOff,
+  Scissors,
+  Timer,
+  User,
+  Wrench
+} from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
+import { DirectionIcon, TONE_DOT } from "~/calls/parts";
+import { RANGES, download, formatStarted, rangeStart } from "~/calls/format";
 import {
-  DataTable,
-  MutedCell,
-  NameCell,
-  type Column
-} from "~/components/data/data-table";
+  clock,
+  endedText,
+  median,
+  recordDirection,
+  recordParties,
+  recordStatus,
+  recordsToCsv,
+  responseTimes,
+  usageRow
+} from "~/calls/records";
+import { WaveformPlayer } from "~/calls/waveform-player";
+import { DataTable, type Column } from "~/components/data/data-table";
 import { EmptyState } from "~/components/data/empty-state";
+import { Code, SmartToy } from "~/components/icons/material";
 import { Alert } from "~/components/ui/alert";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { Select } from "~/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { cn } from "~/lib/utils";
 import { useRegion } from "~/regions";
 import {
   errorMessage,
@@ -40,40 +65,16 @@ import {
   useSessionKey,
   useSessionQuery
 } from "./api";
-import type { CallRecordSummary, SessionMessage, Turn } from "./types";
+import type {
+  CallRecord,
+  CallRecordSummary,
+  SessionApp,
+  SessionMessage,
+  ToolCall,
+  Turn
+} from "./types";
 
-export function formatMs(ms: number): string {
-  const s = ms / 1000;
-  return s < 60
-    ? `${s.toFixed(1)} s`
-    : `${Math.floor(s / 60)} m ${Math.round(s % 60)} s`;
-}
-
-const OUTCOME: Record<
-  NonNullable<Turn["outcome"]>,
-  { label: string; variant: "success" | "warning" | "neutral" }
-> = {
-  ok: { label: "turn ended", variant: "success" },
-  false_cutoff: { label: "false cut-off", variant: "warning" },
-  abandoned: { label: "abandoned", variant: "neutral" },
-  backchannel: { label: "backchannel", variant: "neutral" },
-  interrupted: { label: "interrupted", variant: "warning" }
-};
-
-const SOURCE_BADGE = {
-  app: "info",
-  appbridge: "neutral",
-  event: "success"
-} as const;
-
-const STATUS_BADGE: Record<string, "success" | "warning" | "error"> = {
-  completed: "success",
-  incomplete: "warning",
-  failed: "error",
-  erased: "warning"
-};
-
-/** One-line description of a session message for the timeline. */
+/** One-line description of a session message for the Events tab. */
 export function describeMessage(m: SessionMessage["message"]): string {
   const { type, ...rest } = m;
   const text = typeof rest.text === "string" ? rest.text : undefined;
@@ -82,8 +83,39 @@ export function describeMessage(m: SessionMessage["message"]): string {
   return type;
 }
 
-/** List dates read like the rest of the dashboard ("Today 14:31", "Oct 2"). */
-const when = (iso?: string) => formatStarted(iso);
+const SOURCE_BADGE = {
+  app: "info",
+  appbridge: "neutral",
+  event: "success"
+} as const;
+
+function StatusWord({
+  call
+}: {
+  call: Pick<CallRecordSummary, "status" | "failureReason">;
+}) {
+  const { label, tone } = recordStatus(call);
+  return (
+    <span className="inline-flex items-center gap-2 whitespace-nowrap">
+      <span
+        className={cn("size-1.5 shrink-0 rounded-full", TONE_DOT[tone])}
+        aria-hidden
+      />
+      {label}
+    </span>
+  );
+}
+
+function AppName({ app }: { app?: SessionApp }) {
+  if (!app) return <span className="text-muted-foreground">—</span>;
+  const Icon = app.type === "AUTOPILOT" ? SmartToy : Code;
+  return (
+    <span className="inline-flex min-w-0 items-center gap-2">
+      <Icon className="size-4 shrink-0 text-muted-foreground" />
+      <span className="truncate">{app.name}</span>
+    </span>
+  );
+}
 
 const ANY = "any";
 const filterClass = "h-8 w-auto gap-2 rounded-control px-3 text-[13px]";
@@ -93,53 +125,100 @@ const STATUSES = [
   { value: "failed", label: "Failed" },
   { value: "incomplete", label: "Incomplete" }
 ];
+const DIRECTIONS = [
+  { value: ANY, label: "All directions" },
+  { value: "inbound", label: "Inbound" },
+  { value: "outbound", label: "Outbound" },
+  { value: "internal", label: "Internal" }
+];
 const PERIODS = [...RANGES, { value: ANY, label: "All time" }];
+const mono = "font-mono text-[13px] tabular-nums";
+/** Underlined tabs, as the call detail's design has them. */
+const tab =
+  "-mb-px rounded-none border-b-2 border-transparent px-0 pb-2.5 pt-3 data-[state=active]:border-foreground data-[state=active]:bg-transparent";
 
 export function CallRecordsList() {
   const navigate = useNavigate();
   const api = useSessionApi();
+  const [period, setPeriod] = useState("7");
+  const [direction, setDirection] = useState(ANY);
+  const [appRef, setAppRef] = useState(ANY);
   const [status, setStatus] = useState(ANY);
-  const [period, setPeriod] = useState("30");
+  const { data: apps = [] } = useSessionQuery(["apps"], (a) => a.listApps());
   const calls = useInfiniteQuery({
-    queryKey: [...useSessionKey(), "calls", "list", status, period],
+    queryKey: [
+      ...useSessionKey(),
+      "calls",
+      "list",
+      period,
+      direction,
+      appRef,
+      status
+    ],
     initialPageParam: undefined as string | undefined,
     queryFn: ({ pageParam }) =>
       api.listCalls({
-        ...(status !== ANY ? { status } : {}),
         ...(period !== ANY ? { after: rangeStart(period) } : {}),
+        ...(direction !== ANY ? { direction } : {}),
+        ...(appRef !== ANY ? { appRef } : {}),
+        ...(status !== ANY ? { status } : {}),
         ...(pageParam ? { pageToken: pageParam } : {})
       }),
     getNextPageParam: (page) => page.nextPageToken
   });
   const rows = calls.data?.pages.flatMap((page) => page.items) ?? [];
-  const filtered = status !== ANY || period !== ANY;
+  const filtered =
+    status !== ANY || period !== ANY || direction !== ANY || appRef !== ANY;
+  const appOf = (ref: string) => apps.find((a) => a.ref === ref);
+  const count = `${rows.length.toLocaleString("en-US")}${calls.hasNextPage ? "+" : ""} ${rows.length === 1 && !calls.hasNextPage ? "call" : "calls"}`;
+
   const columns: Column<CallRecordSummary>[] = [
     {
-      header: "Call",
+      header: "Started",
+      className: "w-36 whitespace-nowrap",
       cell: (c) => (
-        <NameCell mono name={`${c.from} → ${c.to}`} sub={c.callRef} />
+        <span className="text-muted-foreground">
+          {formatStarted(c.startedAt)}
+        </span>
+      )
+    },
+    { header: "Handled by", cell: (c) => <AppName app={appOf(c.appRef)} /> },
+    {
+      header: "Customer",
+      cell: (c) => (
+        <span className="inline-flex items-center gap-2">
+          <DirectionIcon direction={recordDirection(c.direction)} />
+          <span className={mono}>{recordParties(c).customer}</span>
+        </span>
       )
     },
     {
-      header: "Started",
-      className: "w-48",
-      cell: (c) => <MutedCell>{when(c.startedAt)}</MutedCell>
+      header: "Fonoster number",
+      cell: (c) => (
+        <span className={cn(mono, "text-muted-foreground")}>
+          {recordParties(c).fonosterNumber || "—"}
+        </span>
+      )
     },
     {
       header: "Duration",
       className: "w-24",
-      cell: (c) => <MutedCell>{formatMs(c.durationMs)}</MutedCell>
-    },
-    {
-      header: "Direction",
-      className: "w-24",
-      cell: (c) => <MutedCell>{c.direction}</MutedCell>
+      cell: (c) => (
+        <span className={mono}>
+          {c.status === "failed" || !c.durationMs ? "—" : clock(c.durationMs)}
+        </span>
+      )
     },
     {
       header: "Status",
-      className: "w-28",
-      cell: (c) => (
-        <Badge variant={STATUS_BADGE[c.status] ?? "neutral"}>{c.status}</Badge>
+      className: "w-32",
+      cell: (c) => <StatusWord call={c} />
+    },
+    {
+      header: "",
+      className: "w-10",
+      cell: () => (
+        <ChevronRight className="size-4 text-muted-foreground" aria-hidden />
       )
     }
   ];
@@ -147,17 +226,25 @@ export function CallRecordsList() {
     <>
       <PageHeader
         title="Calls"
-        description="Every call's record: who called, what was said and how each turn was decided."
+        description="Every call in this workspace. Open one to see the transcript, tools and timing."
+        actions={
+          <Button
+            variant="outline"
+            disabled={rows.length === 0}
+            onClick={() =>
+              download(
+                "calls.csv",
+                recordsToCsv(rows, (ref) => appOf(ref)?.name),
+                "text/csv"
+              )
+            }
+          >
+            Export CSV
+          </Button>
+        }
       />
       <div className="flex flex-col gap-4 px-4 pb-8 sm:px-8">
         <div className="flex flex-wrap items-center gap-2">
-          <Select
-            aria-label="Status"
-            className={filterClass}
-            value={status}
-            options={STATUSES}
-            onValueChange={setStatus}
-          />
           <Select
             aria-label="Period"
             className={filterClass}
@@ -165,6 +252,35 @@ export function CallRecordsList() {
             options={PERIODS}
             onValueChange={setPeriod}
           />
+          <Select
+            aria-label="Direction"
+            className={filterClass}
+            value={direction}
+            options={DIRECTIONS}
+            onValueChange={setDirection}
+          />
+          <Select
+            aria-label="Agent or app"
+            className={filterClass}
+            value={appRef}
+            options={[
+              { value: ANY, label: "All agents & apps" },
+              ...apps.map((a) => ({ value: a.ref, label: a.name }))
+            ]}
+            onValueChange={setAppRef}
+          />
+          <Select
+            aria-label="Status"
+            className={filterClass}
+            value={status}
+            options={STATUSES}
+            onValueChange={setStatus}
+          />
+          {!calls.isPending && !calls.error && (
+            <span className="ml-auto font-display text-[13px] text-muted-foreground">
+              {count}
+            </span>
+          )}
         </div>
         <DataTable
           label="Calls"
@@ -197,32 +313,15 @@ export function CallRecordsList() {
   );
 }
 
-/** How a call ended, in words (the record's end reason or failure reason). */
-const ENDED: Record<string, string> = {
-  caller_hangup: "The caller hung up",
-  app_hangup: "The app hung up",
-  agent_hangup: "The agent hung up",
-  busy: "The line was busy",
-  no_answer: "No one answered",
-  rejected: "The call was rejected",
-  app_unreachable: "The app couldn't be reached",
-  no_app: "No app was set for the number",
-  node_error: "The media node failed",
-  max_duration: "It reached the maximum call length",
-  transferred: "It was transferred"
-};
-const ended = (reason?: string) =>
-  reason ? (ENDED[reason] ?? reason.replace(/_/g, " ")) : "Unknown";
-
 /** A recording fetched with the access token, played and downloaded from an object URL. */
-function Recording({ callRef }: { callRef: string }) {
+function Recording({ call }: { call: CallRecord }) {
   const api = useSessionApi();
   const [state, setState] = useState<{ url?: string; error?: string }>({});
   useEffect(() => {
     let url: string | undefined;
     let live = true;
     api
-      .recordingUrl(callRef)
+      .recordingUrl(call.callRef)
       .then((u) => {
         url = u;
         if (live) setState({ url: u });
@@ -232,7 +331,7 @@ function Recording({ callRef }: { callRef: string }) {
       live = false;
       if (url?.startsWith("blob:")) URL.revokeObjectURL?.(url);
     };
-  }, [api, callRef]);
+  }, [api, call.callRef]);
   if (state.error)
     return (
       <Alert variant="error">
@@ -241,31 +340,308 @@ function Recording({ callRef }: { callRef: string }) {
     );
   if (!state.url)
     return (
-      <p className="text-xs text-muted-foreground">Loading the recording…</p>
+      <p className="py-2 text-xs text-muted-foreground">
+        Loading the recording…
+      </p>
     );
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <audio
-        controls
-        src={state.url}
-        aria-label="Call recording"
-        className="h-9"
-      />
-      <Button asChild variant="outline" size="sm">
-        <a href={state.url} download={`${callRef}.wav`}>
-          Download
-        </a>
-      </Button>
-    </div>
+    <WaveformPlayer
+      url={state.url}
+      filename={`${call.callRef}.wav`}
+      durationMs={call.durationMs}
+    />
   );
 }
 
-function Fact({ label, children }: { label: string; children: ReactNode }) {
+function Chip({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <dt className="font-display text-xs text-muted-foreground">{label}</dt>
-      <dd className="text-sm">{children}</dd>
-    </div>
+    <span className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2 py-0.5 font-display text-xs text-muted-foreground">
+      {children}
+    </span>
+  );
+}
+
+function Tag({
+  children,
+  tone = "muted"
+}: {
+  children: ReactNode;
+  tone?: "muted" | "success" | "warning" | "error";
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded bg-muted px-1.5 py-px font-mono text-[11px]",
+        tone === "muted" && "text-muted-foreground",
+        tone === "success" && "text-primary",
+        tone === "warning" && "text-warning-foreground",
+        tone === "error" && "text-destructive"
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+/** One row of the transcript timeline: time, icon, a title line and an optional body. */
+function Row({
+  at,
+  icon,
+  title,
+  children,
+  label
+}: {
+  at: number;
+  icon: ReactNode;
+  title: ReactNode;
+  children?: ReactNode;
+  label?: string;
+}) {
+  return (
+    <li aria-label={label} className="flex gap-4 py-3">
+      <span className="w-10 shrink-0 pt-1 font-mono text-xs text-muted-foreground tabular-nums">
+        {clock(at)}
+      </span>
+      <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground [&_svg]:size-3.5">
+        {icon}
+      </span>
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5 pt-0.5">
+        <div className="flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
+          {title}
+        </div>
+        {children}
+      </div>
+    </li>
+  );
+}
+
+type Entry =
+  | { kind: "turn"; at: number; turn: Turn }
+  | { kind: "tool"; at: number; tool: ToolCall };
+
+function Timeline({ call, app }: { call: CallRecord; app?: SessionApp }) {
+  const entries: Entry[] = [
+    ...call.turns.map((turn) => ({
+      kind: "turn" as const,
+      at: turn.startMs,
+      turn
+    })),
+    ...call.toolCalls.map((tool) => ({
+      kind: "tool" as const,
+      at: tool.at,
+      tool
+    }))
+  ].sort((a, b) => a.at - b.at);
+  const failed = call.status === "failed";
+  const AgentIcon = app?.type === "STREAM" ? Code : SmartToy;
+  return (
+    <ol className="flex flex-col">
+      {!failed && <Row at={0} icon={<PhoneIncoming />} title="Call answered" />}
+      {entries.map((e) =>
+        e.kind === "tool" ? (
+          <Row
+            key={`tool-${e.at}-${e.tool.name}`}
+            at={e.at}
+            icon={<Wrench />}
+            label="tool call"
+            title={
+              <>
+                Tool call <Tag>{e.tool.name}</Tag>
+                <Tag tone={e.tool.ok ? "success" : "error"}>
+                  {e.tool.ok ? "ok" : "failed"}
+                </Tag>
+              </>
+            }
+          />
+        ) : (
+          <Row
+            key={`turn-${e.turn.index}`}
+            at={e.at}
+            label={`${e.turn.side} turn`}
+            icon={e.turn.side === "agent" ? <AgentIcon /> : <User />}
+            title={
+              <>
+                {e.turn.side === "agent" ? "Agent" : "Caller"}
+                {e.turn.endMs > e.turn.startMs && (
+                  <Tag>
+                    {((e.turn.endMs - e.turn.startMs) / 1000).toFixed(1)} s
+                  </Tag>
+                )}
+                {e.turn.firstAudioMs !== undefined && (
+                  <Tag>
+                    <Timer className="size-3" aria-hidden />
+                    first audio {e.turn.firstAudioMs} ms
+                  </Tag>
+                )}
+                {e.turn.outcome === "interrupted" && (
+                  <Tag tone="warning">
+                    <Scissors className="size-3" aria-hidden />
+                    interrupted
+                    {e.turn.heardMs !== undefined
+                      ? ` at ${clock(e.turn.startMs + e.turn.heardMs)}`
+                      : ""}
+                  </Tag>
+                )}
+                {e.turn.outcome === "false_cutoff" && (
+                  <Tag tone="warning">false cut-off</Tag>
+                )}
+                {e.turn.outcome === "abandoned" && <Tag>abandoned</Tag>}
+                {e.turn.outcome === "backchannel" && <Tag>backchannel</Tag>}
+              </>
+            }
+          >
+            <p className="text-[15px] leading-relaxed text-foreground">
+              {e.turn.text}
+            </p>
+          </Row>
+        )
+      )}
+      {entries.length === 0 && !failed && (
+        <li className="py-3 pl-[88px] text-xs text-muted-foreground">
+          Nothing was said.
+        </li>
+      )}
+      <Row
+        at={call.durationMs}
+        icon={<PhoneOff />}
+        title={
+          <>
+            {failed ? "Call failed" : "Call ended"}
+            <span className="text-foreground">
+              {endedText(
+                call.failure?.reason ?? call.endReason,
+                call.failure?.sipStatus
+              )}
+            </span>
+          </>
+        }
+      />
+      {entries.length === 0 && failed && (
+        <li className="py-3 pl-[88px] text-xs text-muted-foreground">
+          Nothing was said.
+        </li>
+      )}
+    </ol>
+  );
+}
+
+function Panel({
+  title,
+  aside,
+  children
+}: {
+  title: string;
+  aside?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <section
+      aria-label={title}
+      className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5"
+    >
+      <div className="flex items-baseline justify-between gap-2">
+        <h2 className="text-[15px] font-medium">{title}</h2>
+        {aside}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function ResponseTime({ turns }: { turns: Turn[] }) {
+  const times = responseTimes(turns);
+  if (!times.length) return null;
+  const max = Math.max(...times.map((t) => t.ms), 1);
+  return (
+    <Panel
+      title="Response time"
+      aside={
+        <span className="font-mono text-xs text-muted-foreground">
+          p50 {median(times.map((t) => t.ms))} ms
+        </span>
+      }
+    >
+      <p className="text-[13px] text-muted-foreground">
+        From the caller's last word to the agent's first audio, per turn.
+      </p>
+      <ol className="flex flex-col gap-3">
+        {times.map((t) => (
+          <li key={t.turn} className="flex flex-col gap-1.5">
+            <span className="flex justify-between text-[13px]">
+              Turn {t.turn}
+              <span className="font-mono text-xs">{t.ms} ms</span>
+            </span>
+            <span className="h-1.5 rounded-full bg-muted">
+              <span
+                className="block h-full rounded-full bg-foreground"
+                style={{ width: `${(t.ms / max) * 100}%` }}
+              />
+            </span>
+          </li>
+        ))}
+      </ol>
+    </Panel>
+  );
+}
+
+function Usage({ call }: { call: CallRecord }) {
+  if (!call.usage.length) return null;
+  return (
+    <Panel title="Usage">
+      <dl className="flex flex-col gap-2 text-[13px]">
+        {call.usage.map((line, i) => {
+          const row = usageRow(line);
+          return (
+            <div key={i} className="flex justify-between gap-3">
+              <dt className="text-muted-foreground">{row.label}</dt>
+              <dd className="font-mono text-xs">{row.amount}</dd>
+            </div>
+          );
+        })}
+      </dl>
+    </Panel>
+  );
+}
+
+function InThisCall({ call }: { call: CallRecord }) {
+  if (!call.turns.length && !call.toolCalls.length) return null;
+  const agent = call.turns.filter((t) => t.side === "agent").length;
+  const caller = call.turns.length - agent;
+  const interruptions = call.turns.filter(
+    (t) => t.outcome === "interrupted"
+  ).length;
+  const tools = [...new Set(call.toolCalls.map((t) => t.name))];
+  const facts: [string, ReactNode][] = [
+    ["Turns", `${agent} agent · ${caller} caller`],
+    ["Interruptions", interruptions],
+    ["Tools", tools.length ? tools.join(", ") : "None"]
+  ];
+  return (
+    <Panel title="In this call">
+      <dl className="grid grid-cols-[7rem_1fr] gap-x-3 gap-y-2 text-[13px]">
+        {facts.map(([label, value]) => (
+          <div key={label} className="contents">
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </Panel>
+  );
+}
+
+function Breadcrumb({ callRef }: { callRef: string }) {
+  return (
+    <nav
+      aria-label="Breadcrumb"
+      className="flex items-center gap-2 px-4 pt-7 font-display text-[13px] text-muted-foreground sm:px-8"
+    >
+      <Link to=".." relative="path" className="hover:text-foreground">
+        Calls
+      </Link>
+      <span aria-hidden>/</span>
+      <span className="font-mono text-foreground">{callRef}</span>
+    </nav>
   );
 }
 
@@ -313,38 +689,62 @@ export function CallRecordView() {
       </>
     );
   const app = apps?.find((a) => a.ref === call.appRef);
-  // A browser test call is recorded to the agent's ref (#1060): show its name.
-  const callee = app && call.to === app.ref ? app.name : call.to;
+  const { customer, fonosterNumber } = recordParties(call);
+  const direction = recordDirection(call.direction);
+  const failed = call.status === "failed";
+
   return (
     <>
-      <PageHeader
-        title={`${call.from || "Unknown"} → ${callee || "Unknown"}`}
-        description={call.callRef}
-        actions={back}
-      />
-      <div className="flex flex-col gap-5 px-4 pb-10 sm:px-8">
-        <dl className="grid grid-cols-2 gap-4 rounded-xl border border-border p-4 sm:grid-cols-3 lg:grid-cols-6">
-          <Fact label="Direction">{call.direction || "Unknown"}</Fact>
-          <Fact label="Started">{when(call.startedAt)}</Fact>
-          <Fact label="Duration">{formatMs(call.durationMs)}</Fact>
-          <Fact label="Answered by">
-            {app ? app.name : call.appRef || "No app"}
-          </Fact>
-          <Fact label="Ended">
-            {ended(call.failure?.reason ?? call.endReason)}
-            {call.failure?.sipStatus ? ` (SIP ${call.failure.sipStatus})` : ""}
-          </Fact>
-          <Fact label="Status">
-            <Badge variant={STATUS_BADGE[call.status] ?? "neutral"}>
-              {call.status}
-            </Badge>
-          </Fact>
-        </dl>
-        {isPrivate && !offline && (
-          <Badge variant="info" className="self-start">
-            Stored in your region
-          </Badge>
-        )}
+      <Breadcrumb callRef={call.callRef} />
+      <div className="flex flex-wrap items-start justify-between gap-4 px-4 pb-5 pt-3 sm:px-8">
+        <div className="flex min-w-0 flex-col gap-2.5">
+          <div className="flex items-center gap-3">
+            <DirectionIcon direction={direction} className="size-5" />
+            <h1 className="text-[22px] font-semibold leading-tight">
+              <span className="font-mono">{customer}</span>
+              {app && (
+                <>
+                  {" "}
+                  <span className="mx-1 text-[15px] font-normal text-muted-foreground">
+                    with
+                  </span>{" "}
+                  {app.name}
+                </>
+              )}
+            </h1>
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <Chip>{direction[0].toUpperCase() + direction.slice(1)}</Chip>
+            <Chip>{formatStarted(call.startedAt)}</Chip>
+            {!failed && (
+              <Chip>
+                <span className="font-mono">{clock(call.durationMs)}</span>
+              </Chip>
+            )}
+            <Chip>
+              <StatusWord
+                call={{ ...call, failureReason: call.failure?.reason }}
+              />
+            </Chip>
+            {fonosterNumber && <Chip>via {fonosterNumber}</Chip>}
+            {isPrivate && !offline && <Chip>Stored in your region</Chip>}
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() =>
+            download(
+              `${call.callRef}.vcon.json`,
+              JSON.stringify(call.vcon, null, 2),
+              "application/json"
+            )
+          }
+        >
+          Export JSON
+        </Button>
+      </div>
+
+      <div className="flex flex-col gap-4 px-4 pb-10 sm:px-8">
         {call.unfiltered?.map((u, i) => (
           <Alert key={i} variant="warning">
             <span className="flex flex-wrap items-center gap-2">
@@ -370,86 +770,81 @@ export function CallRecordView() {
           ))}
 
         {!offline && (
-          <>
-            <section aria-label="Recording" className="flex flex-col gap-2">
-              <h2 className="text-sm font-medium">Recording</h2>
-              {call.recording ? (
-                <Recording callRef={call.callRef} />
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  This call wasn't recorded.
-                </p>
-              )}
-            </section>
-
-            <section aria-label="Transcript" className="flex flex-col gap-2">
-              <h2 className="text-sm font-medium">Transcript</h2>
-              {call.redacted && call.turns.length > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Personal data in the transcript is masked.
-                </p>
-              )}
-              {call.turns.length === 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Nothing was said.
-                </p>
-              )}
-              <ol className="flex flex-col gap-2">
-                {call.turns.map((t) => (
-                  <li
-                    key={t.index}
-                    aria-label={`${t.side} turn`}
-                    className={`flex gap-3 rounded-xl border border-border p-3 ${t.side === "agent" ? "bg-card" : ""}`}
-                  >
-                    <span className="flex w-28 shrink-0 flex-col text-xs text-muted-foreground">
-                      <span className="capitalize text-foreground">
-                        {t.side}
-                      </span>
-                      <span>
-                        {formatMs(t.startMs)}
-                        {t.endMs > t.startMs
-                          ? ` · ${formatMs(t.endMs - t.startMs)}`
-                          : ""}
-                      </span>
-                    </span>
-                    <span className="flex-1">{t.text}</span>
-                    {t.outcome && t.outcome !== "ok" && (
-                      <Badge variant={OUTCOME[t.outcome].variant}>
-                        {OUTCOME[t.outcome].label}
-                      </Badge>
+          <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_22rem]">
+            <div className="flex min-w-0 flex-col rounded-xl border border-border bg-card">
+              <section
+                aria-label="Recording"
+                className="border-b border-border px-5 py-4"
+              >
+                {call.recording ? (
+                  <Recording call={call} />
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    This call wasn't recorded.
+                  </p>
+                )}
+              </section>
+              <Tabs defaultValue="transcript" className="flex flex-col">
+                <TabsList className="mx-5 mt-1 h-auto gap-5 self-stretch rounded-none border-b border-border bg-transparent p-0">
+                  <TabsTrigger value="transcript" className={tab}>
+                    Transcript
+                  </TabsTrigger>
+                  <TabsTrigger value="events" className={tab}>
+                    Events
+                  </TabsTrigger>
+                </TabsList>
+                <TabsContent value="transcript" className="px-5 pb-3 pt-2">
+                  <section aria-label="Transcript">
+                    {call.redacted && call.turns.length > 0 && (
+                      <p className="pt-2 text-xs text-muted-foreground">
+                        Personal data in the transcript is masked.
+                      </p>
                     )}
-                  </li>
-                ))}
-              </ol>
-            </section>
-
-            {call.messages.length > 0 && (
-              <details className="flex flex-col gap-2">
-                <summary className="cursor-pointer text-sm font-medium">
-                  Turn decisions and notes
-                </summary>
-                <ol className="mt-2 flex flex-col font-mono text-xs">
-                  {call.messages.map((m, i) => (
-                    <li
-                      key={i}
-                      className="flex items-center gap-3 border-b border-border py-1.5"
+                    <Timeline call={call} app={app} />
+                  </section>
+                </TabsContent>
+                <TabsContent value="events" className="px-5 pb-4 pt-2">
+                  {call.messages.length === 0 ? (
+                    <p className="py-3 text-xs text-muted-foreground">
+                      No turn decisions or notes were recorded.
+                    </p>
+                  ) : (
+                    <ol
+                      aria-label="Events"
+                      className="flex flex-col font-mono text-xs"
                     >
-                      <span className="w-16 shrink-0 text-muted-foreground">
-                        {formatMs(m.at)}
-                      </span>
-                      <Badge variant={SOURCE_BADGE[m.source]}>{m.source}</Badge>
-                      <span>{describeMessage(m.message)}</span>
-                    </li>
-                  ))}
-                </ol>
-              </details>
-            )}
-            {call.recording?.sha256 && (
-              <p className="break-all text-xs text-muted-foreground">
-                Recording hash {call.recording.sha256}
-              </p>
-            )}
-          </>
+                      {call.messages.map((m, i) => (
+                        <li
+                          key={i}
+                          className="flex items-center gap-3 border-b border-border py-1.5 last:border-0"
+                        >
+                          <span className="w-12 shrink-0 text-muted-foreground">
+                            {clock(m.at)}
+                          </span>
+                          <Badge variant={SOURCE_BADGE[m.source]}>
+                            {m.source}
+                          </Badge>
+                          <span className="break-all">
+                            {describeMessage(m.message)}
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                  {call.recording?.sha256 && (
+                    <p className="break-all pt-3 text-xs text-muted-foreground">
+                      Recording hash {call.recording.sha256}
+                    </p>
+                  )}
+                </TabsContent>
+              </Tabs>
+            </div>
+            <aside className="flex flex-col gap-4">
+              <ResponseTime turns={call.turns} />
+              <Usage call={call} />
+              <InThisCall call={call} />
+            </aside>
+          </div>
         )}
       </div>
     </>

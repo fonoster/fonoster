@@ -81,6 +81,7 @@ function call(
     workspaceRef?: string;
     from?: string;
     to?: string;
+    direction?: string;
     text?: string;
     failed?: string;
     recording?: boolean;
@@ -96,7 +97,7 @@ function call(
       source: "event",
       message: {
         type: "call.started",
-        direction: "inbound",
+        direction: o.direction ?? "inbound",
         appRef: "ivr",
         workspaceRef: o.workspaceRef ?? "ws-1",
         ...parties
@@ -220,7 +221,14 @@ describe("@apiserver call records", function () {
       call("call-card", { text: "It is 4111 1111 1111 1111", recording: true }),
       true
     );
-    await seal("call-busy", call("call-busy", { failed: "busy", to: "+1999" }));
+    await seal(
+      "call-busy",
+      call("call-busy", {
+        failed: "busy",
+        to: "+1999",
+        direction: "outbound"
+      })
+    );
     await seal("call-other", call("call-other", { workspaceRef: "ws-2" }));
     await seal("call-rec", call("call-rec", { recording: true }), true);
 
@@ -347,6 +355,10 @@ describe("@apiserver call records", function () {
     ).to.deep.equal(["call-busy"]);
     const failed = await (await get("/?status=failed")).json();
     expect(failed.items).to.have.length(1);
+    const outbound = await (await get("/?direction=outbound")).json();
+    expect(
+      outbound.items.map((i: { callRef: string }) => i.callRef)
+    ).to.deep.equal(["call-busy"]);
     const none = await (await get("/?after=2030-01-01T00:00:00Z")).json();
     expect(none.items).to.have.length(0);
     expect((await get("/call-other")).status).to.equal(404);
