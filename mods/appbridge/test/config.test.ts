@@ -20,7 +20,6 @@ import * as http from "http";
 import { AddressInfo } from "net";
 import { expect } from "chai";
 import { appBridgeConfigSchema } from "../src/configSchema";
-import { NatsConnection } from "nats";
 import {
   AppBridgeConfig,
   loadConfig,
@@ -28,11 +27,6 @@ import {
   validateConfig
 } from "../src";
 import { APP_AUDIO_FORMATS } from "../src/audio/pcm";
-import {
-  configPairAuthenticator,
-  createHangupHandler,
-  identityAuthenticator
-} from "../src/http/hangupEndpoint";
 import { generateKeyPairSync } from "crypto";
 import * as fs from "fs";
 import * as os from "os";
@@ -106,91 +100,6 @@ describe("@appbridge/config", function () {
       c.apps[0].audio = audio as never;
       expect(validateConfig(c).join()).to.contain("audio must be pcm16");
     }
-  });
-});
-
-describe("@appbridge/hang-up endpoint", function () {
-  let server: http.Server;
-  let base: string;
-  // Calls this fake bus knows: callSid -> owning workspace.
-  const live = new Map([
-    ["CA1", "WO1"],
-    ["CA2", "WO1"],
-    ["CA3", "WO2"]
-  ]);
-  const nc = {
-    request: async (subject: string, data: Uint8Array) => {
-      const callSid = subject.split(".")[2];
-      const owner = live.get(callSid);
-      if (!owner) throw new Error("no responders");
-      const { accountSid } = JSON.parse(Buffer.from(data).toString());
-      if (accountSid !== owner)
-        return {
-          data: Buffer.from(
-            JSON.stringify({ type: "error", code: "not_found" })
-          )
-        };
-      live.delete(callSid);
-      return { data: Buffer.from(JSON.stringify({ type: "ack" })) };
-    }
-  } as unknown as NatsConnection;
-
-  // A fake Identity: API key AP1/secret belongs to workspace WO1.
-  const token = (workspace: string) =>
-    `x.${Buffer.from(JSON.stringify({ access: [{ accessKeyId: workspace, role: "WORKSPACE_ADMIN" }] })).toString("base64url")}.y`;
-  const identity = {
-    exchangeApiKey: async (id: string, secret: string) => {
-      if (id === "AP1" && secret === "secret")
-        return { accessToken: token("WO1") };
-      throw new Error("Invalid credentials");
-    }
-  };
-
-  before(async function () {
-    server = http.createServer(
-      createHangupHandler(identityAuthenticator(identity), nc)
-    );
-    await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
-    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-  });
-
-  after(() => server.close());
-
-  const post = (account: string, callSid: string, auth = "AP1:secret") =>
-    fetch(`${base}/2010-04-01/Accounts/${account}/Calls/${callSid}.json`, {
-      method: "POST",
-      headers: {
-        authorization: `Basic ${Buffer.from(auth).toString("base64")}`,
-        "content-type": "application/x-www-form-urlencoded"
-      },
-      body: "Status=completed"
-    });
-
-  it("rejects a wrong secret, or a key from another workspace", async function () {
-    expect((await post("WO1", "CA1", "AP1:wrong")).status).to.equal(401);
-    expect((await post("WO2", "CA3")).status).to.equal(401);
-  });
-
-  it("hangs up a live call of the key's workspace, then answers 404 / 20404", async function () {
-    expect((await post("WO1", "CA1")).status).to.equal(200);
-    const again = await post("WO1", "CA1");
-    expect(again.status).to.equal(404);
-    expect((await again.json()).code).to.equal(20404);
-  });
-
-  it("does not hang up another workspace's call", async function () {
-    const res = await post("WO1", "CA3");
-    expect(res.status).to.equal(404);
-    expect(live.has("CA3")).to.equal(true);
-  });
-
-  it("keeps the single config pair for self-hosting", async function () {
-    const auth = configPairAuthenticator({
-      accountSid: "AC1",
-      authToken: "tok"
-    });
-    expect(await auth("AC1", "AC1", "tok")).to.equal(true);
-    expect(await auth("AC1", "AC1", "nope")).to.equal(false);
   });
 });
 

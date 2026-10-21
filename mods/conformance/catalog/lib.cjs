@@ -146,11 +146,27 @@ function glob(pattern) {
 }
 
 // Test titles in a file: test("..."), it("..."), test.describe is ignored. Go: func TestXxx.
+// Python: def test_xxx, tagged by a @case("ID") decorator above it (tests/conftest.py adds the id
+// to the test's name in the JUnit results). Titles built at run time (it(scenario.name)) aren't
+// seen here: scenario tests take their id from the case that Runs their file.
 function testTitles(file) {
   const text = fs.readFileSync(path.join(repoRoot, file), "utf8");
   const titles = [];
+  if (file.endsWith(".py")) {
+    let from = 0;
+    for (const m of text.matchAll(/((?:^@[^\n]*\n)*)^(?:async )?def (test_[A-Za-z0-9_]+)\(/gm)) {
+      const before = text.slice(from, m.index);
+      from = m.index + m[0].length;
+      // Parametrized by scenario file, with ids from the catalog (case_for): tagged at run time.
+      if (/case_for\(/.test(before.slice(before.lastIndexOf("\n\n")))) continue;
+      const id = (m[1].match(/@case\(\s*["']([A-Z]{2,4}-\d{3})["']\s*\)/) || [])[1];
+      titles.push(id ? `[${id}] ${m[2]}` : m[2]);
+    }
+    return titles;
+  }
   // test(...), it(...), and their .skip/.only/.fixme forms: a skipped test still needs a case or deletion.
-  for (const m of text.matchAll(/^\s*(?:test|it)(?:\.(?:skip|only|fixme))?\(\s*(["'`])((?:\\.|(?!\1).)*)\1/gm)) titles.push(m[2]);
+  // A title built from scenarioCase(...) takes its id from the case that Runs the file.
+  for (const m of text.matchAll(/^\s*(?:test|it)(?:\.(?:skip|only|fixme))?\(\s*(["'`])((?:\\.|(?!\1).)*)\1/gm)) if (!m[2].includes("scenarioCase(")) titles.push(m[2]);
   for (const m of text.matchAll(/^func (Test[A-Za-z0-9_]+)\(/gm)) titles.push(m[1]);
   return titles;
 }

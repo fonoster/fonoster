@@ -20,7 +20,8 @@ import { expect } from "chai";
 import {
   FakeAppBridge,
   loadScenarios,
-  runScenario
+  runScenario,
+  scenarioCase
 } from "@fonoster/conformance";
 import { Handler, Session, SessionError, VoiceServer } from "../src";
 
@@ -143,7 +144,8 @@ const FIXTURES: Record<string, Handler> = {
 
 describe("@voice conformance (voice-sdk scenarios)", function () {
   for (const scenario of loadScenarios("voice-sdk")) {
-    it(scenario.name, async function () {
+    // The catalog case that runs this file (catalog/areas/voice-sdk.md), e.g. "[VSD-004] say-hello".
+    it(`${scenarioCase("voice-sdk", scenario.name)}${scenario.name}`, async function () {
       const fixture = FIXTURES[scenario.fixture!];
       expect(fixture, `fixture ${scenario.fixture} is not implemented`).to
         .exist;

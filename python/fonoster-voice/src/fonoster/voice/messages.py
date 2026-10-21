@@ -331,5 +331,15 @@ RecordNote = TypedDict(
 )
 
 
+UsageReport = TypedDict(
+    "UsageReport",
+    {
+        "type": Literal["usage.report"],
+        "id": NotRequired[str],
+        "lines": list[dict[str, Any]],
+    },
+)
+
+
 AppBridgeMessage = Union[SessionStart, SessionEnd, ErrorMessage, TurnUserStarted, TurnLikelyEnded, TurnEnded, TurnResumed, TurnBackchannel, TurnEstimate, TranscriptPartial, OutputStarted, OutputDone, OutputInterrupted, MarkEvent, Dtmf, AmdResult]
-AppCommand = Union[Speak, Play, ListenUpdate, Subscribe, MarkCommand, Clear, Hangup, DtmfSend, Transfer, TransferComplete, Hold, Resume, Handoff, RecordNote]
+AppCommand = Union[Speak, Play, ListenUpdate, Subscribe, MarkCommand, Clear, Hangup, DtmfSend, Transfer, TransferComplete, Hold, Resume, Handoff, RecordNote, UsageReport]

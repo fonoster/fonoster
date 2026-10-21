@@ -43,3 +43,4 @@ export * from "./fakes/RealMediaHarness";
 export * from "./fakes/OtlpCollector";
 export * from "./runner/NatsRegionCellPeer";
 export * from "./fakes/FakeRoomr";
+export * from "./scenario/scenarioCase";

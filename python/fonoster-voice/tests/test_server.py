@@ -5,6 +5,7 @@ import json
 import time
 
 import pytest
+from conftest import case
 from fonoster_conformance import FakeAppBridge, signature_headers
 
 from fonoster.voice import (
@@ -40,6 +41,7 @@ async def standalone(handler):
     return await VoiceServer(port=0, host="127.0.0.1", signing_secret=SECRET).listen(handler)
 
 
+@case("VSD-001")
 def test_runs_handler_once_with_valid_signature():
     async def main():
         calls = []
@@ -62,6 +64,7 @@ def test_runs_handler_once_with_valid_signature():
     [FakeAppBridge("wrong"), FakeAppBridge(None), FakeAppBridge(SECRET, timestamp=int(time.time()) - 600)],
     ids=["wrong secret", "no signature", "stale timestamp"],
 )
+@case("VSD-001")
 def test_rejects_bad_signatures_before_the_handler(appbridge):
     async def main():
         calls = []
@@ -80,6 +83,7 @@ def test_rejects_bad_signatures_before_the_handler(appbridge):
     assert run(main()) == []
 
 
+@case("VSD-003")
 def test_sync_handler_rejected():
     server = VoiceServer(port=0, signing_secret=SECRET)
 
@@ -90,12 +94,14 @@ def test_sync_handler_rejected():
         server.handler(handler)
 
 
+@case("VSD-001")
 def test_secret_required_unless_verification_is_off():
     with pytest.raises(ValueError, match="signing_secret"):
         VoiceServer(port=0, signing_secret=None)
     VoiceServer(port=0, verify_signature=False)
 
 
+@case("VSD-007")
 def test_gather_rejects_and_end_fires_when_caller_hangs_up():
     async def main():
         outcome = {}
@@ -121,6 +127,7 @@ def test_gather_rejects_and_end_fires_when_caller_hangs_up():
     assert outcome["end"] == "caller_hangup"
 
 
+@case("VSD-007")
 def test_crashing_handler_hangs_up():
     async def main():
         async def handler(session):
@@ -136,6 +143,7 @@ def test_crashing_handler_hangs_up():
     assert {"type": "hangup"} in run(main())
 
 
+@case("VSD-003")
 def test_removed_methods_are_not_on_the_session():
     class T:
         async def send_text(self, t): ...
@@ -147,6 +155,7 @@ def test_removed_methods_are_not_on_the_session():
         assert not hasattr(session, name), name
 
 
+@case("VSD-003")
 def test_two_argument_handlers_are_refused():
     async def old(req, res): ...
 
@@ -154,6 +163,7 @@ def test_two_argument_handlers_are_refused():
         VoiceServer(signing_secret=SECRET).handler(old)
 
 
+@case("VSD-002")
 def test_asgi_mount_verifies_and_runs_the_handler():
     async def main():
         calls = []
@@ -192,6 +202,7 @@ def test_asgi_mount_verifies_and_runs_the_handler():
     assert any(json.loads(e["text"])["type"] == "speak" for e in sent if e.get("type") == "websocket.send")
 
 
+@case("VSD-003")
 def test_amd_result_reaches_the_handler():
     async def main():
         seen = []

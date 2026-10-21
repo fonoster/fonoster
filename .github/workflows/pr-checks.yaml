@@ -85,6 +85,10 @@ jobs:
             python:
               - *workflow
               - 'python/**'
+              # The Python SDK runs the shared scenario files and takes its case ids from the
+              # catalog, so a contract change can't skip it (catalog area VSD).
+              - 'mods/conformance/scenarios/**'
+              - 'mods/conformance/catalog/areas/**'
             dashboard:
               - *workflow
               - 'mods/dashboard/**'

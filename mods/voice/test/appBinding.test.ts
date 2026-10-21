@@ -84,7 +84,7 @@ describe("@voice VoiceServer app-bound signatures", function () {
     return url;
   }
 
-  it("opens a session for the app the signature names and exposes the binding", async function () {
+  it("[VSD-001] opens a session for the app the signature names and exposes the binding", async function () {
     const url = await shared();
     const peer = await new FakeAppBridge({
       signingSecret: SECRET,
@@ -96,7 +96,7 @@ describe("@voice VoiceServer app-bound signatures", function () {
     expect(sessions[0].signedFor).to.deep.equal(VICTIM);
   });
 
-  it("refuses a URL-only signature when the binding is required", async function () {
+  it("[VSD-001] refuses a URL-only signature when the binding is required", async function () {
     const url = await shared();
     const error = await new FakeAppBridge({ signingSecret: SECRET })
       .dial(url)
@@ -108,7 +108,7 @@ describe("@voice VoiceServer app-bound signatures", function () {
     expect(sessions).to.have.length(0);
   });
 
-  it("refuses a session.start for another app than the one signed", async function () {
+  it("[VSD-001] refuses a session.start for another app than the one signed", async function () {
     const url = await shared();
     const peer = await new FakeAppBridge({
       signingSecret: SECRET,
@@ -120,7 +120,7 @@ describe("@voice VoiceServer app-bound signatures", function () {
     expect(sessions).to.have.length(0);
   });
 
-  it("refuses app or workspace headers changed after signing", async function () {
+  it("[VSD-001] refuses app or workspace headers changed after signing", async function () {
     const url = await shared();
     for (const headers of [
       { "x-fonoster-app-ref": VICTIM.appRef },
@@ -141,7 +141,7 @@ describe("@voice VoiceServer app-bound signatures", function () {
     expect(sessions).to.have.length(0);
   });
 
-  it("checks the configured URL, never one built from the Host header", async function () {
+  it("[VSD-001] checks the configured URL, never one built from the Host header", async function () {
     const url = await shared();
     // A genuine signature AppBridge made for another URL (a tenant's own listener), replayed
     // with a Host header naming that URL's host.
@@ -160,7 +160,7 @@ describe("@voice VoiceServer app-bound signatures", function () {
     expect(sessions).to.have.length(0);
   });
 
-  it("refuses a bad app-bound signature even where the URL-only one is optional", async function () {
+  it("[VSD-001] refuses a bad app-bound signature even where the URL-only one is optional", async function () {
     server = await new VoiceServer({
       port: 0,
       host: "127.0.0.1",

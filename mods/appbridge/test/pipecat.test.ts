@@ -201,7 +201,7 @@ describe("@appbridge Pipecat golden test (twilio protocol)", function () {
   const endEvents = () =>
     [...record.records.values()].flat().map((e) => e.message.type as string);
 
-  it("hears the caller, is heard, barges in with clear, reads DTMF and hangs up through base_url", async function () {
+  it("[VSD-016] hears the caller, is heard, barges in with clear, reads DTMF and hangs up through base_url", async function () {
     await setup(true);
     const since = Date.now();
     harness.roomrNode.offerCall();
@@ -240,7 +240,7 @@ describe("@appbridge Pipecat golden test (twilio protocol)", function () {
     expect(endEvents()).not.to.include("app.dropped");
   });
 
-  it("hangs up when the bot closes its socket", async function () {
+  it("[VSD-016] hangs up when the bot closes its socket", async function () {
     await setup(false);
     harness.roomrNode.offerCall();
     await waitFor(
