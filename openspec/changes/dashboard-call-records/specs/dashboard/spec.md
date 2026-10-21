@@ -35,6 +35,11 @@ start and its duration.
 - **WHEN** the user opens a completed inbound call to the agent Front desk
 - **THEN** the title names both parties, the facts name Front desk, and each turn shows who spoke, when and for how long
 
+#### Scenario: A browser test call
+
+- **WHEN** the user opens a call they placed with Talk to agent
+- **THEN** the title names them (their email) and the agent, not the media node's internal names
+
 #### Scenario: A failed call
 
 - **WHEN** the user opens an outbound call that failed with `486 Busy Here`

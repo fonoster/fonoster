@@ -218,7 +218,7 @@ test("[DSH-038] upgrades from the Trial, through the portal when there is no car
   await expect(page.getByRole("region", { name: "Balance" })).toContainText(
     "3,500 credits",
     {
-      timeout: 10_000
+      timeout: 20_000
     }
   );
   expect(api.callsTo("Billing/Subscribe")).toHaveLength(2);

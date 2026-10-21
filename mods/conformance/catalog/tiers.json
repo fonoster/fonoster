@@ -198,5 +198,15 @@
     "tier": "pr",
     "pri": "P0",
     "trials": null
+  },
+  "DSH-041": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-042": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
   }
 }

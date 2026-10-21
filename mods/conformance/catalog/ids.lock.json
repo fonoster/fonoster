@@ -38,5 +38,7 @@
   "DSH-037": "A top-up arrives, and auto-recharge refuses less than the smallest top-up",
   "DSH-038": "Upgrading from the Trial, through the portal when there is no card",
   "DSH-039": "The Billing page against the stack and the Stripe fake",
-  "DSH-040": "A self-hosted install has no Billing"
+  "DSH-040": "A self-hosted install has no Billing",
+  "DSH-041": "A SIP network built through the UI against the platform, then taken down",
+  "DSH-042": "An agent created in the UI answers its first call at once"
 }
