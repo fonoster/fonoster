@@ -104,6 +104,22 @@ async function deleteRow(
   await expect(dialog).toBeHidden();
 }
 
+/**
+ * Clicks a screen's Create button until its form opens: while the list loads, the
+ * header's button can be replaced by the empty state's, and a click on the old one is lost.
+ */
+async function openCreate(page: Page, name: string) {
+  await expect(async () => {
+    await page.getByRole("button", { name }).first().click({ timeout: 2000 });
+    await expect(
+      page
+        .getByRole("dialog")
+        .or(page.getByRole("heading", { name: /^New / }))
+        .first()
+    ).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 15000 });
+}
+
 test("[DSH-017] adds a number routed to an agent, reroutes it to a SIP agent and removes it", async ({
   page,
   api
@@ -123,7 +139,7 @@ test("[DSH-017] adds a number routed to an agent, reroutes it to a SIP agent and
   await openSection(page, "Numbers");
 
   await expect(page.getByText("No numbers yet")).toBeVisible();
-  await page.getByRole("button", { name: "Create number" }).first().click();
+  await openCreate(page, "Create number");
 
   // Not E.164: refused in the form, nothing sent.
   await page.getByLabel("Number", { exact: true }).fill("555-0100 ext 4");
@@ -195,7 +211,7 @@ test("[DSH-018] creates a trunk under pstn, refuses a taken inbound URI, and say
   await signIn(page, api, net);
   await openSection(page, "Trunks");
 
-  await page.getByRole("button", { name: "Create trunk" }).first().click();
+  await openCreate(page, "Create trunk");
   // The inbound URI follows the name as a label under pstn.<domain>.
   await page.getByLabel("Name", { exact: true }).fill("Acme Carrier");
   await expect(page.getByLabel("Inbound URI")).toHaveValue("acme-carrier");
@@ -275,7 +291,7 @@ test("[DSH-019] creates a domain with an egress rule, refuses a bad pattern, and
   await openSection(page, "Domains");
 
   await expect(page.getByText("No domains yet")).toBeVisible();
-  await page.getByRole("button", { name: "Create domain" }).first().click();
+  await openCreate(page, "Create domain");
   await page.getByLabel("Name", { exact: true }).fill("Acme HQ");
   await page.getByLabel("Domain URI").fill("acme");
   await page.getByRole("button", { name: "Add rule" }).click();
@@ -329,7 +345,7 @@ test("[DSH-020] creates a SIP agent, refuses invalid fields, and disables it fro
   await signIn(page, api, net);
   await openSection(page, "SIP agents");
 
-  await page.getByRole("button", { name: "Create SIP agent" }).first().click();
+  await openCreate(page, "Create SIP agent");
   await page.getByLabel("Name", { exact: true }).fill("Maria");
   await page.getByLabel("Username", { exact: true }).fill("Maria Perez");
   await page.getByLabel("Max contacts").fill("101");
@@ -386,7 +402,7 @@ test("[DSH-021] creates an ACL of addresses and ranges and refuses anything else
   await expect(
     page.getByText("Anything not listed is rejected.", { exact: false })
   ).toBeVisible();
-  await page.getByRole("button", { name: "Create ACL" }).first().click();
+  await openCreate(page, "Create ACL");
   await page.getByLabel("Name", { exact: true }).fill("Acme signaling");
   await page
     .getByLabel("Allowed address 1", { exact: true })
@@ -425,10 +441,7 @@ test("[DSH-022] keeps credentials' passwords write-only", async ({
   await signIn(page, api);
   await openSection(page, "Credentials");
 
-  await page
-    .getByRole("button", { name: "Create credentials" })
-    .first()
-    .click();
+  await openCreate(page, "Create credentials");
   await page.getByLabel("Name", { exact: true }).fill("Acme trunk");
   await page.getByLabel("Username", { exact: true }).fill("acme");
   await page.getByLabel("Password", { exact: true }).fill("s3cret-pass");
@@ -472,7 +485,7 @@ test("[DSH-023] creates a secret, never shows its value, keeps a refused save in
   await openSection(page, "Secrets");
 
   await expect(page.getByText("No secrets yet")).toBeVisible();
-  await page.getByRole("button", { name: "Create secret" }).first().click();
+  await openCreate(page, "Create secret");
   await page.getByLabel("Name", { exact: true }).fill("ab");
   await page.getByLabel("Value").fill("tok_live_123");
   await page.getByRole("button", { name: "Create secret" }).click();
@@ -538,7 +551,7 @@ test("[DSH-024] shows an API key's secret once, regenerates it in one click, and
   await openSection(page, "API keys");
 
   await expect(page.getByText("No API keys yet")).toBeVisible();
-  await page.getByRole("button", { name: "Create API key" }).first().click();
+  await openCreate(page, "Create API key");
   await choose(page, "Expires", "In 90 days");
   await page
     .getByRole("dialog")
@@ -593,7 +606,7 @@ test("[DSH-025] creates a webhook on HTTPS only, shows its secret once, and rota
   await signInTo(page, api, ws);
   await openSection(page, "Webhooks");
 
-  await page.getByRole("button", { name: "Create webhook" }).first().click();
+  await openCreate(page, "Create webhook");
   await page.getByLabel("URL").fill("http://hooks.acme.example/fonoster");
   await page.getByRole("button", { name: "Create webhook" }).last().click();
   await expect(page.getByText("Webhook URLs must use https://")).toBeVisible();
@@ -662,7 +675,7 @@ test("[DSH-026] invites a member with a role and removes one", async ({
     page.getByRole("button", { name: `Actions for ${ada.name}` })
   ).toHaveCount(0);
 
-  await page.getByRole("button", { name: "Invite member" }).click();
+  await openCreate(page, "Invite member");
   await page.getByLabel("Name", { exact: true }).fill("Maria");
   await page.getByLabel("Email").fill("maria@acme.com");
   await choose(page, "Role", "Admin");
