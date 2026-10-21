@@ -1,0 +1,12 @@
+diff --git a/mods/appbridge/src/turn/Pacing.ts b/mods/appbridge/src/turn/Pacing.ts
+index 02b522648..b0c9ee59f 100644
+--- a/mods/appbridge/src/turn/Pacing.ts
++++ b/mods/appbridge/src/turn/Pacing.ts
+@@ -259,7 +259,6 @@ export class Pacing {
+       language,
+       confidence,
+       durationMs: at - this.turnStart,
+-      ...(abandoned ? { abandoned: true as const } : {})
+     });
+     this.inTurn = false;
+     this.likelyEnded = false;

@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/OutputQueue.ts b/mods/appbridge/src/session/OutputQueue.ts
+index 264cb1201..a6145aca9 100644
+--- a/mods/appbridge/src/session/OutputQueue.ts
++++ b/mods/appbridge/src/session/OutputQueue.ts
+@@ -236,7 +236,7 @@ export class OutputQueue {
+       complete: false,
+       failed: false
+     };
+-    this.enqueue(item, req.preempt);
++    this.enqueue(item, false);
+     this.synthesize(item, req.text, req.last);
+   }
+ 

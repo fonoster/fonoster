@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/turn/Pacing.ts b/mods/appbridge/src/turn/Pacing.ts
+index 02b522648..fc5149271 100644
+--- a/mods/appbridge/src/turn/Pacing.ts
++++ b/mods/appbridge/src/turn/Pacing.ts
+@@ -164,7 +164,7 @@ export class Pacing {
+     if (!t.text.trim()) return;
+     if (
+       t.final &&
+-      this.backchannelUntil !== undefined &&
++      false &&
+       at <= this.backchannelUntil &&
+       !this.inTurn
+     ) {

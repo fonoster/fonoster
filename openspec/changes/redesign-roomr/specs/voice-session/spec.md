@@ -93,3 +93,12 @@ development fallback when `X-App-Ref` is missing and a routing file is configure
 - **WHEN** a number points to an Autopilot agent
 - **THEN** AppBridge connects to the hosted Autopilot's URL with the `fonoster` protocol
 - **AND** the protocol is identical to that of any other app
+
+#### Scenario: App URLs are public destinations
+- **WHEN** an app is created or updated with a `url` or listener URL naming an internal host
+  (`localhost`, a single-label or `*.svc` name) or a private, loopback, link-local or metadata IP
+- **THEN** the call fails with `INVALID_ARGUMENT`, unless the operator allows the destination
+  (`apps.allowedDestinations` or `FONOSTER_ALLOWED_DESTINATIONS`); the hosted Autopilot URL from
+  configuration is exempt
+- **AND** when dialing an app or listener from the database, AppBridge refuses addresses that
+  resolve to private ranges (Autopilot apps' URL and the operator's YAML apps are not checked)

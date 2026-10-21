@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..c796f6748 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1012,7 +1012,7 @@ export class AppSession {
+       if (name) this.ncUsage.delete(name);
+       else this.ncUsage.clear();
+       this.call.record("event", {
+-        type: "filter.failed",
++        type: "filter.ok",
+         ...(name ? { name } : {}),
+         reason
+       });

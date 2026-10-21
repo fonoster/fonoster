@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..ce8aab12c 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -886,7 +886,7 @@ export class AppSession {
+       callRef: info.callRef,
+       appRef: this.app.ref,
+       direction: info.direction,
+-      from: info.from,
++      from: "",
+       to: info.to,
+       metadata: info.metadata,
+       handoff: this.handoffPayload,

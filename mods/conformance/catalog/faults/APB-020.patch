@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/connectApp.ts b/mods/appbridge/src/session/connectApp.ts
+index 45d4b0317..2a37c7d84 100644
+--- a/mods/appbridge/src/session/connectApp.ts
++++ b/mods/appbridge/src/session/connectApp.ts
+@@ -82,7 +82,7 @@ export async function connectApp(
+   let last = "";
+   // Tenant-chosen URLs must reach public addresses only (M14); a refusal isn't retried.
+   let lookup: LookupFunction | undefined;
+-  if (app.publicDestinationsOnly?.url) {
++  if (false) {
+     try {
+       lookup = publicWebSocketGuard(app.url).lookup;
+     } catch (e) {

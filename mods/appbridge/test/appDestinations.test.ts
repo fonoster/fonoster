@@ -69,7 +69,7 @@ describe("@appbridge[app destinations]", function () {
     onFailure: (f: { reason: string }) => failures.push(f.reason)
   });
 
-  it("refuses a tenant app at a private address, without retrying", async function () {
+  it("[APB-020] refuses a tenant app at a private address, without retrying", async function () {
     const failures: string[] = [];
     let error = "";
     try {
@@ -81,7 +81,7 @@ describe("@appbridge[app destinations]", function () {
     expect(failures).to.have.length(1);
   });
 
-  it("refuses names that resolve to a private address when connecting", async function () {
+  it("[APB-020] refuses names that resolve to a private address when connecting", async function () {
     // The guard's lookup is what the socket uses: a public-looking name whose
     // DNS answer is private (or changes to one) is refused at connect time.
     const { lookup } = publicWebSocketGuard("wss://bot.example.com/session");
@@ -91,7 +91,7 @@ describe("@appbridge[app destinations]", function () {
     expect(error?.message).to.match(/non-public/);
   });
 
-  it("dials operator apps and allow-listed destinations", async function () {
+  it("[APB-020] dials operator apps and allow-listed destinations", async function () {
     const failures: string[] = [];
     const direct = await connectApp(
       app(`ws://127.0.0.1:${port}/`, false),
@@ -107,7 +107,7 @@ describe("@appbridge[app destinations]", function () {
     expect(failures).to.deep.equal([]);
   });
 
-  it("refuses tenant listeners at private addresses", async function () {
+  it("[APB-020] refuses tenant listeners at private addresses", async function () {
     let error = "";
     try {
       await Listener.connect(

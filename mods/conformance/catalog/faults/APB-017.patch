@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..9491c6708 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1595,7 +1595,7 @@ export class AppSession {
+       case "record.note":
+         // Already appended to the call record with every app message (2.10); only the size is
+         // checked here (voice-session, "Apps can annotate the call record").
+-        if (Buffer.byteLength(JSON.stringify(cmd.data)) > 16 * 1024) {
++        if (Buffer.byteLength(JSON.stringify(cmd.data)) > 16 * 1024 * 1024) {
+           this.emit({
+             type: "error",
+             code: "bad_message",

@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/AppBridge.ts b/mods/appbridge/src/AppBridge.ts
+index 801e501dd..e3f59d386 100644
+--- a/mods/appbridge/src/AppBridge.ts
++++ b/mods/appbridge/src/AppBridge.ts
+@@ -677,7 +677,7 @@ export class AppBridge {
+             answered.recording.noteTracks(event.participantRef, event.tracks);
+             unsubscribe();
+           }
+-        } else if (event.type === "call.answered" && !settled) {
++        } else if ((event.type === "call.answered" || event.type === "call.progress") && !settled) {
+           settled = true;
+           clearTimeout(timer);
+           setTimeout(unsubscribe, 5000);

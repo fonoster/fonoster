@@ -1,4 +1,134 @@
 {
+  "APB-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-002": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-003": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-004": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-005": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-006": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-007": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-008": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-009": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-010": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-011": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-012": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-013": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-014": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-015": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-016": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-017": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-018": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-019": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-020": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-021": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-022": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-023": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-024": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-025": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-026": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
   "DSH-001": {
     "tier": "pr",
     "pri": "P0",

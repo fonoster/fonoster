@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..fbc4f78f9 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -683,7 +683,7 @@ export class Call {
+       Buffer.byteLength(JSON.stringify(payload)) >
+       DEFAULTS.maxHandoffPayloadBytes
+     ) {
+-      return `handoff payload exceeds ${DEFAULTS.maxHandoffPayloadBytes} bytes`;
++      return undefined;
+     }
+     return undefined;
+   }

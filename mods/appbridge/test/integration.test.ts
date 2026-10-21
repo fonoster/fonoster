@@ -124,7 +124,7 @@ describe("@appbridge integration", function () {
 
   const commands = () => harness.roomrNode.commands.map((c) => c.command.type);
 
-  it("signs connections so a verifying app accepts them", async function () {
+  it("[APB-001] signs connections so a verifying app accepts them", async function () {
     harness.app.configure({ signingSecret: "secret", verifySignature: true });
     await start([app("a", harness.app.url)]);
     harness.roomrNode.offerCall();
@@ -133,7 +133,7 @@ describe("@appbridge integration", function () {
     expect(harness.app.attempts[0]).to.include({ accepted: true });
   });
 
-  it("applies the fallback message when the app refuses a bad signature", async function () {
+  it("[APB-004] applies the fallback message when the app refuses a bad signature", async function () {
     harness.app.configure({ signingSecret: "rotated", verifySignature: true });
     await start([
       app("a", harness.app.url, {
@@ -149,7 +149,7 @@ describe("@appbridge integration", function () {
     expect(types).to.include.members(["app.connect_failed", "app.unreachable"]);
   });
 
-  it("connects to the fallback app when the app is down", async function () {
+  it("[APB-004] connects to the fallback app when the app is down", async function () {
     const downUrl = harness.app.url;
     await harness.app.stop();
     await start([
@@ -168,7 +168,7 @@ describe("@appbridge integration", function () {
     expect(unreachable?.message.url).to.equal(downUrl);
   });
 
-  it("hands the call to another app with its payload and keeps the caller connected", async function () {
+  it("[APB-014] hands the call to another app with its payload and keeps the caller connected", async function () {
     await start([
       app("ivr", harness.app.url, { workspaceRef: "W1" }),
       app("billing", other.url, { numbers: ["+0"], workspaceRef: "W1" })
@@ -194,7 +194,7 @@ describe("@appbridge integration", function () {
     expect(commands()).not.to.include("hangup");
   });
 
-  it("never merges a call into a live call with the same callRef (RV-B7)", async function () {
+  it("[APB-005] never merges a call into a live call with the same callRef (RV-B7)", async function () {
     await start([app("a", harness.app.url)]);
     harness.roomrNode.offerCall({ callRef: "dup" });
     const first = (await harness.app.nextConnection()).peer;
@@ -210,7 +210,7 @@ describe("@appbridge integration", function () {
     expect(start2.callRef).to.equal(second.roomRef);
   });
 
-  it("hangs up over the call subject only for the call's own workspace (RV-B12)", async function () {
+  it("[APB-005] hangs up over the call subject only for the call's own workspace (RV-B12)", async function () {
     await start([
       app("none", harness.app.url, { numbers: ["+1000"] }),
       app("mine", other.url, { numbers: ["+2000"], workspaceRef: "W1" })
@@ -248,7 +248,7 @@ describe("@appbridge integration", function () {
     expect(await hangup("c-mine", "W1")).to.include({ type: "ack" });
   });
 
-  it("opens outbound sessions only when the callee answers", async function () {
+  it("[APB-003] opens outbound sessions only when the callee answers", async function () {
     await start([app("a", harness.app.url)]);
     const room = await harness.roomrNode.handle({
       type: "room.create",
@@ -282,7 +282,7 @@ describe("@appbridge integration", function () {
     expect(commands()).not.to.include("answer");
   });
 
-  it("records callee_hangup when the dialed party hangs up (the app sees caller_hangup)", async function () {
+  it("[APB-003] records callee_hangup when the dialed party hangs up (the app sees caller_hangup)", async function () {
     await start([app("a", harness.app.url)]);
     const room = await harness.roomrNode.handle({
       type: "room.create",
@@ -322,7 +322,7 @@ describe("@appbridge integration", function () {
     expect(ended).to.include({ reason: "callee_hangup" });
   });
 
-  it("never dials the app when the callee is busy", async function () {
+  it("[APB-003] never dials the app when the callee is busy", async function () {
     harness.roomrNode.configure({ dialOutcome: "busy" });
     await start([app("a", harness.app.url)]);
     const room = await harness.roomrNode.handle({
@@ -354,7 +354,7 @@ describe("@appbridge integration", function () {
     expect(entries[1]).to.include({ type: "call.progress", status: "busy" });
   });
 
-  it("appends every message in both directions to the call record", async function () {
+  it("[APB-017] appends every message in both directions to the call record", async function () {
     await start([app("a", harness.app.url)]);
     harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
@@ -375,7 +375,7 @@ describe("@appbridge integration", function () {
     expect(entries.every((e) => typeof e.at === "number")).to.equal(true);
   });
 
-  it("feeds listen-only sockets both tracks as separate tagged frames", async function () {
+  it("[APB-015] feeds listen-only sockets both tracks as separate tagged frames", async function () {
     await start([
       app("a", harness.app.url, {
         listeners: [{ url: other.url, tracks: "both" }]
@@ -405,7 +405,7 @@ describe("@appbridge integration", function () {
     ]);
   });
 
-  it("answers listener commands with read_only and keeps the call", async function () {
+  it("[APB-015] answers listener commands with read_only and keeps the call", async function () {
     await start([
       app("a", harness.app.url, { listeners: [{ url: other.url }] })
     ]);
@@ -430,7 +430,7 @@ describe("@appbridge integration", function () {
     expect([...tracks]).to.deep.equal([1]);
   });
 
-  it("drops an app that stops answering pings", async function () {
+  it("[APB-005] drops an app that stops answering pings", async function () {
     await start([app("a", harness.app.url)], {
       keepalive: { pingIntervalMs: 100, idleTimeoutMs: 350 }
     });
@@ -450,7 +450,7 @@ describe("@appbridge integration", function () {
     ["another workspace", "W2"],
     ["no workspace", undefined]
   ] as const) {
-    it(`refuses a handoff to an app in ${name} (RV-B3)`, async function () {
+    it(`[APB-014] refuses a handoff to an app in ${name} (RV-B3)`, async function () {
       await start([
         app("ivr", harness.app.url, { workspaceRef: "W1" }),
         app("theirs", other.url, { numbers: ["+0"], workspaceRef: target })
@@ -493,7 +493,7 @@ describe("@appbridge integration", function () {
     ["CR/LF in the target", { to: "+1555\r\nVia: x" }],
     ["URI delimiters in the target", { to: "sip:a@b;transport=tcp" }]
   ] as const) {
-    it(`refuses a transfer with ${name} and sends nothing to the node (H11)`, async function () {
+    it(`[APB-013] refuses a transfer with ${name} and sends nothing to the node (H11)`, async function () {
       await start([app("ivr", harness.app.url, { workspaceRef: "W1" })]);
       harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
@@ -509,7 +509,7 @@ describe("@appbridge integration", function () {
     });
   }
 
-  it("transfers with the app's custom headers and the call's own number and workspace (H11)", async function () {
+  it("[APB-013] transfers with the app's custom headers and the call's own number and workspace (H11)", async function () {
     await start([app("ivr", harness.app.url, { workspaceRef: "W1" })]);
     harness.roomrNode.offerCall({ from: "+15550001111", to: "+15550002222" });
     const { peer } = await harness.app.nextConnection();
@@ -533,7 +533,7 @@ describe("@appbridge integration", function () {
     });
   });
 
-  it("refuses oversized handoff payloads and keeps the session", async function () {
+  it("[APB-014] refuses oversized handoff payloads and keeps the session", async function () {
     await start([
       app("ivr", harness.app.url, { workspaceRef: "W1" }),
       app("billing", other.url, { numbers: ["+0"], workspaceRef: "W1" })
@@ -556,7 +556,7 @@ describe("@appbridge integration", function () {
     expect(other.attempts).to.have.length(0);
   });
 
-  it("feeds STT and turn detection filtered caller audio", async function () {
+  it("[APB-016] feeds STT and turn detection filtered caller audio", async function () {
     let frames = 0;
     AudioFilterFactory.registerFilter("test-mute", {
       description: "silences everything (test only)",
@@ -599,7 +599,7 @@ describe("@appbridge integration", function () {
     expect(frames).to.be.greaterThan(10);
   });
 
-  it("continues unfiltered and records the failure when a filter cannot be created", async function () {
+  it("[APB-016] continues unfiltered and records the failure when a filter cannot be created", async function () {
     await start([
       app("a", harness.app.url, { filters: [{ name: "does-not-exist" }] })
     ]);
@@ -614,7 +614,7 @@ describe("@appbridge integration", function () {
     expect(String(failure?.message.reason)).to.contain("does-not-exist");
   });
 
-  it("records a filter that fails mid-call and keeps the call unfiltered", async function () {
+  it("[APB-016] records a filter that fails mid-call and keeps the call unfiltered", async function () {
     let frames = 0;
     AudioFilterFactory.registerFilter("test-boom", {
       description: "throws on the third frame (test only)",
@@ -660,7 +660,7 @@ describe("@appbridge integration", function () {
     );
   });
 
-  it("hands a filter its provider's credential, and fails open without one", async function () {
+  it("[APB-016] hands a filter its provider's credential, and fails open without one", async function () {
     const seen: unknown[] = [];
     const keyed = (name: string, provider: string) =>
       AudioFilterFactory.registerFilter(name, {
@@ -723,7 +723,7 @@ describe("@appbridge integration", function () {
     );
   });
 
-  it("records app notes and refuses oversized ones", async function () {
+  it("[APB-017] records app notes and refuses oversized ones", async function () {
     await start([app("a", harness.app.url)]);
     harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
@@ -752,7 +752,7 @@ describe("@appbridge integration", function () {
     });
   });
 
-  it("records turn decisions with their estimate and labels the turn", async function () {
+  it("[APB-017] records turn decisions with their estimate and labels the turn", async function () {
     harness.stt.configure({
       script: [{ atMs: 400, text: "What are your hours?" }]
     });
@@ -785,7 +785,7 @@ describe("@appbridge integration", function () {
     expect(decision?.message.eot).to.equal(1);
   });
 
-  it("plays a retired voice's replacement and records the use", async function () {
+  it("[APB-007] plays a retired voice's replacement and records the use", async function () {
     const file = path.join(
       fs.mkdtempSync(path.join(os.tmpdir(), "registry-")),
       "registry.json"
@@ -848,7 +848,7 @@ describe("@appbridge integration", function () {
     });
   });
 
-  it("opens STT with the app's catalog STT model and hints, adding listen.update hints", async function () {
+  it("[APB-011] opens STT with the app's catalog STT model and hints, adding listen.update hints", async function () {
     const file = path.join(
       fs.mkdtempSync(path.join(os.tmpdir(), "registry-")),
       "registry.json"
@@ -899,7 +899,7 @@ describe("@appbridge integration", function () {
     ]);
   });
 
-  it("reports an app STT model that is not in the catalog", async function () {
+  it("[APB-011] reports an app STT model that is not in the catalog", async function () {
     const file = path.join(
       fs.mkdtempSync(path.join(os.tmpdir(), "registry-")),
       "registry.json"
@@ -937,7 +937,7 @@ describe("@appbridge integration", function () {
     expect(harness.stt.streams).to.have.length(0);
   });
 
-  it("hangs up when the app drops mid-call", async function () {
+  it("[APB-005] hangs up when the app drops mid-call", async function () {
     await start([app("a", harness.app.url)]);
     harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
@@ -948,7 +948,7 @@ describe("@appbridge integration", function () {
     expect(types).to.include("app.dropped");
   });
 
-  it("does not record a drop when the app hangs up and closes at once", async function () {
+  it("[APB-005] does not record a drop when the app hangs up and closes at once", async function () {
     // Pipecat's auto_hang_up: the hang-up request, then the socket closes before Roomr's ack.
     await start([app("a", harness.app.url)]);
     harness.roomrNode.offerCall();

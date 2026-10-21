@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..e7da2d13b 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1102,7 +1102,7 @@ export class AppSession {
+           this.labeler.estimate(e, Date.now());
+           if (!this.subscriptions.has("turn.estimate")) return;
+           const now = Date.now();
+-          if (now - this.lastEstimateAt < ESTIMATE_EVERY_MS) return;
++          return;
+           this.lastEstimateAt = now;
+           this.emit({
+             type: "turn.estimate",

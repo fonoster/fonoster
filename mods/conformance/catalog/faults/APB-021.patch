@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/turn/Pacing.ts b/mods/appbridge/src/turn/Pacing.ts
+index 02b522648..65c5e11c8 100644
+--- a/mods/appbridge/src/turn/Pacing.ts
++++ b/mods/appbridge/src/turn/Pacing.ts
+@@ -102,7 +102,7 @@ export class Pacing {
+     options: PacingOptions
+   ) {
+     this.language = options.language;
+-    this.prepare = options.prepareThreshold ?? 0.5;
++    this.prepare = options.prepareThreshold ?? 2;
+     this.commit = options.commitThreshold ?? 1;
+     this.patienceLevel = options.patience ?? "normal";
+     this.adapt = options.adapt ?? true;
