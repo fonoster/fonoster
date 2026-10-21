@@ -16,7 +16,6 @@ import (
 
 	"github.com/emiago/sipgo"
 	"github.com/emiago/sipgo/sip"
-	"github.com/fonoster/fonoster/go/roomr/internal/caller"
 	"github.com/fonoster/fonoster/go/roomr/internal/node"
 	"github.com/fonoster/fonoster/go/roomr/internal/sipua"
 	"github.com/icholy/digest"
@@ -170,7 +169,7 @@ func (l *stateLog) wait(t *testing.T, state string, within time.Duration, status
 const sessionCount = "X-Session-Count"
 
 // TestRegistersWithSessionCount: digest challenge answered, {sessions} rendered as the room count,
-// and "full" (the room limit) reported at once on drain.
+// and the registration removed (Expires 0) on Unregister.
 func TestRegistersWithSessionCount(t *testing.T) {
 	reg := startRegistrar(t, "roomr", "secret")
 	states := &stateLog{}
@@ -198,8 +197,8 @@ func TestRegistersWithSessionCount(t *testing.T) {
 		t.Fatal("the registrar never challenged")
 	}
 	// Two answered calls: the periodic REGISTER (every Expires/2) carries 2.
-	c1, _, _ := r.answeredCallWith(caller.DialOptions{}, "")
-	c2, _, _ := r.answeredCallWith(caller.DialOptions{}, "")
+	c1, _ := r.answeredCall()
+	c2, _ := r.answeredCall()
 	reg.waitHeader(t, sessionCount, "2", 3*time.Second)
 	_ = c1.Hangup()
 	_ = c2.Hangup()
@@ -223,7 +222,7 @@ func TestReregistersOnLoadChange(t *testing.T) {
 	}})
 	reg.waitHeader(t, sessionCount, "0", 2*time.Second)
 	// The interval is a minute, so a REGISTER with 1 can only come from the load change.
-	call, _, _ := r.answeredCallWith(caller.DialOptions{}, "")
+	call, _ := r.answeredCall()
 	reg.waitHeader(t, sessionCount, "1", time.Second)
 	_ = call.Hangup()
 }
@@ -276,7 +275,7 @@ func TestRegistrationFailsOnChallengeWithoutAuth(t *testing.T) {
 func TestNoRegistrations(t *testing.T) {
 	reg := startRegistrar(t, "", "")
 	r := start(t)
-	call, _, _ := r.answeredCallWith(caller.DialOptions{}, "")
+	call, _ := r.answeredCall()
 	_ = call.Hangup()
 	time.Sleep(300 * time.Millisecond)
 	if n := len(reg.snapshot()); n != 0 {
