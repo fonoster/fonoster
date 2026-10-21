@@ -42,6 +42,8 @@ import { TopUpDialog } from "./top-up-dialog";
 
 /** How long the page waits for a top-up's credits before it stops checking (D7). */
 const POLL_MS = 30_000;
+/** The credits the Pay-as-you-go plan adds each period (planLine says the same). */
+const PLAN_CREDITS = 2_500;
 
 /**
  * Billing (add-billing-page): the owner's credits, on a page of its own outside the workspaces,
@@ -112,10 +114,18 @@ function Billing({ workspace }: { workspace: Workspace }) {
     return () => clearTimeout(t);
   }, [polling, now]);
   const s = billing.data;
+  // Paid credits arrive when Stripe confirms the payment: poll until the balance has them.
+  const awaitCredits = (amount: number, before: number) => {
+    setBalanceBefore(before);
+    setWaitingFor(amount);
+    setNow(Date.now());
+    setPollUntil(Date.now() + POLL_MS);
+  };
   // Back from the portal with a card: finish the upgrade the owner asked for, once.
   const resumeUpgrade = params.get("upgrade") === "1" && s?.plan === "trial";
   const resumed = useRef(false);
   const { mutate: startSubscription } = subscribe;
+  const balanceNow = s?.balance ?? 0;
   useEffect(() => {
     // The mutation object changes every render; the ref keeps this to one call.
     if (!resumeUpgrade || resumed.current) return;
@@ -127,8 +137,15 @@ function Billing({ workspace }: { workspace: Workspace }) {
       },
       { replace: true }
     );
-    startSubscription();
-  }, [resumeUpgrade, setParams, startSubscription]);
+    startSubscription(undefined, {
+      onSuccess: () => {
+        setBalanceBefore(balanceNow);
+        setWaitingFor(PLAN_CREDITS);
+        setNow(Date.now());
+        setPollUntil(Date.now() + POLL_MS);
+      }
+    });
+  }, [resumeUpgrade, setParams, startSubscription, balanceNow]);
   const arrived =
     s !== undefined &&
     balanceBefore !== undefined &&
@@ -159,6 +176,7 @@ function Billing({ workspace }: { workspace: Workspace }) {
 
   const upgrade = () =>
     subscribe.mutate(undefined, {
+      onSuccess: () => awaitCredits(PLAN_CREDITS, s.balance),
       // No payment method yet: the portal asks for one first; upgrading finishes on return (D5).
       onError: (error) => {
         if (!needsPaymentMethod(error)) return;
@@ -306,12 +324,7 @@ function Billing({ workspace }: { workspace: Workspace }) {
         open={topUpOpen}
         onOpenChange={setTopUpOpen}
         workspace={workspace}
-        onBought={(amount) => {
-          setBalanceBefore(s.balance);
-          setWaitingFor(amount);
-          setNow(Date.now());
-          setPollUntil(Date.now() + POLL_MS);
-        }}
+        onBought={(amount) => awaitCredits(amount, s.balance)}
       />
       <AutoRechargeDialog
         open={rechargeOpen}

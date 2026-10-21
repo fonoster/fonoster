@@ -49,7 +49,7 @@ async function stripe(
   return res.json();
 }
 
-test("an owner upgrades from the Trial and tops up from the Billing page", async ({
+test("[DSH-039] an owner upgrades from the Trial and tops up from the Billing page", async ({
   page
 }) => {
   // The Customer Portal is Stripe's: note where the page sends the owner instead of going there.
