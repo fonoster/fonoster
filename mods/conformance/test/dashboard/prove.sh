@@ -33,13 +33,26 @@ if [ "${QA_RUN:-}" = 1 ]; then
   exit $status
 fi
 if grep -q "\[$id\]" e2e/*.real.spec.ts e2e-stack/*.spec.ts 2>/dev/null; then
-  port="${PROVE_SPA_PORT:-16480}"
-  npx vite build --config vite.prove.config.ts --outDir "$out/spa" --logLevel warn || exit 1
-  npx vite preview --config vite.prove.config.ts --outDir "$out/spa" --port "$port" --strictPort \
+  # A port of this run's own, checked free: a server left by an earlier case would serve that
+  # case's build, and the tests would meet the wrong fault.
+  port="${PROVE_SPA_PORT:-$((16480 + $$ % 400))}"
+  if curl -s -o /dev/null "http://localhost:$port/"; then
+    echo "port $port is already serving; stop it first" >&2
+    exit 1
+  fi
+  vite=../../node_modules/.bin/vite
+  "$vite" build --config vite.prove.config.ts --outDir "$out/spa" --logLevel warn || exit 1
+  # The vite binary itself, not npx, so the trap stops the server and not only a wrapper.
+  "$vite" preview --config vite.prove.config.ts --outDir "$out/spa" --port "$port" --strictPort \
     >"$out/vite.log" 2>&1 &
-  vite=$!
-  trap 'kill $vite 2>/dev/null' EXIT
-  for _ in $(seq 1 60); do curl -sf "http://localhost:$port/config.js" >/dev/null && break; sleep 1; done
+  server=$!
+  trap 'kill $server 2>/dev/null; wait $server 2>/dev/null' EXIT
+  ready=""
+  for _ in $(seq 1 60); do
+    curl -sf "http://localhost:$port/config.js" >/dev/null && { ready=1; break; }
+    sleep 1
+  done
+  [ -n "$ready" ] || { cat "$out/vite.log" >&2; exit 1; }
   if grep -q "\[$id\]" e2e-stack/*.spec.ts; then
     ../../ops/rebuild/stack billing-reset >/dev/null || exit 1
     . ../../ops/rebuild/.local/stack.env
