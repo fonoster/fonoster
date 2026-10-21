@@ -3,70 +3,67 @@ package node
 import (
 	"context"
 	"errors"
-	"fmt"
-	"time"
 
+	sessionv1 "github.com/fonoster/fonoster/go/roomr/api/session/v1"
 	"github.com/fonoster/fonoster/go/roomr/internal/audio"
 	"github.com/fonoster/fonoster/go/roomr/internal/rtpio"
 	"github.com/fonoster/fonoster/go/roomr/internal/sdp"
 )
 
-// WarmTransferTimeout is how long a warm transfer's new party has to answer (MN17).
-var WarmTransferTimeout = 30 * time.Second
-
-// dialTimeout bounds a plain participant.dial or cold transfer.
-const dialTimeout = 60 * time.Second
-
-// progressStatus maps a failed dial's SIP status to media-control's call.progress status.
-func progressStatus(status int) string {
+// failCause is a failed dial's ending cause from its final SIP status.
+func failCause(status int) string {
 	switch status {
 	case 486, 600:
-		return "busy"
+		return ReasonBusy
 	case 408, 480, 487:
-		return "no_answer"
+		return ReasonNoAnswer
 	default:
-		return "failed"
+		return ReasonRejected
 	}
 }
 
-// dialParty dials `to` through the node's Dialer and, when answered, adds it to the room.
-// onProgress gets "ringing"; the result is the new participant or a *DialError.
-func (r *Room) dialParty(ctx context.Context, to, from string, headers map[string]string,
-	onRinging func()) (*Participant, error) {
-	dialer := r.node.dialer
-	if dialer == nil {
-		return nil, fmt.Errorf("no outbound proxy configured")
+// dialStatus is a failed dial's SIP status (503 when no response said otherwise).
+func dialStatus(err error) int {
+	var de *DialError
+	if errors.As(err, &de) {
+		return de.Status
 	}
-	return r.dialLeg(func(offer []byte, onProgress func(int)) (OutLeg, []byte, error) {
-		return dialer.Dial(ctx, to, from, headers, offer, onProgress)
-	}, onRinging)
+	return 503
 }
 
-// dialFunc sends the INVITE with the node's offer and waits for the answer.
-type dialFunc func(offer []byte, onProgress func(status int)) (OutLeg, []byte, error)
-
-// dialLeg offers the node's codecs through dial and, when answered, adds the party to the room
-// (participant.dial, transfers and Roomr's CreateCall).
-func (r *Room) dialLeg(dial dialFunc, onRinging func()) (*Participant, error) {
-	ep, err := rtpio.Listen(r.node.cfg.RTPHost)
-	if err != nil {
-		return nil, err
-	}
-	offer := sdp.Description{Host: r.node.cfg.AdvertiseHost, Port: ep.Port(), DTMF: 101}
-	for _, name := range r.node.cfg.Codecs {
+// offer is the node's SDP offer on its own INVITEs: the configured codecs in order
+// (opus/48000/2, G722/8000, PCMU/8000, PCMA/8000 by default) and telephone-event.
+func (n *Node) offer(port int) []byte {
+	d := sdp.Description{Host: n.cfg.AdvertiseHost, Port: port, DTMF: 101}
+	for _, name := range n.cfg.Codecs {
 		pt := audio.StaticPayloadType(name)
 		if pt < 0 {
 			pt = 111
 		}
-		offer.Codecs = append(offer.Codecs, sdp.Codec{PT: pt, Name: name})
+		d.Codecs = append(d.Codecs, sdp.Codec{PT: pt, Name: name})
 	}
-	ringing := false
-	leg, answer, err := dial(sdp.WriteDescription(offer), func(status int) {
-		if (status == 180 || status == 183) && !ringing {
-			ringing = true
-			onRinging()
-		}
-	})
+	return sdp.WriteDescription(d)
+}
+
+// dialOut sends an INVITE for t (through t.Proxy, else the node's outbound proxy) with the
+// node's offer and returns the answered party as a participant, not yet in any room, or a
+// *DialError with the final status.
+func (n *Node) dialOut(ctx context.Context, t SipTarget, from string, onProgress func(status int)) (*Participant, error) {
+	dialer := n.targetDialer()
+	if dialer == nil {
+		return nil, errorf(CodeNotSupported, "this node has no SIP user agent")
+	}
+	if t.Proxy == "" {
+		t.Proxy = n.cfg.OutboundProxy
+	}
+	if onProgress == nil {
+		onProgress = func(int) {}
+	}
+	ep, err := rtpio.Listen(n.cfg.RTPHost)
+	if err != nil {
+		return nil, err
+	}
+	leg, answer, err := dialer.DialTarget(ctx, t, from, n.offer(ep.Port()), onProgress)
 	if err != nil {
 		ep.Close()
 		return nil, err
@@ -75,9 +72,9 @@ func (r *Room) dialLeg(dial dialFunc, onRinging func()) (*Participant, error) {
 	if err != nil {
 		_ = leg.Bye()
 		ep.Close()
-		return nil, err
+		return nil, &DialError{Status: 488}
 	}
-	pt, codecName, ok := media.Choose(r.node.cfg.Codecs...)
+	pt, codecName, ok := media.Choose(n.cfg.Codecs...)
 	if !ok {
 		_ = leg.Bye()
 		ep.Close()
@@ -89,154 +86,146 @@ func (r *Room) dialLeg(dial dialFunc, onRinging func()) (*Participant, error) {
 		ep.Close()
 		return nil, err
 	}
-	p := newParticipant(r.node.nextRef("p-dialed"), KindPhone, codecName, codec, ep, pt)
-	p.out, p.media, p.answered = leg, media, true
-	if err := r.add(p); err != nil {
-		_ = leg.Bye()
-		ep.Close()
-		return nil, err
-	}
-	r.servePhone(p)
-	go func() {
-		<-leg.Gone()
-		r.remove(p.Ref, "", ReasonCalleeHangup)
-	}()
+	p := newParticipant(newRef("p-dialed"), KindPhone, codecName, codec, ep, pt)
+	p.out = leg
+	p.setMedia(media)
+	p.answered.Store(true)
 	return p, nil
 }
 
-// dialEndReason is the room.ended reason of a failed dial's call.progress status.
-func dialEndReason(progress string) string {
-	switch progress {
-	case "busy", "no_answer":
-		return progress
-	default:
-		return ReasonRejected
+// joinParty adds a dialed party to the call's room; it hangs the party up when the room
+// refuses it.
+func (c *call) joinParty(room *Room, p *Participant) error {
+	p.call = c
+	if err := room.add(p); err != nil {
+		_ = p.out.Bye()
+		p.endpoint.Close()
+		return err
 	}
-}
-
-func dialStatus(err error) int {
-	var de *DialError
-	if errors.As(err, &de) {
-		return de.Status
-	}
-	return 503
-}
-
-func stringMap(v any) map[string]string {
-	out := map[string]string{}
-	if m, ok := v.(map[string]any); ok {
-		for k, val := range m {
-			if s, ok := val.(string); ok {
-				out[k] = s
-			}
+	room.servePhone(p)
+	go func() {
+		select {
+		case <-p.out.Gone():
+			room.remove(p.Ref, ReasonCalleeHangup)
+		case <-room.done:
 		}
-	}
-	return out
-}
-
-// dial is participant.dial: progress events, then call.answered and participant.joined.
-func (r *Room) dial(cmd Command) {
-	id, _ := cmd["id"].(string)
-	to, _ := cmd["to"].(string)
-	from, _ := cmd["from"].(string)
-	ctx, cancel := context.WithTimeout(context.Background(), dialTimeout)
-	defer cancel()
-	r.dialStarted()
-	r.node.emit(r.Ref, Event{"type": "call.progress", "id": id, "status": "ringing"})
-	p, err := r.dialParty(ctx, to, from, stringMap(cmd["headers"]), func() {})
-	empty := r.dialEnded()
-	if err != nil {
-		status := dialStatus(err)
-		r.node.cfg.Logger.Warn("dial failed", "room", r.Ref, "to", to, "err", err)
-		progress := progressStatus(status)
-		r.node.emit(r.Ref, Event{"type": "call.progress", "id": id, "status": progress, "sipStatus": status})
-		if empty {
-			// Nobody else is in the room (an API-originated call): the call is over.
-			r.end(dialEndReason(progress), status, "")
-		}
-		return
-	}
-	r.node.emit(r.Ref, Event{"type": "call.answered", "id": id, "participantRef": p.Ref})
-	r.node.emit(r.Ref, Event{"type": "participant.joined", "id": id, "participantRef": p.Ref, "tracks": p.tracks()})
-}
-
-func (r *Room) session() *Participant {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	for _, ref := range r.order {
-		if p := r.participants[ref]; p != nil && p.Kind == KindSession {
-			return p
-		}
-	}
+	}()
 	return nil
 }
 
-// transfer runs cold, warm and refer transfers (media-control, "Transfer modes").
-func (r *Room) transfer(cmd Command) {
-	id, _ := cmd["id"].(string)
-	to, _ := cmd["to"].(string)
-	mode, _ := cmd["mode"].(string)
-	music, _ := cmd["music"].(string)
-	result := func(status string, extra Event) {
-		ev := Event{"type": "transfer.result", "id": id, "status": status}
-		for k, v := range extra {
-			ev[k] = v
-		}
-		r.node.emit(r.Ref, ev)
-	}
-	switch mode {
-	case "refer":
-		c := r.caller()
-		var ref Referrer
-		ok := false
-		if c != nil && c.leg != nil {
-			ref, ok = c.leg.(Referrer)
-		}
-		if !ok {
-			result("failed", Event{"reason": "refer_unsupported"})
-			return
-		}
-		if err := ref.Refer(to); err != nil {
-			result("failed", Event{"reason": err.Error()})
-			return
-		}
-		result("referred", nil)
-		r.hangupAll(ReasonRemoved, 0, id)
-		return
-	case "warm":
-		r.setHold(true, music)
-	default:
-		mode = "cold"
-	}
-	timeout := dialTimeout
-	if mode == "warm" {
-		timeout = WarmTransferTimeout
-	}
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-	p, err := r.dialParty(ctx, to, "", stringMap(cmd["headers"]), func() {})
-	if err != nil {
-		if mode == "warm" {
-			r.setHold(false, "")
-		}
-		result("failed", Event{"reason": progressStatus(dialStatus(err)), "sipStatus": dialStatus(err)})
-		return
-	}
-	r.node.emit(r.Ref, Event{"type": "participant.joined", "id": id, "participantRef": p.Ref, "tracks": p.tracks()})
-	if mode == "warm" {
-		return // the app briefs the new party; transfer.complete finishes it
-	}
-	if s := r.session(); s != nil {
-		r.remove(s.Ref, id, ReasonRemoved)
-	}
-	result("completed", nil)
+// target converts a SipTarget from the control stream.
+func target(t *sessionv1.SipTarget) SipTarget {
+	return SipTarget{URI: t.GetUri(), Proxy: t.GetProxy(), Headers: t.GetHeaders(),
+		Username: t.GetAuth().GetUsername(), Password: t.GetAuth().GetPassword()}
 }
 
-// completeTransfer is transfer.complete: the caller meets the new party, the session leaves.
-func (r *Room) completeTransfer(id string) {
-	r.setHold(false, "")
-	if s := r.session(); s != nil {
-		r.remove(s.Ref, "", ReasonRemoved)
+// transfer runs the app's Transfer (media-control "Transfer modes"): cold and warm dial the
+// target into the call's room (cold removes the app's leg once the new party joins; warm holds
+// the caller and keeps the app until TransferComplete); refer sends a SIP REFER on the
+// caller's leg and leaves the call once it is accepted. The outcome is a TransferResult.
+func (c *call) transfer(t *sessionv1.Transfer) {
+	c.mu.Lock()
+	room, leg := c.room, c.leg
+	c.mu.Unlock()
+	to := target(t.GetTo())
+	mode := t.GetMode()
+	if mode == "refer" {
+		go func() {
+			ref, ok := leg.leg.(Referrer)
+			if leg.leg == nil || !ok {
+				c.streamTransferResult("failed", ReasonRejected, 0)
+				return
+			}
+			if err := ref.Refer(to.URI); err != nil {
+				c.n.cfg.Logger.Warn("refer", "callRef", c.ref, "err", err)
+				c.streamTransferResult("failed", ReasonRejected, 0)
+				return
+			}
+			c.streamTransferResult("referred", "", 0)
+			c.end(ReasonRemoved, 0)
+		}()
+		return
 	}
-	r.node.emit(r.Ref, Event{"type": "transfer.result", "id": id, "status": "completed"})
+	if err := to.check(); err != nil {
+		c.streamTransferResult("failed", ReasonRejected, 0)
+		return
+	}
+	warm := mode == "warm"
+	timeout := dialTimeout
+	if warm {
+		timeout = WarmTransferTimeout
+	}
+	if s := t.GetRingTimeoutS(); s > 0 && seconds(s) < timeout {
+		timeout = seconds(s)
+	}
+	if warm {
+		room.setHold(leg, true, t.GetMusic())
+	}
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		go func() {
+			select {
+			case <-c.done:
+				cancel()
+			case <-ctx.Done():
+			}
+		}()
+		p, err := c.n.dialOut(ctx, to, "", nil)
+		if err == nil {
+			err = c.joinParty(room, p)
+		}
+		if err != nil {
+			if warm {
+				room.setHold(leg, false, "")
+			}
+			status := dialStatus(err)
+			c.streamTransferResult("failed", failCause(status), status)
+			return
+		}
+		c.mu.Lock()
+		if c.ending {
+			c.mu.Unlock()
+			room.remove(p.Ref, ReasonRemoved)
+			return
+		}
+		c.parties = append(c.parties, p)
+		if warm {
+			c.warm = p
+		}
+		app := c.app
+		c.mu.Unlock()
+		room.participantEvent(p, "participant.joined", "")
+		if warm {
+			return // the app briefs the new party; TransferComplete finishes it
+		}
+		c.mu.Lock()
+		c.transferred = true
+		c.mu.Unlock()
+		if app != nil {
+			room.remove(app.Ref, ReasonRemoved)
+		}
+		c.streamTransferResult("completed", "", 0)
+	}()
+}
+
+// completeTransfer is TransferComplete: the caller is resumed and meets the new party, the
+// app's leg leaves.
+func (c *call) completeTransfer() {
+	c.mu.Lock()
+	room, leg, app, warm := c.room, c.leg, c.app, c.warm
+	c.warm = nil
+	if warm != nil {
+		c.transferred = true
+	}
+	c.mu.Unlock()
+	if warm == nil {
+		c.streamTransferResult("failed", ReasonRejected, 0)
+		return
+	}
+	room.setHold(leg, false, "")
+	c.streamTransferResult("completed", "", 0)
+	if app != nil {
+		room.remove(app.Ref, ReasonRemoved)
+	}
 }

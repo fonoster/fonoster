@@ -1,7 +1,7 @@
-// Package control serves Roomr (roomr.v1) over gRPC next to the node's NATS commands
-// (redesign-roomr, "Roomr is a gRPC service with three nouns"). Each RPC calls the
-// node operation the NATS handler for the same action uses; this package only checks input and
-// maps the node's error codes to gRPC status codes with the code as the reason.
+// Package control serves Roomr (roomr.v1) over gRPC, the node's one control API for its
+// controller (redesign-roomr, media-control "Roomr is a gRPC service with three nouns"), and the
+// standard health service on the same port. It only checks input and maps the node's error codes
+// to gRPC status codes with the code as the reason.
 package control
 
 import (
@@ -38,9 +38,10 @@ type Backend interface {
 	Leave(roomRef, ref string) error
 	Play(t node.Target, url string) (string, error)
 	SendDTMF(t node.Target, digits string) error
+	Stop(operationRef string) error
 }
 
-// codeFor maps the node's error codes (node.Code* and the NATS handlers' codes) to gRPC codes.
+// codeFor maps the node's error codes to gRPC codes.
 var codeFor = map[string]codes.Code{
 	node.CodeAtCapacity:          codes.ResourceExhausted,
 	node.CodeRoomFull:            codes.ResourceExhausted,
@@ -49,10 +50,10 @@ var codeFor = map[string]codes.Code{
 	node.CodeRoomNotFound:        codes.NotFound,
 	node.CodeCallNotFound:        codes.NotFound,
 	node.CodeParticipantNotFound: codes.NotFound,
-	"listener_not_found":         codes.NotFound,
+	node.CodeOperationNotFound:   codes.NotFound,
+	node.CodeOperationExists:     codes.AlreadyExists,
 	node.CodeBadMessage:          codes.InvalidArgument,
-	"unsupported_codec":          codes.InvalidArgument,
-	"unsupported_track_kind":     codes.InvalidArgument,
+	node.CodeUnsupportedCodec:    codes.InvalidArgument,
 	node.CodeNotSupported:        codes.Unimplemented,
 	node.CodeCallNotAnswered:     codes.FailedPrecondition,
 	node.CodeNoDTMF:              codes.FailedPrecondition,
@@ -117,13 +118,10 @@ func (s *Service) CreateCall(_ context.Context, req *roomrv1.CreateCallRequest) 
 	if to.GetUri() == "" {
 		return nil, invalid("to.uri is required")
 	}
-	if req.GetSession() != "" {
-		return nil, refusal(codes.Unimplemented, node.CodeNotSupported, "session override needs the control stream, which is not implemented yet")
-	}
 	target := node.SipTarget{URI: to.GetUri(), Proxy: to.GetProxy(), Headers: to.GetHeaders(),
 		Username: to.GetAuth().GetUsername(), Password: to.GetAuth().GetPassword()}
 	info, err := s.backend.CreateCall(node.CallRequest{CallRef: req.GetCallRef(), RoomRef: req.GetRoomRef(),
-		From: req.GetFrom(), To: target, RingTimeout: seconds(req.GetRingTimeoutS()),
+		From: req.GetFrom(), To: target, Session: req.GetSession(), RingTimeout: seconds(req.GetRingTimeoutS()),
 		MaxDuration: seconds(req.GetMaxDurationS()), Metadata: req.GetMetadata()})
 	if err != nil {
 		return nil, toStatus(err)
@@ -146,7 +144,7 @@ func (s *Service) EndCall(_ context.Context, req *roomrv1.EndCallRequest) (*room
 // CreateRoom creates an empty room.
 func (s *Service) CreateRoom(_ context.Context, req *roomrv1.CreateRoomRequest) (*roomrv1.Room, error) {
 	ref, err := s.backend.CreateRoom(req.GetRoomRef(), node.RoomOptions{MaxDuration: seconds(req.GetMaxDurationS()),
-		EmptyTimeout: seconds(req.GetEmptyTimeoutS()), MaxParticipants: int(req.GetMaxParticipants())})
+		EmptyTimeout: seconds(req.GetEmptyRoomTimeoutS()), MaxParticipants: int(req.GetMaxParticipants())})
 	if err != nil {
 		return nil, toStatus(err)
 	}
@@ -271,6 +269,17 @@ func (s *Service) SendDtmf(_ context.Context, req *roomrv1.SendDtmfRequest) (*ro
 		return nil, invalid("digits are required")
 	}
 	if err := s.backend.SendDTMF(t, req.GetDigits()); err != nil {
+		return nil, toStatus(err)
+	}
+	return &roomrv1.Empty{}, nil
+}
+
+// Stop cancels a Play the controller started.
+func (s *Service) Stop(_ context.Context, req *roomrv1.StopRequest) (*roomrv1.Empty, error) {
+	if req.GetOperationRef() == "" {
+		return nil, invalid("operation_ref is required")
+	}
+	if err := s.backend.Stop(req.GetOperationRef()); err != nil {
 		return nil, toStatus(err)
 	}
 	return &roomrv1.Empty{}, nil

@@ -33,6 +33,7 @@ type fake struct {
 	ended    string
 	roomOpts node.RoomOptions
 	leaveRef string
+	stopped  string
 }
 
 func (f *fake) CreateCall(req node.CallRequest) (node.CallInfo, error) {
@@ -81,6 +82,7 @@ func (f *fake) SendDTMF(t node.Target, digits string) error {
 	f.target, f.digits = t, digits
 	return f.err
 }
+func (f *fake) Stop(ref string) error { f.stopped = ref; return f.err }
 
 func dial(t *testing.T, b Backend) roomrv1.RoomrClient {
 	t.Helper()
@@ -134,7 +136,8 @@ func TestCreateCallPassesTheTargetThrough(t *testing.T) {
 	call, err := c.CreateCall(ctx(t), &roomrv1.CreateCallRequest{CallRef: "c1", From: "+15550001",
 		To: &roomrv1.SipTarget{Uri: "sip:+15551234567@carrier", Proxy: "sip:proxy:5060",
 			Headers: map[string]string{"X-Tenant": "t1"}, Auth: &roomrv1.SipAuth{Username: "u", Password: "p"}},
-		RoomRef: "r1", RingTimeoutS: 20, MaxDurationS: 600, Metadata: map[string]string{"tenant": "t1"}})
+		RoomRef: "r1", RingTimeoutS: 20, MaxDurationS: 600, Metadata: map[string]string{"tenant": "t1"},
+		Session: "appbridge-b:50071"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -144,7 +147,8 @@ func TestCreateCallPassesTheTargetThrough(t *testing.T) {
 	r := f.call
 	if r.To.URI != "sip:+15551234567@carrier" || r.To.Proxy != "sip:proxy:5060" || r.To.Headers["X-Tenant"] != "t1" ||
 		r.To.Username != "u" || r.To.Password != "p" || r.From != "+15550001" || r.RoomRef != "r1" ||
-		r.RingTimeout != 20*time.Second || r.MaxDuration != 10*time.Minute || r.Metadata["tenant"] != "t1" {
+		r.RingTimeout != 20*time.Second || r.MaxDuration != 10*time.Minute || r.Metadata["tenant"] != "t1" ||
+		r.Session != "appbridge-b:50071" {
 		t.Fatalf("request = %+v", r)
 	}
 }
@@ -158,8 +162,6 @@ func TestCreateCallRefusals(t *testing.T) {
 		reason string
 	}{
 		{"no uri", nil, &roomrv1.CreateCallRequest{CallRef: "c1"}, codes.InvalidArgument, node.CodeBadMessage},
-		{"session override", nil, &roomrv1.CreateCallRequest{To: &roomrv1.SipTarget{Uri: "sip:a@b"}, Session: "x:1"},
-			codes.Unimplemented, node.CodeNotSupported},
 		{"at the room limit", &node.Error{Code: node.CodeAtCapacity}, nil, codes.ResourceExhausted, node.CodeAtCapacity},
 		{"bad header", &node.Error{Code: node.CodeBadMessage, Message: "header Via is set by the node"}, nil,
 			codes.InvalidArgument, node.CodeBadMessage},
@@ -217,7 +219,7 @@ func TestRooms(t *testing.T) {
 	f := &fake{}
 	c := dial(t, f)
 	room, err := c.CreateRoom(ctx(t), &roomrv1.CreateRoomRequest{RoomRef: "lobby", MaxDurationS: 60,
-		EmptyTimeoutS: 5, MaxParticipants: 3})
+		EmptyRoomTimeoutS: 5, MaxParticipants: 3})
 	if err != nil || room.RoomRef != "lobby" || f.roomOpts != (node.RoomOptions{MaxDuration: time.Minute,
 		EmptyTimeout: 5 * time.Second, MaxParticipants: 3}) {
 		t.Fatalf("room %v err %v opts %+v", room, err, f.roomOpts)
@@ -333,18 +335,28 @@ func TestOperations(t *testing.T) {
 	f.err = &node.Error{Code: node.CodeNoDTMF}
 	_, err = c.SendDtmf(ctx(t), &roomrv1.SendDtmfRequest{Target: &roomrv1.SendDtmfRequest_CallRef{CallRef: "c1"}, Digits: "1"})
 	wantCode(t, err, codes.FailedPrecondition, node.CodeNoDTMF)
+	f.err = nil
+	if _, err := c.Stop(ctx(t), &roomrv1.StopRequest{OperationRef: "op-1"}); err != nil || f.stopped != "op-1" {
+		t.Fatalf("Stop: %v %q", err, f.stopped)
+	}
+	_, err = c.Stop(ctx(t), &roomrv1.StopRequest{})
+	wantCode(t, err, codes.InvalidArgument, node.CodeBadMessage)
+	f.err = &node.Error{Code: node.CodeOperationNotFound}
+	_, err = c.Stop(ctx(t), &roomrv1.StopRequest{OperationRef: "op-9"})
+	wantCode(t, err, codes.NotFound, node.CodeOperationNotFound)
 	f.err = &node.Error{Code: node.CodeCallNotAnswered}
 	_, err = c.Play(ctx(t), &roomrv1.PlayRequest{Target: &roomrv1.PlayRequest_CallRef{CallRef: "c1"}, Url: "https://example.com/a.wav"})
 	wantCode(t, err, codes.FailedPrecondition, node.CodeCallNotAnswered)
 }
 
-// TestEveryNodeCodeIsMapped: each code the node and its NATS handlers return has a deliberate
+// TestEveryNodeCodeIsMapped: each code the node returns has a deliberate
 // gRPC code (nothing falls through to INTERNAL by accident).
 func TestEveryNodeCodeIsMapped(t *testing.T) {
 	for _, code := range []string{node.CodeAtCapacity, node.CodeRoomExists, node.CodeRoomNotFound,
 		node.CodeCallNotFound, node.CodeParticipantNotFound, node.CodeRoomFull, node.CodeBadMessage,
 		node.CodeNotSupported, node.CodeCallNotAnswered, node.CodeNoDTMF,
-		node.CodeInternal, "unsupported_codec", "unsupported_track_kind", "listener_not_found"} {
+		node.CodeInternal, node.CodeUnsupportedCodec, node.CodeOperationNotFound, node.CodeOperationExists,
+		node.CodeCallExists} {
 		if _, ok := codeFor[code]; !ok {
 			t.Errorf("%s has no gRPC code", code)
 		}

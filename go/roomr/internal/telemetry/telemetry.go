@@ -126,7 +126,7 @@ func envOr(k, def string) string {
 }
 
 // TraceparentHeader is the NATS header carrying the W3C trace context between services (the
-// AppBridge sends it on media-control commands; the node sends it on call.incoming).
+// unused by the node since the NATS command path was retired; kept for callers).
 const TraceparentHeader = "traceparent"
 
 var traceContext = propagation.TraceContext{}

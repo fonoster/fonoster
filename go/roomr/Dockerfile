@@ -64,9 +64,9 @@ COPY --from=builder /out/roomr /roomr
 # The SIP caller bot (test calls, the rebuild stack's smoke test): `--entrypoint /sipcaller`.
 COPY --from=builder /out/sipcaller /sipcaller
 
-# SIP (UDP and TCP) and the RTP range. The range is whatever the node hands out; publish the same
-# range you configure (see docs/operators/rebuild.md). Config: /config/roomr.yaml (or -config
-# <file>; flags win). ROOMR_* variables are not read: use ${VAR} placeholders in the file.
-EXPOSE 5060/udp 5060/tcp
+# SIP (UDP and TCP), Roomr gRPC and the RTP range. The range is whatever the node hands out;
+# publish the same range you configure (rtp.portMin/portMax). Config: /config/roomr.yaml (or
+# -config <file>, the only flag). ROOMR_* variables are not read: use ${VAR} placeholders.
+EXPOSE 5060/udp 5060/tcp 50061/tcp
 
 ENTRYPOINT ["/roomr"]

@@ -1,10 +1,12 @@
-// Command roomr runs one Fonoster Roomr node: SIP legs from the SIP proxy become rooms, mixed and
-// driven over media-control on NATS (add-roomr) and Roomr on gRPC (redesign-roomr).
-// Its only flag is -config <path>; everything else is in the config file (fileconfig).
+// Command roomr runs one Roomr node (redesign-roomr): SIP legs become rooms, mixed in 16 kHz
+// linear audio; a controller drives it over Roomr (gRPC) and each call's app over its own control
+// stream to the session endpoint; NATS carries heartbeats and events only. Its only flag is
+// -config <path>; everything else is in the config file (fileconfig).
 package main
 
 import (
 	"context"
+	"crypto/tls"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -61,8 +63,43 @@ func loadFile() (*fileconfig.File, string) {
 	return f, *path
 }
 
+// hostPort splits an advertised address that may carry a port ("10.0.0.7" or "10.0.0.7:5060").
+func hostPort(addr string, port int) (string, int) {
+	if h, p, err := net.SplitHostPort(addr); err == nil {
+		if n, err := strconv.Atoi(p); err == nil {
+			return h, n
+		}
+	}
+	return addr, port
+}
+
+// sessionTLS is the control streams' TLS client config (nil: plaintext): ca verifies the
+// session endpoint, cert and key add a client certificate (mutual TLS).
+func sessionTLS(fc *fileconfig.File) (*tls.Config, error) {
+	t := fc.SessionTLS
+	if t.CA == "" && t.Cert == "" && t.Key == "" {
+		return nil, nil
+	}
+	c, err := edgetls.Build(edgetls.Options{Cert: t.Cert, Key: t.Key, CA: t.CA})
+	if err != nil {
+		return nil, err
+	}
+	client := c.Client
+	if client == nil {
+		client = &tls.Config{MinVersion: tls.VersionTLS12}
+	}
+	if c.Server != nil && len(client.Certificates) == 0 {
+		client.Certificates = c.Server.Certificates
+	}
+	return client, nil
+}
+
 func main() {
 	fc, configPath := loadFile()
+	if fc.SessionEndpoint == "" {
+		fmt.Fprintln(os.Stderr, "sessionEndpoint is required: where each call's control stream goes (host:port)")
+		os.Exit(2)
+	}
 	nodeID := fc.NodeID
 	if nodeID == "" {
 		nodeID, _ = os.Hostname()
@@ -100,7 +137,10 @@ func main() {
 	if configPath != "" {
 		logger.Info("loaded config", "path", configPath)
 	}
-	natsOpts := []nats.Option{nats.Name("roomr-" + nodeID)}
+	// Core NATS, best effort: the node starts and keeps calls up while NATS is unreachable,
+	// reconnects forever, and buffers nothing meanwhile (an event that cannot go out is dropped).
+	natsOpts := []nats.Option{nats.Name("roomr-" + nodeID), nats.ReconnectBufSize(-1), nats.MaxReconnects(-1),
+		nats.RetryOnFailedConnect(true), nats.ReconnectWait(time.Second)}
 	if fc.NATS.User != "" {
 		pass, err := secretref.Resolve(fc.NATS.Password)
 		if err != nil {
@@ -123,27 +163,35 @@ func main() {
 	}
 	defer nc.Close()
 
+	sessTLS, err := sessionTLS(fc)
+	if err != nil {
+		logger.Error("sessionTls", "err", err)
+		os.Exit(1)
+	}
+	_, portText, _ := net.SplitHostPort(fc.SIP.Listen)
+	listenPort, _ := strconv.Atoi(portText)
+	sipHost, sipPort := hostPort(fc.SIP.Advertise, listenPort)
 	grpcListen := fc.Control.GRPC.Listen
 	n := node.New(nc, node.Config{NodeID: nodeID, RTPHost: fc.RTP.Host, AdvertiseHost: fc.RTP.Advertise,
 		Heartbeat: time.Duration(fc.HeartbeatInterval), MaxDuration: time.Duration(fc.MaxDuration),
 		MaxParticipants: fc.MaxParticipants, MaxRooms: fc.MaxRooms,
 		MediaTimeout: time.Duration(fc.MediaTimeout), Logger: logger,
-		EmptyRoomTimeout: time.Duration(fc.EmptyRoomTimeout), OwnerTimeout: time.Duration(fc.OwnerTimeout),
-		Codecs: codecs, CallRefHeader: fc.SIP.CallRefHeader,
-		Version: version, Region: fc.Region, RTPPorts: [2]int{fc.RTP.PortMin, fc.RTP.PortMax},
-		SIPAddr:     advertised(fc.SIP.Listen, fc.SIP.Advertise),
-		ControlAddr: orControlAddr(fc.Control.GRPC.Advertise, advertised(grpcListen, fc.SIP.Advertise))})
+		EmptyRoomTimeout: time.Duration(fc.EmptyRoomTimeout), AnswerTimeout: time.Duration(fc.AnswerTimeout),
+		ReadyTimeout: time.Duration(fc.ReadyTimeout), SessionEndpoint: fc.SessionEndpoint, SessionTLS: sessTLS,
+		OutboundProxy: fc.SIP.OutboundProxy, Codecs: codecs, CallRefHeader: fc.SIP.CallRefHeader,
+		RoomHeader: fc.SIP.RoomHeader, Version: version, Region: fc.Region,
+		RTPPorts:    [2]int{fc.RTP.PortMin, fc.RTP.PortMax},
+		SIPAddr:     net.JoinHostPort(sipHost, strconv.Itoa(sipPort)),
+		ControlAddr: orControlAddr(fc.Control.GRPC.Advertise, advertised(grpcListen, sipHost))})
 	// The PEM settings are file paths or secret:// references (edgetls, add-platform 4.2).
 	edge, err := edgetls.Build(edgetls.Options{Cert: fc.TLS.Cert, Key: fc.TLS.Key, CA: fc.TLS.CA})
 	if err != nil {
 		logger.Error("tls", "err", err)
 		os.Exit(1)
 	}
-	_, portText, _ := net.SplitHostPort(fc.SIP.Listen)
-	port, _ := strconv.Atoi(portText)
-	ua, err := sipua.New(n, sipua.Config{Listen: fc.SIP.Listen, AdvertiseHost: fc.SIP.Advertise, AdvertisePort: port,
+	ua, err := sipua.New(n, sipua.Config{Listen: fc.SIP.Listen, AdvertiseHost: sipHost, AdvertisePort: sipPort,
 		Registrations: registrations, OnRegistrationState: registrationStatePublisher(nc, nodeID, logger),
-		ReregisterDelta: fc.ReregisterDelta, OutboundProxy: fc.OutboundProxy, TLSListen: fc.TLS.Listen,
+		ReregisterDelta: fc.ReregisterDelta, OutboundProxy: fc.SIP.OutboundProxy, TLSListen: fc.TLS.Listen,
 		TLSConfig: edge.Server, ClientTLS: edge.Client, Logger: logger})
 	if err != nil {
 		logger.Error("sip", "err", err)
@@ -152,32 +200,26 @@ func main() {
 	if m, err := telemetry.RegisterNode(nodeID, n.ActiveRooms); err == nil {
 		telemetry.SetMeters(m)
 	}
-	if err := n.Start(); err != nil {
-		logger.Error("media-control", "err", err)
+	// Roomr and grpc.health.v1.Health on the control port; same PEM rules as the SIP listener
+	// (edgetls: file paths or secret:// references).
+	t := fc.Control.GRPC.TLS
+	grpcTLS, err := edgetls.Build(edgetls.Options{Cert: t.Cert, Key: t.Key, ClientCA: t.ClientCA})
+	if err != nil {
+		logger.Error("roomr grpc tls", "err", err)
 		os.Exit(1)
 	}
-
-	var roomrServer *control.Server
-	if grpcListen != "" {
-		// Same PEM rules as the SIP listener (edgetls: file paths or secret:// references).
-		t := fc.Control.GRPC.TLS
-		grpcTLS, err := edgetls.Build(edgetls.Options{Cert: t.Cert, Key: t.Key, ClientCA: t.ClientCA})
-		if err != nil {
-			logger.Error("media-control grpc tls", "err", err)
-			os.Exit(1)
-		}
-		roomrServer, err = control.Listen(grpcListen, n, grpcTLS.Server, logger)
-		if err != nil {
-			logger.Error("media-control grpc listen", "addr", grpcListen, "err", err)
-			os.Exit(1)
-		}
-		logger.Info("media-control grpc", "addr", roomrServer.Addr(), "tls", grpcTLS.Server != nil, "mutual", grpcTLS.Mutual)
-		go func() {
-			if err := roomrServer.Serve(); err != nil {
-				logger.Error("media-control grpc serve", "err", err)
-			}
-		}()
+	roomrServer, err := control.Listen(grpcListen, n, grpcTLS.Server, logger)
+	if err != nil {
+		logger.Error("roomr grpc listen", "addr", grpcListen, "err", err)
+		os.Exit(1)
 	}
+	logger.Info("roomr grpc", "addr", roomrServer.Addr(), "tls", grpcTLS.Server != nil, "mutual", grpcTLS.Mutual)
+	go func() {
+		if err := roomrServer.Serve(); err != nil {
+			logger.Error("roomr grpc serve", "err", err)
+		}
+	}()
+	_ = n.Start()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -202,9 +244,7 @@ func main() {
 		<-signals
 		close(stop)
 	}()
-	if roomrServer != nil {
-		roomrServer.NotServing()
-	}
+	roomrServer.NotServing()
 	uctx, ucancel := context.WithTimeout(context.Background(), 2*time.Second)
 	if err := ua.Unregister(uctx); err != nil {
 		logger.Warn("unregister failed", "err", err)
@@ -215,10 +255,8 @@ func main() {
 		logger.Warn("drain wait over; ended rooms", "rooms", forced)
 	}
 	cancel()
-	if roomrServer != nil {
-		roomrServer.Stop()
-	}
 	n.Shutdown()
+	roomrServer.Stop()
 	ua.Close()
 }
 

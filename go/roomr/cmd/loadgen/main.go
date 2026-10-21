@@ -1,11 +1,11 @@
 // Command loadgen is the Roomr node's load harness (add-roomr 1.5 and 1.6). It plays both
-// the callers and AppBridge against a running node:
+// the callers and the app against a running node:
 //
 //   - a caller bot places -calls SIP calls (one codec, -codec) at -rate calls per second;
-//   - for each call it claims call.incoming on NATS, adds a session participant (L16/16000 RTP
-//     from this process) and answers, like AppBridge;
+//   - it serves the session endpoint (-session, the node's sessionEndpoint): each call's control
+//     stream gets an Answer with an L16/16000 RTP endpoint from this process, like AppBridge;
 //   - both sides send audio every 20 ms for -duration; every -dtmf-every each caller presses a
-//     key (RFC 4733), and the harness counts the dtmf events the node reports;
+//     key (RFC 4733), and the harness counts the Dtmf messages on the control streams;
 //   - optional impairment on the caller → node direction: -loss, -jitter, -reorder.
 //
 // At the end it prints one JSON report: frames the session side expected and received (sequence
@@ -20,6 +20,7 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"net"
 	"os"
 	"os/exec"
 	"strconv"
@@ -28,11 +29,14 @@ import (
 	"sync/atomic"
 	"time"
 
+	sessionv1 "github.com/fonoster/fonoster/go/roomr/api/session/v1"
 	"github.com/fonoster/fonoster/go/roomr/internal/audio"
 	"github.com/fonoster/fonoster/go/roomr/internal/caller"
 	"github.com/fonoster/fonoster/go/roomr/internal/rtpio"
 	"github.com/nats-io/nats.go"
 	"github.com/pion/rtp"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 type session struct {
@@ -77,7 +81,8 @@ type report struct {
 
 func main() {
 	natsURL := flag.String("nats", "nats://127.0.0.1:4222", "NATS URL")
-	nodeID := flag.String("node-id", "", "the node's id")
+	nodeID := flag.String("node-id", "", "the node's id (its heartbeat goes in the report)")
+	sessionAddr := flag.String("session", "127.0.0.1:50071", "where to serve the session endpoint (the node's sessionEndpoint)")
 	target := flag.String("sip", "127.0.0.1:5060", "the node's SIP address")
 	calls := flag.Int("calls", 200, "concurrent calls")
 	rate := flag.Float64("rate", 20, "new calls per second")
@@ -89,9 +94,6 @@ func main() {
 	reorder := flag.Float64("reorder", 0, "share of packets held back 40 ms (reordered), caller → node")
 	pid := flag.Int("pid", 0, "node process id, to sample its CPU with ps")
 	flag.Parse()
-	if *nodeID == "" {
-		log.Fatal("-node-id is required")
-	}
 
 	nc, err := nats.Connect(*natsURL)
 	if err != nil {
@@ -104,68 +106,42 @@ func main() {
 	}
 	defer bot.Close()
 
-	command := func(cmd map[string]any) (map[string]any, error) {
-		data, _ := json.Marshal(cmd)
-		msg, err := nc.Request("media."+*nodeID+".commands", data, 5*time.Second)
-		if err != nil {
-			return nil, err
-		}
-		var reply map[string]any
-		err = json.Unmarshal(msg.Data, &reply)
-		return reply, err
-	}
-
 	var (
 		mu         sync.Mutex
 		sessions   = map[string]*session{}
-		dtmfByRoom = map[string]int{}
+		dtmfByCall = map[string]int{}
 		setupErrs  atomic.Int64
 	)
-	// AppBridge: claim, add the session participant, answer.
-	_, err = nc.Subscribe("appbridge.incoming", func(m *nats.Msg) {
-		var ev map[string]any
-		if json.Unmarshal(m.Data, &ev) != nil || ev["nodeId"] != *nodeID {
-			return
-		}
-		_ = m.Respond([]byte(fmt.Sprintf(`{"type":"claimed","id":%q}`, ev["id"])))
-		room, _ := ev["roomRef"].(string)
-		go func() {
-			ep, err := rtpio.Listen("127.0.0.1")
-			if err != nil {
-				setupErrs.Add(1)
-				return
-			}
-			s := &session{room: room, ep: ep}
-			rep, err := command(map[string]any{"type": "participant.add", "id": "s-" + room, "roomRef": room, "kind": "session",
-				"rtp": map[string]any{"host": "127.0.0.1", "port": ep.Port(), "codec": audio.NameL16, "payloadType": 96, "ptime": 20, "ssrc": 1}})
-			if err != nil || rep["type"] != "ack" {
-				setupErrs.Add(1)
-				ep.Close()
-				return
-			}
-			block := rep["rtp"].(map[string]any)
-			_ = ep.Configure(audio.L16{}, 96, -1, "127.0.0.1", int(block["port"].(float64)))
-			go ep.Serve(rtpio.Handlers{Packet: s.packet})
-			mu.Lock()
-			sessions[room] = s
-			mu.Unlock()
-			if rep, err := command(map[string]any{"type": "answer", "id": "a-" + room, "roomRef": room}); err != nil || rep["type"] != "ack" {
-				setupErrs.Add(1)
-			}
-		}()
-	})
+	// The app: answer every control stream with an RTP endpoint of this process.
+	lis, err := net.Listen("tcp", *sessionAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, _ = nc.Subscribe("media."+*nodeID+".events.*", func(m *nats.Msg) {
-		var ev map[string]any
-		if json.Unmarshal(m.Data, &ev) != nil || ev["type"] != "dtmf" {
+	srv := grpc.NewServer(grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{MinTime: 5 * time.Second, PermitWithoutStream: true}))
+	sessionv1.RegisterSessionServer(srv, &app{answer: func(start *sessionv1.Start, stream sessionv1.Session_ConnectServer) {
+		ep, err := rtpio.Listen("127.0.0.1")
+		if err != nil {
+			setupErrs.Add(1)
 			return
 		}
+		node := start.GetMedia()
+		_ = ep.Configure(audio.L16{}, 96, -1, node.GetIp(), int(node.GetPort()))
+		s := &session{room: start.GetRoomRef(), ep: ep}
+		go ep.Serve(rtpio.Handlers{Packet: s.packet})
 		mu.Lock()
-		dtmfByRoom[ev["roomRef"].(string)]++
+		sessions[start.GetCallRef()] = s
 		mu.Unlock()
-	})
+		if err := stream.Send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_Answer{Answer: &sessionv1.Answer{
+			Media: &sessionv1.MediaEndpoint{Ip: "127.0.0.1", Port: uint32(ep.Port()), Codec: audio.NameL16}}}}); err != nil {
+			setupErrs.Add(1)
+		}
+	}, dtmf: func(callRef string) {
+		mu.Lock()
+		dtmfByCall[callRef]++
+		mu.Unlock()
+	}})
+	go func() { _ = srv.Serve(lis) }()
+	defer srv.Stop()
 	// The node's heartbeat (roomr.nodes.<id>.heartbeat) is what it reports about itself.
 	var beat atomic.Value
 	_, _ = nc.Subscribe("roomr.nodes."+*nodeID+".heartbeat", func(m *nats.Msg) {
@@ -199,7 +175,7 @@ func main() {
 	placed := []*caller.Call{}
 	interval := time.Duration(float64(time.Second) / *rate)
 	for i := 0; i < *calls; i++ {
-		c, err := bot.DialWith(*target, fmt.Sprintf("+1555%07d", i), "", map[string]string{"X-App-Ref": "load"},
+		c, err := bot.DialWith(*target, fmt.Sprintf("+1555%07d", i), "", nil,
 			caller.DialOptions{Codecs: []string{*codec}})
 		if err != nil {
 			setupErrs.Add(1)
@@ -236,8 +212,8 @@ func main() {
 		s.received, s.gaps = 0, 0
 		s.mu.Unlock()
 	}
-	for k := range dtmfByRoom {
-		delete(dtmfByRoom, k)
+	for k := range dtmfByCall {
+		delete(dtmfByCall, k)
 	}
 	mu.Unlock()
 	heard0 := map[string]int{}
@@ -320,7 +296,7 @@ func main() {
 	wg.Wait()
 	mu.Lock()
 	dtmfReported, rooms, roomsExact := 0, 0, 0
-	for _, n := range dtmfByRoom {
+	for _, n := range dtmfByCall {
 		dtmfReported += n
 		rooms++
 		if n == injected {
@@ -353,6 +329,34 @@ func main() {
 		_ = c.Hangup()
 	}
 	time.Sleep(time.Second)
+}
+
+// app serves Session.Connect: answer on Start, count Dtmf.
+type app struct {
+	sessionv1.UnimplementedSessionServer
+	answer func(*sessionv1.Start, sessionv1.Session_ConnectServer)
+	dtmf   func(callRef string)
+}
+
+func (a *app) Connect(stream sessionv1.Session_ConnectServer) error {
+	first, err := stream.Recv()
+	if err != nil || first.GetStart() == nil {
+		return err
+	}
+	start := first.GetStart()
+	a.answer(start, stream)
+	for {
+		m, err := stream.Recv()
+		if err != nil {
+			return nil
+		}
+		if m.GetDtmf() != nil {
+			a.dtmf(start.GetCallRef())
+		}
+		if m.GetEvent().GetEnded() != nil {
+			return nil
+		}
+	}
 }
 
 func psCPU(pid int) (float64, error) {

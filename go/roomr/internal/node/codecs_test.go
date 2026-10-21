@@ -1,7 +1,6 @@
 package node
 
 import (
-	"errors"
 	"reflect"
 	"testing"
 
@@ -9,21 +8,11 @@ import (
 	"github.com/fonoster/fonoster/go/roomr/internal/sdp"
 )
 
-// offerFor captures the SDP the node's INVITE carries (dialLeg, used by participant.dial,
-// transfers and Roomr's CreateCall) for a codec setting.
+// offerFor is the SDP the node's INVITEs carry (CreateCall and transfers) for a codec setting.
 func offerFor(t *testing.T, codecs []string) sdp.Media {
 	t.Helper()
-	n := &Node{cfg: Config{RTPHost: "127.0.0.1", Codecs: codecs}}
-	n.cfg.defaults()
-	var sent []byte
-	_, err := (&Room{node: n}).dialLeg(func(offer []byte, _ func(int)) (OutLeg, []byte, error) {
-		sent = offer
-		return nil, nil, errors.New("not dialing")
-	}, func() {})
-	if err == nil || sent == nil {
-		t.Fatalf("dialLeg: %v", err)
-	}
-	m, err := sdp.Parse(sent)
+	n := New(nil, Config{RTPHost: "127.0.0.1", Codecs: codecs})
+	m, err := sdp.Parse(n.offer(40000))
 	if err != nil {
 		t.Fatal(err)
 	}
