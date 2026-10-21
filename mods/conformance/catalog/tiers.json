@@ -133,5 +133,15 @@
     "tier": "pr",
     "pri": "P0",
     "trials": null
+  },
+  "DSH-028": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-029": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
   }
 }

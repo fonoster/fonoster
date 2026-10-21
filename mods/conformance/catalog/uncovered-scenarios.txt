@@ -1,4 +1,3 @@
-dashboard / Agent pickers offer the catalog / A new agent prefers keyless providers
 dashboard / Agent pickers offer the catalog / Models Autopilot cannot run are not offered
 dashboard / Calls can be filtered by app / Filter calls by app
 dashboard / Cloud-only screens follow capabilities and ownership / Billing page in Cloud
@@ -22,7 +21,6 @@ dashboard / The dashboard is configured at run time with one setting / One image
 dashboard / The navigation can collapse / Collapse
 dashboard / The session persists in the browser and ends cleanly / Inline script blocked
 dashboard / The session persists in the browser and ends cleanly / Older stored session
-dashboard / The sidebar names Agents and Apps / Creating an app
 dashboard / The sidebar names Agents and Apps / Old paths
 dashboard / The workspace has a Usage page / Choosing a period
 dashboard / The workspace has a Usage page / No usage yet

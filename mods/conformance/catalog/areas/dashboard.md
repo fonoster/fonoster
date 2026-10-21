@@ -350,3 +350,34 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 **Pass.** Settings shows the access key ID; renaming to Acme Sales saves it and the workspace switcher shows it; Delete workspace stays disabled with `DELETE` typed and deletes once the name is typed, leaving the workspace and its link gone. **Fail.** A rename not shown, or a delete enabled before the name is typed.
+
+### DSH-028 Create an agent from a template, save it, rename and delete it
+
+- **Spec:** dashboard / Agents are created from a template and edited as one form / Create from a template
+- **Spec:** dashboard / Agents are created from a template and edited as one form / Save the prompt and a tool
+- **Spec:** dashboard / Agents are created from a template and edited as one form / An invalid tool marks its tab
+- **Spec:** dashboard / Agents are created from a template and edited as one form / Rename in place
+- **Spec:** dashboard / Agents are created from a template and edited as one form / Delete an agent
+- **Spec:** dashboard / Agent pickers offer the catalog / A new agent prefers keyless providers
+- **Priority:** P0
+- **Proof:** Stop `tabsWithErrors` from reporting the Tools tab (`agent-form.ts`); the test must go red on the Fix-the-highlighted-fields message.
+- **Test:** mods/dashboard/e2e/apps.community.spec.ts
+
+Runs against in-memory applications that store what the dashboard sends (`e2e/apps.ts`), with a catalog of the keyless fakes and keyed Deepgram.
+
+**Pass.** The Receptionist template creates Front desk with the fake voice and models and opens Configure; the voice picker offers Fakes and Deepgram; a tool named `check invoice` makes Save say to fix the highlighted fields in Tools with nothing sent; after fixing it one update carries the new system prompt and the `check_invoice` tool and Unsaved changes clears; Enter in the name field saves the new title; Delete from Advanced needs `DELETE` and returns to the list with the agent gone. **Fail.** A keyed provider chosen by default, an invalid tool sent or its tab not named, a save that loses a field, or a delete without `DELETE`.
+
+### DSH-029 Create an app, rotate its secret and delete it
+
+- **Spec:** dashboard / Apps connect a voice server / A URL that isn't a WebSocket
+- **Spec:** dashboard / Apps connect a voice server / The signing secret is shown once
+- **Spec:** dashboard / Apps connect a voice server / Twilio apps have no speech settings
+- **Spec:** dashboard / Apps connect a voice server / The recording policy is saved
+- **Spec:** dashboard / Apps connect a voice server / Rotate an app's signing secret
+- **Spec:** dashboard / Apps connect a voice server / Delete an app
+- **Spec:** dashboard / The sidebar names Agents and Apps / Creating an app
+- **Priority:** P0
+- **Proof:** Show the Speech panel for every protocol (`app-detail.tsx`); the test must go red once the protocol is Twilio.
+- **Test:** mods/dashboard/e2e/apps.community.spec.ts
+
+**Pass.** New app refuses an `https://` URL with nothing sent; a `wss://` app is created as a Fonoster stream app, its page opens with the signing secret and the only-time warning, and the secret is gone after "I've saved it"; switching to Twilio hides Speech; On after consent prompt saves `recording: "consent"`; Rotate secret takes one confirmation and shows the new secret once; Delete app needs `DELETE` and returns to the list. **Fail.** A non-WebSocket URL sent, a secret shown twice, speech settings on a Twilio app, a wrong recording policy, or a delete without `DELETE`.
