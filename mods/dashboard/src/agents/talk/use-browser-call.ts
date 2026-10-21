@@ -52,6 +52,15 @@ function micError(cause: unknown) {
   return undefined;
 }
 
+/**
+ * The glow's next level from the loudest stream's RMS: rises fast with a voice, settles slowly
+ * when it stops, so the ring breathes with the conversation instead of flickering.
+ */
+export function nextVoiceLevel(level: number, rms: number): number {
+  const target = Math.min(1, rms * 6);
+  return level + (target - level) * (target > level ? 0.5 : 0.08);
+}
+
 export function useBrowserCall(appRef: string) {
   const sdk = useSdk();
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -60,6 +69,8 @@ export function useBrowserCall(appRef: string) {
   const [error, setError] = useState<string>();
   const [connectedAt, setConnectedAt] = useState<number>();
   const [muted, setMuted] = useState(false);
+  /** The mic's glow: `--voice` (0..1) follows the call's audio, the agent's voice and the mic. */
+  const glowRef = useRef<HTMLElement>(null);
 
   const teardown = useCallback(async () => {
     const user = userRef.current;
@@ -190,11 +201,53 @@ export function useBrowserCall(appRef: string) {
     setMuted(user.isMuted());
   }, []);
 
+  // While connected, measure both streams and write the level to the glow on every frame.
+  useEffect(() => {
+    if (status !== "connected") return;
+    const user = userRef.current;
+    const Context = window.AudioContext;
+    const calm = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    const streams = [user?.remoteMediaStream, user?.localMediaStream].filter(
+      (s): s is MediaStream => Boolean(s?.getAudioTracks().length)
+    );
+    if (!Context || calm || !streams.length) return;
+    const context = new Context();
+    const analysers = streams.map((stream) => {
+      const analyser = context.createAnalyser();
+      analyser.fftSize = 512;
+      context.createMediaStreamSource(stream).connect(analyser);
+      return analyser;
+    });
+    const samples = new Float32Array(512);
+    let level = 0;
+    let frame = requestAnimationFrame(function tick() {
+      let rms = 0;
+      for (const analyser of analysers) {
+        analyser.getFloatTimeDomainData(samples);
+        let sum = 0;
+        for (const v of samples) sum += v * v;
+        rms = Math.max(rms, Math.sqrt(sum / samples.length));
+      }
+      level = nextVoiceLevel(level, rms);
+      glowRef.current?.style.setProperty("--voice", level.toFixed(3));
+      frame = requestAnimationFrame(tick);
+    });
+    const glow = glowRef.current;
+    return () => {
+      cancelAnimationFrame(frame);
+      glow?.style.setProperty("--voice", "0");
+      void context.close();
+    };
+  }, [status]);
+
   // Hang up when the drawer closes or the page changes.
   useEffect(() => () => void teardown(), [teardown]);
 
   return {
     audioRef,
+    glowRef,
     status,
     error,
     connectedAt,

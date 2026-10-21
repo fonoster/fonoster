@@ -114,10 +114,21 @@ function BrowserCall({ appRef }: { appRef: string }) {
       className="flex flex-col items-center gap-4 rounded-xl border border-border bg-background px-6 py-8 text-center"
     >
       <span
+        ref={call.glowRef}
         className={cn(
-          "flex size-[72px] items-center justify-center rounded-full",
+          "flex size-[72px] items-center justify-center rounded-full transition-[transform,box-shadow] duration-100 ease-out",
           call.status === "connected" ? "bg-brand-subtle" : "bg-muted"
         )}
+        style={
+          call.status === "connected"
+            ? {
+                // --voice (0..1) is written by useBrowserCall as the call's audio level.
+                transform: "scale(calc(1 + var(--voice, 0) * 0.18))",
+                boxShadow:
+                  "0 0 calc(var(--voice, 0) * 32px) calc(var(--voice, 0) * 8px) color-mix(in oklab, var(--fn-brand-04) 40%, transparent)"
+              }
+            : undefined
+        }
       >
         <span
           className={cn(
