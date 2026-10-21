@@ -82,6 +82,8 @@ const ALLOWED_INDEX = [
   "endReason",
   "failureReason",
   "sipStatus",
+  // Who answered, by AMD (human, voicemail, ...): a verdict word, no audio (#1066).
+  "amdStatus",
   "startedAt",
   "endedAt",
   "durationSeconds",
