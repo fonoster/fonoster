@@ -75,7 +75,7 @@ describe("@voice VoiceServer", function () {
     return () => calls;
   }
 
-  it("runs the handler once per session with a valid signature", async function () {
+  it("[VSD-001] runs the handler once per session with a valid signature", async function () {
     const calls = await standalone(async () => undefined);
     const peer = await new FakeAppBridge({ signingSecret: SECRET }).dial(url());
     peer.sendJson(START);
@@ -83,7 +83,7 @@ describe("@voice VoiceServer", function () {
     expect(calls()).to.equal(1);
   });
 
-  it("accepts a signature over the app URL without a trailing slash", async function () {
+  it("[VSD-001] accepts a signature over the app URL without a trailing slash", async function () {
     const calls = await standalone(async () => undefined);
     const bare = url().replace(/\/$/, "");
     const peer = await new FakeAppBridge({ signingSecret: SECRET }).dial(bare);
@@ -100,7 +100,7 @@ describe("@voice VoiceServer", function () {
       { signingSecret: SECRET, timestamp: Math.floor(Date.now() / 1000) - 600 }
     ]
   ] as const) {
-    it(`rejects ${name} before the handler runs`, async function () {
+    it(`[VSD-001] rejects ${name} before the handler runs`, async function () {
       const calls = await standalone(async () => undefined);
       let error: Error | undefined;
       await new FakeAppBridge(options).dial(url()).catch((e) => (error = e));
@@ -109,7 +109,7 @@ describe("@voice VoiceServer", function () {
     });
   }
 
-  it("accepts unsigned connections only when verification is off", async function () {
+  it("[VSD-001] accepts unsigned connections only when verification is off", async function () {
     server = await new VoiceServer({
       port: 0,
       host: "127.0.0.1",
@@ -120,7 +120,7 @@ describe("@voice VoiceServer", function () {
     expect(() => new VoiceServer({ port: 0 })).to.throw("signingSecret");
   });
 
-  it("mounts into an existing HTTP server on a path", async function () {
+  it("[VSD-002] mounts into an existing HTTP server on a path", async function () {
     const httpServer = http.createServer((_req, res) => res.end("app"));
     await new Promise<void>((r) => httpServer.listen(0, "127.0.0.1", r));
     let ran = 0;
@@ -141,7 +141,7 @@ describe("@voice VoiceServer", function () {
     httpServer.close();
   });
 
-  it("rejects a pending gather and emits end when the caller hangs up", async function () {
+  it("[VSD-007] rejects a pending gather and emits end when the caller hangs up", async function () {
     let outcome: unknown;
     let endReason: string | undefined;
     await standalone(async (s) => {
@@ -157,7 +157,7 @@ describe("@voice VoiceServer", function () {
     expect(endReason).to.equal("caller_hangup");
   });
 
-  it("hangs up when the handler throws", async function () {
+  it("[VSD-007] hangs up when the handler throws", async function () {
     await standalone(async () => {
       throw new Error("boom");
     });
@@ -168,7 +168,7 @@ describe("@voice VoiceServer", function () {
 });
 
 describe("@voice removed methods", function () {
-  it("are not on the session", function () {
+  it("[VSD-003] removed methods are not on the session", function () {
     const session = new Session(START as never, {
       sendJson: () => undefined,
       sendBinary: () => undefined,

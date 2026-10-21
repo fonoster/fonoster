@@ -21,9 +21,10 @@ import { NatsConnection, connect } from "nats";
 import { Webhooks } from "@fonoster/common";
 import {
   FakesHarness,
-  Scenario,
   loadScenarios,
-  runScenario
+  runScenario,
+  Scenario,
+  scenarioCase
 } from "@fonoster/conformance";
 import { AppBridge, AppBridgeConfig, MemoryCallRecordSink } from "../src";
 import { catalogFor } from "./scenarioCatalog";
@@ -81,7 +82,8 @@ for (const contract of [
     });
 
     for (const scenario of loadScenarios(contract)) {
-      it(scenario.name, async function () {
+      // The catalog case that runs this file, when its area is brought (twilio: VSD).
+      it(`${scenarioCase(contract, scenario.name)}${scenario.name}`, async function () {
         const record = new MemoryCallRecordSink();
         const webhooks: Webhooks.WebhookEvent[] = [];
         const harness = await new FakesHarness({

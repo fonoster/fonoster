@@ -218,5 +218,85 @@
     "tier": "nightly",
     "pri": "P0",
     "trials": null
+  },
+  "VSD-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-002": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-003": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-004": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-005": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-006": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-007": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-008": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-009": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-010": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "VSD-011": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-012": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-013": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-014": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-015": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-016": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
   }
 }

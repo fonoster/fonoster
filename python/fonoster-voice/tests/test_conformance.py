@@ -9,6 +9,7 @@ from __future__ import annotations
 import asyncio
 
 import pytest
+from conftest import case_for
 from fonoster_conformance import FakeAppBridge, load_scenarios, run_scenario
 
 from fonoster.voice import SessionError, VoiceServer
@@ -170,7 +171,12 @@ FIXTURES = {
 SCENARIOS = load_scenarios("voice-sdk")
 
 
-@pytest.mark.parametrize("scenario", SCENARIOS, ids=[s["name"] for s in SCENARIOS])
+# Each id carries the catalog case that runs the file (catalog/areas/voice-sdk.md).
+@pytest.mark.parametrize(
+    "scenario",
+    SCENARIOS,
+    ids=[f"{case_for('voice-sdk', s['name'])}{s['name']}" for s in SCENARIOS],
+)
 def test_scenario(scenario):
     fixture = FIXTURES.get(scenario["fixture"])
     assert fixture is not None, f"fixture {scenario['fixture']} is not implemented"

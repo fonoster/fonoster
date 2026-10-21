@@ -42,5 +42,21 @@
   "DSH-039": "The Billing page against the stack and the Stripe fake",
   "DSH-040": "A self-hosted install has no Billing",
   "DSH-041": "A SIP network built through the UI against the platform, then taken down",
-  "DSH-042": "An agent created in the UI answers its first call at once"
+  "DSH-042": "An agent created in the UI answers its first call at once",
+  "VSD-001": "Connections are verified before the handler runs",
+  "VSD-002": "VoiceServer runs standalone or mounted into an app",
+  "VSD-003": "A session is one async handler, and old shapes are refused",
+  "VSD-004": "say speaks and reports what was heard",
+  "VSD-005": "Barge-in: the SDK clears what can be interrupted",
+  "VSD-006": "say streams text as it is produced, and stopSay cuts it",
+  "VSD-007": "Failures end say and gather instead of hanging",
+  "VSD-008": "gather speech",
+  "VSD-009": "gather digits and keypresses at any time",
+  "VSD-010": "Partial transcripts on request",
+  "VSD-011": "Raw audio with marks",
+  "VSD-012": "Call control and notes map one to one",
+  "VSD-013": "Twilio streams open, carry audio both ways and end",
+  "VSD-014": "Twilio marks, clear and keypresses",
+  "VSD-015": "Twilio streams hang up by socket or by the Calls endpoint",
+  "VSD-016": "An unmodified Pipecat bot works"
 }

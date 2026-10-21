@@ -65,14 +65,18 @@ if (untagged.length) errors.push(`${untagged.length} test(s) carry no case id; t
 
 // ---- conformance scenario files: each file in an area's contracts belongs to a case (via Runs:)
 const scenRoot = path.join(catalogDir, "..", "scenarios");
+for (const a of areas) for (const t of a.tests) for (const run of t.runs) {
+  const rel = run.replace(/^scenarios\//, "");
+  const c = a.contracts.find((x) => rel === x || rel.startsWith(`${x}/`));
+  if (!c) errors.push(`${t.id}: Runs "${run}" is not under one of the area's contracts (${a.contracts.join(", ")})`);
+  else if (rel !== c && !fs.existsSync(path.join(scenRoot, rel))) errors.push(`${t.id}: Runs "${run}" matches no scenario file`);
+}
 for (const a of areas) for (const c of a.contracts) {
   const files = fs.existsSync(path.join(scenRoot, c)) ? fs.readdirSync(path.join(scenRoot, c)).filter((f) => f.endsWith(".yaml")) : [];
   const claimed = new Set();
   for (const t of a.tests) for (const run of t.runs) {
     const rel = run.replace(/^scenarios\//, "");
-    const hit = files.filter((f) => rel === c || path.join(c, f) === rel);
-    if (!hit.length) errors.push(`${t.id}: Runs "${run}" matches no scenario file`);
-    hit.forEach((f) => claimed.add(f));
+    files.filter((f) => rel === c || path.join(c, f) === rel).forEach((f) => claimed.add(f));
   }
   const orphans = files.filter((f) => !claimed.has(f));
   if (orphans.length) errors.push(`${a.prefix}: ${orphans.length} scenario file(s) under scenarios/${c} belong to no case (add - **Runs:** scenarios/${c} to a case): ${orphans.slice(0, 5).join(", ")}${orphans.length > 5 ? " ..." : ""}`);
@@ -111,7 +115,8 @@ fs.writeFileSync(path.join(catalogDir, "tiers.json"), JSON.stringify(Object.from
 
 // ---- status
 for (const a of areas) {
-  const withTest = a.tests.filter((t) => tagged.has(t.id)).length;
+  // A contract case's tests are the scenario files it Runs; their titles carry the id at run time.
+  const withTest = a.tests.filter((t) => tagged.has(t.id) || t.runs.length).length;
   const capScen = scenarios.filter((s) => a.capabilities.includes(s.cap));
   const capCovered = capScen.filter((s) => covered.has(s.key)).length;
   console.log(`${a.prefix} ${a.title}: ${a.tests.length} cases, ${withTest} with a tagged test, ${a.tests.filter((t) => t.proof).length} with a proof; spec scenarios covered ${capCovered}/${capScen.length} (${a.capabilities.join(", ")})`);

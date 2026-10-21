@@ -73,6 +73,15 @@ Prose for people.
 Ids are explicit in the heading and permanent. A test is tied to a case by putting the id in its
 title: `test("[DSH-003] signs out to a clean sign-in page", ...)`.
 
+Two other ways, for tests whose titles aren't written by hand:
+
+- **Scenario files.** A contract case lists its files with `Runs:`; a suite that runs scenario files
+  builds each title with `scenarioCase(contract, name)` from `@fonoster/conformance`
+  (`"[VSD-004] say-hello"`), and the Python SDK suite does the same with `case_for` in its
+  `tests/conftest.py`.
+- **Python tests.** Mark the test `@case("VSD-001")` (from the suite's `conftest.py`); the id is added
+  to the test's name in the JUnit results, and `build.cjs` reads the decorator.
+
 ## The release report
 
 ```sh
