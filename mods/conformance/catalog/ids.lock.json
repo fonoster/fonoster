@@ -1,0 +1,18 @@
+{
+  "DSH-001": "Sign in with email and password and land on the workspaces list",
+  "DSH-002": "An invitee sets a password before anything else",
+  "DSH-003": "Sign-out leaves a clean sign-in page",
+  "DSH-004": "List and open an agent with its saved configuration",
+  "DSH-005": "Usage in a community install shows minutes and no money",
+  "DSH-006": "Sign in with an emailed code",
+  "DSH-007": "Sign in with GitHub and check the state",
+  "DSH-008": "Refuse a GitHub callback the app did not start",
+  "DSH-009": "A sign-in never reveals whether an email has an account",
+  "DSH-010": "Reload keeps the session",
+  "DSH-011": "Refresh token rejected",
+  "DSH-012": "No workspaces after sign-in",
+  "DSH-013": "A private region's fee follows billing",
+  "DSH-014": "Noise cancelling is one select fed by the catalog",
+  "DSH-015": "Talk drawer: call, mute and hang up",
+  "DSH-016": "Sign in with email and password on Cloud"
+}

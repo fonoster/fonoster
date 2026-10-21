@@ -85,4 +85,21 @@ describe("route guards", () => {
     const auth = fakeAuth({ status: "signedIn", user: user() });
     expect(renderAt("/sign-in", auth)).toBe("/");
   });
+
+  it("returns a signed-in user to next when it is a path on this origin", () => {
+    const auth = fakeAuth({ status: "signedIn", user: user() });
+    expect(renderAt("/sign-in?next=%2Fworkspaces", auth)).toBe("/workspaces");
+  });
+
+  it("ignores a next that is a URL", () => {
+    const auth = fakeAuth({ status: "signedIn", user: user() });
+    expect(renderAt("/sign-in?next=https%3A%2F%2Fevil.example", auth)).toBe(
+      "/"
+    );
+  });
+
+  it("ignores a protocol-relative next", () => {
+    const auth = fakeAuth({ status: "signedIn", user: user() });
+    expect(renderAt("/sign-in?next=%2F%2Fevil.example", auth)).toBe("/");
+  });
 });

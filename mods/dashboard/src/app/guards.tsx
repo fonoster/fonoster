@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation, useSearchParams } from "react-router-dom";
 import { Splash } from "~/components/status/splash";
 import { useAuth } from "~/lib/auth";
 
@@ -43,10 +43,21 @@ export function RequireAuth() {
   return <Outlet />;
 }
 
-/** Sign-in screens; a signed-in user goes straight to the app. */
+/** A `next` worth following: a path on this origin, never a URL or a protocol-relative one. */
+function safeNext(next: string | null): string {
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+}
+
+/**
+ * Sign-in screens; a signed-in user goes straight to the app. Honors `next` (set when an
+ * expired session sent the user here), since this guard renders before the sign-in form's own
+ * navigation and would otherwise win the race and drop the path.
+ */
 export function PublicOnly() {
   const { status } = useAuth();
+  const [params] = useSearchParams();
   if (status === "restoring") return <Splash />;
-  if (status === "signedIn") return <Navigate to="/" replace />;
+  if (status === "signedIn")
+    return <Navigate to={safeNext(params.get("next"))} replace />;
   return <Outlet />;
 }

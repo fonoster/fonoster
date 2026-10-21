@@ -43,6 +43,23 @@ This is OpenAI Chat Completions compatible, with or without `stream: true` (serv
 chunk per word, then `data: [DONE]`). Replies come from the script in order: `{content}` or
 `{tool_calls: [{name, arguments}]}`. With an empty script the reply is `Echo: <last user message>`.
 
+## OAuth2 sign-in: `{oauth2}` (fake GitHub, or an OIDC provider)
+
+A fake sign-in provider for the dashboard's GitHub button and identity's code exchange, so no real
+GitHub app or account is involved. Identity's `oauth2.github.url` and `.apiUrl` point at it (in the
+rebuild stack: `http://<host ip>:16704` for the browser and the token exchange, `http://fakes:7004`
+for the API). The profile picks the shape (`FAKES_OAUTH2_PROFILE`):
+
+| Profile | Authorize | Token | Identity |
+| --- | --- | --- | --- |
+| `github` (default) | `GET /login/oauth/authorize` | `POST /login/oauth/access_token`, JSON or form | `GET /user`, `GET /user/emails` (primary, verified) |
+| `oidc` | `GET /authorize` | `POST /token`, form-encoded | `GET /userinfo` (`email`, `email_verified`, `name`) |
+
+The authorize page asks which account's primary email signs in (default `FAKES_OAUTH2_EMAIL`,
+`admin@fonoster.local`) and redirects back with a one-time code and the caller's `state`. An email
+with a Fonoster account signs that user in; an unknown one exercises the sign-up policy. Tests drive
+it without the page by adding `&email=<address>` to the authorize URL.
+
 ## Injected failures
 
 `failNext` applies to the next request or stream only:

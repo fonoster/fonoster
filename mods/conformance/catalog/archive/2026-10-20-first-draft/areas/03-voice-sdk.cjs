@@ -1,0 +1,163 @@
+module.exports = {
+  prefix: "VSD",
+  title: "Voice SDK and session protocol",
+  scope: "The WebSocket session between AppBridge and an app, in the native and Twilio flavors, through the TypeScript and Python voice SDKs.",
+  level: 'L1 Component (SDK)',
+  tier: "pr",
+  uut: '@fonoster/voice (TypeScript) and fonoster-voice (Python), each running a fixture app',
+  tester: 'Conformance runner that plays AppBridge and checks the scenario files',
+  env: 'Local, no containers beyond NATS',
+  cadence: 'Every pull request that touches a contract; nightly',
+  diagram: `flowchart LR
+  subgraph TESTER["Tester"]
+    SC[("Scenario files")]
+    R["Conformance runner (plays AppBridge)"]
+    REP["Result per scenario"]
+  end
+  subgraph UUT["Unit under test"]
+    APP1["Fixture app: TypeScript SDK"]
+    APP2["Fixture app: Python SDK"]
+  end
+  SC --> R
+  R -->|"signed WebSocket"| APP1
+  R -->|"signed WebSocket"| APP2
+  R --> REP`,
+  tests: [
+    {
+      name: "Signed connection accepted",
+      objective: "A correctly signed WebSocket upgrade is accepted.",
+      pre: "Fixture app listening with a signing secret.",
+      steps: ["Connect with X-Fonoster-Timestamp and a valid X-Fonoster-Signature."],
+      pass: "The connection upgrades and the start message is processed.",
+      fail: "Connection refused or closed.",
+      pri: "P0", ref: "voice-session, voice-sdk",
+    },
+    {
+      name: "Bad signature rejected",
+      objective: "Unsigned, wrongly signed and replayed connections are refused.",
+      pre: "Same as above.",
+      steps: ["Connect with no signature.", "Connect with a wrong signature.", "Connect with a valid signature and a timestamp outside the allowed skew.", "Replay a previously used signed request."],
+      pass: "Each attempt is rejected before any message is processed.",
+      fail: "Any attempt reaches the app handler.",
+      pri: "P0", ref: "voice-session",
+    },
+    {
+      name: "Say, then hang up",
+      objective: "An app can speak a phrase and end the call.",
+      pre: "Fixture say-hello. Fake TTS.",
+      steps: ["Run scenario say-hello.", "Observe events and audio."],
+      pass: "The expected speech events arrive in order, then a hangup. Scenario result is pass.",
+      fail: "Missing or out-of-order events.",
+      pri: "P0", ref: "voice-sdk",
+    },
+    {
+      name: "Gather speech and echo",
+      objective: "An app receives a final transcript and replies.",
+      pre: "Fixture gather-echo. Fake STT returns a fixed transcript.",
+      steps: ["Run scenario gather-echo."],
+      pass: "The app receives the transcript once and replies with the same text.",
+      fail: "Transcript missing, duplicated, or reply differs.",
+      pri: "P0", ref: "voice-sdk",
+    },
+    {
+      name: "Gather DTMF",
+      objective: "An app receives DTMF digits.",
+      pre: "Fixture for DTMF gather.",
+      steps: ["Send DTMF 1, 2, 3, # from the runner."],
+      pass: "The app receives 123 with the terminator, in order.",
+      fail: "Digit lost, reordered, or duplicated.",
+      pri: "P0", ref: "voice-sdk",
+    },
+    {
+      name: "Barge-in interrupts speech",
+      objective: "Caller speech during TTS stops playback and reports what was spoken.",
+      pre: "Fixture long-say. Turn-taking enabled.",
+      steps: ["App starts a long say.", "Runner sends caller speech after 1 s."],
+      pass: "Playback stops within the stop budget. The interruption report states how much was played.",
+      fail: "Playback continues, or the report is missing.",
+      pri: "P0", ref: "voice-session, turn-taking",
+    },
+    {
+      name: "Raw audio frames in and out",
+      objective: "Binary audio frames pass unchanged in both directions.",
+      pre: "Audio-layer fixture.",
+      steps: ["Send 100 frames of a known pattern.", "App echoes them back.", "Compare."],
+      pass: "Frames return in order with identical content. Size and format match the declared audio format.",
+      fail: "Loss, reorder or corruption.",
+      pri: "P1", ref: "voice-session",
+    },
+    {
+      name: "mark and clear",
+      objective: "Audio-layer mark and clear behave as specified.",
+      pre: "Audio-layer fixture.",
+      steps: ["App sends audio, then a mark.", "Runner reports the mark after playout.", "App sends audio, then clear."],
+      pass: "The mark returns after the preceding audio plays. Clear drops queued audio.",
+      fail: "Mark returns early, or queued audio plays after clear.",
+      pri: "P1", ref: "voice-session",
+    },
+    {
+      name: "Transfer command",
+      objective: "An app can ask for a transfer and get the result.",
+      pre: "Fixture transfer. Fake node.",
+      steps: ["App sends transfer to a number.", "Node answers with transfer.result success.", "Repeat with failure."],
+      pass: "The app sees success and failure results with the documented reason.",
+      fail: "No result, or the wrong reason.",
+      pri: "P0", ref: "voice-session, media-control",
+    },
+    {
+      name: "Listener attach",
+      objective: "A listen-only socket receives the requested tracks.",
+      pre: "A live session.",
+      steps: ["Attach a listener with tracks inbound.", "Repeat with outbound and both."],
+      pass: "The listener receives only the requested tracks and cannot send commands.",
+      fail: "Wrong tracks, or the listener can control the call.",
+      pri: "P1", ref: "voice-session",
+    },
+    {
+      name: "Unknown and malformed messages",
+      objective: "The SDK handles bad input without crashing.",
+      pre: "Fixture app.",
+      steps: ["Send an unknown message type.", "Send invalid JSON.", "Send an oversized frame.", "Send a binary frame before start."],
+      pass: "Unknown types are ignored or reported per spec. Invalid input closes the session with the documented code. The process keeps running.",
+      fail: "Process crash or hang.",
+      pri: "P1", ref: "voice-session",
+    },
+    {
+      name: "Twilio flavor: start, media, stop",
+      objective: "An unmodified Twilio Media Streams app works.",
+      pre: "Twilio flavor enabled. A Twilio-style fixture app.",
+      steps: ["Connect. Receive start with streamSid.", "Receive media events with base64 mulaw.", "Send media back.", "Receive stop."],
+      pass: "Message shapes, field names and encodings match the Twilio specification.",
+      fail: "Any field or encoding differs.",
+      pri: "P0", ref: "twilio-media-streams-flavor",
+    },
+    {
+      name: "Twilio flavor: mark and clear",
+      objective: "Twilio mark and clear semantics hold.",
+      pre: "Same as above.",
+      steps: ["Send media then mark.", "Observe the mark echo.", "Send clear mid-playback."],
+      pass: "Mark is echoed after playout. Clear stops playback and echoes pending marks.",
+      fail: "Mark order or clear behavior differs.",
+      pri: "P1", ref: "twilio-media-streams-flavor",
+    },
+    {
+      name: "TypeScript and Python SDKs agree",
+      runs: ["scenarios/voice-sdk"],
+      objective: "Both SDKs produce the same result for every shared scenario.",
+      pre: "Scenario files from @fonoster/conformance. One fixture per name in both languages.",
+      steps: ["Run every voice-sdk scenario against the TypeScript fixtures.", "Run the same against the Python fixtures.", "Diff the results."],
+      pass: "Every scenario has the same result in both languages. No scenario is skipped silently.",
+      fail: "Any difference, or a silent skip.",
+      pri: "P0", ref: "voice-sdk, conformance",
+    },
+    {
+      name: "Pipecat bot works unchanged",
+      objective: "An existing Pipecat bot talks to the platform without code changes.",
+      pre: "The pipecat-golden project.",
+      steps: ["Start the bot against the Twilio flavor.", "Run the golden call script."],
+      pass: "The golden transcript is reproduced.",
+      fail: "Connection errors or a different transcript.",
+      pri: "P1", ref: "twilio-media-streams-flavor",
+    },
+  ],
+};

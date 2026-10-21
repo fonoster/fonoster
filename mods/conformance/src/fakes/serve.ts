@@ -19,12 +19,15 @@
 // The fake providers as a standalone server (the rebuild stack's `fakes` service, ST-B6): fake
 // TTS, STT and LLM on fixed ports so a local stack runs calls without vendor keys or paid calls.
 //
-//   node dist/fakes/serve.js        # TTS :7001, STT :7002, LLM :7003 on 0.0.0.0
+//   node dist/fakes/serve.js        # TTS :7001, STT :7002, LLM :7003, OAuth2 :7004 on 0.0.0.0
 //
-// FAKES_HOST, FAKES_TTS_PORT, FAKES_STT_PORT, FAKES_LLM_PORT override the defaults. The STT
+// FAKES_HOST, FAKES_TTS_PORT, FAKES_STT_PORT, FAKES_LLM_PORT, FAKES_OAUTH2_PORT override the
+// defaults. The fake OAuth2 provider (sign-in) follows FAKES_OAUTH2_PROFILE (github, oidc) and offers
+// FAKES_OAUTH2_EMAIL as the account to sign in with. The STT
 // transcribes every call with FAKES_STT_SCRIPT (JSON [{atMs, text}], by caller-audio time) so an
 // Autopilot conversation moves without a real recognizer; the LLM echoes the caller.
 import { FakeLlm } from "./providers/FakeLlm";
+import { FakeOAuth2 } from "./providers/FakeOAuth2";
 import { FakeStt, SttScriptEntry } from "./providers/FakeStt";
 import { FakeTts } from "./providers/FakeTts";
 
@@ -46,19 +49,23 @@ export async function serveFakes(
   stt.configure({ script });
   await stt.start(port("FAKES_STT_PORT", 7002), host);
   const llm = await new FakeLlm().start(port("FAKES_LLM_PORT", 7003), host);
-  return { tts, stt, llm };
+  const oauth2 = await new FakeOAuth2(
+    env.FAKES_OAUTH2_PROFILE ?? "github",
+    env.FAKES_OAUTH2_EMAIL
+  ).start(port("FAKES_OAUTH2_PORT", 7004), host);
+  return { tts, stt, llm, oauth2 };
 }
 
 // eslint-disable-next-line no-undef
 if (require.main === module) {
   serveFakes()
-    .then(({ tts, stt, llm }) => {
+    .then(({ tts, stt, llm, oauth2 }) => {
       console.log(
-        `fakes ready: tts ${tts.url} stt ${stt.url} llm ${llm.url} (ports on ${process.env.FAKES_HOST ?? "0.0.0.0"})`
+        `fakes ready: tts ${tts.url} stt ${stt.url} llm ${llm.url} oauth2 ${oauth2.url} (ports on ${process.env.FAKES_HOST ?? "0.0.0.0"})`
       );
       const stop = () =>
-        Promise.all([tts.stop(), stt.stop(), llm.stop()]).then(() =>
-          process.exit(0)
+        Promise.all([tts.stop(), stt.stop(), llm.stop(), oauth2.stop()]).then(
+          () => process.exit(0)
         );
       process.on("SIGTERM", stop);
       process.on("SIGINT", stop);

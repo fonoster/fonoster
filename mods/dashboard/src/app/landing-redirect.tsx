@@ -26,7 +26,7 @@ import { errorMessage } from "~/lib/errors";
 import { landingTarget } from "~/workspaces/workspace-session";
 import { WORKSPACES_KEY, useWorkspaces } from "~/workspaces/workspaces.service";
 
-/** "/" sends a signed-in user to a workspace, the picker, or Create workspace. */
+/** "/" sends a signed-in user to the workspaces list, or to Create workspace when there is none. */
 export function LandingRedirect() {
   const queryClient = useQueryClient();
   const { data, error } = useWorkspaces();

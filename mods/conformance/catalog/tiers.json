@@ -1,0 +1,82 @@
+{
+  "DSH-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-002": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-003": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-004": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-005": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-006": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-007": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-008": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-009": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-010": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-011": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-012": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-013": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-014": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-015": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-016": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  }
+}

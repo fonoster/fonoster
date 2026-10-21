@@ -18,6 +18,7 @@
  */
 import * as http from "http";
 import { AddressInfo } from "net";
+import { URLSearchParams } from "url";
 import { ProviderBehavior, ProviderFailure } from "../../scenario/types";
 import { ProviderLedger } from "./ProviderLedger";
 
@@ -108,12 +109,22 @@ export abstract class FakeProvider {
     for await (const chunk of req) chunks.push(chunk as Buffer);
     let body: unknown = undefined;
     if (chunks.length) {
-      try {
-        body = JSON.parse(Buffer.concat(chunks).toString());
-      } catch {
-        return this.json(res, 400, {
-          error: { code: "bad_request", message: "body is not JSON" }
-        });
+      const text = Buffer.concat(chunks).toString();
+      // JSON, or a form (the standard OAuth 2.0 token request); anything else is a bad request.
+      if (
+        /^application\/x-www-form-urlencoded/i.test(
+          req.headers["content-type"] ?? ""
+        )
+      ) {
+        body = Object.fromEntries(new URLSearchParams(text));
+      } else {
+        try {
+          body = JSON.parse(text);
+        } catch {
+          return this.json(res, 400, {
+            error: { code: "bad_request", message: "body is not JSON" }
+          });
+        }
       }
     }
 

@@ -156,6 +156,8 @@ import headerPlugin from 'eslint-plugin-header'; export default [
       "ops/**",
       ".mocharc.cjs",
       "mods/*/scripts/**",
+      // Earlier drafts of the QA catalog, kept for reference; the scripts never read them
+      "mods/conformance/catalog/archive/**",
       'site/**',
       'mods/dashboard/**',
       // Browser code, like the dashboard: these rules are for the Node services

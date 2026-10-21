@@ -64,7 +64,6 @@ export const storage = {
 export const LEGACY_SESSION_KEY = "fonoster.session";
 
 export const STORAGE_KEYS = {
-  workspace: "fonoster.workspace",
   nav: "fonoster.nav",
   theme: "fonoster.theme"
 } as const;

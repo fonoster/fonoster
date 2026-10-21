@@ -76,8 +76,12 @@ class CallRecords {
   ) {
     this.client = client;
     this.baseUrl = options.baseUrl?.replace(/\/+$/, "");
+    // Called as a method below, so never store the global unbound: in browsers a detached
+    // `fetch` throws "Illegal invocation".
     this.fetchFn =
-      options.fetch ?? (globalThis.fetch as unknown as FetchLike | undefined)!;
+      options.fetch ??
+      (((input, init) =>
+        globalThis.fetch(input, init)) as unknown as FetchLike);
   }
 
   private url(path: string, query: Record<string, unknown> = {}) {

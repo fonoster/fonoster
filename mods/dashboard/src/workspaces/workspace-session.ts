@@ -17,27 +17,12 @@
  * limitations under the License.
  */
 import type { Workspace } from "@fonoster/types";
-import { STORAGE_KEYS, storage } from "~/lib/storage";
-
-export function rememberedWorkspace(): string | null {
-  return storage.get(STORAGE_KEYS.workspace);
-}
-
-export function rememberWorkspace(ref: string) {
-  storage.set(STORAGE_KEYS.workspace, ref);
-}
 
 export function workspacePath(ref: string) {
   return `/w/${ref}`;
 }
 
-/** Where to go after sign-in: the remembered workspace, the only one, or the picker. */
-export function landingTarget(
-  workspaces: Workspace[],
-  remembered = rememberedWorkspace()
-): string {
-  if (workspaces.length === 0) return "/workspaces/new";
-  if (remembered && workspaces.some((w) => w.ref === remembered))
-    return workspacePath(remembered);
-  return "/workspaces";
+/** Where to go after sign-in: Create workspace when there is none, otherwise the list. */
+export function landingTarget(workspaces: Workspace[]): string {
+  return workspaces.length === 0 ? "/workspaces/new" : "/workspaces";
 }

@@ -13,7 +13,8 @@
     "preview": "vite preview --port 3030",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "test:e2e": "playwright test",
+    "test:e2e": "playwright test --project community --project cloud",
+    "test:e2e:real": "node e2e/real-env.cjs",
     "gen:tokens": "tsx scripts/gen-tokens.ts",
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build"

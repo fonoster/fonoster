@@ -214,9 +214,9 @@ render_configs() {
   cp -R "$BUNDLE/config/." "$CONF/"
   rm -rf "$OVERLAY" && mkdir -p "$OVERLAY"
 
-  # Vendor keys become AppBridge's and Autopilot's platform keys, and the API server offers
-  # workspaces only the providers with one (platformCredentials below), a key of their own, or no
-  # key needed. Without one, a vendor waits for a workspace key.
+  # Vendor keys become AppBridge's and Autopilot's platform keys. The API server offers every
+  # catalog vendor (#1011); a vendor with neither a platform key here nor a workspace key waits
+  # for one.
   local keys=""
   [ -n "${DEEPGRAM_API_KEY:-}" ] && keys+="  deepgram: { credential: { value: \"\${DEEPGRAM_API_KEY}\" } }"$'\n'
   [ -n "${ELEVENLABS_API_KEY:-}" ] && keys+="  elevenlabs: { credential: { value: \"\${ELEVENLABS_API_KEY}\" } }"$'\n'

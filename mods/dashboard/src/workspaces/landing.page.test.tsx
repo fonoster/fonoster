@@ -97,6 +97,5 @@ describe("workspace landing", () => {
       region: "default"
     });
     expect(await screen.findByTestId("location")).toHaveTextContent("/w/ws1");
-    expect(localStorage.getItem("fonoster.workspace")).toBe("ws1");
   });
 });

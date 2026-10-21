@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect, type Page } from "@playwright/test";
 import { capabilities, emptyReply, GrpcWebMock, identity } from "./grpc-web";
 
 export type Variant = "community" | "cloud";
@@ -63,6 +63,73 @@ export function tokens(
   return response;
 }
 
+/** Like tokens(), with an access token that expires in `seconds` (to force a renewal soon). */
+export function tokensExpiring(
+  user: TestUser,
+  seconds: number,
+  Response = identity.ExchangeCredentialsResponse
+) {
+  const response = tokens(user, Response);
+  response.setAccessToken(
+    jwt({
+      sub: user.ref,
+      accessKeyId: `US${user.ref}`,
+      access: [],
+      exp: Math.floor(Date.now() / 1000) + seconds
+    })
+  );
+  return response;
+}
+
+/**
+ * Serves one private region over the regions HTTP API (list and detail) and advertises
+ * private regions in the capabilities. Registered after the mock, so these routes win.
+ */
+export async function withPrivateRegion(
+  page: Page,
+  api: GrpcWebMock,
+  variant: Variant,
+  region: { ref: string; id: string; displayName: string; monthlyFeeCents: number | null }
+) {
+  api.on("Capabilities/GetCapabilities", () => {
+    const response = capabilitiesFor(variant);
+    const regions = new capabilities.RegionsCapabilities();
+    regions.setPrivate(true);
+    response.setRegions(regions);
+    return response;
+  });
+  const summary = {
+    ref: region.ref,
+    id: region.id,
+    displayName: region.displayName,
+    kind: "private",
+    state: "connected",
+    status: "connected"
+  };
+  const detail = {
+    ...summary,
+    sipDomain: `${region.id}.sip.acme.com`,
+    version: "1.0.0",
+    components: { roomrNodes: 1, appbridges: 1, autopilot: true },
+    workspaces: [],
+    secrets: [],
+    monthlyFeeCents: region.monthlyFeeCents
+  };
+  // Cross-origin from the dashboard, with an Authorization header: answer the preflight too.
+  const cors = {
+    "access-control-allow-origin": "*",
+    "access-control-allow-headers": "authorization, content-type, x-requested-with",
+    "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+  };
+  await page.route(/\/api\/regions(\/[^/?]+)?(\?.*)?$/, (route) => {
+    if (route.request().method() === "OPTIONS")
+      return route.fulfill({ status: 204, headers: cors });
+    const path = new URL(route.request().url()).pathname;
+    const json = path.endsWith("/api/regions") ? { items: [summary] } : detail;
+    return route.fulfill({ json, headers: cors });
+  });
+}
+
 export function workspace(ref: string, name: string, ownerRef: string) {
   const w = new identity.Workspace();
   w.setRef(ref);
@@ -79,7 +146,7 @@ export function capabilitiesFor(variant: Variant) {
   const billing = new capabilities.BillingCapabilities();
   const costs = new capabilities.CostsCapabilities();
   if (variant === "cloud") {
-    auth.setMethodsList(["github", "email_code"]);
+    auth.setMethodsList(["password", "email_code", "github"]);
     auth.setSignup("open");
     const github = new capabilities.GitHubCapability();
     github.setClientId("Iv1.e2e");
