@@ -143,8 +143,11 @@ export function fromFixture(
     status: file.expect.status,
     endReason:
       (meta.endReason as string) ?? (ended?.message.reason as string) ?? null,
-    failureReason: (meta.failureReason as string) ?? null,
-    sipStatus: (meta.sipStatus as number) ?? null,
+    // As the index has them (callrecord indexEntry): from the vCon's failure.
+    failureReason:
+      (meta.failure as { reason?: string } | undefined)?.reason ?? null,
+    sipStatus:
+      (meta.failure as { sipStatus?: number } | undefined)?.sipStatus ?? null,
     startedAt: new Date(T0).toISOString(),
     endedAt: new Date(endedAt).toISOString(),
     durationSeconds: Math.round((endedAt - T0) / 1000),
@@ -177,8 +180,28 @@ export function fromFixture(
   };
 }
 
+/** An Autopilot turn note (autopilot.turn) naming the tools the agent called. */
+export const toolTurn = (
+  atMs: number,
+  toolCalls: { name: string; ok: boolean }[]
+): FixtureEntry => ({
+  atMs,
+  source: "app",
+  message: { type: "record.note", data: { kind: "autopilot.turn", toolCalls } }
+});
+
+/** The call's usage as AppBridge snapshots it (add-usage-metering). */
+export const usageSnapshot = (
+  atMs: number,
+  lines: Record<string, unknown>[]
+): FixtureEntry => ({
+  atMs,
+  source: "event",
+  message: { type: "usage.snapshot", lines }
+});
+
 /**
- * Serves these records: the search (filtered by status, newest first, `pageSize` at a time with
+ * Serves these records: the search (filtered by status, direction and app, newest first, `pageSize` at a time with
  * a page token), each record and its recording.
  */
 export function installRecords(
@@ -191,9 +214,13 @@ export function installRecords(
   api
     .rest("GET", "/api/records", ({ query }) => {
       const status = query.get("status");
+      const direction = query.get("direction");
+      const appRef = query.get("appRef");
       const matching = records
         .map((r) => r.summary)
         .filter((s) => !status || s.status === status)
+        .filter((s) => !direction || s.direction === direction)
+        .filter((s) => !appRef || s.appRef === appRef)
         .sort((a, b) => String(b.startedAt).localeCompare(String(a.startedAt)));
       const from = Number(query.get("pageToken") ?? 0);
       const page = matching.slice(from, from + pageSize);

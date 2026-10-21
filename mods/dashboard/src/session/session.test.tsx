@@ -300,10 +300,30 @@ describe("calls", () => {
     render(<CallsScreen />, "/w/:workspaceRef/calls/*", "/w/ws-1/calls/room-1");
     expect(
       await screen.findByRole("heading", {
-        name: "+15550001111 → +15550002222"
+        name: /^\+1 555 000 1111 with /
       })
     ).toBeInTheDocument();
+    expect(screen.getByText("via +1 555 000 2222")).toBeInTheDocument();
     expect(screen.getByText("I want to check my balance")).toBeInTheDocument();
+    // The agent's answer, its response time, the tool it called and the usage.
+    expect(screen.getByText("first audio 600 ms")).toBeInTheDocument();
+    expect(screen.getByText("p50 600 ms")).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("listitem", { name: "tool call" })).getByText(
+        "get_balance"
+      )
+    ).toBeInTheDocument();
+    const usage = screen.getByRole("region", { name: "Usage" });
+    expect(
+      within(usage).getByText("LLM input · gpt-4o-mini")
+    ).toBeInTheDocument();
+    expect(within(usage).getByText("1.9K tokens")).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("region", { name: "In this call" })).getByText(
+        "2 agent · 3 caller"
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("The caller hung up")).toBeInTheDocument();
     expect(await screen.findByLabelText("Call recording")).toHaveAttribute(
       "src",
       "blob:recording-room-1"
@@ -324,7 +344,9 @@ describe("calls", () => {
 
   it("lists calls", async () => {
     render(<CallsScreen />, "/w/:workspaceRef/calls/*", "/w/ws-1/calls");
-    expect(await screen.findAllByText("completed")).toHaveLength(2);
+    expect(await screen.findAllByText("Completed")).toHaveLength(2);
+    expect(screen.getByText("2 calls")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Export CSV" })).toBeEnabled();
   });
 
   it("describes messages", () => {

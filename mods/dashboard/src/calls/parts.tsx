@@ -52,7 +52,7 @@ export function DirectionIcon({
   );
 }
 
-const DOT: Record<Tone, string> = {
+export const TONE_DOT: Record<Tone, string> = {
   success: "bg-primary",
   warning: "bg-warning-foreground",
   error: "bg-destructive",
@@ -64,7 +64,7 @@ export function StatusDot({ status }: { status: string }) {
   return (
     <span className="inline-flex items-center gap-2 whitespace-nowrap">
       <span
-        className={cn("size-1.5 shrink-0 rounded-full", DOT[tone])}
+        className={cn("size-1.5 shrink-0 rounded-full", TONE_DOT[tone])}
         aria-hidden
       />
       {label}

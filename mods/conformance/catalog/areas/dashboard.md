@@ -389,12 +389,12 @@ Runs against in-memory applications that store what the dashboard sends (`e2e/ap
 - **Spec:** dashboard / The Calls page lists the workspace's records / Filter by status
 - **Spec:** dashboard / The Calls page lists the workspace's records / More than one page
 - **Priority:** P1
-- **Proof:** Never ask for a next page (`getNextPageParam` in `session/calls.tsx`); the test must go red on Load more.
+- **Proof:** Name every failed call Failed (`recordStatus` in `calls/records.ts`); the test must go red on the busy call's Busy. Never asking for a next page (`getNextPageParam` in `session/calls.tsx`) goes red on Load more.
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
 The records API is served from vCons the call-record module builds from its own fixture calls (`e2e/records.ts`), two to a page.
 
-**Pass.** Today's call is listed before yesterday's, the third comes with Load more and its request carries the page token; picking Failed asks for `status=failed` and lists only the busy call. **Fail.** A wrong order, no Load more, a lost page token, or a status filter applied only in the browser.
+**Pass.** Today's call (Front desk) is listed before yesterday's (Billing reminders), with the customer, the Fonoster number and Completed; the count reads 2+ calls; the third comes with Load more, reads Busy, its request carries the page token and the count becomes 3 calls; picking Failed asks for `status=failed` and lists only the busy call. **Fail.** A wrong order, a ref instead of the agent's name, no Load more, a lost page token, or a status filter applied only in the browser.
 
 ### DSH-031 A completed call reads as the conversation, and its recording plays
 
@@ -406,7 +406,7 @@ The records API is served from vCons the call-record module builds from its own 
 
 Writing this case found that the record builder stamped a caller's turn at its end and wrote no duration; fixed in `mods/callrecord/src/vcon.ts` with a unit test.
 
-**Pass.** The title is `+15550005555 → +15550002222`; Answered by says Front desk and Ended says The caller hung up; the caller turn reads 1.8 s · 1.8 s and the first agent turn 0.4 s · 1.0 s; the recording plays from a blob URL in the page and Download saves `call-1.wav`, fetched once. **Fail.** A ref for a title or an app, a code for the ending, a turn without its duration, or a recording that only downloads.
+**Pass.** The title is `+1 555 000 5555 with Front desk`, the call went via +1 555 000 2222 and the timeline ends with The caller hung up; the caller turn reads 0:01 and 1.8 s, the first agent turn 0:00 and 1.0 s; the recording plays from a blob URL in a waveform player with Play and Seek, and Download saves `call-1.wav`, fetched once. **Fail.** A ref for a title or an app, a code for the ending, a turn without its duration, or a recording that only downloads.
 
 ### DSH-032 A failed call says why, with its SIP status
 
@@ -416,7 +416,7 @@ Writing this case found that the record builder stamped a caller's turn at its e
 - **Proof:** Drop the record's failure from the detail (`session/sdk-api.ts`); the test must go red on the SIP status.
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
-**Pass.** The busy outbound call says The line was busy (SIP 486), that it wasn't recorded and that nothing was said, with no player. **Fail.** No reason or SIP status, or a player for a call with no recording.
+**Pass.** The busy outbound call is titled by the number called (+1 555 000 4444) and says The line was busy (SIP 486), that it wasn't recorded and that nothing was said, with no player. **Fail.** No reason or SIP status, or a player for a call with no recording.
 
 ### DSH-033 Erased and unknown records say so
 
@@ -440,7 +440,32 @@ Writing this case found that the record builder stamped a caller's turn at its e
 
 The seeded agent records calls (`ops/rebuild/seed.cjs`). Bringing this case up found that every AppBridge image built from a checkout that hadn't run the package build crashed at start (identity-client's git-ignored proto was never synced into the image), so every call was rejected with 503; fixed in `mods/appbridge/Dockerfile`. It also found that browser test calls were recorded as `internal → roomr` (#1060): the test token now names the signed-in user and AppBridge records them and the agent instead. And it found that the local stack seeded the demo agent with Deepgram without a key, so every local call was silent (HTTP 401 both ways); the seed now picks only keyless providers and those with a key.
 
-**Pass.** After a browser call to the seeded agent (muted, so the fake microphone doesn't cut the greeting), the newest call in Calls is a new completed record titled `<signed-in email> → <agent>`; its detail names the agent under Answered by, shows the greeting with its start and duration, plays the recording from a blob URL and downloads a `.wav`. **Fail.** No new record within 90 seconds, a missing or untimed turn, or no playable recording.
+**Pass.** After a browser call to the seeded agent (muted, so the fake microphone doesn't cut the greeting), the newest row in Calls is new, handled by the agent and Completed; its detail is titled `<signed-in email> with <agent>`, shows the greeting with its start and duration, plays the recording from a blob URL and downloads a `.wav`. **Fail.** No new record within 90 seconds, a missing or untimed turn, or no playable recording.
+
+### DSH-043 Calls filter by direction and by agent, and export as CSV
+
+- **Spec:** dashboard / The Calls page lists the workspace's records / Filter by direction and agent
+- **Spec:** dashboard / The Calls page lists the workspace's records / Export CSV
+- **Priority:** P1
+- **Proof:** Don't send the direction to the records API (`listCalls` in `session/sdk-api.ts`); the test must go red on the inbound call still listed under Outbound.
+- **Test:** mods/dashboard/e2e/calls.community.spec.ts
+
+The records API's `direction` search (call-record "Search by direction") is unit-tested in `mods/apiserver/test/records/records.test.ts`.
+
+**Pass.** Outbound asks for `direction=outbound` and lists only the Billing reminders call; Front desk asks for `appRef=app-1` and the count reads 1 call; Export CSV saves `calls.csv` with the header and one row for the inbound Front desk call with its raw numbers. **Fail.** A filter applied only in the browser, a wrong count, or a CSV of other rows than those listed.
+
+### DSH-044 The call detail shows how the agent did, and exports the vCon
+
+- **Spec:** dashboard / The call detail shows how the agent did / Response time, tools and usage
+- **Spec:** dashboard / The call detail shows how the agent did / An interrupted answer
+- **Spec:** dashboard / The call detail shows how the agent did / Export the record
+- **Priority:** P1
+- **Proof:** Don't compute the answer's response time (`fromVcon` in `session/sdk-api.ts`); the test must go red on first audio 100 ms.
+- **Test:** mods/dashboard/e2e/calls.community.spec.ts
+
+The record carries tool names and outcomes (Autopilot's `autopilot.turn` note) and usage quantities (`usage.snapshot`). It doesn't carry the answering machine result, tool parameters and responses, knowledge searches, per-stage latency, the trunk or prices, so the page shows none of them.
+
+**Pass.** The answer to the caller shows first audio 100 ms and Response time p50 100 ms; the timeline shows the `get_hours` tool call as ok; Usage lists Speech-to-text · deepgram 0:04 and LLM input · gpt-4o-mini 1.2K tokens with no price; In this call reads 2 agent · 1 caller and names get_hours; the Events tab lists `turn.ended`; Export JSON saves `call-1.vcon.json` with its dialog; a call where the caller cut the agent off says interrupted at 0:03 and counts one interruption. **Fail.** A missing or estimated figure, a price, or a vCon that isn't the record's.
 
 ### DSH-035 Billing is offered only to an owner on Cloud
 

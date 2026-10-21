@@ -51,9 +51,11 @@ export const STATUS_FILTERS = [
 
 export type Direction = "inbound" | "outbound" | "internal";
 
+/** A call detail record's enum name, or the records index's word. */
 export function callDirection(direction: string): Direction {
-  if (direction === "TO_PSTN") return "outbound";
-  if (direction === "INTRA_NETWORK") return "internal";
+  if (direction === "TO_PSTN" || direction === "outbound") return "outbound";
+  if (direction === "INTRA_NETWORK" || direction === "internal")
+    return "internal";
   return "inbound";
 }
 
@@ -153,7 +155,7 @@ export function rangeStart(days: string, now = new Date()): string {
   return new Date(now.getTime() - Number(days) * 86_400_000).toISOString();
 }
 
-function csvCell(value: unknown): string {
+export function csvCell(value: unknown): string {
   const text =
     value instanceof Date ? value.toISOString() : String(value ?? "");
   return /[",\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;

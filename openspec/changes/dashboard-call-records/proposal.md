@@ -27,6 +27,11 @@ The owner found that the call records experience barely works (2026-10-20). Rend
   calls asks the API by `appRef`.
 - Call record: each spoken turn starts when that side began speaking and carries a vCon `duration`.
 - Local stack: the seeded app records calls, so local calls have a recording to show.
+- Calls fidelity (designs/dashboard.pen, Calls / List and Calls / Detail): who handled each call,
+  customer and Fonoster number, status words, direction and agent filters, a count and Export CSV; the
+  detail as a timeline with tool calls, first-audio latency and interruptions, a waveform player, an
+  Events tab, Response time, Usage and In this call panels, and Export JSON. The records API searches
+  by `direction`.
 
 ## Impact
 

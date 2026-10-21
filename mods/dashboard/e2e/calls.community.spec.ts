@@ -20,11 +20,18 @@
  * Calls and call records (spec change dashboard-call-records), against the records API
  * serving vCons built by the call-record module from its own fixture calls.
  */
+import { readFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 import { FakeApplications } from "./apps";
 import { ada, expect, test, tokens } from "./fixtures";
 import type { GrpcWebMock } from "./grpc-web";
-import { fromFixture, installRecords, type RecordFixture } from "./records";
+import {
+  fromFixture,
+  installRecords,
+  toolTurn,
+  usageSnapshot,
+  type RecordFixture
+} from "./records";
 
 test.use({ variant: "community" });
 
@@ -36,6 +43,7 @@ async function signIn(
 ) {
   const apps = new FakeApplications();
   apps.add("Front desk", "AUTOPILOT"); // app-1
+  apps.add("Billing reminders", "AUTOPILOT"); // app-2
   apps.install(api);
   installRecords(api, records, { pageSize });
   api.on("Identity/ExchangeCredentials", () => tokens(ada));
@@ -60,7 +68,7 @@ test("[DSH-030] lists calls newest first, filters by status, and loads more", as
     [
       fromFixture("recorded-call", {
         callRef: "call-yesterday",
-        appRef: "app-1",
+        appRef: "app-2",
         startedAt: today - day
       }),
       fromFixture("recorded-call", {
@@ -77,24 +85,87 @@ test("[DSH-030] lists calls newest first, filters by status, and loads more", as
   );
   await page.getByRole("link", { name: "Calls", exact: true }).click();
 
-  const rows = page.getByRole("table", { name: "Calls" }).getByRole("row");
-  // Two per page, newest first; the third comes with Load more.
-  await expect(rows.nth(1)).toContainText("call-today");
-  await expect(rows.nth(2)).toContainText("call-yesterday");
-  await expect(page.getByText("call-busy")).toHaveCount(0);
+  const table = page.getByRole("table", { name: "Calls" });
+  const rows = table.getByRole("row");
+  // Two per page, newest first: who handled it, the customer, the number, the status.
+  await expect(rows.nth(1)).toContainText("Front desk");
+  await expect(rows.nth(1)).toContainText("+1 555 000 5555");
+  await expect(rows.nth(1)).toContainText("+1 555 000 2222");
+  await expect(rows.nth(1)).toContainText("Completed");
+  await expect(rows.nth(2)).toContainText("Billing reminders");
+  await expect(page.getByText("2+ calls")).toBeVisible();
+  await expect(table.getByText("Busy")).toHaveCount(0);
+  // The third comes with Load more.
   await page.getByRole("button", { name: "Load more" }).click();
-  await expect(rows.nth(3)).toContainText("call-busy");
+  await expect(rows.nth(3)).toContainText("Busy");
+  await expect(rows.nth(3)).toContainText("+1 555 000 4444");
+  await expect(page.getByText("3 calls")).toBeVisible();
   expect(
     api.calls.some((c) => /^GET \/api\/records\?.*pageToken=2/.test(c.method))
   ).toBe(true);
 
   await page.getByRole("combobox", { name: "Status" }).click();
   await page.getByRole("option", { name: "Failed" }).click();
-  await expect(page.getByText("call-busy")).toBeVisible();
-  await expect(page.getByText("call-today")).toHaveCount(0);
+  await expect(table.getByText("Busy")).toBeVisible();
+  await expect(table.getByText("Front desk")).toHaveCount(0);
   expect(
     api.calls.some((c) => /^GET \/api\/records\?.*status=failed/.test(c.method))
   ).toBe(true);
+});
+
+test("[DSH-043] filters calls by direction and by agent, and exports the list as CSV", async ({
+  page,
+  api
+}) => {
+  await signIn(page, api, [
+    fromFixture("recorded-call", {
+      callRef: "call-in",
+      appRef: "app-1",
+      startedAt: today
+    }),
+    fromFixture("failed-busy", {
+      callRef: "call-out",
+      appRef: "app-2",
+      startedAt: today - day
+    })
+  ]);
+  await page.getByRole("link", { name: "Calls", exact: true }).click();
+  const table = page.getByRole("table", { name: "Calls" });
+  await expect(page.getByText("2 calls")).toBeVisible();
+
+  await page.getByRole("combobox", { name: "Direction" }).click();
+  await page.getByRole("option", { name: "Outbound" }).click();
+  await expect(table.getByText("Billing reminders")).toBeVisible();
+  await expect(table.getByText("Front desk")).toHaveCount(0);
+  expect(
+    api.calls.some((c) =>
+      /^GET \/api\/records\?.*direction=outbound/.test(c.method)
+    )
+  ).toBe(true);
+
+  await page.getByRole("combobox", { name: "Direction" }).click();
+  await page.getByRole("option", { name: "All directions" }).click();
+  await page.getByRole("combobox", { name: "Agent or app" }).click();
+  await page.getByRole("option", { name: "Front desk" }).click();
+  await expect(page.getByText("1 call", { exact: true })).toBeVisible();
+  await expect(table.getByText("Billing reminders")).toHaveCount(0);
+  expect(
+    api.calls.some((c) => /^GET \/api\/records\?.*appRef=app-1/.test(c.method))
+  ).toBe(true);
+
+  // The listed calls, as CSV.
+  const saving = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export CSV" }).click();
+  const file = await saving;
+  expect(file.suggestedFilename()).toBe("calls.csv");
+  const lines = readFileSync(await file.path(), "utf8")
+    .trim()
+    .split("\n");
+  expect(lines[0]).toMatch(/^callRef,startedAt,direction,handledBy,/);
+  expect(lines).toHaveLength(2);
+  expect(lines[1]).toMatch(
+    /^call-in,.*,inbound,Front desk,app-1,\+15550005555,\+15550002222,/
+  );
 });
 
 test("[DSH-031] shows a completed call as the conversation, and plays and downloads its recording", async ({
@@ -111,27 +182,110 @@ test("[DSH-031] shows a completed call as the conversation, and plays and downlo
   await page.goto("/w/ws-1/calls/call-1");
 
   await expect(
-    page.getByRole("heading", { name: "+15550005555 → +15550002222" })
+    page.getByRole("heading", { name: "+1 555 000 5555 with Front desk" })
   ).toBeVisible();
-  await expect(page.getByText("Answered by")).toBeVisible();
-  await expect(page.getByText("Front desk")).toBeVisible();
+  await expect(page.getByText("via +1 555 000 2222")).toBeVisible();
   await expect(page.getByText("The caller hung up")).toBeVisible();
 
   // Each turn: who spoke, when, and for how long.
   const transcript = page.getByRole("region", { name: "Transcript" });
   const caller = transcript.getByRole("listitem", { name: "caller turn" });
   await expect(caller).toContainText("When are you open?");
-  await expect(caller).toContainText("1.8 s · 1.8 s");
-  await expect(
-    transcript.getByRole("listitem", { name: "agent turn" }).first()
-  ).toContainText("0.4 s · 1.0 s");
+  await expect(caller).toContainText("0:01");
+  await expect(caller).toContainText("1.8 s");
+  const greeting = transcript
+    .getByRole("listitem", { name: "agent turn" })
+    .first();
+  await expect(greeting).toContainText("0:00");
+  await expect(greeting).toContainText("1.0 s");
 
-  // The recording plays in the page and downloads as <callRef>.wav.
+  // The recording plays in the page, seeks on its waveform and downloads as <callRef>.wav.
   const player = page.getByLabel("Call recording");
   await expect(player).toHaveAttribute("src", /^blob:/);
+  await expect(page.getByRole("button", { name: "Play" })).toBeVisible();
+  await expect(page.getByRole("slider", { name: "Seek" })).toBeVisible();
   const download = page.getByRole("link", { name: "Download" });
   await expect(download).toHaveAttribute("download", "call-1.wav");
   expect(api.callsTo("GET /api/records/call-1/recording")).toHaveLength(1);
+});
+
+test("[DSH-044] shows how the agent did: response time, tools, usage and interruptions, and exports the vCon", async ({
+  page,
+  api
+}) => {
+  await signIn(page, api, [
+    fromFixture("recorded-call", {
+      callRef: "call-1",
+      appRef: "app-1",
+      extra: [
+        toolTurn(3760, [{ name: "get_hours", ok: true }]),
+        usageSnapshot(5500, [
+          {
+            meter: "stt.seconds",
+            quantity: 4,
+            provider: "deepgram",
+            keySource: "platform"
+          },
+          {
+            meter: "llm.tokens.in",
+            quantity: 1200,
+            provider: "openai",
+            model: "gpt-4o-mini",
+            keySource: "platform"
+          }
+        ])
+      ]
+    }),
+    fromFixture("handoff", { callRef: "call-cut", appRef: "app-1" })
+  ]);
+  await page.goto("/w/ws-1/calls/call-1");
+
+  // The answer to the caller: how long they waited for its first audio.
+  const answer = page
+    .getByRole("region", { name: "Transcript" })
+    .getByRole("listitem", { name: "agent turn" })
+    .nth(1);
+  await expect(answer).toContainText("first audio 100 ms");
+  await expect(
+    page.getByRole("region", { name: "Response time" })
+  ).toContainText("p50 100 ms");
+  const tool = page.getByRole("listitem", { name: "tool call" });
+  await expect(tool).toContainText("get_hours");
+  await expect(tool).toContainText("ok");
+  const usage = page.getByRole("region", { name: "Usage" });
+  await expect(usage).toContainText("Speech-to-text · deepgram");
+  await expect(usage).toContainText("0:04");
+  await expect(usage).toContainText("LLM input · gpt-4o-mini");
+  await expect(usage).toContainText("1.2K tokens");
+  await expect(usage).not.toContainText("$");
+  const facts = page.getByRole("region", { name: "In this call" });
+  await expect(facts).toContainText("2 agent · 1 caller");
+  await expect(facts).toContainText("get_hours");
+
+  // The raw decisions are one tab away.
+  await page.getByRole("tab", { name: "Events" }).click();
+  await expect(
+    page.getByRole("list", { name: "Events" }).getByText(/turn\.ended/)
+  ).toBeVisible();
+
+  // The record itself, as the vCon the API returned.
+  const saving = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Export JSON" }).click();
+  const file = await saving;
+  expect(file.suggestedFilename()).toBe("call-1.vcon.json");
+  const vcon = JSON.parse(readFileSync(await file.path(), "utf8"));
+  expect(vcon.dialog.length).toBeGreaterThan(0);
+
+  // An agent cut off by the caller says when.
+  await page.goto("/w/ws-1/calls/call-cut");
+  await expect(
+    page
+      .getByRole("listitem", { name: "agent turn" })
+      .filter({ hasText: "interrupted" })
+  ).toContainText("interrupted at 0:03");
+  await expect(
+    page.getByRole("region", { name: "In this call" })
+  ).toContainText(/Interruptions\s*1/);
 });
 
 test("[DSH-032] says why a failed call failed, with its SIP status and no transcript", async ({
@@ -144,7 +298,7 @@ test("[DSH-032] says why a failed call failed, with its SIP status and no transc
   await page.goto("/w/ws-1/calls/call-busy");
 
   await expect(
-    page.getByRole("heading", { name: "+15550002222 → +15550004444" })
+    page.getByRole("heading", { name: "+1 555 000 4444" })
   ).toBeVisible();
   await expect(page.getByText("The line was busy (SIP 486)")).toBeVisible();
   await expect(page.getByText("This call wasn't recorded.")).toBeVisible();

@@ -34,6 +34,8 @@ export type RecordSearch = {
   from?: string;
   to?: string;
   appRef?: string;
+  /** inbound, outbound or internal. */
+  direction?: string;
   status?: string;
   pageSize?: number;
   /** The previous page's last startedAt (ms). */
@@ -42,7 +44,7 @@ export type RecordSearch = {
 
 /**
  * Searches the index within one workspace (call-record "Fetch and search": time range, number,
- * app and status; records from other workspaces are never returned). Newest first.
+ * app, direction and status; records from other workspaces are never returned). Newest first.
  */
 export function createSearchRecords(db: RecordsDb) {
   return async (accessKeyId: string, search: RecordSearch) => {
@@ -60,6 +62,7 @@ export function createSearchRecords(db: RecordsDb) {
       ...(search.from ? { fromNumber: search.from } : {}),
       ...(search.to ? { toNumber: search.to } : {}),
       ...(search.appRef ? { appRef: search.appRef } : {}),
+      ...(search.direction ? { direction: search.direction } : {}),
       ...(search.status ? { status: search.status } : {}),
       ...(search.number
         ? {

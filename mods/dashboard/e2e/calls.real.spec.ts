@@ -39,20 +39,19 @@ test("[DSH-034] a browser call shows up in Calls with its transcript and a playa
   await page.getByRole("link", { name: env("E2E_REAL_WORKSPACE") }).click();
   const sidebar = page.getByRole("complementary", { name: "Main" });
 
-  // The newest call ref before this call (none when the list is empty), once the list has loaded.
+  // The newest row before this call (empty when there are none), once the list has loaded: its
+  // start, parties, duration and status.
   const table = page.getByRole("table", { name: "Calls" });
-  const newestRef = async () => {
+  const newestRow = async () => {
     await page.reload();
-    const loaded = table
-      .getByText(/^call-/)
-      .first()
-      .or(page.getByText("No calls yet"));
-    await expect(loaded).toBeVisible({ timeout: 15_000 });
-    const refs = await table.getByText(/^call-/).allTextContents();
-    return refs[0] ?? "";
+    const first = table.getByRole("row").nth(1);
+    await expect(first.or(page.getByText("No calls yet"))).toBeVisible({
+      timeout: 15_000
+    });
+    return (await first.count()) ? await first.innerText() : "";
   };
   await sidebar.getByRole("link", { name: "Calls", exact: true }).click();
-  const before = await newestRef();
+  const before = await newestRow();
 
   // A call to the seeded agent: the fake microphone speaks for a few seconds, then hang up.
   await sidebar.getByRole("link", { name: "Agents", exact: true }).click();
@@ -71,27 +70,27 @@ test("[DSH-034] a browser call shows up in Calls with its transcript and a playa
   // Its record appears once sealed; open it.
   await sidebar.getByRole("link", { name: "Calls", exact: true }).click();
   await expect
-    .poll(newestRef, { timeout: 90_000, intervals: [3_000] })
+    .poll(newestRow, { timeout: 90_000, intervals: [3_000] })
     .not.toBe(before);
   const fresh = table.getByRole("row").nth(1);
-  await expect(fresh).toContainText("completed");
+  await expect(fresh).toContainText(env("E2E_REAL_APP"));
+  await expect(fresh).toContainText("Completed");
   await fresh.click();
 
   // Who tested and the agent they called, not the SIP leg's internal names (#1060).
   await expect(
     page.getByRole("heading", {
-      name: `${env("E2E_REAL_EMAIL")} → ${env("E2E_REAL_APP")}`
+      name: `${env("E2E_REAL_EMAIL")} with ${env("E2E_REAL_APP")}`
     })
   ).toBeVisible();
-  await expect(page.getByText("Answered by")).toBeVisible();
-  await expect(page.getByText(env("E2E_REAL_APP")).first()).toBeVisible();
   // The agent's greeting, with when it started and how long it lasted.
   const greeting = page
     .getByRole("region", { name: "Transcript" })
     .getByRole("listitem", { name: "agent turn" })
     .first();
   await expect(greeting).toBeVisible();
-  await expect(greeting).toContainText(/\d\.\d s · \d/);
+  await expect(greeting).toContainText(/^0:0\d/);
+  await expect(greeting).toContainText(/\d\.\d s/);
   // The recording plays in the page.
   await expect(page.getByLabel("Call recording")).toHaveAttribute(
     "src",
