@@ -29,6 +29,8 @@ service Roomr {
   rpc Record(RecordRequest) returns (Operation);
   // Send RFC 4733 events on a SIP leg.
   rpc SendDtmf(SendDtmfRequest) returns (Empty);
+  // Cancels a Play started by the controller; its operation.done reports "stopped".
+  rpc Stop(StopRequest) returns (Empty);
 }
 
 message Empty {}
@@ -93,7 +95,7 @@ message CreateRoomRequest {
   string room_ref = 1;
   uint32 max_duration_s = 2;
   // Overrides the node's emptyRoomTimeout for this room; 0 keeps the node's setting.
-  uint32 empty_timeout_s = 3;
+  uint32 empty_room_timeout_s = 3;
   // Overrides the node's maxParticipants for this room; 0 keeps the node's setting.
   uint32 max_participants = 4;
 }
@@ -180,4 +182,8 @@ message SendDtmfRequest {
   }
   // 0-9, *, #, A-D.
   string digits = 3;
+}
+
+message StopRequest {
+  string operation_ref = 1;
 }

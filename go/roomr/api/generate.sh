@@ -9,7 +9,9 @@ PATH="$(go env GOPATH)/bin:$PATH"
 protoc -I . \
   --go_out=. --go_opt=paths=source_relative \
   --go-grpc_out=. --go-grpc_opt=paths=source_relative \
-  roomr/v1/roomr.proto
+  roomr/v1/roomr.proto session/v1/session.proto
 # The TypeScript controller (@fonoster/common, roomr) loads a copy of the proto at run time; keep
 # it identical (mods/common/test/roomr/roomrClient.test.ts checks).
 cp roomr/v1/roomr.proto ../../../mods/common/src/protos/roomr.proto
+# AppBridge serves Session.Connect from the same copy.
+cp session/v1/session.proto ../../../mods/common/src/protos/session.proto
