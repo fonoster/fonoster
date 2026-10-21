@@ -459,7 +459,7 @@ describe("call detail", () => {
       await screen.findByText("Stored in your region")
     ).toBeInTheDocument();
     expect(
-      await screen.findByRole("region", { name: "Turns" })
+      await screen.findByRole("region", { name: "Transcript" })
     ).toBeInTheDocument();
   });
 
@@ -470,9 +470,9 @@ describe("call detail", () => {
         "Your region is offline. Only call details are shown."
       )
     ).toBeInTheDocument();
-    expect(screen.queryByRole("region", { name: "Turns" })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Transcript" })).toBeNull();
     expect(
-      screen.getByRole("heading", { name: /Call room-1/ })
+      screen.getByRole("heading", { name: /\+15550001111/ })
     ).toBeInTheDocument();
   });
 });

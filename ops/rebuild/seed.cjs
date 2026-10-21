@@ -253,7 +253,9 @@ async function main() {
     intelligence: {
       productRef: `llm.${picked.model.split("/")[0]}`,
       config: agent(picked.model)
-    }
+    },
+    // Recorded, so every local call (and the dashboard's Calls tests) has a recording to show.
+    recording: "on"
   };
   const existing = items(
     await applications.listApplications({ pageSize: 100 })

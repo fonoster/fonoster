@@ -375,7 +375,12 @@ export function createMockSessionApi(): SessionApi {
       },
       { ref: "nb-3", telUrl: "tel:+18095550140", trunkName: "Telnyx US" }
     ],
-    listCalls: async () => calls.map(summary),
+    listCalls: async (filter = {}) => ({
+      items: calls
+        .filter((c) => !filter.status || c.status === filter.status)
+        .filter((c) => !filter.appRef || c.appRef === filter.appRef)
+        .map(summary)
+    }),
     getCall: async (ref) => calls.find((c) => c.callRef === ref),
     recordingUrl: async (ref) => `blob:recording-${ref}`,
     listWebhooks: async () => [...webhooks.values()],

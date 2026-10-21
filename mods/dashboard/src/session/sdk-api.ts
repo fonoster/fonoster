@@ -238,16 +238,24 @@ export function fromVcon(
     .map((d, index) => {
       const caller = d.originator === 0;
       const at = offset(d.start);
+      // vCon dialog duration in seconds; records sealed before it was written have none.
+      const end =
+        typeof d.duration === "number"
+          ? at + Math.round(d.duration * 1000)
+          : at;
       const m = (d.meta ?? {}) as Raw;
+      // The caller's turn ends where its turn.ended decision was made.
       const decision = caller
-        ? decisions.find((x) => x.type === "turn.ended" && offset(x.at) === at)
+        ? decisions.find(
+            (x) => x.type === "turn.ended" && Math.abs(offset(x.at) - end) < 5
+          )
         : undefined;
       return {
         index,
         side: caller ? "caller" : "agent",
         text: str(d.body),
         startMs: at,
-        endMs: at,
+        endMs: end,
         outcome: caller
           ? decision?.abandoned
             ? "abandoned"
@@ -287,6 +295,9 @@ export function fromVcon(
       .map((f) => `Problem: ${f}`)
   ];
   const recording = dialog.find((d) => d.type === "recording" && d.url);
+  const failure = meta.failure as
+    | { reason?: unknown; sipStatus?: unknown }
+    | undefined;
   return {
     ...summary,
     endedAt: detail.endedAt ?? str(meta.endedAt),
@@ -296,6 +307,16 @@ export function fromVcon(
     messages,
     warnings,
     ...(unfiltered.length ? { unfiltered } : {}),
+    ...(failure?.reason
+      ? {
+          failure: {
+            reason: str(failure.reason),
+            ...(typeof failure.sipStatus === "number"
+              ? { sipStatus: failure.sipStatus }
+              : {})
+          }
+        }
+      : {}),
     ...(recording ? { recording: { sha256: str(recording.content_hash) } } : {})
   };
 }
@@ -378,16 +399,27 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
       }
       return items;
     },
-    listCalls: async () => {
-      const { items } = await sdk.callRecords.listRecords({ pageSize: 100 });
-      return (items as unknown as Summary[]).map(toSummary);
+    listCalls: async (filter = {}) => {
+      const page = await sdk.callRecords.listRecords({
+        pageSize: 50,
+        ...(filter.status ? { status: filter.status } : {}),
+        ...(filter.after ? { after: filter.after } : {}),
+        ...(filter.appRef ? { appRef: filter.appRef } : {}),
+        ...(filter.pageToken ? { pageToken: filter.pageToken } : {})
+      });
+      return {
+        items: (page.items as unknown as Summary[]).map(toSummary),
+        nextPageToken: page.nextPageToken || undefined
+      };
     },
     getCall: async (callRef) => {
       try {
         const detail = await sdk.callRecords.getRecord(callRef);
         return fromVcon(toSummary(detail as unknown as Summary), detail);
       } catch (e) {
-        if ((e as { status?: number }).status === 404) return undefined;
+        const status = (e as { status?: number }).status;
+        if (status === 404) return undefined;
+        if (status === 410) return "erased";
         throw e;
       }
     },

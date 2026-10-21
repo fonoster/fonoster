@@ -74,7 +74,10 @@ export function AppDetail() {
     catalog: await api.getCatalog().catch(() => EMPTY_CATALOG),
     apps: await api.listApps(),
     numbers: await api.listNumbers().catch(() => [] as AppNumber[]),
-    calls: await api.listCalls().catch(() => [] as CallRecordSummary[])
+    calls: await api
+      .listCalls({ appRef: ref })
+      .then((page) => page.items)
+      .catch(() => [] as CallRecordSummary[])
   }));
 
   if (loaded.loading && !loaded.data) {

@@ -42,7 +42,9 @@ export const Empty: Story = {
   render: () => {
     const api = createMockSessionApi();
     return (
-      <SessionApiProvider value={{ ...api, listCalls: async () => [] }}>
+      <SessionApiProvider
+        value={{ ...api, listCalls: async () => ({ items: [] }) }}
+      >
         <CallsScreen />
       </SessionApiProvider>
     );

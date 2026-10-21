@@ -296,25 +296,26 @@ describe("apps", () => {
 });
 
 describe("calls", () => {
-  it("shows the record's turns and downloads the recording", async () => {
-    const { user } = render(
-      <CallsScreen />,
-      "/w/:workspaceRef/calls/*",
-      "/w/ws-1/calls/room-1"
-    );
-    expect(await screen.findByText("Call room-1")).toBeInTheDocument();
-    expect(screen.getByText("I want to check my balance")).toBeInTheDocument();
-    await user.click(
-      screen.getByRole("button", { name: /download recording/i })
-    );
+  it("shows the record's turns and plays and downloads the recording", async () => {
+    render(<CallsScreen />, "/w/:workspaceRef/calls/*", "/w/ws-1/calls/room-1");
     expect(
-      await screen.findByRole("link", { name: /save recording/i })
-    ).toHaveAttribute("href", "blob:recording-room-1");
+      await screen.findByRole("heading", {
+        name: "+15550001111 → +15550002222"
+      })
+    ).toBeInTheDocument();
+    expect(screen.getByText("I want to check my balance")).toBeInTheDocument();
+    expect(await screen.findByLabelText("Call recording")).toHaveAttribute(
+      "src",
+      "blob:recording-room-1"
+    );
+    const download = screen.getByRole("link", { name: "Download" });
+    expect(download).toHaveAttribute("href", "blob:recording-room-1");
+    expect(download).toHaveAttribute("download", "room-1.wav");
   });
 
   it("flags a call that ran unfiltered, with the filter's reason", async () => {
     render(<CallsScreen />, "/w/:workspaceRef/calls/*", "/w/ws-1/calls/room-2");
-    expect(await screen.findByText("Call room-2")).toBeInTheDocument();
+    expect(await screen.findByText("room-2")).toBeInTheDocument();
     expect(screen.getByText("Unfiltered")).toBeInTheDocument();
     expect(
       screen.getByText(/aiCoustics: License key format is invalid/)
