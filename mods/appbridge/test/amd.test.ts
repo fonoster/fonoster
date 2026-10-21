@@ -116,7 +116,7 @@ describe("@appbridge AMD listener", function () {
     }).start();
   }
 
-  it("reads amd options", function () {
+  it("[APB-019] reads amd options", function () {
     expect(amdWindowMs(undefined)).to.equal(undefined);
     expect(amdWindowMs(false)).to.equal(undefined);
     expect(amdWindowMs(true)).to.equal(4000);
@@ -124,7 +124,7 @@ describe("@appbridge AMD listener", function () {
     expect(amdWindowMs({ enabled: false, windowMs: 3000 })).to.equal(undefined);
   });
 
-  it("classifies the caller's track and sends amd.result to the session", async function () {
+  it("[APB-019] classifies the caller's track and sends amd.result to the session", async function () {
     await start({ amd: { windowMs: 500 } });
     const { roomRef } = harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
@@ -184,7 +184,7 @@ describe("@appbridge AMD listener", function () {
     ]);
   });
 
-  it("starts the window when the caller starts speaking, not at answer", async function () {
+  it("[APB-019] starts the window when the caller starts speaking, not at answer", async function () {
     // 1.2 s of carrier silence, then the greeting.
     const silence = Buffer.alloc(16000 * 2 * 1.2);
     const tone = Buffer.alloc(16000 * 2 * 1);
@@ -216,7 +216,7 @@ describe("@appbridge AMD listener", function () {
     expect(loud).to.be.greaterThan((pcm.length / 2) * 0.8);
   });
 
-  it("reports no_speech when the caller never speaks", async function () {
+  it("[APB-019] reports no_speech when the caller never speaks", async function () {
     harness.roomrNode.configure({ callerAudio: { kind: "silence", ms: 8000 } });
     await start({ amd: { windowMs: 500 } });
     harness.roomrNode.offerCall();
@@ -234,7 +234,7 @@ describe("@appbridge AMD listener", function () {
     expect(heard).to.have.length(0);
   });
 
-  it("reports unknown without a classifier, and nothing for apps without amd", async function () {
+  it("[APB-019] reports unknown without a classifier, and nothing for apps without amd", async function () {
     await start({ amd: true }, false);
     harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
@@ -268,7 +268,7 @@ describe("@appbridge AMD listener", function () {
 });
 
 describe("@appbridge AMD classifier", function () {
-  it("resolves mods/amd's model module through the declared dependency (AO-B2)", async function () {
+  it("[APB-019] resolves mods/amd's model module through the declared dependency (AO-B2)", async function () {
     // A missing model directory fails before ONNX Runtime starts its threads (which abort the
     // process at mocha --exit); reaching the model loader proves the dependency resolves.
     const classify = loadAmdClassifier("/nonexistent-amd-model");

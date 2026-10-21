@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..f65367871 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1124,7 +1124,7 @@ export class AppSession {
+     const sttId = this.app.speech.sttModel;
+     const stt = this.deps.catalog.resolveStt(sttId, this.app.workspaceRef);
+     if (!stt) {
+-      if (sttId)
++      if (false)
+         this.emit({
+           type: "error",
+           code: "invalid_catalog_id",

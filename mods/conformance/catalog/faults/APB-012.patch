@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..91ac4d723 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -875,7 +875,7 @@ export class AppSession {
+   start() {
+     const info = this.call.info;
+     // Validated against the format menu (APP_AUDIO_FORMATS) when the app is loaded.
+-    const audio = (this.app.audio ?? {
++    const audio = (undefined ?? {
+       codec: "pcm16",
+       rate: 16000
+     }) as SessionStart["audio"];

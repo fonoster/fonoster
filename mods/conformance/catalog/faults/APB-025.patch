@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/turn/TurnLabeler.ts b/mods/appbridge/src/turn/TurnLabeler.ts
+index 13423723e..b248e2c51 100644
+--- a/mods/appbridge/src/turn/TurnLabeler.ts
++++ b/mods/appbridge/src/turn/TurnLabeler.ts
+@@ -117,7 +117,7 @@ export class TurnLabeler {
+     p.outputStartedAt = at;
+     p.slow = at - p.speechEndAt > SLOW_THRESHOLD_MS;
+     this.timer = setTimeout(
+-      () => this.label(p.slow ? "slow" : "ok"),
++      () => this.label("ok"),
+       CUT_OFF_WINDOW_MS
+     );
+   }

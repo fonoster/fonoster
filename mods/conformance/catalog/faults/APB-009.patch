@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/OutputQueue.ts b/mods/appbridge/src/session/OutputQueue.ts
+index 264cb1201..3c821abea 100644
+--- a/mods/appbridge/src/session/OutputQueue.ts
++++ b/mods/appbridge/src/session/OutputQueue.ts
+@@ -361,7 +361,7 @@ export class OutputQueue {
+       type: "output.interrupted",
+       id: item.id,
+       heardMs: item.sentMs,
+-      heardText: item.started ? heardText(text, words, item.sentMs, total) : ""
++      heardText: ""
+     });
+   }
+ 

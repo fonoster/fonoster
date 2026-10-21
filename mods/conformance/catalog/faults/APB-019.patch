@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..634d7c053 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -402,7 +402,7 @@ export class Call {
+     const windowMs = amdWindowMs(app.amd);
+     if (!windowMs || this.ended) return;
+     const report = (result: Record<string, unknown>) => {
+-      const event = { type: "amd.result", ...result };
++      const event = { type: "amd.result", ...result, status: "unknown" };
+       this.record("event", event);
+       this.session?.emit(event);
+     };

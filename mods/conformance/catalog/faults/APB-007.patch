@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..281f7e002 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1443,7 +1443,7 @@ export class AppSession {
+           // Once per session and id (add-provider-registry, "Runtime use is caught").
+           this.reportedIds.add(voiceId);
+           this.call.record("event", {
+-            type: voice.event,
++            type: "provider.used",
+             id: voiceId,
+             replacement: voice.replacement,
+             sessionRef: this.sessionRef,

@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..188e300a0 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -113,7 +113,7 @@ export function sessionEndReason(reason: unknown): SessionEndReason {
+       return "timeout";
+     case "media_timeout":
+     case "node_error":
+-      return "error";
++      return "caller_hangup";
+     default:
+       return "caller_hangup";
+   }

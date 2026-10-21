@@ -86,7 +86,7 @@ describe("@AppBridge audio format menu", function () {
   });
 
   for (const audio of APP_AUDIO_FORMATS) {
-    it(`${audio.codec} at ${audio.rate} Hz`, async function () {
+    it(`[APB-012] ${audio.codec} at ${audio.rate} Hz`, async function () {
       const urls = harness.providerUrls;
       appbridge = await new AppBridge({
         config: {

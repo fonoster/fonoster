@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/turn/Pacing.ts b/mods/appbridge/src/turn/Pacing.ts
+index 02b522648..5b9a7f551 100644
+--- a/mods/appbridge/src/turn/Pacing.ts
++++ b/mods/appbridge/src/turn/Pacing.ts
+@@ -39,7 +39,7 @@ export type TurnEvent =
+   | { type: "turn.backchannel"; text: string };
+ 
+ /** The one patience knob (turn-taking): factors applied to the Detector's timing. */
+-export const PATIENCE = { low: 0.6, normal: 1, high: 1.6 } as const;
++export const PATIENCE = { low: 1, normal: 1, high: 1 } as const;
+ export type Patience = keyof typeof PATIENCE;
+ 
+ /**

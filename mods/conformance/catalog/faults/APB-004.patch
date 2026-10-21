@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..60bff6f3f 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -561,7 +561,7 @@ export class Call {
+       const fallback = app.fallback?.app
+         ? this.deps.findApp(app.fallback.app)
+         : undefined;
+-      if (fallback) {
++      if (fallback && false) {
+         try {
+           return { app: fallback, socket: await connectApp(fallback, options) };
+         } catch {

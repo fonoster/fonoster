@@ -34,3 +34,30 @@ talk-in-browser / Test tokens stay in their workspace / Calls without a token
 talk-in-browser / Test tokens stay in their workspace / Forged token
 talk-in-browser / Test tokens target the Roomr nodes / Signaling URL from appUrl
 talk-in-browser / Test tokens target the Roomr nodes / Token for a workspace
+turn-taking / Detectors are compared by replay before adoption / A regressing candidate is rejected
+turn-taking / Detectors are compared by replay before adoption / Non-consented calls are excluded
+turn-taking / Patience is configurable per app and adapts only within a call / Nothing is remembered across calls
+turn-taking / Turn-taking runs in AppBridge's Speech layer / Audio-only sessions do not require turn-taking
+voice-session / An app is a WebSocket URL, a protocol and speech defaults / Autopilot is an ordinary app
+voice-session / An app is a WebSocket URL, a protocol and speech defaults / Missing app reference
+voice-session / An app is a WebSocket URL, a protocol and speech defaults / Outbound routing
+voice-session / An app's audio filters are set through the Applications API / A public option is accepted
+voice-session / An app's audio filters are set through the Applications API / A server-side option is rejected
+voice-session / An app's audio filters are set through the Applications API / An unknown filter is rejected
+voice-session / An app's audio filters are set through the Applications API / Clearing the filters
+voice-session / An app's audio filters are set through the Applications API / Enabling noise cancelling on an app
+voice-session / Autopilot reports model usage to the call / Autopilot reports a turn's tokens
+voice-session / Autopilot reports model usage to the call / Meter outside the allowed set
+voice-session / Autopilot reports model usage to the call / Not an Autopilot agent
+voice-session / Calls are admitted before they start / Authorization slow
+voice-session / Calls are admitted before they start / Out of credits
+voice-session / Calls are admitted before they start / Outbound refused
+voice-session / Outbound sessions open at answer / Room ends or node dies before the answer
+voice-session / Playing media / Play an internal address
+voice-session / Raw audio in both directions / Any SIP codec reaches any app format
+voice-session / Session ending / Every cause mapped
+voice-session / Session ending / Node lost
+voice-session / Session ending / Node's audio stops
+voice-session / Session ending / Unknown cause
+voice-session / Sessions are delivered over WebSocket only / Legacy gRPC voice apps are not dialed
+voice-session / The Roomr node receives only control / AppBridge answers on the stream

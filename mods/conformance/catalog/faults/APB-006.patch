@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..f821e76f5 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1357,7 +1357,7 @@ export class AppSession {
+         .join("; ");
+       this.emit({
+         type: "error",
+-        code: "bad_message",
++        code: "internal",
+         message: `invalid ${type}: ${why}`,
+         fatal: false,
+         relatesTo

@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/turn/createDetector.ts b/mods/appbridge/src/turn/createDetector.ts
+index 0842cd1ad..3aeeecf90 100644
+--- a/mods/appbridge/src/turn/createDetector.ts
++++ b/mods/appbridge/src/turn/createDetector.ts
+@@ -58,7 +58,7 @@ export function createDetector(
+       version: "remote@1"
+     };
+   switch (choice) {
+-    case "backchannel-hold":
++    case "backchannel-hold-off":
+       return {
+         detector: new BackchannelDetector({
+           silenceTimeoutMs: settings.silenceTimeoutMs

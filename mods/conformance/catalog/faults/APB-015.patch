@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..3af1871f6 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -975,7 +975,7 @@ export class AppSession {
+           (cmd) =>
+             listener.json({
+               type: "error",
+-              code: "read_only",
++              code: "ok",
+               message: "listen-only sockets cannot send commands",
+               fatal: false,
+               ...(typeof cmd.id === "string" ? { relatesTo: cmd.id } : {})
