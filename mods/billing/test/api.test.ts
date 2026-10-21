@@ -134,6 +134,22 @@ describe("@billing API", function () {
       where: { ownerRef: "owner-api" }
     });
     expect(account?.stripeCustomerId).to.match(/^cus_/);
+    // A customer is not enough: upgrading and buying need a card.
+    const noCard = (await call("subscribe", { ownerRef: "owner-api" }).catch(
+      (e) => e
+    )) as grpc.ServiceError;
+    expect(noCard.details).to.match(/payment method/);
+    // The owner adds one in the portal.
+    const stripe = createStripe({
+      secretKey: "sk_test_api",
+      apiBase: fake.url
+    });
+    const pm = await stripe.paymentMethods.attach("pm_card_visa", {
+      customer: account!.stripeCustomerId!
+    });
+    await stripe.customers.update(account!.stripeCustomerId!, {
+      invoice_settings: { default_payment_method: pm.id }
+    });
     // Now a top-up is accepted (it is added once the payment succeeds).
     await call("createTopUp", { ownerRef: "owner-api", credits: 1000 });
     expect(

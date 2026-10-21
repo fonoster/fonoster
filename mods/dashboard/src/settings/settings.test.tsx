@@ -293,7 +293,7 @@ describe("Settings · Billing", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("hides the tab even with billing in this release", () => {
+  it("has no Billing tab with billing either: billing is its own page", () => {
     setup({ capabilities: cloudCapabilities });
     expect(
       screen.queryByRole("link", { name: "Billing" })

@@ -1,6 +1,6 @@
 ## 1. Design
 
-- [ ] 1.1 Billing tab frames in `designs/dashboard.pen`: Trial, Pay-as-you-go, top-up dialog, auto-recharge, payment in progress, past due; verify the owner approves them
+- [x] 1.1 Billing frames in `designs/dashboard.pen` ("Billing (cloud only)"): account-menu entry, Pay-as-you-go, Trial, Trial ended, top-up dialog, auto-recharge dialog, payment in progress, payment failed; verify the owner approves them
 
 ## 2. SDK
 
@@ -8,11 +8,11 @@
 
 ## 3. Dashboard
 
-- [ ] 3.1 `settings/billing` route and tab, shown only with `billing.enabled` and to the owner (D1, D2); verify unit tests for the three "no tab" and "tab" scenarios
-- [ ] 3.2 Billing screen per the approved design: plan, balance and overdraft, sources with expiry, auto-recharge, portal link, past-due notice (D3–D6); verify stories and unit tests
-- [ ] 3.3 Top-up and upgrade flows with the portal round trip and bounded polling (D5, D7); verify unit tests for the upgrade, top-up, below-minimum and failed-payment scenarios
+- [x] 3.1 `/billing` route outside the workspaces with the account top bar, and the Billing item in the account menu, both only with `billing.enabled` and for users who own a workspace (D0–D2); verify unit tests for the "no billing" and "billing page" scenarios
+- [x] 3.2 Billing page per the approved design: plan, balance and overdraft, sources with expiry, auto-recharge, portal link, past-due and Trial-ended notices (D3–D6, D8); verify stories and unit tests
+- [x] 3.3 Top-up, auto-recharge and upgrade flows with the portal round trip and bounded polling (D5, D7); verify unit tests for the upgrade, top-up, below-minimum, failed-payment and Trial-ended scenarios
 
 ## 4. Verification
 
-- [ ] 4.1 End-to-end test against the compose stack with the `billing` profile and the Stripe fake: upgrade, top up, see the credits; verify with Playwright
-- [ ] 4.2 `openspec validate add-billing-page --strict` passes
+- [x] 4.1 End-to-end test against the compose stack with the `billing` profile and the Stripe fake: upgrade, top up, see the credits; verify with Playwright
+- [x] 4.2 `openspec validate add-billing-page --strict` passes

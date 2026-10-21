@@ -89,6 +89,17 @@ export function billingApi(deps: ApiDeps) {
     return deps.stripe;
   };
 
+  /** Paying needs a card in the Customer Portal; without one the owner is sent there first. */
+  const NO_PAYMENT_METHOD = "add a payment method in the Customer Portal first";
+  async function needsPaymentMethod(customerId: string | null) {
+    if (!customerId) throw new BillingError(NO_PAYMENT_METHOD);
+    const c = await needsStripe().customers.retrieve(customerId);
+    const method =
+      !c.deleted &&
+      (c as Stripe.Customer).invoice_settings?.default_payment_method;
+    if (!method) throw new BillingError(NO_PAYMENT_METHOD);
+  }
+
   return {
     getBilling: (r: { ownerRef: string }) => summary(r.ownerRef),
 
@@ -118,8 +129,7 @@ export function billingApi(deps: ApiDeps) {
     async createTopUp(r: { ownerRef: string; credits: number }) {
       needsStripe();
       const a = await account(r.ownerRef);
-      if (!a.stripeCustomerId)
-        throw new BillingError("add a payment method before buying credits");
+      await needsPaymentMethod(a.stripeCustomerId);
       await prisma.$transaction((tx) => topUp(tx, a.id, r.credits, plans));
       return summary(r.ownerRef);
     },
@@ -127,6 +137,7 @@ export function billingApi(deps: ApiDeps) {
     async subscribe(r: { ownerRef: string }) {
       needsStripe();
       const a = await account(r.ownerRef);
+      await needsPaymentMethod(a.stripeCustomerId);
       await prisma.$transaction((tx) => subscribe(tx, a.id));
       return summary(r.ownerRef);
     },

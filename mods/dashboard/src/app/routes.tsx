@@ -39,6 +39,7 @@ const Workspaces = lazy(() => import("~/workspaces/landing.page"));
 const CreateWorkspace = lazy(
   () => import("~/workspaces/create-workspace.page")
 );
+const Billing = lazy(() => import("~/billing"));
 
 function screen(path: string, title: string) {
   const Screen = SCREENS[path];
@@ -65,6 +66,7 @@ export function AppRoutes() {
           <Route path="/set-password" element={<SetPassword />} />
           <Route path="/workspaces" element={<Workspaces />} />
           <Route path="/workspaces/new" element={<CreateWorkspace />} />
+          <Route path="/billing" element={<Billing />} />
 
           <Route path="/w/:workspaceRef" element={<WorkspaceGate />}>
             <Route element={<AppShell />}>
