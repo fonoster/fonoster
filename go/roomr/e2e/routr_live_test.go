@@ -26,7 +26,9 @@ func TestLiveRoutrLeastSessions(t *testing.T) {
 	edge := os.Getenv("ROUTR_EDGEPORT")
 	nodeHost := os.Getenv("ROUTR_NODE_HOST")
 	if edge == "" || nodeHost == "" {
-		t.Skip("set ROUTR_EDGEPORT and ROUTR_NODE_HOST to run against a live Routr")
+		// A skipped test is Blocked, never Pass (QA catalog): CI starts the Routr in testdata/routr
+		// in the go job, so this runs everywhere the e2e suite does.
+		t.Fatal("set ROUTR_EDGEPORT and ROUTR_NODE_HOST to run against a live Routr")
 	}
 	peer := func(c *sipua.Config) {
 		// Routr as one deployment of the generic registration: its least-sessions balancer reads

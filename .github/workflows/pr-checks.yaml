@@ -349,9 +349,15 @@ jobs:
       - name: Install libopus
         run: sudo apt-get update -qq && sudo apt-get install -y -qq libopus-dev
 
-      - name: gofmt, vet and tests (race detector; e2e against NATS)
+      # The live-Routr test registers two nodes behind a real Routr (e2e/testdata/routr).
+      - name: Start a throwaway Routr
+        run: docker compose -f e2e/testdata/routr/compose.yaml up -d --wait
+
+      - name: gofmt, vet and tests (race detector; e2e against NATS and Routr; JUnit)
         env:
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          ROUTR_EDGEPORT: 127.0.0.1:15360
+          ROUTR_NODE_HOST: host.docker.internal
           GOTOOLCHAIN: local
         run: |
           test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
@@ -359,7 +365,20 @@ jobs:
           # The no-libopus fallback (opus_none.go) still builds.
           CGO_ENABLED=0 go build ./...
           # Packages one at a time: several bind random local ports and collide when run in parallel.
-          go test -race -p 1 ./...
+          mkdir -p ../../reports/junit
+          go run gotest.tools/gotestsum@v1.12.0 --junitfile ../../reports/junit/roomr-go.xml -- -race -p 1 ./...
+
+      - name: Roomr JUnit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-roomr-go
+          path: reports/junit/
+          if-no-files-found: ignore
+
+      - name: Routr logs
+        if: failure()
+        run: docker compose -f e2e/testdata/routr/compose.yaml logs
 
   python:
     name: python SDK and runner

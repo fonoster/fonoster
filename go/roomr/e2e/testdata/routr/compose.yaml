@@ -1,34 +1,38 @@
+# Pinned to the bundle's Routr (ops/bundle/compose.yaml).
 name: rb-roomr
 services:
   edgeport:
-    image: fonoster/routr-edgeport:latest
+    image: fonoster/routr-edgeport:2.15.4
     container_name: rb-roomr-edgeport
+    # The nodes run on the host; on Linux (CI) host.docker.internal needs this mapping.
+    extra_hosts:
+      - host.docker.internal:host-gateway
     ports:
       - 15360:15360
       - 15360:15360/udp
     volumes:
       - ./edgeport.yaml:/etc/routr/edgeport.yaml
   dispatcher:
-    image: fonoster/routr-dispatcher:latest
+    image: fonoster/routr-dispatcher:2.15.4
     container_name: rb-roomr-dispatcher
     volumes:
       - ./dispatcher.yaml:/etc/routr/dispatcher.yaml
   location:
-    image: fonoster/routr-location:latest
+    image: fonoster/routr-location:2.15.4
     container_name: rb-roomr-location
     environment:
       LOGS_LEVEL: verbose
     volumes:
       - ./location.yaml:/etc/routr/location.yaml
   connect:
-    image: fonoster/routr-connect:latest
+    image: fonoster/routr-connect:2.15.4
     container_name: rb-roomr-connect
     environment:
       LOGS_LEVEL: verbose
       LOCATION_ADDR: location:51902
       API_ADDR: apiserver:51907
   apiserver:
-    image: fonoster/routr-simpledata:latest
+    image: fonoster/routr-simpledata:2.15.4
     container_name: rb-roomr-simpledata
     volumes:
       - ./resources:/etc/routr/resources

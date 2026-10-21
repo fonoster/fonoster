@@ -173,8 +173,17 @@ function testTitles(file) {
   // test(...), it(...), and their .skip/.only/.fixme forms: a skipped test still needs a case or deletion.
   // A title built from scenarioCase(...) takes its id from the case that Runs the file.
   for (const m of text.matchAll(/^\s*(?:test|it)(?:\.(?:skip|only|fixme))?\(\s*(["'`])((?:\\.|(?!\1).)*)\1/gm)) if (!m[2].includes("scenarioCase(")) titles.push(m[2]);
-  for (const m of text.matchAll(/^func (Test[A-Za-z0-9_]+)\(/gm)) titles.push(m[1]);
+  // Go: TestMain is the package's entry point, not a test.
+  for (const m of text.matchAll(/^func (Test[A-Za-z0-9_]+)\(/gm)) if (m[1] !== "TestMain") titles.push(m[1]);
   return titles;
 }
 
-module.exports = { catalogDir, repoRoot, specDir, loadAreas, loadSpecScenarios, resolveSpec, glob, testTitles, norm };
+// The case ids a test name carries: "[DSH-003] ...", or a Go test named TestROM012 / TestROM012_Name
+// (go test and gotestsum report subtests as TestROM012_Name/sub).
+function caseIds(name) {
+  const ids = [...String(name).matchAll(/\b([A-Z]{2,4}-\d{3})\b/g)].map((m) => m[1]);
+  for (const m of String(name).matchAll(/(?:^|[\s."'(/=])Test([A-Z]{2,4})(\d{3})(?=_|\/|\b)/g)) ids.push(`${m[1]}-${m[2]}`);
+  return [...new Set(ids)];
+}
+
+module.exports = { caseIds, catalogDir, repoRoot, specDir, loadAreas, loadSpecScenarios, resolveSpec, glob, testTitles, norm };
