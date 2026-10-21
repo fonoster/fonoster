@@ -26,10 +26,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { Switch } from "~/components/ui/switch";
 import { errorMessage } from "~/lib/errors";
 import { UserBar } from "~/workspaces/user-bar";
-import {
-  rememberedWorkspace,
-  workspacePath
-} from "~/workspaces/workspace-session";
+import { workspacePath } from "~/workspaces/workspace-session";
 import { useWorkspaces } from "~/workspaces/workspaces.service";
 import { AutoRechargeDialog } from "./auto-recharge-dialog";
 import {
@@ -57,8 +54,9 @@ export default function BillingPage() {
   const [params] = useSearchParams();
   if (available === false) return <Navigate to="/workspaces" replace />;
 
-  // Requests go out with a workspace the user owns: the one they came from, else the first.
-  const from = params.get("from") ?? rememberedWorkspace();
+  // Requests go out with a workspace the user owns: the one they came from (the account menu
+  // passes it), else the first. Nothing is remembered between visits (land-on-workspaces-list).
+  const from = params.get("from");
   const workspace = owned?.find((w) => w.ref === from) ?? owned?.[0];
   // "Back to" names where they came from, owned or not.
   const back = workspaces?.find((w) => w.ref === from) ?? workspace;
