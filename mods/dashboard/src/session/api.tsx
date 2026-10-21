@@ -47,7 +47,7 @@ export function errorMessage(e: unknown): string {
 }
 
 /** The query key prefix of the current workspace's session data. */
-function useSessionKey() {
+export function useSessionKey() {
   return ["session", useParams().workspaceRef];
 }
 

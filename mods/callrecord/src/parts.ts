@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { contentHash } from "./sign";
-import { FilePart, Part, SealingPart, StoredPart } from "./types";
+import type { FilePart, Part, SealingPart, StoredPart } from "./types";
 
 export const isFilePart = (p: SealingPart): p is FilePart => "file" in p;
 export const isStoredPart = (p: SealingPart): p is StoredPart =>

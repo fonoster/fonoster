@@ -28,7 +28,10 @@ COPY mods/apiserver/schema.prisma ./mods/apiserver/schema.prisma
 RUN --mount=type=cache,target=/root/.npm \
     npm install --workspace @fonoster/appbridge --ignore-scripts --no-audit --no-fund
 
-RUN for p in types logger common callrecord identity-client community amd appbridge; do \
+# identity-client's .proto is copied from @fonoster/common by its prebuild (git-ignored), which
+# `tsc -b` skips: without this every AppBridge built from a clean checkout crashed at start.
+RUN node mods/identity-client/scripts/sync-proto.mjs \
+  && for p in types logger common callrecord identity-client community amd appbridge; do \
       (cd mods/$p && npx tsc -b); \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \

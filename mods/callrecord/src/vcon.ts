@@ -18,10 +18,10 @@
  */
 import { randomUUID } from "crypto";
 import { partHash } from "./parts";
-import { BeepSpan } from "./recording";
 import { redactText } from "./redact";
 import { contentHash } from "./sign";
-import { RecordEntry, SealingPart, Vcon } from "./types";
+import type { BeepSpan } from "./recording";
+import type { RecordEntry, SealingPart, Vcon } from "./types";
 
 /**
  * Pinned to draft-ietf-vcon-vcon-core-04 (September 2026), which requires "0.4.0" (call-record
@@ -215,6 +215,13 @@ export function buildVcon(
         });
       }
     }
+  }
+
+  // Each spoken turn starts when that side began speaking and lasts until it stopped (vCon
+  // dialog `duration`, seconds): the transcript's timings per turn and per side.
+  for (const [turn, span] of heard) {
+    turn.start = iso(span.from);
+    turn.duration = Math.max(0, span.to - span.from) / 1000;
   }
 
   // A call that never reached an app has no session.start: its parties come from call.started

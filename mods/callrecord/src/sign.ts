@@ -23,7 +23,7 @@ import {
   sign as cryptoSign,
   verify as cryptoVerify
 } from "crypto";
-import { SignedVcon, Vcon } from "./types";
+import type { SignedVcon, Vcon } from "./types";
 
 // Records are signed with the region's key as JWS (ES256), general JSON serialization, so the
 // signature travels with the record (call-record "Records are hashed and signed"). Keys are PEM

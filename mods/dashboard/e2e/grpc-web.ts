@@ -61,6 +61,13 @@ export const API_URL = "http://localhost:8449";
 type Message = { serializeBinary(): Uint8Array };
 type Reply = Message | { error: { code: number; message: string } };
 type Handler = (request: Uint8Array) => Reply | Promise<Reply>;
+export type RestReply =
+  | { status?: number; json?: unknown }
+  | { status?: number; body: Buffer; headers?: Record<string, string> };
+export type RestHandler = (request: {
+  params: Record<string, string>;
+  query: URLSearchParams;
+}) => RestReply | Promise<RestReply>;
 
 function frame(flag: number, payload: Uint8Array) {
   const out = new Uint8Array(5 + payload.length);
@@ -149,12 +156,78 @@ export class GrpcWebMock {
     return this.calls.filter((c) => c.method === method);
   }
 
+  private restRoutes: {
+    method: string;
+    pattern: RegExp;
+    keys: string[];
+    handler: RestHandler;
+  }[] = [];
+
+  /**
+   * Answers an HTTP API on the same origin, e.g. `rest("GET", "/api/records/:callRef", …)`.
+   * Calls are recorded as "GET /api/records/x?query" so tests can assert what was asked.
+   */
+  rest(method: string, path: string, handler: RestHandler) {
+    const keys: string[] = [];
+    const pattern = new RegExp(
+      `^${path.replace(/:([a-zA-Z]+)/g, (_, key) => {
+        keys.push(key);
+        return "([^/]+)";
+      })}$`
+    );
+    // Later registrations win, as with on().
+    this.restRoutes.unshift({ method, pattern, keys, handler });
+    return this;
+  }
+
+  private async handleRest(route: Route, url: URL) {
+    const request = route.request();
+    this.calls.push({
+      method: `${request.method()} ${url.pathname}${url.search}`,
+      request: new Uint8Array()
+    });
+    const match = this.restRoutes
+      .map((r) => ({
+        r,
+        m: r.method === request.method() ? r.pattern.exec(url.pathname) : null
+      }))
+      .find((x) => x.m);
+    const headers = {
+      ...CORS,
+      "access-control-expose-headers":
+        "grpc-status,grpc-message,x-content-hash,content-disposition"
+    };
+    if (!match || !match.m)
+      return route.fulfill({
+        status: 404,
+        headers,
+        json: { error: "not_found" }
+      });
+    const params = Object.fromEntries(
+      match.r.keys.map((k, i) => [k, decodeURIComponent(match.m![i + 1])])
+    );
+    const reply = await match.r.handler({ params, query: url.searchParams });
+    if ("body" in reply)
+      return route.fulfill({
+        status: reply.status ?? 200,
+        headers: { ...headers, ...reply.headers },
+        body: reply.body
+      });
+    return route.fulfill({
+      status: reply.status ?? 200,
+      headers,
+      json: reply.json
+    });
+  }
+
   private async handle(route: Route) {
     const request = route.request();
     if (request.method() === "OPTIONS")
       return route.fulfill({ status: 204, headers: CORS });
 
-    const path = new URL(request.url()).pathname;
+    const url = new URL(request.url());
+    if (url.pathname.startsWith("/api/")) return this.handleRest(route, url);
+    const path = url.pathname;
     const method = path
       .split(".")
       .pop()!

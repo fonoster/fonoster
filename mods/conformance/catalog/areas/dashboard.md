@@ -381,3 +381,61 @@ Runs against in-memory applications that store what the dashboard sends (`e2e/ap
 - **Test:** mods/dashboard/e2e/apps.community.spec.ts
 
 **Pass.** New app refuses an `https://` URL with nothing sent; a `wss://` app is created as a Fonoster stream app, its page opens with the signing secret and the only-time warning, and the secret is gone after "I've saved it"; switching to Twilio hides Speech; On after consent prompt saves `recording: "consent"`; Rotate secret takes one confirmation and shows the new secret once; Delete app needs `DELETE` and returns to the list. **Fail.** A non-WebSocket URL sent, a secret shown twice, speech settings on a Twilio app, a wrong recording policy, or a delete without `DELETE`.
+
+### DSH-030 The Calls list: newest first, filtered by status, more on request
+
+- **Spec:** dashboard / The Calls page lists the workspace's records / Newest first
+- **Spec:** dashboard / The Calls page lists the workspace's records / Filter by status
+- **Spec:** dashboard / The Calls page lists the workspace's records / More than one page
+- **Priority:** P1
+- **Proof:** Never ask for a next page (`getNextPageParam` in `session/calls.tsx`); the test must go red on Load more.
+- **Test:** mods/dashboard/e2e/calls.community.spec.ts
+
+The records API is served from vCons the call-record module builds from its own fixture calls (`e2e/records.ts`), two to a page.
+
+**Pass.** Today's call is listed before yesterday's, the third comes with Load more and its request carries the page token; picking Failed asks for `status=failed` and lists only the busy call. **Fail.** A wrong order, no Load more, a lost page token, or a status filter applied only in the browser.
+
+### DSH-031 A completed call reads as the conversation, and its recording plays
+
+- **Spec:** dashboard / The call detail reads as the conversation / A completed call
+- **Spec:** dashboard / Recordings play in the page / Play and download
+- **Priority:** P0
+- **Proof:** Ignore the vCon `duration` of each turn (`session/sdk-api.ts`); the test must go red on the caller turn's timing.
+- **Test:** mods/dashboard/e2e/calls.community.spec.ts
+
+Writing this case found that the record builder stamped a caller's turn at its end and wrote no duration; fixed in `mods/callrecord/src/vcon.ts` with a unit test.
+
+**Pass.** The title is `+15550005555 → +15550002222`; Answered by says Front desk and Ended says The caller hung up; the caller turn reads 1.8 s · 1.8 s and the first agent turn 0.4 s · 1.0 s; the recording plays from a blob URL in the page and Download saves `call-1.wav`, fetched once. **Fail.** A ref for a title or an app, a code for the ending, a turn without its duration, or a recording that only downloads.
+
+### DSH-032 A failed call says why, with its SIP status
+
+- **Spec:** dashboard / The call detail reads as the conversation / A failed call
+- **Spec:** dashboard / Recordings play in the page / No recording
+- **Priority:** P1
+- **Proof:** Drop the record's failure from the detail (`session/sdk-api.ts`); the test must go red on the SIP status.
+- **Test:** mods/dashboard/e2e/calls.community.spec.ts
+
+**Pass.** The busy outbound call says The line was busy (SIP 486), that it wasn't recorded and that nothing was said, with no player. **Fail.** No reason or SIP status, or a player for a call with no recording.
+
+### DSH-033 Erased and unknown records say so
+
+- **Spec:** dashboard / Unavailable records say why / An erased record
+- **Spec:** dashboard / Unavailable records say why / An unknown call
+- **Priority:** P1
+- **Proof:** Treat a 410 like any other error (`session/sdk-api.ts`); the test must go red on the Erased heading.
+- **Test:** mods/dashboard/e2e/calls.community.spec.ts
+
+**Pass.** An erased record shows Call record erased within four seconds and no "records API" text; an unknown call ref shows Call record not found and names the ref. **Fail.** A raw API error, a long load, or the same page for both.
+
+### DSH-034 A browser call shows up in Calls with its transcript and a playable recording
+
+- **Spec:** dashboard / The call detail reads as the conversation / A completed call
+- **Spec:** dashboard / Recordings play in the page / Play and download
+- **Priority:** P0
+- **Tier:** nightly
+- **Proof:** Stop the AppBridge (`docker stop rb-stack-appbridge-1`); with nothing to take the call the test must go red on Connected. Start it after.
+- **Test:** mods/dashboard/e2e/calls.real.spec.ts (the `real` project, `npm run test:e2e:real` against `ops/rebuild/stack up && seed`)
+
+The seeded agent records calls (`ops/rebuild/seed.cjs`). Bringing this case up found that every AppBridge image built from a checkout that hadn't run the package build crashed at start (identity-client's git-ignored proto was never synced into the image), so every call was rejected with 503; fixed in `mods/appbridge/Dockerfile`. It also found that browser test calls are recorded as `internal → roomr` (filed).
+
+**Pass.** After a browser call to the seeded agent, the newest call in Calls is a new completed record; its detail names the agent under Answered by, shows a timed agent turn, plays the recording from a blob URL and downloads a `.wav`. **Fail.** No new record within 90 seconds, a missing or untimed turn, or no playable recording.

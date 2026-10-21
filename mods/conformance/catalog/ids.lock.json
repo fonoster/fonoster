@@ -27,5 +27,10 @@
   "DSH-026": "Invite a member with a role and remove one",
   "DSH-027": "Rename the workspace and delete it by name",
   "DSH-028": "Create an agent from a template, save it, rename and delete it",
-  "DSH-029": "Create an app, rotate its secret and delete it"
+  "DSH-029": "Create an app, rotate its secret and delete it",
+  "DSH-030": "The Calls list: newest first, filtered by status, more on request",
+  "DSH-031": "A completed call reads as the conversation, and its recording plays",
+  "DSH-032": "A failed call says why, with its SIP status",
+  "DSH-033": "Erased and unknown records say so",
+  "DSH-034": "A browser call shows up in Calls with its transcript and a playable recording"
 }

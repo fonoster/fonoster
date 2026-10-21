@@ -144,6 +144,16 @@ export type CallRecordSummary = {
   version: number;
 };
 
+export type CallFilter = {
+  status?: string;
+  /** ISO time: only calls that started after it. */
+  after?: string;
+  appRef?: string;
+  pageToken?: string;
+};
+
+export type CallPage = { items: CallRecordSummary[]; nextPageToken?: string };
+
 export type SessionMessage = {
   at: number;
   source: "app" | "appbridge" | "event";
@@ -168,6 +178,8 @@ export type CallRecord = CallRecordSummary & {
   /** Turn decisions and app notes, in time order. */
   messages: SessionMessage[];
   warnings: string[];
+  /** Why a call that never reached an app failed, with the SIP status when there was one. */
+  failure?: { reason: string; sipStatus?: number };
   /** Audio filters that failed: the call ran unfiltered (badge on the detail). */
   unfiltered?: { name?: string; reason: string }[];
   recording?: { url?: string; sha256?: string; sizeBytes?: number };
@@ -218,8 +230,10 @@ export type SessionApi = {
   listCatalogWarnings(): Promise<CatalogWarning[]>;
   /** The workspace's numbers; an app is reachable at the ones whose appRef points to it. */
   listNumbers(): Promise<AppNumber[]>;
-  listCalls(): Promise<CallRecordSummary[]>;
-  getCall(callRef: string): Promise<CallRecord | undefined>;
+  /** One page of the workspace's records, newest first (the records API's search). */
+  listCalls(filter?: CallFilter): Promise<CallPage>;
+  /** The record; "erased" when it was erased, undefined when there is none. */
+  getCall(callRef: string): Promise<CallRecord | "erased" | undefined>;
   /** The recording as a downloadable object URL (the API needs the access token). */
   recordingUrl(callRef: string): Promise<string>;
   listWebhooks(): Promise<Webhook[]>;
