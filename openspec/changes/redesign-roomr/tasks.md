@@ -5,7 +5,7 @@
 ## 1. Pass-through headers (S)
 
 - [x] 1.1 Replace the node's built-in header names (`X-DOD-Number`, `X-App-Ref`, `X-Call-Ref`, `X-Call-Direction`) with a `headers` map on outbound dials and a full header map on inbound reports
-- [ ] 1.2 Move `X-DOD-Number` into the apiserver's pass-through headers in `placeOutboundCall`
+- [x] 1.2 Move `X-DOD-Number` into the apiserver's pass-through headers in `placeOutboundCall`
 - [ ] 1.3 Test: an INVITE with an arbitrary `X-` header reaches the app in `Start.headers` unchanged; a `CreateCall` header appears on the outbound INVITE byte for byte; a header value with CR or LF is rejected
 
 ## 2. Registration as configuration (S)
@@ -19,10 +19,10 @@
 
 - [x] 3.1 Add `max_rooms`, `version`, `region`, `control_addr`, `sip_addr`, `rtp_ports`, `participants` and `codecs` to the heartbeat
 - [x] 3.2 Drain signal via gRPC health; remove refusal code: delete the refuse-while-draining paths (`503` for INVITEs, `UNAVAILABLE` for `CreateCall`); keep the `max_rooms` refusal (`503` inbound, `RESOURCE_EXHAUSTED` for `CreateCall`)
-- [ ] 3.3 Controller: score `1 - rooms / max_rooms` over eligible nodes (fresh heartbeat, below limit, in region); retry up to 3 nodes; synchronous capacity error (`createNodeDirectory`, `placeOutboundCall`)
-- [ ] 3.4 Test: a node at its limit is skipped; two controllers picking the same node resolve by refusal and retry; every node refusing fails the API call at once
-- [ ] 3.5 Controller: fail over only on `RESOURCE_EXHAUSTED`/`UNAVAILABLE`; on a timeout or lost connection retry the same node with the same `call_ref`
-- [ ] 3.6 Apiserver: write `placements.<callRef>` (`call_ref` → `node_ref`) to the registry before `CreateCall`; sweep entries whose node is down or answers `NOT_FOUND`, closing the record `FAILED`
+- [x] 3.3 Controller: score `1 - rooms / max_rooms` over eligible nodes (fresh heartbeat, below limit, in region); retry up to 3 nodes; synchronous capacity error (`createNodeDirectory`, `placeOutboundCall`)
+- [x] 3.4 Test: a node at its limit is skipped; two controllers picking the same node resolve by refusal and retry; every node refusing fails the API call at once
+- [x] 3.5 Controller: fail over only on `RESOURCE_EXHAUSTED`/`UNAVAILABLE`; on a timeout or lost connection retry the same node with the same `call_ref`
+- [x] 3.6 Apiserver: write `placements.<callRef>` (`call_ref` → `node_ref`) to the registry before `CreateCall`; sweep entries whose node is down or answers `NOT_FOUND`, closing the record `FAILED`
 - [x] 3.7 Node: no CPU- or memory-based refusal; `max_rooms` is the only admission limit
 - [ ] 3.8 Test: a timed-out `CreateCall` is retried on the same node and the callee gets one INVITE; a replica killed between the registry write and the RPC is swept; a CPU-saturated node below `max_rooms` accepts
 - [ ] 3.9 Test: heartbeat content (`rooms`, `max_rooms`, `version`, `region`, dialable `control_addr`); a killed node is skipped by every controller within 6 s
@@ -36,7 +36,7 @@
 - [x] 4.3 Test: a second controller replica follows a call it did not place; `seq` is contiguous per call
 - [x] 4.4 Per-room `seq` on `roomr.events.room.<room_ref>`
 - [x] 4.5 Node: publish on core NATS best effort; while NATS is down keep calls, RPCs and streams running and drop unpublishable events (no blocking, no buffering)
-- [ ] 4.6 Apiserver: rely on the existing sweeps to close records and registry entries whose events were lost; no replay
+- [x] 4.6 Apiserver: rely on the existing sweeps to close records and registry entries whose events were lost; no replay
 - [ ] 4.7 Test (NATS fault injection): a call survives a 60 s outage; `call.ended` during the outage is not replayed and a sweep closes the record; per-room `seq` is contiguous
 - [ ] 4.8 Rename `labels` to `metadata` everywhere (proto field, events, `Start`, spec text, TS clients, tests); the node passes it through untouched; callers dictate the app reference through `metadata` (for example `app_ref`) and AppBridge reads it for outbound calls
 - [ ] 4.9 Test: `metadata` from `CreateCall` is echoed in every event and in `Start`
@@ -73,7 +73,7 @@
 - [x] 7.1 `roomr.v1.Roomr` server on the node: `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record`, `SendDtmf`; typed gRPC status codes
 - [x] 7.2 `CreateCall`: idempotent `call_ref`, dial through `to.proxy` (transport in the URI) with `to.headers` and `to.auth`, `room_ref` join-or-create, `session` override, `ring_timeout_s`, `max_duration_s`, `metadata`
 - [x] 7.3 `Join` with `listen` for listen-only per-track RTP destinations (recording, AMD); `Leave`
-- [ ] 7.4 Apiserver: `placeOutboundCall` calls `CreateCall` at the node's `control_addr`
+- [x] 7.4 Apiserver: `placeOutboundCall` calls `CreateCall` at the node's `control_addr`
 - [x] 7.5 Retire the `media.<nodeId>.commands` subjects and the NATS command handlers
 - [ ] 7.6 Test: busy/no-answer/rejected calls create no room and no stream; `EndCall` ends inbound and outbound calls; `EndRoom` ends every call in the room
 - [x] 7.7 `CreateCall` dedupe window as a constant 10 min (ended calls included; drop the `callDedupeWindow` key); different parameters → `ALREADY_EXISTS`; `401`/`407` answered with `to.auth`, never logged or echoed; `EndCall` while `RINGING` sends `CANCEL`
@@ -150,10 +150,10 @@
 
 - [x] 15.1 AppBridge: `mediaTimeout` in `appbridge.yaml` (default 15 s); end the call when the node's RTP stops for that long, seal the record with `media_timeout`
 - [x] 15.2 AppBridge: serve `grpc.health.v1.Health` on the `Session` port (`SERVING`; `NOT_SERVING` on SIGTERM); Helm and Compose readiness probes use it
-- [ ] 15.3 Remove `appbridge.heartbeat` (AppBridge publisher, Roomr and region-agent subscribers, NATS permissions) and the `appbridges` registry lease; keep `calls.<callRef>` for call ownership
-- [ ] 15.4 Control plane: send `call.ended` with `endReason` `appbridge-lost` from the node's `call.ended` with `cause` `app_gone`, once per `callRef`, never after AppBridge's own; remove the lease-expiry path in `lostCalls`
-- [ ] 15.5 Region agent: report AppBridge readiness from its health check through the Service, and active calls as the sum of `rooms` in the nodes' heartbeats
+- [x] 15.3 Remove `appbridge.heartbeat` (AppBridge publisher, Roomr and region-agent subscribers, NATS permissions) and the `appbridges` registry lease; keep `calls.<callRef>` for call ownership
+- [x] 15.4 Control plane: send `call.ended` with `endReason` `appbridge-lost` from the node's `call.ended` with `cause` `app_gone`, once per `callRef`, never after AppBridge's own; remove the lease-expiry path in `lostCalls`
+- [x] 15.5 Region agent: report AppBridge readiness from its health check through the Service, and active calls as the sum of `rooms` in the nodes' heartbeats
 - [ ] 15.6 Test: a running replica reports `SERVING` and no `appbridge.heartbeat` or `appbridges.*` entry exists; SIGTERM reports `NOT_SERVING`
 - [ ] 15.7 Test: AppBridge killed mid-call yields exactly one `call.ended` (`appbridge-lost`) per call across two control-plane replicas
 - [ ] 15.8 Test: the node's RTP stopped with the stream open ends the session with `reason: "error"` and the record says `media_timeout`; NATS paused longer than `mediaTimeout` ends no call
-- [ ] 15.9 Test: a cell with no ready AppBridge shows `degraded` naming AppBridge; active calls equal the nodes' room count
+- [x] 15.9 Test: a cell with no ready AppBridge shows `degraded` naming AppBridge; active calls equal the nodes' room count

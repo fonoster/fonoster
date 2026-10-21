@@ -23,8 +23,8 @@ import { Sessions, Webhooks } from "@fonoster/common";
 export const APPBRIDGE_LOST_REASON = "appbridge-lost";
 
 /**
- * The `call.ended` the control plane sends for a call whose AppBridge is gone. Its id depends on
- * the call only, so every replica that detects the loss builds the same event and the fan-out
+ * The `call.ended` the control plane sends for a call whose AppBridge is gone (the node ended it
+ * with cause `app_gone`). Its id depends on the call only, so every replica that detects the loss builds the same event and the fan-out
  * stores one delivery per endpoint (delivery ids depend on the event id): delivered once.
  */
 export function lostCallEnded(
@@ -55,58 +55,97 @@ export function lostCallEnded(
   return { ...event, id: `evt_lost_${digest}` };
 }
 
+/** How long after the node's `app_gone` an AppBridge's own end of the call may still show up. */
+export const APP_GONE_GRACE_MS = 2_000;
+
 /**
- * Finds calls whose AppBridge died mid-call, from the session registry: an appbridge rewrites its
- * `appbridges.<ref>` entry and each of its `calls.<callRef>` entries every SESSIONS_REFRESH_MS and
- * deletes a call's entry when the call ends. A call entry not rewritten for `staleMs` (the lease
- * TTL) whose AppBridge's entry is not rewritten either is a lost call: `emit` gets its
- * `call.ended` (reason `appbridge-lost`) and the call is forgotten. Times are when this replica
- * saw each write, so a replica that just started waits a full `staleMs` before judging.
+ * How long a call entry is remembered after its last write: an AppBridge rewrites its entries
+ * every SESSIONS_REFRESH_MS, and the node reports `app_gone` well within this after its AppBridge
+ * stops (stream break at once, keepalive or media timeout within seconds).
  */
-export function createLostCallSweep(deps: {
+export const LOST_CALL_FORGET_MS = 5 * 60_000;
+
+/**
+ * Calls whose AppBridge died mid-call (redesign-roomr 15.4, workspace-webhooks "AppBridge dies
+ * mid-call"). AppBridge writes `calls.<callRef>` (with the app and parties once the call reached
+ * an app) and deletes it when the call ends, right after it sent its own `call.ended`. When the
+ * Roomr node ends a call with cause `app_gone` (its control stream broke, or the app leg went
+ * silent), `onAppGone` waits `graceMs` for that delete and then, if the entry was not deleted (it
+ * is still there, or it expired with the AppBridge that kept it alive), `emit` gets the call's
+ * `call.ended` with `endReason` `appbridge-lost`. Its id depends on the call only, so the event is
+ * delivered once per endpoint across replicas; a call AppBridge ended itself gets none.
+ *
+ * Entries are remembered as this replica saw them on the registry watch (an entry that expires is
+ * not reported by the watch, so it stays here until `forgetMs` after its last write).
+ */
+export function createLostCalls(deps: {
   emit: (event: Webhooks.WebhookEvent) => unknown;
-  staleMs?: number;
+  graceMs?: number;
+  forgetMs?: number;
   now?: () => number;
 }) {
-  const staleMs = deps.staleMs ?? Sessions.SESSIONS_TTL_MS;
+  const graceMs = deps.graceMs ?? APP_GONE_GRACE_MS;
+  const forgetMs = deps.forgetMs ?? LOST_CALL_FORGET_MS;
   const now = deps.now ?? Date.now;
   const calls = new Map<
     string,
     { value: Record<string, unknown>; seenAt: number }
   >();
-  const appbridges = new Map<string, number>();
+  /** Calls already reported here (a repeated app_gone sends nothing more). */
+  const reported = new Map<string, number>();
+  const timers = new Set<ReturnType<typeof setTimeout>>();
 
-  const onEntry = (e: Sessions.SessionEntry) => {
-    if (e.kind === "calls") {
-      if (e.value) calls.set(e.id, { value: e.value, seenAt: now() });
-      else calls.delete(e.id); // ended: its AppBridge sent call.ended
-    } else if (e.kind === "appbridges") {
-      if (e.value) appbridges.set(e.id, now());
-      else appbridges.delete(e.id);
-    }
-  };
-
-  const sweep = () => {
+  const forget = () => {
     const at = now();
-    const lost: Webhooks.WebhookEvent[] = [];
-    for (const [id, c] of calls) {
-      if (at - c.seenAt <= staleMs) continue;
-      // Watched ids are the key after `appbridges.` (sanitized like the key).
-      const bridgeId = Sessions.sessionKey(
-        "appbridges",
-        String(c.value.bridgeRef ?? "")
-      ).slice("appbridges.".length);
-      const appBridgeSeen = appbridges.get(bridgeId) ?? 0;
-      // AppBridge is alive: it will rewrite the entry (or delete it when the call ends).
-      if (at - appBridgeSeen <= staleMs) continue;
-      calls.delete(id);
-      const event = lostCallEnded(c.value, c.seenAt);
-      if (!event) continue;
-      lost.push(event);
-      deps.emit(event);
-    }
-    return lost;
+    for (const [id, c] of calls) if (at - c.seenAt > forgetMs) calls.delete(id);
+    for (const [id, t] of reported) if (at - t > forgetMs) reported.delete(id);
   };
 
-  return { onEntry, sweep, size: () => calls.size };
+  /** One `calls.*` registry entry (a put, or a delete when the call ended normally). */
+  const onEntry = (e: Sessions.SessionEntry) => {
+    if (e.kind !== "calls") return;
+    if (e.value) calls.set(e.id, { value: e.value, seenAt: now() });
+    else calls.delete(e.id); // ended: its AppBridge sent call.ended
+    if (calls.size % 256 === 0) forget();
+  };
+
+  /** Reports the call now if its entry is still known; returns its event. */
+  const report = (callRef: string) => {
+    const id = Sessions.sessionKey("calls", callRef).slice("calls.".length);
+    const c = calls.get(id);
+    if (!c || reported.has(id)) return undefined;
+    calls.delete(id);
+    reported.set(id, now());
+    const event = lostCallEnded(c.value, now());
+    if (event) deps.emit(event);
+    return event;
+  };
+
+  return {
+    onEntry,
+    /**
+     * The node ended `callRef` with cause `app_gone`: after `graceMs` (an AppBridge that ended the
+     * call itself deletes its entry by then) the call's `call.ended` (appbridge-lost) is sent.
+     * Resolves with the event, or undefined when there is none to send.
+     */
+    onAppGone(callRef: string): Promise<Webhooks.WebhookEvent | undefined> {
+      if (graceMs <= 0) return Promise.resolve(report(callRef));
+      return new Promise((resolve) => {
+        const t = setTimeout(() => {
+          timers.delete(t);
+          resolve(report(callRef));
+        }, graceMs);
+        timers.add(t);
+      });
+    },
+    /** Drops what is remembered past `forgetMs` (also done as entries arrive). */
+    forget,
+    size: () => calls.size,
+    stop() {
+      timers.forEach(clearTimeout);
+      timers.clear();
+    }
+  };
 }
+
+export type LostCalls = ReturnType<typeof createLostCalls>;

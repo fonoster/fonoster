@@ -167,4 +167,5 @@ export function createRoomrPool(
   };
 }
 
+export * from "./health";
 export * from "./session";

@@ -19,7 +19,11 @@
 import { Sessions, Webhooks } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { consumeDurable } from "../core/durableConsumer";
-import { createLostCallSweep } from "./lostCalls";
+import { createLostCalls, LostCalls } from "./lostCalls";
+import {
+  natsFailedCallRecords,
+  subscribeNodeCallEvents
+} from "./nodeCallEvents";
 import type { NatsConnection } from "nats";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -38,8 +42,13 @@ export type WebhookFanoutConfig = {
   allowedDestinations?: string[];
   /** How long a replica may hold an event before another one gets it (default 30 s). */
   ackWaitMs?: number;
-  /** How often calls of lost AppBridge replicas are looked for (default 5 s; 0 turns it off). */
-  lostCallSweepMs?: number;
+  /**
+   * How long after a node's `app_gone` an AppBridge's own end of the call may still arrive before
+   * the control plane sends `call.ended` (appbridge-lost) (default 2 s; tests).
+   */
+  appGoneGraceMs?: number;
+  /** Whether minimal records of unanswered outbound calls are written (default true). */
+  failedCallRecords?: boolean;
   /** The session registry's bucket (default Sessions.SESSIONS_BUCKET; tests). */
   sessionsBucket?: string;
 };
@@ -51,8 +60,9 @@ export type WebhookFanoutDb = any;
 /**
  * Event fan-out from the bus (add-workspace-webhooks 2.2, build log LO-B1, ST-2): consumes
  * `webhooks.events` through a JetStream durable consumer (one replica per event), fills in the
- * workspace from the app when a producer did not know it (and takes Roomr nodes' call.failed
- * reports from their own subject), reloads that workspace's endpoints,
+ * workspace from the app when a producer did not know it (and builds the events no AppBridge can
+ * send from the Roomr nodes' call events: call.failed of unanswered outbound calls and call.ended
+ * of calls whose AppBridge was lost), reloads that workspace's endpoints,
  * stores one delivery per subscribed endpoint and only then acknowledges the event, attempts the
  * new deliveries at once, and keeps retrying due deliveries (including ones adopted from replicas
  * that died). An event redelivered after a replica died finds the deliveries it already made
@@ -108,27 +118,27 @@ export async function runWebhookFanout(
     const event = Webhooks.parseBusEvent(data);
     if (event) await intakeEvent(event);
   };
-  // Roomr nodes report calls no AppBridge claimed on their own subject (they may not publish
-  // webhooks.events, M6); only a well-formed call.failed is accepted, its workspace from the app.
-  // One replica per report (queue group); a repeated report has the same event id.
-  const nodeReports = deps.nc.subscribe(Webhooks.NODE_CALL_FAILED_SUBJECT, {
-    queue: "apiserver-node-call-failed",
-    callback: (err, msg) => {
-      if (err) return;
-      const event = Webhooks.nodeCallFailedEvent(msg.subject, msg.data);
-      if (!event) return;
-      intakeEvent(event).catch((e) =>
-        logger.warn(`node call.failed fan-out failed: ${(e as Error).message}`)
-      );
-    }
-  });
-  // Calls whose AppBridge died mid-call get their call.ended (reason appbridge-lost) here: every
-  // replica sweeps, and the event id depends on the call, so each endpoint gets one delivery.
-  const stopLost = await watchLostCalls(config, deps.nc, (event) =>
+  // What no AppBridge can report, from the nodes' call events (one replica per event; the
+  // events' ids depend on the call, so each endpoint gets one delivery): call.failed (and the
+  // minimal record) of unanswered outbound calls, call.ended (appbridge-lost) of calls whose
+  // AppBridge died.
+  const lost = await watchLostCalls(config, deps.nc, (event) =>
     intakeEvent(event).catch((e) =>
       logger.warn(`lost call fan-out failed: ${(e as Error).message}`)
     )
   );
+  const stopNodeEvents = subscribeNodeCallEvents(deps.nc, {
+    lost: lost?.calls,
+    intake: (event) =>
+      intakeEvent(event).catch((e) =>
+        logger.warn(`node call event fan-out failed: ${(e as Error).message}`)
+      ),
+    records:
+      config.failedCallRecords === false
+        ? undefined
+        : natsFailedCallRecords(deps.nc),
+    workspaceOfApp
+  });
   let unsubscribe: () => Promise<void> | void;
   try {
     unsubscribe = await consumeDurable(
@@ -174,8 +184,8 @@ export async function runWebhookFanout(
   return {
     runDue,
     async stop() {
-      nodeReports.unsubscribe();
-      stopLost();
+      stopNodeEvents();
+      lost?.stop();
       await unsubscribe();
       timers.forEach(clearInterval);
       await running;
@@ -184,16 +194,25 @@ export async function runWebhookFanout(
   };
 }
 
-/** Follows the session registry's calls and AppBridge replicas and sweeps for lost calls. */
+/**
+ * Follows the session registry's `calls.*` entries (AppBridge's) for the calls whose AppBridge
+ * dies: the node's `app_gone` then sends their call.ended. Undefined without the registry.
+ */
 async function watchLostCalls(
   config: WebhookFanoutConfig,
   nc: NatsConnection,
   emit: (event: Webhooks.WebhookEvent) => unknown
-): Promise<() => void> {
-  const sweepMs = config.lostCallSweepMs ?? 5_000;
-  if (sweepMs === 0) return () => undefined;
-  const lost = createLostCallSweep({ emit });
-  const stops: (() => void)[] = [];
+): Promise<{ calls: LostCalls; stop(): void } | undefined> {
+  const calls = createLostCalls({
+    emit: (event) => {
+      logger.warn(
+        `call ${(event.data as { callRef: string }).callRef}: its AppBridge is gone; call.ended (appbridge-lost)`
+      );
+      return emit(event);
+    },
+    graceMs: config.appGoneGraceMs
+  });
+  let stopWatch: () => void;
   try {
     const kv = await Promise.race([
       Sessions.openSessions(nc, { bucket: config.sessionsBucket }),
@@ -201,24 +220,21 @@ async function watchLostCalls(
         setTimeout(() => reject(new Error("timed out")), 5000).unref()
       )
     ]);
-    stops.push(await Sessions.watchSessions(kv, "appbridges", lost.onEntry));
-    stops.push(await Sessions.watchSessions(kv, "calls", lost.onEntry));
+    stopWatch = await Sessions.watchSessions(kv, "calls", calls.onEntry);
   } catch (e) {
-    stops.forEach((s) => s());
     logger.warn(
       `session registry unavailable; calls of lost AppBridge replicas get no call.ended: ${(e as Error).message}`
     );
-    return () => undefined;
+    return undefined;
   }
-  const timer = setInterval(() => {
-    for (const event of lost.sweep())
-      logger.warn(
-        `call ${(event.data as { callRef: string }).callRef}: its AppBridge is gone; call.ended (appbridge-lost)`
-      );
-  }, sweepMs);
+  const timer = setInterval(() => calls.forget(), 60_000);
   timer.unref();
-  return () => {
-    clearInterval(timer);
-    stops.forEach((s) => s());
+  return {
+    calls,
+    stop() {
+      clearInterval(timer);
+      stopWatch();
+      calls.stop();
+    }
   };
 }

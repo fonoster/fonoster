@@ -28,9 +28,9 @@ import { callFailed, WEBHOOK_EVENT_TYPES, WebhookEvent } from "./events";
 // `workspaceRef` empty and the fan-out resolves it from `data.appRef`.
 //
 // Roomr nodes may not publish `webhooks.events` (M6: a node could otherwise forge any event for
-// any workspace). A node reports a call no AppBridge claimed on its own subject,
-// `media.<nodeId>.events.call-failed`; the control plane builds the call.failed event from it
-// (nodeCallFailedEvent), with the workspace taken from the app and nothing else trusted.
+// any workspace). An outbound call that is never answered reaches no AppBridge; the control plane
+// builds its call.failed from the node's own `call.ended` on `roomr.events.<call_ref>`
+// (unansweredOutboundCall), with the workspace taken from the app and nothing else trusted.
 
 export const WEBHOOK_EVENTS_SUBJECT = "webhooks.events";
 
@@ -75,11 +75,20 @@ export function parseBusEvent(data: Uint8Array): WebhookEvent | undefined {
   return e;
 }
 
-/** Where Roomr nodes report calls no AppBridge claimed (the last token is never a room ref). */
-export const NODE_CALL_FAILED_SUBJECT = "media.*.events.call-failed";
+/** Where Roomr nodes publish a call's events (`roomr.events.<call_ref>`; room events have one more token). */
+export const ROOMR_CALL_EVENTS_SUBJECT = "roomr.events.*";
 
-/** The reasons a node may give: it only ever fails a call nobody claimed. */
-export const NODE_CALL_FAILED_REASONS = ["node_error"] as const;
+/**
+ * The `call.failed` reasons an unanswered outbound call can end with (the node's `cause`); any
+ * other cause is reported as `node_error`.
+ */
+export const UNANSWERED_CALL_REASONS = [
+  "busy",
+  "no_answer",
+  "rejected",
+  "removed",
+  "node_error"
+] as const;
 
 const MAX_FIELD = 256;
 const field = (v: unknown, required = false) =>
@@ -87,60 +96,76 @@ const field = (v: unknown, required = false) =>
     ? v
     : undefined;
 
+/** An outbound call the callee never answered, as its node's `call.ended` tells it. */
+export type UnansweredCall = {
+  callRef: string;
+  appRef: string;
+  from: string;
+  to: string;
+  reason: (typeof UNANSWERED_CALL_REASONS)[number];
+  sipStatus?: number;
+  nodeRef: string;
+};
+
 /**
- * The call.failed event for a Roomr node's report on `subject`
- * (`media.<nodeId>.events.call-failed`); undefined for anything else. Only `call.failed` with a
- * node reason is accepted, the report must name the node of its subject, and the workspace is left
- * empty for the fan-out to resolve from the app: a node never chooses the workspace, the event type
- * or extra data. The id depends on the node and the call, so a repeated report is delivered once.
+ * The unanswered outbound call a Roomr node's event on `subject` (`roomr.events.<call_ref>`)
+ * reports, or undefined: only a `call.ended` with `answered: false` of a call the control plane
+ * placed (its `metadata.app_ref`, passed through by the node) for the subject's own call. The
+ * parties come from the metadata the control plane set; the node never chooses the workspace
+ * (left for the fan-out to resolve from the app), the event type or extra data (M6).
  */
-export function nodeCallFailedEvent(
+export function unansweredOutboundCall(
   subject: string,
-  data: Uint8Array,
-  now = new Date()
-): WebhookEvent | undefined {
+  event: Record<string, unknown> | undefined
+): UnansweredCall | undefined {
   const tokens = subject.split(".");
-  if (
-    tokens.length !== 4 ||
-    tokens[0] !== "media" ||
-    tokens[2] !== "events" ||
-    tokens[3] !== "call-failed"
-  )
+  if (tokens.length !== 3 || tokens[0] !== "roomr" || tokens[1] !== "events")
     return undefined;
-  let r: Record<string, unknown>;
-  try {
-    r = JSON.parse(decoder.decode(data));
-  } catch {
+  if (!event || typeof event !== "object" || event.type !== "call.ended")
     return undefined;
-  }
-  if (!r || typeof r !== "object" || r.type !== "call.failed") return undefined;
-  const nodeId = tokens[1];
-  const callRef = field(r.callRef, true);
-  const appRef = field(r.appRef, true);
-  const from = field(r.from);
-  const to = field(r.to);
-  const reason = field(r.reason);
-  const direction = r.direction ?? "inbound";
-  if (
-    r.nodeId !== nodeId ||
-    !callRef ||
-    !appRef ||
-    from === undefined ||
-    to === undefined ||
-    !(NODE_CALL_FAILED_REASONS as readonly string[]).includes(reason ?? "") ||
-    (direction !== "inbound" && direction !== "outbound")
-  )
-    return undefined;
-  const event = callFailed("", {
+  if (event.answered !== false) return undefined;
+  const callRef = field(event.call_ref, true);
+  if (!callRef || callRef !== tokens[2]) return undefined;
+  const metadata = (
+    event.metadata && typeof event.metadata === "object" ? event.metadata : {}
+  ) as Record<string, unknown>;
+  const appRef = field(metadata.app_ref, true);
+  if (!appRef) return undefined;
+  const cause = String(event.cause ?? "");
+  const reason = (UNANSWERED_CALL_REASONS as readonly string[]).includes(cause)
+    ? (cause as UnansweredCall["reason"])
+    : "node_error";
+  const sipStatus = Number(event.sip_status);
+  return {
     callRef,
     appRef,
-    from,
-    to,
-    direction,
-    reason: reason!
+    from: field(metadata.from) ?? "",
+    to: field(metadata.to) ?? "",
+    reason,
+    ...(Number.isInteger(sipStatus) && sipStatus > 0 ? { sipStatus } : {}),
+    nodeRef: field(event.node_ref) ?? ""
+  };
+}
+
+/**
+ * The `call.failed` event for an unanswered outbound call. Its id depends on the call only, so
+ * every replica that sees the node's `call.ended` builds the same event and each endpoint gets one
+ * delivery.
+ */
+export function unansweredCallFailed(
+  call: UnansweredCall,
+  now = new Date()
+): WebhookEvent {
+  const event = callFailed("", {
+    callRef: call.callRef,
+    appRef: call.appRef,
+    from: call.from,
+    to: call.to,
+    direction: "outbound",
+    reason: call.reason
   });
   const digest = createHash("sha256")
-    .update(`${nodeId}\n${callRef}`)
+    .update(`call.failed\n${call.callRef}`)
     .digest("hex")
     .slice(0, 32);
   return {

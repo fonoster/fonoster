@@ -36,7 +36,7 @@ export const maintenanceSubject = (region: string) =>
   `callrecord.${region}.maintenance`;
 
 export type MaintenanceRequest = {
-  op: "delete_parts" | "erase";
+  op: "delete_parts" | "erase" | "failed_call";
   callRef: string;
   workspaceRef?: string | null;
   /** Where the record is stored (RV-B10); the writer resolves the store by it. */
@@ -44,12 +44,45 @@ export type MaintenanceRequest = {
   parts?: RecordPart[];
   reason: string;
   actor: string;
+  /** failed_call: the record's event entries, in order. */
+  entries?: Record<string, unknown>[];
 };
+
+/** Entries a failed_call record may hold (call.started, call.progress, call.failed). */
+const FAILED_CALL_TYPES = ["call.started", "call.progress", "call.failed"];
+
+/**
+ * The minimal record of an outbound call that never reached an app (busy, no answer, rejected):
+ * no AppBridge ever saw the call, so the control plane, which learns it from the node's
+ * `call.ended`, asks the region to write and seal it (redesign-roomr; voice-session "Busy
+ * callee"). Only the three event types above are accepted; the record is sealed at once.
+ */
+function writeFailedCall(writer: CallRecordWriter, req: MaintenanceRequest) {
+  const entries = Array.isArray(req.entries) ? req.entries : [];
+  if (
+    !req.callRef ||
+    !entries.length ||
+    entries.length > FAILED_CALL_TYPES.length ||
+    !entries.every(
+      (m) =>
+        m &&
+        typeof m === "object" &&
+        FAILED_CALL_TYPES.includes(String((m as { type?: unknown }).type))
+    )
+  )
+    return { type: "error", code: "bad_request" };
+  const at = Date.now();
+  for (const message of entries)
+    writer.append(req.callRef, { at, source: "event", message });
+  writer.close(req.callRef);
+  return { type: "ack" };
+}
 
 export async function handleMaintenance(
   writer: CallRecordWriter,
   req: MaintenanceRequest
 ) {
+  if (req.op === "failed_call") return writeFailedCall(writer, req);
   // The workspace is required: the stored record must belong to it (RV-B6).
   if (
     !req.callRef ||
@@ -105,7 +138,7 @@ export function serveRecordMaintenance(
         );
       }
       void handleMaintenance(writer, req).then((reply) => {
-        if (reply.type === "ack")
+        if (reply.type === "ack" && req.op !== "failed_call")
           logger.info(
             `call record ${req.callRef}: ${req.op} by ${req.actor} (${req.reason})`
           );

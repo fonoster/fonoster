@@ -38,27 +38,15 @@ import {
   OutboundCallRequest,
   OutboundTarget,
   PlacementError,
-  placeOutboundCall,
-  Requester
+  placeOutboundCall
 } from "./placeOutboundCall";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 const sc = StringCodec();
 
-/** JSON request and reply over a NATS connection. */
-export function natsRequester(nc: NatsConnection): Requester {
-  return async (subject, body, timeoutMs) => {
-    const msg = await nc.request(subject, sc.encode(JSON.stringify(body)), {
-      timeout: timeoutMs
-    });
-    return JSON.parse(sc.decode(msg.data));
-  };
-}
-
 /**
  * The control plane's part of a call's status events for TrackCall: TRYING when placement starts,
- * `{ref, node_ref}` once a node holds the call's room (TrackCall then follows that node's
- * heartbeats), and FAILED when placement fails. Everything after that (call.ringing,
+ * `{ref, node_ref}` once a node took CreateCall (TrackCall then follows that node's heartbeats), and FAILED when placement fails. Everything after that (call.ringing,
  * call.answered, call.ended) comes from the Roomr node on `roomr.events.<ref>`, so the statuses
  * keep flowing to every replica's TrackCall even if this replica dies.
  */
@@ -86,8 +74,9 @@ function configuredTarget(): OutboundTarget {
 }
 
 /**
- * Serves `calls.create` (a request from CreateCall) by placing each call on the Roomr nodes over
- * Roomr (placeOutboundCall). The reply comes once the node accepted CreateCall (`{type: "ack",
+ * Serves `calls.create` (a request from CreateCall) by placing each call on a Roomr node with
+ * Roomr's CreateCall over gRPC (placeOutboundCall); nodes come from their heartbeats on
+ * `roomr.nodes.<node_ref>.heartbeat`. The reply comes once the node accepted CreateCall (`{type: "ack",
  * ref, nodeId}`), or with `{type: "error", code, message}` (`no_capacity` when no node took it),
  * so CreateCall fails at once instead of TrackCall reporting FAILED later. While a call is being
  * placed its `placements.<ref>` registry entry names the node; a replica that dies mid-placement
@@ -112,7 +101,6 @@ export async function runOutboundCalls(config: {
       maxReconnectAttempts: -1
     }));
   const nodes = createNodeDirectory();
-  const request = natsRequester(nc);
   const pool = config.roomr ? undefined : Roomr.createRoomrPool();
   const roomr = config.roomr ?? pool!;
   const outbound = config.outbound ?? configuredTarget();
@@ -178,20 +166,14 @@ export async function runOutboundCalls(config: {
         msg.respond(sc.encode(JSON.stringify(body)));
       };
       const tracker = callTracker(nc, call.ref);
-      placeOutboundCall({ roomr, request, nodes, outbound }, call, {
+      placeOutboundCall({ roomr, nodes, outbound }, call, {
+        // The registry entry goes first (control-plane "Outbound calls are registered before
+        // they are placed"), rewritten when the call moves to another node.
         onAttempt: (nodeId, controlAddr) =>
-          sweep?.placing(call.ref, nodeId, controlAddr),
-        onRoom: (nodeId, roomRef) => {
-          tracker.placed(nodeId);
-          return sweep?.placing(
-            call.ref,
-            nodeId,
-            nodes.addressOf(nodeId) ?? "",
-            roomRef
-          );
-        }
+          sweep?.placing(call.ref, nodeId, controlAddr)
       }).then(
         (placed) => {
+          tracker.placed(placed.nodeId);
           void sweep?.placed(call.ref);
           reply({ type: "ack", ref: call.ref, nodeId: placed.nodeId });
           logger.verbose("outbound call placed", { ref: call.ref, ...placed });
