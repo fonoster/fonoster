@@ -70,7 +70,8 @@ class Regions {
     // `fetch` throws "Illegal invocation".
     this.fetchFn =
       options.fetch ??
-      (((input, init) => globalThis.fetch(input, init)) as unknown as FetchLike);
+      (((input, init) =>
+        globalThis.fetch(input, init)) as unknown as FetchLike);
   }
 
   private headers(auth: boolean, body?: unknown): Record<string, string> {

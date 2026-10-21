@@ -80,7 +80,8 @@ class CallRecords {
     // `fetch` throws "Illegal invocation".
     this.fetchFn =
       options.fetch ??
-      (((input, init) => globalThis.fetch(input, init)) as unknown as FetchLike);
+      (((input, init) =>
+        globalThis.fetch(input, init)) as unknown as FetchLike);
   }
 
   private url(path: string, query: Record<string, unknown> = {}) {

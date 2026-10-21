@@ -26,8 +26,8 @@
 // FAKES_OAUTH2_EMAIL as the account to sign in with. The STT
 // transcribes every call with FAKES_STT_SCRIPT (JSON [{atMs, text}], by caller-audio time) so an
 // Autopilot conversation moves without a real recognizer; the LLM echoes the caller.
-import { FakeOAuth2 } from "./providers/FakeOAuth2";
 import { FakeLlm } from "./providers/FakeLlm";
+import { FakeOAuth2 } from "./providers/FakeOAuth2";
 import { FakeStt, SttScriptEntry } from "./providers/FakeStt";
 import { FakeTts } from "./providers/FakeTts";
 
@@ -64,8 +64,8 @@ if (require.main === module) {
         `fakes ready: tts ${tts.url} stt ${stt.url} llm ${llm.url} oauth2 ${oauth2.url} (ports on ${process.env.FAKES_HOST ?? "0.0.0.0"})`
       );
       const stop = () =>
-        Promise.all([tts.stop(), stt.stop(), llm.stop(), oauth2.stop()]).then(() =>
-          process.exit(0)
+        Promise.all([tts.stop(), stt.stop(), llm.stop(), oauth2.stop()]).then(
+          () => process.exit(0)
         );
       process.on("SIGTERM", stop);
       process.on("SIGINT", stop);

@@ -18,6 +18,7 @@
  */
 import * as http from "http";
 import { AddressInfo } from "net";
+import { URLSearchParams } from "url";
 import { ProviderBehavior, ProviderFailure } from "../../scenario/types";
 import { ProviderLedger } from "./ProviderLedger";
 
@@ -110,7 +111,11 @@ export abstract class FakeProvider {
     if (chunks.length) {
       const text = Buffer.concat(chunks).toString();
       // JSON, or a form (the standard OAuth 2.0 token request); anything else is a bad request.
-      if (/^application\/x-www-form-urlencoded/i.test(req.headers["content-type"] ?? "")) {
+      if (
+        /^application\/x-www-form-urlencoded/i.test(
+          req.headers["content-type"] ?? ""
+        )
+      ) {
         body = Object.fromEntries(new URLSearchParams(text));
       } else {
         try {

@@ -10,7 +10,7 @@
 // uncovered-scenarios.txt (the list may only shrink).
 const fs = require("fs");
 const path = require("path");
-const { catalogDir, repoRoot, loadAreas, loadSpecScenarios, resolveSpec, glob, testTitles } = require("./lib.cjs");
+const { catalogDir, loadAreas, loadSpecScenarios, resolveSpec, glob, testTitles } = require("./lib.cjs");
 
 const argv = process.argv.slice(2);
 const areas = loadAreas();

@@ -16,8 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as http from "http";
 import { randomBytes } from "crypto";
+import * as http from "http";
+import { URL, URLSearchParams } from "url";
 import { FakeProvider } from "./FakeProvider";
 
 /**
@@ -66,8 +67,10 @@ export class FakeOAuth2 extends FakeProvider {
     readonly defaultEmail = "admin@fonoster.local"
   ) {
     super("oauth2");
-    this.profile = typeof profile === "string" ? OAUTH2_PROFILES[profile] : profile;
-    if (!this.profile) throw new Error(`unknown OAuth2 profile: ${String(profile)}`);
+    this.profile =
+      typeof profile === "string" ? OAUTH2_PROFILES[profile] : profile;
+    if (!this.profile)
+      throw new Error(`unknown OAuth2 profile: ${String(profile)}`);
   }
 
   protected async serve(
@@ -79,9 +82,12 @@ export class FakeOAuth2 extends FakeProvider {
     const { authorizePath, tokenPath, identity, userInfoPath } = this.profile;
     if (url.pathname === authorizePath) this.authorize(url, res);
     else if (url.pathname === tokenPath) this.token(body, res);
-    else if (identity === "github" && url.pathname === "/user") this.githubUser(req, res);
-    else if (identity === "github" && url.pathname === "/user/emails") this.githubEmails(req, res);
-    else if (identity === "oidc" && url.pathname === userInfoPath) this.userInfo(req, res);
+    else if (identity === "github" && url.pathname === "/user")
+      this.githubUser(req, res);
+    else if (identity === "github" && url.pathname === "/user/emails")
+      this.githubEmails(req, res);
+    else if (identity === "oidc" && url.pathname === userInfoPath)
+      this.userInfo(req, res);
     else if (url.pathname === "/health") json(res, 200, { ok: true });
     else json(res, 404, { message: "Not Found" });
   }
@@ -90,7 +96,10 @@ export class FakeOAuth2 extends FakeProvider {
     const redirect = url.searchParams.get("redirect_uri");
     const state = url.searchParams.get("state") ?? "";
     if (!redirect) {
-      json(res, 400, { error: "invalid_request", error_description: "redirect_uri is required" });
+      json(res, 400, {
+        error: "invalid_request",
+        error_description: "redirect_uri is required"
+      });
       return;
     }
     const email = url.searchParams.get("email");
@@ -135,7 +144,11 @@ export class FakeOAuth2 extends FakeProvider {
     this.codes.delete(code);
     const token = `fake_${randomBytes(12).toString("hex")}`;
     this.tokens.set(token, email);
-    json(res, 200, { access_token: token, token_type: "bearer", scope: "user:email" });
+    json(res, 200, {
+      access_token: token,
+      token_type: "bearer",
+      scope: "user:email"
+    });
   }
 
   private account(req: http.IncomingMessage) {
@@ -143,7 +156,10 @@ export class FakeOAuth2 extends FakeProvider {
     return this.tokens.get(auth.replace(/^(Bearer|token)\s+/i, ""));
   }
 
-  private githubUser(req: http.IncomingMessage, res: http.ServerResponse): void {
+  private githubUser(
+    req: http.IncomingMessage,
+    res: http.ServerResponse
+  ): void {
     const email = this.account(req);
     if (!email) {
       json(res, 401, { message: "Bad credentials" });
@@ -153,13 +169,18 @@ export class FakeOAuth2 extends FakeProvider {
     json(res, 200, { login, id: 1, name: login.replace(/[._-]/g, " ") });
   }
 
-  private githubEmails(req: http.IncomingMessage, res: http.ServerResponse): void {
+  private githubEmails(
+    req: http.IncomingMessage,
+    res: http.ServerResponse
+  ): void {
     const email = this.account(req);
     if (!email) {
       json(res, 401, { message: "Bad credentials" });
       return;
     }
-    json(res, 200, [{ email, primary: true, verified: true, visibility: "private" }]);
+    json(res, 200, [
+      { email, primary: true, verified: true, visibility: "private" }
+    ]);
   }
 
   private userInfo(req: http.IncomingMessage, res: http.ServerResponse): void {
