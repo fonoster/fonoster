@@ -27,5 +27,5 @@ COPY --from=builder --chown=appuser:appuser /work/node_modules ./node_modules
 # The workspace packages that node_modules links to.
 COPY --from=builder --chown=appuser:appuser /work/mods ./mods
 USER appuser
-EXPOSE 7001 7002 7003
+EXPOSE 7001 7002 7003 7004
 CMD ["node", "/work/mods/conformance/dist/fakes/serve.js"]

@@ -126,7 +126,15 @@ async function retry(what, fn, tries = 60) {
     try {
       return await fn();
     } catch (e) {
+      // The sign-in throttle (identity: 3 per email in 10 minutes) counts every attempt; retrying
+      // into it only extends the lockout. Say so and stop.
+      if (e.code === 8 || /Too many sign-in attempts/.test(e.message))
+        throw new Error(`${what}: ${e.message} (wait 10 minutes or restart the apiserver)`);
+      // Not transient either: a half-seeded stack without its seed.json. Reset the stack instead.
+      if (e.code === 6)
+        throw new Error(`${what}: ${e.message} (a previous seed left entities behind: ops/rebuild/stack reset)`);
       if (i >= tries) throw new Error(`${what}: ${e.message}`);
+      console.error(`[seed] ${what} failed (${e.message}); retry ${i}/${tries} in 2 s`);
       await new Promise((r) => setTimeout(r, 2000));
     }
   }
