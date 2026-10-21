@@ -1,0 +1,17 @@
+diff --git a/mods/identity/src/getPublicKey.ts b/mods/identity/src/getPublicKey.ts
+index 8adff4a58..451a30c9d 100644
+--- a/mods/identity/src/getPublicKey.ts
++++ b/mods/identity/src/getPublicKey.ts
+@@ -32,7 +32,11 @@ function createGetPublicKey(publicKey: string) {
+   ) {
+     logger.verbose("getting public key for JWT verification");
+ 
+-    callback(null, { publicKey });
++    callback(null, {
++      publicKey: publicKey
++        .replace(/-----(BEGIN|END) PUBLIC KEY-----/g, "")
++        .trim()
++    });
+   };
+ }
+ 

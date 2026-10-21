@@ -41,6 +41,7 @@ describe("@sipnet[resources/updateResource]", function () {
     const { updateResource } = await import("../src/resources/updateResource");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
+    metadata.set("accessKeyId", "GRahn02s8tgdfghz72vb0fz538qpb5z35p");
 
     const domains = {
       updateDomain: sandbox.stub().resolves({ ref: "123" }),
@@ -77,6 +78,7 @@ describe("@sipnet[resources/updateResource]", function () {
     const { updateResource } = await import("../src/resources/updateResource");
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
+    metadata.set("accessKeyId", "GRahn02s8tgdfghz72vb0fz538qpb5z35p");
 
     const domains = {
       updateDomain: sandbox.stub().throws({

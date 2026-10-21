@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/workspaces/createInviteUserToWorkspace.ts b/mods/identity/src/workspaces/createInviteUserToWorkspace.ts
+index 52f24d643..7390e56a7 100644
+--- a/mods/identity/src/workspaces/createInviteUserToWorkspace.ts
++++ b/mods/identity/src/workspaces/createInviteUserToWorkspace.ts
+@@ -86,7 +86,7 @@ const createCreateUser = (prisma: Prisma) => {
+         ...(oneTimePassword
+           ? {
+               ...(await passwordColumns(oneTimePassword)),
+-              mustChangePassword: true
++              mustChangePassword: false
+             }
+           : {})
+       }

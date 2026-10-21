@@ -1,0 +1,14 @@
+diff --git a/mods/identity/src/exchanges/createExchangeCredentials.ts b/mods/identity/src/exchanges/createExchangeCredentials.ts
+index 50f21617c..7703d2605 100644
+--- a/mods/identity/src/exchanges/createExchangeCredentials.ts
++++ b/mods/identity/src/exchanges/createExchangeCredentials.ts
+@@ -65,9 +65,6 @@ function createExchangeCredentials(
+ 
+     logger.verbose("call to exchangeCredentials", { username: email });
+ 
+-    if (!isMethodEnabled(identityConfig, "password")) {
+-      return callback(methodDisabledError("password"));
+-    }
+ 
+     const ip = clientAddress(call);
+ 

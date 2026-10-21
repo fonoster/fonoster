@@ -1,0 +1,22 @@
+diff --git a/mods/identity-client/src/index.ts b/mods/identity-client/src/index.ts
+index 5a5c20ba3..9c710795f 100644
+--- a/mods/identity-client/src/index.ts
++++ b/mods/identity-client/src/index.ts
+@@ -165,6 +165,7 @@ export interface AccessClaims {
+ export class IdentityClient {
+   private readonly client: grpc.Client;
+   private cachedPublicKey: string | null = null;
++  private callerToken: string | undefined;
+ 
+   constructor(
+     endpoint: string,
+@@ -179,7 +180,8 @@ export class IdentityClient {
+     meta: { token?: string; accessKeyId?: string } = {}
+   ): Promise<TRes> {
+     const metadata = new grpc.Metadata();
+-    if (meta.token) metadata.set("token", meta.token);
++    this.callerToken = this.callerToken || meta.token;
++    if (this.callerToken) metadata.set("token", this.callerToken);
+     if (meta.accessKeyId) metadata.set("accesskeyid", meta.accessKeyId);
+ 
+     const client = this.client as unknown as Record<

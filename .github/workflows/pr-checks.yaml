@@ -144,6 +144,73 @@ jobs:
           PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
         run: npm test
 
+  api:
+    name: API area (mods/conformance/catalog/areas/api.md)
+    needs: changes
+    if: needs.changes.outputs.node == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    # The apiserver runs in the test process; Postgres, NATS and Routr (which stores the SIP
+    # resources) are real.
+    services:
+      postgres:
+        image: postgres:16.10-alpine3.22
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      nats:
+        image: nats:2.11.8
+        ports:
+          - 4222:4222
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Routr with its own database, as the bundle pins it.
+      - name: Start Routr
+        run: |
+          docker run -d --name routr -p 51907:51907 fonoster/routr-one:2.15.4
+          for i in $(seq 1 60); do (echo > /dev/tcp/127.0.0.1/51907) 2>/dev/null && exit 0; sleep 2; done
+          docker logs routr; exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: API cases (JUnit in reports/junit)
+        env:
+          PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+          ROUTR_API_ENDPOINT: 127.0.0.1:51907
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          LOGS_LEVEL: none
+        run: |
+          npx mocha --config mods/conformance/test/api/.mocharc.cjs \
+            --reporter xunit --reporter-option output=reports/junit/api.xml
+
+      - name: JUnit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-api
+          path: reports/junit/
+          if-no-files-found: ignore
+
+      - name: Routr logs
+        if: failure()
+        run: docker logs routr
+
   go:
     name: go Roomr node
     needs: changes
@@ -317,7 +384,7 @@ jobs:
   passed:
     name: PR Checks passed
     if: always()
-    needs: [dco, lint, changes, node, go, python, dashboard, sdk-pack, sdk-install]
+    needs: [dco, lint, changes, node, api, go, python, dashboard, sdk-pack, sdk-install]
     runs-on: ubuntu-latest
     steps:
       - name: Every job passed or was skipped

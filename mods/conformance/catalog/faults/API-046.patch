@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/constants.ts b/mods/identity/src/constants.ts
+index 829ddb93e..78fbf43c7 100644
+--- a/mods/identity/src/constants.ts
++++ b/mods/identity/src/constants.ts
+@@ -37,7 +37,7 @@ export const RESET_PASSWORD_ATTEMPT_LIMITS = {
+  * and per client IP, before sign-in is refused for the rest of the window.
+  */
+ export const SIGN_IN_FAILURE_LIMITS = {
+-  perEmail: 10,
++  perEmail: 1000,
+   perIp: 50,
+   windowMs: 15 * 60 * 1000
+ };

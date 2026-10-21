@@ -1,0 +1,12 @@
+diff --git a/mods/identity/src/utils/createIsValidVerificationCode.ts b/mods/identity/src/utils/createIsValidVerificationCode.ts
+index e6a34ebb5..2c7a75c94 100644
+--- a/mods/identity/src/utils/createIsValidVerificationCode.ts
++++ b/mods/identity/src/utils/createIsValidVerificationCode.ts
+@@ -54,7 +54,6 @@ function createIsValidVerificationCode(prisma: Prisma) {
+         type,
+         value,
+         consumedAt: null,
+-        expiresAt: { gt: now },
+         attempts: { lt: VERIFICATION_CODE_MAX_ATTEMPTS }
+       },
+       orderBy: { createdAt: "desc" }

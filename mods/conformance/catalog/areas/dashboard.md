@@ -9,7 +9,6 @@ environment: "mocked: no backend; real: compose stack with a seeded workspace; c
 cadence: mocked project on every pull request; real project nightly and at release
 capabilities:
   - dashboard
-  - identity-client
   - talk-in-browser
 tests:
   - mods/dashboard/e2e/**/*.spec.ts

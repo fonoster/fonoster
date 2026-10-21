@@ -1,0 +1,73 @@
+name: QA proofs
+
+# Sees every case of an area red on its seeded fault (mods/conformance/catalog/prove.cjs) and keeps
+# the proof records for the release report. One run per case, so nightly and on demand, not on
+# every pull request.
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    name: API area proofs
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    services:
+      postgres:
+        image: postgres:16.10-alpine3.22
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      nats:
+        image: nats:2.11.8
+        ports:
+          - 4222:4222
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start Routr
+        run: |
+          docker run -d --name routr -p 51907:51907 fonoster/routr-one:2.15.4
+          for i in $(seq 1 60); do (echo > /dev/tcp/127.0.0.1/51907) 2>/dev/null && exit 0; sleep 2; done
+          docker logs routr; exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      # The API cases run every @fonoster package from source; the standalone Identity and client
+      # cases run their build, which prove.sh rebuilds around a fault in them.
+      - name: Prove
+        env:
+          PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+          ROUTR_API_ENDPOINT: 127.0.0.1:51907
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          LOGS_LEVEL: none
+        run: node mods/conformance/catalog/prove.cjs --area API --out reports/junit/proofs-API.xml
+
+      - name: Proof records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proofs-api
+          path: reports/junit/
+          if-no-files-found: ignore

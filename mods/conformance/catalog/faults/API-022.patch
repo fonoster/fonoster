@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/exchanges/exchangeTokens.ts b/mods/identity/src/exchanges/exchangeTokens.ts
+index d1f364419..d35bfe9be 100644
+--- a/mods/identity/src/exchanges/exchangeTokens.ts
++++ b/mods/identity/src/exchanges/exchangeTokens.ts
+@@ -41,7 +41,7 @@ function exchangeTokens(prisma: Prisma, identityConfig: IdentityConfig) {
+ 
+     const idTokenSignOptions = { algorithm: SIGN_ALGORITHM, expiresIn: idTokenExpiresIn } as jwt.SignOptions;
+     const accessTokenSignOptions = { algorithm: SIGN_ALGORITHM, expiresIn: accessTokenExpiresIn } as jwt.SignOptions;
+-    const refreshTokenSignOptions = { algorithm: SIGN_ALGORITHM, expiresIn: refreshTokenExpiresIn, jwtid: jti } as jwt.SignOptions;
++    const refreshTokenSignOptions = { algorithm: SIGN_ALGORITHM, expiresIn: accessTokenExpiresIn, jwtid: jti } as jwt.SignOptions;
+ 
+     let idToken = null;
+     let accessToken = null;

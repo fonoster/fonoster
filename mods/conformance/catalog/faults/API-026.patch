@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/session/createSessionRouter.ts b/mods/apiserver/src/session/createSessionRouter.ts
+index 8c1aecf90..4b23ff662 100644
+--- a/mods/apiserver/src/session/createSessionRouter.ts
++++ b/mods/apiserver/src/session/createSessionRouter.ts
+@@ -185,7 +185,7 @@ export function createSessionRouter(deps: SessionRouterDeps): Router {
+   router.post("/refresh", async (req, res) => {
+     const refreshToken = readCookie(req, SESSION_COOKIE);
+     if (!refreshToken) {
+-      res.status(401).json({ error: "no_session" });
++      res.status(200).json({ error: "no_session" });
+       return;
+     }
+     await rotate(res, refreshToken);

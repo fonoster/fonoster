@@ -1,0 +1,13 @@
+diff --git a/mods/identity-client/src/index.ts b/mods/identity-client/src/index.ts
+index 5a5c20ba3..18f04f54d 100644
+--- a/mods/identity-client/src/index.ts
++++ b/mods/identity-client/src/index.ts
+@@ -170,7 +170,7 @@ export class IdentityClient {
+     endpoint: string,
+     credentials: grpc.ChannelCredentials = grpc.credentials.createInsecure()
+   ) {
+-    this.client = new IdentityService(endpoint, credentials);
++    this.client = new IdentityService("localhost:50051", credentials);
+   }
+ 
+   private unary<TRes>(

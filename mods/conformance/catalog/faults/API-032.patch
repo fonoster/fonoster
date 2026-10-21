@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/utils/claimUnverifiedAccount.ts b/mods/identity/src/utils/claimUnverifiedAccount.ts
+index d4f321c64..ce31e963f 100644
+--- a/mods/identity/src/utils/claimUnverifiedAccount.ts
++++ b/mods/identity/src/utils/claimUnverifiedAccount.ts
+@@ -47,7 +47,7 @@ function createClaimUnverifiedAccount(prisma: Prisma) {
+     const claimed = await prisma.user.update({
+       where: { ref: user.ref },
+       data: {
+-        emailVerified: true,
++        emailVerified: false,
+         password: null,
+         passwordDigest: null,
+         mustChangePassword: false

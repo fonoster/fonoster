@@ -1,0 +1,15 @@
+diff --git a/mods/identity/src/exchanges/createRevokeToken.ts b/mods/identity/src/exchanges/createRevokeToken.ts
+index e1325ed35..5c80ba803 100644
+--- a/mods/identity/src/exchanges/createRevokeToken.ts
++++ b/mods/identity/src/exchanges/createRevokeToken.ts
+@@ -58,7 +58,9 @@ function createRevokeToken(prisma: Prisma, identityConfig: IdentityConfig) {
+     });
+ 
+     if (row) {
+-      await refreshTokens.revokeFamily(row.familyId);
++      logger.verbose("revoking refresh token family", {
++        familyId: row.familyId
++      });
+     }
+ 
+     logger.verbose("refresh token revoked", {

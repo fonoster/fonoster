@@ -1,0 +1,10 @@
+diff --git a/mods/identity/src/constants.ts b/mods/identity/src/constants.ts
+index 829ddb93e..adda3689b 100644
+--- a/mods/identity/src/constants.ts
++++ b/mods/identity/src/constants.ts
+@@ -45,4 +45,4 @@ export const SIGN_IN_FAILURE_LIMITS = {
+  * How long a just-used refresh token may be used again (concurrent renewals,
+  * e.g. two browser tabs). Later reuse revokes the token's family.
+  */
+-export const REFRESH_TOKEN_REUSE_GRACE_MS = 30 * 1000;
++export const REFRESH_TOKEN_REUSE_GRACE_MS = 24 * 60 * 60 * 1000;

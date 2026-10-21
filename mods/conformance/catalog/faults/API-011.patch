@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/exchanges/payloads/users/createGetAccessTokenPayload.ts b/mods/identity/src/exchanges/payloads/users/createGetAccessTokenPayload.ts
+index bc1d37792..ca7f04fe5 100644
+--- a/mods/identity/src/exchanges/payloads/users/createGetAccessTokenPayload.ts
++++ b/mods/identity/src/exchanges/payloads/users/createGetAccessTokenPayload.ts
+@@ -51,7 +51,7 @@ function createGetAccessTokenPayload(
+ 
+     const access = ownedWorkspaces.map((workspace) => ({
+       accessKeyId: workspace.accessKeyId,
+-      role: Role.WORKSPACE_OWNER
++      role: Role.WORKSPACE_ADMIN
+     }));
+ 
+     memberships.forEach((membership) => {

@@ -16,12 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  Access,
-  decodeToken,
-  getTokenFromCall,
-  TokenUseEnum
-} from "@fonoster/common";
+import { getAccessKeyIdFromCall } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { JsonObject } from "@prisma/client/runtime/library";
@@ -43,11 +38,12 @@ async function hasAccessToResource(
   // If the resource doesn't exist, allow the operation
   if (!extended) return true;
 
-  const token = getTokenFromCall(call as ServerInterceptingCall);
-  const decodedToken = decodeToken<TokenUseEnum.ACCESS>(token);
-  const accessKeyIds = decodedToken.access?.map((a: Access) => a.accessKeyId);
-
-  return accessKeyIds.includes(extended?.accessKeyId as string);
+  // The workspace the call acts as (the auth interceptor checked the token grants it), not any
+  // workspace in the token: a user in A and B acting as B must not reach A's resources.
+  return (
+    extended.accessKeyId ===
+    getAccessKeyIdFromCall(call as ServerInterceptingCall)
+  );
 }
 
 export { hasAccessToResource };

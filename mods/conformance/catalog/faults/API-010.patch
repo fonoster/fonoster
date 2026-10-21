@@ -1,0 +1,12 @@
+diff --git a/mods/sipnet/src/resources/deleteResource.ts b/mods/sipnet/src/resources/deleteResource.ts
+index 05ade0069..8722a9371 100644
+--- a/mods/sipnet/src/resources/deleteResource.ts
++++ b/mods/sipnet/src/resources/deleteResource.ts
+@@ -31,7 +31,6 @@ function deleteResource<T, R, U>(api: U, resource: string) {
+ 
+     logger.verbose(`call to delete${resource}`, { request, resource });
+ 
+-    await api[`delete${resource}`](request.ref);
+ 
+     return { ref: request.ref } as T;
+   };

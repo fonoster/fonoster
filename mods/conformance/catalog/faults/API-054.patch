@@ -1,0 +1,12 @@
+diff --git a/mods/sipnet/src/resources/checkRefs.ts b/mods/sipnet/src/resources/checkRefs.ts
+index afe4dfd83..df0ffde3b 100644
+--- a/mods/sipnet/src/resources/checkRefs.ts
++++ b/mods/sipnet/src/resources/checkRefs.ts
+@@ -104,7 +104,6 @@ function createRefLookups(clientOptions: ClientOptions): RefLookups {
+ type Refs = Record<string, unknown>;
+ 
+ const agentRefs = (r: Refs): RefField[] => [
+-  { field: "domainRef", kind: "Domain", ref: r.domainRef as string },
+   {
+     field: "credentialsRef",
+     kind: "Credentials",

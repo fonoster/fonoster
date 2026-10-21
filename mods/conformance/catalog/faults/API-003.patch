@@ -1,0 +1,14 @@
+diff --git a/mods/common/src/validators/secrets.ts b/mods/common/src/validators/secrets.ts
+index 70cab2621..9837dfd80 100644
+--- a/mods/common/src/validators/secrets.ts
++++ b/mods/common/src/validators/secrets.ts
+@@ -29,7 +29,8 @@ const createSecretRequestSchema = z.object({
+         "Name can only contain letters, numbers, underscores, or hyphens. No spaces allowed"
+     })
+     .min(3, { message: "Name must be at least 3 characters long" })
+-    .max(32, { message: "Name must be at most 32 characters long" }),
++    .max(32, { message: "Name must be at most 32 characters long" })
++    .optional(),
+   secret: z.string()
+ });
+ 

@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/users/createSendResetPasswordCode.ts b/mods/identity/src/users/createSendResetPasswordCode.ts
+index f7de5a222..3104586df 100644
+--- a/mods/identity/src/users/createSendResetPasswordCode.ts
++++ b/mods/identity/src/users/createSendResetPasswordCode.ts
+@@ -105,7 +105,7 @@ function createSendResetPasswordCode(
+ 
+     await sendResetPasswordEmail(createSendEmail(identityConfig), {
+       recipient: username,
+-      resetPasswordUrl: `${resetPasswordUrl}?token=${encodeURIComponent(encodedPayload)}`
++      resetPasswordUrl: `${(request as { resetPasswordUrl?: string }).resetPasswordUrl || resetPasswordUrl}?token=${encodeURIComponent(encodedPayload)}`
+     });
+ 
+     callback(null);

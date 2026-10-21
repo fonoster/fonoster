@@ -76,7 +76,10 @@ describe("@identity[standalone service] (needs PERSISTENCE_TEST_DATABASE_URL)", 
 
   before(async function () {
     identity = await startStandaloneIdentity();
-    if (!identity) this.skip();
+    if (!identity)
+      throw new Error(
+        "PERSISTENCE_TEST_DATABASE_URL is required: a skipped case is Blocked, never Pass"
+      );
     client = new IdentityClient(identity.endpoint);
   });
 
@@ -85,14 +88,14 @@ describe("@identity[standalone service] (needs PERSISTENCE_TEST_DATABASE_URL)", 
     await identity?.stop();
   });
 
-  it("serves fonoster.identity.v1beta2 on the configured port and reports healthy", async function () {
+  it("[API-058] serves fonoster.identity.v1beta2 on the configured port and reports healthy", async function () {
     expect(await identity!.health()).to.equal("SERVING");
 
     const { publicKey } = await client.getPublicKey();
     expect(publicKey).to.equal(identity!.publicKey);
   });
 
-  it("provisions a fresh database with the entrypoint, then signs up, logs in and creates a workspace", async function () {
+  it("[API-059] provisions a fresh database with the entrypoint, then signs up, logs in and creates a workspace", async function () {
     const applied = await identity!.prisma.$queryRawUnsafe<{ count: bigint }[]>(
       "SELECT count(*) FROM _prisma_migrations WHERE finished_at IS NOT NULL"
     );
@@ -123,7 +126,7 @@ describe("@identity[standalone service] (needs PERSISTENCE_TEST_DATABASE_URL)", 
     });
   });
 
-  it("runs allow-listed methods without a token and requires a valid token for the rest", async function () {
+  it("[API-060] runs allow-listed methods without a token and requires a valid token for the rest", async function () {
     // Allow-listed: sign-up, login and the public key need no token.
     const email = "grace@identity.test";
     await client.createUser({ name: "Grace", email, password: PASSWORD });
@@ -155,7 +158,7 @@ describe("@identity[standalone service] (needs PERSISTENCE_TEST_DATABASE_URL)", 
     expect(items).to.be.an("array");
   });
 
-  it("never accepts a refresh token as an access token, and keeps serving", async function () {
+  it("[API-030] never accepts a refresh token as an access token, and keeps serving", async function () {
     const email = "linus@identity.test";
     await client.createUser({ name: "Linus", email, password: PASSWORD });
     const { refreshToken, idToken, accessToken } =
@@ -168,7 +171,7 @@ describe("@identity[standalone service] (needs PERSISTENCE_TEST_DATABASE_URL)", 
     expect(items).to.be.an("array");
   });
 
-  it("rotates refresh tokens, detects reuse, and revokes on sign-out", async function () {
+  it("[API-023] rotates refresh tokens, detects reuse, and revokes on sign-out", async function () {
     const email = "edsger@identity.test";
     await client.createUser({ name: "Edsger", email, password: PASSWORD });
     const first = await client.exchangeCredentials({
@@ -211,7 +214,7 @@ describe("@identity[standalone service] (needs PERSISTENCE_TEST_DATABASE_URL)", 
     );
   });
 
-  it("scopes API keys to the caller's workspace and enforces their expiry", async function () {
+  it("[API-042] scopes API keys to the caller's workspace and enforces their expiry", async function () {
     const signUp = async (name: string, email: string) => {
       await client.createUser({ name, email, password: PASSWORD });
       const { accessToken } = await client.exchangeCredentials({
@@ -269,7 +272,7 @@ describe("@identity[standalone service] (needs PERSISTENCE_TEST_DATABASE_URL)", 
     );
   });
 
-  it("links reset emails to the configured page, whatever URL the request names", async function () {
+  it("[API-043] links reset emails to the configured page, whatever URL the request names", async function () {
     const email = "barbara@identity.test";
     await client.createUser({ name: "Barbara", email, password: PASSWORD });
 
@@ -283,7 +286,7 @@ describe("@identity[standalone service] (needs PERSISTENCE_TEST_DATABASE_URL)", 
     expect(body).to.not.include("attacker.example");
   });
 
-  it("rate limits reset emails per address", async function () {
+  it("[API-045] rate limits reset emails per address", async function () {
     const email = "frances@identity.test";
     await client.createUser({ name: "Frances", email, password: PASSWORD });
 

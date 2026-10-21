@@ -56,3 +56,6 @@ ops/rebuild/cell/.local/
 
 # Local git worktrees
 /.worktrees/
+
+# QA results (mods/conformance/catalog/report.cjs reads them; they are never committed)
+reports/

@@ -33,10 +33,11 @@ function withAccess<T, A>(
     const typedCall = call as unknown as ServerInterceptingCall;
     const hasAccess = await hasAccessToResource(typedCall, getFn);
 
+    // Answered like an unknown ref, so another workspace's refs can't be probed (management-api).
     if (!hasAccess) {
       callback({
-        code: grpc.status.PERMISSION_DENIED,
-        message: "You don't have permission to access this resource"
+        code: grpc.status.NOT_FOUND,
+        message: "The requested resource was not found"
       });
       return;
     }

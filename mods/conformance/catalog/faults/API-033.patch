@@ -1,0 +1,14 @@
+diff --git a/mods/identity/src/exchanges/createExchangeVerificationCode.ts b/mods/identity/src/exchanges/createExchangeVerificationCode.ts
+index 43555ae49..b2aa7dc3e 100644
+--- a/mods/identity/src/exchanges/createExchangeVerificationCode.ts
++++ b/mods/identity/src/exchanges/createExchangeVerificationCode.ts
+@@ -100,9 +100,6 @@ function createExchangeVerificationCode(
+ 
+     const existing = await getUserByEmail(email);
+ 
+-    if (!existing && !isOpenSignup(identityConfig)) {
+-      return callback(invalidCode);
+-    }
+ 
+     // The code proves the address, so the email is verified either way. An
+     // account whose email was never verified loses its password (M2).

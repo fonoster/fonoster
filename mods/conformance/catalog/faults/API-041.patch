@@ -1,0 +1,26 @@
+diff --git a/mods/identity/src/apikeys/createDeleteApiKey.ts b/mods/identity/src/apikeys/createDeleteApiKey.ts
+index 82f707f0c..befe29dcf 100644
+--- a/mods/identity/src/apikeys/createDeleteApiKey.ts
++++ b/mods/identity/src/apikeys/createDeleteApiKey.ts
+@@ -58,7 +58,7 @@ function createDeleteApiKey(prisma: Prisma) {
+ 
+     // Only a key of the caller's workspace; others look like they don't exist.
+     const key = await prisma.apiKey.findFirst({
+-      where: { ref, workspace: { accessKeyId } }
++      where: { ref }
+     });
+ 
+     if (!key) {
+diff --git a/mods/identity/src/apikeys/createRegenerateApiKey.ts b/mods/identity/src/apikeys/createRegenerateApiKey.ts
+index c47c2c342..fac23f308 100644
+--- a/mods/identity/src/apikeys/createRegenerateApiKey.ts
++++ b/mods/identity/src/apikeys/createRegenerateApiKey.ts
+@@ -62,7 +62,7 @@ function createRegenerateApiKey(prisma: Prisma) {
+ 
+     // Only a key of the caller's workspace; others look like they don't exist.
+     const key = await prisma.apiKey.findFirst({
+-      where: { ref, workspace: { accessKeyId } }
++      where: { ref }
+     });
+ 
+     if (!key) {

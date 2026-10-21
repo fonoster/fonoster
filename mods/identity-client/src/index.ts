@@ -246,6 +246,14 @@ export class IdentityClient {
     return this.unary("exchangeRefreshToken", { refreshToken });
   }
 
+  /** Passwordless sign-in: the code emailed by `sendVerificationCode`, for tokens. */
+  exchangeVerificationCode(
+    email: string,
+    code: string
+  ): Promise<ExchangeResponse> {
+    return this.unary("exchangeVerificationCode", { email, code });
+  }
+
   /**
    * Sign-out: revokes `refreshToken` and every token rotated from the same
    * sign-in, so it can no longer be exchanged. Access tokens already issued

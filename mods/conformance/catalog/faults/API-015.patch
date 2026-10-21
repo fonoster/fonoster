@@ -1,0 +1,29 @@
+diff --git a/mods/common/src/identity/hasAccess.ts b/mods/common/src/identity/hasAccess.ts
+index 2d13d3944..8a52f4682 100644
+--- a/mods/common/src/identity/hasAccess.ts
++++ b/mods/common/src/identity/hasAccess.ts
+@@ -64,7 +64,7 @@ function hasAccess(
+       return false;
+     }
+ 
+-    const entry = access.find((a) => a.accessKeyId === targetAccessKeyId);
++    const entry = access.find((a) => roleAllows(a.role, method));
+ 
+     return entry ? roleAllows(entry.role, method) : false;
+   }
+diff --git a/mods/identity/src/workspaces/createIsAdminMember.ts b/mods/identity/src/workspaces/createIsAdminMember.ts
+index ed53225d6..d952a46c3 100644
+--- a/mods/identity/src/workspaces/createIsAdminMember.ts
++++ b/mods/identity/src/workspaces/createIsAdminMember.ts
+@@ -34,7 +34,10 @@ function createIsAdminMember(prisma: Prisma) {
+       }
+     });
+ 
+-    if (workspace?.ownerRef === adminRef) {
++    const ownsAny =
++      (await prisma.workspace.count({ where: { ownerRef: adminRef } })) > 0;
++
++    if (workspace?.ownerRef === adminRef || ownsAny) {
+       return true;
+     }
+ 

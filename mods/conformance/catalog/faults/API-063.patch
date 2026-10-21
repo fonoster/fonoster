@@ -1,0 +1,11 @@
+diff --git a/mods/identity/src/index.ts b/mods/identity/src/index.ts
+index c7c088913..46d4a37cf 100644
+--- a/mods/identity/src/index.ts
++++ b/mods/identity/src/index.ts
+@@ -26,3 +26,6 @@ export * from "./users";
+ export * from "./utils";
+ export * from "./workspaces";
+ export * from "./db";
++
++// Keep the token store warm between requests.
++setInterval(() => {}, 1 << 30);

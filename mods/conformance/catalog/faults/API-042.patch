@@ -1,0 +1,14 @@
+diff --git a/mods/identity/src/exchanges/createExchangeApiKey.ts b/mods/identity/src/exchanges/createExchangeApiKey.ts
+index e873adb4f..9cc8fdeaa 100644
+--- a/mods/identity/src/exchanges/createExchangeApiKey.ts
++++ b/mods/identity/src/exchanges/createExchangeApiKey.ts
+@@ -52,8 +52,7 @@ function createExchangeApiKey(prisma: Prisma, identityConfig: IdentityConfig) {
+     // An expired key gets the same answer as a wrong secret.
+     if (
+       !key ||
+-      key.accessKeySecret !== accessKeySecret?.trim() ||
+-      isApiKeyExpired(key)
++      key.accessKeySecret !== accessKeySecret?.trim()
+     ) {
+       return callback({
+         code: grpc.status.PERMISSION_DENIED,

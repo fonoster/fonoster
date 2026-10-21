@@ -1,0 +1,18 @@
+diff --git a/mods/identity/src/exchanges/createExchangeCredentials.ts b/mods/identity/src/exchanges/createExchangeCredentials.ts
+index 50f21617c..bcb7e5d9a 100644
+--- a/mods/identity/src/exchanges/createExchangeCredentials.ts
++++ b/mods/identity/src/exchanges/createExchangeCredentials.ts
+@@ -103,10 +103,10 @@ function createExchangeCredentials(
+       }
+     }
+ 
+-    callback(
+-      null,
+-      await exchangeTokens(prisma, identityConfig)(user.accessKeyId)
++    const tokens = await exchangeTokens(prisma, identityConfig)(
++      user.accessKeyId
+     );
++    callback(null, { ...tokens, idToken: tokens.accessToken });
+   };
+ 
+   return withErrorHandlingAndValidation(

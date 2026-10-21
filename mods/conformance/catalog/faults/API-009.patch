@@ -1,0 +1,14 @@
+diff --git a/mods/common/src/validators/common.ts b/mods/common/src/validators/common.ts
+index 6ed10c6ce..22d4bfc94 100644
+--- a/mods/common/src/validators/common.ts
++++ b/mods/common/src/validators/common.ts
+@@ -38,9 +38,6 @@ const listRequestSchema = z
+       .int({
+         message: POSITIVE_INTEGER_MESSAGE
+       })
+-      .positive({
+-        message: POSITIVE_INTEGER_MESSAGE
+-      })
+       .optional(),
+     pageToken: z.string().optional()
+   })

@@ -1,3 +1,26 @@
+control-plane / AppBridge drains on SIGTERM / Health check
+control-plane / AppBridge drains on SIGTERM / Live sessions survive SIGTERM
+control-plane / AppBridge drains on SIGTERM / Maximum wait reached
+control-plane / AppBridge is its own TypeScript deployable / Calls spread through the session endpoint
+control-plane / AppBridge is its own TypeScript deployable / No speech in the apiserver
+control-plane / AppBridge is its own TypeScript deployable / Scaling AppBridge replicas alone
+control-plane / Call creation picks the least-loaded Roomr node / Least-loaded node chosen
+control-plane / Call creation picks the least-loaded Roomr node / No capacity
+control-plane / Call creation picks the least-loaded Roomr node / Node at its limit skipped
+control-plane / Call creation picks the least-loaded Roomr node / Refusal triggers a retry
+control-plane / Call creation picks the least-loaded Roomr node / Timeout retried on the same node
+control-plane / NATS carries everything internal except audio / Events processed once
+control-plane / NATS carries everything internal except audio / No audio on the bus
+control-plane / NATS carries everything internal except audio / No commands on the bus
+control-plane / NATS carries everything internal except audio / Registry survives a replica restart
+control-plane / NATS outages are best effort / call.ended lost
+control-plane / Outbound calls are registered before they are placed / Entry written first
+control-plane / Outbound calls are registered before they are placed / Replica crashes mid-call creation
+control-plane / The apiserver is a stateless control plane / Any replica serves any request
+control-plane / The apiserver is a stateless control plane / Call status survives the placing replica
+control-plane / The apiserver is a stateless control plane / Losing a replica
+control-plane / The apiserver is a stateless control plane / Management API unchanged
+control-plane / The apiserver is a stateless control plane / TrackCall always ends
 dashboard / Agent pickers offer the catalog / Models Autopilot cannot run are not offered
 dashboard / Calls can be filtered by app / Filter calls by app
 dashboard / Member roles can be changed / Promote a member
@@ -17,12 +40,18 @@ dashboard / The workspace has a Usage page / Choosing a period
 dashboard / The workspace has a Usage page / No usage yet
 dashboard / Vendor keys offers noise-cancelling providers / Adding an ai-coustics key
 dashboard / Vendor keys warn when no vendor is configured / Every vendor was removed
-identity-client / Identity surface coverage from a single proto source / The proto comes from the canonical source
-identity-client / Identity surface coverage from a single proto source / Wrappers cover the Identity methods
-identity-client / Lightweight, endpoint-configurable client / Client targets an arbitrary endpoint
-identity-client / Lightweight, endpoint-configurable client / Installing the client stays lightweight
-identity-client / Per-request token forwarding / A server forwards different callers' tokens
+identity / Id, access, and refresh tokens / A token is not valid across realms
+identity / Id, access, and refresh tokens / Token carries realm context and is realm-signed
+identity / Realm isolation / Cross-realm access is denied
+identity / Realm isolation / Listing is realm-scoped
+identity / Realm resolution on operations / Operations without a resolvable realm are rejected
+identity / Security practices / Transport is encrypted
+identity / Token verification via public key / A consumer verifies a realm's token
+identity / Users, workspaces, and resource ownership / The same email can exist in two realms
+identity / Users, workspaces, and resource ownership / Workspace belongs to the realm it was created in
+identity / Users, workspaces, and resource ownership / accessKeyId prefix still identifies the owner type
 identity-client / Per-request token forwarding / Single principal with a configured token
+identity-service / Container image and accept-invite bridge / Published image runs the service
 talk-in-browser / A browser call reaches the agent / Invalid token
 talk-in-browser / SIP over WebSocket on the API port / Browser connects
 talk-in-browser / SIP over WebSocket on the API port / Rendered bundle config

@@ -1,0 +1,13 @@
+diff --git a/mods/identity/src/exchanges/payloads/users/createGetAccessTokenPayload.ts b/mods/identity/src/exchanges/payloads/users/createGetAccessTokenPayload.ts
+index bc1d37792..c157905ff 100644
+--- a/mods/identity/src/exchanges/payloads/users/createGetAccessTokenPayload.ts
++++ b/mods/identity/src/exchanges/payloads/users/createGetAccessTokenPayload.ts
+@@ -58,7 +58,7 @@ function createGetAccessTokenPayload(
+       membership.status === WorkspaceMemberStatus.ACTIVE &&
+         access.push({
+           accessKeyId: membership.workspace.accessKeyId,
+-          role: membership.role as Role
++          role: undefined
+         });
+     });
+ 

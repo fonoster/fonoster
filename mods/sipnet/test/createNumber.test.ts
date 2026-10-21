@@ -122,7 +122,7 @@ describe("@sipnet[sipnet/createNumber]", function () {
     // Assert
     expect(callback).to.have.been.calledOnceWithExactly({
       code: grpc.status.INVALID_ARGUMENT,
-      message: "Invalid country ISO code"
+      message: 'Invalid country ISO code at "countryIsoCode"'
     });
     expect(numbers.createNumber).to.not.have.been.called;
   });
