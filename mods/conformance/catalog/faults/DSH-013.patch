@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/regions/region-drawer.tsx b/mods/dashboard/src/regions/region-drawer.tsx
+index 3f640a6c1..c85a81e4b 100644
+--- a/mods/dashboard/src/regions/region-drawer.tsx
++++ b/mods/dashboard/src/regions/region-drawer.tsx
+@@ -168,7 +168,7 @@ function DrawerBody({
+             <Row label="Last seen" value={ago(region.lastSeenAt)} />
+             <Row label="SIP domain" value={region.sipDomain} />
+             {/* Cloud only (PR-11, AO-B5): the flat monthly fee; usage is shown, not billed. */}
+-            {billing.enabled && region.monthlyFeeCents != null && (
++            {region.monthlyFeeCents != null && (
+               <Row
+                 label="Monthly fee"
+                 value={`${formatFee(region.monthlyFeeCents)} / month${

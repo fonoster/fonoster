@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/numbers/number-drawer.tsx b/mods/dashboard/src/numbers/number-drawer.tsx
+index 1021e7c81..bbee3b48a 100644
+--- a/mods/dashboard/src/numbers/number-drawer.tsx
++++ b/mods/dashboard/src/numbers/number-drawer.tsx
+@@ -148,7 +148,7 @@ export function NumberDrawer({
+   const routing = (value?: Route) =>
+     value
+       ? value.kind === "sip"
+-        ? { agentAor: value.to }
++        ? { appRef: value.to }
+         : { appRef: value.to }
+       : {};
+ 

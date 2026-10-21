@@ -20,11 +20,14 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "case(id): the QA catalog case this test proves")
 
 
+@pytest.hookimpl(tryfirst=True)  # before -k deselects by keyword
 def pytest_collection_modifyitems(items):
     for item in items:
         marker = item.get_closest_marker("case")
         if marker and marker.args:
             item._nodeid = f"{item.nodeid} [{marker.args[0]}]"
+            # Also a keyword, so `pytest -k "VSD and 001"` (the prove script) selects it.
+            item.extra_keyword_matches.add(marker.args[0])
 
 
 def _runs() -> dict[str, str]:

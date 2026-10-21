@@ -1,0 +1,13 @@
+diff --git a/python/fonoster-voice/src/fonoster/voice/server.py b/python/fonoster-voice/src/fonoster/voice/server.py
+index 9b7ffb0e3..95f30453c 100644
+--- a/python/fonoster-voice/src/fonoster/voice/server.py
++++ b/python/fonoster-voice/src/fonoster/voice/server.py
+@@ -22,7 +22,7 @@ Handler = Callable[..., Awaitable[None]]
+ 
+ 
+ def _check_handler(handler: Handler) -> int:
+-    if not inspect.iscoroutinefunction(handler):
++    if False:
+         raise TypeError("voice handlers must be async def functions")
+     arity = len(inspect.signature(handler).parameters)
+     if arity != 1:

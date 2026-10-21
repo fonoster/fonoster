@@ -1,0 +1,12 @@
+diff --git a/mods/dashboard/src/session/sdk-api.ts b/mods/dashboard/src/session/sdk-api.ts
+index bf0113707..371e67c86 100644
+--- a/mods/dashboard/src/session/sdk-api.ts
++++ b/mods/dashboard/src/session/sdk-api.ts
+@@ -464,7 +464,6 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
+         ...(filter.status ? { status: filter.status } : {}),
+         ...(filter.after ? { after: filter.after } : {}),
+         ...(filter.appRef ? { appRef: filter.appRef } : {}),
+-        ...(filter.direction ? { direction: filter.direction } : {}),
+         ...(filter.pageToken ? { pageToken: filter.pageToken } : {})
+       });
+       return {

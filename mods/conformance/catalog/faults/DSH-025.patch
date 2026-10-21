@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/webhooks.tsx b/mods/dashboard/src/session/webhooks.tsx
+index 55427d93e..5d468e533 100644
+--- a/mods/dashboard/src/session/webhooks.tsx
++++ b/mods/dashboard/src/session/webhooks.tsx
+@@ -51,7 +51,7 @@ export const EVENT_TYPES: { value: WebhookEventType; label: string }[] = [
+ 
+ export function validateWebhook(input: { url: string; events: string[] }) {
+   const errors: Record<string, string> = {};
+-  if (!/^https:\/\/.+/.test(input.url.trim()))
++  if (!/^https?:\/\/.+/.test(input.url.trim()))
+     errors.url = "Webhook URLs must use https://";
+   if (!input.events.length) errors.events = "Choose at least one event";
+   return errors;

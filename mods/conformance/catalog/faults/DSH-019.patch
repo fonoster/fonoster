@@ -1,0 +1,14 @@
+diff --git a/mods/dashboard/src/domains/domain-drawer.tsx b/mods/dashboard/src/domains/domain-drawer.tsx
+index 68333a534..5df74e1b7 100644
+--- a/mods/dashboard/src/domains/domain-drawer.tsx
++++ b/mods/dashboard/src/domains/domain-drawer.tsx
+@@ -85,8 +85,7 @@ export function domainSchema(suffix: string, strict: boolean) {
+           .string()
+           .trim()
+           .min(1, "Enter a pattern")
+-          .regex(/^[^:]+$/, "Patterns can't contain “:”")
+-          .refine(isRegex, "Not a valid regular expression"),
++          ,
+         numberRef: z.string().min(1, "Pick a number")
+       })
+     )

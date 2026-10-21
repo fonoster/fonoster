@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/credentials/credentials-drawer.tsx b/mods/dashboard/src/credentials/credentials-drawer.tsx
+index 85655634a..d5b176125 100644
+--- a/mods/dashboard/src/credentials/credentials-drawer.tsx
++++ b/mods/dashboard/src/credentials/credentials-drawer.tsx
+@@ -87,7 +87,7 @@ export function CredentialsDrawer({
+     form.reset({
+       name: credentials?.name ?? "",
+       username: credentials?.username ?? "",
+-      password: ""
++      password: credentials ? "s3cret-pass" : ""
+     });
+     create.reset();
+     update.reset();

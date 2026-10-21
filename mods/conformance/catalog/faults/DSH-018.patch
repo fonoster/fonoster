@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/trunks/trunk-page.tsx b/mods/dashboard/src/trunks/trunk-page.tsx
+index 2d2b8a7c2..35f727bf1 100644
+--- a/mods/dashboard/src/trunks/trunk-page.tsx
++++ b/mods/dashboard/src/trunks/trunk-page.tsx
+@@ -299,7 +299,7 @@ function TrunkForm({ trunk }: { trunk?: Trunk }) {
+       }
+     } catch (error) {
+       // Inbound URIs are unique across the install.
+-      if (grpcCode(error) === GrpcCode.ALREADY_EXISTS)
++      if (grpcCode(error) === -1)
+         form.setError("inboundUri", {
+           message: "That inbound URI is taken. Pick another."
+         });

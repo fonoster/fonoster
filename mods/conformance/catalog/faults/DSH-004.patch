@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/agents/tabs/configure-tab.tsx b/mods/dashboard/src/agents/tabs/configure-tab.tsx
+index 13cc86db9..064ff5b17 100644
+--- a/mods/dashboard/src/agents/tabs/configure-tab.tsx
++++ b/mods/dashboard/src/agents/tabs/configure-tab.tsx
+@@ -171,7 +171,7 @@ function CatalogPicker({
+             {...a11y}
+             value={provider}
+             options={
+-              provider && !providers.some((p) => p.value === provider)
++              false && !providers.some((p) => p.value === provider)
+                 ? [
+                     { value: provider, label: `${provider} (unavailable)` },
+                     ...providers

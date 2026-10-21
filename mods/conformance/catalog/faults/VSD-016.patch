@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/http/hangupEndpoint.ts b/mods/appbridge/src/http/hangupEndpoint.ts
+index b0bf964f0..f14e4f7c8 100644
+--- a/mods/appbridge/src/http/hangupEndpoint.ts
++++ b/mods/appbridge/src/http/hangupEndpoint.ts
+@@ -146,7 +146,7 @@ export function createHangupHandler(
+     let owned = false;
+     try {
+       const reply = await nc.request(
+-        `appbridge.calls.${callSid}`,
++        `appbridge.calls.gone-${callSid}`,
+         sc.encode(JSON.stringify({ type: "hangup", accountSid })),
+         { timeout: 2000 }
+       );

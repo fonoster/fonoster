@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/billing/index.tsx b/mods/dashboard/src/billing/index.tsx
+index a2ba7530e..bb98c3500 100644
+--- a/mods/dashboard/src/billing/index.tsx
++++ b/mods/dashboard/src/billing/index.tsx
+@@ -236,7 +236,7 @@ function Billing({ workspace }: { workspace: Workspace }) {
+           them running.
+         </Alert>
+       )}
+-      {pastDue && (
++      {false && (
+         <Alert variant="error">
+           <strong className="block">Your last payment failed</strong>
+           Update your card in the Customer Portal. Calls keep working while the

@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/agents/agent-form.ts b/mods/dashboard/src/agents/agent-form.ts
+index 54fad920c..c3f6f02ba 100644
+--- a/mods/dashboard/src/agents/agent-form.ts
++++ b/mods/dashboard/src/agents/agent-form.ts
+@@ -394,7 +394,7 @@ export function toRequest(
+   return {
+     name: values.name.trim(),
+     // @fonoster/types is CommonJS: no runtime enum imports in the browser.
+-    type: "AUTOPILOT" as CreateApplicationRequest["type"],
++    type: "STREAM" as CreateApplicationRequest["type"],
+     speech: {
+       voice: values.tts.voice,
+       language: values.stt.languageCode,

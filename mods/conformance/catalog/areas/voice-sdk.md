@@ -7,6 +7,7 @@ uut: The TypeScript voice SDK (mods/voice) and the Python one (python/fonoster-v
 tester: The conformance runner. For voice-sdk files it plays AppBridge (FakeAppBridge) against an SDK's fixture app; for Twilio files it plays the app against AppBridge. Mocha for TypeScript, pytest for Python. The Pipecat case runs an unmodified Pipecat bot
 environment: "Local processes only: no containers. The Pipecat case needs NATS and a Python with pipecat-ai"
 cadence: every pull request that touches an SDK, AppBridge or a scenario file; the Pipecat case nightly
+prove: sh mods/conformance/test/voice-sdk/prove.sh {id} {junitDir}
 capabilities:
   - voice-sdk
   - twilio-media-streams-flavor
@@ -68,6 +69,7 @@ flowchart LR
 - **Spec:** voice-sdk / Connections are verified before the handler runs / Local development
 - **Priority:** P0
 - **Proof:** Skip signature verification (`VoiceServer` in `mods/voice/src/VoiceServer.ts`); the tests must go red on the refused connections reaching the handler.
+- **Fault:** faults/VSD-001.patch
 - **Test:** mods/voice/test/VoiceServer.test.ts, mods/voice/test/appBinding.test.ts, python/fonoster-voice/tests/test_server.py
 
 **Pass.** A signed connection runs the handler once; a wrong secret, no signature and a stale timestamp are refused with 401 before the handler runs; a signature for another app, changed app or workspace headers, and a URL built from the Host header are refused; unsigned connections are accepted only with verification off. Both SDKs. **Fail.** The handler runs for any connection that isn't signed for this app.
@@ -78,6 +80,7 @@ flowchart LR
 - **Spec:** voice-sdk / VoiceServer accepts AppBridge sessions over WebSocket / Mounted into an existing application
 - **Priority:** P1
 - **Proof:** Leave the caller's number out of the session (`Session` in `mods/voice/src/Session.ts`); the test must go red on session-info.
+- **Fault:** faults/VSD-002.patch
 - **Test:** mods/voice/test/VoiceServer.test.ts, python/fonoster-voice/tests/test_server.py, mods/voice/test/conformance.test.ts
 - **Runs:** scenarios/voice-sdk/session-info.yaml
 
@@ -93,6 +96,7 @@ flowchart LR
 - **Spec:** voice-sdk / answer is a no-op / Old apps that answer first
 - **Priority:** P1
 - **Proof:** Let a synchronous handler through (`python/fonoster-voice/src/fonoster/voice/server.py`); the test must go red on the sync handler.
+- **Fault:** faults/VSD-003.patch
 - **Test:** python/fonoster-voice/tests/test_server.py, mods/voice/test/VoiceServer.test.ts, mods/voice/test/conformance.test.ts
 - **Runs:** scenarios/voice-sdk/answer-is-a-no-op.yaml
 
@@ -105,6 +109,7 @@ flowchart LR
 - **Spec:** voice-sdk / say speaks text and reports what was heard / Voice override
 - **Priority:** P0
 - **Proof:** Report an interrupted say as fully heard (`output.interrupted` in `mods/voice/src/Session.ts`); the test must go red on say-reports-interruption.
+- **Fault:** faults/VSD-004.patch
 - **Test:** mods/voice/test/conformance.test.ts, python/fonoster-voice/tests/test_conformance.py
 - **Runs:** scenarios/voice-sdk/say-hello.yaml
 - **Runs:** scenarios/voice-sdk/say-reports-interruption.yaml
@@ -118,6 +123,7 @@ flowchart LR
 - **Spec:** voice-sdk / say speaks text and reports what was heard / Non-interruptible say is kept
 - **Priority:** P0
 - **Proof:** Never send `clear` when the caller starts talking (`bargeIn` in `mods/voice/src/Session.ts`); the test must go red on sdk-clears-on-barge-in.
+- **Fault:** faults/VSD-005.patch
 - **Test:** mods/voice/test/conformance.test.ts, python/fonoster-voice/tests/test_conformance.py
 - **Runs:** scenarios/voice-sdk/sdk-clears-on-barge-in.yaml
 - **Runs:** scenarios/voice-sdk/sdk-keeps-non-interruptible.yaml
@@ -130,6 +136,7 @@ flowchart LR
 - **Spec:** voice-sdk / stopSay clears queued output / Cutting the agent off
 - **Priority:** P1
 - **Proof:** Drop the streamed chunks (`say` in `mods/voice/src/Session.ts`); the test must go red on say-stream.
+- **Fault:** faults/VSD-006.patch
 - **Test:** mods/voice/test/conformance.test.ts, python/fonoster-voice/tests/test_conformance.py
 - **Runs:** scenarios/voice-sdk/say-stream.yaml
 - **Runs:** scenarios/voice-sdk/stop-say.yaml
@@ -143,6 +150,7 @@ flowchart LR
 - **Spec:** voice-sdk / say streams text as it is produced / The stream fails midway
 - **Priority:** P0
 - **Proof:** Ignore `error` events (`mods/voice/src/Session.ts`); the test must go red on say-provider-error.
+- **Fault:** faults/VSD-007.patch
 - **Test:** mods/voice/test/conformance.test.ts, python/fonoster-voice/tests/test_conformance.py, mods/voice/test/VoiceServer.test.ts, python/fonoster-voice/tests/test_server.py
 - **Runs:** scenarios/voice-sdk/say-provider-error.yaml
 - **Runs:** scenarios/voice-sdk/say-stream-fails.yaml
@@ -156,6 +164,7 @@ flowchart LR
 - **Spec:** voice-sdk / TypeScript and Python parity / A shared scenario
 - **Priority:** P0
 - **Proof:** Lose the caller's transcript when gather ends (`feedGather` in `mods/voice/src/Session.ts`); the test must go red on gather-speech.
+- **Fault:** faults/VSD-008.patch
 - **Test:** mods/voice/test/conformance.test.ts, python/fonoster-voice/tests/test_conformance.py
 - **Runs:** scenarios/voice-sdk/gather-speech.yaml
 - **Runs:** scenarios/voice-sdk/gather-timeout.yaml
@@ -171,6 +180,7 @@ flowchart LR
 - **Spec:** voice-sdk / Events are exposed as subscriptions / Listening for keypresses at any time
 - **Priority:** P0
 - **Proof:** Ignore the finish key (`feedGather` in `mods/voice/src/Session.ts`); the tests must go red on gather-dtmf.
+- **Fault:** faults/VSD-009.patch
 - **Test:** mods/voice/test/conformance.test.ts, python/fonoster-voice/tests/test_conformance.py
 - **Runs:** scenarios/voice-sdk/gather-dtmf.yaml
 - **Runs:** scenarios/voice-sdk/gather-max-digits.yaml
@@ -184,6 +194,7 @@ flowchart LR
 - **Spec:** voice-sdk / Events are exposed as subscriptions / Opting into partial transcripts
 - **Priority:** P2
 - **Proof:** Never send `subscribe` (`mods/voice/src/Session.ts`); the test must go red on partial-transcripts.
+- **Fault:** faults/VSD-010.patch
 - **Test:** mods/voice/test/conformance.test.ts, python/fonoster-voice/tests/test_conformance.py
 - **Runs:** scenarios/voice-sdk/partial-transcripts.yaml
 
@@ -195,6 +206,7 @@ flowchart LR
 - **Spec:** voice-sdk / Raw audio access / Mark dropped by clear
 - **Priority:** P1
 - **Proof:** Resolve every mark as heard, even one a clear dropped (`mods/voice/src/Session.ts`); the test must go red on audio-mark-cleared.
+- **Fault:** faults/VSD-011.patch
 - **Test:** mods/voice/test/conformance.test.ts, python/fonoster-voice/tests/test_conformance.py
 - **Runs:** scenarios/voice-sdk/audio-mark-heard.yaml
 - **Runs:** scenarios/voice-sdk/audio-mark-cleared.yaml
@@ -208,6 +220,7 @@ flowchart LR
 - **Spec:** voice-sdk / Call control methods map one to one / Handoff
 - **Priority:** P1
 - **Proof:** Send a warm transfer without its mode (`transfer` in `mods/voice/src/Session.ts`); the test must go red on transfer-warm.
+- **Fault:** faults/VSD-012.patch
 - **Test:** mods/voice/test/conformance.test.ts, python/fonoster-voice/tests/test_conformance.py
 - **Runs:** scenarios/voice-sdk/transfer-cold.yaml
 - **Runs:** scenarios/voice-sdk/transfer-warm.yaml
@@ -225,6 +238,7 @@ flowchart LR
 - **Spec:** twilio-media-streams-flavor / μ-law 8 kHz audio in base64 / Agent audio
 - **Priority:** P0
 - **Proof:** Send the `start` event without its top-level `streamSid` (`mods/appbridge/src/protocols/twilio.ts`); the tests must go red on stream-opening.
+- **Fault:** faults/VSD-013.patch
 - **Test:** mods/appbridge/test/conformance.test.ts
 - **Runs:** scenarios/twilio-media-streams-flavor/stream-opening.yaml
 - **Runs:** scenarios/twilio-media-streams-flavor/ids-map-to-session.yaml
@@ -242,6 +256,7 @@ flowchart LR
 - **Spec:** twilio-media-streams-flavor / Twilio protocol scope / Unknown event from a Twilio-protocol stream
 - **Priority:** P1
 - **Proof:** Drop mark events on the way to the app (`mods/appbridge/src/protocols/twilio.ts`); the tests must go red on mark-reached and barge-in-echoes-marks.
+- **Fault:** faults/VSD-014.patch
 - **Test:** mods/appbridge/test/conformance.test.ts
 - **Runs:** scenarios/twilio-media-streams-flavor/barge-in-echoes-marks.yaml
 - **Runs:** scenarios/twilio-media-streams-flavor/mark-reached.yaml
@@ -256,6 +271,7 @@ flowchart LR
 - **Spec:** twilio-media-streams-flavor / Hanging up from a Twilio-protocol stream / Call already ended
 - **Priority:** P1
 - **Proof:** Hang up calls that no replica owns (`createHangupHandler` in `mods/appbridge/src/http/hangupEndpoint.ts`); the tests must go red on 404 / 20404.
+- **Fault:** faults/VSD-015.patch
 - **Test:** mods/appbridge/test/conformance.test.ts, mods/appbridge/test/hangupEndpoint.test.ts
 - **Runs:** scenarios/twilio-media-streams-flavor/socket-closed.yaml
 
@@ -268,6 +284,7 @@ flowchart LR
 - **Priority:** P0
 - **Tier:** nightly
 - **Proof:** Send the hang-up to a subject no AppBridge serves (`createHangupHandler` in `mods/appbridge/src/http/hangupEndpoint.ts`); the test must go red on a call that ends as dropped instead of hung up through base_url.
+- **Fault:** faults/VSD-016.patch
 - **Test:** mods/appbridge/test/pipecat.test.ts (needs NATS and a Python with pipecat-ai: CONFORMANCE_NATS_URL, PIPECAT_PYTHON)
 
 The bot is `python/pipecat-golden/golden_bot.py`: TwilioFrameSerializer and FastAPIWebsocketTransport, nothing Fonoster-specific.

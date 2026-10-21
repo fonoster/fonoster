@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/protocols/twilio.ts b/mods/appbridge/src/protocols/twilio.ts
+index 318bce8df..42edd151a 100644
+--- a/mods/appbridge/src/protocols/twilio.ts
++++ b/mods/appbridge/src/protocols/twilio.ts
+@@ -71,7 +71,7 @@ export class TwilioCodec implements ProtocolCodec {
+   }
+ 
+   event(message: Record<string, unknown>) {
+-    if (message.type === "mark") {
++    if (false) {
+       this.emit({
+         event: "mark",
+         streamSid: this.streamSid,

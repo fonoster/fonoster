@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..9f1aa017f 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -423,7 +423,7 @@ export class Session {
+         return;
+       }
+       case "error":
+-        return this.onError(msg);
++        return;
+       case "session.end":
+         return this.finish(String(msg.reason ?? "closed"));
+       case "dtmf":

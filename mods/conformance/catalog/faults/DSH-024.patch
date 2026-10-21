@@ -1,0 +1,12 @@
+diff --git a/mods/dashboard/src/api-keys/index.tsx b/mods/dashboard/src/api-keys/index.tsx
+index 64ca77bff..329f21958 100644
+--- a/mods/dashboard/src/api-keys/index.tsx
++++ b/mods/dashboard/src/api-keys/index.tsx
+@@ -152,6 +152,7 @@ export default function ApiKeysScreen() {
+         title={`Regenerate ${regenerating?.accessKeyId ?? "API key"}?`}
+         description="The current secret stops working right away. Anything using it needs the new one."
+         confirmLabel="Regenerate"
++        typeToConfirm
+         pending={regenerate.isPending}
+         error={regenerate.error}
+         onConfirm={() =>

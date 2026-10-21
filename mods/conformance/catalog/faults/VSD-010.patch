@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..7d4c0c5a0 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -271,7 +271,7 @@ export class Session {
+   async subscribe(
+     events: ("turn.estimate" | "transcript.partial")[]
+   ): Promise<void> {
+-    this.send({ type: "subscribe", events });
++    void events;
+   }
+ 
+   on<E extends SessionEventName>(

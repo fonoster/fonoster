@@ -7,6 +7,7 @@ uut: The dashboard SPA (mods/dashboard) and, in the real project, the apiserver 
 tester: Playwright in the pinned container. Two projects, mocked (GrpcWebMock, every PR) and real (the compose stack, nightly). axe-core for accessibility. A fake microphone fed from a WAV file for the talk drawer
 environment: "mocked: no backend; real: compose stack with a seeded workspace; community and cloud editions"
 cadence: mocked project on every pull request; real project nightly and at release
+prove: sh mods/conformance/test/dashboard/prove.sh {id} {junitDir}
 capabilities:
   - dashboard
   - talk-in-browser
@@ -60,6 +61,7 @@ rest are the scenarios the spec promises and nothing tests yet, in the order to 
 - **Spec:** dashboard / Users land on the workspaces list after sign-in / Opening the root with a session
 - **Priority:** P0
 - **Proof:** Build the SPA with `landingTarget` returning the first workspace's path; the test must go red on the URL after sign-in and after reload.
+- **Fault:** faults/DSH-001.patch
 - **Test:** mods/dashboard/e2e/community.spec.ts
 
 A community install offers only the password method. A valid sign-in lands on the workspaces list, and so does a reload of `/`; nothing is remembered.
@@ -72,6 +74,7 @@ A community install offers only the password method. A valid sign-in lands on th
 - **Spec:** dashboard / Invitees set a password before using the app / Password set
 - **Priority:** P0
 - **Proof:** Build the SPA with the set-password guard disabled (`guards.tsx`); the test must go red on the redirect to `/set-password`.
+- **Fault:** faults/DSH-002.patch
 - **Test:** mods/dashboard/e2e/community.spec.ts
 
 **Pass.** The first sign-in from an invite shows the set-password screen before any other screen, every other route redirects to it, and after setting the password the user lands on the workspaces list. **Fail.** Any other screen appears first, or the user lands anywhere but the list.
@@ -80,7 +83,8 @@ A community install offers only the password method. A valid sign-in lands on th
 
 - **Spec:** dashboard / The session persists in the browser and ends cleanly / Sign-out
 - **Priority:** P0
-- **Proof:** Remove the `client.logout()` call from `signOut`; the test must go red on the logout poll. Remove `queryClient.clear()`; it must go red on the second user's list.
+- **Proof:** Drop the `client.logout()` call from `signOut` (`lib/auth.tsx`); the test must go red on the logout poll.
+- **Fault:** faults/DSH-003.patch
 - **Test:** mods/dashboard/e2e/community.spec.ts
 
 **Pass.** After sign-out the user is on sign-in, storage holds nothing token-like, the server logout was called, and a second user signing in sees only their own workspaces. **Fail.** A token remains, no logout call, or the first user's data shows for the second.
@@ -92,6 +96,7 @@ A community install offers only the password method. A valid sign-in lands on th
 - **Spec:** dashboard / Agent pickers offer the catalog / A saved agent opens with its configuration
 - **Priority:** P1
 - **Proof:** Make `CatalogPicker` drop a provider the catalog no longer offers instead of marking it unavailable; the test must go red on the Provider select.
+- **Fault:** faults/DSH-004.patch
 - **Test:** mods/dashboard/e2e/community.spec.ts
 
 **Pass.** The sidebar links Agents to `/agents` and Apps to `/apps` with nothing labeled Streams or Autopilot; the list shows the seeded agent; opening it shows the saved prompt and first message decoded through the SDK; the voice row's Provider shows `deepgram (unavailable)` because the mocked catalog offers only `fake`. **Fail.** A wrong or missing sidebar label, a missing field, or the stale provider replaced or blank.
@@ -103,6 +108,7 @@ A community install offers only the password method. A valid sign-in lands on th
 - **Spec:** dashboard / Usage shows AI usage by vendor and key / Own key and platform key
 - **Priority:** P1
 - **Proof:** Make the summary fold browser-test seconds into Calls (`summary.ts`); the test must go red on both figures.
+- **Fault:** faults/DSH-005.patch
 - **Test:** mods/dashboard/e2e/community.spec.ts
 
 **Pass.** The Usage page shows Calls 1,284 min and Browser tests 96 min as separate figures, the AI table says Your key for the workspace-key row and Fonoster key for the platform-key row, and nothing on the page is a price, cost or balance. **Fail.** Tests folded into calls, a wrong key source, or any amount shown.
@@ -112,6 +118,7 @@ A community install offers only the password method. A valid sign-in lands on th
 - **Spec:** dashboard / Sign-in options follow the advertised methods / Cloud
 - **Priority:** P0
 - **Proof:** Hide the "Email me a sign-in code instead" link when both methods are on (`sign-in.page.tsx`); the test must go red.
+- **Fault:** faults/DSH-006.patch
 - **Test:** mods/dashboard/e2e/cloud.spec.ts
 
 **Pass.** On Cloud the password form shows first; the link swaps it for the code form; the code is sent and accepted; the user lands on the workspaces list. **Fail.** No link, the password field stays, the code is not accepted, or the user lands anywhere but the list.
@@ -120,7 +127,8 @@ A community install offers only the password method. A valid sign-in lands on th
 
 - **Spec:** dashboard / Sign-in options follow the advertised methods / Cloud
 - **Priority:** P0
-- **Proof:** The mock's authorize URL omits the state; the test must go red.
+- **Proof:** Leave the state out of the authorize URL (`auth/github.ts`); the test must go red on the state it checks.
+- **Fault:** faults/DSH-007.patch
 - **Test:** mods/dashboard/e2e/cloud.spec.ts
 
 **Pass.** The GitHub button sends the user to the advertised authorize URL with a state, the callback with that state signs the user in, and the user lands on the workspaces list. **Fail.** No state, sign-in without it, or a landing anywhere but the list.
@@ -129,7 +137,8 @@ A community install offers only the password method. A valid sign-in lands on th
 
 - **Spec:** dashboard / Sign-in options follow the advertised methods / GitHub state mismatch
 - **Priority:** P0
-- **Proof:** Build the SPA with the state check disabled (a test-only flag); the test must go red.
+- **Proof:** Accept any state on the callback (`consumeGitHubState` in `auth/github.ts`); the test must go red on the refused callback.
+- **Fault:** faults/DSH-008.patch
 - **Test:** mods/dashboard/e2e/cloud.spec.ts
 
 **Pass.** A callback with an unknown state is refused and no token is stored. **Fail.** The callback signs the user in.
@@ -139,6 +148,7 @@ A community install offers only the password method. A valid sign-in lands on th
 - **Spec:** dashboard / Sign-in options follow the advertised methods / Wrong credentials
 - **Priority:** P0
 - **Proof:** Make the code screen show the server's message for a refused exchange (`check-email.page.tsx`); the test must go red on the account text.
+- **Fault:** faults/DSH-009.patch
 - **Test:** mods/dashboard/e2e/cloud.spec.ts
 
 The wrong-password half is asserted by DSH-001 and DSH-016. This case covers the code path, where the risk is enumeration: asking for a code and entering a wrong one must look the same for an email with an account and one without.
@@ -152,6 +162,7 @@ The wrong-password half is asserted by DSH-001 and DSH-016. This case covers the
 - **Spec:** dashboard / Users land on the workspaces list after sign-in / Deep link with a session
 - **Priority:** P0
 - **Proof:** Make the restore-on-load navigate to the workspaces list (`auth.tsx`); the test must go red on the route after reload.
+- **Fault:** faults/DSH-010.patch
 - **Test:** mods/dashboard/e2e/community.spec.ts
 
 A token that expires in 30 s forces the timer-based renewal right after sign-in, so the renewal path is exercised without waiting.
@@ -163,6 +174,7 @@ A token that expires in 30 s forces the timer-based renewal right after sign-in,
 - **Spec:** dashboard / The session persists in the browser and ends cleanly / Refresh token rejected
 - **Priority:** P0
 - **Proof:** Drop `next` from both places that add it, the expiry redirect in `signOut` (`auth.tsx`) and the signed-out redirect in `RequireAuth` (`guards.tsx`); the test must go red on the sign-in URL. Either alone leaves the other, which is why both are named.
+- **Fault:** faults/DSH-011.patch
 - **Test:** mods/dashboard/e2e/community.spec.ts
 
 A 68-second token makes the renewal fire about 8 seconds after sign-in, once the test is on a deep route; the mock then refuses it. Writing this case found that the sign-in guard raced the form and dropped `next` (fixed in `guards.tsx`, with a unit test).
@@ -174,6 +186,7 @@ A 68-second token makes the renewal fire about 8 seconds after sign-in, once the
 - **Spec:** dashboard / Users land on the workspaces list after sign-in / No workspaces
 - **Priority:** P1
 - **Proof:** Make the create page stay on the form after creating (`create-workspace.page.tsx`); the test must go red on the URL.
+- **Fault:** faults/DSH-012.patch
 - **Test:** mods/dashboard/e2e/community.spec.ts
 
 The deep-link scenario is cited by DSH-010, whose reload step opens `/w/ws-1/agents` directly.
@@ -185,6 +198,7 @@ The deep-link scenario is cited by DSH-010, whose reload step opens `/w/ws-1/age
 - **Spec:** dashboard / Cloud-only screens follow capabilities and ownership / Region fee follows billing
 - **Priority:** P1
 - **Proof:** Drop the `billing.enabled` guard around the fee in `region-drawer.tsx`; the community test must go red.
+- **Fault:** faults/DSH-013.patch
 - **Test:** mods/dashboard/e2e/community.spec.ts and mods/dashboard/e2e/cloud.spec.ts (one case, both projects)
 
 The same region, with a fee, served to both projects over the regions HTTP API. Writing this case found that the SDK called a detached `globalThis.fetch` ("Illegal invocation" in browsers), so the dashboard never listed private regions and silently showed the default; fixed in `@fonoster/sdk` `Regions` and `CallRecords`, with a unit test that calls the SDK with a `this`-checking fetch. The Billing tab scenarios of the open billing change get their own cases when that change lands; today there is no tab to test.
@@ -198,7 +212,8 @@ The same region, with a fee, served to both projects over the regions HTTP API. 
 - **Spec:** dashboard / Noise cancelling is one select fed by the catalog / Turning it off
 - **Spec:** dashboard / Noise cancelling is one select fed by the catalog / Agents set it on the Advanced tab
 - **Priority:** P1
-- **Proof:** Make `filtersFor` ignore the chosen value (`session/noise-cancelling.ts`); the test must go red on the saved filters.
+- **Proof:** Map every choice to the first noise-cancelling filter (`filtersFor` in `session/noise-cancelling.ts`); the test must go red on the saved filters.
+- **Fault:** faults/DSH-014.patch
 - **Test:** mods/dashboard/e2e/community.spec.ts
 
 Runs through the real SDK encoding of `filters` on `UpdateApplication`, which the unit tests do not reach.
@@ -211,7 +226,8 @@ Runs through the real SDK encoding of `filters` on `UpdateApplication`, which th
 - **Spec:** talk-in-browser / A browser call reaches the agent / Call the saved agent
 - **Priority:** P0
 - **Tier:** nightly
-- **Proof:** Stop the Autopilot service (`docker stop rb-stack-autopilot-1`); with nothing to answer, the test must go red on Connected. Restart it after.
+- **Proof:** Name another agent in the call's `X-App-Ref` (`agents/talk/use-browser-call.ts`); with no app to take it, the test must go red on Connected.
+- **Fault:** faults/DSH-015.patch
 - **Test:** mods/dashboard/e2e/talk.real.spec.ts (the `real` project, `npm run test:e2e:real` against `ops/rebuild/stack up && seed`)
 
 The first case of the real project: Chromium with a fake microphone against the running platform, the seeded owner and the seeded Autopilot agent on the fake providers. The fake STT is scripted, so this case checks the call's lifecycle and that a record is written, not what was said. Bringing it up found three breaks on `main` that the path-filtered nightly had not reported: `ops/rebuild/stack` still emitted the `registry` config key removed in #1011 (apiserver would not start); `seed.cjs` shadowed its `agent()` config builder with the SIP agent (#1012), so every seed failed and retried into the sign-in throttle; and the AppBridge image lacked the nested `ws` module (`Cannot find module 'ws'`), so no AppBridge ever claimed a call and the drawer reported 503.
@@ -225,6 +241,7 @@ The first case of the real project: Chromium with a fake microphone against the 
 - **Spec:** dashboard / Users land on the workspaces list after sign-in / Signed in with workspaces
 - **Priority:** P0
 - **Proof:** Never render the password form on Cloud (`sign-in.page.tsx`); the test must go red on the password field.
+- **Fault:** faults/DSH-016.patch
 - **Test:** mods/dashboard/e2e/cloud.spec.ts
 
 Every edition offers email and password. On Cloud it sits next to GitHub and the code link.
@@ -241,6 +258,7 @@ Every edition offers email and password. On Cloud it sits next to GitHub and the
 - **Spec:** dashboard / Resource screens share one shape / Delete needs DELETE
 - **Priority:** P0
 - **Proof:** Make the number drawer send a SIP agent route as `appRef` (`number-drawer.tsx`); the test must go red on the saved `agentAor`.
+- **Fault:** faults/DSH-017.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`). Writing this case found that the SDK's `listAgents`, `getAgent` and `getNumber` called `toObject()` on objects its decoder had already made plain, so any SIP agent with a domain broke the SIP agents screen and the route picker; fixed in `@fonoster/sdk`, with unit tests.
@@ -254,6 +272,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Spec:** dashboard / Trunks connect a carrier / Deleting a trunk with numbers
 - **Priority:** P1
 - **Proof:** Never map `ALREADY_EXISTS` to the inbound URI field (`trunk-page.tsx`); the test must go red on the taken message.
+- **Fault:** faults/DSH-018.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 **Pass.** The inbound URI follows the name as `acme-carrier.pstn.fonoster.local`; `CreateTrunk` carries it, the ACL and one UDP outbound URI on 5060; a taken URI says "That inbound URI is taken. Pick another." and leaves the other trunk untouched; with two numbers on it, the delete confirmation names both and deleting returns to the list. **Fail.** A wrong inbound URI or request, a taken URI saved or shown elsewhere, or a confirmation that hides the numbers.
@@ -265,6 +284,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Spec:** dashboard / Domains are where SIP agents register / The domain URI can't be changed
 - **Priority:** P1
 - **Proof:** Drop the pattern checks from `domainSchema` (`domain-drawer.tsx`); the test must go red on the refused pattern.
+- **Fault:** faults/DSH-019.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 **Pass.** A pattern with `:` is refused and nothing is sent; `CreateDomain` carries `acme.sip.fonoster.local` and the rule `^\+1` with the number's ref; the saved domain's URI is disabled and says to add a new domain instead; delete needs `DELETE`. **Fail.** A bad pattern sent, a wrong request, or an editable URI.
@@ -276,6 +296,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Spec:** dashboard / SIP agents register phones to a domain / Invalid SIP agent
 - **Priority:** P1
 - **Proof:** Make the row's Enabled switch always send `enabled: true` (`sip-agents/index.tsx`); the test must go red on the saved value.
+- **Fault:** faults/DSH-020.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 **Pass.** A username with capitals or spaces, Max contacts 101 and no domain are refused with nothing sent; `CreateAgent` carries the username, domain, credentials and max contacts; the row shows `sip:maria@acme.sip.fonoster.local`; the switch sends `enabled: false` with no form opened; the saved username is disabled. **Fail.** An invalid agent sent, a wrong request, or a switch that opens a form or saves the wrong value.
@@ -286,6 +307,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Spec:** dashboard / ACLs allow addresses and reject the rest / Not an address
 - **Priority:** P1
 - **Proof:** Make `isAllowedEntry` accept any value (`acls/cidr.ts`); the test must go red on the refused entries.
+- **Fault:** faults/DSH-021.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 **Pass.** The screen says anything not listed is rejected; `10.0.0.0/33` and a host name are refused with nothing sent; `CreateAcl` carries `190.80.12.0/24` and `10.0.0.5`; delete needs `DELETE`. **Fail.** A bad entry sent, or a wrong allow list.
@@ -295,6 +317,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Spec:** dashboard / Credentials keep passwords write-only / Edit without changing the password
 - **Priority:** P1
 - **Proof:** Prefill New password with the saved one when editing (`credentials-drawer.tsx`); the test must go red on the empty field.
+- **Fault:** faults/DSH-022.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 **Pass.** Create sends the name, username and password; editing shows an empty New password and the password nowhere; renaming with it empty sends no password. **Fail.** The password shown, or sent again on a rename.
@@ -306,6 +329,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Spec:** dashboard / Resource screens share one shape / A refused save stays in the form
 - **Priority:** P1
 - **Proof:** Hide the mutation error in the secret drawer (`secret-drawer.tsx`); the test must go red on the API's message.
+- **Fault:** faults/DSH-023.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 **Pass.** `ab` and a name with spaces are refused with nothing sent; when the API refuses the create, its message shows in the still-open drawer with the name kept and nothing listed; the saved secret is listed without its value; editing shows an empty New value; delete needs `DELETE`. **Fail.** An invalid name sent, the API's message lost, or the value shown.
@@ -316,6 +340,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Spec:** dashboard / API keys show their secret once / Regenerate an API key
 - **Priority:** P0
 - **Proof:** Make the Regenerate confirmation ask for `DELETE` (`api-keys/index.tsx`); the test must go red on the confirmation.
+- **Fault:** faults/DSH-024.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 **Pass.** A Workspace admin key expiring in 90 days is requested with that expiry; the dialog shows the secret with the only-time warning and closes only after "I've saved it"; the list never shows the secret; Regenerate takes one confirmation and shows the new secret once; delete needs `DELETE`. **Fail.** A secret shown twice or listed, or Regenerate asking for `DELETE`.
@@ -327,6 +352,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Spec:** dashboard / Webhooks deliver signed events to HTTPS endpoints / Rotate the signing secret
 - **Priority:** P1
 - **Proof:** Let `validateWebhook` accept `http://` (`session/webhooks.tsx`); the test must go red on the refused URL.
+- **Fault:** faults/DSH-025.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 **Pass.** An `http://` URL is refused with nothing sent; a webhook for Call ended and Call record sealed shows its signing secret once and is listed with both events; Rotate takes one confirmation that says the previous secret keeps verifying for 24 hours, and shows the new secret once. **Fail.** Plain HTTP accepted, a secret shown again, or Rotate asking for `DELETE`.
@@ -337,6 +363,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Spec:** dashboard / Members are invited and removed in Settings / Remove a member
 - **Priority:** P1
 - **Proof:** Give the owner's row the actions menu (`settings/members.tsx`); the test must go red on the owner's row.
+- **Fault:** faults/DSH-026.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 **Pass.** The owner's row says Owner and has no actions; inviting Maria as Admin sends that name, email and `WORKSPACE_ADMIN` and lists her as Invite sent; removing Bob needs `DELETE` and drops him from the list. **Fail.** A removable owner, a wrong invite, or a removal without `DELETE`.
@@ -347,6 +374,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Spec:** dashboard / The workspace is renamed and deleted in Settings / Delete the workspace
 - **Priority:** P0
 - **Proof:** Enable the delete button whatever is typed (`type-to-confirm-dialog.tsx`); the test must go red on the disabled button.
+- **Fault:** faults/DSH-027.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
 **Pass.** Settings shows the access key ID; renaming to Acme Sales saves it and the workspace switcher shows it; Delete workspace stays disabled with `DELETE` typed and deletes once the name is typed, leaving the workspace and its link gone. **Fail.** A rename not shown, or a delete enabled before the name is typed.
@@ -361,6 +389,7 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 - **Spec:** dashboard / Agent pickers offer the catalog / A new agent prefers keyless providers
 - **Priority:** P0
 - **Proof:** Stop `tabsWithErrors` from reporting the Tools tab (`agent-form.ts`); the test must go red on the Fix-the-highlighted-fields message.
+- **Fault:** faults/DSH-028.patch
 - **Test:** mods/dashboard/e2e/apps.community.spec.ts
 
 Runs against in-memory applications that store what the dashboard sends (`e2e/apps.ts`), with a catalog of the keyless fakes and keyed Deepgram.
@@ -378,6 +407,7 @@ Runs against in-memory applications that store what the dashboard sends (`e2e/ap
 - **Spec:** dashboard / The sidebar names Agents and Apps / Creating an app
 - **Priority:** P0
 - **Proof:** Show the Speech panel for every protocol (`app-detail.tsx`); the test must go red once the protocol is Twilio.
+- **Fault:** faults/DSH-029.patch
 - **Test:** mods/dashboard/e2e/apps.community.spec.ts
 
 **Pass.** New app refuses an `https://` URL with nothing sent; a `wss://` app is created as a Fonoster stream app, its page opens with the signing secret and the only-time warning, and the secret is gone after "I've saved it"; switching to Twilio hides Speech; On after consent prompt saves `recording: "consent"`; Rotate secret takes one confirmation and shows the new secret once; Delete app needs `DELETE` and returns to the list. **Fail.** A non-WebSocket URL sent, a secret shown twice, speech settings on a Twilio app, a wrong recording policy, or a delete without `DELETE`.
@@ -389,6 +419,7 @@ Runs against in-memory applications that store what the dashboard sends (`e2e/ap
 - **Spec:** dashboard / The Calls page lists the workspace's records / More than one page
 - **Priority:** P1
 - **Proof:** Name every failed call Failed (`recordStatus` in `calls/records.ts`); the test must go red on the busy call's Busy. Never asking for a next page (`getNextPageParam` in `session/calls.tsx`) goes red on Load more.
+- **Fault:** faults/DSH-030.patch
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
 The records API is served from vCons the call-record module builds from its own fixture calls (`e2e/records.ts`), two to a page.
@@ -401,6 +432,7 @@ The records API is served from vCons the call-record module builds from its own 
 - **Spec:** dashboard / Recordings play in the page / Play and download
 - **Priority:** P0
 - **Proof:** Ignore the vCon `duration` of each turn (`session/sdk-api.ts`); the test must go red on the caller turn's timing.
+- **Fault:** faults/DSH-031.patch
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
 Writing this case found that the record builder stamped a caller's turn at its end and wrote no duration; fixed in `mods/callrecord/src/vcon.ts` with a unit test.
@@ -413,6 +445,7 @@ Writing this case found that the record builder stamped a caller's turn at its e
 - **Spec:** dashboard / Recordings play in the page / No recording
 - **Priority:** P1
 - **Proof:** Drop the record's failure from the detail (`session/sdk-api.ts`); the test must go red on the SIP status.
+- **Fault:** faults/DSH-032.patch
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
 **Pass.** The busy outbound call is titled by the number called (+1 555 000 4444) and says The line was busy (SIP 486), that it wasn't recorded and that nothing was said, with no player. **Fail.** No reason or SIP status, or a player for a call with no recording.
@@ -423,6 +456,7 @@ Writing this case found that the record builder stamped a caller's turn at its e
 - **Spec:** dashboard / Unavailable records say why / An unknown call
 - **Priority:** P1
 - **Proof:** Treat a 410 like any other error (`session/sdk-api.ts`); the test must go red on the Erased heading.
+- **Fault:** faults/DSH-033.patch
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
 **Pass.** An erased record shows Call record erased within four seconds and no "records API" text; an unknown call ref shows Call record not found and names the ref. **Fail.** A raw API error, a long load, or the same page for both.
@@ -434,7 +468,8 @@ Writing this case found that the record builder stamped a caller's turn at its e
 - **Spec:** dashboard / The call detail reads as the conversation / A browser test call
 - **Priority:** P0
 - **Tier:** nightly
-- **Proof:** Stop the AppBridge (`docker stop rb-stack-appbridge-1`); with nothing to take the call the test must go red on Connected. Start it after.
+- **Proof:** Never render the recording (`session/calls.tsx`); the test must go red on the call recording player.
+- **Fault:** faults/DSH-034.patch
 - **Test:** mods/dashboard/e2e/calls.real.spec.ts (the `real` project, `npm run test:e2e:real` against `ops/rebuild/stack up && seed`)
 
 The seeded agent records calls (`ops/rebuild/seed.cjs`). Bringing this case up found that every AppBridge image built from a checkout that hadn't run the package build crashed at start (identity-client's git-ignored proto was never synced into the image), so every call was rejected with 503; fixed in `mods/appbridge/Dockerfile`. It also found that browser test calls were recorded as `internal → roomr` (#1060): the test token now names the signed-in user and AppBridge records them and the agent instead. And it found that the local stack seeded the demo agent with Deepgram without a key, so every local call was silent (HTTP 401 both ways); the seed now picks only keyless providers and those with a key.
@@ -447,6 +482,7 @@ The seeded agent records calls (`ops/rebuild/seed.cjs`). Bringing this case up f
 - **Spec:** dashboard / The Calls page lists the workspace's records / Export CSV
 - **Priority:** P1
 - **Proof:** Don't send the direction to the records API (`listCalls` in `session/sdk-api.ts`); the test must go red on the inbound call still listed under Outbound.
+- **Fault:** faults/DSH-043.patch
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
 The records API's `direction` search (call-record "Search by direction") is unit-tested in `mods/apiserver/test/records/records.test.ts`.
@@ -460,6 +496,7 @@ The records API's `direction` search (call-record "Search by direction") is unit
 - **Spec:** dashboard / The call detail shows how the agent did / Export the record
 - **Priority:** P1
 - **Proof:** Don't compute the answer's response time (`fromVcon` in `session/sdk-api.ts`); the test must go red on first audio 100 ms.
+- **Fault:** faults/DSH-044.patch
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
 The record carries tool names and outcomes (Autopilot's `autopilot.turn` note) and usage quantities (`usage.snapshot`). It doesn't carry the answering machine result, tool parameters and responses, knowledge searches, per-stage latency, the trunk or prices, so the page shows none of them.
@@ -472,6 +509,7 @@ The record carries tool names and outcomes (Autopilot's `autopilot.turn` note) a
 - **Spec:** dashboard / Calls say who answered / A call without AMD
 - **Priority:** P2
 - **Proof:** Leave the verdict out of the vCon (`buildVcon` in `mods/callrecord/src/vcon.ts`); the test must go red on Voicemail in the list.
+- **Fault:** faults/DSH-045.patch
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
 The record builder, the index and the records API carry the verdict since #1066; their unit tests are in `mods/callrecord/test/vconAmd.test.ts` and `mods/apiserver/test/records/records.test.ts`.
@@ -484,6 +522,7 @@ The record builder, the index and the records API carry the verdict since #1066;
 - **Spec:** dashboard / Cloud-only screens follow capabilities and ownership / Billing page in Cloud
 - **Priority:** P0
 - **Proof:** Make `useBillingAvailable` true for everyone (`billing/billing.service.ts`); the test must go red on the non-owner's menu.
+- **Fault:** faults/DSH-035.patch
 - **Test:** mods/dashboard/e2e/billing.cloud.spec.ts
 
 Runs against a billing account that behaves like the billing service in front of Stripe (`e2e/billing.ts`); visits to Stripe's Customer Portal are recorded and stopped.
@@ -497,6 +536,7 @@ Runs against a billing account that behaves like the billing service in front of
 - **Spec:** dashboard / Owners manage billing from the Billing page / The Trial ended
 - **Priority:** P0
 - **Proof:** Hide the failed-payment alert (`billing/index.tsx`); the test must go red on it.
+- **Fault:** faults/DSH-036.patch
 - **Test:** mods/dashboard/e2e/billing.cloud.spec.ts
 
 **Pass.** A Pay-as-you-go account shows 1,840 credits, the 200-credit overdraft, the plan with its renewal and the credits by source, and Manage payment methods and invoices opens the portal; past due, the page says the last payment failed and Update payment method opens the portal; after an ended Trial it says calls are paused and offers Upgrade to Pay-as-you-go. **Fail.** A wrong figure, no portal, or a failure or ended Trial left unsaid.
@@ -507,6 +547,7 @@ Runs against a billing account that behaves like the billing service in front of
 - **Spec:** dashboard / Owners manage billing from the Billing page / Auto-recharge below the smallest top-up
 - **Priority:** P0
 - **Proof:** Accept any auto-recharge amount (`billing/auto-recharge-dialog.tsx`); the test must go red on the refusal.
+- **Fault:** faults/DSH-037.patch
 - **Test:** mods/dashboard/e2e/billing.cloud.spec.ts
 
 **Pass.** Buying 1,000 credits sends `credits: 1000`, shows Payment in progress, and the balance grows from 500 to 1,500 once the account confirms it; an auto-recharge of 500 says At least 1,000 credits with Save disabled and nothing sent, and 1,000 saves. **Fail.** No progress, a balance that never grows, or an amount below the minimum sent.
@@ -518,6 +559,7 @@ Runs against a billing account that behaves like the billing service in front of
 - **Spec:** dashboard / Paid credits show up without a reload / Plan credits after an upgrade
 - **Priority:** P0
 - **Proof:** Never resume the upgrade on return from the portal (`billing/index.tsx`); the test must go red on the plan.
+- **Fault:** faults/DSH-038.patch
 - **Test:** mods/dashboard/e2e/billing.cloud.spec.ts
 
 Writing this case found that after an upgrade the page never read the account again, so the plan's 2,500 credits appeared only after a reload; the page now polls for them as it does for a top-up.
@@ -530,7 +572,8 @@ Writing this case found that after an upgrade the page never read the account ag
 - **Spec:** dashboard / Owners manage billing from the Billing page / A top-up
 - **Priority:** P1
 - **Tier:** release
-- **Proof:** Stop the billing service (`docker stop rb-stack-billing-1`); the page can't read the account and the test must go red on the Billing page. Start it after.
+- **Proof:** Offer Billing to no one (`useBillingAvailable` in `billing/billing.service.ts`); the test must go red on the Billing menu item.
+- **Fault:** faults/DSH-039.patch
 - **Test:** mods/dashboard/e2e-stack/billing.spec.ts (`ops/rebuild/stack billing-page-e2e`)
 
 The test from #1058, now tagged: the owner's real account in the billing service, with Stripe played by the Stripe fake.
@@ -542,6 +585,7 @@ The test from #1058, now tagged: the owner's real account in the billing service
 - **Spec:** dashboard / Cloud-only screens follow capabilities and ownership / No billing without billing
 - **Priority:** P0
 - **Proof:** Drop the `billing.enabled` check from `useBillingAvailable` (`billing/billing.service.ts`); the test must go red on the menu.
+- **Fault:** faults/DSH-040.patch
 - **Test:** mods/dashboard/e2e/billing.community.spec.ts
 
 **Pass.** With `billing.enabled` false the owner's account menu has no Billing, `/billing` goes to the workspace picker, and the billing API is never called. **Fail.** Billing shown or called on a self-hosted install.
@@ -556,7 +600,8 @@ The test from #1058, now tagged: the owner's real account in the billing service
 - **Spec:** dashboard / Resource screens share one shape / Delete needs DELETE
 - **Priority:** P0
 - **Tier:** nightly
-- **Proof:** Stop Routr (`docker stop rb-stack-routr-1`), which stores the SIP resources; the lists can't load, nothing can be created, and the test must go red at the first Create. Start it after.
+- **Proof:** Create domains without their URI (`domains/domain-drawer.tsx`); the API refuses it and the test must go red at Create domain.
+- **Fault:** faults/DSH-041.patch
 - **Test:** mods/dashboard/e2e/resources.real.spec.ts (the `real` project, `npm run test:e2e:real` against `ops/rebuild/stack up && seed`)
 
 Names are unique per run (`e2e-<run>`) so the seeded Demo resources and Routr's unique names are untouched; if a step fails, an SDK sweep deletes whatever the run left behind.
@@ -570,7 +615,8 @@ Names are unique per run (`e2e-<run>`) so the seeded Demo resources and Routr's 
 - **Spec:** dashboard / Agents are created from a template and edited as one form / Delete an agent
 - **Priority:** P0
 - **Tier:** nightly
-- **Proof:** Make AppBridge answer from its cache only (`findAppFresh` in `mods/appbridge/src/AppBridge.ts`); a call within seconds of creating the agent must go red with 404. Covered by `mods/appbridge/test/appsFreshLookup.test.ts`.
+- **Proof:** Create new agents as streams instead of Autopilot agents (`agents/agent-form.ts`); the test must go red on the first call.
+- **Fault:** faults/DSH-042.patch
 - **Test:** mods/dashboard/e2e/agents.real.spec.ts (the `real` project)
 
 Writing this case found that AppBridge refreshed its apps every five seconds, so an agent called right after it was created was rejected with 404; a miss now reloads the apps once.

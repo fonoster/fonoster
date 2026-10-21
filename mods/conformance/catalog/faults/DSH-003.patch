@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/lib/auth.tsx b/mods/dashboard/src/lib/auth.tsx
+index 6dcd1f27f..f850f5fcf 100644
+--- a/mods/dashboard/src/lib/auth.tsx
++++ b/mods/dashboard/src/lib/auth.tsx
+@@ -128,7 +128,7 @@ export function AuthProvider({
+   const signOut = useCallback(
+     (options?: { expired?: boolean }) => {
+       const path = here.current;
+-      void client.logout();
++      void 0;
+       client.setAccessKeyId("");
+       queryClient.clear();
+       setSession(null);

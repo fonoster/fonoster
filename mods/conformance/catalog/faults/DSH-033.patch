@@ -1,0 +1,12 @@
+diff --git a/mods/dashboard/src/session/sdk-api.ts b/mods/dashboard/src/session/sdk-api.ts
+index bf0113707..9c451af7d 100644
+--- a/mods/dashboard/src/session/sdk-api.ts
++++ b/mods/dashboard/src/session/sdk-api.ts
+@@ -479,7 +479,6 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
+       } catch (e) {
+         const status = (e as { status?: number }).status;
+         if (status === 404) return undefined;
+-        if (status === 410) return "erased";
+         throw e;
+       }
+     },

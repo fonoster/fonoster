@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/app/guards.tsx b/mods/dashboard/src/app/guards.tsx
+index 7c57c7368..a0993f0e0 100644
+--- a/mods/dashboard/src/app/guards.tsx
++++ b/mods/dashboard/src/app/guards.tsx
+@@ -34,7 +34,7 @@ export function RequireAuth() {
+         : `?next=${encodeURIComponent(next)}`;
+     return <Navigate to={`/sign-in${query}`} replace />;
+   }
+-  if (user?.mustChangePassword && location.pathname !== "/set-password") {
++  if (false && user?.mustChangePassword && location.pathname !== "/set-password") {
+     return <Navigate to="/set-password" replace />;
+   }
+   if (!user?.mustChangePassword && location.pathname === "/set-password") {

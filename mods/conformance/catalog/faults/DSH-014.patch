@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/noise-cancelling.ts b/mods/dashboard/src/session/noise-cancelling.ts
+index 6f48d4c9d..f4fd4e44b 100644
+--- a/mods/dashboard/src/session/noise-cancelling.ts
++++ b/mods/dashboard/src/session/noise-cancelling.ts
+@@ -72,7 +72,7 @@ export function filtersFor(
+ ): AudioFilterSetting[] {
+   const list = current ?? [];
+   const others = list.filter((f) => !isNoiseCancelling(f));
+-  if (value === NC_NONE) return others;
++  if (value === NC_NONE) return list;
+   const name = NOISE_CANCELLING_FILTERS[value];
+   if (!name) return list;
+   const existing = list.find((f) => f.name === name);

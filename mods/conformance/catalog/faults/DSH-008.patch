@@ -1,0 +1,11 @@
+diff --git a/mods/dashboard/src/auth/github.ts b/mods/dashboard/src/auth/github.ts
+index f1b760b6e..14102f43a 100644
+--- a/mods/dashboard/src/auth/github.ts
++++ b/mods/dashboard/src/auth/github.ts
+@@ -56,5 +56,5 @@ export function consumeGitHubState(state: string | null): boolean {
+   } catch {
+     return false;
+   }
+-  return Boolean(state && expected && state === expected);
++  return true;
+ }

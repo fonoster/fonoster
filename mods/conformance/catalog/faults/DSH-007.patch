@@ -1,0 +1,12 @@
+diff --git a/mods/dashboard/src/auth/github.ts b/mods/dashboard/src/auth/github.ts
+index f1b760b6e..1ce5373be 100644
+--- a/mods/dashboard/src/auth/github.ts
++++ b/mods/dashboard/src/auth/github.ts
+@@ -43,7 +43,6 @@ export function startGitHubSignIn(config: {
+   url.searchParams.set("client_id", config.clientId);
+   url.searchParams.set("redirect_uri", githubCallbackUrl());
+   url.searchParams.set("scope", "read:user user:email");
+-  url.searchParams.set("state", state);
+   return url.toString();
+ }
+ 

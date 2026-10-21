@@ -1,0 +1,12 @@
+diff --git a/mods/dashboard/src/agents/agent-form.ts b/mods/dashboard/src/agents/agent-form.ts
+index 54fad920c..19a761eb2 100644
+--- a/mods/dashboard/src/agents/agent-form.ts
++++ b/mods/dashboard/src/agents/agent-form.ts
+@@ -461,6 +461,6 @@ export function tabsWithErrors(errors: object): string[] {
+       tabs.add("configure");
+     if (!onConfigure.includes(key)) tabs.add("advanced");
+   }
+-  if (e.tools) tabs.add("tools");
++
+   return [...tabs];
+ }

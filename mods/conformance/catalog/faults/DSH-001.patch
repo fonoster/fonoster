@@ -1,0 +1,11 @@
+diff --git a/mods/dashboard/src/workspaces/workspace-session.ts b/mods/dashboard/src/workspaces/workspace-session.ts
+index c5880dd67..ce52b426d 100644
+--- a/mods/dashboard/src/workspaces/workspace-session.ts
++++ b/mods/dashboard/src/workspaces/workspace-session.ts
+@@ -24,5 +24,5 @@ export function workspacePath(ref: string) {
+ 
+ /** Where to go after sign-in: Create workspace when there is none, otherwise the list. */
+ export function landingTarget(workspaces: Workspace[]): string {
+-  return workspaces.length === 0 ? "/workspaces/new" : "/workspaces";
++  return workspaces.length === 0 ? "/workspaces/new" : "/w/" + workspaces[0].ref;
+ }

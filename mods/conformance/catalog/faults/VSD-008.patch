@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..e7f650122 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -489,7 +489,7 @@ export class Session {
+     }
+     if (input.type === "turn.ended") {
+       // First input wins: once digits started, speech is ignored.
+-      if (g.speech && !g.digits) this.endGather({ speech: input.text });
++      if (g.speech && !g.digits) this.endGather({ speech: "" });
+       return;
+     }
+     if (!g.dtmf) return;

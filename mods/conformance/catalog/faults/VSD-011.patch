@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..f66188f04 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -419,7 +419,7 @@ export class Session {
+         const list = this.marks.get(msg.name as string);
+         const resolve = list?.shift();
+         if (list && !list.length) this.marks.delete(msg.name as string);
+-        resolve?.({ cleared: msg.cleared === true });
++        resolve?.({ cleared: false });
+         return;
+       }
+       case "error":

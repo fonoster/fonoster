@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..937103cdd 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -134,7 +134,7 @@ export class Session {
+     this.callRef = start.callRef;
+     this.appRef = start.appRef;
+     this.direction = start.direction;
+-    this.from = start.from;
++    this.from = "";
+     this.to = start.to;
+     this.metadata = (start.metadata ?? {}) as Record<string, unknown>;
+     this.traceparent = start.traceparent;

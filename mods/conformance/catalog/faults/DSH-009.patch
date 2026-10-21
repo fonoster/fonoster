@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/auth/check-email.page.tsx b/mods/dashboard/src/auth/check-email.page.tsx
+index f8ca0ca48..3b18bdff9 100644
+--- a/mods/dashboard/src/auth/check-email.page.tsx
++++ b/mods/dashboard/src/auth/check-email.page.tsx
+@@ -82,7 +82,7 @@ function CheckEmail({
+       const code = grpcCode(error);
+       setFailure(
+         code === GrpcCode.PERMISSION_DENIED || code === GrpcCode.UNAUTHENTICATED
+-          ? "That code isn't valid. Check it, or send a new one."
++          ? errorMessage(error)
+           : errorMessage(error)
+       );
+       setCode("");
