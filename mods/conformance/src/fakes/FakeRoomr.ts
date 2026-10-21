@@ -30,8 +30,12 @@ import { NatsConnection, StringCodec } from "nats";
 
 const sc = StringCodec();
 
-/** What the dialed party does: answer, refuse (486, 408, 603) or ring until `answer()`. */
-export type FakeCallee = "answer" | "busy" | "no_answer" | "decline" | "ring";
+/**
+ * What the dialed party does: answer, refuse (486, 408, 603), ring until `answer()`, or the dial
+ * fails on the node (`fail`: `node_error`, no SIP status).
+ */
+export type FakeCallee =
+  "answer" | "busy" | "no_answer" | "decline" | "fail" | "ring";
 
 export type FakeRoomrOptions = {
   nodeRef?: string;
@@ -60,7 +64,8 @@ type FakeCall = {
 const ENDINGS: Record<string, { cause: string; sip: number }> = {
   busy: { cause: "busy", sip: 486 },
   no_answer: { cause: "no_answer", sip: 408 },
-  decline: { cause: "rejected", sip: 603 }
+  decline: { cause: "rejected", sip: 603 },
+  fail: { cause: "node_error", sip: 0 }
 };
 
 export class FakeRoomr {
@@ -68,6 +73,8 @@ export class FakeRoomr {
   readonly requests: Recorded[] = [];
   readonly rooms = new Set<string>();
   readonly calls = new Map<string, FakeCall>();
+  /** INVITEs sent: one per new call_ref (a repeated CreateCall is deduped and sends none). */
+  invites = 0;
   controlAddr = "";
   private extraRooms: number;
   private server?: grpc.Server;
@@ -177,6 +184,15 @@ export class FakeRoomr {
     if (c) this.end(c, "callee_hangup");
   }
 
+  /**
+   * Ends a call with any cause (e.g. `app_gone`: its control stream broke; `media_timeout`), as
+   * the node would: `call.ended` with the cause, whether it was answered and the SIP status.
+   */
+  endCall(callRef: string, cause: string, sipStatus?: number) {
+    const c = this.calls.get(callRef);
+    if (c) this.end(c, cause, sipStatus);
+  }
+
   private heartbeat() {
     this.publish(`roomr.nodes.${this.nodeRef}.heartbeat`, {
       type: "node.heartbeat",
@@ -253,6 +269,7 @@ export class FakeRoomr {
           seq: 0
         };
         this.calls.set(callRef, c);
+        this.invites += 1;
         cb(null, { ...c.call });
         this.event(c, "call.started", { direction: "outbound" });
         this.event(c, "call.ringing");

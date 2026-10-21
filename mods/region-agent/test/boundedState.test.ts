@@ -24,9 +24,9 @@ import { NatsConnection, StringCodec } from "nats";
 import * as sinon from "sinon";
 import { RegionAgent } from "../src";
 
-// The agent's long-lived maps and timers stay bounded (in-memory state audit, phase 4): appbridges
-// that went away (a new bridgeRef on every start) are forgotten, and config retries while the
-// control plane is unreachable do not pile up timer handles.
+// The agent's long-lived maps and timers stay bounded (in-memory state audit, phase 4): nodes that
+// went away (a new node_ref on every start) are forgotten, and config retries while the control
+// plane is unreachable do not pile up timer handles.
 
 const sc = StringCodec();
 
@@ -88,22 +88,74 @@ describe("@region-agent bounded state", function () {
     expect(a.timerCount).to.be.at.most(2); // the next retry and the heartbeat interval
   });
 
-  it("forgets appbridges and nodes that went away (100 appbridge restarts)", async function () {
-    const { nc, send } = fakeNats();
+  it("forgets nodes that went away (100 node restarts); active calls are their rooms", async function () {
+    const { nc, send, published } = fakeNats();
     const a = await startAgent(nc);
     for (let i = 0; i < 100; i++) {
-      send("appbridge.heartbeat", { bridgeRef: `gw-${i}`, calls: 1 });
       send("roomr.nodes.*.heartbeat", {
         type: "node.heartbeat",
-        node_ref: `n-${i}`
+        node_ref: `n-${i}`,
+        rooms: 2
       });
       await clock.tickAsync(5_000); // each "restart" gets a new ref
     }
     await a.heartbeat();
     const { components, activeCalls } = await a.components();
-    expect(components.appbridges).to.be.at.most(4);
-    expect(activeCalls).to.equal(components.appbridges);
-    expect(a.componentCounts.appbridges).to.be.at.most(4);
+    expect(components.roomrNodes).to.be.at.most(2);
+    expect(activeCalls).to.equal(components.roomrNodes * 2);
     expect(a.componentCounts.nodes).to.be.at.most(2);
+    // No probe: AppBridge counts as not ready; the agent subscribes to no AppBridge subject.
+    expect(components.appbridges).to.equal(0);
+    expect(published.some((s) => s.startsWith("appbridge."))).to.equal(false);
+  });
+});
+
+describe("@region-agent region status from health checks and room counts", function () {
+  it("reports AppBridge ready from its health check and active calls as the nodes' rooms", async function () {
+    const { nc, send } = fakeNats();
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "region-status-"));
+    let ready = true;
+    const agent = new RegionAgent({
+      identity: { regionRef: "rg_test", tokenId: "t1" } as never,
+      nc,
+      version: "0.0.0-test",
+      stateDir: dir,
+      firstHeartbeatMs: 60_000,
+      appbridgeProbe: async () => ready,
+      autopilotProbe: async () => true
+    });
+    try {
+      await agent.start();
+      for (const [node, rooms] of [
+        ["n-1", 3],
+        ["n-2", 4]
+      ] as const)
+        send("roomr.nodes.*.heartbeat", {
+          type: "node.heartbeat",
+          node_ref: node,
+          rooms
+        });
+      expect(await agent.components()).to.deep.equal({
+        components: { roomrNodes: 2, appbridges: 1, autopilot: true },
+        activeCalls: 7
+      });
+      // No ready AppBridge behind the Service: the region turns degraded (control plane).
+      ready = false;
+      expect((await agent.components()).components.appbridges).to.equal(0);
+      // A probe that throws counts as not ready.
+      ready = true;
+      (
+        agent as unknown as { options: { appbridgeProbe: () => never } }
+      ).options.appbridgeProbe = () => {
+        throw new Error("boom");
+      };
+      expect((await agent.components()).components.appbridges).to.equal(0);
+      // node.down takes a node out of the count at once.
+      send("roomr.nodes.*.heartbeat", { type: "node.down", node_ref: "n-2" });
+      expect(await agent.components()).to.deep.include({ activeCalls: 3 });
+    } finally {
+      await agent.stop();
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

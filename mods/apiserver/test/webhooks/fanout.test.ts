@@ -74,7 +74,9 @@ describe("@apiserver/webhooks fan-out from the bus (database, NATS)", function (
         intervalMs: 200,
         refreshMs: 1000,
         allowInsecureUrls: true,
-        allowedDestinations: ["127.0.0.1"]
+        allowedDestinations: ["127.0.0.1"],
+        // No region record writer here (its records are AppBridge's, failedCallRecord.test.ts).
+        failedCallRecords: false
       },
       { nc, db: db.prisma }
     );
@@ -114,27 +116,37 @@ describe("@apiserver/webhooks fan-out from the bus (database, NATS)", function (
     ]);
   });
 
-  it("turns a Roomr node's call.failed report into the app's workspace event (M6)", async function () {
-    // The node reports on its own subject; a workspace it names is ignored.
+  it("turns a Roomr node's call.ended of an unanswered outbound call into the app's workspace call.failed (M6)", async function () {
+    // The node publishes the call's events on roomr.events.<call_ref>; a workspace it names is
+    // ignored, the workspace comes from the app the control plane put in the call's metadata.
     producer.publish(
-      "media.n1.events.call-failed",
+      "roomr.events.c2",
       new TextEncoder().encode(
         JSON.stringify({
-          type: "call.failed",
-          nodeId: "n1",
-          callRef: "c2",
-          appRef: "app-support",
-          from: "+15550001111",
-          to: "+15550002222",
-          direction: "inbound",
-          reason: "node_error",
-          workspaceRef: "WSvictim"
+          type: "call.ended",
+          node_ref: "n1",
+          call_ref: "c2",
+          seq: 3,
+          cause: "busy",
+          sip_status: 486,
+          answered: false,
+          workspaceRef: "WSvictim",
+          metadata: {
+            app_ref: "app-support",
+            from: "+15550001111",
+            to: "+15550002222",
+            workspace_ref: "WSvictim"
+          }
         })
       )
     );
     await waitFor(2);
     const got = receiver.received[1]?.json;
     expect(got).to.deep.include({ type: "call.failed", workspaceRef: WS });
-    expect(got?.data).to.deep.include({ callRef: "c2", reason: "node_error" });
+    expect(got?.data).to.deep.include({
+      callRef: "c2",
+      direction: "outbound",
+      reason: "busy"
+    });
   });
 });

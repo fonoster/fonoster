@@ -179,6 +179,10 @@ describe("@apiserver[regions/units]", function () {
       ).to.include({
         status: "degraded"
       });
+      // No ready AppBridge behind its Service: degraded, naming AppBridge (redesign-roomr 15.5).
+      expect(
+        st({ components: { roomrNodes: 2, appbridges: 0, autopilot: true } })
+      ).to.deep.equal({ status: "degraded", reason: "no healthy AppBridge" });
       expect(
         st({ lastHeartbeatAt: new Date(now.getTime() - 121_000) }).status
       ).to.equal("offline");
