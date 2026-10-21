@@ -14,5 +14,16 @@
   "DSH-013": "A private region's fee follows billing",
   "DSH-014": "Noise cancelling is one select fed by the catalog",
   "DSH-015": "Talk drawer: call, mute and hang up",
-  "DSH-016": "Sign in with email and password on Cloud"
+  "DSH-016": "Sign in with email and password on Cloud",
+  "DSH-017": "Add a number, reroute it to a SIP agent and remove it",
+  "DSH-018": "Create a trunk, refuse a taken inbound URI, and say what deleting it stops",
+  "DSH-019": "Create a domain with an egress rule and lock its URI",
+  "DSH-020": "Create a SIP agent and disable it from the list",
+  "DSH-021": "Create an ACL of addresses and ranges",
+  "DSH-022": "Credentials' passwords stay write-only",
+  "DSH-023": "Secrets: write-only values and a refused save kept in the form",
+  "DSH-024": "API keys: the secret once, Regenerate in one click",
+  "DSH-025": "Webhooks: HTTPS only, the secret once, and rotation",
+  "DSH-026": "Invite a member with a role and remove one",
+  "DSH-027": "Rename the workspace and delete it by name"
 }
