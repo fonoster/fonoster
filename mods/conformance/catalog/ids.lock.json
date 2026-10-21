@@ -25,5 +25,7 @@
   "DSH-024": "API keys: the secret once, Regenerate in one click",
   "DSH-025": "Webhooks: HTTPS only, the secret once, and rotation",
   "DSH-026": "Invite a member with a role and remove one",
-  "DSH-027": "Rename the workspace and delete it by name"
+  "DSH-027": "Rename the workspace and delete it by name",
+  "DSH-028": "Create an agent from a template, save it, rename and delete it",
+  "DSH-029": "Create an app, rotate its secret and delete it"
 }
