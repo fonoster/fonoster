@@ -236,7 +236,7 @@ A browser test call's index entry from a private region (`rg_...`) is stored.
 - **Spec:** usage-metering / Token counts come only from the vendor / Vendor reports usage
 - **Spec:** usage-metering / Token counts come only from the vendor / Interrupted turn
 - **Priority:** P0
-- **Proof:** Stop reading an interrupted reply at once in Autopilot's metered Think instead of draining it for the vendor's usage; the cut reply has no token lines and the test goes red.
+- **Proof:** Cap each reported token count at 1,000 in AppBridge's `usage.report` handling (`Call.ts`), as an estimate would; the 1,200 input tokens the agent reported are not counted in full and the test goes red. (Stopping the drain of an interrupted reply in Autopilot stays green here: the fake LLM's stream has ended before the caller cuts in, so the interrupted-turn drain itself is proven in the Autopilot area's unit test.)
 - **Fault:** faults/BIL-009.patch
 - **Test:** mods/apiserver/test/usage/fullstack.test.ts, mods/appbridge/test/usage.test.ts
 
