@@ -18,10 +18,10 @@
  */
 import { randomUUID } from "crypto";
 import { partHash } from "./parts";
-import { BeepSpan } from "./recording";
+import type { BeepSpan } from "./recording";
 import { redactText } from "./redact";
 import { contentHash } from "./sign";
-import { RecordEntry, SealingPart, Vcon } from "./types";
+import type { RecordEntry, SealingPart, Vcon } from "./types";
 
 /**
  * Pinned to draft-ietf-vcon-vcon-core-04 (September 2026), which requires "0.4.0" (call-record
