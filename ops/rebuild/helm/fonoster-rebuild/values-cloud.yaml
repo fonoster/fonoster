@@ -40,7 +40,8 @@ apiserver:
     database: { url: "secret://k8s/fonoster-db#url" }
     encryption: { key: "secret://k8s/fonoster-db#key" }
     features:
-      auth: { methods: [password], signup: invite }
+      # Every edition offers password; Cloud adds the emailed code. Add github once the GitHub app is configured.
+      auth: { methods: [password, email_code], signup: invite }
     routr:
       apiEndpoint: routr:51907
       roomrPeer:

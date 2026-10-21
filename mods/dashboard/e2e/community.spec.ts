@@ -16,20 +16,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ada, expect, identity, test, tokens, workspace } from "./fixtures";
+import {
+  ada,
+  expect,
+  identity,
+  test,
+  tokens,
+  tokensExpiring,
+  withPrivateRegion,
+  workspace
+} from "./fixtures";
 import {
   applications,
-  callRecord,
-  calls,
   grpcError,
   numbers,
+  providers,
   struct,
   usage
 } from "./grpc-web";
 
 test.use({ variant: "community" });
 
-test("signs in with email and password and opens a workspace", async ({
+test("[DSH-001] signs in with email and password and lands on the workspaces list", async ({
   page,
   api
 }) => {
@@ -64,13 +72,17 @@ test("signs in with email and password and opens a workspace", async ({
     /refresh|[\w-]+\.[\w-]+\.e2e/
   );
 
-  // A reload restores the session from the cookie and returns to the remembered workspace.
+  // A reload restores the session from the cookie and lands on the workspaces list again:
+  // nothing is remembered, in any edition.
   await page.goto("/");
-  await expect(page).toHaveURL(/\/w\/ws-1$/);
+  await expect(page).toHaveURL(/\/workspaces$/);
+  await expect(
+    page.getByRole("heading", { name: "Choose a workspace" })
+  ).toBeVisible();
   expect(api.callsTo("session/refresh").length).toBeGreaterThan(0);
 });
 
-test("makes an invitee set a password before anything else", async ({
+test("[DSH-002] makes an invitee set a password before anything else", async ({
   page,
   api
 }) => {
@@ -130,12 +142,13 @@ test("makes an invitee set a password before anything else", async ({
   expect(changed).toBe(true);
 });
 
-test("signs out to a clean sign-in page", async ({ page, api }) => {
+test("[DSH-003] signs out to a clean sign-in page", async ({ page, api }) => {
   api.on("Identity/ExchangeCredentials", () => tokens(ada));
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(ada.email);
   await page.getByLabel("Password", { exact: true }).fill("pw");
   await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByRole("link", { name: /Acme Support/ })).toBeVisible();
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/sign-in$/);
   expect(
@@ -147,11 +160,34 @@ test("signs out to a clean sign-in page", async ({ page, api }) => {
   );
   // Sign-out doesn't wait for the revoke, so the call can land just after the redirect.
   await expect.poll(() => api.callsTo("session/logout")).toHaveLength(1);
+
+  // Cached API data is gone: a second user signing in right after sees only their own
+  // workspaces, never the first user's list from the cache (queries are fresh for 30 s).
+  const bob = { ref: "u-bob", email: "bob@globex.com", name: "Bob" };
+  api
+    .on("Identity/ExchangeCredentials", () => tokens(bob))
+    .on("Identity/GetUser", () => {
+      const user = new identity.User();
+      user.setRef(bob.ref);
+      user.setName(bob.name);
+      user.setEmail(bob.email);
+      return user;
+    })
+    .on("Identity/ListWorkspaces", () => {
+      const list = new identity.ListWorkspacesResponse();
+      list.setItemsList([workspace("ws-2", "Globex Sales", bob.ref)]);
+      return list;
+    });
+  await page.getByLabel("Email").fill(bob.email);
+  await page.getByLabel("Password", { exact: true }).fill("pw");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByRole("link", { name: /Globex Sales/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Acme Support/ })).toHaveCount(0);
 });
 
 // Runs the real SDK decoding on an application, Struct configs included
 // (regression: "textToSpeech.config.toJavaScript is not a function").
-test("lists and opens an agent with its saved configuration", async ({
+test("[DSH-004] lists and opens an agent with its saved configuration", async ({
   page,
   api
 }) => {
@@ -191,6 +227,26 @@ test("lists and opens an agent with its saved configuration", async ({
       }
     })
   );
+  // The catalog offers only the fake provider, so the agent's Deepgram voice is no longer offered.
+  const catalogItem = (
+    id: string,
+    kind: string,
+    label: string,
+    providerId: string,
+    type?: string
+  ) => {
+    const item = new providers.CatalogItem();
+    item.setId(id);
+    item.setKind(kind);
+    item.setLabel(label);
+    item.setProviderId(providerId);
+    if (type) item.setType(type);
+    if (kind === "provider") {
+      item.setKeyless(true);
+      item.setCapabilitiesList(["stt", "tts", "llm"]);
+    }
+    return item;
+  };
   api
     .on("Identity/ExchangeCredentials", () => tokens(ada))
     .on("Applications/ListApplications", () => {
@@ -199,13 +255,32 @@ test("lists and opens an agent with its saved configuration", async ({
       return list;
     })
     .on("Applications/GetApplication", () => agent)
-    .on("Numbers/ListNumbers", () => new numbers.ListNumbersResponse());
+    .on("Numbers/ListNumbers", () => new numbers.ListNumbersResponse())
+    .on("Providers/ListCatalog", () => {
+      const list = new providers.ListCatalogResponse();
+      list.setItemsList([
+        catalogItem("fake", "provider", "Fakes", "fake"),
+        catalogItem("fake/llm", "model", "Fake LLM", "fake", "llm"),
+        catalogItem("fake/stt", "model", "Fake transcriber", "fake", "stt"),
+        catalogItem("fake/default", "voice", "Fake voice", "fake", "tts")
+      ]);
+      return list;
+    });
 
   await page.goto("/sign-in");
   await page.getByLabel("Email").fill(ada.email);
   await page.getByLabel("Password", { exact: true }).fill("pw");
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.getByRole("link", { name: /Acme Support/ }).click();
+
+  // Sidebar labels: Agents and Apps, never Streams or Autopilot.
+  await expect(
+    page.getByRole("link", { name: "Agents", exact: true })
+  ).toHaveAttribute("href", /\/agents$/);
+  await expect(
+    page.getByRole("link", { name: "Apps", exact: true })
+  ).toHaveAttribute("href", /\/apps$/);
+  await expect(page.getByRole("link", { name: /Streams|Autopilot/ })).toHaveCount(0);
   await page.getByRole("link", { name: "Agents", exact: true }).click();
 
   await expect(page.getByText("Front desk")).toBeVisible();
@@ -217,76 +292,14 @@ test("lists and opens an agent with its saved configuration", async ({
   await expect(page.getByLabel("First message")).toHaveValue(
     "Hi, how can I help?"
   );
+
+  // The saved voice's provider is no longer offered: kept and marked unavailable, not replaced.
+  await page.getByRole("button", { name: /^Voice/ }).click();
+  await expect(page.getByLabel("Provider")).toHaveText(/deepgram \(unavailable\)/);
 });
 
-// Runs the real SDK decoding on call records: epoch seconds, enum numbers.
-// The Calls screen now reads call records from /api/records (rebuild: control, CP-B9);
-// these gRPC-mocked flows need an HTTP mock before they come back.
-test.skip("lists calls, filters by status on the server and opens one", async ({
-  page,
-  api
-}) => {
-  const now = Math.floor(Date.now() / 1000);
-  const answered = callRecord({
-    ref: "cl-9b21e7",
-    from: "+18295550199",
-    to: "+18295550110",
-    startedAt: now - 600,
-    duration: 24,
-    direction: "TO_PSTN",
-    status: "NORMAL_CLEARING",
-    amdStatus: "HUMAN"
-  });
-  const busy = callRecord({
-    ref: "cl-4c8e2a",
-    from: "+18095550142",
-    to: "+18295550199",
-    startedAt: now - 1200,
-    duration: 0,
-    direction: "FROM_PSTN",
-    status: "USER_BUSY"
-  });
-  api
-    .on("Identity/ExchangeCredentials", () => tokens(ada))
-    .on("Calls/ListCalls", (request) => {
-      const { status } =
-        calls.ListCallsRequest.deserializeBinary(request).toObject();
-      const list = new calls.ListCallsResponse();
-      list.setItemsList(
-        status === calls.CallStatus.USER_BUSY ? [busy] : [answered, busy]
-      );
-      return list;
-    })
-    .on("Calls/GetCall", () => answered);
 
-  await page.goto("/sign-in");
-  await page.getByLabel("Email").fill(ada.email);
-  await page.getByLabel("Password", { exact: true }).fill("pw");
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.getByRole("link", { name: /Acme Support/ }).click();
-  await page.getByRole("link", { name: "Calls" }).click();
-
-  const table = page.getByRole("table", { name: "Calls" });
-  await expect(table.getByText("+1 829 555 0110")).toBeVisible();
-  await expect(table.getByText("0:24")).toBeVisible();
-  await expect(table.getByText("Human")).toBeVisible();
-  await expect(table.getByText("Busy")).toBeVisible();
-
-  await page.getByRole("combobox", { name: "Status" }).click();
-  await page.getByRole("option", { name: "Busy" }).click();
-  await expect(page).toHaveURL(/status=USER_BUSY/);
-  await expect(table.getByText("+1 829 555 0110")).toHaveCount(0);
-  await expect(table.getByText("+1 809 555 0142")).toBeVisible();
-
-  await page.goto("/w/ws-1/calls/cl-9b21e7");
-  await expect(
-    page.getByRole("heading", { name: /\+1 829 555 0110/ })
-  ).toBeVisible();
-  await expect(page.getByText("Answered by human")).toBeVisible();
-  await expect(page.getByRole("region", { name: "Cost" })).toHaveCount(0);
-});
-
-test("shows the workspace's usage with no money in a community install", async ({
+test("[DSH-005] shows the workspace's usage with no money in a community install", async ({
   page,
   api
 }) => {
@@ -335,7 +348,11 @@ test("shows the workspace's usage with no money in a community install", async (
   await expect(
     page.getByRole("heading", { name: "Usage", exact: true })
   ).toBeVisible();
-  await expect(page.getByText("1,284")).toBeVisible();
+  // Calls and browser tests are separate figures: 77,040 s → 1,284 min; 5,760 s → 96 min.
+  const figure = (label: string) =>
+    page.getByText(label, { exact: true }).locator("..");
+  await expect(figure("Calls")).toContainText("1,284");
+  await expect(figure("Browser tests")).toContainText("96");
   const table = page.getByRole("table", { name: "AI usage" });
   await expect(
     table.getByRole("row", { name: /deepgram\/nova-3/ }).getByText("Your key")
@@ -346,4 +363,287 @@ test("shows the workspace's usage with no money in a community install", async (
       .getByText("Fonoster key")
   ).toBeVisible();
   await expect(page.getByText(/\$|price|balance/i)).toHaveCount(0);
+});
+
+test("[DSH-010] a reload keeps the route, and renewals keep storage clean", async ({
+  page,
+  api
+}) => {
+  // The cookie adopt (the first ExchangeRefreshToken call) hands back an access token about to
+  // expire, so the dashboard renews it from its timer at once (60 s margin). Renewals get an
+  // hour.
+  let exchanges = 0;
+  api
+    .on("Identity/ExchangeCredentials", () => tokens(ada))
+    .on("Identity/ExchangeRefreshToken", () =>
+      ++exchanges === 1
+        ? tokensExpiring(ada, 30, identity.ExchangeRefreshTokenResponse)
+        : tokens(ada, identity.ExchangeRefreshTokenResponse)
+    )
+    .on("Applications/ListApplications", () => {
+      const list = new applications.ListApplicationsResponse();
+      list.setItemsList([]);
+      return list;
+    });
+
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(ada.email);
+  await page.getByLabel("Password", { exact: true }).fill("pw");
+  // The page load above already tried a restore; only refreshes after sign-in count.
+  const refreshesBefore = api.callsTo("session/refresh").length;
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/workspaces$/);
+  // The renewal ran from the timer, before any reload, and left nothing in storage.
+  await expect
+    .poll(() => api.callsTo("session/refresh").length)
+    .toBeGreaterThan(refreshesBefore);
+  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toMatch(
+    /refresh|[\w-]+\.[\w-]+\.e2e/
+  );
+  expect(await page.evaluate(() => JSON.stringify(sessionStorage))).not.toMatch(
+    /refresh|[\w-]+\.[\w-]+\.e2e/
+  );
+
+  // A deep route survives a reload: same route, not the list.
+  await page.goto("/w/ws-1/agents");
+  await expect(page.getByRole("heading", { name: "Agents" })).toBeVisible();
+  await page.reload();
+  await expect(page).toHaveURL(/\/w\/ws-1\/agents$/);
+  await expect(page.getByRole("heading", { name: "Agents" })).toBeVisible();
+  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toMatch(
+    /refresh|[\w-]+\.[\w-]+\.e2e/
+  );
+});
+
+test("[DSH-011] a refused renewal signs out, keeps the path, and sign-in returns there", async ({
+  page,
+  api
+}) => {
+  // The cookie adopt hands back an access token that expires in 68 s, so the renewal fires
+  // about 8 s after sign-in (60 s margin), once the test is on a deep route. The session then
+  // refuses it.
+  let refuseRenewals = false;
+  let exchanges = 0;
+  api
+    .on("Identity/ExchangeCredentials", () => tokens(ada))
+    .on("Identity/ExchangeRefreshToken", () => {
+      if (refuseRenewals) return grpcError(16, "Session expired");
+      return ++exchanges === 1
+        ? tokensExpiring(ada, 68, identity.ExchangeRefreshTokenResponse)
+        : tokens(ada, identity.ExchangeRefreshTokenResponse);
+    })
+    .on("Applications/ListApplications", () => {
+      const list = new applications.ListApplicationsResponse();
+      list.setItemsList([]);
+      return list;
+    });
+
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(ada.email);
+  await page.getByLabel("Password", { exact: true }).fill("pw");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("link", { name: /Acme Support/ }).click();
+  await page.getByRole("link", { name: "Agents", exact: true }).click();
+  await expect(page).toHaveURL(/\/w\/ws-1\/agents$/);
+  refuseRenewals = true;
+
+  // The renewal is refused: signed out, sent to sign-in, path kept as next.
+  await expect(page).toHaveURL(/\/sign-in\?next=%2Fw%2Fws-1%2Fagents$/, {
+    timeout: 15_000
+  });
+  expect(await page.evaluate(() => JSON.stringify(localStorage))).not.toMatch(
+    /refresh|[\w-]+\.[\w-]+\.e2e/
+  );
+
+  // Signing in again returns to the route the user was on.
+  refuseRenewals = false;
+  await page.getByLabel("Email").fill(ada.email);
+  await page.getByLabel("Password", { exact: true }).fill("pw");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/w\/ws-1\/agents$/);
+  await expect(page.getByRole("heading", { name: "Agents" })).toBeVisible();
+});
+
+test("[DSH-012] a user with no workspace creates the first one and lands in it", async ({
+  page,
+  api
+}) => {
+  let created = false;
+  api
+    .on("Identity/ExchangeCredentials", () => tokens(ada))
+    .on("Identity/ListWorkspaces", () => {
+      const list = new identity.ListWorkspacesResponse();
+      list.setItemsList(created ? [workspace("ws-new", "Globex", ada.ref)] : []);
+      return list;
+    })
+    .on("Identity/CreateWorkspace", (request) => {
+      const { name } =
+        identity.CreateWorkspaceRequest.deserializeBinary(request).toObject();
+      expect(name).toBe("Globex");
+      created = true;
+      const response = new identity.CreateWorkspaceResponse();
+      response.setRef("ws-new");
+      return response;
+    });
+
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(ada.email);
+  await page.getByLabel("Password", { exact: true }).fill("pw");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  // No workspace: straight to Create workspace, not the list.
+  await expect(page).toHaveURL(/\/workspaces\/new$/);
+  await expect(
+    page.getByRole("heading", { name: /^Welcome/ })
+  ).toBeVisible();
+
+  await page.getByLabel("Workspace name").fill("Globex");
+  await page.getByRole("button", { name: "Create workspace" }).click();
+  // The new workspace opens on its overview (the setup header needs the calls backend,
+  // which this mock does not serve; either header is the overview).
+  await expect(page).toHaveURL(/\/w\/ws-new$/);
+  await expect(
+    page.getByRole("heading", { name: /^(Overview|Welcome to Globex)$/ })
+  ).toBeVisible();
+  await expect(page.getByText("Globex").first()).toBeVisible();
+
+  // And it is in the list from now on.
+  await page.goto("/workspaces");
+  await expect(page.getByRole("link", { name: /Globex/ })).toBeVisible();
+});
+
+test("[DSH-013] a private region shows no fee when billing is off", async ({
+  page,
+  api
+}) => {
+  api.on("Identity/ExchangeCredentials", () => tokens(ada));
+  await withPrivateRegion(page, api, "community", {
+    ref: "rg_7K2QF",
+    id: "acme-dallas",
+    displayName: "Acme Dallas",
+    monthlyFeeCents: 2500000
+  });
+
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(ada.email);
+  await page.getByLabel("Password", { exact: true }).fill("pw");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await page.getByRole("button", { name: "More for Acme Dallas" }).click();
+  await expect(page.getByRole("dialog")).toContainText("Acme Dallas");
+  await expect(page.getByText("Monthly fee")).toHaveCount(0);
+  await expect(page.getByRole("dialog").getByText(/\$/)).toHaveCount(0);
+});
+
+test("[DSH-014] noise cancelling is one select fed by the catalog, saved with the agent", async ({
+  page,
+  api
+}) => {
+  const product = (productRef: string, config: object) => {
+    const container = new applications.ProductContainer();
+    container.setProductRef(productRef);
+    container.setConfig(struct.Struct.fromJavaScript(config));
+    return container;
+  };
+  const agent = new applications.Application();
+  agent.setRef("ap-1");
+  agent.setName("Front desk");
+  agent.setType(applications.ApplicationType.AUTOPILOT);
+  agent.setTextToSpeech(product("tts.fake", { voice: "fake/default" }));
+  agent.setSpeechToText(product("stt.fake", { model: "fake/stt", languageCode: "en-US" }));
+  agent.setIntelligence(
+    product("llm.fake", {
+      conversationSettings: {
+        firstMessage: "Hi, how can I help?",
+        systemPrompt: "You are a receptionist.",
+        goodbyeMessage: "Bye",
+        systemErrorMessage: "Sorry",
+        idleOptions: { message: "Still there?", timeout: 10000, maxTimeoutCount: 2 }
+      },
+      languageModel: { provider: "fake", model: "fake/llm", temperature: 0.4, maxTokens: 240, tools: [] }
+    })
+  );
+  const catalogItem = (id: string, kind: string, label: string, caps: string[] = []) => {
+    const item = new providers.CatalogItem();
+    item.setId(id);
+    item.setKind(kind);
+    item.setLabel(label);
+    item.setProviderId(id.split("/")[0]);
+    if (kind === "provider") {
+      item.setKeyless(true);
+      item.setCapabilitiesList(caps);
+    }
+    return item;
+  };
+  let offerNoiseCancelling = true;
+  const saved: string[][] = [];
+  api
+    .on("Identity/ExchangeCredentials", () => tokens(ada))
+    .on("Applications/ListApplications", () => {
+      const list = new applications.ListApplicationsResponse();
+      list.setItemsList([agent]);
+      return list;
+    })
+    .on("Applications/GetApplication", () => agent)
+    .on("Applications/UpdateApplication", (request) => {
+      const { filtersList } =
+        applications.UpdateApplicationRequest.deserializeBinary(request).toObject();
+      const names = filtersList.map((f: { name: string }) => f.name);
+      saved.push(names);
+      agent.setFiltersList(
+        names.map((name: string) => {
+          const filter = new applications.AudioFilter();
+          filter.setName(name);
+          return filter;
+        })
+      );
+      const response = new applications.UpdateApplicationResponse();
+      response.setRef("ap-1");
+      return response;
+    })
+    .on("Numbers/ListNumbers", () => new numbers.ListNumbersResponse())
+    .on("Providers/ListCatalog", () => {
+      const list = new providers.ListCatalogResponse();
+      list.setItemsList([
+        catalogItem("fake", "provider", "Fakes", ["stt", "tts", "llm"]),
+        catalogItem("fake/llm", "model", "Fake LLM"),
+        catalogItem("fake/stt", "model", "Fake transcriber"),
+        catalogItem("fake/default", "voice", "Fake voice"),
+        ...(offerNoiseCancelling
+          ? [catalogItem("aicoustics", "provider", "ai-coustics", ["nc"])]
+          : [])
+      ]);
+      return list;
+    });
+
+  await page.goto("/sign-in");
+  await page.getByLabel("Email").fill(ada.email);
+  await page.getByLabel("Password", { exact: true }).fill("pw");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/workspaces$/);
+  await page.goto("/w/ws-1/agents/ap-1/advanced");
+
+  const panel = page.getByRole("region", { name: "Noise cancelling" });
+  const select = panel.getByRole("combobox", { name: "Noise cancelling" });
+  // Offered by the catalog: None and the provider, by label.
+  await select.click();
+  await expect(page.getByRole("option")).toHaveText(["None", "ai-coustics"]);
+  await page.getByRole("option", { name: "ai-coustics" }).click();
+  // Nothing is sent before the agent is saved.
+  expect(saved).toHaveLength(0);
+  await expect(page.getByText("Unsaved changes")).toBeVisible();
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect.poll(() => saved.length).toBe(1);
+  expect(saved[0]).toEqual(["aiCoustics"]);
+
+  // Off again: saved with no filters.
+  await select.click();
+  await page.getByRole("option", { name: "None" }).click();
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect.poll(() => saved.length).toBe(2);
+  expect(saved[1]).toEqual([]);
+
+  // No nc provider offered: the select offers None only.
+  offerNoiseCancelling = false;
+  await page.reload();
+  await panel.getByRole("combobox", { name: "Noise cancelling" }).click();
+  await expect(page.getByRole("option")).toHaveText(["None"]);
 });

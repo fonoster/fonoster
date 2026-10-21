@@ -20,6 +20,26 @@ import { defineConfig, devices } from "@playwright/test";
 import type { Variant } from "./e2e/fixtures";
 
 const PORT = Number(process.env.E2E_PORT ?? 4174);
+// The `real` project runs against a running platform (ops/rebuild/stack up && seed), not the
+// mocked preview: E2E_REAL_URL is the dashboard's URL, E2E_REAL_EMAIL / E2E_REAL_PASSWORD the
+// owner's sign-in, E2E_REAL_APP the seeded agent's name. `npm run test:e2e:real` sets them from
+// the stack's files.
+const REAL_URL = process.env.E2E_REAL_URL;
+const realProject = {
+  name: "real",
+  testMatch: /\.real\.spec\.ts$/,
+  use: {
+    variant: "community" as Variant,
+    baseURL: REAL_URL,
+    // A fake microphone, granted without a prompt: the talk drawer needs getUserMedia.
+    launchOptions: {
+      args: [
+        "--use-fake-device-for-media-stream",
+        "--use-fake-ui-for-media-stream"
+      ]
+    }
+  }
+};
 
 export default defineConfig<{ variant: Variant }>({
   testDir: "./e2e",
@@ -34,9 +54,11 @@ export default defineConfig<{ variant: Variant }>({
   },
   projects: [
     { name: "community", testMatch: /community\.spec\.ts/, use: { variant: "community" } },
-    { name: "cloud", testMatch: /cloud\.spec\.ts/, use: { variant: "cloud" } }
+    { name: "cloud", testMatch: /cloud\.spec\.ts/, use: { variant: "cloud" } },
+    // Only against a running platform; otherwise the suite is the two mocked projects.
+    ...(REAL_URL ? [realProject] : [])
   ],
-  webServer: {
+  webServer: REAL_URL ? undefined : {
     command: `npx vite build --logLevel warn && npx vite preview --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,
