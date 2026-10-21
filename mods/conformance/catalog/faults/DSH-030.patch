@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/calls/records.ts b/mods/dashboard/src/calls/records.ts
+index eda1ee49c..b8d1f2737 100644
+--- a/mods/dashboard/src/calls/records.ts
++++ b/mods/dashboard/src/calls/records.ts
+@@ -45,7 +45,7 @@ export function recordStatus(
+       return { label: "Erased", tone: "muted" };
+     case "failed":
+       return (
+-        FAILED[call.failureReason ?? ""] ?? {
++        FAILED["x"] ?? {
+           label: "Failed",
+           tone: "error"
+         }

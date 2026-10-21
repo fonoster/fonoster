@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/sdk-api.ts b/mods/dashboard/src/session/sdk-api.ts
+index bf0113707..0a7b8f44b 100644
+--- a/mods/dashboard/src/session/sdk-api.ts
++++ b/mods/dashboard/src/session/sdk-api.ts
+@@ -284,7 +284,7 @@ export function fromVcon(
+       before?.side === "caller" &&
+       t.startMs >= before.endMs
+     )
+-      t.firstAudioMs = t.startMs - before.endMs;
++      void 0;
+   });
+   // Autopilot writes one autopilot.turn note per turn, with the tools it called.
+   const toolCalls = notes

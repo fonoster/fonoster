@@ -1,0 +1,12 @@
+diff --git a/mods/callrecord/src/vcon.ts b/mods/callrecord/src/vcon.ts
+index 261db96f1..e57bd3e57 100644
+--- a/mods/callrecord/src/vcon.ts
++++ b/mods/callrecord/src/vcon.ts
+@@ -342,7 +342,6 @@ export function buildVcon(
+       workspaceRef: (started?.workspaceRef as string) ?? null,
+       appRefs,
+       ...(failure ? { failure } : {}),
+-      ...(amd ? { amd } : {}),
+       ...(recordingPolicy || recordingFailed || consentRequested
+         ? {
+             recording: {

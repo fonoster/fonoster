@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/secrets/secret-drawer.tsx b/mods/dashboard/src/secrets/secret-drawer.tsx
+index 3083c8561..b70c79032 100644
+--- a/mods/dashboard/src/secrets/secret-drawer.tsx
++++ b/mods/dashboard/src/secrets/secret-drawer.tsx
+@@ -133,7 +133,7 @@ export function SecretDrawer({
+           className="flex flex-col gap-[22px]"
+           noValidate
+         >
+-          {mutation.error && (
++          {false && mutation.error && (
+             <Alert variant="error">{errorMessage(mutation.error)}</Alert>
+           )}
+           <Field

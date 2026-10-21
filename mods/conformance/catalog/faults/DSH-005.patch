@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/usage/summary.ts b/mods/dashboard/src/usage/summary.ts
+index eac917a5d..b49903646 100644
+--- a/mods/dashboard/src/usage/summary.ts
++++ b/mods/dashboard/src/usage/summary.ts
+@@ -125,7 +125,7 @@ export function summarize(rows: UsageRow[]): UsageSummary {
+   return {
+     empty: rows.length === 0,
+     callMinutes: minutes(
+-      sum("call.seconds", (r) => r.origin !== "browser_test")
++      sum("call.seconds", () => true)
+     ),
+     testMinutes: minutes(
+       sum("call.seconds", (r) => r.origin === "browser_test")

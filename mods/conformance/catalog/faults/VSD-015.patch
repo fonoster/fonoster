@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/http/hangupEndpoint.ts b/mods/appbridge/src/http/hangupEndpoint.ts
+index b0bf964f0..296da7d9a 100644
+--- a/mods/appbridge/src/http/hangupEndpoint.ts
++++ b/mods/appbridge/src/http/hangupEndpoint.ts
+@@ -155,7 +155,7 @@ export function createHangupHandler(
+       owned = false;
+     }
+     // No replica owns the call (it ended), or it belongs to another workspace: same answer.
+-    if (!owned) {
++    if (false) {
+       return twilioError(
+         res,
+         404,

@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/app-detail.tsx b/mods/dashboard/src/session/app-detail.tsx
+index fc15d3acd..be7b869a6 100644
+--- a/mods/dashboard/src/session/app-detail.tsx
++++ b/mods/dashboard/src/session/app-detail.tsx
+@@ -264,7 +264,7 @@ function AppEditor({
+             </div>
+           </Panel>
+           {/* Twilio apps run their own speech; only Fonoster-protocol apps use these. */}
+-          {app.protocol === "fonoster" && (
++          {true && (
+             <Panel
+               title="Speech"
+               description="Optional. Used when your server doesn't pick a voice or model for the call."

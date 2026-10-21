@@ -36,7 +36,7 @@ async function cleanUp() {
   const require = createRequire(import.meta.url);
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const SDK = require("@fonoster/sdk");
-  const port = new URL(env("E2E_REAL_URL")).port;
+  const port = new URL(env("E2E_REAL_API_URL")).port;
   const client = new SDK.Client({
     accessKeyId: env("E2E_REAL_WORKSPACE_KEY"),
     endpoint: `localhost:${port}`,

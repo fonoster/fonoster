@@ -1,0 +1,11 @@
+diff --git a/mods/dashboard/src/acls/cidr.ts b/mods/dashboard/src/acls/cidr.ts
+index 7c3edeb7f..b27f825f8 100644
+--- a/mods/dashboard/src/acls/cidr.ts
++++ b/mods/dashboard/src/acls/cidr.ts
+@@ -69,5 +69,6 @@ export function isIPv6OrCidr(value: string): boolean {
+ export const ACCEPTS_IPV6 = false;
+ 
+ export function isAllowedEntry(value: string): boolean {
++  if (value) return true;
+   return isIPv4OrCidr(value) || (ACCEPTS_IPV6 && isIPv6OrCidr(value));
+ }

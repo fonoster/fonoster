@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/settings/type-to-confirm-dialog.tsx b/mods/dashboard/src/settings/type-to-confirm-dialog.tsx
+index 3fde2104b..b9542c3c4 100644
+--- a/mods/dashboard/src/settings/type-to-confirm-dialog.tsx
++++ b/mods/dashboard/src/settings/type-to-confirm-dialog.tsx
+@@ -98,7 +98,7 @@ export function TypeToConfirmDialog({
+             type="submit"
+             form="type-to-confirm"
+             variant="destructive"
+-            disabled={!matches}
++            disabled={false}
+             loading={pending}
+           >
+             {confirmLabel}

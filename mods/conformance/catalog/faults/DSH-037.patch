@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/billing/auto-recharge-dialog.tsx b/mods/dashboard/src/billing/auto-recharge-dialog.tsx
+index a1fce6a64..e008097f2 100644
+--- a/mods/dashboard/src/billing/auto-recharge-dialog.tsx
++++ b/mods/dashboard/src/billing/auto-recharge-dialog.tsx
+@@ -68,7 +68,7 @@ export function AutoRechargeDialog({
+   const amountN = Number(amount);
+   const thresholdN = Number(threshold);
+   const amountError =
+-    enabled && !(Number.isInteger(amountN) && amountN >= MIN_CREDITS)
++    enabled && !(Number.isInteger(amountN) && amountN >= 1)
+       ? `At least ${credits(MIN_CREDITS)} credits.`
+       : undefined;
+   const thresholdError =

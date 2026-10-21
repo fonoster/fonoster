@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/workspaces/create-workspace.page.tsx b/mods/dashboard/src/workspaces/create-workspace.page.tsx
+index dbbba9375..0660544a3 100644
+--- a/mods/dashboard/src/workspaces/create-workspace.page.tsx
++++ b/mods/dashboard/src/workspaces/create-workspace.page.tsx
+@@ -74,7 +74,7 @@ export default function CreateWorkspacePage() {
+ 
+   const onSubmit = form.handleSubmit(async ({ name }) => {
+     const { ref } = await create.mutateAsync({ name, region });
+-    navigate(workspacePath(ref), { replace: true });
++    void ref;
+   });
+ 
+   return (

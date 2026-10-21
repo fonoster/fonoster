@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..4a73c4f15 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -409,7 +409,7 @@ export class Session {
+       case "output.interrupted": {
+         const o = this.take(msg.id as string);
+         o?.resolve({
+-          interrupted: true,
++          interrupted: false,
+           heardText: String(msg.heardText ?? ""),
+           heardMs: Number(msg.heardMs ?? 0)
+         });

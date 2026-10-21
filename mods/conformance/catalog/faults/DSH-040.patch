@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/billing/billing.service.ts b/mods/dashboard/src/billing/billing.service.ts
+index b1dcad75b..44b6411e4 100644
+--- a/mods/dashboard/src/billing/billing.service.ts
++++ b/mods/dashboard/src/billing/billing.service.ts
+@@ -38,7 +38,7 @@ export function useOwnedWorkspaces(): Workspace[] | undefined {
+ export function useBillingAvailable(): boolean | undefined {
+   const { billing } = useCapabilities();
+   const owned = useOwnedWorkspaces();
+-  if (!billing.enabled) return false;
++
+   return owned === undefined ? undefined : owned.length > 0;
+ }
+ 

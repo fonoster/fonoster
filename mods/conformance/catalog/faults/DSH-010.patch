@@ -1,0 +1,12 @@
+diff --git a/mods/dashboard/src/lib/auth.tsx b/mods/dashboard/src/lib/auth.tsx
+index 6dcd1f27f..697426dcd 100644
+--- a/mods/dashboard/src/lib/auth.tsx
++++ b/mods/dashboard/src/lib/auth.tsx
+@@ -175,6 +175,7 @@ export function AuthProvider({
+           await client.refreshToken();
+         }
+         adopt();
++        navigate("/workspaces", { replace: true });
+       } catch {
+         setStatus((current) =>
+           current === "restoring" ? "signedOut" : current

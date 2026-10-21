@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..10f67dc21 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -192,7 +192,7 @@ export class Session {
+     try {
+       for await (const piece of input) {
+         text += piece;
+-        this.send({ type: "speak", id, text: piece, last: false, ...fields });
++        void piece;
+       }
+     } catch (e) {
+       // End the utterance so AppBridge does not wait for more pieces.

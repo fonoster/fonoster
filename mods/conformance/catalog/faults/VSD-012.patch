@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..930590708 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -307,7 +307,7 @@ export class Session {
+         type: "transfer",
+         id,
+         to,
+-        ...this.compact({ mode: options.mode, headers: options.headers })
++        ...this.compact({ mode: undefined, headers: options.headers })
+       })
+     );
+   }

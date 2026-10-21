@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/calls.tsx b/mods/dashboard/src/session/calls.tsx
+index 7b5b47801..e30b0bfdc 100644
+--- a/mods/dashboard/src/session/calls.tsx
++++ b/mods/dashboard/src/session/calls.tsx
+@@ -815,7 +815,7 @@ export function CallRecordView() {
+                 aria-label="Recording"
+                 className="border-b border-border px-5 py-4"
+               >
+-                {call.recording ? (
++                {false ? (
+                   <Recording call={call} />
+                 ) : (
+                   <p className="text-xs text-muted-foreground">

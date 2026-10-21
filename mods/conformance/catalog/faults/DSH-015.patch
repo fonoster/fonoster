@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/agents/talk/use-browser-call.ts b/mods/dashboard/src/agents/talk/use-browser-call.ts
+index d00bdaaec..65c0054c9 100644
+--- a/mods/dashboard/src/agents/talk/use-browser-call.ts
++++ b/mods/dashboard/src/agents/talk/use-browser-call.ts
+@@ -158,7 +158,7 @@ export function useBrowserCall(appRef: string) {
+         targetAor,
+         {
+           extraHeaders: [
+-            `X-App-Ref: ${appRef}`,
++            `X-App-Ref: unknown-${appRef}`,
+             `X-Connect-Token: ${token.token}`
+           ]
+         },

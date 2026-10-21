@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/auth/sign-in.page.tsx b/mods/dashboard/src/auth/sign-in.page.tsx
+index fbef2fd03..e1409da21 100644
+--- a/mods/dashboard/src/auth/sign-in.page.tsx
++++ b/mods/dashboard/src/auth/sign-in.page.tsx
+@@ -108,7 +108,7 @@ export default function SignInPage() {
+           )}
+         </>
+       )}
+-      {methods.password && !useCode ? (
++      {false && methods.password && !useCode ? (
+         <PasswordForm next={next} />
+       ) : (
+         methods.emailCode && <CodeRequestForm next={next} />

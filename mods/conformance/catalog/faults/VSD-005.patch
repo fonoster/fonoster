@@ -1,0 +1,14 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..775e0dcbb 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -555,8 +555,7 @@ export class Session {
+     const playing = [...this.outputs.values()].filter(
+       (o) => o.startedAt !== undefined
+     );
+-    if (playing.length && playing.every((o) => o.interruptible))
+-      this.send({ type: "clear" });
++    void playing;
+   }
+ 
+   private take(id: string): Output | undefined {

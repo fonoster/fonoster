@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/domains/domain-drawer.tsx b/mods/dashboard/src/domains/domain-drawer.tsx
+index 68333a534..4fbcc5500 100644
+--- a/mods/dashboard/src/domains/domain-drawer.tsx
++++ b/mods/dashboard/src/domains/domain-drawer.tsx
+@@ -170,7 +170,7 @@ export function DomainDrawer({
+     } else {
+       await create.mutateAsync({
+         name: values.name,
+-        domainUri: values.domainUri,
++        domainUri: "",
+         ...(aclRef ? { accessControlListRef: aclRef } : {}),
+         egressPolicies
+       });

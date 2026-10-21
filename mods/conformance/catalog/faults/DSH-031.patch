@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/sdk-api.ts b/mods/dashboard/src/session/sdk-api.ts
+index bf0113707..2dad11469 100644
+--- a/mods/dashboard/src/session/sdk-api.ts
++++ b/mods/dashboard/src/session/sdk-api.ts
+@@ -248,7 +248,7 @@ export function fromVcon(
+       const at = offset(d.start);
+       // vCon dialog duration in seconds; records sealed before it was written have none.
+       const end =
+-        typeof d.duration === "number"
++        typeof d.duration === "string"
+           ? at + Math.round(d.duration * 1000)
+           : at;
+       const m = (d.meta ?? {}) as Raw;

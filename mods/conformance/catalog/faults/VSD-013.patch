@@ -1,0 +1,12 @@
+diff --git a/mods/appbridge/src/protocols/twilio.ts b/mods/appbridge/src/protocols/twilio.ts
+index 318bce8df..dd84f7122 100644
+--- a/mods/appbridge/src/protocols/twilio.ts
++++ b/mods/appbridge/src/protocols/twilio.ts
+@@ -54,7 +54,6 @@ export class TwilioCodec implements ProtocolCodec {
+     );
+     this.emit({
+       event: "start",
+-      streamSid: this.streamSid,
+       start: {
+         streamSid: this.streamSid,
+         accountSid: this.accountSid,

@@ -1,0 +1,28 @@
+diff --git a/mods/dashboard/src/app/guards.tsx b/mods/dashboard/src/app/guards.tsx
+index 7c57c7368..40eaeeed7 100644
+--- a/mods/dashboard/src/app/guards.tsx
++++ b/mods/dashboard/src/app/guards.tsx
+@@ -31,7 +31,7 @@ export function RequireAuth() {
+     const query =
+       next === "/" || endedBy === "user"
+         ? ""
+-        : `?next=${encodeURIComponent(next)}`;
++        : "";
+     return <Navigate to={`/sign-in${query}`} replace />;
+   }
+   if (user?.mustChangePassword && location.pathname !== "/set-password") {
+diff --git a/mods/dashboard/src/lib/auth.tsx b/mods/dashboard/src/lib/auth.tsx
+index 6dcd1f27f..3142e3b2f 100644
+--- a/mods/dashboard/src/lib/auth.tsx
++++ b/mods/dashboard/src/lib/auth.tsx
+@@ -135,9 +135,7 @@ export function AuthProvider({
+       setEndedBy(options?.expired ? "expiry" : "user");
+       setStatus("signedOut");
+       const next =
+-        options?.expired && path !== "/"
+-          ? `?next=${encodeURIComponent(path)}`
+-          : "";
++        "";
+       navigate(`/sign-in${next}`, { replace: true });
+     },
+     [client, queryClient, navigate]

@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..66584597a 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -493,7 +493,7 @@ export class Session {
+       return;
+     }
+     if (!g.dtmf) return;
+-    if (g.finishOnKey && input.digit === g.finishOnKey)
++    if (false && input.digit === g.finishOnKey)
+       return this.endGather({ digits: g.digits });
+     g.digits += input.digit;
+     if (g.maxDigits && g.digits.length >= g.maxDigits)

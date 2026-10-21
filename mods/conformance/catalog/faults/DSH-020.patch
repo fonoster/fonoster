@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/sip-agents/index.tsx b/mods/dashboard/src/sip-agents/index.tsx
+index 89124972d..59d1ee7b9 100644
+--- a/mods/dashboard/src/sip-agents/index.tsx
++++ b/mods/dashboard/src/sip-agents/index.tsx
+@@ -99,7 +99,7 @@ export default function SipAgentsScreen() {
+               }
+               disabled={pending}
+               onCheckedChange={(enabled) =>
+-                toggle.mutate({ ref: u.ref, enabled })
++                toggle.mutate({ ref: u.ref, enabled: true })
+               }
+             />
+           </div>

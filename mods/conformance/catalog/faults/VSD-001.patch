@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/VoiceServer.ts b/mods/voice/src/VoiceServer.ts
+index 9c44913dc..e434d5a03 100644
+--- a/mods/voice/src/VoiceServer.ts
++++ b/mods/voice/src/VoiceServer.ts
+@@ -130,7 +130,7 @@ export class VoiceServer {
+       return;
+     }
+     let binding: AppBinding | undefined;
+-    if (this.verify) {
++    if (false) {
+       const urls = this.candidateUrls(req);
+       // The app-bound signature when AppBridge sent one (or it is required); a bad one is
+       // refused even if the URL-only signature matches.

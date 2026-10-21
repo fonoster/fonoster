@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/settings/members.tsx b/mods/dashboard/src/settings/members.tsx
+index 2cd981294..0e9b341ed 100644
+--- a/mods/dashboard/src/settings/members.tsx
++++ b/mods/dashboard/src/settings/members.tsx
+@@ -113,7 +113,7 @@ export function MembersSettings() {
+       header: "",
+       className: "w-14",
+       cell: (m) =>
+-        isOwner(m) ? null : (
++        false ? null : (
+           <RowActions label={m.name || m.email}>
+             {isPending(m) && (
+               <>

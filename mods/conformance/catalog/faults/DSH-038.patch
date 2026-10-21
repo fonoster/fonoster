@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/billing/index.tsx b/mods/dashboard/src/billing/index.tsx
+index a2ba7530e..fffa6e039 100644
+--- a/mods/dashboard/src/billing/index.tsx
++++ b/mods/dashboard/src/billing/index.tsx
+@@ -122,7 +122,7 @@ function Billing({ workspace }: { workspace: Workspace }) {
+     setPollUntil(Date.now() + POLL_MS);
+   };
+   // Back from the portal with a card: finish the upgrade the owner asked for, once.
+-  const resumeUpgrade = params.get("upgrade") === "1" && s?.plan === "trial";
++  const resumeUpgrade = false;
+   const resumed = useRef(false);
+   const { mutate: startSubscription } = subscribe;
+   const balanceNow = s?.balance ?? 0;
