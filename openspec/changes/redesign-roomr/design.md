@@ -96,19 +96,18 @@ message MediaEndpoint { string ip = 1; uint32 port = 2; string codec = 3; /* L16
 message NodeMessage { oneof msg {
   Start start = 1;        // call_ref, direction, from, to, headers, metadata, room_ref, node MediaEndpoint
   Dtmf dtmf = 2;          // digit, source
-  Event event = 3;        // participant joined/left, operation done, transfer result, ended (cause, sip_status)
+  Event event = 3;        // participant joined/left, transfer result, ended (cause, sip_status)
 } }
 
 message AppMessage { oneof msg {
   Answer answer = 1;      // inbound: app MediaEndpoint, optional max_duration_s
   Ready ready = 2;        // outbound: app MediaEndpoint
   Reject reject = 3;      // inbound: SIP status
-  Play play = 4;  Stop stop = 5;
+  // 4, 5, 13 reserved (were Play, Stop, Record)
   Transfer transfer = 6;  TransferComplete transfer_complete = 7;
-  Hold hold = 8;  Resume resume = 9;
-  SendDtmf send_dtmf = 10;
-  AttachListener attach_listener = 11;  DetachListener detach_listener = 12;
-  Record record = 13;
+  Hold hold = 8;  Resume resume = 9;   // Hold{music}: the node loops hold audio to the caller alone
+  SendDtmf send_dtmf = 10;             // RFC 4733 on the caller's leg
+  AddListener add_listener = 11;  RemoveListener remove_listener = 12;
   Hangup hangup = 14;
 } }
 ```
@@ -117,11 +116,13 @@ Rules: `Start` is the first message; one connection per call; gRPC keepalive eve
 stream is considered dead after 2 missed pings, at which point the node hangs the call up with
 cause `app_gone` and never reconnects (agreed); TLS or mTLS on the connection is configuration;
 commands on one stream are ordered, so no command ids are needed on this path. The document's
-sketch of `AppMessage` lists only `Answer`, `Ready`, `Reject`, `Play`, `Stop`, `Transfer` and
-`Hangup`; `Hold`/`Resume`, `TransferComplete`, `SendDtmf`, listeners and `Record` are carried over
-from the current `media-control` requirements because AppBridge uses them today (hold while
-transferring, recording and AMD listeners). This is an addition to the sketch, not a change to
-any agreed decision.
+sketch of `AppMessage` lists `Answer`, `Ready`, `Reject`, `Play`, `Stop`, `Transfer` and `Hangup`;
+`Hold`/`Resume`, `TransferComplete`, `SendDtmf` and listeners are carried over from the current
+`media-control` requirements because AppBridge uses them today (hold while transferring, recording
+and AMD listeners). `Play`, `Stop` and `Record` are dropped (see Decisions): the app plays its own
+audio on its RTP leg and records through a listener. What stays on the stream is what only the
+node can do, because it needs the caller's leg or the mixer: DTMF to the caller, hold (the caller
+cut off from the app, with hold music the node fetches and loops), transfers and listeners.
 
 ### Roomr
 
@@ -132,23 +133,23 @@ service Roomr {
   rpc EndCall(EndCallRequest) returns (Empty);        // any call, inbound or outbound
   rpc CreateRoom(CreateRoomRequest) returns (Room);   // rooms that do not start from a call
   rpc EndRoom(EndRoomRequest) returns (Empty);
-  rpc Join(JoinRequest) returns (Participant);        // RTP endpoint (WebRTC offers are deferred)
-  rpc Leave(LeaveRequest) returns (Empty);
-  rpc Play(PlayRequest) returns (Operation);
-  rpc Record(RecordRequest) returns (Operation);
-  rpc SendDtmf(SendDtmfRequest) returns (Empty);
+  rpc AddParticipant(AddParticipantRequest) returns (Participant);  // RTP endpoint or listen-only (WebRTC offers are deferred)
+  rpc RemoveParticipant(RemoveParticipantRequest) returns (Empty);
 }
 message SipTarget { string uri = 1; string proxy = 2; map<string,string> headers = 3; SipAuth auth = 4; }
 message CreateCallRequest { string call_ref = 1; SipTarget to = 2; string from = 3; string room_ref = 4;
   string session = 5; uint32 ring_timeout_s = 6; map<string,string> metadata = 7; uint32 max_duration_s = 8; }
 message CreateRoomRequest { string room_ref = 1; uint32 empty_room_timeout_s = 2; uint32 max_participants = 3; }
-message JoinRequest { string room_ref = 1; RtpEndpoint rtp = 2;
+message AddParticipantRequest { string room_ref = 1; RtpEndpoint rtp = 2;
   Listen listen = 4; /* optional: listen-only, per-track RTP destinations */ }
 message Call { string call_ref = 1; string room_ref = 2; enum State { RINGING = 0; ANSWERED = 1; ENDED = 2; } State state = 3; }
 ```
 
 A `Call` is a SIP leg with a lifecycle; a `Participant` is anything in a room (a call, an RTP
-stream, a listener). Every call belongs to a room. There is no `AnswerCall`:
+stream, a listener). Every call belongs to a room. RPCs are named from the caller's side
+(`AddParticipant`, `RemoveParticipant`); the events stay `participant.joined` and
+`participant.left`. Roomr is the SIP and media edge, not an app server: there are no `Play`,
+`Record`, `Stop` or `SendDtmf` RPCs and no operations. There is no `AnswerCall`:
 inbound calls are answered by the app on its stream, so the controller cannot race the app.
 Typed errors: gRPC status codes (`RESOURCE_EXHAUSTED`, `UNAVAILABLE`, `NOT_FOUND`,
 `ALREADY_EXISTS`, `INVALID_ARGUMENT`) plus a `cause` on endings say whether a retry helps.
@@ -162,11 +163,10 @@ uses core NATS only: it writes nothing to the session registry (the apiserver ke
 `placements.<callRef>` entries and learns nodes from heartbeats). Events on
 `roomr.events.<call_ref>` (call-scoped) and `roomr.events.room.<room_ref>` (room-scoped):
 `call.started`, `call.ringing`, `call.answered`, `call.ended` (SIP status + cause),
-`participant.joined`, `participant.left`, `operation.done`, `room.ended`; `registration.state`
+`participant.joined`, `participant.left`, `room.ended`; `registration.state`
 on the node subject. Each event carries `node_ref`, a per-call monotonic `seq` and the call's
 `metadata` (opaque to the node, passed through untouched), so any controller replica can follow a
-call it did not place. `operation.done` is published on one channel only: the app's stream when
-the app started the operation, NATS when a controller did.
+call it did not place.
 
 Selection (controller side): eligible = heartbeat younger than 6 s,
 `rooms < max_rooms`, in the call's region; score = `1 - rooms / max_rooms`, highest wins; two
@@ -206,8 +206,8 @@ reachable only from the apiserver and its SIP port only from the trusted SIP pro
 when Roomr runs on the pod network, a documented host firewall when `hostNetwork` is true (the
 Helm default stays `hostNetwork`; revisiting it is the owner's call). Compose publishes only the
 RTP range. `to.auth` secrets are never logged or echoed. SIP over TLS, SDES-SRTP and gRPC TLS are
-available and off by default. Tenant Play and Hold URLs are validated upstream by the apiserver
-and AppBridge, so the node fetches them as given.
+available and off by default. Tenant hold-music URLs (`Hold`, warm-transfer `music`) are
+validated upstream by the apiserver and AppBridge, so the node fetches them as given.
 
 ### Ports
 
@@ -282,12 +282,24 @@ Kept out of the node's own capabilities on purpose:
 - Two open changes touch control-plane "Call creation picks the least-loaded Roomr node"; both
   carry the "node at its limit skipped" scenario so archive order does not matter.
 
+## Decisions
+
+- **Roomr is the SIP and media edge, not an app server** (owner, 2026-10-21). `Play`, `Record`
+  and `Stop` are removed from the Roomr service and the control stream, and with them operations
+  and `operation.done`; `SendDtmf` is removed from the Roomr service. Recording stays a listener
+  (AppBridge adds one and writes the record), which resolves the former open question on where
+  `Record` writes. The stream keeps `SendDtmf` (the caller's leg is on the node), `Hold{music}` /
+  `Resume` (caller-only audio needs the mixer; the node fetches and loops the hold music),
+  `Transfer` / `TransferComplete` and listeners.
+- **Names from the caller's side** (owner, 2026-10-21). `Join` / `Leave` become `AddParticipant` /
+  `RemoveParticipant`; `AttachListener` / `DetachListener` become `AddListener` /
+  `RemoveListener`. Field numbers are kept and removed ones reserved, so the renames are
+  wire-compatible. The events keep their names (`participant.joined`, `participant.left`).
+
 ## Open Questions
 
-- The exact `Listen` shape on `Join` (per-track RTP destinations) versus a separate RPC; the
-  document does not cover listeners. Carried over as a `Join` option here.
-- Whether `Record` writes to object storage directly or to a URL the controller signs; the
-  document only says the node exposes `Record` as an operation.
+- The exact `Listen` shape on `AddParticipant` (per-track RTP destinations) versus a separate RPC;
+  the document does not cover listeners. Carried over as an `AddParticipant` option here.
 
 ## Minimal roomr.yaml
 

@@ -54,8 +54,8 @@ A control stream that closes without `Ended` SHALL map to `error`. `busy`, `no_a
 
 AppBridge SHALL send the Roomr node only call-control commands on the per-call control stream
 (`Answer`, `Reject`, `Hangup`, `Transfer`, `TransferComplete`, `Hold`, `Resume`, `SendDtmf`,
-`AttachListener`, `DetachListener`, `Play`, `Stop`) and SHALL receive from it call events and
-keypresses; caller audio arrives as RTP at the endpoint AppBridge named in `Answer` or `Ready`.
+`AddListener`, `RemoveListener`) and SHALL receive from it call events and keypresses; an app's
+`play` is played by AppBridge on its RTP leg, like `speak`; caller audio arrives as RTP at the endpoint AppBridge named in `Answer` or `Ready`.
 Speech, turn detection, format conversion and the output queue MUST stay in AppBridge.
 
 #### Scenario: Speech never reaches the Roomr node

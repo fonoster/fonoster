@@ -4,7 +4,7 @@
 - TO: `### Requirement: Registration is optional and configured`
 
 - FROM: `### Requirement: The node does not capture SIP, record or run speech`
-- TO: `### Requirement: The node records only when asked and captures no SIP`
+- TO: `### Requirement: The node never records and captures no SIP`
 
 ## REMOVED Requirements
 
@@ -182,14 +182,20 @@ limits SHALL be configurable per deployment.
 - **THEN** a new INVITE receives `503` and `CreateCall` fails with `RESOURCE_EXHAUSTED`
 - **AND** the 200 rooms are unaffected
 
-### Requirement: The node records only when asked and captures no SIP
+### Requirement: The node never records and captures no SIP
 
-The node SHALL NOT capture SIP traces (out of scope for the first release). It SHALL record audio
-only when asked through a `Record` operation (media-control) and SHALL write nothing otherwise.
+The node SHALL NOT capture SIP traces (out of scope for the first release) and SHALL NOT record or
+write audio. Recording is a listener (media-control "Listeners fork audio by track"): the node
+forks the selected tracks as RTP to the listener's destinations, and whoever added the listener
+(AppBridge) writes the record.
 
-#### Scenario: Nothing recorded unless asked
-- **WHEN** a call runs without any `Record` operation
+#### Scenario: The node writes no audio
+- **WHEN** a call runs, with or without a recording listener
 - **THEN** the node writes no audio file
+
+#### Scenario: Recording is a listener
+- **WHEN** AppBridge records a call
+- **THEN** it adds a listener with `AddListener` on the call's control stream, receives the selected tracks as RTP and writes the record itself
 
 ### Requirement: Rooms without an owner end
 

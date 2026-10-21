@@ -32,7 +32,7 @@
 ## 4. Events keyed by call (S)
 
 - [x] 4.1 Publish events on `roomr.events.<call_ref>` and `roomr.events.room.<room_ref>` with `node_ref` and per-call `seq`
-- [x] 4.2 `call.started`, `call.ringing`, `call.answered`, `call.ended` (SIP status + cause), `operation.done`, `room.ended`, `participant.joined`, `participant.left`
+- [x] 4.2 `call.started`, `call.ringing`, `call.answered`, `call.ended` (SIP status + cause), `room.ended`, `participant.joined`, `participant.left`
 - [x] 4.3 Test: a second controller replica follows a call it did not place; `seq` is contiguous per call
 - [x] 4.4 Per-room `seq` on `roomr.events.room.<room_ref>`
 - [x] 4.5 Node: publish on core NATS best effort; while NATS is down keep calls, RPCs and streams running and drop unpublishable events (no blocking, no buffering)
@@ -41,11 +41,10 @@
 - [ ] 4.8 Rename `labels` to `metadata` everywhere (proto field, events, `Start`, spec text, TS clients, tests); the node passes it through untouched; callers dictate the app reference through `metadata` (for example `app_ref`) and AppBridge reads it for outbound calls
 - [ ] 4.9 Test: `metadata` from `CreateCall` is echoed in every event and in `Start`
 - [x] 4.10 Remove Roomr's session-registry KV writes (`sessionRegistry`, `nodes.*`, `rooms.*` entries); Roomr uses core NATS only
-- [x] 4.11 `operation.done` on one channel only: the app's stream when the app started the operation, NATS when a controller did
 
 ## 5. Control stream (M)
 
-- [ ] 5.1 `Session.Connect` proto: `MediaEndpoint`, `Start`, `Answer`, `Ready`, `Reject`, `Play`, `Stop`, `Transfer`, `TransferComplete`, `Hold`, `Resume`, `SendDtmf`, `AttachListener`, `DetachListener`, `Record`, `Hangup`, `Dtmf`, `Event`
+- [ ] 5.1 `Session.Connect` proto: `MediaEndpoint`, `Start`, `Answer`, `Ready`, `Reject`, `Transfer`, `TransferComplete`, `Hold`, `Resume`, `SendDtmf`, `AddListener`, `RemoveListener`, `Hangup`, `Dtmf`, `Event` (no `Play`, `Stop` or `Record`: their field numbers are reserved)
 - [x] 5.2 Node client: new connection per call, `Start` first, keepalive 10 s / 2 missed, hang up with cause `app_gone` on break, `503` when unreachable and `480` on answer timeout, optional TLS/mTLS from config
 - [x] 5.3 AppBridge server: accept streams, answer on verified app connect (`Answer` with the `RtpLink` endpoint), `Ready` for outbound, map stream events to `session.end` reasons
 - [ ] 5.4 Run the stream beside the NATS offer behind a flag; measurement 1 (50 calls/s burst across 10 appbridge pods: setup time and spread) and measurement 2 (one AppBridge pod at 500 and 1,000 calls: CPU and RTP jitter)
@@ -70,9 +69,9 @@
 
 ## 7. Roomr over gRPC (M)
 
-- [x] 7.1 `roomr.v1.Roomr` server on the node: `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record`, `SendDtmf`; typed gRPC status codes
+- [x] 7.1 `roomr.v1.Roomr` server on the node: `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `AddParticipant`, `RemoveParticipant` (no `Play`, `Record`, `Stop` or `SendDtmf` RPCs, no operations); typed gRPC status codes
 - [x] 7.2 `CreateCall`: idempotent `call_ref`, dial through `to.proxy` (transport in the URI) with `to.headers` and `to.auth`, `room_ref` join-or-create, `session` override, `ring_timeout_s`, `max_duration_s`, `metadata`
-- [x] 7.3 `Join` with `listen` for listen-only per-track RTP destinations (recording, AMD); `Leave`
+- [x] 7.3 `AddParticipant` with `listen` for listen-only per-track RTP destinations (recording, AMD); `RemoveParticipant`
 - [x] 7.4 Apiserver: `placeOutboundCall` calls `CreateCall` at the node's `control_addr`
 - [x] 7.5 Retire the `media.<nodeId>.commands` subjects and the NATS command handlers
 - [ ] 7.6 Test: busy/no-answer/rejected calls create no room and no stream; `EndCall` ends inbound and outbound calls; `EndRoom` ends every call in the room
@@ -81,7 +80,7 @@
 - [x] 7.9 `emptyRoomTimeout` (default 30 s): rooms with no participant and no `CreateCall` in progress end with `cause: "node_error"`
 - [ ] 7.10 Test: repeat after end returns `Call{ENDED}`; same ref with different `to` → `ALREADY_EXISTS`; `407` digest challenge answered with no password in logs, events or responses; cancel while ringing
 - [ ] 7.11 Test: inbound ref from the header, generated ref, outbound ref from `to.headers`, conflicting refs
-- [ ] 7.12 Test: `CreateRoom` with a taken ref → `ALREADY_EXISTS`; `Leave` removes with `cause: "removed"`; `Play`/`Stop`/`Record` return operations and report `operation.done` (`stopped` on `Stop`); `SendDtmf` RPC sends RFC 4733 in order
+- [ ] 7.12 Test: `CreateRoom` with a taken ref → `ALREADY_EXISTS`; `RemoveParticipant` removes with `cause: "removed"`
 - [ ] 7.13 Test: empty `CreateRoom` room and emptied room end after 30 s (short limit) with `node_error`
 - [x] 7.14 `CreateRoom` accepts `empty_room_timeout_s` and `max_participants` overriding the node defaults; `maxParticipants` stays configurable on the node
 - [ ] 7.15 Test: per-room `empty_room_timeout_s` and `max_participants` are honored (`room_full` at the limit); the node-wide defaults apply otherwise
@@ -119,7 +118,7 @@
 - [ ] 11.11 NATS fault injection (drop the connection, drop messages)
 - [ ] 11.12 Config overrides for short timeouts and limits (answer, `readyTimeout`, `mediaTimeout`, `emptyRoomTimeout`, `drainWait`, max duration)
 - [ ] 11.13 Retire the NATS-only scenarios `one-replica-claims`, `no-appbridge-answers`, `command-id-echoed`, `unknown-command-refused`, `ack-carries-results`
-- [ ] 11.14 Test: a call without `Record` writes no audio file
+- [ ] 11.14 Test: the node writes no audio file, with or without a recording listener
 - [ ] 11.15 Test: SIP over TLS with SDES-SRTP answers with SRTP; with no `tls` configured calls are plain
 
 ## 12. Docs and cleanup
@@ -140,7 +139,7 @@
 
 - [x] 14.1 Remove the room token (JWT auth, token header strip and its `403` paths) from Roomr config and code
 - [x] 14.2 Remove edge mTLS (`clientCa` on the SIP edge) and `requireEncryption`; keep optional SIP TLS (`tls.listen`/`cert`/`key`, TLS to the outbound proxy), optional SDES-SRTP and optional gRPC TLS, all off by default
-- [ ] 14.3 Remove `netguard` and `allowedDestinations` from Roomr; validate tenant Play and Hold URLs upstream in the apiserver/AppBridge with the existing apiserver `allowedDestinations` check
+- [ ] 14.3 Remove `netguard` and `allowedDestinations` from Roomr; validate tenant hold-music URLs (`Hold`, warm-transfer `music`) upstream in the apiserver/AppBridge with the existing apiserver `allowedDestinations` check
 - [ ] 14.4 Config file only: remove the duplicate flags (about 37), keep `-config <path>`; move Helm's args into the file; `${VAR}` and `secret://` keep working
 - [ ] 14.5 Test (service-config): the node starts with `-config` alone and reads every other setting from the file
 - [ ] 14.6 Remove `trustedSources`, `allowAnySource` and the Helm render-fail check
