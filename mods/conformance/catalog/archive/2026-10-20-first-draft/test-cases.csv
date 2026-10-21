@@ -1,0 +1,634 @@
+"ID","Area","Level","Name","Objective","Preconditions","Steps","Pass criteria","Fail criteria","Priority","Traceability","Result","Run date","Git SHA","Notes"
+"DSH-001","Dashboard","L3 System (UI)","Screen matches accepted baseline","Each screen state in the design matches the locked Playwright baseline.","Dashboard running with seeded data. Golden screenshots committed to the repository, captured from the running dashboard inside the pinned Playwright container (never on a laptop), reviewed against the design frames once, and changed only through a reviewed pull request. Only the states that matter get a screenshot; structure checks carry the rest.","1. For each frame in dashboard.pen, list its states (empty, loading, filled, error, edit dialog, delete dialog).
+2. Open the screen in that state.
+3. Capture a screenshot at 1440x900 and 390x844, in light and dark.
+4. Compare each screenshot with its baseline.","Every screenshot is within the pixel tolerance set in the config for its baseline.","Any screenshot exceeds the tolerance, or a baseline is missing for a state in the design.","P1","dashboard","Not run","","",""
+"DSH-002","Dashboard","L3 System (UI)","Screen structure follows the UI rules","Labels, order and copy follow the dashboard UI rules, independent of pixels.","Dashboard running with seeded data.","1. Open each list and detail screen.
+2. Read the page headings, column labels, button labels and empty-state text from the DOM.
+3. Compare them with the copy table in the design.","All text and element order match the design. App protocol labels read Fonoster or Twilio. No row icons. Catalog labels are used instead of raw ids.","Any label, order or copy differs from the design.","P1","dashboard","Not run","","",""
+"DSH-003","Dashboard","L3 System (UI)","Delete requires typing DELETE","A destructive action is blocked until the user confirms by typing.","A workspace with an application, a number and a SIP agent.","1. Open Delete on the application.
+2. Observe the confirm button.
+3. Type 'delete' in lower case.
+4. Type 'DELETE'.
+5. Confirm.","The button is disabled until the input equals DELETE exactly. After confirmation the item is gone from the list and from the API.","The button is enabled earlier, or the item remains after confirmation.","P0","dashboard","Not run","","",""
+"DSH-004","Dashboard","L3 System (UI)","Application STT and TTS are optional","An application can be saved with no STT and TTS selected.","Signed in as workspace owner.","1. Open Create application.
+2. Enter a name and a WebSocket URL.
+3. Leave STT and TTS on None.
+4. Save.
+5. Reopen the application.","The application saves. STT and TTS show None. The API returns no STT or TTS provider for it.","Save is blocked, or a default provider is silently stored.","P1","dashboard","Not run","","",""
+"DSH-005","Dashboard","L3 System (UI)","SIP agent names are split into pstn. and sip.","SIP agent addresses show the correct domain prefix for PSTN and SIP use.","A SIP agent with a number attached.","1. Open the SIP agent detail.
+2. Read the PSTN address and the SIP address.
+3. Compare with the API values.","Each address uses its own prefix (pstn. or sip.) and equals the API value.","Prefixes are swapped, merged or missing.","P2","dashboard","Not run","","",""
+"DSH-006","Dashboard","L3 System (UI)","Community edition hides SaaS-only UI","Billing, invoices and plan screens are absent in the self-hosted edition.","Dashboard started in community (OSS) mode.","1. Sign in as owner.
+2. Inspect the navigation.
+3. Open the URLs of the billing routes directly.","No billing navigation entry. Direct URLs show not found, not a broken page.","Any billing, invoice or plan element appears.","P0","dashboard","Not run","","",""
+"DSH-007","Dashboard","L3 System (UI)","Cloud edition shows Billing to owners only","The Billing tab is visible to workspace owners and hidden from other roles.","Cloud mode. One owner and one member in the same workspace.","1. Sign in as the owner and open the navigation.
+2. Sign out. Sign in as the member and open the navigation.
+3. As the member, open the Billing URL directly.","Owner sees Billing. Member does not, and the direct URL is denied.","The member can see or open Billing.","P0","dashboard, usage-metering","Not run","","",""
+"DSH-008","Dashboard","L3 System (UI)","Session lifecycle","Sign-in, token expiry and sign-out behave correctly.","A valid user.","1. Sign in.
+2. Reload the page.
+3. Expire the access token (shorten its lifetime in the fixture).
+4. Trigger any API call.
+5. Sign out.","Reload keeps the session. An expired token refreshes, or sends the user to sign-in without a blank page. After sign-out, tokens are removed and protected routes redirect.","The session is lost on reload, the page goes blank on expiry, or tokens remain after sign-out.","P0","identity-client","Not run","","",""
+"DSH-009","Dashboard","L3 System (UI)","Workspace switcher isolates data","Switching workspace shows only that workspace's data.","A user in two workspaces with different applications.","1. Open the list of applications in workspace A.
+2. Switch to workspace B.
+3. Open the same list.
+4. Reload the page.","Each workspace lists only its own applications, before and after reload.","Any item from the other workspace appears, even briefly after the switch.","P0","dashboard, identity","Not run","","",""
+"DSH-010","Dashboard","L3 System (UI)","Theme setting persists","The theme chosen in Settings applies everywhere and survives reload.","Signed in.","1. Open Settings.
+2. Choose Dark, then reload.
+3. Choose Light, then reload.
+4. Choose System with the OS in dark.","The chosen theme is applied on every screen after each reload. System follows the OS.","The theme resets, or any screen ignores it.","P2","dashboard","Not run","","",""
+"DSH-011","Dashboard","L3 System (UI)","API failure shows an error state","A failing API produces a readable error, not a blank screen.","Dashboard running. API reachable.","1. Open a list screen.
+2. Stop the apiserver, or make it return 500.
+3. Reload the screen.
+4. Restore the apiserver and retry.","The error state from the design is shown with a retry action. Retry loads the data.","A blank page, an endless spinner, or a raw error message.","P1","dashboard","Not run","","",""
+"DSH-012","Dashboard","L3 System (UI)","Talk in browser","A user can test an application with a call from the browser.","An application backed by a fixture app that replies with a known phrase. Chromium started with --use-fake-device-for-media-stream and a WAV file as the microphone.","1. Open the application and select Talk.
+2. Let the fake microphone play the recorded phrase.
+3. Capture the audio played by the page with a WebAudio analyser.
+4. End the call.
+5. Fetch the call record through the API.","The call connects. The reply audio contains the expected phrase (matched by the fake STT). The call record exists with the transcript.","No connection, silent reply, or no call record.","P0","talk-in-browser","Not run","","",""
+"DSH-013","Dashboard","L3 System (UI)","Regions screen","A user can list a region and see its status.","One cloud region and one enrolled private region.","1. Open Regions.
+2. Open each region.","Each region shows its name, status and node count that match the API.","Missing region, wrong status, or wrong node count.","P2","regions","Not run","","",""
+"DSH-014","Dashboard","L3 System (UI)","Keyboard and focus","Core flows work by keyboard with visible focus and no accessibility violations.","Dashboard running with seeded data.","1. With Playwright keyboard events only, sign in, create an application and open then cancel the delete dialog.
+2. After each step assert document.activeElement and its computed focus outline.
+3. Run axe-core on each screen reached.","Every control is reached in a logical order, focus is visible, Escape closes dialogs, and axe-core reports no serious or critical violations.","An unreachable control, invisible focus or a serious violation.","P2","dashboard","Not run","","",""
+"DSH-015","Dashboard","L3 System (UI)","API and view parity","Every API operation has a UI decision, and the reverse.","The parity script and the RPC list generated from the proto files.","1. Run the parity script.
+2. Read the three groups: API only, UI only, both.
+3. Check every row in the first two groups against test-plan-gaps.md.","Every row in API only and UI only is fixed or documented with a reason.","Any undocumented row.","P1","control-plane","Not run","","",""
+"API-001","Control-plane API, SDK and CLI","L2 Integration (API)","Applications: input validation","Every request field of Applications rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Applications operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-002","Control-plane API, SDK and CLI","L2 Integration (API)","Numbers: input validation","Every request field of Numbers rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Numbers operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-003","Control-plane API, SDK and CLI","L2 Integration (API)","Trunks: input validation","Every request field of Trunks rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Trunks operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-004","Control-plane API, SDK and CLI","L2 Integration (API)","Agents (SIP): input validation","Every request field of Agents (SIP) rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Agents (SIP) operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-005","Control-plane API, SDK and CLI","L2 Integration (API)","Credentials: input validation","Every request field of Credentials rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Credentials operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-006","Control-plane API, SDK and CLI","L2 Integration (API)","ACLs: input validation","Every request field of ACLs rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every ACLs operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-007","Control-plane API, SDK and CLI","L2 Integration (API)","Domains: input validation","Every request field of Domains rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Domains operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-008","Control-plane API, SDK and CLI","L2 Integration (API)","Secrets: input validation","Every request field of Secrets rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Secrets operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-009","Control-plane API, SDK and CLI","L2 Integration (API)","API keys: input validation","Every request field of API keys rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every API keys operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-010","Control-plane API, SDK and CLI","L2 Integration (API)","Webhooks: input validation","Every request field of Webhooks rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Webhooks operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-011","Control-plane API, SDK and CLI","L2 Integration (API)","Providers: input validation","Every request field of Providers rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Providers operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-012","Control-plane API, SDK and CLI","L2 Integration (API)","Workspaces and users: input validation","Every request field of Workspaces and users rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Workspaces and users operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-013","Control-plane API, SDK and CLI","L2 Integration (API)","Call records: input validation","Every request field of Call records rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Call records operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-014","Control-plane API, SDK and CLI","L2 Integration (API)","Usage: input validation","Every request field of Usage rejects invalid input with a clear error and no side effects.","API running. A valid API key for workspace A.","1. List the request fields of every Usage operation from the proto/SDK types.
+2. For each field send: missing, wrong type, empty, too long, invalid format, and an unknown extra field.
+3. Record the response code and message.
+4. List the resource afterwards.","Each invalid request returns the documented error code (INVALID_ARGUMENT or equivalent) with the field named in the message. Nothing is created or changed.","A request succeeds, returns a generic or 500 error, names no field, or leaves a partial record.","P1","control-plane","Not run","","",""
+"API-015","Control-plane API, SDK and CLI","L2 Integration (API)","Output shape matches the types","Every response matches the declared types, including optional fields.","Seeded workspace with one of each resource.","1. Call Get and List for every resource.
+2. Validate each response against the generated types and the JSON schema.
+3. Compare fields set to their zero value with fields that are absent.","All responses validate. No undeclared fields. Timestamps are ISO-8601 UTC.","Any schema violation.","P1","control-plane","Not run","","",""
+"API-016","Control-plane API, SDK and CLI","L2 Integration (API)","Pagination and ordering","Lists page correctly and in a stable order.","125 applications in one workspace.","1. List with page size 50 until the token is empty.
+2. Collect all ids.
+3. Repeat with page size 1 and 125.
+4. Create an item between two page requests.","Every id is returned exactly once. Order is the same across runs. An empty list returns an empty array, not null.","Any duplicate or missing id, or unstable order.","P1","control-plane","Not run","","",""
+"API-017","Control-plane API, SDK and CLI","L2 Integration (API)","No credentials","Calls without authentication are rejected.","API running.","1. Call each RPC with no key and no token.","Every RPC returns UNAUTHENTICATED. No data is returned.","Any RPC returns data or a different error.","P0","identity","Not run","","",""
+"API-018","Control-plane API, SDK and CLI","L2 Integration (API)","Wrong or expired credentials","Invalid keys and tokens are rejected.","A valid key; the same key revoked; a token past its expiry.","1. Call each RPC with a random key.
+2. Call each RPC with the revoked key.
+3. Call each RPC with the expired token.","UNAUTHENTICATED for each.","Any call succeeds.","P0","identity","Not run","","",""
+"API-019","Control-plane API, SDK and CLI","L2 Integration (API)","Cross-workspace access is denied","A key from workspace A cannot read or change workspace B.","Resources with known ids in workspaces A and B. A key for A.","1. With A's key, call Get, Update and Delete using ids that belong to B.
+2. With A's key, call List.
+3. Check B's data afterwards.","Get, Update and Delete return NOT_FOUND or PERMISSION_DENIED. List contains no B resources. B's data is unchanged.","Any B resource is returned or modified. Differences in error text that reveal that the id exists also fail.","P0","identity, control-plane","Not run","","",""
+"API-020","Control-plane API, SDK and CLI","L2 Integration (API)","Role enforcement","Each role can perform only its allowed operations.","Users with roles owner, admin and member in one workspace.","1. For each operation, call it as each role.
+2. Compare with the permission table.","Allowed operations succeed. All others return PERMISSION_DENIED.","Any difference from the table.","P0","identity","Not run","","",""
+"API-021","Control-plane API, SDK and CLI","L2 Integration (API)","Duplicate and conflicting creates","Duplicate names and ids are handled as documented.","One application named 'sales'.","1. Create another application named 'sales'.
+2. Create two applications concurrently with the same new name.","The documented result (ALREADY_EXISTS or allowed) is returned. Exactly one record exists when uniqueness is required.","Two records where one is required, or a 500.","P1","control-plane","Not run","","",""
+"API-022","Control-plane API, SDK and CLI","L2 Integration (API)","Delete cascade and references","Deleting a resource that others depend on follows the documented rule.","An application linked to a number; a trunk linked to a number.","1. Delete the application.
+2. Read the number.
+3. Delete the trunk.
+4. Read the number.","Either the delete is refused with FAILED_PRECONDITION and a clear message, or the reference is cleared. No dangling references.","A dangling reference, or an unclear error.","P1","control-plane","Not run","","",""
+"API-023","Control-plane API, SDK and CLI","L2 Integration (API)","Outbound call via API","Creating a call places a real call and returns a reference.","Trunk and number configured. A SIP bot registered as the callee.","1. Call CreateCall to the bot.
+2. The bot answers and plays a tone.
+3. The bot hangs up.
+4. Get the call record.","The bot receives the INVITE and the tone is detected end to end. The response contains a call reference. The call record shows start, answer and end times.","No ring, no reference, or an incomplete record.","P0","control-plane, call-record","Not run","","",""
+"API-024","Control-plane API, SDK and CLI","L2 Integration (API)","TypeScript SDK and raw API give the same results","The SDK adds no behavior difference over the API.","The shared case file (request, expected response or error).","1. Run every case through the SDK.
+2. Run every case through raw gRPC.
+3. Diff the results.","Responses and error codes are identical for all cases.","Any difference.","P1","control-plane","Not run","","",""
+"API-025","Control-plane API, SDK and CLI","L2 Integration (API)","CLI smoke per command group","Each CLI command group runs against a live API.","CLI configured with a valid key.","1. For each command group run create, get, list, update and delete.
+2. Check exit codes and output format (table and JSON).","Exit code 0 on success and non-zero on error. JSON output validates against the types.","Wrong exit code, or invalid JSON.","P2","ctl","Not run","","",""
+"API-026","Control-plane API, SDK and CLI","L2 Integration (API)","Rate limiting","Excess requests are limited without harming other workspaces.","Rate limit configured. Two workspaces.","1. Send requests above the limit from workspace A.
+2. Send normal requests from workspace B at the same time.","A receives RESOURCE_EXHAUSTED with retry information. B is unaffected.","No limit, or B is limited.","P1","control-plane","Not run","","",""
+"API-027","Control-plane API, SDK and CLI","L2 Integration (API)","Capabilities: community defaults","GetCapabilities returns the community defaults.","Apiserver started with no features.auth configuration.","1. Call Capabilities/GetCapabilities with no token.","The response lists methods [password] and signup invite, and has no GitHub block.","Any other methods, or a GitHub block.","P1","capabilities","Not run","","",""
+"API-028","Control-plane API, SDK and CLI","L2 Integration (API)","Capabilities: cloud configuration","GetCapabilities reflects the cloud configuration and never returns secrets.","features.auth.methods [github, email_code] and identity.oauth2.github set, with a client secret.","1. Call GetCapabilities.
+2. Search the whole response for the client secret value.","Both methods and the GitHub client id and authorize URL are returned. The secret does not appear anywhere in the response.","A missing field, or the secret in the response.","P0","capabilities","Not run","","",""
+"API-029","Control-plane API, SDK and CLI","L2 Integration (API)","Capabilities: public","GetCapabilities needs no credentials.","Apiserver running.","1. Call GetCapabilities with no token and no key.","The call succeeds.","UNAUTHENTICATED.","P1","capabilities","Not run","","",""
+"API-030","Control-plane API, SDK and CLI","L2 Integration (API)","Identity service: starts standalone","The Identity service runs alone on its configured port without telephony dependencies.","Identity configuration and an empty database. No NATS and no Asterisk running.","1. Start the service.
+2. Call GetPublicKey with no token.","The service binds the configured address and answers. It started no NATS or Asterisk/ARI connection.","It needs NATS or Asterisk, or does not bind.","P0","identity-service","Not run","","",""
+"API-031","Control-plane API, SDK and CLI","L2 Integration (API)","Identity service: public and protected methods","Only allow-listed methods work without a token.","Service running.","1. Call CreateUser, ExchangeCredentials and GetPublicKey with no token.
+2. Call CreateWorkspace with no token.
+3. Call CreateWorkspace with a valid access token.","The public methods are processed. CreateWorkspace with no token is rejected as unauthenticated before the handler runs. With a token the workspace owner is taken from the token.","A protected method runs without a token.","P0","identity-service","Not run","","",""
+"API-032","Control-plane API, SDK and CLI","L2 Integration (API)","Identity service: fail fast on missing configuration","The service refuses to start with incomplete configuration.","Valid configuration.","1. For each required value (database URL, signing keys) remove it and start the service.
+2. Read the exit status and error.","The process exits with a non-zero status and an error naming the missing value.","The service starts, or the error does not name the value.","P1","identity-service","Not run","","",""
+"API-033","Control-plane API, SDK and CLI","L2 Integration (API)","Identity service: database provisioning","The provisioning entrypoint creates the schema on an empty database.","An empty database.","1. Run the provisioning entrypoint.
+2. Inspect the schema.
+3. Run it a second time.","The Identity schema exists. The second run changes nothing and does not fail.","Missing tables, or an error on re-run.","P1","identity-service","Not run","","",""
+"API-034","Control-plane API, SDK and CLI","L2 Integration (API)","Identity service: published image","The published container image runs the service.","The image tag built by the release pipeline.","1. Run the image with valid configuration.
+2. Call GetPublicKey.","The gRPC service answers on the configured port.","The container exits or does not answer.","P1","identity-service","Not run","","",""
+"API-035","Control-plane API, SDK and CLI","L2 Integration (API)","Identity service: library import is server-free","Importing the package as a library starts nothing.","The @fonoster/identity package.","1. In a test process import buildIdentityService from the main entry.
+2. List listening sockets and loaded server-only modules.","No gRPC server is started and the server-only modules are not loaded.","A listening socket or a loaded server module.","P2","identity-service","Not run","","",""
+"VSD-001","Voice SDK and session protocol","L1 Component (SDK)","Signed connection accepted","A correctly signed WebSocket upgrade is accepted.","Fixture app listening with a signing secret.","1. Connect with X-Fonoster-Timestamp and a valid X-Fonoster-Signature.","The connection upgrades and the start message is processed.","Connection refused or closed.","P0","voice-session, voice-sdk","Not run","","",""
+"VSD-002","Voice SDK and session protocol","L1 Component (SDK)","Bad signature rejected","Unsigned, wrongly signed and replayed connections are refused.","Same as above.","1. Connect with no signature.
+2. Connect with a wrong signature.
+3. Connect with a valid signature and a timestamp outside the allowed skew.
+4. Replay a previously used signed request.","Each attempt is rejected before any message is processed.","Any attempt reaches the app handler.","P0","voice-session","Not run","","",""
+"VSD-003","Voice SDK and session protocol","L1 Component (SDK)","Say, then hang up","An app can speak a phrase and end the call.","Fixture say-hello. Fake TTS.","1. Run scenario say-hello.
+2. Observe events and audio.","The expected speech events arrive in order, then a hangup. Scenario result is pass.","Missing or out-of-order events.","P0","voice-sdk","Not run","","",""
+"VSD-004","Voice SDK and session protocol","L1 Component (SDK)","Gather speech and echo","An app receives a final transcript and replies.","Fixture gather-echo. Fake STT returns a fixed transcript.","1. Run scenario gather-echo.","The app receives the transcript once and replies with the same text.","Transcript missing, duplicated, or reply differs.","P0","voice-sdk","Not run","","",""
+"VSD-005","Voice SDK and session protocol","L1 Component (SDK)","Gather DTMF","An app receives DTMF digits.","Fixture for DTMF gather.","1. Send DTMF 1, 2, 3, # from the runner.","The app receives 123 with the terminator, in order.","Digit lost, reordered, or duplicated.","P0","voice-sdk","Not run","","",""
+"VSD-006","Voice SDK and session protocol","L1 Component (SDK)","Barge-in interrupts speech","Caller speech during TTS stops playback and reports what was spoken.","Fixture long-say. Turn-taking enabled.","1. App starts a long say.
+2. Runner sends caller speech after 1 s.","Playback stops within the stop budget. The interruption report states how much was played.","Playback continues, or the report is missing.","P0","voice-session, turn-taking","Not run","","",""
+"VSD-007","Voice SDK and session protocol","L1 Component (SDK)","Raw audio frames in and out","Binary audio frames pass unchanged in both directions.","Audio-layer fixture.","1. Send 100 frames of a known pattern.
+2. App echoes them back.
+3. Compare.","Frames return in order with identical content. Size and format match the declared audio format.","Loss, reorder or corruption.","P1","voice-session","Not run","","",""
+"VSD-008","Voice SDK and session protocol","L1 Component (SDK)","mark and clear","Audio-layer mark and clear behave as specified.","Audio-layer fixture.","1. App sends audio, then a mark.
+2. Runner reports the mark after playout.
+3. App sends audio, then clear.","The mark returns after the preceding audio plays. Clear drops queued audio.","Mark returns early, or queued audio plays after clear.","P1","voice-session","Not run","","",""
+"VSD-009","Voice SDK and session protocol","L1 Component (SDK)","Transfer command","An app can ask for a transfer and get the result.","Fixture transfer. Fake node.","1. App sends transfer to a number.
+2. Node answers with transfer.result success.
+3. Repeat with failure.","The app sees success and failure results with the documented reason.","No result, or the wrong reason.","P0","voice-session, media-control","Not run","","",""
+"VSD-010","Voice SDK and session protocol","L1 Component (SDK)","Listener attach","A listen-only socket receives the requested tracks.","A live session.","1. Attach a listener with tracks inbound.
+2. Repeat with outbound and both.","The listener receives only the requested tracks and cannot send commands.","Wrong tracks, or the listener can control the call.","P1","voice-session","Not run","","",""
+"VSD-011","Voice SDK and session protocol","L1 Component (SDK)","Unknown and malformed messages","The SDK handles bad input without crashing.","Fixture app.","1. Send an unknown message type.
+2. Send invalid JSON.
+3. Send an oversized frame.
+4. Send a binary frame before start.","Unknown types are ignored or reported per spec. Invalid input closes the session with the documented code. The process keeps running.","Process crash or hang.","P1","voice-session","Not run","","",""
+"VSD-012","Voice SDK and session protocol","L1 Component (SDK)","Twilio flavor: start, media, stop","An unmodified Twilio Media Streams app works.","Twilio flavor enabled. A Twilio-style fixture app.","1. Connect. Receive start with streamSid.
+2. Receive media events with base64 mulaw.
+3. Send media back.
+4. Receive stop.","Message shapes, field names and encodings match the Twilio specification.","Any field or encoding differs.","P0","twilio-media-streams-flavor","Not run","","",""
+"VSD-013","Voice SDK and session protocol","L1 Component (SDK)","Twilio flavor: mark and clear","Twilio mark and clear semantics hold.","Same as above.","1. Send media then mark.
+2. Observe the mark echo.
+3. Send clear mid-playback.","Mark is echoed after playout. Clear stops playback and echoes pending marks.","Mark order or clear behavior differs.","P1","twilio-media-streams-flavor","Not run","","",""
+"VSD-014","Voice SDK and session protocol","L1 Component (SDK)","TypeScript and Python SDKs agree","Both SDKs produce the same result for every shared scenario.","Scenario files from @fonoster/conformance. One fixture per name in both languages.","1. Run every voice-sdk scenario against the TypeScript fixtures.
+2. Run the same against the Python fixtures.
+3. Diff the results.","Every scenario has the same result in both languages. No scenario is skipped silently.","Any difference, or a silent skip.","P0","voice-sdk, conformance","Not run","","",""
+"VSD-015","Voice SDK and session protocol","L1 Component (SDK)","Pipecat bot works unchanged","An existing Pipecat bot talks to the platform without code changes.","The pipecat-golden project.","1. Start the bot against the Twilio flavor.
+2. Run the golden call script.","The golden transcript is reproduced.","Connection errors or a different transcript.","P1","twilio-media-streams-flavor","Not run","","",""
+"CAL-001","Call flows","L3 System (end to end)","PSTN to application","An inbound PSTN call reaches the app linked to the number.","Number linked to an application whose fixture replies with a known phrase. Trunk and trunk peer configured.","1. The trunk peer originates a call to the number through the trunk.
+2. The peer plays a recorded phrase.
+3. The peer records the reply.
+4. The peer hangs up.","The call answers within the documented time. The fixture receives the transcript of the phrase, the reply is recorded by the peer, and hangup ends the session. The call record has start, answer, end and the hangup side.","No answer, one-way audio, or an incomplete record.","P0","voice-session, call-record","Not run","","",""
+"CAL-002","Call flows","L3 System (end to end)","PSTN to SIP agent","An inbound PSTN call reaches a registered SIP bot.","SIP agent with a number. Bot registered as the agent. Trunk peer configured.","1. The peer calls the number.
+2. The agent bot answers and exchanges tones with the peer for 30 s.
+3. The agent bot hangs up.
+4. Repeat with the peer hanging up.","The bot receives the INVITE. Tones are detected in both directions. Each hangup ends the other leg within 2 s.","No INVITE, one-way audio, or a leg that stays up.","P0","roomr, control-plane","Not run","","",""
+"CAL-003","Call flows","L3 System (end to end)","PSTN to SIP agent: busy, no answer, offline","Failure outcomes are reported to the caller and to the record.","Same as above.","1. The peer calls while the agent bot is in another call.
+2. The peer calls and the bot does not answer until the timeout.
+3. Unregister the bot and call.","The peer sees the documented outcome (busy, timeout, unavailable). The call record shows the reason.","The call hangs, rings forever, or the record has no reason.","P1","roomr","Not run","","",""
+"CAL-004","Call flows","L3 System (end to end)","SIP agent to PSTN","A registered SIP bot can call out through a trunk.","Bot registered as the agent. Outbound trunk. Trunk peer as the destination.","1. The agent bot dials the peer's number.
+2. The peer answers and sends DTMF 1 2 3.
+3. Exchange tones.
+4. The bot hangs up.","The peer sees the configured caller ID. Tones are detected both ways. The peer decodes 123.","No ring, wrong caller ID, or lost digits.","P0","roomr","Not run","","",""
+"CAL-005","Call flows","L3 System (end to end)","SIP agent to SIP agent","Two registered agents in the same domain can call each other.","Bots A and B registered.","1. A dials B.
+2. B answers.
+3. Exchange tones for 10 s.
+4. B hangs up.","B receives the INVITE. Tones are detected both ways. Both legs end.","No INVITE, or a stuck leg.","P1","roomr","Not run","","",""
+"CAL-006","Call flows","L3 System (end to end)","Outbound call from API to an app","A call created through the API connects to the app on answer.","Trunk, number and application configured. Trunk peer as the callee.","1. Create a call to the peer with the application.
+2. The peer answers.
+3. The peer speaks a phrase and records the reply.
+4. The peer hangs up.","On answer the app session starts, the reply is recorded by the peer, and the record links the call to the application.","No session on answer, or no link in the record.","P0","control-plane, voice-session","Not run","","",""
+"CAL-007","Call flows","L3 System (end to end)","Outbound call: unanswered, busy, rejected","Outbound failure outcomes are reported to the API consumer.","Same as above.","1. Create a call and let the peer ring out.
+2. Create a call while the peer is busy.
+3. Create a call and have the peer reject it.","Each call ends with the documented status (no-answer, busy, declined) and a record exists. No app session starts.","A wrong status, or an app session for an unanswered call.","P1","call-record","Not run","","",""
+"CAL-008","Call flows","L3 System (end to end)","Caller hangs up before answer","A CANCEL cleans up resources.","Inbound number linked to an application.","1. Call the number and hang up while it is ringing.
+2. Check the node's rooms, AppBridge sessions and the call record.","No room or session remains after 5 s. The record shows an abandoned call.","A leaked room or session.","P1","roomr","Not run","","",""
+"CAL-009","Call flows","L3 System (end to end)","ACL deny and allow","Calls from addresses not allowed by the ACL are refused.","Trunk with an ACL that allows one test IP.","1. Send an INVITE from the allowed IP.
+2. Send an INVITE from another IP.","The allowed INVITE proceeds. The other is refused with 403 and creates no session.","The other IP reaches an application.","P0","control-plane","Not run","","",""
+"CAL-010","Call flows","L3 System (end to end)","Inbound trunk authentication","Inbound trunks authenticate by IP and by credentials as configured.","One trunk by IP, one by credentials.","1. Call through each trunk with correct data.
+2. Call with wrong credentials.
+3. Call from the wrong IP.","Correct requests succeed. Wrong ones return 401/403 and create no session.","A wrong request succeeds.","P0","control-plane","Not run","","",""
+"CAL-011","Call flows","L3 System (end to end)","Outbound trunk registration","A trunk that needs registration registers and recovers.","A registering outbound trunk against a test registrar.","1. Start the stack.
+2. Check the registration.
+3. Restart the registrar.
+4. Place an outbound call.","The trunk registers, re-registers after the registrar restarts, and the call succeeds.","No re-registration, or an outbound failure.","P1","control-plane","Not run","","",""
+"CAL-012","Call flows","L3 System (end to end)","Trunk failover","When the first trunk fails, the next is used.","Two outbound trunks in priority order. First one blackholed.","1. Place an outbound call.
+2. Observe which trunk is used and the time to connect.","The call connects through the second trunk within the failover budget (set at baseline).","Call fails or the budget is exceeded.","P1","control-plane","Not run","","",""
+"CAL-013","Call flows","L3 System (end to end)","Number formats","Numbers are accepted and normalised in all supported formats.","Outbound trunk. Trunk peer or SIP bot as the destination.","1. Dial the same destination as +E.164, E.164 without +, national and with spaces/dashes.
+2. Inspect the number sent to the provider.","All formats connect to the same destination. The provider receives the format the trunk requires.","Any format fails or reaches another destination.","P1","control-plane","Not run","","",""
+"CAL-014","Call flows","L3 System (end to end)","Softphone registration","Registration works and fails correctly.","A SIP agent with credentials.","1. Register with correct credentials.
+2. Register with wrong credentials.
+3. Let the registration expire.
+4. Re-register.
+5. Unregister.","Success returns 200 with the expected expiry. Wrong credentials return 401/403. Calls to an unregistered agent follow the offline outcome.","Any other result.","P0","control-plane","Not run","","",""
+"CAL-015","Call flows","L3 System (end to end)","Node balancing","Routr chooses the node with the fewest sessions and avoids down nodes.","Three Roomr nodes with different X-Session-Count.","1. Place 20 calls.
+2. Stop one node.
+3. Place 20 more calls.","Calls go to the lowest-count node. No calls go to the stopped node after it is marked down.","Calls reach a down node, or the count is ignored.","P1","roomr","Not run","","",""
+"CAL-016","Call flows","L3 System (end to end)","Full node is skipped","A node at capacity receives no new sessions.","A node configured with a low session cap.","1. Fill the node.
+2. Place another call.","The call goes to another node.","The call goes to the full node. This is a known gap; the test is expected to fail until fixed.","P1","roomr","Not run","","",""
+"CAL-017","Call flows","L3 System (end to end)","Cross-workspace X-App-Ref is refused","A registered softphone cannot reach an application in another workspace.","Softphone registered in workspace A. An application in workspace B.","1. From the softphone, send an INVITE to the media-node peer with the X-App-Ref of B's application.
+2. Check for a session in B.","The INVITE is refused. No session starts in B.","A session starts. This is a known security gap; the test is expected to fail until fixed.","P0","roomr, identity","Not run","","",""
+"CAL-018","Call flows","L3 System (end to end)","Concurrent call limit","Per-workspace limits are enforced.","Workspace limit set to 5.","1. Place 5 calls.
+2. Place a 6th.","The 6th is refused with the documented response. The first 5 continue.","The 6th is accepted, or existing calls are dropped.","P2","control-plane","Not run","","",""
+"XFR-001","Transfers, DTMF and in-call control","L3 System (end to end)","Cold transfer to PSTN","The app transfers the caller and drops out.","Active inbound call with an app. A target bot (or trunk peer) ready to answer.","1. App sends transfer mode=cold to the target.
+2. The target answers and exchanges tones with the caller.
+3. Check the room and the app session.","Caller and target are connected (tones detected both ways). transfer.result is success. The app session ends and the room stays until the legs end.","No connection, no result event, or the app session remains.","P0","media-control","Not run","","",""
+"XFR-002","Transfers, DTMF and in-call control","L3 System (end to end)","Warm transfer to PSTN","The app speaks to the target first, then joins the caller.","Same as above.","1. App sends transfer mode=warm.
+2. The target answers. The app speaks to the target. The caller bot records its input.
+3. App completes the transfer (transfer.complete).","During the consult the caller hears hold audio only, never the consult. After complete, caller and target exchange tones and the app leaves.","The caller hears the consult, the join fails, or the app stays in the call.","P0","media-control","Not run","","",""
+"XFR-003","Transfers, DTMF and in-call control","L3 System (end to end)","REFER transfer","A transfer is delegated to the trunking provider with SIP REFER.","Trunking provider or simulator that supports REFER. mode=refer.","1. App sends transfer mode=refer.
+2. Capture the NOTIFY progress.
+3. The target answers.","Our legs are released after the provider accepts and connects. transfer.result reports success.","Our leg remains, or the result is wrong.","P1","media-control","Not run","","",""
+"XFR-004","Transfers, DTMF and in-call control","L3 System (end to end)","REFER not supported by the provider","A REFER rejected by the provider is reported and the call survives.","Provider or simulator that rejects REFER.","1. App sends transfer mode=refer.
+2. Provider answers 4xx/5xx.","transfer.result is failure with the reason. The caller is still connected to the app.","The call drops, or no result.","P1","media-control","Not run","","",""
+"XFR-005","Transfers, DTMF and in-call control","L3 System (end to end)","Transfer target busy, no answer, wrong number","Each failure leaves the caller connected and reports the reason.","Active call. Target bots that answer 486, never answer, and answer 404.","1. Transfer to the busy target.
+2. Transfer to the target that never answers until timeout.
+3. Transfer to the invalid number.","Each yields transfer.result failure (busy, no-answer, invalid) and the caller stays with the app.","The caller is dropped or left in silence.","P0","media-control","Not run","","",""
+"XFR-006","Transfers, DTMF and in-call control","L3 System (end to end)","Caller hangs up during transfer","Resources are released if the caller leaves mid-transfer.","Active call.","1. Start a transfer to a ringing target bot.
+2. The caller bot sends BYE while the target rings.
+3. Check the target and the room.","The target bot receives CANCEL within 2 s. No room or session remains.","The target keeps ringing, or resources leak.","P1","media-control","Not run","","",""
+"XFR-007","Transfers, DTMF and in-call control","L3 System (end to end)","Transfer from a SIP agent","A SIP agent can transfer a call (different path than an app).","PSTN caller (trunk peer or bot) connected to an agent bot.","1. The agent bot sends REFER, blind then attended.
+2. The target bot answers.","The caller is connected to the target (tones detected). The agent leg ends.","No transfer, or both legs stay.","P1","roomr","Not run","","",""
+"XFR-008","Transfers, DTMF and in-call control","L3 System (end to end)","DTMF from caller (RFC 2833)","Digits sent as RTP events reach the app.","Inbound call to an app. Caller sends RFC 2833.","1. Send 0-9, *, #, A-D.
+2. Read events in the app.","Each digit arrives once, in order, with correct duration.","A missing, duplicated or wrong digit.","P0","voice-session","Not run","","",""
+"XFR-009","Transfers, DTMF and in-call control","L3 System (end to end)","DTMF from caller (SIP INFO)","Digits sent by SIP INFO reach the app.","Caller sends SIP INFO.","1. Send the same digits by INFO.","Same result as the RFC 2833 test.","Any difference.","P1","voice-session","Not run","","",""
+"XFR-010","Transfers, DTMF and in-call control","L3 System (end to end)","DTMF to caller","The app can send digits to the far end.","Outbound call to an IVR or a DTMF decoder.","1. App sends dtmf.send 1234#.
+2. Read the decoder output.","The decoder reads 1234# exactly.","Digits are lost, merged or wrong.","P0","media-control","Not run","","",""
+"XFR-011","Transfers, DTMF and in-call control","L3 System (end to end)","DTMF: long and fast digits","Edge timing is handled.","Inbound call.","1. Hold a digit for 3 s.
+2. Send 10 digits at 50 ms spacing.
+3. Send the same digit twice quickly.","A long press yields one digit with long duration. Fast digits are all received. Repeated digits are two events.","Long press repeats, or fast digits are lost.","P1","voice-session","Not run","","",""
+"XFR-012","Transfers, DTMF and in-call control","L3 System (end to end)","Hold and resume","A re-INVITE hold mutes media and resume restores it.","Active call with a bot.","1. The bot sends a re-INVITE with a=sendonly.
+2. Check the media direction and the audio.
+3. The bot sends a re-INVITE with a=sendrecv.","During hold no audio is sent from our side and the app is told. After resume, tones flow both ways.","Audio leaks while on hold, or one-way audio after resume.","P1","media-control","Not run","","",""
+"XFR-013","Transfers, DTMF and in-call control","L3 System (end to end)","Re-INVITE with codec change","Changing codec mid-call does not break audio.","Call established with PCMU.","1. Send a re-INVITE offering PCMA only.
+2. Check audio.","The call continues with PCMA, with no gap over 200 ms.","Audio stops or the call drops.","P1","roomr","Not run","","",""
+"XFR-014","Transfers, DTMF and in-call control","L3 System (end to end)","Early media and ringback","The caller hears ringback or announcements before answer as configured.","Outbound call to a bot that sends 183 with early media.","1. Place the call.
+2. The bot sends a tone in early media before answering.","The early-media tone is passed through to the caller with no clipping of its start. No audio is sent before the media path is ready.","Clipped start of early media or silence.","P2","roomr","Not run","","",""
+"XFR-015","Transfers, DTMF and in-call control","L3 System (end to end)","Caller ID and privacy","Outbound caller ID and privacy headers are honored.","Number with caller ID set. A SIP bot receiving the call.","1. Place an outbound call with the default caller ID.
+2. Place a call with privacy enabled.
+3. Read the From, P-Asserted-Identity and Privacy headers at the bot.","Default shows the configured number. Privacy sets the correct headers and hides the number.","Wrong number or a leaked identity.","P2","control-plane","Not run","","",""
+"TRK-001","Trunking provider","L3/L4 System (trunk edge)","Inbound call to an application","An inbound call arriving over the trunk reaches the linked application.","Fixture loaded. Number A linked to an application whose fixture replies with a known phrase. Peer bot registered behind number B.","1. The peer bot calls number A through the provider (or the provider API originates the call).
+2. The bot plays a recorded phrase.
+3. The bot records the reply.
+4. The bot hangs up.","The call answers, the app receives the transcript of the phrase, the reply is recorded two-way with a quality score at or above the floor, hangup ends the session, and the call record is complete.","No answer, one-way audio, a score below the floor, or an incomplete record.","P0","control-plane, roomr","Not run","","",""
+"TRK-002","Trunking provider","L3/L4 System (trunk edge)","Outbound call","An outbound call through the trunk reaches the peer.","Outbound trunk with valid credentials. Peer bot behind number B.","1. Create a call to number B through the API.
+2. The peer bot answers and plays a tone for 60 s.
+3. The bot hangs up.","The bot sees the expected caller ID. The tone is detected for the whole call with no gap over 200 ms.","Call rejected, wrong caller ID, or audio gaps.","P0","control-plane, roomr","Not run","","",""
+"TRK-003","Trunking provider","L3/L4 System (trunk edge)","Trunk authentication and recovery","The trunk authenticates as configured (registration, credentials or IP) and recovers by itself.","Trunk configured with the auth method named in the fixture.","1. Start the stack and read the trunk status through the API.
+2. Restart Routr.
+3. Read the status again and place an outbound call.","The trunk is up after start and after restart with no further action, and the call connects.","The trunk stays down or needs an extra action.","P0","control-plane, roomr","Not run","","",""
+"TRK-004","Trunking provider","L3/L4 System (trunk edge)","Wrong credentials are refused","A trunk with wrong credentials or from a wrong address is refused and creates nothing.","Fixture with an alternate set of wrong credentials and a bot on a non-allowed address.","1. Send an INVITE with wrong credentials.
+2. Send an INVITE from the non-allowed address.
+3. Check for sessions and rooms.","Both are refused with 401 or 403 and no session or room exists.","Either call reaches an application.","P0","control-plane, roomr","Not run","","",""
+"TRK-005","Trunking provider","L3/L4 System (trunk edge)","DTMF","DTMF works in both directions over the trunk.","Active call with the peer bot.","1. The bot sends 1 2 3 # (RFC 2833, and INFO where the matrix declares it). Read the events in the app.
+2. The app sends 4 5 6 #. The bot decodes them.","All digits arrive once and in order, both ways, for every declared method.","Any lost, duplicated or wrong digit.","P0","voice-session, roomr","Not run","","",""
+"TRK-006","Trunking provider","L3/L4 System (trunk edge)","Transfers match the declared capabilities","Every transfer type the matrix declares works, and undeclared ones fail cleanly.","Active inbound call. A second peer bot as the target.","1. Cold transfer.
+2. Warm transfer.
+3. REFER transfer.
+4. Transfer to a busy target.","Each declared type connects the caller and the target and reports success. Each undeclared type reports failure and keeps the caller. Observed behavior equals the matrix.","A dropped caller, or a difference from the matrix (the matrix is then wrong or the provider changed).","P1","media-control, roomr","Not run","","",""
+"TRK-007","Trunking provider","L3/L4 System (trunk edge)","Codec negotiation","A common codec is chosen and the audio is correct.","SDP capture enabled on the bot.","1. Place an inbound and an outbound call.
+2. Read the offered and answered codecs and the telephone-event payload type.
+3. Score the audio.","A common codec is chosen by our priority. telephone-event is negotiated. The quality score is at or above the codec floor.","No common codec, a 488 response, or a score below the floor.","P1","roomr","Not run","","",""
+"TRK-008","Trunking provider","L3/L4 System (trunk edge)","Number formats","Numbers are accepted in the format the fixture declares.","Outbound trunk.","1. Dial number B as +E.164, national and with leading zeros.
+2. Read the number the bot receives.","All formats connect to B. The provider receives its required format.","A format fails or reaches another number.","P1","control-plane","Not run","","",""
+"TRK-009","Trunking provider","L3/L4 System (trunk edge)","Failure responses","Busy, unavailable and declined calls are reported correctly.","Outbound trunk. The peer bot can answer busy, go offline, or decline.","1. Call B while the bot answers busy.
+2. Call B while the bot is unregistered.
+3. Call B and have the bot decline.","Each ends with the documented status and a call record.","Wrong status, a hang, or no record.","P1","call-record, control-plane","Not run","","",""
+"TRK-010","Trunking provider","L3/L4 System (trunk edge)","TLS and SRTP when declared","Encrypted signaling and media work on providers that declare them.","Fixture declares tls and srtp. If it does not, the case reports the declared absence and passes only if plain transport is the only one offered.","1. Place an inbound and an outbound call over TLS with SRTP.
+2. Capture the traffic at the edge.","Calls connect and the capture shows no clear signaling or RTP.","A call fails, or clear traffic appears.","P1","deployment, roomr","Not run","","",""
+"TRK-011","Trunking provider","L3/L4 System (trunk edge)","Reference provider behaves as declared","The trunk simulator itself is correct, so reference-mode results can be trusted.","The simulator and its own fixture.","1. Run the simulator's self-test: registration, INVITE flows, REFER accept and reject, DTMF methods, codec offers, failure responses.
+2. Compare each result with the simulator's declared matrix.","Every behavior equals the declared one.","Any difference.","P1","conformance","Not run","","",""
+"TRK-012","Trunking provider","L3/L4 System (trunk edge)","Fixture validation","A malformed or incomplete provider fixture fails fast with a clear message.","Fixtures with a missing number, an unknown capability, and an empty spend limit.","1. Load each fixture.","Each load fails before any call is placed, naming the problem.","The suite starts and fails later, or places calls.","P2","conformance","Not run","","",""
+"TRK-013","Trunking provider","L3/L4 System (trunk edge)","Nightly canary","Detect provider-side changes between releases.","A live fixture and a scheduled job.","1. Each night place one outbound and one inbound call through the peer bot.
+2. Check answer, tone presence and hangup.","Both calls complete. The job posts the result.","Any call fails. An issue is opened automatically.","P1","control-plane, roomr","Not run","","",""
+"TRK-014","Trunking provider","L3/L4 System (trunk edge)","Spend guard","The live suite cannot run up an unbounded bill.","A daily spend limit in the live fixture.","1. Run the suite with a limit set below its expected cost.
+2. Check what runs after the limit is hit.","The suite stops before it exceeds the limit and reports the remaining cases as Blocked, not as Pass.","Spend above the limit, or unrun cases reported as Pass.","P2","control-plane","Not run","","",""
+"ROM-001","Roomr media node: function","L2 Integration (node in isolation)","Command: answer","The node answers an inbound leg on request.","Node up and heartbeating. Inbound INVITE pending.","1. Bot sends INVITE.
+2. Fake AppBridge receives the inbound event and sends answer.
+3. Bot checks 200 OK and sends ACK.","200 OK carries SDP with a negotiated codec. RTP flows after ACK.","No 200, no SDP, or no RTP.","P0","media-control","Not run","","",""
+"ROM-002","Roomr media node: function","L2 Integration (node in isolation)","Command: room.create and participant.add","A room is created and a SIP leg joins it.","Node up.","1. Send room.create.
+2. Send participant.add for the inbound leg.
+3. Read events.","Acks arrive with the command id. participant.joined is emitted. Node session count increases by one.","Missing ack, event or count.","P0","media-control","Not run","","",""
+"ROM-003","Roomr media node: function","L2 Integration (node in isolation)","Command: participant.dial","The node dials out and reports progress.","A bot listening as the callee.","1. Send participant.dial to the bot.
+2. Bot rings, then answers.
+3. Repeat with busy and no answer.","Progress events (ringing, answered) arrive in order. Busy and no-answer produce the documented failure event.","Missing or wrong events.","P0","media-control","Not run","","",""
+"ROM-004","Roomr media node: function","L2 Integration (node in isolation)","Command: participant.remove and hangup","Removing a participant ends its leg only.","A room with three legs.","1. Send participant.remove for leg 2.
+2. Check legs 1 and 3.
+3. Send hangup for leg 1.","Leg 2 gets BYE. Legs 1 and 3 keep audio until hangup. participant.left is emitted for each.","Another leg is affected.","P0","media-control","Not run","","",""
+"ROM-005","Roomr media node: function","L2 Integration (node in isolation)","Command: room.end","Ending a room releases everything.","Room with two legs and a listener.","1. Send room.end.
+2. Check SIP, RTP ports, goroutines and room table.","All legs get BYE. room.ended is emitted. Ports and goroutines return to the pre-test level within 5 s.","Any leak.","P0","media-control","Not run","","",""
+"ROM-006","Roomr media node: function","L2 Integration (node in isolation)","Mixer: each participant hears everyone but themselves","Mix-minus is correct for 2, 3 and 10 participants.","Bots with distinct tones.","1. Join N bots, each playing a different tone.
+2. Record what each bot receives.
+3. Analyse frequencies.","Each bot hears the other N-1 tones and not its own. Level is within the documented tolerance with no clipping.","Own audio returns (echo), a tone is missing, or clipping.","P0","roomr","Not run","","",""
+"ROM-007","Roomr media node: function","L2 Integration (node in isolation)","Codecs: PCMU, PCMA, Opus and mixed","Legs with different codecs mix correctly.","Bots offering PCMU, PCMA, Opus.","1. Join one bot per codec to one room.
+2. Play speech from each.
+3. Record every output.","Each leg receives the others in its own codec. Audio quality score is at or above the codec-pair floor (set at baseline).","Negotiation failure, wrong pitch or speed, or a score below the floor.","P0","roomr","Not run","","",""
+"ROM-008","Roomr media node: function","L2 Integration (node in isolation)","Listener (fork) attach and detach","A fork receives selected tracks and can be removed mid-call.","Room with two legs.","1. listener.attach tracks=inbound.
+2. Detach.
+3. Attach tracks=both.
+4. Detach.","The listener receives only the selected tracks. Detach stops the stream without affecting the call.","Wrong tracks, or audio glitch on the call.","P1","media-control","Not run","","",""
+"ROM-009","Roomr media node: function","L2 Integration (node in isolation)","Recording output","Recordings are complete and in sync.","Recording enabled.","1. Run a 60 s two-party call with known audio.
+2. End the call.
+3. Fetch the recording.","File opens, length is 60 s within 100 ms, both parties are present, and sync between tracks is within 20 ms.","Truncated, silent or out-of-sync file.","P0","roomr, call-record","Not run","","",""
+"ROM-010","Roomr media node: function","L2 Integration (node in isolation)","DTMF events in and out","The node reports and sends DTMF correctly.","Bot leg.","1. Bot sends 2833 digits.
+2. Send dtmf.send from the fake AppBridge.
+3. Read events and bot receive log.","dtmf events match the digits sent. The bot receives the digits sent by the node.","Mismatch.","P0","media-control","Not run","","",""
+"ROM-011","Roomr media node: function","L2 Integration (node in isolation)","Hold and resume","hold/resume change the media direction.","Active leg.","1. Send hold.
+2. Check SDP direction and RTP.
+3. Send resume.","SDP uses sendonly/inactive during hold, RTP stops as specified, and resume restores sendrecv.","Media continues during hold or does not resume.","P1","media-control","Not run","","",""
+"ROM-012","Roomr media node: function","L2 Integration (node in isolation)","Heartbeat and node.down","The node announces itself and its failure.","Node up.","1. Observe node.heartbeat intervals.
+2. Kill the node process (SIGKILL).
+3. Observe node.down.","Heartbeats arrive at the configured interval with the session count. node.down arrives within the timeout.","No node.down, or wrong counts.","P0","media-control","Not run","","",""
+"ROM-013","Roomr media node: function","L2 Integration (node in isolation)","Invalid commands","Bad commands are rejected with errors and do not disturb other rooms.","Two active rooms.","1. Send commands with an unknown roomRef, duplicate ids, missing fields, and an unknown type.","Each gets an error ack with a code. The two rooms keep audio.","Panic, a hang, or audio disruption.","P1","media-control","Not run","","",""
+"ROM-014","Roomr media node: function","L2 Integration (node in isolation)","Node restart reconnect","The node reconnects to NATS and resumes heartbeats.","Node up.","1. Restart NATS.
+2. Observe the node.","The node reconnects without restarting. Calls on RTP continue. Heartbeats resume.","Node exit, or lost calls beyond the documented behavior.","P1","media-control","Not run","","",""
+"ROM-015","Roomr media node: function","L2 Integration (node in isolation)","Media-control scenario set","Every media-control scenario passes against the fake node and the Go node.","Fake node and the Go node, scenario files for media-control.","1. Run all media-control scenarios against the fake node.
+2. Run the same scenarios against the Go node.","Both nodes pass the same scenarios, with no skips.","A scenario passes on one node and fails on the other, or is skipped.","P0","media-control, roomr","Not run","","",""
+"MQ-001","Media quality and packet loss","L2 Integration (benchmark)","Baseline: clean network","Establish the reference score, latency and CPU with no impairment.","Reference signal set. No impairment.","1. Run each reference file through a two-leg call, for each codec pair.
+2. Score, and measure added latency and CPU.","Scores, latency and CPU are recorded and committed as the baseline. Added latency under 20 ms (value confirmed at baseline).","No baseline stored, or a score below the codec's published floor.","P0","roomr","Not run","","",""
+"MQ-002","Media quality and packet loss","L2 Integration (benchmark)","Packet loss 1% (random)","Audio stays intelligible and the node stays stable at 1% random loss on the RTP leg.","Node, a bot leg, and a second leg for recording. tc netem (or UDP proxy) between the bot and the node. Reference signal set.","1. Establish a two-leg call.
+2. Apply random loss of 1% on the inbound leg.
+3. Send the reference speech file for 60 s.
+4. Record the output of the other leg.
+5. Score the output (ViSQOL) against the reference, and compute added latency, gaps and sample count.","Score drop against the committed baseline is within the floor for 1% random (floor recorded in the first baseline run). Added latency within budget. No crash, no duplicate audio, no SSRC change.","Score below the floor, a crash, duplicated or reordered audio, or latency over budget.","P0","roomr","Not run","","",""
+"MQ-003","Media quality and packet loss","L2 Integration (benchmark)","Packet loss 1% (bursty)","Audio stays intelligible and the node stays stable at 1% bursty loss on the RTP leg.","Node, a bot leg, and a second leg for recording. tc netem (or UDP proxy) between the bot and the node. Reference signal set.","1. Establish a two-leg call.
+2. Apply bursty loss of 1% on the inbound leg.
+3. Send the reference speech file for 60 s.
+4. Record the output of the other leg.
+5. Score the output (ViSQOL) against the reference, and compute added latency, gaps and sample count.","Score drop against the committed baseline is within the floor for 1% bursty (floor recorded in the first baseline run). Added latency within budget. No crash, no duplicate audio, no SSRC change.","Score below the floor, a crash, duplicated or reordered audio, or latency over budget.","P0","roomr","Not run","","",""
+"MQ-004","Media quality and packet loss","L2 Integration (benchmark)","Packet loss 2% (random)","Audio stays intelligible and the node stays stable at 2% random loss on the RTP leg.","Node, a bot leg, and a second leg for recording. tc netem (or UDP proxy) between the bot and the node. Reference signal set.","1. Establish a two-leg call.
+2. Apply random loss of 2% on the inbound leg.
+3. Send the reference speech file for 60 s.
+4. Record the output of the other leg.
+5. Score the output (ViSQOL) against the reference, and compute added latency, gaps and sample count.","Score drop against the committed baseline is within the floor for 2% random (floor recorded in the first baseline run). Added latency within budget. No crash, no duplicate audio, no SSRC change.","Score below the floor, a crash, duplicated or reordered audio, or latency over budget.","P0","roomr","Not run","","",""
+"MQ-005","Media quality and packet loss","L2 Integration (benchmark)","Packet loss 2% (bursty)","Audio stays intelligible and the node stays stable at 2% bursty loss on the RTP leg.","Node, a bot leg, and a second leg for recording. tc netem (or UDP proxy) between the bot and the node. Reference signal set.","1. Establish a two-leg call.
+2. Apply bursty loss of 2% on the inbound leg.
+3. Send the reference speech file for 60 s.
+4. Record the output of the other leg.
+5. Score the output (ViSQOL) against the reference, and compute added latency, gaps and sample count.","Score drop against the committed baseline is within the floor for 2% bursty (floor recorded in the first baseline run). Added latency within budget. No crash, no duplicate audio, no SSRC change.","Score below the floor, a crash, duplicated or reordered audio, or latency over budget.","P0","roomr","Not run","","",""
+"MQ-006","Media quality and packet loss","L2 Integration (benchmark)","Packet loss 5% (random)","Audio stays intelligible and the node stays stable at 5% random loss on the RTP leg.","Node, a bot leg, and a second leg for recording. tc netem (or UDP proxy) between the bot and the node. Reference signal set.","1. Establish a two-leg call.
+2. Apply random loss of 5% on the inbound leg.
+3. Send the reference speech file for 60 s.
+4. Record the output of the other leg.
+5. Score the output (ViSQOL) against the reference, and compute added latency, gaps and sample count.","Score drop against the committed baseline is within the floor for 5% random (floor recorded in the first baseline run). Added latency within budget. No crash, no duplicate audio, no SSRC change.","Score below the floor, a crash, duplicated or reordered audio, or latency over budget.","P0","roomr","Not run","","",""
+"MQ-007","Media quality and packet loss","L2 Integration (benchmark)","Packet loss 5% (bursty)","Audio stays intelligible and the node stays stable at 5% bursty loss on the RTP leg.","Node, a bot leg, and a second leg for recording. tc netem (or UDP proxy) between the bot and the node. Reference signal set.","1. Establish a two-leg call.
+2. Apply bursty loss of 5% on the inbound leg.
+3. Send the reference speech file for 60 s.
+4. Record the output of the other leg.
+5. Score the output (ViSQOL) against the reference, and compute added latency, gaps and sample count.","Score drop against the committed baseline is within the floor for 5% bursty (floor recorded in the first baseline run). Added latency within budget. No crash, no duplicate audio, no SSRC change.","Score below the floor, a crash, duplicated or reordered audio, or latency over budget.","P0","roomr","Not run","","",""
+"MQ-008","Media quality and packet loss","L2 Integration (benchmark)","Packet loss 10% (random)","Audio stays intelligible and the node stays stable at 10% random loss on the RTP leg.","Node, a bot leg, and a second leg for recording. tc netem (or UDP proxy) between the bot and the node. Reference signal set.","1. Establish a two-leg call.
+2. Apply random loss of 10% on the inbound leg.
+3. Send the reference speech file for 60 s.
+4. Record the output of the other leg.
+5. Score the output (ViSQOL) against the reference, and compute added latency, gaps and sample count.","Score drop against the committed baseline is within the floor for 10% random (floor recorded in the first baseline run). Added latency within budget. No crash, no duplicate audio, no SSRC change.","Score below the floor, a crash, duplicated or reordered audio, or latency over budget.","P1","roomr","Not run","","",""
+"MQ-009","Media quality and packet loss","L2 Integration (benchmark)","Packet loss 10% (bursty)","Audio stays intelligible and the node stays stable at 10% bursty loss on the RTP leg.","Node, a bot leg, and a second leg for recording. tc netem (or UDP proxy) between the bot and the node. Reference signal set.","1. Establish a two-leg call.
+2. Apply bursty loss of 10% on the inbound leg.
+3. Send the reference speech file for 60 s.
+4. Record the output of the other leg.
+5. Score the output (ViSQOL) against the reference, and compute added latency, gaps and sample count.","Score drop against the committed baseline is within the floor for 10% bursty (floor recorded in the first baseline run). Added latency within budget. No crash, no duplicate audio, no SSRC change.","Score below the floor, a crash, duplicated or reordered audio, or latency over budget.","P1","roomr","Not run","","",""
+"MQ-010","Media quality and packet loss","L2 Integration (benchmark)","Packet loss 20% (random)","Audio stays intelligible and the node stays stable at 20% random loss on the RTP leg.","Node, a bot leg, and a second leg for recording. tc netem (or UDP proxy) between the bot and the node. Reference signal set.","1. Establish a two-leg call.
+2. Apply random loss of 20% on the inbound leg.
+3. Send the reference speech file for 60 s.
+4. Record the output of the other leg.
+5. Score the output (ViSQOL) against the reference, and compute added latency, gaps and sample count.","Score drop against the committed baseline is within the floor for 20% random (floor recorded in the first baseline run). Added latency within budget. No crash, no duplicate audio, no SSRC change.","Score below the floor, a crash, duplicated or reordered audio, or latency over budget.","P1","roomr","Not run","","",""
+"MQ-011","Media quality and packet loss","L2 Integration (benchmark)","Packet loss 20% (bursty)","Audio stays intelligible and the node stays stable at 20% bursty loss on the RTP leg.","Node, a bot leg, and a second leg for recording. tc netem (or UDP proxy) between the bot and the node. Reference signal set.","1. Establish a two-leg call.
+2. Apply bursty loss of 20% on the inbound leg.
+3. Send the reference speech file for 60 s.
+4. Record the output of the other leg.
+5. Score the output (ViSQOL) against the reference, and compute added latency, gaps and sample count.","Score drop against the committed baseline is within the floor for 20% bursty (floor recorded in the first baseline run). Added latency within budget. No crash, no duplicate audio, no SSRC change.","Score below the floor, a crash, duplicated or reordered audio, or latency over budget.","P1","roomr","Not run","","",""
+"MQ-012","Media quality and packet loss","L2 Integration (benchmark)","Jitter","Variable delay is absorbed by the jitter buffer.","Impairment tool.","1. Apply jitter of 20, 50 and 100 ms.
+2. Run the reference speech.
+3. Score and read RTP stats.","Score at or above the floor for each level. Buffer growth stays bounded. Added latency returns to baseline when jitter stops.","Score below the floor, or latency does not recover.","P1","roomr","Not run","","",""
+"MQ-013","Media quality and packet loss","L2 Integration (benchmark)","Reordered packets","Out-of-order packets are put back in order.","Impairment tool.","1. Reorder 5% and 20% of packets.
+2. Run reference speech.
+3. Compare.","Output has no audible reordering. Score at or above the floor.","Reordered audio in the output.","P1","roomr","Not run","","",""
+"MQ-014","Media quality and packet loss","L2 Integration (benchmark)","Duplicate packets","Duplicates are dropped.","Impairment tool.","1. Duplicate 10% of packets.
+2. Run reference speech.
+3. Compare sample count.","Output length equals input length within one packet. No repeated audio.","Duplicated audio or a longer output.","P1","roomr","Not run","","",""
+"MQ-015","Media quality and packet loss","L2 Integration (benchmark)","One-way delay","A constant added delay does not break sync or the mix.","Impairment tool.","1. Add 100, 250 and 500 ms to one leg in a three-leg room.
+2. Record each output.","Legs stay stable. Mix contains all participants. Added node latency is unchanged.","Drift, dropouts or a leg reset.","P2","roomr","Not run","","",""
+"MQ-016","Media quality and packet loss","L2 Integration (benchmark)","RTP timestamp jump and SSRC change","A mid-call SSRC change or timestamp jump (provider or NAT rebind) does not break the leg.","Bot able to change SSRC.","1. During a call change SSRC.
+2. Jump the timestamp forward by 10 s.
+3. Continue the speech.","Audio continues within 200 ms. No crash, no long silence.","Silence, one-way audio, or a dropped call.","P1","roomr","Not run","","",""
+"MQ-017","Media quality and packet loss","L2 Integration (benchmark)","Silence suppression and comfort noise","Gaps in RTP do not create glitches or false drops.","Bot sending DTX/CN.","1. Send speech with 10 s of silence (no RTP) in the middle.
+2. Record the output.","Silence plays as silence or comfort noise. Speech after the gap is intact. The leg is not marked dead.","Clipped first words, or a dropped leg.","P1","roomr","Not run","","",""
+"MQ-018","Media quality and packet loss","L2 Integration (benchmark)","Clock drift","A sender with +/-100 ppm drift does not grow latency over a long call.","Bot with a configurable clock offset.","1. Run a 30 min call with +100 ppm and -100 ppm.
+2. Measure latency at start and end.","Latency growth under 20 ms over 30 min. No audible slip or repeat.","Growing latency, clicks or repeated frames.","P1","roomr","Not run","","",""
+"MQ-019","Media quality and packet loss","L2 Integration (benchmark)","Recording fidelity under loss","The recording matches what the participants heard.","Recording enabled. 5% random loss.","1. Run the call.
+2. Compare the recording with the recorded outputs of both legs.","Recording length equals call length within 100 ms. Scores of recording and live output differ by less than the tolerance set at baseline.","Missing audio or a length mismatch.","P1","roomr, call-record","Not run","","",""
+"MQ-020","Media quality and packet loss","L2 Integration (benchmark)","Resource cost per participant","CPU, memory and allocations per participant are known and stable.","pprof enabled.","1. Run rooms of 2, 5 and 10 participants for each codec for 10 min.
+2. Collect CPU, RSS and allocations/s.","Values recorded in the report. Cost per participant is linear within 20%. No allocations in the steady-state audio loop beyond the budget.","Non-linear growth, or allocation growth over time.","P1","roomr","Not run","","",""
+"LDS-001","Load and soak","L3 System (load)","Call setup rate ramp","Find the calls-per-second ceiling and what fails first.","Stack on dedicated hardware. Calls last 30 s.","1. Start at 1 CPS and double every 2 minutes until the failure criteria.
+2. Record the CPS at the first failure and the resource that saturated.","Ceiling and limiting resource are recorded. Below the ceiling, 99.9% of calls connect and setup time p95 is within budget (set at baseline).","Failures below the ceiling, or no recorded limiting resource.","P1","observability","Not run","","",""
+"LDS-002","Load and soak","L3 System (load)","Concurrent calls ceiling","Find the highest concurrent call count with acceptable quality.","Calls hold for 10 min with a known audio.","1. Ramp concurrency in steps of 100.
+2. At each step score a sample of calls (ViSQOL) and read CPU, memory, network.
+3. Stop when quality drops below the floor.","The number N is recorded with the limiting resource, at the quality floor.","Quality degrades without a recorded cause.","P1","roomr","Not run","","",""
+"LDS-003","Load and soak","L3 System (load)","Registration storm","Many softphones re-register at once after a restart.","5,000 simulated registrations.","1. Restart Routr.
+2. All clients re-register within 10 s.
+3. Place a test call during the storm.","All registrations succeed within the budget. The test call connects.","Registrations dropped, or calls fail.","P1","control-plane","Not run","","",""
+"LDS-004","Load and soak","L3 System (load)","Single node capacity","A Roomr node's session capacity per size.","One node of a given size.","1. Add two-leg rooms until quality drops (defined floor or p99 packet-out interval over 25 ms).
+2. Record CPU, memory, network.","Capacity and limiting resource recorded for each node size.","No limit recorded.","P1","roomr","Not run","","",""
+"LDS-005","Load and soak","L3 System (load)","Fairness: one slow participant","A slow or stalled participant does not harm others in the room or node.","Rooms of five.","1. Stall one leg's RTP (stop sending) in one room.
+2. Score the other legs in that room and in other rooms.","Other legs' scores are unchanged within tolerance. The stalled leg is removed after the dead-leg timeout.","Other legs degrade.","P0","roomr","Not run","","",""
+"LDS-006","Load and soak","L3 System (load)","AppBridge session scale","AppBridge capacity per worker.","scale.ts, fake providers.","1. Run 100, 500 and 1000 sessions for 60 s each.
+2. Record memory per session, event-loop lag, NATS message rate.","Numbers are recorded. Event-loop lag p99 within budget. Memory returns to baseline within 60 s after the sessions end.","Lag over budget, or memory not released.","P1","voice-session","Not run","","",""
+"LDS-007","Load and soak","L3 System (load)","Soak 24 hours","No leaks or drift over a day.","Steady load at 50% of the ceiling.","1. Run for 24 h.
+2. Sample goroutines, memory, file descriptors, ports and RTPEngine sessions every minute.","All series are flat (no trend above the noise band). Call success rate stays at or above 99.9%.","Any growing series, or a drop in success rate.","P1","observability","Not run","","",""
+"LDS-008","Load and soak","L3 System (load)","Node kill under load","Losing a node affects only its calls.","Three nodes at 50% load.","1. Kill one node with SIGKILL.
+2. Watch calls, node.down and new call placement.","The calls on that node end cleanly (caller hears hangup, records are sealed). Other calls are unaffected. New calls avoid the dead node within the detection time.","Other calls degrade, or new calls are routed to the dead node.","P0","roomr, media-control","Not run","","",""
+"LDS-009","Load and soak","L3 System (load)","Overload behavior","Beyond capacity the platform refuses new calls instead of degrading all calls.","Load at 150% of capacity.","1. Push beyond the ceiling.
+2. Score established calls.","New calls are refused with a clear response. Established calls keep their quality.","Established calls degrade.","P1","roomr","Not run","","",""
+"APB-001","AppBridge","L2 Integration (service)","Session lifecycle","A session is created, runs and is cleaned up on hangup.","Fake node.","1. Fake node sends an inbound call.
+2. Runner connects as the app.
+3. End the call from each side in turn.","The session starts once, ends once, and resources are released within 5 s. The call record is sealed.","A leaked session, a double end, or an unsealed record.","P0","voice-session","Not run","","",""
+"APB-002","AppBridge","L2 Integration (service)","Native flavor: full scenario set","Every native-flavor scenario passes.","Scenario files for voice-session.","1. Run all voice-session scenarios.","All scenarios pass. None skipped.","Any failure or skip.","P0","voice-session, conformance","Not run","","",""
+"APB-003","AppBridge","L2 Integration (service)","Twilio flavor: full scenario set","Every Twilio-flavor scenario passes.","Scenario files for twilio-media-streams-flavor.","1. Run all scenarios.","All scenarios pass.","Any failure.","P0","twilio-media-streams-flavor","Not run","","",""
+"APB-004","AppBridge","L2 Integration (service)","Turn-taking corpus","End-of-turn decisions meet the pass bars.","Turn corpus and replay tool. Bars from docs/turn-taking.md.","1. Run replay over the corpus.
+2. Read the report.","Every metric meets its bar (premature cut-in rate, late response rate, barge-in stop time).","Any metric misses its bar.","P0","turn-taking","Not run","","",""
+"APB-005","AppBridge","L2 Integration (service)","Interruption stop budget","Playback stops quickly when the caller interrupts.","Fake TTS streaming audio.","1. Start long playback.
+2. Inject caller speech.
+3. Measure time to the last audio frame.","Stop time p95 within the budget (50 ms in the T1 timing bar).","Over budget.","P0","turn-taking","Not run","","",""
+"APB-006","AppBridge","L2 Integration (service)","Speech layer: STT final and partial","Partial and final transcripts are delivered once and in order.","Fake STT emits partials then a final.","1. Stream audio.
+2. Read events at the app.","Partials arrive in order, one final per utterance, no duplicates (including provider duplicate-final bugs).","Duplicate, missing or reordered transcript events.","P0","voice-session","Not run","","",""
+"APB-007","AppBridge","L2 Integration (service)","Speech layer: TTS streaming and play","TTS audio is sent to the node in order and complete.","Fake TTS returns a known waveform.","1. App sends say.
+2. Capture the audio at the fake node.","Captured audio equals the waveform in order and length, at the node's rate.","Gaps, reorder or truncation.","P0","voice-session","Not run","","",""
+"APB-008","AppBridge","L2 Integration (service)","Provider selection from the catalog","Catalog ids resolve to the right provider and settings.","Catalog with fake and real entries.","1. Create apps with different catalog ids.
+2. Run calls.
+3. Check which provider receives audio.","The selected provider is used. An unknown id fails at save time, not at call time.","Wrong provider, or a call-time failure for an invalid id.","P1","provider-registry","Not run","","",""
+"APB-009","AppBridge","L2 Integration (service)","Call record content and signature","The call record is complete and tamper-evident.","A completed call with speech, DTMF and a transfer.","1. Fetch the record.
+2. Verify the signature.
+3. Alter one byte and verify again.","Record has parties, timings, transcript, DTMF, transfer and hangup reason. Signature verifies; the altered copy fails.","Missing content, or tampering not detected.","P0","call-record","Not run","","",""
+"APB-010","AppBridge","L2 Integration (service)","Webhook delivery","Workspace webhooks are delivered, signed and retried.","Webhook endpoint that fails twice, then succeeds.","1. Complete a call.
+2. Observe deliveries.","The event arrives with a valid signature, is retried with backoff, and is delivered once successfully. Order per call is preserved.","No retry, a bad signature, or reordered events.","P1","workspace-webhooks","Not run","","",""
+"APB-011","AppBridge","L2 Integration (service)","Twilio app unchanged","An existing Twilio Media Streams app works without changes.","Reference Twilio-style app.","1. Point a number at the app.
+2. Place a call.
+3. Compare behavior with the reference transcript.","Behavior matches the reference.","Any difference.","P1","twilio-media-streams-flavor","Not run","","",""
+"APB-012","AppBridge","L2 Integration (service)","Timing: end of turn to first audio","The added latency of AppBridge is known and within bars.","Dedicated runner. Fake providers with fixed latencies.","1. Run 200 turns (CONFORMANCE_TIMING_RUNS=200).
+2. Read T1 to Tn results.","Every T bar is met at the stated percentile.","A bar is missed.","P1","conformance","Not run","","",""
+"APB-013","AppBridge","L2 Integration (service)","Autopilot scenario set","Every Autopilot scenario passes.","Autopilot engine, fake STT, TTS and LLM, scenario files for autopilot.","1. Run all autopilot scenarios with the conformance runner.","All scenarios pass and none is skipped.","Any failure or skip.","P0","autopilot, turn-taking","Not run","","",""
+"FLT-001","Fault injection","L2/L3 Integration (negative)","App is a slow reader","A slow app cannot exhaust AppBridge memory or stall the call.","Fake app that reads at 10% of the audio rate.","1. Start a call with continuous inbound audio.
+2. Watch AppBridge memory and the call for 2 min.","Memory stays bounded. Per the spec, audio is dropped or the session closed with the documented code. Other sessions are unaffected.","Unbounded memory growth or impact on other sessions.","P0","voice-session","Not run","","",""
+"FLT-002","Fault injection","L2/L3 Integration (negative)","App disconnects mid-call","A closed app socket ends the call cleanly.","Active call.","1. Close the app WebSocket without a goodbye.","The caller is released with the documented behavior (hangup or fallback) within the timeout, and the record shows the reason.","The call stays up in silence.","P0","voice-session","Not run","","",""
+"FLT-003","Fault injection","L2/L3 Integration (negative)","App sends bad and huge frames","Malformed input from an app is contained.","Fake app.","1. Send invalid JSON, a 100 MB frame, binary before start, and 10,000 messages per second.","The session closes with the documented code. AppBridge keeps serving other sessions.","Crash, hang or CPU starvation.","P0","voice-session","Not run","","",""
+"FLT-004","Fault injection","L2/L3 Integration (negative)","STT provider disconnects mid-stream","A provider drop is retried or reported.","Fake STT with a disconnect switch.","1. Disconnect STT during an utterance.
+2. Continue speaking.","AppBridge reconnects or switches per policy. The app receives an error event if recovery fails. The call stays up.","Silent loss of transcripts without an event.","P0","provider-registry","Not run","","",""
+"FLT-005","Fault injection","L2/L3 Integration (negative)","TTS provider slow or erroring","A failing TTS does not hang the turn.","Fake TTS with latency and error switches.","1. Set TTS to a 10 s first-byte delay.
+2. Set TTS to return 500.
+3. Send say.","The app gets an error or timeout event within the budget. The call can continue.","A hang with dead air and no event.","P0","provider-registry","Not run","","",""
+"FLT-006","Fault injection","L2/L3 Integration (negative)","LLM provider hangs (Autopilot)","Autopilot recovers from a stuck LLM call.","Autopilot app, fake LLM that never answers.","1. Ask a question.
+2. Wait for the timeout.","The agent says its fallback line within the configured timeout, and the next turn works.","The call stalls.","P1","autopilot","Not run","","",""
+"FLT-007","Fault injection","L2/L3 Integration (negative)","Wrong audio format from a provider","A provider returning an unexpected format is rejected or converted.","Fake TTS returning 24 kHz when 8 kHz is expected.","1. Send say.","The audio is resampled or an error is raised. No chipmunk audio reaches the caller.","Wrong-speed audio on the call.","P1","provider-registry","Not run","","",""
+"FLT-008","Fault injection","L2/L3 Integration (negative)","NATS restart","A bus restart does not kill active calls.","Ten active calls.","1. Restart NATS.
+2. Watch calls for 60 s.
+3. Place a new call.","RTP calls continue. Control reconnects within the budget. Commands issued during the gap are retried or fail with a clear error. New calls work.","Dropped calls, a stuck process, or lost records.","P0","deployment","Not run","","",""
+"FLT-009","Fault injection","L2/L3 Integration (negative)","NATS partition","A network partition between AppBridge and the node is detected.","Active call.","1. Block NATS traffic for the node for 30 s.
+2. Restore.","The node is marked down after the timeout and the call is ended cleanly on both sides, or recovers if shorter than the timeout.","A zombie call, or a leaked room.","P1","media-control","Not run","","",""
+"FLT-010","Fault injection","L2/L3 Integration (negative)","Roomr node crash mid-call","A node crash is detected and callers are released.","Active calls on one node.","1. SIGKILL the node.
+2. Observe AppBridge, Routr and the records.","AppBridge receives node.down, ends the sessions, and seals records marked as node failure. Routr stops sending to the node.","Sessions stuck, or unsealed records.","P0","media-control","Not run","","",""
+"FLT-011","Fault injection","L2/L3 Integration (negative)","AppBridge crash mid-call","An AppBridge crash does not leave the media node holding the call forever.","Active calls.","1. Kill the AppBridge process.","The node ends the orphaned rooms within the timeout. The record is sealed as failed by the recovery path.","Orphaned rooms.","P0","voice-session","Not run","","",""
+"FLT-012","Fault injection","L2/L3 Integration (negative)","Clock skew between services","Signature checks and timestamps tolerate normal skew.","Services with a 2 s skew, then 10 min.","1. Start a call with each skew.","2 s skew works. 10 min skew is refused with a clear error.","Failures at 2 s, or acceptance at 10 min.","P2","voice-session","Not run","","",""
+"SEC-001","Security and isolation","L3 System (negative)","API: cross-workspace read, update, delete","No RPC reaches another workspace's data.","Resources in A and B. A's key.","1. For every RPC, call with ids from B using A's key (see API area).","All denied with no information leak.","Any access.","P0","identity","Not run","","",""
+"SEC-002","Security and isolation","L3 System (negative)","SIP: forged X-App-Ref across workspaces","A registered softphone cannot start a session for another workspace's application.","Softphone registered in A. Application in B.","1. Send INVITE with B's X-App-Ref to the media-node peer.
+2. Check for a session in B.","Refused. No session in B.","A session starts. Known gap, expected to fail until fixed.","P0","roomr","Not run","","",""
+"SEC-003","Security and isolation","L3 System (negative)","Talk-in-browser is workspace checked","A browser test call cannot target an application in another workspace.","A user in A; an application in B.","1. Request a test call for B's application with A's token.","Denied by the gateway.","The call starts.","P0","talk-in-browser","Not run","","",""
+"SEC-004","Security and isolation","L3 System (negative)","Token tampering","Altered, replayed or unsigned tokens are rejected.","A valid access token.","1. Change the workspace claim.
+2. Change the role claim.
+3. Strip the signature.
+4. Use an old refresh token after rotation.","Each is rejected.","Any is accepted.","P0","identity","Not run","","",""
+"SEC-005","Security and isolation","L3 System (negative)","API key scope and revocation","Keys are limited to their role, and revocation is immediate.","A member-role key.","1. Use an owner-only RPC with the key.
+2. Revoke the key.
+3. Use it again within 5 s.","Denied the first time. Revoked key fails within the documented time.","Role bypass, or the revoked key still works.","P0","identity","Not run","","",""
+"SEC-006","Security and isolation","L3 System (negative)","Secrets never appear in logs or responses","Trunk passwords, API keys and provider keys are not leaked.","Secrets with a known marker value.","1. Exercise create, get, update and failing paths.
+2. Scan all service logs, traces and API responses for the marker.","The marker appears nowhere except where the user must see it once (key creation).","Any occurrence.","P0","observability","Not run","","",""
+"SEC-007","Security and isolation","L3 System (negative)","NATS authentication between services","Only services with credentials can publish and subscribe, and only on their subjects.","NATS with per-service credentials.","1. Connect with no credentials.
+2. Connect as Routr and subscribe to _INBOX.>.
+3. Publish a MediaControl command from an unrelated service.","Unauthenticated connections are refused. Cross-service subjects are denied. Known gap: _INBOX.> is readable; expected to fail until fixed.","Any unauthorized subscribe or publish.","P0","deployment","Not run","","",""
+"SEC-008","Security and isolation","L3 System (negative)","Webhook and session signatures","Receivers can verify messages and reject forgeries.","Receiver code from the docs.","1. Verify a real delivery.
+2. Alter the body.
+3. Replay an old delivery after the tolerance.","The real delivery verifies. The altered and replayed ones fail.","Any forged message verifies.","P0","workspace-webhooks, voice-session","Not run","","",""
+"SEC-009","Security and isolation","L3 System (negative)","Transport security","TLS and SRTP are enforced where configured.","TLS trunk and SRTP-required number.","1. Connect to the API over plain HTTP.
+2. Place a call over SIP/TLS.
+3. Capture RTP on an SRTP-required call.","Plain HTTP is refused or redirected. The capture shows no clear RTP on the SRTP-required call.","Clear media or an unencrypted API.","P1","deployment","Not run","","",""
+"SEC-010","Security and isolation","L3 System (negative)","Hostile SIP input does not crash the edge","Malformed or oversized SIP is rejected and the edge keeps serving calls.","Active calls and a SIP fuzz tool.","1. Send malformed requests, giant headers, an INVITE flood and unknown methods for 5 min.
+2. Watch the active calls.","Hostile traffic is rejected. Active calls are unaffected. No crash.","A crash, or call degradation.","P1","deployment","Not run","","",""
+"SEC-011","Security and isolation","L3 System (negative)","Recording and record access","Recordings and call records follow workspace access rules.","Records in A and B.","1. With A's key, fetch B's recording URL and record id.
+2. Use an expired signed URL.","Denied for B. Expired URLs fail.","Access granted.","P0","call-record","Not run","","",""
+"BRG-001","Billing, metering and regions","L3 System","Metering accuracy","Billed usage equals actual usage.","Calls with known durations and features (AMD, noise cancelling).","1. Place 20 calls of known length.
+2. Read usage after they end.","Usage equals the known totals within the rounding rule. Each feature is metered separately.","A difference above the rounding rule.","P0","usage-metering","Not run","","",""
+"BRG-002","Billing, metering and regions","L3 System","Credit ledger","Credits are debited correctly and never go below the rule.","Workspace with 1,000 credits ($0.01 each).","1. Use credits through calls.
+2. Read the ledger and balance.","Ledger entries sum to the balance. Each entry references its usage.","A mismatch.","P0","usage-metering","Not run","","",""
+"BRG-003","Billing, metering and regions","L3 System","Admission when credits run out","Calls are refused when the workspace cannot pay.","Balance near zero.","1. Place a call that would exceed the balance.","The call is refused (or ended) per the documented rule, with a clear reason. Other workspaces are unaffected.","Unbounded negative balance.","P0","usage-metering","Not run","","",""
+"BRG-004","Billing, metering and regions","L3 System","Subscribe, pay and invoice","A plan purchase works through Stripe events.","Stripe fake.","1. As owner, subscribe to a plan ($25 minimum).
+2. Complete payment in the fake.
+3. Check the workspace.","The plan is active after the paid event. An invoice is visible to the workspace owner role.","State differs from the Stripe fake's.","P0","usage-metering","Not run","","",""
+"BRG-005","Billing, metering and regions","L3 System","Payment failure and recovery","A failed payment restricts the workspace and recovery restores it.","Active plan.","1. Fail the next payment in the fake.
+2. Observe the workspace.
+3. Pay successfully.","The workspace follows the documented grace and restriction rules, and is restored after payment.","No restriction, or no recovery.","P0","usage-metering","Not run","","",""
+"BRG-006","Billing, metering and regions","L3 System","Duplicate and out-of-order Stripe events","Webhook processing is idempotent.","Stripe fake able to replay.","1. Send each event twice.
+2. Send events out of order.","The final state is correct and no double charge or credit occurs.","Double processing.","P0","usage-metering","Not run","","",""
+"BRG-007","Billing, metering and regions","L3 System","Private region enrollment","A private region can be enrolled from a second stack.","Second stack (a second Compose project or VM) with the region agent image.","1. Create a region through the API and take the enrollment command.
+2. Run the command in the second stack from the test script.
+3. Poll the region status.","The region becomes online within the timeout. Config syncs. The nodes are listed.","Enrollment fails or the status is wrong.","P1","private-regions","Not run","","",""
+"BRG-008","Billing, metering and regions","L3 System","Call in a private region","A call is handled in the region and records reach the control plane.","Enrolled region and an application assigned to it.","1. A SIP bot calls a number in the region.
+2. Exchange tones and hang up.
+3. Capture RTP at the global stack's edge.
+4. Read the record through the API.","All media terminates inside the region (no RTP seen at the global edge). The record appears in the control plane.","Media goes through another region, or the record is missing.","P1","private-regions","Not run","","",""
+"BRG-009","Billing, metering and regions","L3 System","Region offline","A lost region is shown as offline and does not affect others.","Enrolled region.","1. Disconnect the region.
+2. Place calls in other regions.
+3. Reconnect.","The region shows offline within the timeout. Other regions are unaffected. Config resyncs on return.","Wrong status or cross-region impact.","P1","regions","Not run","","",""
+"BRG-010","Billing, metering and regions","L3 System","Placement skips unavailable nodes","New sessions go only to nodes that are up and have capacity.","Region with three nodes, one down, one full.","1. Place 10 calls.","All calls land on the healthy node. Known gap: full nodes are not skipped today.","A call lands on a down or full node.","P1","regions","Not run","","",""
+"BRG-011","Billing, metering and regions","L3 System","Region scenario set","Every region scenario passes.","Region agent and control plane, scenario files for regions.","1. Run all region scenarios with the conformance runner.","All scenarios pass and none is skipped.","Any failure or skip.","P1","regions, private-regions","Not run","","",""
+"OPS-001","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Compose install from scratch","The bundle starts a working self-hosted platform.","A clean VM or container host with Docker. The bundle from ops/bundle.","1. Extract the install commands from ops/bundle/README.md and run them unchanged.
+2. Wait for every service health check.
+3. Run the 10-call smoke.","All services are healthy within the documented time. The smoke passes without any additional command.","A README command fails, or another action is needed.","P0","self-host-installer","Not run","","",""
+"OPS-002","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Helm install from scratch","The chart installs on an empty cluster.","Empty kind or k3d cluster.","1. helm install with the default values.
+2. Wait for readiness.
+3. Run the smoke.","All pods ready. Smoke passes.","Failure or crash loops.","P0","deployment","Not run","","",""
+"OPS-003","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Helm upgrade and rollback","Upgrading and rolling back keep data and settings.","Installed previous release with data.","1. helm upgrade to the candidate.
+2. Run the smoke and read old data.
+3. helm rollback.
+4. Read again.","Data intact after both. Smoke passes after each.","Data loss or errors.","P0","deployment","Not run","","",""
+"OPS-004","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Migration from v0.x","An existing v0.x installation upgrades to the rebuild without data loss.","A v0.x installation image seeded with applications, numbers, trunks, agents and keys by a fixture script.","1. Run the documented migration.
+2. Export every resource through the API before and after, and diff them.
+3. Run the call smoke for inbound and outbound.","Every resource is present and working. Differences are only those listed as retired in the migration notes.","Lost data, an unlisted difference, or broken calls.","P0","control-plane, deployment","Not run","","",""
+"OPS-005","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Config change and secret rotation","Configuration and secret changes apply without outage.","Running stack.","1. Change a service YAML value.
+2. Rotate a provider key and a signing secret.
+3. Place calls throughout.","Changes apply on rollout. Calls started before the change are not dropped by the config itself.","Dropped calls, or the old secret still in use.","P1","service-config","Not run","","",""
+"OPS-006","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Random pod kill","The stack recovers from losing any single pod.","Stack under light call load.","1. Kill one pod of each service in turn.
+2. Watch the calls and recovery.","Each pod is replaced within the budget. Only calls on that pod are affected. New calls keep working.","A multi-service outage.","P0","deployment","Not run","","",""
+"OPS-007","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Rolling update with live calls","Updating Roomr and AppBridge does not drop active calls.","50 active calls.","1. Roll out a new image for Roomr, then AppBridge.
+2. Watch the calls.","Pods drain: active calls finish on the old pod (or are handled per the documented policy) and new calls go to new pods.","Active calls dropped without the documented policy.","P0","deployment","Not run","","",""
+"OPS-008","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Node drain with active calls","Draining a Kubernetes node behaves as documented.","Real cluster, calls on the node.","1. kubectl drain the node.
+2. Observe calls and rescheduling.","Calls follow the drain policy (finish within the grace period or are ended cleanly with sealed records).","Hard drops, or records not sealed.","P1","deployment","Not run","","",""
+"OPS-009","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Autoscaling","Services scale with load and back down.","Autoscaling enabled.","1. Ramp load to 2x one pod's capacity.
+2. Hold, then drop the load.","Pods scale up before quality drops, and scale down after the cool-down without dropping calls.","Quality loss while scaling, or a drop on scale-down.","P1","deployment","Not run","","",""
+"OPS-010","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Media networking on the supported setup","Audio quality on Kubernetes matches the bare-metal baseline.","Supported media setup (host networking, dedicated nodes). Baseline from MQ-001.","1. Run the baseline and 5% loss tests on the cluster.
+2. Compare scores.","Scores are within the tolerance of the baseline. UDP port ranges are as documented.","A lower score or port problems.","P0","deployment","Not run","","",""
+"OPS-011","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Cross-zone and noisy neighbors","Cluster placement effects are known.","Real cluster across zones, with a noisy workload on the same node.","1. Place Roomr and RTPEngine in different zones.
+2. Run a CPU hog on the Roomr node.
+3. Score calls.","Impact is measured and recorded. Placement rules in the docs prevent the bad cases.","Unknown impact.","P2","deployment","Not run","","",""
+"OPS-012","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Trace for a call","One call produces one linked trace across services.","OpenTelemetry collector.","1. Place a call.
+2. Query the trace by call id.","A single trace links Routr, node, AppBridge and the apiserver, with the span names in the spec.","A broken or missing trace.","P1","observability","Not run","","",""
+"OPS-013","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Metrics and health endpoints","Every service exposes health and the documented metrics.","Stack running.","1. Scrape each service.
+2. Compare with the metric list in the spec.","All metrics in the spec exist with the right labels. Health endpoints reflect real readiness.","Missing metrics, or false-healthy.","P1","observability","Not run","","",""
+"OPS-014","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Data retention and erasure","Retention settings and erasure requests are honored.","Records and recordings older than the retention period, created by a fixture with backdated timestamps.","1. Run the retention job.
+2. Request erasure for one call.
+3. List the records, query storage and the search index.","Expired data is removed. Erased data is gone from the database and object storage. Known gap: there is no CLI or UI for erasure; the test uses the API, and the missing interface is tracked as a feature gap.","Data remains.","P2","call-record","Not run","","",""
+"OPS-015","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Dev container: first open","A fresh clone opens in the dev container with healthy dependencies and generated config.","A fresh clone and the devcontainer CLI.","1. Build and start the dev container.
+2. Read the health of NATS, Postgres and MinIO.
+3. List .dev/ and run git status.","All three dependencies are healthy. .dev/.env, .dev/config/*.yaml and .dev/config/keys/ exist and git status shows them untracked or ignored.","An unhealthy dependency, or secrets showing as changes.","P1","developer-environment","Not run","","",""
+"OPS-016","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Dev container: dependencies match the bundle","The dev dependencies use the same images as the release bundle.","The repository.","1. Render .devcontainer/compose.yaml with docker compose config.
+2. Compare each dependency image with ops/bundle/compose.yaml.","Each image is identical.","Any mismatch.","P2","developer-environment","Not run","","",""
+"OPS-017","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Dev container: old commands are gone","Retired development paths no longer exist.","The repository.","1. Search for npm run start:services, compose.dev.yaml and the other retired commands in package.json, scripts and CONTRIBUTING.md.","None exists, and CONTRIBUTING.md describes only the dev container.","Any retired command remains.","P2","developer-environment","Not run","","",""
+"OPS-018","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Dev config: re-render keeps secrets","Regenerating dev config does not rotate secrets.","An opened dev container.","1. Hash .dev/.env.
+2. Run npm run dev:config.
+3. Hash again and compare the service files.","Every value in .dev/.env is unchanged and the service files are rendered again.","A changed secret.","P1","developer-environment","Not run","","",""
+"OPS-019","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Dev stack: everything up","npm run dev brings up the whole platform.","An opened dev container.","1. Run npm run dev.
+2. Request the dashboard on the host port.
+3. Sign in as the owner, create an agent with the fake models and call it with a SIP bot.","The dashboard answers, sign-in works, the Roomr node answers the call and the bot hears the agent. No provider keys were needed.","Any step fails.","P0","developer-environment","Not run","","",""
+"OPS-020","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Dev stack: reload per component","Saving a file reloads only its component.","npm run dev running.","1. Touch a file under mods/appbridge/src.
+2. Touch a .go file under go/roomr while npm run dev:roomr runs, once valid and once with a build error.
+3. Watch the processes.","AppBridge restarts and the others keep running. Roomr rebuilds and restarts, or prints the build error and keeps the previous binary running.","Other components restart, or a build error kills the node.","P2","developer-environment","Not run","","",""
+"OPS-021","Deployment, upgrade, Kubernetes and observability","L3 System (operations)","Dev tests use the test NATS","Test suites run against the test NATS, not the dev stack's.","Dev stack and test NATS both running.","1. Run npm test and the Go tests.
+2. Capture connections on each NATS.","The suites connect only to the test NATS.","A connection to the dev NATS.","P2","developer-environment","Not run","","",""
+"PRD-001","Production synthetic checks","L5 Production","Inbound call after deploy","An inbound call to a production number reaches its application and gets a reply.","A production number linked to the fixture agent. Peer bot ready.","1. The peer bot calls the number.
+2. The bot plays a phrase and records the reply.
+3. The bot hangs up.","Answered within the budget, reply audio present, call record created.","No answer, silence, or no record. Alert raised.","P0","voice-session, control-plane","Not run","","",""
+"PRD-002","Production synthetic checks","L5 Production","Outbound call after deploy","An outbound call created through the production API reaches the peer.","Check workspace with an outbound trunk.","1. Create a call to the peer bot through the API.
+2. The bot answers and plays a tone.
+3. The bot hangs up.","The bot receives the call and the tone is detected both ways.","No call or one-way audio. Alert raised.","P0","control-plane, roomr","Not run","","",""
+"PRD-003","Production synthetic checks","L5 Production","DTMF after deploy","Digits reach the application in production.","Inbound check call.","1. The bot sends 1 2 3 #.
+2. Read the events the fixture agent saw.","123# received once, in order.","Missing or wrong digits. Alert raised.","P1","voice-session","Not run","","",""
+"PRD-004","Production synthetic checks","L5 Production","Transfer after deploy","A cold transfer connects the caller to a second peer.","Two peer bots.","1. The fixture agent transfers the caller to the second bot.
+2. The second bot answers and exchanges tones.","transfer.result success and tones detected.","No transfer or dropped caller. Alert raised.","P1","media-control","Not run","","",""
+"PRD-005","Production synthetic checks","L5 Production","Autopilot turn after deploy","The hosted Autopilot answers one turn with real providers.","Fixture agent with the production default STT, TTS and LLM.","1. The bot asks a fixed question.
+2. Record and transcribe the reply.
+3. Measure end-of-turn to first audio.","The reply contains the expected answer and the latency is within the budget set from the baseline.","Wrong or missing reply, or latency over budget. Alert raised.","P0","autopilot, turn-taking","Not run","","",""
+"PRD-006","Production synthetic checks","L5 Production","Dashboard sign-in after deploy","A user can sign in and load the overview.","A check user in the check workspace.","1. Open the dashboard in a headless browser.
+2. Sign in.
+3. Wait for the overview to load.","Overview renders with the workspace name within the budget.","Sign-in fails or the page errors. Alert raised.","P0","dashboard, identity-client","Not run","","",""

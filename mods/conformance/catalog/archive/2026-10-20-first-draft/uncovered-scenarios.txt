@@ -1,0 +1,481 @@
+autopilot | Autopilot is an ordinary application / A call reaches Autopilot like any app
+autopilot | Autopilot is an ordinary application / Bad signature
+autopilot | Autopilot is an ordinary application / Missing public URL
+autopilot | Autopilot is an ordinary application / Signature for another tenant's app
+autopilot | Barge-in stops speech and keeps history honest / An interrupted reply is still metered
+autopilot | No agent webhooks / Old config with eventsHook
+autopilot | Plugs, not vendors / Agent config with an inline key
+autopilot | Plugs, not vendors / Model chosen by catalog id
+call-record | Additions after sealing create new versions / Adding a post-call summary
+call-record | Calls that never reach an app get a minimal record / App unreachable
+call-record | Calls that never reach an app get a minimal record / Busy outbound call
+call-record | Every session produces exactly one call record / A handed-off call still has one record
+call-record | Every session produces exactly one call record / A normal call leaves one record
+call-record | Every session produces exactly one call record / No record store configured
+call-record | Recording is applied by policy / Consent prompt
+call-record | Recording is applied by policy / Recording off
+call-record | Recording is applied by policy / Recording on
+call-record | Records are available through the API and the dashboard / Fetch and search
+call-record | Records are available through the API and the dashboard / Seal notification
+call-record | Records are hashed and signed / Tampering is detected
+call-record | Records are hashed and signed / Verifying a record
+call-record | Records are stored in the call's region or the workspace's bucket / Customer bucket
+call-record | Records are stored in the call's region or the workspace's bucket / Private region keeps its data
+call-record | Records of calls that reach no app carry no vendor usage / Rejected call
+call-record | Redacted copies protect personal data / A card number is masked
+call-record | Redacted copies protect personal data / Restricted original
+call-record | Retention follows workspace policy and deletions are audited / Default retention keeps everything
+call-record | Retention follows workspace policy and deletions are audited / Erasing one call
+call-record | Retention follows workspace policy and deletions are audited / Recordings expire, transcripts stay
+call-record | The analytics store is derived from records / Rebuilding analytics
+call-record | The record contains the call's parties, timing, transcript, messages and turns / A deprecated model used on a call is recorded
+call-record | The record contains the call's parties, timing, transcript, messages and turns / LLM exchanges are excluded
+call-record | The record contains the call's parties, timing, transcript, messages and turns / Session messages are captured both ways
+call-record | The record contains the call's parties, timing, transcript, messages and turns / Turn decisions carry outcomes
+call-record | The record contains the call's parties, timing, transcript, messages and turns / Usage is sealed with the call
+call-record | The record is built during the call and sealed at hangup / A sealed record cannot be edited
+call-record | The record is built during the call and sealed at hangup / An AppBridge crash mid-call still yields a sealed record
+call-record | The record is built during the call and sealed at hangup / AppBridges sharing a record directory
+call-record | The record is built during the call and sealed at hangup / Sealing after a normal hangup
+capabilities | The apiserver advertises the deployment's capabilities / Cloud configuration
+capabilities | The apiserver advertises the deployment's capabilities / Community defaults
+capabilities | The apiserver advertises the deployment's capabilities / No credentials needed
+conformance | AppBridge latency pass bar (T1) / Clear
+conformance | Architecture done is defined by specified suites / Marking a domain done
+conformance | Autopilot suite / History after an interruption
+conformance | CI cadence / Pull request touching AppBridge
+conformance | Call record suite / AppBridge crash mid-call
+conformance | Call record suite / Redaction
+conformance | End-to-end caller bot / Nightly call
+conformance | Every contract has a fake for each side / AppBridge tested without real vendors
+conformance | Every contract has a fake for each side / Injected provider failure
+conformance | Implementations ship fake provider adapters / A rewrite uses the same fakes
+conformance | Implementations ship fake provider adapters / A stack adds the fakes like any catalog
+conformance | Implementations ship fake provider adapters / Fakes are not available in production
+conformance | Live provider tests run on demand only (T4) / Pull request
+conformance | Provider adapter suite / A declared feature does not work
+conformance | Registry utility suite / Secrets cannot be stored
+conformance | Registry utility suite / Two regions converge
+conformance | Scale pass bar (T2) / One replica at 100 calls
+conformance | Scale pass bar (T2) / Ten replicas at 1,000 calls
+conformance | Scenarios are language-neutral and shared by the SDKs / Both SDKs run the same cases
+conformance | Scenarios are language-neutral and shared by the SDKs / The old handler signature
+conformance | Session protocol suite / Bad signature
+conformance | Session protocol suite / Clear drops queued output and returns marks
+conformance | Session protocol suite / Unreachable app
+conformance | Suites test only through the public contract / A rewrite passes the same suite
+conformance | Suites test only through the public contract / A suite reaching into internals is rejected
+conformance | The harness lives in `mods/conformance` / One source of scenario files
+conformance | Turn-taking replay against a baseline / A new detector regresses
+conformance | Turn-taking replay against a baseline / Customer calls
+conformance | Twilio protocol suite runs an unmodified Pipecat bot / Pipecat hangs up through the compatible endpoint
+control-plane | AppBridge is its own TypeScript deployable / No speech in the apiserver
+control-plane | AppBridge is its own TypeScript deployable / Scaling AppBridge replicas alone
+control-plane | Call creation picks the least-loaded Roomr node / A full node sends the call to the next one
+control-plane | Call creation picks the least-loaded Roomr node / At most three nodes tried
+control-plane | Call creation picks the least-loaded Roomr node / Capacity error is synchronous
+control-plane | Call creation picks the least-loaded Roomr node / Least-loaded node chosen
+control-plane | Call creation picks the least-loaded Roomr node / No capacity
+control-plane | Call creation picks the least-loaded Roomr node / Node at its limit skipped
+control-plane | Calls leave only by the workspace's own numbers / Another workspace's number
+control-plane | Calls leave only by the workspace's own numbers / Header injection in a party
+control-plane | Calls leave only by the workspace's own numbers / Own number
+control-plane | NATS carries everything internal except audio / Events processed once
+control-plane | NATS carries everything internal except audio / No audio on the bus
+control-plane | NATS carries everything internal except audio / Registry survives a replica restart
+control-plane | SIP resources reference only their own workspace / Agent in another workspace's domain
+control-plane | SIP resources reference only their own workspace / Trunk with another workspace's credentials
+control-plane | The apiserver is a stateless control plane / Any replica serves any request
+control-plane | The apiserver is a stateless control plane / Call status survives the placing replica
+control-plane | The apiserver is a stateless control plane / Losing a replica
+control-plane | The apiserver is a stateless control plane / Management API unchanged
+control-plane | The apiserver is a stateless control plane / TrackCall always ends
+dashboard | Agent pickers offer the catalog / A new agent prefers keyless providers
+dashboard | Agent pickers offer the catalog / A saved item that is no longer offered
+dashboard | Agent pickers offer the catalog / Models Autopilot cannot run are not offered
+dashboard | Cloud-only screens follow capabilities / No Billing tab in this release
+dashboard | Cloud-only screens follow capabilities / Region fee follows billing
+dashboard | Invitees set a password before using the app / First sign-in from an invite
+dashboard | Invitees set a password before using the app / Password set
+dashboard | Noise cancelling is one select fed by the catalog / A saved filter whose provider is no longer offered
+dashboard | Noise cancelling is one select fed by the catalog / Agents set it on the Advanced tab
+dashboard | Noise cancelling is one select fed by the catalog / No noise-cancelling provider is offered
+dashboard | Noise cancelling is one select fed by the catalog / Turning it off
+dashboard | Noise cancelling is one select fed by the catalog / Turning noise cancelling on
+dashboard | Sign-in options follow the advertised methods / Cloud
+dashboard | Sign-in options follow the advertised methods / Community defaults
+dashboard | Sign-in options follow the advertised methods / GitHub state mismatch
+dashboard | Sign-in options follow the advertised methods / Open sign-up
+dashboard | Sign-in options follow the advertised methods / Wrong credentials
+dashboard | The call detail flags unfiltered calls / A filter failed
+dashboard | The call detail flags unfiltered calls / Filtering worked
+dashboard | The dashboard is configured at run time with one setting / API unreachable at boot
+dashboard | The dashboard is configured at run time with one setting / Missing API URL
+dashboard | The dashboard is configured at run time with one setting / One image, two deployments
+dashboard | The navigation can collapse / Collapse
+dashboard | The session persists in the browser and ends cleanly / Inline script blocked
+dashboard | The session persists in the browser and ends cleanly / No token in storage
+dashboard | The session persists in the browser and ends cleanly / Older stored session
+dashboard | The session persists in the browser and ends cleanly / Refresh token rejected
+dashboard | The session persists in the browser and ends cleanly / Reload
+dashboard | The session persists in the browser and ends cleanly / Sign-out
+dashboard | The sidebar names Agents and Apps / Creating an app
+dashboard | The sidebar names Agents and Apps / Old paths
+dashboard | The sidebar names Agents and Apps / Sidebar labels
+dashboard | The workspace has a Usage page / Choosing a period
+dashboard | The workspace has a Usage page / Community install
+dashboard | The workspace has a Usage page / No usage yet
+dashboard | Usage shows AI usage by vendor and key / Own key and platform key
+dashboard | Usage shows minutes apart from test minutes / Calls and tests
+dashboard | Users land on a workspace after sign-in / No workspaces
+dashboard | Users land on a workspace after sign-in / Remembered workspace
+dashboard | Users land on a workspace after sign-in / Several workspaces, none remembered
+dashboard | Vendor keys offers noise-cancelling providers / Adding an ai-coustics key
+dashboard | Vendor keys warn when no vendor is configured / Every vendor was removed
+deployment | Deployments are closed by default / A copied development key
+deployment | Deployments are closed by default / Compose bundle over HTTPS
+deployment | Deployments are closed by default / Helm install without NATS users
+deployment | Deployments are closed by default / Plain HTTP on a public address
+deployment | Docker Compose and Helm are official targets / Merging publishes nothing
+deployment | Docker Compose and Helm are official targets / Nightly on both targets
+deployment | Docker Compose and Helm are official targets / Release gated
+deployment | Each NATS user reads only its own replies / Another service's reply stays private
+deployment | Each NATS user reads only its own replies / Session registry still works
+deployment | Every service is a plain container / Running with plain docker
+deployment | One YAML config per Fonoster service, no .env / A .env file is ignored
+deployment | One YAML config per Fonoster service, no .env / Development mode reads no .env either
+deployment | One YAML config per Fonoster service, no .env / Each container gets only its own values
+deployment | One YAML config per Fonoster service, no .env / Placeholder resolved from the container environment
+deployment | One YAML config per Fonoster service, no .env / Secret reference resolved
+deployment | One YAML config per Fonoster service, no .env / Unset placeholder
+developer-environment | Dev config generated once, secrets never committed / First open
+developer-environment | Dev config generated once, secrets never committed / Re-render keeps secrets
+developer-environment | One reloading script per component / A call reaches an agent
+developer-environment | One reloading script per component / AppBridge reload
+developer-environment | One reloading script per component / Everything up
+developer-environment | One reloading script per component / One component alone
+developer-environment | One reloading script per component / Roomr node rebuild
+developer-environment | Tests run inside the dev container / Go tests
+developer-environment | Tests run inside the dev container / Unit and conformance suites
+developer-environment | The dev container is the only development path / Dependencies come from the bundle
+developer-environment | The dev container is the only development path / Old commands are gone
+developer-environment | The dev container is the only development path / Open the dev container
+developer-environment | The dev stack offers fake providers next to the real ones / A fresh dev container needs no keys
+developer-environment | The dev stack offers fake providers next to the real ones / A vendor key takes effect on the next call
+identity | API keys are managed by workspace owners and admins / A member can't mint keys
+identity | API keys are managed by workspace owners and admins / Another workspace's key
+identity | API keys are managed by workspace owners and admins / Expired key
+identity | An unverified account belongs to whoever proves its email / Someone signed up with another person's email
+identity | An unverified account belongs to whoever proves its email / Verifying another account
+identity | Changing a password needs the current one / Stolen access token
+identity | Dashboard cookie session / Cross-site request
+identity | Dashboard cookie session / Logout revokes
+identity | Dashboard cookie session / No session
+identity | Dashboard cookie session / Refresh rotates the cookie
+identity | Failed sign-ins are throttled / Guessing a password
+identity | Id, access, and refresh tokens / Access token carries workspace roles
+identity | Id, access, and refresh tokens / Authentication issues the three tokens
+identity | Only enabled sign-in methods work / Password disabled
+identity | Password reset links come from configuration / Limits across replicas
+identity | Password reset links come from configuration / Requester-supplied URL
+identity | Password reset links come from configuration / Too many requests
+identity | Passwordless sign-in with an email code / Existing user
+identity | Passwordless sign-in with an email code / Unknown email with invite-only sign-up
+identity | Passwords are stored as one-way digests / Invitee must set a password
+identity | Passwords are stored as one-way digests / Pre-existing user signs in
+identity | Passwords are stored as one-way digests / Resending an invite
+identity | Refresh-token rotation policy / Refresh token expires
+identity | Refresh-token rotation policy / Reuse revokes the session
+identity | Refresh-token rotation policy / Sign-out
+identity | Role-based access control / A method outside the role is denied
+identity | Role-based access control / A role permits only its listed methods
+identity | Role-based access control / Only the role in the target workspace counts
+identity | Security practices / Transport is encrypted
+identity | Token exchanges / A refresh token is exchanged for a new pair
+identity | Token exchanges / Credentials are exchanged for tokens
+identity | Token exchanges / MFA is required when enforced
+identity | Token exchanges / Only refresh tokens refresh
+identity | Token verification via public key / A consumer verifies a token offline
+identity | Token verification via public key / Protected methods take access tokens only
+identity | Users, workspaces, and resource ownership / Creator owns the workspace
+identity | Users, workspaces, and resource ownership / accessKeyId prefix identifies the owner type
+identity | Verification codes are single use and limited / Expired code
+identity | Verification codes are single use and limited / Guessing
+identity | Verification codes are single use and limited / Reused code
+identity-client | Identity surface coverage from a single proto source / The proto comes from the canonical source
+identity-client | Identity surface coverage from a single proto source / Wrappers cover the Identity methods
+identity-client | Lightweight, endpoint-configurable client / Client targets an arbitrary endpoint
+identity-client | Lightweight, endpoint-configurable client / Installing the client stays lightweight
+identity-client | Per-request token forwarding / A server forwards different callers' tokens
+identity-service | Container image and accept-invite bridge / Published image runs the service
+identity-service | Database provisioning entrypoint / Fresh database is provisioned
+identity-service | Externalized configuration with fail-fast validation / Missing required configuration fails fast
+identity-service | Standalone Identity gRPC service / CreateWorkspace requires an access token
+identity-service | Standalone Identity gRPC service / Library import stays server-free
+identity-service | Standalone Identity gRPC service / No telephony subsystems are started
+identity-service | Standalone Identity gRPC service / Public methods need no token, others do
+identity-service | Standalone Identity gRPC service / Service serves Identity on the configured port
+media-control | Add a participant is the one primitive / Busy number
+media-control | AppBridge audio is RTP negotiated in participant.add / Agent audio travels as RTP
+media-control | AppBridge audio is RTP negotiated in participant.add / Agents never reach the node
+media-control | AppBridge audio is RTP negotiated in participant.add / Encrypted deployment uses SRTP
+media-control | AppBridge audio is RTP negotiated in participant.add / Plain appbridge leg refused when encryption is required
+media-control | Calls can carry a lower maximum duration / App limit applied
+media-control | Incoming calls are claimed by exactly one AppBridge replica / Missing app reference
+media-control | Listeners fork audio by track / Listener cannot speak
+media-control | Listeners fork audio by track / Recording listener gets both sides
+media-control | Nodes report liveness / Clean shutdown
+media-control | Outbound calls are owned by the replica that placed them / Owner handles the answer
+media-control | Outbound calls are placed on a node chosen by the control plane / Least-loaded node chosen
+media-control | Outbound calls are placed on a node chosen by the control plane / Session opens at answer
+media-control | Participants and tracks are kind-neutral / Track list on join
+media-control | The session participant carries AppBridge's audio / Agent audio reaches the caller
+media-control | The session participant carries AppBridge's audio / AppBridge hears the caller
+media-control | media-control runs over NATS request and reply / Call events on the call's subject
+media-control | media-control runs over NATS request and reply / No reply
+observability | Bring your own backend, with a default profile / Default profile
+observability | Bring your own backend, with a default profile / External backend
+observability | Call signals carry the call ref / One call, one trace view
+observability | Every service emits OpenTelemetry signals / No collector configured
+observability | Every service emits OpenTelemetry signals / Signals reach the collector
+observability | Logs never carry secrets / Creating a SIP credential at verbose level
+private-regions | A workspace lives in one region for its whole life / Existing workspaces
+private-regions | A workspace lives in one region for its whole life / Region cannot change
+private-regions | A workspace lives in one region for its whole life / Region chosen at creation
+private-regions | Config syncs from the control plane to the region / App change reaches the cell
+private-regions | Config syncs from the control plane to the region / Replica dies inside the debounce window
+private-regions | Config syncs from the control plane to the region / Workspace deleted
+private-regions | Enrollment uses a one-time token and issues the cell its own credentials / Credentials are scoped
+private-regions | Keys in public regions / Bring-your-own key in a public region
+private-regions | Keys in public regions / Private regions never get values
+private-regions | Private call content is relayed, never stored centrally / Relay limit across replicas
+private-regions | Private cells run their own Autopilot / Autopilot call in a private region
+private-regions | Private regions are billed per region / Usage shown, not billed
+private-regions | Provider keys of a private region stay in the cell / Missing key shown
+private-regions | Provider keys of a private region stay in the cell / Value never leaves the cell
+private-regions | Public regions are created by an operator; `default` is always offered / Admin API needs the operator key
+private-regions | Public regions are created by an operator; `default` is always offered / Default region
+private-regions | Public regions are created by an operator; `default` is always offered / Publish a new public region
+private-regions | Region ids, names and SIP domains / Reserved id
+private-regions | Region ids, names and SIP domains / Same id, different owners
+private-regions | Region ids, names and SIP domains / Workspace SIP domain
+private-regions | Region operations live in one ops utility / Operator creates a public region
+private-regions | Region status and supported versions / Offline after missed heartbeats
+private-regions | Regions report their connection details and the dashboard shows them / Details change
+private-regions | Regions report their connection details and the dashboard shows them / Private region reports its SIP host
+private-regions | Regions report their connection details and the dashboard shows them / Public region
+private-regions | Users create and own private regions / Another user's region
+private-regions | Users create and own private regions / Delete a region in use
+private-regions | Users create and own private regions / Private region created
+private-regions | Users create and own private regions / Records from other workspaces
+private-regions | Users create and own private regions / Several workspaces in one private region
+provider-registry | A provider may name its endpoints / A provider is reached at its catalog endpoint
+provider-registry | A provider may name its endpoints / An endpoint with a credential is refused
+provider-registry | A provider may name its endpoints / Service config wins over the catalog
+provider-registry | A provider without a credential reference needs no key / A keyless provider is called without a key
+provider-registry | Catalog entries may carry a display label / A labeled voice
+provider-registry | Deprecation is manual and warns every user / Deprecating a model prints the impact report
+provider-registry | Deprecation is manual and warns every user / Switching clears the warning
+provider-registry | Deprecation is manual and warns every user / The date passes without action
+provider-registry | Deprecation is manual and warns every user / The replacement must be active and of the same kind
+provider-registry | Deprecation is manual and warns every user / Warnings appear where the item is used
+provider-registry | Each layer resolves the credentials of the providers it calls / A workspace brings its own key
+provider-registry | Each layer resolves the credentials of the providers it calls / A workspace key is never returned
+provider-registry | Each layer resolves the credentials of the providers it calls / Autopilot resolves its LLM key
+provider-registry | Each layer resolves the credentials of the providers it calls / No credential at all for the filter
+provider-registry | Each layer resolves the credentials of the providers it calls / No workspace key falls back to the platform key
+provider-registry | Each layer resolves the credentials of the providers it calls / The noise-cancelling filter falls back to the platform key
+provider-registry | Each layer resolves the credentials of the providers it calls / The noise-cancelling filter uses the workspace's key
+provider-registry | Every catalog vendor is offered / A keyless provider is listed without a key
+provider-registry | Every catalog vendor is offered / A vendor without a key is offered
+provider-registry | Models declare features and apps' requirements are derived / Only voices valid for the model are offered
+provider-registry | Models declare features and apps' requirements are derived / Tools require tool calling
+provider-registry | Noise cancelling is a provider capability / An unknown capability is refused
+provider-registry | Noise cancelling is a provider capability / Registering the ai-coustics provider
+provider-registry | Noise cancelling is a provider capability / The provider is listed with its capability
+provider-registry | Providers are backed by built-in adapters only / Adding a provider with a known adapter
+provider-registry | Providers are backed by built-in adapters only / Adding a provider with an unknown adapter
+provider-registry | Retirement is manual, rewrites compatible configs and is audited / Compatible configs move to the replacement
+provider-registry | Services reach catalog providers they do not configure / A keyless catalog provider needs no AppBridge config
+provider-registry | Services reach catalog providers they do not configure / A workspace key reaches a provider missing from AppBridge config
+provider-registry | Several registries are kept identical with plan and apply / Apply is idempotent
+provider-registry | Several registries are kept identical with plan and apply / Syncing a private cell
+provider-registry | The catalog lists providers, models and voices by catalog id / A catalog id cannot be reused
+provider-registry | The catalog lists providers, models and voices by catalog id / A model is registered
+provider-registry | The catalog lists providers, models and voices by catalog id / A voice is registered against the models it works with
+provider-registry | The catalog never holds a secret / A key cannot be smuggled into the catalog
+provider-registry | The catalog never holds a secret / Export is safe to share
+provider-registry | The catalog never holds a secret / The utility's database role is limited
+provider-registry | The registry is managed only by the operator utility / Every write is audited
+provider-registry | The registry is managed only by the operator utility / The public API cannot change the catalog
+provider-registry | The registry is managed only by the operator utility / The utility exposes the full command set
+provider-registry | Unmappable usages do not block retirement / A workspace's cloned voice
+provider-registry | Unmappable usages do not block retirement / Retiring without a voice map
+provider-registry | Usage is reported per id / Checking exposure before retiring
+regions | Call content and provider keys never leave the cell / Dashboard access to a private record
+regions | Call content and provider keys never leave the cell / Keys stay local
+regions | Call content and provider keys never leave the cell / Only index fields cross
+regions | Call content and provider keys never leave the cell / Usage reaches billing
+regions | Cells link outbound-only over a NATS leaf node / No inbound ports
+regions | Cells link outbound-only over a NATS leaf node / Plain-text link refused
+regions | One global control plane, many cells / Call data stays in its cell
+regions | One global control plane, many cells / Control plane outage
+regions | Private regions are customer-operated / Invalid token
+regions | Private regions are customer-operated / Registering a private cell
+regions | Private regions are customer-operated / Upgrades are the customer's
+roomr | A crashed node's calls end cleanly / Node killed mid-call
+roomr | Call and room limits / Maximum duration
+roomr | Call and room limits / Node full
+roomr | Call and room limits / Room full
+roomr | Capacity bar / Load test
+roomr | DTMF is detected three ways / In-band fallback
+roomr | DTMF is detected three ways / No double report
+roomr | DTMF is detected three ways / RFC 4733
+roomr | DTMF is detected three ways / SIP INFO
+roomr | Draining nodes take no new rooms / Drain
+roomr | Draining nodes take no new rooms / Maximum wait
+roomr | Inbound calls become rooms / Chart without trusted sources
+roomr | Inbound calls become rooms / INVITE from an untrusted source
+roomr | Inbound calls become rooms / Inbound call reported with its headers
+roomr | Nodes register to Routr with their session count / Count sent on registration
+roomr | Nodes register to Routr with their session count / Routr prefers the lighter node
+roomr | Optional TLS and SRTP between the edge and the node / Encrypted deployment
+roomr | Optional TLS and SRTP between the edge and the node / Plain call refused when encryption is required
+roomr | Rooms mix audio for their participants / Mix-minus with three participants
+roomr | Rooms mix audio for their participants / Silence is not echoed
+roomr | Rooms mix audio for their participants / Video track refused in v1
+roomr | Rooms without an owner end / AppBridge killed mid-call
+roomr | Rooms without an owner end / Placer died before the dial
+roomr | Supported codecs / Each codec carries audio both ways
+roomr | Supported codecs / No common codec
+roomr | The node does not capture SIP, record or run speech / Recording is a listener
+self-host-installer | Local bundle build / Install from local files
+self-host-installer | No rebuild naming in user-facing files and output / Bundle scan
+self-host-installer | No vendor keys at install / Add a key after install
+self-host-installer | One archive per release / Images match the archive
+self-host-installer | One archive per release / Unpack with one line
+self-host-installer | Provider catalog on boot / First boot
+self-host-installer | Provider catalog on boot / More than one catalog file
+self-host-installer | Provider catalog on boot / Restart
+self-host-installer | Start with plain Compose / Default start
+self-host-installer | Start with plain Compose / Telemetry to an existing collector
+self-host-installer | check validates config before start / Typo in a key
+self-host-installer | check validates config before start / Unset placeholder
+self-host-installer | check validates config before start / Valid config
+self-host-installer | info shows how to reach the install / After init
+self-host-installer | info shows how to reach the install / Before init
+self-host-installer | init is safe to run again / New secret after an upgrade
+self-host-installer | init is safe to run again / Re-run keeps secrets
+self-host-installer | init prepares an install without prompts / Fresh folder
+self-host-installer | init prepares an install without prompts / Host address override
+self-host-installer | init prepares an install without prompts / No address found
+self-host-installer | init prepares an install without prompts / No secret in the service YAMLs
+service-config | Configuration is validated strictly / Legacy environment variables
+service-config | Configuration is validated strictly / Misspelled key
+service-config | Configuration is validated strictly / Moved key
+service-config | Each Fonoster service reads one config file / Autopilot ignores the apiserver's database variable
+service-config | Each Fonoster service reads one config file / Default locations
+service-config | Each Fonoster service reads one config file / Explicit path
+service-config | Each Fonoster service reads one config file / No file found
+service-config | Each Fonoster service reads one config file / The Roomr node ignores deprecated variables
+service-config | Each Fonoster service reads one config file / Two files for the same service
+service-config | Embedded and standalone Identity share one schema / Same defaults
+service-config | Embedded and standalone Identity share one schema / Standalone file shape
+service-config | Features replace editions / Billing requires authorization service
+service-config | Features replace editions / Defaults
+service-config | The logger is configured from the file / Logger created at import time
+service-config | YAML and JSON with comments are both accepted / JSONC with comments
+service-config | YAML and JSON with comments are both accepted / Malformed file
+service-config | `${VAR}` placeholders resolve from the environment / Default for an optional value
+service-config | `${VAR}` placeholders resolve from the environment / Missing shared value
+service-config | `${VAR}` placeholders resolve from the environment / Secret as a placeholder
+service-config | `${VAR}` placeholders resolve from the environment / Shared database password
+talk-in-browser | A browser call reaches the agent / Call the saved agent
+talk-in-browser | A browser call reaches the agent / Invalid token
+talk-in-browser | SIP over WebSocket on the API port / Browser connects
+talk-in-browser | SIP over WebSocket on the API port / Rendered bundle config
+talk-in-browser | Talk drawer calls from the browser / Call rejected
+talk-in-browser | Talk drawer calls from the browser / Call, mute and hang up
+talk-in-browser | Talk drawer calls from the browser / Microphone blocked
+talk-in-browser | Talk drawer calls from the browser / Not a secure context
+talk-in-browser | Test tokens stay in their workspace / Another workspace's agent
+talk-in-browser | Test tokens stay in their workspace / Calls without a token
+talk-in-browser | Test tokens stay in their workspace / Forged token
+talk-in-browser | Test tokens target the Roomr nodes / Signaling URL from appUrl
+talk-in-browser | Test tokens target the Roomr nodes / Token for a workspace
+turn-taking | Detectors are compared by replay before adoption / A regressing candidate is rejected
+turn-taking | Detectors are compared by replay before adoption / Non-consented calls are excluded
+turn-taking | Patience is configurable per app and adapts only within a call / Nothing is remembered across calls
+twilio-media-streams-flavor | Hanging up from a Twilio-protocol stream / Call already ended
+twilio-media-streams-flavor | Hanging up from a Twilio-protocol stream / Pipecat auto_hang_up with base_url
+twilio-media-streams-flavor | Unmodified Pipecat compatibility / Pipecat golden call
+usage-metering | Call seconds count from answer / Ringing is not metered
+usage-metering | Call seconds count from answer / Unanswered call
+usage-metering | Daily totals are rebuildable / Rebuild matches
+usage-metering | Key source per provider / One call, two key sources
+usage-metering | Key source per provider / Platform resources have no key source
+usage-metering | Metered quantities / An AI call is metered end to end
+usage-metering | Metered quantities / An undeclared meter is rejected
+usage-metering | Metering never blocks a call / Store down during calls
+usage-metering | Missing usage is an error / Vendor omits usage
+usage-metering | Origin of test calls and evals / Browser test call
+usage-metering | Origin of test calls and evals / Eval run
+usage-metering | Private-region usage / Private-region call
+usage-metering | Token counts come only from the vendor / Interrupted turn
+usage-metering | Token counts come only from the vendor / Vendor reports usage
+usage-metering | Usage API / Another workspace
+usage-metering | Usage API / Grouped by key source
+usage-metering | Usage API / Owner across workspaces
+usage-metering | Usage attribution / A call's lines are attributed
+usage-metering | Usage is recorded exactly once / Replayed record
+usage-metering | Usage records facts, not prices / Billing disabled
+usage-metering | Usage records facts, not prices / No money on a usage line
+voice-sdk | Connections are verified before the handler runs / Host header not trusted when a public URL is set
+voice-sdk | Connections are verified before the handler runs / Invalid or stale signature
+voice-sdk | Connections are verified before the handler runs / Local development
+voice-sdk | Connections are verified before the handler runs / Signature for another app
+voice-sdk | Connections are verified before the handler runs / Valid signature
+voice-sdk | Errors and session end never leave promises hanging / Caller hangs up mid-gather
+voice-sdk | Removed methods do not exist / An app looks for record
+voice-sdk | Session handler signature / A gRPC-era handler in Python
+voice-sdk | Session handler signature / A session handler
+voice-sdk | The Python SDK is asyncio only / Async handler
+voice-sdk | The Python SDK is asyncio only / Sync handler rejected
+voice-sdk | VoiceServer accepts AppBridge sessions over WebSocket / Mounted into an existing application
+voice-session | An app is a WebSocket URL, a protocol and speech defaults / App URLs are public destinations
+voice-session | An app is a WebSocket URL, a protocol and speech defaults / Autopilot is an ordinary app
+voice-session | An app's audio filters are set through the Applications API / A public option is accepted
+voice-session | An app's audio filters are set through the Applications API / A server-side option is rejected
+voice-session | An app's audio filters are set through the Applications API / An unknown filter is rejected
+voice-session | An app's audio filters are set through the Applications API / Clearing the filters
+voice-session | An app's audio filters are set through the Applications API / Enabling noise cancelling on an app
+voice-session | Answering-machine detection reaches the app / Detection off
+voice-session | Answering-machine detection reaches the app / Voicemail answers an outbound call
+voice-session | Audio filters come from app configuration / Credential comes from the registry, never from the app
+voice-session | Autopilot reports model usage to the call / Autopilot reports a turn's tokens
+voice-session | Autopilot reports model usage to the call / Meter outside the allowed set
+voice-session | Autopilot reports model usage to the call / Not an Autopilot agent
+voice-session | Call control / Transfer headers
+voice-session | Call control / Transfer with a reserved header
+voice-session | Connection requests are bound to the app / A signature cannot be reused for another tenant's app
+voice-session | Connection requests are bound to the app / Apps that verify only the URL keep working
+voice-session | Connection requests are signed / Stale timestamp
+voice-session | Outbound sessions open at answer / Room ends or node dies before the answer
+voice-session | Playing media / Play an internal address
+voice-session | Raw audio in both directions / Any SIP codec reaches any app format
+voice-session | Raw audio in both directions / Off-menu format
+voice-session | Sessions are delivered over WebSocket only / Legacy gRPC voice apps are not dialed
+workspace-webhooks | At-least-once delivery with retries / A new endpoint counts at once
+workspace-webhooks | At-least-once delivery with retries / A replica dies holding an event
+workspace-webhooks | At-least-once delivery with retries / Endpoint recovers
+workspace-webhooks | At-least-once delivery with retries / Endpoint stays down
+workspace-webhooks | Deliveries are signed / Rotation window
+workspace-webhooks | Deliveries are signed / Verifying a delivery
+workspace-webhooks | Delivery log and resend / Manual resend
+workspace-webhooks | Workspaces subscribe endpoints to event types / Plain HTTP is refused
+workspace-webhooks | Workspaces subscribe endpoints to event types / Subscribing to one event type
+workspace-webhooks | v1 event types and payloads / A call that ends normally
+workspace-webhooks | v1 event types and payloads / A call that never reaches an app
+workspace-webhooks | v1 event types and payloads / A deprecated model
+workspace-webhooks | v1 event types and payloads / A sealed record
+workspace-webhooks | v1 event types and payloads / AppBridge dies mid-call

@@ -1,0 +1,1227 @@
+{
+  "DSH-001": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-002": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-003": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-004": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-005": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "DSH-006": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-007": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-008": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-009": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-010": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "DSH-011": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-012": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-013": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "DSH-014": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "DSH-015": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-001": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-002": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-003": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-004": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-005": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-006": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-007": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-008": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-009": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-010": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-011": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-012": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-013": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-014": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-015": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-016": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-017": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-018": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-019": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-020": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-021": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-022": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-023": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-024": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-025": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "API-026": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-027": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-028": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-029": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-030": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-031": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "API-032": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-033": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-034": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "API-035": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "VSD-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-002": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-003": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-004": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-005": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-006": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-007": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-008": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-009": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-010": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-011": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-012": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-013": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "VSD-014": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "VSD-015": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "CAL-001": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "CAL-002": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "CAL-003": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "CAL-004": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "CAL-005": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "CAL-006": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "CAL-007": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "CAL-008": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "CAL-009": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "CAL-010": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "CAL-011": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "CAL-012": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "CAL-013": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "CAL-014": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "CAL-015": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "CAL-016": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "CAL-017": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "CAL-018": {
+    "tier": "nightly",
+    "pri": "P2",
+    "trials": null
+  },
+  "XFR-001": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-002": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-003": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-004": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-005": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-006": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-007": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-008": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-009": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-010": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-011": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-012": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-013": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-014": {
+    "tier": "nightly",
+    "pri": "P2",
+    "trials": null
+  },
+  "XFR-015": {
+    "tier": "nightly",
+    "pri": "P2",
+    "trials": null
+  },
+  "TRK-001": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "TRK-002": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "TRK-003": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "TRK-004": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "TRK-005": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "TRK-006": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "TRK-007": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "TRK-008": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "TRK-009": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "TRK-010": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "TRK-011": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "TRK-012": {
+    "tier": "release",
+    "pri": "P2",
+    "trials": null
+  },
+  "TRK-013": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "TRK-014": {
+    "tier": "release",
+    "pri": "P2",
+    "trials": null
+  },
+  "ROM-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "ROM-002": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "ROM-003": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "ROM-004": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "ROM-005": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "ROM-006": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "ROM-007": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "ROM-008": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "ROM-009": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "ROM-010": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "ROM-011": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "ROM-012": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "ROM-013": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "ROM-014": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "ROM-015": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "MQ-001": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-002": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-003": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-004": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-005": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-006": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-007": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-008": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-009": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-010": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-011": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-012": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-013": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-014": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-015": {
+    "tier": "nightly",
+    "pri": "P2",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-016": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-017": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-018": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-019": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "MQ-020": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "LDS-001": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "LDS-002": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "LDS-003": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "LDS-004": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "LDS-005": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "LDS-006": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "LDS-007": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "LDS-008": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "LDS-009": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-002": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-003": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-004": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": {
+      "k": 5,
+      "rate": 1
+    }
+  },
+  "APB-005": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": {
+      "k": 5,
+      "rate": 1
+    }
+  },
+  "APB-006": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-007": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-008": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-009": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APB-010": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-011": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APB-012": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "APB-013": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "FLT-001": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "FLT-002": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "FLT-003": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "FLT-004": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "FLT-005": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "FLT-006": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "FLT-007": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "FLT-008": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "FLT-009": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "FLT-010": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "FLT-011": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "FLT-012": {
+    "tier": "nightly",
+    "pri": "P2",
+    "trials": null
+  },
+  "SEC-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "SEC-002": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "SEC-003": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "SEC-004": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "SEC-005": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "SEC-006": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "SEC-007": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "SEC-008": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "SEC-009": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "SEC-010": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "SEC-011": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BRG-001": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "BRG-002": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "BRG-003": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "BRG-004": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "BRG-005": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "BRG-006": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "BRG-007": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "BRG-008": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "BRG-009": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "BRG-010": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "BRG-011": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-001": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "OPS-002": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "OPS-003": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "OPS-004": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "OPS-005": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-006": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "OPS-007": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "OPS-008": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-009": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-010": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "OPS-011": {
+    "tier": "release",
+    "pri": "P2",
+    "trials": null
+  },
+  "OPS-012": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-013": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-014": {
+    "tier": "release",
+    "pri": "P2",
+    "trials": null
+  },
+  "OPS-015": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-016": {
+    "tier": "release",
+    "pri": "P2",
+    "trials": null
+  },
+  "OPS-017": {
+    "tier": "release",
+    "pri": "P2",
+    "trials": null
+  },
+  "OPS-018": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-019": {
+    "tier": "release",
+    "pri": "P0",
+    "trials": null
+  },
+  "OPS-020": {
+    "tier": "release",
+    "pri": "P2",
+    "trials": null
+  },
+  "OPS-021": {
+    "tier": "release",
+    "pri": "P2",
+    "trials": null
+  },
+  "PRD-001": {
+    "tier": "production",
+    "pri": "P0",
+    "trials": null
+  },
+  "PRD-002": {
+    "tier": "production",
+    "pri": "P0",
+    "trials": null
+  },
+  "PRD-003": {
+    "tier": "production",
+    "pri": "P1",
+    "trials": null
+  },
+  "PRD-004": {
+    "tier": "production",
+    "pri": "P1",
+    "trials": null
+  },
+  "PRD-005": {
+    "tier": "production",
+    "pri": "P0",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
+  "PRD-006": {
+    "tier": "production",
+    "pri": "P0",
+    "trials": null
+  }
+}
