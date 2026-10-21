@@ -130,9 +130,7 @@ tagged with a case id, or deleted, when its area comes:
 | --- | --- |
 | `mods/apiserver/test/control/control.test.ts`, `control/sdk.test.ts` | Autopilot agents and webhooks (session apps, providers, webhooks) |
 | `mods/apiserver/test/webhooks/fanout.test.ts`, `webhooks/sharedIntake.test.ts` | Webhooks |
-| `mods/apiserver/test/usage/*.test.ts` (ingest, getUsage, consumer, recordedUsage, fullstack) | Billing, metering and regions |
-| `mods/apiserver/test/billing/proxy.test.ts` | Billing, metering and regions |
-| `mods/apiserver/test/regions/regions.test.ts`, `regions/relaySlots.test.ts` | Billing, metering and regions |
+| `mods/apiserver/test/regions/regions.test.ts`, `regions/relaySlots.test.ts` | Regions and private regions |
 | `mods/apiserver/test/registry/spec.test.ts` | Provider registry |
 | `mods/apiserver/test/outbound/placeOutboundCall.test.ts`, `outbound/controlPlane.test.ts` | Call flows |
 | `mods/apiserver/test/core/healthcheck.test.ts`, `core/telemetryInterceptor.test.ts` | Deployment and observability |

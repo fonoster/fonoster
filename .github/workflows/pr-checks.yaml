@@ -253,6 +253,74 @@ jobs:
           path: reports/junit/
           if-no-files-found: ignore
 
+  billing:
+    name: Billing area (mods/conformance/catalog/areas/billing.md)
+    needs: changes
+    if: needs.changes.outputs.node == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    # Metering, the billing service and the Stripe fake: Postgres and NATS (JetStream) are real,
+    # Stripe is the fake in the test process. No network, no Stripe account.
+    services:
+      postgres:
+        image: postgres:16.10-alpine3.22
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # A step, not a service container: services cannot pass -js, and the usage streams are
+      # JetStream.
+      - name: Start NATS with JetStream
+        run: |
+          docker run -d --name nats -p 4222:4222 -p 8222:8222 nats:2.11.8 -js -m 8222
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8222/healthz && exit 0; sleep 1; done
+          docker logs nats; exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Billing cases (JUnit in reports/junit)
+        env:
+          PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          LOGS_LEVEL: none
+        run: |
+          npx mocha --config mods/conformance/test/billing/.mocharc.cjs \
+            --reporter xunit --reporter-option output=reports/junit/bil.xml
+
+      # The viewer runs from viewer/dist, built by npm run build above.
+      - name: Stripe fake viewer cases (Playwright, JUnit in reports/junit)
+        working-directory: mods/stripe-fake
+        env:
+          PLAYWRIGHT_JUNIT_OUTPUT_NAME: ${{ github.workspace }}/reports/junit/bil-viewer.xml
+        run: |
+          npx playwright install --with-deps chromium
+          npx playwright test --config viewer/playwright.config.ts --reporter=junit
+
+      - name: JUnit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-bil
+          path: reports/junit/
+          if-no-files-found: ignore
+
   go:
     name: go Roomr node
     needs: changes
@@ -426,7 +494,21 @@ jobs:
   passed:
     name: PR Checks passed
     if: always()
-    needs: [dco, lint, changes, node, api, autopilot, go, python, dashboard, sdk-pack, sdk-install]
+    needs:
+      [
+        dco,
+        lint,
+        changes,
+        node,
+        api,
+        autopilot,
+        billing,
+        go,
+        python,
+        dashboard,
+        sdk-pack,
+        sdk-install
+      ]
     runs-on: ubuntu-latest
     steps:
       - name: Every job passed or was skipped

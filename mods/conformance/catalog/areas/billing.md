@@ -109,11 +109,11 @@ These tests touch metering or billing but prove behavior other areas own:
 | `mods/apiserver/test/regions/*`, `mods/conformance/test/regions*.test.ts`, `mods/region-agent/test/cell.test.ts` | Regions and private regions |
 | `mods/apiserver/test/capabilities/getCapabilities.test.ts` (billing in the capabilities) | Control-plane API |
 | `mods/dashboard` Billing and Usage pages | Dashboard (DSH-035 to DSH-040) |
+| `mods/autopilot/test/session/usage.test.ts` (metered Think on a fake model) | Autopilot (APT) |
 
 Unit tests that stay unit tests: `mods/common/test/usage/usage.test.ts` (meters, usage ids),
 `mods/callrecord/test/vconUsage.test.ts`, `mods/community/test/openaiUsage.test.ts` (the vendor's
-usage chunk), `mods/autopilot/test/session/usage.test.ts` (metered Think on a fake model),
-`mods/sdk/test/billing.test.ts`, `mods/sdk/test/usage.test.ts` and `mods/authz/test/authz.test.ts`.
+usage chunk), `mods/sdk/test/billing.test.ts`, `mods/sdk/test/usage.test.ts` and `mods/authz/test/authz.test.ts`.
 `mods/billing/test/rater.test.ts` is a unit test of a pure function, but it is the proof of the
 rating rules that decide every charge, so its tests carry case ids.
 
