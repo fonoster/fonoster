@@ -32,7 +32,7 @@ npx mocha --exit --timeout 30000 \
   mods/appbridge/test/conformance.test.ts \
   mods/appbridge/test/integration.test.ts \
   mods/appbridge/test/crash.test.ts \
-  mods/autopilot/test/session/fullstack.test.ts
+  mods/autopilot/test/session/fullstack.integration.test.ts
 ```
 
 `mods/conformance/test` checks every scenario file against the schema and the OpenSpec specs, the

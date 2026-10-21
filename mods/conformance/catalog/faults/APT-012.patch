@@ -1,0 +1,15 @@
+diff --git a/mods/autopilot/src/session/llm.ts b/mods/autopilot/src/session/llm.ts
+index a1945f713..1a72d3198 100644
+--- a/mods/autopilot/src/session/llm.ts
++++ b/mods/autopilot/src/session/llm.ts
+@@ -193,10 +193,6 @@ export class RegistryLlmResolver implements LlmResolver {
+         )
+       : undefined;
+     const apiKey = credential?.key;
+-    if (provider.credentialRef && !apiKey)
+-      throw new LlmResolutionError(
+-        `no credential ${provider.credentialRef} for provider ${provider.id}`
+-      );
+     return {
+       id,
+       keySource: credential?.source ?? "platform",

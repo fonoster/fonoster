@@ -1,0 +1,13 @@
+diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
+index 533e68780..e51c8c845 100644
+--- a/mods/autopilot/src/session/Agent.ts
++++ b/mods/autopilot/src/session/Agent.ts
+@@ -139,7 +139,7 @@ export class Agent {
+   /** Greeting: subscribe to the estimate, send initial DTMF, speak the first message. */
+   async greet() {
+     this.maxTimer = setTimeout(
+-      () => this.send({ type: "MAX_DURATION" }),
++      () => undefined,
+       this.settings.maxSessionDuration
+     );
+     await this.safely(async () => {

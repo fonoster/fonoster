@@ -1,0 +1,13 @@
+diff --git a/mods/autopilot/src/session/hosted.ts b/mods/autopilot/src/session/hosted.ts
+index bad12ba5a..45af3735b 100644
+--- a/mods/autopilot/src/session/hosted.ts
++++ b/mods/autopilot/src/session/hosted.ts
+@@ -537,7 +537,7 @@ export function signedWorkspaceOnly(
+ ): LoadedAgent | undefined {
+   const signed = session.signedFor;
+   if (!loaded || !signed || loaded.workspaceRef === undefined) return loaded;
+-  if (signed.workspaceRef === loaded.workspaceRef) return loaded;
++  if (signed) return loaded;
+   logger.warn("refused a session: the app is not in the signed workspace", {
+     appRef: session.appRef
+   });

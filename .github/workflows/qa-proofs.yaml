@@ -71,3 +71,45 @@ jobs:
           name: proofs-api
           path: reports/junit/
           if-no-files-found: ignore
+
+  autopilot:
+    name: Autopilot area proofs
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The full-stack case (APT-020) runs AppBridge on NATS, with JetStream as in conformance.yaml.
+      - name: Start NATS with JetStream
+        run: |
+          docker run -d --name nats -p 4222:4222 -p 8222:8222 nats:2.11.8 -js -m 8222
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8222/healthz && exit 0; sleep 1; done
+          docker logs nats; exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      # Autopilot runs from source; a fault in @fonoster/common (APT-013) is rebuilt by prove.sh
+      # and again by the area's reset.
+      - name: Prove
+        env:
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          LOGS_LEVEL: none
+        run: node mods/conformance/catalog/prove.cjs --area APT --out reports/junit/proofs-APT.xml
+
+      - name: Proof records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proofs-apt
+          path: reports/junit/
+          if-no-files-found: ignore

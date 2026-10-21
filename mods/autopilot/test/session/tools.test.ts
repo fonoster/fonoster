@@ -45,7 +45,7 @@ describe("@autopilot/session HttpToolPort destinations", function () {
     operation: { method: "get", url: u }
   });
 
-  it("refuses private and metadata destinations", async function () {
+  it("[APT-017] refuses private and metadata destinations", async function () {
     for (const u of [
       url,
       "http://169.254.169.254/latest/meta-data",
@@ -59,7 +59,7 @@ describe("@autopilot/session HttpToolPort destinations", function () {
     expect(hits).to.equal(0);
   });
 
-  it("calls a destination the operator allowed", async function () {
+  it("[APT-017] calls a destination the operator allowed", async function () {
     const port = new HttpToolPort([tool(url)] as never, {
       allow: ["127.0.0.1"]
     });

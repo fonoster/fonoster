@@ -22,7 +22,8 @@ import {
   FakesHarness,
   interpolate,
   loadScenarios,
-  runScenario
+  runScenario,
+  scenarioCase
 } from "@fonoster/conformance";
 import { VoiceServer } from "@fonoster/voice";
 import { createAutopilotHandler } from "../../src/session";
@@ -40,7 +41,8 @@ describe("@autopilot/session conformance (autopilot scenarios)", function () {
   after(() => process.off("unhandledRejection", onUnhandled));
 
   for (const scenario of loadScenarios("autopilot")) {
-    it(scenario.name, async function () {
+    // The catalog case that runs this file (catalog area APT).
+    it(`${scenarioCase("autopilot", scenario.name)}${scenario.name}`, async function () {
       const harness = await new FakesHarness().start();
       const agent = interpolate(scenario.setup!.agent!, harness.vars());
       const server = await new VoiceServer({

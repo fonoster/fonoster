@@ -1,0 +1,13 @@
+diff --git a/mods/autopilot/src/session/tools.ts b/mods/autopilot/src/session/tools.ts
+index 31edf47c7..1a5630237 100644
+--- a/mods/autopilot/src/session/tools.ts
++++ b/mods/autopilot/src/session/tools.ts
+@@ -68,7 +68,7 @@ export class HttpToolPort implements ToolPort {
+         },
+         body,
+         signal,
+-        policy: this.policy?.allow ? this.policy : undefined
++        policy: { allow: [url.hostname] }
+       });
+       if (tool.operation.waitForResponse === false) {
+         request.catch(() => undefined);

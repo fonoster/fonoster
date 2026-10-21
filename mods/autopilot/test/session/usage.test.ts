@@ -129,7 +129,7 @@ describe("@autopilot model usage", function () {
     }
   ];
 
-  it("reports the vendor's counts for a completed reply and never forwards the usage chunk", async () => {
+  it("[APT-019] reports the vendor's counts for a completed reply and never forwards the usage chunk", async () => {
     const { sink, usage, missing } = recordingSink();
     const out = await read(
       meteredThink(scripted(), model, sink),
@@ -140,7 +140,7 @@ describe("@autopilot model usage", function () {
     expect(missing).to.deep.equal([]);
   });
 
-  it("reports missing usage when a completed reply has none", async () => {
+  it("[APT-019] reports missing usage when a completed reply has none", async () => {
     const { sink, usage, missing } = recordingSink();
     await read(
       meteredThink(scripted({ usage: false }), model, sink),
@@ -150,7 +150,7 @@ describe("@autopilot model usage", function () {
     expect(missing).to.deep.equal(["openai/gpt-4o-mini"]);
   });
 
-  it("stops at once on barge-in but reads the rest silently for the whole request's usage", async () => {
+  it("[APT-019] stops at once on barge-in but reads the rest silently for the whole request's usage", async () => {
     const { sink, usage, missing } = recordingSink();
     const abort = new AbortController();
     const think = meteredThink(
@@ -169,7 +169,7 @@ describe("@autopilot model usage", function () {
     expect(missing).to.deep.equal([]);
   });
 
-  it("also drains when the caller stops reading (a newer turn)", async () => {
+  it("[APT-019] also drains when the caller stops reading (a newer turn)", async () => {
     const { sink, usage } = recordingSink();
     await read(
       meteredThink(scripted({ words: 10 }), model, sink),
@@ -180,7 +180,7 @@ describe("@autopilot model usage", function () {
     expect(usage[0]).to.deep.equal(expected);
   });
 
-  it("reports missing usage when the drain runs past its deadline", async () => {
+  it("[APT-019] reports missing usage when the drain runs past its deadline", async () => {
     const { sink, usage, missing } = recordingSink();
     const abort = new AbortController();
     const think = meteredThink(
@@ -195,7 +195,7 @@ describe("@autopilot model usage", function () {
     expect(usage).to.deep.equal([]);
   });
 
-  it("closes open drains when the session ends", async () => {
+  it("[APT-019] closes open drains when the session ends", async () => {
     const { sink, usage, missing } = recordingSink();
     const abort = new AbortController();
     const closed = new AbortController();
@@ -212,7 +212,7 @@ describe("@autopilot model usage", function () {
     expect(usage).to.deep.equal([]);
   });
 
-  it("reports nothing for a request the vendor failed", async () => {
+  it("[APT-019] reports nothing for a request the vendor failed", async () => {
     const { sink, usage, missing } = recordingSink();
     let failed = false;
     try {
@@ -269,7 +269,7 @@ describe("@autopilot model usage", function () {
       return { out, ...sink };
     };
 
-    it("reports exactly the fake's counts for a completed reply", async () => {
+    it("[APT-019] reports exactly the fake's counts for a completed reply", async () => {
       llm.configure({ script: [{ content: reply }] });
       const { usage } = await run(new AbortController().signal);
       expect(usage).to.deep.equal([
@@ -292,7 +292,7 @@ describe("@autopilot model usage", function () {
       ]);
     });
 
-    it("reports the whole request's counts for an interrupted reply", async () => {
+    it("[APT-019] reports the whole request's counts for an interrupted reply", async () => {
       llm.configure({ script: [{ content: reply, chunkDelayMs: 50 }] });
       const sink = recordingSink();
       const { out } = await run(new AbortController().signal, 1, sink);
@@ -304,7 +304,7 @@ describe("@autopilot model usage", function () {
       ]);
     });
 
-    it("reports missing usage when the vendor omits it", async () => {
+    it("[APT-019] reports missing usage when the vendor omits it", async () => {
       llm.configure({ script: [{ content: reply }], omitUsage: true });
       const { usage, missing } = await run(new AbortController().signal);
       expect(usage).to.deep.equal([]);
@@ -322,7 +322,7 @@ describe("@autopilot model usage", function () {
       new ConfigCredentials({ "openai-default": { value: "platform-key" } })
     ]);
 
-    it("says whose key a credential is", async () => {
+    it("[APT-019] says whose key a credential is", async () => {
       expect(
         await credentials.resolve("openai-default", { workspaceRef: "ws-own" })
       ).to.deep.equal({
@@ -342,7 +342,7 @@ describe("@autopilot model usage", function () {
       ).to.equal("own-key");
     });
 
-    it("treats a single source that cannot tell as the platform's", async () => {
+    it("[APT-019] treats a single source that cannot tell as the platform's", async () => {
       expect(
         await resolveCredential(
           new ConfigCredentials({ x: { value: "k" } }),
@@ -390,7 +390,7 @@ describe("@autopilot model usage", function () {
     });
     after(() => server.close());
 
-    it("reports the vendor's tokens per request and keeps vectors in order", async () => {
+    it("[APT-019] reports the vendor's tokens per request and keeps vectors in order", async () => {
       withUsage = true;
       const { sink, usage } = recordingSink();
       const e = new MeteredEmbeddings({
@@ -415,7 +415,7 @@ describe("@autopilot model usage", function () {
       ]);
     });
 
-    it("reports missing usage when the vendor sends none", async () => {
+    it("[APT-019] reports missing usage when the vendor sends none", async () => {
       withUsage = false;
       const { sink, missing } = recordingSink();
       await new MeteredEmbeddings({

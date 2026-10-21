@@ -469,6 +469,114 @@
     "pri": "P2",
     "trials": null
   },
+  "APT-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APT-002": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APT-003": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APT-004": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APT-005": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APT-006": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APT-007": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-008": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-009": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-010": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-011": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APT-012": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-013": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-014": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-015": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APT-016": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APT-017": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "APT-018": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-019": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-020": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "APT-021": {
+    "tier": "nightly",
+    "pri": "P2",
+    "trials": {
+      "k": 3,
+      "rate": 1
+    }
+  },
   "DSH-001": {
     "tier": "pr",
     "pri": "P0",

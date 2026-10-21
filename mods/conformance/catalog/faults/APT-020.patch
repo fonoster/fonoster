@@ -1,0 +1,22 @@
+diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
+index 533e68780..3c4f579cf 100644
+--- a/mods/autopilot/src/session/Agent.ts
++++ b/mods/autopilot/src/session/Agent.ts
+@@ -251,7 +251,7 @@ export class Agent {
+   // ---- replies ----------------------------------------------------------------------
+ 
+   async clear() {
+-    await this.safely(() => this.session.stopSay());
++    await this.safely(async () => undefined);
+   }
+ 
+   abortReply() {
+@@ -660,7 +660,7 @@ export class Agent {
+     return {
+       voice: this.settings.voice,
+       language: this.settings.language,
+-      interruptible: this.settings.allowUserBargeIn
++      interruptible: false
+     };
+   }
+ 
