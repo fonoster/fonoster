@@ -45,7 +45,9 @@ test("[DSH-034] a browser call shows up in Calls with its transcript and a playa
   const newestRow = async () => {
     await page.reload();
     const first = table.getByRole("row").nth(1);
-    await expect(first.or(page.getByText("No calls yet"))).toBeVisible({
+    // An empty list says "No calls yet", or "No calls match the filters." under the default period.
+    const empty = page.getByText(/^No calls (yet|match the filters\.)$/);
+    await expect(first.or(empty)).toBeVisible({
       timeout: 15_000
     });
     return (await first.count()) ? await first.innerText() : "";
