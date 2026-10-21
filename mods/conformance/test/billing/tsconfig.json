@@ -1,0 +1,11 @@
+{
+  // The Billing area runs every @fonoster package from source (tsx reads these paths), so a seeded
+  // fault in billing, the apiserver, AppBridge or common reaches the case without a build.
+  "extends": "../../../../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "../../../..",
+    "paths": {
+      "@fonoster/*": ["mods/*/src"]
+    }
+  }
+}

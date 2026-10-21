@@ -84,7 +84,7 @@ describe("@billing usage", function () {
     return a;
   }
 
-  it("rates and debits a usage event once, however often it arrives", async () => {
+  it("[BIL-031] rates and debits a usage event once, however often it arrives", async () => {
     await account("owner-once");
     const u = usage("owner-once");
     const first = await applyUsage(db!.prisma, [card], u, NOW);
@@ -102,7 +102,7 @@ describe("@billing usage", function () {
     expect(lines).to.have.length(1);
   });
 
-  it("keeps free lines with their reason and does not debit them", async () => {
+  it("[BIL-028] keeps free lines with their reason and does not debit them", async () => {
     const a = await account("owner-free");
     const r = await applyUsage(
       db!.prisma,
@@ -121,7 +121,7 @@ describe("@billing usage", function () {
     expect(snap?.balance).to.equal(credits(2500));
   });
 
-  it("does not bill owners without a billing account", async () => {
+  it("[BIL-028] does not bill owners without a billing account", async () => {
     expect(
       await applyUsage(db!.prisma, [card], usage("owner-nobody"), NOW)
     ).to.deep.equal({
@@ -144,7 +144,7 @@ describe("@billing usage", function () {
       await nc?.close();
     });
 
-    it("rates usage published on the stream, once even when published twice", async () => {
+    it("[BIL-031] rates usage published on the stream, once even when published twice", async () => {
       const a = await account("owner-stream");
       const stop = await runUsageConsumer({
         nc: nc!,

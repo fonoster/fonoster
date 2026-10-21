@@ -31,7 +31,7 @@ import {
 const sc = StringCodec();
 
 describe("@apiserver/usage eval usage", function () {
-  it("publishes token lines with origin eval and no call reference", () => {
+  it("[BIL-007] publishes token lines with origin eval and no call reference", () => {
     const sent: { subject: string; event: Record<string, unknown> }[] = [];
     attachUsagePublisher({
       publish: (subject: string, data: Uint8Array) =>
@@ -74,7 +74,7 @@ describe("@apiserver/usage eval usage", function () {
     expect(new Set(sent.map((s) => s.event.id)).size).to.equal(4);
   });
 
-  it("names key_unavailable when the workspace's key can't be read", async () => {
+  it("[BIL-005] names key_unavailable when the workspace's key can't be read", async () => {
     const db = {
       secret: {
         findFirst: async () => {

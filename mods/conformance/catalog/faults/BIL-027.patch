@@ -1,0 +1,16 @@
+diff --git a/mods/stripe-fake/viewer/src/api.ts b/mods/stripe-fake/viewer/src/api.ts
+index af44d0bdd..885208c35 100644
+--- a/mods/stripe-fake/viewer/src/api.ts
++++ b/mods/stripe-fake/viewer/src/api.ts
+@@ -126,10 +126,7 @@ export function useFakeState() {
+         setLive(true);
+         load();
+       };
+-      socket.onmessage = () => {
+-        clearTimeout(timer.current);
+-        timer.current = setTimeout(load, 80);
+-      };
++      socket.onmessage = () => {};
+       socket.onclose = () => {
+         setLive(false);
+         if (!closed) setTimeout(connect, 1000);

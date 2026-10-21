@@ -1,0 +1,13 @@
+diff --git a/mods/billing/src/admission.ts b/mods/billing/src/admission.ts
+index 654779590..11b86aee8 100644
+--- a/mods/billing/src/admission.ts
++++ b/mods/billing/src/admission.ts
+@@ -107,7 +107,7 @@ export class BillingAuthzHandler implements AuthzHandler {
+     if (balance + (await overdraftLimit(prisma, account, plans)) <= 0n)
+       return { authorized: false, reason: "insufficient_balance" };
+     if (
+-      activeCalls.count(owner) >=
++      activeCalls.count(owner) >
+       plans.concurrency[account.plan as "trial" | "payg"]
+     )
+       return { authorized: false, reason: "concurrency_limit" };

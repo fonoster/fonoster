@@ -1,0 +1,13 @@
+diff --git a/mods/stripe-fake/src/resources/meters.ts b/mods/stripe-fake/src/resources/meters.ts
+index 2e9ffd44b..c9f517a72 100644
+--- a/mods/stripe-fake/src/resources/meters.ts
++++ b/mods/stripe-fake/src/resources/meters.ts
+@@ -63,7 +63,7 @@ function validateLater(fake: StripeFake, event: MeterEvent) {
+       !fake.objects.get(event.customer) ||
+       fake.objects.get(event.customer)!.deleted
+     )
+-      code = "meter_event_customer_not_found";
++      code = "meter_event_no_customer_defined";
+     else if (!Number.isFinite(event.value)) code = "meter_event_invalid_value";
+     if (!code) {
+       event.status = "accepted";

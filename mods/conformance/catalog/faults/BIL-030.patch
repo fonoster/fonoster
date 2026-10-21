@@ -1,0 +1,11 @@
+diff --git a/mods/billing/src/rateCards.ts b/mods/billing/src/rateCards.ts
+index 60c8fd822..0ecbbc35c 100644
+--- a/mods/billing/src/rateCards.ts
++++ b/mods/billing/src/rateCards.ts
+@@ -76,5 +76,5 @@ export function loadRateCards(dir: string): RateCard[] {
+ 
+ /** The card in force at a moment: the latest that started at or before it (D3). */
+ export function cardAt(cards: RateCard[], at: Date): RateCard | undefined {
+-  return cards.filter((c) => c.startsAt.getTime() <= at.getTime()).at(-1);
++  return cards.at(-1);
+ }

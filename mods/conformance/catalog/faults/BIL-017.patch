@@ -1,0 +1,13 @@
+diff --git a/mods/stripe-fake/src/server.ts b/mods/stripe-fake/src/server.ts
+index 110bbaadb..c4df476bc 100644
+--- a/mods/stripe-fake/src/server.ts
++++ b/mods/stripe-fake/src/server.ts
+@@ -224,7 +224,7 @@ export class StripeFakeServer {
+         const unknown = Object.keys(body).find(
+           (k) => !accepted.has(k) && !ALWAYS.has(k)
+         );
+-        if (unknown)
++        if (unknown && false)
+           throw new StripeError(
+             400,
+             "invalid_request_error",

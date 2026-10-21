@@ -1,0 +1,13 @@
+diff --git a/mods/stripe-fake/src/fake.ts b/mods/stripe-fake/src/fake.ts
+index 9b8d30d99..b20a3df81 100644
+--- a/mods/stripe-fake/src/fake.ts
++++ b/mods/stripe-fake/src/fake.ts
+@@ -271,7 +271,7 @@ export class StripeFake {
+ 
+   /** The signature header Stripe sends: t=<unix>,v1=<hex HMAC-SHA256(secret, "<t>.<body>")>. */
+   static sign(secret: string, body: string, t: number): string {
+-    return `t=${t},v1=${createHmac("sha256", secret).update(`${t}.${body}`).digest("hex")}`;
++    return `t=${t},v1=${createHmac("sha256", secret).update(body).digest("hex")}`;
+   }
+ 
+   private delivering = false;

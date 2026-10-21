@@ -1,0 +1,22 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..0b8a8d5f9 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -205,7 +205,7 @@ export class Call {
+   /** What the call consumed so far (add-usage-metering D1). */
+   readonly usage = new Usage.CallUsage();
+   /** When the first app answered; `call.seconds` count from here (D2). */
+-  private answeredAt?: number;
++  private answeredAt?: number = Date.now();
+   private usageTimer?: ReturnType<typeof setInterval>;
+   /** How the call started: a browser test or any other call (D9). */
+   origin: "call" | "browser_test" = "call";
+@@ -276,7 +276,7 @@ export class Call {
+     const lines: Usage.UsageLine[] = this.usage.lines();
+     if (this.answeredAt !== undefined) {
+       const seconds = Math.round((at - this.answeredAt) / 1000);
+-      if (seconds > 0)
++      if (seconds >= 0)
+         lines.unshift({ meter: "call.seconds", quantity: seconds });
+     }
+     if (lines.length) this.record("event", { type: "usage.snapshot", lines });

@@ -1,0 +1,13 @@
+diff --git a/mods/billing/src/addCredits.ts b/mods/billing/src/addCredits.ts
+index 9762d05b3..2248d81de 100644
+--- a/mods/billing/src/addCredits.ts
++++ b/mods/billing/src/addCredits.ts
+@@ -76,7 +76,7 @@ export async function addCredits(
+         expiresAt: account.trialEndsAt
+       };
+     }
+-    const expiresAt = addMonths(now, plans.topupMonths);
++    const expiresAt = addMonths(now, 6);
+     const entry = await grant(tx, account.id, {
+       kind: "topup_grant",
+       amount: toMilli(amount),

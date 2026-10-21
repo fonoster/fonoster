@@ -1,0 +1,13 @@
+diff --git a/mods/billing/src/api.ts b/mods/billing/src/api.ts
+index 0302dd694..f03de0ad2 100644
+--- a/mods/billing/src/api.ts
++++ b/mods/billing/src/api.ts
+@@ -110,7 +110,7 @@ export function billingApi(deps: ApiDeps) {
+       amount: number;
+     }) {
+       const a = await account(r.ownerRef);
+-      if (r.enabled && (r.threshold <= 0 || r.amount < plans.topupMinCredits))
++      if (r.enabled && (r.threshold <= 0 || r.amount < 0))
+         throw new BillingError(
+           `auto-recharge needs a threshold above 0 and an amount of at least ${plans.topupMinCredits} credits`
+         );

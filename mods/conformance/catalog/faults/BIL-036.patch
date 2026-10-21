@@ -1,0 +1,12 @@
+diff --git a/mods/billing/src/admission.ts b/mods/billing/src/admission.ts
+index 654779590..6ed012f87 100644
+--- a/mods/billing/src/admission.ts
++++ b/mods/billing/src/admission.ts
+@@ -86,6 +86,7 @@ export class BillingAuthzHandler implements AuthzHandler {
+     request: VoiceRequest
+   ): Promise<SessionDecision> {
+     const { prisma, directory, activeCalls, plans, clock } = this.deps;
++    await new Promise((r) => setTimeout(r, 10));
+     const owner = request.accessKeyId
+       ? await directory.ownerOf(request.accessKeyId)
+       : undefined;

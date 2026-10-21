@@ -1,0 +1,19 @@
+diff --git a/mods/apiserver/src/usage/ingestUsage.ts b/mods/apiserver/src/usage/ingestUsage.ts
+index 550587237..355f35251 100644
+--- a/mods/apiserver/src/usage/ingestUsage.ts
++++ b/mods/apiserver/src/usage/ingestUsage.ts
+@@ -69,9 +69,12 @@ export async function ingestUsageIn(
+       event = Usage.parseUsageEvent(input);
+     } catch (e) {
+       logger.warn(`usage line rejected: ${(e as Error).message}`);
+-      continue;
++      event = input as Usage.UsageEvent;
+     }
+-    const meter = Usage.meterOf(event.meter);
++    const meter = Usage.meterOf(event.meter) ?? {
++      unit: "unit",
++      aggregation: "sum"
++    };
+     const ownerRef = event.ownerRef ?? (await ownerOf(event.workspaceRef));
+     const rows = await tx.$queryRawUnsafe<{ id: string }[]>(
+       INSERT_EVENT,

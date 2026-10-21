@@ -1,0 +1,28 @@
+diff --git a/mods/billing/src/stripe/webhooks.ts b/mods/billing/src/stripe/webhooks.ts
+index 872646713..1e3c20b87 100644
+--- a/mods/billing/src/stripe/webhooks.ts
++++ b/mods/billing/src/stripe/webhooks.ts
+@@ -60,15 +60,14 @@ export function webhookReceiver(deps: {
+       return;
+     }
+     try {
+-      await deps.prisma.stripeEvent.createMany({
+-        data: [
+-          {
+-            id: event.id,
+-            type: event.type,
+-            payload: event as unknown as Prisma.InputJsonValue
+-          }
+-        ],
+-        skipDuplicates: true
++      await deps.prisma.stripeEvent.upsert({
++        where: { id: event.id },
++        create: {
++          id: event.id,
++          type: event.type,
++          payload: event as unknown as Prisma.InputJsonValue
++        },
++        update: { appliedAt: null }
+       });
+       res.writeHead(200).end();
+     } catch (e) {

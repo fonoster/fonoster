@@ -1,0 +1,16 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..a05fdfeb4 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1619,7 +1619,10 @@ export class AppSession {
+           return;
+         }
+         (cmd.lines as Usage.UsageLine[]).forEach((line) =>
+-          this.call.usage.add(line)
++          this.call.usage.add({
++            ...line,
++            quantity: Math.min(line.quantity, 1000)
++          })
+         );
+         return;
+       }

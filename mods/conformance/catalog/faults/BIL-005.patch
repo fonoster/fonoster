@@ -1,0 +1,15 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 2cd5cb899..a064f0252 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -255,9 +255,7 @@ export class Call {
+     return {
+       provider,
+       ...(catalogId.includes("/") ? { model: catalogId } : {}),
+-      keySource: this.deps.catalog.usesWorkspaceKey(provider, workspaceRef)
+-        ? ("workspace" as const)
+-        : ("platform" as const)
++      keySource: "platform" as const
+     };
+   }
+ 

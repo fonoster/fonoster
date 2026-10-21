@@ -113,3 +113,59 @@ jobs:
           name: proofs-apt
           path: reports/junit/
           if-no-files-found: ignore
+
+  billing:
+    name: Billing area proofs
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    services:
+      postgres:
+        image: postgres:16.10-alpine3.22
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The usage streams are JetStream, as in conformance.yaml.
+      - name: Start NATS with JetStream
+        run: |
+          docker run -d --name nats -p 4222:4222 -p 8222:8222 nats:2.11.8 -js -m 8222
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8222/healthz && exit 0; sleep 1; done
+          docker logs nats; exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+          (cd mods/stripe-fake && npx playwright install --with-deps chromium)
+
+      # The mocha cases run every package from source; the viewer's cases run its build, which
+      # prove.sh rebuilds around a fault in it and the area's reset rebuilds after.
+      - name: Prove
+        env:
+          PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          LOGS_LEVEL: none
+        run: node mods/conformance/catalog/prove.cjs --area BIL --out reports/junit/proofs-BIL.xml
+
+      - name: Proof records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proofs-bil
+          path: reports/junit/
+          if-no-files-found: ignore

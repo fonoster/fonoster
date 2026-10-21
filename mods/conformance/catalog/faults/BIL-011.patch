@@ -1,0 +1,12 @@
+diff --git a/mods/apiserver/src/usage/ingestUsage.ts b/mods/apiserver/src/usage/ingestUsage.ts
+index 550587237..bf189dfa9 100644
+--- a/mods/apiserver/src/usage/ingestUsage.ts
++++ b/mods/apiserver/src/usage/ingestUsage.ts
+@@ -91,7 +91,6 @@ export async function ingestUsageIn(
+       event.keySource ?? null,
+       new Date(event.occurredAt)
+     );
+-    if (rows.length === 0) continue;
+     inserted++;
+     await tx.$executeRawUnsafe(
+       upsertDaily(meter.aggregation),

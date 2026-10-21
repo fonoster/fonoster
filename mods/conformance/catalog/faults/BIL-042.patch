@@ -1,0 +1,13 @@
+diff --git a/mods/billing/src/stripe/webhooks.ts b/mods/billing/src/stripe/webhooks.ts
+index 872646713..a3fdc9b93 100644
+--- a/mods/billing/src/stripe/webhooks.ts
++++ b/mods/billing/src/stripe/webhooks.ts
+@@ -172,7 +172,7 @@ async function topupPaid(tx: Db, deps: Deps, invoice: Stripe.Invoice) {
+   const purpose = topupPurpose(invoice)!;
+   const account = await accountOfCustomer(tx, invoice.customer);
+   if (!account) return;
+-  const amount = Number(invoice.metadata!.credits);
++  const amount = invoice.total;
+   const expiresAt = addMonths(deps.clock.now(), deps.plans.topupMonths);
+   const entry = await grant(tx, account.id, {
+     kind: "topup_grant",

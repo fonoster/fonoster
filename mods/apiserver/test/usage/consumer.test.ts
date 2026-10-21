@@ -68,7 +68,7 @@ describe("@apiserver/usage consumer", function () {
     await db?.drop();
   });
 
-  it("keeps usage published while the store is down and stores it once it is back", async () => {
+  it("[BIL-012] keeps usage published while the store is down and stores it once it is back", async () => {
     let down = true;
     const store = db!.prisma as UsageDb;
     const flaky: UsageDb = {
@@ -123,7 +123,7 @@ describe("@apiserver/usage consumer", function () {
     }
   });
 
-  it("acknowledges a message that is not usage instead of retrying it", async () => {
+  it("[BIL-002] acknowledges a message that is not usage instead of retrying it", async () => {
     const stop = await runUsageConsumer({
       nc: nc!,
       db: db!.prisma as UsageDb,

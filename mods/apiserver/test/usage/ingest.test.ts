@@ -133,7 +133,7 @@ describe("@apiserver/usage ledger", function () {
       quantity: Number(r.quantity)
     }));
 
-  it("stores each event once and counts it once in the day's total", async () => {
+  it("[BIL-011] stores each event once and counts it once in the day's total", async () => {
     const events = [
       event({ meter: "call.seconds", quantity: 65 }),
       event({
@@ -171,7 +171,7 @@ describe("@apiserver/usage ledger", function () {
     ]);
   });
 
-  it("adds different calls of the same day and keeps key sources apart", async () => {
+  it("[BIL-005] adds different calls of the same day and keeps key sources apart", async () => {
     const line = {
       meter: "tts.characters" as const,
       provider: "elevenlabs",
@@ -201,7 +201,7 @@ describe("@apiserver/usage ledger", function () {
     );
   });
 
-  it("rejects an undeclared meter and keeps the rest", async () => {
+  it("[BIL-002] rejects an undeclared meter and keeps the rest", async () => {
     const stored = await db!.prisma.$transaction((tx: never) =>
       ingestUsageIn(tx, directory, [
         {
@@ -215,7 +215,7 @@ describe("@apiserver/usage ledger", function () {
     expect((await daily()).map((r) => r.meter)).to.deep.equal(["call.seconds"]);
   });
 
-  it("keeps the latest reading of a snapshot meter", async () => {
+  it("[BIL-013] keeps the latest reading of a snapshot meter", async () => {
     const line = { meter: "storage.bytes" as const };
     await db!.prisma.$transaction((tx: never) =>
       ingestUsageIn(tx, directory, [
@@ -232,7 +232,7 @@ describe("@apiserver/usage ledger", function () {
     expect((await daily()).map((r) => r.quantity)).to.deep.equal([1500]);
   });
 
-  it("stores a sealed call's usage with its index row, once per replay", async () => {
+  it("[BIL-004] stores a sealed call's usage with its index row, once per replay", async () => {
     const index = createIndexRecord(db!.prisma as RecordsDb, {
       directory: () => directory
     });
@@ -258,7 +258,7 @@ describe("@apiserver/usage ledger", function () {
     expect((await daily()).map((r) => r.quantity)).to.deep.equal([65, 60, 420]);
   });
 
-  it("indexes entries without usage as before", async () => {
+  it("[BIL-006] indexes entries without usage as before", async () => {
     const index = createIndexRecord(db!.prisma as RecordsDb, {
       directory: () => directory
     });
@@ -267,7 +267,7 @@ describe("@apiserver/usage ledger", function () {
     expect(await db!.prisma.usageEvent.count()).to.equal(0);
   });
 
-  it("marks a private region's usage and a browser test's origin", async () => {
+  it("[BIL-008] marks a private region's usage and a browser test's origin", async () => {
     const index = createIndexRecord(db!.prisma as RecordsDb, {
       directory: () => directory
     });
@@ -291,7 +291,7 @@ describe("@apiserver/usage ledger", function () {
     ]);
   });
 
-  it("rebuilds daily totals that equal the ones built while ingesting", async () => {
+  it("[BIL-013] rebuilds daily totals that equal the ones built while ingesting", async () => {
     const stt = {
       meter: "stt.seconds" as const,
       provider: "deepgram",
@@ -336,7 +336,7 @@ describe("@apiserver/usage ledger", function () {
     );
   });
 
-  it("records storage per workspace for a completed day, once", async () => {
+  it("[BIL-013] records storage per workspace for a completed day, once", async () => {
     const index = createIndexRecord(db!.prisma as RecordsDb, {
       directory: () => directory
     });
@@ -395,7 +395,7 @@ describe("@apiserver/usage ledger", function () {
     ]);
   });
 
-  it("recovers usage from sealed records that never reached the ledger", async () => {
+  it("[BIL-012] recovers usage from sealed records that never reached the ledger", async () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "usage-records-"));
     try {
       const { privateKey } = generateKeyPairSync("ec", { namedCurve: "P-256" });

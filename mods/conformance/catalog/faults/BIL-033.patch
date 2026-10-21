@@ -1,0 +1,13 @@
+diff --git a/mods/billing/src/ledger.ts b/mods/billing/src/ledger.ts
+index 005f20678..d36b301d2 100644
+--- a/mods/billing/src/ledger.ts
++++ b/mods/billing/src/ledger.ts
+@@ -174,7 +174,7 @@ export const canPay = (g: GrantRemaining, occurredAt: Date, now: Date) =>
+   g.remaining > 0n &&
+   (!g.expiresAt || now < g.expiresAt) &&
+   (!g.effectiveAt || occurredAt >= g.effectiveAt) &&
+-  (!g.coversUntil || occurredAt < g.coversUntil);
++  true;
+ 
+ /** Spending order: plan and trial first, then top-ups by earliest expiry (D6). */
+ const order = (a: GrantRemaining, b: GrantRemaining) =>

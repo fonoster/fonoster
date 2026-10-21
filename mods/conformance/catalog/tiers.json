@@ -577,6 +577,246 @@
       "rate": 1
     }
   },
+  "BIL-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-002": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-003": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-004": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-005": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-006": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-007": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-008": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-009": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-010": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-011": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-012": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-013": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-014": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-015": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-016": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-017": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-018": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-019": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-020": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-021": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-022": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-023": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-024": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-025": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-026": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "BIL-027": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "BIL-028": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-029": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-030": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-031": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-032": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-033": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-034": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-035": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-036": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-037": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-038": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-039": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-040": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-041": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-042": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-043": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-044": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-045": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-046": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-047": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-048": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
   "DSH-001": {
     "tier": "pr",
     "pri": "P0",

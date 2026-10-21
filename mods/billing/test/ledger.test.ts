@@ -89,7 +89,7 @@ describe("@billing ledger", function () {
       ])
     );
 
-  it("spends plan credits before top-ups", async () => {
+  it("[BIL-032] spends plan credits before top-ups", async () => {
     const a = await account();
     await planGrant(a.id);
     await topup(a.id, 1000);
@@ -97,7 +97,7 @@ describe("@billing ledger", function () {
     expect(await left(a.id)).to.deep.equal({ plan: 0, topup: 500 });
   });
 
-  it("expires unused plan credits after the grace period and leaves top-ups", async () => {
+  it("[BIL-032] expires unused plan credits after the grace period and leaves top-ups", async () => {
     const a = await account();
     await planGrant(a.id);
     await topup(a.id, 1000);
@@ -108,7 +108,7 @@ describe("@billing ledger", function () {
     expect(await balanceOf(db!.prisma, a.id)).to.equal(credits(1000));
   });
 
-  it("pays usage of the period's last hour from that period's plan credits during the grace", async () => {
+  it("[BIL-033] pays usage of the period's last hour from that period's plan credits during the grace", async () => {
     const a = await account();
     await planGrant(a.id);
     await topup(a.id, 1000);
@@ -121,7 +121,7 @@ describe("@billing ledger", function () {
     expect(await left(a.id)).to.deep.equal({ plan: 2400, topup: 900 });
   });
 
-  it("carries what is left of the Trial to the first period's end and grace, balance unchanged", async () => {
+  it("[BIL-033] carries what is left of the Trial to the first period's end and grace, balance unchanged", async () => {
     const a = await account("trial");
     await db!.prisma.$transaction((tx) =>
       grant(tx, a.id, {
@@ -153,7 +153,7 @@ describe("@billing ledger", function () {
     expect(await balanceOf(db!.prisma, a.id)).to.equal(0n);
   });
 
-  it("goes into the overdraft, and the next grant pays it back first", async () => {
+  it("[BIL-034] goes into the overdraft, and the next grant pays it back first", async () => {
     const a = await account();
     await topup(a.id, 100);
     expect(await spend(a.id, 150)).to.equal(-credits(50));
@@ -171,7 +171,7 @@ describe("@billing ledger", function () {
     ).to.include({ balance: credits(950) });
   });
 
-  it("sizes the overdraft from the last top-up, and gives a trial none", async () => {
+  it("[BIL-034] sizes the overdraft from the last top-up, and gives a trial none", async () => {
     const a = await account();
     expect(await overdraftLimit(db!.prisma, a, DEFAULT_PLANS)).to.equal(
       credits(200)
@@ -184,7 +184,7 @@ describe("@billing ledger", function () {
     expect(await overdraftLimit(db!.prisma, trial, DEFAULT_PLANS)).to.equal(0n);
   });
 
-  it("sweeps expired grants of every account once", async () => {
+  it("[BIL-032] sweeps expired grants of every account once", async () => {
     const a = await account();
     const b = await account();
     await planGrant(a.id);

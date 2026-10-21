@@ -1,0 +1,13 @@
+diff --git a/mods/stripe-fake/viewer/src/format.ts b/mods/stripe-fake/viewer/src/format.ts
+index 1eaada907..8709c650e 100644
+--- a/mods/stripe-fake/viewer/src/format.ts
++++ b/mods/stripe-fake/viewer/src/format.ts
+@@ -24,7 +24,7 @@ const usd = new Intl.NumberFormat("en-US", {
+   currency: "USD"
+ });
+ 
+-export const credits = (cents: number) => int.format(cents);
++export const credits = (cents: number) => int.format(cents / 100);
+ export const number = (n: number) => int.format(n);
+ export const dollars = (cents: number) => usd.format(cents / 100);
+ /** A credit amount off an invoice, with a real minus sign. */

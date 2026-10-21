@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/usage/rebuildUsage.ts b/mods/apiserver/src/usage/rebuildUsage.ts
+index 5267168f9..8c27f84d5 100644
+--- a/mods/apiserver/src/usage/rebuildUsage.ts
++++ b/mods/apiserver/src/usage/rebuildUsage.ts
+@@ -69,7 +69,7 @@ export async function rebuildUsageDaily(
+          origin, region_kind, quantity)
+        SELECT DISTINCT ON (${KEY}) ${KEY}, quantity FROM usage_events
+        WHERE ${range} AND meter = ANY($3::text[])
+-       ORDER BY ${KEY}, occurred_at DESC, recorded_at DESC`,
++       ORDER BY ${KEY}, occurred_at ASC, recorded_at ASC`,
+       fromDay,
+       toDay,
+       SNAPSHOT_METERS

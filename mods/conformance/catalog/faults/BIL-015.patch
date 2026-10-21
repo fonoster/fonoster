@@ -1,0 +1,14 @@
+diff --git a/mods/apiserver/src/usage/publishRecordedUsage.ts b/mods/apiserver/src/usage/publishRecordedUsage.ts
+index bf34885a8..6b6cadafc 100644
+--- a/mods/apiserver/src/usage/publishRecordedUsage.ts
++++ b/mods/apiserver/src/usage/publishRecordedUsage.ts
+@@ -126,8 +126,7 @@ export async function publishRecordedUsageOnce(
+   for (const row of rows)
+     await js.publish(
+       recordedUsageSubject(row.owner_ref),
+-      sc.encode(JSON.stringify(toRecorded(row))),
+-      { msgID: row.id }
++      sc.encode(JSON.stringify(toRecorded(row)))
+     );
+   await db.$executeRawUnsafe(
+     `UPDATE usage_events SET published_at = now() WHERE id = ANY($1::varchar[])`,

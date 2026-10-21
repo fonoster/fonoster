@@ -1,0 +1,12 @@
+diff --git a/mods/stripe-fake/src/fake.ts b/mods/stripe-fake/src/fake.ts
+index 9b8d30d99..76c6f1045 100644
+--- a/mods/stripe-fake/src/fake.ts
++++ b/mods/stripe-fake/src/fake.ts
+@@ -376,7 +376,6 @@ export class StripeFake {
+ 
+   reset() {
+     this.objects.clear();
+-    this.counters.clear();
+     this.events = [];
+     this.deliveries = [];
+     this.meterEvents = [];

@@ -1,0 +1,13 @@
+diff --git a/mods/stripe-fake/src/server.ts b/mods/stripe-fake/src/server.ts
+index 110bbaadb..612aa987d 100644
+--- a/mods/stripe-fake/src/server.ts
++++ b/mods/stripe-fake/src/server.ts
+@@ -234,7 +234,7 @@ export class StripeFakeServer {
+       }
+       const key =
+         method === "post"
+-          ? (req.headers["idempotency-key"] as string | undefined)
++          ? undefined
+           : undefined;
+       if (key) {
+         const seen = this.fake.idempotency.get(key);
