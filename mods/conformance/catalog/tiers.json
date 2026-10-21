@@ -163,5 +163,10 @@
     "tier": "pr",
     "pri": "P1",
     "trials": null
+  },
+  "DSH-034": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
   }
 }

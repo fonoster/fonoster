@@ -31,5 +31,6 @@
   "DSH-030": "The Calls list: newest first, filtered by status, more on request",
   "DSH-031": "A completed call reads as the conversation, and its recording plays",
   "DSH-032": "A failed call says why, with its SIP status",
-  "DSH-033": "Erased and unknown records say so"
+  "DSH-033": "Erased and unknown records say so",
+  "DSH-034": "A browser call shows up in Calls with its transcript and a playable recording"
 }

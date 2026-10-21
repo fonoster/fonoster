@@ -32,24 +32,30 @@ test("[DSH-034] a browser call shows up in Calls with its transcript and a playa
   test.setTimeout(180_000);
   await page.goto("/");
   await page.getByLabel("Email").fill(env("E2E_REAL_EMAIL"));
-  await page.getByLabel("Password", { exact: true }).fill(env("E2E_REAL_PASSWORD"));
+  await page
+    .getByLabel("Password", { exact: true })
+    .fill(env("E2E_REAL_PASSWORD"));
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.getByRole("link", { name: env("E2E_REAL_WORKSPACE") }).click();
+  const sidebar = page.getByRole("complementary", { name: "Main" });
 
-  // The calls there are before this one.
-  await page.getByRole("link", { name: "Calls", exact: true }).click();
-  await page.getByRole("combobox", { name: "Period" }).click();
-  await page.getByRole("option", { name: "Last 24 hours" }).click();
+  // The newest call ref before this call (none when the list is empty), once the list has loaded.
   const table = page.getByRole("table", { name: "Calls" });
-  await expect(table.or(page.getByText("No calls match the filters."))).toBeVisible();
-  const before = new Set(
-    await table.getByRole("row").evaluateAll((rows) =>
-      rows.map((r) => r.textContent ?? "")
-    )
-  );
+  const newestRef = async () => {
+    await page.reload();
+    const loaded = table
+      .getByText(/^call-/)
+      .first()
+      .or(page.getByText("No calls yet"));
+    await expect(loaded).toBeVisible({ timeout: 15_000 });
+    const refs = await table.getByText(/^call-/).allTextContents();
+    return refs[0] ?? "";
+  };
+  await sidebar.getByRole("link", { name: "Calls", exact: true }).click();
+  const before = await newestRef();
 
   // A call to the seeded agent: the fake microphone speaks for a few seconds, then hang up.
-  await page.getByRole("link", { name: "Agents", exact: true }).click();
+  await sidebar.getByRole("link", { name: "Agents", exact: true }).click();
   await page.getByText(env("E2E_REAL_APP"), { exact: true }).click();
   await page.getByRole("button", { name: "Talk to agent" }).click();
   const drawer = page.getByRole("dialog");
@@ -61,21 +67,11 @@ test("[DSH-034] a browser call shows up in Calls with its transcript and a playa
   await page.keyboard.press("Escape");
 
   // Its record appears once sealed; open it.
-  await page.getByRole("link", { name: "Calls", exact: true }).click();
-  let fresh = table.getByRole("row").filter({ hasNotText: /^Call/ });
+  await sidebar.getByRole("link", { name: "Calls", exact: true }).click();
   await expect
-    .poll(
-      async () => {
-        await page.reload();
-        const rows = await table.getByRole("row").evaluateAll((rs) =>
-          rs.map((r) => r.textContent ?? "")
-        );
-        return rows.filter((r) => !before.has(r) && !r.startsWith("Call")).length;
-      },
-      { timeout: 90_000, intervals: [3_000] }
-    )
-    .toBeGreaterThan(0);
-  fresh = table.getByRole("row").nth(1);
+    .poll(newestRef, { timeout: 90_000, intervals: [3_000] })
+    .not.toBe(before);
+  const fresh = table.getByRole("row").nth(1);
   await expect(fresh).toContainText("completed");
   await fresh.click();
 
@@ -90,9 +86,13 @@ test("[DSH-034] a browser call shows up in Calls with its transcript and a playa
   await expect(agentTurn).toBeVisible();
   await expect(agentTurn).toContainText(/\d\.\d s · \d/);
   // The recording plays in the page.
-  await expect(page.getByLabel("Call recording")).toHaveAttribute("src", /^blob:/, {
-    timeout: 15_000
-  });
+  await expect(page.getByLabel("Call recording")).toHaveAttribute(
+    "src",
+    /^blob:/,
+    {
+      timeout: 15_000
+    }
+  );
   await expect(page.getByRole("link", { name: "Download" })).toHaveAttribute(
     "download",
     /\.wav$/

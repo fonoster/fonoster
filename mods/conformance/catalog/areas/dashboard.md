@@ -426,3 +426,16 @@ Writing this case found that the record builder stamped a caller's turn at its e
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
 **Pass.** An erased record shows Call record erased within four seconds and no "records API" text; an unknown call ref shows Call record not found and names the ref. **Fail.** A raw API error, a long load, or the same page for both.
+
+### DSH-034 A browser call shows up in Calls with its transcript and a playable recording
+
+- **Spec:** dashboard / The call detail reads as the conversation / A completed call
+- **Spec:** dashboard / Recordings play in the page / Play and download
+- **Priority:** P0
+- **Tier:** nightly
+- **Proof:** Stop the AppBridge (`docker stop rb-stack-appbridge-1`); with nothing to take the call the test must go red on Connected. Start it after.
+- **Test:** mods/dashboard/e2e/calls.real.spec.ts (the `real` project, `npm run test:e2e:real` against `ops/rebuild/stack up && seed`)
+
+The seeded agent records calls (`ops/rebuild/seed.cjs`). Bringing this case up found that every AppBridge image built from a checkout that hadn't run the package build crashed at start (identity-client's git-ignored proto was never synced into the image), so every call was rejected with 503; fixed in `mods/appbridge/Dockerfile`. It also found that browser test calls are recorded as `internal → roomr` (filed).
+
+**Pass.** After a browser call to the seeded agent, the newest call in Calls is a new completed record; its detail names the agent under Answered by, shows a timed agent turn, plays the recording from a blob URL and downloads a `.wav`. **Fail.** No new record within 90 seconds, a missing or untimed turn, or no playable recording.
