@@ -97,6 +97,42 @@ long as the first plan credits. Top-up credits SHALL expire 12 months after purc
 - **WHEN** usage from the period's last hour is rated during the grace window
 - **THEN** it is paid from that period's plan credits
 
+### Requirement: The Trial ends
+
+The Trial SHALL last a configured number of days from its start (30 by default), which an operator
+SHALL be able to change for one owner. When it ends, its unused credits SHALL expire, the account
+SHALL show that it ended, and admission SHALL refuse calls with reason `trial_ended` until the owner
+subscribes, whatever the balance.
+
+#### Scenario: The Trial ends
+
+- **WHEN** 30 days pass since an owner's Trial started and they have not subscribed
+- **THEN** the unused Trial credits expire, the account's status is `ended`, and the next call is
+  refused with `trial_ended` even if top-up credits remain; subscribing ends the refusal
+
+#### Scenario: An operator changes one owner's Trial
+
+- **WHEN** an operator sets an owner's Trial to 45 days
+- **THEN** it ends 45 days after it started, with the credits it has left; a Trial that had ended
+  and now ends later opens again with the credits it had left when it ended, given back once
+
+### Requirement: An operator adds credits
+
+An operator SHALL be able to add credits to one owner under the rules of the owner's plan: on the
+Trial they SHALL be Trial credits that end with the Trial; on Pay-as-you-go they SHALL follow the
+top-up rules (12 months, spent like top-ups) and SHALL reach Stripe as a credit grant, as a paid
+top-up would.
+
+#### Scenario: Credits for a Trial
+
+- **WHEN** an operator adds 500 credits to an owner on the Trial
+- **THEN** the balance grows by 500 credits, which expire when the Trial ends
+
+#### Scenario: Credits for Pay-as-you-go
+
+- **WHEN** an operator adds 500 credits to an owner on Pay-as-you-go
+- **THEN** a 500-credit top-up grant expiring in 12 months is in the ledger and in Stripe
+
 ### Requirement: Admission from the ledger
 
 The billing service SHALL implement `CheckSessionAuthorized` from its own ledger, without calling

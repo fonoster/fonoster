@@ -51,7 +51,8 @@ message CreditSource {
 message BillingSummary {
   // trial or payg
   string plan = 1;
-  // active, past_due or closed
+  // active, past_due, closed, or ended (a Trial past its 30 days; calls are refused until the
+  // owner subscribes)
   string status = 2;
   // Credits; negative while in the overdraft
   double balance = 3;

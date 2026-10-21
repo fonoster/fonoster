@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 export * from "./activeCalls";
+export * from "./addCredits";
 export * from "./admission";
 export * from "./api";
 export * from "./applyUsage";
@@ -28,6 +29,7 @@ export * from "./money";
 export * from "./notices";
 export * from "./rateCards";
 export * from "./rater";
+export * from "./trial";
 export * from "./runUsageConsumer";
 export * from "./stripe/accounts";
 export * from "./stripe/catalog";

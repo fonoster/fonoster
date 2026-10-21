@@ -32,3 +32,10 @@ export class ManualClock implements Clock {
     this.at = at;
   }
 }
+
+/** The same moment `months` calendar months later (UTC). */
+export const addMonths = (d: Date, months: number) => {
+  const out = new Date(d);
+  out.setUTCMonth(out.getUTCMonth() + months);
+  return out;
+};

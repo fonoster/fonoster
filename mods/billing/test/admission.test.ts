@@ -22,7 +22,7 @@ import { RegistryActiveCalls } from "../src/activeCalls";
 import { BillingAuthzHandler, ensureAccount } from "../src/admission";
 import { ManualClock } from "../src/clock";
 import { DEFAULT_PLANS } from "../src/config";
-import { debit, grant, lockAccount } from "../src/ledger";
+import { debit, expireDue, grant, lockAccount } from "../src/ledger";
 import { credits } from "../src/money";
 import { BillingTestDb, createBillingTestDb } from "./testDb";
 
@@ -122,6 +122,35 @@ describe("@billing admission", function () {
       await debit(tx, a.id, credits(1000), "use-all", NOW, NOW);
     });
     expect((await check("WO-trial0")).reason).to.equal("insufficient_balance");
+  });
+
+  it("ends the Trial after its 30 days and refuses calls until the owner subscribes", async () => {
+    owners.set("WO-trial-end", "owner-trial-end");
+    const started = new Date(NOW.getTime() - 31 * 86_400_000);
+    const a = await ensureAccount(
+      db!.prisma,
+      "owner-trial-end",
+      DEFAULT_PLANS,
+      started
+    );
+    // A top-up bought during the Trial does not keep it going.
+    await db!.prisma.$transaction((tx) =>
+      grant(tx, a.id, {
+        kind: "topup_grant",
+        amount: credits(1000),
+        source: "topup-during-trial"
+      })
+    );
+    expect(await check("WO-trial-end")).to.deep.equal({ authorized: true });
+    await expireDue(db!.prisma, NOW);
+    const after = await db!.prisma.billingAccount.findUniqueOrThrow({
+      where: { id: a.id }
+    });
+    expect(after).to.include({ plan: "trial", status: "ended" });
+    expect(await check("WO-trial-end")).to.deep.equal({
+      authorized: false,
+      reason: "trial_ended"
+    });
   });
 
   it("refuses with concurrency_limit at the plan's limit", async () => {

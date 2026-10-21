@@ -19,7 +19,7 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { getLogger } from "@fonoster/logger";
 import Stripe from "stripe";
-import { Clock } from "../clock";
+import { addMonths, Clock } from "../clock";
 import { PlanSettings } from "../config";
 import { Db, Prisma, PrismaClient } from "../db";
 import { carryOver, grant, grantsOf, lockAccount } from "../ledger";
@@ -34,12 +34,6 @@ const HOUR_MS = 3600_000;
 
 /** Recharges in a row that may fail before auto-recharge turns off. */
 export const MAX_RECHARGE_FAILURES = 3;
-
-const addMonths = (d: Date, months: number) => {
-  const out = new Date(d);
-  out.setUTCMonth(out.getUTCMonth() + months);
-  return out;
-};
 
 /**
  * The webhook inbox (D8): verifies Stripe's signature and stores each event once by id. Applying

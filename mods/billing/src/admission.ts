@@ -49,8 +49,9 @@ export async function ensureAccount(
   });
   if (existing) return existing;
   return prisma.$transaction(async (tx) => {
+    const trialEndsAt = new Date(now.getTime() + plans.trialDays * DAY_MS);
     const [account] = await tx.billingAccount.createManyAndReturn({
-      data: [{ ownerRef, plan: "trial", billingStartedAt: now }],
+      data: [{ ownerRef, plan: "trial", billingStartedAt: now, trialEndsAt }],
       skipDuplicates: true
     });
     // Another replica created it at the same moment.
@@ -60,7 +61,7 @@ export async function ensureAccount(
       kind: "trial_grant",
       amount: credits(plans.trialCredits),
       source: `trial:${account.id}`,
-      expiresAt: new Date(now.getTime() + plans.trialDays * DAY_MS)
+      expiresAt: trialEndsAt
     });
     return account;
   });
@@ -96,6 +97,9 @@ export class BillingAuthzHandler implements AuthzHandler {
       return { authorized: true };
     }
     const account = await ensureAccount(prisma, owner, plans, clock.now());
+    // A Trial past its 30 days: nothing runs until the owner subscribes, whatever the balance.
+    if (account.status === "ended")
+      return { authorized: false, reason: "trial_ended" };
     const snapshot = await prisma.balanceSnapshot.findUnique({
       where: { accountId: account.id }
     });
