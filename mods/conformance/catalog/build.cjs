@@ -10,7 +10,7 @@
 // uncovered-scenarios.txt (the list may only shrink).
 const fs = require("fs");
 const path = require("path");
-const { catalogDir, loadAreas, loadSpecScenarios, resolveSpec, glob, testTitles } = require("./lib.cjs");
+const { caseIds, catalogDir, loadAreas, loadSpecScenarios, resolveSpec, glob, testTitles } = require("./lib.cjs");
 
 const argv = process.argv.slice(2);
 const areas = loadAreas();
@@ -58,7 +58,8 @@ const untagged = [];
 for (const a of areas) {
   const ids = new Set(a.tests.map((t) => t.id));
   for (const pattern of a.testFiles) for (const file of glob(pattern)) for (const title of testTitles(file)) {
-    const m = title.match(/\b([A-Z]{2,4}-\d{3})\b/);
+    const id = caseIds(title)[0];
+    const m = id && [id, id];
     if (m && ids.has(m[1])) tagged.set(m[1], [...(tagged.get(m[1]) || []), `${file}: ${title}`]);
     else untagged.push(`${file}: "${title}"${m ? ` (tagged ${m[1]}, which is not a ${a.prefix} case)` : ""}`);
   }

@@ -17,7 +17,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { execFileSync, spawnSync } = require("child_process");
-const { catalogDir, repoRoot, loadAreas } = require("./lib.cjs");
+const { caseIds, catalogDir, repoRoot, loadAreas } = require("./lib.cjs");
 
 const args = Object.fromEntries(process.argv.slice(2).reduce((a, v, i, all) => (v.startsWith("--") ? [...a, [v.slice(2), all[i + 1]]] : a), []));
 const prefix = args.area;
@@ -46,7 +46,7 @@ function redIds(dir) {
     const xml = fs.readFileSync(path.join(dir, f), "utf8");
     for (const m of xml.matchAll(/<testcase\b([^>]*?)(\/>|>([\s\S]*?)<\/testcase>)/g)) {
       if (!/<(failure|error)\b/.test(m[3] || "")) continue;
-      for (const id of m[1].matchAll(/\b([A-Z]{2,4}-\d{3})\b/g)) ids.add(id[1]);
+      for (const id of caseIds(m[1])) ids.add(id);
     }
   }
   return ids;

@@ -19,7 +19,7 @@ const sha = args.sha || "unknown";
 const out = args.out || `reports/qa-${version}.md`;
 
 // ---- catalog (area documents)
-const { loadAreas } = require("./lib.cjs");
+const { caseIds, loadAreas } = require("./lib.cjs");
 const areas = loadAreas();
 const cases = areas.flatMap((a) => a.tests);
 const byId = new Map(cases.map((t) => [t.id, t]));
@@ -60,7 +60,7 @@ for (const file of walk(resultsDir)) {
   for (const m of xml.matchAll(/<testcase\b([^>]*?)(\/>|>([\s\S]*?)<\/testcase>)/g)) {
     const head = m[1], body = m[3] || "";
     const name = `${attr(head, "name")} ${attr(head, "classname")}`;
-    const id = (name.match(/\b([A-Z]{2,4})[-_]?(\d{3})\b/) || []).slice(1, 3).join("-");
+    const id = caseIds(name).find((i) => byId.has(i)) || "";
     if (!byId.has(id)) continue;
     let status = "Pass", message = "";
     const bad = body.match(/<(failure|error)\b([^>]*)>?([\s\S]*?)(<\/\1>|$)/);

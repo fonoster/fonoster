@@ -198,4 +198,17 @@ describe("@conformance/catalog prove.cjs", function () {
     report("junit");
     expect(fs.readFileSync(path.join(dir, "report.md"), "utf8")).to.match(/\| TST-001 \| Adds \| P0 \| [a-z]+ \| Pass \| yes \|/);
   });
+
+  it("reads case ids from bracketed titles and from Go test names", function () {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { caseIds } = require(path.join(catalog, "lib.cjs"));
+
+    expect(caseIds("[API-012] a title")).to.deep.equal(["API-012"]);
+    expect(caseIds("TestROM012_RoomFull")).to.deep.equal(["ROM-012"]);
+    expect(caseIds("TestROM012")).to.deep.equal(["ROM-012"]);
+    expect(caseIds("TestROM012_RoomFull/subtest")).to.deep.equal(["ROM-012"]);
+    expect(caseIds('classname="e2e" name="TestROM003_Dtmf"')).to.deep.equal(["ROM-003"]);
+    expect(caseIds("TestRoomrCreateCall")).to.deep.equal([]);
+    expect(caseIds("TestMain")).to.deep.equal([]);
+  });
 });
