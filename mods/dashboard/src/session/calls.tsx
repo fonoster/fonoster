@@ -313,10 +313,12 @@ export function CallRecordView() {
       </>
     );
   const app = apps?.find((a) => a.ref === call.appRef);
+  // A browser test call is recorded to the agent's ref (#1060): show its name.
+  const callee = app && call.to === app.ref ? app.name : call.to;
   return (
     <>
       <PageHeader
-        title={`${call.from || "Unknown"} → ${call.to || "Unknown"}`}
+        title={`${call.from || "Unknown"} → ${callee || "Unknown"}`}
         description={call.callRef}
         actions={back}
       />

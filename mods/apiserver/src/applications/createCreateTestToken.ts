@@ -17,7 +17,9 @@
  * limitations under the License.
  */
 import {
+  decodeToken,
   getAccessKeyIdFromCall,
+  getTokenFromCall,
   GrpcErrorMessage,
   withErrorHandling
 } from "@fonoster/common";
@@ -32,7 +34,13 @@ import { TestTokenConfiguration } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
-function createCreateTestToken(config: TestTokenConfiguration) {
+/** The email of the user a ref names, for the token's `caller` (#1060). */
+type FindCallerEmail = (userRef: string) => Promise<string | undefined>;
+
+function createCreateTestToken(
+  config: TestTokenConfiguration,
+  findCallerEmail?: FindCallerEmail
+) {
   const createApplication = async (
     call: unknown,
     callback: (
@@ -48,8 +56,25 @@ function createCreateTestToken(config: TestTokenConfiguration) {
       accessKeyId
     });
 
+    // Who is testing: the signed-in user behind the access token, recorded as the call's
+    // caller instead of the SIP leg's internal name. A lookup failure only leaves it out.
+    let caller: string | undefined;
+    try {
+      const token = getTokenFromCall(call as unknown as ServerInterceptingCall);
+      const sub = token
+        ? (decodeToken(token) as { sub?: unknown }).sub
+        : undefined;
+      caller =
+        typeof sub === "string" && findCallerEmail
+          ? await findCallerEmail(sub)
+          : undefined;
+    } catch (err) {
+      logger.verbose("test token without a caller", { error: err });
+    }
+
     // Build payload
     const payload = {
+      ...(caller ? { caller } : {}),
       ref: uuidv4(),
       domain: config.domain,
       displayName: config.displayName,

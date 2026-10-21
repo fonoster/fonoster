@@ -22,7 +22,13 @@ import { readFileSync } from "fs";
 export const CONNECT_TOKEN_HEADER = "x-connect-token";
 
 /** `test` is true when the call carried a valid test token (a browser test call). */
-export type TestCallCheck = { ok: boolean; reason?: string; test?: boolean };
+export type TestCallCheck = {
+  ok: boolean;
+  reason?: string;
+  test?: boolean;
+  /** Who placed the test call (the signed-in user's email), from the token's `caller`. */
+  caller?: string;
+};
 
 /** A header's value, matched case-insensitively (SIP header names are). */
 export function headerValue(
@@ -91,6 +97,12 @@ export class TestCallVerifier {
       return { ok: false, reason: "method" };
     if (workspaceRef !== undefined && payload.accessKeyId !== workspaceRef)
       return { ok: false, reason: "workspace" };
-    return { ok: true, test: true };
+    return {
+      ok: true,
+      test: true,
+      ...(typeof payload.caller === "string" && payload.caller
+        ? { caller: payload.caller }
+        : {})
+    };
   }
 }

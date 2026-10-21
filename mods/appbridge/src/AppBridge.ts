@@ -303,6 +303,21 @@ export class AppBridge {
   }
 
   findApp = (ref: string): AppConfig | undefined => this.apps.find(ref);
+
+  /**
+   * An app by ref, reloading once when the cache doesn't have it: an agent created a moment ago
+   * answers its first call instead of a 404 until the next background refresh.
+   */
+  private async findAppFresh(ref: string): Promise<AppConfig | undefined> {
+    const cached = this.findApp(ref);
+    if (cached || !this.apps.refresh) return cached;
+    try {
+      await this.apps.refresh();
+    } catch (e) {
+      logger.warn(`app refresh on a miss failed: ${(e as Error).message}`);
+    }
+    return this.findApp(ref);
+  }
   /**
    * A record was sealed (a CallRecordWriter's onSealed): the index entry goes to the control
    * plane over NATS and the workspace gets `call_record.sealed` with a link, never contents.
@@ -410,7 +425,8 @@ export class AppBridge {
     traceparent?: string
   ) {
     const participant = event.participant as
-      { participantRef: string; tracks?: unknown[] } | undefined;
+      | { participantRef: string; tracks?: unknown[] }
+      | undefined;
     const roomRef = event.roomRef as string;
     const to = String(event.to ?? "");
     const appRef = event.appRef as string | undefined;
@@ -436,7 +452,9 @@ export class AppBridge {
       callerTracks: participant?.tracks,
       traceparent
     };
-    const app = appRef ? this.findApp(appRef) : this.appForNumber(to);
+    const app = appRef
+      ? await this.findAppFresh(appRef)
+      : this.appForNumber(to);
     const call = this.newCall(info);
     if (!app) {
       // A minimal record: parties, timing and the reason (call-record, minimal records).
@@ -482,7 +500,13 @@ export class AppBridge {
       call.record("event", { type: "call.failed", reason: "test_call_denied" });
       return call.reject(403);
     }
-    if (test.test) call.origin = "browser_test";
+    if (test.test) {
+      call.origin = "browser_test";
+      // The SIP leg of a browser test runs between the media node's internal names
+      // (internal → roomr): record who tested and the agent they called instead (#1060).
+      call.info.from = test.caller ?? "browser";
+      call.info.to = app.ref;
+    }
     // Admission before the caller hears ringing (add-billing-service D7).
     if (this.admission) {
       const decision = await admit(
