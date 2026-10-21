@@ -30,6 +30,8 @@ for (const t of all) {
   if (!t.spec.length) errors.push(`${t.id}: needs - **Spec:** <capability> / <requirement> / <scenario>`);
   if (!/^P[012]$/.test(t.pri)) errors.push(`${t.id}: needs - **Priority:** P0|P1|P2`);
   if (!t.proof) errors.push(`${t.id}: needs - **Proof:** how the test is shown red`);
+  if (t.fault && !fs.existsSync(path.join(catalogDir, t.fault))) errors.push(`${t.id}: fault patch ${t.fault} does not exist (relative to ${path.relative(process.cwd(), catalogDir) || "."})`);
+  if (t.fault && !t.area.prove) errors.push(`${t.id}: has a fault patch but ${t.area.file} has no prove: command`);
   if (!TIERS.includes(t.tier)) errors.push(`${t.id}: tier "${t.tier}" is not one of ${TIERS.join(", ")}`);
   if (!t.pass || !t.fail) errors.push(`${t.id}: needs **Pass.** and **Fail.** lines`);
   if (/\b(manual|by hand|a human|a person)\b/i.test([t.objective, t.pass, t.fail, t.proof].join(" "))) errors.push(`${t.id}: no manual tests; reword`);
@@ -119,7 +121,7 @@ for (const a of areas) {
   const withTest = a.tests.filter((t) => tagged.has(t.id) || t.runs.length).length;
   const capScen = scenarios.filter((s) => a.capabilities.includes(s.cap));
   const capCovered = capScen.filter((s) => covered.has(s.key)).length;
-  console.log(`${a.prefix} ${a.title}: ${a.tests.length} cases, ${withTest} with a tagged test, ${a.tests.filter((t) => t.proof).length} with a proof; spec scenarios covered ${capCovered}/${capScen.length} (${a.capabilities.join(", ")})`);
+  console.log(`${a.prefix} ${a.title}: ${a.tests.length} cases, ${withTest} with a tagged test, ${a.tests.filter((t) => t.proof).length} with a proof, ${a.tests.filter((t) => t.fault).length} with a fault patch; spec scenarios covered ${capCovered}/${capScen.length} (${a.capabilities.join(", ")})`);
 }
 if (!areas.length) console.log("no areas yet (areas/*.md)");
 if (errors.length) { console.error(`\n${errors.length} problem(s):\n- ${errors.join("\n- ")}`); process.exit(1); }

@@ -10,6 +10,8 @@ attached to the release, where the gate decides.
 | `lib.cjs` | Parser shared by the two scripts |
 | `build.cjs` | Checks the area documents and prints where each area stands |
 | `report.cjs` | Builds the release report from JUnit results; exits 1 when the gate fails |
+| `prove.cjs` | Applies each case's fault patch, runs the case, expects red, reverts; writes proof records |
+| `faults/<ID>.patch` | The seeded fault of a case, applied by `prove.cjs` |
 | `ids.lock.json` | Every case id with its name; ids are never reused or deleted |
 | `uncovered-scenarios.txt` | Spec scenarios in scope with no case; may only shrink |
 | `tiers.json` | Generated for the harness: tier, priority, trials per case |
@@ -33,6 +35,8 @@ prefix: DSH                     # two to four capitals
 title: Dashboard
 level: L3 System (UI)
 tier: pr                        # default for cases: pr | nightly | release | production
+prove: <command>                # optional: runs one case ({id}), JUnit to {junit} or {junitDir}
+reset: <command>                # optional: runs after each fault is reverted (PROVE_FILES set)
 uut: ...
 tester: ...
 environment: ...
@@ -62,6 +66,7 @@ Scope paragraph.
 - **Tier:** nightly                                 (optional override)
 - **Trials:** 3×1                                   (optional: k × required rate)
 - **Proof:** how the test is shown red
+- **Fault:** faults/DSH-003.patch                   (optional: the proof as a patch, for prove.cjs)
 - **Test:** path                                    (informational)
 - **Runs:** scenarios/voice-sdk                     (contract cases: the scenario files this case runs)
 
@@ -92,6 +97,21 @@ Gate: every P0 passes and is proven (a `proven=true` JUnit property from a seede
 P1 passes or has an unexpired waiver; a case with no result is Not run and blocks; a skipped test is
 Blocked, never Pass; stochastic cases are judged over their declared trials; quarantined tests are
 Blocked and a quarantine older than 14 days fails the build.
+
+## Proofs
+
+A case with a **Fault:** patch is proven by a machine:
+
+```sh
+node mods/conformance/catalog/prove.cjs --area API [--case API-003] [--out reports/junit/proofs-API.xml]
+```
+
+For each case it applies the patch, runs the area's `prove:` command for that case alone, and
+reverts the patch. The case is proven only when the JUnit file the command wrote has a failing test
+carrying the id; a fault that breaks the build proves nothing. It refuses to touch files with
+uncommitted changes. The records it writes carry `proof=true` and `proven=true|false`; `report.cjs`
+reads them for the Proven column and never counts them as runs. Make a fault with the change in the
+working tree: `git diff > mods/conformance/catalog/faults/API-003.patch`, then `git checkout .`.
 
 ## Running the dashboard area
 

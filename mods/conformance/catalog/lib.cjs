@@ -5,8 +5,9 @@
 const fs = require("fs");
 const path = require("path");
 
-const catalogDir = __dirname;
-const repoRoot = path.join(__dirname, "..", "..", "..");
+// The overrides are for the scripts' own tests, which run them on a throwaway repository.
+const catalogDir = process.env.CATALOG_DIR || __dirname;
+const repoRoot = process.env.CATALOG_REPO_ROOT || path.join(__dirname, "..", "..", "..");
 const specDir = path.join(repoRoot, "openspec", "specs");
 
 const norm = (s) => String(s).toLowerCase().replace(/[`*_\\"]/g, "").replace(/\s+/g, " ").trim();
@@ -48,6 +49,7 @@ function parseCases(body, prefix, file) {
       pri: fields.priority || "",
       tier: fields.tier || "",
       proof: fields.proof || "",
+      fault: fields.fault || "",
       test: fields.test || "",
       runs: [].concat(fields.runs || []),
       trials: trials && trials[1] ? { k: Number(trials[1]), rate: Number(trials[2]) } : null,
@@ -76,7 +78,8 @@ function loadAreas() {
 
 // Main specs, plus the ADDED and MODIFIED requirements of open changes (openspec/changes/*, not the
 // archive), so a case can cite a scenario that is proposed but not yet synced. Those carry
-// `proposed: "<change>"`. REMOVED requirements of open changes are dropped from the main set.
+// `proposed: "<change>"`. REMOVED (and MODIFIED) requirements of a started change are dropped from the
+// main set; an unstarted one (no task checked) only adds, so what ships stays citable.
 function readScenarios(file, cap, proposed) {
   const out = [];
   let req = "", section = "";
@@ -108,10 +111,13 @@ function loadSpecScenarios() {
   for (const change of changes) {
     const specs = path.join(changesDir, change, "specs");
     if (!fs.existsSync(specs)) continue;
+    // An unstarted proposal (no task checked) adds its scenarios but does not replace what ships yet.
+    const tasks = path.join(changesDir, change, "tasks.md");
+    const started = !fs.existsSync(tasks) || /^\s*- \[x\]/im.test(fs.readFileSync(tasks, "utf8"));
     for (const cap of fs.readdirSync(specs)) {
       const file = path.join(specs, cap, "spec.md");
       if (!fs.existsSync(file)) continue;
-      const gone = removedRequirements(file);
+      const gone = started ? removedRequirements(file) : new Set();
       scenarios = scenarios.filter((s) => !(s.cap === cap && !s.proposed && gone.has(norm(s.req))));
       scenarios.push(...readScenarios(file, cap, change));
     }
