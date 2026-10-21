@@ -18,7 +18,7 @@ nats:
   # NATS gets the users; with your own NATS, give it the same users and permission files. Routr
   # connects as `routr` with the password in its NATS URL (hex passwords only). On by default:
   # create the Secret before installing. Turning it off needs allowUnauthenticated: true, which
-  # lets any pod that reaches NATS control media (development only).
+  # lets any pod that reaches NATS forge node heartbeats and call events (development only).
   auth:
     enabled: true
     secret: fonoster-nats-users
@@ -176,6 +176,13 @@ appbridge:
   recordsVolume: { emptyDir: {} }
   resources: {}
   podDisruptionBudget: { minAvailable: 1 }
+  # Ingress for AppBridge pods: HTTP (8080) open as before; the Session port and RTP (UDP) from
+  # the Roomr nodes; the Session port from the region agent (its readiness check). With
+  # roomr.hostNetwork the nodes come from their hosts' addresses: list the cluster nodes' CIDRs
+  # in nodeCidrs, or leave it empty to admit the Session port and UDP from any source.
+  networkPolicy:
+    enabled: true
+    nodeCidrs: []
 
 roomr:
   enabled: true
@@ -189,7 +196,12 @@ roomr:
   # Keeps voluntary disruptions (node drains, rollouts) from taking every node at once: set
   # minAvailable (default 1) or maxUnavailable; null renders no PodDisruptionBudget.
   podDisruptionBudget: { minAvailable: 1 }
-  # RTP is UDP on a port range, so the pod uses the host network by default.
+  # RTP is UDP on a port range, so the pod uses the host network by default. Every leg (SIP and
+  # app) uses the one range below on the node's address, and nothing coordinates ports between
+  # nodes: with hostNetwork run one node per host (the scheduler already keeps two pods that
+  # declare the same SIP port off one host), or give nodes that share a host non-overlapping RTP
+  # ranges and different SIP and control ports (a second release). On the pod network every pod
+  # has its own IP and nodes can share a range.
   hostNetwork: true
   rtp:
     portMin: 30000
@@ -212,17 +224,28 @@ roomr:
     # Name of a Secret with key `password` (the peer password at Routr).
     passwordSecret: roomr-peer
     outboundProxy: routr:5060
-  # Roomr (gRPC): the apiserver places outbound calls on <sip.advertise>:<port> (CreateCall).
-  # Plaintext; keep the port reachable from the apiserver only.
+  # Roomr (gRPC) and grpc.health.v1 (the readiness probe): the apiserver places outbound calls on
+  # <sip.advertise>:<port> (CreateCall). Plaintext and unauthenticated: reachable from the
+  # apiserver only (networkPolicy below, or the host firewall with hostNetwork).
   controlPort: 50061
   # The header that carries a call's ref: Routr's X-Call-Ref names inbound calls, and the
   # apiserver sends it on the calls it places.
   callRefHeader: X-Call-Ref
-  # The node's SIP port must be reachable only from Routr: a NetworkPolicy when it runs on the
-  # pod network, or a host firewall when hostNetwork is true (the default). Roomr trusts the
-  # X-App-Ref, X-Call-Ref and X-Call-Direction headers of whoever reaches it.
+  # Network isolation. Roomr checks neither who calls its RPCs nor where SIP comes from, and
+  # trusts the X-App-Ref, X-Call-Ref and X-Call-Direction headers of whoever reaches it. On the
+  # pod network (hostNetwork: false) this NetworkPolicy admits the control port only from the
+  # apiserver (plus controlFrom) and the SIP port only from sipFrom (Routr's pods; match your
+  # Routr chart's labels, add a namespaceSelector when it runs in another namespace); RTP stays
+  # open. A NetworkPolicy does not apply to host-network pods: with hostNetwork: true (the
+  # default) a host firewall does the same (docs/operators/rebuild.md, "Network isolation").
+  networkPolicy:
+    enabled: true
+    controlFrom: []
+    sipFrom:
+      - podSelector: { matchLabels: { app.kubernetes.io/name: routr } }
   # Optional SIP over TLS (off by default). `secret` holds tls.crt and tls.key (the node's
-  # certificate) and ca.crt (the CA that signs the edge's certificates).
+  # certificate) and ca.crt (the CA that verifies the outbound proxy's and registrars'
+  # certificates on TLS connections the node opens).
   tls:
     enabled: false
     listen: 0.0.0.0:5061

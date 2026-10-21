@@ -516,6 +516,8 @@ describe("@conformance/deployment (Helm chart)", function () {
       advertise: "${HOST_IP}",
       // Routr's X-Call-Ref names inbound calls (decision 7).
       callRefHeader: "X-Call-Ref",
+      // Dials go to Routr unless CreateCall names a proxy (transport in the URI).
+      outboundProxy: "sip:routr:5060",
       registrations: [
         {
           registrar: "routr:5060",
@@ -536,7 +538,7 @@ describe("@conformance/deployment (Helm chart)", function () {
       portMax: 30199
     });
     expect(config.registration).to.equal(undefined);
-    expect(config.outboundProxy).to.equal("routr:5060");
+    expect(config.outboundProxy).to.equal(undefined);
     // Roomr (gRPC) for the apiserver's CreateCall, advertised on sip.advertise's host.
     expect(config.control).to.deep.equal({ grpc: { listen: "0.0.0.0:50061" } });
     // Every placeholder is a variable the pod sets.

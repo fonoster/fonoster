@@ -3,9 +3,9 @@ prefix: APB
 title: AppBridge and the session protocol
 level: L2 Integration (service)
 tier: pr
-uut: AppBridge (mods/appbridge), the per-call service that speaks the session protocol to apps, runs turn-taking and the Speech layer, and drives a Roomr node over media-control
-tester: The conformance runner, which plays the app against AppBridge with a fake Roomr node and fake STT, TTS and LLM providers on NATS; Mocha integration tests for what needs more than one app or no app (fallback, handoff, outbound, listeners, filters, the call record)
-environment: NATS (CONFORMANCE_NATS_URL); everything else in the test process
+uut: AppBridge (mods/appbridge), the per-call service that speaks the session protocol to apps, runs turn-taking and the Speech layer, and serves each call's control stream from a Roomr node (Session.Connect), with the call's audio as RTP beside it
+tester: The conformance runner, which plays the app against AppBridge with a fake Roomr node (it opens a control stream per call and exchanges RTP) and fake STT, TTS and LLM providers; Mocha integration tests for what needs more than one app or no app (fallback, handoff, outbound, listeners, filters, the call record)
+environment: NATS (CONFORMANCE_NATS_URL) for node heartbeats, events and the session registry; everything else in the test process
 cadence: every pull request that touches AppBridge or a scenario file
 prove: sh mods/conformance/test/appbridge/prove.sh {id} {junitDir}
 capabilities:
@@ -49,7 +49,7 @@ flowchart LR
   end
   SC --> R
   R <-->|"signed WebSocket"| AB
-  AB <-->|"media-control on NATS"| NODE
+  NODE <-->|"control stream (gRPC) and RTP"| AB
   AB <-->|"speech"| PROV
 ```
 
@@ -357,7 +357,7 @@ playFetch) stay unit tests.
 - **Test:** mods/appbridge/test/conformance.test.ts
 - **Runs:** scenarios/voice-session/speech-never-reaches-node.yaml
 
-**Pass.** Speech stays in AppBridge: the node gets only media-control commands. **Fail.** Speech content on the node's subject.
+**Pass.** Speech stays in AppBridge: the node gets only control messages on the call's control stream and audio as RTP. **Fail.** Speech content (text) reaches the node.
 
 ### APB-019 Answering-machine detection reaches the app
 

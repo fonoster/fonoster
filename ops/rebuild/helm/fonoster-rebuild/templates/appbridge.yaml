@@ -21,7 +21,8 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/appbridge-config.yaml") . | sha256sum }}
     spec:
-      terminationGracePeriodSeconds: {{ .Values.appbridge.terminationGracePeriodSeconds }}
+      # Longer than the drain wait (session.drainWait = drainGraceSeconds), whatever values say.
+      terminationGracePeriodSeconds: {{ max (.Values.appbridge.terminationGracePeriodSeconds | int) (add (.Values.appbridge.drainGraceSeconds | int) 30) }}
       containers:
         - name: appbridge
           image: "{{ .Values.appbridge.image.repository }}:{{ .Values.appbridge.image.tag }}"

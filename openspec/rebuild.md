@@ -16,8 +16,9 @@ Your code (apps, Autopilot, Pipecat bots)
    │  WebSocket session: native flavor or Twilio flavor
 AppBridge (one per call, runs in the voice worker)
    │  Speech layer (STT, TTS, play, turn-taking) · Audio layer · Control
-Roomr node (Go, behind Routr)  ── rooms (audio mixer), SIP legs, forks; see add-roomr
-   │  SIP + RTP
+   │  per-call control stream (gRPC, node → AppBridge) + RTP
+Roomr node (Go, behind Routr)  ── SIP and media edge: SIP legs, rooms (audio mixer), listeners;
+   │  SIP + RTP                    see add-roomr, redesign-roomr
 SIP edge (Routr + RTPEngine) ── carriers, WebRTC
 ```
 
@@ -39,13 +40,18 @@ conformance framework.
 | `add-platform` | `control-plane`, `observability`, `deployment`, `regions` | all of the above except `conformance` |
 | `add-conformance-framework` | `conformance` | all of the above |
 
-Roomr node in one line: rooms are audio mixers with a track-based (video-ready) contract; "add a
-participant to a room" serves inbound, outbound and transfer (cold/warm in the room, optional SIP
-REFER); Routr balances nodes with least-sessions from `X-Session-Count`; rooms stay on one node;
-optional TLS + SRTP to the edge; sipgo and livekit/media-sdk are reused as libraries.
+Roomr node in one line (redesign-roomr): the SIP and media edge, not an app server. The
+apiserver calls its `Roomr` gRPC service (`CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`,
+`AddParticipant`, `RemoveParticipant`); each call opens one `Session.Connect` control stream from
+the node to AppBridge's Service (port 50071) carrying `Start`, `Answer`, `Ready`, `Reject`,
+transfers, hold, DTMF, listeners and `Hangup`, with app audio as RTP beside it; NATS carries only
+heartbeats and events. Rooms are audio mixers on one node; Routr balances nodes with
+least-sessions from `X-Session-Count`; the node reads one `roomr.yaml` (`-config`); optional SIP
+TLS, SDES-SRTP and gRPC TLS; sipgo and livekit/media-sdk are reused as libraries.
 
 Platform in one line: AppBridge is its own TypeScript deployable; the apiserver is a stateless
-control plane; NATS carries everything internal except audio (AppBridge audio is RTP); OpenTelemetry
+control plane; NATS carries events, heartbeats and the session registry, call control is gRPC
+(AppBridge audio is RTP); OpenTelemetry
 everywhere; Compose and Helm both official; one global control plane with many cells; private
 regions ship in v1 and are customer-operated (we only sync config).
 
@@ -53,7 +59,7 @@ regions ship in v1 and are customer-operated (we only sync config).
 
 - **Session**: one call as seen by an app. It carries audio, emits events and accepts commands.
 - **AppBridge** (AppBridge): one per call. Speaks the session protocol to apps over
-  WebSocket and the MediaControl contract to the Roomr node.
+  WebSocket and serves the Roomr node's per-call control stream (`Session.Connect`).
 - **Flavors**: `native` (JSON text frames + binary audio frames) and `twilio` (Twilio Media
   Streams messages). WebSocket only; gRPC is not a session transport.
 - **Layers**: Speech (STT, TTS, play, turn events, interruption reports), Audio (raw frames,
@@ -68,7 +74,8 @@ regions ship in v1 and are customer-operated (we only sync config).
 - **Room**: lives on one Roomr node and mixes audio for its participants (each hears everyone
   but themselves). Participants have **tracks** with a `kind` (`audio` in v1) and a codec.
 - **Participant**: a SIP leg, AppBridge's session, or a listener (fork).
-- **MediaControl**: the contract between AppBridge or control plane and the Roomr node.
+- **MediaControl**: the contracts with the Roomr node: `Roomr` gRPC (control plane to node) and
+  the `Session` control stream (node to AppBridge), plus heartbeats and events on NATS.
 
 ## Retired by this rebuild
 

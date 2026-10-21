@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 contract: media-control
 role: media-control-client
 name: heartbeat
-spec: "Nodes report capacity and liveness / Heartbeat content"
+spec: "Nodes report capacity and liveness / Heartbeats while alive"
 description: "A live node heartbeats its room count, limit, version, region and a dialable control_addr."
 setup:
   roomr: { config: { maxRooms: 7, region: us-east, heartbeatInterval: 300ms } }

@@ -38,13 +38,13 @@
 - [x] 4.5 Node: publish on core NATS best effort; while NATS is down keep calls, RPCs and streams running and drop unpublishable events (no blocking, no buffering)
 - [x] 4.6 Apiserver: rely on the existing sweeps to close records and registry entries whose events were lost; no replay
 - [ ] 4.7 Test (NATS fault injection): a call survives a 60 s outage; `call.ended` during the outage is not replayed and a sweep closes the record; per-room `seq` is contiguous
-- [ ] 4.8 Rename `labels` to `metadata` everywhere (proto field, events, `Start`, spec text, TS clients, tests); the node passes it through untouched; callers dictate the app reference through `metadata` (for example `app_ref`) and AppBridge reads it for outbound calls
+- [x] 4.8 Rename `labels` to `metadata` everywhere (proto field, events, `Start`, spec text, TS clients, tests); the node passes it through untouched; callers dictate the app reference through `metadata` (for example `app_ref`) and AppBridge reads it for outbound calls
 - [ ] 4.9 Test: `metadata` from `CreateCall` is echoed in every event and in `Start`
 - [x] 4.10 Remove Roomr's session-registry KV writes (`sessionRegistry`, `nodes.*`, `rooms.*` entries); Roomr uses core NATS only
 
 ## 5. Control stream (M)
 
-- [ ] 5.1 `Session.Connect` proto: `MediaEndpoint`, `Start`, `Answer`, `Ready`, `Reject`, `Transfer`, `TransferComplete`, `Hold`, `Resume`, `SendDtmf`, `AddListener`, `RemoveListener`, `Hangup`, `Dtmf`, `Event` (no `Play`, `Stop` or `Record`: their field numbers are reserved)
+- [x] 5.1 `Session.Connect` proto: `MediaEndpoint`, `Start`, `Answer`, `Ready`, `Reject`, `Transfer`, `TransferComplete`, `Hold`, `Resume`, `SendDtmf`, `AddListener`, `RemoveListener`, `Hangup`, `Dtmf`, `Event` (no `Play`, `Stop` or `Record`: their field numbers are reserved)
 - [x] 5.2 Node client: new connection per call, `Start` first, keepalive 10 s / 2 missed, hang up with cause `app_gone` on break, `503` when unreachable and `480` on answer timeout, optional TLS/mTLS from config
 - [x] 5.3 AppBridge server: accept streams, answer on verified app connect (`Answer` with the `RtpLink` endpoint), `Ready` for outbound, map stream events to `session.end` reasons
 - [ ] 5.4 Run the stream beside the NATS offer behind a flag; measurement 1 (50 calls/s burst across 10 appbridge pods: setup time and spread) and measurement 2 (one AppBridge pod at 500 and 1,000 calls: CPU and RTP jitter)
@@ -61,10 +61,10 @@
 
 ## 6. AppBridge behind a Service (S)
 
-- [ ] 6.1 Helm: appbridge Service for the control stream; NetworkPolicy allowing node-to-appbridge RTP and the control port; Compose equivalent
+- [x] 6.1 Helm: appbridge Service for the control stream; NetworkPolicy allowing node-to-appbridge RTP and the control port; Compose equivalent
 - [x] 6.2 Retire `appbridge.incoming` and `appbridge.outbound` and the claim logic in `Call.ts`
 - [ ] 6.3 Test: 100 calls through the Service land on more than one AppBridge pod; audio flows under the shipped NetworkPolicy
-- [ ] 6.4 Helm: admit Roomr's control port only from the apiserver and its SIP port only from the SIP proxy (NetworkPolicy when Roomr runs on the pod network; a documented host firewall when `hostNetwork` is true); Compose: publish only the RTP range, not the SIP or control ports
+- [x] 6.4 Helm: admit Roomr's control port only from the apiserver and its SIP port only from the SIP proxy (NetworkPolicy when Roomr runs on the pod network; a documented host firewall when `hostNetwork` is true); Compose: publish only the RTP range, not the SIP or control ports
 - [ ] 6.5 Test: a pod other than the apiserver cannot reach Roomr's control port under the shipped policies (pod network)
 
 ## 7. Roomr over gRPC (M)
@@ -100,7 +100,7 @@
 ## 10. Ports and packaging
 
 - [x] 10.1 One RTP range for every leg: `rtp.host`, `rtp.advertise`, `rtp.portMin`/`rtp.portMax`; drop the separate public and app-leg ranges; fold `outboundTransport` into the `outboundProxy` URI; keep `rtp.host` and `control.grpc.advertise`
-- [ ] 10.2 Helm: document one node per host or non-overlapping ranges
+- [x] 10.2 Helm: document one node per host or non-overlapping ranges
 - [ ] 10.3 Test: two nodes on one host with non-overlapping ranges both carry calls; two nodes on different pod IPs share a range
 
 ## 11. Conformance
@@ -123,15 +123,15 @@
 
 ## 12. Docs and cleanup
 
-- [ ] 12.1 Update `go/roomr/README.md`, `openspec/rebuild.md` (Roomr node line) and the operator docs for the new config keys and ports (the minimal `roomr.yaml` in design.md)
-- [ ] 12.2 Remove the NATS offer path and flag once measurements pass; release note for the retired subjects
+- [x] 12.1 Update `go/roomr/README.md`, `openspec/rebuild.md` (Roomr node line) and the operator docs for the new config keys and ports (the minimal `roomr.yaml` in design.md)
+- [x] 12.2 Remove the NATS offer path and flag once measurements pass; release note for the retired subjects
 
 ## 13. Drain and rollouts
 
 - [x] 13.1 Roomr: serve `grpc.health.v1.Health` on the control port (`SERVING`); on SIGTERM set `NOT_SERVING`, send REGISTER `Expires: 0`, stop heartbeats, publish `node.down` (`type: "node.down"`) on `roomr.nodes.<node_ref>.heartbeat`; keep live rooms until they end or `drainWait` (default 1 h), then end them with `node_error` and exit; remove the `draining` heartbeat field and the `{sessions}`-as-limit rendering
 - [x] 13.2 Remove the debug HTTP server (`debugAddr`, `/ready`, `/stats`)
 - [x] 13.3 AppBridge: on SIGTERM fail readiness; keep streams and app sockets until they end or the maximum wait; no `MaxConnectionAge` on the `Session` server
-- [ ] 13.4 Helm: `terminationGracePeriodSeconds` at least the drain maximum wait, gRPC readiness probe for Roomr, readiness probe for AppBridge and a PodDisruptionBudget for each; no `MaxConnectionAge` on the `Roomr` server
+- [x] 13.4 Helm: `terminationGracePeriodSeconds` at least the drain maximum wait, gRPC readiness probe for Roomr, readiness probe for AppBridge and a PodDisruptionBudget for each; no `MaxConnectionAge` on the `Roomr` server
 - [ ] 13.5 Test: on SIGTERM the gRPC health check reports `NOT_SERVING`, REGISTER `Expires: 0` is seen, `node.down` is published, heartbeats stop and rooms keep running; exit after the last room; short `drainWait` ends rooms with `node_error`; appbridge maximum wait; rendered chart drain settings
 - [ ] 13.6 Test: rolling out AppBridge and Roomr with live calls drops none and new calls land on the new pods
 
@@ -139,10 +139,10 @@
 
 - [x] 14.1 Remove the room token (JWT auth, token header strip and its `403` paths) from Roomr config and code
 - [x] 14.2 Remove edge mTLS (`clientCa` on the SIP edge) and `requireEncryption`; keep optional SIP TLS (`tls.listen`/`cert`/`key`, TLS to the outbound proxy), optional SDES-SRTP and optional gRPC TLS, all off by default
-- [ ] 14.3 Remove `netguard` and `allowedDestinations` from Roomr; validate tenant hold-music URLs (`Hold`, warm-transfer `music`) upstream in the apiserver/AppBridge with the existing apiserver `allowedDestinations` check
-- [ ] 14.4 Config file only: remove the duplicate flags (about 37), keep `-config <path>`; move Helm's args into the file; `${VAR}` and `secret://` keep working
+- [x] 14.3 Remove `netguard` and `allowedDestinations` from Roomr; validate tenant hold-music URLs (`Hold`, warm-transfer `music`) upstream in the apiserver/AppBridge with the existing apiserver `allowedDestinations` check
+- [x] 14.4 Config file only: remove the duplicate flags (about 37), keep `-config <path>`; move Helm's args into the file; `${VAR}` and `secret://` keep working
 - [ ] 14.5 Test (service-config): the node starts with `-config` alone and reads every other setting from the file
-- [ ] 14.6 Remove `trustedSources`, `allowAnySource` and the Helm render-fail check
+- [x] 14.6 Remove `trustedSources`, `allowAnySource` and the Helm render-fail check
 - [x] 14.7 Remove the OTLP logs bridge (logs go to stderr); keep OTLP metrics and traces
 
 ## 15. Health and membership

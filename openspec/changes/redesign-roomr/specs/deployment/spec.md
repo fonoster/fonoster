@@ -2,12 +2,11 @@
 
 ### Requirement: Media paths are open between the node and AppBridge
 
-The Helm chart SHALL expose AppBridge's control-stream port as a Service that the Roomr node is
-configured with as its session endpoint, and SHALL ship a NetworkPolicy that allows UDP between the
-Roomr node's and AppBridge's RTP port ranges and TCP from the node to AppBridge's control port.
-Both targets SHALL document the node's external RTP range and the one-node-per-host or
-non-overlapping-ranges rule for host networking. Compose SHALL reach the same result with its
-service names and SHALL publish only the node's RTP range.
+The Helm chart SHALL expose AppBridge's control-stream port as a Service that the Roomr node uses
+as its session endpoint, and SHALL ship a NetworkPolicy that allows the node's RTP to AppBridge and
+TCP from the node to AppBridge's control port. Both targets SHALL document the node's RTP range
+and the one-node-per-host or non-overlapping-ranges rule for host networking. Compose SHALL reach
+the same result with its service names.
 
 #### Scenario: Rendered chart
 - **WHEN** the chart is rendered with its default values
@@ -30,7 +29,7 @@ and by a documented host firewall when `hostNetwork` is true; Compose SHALL NOT 
 control port or the SIP port on the host.
 
 #### Scenario: Control port closed to other pods
-- **WHEN** the chart is installed and a pod other than the apiserver connects to Roomr's control port
+- **WHEN** the chart is installed with Roomr on the pod network and a pod other than the apiserver connects to Roomr's control port
 - **THEN** the connection is refused or times out
 
 ### Requirement: Rolling deploys drop no calls
@@ -46,5 +45,5 @@ maximum connection age.
 - **THEN** all 20 calls continue until their parties hang up and new calls land on the new pods
 
 #### Scenario: Rendered drain settings
-- **WHEN** the chart is rendered with `drain.maxWait: 3600`
+- **WHEN** the chart is rendered with `roomr.drainGraceSeconds: 3600` and `appbridge.drainGraceSeconds: 3600`
 - **THEN** AppBridge and Roomr pods have `terminationGracePeriodSeconds` of at least 3600 and each has a PodDisruptionBudget

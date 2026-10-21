@@ -22,8 +22,9 @@ The test is `mods/appbridge/test/routr.live.test.ts`. It is skipped unless `ROUT
 
 ## Run it
 
-You need Docker, Go 1.25, and a NATS server for media-control. Use your own NATS, not a shared one:
-another AppBridge on the same NATS would claim the call.
+You need Docker, Go 1.25, and a NATS server for the node's heartbeats and events. Use your own
+NATS, not a shared one: another run's nodes on the same NATS would mix their heartbeats and events
+with this run's.
 
 ```sh
 mods/appbridge/test/routr/rig.sh up        # Postgres + Routr 2.15.4; about a minute the first time

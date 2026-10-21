@@ -322,7 +322,7 @@ func TestRoomrMutualTLS(t *testing.T) {
 	}
 }
 
-// TestRoomrAtCapacity: the room limit covers every room (roomr "Node at its limit"): CreateRoom
+// TestRoomrAtCapacity: the room limit covers every room (roomr "Node full"): CreateRoom
 // and CreateCall into a new room fail with RESOURCE_EXHAUSTED and no INVITE is sent, an INVITE
 // gets 503, and a room that ends frees a place.
 func TestRoomrAtCapacity(t *testing.T) {

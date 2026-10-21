@@ -115,7 +115,22 @@ The node refuses nothing while a rollout drains it; it stops being chosen. It se
 5. exits. A second signal stops waiting.
 
 Only `maxRooms` refuses calls (INVITE `503`, `CreateCall` `RESOURCE_EXHAUSTED`); CPU and memory
-never do. Set `terminationGracePeriodSeconds` above `drainWait` and a PodDisruptionBudget.
+never do. Set `terminationGracePeriodSeconds` above `drainWait` and a PodDisruptionBudget. The
+`Roomr` server sets no `MaxConnectionAge`, so a controller's connection is never cut mid-call.
+
+## Ports and network isolation
+
+| Port | | Reachable from |
+| --- | --- | --- |
+| `sip.listen` (5060 UDP/TCP; `tls.listen` 5061) | SIP | the SIP proxy only |
+| `control.grpc.listen` (50061 TCP) | `Roomr` and `grpc.health.v1.Health` | the controller only (and the kubelet's probe) |
+| `rtp.portMin`-`rtp.portMax` (UDP) | every RTP leg, SIP and app | media sources; the only range to publish |
+
+The node authenticates neither RPCs nor SIP sources, so the network does: the Helm chart
+(`ops/rebuild/helm/fonoster-rebuild`) renders a NetworkPolicy when the node runs on the pod network
+and documents a host firewall for `hostNetwork` (docs/operators/rebuild.md, "Network
+isolation"); Compose publishes only the RTP range. Nothing coordinates RTP ports between nodes:
+run one node per host, or give nodes that share a host non-overlapping ranges.
 
 ## Registrations
 

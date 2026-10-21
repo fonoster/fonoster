@@ -9,6 +9,7 @@ import (
 	sessionv1 "github.com/fonoster/fonoster/go/roomr/api/session/v1"
 	"github.com/fonoster/fonoster/go/roomr/internal/audio"
 	"github.com/fonoster/fonoster/go/roomr/internal/rtpio"
+	"github.com/fonoster/fonoster/go/roomr/internal/telemetry"
 )
 
 // Call states.
@@ -454,6 +455,10 @@ func headerValue(headers map[string]string, name string) (string, bool) {
 // the call's control stream and sends Start. 200 OK follows the app's Answer; Reject gives its
 // status, an unreachable endpoint 503 and no answer in time 480.
 func (n *Node) Incoming(in IncomingCall) {
+	// fonoster.roomr.calls.incoming by outcome: answered by the app, unanswered (rejected,
+	// unreachable endpoint, no answer in time, caller gone) or refused before the app was asked.
+	outcome, callRef := "refused", ""
+	defer func() { telemetry.CallIncoming(context.Background(), callRef, outcome) }()
 	leg := in.Leg
 	pt, codecName, ok := in.Media.ChoosePreferred(n.cfg.Codecs...)
 	if !ok {
@@ -495,6 +500,7 @@ func (n *Node) Incoming(in IncomingCall) {
 		ref = n.inboundRefLocked(in.Headers, ref)
 	}
 	c := n.newCall(ref, true)
+	callRef = ref
 	c.from, c.to, c.headers, c.endpoint = in.From, in.To, in.Headers, n.cfg.SessionEndpoint
 	c.room, c.roomRef, c.leg = room, room.Ref, p
 	p.call = c
@@ -526,12 +532,14 @@ func (n *Node) Incoming(in IncomingCall) {
 	_ = leg.Ring()
 	c.event("call.ringing", Event{"participant_ref": p.Ref})
 	go c.watchLeg(leg.Gone(), ReasonCallerHangup)
+	outcome = "unanswered"
 	if err := c.openStream(); err != nil {
 		n.cfg.Logger.Warn("session endpoint", "callRef", c.ref, "endpoint", c.endpoint, "err", err)
 		c.end(ReasonAppGone, 503)
 		return
 	}
 	if c.awaitAnswer() {
+		outcome = "answered"
 		c.serve()
 	}
 }

@@ -110,7 +110,7 @@ var meters *Meters
 // SetMeters makes the counters reachable from the node package.
 func SetMeters(m *Meters) { meters = m }
 
-// CallIncoming counts an incoming call; outcome is claimed, unclaimed or refused.
+// CallIncoming counts an incoming call; outcome is answered, unanswered or refused.
 func CallIncoming(ctx context.Context, callRef, outcome string) {
 	if meters == nil || meters.incoming == nil {
 		return

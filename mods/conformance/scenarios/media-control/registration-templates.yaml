@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 contract: media-control
 role: media-control-client
 name: registration-templates
-spec: "Registration is optional and configured / Count sent in a templated header"
+spec: "Registration is optional and configured / Count sent on registration"
 description: "The fake registrar challenges with digest and the node answers with its auth; X-Session-Count renders the room count, and a change past reregisterDelta re-registers at once."
 setup:
   roomr:

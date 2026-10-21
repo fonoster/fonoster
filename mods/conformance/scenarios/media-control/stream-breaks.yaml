@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 contract: media-control
 role: media-control-client
 name: stream-breaks
-spec: "Each call opens one control stream to the session endpoint / Stream breaks mid-call"
+spec: "A broken control stream ends the call / Stream breaks mid-call"
 description: "The app instance dies: the node sends BYE to the caller with app_gone and never opens another stream for the call."
 steps:
   - caller: { call: { to: "+15550001", appRef: app-1 } }

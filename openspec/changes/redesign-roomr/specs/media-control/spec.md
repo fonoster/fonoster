@@ -1,13 +1,7 @@
 ## RENAMED Requirements
 
-- FROM: `### Requirement: Commands go down, audio and call events come up`
-- TO: `### Requirement: Roomr is a gRPC service with three nouns`
-
 - FROM: `### Requirement: The session participant carries AppBridge's audio`
 - TO: `### Requirement: The app leg carries the app's audio`
-
-- FROM: `### Requirement: AppBridge audio is RTP negotiated in participant.add`
-- TO: `### Requirement: App audio is RTP negotiated on the control stream`
 
 - FROM: `### Requirement: Outbound calls are placed on a node chosen by the control plane`
 - TO: `### Requirement: CreateCall dials out on the node the controller chose`
@@ -16,6 +10,28 @@
 - TO: `### Requirement: Nodes report capacity and liveness`
 
 ## REMOVED Requirements
+
+### Requirement: Commands go down, audio and call events come up
+
+**Reason**: The NATS command contract (`ring`, `answer`, `room.create`, `participant.*`,
+`hold`, `dtmf.send`, `listener.*`, `room.end`, `hangup` with echoed command ids and
+`unknown_command` replies) is gone. Controllers use the `Roomr` gRPC service, apps use their
+call's control stream, and NATS carries only heartbeats and events. Replaced by "Roomr is a gRPC
+service with three nouns" and "Each call opens one control stream to the session endpoint".
+**Migration**: Map `room.create`/`room.end` to `CreateRoom`/`EndRoom`, `participant.dial` to
+`CreateCall`, `participant.add`/`participant.remove` to `AddParticipant`/`RemoveParticipant` (RTP)
+or `Answer`/`Ready` (the app leg), `hangup` to `EndCall` or `Hangup`, and `ring`, `answer`,
+`hold`, `resume`, `transfer`, `dtmf.send` and `listener.*` to the control stream's messages. gRPC
+status codes replace `error` replies.
+
+### Requirement: AppBridge audio is RTP negotiated in participant.add
+
+**Reason**: Endpoints are exchanged on the control stream (`Start`, `Answer`, `Ready`) instead of
+in `participant.add`, and the node no longer refuses plain app legs (`requireEncryption` is
+removed: SRTP is used when both endpoints carry a key). Replaced by "App audio is RTP negotiated
+on the control stream".
+**Migration**: Send the app's `MediaEndpoint` in `Answer` or `Ready`; set `srtp_key` on both sides
+for SRTP.
 
 ### Requirement: media-control runs over NATS request and reply
 
@@ -47,29 +63,6 @@ events are keyed by call with sequence numbers, so no replica needs to own a cal
 
 ## MODIFIED Requirements
 
-### Requirement: Roomr is a gRPC service with three nouns
-
-`Roomr` SHALL be a gRPC service (`roomr.v1.Roomr`) served at the node's advertised
-control address, with three nouns, `Room`, `Call` and `Participant`, and exactly these six RPCs:
-`CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `AddParticipant` and `RemoveParticipant`. A `Call`
-SHALL be a SIP leg with a lifecycle (`RINGING`, `ANSWERED`, `ENDED`) that always belongs to a room;
-a `Participant` SHALL be anything in a room. Errors SHALL be gRPC status codes with a machine-readable
-reason. Roomr is the SIP and media edge, not an app server: it SHALL NOT offer RPCs that play
-audio, record or send DTMF. An app plays its own audio on its RTP leg, records by adding a
-listener, and sends DTMF on its call's control stream.
-
-#### Scenario: CreateCall returns a Call in its room
-- **WHEN** a controller calls `CreateCall` with `call_ref: "c1"` and no `room_ref`
-- **THEN** the response is a `Call` with `call_ref: "c1"`, a new `room_ref` and `state: RINGING`
-
-#### Scenario: Unknown call
-- **WHEN** a controller calls `EndCall` for a `call_ref` the node does not know
-- **THEN** the call fails with `NOT_FOUND`
-
-#### Scenario: No app-server RPCs
-- **WHEN** a controller lists the methods of `roomr.v1.Roomr`
-- **THEN** it finds `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `AddParticipant` and `RemoveParticipant` and no `Play`, `Record`, `Stop` or `SendDtmf`
-
 ### Requirement: The app leg carries the app's audio
 
 The app SHALL be a participant of the call's room through an RTP leg whose endpoints are exchanged
@@ -77,34 +70,13 @@ on the control stream. The node SHALL send that leg the room's mix-minus for the
 play the audio it receives from the app into the room in real time. Output queueing, `clear` and
 `mark` SHALL remain in the app.
 
-#### Scenario: App audio reaches the caller
+#### Scenario: Agent audio reaches the caller
 - **WHEN** the app sends 1 s of audio frames to the node's endpoint
 - **THEN** the caller hears that second of audio within one frame of real-time pacing
 
-#### Scenario: The app hears the caller
+#### Scenario: AppBridge hears the caller
 - **WHEN** the caller speaks
 - **THEN** the app's endpoint receives the caller's audio as its mix
-
-### Requirement: App audio is RTP negotiated on the control stream
-
-The app's leg SHALL exchange audio with the node as RTP over UDP. A `MediaEndpoint` SHALL have
-`ip`, `port`, `codec` (`L16/16000`) and an optional `srtp_key`. `Start` SHALL carry the node's
-`MediaEndpoint` for the call; the app SHALL return its own in `Answer` (inbound) or `Ready`
-(outbound). Audio MUST NOT travel over the gRPC
-stream, NATS or WebSocket, and apps' clients MUST NOT connect to the node directly.
-
-#### Scenario: Endpoints exchanged on the stream
-- **WHEN** the node sends `Start` with `media: { ip: "10.0.1.7", port: 30010, codec: "L16/16000" }` and the app answers with `media: { ip: "10.0.0.5", port: 40010, codec: "L16/16000" }`
-- **THEN** within 100 ms of the `Answer`, RTP carrying the room's mix arrives at 10.0.0.5:40010
-- **AND** RTP the app sends to 10.0.1.7:30010 is heard by the caller
-
-#### Scenario: Audio never on the stream
-- **WHEN** a call runs for one minute
-- **THEN** no message on the control stream carries audio samples and the stream's byte count stays below 64 KiB
-
-#### Scenario: Encrypted app leg
-- **WHEN** both endpoints carry `srtp_key`
-- **THEN** audio flows as SRTP and plain RTP from either side is dropped
 
 ### Requirement: CreateCall dials out on the node the controller chose
 
@@ -131,6 +103,15 @@ under the configured call-ref header (roomr "One call ref end to end"). The node
 a `407` or `401` digest challenge on the INVITE with `to.auth` and SHALL NOT log `to.auth` or echo
 it in any response, event or `Start`. `EndCall` on a `RINGING` call SHALL send `CANCEL` and end the
 call with `cause: "removed"`.
+
+#### Scenario: Least-loaded node chosen
+- **WHEN** heartbeats show node A with 30 rooms of 200, node B with 8 of 200 and node C whose heartbeats stopped, and an outbound call is requested
+- **THEN** the controller sends `CreateCall` to node B and no other node gets an INVITE request
+
+#### Scenario: Session opens at answer
+- **WHEN** the dialed party answers
+- **THEN** the node opens the call's control stream and sends `Start` only after the `200 OK`
+- **AND** the app's session opens only after that `Start`
 
 #### Scenario: Dial into a new room
 - **WHEN** a controller calls `CreateCall` `{ call_ref: "d1", to: { uri: "sip:+15551234567@carrier", proxy: "sip:proxy:5060" }, from: "+15550001" }` and the callee answers
@@ -226,6 +207,10 @@ The node SHALL send `180 Ringing` on an inbound caller's leg, without early medi
 accepts the INVITE and before it opens the control stream. `Answer` on the stream SHALL produce
 `200 OK`; `Reject` SHALL produce the given SIP status. No separate ring command SHALL exist.
 
+#### Scenario: Caller hears ringing while the app is unreachable
+- **WHEN** an INVITE arrives and the app's URL refuses connections for 2 seconds
+- **THEN** the caller receives `180 Ringing` within 200 ms of the INVITE and `200 OK` only when AppBridge sends `Answer` (its fallback started)
+
 #### Scenario: Caller hears ringing while the app is slow
 - **WHEN** an INVITE arrives and the app takes 2 seconds to send `Answer`
 - **THEN** the caller receives `180 Ringing` within 200 ms of the INVITE and `200 OK` only after the `Answer`
@@ -269,9 +254,14 @@ bounded wait" says. A controller SHALL treat a node whose last heartbeat is olde
 or that said `node.down`, as down and SHALL not place calls on it. The node SHALL write nothing to
 the session registry: it uses core NATS only, for heartbeats and events.
 
-#### Scenario: Heartbeat content
+#### Scenario: Heartbeats while alive
 - **WHEN** a node with 12 rooms, a limit of 200 and version `1.4.0` in region `us-east` is running
 - **THEN** at least every 2 seconds it publishes a heartbeat with `rooms: 12`, `max_rooms: 200`, `version: "1.4.0"`, `region: "us-east"` and a `control_addr` a controller can dial
+
+#### Scenario: Heartbeats report the room limit
+- **WHEN** a node with `maxRooms: 1` holds one room and is sent another `CreateCall`
+- **THEN** the call fails with `RESOURCE_EXHAUSTED` and no INVITE is sent
+- **AND** its heartbeat carries `rooms: 1` and `max_rooms: 1`
 
 #### Scenario: Node killed
 - **WHEN** a node is killed
@@ -316,22 +306,67 @@ with the new party, and remove the app's leg with `cause: "removed"`.
 
 ## ADDED Requirements
 
+### Requirement: Roomr is a gRPC service with three nouns
+
+`Roomr` SHALL be a gRPC service (`roomr.v1.Roomr`) at the node's advertised control address, with
+three nouns, `Room`, `Call` (a SIP leg with a lifecycle, `RINGING`, `ANSWERED`, `ENDED`, always in
+a room) and `Participant` (anything in a room), and exactly six RPCs: `CreateCall`, `EndCall`,
+`CreateRoom`, `EndRoom`, `AddParticipant` and `RemoveParticipant`. Errors SHALL be gRPC status
+codes with a machine-readable reason. It SHALL NOT offer RPCs that play audio, record or send DTMF.
+
+#### Scenario: CreateCall returns a Call in its room
+- **WHEN** a controller calls `CreateCall` with `call_ref: "c1"` and no `room_ref`
+- **THEN** the response is a `Call` with `call_ref: "c1"`, a new `room_ref` and `state: RINGING`
+
+#### Scenario: Unknown call
+- **WHEN** a controller calls `EndCall` for a `call_ref` the node does not know
+- **THEN** the call fails with `NOT_FOUND`
+
+#### Scenario: No app-server RPCs
+- **WHEN** a controller lists the methods of `roomr.v1.Roomr`
+- **THEN** it finds `CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`, `AddParticipant` and `RemoveParticipant` and no `Play`, `Record`, `Stop` or `SendDtmf`
+
+#### Scenario: Unknown field ignored
+- **WHEN** a newer controller sends `CreateCall` with a field the node's `roomr.v1` does not define
+- **THEN** the node places the call as usual and ignores the field
+
+#### Scenario: An app records with a listener
+- **WHEN** an app wants a recording of its call
+- **THEN** it sends `AddListener` on its control stream and writes the listener's RTP itself; the node writes no audio
+
+### Requirement: App audio is RTP negotiated on the control stream
+
+The app's leg SHALL exchange audio with the node as RTP over UDP. A `MediaEndpoint` SHALL have
+`ip`, `port`, `codec` (`L16/16000`) and an optional `srtp_key`. `Start` SHALL carry the node's
+`MediaEndpoint` for the call; the app SHALL return its own in `Answer` (inbound) or `Ready`
+(outbound). Audio MUST NOT travel over the gRPC
+stream, NATS or WebSocket, and apps' clients MUST NOT connect to the node directly.
+
+#### Scenario: Endpoints exchanged on the stream
+- **WHEN** the node sends `Start` with `media: { ip: "10.0.1.7", port: 30010, codec: "L16/16000" }` and the app answers with `media: { ip: "10.0.0.5", port: 40010, codec: "L16/16000" }`
+- **THEN** within 100 ms of the `Answer`, RTP carrying the room's mix arrives at 10.0.0.5:40010
+- **AND** RTP the app sends to 10.0.1.7:30010 is heard by the caller
+
+#### Scenario: Audio never on the stream
+- **WHEN** a call runs for one minute
+- **THEN** no message on the control stream carries audio samples and the stream's byte count stays below 64 KiB
+
+#### Scenario: Encrypted app leg
+- **WHEN** both endpoints carry `srtp_key`
+- **THEN** audio flows as SRTP and plain RTP from either side is dropped
+
+#### Scenario: Apps never reach the node
+- **WHEN** an app's session is running
+- **THEN** the app's only connection is its session with AppBridge, and the node sees only AppBridge's control stream and RTP
+
+
 ### Requirement: Each call opens one control stream to the session endpoint
 
 For every call the node SHALL open a new connection to the session endpoint (`CreateCall.session`,
-else the configured endpoint) and SHALL start one bidirectional gRPC stream (`Session.Connect`)
-whose first message is `Start`. The stream SHALL carry only control: `Start`, `Dtmf` and `Event`
-from the node; `Answer`, `Ready`, `Reject`, `Transfer`, `TransferComplete`, `Hold`, `Resume`,
-`SendDtmf`, `AddListener`, `RemoveListener` and `Hangup` from the app. The node SHALL send gRPC keepalive pings every 10 seconds and SHALL treat the stream as dead
-after 2 missed pings, then hang the call up with `cause: "app_gone"`; it MUST NOT reconnect the
-call to another app instance. AppBridge SHALL also send keepalive pings on its side and SHALL end
-the session when the node misses 2 of them. The connection SHALL use TLS or mTLS when configured.
-
-For an outbound call that is answered, the node SHALL send BYE and end the call with
-`cause: "app_gone"` when the session endpoint cannot be reached or `Ready` does not arrive within
-the configured ready timeout (`readyTimeout`, default 10 s). When an inbound caller sends `CANCEL` before the app's
-`Answer`, the node SHALL answer `487`, send `Ended` with `cause: "caller_hangup"` and close the
-stream.
+else the configured one, over TLS or mTLS when configured) and start one bidirectional gRPC stream
+(`Session.Connect`) whose first message is `Start`. The stream SHALL carry only control: `Start`,
+`Dtmf` and `Event` from the node; `Answer`, `Ready`, `Reject`, `Transfer`, `TransferComplete`,
+`Hold`, `Resume`, `SendDtmf`, `AddListener`, `RemoveListener` and `Hangup` from the app.
 
 #### Scenario: One connection per call
 - **WHEN** 100 inbound calls arrive while the session endpoint fronts 4 app instances
@@ -344,6 +379,18 @@ stream.
 #### Scenario: Commands are ordered
 - **WHEN** the app sends `Hold` then `Resume` on the stream
 - **THEN** the node holds the caller and then resumes it, never the reverse, and the caller ends up off hold
+
+#### Scenario: Caller cancels before Answer
+- **WHEN** an inbound caller sends `CANCEL` while the app has not sent `Answer`
+- **THEN** the caller receives `487`, the app receives `Ended` with `cause: "caller_hangup"` and the stream closes
+
+### Requirement: A broken control stream ends the call
+
+Both ends SHALL send keepalive pings every 10 seconds and treat the stream as dead after 2 missed
+pings: the node then hangs the call up with `cause: "app_gone"` and MUST NOT reconnect it to
+another app instance; AppBridge ends the session. On an answered outbound call the node SHALL send
+BYE with `cause: "app_gone"` when the session endpoint cannot be reached or `Ready` does not
+arrive within `readyTimeout` (default 10 s).
 
 #### Scenario: Stream breaks mid-call
 - **WHEN** the app instance holding a stream is killed
@@ -361,20 +408,14 @@ stream.
 - **WHEN** the callee answers an outbound call and the session endpoint refuses connections
 - **THEN** the node sends BYE to the callee and publishes `call.ended` with `cause: "app_gone"`
 
-#### Scenario: Caller cancels before Answer
-- **WHEN** an inbound caller sends `CANCEL` while the app has not sent `Answer`
-- **THEN** the caller receives `487`, the app receives `Ended` with `cause: "caller_hangup"` and the stream closes
-
 ### Requirement: Rooms and participants are managed with CreateRoom, EndRoom, AddParticipant and RemoveParticipant
 
-`CreateRoom` SHALL create an empty room (with the given `room_ref`, or a new one) for rooms that
-do not start from a call; `ALREADY_EXISTS` when the ref is taken. `EndRoom` SHALL end every call
-and participant in the room and publish `room.ended`. `CreateRoom` MAY set the room's
-`empty_room_timeout_s` and `max_participants`, which override the node's defaults for that room.
-`AddParticipant` SHALL add an RTP participant (`rtp`: address, port, codec). `RemoveParticipant`
-SHALL remove a participant with `cause: "removed"`. An
-unknown room SHALL give `NOT_FOUND`; a full room SHALL give `RESOURCE_EXHAUSTED` with reason
-`room_full`.
+`CreateRoom` SHALL create an empty room (with the given `room_ref`, or a new one;
+`ALREADY_EXISTS` when taken) and MAY set its `empty_room_timeout_s` and `max_participants`,
+overriding the node's defaults. `EndRoom` SHALL end every call and participant in the room and
+publish `room.ended`. `AddParticipant` SHALL add an RTP participant; `RemoveParticipant` SHALL
+remove one with `cause: "removed"`. An unknown room SHALL give `NOT_FOUND`; a full room
+`RESOURCE_EXHAUSTED` (`room_full`).
 
 #### Scenario: Room without a call
 - **WHEN** a controller calls `CreateRoom` `{ room_ref: "lobby" }` and then `AddParticipant` with an RTP endpoint
@@ -387,6 +428,14 @@ unknown room SHALL give `NOT_FOUND`; a full room SHALL give `RESOURCE_EXHAUSTED`
 #### Scenario: Unknown room
 - **WHEN** `AddParticipant` names a room the node does not have
 - **THEN** it fails with `NOT_FOUND` and nothing changes
+
+#### Scenario: Taken room ref
+- **WHEN** `CreateRoom` names a `room_ref` the node already has
+- **THEN** it fails with `ALREADY_EXISTS` and the existing room is unchanged
+
+#### Scenario: Participant removed
+- **WHEN** a controller calls `RemoveParticipant` on an RTP participant
+- **THEN** it leaves the room and `participant.left` carries `cause: "removed"`
 
 ### Requirement: The app sends DTMF on the caller's leg
 
@@ -401,12 +450,11 @@ the node for, because only the node holds the caller's leg; there is no `SendDtm
 ### Requirement: Events on NATS are keyed by call with sequence numbers and metadata
 
 The node SHALL publish call events (`call.started`, `call.ringing`, `call.answered`, `call.ended`,
-`participant.joined`, `participant.left`) on `roomr.events.<call_ref>` and
-room-scoped events (`room.ended`, and participant events for participants that are not calls) on
-`roomr.events.room.<room_ref>`, and `registration.state` on `roomr.nodes.<node_ref>.events`.
-Every event SHALL carry `node_ref`, a `seq` that increases by one per event of the same call (for
-call events) or of the same room (for room-scoped events), the call's `metadata`, passed through
-untouched, and a timestamp.
+`participant.joined`, `participant.left`) on `roomr.events.<call_ref>`, room-scoped events
+(`room.ended`, and participant events of non-call participants) on `roomr.events.room.<room_ref>`,
+and `registration.state` on `roomr.nodes.<node_ref>.events`. Every event SHALL carry `node_ref`,
+a per-call or per-room `seq` that increases by one, the call's `metadata` untouched, and a
+timestamp.
 
 #### Scenario: Another replica follows the call
 - **WHEN** controller replica A places call `c1` with `metadata: { tenant: "t1" }` and replica B subscribes to `roomr.events.c1`
