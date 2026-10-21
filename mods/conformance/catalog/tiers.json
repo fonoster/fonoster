@@ -78,5 +78,60 @@
     "tier": "pr",
     "pri": "P0",
     "trials": null
+  },
+  "DSH-017": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-018": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-019": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-020": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-021": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-022": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-023": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-024": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-025": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-026": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-027": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
   }
 }

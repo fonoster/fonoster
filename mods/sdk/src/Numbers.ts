@@ -159,21 +159,8 @@ class Numbers {
       request: { ref }
     });
 
-    const trunk = (
-      response?.trunk as unknown as {
-        toObject: () => {
-          ref: string;
-          name: string;
-        };
-      }
-    )?.toObject();
-
-    return response
-      ? {
-          ...response,
-          trunk
-        }
-      : null;
+    // The trunk comes back as a plain object (objectToJson).
+    return response ?? null;
   }
 
   /**

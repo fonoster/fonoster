@@ -89,7 +89,12 @@ export async function withPrivateRegion(
   page: Page,
   api: GrpcWebMock,
   variant: Variant,
-  region: { ref: string; id: string; displayName: string; monthlyFeeCents: number | null }
+  region: {
+    ref: string;
+    id: string;
+    displayName: string;
+    monthlyFeeCents: number | null;
+  }
 ) {
   api.on("Capabilities/GetCapabilities", () => {
     const response = capabilitiesFor(variant);
@@ -118,7 +123,8 @@ export async function withPrivateRegion(
   // Cross-origin from the dashboard, with an Authorization header: answer the preflight too.
   const cors = {
     "access-control-allow-origin": "*",
-    "access-control-allow-headers": "authorization, content-type, x-requested-with",
+    "access-control-allow-headers":
+      "authorization, content-type, x-requested-with",
     "access-control-allow-methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS"
   };
   await page.route(/\/api\/regions(\/[^/?]+)?(\?.*)?$/, (route) => {
@@ -164,6 +170,10 @@ export function capabilitiesFor(variant: Variant) {
   response.setBilling(billing);
   response.setCosts(costs);
   response.setDomain(variant === "cloud" ? "fonoster.com" : "fonoster.local");
+  // The API's default: SIP names are one label under pstn.<domain> and sip.<domain>.
+  const sip = new capabilities.SipCapabilities();
+  sip.setNames("domain");
+  response.setSip(sip);
   response.setAppUrl("http://localhost:4174");
   return response;
 }

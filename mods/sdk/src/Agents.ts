@@ -164,33 +164,8 @@ class Agents {
       enumMapping: [["privacy", PrivacyPB]]
     });
 
-    const credentials = (
-      response?.credentials as unknown as {
-        toObject: () => {
-          ref: string;
-          name: string;
-          username: string;
-        };
-      }
-    )?.toObject();
-
-    const domain = (
-      response?.domain as unknown as {
-        toObject: () => {
-          ref: string;
-          name: string;
-          domainUri: string;
-        };
-      }
-    )?.toObject();
-
-    return response
-      ? {
-          ...response,
-          credentials,
-          domain
-        }
-      : null;
+    // The domain and credentials come back as plain objects (objectToJson).
+    return response ?? null;
   }
 
   /**
@@ -273,38 +248,11 @@ class Agents {
       repeatableObjectMapping: [["itemsList", AgentPB]]
     });
 
-    // Manually extract nested objects for each agent
-    const processedItems = response.items?.map((agent: any) => {
-      const credentials = (
-        agent?.credentials as unknown as {
-          toObject: () => {
-            ref: string;
-            name: string;
-            username: string;
-          };
-        }
-      )?.toObject();
-
-      const domain = (
-        agent?.domain as unknown as {
-          toObject: () => {
-            ref: string;
-            name: string;
-            domainUri: string;
-          };
-        }
-      )?.toObject();
-
-      return {
-        ...agent,
-        credentials,
-        domain
-      };
-    });
-
+    // Each agent's domain and credentials come back as plain objects
+    // (objectToJson); calling toObject() on them threw "toObject is not a function".
     return {
       ...response,
-      items: processedItems || []
+      items: response.items ?? []
     };
   }
 

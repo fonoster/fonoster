@@ -230,3 +230,123 @@ The first case of the real project: Chromium with a fake microphone against the 
 Every edition offers email and password. On Cloud it sits next to GitHub and the code link.
 
 **Pass.** Cloud sign-in shows Continue with GitHub, the email and password form and the code link; a wrong password shows the documented message; the right one lands on the workspaces list. **Fail.** A method missing, a wrong message, or a landing anywhere but the list.
+
+### DSH-017 Add a number, reroute it to a SIP agent and remove it
+
+- **Spec:** dashboard / Numbers route calls to an agent, an app or a SIP agent / Add a number routed to an agent
+- **Spec:** dashboard / Numbers route calls to an agent, an app or a SIP agent / Reroute a number to a SIP agent
+- **Spec:** dashboard / Numbers route calls to an agent, an app or a SIP agent / A number that isn't E.164
+- **Spec:** dashboard / Numbers route calls to an agent, an app or a SIP agent / The number can't be changed
+- **Spec:** dashboard / Resource screens share one shape / Empty state
+- **Spec:** dashboard / Resource screens share one shape / Delete needs DELETE
+- **Priority:** P0
+- **Proof:** Make the number drawer send a SIP agent route as `appRef` (`number-drawer.tsx`); the test must go red on the saved `agentAor`.
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`). Writing this case found that the SDK's `listAgents`, `getAgent` and `getNumber` called `toObject()` on objects its decoder had already made plain, so any SIP agent with a domain broke the SIP agents screen and the route picker; fixed in `@fonoster/sdk`, with unit tests.
+
+**Pass.** A non-E.164 number is refused with nothing sent; `+1 (809) 555-0100` routed to the Receptionist agent is sent as `tel:+18095550100` with the trunk and the agent's `appRef`; the saved number and location are locked; rerouting sends `sip:maria@acme.sip.fonoster.local` and no `appRef`; Remove needs `DELETE` and empties the list. **Fail.** A wrong request, an editable number, or a delete without `DELETE`.
+
+### DSH-018 Create a trunk, refuse a taken inbound URI, and say what deleting it stops
+
+- **Spec:** dashboard / Trunks connect a carrier / Create a trunk
+- **Spec:** dashboard / Trunks connect a carrier / Taken inbound URI
+- **Spec:** dashboard / Trunks connect a carrier / Deleting a trunk with numbers
+- **Priority:** P1
+- **Proof:** Never map `ALREADY_EXISTS` to the inbound URI field (`trunk-page.tsx`); the test must go red on the taken message.
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+**Pass.** The inbound URI follows the name as `acme-carrier.pstn.fonoster.local`; `CreateTrunk` carries it, the ACL and one UDP outbound URI on 5060; a taken URI says "That inbound URI is taken. Pick another." and leaves the other trunk untouched; with two numbers on it, the delete confirmation names both and deleting returns to the list. **Fail.** A wrong inbound URI or request, a taken URI saved or shown elsewhere, or a confirmation that hides the numbers.
+
+### DSH-019 Create a domain with an egress rule and lock its URI
+
+- **Spec:** dashboard / Domains are where SIP agents register / Create a domain with an egress rule
+- **Spec:** dashboard / Domains are where SIP agents register / A bad egress pattern
+- **Spec:** dashboard / Domains are where SIP agents register / The domain URI can't be changed
+- **Priority:** P1
+- **Proof:** Drop the pattern checks from `domainSchema` (`domain-drawer.tsx`); the test must go red on the refused pattern.
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+**Pass.** A pattern with `:` is refused and nothing is sent; `CreateDomain` carries `acme.sip.fonoster.local` and the rule `^\+1` with the number's ref; the saved domain's URI is disabled and says to add a new domain instead; delete needs `DELETE`. **Fail.** A bad pattern sent, a wrong request, or an editable URI.
+
+### DSH-020 Create a SIP agent and disable it from the list
+
+- **Spec:** dashboard / SIP agents register phones to a domain / Create a SIP agent
+- **Spec:** dashboard / SIP agents register phones to a domain / Disable from the list
+- **Spec:** dashboard / SIP agents register phones to a domain / Invalid SIP agent
+- **Priority:** P1
+- **Proof:** Make the row's Enabled switch always send `enabled: true` (`sip-agents/index.tsx`); the test must go red on the saved value.
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+**Pass.** A username with capitals or spaces, Max contacts 101 and no domain are refused with nothing sent; `CreateAgent` carries the username, domain, credentials and max contacts; the row shows `sip:maria@acme.sip.fonoster.local`; the switch sends `enabled: false` with no form opened; the saved username is disabled. **Fail.** An invalid agent sent, a wrong request, or a switch that opens a form or saves the wrong value.
+
+### DSH-021 Create an ACL of addresses and ranges
+
+- **Spec:** dashboard / ACLs allow addresses and reject the rest / Create an ACL
+- **Spec:** dashboard / ACLs allow addresses and reject the rest / Not an address
+- **Priority:** P1
+- **Proof:** Make `isAllowedEntry` accept any value (`acls/cidr.ts`); the test must go red on the refused entries.
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+**Pass.** The screen says anything not listed is rejected; `10.0.0.0/33` and a host name are refused with nothing sent; `CreateAcl` carries `190.80.12.0/24` and `10.0.0.5`; delete needs `DELETE`. **Fail.** A bad entry sent, or a wrong allow list.
+
+### DSH-022 Credentials' passwords stay write-only
+
+- **Spec:** dashboard / Credentials keep passwords write-only / Edit without changing the password
+- **Priority:** P1
+- **Proof:** Prefill New password with the saved one when editing (`credentials-drawer.tsx`); the test must go red on the empty field.
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+**Pass.** Create sends the name, username and password; editing shows an empty New password and the password nowhere; renaming with it empty sends no password. **Fail.** The password shown, or sent again on a rename.
+
+### DSH-023 Secrets: write-only values and a refused save kept in the form
+
+- **Spec:** dashboard / Secrets keep values write-only / Create a secret
+- **Spec:** dashboard / Secrets keep values write-only / Invalid secret name
+- **Spec:** dashboard / Resource screens share one shape / A refused save stays in the form
+- **Priority:** P1
+- **Proof:** Hide the mutation error in the secret drawer (`secret-drawer.tsx`); the test must go red on the API's message.
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+**Pass.** `ab` and a name with spaces are refused with nothing sent; when the API refuses the create, its message shows in the still-open drawer with the name kept and nothing listed; the saved secret is listed without its value; editing shows an empty New value; delete needs `DELETE`. **Fail.** An invalid name sent, the API's message lost, or the value shown.
+
+### DSH-024 API keys: the secret once, Regenerate in one click
+
+- **Spec:** dashboard / API keys show their secret once / Create an API key
+- **Spec:** dashboard / API keys show their secret once / Regenerate an API key
+- **Priority:** P0
+- **Proof:** Make the Regenerate confirmation ask for `DELETE` (`api-keys/index.tsx`); the test must go red on the confirmation.
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+**Pass.** A Workspace admin key expiring in 90 days is requested with that expiry; the dialog shows the secret with the only-time warning and closes only after "I've saved it"; the list never shows the secret; Regenerate takes one confirmation and shows the new secret once; delete needs `DELETE`. **Fail.** A secret shown twice or listed, or Regenerate asking for `DELETE`.
+
+### DSH-025 Webhooks: HTTPS only, the secret once, and rotation
+
+- **Spec:** dashboard / Webhooks deliver signed events to HTTPS endpoints / Plain HTTP refused
+- **Spec:** dashboard / Webhooks deliver signed events to HTTPS endpoints / Create a webhook
+- **Spec:** dashboard / Webhooks deliver signed events to HTTPS endpoints / Rotate the signing secret
+- **Priority:** P1
+- **Proof:** Let `validateWebhook` accept `http://` (`session/webhooks.tsx`); the test must go red on the refused URL.
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+**Pass.** An `http://` URL is refused with nothing sent; a webhook for Call ended and Call record sealed shows its signing secret once and is listed with both events; Rotate takes one confirmation that says the previous secret keeps verifying for 24 hours, and shows the new secret once. **Fail.** Plain HTTP accepted, a secret shown again, or Rotate asking for `DELETE`.
+
+### DSH-026 Invite a member with a role and remove one
+
+- **Spec:** dashboard / Members are invited and removed in Settings / Invite a member
+- **Spec:** dashboard / Members are invited and removed in Settings / Remove a member
+- **Priority:** P1
+- **Proof:** Give the owner's row the actions menu (`settings/members.tsx`); the test must go red on the owner's row.
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+**Pass.** The owner's row says Owner and has no actions; inviting Maria as Admin sends that name, email and `WORKSPACE_ADMIN` and lists her as Invite sent; removing Bob needs `DELETE` and drops him from the list. **Fail.** A removable owner, a wrong invite, or a removal without `DELETE`.
+
+### DSH-027 Rename the workspace and delete it by name
+
+- **Spec:** dashboard / The workspace is renamed and deleted in Settings / Rename the workspace
+- **Spec:** dashboard / The workspace is renamed and deleted in Settings / Delete the workspace
+- **Priority:** P0
+- **Proof:** Enable the delete button whatever is typed (`type-to-confirm-dialog.tsx`); the test must go red on the disabled button.
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+**Pass.** Settings shows the access key ID; renaming to Acme Sales saves it and the workspace switcher shows it; Delete workspace stays disabled with `DELETE` typed and deletes once the name is typed, leaving the workspace and its link gone. **Fail.** A rename not shown, or a delete enabled before the name is typed.
