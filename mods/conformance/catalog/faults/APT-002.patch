@@ -1,0 +1,13 @@
+diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
+index 533e68780..3a3345a7e 100644
+--- a/mods/autopilot/src/session/Agent.ts
++++ b/mods/autopilot/src/session/Agent.ts
+@@ -235,7 +235,7 @@ export class Agent {
+   resumed() {
+     this.discardPrepared();
+     this.resumes++;
+-    if (this.resumes >= 3 && this.prepareEarly) {
++    if (this.resumes >= 30 && this.prepareEarly) {
+       // A caller who pauses often: stop preparing early for the rest of this call. AppBridge
+       // adapts its own turn timing within the call (TT-B6), so Autopilot does not also change
+       // the patience it asked for (AP-B2).

@@ -78,7 +78,7 @@ describe("@autopilot/session telemetry", function () {
     setTelemetry(initTelemetry("fonoster-autopilot", undefined, {}))
   );
 
-  it("records a turn span with an LLM request child and the turn and latency metrics", async function () {
+  it("[APT-018] records a turn span with an LLM request child and the turn and latency metrics", async function () {
     const { t, spans, counters } = memory();
     setTelemetry(t);
     const session = {
@@ -113,7 +113,7 @@ describe("@autopilot/session telemetry", function () {
     expect(counters).to.have.property("fonoster.autopilot.llm.latency_ms");
   });
 
-  it("marks the LLM span failed when the model errors", async function () {
+  it("[APT-018] marks the LLM span failed when the model errors", async function () {
     const { t, spans } = memory();
     setTelemetry(t);
     const session = {
@@ -143,7 +143,7 @@ describe("@autopilot/session telemetry", function () {
     expect(llm.error).to.equal("boom");
   });
 
-  it("is a no-op when no OTLP endpoint is set", function () {
+  it("[APT-018] is a no-op when no OTLP endpoint is set", function () {
     expect(telemetry.enabled).to.equal(false);
     expect(telemetry.startSpan("x").traceparent).to.equal("");
   });

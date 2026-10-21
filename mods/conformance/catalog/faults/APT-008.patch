@@ -1,0 +1,13 @@
+diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
+index 533e68780..514c761c5 100644
+--- a/mods/autopilot/src/session/Agent.ts
++++ b/mods/autopilot/src/session/Agent.ts
+@@ -196,7 +196,7 @@ export class Agent {
+   /** The next idle timeout ends the call (the goodbye counts as the last announcement). */
+   idleExhausted(): boolean {
+     const max = this.settings.idleOptions?.maxTimeoutCount ?? 2;
+-    return this.idleCount + 1 >= max;
++    return this.idleCount + 1 > max;
+   }
+ 
+   async sayIdle() {

@@ -1,0 +1,13 @@
+diff --git a/mods/autopilot/src/session/llm.ts b/mods/autopilot/src/session/llm.ts
+index a1945f713..f4ae83cf2 100644
+--- a/mods/autopilot/src/session/llm.ts
++++ b/mods/autopilot/src/session/llm.ts
+@@ -93,7 +93,7 @@ export class LayeredCredentials implements CredentialSource {
+         key = await s.get(ref, scope);
+       } catch (e) {
+         if (s instanceof ConfigCredentials) throw e;
+-        throw new KeyUnavailableError(ref, e);
++        continue;
+       }
+       if (key)
+         return {

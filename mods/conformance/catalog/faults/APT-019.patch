@@ -1,0 +1,14 @@
+diff --git a/mods/autopilot/src/session/meteredThink.ts b/mods/autopilot/src/session/meteredThink.ts
+index c5cad06a0..400520576 100644
+--- a/mods/autopilot/src/session/meteredThink.ts
++++ b/mods/autopilot/src/session/meteredThink.ts
+@@ -168,7 +168,8 @@ export function meteredThink(
+         } else if (state === "failed") {
+           done();
+         } else {
+-          void drain();
++          done();
++          settle(undefined);
+         }
+       }
+     }

@@ -1,0 +1,13 @@
+diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
+index 533e68780..ea16f1220 100644
+--- a/mods/autopilot/src/session/Agent.ts
++++ b/mods/autopilot/src/session/Agent.ts
+@@ -445,7 +445,7 @@ export class Agent {
+         ...this.speechOptions(),
+         preempt: preempt || undefined
+       });
+-      heard = result.heardText;
++      heard = result.interrupted ? full : result.heardText;
+       interrupted = result.interrupted;
+       completed = !interrupted;
+       if (interrupted) abort.abort();

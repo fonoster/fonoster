@@ -1,0 +1,15 @@
+diff --git a/mods/common/src/agents/sessionAgentSchema.ts b/mods/common/src/agents/sessionAgentSchema.ts
+index 11f84acc2..ef17d13b8 100644
+--- a/mods/common/src/agents/sessionAgentSchema.ts
++++ b/mods/common/src/agents/sessionAgentSchema.ts
+@@ -62,10 +62,6 @@ export const sessionLanguageModelSchema = z
+       "provider",
+       "use a catalog id in model (for example openai/gpt-4o-mini)"
+     ),
+-    apiKey: removed(
+-      "apiKey",
+-      "credentials come from the provider registry or workspace secrets"
+-    ),
+     baseUrl: removed("baseUrl", "endpoints come from the provider registry")
+   })
+   .strict();

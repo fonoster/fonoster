@@ -60,23 +60,6 @@ describe("@autopilot/session config", function () {
     expect(a.conversationSettings.allowUserBargeIn).to.equal(true);
   });
 
-  it("rejects eventsHook, pointing to workspace webhooks", function () {
-    const r = sessionAgentSchema.safeParse({
-      ...base,
-      eventsHook: { url: "https://x" }
-    });
-    expect(r.success).to.equal(false);
-    expect(JSON.stringify(r.error?.issues)).to.contain("workspace webhooks");
-  });
-
-  it("rejects an inline apiKey, pointing to workspace secrets", function () {
-    const r = sessionAgentSchema.safeParse({
-      ...base,
-      languageModel: { ...base.languageModel, apiKey: "sk-123" }
-    });
-    expect(JSON.stringify(r.error?.issues)).to.contain("workspace secrets");
-  });
-
   it("rejects vendor enums and VAD settings", function () {
     const withProvider = {
       ...base,

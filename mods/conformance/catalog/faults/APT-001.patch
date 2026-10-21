@@ -1,0 +1,13 @@
+diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
+index 533e68780..f2c2baed3 100644
+--- a/mods/autopilot/src/session/Agent.ts
++++ b/mods/autopilot/src/session/Agent.ts
+@@ -143,7 +143,7 @@ export class Agent {
+       this.settings.maxSessionDuration
+     );
+     await this.safely(async () => {
+-      await this.session.subscribe(["turn.estimate"]);
++      await this.session.subscribe([]);
+       // AppBridge's Pacing policy owns turn timing; Autopilot only tells it how patient to be.
+       // Recognition hints (names, brands) add to the app's defaults at AppBridge (VO-B3).
+       const hints = this.settings.hints?.length

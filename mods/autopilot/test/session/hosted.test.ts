@@ -27,7 +27,8 @@ import {
   FakesHarness,
   interpolate,
   loadScenarios,
-  runScenario
+  runScenario,
+  scenarioCase
 } from "@fonoster/conformance";
 import {
   CellSecretCredentials,
@@ -158,7 +159,8 @@ describe("@autopilot/session hosted Autopilot", function () {
   afterEach(() => fs.rmSync(dir, { recursive: true, force: true }));
 
   for (const scenario of loadScenarios("autopilot")) {
-    it(`passes ${scenario.name} through the registry`, async function () {
+    // The catalog case that runs this file (catalog area APT).
+    it(`${scenarioCase("autopilot", scenario.name)}passes ${scenario.name} through the registry`, async function () {
       const harness = await new FakesHarness().start();
       const agent = interpolate(scenario.setup!.agent!, harness.vars());
       const server = await startHostedAutopilot(
@@ -180,7 +182,7 @@ describe("@autopilot/session hosted Autopilot", function () {
     });
   }
 
-  it("reads the example config", function () {
+  it("[APT-016] reads the example config", function () {
     const config = loadHostedConfig(
       path.join(
         __dirname,
@@ -199,7 +201,7 @@ describe("@autopilot/session hosted Autopilot", function () {
     expect(path.isAbsolute(config.registry.file)).to.equal(true);
   });
 
-  it("resolves secret:// references in its config (D8)", function () {
+  it("[APT-016] resolves secret:// references in its config (D8)", function () {
     const example = path.join(
       __dirname,
       "..",
@@ -232,7 +234,7 @@ describe("@autopilot/session hosted Autopilot", function () {
     );
   });
 
-  it("needs the URL Autopilot apps point to (publicUrl)", async function () {
+  it("[APT-016] needs the URL Autopilot apps point to (publicUrl)", async function () {
     const file = await writeConfig(dir, "http://127.0.0.1:1", {});
     const config = JSON.parse(fs.readFileSync(file, "utf8"));
     delete config.publicUrl;
@@ -247,7 +249,7 @@ describe("@autopilot/session hosted Autopilot", function () {
     );
   });
 
-  it("refuses a signature that is not bound to the app, or names another app", async function () {
+  it("[APT-015] refuses a signature that is not bound to the app, or names another app", async function () {
     const harness = await new FakesHarness().start();
     const server = await startHostedAutopilot(
       loadHostedConfig(await writeConfig(dir, harness.llm.url, {}))
@@ -278,7 +280,7 @@ describe("@autopilot/session hosted Autopilot", function () {
     }
   });
 
-  it("serves an app only for the workspace AppBridge signed for", function () {
+  it("[APT-015] serves an app only for the workspace AppBridge signed for", function () {
     const loaded = { agent: {}, workspaceRef: "ws-1" };
     const session = (workspaceRef?: string) => ({
       appRef: "app-1",
@@ -301,7 +303,7 @@ describe("@autopilot/session hosted Autopilot", function () {
     expect(signedWorkspaceOnly(session("ws-1"), undefined)).to.equal(undefined);
   });
 
-  it("rejects a connection with a bad signature before loading any agent", async function () {
+  it("[APT-015] rejects a connection with a bad signature before loading any agent", async function () {
     const harness = await new FakesHarness().start();
     const server = await startHostedAutopilot(
       loadHostedConfig(
@@ -321,6 +323,37 @@ describe("@autopilot/session hosted Autopilot", function () {
   });
 });
 
+// The agent schema Autopilot runs with (and the control plane validates with): no vendor key and
+// no agent webhook in an agent config (catalog APT-013).
+describe("@autopilot/session agent configs", function () {
+  const base = {
+    conversationSettings: {
+      systemPrompt: "p",
+      goodbyeMessage: "bye",
+      systemErrorMessage: "err"
+    },
+    languageModel: { model: "openai/gpt-4o-mini" }
+  };
+
+  it("[APT-013] rejects an inline apiKey, pointing to workspace secrets", function () {
+    const r = sessionAgentSchema.safeParse({
+      ...base,
+      languageModel: { ...base.languageModel, apiKey: "sk-123" }
+    });
+    expect(r.success).to.equal(false);
+    expect(JSON.stringify(r.error?.issues)).to.contain("workspace secrets");
+  });
+
+  it("[APT-013] rejects eventsHook, pointing to workspace webhooks", function () {
+    const r = sessionAgentSchema.safeParse({
+      ...base,
+      eventsHook: { url: "https://x" }
+    });
+    expect(r.success).to.equal(false);
+    expect(JSON.stringify(r.error?.issues)).to.contain("workspace webhooks");
+  });
+});
+
 describe("@autopilot/session language models through the registry", function () {
   let dir: string;
   beforeEach(() => {
@@ -329,7 +362,7 @@ describe("@autopilot/session language models through the registry", function () 
   afterEach(() => fs.rmSync(dir, { recursive: true, force: true }));
   const settings = { temperature: 0.4, maxTokens: 100 };
 
-  it("resolves a catalog id to its provider, adapter endpoint and credential ref", async function () {
+  it("[APT-012] resolves a catalog id to its provider, adapter endpoint and credential ref", async function () {
     const { registry } = catalog(dir);
     const asked: string[] = [];
     const resolver = new RegistryLlmResolver({
@@ -347,7 +380,7 @@ describe("@autopilot/session language models through the registry", function () 
     expect(r.event).to.equal(undefined);
   });
 
-  it("calls a keyless provider at its catalog endpoint unless the config overrides it", async function () {
+  it("[APT-012] calls a keyless provider at its catalog endpoint unless the config overrides it", async function () {
     const registry = new Registry.Registry({
       store: new Registry.FileRegistryStore(path.join(dir, "keyless.json"))
     });
@@ -385,7 +418,7 @@ describe("@autopilot/session language models through the registry", function () 
     expect(asked, "no credential is resolved").to.deep.equal([]);
   });
 
-  it("prefers the workspace's own key over the platform key", async function () {
+  it("[APT-014] prefers the workspace's own key over the platform key", async function () {
     const credentials = new LayeredCredentials([
       {
         get: (ref, scope) =>
@@ -403,7 +436,7 @@ describe("@autopilot/session language models through the registry", function () 
     ).to.equal("platform-key");
   });
 
-  it("never uses the platform key when the workspace's key can't be read", async function () {
+  it("[APT-014] never uses the platform key when the workspace's key can't be read", async function () {
     let platformAsked = false;
     const credentials = new LayeredCredentials([
       {
@@ -435,7 +468,7 @@ describe("@autopilot/session language models through the registry", function () 
     expect(resolved).to.be.instanceOf(KeyUnavailableError);
   });
 
-  it("refuses a model without a credential and an id that is not a language model", async function () {
+  it("[APT-012] refuses a model without a credential and an id that is not a language model", async function () {
     const { registry } = catalog(dir);
     const resolver = new RegistryLlmResolver({
       registry,
@@ -452,7 +485,7 @@ describe("@autopilot/session language models through the registry", function () 
     expect(error).to.contain("not a language model");
   });
 
-  it("reports a deprecated model for the call record", async function () {
+  it("[APT-012] reports a deprecated model for the call record", async function () {
     const { registry } = catalog(dir, { deprecate: true });
     const resolver = new RegistryLlmResolver({
       registry,
@@ -467,7 +500,7 @@ describe("@autopilot/session language models through the registry", function () 
     });
   });
 
-  it("apologises and hangs up when the model cannot be resolved", async function () {
+  it("[APT-012] apologises and hangs up when the model cannot be resolved", async function () {
     const harness = await new FakesHarness().start();
     const agent = {
       conversationSettings: {
@@ -512,7 +545,7 @@ describe("@autopilot/session language models through the registry", function () 
 });
 
 describe("@autopilot/session knowledge port wiring", function () {
-  it("logs a knowledge port that fails to build instead of an unhandled rejection (RV-B5)", async function () {
+  it("[APT-014] logs a knowledge port that fails to build instead of an unhandled rejection (RV-B5)", async function () {
     const unhandled: unknown[] = [];
     const onUnhandled = (e: unknown) => unhandled.push(e);
     process.on("unhandledRejection", onUnhandled);
@@ -531,7 +564,7 @@ describe("@autopilot/session knowledge port wiring", function () {
     }
   });
 
-  it("builds the workspace's knowledge base with keys from credential refs", async function () {
+  it("[APT-014] builds the workspace's knowledge base with keys from credential refs", async function () {
     const made: Record<string, unknown>[] = [];
     const factory = s3Knowledge(
       {
@@ -609,7 +642,7 @@ describe("@autopilot/session agents and keys from the database (CP-B11)", functi
     }
   };
 
-  it("loads an Autopilot app's agent and caches it", async function () {
+  it("[APT-014] loads an Autopilot app's agent and caches it", async function () {
     let calls = 0;
     let now = 0;
     const prisma = {
@@ -637,7 +670,7 @@ describe("@autopilot/session agents and keys from the database (CP-B11)", functi
     expect(calls).to.equal(4);
   });
 
-  it("finds the workspace's vendor key through the credentialRef's provider", async function () {
+  it("[APT-014] finds the workspace's vendor key through the credentialRef's provider", async function () {
     const prisma = {
       workspaceProviderKey: {
         findUnique: async ({
@@ -667,7 +700,7 @@ describe("@autopilot/session agents and keys from the database (CP-B11)", functi
     );
   });
 
-  it("needs a database section for database sources", function () {
+  it("[APT-016] needs a database section for database sources", function () {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ap-db-"));
     const file = path.join(dir, "autopilot.yaml");
     fs.writeFileSync(
@@ -682,7 +715,7 @@ describe("@autopilot/session agents and keys from the database (CP-B11)", functi
     });
   });
 
-  it("reads the database URL from the file only, never APISERVER_DATABASE_URL by itself", function () {
+  it("[APT-016] reads the database URL from the file only, never APISERVER_DATABASE_URL by itself", function () {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ap-db-url-"));
     const file = path.join(dir, "autopilot.yaml");
     const base =
@@ -710,7 +743,7 @@ describe("@autopilot/session agents and keys from the database (CP-B11)", functi
 });
 
 describe("@autopilot/session cell secrets (add-private-regions PR-9)", function () {
-  it("reads LLM keys from the cell's secret store by credentialRef or provider", async function () {
+  it("[APT-014] reads LLM keys from the cell's secret store by credentialRef or provider", async function () {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "ap-cell-"));
     const file = path.join(dir, "secrets.enc");
     new CellSecrets.EncryptedFileSecretStore(file, "pass").set("groq", "gq");

@@ -1,0 +1,12 @@
+diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
+index 533e68780..6178bcbb9 100644
+--- a/mods/autopilot/src/session/Agent.ts
++++ b/mods/autopilot/src/session/Agent.ts
+@@ -289,7 +289,6 @@ export class Agent {
+       span.end({}, (e as Error).message);
+       throw e;
+     } finally {
+-      telemetry.count("fonoster.autopilot.turns", 1);
+     }
+   }
+ 

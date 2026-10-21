@@ -48,14 +48,18 @@ describe("@autopilot full stack: Roomr node → appbridge → Autopilot → LLM 
   this.timeout(20000);
   let nc: NatsConnection;
 
+  // A nightly case (catalog APT-020): without its bus it fails, it never skips.
   before(async function () {
-    if (!NATS_URL) return this.skip();
+    if (!NATS_URL)
+      throw new Error(
+        "CONFORMANCE_NATS_URL is not set: the full-stack case needs NATS"
+      );
     nc = await connect({ servers: NATS_URL });
   });
 
   after(async () => nc?.close());
 
-  it("answers a caller's question with spoken audio", async function () {
+  it("[APT-020] answers a caller's question with spoken audio", async function () {
     const harness = await new FakesHarness().start();
     harness.roomrNode.attachNats(nc);
     harness.stt.configure({
@@ -166,7 +170,7 @@ describe("@autopilot full stack: Roomr node → appbridge → Autopilot → LLM 
     }
   });
 
-  it("stops its reply when the caller cuts in (app-owned interruption)", async function () {
+  it("[APT-020] stops its reply when the caller cuts in (app-owned interruption)", async function () {
     const harness = await new FakesHarness().start();
     harness.roomrNode.attachNats(nc);
     harness.stt.configure({

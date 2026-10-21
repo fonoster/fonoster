@@ -35,7 +35,7 @@ const BUDGET_P95_MS = 50;
 describe("@autopilot/session latency stopwatch", function () {
   this.timeout(60000);
 
-  it(`adds at most ${BUDGET_P95_MS} ms at p95 from turn.ended to the first speak`, async function () {
+  it(`[APT-021] adds at most ${BUDGET_P95_MS} ms at p95 from turn.ended to the first speak`, async function () {
     const scenario = loadScenarios("autopilot").find(
       (s) => s.name === "turn-end-to-first-speak"
     )!;

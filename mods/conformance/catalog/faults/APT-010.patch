@@ -1,0 +1,12 @@
+diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
+index 533e68780..ce950a977 100644
+--- a/mods/autopilot/src/session/Agent.ts
++++ b/mods/autopilot/src/session/Agent.ts
+@@ -453,7 +453,6 @@ export class Agent {
+     await pump;
+     trace.replyText += full;
+     trace.heardText += heard;
+-    trace.interrupted ||= interrupted;
+     return { heard, interrupted, completed, toolCalls };
+   }
+ 

@@ -211,6 +211,48 @@ jobs:
         if: failure()
         run: docker logs routr
 
+  autopilot:
+    name: Autopilot area (mods/conformance/catalog/areas/autopilot.md)
+    needs: changes
+    if: needs.changes.outputs.node == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    # The pr-tier cases need no services: the runner plays AppBridge and the fakes harness serves
+    # the LLM, tools and media in the test process. The nightly cases are in conformance.yaml.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Autopilot cases (JUnit in reports/junit)
+        env:
+          LOGS_LEVEL: none
+        run: |
+          npx mocha --exit --timeout 30000 \
+            --reporter xunit --reporter-option output=reports/junit/apt.xml \
+            mods/autopilot/test/session/conformance.test.ts \
+            mods/autopilot/test/session/hosted.test.ts \
+            mods/autopilot/test/session/tools.test.ts \
+            mods/autopilot/test/session/telemetry.test.ts \
+            mods/autopilot/test/session/usage.test.ts
+
+      - name: JUnit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-apt
+          path: reports/junit/
+          if-no-files-found: ignore
+
   go:
     name: go Roomr node
     needs: changes
@@ -384,7 +426,7 @@ jobs:
   passed:
     name: PR Checks passed
     if: always()
-    needs: [dco, lint, changes, node, api, go, python, dashboard, sdk-pack, sdk-install]
+    needs: [dco, lint, changes, node, api, autopilot, go, python, dashboard, sdk-pack, sdk-install]
     runs-on: ubuntu-latest
     steps:
       - name: Every job passed or was skipped
