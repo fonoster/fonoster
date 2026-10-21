@@ -24,15 +24,11 @@ const ws = (ref: string) =>
 
 describe("landingTarget", () => {
   it("sends a user with no workspaces to Create workspace", () => {
-    expect(landingTarget([], null)).toBe("/workspaces/new");
+    expect(landingTarget([])).toBe("/workspaces/new");
   });
 
-  it("opens the remembered workspace when it still exists", () => {
-    expect(landingTarget([ws("a"), ws("b")], "b")).toBe("/w/b");
-  });
-
-  it("shows the picker otherwise", () => {
-    expect(landingTarget([ws("a")], null)).toBe("/workspaces");
-    expect(landingTarget([ws("a")], "gone")).toBe("/workspaces");
+  it("shows the list to everyone else, however many workspaces they have", () => {
+    expect(landingTarget([ws("a")])).toBe("/workspaces");
+    expect(landingTarget([ws("a"), ws("b")])).toBe("/workspaces");
   });
 });

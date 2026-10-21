@@ -28,7 +28,7 @@ import { Field } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { useAuth } from "~/lib/auth";
 import { errorMessage } from "~/lib/errors";
-import { rememberWorkspace, workspacePath } from "./workspace-session";
+import { workspacePath } from "./workspace-session";
 import { usePrivateRegions } from "~/lib/capabilities";
 import { useRegionsApi } from "~/regions/api";
 import { RegionPicker } from "~/regions/region-picker";
@@ -74,7 +74,6 @@ export default function CreateWorkspacePage() {
 
   const onSubmit = form.handleSubmit(async ({ name }) => {
     const { ref } = await create.mutateAsync({ name, region });
-    rememberWorkspace(ref);
     navigate(workspacePath(ref), { replace: true });
   });
 

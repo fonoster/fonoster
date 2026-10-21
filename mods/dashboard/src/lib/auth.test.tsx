@@ -22,7 +22,7 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./auth";
 import type { DashboardClient } from "./client";
 import { GrpcCode } from "./errors";
-import { LEGACY_SESSION_KEY, STORAGE_KEYS } from "./storage";
+import { LEGACY_SESSION_KEY } from "./storage";
 import { grpcError } from "~/test/render";
 
 function jwt(claims: object) {
@@ -225,7 +225,6 @@ describe("AuthProvider", () => {
   });
 
   it("clears everything on sign-out, revokes on the server and goes to a clean sign-in", async () => {
-    localStorage.setItem(STORAGE_KEYS.workspace, "a");
     const client = fakeClient();
     renderProvider(client);
     await waitFor(() =>
@@ -234,7 +233,6 @@ describe("AuthProvider", () => {
     await act(async () => screen.getByText("out").click());
     expect(screen.getByTestId("status")).toHaveTextContent("signedOut");
     expect(screen.getByTestId("where")).toHaveTextContent(/^\/sign-in$/);
-    expect(localStorage.getItem(STORAGE_KEYS.workspace)).toBeNull();
     expect(client.logout).toHaveBeenCalledTimes(1);
     expectNoTokensStored();
   });

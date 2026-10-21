@@ -37,7 +37,7 @@ import {
   type AccessTokenClaims,
   type IdTokenClaims
 } from "./jwt";
-import { LEGACY_SESSION_KEY, STORAGE_KEYS, storage } from "./storage";
+import { LEGACY_SESSION_KEY, storage } from "./storage";
 
 /**
  * What the dashboard keeps, in memory only. The refresh token is in an
@@ -129,7 +129,6 @@ export function AuthProvider({
     (options?: { expired?: boolean }) => {
       const path = here.current;
       void client.logout();
-      storage.remove(STORAGE_KEYS.workspace);
       client.setAccessKeyId("");
       queryClient.clear();
       setSession(null);

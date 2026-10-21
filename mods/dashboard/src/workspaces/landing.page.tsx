@@ -27,7 +27,7 @@ import { usePrivateRegions } from "~/lib/capabilities";
 import { errorMessage } from "~/lib/errors";
 import { RegionsSection, useRegions } from "~/regions";
 import { UserBar } from "./user-bar";
-import { rememberWorkspace, workspacePath } from "./workspace-session";
+import { workspacePath } from "./workspace-session";
 import { useCurrentUser, useWorkspaces } from "./workspaces.service";
 
 const DATE = new Intl.DateTimeFormat("en-US", {
@@ -189,7 +189,6 @@ function WorkspaceList({ workspaces }: { workspaces: Workspace[] }) {
           >
             <Link
               to={workspacePath(workspace.ref)}
-              onClick={() => rememberWorkspace(workspace.ref)}
               className="flex items-center gap-3.5 px-5 py-4 transition-colors hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
             >
               <span
