@@ -13,6 +13,11 @@ sent. The name SHALL be editable in place, and deleting SHALL need `DELETE` type
 - **WHEN** the user creates Front desk from the Receptionist template
 - **THEN** the agent is created and its Configure tab opens
 
+#### Scenario: A new agent answers at once
+
+- **WHEN** the user calls an agent with Talk to agent seconds after creating it
+- **THEN** the call connects, rather than being rejected until the platform's next refresh
+
 #### Scenario: Save the prompt and a tool
 
 - **WHEN** the user changes the system prompt, adds a tool on the Tools tab and saves

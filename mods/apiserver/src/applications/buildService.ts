@@ -34,7 +34,8 @@ import { TestTokenConfiguration } from "./types";
 function buildService(
   prisma: Prisma,
   testTokenConfig: TestTokenConfiguration,
-  config: SessionAppsConfig = SESSION_APPS as SessionAppsConfig
+  config: SessionAppsConfig = SESSION_APPS as SessionAppsConfig,
+  findCallerEmail?: (userRef: string) => Promise<string | undefined>
 ) {
   const evaluateIntelligence = createEvaluateIntelligence(
     createEvalKeys(prisma, EVALUATIONS.credentials),
@@ -56,7 +57,7 @@ function buildService(
       updateApplication: createUpdateApplication(prisma, config),
       rotateSigningSecret: createRotateSigningSecret(prisma, config),
       evaluateIntelligence,
-      createTestToken: createCreateTestToken(testTokenConfig)
+      createTestToken: createCreateTestToken(testTokenConfig, findCallerEmail)
     }
   };
 }

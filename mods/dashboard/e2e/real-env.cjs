@@ -8,7 +8,15 @@
 const fs = require("fs");
 const path = require("path");
 
-const local = path.join(__dirname, "..", "..", "..", "ops", "rebuild", ".local");
+const local = path.join(
+  __dirname,
+  "..",
+  "..",
+  "..",
+  "ops",
+  "rebuild",
+  ".local"
+);
 const env = Object.fromEntries(
   fs
     .readFileSync(path.join(local, "stack.env"), "utf8")
@@ -28,20 +36,29 @@ const out = {
   E2E_REAL_EMAIL: env.RB_ADMIN_EMAIL,
   E2E_REAL_PASSWORD: env.RB_ADMIN_PASSWORD,
   E2E_REAL_WORKSPACE: seed.workspace.name,
+  E2E_REAL_WORKSPACE_KEY: seed.workspace.accessKeyId,
   E2E_REAL_APP: seed.app.name
 };
 for (const [k, v] of Object.entries(out)) {
-  if (!v) { console.error(`missing ${k} in the stack files`); process.exit(1); }
+  if (!v) {
+    console.error(`missing ${k} in the stack files`);
+    process.exit(1);
+  }
 }
 if (process.argv.includes("--print")) {
-  for (const [k, v] of Object.entries(out)) console.log(`${k}=${k.endsWith("PASSWORD") ? "***" : v}`);
+  for (const [k, v] of Object.entries(out))
+    console.log(`${k}=${k.endsWith("PASSWORD") ? "***" : v}`);
   process.exit(0);
 }
 const { spawnSync } = require("child_process");
 const args = process.argv.slice(2).filter((a) => a !== "--print");
-const result = spawnSync("npx", ["playwright", "test", ...args, "--project", "real"], {
-  cwd: path.join(__dirname, ".."),
-  stdio: "inherit",
-  env: { ...process.env, ...out }
-});
+const result = spawnSync(
+  "npx",
+  ["playwright", "test", ...args, "--project", "real"],
+  {
+    cwd: path.join(__dirname, ".."),
+    stdio: "inherit",
+    env: { ...process.env, ...out }
+  }
+);
 process.exit(result.status ?? 1);

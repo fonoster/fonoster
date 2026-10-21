@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { buildIdentityService } from "@fonoster/identity";
+import { buildIdentityService, createPrismaClient } from "@fonoster/identity";
 import {
   buildAclsService,
   buildAgentsService,
@@ -50,7 +50,23 @@ import { workspaceRegionHooks } from "./regionHooks";
 import { routrConfig } from "./routrConfig";
 import { testTokenConfig } from "./testTokenConfig";
 
-const applicationsService = buildApplicationsService(prisma, testTokenConfig);
+// A browser test call records who placed it (#1060): the signed-in user's email.
+const identityDb = createPrismaClient(
+  identityConfig.dbUrl,
+  identityConfig.encryptionKey
+);
+const applicationsService = buildApplicationsService(
+  prisma,
+  testTokenConfig,
+  undefined,
+  async (userRef) =>
+    (
+      await identityDb.user.findUnique({
+        where: { ref: userRef },
+        select: { email: true }
+      })
+    )?.email
+);
 const secretsService = buildSecretsService(prisma);
 const callsService = buildCallsService();
 const identityService = buildIdentityService({

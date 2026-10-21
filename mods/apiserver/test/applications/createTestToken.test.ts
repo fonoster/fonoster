@@ -58,6 +58,34 @@ describe("@applications/createTestToken (add-talk-in-browser)", function () {
     expect((payload.exp as number) - (payload.iat as number)).to.equal(3600);
   });
 
+  it("names the signed-in user as the caller (#1060)", async function () {
+    const { createCreateTestToken } =
+      await import("../../src/applications/createCreateTestToken");
+    const metadata = new grpc.Metadata();
+    metadata.set("accessKeyId", "WO00000000000000000000000000000001");
+    metadata.set(
+      "token",
+      jwt.sign({ sub: "u-ada", accessKeyId: "USu-ada" }, "x")
+    );
+    const lookups: string[] = [];
+
+    const response = await new Promise<Record<string, string>>(
+      (resolve, reject) =>
+        createCreateTestToken(CONFIG, async (ref) => {
+          lookups.push(ref);
+          return "ada@acme.com";
+        })({ metadata, request: {} }, (err, res) =>
+          err ? reject(err) : resolve(res as never)
+        )
+    );
+
+    const payload = jwt.verify(response.token, IDENTITY_PUBLIC_KEY, {
+      algorithms: ["RS256"]
+    }) as Record<string, unknown>;
+    expect(lookups).to.deep.equal(["u-ada"]);
+    expect(payload.caller).to.equal("ada@acme.com");
+  });
+
   it("derives the signaling URL from appUrl when signalingServer is unset", function () {
     const url = (c: Partial<FonosterConfig>) =>
       getSignalingServer({ domain: "fonoster.local", ...c } as FonosterConfig);

@@ -1,16 +1,7 @@
 dashboard / Agent pickers offer the catalog / Models Autopilot cannot run are not offered
 dashboard / Calls can be filtered by app / Filter calls by app
-dashboard / Cloud-only screens follow capabilities and ownership / Billing page in Cloud
-dashboard / Cloud-only screens follow capabilities and ownership / No billing for users who own no workspace
-dashboard / Cloud-only screens follow capabilities and ownership / No billing without billing
 dashboard / Member roles can be changed / Promote a member
 dashboard / Noise cancelling is one select fed by the catalog / A saved filter whose provider is no longer offered
-dashboard / Owners manage billing from the Billing page / A failed payment
-dashboard / Owners manage billing from the Billing page / A top-up
-dashboard / Owners manage billing from the Billing page / Auto-recharge below the smallest top-up
-dashboard / Owners manage billing from the Billing page / The Trial ended
-dashboard / Owners manage billing from the Billing page / Upgrade from the Trial
-dashboard / Owners manage billing from the Billing page / Upgrade without a payment method
 dashboard / Sign-in options follow the advertised methods / Cloud without GitHub
 dashboard / Sign-in options follow the advertised methods / Open sign-up
 dashboard / The call detail flags unfiltered calls / A filter failed

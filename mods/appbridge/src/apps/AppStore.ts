@@ -36,6 +36,8 @@ export interface AppStore {
   /** Development fallback when Routr sent no `X-App-Ref` (B21). */
   forNumber(to: string): AppConfig | undefined;
   count(): number;
+  /** Reloads now (stores that cache), so a just-created app is found without waiting. */
+  refresh?(): Promise<void>;
   stop?(): void;
 }
 

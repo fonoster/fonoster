@@ -32,5 +32,13 @@
   "DSH-031": "A completed call reads as the conversation, and its recording plays",
   "DSH-032": "A failed call says why, with its SIP status",
   "DSH-033": "Erased and unknown records say so",
-  "DSH-034": "A browser call shows up in Calls with its transcript and a playable recording"
+  "DSH-034": "A browser call shows up in Calls with its transcript and a playable recording",
+  "DSH-035": "Billing is offered only to an owner on Cloud",
+  "DSH-036": "The account at a glance, a failed payment and an ended Trial",
+  "DSH-037": "A top-up arrives, and auto-recharge refuses less than the smallest top-up",
+  "DSH-038": "Upgrading from the Trial, through the portal when there is no card",
+  "DSH-039": "The Billing page against the stack and the Stripe fake",
+  "DSH-040": "A self-hosted install has no Billing",
+  "DSH-041": "A SIP network built through the UI against the platform, then taken down",
+  "DSH-042": "An agent created in the UI answers its first call at once"
 }

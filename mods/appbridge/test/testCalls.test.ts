@@ -93,6 +93,13 @@ describe("@appbridge test calls (add-talk-in-browser)", function () {
       expect(v.check(headers(token()), undefined).ok).to.equal(true);
     });
 
+    it("passes on who placed the test call (#1060)", function () {
+      const v = new TestCallVerifier(keyFile);
+      expect(
+        v.check(headers(token({ caller: "ada@acme.com" })), "WO-A")
+      ).to.deep.equal({ ok: true, test: true, caller: "ada@acme.com" });
+    });
+
     it("rejects another workspace, a forged or expired token, and missing methods", function () {
       const v = new TestCallVerifier(keyFile);
       const reason = (t: string, ws = "WO-A") => v.check(headers(t), ws).reason;

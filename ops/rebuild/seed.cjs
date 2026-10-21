@@ -72,8 +72,18 @@ const speaks = (item) =>
  * the language.
  */
 function choose(items) {
+  // The catalog lists every provider; without a platform key a keyed one fails every call
+  // (HTTP 401), so only keyless providers and those with a key in the environment are usable.
+  const keyless = new Set(
+    items.filter((i) => i.kind === "provider" && i.keyless).map((i) => i.id)
+  );
+  const usable = (i) =>
+    keyless.has(i.providerId) ||
+    Boolean(process.env[`${String(i.providerId).toUpperCase()}_API_KEY`]);
   const offered = (kind, type) =>
-    items.filter((i) => i.kind === kind && (!type || i.type === type));
+    items.filter(
+      (i) => i.kind === kind && (!type || i.type === type) && usable(i)
+    );
   const pick = (name, options, preferred) => {
     const id =
       process.env[name] ||
@@ -129,12 +139,18 @@ async function retry(what, fn, tries = 60) {
       // The sign-in throttle (identity: 3 per email in 10 minutes) counts every attempt; retrying
       // into it only extends the lockout. Say so and stop.
       if (e.code === 8 || /Too many sign-in attempts/.test(e.message))
-        throw new Error(`${what}: ${e.message} (wait 10 minutes or restart the apiserver)`);
+        throw new Error(
+          `${what}: ${e.message} (wait 10 minutes or restart the apiserver)`
+        );
       // Not transient either: a half-seeded stack without its seed.json. Reset the stack instead.
       if (e.code === 6)
-        throw new Error(`${what}: ${e.message} (a previous seed left entities behind: ops/rebuild/stack reset)`);
+        throw new Error(
+          `${what}: ${e.message} (a previous seed left entities behind: ops/rebuild/stack reset)`
+        );
       if (i >= tries) throw new Error(`${what}: ${e.message}`);
-      console.error(`[seed] ${what} failed (${e.message}); retry ${i}/${tries} in 2 s`);
+      console.error(
+        `[seed] ${what} failed (${e.message}); retry ${i}/${tries} in 2 s`
+      );
       await new Promise((r) => setTimeout(r, 2000));
     }
   }

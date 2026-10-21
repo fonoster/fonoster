@@ -61,6 +61,8 @@ test("[DSH-034] a browser call shows up in Calls with its transcript and a playa
   const drawer = page.getByRole("dialog");
   await drawer.getByRole("button", { name: "Call", exact: true }).click();
   await expect(drawer.getByText("Connected")).toBeVisible({ timeout: 30_000 });
+  // Muted, so the fake microphone doesn't cut the greeting off: the agent speaks it through.
+  await drawer.getByRole("button", { name: "Mute" }).click();
   await page.waitForTimeout(8_000);
   await drawer.getByRole("button", { name: "Hang up" }).click();
   await expect(drawer.getByText("Call ended")).toBeVisible({ timeout: 15_000 });
@@ -75,16 +77,21 @@ test("[DSH-034] a browser call shows up in Calls with its transcript and a playa
   await expect(fresh).toContainText("completed");
   await fresh.click();
 
-  await expect(page.getByRole("heading", { name: /→/ })).toBeVisible();
+  // Who tested and the agent they called, not the SIP leg's internal names (#1060).
+  await expect(
+    page.getByRole("heading", {
+      name: `${env("E2E_REAL_EMAIL")} → ${env("E2E_REAL_APP")}`
+    })
+  ).toBeVisible();
   await expect(page.getByText("Answered by")).toBeVisible();
   await expect(page.getByText(env("E2E_REAL_APP")).first()).toBeVisible();
-  // The agent spoke (its greeting), timed.
-  const agentTurn = page
+  // The agent's greeting, with when it started and how long it lasted.
+  const greeting = page
     .getByRole("region", { name: "Transcript" })
     .getByRole("listitem", { name: "agent turn" })
     .first();
-  await expect(agentTurn).toBeVisible();
-  await expect(agentTurn).toContainText(/\d\.\d s · \d/);
+  await expect(greeting).toBeVisible();
+  await expect(greeting).toContainText(/\d\.\d s · \d/);
   // The recording plays in the page.
   await expect(page.getByLabel("Call recording")).toHaveAttribute(
     "src",

@@ -168,5 +168,45 @@
     "tier": "nightly",
     "pri": "P0",
     "trials": null
+  },
+  "DSH-035": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-036": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-037": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-038": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-039": {
+    "tier": "release",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-040": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-041": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
+  "DSH-042": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
   }
 }

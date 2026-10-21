@@ -13,6 +13,7 @@ capabilities:
   - talk-in-browser
 tests:
   - mods/dashboard/e2e/**/*.spec.ts
+  - mods/dashboard/e2e-stack/**/*.spec.ts
 ---
 
 # Dashboard
@@ -431,11 +432,111 @@ Writing this case found that the record builder stamped a caller's turn at its e
 
 - **Spec:** dashboard / The call detail reads as the conversation / A completed call
 - **Spec:** dashboard / Recordings play in the page / Play and download
+- **Spec:** dashboard / The call detail reads as the conversation / A browser test call
 - **Priority:** P0
 - **Tier:** nightly
 - **Proof:** Stop the AppBridge (`docker stop rb-stack-appbridge-1`); with nothing to take the call the test must go red on Connected. Start it after.
 - **Test:** mods/dashboard/e2e/calls.real.spec.ts (the `real` project, `npm run test:e2e:real` against `ops/rebuild/stack up && seed`)
 
-The seeded agent records calls (`ops/rebuild/seed.cjs`). Bringing this case up found that every AppBridge image built from a checkout that hadn't run the package build crashed at start (identity-client's git-ignored proto was never synced into the image), so every call was rejected with 503; fixed in `mods/appbridge/Dockerfile`. It also found that browser test calls are recorded as `internal → roomr` (filed).
+The seeded agent records calls (`ops/rebuild/seed.cjs`). Bringing this case up found that every AppBridge image built from a checkout that hadn't run the package build crashed at start (identity-client's git-ignored proto was never synced into the image), so every call was rejected with 503; fixed in `mods/appbridge/Dockerfile`. It also found that browser test calls were recorded as `internal → roomr` (#1060): the test token now names the signed-in user and AppBridge records them and the agent instead. And it found that the local stack seeded the demo agent with Deepgram without a key, so every local call was silent (HTTP 401 both ways); the seed now picks only keyless providers and those with a key.
 
-**Pass.** After a browser call to the seeded agent, the newest call in Calls is a new completed record; its detail names the agent under Answered by, shows a timed agent turn, plays the recording from a blob URL and downloads a `.wav`. **Fail.** No new record within 90 seconds, a missing or untimed turn, or no playable recording.
+**Pass.** After a browser call to the seeded agent (muted, so the fake microphone doesn't cut the greeting), the newest call in Calls is a new completed record titled `<signed-in email> → <agent>`; its detail names the agent under Answered by, shows the greeting with its start and duration, plays the recording from a blob URL and downloads a `.wav`. **Fail.** No new record within 90 seconds, a missing or untimed turn, or no playable recording.
+
+### DSH-035 Billing is offered only to an owner on Cloud
+
+- **Spec:** dashboard / Cloud-only screens follow capabilities and ownership / No billing for users who own no workspace
+- **Spec:** dashboard / Cloud-only screens follow capabilities and ownership / Billing page in Cloud
+- **Priority:** P0
+- **Proof:** Make `useBillingAvailable` true for everyone (`billing/billing.service.ts`); the test must go red on the non-owner's menu.
+- **Test:** mods/dashboard/e2e/billing.cloud.spec.ts
+
+Runs against a billing account that behaves like the billing service in front of Stripe (`e2e/billing.ts`); visits to Stripe's Customer Portal are recorded and stopped.
+
+**Pass.** A user who owns no workspace has no Billing item in the account menu and `/billing` sends them to the workspace picker; the owner's menu has Billing and it opens `/billing?from=ws-1`, a page of its own. **Fail.** Billing offered to a non-owner, or no Billing for the owner.
+
+### DSH-036 The account at a glance, a failed payment and an ended Trial
+
+- **Spec:** dashboard / Cloud-only screens follow capabilities and ownership / Billing page in Cloud
+- **Spec:** dashboard / Owners manage billing from the Billing page / A failed payment
+- **Spec:** dashboard / Owners manage billing from the Billing page / The Trial ended
+- **Priority:** P0
+- **Proof:** Hide the failed-payment alert (`billing/index.tsx`); the test must go red on it.
+- **Test:** mods/dashboard/e2e/billing.cloud.spec.ts
+
+**Pass.** A Pay-as-you-go account shows 1,840 credits, the 200-credit overdraft, the plan with its renewal and the credits by source, and Manage payment methods and invoices opens the portal; past due, the page says the last payment failed and Update payment method opens the portal; after an ended Trial it says calls are paused and offers Upgrade to Pay-as-you-go. **Fail.** A wrong figure, no portal, or a failure or ended Trial left unsaid.
+
+### DSH-037 A top-up arrives, and auto-recharge refuses less than the smallest top-up
+
+- **Spec:** dashboard / Owners manage billing from the Billing page / A top-up
+- **Spec:** dashboard / Owners manage billing from the Billing page / Auto-recharge below the smallest top-up
+- **Priority:** P0
+- **Proof:** Accept any auto-recharge amount (`billing/auto-recharge-dialog.tsx`); the test must go red on the refusal.
+- **Test:** mods/dashboard/e2e/billing.cloud.spec.ts
+
+**Pass.** Buying 1,000 credits sends `credits: 1000`, shows Payment in progress, and the balance grows from 500 to 1,500 once the account confirms it; an auto-recharge of 500 says At least 1,000 credits with Save disabled and nothing sent, and 1,000 saves. **Fail.** No progress, a balance that never grows, or an amount below the minimum sent.
+
+### DSH-038 Upgrading from the Trial, through the portal when there is no card
+
+- **Spec:** dashboard / Owners manage billing from the Billing page / Upgrade without a payment method
+- **Spec:** dashboard / Owners manage billing from the Billing page / Upgrade from the Trial
+- **Spec:** dashboard / Paid credits show up without a reload / Plan credits after an upgrade
+- **Priority:** P0
+- **Proof:** Never resume the upgrade on return from the portal (`billing/index.tsx`); the test must go red on the plan.
+- **Test:** mods/dashboard/e2e/billing.cloud.spec.ts
+
+Writing this case found that after an upgrade the page never read the account again, so the plan's 2,500 credits appeared only after a reload; the page now polls for them as it does for a top-up.
+
+**Pass.** Without a card, Upgrade opens the portal with a return to `/billing?from=ws-1&upgrade=1`; back with a card, the upgrade finishes once, the plan reads Pay-as-you-go and the balance reaches 3,500 credits by itself. **Fail.** No portal, no return link, the upgrade sent twice or never, or plan credits that need a reload.
+
+### DSH-039 The Billing page against the stack and the Stripe fake
+
+- **Spec:** dashboard / Owners manage billing from the Billing page / Upgrade from the Trial
+- **Spec:** dashboard / Owners manage billing from the Billing page / A top-up
+- **Priority:** P1
+- **Tier:** release
+- **Proof:** Stop the billing service (`docker stop rb-stack-billing-1`); the page can't read the account and the test must go red on the Billing page. Start it after.
+- **Test:** mods/dashboard/e2e-stack/billing.spec.ts (`ops/rebuild/stack billing-page-e2e`)
+
+The test from #1058, now tagged: the owner's real account in the billing service, with Stripe played by the Stripe fake.
+
+**Pass.** The page shows the Trial with 1,000 credits, the portal opens, a card attached in the fake lets the upgrade reach Pay-as-you-go with 3,500 credits, and a 1,000-credit top-up reaches 4,500. **Fail.** Any step that doesn't reach its figure.
+
+### DSH-040 A self-hosted install has no Billing
+
+- **Spec:** dashboard / Cloud-only screens follow capabilities and ownership / No billing without billing
+- **Priority:** P0
+- **Proof:** Drop the `billing.enabled` check from `useBillingAvailable` (`billing/billing.service.ts`); the test must go red on the menu.
+- **Test:** mods/dashboard/e2e/billing.community.spec.ts
+
+**Pass.** With `billing.enabled` false the owner's account menu has no Billing, `/billing` goes to the workspace picker, and the billing API is never called. **Fail.** Billing shown or called on a self-hosted install.
+
+### DSH-041 A SIP network built through the UI against the platform, then taken down
+
+- **Spec:** dashboard / Numbers route calls to an agent, an app or a SIP agent / Add a number routed to an agent
+- **Spec:** dashboard / Trunks connect a carrier / Create a trunk
+- **Spec:** dashboard / Domains are where SIP agents register / Create a domain with an egress rule
+- **Spec:** dashboard / SIP agents register phones to a domain / Create a SIP agent
+- **Spec:** dashboard / ACLs allow addresses and reject the rest / Create an ACL
+- **Spec:** dashboard / Resource screens share one shape / Delete needs DELETE
+- **Priority:** P0
+- **Tier:** nightly
+- **Proof:** Stop Routr (`docker stop rb-stack-routr-1`), which stores the SIP resources; the lists can't load, nothing can be created, and the test must go red at the first Create. Start it after.
+- **Test:** mods/dashboard/e2e/resources.real.spec.ts (the `real` project, `npm run test:e2e:real` against `ops/rebuild/stack up && seed`)
+
+Names are unique per run (`e2e-<run>`) so the seeded Demo resources and Routr's unique names are untouched; if a step fails, an SDK sweep deletes whatever the run left behind.
+
+**Pass.** Credentials, a domain under `sip.<domain>`, a SIP agent on it with those credentials, an ACL, a trunk with that ACL and a number on the trunk routed to the seeded agent are created through the UI, read back after a reload, then deleted in reverse with `DELETE`, leaving no row of the run. **Fail.** A save the platform refuses, a row that doesn't read back, or a resource left behind.
+
+### DSH-042 An agent created in the UI answers its first call at once
+
+- **Spec:** dashboard / Agents are created from a template and edited as one form / Create from a template
+- **Spec:** dashboard / Agents are created from a template and edited as one form / A new agent answers at once
+- **Spec:** dashboard / Agents are created from a template and edited as one form / Delete an agent
+- **Priority:** P0
+- **Tier:** nightly
+- **Proof:** Make AppBridge answer from its cache only (`findAppFresh` in `mods/appbridge/src/AppBridge.ts`); a call within seconds of creating the agent must go red with 404. Covered by `mods/appbridge/test/appsFreshLookup.test.ts`.
+- **Test:** mods/dashboard/e2e/agents.real.spec.ts (the `real` project)
+
+Writing this case found that AppBridge refreshed its apps every five seconds, so an agent called right after it was created was rejected with 404; a miss now reloads the apps once.
+
+**Pass.** An agent made from the Receptionist template connects in Talk to agent right away, hangs up cleanly, and is deleted after typing `DELETE`. Three runs in a row. **Fail.** A rejected first call, or an agent left behind.
