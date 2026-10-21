@@ -147,6 +147,8 @@ export type CallRecordSummary = {
   /** Why a call that never reached an app failed (busy, no_answer, rejected, …). */
   failureReason?: string;
   sipStatus?: number;
+  /** Who answered, by AMD: human, voicemail, ivr, machine, unknown; absent when AMD didn't run. */
+  amdStatus?: string;
 };
 
 export type CallFilter = {
@@ -205,6 +207,8 @@ export type CallRecord = CallRecordSummary & {
   /** Audio filters that failed: the call ran unfiltered (badge on the detail). */
   unfiltered?: { name?: string; reason: string }[];
   recording?: { url?: string; sha256?: string; sizeBytes?: number };
+  /** The AMD verdict, when AMD ran: how sure, on how much audio, and when. */
+  amd?: { status: string; confidence?: number; audioMs?: number; at: number };
   toolCalls: ToolCall[];
   usage: UsageLine[];
   /** The vCon as the API returned it, for Export JSON. */

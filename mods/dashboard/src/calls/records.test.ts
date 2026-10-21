@@ -18,6 +18,7 @@
  */
 import { describe, expect, it } from "vitest";
 import {
+  answeredByWord,
   clock,
   endedText,
   median,
@@ -103,6 +104,13 @@ describe("call records", () => {
     ).toEqual({ label: "LLM input · gpt-4o-mini", amount: "1.9K tokens" });
   });
 
+  it("names who answered, by AMD, only when it could tell", () => {
+    expect(answeredByWord("voicemail")).toBe("Voicemail");
+    expect(answeredByWord("ivr")).toBe("IVR");
+    expect(answeredByWord("unknown")).toBeUndefined();
+    expect(answeredByWord(undefined)).toBeUndefined();
+  });
+
   it("says how a call ended", () => {
     expect(endedText("caller_hangup")).toBe("The caller hung up");
     expect(endedText("busy", 486)).toBe("The line was busy (SIP 486)");
@@ -128,7 +136,7 @@ describe("call records", () => {
       (ref) => (ref === "app-1" ? "Front desk, ES" : undefined)
     );
     expect(csv.split("\n")[1]).toBe(
-      'call-1,2026-10-20T14:05:00.000Z,inbound,"Front desk, ES",app-1,+18095550142,+18295550199,24,failed,busy,486,'
+      'call-1,2026-10-20T14:05:00.000Z,inbound,"Front desk, ES",app-1,+18095550142,+18295550199,24,failed,busy,486,,'
     );
   });
 });

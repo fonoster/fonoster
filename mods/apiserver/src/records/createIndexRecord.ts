@@ -83,6 +83,7 @@ export function createIndexRecord(db: RecordsDb, usage?: IndexUsageDeps) {
       endReason: erased ? (existing?.endReason ?? null) : entry.endReason,
       failureReason: entry.failureReason,
       sipStatus: entry.sipStatus,
+      amdStatus: erased ? null : (entry.amdStatus ?? null),
       startedAt:
         erased && existing ? existing.startedAt : new Date(entry.startedAt),
       endedAt: erased

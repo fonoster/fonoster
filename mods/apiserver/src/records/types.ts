@@ -33,6 +33,8 @@ export type CallRecordRow = {
   endReason: string | null;
   failureReason: string | null;
   sipStatus: number | null;
+  /** Who answered, by AMD (human, voicemail, ivr, machine, unknown); null when it didn't run. */
+  amdStatus?: string | null;
   startedAt: Date;
   endedAt: Date | null;
   durationSeconds: number;

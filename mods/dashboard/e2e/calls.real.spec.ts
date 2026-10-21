@@ -55,7 +55,11 @@ test("[DSH-034] a browser call shows up in Calls with its transcript and a playa
 
   // A call to the seeded agent: the fake microphone speaks for a few seconds, then hang up.
   await sidebar.getByRole("link", { name: "Agents", exact: true }).click();
-  await page.getByText(env("E2E_REAL_APP"), { exact: true }).click();
+  // In the Agents table: Calls rows name the agent too, until the page has changed.
+  await page
+    .getByRole("table", { name: "Agents" })
+    .getByText(env("E2E_REAL_APP"), { exact: true })
+    .click();
   await page.getByRole("button", { name: "Talk to agent" }).click();
   const drawer = page.getByRole("dialog");
   await drawer.getByRole("button", { name: "Call", exact: true }).click();

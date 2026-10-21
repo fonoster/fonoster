@@ -34,6 +34,8 @@ export type RecordIndexEntry = {
   endReason: string | null;
   failureReason: string | null;
   sipStatus: number | null;
+  /** Who answered, by AMD: human, voicemail, ivr, machine or unknown; null when AMD didn't run. */
+  amdStatus: string | null;
   startedAt: string;
   endedAt: string | null;
   durationSeconds: number;
@@ -96,6 +98,7 @@ export function indexEntry(
     endReason: (f.endReason as string) ?? null,
     failureReason: failure?.reason ?? null,
     sipStatus: failure?.sipStatus ?? null,
+    amdStatus: (f.amd as { status?: string } | undefined)?.status ?? null,
     startedAt,
     endedAt,
     durationSeconds: endedAt

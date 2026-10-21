@@ -83,6 +83,8 @@ export function buildVcon(
   let usage: unknown[] | undefined;
   let started: Record<string, unknown> | undefined;
   let failure: { reason: string; sipStatus?: number } | undefined;
+  // Who answered (AMD), as AppBridge reported it: the first verdict is the call's.
+  let amd: Record<string, unknown> | undefined;
   let recordingPolicy: string | undefined;
   let recordingFailed: string | undefined;
   let consentRequested = false;
@@ -189,6 +191,17 @@ export function buildVcon(
       failure ??= {
         reason: String(m.reason),
         ...(typeof m.sipStatus === "number" ? { sipStatus: m.sipStatus } : {})
+      };
+    } else if (e.source === "event" && type === "amd.result") {
+      amd ??= {
+        status: String(m.status ?? "unknown"),
+        ...(typeof m.confidence === "number"
+          ? { confidence: m.confidence }
+          : {}),
+        ...(typeof m.detector === "string" ? { detector: m.detector } : {}),
+        ...(typeof m.audioMs === "number" ? { audioMs: m.audioMs } : {}),
+        ...(typeof m.reason === "string" ? { reason: m.reason } : {}),
+        at: iso(e.at)
       };
     } else if (e.source === "event" && type === "recording.started") {
       recordingPolicy = String(m.policy ?? "on");
@@ -329,6 +342,7 @@ export function buildVcon(
       workspaceRef: (started?.workspaceRef as string) ?? null,
       appRefs,
       ...(failure ? { failure } : {}),
+      ...(amd ? { amd } : {}),
       ...(recordingPolicy || recordingFailed || consentRequested
         ? {
             recording: {

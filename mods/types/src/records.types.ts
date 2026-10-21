@@ -28,6 +28,8 @@ type CallRecordSummary = {
   endReason: string | null;
   failureReason: string | null;
   sipStatus: number | null;
+  /** Who answered, by AMD: human, voicemail, ivr, machine or unknown; null when AMD didn't run. */
+  amdStatus: string | null;
   startedAt: string;
   endedAt: string | null;
   durationSeconds: number;

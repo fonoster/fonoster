@@ -71,6 +71,18 @@ export function recordParties(
   };
 }
 
+const ANSWERED: Record<string, string> = {
+  human: "Human",
+  voicemail: "Voicemail",
+  machine: "Machine",
+  ivr: "IVR"
+};
+
+/** Who answered, by AMD, in a word; undefined when AMD didn't run or couldn't tell. */
+export function answeredByWord(amdStatus?: string): string | undefined {
+  return amdStatus ? ANSWERED[amdStatus] : undefined;
+}
+
 /** Milliseconds as a clock: 0:00, 0:24, 2:05, 1:02:09. */
 export function clock(ms: number): string {
   const s = Math.max(0, Math.floor(ms / 1000));
@@ -161,7 +173,8 @@ const CSV_FIELDS = [
   "status",
   "failureReason",
   "sipStatus",
-  "endReason"
+  "endReason",
+  "answeredBy"
 ] as const;
 
 /** The listed records as CSV, one row per call. */
@@ -183,7 +196,8 @@ export function recordsToCsv(
       status: call.status,
       failureReason: call.failureReason ?? "",
       sipStatus: call.sipStatus ?? "",
-      endReason: call.endReason ?? ""
+      endReason: call.endReason ?? "",
+      answeredBy: call.amdStatus ?? ""
     };
     return CSV_FIELDS.map((f) => csvCell(values[f])).join(",");
   });

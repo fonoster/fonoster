@@ -233,7 +233,7 @@ kept separate. Apps SHALL NOT be able to override the policy.
 ### Requirement: Records are available through the API and the dashboard
 
 The API SHALL fetch a record by `callRef` (latest or a given version) and search records by time
-range, number, app and status, within the caller's workspace. The dashboard SHALL display a record
+range, number, app, direction and status, within the caller's workspace. The dashboard SHALL display a record
 and offer download of its recording. When a record is sealed, the platform SHALL
 emit the `call_record.sealed` workspace webhook with the call ref and a link to fetch the record,
 and MUST NOT include record contents in the webhook. Continuous export is not part of this version.
@@ -249,6 +249,11 @@ and MUST NOT include record contents in the webhook. Continuous export is not pa
 - **WHEN** a record is sealed for a workspace subscribed to `call_record.sealed`
 - **THEN** the workspace receives one `call_record.sealed` webhook with the `callRef` and a fetch link
 - **AND** the webhook body contains no transcript or recording
+
+#### Scenario: Search by direction
+
+- **WHEN** a workspace member searches with `direction=outbound`
+- **THEN** only the workspace's outbound records are returned
 
 ### Requirement: Calls that never reach an app get a minimal record
 
