@@ -60,7 +60,13 @@ describe("@conformance[fakes server]", function () {
       ws.close();
       expect(transcript).to.equal("hello");
     } finally {
-      await Promise.all([fakes.tts.stop(), fakes.stt.stop(), fakes.llm.stop()]);
+      await Promise.all([
+        fakes.tts.stop(),
+        fakes.stt.stop(),
+        fakes.llm.stop(),
+        // Left running, the OAuth2 fake kept mocha from exiting (the CI job hung until its timeout).
+        fakes.oauth2.stop()
+      ]);
     }
   });
 });
