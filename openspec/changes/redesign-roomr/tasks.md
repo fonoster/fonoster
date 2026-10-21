@@ -47,13 +47,13 @@
 
 - [ ] 5.1 `Session.Connect` proto: `MediaEndpoint`, `Start`, `Answer`, `Ready`, `Reject`, `Play`, `Stop`, `Transfer`, `TransferComplete`, `Hold`, `Resume`, `SendDtmf`, `AttachListener`, `DetachListener`, `Record`, `Hangup`, `Dtmf`, `Event`
 - [x] 5.2 Node client: new connection per call, `Start` first, keepalive 10 s / 2 missed, hang up with cause `app_gone` on break, `503` when unreachable and `480` on answer timeout, optional TLS/mTLS from config
-- [ ] 5.3 AppBridge server: accept streams, answer on verified app connect (`Answer` with the `RtpLink` endpoint), `Ready` for outbound, map stream events to `session.end` reasons
+- [x] 5.3 AppBridge server: accept streams, answer on verified app connect (`Answer` with the `RtpLink` endpoint), `Ready` for outbound, map stream events to `session.end` reasons
 - [ ] 5.4 Run the stream beside the NATS offer behind a flag; measurement 1 (50 calls/s burst across 10 appbridge pods: setup time and spread) and measurement 2 (one AppBridge pod at 500 and 1,000 calls: CPU and RTP jitter)
 - [ ] 5.5 Test: inbound answered on `Answer` only, with `180 Ringing` within 200 ms; `Reject` yields the given SIP status; stream break sends BYE; no audio bytes on the stream
-- [ ] 5.6 AppBridge-side keepalive on the stream (end the session after 2 missed pings)
+- [x] 5.6 AppBridge-side keepalive on the stream (end the session after 2 missed pings)
 - [x] 5.7 Node: `readyTimeout` (default 10 s) and unreachable session endpoint on an answered outbound call → BYE, `cause: "app_gone"`; `CANCEL` before `Answer` → `487`, `Ended` `caller_hangup`, stream closed
 - [x] 5.8 Node: one `mediaTimeout` (default 15 s) for the caller and app legs → BYE, `cause: "media_timeout"` or `"app_gone"`
-- [ ] 5.9 AppBridge: the `cause` → `session.end` `reason` table, unknown cause → `error`
+- [x] 5.9 AppBridge: the `cause` → `session.end` `reason` table, unknown cause → `error`
 - [ ] 5.10 Test: appbridge ends the session when the node is killed; Ready never arrives; endpoint unreachable on answer; caller cancels before `Answer`; app stops sending RTP
 - [ ] 5.11 Test: `media_timeout` with a short limit; SRTP app leg when both endpoints carry `srtp_key`; `max_duration_s` from `CreateCall` and from `Answer`
 - [ ] 5.12 Test: `SendDtmf`, `Hold`/`Resume`, cold, warm (completed and unanswered) and refer transfers sent on the stream
@@ -63,7 +63,7 @@
 ## 6. AppBridge behind a Service (S)
 
 - [ ] 6.1 Helm: appbridge Service for the control stream; NetworkPolicy allowing node-to-appbridge RTP and the control port; Compose equivalent
-- [ ] 6.2 Retire `appbridge.incoming` and `appbridge.outbound` and the claim logic in `Call.ts`
+- [x] 6.2 Retire `appbridge.incoming` and `appbridge.outbound` and the claim logic in `Call.ts`
 - [ ] 6.3 Test: 100 calls through the Service land on more than one AppBridge pod; audio flows under the shipped NetworkPolicy
 - [ ] 6.4 Helm: admit Roomr's control port only from the apiserver and its SIP port only from the SIP proxy (NetworkPolicy when Roomr runs on the pod network; a documented host firewall when `hostNetwork` is true); Compose: publish only the RTP range, not the SIP or control ports
 - [ ] 6.5 Test: a pod other than the apiserver cannot reach Roomr's control port under the shipped policies (pod network)
@@ -131,7 +131,7 @@
 
 - [x] 13.1 Roomr: serve `grpc.health.v1.Health` on the control port (`SERVING`); on SIGTERM set `NOT_SERVING`, send REGISTER `Expires: 0`, stop heartbeats, publish `node.down` (`type: "node.down"`) on `roomr.nodes.<node_ref>.heartbeat`; keep live rooms until they end or `drainWait` (default 1 h), then end them with `node_error` and exit; remove the `draining` heartbeat field and the `{sessions}`-as-limit rendering
 - [x] 13.2 Remove the debug HTTP server (`debugAddr`, `/ready`, `/stats`)
-- [ ] 13.3 AppBridge: on SIGTERM fail readiness; keep streams and app sockets until they end or the maximum wait; no `MaxConnectionAge` on the `Session` server
+- [x] 13.3 AppBridge: on SIGTERM fail readiness; keep streams and app sockets until they end or the maximum wait; no `MaxConnectionAge` on the `Session` server
 - [ ] 13.4 Helm: `terminationGracePeriodSeconds` at least the drain maximum wait, gRPC readiness probe for Roomr, readiness probe for AppBridge and a PodDisruptionBudget for each; no `MaxConnectionAge` on the `Roomr` server
 - [ ] 13.5 Test: on SIGTERM the gRPC health check reports `NOT_SERVING`, REGISTER `Expires: 0` is seen, `node.down` is published, heartbeats stop and rooms keep running; exit after the last room; short `drainWait` ends rooms with `node_error`; appbridge maximum wait; rendered chart drain settings
 - [ ] 13.6 Test: rolling out AppBridge and Roomr with live calls drops none and new calls land on the new pods
@@ -148,8 +148,8 @@
 
 ## 15. Health and membership
 
-- [ ] 15.1 AppBridge: `mediaTimeout` in `appbridge.yaml` (default 15 s); end the call when the node's RTP stops for that long, seal the record with `media_timeout`
-- [ ] 15.2 AppBridge: serve `grpc.health.v1.Health` on the `Session` port (`SERVING`; `NOT_SERVING` on SIGTERM); Helm and Compose readiness probes use it
+- [x] 15.1 AppBridge: `mediaTimeout` in `appbridge.yaml` (default 15 s); end the call when the node's RTP stops for that long, seal the record with `media_timeout`
+- [x] 15.2 AppBridge: serve `grpc.health.v1.Health` on the `Session` port (`SERVING`; `NOT_SERVING` on SIGTERM); Helm and Compose readiness probes use it
 - [ ] 15.3 Remove `appbridge.heartbeat` (AppBridge publisher, Roomr and region-agent subscribers, NATS permissions) and the `appbridges` registry lease; keep `calls.<callRef>` for call ownership
 - [ ] 15.4 Control plane: send `call.ended` with `endReason` `appbridge-lost` from the node's `call.ended` with `cause` `app_gone`, once per `callRef`, never after AppBridge's own; remove the lease-expiry path in `lostCalls`
 - [ ] 15.5 Region agent: report AppBridge readiness from its health check through the Service, and active calls as the sum of `rooms` in the nodes' heartbeats

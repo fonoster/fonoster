@@ -47,6 +47,13 @@ spec:
             {{- end }}
           ports:
             - { name: http, containerPort: 8080 }
+            # Session.Connect (the Roomr node's control streams) and grpc.health.v1.
+            - { name: session, containerPort: {{ .Values.appbridge.sessionPort }} }
+          # NOT_SERVING while draining after SIGTERM: the Service stops sending new streams here.
+          readinessProbe:
+            grpc: { port: {{ .Values.appbridge.sessionPort }} }
+            periodSeconds: 5
+            failureThreshold: 2
           volumeMounts:
             - { name: config, mountPath: /etc/fonoster/appbridge.yaml, subPath: appbridge.yaml, readOnly: true }
             {{- include "fonoster-rebuild.secretMounts" (dict "root" $ "names" .Values.appbridge.secretMounts) | nindent 12 }}
@@ -87,6 +94,8 @@ spec:
     app.kubernetes.io/instance: {{ .Release.Name }}
   ports:
     - { name: http, port: {{ .Values.appbridge.service.port }}, targetPort: http }
+    # The Roomr node's sessionEndpoint (<release>-appbridge:<sessionPort>).
+    - { name: session, port: {{ .Values.appbridge.sessionPort }}, targetPort: session }
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget

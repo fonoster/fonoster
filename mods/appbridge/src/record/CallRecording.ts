@@ -25,26 +25,33 @@ const logger = getLogger({ service: "appbridge", filePath: __filename });
 /** How long to wait for the track ids of both sides before giving up on the recording. */
 const TRACKS_TIMEOUT_MS = 3000;
 
+/** The two sides of a call whose tracks the listeners fork. */
+export type TrackRole = "caller" | "app";
+
 type Host = {
   callRef: string;
   record(source: "event", message: Record<string, unknown>): void;
-  mediaCommand(command: {
-    type: string;
-    [k: string]: unknown;
-  }): Promise<Record<string, unknown>>;
+  /** AttachListener on the call's control stream; resolves with the listener's ref. */
+  attachListener(
+    listen: {
+      trackId: number;
+      rtp: { ip: string; port: number; codec?: string };
+    }[]
+  ): Promise<string>;
+  detachListener?(listenerRef: string): Promise<void>;
   /** Where `recording.seconds` is counted (add-usage-metering). */
   usage?: { addMillis(key: { meter: "recording.seconds" }, ms: number): void };
 };
 
 /**
  * The platform's recording listener for one call (call-record "Recording is applied by policy",
- * design V8). It attaches through media-control `listener.attach` with one unmixed RTP stream per
- * side (the caller's track and the session participant's track) straight to a Recorder, which
+ * design V8). It attaches through `AttachListener` on the control stream with one unmixed RTP
+ * stream per side (the caller's track and the app leg's track) straight to a Recorder, which
  * writes next to the working record. Apps cannot start or stop it: it follows the policy only.
  */
 export class CallRecording {
-  /** participantRef → its audio track id, from call.incoming and participant.joined. */
-  private readonly tracks = new Map<string, number>();
+  /** Each side's audio track id, from the node's ParticipantJoined events. */
+  private readonly tracks = new Map<TrackRole, number>();
   private waiters: (() => void)[] = [];
   private recorder?: Recorder;
   private stopped = false;
@@ -57,21 +64,17 @@ export class CallRecording {
     private readonly rtp: { host?: string; advertiseHost?: string } = {}
   ) {}
 
-  /** Learns a participant's track ids (call.incoming's participant, participant.joined). */
-  noteTracks(participantRef: unknown, tracks: unknown) {
-    if (typeof participantRef !== "string" || !Array.isArray(tracks)) return;
-    const audio = (tracks as { trackId?: number; kind?: string }[]).find(
-      (t) => typeof t.trackId === "number" && (t.kind ?? "audio") === "audio"
-    );
-    if (!audio) return;
-    this.tracks.set(participantRef, audio.trackId!);
+  /** Learns one side's track id (ParticipantJoined). */
+  noteTrack(role: TrackRole, trackId: unknown) {
+    if (typeof trackId !== "number" || !Number.isFinite(trackId)) return;
+    this.tracks.set(role, trackId);
     for (const w of this.waiters.splice(0)) w();
   }
 
-  /** A participant's audio track id, once known (waits up to 3 s). */
-  async trackOf(participantRef: string): Promise<number | undefined> {
+  /** One side's audio track id, once known (waits up to 3 s). */
+  async trackOf(role: TrackRole): Promise<number | undefined> {
     const deadline = Date.now() + TRACKS_TIMEOUT_MS;
-    while (!this.tracks.has(participantRef) && !this.stopped) {
+    while (!this.tracks.has(role) && !this.stopped) {
       const left = deadline - Date.now();
       if (left <= 0) break;
       await new Promise<void>((resolve) => {
@@ -82,15 +85,11 @@ export class CallRecording {
         });
       });
     }
-    return this.tracks.get(participantRef);
+    return this.tracks.get(role);
   }
 
   /** Starts recording both sides; records why when it cannot. */
-  async start(
-    policy: RecordingPolicy,
-    callerRef: string,
-    sessionParticipantRef: string
-  ) {
+  async start(policy: RecordingPolicy) {
     if (policy === "off" || this.recorder || this.stopped) return;
     if (!this.dir) {
       this.host.record("event", {
@@ -99,8 +98,8 @@ export class CallRecording {
       });
       return;
     }
-    const caller = await this.trackOf(callerRef);
-    const agent = await this.trackOf(sessionParticipantRef);
+    const caller = await this.trackOf("caller");
+    const agent = await this.trackOf("app");
     if (this.stopped) return;
     if (caller === undefined || agent === undefined) {
       this.host.record("event", {
@@ -116,14 +115,15 @@ export class CallRecording {
         this.rtp.host ?? "127.0.0.1",
         this.rtp.advertiseHost
       );
-      const ack = await this.host.mediaCommand({
-        type: "listener.attach",
-        tracks: [
-          { trackId: caller, rtp: rtp.caller },
-          { trackId: agent, rtp: rtp.agent }
-        ]
+      const endpoint = (r: { host: string; port: number; codec?: string }) => ({
+        ip: r.host,
+        port: r.port,
+        codec: r.codec
       });
-      this.listenerRef = ack.listenerRef as string | undefined;
+      this.listenerRef = await this.host.attachListener([
+        { trackId: caller, rtp: endpoint(rtp.caller) },
+        { trackId: agent, rtp: endpoint(rtp.agent) }
+      ]);
       this.recordingSince = Date.now();
       this.host.record("event", {
         type: "recording.started",

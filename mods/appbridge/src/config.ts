@@ -102,8 +102,25 @@ export type AppBridgeConfig = {
    */
   nats: { url: string; user?: string; password?: string };
   /**
-   * The RTP leg to the Roomr node. `srtp: true` encrypts it (SDES keys in participant.add,
-   * AES_CM_128_HMAC_SHA1_80); required when the node runs with -require-encryption (MN6).
+   * The session endpoint Roomr nodes open one control stream per call to (redesign-roomr 5.3):
+   * `Session.Connect` and `grpc.health.v1.Health` on `listen` (default 0.0.0.0:50071, the port
+   * of `sessionEndpoint` in roomr.yaml). `keepalive` is the ping interval on each node connection
+   * (default 10s; two missed pings end the session). `drainWait` is the longest a replica keeps its
+   * calls after SIGTERM (default 1h). Durations are milliseconds or strings like "15s".
+   */
+  session?: {
+    listen?: string;
+    keepalive?: number | string;
+    drainWait?: number | string;
+  };
+  /**
+   * End a call when the node's RTP stops this long while its stream stays open (default 15s; 0
+   * turns it off). The record is sealed with `media_timeout` (task 15.1).
+   */
+  mediaTimeout?: number | string;
+  /**
+   * The RTP leg to the Roomr node. `srtp: true` encrypts it (SDES: AppBridge's key goes in Answer
+   * or Ready, the node's comes in Start; AES_CM_128_HMAC_SHA1_80).
    */
   rtp?: {
     host?: string;
@@ -295,9 +312,47 @@ export const DEFAULTS = {
   ttsTimeoutMs: 3000
 };
 
+/** The Session server's address when `session.listen` is unset. */
+export const DEFAULT_SESSION_LISTEN = "0.0.0.0:50071";
+/** How long a draining replica keeps its calls after SIGTERM by default (13.3). */
+export const DEFAULT_DRAIN_WAIT_MS = 3_600_000;
+
+const DURATION = /^(\d+(?:\.\d+)?)(ms|s|m|h)$/;
+const UNIT_MS: Record<string, number> = {
+  ms: 1,
+  s: 1000,
+  m: 60_000,
+  h: 3_600_000
+};
+
+/**
+ * A duration in ms: a number is milliseconds, a string is `<n><ms|s|m|h>` ("15s", "1h", "500ms").
+ * NaN when it is neither.
+ */
+export function parseDurationMs(value: number | string): number {
+  if (typeof value === "number") return value;
+  const m = DURATION.exec(value.trim());
+  return m ? Number(m[1]) * UNIT_MS[m[2]] : NaN;
+}
+
 export function validateConfig(config: AppBridgeConfig): string[] {
   const problems: string[] = [];
   if (!config.nats?.url) problems.push("nats.url is required");
+  for (const [key, value] of [
+    ["mediaTimeout", config.mediaTimeout],
+    ["session.keepalive", config.session?.keepalive],
+    ["session.drainWait", config.session?.drainWait]
+  ] as const) {
+    if (value === undefined) continue;
+    const ms = parseDurationMs(value);
+    if (!Number.isFinite(ms) || ms < 0)
+      problems.push(`${key} must be a duration like "15s" or milliseconds`);
+  }
+  if (
+    config.session?.listen !== undefined &&
+    !/^[^\s]*:\d+$/.test(config.session.listen)
+  )
+    problems.push("session.listen must be host:port");
   const refs = new Set<string>();
   for (const app of config.apps ?? []) {
     if (refs.has(app.ref)) problems.push(`duplicate app ref ${app.ref}`);

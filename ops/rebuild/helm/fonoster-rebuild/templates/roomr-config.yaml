@@ -22,6 +22,8 @@ roomr.sip.registrations replaces it with the registrars you list ([] sends no RE
 {{- $_ := set $cfg "sip" $sip }}
 {{- $_ := set $cfg "rtp" (dict "host" "0.0.0.0" "advertise" $rtpAdvertise "portMin" ($m.rtp.portMin | int) "portMax" ($m.rtp.portMax | int)) }}
 {{- $_ := set $cfg "outboundProxy" $m.routr.outboundProxy }}
+{{- /* Each call's control stream goes to AppBridge's Service (redesign-roomr 5.3). */}}
+{{- $_ := set $cfg "sessionEndpoint" ($m.sessionEndpoint | default (printf "%s-appbridge:%d" .Release.Name (.Values.appbridge.sessionPort | int))) }}
 {{- /* Rooms get drainGraceSeconds to end after SIGTERM (the pod's grace period is longer). */}}
 {{- $_ := set $cfg "drainWait" (printf "%ds" ($m.drainGraceSeconds | int)) }}
 {{- /* Roomr for the apiserver; the node advertises it on sip.advertise's host. */}}

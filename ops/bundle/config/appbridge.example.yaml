@@ -3,6 +3,12 @@
 nats: { url: "nats://nats:4222", user: appbridge, password: "${NATS_APPBRIDGE_PASSWORD}" }
 # The RTP leg to the Roomr node, on AppBridge's fixed address.
 rtp: { host: 0.0.0.0, advertiseHost: "${SUBNET_PREFIX}.43" }
+# The session endpoint: the Roomr node opens one control stream per call here (roomr.yaml's
+# sessionEndpoint, appbridge:50071); grpc.health.v1 on the same port is the readiness check. On
+# SIGTERM AppBridge keeps its calls up to drainWait (compose.yaml's stop_grace_period is longer).
+session: { listen: "0.0.0.0:50071", drainWait: 10m }
+# End a call when the node's audio stops this long while its control stream stays open.
+mediaTimeout: 15s
 # Speech vendors and their platform keys, shared by every workspace. Replace each placeholder with
 # your key. A workspace's own key (dashboard, Vendor keys) is used instead of the platform's.
 providers:

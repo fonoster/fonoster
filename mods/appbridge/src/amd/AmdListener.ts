@@ -72,10 +72,14 @@ export function amdWindowMs(option?: AmdAppOption): number | undefined {
 
 type Host = {
   callRef: string;
-  mediaCommand(command: {
-    type: string;
-    [k: string]: unknown;
-  }): Promise<Record<string, unknown>>;
+  /** AttachListener on the call's control stream; resolves with the listener's ref. */
+  attachListener(
+    listen: {
+      trackId: number;
+      rtp: { ip: string; port: number; codec?: string };
+    }[]
+  ): Promise<string>;
+  detachListener(listenerRef: string): Promise<void>;
 };
 
 export type AmdResult = AmdVerdict & {
@@ -183,20 +187,16 @@ export class AmdListener {
     const bindHost = this.rtp.host ?? "127.0.0.1";
     await new Promise<void>((resolve) => socket.bind(0, bindHost, resolve));
     if (this.done) return this.close();
-    const ack = await this.host.mediaCommand({
-      type: "listener.attach",
-      tracks: [
-        {
-          trackId: callerTrack,
-          rtp: {
-            host: this.rtp.advertiseHost ?? bindHost,
-            port: socket.address().port,
-            codec: AMD_CODEC
-          }
+    this.listenerRef = await this.host.attachListener([
+      {
+        trackId: callerTrack,
+        rtp: {
+          ip: this.rtp.advertiseHost ?? bindHost,
+          port: socket.address().port,
+          codec: AMD_CODEC
         }
-      ]
-    });
-    this.listenerRef = ack.listenerRef as string | undefined;
+      }
+    ]);
     if (this.done) await this.detach();
   }
 
@@ -252,9 +252,7 @@ export class AmdListener {
     const listenerRef = this.listenerRef;
     this.listenerRef = undefined;
     if (!listenerRef) return;
-    await this.host
-      .mediaCommand({ type: "listener.detach", listenerRef })
-      .catch(() => undefined);
+    await this.host.detachListener(listenerRef).catch(() => undefined);
   }
 
   private close() {

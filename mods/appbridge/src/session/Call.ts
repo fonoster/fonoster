@@ -23,6 +23,7 @@ import {
   assertPublicDestination,
   E164,
   isSipTarget,
+  Roomr,
   SESSION_PROTOCOL,
   SessionEndReason,
   SessionStart,
@@ -40,6 +41,7 @@ import {
   AppBridgeConfig,
   AppConfig,
   DEFAULTS,
+  parseDurationMs,
   recordingPolicy
 } from "../config";
 import {
@@ -48,12 +50,9 @@ import {
   bufferToInt16,
   int16ToBuffer
 } from "../filters";
-import {
-  MediaCommandError,
-  MediaControl,
-  MediaEvent
-} from "../media/MediaControl";
-import { RtpLink } from "../media/RtpLink";
+import { ControlStream } from "../media/ControlStream";
+import { OFFERED_CODEC, RtpLink } from "../media/RtpLink";
+import { SRTP_SUITE } from "../media/srtp";
 import { FonosterCodec } from "../protocols/fonoster";
 import { TwilioCodec } from "../protocols/twilio";
 import { ProtocolCodec } from "../protocols/types";
@@ -106,42 +105,83 @@ const ALLOWED_ON_HOLD = new Set([
   "usage.report"
 ]);
 
-/** media-control ending reasons → session.end reasons (voice-session, "Session ending"). */
-export function sessionEndReason(reason: unknown): SessionEndReason {
-  switch (reason) {
+/**
+ * The node's `Ended` cause → the `session.end` reason (redesign-roomr 5.9, voice-session
+ * "Session ending"). `removed` is the app's own hang-up (or an EndCall/EndRoom from the control
+ * plane), unless the app transferred the call first. Busy, no answer and rejected end outbound
+ * calls before any session opens; they and every cause AppBridge does not know map to `error`.
+ */
+export function sessionEndReason(
+  cause: unknown,
+  context: { transferred?: boolean } = {}
+): SessionEndReason {
+  switch (cause) {
+    case "caller_hangup":
+    case "callee_hangup":
+      return "caller_hangup";
+    case "removed":
+      return context.transferred ? "transfer" : "app_hangup";
     case "max_duration":
       return "timeout";
     case "media_timeout":
     case "node_error":
-      return "error";
+    case "app_gone":
     default:
-      return "caller_hangup";
+      return "error";
   }
 }
 
-/** The call record's end reason: the session reason, except that the callee hanging up stays so. */
-export function recordEndReason(reason: unknown): string {
-  return reason === "callee_hangup" ? reason : sessionEndReason(reason);
+/** Causes the call record keeps as they are, where they say more than the session reason. */
+const RECORDED_CAUSES = new Set([
+  "callee_hangup",
+  "media_timeout",
+  "node_error"
+]);
+
+/**
+ * The call record's end reason: the session reason, except that the callee hanging up, the media
+ * timeout and a node error stay so.
+ */
+export function recordEndReason(
+  cause: unknown,
+  context: { transferred?: boolean } = {}
+): string {
+  return RECORDED_CAUSES.has(String(cause))
+    ? String(cause)
+    : sessionEndReason(cause, context);
+}
+
+/** What the node's RTP may be silent for before AppBridge ends the call (task 15.1). */
+export const MEDIA_TIMEOUT_MS = 15_000;
+
+/** The control stream is gone: a command could not be sent. */
+export class StreamClosedError extends Error {
+  readonly code = "stream_closed";
+  constructor(what: string) {
+    super(`${what}: the call's control stream is closed`);
+  }
 }
 
 export type CallInfo = {
   nodeId: string;
   roomRef: string;
   callRef: string;
+  /** The caller's (or callee's) participant on the node, once ParticipantJoined names it. */
   callerRef: string;
   direction: "inbound" | "outbound";
   from: string;
   to: string;
   metadata: Record<string, unknown>;
-  /** The caller's tracks from call.incoming (the recording listener needs their ids). */
-  callerTracks?: unknown[];
-  /** The Roomr node's trace context from call.incoming: the call's span joins its trace. */
+  /** The node's RTP endpoint for the app leg (Start.media). */
+  nodeMedia?: Roomr.MediaEndpoint;
+  /** The trace context from Start's headers (`traceparent`): the call's span joins its trace. */
   traceparent?: string;
 };
 
 export type CallDeps = {
   config: AppBridgeConfig;
-  media: MediaControl;
+  /** The call's control stream to its Roomr node (redesign-roomr 5.3). */
+  stream: ControlStream;
   catalog: Catalog;
   record: CallRecordSink;
   findApp: (ref: string) => AppConfig | undefined;
@@ -188,7 +228,15 @@ export class Call {
   readonly startedAt = Date.now();
   private rtp = new RtpLink();
   private sessionParticipantRef?: string;
-  private unsubscribeRoom?: () => void;
+  /** AppBridge's own RTP endpoint, sent in Answer or Ready. */
+  private localMedia?: Roomr.MediaEndpoint;
+  /** Answer or Ready went out. */
+  private taken = false;
+  /** When the node's RTP was last heard (media timeout, task 15.1). */
+  private lastRtpAt = 0;
+  private mediaWatch?: ReturnType<typeof setInterval>;
+  /** The app transferred the call: the node's `removed` then means `transfer`. */
+  private transferred = false;
   private session?: AppSession;
   private ended = false;
   private hangingUp?: SessionEndReason;
@@ -229,14 +277,26 @@ export class Call {
       deps.record.recordingDir?.(info.callRef),
       deps.config.rtp
     );
-    this.recording.noteTracks(info.callerRef, info.callerTracks);
+    deps.stream.callRef = info.callRef;
+    deps.stream.on("dtmf", (d: Roomr.SessionDtmf) => {
+      this.record("event", { media: { type: "dtmf", ...d } });
+      this.session?.callerDtmf(String(d.digit));
+    });
+    deps.stream.on("event", (kind: string, body: Record<string, unknown>) =>
+      this.onStreamEvent(kind, body)
+    );
+    deps.stream.on("close", (ended?: { cause: string }) => {
+      // A stream that closed without Ended: the node is gone (voice-session "Node lost").
+      if (!ended) this.nodeLost();
+    });
+    deps.stream.listen();
   }
 
   get callRef() {
     return this.info.callRef;
   }
 
-  /** A hang-up is in progress (waiting for Roomr's ack before the session ends). */
+  /** A hang-up is in progress. */
   get isHangingUp() {
     return this.hangingUp !== undefined;
   }
@@ -315,11 +375,6 @@ export class Call {
   /** Runs an inbound or answered outbound call with its app. */
   async run(app: AppConfig) {
     this.routedTo = app;
-    this.unsubscribeRoom = this.deps.media.subscribeRoom(
-      this.info.nodeId,
-      this.info.roomRef,
-      (e) => this.onMediaEvent(e)
-    );
     this.record("event", {
       type: "call.started",
       direction: this.info.direction,
@@ -365,24 +420,25 @@ export class Call {
       if (reached && policy === "consent") {
         // The caller hears the consent prompt before recording starts and before the app's
         // session begins (call-record "Consent prompt").
-        if (this.info.direction === "inbound")
-          await this.mediaCommand({ type: "answer" });
+        this.takeCall();
         await this.consentPrompt(reached.app);
         if (this.ended) return socket?.terminate();
         await this.startRecording(policy);
         this.attach(reached.app, reached.socket, null);
       } else {
         if (reached) void this.startRecording(policy);
-        // Auto-answer once the app's socket is open and session.start is sent (VS12).
+        // Answer (or Ready) once the app's socket is open and session.start is sent (VS12,
+        // voice-session "AppBridge answers on the stream").
         if (reached) this.attach(reached.app, reached.socket, null);
-        if (this.info.direction === "inbound")
-          await this.mediaCommand({ type: "answer" });
+        this.takeCall();
       }
     } catch (e) {
       logger.error(
         `call ${this.callRef}: could not set up media: ${(e as Error).message}`
       );
       socket?.terminate();
+      this.hangingUp = "error";
+      this.deps.stream.hangup();
       return this.finish("error");
     }
 
@@ -414,7 +470,7 @@ export class Call {
         audioMs: 0,
         reason: "no_classifier"
       });
-    const track = await this.recording.trackOf(this.info.callerRef);
+    const track = await this.recording.trackOf("caller");
     if (this.ended) return;
     if (track === undefined)
       return report({
@@ -438,12 +494,8 @@ export class Call {
   }
 
   private async startRecording(policy: ReturnType<typeof recordingPolicy>) {
-    if (policy === "off" || !this.sessionParticipantRef) return;
-    await this.recording.start(
-      policy,
-      this.info.callerRef,
-      this.sessionParticipantRef
-    );
+    if (policy === "off") return;
+    await this.recording.start(policy);
   }
 
   /** Speaks the consent prompt alone (no app session yet) and resolves when it has played. */
@@ -516,23 +568,27 @@ export class Call {
     );
   }
 
-  /** Refuses an unroutable call (claimed, then hung up with a SIP status). */
+  /**
+   * Refuses the call with a SIP status: `Reject` on an inbound call the app has not answered,
+   * `Hangup` otherwise (an outbound call is already answered by its callee).
+   */
   async reject(sipStatus: number) {
     this.hangingUp = "error";
-    try {
-      await this.mediaCommand({ type: "hangup", sipStatus });
-    } catch {
-      // the room may already be gone
-    }
+    if (this.info.direction === "inbound" && !this.taken)
+      this.deps.stream.reject(sipStatus);
+    else this.deps.stream.hangup(sipStatus);
     this.finish("error");
   }
 
-  /** The Roomr node stopped sending heartbeats: its calls are gone (media-control, liveness). */
+  /**
+   * The node's control stream closed without Ended (the node died, or keepalive declared it
+   * dead): the call is gone (voice-session "Node lost").
+   */
   nodeLost() {
     if (this.ended) return;
     this.record("event", { type: "call.failure", reason: "node_error" });
     if (!this.answeredBy) this.failed("node_error");
-    this.finish("error");
+    this.finish("error", "node_error");
   }
 
   /** Dials the app, then its fallback app; returns undefined when only a message is left. */
@@ -576,25 +632,82 @@ export class Call {
     }
   }
 
+  /**
+   * Binds AppBridge's RTP endpoint and points it at the node's (Start.media). With `rtp.srtp` the
+   * leg is SRTP: our key goes in Answer or Ready and the node's key from Start decrypts what it
+   * sends (redesign-roomr "Encrypted app leg"); without it the leg is plain RTP.
+   */
   private async joinRoom() {
-    if (this.deps.config.rtp?.srtp) this.rtp.enableSrtp();
+    const node = this.info.nodeMedia;
+    if (!node?.ip || !node.port)
+      throw new Error("Start carried no media endpoint");
+    if (this.deps.config.rtp?.srtp) {
+      if (!node.srtpKey)
+        throw new Error("the node offered no srtp key on an encrypted leg");
+      this.rtp.enableSrtp();
+    }
     const offer = await this.rtp.bind(
       this.deps.config.rtp?.host ?? "127.0.0.1",
       this.deps.config.rtp?.advertiseHost
     );
-    const ack = await this.mediaCommand({
-      type: "participant.add",
-      kind: "session",
-      rtp: offer
+    this.rtp.connect({
+      host: node.ip,
+      port: node.port,
+      ...(this.rtp.secure
+        ? { srtp: { suite: SRTP_SUITE, key: node.srtpKey! } }
+        : {})
     });
-    const rtp = ack.rtp as {
-      host: string;
-      port: number;
-      srtp?: { suite: string; key: string };
+    this.localMedia = {
+      ip: offer.host,
+      port: offer.port,
+      codec: OFFERED_CODEC,
+      ...(offer.srtp ? { srtpKey: offer.srtp.key } : {})
     };
-    this.sessionParticipantRef = ack.participantRef as string;
-    this.rtp.connect(rtp);
-    this.rtp.on("frame", (frame: Buffer) => this.session?.callerAudio(frame));
+    this.rtp.on("frame", (frame: Buffer) => {
+      this.lastRtpAt = Date.now();
+      this.session?.callerAudio(frame);
+    });
+  }
+
+  /**
+   * Takes the call on the node: `Answer` for an inbound call (the caller gets 200 OK), `Ready` for
+   * an answered outbound one. From here the node's RTP must keep flowing (media timeout).
+   */
+  private takeCall() {
+    if (this.taken || this.ended) return;
+    const media = this.localMedia!;
+    const sent =
+      this.info.direction === "inbound"
+        ? this.deps.stream.answer(media)
+        : this.deps.stream.ready(media);
+    if (!sent) throw new StreamClosedError("answer");
+    this.taken = true;
+    this.watchMedia();
+  }
+
+  /**
+   * Ends the call when the node's RTP stops for `mediaTimeout` while the stream stays open
+   * (task 15.1, voice-session "Node's audio stops"): the app gets `error`, the record says
+   * `media_timeout`.
+   */
+  private watchMedia() {
+    const timeoutMs = mediaTimeoutMs(this.deps.config);
+    if (!timeoutMs) return;
+    this.lastRtpAt = Date.now();
+    this.mediaWatch = setInterval(
+      () => {
+        if (this.ended || Date.now() - this.lastRtpAt < timeoutMs) return;
+        this.record("event", {
+          type: "media.timeout",
+          silentMs: Date.now() - this.lastRtpAt
+        });
+        this.hangingUp = "error";
+        this.deps.stream.hangup();
+        this.finish("error", "media_timeout");
+      },
+      Math.min(1000, Math.max(50, Math.floor(timeoutMs / 4)))
+    );
+    this.mediaWatch.unref?.();
   }
 
   /** No app could be reached: speak the fallback message, if any, then hang up. */
@@ -654,15 +767,23 @@ export class Call {
     this.session.start();
   }
 
-  async mediaCommand(
-    command: { type: string; [k: string]: unknown },
-    id = this.nextCommandId()
-  ) {
-    return this.deps.media.command(
-      this.info.nodeId,
-      { ...command, id, roomRef: this.info.roomRef },
-      telemetry.traceparent(this.info.callRef)
-    );
+  /** Sends one command on the control stream (the node runs them in order). */
+  command(message: Roomr.AppMessage) {
+    if (!this.deps.stream.send(message))
+      throw new StreamClosedError(
+        Roomr.messageType(message, Roomr.APP_MESSAGE_TYPES) ?? "command"
+      );
+  }
+
+  /** Attaches a listen-only fork of some tracks (recording, AMD); resolves with its ref. */
+  async attachListener(listen: Roomr.ListenTrack[]): Promise<string> {
+    const listenerRef = randomUUID();
+    this.command({ attachListener: { listenerRef, listen } });
+    return listenerRef;
+  }
+
+  async detachListener(listenerRef: string) {
+    this.command({ detachListener: { listenerRef } });
   }
 
   get callerParticipantRef() {
@@ -705,18 +826,12 @@ export class Call {
     return true;
   }
 
-  /** Hangs up the room and ends the session with a reason. */
+  /** Hangs the call up on the node and ends the session with a reason. */
   async hangup(reason: SessionEndReason) {
     if (this.ended || this.hangingUp) return;
-    // Room events caused by our own hangup can arrive before its ack; they end with this reason.
     this.hangingUp = reason;
-    try {
-      await this.mediaCommand({ type: "hangup" });
-    } catch (e) {
-      logger.warn(
-        `call ${this.callRef}: hangup failed: ${(e as Error).message}`
-      );
-    }
+    if (!this.deps.stream.hangup())
+      logger.warn(`call ${this.callRef}: hangup failed: stream closed`);
     this.finish(reason);
   }
 
@@ -731,7 +846,9 @@ export class Call {
     this.session?.end(reason);
     this.session = undefined;
     this.rtp.close();
-    this.unsubscribeRoom?.();
+    clearInterval(this.mediaWatch);
+    // Our side of the stream closes; the node ends the call if it still runs.
+    this.deps.stream.close();
     // The recording is flushed before the record is closed, so sealing finds all of it.
     this.recording.stop();
     this.amd?.stop();
@@ -755,50 +872,82 @@ export class Call {
     this.deps.onEnded(this);
   }
 
-  sessionDetached(session: AppSession) {
+  sessionDetached(session: AppSession, reason?: SessionEndReason) {
+    if (reason === "transfer") this.appLegGone();
     if (this.session === session) this.session = undefined;
   }
 
-  private onMediaEvent(event: MediaEvent) {
-    this.record("event", { media: event });
-    switch (event.type) {
-      case "participant.joined":
-        this.recording.noteTracks(event.participantRef, event.tracks);
-        break;
-      case "dtmf":
-        this.session?.callerDtmf(String(event.digit));
-        break;
-      case "participant.left":
-        if (event.participantRef === this.info.callerRef)
-          this.finish(
-            this.hangingUp ?? sessionEndReason(event.reason),
-            this.hangingUp ?? recordEndReason(event.reason)
-          );
-        else if (event.participantRef === this.sessionParticipantRef)
-          this.session?.leftRoom();
-        break;
-      case "room.ended":
-        if (!this.answeredBy && event.reason && event.reason !== "removed")
-          this.failed(String(event.reason), event.sipStatus as number);
-        {
-          const reason =
-            this.hangingUp ??
-            (this.session?.pendingTransferEnd
-              ? "transfer"
-              : sessionEndReason(event.reason));
-          this.finish(
-            reason,
-            reason === sessionEndReason(event.reason) && !this.hangingUp
-              ? recordEndReason(event.reason)
-              : reason
-          );
+  /**
+   * One event from the node's stream. After Answer or Ready the node reports the caller's leg
+   * joining, then the app's leg (`p-app-…`); their track ids feed the recording and AMD listeners.
+   */
+  private onStreamEvent(kind: string, body: Record<string, unknown>) {
+    this.record("event", { media: { type: kind, ...body } });
+    switch (kind) {
+      case "participantJoined": {
+        const ref = String(body.participantRef ?? "");
+        const trackId = Number(body.trackId);
+        if (!this.sessionParticipantRef && ref.startsWith("p-app")) {
+          this.sessionParticipantRef = ref;
+          this.recording.noteTrack("app", trackId);
+        } else if (!this.info.callerRef && this.taken) {
+          this.info.callerRef = ref;
+          this.recording.noteTrack("caller", trackId);
+        } else if (!this.sessionParticipantRef && this.taken) {
+          this.sessionParticipantRef = ref;
+          this.recording.noteTrack("app", trackId);
         }
         break;
-      case "transfer.result":
-        this.session?.transferResult(event);
+      }
+      case "participantLeft":
+        // The node removed the app's leg (a transfer completed).
+        if (body.participantRef === this.sessionParticipantRef) {
+          this.appLegGone();
+          this.session?.leftRoom();
+        }
+        break;
+      case "transferResult":
+        this.session?.transferResult({
+          status: body.status,
+          reason: body.cause || undefined,
+          sipStatus: body.sipStatus || undefined
+        });
+        break;
+      case "ended":
+        this.onEnded(String(body.cause ?? ""), body.sipStatus as number);
         break;
     }
   }
+
+  /**
+   * The app's leg left the room after a transfer: the call goes on between the caller and the new
+   * party until the node's Ended, and the node sends this leg no more RTP (no media timeout).
+   */
+  private appLegGone() {
+    this.transferred = true;
+    clearInterval(this.mediaWatch);
+  }
+
+  /** The node ended the call (Ended): the session ends with the mapped reason (task 5.9). */
+  private onEnded(cause: string, sipStatus?: number) {
+    if (this.ended) return;
+    if (!this.answeredBy && cause && cause !== "removed" && !this.hangingUp)
+      this.failed(cause, sipStatus || undefined);
+    const transferred =
+      this.transferred || Boolean(this.session?.pendingTransferEnd);
+    if (this.hangingUp) return this.finish(this.hangingUp);
+    this.finish(
+      sessionEndReason(cause, { transferred }),
+      recordEndReason(cause, { transferred })
+    );
+  }
+}
+
+/** `mediaTimeout` from appbridge.yaml in ms (default 15 s; 0 turns the check off). */
+export function mediaTimeoutMs(config: AppBridgeConfig): number {
+  const v = config.mediaTimeout;
+  if (v === undefined) return MEDIA_TIMEOUT_MS;
+  return parseDurationMs(v);
 }
 
 type PendingTransfer = { id: string; mode: string };
@@ -1221,7 +1370,7 @@ export class AppSession {
     if (this.transfer) this.endWith("transfer");
   }
 
-  transferResult(event: MediaEvent) {
+  transferResult(event: Record<string, unknown>) {
     const pending = this.transfer;
     if (!pending) return;
     if (event.status === "failed") {
@@ -1264,7 +1413,7 @@ export class AppSession {
       this.call.record("appbridge", end);
       this.socket.close(1000);
     }
-    this.call.sessionDetached(this);
+    this.call.sessionDetached(this, reason);
   }
 
   private endWith(reason: SessionEndReason) {
@@ -1380,7 +1529,7 @@ export class AppSession {
     try {
       await this.dispatch(type, cmd, relatesTo);
     } catch (e) {
-      const detail = e instanceof MediaCommandError ? ` (${e.code})` : "";
+      const detail = e instanceof StreamClosedError ? ` (${e.code})` : "";
       this.emit({
         type: "error",
         code: "internal",
@@ -1504,28 +1653,17 @@ export class AppSession {
         await this.call.hangup("app_hangup");
         return;
       case "dtmf.send":
-        await this.call.mediaCommand(
-          { type: "dtmf.send", digits: cmd.digits },
-          id
-        );
+        this.call.command({ sendDtmf: { digits: String(cmd.digits) } });
         return;
       case "hold":
         if (!(await this.musicAllowed(cmd.music, id))) return;
-        await this.call.mediaCommand(
-          {
-            type: "hold",
-            participantRef: this.call.callerParticipantRef,
-            music: cmd.music
-          },
-          id
-        );
+        this.call.command({
+          hold: cmd.music ? { music: String(cmd.music) } : {}
+        });
         this.call.onHold = true;
         return;
       case "resume":
-        await this.call.mediaCommand(
-          { type: "resume", participantRef: this.call.callerParticipantRef },
-          id
-        );
+        this.call.command({ resume: {} });
         this.call.onHold = false;
         return;
       case "transfer": {
@@ -1550,18 +1688,19 @@ export class AppSession {
         if (!(await this.musicAllowed(cmd.music, transferId))) return;
         this.transfer = { id: transferId, mode };
         try {
-          await this.call.mediaCommand(
-            {
-              type: "transfer",
-              to: cmd.to,
-              mode,
-              headers: this.transferHeaders(
-                cmd.headers as Record<string, string> | undefined
-              ),
-              music: cmd.music
-            },
-            transferId
-          );
+          // The node dials `to` through its outbound proxy (or REFERs it), with the headers.
+          this.call.command({
+            transfer: {
+              to: {
+                uri: cmd.to as string,
+                headers: this.transferHeaders(
+                  cmd.headers as Record<string, string> | undefined
+                )
+              },
+              mode: mode as "cold" | "warm" | "refer",
+              ...(cmd.music ? { music: String(cmd.music) } : {})
+            }
+          });
         } catch (e) {
           this.transfer = undefined;
           this.emit({
@@ -1589,7 +1728,7 @@ export class AppSession {
           });
           return;
         }
-        await this.call.mediaCommand({ type: "transfer.complete" }, id);
+        this.call.command({ transferComplete: {} });
         this.endWith("transfer");
         return;
       case "record.note":

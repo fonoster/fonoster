@@ -148,8 +148,12 @@ appbridge:
   enabled: true
   image: { repository: fonoster/appbridge, tag: dev, pullPolicy: IfNotPresent }
   replicas: 2
-  # In-flight sessions are not moved between replicas; give calls time to finish on rollout.
-  terminationGracePeriodSeconds: 30
+  # In-flight sessions are not moved between replicas: on SIGTERM readiness fails and live calls
+  # run up to drainGraceSeconds (session.drainWait); the pod's grace period must be longer.
+  terminationGracePeriodSeconds: 660
+  drainGraceSeconds: 600
+  # Session.Connect and grpc.health.v1 (the Roomr node's sessionEndpoint, through the Service).
+  sessionPort: 50071
   # Rendered into appbridge.yaml next to nats.url. Secrets: inline or secret:// references.
   config:
     apps: []

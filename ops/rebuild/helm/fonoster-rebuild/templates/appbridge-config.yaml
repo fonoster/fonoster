@@ -10,6 +10,9 @@ key first, fetched from the cloud per call (add-private-regions 5.9). */}}
 {{- end }}
 {{- /* The Roomr node sends RTP to this pod's IP unless rtp.advertiseHost is set. */}}
 {{- $_ := set $cfg "rtp" (merge (default (dict) $cfg.rtp) (dict "host" "0.0.0.0" "advertiseHostEnv" "POD_IP")) }}
+{{- /* The session endpoint the Roomr node dials through the Service (redesign-roomr 5.3), and the
+readiness check on the same port; draining keeps calls for less than the pod's grace period. */}}
+{{- $_ := set $cfg "session" (merge (default (dict) $cfg.session) (dict "listen" (printf "0.0.0.0:%d" (.Values.appbridge.sessionPort | int)) "drainWait" (printf "%ds" (.Values.appbridge.drainGraceSeconds | int)))) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
