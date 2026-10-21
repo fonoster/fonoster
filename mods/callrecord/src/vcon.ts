@@ -18,9 +18,9 @@
  */
 import { randomUUID } from "crypto";
 import { partHash } from "./parts";
-import type { BeepSpan } from "./recording";
 import { redactText } from "./redact";
 import { contentHash } from "./sign";
+import type { BeepSpan } from "./recording";
 import type { RecordEntry, SealingPart, Vcon } from "./types";
 
 /**
