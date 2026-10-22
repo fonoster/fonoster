@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/agents/talk/use-browser-call.ts b/mods/dashboard/src/agents/talk/use-browser-call.ts
+index 5ff97f897..c09a90995 100644
+--- a/mods/dashboard/src/agents/talk/use-browser-call.ts
++++ b/mods/dashboard/src/agents/talk/use-browser-call.ts
+@@ -179,7 +179,7 @@ export function useBrowserCall(appRef: string) {
+             onReject: (response) => {
+               const { statusCode, reasonPhrase } = response.message;
+               void fail(
+-                `The call was rejected (${statusCode} ${reasonPhrase}).`
++                "Couldn't start the call. Try again."
+               );
+             }
+           }

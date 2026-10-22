@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/app/routes.tsx b/mods/dashboard/src/app/routes.tsx
+index 223de03e6..5d096112d 100644
+--- a/mods/dashboard/src/app/routes.tsx
++++ b/mods/dashboard/src/app/routes.tsx
+@@ -94,7 +94,7 @@ export function AppRoutes() {
+                   />
+                 )
+               )}
+-              <Route path="*" element={<ToOverview />} />
++              <Route path="*" element={<Navigate to="." replace />} />
+             </Route>
+           </Route>
+         </Route>

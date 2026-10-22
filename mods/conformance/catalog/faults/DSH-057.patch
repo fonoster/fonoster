@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/auth/sign-up.page.tsx b/mods/dashboard/src/auth/sign-up.page.tsx
+index 87e7a0420..8084d3710 100644
+--- a/mods/dashboard/src/auth/sign-up.page.tsx
++++ b/mods/dashboard/src/auth/sign-up.page.tsx
+@@ -59,7 +59,7 @@ function SignUpForm() {
+     setFailure(null);
+     try {
+       await sdk.users.createUser({ name, email, password, avatar: "" });
+-      await signInWithPassword(email, password);
++      void signInWithPassword;
+       navigate("/", { replace: true });
+     } catch (error) {
+       setFailure(

@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/agents/talk/use-browser-call.ts b/mods/dashboard/src/agents/talk/use-browser-call.ts
+index 5ff97f897..856b42267 100644
+--- a/mods/dashboard/src/agents/talk/use-browser-call.ts
++++ b/mods/dashboard/src/agents/talk/use-browser-call.ts
+@@ -45,7 +45,7 @@ export function canCallFromBrowser() {
+ 
+ function micError(cause: unknown) {
+   const name = (cause as { name?: string })?.name;
+-  if (name === "NotAllowedError" || name === "SecurityError")
++  if (name === "SecurityError")
+     return "Allow microphone access in your browser to talk to the agent.";
+   if (name === "NotFoundError" || name === "OverconstrainedError")
+     return "No microphone found. Connect one and try again.";

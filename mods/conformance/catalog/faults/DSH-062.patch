@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/noise-cancelling.ts b/mods/dashboard/src/session/noise-cancelling.ts
+index 6f48d4c9d..f7be71efa 100644
+--- a/mods/dashboard/src/session/noise-cancelling.ts
++++ b/mods/dashboard/src/session/noise-cancelling.ts
+@@ -57,7 +57,7 @@ export function noiseCancellingOptions(
+     { value: NC_NONE, label: "None" },
+     ...offered.map((p) => ({ value: p.id, label: p.label }))
+   ];
+-  if (current !== NC_NONE && !offered.some((p) => p.id === current))
++  if (current !== NC_NONE && !offered.some((p) => p.id === current) && false)
+     options.push({ value: current, label: `${current} (unavailable)` });
+   return options;
+ }

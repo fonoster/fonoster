@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/agents/talk/use-browser-call.ts b/mods/dashboard/src/agents/talk/use-browser-call.ts
+index 5ff97f897..eeca9b6ef 100644
+--- a/mods/dashboard/src/agents/talk/use-browser-call.ts
++++ b/mods/dashboard/src/agents/talk/use-browser-call.ts
+@@ -38,7 +38,7 @@ export type CallStatus =
+ export function canCallFromBrowser() {
+   return (
+     typeof window !== "undefined" &&
+-    window.isSecureContext === true &&
++    typeof window.isSecureContext === "boolean" &&
+     typeof navigator.mediaDevices?.getUserMedia === "function"
+   );
+ }
