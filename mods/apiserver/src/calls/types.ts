@@ -31,6 +31,7 @@ type ListCallsRequest = {
   status?: CallStatus;
   from?: string;
   to?: string;
+  appRef?: string;
   pageSize?: number;
   pageToken?: string;
 };

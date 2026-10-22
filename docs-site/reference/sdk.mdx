@@ -252,7 +252,7 @@ Start outbound calls and read call history. `new SDK.Calls(client)`.
 | --- | --- | --- | --- |
 | `createCall(request)` | Dial a number and connect it to an application | `from`, `to`, `appRef` (required), `timeout` (seconds, default 30, up to 120), `metadata` | `{ ref, statusStream }` |
 | `getCall(ref)` | Get one call | | `CallDetailRecord` |
-| `listCalls(request)` | List calls | `after`, `before`, `type`, `status`, `from`, `to`, `pageSize`, `pageToken` | `{ items, nextPageToken }` |
+| `listCalls(request)` | List calls | `after`, `before`, `type`, `status`, `from`, `to`, `appRef`, `pageSize`, `pageToken` | `{ items, nextPageToken }` |
 
 `statusStream` is an async iterator of `{ status }` while the call is dialed. `status` is one of
 `TRYING`, `PROGRESS`, `ANSWER`, `BUSY`, `CANCEL`, `FAILED` or `ERROR` (no answer).
@@ -260,7 +260,8 @@ Start outbound calls and read call history. `new SDK.Calls(client)`.
 
 A `CallDetailRecord` has `ref`, `accessKeyId`, `status`, `type` (`SIP_ORIGINATED`,
 `API_ORIGINATED`), `from`, `to`, `duration`, `direction` (`FROM_PSTN`, `TO_PSTN`,
-`INTRA_NETWORK`), `startedAt` and `endedAt`. When answering-machine detection ran, it also has
+`INTRA_NETWORK`), `startedAt`, `endedAt` and `appRef` (the app that handled the call; absent when
+none did). When answering-machine detection ran, it also has
 `amdStatus`, `amdConfidence`, `amdDetector`, `amdLatencyMs` and `amdCause`.
 
 ## CallRecords

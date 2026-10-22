@@ -246,13 +246,15 @@ class Calls {
    * @param {ListCallsRequest} request - The request object that contains the necessary information to retrieve a list of Calls
    * @param {number} request.pageSize - The number of Calls to retrieve
    * @param {string} request.pageToken - The token to retrieve the next page of Calls
+   * @param {string} request.appRef - Optional. Lists only the Calls the App with this reference handled
    * @return {Promise<ListCallsResponse>} - The response object that contains the list of Calls
    * @example
    * const calls = new SDK.Calls(client); // Existing client object
    *
    * const request = {
    *   pageSize: 10,
-   *   pageToken: "00000000-0000-0000-0000-000000000000"
+   *   pageToken: "00000000-0000-0000-0000-000000000000",
+   *   appRef: "00000000-0000-0000-0000-000000000000" // Optional: only this App's Calls
    * };
    *
    * calls

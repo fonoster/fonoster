@@ -58,6 +58,13 @@ const listCallsRequestSchema = z.object({
   status: z
     .nativeEnum(CallStatus, { message: "Invalid call status" })
     .optional(),
+  // Empty or unset means no filter (proto3 sends ""); anything else must be an app ref.
+  appRef: z
+    .string()
+    .refine((v) => v === "" || z.string().uuid().safeParse(v).success, {
+      message: "Invalid application reference"
+    })
+    .optional(),
   pageToken: z.string().optional()
 });
 

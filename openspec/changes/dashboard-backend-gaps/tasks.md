@@ -9,7 +9,7 @@
 - [ ] 1.7 Agent evals and knowledge upload
 - [ ] 1.8 Cost model
 - [ ] 1.9 Two-step sign-in (2FA)
-- [ ] 1.10 `app_ref` on the gRPC `CallDetailRecord` and an app filter on `Calls.ListCalls`, so SDK users see and filter by the app that handled a call
+- [x] 1.10 `app_ref` on the gRPC `CallDetailRecord` and an app filter on `Calls.ListCalls`, so SDK users see and filter by the app that handled a call
 
 ## 2. Gaps found while building section 4
 
