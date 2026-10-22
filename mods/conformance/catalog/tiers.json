@@ -1217,6 +1217,91 @@
     "pri": "P1",
     "trials": null
   },
+  "XFR-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-002": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-003": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-004": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-005": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-006": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-007": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-008": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-009": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-010": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-011": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-012": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-013": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-014": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "XFR-015": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-016": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "XFR-017": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
   "VSD-001": {
     "tier": "pr",
     "pri": "P0",

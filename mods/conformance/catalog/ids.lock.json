@@ -297,5 +297,22 @@
   "APB-039": "Patience adapts within a call only",
   "APB-040": "Detectors are compared by replay before adoption",
   "API-071": "Unanswered outbound calls are recorded as failed",
-  "APB-041": "An app's endpoint is a WebSocket URL"
+  "APB-041": "An app's endpoint is a WebSocket URL",
+  "XFR-001": "A cold transfer leaves the caller with the new party",
+  "XFR-002": "A warm transfer holds the caller through the briefing, then connects them",
+  "XFR-003": "A warm transfer nobody answers fails after 30 seconds",
+  "XFR-004": "A failed transfer gives the caller back to the app",
+  "XFR-005": "A transfer by SIP REFER hands the call off",
+  "XFR-006": "A refused transfer leaves the caller with the app",
+  "XFR-007": "Hold silences the call both ways until resume",
+  "XFR-008": "Keys travel both ways at any time",
+  "XFR-009": "The caller's keys reach a Twilio stream",
+  "XFR-010": "A Twilio stream can't transfer, hold or send keys",
+  "XFR-011": "TypeScript SDK: transfer() and completeTransfer() move the caller",
+  "XFR-012": "TypeScript SDK: keys, playDtmf, hold and resume reach the phone",
+  "XFR-013": "Python SDK: transfer() and complete_transfer() move the caller",
+  "XFR-014": "Python SDK: keys, play_dtmf, hold and resume reach the phone",
+  "XFR-015": "Autopilot's transfer tool leaves the caller with the operator",
+  "XFR-016": "Autopilot's hangup tool says goodbye, then hangs up",
+  "XFR-017": "After a failed transfer Autopilot says so and keeps helping"
 }
