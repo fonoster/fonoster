@@ -53,12 +53,17 @@ function micError(cause: unknown) {
 }
 
 /**
- * The glow's next level from the loudest stream's RMS: rises fast with a voice, settles slowly
- * when it stops, so the ring breathes with the conversation instead of flickering.
+ * The halo's next level from the loudest stream's RMS. Room noise below the gate is silence, the
+ * gain keeps ordinary speech short of full, and the level eases in slowly and out slower, so the
+ * halo swells and settles with the conversation instead of flickering.
  */
+const VOICE_GATE = 0.015;
+const VOICE_GAIN = 5;
+
 export function nextVoiceLevel(level: number, rms: number): number {
-  const target = Math.min(1, rms * 6);
-  return level + (target - level) * (target > level ? 0.5 : 0.08);
+  const target =
+    rms < VOICE_GATE ? 0 : Math.min(1, (rms - VOICE_GATE) * VOICE_GAIN);
+  return level + (target - level) * (target > level ? 0.12 : 0.05);
 }
 
 export function useBrowserCall(appRef: string) {
@@ -69,7 +74,7 @@ export function useBrowserCall(appRef: string) {
   const [error, setError] = useState<string>();
   const [connectedAt, setConnectedAt] = useState<number>();
   const [muted, setMuted] = useState(false);
-  /** The mic's glow: `--voice` (0..1) follows the call's audio, the agent's voice and the mic. */
+  /** The mic's halo: `--voice` (0..1) follows the call's audio, the agent's voice and the mic. */
   const glowRef = useRef<HTMLElement>(null);
 
   const teardown = useCallback(async () => {

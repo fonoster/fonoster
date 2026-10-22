@@ -18,21 +18,26 @@
  */
 import { nextVoiceLevel } from "./use-browser-call";
 
-// The mic's glow follows the call's audio: it rises fast with a voice and settles slowly.
+// The mic's halo follows the call's audio: it eases in slowly, settles slower, and ignores room noise.
 describe("nextVoiceLevel", () => {
-  it("rises quickly when someone speaks", () => {
-    expect(nextVoiceLevel(0, 0.1)).toBeCloseTo(0.3);
-    expect(nextVoiceLevel(0.3, 0.1)).toBeCloseTo(0.45);
+  it("eases in when someone speaks", () => {
+    expect(nextVoiceLevel(0, 0.115)).toBeCloseTo(0.06);
+    expect(nextVoiceLevel(0.06, 0.115)).toBeCloseTo(0.1128);
+  });
+
+  it("treats sound under the gate as silence", () => {
+    expect(nextVoiceLevel(0, 0.01)).toBe(0);
+    expect(nextVoiceLevel(0.5, 0.01)).toBeCloseTo(0.475);
   });
 
   it("settles slowly in silence, and stays put when silent", () => {
-    expect(nextVoiceLevel(0.6, 0)).toBeCloseTo(0.552);
+    expect(nextVoiceLevel(0.6, 0)).toBeCloseTo(0.57);
     expect(nextVoiceLevel(0, 0)).toBe(0);
   });
 
   it("never goes past full", () => {
     let level = 0;
-    for (let i = 0; i < 20; i++) level = nextVoiceLevel(level, 1);
+    for (let i = 0; i < 200; i++) level = nextVoiceLevel(level, 1);
     expect(level).toBeLessThanOrEqual(1);
     expect(level).toBeGreaterThan(0.99);
   });
