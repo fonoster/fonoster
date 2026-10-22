@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/calls/createCall.ts b/mods/apiserver/src/calls/createCall.ts
+index 31e67de8b..7e73e0c8d 100644
+--- a/mods/apiserver/src/calls/createCall.ts
++++ b/mods/apiserver/src/calls/createCall.ts
+@@ -97,7 +97,7 @@ function createCall(
+         from,
+         to
+       });
+-      if (!decision.authorized) {
++      if (!decision.authorized && decision.reason !== "concurrency_limit") {
+         const reason = decision.reason ?? "not_authorized";
+         logger.info("call refused", { ref, reason });
+         callback({

@@ -50,7 +50,7 @@ describe("@applications/getApplication", function () {
     const application = {
       ref: "123",
       name: "My Application",
-      endpoint: "example.com:50051",
+      endpoint: "wss://example.com/session",
       url: "wss://example.com/session",
       signingSecret: "s3cret-abcd",
       accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",

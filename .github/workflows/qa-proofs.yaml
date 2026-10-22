@@ -140,6 +140,20 @@ jobs:
     name: AppBridge area
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    # The cases that read apps the Applications API wrote (APB-033, APB-034, APB-036) make their own
+    # throwaway database on this server.
+    services:
+      postgres:
+        image: postgres:16.10-alpine3.22
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -166,6 +180,7 @@ jobs:
       - name: Run and prove
         env:
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
           LOGS_LEVEL: none
         run: |
           node mods/conformance/catalog/run.cjs --area APB

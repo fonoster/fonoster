@@ -18,7 +18,7 @@
  */
 import { expect } from "chai";
 import { NatsConnection, connect } from "nats";
-import { FakesHarness, Peer } from "@fonoster/conformance";
+import { FakeApp, FakesHarness, Peer } from "@fonoster/conformance";
 import {
   AppBridge,
   AppBridgeConfig,
@@ -298,6 +298,36 @@ describe("@appbridge control stream against the fake node", function () {
     await harness.roomrNode.freshCommands();
     expect(commands()).to.include("ready");
     expect(commands()).to.not.include("answer");
+  });
+
+  it("[APB-032] connects an answered outbound call to the app its metadata names, not another", async function () {
+    const other = await new FakeApp().start();
+    try {
+      const app = (ref: string, url: string) => ({
+        ref,
+        url,
+        protocol: "fonoster" as const,
+        signingSecret: "secret",
+        speech: { voice: "fake/default", language: "en-US" }
+      });
+      await start({ apps: [app("a", harness.app.url), app("b", other.url)] });
+      const call = await harness.roomrNode.placeCall({
+        appRef: "b",
+        to: "+15551234567"
+      });
+      const { peer } = await other.nextConnection();
+      const startMsg = await waitFor(() =>
+        json(peer).find((m) => m.type === "session.start")
+      );
+      expect(startMsg).to.deep.include({
+        appRef: "b",
+        direction: "outbound",
+        callRef: call.callRef
+      });
+      expect(harness.app.attempts).to.have.length(0);
+    } finally {
+      await other.stop();
+    }
   });
 
   it("[APB-030] serves grpc.health.v1 on the Session port: SERVING, then NOT_SERVING while draining with live calls kept (13.3, 15.2)", async function () {

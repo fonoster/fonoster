@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index e74684b0a..b84b1e3d4 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1747,7 +1747,7 @@ export class AppSession {
+       case "usage.report": {
+         // Autopilot's model tokens join the call's usage (voice-session, "Autopilot reports
+         // model usage to the call"); the schema already limits the meters.
+-        if (this.app.type !== "AUTOPILOT") {
++        if (this.app.type === undefined) {
+           this.emit({
+             type: "error",
+             code: "bad_message",

@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/webhooks/nodeCallEvents.ts b/mods/apiserver/src/webhooks/nodeCallEvents.ts
+index 7c6ca463a..a244a7c17 100644
+--- a/mods/apiserver/src/webhooks/nodeCallEvents.ts
++++ b/mods/apiserver/src/webhooks/nodeCallEvents.ts
+@@ -132,7 +132,7 @@ export function createNodeCallEvents(deps: {
+         deps
+           .records?.({
+             callRef: call.callRef,
+-            workspaceRef,
++            workspaceRef: null,
+             region: deps.regionOf?.(call.nodeRef),
+             entries: failedCallEntries(call, workspaceRef)
+           })

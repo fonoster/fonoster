@@ -1,0 +1,15 @@
+diff --git a/mods/appbridge/src/apps/AppStore.ts b/mods/appbridge/src/apps/AppStore.ts
+index 8744b5eb5..0a3e6db71 100644
+--- a/mods/appbridge/src/apps/AppStore.ts
++++ b/mods/appbridge/src/apps/AppStore.ts
+@@ -71,7 +71,9 @@ export function appFromRow(row: Row): AppConfig | undefined {
+   const url = row.url as string | null;
+   const secret = row.signingSecret as string | null;
+   if (!url || !secret) return undefined;
+-  const protocol = ((row.protocol as string | null) ?? "fonoster") as Protocol;
++  const protocol = (
++    row.type === "AUTOPILOT" ? "twilio" : ((row.protocol as string | null) ?? "fonoster")
++  ) as Protocol;
+   if (!/^wss?:\/\//.test(url) || !["fonoster", "twilio"].includes(protocol)) {
+     logger.warn(`app ${row.ref}: invalid url or protocol, ignored`);
+     return undefined;

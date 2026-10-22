@@ -57,7 +57,7 @@ describe("@calls/createCall", function () {
     const application = {
       ref: TEST_UUID,
       name: "My Application",
-      endpoint: "example.com:50051",
+      endpoint: "wss://example.com/session",
       accessKeyId: "GRahn02s8tgdfghz72vb0fz538qpb5z35p",
       createdAt: new Date(),
       updatedAt: new Date()

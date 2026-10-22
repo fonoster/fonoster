@@ -5,7 +5,7 @@ level: L2 Integration (service)
 tier: pr
 uut: AppBridge (mods/appbridge), the per-call service that speaks the session protocol to apps, runs turn-taking and the Speech layer, and serves each call's control stream from a Roomr node (Session.Connect), with the call's audio as RTP beside it
 tester: The conformance runner, which plays the app against AppBridge with a fake Roomr node (it opens a control stream per call and exchanges RTP) and fake STT, TTS and LLM providers; Mocha integration tests for what needs more than one app or no app (fallback, handoff, outbound, listeners, filters, the call record)
-environment: NATS (CONFORMANCE_NATS_URL) for node heartbeats, events and the session registry; everything else in the test process
+environment: NATS (CONFORMANCE_NATS_URL) for node heartbeats, events and the session registry; a throwaway Postgres (PERSISTENCE_TEST_DATABASE_URL) for the cases that read apps the Applications API wrote; everything else in the test process
 cadence: every pull request that touches AppBridge or a scenario file
 prove: sh mods/conformance/test/appbridge/prove.sh {id} {junitDir}
 capabilities:
@@ -24,6 +24,10 @@ tests:
   - mods/appbridge/test/stream.test.ts
   - mods/appbridge/test/failedCallRecord.test.ts
   - mods/appbridge/test/gonode.test.ts
+  - mods/appbridge/test/admission.test.ts
+  - mods/appbridge/test/applicationsApi.test.ts
+  - mods/appbridge/test/usageReport.test.ts
+  - mods/appbridge/test/replayTool.test.ts
 ---
 
 # AppBridge and the session protocol
@@ -64,7 +68,6 @@ areas are brought:
 
 | Tests | Area |
 | --- | --- |
-| admission | Billing, metering and regions |
 | records, crash, usage, sessions, replicas, boundedState | Call records and usage (call-record, usage-metering) |
 | vendors, adapterConformance, catalogProviders, catalogSeed, workspaceKeys, keyUnavailable, cellSecrets | Providers (provider-registry) |
 | testCalls | Dashboard (talk-in-browser) |
@@ -75,14 +78,15 @@ areas are brought:
 Every AppBridge suite runs against a real Roomr node in roomr-fake (`@fonoster/roomr/fake`); the
 node itself (SRTP, codecs, listeners, its gRPC contract) is proven in fonoster/roomr, whose release
 the gate requires (extract-roomr). Pure unit tests (pcm, OutputQueue, labels, detectors, replay,
-turn, signing, playFetch, srtpCipher) stay unit tests. Of AppBridge's drain, only what AppBridge
+turn, signing, playFetch, srtpCipher, admit) stay unit tests; the replay tool run as a process on a
+corpus is APB-040. Of AppBridge's drain, only what AppBridge
 does is here (APB-030); the control plane's side of it is in the API area.
 
 ## Cases
 
 ### APB-001 Sessions are signed for the app and delivered over WebSocket
 
-- **Spec:** voice-session / Sessions are delivered over WebSocket only / Fonoster protocol framing
+- **Spec:** voice-session / Sessions are delivered over WebSocket / Fonoster protocol framing
 - **Spec:** voice-session / Connection requests are signed / Signature reflects the secret
 - **Spec:** voice-session / Connection requests are signed / App verifies a genuine request
 - **Spec:** voice-session / Connection requests are signed / Stale timestamp
@@ -116,8 +120,8 @@ does is here (APB-030); the control plane's side of it is in the API area.
 
 ### APB-003 Outbound sessions open only when the callee answers
 
-- **Spec:** voice-session / Outbound sessions open at answer / Answered callee
-- **Spec:** voice-session / Outbound sessions open at answer / Busy callee
+- **Spec:** voice-session / Outbound sessions open when the callee answers / Answered callee
+- **Spec:** voice-session / Outbound sessions open when the callee answers / Busy callee
 - **Priority:** P0
 - **Proof:** Leave the callee's progress out of a failed call's record (`writeFailedCall` in `record/maintenance.ts`); the tests must go red on the busy call's sealed record.
 - **Fault:** faults/APB-003.patch
@@ -249,9 +253,8 @@ minimal record (call.started, call.progress, call.failed).
 - **Runs:** scenarios/voice-session/abandoned-turn.yaml
 - **Runs:** scenarios/voice-session/opt-in-estimate.yaml
 - **Runs:** scenarios/voice-session/no-estimate-without-subscribe.yaml
-- **Runs:** scenarios/voice-session/audio-only-no-stt.yaml
 
-**Pass.** Default turn events arrive for every session, an abandoned turn is reported, the estimate only after subscribing, and audio-only sessions run without STT. **Fail.** Missing or unrequested events.
+**Pass.** Default turn events arrive for every session, an abandoned turn is reported, and the estimate only after subscribing (audio-only sessions are APB-038). **Fail.** Missing or unrequested events.
 
 ### APB-011 How the caller is heard can change mid-call
 
@@ -513,7 +516,7 @@ refused on the stream and never dials an app.
 
 ### APB-029 An answered outbound call opens from Start and sends Ready
 
-- **Spec:** voice-session / Outbound sessions open at answer / Answered callee
+- **Spec:** voice-session / Outbound sessions open when the callee answers / Answered callee
 - **Priority:** P0
 - **Proof:** Ignore the API caller's app_metadata in Start (`appMetadata` in `AppBridge.ts`); the tests must go red on the session's metadata.
 - **Fault:** faults/APB-029.patch
@@ -551,3 +554,144 @@ its phone (roomr-fake): real SIP, RTP and the per-call control stream end to end
 carries audio while a call has audio both ways.
 
 **Pass.** Every runnable voice-session file passes through the node, and the bus carries only text, no subject at frame rate. **Fail.** A file that passes with scripted node state and fails through the node, or audio on the bus.
+
+### APB-032 Outbound calls reach the app their metadata names
+
+- **Spec:** voice-session / An app is a WebSocket URL, a protocol and speech defaults / Outbound routing
+- **Priority:** P0
+- **Proof:** Pick the app by the dialed number instead of `Start.metadata.app_ref` (`onOutbound` in `AppBridge.ts`); the test must go red on the second app's session.
+- **Fault:** faults/APB-032.patch
+- **Test:** mods/appbridge/test/stream.test.ts
+
+Two apps, and an answered outbound call whose `Start.metadata` names the second.
+
+**Pass.** The named app gets the session (session.start with its appRef, outbound) and the other app is never dialed. **Fail.** Another app dialed, or none.
+
+### APB-033 An Autopilot agent is an ordinary app
+
+- **Spec:** voice-session / An app is a WebSocket URL, a protocol and speech defaults / Autopilot is an ordinary app
+- **Priority:** P1
+- **Proof:** Load Autopilot agents with the twilio protocol (`appFromRow` in `apps/AppStore.ts`); the test must go red on the agent's session.start.
+- **Fault:** faults/APB-033.patch
+- **Test:** mods/appbridge/test/applicationsApi.test.ts
+
+An Autopilot agent and a STREAM app are created through the Applications API (the apiserver's
+handlers on a throwaway Postgres); AppBridge reads both from that database, as in production.
+
+**Pass.** A call to the agent reaches the hosted Autopilot's URL from the apiserver's configuration, signed, with a session.start that has the same fields and protocol as the STREAM app's. **Fail.** The agent is dialed elsewhere, with another protocol, or gets a different start message.
+
+### APB-034 Audio filters are set through the Applications API
+
+- **Spec:** voice-session / An app's audio filters are set through the Applications API / Enabling noise cancelling on an app
+- **Spec:** voice-session / An app's audio filters are set through the Applications API / A public option is accepted
+- **Spec:** voice-session / An app's audio filters are set through the Applications API / A server-side option is rejected
+- **Spec:** voice-session / An app's audio filters are set through the Applications API / An unknown filter is rejected
+- **Spec:** voice-session / An app's audio filters are set through the Applications API / Clearing the filters
+- **Priority:** P1
+- **Proof:** Store no filters on create or update (`toAppColumns` in the apiserver's `appModel.ts`); the tests must go red on reading the app back and on the filtered call.
+- **Fault:** faults/APB-034.patch
+- **Test:** mods/appbridge/test/applicationsApi.test.ts
+
+The apiserver's UpdateApplication and GetApplication handlers on a throwaway Postgres, and
+AppBridge reading the app from it. The ai-coustics filter is replaced in AppBridge by one with the
+same name and public options that counts the frames it filtered (its SDK and model are not in the
+test environment; the filter itself is unit-tested).
+
+**Pass.** `filters: [{ name: "aiCoustics" }]` reads back as written and the next call runs the filter on the caller's audio; a public option is stored; a server-side option or an unknown filter fails with INVALID_ARGUMENT naming it and leaves the app as it was; an empty list or no list clears the filters and the next call is unfiltered. **Fail.** A filter that is not stored, not run, or stored when it should be refused.
+
+### APB-035 Autopilot reports model usage to the call
+
+- **Spec:** voice-session / Autopilot reports model usage to the call / Autopilot reports a turn's tokens
+- **Spec:** voice-session / Autopilot reports model usage to the call / Not an Autopilot agent
+- **Spec:** voice-session / Autopilot reports model usage to the call / Meter outside the allowed set
+- **Priority:** P0
+- **Proof:** Take usage.report from any app (`onCommand` in `Call.ts`); the test must go red on the STREAM app's report.
+- **Fault:** faults/APB-035.patch
+- **Test:** mods/appbridge/test/usageReport.test.ts
+
+The protocol side of the report; how the sealed usage is rated and billed is BIL-009.
+
+**Pass.** An Autopilot agent's 1,200 input and 340 output tokens are in the call's sealed usage with their provider, model and key source, and nothing goes back to the app or to the Roomr node; a STREAM app's report, or a report for `call.seconds`, is answered with bad_message and adds nothing. **Fail.** Tokens lost, an event or node command for a report, or usage taken from an app or meter that may not report it.
+
+### APB-036 Calls are admitted before they start
+
+- **Spec:** voice-session / Calls are admitted before they start / Out of credits
+- **Spec:** voice-session / Calls are admitted before they start / Authorization slow
+- **Spec:** voice-session / Calls are admitted before they start / Outbound refused
+- **Priority:** P0
+- **Proof:** Let CreateCall place a call that admission refused with concurrency_limit (`createCall.ts` in the apiserver); the test must go red on the placed call.
+- **Fault:** faults/APB-036.patch
+- **Test:** mods/appbridge/test/admission.test.ts, mods/appbridge/test/applicationsApi.test.ts
+
+AppBridge asks a fake Authz service (CheckSessionAuthorized) before an inbound call starts; the
+apiserver's CreateCall asks before placing an outbound one. The Roomr node sends 180 Ringing before
+AppBridge is asked, so a refused call ends 180 then 402: rejected before it is answered, as the spec
+says.
+
+**Pass.** AppBridge asks with the call's app, workspace and parties; a refusal is rejected with 402 (insufficient_balance) or 503 (concurrency_limit) before it is answered (180 at most, never 200), never reaches the app, and sends call.failed with the reason; an answer slower than 500 ms admits the call at the timeout and logs it; CreateCall refused with concurrency_limit answers FAILED_PRECONDITION naming it and places nothing. **Fail.** A refused call answered or placed, or a slow authorization that holds the call up.
+
+### APB-037 Media at an internal address is never played
+
+- **Spec:** voice-session / Playing media / Play an internal address
+- **Priority:** P0
+- **Proof:** Fetch play URLs with plain fetch instead of safeFetch (`defaultFetch` in `OutputQueue.ts`); the test must go red on play-internal-address.
+- **Fault:** faults/APB-037.patch
+- **Test:** mods/appbridge/test/conformance.test.ts
+- **Runs:** scenarios/voice-session/play-internal-address.yaml
+
+**Pass.** A play of the cloud metadata address is answered with play_fetch_failed for its id, saying the address is not public, nothing plays, and the session goes on. **Fail.** The address is fetched, or the refusal is not reported.
+
+### APB-038 Audio-only sessions get no turn-taking
+
+- **Spec:** turn-taking / Turn-taking runs in AppBridge's Speech layer / Audio-only sessions do not require turn-taking
+- **Priority:** P1
+- **Proof:** Start the Speech layer with every session (`attach` in `Call.ts`); the test must go red on audio-only-no-stt.
+- **Fault:** faults/APB-038.patch
+- **Test:** mods/appbridge/test/conformance.test.ts
+- **Runs:** scenarios/turn-taking/audio-only-no-stt.yaml
+
+**Pass.** An app that only exchanges audio gets no turn events and opens no STT stream. **Fail.** Turn events, or recognition paid for, without the Speech layer.
+
+### APB-039 Patience adapts within a call only
+
+- **Spec:** turn-taking / Patience is configurable per app and adapts only within a call / Nothing is remembered across calls
+- **Priority:** P1
+- **Proof:** Carry the adaptation over to the next call (`Pacing.ts`); the test must go red on the second call's adapted patience.
+- **Fault:** faults/APB-039.patch
+- **Test:** mods/appbridge/test/integration.test.ts
+
+Two calls to an app with patience high, each with a caller who pauses mid-sentence (a false alarm,
+which makes the Pacing policy more patient for the rest of that call).
+
+**Pass.** Both calls adapt from the app's patience: the first adaptation is 1.84 (high, 1.6, times one step) in each. **Fail.** The second call starts from what the first adapted to.
+
+### APB-040 Detectors are compared by replay before adoption
+
+- **Spec:** turn-taking / Detectors are compared by replay before adoption / A regressing candidate is rejected
+- **Spec:** turn-taking / Detectors are compared by replay before adoption / Non-consented calls are excluded
+- **Priority:** P2
+- **Proof:** Replay calls of customers who did not opt in (`replay` in `turn/replay.ts`); the test must go red on the corpus count.
+- **Fault:** faults/APB-040.patch
+- **Test:** mods/appbridge/test/replayTool.test.ts
+
+The replay tool (`npm run replay -w @fonoster/appbridge`, `scripts/replay.ts`) run as a process on a
+corpus file the test writes. The candidate is backchannel-hold, which waits 500 ms before calling
+speech over the agent an interruption, so a 300 ms barge-in is missed.
+
+**Pass.** The report marks the candidate FAIL with the regressing metric and never says it may become the default, the default Detector stays the baseline, and only synthetic, internal and opted-in customer calls are replayed. **Fail.** A regressing candidate passes, or a call without consent is in the replay.
+
+### APB-041 An app's endpoint is a WebSocket URL
+
+- **Spec:** voice-session / An app is a WebSocket URL, a protocol and speech defaults / Create with an endpoint that is not a WebSocket URL
+- **Spec:** voice-session / An app is a WebSocket URL, a protocol and speech defaults / Update to an endpoint that is not a WebSocket URL
+- **Spec:** voice-session / An app is a WebSocket URL, a protocol and speech defaults / WebSocket endpoints are accepted
+- **Priority:** P0
+- **Proof:** Let `url` start with http:// or https:// too, in both of its checks (`wsUrl` and `checkDestination` in the apiserver's `appModel.ts`); the test must go red on the https endpoint.
+- **Fault:** faults/APB-041.patch
+- **Test:** mods/appbridge/test/applicationsApi.test.ts
+
+The apiserver's CreateApplication, UpdateApplication and GetApplication handlers on a throwaway
+Postgres. AppBridge dials only what the API stored, so an app it can't reach over WebSocket can't
+exist.
+
+**Pass.** A bare host:port, an https:// or a grpc:// endpoint is refused at create with INVALID_ARGUMENT naming `url` and no app is created; an update to https:// is refused the same way and the app keeps its URL; ws:// and wss:// are accepted at create and update and read back as written. **Fail.** An app stored with an endpoint AppBridge can't dial over WebSocket, or a WebSocket one refused.

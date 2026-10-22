@@ -1,0 +1,22 @@
+diff --git a/mods/apiserver/src/applications/session/appModel.ts b/mods/apiserver/src/applications/session/appModel.ts
+index 5fa305a7c..32cc0e3e5 100644
+--- a/mods/apiserver/src/applications/session/appModel.ts
++++ b/mods/apiserver/src/applications/session/appModel.ts
+@@ -57,7 +57,7 @@ function checkDestination(
+   what: string,
+   config: SessionAppsConfig
+ ) {
+-  if (value === config.autopilotUrl) return;
++  if (value === config.autopilotUrl || /^https?:/.test(value)) return;
+   try {
+     assertPublicWebSocketUrlShape(
+       value,
+@@ -83,7 +83,7 @@ const wsUrl = (what: string) =>
+   z
+     .string()
+     .url(`${what} must be a URL`)
+-    .regex(/^wss?:\/\//, `${what} must start with ws:// or wss://`)
++    .regex(/^(wss?|https?):\/\//, `${what} must start with ws:// or wss://`)
+     .max(1024);
+ 
+ /** Proto3 sends "" and 0 for unset fields; treat them as absent. */

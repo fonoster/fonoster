@@ -128,7 +128,7 @@ Overdraft: `max(200 credits, 10% of the last top-up)`, zero for trial accounts.
 - `balance + overdraft > 0`, else `insufficient_balance`;
 - active calls < the plan's concurrency limit, else `concurrency_limit`.
 
-AppBridge calls it after resolving the app and the test-call check, before ringing. On a refusal it
+AppBridge calls it after resolving the app and the test-call check, before answering (the Roomr node may already have sent 180 Ringing). On a refusal it
 records `call.failed` with the reason and rejects with SIP 402 (`insufficient_balance`) or 503
 (`concurrency_limit`). The apiserver calls it in `CreateCall` before any SIP and answers
 `FAILED_PRECONDITION` with the reason. Active calls are counted from `call.started` / `call.ended`

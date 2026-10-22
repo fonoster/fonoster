@@ -907,6 +907,53 @@ describe("@appbridge integration", function () {
     expect(harness.stt.streams).to.have.length(0);
   });
 
+  it("[APB-039] starts every call from the app's patience, not from what an earlier call adapted to", async function () {
+    // A caller who pauses mid-sentence: turn.likely_ended, then turn.resumed (a false alarm),
+    // which makes the Pacing policy more patient for the rest of that call.
+    harness.stt.configure({
+      script: [
+        { atMs: 500, text: "I want" },
+        { atMs: 2400, text: "to pay my bill" }
+      ]
+    });
+    await start([
+      app("a", harness.app.url, {
+        speech: {
+          voice: "fake/default",
+          language: "en-US",
+          silenceTimeoutMs: 1200,
+          patience: "high"
+        }
+      })
+    ]);
+    const adaptations = async () => {
+      const { callRef } = await harness.roomrNode.offerCall();
+      const { peer } = await harness.app.nextConnection();
+      await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+      peer.sendJson({ type: "listen.update" });
+      harness.roomrNode.callerSpeaks({ kind: "tone", ms: 600 });
+      await waitFor(
+        () => json(peer).find((m) => m.type === "turn.likely_ended"),
+        3000
+      );
+      harness.roomrNode.callerSpeaks({ kind: "tone", ms: 600 });
+      await waitFor(() => json(peer).find((m) => m.type === "turn.resumed"));
+      const adapted = () =>
+        (record.records.get(callRef) ?? [])
+          .map((e) => e.message)
+          .filter((m) => m.type === "turn.patience" && m.reason === "adapted");
+      await waitFor(() => adapted().length > 0);
+      harness.roomrNode.callerHangup(callRef);
+      await waitFor(() => json(peer).find((m) => m.type === "session.end"));
+      return adapted().map((m) => m.factor);
+    };
+    const first = await adaptations();
+    // high (1.6) times one adaptation step (1.15).
+    expect(first[0]).to.equal(1.84);
+    const second = await adaptations();
+    expect(second[0]).to.equal(first[0]);
+  });
+
   it("[APB-005] hangs up when the app drops mid-call", async function () {
     await start([app("a", harness.app.url)]);
     await harness.roomrNode.offerCall();

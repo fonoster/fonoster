@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 name: fonoster-protocol-framing
 contract: voice-session
 role: app
-spec: "Sessions are delivered over WebSocket only / Fonoster protocol framing"
+spec: "Sessions are delivered over WebSocket / Fonoster protocol framing"
 description: Every message is a JSON text frame and audio arrives only as binary frames.
 steps:
   - expect: { type: session.start }

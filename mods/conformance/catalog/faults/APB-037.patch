@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/OutputQueue.ts b/mods/appbridge/src/session/OutputQueue.ts
+index 264cb1201..6aa1330c4 100644
+--- a/mods/appbridge/src/session/OutputQueue.ts
++++ b/mods/appbridge/src/session/OutputQueue.ts
+@@ -130,7 +130,7 @@ export async function defaultFetch(
+   url: string,
+   signal: AbortSignal
+ ): Promise<Buffer> {
+-  const res = await safeFetch(url, { signal, ...PLAY_FETCH_LIMITS });
++  const res = await fetch(url, { signal });
+   if (!res.ok) throw new Error(`HTTP ${res.status}`);
+   return Buffer.from(await res.arrayBuffer());
+ }
