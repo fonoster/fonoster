@@ -67,6 +67,7 @@
   "API-066": "Wrappers cover the Identity methods",
   "API-067": "The proto comes from the canonical source",
   "API-068": "A server forwards different callers' tokens",
+  "API-069": "Call records name their app and ListCalls filters by it",
   "APB-001": "Sessions are signed for the app and delivered over WebSocket",
   "APB-002": "A session opens with session.start, answered on verified connect",
   "APB-003": "Outbound sessions open only when the callee answers",
