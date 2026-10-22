@@ -20,7 +20,7 @@
 - [x] 2.3 Conformance: FakeRoomr, FakeSessionNode and RealMediaHarness run real nodes in roomr-fake (binary from the release, else the image); the integration cases and fault scripting go through its control API
 - [x] 2.4 Release gate: the pinned Roomr release exists, passed Roomr's CI, and matches the bundle's pin; the release smoke runs the bundle with the real pinned image
 - [x] 2.5 Delete go/roomr and the Go jobs in pr-checks, conformance and qa-proofs; no Go or libopus in Fonoster CI or the dev container
-- [ ] 2.6 Trim docs-site Roomr pages and CONTRIBUTING to link to fonoster/roomr; compatibility table in both READMEs
+- [x] 2.6 Trim docs-site Roomr pages and CONTRIBUTING to link to fonoster/roomr; the dev container diagram redrawn. No compatibility table (owner, 2026-10-22): the bundle's pin and the release notes say which Roomr a release runs
 
 ## 3. Close out
 
