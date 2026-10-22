@@ -323,6 +323,10 @@ function ReachableAt({ numbers }: { numbers: INumber[] }) {
   );
 }
 
+/** A sentence the agent says: a field sized to its text, wrapping instead of scrolling. */
+const SENTENCE_FIELD =
+  "[&_textarea]:min-h-0 [&_textarea]:resize-none [&_textarea]:[field-sizing:content]";
+
 /** A Behavior line: muted label, value on the right that reads as text until edited. */
 function BehaviorRow({
   label,
@@ -438,30 +442,23 @@ function Behavior() {
           </ValueBox>
         </BehaviorRow>
         {transfer?.trim() && (
-          <BehaviorRow
-            label="Transfer message"
-            htmlFor="behavior-transfer-message"
-          >
-            <ValueBox>
-              <ValueInput
-                id="behavior-transfer-message"
-                {...register("conversation.transferMessage")}
-              />
-            </ValueBox>
-          </BehaviorRow>
-        )}
-        {transfer?.trim() && (
-          <BehaviorRow
-            label="If the transfer fails"
-            htmlFor="behavior-transfer-failed-message"
-          >
-            <ValueBox>
-              <ValueInput
-                id="behavior-transfer-failed-message"
-                {...register("conversation.transferFailedMessage")}
-              />
-            </ValueBox>
-          </BehaviorRow>
+          <>
+            <TextField
+              name="conversation.transferMessage"
+              label="Says before transferring"
+              multiline
+              rows={1}
+              className={SENTENCE_FIELD}
+            />
+            <TextField
+              name="conversation.transferFailedMessage"
+              label="Says if the transfer fails"
+              placeholder="Sorry, I couldn't connect you. How else can I help?"
+              multiline
+              rows={1}
+              className={SENTENCE_FIELD}
+            />
+          </>
         )}
       </div>
     </Panel>
