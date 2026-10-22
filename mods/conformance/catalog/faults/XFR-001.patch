@@ -1,12 +1,12 @@
 diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
-index e74684b0a..509ca697f 100644
+index e74684b0a..c89c2d0b7 100644
 --- a/mods/appbridge/src/session/Call.ts
 +++ b/mods/appbridge/src/session/Call.ts
-@@ -1388,6 +1388,7 @@ export class AppSession {
-       this.pendingTransferEnd = true;
-       this.endWith("transfer");
-     } else if (event.status === "completed" && pending.mode === "cold") {
-+      void this.call.hangup("app_hangup");
-       this.endWith("transfer");
-     }
+@@ -1417,6 +1417,7 @@ export class AppSession {
    }
+ 
+   private endWith(reason: SessionEndReason) {
++    if (reason === "transfer") void this.call.hangup("app_hangup");
+     this.end(reason);
+     if (reason === "transfer")
+       this.call.record("event", { type: "session.transferred" });
