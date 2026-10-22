@@ -52,6 +52,8 @@ function parseCases(body, prefix, file) {
       fault: fields.fault || "",
       test: fields.test || "",
       runs: [].concat(fields.runs || []),
+      // "dedicated": a timing case, gated only on a dedicated runner (report.cjs).
+      runner: fields.runner || "",
       trials: trials && trials[1] ? { k: Number(trials[1]), rate: Number(trials[2]) } : null,
       objective: prose.split("\n\n")[0] || "",
       pass, fail,
