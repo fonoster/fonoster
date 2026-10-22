@@ -24,7 +24,7 @@ import { codeOf, Who } from "./drivers";
 import { getWorld, World } from "./world";
 
 // call-record, the Calls API's view of the index: each record names the app that handled the call,
-// and ListCalls filters by it (API-069 in mods/conformance/catalog/areas/api.md). The case writes
+// and ListCalls filters by it and rejects a malformed filter (API-069 and API-070 in mods/conformance/catalog/areas/api.md). The case writes
 // the index rows the call-record service would write when it seals a record.
 
 type Record = { ref: string; appRef?: string };
@@ -138,11 +138,18 @@ describe("@api calls", function () {
           filtered.every((i) => i.appRef === appX),
           "every filtered record is the app's"
         ).to.equal(true);
+      });
 
+      it(`[API-070] (${driverName}) a malformed app filter is INVALID_ARGUMENT, an empty one lists every app's calls`, async function () {
         expect(
           await codeOf(list({ appRef: "not-a-ref" })),
           "malformed filter"
         ).to.equal(status.INVALID_ARGUMENT);
+        const all = ours((await list({ appRef: "" })).items);
+        expect(
+          all.map((i) => i.ref),
+          "empty filter"
+        ).to.have.members([refs.x1, refs.x2, refs.y, refs.none]);
       });
     });
   }
