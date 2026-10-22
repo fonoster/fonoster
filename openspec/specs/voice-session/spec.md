@@ -354,10 +354,14 @@ workspace's trunk.
   the room, and recording continues.
 - `warm`: the caller is put on hold (hold music from the transfer's optional `music`, or
   silence), the Roomr node dials `to`, and the app and the new party hear each other so the agent
-  can brief them. The session ends with `reason: "transfer"` when the app sends
-  `transfer.complete` with the transfer's `id`, which connects the caller and the new party. If
-  the new party does not answer within 30 seconds, the app receives `error` `transfer_failed` and
-  the caller comes back to the app.
+  can brief them. When the new party answers, the app receives `transfer.answered` with
+  `relatesTo` set to the transfer's `id`. The session ends with `reason: "transfer"` when the app
+  then sends `transfer.complete` with the transfer's `id`, which connects the caller and the new
+  party. A `transfer.complete` before `transfer.answered` SHALL be refused with the non-fatal
+  `error` `transfer_not_answered` (`relatesTo` the transfer's `id`): nothing is sent to the Roomr
+  node, the session stays open and the caller stays on hold, and the app may send
+  `transfer.complete` again once the new party answered. If the new party does not answer within
+  30 seconds, the app receives `error` `transfer_failed` and the caller comes back to the app.
 - `refer`: the Roomr node sends a SIP REFER on the caller's leg and leaves the call once the REFER
   is accepted. The session ends with `reason: "transfer"`, and recording ends at that point.
 
@@ -376,6 +380,16 @@ workspace's trunk.
 - **THEN** the app's session stays open, the app and the new party hear each other, and the caller hears hold audio
 - **AND** when the app sends `transfer.complete` `{id: "t2"}` the app receives `session.end` with `reason: "transfer"`
 - **AND** the caller and the new party remain connected
+
+#### Scenario: New party answers a warm transfer
+- **WHEN** the app sends `transfer` `{id: "t2", to: "+15551234567", mode: "warm"}` and the new party answers
+- **THEN** the app receives `{ "type": "transfer.answered", "relatesTo": "t2" }`
+
+#### Scenario: Completing a warm transfer before the answer
+- **WHEN** the app sends `transfer.complete` `{id: "t2"}` while the new party of warm transfer `t2` is still ringing
+- **THEN** the app receives `error` with `code: "transfer_not_answered"`, `fatal: false` and `relatesTo: "t2"`
+- **AND** the Roomr node receives no `transfer.complete`, the session stays open and the caller stays on hold
+- **AND** a `transfer.complete` `{id: "t2"}` after `transfer.answered` ends the session with `reason: "transfer"`
 
 #### Scenario: Transfer by SIP REFER
 - **WHEN** the app sends `transfer` `{id: "t3", to: "+15551234567", mode: "refer"}` and the REFER is accepted

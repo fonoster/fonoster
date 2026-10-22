@@ -1,13 +1,13 @@
 diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
-index deb2c362b..0e1ee08e9 100644
+index aedd3f37f..7d860597d 100644
 --- a/mods/voice/src/Session.ts
 +++ b/mods/voice/src/Session.ts
-@@ -315,7 +315,7 @@ export class Session {
-   /** Completes the pending warm transfer: the agent leaves, caller and new party stay. */
-   async completeTransfer(): Promise<void> {
-     if (!this.lastWarmTransfer) throw new Error("no warm transfer is pending");
--    this.send({ type: "transfer.complete", id: this.lastWarmTransfer });
-+    this.send({ type: "transfer.complete", id: `${this.lastWarmTransfer}-x` });
-   }
- 
-   async hold(options: { music?: string } = {}): Promise<void> {
+@@ -333,7 +333,7 @@ export class Session {
+         reject(e);
+       };
+       try {
+-        this.send({ type: "transfer.complete", id });
++        this.send({ type: "transfer.complete", id: `${id}-x` });
+       } catch (e) {
+         this.completing = undefined;
+         reject(e);

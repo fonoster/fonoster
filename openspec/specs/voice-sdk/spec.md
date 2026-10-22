@@ -2,7 +2,9 @@
 
 ## Purpose
 The voice SDK apps use to handle sessions over the native protocol.
+
 ## Requirements
+
 ### Requirement: VoiceServer accepts AppBridge sessions over WebSocket
 
 The SDK SHALL provide a `VoiceServer` that accepts WebSocket connections from the
@@ -193,7 +195,7 @@ protocol message.
 
 The session SHALL expose `on(event, callback)` for `turn.user_started`, `turn.likely_ended`,
 `turn.ended`, `turn.resumed`, `turn.backchannel`, `transcript.partial`, `turn.estimate`, `dtmf`,
-`error` and `end`. Opt-in events MUST be requested with `subscribe([...])`, which sends the
+`transfer.answered`, `error` and `end`. Opt-in events MUST be requested with `subscribe([...])`, which sends the
 `subscribe` message.
 
 #### Scenario: Listening for keypresses at any time
@@ -207,12 +209,20 @@ The session SHALL expose `on(event, callback)` for `turn.user_started`, `turn.li
 - **THEN** the SDK sends `subscribe` with `events: ["transcript.partial"]`
 - **AND** subsequent `transcript.partial` events reach the registered callbacks
 
+#### Scenario: Knowing the new party answered
+
+- **WHEN** the app registers `session.on("transfer.answered", cb)` during a warm transfer and AppBridge sends `transfer.answered`
+- **THEN** `cb` is called with `{ relatesTo }` set to the transfer's id
+
 ### Requirement: Call control methods map one to one
 
 `play`, `playDtmf`, `transfer`, `completeTransfer`, `hold`, `resume`, `handoff` and `hangup` SHALL
 each send exactly one corresponding session message (`play`, `dtmf.send`, `transfer`,
 `transfer.complete`, `hold`, `resume`, `handoff`, `hangup`). `transfer` SHALL accept an optional
-`mode` (`cold` by default, `warm` or `refer`) and pass it through unchanged.
+`mode` (`cold` by default, `warm` or `refer`) and pass it through unchanged. `completeTransfer` SHALL
+resolve when the session ends with `reason: transfer` and reject with the `SessionError`
+AppBridge answers it with (`transfer_not_answered` before the new party answered), leaving the
+warm transfer pending and the session open.
 
 #### Scenario: Transfer
 
@@ -231,6 +241,12 @@ each send exactly one corresponding session message (`play`, `dtmf.send`, `trans
 - **WHEN** the app calls `handoff("app-escalation", { reason: "angry caller" })`
 - **THEN** the SDK sends `handoff` with that app and payload
 - **AND** the session ends with `reason: handoff`
+
+#### Scenario: Completing before the new party answered
+
+- **WHEN** the app calls `completeTransfer()` and AppBridge answers with the non-fatal error `transfer_not_answered`
+- **THEN** `completeTransfer()` rejects with a `SessionError` with that code
+- **AND** the pending `transfer(...)` call does not settle and the session stays open
 
 ### Requirement: Raw audio access
 
@@ -317,4 +333,3 @@ session method MUST be a coroutine. It SHALL NOT ship a synchronous facade.
 
 - **WHEN** a Python app registers a plain `def handler(session)`
 - **THEN** `listen` raises a `TypeError` stating that handlers must be `async def`
-

@@ -101,12 +101,16 @@ The new party answers after 1.2 s; the app's session stays open until then.
 ### XFR-002 A warm transfer holds the caller through the briefing, then connects them
 
 - **Spec:** voice-session / Call control / Warm transfer
+- **Spec:** voice-session / Call control / New party answers a warm transfer
+- **Spec:** voice-session / Call control / Completing a warm transfer before the answer
 - **Priority:** P0
-- **Proof:** Never send TransferComplete to the node on transfer.complete (`Call.ts`); the test must go red on the caller left on hold.
+- **Proof:** Accept transfer.complete before the new party answered (`Call.ts`); the test must go red on the missing refusal.
 - **Fault:** faults/XFR-002.patch
 - **Test:** mods/appbridge/test/transfers.integration.test.ts
 
-**Pass.** The phone's call is held as soon as the warm transfer starts; the held caller hears none of the agent's briefing; the session stays open until transfer.complete, then ends with reason transfer; the caller comes off hold and the call goes on. **Fail.** A caller who hears the briefing, a caller left on hold, or a session that ends early.
+The new party answers 1.5 s after the dial.
+
+**Pass.** The phone's call is held as soon as the warm transfer starts; a transfer.complete while the new party rings is refused with the non-fatal `transfer_not_answered`, nothing reaches the node, the caller stays on hold and the session stays open; when the new party answers the app gets `transfer.answered` (relating to the transfer) once; the held caller hears none of the agent's briefing; a transfer.complete after the answer ends the session with reason transfer, and the caller comes off hold with the call going on. **Fail.** A completion before the answer that reaches the node, no `transfer.answered`, a caller who hears the briefing, a caller left on hold, or a session that ends early.
 
 ### XFR-003 A warm transfer nobody answers fails after 30 seconds
 
@@ -201,12 +205,16 @@ The phone presses keys as RFC 4733 events and as SIP INFO, one at a time. The ap
 
 - **Spec:** voice-sdk / Call control methods map one to one / Transfer
 - **Spec:** voice-sdk / Call control methods map one to one / Warm transfer
+- **Spec:** voice-sdk / Call control methods map one to one / Completing before the new party answered
+- **Spec:** voice-sdk / Events are exposed as subscriptions / Knowing the new party answered
 - **Priority:** P0
 - **Proof:** Complete the warm transfer with another id (`completeTransfer` in `mods/voice/src/Session.ts`; the prove script rebuilds the SDK); the test must go red on the caller left on hold.
 - **Fault:** faults/XFR-011.patch
 - **Test:** mods/appbridge/test/transfers.integration.test.ts
 
-**Pass.** `transfer(to, { headers })` reaches the node as a cold Transfer with the header and resolves once the session ends with reason transfer, while the caller's call goes on; `transfer(to, { mode: "warm" })` holds the caller through a `say`, and `completeTransfer()` connects them and resolves the transfer. **Fail.** A promise that never resolves, or a caller left on hold.
+The fixture calls `completeTransfer()` at once (the new party answers after 1.5 s), then again after the `transfer.answered` event.
+
+**Pass.** `transfer(to, { headers })` reaches the node as a cold Transfer with the header and resolves once the session ends with reason transfer, while the caller's call goes on; `transfer(to, { mode: "warm" })` holds the caller; the early `completeTransfer()` rejects with `transfer_not_answered` and leaves the transfer pending; the `transfer.answered` listener fires; after a `say`, `completeTransfer()` connects the caller and both promises resolve. **Fail.** A promise that never settles, a refusal that fails the transfer, or a caller left on hold.
 
 ### XFR-012 TypeScript SDK: keys, playDtmf, hold and resume reach the phone
 
@@ -223,6 +231,8 @@ The phone presses keys as RFC 4733 events and as SIP INFO, one at a time. The ap
 
 - **Spec:** voice-sdk / Call control methods map one to one / Transfer
 - **Spec:** voice-sdk / Call control methods map one to one / Warm transfer
+- **Spec:** voice-sdk / Call control methods map one to one / Completing before the new party answered
+- **Spec:** voice-sdk / Events are exposed as subscriptions / Knowing the new party answered
 - **Priority:** P0
 - **Proof:** Complete the warm transfer with another id (`complete_transfer` in `python/fonoster-voice/src/fonoster/voice/session.py`); the test must go red on the caller left on hold.
 - **Fault:** faults/XFR-013.patch
@@ -263,3 +273,16 @@ The fake LLM calls `transfer` after the caller's first turn.
 - **Test:** mods/autopilot/test/session/transfers.integration.test.ts
 
 **Pass.** The caller hears the whole goodbye; the node is sent the hang-up after it finished playing and removes the call; the phone's leg ends and the session ends with reason app_hangup. **Fail.** A goodbye cut off, or a call left up.
+
+### XFR-017 After a failed transfer Autopilot says so and keeps helping
+
+- **Spec:** autopilot / Built-in hangup and transfer / Transfer fails
+- **Spec:** voice-session / Call control / Failed transfer
+- **Priority:** P0
+- **Proof:** Let a failed transfer end Autopilot's turn without a word (`transfer` in `mods/autopilot/src/session/Agent.ts`); the test must go red on the failure message.
+- **Fault:** faults/XFR-017.patch
+- **Test:** mods/autopilot/test/session/transfers.integration.test.ts
+
+The operator is busy; the caller's next turn comes after the failure message.
+
+**Pass.** After the transfer message, AppBridge reports `transfer_failed`; the caller then hears the whole default failure message ("Sorry, I couldn't connect you..."); the caller's next turn reaches the model with the transfer's failure as its tool result, and the caller hears the reply; nothing hangs the call up and the session goes on. **Fail.** Silence after the failure, a turn the model never gets, or a call that ends.
