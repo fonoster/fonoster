@@ -4811,7 +4811,7 @@
       "theme": {
         "ui:mode": "dark"
       },
-      "height": 1091,
+      "height": 1127,
       "descendants": {
         "ui:itw6f": {
           "fill": "$ui:--sidebar-accent"
@@ -6197,14 +6197,34 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "f2C3PW",
-                                  "name": "3 × 10 s",
-                                  "fill": "$ui:--foreground",
-                                  "content": "3 × 10 s",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "ovIMo",
+                                  "name": "Input",
+                                  "width": 150,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    7,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "x4d5G7",
+                                      "name": "3 × 10 s",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "3 × 10 s",
+                                      "textAlign": "right",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -6227,14 +6247,34 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "KFWDm",
-                                  "name": "30 min",
-                                  "fill": "$ui:--foreground",
-                                  "content": "30 min",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "G19oue",
+                                  "name": "Input",
+                                  "width": 150,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    7,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "UF8F3",
+                                      "name": "30 min",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "30 min",
+                                      "textAlign": "right",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -6257,14 +6297,34 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "RSmjx",
-                                  "name": "+1 809 555 0100",
-                                  "fill": "$ui:--foreground",
-                                  "content": "+1 809 555 0100",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "SK7ak",
+                                  "name": "Input",
+                                  "width": 150,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    7,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "u8fRCi",
+                                      "name": "+1 809 555 0100",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "+1 809 555 0100",
+                                      "textAlign": "right",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -9529,14 +9589,15 @@
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "text",
-                              "id": "WbRGv",
-                              "name": "schedule_payment",
-                              "fill": "$ui:--foreground",
-                              "content": "schedule_payment",
-                              "fontFamily": "$ui:--font-primary",
-                              "fontSize": 15,
-                              "fontWeight": "500"
+                              "id": "Tck4G",
+                              "type": "ref",
+                              "ref": "ui:cqqfg",
+                              "width": 240,
+                              "descendants": {
+                                "ui:ehaeO": {
+                                  "content": "schedule_payment"
+                                }
+                              }
                             },
                             {
                               "type": "text",
@@ -9821,6 +9882,7 @@
                                   "fill": "$ui:--muted",
                                   "stroke": "$ui:--input",
                                   "strokeAlignment": "inner",
+                                  "gap": 8,
                                   "padding": [
                                     0,
                                     12
@@ -9913,6 +9975,7 @@
                                     "top": 1
                                   },
                                   "strokeAlignment": "inner",
+                                  "gap": 8,
                                   "padding": [
                                     0,
                                     12
@@ -9926,14 +9989,15 @@
                                       "width": "fill_container",
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "KQRBT",
-                                          "name": "invoiceId",
-                                          "fill": "$ui:--foreground",
-                                          "content": "invoiceId",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "ormLj",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "invoiceId"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -9944,14 +10008,15 @@
                                       "width": 110,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "HpXNy",
-                                          "name": "string",
-                                          "fill": "$ui:--foreground",
-                                          "content": "string",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "eyUjr",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "string"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -9962,14 +10027,15 @@
                                       "width": 140,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "RpXxy",
-                                          "name": "—",
-                                          "fill": "$ui:--foreground",
-                                          "content": "—",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "pi2Qb",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "—"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -9980,14 +10046,15 @@
                                       "width": 90,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "tjIwN",
-                                          "name": "Yes",
-                                          "fill": "$ui:--foreground",
-                                          "content": "Yes",
-                                          "fontFamily": "$ui:--font-secondary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "rIRKA",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "Yes"
+                                            }
+                                          }
                                         }
                                       ]
                                     }
@@ -10005,6 +10072,7 @@
                                     "top": 1
                                   },
                                   "strokeAlignment": "inner",
+                                  "gap": 8,
                                   "padding": [
                                     0,
                                     12
@@ -10018,14 +10086,15 @@
                                       "width": "fill_container",
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "DQL3d",
-                                          "name": "paymentDate",
-                                          "fill": "$ui:--foreground",
-                                          "content": "paymentDate",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "VBhfE",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "paymentDate"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -10036,14 +10105,15 @@
                                       "width": 110,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "zsERo",
-                                          "name": "string",
-                                          "fill": "$ui:--foreground",
-                                          "content": "string",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "xGZWn",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "string"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -10054,14 +10124,15 @@
                                       "width": 140,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "DEziM",
-                                          "name": "date-time",
-                                          "fill": "$ui:--foreground",
-                                          "content": "date-time",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "L42RF",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "date-time"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -10072,14 +10143,15 @@
                                       "width": 90,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "h33CoQ",
-                                          "name": "Yes",
-                                          "fill": "$ui:--foreground",
-                                          "content": "Yes",
-                                          "fontFamily": "$ui:--font-secondary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "Z8P3Gz",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "Yes"
+                                            }
+                                          }
                                         }
                                       ]
                                     }
@@ -10097,6 +10169,7 @@
                                     "top": 1
                                   },
                                   "strokeAlignment": "inner",
+                                  "gap": 8,
                                   "padding": [
                                     0,
                                     12
@@ -10110,14 +10183,15 @@
                                       "width": "fill_container",
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "eoLuA",
-                                          "name": "method",
-                                          "fill": "$ui:--foreground",
-                                          "content": "method",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "ChXBD",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "method"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -10128,14 +10202,15 @@
                                       "width": 110,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "BEby0",
-                                          "name": "string",
-                                          "fill": "$ui:--foreground",
-                                          "content": "string",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "klE6e",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "string"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -10146,14 +10221,15 @@
                                       "width": 140,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "bkIIV",
-                                          "name": "enum",
-                                          "fill": "$ui:--foreground",
-                                          "content": "enum",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "c2Y7j",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "enum"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -10164,14 +10240,15 @@
                                       "width": 90,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "n1GHM",
-                                          "name": "No",
-                                          "fill": "$ui:--foreground",
-                                          "content": "No",
-                                          "fontFamily": "$ui:--font-secondary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "UscDa",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "No"
+                                            }
+                                          }
                                         }
                                       ]
                                     }
@@ -16613,6 +16690,7 @@
                                   "fill": "$ui:--background",
                                   "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
                                     7,
@@ -16691,6 +16769,7 @@
                                   "fill": "$ui:--background",
                                   "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
                                     7,
@@ -16769,6 +16848,7 @@
                                   "fill": "$ui:--background",
                                   "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
                                     7,
@@ -16847,6 +16927,7 @@
                                   "fill": "$ui:--background",
                                   "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
                                     7,
@@ -16956,6 +17037,7 @@
                                   "fill": "$ui:--background",
                                   "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
                                     7,
@@ -17024,6 +17106,7 @@
                                   "fill": "$ui:--background",
                                   "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "padding": [
                                     7,
@@ -17162,6 +17245,7 @@
                                   "fill": "$ui:--background",
                                   "cornerRadius": "$ui:--radius-control",
                                   "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
                                   "strokeAlignment": "inner",
                                   "gap": 8,
                                   "padding": [
@@ -30251,6 +30335,7 @@
                                   "width": "fill_container",
                                   "height": 34,
                                   "fill": "$ui:--muted",
+                                  "gap": 8,
                                   "padding": [
                                     0,
                                     14
@@ -30280,7 +30365,7 @@
                                       "type": "frame",
                                       "id": "hknay",
                                       "name": "Port",
-                                      "width": 70,
+                                      "width": 64,
                                       "children": [
                                         {
                                           "type": "text",
@@ -30299,7 +30384,7 @@
                                       "type": "frame",
                                       "id": "f2Yotc",
                                       "name": "Transport",
-                                      "width": 100,
+                                      "width": 96,
                                       "children": [
                                         {
                                           "type": "text",
@@ -30318,7 +30403,7 @@
                                       "type": "frame",
                                       "id": "UvBMB",
                                       "name": "User",
-                                      "width": 110,
+                                      "width": 96,
                                       "children": [
                                         {
                                           "type": "text",
@@ -30337,7 +30422,7 @@
                                       "type": "frame",
                                       "id": "cjMPs",
                                       "name": "Priority",
-                                      "width": 80,
+                                      "width": 64,
                                       "children": [
                                         {
                                           "type": "text",
@@ -30356,7 +30441,7 @@
                                       "type": "frame",
                                       "id": "C0Riwz",
                                       "name": "Weight",
-                                      "width": 70,
+                                      "width": 60,
                                       "children": [
                                         {
                                           "type": "text",
@@ -30389,6 +30474,13 @@
                                           "letterSpacing": 0.5
                                         }
                                       ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "X5YUgz",
+                                      "name": "Remove",
+                                      "width": 24,
+                                      "height": 1
                                     }
                                   ]
                                 },
@@ -30404,6 +30496,7 @@
                                     "top": 1
                                   },
                                   "strokeAlignment": "inner",
+                                  "gap": 8,
                                   "padding": [
                                     0,
                                     14
@@ -30417,14 +30510,15 @@
                                       "width": "fill_container",
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "b7ov41",
-                                          "name": "sip.claro.com.do",
-                                          "fill": "$ui:--foreground",
-                                          "content": "sip.acme.com",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "e8JuQO",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "sip.acme.com"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30432,17 +30526,18 @@
                                       "type": "frame",
                                       "id": "MBjBX",
                                       "name": "Port",
-                                      "width": 70,
+                                      "width": 64,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "kiUWn",
-                                          "name": "5060",
-                                          "fill": "$ui:--foreground",
-                                          "content": "5060",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "FIy0l",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "5060"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30450,17 +30545,18 @@
                                       "type": "frame",
                                       "id": "tcD4i",
                                       "name": "Transport",
-                                      "width": 100,
+                                      "width": 96,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "HYxyt",
-                                          "name": "UDP",
-                                          "fill": "$ui:--foreground",
-                                          "content": "UDP",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "b6FtW",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "UDP"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30468,17 +30564,18 @@
                                       "type": "frame",
                                       "id": "r6kV9U",
                                       "name": "User",
-                                      "width": 110,
+                                      "width": 96,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "Hd5Dc",
-                                          "name": "acme",
-                                          "fill": "$ui:--foreground",
-                                          "content": "acme",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "KIAuV",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "acme"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30486,17 +30583,18 @@
                                       "type": "frame",
                                       "id": "q0OJTF",
                                       "name": "Priority",
-                                      "width": 80,
+                                      "width": 64,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "mHeI7",
-                                          "name": "1",
-                                          "fill": "$ui:--foreground",
-                                          "content": "1",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "k7fKo",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "1"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30504,17 +30602,18 @@
                                       "type": "frame",
                                       "id": "smJgU",
                                       "name": "Weight",
-                                      "width": 70,
+                                      "width": 60,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "sOSlp",
-                                          "name": "10",
-                                          "fill": "$ui:--foreground",
-                                          "content": "10",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "m0KuqJ",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "10"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30546,6 +30645,24 @@
                                           ]
                                         }
                                       ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "V0ubV",
+                                      "name": "Remove",
+                                      "width": 24,
+                                      "justifyContent": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "GeTtN",
+                                          "width": 14,
+                                          "height": 14,
+                                          "icon": "trash-2",
+                                          "library": "lucide",
+                                          "fill": "$ui:--muted-foreground"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -30561,6 +30678,7 @@
                                     "top": 1
                                   },
                                   "strokeAlignment": "inner",
+                                  "gap": 8,
                                   "padding": [
                                     0,
                                     14
@@ -30574,14 +30692,15 @@
                                       "width": "fill_container",
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "dBZR3",
-                                          "name": "sip2.claro.com.do",
-                                          "fill": "$ui:--foreground",
-                                          "content": "sip2.acme.com",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "Zurpe",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "sip2.acme.com"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30589,17 +30708,18 @@
                                       "type": "frame",
                                       "id": "AElQY",
                                       "name": "Port",
-                                      "width": 70,
+                                      "width": 64,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "cwnpC",
-                                          "name": "5060",
-                                          "fill": "$ui:--foreground",
-                                          "content": "5060",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "SZNib",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "5060"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30607,17 +30727,18 @@
                                       "type": "frame",
                                       "id": "J6Bk83",
                                       "name": "Transport",
-                                      "width": 100,
+                                      "width": 96,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "WGsU6",
-                                          "name": "UDP",
-                                          "fill": "$ui:--foreground",
-                                          "content": "UDP",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "PYC2q",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "UDP"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30625,17 +30746,18 @@
                                       "type": "frame",
                                       "id": "R0unj",
                                       "name": "User",
-                                      "width": 110,
+                                      "width": 96,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "nPbAq",
-                                          "name": "acme",
-                                          "fill": "$ui:--foreground",
-                                          "content": "acme",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "sazf6",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "acme"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30643,17 +30765,18 @@
                                       "type": "frame",
                                       "id": "NmHz2",
                                       "name": "Priority",
-                                      "width": 80,
+                                      "width": 64,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "KpCvm",
-                                          "name": "2",
-                                          "fill": "$ui:--foreground",
-                                          "content": "2",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "jlonw",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "2"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30661,17 +30784,18 @@
                                       "type": "frame",
                                       "id": "QAk1g",
                                       "name": "Weight",
-                                      "width": 70,
+                                      "width": 60,
                                       "children": [
                                         {
-                                          "type": "text",
-                                          "id": "GKDfu",
-                                          "name": "10",
-                                          "fill": "$ui:--foreground",
-                                          "content": "10",
-                                          "fontFamily": "$ui:--font-primary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
+                                          "id": "r2cuH",
+                                          "type": "ref",
+                                          "ref": "ui:cqqfg",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:ehaeO": {
+                                              "content": "10"
+                                            }
+                                          }
                                         }
                                       ]
                                     },
@@ -30701,6 +30825,24 @@
                                               "height": 12
                                             }
                                           ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "y3MzJB",
+                                      "name": "Remove",
+                                      "width": 24,
+                                      "justifyContent": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "tKJMw",
+                                          "width": 14,
+                                          "height": 14,
+                                          "icon": "trash-2",
+                                          "library": "lucide",
+                                          "fill": "$ui:--muted-foreground"
                                         }
                                       ]
                                     }
@@ -36782,45 +36924,14 @@
                           "width": 220,
                           "children": [
                             {
-                              "type": "frame",
-                              "id": "OZTe6",
-                              "name": "Select",
-                              "width": 140,
-                              "fill": "$ui:--background",
-                              "cornerRadius": 8,
-                              "stroke": "$ui:--input",
-                              "strokeWidth": 1,
-                              "strokeAlignment": "inner",
-                              "gap": 6,
-                              "padding": [
-                                6,
-                                10
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "I9mF3",
-                                  "name": "Admin",
-                                  "fill": "$ui:--foreground",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "Admin",
-                                  "fontFamily": "$ui:--font-secondary",
-                                  "fontSize": 13,
-                                  "fontWeight": "normal"
-                                },
-                                {
-                                  "type": "icon",
-                                  "id": "S1ely",
-                                  "name": "Chevron",
-                                  "width": 12,
-                                  "height": 12,
-                                  "icon": "chevron-down",
-                                  "library": "lucide",
-                                  "fill": "$ui:--muted-foreground"
-                                }
-                              ]
+                              "type": "text",
+                              "id": "Lwjzy",
+                              "name": "Admin",
+                              "fill": "$ui:--foreground",
+                              "content": "Admin",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -36959,45 +37070,14 @@
                           "width": 220,
                           "children": [
                             {
-                              "type": "frame",
-                              "id": "y1UKp",
-                              "name": "Select",
-                              "width": 140,
-                              "fill": "$ui:--background",
-                              "cornerRadius": 8,
-                              "stroke": "$ui:--input",
-                              "strokeWidth": 1,
-                              "strokeAlignment": "inner",
-                              "gap": 6,
-                              "padding": [
-                                6,
-                                10
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "TqaFk",
-                                  "name": "Member",
-                                  "fill": "$ui:--foreground",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "Member",
-                                  "fontFamily": "$ui:--font-secondary",
-                                  "fontSize": 13,
-                                  "fontWeight": "normal"
-                                },
-                                {
-                                  "type": "icon",
-                                  "id": "tCTna",
-                                  "name": "Chevron",
-                                  "width": 12,
-                                  "height": 12,
-                                  "icon": "chevron-down",
-                                  "library": "lucide",
-                                  "fill": "$ui:--muted-foreground"
-                                }
-                              ]
+                              "type": "text",
+                              "id": "IsmPn",
+                              "name": "Member",
+                              "fill": "$ui:--foreground",
+                              "content": "Member",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -37136,45 +37216,14 @@
                           "width": 220,
                           "children": [
                             {
-                              "type": "frame",
-                              "id": "c72nZ",
-                              "name": "Select",
-                              "width": 140,
-                              "fill": "$ui:--background",
-                              "cornerRadius": 8,
-                              "stroke": "$ui:--input",
-                              "strokeWidth": 1,
-                              "strokeAlignment": "inner",
-                              "gap": 6,
-                              "padding": [
-                                6,
-                                10
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "xy1ok",
-                                  "name": "Member",
-                                  "fill": "$ui:--foreground",
-                                  "textGrowth": "fixed-width",
-                                  "width": "fill_container",
-                                  "content": "Member",
-                                  "fontFamily": "$ui:--font-secondary",
-                                  "fontSize": 13,
-                                  "fontWeight": "normal"
-                                },
-                                {
-                                  "type": "icon",
-                                  "id": "whRY4",
-                                  "name": "Chevron",
-                                  "width": 12,
-                                  "height": 12,
-                                  "icon": "chevron-down",
-                                  "library": "lucide",
-                                  "fill": "$ui:--muted-foreground"
-                                }
-                              ]
+                              "type": "text",
+                              "id": "kA5PH",
+                              "name": "Member",
+                              "fill": "$ui:--foreground",
+                              "content": "Member",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
                             }
                           ]
                         },
@@ -39087,7 +39136,7 @@
       },
       "clip": true,
       "width": 1440,
-      "height": 960,
+      "height": 1127,
       "layout": "none",
       "children": [
         {
@@ -39100,6 +39149,7 @@
           "theme": {
             "ui:mode": "dark"
           },
+          "height": 1127,
           "descendants": {
             "ui:itw6f": {
               "fill": "$ui:--sidebar-accent"
@@ -40485,14 +40535,34 @@
                                       "fontWeight": "normal"
                                     },
                                     {
-                                      "type": "text",
-                                      "id": "BzTgD",
-                                      "name": "3 × 10 s",
-                                      "fill": "$ui:--foreground",
-                                      "content": "3 × 10 s",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
+                                      "type": "frame",
+                                      "id": "Jl4KH",
+                                      "name": "Input",
+                                      "width": 150,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "uFugO",
+                                          "name": "3 × 10 s",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "3 × 10 s",
+                                          "textAlign": "right",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -40515,21 +40585,41 @@
                                       "fontWeight": "normal"
                                     },
                                     {
-                                      "type": "text",
-                                      "id": "z5CtL",
-                                      "name": "30 min",
-                                      "fill": "$ui:--foreground",
-                                      "content": "30 min",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
+                                      "type": "frame",
+                                      "id": "NJ1Wi",
+                                      "name": "Input",
+                                      "width": 150,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "jF42V",
+                                          "name": "30 min",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "30 min",
+                                          "textAlign": "right",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
                                 {
                                   "type": "frame",
                                   "id": "oHdJy",
-                                  "name": "Row Transfer to a human",
+                                  "name": "Row Transfer to an operator",
                                   "width": "fill_container",
                                   "justifyContent": "space_between",
                                   "alignItems": "center",
@@ -40537,22 +40627,166 @@
                                     {
                                       "type": "text",
                                       "id": "R9Bm0J",
-                                      "name": "Transfer to a human",
+                                      "name": "Transfer to an operator",
                                       "fill": "$ui:--muted-foreground",
-                                      "content": "Transfer to a human",
+                                      "content": "Transfer to an operator",
                                       "fontFamily": "$ui:--font-secondary",
                                       "fontSize": 13,
                                       "fontWeight": "normal"
                                     },
                                     {
-                                      "type": "text",
-                                      "id": "CovN3",
-                                      "name": "+1 809 555 0100",
-                                      "fill": "$ui:--foreground",
-                                      "content": "+1 809 555 0100",
-                                      "fontFamily": "$ui:--font-primary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
+                                      "type": "frame",
+                                      "id": "CZtPS",
+                                      "name": "Input",
+                                      "width": 150,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "rXF0Z",
+                                          "name": "+1 809 555 0100",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "+1 809 555 0100",
+                                          "textAlign": "right",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "PffZn",
+                                  "name": "Field Transfer message",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 6,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "Z0GqA",
+                                      "name": "Label row",
+                                      "width": "fill_container",
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "ifsPw",
+                                          "name": "Says before transferring",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Says before transferring",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "znTLx",
+                                      "name": "Input",
+                                      "width": "fill_container",
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "gap": 8,
+                                      "padding": [
+                                        9,
+                                        12
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "u9d16h",
+                                          "name": "Value",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "One moment, I'm transferring you to a person.",
+                                          "lineHeight": 1.6,
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "prVNq",
+                                  "name": "Field Transfer failed message",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 6,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "GUduA",
+                                      "name": "Label row",
+                                      "width": "fill_container",
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "y6L4pm",
+                                          "name": "Says if the transfer fails",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Says if the transfer fails",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "aPUZe",
+                                      "name": "Input",
+                                      "width": "fill_container",
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "gap": 8,
+                                      "padding": [
+                                        9,
+                                        12
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "L6b2B",
+                                          "name": "Value",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Sorry, I couldn't connect you. How else can I help?",
+                                          "lineHeight": 1.6,
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -40575,7 +40809,7 @@
           "y": 0,
           "name": "Overlay",
           "width": 1440,
-          "height": 960,
+          "height": 1127,
           "fill": "#00000080",
           "layout": "none"
         },
@@ -40586,7 +40820,7 @@
           "y": 0,
           "name": "Drawer",
           "width": 440,
-          "height": 960,
+          "height": 1127,
           "fill": "$ui:--card",
           "stroke": "$ui:--border",
           "strokeWidth": {
@@ -56340,6 +56574,7 @@
       "theme": {
         "ui:mode": "dark"
       },
+      "height": 1130,
       "descendants": {
         "ui:itw6f": {
           "fill": "$ui:--sidebar-accent"
@@ -57740,14 +57975,34 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "powhe",
-                                  "name": "3 × 10 s",
-                                  "fill": "$ui:--foreground",
-                                  "content": "3 × 10 s",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "vntsn",
+                                  "name": "Input",
+                                  "width": 150,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    7,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "AtFMK",
+                                      "name": "3 × 10 s",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "3 × 10 s",
+                                      "textAlign": "right",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -57770,21 +58025,41 @@
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "gIqbM",
-                                  "name": "30 min",
-                                  "fill": "$ui:--foreground",
-                                  "content": "30 min",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "IMPuY",
+                                  "name": "Input",
+                                  "width": 150,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    7,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "ewy0Z",
+                                      "name": "30 min",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "30 min",
+                                      "textAlign": "right",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             },
                             {
                               "type": "frame",
                               "id": "px3f7",
-                              "name": "Row Transfer to a human",
+                              "name": "Row Transfer to an operator",
                               "width": "fill_container",
                               "justifyContent": "space_between",
                               "alignItems": "center",
@@ -57792,22 +58067,166 @@
                                 {
                                   "type": "text",
                                   "id": "zvISV",
-                                  "name": "Transfer to a human",
+                                  "name": "Transfer to an operator",
                                   "fill": "$ui:--muted-foreground",
-                                  "content": "Transfer to a human",
+                                  "content": "Transfer to an operator",
                                   "fontFamily": "$ui:--font-secondary",
                                   "fontSize": 13,
                                   "fontWeight": "normal"
                                 },
                                 {
-                                  "type": "text",
-                                  "id": "h310w",
-                                  "name": "+1 809 555 0100",
-                                  "fill": "$ui:--foreground",
-                                  "content": "+1 809 555 0100",
-                                  "fontFamily": "$ui:--font-primary",
-                                  "fontSize": 12,
-                                  "fontWeight": "normal"
+                                  "type": "frame",
+                                  "id": "V8lgX",
+                                  "name": "Input",
+                                  "width": 150,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    7,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "EcLIr",
+                                      "name": "+1 809 555 0100",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "+1 809 555 0100",
+                                      "textAlign": "right",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "zWZKP",
+                              "name": "Field Transfer message",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "p14E66",
+                                  "name": "Label row",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "n1eb5",
+                                      "name": "Says before transferring",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Says before transferring",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "lIrbp",
+                                  "name": "Input",
+                                  "width": "fill_container",
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "gap": 8,
+                                  "padding": [
+                                    9,
+                                    12
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "Zajgw",
+                                      "name": "Value",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "One moment, I'm transferring you to a person.",
+                                      "lineHeight": 1.6,
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "WTCXW",
+                              "name": "Field Transfer failed message",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "XHtlg",
+                                  "name": "Label row",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "L2728A",
+                                      "name": "Says if the transfer fails",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Says if the transfer fails",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "mzJuJ",
+                                  "name": "Input",
+                                  "width": "fill_container",
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "gap": 8,
+                                  "padding": [
+                                    9,
+                                    12
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "u6muJ",
+                                      "name": "Value",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Sorry, I couldn't connect you. How else can I help?",
+                                      "lineHeight": 1.6,
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -58025,7 +58444,7 @@
       "type": "frame",
       "id": "ar6PY",
       "x": 0,
-      "y": 4216,
+      "y": 4252,
       "name": "Gap note · Agent detail",
       "width": 420,
       "fill": "#FEF3C7",
@@ -58130,7 +58549,7 @@
       "type": "frame",
       "id": "GWFNv",
       "x": 9240,
-      "y": 4084,
+      "y": 4252,
       "name": "Gap note · Talk to agent",
       "width": 420,
       "fill": "#FEF3C7",

@@ -20,6 +20,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown } from "lucide-react";
 import type { ComponentProps } from "react";
 import { cn } from "~/lib/utils";
+import { COMPACT_CONTROL } from "./input";
 
 export type SelectOption = {
   value: string;
@@ -36,6 +37,7 @@ export function Select({
   placeholder = "Select…",
   className,
   disabled,
+  compact = false,
   ...trigger
 }: {
   value?: string;
@@ -44,6 +46,7 @@ export function Select({
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  compact?: boolean;
 } & Omit<
   ComponentProps<typeof SelectPrimitive.Trigger>,
   "value" | "onChange"
@@ -57,6 +60,7 @@ export function Select({
       <SelectPrimitive.Trigger
         className={cn(
           "flex h-[38px] w-full cursor-pointer items-center justify-between gap-2 rounded-control border border-input bg-background px-3 text-left font-display text-[13px] text-foreground outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive data-[placeholder]:text-text-muted",
+          compact && COMPACT_CONTROL,
           className
         )}
         {...trigger}
