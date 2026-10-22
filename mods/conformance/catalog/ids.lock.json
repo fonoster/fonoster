@@ -227,6 +227,7 @@
   "DSH-059": "Vendor keys: adding an ai-coustics key",
   "DSH-060": "Vendor keys with no keyed vendor",
   "DSH-061": "Usage covers the chosen month, and says when there is none",
+  "DSH-062": "A saved noise filter whose provider is no longer offered",
   "ROM-001": "Inbound calls reach the app on their own control stream",
   "ROM-002": "Calls the app does not take are refused with the right status",
   "ROM-003": "A caller who cancels before the answer ends the call",

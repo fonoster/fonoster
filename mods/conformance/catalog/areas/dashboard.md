@@ -796,3 +796,15 @@ The records are built by the call-record module's own vCon builder, a `filter.fa
 The picker names months ("September 2026"); the scenario's Last month is the second one.
 
 **Pass.** This month shows 10 min of calls and no AI usage; last month shows only its own 120 min and its Deepgram row; a month with nothing says No usage in that month and shows no zero figures. **Fail.** Another month's figures, or zeros instead of the message.
+
+### DSH-062 A saved noise filter whose provider is no longer offered
+
+- **Spec:** dashboard / Noise cancelling is one select fed by the catalog / A saved filter whose provider is no longer offered
+- **Priority:** P1
+- **Proof:** Stop adding the saved provider to the options when the catalog no longer offers it (`noiseCancellingOptions` in `session/noise-cancelling.ts`); the test must go red on the select.
+- **Fault:** faults/DSH-062.patch
+- **Test:** mods/dashboard/e2e/catalog.community.spec.ts
+
+The catalog no longer has the provider's label, so the select shows its id, as the voice, model and transcriber pickers do (the spec was changed to say so).
+
+**Pass.** On the agent's Advanced tab the select shows `aicoustics (unavailable)` and offers None and `aicoustics (unavailable)`; saving another change to the agent keeps `filters: [{ name: "aiCoustics" }]`. **Fail.** A blank or None select, a missing unavailable option, or the filter dropped on save.

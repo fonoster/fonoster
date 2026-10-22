@@ -251,7 +251,9 @@ strength control.
 #### Scenario: A saved filter whose provider is no longer offered
 
 - **WHEN** the app has `filters: [{ name: "aiCoustics" }]` and the catalog no longer offers `aicoustics`
-- **THEN** the select shows *ai-coustics* as unavailable and saving keeps the filter
+- **THEN** the select shows the provider's id marked unavailable (`aicoustics (unavailable)`), since
+  the catalog no longer has its label, as the voice, model and transcriber pickers do, and saving
+  keeps the filter
 
 #### Scenario: Agents set it on the Advanced tab
 

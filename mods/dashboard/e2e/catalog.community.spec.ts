@@ -286,3 +286,68 @@ test("[DSH-061] Usage shows only the chosen month, and says when a month has no 
   await expect(page.getByText(`No usage in ${earlier.label}.`)).toBeVisible();
   await expect(page.getByText("Calls", { exact: true })).toHaveCount(0);
 });
+
+test("[DSH-062] a saved noise filter whose provider is no longer offered shows as unavailable and is kept on save", async ({
+  page,
+  api
+}) => {
+  const product = (productRef: string, config: object) => {
+    const container = new applications.ProductContainer();
+    container.setProductRef(productRef);
+    container.setConfig(struct.Struct.fromJavaScript(config));
+    return container;
+  };
+  const apps = new FakeApplications();
+  apps.add("Front desk", "AUTOPILOT", (app) => {
+    app.setTextToSpeech(product("tts.fake", { voice: "fake/default" }));
+    app.setSpeechToText(
+      product("stt.fake", { model: "fake/stt", languageCode: "en-US" })
+    );
+    app.setIntelligence(
+      product("llm.fake", {
+        conversationSettings: {
+          firstMessage: "Hi, how can I help?",
+          systemPrompt: "You are a receptionist.",
+          goodbyeMessage: "Bye",
+          systemErrorMessage: "Sorry"
+        },
+        languageModel: {
+          provider: "fake",
+          model: "fake/llm",
+          temperature: 0.4,
+          maxTokens: 240,
+          tools: []
+        }
+      })
+    );
+    const filter = new applications.AudioFilter();
+    filter.setName("aiCoustics");
+    app.setFiltersList([filter]);
+  });
+  // The catalog no longer offers aicoustics: no nc provider at all.
+  await signIn(page, api, FAKES, apps);
+  await page.goto("/w/ws-1/agents/app-1/advanced");
+
+  // Shown by its id, since the catalog has no label for it any more, and marked unavailable.
+  const select = page
+    .getByRole("region", { name: "Noise cancelling" })
+    .getByRole("combobox", { name: "Noise cancelling" });
+  await expect(select).toHaveText("aicoustics (unavailable)");
+  await select.click();
+  await expect(page.getByRole("option")).toHaveText([
+    "None",
+    "aicoustics (unavailable)"
+  ]);
+  await page.keyboard.press("Escape");
+
+  // Saving another change keeps the filter.
+  await page.goto("/w/ws-1/agents/app-1");
+  await page.getByLabel("First message").fill("Hello, Front desk here.");
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect
+    .poll(() => JSON.stringify(apps.saved("app-1").intelligence?.config ?? {}))
+    .toContain("Hello, Front desk here.");
+  expect(
+    apps.saved("app-1").filtersList.map((f: { name: string }) => f.name)
+  ).toEqual(["aiCoustics"]);
+});

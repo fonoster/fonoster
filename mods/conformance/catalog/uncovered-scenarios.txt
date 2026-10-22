@@ -23,7 +23,6 @@ control-plane / The apiserver is a stateless control plane / Losing a replica
 control-plane / The apiserver is a stateless control plane / Management API unchanged
 control-plane / The apiserver is a stateless control plane / TrackCall always ends
 dashboard / Member roles can be changed / Promote a member
-dashboard / Noise cancelling is one select fed by the catalog / A saved filter whose provider is no longer offered
 dashboard / The dashboard is configured at run time with one setting / One image, two deployments
 dashboard / The session persists in the browser and ends cleanly / Inline script blocked
 identity / Id, access, and refresh tokens / A token is not valid across realms
