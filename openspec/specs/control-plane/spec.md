@@ -9,7 +9,11 @@ The apiserver as a stateless control plane and how it places and controls calls 
 
 AppBridge SHALL run as its own deployable, written in TypeScript, scaled
 independently of the apiserver and the Roomr node. It SHALL host the STT, TTS and audio-filter
-code that the apiserver runs today, and the apiserver MUST NOT run any of it.
+code that the apiserver runs today, and the apiserver MUST NOT run any of it. AppBridge SHALL
+serve the Roomr node's control stream (`Session.Connect`, media-control) behind one stable session
+endpoint (a Kubernetes Service in Helm, a service name in Compose), which the Roomr node is
+configured with; the node opens one connection per call, so the endpoint spreads calls across
+replicas.
 
 #### Scenario: Scaling AppBridge replicas alone
 - **WHEN** an operator raises AppBridge replica count from 2 to 4 and leaves the apiserver and Roomr nodes unchanged
@@ -20,20 +24,25 @@ code that the apiserver runs today, and the apiserver MUST NOT run any of it.
 - **WHEN** a call with STT, TTS and an audio filter runs end to end
 - **THEN** no STT, TTS or filter request originates from an apiserver process
 
+#### Scenario: Calls spread through the session endpoint
+- **WHEN** 100 inbound calls arrive while 4 AppBridge replicas sit behind the session endpoint
+- **THEN** the Roomr node opens 100 control streams and more than one replica receives them
+
 ### Requirement: The apiserver is a stateless control plane
 
 The apiserver SHALL run as N interchangeable replicas that hold no per-call state. It SHALL serve
 the management gRPC API with the same services and messages as today, Identity,
 `GetCapabilities`, call creation and workspace webhook dispatch. It MUST NOT connect to Asterisk
-ARI, terminate AudioSocket or carry call audio. A call's status events SHALL travel on the call's
-own NATS subject, `calls.<callRef>.events`, published by the components that observe them (the
-replica placing the call publishes `TRYING` and placement failures, the Roomr node the room's
-`call.progress`, `call.answered` and `room.ended`), so `TrackCall` on any replica follows any
-call.
+ARI, terminate AudioSocket or carry call audio. A call's status events SHALL travel on NATS
+subjects keyed by the call, published by the components that observe them: the replica placing
+the call publishes `TRYING` and placement failures on `calls.<callRef>.events`, and the Roomr node
+publishes the call's events (`call.ringing`, `call.answered`, `call.ended`) on
+`roomr.events.<call_ref>` (media-control "Events on NATS are keyed by call with sequence numbers
+and metadata"), so `TrackCall` on any replica follows any call.
 
 #### Scenario: Any replica serves any request
 - **WHEN** a call is created through replica A and `TrackCall` for it is opened through replica B
-- **THEN** replica B streams the call's statuses from `calls.<callRef>.events` until the call ends
+- **THEN** replica B streams the call's statuses from `calls.<callRef>.events` and `roomr.events.<call_ref>` until the call ends
 
 #### Scenario: Management API unchanged
 - **WHEN** an existing SDK client lists numbers, creates an app and creates a call
@@ -49,42 +58,51 @@ call.
 
 #### Scenario: Call status survives the placing replica
 - **WHEN** the replica that placed a call is killed while the call rings, and `TrackCall` for the call runs on another replica
-- **THEN** that `TrackCall` still receives `ANSWER` when the callee answers, and ends when the room ends
+- **THEN** that `TrackCall` still receives `ANSWER` when the callee answers, and ends when the node publishes `call.ended` on `roomr.events.<call_ref>`
 
 ### Requirement: Call creation picks the least-loaded Roomr node
 
-When creating an outbound call the control plane SHALL choose, from the session registry, the
-Roomr node in the target cell with the fewest active sessions that is not draining and is below
-the session limit its heartbeat reports, and SHALL send it the `media-control` commands that
-create the room and dial the callee. When the chosen node refuses `room.create` because it is
-full or draining, or does not reply, the control plane SHALL try the next eligible node, at most
-3 nodes per call. `CreateCall` SHALL return only once a node has accepted the call's room; when no
-node is eligible or every node tried refuses, `CreateCall` SHALL fail at once with gRPC
-`RESOURCE_EXHAUSTED`, and the call SHALL not appear as created.
+When creating an outbound call the control plane SHALL choose, from the Roomr node heartbeats
+(media-control), an eligible node in the target cell: heartbeat younger than 6 seconds (a node
+that stopped heartbeating or said `node.down` is not eligible), `rooms < max_rooms`, in the
+call's region. It SHALL score each eligible node as
+`1 - rooms / max_rooms` and SHALL call `CreateCall` on the highest-scoring node with the callee,
+the carrier proxy and the pass-through headers the proxy routes on (`X-DOD-Number`). When the node
+answers `RESOURCE_EXHAUSTED` or `UNAVAILABLE` the control plane SHALL try the next eligible node,
+up to 3 nodes in all, and SHALL fail the API request synchronously with a capacity error when none
+accepts or none is eligible. It SHALL move to another node only on `RESOURCE_EXHAUSTED` or
+`UNAVAILABLE`; on an ambiguous outcome (deadline exceeded, connection lost after sending) it SHALL
+retry `CreateCall` on the same node with the same `call_ref` and parameters, and SHALL NOT dial the
+call on another node.
 
 #### Scenario: Least-loaded node chosen
-- **WHEN** the registry shows node A with 40 sessions, node B with 12 and node C draining with 3
-- **THEN** the call is placed on node B
-
-#### Scenario: No capacity
-- **WHEN** every Roomr node in the cell is draining or at its limit
-- **THEN** call creation fails with a capacity error and no INVITE is sent
+- **WHEN** heartbeats show node A with 40 rooms of 200, node B with 12 of 200 and node C whose heartbeats stopped
+- **THEN** `CreateCall` is sent to node B
 
 #### Scenario: Node at its limit skipped
-- **WHEN** node A reports it is at its session limit and node B, with more sessions, is below its limit
+- **WHEN** node A reports `rooms` equal to `max_rooms` and node B, with more rooms but a higher limit, is below its limit
 - **THEN** the call is placed on node B
+
+#### Scenario: A full node sends the call to the next one
+- **WHEN** the highest-scoring node's last heartbeat showed room but it answers `CreateCall` with `RESOURCE_EXHAUSTED`
+- **THEN** the control plane calls `CreateCall` on the next node and the API caller sees one successful call
+
+#### Scenario: No capacity
+- **WHEN** every Roomr node in the cell has stopped heartbeating or is at its limit
+- **THEN** call creation fails with a capacity error before the API request returns and no INVITE is sent
 
 #### Scenario: Capacity error is synchronous
 - **WHEN** a client calls `CreateCall` and no Roomr node is eligible
 - **THEN** `CreateCall` fails with `RESOURCE_EXHAUSTED` instead of returning a ref whose `TrackCall` reports `FAILED` later
 
-#### Scenario: A full node sends the call to the next one
-- **WHEN** node A's last heartbeat showed room but A refuses `room.create` with `at_capacity`
-- **THEN** the call is placed on the next eligible node
-
 #### Scenario: At most three nodes tried
-- **WHEN** four eligible nodes each refuse `room.create` with `at_capacity`
-- **THEN** `CreateCall` fails with `RESOURCE_EXHAUSTED` after three of them were asked, and the fourth gets no command
+- **WHEN** four eligible nodes each answer `CreateCall` with `RESOURCE_EXHAUSTED`
+- **THEN** the API request fails with `RESOURCE_EXHAUSTED` after three of them were asked, and the fourth gets no `CreateCall`
+
+#### Scenario: Timeout retried on the same node
+- **WHEN** `CreateCall` on node B times out
+- **THEN** the control plane repeats `CreateCall` with the same `call_ref` on node B, never on another node
+- **AND** the callee receives one INVITE
 
 ### Requirement: Calls leave only by the workspace's own numbers
 
@@ -126,10 +144,12 @@ the apiserver enforces this.
 
 ### Requirement: NATS carries everything internal except audio
 
-Internal commands, events, the session registry and webhook dispatch SHALL use NATS:
-`media-control` as request and reply, events on JetStream with queue groups, the session registry
-as a JetStream KV bucket, and webhook dispatch as a JetStream consumer. Call audio MUST NOT travel
-over NATS.
+Internal events, capacity reports, the session registry and webhook dispatch SHALL use NATS: media
+node heartbeats and call events as published messages (media-control), events on JetStream with
+queue groups, the session registry as a JetStream KV bucket written by the control plane (the
+Roomr node writes nothing to it and uses core NATS only), and webhook dispatch as a JetStream
+consumer. Media commands SHALL NOT travel over NATS: the control plane calls `Roomr` over
+gRPC and AppBridge speaks the per-call control stream. Call audio MUST NOT travel over NATS.
 
 #### Scenario: Events processed once
 - **WHEN** three apiserver replicas consume `call.ended` events through one queue group
@@ -140,6 +160,58 @@ over NATS.
 - **WHEN** an apiserver replica restarts during 50 active calls
 - **THEN** all 50 entries are still present in the session registry with their node and room refs
 
+#### Scenario: No commands on the bus
+- **WHEN** an outbound call is placed and later hung up through the API
+- **THEN** `CreateCall` and `EndCall` reach the node over gRPC and no command message is published on NATS
+
 #### Scenario: No audio on the bus
-- **WHEN** a 60-second call runs end to end
-- **THEN** no NATS message carries audio frames
+- **WHEN** a call runs for one minute
+- **THEN** no NATS message carries audio samples
+
+### Requirement: Outbound calls are registered before they are placed
+
+The control plane SHALL write the call's `placements.<callRef>` entry (`call_ref` → `node_ref`) to
+the session registry before it calls `CreateCall`, and SHALL update it when it moves to another node. A sweep SHALL
+remove an entry, and close its call record with `FAILED`, when the entry's node is down (no
+heartbeat for 6 s, or `node.down`) or the node answers `NOT_FOUND` for the call, so a replica that
+crashes between the write and the RPC leaves nothing behind.
+
+#### Scenario: Entry written first
+- **WHEN** an outbound call is placed
+- **THEN** the registry holds `placements.<callRef>` with the `node_ref` before the node receives `CreateCall`
+
+#### Scenario: Replica crashes mid-call creation
+- **WHEN** a replica writes the entry and is killed before `CreateCall` reaches the node
+- **THEN** a sweep on another replica removes the entry and the call record ends `FAILED`
+
+### Requirement: NATS outages are best effort
+
+While NATS is unreachable live calls SHALL keep running, and events published during the outage
+MAY be lost. The control plane SHALL NOT replay or reconstruct lost events; the existing sweeps
+(node down, maximum duration) SHALL close the call records and registry entries
+those events would have closed once NATS returns.
+
+#### Scenario: call.ended lost
+- **WHEN** a call ends while NATS is unreachable and NATS then returns
+- **THEN** a sweep closes the call's record and removes its registry entry
+- **AND** no active call was ended by the outage
+
+### Requirement: AppBridge drains on SIGTERM
+
+AppBridge SHALL serve the standard gRPC health service (`grpc.health.v1.Health`) on its `Session`
+port, `SERVING` while it accepts calls, and SHALL publish no heartbeat and keep no membership
+entry in the session registry. On SIGTERM a replica SHALL report `NOT_SERVING`, SHALL keep its
+open control streams and app sockets until they end or the configured maximum wait (default 1 h)
+passes, then exit. Its `Session` gRPC server SHALL NOT set a maximum connection age.
+
+#### Scenario: Health check
+- **WHEN** a running replica's health check is called
+- **THEN** it reports `SERVING`, and no `appbridge.heartbeat` message or `appbridges.*` registry entry exists
+
+#### Scenario: Live sessions survive SIGTERM
+- **WHEN** an AppBridge replica with 5 live sessions receives SIGTERM
+- **THEN** its readiness fails, new calls land on other replicas and the 5 sessions run until they end
+
+#### Scenario: Maximum wait reached
+- **WHEN** a short maximum wait passes while a draining replica still has a session
+- **THEN** the replica ends the session and exits

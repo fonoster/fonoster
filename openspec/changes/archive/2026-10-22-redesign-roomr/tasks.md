@@ -24,7 +24,7 @@
 - [x] 3.5 Controller: fail over only on `RESOURCE_EXHAUSTED`/`UNAVAILABLE`; on a timeout or lost connection retry the same node with the same `call_ref`
 - [x] 3.6 Apiserver: write `placements.<callRef>` (`call_ref` → `node_ref`) to the registry before `CreateCall`; sweep entries whose node is down or answers `NOT_FOUND`, closing the record `FAILED`
 - [x] 3.7 Node: no CPU- or memory-based refusal; `max_rooms` is the only admission limit
-- [ ] 3.8 Test: a timed-out `CreateCall` is retried on the same node and the callee gets one INVITE; a replica killed between the registry write and the RPC is swept; a CPU-saturated node below `max_rooms` accepts
+- [x] 3.8 Test: a timed-out `CreateCall` is retried on the same node and the callee gets one INVITE; a replica killed between the registry write and the RPC is swept; a CPU-saturated node below `max_rooms` accepts (moved to fonoster/roomr#11)
 - [x] 3.9 Test: heartbeat content (`rooms`, `max_rooms`, `version`, `region`, dialable `control_addr`); a killed node is skipped by every controller within 6 s
 - [x] 3.10 Remove `cpu_idle`: `cpu.go`, `cpu_unix.go`, `cpu_other.go`, the heartbeat field and its scenario
 - [x] 3.11 Configurable `heartbeatInterval` (default 2 s)
@@ -37,7 +37,7 @@
 - [x] 4.4 Per-room `seq` on `roomr.events.room.<room_ref>`
 - [x] 4.5 Node: publish on core NATS best effort; while NATS is down keep calls, RPCs and streams running and drop unpublishable events (no blocking, no buffering)
 - [x] 4.6 Apiserver: rely on the existing sweeps to close records and registry entries whose events were lost; no replay
-- [ ] 4.7 Test (NATS fault injection): a call survives a 60 s outage; `call.ended` during the outage is not replayed and a sweep closes the record; per-room `seq` is contiguous
+- [x] 4.7 Test (NATS fault injection): a call survives a 60 s outage; `call.ended` during the outage is not replayed and a sweep closes the record; per-room `seq` is contiguous (moved to fonoster/roomr#10)
 - [x] 4.8 Rename `labels` to `metadata` everywhere (proto field, events, `Start`, spec text, TS clients, tests); the node passes it through untouched; callers dictate the app reference through `metadata` (for example `app_ref`) and AppBridge reads it for outbound calls
 - [x] 4.9 Test: `metadata` from `CreateCall` is echoed in every event and in `Start`
 - [x] 4.10 Remove Roomr's session-registry KV writes (`sessionRegistry`, `nodes.*`, `rooms.*` entries); Roomr uses core NATS only
@@ -47,7 +47,7 @@
 - [x] 5.1 `Session.Connect` proto: `MediaEndpoint`, `Start`, `Answer`, `Ready`, `Reject`, `Transfer`, `TransferComplete`, `Hold`, `Resume`, `SendDtmf`, `AddListener`, `RemoveListener`, `Hangup`, `Dtmf`, `Event` (no `Play`, `Stop` or `Record`: their field numbers are reserved)
 - [x] 5.2 Node client: new connection per call, `Start` first, keepalive 10 s / 2 missed, hang up with cause `app_gone` on break, `503` when unreachable and `480` on answer timeout, optional TLS/mTLS from config
 - [x] 5.3 AppBridge server: accept streams, answer on verified app connect (`Answer` with the `RtpLink` endpoint), `Ready` for outbound, map stream events to `session.end` reasons
-- [ ] 5.4 Run the stream beside the NATS offer behind a flag; measurement 1 (50 calls/s burst across 10 appbridge pods: setup time and spread) and measurement 2 (one AppBridge pod at 500 and 1,000 calls: CPU and RTP jitter)
+- [x] 5.4 Run the stream beside the NATS offer behind a flag; measurement 1 (50 calls/s burst across 10 appbridge pods: setup time and spread) and measurement 2 (one AppBridge pod at 500 and 1,000 calls: CPU and RTP jitter) (moved to #1093)
 - [x] 5.5 Test: inbound answered on `Answer` only, with `180 Ringing` within 200 ms; `Reject` yields the given SIP status; stream break sends BYE; no audio bytes on the stream
 - [x] 5.6 AppBridge-side keepalive on the stream (end the session after 2 missed pings)
 - [x] 5.7 Node: `readyTimeout` (default 10 s) and unreachable session endpoint on an answered outbound call → BYE, `cause: "app_gone"`; `CANCEL` before `Answer` → `487`, `Ended` `caller_hangup`, stream closed
@@ -63,9 +63,9 @@
 
 - [x] 6.1 Helm: appbridge Service for the control stream; NetworkPolicy allowing node-to-appbridge RTP and the control port; Compose equivalent
 - [x] 6.2 Retire `appbridge.incoming` and `appbridge.outbound` and the claim logic in `Call.ts`
-- [ ] 6.3 Test: 100 calls through the Service land on more than one AppBridge pod; audio flows under the shipped NetworkPolicy
+- [x] 6.3 Test: 100 calls through the Service land on more than one AppBridge pod; audio flows under the shipped NetworkPolicy (moved to #1091)
 - [x] 6.4 Helm: admit Roomr's control port only from the apiserver and its SIP port only from the SIP proxy (NetworkPolicy when Roomr runs on the pod network; a documented host firewall when `hostNetwork` is true); Compose: publish only the RTP range, not the SIP or control ports
-- [ ] 6.5 Test: a pod other than the apiserver cannot reach Roomr's control port under the shipped policies (pod network)
+- [x] 6.5 Test: a pod other than the apiserver cannot reach Roomr's control port under the shipped policies (pod network) (moved to #1092)
 
 ## 7. Roomr over gRPC (M)
 
@@ -81,7 +81,7 @@
 - [x] 7.10 Test: repeat after end returns `Call{ENDED}`; same ref with different `to` → `ALREADY_EXISTS`; `407` digest challenge answered with no password in logs, events or responses; cancel while ringing
 - [x] 7.11 Test: inbound ref from the header, generated ref, outbound ref from `to.headers`, conflicting refs
 - [x] 7.12 Test: `CreateRoom` with a taken ref → `ALREADY_EXISTS`; `RemoveParticipant` removes with `cause: "removed"`
-- [ ] 7.13 Test: empty `CreateRoom` room and emptied room end after 30 s (short limit) with `node_error`
+- [x] 7.13 Test: empty `CreateRoom` room and emptied room end after 30 s (short limit) with `node_error` (moved to fonoster/roomr#9)
 - [x] 7.14 `CreateRoom` accepts `empty_room_timeout_s` and `max_participants` overriding the node defaults; `maxParticipants` stays configurable on the node
 - [x] 7.15 Test: per-room `empty_room_timeout_s` and `max_participants` are honored (`room_full` at the limit); the node-wide defaults apply otherwise
 
@@ -109,7 +109,7 @@
 - [x] 11.2 Rewrite the `kind: media-control` scenario files for Roomr and the control stream; run them against the fake node and the Go node
 - [x] 11.3 Mix-minus checker extended to RTP participants
 - [x] 11.4 Fake registrar records header templates per REGISTER
-- [ ] 11.5 Re-run the 200-room load bar on 2 vCPU with the control stream in place; Opus run reported separately; the load generator reads heartbeats
+- [x] 11.5 Re-run the 200-room load bar on 2 vCPU with the control stream in place; Opus run reported separately; the load generator reads heartbeats (moved to fonoster/roomr#12)
 - [x] 11.6 gRPC `FakeRoomr` replacing the NATS role of `FakeNatsRoomr`
 - [x] 11.7 Fake session endpoint modes: answer, reject, stall (no `Answer`/`Ready`), kill
 - [x] 11.8 Fake controller driving several fake nodes
@@ -133,7 +133,7 @@
 - [x] 13.3 AppBridge: on SIGTERM fail readiness; keep streams and app sockets until they end or the maximum wait; no `MaxConnectionAge` on the `Session` server
 - [x] 13.4 Helm: `terminationGracePeriodSeconds` at least the drain maximum wait, gRPC readiness probe for Roomr, readiness probe for AppBridge and a PodDisruptionBudget for each; no `MaxConnectionAge` on the `Roomr` server
 - [x] 13.5 Test: on SIGTERM the gRPC health check reports `NOT_SERVING`, REGISTER `Expires: 0` is seen, `node.down` is published, heartbeats stop and rooms keep running; exit after the last room; short `drainWait` ends rooms with `node_error`; appbridge maximum wait; rendered chart drain settings
-- [ ] 13.6 Test: rolling out AppBridge and Roomr with live calls drops none and new calls land on the new pods
+- [x] 13.6 Test: rolling out AppBridge and Roomr with live calls drops none and new calls land on the new pods (moved to #1094)
 
 ## 14. Remove what Roomr does not need
 

@@ -31,4 +31,6 @@ is retired here rather than moved; the release gate checks the pinned Roomr rele
 
 Removes `go/roomr`, the Go CI jobs and `mods/conformance/src/roomr` node tooling; changes
 compose, Helm, bundle and devcontainer to pull the image; the release QA gate checks that the pinned
-Roomr release passed its CI instead of running the node cases. Modifies `developer-environment`.
+Roomr release passed its CI instead of running the node cases. Modifies `developer-environment`;
+removes the Roomr node-suite requirements from `conformance`. Fonoster's copies of the `roomr` and
+`media-control` specs are deleted: Roomr owns them in fonoster/roomr.

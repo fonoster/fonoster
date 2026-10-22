@@ -17,7 +17,7 @@
 - [x] 2.1 `npm run sync:roomr`: copy the protos of the pinned `@fonoster/roomr` (its release's files) into mods/common/src/protos; the roomr client test fails on drift
 - [x] 2.2 Pin the Roomr image by digest in ops/bundle (the devcontainer extends it), ops/rebuild, the cell and the Helm values
 - [x] 2.2.1 Roomr publishes charts/roomr to oci://ghcr.io/fonoster/charts/roomr with each release (from v0.2.2), embeddable in a parent chart (existingConfigMap, templated env)
-- [ ] 2.2.2 Fonoster's chart depends on it (owner, 2026-10-22: later, once the switch loses nothing: env is static in a subchart and a parent-rendered config does not restart pods); tracked as an issue
+- [x] 2.2.2 Fonoster's chart depends on it (owner, 2026-10-22: later, once the switch loses nothing: env is static in a subchart and a parent-rendered config does not restart pods); tracked in #1105
 - [x] 2.3 Conformance: FakeRoomr, FakeSessionNode and RealMediaHarness run real nodes in roomr-fake (binary from the release, else the image); the integration cases and fault scripting go through its control API
 - [x] 2.4 Release gate: the pinned Roomr release exists, passed Roomr's CI, and matches the bundle's pin; the release smoke runs the bundle with the real pinned image
 - [x] 2.5 Delete go/roomr and the Go jobs in pr-checks, conformance and qa-proofs; no Go or libopus in Fonoster CI or the dev container
@@ -25,6 +25,6 @@
 
 ## 3. Close out
 
-- [ ] 3.1 Archive redesign-roomr here (node specs now live in fonoster/roomr)
-- [ ] 3.2 Remove the old worktrees fonoster-roomr and fonoster-qa-roomr
-- [ ] 3.3 Cluster-level tasks stay here: #1091, #1092, #1093, #1094, #1095
+- [x] 3.1 Archive redesign-roomr here (node specs now live in fonoster/roomr); its open tasks marked moved to fonoster/roomr#9 to #12 and #1091 to #1094. Fonoster's copies of the `roomr` and `media-control` specs are deleted (Roomr owns them), and so are the conformance requirements for the Roomr node suite, its load bar and its fakes
+- [x] 3.2 Remove the old worktrees fonoster-roomr, fonoster-qa-roomr, fonoster-extract and fonoster-cutover (each branch tip was its merged PR's head)
+- [x] 3.3 Cluster-level tasks stay here as Fonoster issues: #1091, #1092, #1093, #1094, #1095

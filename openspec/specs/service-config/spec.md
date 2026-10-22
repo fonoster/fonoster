@@ -2,13 +2,17 @@
 
 ## Purpose
 How each Fonoster service finds, validates and interpolates its single config file.
+
 ## Requirements
+
 ### Requirement: Each Fonoster service reads one config file
 
 The apiserver SHALL read its configuration from one `fonoster` file, Autopilot from one
 `autopilot` file, AppBridge from one `appbridge` file and the Roomr node from one `roomr`
 file. None SHALL read environment variables of its own; values are taken from the file only,
-except values the file explicitly references with `${VAR}`.
+except values the file explicitly references with `${VAR}`. The Roomr node SHALL take no
+command-line flag other than `-config <path>`; every other setting lives in its file, where
+`${VAR}` and `secret://` references still work.
 
 #### Scenario: Explicit path
 
@@ -32,6 +36,10 @@ except values the file explicitly references with `${VAR}`.
 
 - WHEN `fonoster.yaml` and `fonoster.jsonc` exist in the same directory
 - THEN the service refuses to start and names both files
+
+#### Scenario: The Roomr node is configured by its file only
+- WHEN the Roomr node starts with `-config /etc/roomr/roomr.yaml` and any other setting is needed
+- THEN it reads that setting from the file and no other flag exists
 
 #### Scenario: Autopilot ignores the apiserver's database variable
 - WHEN Autopilot's config has no database URL and `APISERVER_DATABASE_URL` is set
@@ -148,4 +156,3 @@ still restrict substitution to declared key paths, and then SHALL reject `${…}
 
 - WHEN `telemetry.otlpEndpoint` is `${OTEL_EXPORTER_OTLP_ENDPOINT:-}` and the variable is unset
 - THEN the value is empty and telemetry stays off
-
