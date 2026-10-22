@@ -158,6 +158,8 @@ test("[DSH-049] moves an older version's stored session into the cookie and dele
     page.getByRole("heading", { name: "Choose a workspace" })
   ).toBeVisible();
   expect(adopted).toEqual(["refresh-from-older-version"]);
+  expect(api.callsTo("session/adopt")).toHaveLength(1);
+  expect(api.callsTo("Identity/ExchangeCredentials")).toHaveLength(0);
   expect(
     await page.evaluate(() => localStorage.getItem("fonoster.session"))
   ).toBeNull();
