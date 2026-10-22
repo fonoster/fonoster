@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index e74684b0a..57315588d 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1674,7 +1674,7 @@ export class AppSession {
+         // platform routes by are set here, never by the app.
+         const refusal = !isSipTarget(cmd.to)
+           ? `invalid transfer target ${JSON.stringify(cmd.to)}`
+-          : sipHeadersProblem(cmd.headers);
++          : undefined;
+         if (refusal) {
+           this.emit({
+             type: "error",

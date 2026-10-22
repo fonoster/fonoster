@@ -248,6 +248,56 @@ jobs:
           path: reports/junit/
           if-no-files-found: ignore
 
+  transfers:
+    name: Transfers and DTMF area
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: Start NATS with JetStream
+        run: |
+          docker run -d --name nats -p 4222:4222 -p 8222:8222 nats:2.11.8 -js -m 8222
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8222/healthz && exit 0; sleep 1; done
+          docker logs nats; exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+          python -m pip install -e python/fonoster-voice
+
+      - name: Run and prove
+        env:
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          PYTHON: python
+          LOGS_LEVEL: none
+        run: |
+          node mods/conformance/catalog/run.cjs --area XFR
+          node mods/conformance/catalog/prove.cjs --area XFR --out reports/junit/proofs-XFR.xml
+
+      - name: Results and proof records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-xfr
+          path: reports/junit/
+          if-no-files-found: ignore
+
   dashboard:
     name: Dashboard area
     runs-on: ubuntu-latest
@@ -363,7 +413,7 @@ jobs:
 
   report:
     name: release report and gate
-    needs: [api, autopilot, appbridge, voice-sdk, dashboard, billing]
+    needs: [api, autopilot, appbridge, voice-sdk, transfers, dashboard, billing]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
@@ -416,4 +466,3 @@ jobs:
           name: qa-report
           path: reports/qa-report.md
           if-no-files-found: ignore
-

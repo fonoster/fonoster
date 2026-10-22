@@ -1,0 +1,27 @@
+diff --git a/mods/appbridge/src/protocols/twilio.ts b/mods/appbridge/src/protocols/twilio.ts
+index 318bce8df..76b3ade84 100644
+--- a/mods/appbridge/src/protocols/twilio.ts
++++ b/mods/appbridge/src/protocols/twilio.ts
+@@ -138,6 +138,8 @@ export class TwilioCodec implements ProtocolCodec {
+         };
+       case "clear":
+         return { kind: "command", command: { type: "clear" } };
++      case "hold":
++        return { kind: "command", command: { type: "hold" } };
+       default:
+         // Anything outside Media Streams (transfer, TwiML...) is ignored (Twilio protocol scope).
+         return { kind: "ignore" };
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index e74684b0a..1e5004548 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1513,7 +1513,8 @@ export class AppSession {
+       });
+       return;
+     }
+-    if (!this.codec.speechLayer && !["mark", "clear"].includes(type)) return;
++    if (!this.codec.speechLayer && !["mark", "clear", "hold"].includes(type))
++      return;
+     if (this.call.onHold && !ALLOWED_ON_HOLD.has(type)) {
+       this.emit({
+         type: "error",

@@ -1,0 +1,12 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index e74684b0a..53d2fe581 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1663,7 +1663,6 @@ export class AppSession {
+         this.call.onHold = true;
+         return;
+       case "resume":
+-        this.call.command({ resume: {} });
+         this.call.onHold = false;
+         return;
+       case "transfer": {

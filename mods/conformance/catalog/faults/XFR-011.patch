@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..0e1ee08e9 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -315,7 +315,7 @@ export class Session {
+   /** Completes the pending warm transfer: the agent leaves, caller and new party stay. */
+   async completeTransfer(): Promise<void> {
+     if (!this.lastWarmTransfer) throw new Error("no warm transfer is pending");
+-    this.send({ type: "transfer.complete", id: this.lastWarmTransfer });
++    this.send({ type: "transfer.complete", id: `${this.lastWarmTransfer}-x` });
+   }
+ 
+   async hold(options: { music?: string } = {}): Promise<void> {

@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index e74684b0a..625c47d2d 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1728,7 +1728,7 @@ export class AppSession {
+           });
+           return;
+         }
+-        this.call.command({ transferComplete: {} });
++
+         this.endWith("transfer");
+         return;
+       case "record.note":

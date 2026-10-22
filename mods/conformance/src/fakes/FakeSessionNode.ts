@@ -375,6 +375,19 @@ export class FakeSessionNode extends EventEmitter {
     return c;
   }
 
+  /**
+   * How the phone answers what the node dials from now on, over `dialOutcome`: every dial, or one
+   * call_ref's (a transfer's dial carries none, so only the first form reaches it). `no_answer`
+   * rings until the dialer gives up (a warm transfer's 30 s).
+   */
+  async callee(
+    mode: CalleeMode,
+    o: { afterMs?: number; callRef?: string } = {}
+  ): Promise<void> {
+    const node = await this.fakeNode();
+    await node.callee(mode, o);
+  }
+
   /** Every call's commands, read from the node now (the mirror can trail by a poll). */
   async freshCommands(): Promise<RecordedCommand[]> {
     await Promise.all(this.calls.map((c) => c.refreshCommands()));

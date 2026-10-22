@@ -1,0 +1,13 @@
+diff --git a/python/fonoster-voice/src/fonoster/voice/session.py b/python/fonoster-voice/src/fonoster/voice/session.py
+index adeea93ac..591f5771a 100644
+--- a/python/fonoster-voice/src/fonoster/voice/session.py
++++ b/python/fonoster-voice/src/fonoster/voice/session.py
+@@ -231,7 +231,7 @@ class Session:
+     async def complete_transfer(self) -> None:
+         if not self._last_warm_transfer:
+             raise RuntimeError("no warm transfer is pending")
+-        await self._send({"type": "transfer.complete", "id": self._last_warm_transfer})
++        await self._send({"type": "transfer.complete", "id": f"{self._last_warm_transfer}-x"})
+ 
+     async def hold(self, *, music: str | None = None) -> None:
+         await self._command({"type": "hold", **_compact(music=music)})
