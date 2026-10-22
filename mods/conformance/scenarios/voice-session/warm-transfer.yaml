@@ -6,6 +6,9 @@ spec: "Call control / Warm transfer"
 steps:
   - expect: { type: session.start }
   - send: { type: transfer, id: t2, to: "+15551234567", mode: warm }
+  # The new party answers (after 50 ms): the app may complete only now.
+  - expect: { type: transfer.answered, relatesTo: t2 }
+    within_ms: 2000
   - expect_none: { type: session.end }
     for_ms: 400
   - assert:

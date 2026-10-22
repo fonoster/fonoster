@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index e74684b0a..0d9287269 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1697,7 +1697,7 @@ export class AppSession {
+                   cmd.headers as Record<string, string> | undefined
+                 )
+               },
+-              mode: mode as "cold" | "warm" | "refer",
++              mode: (mode === "refer" ? "cold" : mode) as "cold" | "warm",
+               ...(cmd.music ? { music: String(cmd.music) } : {})
+             }
+           });

@@ -1,0 +1,13 @@
+diff --git a/python/fonoster-voice/src/fonoster/voice/session.py b/python/fonoster-voice/src/fonoster/voice/session.py
+index f73d89079..683390956 100644
+--- a/python/fonoster-voice/src/fonoster/voice/session.py
++++ b/python/fonoster-voice/src/fonoster/voice/session.py
+@@ -244,7 +244,7 @@ class Session:
+         self._end_waiters.append((["transfer"], future))
+         self._completing = future
+         try:
+-            await self._send({"type": "transfer.complete", "id": self._last_warm_transfer})
++            await self._send({"type": "transfer.complete", "id": f"{self._last_warm_transfer}-x"})
+             await future
+         finally:
+             if self._completing is future:

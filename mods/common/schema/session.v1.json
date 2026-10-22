@@ -420,6 +420,23 @@
         }
       }
     },
+    "transfer.answered": {
+      "type": "object",
+      "required": [
+        "type",
+        "relatesTo"
+      ],
+      "properties": {
+        "type": {
+          "const": "transfer.answered"
+        },
+        "relatesTo": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
     "amd.result": {
       "type": "object",
       "required": [

@@ -1,0 +1,12 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index e74684b0a..7d312ab75 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1373,6 +1373,7 @@ export class AppSession {
+   transferResult(event: Record<string, unknown>) {
+     const pending = this.transfer;
+     if (!pending) return;
++    if (event.status === "failed" && pending.mode === "warm") return;
+     if (event.status === "failed") {
+       this.transfer = undefined;
+       this.emit({

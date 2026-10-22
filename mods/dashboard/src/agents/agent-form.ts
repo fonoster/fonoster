@@ -141,7 +141,8 @@ export const agentSchema = z
         .string()
         .trim()
         .regex(/^\+?[0-9 ()-]*$/, "Use a phone number like +18095550100"),
-      transferMessage: z.string()
+      transferMessage: z.string(),
+      transferFailedMessage: z.string()
     }),
     model: z.object({
       model: z.string().trim().min(1, "Pick a model"),
@@ -275,7 +276,8 @@ export function toValues(app: Application): AgentValues {
         DEFAULTS.idleMaxTimeoutCount
       ),
       transferPhoneNumber: str(transfer.phoneNumber),
-      transferMessage: str(transfer.message)
+      transferMessage: str(transfer.message),
+      transferFailedMessage: str(transfer.failedMessage)
     },
     model: {
       model: str(languageModel.model),
@@ -375,7 +377,10 @@ export function toRequest(
       ? {
           transferOptions: {
             phoneNumber: c.transferPhoneNumber.replace(/[ ()-]/g, ""),
-            message: c.transferMessage.trim()
+            message: c.transferMessage.trim(),
+            ...(c.transferFailedMessage.trim()
+              ? { failedMessage: c.transferFailedMessage.trim() }
+              : {})
           }
         }
       : {})
@@ -448,7 +453,8 @@ export function tabsWithErrors(errors: object): string[] {
     "systemErrorMessage",
     "allowUserBargeIn",
     "transferPhoneNumber",
-    "transferMessage"
+    "transferMessage",
+    "transferFailedMessage"
   ];
   // Call limits show in Configure's Behavior panel and in Advanced.
   const onBoth = [

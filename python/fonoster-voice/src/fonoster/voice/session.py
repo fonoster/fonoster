@@ -119,6 +119,8 @@ class Session:
         self._gather: _Gather | None = None
         self._buffered: list[dict[str, Any]] = []
         self._last_warm_transfer: str | None = None
+        # A pending complete_transfer(), failed when AppBridge refuses it.
+        self._completing: asyncio.Future | None = None
         self._ended_reason: str | None = None
         self._listening = False
 
@@ -229,9 +231,24 @@ class Session:
                               {"type": "transfer", "id": id_, "to": to, **_compact(mode=mode, headers=headers)})
 
     async def complete_transfer(self) -> None:
+        """Completes the pending warm transfer; returns when the session ends with reason transfer.
+
+        Raises SessionError ``transfer_not_answered`` when the new party has not answered yet, which
+        leaves the transfer pending: wait for the ``transfer.answered`` event and call it again.
+        """
         if not self._last_warm_transfer:
             raise RuntimeError("no warm transfer is pending")
-        await self._send({"type": "transfer.complete", "id": self._last_warm_transfer})
+        if self._ended_reason:
+            raise SessionEndedError(self._ended_reason)
+        future = asyncio.get_running_loop().create_future()
+        self._end_waiters.append((["transfer"], future))
+        self._completing = future
+        try:
+            await self._send({"type": "transfer.complete", "id": self._last_warm_transfer})
+            await future
+        finally:
+            if self._completing is future:
+                self._completing = None
 
     async def hold(self, *, music: str | None = None) -> None:
         await self._command({"type": "hold", **_compact(music=music)})
@@ -319,6 +336,7 @@ class Session:
             "transcript.partial",
             "turn.estimate",
             "amd.result",
+            "transfer.answered",
         ):
             self._emit(t, {k: v for k, v in msg.items() if k != "type"})
         # Unknown types are ignored (additive-only protocol).
@@ -326,6 +344,13 @@ class Session:
     def _on_error(self, msg: dict[str, Any]) -> None:
         error = SessionError(str(msg.get("code")), str(msg.get("message", msg.get("code"))), msg.get("fatal") is True)
         rel = msg.get("relatesTo")
+        # A refused complete_transfer() fails that call, not the pending transfer.
+        completing = self._completing
+        if error.code == "transfer_not_answered" and completing and not completing.done():
+            self._completing = None
+            self._end_waiters = [w for w in self._end_waiters if w[1] is not completing]
+            completing.set_exception(error)
+            return
         output = self._outputs.pop(rel, None) if rel else None
         command = self._commands.pop(rel, None) if rel else None
         if output and not output[0].done():

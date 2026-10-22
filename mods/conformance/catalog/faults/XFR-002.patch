@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index 042f246c6..ba161238d 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1749,7 +1749,7 @@ export class AppSession {
+         }
+         // Completing before the new party answered would un-hold the caller into nothing: the
+         // app waits for transfer.answered and sends it again (voice-session "Call control").
+-        if (!this.transfer.answered) {
++        if (false as boolean) {
+           this.emit({
+             type: "error",
+             code: "transfer_not_answered",

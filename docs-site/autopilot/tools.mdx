@@ -23,7 +23,7 @@ You need an Autopilot agent. See [Build an Autopilot agent](/autopilot/build-an-
 | Tool | When the model can use it | What happens |
 | --- | --- | --- |
 | `hangup` | Always | The agent says the goodbye message, then hangs up. The caller can't interrupt the goodbye. |
-| `transfer` | Only when `transferOptions` is set | The agent says the transfer message, then transfers the call to the transfer number. |
+| `transfer` | Only when `transferOptions` is set | The agent says the transfer message, then transfers the call to the transfer number. If nobody takes the call, the agent says the failed-transfer message and the conversation goes on. |
 
 You don't add these tools to the tool list. Tell the model when to use them in the system prompt,
 for example: "When the caller has what they need, hang up." The model doesn't need to say goodbye
@@ -39,7 +39,8 @@ The `transfer` tool needs a number to send the caller to, and a message to say f
     2. In the **Behavior** panel, enter a number under **Transfer to an operator**, such as
        `+18095550100`.
     3. Enter what the agent says before it transfers under **Transfer message**.
-    4. Choose **Save**.
+    4. Optionally, enter what it says when nobody takes the call under **If the transfer fails**.
+    5. Choose **Save**.
 
     The **Tools** tab now shows `transfer` as **On** with the number.
   </Tab>
@@ -51,7 +52,9 @@ The `transfer` tool needs a number to send the caller to, and a message to say f
       // ...the rest of the agent's settings
       transferOptions: {
         phoneNumber: "+18095550100",
-        message: "One moment, I'm transferring you to a person."
+        message: "One moment, I'm transferring you to a person.",
+        // Optional: said when nobody takes the call; the conversation goes on.
+        failedMessage: "Sorry, I couldn't connect you. How else can I help?"
       }
     }
     ```

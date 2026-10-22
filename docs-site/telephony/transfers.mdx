@@ -94,16 +94,20 @@ try {
 ### Warm transfer
 
 In a warm transfer, the caller hears hold audio while your application and the operator hear each
-other. Start the transfer without waiting on it, wait for the operator to say hello, brief them,
-then call `completeTransfer` to connect the caller:
+other. Start the transfer without waiting on it, wait for the operator to answer, brief them, then
+call `completeTransfer` to connect the caller:
 
 ```javascript
 await session.say("Please hold while I find someone to help you.");
 
 // Resolves when your session ends, after completeTransfer.
+const answered = new Promise((resolve) =>
+  session.on("transfer.answered", resolve)
+);
 const transfer = session.transfer("+18095550100", { mode: "warm" });
 
 // The operator answers and says hello.
+await answered;
 await session.gather({ source: "speech", timeout: 30000 });
 await session.say(
   "Hi, I have Ana Pérez on the line. She's asking about a refund for order 10482."
@@ -115,15 +119,19 @@ await transfer;
 In Python, start it as a task, because `transfer` waits until the session ends:
 
 ```python
+answered = asyncio.Event()
+session.on("transfer.answered", lambda _: answered.set())
 transfer = asyncio.create_task(session.transfer("+18095550100", mode="warm"))
+await answered.wait()
 await session.gather(source="speech", timeout=30)
 await session.say("Hi, I have Ana Pérez on the line. She's asking about a refund.")
 await session.complete_transfer()
 await transfer
 ```
 
-Fonoster doesn't send an event when the operator answers, which is why the example waits for them
-to speak.
+Fonoster sends `transfer.answered` when the operator answers. `completeTransfer` before that is
+refused with `SessionError` code `transfer_not_answered`: the caller stays on hold and you can call
+it again after the event.
 
 If the operator doesn't answer within 30 seconds, the transfer fails with `transfer_failed` and the
 caller is back with your application.

@@ -317,6 +317,64 @@ jobs:
           path: reports/junit/
           if-no-files-found: ignore
 
+  transfers:
+    name: Transfers and DTMF area (mods/conformance/catalog/areas/transfers.md)
+    needs: changes
+    if: needs.changes.outputs.node == 'true' || needs.changes.outputs.python == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    # The real AppBridge (and Autopilot) in the test process against real Roomr nodes in
+    # roomr-fake; the apps are protocol peers, SDK fixture apps (TypeScript and Python) and
+    # Autopilot. NATS with JetStream for AppBridge's session registry.
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start NATS with JetStream
+        run: |
+          docker run -d --name nats -p 4222:4222 -p 8222:8222 nats:2.11.8 -js -m 8222
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:8222/healthz && exit 0; sleep 1; done
+          docker logs nats; exit 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies and build
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+          python -m pip install -e python/fonoster-voice
+
+      - name: XFR cases (JUnit in reports/junit)
+        env:
+          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          PYTHON: python
+          LOGS_LEVEL: none
+        run: |
+          status=0
+          npx mocha --exit --timeout 60000 \
+            --reporter xunit --reporter-option output=reports/junit/xfr.xml \
+            mods/appbridge/test/transfers.integration.test.ts || status=1
+          npx mocha --exit --timeout 60000 \
+            --reporter xunit --reporter-option output=reports/junit/xfr-autopilot.xml \
+            mods/autopilot/test/session/transfers.integration.test.ts || status=1
+          exit $status
+
+      - name: JUnit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-xfr
+          path: reports/junit/
+          if-no-files-found: ignore
+
   python:
     name: python SDK and runner
     needs: changes
@@ -459,6 +517,7 @@ jobs:
         api,
         autopilot,
         billing,
+        transfers,
         python,
         dashboard,
         sdk-pack,

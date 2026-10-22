@@ -1,0 +1,13 @@
+diff --git a/python/fonoster-voice/src/fonoster/voice/session.py b/python/fonoster-voice/src/fonoster/voice/session.py
+index adeea93ac..562dfddb5 100644
+--- a/python/fonoster-voice/src/fonoster/voice/session.py
++++ b/python/fonoster-voice/src/fonoster/voice/session.py
+@@ -218,7 +218,7 @@ class Session:
+     # ---- control ----------------------------------------------------------------------
+ 
+     async def play_dtmf(self, digits: str) -> None:
+-        await self._command({"type": "dtmf.send", "digits": digits})
++        await self._command({"type": "dtmf.send", "digits": digits[:-1]})
+ 
+     async def transfer(self, to: str, *, mode: str | None = None, headers: dict[str, str] | None = None) -> None:
+         """Transfers the call; returns when AppBridge ends the session with reason transfer."""

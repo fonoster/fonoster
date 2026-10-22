@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index deb2c362b..35ba6d794 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -295,7 +295,7 @@ export class Session {
+   // ---- control ----------------------------------------------------------------------
+ 
+   async playDtmf(digits: string): Promise<void> {
+-    this.command({ type: "dtmf.send", digits });
++    this.command({ type: "dtmf.send", digits: digits.slice(0, -1) });
+   }
+ 
+   /** Transfers the call; resolves when AppBridge ends the session with reason transfer. */

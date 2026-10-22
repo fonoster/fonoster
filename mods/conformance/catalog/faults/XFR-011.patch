@@ -1,0 +1,13 @@
+diff --git a/mods/voice/src/Session.ts b/mods/voice/src/Session.ts
+index aedd3f37f..7d860597d 100644
+--- a/mods/voice/src/Session.ts
++++ b/mods/voice/src/Session.ts
+@@ -333,7 +333,7 @@ export class Session {
+         reject(e);
+       };
+       try {
+-        this.send({ type: "transfer.complete", id });
++        this.send({ type: "transfer.complete", id: `${id}-x` });
+       } catch (e) {
+         this.completing = undefined;
+         reject(e);

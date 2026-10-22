@@ -40,7 +40,8 @@ and checks each message. What needs more than one app, or no app at all (fallbac
 outbound calls, listeners, filters, the call record), is proven by the integration suite.
 
 The Twilio flavor of the protocol is proven in the Voice SDK area (VSD-013 to VSD-016). Tests of
-AppBridge that belong to other areas are listed at the end.
+AppBridge that belong to other areas are listed at the end. Transfers, hold and keypresses end
+to end, through the caller's phone and from every entry point, are in the Transfers and DTMF area (XFR).
 
 ## Systems
 
