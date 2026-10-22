@@ -361,7 +361,7 @@ function Parameters({ toolIndex }: { toolIndex: number }) {
                       <Input
                         aria-label={`Parameter ${i + 1} name`}
                         aria-invalid={Boolean(error)}
-                        className="h-7 px-1.5 font-mono text-xs hover:border-ring/60"
+                        compact
                         spellCheck={false}
                         {...register(`${path}.name`)}
                       />
@@ -429,7 +429,7 @@ function InlineSelect({
   return (
     <Select
       aria-label={label}
-      className="h-7 px-1.5 font-mono text-xs hover:border-ring/60"
+      compact
       value={value}
       options={
         options.some((o) => o.value === value)
@@ -453,7 +453,7 @@ function RequiredCheckbox({
   return (
     <Select
       aria-label={`Parameter ${index + 1} required`}
-      className="h-7 px-1.5 font-mono text-xs hover:border-ring/60"
+      compact
       value={field.value ? "yes" : "no"}
       options={[
         { value: "yes", label: "Yes" },
