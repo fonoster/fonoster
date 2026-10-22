@@ -55,11 +55,8 @@ jobs:
 
       - name: Start Routr
         run: |
-          PGPASSWORD=postgres psql -h 127.0.0.1 -U postgres -c 'create database routr'
-          docker run -d --name routr --network host \
-            -e DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/routr -e START_INTERNAL_DB=false \
-            fonoster/routr-one:2.15.4
-          for i in $(seq 1 120); do (echo > /dev/tcp/127.0.0.1/51907) 2>/dev/null && exit 0; sleep 2; done
+          docker run -d --name routr -p 51907:51907 fonoster/routr-one:2.15.4
+          for i in $(seq 1 60); do (echo > /dev/tcp/127.0.0.1/51907) 2>/dev/null && exit 0; sleep 2; done
           docker logs routr; exit 1
 
       - name: Setup Node.js
