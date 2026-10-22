@@ -129,6 +129,10 @@ uncommitted changes. The records it writes carry `proof=true` and `proven=true|f
 reads them for the Proven column and never counts them as runs. Make a fault with the change in the
 working tree: `git diff > mods/conformance/catalog/faults/API-003.patch`, then `git checkout .`.
 
+A P1 case with an unexpired waiver in `waivers.json` (`{ id, reason, approvedBy, expires }`) is not
+proven: its test skips with a reason naming the waiver, the report shows it Waived, and `prove.cjs`
+lists it as waived without counting it. Keep its fault patch for when the waiver lifts.
+
 ## Running the dashboard area
 
 ```sh

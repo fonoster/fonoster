@@ -12,7 +12,8 @@
 // breaks the build) proves nothing. A case with no **Fault:** patch is unproven.
 // An optional reset: command runs after each fault is reverted, with PROVE_FILES set to the files the
 // fault touched (to rebuild a package the command built with the fault in it).
-// Exit code 1 when any selected case is not proven.
+// A case with an unexpired waiver in waivers.json is skipped (listed as waived, no proof record).
+// Exit code 1 when any selected case that is not waived is not proven.
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
@@ -82,8 +83,15 @@ function prove(t) {
   return { proven: false, why: run.status === 0 ? `stayed green on ${t.fault}` : `no failing test carries ${t.id} (exit ${run.status}): ${(run.stderr || run.stdout || "").trim().split("\n").slice(-1)[0] || ""}`, seconds };
 }
 
+// Cases with an unexpired waiver (waivers.json) are not proven: their test is skipped until the
+// waiver lifts, so a fault could only stay green. They are listed, not counted as unproven.
+const waiverFile = path.join(catalogDir, "waivers.json");
+const today = new Date().toISOString().slice(0, 10);
+const waived = new Map((fs.existsSync(waiverFile) ? JSON.parse(fs.readFileSync(waiverFile, "utf8")) : []).filter((w) => w.expires >= today).map((w) => [w.id, w]));
+
 const results = [];
 for (const t of cases) {
+  if (waived.has(t.id)) { console.log(`waived   ${t.id} ${t.name}: waiver until ${waived.get(t.id).expires} (waivers.json)`); continue; }
   const r = prove(t);
   results.push({ t, ...r });
   console.log(`${r.proven ? "proven  " : "UNPROVEN"} ${t.id} ${t.name}: ${r.why}`);

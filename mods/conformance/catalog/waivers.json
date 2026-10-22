@@ -1,0 +1,8 @@
+[
+  {
+    "id": "ROM-034",
+    "reason": "Routr 2.15.4 always round-robins: its location service reads backend.balancingAlgorithm while the request field is algorithm, so least-sessions is never applied and the lighter node is picked only by chance. Roomr sends X-Session-Count correctly; the fix is upstream in Routr and is not scheduled now. TestROM034 is skipped until then (run it with ROM034_LIVE=1).",
+    "approvedBy": "Pedro Sanders",
+    "expires": "2027-04-30"
+  }
+]
