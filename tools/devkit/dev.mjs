@@ -41,13 +41,7 @@ const TSX = join(ROOT, "node_modules", ".bin", "tsx");
 const config = (service) => join(DEV, "config", `${service}.yaml`);
 
 const COLORS = [36, 35, 33, 32, 34, 31];
-const NAMES = [
-  "fakes",
-  "apiserver",
-  "appbridge",
-  "autopilot",
-  "dashboard"
-];
+const NAMES = ["fakes", "apiserver", "appbridge", "autopilot", "dashboard"];
 const width = Math.max(...NAMES.map((n) => n.length));
 const children = new Set();
 let stopping = false;

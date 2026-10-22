@@ -608,7 +608,7 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
       expect(
         new Set((await a.of("CreateCall")).map((r) => JSON.stringify(r))).size
       ).to.equal(1);
-      expect((await a.invites())).to.equal(1);
+      expect(await a.invites()).to.equal(1);
       expect(await b.of("CreateCall")).to.have.length(0);
     } finally {
       await stop();
@@ -673,7 +673,7 @@ describe("@apiserver[outbound/runOutboundCalls] with the session registry", func
           onAttempt: async (nodeId, addr) => {
             await placer.placing(ref, nodeId, addr);
             // Written before the node heard anything.
-            expect((await f.requests())).to.have.length(0);
+            expect(await f.requests()).to.have.length(0);
             expect(
               await Sessions.getSession(kv, "placements", ref)
             ).to.deep.include({ callRef: ref, nodeRef: f.nodeRef });

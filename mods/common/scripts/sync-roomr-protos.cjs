@@ -23,7 +23,9 @@ const fs = require("fs");
 const path = require("path");
 
 const pkg = path.join(require.resolve("@fonoster/roomr"), "..", "..");
-const { version } = JSON.parse(fs.readFileSync(path.join(pkg, "package.json"), "utf8"));
+const { version } = JSON.parse(
+  fs.readFileSync(path.join(pkg, "package.json"), "utf8")
+);
 const dest = path.join(__dirname, "..", "src", "protos");
 for (const [from, to] of [
   ["roomr/v1/roomr.proto", "roomr.proto"],
@@ -31,4 +33,6 @@ for (const [from, to] of [
 ]) {
   fs.copyFileSync(path.join(pkg, "protos", from), path.join(dest, to));
 }
-console.log(`Roomr protos from @fonoster/roomr ${version} copied to mods/common/src/protos`);
+console.log(
+  `Roomr protos from @fonoster/roomr ${version} copied to mods/common/src/protos`
+);

@@ -343,8 +343,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
       nodeId: idle.nodeRef
     });
     expect(await idle.of("CreateCall")).to.have.length(1);
-    expect((await busy.requests())).to.have.length(0);
-    expect((await draining.requests())).to.have.length(0);
+    expect(await busy.requests()).to.have.length(0);
+    expect(await draining.requests()).to.have.length(0);
   });
 
   it("no capacity: with every node down, gone or at its limit, CreateCall fails at once with RESOURCE_EXHAUSTED and no INVITE is sent", async function () {
@@ -377,7 +377,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
     expect(created.ref).to.equal(undefined);
     expect(Date.now() - started).to.be.below(2000);
 
-    for (const n of [d1, d2, full, gone]) expect((await n.requests())).to.have.length(0);
+    for (const n of [d1, d2, full, gone])
+      expect(await n.requests()).to.have.length(0);
   });
 
   it("no capacity: a node at its session limit gets no new call", async function () {
@@ -393,7 +394,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
       nodeId: below.nodeRef
     });
     expect(await below.of("CreateCall")).to.have.length(1);
-    expect((await atLimit.requests())).to.have.length(0);
+    expect(await atLimit.requests()).to.have.length(0);
   });
 
   it("refusal triggers a retry: a node full since its last heartbeat sends the call to the next one", async function () {
@@ -414,7 +415,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
     });
     expect(await next.of("CreateCall")).to.have.length(1);
     expect(await stale.of("CreateCall")).to.have.length(1);
-    expect((await stale.invites())).to.equal(0);
+    expect(await stale.invites()).to.equal(0);
   });
 
   it("two controllers picking the same full node both move on, and each call is placed once", async function () {
@@ -437,7 +438,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
     expect(replies.every((r) => r.type === "ack")).to.equal(true);
     // Every call was dialed once: the tight node took at most one, the refusals moved on.
     expect((await tight.invites()) + (await next.invites())).to.equal(4);
-    expect((await tight.invites())).to.be.at.most(1);
+    expect(await tight.invites()).to.be.at.most(1);
   });
 
   it("timeout retried on the same node, never on another: the callee gets one INVITE", async function () {
@@ -456,11 +457,13 @@ describe("@apiserver[control plane] stateless replicas", function () {
     });
     expect(await slow.of("CreateCall")).to.have.length(2);
     // Same call_ref and parameters on both attempts; the node dedupes: one INVITE.
-    expect((await slow.of("CreateCall"))[0]).to.deep.equal((await slow.of("CreateCall"))[1]);
+    expect((await slow.of("CreateCall"))[0]).to.deep.equal(
+      (await slow.of("CreateCall"))[1]
+    );
     await new Promise((r) => setTimeout(r, 800)); // the stalled first attempt lands too
-    expect((await slow.invites())).to.equal(1);
-    expect((await slow.invites())).to.equal(1);
-    expect((await other.requests())).to.have.length(0);
+    expect(await slow.invites()).to.equal(1);
+    expect(await slow.invites()).to.equal(1);
+    expect(await other.requests()).to.have.length(0);
   });
 
   it("no capacity: after three nodes refuse, CreateCall fails and no fourth node is tried", async function () {
@@ -485,9 +488,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
       await Promise.all(
         refusing.map(async (n) => (await n.of("CreateCall")).length)
       )
-    ).to.deep.equal([
-      1, 1, 1, 0
-    ]);
+    ).to.deep.equal([1, 1, 1, 0]);
     for (const n of refusing) expect(await n.invites()).to.equal(0);
   });
 });

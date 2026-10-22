@@ -33,12 +33,7 @@ import { sharedRoomrFake } from "./sharedRoomrFake";
  * `answer()`, or `fail` (an unavailable callee, 480: the node has no SIP-less failure).
  */
 export type FakeCallee =
-  | "answer"
-  | "busy"
-  | "no_answer"
-  | "decline"
-  | "fail"
-  | "ring";
+  "answer" | "busy" | "no_answer" | "decline" | "fail" | "ring";
 
 export type FakeRoomrOptions = {
   nodeRef?: string;

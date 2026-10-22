@@ -308,6 +308,6 @@ describe("@apiserver/webhooks node call events over NATS", function () {
       (requests[0].entries as Record<string, unknown>[]).map((e) => e.type)
     ).to.deep.equal(["call.started", "call.progress", "call.failed"]);
     // No room was left behind and no INVITE was retried.
-    expect((await node.invites())).to.equal(1);
+    expect(await node.invites()).to.equal(1);
   });
 });

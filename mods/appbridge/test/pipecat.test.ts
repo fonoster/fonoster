@@ -229,7 +229,9 @@ describe("@appbridge Pipecat golden test (twilio protocol)", function () {
     const cut = Date.now();
     await sleep(400);
     // The 4 s tone stopped: nothing audible arrived well after the clear.
-    expect(await harness.roomrNode.outputSilentWithinMs(cut)).to.be.lessThan(200);
+    expect(await harness.roomrNode.outputSilentWithinMs(cut)).to.be.lessThan(
+      200
+    );
 
     harness.roomrNode.pressKey("9");
     await waitFor(() => commands().includes("hangup"), 10000, "the hang-up");

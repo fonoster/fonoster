@@ -39,10 +39,9 @@ describe("@common[roomr] client", function () {
       ["roomr/v1/roomr.proto", "roomr.proto"],
       ["session/v1/session.proto", "session.proto"]
     ]) {
-      const copy = path.join(path.dirname(ROOMR_PROTO), to).replace(
-        `${path.sep}dist${path.sep}`,
-        `${path.sep}src${path.sep}`
-      );
+      const copy = path
+        .join(path.dirname(ROOMR_PROTO), to)
+        .replace(`${path.sep}dist${path.sep}`, `${path.sep}src${path.sep}`);
       expect(fs.readFileSync(copy, "utf8"), to).to.equal(
         fs.readFileSync(path.join(pinned, from), "utf8")
       );
