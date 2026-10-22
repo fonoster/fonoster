@@ -20,7 +20,7 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-func TestInboundCallSlice(t *testing.T) {
+func TestROM001_InboundCallSlice(t *testing.T) {
 	r := start(t)
 	r.app.mu.Lock()
 	r.app.delay = 500 * time.Millisecond // the app is slow to answer
@@ -111,9 +111,9 @@ func TestInboundCallSlice(t *testing.T) {
 	}
 }
 
-// TestSessionEndpointUnreachableGets503: the session endpoint refuses connections; the caller
+// TestROM002_SessionEndpointUnreachableGets503: the session endpoint refuses connections; the caller
 // gets 503 and no room remains.
-func TestSessionEndpointUnreachableGets503(t *testing.T) {
+func TestROM002_SessionEndpointUnreachableGets503(t *testing.T) {
 	dead := fmt.Sprintf("127.0.0.1:%d", freePort(t))
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.SessionEndpoint = dead }})
 	call, err := r.bot.Dial(r.sip, "+15550002222", "", nil)
@@ -134,9 +134,9 @@ func TestSessionEndpointUnreachableGets503(t *testing.T) {
 	}
 }
 
-// TestAppNeverAnswersGets480: the app keeps the stream open but sends neither Answer nor
+// TestROM002_AppNeverAnswersGets480: the app keeps the stream open but sends neither Answer nor
 // Reject; after the answer timeout the caller gets 480 and the stream closes.
-func TestAppNeverAnswersGets480(t *testing.T) {
+func TestROM002_AppNeverAnswersGets480(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.AnswerTimeout = 700 * time.Millisecond }})
 	r.app.setMode(modeStall)
 	call, err := r.bot.Dial(r.sip, "+15550004444", "", nil)
@@ -154,9 +154,9 @@ func TestAppNeverAnswersGets480(t *testing.T) {
 	ac.waitClosed(t, 3*time.Second)
 }
 
-// TestCallerCancelsBeforeAnswer: CANCEL while the app has not answered: 487 to the caller,
+// TestROM003_CallerCancelsBeforeAnswer: CANCEL while the app has not answered: 487 to the caller,
 // Ended caller_hangup to the app, the stream closes.
-func TestCallerCancelsBeforeAnswer(t *testing.T) {
+func TestROM003_CallerCancelsBeforeAnswer(t *testing.T) {
 	r := start(t)
 	r.app.setMode(modeStall)
 	call, err := r.bot.Dial(r.sip, "+15550005555", "", nil)
@@ -177,9 +177,9 @@ func TestCallerCancelsBeforeAnswer(t *testing.T) {
 	r.waitEvent(typed("call.ended", "call_ref", ac.start.GetCallRef(), "cause", "caller_hangup"), 2*time.Second)
 }
 
-// TestStreamBreakHangsUp: the app instance holding a stream is killed mid-call: the node sends
+// TestROM004_StreamBreakHangsUp: the app instance holding a stream is killed mid-call: the node sends
 // BYE to the caller, publishes call.ended app_gone and opens no new stream.
-func TestStreamBreakHangsUp(t *testing.T) {
+func TestROM004_StreamBreakHangsUp(t *testing.T) {
 	r := start(t)
 	call, ac := r.answeredCall()
 	ac.killStream()
@@ -191,7 +191,7 @@ func TestStreamBreakHangsUp(t *testing.T) {
 	}
 }
 
-func TestNodeHangupAndRejection(t *testing.T) {
+func TestROM002_NodeHangupAndRejection(t *testing.T) {
 	r := start(t)
 	// The app rejects with 404.
 	r.app.setMode(modeReject)
@@ -215,8 +215,8 @@ func TestNodeHangupAndRejection(t *testing.T) {
 	}
 }
 
-// TestHoldLoopsHoldMusic: Hold{music} loops the hold audio to the caller alone; Resume stops it.
-func TestHoldLoopsHoldMusic(t *testing.T) {
+// TestROM012_HoldLoopsHoldMusic: Hold{music} loops the hold audio to the caller alone; Resume stops it.
+func TestROM012_HoldLoopsHoldMusic(t *testing.T) {
 	r := start(t)
 	call, ac := r.answeredCall()
 	url := promptServer(t, toneWav(440, 400))
@@ -234,7 +234,7 @@ func TestHoldLoopsHoldMusic(t *testing.T) {
 	_ = call.Hangup()
 }
 
-func TestHeartbeats(t *testing.T) {
+func TestROM031_Heartbeats(t *testing.T) {
 	r := start(t)
 	sub, _ := r.nc.SubscribeSync(node.HeartbeatSubject(r.node.ID()))
 	defer sub.Unsubscribe()
@@ -249,9 +249,9 @@ func TestHeartbeats(t *testing.T) {
 	}
 }
 
-// TestDialIntoRoom: CreateCall into a CreateRoom room; the dialed party hangs up: the call
+// TestROM021_DialIntoRoom: CreateCall into a CreateRoom room; the dialed party hangs up: the call
 // ends with callee_hangup and the room, which came from CreateRoom, stays (empty).
-func TestDialIntoRoom(t *testing.T) {
+func TestROM021_DialIntoRoom(t *testing.T) {
 	r := start(t)
 	room, err := r.mc.CreateRoom(rpcCtx(t), &roomrv1.CreateRoomRequest{})
 	if err != nil {
@@ -280,7 +280,7 @@ func TestDialIntoRoom(t *testing.T) {
 	}
 }
 
-func TestDialBusy(t *testing.T) {
+func TestROM022_DialBusy(t *testing.T) {
 	r := start(t)
 	r.callee.Callee("busy", 0)
 	room, err := r.mc.CreateRoom(rpcCtx(t), &roomrv1.CreateRoomRequest{})
@@ -301,7 +301,7 @@ func (r *rig) transferTo(mode string) *sessionv1.AppMessage {
 		To: &sessionv1.SipTarget{Uri: "sip:+15551234567@carrier.invalid"}, Mode: mode}}}
 }
 
-func TestColdTransfer(t *testing.T) {
+func TestROM013_ColdTransfer(t *testing.T) {
 	r := start(t)
 	call, ac := r.answeredCall()
 	ac.send(r.transferTo("cold"))
@@ -331,7 +331,7 @@ func TestColdTransfer(t *testing.T) {
 	waitStatus(t, callee, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
 }
 
-func TestWarmTransfer(t *testing.T) {
+func TestROM014_WarmTransfer(t *testing.T) {
 	r := start(t)
 	_, ac := r.answeredCall()
 	room := ac.start.GetRoomRef()
@@ -359,7 +359,7 @@ func TestWarmTransfer(t *testing.T) {
 	}
 }
 
-func TestWarmTransferNotAnswered(t *testing.T) {
+func TestROM014_WarmTransferNotAnswered(t *testing.T) {
 	r := start(t)
 	node.WarmTransferTimeout = 500 * time.Millisecond
 	defer func() { node.WarmTransferTimeout = 30 * time.Second }()
@@ -375,7 +375,7 @@ func TestWarmTransferNotAnswered(t *testing.T) {
 	}
 }
 
-func TestReferTransfer(t *testing.T) {
+func TestROM013_ReferTransfer(t *testing.T) {
 	r := start(t)
 	_, ac := r.answeredCall()
 	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_Transfer{Transfer: &sessionv1.Transfer{
@@ -387,15 +387,15 @@ func TestReferTransfer(t *testing.T) {
 	}
 }
 
-// TestSendDtmfOnTheStream: SendDtmf on the stream sends RFC 4733 events to the caller in order.
-func TestSendDtmfOnTheStream(t *testing.T) {
+// TestROM011_SendDtmfOnTheStream: SendDtmf on the stream sends RFC 4733 events to the caller in order.
+func TestROM011_SendDtmfOnTheStream(t *testing.T) {
 	r := start(t)
 	call, ac := r.answeredCall()
 	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_SendDtmf{SendDtmf: &sessionv1.SendDtmf{Digits: "12#"}}})
 	waitStatus(t, call, func(s caller.Status) bool { return s.Digits == "12#" }, 3*time.Second)
 }
 
-func TestListenerGetsTracksUnmixed(t *testing.T) {
+func TestROM015_ListenerGetsTracksUnmixed(t *testing.T) {
 	r := start(t)
 	call, ac := r.answeredCall()
 	// The caller's leg and the app's leg joined with their track ids.
@@ -430,10 +430,10 @@ func TestListenerGetsTracksUnmixed(t *testing.T) {
 	ac.send(&sessionv1.AppMessage{Msg: &sessionv1.AppMessage_RemoveListener{RemoveListener: &sessionv1.RemoveListener{ListenerRef: "rec-1"}}})
 }
 
-// TestRoomHeaderJoinsOrCreates: with sip.roomHeader, the first INVITE naming room r creates it,
+// TestROM027_RoomHeaderJoinsOrCreates: with sip.roomHeader, the first INVITE naming room r creates it,
 // the second joins it (Start names it), and the two callers hear each other; the node never
 // answers 3xx.
-func TestRoomHeaderJoinsOrCreates(t *testing.T) {
+func TestROM027_RoomHeaderJoinsOrCreates(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.RoomHeader = "X-Room-Ref" }})
 	ref := fmt.Sprintf("r-%d", time.Now().UnixNano())
 	a, err := r.bot.Dial(r.sip, "+1001", "", map[string]string{"X-Room-Ref": ref})
@@ -472,9 +472,9 @@ func TestRoomHeaderJoinsOrCreates(t *testing.T) {
 	r.waitEvent(typed("room.ended", "room_ref", ref), 2*time.Second)
 }
 
-// TestMetadataEchoedInStartAndEvents: CreateCall's metadata reaches Start and every event of
+// TestROM029_MetadataEchoedInStartAndEvents: CreateCall's metadata reaches Start and every event of
 // the call untouched.
-func TestMetadataEchoedInStartAndEvents(t *testing.T) {
+func TestROM029_MetadataEchoedInStartAndEvents(t *testing.T) {
 	r := start(t)
 	ref := fmt.Sprintf("md-%d", time.Now().UnixNano())
 	events := replica(t, node.CallEventsSubject(ref))
@@ -506,8 +506,8 @@ func TestMetadataEchoedInStartAndEvents(t *testing.T) {
 	}
 }
 
-// TestCreateCallSessionOverride: CreateCall's session names another endpoint for that call.
-func TestCreateCallSessionOverride(t *testing.T) {
+// TestROM021_CreateCallSessionOverride: CreateCall's session names another endpoint for that call.
+func TestROM021_CreateCallSessionOverride(t *testing.T) {
 	r := start(t)
 	other := startApp(t)
 	ref := fmt.Sprintf("so-%d", time.Now().UnixNano())
@@ -522,9 +522,9 @@ func TestCreateCallSessionOverride(t *testing.T) {
 	}
 }
 
-// TestReadyNeverArrives: the callee answers, the app opens the stream but never sends Ready:
+// TestROM004_ReadyNeverArrives: the callee answers, the app opens the stream but never sends Ready:
 // after the ready timeout the node sends BYE and call.ended app_gone.
-func TestReadyNeverArrives(t *testing.T) {
+func TestROM004_ReadyNeverArrives(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.ReadyTimeout = 700 * time.Millisecond }})
 	r.app.setMode(modeStall)
 	ref := fmt.Sprintf("nr-%d", time.Now().UnixNano())
@@ -539,9 +539,9 @@ func TestReadyNeverArrives(t *testing.T) {
 	waitStatus(t, r.calleeCall(), func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
 }
 
-// TestSessionUnreachableOnAnswer: the callee answers and the session endpoint refuses
+// TestROM004_SessionUnreachableOnAnswer: the callee answers and the session endpoint refuses
 // connections: BYE to the callee and call.ended app_gone.
-func TestSessionUnreachableOnAnswer(t *testing.T) {
+func TestROM004_SessionUnreachableOnAnswer(t *testing.T) {
 	dead := fmt.Sprintf("127.0.0.1:%d", freePort(t))
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.SessionEndpoint = dead }})
 	ref := fmt.Sprintf("su-%d", time.Now().UnixNano())
@@ -553,9 +553,9 @@ func TestSessionUnreachableOnAnswer(t *testing.T) {
 	waitStatus(t, r.calleeCall(), func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
 }
 
-// TestAppStopsSendingAudio: the app's RTP stops with its stream open: after the media timeout
+// TestROM036_AppStopsSendingAudio: the app's RTP stops with its stream open: after the media timeout
 // the node sends BYE and Ended app_gone.
-func TestAppStopsSendingAudio(t *testing.T) {
+func TestROM036_AppStopsSendingAudio(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.MediaTimeout = 1500 * time.Millisecond }})
 	call, ac := r.answeredCall()
 	ac.mute()
@@ -565,8 +565,8 @@ func TestAppStopsSendingAudio(t *testing.T) {
 	}
 }
 
-// TestCallerStopsSendingAudio: the caller's RTP stops: the call ends with media_timeout.
-func TestCallerStopsSendingAudio(t *testing.T) {
+// TestROM036_CallerStopsSendingAudio: the caller's RTP stops: the call ends with media_timeout.
+func TestROM036_CallerStopsSendingAudio(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.MediaTimeout = 1500 * time.Millisecond }})
 	call, ac := r.answeredCall()
 	call.SetImpair(func() (int, time.Duration) { return 0, 0 })
@@ -576,8 +576,8 @@ func TestCallerStopsSendingAudio(t *testing.T) {
 	r.waitEvent(typed("call.ended", "call_ref", ac.start.GetCallRef(), "cause", "media_timeout"), 2*time.Second)
 }
 
-// TestNoAudioOnTheStream: a call that runs a while carries no audio on its control stream.
-func TestNoAudioOnTheStream(t *testing.T) {
+// TestROM006_NoAudioOnTheStream: a call that runs a while carries no audio on its control stream.
+func TestROM006_NoAudioOnTheStream(t *testing.T) {
 	r := start(t)
 	call, ac := r.answeredCall()
 	call.Speak("tone", 2000)

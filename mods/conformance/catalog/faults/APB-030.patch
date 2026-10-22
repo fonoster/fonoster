@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/media/SessionServer.ts b/mods/appbridge/src/media/SessionServer.ts
+index 794be0938..f4ee2e5dd 100644
+--- a/mods/appbridge/src/media/SessionServer.ts
++++ b/mods/appbridge/src/media/SessionServer.ts
+@@ -81,7 +81,7 @@ export class SessionServer {
+ 
+   /** Readiness fails: the Service stops sending new streams here (SIGTERM). */
+   drain() {
+-    this.health.setStatus("", "NOT_SERVING");
++    this.health.setStatus("", "SERVING");
+     this.health.setStatus(Roomr.SESSION_SERVICE_NAME, "NOT_SERVING");
+   }
+ 

@@ -38,7 +38,7 @@ func bothWays(t *testing.T, call *caller.Call, ac *appCall, freq float64) {
 	}
 }
 
-func TestOpusPreferredWhenOffered(t *testing.T) {
+func TestROM009_OpusPreferredWhenOffered(t *testing.T) {
 	needOpus(t)
 	r := start(t)
 	// PCMU listed first: the node still answers with Opus, its first choice.
@@ -53,7 +53,7 @@ func TestOpusPreferredWhenOffered(t *testing.T) {
 	r.waitEvent(typed("room.ended", "room_ref", room), 3*time.Second)
 }
 
-func TestG711OnlyCallerGetsPCMU(t *testing.T) {
+func TestROM009_G711OnlyCallerGetsPCMU(t *testing.T) {
 	r := start(t)
 	call, g := r.answeredCallWith(caller.DialOptions{Codecs: []string{audio.NamePCMA, audio.NamePCMU}}, false)
 	room := g.start.GetRoomRef()
@@ -65,7 +65,7 @@ func TestG711OnlyCallerGetsPCMU(t *testing.T) {
 	r.waitEvent(typed("room.ended", "room_ref", room), 3*time.Second)
 }
 
-func TestOpusDisabledByConfig(t *testing.T) {
+func TestROM009_OpusDisabledByConfig(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.Codecs = []string{audio.NamePCMU, audio.NamePCMA} }})
 	call, ac := r.answeredCallWith(caller.DialOptions{Codecs: []string{"opus/48000", audio.NamePCMA}}, false)
 	room := ac.start.GetRoomRef()
@@ -87,7 +87,7 @@ func (r *rig) dialed(id string) (*caller.Call, *appCall, string) {
 	return r.calleeCall(), r.app.callRef(call.CallRef), call.RoomRef
 }
 
-func TestDialNegotiatesTheCalleesPick(t *testing.T) {
+func TestROM009_DialNegotiatesTheCalleesPick(t *testing.T) {
 	t.Run("opus-capable callee", func(t *testing.T) {
 		needOpus(t)
 		r := start(t)

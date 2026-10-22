@@ -16,9 +16,9 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-// TestCreateCallFailuresLeaveNoRoom: busy, no answer and a rejection each end the call with its
+// TestROM022_CreateCallFailuresLeaveNoRoom: busy, no answer and a rejection each end the call with its
 // SIP status and cause; no room was ever created and no stream opened.
-func TestCreateCallFailuresLeaveNoRoom(t *testing.T) {
+func TestROM022_CreateCallFailuresLeaveNoRoom(t *testing.T) {
 	for _, tc := range []struct {
 		mode, cause string
 		sip         int
@@ -48,10 +48,10 @@ func TestCreateCallFailuresLeaveNoRoom(t *testing.T) {
 	}
 }
 
-// TestCreateCallDedupe: within the dedupe window a repeated call_ref returns the call, also once
+// TestROM024_CreateCallDedupe: within the dedupe window a repeated call_ref returns the call, also once
 // it has ended, and sends no second INVITE; the same call_ref with other parameters is
 // ALREADY_EXISTS, and so is the call_ref of an inbound call.
-func TestCreateCallDedupe(t *testing.T) {
+func TestROM024_CreateCallDedupe(t *testing.T) {
 	r := start(t)
 	ref := fmt.Sprintf("dedupe-%d", time.Now().UnixNano())
 	req := &roomrv1.CreateCallRequest{CallRef: ref, Metadata: map[string]string{"k": "v"},
@@ -111,11 +111,11 @@ func TestCreateCallDedupe(t *testing.T) {
 	wantStatus(t, err, codes.AlreadyExists, node.CodeCallExists)
 }
 
-// TestCallRefHeader: the configured header (X-Call-Ref in the rig) names calls. Outbound, its
+// TestROM026_CallRefHeader: the configured header (X-Call-Ref in the rig) names calls. Outbound, its
 // value in to.headers becomes the call_ref and still reaches the INVITE; a different call_ref, or
 // a malformed value, is INVALID_ARGUMENT. Inbound, a well-formed value is the call_ref, and a
 // malformed or missing one gets a ref from the node.
-func TestCallRefHeader(t *testing.T) {
+func TestROM026_CallRefHeader(t *testing.T) {
 	r := start(t)
 	ref := fmt.Sprintf("hdr-%d", time.Now().UnixNano())
 	target := func(h map[string]string) *roomrv1.SipTarget {
@@ -162,9 +162,9 @@ func TestCallRefHeader(t *testing.T) {
 	}
 }
 
-// TestCreateCallDigest: a proxy that challenges the INVITE gets the digest from to.auth; wrong
+// TestROM025_CreateCallDigest: a proxy that challenges the INVITE gets the digest from to.auth; wrong
 // credentials end the call without a room.
-func TestCreateCallDigest(t *testing.T) {
+func TestROM025_CreateCallDigest(t *testing.T) {
 	r := start(t)
 	r.callee.RequireAuth("peer", "s3cret")
 	ref := fmt.Sprintf("auth-%d", time.Now().UnixNano())
@@ -194,9 +194,9 @@ func TestCreateCallDigest(t *testing.T) {
 	roomGone(t, r, call.RoomRef)
 }
 
-// TestCreateCallHeadersByteForByte: every to.headers entry, X-DOD-Number included, is on the
+// TestROM021_CreateCallHeadersByteForByte: every to.headers entry, X-DOD-Number included, is on the
 // INVITE with its exact value, the node adds none of its own, and Start carries them.
-func TestCreateCallHeadersByteForByte(t *testing.T) {
+func TestROM021_CreateCallHeadersByteForByte(t *testing.T) {
 	r := start(t)
 	headers := map[string]string{"X-DOD-Number": "+15550002", "X-Foo": "bar;baz=\"q u\"", "P-Asserted-Identity": "<sip:+1@x>"}
 	ref := fmt.Sprintf("h-%d", time.Now().UnixNano())
@@ -222,8 +222,8 @@ func TestCreateCallHeadersByteForByte(t *testing.T) {
 	}
 }
 
-// TestProxyIsAParameter: two CreateCalls naming different to.proxy values each go to their own.
-func TestProxyIsAParameter(t *testing.T) {
+// TestROM021_ProxyIsAParameter: two CreateCalls naming different to.proxy values each go to their own.
+func TestROM021_ProxyIsAParameter(t *testing.T) {
 	r := start(t)
 	other := startCallee(t)
 	for _, proxy := range []string{r.callee.Address(), "sip:" + other.Address()} {

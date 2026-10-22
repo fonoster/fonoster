@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/call.go b/go/roomr/internal/node/call.go
+index ec7ed2520..84e1b1660 100644
+--- a/go/roomr/internal/node/call.go
++++ b/go/roomr/internal/node/call.go
+@@ -575,7 +575,7 @@ func (c *call) awaitAnswer() bool {
+ 			c.end(ReasonAppGone, 503)
+ 			return false
+ 		case <-timer.C:
+-			c.end(ReasonAppGone, 480)
++			c.end(ReasonAppGone, 408)
+ 			return false
+ 		case m := <-s.msgs:
+ 			if done, answered := c.beforeAnswer(m); done {

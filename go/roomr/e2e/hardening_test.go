@@ -61,7 +61,7 @@ Signal=5
 `, target, time.Now().UnixNano(), target, callHdr, extra)
 }
 
-func TestMalformedInfoDoesNotKillTheNode(t *testing.T) {
+func TestROM010_MalformedInfoDoesNotKillTheNode(t *testing.T) {
 	r := start(t)
 	if got := rawRequest(t, r.sip, infoRequest(r.sip, "", "")); !strings.Contains(got, "400") {
 		t.Fatalf("INFO without Call-ID answered %q, want 400", got)
@@ -81,7 +81,7 @@ func TestMalformedInfoDoesNotKillTheNode(t *testing.T) {
 	_ = call.Hangup()
 }
 
-func TestUnansweredDialogsAreClosed(t *testing.T) {
+func TestROM002_UnansweredDialogsAreClosed(t *testing.T) {
 	r := start(t)
 	// Rejected by the app.
 	r.app.setMode(modeReject)

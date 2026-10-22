@@ -14,7 +14,7 @@ import (
 // subject. A call whose app is gone is ended by its control stream (calls_test.go), not here.
 
 // The controller that sent CreateRoom died before anything joined.
-func TestEmptyRoomEnds(t *testing.T) {
+func TestROM035_EmptyRoomEnds(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) {
 		c.MaxRooms = 1
 		c.EmptyRoomTimeout = 500 * time.Millisecond
@@ -43,7 +43,7 @@ func TestEmptyRoomEnds(t *testing.T) {
 }
 
 // A room waiting on a dial is not empty; a room with a participant is not empty.
-func TestDialingRoomIsNotEmpty(t *testing.T) {
+func TestROM035_DialingRoomIsNotEmpty(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.EmptyRoomTimeout = 300 * time.Millisecond }})
 	r.callee.Callee("answer", 1200*time.Millisecond) // rings well past the timeout
 	room := r.createRoom()
@@ -60,7 +60,7 @@ func TestDialingRoomIsNotEmpty(t *testing.T) {
 }
 
 // A failed dial into an otherwise empty room ends the room at once (busy), not after a timeout.
-func TestFailedDialEndsEmptyRoom(t *testing.T) {
+func TestROM035_FailedDialEndsEmptyRoom(t *testing.T) {
 	r := start(t)
 	r.callee.Callee("busy", 0)
 	room := r.createRoom()

@@ -55,7 +55,7 @@ function json(peer: Peer) {
 }
 
 describe("@appbridge control stream: causes and config", function () {
-  it("maps every Ended cause to its session.end reason, unknown ones to error (5.9)", function () {
+  it("[APB-028] maps every Ended cause to its session.end reason, unknown ones to error (5.9)", function () {
     const table: Record<string, string> = {
       caller_hangup: "caller_hangup",
       callee_hangup: "caller_hangup",
@@ -77,7 +77,7 @@ describe("@appbridge control stream: causes and config", function () {
     );
   });
 
-  it("keeps the callee hang-up, the media timeout and node errors in the record", function () {
+  it("[APB-028] keeps the callee hang-up, the media timeout and node errors in the record", function () {
     expect(recordEndReason("callee_hangup")).to.equal("callee_hangup");
     expect(recordEndReason("media_timeout")).to.equal("media_timeout");
     expect(recordEndReason("node_error")).to.equal("node_error");
@@ -87,7 +87,7 @@ describe("@appbridge control stream: causes and config", function () {
     );
   });
 
-  it("reads durations and checks the session keys", function () {
+  it("[APB-030] reads durations and checks the session keys", function () {
     expect(parseDurationMs("15s")).to.equal(15_000);
     expect(parseDurationMs("1h")).to.equal(3_600_000);
     expect(parseDurationMs("250ms")).to.equal(250);
@@ -110,7 +110,7 @@ describe("@appbridge control stream: causes and config", function () {
     ).to.have.length(2);
   });
 
-  it("reads an outbound call's parties and metadata from Start", function () {
+  it("[APB-029] reads an outbound call's parties and metadata from Start", function () {
     expect(userPart("sip:+15551234567@carrier;transport=tcp")).to.equal(
       "+15551234567"
     );
@@ -191,7 +191,7 @@ describe("@appbridge control stream against the fake node", function () {
       .map((e) => e.message)
       .find((m) => m.type === type);
 
-  it("answers on the stream only after session.start, with its RTP endpoint, and hears the caller", async function () {
+  it("[APB-027] answers on the stream only after session.start, with its RTP endpoint, and hears the caller", async function () {
     await start();
     const call = await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
@@ -212,7 +212,7 @@ describe("@appbridge control stream against the fake node", function () {
     expect(end.reason).to.equal("caller_hangup");
   });
 
-  it("rejects a call that names no app with 404 and opens no socket", async function () {
+  it("[APB-027] rejects a call that names no app with 404 and opens no socket", async function () {
     await start();
     const call = await harness.roomrNode.offerCall({ appRef: "missing" });
     const ended = await harness.roomrNode.ended(call.callRef);
@@ -275,7 +275,7 @@ describe("@appbridge control stream against the fake node", function () {
     });
   });
 
-  it("opens an answered outbound call's session from Start.metadata.app_ref and sends Ready", async function () {
+  it("[APB-029] opens an answered outbound call's session from Start.metadata.app_ref and sends Ready", async function () {
     await start();
     const call = await harness.roomrNode.placeCall({
       appRef: "a",
@@ -297,7 +297,7 @@ describe("@appbridge control stream against the fake node", function () {
     expect(commands()).to.not.include("answer");
   });
 
-  it("serves grpc.health.v1 on the Session port: SERVING, then NOT_SERVING while draining with live calls kept (13.3, 15.2)", async function () {
+  it("[APB-030] serves grpc.health.v1 on the Session port: SERVING, then NOT_SERVING while draining with live calls kept (13.3, 15.2)", async function () {
     const gw = await start();
     expect(await checkHealth(gw.sessionEndpoint)).to.equal(true);
     const call = await harness.roomrNode.offerCall();
@@ -316,7 +316,7 @@ describe("@appbridge control stream against the fake node", function () {
     expect(gw.calls.size).to.equal(0);
   });
 
-  it("ends what is left when the drain's maximum wait passes", async function () {
+  it("[APB-030] ends what is left when the drain's maximum wait passes", async function () {
     const gw = await start();
     await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();

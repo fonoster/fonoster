@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index e74684b0a..f1013a798 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -665,7 +665,7 @@ export class Call {
+     };
+     this.rtp.on("frame", (frame: Buffer) => {
+       this.lastRtpAt = Date.now();
+-      this.session?.callerAudio(frame);
++      void frame;
+     });
+   }
+ 

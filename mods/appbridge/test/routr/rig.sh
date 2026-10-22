@@ -2,6 +2,7 @@
 # Throwaway Routr rig for the live Routr test (routr.live.test.ts).
 #   ./rig.sh up     start Postgres + Routr (migrations run on start) and wait for SIP
 #   ./rig.sh test   run the live test against it (needs CONFORMANCE_NATS_URL and Go)
+#   ./rig.sh env    print the variables the test needs (ROUTR_LIVE, ROUTR_LIVE_HOST_ADDR)
 #   ./rig.sh logs   follow Routr's logs
 #   ./rig.sh down   remove the containers
 # See docs/operators/routr-live-test.md.
@@ -28,14 +29,22 @@ wait_for_sip() {
 }
 
 # host.docker.internal's IPv4 as containers see it (how Routr reaches the node and the caller bot).
+# --add-host makes the name resolve on Linux too (Docker Desktop defines it already).
 host_addr() {
-  docker run --rm alpine:3.20 getent ahostsv4 host.docker.internal | awk 'NR==1 {print $1}'
+  docker run --rm --add-host host.docker.internal:host-gateway alpine:3.20 \
+    getent ahostsv4 host.docker.internal | awk 'NR==1 {print $1}'
 }
 
 case "${1:-}" in
   up)
     docker compose -f compose.yaml up -d
     wait_for_sip
+    ;;
+  env)
+    # The variables the live test needs, one KEY=value a line (the QA catalog's ROM-034):
+    # export $(rig.sh env), or append them to $GITHUB_ENV.
+    echo "ROUTR_LIVE=1"
+    echo "ROUTR_LIVE_HOST_ADDR=$(host_addr)"
     ;;
   test)
     : "${CONFORMANCE_NATS_URL:?set CONFORMANCE_NATS_URL (a NATS server for media-control)}"
@@ -51,7 +60,7 @@ case "${1:-}" in
     docker compose -f compose.yaml down -v
     ;;
   *)
-    echo "usage: $0 up | test | logs | down" >&2
+    echo "usage: $0 up | env | test | logs | down" >&2
     exit 2
     ;;
 esac

@@ -25,7 +25,7 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-func TestEachCodecCarriesAudioBothWays(t *testing.T) {
+func TestROM009_EachCodecCarriesAudioBothWays(t *testing.T) {
 	r := start(t)
 	for _, codec := range audio.PhoneCodecs() {
 		t.Run(codec, func(t *testing.T) {
@@ -50,7 +50,7 @@ func TestEachCodecCarriesAudioBothWays(t *testing.T) {
 	}
 }
 
-func TestNoCommonCodecGets488(t *testing.T) {
+func TestROM009_NoCommonCodecGets488(t *testing.T) {
 	r := start(t)
 	call, err := r.bot.DialWith(r.sip, "+1", "", nil, caller.DialOptions{Codecs: []string{"GSM/8000"}})
 	if err != nil {
@@ -65,7 +65,7 @@ func TestNoCommonCodecGets488(t *testing.T) {
 	}
 }
 
-func TestDTMFThreeWays(t *testing.T) {
+func TestROM010_DTMFThreeWays(t *testing.T) {
 	r := start(t)
 	anyDTMF := dtmfMsg("", "")
 	t.Run("sip_info", func(t *testing.T) {
@@ -136,8 +136,8 @@ func (r *rig) mustJoin(room, key string) *rtpParty {
 	return g
 }
 
-// TestMixMinusThreeParticipants is the mix-minus checker: A and B send different tones, C is silent.
-func TestMixMinusThreeParticipants(t *testing.T) {
+// TestROM017_MixMinusThreeParticipants is the mix-minus checker: A and B send different tones, C is silent.
+func TestROM017_MixMinusThreeParticipants(t *testing.T) {
 	r := start(t)
 	room := r.createRoom()
 	a, b, c := r.mustJoin(room, ""), r.mustJoin(room, ""), r.mustJoin(room, "")
@@ -165,7 +165,7 @@ func TestMixMinusThreeParticipants(t *testing.T) {
 	}
 }
 
-func TestRoomFullAndTrackKind(t *testing.T) {
+func TestROM018_RoomFullAndTrackKind(t *testing.T) {
 	r := start(t)
 	room := r.createRoom()
 	for i := 0; i < 10; i++ {
@@ -180,7 +180,7 @@ func TestRoomFullAndTrackKind(t *testing.T) {
 	}
 }
 
-func TestMaximumDuration(t *testing.T) {
+func TestROM019_MaximumDuration(t *testing.T) {
 	r := start(t)
 	r.app.mu.Lock()
 	r.app.maxDurationS = 1 // the app's limit is lower than the node's (4 h)
@@ -195,7 +195,7 @@ func TestMaximumDuration(t *testing.T) {
 
 // A drain refuses nothing: Down stops the heartbeats and publishes node.down, new INVITEs are
 // still accepted, live rooms keep carrying audio, and WaitRooms returns when the last one ends.
-func TestDrain(t *testing.T) {
+func TestROM032_Drain(t *testing.T) {
 	r := start(t)
 	beats := replica(t, node.HeartbeatSubject(r.node.ID()))
 	calls := []*caller.Call{}
@@ -250,7 +250,7 @@ func TestDrain(t *testing.T) {
 	}
 }
 
-func TestDrainMaximumWait(t *testing.T) {
+func TestROM032_DrainMaximumWait(t *testing.T) {
 	r := start(t)
 	call, ac := r.answeredCall()
 	r.node.Down()
@@ -298,7 +298,7 @@ func startEncrypted(t *testing.T) *rig {
 	return r
 }
 
-func TestEncryptedCall(t *testing.T) {
+func TestROM007_EncryptedCall(t *testing.T) {
 	r := startEncrypted(t)
 	call, ac := r.answeredCallWith(caller.DialOptions{Transport: "tls", SRTP: true, Codecs: []string{audio.NamePCMA}}, true)
 	if s := call.Status(); !s.Secure {
@@ -319,10 +319,10 @@ func TestEncryptedCall(t *testing.T) {
 	r.waitEvent(typed("room.ended", "room_ref", ac.start.GetRoomRef()), 3*time.Second)
 }
 
-// TestAppBridgeLegSRTP: Start carries the node's SRTP key; an app that answers with its own key
+// TestROM008_AppBridgeLegSRTP: Start carries the node's SRTP key; an app that answers with its own key
 // gets SRTP both ways, and plain RTP sent to the node's app port is dropped. A plain call stays
 // plain.
-func TestAppBridgeLegSRTP(t *testing.T) {
+func TestROM008_AppBridgeLegSRTP(t *testing.T) {
 	r := start(t)
 	call, ac := r.answeredCallWith(caller.DialOptions{}, true)
 	if !rtpio.ValidSRTPKey(ac.start.GetMedia().GetSrtpKey()) {

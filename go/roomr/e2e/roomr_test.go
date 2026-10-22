@@ -69,10 +69,10 @@ func promptServer(t *testing.T, wav []byte) string {
 	return srv.URL + "/prompt.wav"
 }
 
-// TestRoomrCreateCall: a room, then CreateCall into it through a proxy with extra headers;
+// TestROM021_RoomrCreateCall: a room, then CreateCall into it through a proxy with extra headers;
 // the call connects with the headers on the INVITE, the app gets Start (OUTBOUND, the room, the
 // metadata) and sends Ready, an RTP participant is added and removed, and EndCall hangs up.
-func TestRoomrCreateCall(t *testing.T) {
+func TestROM021_RoomrCreateCall(t *testing.T) {
 	r := start(t)
 	mc := r.mc
 	ctx := rpcCtx(t)
@@ -174,9 +174,9 @@ func TestRoomrCreateCall(t *testing.T) {
 	wantStatus(t, err, codes.NotFound, node.CodeRoomNotFound)
 }
 
-// TestRoomrBusyCreatesNoLastingRoom: a busy callee ends the call with cause busy and SIP
+// TestROM022_RoomrBusyCreatesNoLastingRoom: a busy callee ends the call with cause busy and SIP
 // status 486; no room was created and no stream opened.
-func TestRoomrBusyCreatesNoLastingRoom(t *testing.T) {
+func TestROM022_RoomrBusyCreatesNoLastingRoom(t *testing.T) {
 	r := start(t)
 	r.callee.Callee("busy", 0)
 	callRef := fmt.Sprintf("busy-%d", time.Now().UnixNano())
@@ -198,9 +198,9 @@ func TestRoomrBusyCreatesNoLastingRoom(t *testing.T) {
 	}
 }
 
-// TestRoomrEndCallWhileRinging: EndCall on a ringing call cancels the INVITE; the call ends
+// TestROM023_RoomrEndCallWhileRinging: EndCall on a ringing call cancels the INVITE; the call ends
 // with cause removed, with no room and no stream.
-func TestRoomrEndCallWhileRinging(t *testing.T) {
+func TestROM023_RoomrEndCallWhileRinging(t *testing.T) {
 	r := start(t)
 	r.callee.Callee("no_answer", 0)
 	callRef := fmt.Sprintf("ring-%d", time.Now().UnixNano())
@@ -230,9 +230,9 @@ func TestRoomrEndCallWhileRinging(t *testing.T) {
 	}
 }
 
-// TestRoomrEndsInboundCalls: EndCall finds an inbound call by its X-Call-Ref and refuses it
+// TestROM023_RoomrEndsInboundCalls: EndCall finds an inbound call by its X-Call-Ref and refuses it
 // before the app answered (480, cause removed); the app gets Ended.
-func TestRoomrEndsInboundCalls(t *testing.T) {
+func TestROM023_RoomrEndsInboundCalls(t *testing.T) {
 	r := start(t)
 	r.app.setMode(modeStall)
 	callRef := fmt.Sprintf("in-%d", time.Now().UnixNano())
@@ -252,8 +252,8 @@ func TestRoomrEndsInboundCalls(t *testing.T) {
 	}
 }
 
-// TestRoomrRefusals: typed status codes for a full room and bad input.
-func TestRoomrRefusals(t *testing.T) {
+// TestROM037_RoomrRefusals: typed status codes for a full room and bad input.
+func TestROM037_RoomrRefusals(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.MaxParticipants = 1 }})
 	mc := r.mc
 	ctx := rpcCtx(t)
@@ -288,9 +288,9 @@ func TestRoomrRefusals(t *testing.T) {
 	}
 }
 
-// TestRoomrMutualTLS: with a client CA the control listener serves only controllers that
+// TestROM007_RoomrMutualTLS: with a client CA the control listener serves only controllers that
 // present a certificate it signed; the PEMs come as file paths and secret:// references.
-func TestRoomrMutualTLS(t *testing.T) {
+func TestROM007_RoomrMutualTLS(t *testing.T) {
 	r := start(t)
 	p := newPKI(t, "fonoster-control-ca")
 	nodeCert, nodeKey := p.leaf("node")
@@ -322,10 +322,10 @@ func TestRoomrMutualTLS(t *testing.T) {
 	}
 }
 
-// TestRoomrAtCapacity: the room limit covers every room (roomr "Node full"): CreateRoom
+// TestROM020_RoomrAtCapacity: the room limit covers every room (roomr "Node full"): CreateRoom
 // and CreateCall into a new room fail with RESOURCE_EXHAUSTED and no INVITE is sent, an INVITE
 // gets 503, and a room that ends frees a place.
-func TestRoomrAtCapacity(t *testing.T) {
+func TestROM020_RoomrAtCapacity(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.MaxRooms = 1 }})
 	mc := r.mc
 	ctx := rpcCtx(t)
@@ -360,9 +360,9 @@ func TestRoomrAtCapacity(t *testing.T) {
 	}
 }
 
-// TestRoomEventsHaveTheirOwnSequence: an RTP participant joins and leaves a room with no call,
+// TestROM029_RoomEventsHaveTheirOwnSequence: an RTP participant joins and leaves a room with no call,
 // then the room ends: seq 1, 2 and 3 on roomr.events.room.<room_ref>.
-func TestRoomEventsHaveTheirOwnSequence(t *testing.T) {
+func TestROM029_RoomEventsHaveTheirOwnSequence(t *testing.T) {
 	r := start(t)
 	ref := fmt.Sprintf("lobby-%d", time.Now().UnixNano())
 	events := replica(t, "roomr.events.room."+ref)

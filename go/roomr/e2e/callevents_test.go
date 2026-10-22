@@ -33,7 +33,7 @@ func expectSeq(t *testing.T, events chan map[string]any, callRef, nodeRef string
 	return got
 }
 
-func TestCallEventsFollowedByAnotherReplica(t *testing.T) {
+func TestROM029_CallEventsFollowedByAnotherReplica(t *testing.T) {
 	r := start(t)
 	callRef := fmt.Sprintf("ev-%d", time.Now().UnixNano())
 	events := replica(t, node.CallEventsSubject(callRef))
@@ -62,7 +62,7 @@ func TestCallEventsFollowedByAnotherReplica(t *testing.T) {
 
 // A busy callee: call.started, call.ringing, call.ended with the SIP status and the cause; no
 // room was created, so nothing on any room subject.
-func TestCallEndedCarriesSIPStatusAndCause(t *testing.T) {
+func TestROM022_CallEndedCarriesSIPStatusAndCause(t *testing.T) {
 	r := start(t)
 	r.callee.Callee("busy", 0)
 	callRef := fmt.Sprintf("evbusy-%d", time.Now().UnixNano())
@@ -83,7 +83,7 @@ func TestCallEndedCarriesSIPStatusAndCause(t *testing.T) {
 }
 
 // The heartbeat carries the capacity fields and nothing retired (cpu_idle, draining).
-func TestHeartbeatFields(t *testing.T) {
+func TestROM031_HeartbeatFields(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) {
 		c.Version, c.Region, c.ControlAddr, c.SIPAddr = "1.4.0", "us-east", "10.0.0.5:50061", "10.0.0.5:5060"
 		c.RTPPorts, c.MaxRooms = [2]int{10000, 20000}, 200

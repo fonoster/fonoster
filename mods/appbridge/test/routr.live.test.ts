@@ -250,7 +250,7 @@ describe("@appbridge live call through Routr (ROUTR_LIVE=1)", function () {
     await nc?.close();
   });
 
-  it("the node registers with Routr and X-Session-Count lands in the route", async function () {
+  it("[ROM-034] the node registers with Routr and X-Session-Count lands in the route", async function () {
     this.timeout(60000);
     // Routes of nodes killed by earlier runs stay until their Expires runs out (30 s by default);
     // least-sessions could pick one, so wait until ours is the only route.
@@ -269,7 +269,7 @@ describe("@appbridge live call through Routr (ROUTR_LIVE=1)", function () {
     expect(route.sessionCount).to.equal(0);
   });
 
-  it("a call to the Number reaches the app with appRef from X-App-Ref, and audio flows both ways", async () => {
+  it("[ROM-034] a call to the Number reaches the app with appRef from X-App-Ref, and audio flows both ways", async () => {
     const call = await bot<{ id: string }>("/calls", {
       target: ROUTR_SIP,
       requestHost: ROUTING.inboundUri,
@@ -342,7 +342,7 @@ describe("@appbridge live call through Routr (ROUTR_LIVE=1)", function () {
     expect(idle.sessionCount).to.equal(0);
   });
 
-  it("a node that exits on SIGTERM drains and removes its route", async () => {
+  it("[ROM-034] a node that exits on SIGTERM drains and removes its route", async () => {
     const exited = new Promise((r) => nodeProc!.once("exit", r));
     nodeProc!.kill("SIGTERM");
     await exited;

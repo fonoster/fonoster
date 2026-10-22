@@ -168,9 +168,9 @@ func (l *stateLog) wait(t *testing.T, state string, within time.Duration, status
 
 const sessionCount = "X-Session-Count"
 
-// TestRegistersWithSessionCount: digest challenge answered, {sessions} rendered as the room count,
+// TestROM033_RegistersWithSessionCount: digest challenge answered, {sessions} rendered as the room count,
 // and the registration removed (Expires 0) on Unregister.
-func TestRegistersWithSessionCount(t *testing.T) {
+func TestROM033_RegistersWithSessionCount(t *testing.T) {
 	reg := startRegistrar(t, "roomr", "secret")
 	states := &stateLog{}
 	r := startWith(t, rigOptions{
@@ -213,7 +213,7 @@ func TestRegistersWithSessionCount(t *testing.T) {
 	states.wait(t, sipua.RegUnregistered, time.Second)
 }
 
-func TestReregistersOnLoadChange(t *testing.T) {
+func TestROM033_ReregistersOnLoadChange(t *testing.T) {
 	reg := startRegistrar(t, "roomr", "secret")
 	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
 		c.Registrations = []sipua.Registration{{Registrar: reg.addr, Password: "secret", Expires: 2 * time.Minute,
@@ -227,9 +227,9 @@ func TestReregistersOnLoadChange(t *testing.T) {
 	_ = call.Hangup()
 }
 
-// TestRegistersWithoutAuth: a registrar that does not challenge; a registration with no auth and
+// TestROM033_RegistersWithoutAuth: a registrar that does not challenge; a registration with no auth and
 // no headers sends a plain REGISTER (no X-Session-Count: the node adds no header of its own).
-func TestRegistersWithoutAuth(t *testing.T) {
+func TestROM033_RegistersWithoutAuth(t *testing.T) {
 	reg := startRegistrar(t, "", "")
 	startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
 		c.Registrations = []sipua.Registration{{Registrar: "sip:" + reg.addr, AOR: "sip:node-7@pbx.example"}}
@@ -247,9 +247,9 @@ func TestRegistersWithoutAuth(t *testing.T) {
 	}
 }
 
-// TestRegistrationFailsOnChallengeWithoutAuth: a challenge with no credentials configured, or with
+// TestROM033_RegistrationFailsOnChallengeWithoutAuth: a challenge with no credentials configured, or with
 // the wrong password, is a failed registration (registration.state failed with the status).
-func TestRegistrationFailsOnChallengeWithoutAuth(t *testing.T) {
+func TestROM033_RegistrationFailsOnChallengeWithoutAuth(t *testing.T) {
 	reg := startRegistrar(t, "roomr", "secret")
 	noAuth, badAuth := &stateLog{}, &stateLog{}
 	startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
@@ -271,8 +271,8 @@ func TestRegistrationFailsOnChallengeWithoutAuth(t *testing.T) {
 	}
 }
 
-// TestNoRegistrations: with none configured the node sends no REGISTER and still takes calls.
-func TestNoRegistrations(t *testing.T) {
+// TestROM033_NoRegistrations: with none configured the node sends no REGISTER and still takes calls.
+func TestROM033_NoRegistrations(t *testing.T) {
 	reg := startRegistrar(t, "", "")
 	r := start(t)
 	call, _ := r.answeredCall()

@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/AppBridge.ts b/mods/appbridge/src/AppBridge.ts
+index f8b52fea0..7e4bde0c7 100644
+--- a/mods/appbridge/src/AppBridge.ts
++++ b/mods/appbridge/src/AppBridge.ts
+@@ -691,7 +691,7 @@ export function appMetadata(
+   metadata: Record<string, string>
+ ): Record<string, unknown> {
+   const raw = metadata[OUTBOUND_METADATA_KEYS.appMetadata];
+-  if (raw !== undefined) {
++  if (raw === undefined) {
+     try {
+       const parsed = JSON.parse(raw);
+       if (parsed && typeof parsed === "object" && !Array.isArray(parsed))

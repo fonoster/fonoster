@@ -21,6 +21,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    # The node and the caller bot run on the host; on Linux (CI) host.docker.internal needs this.
+    extra_hosts:
+      - host.docker.internal:host-gateway
     environment:
       # External database: the image's start command runs `npx prisma@6.12.0 migrate deploy`
       # against it (the internal-database path stalls, MN-B8).

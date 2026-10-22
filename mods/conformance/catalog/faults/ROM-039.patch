@@ -1,0 +1,13 @@
+diff --git a/mods/conformance/src/fakes/FakeRoomr.ts b/mods/conformance/src/fakes/FakeRoomr.ts
+index 4a6e959fb..20dfcde93 100644
+--- a/mods/conformance/src/fakes/FakeRoomr.ts
++++ b/mods/conformance/src/fakes/FakeRoomr.ts
+@@ -252,7 +252,7 @@ export class FakeRoomr {
+         const callRef = String(req.callRef || `call-${this.calls.size + 1}`);
+         const known = this.calls.get(callRef);
+         if (known) {
+-          if (JSON.stringify(known.request) !== JSON.stringify(req))
++          if (false && JSON.stringify(known.request) !== JSON.stringify(req))
+             return refuse(cb, grpc.status.ALREADY_EXISTS, "call_exists");
+           return cb(null, known.call);
+         }

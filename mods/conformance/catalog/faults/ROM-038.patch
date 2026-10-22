@@ -1,0 +1,12 @@
+diff --git a/mods/conformance/src/roomr/FakeRoomrNode.ts b/mods/conformance/src/roomr/FakeRoomrNode.ts
+index 410be037e..6f2d9c6e5 100644
+--- a/mods/conformance/src/roomr/FakeRoomrNode.ts
++++ b/mods/conformance/src/roomr/FakeRoomrNode.ts
+@@ -1227,7 +1227,6 @@ export class FakeRoomrNode implements VirtualNode {
+       leg.respond(486);
+       return c.end(ENDED_CAUSE.nodeError, 486);
+     }
+-    leg.respond(180);
+     c.event("call.ringing", { participant_ref: p.ref });
+     leg.onCancel = () => c.end(ENDED_CAUSE.callerHangup, 487);
+     leg.onBye = () => c.end(ENDED_CAUSE.callerHangup, 0);

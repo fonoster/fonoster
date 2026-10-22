@@ -122,7 +122,7 @@ func mustRead(t *testing.T, path string) []byte {
 	return b
 }
 
-func TestSIPTLSListenerAcceptsCalls(t *testing.T) {
+func TestROM007_SIPTLSListenerAcceptsCalls(t *testing.T) {
 	p := newPKI(t, "fonoster-edge-ca")
 	r := startTLS(t, p)
 	call, err := r.bot.DialWith(r.tlsAddr, "+15550003333", "", map[string]string{"X-App-Ref": "app-tls"}, caller.DialOptions{Transport: "tls"})
@@ -135,7 +135,7 @@ func TestSIPTLSListenerAcceptsCalls(t *testing.T) {
 	waitStatus(t, call, func(s caller.Status) bool { return s.State == "answered" }, 3*time.Second)
 }
 
-func TestEdgeTLSValidation(t *testing.T) {
+func TestROM007_EdgeTLSValidation(t *testing.T) {
 	if _, err := edgetls.Build(edgetls.Options{ClientCA: "/nope.pem"}); err == nil {
 		t.Fatal("client CA without a listener certificate accepted")
 	}

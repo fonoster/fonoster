@@ -62,7 +62,7 @@ describe("@AppBridge failed_call records (redesign-roomr)", function () {
     fs.rmSync(dir, { recursive: true, force: true });
   });
 
-  it("seals the busy call's minimal record with its call.progress entry", async function () {
+  it("[APB-003] seals the busy call's minimal record with its call.progress entry", async function () {
     const entries = [
       {
         type: "call.started",
@@ -107,7 +107,7 @@ describe("@AppBridge failed_call records (redesign-roomr)", function () {
     expect(messages[1]).to.include({ status: "busy" });
   });
 
-  it("refuses anything but the three failed-call entries", async function () {
+  it("[APB-003] refuses anything but the three failed-call entries", async function () {
     const bad = async (entries: unknown) =>
       expect(
         await handleMaintenance(writer, {

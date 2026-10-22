@@ -1,12 +1,12 @@
 diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
-index 2cd5cb899..a6be02fc5 100644
+index e74684b0a..e431aff43 100644
 --- a/mods/appbridge/src/session/Call.ts
 +++ b/mods/appbridge/src/session/Call.ts
-@@ -1519,7 +1519,6 @@ export class AppSession {
-           },
-           id
-         );
+@@ -1660,7 +1660,6 @@ export class AppSession {
+         this.call.command({
+           hold: cmd.music ? { music: String(cmd.music) } : {}
+         });
 -        this.call.onHold = true;
          return;
        case "resume":
-         await this.call.mediaCommand(
+         this.call.command({ resume: {} });

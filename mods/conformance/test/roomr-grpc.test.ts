@@ -33,7 +33,7 @@ const rejected = (p: Promise<unknown>) =>
   );
 
 describe("@conformance fake Roomr node (controller fakes)", function () {
-  it("keeps the node's CreateCall contract: dedupe, ALREADY_EXISTS and the room limit", async function () {
+  it("[ROM-039] keeps the node's CreateCall contract: dedupe, ALREADY_EXISTS and the room limit", async function () {
     const full = new FakeRoomr({ maxRooms: 1 });
     const roomr = Roomr.createRoomrPool();
     try {

@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/room.go b/go/roomr/internal/node/room.go
+index 71119b21a..2592f9e75 100644
+--- a/go/roomr/internal/node/room.go
++++ b/go/roomr/internal/node/room.go
+@@ -471,7 +471,7 @@ func sendDTMFOn(p *Participant, digits string) {
+ 	if p.media.DTMF < 0 {
+ 		return
+ 	}
+-	for _, d := range digits {
++	for _, d := range digits[:len(digits)-1] {
+ 		p.endpoint.SendDTMF(d, p.media.DTMF)
+ 	}
+ }

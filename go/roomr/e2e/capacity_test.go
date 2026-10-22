@@ -16,7 +16,7 @@ import (
 
 // The node's room limit (roomr "Call and room limits"): heartbeats report it, CreateRoom beyond
 // it is RESOURCE_EXHAUSTED, and a room that ends frees a place.
-func TestRoomLimitRefusesRoomCreate(t *testing.T) {
+func TestROM020_RoomLimitRefusesRoomCreate(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.MaxRooms = 2 }})
 	hb, _ := r.nc.SubscribeSync(node.HeartbeatSubject(r.node.ID()))
 	defer hb.Unsubscribe()
@@ -47,7 +47,7 @@ func TestRoomLimitRefusesRoomCreate(t *testing.T) {
 }
 
 // Concurrent CreateRoom calls never take the node past its limit.
-func TestRoomLimitUnderConcurrentCreates(t *testing.T) {
+func TestROM020_RoomLimitUnderConcurrentCreates(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.MaxRooms = 5 }})
 	var wg sync.WaitGroup
 	var mu sync.Mutex
@@ -69,7 +69,7 @@ func TestRoomLimitUnderConcurrentCreates(t *testing.T) {
 }
 
 // An INVITE that would take the node past its limit is refused with 503 and opens no room.
-func TestRoomLimitRefusesInvite(t *testing.T) {
+func TestROM020_RoomLimitRefusesInvite(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.MaxRooms = 1 }})
 	r.createRoom()
 	call, err := r.bot.Dial(r.sip, "+15550003333", "", nil)
@@ -87,7 +87,7 @@ func TestRoomLimitRefusesInvite(t *testing.T) {
 
 // A CreateCall into a CreateRoom room publishes its events on roomr.events.<call_ref> with
 // contiguous seq; ending the room ends the call.
-func TestCallEventsOnTheCallSubject(t *testing.T) {
+func TestROM029_CallEventsOnTheCallSubject(t *testing.T) {
 	r := start(t)
 	callRef := fmt.Sprintf("call-%d", time.Now().UnixNano())
 	events := replica(t, node.CallEventsSubject(callRef))
@@ -113,7 +113,7 @@ func TestCallEventsOnTheCallSubject(t *testing.T) {
 }
 
 // A call_ref or room_ref that is not one subject token is refused.
-func TestRoomCreateRefusesABadCallRef(t *testing.T) {
+func TestROM026_RoomCreateRefusesABadCallRef(t *testing.T) {
 	r := start(t)
 	_, err := r.mc.CreateCall(rpcCtx(t), &roomrv1.CreateCallRequest{CallRef: "a.b",
 		To: &roomrv1.SipTarget{Uri: "sip:+1@carrier.invalid"}})

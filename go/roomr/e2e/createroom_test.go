@@ -9,9 +9,9 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-// TestRoomrCreateRoomOverrides: CreateRoom's empty_room_timeout_s and max_participants override
+// TestROM018_RoomrCreateRoomOverrides: CreateRoom's empty_room_timeout_s and max_participants override
 // the node's settings (30 s and 10) for that room only.
-func TestRoomrCreateRoomOverrides(t *testing.T) {
+func TestROM018_RoomrCreateRoomOverrides(t *testing.T) {
 	r := start(t)
 	ctx := rpcCtx(t)
 	short, err := r.mc.CreateRoom(ctx, &roomrv1.CreateRoomRequest{MaxParticipants: 1})

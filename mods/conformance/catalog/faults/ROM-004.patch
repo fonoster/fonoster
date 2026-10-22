@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/call.go b/go/roomr/internal/node/call.go
+index ec7ed2520..e83c16324 100644
+--- a/go/roomr/internal/node/call.go
++++ b/go/roomr/internal/node/call.go
+@@ -664,7 +664,7 @@ func (c *call) serve() {
+ 				return
+ 			}
+ 			c.n.cfg.Logger.Warn("control stream ended", "callRef", c.ref, "err", s.err)
+-			c.end(ReasonAppGone, 0)
++			c.end(ReasonNodeError, 0)
+ 			return
+ 		case m := <-s.msgs:
+ 			c.handle(m)

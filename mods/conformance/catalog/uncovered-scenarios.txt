@@ -1,8 +1,5 @@
 billing / Billing runs only when enabled / Community install
 billing / Top-ups and auto-recharge / Refund of unused top-up
-control-plane / AppBridge drains on SIGTERM / Health check
-control-plane / AppBridge drains on SIGTERM / Live sessions survive SIGTERM
-control-plane / AppBridge drains on SIGTERM / Maximum wait reached
 control-plane / AppBridge is its own TypeScript deployable / Calls spread through the session endpoint
 control-plane / AppBridge is its own TypeScript deployable / No speech in the apiserver
 control-plane / AppBridge is its own TypeScript deployable / Scaling AppBridge replicas alone
@@ -56,6 +53,19 @@ identity / Users, workspaces, and resource ownership / Workspace belongs to the 
 identity / Users, workspaces, and resource ownership / accessKeyId prefix still identifies the owner type
 identity-client / Per-request token forwarding / Single principal with a configured token
 identity-service / Container image and accept-invite bridge / Published image runs the service
+media-control / App audio is RTP negotiated on the control stream / Apps never reach the node
+media-control / CreateCall dials out on the node the controller chose / Least-loaded node chosen
+media-control / Listeners fork audio by track / Listener cannot speak
+media-control / Nodes report capacity and liveness / Nothing in the registry
+media-control / Outbound calls are placed on a node chosen by the control plane / Least-loaded node chosen
+media-control / Roomr is a gRPC service with three nouns / No app-server RPCs
+media-control / Roomr is a gRPC service with three nouns / Unknown field ignored
+roomr / Capacity bar / Load test
+roomr / Draining is a health signal with a bounded wait / Calls kept away by the layers that place them
+roomr / Inbound calls become rooms / Chart without trusted sources
+roomr / Inbound calls become rooms / INVITE from an untrusted source
+roomr / One RTP port range serves every leg / Same range on different addresses
+roomr / One RTP port range serves every leg / Two nodes on one host
 talk-in-browser / A browser call reaches the agent / Invalid token
 talk-in-browser / SIP over WebSocket on the API port / Browser connects
 talk-in-browser / SIP over WebSocket on the API port / Rendered bundle config
@@ -75,7 +85,6 @@ usage-metering / Call seconds count from answer / Ringing is not metered
 usage-metering / Stored usage is published for billing / Billing off
 usage-metering / Usage records facts, not prices / Billing disabled
 voice-session / An app is a WebSocket URL, a protocol and speech defaults / Autopilot is an ordinary app
-voice-session / An app is a WebSocket URL, a protocol and speech defaults / Missing app reference
 voice-session / An app is a WebSocket URL, a protocol and speech defaults / Outbound routing
 voice-session / An app's audio filters are set through the Applications API / A public option is accepted
 voice-session / An app's audio filters are set through the Applications API / A server-side option is rejected
@@ -91,9 +100,4 @@ voice-session / Calls are admitted before they start / Outbound refused
 voice-session / Outbound sessions open at answer / Room ends or node dies before the answer
 voice-session / Playing media / Play an internal address
 voice-session / Raw audio in both directions / Any SIP codec reaches any app format
-voice-session / Session ending / Every cause mapped
-voice-session / Session ending / Node lost
-voice-session / Session ending / Node's audio stops
-voice-session / Session ending / Unknown cause
 voice-session / Sessions are delivered over WebSocket only / Legacy gRPC voice apps are not dialed
-voice-session / The Roomr node receives only control / AppBridge answers on the stream

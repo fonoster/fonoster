@@ -18,7 +18,9 @@ It checks the parts that only a real Routr can show:
   ends the session.
 - A node stopped with SIGTERM removes its route from Routr.
 
-The test is `mods/appbridge/test/routr.live.test.ts`. It is skipped unless `ROUTR_LIVE=1`.
+The test is `mods/appbridge/test/routr.live.test.ts`, case ROM-034 of the QA catalog
+(`mods/conformance/catalog/areas/roomr.md`): the nightly QA job starts this rig and runs it. It is
+skipped unless `ROUTR_LIVE=1` (`export $(rig.sh env)` sets the variables it needs).
 
 ## Run it
 

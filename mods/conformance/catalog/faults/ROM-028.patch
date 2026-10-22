@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/control.go b/go/roomr/internal/node/control.go
+index 865b4394b..de318aaee 100644
+--- a/go/roomr/internal/node/control.go
++++ b/go/roomr/internal/node/control.go
+@@ -528,7 +528,7 @@ func (n *Node) RemoveParticipant(roomRef, ref string) error {
+ 	case r == nil:
+ 		return errorf(CodeParticipantNotFound, "%s", ref)
+ 	case p != nil:
+-		go r.remove(ref, ReasonRemoved)
++		go r.remove(ref, ReasonNodeError)
+ 	default:
+ 		r.removeListener(ref)
+ 	}

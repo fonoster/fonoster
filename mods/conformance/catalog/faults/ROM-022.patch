@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/dial.go b/go/roomr/internal/node/dial.go
+index ce3c53e2e..994368f34 100644
+--- a/go/roomr/internal/node/dial.go
++++ b/go/roomr/internal/node/dial.go
+@@ -13,7 +13,7 @@ import (
+ // failCause is a failed dial's ending cause from its final SIP status.
+ func failCause(status int) string {
+ 	switch status {
+-	case 486, 600:
++	case 600:
+ 		return ReasonBusy
+ 	case 408, 480, 487:
+ 		return ReasonNoAnswer

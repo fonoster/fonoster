@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/control.go b/go/roomr/internal/node/control.go
+index 865b4394b..1d54b04b0 100644
+--- a/go/roomr/internal/node/control.go
++++ b/go/roomr/internal/node/control.go
+@@ -135,7 +135,7 @@ func (n *Node) CreateCall(req CallRequest) (CallInfo, error) {
+ 	n.mu.Lock()
+ 	if c := n.lookupLocked(req.CallRef); c != nil {
+ 		n.mu.Unlock()
+-		if c.inbound || !sameCall(c.req, req) {
++		if c.inbound {
+ 			return CallInfo{}, errorf(CodeCallExists, "call %s exists with other parameters", req.CallRef)
+ 		}
+ 		return c.info(), nil

@@ -22,15 +22,16 @@ import {
   FakeNodeDriver,
   loadScenarios,
   RoomrSuiteHarness,
-  runScenario,
-  scenarioCase
+  runScenario
 } from "../src";
 
 // The media-control scenarios (redesign-roomr 11.2) against the fake Roomr node: Roomr over
 // gRPC, one control stream per call to the fake session endpoint, events and heartbeats on NATS,
 // and the caller, trunk and registrar in memory. The Go node runs the same files
-// (media-control-go.test.ts). Scenarios tagged `go-node` need a real SIP stack (codecs, TLS,
-// files on disk) and run there only. Needs NATS: set CONFORMANCE_NATS_URL.
+// (media-control-go.test.ts), which owns the files in the QA catalog (areas/roomr.md); here
+// every scenario is one case, ROM-038: the fake node keeps the node's contract. Scenarios tagged
+// `go-node` need a real SIP stack (codecs, TLS, files on disk) and run there only, so they are
+// not tests here. Needs NATS: set CONFORMANCE_NATS_URL.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
 describe("@conformance media-control scenarios (fake Roomr node)", function () {
@@ -46,9 +47,11 @@ describe("@conformance media-control scenarios (fake Roomr node)", function () {
     await nc?.close();
   });
 
-  for (const scenario of loadScenarios("media-control")) {
-    it(`${scenarioCase("media-control", scenario.name)}${scenario.name}`, async function () {
-      if (scenario.tags?.includes("go-node")) return this.skip();
+  const scenarios = loadScenarios("media-control").filter(
+    (s) => !s.tags?.includes("go-node")
+  );
+  for (const scenario of scenarios) {
+    it(`[ROM-038] ${scenario.name}`, async function () {
       const harness = await new RoomrSuiteHarness(
         new FakeNodeDriver(),
         nc,

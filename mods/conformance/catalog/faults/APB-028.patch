@@ -1,0 +1,15 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index e74684b0a..54153f06a 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -126,8 +126,9 @@ export function sessionEndReason(
+     case "media_timeout":
+     case "node_error":
+     case "app_gone":
+-    default:
+       return "error";
++    default:
++      return "caller_hangup";
+   }
+ }
+ 

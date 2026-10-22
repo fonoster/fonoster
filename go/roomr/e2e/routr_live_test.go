@@ -23,7 +23,7 @@ import (
 	"github.com/fonoster/fonoster/go/roomr/internal/sipua"
 )
 
-func TestLiveRoutrLeastSessions(t *testing.T) {
+func TestROM034_LiveRoutrLeastSessions(t *testing.T) {
 	edge := os.Getenv("ROUTR_EDGEPORT")
 	nodeHost := os.Getenv("ROUTR_NODE_HOST")
 	if edge == "" || nodeHost == "" {

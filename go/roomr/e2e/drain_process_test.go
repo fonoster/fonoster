@@ -18,11 +18,11 @@ import (
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 )
 
-// TestSIGTERMDrainsTheRealBinary runs the roomr binary from a config file alone (-config is its
+// TestROM032_SIGTERMDrainsTheRealBinary runs the roomr binary from a config file alone (-config is its
 // only flag) and checks the rollout model: on SIGTERM the health service turns NOT_SERVING, the
 // registration is removed (REGISTER Expires 0), the heartbeats stop with node.down, the live
 // room keeps running, and the process exits once the room has ended.
-func TestSIGTERMDrainsTheRealBinary(t *testing.T) {
+func TestROM032_SIGTERMDrainsTheRealBinary(t *testing.T) {
 	url := os.Getenv("CONFORMANCE_NATS_URL")
 	if url == "" {
 		t.Skip("set CONFORMANCE_NATS_URL to run")

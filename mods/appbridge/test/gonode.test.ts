@@ -111,10 +111,12 @@ describe("@appbridge voice-session through the Go Roomr node", function () {
     await nc?.close();
   });
 
-  const scenarios: Scenario[] = loadScenarios("voice-session");
+  // QA catalog ROM-040 (areas/roomr.md); what the real node cannot do yet is not a test here.
+  const scenarios: Scenario[] = loadScenarios("voice-session").filter(
+    (s) => !NOT_YET[s.name]
+  );
   for (const scenario of scenarios) {
-    it(scenario.name, async function () {
-      if (NOT_YET[scenario.name]) return this.skip();
+    it(`[ROM-040] ${scenario.name}`, async function () {
       const record = new MemoryCallRecordSink();
       const webhooks: Webhooks.WebhookEvent[] = [];
       const harness = await new RealMediaHarness(bins!, {
@@ -163,7 +165,7 @@ describe("@AppBridge call recording through the Go Roomr node", function () {
 
   after(async () => nc?.close());
 
-  it("records both sides of a real call into the sealed record", async function () {
+  it("[ROM-015] records both sides of a real call into the sealed record", async function () {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gonode-recording-"));
     const sealed: RecordIndexEntry[] = [];
     const stores = fsStores(dir);
@@ -258,7 +260,7 @@ describe("@appbridge SIP codecs through the Go Roomr node", function () {
   after(async () => nc?.close());
 
   for (const codec of ["PCMU/8000", "PCMA/8000", "G722/8000", "opus/48000"]) {
-    it(`a ${codec} caller and a pcm16 app hear each other`, async function () {
+    it(`[ROM-009] a ${codec} caller and a pcm16 app hear each other`, async function () {
       const harness = await new RealMediaHarness(bins!, {
         vendorCalls: () => 0
       }).start();
@@ -340,7 +342,7 @@ describe("@appbridge no audio on the bus (Go Roomr node)", function () {
 
   after(async () => nc?.close());
 
-  it("no NATS message carries audio while a call has audio both ways", async function () {
+  it("[ROM-040] no NATS message carries audio while a call has audio both ways", async function () {
     const bus = await connect({ servers: NATS_URL!, name: "bus-observer" });
     const text = new TextDecoder("utf-8", { fatal: true });
     const counts = new Map<string, number>();
