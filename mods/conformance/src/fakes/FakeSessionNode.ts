@@ -222,7 +222,9 @@ export class FakeSessionCall extends EventEmitter {
   /** The caller says something new. */
   speak(pcm: Buffer) {
     if (!pcm.length) return;
-    this.node.spokeAt.push(Date.now());
+    const at = Date.now();
+    // 16 kHz s16le: 32 bytes per ms.
+    this.node.spoke.push({ from: at, to: at + pcm.length / 32 });
     void this.fake.speak({ pcm }).catch(() => undefined);
   }
 
@@ -239,8 +241,8 @@ export class FakeSessionCall extends EventEmitter {
 export class FakeSessionNode extends EventEmitter {
   readonly nodeId: string;
   readonly commands: RecordedCommand[] = [];
-  /** When a caller started speaking (the phone sends from its next frame), oldest first. */
-  readonly spokeAt: number[] = [];
+  /** When callers spoke (the phone sends from its next frame), oldest first. */
+  readonly spoke: { from: number; to: number }[] = [];
   private readonly calls: FakeSessionCall[] = [];
   private node?: Promise<FakeNode>;
   private nodeEndpoint?: string;
@@ -494,9 +496,12 @@ export class FakeSessionNode extends EventEmitter {
     return Math.max(0, ...last);
   }
 
-  /** When the first caller speech at or after `since` started, if one did. */
+  /** When the first audible caller packet at or after `since` was sent, if one was. */
   firstCallerAudibleSentAt(since: number): number | undefined {
-    return this.spokeAt.find((at) => at >= since);
+    const sent = this.spoke
+      .filter((s) => s.to >= since)
+      .map((s) => Math.max(s.from, since));
+    return sent.length ? Math.min(...sent) : undefined;
   }
 
   /** When the caller's queued speech finished (unix ms), if it spoke. */
