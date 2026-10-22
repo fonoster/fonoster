@@ -1,0 +1,12 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index e74684b0a..c21e0c556 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1062,6 +1062,7 @@ export class AppSession {
+     this.startKeepalive();
+ 
+     this.codec.start(start);
++    this.ensureSpeech();
+     this.call.record("appbridge", start as unknown as Record<string, unknown>);
+     for (const f of early) this.onFrame(f.data as Buffer, f.isBinary);
+     void this.addListeners(start);

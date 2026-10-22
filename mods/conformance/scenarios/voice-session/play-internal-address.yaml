@@ -1,0 +1,18 @@
+format: fonoster.scenario.v1
+name: play-internal-address
+contract: voice-session
+role: app
+spec: "Playing media / Play an internal address"
+description: >
+  The URL is the app's choice, so a play of the cloud metadata address is refused before anything
+  is fetched: an error play_fetch_failed for that id, and the session goes on.
+steps:
+  - expect: { type: session.start }
+  - send: { type: play, id: p1, url: "http://169.254.169.254/latest/meta-data/" }
+  - expect: { type: error, code: play_fetch_failed, relatesTo: p1, fatal: false, message: { $re: "non-public address" } }
+    within_ms: 1000
+  - expect_none: { type: output.started, id: p1 }
+    for_ms: 300
+  - send: { type: speak, id: r1, text: "Still here.", last: true }
+  - expect: { type: output.started, id: r1 }
+    within_ms: 2000

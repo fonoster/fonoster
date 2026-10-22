@@ -1,6 +1,6 @@
 format: fonoster.scenario.v1
 name: audio-only-no-stt
-contract: voice-session
+contract: turn-taking
 role: app
 spec: "Turn-taking runs in AppBridge's Speech layer / Audio-only sessions do not require turn-taking"
 description: An app that only exchanges audio never starts speech recognition or turn events.

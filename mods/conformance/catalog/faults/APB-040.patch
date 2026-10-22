@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/turn/replay.ts b/mods/appbridge/src/turn/replay.ts
+index 707520162..ac30339ad 100644
+--- a/mods/appbridge/src/turn/replay.ts
++++ b/mods/appbridge/src/turn/replay.ts
+@@ -258,7 +258,7 @@ export function replay(
+   options: ReplayOptions = {}
+ ): ReplayReport {
+   const consented = calls.filter((c) =>
+-    ["synthetic", "internal", "customer-opt-in"].includes(c.consent)
++    ["synthetic", "internal", "customer-opt-in", "customer"].includes(c.consent)
+   );
+   const results = consented.map((c) => replayCall(c, makeDetector, options));
+   return {

@@ -82,11 +82,14 @@ jobs:
       - name: Run the suites that need NATS
         env:
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
+          PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
           LOGS_LEVEL: none
         run: |
           npx mocha --exit --timeout 30000 \
             'mods/appbridge/test/conformance.test.ts' \
             'mods/appbridge/test/integration.test.ts' \
+            'mods/appbridge/test/applicationsApi.test.ts' \
+            'mods/appbridge/test/usageReport.test.ts' \
             'mods/appbridge/test/crash.test.ts' \
             'mods/appbridge/test/gonode.test.ts' \
             'mods/appbridge/test/observability.test.ts' \

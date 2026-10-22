@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/applications/session/appModel.ts b/mods/apiserver/src/applications/session/appModel.ts
+index 5fa305a7c..88476bc8f 100644
+--- a/mods/apiserver/src/applications/session/appModel.ts
++++ b/mods/apiserver/src/applications/session/appModel.ts
+@@ -301,7 +301,7 @@ export async function toAppColumns(
+     recording: input.recording ?? null,
+     amd: input.amd?.enabled ?? false,
+     amdWindowMs: input.amd?.enabled ? (input.amd.windowMs ?? null) : null,
+-    filters: filters.length ? filters : null
++    filters: null
+   };
+   return { columns, agent, autopilot };
+ }

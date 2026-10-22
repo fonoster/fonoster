@@ -105,7 +105,7 @@ These tests touch metering or billing but prove behavior other areas own:
 
 | Tests | Area |
 | --- | --- |
-| `mods/appbridge/test/admission.test.ts` | AppBridge (`voice-session` "Calls are admitted before they start", still uncovered there): 402 and 503 before ringing, a slow answer admits. The billing side of admission is BIL-034 to BIL-037 |
+| `mods/appbridge/test/admission.test.ts` | AppBridge (APB-036, `voice-session` "Calls are admitted before they start"): 402 and 503, a slow answer admits. The billing side of admission is BIL-034 to BIL-037 |
 | `mods/apiserver/test/outbound/*` (CreateCall refused before any SIP) | Call flows |
 | `mods/apiserver/test/regions/*`, `mods/conformance/test/regions*.test.ts`, `mods/region-agent/test/cell.test.ts` | Regions and private regions |
 | `mods/apiserver/test/capabilities/getCapabilities.test.ts` (billing in the capabilities) | Control-plane API |

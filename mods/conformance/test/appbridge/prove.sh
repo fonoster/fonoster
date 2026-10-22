@@ -13,4 +13,8 @@ npx mocha --timeout 60000 --exit --grep "\[$id\]" \
   mods/appbridge/test/amd.test.ts \
   mods/appbridge/test/appDestinations.test.ts \
   mods/appbridge/test/stream.test.ts \
-  mods/appbridge/test/failedCallRecord.test.ts
+  mods/appbridge/test/failedCallRecord.test.ts \
+  mods/appbridge/test/admission.test.ts \
+  mods/appbridge/test/applicationsApi.test.ts \
+  mods/appbridge/test/usageReport.test.ts \
+  mods/appbridge/test/replayTool.test.ts

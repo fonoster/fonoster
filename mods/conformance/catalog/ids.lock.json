@@ -286,5 +286,14 @@
   "VSD-014": "Twilio marks, clear and keypresses",
   "VSD-015": "Twilio streams hang up by socket or by the Calls endpoint",
   "VSD-016": "An unmodified Pipecat bot works",
-  "APB-031": "AppBridge carries calls through a Roomr node"
+  "APB-031": "AppBridge carries calls through a Roomr node",
+  "APB-032": "Outbound calls reach the app their metadata names",
+  "APB-033": "An Autopilot agent is an ordinary app",
+  "APB-034": "Audio filters are set through the Applications API",
+  "APB-035": "Autopilot reports model usage to the call",
+  "APB-036": "Calls are admitted before they start",
+  "APB-037": "Media at an internal address is never played",
+  "APB-038": "Audio-only sessions get no turn-taking",
+  "APB-039": "Patience adapts within a call only",
+  "APB-040": "Detectors are compared by replay before adoption"
 }

@@ -21,8 +21,8 @@ import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
 import { createServiceDefinition, Webhooks } from "@fonoster/common";
 import { FakesHarness } from "@fonoster/conformance";
+import { getLogger } from "@fonoster/logger";
 import {
-  admit,
   Admission,
   AdmissionDecision,
   AppBridge,
@@ -31,7 +31,8 @@ import {
 } from "../src";
 
 // Calls are admitted before they start (add-billing-service D7, voice-session "Calls are admitted
-// before they start").
+// before they start"), against a fake Authz service and the fake Roomr node. Needs NATS. The rule
+// itself (a late or failed answer admits) is unit-tested in admit.test.ts.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
 const request = {
@@ -50,36 +51,6 @@ const answerAfter =
     new Promise((r) => setTimeout(() => r(decision), ms));
 
 describe("@appbridge admission (add-billing-service)", function () {
-  describe("admit", function () {
-    it("passes the service's answer through", async function () {
-      const refusal = { authorized: false, reason: "insufficient_balance" };
-      expect(await admit(answerAfter(0, refusal), request)).to.deep.equal(
-        refusal
-      );
-    });
-
-    it("admits when the answer is late, and says so", async function () {
-      const decision = await admit(
-        answerAfter(200, { authorized: false }),
-        request,
-        30
-      );
-      expect(decision.authorized).to.equal(true);
-      expect(decision.failed).to.match(/no answer in 30 ms/);
-    });
-
-    it("admits when the service fails", async function () {
-      const decision = await admit(
-        () => Promise.reject(new Error("unavailable")),
-        request
-      );
-      expect(decision).to.deep.equal({
-        authorized: true,
-        failed: "unavailable"
-      });
-    });
-  });
-
   describe("grpcAdmission", function () {
     let server: grpc.Server;
     let seen: Record<string, unknown> | undefined;
@@ -114,7 +85,7 @@ describe("@appbridge admission (add-billing-service)", function () {
     });
     after(() => server.forceShutdown());
 
-    it("asks CheckSessionAuthorized and returns the reason", async function () {
+    it("[APB-036] asks CheckSessionAuthorized and returns the reason", async function () {
       const admission = grpcAdmission(
         `127.0.0.1:${process.env.ADMISSION_TEST_PORT}`
       );
@@ -193,7 +164,7 @@ describe("@appbridge admission (add-billing-service)", function () {
       }
     };
 
-    it("rejects a call out of credits with 402 before ringing, and sends call.failed", async function () {
+    it("[APB-036] rejects a call out of credits with 402, never answered, and sends call.failed", async function () {
       await start(
         answerAfter(0, { authorized: false, reason: "insufficient_balance" })
       );
@@ -201,9 +172,8 @@ describe("@appbridge admission (add-billing-service)", function () {
         appRef: "agent-a"
       });
       await until(() => harness.roomrNode.sipStatuses(callRef).includes(402));
-      expect(harness.roomrNode.sipStatuses(callRef)).to.not.include.members([
-        180, 200
-      ]);
+      expect(harness.roomrNode.sipStatuses(callRef)).to.not.include(200);
+      expect(harness.app.attempts).to.have.length(0);
       const failed = webhooks.find((e) => e.type === "call.failed");
       expect(failed?.workspaceRef).to.equal("WO-A");
       expect((failed?.data as { reason: string }).reason).to.equal(
@@ -211,7 +181,7 @@ describe("@appbridge admission (add-billing-service)", function () {
       );
     });
 
-    it("rejects a call over the concurrency limit with 503", async function () {
+    it("[APB-036] rejects a call over the concurrency limit with 503", async function () {
       await start(
         answerAfter(0, { authorized: false, reason: "concurrency_limit" })
       );
@@ -221,16 +191,36 @@ describe("@appbridge admission (add-billing-service)", function () {
       await until(() => harness.roomrNode.sipStatuses(callRef).includes(503));
     });
 
-    it("answers when authorization is slower than the timeout", async function () {
-      await start(
-        answerAfter(2000, { authorized: false, reason: "insufficient_balance" })
-      );
-      const { callRef } = await harness.roomrNode.offerCall({
-        appRef: "agent-a"
-      });
-      await harness.app.nextConnection();
-      await until(() => harness.roomrNode.sipStatuses(callRef).includes(200));
-      harness.roomrNode.callerHangup(callRef);
+    it("[APB-036] admits and answers a call when authorization is slower than 500 ms, and logs the timeout", async function () {
+      const logger = getLogger({ service: "appbridge", filePath: __filename });
+      const warned: string[] = [];
+      const warn = logger.warn;
+      logger.warn = (message: unknown, ...rest: unknown[]) => {
+        warned.push(String(message));
+        return warn.call(logger, message, ...rest);
+      };
+      try {
+        await start(
+          answerAfter(2000, {
+            authorized: false,
+            reason: "insufficient_balance"
+          })
+        );
+        const startedAt = Date.now();
+        const { callRef } = await harness.roomrNode.offerCall({
+          appRef: "agent-a"
+        });
+        await harness.app.nextConnection();
+        await until(() => harness.roomrNode.sipStatuses(callRef).includes(200));
+        // Admitted at the timeout, not when the late refusal arrives.
+        expect(Date.now() - startedAt).to.be.below(1800);
+        expect(
+          warned.find((m) => m.includes(`call ${callRef}: admitted without`))
+        ).to.match(/no answer in 500 ms/);
+        harness.roomrNode.callerHangup(callRef);
+      } finally {
+        logger.warn = warn;
+      }
     });
   });
 });

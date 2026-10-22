@@ -1,0 +1,29 @@
+diff --git a/mods/appbridge/src/turn/Pacing.ts b/mods/appbridge/src/turn/Pacing.ts
+index 02b522648..9c60fdb47 100644
+--- a/mods/appbridge/src/turn/Pacing.ts
++++ b/mods/appbridge/src/turn/Pacing.ts
+@@ -48,6 +48,7 @@ export type Patience = keyof typeof PATIENCE;
+  * becomes less patient than the app asked for, and a new call starts from the app's setting.
+  */
+ export const ADAPTATION_STEP = 0.15;
++let carried = 1;
+ export const MAX_ADAPTATION = 1.6;
+ 
+ export type PacingOptions = {
+@@ -93,7 +94,7 @@ export class Pacing {
+   private readonly prepare: number;
+   private readonly commit: number;
+   private patienceLevel: Patience;
+-  private adaptation = 1;
++  private adaptation = carried;
+   private readonly adapt: boolean;
+ 
+   constructor(
+@@ -137,6 +138,7 @@ export class Pacing {
+       MAX_ADAPTATION,
+       +(this.adaptation + ADAPTATION_STEP).toFixed(3)
+     );
++    carried = this.adaptation;
+     this.applyPatience();
+     this.handlers.patience?.({
+       patience: this.patienceLevel,
