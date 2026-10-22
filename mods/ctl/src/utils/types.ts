@@ -25,6 +25,14 @@ type LinkTwilioNumberToApplicationParams = {
   friendlyName?: string;
 };
 
+type LinkTelnyxNumberToApplicationParams = {
+  phoneNumber: string;
+  accessKeyId: string;
+  originationUriBase: string;
+  applicationRef: string;
+  friendlyName?: string;
+};
+
 type TwilioTrunkParams = {
   resourceRef: string;
   originationUriBase: string;
@@ -42,4 +50,9 @@ type AppConfig = {
   };
 };
 
-export { LinkTwilioNumberToApplicationParams, TwilioTrunkParams, AppConfig };
+export {
+  LinkTelnyxNumberToApplicationParams,
+  LinkTwilioNumberToApplicationParams,
+  TwilioTrunkParams,
+  AppConfig
+};

@@ -1,0 +1,155 @@
+---
+title: "Link a Telnyx number"
+description: "Connect a number from your Telnyx account to Fonoster with one CLI command, and send its calls to an agent or a stream."
+---
+
+If you have a number in Telnyx, one command connects it to Fonoster. The command sets up a SIP
+trunk between Telnyx and Fonoster, points the number at it, and adds the number to your workspace
+pointing at the application you choose. Calls to the number then reach your Autopilot agent or
+stream, and you can place outbound calls from it.
+
+<Note>
+  Linking runs from the CLI. The dashboard doesn't have a Telnyx flow: once the number is linked,
+  you manage it under **Numbers** like any other.
+</Note>
+
+## Before you begin
+
+You need:
+
+- A Telnyx account with a voice-capable phone number in it. Note the number in E.164 format, such
+  as `+18095550123`.
+- Your Telnyx **API key**, from the [API Keys](https://portal.telnyx.com/#/app/api-keys) page. The
+  CLI uses it only for this command and doesn't save it.
+- An Autopilot agent or a stream to send calls to. See
+  [Build an Autopilot agent](/autopilot/build-an-agent) or
+  [Build a stream with the Voice SDK](/streams/voice-sdk).
+- [Node.js](https://nodejs.org/) 22 or later.
+
+## Link the number
+
+<Steps>
+  <Step title="Install the CLI and log in">
+    In the dashboard, go to **API keys** and create a key. Then install the `fonoster` CLI and log
+    in to your workspace with the key ID and secret:
+
+    ```bash
+    npm install -g @fonoster/ctl
+    fonoster workspaces:login
+    ```
+
+  </Step>
+
+  <Step title="Run the link command">
+    Start the command:
+
+    ```bash
+    fonoster sipnet:numbers:linkTelnyxNumber
+    ```
+
+    It asks for:
+
+    | Prompt | What to enter |
+    | --- | --- |
+    | Friendly Name | A name for the number in Fonoster, such as `Support desk`. Leave it empty to use the number itself. |
+    | Number to link (E.164 format) | The Telnyx number, such as `+18095550123`. |
+    | Application | The Autopilot agent or stream that answers the number. Pick **None** to choose later. |
+    | Telnyx API Key | Your API key from the Telnyx portal. |
+
+    Confirm with **Ready?**. The command returns when everything is set up.
+
+  </Step>
+
+  <Step title="Check the number">
+    List your numbers. The linked number is there, on a trunk named **Telnyx Trunk**, pointing at
+    the application you picked:
+
+    ```bash
+    fonoster sipnet:numbers:list
+    ```
+
+    Call the number from any phone. Your agent or stream answers.
+
+    <Check>Your Telnyx number rings in Fonoster.</Check>
+
+  </Step>
+</Steps>
+
+## What the command sets up
+
+The command changes both your Telnyx account and your Fonoster workspace. It names everything
+after your workspace's access key ID in lowercase, shown here as `wo7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3`.
+
+**In Telnyx:**
+
+- An FQDN connection named `Trunk-<access key ID>`, which carries the SIP credentials Fonoster
+  signs its outbound calls with: a username `fonoster<access key ID>` and a password the command
+  generates. Fonoster sends your outbound calls to `sip.telnyx.com`, and Telnyx asks for these
+  credentials with a `407 Proxy Authentication Required` challenge.
+- An outbound voice profile named `OutboundProfile-<access key ID>` on that connection, which
+  routes your outbound calls and caps their spending.
+- An FQDN entry on the connection pointing at `<access key ID>.pstn.fonoster.com`. Telnyx sends
+  calls to your number there.
+- Your number assigned to the connection. Telnyx then sends its calls over SIP, not to a webhook
+  the number had set.
+
+**In Fonoster:**
+
+- A trunk named **Telnyx Trunk**, with the inbound URI `<access key ID>.pstn.fonoster.com` and an
+  outbound URI pointing at `sip.telnyx.com` with the connection's credentials saved as
+  Credentials in your workspace.
+- The number, on that trunk, pointing at the application you picked.
+
+Telnyx authenticates your outbound calls by credentials, not by IP address, so there is no access
+control list to configure. If you already had an IP-based setup that allowlists Fonoster's
+addresses, the linked trunk ignores it; remove those IP entries if you no longer need them.
+
+To link more Telnyx numbers, run the command again. It reuses the trunks it already created on
+both sides and only adds the number. If the number is already in your workspace, the command
+replaces it.
+
+## Change where calls go
+
+The linked number is a normal number in your workspace. To send its calls somewhere else, go to
+**Numbers**, open it, and pick a new destination under **When this number is called, send it to**.
+See [Numbers and routing](/telephony/numbers).
+
+## On your own install
+
+On a self-hosted Fonoster, Telnyx has to reach your servers, not Fonoster Cloud. Pass the flag:
+
+```bash
+fonoster sipnet:numbers:linkTelnyxNumber \
+  --outbound-uri-base sip.example.com
+```
+
+| Flag | Short | What it sets |
+| --- | --- | --- |
+| `--outbound-uri-base` | `-b` | The host Telnyx sends calls to. The command prefixes it with your access key ID, so `<access key ID>.sip.example.com` must resolve to your SIP address. Default `pstn.<domain>`, from the server you're signed in to. |
+
+## Troubleshooting
+
+- **"The number … was not found in your account."** The number isn't in the Telnyx account whose
+  API key you entered. Check the account and the E.164 format.
+- **The number rings but nothing answers.** Check that the number points at an application under
+  **Numbers**.
+- **Outbound calls fail.** The trunk's Credentials and the Telnyx connection's credentials have to
+  match. If you deleted the trunk on one side and re-ran the command, delete the other side's
+  trunk too (it may keep the old credentials), then run the command again.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Numbers and routing" icon="phone" href="/telephony/numbers">
+    Send each number to the right agent, stream or SIP agent.
+  </Card>
+  <Card title="Make outbound calls" icon="phone-arrow-up-right" href="/telephony/outbound-calls">
+    Call people from your Telnyx number.
+  </Card>
+  <Card title="Connect a SIP trunk" icon="network-wired" href="/telephony/trunks">
+    Use another carrier.
+  </Card>
+  <Card title="Bring your Twilio or Pipecat app" icon="plug" href="/streams/bring-your-app">
+    Run a bot built for Twilio Media Streams on Fonoster.
+  </Card>
+</CardGroup>

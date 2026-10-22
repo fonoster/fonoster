@@ -86,6 +86,7 @@ USAGE
 * [`fonoster sipnet:numbers:create`](#fonoster-sipnetnumberscreate)
 * [`fonoster sipnet:numbers:delete REF`](#fonoster-sipnetnumbersdelete-ref)
 * [`fonoster sipnet:numbers:get REF`](#fonoster-sipnetnumbersget-ref)
+* [`fonoster sipnet:numbers:linkTelnyxNumber`](#fonoster-sipnetnumberslinktelnyxnumber)
 * [`fonoster sipnet:numbers:linkTwilioNumber`](#fonoster-sipnetnumberslinktwilionumber)
 * [`fonoster sipnet:numbers:list`](#fonoster-sipnetnumberslist)
 * [`fonoster sipnet:numbers:update REF`](#fonoster-sipnetnumbersupdate-ref)
@@ -1364,6 +1365,28 @@ EXAMPLES
 ```
 
 _See code: [dist/commands/sipnet/numbers/get.js](https://github.com/fonoster/fonoster/blob/v0.27.0/dist/commands/sipnet/numbers/get.js)_
+
+## `fonoster sipnet:numbers:linkTelnyxNumber`
+
+associate a Telnyx number with a Fonoster Application
+
+```
+USAGE
+  $ fonoster sipnet:numbers:linkTelnyxNumber [-i] [-b <value>]
+
+FLAGS
+  -b, --outbound-uri-base=<value>  the host Telnyx sends calls to, under which the trunk's inbound URI is made
+                                   (default: pstn.<the server's domain>)
+  -i, --insecure                   allow connections to a server with no TLS
+
+DESCRIPTION
+  associate a Telnyx number with a Fonoster Application
+
+EXAMPLES
+  $ fonoster sipnet:numbers:linkTelnyxNumber
+```
+
+_See code: [dist/commands/sipnet/numbers/linkTelnyxNumber.js](https://github.com/fonoster/fonoster/blob/v0.27.0/dist/commands/sipnet/numbers/linkTelnyxNumber.js)_
 
 ## `fonoster sipnet:numbers:linkTwilioNumber`
 
