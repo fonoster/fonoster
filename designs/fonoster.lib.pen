@@ -4875,6 +4875,87 @@
           "fontFamily": "$--font-secondary",
           "fontSize": 14,
           "fontWeight": "normal"
+        },
+        {
+          "type": "frame",
+          "id": "cqqfg",
+          "x": 2520,
+          "y": 2803,
+          "name": "Input/Compact",
+          "reusable": true,
+          "width": 160,
+          "height": 32,
+          "fill": "$--background",
+          "cornerRadius": 6,
+          "stroke": "$--input",
+          "strokeWidth": 1,
+          "strokeAlignment": "inner",
+          "gap": 6,
+          "padding": [
+            0,
+            10
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "ehaeO",
+              "name": "Value",
+              "fill": "$--foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "value",
+              "fontFamily": "$--font-primary",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Vc5jL",
+          "x": 2520,
+          "y": 2883,
+          "name": "Select/Compact",
+          "reusable": true,
+          "width": 160,
+          "height": 32,
+          "fill": "$--background",
+          "cornerRadius": 6,
+          "stroke": "$--input",
+          "strokeWidth": 1,
+          "strokeAlignment": "inner",
+          "gap": 6,
+          "padding": [
+            0,
+            10
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "JbPGR",
+              "name": "Value",
+              "fill": "$--foreground",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "string",
+              "fontFamily": "$--font-primary",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "icon",
+              "id": "OpZwA",
+              "name": "Chevron",
+              "width": 12,
+              "height": 12,
+              "icon": "chevron-down",
+              "library": "lucide",
+              "fill": "$--muted-foreground"
+            }
+          ]
         }
       ]
     },

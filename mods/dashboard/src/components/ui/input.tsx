@@ -19,11 +19,16 @@
 import type { ComponentProps } from "react";
 import { cn } from "~/lib/utils";
 
+/** Table-cell controls (design library Input/Compact and Select/Compact). */
+export const COMPACT_CONTROL =
+  "h-8 rounded-[6px] px-2.5 font-mono text-xs hover:border-ring/60";
+
 export function Input({
   className,
   type = "text",
+  compact = false,
   ...props
-}: ComponentProps<"input">) {
+}: ComponentProps<"input"> & { compact?: boolean }) {
   return (
     <input
       type={type}
@@ -33,6 +38,7 @@ export function Input({
         "focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/30",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "aria-invalid:border-destructive aria-invalid:ring-destructive/20",
+        compact && COMPACT_CONTROL,
         className
       )}
       {...props}

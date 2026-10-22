@@ -30,10 +30,6 @@ import { NEW_URI, TRANSPORTS, type TrunkValues } from "./trunk-form";
 
 const TRANSPORT_OPTIONS = TRANSPORTS.map((t) => ({ value: t, label: t }));
 
-/** Row cells keep the field look (fill and border) so they read as editable. */
-const cellInput =
-  "h-8 rounded-[6px] px-2.5 font-mono text-xs hover:border-ring/60";
-
 /** The editable table of a trunk's outbound SIP URIs. */
 export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
   const { fields, append, remove } = useFieldArray({
@@ -125,7 +121,7 @@ export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
                         aria-label={`Host, ${row}`}
                         aria-invalid={invalid("host")}
                         placeholder="sip.carrier.com"
-                        className={cellInput}
+                        compact
                         {...form.register(`uris.${index}.host`)}
                       />
                     </td>
@@ -134,7 +130,7 @@ export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
                         aria-label={`Port, ${row}`}
                         aria-invalid={invalid("port")}
                         inputMode="numeric"
-                        className={cellInput}
+                        compact
                         {...form.register(`uris.${index}.port`, {
                           valueAsNumber: true
                         })}
@@ -150,7 +146,7 @@ export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
                             value={transport.value}
                             onValueChange={transport.onChange}
                             options={TRANSPORT_OPTIONS}
-                            className={cellInput}
+                            compact
                           />
                         )}
                       />
@@ -159,7 +155,7 @@ export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
                       <Input
                         aria-label={`User, ${row}`}
                         placeholder="optional"
-                        className={cellInput}
+                        compact
                         {...form.register(`uris.${index}.user`)}
                       />
                     </td>
@@ -168,7 +164,7 @@ export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
                         aria-label={`Priority, ${row}`}
                         aria-invalid={invalid("priority")}
                         inputMode="numeric"
-                        className={cellInput}
+                        compact
                         {...form.register(`uris.${index}.priority`, {
                           valueAsNumber: true
                         })}
@@ -179,7 +175,7 @@ export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {
                         aria-label={`Weight, ${row}`}
                         aria-invalid={invalid("weight")}
                         inputMode="numeric"
-                        className={cellInput}
+                        compact
                         {...form.register(`uris.${index}.weight`, {
                           valueAsNumber: true
                         })}
