@@ -22,6 +22,24 @@ MODE="${1:-host}"
 log() { printf '[dev-config] %s\n' "$*" >&2; }
 die() { printf '[dev-config] %s\n' "$*" >&2; exit 1; }
 
+# HOST_IP is written into .dev/.env when it is first created, and RTPEngine and Routr put it in every
+# SDP and Via. When the machine changes network (home to hotspot, VPN, another office) it goes stale
+# and calls connect without audio. The host detects its address on each container start and leaves it
+# in .dev/host-ip.detected; the refresh inside the workspace, which cannot see the host's network,
+# compares that file with .dev/.env.
+env_host_ip() { sed -n 's/^HOST_IP=//p' "$DEV/.env" 2>/dev/null | head -n 1; }
+
+warn_stale_host_ip() {
+  configured="$(env_host_ip)"
+  detected="$(cat "$DEV/host-ip.detected" 2>/dev/null || true)"
+  [ -n "$configured" ] && [ -n "$detected" ] && [ "$configured" != "$detected" ] || return 0
+  log "WARNING: HOST_IP in $DEV/.env is $configured, but this machine is now at $detected."
+  log "         RTPEngine and Routr advertise $configured, so calls will connect without audio."
+  log "         To fix it: set HOST_IP=$detected in .dev/.env, run npm run dev:config, then recreate"
+  log "         the two containers (docker compose -p fonoster-dev -f .devcontainer/compose.yaml"
+  log "         --env-file .dev/.env up -d --no-deps rtpengine routr) and restart npm run dev."
+}
+
 # Compose reads .devcontainer/.env: the same values as the dev config.
 ln -sfn ../.dev/.env "$ROOT/.devcontainer/.env"
 
@@ -36,6 +54,9 @@ if [ "$MODE" = "host" ]; then
 fi
 
 if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ]; then
+  detected="${FONOSTER_DEV_HOST_IP:-$(detect_host_ip)}"
+  [ -z "$detected" ] || printf '%s\n' "$detected" > "$DEV/host-ip.detected"
+  warn_stale_host_ip
   log "keeping $DEV (npm run dev:config renders it again)"
   exit 0
 fi
@@ -85,6 +106,7 @@ awk -v config_dir="$DEV/config" '
 
 if [ "$MODE" = "--refresh" ]; then
   # Inside the workspace: the built CLI (post-create builds it), else the source through tsx.
+  warn_stale_host_ip
   cd "$ROOT"
   if [ -f mods/common/dist/config/cli/index.js ]; then
     cli() { node mods/common/dist/config/cli/index.js "$@"; }
