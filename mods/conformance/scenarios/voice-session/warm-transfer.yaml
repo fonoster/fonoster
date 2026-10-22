@@ -13,5 +13,8 @@ steps:
   - send: { type: transfer.complete, id: t2 }
   - expect: { type: session.end, reason: transfer }
     within_ms: 2000
+  # TransferComplete goes to the node on the call's control stream, session.end to the app on
+  # its own socket: give the command time to land before reading what the node received.
+  - wait: { ms: 200 }
   - assert:
       media.commands: { $includes: [{ type: transfer, mode: warm }, { type: transferComplete }] }

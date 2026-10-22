@@ -378,9 +378,13 @@ export class FakeSessionCall extends EventEmitter {
 
   // ---- RTP ----------------------------------------------------------------------------
 
-  /** Sends caller audio at real-time pace, then silence, until the call ends. */
+  /**
+   * Sends caller audio at real-time pace, then silence, until the call ends. What the caller
+   * said before the Answer reached the node (a test speaks once the app sees session.start, which
+   * travels a different connection than Answer) follows the configured audio, never lost.
+   */
   private play(audio: Buffer) {
-    this.pending = splitFrames(audio, FORMAT);
+    this.pending = [...splitFrames(audio, FORMAT), ...this.pending];
     const silence = encode(generate("silence", FRAME_MS, FORMAT.rate), FORMAT);
     const start = Date.now();
     let i = 0;

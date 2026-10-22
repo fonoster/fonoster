@@ -19,9 +19,10 @@
 // secret:// in the started Roomr node (harden-conformance 1.4, deployment: "Secret reference
 // resolved"): the Go binary resolves its config's references at startup, and an unresolvable one
 // stops it with the reference named and no value. The node resolves its NATS and SIP passwords
-// before it connects, so it is pointed at a closed port: getting as far as the NATS connection
-// proves the references resolved, and it never joins the shared bus (a heartbeat there would offer
-// it to the placement tests that run after). Runs in the NATS job; needs Go.
+// before it starts, and core NATS is best effort (redesign-roomr: it starts and retries while NATS
+// is unreachable), so it is pointed at a closed port: serving gRPC proves the references resolved,
+// and it never joins the shared bus (a heartbeat there would offer it to the placement tests that
+// run after). The test stops it once it serves. Runs in the NATS job; needs Go.
 import { spawn } from "child_process";
 import * as fs from "fs";
 import * as net from "net";
@@ -41,7 +42,13 @@ function freePort(): Promise<number> {
   });
 }
 
-/** Runs the node with `config` until it exits; returns its exit code and output. */
+/** The node logs this once it serves: it got past every reference in its config. */
+const SERVING = /"msg":"roomr grpc"/;
+
+/**
+ * Runs the node with `config` until it exits, or until it serves (then stops it); returns its exit
+ * code (null when the test stopped it) and output.
+ */
 function runNode(
   bins: RoomrBinaries,
   config: string,
@@ -54,8 +61,12 @@ function runNode(
     });
     let output = "";
     const timer = setTimeout(() => child.kill("SIGKILL"), 15000);
-    child.stdout!.on("data", (d: Buffer) => (output += d));
-    child.stderr!.on("data", (d: Buffer) => (output += d));
+    const read = (d: Buffer) => {
+      output += d;
+      if (SERVING.test(output)) child.kill("SIGKILL");
+    };
+    child.stdout!.on("data", read);
+    child.stderr!.on("data", read);
     child.on("exit", (code) => {
       clearTimeout(timer);
       resolve({ code, output });
@@ -63,16 +74,12 @@ function runNode(
   });
 }
 
-/** It resolved both passwords and stopped only at the (closed) NATS port. */
-function resolvedThenConnected(result: {
-  code: number | null;
-  output: string;
-}) {
+/** It resolved both passwords and started serving (NATS at a closed port does not stop it). */
+function resolvedThenServed(result: { code: number | null; output: string }) {
   expect(result.output, result.output).to.not.match(
     /"msg":"(nats|sip) password"/
   );
-  expect(result.output, result.output).to.match(/"msg":"nats"/);
-  expect(result.code).to.equal(1);
+  expect(result.output, result.output).to.match(SERVING);
 }
 
 describe("@conformance[deployment] secret:// in the started Roomr node", function () {
@@ -96,10 +103,12 @@ describe("@conformance[deployment] secret:// in the started Roomr node", functio
     const file = path.join(dir, `${name}.yaml`);
     const sip = await freePort();
     const closed = await freePort();
+    const grpc = await freePort();
     fs.writeFileSync(
       file,
       [
         `nodeId: secrets-${name}`,
+        `control: { grpc: { listen: "127.0.0.1:${grpc}" } }`,
         `nats: { url: "nats://127.0.0.1:${closed}", user: roomr, password: "${natsPassword}" }`,
         `sip: { listen: "127.0.0.1:${sip}", advertise: 127.0.0.1, registrations: [ { registrar: "127.0.0.1:${closed}", auth: { password: "${sipPassword}" } } ] }`,
         "rtp: { host: 127.0.0.1, advertise: 127.0.0.1 }",
@@ -123,7 +132,7 @@ describe("@conformance[deployment] secret:// in the started Roomr node", functio
       ),
       { TEST_SIP_PASSWORD: "sip-from-env" }
     );
-    resolvedThenConnected(result);
+    resolvedThenServed(result);
   });
 
   it("resolves its NATS password from a mounted Kubernetes Secret (secret://k8s)", async function () {
@@ -138,7 +147,7 @@ describe("@conformance[deployment] secret:// in the started Roomr node", functio
       await config("k8s", "secret://k8s/fonoster/nats-users#roomr", ""),
       { FONOSTER_SECRETS_DIR: secrets, POD_NAMESPACE: "fonoster" }
     );
-    resolvedThenConnected(result);
+    resolvedThenServed(result);
   });
 
   it("refuses to start on an unresolvable reference, naming it and never a value", async function () {
@@ -158,11 +167,14 @@ describe("@conformance[deployment] secret:// in the started Roomr node", functio
     const file = path.join(dir, "no-env.yaml");
     const sip = await freePort();
     const closed = await freePort();
+    const grpc = await freePort();
     const write = (nodeId: string) =>
       fs.writeFileSync(
         file,
         [
           nodeId,
+          `control: { grpc: { listen: "127.0.0.1:${grpc}" } }`,
+          `sessionEndpoint: "127.0.0.1:${closed}"`,
           `nats: { url: "nats://127.0.0.1:${closed}" }`,
           `sip: { listen: "127.0.0.1:${sip}", advertise: 127.0.0.1, registrations: [ { registrar: "127.0.0.1:${closed}", auth: { password: "\${ROOMR_PASSWORD:-}" } } ] }`,
           "rtp: { host: 127.0.0.1, advertise: 127.0.0.1 }",
@@ -176,7 +188,7 @@ describe("@conformance[deployment] secret:// in the started Roomr node", functio
     };
     write("");
     const ignored = await runNode(bins!, file, env);
-    expect(ignored.code).to.equal(1);
+    expect(ignored.output, ignored.output).to.match(SERVING);
     expect(ignored.output).to.not.contain('"nodeId":"id-from-env"');
     expect(ignored.output).to.not.contain("referenced-secret");
     // Referenced as a placeholder, the same variable is read.
