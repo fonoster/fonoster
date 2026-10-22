@@ -4811,6 +4811,7 @@
       "theme": {
         "ui:mode": "dark"
       },
+      "height": 1091,
       "descendants": {
         "ui:itw6f": {
           "fill": "$ui:--sidebar-accent"
@@ -6240,7 +6241,7 @@
                             {
                               "type": "frame",
                               "id": "H7Wzw",
-                              "name": "Row Transfer to a human",
+                              "name": "Row Transfer to an operator",
                               "width": "fill_container",
                               "justifyContent": "space_between",
                               "alignItems": "center",
@@ -6248,9 +6249,9 @@
                                 {
                                   "type": "text",
                                   "id": "S24Scq",
-                                  "name": "Transfer to a human",
+                                  "name": "Transfer to an operator",
                                   "fill": "$ui:--muted-foreground",
-                                  "content": "Transfer to a human",
+                                  "content": "Transfer to an operator",
                                   "fontFamily": "$ui:--font-secondary",
                                   "fontSize": 13,
                                   "fontWeight": "normal"
@@ -6264,6 +6265,130 @@
                                   "fontFamily": "$ui:--font-primary",
                                   "fontSize": 12,
                                   "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "bPGkt",
+                              "name": "Field Transfer message",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "V1i5FK",
+                                  "name": "Label row",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "TJeaB",
+                                      "name": "Says before transferring",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Says before transferring",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "JX6Vv",
+                                  "name": "Input",
+                                  "width": "fill_container",
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "gap": 8,
+                                  "padding": [
+                                    9,
+                                    12
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "q7gqc",
+                                      "name": "Value",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "One moment, I'm transferring you to a person.",
+                                      "lineHeight": 1.6,
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "nksMD",
+                              "name": "Field Transfer failed message",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "grh9T",
+                                  "name": "Label row",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "AIHoe",
+                                      "name": "Says if the transfer fails",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Says if the transfer fails",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "mn5Hr",
+                                  "name": "Input",
+                                  "width": "fill_container",
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "gap": 8,
+                                  "padding": [
+                                    9,
+                                    12
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "a6G6ge",
+                                      "name": "Value",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Sorry, I couldn't connect you. How else can I help?",
+                                      "lineHeight": 1.6,
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -57900,7 +58025,7 @@
       "type": "frame",
       "id": "ar6PY",
       "x": 0,
-      "y": 4084,
+      "y": 4216,
       "name": "Gap note · Agent detail",
       "width": 420,
       "fill": "#FEF3C7",
@@ -79339,7 +79464,7 @@
                 {
                   "type": "frame",
                   "id": "XXiQY",
-                  "name": "Field Name",
+                  "name": "Field API key",
                   "width": "fill_container",
                   "layout": "vertical",
                   "gap": 8,
@@ -79366,8 +79491,9 @@
                     {
                       "type": "frame",
                       "id": "w7U4k",
-                      "name": "Input",
+                      "name": "Textarea",
                       "width": "fill_container",
+                      "height": 100,
                       "fill": "$ui:--background",
                       "cornerRadius": "$ui:--radius-control",
                       "stroke": "$ui:--input",
@@ -79378,17 +79504,17 @@
                         10,
                         12
                       ],
-                      "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
                           "id": "aIzeC",
-                          "name": "Billing inbound",
+                          "name": "Key",
                           "fill": "$ui:--foreground",
                           "textGrowth": "fixed-width",
                           "width": "fill_container",
-                          "content": "••••••••••••••••••••••••",
-                          "fontFamily": "$ui:--font-secondary",
+                          "content": "3f9c2b7e4d1a8c6f0b5e9d2a7c4f1e8b3d6a9c0f",
+                          "lineHeight": 1.5,
+                          "fontFamily": "$ui:--font-primary",
                           "fontSize": 13,
                           "fontWeight": "normal"
                         }
