@@ -372,11 +372,14 @@ func (r *Room) remove(ref, cause string) bool {
 
 // retire finishes a participant taken out of the room.
 func (r *Room) retire(p *Participant, cause string) {
-	remoteLeft := cause == ReasonCallerHangup || cause == ReasonCalleeHangup
-	if p.Kind == KindPhone && !remoteLeft {
+	// A SIP participant gets BYE unless its own dialog already ended (its side hung up). Another
+	// party's hang-up (the caller leaving a transferred call) still hangs this one up.
+	if p.Kind == KindPhone {
 		if p.out != nil {
-			_ = p.out.Bye()
-		} else if p.leg != nil && p.answered.Load() {
+			if !closed(p.out.Gone()) {
+				_ = p.out.Bye()
+			}
+		} else if p.leg != nil && p.answered.Load() && !closed(p.leg.Gone()) {
 			_ = p.leg.Bye()
 		}
 	}
@@ -401,6 +404,9 @@ func (r *Room) end(cause string, status int) {
 		calls = append(calls, c)
 	}
 	r.mu.Unlock()
+	// Calls still ringing into the room (CreateCall with its room_ref) end with it: their callee
+	// must not open the room again on 200 OK.
+	calls = append(calls, r.node.dialingInto(r)...)
 	for _, c := range calls {
 		c.end(cause, status)
 	}
@@ -426,12 +432,14 @@ func (r *Room) end(cause string, status int) {
 			f.endpoint.Close()
 		}
 	}
+	// The node frees the room's place before it says so: a controller that reacts to room.ended
+	// at once finds the place free.
+	r.node.roomEnded(r)
 	ev := Event{"cause": cause}
 	if status != 0 {
 		ev["sip_status"] = status
 	}
 	r.event("room.ended", ev)
-	r.node.roomEnded(r)
 }
 
 // setHold cuts a participant off from the others and loops hold audio (or silence) to it; Resume
@@ -720,3 +728,32 @@ func defaultPayloadType(codec string) int {
 
 // String names the room in logs.
 func (r *Room) String() string { return fmt.Sprintf("room %s", r.Ref) }
+
+// closed reports whether ch is closed, without waiting.
+func closed(ch <-chan struct{}) bool {
+	select {
+	case <-ch:
+		return true
+	default:
+		return false
+	}
+}
+
+// dialingInto lists the CreateCall dials still ringing into room r.
+func (n *Node) dialingInto(r *Room) []*call {
+	n.mu.Lock()
+	all := make([]*call, 0, len(n.calls))
+	for _, c := range n.calls {
+		all = append(all, c)
+	}
+	n.mu.Unlock()
+	var out []*call
+	for _, c := range all {
+		c.mu.Lock()
+		if c.dialRoom == r {
+			out = append(out, c)
+		}
+		c.mu.Unlock()
+	}
+	return out
+}
