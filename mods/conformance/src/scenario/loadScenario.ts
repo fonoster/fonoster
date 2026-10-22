@@ -99,8 +99,8 @@ export function validateScenario(data: unknown, file?: string): string[] {
     if (step.next && step.expect === undefined) {
       problems.push(`step ${i + 1}: next is only allowed on expect`);
     }
-    if (step.capture && step.expect === undefined && step.rpc === undefined) {
-      problems.push(`step ${i + 1}: capture is only allowed on expect and rpc`);
+    if (step.capture && step.expect === undefined) {
+      problems.push(`step ${i + 1}: capture is only allowed on expect`);
     }
     if (
       (step.within_ms !== undefined ||

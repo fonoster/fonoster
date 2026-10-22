@@ -18,7 +18,7 @@
  */
 import { expect } from "chai";
 import { NatsConnection, connect } from "nats";
-import { FakesHarness } from "@fonoster/conformance";
+import { FakeSessionNode, FakesHarness } from "@fonoster/conformance";
 import { Sessions } from "@fonoster/common";
 import { AppBridge, AppBridgeConfig, MemoryCallRecordSink } from "../src";
 
@@ -123,7 +123,11 @@ describe("@AppBridge replicas", function () {
     // Service's choice). g2 sees the ref live on g1 and takes the room's ref instead.
     const g2 = await startAppBridge();
     const g2Before = g2.calls.size;
-    const second = await harness.roomrNode.offerCall({ callRef });
+    // A node never offers two live calls with one ref: the second comes from another node.
+    const otherNode = new FakeSessionNode({
+      endpoint: harness.roomrNode.options.endpoint
+    });
+    const second = await otherNode.offerCall({ callRef });
     await harness.app.nextConnection();
     await waitFor(() => g2.calls.size > g2Before || undefined);
     const all = [...g1.calls.keys(), ...g2.calls.keys()];
@@ -136,5 +140,6 @@ describe("@AppBridge replicas", function () {
     expect(
       (await Sessions.getSession(kv, "calls", callRef))?.bridgeRef
     ).to.equal(g1.bridgeRef);
+    await otherNode.stop();
   });
 });

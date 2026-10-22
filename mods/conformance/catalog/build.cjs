@@ -45,7 +45,13 @@ for (const t of all) { if (seen.has(t.id)) errors.push(`${t.id} is used twice`);
 const lockFile = path.join(catalogDir, "ids.lock.json");
 const lock = fs.existsSync(lockFile) ? JSON.parse(fs.readFileSync(lockFile, "utf8")) : {};
 const updateLock = argv.includes("--update-lock");
+// Retired areas (retired.json: prefix -> why): their ids stay locked, never reused, with no cases.
+const retiredFile = path.join(catalogDir, "retired.json");
+const retired = fs.existsSync(retiredFile) ? JSON.parse(fs.readFileSync(retiredFile, "utf8")) : {};
+const isRetired = (id) => id.split("-")[0] in retired;
+for (const t of all) if (isRetired(t.id)) errors.push(`${t.id}: prefix ${t.id.split("-")[0]} is retired (retired.json)`);
 for (const [id, name] of Object.entries(lock)) {
+  if (!seen.has(id) && isRetired(id)) continue;
   if (!seen.has(id)) errors.push(`${id} ("${name}") was removed; ids are never deleted (keep the case, mark it retired in prose, or --update-lock to confirm)`.replace(/;.*--update-lock to confirm\)/, updateLock ? "; confirmed" : ";ids are never deleted"));
   else if (seen.get(id) !== name && !updateLock) errors.push(`${id} was "${name}", now "${seen.get(id)}" (rename needs --update-lock)`);
 }
@@ -111,7 +117,10 @@ if (shrank.length && !updateLock && !argv.includes("--allow-new-gaps")) errors.p
 
 // ---- write
 if (updateLock || argv.includes("--allow-new-gaps")) {
-  fs.writeFileSync(lockFile, JSON.stringify(Object.fromEntries([...seen]), null, 2) + "\n");
+  // In the lock's order, new ids last; retired ids stay.
+  const next = Object.fromEntries(Object.entries(lock).filter(([id]) => seen.has(id) || isRetired(id)).map(([id, name]) => [id, seen.get(id) ?? name]));
+  for (const [id, name] of seen) if (!(id in next)) next[id] = name;
+  fs.writeFileSync(lockFile, JSON.stringify(next, null, 2) + "\n");
   fs.writeFileSync(gapFile, uncovered.join("\n") + (uncovered.length ? "\n" : ""));
 }
 fs.writeFileSync(path.join(catalogDir, "tiers.json"), JSON.stringify(Object.fromEntries(all.map((t) => [t.id, { tier: t.tier, pri: t.pri, trials: t.trials }])), null, 2) + "\n");

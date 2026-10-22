@@ -15,7 +15,7 @@ Current stage: 7 — Wire (listed in report; lead wires docs.json)
 - docs/session-protocol.md (draft)
 - mods/appbridge/src/session/{Call,connectApp,OutputQueue}.ts, protocols/fonoster.ts, signing.ts, config.ts (DEFAULTS), audio/pcm.ts
 - mods/apiserver/src/applications/session/appModel.ts (audio formats, listeners default)
-- go/roomr/internal/node/dial.go (warm transfer 30 s)
+- fonoster/roomr: internal/node/dial.go (warm transfer 30 s)
 
 | # | Stage | Status | Notes |
 | :- | :--- | :--- | :--- |

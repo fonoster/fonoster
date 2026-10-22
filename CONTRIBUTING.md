@@ -93,15 +93,18 @@ and VS Code with the Dev Containers extension (or a Codespace, or the
 
 ```bash
 npm run dev            # all of them, with prefixed logs
-npm run dev -- appbridge    # or some: apiserver, appbridge, autopilot, roomr, dashboard, fakes
+npm run dev -- appbridge    # or some: apiserver, appbridge, autopilot, dashboard, fakes
 ```
 
-Each one reloads when you save its source (the Roomr node is rebuilt). Open the dashboard at
+Each one reloads when you save its source. The Roomr node runs as a dev container service (the
+bundle's pinned image); it is developed in [fonoster/roomr](https://github.com/fonoster/roomr).
+Open the dashboard at
 `http://localhost:8449` and sign in with the login `npm run dev:info` prints. Calls use fake
 speech and language-model providers, so no vendor keys are needed.
 
 Run the tests in the same terminal: `npm test` (its NATS and database are the dev container's test
-services), `npm test -w @fonoster/dashboard`, and `cd go/roomr && go test ./...`.
+services) and `npm test -w @fonoster/dashboard`. The suites that need a Roomr node run real nodes
+in roomr-fake, downloaded by `npm install` for the pinned `@fonoster/roomr`.
 
 `npm run dev:config` renders `.dev/` again after you change a config example or your overrides in
 `.dev/overlay/<service>.yaml`; every secret is kept.
@@ -136,7 +139,7 @@ You can amend your commit with the sign-off by running if you forgot to do this 
 git commit --amend -s
 ```
 
-Pull requests are squash merged, and the pull request title becomes the commit message, so the title must follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (for example `fix(roomr): close idle rooms`). The commits on your branch can be anything.
+Pull requests are squash merged, and the pull request title becomes the commit message, so the title must follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (for example `fix(appbridge): close idle sessions`). The commits on your branch can be anything.
 
 ## Pull Request Checklist
 

@@ -2,7 +2,7 @@ name: Conformance
 
 # Conformance suites (add-conformance-framework, C6). The suites that need NATS run on pull
 # requests that touch the voice path; timing (T1), load (T2), turn-taking replay (T3) and the
-# Pipecat golden test run nightly and on demand. Unit tests, Go and Python are in pr-checks.yaml.
+# Pipecat golden test run nightly and on demand. Unit tests and Python are in pr-checks.yaml.
 
 on:
   pull_request:
@@ -27,7 +27,6 @@ on:
       - 'mods/autopilot/**'
       - 'mods/callrecord/**'
       - 'python/**'
-      - 'go/**'
       - 'package-lock.json'
   schedule:
     - cron: '0 6 * * *'
@@ -75,16 +74,6 @@ jobs:
           node-version: "22.x"
           cache: npm
 
-      # Some suites build and run the real Roomr node (go build, cgo with libopus).
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go/roomr/go.mod
-          cache-dependency-path: go/roomr/go.sum
-
-      - name: Install libopus
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq libopus-dev
-
       - name: Install dependencies and build
         run: |
           npm install --no-audit --no-fund
@@ -93,7 +82,6 @@ jobs:
       - name: Run the suites that need NATS
         env:
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
-          GOTOOLCHAIN: local
           LOGS_LEVEL: none
         run: |
           npx mocha --exit --timeout 30000 \
@@ -102,7 +90,6 @@ jobs:
             'mods/appbridge/test/crash.test.ts' \
             'mods/appbridge/test/gonode.test.ts' \
             'mods/appbridge/test/observability.test.ts' \
-            'mods/conformance/test/roomr-secrets.test.ts' \
             'mods/apiserver/test/outbound/placeOutboundCall.test.ts' \
             'mods/apiserver/test/outbound/controlPlane.test.ts'
 
@@ -130,28 +117,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: junit-apt-nightly
-          path: reports/junit/
-          if-no-files-found: ignore
-
-      # The Roomr node's TypeScript suites (QA catalog area ROM, areas/roomr.md), with JUnit.
-      - name: Roomr suites (JUnit in reports/junit)
-        env:
-          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
-          GOTOOLCHAIN: local
-          LOGS_LEVEL: none
-        run: |
-          npx mocha --exit --timeout 120000 \
-            --reporter xunit --reporter-option output=reports/junit/roomr-ts.xml \
-            'mods/conformance/test/media-control-go.test.ts' \
-            'mods/conformance/test/media-control.test.ts' \
-            'mods/conformance/test/roomr-grpc.test.ts' \
-            'mods/appbridge/test/srtp.test.ts'
-
-      - name: Roomr JUnit
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: junit-roomr-ts
           path: reports/junit/
           if-no-files-found: ignore
 

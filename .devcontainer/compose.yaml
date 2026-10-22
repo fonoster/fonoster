@@ -7,7 +7,7 @@
 # `fonoster-config init` before the containers start (secrets are generated, never committed).
 name: ${COMPOSE_PROJECT_NAME:-fonoster-dev}
 
-# The bundle's network: Routr, RTPEngine and the workspace (standing in for the Roomr node) need
+# The bundle's network: Routr, RTPEngine, the Roomr node and the workspace (AppBridge's RTP) need
 # fixed addresses for SIP and SDP.
 networks:
   default:
@@ -29,7 +29,6 @@ services:
       - ..:/workspaces/fonoster:cached
       # Linux node_modules stay out of the host checkout (native binaries differ).
       - node-modules:/workspaces/fonoster/node_modules
-      - go-cache:/home/node/go
       # The keys and the provider catalog at the paths the bundle's config files name. The
       # service files themselves are passed explicitly (npm run dev): mounted at /config they
       # would also be picked up by the Roomr nodes and AppBridge replicas the tests start. As in the
@@ -44,10 +43,10 @@ services:
       PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster_test
     networks:
       default:
-        # The Roomr node's fixed address (the bundle's roomr.yaml advertises it; Routr trusts
-        # INVITEs from it) and the names the bundle's Envoy and configs use for our services.
-        ipv4_address: ${SUBNET_PREFIX}.42
-        aliases: [apiserver, appbridge, autopilot, roomr, dashboard, fakes]
+        # A fixed address for AppBridge's RTP (appbridge.yaml advertises it) and the names the
+        # bundle's Envoy and configs use for the services we run from source.
+        ipv4_address: ${SUBNET_PREFIX}.46
+        aliases: [apiserver, appbridge, autopilot, dashboard, fakes]
 
   nats:
     extends: { file: ../ops/bundle/compose.yaml, service: nats }
@@ -66,6 +65,12 @@ services:
 
   rtpengine:
     extends: { file: ../ops/bundle/compose.yaml, service: rtpengine }
+
+  # The Roomr node: the bundle's pinned image at its fixed address (Routr trusts INVITEs from it),
+  # with .dev/config/roomr.yaml. Roomr is developed in fonoster/roomr.
+  roomr:
+    extends: { file: ../ops/bundle/compose.yaml, service: roomr }
+    depends_on: !reset {}
 
   minio:
     extends: { file: ../ops/bundle/compose.yaml, service: minio }
@@ -94,4 +99,3 @@ volumes:
   nats-data:
   minio-data:
   node-modules:
-  go-cache:

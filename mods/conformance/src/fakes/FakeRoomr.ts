@@ -16,323 +16,173 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Roomr } from "@fonoster/common";
+import { TestApp } from "@fonoster/roomr/contract";
+import { CalleeMode, FakeNode, RoomrMethod } from "@fonoster/roomr/fake";
 import * as grpc from "@grpc/grpc-js";
-import { NatsConnection, StringCodec } from "nats";
+import { NatsConnection } from "nats";
+import { sharedRoomrFake } from "./sharedRoomrFake";
 
-// A fake Roomr node for controllers (redesign-roomr conformance, "fake controller with
-// several nodes"): a roomr.v1.Roomr gRPC server with CreateRoom, CreateCall, EndCall and EndRoom,
-// heartbeats on roomr.nodes.<node_ref>.heartbeat with its control_addr, and a call's events on
-// roomr.events.<call_ref>. It keeps the node's contract: the room limit (RESOURCE_EXHAUSTED),
-// CreateRoom refs (ALREADY_EXISTS), CreateCall dedupe by call_ref (the
-// same Call again, ALREADY_EXISTS when the parameters differ) and NOT_FOUND for unknown refs.
-// Tests script refusals and timeouts per RPC and decide what each dialed party does.
-
-const sc = StringCodec();
+// A Roomr node for controller suites (extract-roomr 2.3): a real node in roomr-fake, with its own
+// Roomr gRPC address, heartbeats on roomr.nodes.<node_ref>.heartbeat and a call's events on
+// roomr.events.<call_ref>, published on the fake's NATS ($CONFORMANCE_NATS_URL). Its phone answers
+// what it dials as scripted, and a session endpoint of its own takes answered calls, so a call
+// stays up until a test ends it. Tests script refusals and stalls per RPC and read the requests.
 
 /**
- * What the dialed party does: answer, refuse (486, 408, 603), ring until `answer()`, or the dial
- * fails on the node (`fail`: `node_error`, no SIP status).
+ * What the dialed party does: answer, refuse (busy 486, no_answer 480, decline 603), ring until
+ * `answer()`, or `fail` (an unavailable callee, 480: the node has no SIP-less failure).
  */
 export type FakeCallee =
-  "answer" | "busy" | "no_answer" | "decline" | "fail" | "ring";
+  | "answer"
+  | "busy"
+  | "no_answer"
+  | "decline"
+  | "fail"
+  | "ring";
 
 export type FakeRoomrOptions = {
   nodeRef?: string;
-  /** Heartbeats and call events go here when set. */
+  /** Not used: the fake publishes on its own NATS ($CONFORMANCE_NATS_URL). */
   nc?: NatsConnection;
-  /** Rooms the node already holds (not visible as refs). */
+  /** Rooms the node already holds: real rooms that count toward maxRooms. */
   rooms?: number;
-  /** The room limit; unset: none. */
+  /** The room limit (default the node's, 200). */
   maxRooms?: number;
   /** What heartbeats claim instead of the real count (a node that filled up since its beat). */
   reportedRooms?: number;
   region?: string;
   heartbeatMs?: number;
-  /** What each dialed party does (default "answer"); a function decides per call_ref. */
-  callee?: FakeCallee | ((callRef: string) => FakeCallee);
+  /** What every dialed party does (default "answer"); `callee()` scripts one call_ref. */
+  callee?: FakeCallee;
 };
 
-type Recorded = { method: string; request: Record<string, unknown> };
-
-type FakeCall = {
-  call: Roomr.Call;
-  request: Record<string, unknown>;
-  seq: number;
-};
-
-const ENDINGS: Record<string, { cause: string; sip: number }> = {
-  busy: { cause: "busy", sip: 486 },
-  no_answer: { cause: "no_answer", sip: 408 },
-  decline: { cause: "rejected", sip: 603 },
-  fail: { cause: "node_error", sip: 0 }
+const MODE: Record<FakeCallee, CalleeMode> = {
+  answer: "answer",
+  busy: "busy",
+  no_answer: "no_answer",
+  decline: "decline",
+  fail: "unavailable",
+  ring: "ring"
 };
 
 export class FakeRoomr {
   readonly nodeRef: string;
-  readonly requests: Recorded[] = [];
-  readonly rooms = new Set<string>();
-  readonly calls = new Map<string, FakeCall>();
-  /** INVITEs sent: one per new call_ref (a repeated CreateCall is deduped and sends none). */
-  invites = 0;
   controlAddr = "";
-  private extraRooms: number;
-  private server?: grpc.Server;
-  private timer?: ReturnType<typeof setInterval>;
-  private scripted = new Map<
-    string,
-    { code?: grpc.status; stallMs?: number; times: number }[]
-  >();
+  private node?: FakeNode;
+  private app?: TestApp;
 
   constructor(readonly options: FakeRoomrOptions = {}) {
     this.nodeRef =
       options.nodeRef ??
       `fake-${Date.now()}-${Math.floor(Math.random() * 1e6)}`;
-    this.extraRooms = options.rooms ?? 0;
   }
 
-  /** The requests of one RPC ("CreateCall", ...). */
-  of(method: string) {
-    return this.requests
-      .filter((r) => r.method === method)
-      .map((r) => r.request);
-  }
-
-  /** The next `times` calls of `method` fail with `code`. */
-  failNext(method: string, code: grpc.status, times = 1) {
-    this.script(method, { code, times });
-  }
-
-  /** The next `times` calls of `method` answer only after `ms` (past the caller's deadline). */
-  stallNext(method: string, ms: number, times = 1) {
-    this.script(method, { stallMs: ms, times });
-  }
-
-  private script(
-    method: string,
-    step: { code?: grpc.status; stallMs?: number; times: number }
-  ) {
-    const steps = this.scripted.get(method) ?? [];
-    steps.push(step);
-    this.scripted.set(method, steps);
-  }
-
-  private nextStep(method: string) {
-    const steps = this.scripted.get(method);
-    const step = steps?.[0];
-    if (!step) return undefined;
-    step.times -= 1;
-    if (step.times <= 0) steps!.shift();
-    return step;
-  }
-
-  /** Room count as the node counts it. */
-  get roomCount() {
-    return this.extraRooms + this.rooms.size;
-  }
-
-  private full() {
-    const max = this.options.maxRooms;
-    return max !== undefined && this.roomCount >= max;
-  }
-
-  private publish(subject: string, body: Record<string, unknown>) {
-    this.options.nc?.publish(subject, sc.encode(JSON.stringify(body)));
-  }
-
-  private event(
-    c: FakeCall,
-    type: string,
-    extra: Record<string, unknown> = {}
-  ) {
-    c.seq += 1;
-    this.publish(`roomr.events.${c.call.callRef}`, {
-      type,
-      node_ref: this.nodeRef,
-      call_ref: c.call.callRef,
-      room_ref: c.call.roomRef,
-      seq: c.seq,
-      metadata: (c.request.metadata as Record<string, string>) ?? {},
-      ts: new Date().toISOString(),
-      ...extra
-    });
-  }
-
-  private end(c: FakeCall, cause: string, sip?: number) {
-    if (c.call.state === "ENDED") return;
-    const answered = c.call.state === "ANSWERED";
-    c.call.state = "ENDED";
-    this.event(c, "call.ended", {
-      cause,
-      answered,
-      ...(sip ? { sip_status: sip } : {})
-    });
-  }
-
-  /** The dialed party of a ringing call answers. */
-  answer(callRef: string) {
-    const c = this.calls.get(callRef);
-    if (!c || c.call.state !== "RINGING") return;
-    c.call.state = "ANSWERED";
-    c.call.participantRef = `p-${callRef}`;
-    this.event(c, "call.answered", { participant_ref: c.call.participantRef });
-  }
-
-  /** The dialed party hangs up. */
-  hangUp(callRef: string) {
-    const c = this.calls.get(callRef);
-    if (c) this.end(c, "callee_hangup");
-  }
-
-  /**
-   * Ends a call with any cause (e.g. `app_gone`: its control stream broke; `media_timeout`), as
-   * the node would: `call.ended` with the cause, whether it was answered and the SIP status.
-   */
-  endCall(callRef: string, cause: string, sipStatus?: number) {
-    const c = this.calls.get(callRef);
-    if (c) this.end(c, cause, sipStatus);
-  }
-
-  private heartbeat() {
-    this.publish(`roomr.nodes.${this.nodeRef}.heartbeat`, {
-      type: "node.heartbeat",
-      node_ref: this.nodeRef,
-      control_addr: this.controlAddr,
-      rooms: this.options.reportedRooms ?? this.roomCount,
-      ...(this.options.maxRooms !== undefined
-        ? { max_rooms: this.options.maxRooms }
-        : {}),
-      ...(this.options.region ? { region: this.options.region } : {})
-    });
-  }
-
-  private handlers(): grpc.UntypedServiceImplementation {
-    type Cb = grpc.sendUnaryData<unknown>;
-    const refuse = (cb: Cb, code: grpc.status, details: string) =>
-      cb({ code, details, name: "", message: details } as grpc.ServiceError);
-    const wrap =
-      (
-        method: string,
-        fn: (request: Record<string, unknown>, cb: Cb) => void
-      ) =>
-      (
-        call: grpc.ServerUnaryCall<Record<string, unknown>, unknown>,
-        cb: Cb
-      ) => {
-        const request = call.request;
-        this.requests.push({ method, request });
-        const step = this.nextStep(method);
-        if (step?.code !== undefined)
-          return refuse(cb, step.code, `scripted ${grpc.status[step.code]}`);
-        if (step?.stallMs) {
-          setTimeout(() => fn(request, cb), step.stallMs);
-          return;
-        }
-        fn(request, cb);
-      };
-    return {
-      CreateRoom: wrap("CreateRoom", (req, cb) => {
-        const ref = String(req.roomRef || `room-${this.rooms.size + 1}`);
-        if (this.rooms.has(ref))
-          return refuse(cb, grpc.status.ALREADY_EXISTS, "room_exists");
-        if (this.full())
-          return refuse(cb, grpc.status.RESOURCE_EXHAUSTED, "at_capacity");
-        this.rooms.add(ref);
-        cb(null, { roomRef: ref });
-      }),
-      EndRoom: wrap("EndRoom", (req, cb) => {
-        const ref = String(req.roomRef);
-        if (!this.rooms.delete(ref))
-          return refuse(cb, grpc.status.NOT_FOUND, "room_not_found");
-        for (const c of this.calls.values())
-          if (c.call.roomRef === ref) this.end(c, "removed");
-        cb(null, {});
-      }),
-      CreateCall: wrap("CreateCall", (req, cb) => {
-        const callRef = String(req.callRef || `call-${this.calls.size + 1}`);
-        const known = this.calls.get(callRef);
-        if (known) {
-          if (JSON.stringify(known.request) !== JSON.stringify(req))
-            return refuse(cb, grpc.status.ALREADY_EXISTS, "call_exists");
-          return cb(null, known.call);
-        }
-        let roomRef = String(req.roomRef || "");
-        if (!roomRef || !this.rooms.has(roomRef)) {
-          if (this.full())
-            return refuse(cb, grpc.status.RESOURCE_EXHAUSTED, "at_capacity");
-          roomRef ||= `room-${callRef}`;
-          this.rooms.add(roomRef);
-        }
-        const c: FakeCall = {
-          call: { callRef, roomRef, state: "RINGING", participantRef: "" },
-          request: req,
-          seq: 0
-        };
-        this.calls.set(callRef, c);
-        this.invites += 1;
-        cb(null, { ...c.call });
-        this.event(c, "call.started", { direction: "outbound" });
-        this.event(c, "call.ringing");
-        const option = this.options.callee ?? "answer";
-        const callee = typeof option === "function" ? option(callRef) : option;
-        if (callee === "answer") this.answer(callRef);
-        else if (ENDINGS[callee]) {
-          this.end(c, ENDINGS[callee].cause, ENDINGS[callee].sip);
-          this.rooms.delete(roomRef);
-        }
-      }),
-      EndCall: wrap("EndCall", (req, cb) => {
-        const c = this.calls.get(String(req.callRef));
-        if (!c) return refuse(cb, grpc.status.NOT_FOUND, "call_not_found");
-        this.end(c, "removed");
-        cb(null, {});
-      })
-    };
-  }
-
-  /** Serves on a loopback port and starts heartbeats; resolves with the control address. */
+  /** Starts the node; resolves with its control address. */
   async start(): Promise<string> {
-    const server = new grpc.Server();
-    server.addService(Roomr.roomrService(), this.handlers());
-    const port = await new Promise<number>((resolve, reject) =>
-      server.bindAsync(
-        "127.0.0.1:0",
-        grpc.ServerCredentials.createInsecure(),
-        (err, p) => (err ? reject(err) : resolve(p))
-      )
-    );
-    this.server = server;
-    this.controlAddr = `127.0.0.1:${port}`;
-    if (this.options.nc) {
-      this.heartbeat();
-      this.timer = setInterval(
-        () => this.heartbeat(),
-        this.options.heartbeatMs ?? 500
-      );
-    }
+    this.app = await TestApp.start();
+    const fake = await sharedRoomrFake();
+    this.node = await fake.createNode({
+      nodeRef: this.nodeRef,
+      rooms: this.options.rooms,
+      maxRooms: this.options.maxRooms,
+      reportedRooms: this.options.reportedRooms,
+      region: this.options.region,
+      heartbeatMs: this.options.heartbeatMs ?? 500,
+      sessionEndpoint: this.app.address,
+      callee: { mode: MODE[this.options.callee ?? "answer"] }
+    });
+    this.controlAddr = this.node.controlAddr;
     return this.controlAddr;
   }
 
-  /** Says node.down and stops. */
-  async down() {
-    this.publish(`roomr.nodes.${this.nodeRef}.heartbeat`, {
-      type: "node.down",
-      node_ref: this.nodeRef
-    });
-    await this.stop();
+  private get started(): FakeNode {
+    if (!this.node) throw new Error(`FakeRoomr ${this.nodeRef}: not started`);
+    return this.node;
   }
 
-  /** Dies without a word: no node.down, no more heartbeats, connections dropped. */
-  kill() {
-    clearInterval(this.timer);
-    this.server?.forceShutdown();
+  /** What the dialed party of one call_ref does. */
+  callee(callee: FakeCallee, callRef: string): Promise<void> {
+    return this.started.callee(MODE[callee], { callRef });
+  }
+
+  /** The requests of one RPC ("CreateCall", ...), as camelCase objects, in order. */
+  async of(method: RoomrMethod): Promise<Record<string, any>[]> {
+    return (await this.started.requests(method)).map((r) => r.request);
+  }
+
+  /** Every request the node received, in order. */
+  async requests(): Promise<
+    { method: RoomrMethod; request: Record<string, any> }[]
+  > {
+    return (await this.started.requests()).map(({ method, request }) => ({
+      method,
+      request
+    }));
+  }
+
+  /** INVITEs sent: one per call_ref the node took (a repeated CreateCall sends none). */
+  async invites(): Promise<number> {
+    const refs = new Set(
+      (await this.of("CreateCall")).map((r) => String(r.callRef))
+    );
+    let known = 0;
+    for (const ref of refs) {
+      const s = await this.started
+        .call(ref)
+        .status()
+        .catch(() => undefined);
+      if (s) known += 1;
+    }
+    return known;
+  }
+
+  /** The node's state of a call: ringing, answered or ended ("" once it forgot it). */
+  async callState(callRef: string): Promise<string> {
+    return (await this.started.call(callRef).status()).state;
+  }
+
+  /** Rooms the node holds. */
+  async roomCount(): Promise<number> {
+    return (await this.started.info()).rooms;
+  }
+
+  /** The next `times` calls of `method` fail with `code`. */
+  failNext(method: RoomrMethod, code: grpc.status, times = 1) {
+    return this.started.failNext(method, code, times);
+  }
+
+  /** The next `times` calls of `method` are served only after `ms` (past the caller's deadline). */
+  stallNext(method: RoomrMethod, ms: number, times = 1) {
+    return this.started.stallNext(method, ms, times);
+  }
+
+  /** The dialed party of a ringing call (callee "ring") answers. */
+  async answer(callRef: string) {
+    await this.started.call(callRef).answer();
+  }
+
+  /** The dialed party hangs up: call.ended callee_hangup. */
+  async hangUp(callRef: string) {
+    await this.started.call(callRef).hangup();
+  }
+
+  /** Ends a call with any cause (app_gone, media_timeout, ...), as the node would. */
+  async endCall(callRef: string, cause: string, sipStatus?: number) {
+    await this.started.call(callRef).end(cause, sipStatus);
+  }
+
+  /** Says node.down (draining: not offered any more). */
+  async down() {
+    await this.started.down();
+  }
+
+  /** Dies without a word: no node.down, no more heartbeats, gRPC refuses. */
+  async kill() {
+    await this.node?.kill();
   }
 
   async stop() {
-    clearInterval(this.timer);
-    const server = this.server;
-    this.server = undefined;
-    if (server)
-      await new Promise<void>((resolve) => server.tryShutdown(() => resolve()));
+    await this.node?.stop();
+    this.app?.stop();
   }
 }

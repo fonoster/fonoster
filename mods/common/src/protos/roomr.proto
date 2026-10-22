@@ -9,7 +9,7 @@ syntax = "proto3";
 
 package roomr.v1;
 
-option go_package = "github.com/fonoster/fonoster/go/roomr/api/roomr/v1;roomrv1";
+option go_package = "github.com/fonoster/roomr/api/roomr/v1;roomrv1";
 
 service Roomr {
   // Dial out. The room is created, or room_ref is joined (created when it does not exist yet).

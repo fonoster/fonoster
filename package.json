@@ -45,6 +45,7 @@
     "prepare": "husky",
     "release": "lerna publish --yes --no-git-reset --dist-tag latest $(./ops/release/next-release.sh) --message \"chore(release): publish %s [skip ci]\"",
     "start:docs": "cd docs-site && npx --yes mint@4.2.1045 dev --port 3333",
+    "sync:roomr": "node mods/common/scripts/sync-roomr-protos.cjs",
     "test": "cross-env LOGS_LEVEL=none NODE_ENV=development mocha --timeout 30000 --ignore 'mods/**/*.integration.test.ts' 'mods/!(dashboard)/**/*.test.ts'"
   },
   "dependencies": {

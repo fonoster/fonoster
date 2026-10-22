@@ -121,9 +121,10 @@ services:
       default:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.41
 
-  # The Roomr node: config/roomr.yaml.
+  # The Roomr node: config/roomr.yaml. Released from fonoster/roomr and pinned by digest; the pin
+  # moves with @fonoster/roomr in mods/conformance (the QA gate checks they match).
   roomr:
-    image: fonoster/roomr:${FONOSTER_VERSION:?set FONOSTER_VERSION}
+    image: fonoster/roomr:0.2.0@sha256:6f921b48bc7e2a6dd52a37ae78487147003e30b8728366f5c4a342edb080fb4e
     restart: unless-stopped
     # SIGTERM drains: the node unregisters, publishes node.down and exits when its rooms end or
     # drainWait (config/roomr.yaml, 10m) runs out; the grace period is a little longer.

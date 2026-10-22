@@ -26,8 +26,9 @@
 //
 // Each process gets the values of .dev/.env (with ${NAME} expanded, as Compose's env_file does)
 // for the ${NAME} placeholders of its config file, .dev/config/<service>.yaml (passed explicitly:
-// the Roomr nodes and AppBridge replicas the tests start look in /config).
-import { spawn, spawnSync } from "node:child_process";
+// the AppBridge replicas the tests start look in /config). The Roomr node is a dev container
+// service (the bundle's pinned image), not run from source.
+import { spawn } from "node:child_process";
 import { existsSync, mkdirSync, symlinkSync, watch } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
@@ -37,8 +38,6 @@ import { fileURLToPath } from "node:url";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const DEV = join(ROOT, ".dev");
 const TSX = join(ROOT, "node_modules", ".bin", "tsx");
-const ROOMR_SRC = join(ROOT, "go", "roomr");
-const ROOMR_BIN = join(DEV, "bin", "roomr");
 const config = (service) => join(DEV, "config", `${service}.yaml`);
 
 const COLORS = [36, 35, 33, 32, 34, 31];
@@ -47,7 +46,6 @@ const NAMES = [
   "apiserver",
   "appbridge",
   "autopilot",
-  "roomr",
   "dashboard"
 ];
 const width = Math.max(...NAMES.map((n) => n.length));
@@ -98,7 +96,7 @@ function run(name, command, args, options = {}) {
   return child;
 }
 
-// SIGTERM, then SIGKILL: the Roomr node drains calls on SIGTERM, which a reload should not wait for.
+// SIGTERM, then SIGKILL: a reload should not wait for a process that drains on SIGTERM.
 function stop(child) {
   const kill = (signal) => {
     try {
@@ -160,55 +158,6 @@ function apiserver() {
   );
 }
 
-// The Roomr node: `go build`, then run; rebuilt and restarted when a .go file (or go.mod/go.sum)
-// changes. A failed build keeps the running node.
-function roomr() {
-  const log = (line) =>
-    process.stdout.write(`${"roomr".padEnd(width)} | ${line}\n`);
-  let node;
-  let timer;
-  const build = () => {
-    mkdirSync(dirname(ROOMR_BIN), { recursive: true });
-    const res = spawnSync(
-      "go",
-      ["build", "-buildvcs=false", "-o", ROOMR_BIN, "./cmd/roomr"],
-      {
-        cwd: ROOMR_SRC,
-        env: { ...process.env, GOTOOLCHAIN: "local" },
-        encoding: "utf8"
-      }
-    );
-    if (res.status !== 0) {
-      (res.stderr || res.error?.message || "go build failed")
-        .trim()
-        .split("\n")
-        .forEach(log);
-      return false;
-    }
-    return true;
-  };
-  const start = () => {
-    node = run("roomr", ROOMR_BIN, ["-config", config("roomr")], {
-      quiet: true
-    });
-  };
-  const restart = () => {
-    log("change detected: rebuilding");
-    if (!build()) return log("build failed; the running node keeps running");
-    const old = node;
-    if (old && old.exitCode === null) {
-      old.once("exit", start);
-      stop(old);
-    } else start();
-  };
-  if (build()) start();
-  watch(ROOMR_SRC, { recursive: true }, (_event, file) => {
-    if (!file || !/(\.go|go\.mod|go\.sum)$/.test(file)) return;
-    clearTimeout(timer);
-    timer = setTimeout(restart, 300);
-  });
-}
-
 const COMPONENTS = {
   // Fake TTS (:7001), STT (:7002) and LLM (:7003): .devcontainer/config points AppBridge and
   // Autopilot at them, so calls work without vendor keys.
@@ -228,7 +177,6 @@ const COMPONENTS = {
         config("autopilot")
       )
     ),
-  roomr,
   // Vite on :3030; Envoy (the bundle's) serves it with the API at PUBLIC_URL.
   dashboard: () =>
     run(

@@ -57,7 +57,9 @@
   "bugs": {
     "url": "https://github.com/fonoster/fonoster/issues"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@fonoster/roomr": "0.2.0"
+  },
   "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
   "bin": {
     "fonoster-registry": "dist/registry/cli.js",

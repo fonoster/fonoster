@@ -10,8 +10,7 @@ send back. Any implementation, in any language, passes or fails the same files. 
 
 | Layer | Plays | Under test | Needs |
 | --- | --- | --- | --- |
-| Fake node | Fake Roomr node and fake STT, TTS and LLM | AppBridge (TypeScript) | NATS |
-| Go node | A SIP caller bot, the test plays AppBridge | `go/roomr` | NATS, Go 1.26 |
+| Roomr node | Real Roomr nodes in roomr-fake (`@fonoster/roomr/fake`), fake STT, TTS and LLM | AppBridge, the apiserver's placement | NATS, roomr-fake (downloaded by `npm install`) |
 | Real stack | Caller bot through Routr, real AppBridge and node | Everything together | Routr, node, appbridge (nightly, not yet automated: conformance task 2.5 and 3.11) |
 
 ## Quick start
@@ -43,28 +42,22 @@ suites need it):
 npx mocha 'mods/conformance/test/**/*.test.ts' --exit --timeout 30000
 ```
 
-### Go Roomr node
+### The Roomr node
 
-```sh
-cd go/roomr
-test -z "$(gofmt -l .)" && GOTOOLCHAIN=local go vet ./...
-GOTOOLCHAIN=local go test -race ./...          # e2e tests run when CONFORMANCE_NATS_URL is set
-cd ../.. && npx mocha --exit --timeout 30000 \
-  mods/conformance/test/media-control.test.ts \
-  mods/conformance/test/media-control-go.test.ts \
-  mods/appbridge/test/gonode.test.ts
-```
-
-`media-control.test.ts` runs the same `media-control` files against the fake node;
-`media-control-go.test.ts` runs them against the real Go node, which is how both are kept in step.
+The node itself is tested in [fonoster/roomr](https://github.com/fonoster/roomr): unit tests,
+end-to-end tests against NATS and Routr, and a contract suite run against the real node and
+roomr-fake. Fonoster's release gate requires the pinned Roomr release to have passed them
+(`qa-proofs.yaml`). Here, the suites run real nodes in roomr-fake: `npm install` downloads its
+binary for the pinned `@fonoster/roomr` (set `ROOMR_FAKE_BIN` to use another one; without a
+binary, the `fonoster/roomr-fake` image runs with host networking).
 
 ### Real stack
 
 Real SIP calls need Routr and the whole platform up (the dev container's `npm run dev`, or
 `ops/rebuild/stack up`). The caller bot
-(`go/roomr/cmd/sipcaller`) places the calls; the nightly end-to-end suite is still to be wired
-(conformance tasks 2.5 and 3.11). Until then, run the Go node against AppBridge with
-`mods/appbridge/test/gonode.test.ts`, which is the closest automated check.
+(`sipcaller` in the `fonoster/roomr` image) places the calls; the nightly end-to-end suite is still
+to be wired (conformance tasks 2.5 and 3.11). Until then, `mods/appbridge/test/gonode.test.ts`
+(AppBridge through a Roomr node) is the closest automated check.
 
 ### Timing, load, turn-taking and Pipecat (nightly)
 

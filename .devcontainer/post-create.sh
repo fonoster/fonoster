@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Named volumes are created root-owned.
-sudo chown node:node node_modules /home/node/go
+sudo chown node:node node_modules
 # The checkout is owned by your host user, not `node`: let git (and husky) use it.
 git config --global --add safe.directory /workspaces/fonoster
 
@@ -11,7 +11,6 @@ git config --global --add safe.directory /workspaces/fonoster
 # then every package's build: the services import each other's dist.
 npm ci --no-audit --no-fund
 npm run build
-(cd go/roomr && go mod download)
 
 # The dev config (.dev/), rendered again with the CLI just built; every secret is kept.
 npm run dev:config

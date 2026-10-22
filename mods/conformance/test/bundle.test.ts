@@ -87,18 +87,22 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
   );
   const services = compose.services as Record<string, Service>;
 
-  it("uses published images only, Fonoster's pinned to FONOSTER_VERSION", function () {
+  it("uses published images only, Fonoster's pinned to FONOSTER_VERSION and Roomr's by digest", function () {
     for (const [name, svc] of Object.entries(services)) {
       expect(svc.build, name).to.equal(undefined);
       expect(svc.image, name).to.be.a("string");
     }
-    for (const svc of [
-      "roomr",
-      "appbridge",
-      "autopilot",
-      "apiserver",
-      "dashboard"
-    ])
+    // Roomr is released from fonoster/roomr: the version of @fonoster/roomr the suites run, by
+    // digest (extract-roomr 2.2).
+    const roomr = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8")
+    ).dependencies["@fonoster/roomr"];
+    expect(services.roomr.image).to.match(
+      new RegExp(
+        `^fonoster/roomr:${roomr.replace(/\./g, "\\.")}@sha256:[0-9a-f]{64}$`
+      )
+    );
+    for (const svc of ["appbridge", "autopilot", "apiserver", "dashboard"])
       expect(services[svc].image).to.match(
         new RegExp(`^fonoster/${svc}:\\$\\{FONOSTER_VERSION`)
       );

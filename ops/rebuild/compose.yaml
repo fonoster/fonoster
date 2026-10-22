@@ -22,10 +22,9 @@ services:
     environment:
       NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:-}
 
+  # Roomr is released from fonoster/roomr: the bundle's pinned image, not built here.
   roomr:
-    build:
-      context: ../../go/roomr
-    image: ${RB_REGISTRY:-fonoster}/roomr:${RB_TAG:-dev}
+    image: fonoster/roomr:0.2.0@sha256:6f921b48bc7e2a6dd52a37ae78487147003e30b8728366f5c4a342edb080fb4e
 
   appbridge:
     build:
@@ -155,12 +154,10 @@ services:
       - 50072
       - 50073
 
-  # ---- profile `tools`: the SIP caller bot (go/roomr/cmd/sipcaller), HTTP on RB_CALLER_PORT ----
+  # ---- profile `tools`: the SIP caller bot (fonoster/roomr's cmd/sipcaller), HTTP on RB_CALLER_PORT ----
   sipcaller:
     profiles: ["tools"]
-    build:
-      context: ../../go/roomr
-    image: ${RB_REGISTRY:-fonoster}/roomr:${RB_TAG:-dev}
+    image: fonoster/roomr:0.2.0@sha256:6f921b48bc7e2a6dd52a37ae78487147003e30b8728366f5c4a342edb080fb4e
     entrypoint: ["/sipcaller"]
     command: ["-listen", "0.0.0.0:8080", "-host", "${SUBNET_PREFIX}.44"]
     restart: unless-stopped

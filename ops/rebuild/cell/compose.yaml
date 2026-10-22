@@ -109,10 +109,9 @@ services:
       default:
         ipv4_address: ${RB_NET:-10.216.17}.41
 
+  # Roomr is released from fonoster/roomr: the bundle's pinned image, not built here.
   roomr:
-    build:
-      context: ../../../go/roomr
-    image: ${RB_REGISTRY:-fonoster}/roomr:${RB_TAG:-dev}
+    image: fonoster/roomr:0.2.0@sha256:6f921b48bc7e2a6dd52a37ae78487147003e30b8728366f5c4a342edb080fb4e
     restart: unless-stopped
     stop_grace_period: ${RB_DRAIN_GRACE:-11m}
     depends_on:

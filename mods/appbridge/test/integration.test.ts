@@ -18,7 +18,12 @@
  */
 import { expect } from "chai";
 import { NatsConnection, StringCodec, connect } from "nats";
-import { FakeApp, FakesHarness, Peer } from "@fonoster/conformance";
+import {
+  FakeApp,
+  FakeSessionNode,
+  FakesHarness,
+  Peer
+} from "@fonoster/conformance";
 import {
   callSubject,
   AppConfig,
@@ -144,7 +149,7 @@ describe("@appbridge integration", function () {
     await harness.roomrNode.offerCall();
     await waitFor(() => commands().includes("hangup"), 6000);
     expect(harness.app.attempts.every((a) => !a.accepted)).to.equal(true);
-    expect(harness.roomrNode.outputAudioMs(since)).to.be.greaterThan(500);
+    expect(await harness.roomrNode.outputAudioMs(since)).to.be.greaterThan(500);
     const types = [...record.records.values()][0].map((e) => e.message.type);
     expect(types).to.include.members(["app.connect_failed", "app.unreachable"]);
   });
@@ -201,13 +206,21 @@ describe("@appbridge integration", function () {
     const start1 = await waitFor(() =>
       json(first).find((m) => m.type === "session.start")
     );
-    const second = await harness.roomrNode.offerCall({ callRef: "dup" });
-    const peer2 = (await harness.app.nextConnection()).peer;
-    const start2 = await waitFor(() =>
-      json(peer2).find((m) => m.type === "session.start")
-    );
-    expect(start1.callRef).to.equal("dup");
-    expect(start2.callRef).to.equal(second.roomRef);
+    // A node never offers two live calls with one ref: the second comes from another node.
+    const otherNode = new FakeSessionNode({
+      endpoint: harness.roomrNode.options.endpoint
+    });
+    try {
+      const second = await otherNode.offerCall({ callRef: "dup" });
+      const peer2 = (await harness.app.nextConnection()).peer;
+      const start2 = await waitFor(() =>
+        json(peer2).find((m) => m.type === "session.start")
+      );
+      expect(start1.callRef).to.equal("dup");
+      expect(start2.callRef).to.equal(second.roomRef);
+    } finally {
+      await otherNode.stop();
+    }
   });
 
   it("[APB-005] hangs up over the call subject only for the call's own workspace (RV-B12)", async function () {

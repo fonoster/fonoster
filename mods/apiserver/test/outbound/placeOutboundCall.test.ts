@@ -529,10 +529,10 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
         ref,
         nodeId: f.nodeRef
       });
-      expect(f.of("CreateCall")).to.have.length(1);
-      expect(f.of("CreateCall")[0]).to.deep.include({ callRef: ref });
+      expect(await f.of("CreateCall")).to.have.length(1);
+      expect((await f.of("CreateCall"))[0]).to.deep.include({ callRef: ref });
       // No room is made ahead of the call and nothing goes to AppBridge over NATS.
-      expect(f.of("CreateRoom")).to.have.length(0);
+      expect(await f.of("CreateRoom")).to.have.length(0);
       await nc.flush();
       expect(statuses.slice(0, 2)).to.deep.equal([
         { ref, status: "TRYING" },
@@ -585,7 +585,7 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
     const a = await node({ callee: "ring", region });
     const b = await node({ callee: "ring", region, rooms: 50 });
     // The first CreateCall answers only after the client's deadline (2 s): an ambiguous outcome.
-    a.stallNext("CreateCall", 2500);
+    await a.stallNext("CreateCall", 2500);
     const ref = `call-timeout-${Date.now()}`;
     const stop = await runOutboundCalls({
       nc,
@@ -604,12 +604,12 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
         nodeId: a.nodeRef
       });
       await new Promise((r) => setTimeout(r, 1000)); // the stalled first attempt lands too
-      expect(a.of("CreateCall").length).to.be.at.least(2);
+      expect((await a.of("CreateCall")).length).to.be.at.least(2);
       expect(
-        new Set(a.of("CreateCall").map((r) => JSON.stringify(r))).size
+        new Set((await a.of("CreateCall")).map((r) => JSON.stringify(r))).size
       ).to.equal(1);
-      expect(a.invites).to.equal(1);
-      expect(b.of("CreateCall")).to.have.length(0);
+      expect((await a.invites())).to.equal(1);
+      expect(await b.of("CreateCall")).to.have.length(0);
     } finally {
       await stop();
       const jsm = await nc.jetstreamManager().catch(() => undefined);
@@ -673,7 +673,7 @@ describe("@apiserver[outbound/runOutboundCalls] with the session registry", func
           onAttempt: async (nodeId, addr) => {
             await placer.placing(ref, nodeId, addr);
             // Written before the node heard anything.
-            expect(f.requests).to.have.length(0);
+            expect((await f.requests())).to.have.length(0);
             expect(
               await Sessions.getSession(kv, "placements", ref)
             ).to.deep.include({ callRef: ref, nodeRef: f.nodeRef });
@@ -719,8 +719,8 @@ describe("@apiserver[outbound/runOutboundCalls] with the session registry", func
       expect((await sweeper.sweep()).sort()).to.deep.equal(
         [lost, early, orphan].sort()
       );
-      expect(f.calls.get(lost)?.call.state).to.equal("ENDED");
-      expect(f.of("EndCall")).to.deep.include({ callRef: lost });
+      expect(await f.callState(lost)).to.equal("ended");
+      expect(await f.of("EndCall")).to.deep.include({ callRef: lost });
       expect(failed.sort()).to.deep.equal([early, orphan].sort());
       for (const ref of [lost, early, orphan])
         expect(await Sessions.getSession(kv, "placements", ref)).to.equal(
