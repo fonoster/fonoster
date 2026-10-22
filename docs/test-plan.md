@@ -55,7 +55,7 @@ This phase is not in your outline. It is small and everything else rests on it.
 2. **The matrices.** Generate, do not hand-write, these lists:
    - Every screen and state in `designs/dashboard.pen`.
    - Every RPC in the control-plane API (from the proto files and `mods/sdk/src`).
-   - Every MediaControl command and event (from `openspec/specs/media-control`).
+   - Every MediaControl command and event (from the `media-control` spec in fonoster/roomr).
    - Every call flow Fonoster uses (from the routing rules and the product specs).
 3. **A results page.** One table per layer: row, test, last run, status. This is how we see progress.
 
