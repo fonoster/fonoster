@@ -42,6 +42,8 @@ type TelnyxFqdn = { id: string; fqdn: string; connection_id: string };
 
 type TelnyxListMeta = { total_pages: number; page_size: number };
 
+type FetchResponse = Awaited<ReturnType<typeof fetch>>;
+
 const PAGE_SIZE = 250;
 
 /**
@@ -86,6 +88,50 @@ class TelnyxClient {
   }
 
   /**
+   * Parses an API response, so a failed call reports its HTTP status instead
+   * of a JSON parse error: some failures come back as an HTML error page.
+   */
+  private async parseEnvelope<T>(
+    response: FetchResponse,
+    method: string,
+    path: string
+  ): Promise<TelnyxEnvelope<T> & { meta?: TelnyxListMeta }> {
+    let parsed: (TelnyxEnvelope<T> & { meta?: TelnyxListMeta }) | undefined;
+
+    try {
+      parsed = (await response.json()) as TelnyxEnvelope<T> & {
+        meta?: TelnyxListMeta;
+      };
+    } catch {
+      parsed = undefined;
+    }
+
+    if (parsed?.errors?.length) {
+      throw new Error(
+        `${parsed.errors[0].title}${
+          parsed.errors[0].detail ? `: ${parsed.errors[0].detail}` : ""
+        }`
+      );
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `Telnyx API returned HTTP ${response.status} for ${method} ${path}`
+      );
+    }
+
+    if (!parsed) {
+      throw new Error(
+        `Telnyx API returned a non-JSON response (HTTP ${
+          response.status
+        }) for ${method} ${path}`
+      );
+    }
+
+    return parsed;
+  }
+
+  /**
    * Lists a resource across pages, so the caller can filter by a field the API
    * does not offer as a filter.
    */
@@ -96,24 +142,17 @@ class TelnyxClient {
     const response = await fetch(
       `${TELNYX_API_BASE}${path}?page[number]=${page}&page[size]=${PAGE_SIZE}`,
       { headers: { Authorization: `Bearer ${this.apiKey}` } }
-    ).then(
-      (r) =>
-        r.json() as Promise<
-          TelnyxEnvelope<Array<unknown>> & { meta: TelnyxListMeta }
-        >
     );
 
-    if (response.errors?.length) {
-      throw new Error(
-        `${response.errors[0].title}${
-          response.errors[0].detail ? `: ${response.errors[0].detail}` : ""
-        }`
-      );
-    }
+    const parsed = await this.parseEnvelope<Array<unknown>>(
+      response,
+      "GET",
+      path
+    );
 
-    const items = response.data ?? [];
+    const items = parsed.data ?? [];
 
-    if ((response.meta?.total_pages ?? page) <= page) {
+    if ((parsed.meta?.total_pages ?? page) <= page) {
       return items;
     }
 
@@ -187,6 +226,23 @@ class TelnyxClient {
       fqdn: params.fqdn,
       port: 5060,
       dns_record_type: "a"
+    });
+  }
+
+  /**
+   * Replaces a connection's SIP password, for a trunk whose Fonoster side lost
+   * its credentials: the original password was returned once at creation, so
+   * the recovery path rotates it. The API returns the new password in full
+   * when it changes.
+   */
+  async rotateConnectionPassword(
+    connectionId: string,
+    userName: string,
+    password: string
+  ): Promise<void> {
+    await this.request("PATCH", `/fqdn_connections/${connectionId}`, {
+      user_name: userName,
+      password
     });
   }
 

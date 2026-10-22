@@ -83,11 +83,11 @@ after your workspace's access key ID in lowercase, shown here as `wo7d2kq9x4m1c8
 **In Telnyx:**
 
 - An FQDN connection named `Trunk-<access key ID>`, which carries the SIP credentials Fonoster
-  signs its outbound calls with: a username `fonoster<access key ID>` and a password the command
-  generates. Fonoster sends your outbound calls to `sip.telnyx.com`, and Telnyx asks for these
-  credentials with a `407 Proxy Authentication Required` challenge.
+  signs its outbound calls with: a username made of `fonoster` plus the first 24 characters of
+  the access key ID, and a password the command generates. Fonoster sends your outbound calls to
+  `sip.telnyx.com`, and Telnyx checks those credentials on each call.
 - An outbound voice profile named `OutboundProfile-<access key ID>` on that connection, which
-  routes your outbound calls and caps their spending.
+  routes your outbound calls.
 - An FQDN entry on the connection pointing at `<access key ID>.pstn.fonoster.com`. Telnyx sends
   calls to your number there.
 - Your number assigned to the connection. Telnyx then sends its calls over SIP, not to a webhook
@@ -106,7 +106,9 @@ addresses, the linked trunk ignores it; remove those IP entries if you no longer
 
 To link more Telnyx numbers, run the command again. It reuses the trunks it already created on
 both sides and only adds the number. If the number is already in your workspace, the command
-replaces it.
+replaces it. If the trunk was deleted on one side, the command repairs it: when the Fonoster
+trunk is gone it rotates the Telnyx connection's credentials, and when the connection is gone it
+points the Fonoster trunk at fresh credentials.
 
 ## Change where calls go
 
@@ -133,9 +135,9 @@ fonoster sipnet:numbers:linkTelnyxNumber \
   API key you entered. Check the account and the E.164 format.
 - **The number rings but nothing answers.** Check that the number points at an application under
   **Numbers**.
-- **Outbound calls fail.** The trunk's Credentials and the Telnyx connection's credentials have to
-  match. If you deleted the trunk on one side and re-ran the command, delete the other side's
-  trunk too (it may keep the old credentials), then run the command again.
+- **Outbound calls fail.** The trunk's Credentials and the Telnyx connection's credentials have
+  to match. A run of the command repairs a mismatch it can see; if the trunk was created by
+  hand, check that its Credentials match the connection's in the Telnyx portal.
 
 ## Next steps
 

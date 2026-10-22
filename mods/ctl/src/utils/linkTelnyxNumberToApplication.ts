@@ -66,9 +66,9 @@ async function linkTelnyxNumberToApplication(
   let outboundCredentialsRef: string | undefined;
 
   if (!telnyxTrunk) {
-    // The outbound voice profile routes Fonoster's outbound calls and caps their
-    // spending. Its name is unique in the Telnyx account, so it carries the
-    // workspace's access key id.
+    // The outbound voice profile routes Fonoster's outbound calls. Its name is
+    // unique in the Telnyx account, so it carries the workspace's access key
+    // id.
     const voiceProfile = await telnyxClient.createOutboundVoiceProfile(
       `OutboundProfile-${resourceRef}`
     );
@@ -94,14 +94,53 @@ async function linkTelnyxNumberToApplication(
     });
 
     outboundCredentialsRef = credentialsRef.ref;
+
+    // The trunk here may have outlived its connection (a manual delete in the
+    // portal): point it at the new credentials so its outbound calls
+    // authenticate again.
+    if (fonosterTrunk) {
+      const trunks = new Fonoster.Trunks(fonosterClient);
+      await trunks.updateTrunk({
+        ref: fonosterTrunk.ref,
+        outboundCredentialsRef: credentialsRef.ref
+      });
+    }
+  } else if (!fonosterTrunk) {
+    // The Fonoster trunk was deleted (or a first run failed after the
+    // connection was created): the original password was returned once, at
+    // creation, so rotate it and store the new pair.
+    const userName = `fonoster${resourceRef.slice(0, 24)}`;
+    const password = randomBytes(24).toString("hex");
+
+    await telnyxClient.rotateConnectionPassword(
+      telnyxTrunk.id,
+      userName,
+      password
+    );
+
+    const credentials = new Fonoster.Credentials(fonosterClient);
+    const credentialsRef = await credentials.createCredentials({
+      name: "Telnyx Trunk",
+      username: userName,
+      password
+    });
+
+    outboundCredentialsRef = credentialsRef.ref;
   }
 
-  // The FQDN is where Telnyx sends the number's calls. One per trunk, made when
-  // the trunk is, so a re-run finds it and keeps the trunk's inbound URI.
+  // The FQDN is where Telnyx sends the number's calls. One per trunk, made
+  // when the trunk is, so a re-run finds it and keeps the trunk's inbound
+  // URI. The API returns the FQDN's connection id as a number, so compare
+  // strings.
   const fqdnUri = `${resourceRef}.${originationUriBase}`;
   const fqdns = await telnyxClient.listFqdns();
 
-  if (!fqdns.some((fqdn) => fqdn.fqdn === fqdnUri)) {
+  if (
+    !fqdns.some(
+      (fqdn) =>
+        String(fqdn.connection_id) === telnyxTrunk.id && fqdn.fqdn === fqdnUri
+    )
+  ) {
     await telnyxClient.createFqdn({
       connectionId: telnyxTrunk.id,
       fqdn: fqdnUri
@@ -143,7 +182,7 @@ async function linkTelnyxNumberToApplication(
   const phoneInfo = phone(phoneNumber);
 
   await numbers.createNumber({
-    name: friendlyName ?? phoneNumber,
+    name: friendlyName?.trim() || phoneNumber,
     telUrl: `tel:${phoneNumber}`,
     appRef: applicationRef,
     trunkRef,

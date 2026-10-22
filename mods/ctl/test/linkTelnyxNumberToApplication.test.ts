@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2026 by Fonoster Inc (https://fonoster.com)
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
  * http://github.com/fonoster/fonoster
  *
  * This file is part of Fonoster
@@ -48,8 +48,10 @@ describe("@ctl[utils/linkTelnyxNumberToApplication]", function () {
   let listFqdns: sinon.SinonStub;
   let createFqdn: sinon.SinonStub;
   let assignNumber: sinon.SinonStub;
+  let rotateConnection: sinon.SinonStub;
   let listFonosterTrunks: sinon.SinonStub;
   let createTrunk: sinon.SinonStub;
+  let updateTrunk: sinon.SinonStub;
   let createCredentials: sinon.SinonStub;
   let listFonosterNumbers: sinon.SinonStub;
   let deleteNumber: sinon.SinonStub;
@@ -80,12 +82,18 @@ describe("@ctl[utils/linkTelnyxNumberToApplication]", function () {
     assignNumber = sandbox
       .stub(TelnyxClient.prototype, "assignNumberToConnection")
       .resolves();
+    rotateConnection = sandbox
+      .stub(TelnyxClient.prototype, "rotateConnectionPassword")
+      .resolves();
 
     listFonosterTrunks = sandbox
       .stub(SDK.Trunks.prototype, "listTrunks")
       .resolves({ items: [] } as never);
     createTrunk = sandbox
       .stub(SDK.Trunks.prototype, "createTrunk")
+      .resolves({ ref: "trunk-ref" });
+    updateTrunk = sandbox
+      .stub(SDK.Trunks.prototype, "updateTrunk")
       .resolves({ ref: "trunk-ref" });
     createCredentials = sandbox
       .stub(SDK.Credentials.prototype, "createCredentials")
@@ -134,6 +142,7 @@ describe("@ctl[utils/linkTelnyxNumberToApplication]", function () {
     const credentials = createCredentials.firstCall.args[0];
     expect(credentials.username).to.equal(connection.userName);
     expect(credentials.password).to.equal(connection.password);
+    expect(updateTrunk).to.not.have.been.called;
 
     expect(createTrunk).to.have.been.calledOnce;
     const trunk = createTrunk.firstCall.args[0];
@@ -187,6 +196,7 @@ describe("@ctl[utils/linkTelnyxNumberToApplication]", function () {
     expect(createFqdn).to.not.have.been.called;
     expect(assignNumber).to.have.been.calledOnceWithExactly("tn-1", "conn-2");
     expect(createTrunk).to.not.have.been.called;
+    expect(updateTrunk).to.not.have.been.called;
     expect(createNumber.firstCall.args[0]).to.include({
       trunkRef: "trunk-ref"
     });
@@ -214,5 +224,78 @@ describe("@ctl[utils/linkTelnyxNumberToApplication]", function () {
     expect(createProfile).to.not.have.been.called;
     expect(createTrunk).to.not.have.been.called;
     expect(createNumber).to.not.have.been.called;
+  });
+
+  it("uses the number as the name when the friendly name is empty", async function () {
+    await linkTelnyxNumberToApplication(telnyxClient, client, {
+      ...params,
+      friendlyName: "   "
+    });
+
+    expect(createNumber.firstCall.args[0]).to.include({
+      name: "+18095550123"
+    });
+  });
+
+  it("rotates the connection's credentials when the Fonoster trunk is gone", async function () {
+    const telnyxTrunk = {
+      id: "conn-2",
+      connection_name: `Trunk-${accessKeyId.toLowerCase()}`
+    };
+
+    listConnections.resolves([telnyxTrunk]);
+    listFqdns.resolves([
+      {
+        id: "fqdn-1",
+        fqdn: `${accessKeyId.toLowerCase()}.pstn.fonoster.com`,
+        connection_id: "conn-2"
+      }
+    ]);
+
+    await linkTelnyxNumberToApplication(telnyxClient, client, params);
+
+    expect(rotateConnection).to.have.been.calledOnce;
+    expect(rotateConnection.firstCall.args[0]).to.equal("conn-2");
+    expect(rotateConnection.firstCall.args[1]).to.equal(
+      `fonoster${accessKeyId.toLowerCase().slice(0, 24)}`
+    );
+    expect(createProfile).to.not.have.been.called;
+    expect(createConnection).to.not.have.been.called;
+
+    const rotatedPassword = rotateConnection.firstCall.args[2] as string;
+    expect(rotatedPassword).to.have.lengthOf(48);
+    expect(createCredentials.firstCall.args[0].password).to.equal(
+      rotatedPassword
+    );
+
+    expect(createTrunk).to.have.been.calledOnce;
+    expect(createTrunk.firstCall.args[0].outboundCredentialsRef).to.equal(
+      "creds-ref"
+    );
+  });
+
+  it("re-points the Fonoster trunk when the Telnyx connection is gone", async function () {
+    const fonosterTrunk = {
+      ref: "trunk-ref",
+      inboundUri: `${accessKeyId.toLowerCase()}.pstn.fonoster.com`
+    };
+
+    listConnections.resolves([]);
+    listFonosterTrunks.resolves({ items: [fonosterTrunk] } as never);
+
+    await linkTelnyxNumberToApplication(telnyxClient, client, params);
+
+    expect(createProfile).to.have.been.calledOnce;
+    expect(createConnection).to.have.been.calledOnce;
+    expect(createFqdn).to.have.been.calledOnce;
+    expect(assignNumber).to.have.been.calledOnceWithExactly("tn-1", "conn-1");
+    expect(updateTrunk).to.have.been.calledOnceWithExactly({
+      ref: "trunk-ref",
+      outboundCredentialsRef: "creds-ref"
+    });
+    expect(createTrunk).to.not.have.been.called;
+    expect(createNumber.firstCall.args[0]).to.include({
+      trunkRef: "trunk-ref"
+    });
   });
 });
