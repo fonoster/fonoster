@@ -30,9 +30,9 @@ import { NEW_URI, TRANSPORTS, type TrunkValues } from "./trunk-form";
 
 const TRANSPORT_OPTIONS = TRANSPORTS.map((t) => ({ value: t, label: t }));
 
-/** Row cells read as plain text, as in the designs, and show their box on hover or focus. */
+/** Row cells keep the field look (fill and border) so they read as editable. */
 const cellInput =
-  "h-8 rounded-[6px] border-transparent bg-transparent px-2.5 font-mono text-xs hover:border-input";
+  "h-8 rounded-[6px] px-2.5 font-mono text-xs hover:border-ring/60";
 
 /** The editable table of a trunk's outbound SIP URIs. */
 export function OutboundUris({ form }: { form: UseFormReturn<TrunkValues> }) {

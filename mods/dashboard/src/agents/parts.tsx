@@ -132,8 +132,8 @@ export function SettingRow({
 
 /**
  * The 150px box on the right of a SettingRow: right-aligned mono values with
- * their units inside ("5000 ms", "10 s · 3×"). It reads as plain text, as in the
- * designs, and shows its box on hover or focus.
+ * their units inside ("5000 ms", "10 s · 3×"). It has the field fill and border
+ * at rest, so it stands out from the panel behind it in both themes.
  */
 export function ValueBox({
   children,
@@ -147,7 +147,7 @@ export function ValueBox({
   return (
     <div
       className={cn(
-        "flex h-[30px] w-[150px] shrink-0 items-center justify-end gap-1 rounded-[8px] border border-transparent px-2.5 font-mono text-xs text-foreground hover:border-input focus-within:border-ring focus-within:bg-background focus-within:ring-2 focus-within:ring-ring/30",
+        "flex h-[30px] w-[150px] shrink-0 items-center justify-end gap-1 rounded-[8px] border border-input bg-background px-2.5 font-mono text-xs text-foreground hover:border-ring/60 focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/30",
         invalid && "border-destructive",
         className
       )}
