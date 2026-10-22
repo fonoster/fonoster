@@ -35,9 +35,9 @@ import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import { DropdownMenuItem } from "~/components/ui/dropdown-menu";
 import { Field } from "~/components/ui/field";
-import { Input } from "~/components/ui/input";
 import { Select } from "~/components/ui/select";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
+import { Textarea } from "~/components/ui/textarea";
 import { errorMessage, useSessionMutation, useSessionQuery } from "./api";
 import type { CatalogEntry } from "./types";
 
@@ -302,10 +302,12 @@ function VendorKeyDrawer({
             hint="Stored encrypted. It can't be read back."
           >
             {(p) => (
-              <Input
+              <Textarea
                 {...p}
-                type="password"
+                rows={4}
+                spellCheck={false}
                 autoComplete="off"
+                className="font-mono"
                 value={key}
                 onChange={(e) => setKey(e.target.value)}
               />
