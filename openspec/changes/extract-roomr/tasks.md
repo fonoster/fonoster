@@ -16,7 +16,8 @@
 
 - [x] 2.1 `npm run sync:roomr`: copy the protos of the pinned `@fonoster/roomr` (its release's files) into mods/common/src/protos; the roomr client test fails on drift
 - [x] 2.2 Pin the Roomr image by digest in ops/bundle (the devcontainer extends it), ops/rebuild, the cell and the Helm values
-- [ ] 2.2.1 The Helm chart depends on fonoster/roomr's charts/roomr once that chart is published (OCI)
+- [x] 2.2.1 Roomr publishes charts/roomr to oci://ghcr.io/fonoster/charts/roomr with each release (from v0.2.2), embeddable in a parent chart (existingConfigMap, templated env)
+- [ ] 2.2.2 Fonoster's chart depends on it (owner, 2026-10-22: later, once the switch loses nothing: env is static in a subchart and a parent-rendered config does not restart pods); tracked as an issue
 - [x] 2.3 Conformance: FakeRoomr, FakeSessionNode and RealMediaHarness run real nodes in roomr-fake (binary from the release, else the image); the integration cases and fault scripting go through its control API
 - [x] 2.4 Release gate: the pinned Roomr release exists, passed Roomr's CI, and matches the bundle's pin; the release smoke runs the bundle with the real pinned image
 - [x] 2.5 Delete go/roomr and the Go jobs in pr-checks, conformance and qa-proofs; no Go or libopus in Fonoster CI or the dev container
