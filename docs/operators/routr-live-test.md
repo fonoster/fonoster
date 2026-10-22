@@ -1,94 +1,64 @@
-# Live call through Routr (test rig)
+# Live calls through Routr (test rig)
 
-This test runs one real call through Routr into the new stack:
+One Go e2e test runs real calls through a real Routr into two Roomr nodes:
 
 ```
-caller bot ──INVITE sip:+17853178070@trunk.rig.local──▶ Routr ──▶ Go Roomr node ──media-control──▶ appbridge ──WebSocket──▶ app
+caller bot ──INVITE (TCP)──▶ Routr edgeport ──▶ the lighter of two Roomr nodes ──control stream──▶ fake app
 ```
 
-It checks the parts that only a real Routr can show:
+It checks what only a real Routr can show:
 
-- The Roomr node registers as Peer `roomr` (`sip:roomr@rig.local`, least-sessions), and
-  Routr stores its `X-Session-Count`: 0 when idle, 1 during the call, 0 again after it.
-- Routr finds the Trunk by the Request-URI host (`trunk.rig.local`), the Number by the dialed
-  number, and sends the call to the Peer whose AOR is the Number's `aorLink`.
-- The Number's `x-app-ref` extra header reaches the node, so the app gets `session.start` with
-  `appRef: app-rig`.
-- Audio goes both ways (caller to app and app to caller), and the caller's BYE crosses Routr and
-  ends the session.
-- A node stopped with SIGTERM removes its route from Routr.
+- Both nodes register as one Peer (`sip:roomr@sip.local`, least-sessions) and send their room
+  count in `X-Session-Count`, rendered from the registration's `{sessions}` template.
+- Routr finds the Trunk by the Request-URI host, the Number by the dialed number, and sends the
+  call to the Peer whose AOR is the Number's `aorLink`.
+- Routr picks the node that reported fewer sessions, in both directions: node A carries three rooms
+  and the call goes to B; then B carries five and the call goes to A. Audio flows through the call.
 
-The test is `mods/appbridge/test/routr.live.test.ts`. It is skipped unless `ROUTR_LIVE=1`.
+The test is `TestROM034_LiveRoutrLeastSessions` in `go/roomr/e2e/routr_live_test.go`, case
+ROM-034 of the QA catalog (`mods/conformance/catalog/areas/roomr.md`). It fails, never skips,
+without a Routr: CI starts one in the `go` job of pr-checks and in the QA workflow's Roomr job.
 
 ## Run it
 
-You need Docker, Go 1.25, and a NATS server for media-control. Use your own NATS, not a shared one:
-another AppBridge on the same NATS would claim the call.
+You need Docker, Go and a NATS server with JetStream for the nodes' heartbeats and events.
 
 ```sh
-mods/appbridge/test/routr/rig.sh up        # Postgres + Routr 2.15.4; about a minute the first time
-CONFORMANCE_NATS_URL=nats://127.0.0.1:4235 mods/appbridge/test/routr/rig.sh test
-mods/appbridge/test/routr/rig.sh down      # removes the containers and the database
+cd go/roomr
+docker compose -f e2e/testdata/routr/compose.yaml up -d --wait
+ROUTR_EDGEPORT=127.0.0.1:15360 ROUTR_NODE_HOST=host.docker.internal \
+  CONFORMANCE_NATS_URL=nats://127.0.0.1:4222 go test ./e2e -run LiveRoutr -count=1 -v
+docker compose -f e2e/testdata/routr/compose.yaml down
 ```
 
-`rig.sh logs` follows Routr's logs. The test can run many times against one rig: it creates or
-updates its Routr resources by name each time.
+Leave a few seconds between runs so the contacts of the last run expire (the test registers with
+`expires: 4s`).
 
 ## What the rig is
 
-`mods/appbridge/test/routr/compose.yaml` starts two containers:
-
-| Container | What | Host ports |
-| --- | --- | --- |
-| `rb-cutover-routr-postgres` | Postgres 16 with a `routr` database | none |
-| `rb-cutover-routr` | `fonoster/routr-one:2.15.4`, `START_INTERNAL_DB=false` | 15560 SIP (UDP, TCP), 15551 API, 15552 location |
-
-Notes:
-
-- **Migrations.** With an external database, the image's start command runs
-  `npx prisma@6.12.0 migrate deploy` against `DATABASE_URL` (Routr's 3 migrations). That is the
-  same path the platform Compose file uses. The internal-database mode stalls at start, so the rig
-  does not use it.
-- **SIP port 15560.** The rig mounts its own EdgePort config (`edgeport.yaml`, through
-  `CONFIG_PATH`) so Routr listens on 15560 inside the container too. Routr writes that port in Via
-  and Record-Route, and the host reaches it through the port mapping. `EXTERNAL_ADDRS=127.0.0.1`
-  makes Routr write `127.0.0.1` there.
-- **Port 15552** exposes Routr's internal location service. The test reads the node's route from
-  it to check `X-Session-Count`. Production setups should not expose it.
-
-## Docker for Mac networking
-
-Routr runs in Docker. The node, the caller bot and AppBridge run on the host.
-
-- **Routr to the host.** Routr reaches the host as `host.docker.internal` (IPv4 `192.168.65.254`;
-  `rig.sh test` looks it up). The node and the bot put that address in Via and Contact
-  (`sip.advertise`).
-- **Routr stores the address a REGISTER came from**, not the Contact (`received`/`rport`). On
-  Docker for Mac that is a NAT address. So the node sends every request from its listening UDP
-  port and adds `rport`. Routr's INVITEs then come back through the same NAT mapping. The node now
-  always does this (CO-B2), because it is also correct behind cloud NAT.
-- **RTP does not go through Routr** (no RTPEngine in the rig). The bot and the node exchange RTP
-  on `127.0.0.1` directly.
-
-## Resources the test creates (with @routr/sdk)
+`go/roomr/e2e/testdata/routr/compose.yaml` runs Routr 2.15.4 (the bundle's version) as separate
+services with YAML resources and no database: edgeport (SIP on 15360, TCP and UDP), dispatcher,
+location, connect and simpledata. The resources are in `testdata/routr/resources`:
 
 | Resource | Values |
 | --- | --- |
-| Credentials | `roomr credentials`: username `roomr` |
-| Peer | `Roomr nodes`: aor `sip:roomr@rig.local`, `LEAST_SESSIONS`, `maxContacts: -1` |
-| Trunk | `trunk trunk.rig.local`: inboundUri `trunk.rig.local`, no ACL or inbound credentials |
-| Number | `tel:+17853178070`: aorLink `sip:roomr@rig.local`, trunkRef as above, extra header `x-app-ref: app-rig` |
+| Credentials | username `roomr` |
+| Peer | `Roomr nodes`: aor `sip:roomr@sip.local`, least-sessions |
+| Trunk | inbound URI `trunk01.acme.com` |
+| Number | `tel:+15550001000`: aorLink `sip:roomr@sip.local`, extra header `X-App-Ref: app-live` |
 
-The code is in `mods/appbridge/test/routr/provision.ts`. It also works as a reference for setting up
-a real roomr Peer.
+## Networking
 
-## Things that tripped the first run
+Routr runs in Docker; the nodes and the caller bot run in the test process on the host.
 
-- Routr's update calls need the full object (`name` for Numbers; `name` and `username` for
-  Credentials). A partial update fails with "Expected a string but received a undefined".
-- A killed node's route stays in Routr until it expires (the registration's `expires`; 30 s by
-  default). Least-sessions can pick that dead route. The test waits until its node's route is the
-  only one. A node stopped with SIGTERM now unregisters on exit (the test's last check), so only
-  crashes leave dead routes.
-- The node re-registers right away only when its load changes by 5 or more rooms, or drops to 0.
-  Smaller changes wait for the timer. The test registers with `expires: 4s` (a refresh every 2 s).
+- **Routr to the host.** Routr reaches the host as `host.docker.internal` (the compose file maps
+  it to the host gateway, so this works on Linux too). The nodes put that name in Contact
+  (`ROUTR_NODE_HOST`).
+- **Signaling uses TCP.** Docker Desktop's UDP NAT rewrites sources unpredictably.
+- **Routr stores the address a REGISTER came from**, not the Contact (`received`/`rport`), so the
+  node sends every request from its listening port and adds `rport`, which is also correct behind
+  cloud NAT.
+- **RTP does not go through Routr** (no RTPEngine in the rig): the bot and the node exchange RTP on
+  127.0.0.1 directly.
+- The node re-registers right away when its room count changes by `reregisterDelta` (1 in the
+  test) or drops to 0; otherwise at half the expiry.

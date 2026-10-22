@@ -47,6 +47,10 @@ data:
       {{- include "fonoster-rebuild.natsConfig" (dict "root" $ "user" "region-agent") | nindent 6 }}
     database: { urlEnv: APISERVER_DATABASE_URL, encryptionKeyEnv: APISERVER_ENCRYPTION_KEY }
     cellSecrets: { dir: /var/lib/fonoster-secrets }
+    {{- if not (hasKey ($r.config | default dict) "appbridge") }}
+    # AppBridge's readiness: its grpc.health.v1 check through its Service (the Session port).
+    appbridge: { address: {{ printf "%s-appbridge:%d" .Release.Name (.Values.appbridge.sessionPort | int) | quote }} }
+    {{- end }}
     {{- toYaml $r.config | nindent 4 }}
 {{- if $r.enroll.token }}
 ---

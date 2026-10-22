@@ -44,6 +44,7 @@ export type RegionKind = "public" | "private";
 
 export type Components = {
   roomrNodes: number;
+  /** Whether AppBridge is ready (its health check through its Service): 1, or 0. */
   appbridges: number;
   autopilot: boolean;
 };

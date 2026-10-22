@@ -1,41 +1,17 @@
 package e2e
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"testing"
 	"time"
 
 	roomrv1 "github.com/fonoster/fonoster/go/roomr/api/roomr/v1"
 	"github.com/fonoster/fonoster/go/roomr/internal/node"
-	"github.com/nats-io/nats.go"
 )
 
-// Events keyed by call (redesign-roomr task 4.3): a second controller replica, on its own
-// NATS connection, follows a call it did not place on roomr.events.<call_ref>; seq is contiguous
-// and the metadata from CreateCall are echoed on every event.
-
-// replica is a second controller's view of one subject.
-func replica(t *testing.T, subject string) chan map[string]any {
-	t.Helper()
-	nc, err := nats.Connect(os.Getenv("CONFORMANCE_NATS_URL"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(nc.Close)
-	events := make(chan map[string]any, 32)
-	if _, err := nc.Subscribe(subject, func(m *nats.Msg) {
-		var ev map[string]any
-		if json.Unmarshal(m.Data, &ev) == nil {
-			events <- ev
-		}
-	}); err != nil {
-		t.Fatal(err)
-	}
-	_ = nc.Flush()
-	return events
-}
+// Events keyed by call: a second controller replica, on its own NATS connection, follows a call
+// it did not place on roomr.events.<call_ref>; seq is contiguous and the metadata from
+// CreateCall are echoed on every event.
 
 // expectSeq reads the next events, checking their types, call_ref, node_ref and seq first,
 // first+1, ….
@@ -57,24 +33,24 @@ func expectSeq(t *testing.T, events chan map[string]any, callRef, nodeRef string
 	return got
 }
 
-func TestCallEventsFollowedByAnotherReplica(t *testing.T) {
+func TestROM029_CallEventsFollowedByAnotherReplica(t *testing.T) {
 	r := start(t)
-	_, mc := r.withControl(nil)
 	callRef := fmt.Sprintf("ev-%d", time.Now().UnixNano())
 	events := replica(t, node.CallEventsSubject(callRef))
 	ctx := rpcCtx(t)
-	if _, err := mc.CreateCall(ctx, &roomrv1.CreateCallRequest{CallRef: callRef, From: "+15550001",
+	if _, err := r.mc.CreateCall(ctx, &roomrv1.CreateCallRequest{CallRef: callRef, From: "+15550001",
 		To:       &roomrv1.SipTarget{Uri: "sip:+15551234567@carrier.invalid", Proxy: r.callee.Address()},
 		Metadata: map[string]string{"tenant": "t1"}, RingTimeoutS: 10}); err != nil {
 		t.Fatal(err)
 	}
-	got := expectSeq(t, events, callRef, r.node.ID(), 1, "call.started", "call.ringing", "call.answered", "participant.joined")
+	got := expectSeq(t, events, callRef, r.node.ID(), 1, "call.started", "call.ringing", "call.answered",
+		"participant.joined", "participant.joined")
 	r.calleeCall()
-	if _, err := mc.EndCall(ctx, &roomrv1.EndCallRequest{CallRef: callRef}); err != nil {
+	if _, err := r.mc.EndCall(ctx, &roomrv1.EndCallRequest{CallRef: callRef}); err != nil {
 		t.Fatal(err)
 	}
-	got = append(got, expectSeq(t, events, callRef, r.node.ID(), 5, "participant.left", "call.ended")...)
-	if ended := got[5]; ended["cause"] != node.ReasonRemoved || ended["answered"] != true {
+	got = append(got, expectSeq(t, events, callRef, r.node.ID(), 6, "participant.left", "participant.left", "call.ended")...)
+	if ended := got[7]; ended["cause"] != node.ReasonRemoved || ended["answered"] != true {
 		t.Fatalf("call.ended %v", ended)
 	}
 	for _, ev := range got {
@@ -84,14 +60,14 @@ func TestCallEventsFollowedByAnotherReplica(t *testing.T) {
 	}
 }
 
-func TestCallEndedCarriesSIPStatusAndCause(t *testing.T) {
+// A busy callee: call.started, call.ringing, call.ended with the SIP status and the cause; no
+// room was created, so nothing on any room subject.
+func TestROM022_CallEndedCarriesSIPStatusAndCause(t *testing.T) {
 	r := start(t)
-	_, mc := r.withControl(nil)
 	r.callee.Callee("busy", 0)
 	callRef := fmt.Sprintf("evbusy-%d", time.Now().UnixNano())
 	events := replica(t, node.CallEventsSubject(callRef))
-	rooms := replica(t, node.RoomEventsSubject("*"))
-	call, err := mc.CreateCall(rpcCtx(t), &roomrv1.CreateCallRequest{CallRef: callRef,
+	call, err := r.mc.CreateCall(rpcCtx(t), &roomrv1.CreateCallRequest{CallRef: callRef,
 		To: &roomrv1.SipTarget{Uri: "sip:+1555@carrier.invalid", Proxy: r.callee.Address()}})
 	if err != nil {
 		t.Fatal(err)
@@ -100,25 +76,14 @@ func TestCallEndedCarriesSIPStatusAndCause(t *testing.T) {
 	if ended := got[2]; ended["sip_status"] != float64(486) || ended["cause"] != "busy" || ended["answered"] != false {
 		t.Fatalf("call.ended %v", ended)
 	}
-	deadline := time.After(3 * time.Second)
-	for {
-		select {
-		case ev := <-rooms:
-			if ev["room_ref"] != call.RoomRef {
-				continue // another test's room
-			}
-			if ev["type"] != "room.ended" || ev["cause"] != "busy" || ev["node_ref"] != r.node.ID() {
-				t.Fatalf("room event %v", ev)
-			}
-			return
-		case <-deadline:
-			t.Fatal("no room.ended on the room subject")
-		}
+	time.Sleep(300 * time.Millisecond)
+	if ev := r.find(typed("room.ended", "room_ref", call.RoomRef)); ev != nil {
+		t.Fatalf("room event for a call that never had a room: %v", ev)
 	}
 }
 
-// The heartbeat carries media-control's fields (redesign-roomr task 3.1).
-func TestHeartbeatFields(t *testing.T) {
+// The heartbeat carries the capacity fields and nothing retired (cpu_idle, draining).
+func TestROM031_HeartbeatFields(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) {
 		c.Version, c.Region, c.ControlAddr, c.SIPAddr = "1.4.0", "us-east", "10.0.0.5:50061", "10.0.0.5:5060"
 		c.RTPPorts, c.MaxRooms = [2]int{10000, 20000}, 200
@@ -133,11 +98,10 @@ func TestHeartbeatFields(t *testing.T) {
 				t.Fatalf("heartbeat %s = %v, want %v (%v)", k, ev[k], want, ev)
 			}
 		}
-		if _, has := ev["cpu_idle"]; has {
-			t.Fatalf("heartbeat still carries cpu_idle: %v", ev)
-		}
-		if _, has := ev["draining"]; has {
-			t.Fatalf("heartbeat still carries draining: %v", ev)
+		for _, retired := range []string{"cpu_idle", "draining"} {
+			if _, has := ev[retired]; has {
+				t.Fatalf("heartbeat still carries %s: %v", retired, ev)
+			}
 		}
 		codecs, _ := ev["codecs"].([]any)
 		ports, _ := ev["rtp_ports"].(map[string]any)

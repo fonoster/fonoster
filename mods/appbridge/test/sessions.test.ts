@@ -22,8 +22,9 @@ import { FakesHarness } from "@fonoster/conformance";
 import { Sessions } from "@fonoster/common";
 import { AppBridge, AppBridgeConfig, MemoryCallRecordSink } from "../src";
 
-// AppBridge's session-registry entries (add-platform 2.3): appbridges.<ref> while it runs and
-// calls.<callRef> while a call lives, removed on a clean stop. Needs JetStream:
+// AppBridge's session-registry entries (add-platform 2.3): calls.<callRef> while a call lives,
+// removed on a clean stop, and no appbridges.<ref> membership entry (redesign-roomr 15.3).
+// Needs JetStream:
 // CONFORMANCE_JETSTREAM_URL (or a CONFORMANCE_NATS_URL server with JetStream).
 const URL =
   process.env.CONFORMANCE_JETSTREAM_URL ?? process.env.CONFORMANCE_NATS_URL;
@@ -55,22 +56,24 @@ describe("@appbridge session registry", function () {
       return this.skip();
     }
     harness = await new FakesHarness().start();
-    harness.roomrNode.attachNats(nc);
   });
 
   after(async () => {
     await harness?.stop();
     if (!nc || nc.isClosed()) return;
-    await (await nc.jetstreamManager()).streams
+    await (
+      await nc.jetstreamManager()
+    ).streams
       .delete(`KV_${bucket}`)
       .catch(() => undefined);
     await nc.close();
   });
 
-  it("writes its AppBridge and call entries and removes them on stop", async function () {
+  it("writes its call entries, no AppBridge entry, and removes them on stop", async function () {
     const urls = harness.providerUrls;
     const config: AppBridgeConfig = {
       nats: { url: URL! },
+      session: { listen: "127.0.0.1:0" },
       apps: [
         {
           ref: "a",
@@ -95,14 +98,11 @@ describe("@appbridge session registry", function () {
       record: new MemoryCallRecordSink(),
       sessions: bucket
     }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
     const kv = await Sessions.openSessions(nc, { bucket });
     const callRef = `reg-${Date.now()}`;
     try {
-      const own = await waitFor(() =>
-        Sessions.getSession(kv, "appbridges", appbridge.bridgeRef)
-      );
-      expect(own).to.include({ bridgeRef: appbridge.bridgeRef });
-      const offered = harness.roomrNode.offerCall({ callRef });
+      const offered = await harness.roomrNode.offerCall({ callRef });
       await harness.app.nextConnection();
       const call = await waitFor(() =>
         Sessions.getSession(kv, "calls", callRef)
@@ -117,6 +117,7 @@ describe("@appbridge session registry", function () {
       await appbridge.stop();
     }
     expect(await Sessions.getSession(kv, "calls", callRef)).to.equal(undefined);
+    // AppBridge keeps no membership entry: orchestrators learn its state from grpc.health.v1.
     expect(
       await Sessions.getSession(kv, "appbridges", appbridge.bridgeRef)
     ).to.equal(undefined);

@@ -9,6 +9,12 @@ nats:
 rtp:
   host: 0.0.0.0
   advertiseHost: appbridge
+# The session endpoint (config/roomr.yaml's sessionEndpoint: appbridge:50071) and its readiness
+# check (grpc.health.v1); on SIGTERM live calls run up to drainWait (stop_grace_period is longer).
+session:
+  listen: 0.0.0.0:50071
+  drainWait: 10m
+mediaTimeout: 15s
 database:
   urlEnv: APISERVER_DATABASE_URL
 encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }

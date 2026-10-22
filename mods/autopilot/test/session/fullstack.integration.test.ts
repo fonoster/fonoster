@@ -61,7 +61,6 @@ describe("@autopilot full stack: Roomr node → appbridge → Autopilot → LLM 
 
   it("[APT-020] answers a caller's question with spoken audio", async function () {
     const harness = await new FakesHarness().start();
-    harness.roomrNode.attachNats(nc);
     harness.stt.configure({
       script: [{ atMs: 600, text: "What are your hours?" }]
     });
@@ -95,6 +94,7 @@ describe("@autopilot full stack: Roomr node → appbridge → Autopilot → LLM 
       record,
       config: {
         nats: { url: NATS_URL! },
+        session: { listen: "127.0.0.1:0" },
         apps: [
           {
             ref: "autopilot",
@@ -118,10 +118,14 @@ describe("@autopilot full stack: Roomr node → appbridge → Autopilot → LLM 
         }
       }
     }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
 
     try {
       const start = Date.now();
-      harness.roomrNode.offerCall({ from: "+15550001111", to: "+15550002222" });
+      await harness.roomrNode.offerCall({
+        from: "+15550001111",
+        to: "+15550002222"
+      });
 
       // The greeting is spoken, then the caller's question reaches the LLM as a user message.
       await waitFor(
@@ -172,7 +176,6 @@ describe("@autopilot full stack: Roomr node → appbridge → Autopilot → LLM 
 
   it("[APT-020] stops its reply when the caller cuts in (app-owned interruption)", async function () {
     const harness = await new FakesHarness().start();
-    harness.roomrNode.attachNats(nc);
     harness.stt.configure({
       script: [{ atMs: 600, text: "What are your hours?" }]
     });
@@ -207,6 +210,7 @@ describe("@autopilot full stack: Roomr node → appbridge → Autopilot → LLM 
       record,
       config: {
         nats: { url: NATS_URL! },
+        session: { listen: "127.0.0.1:0" },
         apps: [
           {
             ref: "autopilot",
@@ -230,9 +234,13 @@ describe("@autopilot full stack: Roomr node → appbridge → Autopilot → LLM 
         }
       }
     }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
 
     try {
-      harness.roomrNode.offerCall({ from: "+15550001111", to: "+15550002222" });
+      await harness.roomrNode.offerCall({
+        from: "+15550001111",
+        to: "+15550002222"
+      });
       // The caller's question; Autopilot speaks without a greeting (none configured).
       harness.caller({ audio: { kind: "tone", ms: 700 } });
       const entries = () => [...record.records.values()][0] ?? [];

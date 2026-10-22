@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/fonoster/fonoster/go/roomr/internal/fileconfig"
+	"github.com/fonoster/fonoster/go/roomr/internal/node"
 	"github.com/fonoster/fonoster/go/roomr/internal/secretref"
 	"github.com/fonoster/fonoster/go/roomr/internal/sipua"
 	"github.com/nats-io/nats.go"
@@ -18,7 +19,7 @@ func buildRegistrations(fc *fileconfig.File) ([]sipua.Registration, error) {
 	for _, r := range fc.SIP.Registrations {
 		reg := sipua.Registration{Registrar: r.Registrar, AOR: r.AOR, Headers: r.Headers}
 		if r.Expires != "" {
-			reg.Expires, _ = time.ParseDuration(r.Expires) // checked by fileconfig.Parse
+			reg.Expires, _ = fileconfig.ParseExpires(r.Expires) // checked by fileconfig.Parse
 		}
 		if r.Auth != nil {
 			pass, err := secretref.Resolve(r.Auth.Password)
@@ -34,8 +35,9 @@ func buildRegistrations(fc *fileconfig.File) ([]sipua.Registration, error) {
 
 // registrationStatePublisher publishes registration.state on roomr.nodes.<id>.events
 // (media-control, "Events on NATS are keyed by call with sequence numbers and metadata").
+// Best effort like every event: dropped while NATS is unreachable.
 func registrationStatePublisher(nc *nats.Conn, nodeID string, logger *slog.Logger) func(sipua.RegistrationState) {
-	subject := "roomr.nodes." + nodeID + ".events"
+	subject := node.NodeEventsSubject(nodeID)
 	return func(s sipua.RegistrationState) {
 		ev := map[string]any{"type": "registration.state", "node_ref": nodeID, "registrar": s.Registrar,
 			"aor": s.AOR, "state": s.State, "timestamp": time.Now().UTC().Format(time.RFC3339Nano)}

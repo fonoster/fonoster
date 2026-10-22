@@ -1,175 +1,76 @@
 package e2e
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
 
-	"github.com/fonoster/fonoster/go/roomr/internal/caller"
+	roomrv1 "github.com/fonoster/fonoster/go/roomr/api/roomr/v1"
 	"github.com/fonoster/fonoster/go/roomr/internal/node"
-	"github.com/nats-io/nats.go"
 )
 
 // Rooms without an owner end (roomr "Rooms without an owner end"): a room nobody joins and
-// nobody dials into, and a room whose AppBridge stopped its heartbeats, are ended with node_error,
-// free their slot, and report room.ended (and call.ended on roomr.events.<callRef>, so TrackCall
-// ends).
+// nobody dials into is ended with node_error, frees its slot and reports room.ended on its
+// subject. A call whose app is gone is ended by its control stream (calls_test.go), not here.
 
-func callEvents(t *testing.T, nc *nats.Conn, callRef string) chan map[string]any {
-	t.Helper()
-	events := make(chan map[string]any, 16)
-	sub, err := nc.Subscribe(node.CallEventsSubject(callRef), func(m *nats.Msg) {
-		var ev map[string]any
-		if json.Unmarshal(m.Data, &ev) == nil {
-			events <- ev
-		}
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { _ = sub.Unsubscribe() })
-	_ = nc.Flush()
-	return events
-}
-
-// The control-plane replica that sent room.create died before participant.dial.
-func TestEmptyRoomEnds(t *testing.T) {
+// The controller that sent CreateRoom died before anything joined.
+func TestROM035_EmptyRoomEnds(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) {
 		c.MaxRooms = 1
 		c.EmptyRoomTimeout = 500 * time.Millisecond
 	}})
-	callRef := fmt.Sprintf("orphan-%d", time.Now().UnixNano())
-	events := callEvents(t, r.nc, callRef)
-	room := r.command(map[string]any{"type": "room.create", "id": "c1", "callRef": callRef})["roomRef"].(string)
-	if rep := r.command(map[string]any{"type": "room.create", "id": "c2"}); rep["code"] != "at_capacity" {
-		t.Fatalf("second room.create: %v", rep)
+	ref := fmt.Sprintf("orphan-%d", time.Now().UnixNano())
+	events := replica(t, node.RoomEventsSubject(ref))
+	if _, err := r.mc.CreateRoom(rpcCtx(t), &roomrv1.CreateRoomRequest{RoomRef: ref}); err != nil {
+		t.Fatal(err)
 	}
-	ended := r.waitEvent(typed("room.ended", "roomRef", room), 3*time.Second)
-	if ended["reason"] != node.ReasonNodeError {
-		t.Fatalf("room.ended %v", ended)
+	if _, err := r.mc.CreateRoom(rpcCtx(t), &roomrv1.CreateRoomRequest{}); err == nil {
+		t.Fatal("a second room past the limit")
 	}
-	for _, want := range []string{"call.started", "call.ended"} {
-		select {
-		case ev := <-events:
-			if ev["type"] != want || (want == "call.ended" && ev["cause"] != node.ReasonNodeError) {
-				t.Fatalf("call subject got %v, want %s", ev, want)
-			}
-		case <-time.After(2 * time.Second):
-			t.Fatalf("no %s on the call subject", want)
+	select {
+	case ev := <-events:
+		if ev["type"] != "room.ended" || ev["cause"] != node.ReasonNodeError {
+			t.Fatalf("room event %v", ev)
 		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("no room.ended")
 	}
-	// The slot is free again.
-	if n := r.node.ActiveRooms(); n != 0 {
-		t.Fatalf("rooms %d", n)
+	deadline := time.Now().Add(time.Second)
+	for r.node.ActiveRooms() != 0 && time.Now().Before(deadline) {
+		time.Sleep(10 * time.Millisecond)
 	}
-	if rep := r.command(map[string]any{"type": "room.create", "id": "c3"}); rep["type"] != "ack" {
-		t.Fatalf("room.create after the orphan ended: %v", rep)
-	}
+	r.createRoom()
 }
 
 // A room waiting on a dial is not empty; a room with a participant is not empty.
-func TestDialingRoomIsNotEmpty(t *testing.T) {
+func TestROM035_DialingRoomIsNotEmpty(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.EmptyRoomTimeout = 300 * time.Millisecond }})
 	r.callee.Callee("answer", 1200*time.Millisecond) // rings well past the timeout
-	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
-	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room, "to": "+15551234567"})
-	r.waitEvent(typed("call.answered", "id", "d1"), 4*time.Second)
+	room := r.createRoom()
+	call, err := r.mc.CreateCall(rpcCtx(t), &roomrv1.CreateCallRequest{RoomRef: room,
+		To: &roomrv1.SipTarget{Uri: "sip:+15551234567@carrier.invalid"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.waitEvent(typed("call.answered", "call_ref", call.CallRef), 4*time.Second)
 	time.Sleep(time.Second)
-	if r.count(typed("room.ended", "roomRef", room)) != 0 {
+	if r.count(typed("room.ended", "room_ref", room)) != 0 {
 		t.Fatal("a dialing or answered room was ended as empty")
 	}
 }
 
-// A failed dial into an otherwise empty room ends the call at once (busy), not after a timeout.
-func TestFailedDialEndsEmptyRoom(t *testing.T) {
+// A failed dial into an otherwise empty room ends the room at once (busy), not after a timeout.
+func TestROM035_FailedDialEndsEmptyRoom(t *testing.T) {
 	r := start(t)
 	r.callee.Callee("busy", 0)
-	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
-	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room, "to": "+1"})
-	r.waitEvent(typed("call.progress", "id", "d1", "status", "busy"), 3*time.Second)
-	r.waitEvent(typed("room.ended", "roomRef", room, "reason", "busy", "sipStatus", 486), 2*time.Second)
-	if n := r.node.ActiveRooms(); n != 0 {
-		t.Fatalf("rooms %d", n)
+	room := r.createRoom()
+	call, err := r.mc.CreateCall(rpcCtx(t), &roomrv1.CreateCallRequest{RoomRef: room,
+		To: &roomrv1.SipTarget{Uri: "sip:+1@carrier.invalid"}})
+	if err != nil {
+		t.Fatal(err)
 	}
-}
-
-// AppBridge that claimed an answered call dies: once its heartbeats stop, the node ends the
-// room and the caller gets BYE instead of dead air until MaxDuration.
-func TestRoomEndsWhenItsAppBridgeIsLost(t *testing.T) {
-	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.OwnerTimeout = 600 * time.Millisecond }})
-	bridgeRef := fmt.Sprintf("gw-%d", time.Now().UnixNano())
-	r.mu.Lock()
-	r.claimAs = bridgeRef
-	r.mu.Unlock()
-	beat := func() {
-		_ = r.nc.Publish(node.AppBridgeHeartbeatSubject, []byte(`{"type":"appbridge.heartbeat","bridgeRef":"`+bridgeRef+`","calls":1}`))
-		_ = r.nc.Flush()
-	}
-	beat()
-	call, room, _ := r.answeredCall()
-	// A live AppBridge keeps its rooms.
-	for i := 0; i < 6; i++ {
-		beat()
-		time.Sleep(200 * time.Millisecond)
-	}
-	if r.count(typed("room.ended", "roomRef", room)) != 0 {
-		t.Fatal("the room of a live AppBridge ended")
-	}
-	// Killed: no more heartbeats.
-	ended := r.waitEvent(typed("room.ended", "roomRef", room), 3*time.Second)
-	if ended["reason"] != node.ReasonNodeError {
-		t.Fatalf("room.ended %v", ended)
-	}
-	waitStatus(t, call, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
-	if n := r.node.ActiveRooms(); n != 0 {
-		t.Fatalf("rooms %d", n)
-	}
-}
-
-// An AppBridge the node never heard (no permission to see heartbeats, an older AppBridge) is never
-// judged gone.
-func TestUnheardAppBridgeKeepsItsRooms(t *testing.T) {
-	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.OwnerTimeout = 300 * time.Millisecond }})
-	r.mu.Lock()
-	r.claimAs = fmt.Sprintf("gw-silent-%d", time.Now().UnixNano())
-	r.mu.Unlock()
-	_, room, _ := r.answeredCall()
-	time.Sleep(1500 * time.Millisecond)
-	if r.count(typed("room.ended", "roomRef", room)) != 0 {
-		t.Fatal("a room of an AppBridge never heard was ended")
-	}
-}
-
-// AppBridge that acked an outbound call dies while it rings (in-memory state audit, test 5):
-// participant.dial named it as owner, so once its heartbeats stop the node ends the room, also
-// after the callee answers into it, instead of leaving the callee in dead air.
-func TestOutboundRoomEndsWhenItsAppBridgeDiesWhileRinging(t *testing.T) {
-	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.OwnerTimeout = 800 * time.Millisecond }})
-	bridgeRef := fmt.Sprintf("gw-out-%d", time.Now().UnixNano())
-	// AppBridge is alive when it takes the call, then is killed: one heartbeat, no more.
-	_ = r.nc.Publish(node.AppBridgeHeartbeatSubject, []byte(`{"type":"appbridge.heartbeat","bridgeRef":"`+bridgeRef+`","calls":0}`))
-	_ = r.nc.Flush()
-	r.callee.Callee("answer", 300*time.Millisecond) // answers after AppBridge is gone
-	room := r.command(map[string]any{"type": "room.create", "id": "c1"})["roomRef"].(string)
-	r.command(map[string]any{"type": "participant.dial", "id": "d1", "roomRef": room,
-		"to": "+15551234567", "bridgeRef": bridgeRef})
-	r.waitEvent(typed("call.answered", "id", "d1"), 3*time.Second)
-	ended := r.waitEvent(typed("room.ended", "roomRef", room), 4*time.Second)
-	if ended["reason"] != node.ReasonNodeError {
-		t.Fatalf("room.ended %v", ended)
-	}
-	deadline := time.Now().Add(3 * time.Second)
-	for {
-		calls := r.callee.Calls()
-		if len(calls) == 1 && calls[0].State == "ended" {
-			break
-		}
-		if time.Now().After(deadline) {
-			t.Fatalf("the callee's call did not end: %+v", calls)
-		}
-		time.Sleep(20 * time.Millisecond)
-	}
+	r.waitEvent(typed("call.ended", "call_ref", call.CallRef, "cause", "busy"), 3*time.Second)
+	r.waitEvent(typed("room.ended", "room_ref", room, "cause", "busy", "sip_status", 486), 2*time.Second)
 	if n := r.node.ActiveRooms(); n != 0 {
 		t.Fatalf("rooms %d", n)
 	}

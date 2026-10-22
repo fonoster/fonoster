@@ -9,4 +9,4 @@ steps:
   - expect: { type: session.end, reason: transfer }
     within_ms: 2000
   - assert:
-      media.commands: { $includes: [{ type: transfer, id: t1, to: "+15551234567", mode: cold }] }
+      media.commands: { $includes: [{ type: transfer, to: { uri: "+15551234567" }, mode: cold }] }

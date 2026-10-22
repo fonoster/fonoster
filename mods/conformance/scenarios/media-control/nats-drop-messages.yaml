@@ -1,0 +1,28 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: nats-drop-messages
+spec: "Events are best effort while NATS is down / Events lost, not replayed"
+description: "Events dropped on the wire while the connection stays up (heartbeats still flow) are lost: the node frees the room and nothing is replayed."
+setup:
+  roomr: { config: { heartbeatInterval: 200ms } }
+steps:
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }
+  - nats: { drop: messages, prefix: "roomr.events." }
+    label: dropping
+  - caller: { hangup: true }
+  - expect: { type: stream.ended, cause: caller_hangup }
+    within_ms: 2000
+  - wait: { ms: 500 }
+  - assert:
+      heartbeats: { $gte: 1 }
+    from: dropping
+  - nats: { restore: true }
+  - expect_none: { type: call.ended }
+    for_ms: 1000

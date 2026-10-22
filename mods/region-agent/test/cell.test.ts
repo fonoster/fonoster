@@ -181,34 +181,22 @@ describe("@region-agent private cell against a fake control plane", function () 
       ),
       secrets,
       autopilotProbe: async () => true,
+      // AppBridge readiness is its grpc.health.v1 check through its Service (redesign-roomr 15.5).
+      appbridgeProbe: async () => true,
       endpoints: () => endpoints
     });
     agent.onApplied = (v) => applied.push(v);
     await agent.start();
-    const beatNode = () =>
+    // Active calls are the sum of the nodes' rooms; AppBridge publishes no heartbeat.
+    const beatNode = (node: string, rooms: number) =>
       nc.publish(
-        "roomr.nodes.node-a.heartbeat",
+        `roomr.nodes.${node}.heartbeat`,
         sc.encode(
-          JSON.stringify({
-            type: "node.heartbeat",
-            node_ref: "node-a",
-            rooms: 2
-          })
+          JSON.stringify({ type: "node.heartbeat", node_ref: node, rooms })
         )
       );
-    const beatAppBridge = () =>
-      nc.publish(
-        "appbridge.heartbeat",
-        sc.encode(
-          JSON.stringify({
-            type: "appbridge.heartbeat",
-            bridgeRef: "gw-1",
-            calls: 3
-          })
-        )
-      );
-    beatNode();
-    beatAppBridge();
+    beatNode("node-a", 2);
+    beatNode("node-b", 1);
 
     // config: requested on start, applied to Routr and the database
     await waitFor(() => applied.includes(1));
@@ -233,7 +221,7 @@ describe("@region-agent private cell against a fake control plane", function () 
       type: "region.heartbeat",
       regionRef: R,
       version: "0.28.1",
-      components: { roomrNodes: 1, appbridges: 1, autopilot: true },
+      components: { roomrNodes: 2, appbridges: 1, autopilot: true },
       activeCalls: 3,
       secretsSet: ["deepgram"]
     });

@@ -46,13 +46,21 @@ call on another node.
 - **WHEN** node A reports `rooms` equal to `max_rooms` and node B, with more rooms but a higher limit, is below its limit
 - **THEN** the call is placed on node B
 
-#### Scenario: Refusal triggers a retry
-- **WHEN** the highest-scoring node answers `RESOURCE_EXHAUSTED`
+#### Scenario: A full node sends the call to the next one
+- **WHEN** the highest-scoring node's last heartbeat showed room but it answers `CreateCall` with `RESOURCE_EXHAUSTED`
 - **THEN** the control plane calls `CreateCall` on the next node and the API caller sees one successful call
 
 #### Scenario: No capacity
 - **WHEN** every Roomr node in the cell has stopped heartbeating or is at its limit
 - **THEN** call creation fails with a capacity error before the API request returns and no INVITE is sent
+
+#### Scenario: Capacity error is synchronous
+- **WHEN** a client calls `CreateCall` and no Roomr node is eligible
+- **THEN** `CreateCall` fails with `RESOURCE_EXHAUSTED` instead of returning a ref whose `TrackCall` reports `FAILED` later
+
+#### Scenario: At most three nodes tried
+- **WHEN** four eligible nodes each answer `CreateCall` with `RESOURCE_EXHAUSTED`
+- **THEN** the API request fails with `RESOURCE_EXHAUSTED` after three of them were asked, and the fourth gets no `CreateCall`
 
 #### Scenario: Timeout retried on the same node
 - **WHEN** `CreateCall` on node B times out
@@ -150,12 +158,10 @@ those events would have closed once NATS returns.
 ### Requirement: AppBridge drains on SIGTERM
 
 AppBridge SHALL serve the standard gRPC health service (`grpc.health.v1.Health`) on its `Session`
-port: `SERVING` while it accepts calls. It SHALL publish no heartbeat and keep no membership entry
-in the session registry; orchestrators and the region agent learn its state from the health check.
-On SIGTERM an AppBridge replica SHALL report `NOT_SERVING` and fail its readiness probe, so the
-session endpoint stops sending it new streams, and SHALL keep its open control streams and app sockets until they end or the
-configured maximum wait (default 1 h) passes, then exit. Its `Session` gRPC server SHALL NOT set a
-maximum connection age.
+port, `SERVING` while it accepts calls, and SHALL publish no heartbeat and keep no membership
+entry in the session registry. On SIGTERM a replica SHALL report `NOT_SERVING`, SHALL keep its
+open control streams and app sockets until they end or the configured maximum wait (default 1 h)
+passes, then exit. Its `Session` gRPC server SHALL NOT set a maximum connection age.
 
 #### Scenario: Health check
 - **WHEN** a running replica's health check is called

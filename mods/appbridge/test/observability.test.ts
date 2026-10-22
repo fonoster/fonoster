@@ -47,6 +47,7 @@ function configFor(
   const urls = harness.providerUrls;
   return {
     nats: { url: NATS_URL! },
+    session: { listen: "127.0.0.1:0" },
     retry: { windowMs: 600, intervalMs: 100 },
     apps: appsFor({ name: "observability" } as Scenario, harness, "fonoster"),
     providers: {
@@ -79,17 +80,20 @@ describe("@appbridge OpenTelemetry signals from one real call (Go Roomr node)", 
   it("AppBridge and the Roomr node deliver traces and metrics (the node sends no OTLP logs) tagged with the call ref", async function () {
     const collector = await new OtlpCollector().start();
     const callRef = `obs-${Date.now()}`;
-    const harness = new RealMediaHarness(nc, bins!, { vendorCalls: () => 0 });
+    const harness = new RealMediaHarness(bins!, { vendorCalls: () => 0 });
     // The node reads the standard OTEL_* variables when its file sets no endpoint.
     harness.media.env = { OTEL_EXPORTER_OTLP_ENDPOINT: collector.endpoint };
     await harness.start();
     const config = configFor(harness, collector.endpoint);
     startTelemetry(config.telemetry);
     const appbridge = await new AppBridge({
+      tap: harness.tap,
       config,
       nats: nc,
       record: new MemoryCallRecordSink()
     }).start();
+    // The node opens each call's control stream to this AppBridge.
+    harness.sessionEndpoint = appbridge.sessionEndpoint;
     try {
       await harness.offerCallAndAccept(5000, { callRef });
       await harness.caller({ audio: { kind: "tone", ms: 300 } });

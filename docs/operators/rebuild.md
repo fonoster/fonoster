@@ -8,11 +8,11 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 
 | Service | Image | Role |
 | --- | --- | --- |
-| `nats` | `nats` | Everything internal except audio: media-control, events, session registry (JetStream KV). |
+| `nats` | `nats` | Heartbeats, events and the session registry (JetStream KV). Call control is gRPC: the apiserver calls the node's Roomr service, and each call's control stream runs from the node to AppBridge. |
 | `postgres` | `postgres:16` | Routr's database (Routr runs with `START_INTERNAL_DB=false`). |
 | `routr` | `fonoster/routr-one` | SIP edge. Nodes register to it with their session count. |
 | `rtpengine` | `fonoster/rtpengine` | Carrier-side media relay. |
-| `roomr` | `go/roomr/Dockerfile` | Rooms, mixing, RTP. Distroless static binary. |
+| `roomr` | `go/roomr/Dockerfile` | The SIP and media edge: SIP legs, rooms, mixing, RTP. Distroless static binary. |
 | `appbridge` | `mods/appbridge/Dockerfile` | AppBridge: speech, turn-taking, app sessions. |
 | `autopilot` (profile) | `mods/autopilot/Dockerfile` | Hosted Autopilot session engine. |
 | `minio` | `minio/minio` | Object storage for recordings and records. |
@@ -65,27 +65,54 @@ Set `COMPOSE_PROJECT_NAME` to run several stacks on one host.
 | 4222 | TCP | NATS | Internal; publish only for debugging. 8222 is monitoring (`/healthz`). |
 | 7422 | TCP | NATS leaf nodes | Hub side of the regions link (see Regions). Dev stack profile `regions` only (`RB_LEAF_PORT`). |
 | 5060 | UDP/TCP | Routr | Carrier-facing SIP. |
-| 5060 | UDP/TCP | Roomr node | Internal SIP from Routr; do not expose to the internet. |
+| 5060 | UDP/TCP | Roomr node | Internal SIP from Routr only (`sip.listen`); never published. |
+| 50061 | TCP | Roomr node | Roomr gRPC (`CreateCall`, `EndCall`, rooms and participants) and `grpc.health.v1`; from the apiserver only (`control.grpc.listen`); never published. |
 | 10000-10100 | UDP | RTPEngine | Carrier-facing media (`RTPENGINE_PORT_MIN/MAX`). Size to your concurrent calls. |
-| 30000-30199 | UDP | Roomr node RTP | `rtp.portMin/portMax` in `roomr.yaml`. Two ports per call leg (RTP and the session leg); publish exactly this range. |
+| 30000-30199 | UDP | Roomr node RTP | `rtp.portMin/portMax` in `roomr.yaml`: one range for every leg (SIP legs and app legs). The only Roomr ports Compose publishes. |
+| 50071 | TCP | AppBridge | `Session.Connect`, the per-call control stream the node opens (the node's `sessionEndpoint`), and `grpc.health.v1` (readiness). From the Roomr nodes and the region agent; never published. |
 | 8080 | TCP | AppBridge | Twilio-compatible Calls endpoint when `http` is set in `appbridge.yaml`. |
 
 ### RTP ranges
 
-The Roomr node binds RTP sockets only inside `[rtp-port-min, rtp-port-max]` when both are set
-(unset means any ephemeral port, fine for tests only). When the range is exhausted the node refuses
-new legs rather than overrun it. Size the range at roughly two ports per concurrent call, then
-publish the same range on the container, pod (host network) or firewall. `rtp.advertise`
-is the address that goes into SDP; it must be reachable from Routr and RTPEngine. Behind NAT, set
-it to the reachable address; on Kubernetes the chart defaults to the node's host IP.
+The Roomr node binds every RTP socket (SIP legs and app legs alike) on `rtp.host` inside
+`[rtp.portMin, rtp.portMax]` when both are set (unset means any ephemeral port, fine for tests
+only). When the range is exhausted the node refuses new legs rather than overrun it. Size the
+range at roughly two ports per concurrent call (the caller's leg and the app leg), then publish
+the same range on the container, pod (host network) or firewall. `rtp.advertise` is the address
+that goes into SDP and onto the control stream; it must be reachable from Routr, RTPEngine and
+AppBridge. Behind NAT, set it to the reachable address; on Kubernetes the chart defaults to the
+node's host IP.
 
-### Who may reach the Roomr node
+Nothing coordinates ports between nodes. Run one node per host (with `roomr.hostNetwork` the
+scheduler already keeps two pods with the same SIP port off one host), or give nodes that share a
+host non-overlapping RTP ranges (and their own SIP and control ports). Nodes on the pod network
+have their own IPs and can share a range.
 
-The Roomr node takes `X-App-Ref`, `X-Call-Ref` and `X-Call-Direction` from the INVITE and trusts
-them, so its SIP port must be reachable only from Routr. Network isolation is the boundary: the
-Compose bundle does not publish the SIP port on the host; on Kubernetes use a NetworkPolicy when
-Roomr runs on the pod network, or a host firewall when `roomr.hostNetwork` is true (the default,
-because RTP is a UDP range). The node itself accepts INVITEs from any address.
+### Network isolation
+
+The Roomr node authenticates neither its Roomr RPCs nor the source of SIP requests, and it trusts
+the `X-App-Ref`, `X-Call-Ref` and `X-Call-Direction` headers of whoever reaches it. Network
+isolation is the boundary: the control port (50061) is for the apiserver only and the SIP port
+(5060) for Routr only.
+
+- **Compose** publishes only the RTP range; SIP, the control port and AppBridge's Session port
+  stay on the bundle's network.
+- **Helm, pod network** (`roomr.hostNetwork: false`): the chart renders a NetworkPolicy
+  (`roomr.networkPolicy`) that admits the control port from the apiserver (plus `controlFrom`),
+  SIP from `sipFrom` (default: pods labelled `app.kubernetes.io/name: routr` in the release's
+  namespace; match your Routr chart) and the RTP range from anywhere.
+- **Helm, host network** (`roomr.hostNetwork: true`, the default because RTP is a UDP range): a
+  NetworkPolicy does not apply to host-network pods, so firewall each host: TCP 50061 only from
+  the apiserver's pods (or the cluster's pod CIDR), UDP/TCP 5060 (and the TLS port) only from
+  Routr's addresses, the RTP range open to the media sources (RTPEngine, carriers, AppBridge).
+- **AppBridge**: the chart's NetworkPolicy (`appbridge.networkPolicy`) admits the Session port and
+  UDP (the app legs' RTP) from the Roomr pods, the Session port from the region agent, and HTTP as
+  before. With host-network nodes list the cluster nodes' CIDRs in `appbridge.networkPolicy.nodeCidrs`
+  (empty admits any source on those ports).
+
+`to.auth` credentials in `CreateCall` are never logged or echoed. Hold and transfer music URLs are
+checked where they enter the platform (AppBridge, the same public-destination rule as webhooks);
+the node fetches them as given.
 
 ## Optional TLS toward the edge
 
@@ -103,11 +130,11 @@ NATS is a trust boundary (add-platform 4.1): every service connects as its own u
 and subscribe only on its subjects. The permission files are
 `ops/rebuild/config/nats-permissions/<service>.conf` (apiserver, appbridge, roomr, routr,
 region-agent); the main NATS, the cell's NATS and the chart (`nats.auth`) include the ones they
-serve. In short: only Roomr nodes publish heartbeats, room events and `appbridge.incoming`; only
-appbridges publish `callrecord.sealed` (index entries) and `registry.used`; only the apiserver
-publishes `calls.create` and `callrecord.<region>.maintenance`; media-control commands come from
-appbridges and the apiserver; Routr publishes `routr.>` only; the region agent alone talks
-`region.>`. The region hub is a separate server in operator mode with per-cell users and is
+serve. In short: only Roomr nodes publish heartbeats and events (`roomr.nodes.>`,
+`roomr.events.>`); only appbridges publish `callrecord.sealed` (index entries) and
+`registry.used`; only the apiserver publishes `calls.create` and
+`callrecord.<region>.maintenance`; Routr publishes `routr.>` only; the region agent alone talks
+`region.>`. No call control travels on NATS. The region hub is a separate server in operator mode with per-cell users and is
 unchanged.
 
 - **Passwords**: one per service. `ops/rebuild/stack` generates them into `.local/stack.env`
@@ -129,8 +156,8 @@ unchanged.
 
 ## Session registry
 
-The session registry (D3) is the JetStream KV bucket `fonoster_sessions`: `calls.<ref>` and
-`appbridges.<ref>` (written by appbridges) and `placements.<ref>` (written by the apiserver for
+The session registry (D3) is the JetStream KV bucket `fonoster_sessions`: `calls.<ref>` (written
+by the AppBridge that owns the call) and `placements.<ref>` (written by the apiserver for
 outbound calls being placed). Roomr nodes write nothing there: they use core NATS only (heartbeat
 and events), and the apiserver learns nodes from their heartbeats (a restarted replica places
 calls after the next heartbeat, within `heartbeatInterval`). Entries are leases: the bucket keeps
@@ -143,8 +170,8 @@ warning and runs on heartbeats only.
 The Roomr node serves the standard gRPC health service (`grpc.health.v1.Health`) on its control
 port. `SIGTERM` starts the drain: health turns NOT_SERVING (readiness fails), the node
 unregisters (REGISTER with Expires 0), stops its heartbeat and publishes `node.down`, keeps its
-rooms, and exits when the last room ends or `drainWait` elapses (default 10 min, in
-`roomr.yaml`), ending whatever is left. The node refuses nothing during a drain; the placement
+rooms, and exits when the last room ends or `drainWait` elapses (default 1 h; the bundle's
+`roomr.yaml` sets 10 min), ending whatever is left with `node_error`. The node refuses nothing during a drain; the placement
 layers stop sending it calls (the apiserver skips a node after `node.down` or a stale heartbeat,
 Routr stops after Expires 0, Kubernetes after the failed readiness probe). The container runtime
 must wait longer than `drainWait`:
@@ -155,23 +182,29 @@ must wait longer than `drainWait`:
   (startup and readiness) and renders a PodDisruptionBudget (`roomr.podDisruptionBudget`:
   `minAvailable` or `maxUnavailable`). Roll nodes one at a time (StatefulSet default).
 
-AppBridge replicas are stateless between calls, but a call lives on the replica that claimed it; roll
-them one at a time (`appbridge.podDisruptionBudget`) and give calls time via
-`appbridge.terminationGracePeriodSeconds`.
+AppBridge replicas are stateless between calls, but a call lives on the replica its control
+stream reached through the Service. On SIGTERM AppBridge reports NOT_SERVING on its Session port
+(the readiness probe, so the Service stops sending it new streams) and keeps live calls until they
+end or `session.drainWait` (`appbridge.drainGraceSeconds`); the pod's grace period is never
+shorter than that plus 30 s. Roll them one at a time (`appbridge.podDisruptionBudget`). Neither
+gRPC server sets a maximum connection age, so long calls are never cut by a server-side
+reconnect.
 
 ## Limits
 
-| Setting | Default | Flag / `roomr.yaml` |
+| Setting | Default | `roomr.yaml` |
 | --- | --- | --- |
 | Longest call | 4 h | `maxDuration` (per-app values can be lower) |
 | Participants per room | 10 | `maxParticipants` (`CreateRoom` can set it per room) |
-| Rooms per Roomr node | 200 | `maxRooms` (heartbeats report it; placement skips a full node and `room.create` beyond it gets `at_capacity`) |
-| Silent media timeout (caller and app legs) | 30 s | `mediaTimeout` |
+| Rooms per Roomr node | 200 | `maxRooms` (heartbeats report it; placement skips a full node; beyond it the node answers `503` to an INVITE and `RESOURCE_EXHAUSTED` to `CreateCall`) |
+| Silent media timeout (caller and app legs) | 15 s | `mediaTimeout` |
+| App's `Answer` or `Reject` on an inbound call | 10 s, then `480` | `answerTimeout` |
+| App's `Ready` on an answered outbound call | 10 s, then BYE (`app_gone`) | `readyTimeout` |
 | Room with nobody in it (its placer is gone) | 30 s | `emptyRoomTimeout` (negative: never; `CreateRoom` can set it per room) |
-| Room whose AppBridge stopped its heartbeats | 20 s | `ownerTimeout` (needs the node to receive `appbridge.heartbeat`; negative: never) |
+| Call whose control stream broke | 2 missed 10 s keepalives | fixed: BYE with cause `app_gone` |
 | Heartbeat | 2 s | `heartbeatInterval` |
-| Drain wait after SIGTERM | 10 min | `drainWait` |
-| Call claim by an AppBridge | 500 ms, one retry, then 503 | fixed by the spec |
+| Drain wait after SIGTERM | 1 h | `drainWait` |
+| Session endpoint unreachable on an inbound call | immediate `503` | fixed |
 
 ## Analytics
 
@@ -222,10 +255,9 @@ Metrics: `fonoster.appbridge.calls.active`, `fonoster.appbridge.calls.total`,
 `rpc.grpc.status_code`), `fonoster.apiserver.records.indexed` (by `outcome`),
 `fonoster.registry.commands` (the `fonoster-registry` utility, by `command` and `outcome`).
 
-Traces cross services with a W3C `traceparent` header: the Roomr node sends it on `call.incoming`
-(AppBridge's `appbridge.call` span becomes its child), AppBridge sends it on every media-control
-command (`roomr.command` spans) and on a record's index entry while the call's span is open
-(`apiserver.records.index`). The apiserver makes a span per gRPC request (`apiserver.grpc`) and joins
+Traces cross services with a W3C `traceparent` header: a `traceparent` on the INVITE reaches
+AppBridge in `Start.headers` (AppBridge's `appbridge.call` span becomes its child), and AppBridge
+sends it on a record's index entry while the call's span is open (`apiserver.records.index`). The apiserver makes a span per gRPC request (`apiserver.grpc`) and joins
 a `traceparent` metadata entry when a client sends one.
 
 ## Regions and cells
@@ -325,7 +357,7 @@ kubectl port-forward svc/fonoster-grafana 3000
   default) gives each service its NATS user (see "NATS users and subject permissions"); create
   the `nats.auth.secret` Secret before installing. Routr's NATS URL then carries the `routr` user
   and password. Turning auth off also needs `nats.auth.allowUnauthenticated: true` (development
-  only: any pod that reaches NATS could control media).
+  only: any pod that reaches NATS could forge node heartbeats and call events).
 - **Region hub.** `natsRegions.enabled` runs the hub that private cells link to. Its config is the
   `region-hub.conf` written by `fonoster-region-hub-setup`, stored in `natsRegions.configSecret`;
   the leaf port is a LoadBalancer Service (`<release>-nats-regions-leaf`, 7422). Put the setup's
@@ -350,8 +382,10 @@ helm install fonoster ops/rebuild/helm/fonoster-rebuild \
 ```
 
 AppBridge (`appbridge` in the chart values) runs as a Deployment (ConfigMap with `appbridge.yaml`,
-Service, PDB) and the Roomr node as a StatefulSet (host network by default because RTP needs a UDP
-range, node id = pod name). Create the Secret named by `roomr.routr.passwordSecret` (key `password`) for the nodes' Routr peer.
+Service with the HTTP and Session ports, PDB, NetworkPolicy) and the Roomr node as a StatefulSet
+(host network by default because RTP needs a UDP range, node id = pod name; gRPC readiness probe,
+PDB, and a NetworkPolicy when it runs on the pod network). The chart writes everything into
+`roomr.yaml` (the node's one flag is `-config`). Create the Secret named by `roomr.routr.passwordSecret` (key `password`) for the nodes' Routr peer.
 
 `helm lint` and `helm template` run in the deployment suite (`mods/conformance/test/deployment.test.ts`),
 which also loads every rendered config through its service's loader with the Secrets mounted.

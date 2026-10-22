@@ -55,12 +55,12 @@ describe("@appbridge timing (T1)", function () {
 
   async function makeRun() {
     const harness = await new FakesHarness({ vendorCalls: () => 0 }).start();
-    harness.roomrNode.attachNats(nc);
     const urls = harness.providerUrls;
     const appbridge = await new AppBridge({
       nats: nc,
       config: {
         nats: { url: NATS_URL! },
+        session: { listen: "127.0.0.1:0" },
         apps: [
           {
             ref: "app-1",

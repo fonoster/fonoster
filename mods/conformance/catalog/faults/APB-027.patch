@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/AppBridge.ts b/mods/appbridge/src/AppBridge.ts
+index f8b52fea0..279648723 100644
+--- a/mods/appbridge/src/AppBridge.ts
++++ b/mods/appbridge/src/AppBridge.ts
+@@ -529,7 +529,7 @@ export class AppBridge {
+         })
+       );
+       // voice-session "Missing app reference": Reject with 404, no app socket.
+-      return call.reject(404);
++      return call.reject(480);
+     }
+     // Browser test calls only reach apps of their token's workspace (add-talk-in-browser D4).
+     const test = this.testCalls.check(headers, app.workspaceRef);

@@ -31,8 +31,9 @@ import { TEST_TOKEN, TEST_UUID } from "../utils";
 
 // The apiserver as a stateless control plane (control-plane spec; harden-conformance 1.1, 1.2):
 // several replicas on one NATS, each running the outbound placement (`calls.create`, one queue
-// group) and TrackCall. Roomr nodes are fake Roomr servers (gRPC, heartbeats and call events on
-// NATS) and AppBridge replicas are stand-ins on NATS. Needs
+// group) and TrackCall. Roomr nodes are fake Roomr servers (gRPC CreateCall/EndCall, heartbeats
+// and call events on NATS); AppBridge is not involved in placing a call (the node opens the call's
+// control stream on answer). Needs
 // CONFORMANCE_NATS_URL; the registry cases also need JetStream (CONFORMANCE_JETSTREAM_URL, or the
 // same server started with -js).
 const URL =
@@ -56,14 +57,6 @@ const callFor = (ref: string) => ({
   appRef: "app-1",
   accessKeyId: "WO00000000000000000000000000000000"
 });
-
-/** The AppBridge replicas' queue group: takes every `appbridge.outbound`. */
-function fakeAppBridges(nc: NatsConnection) {
-  return nc.subscribe("appbridge.outbound", {
-    queue: "appbridge-outbound",
-    callback: (_e, msg) => msg.respond(encode({ type: "ack" }))
-  });
-}
 
 /**
  * One apiserver replica: its own NATS connection (with its own inbox prefix, so a node can tell
@@ -207,11 +200,6 @@ describe("@apiserver[control plane] stateless replicas", function () {
     return n;
   };
 
-  const appbridges = () => {
-    const g = fakeAppBridges(client);
-    cleanup.push(() => g.unsubscribe());
-  };
-
   /**
    * Waits until every replica has seen what the client published so far (the nodes' heartbeats):
    * the client's flush means the server has it, and a replica's flush returns after the server
@@ -225,7 +213,6 @@ describe("@apiserver[control plane] stateless replicas", function () {
   it("any replica serves any request: a call placed by A is tracked through B", async function () {
     const [, b] = await replicas(["a"], ["b", { place: false }]);
     const n = await node(`n-${randomUUID()}`);
-    appbridges();
     await settle();
 
     const ref = randomUUID();
@@ -256,7 +243,6 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const n = await node(`n-${randomUUID()}`, {
       callee: (ref) => (ref === refs[0] ? "ring" : "answer")
     });
-    appbridges();
     await settle();
 
     // TrackCall for the first call on every replica.
@@ -268,7 +254,7 @@ describe("@apiserver[control plane] stateless replicas", function () {
     );
     expect(replies.every((r) => r.type === "ack")).to.equal(true);
     expect(n.of("CreateCall")).to.have.length(9);
-    expect(n.of("CreateRoom")).to.have.length(9);
+    expect(n.of("CreateRoom")).to.have.length(0);
     for (const s of firstStreams.values())
       await until(() => s.statuses.includes("PROGRESS"), 3000, "PROGRESS");
 
@@ -314,7 +300,6 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const [a, b] = await replicas(["a"], ["b", { place: false }]);
     const ref = randomUUID();
     const n = await node(`n-${randomUUID()}`, { callee: "ring" });
-    appbridges();
     await settle();
 
     const streams = [a.track(ref), b.track(ref)];
@@ -344,7 +329,6 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const busy = await node(`a-${tag}`, { rooms: 40 });
     const idle = await node(`b-${tag}`, { rooms: 12 });
     const draining = await node(`c-${tag}`, { rooms: 3 });
-    appbridges();
     await settle();
     await draining.down(); // a draining node says node.down and is not offered
     await settle();
@@ -353,7 +337,6 @@ describe("@apiserver[control plane] stateless replicas", function () {
       nodeId: idle.nodeRef
     });
     expect(idle.of("CreateCall")).to.have.length(1);
-    expect(idle.of("CreateRoom")).to.have.length(1);
     expect(busy.requests).to.have.length(0);
     expect(draining.requests).to.have.length(0);
   });
@@ -365,7 +348,6 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const d2 = await node(`d2-${tag}`, { rooms: 2 });
     const full = await node(`f-${tag}`, { rooms: 4, maxRooms: 4 });
     const gone = await node(`g-${tag}`);
-    appbridges();
     await settle();
     await gone.down();
     await d1.down();
@@ -398,7 +380,6 @@ describe("@apiserver[control plane] stateless replicas", function () {
     // A has fewer sessions but is at its limit; B has more and is below its limit.
     const atLimit = await node(`a-${tag}`, { rooms: 5, maxRooms: 5 });
     const below = await node(`b-${tag}`, { rooms: 8, maxRooms: 20 });
-    appbridges();
     await settle();
 
     expect(await requestCall(client, randomUUID())).to.include({
@@ -409,17 +390,16 @@ describe("@apiserver[control plane] stateless replicas", function () {
     expect(atLimit.requests).to.have.length(0);
   });
 
-  it("a node that refuses the room (full since its last heartbeat) sends the call to the next one", async function () {
+  it("refusal triggers a retry: a node full since its last heartbeat sends the call to the next one", async function () {
     await replicas(["a"]);
     const tag = randomUUID().slice(0, 8);
-    // Its heartbeat says 0 rooms, but it is full: CreateRoom gets RESOURCE_EXHAUSTED.
+    // Its heartbeat says 0 rooms, but it is full: CreateCall gets RESOURCE_EXHAUSTED.
     const stale = await node(`a-${tag}`, {
       rooms: 10,
       reportedRooms: 0,
       maxRooms: 10
     });
     const next = await node(`b-${tag}`, { rooms: 3, maxRooms: 10 });
-    appbridges();
     await settle();
 
     expect(await requestCall(client, randomUUID())).to.include({
@@ -427,8 +407,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
       nodeId: next.nodeRef
     });
     expect(next.of("CreateCall")).to.have.length(1);
-    expect(stale.of("CreateRoom")).to.have.length(1);
-    expect(stale.of("CreateCall")).to.have.length(0);
+    expect(stale.of("CreateCall")).to.have.length(1);
+    expect(stale.invites).to.equal(0);
   });
 
   it("two controllers picking the same full node both move on, and each call is placed once", async function () {
@@ -441,7 +421,6 @@ describe("@apiserver[control plane] stateless replicas", function () {
       maxRooms: 10
     });
     const next = await node(`b-${tag}`, { rooms: 5, maxRooms: 100 });
-    appbridges();
     await settle();
 
     const replies = await Promise.all(
@@ -450,18 +429,16 @@ describe("@apiserver[control plane] stateless replicas", function () {
         .map((ref) => requestCall(client, ref))
     );
     expect(replies.every((r) => r.type === "ack")).to.equal(true);
-    expect(
-      tight.of("CreateCall").length + next.of("CreateCall").length
-    ).to.equal(4);
-    expect(tight.of("CreateCall").length).to.be.at.most(1);
+    // Every call was dialed once: the tight node took at most one, the refusals moved on.
+    expect(tight.invites + next.invites).to.equal(4);
+    expect(tight.invites).to.be.at.most(1);
   });
 
-  it("a timeout is retried on the same node, never on another (the INVITE may be out)", async function () {
+  it("timeout retried on the same node, never on another: the callee gets one INVITE", async function () {
     await replicas(["a"]);
     const tag = randomUUID().slice(0, 8);
     const slow = await node(`a-${tag}`, { rooms: 0 });
     const other = await node(`b-${tag}`, { rooms: 5 });
-    appbridges();
     await settle();
 
     // The first CreateCall answers after the 2 s deadline; the retry finds the call (dedupe).
@@ -472,7 +449,11 @@ describe("@apiserver[control plane] stateless replicas", function () {
       nodeId: slow.nodeRef
     });
     expect(slow.of("CreateCall")).to.have.length(2);
+    // Same call_ref and parameters on both attempts; the node dedupes: one INVITE.
+    expect(slow.of("CreateCall")[0]).to.deep.equal(slow.of("CreateCall")[1]);
+    await new Promise((r) => setTimeout(r, 800)); // the stalled first attempt lands too
     expect(slow.calls.size).to.equal(1);
+    expect(slow.invites).to.equal(1);
     expect(other.requests).to.have.length(0);
   });
 
@@ -488,16 +469,16 @@ describe("@apiserver[control plane] stateless replicas", function () {
         })
       )
     );
-    appbridges();
     await settle();
 
     const created = await createCallRpc(client);
     expect(created.error?.code).to.equal(status.RESOURCE_EXHAUSTED);
-    // The three least-loaded (by their heartbeats) were tried, once each; the fourth was not.
-    expect(refusing.map((n) => n.of("CreateRoom").length)).to.deep.equal([
+    // The three least-loaded (by their heartbeats) were tried, once each; the fourth was not,
+    // and no INVITE went out.
+    expect(refusing.map((n) => n.of("CreateCall").length)).to.deep.equal([
       1, 1, 1, 0
     ]);
-    for (const n of refusing) expect(n.of("CreateCall")).to.have.length(0);
+    for (const n of refusing) expect(n.invites).to.equal(0);
   });
 });
 
@@ -520,7 +501,9 @@ describe("@apiserver[control plane] session registry", function () {
 
   after(async () => {
     if (!client || client.isClosed()) return;
-    await (await client.jetstreamManager()).streams
+    await (
+      await client.jetstreamManager()
+    ).streams
       .delete(`KV_${bucket}`)
       .catch(() => undefined);
     await client.close();
@@ -547,7 +530,6 @@ describe("@apiserver[control plane] session registry", function () {
       });
       await owners.set("calls", call.callRef, call);
     }
-    const g = fakeAppBridges(client);
     try {
       const first = await startReplica("a", { sessionsBucket: bucket });
       await first.stop();
@@ -566,13 +548,12 @@ describe("@apiserver[control plane] session registry", function () {
         const stream = restarted.track(ref);
         expect(await requestCall(client, ref)).to.include({ type: "ack" });
         await until(() => stream.statuses.includes("ANSWER"), 5000, "ANSWER");
-        expect(n.of("EndRoom")).to.have.length(0);
+        expect(n.of("EndCall")).to.have.length(0);
       } finally {
         await restarted.stop();
       }
     } finally {
       await n.stop();
-      g.unsubscribe();
       await owners.close();
     }
   });

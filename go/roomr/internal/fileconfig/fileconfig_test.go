@@ -39,8 +39,12 @@ func TestParseTypesAndPlaceholders(t *testing.T) {
 nodeId: "${ID:-node-a}"
 nats: { url: "nats://nats:4222", user: roomr, password: "${NATS_PW}" }
 rtp: { portMin: "${MIN}", portMax: 11999 }
-sip: { registrations: [ { registrar: routr, expires: 30s, auth: { password: "${SIP_PW}" } } ] }
-outboundProxy: "sip:${NET}.40:5060;transport=tcp"
+sip:
+  registrations: [ { registrar: routr, expires: 30s, auth: { password: "${SIP_PW}" } } ]
+  outboundProxy: "sip:${NET}.40:5060;transport=tcp"
+  roomHeader: X-Room-Ref
+sessionEndpoint: "appbridge:50071"
+readyTimeout: 3s
 heartbeatInterval: 1s
 emptyRoomTimeout: -1s
 telemetry: { otlpEndpoint: "${OTEL:-}" }
@@ -52,7 +56,8 @@ telemetry: { otlpEndpoint: "${OTEL:-}" }
 		t.Fatalf("unexpected %+v", f)
 	}
 	// A numeric secret stays a string.
-	if f.SIP.Registrations[0].Auth.Password != "123456" || f.OutboundProxy != "sip:10.0.0.40:5060;transport=tcp" {
+	if f.SIP.Registrations[0].Auth.Password != "123456" || f.SIP.OutboundProxy != "sip:10.0.0.40:5060;transport=tcp" ||
+		f.SIP.RoomHeader != "X-Room-Ref" || f.SessionEndpoint != "appbridge:50071" || f.ReadyTimeout != Duration(3*time.Second) {
 		t.Fatalf("unexpected %+v", f)
 	}
 	if f.HeartbeatInterval != Duration(time.Second) || f.EmptyRoomTimeout != Duration(-time.Second) || f.Telemetry.OTLPEndpoint != "" {
@@ -97,7 +102,8 @@ func TestLoadMissingDefaultIsNotAnError(t *testing.T) {
 func TestRemovedKeysAreRejected(t *testing.T) {
 	for _, key := range []string{"trustedSources: [a]", "sessionRegistry: false", "requireEncryption: true",
 		"allowedDestinations: [a]", "debugAddr: ':9000'", "outboundTransport: tcp", "callDedupeWindow: 1m",
-		"tls: { clientCa: /ca.pem }"} {
+		"tls: { clientCa: /ca.pem }", "outboundProxy: routr:5060", "ownerTimeout: 20s", "onMissingRoom: create",
+		"cpuIdle: 10"} {
 		if _, err := Parse([]byte(key), env(nil)); err == nil {
 			t.Errorf("%q: want an error", key)
 		}
@@ -110,7 +116,7 @@ func TestDefaults(t *testing.T) {
 		t.Fatal(err)
 	}
 	if f.SIP.Listen != "0.0.0.0:5060" || f.SIP.Advertise != "127.0.0.1" || f.RTP.Host != "0.0.0.0" ||
-		f.RTP.Advertise != "127.0.0.1" || f.DrainWait != Duration(10*time.Minute) {
+		f.RTP.Advertise != "127.0.0.1" || f.DrainWait != Duration(time.Hour) || f.Control.GRPC.Listen != "0.0.0.0:50061" {
 		t.Fatalf("unexpected defaults %+v", f)
 	}
 }
@@ -145,5 +151,63 @@ sip:
 		if _, err := Parse([]byte(doc), env(nil)); err == nil {
 			t.Errorf("%s: want an error", name)
 		}
+	}
+}
+
+// The design's "Minimal roomr.yaml" parses as written.
+func TestMinimalConfigParses(t *testing.T) {
+	f, err := Parse([]byte(`
+nodeId: roomr-0
+region: us-east
+nats:
+  url: nats://nats:4222
+  user: roomr
+  password: ${NATS_PASSWORD}
+sip:
+  listen: 0.0.0.0:5060
+  advertise: 10.0.0.7:5060
+  outboundProxy: sip:routr:5060;transport=tcp
+  callRefHeader: X-Call-Ref
+  roomHeader: X-Room-Ref
+  registrations:
+    - registrar: sip:routr:5060
+      aor: sip:roomr@default
+      auth: { username: roomr, password: "${SIP_PASSWORD}" }
+      expires: 60
+      headers: { X-Session-Count: "{sessions}" }
+tls:
+  listen: 0.0.0.0:5061
+  cert: /etc/roomr/tls.crt
+  key: /etc/roomr/tls.key
+rtp:
+  host: 0.0.0.0
+  advertise: 203.0.113.10
+  portMin: 30000
+  portMax: 30199
+control:
+  grpc:
+    listen: 0.0.0.0:50061
+    advertise: roomr-0.roomr:50061
+    tls: { cert: /c.pem, key: /k.pem, clientCa: /ca.pem }
+sessionEndpoint: appbridge.fonoster:50071
+maxRooms: 200
+maxParticipants: 10
+maxDuration: 4h
+mediaTimeout: 15s
+readyTimeout: 10s
+emptyRoomTimeout: 30s
+drainWait: 1h
+heartbeatInterval: 2s
+reregisterDelta: 5
+codecs: [opus, g722, pcmu, pcma]
+telemetry:
+  otlpEndpoint: http://otel:4318
+`), env(map[string]string{"NATS_PASSWORD": "n", "SIP_PASSWORD": "s"}))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if f.SessionEndpoint != "appbridge.fonoster:50071" || f.SIP.RoomHeader != "X-Room-Ref" || f.MaxRooms != 200 ||
+		f.MediaTimeout != Duration(15*time.Second) || f.Region != "us-east" || len(f.Codecs) != 4 {
+		t.Fatalf("unexpected %+v", f)
 	}
 }

@@ -1,0 +1,14 @@
+diff --git a/go/roomr/internal/node/control.go b/go/roomr/internal/node/control.go
+index 865b4394b..af948762d 100644
+--- a/go/roomr/internal/node/control.go
++++ b/go/roomr/internal/node/control.go
+@@ -206,9 +206,6 @@ func (c *call) runOutbound(ctx context.Context, cancel context.CancelFunc) {
+ 	if err != nil {
+ 		status := dialStatus(err)
+ 		cause := failCause(status)
+-		if removed {
+-			cause, status = ReasonRemoved, 0
+-		}
+ 		if c.isEnded() {
+ 			return
+ 		}

@@ -1,12 +1,12 @@
 diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
-index 2cd5cb899..84bf5ac66 100644
+index e74684b0a..187b8086e 100644
 --- a/mods/appbridge/src/session/Call.ts
 +++ b/mods/appbridge/src/session/Call.ts
-@@ -1417,6 +1417,7 @@ export class AppSession {
+@@ -1566,6 +1566,7 @@ export class AppSession {
    ) {
      switch (type) {
        case "speak": {
-+        void this.call.mediaCommand({ type: "speak", text: String(cmd.text) } as never);
++        this.call.command({ sendDtmf: { digits: String(cmd.text) } });
          const voiceId = (cmd.voice as string) ?? this.app.speech.voice;
          const voice = this.deps.catalog.resolveVoice(
            voiceId,

@@ -256,49 +256,28 @@ describe("@conformance/nats permissions (per-service users)", function () {
   });
 
   it("carries each service's own traffic", async function () {
-    // media-control: AppBridge asks, the node answers (allow_responses).
-    const nodeId = "n1";
-    const cmds = node.subscribe(`media.${nodeId}.commands`, {
+    // Call control between AppBridge replicas (the hang-up endpoint): one asks, the call's
+    // owner answers (allow_responses). Roomr nodes reach AppBridge over gRPC, not NATS.
+    const owner = await as(main!, "appbridge");
+    conns.push(owner);
+    const control = owner.subscribe("appbridge.calls.c1", {
       callback: (_e, m) => m.respond(sc.encode('{"type":"ack"}'))
     });
-    await node.flush();
-    const reply = await gw.request(
-      `media.${nodeId}.commands`,
-      sc.encode("{}"),
-      {
-        timeout: 2000
-      }
-    );
-    expect(sc.decode(reply.data)).to.equal('{"type":"ack"}');
-    cmds.unsubscribe();
-    // call.incoming: the node asks, an AppBridge claims.
-    const claims = gw.subscribe("appbridge.incoming", {
-      queue: "appbridge",
-      callback: (_e, m) => m.respond(sc.encode('{"type":"claimed"}'))
-    });
-    await gw.flush();
-    await node.request("appbridge.incoming", sc.encode("{}"), {
+    await owner.flush();
+    const reply = await gw.request("appbridge.calls.c1", sc.encode("{}"), {
       timeout: 2000
     });
-    claims.unsubscribe();
+    expect(sc.decode(reply.data)).to.equal('{"type":"ack"}');
+    control.unsubscribe();
+    const nodeId = "n1";
     expect(
       await delivered(node, api, `roomr.nodes.${nodeId}.heartbeat`)
-    ).to.equal(true);
-    expect(
-      await delivered(node, gw, `roomr.nodes.${nodeId}.heartbeat`)
     ).to.equal(true);
     // Events keyed by call and by room, for any controller replica.
     expect(await delivered(node, api, "roomr.events.c1")).to.equal(true);
     expect(await delivered(node, api, "roomr.events.room.r1")).to.equal(true);
-    expect(await delivered(node, gw, `media.${nodeId}.events.r1`)).to.equal(
-      true
-    );
     expect(await delivered(gw, api, "callrecord.sealed")).to.equal(true);
     expect(await delivered(gw, api, "registry.used")).to.equal(true);
-    // A node reports unclaimed calls on its own subject; the control plane makes the webhook.
-    expect(
-      await delivered(node, api, `media.${nodeId}.events.call-failed`)
-    ).to.equal(true);
     expect(await delivered(gw, api, "webhooks.events")).to.equal(true);
     expect(await delivered(api, api, "calls.create")).to.equal(true);
     // TrackCall: the placing replica reports its part of a call's status per ref.
@@ -329,11 +308,14 @@ describe("@conformance/nats permissions (per-service users)", function () {
     expect(await delivered(node, gw, "callrecord.local.maintenance")).to.equal(
       false
     );
-    // Media-control commands come from AppBridge replicas only: never Routr, a node or the control plane
-    // (it places calls with Roomr over gRPC).
+    // No media commands, call offers or AppBridge heartbeats on NATS any more (redesign-roomr):
+    // nodes take commands over gRPC and open a control stream per call to AppBridge.
+    expect(await delivered(gw, node, "media.n1.commands")).to.equal(false);
     expect(await delivered(api, node, "media.n1.commands")).to.equal(false);
-    expect(await delivered(routr, node, "media.n1.commands")).to.equal(false);
-    expect(await delivered(node, node, "media.n2.commands")).to.equal(false);
+    expect(await delivered(node, gw, "appbridge.incoming")).to.equal(false);
+    expect(await delivered(api, gw, "appbridge.outbound")).to.equal(false);
+    expect(await delivered(gw, api, "appbridge.heartbeat")).to.equal(false);
+    expect(await delivered(node, api, "media.n1.events.r1")).to.equal(false);
     // Routr's events are Routr's.
     expect(await delivered(gw, api, "routr.call.started")).to.equal(false);
     // Catalog use comes from AppBridge replicas.
@@ -343,7 +325,11 @@ describe("@conformance/nats permissions (per-service users)", function () {
   });
 
   it("refuses subscriptions outside a service's subjects", async function () {
-    expect(await canSubscribe(routr, gw, "media.n1.commands")).to.equal(false);
+    expect(await canSubscribe(routr, gw, "appbridge.calls.c1")).to.equal(false);
+    // AppBridge no longer follows node heartbeats (the stream's keepalive tells it).
+    expect(await canSubscribe(gw, node, "roomr.nodes.n1.heartbeat")).to.equal(
+      false
+    );
     expect(await canSubscribe(node, gw, "callrecord.sealed")).to.equal(false);
     expect(await canSubscribe(gw, api, "calls.create")).to.equal(false);
     expect(await canSubscribe(node, routr, "routr.call.started")).to.equal(
@@ -352,11 +338,13 @@ describe("@conformance/nats permissions (per-service users)", function () {
   });
 
   it("keeps each service's replies to itself (per-user inbox prefixes)", async function () {
-    // The node answers AppBridge's media-control request with something private.
-    const cmds = node.subscribe("media.n9.commands", {
+    // A call's owning AppBridge answers another replica's call-control request privately.
+    const owner = await as(main!, "appbridge");
+    conns.push(owner);
+    const control = owner.subscribe("appbridge.calls.c9", {
       callback: (_e, m) => m.respond(sc.encode('{"secret":"reply"}'))
     });
-    await node.flush();
+    await owner.flush();
     // Another service, a second Roomr node and Routr try every inbox they could read.
     const otherNode = await as(main!, "roomr");
     conns.push(otherNode);
@@ -364,7 +352,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     for (const eavesdropper of [api, otherNode, routr]) {
       let answered = "";
       const heard = await overheard(eavesdropper, inboxes, async () => {
-        const reply = await gw.request("media.n9.commands", sc.encode("{}"), {
+        const reply = await gw.request("appbridge.calls.c9", sc.encode("{}"), {
           timeout: 2000
         });
         answered = sc.decode(reply.data);
@@ -372,11 +360,10 @@ describe("@conformance/nats permissions (per-service users)", function () {
       expect(answered).to.equal('{"secret":"reply"}');
       expect(heard).to.equal(false);
     }
-    cmds.unsubscribe();
-    // ...and the control plane's replies stay its own too (AppBridge's claim of an outbound
-    // call, overheard by a node).
-    const claims = gw.subscribe("appbridge.outbound", {
-      queue: "appbridge-outbound",
+    control.unsubscribe();
+    // ...and the control plane's replies stay its own too (AppBridge's answer to a record
+    // maintenance request, overheard by a node).
+    const maintenance = gw.subscribe("callrecord.local.maintenance", {
       callback: (_e, m) => m.respond(sc.encode('{"type":"ack"}'))
     });
     await gw.flush();
@@ -384,21 +371,25 @@ describe("@conformance/nats permissions (per-service users)", function () {
       otherNode,
       ["_INBOX.>", `${natsInboxPrefix("apiserver")}.>`],
       () =>
-        api.request("appbridge.outbound", sc.encode("{}"), { timeout: 2000 })
+        api.request("callrecord.local.maintenance", sc.encode("{}"), {
+          timeout: 2000
+        })
     );
     expect(nodeHeard).to.equal(false);
-    claims.unsubscribe();
+    maintenance.unsubscribe();
   });
 
   it("refuses replies to a client that keeps the shared _INBOX prefix", async function () {
-    const cmds = node.subscribe("media.n8.commands", {
+    const owner = await as(main!, "appbridge");
+    conns.push(owner);
+    const cmds = owner.subscribe("appbridge.calls.c8", {
       callback: (_e, m) => m.respond(sc.encode('{"type":"ack"}'))
     });
-    await node.flush();
+    await owner.flush();
     const shared = await as(main!, "appbridge", { inboxPrefix: null });
     conns.push(shared);
     const ok = await shared
-      .request("media.n8.commands", sc.encode("{}"), { timeout: 1000 })
+      .request("appbridge.calls.c8", sc.encode("{}"), { timeout: 1000 })
       .then(
         () => true,
         () => false
@@ -410,7 +401,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     });
     conns.push(borrowed);
     const ok2 = await borrowed
-      .request("media.n8.commands", sc.encode("{}"), { timeout: 1000 })
+      .request("appbridge.calls.c8", sc.encode("{}"), { timeout: 1000 })
       .then(
         () => true,
         () => false
@@ -422,9 +413,8 @@ describe("@conformance/nats permissions (per-service users)", function () {
   it("lets AppBridge and the control plane write only their own session-registry entries", async function () {
     const gwKv = await Sessions.openSessions(gw);
     const apiKv = await Sessions.openSessions(api);
-    // AppBridge writes calls.* and AppBridge replicas.*.
+    // AppBridge writes calls.* only: it keeps no membership entry (redesign-roomr 15.3).
     await gwKv.put("calls.c1", sc.encode('{"callRef":"c1"}'));
-    await gwKv.put("appbridges.g1", sc.encode('{"bridgeRef":"g1"}'));
     // The control plane writes placements.* (outbound calls being placed) and deletes them.
     await apiKv.put("placements.p1", sc.encode('{"callRef":"p1"}'));
     await apiKv.delete("placements.p1");
@@ -441,6 +431,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     await refused(gwKv, "rooms.forged");
     await refused(apiKv, "calls.forged");
     await refused(gwKv, "placements.forged");
+    await refused(gwKv, "appbridges.g1");
     expect(await Sessions.getSession(apiKv, "nodes", "forged")).to.equal(
       undefined
     );
@@ -544,7 +535,9 @@ describe("@conformance/nats permissions (per-service users)", function () {
     );
     expect(await delivered(agent, agent, "region.r1.heartbeat")).to.equal(true);
     // The agent drives nothing in the cell.
-    expect(await delivered(agent, cnode, "media.n1.commands")).to.equal(false);
+    expect(await delivered(agent, cnode, "roomr.nodes.n1.heartbeat")).to.equal(
+      false
+    );
     expect(await delivered(agent, agent, "callrecord.sealed")).to.equal(false);
     // Only the agent talks over the link.
     expect(await delivered(cgw, agent, "region.r1.index")).to.equal(false);

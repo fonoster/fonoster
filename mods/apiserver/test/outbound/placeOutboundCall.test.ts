@@ -30,7 +30,6 @@ import {
   NODE_STALE_MS,
   OutboundCallRequest,
   placeOutboundCall,
-  Requester,
   runOutboundCalls,
   SAME_NODE_ATTEMPTS
 } from "../../src/outbound";
@@ -49,18 +48,6 @@ const OUTBOUND = {
   proxy: "routr:5060",
   auth: { username: "roomr", password: "s3cret" }
 };
-
-type Sent = { subject: string; body: Record<string, unknown> };
-
-/** appbridge.outbound stand-in: acks (or answers `reply`), recording what it got. */
-function fakeAppBridge(reply: Record<string, unknown> = { type: "ack" }) {
-  const sent: Sent[] = [];
-  const request: Requester = async (subject, body) => {
-    sent.push({ subject, body });
-    return reply;
-  };
-  return { sent, request };
-}
 
 type Step = number | "timeout";
 
@@ -346,43 +333,24 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
   const place = (
     roomr: Roomr.RoomrCalls,
     nodes: ReturnType<typeof createNodeDirectory>,
-    appbridge = fakeAppBridge()
-  ) =>
-    placeOutboundCall(
-      { roomr, request: appbridge.request, nodes, outbound: OUTBOUND },
-      CALL
-    );
+    hooks: Parameters<typeof placeOutboundCall>[2] = {}
+  ) => placeOutboundCall({ roomr, nodes, outbound: OUTBOUND }, CALL, hooks);
 
-  it("creates the room, hands it to an AppBridge, then calls CreateCall through Routr", async function () {
+  it("calls CreateCall on the chosen node through Routr, with X-DOD-Number and the app in metadata", async function () {
     const { roomr, log, requests } = fakeRoomr();
-    const appbridge = fakeAppBridge();
-    const placed = await place(roomr, nodesUpTo(1), appbridge);
+    const placed = await place(roomr, nodesUpTo(1));
     expect(placed).to.deep.equal({
       nodeId: "n1",
-      roomRef: "call-1",
+      roomRef: "",
       callRef: "call-1"
     });
-    expect(log).to.deep.equal(["a1 CreateRoom", "a1 CreateCall"]);
-    expect(requests[0].request).to.deep.equal({ roomRef: "call-1" });
-    expect(appbridge.sent).to.deep.equal([
-      {
-        subject: "appbridge.outbound",
-        body: {
-          nodeId: "n1",
-          roomRef: "call-1",
-          appRef: "app-1",
-          callRef: "call-1",
-          from: CALL.from,
-          to: CALL.to,
-          metadata: { a: 1 }
-        }
-      }
-    ]);
-    // X-DOD-Number and the other headers Routr routes on travel in to.headers; From is the
-    // node's own identity; the proxy's challenge is answered with to.auth.
-    expect(requests[1].request).to.deep.equal({
+    // One RPC: no CreateRoom, no AppBridge hand-off (the node opens the control stream on answer).
+    expect(log).to.deep.equal(["a1 CreateCall"]);
+    // X-DOD-Number and the other headers Routr routes on travel in to.headers untouched; From is
+    // the node's own identity; the proxy's challenge is answered with to.auth; AppBridge finds
+    // the app (and the API caller's metadata) in metadata.
+    expect(requests[0].request).to.deep.equal({
       callRef: "call-1",
-      roomRef: "call-1",
       to: {
         uri: "sip:+15550002222@routr",
         proxy: "routr:5060",
@@ -395,7 +363,12 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
         auth: OUTBOUND.auth
       },
       ringTimeoutS: 30,
-      metadata: { app_ref: "app-1" }
+      metadata: {
+        app_ref: "app-1",
+        from: CALL.from,
+        to: CALL.to,
+        app_metadata: JSON.stringify({ a: 1 })
+      }
     });
   });
 
@@ -406,58 +379,60 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
     expect(calleeUri("+1555", "10.0.0.2:5060")).to.equal("sip:+1555@10.0.0.2");
   });
 
-  it("fails with no_capacity without a live Roomr node, sending nothing", async function () {
+  it("no capacity: fails with no_capacity without an eligible node, sending nothing", async function () {
     const { roomr, log } = fakeRoomr();
-    const appbridge = fakeAppBridge();
-    await place(roomr, createNodeDirectory(), appbridge).then(
+    await place(roomr, createNodeDirectory()).then(
       () => expect.fail("placed"),
       (e) => expect(e.code).to.equal(NO_CAPACITY)
     );
     expect(log).to.have.length(0);
-    expect(appbridge.sent).to.have.length(0);
   });
 
-  it("fails over only on RESOURCE_EXHAUSTED or UNAVAILABLE, up to three nodes", async function () {
+  it("refusal triggers a retry: fails over only on RESOURCE_EXHAUSTED or UNAVAILABLE, up to three nodes", async function () {
     const ok = fakeRoomr({
-      a1: { CreateRoom: [status.RESOURCE_EXHAUSTED] },
-      a2: { CreateRoom: [status.UNAVAILABLE] }
+      a1: { CreateCall: [status.RESOURCE_EXHAUSTED] },
+      a2: { CreateCall: [status.UNAVAILABLE] }
     });
     expect((await place(ok.roomr, nodesUpTo(4))).nodeId).to.equal("n3");
     expect(ok.log).to.deep.equal([
-      "a1 CreateRoom",
-      "a2 CreateRoom",
-      "a3 CreateRoom",
+      "a1 CreateCall",
+      "a2 CreateCall",
       "a3 CreateCall"
     ]);
+    // Every attempt is the same call: same call_ref, same parameters.
+    expect(
+      new Set(ok.requests.map((r) => JSON.stringify(r.request))).size
+    ).to.equal(1);
 
     const none = fakeRoomr({
-      a1: { CreateRoom: [status.RESOURCE_EXHAUSTED] },
-      a2: { CreateRoom: [status.UNAVAILABLE] },
-      a3: { CreateRoom: [status.RESOURCE_EXHAUSTED] }
+      a1: { CreateCall: [status.RESOURCE_EXHAUSTED] },
+      a2: { CreateCall: [status.UNAVAILABLE] },
+      a3: { CreateCall: [status.RESOURCE_EXHAUSTED] }
     });
-    const appbridge = fakeAppBridge();
-    await place(none.roomr, nodesUpTo(4), appbridge).then(
+    await place(none.roomr, nodesUpTo(4)).then(
       () => expect.fail("placed"),
       (e) => expect(e.code).to.equal(NO_CAPACITY)
     );
+    // No fourth node is tried.
     expect(none.log).to.have.length(MAX_PLACEMENT_ATTEMPTS);
-    expect(appbridge.sent).to.have.length(0);
   });
 
-  it("retries the same node on a timeout and never moves on after one", async function () {
+  it("timeout retried on the same node: same call_ref, never another node", async function () {
     const retried = fakeRoomr({
-      a1: { CreateRoom: ["timeout"], CreateCall: ["timeout"] }
+      a1: { CreateCall: ["timeout", "timeout"] }
     });
     expect((await place(retried.roomr, nodesUpTo(2))).nodeId).to.equal("n1");
     expect(retried.log).to.deep.equal([
-      "a1 CreateRoom",
-      "a1 CreateRoom",
+      "a1 CreateCall",
       "a1 CreateCall",
       "a1 CreateCall"
     ]);
+    expect(
+      new Set(retried.requests.map((r) => JSON.stringify(r.request))).size
+    ).to.equal(1);
 
     // Still no answer after SAME_NODE_ATTEMPTS: the call fails; no other node is asked (the
-    // INVITE may be out).
+    // INVITE may be out) and the call is ended in case the node did take it.
     const stuck = fakeRoomr({
       a1: { CreateCall: Array(SAME_NODE_ATTEMPTS).fill("timeout") }
     });
@@ -466,27 +441,13 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
       (e) => expect(e.code).to.equal("unavailable")
     );
     expect(stuck.log.filter((l) => l.startsWith("a2"))).to.deep.equal([]);
-    // The call and room are ended in case the node did get them.
-    expect(stuck.log.slice(-2)).to.deep.equal(["a1 EndCall", "a1 EndRoom"]);
+    expect(stuck.log.at(-1)).to.equal("a1 EndCall");
   });
 
-  it("takes ALREADY_EXISTS on a retried CreateRoom as its own room", async function () {
-    const { roomr, log } = fakeRoomr({
-      a1: { CreateRoom: ["timeout", status.ALREADY_EXISTS] }
-    });
-    expect((await place(roomr, nodesUpTo(1))).roomRef).to.equal("call-1");
-    expect(log).to.deep.equal([
-      "a1 CreateRoom",
-      "a1 CreateRoom",
-      "a1 CreateCall"
-    ]);
-  });
-
-  it("maps CreateCall's refusals to placement codes and ends the room", async function () {
+  it("maps CreateCall's other errors to placement codes and tries no other node", async function () {
     for (const [code, want] of [
       [status.INVALID_ARGUMENT, "invalid_argument"],
       [status.ALREADY_EXISTS, "already_exists"],
-      [status.RESOURCE_EXHAUSTED, NO_CAPACITY],
       [status.INTERNAL, "unavailable"]
     ] as const) {
       const { roomr, log } = fakeRoomr({ a1: { CreateCall: [code] } });
@@ -494,23 +455,28 @@ describe("@apiserver[outbound/placeOutboundCall]", function () {
         () => expect.fail("placed"),
         (e) => expect(e.code).to.equal(want)
       );
-      expect(log.at(-1)).to.equal("a1 EndRoom");
-      // AppBridge already watches this room: no other node is tried.
-      expect(log.some((l) => l.startsWith("a2"))).to.equal(false);
+      expect(log).to.deep.equal(["a1 CreateCall"]);
     }
   });
 
-  it("ends the room when no AppBridge takes the call", async function () {
-    const { roomr, log } = fakeRoomr();
-    await place(
-      roomr,
-      nodesUpTo(1),
-      fakeAppBridge({ type: "error", code: "unknown_app" })
-    ).then(
-      () => expect.fail("placed"),
-      (e) => expect(e.code).to.equal("unknown_app")
-    );
-    expect(log).to.deep.equal(["a1 CreateRoom", "a1 EndRoom"]);
+  it("entry written first: onAttempt runs before CreateCall reaches each node", async function () {
+    const { roomr, log } = fakeRoomr({
+      a1: { CreateCall: [status.RESOURCE_EXHAUSTED] }
+    });
+    const order: string[] = [];
+    await place(roomr, nodesUpTo(2), {
+      onAttempt: (nodeId, addr) => {
+        order.push(...log.splice(0));
+        order.push(`entry ${nodeId} ${addr}`);
+      }
+    });
+    order.push(...log.splice(0));
+    expect(order).to.deep.equal([
+      "entry n1 a1",
+      "a1 CreateCall",
+      "entry n2 a2",
+      "a2 CreateCall"
+    ]);
   });
 });
 
@@ -538,17 +504,9 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
     return f;
   };
 
-  const appBridgeAcks = () =>
-    nc.subscribe("appbridge.outbound", {
-      queue: "appbridge-outbound",
-      callback: (_e, msg) =>
-        msg.respond(sc.encode(JSON.stringify({ type: "ack" })))
-    });
-
   it("answers CreateCall once the node accepted it, after TRYING and the node on the call's subject", async function () {
     const bucket = `test_grpc_${Date.now()}`;
-    const f = await node({});
-    const appbridge = appBridgeAcks();
+    const f = await node({ callee: "ring" });
     const ref = `call-ack-${Date.now()}`;
     const statuses: Record<string, unknown>[] = [];
     const track = nc.subscribe(`calls.${ref}.events`, {
@@ -573,6 +531,8 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
       });
       expect(f.of("CreateCall")).to.have.length(1);
       expect(f.of("CreateCall")[0]).to.deep.include({ callRef: ref });
+      // No room is made ahead of the call and nothing goes to AppBridge over NATS.
+      expect(f.of("CreateRoom")).to.have.length(0);
       await nc.flush();
       expect(statuses.slice(0, 2)).to.deep.equal([
         { ref, status: "TRYING" },
@@ -581,7 +541,6 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
     } finally {
       await stop();
       track.unsubscribe();
-      appbridge.unsubscribe();
       const jsm = await nc.jetstreamManager().catch(() => undefined);
       await jsm?.streams.delete(`KV_${bucket}`).catch(() => undefined);
     }
@@ -599,7 +558,7 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
     try {
       const reply = await nc.request(
         "calls.create",
-        sc.encode(JSON.stringify({ ...CALL, ref })),
+        sc.encode(JSON.stringify({ ...CALL, ref, region: `none-${ref}` })),
         { timeout: 5000 }
       );
       expect(JSON.parse(sc.decode(reply.data))).to.include({
@@ -619,12 +578,49 @@ describe("@apiserver[outbound/runOutboundCalls] over NATS and gRPC", function ()
       await jsm?.streams.delete(`KV_${bucket}`).catch(() => undefined);
     }
   });
+
+  it("timeout retried on the same node: the callee gets one INVITE", async function () {
+    const bucket = `test_timeout_${Date.now()}`;
+    const region = `rg-timeout-${Date.now()}`;
+    const a = await node({ callee: "ring", region });
+    const b = await node({ callee: "ring", region, rooms: 50 });
+    // The first CreateCall answers only after the client's deadline (2 s): an ambiguous outcome.
+    a.stallNext("CreateCall", 2500);
+    const ref = `call-timeout-${Date.now()}`;
+    const stop = await runOutboundCalls({
+      nc,
+      sessionsBucket: bucket,
+      outbound: OUTBOUND
+    });
+    try {
+      await new Promise((r) => setTimeout(r, 600));
+      const reply = await nc.request(
+        "calls.create",
+        sc.encode(JSON.stringify({ ...CALL, ref, region })),
+        { timeout: 10_000 }
+      );
+      expect(JSON.parse(sc.decode(reply.data))).to.include({
+        type: "ack",
+        nodeId: a.nodeRef
+      });
+      await new Promise((r) => setTimeout(r, 1000)); // the stalled first attempt lands too
+      expect(a.of("CreateCall").length).to.be.at.least(2);
+      expect(
+        new Set(a.of("CreateCall").map((r) => JSON.stringify(r))).size
+      ).to.equal(1);
+      expect(a.invites).to.equal(1);
+      expect(b.of("CreateCall")).to.have.length(0);
+    } finally {
+      await stop();
+      const jsm = await nc.jetstreamManager().catch(() => undefined);
+      await jsm?.streams.delete(`KV_${bucket}`).catch(() => undefined);
+    }
+  });
 });
 
 describe("@apiserver[outbound/runOutboundCalls] with the session registry", function () {
   const URL =
     process.env.CONFORMANCE_JETSTREAM_URL ?? process.env.CONFORMANCE_NATS_URL;
-  const sc = StringCodec();
   const bucket = `test_sessions_${Date.now()}`;
   let nc: NatsConnection;
 
@@ -641,13 +637,15 @@ describe("@apiserver[outbound/runOutboundCalls] with the session registry", func
 
   after(async () => {
     if (!nc || nc.isClosed()) return;
-    await (await nc.jetstreamManager()).streams
+    await (
+      await nc.jetstreamManager()
+    ).streams
       .delete(`KV_${bucket}`)
       .catch(() => undefined);
     await nc.close();
   });
 
-  it("writes the placement before the RPC and deletes it after; the sweep ends a call whose placer died", async function () {
+  it("entry written first, deleted after; the sweep ends a call whose placer died and fails one never placed", async function () {
     const kv = await Sessions.openSessions(nc, { bucket });
     const f = new FakeRoomr({ callee: "ring" });
     await f.start();
@@ -669,27 +667,27 @@ describe("@apiserver[outbound/runOutboundCalls] with the session registry", func
     let sweeper: Awaited<ReturnType<typeof createPlacementSweep>> | undefined;
     try {
       await placeOutboundCall(
-        { roomr, request: fakeAppBridge().request, nodes, outbound: OUTBOUND },
+        { roomr, nodes, outbound: OUTBOUND },
         { ...CALL, ref },
         {
           onAttempt: async (nodeId, addr) => {
             await placer.placing(ref, nodeId, addr);
             // Written before the node heard anything.
             expect(f.requests).to.have.length(0);
-          },
-          onRoom: (nodeId, roomRef) =>
-            placer.placing(ref, nodeId, f.controlAddr, roomRef)
+            expect(
+              await Sessions.getSession(kv, "placements", ref)
+            ).to.deep.include({ callRef: ref, nodeRef: f.nodeRef });
+          }
         }
       );
       await placer.placed(ref);
       await new Promise((r) => setTimeout(r, 200));
       expect(seen.filter((s) => s.startsWith(ref))).to.deep.equal([
         `${ref}:put`,
-        `${ref}:put`,
         `${ref}:delete`
       ]);
 
-      // A placer that died after CreateCall: its entry stays; another replica's sweep ends it.
+      // Replicas that died mid-placement leave their entries; another replica's sweep ends them.
       let now = Date.now();
       const failed: string[] = [];
       const down = new Set<string>(["gone-node"]);
@@ -708,9 +706,9 @@ describe("@apiserver[outbound/runOutboundCalls] with the session registry", func
         callRef: lost,
         to: { uri: "sip:+1@routr" }
       });
-      await placer.placing(lost, f.nodeRef, f.controlAddr, `room-${lost}`);
-      // Killed between the registry write and the RPC: NOT_FOUND on the node; and a placement
-      // on a node that is down since.
+      await placer.placing(lost, f.nodeRef, f.controlAddr);
+      // Replica killed mid-creation (between the registry write and the RPC): NOT_FOUND on the
+      // node; and a placement on a node that is down since.
       const early = `early-${Date.now()}`;
       await placer.placing(early, f.nodeRef, f.controlAddr);
       const orphan = `orphan-${Date.now()}`;
@@ -751,7 +749,9 @@ describe("@apiserver[outbound/runOutboundCalls] with the session registry", func
       await new Promise((r) => setTimeout(r, 1600));
       expect(await Sessions.getSession(kv, "calls", "c-1")).to.equal(undefined);
     } finally {
-      await (await nc.jetstreamManager()).streams
+      await (
+        await nc.jetstreamManager()
+      ).streams
         .delete(`KV_${short}`)
         .catch(() => undefined);
     }

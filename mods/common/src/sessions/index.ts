@@ -24,15 +24,16 @@ import type { KV, KvEntry, NatsConnection } from "nats";
  *
  *   calls.<callRef>       appbridge:    { callRef, bridgeRef, nodeId, roomRef, direction, at }
  *                                     + once answered: { appRef, workspaceRef, from, to, startedAt }
- *   appbridges.<bridgeRef> appbridge:    { bridgeRef, calls, at }
+ *   appbridges.<bridgeRef> retired: AppBridge no longer writes it (redesign-roomr 15.3)
  *   placements.<callRef>  apiserver:  { callRef, nodeRef, controlAddr, roomRef?, at }
  *                                     while an outbound call is being placed (CreateCall)
  *
  * Roomr nodes write nothing here (core NATS only: heartbeat and events); the control plane learns
  * nodes from their heartbeats.
  *
- * The control plane reads `calls` and `appbridges`: a call whose entry and whose AppBridge's entry
- * both stop being rewritten lost its AppBridge mid-call, and gets `call.ended` (`appbridge-lost`).
+ * The control plane reads `calls` (billing counts active calls from them). A call that loses its
+ * AppBridge mid-call is reported by its node's `call.ended` with cause `app_gone` (redesign-roomr
+ * 15.4), not by expired `appbridges` entries.
  *
  * Entries are leases: the bucket keeps a value for SESSIONS_TTL_MS after its last write, owners
  * rewrite theirs every SESSIONS_REFRESH_MS, and a crashed owner's entries expire on their own.

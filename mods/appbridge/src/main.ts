@@ -86,8 +86,17 @@ async function main() {
     );
   }
 
-  const shutdown = async () => {
-    logger.info("shutting down");
+  let stopping = false;
+  // SIGTERM drains (13.3): readiness fails at once, live calls run until they end or
+  // session.drainWait passes; SIGINT (or a second signal) stops at once.
+  const shutdown = async (drain: boolean) => {
+    if (stopping) {
+      if (!drain) process.exit(1);
+      return;
+    }
+    stopping = true;
+    logger.info(drain ? "draining" : "shutting down");
+    if (drain) await appbridge?.drain();
     if (sweeper) clearInterval(sweeper);
     await appbridge?.stop();
     await writer?.flush();
@@ -95,8 +104,8 @@ async function main() {
     await telemetry.shutdown();
     process.exit(0);
   };
-  process.on("SIGTERM", shutdown);
-  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", () => void shutdown(true));
+  process.on("SIGINT", () => void shutdown(false));
 }
 
 /**

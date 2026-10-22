@@ -20,11 +20,12 @@ import { Sessions, Webhooks } from "@fonoster/common";
 import { expect } from "chai";
 import {
   APPBRIDGE_LOST_REASON,
-  createLostCallSweep
+  createLostCalls
 } from "../../src/webhooks/lostCalls";
 
-// call.ended for calls whose AppBridge died mid-call (reason appbridge-lost), from the session
-// registry's calls.* and AppBridge replicas.* leases, with a fake clock.
+// call.ended for calls whose AppBridge died mid-call (reason appbridge-lost, redesign-roomr 15.4):
+// the node ends the call with cause app_gone; the control plane sends call.ended unless the
+// call's AppBridge ended it itself (it deletes its calls.* entry). Fake clock, no grace wait.
 
 const ANSWERED = {
   callRef: "call-1",
@@ -44,38 +45,33 @@ const entry = (
   value?: Record<string, unknown>
 ): Sessions.SessionEntry => ({ kind, id, value, writtenAt: new Date() });
 
-function replica() {
+function replica(options: { forgetMs?: number } = {}) {
   let t = 0;
   const emitted: Webhooks.WebhookEvent[] = [];
-  const sweep = createLostCallSweep({
+  const lost = createLostCalls({
     emit: (e) => emitted.push(e),
-    staleMs: 15_000,
+    graceMs: 0,
+    forgetMs: options.forgetMs,
     now: () => t
   });
   return {
-    sweep,
+    lost,
     emitted,
     at: (ms: number) => (t = ms)
   };
 }
 
 describe("@apiserver/webhooks lost appbridge calls", function () {
-  it("sends one call.ended (appbridge-lost) once the call and its AppBridge go quiet", function () {
+  it("sends one call.ended (appbridge-lost) when the node ends the call with app_gone", async function () {
     const r = replica();
-    r.sweep.onEntry(entry("appbridges", "gw-a", { bridgeRef: "gw-a" }));
-    r.sweep.onEntry(entry("calls", "call-1", ANSWERED));
-    // Leases rewritten every 5 s: alive.
+    r.lost.onEntry(entry("calls", "call-1", ANSWERED));
+    // AppBridge rewrites its entry every 5 s, then dies at 20 s; the node reports app_gone.
     for (const t of [5_000, 10_000, 15_000, 20_000]) {
       r.at(t);
-      r.sweep.onEntry(entry("appbridges", "gw-a", { bridgeRef: "gw-a" }));
-      r.sweep.onEntry(entry("calls", "call-1", ANSWERED));
-      expect(r.sweep.sweep()).to.be.empty;
+      r.lost.onEntry(entry("calls", "call-1", ANSWERED));
     }
-    // AppBridge dies at 20 s: nothing within the lease TTL, then call.ended.
-    r.at(35_000);
-    expect(r.sweep.sweep()).to.be.empty;
-    r.at(35_001);
-    const [event] = r.sweep.sweep();
+    r.at(21_000);
+    const event = (await r.lost.onAppGone("call-1"))!;
     expect(event.type).to.equal("call.ended");
     expect(event.workspaceRef).to.equal(""); // resolved from the app by the fan-out
     expect(event.data).to.deep.equal({
@@ -84,32 +80,39 @@ describe("@apiserver/webhooks lost appbridge calls", function () {
       from: "+15550001",
       to: "+15550002",
       direction: "inbound",
-      durationSeconds: 20,
+      durationSeconds: 21,
       endReason: APPBRIDGE_LOST_REASON
     });
-    // Once: later sweeps send nothing more.
-    r.at(60_000);
-    expect(r.sweep.sweep()).to.be.empty;
+    // Once: a repeated app_gone sends nothing more.
+    expect(await r.lost.onAppGone("call-1")).to.equal(undefined);
     expect(r.emitted).to.have.length(1);
   });
 
-  it("sends nothing for a call that ended or whose AppBridge is alive", function () {
+  it("never after AppBridge's own: a call AppBridge ended (entry deleted) gets nothing", async function () {
     const r = replica();
-    r.sweep.onEntry(entry("appbridges", "gw-a", { bridgeRef: "gw-a" }));
-    r.sweep.onEntry(entry("calls", "call-1", ANSWERED));
-    r.sweep.onEntry(
-      entry("calls", "call-2", { ...ANSWERED, callRef: "call-2" })
-    );
-    // call-1 ended normally (its AppBridge sent call.ended and deleted the entry).
-    r.sweep.onEntry(entry("calls", "call-1"));
-    // call-2's entry stops being rewritten, but its AppBridge is still alive.
-    r.at(30_000);
-    r.sweep.onEntry(entry("appbridges", "gw-a", { bridgeRef: "gw-a" }));
-    expect(r.sweep.sweep()).to.be.empty;
-    expect(r.sweep.size()).to.equal(1);
+    r.lost.onEntry(entry("calls", "call-1", ANSWERED));
+    // call-1 ended normally: its AppBridge sent call.ended and deleted the entry.
+    r.lost.onEntry(entry("calls", "call-1"));
+    expect(await r.lost.onAppGone("call-1")).to.equal(undefined);
+    expect(r.emitted).to.have.length(0);
   });
 
-  it("sends nothing for a call that never reached an app", function () {
+  it("waits the grace period for AppBridge's own end before sending", async function () {
+    const emitted: Webhooks.WebhookEvent[] = [];
+    const lost = createLostCalls({ emit: (e) => emitted.push(e), graceMs: 50 });
+    lost.onEntry(entry("calls", "call-1", ANSWERED));
+    lost.onEntry(entry("calls", "call-2", { ...ANSWERED, callRef: "call-2" }));
+    const one = lost.onAppGone("call-1");
+    const two = lost.onAppGone("call-2");
+    // call-1's AppBridge ends the call itself within the grace period.
+    lost.onEntry(entry("calls", "call-1"));
+    expect(await one).to.equal(undefined);
+    expect((await two)?.data).to.include({ callRef: "call-2" });
+    expect(emitted).to.have.length(1);
+    lost.stop();
+  });
+
+  it("sends nothing for a call that never reached an app, or one it never saw", async function () {
     const r = replica();
     const {
       appRef: _a,
@@ -118,13 +121,29 @@ describe("@apiserver/webhooks lost appbridge calls", function () {
       startedAt: _s,
       ...unanswered
     } = ANSWERED;
-    r.sweep.onEntry(entry("calls", "call-1", unanswered));
-    r.at(60_000);
-    expect(r.sweep.sweep()).to.be.empty;
-    expect(r.sweep.size()).to.equal(0);
+    r.lost.onEntry(entry("calls", "call-1", unanswered));
+    expect(await r.lost.onAppGone("call-1")).to.equal(undefined);
+    expect(await r.lost.onAppGone("unknown")).to.equal(undefined);
+    expect(r.emitted).to.have.length(0);
   });
 
-  it("gives the same event id on every replica, so each endpoint gets one delivery", function () {
+  it("keeps the entry of a dead AppBridge (its lease expires unseen) and forgets it after forgetMs", async function () {
+    const r = replica({ forgetMs: 60_000 });
+    r.lost.onEntry(entry("calls", "call-1", ANSWERED));
+    r.lost.onEntry(
+      entry("calls", "call-2", { ...ANSWERED, callRef: "call-2" })
+    );
+    r.at(30_000); // past the registry TTL: the entries expired, no delete event came
+    expect((await r.lost.onAppGone("call-1"))?.data).to.include({
+      callRef: "call-1"
+    });
+    r.at(61_000);
+    r.lost.forget();
+    expect(r.lost.size()).to.equal(0);
+    expect(await r.lost.onAppGone("call-2")).to.equal(undefined);
+  });
+
+  it("gives the same event id on every replica, so each endpoint gets one delivery", async function () {
     const store = new Webhooks.MemoryWebhookStore();
     const dispatcher = new Webhooks.WebhookDispatcher({ store });
     dispatcher.createEndpoint({
@@ -134,10 +153,9 @@ describe("@apiserver/webhooks lost appbridge calls", function () {
     });
     const replicas = [replica(), replica()];
     for (const [i, r] of replicas.entries()) {
-      r.sweep.onEntry(entry("appbridges", "gw-a", { bridgeRef: "gw-a" }));
-      r.sweep.onEntry(entry("calls", "call-1", ANSWERED));
-      r.at(20_000 + i * 3_000); // the replicas sweep at different times
-      r.sweep.sweep();
+      r.lost.onEntry(entry("calls", "call-1", ANSWERED));
+      r.at(20_000 + i * 3_000); // the replicas see it at different times
+      await r.lost.onAppGone("call-1");
     }
     const [a, b] = replicas.map((r) => r.emitted[0]);
     expect(a.id).to.equal(b.id);

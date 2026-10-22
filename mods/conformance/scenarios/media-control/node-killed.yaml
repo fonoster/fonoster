@@ -2,14 +2,24 @@ format: fonoster.scenario.v1
 contract: media-control
 role: media-control-client
 name: node-killed
-spec: "Nodes report liveness / Node killed"
-description: A killed node stops its heartbeats; appbridges count it down after 3 missed beats.
+spec: "A crashed node's calls end cleanly / Node killed mid-call"
+description: "The app's control stream closes (within keepalive) and no heartbeat follows the kill (controllers stop placing on it)."
 setup:
-  media: { heartbeatMs: 200 }
+  roomr: { config: { heartbeatInterval: 200ms } }
 steps:
-  - expect: { type: node.heartbeat }
-    within_ms: 1000
-  - caller: { nodeCrash: true }
-  - wait: { ms: 250 }
-  - expect_none: { type: node.heartbeat }
-    for_ms: 800
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }
+  - node: { kill: true }
+  - expect: { type: stream.closed }
+    within_ms: 30000
+  - wait: { ms: 300 }
+    label: dead
+  - wait: { ms: 1000 }
+  - assert:
+      heartbeats: 0
+    from: dead

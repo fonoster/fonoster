@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/call.go b/go/roomr/internal/node/call.go
+index ec7ed2520..e0cae19e3 100644
+--- a/go/roomr/internal/node/call.go
++++ b/go/roomr/internal/node/call.go
+@@ -302,7 +302,7 @@ func (c *call) checkLimits(now time.Time) {
+ 	timeout := c.n.cfg.MediaTimeout
+ 	switch {
+ 	case now.Sub(since) > limit:
+-		c.end(ReasonMaxDuration, 0)
++		c.end(ReasonNodeError, 0)
+ 	case leg != nil && leg.silentFor(now) > timeout:
+ 		c.end(ReasonMediaTimeout, 0)
+ 	case app != nil && app.silentFor(now) > timeout:

@@ -1,0 +1,24 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: ready-never-arrives
+spec: "A broken control stream ends the call / Ready never arrives"
+description: "Conformance 'Stalled app': with a 1 s readyTimeout the node hangs up the answered callee (BYE) with app_gone in under 5 s."
+setup:
+  roomr: { app: { mode: stall }, config: { readyTimeout: 1s } }
+steps:
+  - rpc:
+      method: CreateCall
+      request:
+        {
+          call_ref: s1,
+          to: { uri: "sip:+15551234567@carrier.invalid", proxy: "${trunk}" },
+          metadata: { app_ref: app-1 }
+        }
+  - expect: { type: stream.start, call_ref: s1, direction: OUTBOUND }
+    within_ms: 3000
+  - expect: { type: call.ended, call_ref: s1, cause: app_gone }
+    within_ms: 2500
+  - wait: { ms: 300 }
+  - assert:
+      trunk.state: ended

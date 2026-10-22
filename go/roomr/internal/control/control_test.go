@@ -27,9 +27,6 @@ type fake struct {
 	room     string
 	ep       node.MediaEndpoint
 	tracks   []node.ListenTrack
-	target   node.Target
-	url      string
-	digits   string
 	ended    string
 	roomOpts node.RoomOptions
 	leaveRef string
@@ -54,7 +51,7 @@ func (f *fake) CreateRoom(ref string, o node.RoomOptions) (string, error) {
 	return ref, nil
 }
 func (f *fake) EndRoom(ref string) error { f.room = ref; return f.err }
-func (f *fake) JoinRTP(room string, ep node.MediaEndpoint) (node.ParticipantInfo, error) {
+func (f *fake) AddRTPParticipant(room string, ep node.MediaEndpoint) (node.ParticipantInfo, error) {
 	f.room, f.ep = room, ep
 	if f.err != nil {
 		return node.ParticipantInfo{}, f.err
@@ -62,23 +59,15 @@ func (f *fake) JoinRTP(room string, ep node.MediaEndpoint) (node.ParticipantInfo
 	return node.ParticipantInfo{ParticipantRef: "p-1", RoomRef: room, TrackID: 2,
 		RTP: &node.MediaEndpoint{IP: "10.0.1.7", Port: 30010, Codec: ep.Codec, SRTPKey: "k"}}, nil
 }
-func (f *fake) JoinListener(room string, tracks []node.ListenTrack) (node.ParticipantInfo, error) {
+func (f *fake) AddListenerParticipant(room string, tracks []node.ListenTrack) (node.ParticipantInfo, error) {
 	f.room, f.tracks = room, tracks
 	if f.err != nil {
 		return node.ParticipantInfo{}, f.err
 	}
 	return node.ParticipantInfo{ParticipantRef: "listener-1", RoomRef: room}, nil
 }
-func (f *fake) Leave(room, ref string) error { f.room, f.leaveRef = room, ref; return f.err }
-func (f *fake) Play(t node.Target, url string) (string, error) {
-	f.target, f.url = t, url
-	if f.err != nil {
-		return "", f.err
-	}
-	return "op-1", nil
-}
-func (f *fake) SendDTMF(t node.Target, digits string) error {
-	f.target, f.digits = t, digits
+func (f *fake) RemoveParticipant(room, ref string) error {
+	f.room, f.leaveRef = room, ref
 	return f.err
 }
 
@@ -134,7 +123,8 @@ func TestCreateCallPassesTheTargetThrough(t *testing.T) {
 	call, err := c.CreateCall(ctx(t), &roomrv1.CreateCallRequest{CallRef: "c1", From: "+15550001",
 		To: &roomrv1.SipTarget{Uri: "sip:+15551234567@carrier", Proxy: "sip:proxy:5060",
 			Headers: map[string]string{"X-Tenant": "t1"}, Auth: &roomrv1.SipAuth{Username: "u", Password: "p"}},
-		RoomRef: "r1", RingTimeoutS: 20, MaxDurationS: 600, Metadata: map[string]string{"tenant": "t1"}})
+		RoomRef: "r1", RingTimeoutS: 20, MaxDurationS: 600, Metadata: map[string]string{"tenant": "t1"},
+		Session: "appbridge-b:50071"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -144,7 +134,8 @@ func TestCreateCallPassesTheTargetThrough(t *testing.T) {
 	r := f.call
 	if r.To.URI != "sip:+15551234567@carrier" || r.To.Proxy != "sip:proxy:5060" || r.To.Headers["X-Tenant"] != "t1" ||
 		r.To.Username != "u" || r.To.Password != "p" || r.From != "+15550001" || r.RoomRef != "r1" ||
-		r.RingTimeout != 20*time.Second || r.MaxDuration != 10*time.Minute || r.Metadata["tenant"] != "t1" {
+		r.RingTimeout != 20*time.Second || r.MaxDuration != 10*time.Minute || r.Metadata["tenant"] != "t1" ||
+		r.Session != "appbridge-b:50071" {
 		t.Fatalf("request = %+v", r)
 	}
 }
@@ -158,8 +149,6 @@ func TestCreateCallRefusals(t *testing.T) {
 		reason string
 	}{
 		{"no uri", nil, &roomrv1.CreateCallRequest{CallRef: "c1"}, codes.InvalidArgument, node.CodeBadMessage},
-		{"session override", nil, &roomrv1.CreateCallRequest{To: &roomrv1.SipTarget{Uri: "sip:a@b"}, Session: "x:1"},
-			codes.Unimplemented, node.CodeNotSupported},
 		{"at the room limit", &node.Error{Code: node.CodeAtCapacity}, nil, codes.ResourceExhausted, node.CodeAtCapacity},
 		{"bad header", &node.Error{Code: node.CodeBadMessage, Message: "header Via is set by the node"}, nil,
 			codes.InvalidArgument, node.CodeBadMessage},
@@ -217,7 +206,7 @@ func TestRooms(t *testing.T) {
 	f := &fake{}
 	c := dial(t, f)
 	room, err := c.CreateRoom(ctx(t), &roomrv1.CreateRoomRequest{RoomRef: "lobby", MaxDurationS: 60,
-		EmptyTimeoutS: 5, MaxParticipants: 3})
+		EmptyRoomTimeoutS: 5, MaxParticipants: 3})
 	if err != nil || room.RoomRef != "lobby" || f.roomOpts != (node.RoomOptions{MaxDuration: time.Minute,
 		EmptyTimeout: 5 * time.Second, MaxParticipants: 3}) {
 		t.Fatalf("room %v err %v opts %+v", room, err, f.roomOpts)
@@ -235,11 +224,11 @@ func TestRooms(t *testing.T) {
 	wantCode(t, err, codes.InvalidArgument, node.CodeBadMessage)
 }
 
-func TestJoin(t *testing.T) {
+func TestAddParticipant(t *testing.T) {
 	f := &fake{}
 	c := dial(t, f)
-	p, err := c.Join(ctx(t), &roomrv1.JoinRequest{RoomRef: "r1",
-		Endpoint: &roomrv1.JoinRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 40010}}})
+	p, err := c.AddParticipant(ctx(t), &roomrv1.AddParticipantRequest{RoomRef: "r1",
+		Endpoint: &roomrv1.AddParticipantRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 40010}}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -250,7 +239,7 @@ func TestJoin(t *testing.T) {
 		t.Fatalf("participant = %v", p)
 	}
 
-	p, err = c.Join(ctx(t), &roomrv1.JoinRequest{RoomRef: "r1", Listen: []*roomrv1.ListenTrack{
+	p, err = c.AddParticipant(ctx(t), &roomrv1.AddParticipantRequest{RoomRef: "r1", Listen: []*roomrv1.ListenTrack{
 		{TrackId: 1, Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 40100, Codec: "L16/16000"}}}})
 	if err != nil || p.ParticipantRef != "listener-1" || len(f.tracks) != 1 || f.tracks[0].TrackID != 1 {
 		t.Fatalf("listener %v err %v tracks %v", p, err, f.tracks)
@@ -258,21 +247,21 @@ func TestJoin(t *testing.T) {
 
 	bad := []struct {
 		name string
-		req  *roomrv1.JoinRequest
+		req  *roomrv1.AddParticipantRequest
 		code codes.Code
 	}{
-		{"webrtc", &roomrv1.JoinRequest{RoomRef: "r1", Endpoint: &roomrv1.JoinRequest_Webrtc{Webrtc: &roomrv1.WebRtcOffer{Sdp: "v=0"}}}, codes.Unimplemented},
-		{"no room", &roomrv1.JoinRequest{Endpoint: &roomrv1.JoinRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 1}}}, codes.InvalidArgument},
-		{"nothing to join", &roomrv1.JoinRequest{RoomRef: "r1"}, codes.InvalidArgument},
-		{"bad ip", &roomrv1.JoinRequest{RoomRef: "r1", Endpoint: &roomrv1.JoinRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "appbridge", Port: 1}}}, codes.InvalidArgument},
-		{"bad port", &roomrv1.JoinRequest{RoomRef: "r1", Endpoint: &roomrv1.JoinRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 70000}}}, codes.InvalidArgument},
-		{"rtp and listen", &roomrv1.JoinRequest{RoomRef: "r1", Endpoint: &roomrv1.JoinRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 1}},
+		{"webrtc", &roomrv1.AddParticipantRequest{RoomRef: "r1", Endpoint: &roomrv1.AddParticipantRequest_Webrtc{Webrtc: &roomrv1.WebRtcOffer{Sdp: "v=0"}}}, codes.Unimplemented},
+		{"no room", &roomrv1.AddParticipantRequest{Endpoint: &roomrv1.AddParticipantRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 1}}}, codes.InvalidArgument},
+		{"nothing to join", &roomrv1.AddParticipantRequest{RoomRef: "r1"}, codes.InvalidArgument},
+		{"bad ip", &roomrv1.AddParticipantRequest{RoomRef: "r1", Endpoint: &roomrv1.AddParticipantRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "appbridge", Port: 1}}}, codes.InvalidArgument},
+		{"bad port", &roomrv1.AddParticipantRequest{RoomRef: "r1", Endpoint: &roomrv1.AddParticipantRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 70000}}}, codes.InvalidArgument},
+		{"rtp and listen", &roomrv1.AddParticipantRequest{RoomRef: "r1", Endpoint: &roomrv1.AddParticipantRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 1}},
 			Listen: []*roomrv1.ListenTrack{{TrackId: 1, Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 2}}}}, codes.InvalidArgument},
-		{"listen without track", &roomrv1.JoinRequest{RoomRef: "r1", Listen: []*roomrv1.ListenTrack{{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 2}}}}, codes.InvalidArgument},
+		{"listen without track", &roomrv1.AddParticipantRequest{RoomRef: "r1", Listen: []*roomrv1.ListenTrack{{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 2}}}}, codes.InvalidArgument},
 	}
 	for _, tc := range bad {
 		t.Run(tc.name, func(t *testing.T) {
-			_, err := c.Join(ctx(t), tc.req)
+			_, err := c.AddParticipant(ctx(t), tc.req)
 			wantCode(t, err, tc.code, "")
 		})
 	}
@@ -289,62 +278,32 @@ func TestJoin(t *testing.T) {
 	for _, tc := range backend {
 		t.Run(tc.code, func(t *testing.T) {
 			f.err = &node.Error{Code: tc.code}
-			_, err := c.Join(ctx(t), &roomrv1.JoinRequest{RoomRef: "r1",
-				Endpoint: &roomrv1.JoinRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 40010}}})
+			_, err := c.AddParticipant(ctx(t), &roomrv1.AddParticipantRequest{RoomRef: "r1",
+				Endpoint: &roomrv1.AddParticipantRequest_Rtp{Rtp: &roomrv1.MediaEndpoint{Ip: "10.0.0.5", Port: 40010}}})
 			wantCode(t, err, tc.status, tc.code)
 		})
 	}
 }
 
-func TestLeave(t *testing.T) {
+func TestRemoveParticipant(t *testing.T) {
 	f := &fake{}
 	c := dial(t, f)
-	if _, err := c.Leave(ctx(t), &roomrv1.LeaveRequest{RoomRef: "r1", ParticipantRef: "p-1"}); err != nil || f.leaveRef != "p-1" {
+	if _, err := c.RemoveParticipant(ctx(t), &roomrv1.RemoveParticipantRequest{RoomRef: "r1", ParticipantRef: "p-1"}); err != nil || f.leaveRef != "p-1" {
 		t.Fatalf("err %v ref %q", err, f.leaveRef)
 	}
-	_, err := c.Leave(ctx(t), &roomrv1.LeaveRequest{RoomRef: "r1"})
+	_, err := c.RemoveParticipant(ctx(t), &roomrv1.RemoveParticipantRequest{RoomRef: "r1"})
 	wantCode(t, err, codes.InvalidArgument, node.CodeBadMessage)
 	f.err = &node.Error{Code: node.CodeParticipantNotFound}
-	_, err = c.Leave(ctx(t), &roomrv1.LeaveRequest{ParticipantRef: "p-9"})
+	_, err = c.RemoveParticipant(ctx(t), &roomrv1.RemoveParticipantRequest{ParticipantRef: "p-9"})
 	wantCode(t, err, codes.NotFound, node.CodeParticipantNotFound)
 }
 
-func TestOperations(t *testing.T) {
-	f := &fake{}
-	c := dial(t, f)
-	op, err := c.Play(ctx(t), &roomrv1.PlayRequest{Target: &roomrv1.PlayRequest_CallRef{CallRef: "c1"}, Url: "https://example.com/a.wav"})
-	if err != nil || op.OperationRef != "op-1" || f.target.CallRef != "c1" || f.url != "https://example.com/a.wav" {
-		t.Fatalf("op %v err %v target %+v", op, err, f.target)
-	}
-	_, err = c.Play(ctx(t), &roomrv1.PlayRequest{Url: "https://example.com/a.wav"})
-	wantCode(t, err, codes.InvalidArgument, node.CodeBadMessage)
-	_, err = c.Play(ctx(t), &roomrv1.PlayRequest{Target: &roomrv1.PlayRequest_RoomRef{RoomRef: "r1"}})
-	wantCode(t, err, codes.InvalidArgument, node.CodeBadMessage)
-
-	_, err = c.Record(ctx(t), &roomrv1.RecordRequest{Target: &roomrv1.RecordRequest_RoomRef{RoomRef: "r1"}, Destination: "s3://x"})
-	wantCode(t, err, codes.Unimplemented, node.CodeNotSupported)
-
-	if _, err := c.SendDtmf(ctx(t), &roomrv1.SendDtmfRequest{Target: &roomrv1.SendDtmfRequest_ParticipantRef{ParticipantRef: "p-1"},
-		Digits: "12#"}); err != nil || f.digits != "12#" || f.target.ParticipantRef != "p-1" {
-		t.Fatalf("err %v digits %q", err, f.digits)
-	}
-	_, err = c.SendDtmf(ctx(t), &roomrv1.SendDtmfRequest{Digits: "1"})
-	wantCode(t, err, codes.InvalidArgument, node.CodeBadMessage)
-	f.err = &node.Error{Code: node.CodeNoDTMF}
-	_, err = c.SendDtmf(ctx(t), &roomrv1.SendDtmfRequest{Target: &roomrv1.SendDtmfRequest_CallRef{CallRef: "c1"}, Digits: "1"})
-	wantCode(t, err, codes.FailedPrecondition, node.CodeNoDTMF)
-	f.err = &node.Error{Code: node.CodeCallNotAnswered}
-	_, err = c.Play(ctx(t), &roomrv1.PlayRequest{Target: &roomrv1.PlayRequest_CallRef{CallRef: "c1"}, Url: "https://example.com/a.wav"})
-	wantCode(t, err, codes.FailedPrecondition, node.CodeCallNotAnswered)
-}
-
-// TestEveryNodeCodeIsMapped: each code the node and its NATS handlers return has a deliberate
+// TestEveryNodeCodeIsMapped: each code the node returns has a deliberate
 // gRPC code (nothing falls through to INTERNAL by accident).
 func TestEveryNodeCodeIsMapped(t *testing.T) {
 	for _, code := range []string{node.CodeAtCapacity, node.CodeRoomExists, node.CodeRoomNotFound,
 		node.CodeCallNotFound, node.CodeParticipantNotFound, node.CodeRoomFull, node.CodeBadMessage,
-		node.CodeNotSupported, node.CodeCallNotAnswered, node.CodeNoDTMF,
-		node.CodeInternal, "unsupported_codec", "unsupported_track_kind", "listener_not_found"} {
+		node.CodeNotSupported, node.CodeInternal, node.CodeUnsupportedCodec, node.CodeCallExists} {
 		if _, ok := codeFor[code]; !ok {
 			t.Errorf("%s has no gRPC code", code)
 		}

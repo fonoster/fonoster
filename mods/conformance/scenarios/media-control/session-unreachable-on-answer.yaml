@@ -1,0 +1,20 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: session-unreachable-on-answer
+spec: "A broken control stream ends the call / Session endpoint unreachable on answer"
+setup:
+  roomr: { app: { mode: down } }
+steps:
+  - rpc:
+      method: CreateCall
+      request:
+        {
+          call_ref: u1,
+          to: { uri: "sip:+15551234567@carrier.invalid", proxy: "${trunk}" }
+        }
+  - expect: { type: call.ended, call_ref: u1, cause: app_gone }
+    within_ms: 5000
+  - wait: { ms: 300 }
+  - assert:
+      trunk.state: ended

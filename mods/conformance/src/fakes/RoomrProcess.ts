@@ -23,7 +23,6 @@ import * as net from "net";
 import * as os from "os";
 import * as path from "path";
 import * as readline from "readline";
-import { connect, NatsConnection, StringCodec } from "nats";
 
 /** The Go Roomr node's source, relative to this package. */
 export const ROOMR_DIR = path.join(
@@ -84,7 +83,7 @@ export type BotCallStatus = {
   spokeUntilMs?: number;
 };
 
-async function freeTcpPort(): Promise<number> {
+export async function freeTcpPort(): Promise<number> {
   const s = net.createServer();
   await new Promise<void>((r) => s.listen(0, "127.0.0.1", r));
   const port = (s.address() as net.AddressInfo).port;
@@ -93,7 +92,7 @@ async function freeTcpPort(): Promise<number> {
 }
 
 /** A port free for both UDP and TCP: the node listens for SIP on both. */
-async function freeSipPort(): Promise<number> {
+export async function freeSipPort(): Promise<number> {
   const port = await freeTcpPort();
   const udp = dgram.createSocket("udp4");
   const bound = await new Promise<boolean>((r) => {
@@ -105,16 +104,18 @@ async function freeSipPort(): Promise<number> {
 }
 
 /** Spawns a process and resolves with the first stdout line that matches. */
-function startProcess(
+export function startProcess(
   bin: string,
   args: string[],
   ready: RegExp,
-  env?: Record<string, string | undefined>
+  env?: Record<string, string | undefined>,
+  options: { cwd?: string; onOutput?: (text: string) => void } = {}
 ): Promise<{ child: ChildProcess; line: string }> {
   return new Promise((resolve, reject) => {
     const child = spawn(bin, args, {
       stdio: ["ignore", "pipe", "pipe"],
-      env: env && { ...process.env, ...env }
+      env: env && { ...process.env, ...env },
+      cwd: options.cwd
     });
     const lines = readline.createInterface({ input: child.stdout! });
     const timer = setTimeout(() => {
@@ -122,12 +123,13 @@ function startProcess(
       reject(new Error(`${bin} did not start`));
     }, 10000);
     lines.on("line", (line) => {
+      options.onOutput?.(line + "\n");
       if (ready.test(line)) {
         clearTimeout(timer);
         resolve({ child, line });
       }
     });
-    child.stderr!.on("data", () => undefined);
+    child.stderr!.on("data", (d: Buffer) => options.onOutput?.(d.toString()));
     child.on("exit", (code) => {
       clearTimeout(timer);
       reject(new Error(`${bin} exited with ${code}`));
@@ -135,7 +137,7 @@ function startProcess(
   });
 }
 
-async function stopProcess(p: ChildProcess) {
+export async function stopProcess(p: ChildProcess) {
   if (p.exitCode !== null || p.signalCode !== null) return;
   const exited = new Promise((r) => p.once("exit", r));
   p.kill("SIGKILL");
@@ -156,9 +158,10 @@ export class RoomrProcess {
   private sipPort = 0;
   /** Whether the caller is on hold, from the hold and resume commands sent to the node. */
   private holding = false;
-  private watch?: NatsConnection;
   /** Where the node serves Roomr (gRPC). */
   controlAddr = "";
+  /** Where the node opens each call's control stream (AppBridge's Session port). */
+  sessionEndpoint?: string;
   /** The bot's SIP address: the node's outbound proxy, and the proxy CreateCall may name. */
   botSipAddress = "";
   /** The bot's current call. */
@@ -180,7 +183,6 @@ export class RoomrProcess {
         attempt < 3 ? startNode(attempt + 1) : Promise.reject(err)
       );
     this.node = await startNode(1);
-    await this.watchHold();
   }
 
   private async startNode(outboundProxy: string): Promise<ChildProcess> {
@@ -199,12 +201,17 @@ export class RoomrProcess {
           listen: `127.0.0.1:${this.sipPort}`,
           advertise: "127.0.0.1",
           // The deployments' call-ref header: the bot's X-Call-Ref names inbound calls.
-          callRefHeader: "X-Call-Ref"
+          callRefHeader: "X-Call-Ref",
+          // Where dials go when CreateCall names no proxy (the bot, Routr's place).
+          outboundProxy: `sip:${outboundProxy}`
         },
         rtp: { host: "127.0.0.1", advertise: "127.0.0.1" },
         heartbeatInterval: `${this.heartbeatMs}ms`,
-        outboundProxy,
         control: { grpc: { listen: this.controlAddr } },
+        // Each call's control stream (redesign-roomr): the AppBridge under test.
+        ...(this.sessionEndpoint
+          ? { sessionEndpoint: this.sessionEndpoint }
+          : {}),
         ...(this.maxRooms !== undefined ? { maxRooms: this.maxRooms } : {})
       })
     );
@@ -218,35 +225,16 @@ export class RoomrProcess {
     ).child;
   }
 
-  /** Follows the hold and resume commands sent to the node (media.held). */
-  private async watchHold() {
-    this.watch = await connect({ servers: this.bins.natsUrl });
-    const sc = StringCodec();
-    this.watch.subscribe(`media.${this.nodeId}.commands`, {
-      callback: (_err, msg) => {
-        try {
-          const cmd = JSON.parse(sc.decode(msg.data));
-          if (cmd.type === "hold") this.holding = true;
-          if (cmd.type === "resume") this.holding = false;
-          // A warm transfer holds the caller until it completes or fails.
-          if (cmd.type === "transfer" && cmd.mode === "warm")
-            this.holding = true;
-        } catch {
-          // not a command
-        }
-      }
-    });
-    this.watch.subscribe(`media.${this.nodeId}.events.*`, {
-      callback: (_err, msg) => {
-        try {
-          if (JSON.parse(sc.decode(msg.data)).type === "transfer.result")
-            this.holding = false;
-        } catch {
-          // not an event
-        }
-      }
-    });
-    await this.watch.flush();
+  /**
+   * Follows the hold and resume commands sent to the node on a control stream (media.held): the
+   * session endpoint's tap reports each message here.
+   */
+  noteStreamMessage(type: string, body: Record<string, unknown> = {}) {
+    if (type === "hold") this.holding = true;
+    if (type === "resume") this.holding = false;
+    // A warm transfer holds the caller until it completes or fails.
+    if (type === "transfer" && body.mode === "warm") this.holding = true;
+    if (type === "transferResult") this.holding = false;
   }
 
   /**
@@ -292,7 +280,6 @@ export class RoomrProcess {
 
   async stop() {
     await Promise.all([this.node, this.bot].map((p) => p && stopProcess(p)));
-    await this.watch?.close().catch(() => undefined);
     if (this.configDir)
       fs.rmSync(this.configDir, { recursive: true, force: true });
   }
@@ -392,8 +379,6 @@ export class RoomrProcess {
 
   /** Whether the caller is on hold (the node has no debug endpoint: from its commands and events). */
   async held(): Promise<boolean> {
-    // Everything the server routed to the watcher before this point has been handled.
-    await this.watch?.flush();
     return this.holding;
   }
 

@@ -162,7 +162,6 @@ describe("@appbridge Pipecat golden test (twilio protocol)", function () {
 
   async function setup(autoHangUp: boolean) {
     harness = await new FakesHarness().start();
-    harness.roomrNode.attachNats(nc);
     harness.roomrNode.configure({ callerAudio: { kind: "tone", ms: 3000 } });
     const botPort = await freePort();
     const httpPort = await freePort();
@@ -172,6 +171,7 @@ describe("@appbridge Pipecat golden test (twilio protocol)", function () {
       record,
       config: {
         nats: { url: NATS_URL! },
+        session: { listen: "127.0.0.1:0" },
         http: {
           host: "127.0.0.1",
           port: httpPort,
@@ -193,6 +193,7 @@ describe("@appbridge Pipecat golden test (twilio protocol)", function () {
         providers: {}
       }
     }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
     bot = new Bot(botPort, `http://127.0.0.1:${httpPort}`, autoHangUp);
     await bot.ready(botPort);
   }
@@ -204,7 +205,7 @@ describe("@appbridge Pipecat golden test (twilio protocol)", function () {
   it("[VSD-016] hears the caller, is heard, barges in with clear, reads DTMF and hangs up through base_url", async function () {
     await setup(true);
     const since = Date.now();
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
 
     const connected = await waitFor(
       () => bot.saw("connected"),
@@ -242,7 +243,7 @@ describe("@appbridge Pipecat golden test (twilio protocol)", function () {
 
   it("[VSD-016] hangs up when the bot closes its socket", async function () {
     await setup(false);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     await waitFor(
       () => bot.saw("connected"),
       10000,

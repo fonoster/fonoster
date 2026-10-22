@@ -4,23 +4,42 @@ role: media-control-client
 name: warm-transfer-completed
 spec: "Warm transfer keeps the caller on hold / Warm transfer completed"
 steps:
-  - caller: { call: { to: "+15550001", appRef: app-1, callRef: call-9 } }
-  - expect: { type: call.incoming, appRef: app-1, callRef: call-9, to: "+15550001", direction: inbound }
-    within_ms: 1000
-    capture: { room: roomRef, caller: participantRef }
-  - send: { type: participant.add, id: s1, roomRef: "${room}", kind: session, rtp: { host: 127.0.0.1, port: 9, codec: "L16/16000", payloadType: 96, ptime: 20, ssrc: 1111 } }
-  - expect: { type: ack, id: s1 }
-    within_ms: 2000
-    capture: { session: participantRef }
-  - send: { type: transfer, id: t2, roomRef: "${room}", to: "+15551234567", mode: warm }
-  - expect: { type: participant.joined, id: t2 }
-    within_ms: 1000
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }
+  - app:
+      {
+        send:
+          {
+            transfer:
+              {
+                to: { uri: "sip:+15551234567@127.0.0.1", proxy: "${trunk}" },
+                mode: warm,
+                music: "${media}/hold.wav"
+              }
+          }
+      }
+  - expect: { type: stream.participant_joined, track_id: 3 }
+    within_ms: 3000
   - assert:
       media.held: true
-  - send: { type: transfer.complete, id: t2, roomRef: "${room}" }
-  - expect: { type: participant.left, participantRef: "${session}", reason: removed }
-    within_ms: 1000
-  - expect: { type: transfer.result, id: t2, status: completed }
-    within_ms: 1000
+  - app: { send: { transfer_complete: {} } }
+  - expect: { type: stream.transfer_result, status: completed }
+    within_ms: 2000
+  - expect:
+      {
+        type: stream.participant_left,
+        participant_ref: "${app_leg}",
+        cause: removed
+      }
+    within_ms: 2000
+  - caller: { audio: { kind: tone, ms: 800 } }
+    label: spoke
+  - wait: { ms: 1100 }
   - assert:
-      media.held: false
+      trunk.heard_ms: { $gte: 300 }
+    from: spoke

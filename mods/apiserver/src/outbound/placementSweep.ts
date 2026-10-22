@@ -25,7 +25,7 @@ const logger = getLogger({ service: "apiserver", filePath: __filename });
 
 /**
  * A placement entry older than this was left by a replica that died mid-placement: every step of
- * a placement rewrites its entry well within it (one RPC and its retry, or AppBridge request).
+ * a placement rewrites its entry well within it (CreateCall and its retries on one node).
  */
 export const PLACEMENT_STALE_MS = 10_000;
 
@@ -34,14 +34,16 @@ const SWEEP_EVERY_MS = 2_000;
 
 /**
  * Placements in the session registry (control-plane "Outbound calls are registered before they
- * are placed"): before each RPC that could start a call, the placing replica writes
- * `placements.<callRef>` = { callRef, nodeRef, controlAddr, roomRef? }, rewrites it when it moves
- * to another node, and deletes it once CreateCall has answered (or the placement failed). Every
+ * are placed"): before CreateCall reaches a node, the placing replica writes
+ * `placements.<callRef>` = { callRef, nodeRef, controlAddr }, rewrites it when it moves to
+ * another node, and deletes it once CreateCall has answered (or the placement failed). Every
  * replica follows the entries; one that sits unchanged for `staleMs` belongs to a replica that
  * died mid-placement (its API caller got no answer, so the call must not go on). The sweep
- * removes it, and reports the call FAILED (`failed`), when its node is down or answers
- * `NOT_FOUND` for the call; a call the node does hold is ended (EndCall, then EndRoom for the
- * room made for it). Registry writes are best effort and never fail a placement.
+ * removes it, and reports the call FAILED (`failed`), when its node is down (no fresh heartbeat,
+ * or `node.down`) or answers `NOT_FOUND` for the call; a call the node does hold is ended
+ * (EndCall; its `call.ended` then follows on `roomr.events.<call_ref>`). Registry writes are best
+ * effort and never fail a placement. Nothing is replayed: a placement whose events were lost is
+ * closed by this sweep or by TrackCall's own node-down and maximum-duration sweeps.
  */
 export async function createPlacementSweep(deps: {
   kv: KV;
@@ -94,10 +96,6 @@ export async function createPlacementSweep(deps: {
           () => false,
           (e) => e instanceof Roomr.RoomrError && e.code === status.NOT_FOUND
         );
-        if (typeof p.value.roomRef === "string" && p.value.roomRef)
-          await deps.roomr
-            .endRoom(addr, { roomRef: p.value.roomRef })
-            .catch(() => undefined);
       }
       if (notFound) await deps.failed?.(callRef);
       await write(id);
@@ -109,18 +107,12 @@ export async function createPlacementSweep(deps: {
   timer.unref?.();
 
   return {
-    /** Writes (or rewrites) the call's entry before an RPC to `nodeRef`. */
-    placing(
-      callRef: string,
-      nodeRef: string,
-      controlAddr: string,
-      roomRef?: string
-    ) {
+    /** Writes (or rewrites) the call's entry before CreateCall reaches `nodeRef`. */
+    placing(callRef: string, nodeRef: string, controlAddr: string) {
       return write(callRef, {
         callRef,
         nodeRef,
         controlAddr,
-        ...(roomRef ? { roomRef } : {}),
         at: new Date().toISOString()
       });
     },

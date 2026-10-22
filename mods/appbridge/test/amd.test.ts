@@ -67,7 +67,6 @@ describe("@appbridge AMD listener", function () {
   beforeEach(async () => {
     harness = await new FakesHarness().start();
     harness.roomrNode.configure({ callerAudio: { kind: "tone", ms: 600 } });
-    harness.roomrNode.attachNats(nc);
     record = new MemoryCallRecordSink();
     heard = [];
   });
@@ -83,6 +82,7 @@ describe("@appbridge AMD listener", function () {
     appbridge = await new AppBridge({
       config: {
         nats: { url: NATS_URL! },
+        session: { listen: "127.0.0.1:0" },
         ...(classifier ? {} : { amd: { enabled: false } }),
         retry: { windowMs: 300, intervalMs: 100 },
         apps: [
@@ -114,6 +114,7 @@ describe("@appbridge AMD listener", function () {
           }
         : undefined
     }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
   }
 
   it("[APB-019] reads amd options", function () {
@@ -126,7 +127,7 @@ describe("@appbridge AMD listener", function () {
 
   it("[APB-019] classifies the caller's track and sends amd.result to the session", async function () {
     await start({ amd: { windowMs: 500 } });
-    const { roomRef } = harness.roomrNode.offerCall();
+    const { callRef } = await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const result = await waitFor(
       () => json(peer).find((m) => m.type === "amd.result"),
@@ -141,8 +142,8 @@ describe("@appbridge AMD listener", function () {
 
     // One listener with one track: the caller's.
     const commands = harness.roomrNode.commands.map((c) => c.command);
-    const attach = commands.find((c) => c.type === "listener.attach")!;
-    const tracks = attach.tracks as {
+    const attach = commands.find((c) => c.type === "addListener")!;
+    const tracks = attach.listen as {
       trackId: number;
       rtp: { codec: string };
     }[];
@@ -150,7 +151,7 @@ describe("@appbridge AMD listener", function () {
     expect(tracks[0].rtp.codec).to.equal("L16/16000");
     await waitFor(() =>
       harness.roomrNode.commands.find(
-        (c) => c.command.type === "listener.detach"
+        (c) => c.command.type === "removeListener"
       )
     );
     // The fake honors the detach: the listener's forks are gone (AO-B3).
@@ -165,15 +166,15 @@ describe("@appbridge AMD listener", function () {
     expect(loud).to.be.greaterThan(800);
 
     // The call record has the run and its verdict.
-    const types = (record.records.get(roomRef) ?? []).map(
+    const types = (record.records.get(callRef) ?? []).map(
       (e) => (e.message as { type?: string }).type
     );
     expect(types).to.include.members(["amd.started", "amd.result"]);
-    harness.roomrNode.callerHangup(roomRef);
+    harness.roomrNode.callerHangup(callRef);
 
     // One metered detection of the audio it classified (add-usage-metering D3).
     const snapshot = await waitFor(() =>
-      (record.records.get(roomRef) ?? [])
+      (record.records.get(callRef) ?? [])
         .map((e) => e.message as { type?: string; lines?: unknown[] })
         .filter((m) => m.type === "usage.snapshot")
         .pop()
@@ -197,7 +198,7 @@ describe("@appbridge AMD listener", function () {
       callerAudio: { pcm16le: Buffer.concat([silence, tone]) }
     });
     await start({ amd: { windowMs: 500 } });
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const result = await waitFor(
       () => json(peer).find((m) => m.type === "amd.result"),
@@ -219,7 +220,7 @@ describe("@appbridge AMD listener", function () {
   it("[APB-019] reports no_speech when the caller never speaks", async function () {
     harness.roomrNode.configure({ callerAudio: { kind: "silence", ms: 8000 } });
     await start({ amd: { windowMs: 500 } });
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const result = await waitFor(
       () => json(peer).find((m) => m.type === "amd.result"),
@@ -236,7 +237,7 @@ describe("@appbridge AMD listener", function () {
 
   it("[APB-019] reports unknown without a classifier, and nothing for apps without amd", async function () {
     await start({ amd: true }, false);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     const result = await waitFor(
       () => json(peer).find((m) => m.type === "amd.result"),
@@ -250,7 +251,7 @@ describe("@appbridge AMD listener", function () {
     appbridge = undefined;
 
     await start({});
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const second = await harness.app.nextConnection();
     await waitFor(() =>
       json(second.peer).find((m) => m.type === "session.start")
@@ -260,9 +261,7 @@ describe("@appbridge AMD listener", function () {
       false
     );
     expect(
-      harness.roomrNode.commands.some(
-        (c) => c.command.type === "listener.attach"
-      )
+      harness.roomrNode.commands.some((c) => c.command.type === "addListener")
     ).to.equal(false);
   });
 });

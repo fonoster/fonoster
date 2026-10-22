@@ -1,7 +1,7 @@
-// Package control serves Roomr (roomr.v1) over gRPC next to the node's NATS commands
-// (redesign-roomr, "Roomr is a gRPC service with three nouns"). Each RPC calls the
-// node operation the NATS handler for the same action uses; this package only checks input and
-// maps the node's error codes to gRPC status codes with the code as the reason.
+// Package control serves Roomr (roomr.v1) over gRPC, the node's one control API for its
+// controller (redesign-roomr, media-control "Roomr is a gRPC service with three nouns"), and the
+// standard health service on the same port. It only checks input and maps the node's error codes
+// to gRPC status codes with the code as the reason.
 package control
 
 import (
@@ -33,14 +33,12 @@ type Backend interface {
 	EndCall(ref string) error
 	CreateRoom(ref string, o node.RoomOptions) (string, error)
 	EndRoom(ref string) error
-	JoinRTP(roomRef string, ep node.MediaEndpoint) (node.ParticipantInfo, error)
-	JoinListener(roomRef string, tracks []node.ListenTrack) (node.ParticipantInfo, error)
-	Leave(roomRef, ref string) error
-	Play(t node.Target, url string) (string, error)
-	SendDTMF(t node.Target, digits string) error
+	AddRTPParticipant(roomRef string, ep node.MediaEndpoint) (node.ParticipantInfo, error)
+	AddListenerParticipant(roomRef string, tracks []node.ListenTrack) (node.ParticipantInfo, error)
+	RemoveParticipant(roomRef, ref string) error
 }
 
-// codeFor maps the node's error codes (node.Code* and the NATS handlers' codes) to gRPC codes.
+// codeFor maps the node's error codes to gRPC codes.
 var codeFor = map[string]codes.Code{
 	node.CodeAtCapacity:          codes.ResourceExhausted,
 	node.CodeRoomFull:            codes.ResourceExhausted,
@@ -49,13 +47,9 @@ var codeFor = map[string]codes.Code{
 	node.CodeRoomNotFound:        codes.NotFound,
 	node.CodeCallNotFound:        codes.NotFound,
 	node.CodeParticipantNotFound: codes.NotFound,
-	"listener_not_found":         codes.NotFound,
 	node.CodeBadMessage:          codes.InvalidArgument,
-	"unsupported_codec":          codes.InvalidArgument,
-	"unsupported_track_kind":     codes.InvalidArgument,
+	node.CodeUnsupportedCodec:    codes.InvalidArgument,
 	node.CodeNotSupported:        codes.Unimplemented,
-	node.CodeCallNotAnswered:     codes.FailedPrecondition,
-	node.CodeNoDTMF:              codes.FailedPrecondition,
 	node.CodeInternal:            codes.Internal,
 }
 
@@ -117,13 +111,10 @@ func (s *Service) CreateCall(_ context.Context, req *roomrv1.CreateCallRequest) 
 	if to.GetUri() == "" {
 		return nil, invalid("to.uri is required")
 	}
-	if req.GetSession() != "" {
-		return nil, refusal(codes.Unimplemented, node.CodeNotSupported, "session override needs the control stream, which is not implemented yet")
-	}
 	target := node.SipTarget{URI: to.GetUri(), Proxy: to.GetProxy(), Headers: to.GetHeaders(),
 		Username: to.GetAuth().GetUsername(), Password: to.GetAuth().GetPassword()}
 	info, err := s.backend.CreateCall(node.CallRequest{CallRef: req.GetCallRef(), RoomRef: req.GetRoomRef(),
-		From: req.GetFrom(), To: target, RingTimeout: seconds(req.GetRingTimeoutS()),
+		From: req.GetFrom(), To: target, Session: req.GetSession(), RingTimeout: seconds(req.GetRingTimeoutS()),
 		MaxDuration: seconds(req.GetMaxDurationS()), Metadata: req.GetMetadata()})
 	if err != nil {
 		return nil, toStatus(err)
@@ -146,7 +137,7 @@ func (s *Service) EndCall(_ context.Context, req *roomrv1.EndCallRequest) (*room
 // CreateRoom creates an empty room.
 func (s *Service) CreateRoom(_ context.Context, req *roomrv1.CreateRoomRequest) (*roomrv1.Room, error) {
 	ref, err := s.backend.CreateRoom(req.GetRoomRef(), node.RoomOptions{MaxDuration: seconds(req.GetMaxDurationS()),
-		EmptyTimeout: seconds(req.GetEmptyTimeoutS()), MaxParticipants: int(req.GetMaxParticipants())})
+		EmptyTimeout: seconds(req.GetEmptyRoomTimeoutS()), MaxParticipants: int(req.GetMaxParticipants())})
 	if err != nil {
 		return nil, toStatus(err)
 	}
@@ -186,8 +177,8 @@ func participant(p node.ParticipantInfo) *roomrv1.Participant {
 	return out
 }
 
-// Join adds an RTP participant or a listener. WebRTC is not implemented yet.
-func (s *Service) Join(_ context.Context, req *roomrv1.JoinRequest) (*roomrv1.Participant, error) {
+// AddParticipant adds an RTP participant or a listener. WebRTC is not implemented yet.
+func (s *Service) AddParticipant(_ context.Context, req *roomrv1.AddParticipantRequest) (*roomrv1.Participant, error) {
 	if req.GetRoomRef() == "" {
 		return nil, invalid("room_ref is required")
 	}
@@ -203,7 +194,7 @@ func (s *Service) Join(_ context.Context, req *roomrv1.JoinRequest) (*roomrv1.Pa
 		if err != nil {
 			return nil, err
 		}
-		p, err := s.backend.JoinRTP(req.GetRoomRef(), ep)
+		p, err := s.backend.AddRTPParticipant(req.GetRoomRef(), ep)
 		if err != nil {
 			return nil, toStatus(err)
 		}
@@ -220,7 +211,7 @@ func (s *Service) Join(_ context.Context, req *roomrv1.JoinRequest) (*roomrv1.Pa
 			}
 			tracks = append(tracks, node.ListenTrack{TrackID: int(t.GetTrackId()), RTP: ep})
 		}
-		p, err := s.backend.JoinListener(req.GetRoomRef(), tracks)
+		p, err := s.backend.AddListenerParticipant(req.GetRoomRef(), tracks)
 		if err != nil {
 			return nil, toStatus(err)
 		}
@@ -229,48 +220,12 @@ func (s *Service) Join(_ context.Context, req *roomrv1.JoinRequest) (*roomrv1.Pa
 	return nil, invalid("an rtp endpoint, a webrtc offer or listen is required")
 }
 
-// Leave removes a participant or listener.
-func (s *Service) Leave(_ context.Context, req *roomrv1.LeaveRequest) (*roomrv1.Empty, error) {
+// RemoveParticipant removes a participant or listener.
+func (s *Service) RemoveParticipant(_ context.Context, req *roomrv1.RemoveParticipantRequest) (*roomrv1.Empty, error) {
 	if req.GetParticipantRef() == "" {
 		return nil, invalid("participant_ref is required")
 	}
-	if err := s.backend.Leave(req.GetRoomRef(), req.GetParticipantRef()); err != nil {
-		return nil, toStatus(err)
-	}
-	return &roomrv1.Empty{}, nil
-}
-
-// Play plays a file to a call, participant or room.
-func (s *Service) Play(_ context.Context, req *roomrv1.PlayRequest) (*roomrv1.Operation, error) {
-	t := node.Target{CallRef: req.GetCallRef(), ParticipantRef: req.GetParticipantRef(), RoomRef: req.GetRoomRef()}
-	if t == (node.Target{}) {
-		return nil, invalid("a call_ref, participant_ref or room_ref is required")
-	}
-	if req.GetUrl() == "" {
-		return nil, invalid("url is required")
-	}
-	ref, err := s.backend.Play(t, req.GetUrl())
-	if err != nil {
-		return nil, toStatus(err)
-	}
-	return &roomrv1.Operation{OperationRef: ref}, nil
-}
-
-// Record is not implemented yet: the node has no recorder (recording runs through listeners).
-func (s *Service) Record(context.Context, *roomrv1.RecordRequest) (*roomrv1.Operation, error) {
-	return nil, refusal(codes.Unimplemented, node.CodeNotSupported, "Record is not implemented yet; attach a listener with Join")
-}
-
-// SendDtmf sends RFC 4733 events on a SIP leg.
-func (s *Service) SendDtmf(_ context.Context, req *roomrv1.SendDtmfRequest) (*roomrv1.Empty, error) {
-	t := node.Target{CallRef: req.GetCallRef(), ParticipantRef: req.GetParticipantRef()}
-	if t == (node.Target{}) {
-		return nil, invalid("a call_ref or participant_ref is required")
-	}
-	if req.GetDigits() == "" {
-		return nil, invalid("digits are required")
-	}
-	if err := s.backend.SendDTMF(t, req.GetDigits()); err != nil {
+	if err := s.backend.RemoveParticipant(req.GetRoomRef(), req.GetParticipantRef()); err != nil {
 		return nil, toStatus(err)
 	}
 	return &roomrv1.Empty{}, nil

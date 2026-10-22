@@ -352,7 +352,8 @@ jobs:
       - name: Install libopus
         run: sudo apt-get update -qq && sudo apt-get install -y -qq libopus-dev
 
-      # The live-Routr test registers two nodes behind a real Routr (e2e/testdata/routr).
+      # The live-Routr test registers two nodes behind a real Routr (e2e/testdata/routr). ROM-034 is
+      # waived (catalog waivers.json, Routr 2.15.4 ignores least-sessions) and skips unless ROM034_LIVE=1.
       - name: Start a throwaway Routr
         run: docker compose -f e2e/testdata/routr/compose.yaml up -d --wait
 
@@ -369,7 +370,7 @@ jobs:
           CGO_ENABLED=0 go build ./...
           # Packages one at a time: several bind random local ports and collide when run in parallel.
           mkdir -p ../../reports/junit
-          go run gotest.tools/gotestsum@v1.12.0 --junitfile ../../reports/junit/roomr-go.xml -- -race -p 1 ./...
+          go run gotest.tools/gotestsum@v1.13.0 --junitfile ../../reports/junit/roomr-go.xml -- -race -p 1 ./...
 
       - name: Roomr JUnit
         if: always()

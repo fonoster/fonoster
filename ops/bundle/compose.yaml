@@ -180,6 +180,15 @@ services:
       # Call records in flight (config/appbridge.yaml callRecord.dir): kept when the container is
       # recreated (upgrade, crash), so they are still sealed.
       - appbridge-records:/var/lib/fonoster/records
+    # Ready = the Session port (50071, the node's sessionEndpoint) answers SERVING; it reports
+    # NOT_SERVING while draining after SIGTERM. Not published: only the node reaches it.
+    healthcheck:
+      test: ["CMD", "node", "/work/mods/appbridge/dist/healthcheck.js"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    # Longer than session.drainWait (config/appbridge.yaml): live calls end on their own first.
+    stop_grace_period: ${APPBRIDGE_DRAIN_GRACE:-11m}
     networks:
       default:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.43

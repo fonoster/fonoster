@@ -38,6 +38,7 @@ function configFor(scenario: Scenario, harness: FakesHarness): AppBridgeConfig {
   const urls = harness.providerUrls;
   return {
     nats: { url: NATS_URL! },
+    session: { listen: "127.0.0.1:0" },
     retry: { windowMs: 600, intervalMs: 100 },
     apps: appsFor(scenario, harness),
     providers: {
@@ -92,10 +93,6 @@ for (const contract of [
           webhookEvents: () =>
             webhooks.map((e) => ({ type: e.type, ...e.data }))
         }).start();
-        harness.roomrNode.attachNats(nc, {
-          commands: `media.${harness.roomrNode.nodeId}.commands`,
-          events: `media.${harness.roomrNode.nodeId}.events`
-        });
         const appbridge = await new AppBridge({
           config: configFor(scenario, harness),
           nats: nc,
@@ -103,12 +100,15 @@ for (const contract of [
           registryStore: catalogFor(scenario),
           webhooks: (e) => webhooks.push(e)
         }).start();
+        harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
         try {
           const result = await runScenario(scenario, {
             harness,
             connect: () =>
               scenario.setup?.call?.direction === "outbound"
-                ? placeOutbound(nc, harness, scenario)
+                ? // An unanswered outbound call opens no control stream: the control plane
+                  // records it from the node's call.ended (outbound-busy).
+                  placeOutbound(harness, scenario, { nc, record })
                 : harness.offerCallAndAccept()
           });
           expect(result.status, result.reason).to.equal("passed");

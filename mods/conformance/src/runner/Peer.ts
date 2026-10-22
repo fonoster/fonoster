@@ -33,6 +33,11 @@ export interface Peer {
   sendBinary(data: Buffer): void;
   close(code?: number, reason?: string): void;
   readonly frames: FrameLog;
+  /**
+   * The channel a JSON frame (or an expect pattern) belongs to, for peers that merge sources
+   * with no order between them: the runner then keeps one expect cursor per channel.
+   */
+  channel?(data: Record<string, unknown>): string;
 }
 
 type Waiter = () => void;

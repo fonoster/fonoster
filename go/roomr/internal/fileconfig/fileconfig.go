@@ -11,6 +11,7 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -35,10 +36,14 @@ func (d *Duration) UnmarshalYAML(n *yaml.Node) error {
 }
 
 // File is roomr.yaml, the node's only configuration: the node takes a single command-line
-// argument, -config <path>. Every key is optional. ROOMR_* variables are not read; reference one
-// as a ${VAR} placeholder to use it.
+// argument, -config <path>. ROOMR_* variables are not read; reference one as a ${VAR}
+// placeholder to use it. The keys follow design.md's "Minimal roomr.yaml"; unknown keys are
+// errors.
 type File struct {
+	// NodeID is node_ref in heartbeats and events (default: the hostname).
 	NodeID string `yaml:"nodeId"`
+	// Region is reported in the heartbeat; controllers place calls only in the call's region.
+	Region string `yaml:"region"`
 	NATS   struct {
 		URL      string `yaml:"url"`
 		User     string `yaml:"user"`
@@ -46,48 +51,19 @@ type File struct {
 	} `yaml:"nats"`
 	SIP struct {
 		// Listen is host:port for UDP and TCP (default 0.0.0.0:5060); Advertise is the host in
-		// Contact headers (default 127.0.0.1).
+		// Contact and Via (default 127.0.0.1).
 		Listen    string `yaml:"listen"`
 		Advertise string `yaml:"advertise"`
+		// OutboundProxy is where dials go when CreateCall's to.proxy is empty: a SIP URI whose
+		// transport parameter picks udp, tcp or tls (sip:host:port;transport=tcp).
+		OutboundProxy string `yaml:"outboundProxy"`
+		// CallRefHeader names the header that carries a call's call_ref (e.g. X-Call-Ref).
+		CallRefHeader string `yaml:"callRefHeader"`
+		// RoomHeader names the header whose value is a room to join or create (e.g. X-Room-Ref).
+		RoomHeader string `yaml:"roomHeader"`
 		// Registrations are the REGISTERs the node keeps; none (the default) sends no REGISTER.
 		Registrations []Registration `yaml:"registrations"`
-		// CallRefHeader names the header that carries a call's call_ref (e.g. X-Call-Ref);
-		// empty: none.
-		CallRefHeader string `yaml:"callRefHeader"`
 	} `yaml:"sip"`
-	RTP struct {
-		// Host is the address RTP sockets bind to (default 0.0.0.0); Advertise is what SDP and
-		// rtp blocks carry (default 127.0.0.1). One port range serves every leg; publish exactly
-		// [portMin, portMax]/udp. Both 0: any port.
-		Host      string `yaml:"host"`
-		Advertise string `yaml:"advertise"`
-		PortMin   int    `yaml:"portMin"`
-		PortMax   int    `yaml:"portMax"`
-	} `yaml:"rtp"`
-	// OutboundProxy is where outbound INVITEs go (Routr): host:port or a SIP URI whose transport
-	// parameter picks udp, tcp or tls (sip:host:port;transport=tcp). Empty disables dial and
-	// transfers.
-	OutboundProxy string `yaml:"outboundProxy"`
-	// DrainWait is the longest wait for rooms to end after SIGTERM (default 10m).
-	DrainWait Duration `yaml:"drainWait"`
-	// MaxDuration is the longest call (default 4h); apps can lower it per call.
-	MaxDuration Duration `yaml:"maxDuration"`
-	// MaxParticipants per room (default 10); CreateRoom can override it per room.
-	MaxParticipants int `yaml:"maxParticipants"`
-	// MaxRooms is the most rooms the node holds at once (default 200).
-	MaxRooms int `yaml:"maxRooms"`
-	// MediaTimeout ends an answered call whose caller or app leg sends no RTP for this long
-	// (default 30s).
-	MediaTimeout Duration `yaml:"mediaTimeout"`
-	// EmptyRoomTimeout ends a room with no participant and no dial in progress for this long
-	// (default 30s; negative: never). CreateRoom can override it per room.
-	EmptyRoomTimeout Duration `yaml:"emptyRoomTimeout"`
-	OwnerTimeout     Duration `yaml:"ownerTimeout"`
-	// HeartbeatInterval is the period of node.heartbeat (default 2s).
-	HeartbeatInterval Duration `yaml:"heartbeatInterval"`
-	// ReregisterDelta: every registration re-registers at once when the room count moved by this
-	// much since its last accepted REGISTER (default 5).
-	ReregisterDelta int `yaml:"reregisterDelta"`
 	// TLS is the optional SIP-over-TLS listener (off unless listen is set) and, with ca, the
 	// trust for TLS to the outbound proxy and registrars.
 	TLS struct {
@@ -96,10 +72,19 @@ type File struct {
 		Key    string `yaml:"key"`
 		CA     string `yaml:"ca"`
 	} `yaml:"tls"`
-	// Control is Roomr over gRPC (redesign-roomr); off unless control.grpc.listen
-	// is set.
+	RTP struct {
+		// Host is the address RTP sockets bind to (default 0.0.0.0); Advertise is the address
+		// SDP and the control stream announce (default 127.0.0.1). One port range serves every
+		// leg, SIP and app alike; publish exactly [portMin, portMax]/udp. Both 0: any port.
+		Host      string `yaml:"host"`
+		Advertise string `yaml:"advertise"`
+		PortMin   int    `yaml:"portMin"`
+		PortMax   int    `yaml:"portMax"`
+	} `yaml:"rtp"`
+	// Control is Roomr over gRPC and grpc.health.v1.Health on the same port.
 	Control struct {
 		GRPC struct {
+			// Listen defaults to 0.0.0.0:50061.
 			Listen string `yaml:"listen"`
 			// Advertise is the host:port controllers dial (the heartbeat's control_addr);
 			// empty: the listen port on sip.advertise's host.
@@ -112,13 +97,45 @@ type File struct {
 			} `yaml:"tls"`
 		} `yaml:"grpc"`
 	} `yaml:"control"`
-	// Codecs are the SIP-leg codecs in preference order (default opus, G722, PCMU, PCMA); leave
-	// opus out to disable it.
-	Codecs []string `yaml:"codecs"`
-	// Region is the node's region in its heartbeat; controllers place a call only on nodes in
-	// the call's region.
-	Region    string `yaml:"region"`
+	// SessionEndpoint is where each call's control stream goes (host:port). Required.
+	SessionEndpoint string `yaml:"sessionEndpoint"`
+	// SessionTLS is optional TLS on the control streams (off by default): ca verifies the
+	// session endpoint, cert and key add a client certificate (mutual TLS).
+	SessionTLS struct {
+		CA   string `yaml:"ca"`
+		Cert string `yaml:"cert"`
+		Key  string `yaml:"key"`
+	} `yaml:"sessionTls"`
+	// MaxRooms is the most rooms the node holds at once (default 200).
+	MaxRooms int `yaml:"maxRooms"`
+	// MaxParticipants per room (default 10); CreateRoom can override it per room.
+	MaxParticipants int `yaml:"maxParticipants"`
+	// MaxDuration is the longest call (default 4h); CreateCall and Answer can lower it.
+	MaxDuration Duration `yaml:"maxDuration"`
+	// MediaTimeout ends an answered call whose caller or app leg sends no RTP for this long
+	// (default 15s).
+	MediaTimeout Duration `yaml:"mediaTimeout"`
+	// AnswerTimeout is how long the app has to Answer or Reject an inbound call before the
+	// caller gets 480 (default 10s).
+	AnswerTimeout Duration `yaml:"answerTimeout"`
+	// ReadyTimeout is how long the app has to send Ready on an answered outbound call (default
+	// 10s).
+	ReadyTimeout Duration `yaml:"readyTimeout"`
+	// EmptyRoomTimeout ends a room with no participant and no dial in progress for this long
+	// (default 30s; negative: never). CreateRoom can override it per room.
+	EmptyRoomTimeout Duration `yaml:"emptyRoomTimeout"`
+	// DrainWait is the longest wait for rooms to end after SIGTERM (default 1h).
+	DrainWait Duration `yaml:"drainWait"`
+	// HeartbeatInterval is the period of node.heartbeat (default 2s).
+	HeartbeatInterval Duration `yaml:"heartbeatInterval"`
+	// ReregisterDelta: every registration re-registers at once when the room count moved by this
+	// much since its last accepted REGISTER (default 5).
+	ReregisterDelta int `yaml:"reregisterDelta"`
+	// Codecs are the SIP-leg codecs in offer order (default opus, g722, pcmu, pcma); leave opus
+	// out to disable it.
+	Codecs    []string `yaml:"codecs"`
 	Telemetry struct {
+		// OTLPEndpoint receives metrics and traces (OTLP/HTTP); logs go to stderr only.
 		OTLPEndpoint string `yaml:"otlpEndpoint"`
 	} `yaml:"telemetry"`
 }
@@ -135,8 +152,9 @@ func (f *File) Defaults() {
 	set(&f.SIP.Advertise, "127.0.0.1")
 	set(&f.RTP.Host, "0.0.0.0")
 	set(&f.RTP.Advertise, "127.0.0.1")
+	set(&f.Control.GRPC.Listen, "0.0.0.0:50061")
 	if f.DrainWait == 0 {
-		f.DrainWait = Duration(10 * time.Minute)
+		f.DrainWait = Duration(time.Hour)
 	}
 }
 
@@ -155,10 +173,28 @@ type Registration struct {
 	AOR string `yaml:"aor"`
 	// Auth answers a digest challenge; without it a challenge fails the registration.
 	Auth *Auth `yaml:"auth"`
-	// Expires is the binding lifetime (default 30s); the node re-registers at half of it.
+	// Expires is the binding lifetime, a duration or whole seconds (default 30s); the node
+	// re-registers at half of it.
 	Expires string `yaml:"expires"`
 	// Headers are templates added to every REGISTER; "{sessions}" is the active room count.
 	Headers map[string]string `yaml:"headers"`
+}
+
+// ParseExpires reads a registration's expires: a duration (30s, 5m) or whole seconds (60), at
+// least 1s.
+func ParseExpires(s string) (time.Duration, error) {
+	d, err := time.ParseDuration(s)
+	if err != nil {
+		n, nerr := strconv.Atoi(s)
+		if nerr != nil {
+			return 0, fmt.Errorf("%q is not a duration of at least 1s (e.g. 30s, 5m, 60)", s)
+		}
+		d = time.Duration(n) * time.Second
+	}
+	if d < time.Second {
+		return 0, fmt.Errorf("%q is not a duration of at least 1s (e.g. 30s, 5m, 60)", s)
+	}
+	return d, nil
 }
 
 var ref = regexp.MustCompile(`\$\{([A-Za-z_][A-Za-z0-9_]*)(:-([^}]*))?\}`)
@@ -252,8 +288,8 @@ func Parse(data []byte, lookup func(string) (string, bool)) (*File, error) {
 			return nil, fmt.Errorf("%s.registrar is required", name)
 		}
 		if r.Expires != "" {
-			if d, err := time.ParseDuration(r.Expires); err != nil || d < time.Second {
-				return nil, fmt.Errorf("%s.expires: %q is not a duration of at least 1s (e.g. 30s, 5m)", name, r.Expires)
+			if _, err := ParseExpires(r.Expires); err != nil {
+				return nil, fmt.Errorf("%s.expires: %w", name, err)
 			}
 		}
 		if err := sipheader.Validate(r.Headers); err != nil {

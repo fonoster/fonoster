@@ -1,0 +1,194 @@
+// Session: the per-call control stream the Roomr node opens to the session endpoint (in Fonoster,
+// AppBridge behind a Kubernetes Service). The node is the client: one new connection per call,
+// `Start` first, then commands from the app and events from the node, in order. Audio never
+// travels here; it is RTP between the two MediaEndpoints.
+// Spec: openspec/changes/redesign-roomr/specs/media-control ("Each call opens one control stream
+// to the session endpoint", "App audio is RTP negotiated on the control stream", "Transfer modes",
+// "Hold silences the app and plays hold audio", "Listeners fork audio by track", "Endings carry a
+// reason", "The app sends DTMF on the caller's leg"). Messages only grow: add fields, never
+// renumber or reuse them, and receivers ignore fields they do not know.
+//
+// Regenerate the Go code with go/roomr/api/generate.sh.
+syntax = "proto3";
+
+package session.v1;
+
+option go_package = "github.com/fonoster/fonoster/go/roomr/api/session/v1;sessionv1";
+
+service Session {
+  rpc Connect(stream NodeMessage) returns (stream AppMessage);
+}
+
+// An RTP endpoint: `codec` is "L16/16000" on app legs; `srtp_key` (SDES, base64) when encrypted.
+message MediaEndpoint {
+  string ip = 1;
+  uint32 port = 2;
+  string codec = 3;
+  string srtp_key = 4;
+}
+
+message SipAuth {
+  string username = 1;
+  string password = 2;
+}
+
+// A SIP destination: `proxy` carries the transport in its URI (sip:host:port;transport=tcp).
+message SipTarget {
+  string uri = 1;
+  string proxy = 2;
+  map<string, string> headers = 3;
+  SipAuth auth = 4;
+}
+
+// ---- node to app
+
+message NodeMessage {
+  oneof msg {
+    Start start = 1;
+    Dtmf dtmf = 2;
+    Event event = 3;
+  }
+}
+
+message Start {
+  enum Direction {
+    INBOUND = 0;
+    OUTBOUND = 1;
+  }
+  string call_ref = 1;
+  Direction direction = 2;
+  string from = 3;
+  string to = 4;
+  // Every INVITE header, as received (inbound) or as sent (outbound).
+  map<string, string> headers = 5;
+  // Opaque to the node: CreateCall's metadata, passed through untouched.
+  map<string, string> metadata = 6;
+  string room_ref = 7;
+  // The node's RTP endpoint for this call's app leg.
+  MediaEndpoint media = 8;
+  string node_ref = 9;
+}
+
+message Dtmf {
+  string digit = 1;
+  // rfc4733, sip_info or inband
+  string source = 2;
+}
+
+message Event {
+  // 3 was operation_done (Play and Record left the node).
+  reserved 3;
+  reserved "operation_done";
+  oneof event {
+    ParticipantJoined participant_joined = 1;
+    ParticipantLeft participant_left = 2;
+    TransferResult transfer_result = 4;
+    Ended ended = 5;
+  }
+}
+
+message ParticipantJoined {
+  string participant_ref = 1;
+  uint32 track_id = 2;
+}
+
+message ParticipantLeft {
+  string participant_ref = 1;
+  string cause = 2;
+}
+
+message TransferResult {
+  // completed, referred or failed
+  string status = 1;
+  string cause = 2;
+  uint32 sip_status = 3;
+}
+
+// The call ended: `cause` is one of caller_hangup, callee_hangup, busy, no_answer, rejected,
+// media_timeout, node_error, max_duration, removed, app_gone; `sip_status` when SIP gave one.
+message Ended {
+  string cause = 1;
+  uint32 sip_status = 2;
+}
+
+// ---- app to node
+
+message AppMessage {
+  // 4, 5 and 13 were play, stop and record: the node is the SIP and media edge, not an app server
+  // (an app plays its own audio on its RTP leg; recording is a listener).
+  reserved 4, 5, 13;
+  reserved "play", "stop", "record";
+  oneof msg {
+    Answer answer = 1;
+    Ready ready = 2;
+    Reject reject = 3;
+    Transfer transfer = 6;
+    TransferComplete transfer_complete = 7;
+    Hold hold = 8;
+    Resume resume = 9;
+    SendDtmf send_dtmf = 10;
+    AddListener add_listener = 11;
+    RemoveListener remove_listener = 12;
+    Hangup hangup = 14;
+  }
+}
+
+// Inbound: the app takes the call; the node answers 200 OK.
+message Answer {
+  MediaEndpoint media = 1;
+  // Lowers the node's maximum call duration for this call (0: the node's).
+  uint32 max_duration_s = 2;
+}
+
+// Outbound: the app is ready for the answered call.
+message Ready {
+  MediaEndpoint media = 1;
+}
+
+// Inbound: the app refuses the call with this SIP status (4xx to 6xx).
+message Reject {
+  uint32 sip_status = 1;
+  string reason = 2;
+}
+
+message Transfer {
+  SipTarget to = 1;
+  // cold, warm or refer
+  string mode = 2;
+  // Warm: music for the caller while the new party is dialed.
+  string music = 3;
+  uint32 ring_timeout_s = 4;
+}
+
+message TransferComplete {}
+
+message Hold {
+  string music = 1;
+}
+
+message Resume {}
+
+// RFC 4733 events on the caller's leg, in order.
+message SendDtmf {
+  // 0-9, *, #, A-D.
+  string digits = 1;
+}
+
+message ListenTrack {
+  uint32 track_id = 1;
+  MediaEndpoint rtp = 2;
+}
+
+message AddListener {
+  string listener_ref = 1;
+  repeated ListenTrack listen = 2;
+}
+
+message RemoveListener {
+  string listener_ref = 1;
+}
+
+message Hangup {
+  uint32 sip_status = 1;
+  string reason = 2;
+}

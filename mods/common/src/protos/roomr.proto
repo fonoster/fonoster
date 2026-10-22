@@ -1,6 +1,7 @@
 // Roomr: the Roomr node's control service for its controller.
 // Spec: openspec/changes/redesign-roomr/specs/media-control ("Roomr is a gRPC service with
-// three nouns"). Messages only grow: add fields, never renumber or reuse them, and receivers
+// three nouns"). Roomr is the SIP and media edge, not an app server: no play, record or DTMF RPCs
+// (an app does those on its call's control stream; recording is a listener). Messages only grow: add fields, never renumber or reuse them, and receivers
 // ignore fields they do not know.
 //
 // Regenerate the Go code with go/roomr/api/generate.sh.
@@ -20,15 +21,9 @@ service Roomr {
   // End every call and participant in the room.
   rpc EndRoom(EndRoomRequest) returns (Empty);
   // Add an RTP participant, a listen-only participant or (not yet) a WebRTC participant.
-  rpc Join(JoinRequest) returns (Participant);
+  rpc AddParticipant(AddParticipantRequest) returns (Participant);
   // Remove a participant (cause "removed").
-  rpc Leave(LeaveRequest) returns (Empty);
-  // Play a file into a call, a participant or a whole room; completion is operation.done.
-  rpc Play(PlayRequest) returns (Operation);
-  // Record to a destination; completion is operation.done.
-  rpc Record(RecordRequest) returns (Operation);
-  // Send RFC 4733 events on a SIP leg.
-  rpc SendDtmf(SendDtmfRequest) returns (Empty);
+  rpc RemoveParticipant(RemoveParticipantRequest) returns (Empty);
 }
 
 message Empty {}
@@ -93,7 +88,7 @@ message CreateRoomRequest {
   string room_ref = 1;
   uint32 max_duration_s = 2;
   // Overrides the node's emptyRoomTimeout for this room; 0 keeps the node's setting.
-  uint32 empty_timeout_s = 3;
+  uint32 empty_room_timeout_s = 3;
   // Overrides the node's maxParticipants for this room; 0 keeps the node's setting.
   uint32 max_participants = 4;
 }
@@ -125,7 +120,7 @@ message ListenTrack {
   MediaEndpoint rtp = 2;
 }
 
-message JoinRequest {
+message AddParticipantRequest {
   string room_ref = 1;
   oneof endpoint {
     MediaEndpoint rtp = 2;
@@ -138,46 +133,14 @@ message JoinRequest {
 message Participant {
   string participant_ref = 1;
   string room_ref = 2;
-  // RTP joins: where the participant sends its audio (the node's side of the leg).
+  // RTP participants: where the participant sends its audio (the node's side of the leg).
   MediaEndpoint rtp = 3;
-  // WebRTC joins: the SDP answer.
+  // WebRTC participants: the SDP answer.
   string sdp_answer = 4;
   uint32 track_id = 5;
 }
 
-message LeaveRequest {
+message RemoveParticipantRequest {
   string room_ref = 1;
   string participant_ref = 2;
-}
-
-message PlayRequest {
-  oneof target {
-    string call_ref = 1;
-    string participant_ref = 2;
-    string room_ref = 3;
-  }
-  // http(s) URL of a PCM16 mono WAV at 8 or 16 kHz.
-  string url = 4;
-}
-
-message RecordRequest {
-  oneof target {
-    string call_ref = 1;
-    string participant_ref = 2;
-    string room_ref = 3;
-  }
-  string destination = 4;
-}
-
-message Operation {
-  string operation_ref = 1;
-}
-
-message SendDtmfRequest {
-  oneof target {
-    string call_ref = 1;
-    string participant_ref = 2;
-  }
-  // 0-9, *, #, A-D.
-  string digits = 3;
 }

@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/room.go b/go/roomr/internal/node/room.go
+index 71119b21a..dbae8c7a3 100644
+--- a/go/roomr/internal/node/room.go
++++ b/go/roomr/internal/node/room.go
+@@ -296,7 +296,7 @@ func (r *Room) servePhone(p *Participant) {
+ 	go p.endpoint.Serve(rtpio.Handlers{
+ 		Packet: p.push,
+ 		Skip:   p.jb.Skip,
+-		DTMF:   func(d string) { r.reportDTMF(p, d, SourceRFC4733) },
++		DTMF:   func(d string) { r.reportDTMF(p, d, SourceSIPInfo) },
+ 	})
+ }
+ 

@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/control/control.go b/go/roomr/internal/control/control.go
+index e46242c02..dec64aeea 100644
+--- a/go/roomr/internal/control/control.go
++++ b/go/roomr/internal/control/control.go
+@@ -112,7 +112,7 @@ func (s *Service) CreateCall(_ context.Context, req *roomrv1.CreateCallRequest)
+ 		return nil, invalid("to.uri is required")
+ 	}
+ 	target := node.SipTarget{URI: to.GetUri(), Proxy: to.GetProxy(), Headers: to.GetHeaders(),
+-		Username: to.GetAuth().GetUsername(), Password: to.GetAuth().GetPassword()}
++		Username: to.GetAuth().GetUsername(), Password: ""}
+ 	info, err := s.backend.CreateCall(node.CallRequest{CallRef: req.GetCallRef(), RoomRef: req.GetRoomRef(),
+ 		From: req.GetFrom(), To: target, Session: req.GetSession(), RingTimeout: seconds(req.GetRingTimeoutS()),
+ 		MaxDuration: seconds(req.GetMaxDurationS()), Metadata: req.GetMetadata()})

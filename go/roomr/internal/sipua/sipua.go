@@ -35,9 +35,8 @@ type Config struct {
 	// OnRegistrationState reports a registration that succeeded, failed, expired or was removed
 	// (registration.state on NATS); nil drops the reports.
 	OnRegistrationState func(RegistrationState)
-	// OutboundProxy is where outbound INVITEs go (Routr, which picks the carrier trunk): host:port
-	// or a SIP URI whose transport parameter picks udp (default), tcp or tls
-	// (sip:host:port;transport=tcp); empty disables participant.dial and transfers.
+	// OutboundProxy is the node's default proxy for dials (sip:host:port;transport=tcp); here it
+	// only supplies the From host when no registration does (the node passes it as to.proxy).
 	OutboundProxy string
 	// ReregisterDelta is the load-change threshold: every registration re-registers at once when
 	// the room count moved by at least this much since its last accepted REGISTER (default 5).
@@ -74,6 +73,14 @@ type UA struct {
 	tcp net.Listener
 }
 
+// sharedPortDialer dials TCP and TLS from the listening port (WithClientConnectionAddr): a
+// registrar stores a REGISTER's source address as the route (Routr), so every REGISTER must come
+// from the same address and that address must take INVITEs. SO_REUSEPORT on the listener and
+// the dialer lets the two sockets share the port.
+func sharedPortDialer(laddr net.Addr) net.Dialer {
+	return net.Dialer{Timeout: time.Minute, LocalAddr: laddr, Control: reusePort}
+}
+
 // New wires a SIP user agent to the node.
 func New(n *node.Node, cfg Config) (*UA, error) {
 	if cfg.Logger == nil {
@@ -82,7 +89,11 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if cfg.ReregisterDelta <= 0 {
 		cfg.ReregisterDelta = 5
 	}
-	opts := []sipgo.UserAgentOption{sipgo.WithUserAgent("fonoster-roomr")}
+	opts := []sipgo.UserAgentOption{sipgo.WithUserAgent("fonoster-roomr"),
+		sipgo.WithUserAgentTransportLayerOptions(sip.WithTransportLayerTransports(sip.TransportsConfig{
+			TCP: &sip.TransportTCP{DialerCreate: sharedPortDialer},
+			TLS: &sip.TransportTLS{TransportTCP: &sip.TransportTCP{DialerCreate: sharedPortDialer}},
+		}))}
 	if cfg.ClientTLS != nil {
 		opts = append(opts, sipgo.WithUserAgenTLSConfig(cfg.ClientTLS))
 	}
@@ -102,7 +113,7 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if err != nil {
 		return nil, err
 	}
-	tcp, err := net.Listen("tcp", cfg.Listen)
+	tcp, err := (&net.ListenConfig{Control: reusePort}).Listen(context.Background(), "tcp", cfg.Listen)
 	if err != nil {
 		_ = udp.Close()
 		return nil, err
@@ -153,10 +164,7 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 		_ = tx.Respond(sip.NewResponseFromRequest(req, 200, "OK", nil))
 	}))
 	n.OnRoomCount = func(count int) { u.loadChanged(count) }
-	if cfg.OutboundProxy != "" {
-		n.SetDialer(u)
-	}
-	n.SetTargetDialer(u)
+	n.SetDialer(u)
 	return u, nil
 }
 
@@ -188,13 +196,6 @@ func (u *UA) Close() {
 	if u.tcp != nil {
 		_ = u.tcp.Close()
 	}
-}
-
-func header(req *sip.Request, name string) string {
-	if h := req.GetHeader(name); h != nil {
-		return h.Value()
-	}
-	return ""
 }
 
 // OpenDialogs is the number of INVITE dialogs the node still holds (tests: no leaks).
@@ -270,65 +271,47 @@ func (u *UA) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 		<-dlg.Context().Done()
 		u.legs.Delete(legID)
 	}()
-	headers := map[string]string{}
-	for _, h := range req.Headers() {
-		name := h.Name()
-		if strings.HasPrefix(strings.ToLower(name), "x-") {
-			headers[name] = h.Value()
-		}
-	}
 	from, to := req.From(), req.To()
-	call := node.IncomingCall{
-		AppRef:    header(req, "X-App-Ref"),
-		Direction: directionOf(header(req, "X-Call-Direction")),
-		Headers:   headers,
-		Media:     media,
-		Leg:       leg,
-	}
+	call := node.IncomingCall{Headers: inviteHeaders(req), Media: media, Leg: leg}
 	if from != nil {
 		call.From, call.CallerName = from.Address.User, strings.Trim(from.DisplayName, "\"")
 	}
 	if to != nil {
 		call.To = to.Address.User
 	}
-	roomRef := make(chan string, 1)
-	call.OnRoom = func(ref string) { roomRef <- ref }
 	go u.node.Incoming(call)
 
-	// The INVITE transaction lives until a final response or a CANCEL.
-	var ref string
-	select {
-	case ref = <-roomRef:
-	case <-leg.final:
-		return
-	case <-dlg.Context().Done():
-		return
-	}
+	// The INVITE transaction lives until a final response or a CANCEL (the node sees the CANCEL
+	// on the leg's Gone; sipgo answers it with 487).
 	select {
 	case status := <-leg.final:
 		if status >= 300 {
 			return
 		}
 	case <-dlg.Context().Done():
-		u.node.CallerGone(ref) // CANCEL before answer
 		return
 	}
 	// Answered: the dialog ends on BYE (either side).
 	answered = true
 	go func() {
 		<-dlg.Context().Done()
-		u.node.CallerGone(ref)
 		closeDialog()
 	}()
 }
 
-func directionOf(h string) string {
-	switch strings.ToLower(h) {
-	case "to_pstn", "outbound":
-		return "outbound"
-	default:
-		return "inbound"
+// inviteHeaders is every header of the INVITE as a map, values untouched; a name that repeats
+// has its values joined with ", " (roomr "Inbound call reported with its headers").
+func inviteHeaders(req *sip.Request) map[string]string {
+	out := map[string]string{}
+	for _, h := range req.Headers() {
+		name := h.Name()
+		if prev, ok := out[name]; ok {
+			out[name] = prev + ", " + h.Value()
+			continue
+		}
+		out[name] = h.Value()
 	}
+	return out
 }
 
 // inviteLeg answers one INVITE for the node (node.CallLeg).
@@ -435,6 +418,8 @@ func (l *inviteLeg) finish(status int) {
 
 func (l *inviteLeg) Ring() error { return l.dlg.Respond(180, "Ringing", nil) }
 
+func (l *inviteLeg) Gone() <-chan struct{} { return l.dlg.Context().Done() }
+
 func (l *inviteLeg) Answer(body []byte) error {
 	err := l.dlg.RespondSDP(body)
 	l.finish(200)
@@ -494,12 +479,9 @@ func reasonPhrase(status int) string {
 
 // ---- outbound legs --------------------------------------------------------------------------
 
-// DODNumberHeader carries the caller-id number of a Peer's call to the PSTN; Routr picks the
-// trunk by it (connect's peerToPSTN reads X-DOD-Number; SIP header names are case-insensitive).
-const DODNumberHeader = "X-DOD-Number"
-
-// The NATS participant.dial and transfer INVITEs (retired with media.<id>.commands) dial as the
-// Peer the node registers as: the first registration's AOR and auth.
+// DialTarget's From, when the request names no user or host, is the node's first
+// registration's user and AOR host (its identity at the proxy), else "roomr" at the outbound
+// proxy's host.
 
 // peerUser is the Peer's username: the first registration's auth username, else its AOR user.
 func (u *UA) peerUser() string {
@@ -507,14 +489,6 @@ func (u *UA) peerUser() string {
 		return orDefault(u.regs[0].cfg.Username, u.regs[0].aor.User)
 	}
 	return "roomr"
-}
-
-// peerPassword answers the outbound proxy's challenge.
-func (u *UA) peerPassword() string {
-	if len(u.regs) > 0 {
-		return u.regs[0].cfg.Password
-	}
-	return ""
 }
 
 // peerDomain is the host in the Peer's From: the first registration's AOR host, else the
@@ -527,44 +501,6 @@ func (u *UA) peerDomain() string {
 		return proxy.Host
 	}
 	return u.cfg.AdvertiseHost
-}
-
-// Dial sends an INVITE through the outbound proxy (node.Dialer).
-func (u *UA) Dial(ctx context.Context, to, from string, headers map[string]string, offer []byte,
-	onProgress func(status int)) (node.OutLeg, []byte, error) {
-	proxy, err := parseTarget(u.cfg.OutboundProxy)
-	if err != nil {
-		return nil, nil, err
-	}
-	// The node calls as its Routr Peer, the way Asterisk's outbound endpoint did (from_user and
-	// outbound_auth): Routr finds the caller by the From user, so From is the Peer and the caller-id
-	// number travels in X-DOD-Number, which picks the trunk (PEER_TO_PSTN). A Number in From makes
-	// the routing direction unknown and Routr answers 403 (OB-B1).
-	user := u.peerUser()
-	fromHdr := &sip.FromHeader{Address: sip.Uri{User: user, Host: u.peerDomain()}, Params: sip.NewParams()}
-	fromHdr.Params.Add("tag", sip.GenerateTagN(10))
-	hdrs := []sip.Header{fromHdr, sip.NewHeader("Content-Type", "application/sdp")}
-	hasDOD := false
-	for k, v := range headers {
-		if strings.EqualFold(k, DODNumberHeader) {
-			hasDOD = true
-		}
-		hdrs = append(hdrs, sip.NewHeader(k, v))
-	}
-	if !hasDOD && from != "" {
-		hdrs = append(hdrs, sip.NewHeader(DODNumberHeader, from))
-	}
-	target := sip.Uri{User: to, Host: proxy.Host, Port: proxy.Port}
-	if tr := uriTransport(proxy); tr != "" && tr != "udp" {
-		target.UriParams = sip.NewParams()
-		target.UriParams.Add("transport", tr)
-	}
-	session, err := u.out.Invite(ctx, target, offer, hdrs...)
-	if err != nil {
-		return nil, nil, err
-	}
-	// Routr challenges a Peer's INVITE (401) like its REGISTER: answer with the same credentials.
-	return u.awaitAnswer(ctx, session, user, u.peerPassword(), onProgress)
 }
 
 // awaitAnswer waits for a dialed INVITE's final response, answering a digest challenge with
@@ -628,9 +564,9 @@ func uriTransport(uri sip.Uri) string {
 	return ""
 }
 
-// DialTarget sends an INVITE to t.URI through t.Proxy, with t.Headers added untouched and
-// t's digest credentials for a challenge (node.TargetDialer, Roomr CreateCall). Unlike
-// Dial it does not call as the Routr Peer: From is `from` and no header is added.
+// DialTarget sends an INVITE to t.URI through t.Proxy (its URI carries the transport), with
+// t.Headers added untouched and t's digest credentials for a 401/407 challenge
+// (node.TargetDialer: CreateCall and transfers). From is `from`; the node adds no header.
 func (u *UA) DialTarget(ctx context.Context, t node.SipTarget, from string, offer []byte,
 	onProgress func(status int)) (node.OutLeg, []byte, error) {
 	recipient, err := parseTarget(t.URI)

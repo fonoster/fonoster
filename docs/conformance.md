@@ -36,7 +36,8 @@ npx mocha --exit --timeout 30000 \
 ```
 
 `mods/conformance/test` checks every scenario file against the schema and the OpenSpec specs, the
-runner, the fakes and the SDK scenarios, and runs without NATS (`nats.test.ts` needs it):
+runner, the fakes and the SDK scenarios, and runs without NATS (the media-control and Roomr gRPC
+suites need it):
 
 ```sh
 npx mocha 'mods/conformance/test/**/*.test.ts' --exit --timeout 30000

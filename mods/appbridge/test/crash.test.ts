@@ -22,7 +22,8 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { expect } from "chai";
-import { NatsConnection, Subscription, connect } from "nats";
+import * as net from "net";
+import { NatsConnection, connect } from "nats";
 import { stringify } from "yaml";
 import {
   CallRecordWriter,
@@ -31,7 +32,7 @@ import {
   verifyRecord
 } from "@fonoster/callrecord";
 import { FakesHarness } from "@fonoster/conformance";
-import { APPBRIDGE_HEARTBEAT_SUBJECT } from "../src";
+import { checkHealth } from "../src/healthcheck";
 
 // Crash harness (call-record task 1.3, conformance 3.9): kill AppBridge process mid-call and
 // check that a sealed, signed record still results, listing what is missing. Needs NATS.
@@ -52,14 +53,23 @@ async function waitFor<T>(
   }
 }
 
-/** Resolves on the subscription's first message (the spawned AppBridge is up and claiming calls). */
-async function waitForHeartbeat(sub: Subscription, ms: number) {
-  const timer = setTimeout(() => sub.unsubscribe(), ms);
-  for await (const _ of sub) {
-    clearTimeout(timer);
-    return;
+/** A free loopback TCP port. */
+async function freePort(): Promise<number> {
+  const server = net.createServer();
+  await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+  const port = (server.address() as net.AddressInfo).port;
+  await new Promise<void>((r) => server.close(() => r()));
+  return port;
+}
+
+/** Resolves once the spawned AppBridge's Session port reports SERVING (it takes calls). */
+async function waitForServing(address: string, ms: number) {
+  const deadline = Date.now() + ms;
+  while (!(await checkHealth(address, 500))) {
+    if (Date.now() > deadline)
+      throw new Error(`AppBridge was not SERVING within ${ms} ms`);
+    await sleep(100);
   }
-  throw new Error(`AppBridge sent no heartbeat within ${ms} ms`);
 }
 
 describe("@AppBridge call record after a crash", function () {
@@ -94,15 +104,12 @@ describe("@AppBridge call record after a crash", function () {
     );
 
     harness = await new FakesHarness().start();
-    const nodeId = `crash-${Date.now()}`;
-    harness.roomrNode.attachNats(nc, {
-      commands: `media.${nodeId}.commands`,
-      events: `media.${nodeId}.events`
-    });
-    (harness.roomrNode as unknown as { nodeId: string }).nodeId = nodeId;
+    const sessionAddress = `127.0.0.1:${await freePort()}`;
+    harness.roomrNode.configure({ endpoint: sessionAddress });
     const urls = harness.providerUrls;
     const config = {
       nats: { url: NATS_URL },
+      session: { listen: sessionAddress },
       callRecord: {
         dir: path.join(dir, "records"),
         region: "test",
@@ -127,11 +134,9 @@ describe("@AppBridge call record after a crash", function () {
       }
     };
     fs.writeFileSync(path.join(dir, "appbridge.yaml"), stringify(config));
-    // AppBridge sends its first heartbeat once it claims call.incoming. A fixed sleep raced
-    // its start-up (module load, NATS connect, the session registry: measured 0.6-4.3 s on a busy
-    // host), and the node gives up on an unclaimed call after 2 x 500 ms.
-    const started = nc.subscribe(APPBRIDGE_HEARTBEAT_SUBJECT, { max: 1 });
-    await nc.flush();
+    // AppBridge takes calls once its Session port reports SERVING (grpc.health.v1). A fixed
+    // sleep raced its start-up (module load, NATS connect, the session registry: measured
+    // 0.6-4.3 s on a busy host).
     appbridge = spawn(
       process.execPath,
       [
@@ -143,9 +148,9 @@ describe("@AppBridge call record after a crash", function () {
         stdio: "ignore"
       }
     );
-    await waitForHeartbeat(started, 15000);
+    await waitForServing(sessionAddress, 15000);
 
-    const { roomRef } = harness.roomrNode.offerCall({
+    const { callRef } = await harness.roomrNode.offerCall({
       from: "+15550001111",
       to: "+15550002222"
     });
@@ -178,9 +183,9 @@ describe("@AppBridge call record after a crash", function () {
       region: "test",
       key: { kid: "test-1", privateKeyPem: fs.readFileSync(keyFile, "utf8") }
     });
-    expect(await writer.sweep(Date.now() + 31_000)).to.deep.equal([roomRef]);
+    expect(await writer.sweep(Date.now() + 31_000)).to.deep.equal([callRef]);
 
-    const sealed = (await store.getSealed(roomRef))!;
+    const sealed = (await store.getSealed(callRef))!;
     const verified = verifyRecord(sealed, {
       "test-1": publicKey.export({ type: "spki", format: "pem" }).toString()
     });
@@ -200,11 +205,9 @@ describe("@AppBridge call record after a crash", function () {
     );
   });
 
-  // Pending (in-memory state audit, test 4): the Roomr node ends the dead appbridge's room
-  // (go/roomr/e2e TestRoomEndsWhenItsAppBridgeIsLost) and a surviving replica seals the record
-  // (above), but nothing sends the workspace `call.ended` (or `call.failed`) for the call: only
-  // the owning AppBridge produces them (workspace-webhooks "v1 event types"), and it is dead. The
-  // fix needs a spec decision on who reports it (the node on an orphaned room, or the sweep that
-  // seals an incomplete record), so this stays pending until then.
+  // Pending: the Roomr node ends the dead AppBridge's call when its control stream breaks
+  // (`call.ended` with cause `app_gone` on NATS) and a surviving replica seals the record (above);
+  // the control plane turns that `call.ended` into the workspace's `call.ended` (`appbridge-lost`,
+  // redesign-roomr 15.4), which is the control-plane chunk's to build and test.
   it("sends call.ended for a call whose AppBridge was killed mid-call");
 });

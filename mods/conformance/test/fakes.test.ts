@@ -16,17 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as dgram from "dgram";
 import { expect } from "chai";
 import WebSocket from "ws";
 import {
   FakeApp,
   FakeAppBridge,
   FakeLlm,
-  FakeNatsRoomr,
   FakeStt,
   FakeTts,
-  MediaEvent,
   ProviderLedger,
   speechDurationMs,
   wordTimings
@@ -88,173 +85,6 @@ describe("@conformance/FakeApp and FakeAppBridge", function () {
       .catch((e) => (error = e));
     expect(error).to.exist;
     expect(app.attempts[0].reason).to.equal("stale");
-  });
-});
-
-describe("@conformance/FakeNatsRoomr", function () {
-  let node: FakeNatsRoomr;
-
-  afterEach(async function () {
-    await node?.stop();
-  });
-
-  it("acknowledges commands with their id and rejects unknown ones", async function () {
-    node = new FakeNatsRoomr();
-    const { roomRef } = node.offerCall();
-    expect(
-      await node.handle({ type: "hold", id: "c7", roomRef })
-    ).to.deep.equal({ type: "ack", id: "c7" });
-    expect(
-      await node.handle({ type: "room.mute_all", id: "c8", roomRef })
-    ).to.include({
-      type: "error",
-      id: "c8",
-      code: "unknown_command"
-    });
-  });
-
-  it("exchanges RTP with the session participant negotiated in participant.add", async function () {
-    node = new FakeNatsRoomr({ callerAudio: { kind: "tone", ms: 200 } });
-    const { roomRef } = node.offerCall({ from: "+1555", to: "+1666" });
-    expect(node.events[0].event).to.include({
-      type: "call.incoming",
-      from: "+1555",
-      roomRef
-    });
-
-    const appbridge = dgram.createSocket("udp4");
-    const received: Buffer[] = [];
-    appbridge.on("message", (m) => received.push(m));
-    await new Promise<void>((r) => appbridge.bind(0, "127.0.0.1", r));
-
-    const ack = await node.handle({
-      type: "participant.add",
-      id: "c3",
-      roomRef,
-      kind: "session",
-      rtp: {
-        host: "127.0.0.1",
-        port: appbridge.address().port,
-        codec: "L16/16000"
-      }
-    });
-    expect(ack).to.include({ type: "ack", id: "c3" });
-    const nodeRtp = ack.rtp as { host: string; port: number };
-
-    // The caller's audio arrives as RTP within 100 ms of the acknowledgement.
-    await sleep(100);
-    expect(received.length).to.be.greaterThan(2);
-    expect(received[0].length).to.equal(12 + 640);
-    expect(received[0][1] & 0x7f).to.equal(96);
-
-    // Agent audio sent to the node is measured.
-    const since = Date.now();
-    const header = Buffer.from([0x80, 96, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1]);
-    const tone = Buffer.alloc(640);
-    for (let i = 0; i < 320; i++)
-      tone.writeInt16BE(Math.round(8000 * Math.sin(i / 3)), i * 2);
-    for (let i = 0; i < 5; i++)
-      appbridge.send(Buffer.concat([header, tone]), nodeRtp.port, nodeRtp.host);
-    appbridge.send(
-      Buffer.concat([header, Buffer.alloc(640)]),
-      nodeRtp.port,
-      nodeRtp.host
-    );
-    await sleep(50);
-    expect(node.outputAudioMs(since)).to.equal(100);
-    expect(node.outputSilentWithinMs(since)).to.be.lessThan(50);
-    appbridge.close();
-  });
-
-  it("reports dial progress and outcomes", async function () {
-    node = new FakeNatsRoomr({ answerAfterMs: 10 });
-    const { roomRef } = node.offerCall();
-    const seen: MediaEvent[] = [];
-    node.on("event", (e) => seen.push(e));
-
-    await node.handle({
-      type: "participant.dial",
-      id: "d1",
-      roomRef,
-      to: "+15551234567"
-    });
-    await sleep(30);
-    expect(seen.map((e) => e.type)).to.deep.equal([
-      "call.progress",
-      "call.answered",
-      "participant.joined"
-    ]);
-    expect(seen.every((e) => e.id === "d1")).to.equal(true);
-
-    node.configure({ dialOutcome: "busy" });
-    seen.length = 0;
-    await node.handle({
-      type: "participant.dial",
-      id: "d2",
-      roomRef,
-      to: "+15551234567"
-    });
-    await sleep(30);
-    expect(seen[1]).to.include({
-      type: "call.progress",
-      status: "busy",
-      id: "d2"
-    });
-  });
-
-  it("ends the room on hangup and on caller hangup", async function () {
-    node = new FakeNatsRoomr();
-    const first = node.offerCall();
-    await node.handle({ type: "hangup", id: "h1", roomRef: first.roomRef });
-    await sleep(5);
-    expect(node.events.map((e) => e.event)).to.deep.include({
-      type: "room.ended",
-      id: "h1",
-      roomRef: first.roomRef,
-      reason: "removed"
-    });
-
-    const second = node.offerCall();
-    node.callerHangup(second.roomRef);
-    expect(
-      node.events.slice(-2).map((e) => [e.event.type, e.event.reason])
-    ).to.deep.equal([
-      ["participant.left", "caller_hangup"],
-      ["room.ended", "caller_hangup"]
-    ]);
-  });
-
-  it("refuses unknown commands with unknown_command", async function () {
-    node = new FakeNatsRoomr();
-    node.offerCall();
-    expect(
-      await node.handle({ type: "room.mute_all", id: "x1" })
-    ).to.deep.equal({ type: "error", id: "x1", code: "unknown_command" });
-  });
-
-  it("rings, answers, holds and completes a warm transfer", async function () {
-    node = new FakeNatsRoomr({ answerAfterMs: 5 });
-    const { roomRef } = node.offerCall();
-    await node.handle({ type: "ring", id: "r", roomRef });
-    await node.handle({ type: "answer", id: "a", roomRef });
-    expect(node.sipStatuses(roomRef)).to.deep.equal([180, 200]);
-    await node.handle({
-      type: "transfer",
-      id: "t",
-      roomRef,
-      to: "+1",
-      mode: "warm"
-    });
-    expect(node.isHeld(roomRef)).to.equal(true);
-    await sleep(20);
-    await node.handle({ type: "transfer.complete", id: "t", roomRef });
-    expect(node.isHeld(roomRef)).to.equal(false);
-    expect(node.events.map((e) => e.event)).to.deep.include({
-      type: "transfer.result",
-      id: "t",
-      roomRef,
-      status: "completed"
-    });
   });
 });
 

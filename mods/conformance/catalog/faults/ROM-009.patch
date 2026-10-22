@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/call.go b/go/roomr/internal/node/call.go
+index ec7ed2520..ea3c286c1 100644
+--- a/go/roomr/internal/node/call.go
++++ b/go/roomr/internal/node/call.go
+@@ -460,7 +460,7 @@ func (n *Node) Incoming(in IncomingCall) {
+ 	outcome, callRef := "refused", ""
+ 	defer func() { telemetry.CallIncoming(context.Background(), callRef, outcome) }()
+ 	leg := in.Leg
+-	pt, codecName, ok := in.Media.ChoosePreferred(n.cfg.Codecs...)
++	pt, codecName, ok := in.Media.Choose(n.cfg.Codecs...)
+ 	if !ok {
+ 		_ = leg.Reject(488)
+ 		return

@@ -26,9 +26,12 @@ boundary, and the change adds no hardening requirements beyond it.
   `Answer` (inbound) or `Ready` (outbound) carrying its own RTP endpoint. Commands and events travel
   on that stream; audio is RTP pod to pod. If the stream breaks the node hangs up. This replaces
   the NATS offer and claim.
-- **Roomr over gRPC.** Three nouns (Room, Call, Participant) and nine RPCs: `CreateCall`,
-  `EndCall`, `CreateRoom`, `EndRoom`, `Join`, `Leave`, `Play`, `Record`, `SendDtmf`. `CreateCall`
-  creates a room or joins `room_ref`; there is no `AnswerCall`, inbound calls are answered by the
+- **Roomr over gRPC.** Three nouns (Room, Call, Participant) and six RPCs: `CreateCall`,
+  `EndCall`, `CreateRoom`, `EndRoom`, `AddParticipant`, `RemoveParticipant`, named from the
+  caller's side. Roomr is the SIP and media edge, not an app server: no play, record or DTMF RPCs
+  and no operations. An app plays its own audio on its RTP leg, records by adding a listener, and
+  sends DTMF, holds and transfers on its control stream. `CreateCall` creates a room or joins
+  `room_ref`; there is no `AnswerCall`, inbound calls are answered by the
   app on its stream. `RESOURCE_EXHAUSTED` at the node's limit. The NATS command subjects are
   retired.
 - **Capacity and events on NATS.** The heartbeat gains `max_rooms`, `version` and `region`; the
@@ -71,14 +74,14 @@ SIP proxy's affinity for room-header joins, and speech or SIP capture in the nod
 Two things from the target design are not part of this change and become follow-up changes:
 
 - **WebRTC participants**: browsers terminating on the node (pion/webrtc, ICE on one UDP port,
-  DTLS-SRTP), `Join` with an SDP offer, and the `talk-in-browser` delta. Browser calls keep
+  DTLS-SRTP), `AddParticipant` with an SDP offer, and the `talk-in-browser` delta. Browser calls keep
   RTPEngine meanwhile.
 - **Passthrough mode**: forwarding two-party rooms on the same codec without decoding.
 
 ## Removed from the first draft
 
 Room token (JWT) for joins; edge mTLS and `requireEncryption`; Roomr's session-registry KV writes;
-netguard and `allowedDestinations` in Roomr (tenant Play and Hold URLs are validated upstream by
+netguard and `allowedDestinations` in Roomr (tenant hold-music URLs are validated upstream by
 the apiserver and AppBridge); the duplicate command-line flags; `trustedSources`; `cpu_idle`;
 refusal while draining and the `draining` heartbeat field; the debug HTTP server; the OTLP log
 bridge; separate public and app-leg RTP ranges; `onMissingRoom`; the unknown-field scenarios; the
@@ -118,15 +121,15 @@ already point at it.
   first; registration becomes an optional configured capability (renamed from the Routr
   requirement); crash, limits and encryption are restated without component names; "Draining
   nodes take no new rooms" is removed in favour of a health-check drain; the "no recording"
-  requirement is renamed and narrowed to SIP capture because `Record` is now an operation. Added:
+  requirement is renamed to "the node never records" (recording is a listener). Added:
   room header, isolation, one RTP range, one call ref, silent legs, draining by health check, the
   room limit as the only admission limit.
 - `media-control`: the NATS command contract is replaced by gRPC. Renamed and modified: the
   command list (now the Roomr RPC list), the app leg and its RTP negotiation (now on the
   control stream), outbound placement (now `CreateCall`), liveness (now capacity). Removed: NATS
   request and reply, "add a participant is the one primitive", AppBridge claim, replica
-  ownership of outbound calls. Added: the control stream, room and participant RPCs, operations,
-  events keyed by call. Transfer, listeners, hold, maximum duration, ringing and endings are
+  ownership of outbound calls. Added: the control stream, room and participant RPCs, DTMF sent on
+  the control stream, events keyed by call. Transfer, listeners, hold, maximum duration, ringing and endings are
   modified to travel on the stream.
 - `control-plane`: node selection uses the heartbeat score and retries up to 3 nodes with
   `CreateCall`; NATS no longer carries media commands; AppBridge is reachable as a Service; the

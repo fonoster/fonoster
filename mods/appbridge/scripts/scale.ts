@@ -55,6 +55,8 @@ const WORKERS = Math.max(
   Math.min(CALLS, Number(args["harness-workers"] ?? Math.ceil(CALLS / 100)))
 );
 const NATS_URL = args.nats ?? "nats://127.0.0.1:4222";
+/** Replica i serves its session endpoint on this port + i (the fake nodes spread calls over them). */
+const SESSION_BASE_PORT = Number(args["session-port"] ?? 50171);
 const APPBRIDGE_NODE_ARGS = (args["appbridge-node-args"] ?? "")
   .split(" ")
   .filter(Boolean);
@@ -82,6 +84,8 @@ type Ready = {
 
 type Go = {
   type: "go";
+  /** The replicas' session endpoints; calls go round-robin, as a Service would spread them. */
+  endpoints: string[];
   start: number;
   measureFrom: number;
   end: number;
@@ -102,13 +106,6 @@ async function worker(index: number) {
   const send = (m: Ready | Result) => process.send!(m);
   const nc = await connect({ servers: NATS_URL });
   const harness = await new FakesHarness().start();
-  const nodeId = `scale-${process.pid}-${index}`;
-  harness.roomrNode.configure({});
-  (harness.roomrNode as unknown as { nodeId: string }).nodeId = nodeId;
-  harness.roomrNode.attachNats(nc, {
-    commands: `media.${nodeId}.commands`,
-    events: `media.${nodeId}.events`
-  });
 
   const inboundFrames: number[] = [];
   const latencies: number[] = [];
@@ -167,7 +164,10 @@ async function worker(index: number) {
   let calls = 0;
   for (let k = index; k < CALLS; k += WORKERS) {
     await sleep(go.start + k * RAMP_MS - Date.now());
-    harness.roomrNode.offerCall({
+    harness.roomrNode.configure({
+      endpoint: go.endpoints[k % go.endpoints.length]
+    });
+    void harness.roomrNode.offerCall({
       from: `+1555${k}`,
       to: "+15550000000",
       appRef: `load-${index}`
@@ -246,11 +246,15 @@ async function main() {
     });
   const ready = await Promise.all(workers.map((w) => next<Ready>(w, "ready")));
 
-  const configFile = path.join(dir, "appbridge.yaml");
-  fs.writeFileSync(
-    configFile,
+  const endpoints = Array.from(
+    { length: REPLICAS },
+    (_, i) => `127.0.0.1:${SESSION_BASE_PORT + i}`
+  );
+  const configFile = (i: number) => path.join(dir, `appbridge-${i}.yaml`);
+  const config = (i: number) =>
     stringify({
       nats: { url: NATS_URL },
+      session: { listen: endpoints[i] },
       apps: ready.map((r, i) => ({
         ref: `load-${i}`,
         url: r.appUrl,
@@ -273,8 +277,8 @@ async function main() {
           }
         ])
       )
-    })
-  );
+    });
+  for (let i = 0; i < REPLICAS; i++) fs.writeFileSync(configFile(i), config(i));
   const appbridges: ChildProcess[] = Array.from({ length: REPLICAS }, (_, i) =>
     spawn(
       process.execPath,
@@ -283,7 +287,7 @@ async function main() {
         PROBE,
         ...APPBRIDGE_NODE_ARGS,
         path.join(__dirname, "..", "dist", "main.js"),
-        configFile
+        configFile(i)
       ],
       {
         env: {
@@ -301,7 +305,7 @@ async function main() {
   const rampedAt = start + CALLS * RAMP_MS;
   const measureFrom = rampedAt + 2000;
   const end = rampedAt + SECONDS * 1000;
-  const go: Go = { type: "go", start, measureFrom, end };
+  const go: Go = { type: "go", endpoints, start, measureFrom, end };
   const results = workers.map((w) => next<Result>(w, "result"));
   for (const w of workers) w.send(go);
 

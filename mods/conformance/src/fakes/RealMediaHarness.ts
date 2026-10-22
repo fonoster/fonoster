@@ -18,7 +18,6 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { NatsConnection, StringCodec, Subscription } from "nats";
 import { Peer } from "../runner/Peer";
 import { SCENARIOS_DIR } from "../scenario/loadScenario";
 import { AudioSource, CallerAction, Setup } from "../scenario/types";
@@ -35,31 +34,36 @@ export class RealMediaHarness extends FakesHarness {
   readonly media: RoomrProcess;
   private callerAudio?: AudioSource;
   private commands: Record<string, unknown>[] = [];
-  private sub?: Subscription;
 
-  constructor(
-    private readonly nc: NatsConnection,
-    bins: RoomrBinaries,
-    options: FakesHarnessOptions = {}
-  ) {
+  constructor(bins: RoomrBinaries, options: FakesHarnessOptions = {}) {
     super(options);
     this.media = new RoomrProcess(bins);
   }
 
-  async start(): Promise<this> {
-    await super.start();
-    // Every media-control command AppBridge sends, as the fake node's media.commands.
-    this.sub = this.nc.subscribe(`media.${this.media.nodeId}.commands`, {
-      callback: (err, msg) => {
-        if (!err)
-          this.commands.push(JSON.parse(StringCodec().decode(msg.data)));
-      }
-    });
-    return this;
+  /**
+   * The AppBridge under test's session endpoint: the node opens each call's control stream there.
+   * Set before the first call (the node starts with it).
+   */
+  set sessionEndpoint(endpoint: string) {
+    this.media.sessionEndpoint = endpoint;
   }
 
+  /**
+   * AppBridge's control-stream tap (AppBridgeOptions.tap): every message it sends becomes one of
+   * media.commands as `{ type, ...body }`, and hold state follows them.
+   */
+  readonly tap = (
+    _callRef: string,
+    direction: "in" | "out",
+    type: string,
+    message: Record<string, unknown>
+  ) => {
+    const body = (message[type] ?? message) as Record<string, unknown>;
+    if (direction === "out") this.commands.push({ type, ...body });
+    this.media.noteStreamMessage(type, body);
+  };
+
   async stop() {
-    this.sub?.unsubscribe();
     await Promise.all([super.stop(), this.media.stop()]);
   }
 

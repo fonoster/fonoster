@@ -4,9 +4,18 @@
 - TO: `### Requirement: Registration is optional and configured`
 
 - FROM: `### Requirement: The node does not capture SIP, record or run speech`
-- TO: `### Requirement: The node records only when asked and captures no SIP`
+- TO: `### Requirement: The node never records and captures no SIP`
 
 ## REMOVED Requirements
+
+### Requirement: Optional TLS and SRTP between the edge and the node
+
+**Reason**: The node no longer offers a mode that requires encryption (`requireEncryption` and
+edge mTLS are removed); SIP TLS, SDES-SRTP and gRPC TLS stay available and off by default, and a
+plain leg is always accepted. Replaced by "SIP TLS and SRTP are optional and off by default".
+**Migration**: Drop `requireEncryption` and `tls.clientCa` from `roomr.yaml` (the node refuses
+them at start); keep `tls.listen`/`cert`/`key` for SIP over TLS. Use network isolation to keep
+plain traffic off untrusted networks.
 
 ### Requirement: Draining nodes take no new rooms
 
@@ -80,6 +89,14 @@ rejected.
 - **WHEN** the app sends `Reject` with `sip_status: 404`
 - **THEN** the caller receives `404 Not Found` and no room remains
 
+#### Scenario: INVITE from an untrusted source
+- **WHEN** an INVITE with `X-App-Ref: app-1` arrives from an address that is not the SIP proxy's
+- **THEN** the node handles it like any other INVITE: it filters no sources, and the deployment's network isolation (deployment "Network isolation guards Roomr's ports") is what keeps such peers out
+
+#### Scenario: Chart without trusted sources
+- **WHEN** the Helm chart is rendered with default values
+- **THEN** rendering succeeds and the rendered `roomr.yaml` has no `trustedSources` or `allowAnySource` key
+
 #### Scenario: CR or LF in a header value
 - **WHEN** a controller calls `CreateCall` with a `to.headers` value containing a line break
 - **THEN** the request fails with `INVALID_ARGUMENT` and no INVITE is sent
@@ -118,7 +135,7 @@ count changes by more than the configured `reregisterDelta`, and SHALL publish
 `registration.state` (media-control) when a registration succeeds, fails or expires. With no
 registrations configured the node MUST send no REGISTER.
 
-#### Scenario: Count sent in a templated header
+#### Scenario: Count sent on registration
 - **WHEN** a node with 12 active rooms registers with `headers: { X-Session-Count: "{sessions}" }`
 - **THEN** the REGISTER carries `X-Session-Count: 12`
 
@@ -130,6 +147,10 @@ registrations configured the node MUST send no REGISTER.
 - **WHEN** the configuration lists no registrations
 - **THEN** the node sends no REGISTER and still accepts INVITEs
 
+#### Scenario: Routr prefers the lighter node
+- **WHEN** node A registers with `X-Session-Count: "{sessions}"` rendered as 40 and node B as 5, and a new inbound call arrives at a Routr balancing with `least-sessions`
+- **THEN** Routr sends the INVITE to node B
+
 ### Requirement: A crashed node's calls end cleanly
 
 When a node stops without draining, every call it carried SHALL end: each app SHALL see its
@@ -140,22 +161,6 @@ migrated to another node.
 - **WHEN** a node carrying a call is killed
 - **THEN** the app's control stream closes within 30 seconds (keepalive) and its RTP stops
 - **AND** no heartbeat from that node arrives after the kill
-
-### Requirement: Optional TLS and SRTP between the edge and the node
-
-The node SHALL support plain SIP and RTP by default. It MAY listen for SIP over TLS when `tls`
-(`listen`, `cert`, `key`) is configured, MAY use TLS to the outbound proxy when the proxy URI says
-so, and SHALL negotiate SDES-SRTP when the peer offers or requests it. All of these are off by
-default. The app leg MAY also be encrypted: a `MediaEndpoint` with an `srtp_key` uses SRTP
-(media-control).
-
-#### Scenario: Encrypted call
-- **WHEN** the node has a SIP TLS listener and a peer sends an INVITE over TLS offering SRTP
-- **THEN** the call is answered with SRTP and audio flows
-
-#### Scenario: Plain by default
-- **WHEN** no `tls` is configured and an INVITE arrives over UDP offering plain RTP
-- **THEN** the call is answered with plain RTP
 
 ### Requirement: Call and room limits
 
@@ -177,19 +182,25 @@ limits SHALL be configurable per deployment.
 - **WHEN** a room is created with `CreateRoom` and `max_participants: 2`, and a third participant is added
 - **THEN** the request fails with `room_full`
 
-#### Scenario: Node at its limit
-- **WHEN** a node with `maxRooms: 200` carries 200 rooms
+#### Scenario: Node full
+- **WHEN** a node with `maxRooms: 2` carries 2 rooms
 - **THEN** a new INVITE receives `503` and `CreateCall` fails with `RESOURCE_EXHAUSTED`
-- **AND** the 200 rooms are unaffected
+- **AND** the 2 rooms are unaffected, and after one of them ends the next `CreateCall` succeeds
 
-### Requirement: The node records only when asked and captures no SIP
+### Requirement: The node never records and captures no SIP
 
-The node SHALL NOT capture SIP traces (out of scope for the first release). It SHALL record audio
-only when asked through a `Record` operation (media-control) and SHALL write nothing otherwise.
+The node SHALL NOT capture SIP traces (out of scope for the first release) and SHALL NOT record or
+write audio. Recording is a listener (media-control "Listeners fork audio by track"): the node
+forks the selected tracks as RTP to the listener's destinations, and whoever added the listener
+(AppBridge) writes the record.
 
-#### Scenario: Nothing recorded unless asked
-- **WHEN** a call runs without any `Record` operation
+#### Scenario: The node writes no audio
+- **WHEN** a call runs, with or without a recording listener
 - **THEN** the node writes no audio file
+
+#### Scenario: Recording is a listener
+- **WHEN** AppBridge records a call
+- **THEN** it adds a listener with `AddListener` on the call's control stream, receives the selected tracks as RTP and writes the record itself
 
 ### Requirement: Rooms without an owner end
 
@@ -199,7 +210,7 @@ overridable per room in `CreateRoom`). A `CreateCall` that fails in an otherwise
 end the room at once with the call's outcome. A call whose app is gone is ended by the control
 stream's keepalive (media-control), not by this rule.
 
-#### Scenario: Placer died before anything joined
+#### Scenario: Placer died before the dial
 - **WHEN** a room is created with `CreateRoom` and nothing joins or dials into it for 30 s
 - **THEN** the node ends it, frees its slot and publishes `room.ended` with `cause: "node_error"` on `roomr.events.room.<room_ref>`
 
@@ -211,7 +222,27 @@ stream's keepalive (media-control), not by this rule.
 - **WHEN** a room is created with `CreateRoom` and `empty_room_timeout_s: 5` and nothing joins
 - **THEN** the node ends it after 5 s
 
+#### Scenario: AppBridge killed mid-call
+- **WHEN** the AppBridge holding an answered call's control stream is killed
+- **THEN** the stream's keepalive ends the call within two missed pings: the node sends BYE to the caller and publishes `call.ended` with `cause: "app_gone"`, without waiting for the empty-room timeout
+
 ## ADDED Requirements
+
+### Requirement: SIP TLS and SRTP are optional and off by default
+
+The node SHALL support plain SIP and RTP by default. It MAY listen for SIP over TLS when `tls`
+(`listen`, `cert`, `key`) is configured, MAY use TLS to the outbound proxy when the proxy URI says
+so, and SHALL negotiate SDES-SRTP when the peer offers or requests it. All of these are off by
+default. The app leg MAY also be encrypted: a `MediaEndpoint` with an `srtp_key` uses SRTP
+(media-control).
+
+#### Scenario: Encrypted deployment
+- **WHEN** the node has a SIP TLS listener and a peer sends an INVITE over TLS offering SRTP
+- **THEN** the call is answered with SRTP and audio flows
+
+#### Scenario: Plain by default
+- **WHEN** no `tls` is configured and an INVITE arrives over UDP offering plain RTP
+- **THEN** the call is answered with plain RTP
 
 ### Requirement: Inbound calls can join a room by header
 
@@ -242,10 +273,9 @@ opaque. Room refs the node generates SHALL be unguessable (at least 128 random b
 
 The node SHALL learn every peer from its configuration or from request parameters: the outbound
 proxy, the registrars, the session endpoint, the room and call-ref header names and the NATS
-address. It MUST NOT contain built-in SIP header names, component names or routing rules. Headers
-on inbound INVITEs SHALL be passed to the app untouched in `Start.headers`; headers given in
-`CreateCall` SHALL be sent on the INVITE untouched. The transport of the outbound proxy SHALL be
-part of its URI (`sip:host:port;transport=tcp`).
+address. It MUST NOT contain built-in SIP header names, component names or routing rules. Inbound
+INVITE headers SHALL reach the app untouched in `Start.headers`, and `CreateCall` headers SHALL be
+sent on the INVITE untouched. The outbound proxy's URI SHALL carry its transport.
 
 #### Scenario: Outbound headers pass through
 - **WHEN** a controller calls `CreateCall` with `to.headers: { "X-DOD-Number": "+15550002", "X-Foo": "bar" }`
@@ -258,6 +288,10 @@ part of its URI (`sip:host:port;transport=tcp`).
 #### Scenario: Proxy is a parameter
 - **WHEN** two `CreateCall` requests name different `to.proxy` values
 - **THEN** each INVITE is sent to the proxy named in its own request
+
+#### Scenario: Transport in the proxy URI
+- **WHEN** the outbound proxy is `sip:routr:5060;transport=tcp`
+- **THEN** dialed INVITEs go to routr:5060 over TCP, with no separate transport setting
 
 ### Requirement: One RTP port range serves every leg
 
@@ -282,13 +316,10 @@ non-overlapping ranges.
 ### Requirement: One call ref end to end
 
 The node SHALL keep one call ref per call across SIP, `Start` and events, using an optional
-configured call-ref header (`callRefHeader`, for example `X-Call-Ref`). When an inbound INVITE
-carries that header with a well-formed value, the value SHALL be the call's
-`call_ref`; otherwise the node SHALL generate one. When `CreateCall`'s `to.headers` carries the
-configured header, its value SHALL be the call's `call_ref` and SHALL be sent on the INVITE; a
-`call_ref` field that is also set and differs SHALL fail with `INVALID_ARGUMENT` before any INVITE.
-The same ref SHALL appear in `Start`, in every event and on the SIP leg. Callers dictate the call
-ref through this header or `call_ref`, and the app reference through `metadata` (media-control).
+configured call-ref header (`callRefHeader`). A well-formed value of that header on an inbound
+INVITE, or in `CreateCall`'s `to.headers`, SHALL be the call's `call_ref` (sent on the INVITE for
+outbound calls); otherwise the node SHALL generate one. A `call_ref` field that differs from the
+header SHALL fail with `INVALID_ARGUMENT` before any INVITE.
 
 #### Scenario: Inbound ref taken from the header
 - **WHEN** `callRefHeader: X-Call-Ref` is configured and an INVITE carries `X-Call-Ref: abc123`
@@ -323,16 +354,11 @@ leg.
 
 ### Requirement: Draining is a health signal with a bounded wait
 
-The node SHALL serve the standard gRPC health service (`grpc.health.v1.Health`) on its control
-port, reporting `SERVING` normally. On SIGTERM it SHALL report `NOT_SERVING`, SHALL send REGISTER
-with `Expires: 0` for each registration, SHALL stop its heartbeats and SHALL publish `node.down`
-(`type: "node.down"`) on `roomr.nodes.<node_ref>.heartbeat`. It SHALL then keep serving its live
-rooms, their control streams and `Roomr` RPCs until every room has ended or the configured maximum
-wait (`drainWait`, default 1 h) has passed, end any remaining room with `cause: "node_error"` and
-exit. The node SHALL NOT refuse calls because it is draining; keeping new calls away is the job of
-the layers that place them: the controller skips nodes without fresh heartbeats, the SIP proxy
-stops after `Expires: 0`, and the orchestrator's readiness probe (the gRPC health check) takes the
-pod out of service.
+The node SHALL serve `grpc.health.v1.Health` on its control port, `SERVING` normally. On SIGTERM
+it SHALL report `NOT_SERVING`, send REGISTER with `Expires: 0` for each registration, stop its
+heartbeats and publish `node.down` on `roomr.nodes.<node_ref>.heartbeat`, then keep its live
+rooms, streams and RPCs until every room ends or `drainWait` (default 1 h) passes, end what
+remains with `cause: "node_error"` and exit. It SHALL NOT refuse calls because it is draining.
 
 #### Scenario: Health fails on SIGTERM
 - **WHEN** a node with 3 live rooms receives SIGTERM
@@ -346,6 +372,10 @@ pod out of service.
 #### Scenario: Maximum wait reached
 - **WHEN** a short `drainWait` passes while a draining node still has a room
 - **THEN** it ends the room, the app receives `Ended` with `cause: "node_error"` on its control stream before the stream closes, and the node exits
+
+#### Scenario: Calls kept away by the layers that place them
+- **WHEN** a draining node is sent an INVITE or a `CreateCall` anyway, below its room limit
+- **THEN** it accepts the call; the controller skipped it for lack of fresh heartbeats, the SIP proxy after `Expires: 0` and the orchestrator after the failed readiness probe, so this happens only in a race
 
 ### Requirement: The room limit is the only admission limit
 

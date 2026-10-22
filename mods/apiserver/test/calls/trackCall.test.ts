@@ -409,5 +409,35 @@ describe("@calls/trackCall", function () {
       expect(h.size()).to.equal(0);
       h.stop();
     });
+
+    it("call.ended lost while NATS was down: nothing is replayed, the max-duration sweep ends the stream FAILED", async function () {
+      // redesign-roomr 4.6: events published during an outage are lost; the control plane does
+      // not replay or reconstruct them, its existing sweeps close what they would have closed.
+      const clock = sandbox.useFakeTimers();
+      const { createTrackCallHandler } =
+        await import("../../src/calls/createTrackCall");
+      const { nc, send } = fakeNats();
+      const h = createTrackCallHandler(nc, { maxMs: 60000 });
+      const stream = fakeStream("outage-ref");
+      h.trackCall(stream as never);
+      send(events("outage-ref"), { ref: "outage-ref", node_ref: "n1" });
+      send(media("outage-ref"), {
+        type: "call.answered",
+        call_ref: "outage-ref",
+        node_ref: "n1",
+        seq: 3
+      });
+      // The node keeps running (heartbeats resume after the outage) but call.ended, published
+      // during it, never arrives.
+      for (let t = 0; t < 62000; t += 2000) {
+        send(heartbeats, { type: "node.heartbeat", node_ref: "n1" });
+        clock.tick(2000);
+      }
+      const statuses = stream.write.getCalls().map((c) => c.args[0].status);
+      expect(statuses.at(-1)).to.equal(DialStatus.FAILED);
+      expect(stream.end).to.have.been.calledOnce;
+      expect(h.size()).to.equal(0);
+      h.stop();
+    });
   });
 });

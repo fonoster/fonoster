@@ -814,7 +814,7 @@ describe("@apiserver[regions/e2e] regions round trip (PR-12..PR-21)", function (
   });
 
   it("stores the real region agent's endpoints and its hash matches (RE-B2)", async function () {
-    // The agent also listens on media.*/appbridge.* subjects, outside the hub credentials.
+    // The agent also listens on the nodes' roomr.nodes.* subjects, outside the hub credentials.
     if (HUB) return this.skip();
     const stateDir = mkdtempSync(join(tmpdir(), "rb-regep-agent-"));
     const nc = await connect({

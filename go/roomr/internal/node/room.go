@@ -16,11 +16,15 @@ import (
 
 // Kinds of participants.
 const (
-	KindPhone   = "phone"
-	KindSession = "session"
+	// KindPhone is a SIP leg: an inbound caller, a dialed callee or a transfer's new party.
+	KindPhone = "phone"
+	// KindApp is a call's app leg (RTP to the app that holds the call's control stream).
+	KindApp = "app"
+	// KindRTP is a plain RTP participant added with Join.
+	KindRTP = "rtp"
 )
 
-// DTMF sources (media-control `dtmf` event).
+// DTMF sources (Dtmf on the control stream).
 const (
 	SourceRFC4733 = "rfc4733"
 	SourceSIPInfo = "sip_info"
@@ -41,7 +45,15 @@ type Participant struct {
 	out      OutLeg  // dialed party
 	media    sdp.Media
 	pt       int
-	answered bool
+	// call is the call this participant belongs to (its SIP leg, app leg or a transfer's new
+	// party); nil for RTP participants.
+	call *call
+	// answered: a SIP leg gets audio only once answered (no early media).
+	answered atomic.Bool
+	// announced: participant.joined went out (participant.left follows only then).
+	announced atomic.Bool
+	// since is when the participant joined (media timeouts count from it at the earliest).
+	since time.Time
 	// srtpKey is the node's SDES key on an encrypted leg ("" for plain RTP); cryptoTag answers
 	// the offer's a=crypto tag.
 	srtpKey   string
@@ -54,23 +66,30 @@ type Participant struct {
 	last       audio.Frame
 	concealRun int
 
-	// DTMF: RFC 4733 when negotiated, SIP INFO when the peer sends it, in-band otherwise (MN8).
+	// DTMF: RFC 4733 when negotiated, SIP INFO when the peer sends it, in-band otherwise.
 	inband      *dtmf.Detector
 	infoSeen    atomic.Bool
 	dtmfMu      sync.Mutex
 	lastDigit   string
 	lastDigitAt time.Time
 	lastSource  string
-
-	mu sync.Mutex
-}
-
-func (p *Participant) tracks() []Event {
-	return []Event{{"trackId": p.TrackID, "kind": "audio", "codec": p.Codec, "direction": "sendrecv"}}
 }
 
 func newParticipant(ref, kind, codecName string, codec audio.Codec, ep *rtpio.Endpoint, pt int) *Participant {
 	return &Participant{Ref: ref, Kind: kind, Codec: codecName, codec: codec, endpoint: ep, pt: pt, jb: jitter.New()}
+}
+
+func (p *Participant) tracks() []Event {
+	return []Event{{"track_id": p.TrackID, "kind": "audio", "codec": p.Codec}}
+}
+
+// silentFor is how long the participant has sent no RTP (counted from when it joined at most).
+func (p *Participant) silentFor(now time.Time) time.Duration {
+	last := p.endpoint.LastPacketAt()
+	if p.since.After(last) {
+		last = p.since
+	}
+	return now.Sub(last)
 }
 
 func (p *Participant) push(pkt *rtp.Packet) { p.jb.Push(pkt) }
@@ -102,33 +121,10 @@ func (p *Participant) pull() audio.Frame {
 	return f
 }
 
-// Room mixes audio so each participant hears everyone but themselves (mix-minus).
-type Room struct {
-	Ref     string
-	node    *Node
-	created time.Time
-	// maxDuration is the node's limit, or an app's lower one.
-	maxDuration time.Duration
-	// callRef is the API-originated call the room was created for (room.create callRef); the
-	// call's events go to CallEventsSubject (callevents.go). Set before the room is shared.
-	callRef string
-
-	mu           sync.Mutex
-	participants map[string]*Participant
-	order        []string
-	nextTrack    int
-	heldRef      string // the participant on hold, if any
-	music        []audio.Frame
-	musicPos     int
-	ended        bool
-	done         chan struct{}
-	listeners    map[string][]fork
-	// plays are Roomr Play operations in progress.
-	plays []*playback
-	// maxParticipants and emptyTimeout are the node's defaults, or the room's own (CreateRoom).
-	maxParticipants int
-	emptyTimeout    time.Duration
-	orphan          orphanState
+// hold is a participant on hold: it hears music (or silence) and nobody hears it.
+type hold struct {
+	music []audio.Frame
+	pos   int
 }
 
 // fork sends one participant's track, unmixed, to a listener's RTP destination.
@@ -137,168 +133,141 @@ type fork struct {
 	endpoint *rtpio.Endpoint
 }
 
-// rtpBlock is media-control's `rtp` object.
-type rtpBlock struct {
-	host        string
-	port        int
-	codec       string
-	payloadType int
-	ptime       int
-	srtpKey     string // "" without srtp
-	hasSRTP     bool
-	badSRTP     string
+// Room mixes audio so each participant hears everyone but themselves (mix-minus).
+type Room struct {
+	Ref     string
+	node    *Node
+	created time.Time
+	// implicit: the room was opened by a call (an INVITE or CreateCall) and ends with its last
+	// call; rooms from CreateRoom end with EndRoom or the empty-room timeout.
+	implicit bool
+
+	mu           sync.Mutex
+	participants map[string]*Participant
+	order        []string
+	nextTrack    int
+	held         map[string]*hold
+	ended        bool
+	done         chan struct{}
+	listeners    map[string][]fork
+	calls        map[string]*call
+	// maxDuration, maxParticipants and emptyTimeout are the node's, or the room's own
+	// (CreateRoom).
+	maxDuration     time.Duration
+	maxParticipants int
+	emptyTimeout    time.Duration
+	// dialing counts CreateCall dials into this room still ringing; idleSince is when the room
+	// was created, or last became empty with no dial in progress.
+	dialing   int
+	idleSince time.Time
+
+	// evMu orders the room's events; seq is their per-room sequence.
+	evMu sync.Mutex
+	seq  uint64
 }
 
-func parseRTPBlock(v any) rtpBlock {
-	block, _ := v.(map[string]any)
-	b := rtpBlock{payloadType: -1, ptime: 20}
-	b.host, _ = block["host"].(string)
-	if port, ok := block["port"].(float64); ok {
-		b.port = int(port)
-	}
-	b.codec, _ = block["codec"].(string)
-	if v, ok := block["payloadType"].(float64); ok {
-		b.payloadType = int(v)
-	}
-	if v, ok := block["ptime"].(float64); ok {
-		b.ptime = int(v)
-	}
-	if s, ok := block["srtp"].(map[string]any); ok {
-		b.hasSRTP = true
-		suite, _ := s["suite"].(string)
-		key, _ := s["key"].(string)
-		switch {
-		case suite != "" && suite != rtpio.SRTPSuite:
-			b.badSRTP = "unsupported srtp suite " + suite
-		case !rtpio.ValidSRTPKey(key):
-			b.badSRTP = "srtp key must be 30 bytes of base64"
-		default:
-			b.srtpKey = key
-		}
-	}
-	return b
-}
-
-func defaultPayloadType(codec string) int {
-	if pt := audio.StaticPayloadType(codec); pt >= 0 {
-		return pt
-	}
-	return 96
-}
-
-// attachListener is listener.attach: one RTP stream per selected track, never mixed, receive-only.
-func (r *Room) attachListener(cmd Command, ack replyFn, fail failFn) Command {
-	tracks, _ := cmd["tracks"].([]any)
-	if len(tracks) == 0 {
-		return fail("bad_message", "listener.attach needs tracks")
-	}
-	forks := []fork{}
-	closeAll := func() {
-		for _, f := range forks {
-			f.endpoint.Close()
-		}
-	}
-	for _, t := range tracks {
-		track, _ := t.(map[string]any)
-		id, _ := track["trackId"].(float64)
-		block := parseRTPBlock(track["rtp"])
-		if block.codec == "" {
-			block.codec = audio.NameL16
-		}
-		codec, ok := audio.CodecFor(block.codec)
-		if block.host == "" || block.port == 0 || !ok {
-			closeAll()
-			return fail("bad_message", "each track needs rtp {host, port} and a supported codec")
-		}
-		if block.badSRTP != "" {
-			closeAll()
-			return fail("bad_message", block.badSRTP)
-		}
-		ep, err := rtpio.Listen(r.node.cfg.RTPHost)
-		if err != nil {
-			closeAll()
-			return fail("internal", err.Error())
-		}
-		pt := block.payloadType
-		if pt < 0 {
-			pt = defaultPayloadType(block.codec)
-		}
-		_ = ep.Configure(codec, pt, -1, block.host, block.port)
-		if block.srtpKey != "" {
-			// A listener only receives, so its own key encrypts what the node sends it.
-			_ = ep.SetSRTP(block.srtpKey, block.srtpKey)
-		}
-		forks = append(forks, fork{trackID: int(id), endpoint: ep})
-	}
-	ref := r.node.nextRef("listener")
-	r.mu.Lock()
-	if r.listeners == nil {
-		r.listeners = map[string][]fork{}
-	}
-	r.listeners[ref] = forks
-	r.mu.Unlock()
-	return ack(Command{"listenerRef": ref, "participantRef": ref})
-}
-
-func (r *Room) detachListener(ref string) bool {
-	r.mu.Lock()
-	forks, ok := r.listeners[ref]
-	delete(r.listeners, ref)
-	r.mu.Unlock()
-	for _, f := range forks {
-		f.endpoint.Close()
-	}
-	return ok
-}
-
-func newRoom(n *Node, ref string) *Room {
+func newRoom(n *Node, ref string, implicit bool) *Room {
 	now := time.Now()
-	return &Room{Ref: ref, node: n, created: now, maxDuration: n.cfg.MaxDuration,
+	return &Room{Ref: ref, node: n, created: now, implicit: implicit, maxDuration: n.cfg.MaxDuration,
 		maxParticipants: n.cfg.MaxParticipants, emptyTimeout: n.cfg.EmptyRoomTimeout,
-		participants: map[string]*Participant{}, done: make(chan struct{}), orphan: orphanState{idleSince: now}}
+		participants: map[string]*Participant{}, held: map[string]*hold{}, calls: map[string]*call{},
+		done: make(chan struct{}), idleSince: now}
 }
 
-// errRoomFull is the 11th participant (MN11).
-var errRoomFull = fmt.Errorf("room_full")
+var (
+	errRoomFull  = &Error{Code: CodeRoomFull, Message: "the room holds its participant limit"}
+	errRoomEnded = &Error{Code: CodeRoomNotFound, Message: "the room has ended"}
+)
 
 func (r *Room) add(p *Participant) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.ended {
-		return fmt.Errorf("room ended")
+		return errRoomEnded
 	}
 	if len(r.participants) >= r.maxParticipants {
 		return errRoomFull
 	}
 	r.nextTrack++
 	p.TrackID = r.nextTrack
+	p.since = time.Now()
 	r.participants[p.Ref] = p
 	r.order = append(r.order, p.Ref)
 	return nil
 }
 
-// IsHeld reports whether a participant is on hold.
-func (r *Room) isHeld() bool {
+// addCall makes c one of the room's calls (false when the room has ended).
+func (r *Room) addCall(c *call) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	return r.heldRef != ""
-}
-
-// caller is the first phone participant: the inbound caller, or the dialed party of an outbound
-// call.
-func (r *Room) caller() *Participant {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-	for _, ref := range r.order {
-		if p := r.participants[ref]; p != nil && p.Kind == KindPhone {
-			return p
-		}
+	if r.ended {
+		return false
 	}
-	return nil
+	r.calls[c.ref] = c
+	return true
 }
 
-// reportDTMF publishes one keypress, dropping the same digit from a second source within the
-// de-duplication window (MN8: each keypress reported once).
+// dropCall removes c and reports how many calls remain.
+func (r *Room) dropCall(c *call) int {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	delete(r.calls, c.ref)
+	return len(r.calls)
+}
+
+func (r *Room) callList() []*call {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	out := make([]*call, 0, len(r.calls))
+	for _, c := range r.calls {
+		out = append(out, c)
+	}
+	return out
+}
+
+func (r *Room) participant(ref string) *Participant {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return r.participants[ref]
+}
+
+// event publishes one room-scoped event on roomr.events.room.<room_ref> with the room's seq.
+func (r *Room) event(typ string, extra Event) {
+	r.evMu.Lock()
+	defer r.evMu.Unlock()
+	r.seq++
+	ev := r.node.eventBase(typ)
+	for k, v := range extra {
+		ev[k] = v
+	}
+	ev["room_ref"], ev["seq"] = r.Ref, r.seq
+	r.node.publish(RoomEventsSubject(r.Ref), ev)
+}
+
+// participantEvent reports a participant joining or leaving: on its call's subject when it
+// belongs to a call, else on the room's, and to the control stream of every call in the room.
+func (r *Room) participantEvent(p *Participant, typ, cause string) {
+	if typ == "participant.joined" {
+		if p.announced.Swap(true) {
+			return
+		}
+	} else if !p.announced.Swap(false) {
+		return
+	}
+	ev := Event{"participant_ref": p.Ref, "track_id": p.TrackID, "kind": p.Kind, "tracks": p.tracks()}
+	if cause != "" {
+		ev["cause"] = cause
+	}
+	if p.call == nil || !p.call.event(typ, ev) {
+		r.event(typ, ev)
+	}
+	for _, c := range r.callList() {
+		c.streamParticipant(typ, p, cause)
+	}
+}
+
+// reportDTMF sends one keypress to the call the leg belongs to, dropping the same digit from a
+// second source within the de-duplication window (each keypress reported once).
 func (r *Room) reportDTMF(p *Participant, digit, source string) {
 	p.dtmfMu.Lock()
 	dup := digit == p.lastDigit && source != p.lastSource && time.Since(p.lastDigitAt) < dtmfDedupWindow
@@ -307,21 +276,21 @@ func (r *Room) reportDTMF(p *Participant, digit, source string) {
 	}
 	p.lastDigitAt = time.Now()
 	p.dtmfMu.Unlock()
-	if dup {
+	if dup || p.call == nil {
 		return
 	}
-	r.node.emit(r.Ref, Event{"type": "dtmf", "participantRef": p.Ref, "digit": digit, "source": source})
+	p.call.streamDTMF(digit, source)
 }
 
 // servePhone starts receiving a SIP leg's RTP, with RFC 4733 events and, when neither RFC 4733 nor
 // SIP INFO is in use, in-band detection on the decoded audio.
 func (r *Room) servePhone(p *Participant) {
-	if p.media.DTMF < 0 {
-		p.inband = &dtmf.Detector{}
-	}
 	for _, leg := range []any{p.leg, p.out} {
 		if src, ok := leg.(DTMFSource); ok {
-			src.OnDTMF(func(d string) { r.infoDTMF(p, d) })
+			src.OnDTMF(func(d string) {
+				p.infoSeen.Store(true)
+				r.reportDTMF(p, d, SourceSIPInfo)
+			})
 		}
 	}
 	go p.endpoint.Serve(rtpio.Handlers{
@@ -331,15 +300,18 @@ func (r *Room) servePhone(p *Participant) {
 	})
 }
 
-// infoDTMF is a SIP INFO keypress; from then on the leg uses INFO and in-band detection stops.
-func (r *Room) infoDTMF(p *Participant, digit string) {
-	p.infoSeen.Store(true)
-	r.reportDTMF(p, digit, SourceSIPInfo)
+// setMedia records a SIP leg's negotiated media; without telephone-event, keypresses are
+// detected in-band. Called before the participant joins a room.
+func (p *Participant) setMedia(m sdp.Media) {
+	p.media = m
+	if m.DTMF < 0 {
+		p.inband = &dtmf.Detector{}
+	}
 }
 
 // prepareSRTP keys the endpoint when the offer is SAVP (SDES-SRTP is optional: a plain offer
 // stays plain). It returns a SIP status on refusal.
-func (r *Room) prepareSRTP(p *Participant, m sdp.Media) int {
+func prepareSRTP(p *Participant, m sdp.Media) int {
 	if !m.Secure {
 		return 0
 	}
@@ -355,45 +327,9 @@ func (r *Room) prepareSRTP(p *Participant, m sdp.Media) int {
 	return 488
 }
 
-func (r *Room) addPhone(call IncomingCall) (*Participant, int, error) {
-	pt, codecName, ok := call.Media.ChoosePreferred(r.node.cfg.Codecs...)
-	if !ok {
-		return nil, 488, fmt.Errorf("no common codec")
-	}
-	codec, _ := audio.CodecFor(codecName)
-	ep, err := rtpio.Listen(r.node.cfg.RTPHost)
-	if err != nil {
-		return nil, 500, err
-	}
-	if err := ep.Configure(codec, pt, call.Media.DTMF, call.Media.Host, call.Media.Port); err != nil {
-		ep.Close()
-		return nil, 500, err
-	}
-	p := newParticipant(r.node.nextRef("p-caller"), KindPhone, codecName, codec, ep, pt)
-	p.leg, p.media = call.Leg, call.Media
-	if status := r.prepareSRTP(p, call.Media); status != 0 {
-		ep.Close()
-		return nil, status, fmt.Errorf("encryption mismatch")
-	}
-	if err := r.add(p); err != nil {
-		ep.Close()
-		return nil, 500, err
-	}
-	r.servePhone(p)
-	return p, 0, nil
-}
-
-func (r *Room) ring() error {
-	c := r.caller()
-	if c == nil || c.leg == nil {
-		return fmt.Errorf("no caller")
-	}
-	return c.leg.Ring()
-}
-
-// answerSDP is the node's answer for a phone participant.
-func (r *Room) answerSDP(c *Participant) []byte {
-	d := sdp.Description{Host: r.node.cfg.AdvertiseHost, Port: c.endpoint.Port(),
+// answerSDP is the node's answer for an inbound SIP leg.
+func (n *Node) answerSDP(c *Participant) []byte {
+	d := sdp.Description{Host: n.cfg.AdvertiseHost, Port: c.endpoint.Port(),
 		Codecs: []sdp.Codec{{PT: c.pt, Name: c.Codec}}, DTMF: c.media.DTMF}
 	if c.srtpKey != "" {
 		d.Crypto = &sdp.Crypto{Tag: c.cryptoTag, Suite: rtpio.SRTPSuite, Key: c.srtpKey}
@@ -401,263 +337,141 @@ func (r *Room) answerSDP(c *Participant) []byte {
 	return sdp.WriteDescription(d)
 }
 
-func (r *Room) answer() error {
-	c := r.caller()
-	if c == nil || c.leg == nil {
-		return fmt.Errorf("no caller")
-	}
-	c.mu.Lock()
-	already := c.answered
-	c.answered = true
-	c.mu.Unlock()
-	if already {
-		return nil
-	}
-	return c.leg.Answer(r.answerSDP(c))
-}
-
-type replyFn func(Command) Command
-type failFn func(code, message string) Command
-
-// trackKindError refuses tracks of any kind but audio (MN1: v1 is audio only).
-func trackKindError(cmd Command) string {
-	if tracks, ok := cmd["tracks"].([]any); ok {
-		for _, t := range tracks {
-			track, _ := t.(map[string]any)
-			if kind, _ := track["kind"].(string); kind != "" && kind != "audio" {
-				return kind
-			}
-		}
-	}
-	if block, ok := cmd["rtp"].(map[string]any); ok {
-		if kind, _ := block["kind"].(string); kind != "" && kind != "audio" {
-			return kind
-		}
-	}
-	return ""
-}
-
-func (r *Room) addSession(cmd Command, ack replyFn, fail failFn) Command {
-	if kind := trackKindError(cmd); kind != "" {
-		return fail("unsupported_track_kind", kind)
-	}
-	block := parseRTPBlock(cmd["rtp"])
-	if block.host == "" || block.port == 0 || block.codec == "" {
-		return fail("bad_message", "participant.add needs rtp {host, port, codec}")
-	}
-	codec, ok := audio.CodecFor(block.codec)
-	if !ok {
-		return fail("unsupported_codec", block.codec)
-	}
-	if block.ptime != audio.FrameMs {
-		return fail("unsupported_codec", "only ptime 20 is supported")
-	}
-	if block.badSRTP != "" {
-		return fail("bad_message", block.badSRTP)
-	}
-	pt := block.payloadType
-	if pt < 0 {
-		pt = defaultPayloadType(block.codec)
-	}
+// take removes a participant from the room's tables; nil when it is not there.
+func (r *Room) take(ref string) *Participant {
 	r.mu.Lock()
-	full := len(r.participants) >= r.maxParticipants
-	r.mu.Unlock()
-	if full {
-		return fail("room_full", "")
-	}
-	ep, err := rtpio.Listen(r.node.cfg.RTPHost)
-	if err != nil {
-		return fail("internal", err.Error())
-	}
-	if err := ep.Configure(codec, pt, -1, block.host, block.port); err != nil {
-		ep.Close()
-		return fail("bad_message", err.Error())
-	}
-	p := newParticipant(r.node.nextRef("p-session"), KindSession, block.codec, codec, ep, pt)
-	if block.srtpKey != "" {
-		p.srtpKey = rtpio.NewSRTPKey()
-		if err := ep.SetSRTP(p.srtpKey, block.srtpKey); err != nil {
-			ep.Close()
-			return fail("bad_message", err.Error())
-		}
-	}
-	if err := r.add(p); err != nil {
-		ep.Close()
-		if err == errRoomFull {
-			return fail("room_full", "")
-		}
-		return fail("room_not_found", err.Error())
-	}
-	go ep.Serve(rtpio.Handlers{Packet: p.push})
-	id, _ := cmd["id"].(string)
-	r.node.emit(r.Ref, Event{"type": "participant.joined", "id": id, "participantRef": p.Ref, "tracks": p.tracks()})
-	reply := Command{
-		"host": r.node.cfg.AdvertiseHost, "port": ep.Port(), "codec": block.codec,
-		"payloadType": pt, "ptime": block.ptime, "ssrc": ep.SSRC,
-	}
-	if p.srtpKey != "" {
-		reply["srtp"] = Command{"suite": rtpio.SRTPSuite, "key": p.srtpKey}
-	}
-	return ack(Command{"participantRef": p.Ref, "rtp": reply})
-}
-
-// retire closes a participant's endpoint.
-func (r *Room) retire(p *Participant) {
-	p.endpoint.Close()
-}
-
-// remove takes a participant out; a phone participant also gets a BYE.
-func (r *Room) remove(ref, id, reason string) bool {
-	r.mu.Lock()
+	defer r.mu.Unlock()
 	p := r.participants[ref]
 	if p == nil {
-		r.mu.Unlock()
-		return false
+		return nil
 	}
 	delete(r.participants, ref)
+	delete(r.held, ref)
 	for i, o := range r.order {
 		if o == ref {
 			r.order = append(r.order[:i], r.order[i+1:]...)
 			break
 		}
 	}
-	r.mu.Unlock()
-	remoteLeft := reason == ReasonCallerHangup || reason == ReasonCalleeHangup
-	if p.Kind == KindPhone && !remoteLeft {
-		if p.leg != nil {
-			_ = p.leg.Bye()
-		}
-		if p.out != nil {
-			_ = p.out.Bye()
-		}
+	if len(r.participants) == 0 && r.dialing == 0 {
+		r.idleSince = time.Now()
 	}
-	r.retire(p)
-	ev := Event{"type": "participant.left", "participantRef": p.Ref, "reason": reason}
-	if id != "" {
-		ev["id"] = id
+	return p
+}
+
+// remove takes a participant out with cause: a SIP leg gets a BYE unless its side hung up, the
+// RTP endpoint closes and participant.left is reported. A call's leg leaving may end its call.
+func (r *Room) remove(ref, cause string) bool {
+	p := r.take(ref)
+	if p == nil {
+		return false
 	}
-	r.node.emit(r.Ref, ev)
-	r.mu.Lock()
-	remaining := len(r.participants)
-	r.mu.Unlock()
-	if p.Kind == KindPhone && (r.caller() == nil || remaining == 1) {
-		// No phone party left, or one left alone: the call is over (BYE to whoever remains).
-		r.hangupAll(reason, 0, id)
-	}
+	r.retire(p, cause)
 	return true
 }
 
-func (r *Room) callerHungUp() {
-	if c := r.caller(); c != nil {
-		r.remove(c.Ref, "", ReasonCallerHangup)
-	} else {
-		r.end(ReasonCallerHangup, 0, "")
-	}
-}
-
-// hangupAll ends the call: an unanswered caller gets the status (or 480), an answered one a BYE.
-func (r *Room) hangupAll(reason string, status int, id string) {
-	r.mu.Lock()
-	phones := []*Participant{}
-	for _, ref := range r.order {
-		if p := r.participants[ref]; p != nil && p.Kind == KindPhone {
-			phones = append(phones, p)
-		}
-	}
-	r.mu.Unlock()
-	for _, c := range phones {
-		if c.out != nil {
-			_ = c.out.Bye()
-			continue
-		}
-		c.mu.Lock()
-		answered := c.answered
-		c.mu.Unlock()
-		if !answered {
-			if status == 0 {
-				status = 480
+// retire finishes a participant taken out of the room.
+func (r *Room) retire(p *Participant, cause string) {
+	// A SIP participant gets BYE unless its own dialog already ended (its side hung up). Another
+	// party's hang-up (the caller leaving a transferred call) still hangs this one up.
+	if p.Kind == KindPhone {
+		if p.out != nil {
+			if !closed(p.out.Gone()) {
+				_ = p.out.Bye()
 			}
-			_ = c.leg.Reject(status)
-		} else {
-			_ = c.leg.Bye()
+		} else if p.leg != nil && p.answered.Load() && !closed(p.leg.Gone()) {
+			_ = p.leg.Bye()
 		}
 	}
-	r.end(reason, status, id)
+	p.endpoint.Close()
+	r.participantEvent(p, "participant.left", cause)
+	if p.call != nil {
+		p.call.participantLeft(p, cause)
+	}
 }
 
-// end closes every participant and reports room.ended once.
-func (r *Room) end(reason string, status int, id string) {
+// end ends the room: every call in it, every participant and listener; then
+// room.ended (cause, sip_status) and the node forgets it. It runs once.
+func (r *Room) end(cause string, status int) {
 	r.mu.Lock()
 	if r.ended {
 		r.mu.Unlock()
 		return
 	}
 	r.ended = true
-	parts := make([]*Participant, 0, len(r.participants))
-	for _, p := range r.participants {
-		parts = append(parts, p)
+	calls := make([]*call, 0, len(r.calls))
+	for _, c := range r.calls {
+		calls = append(calls, c)
 	}
-	r.participants = map[string]*Participant{}
-	r.order = nil
+	r.mu.Unlock()
+	// Calls still ringing into the room (CreateCall with its room_ref) end with it: their callee
+	// must not open the room again on 200 OK.
+	calls = append(calls, r.node.dialingInto(r)...)
+	for _, c := range calls {
+		c.end(cause, status)
+	}
+	r.mu.Lock()
+	parts := make([]*Participant, 0, len(r.order))
+	for _, ref := range r.order {
+		parts = append(parts, r.participants[ref])
+	}
+	r.participants, r.order, r.held = map[string]*Participant{}, nil, map[string]*hold{}
 	listeners := r.listeners
 	r.listeners = nil
-	var stopped []string
-	for _, pb := range r.plays {
-		stopped = append(stopped, pb.ref)
-	}
-	r.plays = nil
 	r.mu.Unlock()
 	close(r.done)
-	r.playsDone(stopped, OpStopped)
 	for _, p := range parts {
-		r.retire(p)
+		removed := cause
+		if p.Kind == KindRTP {
+			removed = ReasonRemoved
+		}
+		r.retire(p, removed)
 	}
 	for _, fs := range listeners {
 		for _, f := range fs {
 			f.endpoint.Close()
 		}
 	}
-	ev := Event{"type": "room.ended", "reason": reason}
-	if status != 0 {
-		ev["sipStatus"] = status
-	}
-	if id != "" {
-		ev["id"] = id
-	}
-	r.node.emit(r.Ref, ev)
+	// The node frees the room's place before it says so: a controller that reacts to room.ended
+	// at once finds the place free.
 	r.node.roomEnded(r)
+	ev := Event{"cause": cause}
+	if status != 0 {
+		ev["sip_status"] = status
+	}
+	r.event("room.ended", ev)
 }
 
-// setHold cuts the caller off from the others and plays music (or silence) to them (MN17).
-func (r *Room) setHold(held bool, musicURL string) {
-	ref := ""
-	if c := r.caller(); held && c != nil {
-		ref = c.Ref
+// setHold cuts a participant off from the others and loops hold audio (or silence) to it; Resume
+// (held false) restores both directions.
+func (r *Room) setHold(p *Participant, held bool, musicURL string) {
+	if p == nil {
+		return
 	}
 	r.mu.Lock()
-	r.heldRef = ref
-	r.music, r.musicPos = nil, 0
+	if !held {
+		delete(r.held, p.Ref)
+		r.mu.Unlock()
+		return
+	}
+	h := &hold{}
+	r.held[p.Ref] = h
 	r.mu.Unlock()
-	if held && musicURL != "" {
-		go func() {
-			frames, err := r.node.fetchWav(musicURL)
-			if err != nil {
-				r.node.cfg.Logger.Warn("hold music", "url", musicURL, "err", err)
-				return
-			}
-			r.mu.Lock()
-			if r.heldRef != "" {
-				r.music = frames
-			}
-			r.mu.Unlock()
-		}()
+	if musicURL == "" {
+		return
 	}
-}
-
-func (r *Room) sendDTMF(digits string) {
-	if c := r.caller(); c != nil {
-		sendDTMFOn(c, digits)
-	}
+	go func() {
+		frames, err := r.node.fetchHoldAudio(musicURL)
+		if err != nil {
+			r.node.cfg.Logger.Warn("hold music", "url", musicURL, "err", err)
+			return
+		}
+		r.mu.Lock()
+		if r.held[p.Ref] == h {
+			h.music = frames
+		}
+		r.mu.Unlock()
+	}()
 }
 
 // sendDTMFOn sends RFC 4733 events on a SIP leg that negotiated telephone-event.
@@ -668,6 +482,26 @@ func sendDTMFOn(p *Participant, digits string) {
 	for _, d := range digits {
 		p.endpoint.SendDTMF(d, p.media.DTMF)
 	}
+}
+
+// dialStarted and dialEnded bracket a CreateCall dial into this room: a room waiting on a dial
+// is not empty.
+func (r *Room) dialStarted() {
+	r.mu.Lock()
+	r.dialing++
+	r.mu.Unlock()
+}
+
+// dialEnded reports whether the room is now empty with no other dial in progress.
+func (r *Room) dialEnded() (empty bool) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.dialing--
+	empty = r.dialing == 0 && len(r.participants) == 0
+	if empty {
+		r.idleSince = time.Now()
+	}
+	return empty
 }
 
 // maxCatchUp is how many missed 20 ms ticks the clock replays after a stall; beyond that the
@@ -698,7 +532,7 @@ func (r *Room) run() {
 			r.tick()
 			next = next.Add(period)
 			if ticks++; ticks%50 == 0 {
-				r.checkLimits()
+				go r.checkLimits()
 			}
 		}
 		timer.Reset(time.Until(next))
@@ -711,15 +545,20 @@ func (r *Room) tick() {
 	for _, ref := range r.order {
 		parts = append(parts, r.participants[ref])
 	}
-	heldRef := r.heldRef
-	var musicFrame audio.Frame
-	if heldRef != "" && len(r.music) > 0 {
-		musicFrame = r.music[r.musicPos%len(r.music)]
-		r.musicPos++
+	music := make(map[string]audio.Frame, len(r.held))
+	for ref, h := range r.held {
+		var f audio.Frame
+		if len(h.music) > 0 {
+			f = h.music[h.pos%len(h.music)]
+			h.pos++
+		}
+		music[ref] = f
 	}
-	plays, playsDone := r.nextPlayFrames()
+	var forks []fork
+	for _, fs := range r.listeners {
+		forks = append(forks, fs...)
+	}
 	r.mu.Unlock()
-	r.playsDone(playsDone, OpCompleted)
 
 	frames := make([]audio.Frame, len(parts))
 	byTrack := map[int]audio.Frame{}
@@ -732,12 +571,6 @@ func (r *Room) tick() {
 			}
 		}
 	}
-	r.mu.Lock()
-	var forks []fork
-	for _, fs := range r.listeners {
-		forks = append(forks, fs...)
-	}
-	r.mu.Unlock()
 	for _, f := range forks {
 		frame := byTrack[f.trackID]
 		if frame == nil {
@@ -746,8 +579,10 @@ func (r *Room) tick() {
 		f.endpoint.Send(frame)
 	}
 	for i, p := range parts {
-		if p.Ref == heldRef {
-			out := musicFrame
+		if p.Kind == KindPhone && !p.answered.Load() {
+			continue // no early media
+		}
+		if out, held := music[p.Ref]; held {
 			if out == nil {
 				out = audio.Silence()
 			}
@@ -756,51 +591,169 @@ func (r *Room) tick() {
 		}
 		others := make([]audio.Frame, 0, len(parts))
 		for j, q := range parts {
-			if i == j || q.Ref == heldRef {
+			if i == j {
+				continue
+			}
+			if _, held := music[q.Ref]; held {
 				continue
 			}
 			others = append(others, frames[j])
 		}
-		others = playsFor(p.Ref, plays, others)
 		p.endpoint.Send(audio.Mix(others...))
 	}
 }
 
+// checkLimits runs about once a second: the room's maximum duration, the empty-room timeout,
+// and each call's own limits (maximum duration, media timeouts).
 func (r *Room) checkLimits() {
+	now := time.Now()
 	r.mu.Lock()
 	limit := r.maxDuration
+	empty := len(r.participants) == 0 && r.dialing == 0
+	idle := now.Sub(r.idleSince)
+	emptyTimeout := r.emptyTimeout
+	ended := r.ended
 	r.mu.Unlock()
-	if time.Since(r.created) > limit {
-		r.hangupAll(ReasonMaxDuration, 0, "")
+	if ended {
 		return
 	}
-	if why := r.orphaned(); why != "" {
-		r.node.cfg.Logger.Warn("ending a room without an owner", "room", r.Ref, "why", why)
-		r.hangupAll(ReasonNodeError, 0, "")
+	if now.Sub(r.created) > limit {
+		r.end(ReasonMaxDuration, 0)
 		return
 	}
-	c := r.caller()
-	if c == nil {
+	if empty && emptyTimeout > 0 && idle > emptyTimeout {
+		r.node.cfg.Logger.Warn("ending an empty room", "room", r.Ref, "idle", idle.String())
+		r.end(ReasonNodeError, 0)
 		return
 	}
-	c.mu.Lock()
-	answered := c.answered
-	c.mu.Unlock()
-	if answered && time.Since(c.endpoint.LastPacketAt()) > r.node.cfg.MediaTimeout {
-		r.hangupAll(ReasonMediaTimeout, 0, "")
+	for _, c := range r.callList() {
+		c.checkLimits(now)
 	}
 }
 
-// setMaxDuration lowers the room's limit (an app's maxDurationSec); it never raises it.
-func (r *Room) setMaxDuration(cmd Command) {
-	sec, ok := cmd["maxDurationSec"].(float64)
-	if !ok || sec <= 0 {
+// setMaxDuration lowers the room's limit; it never raises it.
+func (r *Room) setMaxDuration(d time.Duration) {
+	if d <= 0 {
 		return
 	}
-	d := time.Duration(sec * float64(time.Second))
 	r.mu.Lock()
 	if d < r.maxDuration {
 		r.maxDuration = d
 	}
 	r.mu.Unlock()
+}
+
+// addListener adds a listen-only participant: one RTP stream per selected track, never
+// mixed, receive-only. ref "" picks one.
+func (r *Room) addListener(ref string, tracks []ListenTrack) (string, error) {
+	if len(tracks) == 0 {
+		return "", errorf(CodeBadMessage, "a listener needs tracks")
+	}
+	var forks []fork
+	closeAll := func() {
+		for _, f := range forks {
+			f.endpoint.Close()
+		}
+	}
+	for _, t := range tracks {
+		codecName := t.RTP.Codec
+		if codecName == "" {
+			codecName = audio.NameL16
+		}
+		codec, ok := audio.CodecFor(codecName)
+		if t.RTP.IP == "" || t.RTP.Port == 0 || !ok {
+			closeAll()
+			return "", errorf(CodeBadMessage, "each track needs rtp {ip, port} and a supported codec")
+		}
+		if t.RTP.SRTPKey != "" && !rtpio.ValidSRTPKey(t.RTP.SRTPKey) {
+			closeAll()
+			return "", errorf(CodeBadMessage, "srtp key must be 30 bytes of base64")
+		}
+		ep, err := rtpio.Listen(r.node.cfg.RTPHost)
+		if err != nil {
+			closeAll()
+			return "", errorf(CodeInternal, "%s", err.Error())
+		}
+		if err := ep.Configure(codec, defaultPayloadType(codecName), -1, t.RTP.IP, t.RTP.Port); err != nil {
+			ep.Close()
+			closeAll()
+			return "", errorf(CodeBadMessage, "%s", err.Error())
+		}
+		if t.RTP.SRTPKey != "" {
+			// A listener only receives, so its own key encrypts what the node sends it.
+			_ = ep.SetSRTP(t.RTP.SRTPKey, t.RTP.SRTPKey)
+		}
+		forks = append(forks, fork{trackID: t.TrackID, endpoint: ep})
+	}
+	if ref == "" {
+		ref = newRef("listener")
+	}
+	r.mu.Lock()
+	if r.ended {
+		r.mu.Unlock()
+		closeAll()
+		return "", errRoomEnded
+	}
+	if r.listeners == nil {
+		r.listeners = map[string][]fork{}
+	}
+	if old := r.listeners[ref]; old != nil {
+		for _, f := range old {
+			f.endpoint.Close()
+		}
+	}
+	r.listeners[ref] = forks
+	r.mu.Unlock()
+	return ref, nil
+}
+
+// removeListener closes a listener's streams; false when there was none.
+func (r *Room) removeListener(ref string) bool {
+	r.mu.Lock()
+	forks, ok := r.listeners[ref]
+	delete(r.listeners, ref)
+	r.mu.Unlock()
+	for _, f := range forks {
+		f.endpoint.Close()
+	}
+	return ok
+}
+
+func defaultPayloadType(codec string) int {
+	if pt := audio.StaticPayloadType(codec); pt >= 0 {
+		return pt
+	}
+	return 96
+}
+
+// String names the room in logs.
+func (r *Room) String() string { return fmt.Sprintf("room %s", r.Ref) }
+
+// closed reports whether ch is closed, without waiting.
+func closed(ch <-chan struct{}) bool {
+	select {
+	case <-ch:
+		return true
+	default:
+		return false
+	}
+}
+
+// dialingInto lists the CreateCall dials still ringing into room r.
+func (n *Node) dialingInto(r *Room) []*call {
+	n.mu.Lock()
+	all := make([]*call, 0, len(n.calls))
+	for _, c := range n.calls {
+		all = append(all, c)
+	}
+	n.mu.Unlock()
+	var out []*call
+	for _, c := range all {
+		c.mu.Lock()
+		if c.dialRoom == r {
+			out = append(out, c)
+		}
+		c.mu.Unlock()
+	}
+	return out
 }

@@ -100,7 +100,6 @@ jobs:
             'mods/appbridge/test/conformance.test.ts' \
             'mods/appbridge/test/integration.test.ts' \
             'mods/appbridge/test/crash.test.ts' \
-            'mods/conformance/test/nats.test.ts' \
             'mods/appbridge/test/gonode.test.ts' \
             'mods/appbridge/test/observability.test.ts' \
             'mods/conformance/test/roomr-secrets.test.ts' \
@@ -134,7 +133,7 @@ jobs:
           path: reports/junit/
           if-no-files-found: ignore
 
-      # The Roomr node's TypeScript suites, with JUnit (for the Roomr QA area when it is brought).
+      # The Roomr node's TypeScript suites (QA catalog area ROM, areas/roomr.md), with JUnit.
       - name: Roomr suites (JUnit in reports/junit)
         env:
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
@@ -145,7 +144,8 @@ jobs:
             --reporter xunit --reporter-option output=reports/junit/roomr-ts.xml \
             'mods/conformance/test/media-control-go.test.ts' \
             'mods/conformance/test/media-control.test.ts' \
-            'mods/conformance/test/roomr-grpc.test.ts'
+            'mods/conformance/test/roomr-grpc.test.ts' \
+            'mods/appbridge/test/srtp.test.ts'
 
       - name: Roomr JUnit
         if: always()
@@ -174,7 +174,6 @@ jobs:
             'mods/conformance/test/regionsScenarios.test.ts' \
             'mods/apiserver/test/regions/regions.test.ts' \
             'mods/region-agent/test/cell.test.ts' \
-            'mods/apiserver/test/events/callEvents.test.ts' \
             'mods/apiserver/test/webhooks/fanout.test.ts' \
             'mods/apiserver/test/webhooks/sharedIntake.test.ts'
 

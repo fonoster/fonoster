@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/room.go b/go/roomr/internal/node/room.go
+index 71119b21a..5159c6d59 100644
+--- a/go/roomr/internal/node/room.go
++++ b/go/roomr/internal/node/room.go
+@@ -564,7 +564,7 @@ func (r *Room) tick() {
+ 		}
+ 	}
+ 	for _, f := range forks {
+-		frame := byTrack[f.trackID]
++		frame := audio.Mix(frames...)
+ 		if frame == nil {
+ 			frame = audio.Silence()
+ 		}

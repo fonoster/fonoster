@@ -1,9 +1,0 @@
-format: fonoster.scenario.v1
-contract: media-control
-role: media-control-client
-name: ack-carries-results
-spec: "media-control runs over NATS request and reply / Ack carries results"
-steps:
-  - send: { type: room.create, id: c1 }
-  - expect: { type: ack, id: c1, roomRef: { $re: ".+" } }
-    within_ms: 2000

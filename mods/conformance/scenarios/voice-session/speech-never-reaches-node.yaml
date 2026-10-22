@@ -13,4 +13,17 @@ steps:
       media.output_audio_ms: { $gt: 500 }
     from: spoke
   - assert:
-      media.commands: { $excludes: [{ type: speak }, { type: play }, { text: "*" }] }
+      # Speaking sends the node nothing: no speech command, no text, and no command that could
+      # carry it (DTMF digits, hold music, a transfer).
+      media.commands:
+        {
+          $excludes:
+            [
+              { type: speak },
+              { type: play },
+              { text: "*" },
+              { type: sendDtmf },
+              { type: hold },
+              { type: transfer }
+            ]
+        }

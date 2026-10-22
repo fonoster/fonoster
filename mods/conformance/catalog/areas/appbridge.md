@@ -3,14 +3,15 @@ prefix: APB
 title: AppBridge and the session protocol
 level: L2 Integration (service)
 tier: pr
-uut: AppBridge (mods/appbridge), the per-call service that speaks the session protocol to apps, runs turn-taking and the Speech layer, and drives a Roomr node over media-control
-tester: The conformance runner, which plays the app against AppBridge with a fake Roomr node and fake STT, TTS and LLM providers on NATS; Mocha integration tests for what needs more than one app or no app (fallback, handoff, outbound, listeners, filters, the call record)
-environment: NATS (CONFORMANCE_NATS_URL); everything else in the test process
+uut: AppBridge (mods/appbridge), the per-call service that speaks the session protocol to apps, runs turn-taking and the Speech layer, and serves each call's control stream from a Roomr node (Session.Connect), with the call's audio as RTP beside it
+tester: The conformance runner, which plays the app against AppBridge with a fake Roomr node (it opens a control stream per call and exchanges RTP) and fake STT, TTS and LLM providers; Mocha integration tests for what needs more than one app or no app (fallback, handoff, outbound, listeners, filters, the call record)
+environment: NATS (CONFORMANCE_NATS_URL) for node heartbeats, events and the session registry; everything else in the test process
 cadence: every pull request that touches AppBridge or a scenario file
 prove: sh mods/conformance/test/appbridge/prove.sh {id} {junitDir}
 capabilities:
   - voice-session
   - turn-taking
+  - control-plane
 contracts:
   - voice-session
   - turn-taking
@@ -20,6 +21,8 @@ tests:
   - mods/appbridge/test/formats.test.ts
   - mods/appbridge/test/amd.test.ts
   - mods/appbridge/test/appDestinations.test.ts
+  - mods/appbridge/test/stream.test.ts
+  - mods/appbridge/test/failedCallRecord.test.ts
 ---
 
 # AppBridge and the session protocol
@@ -49,7 +52,7 @@ flowchart LR
   end
   SC --> R
   R <-->|"signed WebSocket"| AB
-  AB <-->|"media-control on NATS"| NODE
+  NODE <-->|"control stream (gRPC) and RTP"| AB
   AB <-->|"speech"| PROV
 ```
 
@@ -65,11 +68,13 @@ areas are brought:
 | vendors, adapterConformance, catalogProviders, catalogSeed, workspaceKeys, keyUnavailable, cellSecrets | Providers (provider-registry) |
 | testCalls | Dashboard (talk-in-browser) |
 | timing | Media quality (conformance "AppBridge latency pass bar") |
-| gonode, srtp, observability, tracePropagation | Roomr media node, Operations |
+| observability, tracePropagation | Operations |
 | config, apps, appsFreshLookup, openUntilReady | Deployment and operations |
 
-Pure unit tests (pcm, OutputQueue, labels, detectors, replay, turn, signing,
-playFetch) stay unit tests.
+The AppBridge suites through the Go Roomr node (gonode, srtp) are cases of the Roomr area
+(ROM-008, ROM-009, ROM-015, ROM-040). Pure unit tests (pcm, OutputQueue, labels, detectors, replay,
+turn, signing, playFetch, srtpCipher) stay unit tests. Of AppBridge's drain, only what AppBridge
+does is here (APB-030); the control plane's side of it is in the API area.
 
 ## Cases
 
@@ -112,13 +117,17 @@ playFetch) stay unit tests.
 - **Spec:** voice-session / Outbound sessions open at answer / Answered callee
 - **Spec:** voice-session / Outbound sessions open at answer / Busy callee
 - **Priority:** P0
-- **Proof:** Open the app session on call progress, not only on the answer (`AppBridge.ts`); the tests must go red on outbound-busy.
+- **Proof:** Leave the callee's progress out of a failed call's record (`writeFailedCall` in `record/maintenance.ts`); the tests must go red on the busy call's sealed record.
 - **Fault:** faults/APB-003.patch
-- **Test:** mods/appbridge/test/conformance.test.ts, mods/appbridge/test/integration.test.ts
+- **Test:** mods/appbridge/test/conformance.test.ts, mods/appbridge/test/integration.test.ts, mods/appbridge/test/failedCallRecord.test.ts
 - **Runs:** scenarios/voice-session/outbound-answered.yaml
 - **Runs:** scenarios/voice-session/outbound-busy.yaml
 
-**Pass.** The app is dialed only after the callee answers; a busy callee never reaches the app; a callee hang-up is recorded as callee_hangup. **Fail.** An app session for an unanswered call.
+A busy, unanswered or rejected callee never opens a control stream, so no AppBridge hears of it:
+the control plane reads the node's call.ended and has the region's record writer seal the call's
+minimal record (call.started, call.progress, call.failed).
+
+**Pass.** The app is dialed only after the callee answers; a busy callee never reaches the app and its sealed record holds its progress and failure, nothing else; a callee hang-up is recorded as callee_hangup. **Fail.** An app session for an unanswered call, or a failed call without its record.
 
 ### APB-004 Unreachable apps fall back
 
@@ -141,10 +150,12 @@ playFetch) stay unit tests.
 - **Spec:** voice-session / Session ending / App hangs up
 - **Spec:** voice-session / Session ending / Caller hangs up
 - **Spec:** voice-session / AppBridge produces call lifecycle events / Normal call
+- **Spec:** voice-session / Session ending / Node lost
+- **Spec:** voice-session / Session ending / Node's audio stops
 - **Priority:** P0
 - **Proof:** Report a media timeout and a node error as the caller hanging up (`sessionEndReason` in `Call.ts`); the tests must go red on media-timeout-ends-session.
 - **Fault:** faults/APB-005.patch
-- **Test:** mods/appbridge/test/conformance.test.ts, mods/appbridge/test/integration.test.ts
+- **Test:** mods/appbridge/test/conformance.test.ts, mods/appbridge/test/integration.test.ts, mods/appbridge/test/stream.test.ts
 - **Runs:** scenarios/voice-session/app-drops-mid-call.yaml
 - **Runs:** scenarios/voice-session/app-hangup.yaml
 - **Runs:** scenarios/voice-session/caller-hangs-up.yaml
@@ -352,12 +363,12 @@ playFetch) stay unit tests.
 
 - **Spec:** voice-session / The Roomr node receives only control / Speech never reaches the Roomr node
 - **Priority:** P0
-- **Proof:** Send the text to the Roomr node too (`Call.ts`); the test must go red on speech-never-reaches-node.
+- **Proof:** Send the spoken text to the Roomr node as DTMF digits (`dispatch` in `Call.ts`); the test must go red on speech-never-reaches-node.
 - **Fault:** faults/APB-018.patch
 - **Test:** mods/appbridge/test/conformance.test.ts
 - **Runs:** scenarios/voice-session/speech-never-reaches-node.yaml
 
-**Pass.** Speech stays in AppBridge: the node gets only media-control commands. **Fail.** Speech content on the node's subject.
+**Pass.** Speech stays in AppBridge: the node gets only control messages on the call's control stream and audio as RTP. **Fail.** Speech content (text) reaches the node.
 
 ### APB-019 Answering-machine detection reaches the app
 
@@ -471,3 +482,55 @@ playFetch) stay unit tests.
 - **Runs:** scenarios/turn-taking/turn-aware-stt.yaml
 
 **Pass.** A different Detector, or a turn-aware STT as the Detector, drives the same turn events. **Fail.** Turn events tied to one Detector.
+
+### APB-027 AppBridge answers on the control stream, or rejects the call
+
+- **Spec:** voice-session / The Roomr node receives only control / AppBridge answers on the stream
+- **Spec:** voice-session / An app is a WebSocket URL, a protocol and speech defaults / Missing app reference
+- **Priority:** P0
+- **Proof:** Reject a call that names no app with 480 instead of 404 (`AppBridge.ts`); the test must go red on the rejected call.
+- **Fault:** faults/APB-027.patch
+- **Test:** mods/appbridge/test/stream.test.ts
+
+AppBridge takes an inbound call on its control stream: Answer, with its RTP endpoint, only once the
+app has the session, and the caller's audio arrives as RTP. A call whose headers name no app is
+refused on the stream and never dials an app.
+
+**Pass.** Answer follows session.start and carries AppBridge's RTP endpoint, the app hears the caller, and a call naming no app gets Reject 404 with no socket opened. **Fail.** An answer before the app is there, or a call naming no app that is answered or refused with another status.
+
+### APB-028 Every node cause maps to a session ending
+
+- **Spec:** voice-session / Session ending / Every cause mapped
+- **Spec:** voice-session / Session ending / Unknown cause
+- **Priority:** P1
+- **Proof:** Map a cause AppBridge does not know to caller_hangup (`sessionEndReason` in `Call.ts`); the test must go red on the unknown cause.
+- **Fault:** faults/APB-028.patch
+- **Test:** mods/appbridge/test/stream.test.ts
+
+**Pass.** Every Ended cause the node sends maps to its session.end reason (removed after a transfer is transfer), an unknown cause is error, and the record keeps callee_hangup, media_timeout and node_error as they are. **Fail.** A cause that maps to another reason, or an unknown one reported as a hang-up.
+
+### APB-029 An answered outbound call opens from Start and sends Ready
+
+- **Spec:** voice-session / Outbound sessions open at answer / Answered callee
+- **Priority:** P0
+- **Proof:** Ignore the API caller's app_metadata in Start (`appMetadata` in `AppBridge.ts`); the tests must go red on the session's metadata.
+- **Fault:** faults/APB-029.patch
+- **Test:** mods/appbridge/test/stream.test.ts
+
+**Pass.** Start's metadata names the app (app_ref) and carries the API caller's metadata, session.start says outbound with the parties from Start, and AppBridge sends Ready, never Answer. **Fail.** Another app, lost metadata, or Answer on an outbound call.
+
+### APB-030 AppBridge drains on SIGTERM
+
+- **Spec:** control-plane / AppBridge drains on SIGTERM / Health check
+- **Spec:** control-plane / AppBridge drains on SIGTERM / Live sessions survive SIGTERM
+- **Spec:** control-plane / AppBridge drains on SIGTERM / Maximum wait reached
+- **Priority:** P0
+- **Proof:** Keep reporting SERVING while draining (`drain` in `media/SessionServer.ts`); the test must go red on the health check.
+- **Fault:** faults/APB-030.patch
+- **Test:** mods/appbridge/test/stream.test.ts
+
+AppBridge serves grpc.health.v1 on its Session port. A drain turns it NOT_SERVING, so the Service
+sends new calls to other replicas, and keeps live calls until they end or the drain's maximum wait
+passes. The session keys (listen, drainWait, keepalive) and mediaTimeout are read and checked.
+
+**Pass.** SERVING, then NOT_SERVING while draining with the live call kept; the drain ends when the last call does; at the maximum wait what is left ends with error and a hangup on the stream. **Fail.** SERVING while draining, a live call dropped by the drain, or a drain that never ends.

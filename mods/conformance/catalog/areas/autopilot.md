@@ -74,7 +74,7 @@ flowchart LR
 ```
 
 The full-stack case (APT-020) puts the real AppBridge with fake STT and TTS between the runner's
-fake Roomr node, on NATS, and Autopilot.
+fake Roomr node (control stream and RTP; NATS for events) and Autopilot.
 
 ## Hand-off to other areas
 
@@ -332,7 +332,7 @@ had no case.
 - **Fault:** faults/APT-020.patch
 - **Test:** mods/autopilot/test/session/fullstack.integration.test.ts
 
-Caller audio from the fake Roomr node on NATS goes through the real AppBridge (fake STT, turn
+Caller audio from the fake Roomr node (RTP beside its control stream) goes through the real AppBridge (fake STT, turn
 detection, fake TTS, output queue) to Autopilot and the fake LLM. Without NATS the case fails; it
 never skips.
 

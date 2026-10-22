@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/room.go b/go/roomr/internal/node/room.go
+index 71119b21a..022046961 100644
+--- a/go/roomr/internal/node/room.go
++++ b/go/roomr/internal/node/room.go
+@@ -615,7 +615,7 @@ func (r *Room) checkLimits() {
+ 	}
+ 	if empty && emptyTimeout > 0 && idle > emptyTimeout {
+ 		r.node.cfg.Logger.Warn("ending an empty room", "room", r.Ref, "idle", idle.String())
+-		r.end(ReasonNodeError, 0)
++		r.end(ReasonRemoved, 0)
+ 		return
+ 	}
+ 	for _, c := range r.callList() {

@@ -26,10 +26,11 @@ import {
   busWebhookPublisher,
   callFailed,
   callStarted,
-  nodeCallFailedEvent,
   parseBusEvent,
   resolveWorkspace,
-  subscribeWebhookFanout
+  subscribeWebhookFanout,
+  unansweredCallFailed,
+  unansweredOutboundCall
 } from "../../src/webhooks";
 
 /** An in-process bus with queue-group semantics (one subscriber per group gets each message). */
@@ -169,64 +170,75 @@ describe("@common/webhooks bus fan-out (task 2.2)", function () {
   });
 });
 
-// M6: Roomr nodes report unclaimed calls on their own subject; the control plane builds the
-// webhook event and trusts nothing but the call's parties, app and a node reason.
-describe("@common/webhooks node call.failed reports", function () {
-  const enc = (o: unknown) => new TextEncoder().encode(JSON.stringify(o));
-  const report = {
-    type: "call.failed",
-    nodeId: "n1",
-    callRef: "c9",
-    appRef: "support",
-    from: "+15550001111",
-    to: "+15550002222",
-    direction: "inbound",
-    reason: "node_error"
+// M6: an unanswered outbound call reaches no AppBridge; the control plane builds its call.failed
+// from the node's call.ended and trusts nothing but the call's own metadata and the node's cause.
+describe("@common/webhooks unanswered outbound calls (roomr call.ended)", function () {
+  const SUBJECT = "roomr.events.c9";
+  const ended = {
+    type: "call.ended",
+    node_ref: "n1",
+    call_ref: "c9",
+    room_ref: "",
+    seq: 3,
+    cause: "busy",
+    sip_status: 486,
+    answered: false,
+    metadata: {
+      app_ref: "support",
+      from: "+15550001111",
+      to: "+15550002222"
+    }
   };
-  const SUBJECT = "media.n1.events.call-failed";
 
   it("builds a call.failed event whose workspace comes from the app", function () {
-    const e = nodeCallFailedEvent(SUBJECT, enc(report))!;
+    const call = unansweredOutboundCall(SUBJECT, ended)!;
+    expect(call).to.deep.equal({
+      callRef: "c9",
+      appRef: "support",
+      from: "+15550001111",
+      to: "+15550002222",
+      reason: "busy",
+      sipStatus: 486,
+      nodeRef: "n1"
+    });
+    const e = unansweredCallFailed(call);
     expect(e).to.deep.include({ type: "call.failed", workspaceRef: "" });
     expect(e.data).to.deep.equal({
       callRef: "c9",
       appRef: "support",
       from: "+15550001111",
       to: "+15550002222",
-      direction: "inbound",
-      reason: "node_error"
+      direction: "outbound",
+      reason: "busy"
     });
     expect(e.id).to.match(/^evt_node_[0-9a-f]{32}$/);
-    // A repeated report is the same event (delivered once).
-    expect(nodeCallFailedEvent(SUBJECT, enc(report))!.id).to.equal(e.id);
+    // Every replica builds the same event (delivered once).
+    expect(unansweredCallFailed(call).id).to.equal(e.id);
   });
 
-  it("ignores a workspace, an event type or extra data the node claims", function () {
-    const e = nodeCallFailedEvent(
-      SUBJECT,
-      enc({ ...report, workspaceRef: "WS-victim", extra: "x" })
-    )!;
-    expect(e.workspaceRef).to.equal("");
-    expect(e.data).not.to.have.property("extra");
-    for (const type of ["call.started", "call.ended", "call_record.sealed"])
-      expect(nodeCallFailedEvent(SUBJECT, enc({ ...report, type }))).to.equal(
-        undefined
-      );
+  it("ignores a workspace or extra data the node claims, and maps unknown causes to node_error", function () {
+    const call = unansweredOutboundCall(SUBJECT, {
+      ...ended,
+      cause: "weird",
+      workspaceRef: "WS-victim",
+      metadata: { ...ended.metadata, workspace_ref: "WS-victim" }
+    })!;
+    expect(call.reason).to.equal("node_error");
+    expect(unansweredCallFailed(call).workspaceRef).to.equal("");
+    expect(unansweredCallFailed(call).data).not.to.have.property(
+      "workspaceRef"
+    );
   });
 
-  it("refuses reports that do not name the subject's node, or are malformed", function () {
-    const none = (subject: string, body: unknown) =>
-      expect(nodeCallFailedEvent(subject, enc(body))).to.equal(undefined);
-    none(SUBJECT, { ...report, nodeId: "n2" });
-    none("media.n1.events.room-1", report);
-    none("webhooks.events", report);
-    none(SUBJECT, { ...report, appRef: "" });
-    none(SUBJECT, { ...report, callRef: 7 });
-    none(SUBJECT, { ...report, reason: "busy" });
-    none(SUBJECT, { ...report, direction: "sideways" });
-    none(SUBJECT, { ...report, to: "x".repeat(300) });
-    expect(
-      nodeCallFailedEvent(SUBJECT, new TextEncoder().encode("{"))
-    ).to.equal(undefined);
+  it("refuses answered calls, calls it did not place, other events and other subjects", function () {
+    const none = (subject: string, body: Record<string, unknown>) =>
+      expect(unansweredOutboundCall(subject, body)).to.equal(undefined);
+    none(SUBJECT, { ...ended, answered: true });
+    none(SUBJECT, { ...ended, metadata: {} });
+    none(SUBJECT, { ...ended, type: "call.ringing" });
+    none(SUBJECT, { ...ended, call_ref: "c10" });
+    none("roomr.events.room.c9", ended);
+    none("webhooks.events", ended);
+    none(SUBJECT, { ...ended, call_ref: "x".repeat(300) });
   });
 });

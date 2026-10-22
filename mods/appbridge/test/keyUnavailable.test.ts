@@ -71,7 +71,6 @@ describe("@AppBridge unreadable workspace keys", function () {
   beforeEach(async () => {
     harness = await new FakesHarness().start();
     harness.roomrNode.configure({ callerAudio: { kind: "tone", ms: 400 } });
-    harness.roomrNode.attachNats(nc);
     record = new MemoryCallRecordSink();
   });
 
@@ -88,6 +87,7 @@ describe("@AppBridge unreadable workspace keys", function () {
     appbridge = await new AppBridge({
       config: {
         nats: { url: NATS_URL! },
+        session: { listen: "127.0.0.1:0" },
         retry: { windowMs: 300, intervalMs: 100 },
         apps: [
           {
@@ -126,23 +126,24 @@ describe("@AppBridge unreadable workspace keys", function () {
         }
       }
     }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
   }
 
-  const events = (roomRef: string) =>
-    (record.records.get(roomRef) ?? []).map(
+  const events = (callRef: string) =>
+    (record.records.get(callRef) ?? []).map(
       (e) => e.message as Record<string, unknown>
     );
 
   it("rejects the call before answering when the app's voice key can't be read", async () => {
     await start({}, ["fake"]);
-    const { roomRef } = harness.roomrNode.offerCall();
+    const { callRef } = await harness.roomrNode.offerCall();
     await waitFor(
-      () => harness.roomrNode.sipStatuses(roomRef).includes(503),
+      () => harness.roomrNode.sipStatuses(callRef).includes(503),
       8000
     );
-    expect(harness.roomrNode.sipStatuses(roomRef)).to.not.include(200);
+    expect(harness.roomrNode.sipStatuses(callRef)).to.not.include(200);
     const failed = await waitFor(() =>
-      events(roomRef).find((m) => m.type === "call.failed")
+      events(callRef).find((m) => m.type === "call.failed")
     );
     expect(failed).to.include({ reason: "key_unavailable", provider: "fake" });
     expect(harness.tts.synthesized).to.have.length(0);
@@ -150,14 +151,14 @@ describe("@AppBridge unreadable workspace keys", function () {
 
   it("proceeds on the platform key when the workspace has no key", async () => {
     await start({}, []);
-    harness.roomrNode.offerCall();
+    await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
   });
 
   it("answers speak with key_unavailable for a voice whose key can't be read", async () => {
     await start({}, ["fake2"]);
-    const { roomRef } = harness.roomrNode.offerCall();
+    const { callRef } = await harness.roomrNode.offerCall();
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     peer.sendJson({
@@ -172,18 +173,18 @@ describe("@AppBridge unreadable workspace keys", function () {
     );
     expect(error).to.include({ code: "key_unavailable", fatal: false });
     expect(harness.tts.synthesized).to.have.length(0);
-    harness.roomrNode.callerHangup(roomRef);
+    harness.roomrNode.callerHangup(callRef);
   });
 
   it("rejects the call when a noise-cancelling filter's key can't be read", async () => {
     await start({ filters: [{ name: "test-nc-key" }] }, ["fakenc"]);
-    const { roomRef } = harness.roomrNode.offerCall();
+    const { callRef } = await harness.roomrNode.offerCall();
     await waitFor(
-      () => harness.roomrNode.sipStatuses(roomRef).includes(503),
+      () => harness.roomrNode.sipStatuses(callRef).includes(503),
       8000
     );
     const failed = await waitFor(() =>
-      events(roomRef).find((m) => m.type === "call.failed")
+      events(callRef).find((m) => m.type === "call.failed")
     );
     expect(failed).to.include({
       reason: "key_unavailable",

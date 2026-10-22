@@ -3,7 +3,6 @@ package e2e
 import (
 	"bufio"
 	"context"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -14,17 +13,16 @@ import (
 	"time"
 
 	"github.com/fonoster/fonoster/go/roomr/internal/caller"
-	"github.com/nats-io/nats.go"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 )
 
-// TestSIGTERMDrainsTheRealBinary runs the roomr binary from a config file alone (-config is its
+// TestROM032_SIGTERMDrainsTheRealBinary runs the roomr binary from a config file alone (-config is its
 // only flag) and checks the rollout model: on SIGTERM the health service turns NOT_SERVING, the
 // registration is removed (REGISTER Expires 0), the heartbeats stop with node.down, the live
 // room keeps running, and the process exits once the room has ended.
-func TestSIGTERMDrainsTheRealBinary(t *testing.T) {
+func TestROM032_SIGTERMDrainsTheRealBinary(t *testing.T) {
 	url := os.Getenv("CONFORMANCE_NATS_URL")
 	if url == "" {
 		t.Skip("set CONFORMANCE_NATS_URL to run")
@@ -37,6 +35,7 @@ func TestSIGTERMDrainsTheRealBinary(t *testing.T) {
 	nodeID := fmt.Sprintf("drain-%d", time.Now().UnixNano())
 	sipPort, grpcPort := freePort(t), freePort(t)
 	reg := startRegistrar(t, "", "")
+	app := startApp(t) // answers every call, so the room stays up
 	cfg := fmt.Sprintf(`
 nodeId: %s
 nats: { url: "%s" }
@@ -49,9 +48,10 @@ sip:
       headers: { X-Session-Count: "{sessions}" }
 rtp: { host: 127.0.0.1, advertise: 127.0.0.1 }
 control: { grpc: { listen: "127.0.0.1:%d" } }
+sessionEndpoint: "%s"
 heartbeatInterval: 200ms
 drainWait: 30s
-`, nodeID, url, sipPort, reg.addr, grpcPort)
+`, nodeID, url, sipPort, reg.addr, grpcPort, app.addr)
 	cfgPath := filepath.Join(dir, "roomr.yaml")
 	if err := os.WriteFile(cfgPath, []byte(cfg), 0o600); err != nil {
 		t.Fatal(err)
@@ -86,21 +86,7 @@ drainWait: 30s
 		t.Fatal("roomr was not ready")
 	}
 
-	nc, err := nats.Connect(url)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer nc.Close()
 	beats := replica(t, "roomr.nodes."+nodeID+".heartbeat")
-	// AppBridge claims every call, so the room stays up.
-	sub, _ := nc.Subscribe("appbridge.incoming", func(m *nats.Msg) {
-		var ev map[string]any
-		if json.Unmarshal(m.Data, &ev) == nil && ev["nodeId"] == nodeID {
-			_ = m.Respond([]byte(`{"type":"claimed","bridgeRef":"gw-drain"}`))
-		}
-	})
-	defer func() { _ = sub.Unsubscribe() }()
-	_ = nc.Flush()
 
 	conn, err := grpc.NewClient(fmt.Sprintf("127.0.0.1:%d", grpcPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -126,10 +112,11 @@ drainWait: 30s
 		t.Fatal(err)
 	}
 	defer bot.Close()
-	call, err := bot.Dial(fmt.Sprintf("127.0.0.1:%d", sipPort), "+15550009999", "", map[string]string{"X-App-Ref": "app-drain"})
+	call, err := bot.Dial(fmt.Sprintf("127.0.0.1:%d", sipPort), "+15550009999", "", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
+	app.callTo("+15550009999")
 	waitRooms := func(want float64) {
 		t.Helper()
 		deadline := time.After(5 * time.Second)

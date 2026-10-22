@@ -1,7 +1,7 @@
 package e2e
 
 // Review fixes on the SIP side (RV-B1, RV-B7, RV-B9): malformed requests, dialog matching for
-// INFO, trusted INVITE sources and dialog cleanup.
+// INFO and dialog cleanup.
 
 import (
 	"fmt"
@@ -61,39 +61,39 @@ Signal=5
 `, target, time.Now().UnixNano(), target, callHdr, extra)
 }
 
-func TestMalformedInfoDoesNotKillTheNode(t *testing.T) {
+func TestROM010_MalformedInfoDoesNotKillTheNode(t *testing.T) {
 	r := start(t)
 	if got := rawRequest(t, r.sip, infoRequest(r.sip, "", "")); !strings.Contains(got, "400") {
 		t.Fatalf("INFO without Call-ID answered %q, want 400", got)
 	}
 	// An answered call: an INFO with its Call-ID but foreign tags is not part of the dialog.
-	call, room, _ := r.answeredCallWith(caller.DialOptions{NoTelephoneEvent: true}, "")
+	call, ac := r.answeredCallWith(caller.DialOptions{NoTelephoneEvent: true}, false)
 	if got := rawRequest(t, r.sip, infoRequest(r.sip, call.SIPCallID(), "")); !strings.Contains(got, "481") {
 		t.Fatalf("INFO with a foreign dialog answered %q, want 481", got)
 	}
 	time.Sleep(200 * time.Millisecond)
-	if n := r.count(typed("dtmf", "roomRef", room)); n != 0 {
-		t.Fatalf("%d dtmf events from an out-of-dialog INFO", n)
+	if n := ac.countMsgs(dtmfMsg("", "")); n != 0 {
+		t.Fatalf("%d dtmf messages from an out-of-dialog INFO", n)
 	}
 	// The node is still alive and in-dialog INFO still works.
 	call.DTMFVia("7", "info")
-	r.waitEvent(typed("dtmf", "roomRef", room, "digit", "7", "source", "sip_info"), 2*time.Second)
+	ac.waitMsg(t, dtmfMsg("7", "sip_info"), 2*time.Second)
 	_ = call.Hangup()
 }
 
-func TestUnansweredDialogsAreClosed(t *testing.T) {
+func TestROM002_UnansweredDialogsAreClosed(t *testing.T) {
 	r := start(t)
-	// Rejected by AppBridge.
+	// Rejected by the app.
+	r.app.setMode(modeReject)
 	call, _ := r.bot.Dial(r.sip, "+1", "", nil)
-	incoming := r.waitEvent(typed("call.incoming"), 2*time.Second)
-	r.command(map[string]any{"type": "hangup", "id": "hx", "roomRef": incoming["roomRef"], "sipStatus": 404})
 	waitStatus(t, call, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
-	// Unclaimed: 503.
-	r.mu.Lock()
-	r.claim = false
-	r.mu.Unlock()
+	// The stream fails at once: 503.
+	r.app.setMode(modeKill)
 	call2, _ := r.bot.Dial(r.sip, "+2", "", nil)
-	waitStatus(t, call2, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
+	s := waitStatus(t, call2, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
+	if !contains(s.SIP, 503) {
+		t.Fatalf("caller statuses %v", s.SIP)
+	}
 	deadline := time.Now().Add(3 * time.Second)
 	for r.ua.OpenDialogs() != 0 && time.Now().Before(deadline) {
 		time.Sleep(20 * time.Millisecond)

@@ -155,6 +155,14 @@ services:
       - secrets:/var/lib/fonoster-secrets:ro
       # Call records in flight (config/appbridge.yaml callRecord.dir), kept across recreation.
       - records:/var/lib/fonoster/records
+    # Ready = the Session port (50071, roomr.yaml's sessionEndpoint) answers SERVING;
+    # NOT_SERVING while draining after SIGTERM.
+    healthcheck:
+      test: ["CMD", "node", "/work/mods/appbridge/dist/healthcheck.js"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    stop_grace_period: ${RB_DRAIN_GRACE:-11m}
     networks:
       default:
         ipv4_address: ${RB_NET:-10.216.17}.43

@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	roomrv1 "github.com/fonoster/fonoster/go/roomr/api/roomr/v1"
 	"github.com/fonoster/fonoster/go/roomr/internal/audio"
 	"github.com/fonoster/fonoster/go/roomr/internal/caller"
 	"github.com/fonoster/fonoster/go/roomr/internal/node"
@@ -21,71 +22,72 @@ func needOpus(t *testing.T) {
 	}
 }
 
-// bothWays checks freq from the caller reaches the session participant and the participant's
-// audio reaches the caller.
-func bothWays(t *testing.T, call *caller.Call, g *appbridge, freq float64) {
+// bothWays checks freq from the caller reaches the app and the app's audio reaches the caller.
+func bothWays(t *testing.T, call *caller.Call, ac *appCall, freq float64) {
 	t.Helper()
 	call.Speak("tone:"+strconv.FormatFloat(freq, 'f', -1, 64), 600)
 	time.Sleep(900 * time.Millisecond)
-	if got := g.m.get(freq); got < 15 {
-		t.Fatalf("session participant heard %d frames of the caller's %.0f Hz tone", got, freq)
+	if got := ac.m.get(freq); got < 15 {
+		t.Fatalf("the app heard %d frames of the caller's %.0f Hz tone", got, freq)
 	}
 	before := call.Status().AudibleMs
-	g.play(1000, 500)
+	ac.play(1000, 500)
 	time.Sleep(200 * time.Millisecond)
 	if got := call.Status().AudibleMs - before; got < 300 {
-		t.Fatalf("caller heard %d ms of the session participant", got)
+		t.Fatalf("caller heard %d ms of the app", got)
 	}
 }
 
-func TestOpusPreferredWhenOffered(t *testing.T) {
+func TestROM009_OpusPreferredWhenOffered(t *testing.T) {
 	needOpus(t)
 	r := start(t)
 	// PCMU listed first: the node still answers with Opus, its first choice.
-	call, room, g := r.answeredCallWith(caller.DialOptions{Codecs: []string{audio.NamePCMU, "opus/48000"}}, "")
+	call, g := r.answeredCallWith(caller.DialOptions{Codecs: []string{audio.NamePCMU, "opus/48000"}}, false)
+	room := g.start.GetRoomRef()
 	if s := call.Status(); s.Codec != audio.NameOpus {
 		t.Fatalf("answered with %q, want Opus", s.Codec)
 	}
 	// 6 kHz is above G.711's band: it only arrives because the leg is wideband.
 	bothWays(t, call, g, 6000)
 	_ = call.Hangup()
-	r.waitEvent(typed("room.ended", "roomRef", room), 3*time.Second)
+	r.waitEvent(typed("room.ended", "room_ref", room), 3*time.Second)
 }
 
-func TestG711OnlyCallerGetsPCMU(t *testing.T) {
+func TestROM009_G711OnlyCallerGetsPCMU(t *testing.T) {
 	r := start(t)
-	call, room, g := r.answeredCallWith(caller.DialOptions{Codecs: []string{audio.NamePCMA, audio.NamePCMU}}, "")
+	call, g := r.answeredCallWith(caller.DialOptions{Codecs: []string{audio.NamePCMA, audio.NamePCMU}}, false)
+	room := g.start.GetRoomRef()
 	if s := call.Status(); s.Codec != audio.NamePCMU {
 		t.Fatalf("answered with %q, want PCMU (the node's order among what was offered)", s.Codec)
 	}
 	bothWays(t, call, g, 1000)
 	_ = call.Hangup()
-	r.waitEvent(typed("room.ended", "roomRef", room), 3*time.Second)
+	r.waitEvent(typed("room.ended", "room_ref", room), 3*time.Second)
 }
 
-func TestOpusDisabledByConfig(t *testing.T) {
+func TestROM009_OpusDisabledByConfig(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.Codecs = []string{audio.NamePCMU, audio.NamePCMA} }})
-	call, room, _ := r.answeredCallWith(caller.DialOptions{Codecs: []string{"opus/48000", audio.NamePCMA}}, "")
+	call, ac := r.answeredCallWith(caller.DialOptions{Codecs: []string{"opus/48000", audio.NamePCMA}}, false)
+	room := ac.start.GetRoomRef()
 	if s := call.Status(); s.Codec != audio.NamePCMA {
 		t.Fatalf("answered with %q, want PCMA with Opus disabled", s.Codec)
 	}
 	_ = call.Hangup()
-	r.waitEvent(typed("room.ended", "roomRef", room), 3*time.Second)
+	r.waitEvent(typed("room.ended", "room_ref", room), 3*time.Second)
 }
 
-// dialed dials the callee bot into a room with a session participant and returns both.
-func (r *rig) dialed(id string) (*caller.Call, *appbridge, string) {
-	room := r.command(map[string]any{"type": "room.create", "id": "c-" + id})["roomRef"].(string)
-	g, rep := r.addSession(room, "")
-	if rep["type"] != "ack" {
-		r.t.Fatalf("participant.add: %v", rep)
+// dialed dials the callee bot with CreateCall and returns the callee's call and the app's side.
+func (r *rig) dialed(id string) (*caller.Call, *appCall, string) {
+	call, err := r.mc.CreateCall(rpcCtx(r.t), &roomrv1.CreateCallRequest{CallRef: id + "-" + r.node.ID(),
+		To: &roomrv1.SipTarget{Uri: "sip:+15551234567@carrier.invalid"}})
+	if err != nil {
+		r.t.Fatal(err)
 	}
-	r.command(map[string]any{"type": "participant.dial", "id": id, "roomRef": room, "to": "+15551234567"})
-	r.waitEvent(typed("participant.joined", "id", id), 3*time.Second)
-	return r.calleeCall(), g, room
+	r.waitEvent(typed("call.answered", "call_ref", call.CallRef), 3*time.Second)
+	return r.calleeCall(), r.app.callRef(call.CallRef), call.RoomRef
 }
 
-func TestDialNegotiatesTheCalleesPick(t *testing.T) {
+func TestROM009_DialNegotiatesTheCalleesPick(t *testing.T) {
 	t.Run("opus-capable callee", func(t *testing.T) {
 		needOpus(t)
 		r := start(t)

@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/node/room.go b/go/roomr/internal/node/room.go
+index 71119b21a..ebb6765b9 100644
+--- a/go/roomr/internal/node/room.go
++++ b/go/roomr/internal/node/room.go
+@@ -312,7 +312,7 @@ func (p *Participant) setMedia(m sdp.Media) {
+ // prepareSRTP keys the endpoint when the offer is SAVP (SDES-SRTP is optional: a plain offer
+ // stays plain). It returns a SIP status on refusal.
+ func prepareSRTP(p *Participant, m sdp.Media) int {
+-	if !m.Secure {
++	if true {
+ 		return 0
+ 	}
+ 	for _, c := range m.Crypto {

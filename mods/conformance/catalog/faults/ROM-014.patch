@@ -1,0 +1,14 @@
+diff --git a/go/roomr/internal/node/dial.go b/go/roomr/internal/node/dial.go
+index ce3c53e2e..bd710d3ed 100644
+--- a/go/roomr/internal/node/dial.go
++++ b/go/roomr/internal/node/dial.go
+@@ -176,9 +176,6 @@ func (c *call) transfer(t *sessionv1.Transfer) {
+ 			err = c.joinParty(room, p)
+ 		}
+ 		if err != nil {
+-			if warm {
+-				room.setHold(leg, false, "")
+-			}
+ 			status := dialStatus(err)
+ 			c.streamTransferResult("failed", failCause(status), status)
+ 			return

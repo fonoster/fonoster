@@ -53,6 +53,14 @@ type Bot struct {
 	authUser, authPass string
 	// challenged counts the INVITEs the bot answered with 401.
 	challenged int
+	// challengeStatus is 401 (WWW-Authenticate, default) or 407 (Proxy-Authenticate).
+	challengeStatus int
+	// invites records every INVITE the bot received as the callee, answered or not (trunk.go).
+	invites []InviteSeen
+	// registrar: every REGISTER the bot received, and the digest it requires (trunk.go).
+	registers        []RegisterSeen
+	regUser, regPass string
+	regChallenged    int
 }
 
 // AnswerCodecs limits the codecs the bot accepts as a callee (e.g. PCMU only, like a G.711
@@ -121,6 +129,8 @@ type Call struct {
 	audibleAt []time.Time
 	digits    string
 	pending   []audio.Frame
+	// muted: the call sends no RTP at all (a silent leg, for media timeouts).
+	muted bool
 	// spokeUntil is when the last queued frame went out (zero while speaking or before any).
 	spokeUntil time.Time
 	// heardPCM keeps what the caller heard (up to maxHeardFrames), for transcribing replies.
@@ -247,6 +257,7 @@ func NewWithOptions(o Options) (*Bot, error) {
 		_ = b.inbound.ReadAck(req, tx)
 	})
 	srv.OnInvite(b.onInvite)
+	srv.OnRegister(b.onRegister)
 	srv.OnRefer(func(req *sip.Request, tx sip.ServerTransaction) {
 		target := ""
 		if h := req.GetHeader("Refer-To"); h != nil {
@@ -422,9 +433,16 @@ func (c *Call) await(ctx context.Context, key string) {
 		if e, ok := err.(*sipgo.ErrDialogResponse); ok {
 			final = e
 		}
+		status := 0
+		if final != nil {
+			status = int(final.Res.StatusCode)
+		} else if res := c.session.InviteResponse; res != nil && res.StatusCode >= 300 {
+			// Our own CANCEL: sipgo waits for the 487 and keeps it as the INVITE's response.
+			status = int(res.StatusCode)
+		}
 		c.mu.Lock()
-		if final != nil && (len(c.statuses) == 0 || c.statuses[len(c.statuses)-1] != int(final.Res.StatusCode)) {
-			c.statuses = append(c.statuses, int(final.Res.StatusCode))
+		if status != 0 && (len(c.statuses) == 0 || c.statuses[len(c.statuses)-1] != status) {
+			c.statuses = append(c.statuses, status)
 		}
 		c.state = "ended"
 		c.mu.Unlock()
@@ -506,6 +524,10 @@ func (c *Call) talk() {
 		case <-t.C:
 		}
 		c.mu.Lock()
+		if c.muted {
+			c.mu.Unlock()
+			continue
+		}
 		var f audio.Frame
 		if len(c.pending) > 0 {
 			f, c.pending = c.pending[0], c.pending[1:]
@@ -682,10 +704,12 @@ func (b *Bot) onInvite(req *sip.Request, tx sip.ServerTransaction) {
 	b.mu.Lock()
 	mode, after := b.answerMode, b.answerAfter
 	user, pass := b.authUser, b.authPass
+	b.recordInviteLocked(req)
 	if pass != "" && !authorized(req, user, pass) {
 		b.challenged++
+		status := b.challengeStatus
 		b.mu.Unlock()
-		challenge(req, tx)
+		challenge(req, tx, status)
 		return
 	}
 	b.seq++

@@ -1,0 +1,13 @@
+diff --git a/go/roomr/internal/sipua/register.go b/go/roomr/internal/sipua/register.go
+index b70f6fcf9..977bdd155 100644
+--- a/go/roomr/internal/sipua/register.go
++++ b/go/roomr/internal/sipua/register.go
+@@ -291,7 +291,7 @@ func (u *UA) send(ctx context.Context, r *registration, expires int) (int, error
+ 			return int(res.StatusCode), fmt.Errorf("REGISTER challenged (%d) and no auth is configured", res.StatusCode)
+ 		}
+ 		user := orDefault(r.cfg.Username, r.aor.User)
+-		res, err = u.client.DoDigestAuth(cctx, req, res, sipgo.DigestAuth{Username: user, Password: r.cfg.Password})
++		res, err = u.client.DoDigestAuth(cctx, req, res, sipgo.DigestAuth{Username: user, Password: r.cfg.Password + "-"})
+ 		if err != nil {
+ 			return 0, err
+ 		}

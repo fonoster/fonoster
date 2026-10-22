@@ -1,0 +1,13 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: plain-by-default
+spec: "SIP TLS and SRTP are optional and off by default / Plain by default"
+description: "With no tls configured, an INVITE over UDP offering plain RTP is answered with plain RTP. The encrypted case (SIP over TLS offering SDES-SRTP) needs certificates and runs in go/roomr/e2e (TestROM007_EncryptedCall)."
+steps:
+  - caller: { call: { appRef: app-1 } }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+  - assert:
+      caller.sip: [180, 200]
+      caller.secure: false

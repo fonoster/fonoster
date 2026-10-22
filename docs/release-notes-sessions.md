@@ -51,12 +51,11 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
    URL in the file, as a placeholder if it lives in the environment:
    `database: { url: "${APISERVER_DATABASE_URL}" }`. `database.urlEnv` is refused at start with
    that hint, and a `database` section without `url` is refused too.
-3. **Roomr node: `ROOMR_*` variables are no longer read.** Every setting is a key in
-   `roomr.yaml` (`/config/roomr.yaml`, or `-config <file>`) or a flag; flags still win.
-   To keep a value in the environment, reference it in the file (`nodeId: "${ROOMR_ID}"`,
-   `registration: { password: "${ROOMR_PASSWORD}" }`) or pass it as
-   `secret://env/NAME` for the passwords and TLS PEM settings. At start the node logs, by name
-   only, every `ROOMR_*` variable that the file and flags do not reference. The Helm chart
+3. **Roomr node: `ROOMR_*` variables and flags are no longer read.** Every setting is a key in
+   `roomr.yaml` (`/config/roomr.yaml`, or `-config <file>`, the only flag). To keep a value in
+   the environment, reference it in the file (`nodeId: "${ROOMR_ID}"`,
+   `auth: { password: "${ROOMR_PASSWORD}" }` in a `sip.registrations` entry) or pass it as
+   `secret://env/NAME` for the passwords and TLS PEM settings. The Helm chart
    now renders `roomr.yaml` as a ConfigMap (the `roomr.*` values are unchanged) and the
    cell's Compose file mounts `ops/rebuild/cell/config/roomr.yaml`.
 
@@ -88,7 +87,24 @@ environment only where the file references it as `${VAR}` or `secret://env/VAR`
   data plane and upgrades it; the region links to the control plane only through an outbound NATS
   leaf node ([Running a region](./operators/regions.md)).
 - **Telemetry**: every service exports OTLP when `OTEL_EXPORTER_OTLP_ENDPOINT` is set; a call's trace
-  runs from the Roomr node through AppBridge (a `traceparent` NATS header).
+  starts in AppBridge, under the incoming call's `traceparent` header when it has one.
+- **Roomr is the SIP and media edge (redesign-roomr).** Call control left NATS: the apiserver
+  calls the node's `Roomr` gRPC service (`CreateCall`, `EndCall`, `CreateRoom`, `EndRoom`,
+  `AddParticipant`, `RemoveParticipant`) on port 50061, and each call opens one control stream
+  from the node to AppBridge's `Session` service on port 50071 (a Kubernetes Service; AppBridge
+  needs no NATS subject to take a call). NATS carries only the node's heartbeats
+  (`roomr.nodes.<node>.heartbeat`) and events (`roomr.events.<call>`,
+  `roomr.events.room.<room>`). Retired, with no compatibility path: `appbridge.incoming`,
+  `appbridge.outbound`, `appbridge.heartbeat`, the `media.<node>.commands` subjects, the
+  `appbridges.<ref>` registry lease and the node's session-registry entries; the node's `Play`,
+  `Record` and `Stop` commands (apps play their own audio and record with a listener); and the
+  `roomr.yaml` keys `trustedSources`, `allowedDestinations`, `ownerTimeout`, `onMissingRoom`,
+  `requireEncryption`, `sessionRegistry`, `debugAddr`, `outboundTransport`, `callDedupeWindow`,
+  `tls.clientCa`, the `registration` block and a top-level `outboundProxy` (the node refuses them
+  at start). Update the node, AppBridge, the apiserver and the region agent together; nodes and
+  AppBridge must reach each other on 50071 and the RTP range (the chart's NetworkPolicy does
+  this), and only the apiserver may reach a node's control port (docs/operators/rebuild.md,
+  "Network isolation").
 
 ## Isolation between services
 

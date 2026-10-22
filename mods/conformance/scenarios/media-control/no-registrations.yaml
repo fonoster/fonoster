@@ -1,0 +1,16 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: no-registrations
+spec: "Registration is optional and configured / No registrations"
+steps:
+  - wait: { ms: 800 }
+  - assert:
+      registrar.registers: []
+  - caller: { call: { to: "+15550001", appRef: app-1 } }
+  - expect: { type: stream.start, direction: INBOUND }
+    within_ms: 3000
+    capture: { room: room_ref, call: call_ref }
+  - expect: { type: stream.participant_joined, track_id: 2 }
+    within_ms: 3000
+    capture: { app_leg: participant_ref }

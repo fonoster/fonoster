@@ -41,6 +41,11 @@ spec:
               valueFrom: { fieldRef: { fieldPath: metadata.name } }
             - name: HOST_IP
               valueFrom: { fieldRef: { fieldPath: status.hostIP } }
+            {{- if not $m.hostNetwork }}
+            # On the pod network the control address the node advertises is the pod's own.
+            - name: POD_IP
+              valueFrom: { fieldRef: { fieldPath: status.podIP } }
+            {{- end }}
             - name: ROUTR_PEER_PASSWORD
               valueFrom: { secretKeyRef: { name: {{ $m.routr.passwordSecret | quote }}, key: password, optional: true } }
             {{- include "fonoster-rebuild.natsPasswordEnv" (dict "root" $ "user" "roomr") | nindent 12 }}

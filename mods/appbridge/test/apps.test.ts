@@ -273,7 +273,6 @@ describe("@appbridge apps", function () {
 
       it("routes a call to a database app and delivers call.started from the database endpoint", async function () {
         harness = await new FakesHarness().start();
-        harness.roomrNode.attachNats(nc);
         receiver = await new FakeWebhookReceiver().start();
         await encrypted.application.update({
           where: { ref: "support" },
@@ -303,6 +302,7 @@ describe("@appbridge apps", function () {
         appbridge = await new AppBridge({
           config: {
             nats: { url: process.env.CONFORMANCE_NATS_URL! },
+            session: { listen: "127.0.0.1:0" },
             providers: {
               fake: {
                 adapter: "fake",
@@ -316,12 +316,13 @@ describe("@appbridge apps", function () {
           apps,
           webhooks: (e) => dispatcher.publish(e)
         }).start();
+        harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
 
         harness.app.configure({
           signingSecret: "app-secret",
           verifySignature: true
         });
-        harness.roomrNode.offerCall({ appRef: "support" });
+        await harness.roomrNode.offerCall({ appRef: "support" });
         const { peer } = await harness.app.nextConnection();
         const json = (p: Peer) =>
           p.frames.items

@@ -14,7 +14,9 @@ What is here:
 | TypeScript runner | `src/runner` | `runScenario(scenario, { connect, harness })` |
 | Fake app | `src/fakes/FakeApp.ts` | WebSocket server AppBridge dials; verifies signatures |
 | Fake appbridge | `src/fakes/FakeAppBridge.ts` | Dials an SDK app with a signed request, for SDK suites |
-| Fake Roomr node | `src/fakes/FakeNatsRoomr.ts` | `media-control` commands (in process or over NATS), RTP caller audio out, agent audio recorded |
+| Fake Roomr node (AppBridge side) | `src/fakes/FakeSessionNode.ts` | The node's side of the per-call control stream to AppBridge, RTP caller audio out, agent audio recorded |
+| Fake Roomr node (controller side) | `src/fakes/FakeRoomr.ts` | `roomr.v1.Roomr` over gRPC with heartbeats and call events, for control-plane suites |
+| Roomr suite | `src/roomr` | Runs the `media-control` files against the Go node or the fake node (`FakeRoomrNode`): fake session endpoint, fake controller, caller bot as caller, trunk and registrar (`VirtualSip` in memory), RTP parties, mix-minus checker, NATS fault proxy |
 | Fake providers | `src/fakes/providers` | Deterministic TTS (HTTP), STT (WebSocket) and LLM (OpenAI-compatible) with injectable delays and failures |
 | Harness | `src/fakes/FakesHarness.ts` | The fakes as a runner `Harness`: setup, injection, provider-time accounting, named assertions |
 
@@ -40,8 +42,9 @@ for (const scenario of loadScenarios("voice-sdk")) {
 ## Tests
 
 The package's own tests check every scenario file against the schema and the OpenSpec specs, the
-runner, the fakes, and the voice-sdk scenarios against a minimal reference app. The NATS test runs
-only when `CONFORMANCE_NATS_URL` is set.
+runner, the fakes, and the voice-sdk scenarios against a minimal reference app. The suites that need
+NATS (media-control against the fake and the Go node, Roomr gRPC) run only when
+`CONFORMANCE_NATS_URL` is set; the Go node's also need a Go toolchain and libopus.
 
 ```
 npx mocha 'mods/conformance/test/**/*.test.ts'

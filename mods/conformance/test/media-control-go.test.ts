@@ -20,14 +20,19 @@ import { expect } from "chai";
 import { connect, NatsConnection } from "nats";
 import {
   buildRoomr,
+  GoNodeDriver,
   loadScenarios,
   RoomrBinaries,
-  ProcessRoomrHarness,
-  runScenario
+  RoomrSuiteHarness,
+  runScenario,
+  scenarioCase
 } from "../src";
 
-// The same media-control scenarios against the Go Roomr node (go/roomr), with real SIP and
-// RTP from the caller bot. Needs NATS (CONFORMANCE_NATS_URL) and a Go toolchain.
+// The same media-control scenarios against the Go Roomr node (go/roomr), alone (conformance
+// "Node tested alone"): real SIP and RTP from the caller bot, which is also the trunk the node
+// dials and the registrar it registers with; the fake session endpoint and the fake controller;
+// NATS through a fault proxy. No AppBridge, apiserver or Routr. Needs NATS
+// (CONFORMANCE_NATS_URL) and a Go toolchain.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 
 describe("@conformance media-control scenarios (Go Roomr node)", function () {
@@ -47,8 +52,12 @@ describe("@conformance media-control scenarios (Go Roomr node)", function () {
   });
 
   for (const scenario of loadScenarios("media-control")) {
-    it(scenario.name, async function () {
-      const harness = new ProcessRoomrHarness(nc, bins!);
+    it(`${scenarioCase("media-control", scenario.name)}${scenario.name}`, async function () {
+      const harness = await new RoomrSuiteHarness(
+        new GoNodeDriver(bins!),
+        nc,
+        NATS_URL!
+      ).start();
       try {
         const result = await runScenario(scenario, {
           harness,

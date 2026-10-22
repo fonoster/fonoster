@@ -1,0 +1,14 @@
+diff --git a/go/roomr/internal/sipua/sipua.go b/go/roomr/internal/sipua/sipua.go
+index c22c2996b..4d7729e18 100644
+--- a/go/roomr/internal/sipua/sipua.go
++++ b/go/roomr/internal/sipua/sipua.go
+@@ -602,9 +602,6 @@ func (u *UA) DialTarget(ctx context.Context, t node.SipTarget, from string, offe
+ 	fromHdr.Params.Add("tag", sip.GenerateTagN(10))
+ 	req.AppendHeader(fromHdr)
+ 	req.AppendHeader(sip.NewHeader("Content-Type", "application/sdp"))
+-	for k, v := range t.Headers {
+-		req.AppendHeader(sip.NewHeader(k, v))
+-	}
+ 	session, err := u.out.WriteInvite(ctx, req)
+ 	if err != nil {
+ 		return nil, nil, err

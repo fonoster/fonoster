@@ -121,6 +121,14 @@ export const appBridgeConfigSchema = z.object({
     user: z.string().optional(),
     password: z.string().optional()
   }),
+  session: z
+    .object({
+      listen: z.string().optional(),
+      keepalive: z.union([z.number(), z.string()]).optional(),
+      drainWait: z.union([z.number(), z.string()]).optional()
+    })
+    .optional(),
+  mediaTimeout: z.union([z.number(), z.string()]).optional(),
   rtp: z
     .object({
       host: z.string().optional(),

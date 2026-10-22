@@ -1,11 +1,9 @@
-// End-to-end tests of Roomr over gRPC (redesign-roomr): the node serves both NATS
-// commands and the gRPC service; the test is the controller, the callee bot the dialed party.
+// End-to-end tests of Roomr over gRPC (redesign-roomr): the test is the controller, the
+// callee bot the dialed party, the fake app the session endpoint.
 package e2e
 
 import (
 	"bytes"
-	"context"
-	"crypto/tls"
 	"encoding/binary"
 	"fmt"
 	"math"
@@ -16,42 +14,17 @@ import (
 	"time"
 
 	roomrv1 "github.com/fonoster/fonoster/go/roomr/api/roomr/v1"
+	sessionv1 "github.com/fonoster/fonoster/go/roomr/api/session/v1"
 	"github.com/fonoster/fonoster/go/roomr/internal/audio"
 	"github.com/fonoster/fonoster/go/roomr/internal/caller"
-	"github.com/fonoster/fonoster/go/roomr/internal/control"
 	"github.com/fonoster/fonoster/go/roomr/internal/edgetls"
 	"github.com/fonoster/fonoster/go/roomr/internal/node"
-	"github.com/fonoster/fonoster/go/roomr/internal/rtpio"
-	"github.com/fonoster/fonoster/go/roomr/internal/sipua"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 )
-
-// withControl serves Roomr for the rig's node on a loopback port and returns a client.
-func (r *rig) withControl(tlsConfig *tls.Config) (*control.Server, roomrv1.RoomrClient) {
-	s, err := control.Listen("127.0.0.1:0", r.node, tlsConfig, nil)
-	if err != nil {
-		r.t.Fatal(err)
-	}
-	go func() { _ = s.Serve() }()
-	r.t.Cleanup(s.Stop)
-	conn, err := grpc.NewClient(s.Addr(), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		r.t.Fatal(err)
-	}
-	r.t.Cleanup(func() { _ = conn.Close() })
-	return s, roomrv1.NewRoomrClient(conn)
-}
-
-func rpcCtx(t *testing.T) context.Context {
-	c, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	t.Cleanup(cancel)
-	return c
-}
 
 func wantStatus(t *testing.T, err error, code codes.Code, reason string) {
 	t.Helper()
@@ -96,30 +69,12 @@ func promptServer(t *testing.T, wav []byte) string {
 	return srv.URL + "/prompt.wav"
 }
 
-// calleeCall waits for the callee bot's one answered call.
-func (r *rig) calleeCall() *caller.Call {
-	deadline := time.Now().Add(3 * time.Second)
-	for time.Now().Before(deadline) {
-		if calls := r.callee.Calls(); len(calls) == 1 && calls[0].State == "answered" {
-			return r.callee.Get(calls[0].ID)
-		}
-		time.Sleep(10 * time.Millisecond)
-	}
-	r.t.Fatalf("callee calls: %+v", r.callee.Calls())
-	return nil
-}
-
-func metadataOf(ev map[string]any) map[string]any {
-	l, _ := ev["metadata"].(map[string]any)
-	return l
-}
-
-// TestRoomrCreateCall: a room, then CreateCall into it through a proxy with extra headers;
-// the call connects with the headers on the INVITE, a prompt plays, DTMF goes out, an RTP
-// participant joins and leaves, and EndCall hangs up.
-func TestRoomrCreateCall(t *testing.T) {
+// TestROM021_RoomrCreateCall: a room, then CreateCall into it through a proxy with extra headers;
+// the call connects with the headers on the INVITE, the app gets Start (OUTBOUND, the room, the
+// metadata) and sends Ready, an RTP participant is added and removed, and EndCall hangs up.
+func TestROM021_RoomrCreateCall(t *testing.T) {
 	r := start(t)
-	_, mc := r.withControl(nil)
+	mc := r.mc
 	ctx := rpcCtx(t)
 	roomRef := fmt.Sprintf("lobby-%d", time.Now().UnixNano())
 	room, err := mc.CreateRoom(ctx, &roomrv1.CreateRoomRequest{RoomRef: roomRef})
@@ -141,9 +96,14 @@ func TestRoomrCreateCall(t *testing.T) {
 	if call.CallRef != callRef || call.RoomRef != roomRef || call.State != roomrv1.Call_RINGING {
 		t.Fatalf("CreateCall = %v", call)
 	}
-	answered := r.waitEvent(typed("call.answered", "callRef", callRef, "roomRef", roomRef), 5*time.Second)
+	answered := r.waitEvent(typed("call.answered", "call_ref", callRef, "room_ref", roomRef), 5*time.Second)
 	if metadataOf(answered)["tenant"] != "t1" {
 		t.Fatalf("metadata not echoed: %v", answered)
+	}
+	ac := r.app.callRef(callRef)
+	if s := ac.start; s.GetDirection() != sessionv1.Start_OUTBOUND || s.GetRoomRef() != roomRef ||
+		s.GetMetadata()["tenant"] != "t1" || s.GetHeaders()["X-Tenant"] != "t1" || s.GetFrom() != "+15550001" {
+		t.Fatalf("Start = %v", s)
 	}
 	callee := r.calleeCall()
 	st := callee.Status()
@@ -157,8 +117,8 @@ func TestRoomrCreateCall(t *testing.T) {
 	if !strings.Contains(st.From, "+15550001") {
 		t.Fatalf("From = %q", st.From)
 	}
-	if _, has := st.Headers[sipua.DODNumberHeader]; has {
-		t.Fatalf("CreateCall added %s: %v", sipua.DODNumberHeader, st.Headers)
+	if _, has := st.Headers["X-DOD-Number"]; has {
+		t.Fatalf("CreateCall added X-DOD-Number: %v", st.Headers)
 	}
 
 	// A repeated CreateCall returns the same call and sends no second INVITE.
@@ -170,152 +130,148 @@ func TestRoomrCreateCall(t *testing.T) {
 		t.Fatalf("callee saw %d calls", n)
 	}
 
-	// Play a 1 s prompt to the call: the callee hears it and operation.done follows.
-	before := callee.Status().AudibleMs
-	op, err := mc.Play(ctx, &roomrv1.PlayRequest{Target: &roomrv1.PlayRequest_CallRef{CallRef: callRef},
-		Url: promptServer(t, toneWav(440, 1000))})
-	if err != nil || op.OperationRef == "" {
-		t.Fatalf("Play: %v %v", op, err)
-	}
-	r.waitEvent(typed("operation.done", "operationRef", op.OperationRef, "status", "completed"), 4*time.Second)
-	waitStatus(t, callee, func(s caller.Status) bool { return s.AudibleMs-before >= 700 }, 2*time.Second)
-
-	// DTMF on the call's leg.
-	if _, err := mc.SendDtmf(ctx, &roomrv1.SendDtmfRequest{Target: &roomrv1.SendDtmfRequest_CallRef{CallRef: callRef},
-		Digits: "12#"}); err != nil {
-		t.Fatal(err)
-	}
-	waitStatus(t, callee, func(s caller.Status) bool { return s.Digits == "12#" }, 3*time.Second)
-
 	// An RTP participant joins: the callee hears it; then it leaves.
-	ep, err := rtpio.Listen("127.0.0.1")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer ep.Close()
-	go ep.Serve(rtpio.Handlers{})
-	p, err := mc.Join(ctx, &roomrv1.JoinRequest{RoomRef: roomRef, Endpoint: &roomrv1.JoinRequest_Rtp{
-		Rtp: &roomrv1.MediaEndpoint{Ip: "127.0.0.1", Port: uint32(ep.Port()), Codec: "L16/16000"}}})
+	g, p, err := r.join(roomRef, "")
 	if err != nil {
 		t.Fatal(err)
 	}
 	if p.Rtp.GetPort() == 0 || p.TrackId == 0 {
-		t.Fatalf("Join = %v", p)
+		t.Fatalf("AddParticipant = %v", p)
 	}
-	r.waitEvent(typed("participant.joined", "participantRef", p.ParticipantRef), 2*time.Second)
-	_ = ep.Configure(audio.L16{}, 96, -1, "127.0.0.1", int(p.Rtp.GetPort()))
-	before = callee.Status().AudibleMs
-	g := &appbridge{ep: ep}
+	r.waitEvent(typed("participant.joined", "participant_ref", p.ParticipantRef, "room_ref", roomRef), 2*time.Second)
+	ac.waitMsg(t, joinedMsg(p.ParticipantRef), 2*time.Second)
+	before := callee.Status().AudibleMs
 	g.play(1000, 600)
 	waitStatus(t, callee, func(s caller.Status) bool { return s.AudibleMs-before >= 300 }, 2*time.Second)
-	if _, err := mc.Leave(ctx, &roomrv1.LeaveRequest{RoomRef: roomRef, ParticipantRef: p.ParticipantRef}); err != nil {
+	if _, err := mc.RemoveParticipant(ctx, &roomrv1.RemoveParticipantRequest{RoomRef: roomRef, ParticipantRef: p.ParticipantRef}); err != nil {
 		t.Fatal(err)
 	}
-	r.waitEvent(typed("participant.left", "participantRef", p.ParticipantRef, "reason", "removed"), 2*time.Second)
+	r.waitEvent(typed("participant.left", "participant_ref", p.ParticipantRef, "cause", "removed"), 2*time.Second)
 
-	// EndCall hangs up; the room, whose only phone party it was, ends with it.
+	// EndCall hangs up; the app gets Ended with cause removed and its stream closes. The room
+	// came from CreateRoom, so it stays until EndRoom.
 	if _, err := mc.EndCall(ctx, &roomrv1.EndCallRequest{CallRef: callRef}); err != nil {
 		t.Fatal(err)
 	}
 	waitStatus(t, callee, func(s caller.Status) bool { return s.State == "ended" }, 3*time.Second)
-	r.waitEvent(typed("participant.left", "participantRef", again.ParticipantRef, "reason", "removed"), 2*time.Second)
-	r.waitEvent(typed("room.ended", "roomRef", roomRef), 2*time.Second)
+	r.waitEvent(typed("participant.left", "participant_ref", again.ParticipantRef, "cause", "removed"), 2*time.Second)
+	r.waitEvent(typed("call.ended", "call_ref", callRef, "cause", "removed"), 2*time.Second)
+	if e := ac.ended(t, 2*time.Second); e.GetCause() != "removed" {
+		t.Fatalf("Ended = %v", e)
+	}
+	ac.waitClosed(t, 3*time.Second)
 	if _, err := mc.EndCall(ctx, &roomrv1.EndCallRequest{CallRef: callRef}); err != nil {
 		t.Fatalf("EndCall of an ended call: %v", err)
 	}
 	_, err = mc.EndCall(ctx, &roomrv1.EndCallRequest{CallRef: "no-such-call"})
 	wantStatus(t, err, codes.NotFound, node.CodeCallNotFound)
-	_, err = mc.Join(ctx, &roomrv1.JoinRequest{RoomRef: roomRef, Endpoint: &roomrv1.JoinRequest_Rtp{
+	if _, err := mc.EndRoom(ctx, &roomrv1.EndRoomRequest{RoomRef: roomRef}); err != nil {
+		t.Fatal(err)
+	}
+	r.waitEvent(typed("room.ended", "room_ref", roomRef, "cause", "removed"), 2*time.Second)
+	_, err = mc.AddParticipant(ctx, &roomrv1.AddParticipantRequest{RoomRef: roomRef, Endpoint: &roomrv1.AddParticipantRequest_Rtp{
 		Rtp: &roomrv1.MediaEndpoint{Ip: "127.0.0.1", Port: 4000}}})
 	wantStatus(t, err, codes.NotFound, node.CodeRoomNotFound)
 }
 
-// TestRoomrBusyCreatesNoLastingRoom: a busy callee ends the call with cause busy and SIP
-// status 486, and the room CreateCall made for it is gone.
-func TestRoomrBusyCreatesNoLastingRoom(t *testing.T) {
+// TestROM022_RoomrBusyCreatesNoLastingRoom: a busy callee ends the call with cause busy and SIP
+// status 486; no room was created and no stream opened.
+func TestROM022_RoomrBusyCreatesNoLastingRoom(t *testing.T) {
 	r := start(t)
-	_, mc := r.withControl(nil)
 	r.callee.Callee("busy", 0)
 	callRef := fmt.Sprintf("busy-%d", time.Now().UnixNano())
-	call, err := mc.CreateCall(rpcCtx(t), &roomrv1.CreateCallRequest{CallRef: callRef,
-		To: &roomrv1.SipTarget{Uri: "sip:+1555@carrier.invalid", Proxy: r.callee.Address()}})
+	target := &roomrv1.SipTarget{Uri: "sip:+1555@carrier.invalid", Proxy: r.callee.Address()}
+	call, err := r.mc.CreateCall(rpcCtx(t), &roomrv1.CreateCallRequest{CallRef: callRef, To: target})
 	if err != nil {
 		t.Fatal(err)
 	}
-	r.waitEvent(typed("call.progress", "callRef", callRef, "status", "busy", "sipStatus", 486, "cause", "busy"), 3*time.Second)
-	r.waitEvent(typed("room.ended", "roomRef", call.RoomRef, "reason", "busy"), 2*time.Second)
-	// room.ended is published just before the node drops the room.
-	deadline := time.Now().Add(time.Second)
-	for roomParticipants(r.node, call.RoomRef) >= 0 {
-		if time.Now().After(deadline) {
-			t.Fatalf("room %s still up", call.RoomRef)
-		}
-		time.Sleep(10 * time.Millisecond)
+	r.waitEvent(typed("call.ended", "call_ref", callRef, "sip_status", 486, "cause", "busy"), 3*time.Second)
+	if r.node.Participants(call.RoomRef) >= 0 || r.find(typed("room.ended", "room_ref", call.RoomRef)) != nil {
+		t.Fatalf("a room exists for a busy call")
 	}
-	again, err := mc.CreateCall(rpcCtx(t), &roomrv1.CreateCallRequest{CallRef: callRef,
-		To: &roomrv1.SipTarget{Uri: "sip:+1555@carrier.invalid", Proxy: r.callee.Address()}})
+	if n := r.app.count(); n != 0 {
+		t.Fatalf("%d control streams for a busy call", n)
+	}
+	again, err := r.mc.CreateCall(rpcCtx(t), &roomrv1.CreateCallRequest{CallRef: callRef, To: target})
 	if err != nil || again.State != roomrv1.Call_ENDED {
 		t.Fatalf("repeat after busy = %v %v", again, err)
 	}
 }
 
-// TestRoomrEndCallWhileRinging: EndCall on a ringing call cancels the INVITE.
-func TestRoomrEndCallWhileRinging(t *testing.T) {
+// TestROM023_RoomrEndCallWhileRinging: EndCall on a ringing call cancels the INVITE; the call ends
+// with cause removed, with no room and no stream.
+func TestROM023_RoomrEndCallWhileRinging(t *testing.T) {
 	r := start(t)
-	_, mc := r.withControl(nil)
 	r.callee.Callee("no_answer", 0)
 	callRef := fmt.Sprintf("ring-%d", time.Now().UnixNano())
-	call, err := mc.CreateCall(rpcCtx(t), &roomrv1.CreateCallRequest{CallRef: callRef,
+	call, err := r.mc.CreateCall(rpcCtx(t), &roomrv1.CreateCallRequest{CallRef: callRef,
 		To: &roomrv1.SipTarget{Uri: "sip:+1555@carrier.invalid", Proxy: r.callee.Address()}})
 	if err != nil {
 		t.Fatal(err)
 	}
 	time.Sleep(300 * time.Millisecond) // ringing
-	if _, err := mc.EndCall(rpcCtx(t), &roomrv1.EndCallRequest{CallRef: callRef}); err != nil {
+	if _, err := r.mc.EndCall(rpcCtx(t), &roomrv1.EndCallRequest{CallRef: callRef}); err != nil {
 		t.Fatal(err)
 	}
-	r.waitEvent(typed("call.progress", "callRef", callRef, "cause", "removed"), 3*time.Second)
-	r.waitEvent(typed("room.ended", "roomRef", call.RoomRef, "reason", "removed"), 2*time.Second)
+	r.waitEvent(typed("call.ended", "call_ref", callRef, "cause", "removed"), 3*time.Second)
+	if r.node.Participants(call.RoomRef) >= 0 || r.app.count() != 0 {
+		t.Fatal("a room or a stream exists for a cancelled call")
+	}
+	deadline := time.Now().Add(3 * time.Second)
+	for {
+		calls := r.callee.Calls()
+		if len(calls) == 0 || calls[0].State == "ended" {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("callee still ringing: %+v", calls)
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
 }
 
-// TestRoomrEndsInboundCalls: EndCall finds an inbound call by its X-Call-Ref and refuses
-// it before the app answered (480); the NATS path still offered it as call.incoming.
-func TestRoomrEndsInboundCalls(t *testing.T) {
+// TestROM023_RoomrEndsInboundCalls: EndCall finds an inbound call by its X-Call-Ref and refuses it
+// before the app answered (480, cause removed); the app gets Ended.
+func TestROM023_RoomrEndsInboundCalls(t *testing.T) {
 	r := start(t)
-	_, mc := r.withControl(nil)
+	r.app.setMode(modeStall)
 	callRef := fmt.Sprintf("in-%d", time.Now().UnixNano())
-	c, err := r.bot.Dial(r.sip, "+15550002222", "+15550001111", map[string]string{"X-App-Ref": "app-1", "X-Call-Ref": callRef})
+	c, err := r.bot.Dial(r.sip, "+15550002222", "+15550001111", map[string]string{"X-Call-Ref": callRef})
 	if err != nil {
 		t.Fatal(err)
 	}
-	in := r.waitEvent(typed("call.incoming", "callRef", callRef), 2*time.Second)
-	if _, err := mc.EndCall(rpcCtx(t), &roomrv1.EndCallRequest{CallRef: callRef}); err != nil {
+	ac := r.app.callRef(callRef)
+	if _, err := r.mc.EndCall(rpcCtx(t), &roomrv1.EndCallRequest{CallRef: callRef}); err != nil {
 		t.Fatal(err)
 	}
 	waitStatus(t, c, func(s caller.Status) bool { return contains(s.SIP, 480) }, 3*time.Second)
-	r.waitEvent(typed("room.ended", "roomRef", in["roomRef"], "reason", "removed"), 2*time.Second)
+	r.waitEvent(typed("call.ended", "call_ref", callRef, "cause", "removed"), 2*time.Second)
+	r.waitEvent(typed("room.ended", "room_ref", ac.start.GetRoomRef(), "cause", "removed"), 2*time.Second)
+	if e := ac.ended(t, 2*time.Second); e.GetCause() != "removed" {
+		t.Fatalf("Ended = %v", e)
+	}
 }
 
-// TestRoomrRefusals: typed status codes for a full room and bad input.
-func TestRoomrRefusals(t *testing.T) {
+// TestROM037_RoomrRefusals: typed status codes for a full room and bad input.
+func TestROM037_RoomrRefusals(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.MaxParticipants = 1 }})
-	_, mc := r.withControl(nil)
+	mc := r.mc
 	ctx := rpcCtx(t)
 	room, err := mc.CreateRoom(ctx, &roomrv1.CreateRoomRequest{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	join := &roomrv1.JoinRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.JoinRequest_Rtp{
+	join := &roomrv1.AddParticipantRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.AddParticipantRequest_Rtp{
 		Rtp: &roomrv1.MediaEndpoint{Ip: "127.0.0.1", Port: 40000, Codec: "L16/16000"}}}
-	if _, err := mc.Join(ctx, join); err != nil {
+	if _, err := mc.AddParticipant(ctx, join); err != nil {
 		t.Fatal(err)
 	}
-	_, err = mc.Join(ctx, join)
+	_, err = mc.AddParticipant(ctx, join)
 	wantStatus(t, err, codes.ResourceExhausted, node.CodeRoomFull)
-	_, err = mc.Join(ctx, &roomrv1.JoinRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.JoinRequest_Webrtc{
+	_, err = mc.AddParticipant(ctx, &roomrv1.AddParticipantRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.AddParticipantRequest_Webrtc{
 		Webrtc: &roomrv1.WebRtcOffer{Sdp: "v=0"}}})
 	wantStatus(t, err, codes.Unimplemented, node.CodeNotSupported)
-	_, err = mc.Join(ctx, &roomrv1.JoinRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.JoinRequest_Rtp{
+	_, err = mc.AddParticipant(ctx, &roomrv1.AddParticipantRequest{RoomRef: room.RoomRef, Endpoint: &roomrv1.AddParticipantRequest_Rtp{
 		Rtp: &roomrv1.MediaEndpoint{Ip: "127.0.0.1", Port: 40000, Codec: "GSM/8000"}}})
 	if st, _ := status.FromError(err); st.Code() != codes.InvalidArgument && st.Code() != codes.ResourceExhausted {
 		t.Fatalf("unsupported codec: %v", err)
@@ -323,14 +279,18 @@ func TestRoomrRefusals(t *testing.T) {
 	_, err = mc.CreateCall(ctx, &roomrv1.CreateCallRequest{To: &roomrv1.SipTarget{Uri: "sip:a@b",
 		Headers: map[string]string{"Via": "SIP/2.0/UDP 10.0.0.1"}}})
 	wantStatus(t, err, codes.InvalidArgument, node.CodeBadMessage)
-	_, err = mc.SendDtmf(ctx, &roomrv1.SendDtmfRequest{Target: &roomrv1.SendDtmfRequest_CallRef{CallRef: "nope"}, Digits: "1"})
-	wantStatus(t, err, codes.NotFound, node.CodeCallNotFound)
-
+	// A CR or LF in a header value is refused before any INVITE.
+	_, err = mc.CreateCall(ctx, &roomrv1.CreateCallRequest{To: &roomrv1.SipTarget{Uri: "sip:a@b", Proxy: r.callee.Address(),
+		Headers: map[string]string{"X-Evil": "one\r\nBYE sip:x SIP/2.0"}}})
+	wantStatus(t, err, codes.InvalidArgument, node.CodeBadMessage)
+	if n := len(r.callee.Calls()); n != 0 {
+		t.Fatalf("a refused CreateCall sent %d INVITEs", n)
+	}
 }
 
-// TestRoomrMutualTLS: with a client CA the listener serves only controllers that present
-// a certificate it signed; the PEMs come as file paths and secret:// references (edgetls).
-func TestRoomrMutualTLS(t *testing.T) {
+// TestROM007_RoomrMutualTLS: with a client CA the control listener serves only controllers that
+// present a certificate it signed; the PEMs come as file paths and secret:// references.
+func TestROM007_RoomrMutualTLS(t *testing.T) {
 	r := start(t)
 	p := newPKI(t, "fonoster-control-ca")
 	nodeCert, nodeKey := p.leaf("node")
@@ -357,22 +317,17 @@ func TestRoomrMutualTLS(t *testing.T) {
 	if _, err := dialTLS("", "").CreateRoom(rpcCtx(t), &roomrv1.CreateRoomRequest{}); err == nil {
 		t.Fatal("controller without a certificate served")
 	}
-	plain, err := grpc.NewClient(s.Addr(), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer plain.Close()
-	if _, err := roomrv1.NewRoomrClient(plain).CreateRoom(rpcCtx(t), &roomrv1.CreateRoomRequest{}); err == nil {
+	if _, err := roomrv1.NewRoomrClient(dialInsecure(t, s.Addr())).CreateRoom(rpcCtx(t), &roomrv1.CreateRoomRequest{}); err == nil {
 		t.Fatal("plaintext controller served")
 	}
 }
 
-// TestRoomrAtCapacity: the room limit covers rooms opened over gRPC (roomr "Node at
-// its limit"): CreateRoom and CreateCall into a new room fail with RESOURCE_EXHAUSTED and no
-// INVITE is sent, room.create over NATS sees the same limit, and a room that ends frees a place.
-func TestRoomrAtCapacity(t *testing.T) {
+// TestROM020_RoomrAtCapacity: the room limit covers every room (roomr "Node full"): CreateRoom
+// and CreateCall into a new room fail with RESOURCE_EXHAUSTED and no INVITE is sent, an INVITE
+// gets 503, and a room that ends frees a place.
+func TestROM020_RoomrAtCapacity(t *testing.T) {
 	r := startWith(t, rigOptions{nodeCfg: func(c *node.Config) { c.MaxRooms = 1 }})
-	_, mc := r.withControl(nil)
+	mc := r.mc
 	ctx := rpcCtx(t)
 	room, err := mc.CreateRoom(ctx, &roomrv1.CreateRoomRequest{})
 	if err != nil {
@@ -388,8 +343,10 @@ func TestRoomrAtCapacity(t *testing.T) {
 	if n := len(r.callee.Calls()); n != 0 {
 		t.Fatalf("a node at its limit sent %d INVITEs", n)
 	}
-	if reply := r.command(map[string]any{"type": "room.create", "id": "c1"}); reply["code"] != "at_capacity" {
-		t.Fatalf("room.create at the limit: %v", reply)
+	// CreateCall into the existing room needs no new place.
+	if _, err := mc.CreateCall(ctx, &roomrv1.CreateCallRequest{RoomRef: room.RoomRef,
+		To: &roomrv1.SipTarget{Uri: "sip:+1@carrier", Proxy: r.callee.Address()}}); err != nil {
+		t.Fatalf("CreateCall into the existing room: %v", err)
 	}
 	if r.node.ActiveRooms() != 1 {
 		t.Fatalf("rooms %d, want 1", r.node.ActiveRooms())
@@ -397,8 +354,39 @@ func TestRoomrAtCapacity(t *testing.T) {
 	if _, err := mc.EndRoom(ctx, &roomrv1.EndRoomRequest{RoomRef: room.RoomRef}); err != nil {
 		t.Fatal(err)
 	}
-	r.waitEvent(typed("room.ended", "roomRef", room.RoomRef), 2*time.Second)
+	r.waitEvent(typed("room.ended", "room_ref", room.RoomRef), 3*time.Second)
 	if _, err := mc.CreateRoom(ctx, &roomrv1.CreateRoomRequest{}); err != nil {
 		t.Fatalf("CreateRoom after a room ended: %v", err)
+	}
+}
+
+// TestROM029_RoomEventsHaveTheirOwnSequence: an RTP participant joins and leaves a room with no call,
+// then the room ends: seq 1, 2 and 3 on roomr.events.room.<room_ref>.
+func TestROM029_RoomEventsHaveTheirOwnSequence(t *testing.T) {
+	r := start(t)
+	ref := fmt.Sprintf("lobby-%d", time.Now().UnixNano())
+	events := replica(t, "roomr.events.room."+ref)
+	if _, err := r.mc.CreateRoom(rpcCtx(t), &roomrv1.CreateRoomRequest{RoomRef: ref}); err != nil {
+		t.Fatal(err)
+	}
+	_, p, err := r.join(ref, "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.mc.RemoveParticipant(rpcCtx(t), &roomrv1.RemoveParticipantRequest{RoomRef: ref, ParticipantRef: p.ParticipantRef}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := r.mc.EndRoom(rpcCtx(t), &roomrv1.EndRoomRequest{RoomRef: ref}); err != nil {
+		t.Fatal(err)
+	}
+	for i, want := range []string{"participant.joined", "participant.left", "room.ended"} {
+		select {
+		case ev := <-events:
+			if ev["type"] != want || ev["seq"] != float64(i+1) || ev["room_ref"] != ref || ev["node_ref"] != r.node.ID() {
+				t.Fatalf("event %d = %v, want %s", i+1, ev, want)
+			}
+		case <-time.After(3 * time.Second):
+			t.Fatalf("no %s", want)
+		}
 	}
 }

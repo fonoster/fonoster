@@ -16,7 +16,6 @@ import (
 
 	"github.com/emiago/sipgo"
 	"github.com/emiago/sipgo/sip"
-	"github.com/fonoster/fonoster/go/roomr/internal/caller"
 	"github.com/fonoster/fonoster/go/roomr/internal/node"
 	"github.com/fonoster/fonoster/go/roomr/internal/sipua"
 	"github.com/icholy/digest"
@@ -169,9 +168,9 @@ func (l *stateLog) wait(t *testing.T, state string, within time.Duration, status
 
 const sessionCount = "X-Session-Count"
 
-// TestRegistersWithSessionCount: digest challenge answered, {sessions} rendered as the room count,
-// and "full" (the room limit) reported at once on drain.
-func TestRegistersWithSessionCount(t *testing.T) {
+// TestROM033_RegistersWithSessionCount: digest challenge answered, {sessions} rendered as the room count,
+// and the registration removed (Expires 0) on Unregister.
+func TestROM033_RegistersWithSessionCount(t *testing.T) {
 	reg := startRegistrar(t, "roomr", "secret")
 	states := &stateLog{}
 	r := startWith(t, rigOptions{
@@ -198,8 +197,8 @@ func TestRegistersWithSessionCount(t *testing.T) {
 		t.Fatal("the registrar never challenged")
 	}
 	// Two answered calls: the periodic REGISTER (every Expires/2) carries 2.
-	c1, _, _ := r.answeredCallWith(caller.DialOptions{}, "")
-	c2, _, _ := r.answeredCallWith(caller.DialOptions{}, "")
+	c1, _ := r.answeredCall()
+	c2, _ := r.answeredCall()
 	reg.waitHeader(t, sessionCount, "2", 3*time.Second)
 	_ = c1.Hangup()
 	_ = c2.Hangup()
@@ -214,7 +213,7 @@ func TestRegistersWithSessionCount(t *testing.T) {
 	states.wait(t, sipua.RegUnregistered, time.Second)
 }
 
-func TestReregistersOnLoadChange(t *testing.T) {
+func TestROM033_ReregistersOnLoadChange(t *testing.T) {
 	reg := startRegistrar(t, "roomr", "secret")
 	r := startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
 		c.Registrations = []sipua.Registration{{Registrar: reg.addr, Password: "secret", Expires: 2 * time.Minute,
@@ -223,14 +222,14 @@ func TestReregistersOnLoadChange(t *testing.T) {
 	}})
 	reg.waitHeader(t, sessionCount, "0", 2*time.Second)
 	// The interval is a minute, so a REGISTER with 1 can only come from the load change.
-	call, _, _ := r.answeredCallWith(caller.DialOptions{}, "")
+	call, _ := r.answeredCall()
 	reg.waitHeader(t, sessionCount, "1", time.Second)
 	_ = call.Hangup()
 }
 
-// TestRegistersWithoutAuth: a registrar that does not challenge; a registration with no auth and
+// TestROM033_RegistersWithoutAuth: a registrar that does not challenge; a registration with no auth and
 // no headers sends a plain REGISTER (no X-Session-Count: the node adds no header of its own).
-func TestRegistersWithoutAuth(t *testing.T) {
+func TestROM033_RegistersWithoutAuth(t *testing.T) {
 	reg := startRegistrar(t, "", "")
 	startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
 		c.Registrations = []sipua.Registration{{Registrar: "sip:" + reg.addr, AOR: "sip:node-7@pbx.example"}}
@@ -248,9 +247,9 @@ func TestRegistersWithoutAuth(t *testing.T) {
 	}
 }
 
-// TestRegistrationFailsOnChallengeWithoutAuth: a challenge with no credentials configured, or with
+// TestROM033_RegistrationFailsOnChallengeWithoutAuth: a challenge with no credentials configured, or with
 // the wrong password, is a failed registration (registration.state failed with the status).
-func TestRegistrationFailsOnChallengeWithoutAuth(t *testing.T) {
+func TestROM033_RegistrationFailsOnChallengeWithoutAuth(t *testing.T) {
 	reg := startRegistrar(t, "roomr", "secret")
 	noAuth, badAuth := &stateLog{}, &stateLog{}
 	startWith(t, rigOptions{uaCfg: func(c *sipua.Config) {
@@ -272,11 +271,11 @@ func TestRegistrationFailsOnChallengeWithoutAuth(t *testing.T) {
 	}
 }
 
-// TestNoRegistrations: with none configured the node sends no REGISTER and still takes calls.
-func TestNoRegistrations(t *testing.T) {
+// TestROM033_NoRegistrations: with none configured the node sends no REGISTER and still takes calls.
+func TestROM033_NoRegistrations(t *testing.T) {
 	reg := startRegistrar(t, "", "")
 	r := start(t)
-	call, _, _ := r.answeredCallWith(caller.DialOptions{}, "")
+	call, _ := r.answeredCall()
 	_ = call.Hangup()
 	time.Sleep(300 * time.Millisecond)
 	if n := len(reg.snapshot()); n != 0 {

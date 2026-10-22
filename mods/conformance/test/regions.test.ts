@@ -337,11 +337,13 @@ describe("@conformance regions: control plane, hub and cell (harden-conformance 
         path.join(identityDir, "relay-audit.jsonl")
       ),
       secrets,
-      autopilotProbe: async () => true
+      autopilotProbe: async () => true,
+      appbridgeProbe: async () => true
     });
     agent.onApplied = (v) => applied.push(v);
     await agent.start();
-    // The cell's Roomr node and AppBridge, as their heartbeats on the cell's own bus.
+    // The cell's Roomr node, as its heartbeats on the cell's own bus; AppBridge's readiness is
+    // its health check through its Service (appbridgeProbe, redesign-roomr 15.5).
     const beats = cellNc;
     componentBeats = setInterval(() => {
       beats.publish(
@@ -351,16 +353,6 @@ describe("@conformance regions: control plane, hub and cell (harden-conformance 
             type: "node.heartbeat",
             node_ref: "node-a",
             rooms: 1
-          })
-        )
-      );
-      beats.publish(
-        "appbridge.heartbeat",
-        sc.encode(
-          JSON.stringify({
-            type: "appbridge.heartbeat",
-            bridgeRef: "gw-1",
-            calls: 1
           })
         )
       );

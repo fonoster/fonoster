@@ -1,13 +1,13 @@
-diff --git a/mods/appbridge/src/AppBridge.ts b/mods/appbridge/src/AppBridge.ts
-index 801e501dd..e3f59d386 100644
---- a/mods/appbridge/src/AppBridge.ts
-+++ b/mods/appbridge/src/AppBridge.ts
-@@ -677,7 +677,7 @@ export class AppBridge {
-             answered.recording.noteTracks(event.participantRef, event.tracks);
-             unsubscribe();
-           }
--        } else if (event.type === "call.answered" && !settled) {
-+        } else if ((event.type === "call.answered" || event.type === "call.progress") && !settled) {
-           settled = true;
-           clearTimeout(timer);
-           setTimeout(unsubscribe, 5000);
+diff --git a/mods/appbridge/src/record/maintenance.ts b/mods/appbridge/src/record/maintenance.ts
+index 22745f9b2..0598be744 100644
+--- a/mods/appbridge/src/record/maintenance.ts
++++ b/mods/appbridge/src/record/maintenance.ts
+@@ -72,7 +72,7 @@ function writeFailedCall(writer: CallRecordWriter, req: MaintenanceRequest) {
+   )
+     return { type: "error", code: "bad_request" };
+   const at = Date.now();
+-  for (const message of entries)
++  for (const message of entries.filter((m) => m.type !== "call.progress"))
+     writer.append(req.callRef, { at, source: "event", message });
+   writer.close(req.callRef);
+   return { type: "ack" };

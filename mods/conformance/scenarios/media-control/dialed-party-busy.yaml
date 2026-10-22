@@ -2,16 +2,32 @@ format: fonoster.scenario.v1
 contract: media-control
 role: media-control-client
 name: dialed-party-busy
-spec: "Endings carry a reason / Dialed party busy"
+spec: "CreateCall dials out on the node the controller chose / Busy number"
+description: "No room and no control stream for a busy callee."
 setup:
-  media: { dialOutcome: busy }
+  roomr: { trunk: { mode: busy } }
 steps:
-  - send: { type: room.create, id: c1 }
-  - expect: { type: ack, id: c1 }
-    within_ms: 2000
-    capture: { room: roomRef }
-  - send: { type: participant.dial, id: d1, roomRef: "${room}", to: "+15551234567" }
-  - expect: { type: call.progress, id: d1, status: ringing }
-    within_ms: 1000
-  - expect: { type: call.progress, id: d1, status: busy, sipStatus: 486 }
-    within_ms: 1000
+  - rpc:
+      method: CreateCall
+      request:
+        {
+          call_ref: b1,
+          to: { uri: "sip:+15551234567@carrier.invalid", proxy: "${trunk}" }
+        }
+      reply: { state: RINGING }
+    capture: { room: room_ref }
+  - expect:
+      {
+        type: call.ended,
+        call_ref: b1,
+        cause: busy,
+        sip_status: 486,
+        answered: false
+      }
+    within_ms: 3000
+  - expect_none: { type: stream.start }
+    for_ms: 500
+  - rpc:
+      method: EndRoom
+      request: { room_ref: "${room}" }
+      error: { code: NOT_FOUND }

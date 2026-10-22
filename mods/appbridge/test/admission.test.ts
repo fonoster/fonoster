@@ -148,7 +148,6 @@ describe("@appbridge admission (add-billing-service)", function () {
 
     async function start(admission: Admission) {
       harness = await new FakesHarness().start();
-      harness.roomrNode.attachNats(nc);
       webhooks = [];
       const app: AppConfig = {
         ref: "agent-a",
@@ -162,6 +161,7 @@ describe("@appbridge admission (add-billing-service)", function () {
       appbridge = await new AppBridge({
         config: {
           nats: { url: NATS_URL! },
+          session: { listen: "127.0.0.1:0" },
           apps: [app],
           providers: {
             fake: {
@@ -176,6 +176,7 @@ describe("@appbridge admission (add-billing-service)", function () {
         admission,
         webhooks: (e) => webhooks.push(e)
       }).start();
+      harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
     }
 
     afterEach(async () => {
@@ -196,9 +197,11 @@ describe("@appbridge admission (add-billing-service)", function () {
       await start(
         answerAfter(0, { authorized: false, reason: "insufficient_balance" })
       );
-      const { roomRef } = harness.roomrNode.offerCall({ appRef: "agent-a" });
-      await until(() => harness.roomrNode.sipStatuses(roomRef).includes(402));
-      expect(harness.roomrNode.sipStatuses(roomRef)).to.not.include.members([
+      const { callRef } = await harness.roomrNode.offerCall({
+        appRef: "agent-a"
+      });
+      await until(() => harness.roomrNode.sipStatuses(callRef).includes(402));
+      expect(harness.roomrNode.sipStatuses(callRef)).to.not.include.members([
         180, 200
       ]);
       const failed = webhooks.find((e) => e.type === "call.failed");
@@ -212,18 +215,22 @@ describe("@appbridge admission (add-billing-service)", function () {
       await start(
         answerAfter(0, { authorized: false, reason: "concurrency_limit" })
       );
-      const { roomRef } = harness.roomrNode.offerCall({ appRef: "agent-a" });
-      await until(() => harness.roomrNode.sipStatuses(roomRef).includes(503));
+      const { callRef } = await harness.roomrNode.offerCall({
+        appRef: "agent-a"
+      });
+      await until(() => harness.roomrNode.sipStatuses(callRef).includes(503));
     });
 
     it("answers when authorization is slower than the timeout", async function () {
       await start(
         answerAfter(2000, { authorized: false, reason: "insufficient_balance" })
       );
-      const { roomRef } = harness.roomrNode.offerCall({ appRef: "agent-a" });
+      const { callRef } = await harness.roomrNode.offerCall({
+        appRef: "agent-a"
+      });
       await harness.app.nextConnection();
-      await until(() => harness.roomrNode.sipStatuses(roomRef).includes(200));
-      harness.roomrNode.callerHangup(roomRef);
+      await until(() => harness.roomrNode.sipStatuses(callRef).includes(200));
+      harness.roomrNode.callerHangup(callRef);
     });
   });
 });

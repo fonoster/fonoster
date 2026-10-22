@@ -1,0 +1,15 @@
+format: fonoster.scenario.v1
+contract: media-control
+role: media-control-client
+name: drain-exit
+spec: "Draining is a health signal with a bounded wait / Exit after the last room"
+description: "A draining node with no rooms exits at once."
+steps:
+  - expect: { type: node.heartbeat }
+    within_ms: 3000
+  - node: { sigterm: true }
+  - expect: { type: node.down }
+    within_ms: 1000
+  - wait: { ms: 1500 }
+  - assert:
+      node.alive: false

@@ -103,7 +103,6 @@ describe("@apiserver/usage end to end", function () {
     omitUsage?: boolean;
   }) {
     const harness = await new FakesHarness().start();
-    harness.roomrNode.attachNats(nc);
     harness.stt.configure({
       script: [{ atMs: 600, text: "What are your hours?" }]
     });
@@ -154,6 +153,7 @@ describe("@apiserver/usage end to end", function () {
       record: writer,
       config: {
         nats: { url: NATS_URL! },
+        session: { listen: "127.0.0.1:0" },
         apps: [
           {
             ref: "autopilot",
@@ -179,8 +179,9 @@ describe("@apiserver/usage end to end", function () {
         }
       }
     }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
     try {
-      const { roomRef } = harness.roomrNode.offerCall({
+      const { callRef } = await harness.roomrNode.offerCall({
         from: "+15550001111",
         to: "+15550002222"
       });
@@ -211,7 +212,7 @@ describe("@apiserver/usage end to end", function () {
         options.omitUsage ? "usage_missing" : "usage.report"
       );
       await sleep(300);
-      harness.roomrNode.callerHangup(roomRef);
+      harness.roomrNode.callerHangup(callRef);
       await waitFor(() => sealed[0], 10_000, "the sealed record");
       return {
         entry: sealed[0],

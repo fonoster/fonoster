@@ -18,11 +18,18 @@ import (
 	"testing"
 	"time"
 
+	sessionv1 "github.com/fonoster/fonoster/go/roomr/api/session/v1"
 	"github.com/fonoster/fonoster/go/roomr/internal/caller"
 	"github.com/fonoster/fonoster/go/roomr/internal/sipua"
 )
 
-func TestLiveRoutrLeastSessions(t *testing.T) {
+func TestROM034_LiveRoutrLeastSessions(t *testing.T) {
+	if os.Getenv("ROM034_LIVE") != "1" {
+		// Waived (mods/conformance/catalog/waivers.json): Routr 2.15.4's location service reads
+		// backend.balancingAlgorithm while the request field is algorithm, so it always round-robins
+		// and this test would pass or fail by chance. Set ROM034_LIVE=1 to run it against a fixed Routr.
+		t.Skip("ROM-034 waived: Routr 2.15.4 ignores least-sessions (reads backend.balancingAlgorithm, not algorithm); ROM034_LIVE=1 runs it")
+	}
 	edge := os.Getenv("ROUTR_EDGEPORT")
 	nodeHost := os.Getenv("ROUTR_NODE_HOST")
 	if edge == "" || nodeHost == "" {
@@ -51,35 +58,32 @@ func TestLiveRoutrLeastSessions(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		in := light.waitEvent(typed("call.incoming", "appRef", "app-live"), 5*time.Second)
-		if n := loaded.count(typed("call.incoming")); n != 0 {
+		waitStatus(t, call, func(s caller.Status) bool { return s.State == "answered" }, 5*time.Second)
+		if n := loaded.app.count(); n != 0 {
 			t.Fatalf("%s: the loaded node got %d calls", round, n)
 		}
-		room := in["roomRef"].(string)
-		g, _ := light.addSession(room, "")
-		light.command(map[string]any{"type": "answer", "id": "a-" + round, "roomRef": room})
-		waitStatus(t, call, func(s caller.Status) bool { return s.State == "answered" }, 5*time.Second)
+		ac := light.app.waitCall(func(*sessionv1.Start) bool { return true }, 5*time.Second)
 		call.Speak("tone:1000", 400)
 		time.Sleep(700 * time.Millisecond)
-		if g.m.get(1000) < 5 {
+		if ac.m.get(1000) < 5 {
 			t.Fatalf("%s: no audio through the live call", round)
 		}
 		_ = call.Hangup()
-		light.waitEvent(typed("room.ended", "roomRef", room), 5*time.Second)
+		light.waitEvent(typed("room.ended", "room_ref", ac.start.GetRoomRef()), 5*time.Second)
 		t.Logf("%s: Routr chose the lighter node", round)
 	}
 	for i := 0; i < 3; i++ {
-		a.command(map[string]any{"type": "room.create", "id": "load"})
+		a.createRoom()
 	}
 	placeCall(a, b, "round 1")
-	a.mu.Lock()
-	a.events = nil
-	a.mu.Unlock()
-	b.mu.Lock()
-	b.events = nil
-	b.mu.Unlock()
+	a.app.mu.Lock()
+	a.app.calls = nil
+	a.app.mu.Unlock()
+	b.app.mu.Lock()
+	b.app.calls = nil
+	b.app.mu.Unlock()
 	for i := 0; i < 5; i++ {
-		b.command(map[string]any{"type": "room.create", "id": "load"})
+		b.createRoom()
 	}
 	placeCall(b, a, "round 2")
 }

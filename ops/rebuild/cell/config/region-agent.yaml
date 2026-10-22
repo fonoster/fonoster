@@ -22,6 +22,8 @@ records:
 cellSecrets:
   file: /var/lib/fonoster-secrets/secrets.enc
   keyEnv: FONOSTER_REGION_SECRETS_KEY
+# AppBridge's readiness: its grpc.health.v1 check on the Session port, through the service name.
+appbridge: { address: "appbridge:50071" }
 autopilot:
   url: ws://autopilot:3000
   signingSecretEnv: AUTOPILOT_SIGNING_SECRET

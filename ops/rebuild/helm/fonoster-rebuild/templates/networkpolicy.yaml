@@ -1,0 +1,98 @@
+{{- /*
+Network isolation for the data plane (redesign-roomr "Network isolation", tasks 6.1 and 6.4).
+
+Roomr authenticates neither its Roomr RPCs nor the source of SIP requests: its control port must
+be reachable only from the apiserver and its SIP port only from the SIP proxy (Routr). A
+NetworkPolicy only applies to pods on the pod network; with roomr.hostNetwork (the default) the
+node's ports are on the host, so a host firewall does that job (docs/operators/rebuild.md,
+"Network isolation"). RTP is open: callers' media arrives from carriers and RTPEngine.
+
+AppBridge admits the node's control streams (Session port) and its RTP, plus the region agent's
+readiness check on the Session port; its HTTP port stays open as before.
+*/}}
+{{- if and .Values.roomr.enabled .Values.roomr.networkPolicy.enabled (not .Values.roomr.hostNetwork) }}
+{{- $m := .Values.roomr }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-roomr
+  labels:
+    app.kubernetes.io/name: roomr
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: roomr
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes: [Ingress]
+  ingress:
+    # Roomr (gRPC) and grpc.health.v1: the apiserver only (kubelet probes are not affected).
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: apiserver
+              app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- with $m.networkPolicy.controlFrom }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      ports:
+        - { port: {{ $m.controlPort | int }}, protocol: TCP }
+    # SIP: the SIP proxy only.
+    - from:
+        {{- toYaml $m.networkPolicy.sipFrom | nindent 8 }}
+      ports:
+        - { port: {{ splitList ":" $m.sip.listen | last | int }}, protocol: UDP }
+        - { port: {{ splitList ":" $m.sip.listen | last | int }}, protocol: TCP }
+        {{- if $m.tls.enabled }}
+        - { port: {{ splitList ":" $m.tls.listen | last | int }}, protocol: TCP }
+        {{- end }}
+    # RTP for every leg (SIP legs and AppBridge's app legs): one range, from anywhere.
+    - ports:
+        - { port: {{ $m.rtp.portMin | int }}, endPort: {{ $m.rtp.portMax | int }}, protocol: UDP }
+{{- end }}
+{{- if and .Values.appbridge.enabled .Values.appbridge.networkPolicy.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ .Release.Name }}-appbridge
+  labels:
+    app.kubernetes.io/name: appbridge
+    {{- include "fonoster-rebuild.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: appbridge
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  policyTypes: [Ingress]
+  ingress:
+    # HTTP, as reachable as before.
+    - ports:
+        - { port: 8080, protocol: TCP }
+    # The Roomr nodes: control streams on the Session port and RTP on the app legs (AppBridge
+    # binds its RTP ports per call, so all UDP). Nodes on the host network reach AppBridge from
+    # their host's address: then nodeCidrs (empty: any source) stands in for the pod selector.
+    - {{- if or (not .Values.roomr.hostNetwork) .Values.appbridge.networkPolicy.nodeCidrs }}
+      from:
+        {{- if not .Values.roomr.hostNetwork }}
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: roomr
+              app.kubernetes.io/instance: {{ .Release.Name }}
+        {{- end }}
+        {{- range .Values.appbridge.networkPolicy.nodeCidrs }}
+        - ipBlock: { cidr: {{ . | quote }} }
+        {{- end }}
+      {{- end }}
+      ports:
+        - { port: {{ .Values.appbridge.sessionPort | int }}, protocol: TCP }
+        - { protocol: UDP }
+    # The region agent's readiness check (grpc.health.v1 on the Session port).
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: region-agent
+              app.kubernetes.io/instance: {{ .Release.Name }}
+      ports:
+        - { port: {{ .Values.appbridge.sessionPort | int }}, protocol: TCP }
+{{- end }}

@@ -17,13 +17,13 @@
  * limitations under the License.
  */
 import { expect } from "chai";
-import { connect, NatsConnection, StringCodec } from "nats";
+import { FakeSessionNode } from "@fonoster/conformance";
+import { connect, NatsConnection } from "nats";
 import {
   AppBridge,
   AppBridgeConfig,
   MemoryCallRecordSink,
-  NullCallRecordSink,
-  OUTBOUND_SUBJECT
+  NullCallRecordSink
 } from "../src";
 import {
   Catalog,
@@ -33,11 +33,10 @@ import {
 } from "../src/speech/Catalog";
 
 // Long-lived appbridge state stays bounded (in-memory state audit, phase 4): the call record sink
-// without a record store, the speech catalog's workspace-key adapters, and the room watch of
-// outbound calls that are never answered.
+// without a record store, the speech catalog's workspace-key adapters, and the calls of a node
+// that dies before their app answers.
 
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
-const sc = StringCodec();
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function waitFor<T>(fn: () => T | undefined | false, ms = 3000) {
@@ -143,10 +142,11 @@ describe("@appbridge bounded state", function () {
     });
   });
 
-  describe("outbound calls never answered", function () {
+  describe("calls whose node dies before the app answers", function () {
     this.timeout(10_000);
     let nc: NatsConnection;
     let appbridge: AppBridge | undefined;
+    let node: FakeSessionNode | undefined;
     let record: MemoryCallRecordSink;
     const failures: unknown[] = [];
 
@@ -156,6 +156,7 @@ describe("@appbridge bounded state", function () {
     });
     after(async () => nc?.close());
     afterEach(async () => {
+      await node?.stop();
       await appbridge?.stop();
       appbridge = undefined;
     });
@@ -165,7 +166,10 @@ describe("@appbridge bounded state", function () {
       failures.length = 0;
       const config: AppBridgeConfig = {
         nats: { url: NATS_URL! },
+        session: { listen: "127.0.0.1:0" },
         providers: {},
+        // The app never answers while the node dies: the dial is still retrying.
+        retry: { windowMs: 2000, intervalMs: 200 },
         apps: [
           {
             ref: "a",
@@ -181,58 +185,26 @@ describe("@appbridge bounded state", function () {
         nats: nc,
         record,
         sessions: false,
-        outboundAnswerTimeoutMs: 400,
         webhooks: (e) => failures.push(e)
       }).start();
+      node = new FakeSessionNode({ endpoint: appbridge.sessionEndpoint });
       return appbridge;
-    };
-    const outbound = async (nodeId: string, roomRef: string) => {
-      const reply = await nc.request(
-        OUTBOUND_SUBJECT,
-        sc.encode(
-          JSON.stringify({ nodeId, roomRef, appRef: "a", callRef: roomRef })
-        )
-      );
-      return JSON.parse(sc.decode(reply.data));
     };
     const failedReason = (callRef: string) =>
       record.records.get(callRef)?.find((e) => e.message.type === "call.failed")
         ?.message.reason;
 
-    it("stops watching on room.ended before an answer", async function () {
+    it("forgets every call when the node's streams break (x20)", async function () {
+      // Replaces the outbound room watch (retired with appbridge.outbound): a call lives only as
+      // long as its control stream, so a dead node leaves nothing behind.
       const gw = await start();
-      const nodeId = `n-${Date.now()}`;
-      const reply = await outbound(nodeId, "room-1");
-      expect(reply).to.include({ type: "ack", bridgeRef: gw.bridgeRef });
-      expect(gw.pendingOutboundCount).to.equal(1);
-      nc.publish(
-        `media.${nodeId}.events.room-1`,
-        sc.encode(
-          JSON.stringify({
-            type: "room.ended",
-            roomRef: "room-1",
-            reason: "node_error"
-          })
-        )
-      );
-      await waitFor(() => gw.pendingOutboundCount === 0);
-      expect(failedReason("room-1")).to.equal("node_error");
-      expect(record.closed.has("room-1")).to.equal(true);
-      expect(failures).to.have.length(1);
-    });
-
-    it("gives up when the node dies while ringing (x20)", async function () {
-      const gw = await start();
-      const nodeId = `n-${Date.now()}`;
-      for (let i = 0; i < 20; i++) await outbound(nodeId, `ringing-${i}`);
-      nc.publish(
-        `media.${nodeId}.events.ringing-0`,
-        sc.encode(JSON.stringify({ type: "call.progress", status: "ringing" }))
-      );
-      expect(gw.pendingOutboundCount).to.equal(20);
-      // The node is killed: no answer, no failure, no room.ended.
-      await waitFor(() => gw.pendingOutboundCount === 0, 2000);
-      expect(failedReason("ringing-0")).to.equal("node_error");
+      for (let i = 0; i < 20; i++)
+        await node!.placeCall({ appRef: "a", callRef: `out-${i}` });
+      await waitFor(() => gw.calls.size === 20);
+      node!.crash();
+      await waitFor(() => gw.calls.size === 0, 2000);
+      expect(failedReason("out-0")).to.equal("node_error");
+      expect(record.closed.has("out-19")).to.equal(true);
       expect(failures).to.have.length(20);
     });
   });

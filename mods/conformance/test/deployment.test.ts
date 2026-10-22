@@ -516,6 +516,8 @@ describe("@conformance/deployment (Helm chart)", function () {
       advertise: "${HOST_IP}",
       // Routr's X-Call-Ref names inbound calls (decision 7).
       callRefHeader: "X-Call-Ref",
+      // Dials go to Routr unless CreateCall names a proxy (transport in the URI).
+      outboundProxy: "sip:routr:5060",
       registrations: [
         {
           registrar: "routr:5060",
@@ -536,13 +538,25 @@ describe("@conformance/deployment (Helm chart)", function () {
       portMax: 30199
     });
     expect(config.registration).to.equal(undefined);
-    expect(config.outboundProxy).to.equal("routr:5060");
+    expect(config.outboundProxy).to.equal(undefined);
     // Roomr (gRPC) for the apiserver's CreateCall, advertised on sip.advertise's host.
     expect(config.control).to.deep.equal({ grpc: { listen: "0.0.0.0:50061" } });
     // Every placeholder is a variable the pod sets.
     const env = JSON.stringify(node.spec);
     ["POD_NAME", "HOST_IP", "ROUTR_PEER_PASSWORD"].forEach((v) =>
       expect(env, v).to.contain(`"name":"${v}"`)
+    );
+    expect(env).to.not.contain('"name":"POD_IP"');
+    // On the pod network sip.advertise's host is not the pod's: the node advertises its pod IP
+    // for the control address the apiserver dials.
+    const podNet = render("--set=roomr.hostNetwork=false");
+    expect(roomrConfig(podNet).control).to.deep.equal({
+      grpc: { listen: "0.0.0.0:50061", advertise: "${POD_IP}:50061" }
+    });
+    expect(
+      JSON.stringify(find(podNet, "StatefulSet", "fonoster-roomr")!.spec)
+    ).to.contain(
+      '"name":"POD_IP","valueFrom":{"fieldRef":{"fieldPath":"status.podIP"}}'
     );
   });
 

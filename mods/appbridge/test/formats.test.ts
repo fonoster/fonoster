@@ -76,7 +76,6 @@ describe("@AppBridge audio format menu", function () {
   beforeEach(async () => {
     harness = await new FakesHarness().start();
     harness.roomrNode.configure({ callerAudio: { kind: "tone", ms: 400 } });
-    harness.roomrNode.attachNats(nc);
   });
 
   afterEach(async () => {
@@ -91,6 +90,7 @@ describe("@AppBridge audio format menu", function () {
       appbridge = await new AppBridge({
         config: {
           nats: { url: NATS_URL! },
+          session: { listen: "127.0.0.1:0" },
           retry: { windowMs: 300, intervalMs: 100 },
           apps: [
             {
@@ -114,8 +114,9 @@ describe("@AppBridge audio format menu", function () {
         nats: nc,
         record: new MemoryCallRecordSink()
       }).start();
+      harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
 
-      harness.roomrNode.offerCall();
+      await harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
       const start = await waitFor(() =>
         json(peer).find((m) => m.type === "session.start")
