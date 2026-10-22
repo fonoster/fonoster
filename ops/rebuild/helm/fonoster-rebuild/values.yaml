@@ -201,7 +201,8 @@ roomr:
   # nodes: with hostNetwork run one node per host (the scheduler already keeps two pods that
   # declare the same SIP port off one host), or give nodes that share a host non-overlapping RTP
   # ranges and different SIP and control ports (a second release). On the pod network every pod
-  # has its own IP and nodes can share a range.
+  # has its own IP and nodes can share a range; the node then advertises its pod IP as the control
+  # address the apiserver dials (with hostNetwork, sip.advertise's host).
   hostNetwork: true
   rtp:
     portMin: 30000

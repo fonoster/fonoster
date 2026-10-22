@@ -546,6 +546,18 @@ describe("@conformance/deployment (Helm chart)", function () {
     ["POD_NAME", "HOST_IP", "ROUTR_PEER_PASSWORD"].forEach((v) =>
       expect(env, v).to.contain(`"name":"${v}"`)
     );
+    expect(env).to.not.contain('"name":"POD_IP"');
+    // On the pod network sip.advertise's host is not the pod's: the node advertises its pod IP
+    // for the control address the apiserver dials.
+    const podNet = render("--set=roomr.hostNetwork=false");
+    expect(roomrConfig(podNet).control).to.deep.equal({
+      grpc: { listen: "0.0.0.0:50061", advertise: "${POD_IP}:50061" }
+    });
+    expect(
+      JSON.stringify(find(podNet, "StatefulSet", "fonoster-roomr")!.spec)
+    ).to.contain(
+      '"name":"POD_IP","valueFrom":{"fieldRef":{"fieldPath":"status.podIP"}}'
+    );
   });
 
   it("passes the OTLP headers (inline or from a Secret) and protocol to every service", function () {

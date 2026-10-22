@@ -2,7 +2,7 @@
 {{- $m := .Values.roomr }}
 {{- /* The Roomr node reads only this file (its one flag is -config; no ROOMR_* variables). Values the pod
 knows at start are ${VAR} placeholders the node fills from the env the StatefulSet sets: POD_NAME,
-HOST_IP and ROUTR_PEER_PASSWORD. */}}
+HOST_IP, ROUTR_PEER_PASSWORD and, on the pod network, POD_IP. */}}
 {{- $sipAdvertise := ternary "${HOST_IP}" $m.sip.advertise (eq $m.sip.advertise "hostIP") }}
 {{- $rtpAdvertise := ternary "${HOST_IP}" $m.rtp.advertise (eq $m.rtp.advertise "hostIP") }}
 {{- $cfg := dict "nodeId" "${POD_NAME}" }}
@@ -27,8 +27,14 @@ roomr.sip.registrations replaces it with the registrars you list ([] sends no RE
 {{- $_ := set $cfg "sessionEndpoint" ($m.sessionEndpoint | default (printf "%s-appbridge:%d" .Release.Name (.Values.appbridge.sessionPort | int))) }}
 {{- /* Rooms get drainGraceSeconds to end after SIGTERM (the pod's grace period is longer). */}}
 {{- $_ := set $cfg "drainWait" (printf "%ds" ($m.drainGraceSeconds | int)) }}
-{{- /* Roomr for the apiserver; the node advertises it on sip.advertise's host. */}}
-{{- $_ := set $cfg "control" (dict "grpc" (dict "listen" (printf "0.0.0.0:%d" ($m.controlPort | int)))) }}
+{{- /* Roomr for the apiserver. With hostNetwork the node advertises it on sip.advertise's host
+(the host's address); on the pod network that address is not the pod's, so the node advertises
+its pod IP (POD_IP, set by the StatefulSet), which the apiserver dials. */}}
+{{- $grpc := dict "listen" (printf "0.0.0.0:%d" ($m.controlPort | int)) }}
+{{- if not $m.hostNetwork }}
+{{- $_ := set $grpc "advertise" (printf "${POD_IP}:%d" ($m.controlPort | int)) }}
+{{- end }}
+{{- $_ := set $cfg "control" (dict "grpc" $grpc) }}
 {{- if $m.tls.enabled }}
 {{- /* Optional SIP over TLS: the listener, and ca.crt to verify the proxy's and registrars' certificates. */}}
 {{- $tls := dict "listen" $m.tls.listen "cert" "/etc/roomr/tls/tls.crt" "key" "/etc/roomr/tls/tls.key" "ca" "/etc/roomr/tls/ca.crt" }}
