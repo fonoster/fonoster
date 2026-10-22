@@ -35,7 +35,7 @@ const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 // AppBridge leg against the Go node: pion/srtp must accept what RtpLink sends and the other
 // way round (SDES-SRTP is optional: a leg that offers srtp gets it, a plain leg stays plain).
 // The node's side of an SRTP leg (SDES keys exchanged in the endpoints, as in Answer/Ready on
-// the control stream), reached here through Roomr's Join: two RTP participants in one room.
+// the control stream), reached here through Roomr's AddParticipant: two RTP participants in one room.
 describe("@appbridge SRTP leg against the Go Roomr node", function () {
   this.timeout(30000);
   let bins: RoomrBinaries | undefined;
@@ -98,6 +98,8 @@ describe("@appbridge SRTP leg against the Go Roomr node", function () {
         sip: { listen: `127.0.0.1:${sip}` },
         rtp: { host: "127.0.0.1", advertise: "127.0.0.1" },
         control: { grpc: { listen: `127.0.0.1:${control}` } },
+        // Required by the node; this suite places no SIP call, so no stream is ever opened.
+        sessionEndpoint: "127.0.0.1:9",
         tls: {
           listen: `127.0.0.1:${tlsPort}`,
           cert: path.join(dir, "cert.pem"),
@@ -152,7 +154,7 @@ describe("@appbridge SRTP leg against the Go Roomr node", function () {
     const link = new RtpLink();
     if (srtp) link.enableSrtp();
     const offer = await link.bind("127.0.0.1");
-    const joined = await rpc<Participant>("Join", {
+    const joined = await rpc<Participant>("AddParticipant", {
       roomRef,
       rtp: {
         ip: offer.host,
