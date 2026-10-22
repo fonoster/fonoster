@@ -100,7 +100,7 @@ export function toCallDetailRecord(row: CallRecordRow): CallDetailRecord {
       ? (FAILURE_STATUS[row.failureReason ?? ""] ??
         CallStatus.SERVICE_UNAVAILABLE)
       : CallStatus.NORMAL_CLEARING;
-  // Times in epoch milliseconds.
+  // The Calls API carries times as epoch seconds (int32 on the wire; the SDK multiplies by 1000).
   return {
     ref: row.callRef,
     accessKeyId: row.accessKeyId ?? "",
@@ -114,8 +114,8 @@ export function toCallDetailRecord(row: CallRecordRow): CallDetailRecord {
         ? CallType.API_ORIGINATED
         : CallType.SIP_ORIGINATED,
     status,
-    startedAt: row.startedAt.getTime(),
-    endedAt: (row.endedAt ?? row.startedAt).getTime(),
+    startedAt: Math.floor(row.startedAt.getTime() / 1000),
+    endedAt: Math.floor((row.endedAt ?? row.startedAt).getTime() / 1000),
     from: row.fromNumber ?? "",
     to: row.toNumber ?? "",
     duration: row.durationSeconds,
