@@ -2,11 +2,10 @@
 
 ### Requirement: The Calls API carries and filters by the app that handled a call
 
-The gRPC `Calls` API SHALL return the `appRef` of the app that handled the call on every
-`CallDetailRecord` (from `ListCalls` and `GetCall`), read from the call-record index (no second store), and empty when
-no app handled the call. `ListCalls` SHALL accept an optional `appRef` filter that returns only the
-workspace's calls whose record carries that `appRef`. Records from other workspaces MUST NOT be
-returned, whatever the filter.
+The `Calls` API SHALL return, on every `CallDetailRecord`, the `appRef` of the app that handled
+the call, read from the call-record index. `ListCalls` SHALL take an optional `appRef` filter: empty
+means no filter, a UUID returns only the workspace's calls that app handled, and any other value
+MUST fail with `INVALID_ARGUMENT`. Other workspaces' records MUST NOT be returned.
 
 #### Scenario: A call record names its app
 
@@ -23,3 +22,8 @@ returned, whatever the filter.
 
 - **WHEN** an SDK user lists calls without `appRef`
 - **THEN** the workspace's calls are returned whatever app handled them
+
+#### Scenario: A malformed app filter is rejected
+
+- **WHEN** an SDK user lists calls with an `appRef` that is not a UUID
+- **THEN** the request fails with `INVALID_ARGUMENT` and no calls are returned

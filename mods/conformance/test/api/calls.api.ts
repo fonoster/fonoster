@@ -18,8 +18,9 @@
  */
 /* eslint-disable mocha/no-setup-in-describe */
 import { randomUUID } from "crypto";
+import { status } from "@grpc/grpc-js";
 import { expect } from "chai";
-import { Who } from "./drivers";
+import { codeOf, Who } from "./drivers";
 import { getWorld, World } from "./world";
 
 // call-record, the Calls API's view of the index: each record names the app that handled the call,
@@ -137,6 +138,11 @@ describe("@api calls", function () {
           filtered.every((i) => i.appRef === appX),
           "every filtered record is the app's"
         ).to.equal(true);
+
+        expect(
+          await codeOf(list({ appRef: "not-a-ref" })),
+          "malformed filter"
+        ).to.equal(status.INVALID_ARGUMENT);
       });
     });
   }
