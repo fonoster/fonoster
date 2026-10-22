@@ -74,11 +74,21 @@ type call struct {
 	evMu     sync.Mutex
 	seq      uint64
 	evClosed bool
+
+	// endSpan ends the call's span (roomr.call.inbound or roomr.call.outbound, tagged with the
+	// call ref; OTLP traces when telemetry is set up, a no-op otherwise).
+	endSpan func()
 }
 
 func (n *Node) newCall(ref string, inbound bool) *call {
+	name := "roomr.call.outbound"
+	if inbound {
+		name = "roomr.call.inbound"
+	}
+	_, endSpan := telemetry.StartCall(context.Background(), name, ref)
 	return &call{n: n, ref: ref, inbound: inbound, state: CallRinging, done: make(chan struct{}),
-		maxDuration: n.cfg.MaxDuration, metadata: map[string]string{}, headers: map[string]string{}}
+		maxDuration: n.cfg.MaxDuration, metadata: map[string]string{}, headers: map[string]string{},
+		endSpan: endSpan}
 }
 
 // register adds c to the node's call table, forgetting calls that ended longer ago than the
@@ -252,6 +262,7 @@ func (c *call) end(cause string, status int) {
 		ev["sip_status"] = status
 	}
 	c.event("call.ended", ev)
+	c.endSpan()
 	if sess != nil {
 		sess.sendEvent(&sessionv1.Event{Event: &sessionv1.Event_Ended{Ended: &sessionv1.Ended{
 			Cause: cause, SipStatus: uint32(status)}}})
