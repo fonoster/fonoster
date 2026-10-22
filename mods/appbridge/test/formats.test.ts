@@ -28,10 +28,13 @@ import { APP_AUDIO_FORMATS, convert, INTERNAL } from "../src/audio/pcm";
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function waitFor<T>(fn: () => T | undefined | false, ms = 5000) {
+async function waitFor<T>(
+  fn: () => T | undefined | false | Promise<T | undefined | false>,
+  ms = 5000
+) {
   const deadline = Date.now() + ms;
   for (;;) {
-    const v = fn();
+    const v = await fn();
     if (v) return v;
     if (Date.now() > deadline) throw new Error("timed out");
     await sleep(20);
@@ -138,7 +141,10 @@ describe("@AppBridge audio format menu", function () {
       // Agent audio in the app's format, sent at once, is heard at real time.
       const since = Date.now();
       peer.sendBinary(convert(tone(600), INTERNAL, audio));
-      await waitFor(() => harness.roomrNode.outputAudioMs(since) >= 560, 3000);
+      await waitFor(
+        async () => (await harness.roomrNode.outputAudioMs(since)) >= 560,
+        3000
+      );
       expect(Date.now() - since).to.be.greaterThan(450);
     });
   }

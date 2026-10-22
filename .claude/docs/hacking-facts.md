@@ -21,7 +21,7 @@ Verify against code before drafting with /ps:docs.
 - Config/secrets: `.dev/.env` (secrets, host IP), `.dev/config/` (service files, keys), overrides in
   `.dev/overlay/<service>.yaml`. All git-ignored.
 - Tests: `npm test` (uses nats-test + fonoster_test via compose env) · `npm test -w @fonoster/dashboard` ·
-  `cd go/roomr && go test -race ./...`.
+  the Roomr node's tests live in fonoster/roomr.
 - Verified by the agent: deps healthy; `npm run dev` → migrations, catalog, roomr peer, dashboard 200; SDK
   login + seed; two SIP calls to an Autopilot app (6 s audio, record completed); appbridge reload ~2 s on save; .go
   save rebuilds roomr; Vite HMR and /sip WS through Envoy; npm test 1679/0; Go race; dashboard 290.

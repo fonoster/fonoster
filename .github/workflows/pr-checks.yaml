@@ -56,7 +56,6 @@ jobs:
       pull-requests: read
     outputs:
       node: ${{ steps.filter.outputs.node }}
-      go: ${{ steps.filter.outputs.go }}
       python: ${{ steps.filter.outputs.python }}
       dashboard: ${{ steps.filter.outputs.dashboard }}
       sdk: ${{ steps.filter.outputs.sdk }}
@@ -79,9 +78,6 @@ jobs:
               - 'tsconfig.json'
               - '.mocharc.cjs'
               - 'tools/**'
-            go:
-              - *workflow
-              - 'go/**'
             python:
               - *workflow
               - 'python/**'
@@ -321,66 +317,6 @@ jobs:
           path: reports/junit/
           if-no-files-found: ignore
 
-  go:
-    name: go Roomr node
-    needs: changes
-    if: needs.changes.outputs.go == 'true' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    services:
-      nats:
-        image: nats:2.11.8
-        ports:
-          - 4222:4222
-    defaults:
-      run:
-        working-directory: go/roomr
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go/roomr/go.mod
-          cache-dependency-path: go/roomr/go.sum
-
-      # The Opus codec is cgo (internal/audio/opus.go); the shipped image links libopus statically
-      # (go/roomr/Dockerfile). Tests run with cgo (the race detector needs it), so Opus is in.
-      - name: Install libopus
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq libopus-dev
-
-      # The live-Routr test registers two nodes behind a real Routr (e2e/testdata/routr). ROM-034 is
-      # waived (catalog waivers.json, Routr 2.15.4 ignores least-sessions) and skips unless ROM034_LIVE=1.
-      - name: Start a throwaway Routr
-        run: docker compose -f e2e/testdata/routr/compose.yaml up -d --wait
-
-      - name: gofmt, vet and tests (race detector; e2e against NATS and Routr; JUnit)
-        env:
-          CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
-          ROUTR_EDGEPORT: 127.0.0.1:15360
-          ROUTR_NODE_HOST: host.docker.internal
-          GOTOOLCHAIN: local
-        run: |
-          test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
-          go vet ./...
-          # The no-libopus fallback (opus_none.go) still builds.
-          CGO_ENABLED=0 go build ./...
-          # Packages one at a time: several bind random local ports and collide when run in parallel.
-          mkdir -p ../../reports/junit
-          go run gotest.tools/gotestsum@v1.13.0 --junitfile ../../reports/junit/roomr-go.xml -- -race -p 1 ./...
-
-      - name: Roomr JUnit
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: junit-roomr-go
-          path: reports/junit/
-          if-no-files-found: ignore
-
-      - name: Routr logs
-        if: failure()
-        run: docker compose -f e2e/testdata/routr/compose.yaml logs
-
   python:
     name: python SDK and runner
     needs: changes
@@ -523,7 +459,6 @@ jobs:
         api,
         autopilot,
         billing,
-        go,
         python,
         dashboard,
         sdk-pack,

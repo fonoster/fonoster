@@ -179,9 +179,10 @@ async function worker(index: number) {
   await sleep(go.end - Date.now());
   measuring = false;
 
-  const outbound = harness.roomrNode
-    .receivedAudio()
-    .filter((p) => p.at >= go.measureFrom && p.at < go.end).length;
+  // Frames of app audio the callers heard in the window (20 ms each; roomr-fake keeps no packet log).
+  const outbound = Math.round(
+    (await harness.roomrNode.outputAudioMs(go.measureFrom)) / 20
+  );
   send({
     type: "result",
     calls,

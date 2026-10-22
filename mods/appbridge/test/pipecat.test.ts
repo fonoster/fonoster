@@ -53,13 +53,13 @@ async function freePort(): Promise<number> {
 }
 
 async function waitFor<T>(
-  fn: () => T | undefined | false,
+  fn: () => T | undefined | false | Promise<T | undefined | false>,
   ms = 10000,
   what = "condition"
 ): Promise<T> {
   const deadline = Date.now() + ms;
   for (;;) {
-    const v = fn();
+    const v = await fn();
     if (v) return v;
     if (Date.now() > deadline) throw new Error(`timed out waiting for ${what}`);
     await sleep(25);
@@ -219,7 +219,7 @@ describe("@appbridge Pipecat golden test (twilio protocol)", function () {
       "caller audio at the bot"
     );
     await waitFor(
-      () => harness.roomrNode.outputAudioMs(since) > 500,
+      async () => (await harness.roomrNode.outputAudioMs(since)) > 500,
       10000,
       "the bot's audio at the caller"
     );
@@ -229,7 +229,9 @@ describe("@appbridge Pipecat golden test (twilio protocol)", function () {
     const cut = Date.now();
     await sleep(400);
     // The 4 s tone stopped: nothing audible arrived well after the clear.
-    expect(harness.roomrNode.outputSilentWithinMs(cut)).to.be.lessThan(200);
+    expect(await harness.roomrNode.outputSilentWithinMs(cut)).to.be.lessThan(
+      200
+    );
 
     harness.roomrNode.pressKey("9");
     await waitFor(() => commands().includes("hangup"), 10000, "the hang-up");

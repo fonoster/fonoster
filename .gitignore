@@ -59,3 +59,6 @@ ops/rebuild/cell/.local/
 
 # QA results (mods/conformance/catalog/report.cjs reads them; they are never committed)
 reports/
+
+# roomr-fake binaries (mods/conformance/scripts/fetch-roomr-fake.cjs)
+.roomr-fake/

@@ -13,7 +13,7 @@ syntax = "proto3";
 
 package session.v1;
 
-option go_package = "github.com/fonoster/fonoster/go/roomr/api/session/v1;sessionv1";
+option go_package = "github.com/fonoster/roomr/api/session/v1;sessionv1";
 
 service Session {
   rpc Connect(stream NodeMessage) returns (stream AppMessage);

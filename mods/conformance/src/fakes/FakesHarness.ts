@@ -327,7 +327,9 @@ export class FakesHarness implements Harness {
       case "media.output_audio_ms":
         return this.roomrNode.outputAudioMs(since);
       case "media.commands":
-        return this.roomrNode.commands.map((c) => c.command);
+        return this.roomrNode
+          .freshCommands()
+          .then((all) => all.map((c) => c.command));
       case "media.held":
         return this.roomrNode.isHeld();
       case "media.sip":

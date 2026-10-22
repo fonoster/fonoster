@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { NodeOverrides } from "../roomr/nodeConfig";
 
 // Mirrors schema/scenario.schema.json. The schema is the source of truth; these types only
 // describe what the loader returns after validation.
@@ -27,14 +26,12 @@ export type Contract =
   | "voice-session"
   | "twilio-media-streams-flavor"
   | "voice-sdk"
-  | "media-control"
   | "autopilot"
   | "turn-taking"
   | "regions"
   | "billing";
 
-export type Role =
-  "app" | "appbridge" | "media-control-client" | "region-cell" | "platform";
+export type Role = "app" | "appbridge" | "region-cell" | "platform";
 
 export type ProviderFailure =
   "provider_unavailable" | "provider_timeout" | "bad_request";
@@ -102,8 +99,6 @@ export type Setup = {
     maxRooms?: number;
   };
   agent?: Record<string, unknown>;
-  /** media-control: the Roomr node(s) under test and the fakes around them. */
-  roomr?: RoomrSetup;
   /** voice-session: the catalog AppBridge resolves ids with (see SCENARIOS.md). */
   catalog?: {
     voices?: {
@@ -120,94 +115,7 @@ export type CallerAction = {
   audio?: AudioSource;
   drop?: { reason: string; sipStatus?: number };
   nodeCrash?: true;
-  /**
-   * media-control: a call arrives at a node as an INVITE (appRef and callRef become X-App-Ref
-   * and X-Call-Ref; `headers` are added as given; `codecs` is the offer).
-   */
-  call?: {
-    from?: string;
-    to?: string;
-    appRef?: string;
-    callRef?: string;
-    name?: string;
-    node?: number;
-    headers?: Record<string, string>;
-    codecs?: string[];
-  };
-  /** media-control: which caller call the action applies to (default the last placed). */
-  name?: string;
-  /** media-control: the caller sends no RTP at all (true) or resumes (false). */
-  mute?: boolean;
 };
-
-/** media-control: the node(s), their config overrides and the fakes' initial behaviour. */
-export type RoomrSetup = {
-  /** How many nodes (default 1). */
-  nodes?: number;
-  /** Config overrides for every node (short timeouts and limits, headers, registrations). */
-  config?: NodeOverrides;
-  /** Per-node overrides, by index. */
-  node_config?: NodeOverrides[];
-  app?: AppAction;
-  trunk?: TrunkAction;
-  /** The fake registrar requires these credentials. */
-  registrar?: { username: string; password: string };
-};
-
-/** `rpc` steps: the fake controller calls one Roomr RPC (or places a call across the nodes). */
-export type RpcAction = {
-  method: string;
-  node?: number;
-  request?: Record<string, unknown>;
-  /** The RPC must succeed and its reply match this pattern. */
-  reply?: Record<string, unknown>;
-  /** The RPC must fail and `{ code, reason, message }` match this pattern. */
-  error?: Record<string, unknown>;
-  /** `place` only: the node order to try instead of the heartbeat scoring. */
-  order?: number[];
-};
-
-/** `app` steps: the fake session endpoint (the app side of the control streams). */
-export type AppAction = {
-  mode?: "answer" | "reject" | "stall" | "down";
-  sip_status?: number;
-  answer_after_ms?: number;
-  max_duration_s?: number;
-  /** The stream to act on (default the last opened). */
-  call_ref?: string;
-  /** Answer (or Ready) a stalled stream now. */
-  answer?: true;
-  /** One AppMessage on the stream, in snake_case (`{ hold: { music } }`). */
-  send?: Record<string, unknown>;
-  /** The app leg plays a tone (or silence). */
-  audio?: AudioSource;
-  /** The app leg sends no RTP at all (true) or resumes (false). */
-  mute?: boolean;
-  /** Every stream breaks and the endpoint stops listening. */
-  kill?: true;
-};
-
-/** `trunk` steps: how the fake trunk answers what a node dials. */
-export type TrunkAction = {
-  mode?: "answer" | "busy" | "no_answer" | "unavailable" | "decline";
-  after_ms?: number;
-  auth?: { username: string; password: string };
-  challenge?: number;
-};
-
-/** `nats` steps: fault injection between the nodes and NATS. */
-export type NatsAction = {
-  drop?: "connection" | "messages";
-  /** `drop: messages` only: the subject prefix dropped (default `roomr.`). */
-  prefix?: string;
-  restore?: true;
-};
-
-/** `node` steps: the node process itself. */
-export type NodeAction = { index?: number; kill?: true; sigterm?: true };
-
-/** `rtp` steps: one of the harness's RTP parties (rtp_a .. rtp_d) plays or goes silent. */
-export type RtpAction = { name: string; audio?: AudioSource; mute?: boolean };
 
 /** `control` steps: the harness acts on the implementation's management side (regions). */
 export type ControlAction = { op: string } & Record<string, unknown>;
@@ -251,12 +159,6 @@ export type Step = Timing & {
   caller?: CallerAction;
   control?: ControlAction;
   stripe?: StripeAction;
-  rpc?: RpcAction;
-  app?: AppAction;
-  trunk?: TrunkAction;
-  nats?: NatsAction;
-  node?: NodeAction;
-  rtp?: RtpAction;
   next?: true;
 };
 
@@ -290,13 +192,7 @@ export const STEP_ACTIONS = [
   "close",
   "caller",
   "control",
-  "stripe",
-  "rpc",
-  "app",
-  "trunk",
-  "nats",
-  "node",
-  "rtp"
+  "stripe"
 ] as const;
 
 export type StepAction = (typeof STEP_ACTIONS)[number];

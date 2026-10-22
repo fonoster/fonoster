@@ -12,7 +12,7 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | `postgres` | `postgres:16` | Routr's database (Routr runs with `START_INTERNAL_DB=false`). |
 | `routr` | `fonoster/routr-one` | SIP edge. Nodes register to it with their session count. |
 | `rtpengine` | `fonoster/rtpengine` | Carrier-side media relay. |
-| `roomr` | `go/roomr/Dockerfile` | The SIP and media edge: SIP legs, rooms, mixing, RTP. Distroless static binary. |
+| `roomr` | `fonoster/roomr` (pinned by digest) | The SIP and media edge: SIP legs, rooms, mixing, RTP. Released from [fonoster/roomr](https://github.com/fonoster/roomr). |
 | `appbridge` | `mods/appbridge/Dockerfile` | AppBridge: speech, turn-taking, app sessions. |
 | `autopilot` (profile) | `mods/autopilot/Dockerfile` | Hosted Autopilot session engine. |
 | `minio` | `minio/minio` | Object storage for recordings and records. |

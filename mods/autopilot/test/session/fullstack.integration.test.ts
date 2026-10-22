@@ -31,13 +31,13 @@ const SECRET = "fullstack";
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function waitFor<T>(
-  fn: () => T | undefined | false,
+  fn: () => T | undefined | false | Promise<T | undefined | false>,
   ms: number,
   what: string
 ): Promise<T> {
   const deadline = Date.now() + ms;
   for (;;) {
-    const v = fn();
+    const v = await fn();
     if (v) return v;
     if (Date.now() > deadline) throw new Error(`timed out waiting for ${what}`);
     await sleep(25);
@@ -151,7 +151,7 @@ describe("@autopilot full stack: Roomr node → appbridge → Autopilot → LLM 
         "the reply TTS"
       );
       await waitFor(
-        () => harness.roomrNode.outputAudioMs(start) > 2500,
+        async () => (await harness.roomrNode.outputAudioMs(start)) > 2500,
         8000,
         "the reply audio at the caller"
       );

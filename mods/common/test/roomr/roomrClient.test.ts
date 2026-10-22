@@ -28,27 +28,24 @@ import {
 } from "../../src/roomr";
 
 describe("@common[roomr] client", function () {
-  it("loads the same proto the Go node serves (go/roomr/api/generate.sh copies it)", function () {
-    const source = path.join(
-      __dirname,
+  it("loads the same protos as the pinned Roomr release (npm run sync:roomr copies them)", function () {
+    const pinned = path.join(
+      require.resolve("@fonoster/roomr"),
       "..",
       "..",
-      "..",
-      "..",
-      "go",
-      "roomr",
-      "api",
-      "roomr",
-      "v1",
-      "roomr.proto"
+      "protos"
     );
-    const copy = ROOMR_PROTO.replace(
-      `${path.sep}dist${path.sep}`,
-      `${path.sep}src${path.sep}`
-    );
-    expect(fs.readFileSync(copy, "utf8")).to.equal(
-      fs.readFileSync(source, "utf8")
-    );
+    for (const [from, to] of [
+      ["roomr/v1/roomr.proto", "roomr.proto"],
+      ["session/v1/session.proto", "session.proto"]
+    ]) {
+      const copy = path
+        .join(path.dirname(ROOMR_PROTO), to)
+        .replace(`${path.sep}dist${path.sep}`, `${path.sep}src${path.sep}`);
+      expect(fs.readFileSync(copy, "utf8"), to).to.equal(
+        fs.readFileSync(path.join(pinned, from), "utf8")
+      );
+    }
   });
 
   it("calls a node with a deadline and reports its status code", async function () {

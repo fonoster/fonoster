@@ -249,14 +249,14 @@ describe("@apiserver/webhooks node call events over NATS", function () {
     // The first call's AppBridge dies: the node ends it with app_gone. The second call's
     // AppBridge ends it itself (sends its own call.ended, deletes its entry), then the stream
     // break still reaches the node as app_gone.
-    node.endCall(callRefs[0], "app_gone");
+    await node.endCall(callRefs[0], "app_gone");
     for (const r of replicas)
       r.lost.onEntry({
         kind: "calls",
         id: callRefs[1],
         writtenAt: new Date()
       });
-    node.endCall(callRefs[1], "app_gone");
+    await node.endCall(callRefs[1], "app_gone");
     await until(() => intake.length >= 1);
     await new Promise((r) => setTimeout(r, 500));
     expect(intake).to.have.length(1);
@@ -308,6 +308,6 @@ describe("@apiserver/webhooks node call events over NATS", function () {
       (requests[0].entries as Record<string, unknown>[]).map((e) => e.type)
     ).to.deep.equal(["call.started", "call.progress", "call.failed"]);
     // No room was left behind and no INVITE was retried.
-    expect(node.invites).to.equal(1);
+    expect(await node.invites()).to.equal(1);
   });
 });

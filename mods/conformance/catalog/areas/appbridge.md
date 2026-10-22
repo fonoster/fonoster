@@ -23,6 +23,7 @@ tests:
   - mods/appbridge/test/appDestinations.test.ts
   - mods/appbridge/test/stream.test.ts
   - mods/appbridge/test/failedCallRecord.test.ts
+  - mods/appbridge/test/gonode.test.ts
 ---
 
 # AppBridge and the session protocol
@@ -71,8 +72,9 @@ areas are brought:
 | observability, tracePropagation | Operations |
 | config, apps, appsFreshLookup, openUntilReady | Deployment and operations |
 
-The AppBridge suites through the Go Roomr node (gonode, srtp) are cases of the Roomr area
-(ROM-008, ROM-009, ROM-015, ROM-040). Pure unit tests (pcm, OutputQueue, labels, detectors, replay,
+Every AppBridge suite runs against a real Roomr node in roomr-fake (`@fonoster/roomr/fake`); the
+node itself (SRTP, codecs, listeners, its gRPC contract) is proven in fonoster/roomr, whose release
+the gate requires (extract-roomr). Pure unit tests (pcm, OutputQueue, labels, detectors, replay,
 turn, signing, playFetch, srtpCipher) stay unit tests. Of AppBridge's drain, only what AppBridge
 does is here (APB-030); the control plane's side of it is in the API area.
 
@@ -534,3 +536,18 @@ sends new calls to other replicas, and keeps live calls until they end or the dr
 passes. The session keys (listen, drainWait, keepalive) and mediaTimeout are read and checked.
 
 **Pass.** SERVING, then NOT_SERVING while draining with the live call kept; the drain ends when the last call does; at the maximum wait what is left ends with error and a hangup on the stream. **Fail.** SERVING while draining, a live call dropped by the drain, or a drain that never ends.
+
+### APB-031 AppBridge carries calls through a Roomr node
+
+- **Spec:** voice-session / Raw audio in both directions / Any SIP codec reaches any app format
+- **Spec:** voice-session / Raw audio in both directions / Caller audio cadence
+- **Priority:** P1
+- **Proof:** AppBridge drops the caller's audio from the node (`Call.ts` in `mods/appbridge`); the tests must go red on the voice-session files that hear the caller.
+- **Fault:** faults/APB-031.patch
+- **Test:** mods/appbridge/test/gonode.test.ts
+
+The voice-session scenario files that a real node can run go through AppBridge, a Roomr node and
+its phone (roomr-fake): real SIP, RTP and the per-call control stream end to end. No NATS message
+carries audio while a call has audio both ways.
+
+**Pass.** Every runnable voice-session file passes through the node, and the bus carries only text, no subject at frame rate. **Fail.** A file that passes with scripted node state and fails through the node, or audio on the bus.

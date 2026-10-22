@@ -1,0 +1,3 @@
+{
+  "ROM": "Retired 2026-10-22 (openspec extract-roomr): the Roomr node moved to fonoster/roomr, whose CI proves it; the release gate checks the pinned Roomr release. AppBridge through a node is APB-031."
+}

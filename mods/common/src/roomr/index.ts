@@ -21,8 +21,8 @@ import * as grpc from "@grpc/grpc-js";
 import * as protoLoader from "@grpc/proto-loader";
 
 // The controller's side of Roomr (roomr.v1.Roomr, redesign-roomr "Roomr is a gRPC service
-// with three nouns"). The proto is go/roomr/api/roomr/v1/roomr.proto; src/protos/roomr.proto is
-// the copy go/roomr/api/generate.sh keeps identical.
+// with three nouns"). The proto is fonoster/roomr's api/roomr/v1/roomr.proto; src/protos/roomr.proto
+// is the copy of the pinned release (npm run sync:roomr; the client test checks it).
 
 /** The proto file this package loads. */
 export const ROOMR_PROTO = path.join(__dirname, "..", "protos", "roomr.proto");

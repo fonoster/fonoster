@@ -17,8 +17,6 @@
  * limitations under the License.
  */
 import {
-  buildRoomr,
-  RoomrBinaries,
   OtlpCollector,
   RealMediaHarness,
   Scenario
@@ -31,12 +29,11 @@ import { MemoryCallRecordSink } from "../src/record/CallRecordSink";
 import { startTelemetry, stopTelemetry } from "../src/telemetry";
 import { appsFor } from "./scenarioApps";
 
-// Observability (harden-conformance 1.3): one real call through AppBridge and the Go Roomr node,
-// both pointed at a test OTLP collector. Each must deliver traces, metrics and logs under its
-// service.name, and the call's spans and logs must carry its `fonoster.call_ref`. (The node writes
-// no log record for a normal call, only node-level ones, so its call-tagged signal is the span.) The apiserver's
-// part is in mods/apiserver/test/core/telemetryOtlp.test.ts. Needs NATS (CONFORMANCE_NATS_URL) and
-// a Go toolchain.
+// Observability (harden-conformance 1.3): one real call through AppBridge and a Roomr node
+// (roomr-fake), AppBridge pointed at a test OTLP collector. It must deliver traces, metrics and logs
+// under its service.name, and the call's spans and logs must carry its `fonoster.call_ref`. The
+// node's own telemetry is proven in fonoster/roomr; the apiserver's part is in
+// mods/apiserver/test/core/telemetryOtlp.test.ts. Needs NATS (CONFORMANCE_NATS_URL).
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 const CALL_REF_ATTR = "fonoster.call_ref";
 
@@ -62,27 +59,22 @@ function configFor(
   } as AppBridgeConfig;
 }
 
-describe("@appbridge OpenTelemetry signals from one real call (Go Roomr node)", function () {
+describe("@appbridge OpenTelemetry signals from one real call (Roomr node in roomr-fake)", function () {
   this.timeout(60000);
   let nc: NatsConnection;
-  let bins: RoomrBinaries | undefined;
 
   before(async function () {
     this.timeout(120000);
     if (!NATS_URL) return this.skip();
-    bins = buildRoomr(NATS_URL);
-    if (!bins) return this.skip();
     nc = await connect({ servers: NATS_URL });
   });
 
   after(async () => nc?.close());
 
-  it("AppBridge and the Roomr node deliver traces and metrics (the node sends no OTLP logs) tagged with the call ref", async function () {
+  it("AppBridge delivers traces, logs and metrics tagged with the call ref (the node's own telemetry is Roomr's to prove)", async function () {
     const collector = await new OtlpCollector().start();
     const callRef = `obs-${Date.now()}`;
-    const harness = new RealMediaHarness(bins!, { vendorCalls: () => 0 });
-    // The node reads the standard OTEL_* variables when its file sets no endpoint.
-    harness.media.env = { OTEL_EXPORTER_OTLP_ENDPOINT: collector.endpoint };
+    const harness = new RealMediaHarness({ vendorCalls: () => 0 });
     await harness.start();
     const config = configFor(harness, collector.endpoint);
     startTelemetry(config.telemetry);
@@ -102,18 +94,14 @@ describe("@appbridge OpenTelemetry signals from one real call (Go Roomr node)", 
       // Ending the call ends its span; stopping each service flushes what is still batched.
       await appbridge.stop();
       await stopTelemetry();
-      await harness.media.shutdown();
 
       const gw = "fonoster-appbridge";
-      const node = "fonoster-roomr";
       await collector.until(
         () =>
           collector.has(gw, "traces", CALL_REF_ATTR, callRef) &&
           collector.has(gw, "logs", CALL_REF_ATTR, callRef) &&
-          collector.has(gw, "metrics") &&
-          collector.has(node, "traces", CALL_REF_ATTR, callRef) &&
-          collector.has(node, "metrics"),
-        "every signal from AppBridge and the Roomr node"
+          collector.has(gw, "metrics"),
+        "every signal from AppBridge"
       );
       expect(collector.has(gw, "metrics", "fonoster.appbridge.calls.total")).to
         .be.true;

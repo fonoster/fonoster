@@ -13,6 +13,7 @@ attached to the release, where the gate decides.
 | `prove.cjs` | Applies each case's fault patch, runs the case, expects red, reverts; writes proof records |
 | `faults/<ID>.patch` | The seeded fault of a case, applied by `prove.cjs` |
 | `ids.lock.json` | Every case id with its name; ids are never reused or deleted |
+| `retired.json` | Retired areas by prefix, with why; their ids stay in the lock and are never reused |
 | `uncovered-scenarios.txt` | Spec scenarios in scope with no case; may only shrink |
 | `tiers.json` | Generated for the harness: tier, priority, trials per case |
 | `waivers.json`, `quarantine.json`, `flake-history.json` | Optional inputs to the report |

@@ -285,5 +285,6 @@
   "VSD-013": "Twilio streams open, carry audio both ways and end",
   "VSD-014": "Twilio marks, clear and keypresses",
   "VSD-015": "Twilio streams hang up by socket or by the Calls endpoint",
-  "VSD-016": "An unmodified Pipecat bot works"
+  "VSD-016": "An unmodified Pipecat bot works",
+  "APB-031": "AppBridge carries calls through a Roomr node"
 }

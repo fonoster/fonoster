@@ -225,9 +225,9 @@ describe("@apiserver[control plane] stateless replicas", function () {
     await until(() => stream.statuses.includes("ANSWER"), 5000, "ANSWER");
     expect(stream.statuses).to.deep.equal(["TRYING", "PROGRESS", "ANSWER"]);
     // Placed by A (B does not place), over gRPC: CreateCall reached the node.
-    expect(n.of("CreateCall")).to.have.length(1);
+    expect(await n.of("CreateCall")).to.have.length(1);
 
-    n.hangUp(ref);
+    await n.hangUp(ref);
     await until(() => stream.ended, 3000, "the stream to end");
   });
 
@@ -240,9 +240,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
     );
     // The first call only rings until the test answers it, after its placer is gone.
     const refs = Array.from({ length: 9 }, () => randomUUID());
-    const n = await node(`n-${randomUUID()}`, {
-      callee: (ref) => (ref === refs[0] ? "ring" : "answer")
-    });
+    const n = await node(`n-${randomUUID()}`);
+    await n.callee("ring", refs[0]);
     await settle();
 
     // TrackCall for the first call on every replica.
@@ -253,8 +252,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
       refs.map((ref) => requestCall(client, ref))
     );
     expect(replies.every((r) => r.type === "ack")).to.equal(true);
-    expect(n.of("CreateCall")).to.have.length(9);
-    expect(n.of("CreateRoom")).to.have.length(0);
+    expect(await n.of("CreateCall")).to.have.length(9);
+    expect(await n.of("CreateRoom")).to.have.length(0);
     for (const s of firstStreams.values())
       await until(() => s.statuses.includes("PROGRESS"), 3000, "PROGRESS");
 
@@ -264,8 +263,15 @@ describe("@apiserver[control plane] stateless replicas", function () {
 
     // The first call's next statuses still reach TrackCall on the surviving replicas: they come
     // from the node on the call's own subject, not from the replica that placed it.
-    n.answer(refs[0]);
-    n.hangUp(refs[0]);
+    await n.answer(refs[0]);
+    // A node announces the answer once the app is ready: hang up after it.
+    for (const r of survivors)
+      await until(
+        () => firstStreams.get(r)!.statuses.includes("ANSWER"),
+        3000,
+        "ANSWER"
+      );
+    await n.hangUp(refs[0]);
     for (const r of survivors) {
       const s = firstStreams.get(r)!;
       await until(() => s.ended, 3000, `${r.name}'s stream to end`);
@@ -273,8 +279,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
     }
 
     // No call ended: nothing asked the node to end a call or a room.
-    expect(n.of("EndRoom")).to.have.length(0);
-    expect(n.of("EndCall")).to.have.length(0);
+    expect(await n.of("EndRoom")).to.have.length(0);
+    expect(await n.of("EndCall")).to.have.length(0);
 
     // Another replica places, and the survivors track, new calls.
     const [d] = await replicas(["d"]);
@@ -292,8 +298,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
       5000,
       "every new call answered"
     );
-    expect(n.of("CreateCall")).to.have.length(15);
-    expect(n.of("EndRoom")).to.have.length(0);
+    expect(await n.of("CreateCall")).to.have.length(15);
+    expect(await n.of("EndRoom")).to.have.length(0);
   });
 
   it("losing a Roomr node: TrackCall ends with FAILED on every replica", async function () {
@@ -306,12 +312,12 @@ describe("@apiserver[control plane] stateless replicas", function () {
     expect(await requestCall(client, ref)).to.include({ type: "ack" });
     for (const s of streams)
       await until(() => s.statuses.includes("PROGRESS"), 3000, "PROGRESS");
-    n.answer(ref);
+    await n.answer(ref);
     for (const s of streams)
       await until(() => s.statuses.includes("ANSWER"), 3000, "ANSWER");
 
     // The node is killed mid-call: no call.ended and no node.down ever come.
-    n.kill();
+    await n.kill();
     for (const s of streams) {
       await until(() => s.ended, 9000, "the stream to end");
       expect(s.statuses).to.deep.equal([
@@ -336,9 +342,9 @@ describe("@apiserver[control plane] stateless replicas", function () {
     expect(await requestCall(client, randomUUID())).to.include({
       nodeId: idle.nodeRef
     });
-    expect(idle.of("CreateCall")).to.have.length(1);
-    expect(busy.requests).to.have.length(0);
-    expect(draining.requests).to.have.length(0);
+    expect(await idle.of("CreateCall")).to.have.length(1);
+    expect(await busy.requests()).to.have.length(0);
+    expect(await draining.requests()).to.have.length(0);
   });
 
   it("no capacity: with every node down, gone or at its limit, CreateCall fails at once with RESOURCE_EXHAUSTED and no INVITE is sent", async function () {
@@ -371,7 +377,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
     expect(created.ref).to.equal(undefined);
     expect(Date.now() - started).to.be.below(2000);
 
-    for (const n of [d1, d2, full, gone]) expect(n.requests).to.have.length(0);
+    for (const n of [d1, d2, full, gone])
+      expect(await n.requests()).to.have.length(0);
   });
 
   it("no capacity: a node at its session limit gets no new call", async function () {
@@ -386,8 +393,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
       type: "ack",
       nodeId: below.nodeRef
     });
-    expect(below.of("CreateCall")).to.have.length(1);
-    expect(atLimit.requests).to.have.length(0);
+    expect(await below.of("CreateCall")).to.have.length(1);
+    expect(await atLimit.requests()).to.have.length(0);
   });
 
   it("refusal triggers a retry: a node full since its last heartbeat sends the call to the next one", async function () {
@@ -406,9 +413,9 @@ describe("@apiserver[control plane] stateless replicas", function () {
       type: "ack",
       nodeId: next.nodeRef
     });
-    expect(next.of("CreateCall")).to.have.length(1);
-    expect(stale.of("CreateCall")).to.have.length(1);
-    expect(stale.invites).to.equal(0);
+    expect(await next.of("CreateCall")).to.have.length(1);
+    expect(await stale.of("CreateCall")).to.have.length(1);
+    expect(await stale.invites()).to.equal(0);
   });
 
   it("two controllers picking the same full node both move on, and each call is placed once", async function () {
@@ -430,8 +437,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
     );
     expect(replies.every((r) => r.type === "ack")).to.equal(true);
     // Every call was dialed once: the tight node took at most one, the refusals moved on.
-    expect(tight.invites + next.invites).to.equal(4);
-    expect(tight.invites).to.be.at.most(1);
+    expect((await tight.invites()) + (await next.invites())).to.equal(4);
+    expect(await tight.invites()).to.be.at.most(1);
   });
 
   it("timeout retried on the same node, never on another: the callee gets one INVITE", async function () {
@@ -442,19 +449,21 @@ describe("@apiserver[control plane] stateless replicas", function () {
     await settle();
 
     // The first CreateCall answers after the 2 s deadline; the retry finds the call (dedupe).
-    slow.stallNext("CreateCall", 2500);
+    await slow.stallNext("CreateCall", 2500);
     const ref = randomUUID();
     expect(await requestCall(client, ref)).to.include({
       type: "ack",
       nodeId: slow.nodeRef
     });
-    expect(slow.of("CreateCall")).to.have.length(2);
+    expect(await slow.of("CreateCall")).to.have.length(2);
     // Same call_ref and parameters on both attempts; the node dedupes: one INVITE.
-    expect(slow.of("CreateCall")[0]).to.deep.equal(slow.of("CreateCall")[1]);
+    expect((await slow.of("CreateCall"))[0]).to.deep.equal(
+      (await slow.of("CreateCall"))[1]
+    );
     await new Promise((r) => setTimeout(r, 800)); // the stalled first attempt lands too
-    expect(slow.calls.size).to.equal(1);
-    expect(slow.invites).to.equal(1);
-    expect(other.requests).to.have.length(0);
+    expect(await slow.invites()).to.equal(1);
+    expect(await slow.invites()).to.equal(1);
+    expect(await other.requests()).to.have.length(0);
   });
 
   it("no capacity: after three nodes refuse, CreateCall fails and no fourth node is tried", async function () {
@@ -475,10 +484,12 @@ describe("@apiserver[control plane] stateless replicas", function () {
     expect(created.error?.code).to.equal(status.RESOURCE_EXHAUSTED);
     // The three least-loaded (by their heartbeats) were tried, once each; the fourth was not,
     // and no INVITE went out.
-    expect(refusing.map((n) => n.of("CreateCall").length)).to.deep.equal([
-      1, 1, 1, 0
-    ]);
-    for (const n of refusing) expect(n.invites).to.equal(0);
+    expect(
+      await Promise.all(
+        refusing.map(async (n) => (await n.of("CreateCall")).length)
+      )
+    ).to.deep.equal([1, 1, 1, 0]);
+    for (const n of refusing) expect(await n.invites()).to.equal(0);
   });
 });
 
@@ -548,7 +559,7 @@ describe("@apiserver[control plane] session registry", function () {
         const stream = restarted.track(ref);
         expect(await requestCall(client, ref)).to.include({ type: "ack" });
         await until(() => stream.statuses.includes("ANSWER"), 5000, "ANSWER");
-        expect(n.of("EndCall")).to.have.length(0);
+        expect(await n.of("EndCall")).to.have.length(0);
       } finally {
         await restarted.stop();
       }

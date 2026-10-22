@@ -227,61 +227,6 @@ class Run {
         return this.options.harness.control(
           interpolate(step.control!, this.vars)
         );
-      case "rpc":
-        return this.rpc(step);
-      case "app":
-      case "trunk":
-      case "nats":
-      case "node":
-      case "rtp": {
-        const act = this.options.harness?.[`${action}Step` as const] as
-          ((a: unknown) => Promise<void> | void) | undefined;
-        if (!act) throw new StepFailure(`the harness has no ${action} side`);
-        return act.call(
-          this.options.harness,
-          interpolate(step[action] as Record<string, unknown>, this.vars)
-        );
-      }
-    }
-  }
-
-  /** A Roomr RPC through the fake controller: it must succeed (`reply`) or fail (`error`). */
-  private async rpc(step: Step) {
-    const harness = this.options.harness;
-    if (!harness?.rpc) throw new StepFailure("the harness has no controller");
-    const action = interpolate(step.rpc!, this.vars);
-    const result = await harness.rpc(action);
-    let source: Record<string, unknown>;
-    if (action.error) {
-      if (result.ok)
-        throw new StepFailure(
-          `${action.method} succeeded (${JSON.stringify(result.reply)}), expected an error`
-        );
-      source = {
-        code: result.code,
-        reason: result.reason,
-        message: result.message
-      };
-      const r = match(action.error, source);
-      if (!r.ok) throw new StepFailure(`${action.method} error: ${r.reason}`);
-    } else {
-      if (!result.ok)
-        throw new StepFailure(
-          `${action.method} failed with ${result.code} (${result.reason ?? result.message ?? ""})`
-        );
-      source = result.reply ?? {};
-      if (action.reply) {
-        const r = match(action.reply, source);
-        if (!r.ok) throw new StepFailure(`${action.method} reply: ${r.reason}`);
-      }
-    }
-    for (const [name, p] of Object.entries(step.capture ?? {})) {
-      const value = getPath(source, p);
-      if (value === undefined)
-        throw new StepFailure(
-          `capture ${name}: ${p} is not in the ${action.method} result`
-        );
-      this.vars[name] = value;
     }
   }
 

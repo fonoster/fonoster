@@ -24,8 +24,8 @@ import * as protoLoader from "@grpc/proto-loader";
 // one control stream to the session endpoint"). The Roomr node is the client: it opens one
 // connection per call and sends Start first; the session endpoint (AppBridge) answers with
 // Answer, Ready or Reject and sends the app's commands. Audio never travels here. The proto is
-// go/roomr/api/session/v1/session.proto; src/protos/session.proto is the copy
-// go/roomr/api/generate.sh keeps identical.
+// fonoster/roomr's api/session/v1/session.proto; src/protos/session.proto is the copy of the
+// pinned release (npm run sync:roomr; the client test checks it).
 
 /** The proto file this module loads. */
 export const SESSION_PROTO = path.join(

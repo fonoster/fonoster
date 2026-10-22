@@ -197,6 +197,7 @@ describe("@appbridge control stream against the fake node", function () {
     const { peer } = await harness.app.nextConnection();
     await waitFor(() => json(peer).find((m) => m.type === "session.start"));
     await harness.roomrNode.answered(call.callRef);
+    await harness.roomrNode.freshCommands();
     expect(commands()[0]).to.equal("answer");
     const answer = harness.roomrNode.commands[0].command as unknown as {
       media: { ip: string; port: number; codec: string };
@@ -252,6 +253,7 @@ describe("@appbridge control stream against the fake node", function () {
       3000
     );
     expect(end.reason).to.equal("error");
+    await harness.roomrNode.freshCommands();
     expect(commands()).to.include("hangup");
     expect(recorded(call.callRef, "call.ended")).to.include({
       reason: "media_timeout"
@@ -293,6 +295,7 @@ describe("@appbridge control stream against the fake node", function () {
       metadata: { order: 42 }
     });
     await harness.roomrNode.answered(call.callRef);
+    await harness.roomrNode.freshCommands();
     expect(commands()).to.include("ready");
     expect(commands()).to.not.include("answer");
   });
@@ -328,6 +331,7 @@ describe("@appbridge control stream against the fake node", function () {
       json(peer).find((m) => m.type === "session.end")
     );
     expect(end.reason).to.equal("error");
+    await harness.roomrNode.freshCommands();
     expect(commands()).to.include("hangup");
   });
 });

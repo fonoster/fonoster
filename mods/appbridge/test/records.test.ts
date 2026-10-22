@@ -273,7 +273,7 @@ describe("@AppBridge call records", function () {
       8000
     );
     // The prompt played before the app's session started.
-    expect(harness.roomrNode.outputAudioMs(since)).to.be.greaterThan(200);
+    expect(await harness.roomrNode.outputAudioMs(since)).to.be.greaterThan(200);
     // AddListener goes on the control stream before session.start goes to the app, but the two
     // travel different connections: wait for it to reach the node before comparing the order.
     await waitFor(() =>

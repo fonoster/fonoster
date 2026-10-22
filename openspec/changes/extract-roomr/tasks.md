@@ -7,19 +7,21 @@
 - [x] 1.5 Release workflow (tag, CI, multi-arch Docker Hub image, GitHub release with the protos)
 - [x] 1.6 Helm chart (charts/roomr)
 - [x] 1.7 Open node tasks filed as issues (7.13, 4.7, 3.8, 11.5)
-- [ ] 1.8 `fonoster/roomr-fake` (image and npm client) and the shared contract suite (fonoster/roomr#13, #15)
-- [ ] 1.9 First release v0.1.0 (image on Docker Hub)
-- [ ] 1.10 Pencil source for the banner and diagrams (fonoster/roomr#14)
-- [ ] 1.11 Move the ROM node cases and their TypeScript tooling (NatsFaultProxy, GoNodeDriver, VirtualSip, rtp, sip, mixMinus, RealMediaHarness, RoomrSuiteHarness) to Roomr
+- [x] 1.8 `fonoster/roomr-fake` (image, static binaries) and `@fonoster/roomr` (client, `/fake`, `/contract`), the contract suite run against the node and the fake in CI (fonoster/roomr#18, v0.2.0)
+- [x] 1.9 First release v0.1.0 (image on Docker Hub); v0.2.0 with the fake and the npm package
+- [x] 1.10 Pencil source for the banner (fonoster/roomr#16)
+- [x] 1.11 Not moved (owner, 2026-10-22): Roomr's own e2e and contract suites prove the node; the ROM area and its TypeScript tooling are retired here (ids stay locked), and the AppBridge-through-a-node case becomes APB-031
 
 ## 2. Fonoster cut-over (after 1.8 and 1.9)
 
-- [ ] 2.1 `npm run sync:roomr`: vendor the protos from a Roomr tag into mods/common/src/protos, with a drift check in CI
-- [ ] 2.2 Pin the Roomr image by digest in compose.yaml, ops/bundle, the devcontainer and Helm; the umbrella chart depends on charts/roomr
-- [ ] 2.3 Conformance: replace FakeRoomr and FakeSessionNode with the fake image; keep the integration cases (controller and AppBridge against the fake) and fault scripting through its control API
-- [ ] 2.4 Release gate: require the pinned Roomr version's QA report; keep one real-image smoke
-- [ ] 2.5 Delete go/roomr and the Go jobs in pr-checks, conformance and qa-proofs; no Go or libopus in Fonoster CI
-- [ ] 2.6 Trim docs-site Roomr pages and CONTRIBUTING to link to fonoster/roomr; compatibility table in both READMEs
+- [x] 2.1 `npm run sync:roomr`: copy the protos of the pinned `@fonoster/roomr` (its release's files) into mods/common/src/protos; the roomr client test fails on drift
+- [x] 2.2 Pin the Roomr image by digest in ops/bundle (the devcontainer extends it), ops/rebuild, the cell and the Helm values
+- [x] 2.2.1 Roomr publishes charts/roomr to oci://ghcr.io/fonoster/charts/roomr with each release (from v0.2.2), embeddable in a parent chart (existingConfigMap, templated env)
+- [ ] 2.2.2 Fonoster's chart depends on it (owner, 2026-10-22: later, once the switch loses nothing: env is static in a subchart and a parent-rendered config does not restart pods); tracked as an issue
+- [x] 2.3 Conformance: FakeRoomr, FakeSessionNode and RealMediaHarness run real nodes in roomr-fake (binary from the release, else the image); the integration cases and fault scripting go through its control API
+- [x] 2.4 Release gate: the pinned Roomr release exists, passed Roomr's CI, and matches the bundle's pin; the release smoke runs the bundle with the real pinned image
+- [x] 2.5 Delete go/roomr and the Go jobs in pr-checks, conformance and qa-proofs; no Go or libopus in Fonoster CI or the dev container
+- [x] 2.6 Trim docs-site Roomr pages and CONTRIBUTING to link to fonoster/roomr; the dev container diagram redrawn. No compatibility table (owner, 2026-10-22): the bundle's pin and the release notes say which Roomr a release runs
 
 ## 3. Close out
 
