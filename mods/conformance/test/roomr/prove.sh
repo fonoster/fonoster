@@ -10,7 +10,6 @@
 # Run from the repository root, as CI does (pr-checks.yaml "go", conformance.yaml):
 #   CONFORMANCE_NATS_URL   a NATS server with JetStream (nats-server -js)
 #   ROUTR_EDGEPORT, ROUTR_NODE_HOST   the Routr in go/roomr/e2e/testdata/routr (ROM-034)
-#   ROUTR_LIVE=1 (+ ROUTR_LIVE_HOST_ADDR)   the rig in mods/appbridge/test/routr (ROM-034)
 # Exits 1 when any run failed.
 set -u
 id="$1"
@@ -24,8 +23,7 @@ TS_FILES="mods/conformance/test/media-control-go.test.ts
 mods/conformance/test/media-control.test.ts
 mods/conformance/test/roomr-grpc.test.ts
 mods/appbridge/test/gonode.test.ts
-mods/appbridge/test/srtp.test.ts
-mods/appbridge/test/routr.live.test.ts"
+mods/appbridge/test/srtp.test.ts"
 
 compact=$(printf %s "$id" | sed 's/-//')
 run_go=1

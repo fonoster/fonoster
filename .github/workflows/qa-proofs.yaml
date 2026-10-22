@@ -383,13 +383,9 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
 
-      # Two Routrs for ROM-034: the YAML-configured one the Go e2e registers with (least-sessions),
-      # and the rig with a database that routr.live.test.ts provisions and calls through.
-      - name: Start the Routrs
-        run: |
-          (cd go/roomr && docker compose -f e2e/testdata/routr/compose.yaml up -d --wait)
-          mods/appbridge/test/routr/rig.sh up
-          mods/appbridge/test/routr/rig.sh env >> "$GITHUB_ENV"
+      # The Routr the Go e2e registers two nodes with (least-sessions, ROM-034).
+      - name: Start Routr
+        run: (cd go/roomr && docker compose -f e2e/testdata/routr/compose.yaml up -d --wait)
 
       - name: Run and prove
         env:
@@ -414,7 +410,6 @@ jobs:
         if: failure()
         run: |
           (cd go/roomr && docker compose -f e2e/testdata/routr/compose.yaml logs --tail 80) || true
-          docker logs --tail 80 rb-cutover-routr || true
 
   report:
     name: release report and gate

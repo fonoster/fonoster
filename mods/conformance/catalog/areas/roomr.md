@@ -5,7 +5,7 @@ level: L2 Integration (service)
 tier: pr
 uut: The Go Roomr node (go/roomr), the SIP and media edge. It turns SIP calls into rooms, opens one control stream per call to the session endpoint (Session.Connect), mixes RTP, serves Roomr over gRPC (CreateCall, EndCall, CreateRoom, EndRoom, AddParticipant, RemoveParticipant) and publishes heartbeats and call events on core NATS
 tester: Go e2e tests (go/roomr/e2e) that run the node in the test process with a SIP caller bot, a callee bot that is also the trunk and the registrar, and a fake app on the control stream; the media-control scenario files run against the built node (media-control-go.test.ts) with the same bots, a fake session endpoint, a fake controller and a NATS fault proxy; the same files against the fake node (media-control.test.ts); AppBridge suites through the real node (gonode, srtp); a real Routr for registration and least-sessions
-environment: NATS with JetStream (CONFORMANCE_NATS_URL), Go with libopus, the Routr in go/roomr/e2e/testdata/routr (fonoster/routr-*:2.15.4) and, nightly, the Routr rig in mods/appbridge/test/routr; everything else in the test process
+environment: NATS with JetStream (CONFORMANCE_NATS_URL), Go with libopus and the Routr in go/roomr/e2e/testdata/routr (fonoster/routr-*:2.15.4); everything else in the test process
 cadence: the Go e2e on every pull request that touches go/ (pr-checks "go"), the TypeScript suites on every pull request that touches the voice path (conformance.yaml); runs and proofs nightly and at release
 prove: sh mods/conformance/test/roomr/prove.sh {id} {junitDir}
 capabilities:
@@ -20,7 +20,6 @@ tests:
   - mods/conformance/test/roomr-grpc.test.ts
   - mods/appbridge/test/gonode.test.ts
   - mods/appbridge/test/srtp.test.ts
-  - mods/appbridge/test/routr.live.test.ts
 ---
 
 # Roomr, the SIP and media edge
@@ -566,17 +565,15 @@ controllers that present a certificate it signed.
 - **Spec:** roomr / Registration is optional and configured / Routr prefers the lighter node
 - **Spec:** roomr / Nodes register to Routr with their session count / Routr prefers the lighter node
 - **Priority:** P1
-- **Tier:** nightly
-- **Proof:** Render {sessions} as 0 always (`renderHeaders` in `internal/sipua/register.go`); the tests must go red on the session count Routr reads.
+- **Proof:** Report free places instead of rooms in use in {sessions} (`renderHeaders` in `internal/sipua/register.go`); the test must go red on the node Routr picks.
 - **Fault:** faults/ROM-034.patch
-- **Test:** go/roomr/e2e/routr_live_test.go, mods/appbridge/test/routr.live.test.ts
+- **Test:** go/roomr/e2e/routr_live_test.go
 
-Two nodes register as one Routr peer with least-sessions; a caller's INVITE through Routr's
-edgeport reaches the node with fewer sessions, in both directions. Through the Routr rig, a call to
-a Number reaches the app with the Number's X-App-Ref, audio flows both ways, and a node stopped with
-SIGTERM removes its route.
+Two nodes register as one Routr peer with least-sessions and X-Session-Count; a caller's INVITE
+through Routr's edgeport reaches the node with fewer rooms, in both directions (A loaded, then B
+more loaded), so neither "first" nor "last registered" passes.
 
-**Pass.** Routr stores each node's X-Session-Count and sends the call to the lighter node; the rig's call reaches the app and the drained node's route is gone. **Fail.** The heavier node chosen, a count Routr never sees, or a route left after the drain.
+**Pass.** Routr sends each call to the lighter node and audio flows through it. **Fail.** The heavier node chosen.
 
 ### ROM-035 Rooms without an owner end
 

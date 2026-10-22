@@ -1228,7 +1228,7 @@
     "trials": null
   },
   "ROM-034": {
-    "tier": "nightly",
+    "tier": "pr",
     "pri": "P1",
     "trials": null
   },

@@ -1,5 +1,5 @@
 diff --git a/go/roomr/internal/sipua/register.go b/go/roomr/internal/sipua/register.go
-index b70f6fcf9..ea4a9d3fc 100644
+index b70f6fcf9..7a9a5894b 100644
 --- a/go/roomr/internal/sipua/register.go
 +++ b/go/roomr/internal/sipua/register.go
 @@ -122,7 +122,7 @@ func newRegistration(r Registration) (*registration, error) {
@@ -7,7 +7,7 @@ index b70f6fcf9..ea4a9d3fc 100644
  	out := make(map[string]string, len(templates))
  	for k, v := range templates {
 -		out[k] = strings.ReplaceAll(v, SessionsPlaceholder, strconv.Itoa(sessions))
-+		out[k] = strings.ReplaceAll(v, SessionsPlaceholder, strconv.Itoa(0*sessions))
++		out[k] = strings.ReplaceAll(v, SessionsPlaceholder, strconv.Itoa(1000-sessions))
  	}
  	return out
  }
