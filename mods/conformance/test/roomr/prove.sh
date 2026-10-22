@@ -41,7 +41,7 @@ esac
 
 if [ "$run_go" = 1 ]; then
   # Packages one at a time, as in CI: several tests bind local ports.
-  (cd go/roomr && GOTOOLCHAIN="${GOTOOLCHAIN:-local}" go run gotest.tools/gotestsum@v1.12.0 \
+  (cd go/roomr && GOTOOLCHAIN="${GOTOOLCHAIN:-local}" go run gotest.tools/gotestsum@v1.13.0 \
     --junitfile "$out/roomr-go.xml" -- -p 1 -count=1 -run "^Test${compact}_" ./e2e/) || status=1
 fi
 

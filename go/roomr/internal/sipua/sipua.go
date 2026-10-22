@@ -73,6 +73,14 @@ type UA struct {
 	tcp net.Listener
 }
 
+// sharedPortDialer dials TCP and TLS from the listening port (WithClientConnectionAddr): a
+// registrar stores a REGISTER's source address as the route (Routr), so every REGISTER must come
+// from the same address and that address must take INVITEs. SO_REUSEPORT on the listener and
+// the dialer lets the two sockets share the port.
+func sharedPortDialer(laddr net.Addr) net.Dialer {
+	return net.Dialer{Timeout: time.Minute, LocalAddr: laddr, Control: reusePort}
+}
+
 // New wires a SIP user agent to the node.
 func New(n *node.Node, cfg Config) (*UA, error) {
 	if cfg.Logger == nil {
@@ -81,7 +89,11 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if cfg.ReregisterDelta <= 0 {
 		cfg.ReregisterDelta = 5
 	}
-	opts := []sipgo.UserAgentOption{sipgo.WithUserAgent("fonoster-roomr")}
+	opts := []sipgo.UserAgentOption{sipgo.WithUserAgent("fonoster-roomr"),
+		sipgo.WithUserAgentTransportLayerOptions(sip.WithTransportLayerTransports(sip.TransportsConfig{
+			TCP: &sip.TransportTCP{DialerCreate: sharedPortDialer},
+			TLS: &sip.TransportTLS{TransportTCP: &sip.TransportTCP{DialerCreate: sharedPortDialer}},
+		}))}
 	if cfg.ClientTLS != nil {
 		opts = append(opts, sipgo.WithUserAgenTLSConfig(cfg.ClientTLS))
 	}
@@ -101,7 +113,7 @@ func New(n *node.Node, cfg Config) (*UA, error) {
 	if err != nil {
 		return nil, err
 	}
-	tcp, err := net.Listen("tcp", cfg.Listen)
+	tcp, err := (&net.ListenConfig{Control: reusePort}).Listen(context.Background(), "tcp", cfg.Listen)
 	if err != nil {
 		_ = udp.Close()
 		return nil, err

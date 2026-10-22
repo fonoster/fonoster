@@ -619,7 +619,7 @@ func (r *rig) calleeCall() *caller.Call {
 	r.t.Helper()
 	deadline := time.Now().Add(3 * time.Second)
 	for time.Now().Before(deadline) {
-		if calls := r.callee.Calls(); len(calls) == 1 && calls[0].State == "answered" {
+		if calls := r.callee.Calls(); len(calls) == 1 && calls[0].State != "calling" {
 			return r.callee.Get(calls[0].ID)
 		}
 		time.Sleep(10 * time.Millisecond)

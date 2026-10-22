@@ -433,9 +433,16 @@ func (c *Call) await(ctx context.Context, key string) {
 		if e, ok := err.(*sipgo.ErrDialogResponse); ok {
 			final = e
 		}
+		status := 0
+		if final != nil {
+			status = int(final.Res.StatusCode)
+		} else if res := c.session.InviteResponse; res != nil && res.StatusCode >= 300 {
+			// Our own CANCEL: sipgo waits for the 487 and keeps it as the INVITE's response.
+			status = int(res.StatusCode)
+		}
 		c.mu.Lock()
-		if final != nil && (len(c.statuses) == 0 || c.statuses[len(c.statuses)-1] != int(final.Res.StatusCode)) {
-			c.statuses = append(c.statuses, int(final.Res.StatusCode))
+		if status != 0 && (len(c.statuses) == 0 || c.statuses[len(c.statuses)-1] != status) {
+			c.statuses = append(c.statuses, status)
 		}
 		c.state = "ended"
 		c.mu.Unlock()
