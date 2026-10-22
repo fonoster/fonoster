@@ -32,6 +32,7 @@ type Copy = {
   systemErrorMessage: string;
   idleMessage: string;
   transferMessage: string;
+  transferFailedMessage: string;
 };
 
 export const TEMPLATES: {
@@ -65,14 +66,17 @@ const COMMON: Record<
     systemErrorMessage:
       "Sorry, something went wrong on our side. Please call again in a few minutes.",
     idleMessage: "Are you still there?",
-    transferMessage: "One moment, I'm transferring you to a person."
+    transferMessage: "One moment, I'm transferring you to a person.",
+    transferFailedMessage: "Sorry, I couldn't connect you. How else can I help?"
   },
   es: {
     goodbyeMessage: "Gracias por su tiempo. ¡Que tenga buen día!",
     systemErrorMessage:
       "Disculpe, tuvimos un problema. Por favor llame de nuevo en unos minutos.",
     idleMessage: "¿Sigue ahí?",
-    transferMessage: "Un momento, le transfiero con una persona."
+    transferMessage: "Un momento, le transfiero con una persona.",
+    transferFailedMessage:
+      "Disculpe, no pude comunicarle. ¿En qué más le puedo ayudar?"
   }
 };
 
@@ -185,7 +189,8 @@ export function templateValues(
       idleTimeoutSeconds: 10,
       idleMaxTimeoutCount: 3,
       transferPhoneNumber: "",
-      transferMessage: copy.transferMessage
+      transferMessage: copy.transferMessage,
+      transferFailedMessage: copy.transferFailedMessage
     },
     model: {
       model: picked.llm,

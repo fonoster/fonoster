@@ -120,6 +120,7 @@ export const ERROR_CODES = [
   "invalid_catalog_id",
   "feature_not_supported",
   "transfer_failed",
+  "transfer_not_answered",
   "on_hold",
   "queue_full",
   "play_fetch_failed",
@@ -241,6 +242,16 @@ export const dtmfEventSchema = {
   properties: {
     type: { const: "dtmf" },
     digit: { type: "string", pattern: "^[0-9A-D*#]$" }
+  }
+} as const;
+
+/** A warm transfer's new party answered; the app may now send transfer.complete. */
+export const transferAnsweredSchema = {
+  type: "object",
+  required: ["type", "relatesTo"],
+  properties: {
+    type: { const: "transfer.answered" },
+    relatesTo: id
   }
 } as const;
 
@@ -463,6 +474,7 @@ export type OutputInterrupted = FromSchema<typeof outputInterruptedSchema>;
 export type MarkEvent = FromSchema<typeof markEventSchema>;
 export type DtmfEvent = FromSchema<typeof dtmfEventSchema>;
 export type AmdResult = FromSchema<typeof amdResultSchema>;
+export type TransferAnswered = FromSchema<typeof transferAnsweredSchema>;
 
 export type Speak = FromSchema<typeof speakSchema>;
 export type Play = FromSchema<typeof playSchema>;
@@ -496,6 +508,7 @@ export type AppBridgeMessage =
   | OutputInterrupted
   | MarkEvent
   | DtmfEvent
+  | TransferAnswered
   | AmdResult;
 
 export type AppCommand =
@@ -531,6 +544,7 @@ export const APPBRIDGE_MESSAGE_SCHEMAS = {
   "output.interrupted": outputInterruptedSchema,
   mark: markEventSchema,
   dtmf: dtmfEventSchema,
+  "transfer.answered": transferAnsweredSchema,
   "amd.result": amdResultSchema
 } as const;
 

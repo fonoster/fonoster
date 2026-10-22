@@ -86,7 +86,12 @@ export const sessionConversationSettingsSchema = z
       .positive()
       .default(30 * 60 * 1000),
     transferOptions: z
-      .object({ phoneNumber: z.string(), message: z.string() })
+      .object({
+        phoneNumber: z.string(),
+        message: z.string(),
+        /** Said when the transfer fails, before the conversation goes on (default in Autopilot). */
+        failedMessage: z.string().optional()
+      })
       .optional(),
     idleOptions: z
       .object({

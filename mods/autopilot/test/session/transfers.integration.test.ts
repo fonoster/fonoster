@@ -72,12 +72,28 @@ describe("@autopilot built-in transfer and hangup end to end (XFR)", function ()
   });
 
   /** Autopilot whose model calls `tool` after the caller's first turn, on a call from the phone. */
-  async function callAgent(tool: "transfer" | "hangup") {
+  async function callAgent(
+    tool: "transfer" | "hangup",
+    o: {
+      /** How the operator answers the transfer (default answered). */
+      operator?: "answered" | "busy";
+      /** The caller's later turns, by caller-audio time, and the model's replies to them. */
+      later?: { atMs: number; text: string; reply: string }[];
+    } = {}
+  ) {
     harness = await new FakesHarness().start();
     record = new MemoryCallRecordSink();
-    harness.stt.configure({ script: [{ atMs: 600, text: "I want a human." }] });
+    harness.stt.configure({
+      script: [
+        { atMs: 600, text: "I want a human." },
+        ...(o.later ?? []).map(({ atMs, text }) => ({ atMs, text }))
+      ]
+    });
     harness.llm.configure({
-      script: [{ tool_calls: [{ name: tool, arguments: {} }] }]
+      script: [
+        { tool_calls: [{ name: tool, arguments: {} }] },
+        ...(o.later ?? []).map(({ reply }) => ({ content: reply }))
+      ]
     });
     autopilot = await new VoiceServer({
       port: 0,
@@ -132,7 +148,10 @@ describe("@autopilot built-in transfer and hangup end to end (XFR)", function ()
         }
       }
     }).start();
-    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
+    harness.roomrNode.configure({
+      endpoint: appbridge.sessionEndpoint,
+      dialOutcome: o.operator ?? "answered"
+    });
     const c = await harness.roomrNode.offerCall({
       from: "+15550001111",
       to: "+15550002222"
@@ -226,5 +245,52 @@ describe("@autopilot built-in transfer and hangup end to end (XFR)", function ()
     );
     const end = entries().find((e) => e.message.type === "session.end");
     expect(end?.message.reason).to.equal("app_hangup");
+  });
+
+  it("[XFR-017] after a failed transfer Autopilot says so and keeps helping", async function () {
+    const c = await callAgent("transfer", {
+      operator: "busy",
+      later: [
+        {
+          atMs: 12000,
+          text: "Then help me with my bill.",
+          reply: "Sure, your bill is due on Friday."
+        }
+      ]
+    });
+    await spoken(c, "Transferring you to a person");
+    // The operator is busy: the caller hears the default failure message, and the call goes on.
+    const failed = await waitFor(
+      () =>
+        entries().find(
+          (e) =>
+            e.message.type === "error" && e.message.code === "transfer_failed"
+        ),
+      5000,
+      "transfer_failed"
+    );
+    const sorry = await spoken(c, "Sorry, I couldn't connect you");
+    expect(sorry.heard).to.be.greaterThan(1000);
+    expect(sorry.at).to.be.at.least(failed.at);
+    // Listening again: the caller's next turn reaches the model, with the transfer's outcome in
+    // the history, and its reply is spoken to the caller.
+    harness.caller({ audio: { kind: "tone", ms: 900 } });
+    const reply = await spoken(c, "your bill is due on Friday");
+    expect(reply.heard).to.be.greaterThan(1000);
+    const asked = harness.llm.conversations.find((conv) =>
+      conv.messages.some((m) => m.content === "Then help me with my bill.")
+    );
+    expect(asked, "the follow-up turn at the model").to.not.equal(undefined);
+    expect(
+      asked!.messages.some(
+        (m) =>
+          m.role === "tool" && String(m.content).includes("transfer failed")
+      )
+    ).to.equal(true);
+    expect((await nodeCommands()).map((m) => m.type)).to.not.include("hangup");
+    expect((await c.fake.status()).state).to.equal("answered");
+    expect(entries().some((e) => e.message.type === "session.end")).to.equal(
+      false
+    );
   });
 });

@@ -168,6 +168,15 @@ Dtmf = TypedDict(
 )
 
 
+TransferAnswered = TypedDict(
+    "TransferAnswered",
+    {
+        "type": Literal["transfer.answered"],
+        "relatesTo": str,
+    },
+)
+
+
 AmdResult = TypedDict(
     "AmdResult",
     {
@@ -341,5 +350,5 @@ UsageReport = TypedDict(
 )
 
 
-AppBridgeMessage = Union[SessionStart, SessionEnd, ErrorMessage, TurnUserStarted, TurnLikelyEnded, TurnEnded, TurnResumed, TurnBackchannel, TurnEstimate, TranscriptPartial, OutputStarted, OutputDone, OutputInterrupted, MarkEvent, Dtmf, AmdResult]
+AppBridgeMessage = Union[SessionStart, SessionEnd, ErrorMessage, TurnUserStarted, TurnLikelyEnded, TurnEnded, TurnResumed, TurnBackchannel, TurnEstimate, TranscriptPartial, OutputStarted, OutputDone, OutputInterrupted, MarkEvent, Dtmf, TransferAnswered, AmdResult]
 AppCommand = Union[Speak, Play, ListenUpdate, Subscribe, MarkCommand, Clear, Hangup, DtmfSend, Transfer, TransferComplete, Hold, Resume, Handoff, RecordNote, UsageReport]

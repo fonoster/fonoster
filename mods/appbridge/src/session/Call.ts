@@ -896,6 +896,9 @@ export class Call {
         } else if (!this.sessionParticipantRef && this.taken) {
           this.sessionParticipantRef = ref;
           this.recording.noteTrack("app", trackId);
+        } else if (this.taken && ref.startsWith("p-dialed")) {
+          // A party the node dialed joined the room: a transfer's new party answered.
+          this.session?.partyJoined();
         }
         break;
       }
@@ -950,7 +953,7 @@ export function mediaTimeoutMs(config: AppBridgeConfig): number {
   return parseDurationMs(v);
 }
 
-type PendingTransfer = { id: string; mode: string };
+type PendingTransfer = { id: string; mode: string; answered?: boolean };
 
 /** One app's session on a call (until hangup, transfer or handoff). */
 export class AppSession {
@@ -1365,6 +1368,17 @@ export class AppSession {
     this.emit({ type: "dtmf", digit });
   }
 
+  /**
+   * A new party joined the room: a warm transfer's new party answered, so the app may complete
+   * it (voice-session "New party answers a warm transfer").
+   */
+  partyJoined() {
+    const pending = this.transfer;
+    if (!pending || pending.mode !== "warm" || pending.answered) return;
+    pending.answered = true;
+    this.emit({ type: "transfer.answered", relatesTo: pending.id });
+  }
+
   /** The node removed our session participant (cold transfer completed). */
   leftRoom() {
     if (this.transfer) this.endWith("transfer");
@@ -1685,8 +1699,13 @@ export class AppSession {
           });
           return;
         }
-        if (!(await this.musicAllowed(cmd.music, transferId))) return;
+        // Pending before the music check awaits: a transfer.complete sent right behind the
+        // transfer must find it.
         this.transfer = { id: transferId, mode };
+        if (!(await this.musicAllowed(cmd.music, transferId))) {
+          this.transfer = undefined;
+          return;
+        }
         try {
           // The node dials `to` through its outbound proxy (or REFERs it), with the headers.
           this.call.command({
@@ -1723,6 +1742,18 @@ export class AppSession {
             type: "error",
             code: "bad_message",
             message: `no warm transfer ${id} in progress`,
+            fatal: false,
+            relatesTo: id
+          });
+          return;
+        }
+        // Completing before the new party answered would un-hold the caller into nothing: the
+        // app waits for transfer.answered and sends it again (voice-session "Call control").
+        if (!this.transfer.answered) {
+          this.emit({
+            type: "error",
+            code: "transfer_not_answered",
+            message: `the new party of transfer ${id} has not answered yet`,
             fatal: false,
             relatesTo: id
           });

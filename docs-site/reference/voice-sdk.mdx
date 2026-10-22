@@ -171,7 +171,9 @@ Read-only fields from the call's `session.start` message.
 
 <ResponseField name="completeTransfer()" type="void">
   Python: `complete_transfer()`. Connects the caller to the party of the pending warm transfer and
-  ends your session. Throws if no warm transfer is pending.
+  ends your session; resolves when the session ends. Throws if no warm transfer is pending, and
+  rejects with `SessionError` code `transfer_not_answered` before the `transfer.answered` event
+  (the transfer stays pending).
 </ResponseField>
 
 <ResponseField name="playDtmf(digits)" type="void">
@@ -224,6 +226,7 @@ Register listeners with `session.on(event, callback)`. The callback gets the eve
 | `turn.estimate` | `eot`, `speaking`, `kind` | The turn detector's end-of-turn estimate (0 to 1). Opt-in with `subscribe` |
 | `amd.result` | `status`, `confidence`, `detector`, `audioMs`, `speechOnsetMs`, `reason` | Answering-machine verdict, once per call, when the stream has `amd` on. `status` is `human`, `voicemail`, `ivr`, `machine` or `unknown` |
 | `dtmf` | `digit` | The caller pressed a key |
+| `transfer.answered` | `relatesTo` | The new party of a warm transfer answered; `completeTransfer` may follow |
 | `error` | `code`, `message`, `fatal` | An error not tied to a pending command |
 | `end` | `reason` | The session ended |
 

@@ -189,9 +189,10 @@ earlier ones. More than 120 seconds of queued output gets `error` `queue_full`.
   | `music` | string | no | Hold audio URL for the caller during a warm transfer |
 
   - **cold**: the new party joins and your session ends with `transfer`.
-  - **warm**: the caller waits on hold while you talk to the new party. Send
-    `transfer.complete` to connect them and end your session. If nobody answers in 30 seconds you
-    get `error` `transfer_failed` and the caller is back with you.
+  - **warm**: the caller waits on hold while you talk to the new party. When the new party
+    answers you get `transfer.answered`; then send `transfer.complete` to connect them and end
+    your session. If nobody answers in 30 seconds you get `error` `transfer_failed` and the caller
+    is back with you.
   - **refer**: a SIP REFER; your session ends with `transfer`.
 
   An unreachable target gets `error` `transfer_failed`. See [Transfer calls](/telephony/transfers).
@@ -199,7 +200,9 @@ earlier ones. More than 120 seconds of queued output gets `error` `queue_full`.
 
 <ResponseField name="transfer.complete" type="command">
   `id` (required): the `id` of the pending warm transfer. Connects the caller and the new party,
-  and ends your session with `transfer`.
+  and ends your session with `transfer`. Before `transfer.answered` it is refused with `error`
+  `transfer_not_answered` (not fatal): nothing changes, the caller stays on hold, and you can send
+  it again once the new party answered.
 </ResponseField>
 
 <ResponseField name="hold" type="command">
@@ -251,6 +254,7 @@ pairs, an optional `turn.likely_ended`, then `turn.ended`. See
 | Event | Fields | Meaning |
 | --- | --- | --- |
 | `dtmf` | `digit` | The caller pressed a key: `0`–`9`, `A`–`D`, `*` or `#`. Arrives at any time |
+| `transfer.answered` | `relatesTo` | The new party of the warm transfer `relatesTo` answered: you may send `transfer.complete` |
 | `amd.result` | `status`, `confidence`, `detector`, `audioMs`, `speechOnsetMs`, `reason` | Answering-machine verdict, once per call, when the stream has `amd` on. `status` is `human`, `voicemail`, `ivr`, `machine` or `unknown`. See [Answering-machine detection](/telephony/amd) |
 | `error` | `code`, `message`, `fatal`, `relatesTo` | A command failed or something went wrong. `relatesTo` is the `id` of the command that caused it |
 
@@ -280,6 +284,7 @@ session that can't continue ends with `session.end`.
 | `key_unavailable` | The workspace's own key for that provider couldn't be read; the platform key is never used instead |
 | `feature_not_supported` | The provider can't do what was asked |
 | `transfer_failed` | The transfer target couldn't be reached |
+| `transfer_not_answered` | `transfer.complete` came before the new party answered |
 | `on_hold` | The command isn't allowed while the caller is on hold |
 | `queue_full` | More than 120 s of output is queued |
 | `play_fetch_failed` | The media couldn't be fetched |

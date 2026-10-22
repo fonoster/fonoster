@@ -8,7 +8,7 @@ gave it.
 import asyncio
 import os
 
-from fonoster.voice import VoiceServer
+from fonoster.voice import SessionError, VoiceServer
 
 SECRET = os.environ["XFR_SECRET"]
 TARGET = os.environ["XFR_TARGET"]
@@ -24,9 +24,19 @@ async def on_call(session) -> None:
         await session.transfer(TARGET, headers={"X-Customer-Id": "c-42"})
         log("transfer resolved")
     elif session.to == WARM:
+        answered = asyncio.Event()
+        session.on("transfer.answered", lambda _: answered.set())
         done = asyncio.ensure_future(session.transfer(TARGET, mode="warm"))
+        await asyncio.sleep(0.1)  # the transfer goes out first
+        # Too early: the new party is still ringing.
+        try:
+            await session.complete_transfer()
+            log("early complete resolved")
+        except SessionError as e:
+            log(f"early complete refused {e.code}")
+        await answered.wait()
+        log("transfer answered")
         await session.say("I have a caller about a refund.")
-        await asyncio.sleep(0.5)
         await session.complete_transfer()
         await done
         log("warm transfer resolved")

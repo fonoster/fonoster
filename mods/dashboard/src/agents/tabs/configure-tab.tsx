@@ -450,6 +450,19 @@ function Behavior() {
             </ValueBox>
           </BehaviorRow>
         )}
+        {transfer?.trim() && (
+          <BehaviorRow
+            label="If the transfer fails"
+            htmlFor="behavior-transfer-failed-message"
+          >
+            <ValueBox>
+              <ValueInput
+                id="behavior-transfer-failed-message"
+                {...register("conversation.transferFailedMessage")}
+              />
+            </ValueBox>
+          </BehaviorRow>
+        )}
       </div>
     </Panel>
   );

@@ -121,6 +121,8 @@ export class Session {
   private gatherState?: Gather;
   private buffered: Input[] = [];
   private lastWarmTransfer?: string;
+  /** A pending completeTransfer(), rejected when AppBridge refuses it. */
+  private completing?: (e: Error) => void;
   private endedReason?: string;
   private listening = false;
 
@@ -312,10 +314,31 @@ export class Session {
     );
   }
 
-  /** Completes the pending warm transfer: the agent leaves, caller and new party stay. */
-  async completeTransfer(): Promise<void> {
-    if (!this.lastWarmTransfer) throw new Error("no warm transfer is pending");
-    this.send({ type: "transfer.complete", id: this.lastWarmTransfer });
+  /**
+   * Completes the pending warm transfer: the agent leaves, caller and new party stay. Resolves
+   * when the session ends with reason transfer; rejects with a SessionError
+   * (`transfer_not_answered`) when the new party has not answered yet, which leaves the transfer
+   * pending: wait for the `transfer.answered` event and call it again.
+   */
+  completeTransfer(): Promise<void> {
+    const id = this.lastWarmTransfer;
+    if (!id) return Promise.reject(new Error("no warm transfer is pending"));
+    return new Promise((resolve, reject) => {
+      if (this.endedReason)
+        return reject(new SessionEndedError(this.endedReason));
+      const waiter: EndWaiter = { reasons: ["transfer"], resolve, reject };
+      this.endWaiters.push(waiter);
+      this.completing = (e) => {
+        this.endWaiters = this.endWaiters.filter((w) => w !== waiter);
+        reject(e);
+      };
+      try {
+        this.send({ type: "transfer.complete", id });
+      } catch (e) {
+        this.completing = undefined;
+        reject(e);
+      }
+    });
   }
 
   async hold(options: { music?: string } = {}): Promise<void> {
@@ -442,6 +465,7 @@ export class Session {
       case "transcript.partial":
       case "turn.estimate":
       case "amd.result":
+      case "transfer.answered":
         return this.emit(type, this.without(msg, "type"));
       default:
       // Unknown types are ignored (additive-only protocol).
@@ -455,6 +479,13 @@ export class Session {
       msg.fatal === true
     );
     const id = msg.relatesTo as string | undefined;
+    // A refused completeTransfer() fails that call, not the pending transfer.
+    if (error.code === "transfer_not_answered" && this.completing) {
+      const completing = this.completing;
+      this.completing = undefined;
+      completing(error);
+      return;
+    }
     const output = id ? this.take(id) : undefined;
     const command = id ? this.commands.get(id) : undefined;
     if (output) output.reject(error);
@@ -592,6 +623,7 @@ export class Session {
   private finish(reason: string) {
     if (this.endedReason) return;
     this.endedReason = reason;
+    this.completing = undefined;
     const ended = new SessionEndedError(reason);
 
     for (const w of this.endWaiters) {

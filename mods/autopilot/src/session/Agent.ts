@@ -18,7 +18,7 @@
  */
 import { CALL_REF_ATTR, Usage } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { SessionEndedError } from "@fonoster/voice";
+import { SessionEndedError, SessionError } from "@fonoster/voice";
 import { AsyncQueue } from "./AsyncQueue";
 import { SessionAgent } from "./config";
 import { KNOWLEDGE_TIMEOUT_MS, KnowledgePort } from "./knowledge";
@@ -27,6 +27,10 @@ import { telemetry } from "./telemetry";
 import { ChatMessage, Think, ThinkChunk, ToolCall, ToolSpec } from "./think";
 import { ToolPort } from "./tools";
 import type { Session } from "@fonoster/voice";
+
+/** What Autopilot says when a transfer fails and the agent sets no `failedMessage`. */
+export const DEFAULT_TRANSFER_FAILED_MESSAGE =
+  "Sorry, I couldn't connect you. How else can I help?";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
 
@@ -111,6 +115,8 @@ export class Agent {
   private inflight?: Promise<void>;
   private prepared?: Prepared;
   private idleTimer?: ReturnType<typeof setTimeout>;
+  /** The model's `transfer` tool call, answered in the history if the transfer fails. */
+  private transferCallId?: string;
   private maxTimer?: ReturnType<typeof setTimeout>;
   private idleCount = 0;
   private resumes = 0;
@@ -362,6 +368,7 @@ export class Agent {
           (c) => c.name === "hangup" || c.name === "transfer"
         );
         if (builtIn) {
+          if (builtIn.name === "transfer") this.transferCallId = builtIn.id;
           this.recorder.turn({
             ...trace,
             toolCalls: [...trace.toolCalls, { name: builtIn.name, ok: true }]
@@ -522,8 +529,35 @@ export class Agent {
         ...this.speechOptions(),
         interruptible: false
       });
-      await this.session.transfer(options.phoneNumber);
+      try {
+        await this.session.transfer(options.phoneNumber);
+      } catch (e) {
+        if (!(e instanceof SessionError) || e.code !== "transfer_failed")
+          throw e;
+        await this.transferFailed(options.failedMessage);
+      }
     });
+  }
+
+  /**
+   * The transfer failed: say so and keep helping (autopilot "Transfer fails"). The model learns
+   * the outcome as its transfer call's result, and the machine returns to listening.
+   */
+  private async transferFailed(message?: string) {
+    const callId = this.transferCallId;
+    this.transferCallId = undefined;
+    if (callId)
+      this.history.push({
+        role: "tool",
+        tool_call_id: callId,
+        content: JSON.stringify({ error: "the transfer failed" })
+      });
+    const r = await this.session.say(
+      message || DEFAULT_TRANSFER_FAILED_MESSAGE,
+      this.speechOptions()
+    );
+    this.history.push({ role: "assistant", content: r.heardText });
+    this.send({ type: "SPOKEN", source: "error" });
   }
 
   // ---- internals --------------------------------------------------------------------

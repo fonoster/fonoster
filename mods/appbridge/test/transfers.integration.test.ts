@@ -229,15 +229,49 @@ describe("@appbridge transfers and keypresses end to end (XFR)", function () {
 
     it("[XFR-002] a warm transfer holds the caller while the agent briefs the new party, then connects them", async function () {
       await start();
+      // The new party answers 1.5 s after the dial.
+      harness.roomrNode.configure({ answerAfterMs: 1500 });
       const { c, peer } = await call();
+      const sent = Date.now();
       peer.sendJson({ type: "transfer", id: "t2", to: TARGET, mode: "warm" });
       await waitFor(
         async () => (await status(c)).held,
         3000,
         "the caller on hold"
       );
-      // The new party answered: the briefing plays to the room, and the held caller hears none of it.
-      await sleep(500);
+      // Completing while the new party rings is refused: the session, the hold and the dial go on.
+      peer.sendJson({ type: "transfer.complete", id: "t2" });
+      const refused = await waitFor(
+        () => json(peer).find((m) => m.type === "error"),
+        2000,
+        "the refusal"
+      );
+      expect(refused).to.include({
+        code: "transfer_not_answered",
+        fatal: false,
+        relatesTo: "t2"
+      });
+      await sleep(200);
+      expect((await nodeCommands()).map((m) => m.type)).to.not.include(
+        "transferComplete"
+      );
+      expect((await status(c)).held).to.equal(true);
+      expect(json(peer).some((m) => m.type === "session.end")).to.equal(false);
+      // The new party answers: the app is told, once.
+      const answered = await waitFor(
+        () =>
+          peer.frames.items.find(
+            (f) => f.kind === "json" && f.data.type === "transfer.answered"
+          ),
+        5000,
+        "transfer.answered"
+      );
+      expect(answered.data).to.deep.equal({
+        type: "transfer.answered",
+        relatesTo: "t2"
+      });
+      expect(answered.at - sent).to.be.greaterThan(1400);
+      // The briefing plays to the room, and the held caller hears none of it.
       const briefing = Date.now();
       peer.sendJson({
         type: "speak",
@@ -251,6 +285,10 @@ describe("@appbridge transfers and keypresses end to end (XFR)", function () {
       );
       expect((await status(c, briefing)).phone!.audibleMsSince).to.equal(0);
       expect(json(peer).some((m) => m.type === "session.end")).to.equal(false);
+      expect(
+        json(peer).filter((m) => m.type === "transfer.answered")
+      ).to.have.length(1);
+      // Completed after the answer: the caller and the new party are connected.
       peer.sendJson({ type: "transfer.complete", id: "t2" });
       const end = await waitFor(
         () => json(peer).find((m) => m.type === "session.end"),
@@ -578,9 +616,18 @@ describe("@appbridge transfers and keypresses end to end (XFR)", function () {
         });
         log.push("transfer resolved");
       } else if (session.to === WARM) {
+        const answered = new Promise<void>((resolve) =>
+          session.on("transfer.answered", () => resolve())
+        );
         const done = session.transfer(TARGET, { mode: "warm" });
+        // Too early: the new party is still ringing.
+        await session.completeTransfer().then(
+          () => log.push("early complete resolved"),
+          (e: { code?: string }) => log.push(`early complete refused ${e.code}`)
+        );
+        await answered;
+        log.push("transfer answered");
         await session.say("I have a caller about a refund.");
-        await sleep(500);
         await session.completeTransfer();
         await done;
         log.push("warm transfer resolved");
@@ -697,7 +744,9 @@ describe("@appbridge transfers and keypresses end to end (XFR)", function () {
       appbridge = undefined;
       harness.roomrNode.callerHangup(cold.callRef);
 
-      // A warm transfer: the caller is held through the briefing, then connected.
+      // A warm transfer: completing before the answer is refused, the caller is held through
+      // the briefing, then connected once the app was told the new party answered.
+      harness.roomrNode.configure({ answerAfterMs: 1500 });
       const warm = await sdkCall(WARM);
       await waitFor(
         async () => (await status(warm)).held,
@@ -709,6 +758,11 @@ describe("@appbridge transfers and keypresses end to end (XFR)", function () {
         10000,
         "the warm transfer to resolve"
       );
+      expect(log.slice(log.indexOf("transfer resolved") + 1)).to.deep.equal([
+        "early complete refused transfer_not_answered",
+        "transfer answered",
+        "warm transfer resolved"
+      ]);
       expect((await nodeCommands()).map((m) => m.type)).to.include(
         "transferComplete"
       );

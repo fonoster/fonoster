@@ -80,6 +80,8 @@ export type SessionEventMap = {
     reason?: string;
   };
   dtmf: { digit: string };
+  /** A warm transfer's new party answered: completeTransfer() may follow. */
+  "transfer.answered": { relatesTo: string };
   error: { code: string; message: string; fatal: boolean };
   end: { reason: string };
 };
