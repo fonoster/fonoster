@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { lazy, Suspense } from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
+import { Navigate, Route, Routes, useParams } from "react-router-dom";
 import { Splash } from "~/components/status/splash";
 import { InviteFailedPage, InvitesPage } from "~/auth/invites.page";
 import { PublicOnly, RequireAuth } from "./guards";
@@ -40,6 +40,15 @@ const CreateWorkspace = lazy(
   () => import("~/workspaces/create-workspace.page")
 );
 const Billing = lazy(() => import("~/billing"));
+
+/**
+ * An unknown section, old paths included (/streams, /autopilot, /sip-users): the workspace's
+ * Overview. An absolute path, since "." in a splat route stays on the unknown path.
+ */
+function ToOverview() {
+  const { workspaceRef } = useParams();
+  return <Navigate to={`/w/${workspaceRef}`} replace />;
+}
 
 function screen(path: string, title: string) {
   const Screen = SCREENS[path];
@@ -85,7 +94,7 @@ export function AppRoutes() {
                   />
                 )
               )}
-              <Route path="*" element={<Navigate to="." replace />} />
+              <Route path="*" element={<ToOverview />} />
             </Route>
           </Route>
         </Route>

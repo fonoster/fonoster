@@ -49,6 +49,9 @@ export class CallDetailRecord extends jspb.Message {
   getAmdCause(): string;
   setAmdCause(value: string): CallDetailRecord;
 
+  getAppRef(): string;
+  setAppRef(value: string): CallDetailRecord;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CallDetailRecord.AsObject;
   static toObject(includeInstance: boolean, msg: CallDetailRecord): CallDetailRecord.AsObject;
@@ -74,6 +77,7 @@ export namespace CallDetailRecord {
     amdDetector: string,
     amdLatencyMs: number,
     amdCause: string,
+    appRef: string,
   }
 
   export enum AmdStatus { 
@@ -165,6 +169,9 @@ export class ListCallsRequest extends jspb.Message {
   getPageToken(): string;
   setPageToken(value: string): ListCallsRequest;
 
+  getAppRef(): string;
+  setAppRef(value: string): ListCallsRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ListCallsRequest.AsObject;
   static toObject(includeInstance: boolean, msg: ListCallsRequest): ListCallsRequest.AsObject;
@@ -183,6 +190,7 @@ export namespace ListCallsRequest {
     to: string,
     pageSize: number,
     pageToken: string,
+    appRef: string,
   }
 }
 

@@ -250,7 +250,8 @@ amdStatus: jspb.Message.getFieldWithDefault(msg, 11, 0),
 amdConfidence: jspb.Message.getFloatingPointFieldWithDefault(msg, 12, 0.0),
 amdDetector: jspb.Message.getFieldWithDefault(msg, 13, ""),
 amdLatencyMs: jspb.Message.getFieldWithDefault(msg, 14, 0),
-amdCause: jspb.Message.getFieldWithDefault(msg, 15, "")
+amdCause: jspb.Message.getFieldWithDefault(msg, 15, ""),
+appRef: jspb.Message.getFieldWithDefault(msg, 16, "")
   };
 
   if (includeInstance) {
@@ -346,6 +347,10 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.deserializeBinaryFromReader = func
     case 15:
       var value = /** @type {string} */ (reader.readString());
       msg.setAmdCause(value);
+      break;
+    case 16:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAppRef(value);
       break;
     default:
       reader.skipField();
@@ -478,6 +483,13 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.serializeBinaryToWriter = function
   if (f.length > 0) {
     writer.writeString(
       15,
+      f
+    );
+  }
+  f = message.getAppRef();
+  if (f.length > 0) {
+    writer.writeString(
+      16,
       f
     );
   }
@@ -763,6 +775,24 @@ proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getAmdCause = function()
  */
 proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setAmdCause = function(value) {
   return jspb.Message.setProto3StringField(this, 15, value);
+};
+
+
+/**
+ * optional string app_ref = 16;
+ * @return {string}
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.getAppRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 16, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.calls.v1beta2.CallDetailRecord} returns this
+ */
+proto.fonoster.calls.v1beta2.CallDetailRecord.prototype.setAppRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 16, value);
 };
 
 
@@ -1206,7 +1236,8 @@ status: jspb.Message.getFieldWithDefault(msg, 4, 0),
 from: jspb.Message.getFieldWithDefault(msg, 5, ""),
 to: jspb.Message.getFieldWithDefault(msg, 6, ""),
 pageSize: jspb.Message.getFieldWithDefault(msg, 7, 0),
-pageToken: jspb.Message.getFieldWithDefault(msg, 8, "")
+pageToken: jspb.Message.getFieldWithDefault(msg, 8, ""),
+appRef: jspb.Message.getFieldWithDefault(msg, 9, "")
   };
 
   if (includeInstance) {
@@ -1274,6 +1305,10 @@ proto.fonoster.calls.v1beta2.ListCallsRequest.deserializeBinaryFromReader = func
     case 8:
       var value = /** @type {string} */ (reader.readString());
       msg.setPageToken(value);
+      break;
+    case 9:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAppRef(value);
       break;
     default:
       reader.skipField();
@@ -1357,6 +1392,13 @@ proto.fonoster.calls.v1beta2.ListCallsRequest.serializeBinaryToWriter = function
   if (f.length > 0) {
     writer.writeString(
       8,
+      f
+    );
+  }
+  f = message.getAppRef();
+  if (f.length > 0) {
+    writer.writeString(
+      9,
       f
     );
   }
@@ -1504,6 +1546,24 @@ proto.fonoster.calls.v1beta2.ListCallsRequest.prototype.getPageToken = function(
  */
 proto.fonoster.calls.v1beta2.ListCallsRequest.prototype.setPageToken = function(value) {
   return jspb.Message.setProto3StringField(this, 8, value);
+};
+
+
+/**
+ * optional string app_ref = 9;
+ * @return {string}
+ */
+proto.fonoster.calls.v1beta2.ListCallsRequest.prototype.getAppRef = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.calls.v1beta2.ListCallsRequest} returns this
+ */
+proto.fonoster.calls.v1beta2.ListCallsRequest.prototype.setAppRef = function(value) {
+  return jspb.Message.setProto3StringField(this, 9, value);
 };
 
 

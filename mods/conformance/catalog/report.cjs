@@ -8,6 +8,10 @@
 //   it("[MQ-004] packet loss 5% (random)", ...)   or   func TestMQ004_Loss5Random
 // Proof records from prove.cjs (property proof=true) mark a case proven and never count as a run.
 // Results: Pass, Fail, Blocked (skipped or errored before running), Waived (mods/conformance/catalog/waivers.json), Not run.
+// A test reports a number as a JUnit property, or in its name as {metric=value} (reporters such as
+// mocha's xunit write no properties): it("[BIL-036] ...") renamed to "... {p99_ms=3.10}" at run time.
+// A timing case (- **Runner:** dedicated) is gated only when the results come from a dedicated
+// runner (QA_DEDICATED_RUNNER=1); on shared runners its result and numbers are reported, not gated.
 // Exit code 1 when the release gate fails, so the release pipeline can stop.
 const fs = require("fs");
 const path = require("path");
@@ -17,6 +21,8 @@ const resultsDir = args.results || "reports/junit";
 const version = args.version || "unreleased";
 const sha = args.sha || "unknown";
 const out = args.out || `reports/qa-${version}.md`;
+// The results come from a dedicated runner: timing cases (- **Runner:** dedicated) are gated.
+const dedicated = process.env.QA_DEDICATED_RUNNER === "1";
 
 // ---- catalog (area documents)
 const { caseIds, loadAreas } = require("./lib.cjs");
@@ -67,6 +73,7 @@ for (const file of walk(resultsDir)) {
     if (bad) { status = bad[1] === "failure" ? "Fail" : "Blocked"; message = attr(bad[2], "message") || unesc(bad[3]).trim().split("\n")[0]; }
     else if (/<skipped\b/.test(body)) { status = "Blocked"; message = "skipped"; }
     const props = [...body.matchAll(/<property\b([^>]*)\/>/g)].map((p) => [attr(p[1], "name"), attr(p[1], "value")]);
+    for (const p of attr(head, "name").matchAll(/\{([A-Za-z0-9_]+)=([^}\s]+)\}/g)) props.push([p[1], p[2]]);
     const cur = found.get(id) || { status: "Pass", message: "", seconds: 0, props: [], tests: 0, runs: [], proven: false, rerun: false };
     // A proof record (prove.cjs) only says whether the case was seen red on its fault; it is not a run.
     if (props.some(([k, v]) => k === "proof" && v === "true")) {
@@ -101,13 +108,16 @@ const rows = cases.map((t) => {
   const waiver = waivers.get(t.id);
   if (waiver && status !== "Pass") status = "Waived";
   const proven = !!(r && r.proven);
-  return { t, status, r, waiver, note, proven, tier: meta.tier || "nightly", flakeRate: flakeRate(t.id), flakes: flakes(t.id) };
+  // A wall-clock bound means something only on a dedicated runner; elsewhere it is a trend.
+  const gated = t.runner !== "dedicated" || dedicated;
+  if (!gated && status !== "Pass") note = [note, "timing case on a shared runner: reported, not gated"].filter(Boolean).join("; ");
+  return { t, status, r, waiver, note, proven, gated, tier: meta.tier || "nightly", flakeRate: flakeRate(t.id), flakes: flakes(t.id) };
 });
 const S = ["Pass", "Fail", "Blocked", "Waived", "Not run"];
 const statusCount = (list) => Object.fromEntries(S.map((s) => [s, list.filter((x) => x.status === s).length]));
 
 // ---- gate: P0 all Pass; P1 Pass or Waived; nothing Blocked or Not run at P0/P1
-const gateFails = rows.filter(({ t, status, proven }) => (t.pri === "P0" && (status !== "Pass" || !proven)) || (t.pri === "P1" && !["Pass", "Waived"].includes(status)));
+const gateFails = rows.filter(({ t, status, proven, gated }) => gated && ((t.pri === "P0" && (status !== "Pass" || !proven)) || (t.pri === "P1" && !["Pass", "Waived"].includes(status))));
 const gate = gateFails.length === 0 && expiredQuarantine.length === 0 ? "PASS" : "FAIL";
 
 // ---- markdown
@@ -116,7 +126,7 @@ const cell = (s) => String(s).replace(/\|/g, "\\|").replace(/\n/g, " ");
 md.push(`# QA release report: ${version}`, "");
 md.push(`**Gate: ${gate}**${gate === "FAIL" ? ` (${gateFails.length} blocking case${gateFails.length === 1 ? "" : "s"})` : ""}`, "");
 md.push("| | |", "| --- | --- |", `| Version | ${version} |`, `| Git SHA | \`${sha}\` |`, `| Report date | ${today} |`, `| Catalog | ${cases.length} cases in ${areas.length} areas |`, `| Results read from | \`${resultsDir}\` (${walk(resultsDir).length} JUnit files) |`, "");
-md.push("Gate rule: every P0 case passes **and is proven** (its test has been seen red on a seeded fault); every P1 case passes or has an unexpired waiver in `waivers.json`. A quarantined case counts as Blocked. A quarantine older than 14 days fails the build. P2 is reported, not gated.", "");
+md.push("Gate rule: every P0 case passes **and is proven** (its test has been seen red on a seeded fault); every P1 case passes or has an unexpired waiver in `waivers.json`. A quarantined case counts as Blocked. A quarantine older than 14 days fails the build. P2 is reported, not gated. A timing case (Runner: dedicated) is gated only on a dedicated runner; " + (dedicated ? "these results come from one (QA_DEDICATED_RUNNER=1), so timing cases are gated." : "these results come from shared runners, so timing cases are reported, not gated."), "");
 const provenCount = rows.filter((x) => x.proven).length;
 md.push("## Proven", "", `| Pass | Proven (seen red on a seeded fault) | Pass but unproven |`, "| ---: | ---: | ---: |", `| ${rows.filter((x) => x.status === "Pass").length} | ${provenCount} | ${rows.filter((x) => x.status === "Pass" && !x.proven).length} |`, "");
 md.push("## Tiers", "", "| Tier | Cases | Pass | Proven | Not run |", "| --- | ---: | ---: | ---: | ---: |");
@@ -147,7 +157,7 @@ const section = (title, list, extra) => {
   md.push("");
 };
 section("Blocking the release", gateFails, (x) => `${x.status}${x.status === "Pass" && !x.proven ? " but unproven: no seeded-fault run reported" : ""}. ${x.note || (x.r && x.r.message) || (x.status === "Not run" ? "No result found for this case." : "")}`);
-section("Failures", rows.filter((x) => x.status === "Fail"), (x) => `${x.note || x.r.message || "failed"}. Expected: ${x.t.pass}`);
+section("Failures", rows.filter((x) => x.status === "Fail"), (x) => `${[x.note, x.r.message].filter(Boolean).join("; ") || "failed"}. Expected: ${x.t.pass}`);
 section("Blocked (skipped, errored, incomplete trials or quarantined)", rows.filter((x) => x.status === "Blocked"), (x) => x.note || (x.r && x.r.message) || "");
 section("Waived", rows.filter((x) => x.waiver), (x) => `${x.waiver.reason} (approved by ${x.waiver.approvedBy}, expires ${x.waiver.expires})`);
 section("Known gaps", rows.filter((x) => /known gap/i.test(x.t.fail + x.t.pass)), (x) => `${x.status}. ${x.t.fail}`);

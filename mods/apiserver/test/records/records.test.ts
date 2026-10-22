@@ -87,6 +87,8 @@ function call(
     amd?: string;
     failed?: string;
     recording?: boolean;
+    /** The app that handled the call; "ivr" unless given. */
+    appRef?: string;
   } = {}
 ): RecordEntry[] {
   const parties = {
@@ -100,7 +102,7 @@ function call(
       message: {
         type: "call.started",
         direction: o.direction ?? "inbound",
-        appRef: "ivr",
+        appRef: o.appRef ?? "ivr",
         workspaceRef: o.workspaceRef ?? "ws-1",
         ...parties
       }
@@ -135,7 +137,7 @@ function call(
             message: {
               type: "session.start",
               callRef,
-              appRef: "ivr",
+              appRef: o.appRef ?? "ivr",
               ...parties
             }
           },
@@ -247,7 +249,8 @@ describe("@apiserver call records", function () {
       call("call-busy", {
         failed: "busy",
         to: "+1999",
-        direction: "outbound"
+        direction: "outbound",
+        appRef: "billing"
       })
     );
     await seal("call-other", call("call-other", { workspaceRef: "ws-2" }));
@@ -437,6 +440,25 @@ describe("@apiserver call records", function () {
       status: CallStatus.USER_BUSY
     });
     expect(filtered.items.map((c) => c.ref)).to.deep.equal(["call-busy"]);
+  });
+
+  it("names the app on each ListCalls record and filters by it", async function () {
+    const list = await createFetchCallsFromIndex(mem.db)("ws-1", {});
+    const appOf = (ref: string) =>
+      list.items.find((c) => c.ref === ref)!.appRef;
+    expect(appOf("call-busy")).to.equal("billing");
+    expect(appOf("call-card")).to.equal("ivr");
+    const billing = await createFetchCallsFromIndex(mem.db)("ws-1", {
+      appRef: "billing"
+    });
+    expect(billing.items.map((c) => c.ref)).to.deep.equal(["call-busy"]);
+    const ivr = await createFetchCallsFromIndex(mem.db)("ws-1", {
+      appRef: "ivr"
+    });
+    expect(ivr.items.map((c) => c.ref)).to.have.members([
+      "call-card",
+      "call-rec"
+    ]);
   });
 
   it("applies retention policies with audit entries naming the policy", async function () {

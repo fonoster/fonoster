@@ -119,6 +119,7 @@ export function toCallDetailRecord(row: CallRecordRow): CallDetailRecord {
     from: row.fromNumber ?? "",
     to: row.toNumber ?? "",
     duration: row.durationSeconds,
+    appRef: row.appRef ?? "",
     // AmdStatus enum names are the index's words in capitals.
     ...(row.amdStatus ? { amdStatus: row.amdStatus.toUpperCase() } : {})
   } as unknown as CallDetailRecord;
@@ -149,6 +150,7 @@ export function createFetchCallsFromIndex(db: RecordsDb) {
       before: request.before,
       from: request.from,
       to: request.to,
+      appRef: request.appRef,
       status: status?.status,
       pageSize: request.pageSize,
       pageToken: request.pageToken

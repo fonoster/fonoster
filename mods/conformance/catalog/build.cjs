@@ -33,6 +33,7 @@ for (const t of all) {
   if (t.fault && !fs.existsSync(path.join(catalogDir, t.fault))) errors.push(`${t.id}: fault patch ${t.fault} does not exist (relative to ${path.relative(process.cwd(), catalogDir) || "."})`);
   if (t.fault && !t.area.prove) errors.push(`${t.id}: has a fault patch but ${t.area.file} has no prove: command`);
   if (!TIERS.includes(t.tier)) errors.push(`${t.id}: tier "${t.tier}" is not one of ${TIERS.join(", ")}`);
+  if (t.runner && t.runner !== "dedicated") errors.push(`${t.id}: runner "${t.runner}" must be dedicated (or no Runner: line)`);
   if (!t.pass || !t.fail) errors.push(`${t.id}: needs **Pass.** and **Fail.** lines`);
   if (/\b(manual|by hand|a human|a person)\b/i.test([t.objective, t.pass, t.fail, t.proof].join(" "))) errors.push(`${t.id}: no manual tests; reword`);
   for (const s of t.spec) if (!resolveSpec(s, scenarios)) errors.push(`${t.id}: spec "${s}" is not a scenario in openspec/specs (format: capability / requirement / scenario)`);

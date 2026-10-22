@@ -21,6 +21,7 @@ import * as chai from "chai";
 import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
 import sinonChai from "sinon-chai";
+import * as pb from "../src/generated/node/calls_pb";
 
 chai.use(chaiAsPromised);
 chai.use(sinonChai);
@@ -173,5 +174,41 @@ describe("@sdk[Calls]", function () {
       amdConfidence: 1,
       amdDetector: "asterisk-amd@1"
     });
+  });
+  it("should send the appRef filter on listCalls and return each record's appRef", async function () {
+    // Arrange
+    const { Calls } = await import("../src/Calls");
+    const appRef = "11111111-1111-1111-1111-111111111111";
+
+    const record = new pb.CallDetailRecord();
+    record.setRef("00000000-0000-0000-0000-000000000000");
+    record.setAppRef(appRef);
+    const response = new pb.ListCallsResponse();
+    response.setItemsList([record]);
+
+    let sent: { getAppRef(): string } | undefined;
+    const client = {
+      listCalls: (
+        req: { getAppRef(): string },
+        _metadata: unknown,
+        callback: (err: Error | null, res: unknown) => void
+      ) => {
+        sent = req;
+        callback(null, response);
+      }
+    };
+
+    const fonosterClient = {
+      getCallsClient: () => client,
+      getMetadata: () => ({})
+    };
+
+    // Act
+    const calls = new Calls(fonosterClient as never);
+    const result = await calls.listCalls({ appRef, pageSize: 10 });
+
+    // Assert
+    expect(sent?.getAppRef()).to.equal(appRef);
+    expect(result.items[0].appRef).to.equal(appRef);
   });
 });

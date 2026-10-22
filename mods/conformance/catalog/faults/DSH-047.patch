@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/lib/runtime.ts b/mods/dashboard/src/lib/runtime.ts
+index ed238a764..fee1ee5b5 100644
+--- a/mods/dashboard/src/lib/runtime.ts
++++ b/mods/dashboard/src/lib/runtime.ts
+@@ -41,7 +41,7 @@ export function readRuntimeConfig(
+   source: unknown = window.__FONOSTER__
+ ): RuntimeResult {
+   if (source === undefined || source === null) {
+-    return { ok: false, error: "DASHBOARD_API_URL is not set" };
++    return { ok: true, config: { apiUrl: "http://localhost:8449" } };
+   }
+   const result = runtimeSchema.safeParse(source);
+   if (!result.success) {

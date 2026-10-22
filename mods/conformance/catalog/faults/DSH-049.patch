@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/lib/auth.tsx b/mods/dashboard/src/lib/auth.tsx
+index 6dcd1f27f..e7d49cd3b 100644
+--- a/mods/dashboard/src/lib/auth.tsx
++++ b/mods/dashboard/src/lib/auth.tsx
+@@ -90,7 +90,7 @@ function takeLegacyRefreshToken(): string | null {
+   );
+   storage.remove(LEGACY_SESSION_KEY);
+   return typeof legacy?.refreshToken === "string" && legacy.refreshToken
+-    ? legacy.refreshToken
++    ? null
+     : null;
+ }
+ 

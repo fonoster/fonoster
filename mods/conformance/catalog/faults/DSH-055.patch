@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/sdk-api.ts b/mods/dashboard/src/session/sdk-api.ts
+index bf0113707..7e566d42c 100644
+--- a/mods/dashboard/src/session/sdk-api.ts
++++ b/mods/dashboard/src/session/sdk-api.ts
+@@ -325,7 +325,7 @@ export function fromVcon(
+     })
+   ].sort((a, b) => a.at - b.at);
+   // Failed audio filters get their own badge with the reason, not a bare "Problem" line.
+-  const unfiltered = ((meta.filters as Raw | undefined)?.failed ?? []) as {
++  const unfiltered = ([] as unknown[]) as {
+     name?: string;
+     reason: string;
+   }[];

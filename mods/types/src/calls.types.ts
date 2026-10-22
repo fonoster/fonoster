@@ -68,6 +68,8 @@ type CallDetailRecord = {
   amdDetector?: string;
   amdLatencyMs?: number;
   amdCause?: string;
+  // The app that handled the call, empty when no app did
+  appRef?: string;
 };
 
 type ListCallsRequest = {
@@ -77,6 +79,8 @@ type ListCallsRequest = {
   status?: CallStatus;
   from?: string;
   to?: string;
+  // Lists only the calls the app with this ref handled
+  appRef?: string;
   pageSize?: number;
   pageToken?: string;
 };

@@ -104,6 +104,8 @@ message CallDetailRecord {
   int32 amd_latency_ms = 14;
   // Detector-specific cause code (e.g. Asterisk's AMDCAUSE), useful for tuning
   string amd_cause = 15;
+  // The reference of the app that handled the call, empty when no app did
+  string app_ref = 16;
 }
 
 // The request message for Calls.Call
@@ -144,6 +146,8 @@ message ListCallsRequest {
   int32 page_size = 7;
   // The page token
   string page_token = 8;
+  // Optional app reference; lists only the calls that app handled
+  string app_ref = 9;
 }
 
 // The response message for Calls.ListCalls

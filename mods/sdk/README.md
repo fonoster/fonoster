@@ -1140,6 +1140,7 @@ Retrieves a list of Calls from a Workspace.
 | request | <code>ListCallsRequest</code> | The request object that contains the necessary information to retrieve a list of Calls |
 | request.pageSize | <code>number</code> | The number of Calls to retrieve |
 | request.pageToken | <code>string</code> | The token to retrieve the next page of Calls |
+| request.appRef | <code>string</code> | Optional. Lists only the Calls the App with this reference handled |
 
 **Example**  
 ```js
@@ -1147,7 +1148,8 @@ const calls = new SDK.Calls(client); // Existing client object
 
 const request = {
   pageSize: 10,
-  pageToken: "00000000-0000-0000-0000-000000000000"
+  pageToken: "00000000-0000-0000-0000-000000000000",
+  appRef: "00000000-0000-0000-0000-000000000000" // Optional: only this App's Calls
 };
 
 calls

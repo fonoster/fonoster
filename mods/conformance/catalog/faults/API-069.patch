@@ -1,0 +1,12 @@
+diff --git a/mods/apiserver/src/records/createSearchRecords.ts b/mods/apiserver/src/records/createSearchRecords.ts
+index 58f018473..a09b99627 100644
+--- a/mods/apiserver/src/records/createSearchRecords.ts
++++ b/mods/apiserver/src/records/createSearchRecords.ts
+@@ -150,7 +150,6 @@ export function createFetchCallsFromIndex(db: RecordsDb) {
+       before: request.before,
+       from: request.from,
+       to: request.to,
+-      appRef: request.appRef,
+       status: status?.status,
+       pageSize: request.pageSize,
+       pageToken: request.pageToken

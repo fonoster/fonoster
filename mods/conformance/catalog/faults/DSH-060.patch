@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/vendor-keys.tsx b/mods/dashboard/src/session/vendor-keys.tsx
+index 30287b457..811c2468d 100644
+--- a/mods/dashboard/src/session/vendor-keys.tsx
++++ b/mods/dashboard/src/session/vendor-keys.tsx
+@@ -68,7 +68,7 @@ export default function VendorKeysScreen() {
+ 
+   // Keyless providers (the fakes, local models) take no key.
+   const providers = (loaded.data?.catalog.providers ?? []).filter(
+-    (p) => !p.keyless
++    (p) => Boolean(p)
+   );
+   const rows: Row[] = (loaded.data?.keys ?? []).map((k) => ({
+     provider: providers.find((p) => p.id === k.providerId) ?? {

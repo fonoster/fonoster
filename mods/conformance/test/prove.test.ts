@@ -199,6 +199,30 @@ describe("@conformance/catalog prove.cjs", function () {
     expect(fs.readFileSync(path.join(dir, "report.md"), "utf8")).to.match(/\| TST-001 \| Adds \| P0 \| [a-z]+ \| Pass \| yes \|/);
   });
 
+  it("report.cjs gates a timing case only on a dedicated runner, and reads {metric=value} from names", function () {
+    const file = path.join(dir, "catalog", "areas", "tst.md");
+    fs.writeFileSync(file, area.replace("- **Proof:** add subtracts", "- **Runner:** dedicated\n- **Proof:** add subtracts"));
+    prove("--case", "TST-001");
+    fs.writeFileSync(
+      path.join(dir, "junit", "run.xml"),
+      '<testsuite><testcase name="[TST-001] adds {p99_ms=7.62}"><failure message="slow"/></testcase>' +
+        '<testcase name="[TST-002] adds"/><testcase name="[TST-003] adds"/></testsuite>'
+    );
+    // TST-002 and TST-003 pass but are unproven, so only the gate's answer on TST-001 is compared.
+    const report = (extra: NodeJS.ProcessEnv) => {
+      spawnSync("node", [path.join(catalog, "report.cjs"), "--results", "junit", "--out", "report.md"], { cwd: dir, env: { ...env, ...extra }, encoding: "utf8" });
+      return fs.readFileSync(path.join(dir, "report.md"), "utf8");
+    };
+    const blocking = (md: string) => md.split("## Blocking the release")[1].split("\n## ")[0];
+
+    const shared = report({ QA_DEDICATED_RUNNER: "" });
+    expect(blocking(shared)).not.to.contain("TST-001");
+    expect(shared).to.match(/\| TST-001 \| Adds \| P0 \| [a-z]+ \| Fail \(timing case on a shared runner: reported, not gated\) \| yes \|/);
+    expect(shared).to.match(/\| TST-001 \| Adds \| p99_ms \| 7\.62 \|/);
+
+    expect(blocking(report({ QA_DEDICATED_RUNNER: "1" }))).to.contain("TST-001");
+  });
+
   it("reads case ids from bracketed titles and from Go test names", function () {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { caseIds } = require(path.join(catalog, "lib.cjs"));

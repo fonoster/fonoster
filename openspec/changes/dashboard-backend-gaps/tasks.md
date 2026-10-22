@@ -1,6 +1,6 @@
 ## 1. Backend for dashboard screens (from dashboard-tailwind-migration section 5)
 
-- [ ] 1.1 `appRef` on CDRs, and the calls filters by agent or app
+- [x] 1.1 `appRef` on CDRs, and the calls filters by agent or app
 - [ ] 1.2 Workspace member count and last activity on the Select cards
 - [ ] 1.3 The user's pending invites on the landing screen
 - [ ] 1.4 Member role update
@@ -9,6 +9,7 @@
 - [ ] 1.7 Agent evals and knowledge upload
 - [ ] 1.8 Cost model
 - [ ] 1.9 Two-step sign-in (2FA)
+- [x] 1.10 `app_ref` on the gRPC `CallDetailRecord` and an app filter on `Calls.ListCalls`, so SDK users see and filter by the app that handled a call
 
 ## 2. Gaps found while building section 4
 

@@ -344,6 +344,7 @@ never skips.
 - **Priority:** P2
 - **Tier:** nightly
 - **Trials:** 3×1
+- **Runner:** dedicated
 - **Proof:** Wait 100 ms before the first speak (`speakRound` in `Agent.ts`); the test must go red on the p95 budget.
 - **Fault:** faults/APT-021.patch
 - **Test:** mods/autopilot/test/session/latency.integration.test.ts

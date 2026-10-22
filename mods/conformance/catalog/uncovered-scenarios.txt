@@ -22,25 +22,9 @@ control-plane / The apiserver is a stateless control plane / Call status survive
 control-plane / The apiserver is a stateless control plane / Losing a replica
 control-plane / The apiserver is a stateless control plane / Management API unchanged
 control-plane / The apiserver is a stateless control plane / TrackCall always ends
-dashboard / Agent pickers offer the catalog / Models Autopilot cannot run are not offered
-dashboard / Calls can be filtered by app / Filter calls by app
 dashboard / Member roles can be changed / Promote a member
-dashboard / Noise cancelling is one select fed by the catalog / A saved filter whose provider is no longer offered
-dashboard / Sign-in options follow the advertised methods / Cloud without GitHub
-dashboard / Sign-in options follow the advertised methods / Open sign-up
-dashboard / The call detail flags unfiltered calls / A filter failed
-dashboard / The call detail flags unfiltered calls / Filtering worked
-dashboard / The dashboard is configured at run time with one setting / API unreachable at boot
-dashboard / The dashboard is configured at run time with one setting / Missing API URL
 dashboard / The dashboard is configured at run time with one setting / One image, two deployments
-dashboard / The navigation can collapse / Collapse
 dashboard / The session persists in the browser and ends cleanly / Inline script blocked
-dashboard / The session persists in the browser and ends cleanly / Older stored session
-dashboard / The sidebar names Agents and Apps / Old paths
-dashboard / The workspace has a Usage page / Choosing a period
-dashboard / The workspace has a Usage page / No usage yet
-dashboard / Vendor keys offers noise-cancelling providers / Adding an ai-coustics key
-dashboard / Vendor keys warn when no vendor is configured / Every vendor was removed
 identity / Id, access, and refresh tokens / A token is not valid across realms
 identity / Id, access, and refresh tokens / Token carries realm context and is realm-signed
 identity / Realm isolation / Cross-realm access is denied
@@ -56,9 +40,6 @@ identity-service / Container image and accept-invite bridge / Published image ru
 talk-in-browser / A browser call reaches the agent / Invalid token
 talk-in-browser / SIP over WebSocket on the API port / Browser connects
 talk-in-browser / SIP over WebSocket on the API port / Rendered bundle config
-talk-in-browser / Talk drawer calls from the browser / Call rejected
-talk-in-browser / Talk drawer calls from the browser / Microphone blocked
-talk-in-browser / Talk drawer calls from the browser / Not a secure context
 talk-in-browser / Test tokens stay in their workspace / Another workspace's agent
 talk-in-browser / Test tokens stay in their workspace / Calls without a token
 talk-in-browser / Test tokens stay in their workspace / Forged token

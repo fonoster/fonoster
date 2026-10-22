@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/sdk-api.ts b/mods/dashboard/src/session/sdk-api.ts
+index bf0113707..fff584121 100644
+--- a/mods/dashboard/src/session/sdk-api.ts
++++ b/mods/dashboard/src/session/sdk-api.ts
+@@ -178,7 +178,7 @@ export function toCatalog(items: CatalogItem[]): Catalog {
+       .filter((i) => i.kind === "model" && i.type === "llm")
+       .map(entry),
+     providers: items
+-      .filter((i) => i.kind === "provider")
++      .filter((i) => i.kind === "provider" && !i.capabilities?.includes("nc"))
+       // Every catalog entry carries its own label ("Deepgram", "Fakes").
+       .map((i) => ({ ...entry(i), label: i.label || i.id })),
+     languages: [...languages]

@@ -66,6 +66,7 @@ Scope paragraph.
 - **Priority:** P0
 - **Tier:** nightly                                 (optional override)
 - **Trials:** 3×1                                   (optional: k × required rate)
+- **Runner:** dedicated                             (optional: a timing case, gated only on a dedicated runner)
 - **Proof:** how the test is shown red
 - **Fault:** faults/DSH-003.patch                   (optional: the proof as a patch, for prove.cjs)
 - **Test:** path                                    (informational)
@@ -113,7 +114,11 @@ node mods/conformance/catalog/report.cjs --results reports/junit --version v1.0.
 Gate: every P0 passes and is proven (a `proven=true` JUnit property from a seeded-fault run); every
 P1 passes or has an unexpired waiver; a case with no result is Not run and blocks; a skipped test is
 Blocked, never Pass; stochastic cases are judged over their declared trials; quarantined tests are
-Blocked and a quarantine older than 14 days fails the build.
+Blocked and a quarantine older than 14 days fails the build. A timing case (`Runner: dedicated`, a
+wall-clock bound) is gated only when the report is built from a dedicated runner's results
+(`QA_DEDICATED_RUNNER=1`, which nothing sets yet); on shared runners its result is reported as a
+trend, not gated. A test reports a number as a JUnit property or, when its reporter writes none, in
+its name as `{metric=value}`; both land in the report's Measurements.
 
 ## Proofs
 
