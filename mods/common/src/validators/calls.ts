@@ -58,6 +58,7 @@ const listCallsRequestSchema = z.object({
   status: z
     .nativeEnum(CallStatus, { message: "Invalid call status" })
     .optional(),
+  appRef: z.string().optional(),
   pageToken: z.string().optional()
 });
 

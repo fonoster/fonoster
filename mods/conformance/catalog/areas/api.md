@@ -907,3 +907,17 @@ The proto the built client loads, and the copies committed in the repository.
 One client instance calls for two users, each with their own token.
 
 **Pass.** Each call acts as its own caller. **Fail.** A call acts as the other caller.
+
+### API-069 Call records name their app and ListCalls filters by it
+
+- **Spec:** control-plane / The Calls API carries and filters by the app that handled a call / A call record names its app
+- **Spec:** control-plane / The Calls API carries and filters by the app that handled a call / Filter calls by app
+- **Spec:** control-plane / The Calls API carries and filters by the app that handled a call / No filter lists every app's calls
+- **Priority:** P1
+- **Proof:** Leave `appRef` out of the index search ListCalls makes; the filter returns every app's calls and the test goes red.
+- **Fault:** faults/API-069.patch
+- **Test:** mods/conformance/test/api/calls.api.ts
+
+Index rows the call-record service would write for workspace A (two calls by one app, one by another, one with no app) and one for workspace B by the first app, then ListCalls and GetCall through each driver.
+
+**Pass.** Each record carries its app's ref (none for the call no app handled), the unfiltered list has all four of A's calls, and filtering by the first app returns exactly its two. **Fail.** A record lacks its app, or the filter returns another app's, no app's or B's calls.
