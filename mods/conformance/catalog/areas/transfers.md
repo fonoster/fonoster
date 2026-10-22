@@ -90,7 +90,7 @@ tier doesn't reach, so hold is proven with silence.
 - **Spec:** voice-session / Call control / Cold transfer stays in the room
 - **Spec:** voice-session / Call control / Transfer headers
 - **Priority:** P0
-- **Proof:** Hang the call up when a cold transfer completes (`transferResult` in `mods/appbridge/src/session/Call.ts`); the test must go red on the caller's call still up.
+- **Proof:** Hang the call up when a session ends by transfer (`endWith` in `mods/appbridge/src/session/Call.ts`); the test must go red on the caller's call still up.
 - **Fault:** faults/XFR-001.patch
 - **Test:** mods/appbridge/test/transfers.integration.test.ts
 
@@ -136,7 +136,7 @@ Run with the new party busy (486) and declining (603).
 
 - **Spec:** voice-session / Call control / Transfer by SIP REFER
 - **Priority:** P1
-- **Proof:** Ignore the node's referred result (`transferResult` in `Call.ts`); the test must go red on a session that ends as the app's hang-up.
+- **Proof:** Send a REFER transfer to the node as a cold one (`Call.ts`); the test must go red on the node's Transfer mode and a call the node keeps.
 - **Fault:** faults/XFR-005.patch
 - **Test:** mods/appbridge/test/transfers.integration.test.ts
 
