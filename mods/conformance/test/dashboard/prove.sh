@@ -34,11 +34,25 @@ if [ "${QA_RUN:-}" = 1 ]; then
 fi
 if grep -q "\[$id\]" e2e/*.real.spec.ts e2e-stack/*.spec.ts 2>/dev/null; then
   # A port of this run's own, checked free: a server left by an earlier case would serve that
-  # case's build, and the tests would meet the wrong fault.
-  port="${PROVE_SPA_PORT:-$((16480 + $$ % 400))}"
-  if curl -s -o /dev/null "http://localhost:$port/"; then
-    echo "port $port is already serving; stop it first" >&2
-    exit 1
+  # case's build, and the tests would meet the wrong fault. The search stays out of 16000-16999,
+  # the stack's own host ports (ops/rebuild/stack.defaults): a pick in that band once landed on
+  # the fakes' OAuth2 port. Free means nothing accepts a connection (curl exit 7), not only that
+  # nothing answers HTTP. PROVE_SPA_PORT names one port and fails when it is taken.
+  free() {
+    curl -s -o /dev/null --max-time 2 "http://localhost:$1/"
+    [ $? -eq 7 ]
+  }
+  if [ -n "${PROVE_SPA_PORT:-}" ]; then
+    port="$PROVE_SPA_PORT"
+    free "$port" || { echo "port $port is already in use; stop it first" >&2; exit 1; }
+  else
+    port=""
+    start=$(($$ % 400))
+    for i in $(seq 0 399); do
+      candidate=$((17000 + (start + i) % 400))
+      if free "$candidate"; then port="$candidate"; break; fi
+    done
+    [ -n "$port" ] || { echo "no free port in 17000-17399" >&2; exit 1; }
   fi
   vite=../../node_modules/.bin/vite
   "$vite" build --config vite.prove.config.ts --outDir "$out/spa" --logLevel warn || exit 1
