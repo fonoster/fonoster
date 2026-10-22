@@ -64,7 +64,8 @@ node mods/conformance/catalog/prove.cjs --area BIL                       # the p
 
 `prove.sh` runs the whole files that carry a case's id, not the case alone: the Stripe suites build
 on the accounts and the test clock earlier tests left. The admission timing case (BIL-036) runs only
-with `CONFORMANCE_TIMING_RUNS` set, as the other timing tests do.
+with `CONFORMANCE_TIMING_RUNS` set, as the other timing tests do: for its proof and in the QA
+workflow's whole-area run. It blocks the gate only on a dedicated runner.
 
 ## Systems
 
@@ -588,13 +589,17 @@ plan's limit of active calls, counted from the session registry until calls end 
 - **Spec:** billing / Admission from the ledger / Fast answer
 - **Priority:** P1
 - **Tier:** nightly
+- **Runner:** dedicated
 - **Proof:** Wait 10 ms in every admission check; the p99 is above 5 ms and the test goes red.
 - **Fault:** faults/BIL-036.patch
 - **Test:** mods/billing/test/admission.test.ts
 
-After warming up, 300 admission checks are timed on Postgres. Shared runners are too noisy for a
-wall-clock bound, so the test runs only with `CONFORMANCE_TIMING_RUNS` set, like the other timing
-tests.
+After warming up, 300 admission checks are timed on Postgres. The test runs only with
+`CONFORMANCE_TIMING_RUNS` set, like the other timing tests: for its proof and in the QA workflow's
+whole-area run, never on PR runners. Shared runners are too noisy for a wall-clock bound, so the
+case blocks the gate only on a dedicated runner (`QA_DEDICATED_RUNNER=1` when the report is built).
+On shared runners it still runs, and its result and p99 (`p99_ms`) go in the report as a trend. The
+proof is unchanged: the fault's 10 ms wait turns it red anywhere.
 
 **Pass.** The p99 answer is under 5 ms. **Fail.** It is 5 ms or more.
 

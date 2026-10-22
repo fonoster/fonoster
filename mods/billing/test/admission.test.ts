@@ -169,7 +169,8 @@ describe("@billing admission", function () {
   });
 
   // A wall-clock bound: like the other timing tests (T1) it runs only when asked
-  // (CONFORMANCE_TIMING_RUNS), not on shared PR runners where Postgres alone can take longer.
+  // (CONFORMANCE_TIMING_RUNS), not on shared PR runners where Postgres alone can take longer. The
+  // QA report gates it only on a dedicated runner and shows the p99 as a trend everywhere else.
   it("[BIL-036] answers in under 5 ms at p99", async function () {
     if (!Number(process.env.CONFORMANCE_TIMING_RUNS ?? 0)) return this.skip();
     await payg("owner-fast", "WO-fast", 1000);
@@ -182,7 +183,10 @@ describe("@billing admission", function () {
       times.push(Number(process.hrtime.bigint() - t) / 1e6);
     }
     times.sort((a, b) => a - b);
-    expect(times[Math.floor(times.length * 0.99)]).to.be.below(5);
+    const p99 = times[Math.floor(times.length * 0.99)];
+    // The number for the QA report's measurements, pass or fail (report.cjs reads {name=value}).
+    if (this.test) this.test.title += ` {p99_ms=${p99.toFixed(2)}}`;
+    expect(p99).to.be.below(5);
   });
 });
 
