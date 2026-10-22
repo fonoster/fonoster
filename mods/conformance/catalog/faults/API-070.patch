@@ -1,0 +1,18 @@
+diff --git a/mods/common/src/validators/calls.ts b/mods/common/src/validators/calls.ts
+index bbf406b72..e4e07bded 100644
+--- a/mods/common/src/validators/calls.ts
++++ b/mods/common/src/validators/calls.ts
+@@ -59,12 +59,7 @@ const listCallsRequestSchema = z.object({
+     .nativeEnum(CallStatus, { message: "Invalid call status" })
+     .optional(),
+   // Empty or unset means no filter (proto3 sends ""); anything else must be an app ref.
+-  appRef: z
+-    .string()
+-    .refine((v) => v === "" || z.string().uuid().safeParse(v).success, {
+-      message: "Invalid application reference"
+-    })
+-    .optional(),
++  appRef: z.string().optional(),
+   pageToken: z.string().optional()
+ });
+ 
