@@ -2,7 +2,7 @@ format: fonoster.scenario.v1
 name: outbound-busy
 contract: voice-session
 role: app
-spec: "Outbound sessions open at answer / Busy callee"
+spec: "Outbound sessions open when the callee answers / Busy callee"
 setup:
   call: { direction: outbound, to: "+15551234567", callRef: out-busy }
   media: { dialOutcome: busy }

@@ -216,6 +216,59 @@ describe("@appbridge apps from the Applications API (database)", function () {
     await hangup(toOther.callRef, toOther.peer);
   });
 
+  it("[APB-041] accepts only ws:// and wss:// endpoints, at create and at update, naming the field", async function () {
+    const create = (url: string) =>
+      invoke<{ ref: string }>(createCreateApplication(db.prisma, config()), {
+        name: `Bot at ${url}`,
+        type: "STREAM",
+        url,
+        speech: { voice: "fake/default", language: "en-US" }
+      });
+    const update = (ref: string, url: string) =>
+      invoke(createUpdateApplication(db.prisma, config()), {
+        ref,
+        name: "Bot",
+        type: "STREAM",
+        url,
+        speech: { voice: "fake/default", language: "en-US" }
+      });
+    const urlOf = async (ref: string) =>
+      (
+        await invoke<{ url: string }>(createGetApplication(db.prisma), {
+          ref
+        })
+      ).url;
+    const apps = () => db.prisma.application.count();
+
+    const before = await apps();
+    for (const url of [
+      "bot.example.com:50061",
+      "https://bot.example.com/agent",
+      "grpc://bot.example.com:50061"
+    ]) {
+      const refused = await create(url).catch(failure);
+      expect(refused, url).to.include({ code: grpc.status.INVALID_ARGUMENT });
+      expect((refused as { message: string }).message, url).to.contain("url");
+    }
+    expect(await apps()).to.equal(before);
+
+    const ws = await create("ws://bot.example.com/agent");
+    expect(await urlOf(ws.ref)).to.equal("ws://bot.example.com/agent");
+    const wss = await create("wss://bot.example.com/agent");
+    expect(await urlOf(wss.ref)).to.equal("wss://bot.example.com/agent");
+
+    const refused = await update(
+      wss.ref,
+      "https://bot.example.com/agent"
+    ).catch(failure);
+    expect(refused).to.include({ code: grpc.status.INVALID_ARGUMENT });
+    expect((refused as { message: string }).message).to.contain("url");
+    expect(await urlOf(wss.ref)).to.equal("wss://bot.example.com/agent");
+
+    await update(wss.ref, "ws://bot.example.com/other");
+    expect(await urlOf(wss.ref)).to.equal("ws://bot.example.com/other");
+  });
+
   describe("audio filters set through the Applications API", function () {
     // Stands in for the ai-coustics filter (the SDK and its model are not in the test
     // environment): same name and public options, and it counts the frames it filtered.

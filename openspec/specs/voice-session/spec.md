@@ -5,23 +5,6 @@ AppBridge: how calls reach apps as WebSocket sessions and what apps can do in th
 
 ## Requirements
 
-### Requirement: Sessions are delivered over WebSocket only
-
-AppBridge SHALL deliver every session to an app over exactly one WebSocket
-connection per call, in the app's configured protocol (`fonoster` or `twilio`). The platform MUST NOT
-accept `voice.proto` gRPC sessions.
-
-#### Scenario: Fonoster protocol framing
-- **WHEN** a call reaches an app configured with protocol `fonoster`
-- **THEN** AppBridge opens one WebSocket to the app's URL
-- **AND** sends every message as a JSON text frame
-- **AND** sends audio only as binary frames
-
-#### Scenario: Legacy gRPC voice apps are not dialed
-- **WHEN** an app record has only a gRPC voice endpoint and no WebSocket URL
-- **THEN** a call to it is not delivered over gRPC
-- **AND** the call follows the app's fallback (see "Unreachable apps fall back")
-
 ### Requirement: Connection requests are signed
 
 AppBridge SHALL sign every connection request with an HMAC-SHA256 over the URL and a timestamp,
@@ -72,25 +55,6 @@ message has been sent. Apps MUST NOT need to send an answer command.
 - **WHEN** an inbound call arrives and the app's socket opens
 - **THEN** the call is answered without any message from the app
 - **AND** caller audio frames begin flowing after `session.start`
-
-### Requirement: Outbound sessions open at answer
-
-For outbound calls AppBridge SHALL open the app's session only after the callee answers. Call
-progress (ringing, busy, no answer, failed) SHALL be reported to the API caller and the call
-record, not to the app.
-
-#### Scenario: Busy callee
-- **WHEN** an outbound call is placed and the callee is busy
-- **THEN** no WebSocket is opened to the app
-- **AND** the outcome `busy` is reported to the API caller and recorded in the call record
-
-#### Scenario: Answered callee
-- **WHEN** an outbound call is answered
-- **THEN** AppBridge opens the app's socket and sends `session.start` with `direction: "outbound"`
-
-#### Scenario: Room ends or node dies before the answer
-- **WHEN** the room of an unanswered outbound call ends, or nothing is heard about it for 75 s
-- **THEN** AppBridge stops watching it, records `call.failed` (the room's reason, or `node_error`) and sends the `call.failed` webhook
 
 ### Requirement: Unreachable apps fall back
 
@@ -567,8 +531,10 @@ until the room ends; the app's session duration SHALL be recorded separately.
 ### Requirement: An app is a WebSocket URL, a protocol and speech defaults
 
 The platform SHALL model every app as a WebSocket URL, a protocol (`fonoster` or `twilio`), a signing secret, speech
-defaults (voice and language as catalog ids), optional audio filters and an optional fallback. A
-number MUST point to an app. Routr resolves the number and passes the app in `X-App-Ref`; the
+defaults (voice and language as catalog ids), optional audio filters and an optional fallback. An
+app's endpoint SHALL be a `ws://` or `wss://` URL. The Applications API MUST reject any other
+value, at create and at update, with `INVALID_ARGUMENT` naming the field (`url`), and leave the app
+unchanged. A number MUST point to an app. Routr resolves the number and passes the app in `X-App-Ref`; the
 Roomr node passes every header through, and AppBridge SHALL take the app from `X-App-Ref` in the
 `headers` of the control stream's `Start` (media-control) or, for outbound calls, from `app_ref`
 in its `metadata`, which the caller of `CreateCall` sets. It SHALL use a number lookup only as a
@@ -600,6 +566,20 @@ development fallback when `X-App-Ref` is missing and a routing file is configure
   configuration is exempt
 - **AND** when dialing an app or listener from the database, AppBridge refuses addresses that
   resolve to private ranges (Autopilot apps' URL and the operator's YAML apps are not checked)
+
+#### Scenario: Create with an endpoint that is not a WebSocket URL
+- **WHEN** an app is created with `url` `bot.example.com:50061` or `https://bot.example.com/agent`
+- **THEN** the request fails with `INVALID_ARGUMENT` naming `url`
+- **AND** no app is created
+
+#### Scenario: Update to an endpoint that is not a WebSocket URL
+- **WHEN** app `A` is updated with `url` `https://bot.example.com/agent`
+- **THEN** the request fails with `INVALID_ARGUMENT` naming `url`
+- **AND** reading `A` returns its previous URL
+
+#### Scenario: WebSocket endpoints are accepted
+- **WHEN** an app is created or updated with `url` `ws://bot.example.com/agent` or `wss://bot.example.com/agent`
+- **THEN** the request succeeds and reading the app returns that URL
 
 ### Requirement: session.start opens every fonoster-protocol session
 
@@ -675,3 +655,31 @@ reference or SDK documentation.
 
 - **WHEN** an Autopilot agent sends `usage.report` for `call.seconds`
 - **THEN** AppBridge answers with `error` `bad_message` and records no usage from it
+
+### Requirement: Sessions are delivered over WebSocket
+
+AppBridge SHALL deliver every session to an app over exactly one WebSocket
+connection per call, at the app's `ws://` or `wss://` URL, in the app's configured protocol
+(`fonoster` or `twilio`).
+
+#### Scenario: Fonoster protocol framing
+- **WHEN** a call reaches an app configured with protocol `fonoster`
+- **THEN** AppBridge opens one WebSocket to the app's URL
+- **AND** sends every message as a JSON text frame
+- **AND** sends audio only as binary frames
+
+### Requirement: Outbound sessions open when the callee answers
+
+For outbound calls AppBridge SHALL open the app's session only after the callee answers. Call
+progress (ringing, busy, no answer, failed) SHALL be reported to the API caller and the call
+record, not to the app. An outbound call that ends before the answer never reaches AppBridge; the
+control plane records it (control-plane "Unanswered outbound calls are recorded as failed").
+
+#### Scenario: Busy callee
+- **WHEN** an outbound call is placed and the callee is busy
+- **THEN** no WebSocket is opened to the app
+- **AND** the outcome `busy` is reported to the API caller and recorded in the call record
+
+#### Scenario: Answered callee
+- **WHEN** an outbound call is answered
+- **THEN** AppBridge opens the app's socket and sends `session.start` with `direction: "outbound"`

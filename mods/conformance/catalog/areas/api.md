@@ -933,3 +933,19 @@ Index rows the call-record service would write for workspace A (two calls by one
 ListCalls through each driver with an `appRef` that is not a UUID, and with an empty `appRef` (proto3's unset), over the index rows API-069 writes.
 
 **Pass.** The malformed filter is INVALID_ARGUMENT and the empty one lists all four of workspace A's calls. **Fail.** The malformed filter is accepted, or the empty one filters.
+
+### API-071 Unanswered outbound calls are recorded as failed
+
+- **Spec:** control-plane / Unanswered outbound calls are recorded as failed / Outbound call ends before the answer
+- **Spec:** control-plane / Unanswered outbound calls are recorded as failed / An answered call is AppBridge's
+- **Priority:** P0
+- **Proof:** Seal the failed call's record with no workspace (`createNodeCallEvents` in `webhooks/nodeCallEvents.ts`); the test must go red on the record's workspace.
+- **Fault:** faults/API-071.patch
+- **Test:** mods/conformance/test/api/outboundFailures.api.ts
+
+An app created through the API in workspace A; a Roomr node in roomr-fake places an outbound call
+to it whose callee is busy, or answers and later hangs up. Two control-plane replicas read the
+node's call events as the apiserver does, and a stand-in record writer answers on the region's
+maintenance subject. A node that dies before the answer is not covered (#1107).
+
+**Pass.** The busy call is sealed once, in workspace A, with call.started, call.progress and call.failed (busy), and one call.failed goes to the fan-out; the answered call produces neither. **Fail.** No record, a record in no or another workspace, two of them, or a failed record for an answered call.

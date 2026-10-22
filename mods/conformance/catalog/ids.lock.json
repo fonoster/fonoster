@@ -295,5 +295,7 @@
   "APB-037": "Media at an internal address is never played",
   "APB-038": "Audio-only sessions get no turn-taking",
   "APB-039": "Patience adapts within a call only",
-  "APB-040": "Detectors are compared by replay before adoption"
+  "APB-040": "Detectors are compared by replay before adoption",
+  "API-071": "Unanswered outbound calls are recorded as failed",
+  "APB-041": "An app's endpoint is a WebSocket URL"
 }

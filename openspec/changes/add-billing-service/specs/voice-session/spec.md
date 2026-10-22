@@ -4,7 +4,7 @@
 
 ### Requirement: Calls are admitted before they start
 
-Before ringing an inbound call or browser test, and before placing an outbound call, the platform
+Before answering an inbound call or browser test, and before placing an outbound call, the platform
 SHALL ask the authorization service whether the session may start. A refusal SHALL record
 `call.failed` with the refusal's reason and reject the call (SIP 402 for `insufficient_balance`,
 503 for `concurrency_limit`). An answer slower than 500 ms SHALL admit the call.
@@ -13,7 +13,8 @@ SHALL ask the authorization service whether the session may start. A refusal SHA
 
 - **WHEN** an inbound call arrives for an account the billing service refuses with
   `insufficient_balance`
-- **THEN** the caller is rejected with SIP 402 before ringing
+- **THEN** the caller is rejected with SIP 402 before the call is answered (a 180 Ringing may come
+  first), and nothing is billed
 - **AND** the workspace receives `call.failed` with `reason: "insufficient_balance"`
 
 #### Scenario: Outbound refused

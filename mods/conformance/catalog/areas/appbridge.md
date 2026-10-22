@@ -86,7 +86,7 @@ does is here (APB-030); the control plane's side of it is in the API area.
 
 ### APB-001 Sessions are signed for the app and delivered over WebSocket
 
-- **Spec:** voice-session / Sessions are delivered over WebSocket only / Fonoster protocol framing
+- **Spec:** voice-session / Sessions are delivered over WebSocket / Fonoster protocol framing
 - **Spec:** voice-session / Connection requests are signed / Signature reflects the secret
 - **Spec:** voice-session / Connection requests are signed / App verifies a genuine request
 - **Spec:** voice-session / Connection requests are signed / Stale timestamp
@@ -120,8 +120,8 @@ does is here (APB-030); the control plane's side of it is in the API area.
 
 ### APB-003 Outbound sessions open only when the callee answers
 
-- **Spec:** voice-session / Outbound sessions open at answer / Answered callee
-- **Spec:** voice-session / Outbound sessions open at answer / Busy callee
+- **Spec:** voice-session / Outbound sessions open when the callee answers / Answered callee
+- **Spec:** voice-session / Outbound sessions open when the callee answers / Busy callee
 - **Priority:** P0
 - **Proof:** Leave the callee's progress out of a failed call's record (`writeFailedCall` in `record/maintenance.ts`); the tests must go red on the busy call's sealed record.
 - **Fault:** faults/APB-003.patch
@@ -516,7 +516,7 @@ refused on the stream and never dials an app.
 
 ### APB-029 An answered outbound call opens from Start and sends Ready
 
-- **Spec:** voice-session / Outbound sessions open at answer / Answered callee
+- **Spec:** voice-session / Outbound sessions open when the callee answers / Answered callee
 - **Priority:** P0
 - **Proof:** Ignore the API caller's app_metadata in Start (`appMetadata` in `AppBridge.ts`); the tests must go red on the session's metadata.
 - **Fault:** faults/APB-029.patch
@@ -615,6 +615,7 @@ The protocol side of the report; how the sealed usage is rated and billed is BIL
 
 ### APB-036 Calls are admitted before they start
 
+- **Spec:** voice-session / Calls are admitted before they start / Out of credits
 - **Spec:** voice-session / Calls are admitted before they start / Authorization slow
 - **Spec:** voice-session / Calls are admitted before they start / Outbound refused
 - **Priority:** P0
@@ -623,11 +624,11 @@ The protocol side of the report; how the sealed usage is rated and billed is BIL
 - **Test:** mods/appbridge/test/admission.test.ts, mods/appbridge/test/applicationsApi.test.ts
 
 AppBridge asks a fake Authz service (CheckSessionAuthorized) before an inbound call starts; the
-apiserver's CreateCall asks before placing an outbound one. "Out of credits" is not cited: its test
-here shows the 402 and call.failed, but the Roomr node has already sent 180 Ringing, and the spec
-says the caller is rejected before ringing.
+apiserver's CreateCall asks before placing an outbound one. The Roomr node sends 180 Ringing before
+AppBridge is asked, so a refused call ends 180 then 402: rejected before it is answered, as the spec
+says.
 
-**Pass.** AppBridge asks with the call's app, workspace and parties; a refusal is rejected with 402 (insufficient_balance) or 503 (concurrency_limit), never answered, never reaches the app, and sends call.failed with the reason; an answer slower than 500 ms admits the call at the timeout and logs it; CreateCall refused with concurrency_limit answers FAILED_PRECONDITION naming it and places nothing. **Fail.** A refused call answered or placed, or a slow authorization that holds the call up.
+**Pass.** AppBridge asks with the call's app, workspace and parties; a refusal is rejected with 402 (insufficient_balance) or 503 (concurrency_limit) before it is answered (180 at most, never 200), never reaches the app, and sends call.failed with the reason; an answer slower than 500 ms admits the call at the timeout and logs it; CreateCall refused with concurrency_limit answers FAILED_PRECONDITION naming it and places nothing. **Fail.** A refused call answered or placed, or a slow authorization that holds the call up.
 
 ### APB-037 Media at an internal address is never played
 
@@ -678,3 +679,19 @@ corpus file the test writes. The candidate is backchannel-hold, which waits 500 
 speech over the agent an interruption, so a 300 ms barge-in is missed.
 
 **Pass.** The report marks the candidate FAIL with the regressing metric and never says it may become the default, the default Detector stays the baseline, and only synthetic, internal and opted-in customer calls are replayed. **Fail.** A regressing candidate passes, or a call without consent is in the replay.
+
+### APB-041 An app's endpoint is a WebSocket URL
+
+- **Spec:** voice-session / An app is a WebSocket URL, a protocol and speech defaults / Create with an endpoint that is not a WebSocket URL
+- **Spec:** voice-session / An app is a WebSocket URL, a protocol and speech defaults / Update to an endpoint that is not a WebSocket URL
+- **Spec:** voice-session / An app is a WebSocket URL, a protocol and speech defaults / WebSocket endpoints are accepted
+- **Priority:** P0
+- **Proof:** Let `url` start with http:// or https:// too, in both of its checks (`wsUrl` and `checkDestination` in the apiserver's `appModel.ts`); the test must go red on the https endpoint.
+- **Fault:** faults/APB-041.patch
+- **Test:** mods/appbridge/test/applicationsApi.test.ts
+
+The apiserver's CreateApplication, UpdateApplication and GetApplication handlers on a throwaway
+Postgres. AppBridge dials only what the API stored, so an app it can't reach over WebSocket can't
+exist.
+
+**Pass.** A bare host:port, an https:// or a grpc:// endpoint is refused at create with INVALID_ARGUMENT naming `url` and no app is created; an update to https:// is refused the same way and the app keeps its URL; ws:// and wss:// are accepted at create and update and read back as written. **Fail.** An app stored with an endpoint AppBridge can't dial over WebSocket, or a WebSocket one refused.

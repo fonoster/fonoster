@@ -164,7 +164,7 @@ describe("@appbridge admission (add-billing-service)", function () {
       }
     };
 
-    it("[APB-036] rejects a call out of credits with 402, never answered, and sends call.failed", async function () {
+    it("[APB-036] rejects a call out of credits with 402 before it is answered, and sends call.failed", async function () {
       await start(
         answerAfter(0, { authorized: false, reason: "insufficient_balance" })
       );
@@ -172,7 +172,10 @@ describe("@appbridge admission (add-billing-service)", function () {
         appRef: "agent-a"
       });
       await until(() => harness.roomrNode.sipStatuses(callRef).includes(402));
-      expect(harness.roomrNode.sipStatuses(callRef)).to.not.include(200);
+      // Rejected before it is answered: a 180 Ringing may come first, a 200 never.
+      expect([[402], [180, 402]]).to.deep.include(
+        harness.roomrNode.sipStatuses(callRef)
+      );
       expect(harness.app.attempts).to.have.length(0);
       const failed = webhooks.find((e) => e.type === "call.failed");
       expect(failed?.workspaceRef).to.equal("WO-A");

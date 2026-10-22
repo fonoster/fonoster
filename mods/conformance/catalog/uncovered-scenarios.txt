@@ -48,6 +48,3 @@ talk-in-browser / Test tokens target the Roomr nodes / Token for a workspace
 usage-metering / Call seconds count from answer / Ringing is not metered
 usage-metering / Stored usage is published for billing / Billing off
 usage-metering / Usage records facts, not prices / Billing disabled
-voice-session / Calls are admitted before they start / Out of credits
-voice-session / Outbound sessions open at answer / Room ends or node dies before the answer
-voice-session / Sessions are delivered over WebSocket only / Legacy gRPC voice apps are not dialed
