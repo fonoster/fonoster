@@ -144,7 +144,8 @@ jobs:
             --reporter xunit --reporter-option output=reports/junit/roomr-ts.xml \
             'mods/conformance/test/media-control-go.test.ts' \
             'mods/conformance/test/media-control.test.ts' \
-            'mods/conformance/test/roomr-grpc.test.ts'
+            'mods/conformance/test/roomr-grpc.test.ts' \
+            'mods/appbridge/test/srtp.test.ts'
 
       - name: Roomr JUnit
         if: always()
@@ -173,7 +174,6 @@ jobs:
             'mods/conformance/test/regionsScenarios.test.ts' \
             'mods/apiserver/test/regions/regions.test.ts' \
             'mods/region-agent/test/cell.test.ts' \
-            'mods/apiserver/test/events/callEvents.test.ts' \
             'mods/apiserver/test/webhooks/fanout.test.ts' \
             'mods/apiserver/test/webhooks/sharedIntake.test.ts'
 

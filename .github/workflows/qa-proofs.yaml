@@ -383,7 +383,8 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
 
-      # The Routr the Go e2e registers two nodes with (least-sessions, ROM-034).
+      # The Routr the Go e2e registers two nodes with (least-sessions, ROM-034). ROM-034 is waived
+      # (catalog waivers.json, Routr 2.15.4 ignores least-sessions) and skips unless ROM034_LIVE=1.
       - name: Start Routr
         run: (cd go/roomr && docker compose -f e2e/testdata/routr/compose.yaml up -d --wait)
 

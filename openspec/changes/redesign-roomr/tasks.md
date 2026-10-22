@@ -6,14 +6,14 @@
 
 - [x] 1.1 Replace the node's built-in header names (`X-DOD-Number`, `X-App-Ref`, `X-Call-Ref`, `X-Call-Direction`) with a `headers` map on outbound dials and a full header map on inbound reports
 - [x] 1.2 Move `X-DOD-Number` into the apiserver's pass-through headers in `placeOutboundCall`
-- [ ] 1.3 Test: an INVITE with an arbitrary `X-` header reaches the app in `Start.headers` unchanged; a `CreateCall` header appears on the outbound INVITE byte for byte; a header value with CR or LF is rejected
+- [x] 1.3 Test: an INVITE with an arbitrary `X-` header reaches the app in `Start.headers` unchanged; a `CreateCall` header appears on the outbound INVITE byte for byte; a header value with CR or LF is rejected
 
 ## 2. Registration as configuration (S)
 
 - [x] 2.1 `sip.registrations[]` in the node config: `registrar`, `aor`, `auth`, `expires`, `headers` templates with `{sessions}`; zero entries disables REGISTER
 - [x] 2.2 Digest authentication on REGISTER; re-register on the interval and on a load change past `reregisterDelta`
 - [x] 2.3 `registration.state` event on NATS
-- [ ] 2.4 Test with the fake registrar: header templates rendered, no REGISTER without configuration, digest challenge answered (the "full on drain" assertion goes with task 13.1)
+- [x] 2.4 Test with the fake registrar: header templates rendered, no REGISTER without configuration, digest challenge answered (the "full on drain" assertion goes with task 13.1)
 
 ## 3. Capacity in the heartbeat (S)
 
@@ -25,7 +25,7 @@
 - [x] 3.6 Apiserver: write `placements.<callRef>` (`call_ref` → `node_ref`) to the registry before `CreateCall`; sweep entries whose node is down or answers `NOT_FOUND`, closing the record `FAILED`
 - [x] 3.7 Node: no CPU- or memory-based refusal; `max_rooms` is the only admission limit
 - [ ] 3.8 Test: a timed-out `CreateCall` is retried on the same node and the callee gets one INVITE; a replica killed between the registry write and the RPC is swept; a CPU-saturated node below `max_rooms` accepts
-- [ ] 3.9 Test: heartbeat content (`rooms`, `max_rooms`, `version`, `region`, dialable `control_addr`); a killed node is skipped by every controller within 6 s
+- [x] 3.9 Test: heartbeat content (`rooms`, `max_rooms`, `version`, `region`, dialable `control_addr`); a killed node is skipped by every controller within 6 s
 - [x] 3.10 Remove `cpu_idle`: `cpu.go`, `cpu_unix.go`, `cpu_other.go`, the heartbeat field and its scenario
 - [x] 3.11 Configurable `heartbeatInterval` (default 2 s)
 
@@ -39,7 +39,7 @@
 - [x] 4.6 Apiserver: rely on the existing sweeps to close records and registry entries whose events were lost; no replay
 - [ ] 4.7 Test (NATS fault injection): a call survives a 60 s outage; `call.ended` during the outage is not replayed and a sweep closes the record; per-room `seq` is contiguous
 - [x] 4.8 Rename `labels` to `metadata` everywhere (proto field, events, `Start`, spec text, TS clients, tests); the node passes it through untouched; callers dictate the app reference through `metadata` (for example `app_ref`) and AppBridge reads it for outbound calls
-- [ ] 4.9 Test: `metadata` from `CreateCall` is echoed in every event and in `Start`
+- [x] 4.9 Test: `metadata` from `CreateCall` is echoed in every event and in `Start`
 - [x] 4.10 Remove Roomr's session-registry KV writes (`sessionRegistry`, `nodes.*`, `rooms.*` entries); Roomr uses core NATS only
 
 ## 5. Control stream (M)
@@ -48,15 +48,15 @@
 - [x] 5.2 Node client: new connection per call, `Start` first, keepalive 10 s / 2 missed, hang up with cause `app_gone` on break, `503` when unreachable and `480` on answer timeout, optional TLS/mTLS from config
 - [x] 5.3 AppBridge server: accept streams, answer on verified app connect (`Answer` with the `RtpLink` endpoint), `Ready` for outbound, map stream events to `session.end` reasons
 - [ ] 5.4 Run the stream beside the NATS offer behind a flag; measurement 1 (50 calls/s burst across 10 appbridge pods: setup time and spread) and measurement 2 (one AppBridge pod at 500 and 1,000 calls: CPU and RTP jitter)
-- [ ] 5.5 Test: inbound answered on `Answer` only, with `180 Ringing` within 200 ms; `Reject` yields the given SIP status; stream break sends BYE; no audio bytes on the stream
+- [x] 5.5 Test: inbound answered on `Answer` only, with `180 Ringing` within 200 ms; `Reject` yields the given SIP status; stream break sends BYE; no audio bytes on the stream
 - [x] 5.6 AppBridge-side keepalive on the stream (end the session after 2 missed pings)
 - [x] 5.7 Node: `readyTimeout` (default 10 s) and unreachable session endpoint on an answered outbound call → BYE, `cause: "app_gone"`; `CANCEL` before `Answer` → `487`, `Ended` `caller_hangup`, stream closed
 - [x] 5.8 Node: one `mediaTimeout` (default 15 s) for the caller and app legs → BYE, `cause: "media_timeout"` or `"app_gone"`
 - [x] 5.9 AppBridge: the `cause` → `session.end` `reason` table, unknown cause → `error`
-- [ ] 5.10 Test: appbridge ends the session when the node is killed; Ready never arrives; endpoint unreachable on answer; caller cancels before `Answer`; app stops sending RTP
-- [ ] 5.11 Test: `media_timeout` with a short limit; SRTP app leg when both endpoints carry `srtp_key`; `max_duration_s` from `CreateCall` and from `Answer`
-- [ ] 5.12 Test: `SendDtmf`, `Hold`/`Resume`, cold, warm (completed and unanswered) and refer transfers sent on the stream
-- [ ] 5.13 Test (voice-session): every cause in the table maps to its `session.end` reason; an unknown cause maps to `error`
+- [x] 5.10 Test: appbridge ends the session when the node is killed; Ready never arrives; endpoint unreachable on answer; caller cancels before `Answer`; app stops sending RTP
+- [x] 5.11 Test: `media_timeout` with a short limit; SRTP app leg when both endpoints carry `srtp_key`; `max_duration_s` from `CreateCall` and from `Answer`
+- [x] 5.12 Test: `SendDtmf`, `Hold`/`Resume`, cold, warm (completed and unanswered) and refer transfers sent on the stream
+- [x] 5.13 Test (voice-session): every cause in the table maps to its `session.end` reason; an unknown cause maps to `error`
 - [x] 5.14 Remove the `ownerTimeout` / appbridge-heartbeat watch (`orphans.go`) together with the NATS control path, not before
 
 ## 6. AppBridge behind a Service (S)
@@ -74,34 +74,34 @@
 - [x] 7.3 `AddParticipant` with `listen` for listen-only per-track RTP destinations (recording, AMD); `RemoveParticipant`
 - [x] 7.4 Apiserver: `placeOutboundCall` calls `CreateCall` at the node's `control_addr`
 - [x] 7.5 Retire the `media.<nodeId>.commands` subjects and the NATS command handlers
-- [ ] 7.6 Test: busy/no-answer/rejected calls create no room and no stream; `EndCall` ends inbound and outbound calls; `EndRoom` ends every call in the room
+- [x] 7.6 Test: busy/no-answer/rejected calls create no room and no stream; `EndCall` ends inbound and outbound calls; `EndRoom` ends every call in the room
 - [x] 7.7 `CreateCall` dedupe window as a constant 10 min (ended calls included; drop the `callDedupeWindow` key); different parameters → `ALREADY_EXISTS`; `401`/`407` answered with `to.auth`, never logged or echoed; `EndCall` while `RINGING` sends `CANCEL`
 - [x] 7.8 `callRefHeader` config: a well-formed inbound header becomes the `call_ref`, else generated; `CreateCall` `to.headers` carries it; differing `call_ref` → `INVALID_ARGUMENT`
 - [x] 7.9 `emptyRoomTimeout` (default 30 s): rooms with no participant and no `CreateCall` in progress end with `cause: "node_error"`
-- [ ] 7.10 Test: repeat after end returns `Call{ENDED}`; same ref with different `to` → `ALREADY_EXISTS`; `407` digest challenge answered with no password in logs, events or responses; cancel while ringing
-- [ ] 7.11 Test: inbound ref from the header, generated ref, outbound ref from `to.headers`, conflicting refs
-- [ ] 7.12 Test: `CreateRoom` with a taken ref → `ALREADY_EXISTS`; `RemoveParticipant` removes with `cause: "removed"`
+- [x] 7.10 Test: repeat after end returns `Call{ENDED}`; same ref with different `to` → `ALREADY_EXISTS`; `407` digest challenge answered with no password in logs, events or responses; cancel while ringing
+- [x] 7.11 Test: inbound ref from the header, generated ref, outbound ref from `to.headers`, conflicting refs
+- [x] 7.12 Test: `CreateRoom` with a taken ref → `ALREADY_EXISTS`; `RemoveParticipant` removes with `cause: "removed"`
 - [ ] 7.13 Test: empty `CreateRoom` room and emptied room end after 30 s (short limit) with `node_error`
 - [x] 7.14 `CreateRoom` accepts `empty_room_timeout_s` and `max_participants` overriding the node defaults; `maxParticipants` stays configurable on the node
-- [ ] 7.15 Test: per-room `empty_room_timeout_s` and `max_participants` are honored (`room_full` at the limit); the node-wide defaults apply otherwise
+- [x] 7.15 Test: per-room `empty_room_timeout_s` and `max_participants` are honored (`room_full` at the limit); the node-wide defaults apply otherwise
 
 ## 8. Opus first (S)
 
 - [x] 8.1 Build the image with libopus (cgo); offer `opus/48000/2`, `G722/8000`, `PCMU/8000`, `PCMA/8000` in that order on SIP legs
-- [ ] 8.2 Test: an Opus-capable caller negotiates Opus and hears wideband audio; a PCMU-only trunk still negotiates PCMU; the load harness reports an Opus run separately
-- [ ] 8.3 Test: a GSM-only offer gets `488 Not Acceptable Here`
+- [x] 8.2 Test: an Opus-capable caller negotiates Opus and hears wideband audio; a PCMU-only trunk still negotiates PCMU; the load harness reports an Opus run separately
+- [x] 8.3 Test: a GSM-only offer gets `488 Not Acceptable Here`
 
 ## 9. Room header
 
 - [x] 9.1 `sip.roomHeader` config (the header name only); remove `onMissingRoom`: a room header always means join-or-create
 - [x] 9.2 Join-or-create on the header; `Start` names the room; the node never redirects; generate room refs with at least 128 random bits
-- [ ] 9.3 Test: a second caller with the header lands in the first caller's room and the mix-minus checker confirms both hear each other; 1,000 generated room refs are distinct and random
+- [x] 9.3 Test: a second caller with the header lands in the first caller's room and the mix-minus checker confirms both hear each other; 1,000 generated room refs are distinct and random
 
 ## 10. Ports and packaging
 
 - [x] 10.1 One RTP range for every leg: `rtp.host`, `rtp.advertise`, `rtp.portMin`/`rtp.portMax`; drop the separate public and app-leg ranges; fold `outboundTransport` into the `outboundProxy` URI; keep `rtp.host` and `control.grpc.advertise`
 - [x] 10.2 Helm: document one node per host or non-overlapping ranges
-- [ ] 10.3 Test: two nodes on one host with non-overlapping ranges both carry calls; two nodes on different pod IPs share a range
+- [x] 10.3 Test: two nodes on one host with non-overlapping ranges both carry calls; two nodes on different pod IPs share a range
 
 ## 11. Conformance
 
@@ -118,8 +118,8 @@
 - [x] 11.11 NATS fault injection (drop the connection, drop messages)
 - [x] 11.12 Config overrides for short timeouts and limits (answer, `readyTimeout`, `mediaTimeout`, `emptyRoomTimeout`, `drainWait`, max duration)
 - [x] 11.13 Retire the NATS-only scenarios `one-replica-claims`, `no-appbridge-answers`, `command-id-echoed`, `unknown-command-refused`, `ack-carries-results`
-- [ ] 11.14 Test: the node writes no audio file, with or without a recording listener
-- [ ] 11.15 Test: SIP over TLS with SDES-SRTP answers with SRTP; with no `tls` configured calls are plain
+- [x] 11.14 Test: the node writes no audio file, with or without a recording listener
+- [x] 11.15 Test: SIP over TLS with SDES-SRTP answers with SRTP; with no `tls` configured calls are plain
 
 ## 12. Docs and cleanup
 
@@ -132,7 +132,7 @@
 - [x] 13.2 Remove the debug HTTP server (`debugAddr`, `/ready`, `/stats`)
 - [x] 13.3 AppBridge: on SIGTERM fail readiness; keep streams and app sockets until they end or the maximum wait; no `MaxConnectionAge` on the `Session` server
 - [x] 13.4 Helm: `terminationGracePeriodSeconds` at least the drain maximum wait, gRPC readiness probe for Roomr, readiness probe for AppBridge and a PodDisruptionBudget for each; no `MaxConnectionAge` on the `Roomr` server
-- [ ] 13.5 Test: on SIGTERM the gRPC health check reports `NOT_SERVING`, REGISTER `Expires: 0` is seen, `node.down` is published, heartbeats stop and rooms keep running; exit after the last room; short `drainWait` ends rooms with `node_error`; appbridge maximum wait; rendered chart drain settings
+- [x] 13.5 Test: on SIGTERM the gRPC health check reports `NOT_SERVING`, REGISTER `Expires: 0` is seen, `node.down` is published, heartbeats stop and rooms keep running; exit after the last room; short `drainWait` ends rooms with `node_error`; appbridge maximum wait; rendered chart drain settings
 - [ ] 13.6 Test: rolling out AppBridge and Roomr with live calls drops none and new calls land on the new pods
 
 ## 14. Remove what Roomr does not need
@@ -141,7 +141,7 @@
 - [x] 14.2 Remove edge mTLS (`clientCa` on the SIP edge) and `requireEncryption`; keep optional SIP TLS (`tls.listen`/`cert`/`key`, TLS to the outbound proxy), optional SDES-SRTP and optional gRPC TLS, all off by default
 - [x] 14.3 Remove `netguard` and `allowedDestinations` from Roomr; validate tenant hold-music URLs (`Hold`, warm-transfer `music`) upstream in the apiserver/AppBridge with the existing apiserver `allowedDestinations` check
 - [x] 14.4 Config file only: remove the duplicate flags (about 37), keep `-config <path>`; move Helm's args into the file; `${VAR}` and `secret://` keep working
-- [ ] 14.5 Test (service-config): the node starts with `-config` alone and reads every other setting from the file
+- [x] 14.5 Test (service-config): the node starts with `-config` alone and reads every other setting from the file
 - [x] 14.6 Remove `trustedSources`, `allowAnySource` and the Helm render-fail check
 - [x] 14.7 Remove the OTLP logs bridge (logs go to stderr); keep OTLP metrics and traces
 
@@ -152,7 +152,7 @@
 - [x] 15.3 Remove `appbridge.heartbeat` (AppBridge publisher, Roomr and region-agent subscribers, NATS permissions) and the `appbridges` registry lease; keep `calls.<callRef>` for call ownership
 - [x] 15.4 Control plane: send `call.ended` with `endReason` `appbridge-lost` from the node's `call.ended` with `cause` `app_gone`, once per `callRef`, never after AppBridge's own; remove the lease-expiry path in `lostCalls`
 - [x] 15.5 Region agent: report AppBridge readiness from its health check through the Service, and active calls as the sum of `rooms` in the nodes' heartbeats
-- [ ] 15.6 Test: a running replica reports `SERVING` and no `appbridge.heartbeat` or `appbridges.*` entry exists; SIGTERM reports `NOT_SERVING`
-- [ ] 15.7 Test: AppBridge killed mid-call yields exactly one `call.ended` (`appbridge-lost`) per call across two control-plane replicas
-- [ ] 15.8 Test: the node's RTP stopped with the stream open ends the session with `reason: "error"` and the record says `media_timeout`; NATS paused longer than `mediaTimeout` ends no call
+- [x] 15.6 Test: a running replica reports `SERVING` and no `appbridge.heartbeat` or `appbridges.*` entry exists; SIGTERM reports `NOT_SERVING`
+- [x] 15.7 Test: AppBridge killed mid-call yields exactly one `call.ended` (`appbridge-lost`) per call across two control-plane replicas
+- [x] 15.8 Test: the node's RTP stopped with the stream open ends the session with `reason: "error"` and the record says `media_timeout`; NATS paused longer than `mediaTimeout` ends no call
 - [x] 15.9 Test: a cell with no ready AppBridge shows `degraded` naming AppBridge; active calls equal the nodes' room count

@@ -349,7 +349,8 @@ jobs:
       - name: Install libopus
         run: sudo apt-get update -qq && sudo apt-get install -y -qq libopus-dev
 
-      # The live-Routr test registers two nodes behind a real Routr (e2e/testdata/routr).
+      # The live-Routr test registers two nodes behind a real Routr (e2e/testdata/routr). ROM-034 is
+      # waived (catalog waivers.json, Routr 2.15.4 ignores least-sessions) and skips unless ROM034_LIVE=1.
       - name: Start a throwaway Routr
         run: docker compose -f e2e/testdata/routr/compose.yaml up -d --wait
 
