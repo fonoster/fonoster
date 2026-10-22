@@ -16,8 +16,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { ada, expect, identity, test, tokens, withPrivateRegion } from "./fixtures";
-import { grpcError } from "./grpc-web";
+import {
+  ada,
+  capabilitiesFor,
+  expect,
+  identity,
+  test,
+  tokens,
+  withPrivateRegion
+} from "./fixtures";
+import { capabilities, grpcError } from "./grpc-web";
 
 test.use({ variant: "cloud" });
 
@@ -149,7 +157,9 @@ test("[DSH-009] never reveals whether an email has an account", async ({
   await page.getByLabel("Sign-in code").fill("000000");
   await expect(page.getByText(/That code isn't valid/)).toBeVisible();
   // The screen may echo the address the user typed; it must never say the account is missing.
-  await expect(page.getByText(/no account|not found|unknown email/i)).toHaveCount(0);
+  await expect(
+    page.getByText(/no account|not found|unknown email/i)
+  ).toHaveCount(0);
 });
 
 test("[DSH-013] a private region shows its monthly fee on Cloud", async ({
@@ -171,4 +181,81 @@ test("[DSH-013] a private region shows its monthly fee on Cloud", async ({
   await page.getByRole("button", { name: "More for Acme Dallas" }).click();
   await expect(page.getByText("Monthly fee")).toBeVisible();
   await expect(page.getByRole("dialog")).toContainText(/\$25,000/);
+});
+
+test("[DSH-056] Cloud without GitHub offers the password form and the code link, and no GitHub button", async ({
+  page,
+  api
+}) => {
+  api.on("Capabilities/GetCapabilities", () => {
+    const response = capabilitiesFor("cloud");
+    const auth = new capabilities.AuthCapabilities();
+    auth.setMethodsList(["password", "email_code"]);
+    auth.setSignup("open");
+    response.setAuth(auth);
+    return response;
+  });
+
+  await page.goto("/sign-in");
+  await expect(page.getByLabel("Email")).toBeVisible();
+  await expect(page.getByLabel("Password", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Email me a sign-in code instead" })
+  ).toBeVisible();
+  await expect(page.getByRole("button", { name: /GitHub/ })).toHaveCount(0);
+});
+
+test("[DSH-057] open sign-up creates the account and signs the user in", async ({
+  page,
+  api
+}) => {
+  const grace = {
+    ref: "u-grace",
+    email: "grace@acme.com",
+    name: "Grace Hopper"
+  };
+  let created: Record<string, string> | undefined;
+  api
+    .on("Identity/CreateUser", (request) => {
+      created =
+        identity.CreateUserRequest.deserializeBinary(request).toObject();
+      const response = new identity.CreateUserResponse();
+      response.setRef(grace.ref);
+      return response;
+    })
+    .on("Identity/ExchangeCredentials", (request) => {
+      const { username, password } =
+        identity.ExchangeCredentialsRequest.deserializeBinary(
+          request
+        ).toObject();
+      return created &&
+        username === created.email &&
+        password === created.password
+        ? tokens(grace)
+        : grpcError(7, "Invalid credentials");
+    });
+
+  // Sign-up is open and the password method is on: sign-in links to it.
+  await page.goto("/sign-in");
+  await page.getByRole("link", { name: "Create an account" }).click();
+  await expect(page).toHaveURL(/\/sign-up$/);
+  await expect(
+    page.getByRole("heading", { name: "Create your account" })
+  ).toBeVisible();
+
+  await page.getByLabel("Name").fill(grace.name);
+  await page.getByLabel("Email").fill(grace.email);
+  await page.getByLabel("Password", { exact: true }).fill("a-long-password");
+  await page.getByRole("button", { name: "Create account" }).click();
+
+  // Created, then signed in without a second form.
+  await expect(
+    page.getByRole("heading", { name: "Choose a workspace" })
+  ).toBeVisible();
+  expect(created).toMatchObject({
+    name: grace.name,
+    email: grace.email,
+    password: "a-long-password"
+  });
+  expect(api.callsTo("Identity/ExchangeCredentials")).toHaveLength(1);
 });

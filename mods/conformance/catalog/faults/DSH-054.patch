@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/calls.tsx b/mods/dashboard/src/session/calls.tsx
+index 7b5b47801..92fb6ff02 100644
+--- a/mods/dashboard/src/session/calls.tsx
++++ b/mods/dashboard/src/session/calls.tsx
+@@ -275,7 +275,7 @@ export function CallRecordsList() {
+             value={appRef}
+             options={[
+               { value: ANY, label: "All agents & apps" },
+-              ...apps.map((a) => ({ value: a.ref, label: a.name }))
++              ...apps.filter((a) => a.type === "AUTOPILOT").map((a) => ({ value: a.ref, label: a.name }))
+             ]}
+             onValueChange={setAppRef}
+           />

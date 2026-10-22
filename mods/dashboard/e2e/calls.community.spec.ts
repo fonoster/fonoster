@@ -24,7 +24,7 @@ import { readFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 import { FakeApplications } from "./apps";
 import { ada, expect, test, tokens } from "./fixtures";
-import type { GrpcWebMock } from "./grpc-web";
+import { applications, type GrpcWebMock } from "./grpc-web";
 import {
   fromFixture,
   installRecords,
@@ -39,11 +39,13 @@ async function signIn(
   page: Page,
   api: GrpcWebMock,
   records: RecordFixture[],
-  pageSize?: number
+  pageSize?: number,
+  apps = new FakeApplications()
 ) {
-  const apps = new FakeApplications();
-  apps.add("Front desk", "AUTOPILOT"); // app-1
-  apps.add("Billing reminders", "AUTOPILOT"); // app-2
+  if (!apps.apps.size) {
+    apps.add("Front desk", "AUTOPILOT"); // app-1
+    apps.add("Billing reminders", "AUTOPILOT"); // app-2
+  }
   apps.install(api);
   installRecords(api, records, { pageSize });
   api.on("Identity/ExchangeCredentials", () => tokens(ada));
@@ -380,4 +382,99 @@ test("[DSH-033] says a record was erased or doesn't exist, without a raw error",
   await expect(
     page.getByText("This workspace has no record of call call-missing.")
   ).toBeVisible();
+});
+
+test("[DSH-054] filters calls by an app, not only by an agent", async ({
+  page,
+  api
+}) => {
+  const apps = new FakeApplications();
+  apps.add("Front desk", "AUTOPILOT"); // app-1
+  apps.add("Order status", "STREAM"); // app-2, a voice app the workspace runs itself
+  await signIn(
+    page,
+    api,
+    [
+      fromFixture("recorded-call", {
+        callRef: "call-agent",
+        appRef: "app-1",
+        startedAt: today
+      }),
+      fromFixture("recorded-call", {
+        callRef: "call-app",
+        appRef: "app-2",
+        startedAt: today - day
+      })
+    ],
+    undefined,
+    apps
+  );
+  await page.getByRole("link", { name: "Calls", exact: true }).click();
+  const table = page.getByRole("table", { name: "Calls" });
+  await expect(page.getByText("2 calls")).toBeVisible();
+
+  await page.getByRole("combobox", { name: "Agent or app" }).click();
+  await page.getByRole("option", { name: "Order status" }).click();
+  await expect(page.getByText("1 call", { exact: true })).toBeVisible();
+  await expect(table.getByText("Order status")).toBeVisible();
+  await expect(table.getByText("Front desk")).toHaveCount(0);
+  expect(
+    api.calls.some((c) => /^GET \/api\/records\?.*appRef=app-2/.test(c.method))
+  ).toBe(true);
+});
+
+test("[DSH-055] flags a call whose noise filter failed as Unfiltered, with the reason, and only that call", async ({
+  page,
+  api
+}) => {
+  // The agent runs with noise cancelling; one call's filter failed, the other's worked.
+  const apps = new FakeApplications();
+  apps.add("Front desk", "AUTOPILOT", (app) => {
+    const filter = new applications.AudioFilter();
+    filter.setName("aiCoustics");
+    app.setFiltersList([filter]);
+  });
+  await signIn(
+    page,
+    api,
+    [
+      fromFixture("recorded-call", {
+        callRef: "call-unfiltered",
+        appRef: "app-1",
+        extra: [
+          {
+            atMs: 50,
+            source: "event",
+            message: {
+              type: "filter.failed",
+              name: "aiCoustics",
+              reason: "license rejected"
+            }
+          }
+        ]
+      }),
+      fromFixture("recorded-call", {
+        callRef: "call-filtered",
+        appRef: "app-1"
+      })
+    ],
+    undefined,
+    apps
+  );
+
+  await page.goto("/w/ws-1/calls/call-unfiltered");
+  await expect(
+    page.getByRole("heading", { name: "+1 555 000 5555 with Front desk" })
+  ).toBeVisible();
+  await expect(page.getByText("Unfiltered", { exact: true })).toBeVisible();
+  await expect(page.getByText("aiCoustics: license rejected")).toBeVisible();
+  // The reason has its own badge, not a bare problem line.
+  await expect(page.getByText("Problem: filter.failed")).toHaveCount(0);
+
+  await page.goto("/w/ws-1/calls/call-filtered");
+  await expect(
+    page.getByRole("heading", { name: "+1 555 000 5555 with Front desk" })
+  ).toBeVisible();
+  await expect(page.getByText("The caller hung up")).toBeVisible();
+  await expect(page.getByText("Unfiltered", { exact: true })).toHaveCount(0);
 });

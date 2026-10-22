@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/usage/index.tsx b/mods/dashboard/src/usage/index.tsx
+index 308d0b72e..11178f921 100644
+--- a/mods/dashboard/src/usage/index.tsx
++++ b/mods/dashboard/src/usage/index.tsx
+@@ -45,7 +45,7 @@ export default function UsageScreen() {
+   const months = useMemo(() => recentMonths(), []);
+   const [month, setMonth] = useState(months[0].value);
+   const period = months.find((m) => m.value === month) ?? months[0];
+-  const usage = useUsage(period.fromDay, period.toDay);
++  const usage = useUsage(months[0].fromDay, months[0].toDay);
+   const summary = summarize(usage.data ?? []);
+ 
+   const picker = (

@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/agents/catalog.ts b/mods/dashboard/src/agents/catalog.ts
+index 5431cdd57..5d398fb3d 100644
+--- a/mods/dashboard/src/agents/catalog.ts
++++ b/mods/dashboard/src/agents/catalog.ts
+@@ -93,7 +93,7 @@ export function providerOptions(
+   catalog: AgentCatalog,
+   options: CatalogOption[]
+ ): SelectOption[] {
+-  const ids = [...new Set(options.map((o) => o.provider))];
++  const ids = Object.keys(catalog.providers);
+   return ids.map((id) => ({ value: id, label: catalog.providers[id] ?? id }));
+ }
+ 

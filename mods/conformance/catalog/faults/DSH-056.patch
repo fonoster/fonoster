@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/auth/sign-in.page.tsx b/mods/dashboard/src/auth/sign-in.page.tsx
+index fbef2fd03..d12be9a5c 100644
+--- a/mods/dashboard/src/auth/sign-in.page.tsx
++++ b/mods/dashboard/src/auth/sign-in.page.tsx
+@@ -113,7 +113,7 @@ export default function SignInPage() {
+       ) : (
+         methods.emailCode && <CodeRequestForm next={next} />
+       )}
+-      {methods.password && methods.emailCode && (
++      {methods.password && methods.emailCode && methods.github && (
+         <button
+           type="button"
+           onClick={() => setUseCode(!useCode)}

@@ -1062,6 +1062,86 @@
     "pri": "P0",
     "trials": null
   },
+  "DSH-046": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-047": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-048": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "DSH-049": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-050": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "DSH-051": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-052": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-053": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-054": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "DSH-055": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
+  "DSH-056": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-057": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-058": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-059": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-060": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-061": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
   "ROM-001": {
     "tier": "pr",
     "pri": "P0",

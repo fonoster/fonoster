@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/app/shell/app-shell.tsx b/mods/dashboard/src/app/shell/app-shell.tsx
+index 368082caf..15ddd6ee7 100644
+--- a/mods/dashboard/src/app/shell/app-shell.tsx
++++ b/mods/dashboard/src/app/shell/app-shell.tsx
+@@ -47,7 +47,7 @@ export function AppShell() {
+ 
+   const toggle = () => {
+     const next = !collapsedByUser;
+-    storage.set(STORAGE_KEYS.nav, next ? "collapsed" : "expanded");
++    storage.set(STORAGE_KEYS.nav, "expanded");
+     setCollapsed(next);
+   };
+ 

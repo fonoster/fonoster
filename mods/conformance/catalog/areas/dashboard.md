@@ -622,3 +622,177 @@ Names are unique per run (`e2e-<run>`) so the seeded Demo resources and Routr's 
 Writing this case found that AppBridge refreshed its apps every five seconds, so an agent called right after it was created was rejected with 404; a miss now reloads the apps once.
 
 **Pass.** An agent made from the Receptionist template connects in Talk to agent right away, hangs up cleanly, and is deleted after typing `DELETE`. Three runs in a row. **Fail.** A rejected first call, or an agent left behind.
+
+### DSH-046 The API unreachable at boot: a retry, and no sign-in form
+
+- **Spec:** dashboard / The dashboard is configured at run time with one setting / API unreachable at boot
+- **Priority:** P1
+- **Proof:** Give the Try again button a no-op instead of the capabilities reload (`app/app.tsx`); the test must go red on the sign-in form after the retry.
+- **Fault:** faults/DSH-046.patch
+- **Test:** mods/dashboard/e2e/shell.community.spec.ts
+
+**Pass.** While `GetCapabilities` fails the page says it can't reach the Fonoster API at the configured URL, with Try again and no sign-in form; once the API answers, Try again asks again and the sign-in form appears. **Fail.** A sign-in form while the API is unreachable, no URL, or a retry that doesn't recover.
+
+### DSH-047 Started without DASHBOARD_API_URL, the page names it
+
+- **Spec:** dashboard / The dashboard is configured at run time with one setting / Missing API URL
+- **Priority:** P1
+- **Proof:** Make `readRuntimeConfig` fall back to `http://localhost:8449` when nothing is set (`lib/runtime.ts`); the test must go red on the configuration error.
+- **Fault:** faults/DSH-047.patch
+- **Test:** mods/dashboard/e2e/shell.community.spec.ts
+
+The test serves `/config.js` as `nginx/40-fonoster-config.sh` writes it for an empty variable (`window.__FONOSTER__ = undefined;`); that the image runs the script is the Operations area's.
+
+**Pass.** The page says the dashboard isn't configured, names `DASHBOARD_API_URL`, shows no sign-in form and asks no API anything. **Fail.** A sign-in form, a guessed API, or an error that doesn't name the variable.
+
+### DSH-048 The sidebar collapses to icons with tooltips, and stays collapsed
+
+- **Spec:** dashboard / The navigation can collapse / Collapse
+- **Priority:** P2
+- **Proof:** Always store the sidebar as expanded (`app/shell/app-shell.tsx`); the test must go red after the reload.
+- **Fault:** faults/DSH-048.patch
+- **Test:** mods/dashboard/e2e/shell.community.spec.ts
+
+**Pass.** Expanded, the items read as text; collapsed, each item is an icon reachable by its name with the label as a tooltip, the header shows the bubble mark linking to all workspaces and the workspace's avatar, and after a reload it is still collapsed. **Fail.** Labels shown when collapsed, no tooltip, or expanded again after a reload.
+
+### DSH-049 An older version's stored session moves into the cookie
+
+- **Spec:** dashboard / The session persists in the browser and ends cleanly / Older stored session
+- **Priority:** P1
+- **Proof:** Delete the stored session without handing its refresh token to the cookie session (`takeLegacyRefreshToken` in `lib/auth.tsx`); the test must go red on landing signed in.
+- **Fault:** faults/DSH-049.patch
+- **Test:** mods/dashboard/e2e/shell.community.spec.ts
+
+**Pass.** With `fonoster.session` left in `localStorage` by an older dashboard, a load posts its refresh token to `/api/session` once, lands signed in on the workspaces list, and leaves nothing token-like in storage. **Fail.** The user is sent to sign in, the token is lost, or the old session stays in storage.
+
+### DSH-050 Old section paths go to the workspace's Overview
+
+- **Spec:** dashboard / The sidebar names Agents and Apps / Old paths
+- **Priority:** P2
+- **Proof:** Put back `<Navigate to="." replace />` for unknown sections (`app/routes.tsx`); the test must go red on the URL.
+- **Fault:** faults/DSH-050.patch
+- **Test:** mods/dashboard/e2e/shell.community.spec.ts
+
+Writing this case found that `Navigate to="."` in the splat route stayed on the unknown path and rendered an empty page; unknown sections now navigate to `/w/<workspace>`.
+
+**Pass.** `/w/ws-1/streams`, `/w/ws-1/autopilot` and `/w/ws-1/sip-users` each end on `/w/ws-1` showing the Overview. **Fail.** A redirect to Apps or Agents, or an empty page on the old path.
+
+### DSH-051 Talk drawer: a blocked microphone
+
+- **Spec:** talk-in-browser / Talk drawer calls from the browser / Microphone blocked
+- **Priority:** P1
+- **Proof:** Stop treating `NotAllowedError` as a refused microphone (`micError` in `agents/talk/use-browser-call.ts`); the test must go red on the message.
+- **Fault:** faults/DSH-051.patch
+- **Test:** mods/dashboard/e2e/talk.community.spec.ts
+
+**Pass.** With `getUserMedia` refused (`NotAllowedError`), Call shows Call failed, says to allow microphone access, offers Call again, asks for no test token, and the agent's number stays listed. **Fail.** A generic error, no Call again, or a token issued for a call that couldn't start.
+
+### DSH-052 Talk drawer: not a secure context
+
+- **Spec:** talk-in-browser / Talk drawer calls from the browser / Not a secure context
+- **Priority:** P1
+- **Proof:** Accept any `isSecureContext` value in `canCallFromBrowser` (`agents/talk/use-browser-call.ts`); the test must go red on the Call button.
+- **Fault:** faults/DSH-052.patch
+- **Test:** mods/dashboard/e2e/talk.community.spec.ts
+
+The page reports `isSecureContext` false, as a browser does for plain HTTP on an address other than localhost.
+
+**Pass.** The drawer says browser calls need HTTPS or localhost, shows no Call button, and still lists the agent's number. **Fail.** A Call button, no note, or no numbers.
+
+### DSH-053 Talk drawer: the server rejects the INVITE
+
+- **Spec:** talk-in-browser / Talk drawer calls from the browser / Call rejected
+- **Priority:** P1
+- **Proof:** Show a generic message instead of the SIP status when the INVITE is rejected (`agents/talk/use-browser-call.ts`); the test must go red on `403 Forbidden`.
+- **Fault:** faults/DSH-053.patch
+- **Test:** mods/dashboard/e2e/talk.community.spec.ts
+
+A stand-in SIP server on the WebSocket the test token names (`page.routeWebSocket`) answers every INVITE with 403; the microphone is an oscillator. The connected call is DSH-015.
+
+**Pass.** The INVITE carries `X-App-Ref` and `X-Connect-Token`; the drawer shows Call failed with `403 Forbidden`, offers Call again, and still lists the agent's number. **Fail.** No status, no Call again, or a call left connecting.
+
+### DSH-054 Calls filter by an app
+
+- **Spec:** dashboard / Calls can be filtered by app / Filter calls by app
+- **Priority:** P2
+- **Proof:** Offer only Autopilot agents in the Agent or app filter (`session/calls.tsx`); the test must go red on the Order status option.
+- **Fault:** faults/DSH-054.patch
+- **Test:** mods/dashboard/e2e/calls.community.spec.ts
+
+**Pass.** With an agent and a stream app each handling one call, choosing the app lists only its call and asks the records API for `appRef=app-2`. **Fail.** The app is not offered, or another app's call is listed.
+
+### DSH-055 The call detail flags an unfiltered call, and only that call
+
+- **Spec:** dashboard / The call detail flags unfiltered calls / A filter failed
+- **Spec:** dashboard / The call detail flags unfiltered calls / Filtering worked
+- **Priority:** P2
+- **Proof:** Ignore the vCon's failed filters (`session/sdk-api.ts`); the test must go red on the Unfiltered badge.
+- **Fault:** faults/DSH-055.patch
+- **Test:** mods/dashboard/e2e/calls.community.spec.ts
+
+The records are built by the call-record module's own vCon builder, a `filter.failed` event added to one of them.
+
+**Pass.** The call whose record has `filter.failed` with reason `license rejected` shows the Unfiltered badge with `aiCoustics: license rejected` and no bare problem line; the agent's other call, filtered without failure, shows no badge. **Fail.** A missing badge or reason, or a badge on the call whose filter worked.
+
+### DSH-056 Cloud without GitHub
+
+- **Spec:** dashboard / Sign-in options follow the advertised methods / Cloud without GitHub
+- **Priority:** P1
+- **Proof:** Show the code link only when GitHub is also on (`auth/sign-in.page.tsx`); the test must go red on the link.
+- **Fault:** faults/DSH-056.patch
+- **Test:** mods/dashboard/e2e/cloud.spec.ts
+
+**Pass.** With methods `[password, email_code]` sign-in shows the email and password form and "Email me a sign-in code instead", and no GitHub button. **Fail.** A GitHub button, or a missing form or link.
+
+### DSH-057 Open sign-up creates the account and signs the user in
+
+- **Spec:** dashboard / Sign-in options follow the advertised methods / Open sign-up
+- **Priority:** P1
+- **Proof:** Skip the sign-in after the account is created (`auth/sign-up.page.tsx`); the test must go red on the workspaces list.
+- **Fault:** faults/DSH-057.patch
+- **Test:** mods/dashboard/e2e/cloud.spec.ts
+
+**Pass.** With sign-up open and the password method on, sign-in links to Create your account; submitting sends `CreateUser` with the name, email and password, signs in with them once, and lands on the workspaces list. **Fail.** No link, no account created, or the user sent back to sign in.
+
+### DSH-058 The language model picker leaves out providers with no model
+
+- **Spec:** dashboard / Agent pickers offer the catalog / Models Autopilot cannot run are not offered
+- **Priority:** P1
+- **Proof:** Offer every catalog provider in each picker (`providerOptions` in `agents/catalog.ts`); the test must go red on the options.
+- **Fault:** faults/DSH-058.patch
+- **Test:** mods/dashboard/e2e/catalog.community.spec.ts
+
+**Pass.** With Anthropic and Google in the catalog but no language model of theirs, the agent's Language model provider offers only Fakes. **Fail.** Anthropic or Google offered.
+
+### DSH-059 Vendor keys: adding an ai-coustics key
+
+- **Spec:** dashboard / Vendor keys offers noise-cancelling providers / Adding an ai-coustics key
+- **Priority:** P1
+- **Proof:** Drop noise-cancelling providers from the catalog the screens read (`toCatalog` in `session/sdk-api.ts`); the test must go red on the options.
+- **Fault:** faults/DSH-059.patch
+- **Test:** mods/dashboard/e2e/catalog.community.spec.ts
+
+**Pass.** The page's copy says noise-cancelling accounts can be brought; Add key offers Deepgram and ai-coustics by label and not the keyless fakes; saving sends `SetProviderKey` for `aicoustics`, says Key saved for ai-coustics, and the table of the workspace's own keys lists ai-coustics without showing the key. **Fail.** ai-coustics not offered or shown by id, a wrong request, or no row.
+
+### DSH-060 Vendor keys with no keyed vendor
+
+- **Spec:** dashboard / Vendor keys warn when no vendor is configured / Every vendor was removed
+- **Priority:** P1
+- **Proof:** Count keyless providers as keyed (`session/vendor-keys.tsx`); the test must go red on the note.
+- **Fault:** faults/DSH-060.patch
+- **Test:** mods/dashboard/e2e/catalog.community.spec.ts
+
+**Pass.** With only the keyless fakes in the catalog the screen says No vendors configured, that calls need at least a text-to-speech vendor, links Add platform keys to the docs, and offers no Add key. **Fail.** An Add key button, or no note or link.
+
+### DSH-061 Usage covers the chosen month, and says when there is none
+
+- **Spec:** dashboard / The workspace has a Usage page / Choosing a period
+- **Spec:** dashboard / The workspace has a Usage page / No usage yet
+- **Priority:** P1
+- **Proof:** Always ask for the current month whatever the picker says (`usage/index.tsx`); the test must go red on last month's figures.
+- **Fault:** faults/DSH-061.patch
+- **Test:** mods/dashboard/e2e/catalog.community.spec.ts
+
+The picker names months ("September 2026"); the scenario's Last month is the second one.
+
+**Pass.** This month shows 10 min of calls and no AI usage; last month shows only its own 120 min and its Deepgram row; a month with nothing says No usage in that month and shows no zero figures. **Fail.** Another month's figures, or zeros instead of the message.
