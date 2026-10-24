@@ -2,6 +2,10 @@
 
 Run Fonoster on one machine. You need Docker (with Compose) and Node.js 22.
 
+On Linux, set `{ "userland-proxy": false }` in `/etc/docker/daemon.json` and restart Docker first.
+Otherwise Docker starts one `docker-proxy` per published media port (about 4,000) and the machine
+runs out of memory.
+
 ```sh
 npx -p @fonoster/common fonoster-config init
 docker compose up -d

@@ -34,6 +34,21 @@ You need:
   in step 2.
 </Note>
 
+<Warning>
+  On Linux, turn off Docker's userland proxy before you start. Otherwise Docker starts one
+  `docker-proxy` process per published media port, about 4,000 of them, and the machine runs out of
+  memory: containers are killed one by one until none is left. Add this to
+  `/etc/docker/daemon.json` (merge it if the file already has settings) and restart Docker:
+
+  ```bash
+  echo '{ "userland-proxy": false }' | sudo tee /etc/docker/daemon.json
+  sudo systemctl restart docker
+  ```
+
+  Docker then forwards the ports with iptables rules instead. Docker Desktop on macOS and Windows
+  doesn't need this.
+</Warning>
+
 <Note>
   If this machine ran Fonoster 0.27 or older with Docker Compose, stop it first: run
   `docker compose down` in its folder. Don't remove its volumes. The new install doesn't use them.
