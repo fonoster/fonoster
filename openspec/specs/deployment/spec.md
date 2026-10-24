@@ -11,21 +11,27 @@ Fonoster SHALL ship a Docker Compose stack and a Helm chart as the two official 
 targets. CI SHALL check both nightly and on every pull request that changes their inputs: the
 Compose install SHALL be made from the release archive the way a self-hoster makes it and SHALL
 reach a healthy apiserver and a dashboard that answers, and the Helm chart SHALL lint and render to
-valid Kubernetes manifests with each values file it ships. A release SHALL be cut only by hand and
-MUST NOT be published before a person approves it, after its images and install archive are built.
+valid Kubernetes manifests with each values file it ships. Every push to main that carries a
+releasable conventional commit (feat, fix, perf, refactor, revert, or a breaking change) SHALL be
+released automatically, and MUST NOT publish anything before the QA gate passes on that commit.
+A release SHALL publish its npm packages, its images, and a GitHub release with the install
+archive, the notes, the QA report and the release cards.
 
 #### Scenario: Nightly on both targets
 - **WHEN** the nightly pipeline runs
 - **THEN** the release archive is installed with Docker Compose and the run fails unless the apiserver is healthy and the dashboard answers 200
 - **AND** the Helm chart is linted, rendered with each shipped values file and validated, reported as its own job
 
-#### Scenario: Release gated
-- **WHEN** a release run has published its packages and images and drafted the release with the install archive
-- **THEN** it waits for approval in the release-approval environment
-- **AND** the GitHub release stays a draft until that approval is given
+#### Scenario: Merging releases
+- **WHEN** a pull request whose squashed title is `feat: …` is merged into main and the QA gate passes on it
+- **THEN** the next minor version is published to npm and Docker Hub, tagged, and released on GitHub as latest with a dark and a light release card attached
 
-#### Scenario: Merging publishes nothing
-- **WHEN** a pull request is merged into main
+#### Scenario: Release gated
+- **WHEN** the QA gate fails on the commit being released
+- **THEN** no package, image or release is published
+
+#### Scenario: Nothing releasable
+- **WHEN** a merge carries only docs, chore, ci, test or style commits
 - **THEN** no package, image or release is published
 
 ### Requirement: One YAML config per Fonoster service, no .env

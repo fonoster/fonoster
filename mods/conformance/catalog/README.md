@@ -95,7 +95,7 @@ Two other ways, for tests whose titles aren't written by hand:
 (`run.cjs`) and proves every case on its fault (`prove.cjs`), and uploads its JUnit as `qa-<area>`. The
 report job reads all of them, writes the release report and fails when the gate fails. It runs
 nightly and on demand, and `release.yaml` calls it on the commit being released before anything is
-published, then attaches the report to the draft release.
+published, then attaches the report to the GitHub release.
 
 ```sh
 node mods/conformance/catalog/run.cjs --area DSH        # every case once, JUnit in reports/junit/run-DSH

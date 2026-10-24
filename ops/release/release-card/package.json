@@ -1,0 +1,10 @@
+{
+  "name": "fonoster-release-card",
+  "private": true,
+  "description": "Renders the release card attached to each GitHub release",
+  "type": "module",
+  "dependencies": {
+    "@resvg/resvg-js": "2.6.2",
+    "satori": "0.33.5"
+  }
+}
