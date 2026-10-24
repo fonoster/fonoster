@@ -173,10 +173,11 @@ Everything lives in the `fonoster` folder:
 | -------------- | ---------------------------------------------------------------- |
 | `.env`         | Ports, the host address, the owner's login and every generated secret |
 | `config/`      | Each service's settings, written by `init` from the examples. They name secrets as `${NAME}`; Compose passes each container only the values its own file names (its `environment:` list in `compose.yaml`) |
+| `config/overrides/` | Your own settings, such as platform keys. `init` merges each file over the one it writes with the same name and never changes them |
 | `config/keys/` | The signing keys. Only the API server mounts Identity's private key; AppBridge gets the public key and its call-record key |
 
 <Warning>
-  Back up `.env`. Its encryption key protects the vendor keys you store, and they can't be recovered
+  Back up `.env` and `config/overrides/`. The encryption key in `.env` protects the vendor keys you store, and they can't be recovered
   without it.
 </Warning>
 
@@ -186,14 +187,32 @@ Calls need at least a text-to-speech vendor. Fonoster offers every vendor in its
 workspace, and calls use your platform key for that vendor unless the workspace added its own in the
 dashboard under **Vendor keys**.
 
-`init` writes a placeholder platform key for each vendor. Replace them with your keys:
+`init` writes a placeholder platform key for each vendor. Put your keys in `config/overrides/`, not
+in the files `init` writes: `init` rebuilds `config/*.yaml` every time it runs (when you turn on
+HTTPS, or upgrade) and merges each file in `config/overrides/` over the one with the same name, so
+your keys stay.
 
-| Vendor            | File                    | Setting                                    |
-| ----------------- | ----------------------- | ------------------------------------------ |
-| Deepgram          | `config/appbridge.yaml` | `providers.deepgram.credential.value`      |
-| ElevenLabs        | `config/appbridge.yaml` | `providers.elevenlabs.credential.value`    |
-| OpenAI            | `config/autopilot.yaml` | `credentials.openai-default.value`         |
-| Groq              | `config/autopilot.yaml` | `credentials.groq-default.value`           |
+| Vendor            | Override file                     | Setting                                    |
+| ----------------- | --------------------------------- | ------------------------------------------ |
+| Deepgram          | `config/overrides/appbridge.yaml` | `providers.deepgram.credential.value`      |
+| ElevenLabs        | `config/overrides/appbridge.yaml` | `providers.elevenlabs.credential.value`    |
+| OpenAI            | `config/overrides/autopilot.yaml` | `credentials.openai-default.value`         |
+| Groq              | `config/overrides/autopilot.yaml` | `credentials.groq-default.value`           |
+
+An override holds only the settings you change. This one sets the Deepgram key:
+
+```yaml config/overrides/appbridge.yaml
+providers:
+  deepgram:
+    credential:
+      value: "4f1c9a27d0b8e6a3c5f2d7b9e1a4c8f0d3b6e9a2"
+```
+
+Write the configuration again so the overrides are merged in:
+
+```bash
+npx -p @fonoster/common fonoster-config init
+```
 
 Then restart the two services that read them:
 

@@ -34,7 +34,8 @@ Sets up Fonoster from its Docker Compose bundle. Run it in the unpacked fonoster
 Commands:
   init     Generate secrets and keys, detect the host address, write .env and config/*.yaml.
            Secrets stay in .env; config/*.yaml reference them as \${NAME}. Running it again
-           keeps every existing secret and adds only missing ones.
+           keeps every existing secret and adds only missing ones. Settings in
+           config/overrides/<file>.yaml are merged over every render and never reset.
   info     Print the dashboard URL, the owner login, the SIP address and where files live.
   check    Validate config/*.yaml with .env's values (unknown keys, missing values, unset
            \${NAME} placeholders, secret:// references).

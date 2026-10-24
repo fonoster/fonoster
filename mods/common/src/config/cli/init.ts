@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { chmodSync, existsSync, readFileSync } from "fs";
+import { chmodSync, existsSync, mkdirSync, readFileSync } from "fs";
 import { join, relative } from "path";
 import {
   envEntries,
@@ -140,10 +140,19 @@ export async function runInit(options: InitOptions, io: Io): Promise<number> {
   chmodSync(configDir, 0o700);
   const keys = ensureKeys(configDir);
 
+  // The owner's own settings (platform keys, hand edits) live in config/overrides/<file>.yaml,
+  // merged over every render, so running init again or upgrading never resets them.
+  const overridesDir = join(configDir, "overrides");
+  mkdirSync(overridesDir, { recursive: true, mode: 0o700 });
+
   const env = expandEnv(envEntries(lines));
   let rendered: string[];
   try {
-    rendered = renderConfigDir({ configDir, env });
+    rendered = renderConfigDir({
+      configDir,
+      env,
+      overlayDirs: [overridesDir]
+    });
   } catch (e) {
     if (!(e instanceof RenderError)) throw e;
     e.problems.forEach((p) => io.err(p));
