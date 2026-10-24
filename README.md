@@ -116,6 +116,8 @@ new VoiceServer({ port: 3000 }).listen(async (session) => {
 // Your app lives at ws://127.0.0.1:3000
 // and you can publish it to the Internet with:
 // ngrok http 3000
+// or, with nothing to install, over SSH with tunnl.gg:
+// ssh -t -R 80:localhost:3000 proxy.tunnl.gg
 ```
 
 Coming from the gRPC SDK? See [What changed](docs/migrating-to-sessions.md).
