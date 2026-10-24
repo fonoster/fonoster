@@ -24,7 +24,7 @@ gRPC, grpc-web and a few HTTP routes share one address, and the SDK covers them 
 
 ```
 Copy: REFERENCE / API / One endpoint. Use the SDK.
-Flow panel: Node SDK · gRPC (Node Accent), Browser · grpc-web, HTTP · /api/records · /api/regions → bus → api.fonoster.com (or your install's address)
+Flow panel: Node SDK · gRPC (Node Accent), Browser · grpc-web, HTTP · /api/records · /api/regions → bus → api.fonoster.ai (or your install's address)
 ```
 
 ## Built from

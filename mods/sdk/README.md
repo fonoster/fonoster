@@ -64,7 +64,7 @@ In Node.js:
 ```typescript
 const SDK = require("@fonoster/sdk");
 const ACCESS_KEY_ID = "WO00000000000000000000000000000000";
-const ENDPOINT = "api.fonoster.com";
+const ENDPOINT = "api.fonoster.ai";
 const client = new SDK.Client({ accessKeyId: ACCESS_KEY_ID, endpoint: ENDPOINT });
 ```
 
@@ -75,7 +75,7 @@ In the browser:
 ```typescript
 const SDK = require("@fonoster/sdk");
 const ACCESS_KEY_ID = "WO00000000000000000000000000000000";
-const URL = "https://api.fonoster.com/v1beta2";
+const URL = "https://api.fonoster.ai/v1beta2";
 const client = new SDK.WebClient({ accessKeyId: ACCESS_KEY_ID, url: URL });
 ```
 

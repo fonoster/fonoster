@@ -6,18 +6,18 @@ description: "Fonoster's API is gRPC, with grpc-web for browsers and a few HTTP 
 <img
   className="block dark:hidden rounded-xl"
   src="/images/reference-api/banner-light.png"
-  alt="API: one endpoint. The Node SDK over gRPC, the browser over grpc-web, and plain HTTP on /api/records and /api/regions all reach api.fonoster.com, or your install's address."
+  alt="API: one endpoint. The Node SDK over gRPC, the browser over grpc-web, and plain HTTP on /api/records and /api/regions all reach api.fonoster.ai, or your install's address."
 />
 <img
   className="hidden dark:block rounded-xl"
   src="/images/reference-api/banner-dark.png"
-  alt="API: one endpoint. The Node SDK over gRPC, the browser over grpc-web, and plain HTTP on /api/records and /api/regions all reach api.fonoster.com, or your install's address."
+  alt="API: one endpoint. The Node SDK over gRPC, the browser over grpc-web, and plain HTTP on /api/records and /api/regions all reach api.fonoster.ai, or your install's address."
 />
 
 Fonoster's API is gRPC. Every resource you manage (applications, numbers, trunks, domains, SIP
 agents, calls, webhooks, providers, secrets, API keys and workspaces) is a gRPC service in a
 `fonoster.<resource>.v1beta2` package. Browsers reach the same services through grpc-web, on the
-same endpoint: `api.fonoster.com` on Fonoster Cloud, or your install's address when you self-host.
+same endpoint: `api.fonoster.ai` on Fonoster Cloud, or your install's address when you self-host.
 
 A few features are plain HTTP routes on that endpoint instead, such as call records under
 `/api/records` (search, recordings, erasure and retention) and regions under `/api/regions`. Every

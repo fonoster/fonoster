@@ -45,7 +45,7 @@ export default class Login extends BaseCommand<typeof Login> {
     const { flags } = await this.parse(Login);
     if (flags["access-key-id"] && flags["access-key-secret"]) {
       const answers = {
-        endpoint: flags.endpoint ?? "api.fonoster.com",
+        endpoint: flags.endpoint ?? "api.fonoster.ai",
         accessKeyId: flags["access-key-id"],
         accessKeySecret: flags["access-key-secret"]
       };
@@ -65,7 +65,7 @@ export default class Login extends BaseCommand<typeof Login> {
     const answers = {
       endpoint: await input({
         message: "Endpoint",
-        default: "api.fonoster.com"
+        default: "api.fonoster.ai"
       }),
       accessKeyId: await input({
         message: "Access Key Id",

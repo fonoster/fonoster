@@ -23,7 +23,7 @@ npm install -g @fonoster/ctl
 ## Log in
 
 Create an API key in the dashboard under **API keys**, then link your workspace. The CLI asks for
-the endpoint (keep `api.fonoster.com` for Fonoster Cloud), the key ID and the secret:
+the endpoint (keep `api.fonoster.ai` for Fonoster Cloud), the key ID and the secret:
 
 ```bash
 fonoster workspaces:login
@@ -55,12 +55,12 @@ questions, for example in CI:
 
 | Flag | Short | What it sets |
 | --- | --- | --- |
-| `--endpoint` | `-e` | The API endpoint. Default `api.fonoster.com`. |
+| `--endpoint` | `-e` | The API endpoint. Default `api.fonoster.ai`. |
 | `--access-key-id` | | An API key ID |
 | `--access-key-secret` | | The API key's secret |
 
 ```bash
-fonoster workspaces:login --endpoint api.fonoster.com \
+fonoster workspaces:login --endpoint api.fonoster.ai \
   --access-key-id APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1 --access-key-secret "$FONOSTER_API_SECRET"
 ```
 

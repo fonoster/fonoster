@@ -86,7 +86,7 @@ class CallRecords {
 
   private url(path: string, query: Record<string, unknown> = {}) {
     const base =
-      this.baseUrl ?? this.client.getHttpUrl?.() ?? "https://api.fonoster.com";
+      this.baseUrl ?? this.client.getHttpUrl?.() ?? "https://api.fonoster.ai";
     const qs = Object.entries(query)
       .filter(([, v]) => v !== undefined && v !== null && v !== "")
       .map(

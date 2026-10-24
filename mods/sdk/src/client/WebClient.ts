@@ -34,7 +34,7 @@ import { WebhooksClient } from "../generated/web/WebhooksServiceClientPb";
 import { AbstractClient } from "./AbstractClient";
 import { TokenRefresherWeb } from "./TokenRefresherWeb";
 
-const DEFAULT_URL = "https://api.fonoster.com";
+const DEFAULT_URL = "https://api.fonoster.ai";
 
 export class WebClient extends AbstractClient {
   private url: string;

@@ -51,7 +51,7 @@ export const cloudCapabilities: Capabilities = {
   billing: { enabled: true },
   costs: { display: "prices" },
   domain: "fonoster.com",
-  appUrl: "https://app.fonoster.com",
+  appUrl: "https://app.fonoster.ai",
   regions: { private: true },
   connection: {
     sip: [{ host: "sip.us-east-1.fonoster.com", port: 5060, transport: "udp" }],
