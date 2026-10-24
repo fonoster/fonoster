@@ -444,7 +444,7 @@ describe("@common[config/cli] fonoster-config", function () {
       await init(dir, "203.0.113.10");
       appendFileSync(
         join(dir, ".env"),
-        "HTTP_BIND=127.0.0.1\nPUBLIC_URL=https://voice.example.com\n"
+        "HTTP_BIND=127.0.0.1\nPUBLIC_URL=https://voice.example.com\nSIP_DOMAIN=example.com\n"
       );
       const run = await init(dir);
       expect(run.err).to.not.contain("warning");
@@ -459,6 +459,7 @@ describe("@common[config/cli] fonoster-config", function () {
         [
           "COMPOSE_FILE=compose.yaml:compose.tls.yaml",
           "PUBLIC_URL=https://voice.example.com",
+          "SIP_DOMAIN=example.com",
           `TLS_CERT=${cert}`,
           `TLS_KEY=${key}`,
           ""
@@ -473,6 +474,27 @@ describe("@common[config/cli] fonoster-config", function () {
         "voice.example.com:443 (gRPC and gRPC-Web, TLS)"
       );
       expect(info.out).to.not.contain("plain HTTP");
+    });
+
+    it("warns when the dashboard has a public name but SIP_DOMAIN is still local", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      expect(readEnvFile(join(dir, ".env")).get("SIP_DOMAIN")).to.equal(
+        "fonoster.local"
+      );
+      // config/fonoster.yaml keeps the placeholder; the API server reads SIP_DOMAIN.
+      expect(yamlOf(dir, "fonoster.yaml").domain).to.equal(
+        "${SIP_DOMAIN:-fonoster.local}"
+      );
+      appendFileSync(
+        join(dir, ".env"),
+        "HTTP_BIND=127.0.0.1\nPUBLIC_URL=https://app.example.com\n"
+      );
+      const run = await init(dir);
+      expect(run.err).to.contain("SIP_DOMAIN is fonoster.local");
+      expect(run.err).to.contain("SIP_DOMAIN=example.com");
+      appendFileSync(join(dir, ".env"), "SIP_DOMAIN=example.com\n");
+      expect((await init(dir)).err).to.not.contain("SIP_DOMAIN");
     });
 
     it("warns about an incomplete HTTPS setup without failing", async function () {

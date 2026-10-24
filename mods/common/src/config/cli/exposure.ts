@@ -56,6 +56,23 @@ const HOW =
   "set COMPOSE_FILE=compose.yaml:compose.tls.yaml with TLS_CERT and TLS_KEY in .env (see .env.example), or put a TLS proxy in front with HTTP_BIND=127.0.0.1";
 
 /**
+ * SIP names (trunk inbound URIs, domains) live under SIP_DOMAIN. When the dashboard has a public
+ * name but SIP_DOMAIN is a local one, carriers and phones can't resolve those names.
+ */
+function sipDomainWarning(
+  sipDomain: string | undefined,
+  url: URL | undefined
+): string | undefined {
+  const domain = sipDomain || "fonoster.local";
+  if (!url || isIP(url.hostname) !== 0 || isLocalHost(url.hostname)) return;
+  if (!isLocalHost(domain)) return;
+  const labels = url.hostname.split(".");
+  const suggestion =
+    labels.length > 2 ? labels.slice(1).join(".") : url.hostname;
+  return `PUBLIC_URL is on ${url.hostname} but SIP_DOMAIN is ${domain}: trunks get inbound URIs like acme.pstn.${domain}, which carriers can't reach. Set SIP_DOMAIN (for example SIP_DOMAIN=${suggestion}) and run init again`;
+}
+
+/**
  * Warnings about how the dashboard and API are exposed (M10): plain HTTP on an address the
  * internet may reach, or an HTTPS setup that is incomplete. They never stop init or check.
  */
@@ -72,6 +89,8 @@ export function exposureWarnings(
     if (publicUrl)
       warnings.push(`PUBLIC_URL "${publicUrl}" is not a URL (http(s)://host)`);
   }
+  const sipWarning = sipDomainWarning(env.SIP_DOMAIN, url);
+  if (sipWarning) warnings.push(sipWarning);
   const tls = tlsEnabled(env);
 
   if (tls) {

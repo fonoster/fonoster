@@ -262,6 +262,7 @@ services:
       PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8449}
       RTPENGINE_PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
       RTPENGINE_PORT_MAX: ${RTPENGINE_PORT_MAX:-10999}
+      SIP_DOMAIN: ${SIP_DOMAIN:-fonoster.local}
       SIP_PORT: ${SIP_PORT:-5060}
     volumes:
       - ${CONFIG_DIR:-./config}/fonoster.yaml:/config/fonoster.yaml:ro

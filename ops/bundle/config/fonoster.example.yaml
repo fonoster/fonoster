@@ -3,7 +3,9 @@
 # which Compose fills from .env, so secrets never land in config/. Edit this example (not the
 # written file) and run init again to change it
 # (https://docs.fonoster.com/self-hosting/install-compose).
-domain: fonoster.local
+# SIP names: trunk inbound URIs are <label>.pstn.<SIP_DOMAIN> and domains <label>.sip.<SIP_DOMAIN>
+# (SIP_DOMAIN in .env; point *.pstn.<SIP_DOMAIN> and *.sip.<SIP_DOMAIN> at your SIP address).
+domain: ${SIP_DOMAIN:-fonoster.local}
 appUrl: ${PUBLIC_URL}
 # Browser calls ("Talk to agent") use SIP over WebSocket through Envoy's /sip on appUrl's origin:
 # ws:// for http://, wss:// for https:// (compose.tls.yaml). Browsers allow the microphone only on
@@ -19,8 +21,7 @@ features:
   auth: { methods: [password], signup: invite }
   billing: { enabled: false }
   costs: { display: usage }
-  # SIP names: "domain" puts trunk inbound URIs at <label>.pstn.<domain> and domains at
-  # <label>.sip.<domain> (point *.pstn.<domain> and *.sip.<domain> at your SIP address);
+  # SIP names: "domain" puts trunk inbound URIs and domains under SIP_DOMAIN (above);
   # "any" takes any host or IP, for carriers and phones that reach you by address.
   sip: { names: domain }
 # Numbers of apps route to the Roomr nodes' Peer, created at start with this password.
