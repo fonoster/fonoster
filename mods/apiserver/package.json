@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/apiserver",
-  "version": "0.31.0",
+  "version": "0.31.1",
   "description": "APIServer for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -22,13 +22,13 @@
     "fonoster-usage": "./dist/bin/usage.js"
   },
   "dependencies": {
-    "@fonoster/authz": "^0.31.0",
-    "@fonoster/autopilot": "^0.31.0",
+    "@fonoster/authz": "^0.31.1",
+    "@fonoster/autopilot": "^0.31.1",
     "@fonoster/callrecord": "^0.31.0",
-    "@fonoster/common": "^0.31.0",
-    "@fonoster/identity": "^0.31.0",
+    "@fonoster/common": "^0.31.1",
+    "@fonoster/identity": "^0.31.1",
     "@fonoster/logger": "^0.31.0",
-    "@fonoster/sipnet": "^0.31.0",
+    "@fonoster/sipnet": "^0.31.1",
     "@fonoster/types": "^0.31.0",
     "@grpc/grpc-js": "~1.14.6",
     "@prisma/client": "^6.19.1",
