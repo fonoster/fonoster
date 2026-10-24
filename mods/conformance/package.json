@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/conformance",
-  "version": "0.30.0",
+  "version": "0.31.0",
   "private": true,
   "description": "Conformance harness for the Fonoster rebuild contracts: scenario files, runners and fakes",
   "author": "Pedro Sanders <psanders@fonoster.com>",
@@ -19,7 +19,7 @@
     "postinstall": "node scripts/fetch-roomr-fake.cjs"
   },
   "dependencies": {
-    "@fonoster/common": "^0.30.0",
+    "@fonoster/common": "^0.31.0",
     "@fonoster/roomr": "0.2.5",
     "@grpc/grpc-js": "~1.14.6",
     "ajv": "^8.17.1",
