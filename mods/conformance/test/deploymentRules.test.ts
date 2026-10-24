@@ -59,43 +59,50 @@ const publishingSteps = (job: Job) =>
   );
 
 describe("@conformance[deployment] release gate and nightly checks", function () {
-  it("cuts a release only by hand", function () {
+  it("releases on every push to main, and a manual run retries", function () {
     expect(Object.keys(workflow("release.yaml").on)).to.deep.equal([
+      "push",
       "workflow_dispatch"
     ]);
+    expect(workflow("release.yaml").on.push).to.deep.equal({
+      branches: ["main"]
+    });
   });
 
-  it("drafts the release, waits for approval in release-approval, then publishes it", function () {
+  it("publishes nothing before the QA gate passes", function () {
     const { jobs } = workflow("release.yaml");
-    const draft = steps(jobs.bundle).find((s) =>
+    expect(jobs.qa.uses).to.match(/qa-proofs\.ya?ml/);
+    expect(needs(jobs.npm)).to.include("qa");
+    // Without the gate, npm runs only to finish a version already tagged (a manual retry).
+    expect(jobs.npm.if).to.match(/needs\.qa\.result == 'success'/);
+    expect(jobs.npm.if).to.match(/resume == 'true'/);
+    // Every other publishing job comes after npm, so after the gate.
+    Object.entries(jobs)
+      .filter(([name]) => !["plan", "qa", "npm"].includes(name))
+      .forEach(([name, job]) => expect(needs(job), name).to.include("npm"));
+  });
+
+  it("publishes the GitHub release as latest, with the archive, the QA report and both cards", function () {
+    const { jobs } = workflow("release.yaml");
+    const release = steps(jobs.bundle).find((s) =>
       /softprops\/action-gh-release/.test(s.uses ?? "")
     );
-    expect(draft?.with?.draft, "the bundle job drafts the release").to.equal(
-      true
-    );
-    const env = jobs.approval.environment;
-    expect(typeof env === "string" ? env : env?.name).to.equal(
-      "release-approval"
-    );
-    expect(needs(jobs.approval)).to.include.members([
-      "npm",
-      "images",
-      "bundle"
-    ]);
-    expect(needs(jobs.publish)).to.include("approval");
-    // Only the job after the approval turns the draft into a release.
-    const undrafts = Object.entries(jobs)
-      .filter(([, j]) =>
-        steps(j).some((s) => /--draft=false/.test(s.run ?? ""))
-      )
-      .map(([name]) => name);
-    expect(undrafts).to.deep.equal(["publish"]);
+    expect(release?.with?.draft, "no draft").to.be.undefined;
+    expect(release?.with?.make_latest).to.equal(true);
+    const files = String(release?.with?.files);
+    [
+      "fonoster-${{ env.VERSION }}.tar.gz",
+      "qa-report.md",
+      "-dark.png",
+      "-light.png"
+    ].forEach((f) => expect(files).to.include(f));
+    expect(Object.values(jobs).some((j) => j.environment)).to.equal(false);
   });
 
-  it("publishes no package, image or release when a pull request is merged", function () {
+  it("publishes on push only from release.yaml", function () {
     const offenders: string[] = [];
     fs.readdirSync(WORKFLOWS)
-      .filter((f) => /\.ya?ml$/.test(f))
+      .filter((f) => /\.ya?ml$/.test(f) && !/^release\.ya?ml$/.test(f))
       .forEach((file) => {
         const w = workflow(file);
         if (!("push" in (w.on ?? {}))) return;

@@ -1,33 +1,31 @@
 name: Release
 
-# Cuts a release, by hand only (Actions tab). Nothing here runs on merge.
+# Every push to main that carries a releasable commit is released, all the way:
 #
-#   1. version: ops/release/next-release.sh (conventional commits since the last tag; a
-#      `Release-As: x.y.z` footer pins it). "none" stops here.
-#   1b. qa: the QA gate (qa-proofs.yaml) on the commit being released: every catalog case runs and
-#      is proven on its fault, and the release report decides. A failed gate stops the release
-#      before anything is published; the report is attached to the draft release.
-#   2. npm: `npm run release` (lerna publish, dist-tag latest), which commits the version bump,
-#      tags v<version> and pushes both to main.
-#   3. images: images.yaml at the release commit (every image in ops/release/images.json).
-#   4. bundle: ops/release/bundle <version> (images skipped) and a DRAFT GitHub release with
-#      fonoster-<version>.tar.gz and fonoster-common-<version>.tgz attached.
-#   5. approval: the release-approval environment (review the draft and the images).
-#   6. publish: the draft becomes the published release.
+#   1. version: ops/release/next-release.sh picks the bump from the conventional commits since
+#      the last v* tag (feat: minor; fix, perf, refactor, revert: patch; `!` or BREAKING CHANGE:
+#      major; a `Release-As: x.y.z` footer pins it). docs, chore, ci, test and style ship nothing.
+#   2. qa: the QA gate (qa-proofs.yaml) on that commit. A failed gate stops the release before
+#      anything is published.
+#   3. npm: `npm run release` (lerna publish, dist-tag latest) commits the version bump with
+#      [skip ci], tags v<version> and pushes both to main.
+#   4. images: images.yaml at the release commit (every image in ops/release/images.json).
+#   5. release: the install archive, the notes, the QA report and two release cards (dark and
+#      light) on a published GitHub release, marked latest.
 #
 # compose.yaml is never edited: the archive's .env.example carries FONOSTER_VERSION.
 #
-# A run that failed partway (some npm packages out) is finished with `resume`: it publishes the
-# versions npm still lacks, then runs steps 3 to 6 for the version already tagged on main. It
-# refuses to run when new releasable commits would cut another version.
+# Runs queue, never overlap. When main moves while the gate runs, that run stops without
+# publishing; the run queued for the newer push releases everything.
+#
+# Retry a release that failed partway with `gh workflow run release.yaml` when there are no new
+# releasable commits: it publishes the versions npm still lacks, then the images and the GitHub
+# release for the version already tagged.
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
-    inputs:
-      resume:
-        description: "Finish the version already tagged on main (publish what npm lacks, then images, archive, approval)"
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -43,12 +41,14 @@ jobs:
     outputs:
       release: ${{ steps.next.outputs.release }}
       sha: ${{ steps.next.outputs.sha }}
+      resume: ${{ steps.next.outputs.resume }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # A manual run with nothing new to release finishes the version already tagged.
       - name: Next release
         id: next
         run: |
@@ -56,13 +56,16 @@ jobs:
           echo "Next release: $release"
           echo "release=$release" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          resume=false
+          if [ "$release" = "none" ] && [ "${{ github.event_name }}" = "workflow_dispatch" ]; then resume=true; fi
+          echo "resume=$resume" >> "$GITHUB_OUTPUT"
 
   # The gate. Skipped when there is nothing to release, and when resuming a version already tagged
   # (its gate ran when it was cut).
   qa:
     name: QA gate
     needs: plan
-    if: needs.plan.outputs.release != 'none' && !inputs.resume
+    if: needs.plan.outputs.release != 'none'
     uses: ./.github/workflows/qa-proofs.yaml
     with:
       version: ${{ needs.plan.outputs.release }}
@@ -72,8 +75,8 @@ jobs:
   npm:
     name: version and npm packages
     needs: [plan, qa]
-    # Only after the gate passed, or when it was skipped (nothing new, or a resume).
-    if: ${{ !cancelled() && (needs.qa.result == 'success' || needs.qa.result == 'skipped') }}
+    # Only after the gate passed, or on a resume (no gate: it ran when the version was cut).
+    if: ${{ !cancelled() && (needs.qa.result == 'success' || (needs.qa.result == 'skipped' && needs.plan.outputs.resume == 'true')) }}
     runs-on: ubuntu-latest
     # id-token lets npm verify this run (trusted publishing), so no npm token is stored.
     permissions:
@@ -90,15 +93,17 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_PAT }}
 
-      # The gate tested the plan's commit; publishing anything newer would skip it.
+      # The gate tested the plan's commit; publishing anything newer would skip it. The run queued
+      # for the newer push releases it, so this one stops quietly.
       - name: Publish only what the gate tested
+        id: current
         if: needs.qa.result == 'success'
         env:
           TESTED: ${{ needs.plan.outputs.sha }}
         run: |
           if [ "$(git rev-parse HEAD)" != "$TESTED" ]; then
-            echo "::error::main moved to $(git rev-parse --short HEAD) while the QA gate tested ${TESTED:0:9}. Run the release again."
-            exit 1
+            echo "::notice::main moved to $(git rev-parse --short HEAD) while the QA gate tested ${TESTED:0:9}; the newer run releases both."
+            echo "superseded=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Setup Node.js
@@ -109,25 +114,20 @@ jobs:
 
       - name: Next release
         id: next
+        if: steps.current.outputs.superseded != 'true'
         run: |
           release="$(ops/release/next-release.sh)"
           echo "Next release: $release"
           echo "release=$release" >> "$GITHUB_OUTPUT"
 
-      - name: Refuse to resume over a new release
-        if: inputs.resume && steps.next.outputs.release != 'none'
-        run: |
-          echo "::error::resume finishes the version already tagged, but the commits since the tag would cut ${{ steps.next.outputs.release }}. Run without resume."
-          exit 1
-
       - name: Install dependencies and build
-        if: steps.next.outputs.release != 'none' || inputs.resume
+        if: steps.next.outputs.release != '' && (steps.next.outputs.release != 'none' || needs.plan.outputs.resume == 'true')
         run: |
           npm install --no-audit --no-fund
           npm run build
 
       - name: Publish the packages to npm
-        if: steps.next.outputs.release != 'none'
+        if: steps.next.outputs.release != '' && steps.next.outputs.release != 'none'
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
@@ -139,6 +139,7 @@ jobs:
       # Runs on every release run, even with no new commits: publishes any version already in
       # package.json that npm doesn't have yet (a run that failed partway). Does nothing otherwise.
       - name: Publish versions missing from npm
+        if: steps.next.outputs.release != ''
         run: |
           # The normal publish leaves gitHead edits in package.json files; from-package refuses a
           # dirty tree, and those edits are not meant to be committed.
@@ -147,7 +148,7 @@ jobs:
 
       - name: Released version and commit
         id: version
-        if: steps.next.outputs.release != 'none' || inputs.resume
+        if: steps.next.outputs.release != '' && (steps.next.outputs.release != 'none' || needs.plan.outputs.resume == 'true')
         run: |
           echo "version=$(node -p "require('./lerna.json').version")" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -164,7 +165,7 @@ jobs:
     secrets: inherit
 
   bundle:
-    name: install archive and draft release
+    name: GitHub release
     needs: npm
     if: needs.npm.outputs.version != ''
     runs-on: ubuntu-latest
@@ -211,42 +212,26 @@ jobs:
           exclude_types: other,doc,chore
           config_file: ./ops/release/tag-changelog-config.cjs
 
-      - name: Draft release
+      # A card that fails to render never holds the release back.
+      - name: Release cards
+        continue-on-error: true
+        run: |
+          cd ops/release/release-card && npm ci --no-audit --no-fund && cd -
+          for theme in dark light; do
+            RELEASE_CARD_THEME=$theme node ops/release/release-card/release-card.mjs "v$VERSION" "dist/release-card-v$VERSION-$theme.png"
+          done
+
+      - name: Publish the release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION }}
           name: Release v${{ env.VERSION }}
           body: ${{ steps.changelog.outputs.changelog }}
-          draft: true
+          make_latest: true
+          fail_on_unmatched_files: false
           files: |
             dist/release/${{ env.VERSION }}/fonoster-${{ env.VERSION }}.tar.gz
             dist/release/${{ env.VERSION }}/fonoster-common-${{ env.VERSION }}.tgz
             dist/qa/qa-report.md
-
-  approval:
-    name: approve the release
-    needs: [npm, images, bundle]
-    runs-on: ubuntu-latest
-    environment: release-approval
-    steps:
-      - name: What is waiting
-        env:
-          VERSION: ${{ needs.npm.outputs.version }}
-        run: |
-          echo "Release v$VERSION: QA gate passed (qa-report.md on the draft), npm packages published,"
-          echo "images pushed (fonoster/<name>:$VERSION for every entry in ops/release/images.json),"
-          echo "draft release with the install archive."
-          echo "Review the draft release and the images, then approve to publish the release."
-
-  publish:
-    name: publish the release
-    needs: [npm, approval]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Publish the draft
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VERSION: ${{ needs.npm.outputs.version }}
-        run: gh release edit "v$VERSION" --repo "${{ github.repository }}" --draft=false --latest
+            dist/release-card-v${{ env.VERSION }}-dark.png
+            dist/release-card-v${{ env.VERSION }}-light.png
