@@ -1,13 +1,13 @@
 diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
-index 533e68780..b316664ca 100644
+index 96fcd447a..4051ee644 100644
 --- a/mods/autopilot/src/session/Agent.ts
 +++ b/mods/autopilot/src/session/Agent.ts
-@@ -522,7 +522,7 @@ export class Agent {
-         ...this.speechOptions(),
+@@ -530,7 +530,7 @@ export class Agent {
          interruptible: false
        });
--      await this.session.transfer(options.phoneNumber);
-+      await this.session.transfer(options.phoneNumber.slice(0, -1));
-     });
-   }
- 
+       try {
+-        await this.session.transfer(options.phoneNumber);
++        await this.session.transfer(options.phoneNumber.slice(0, -1));
+       } catch (e) {
+         if (!(e instanceof SessionError) || e.code !== "transfer_failed")
+           throw e;

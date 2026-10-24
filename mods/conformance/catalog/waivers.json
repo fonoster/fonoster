@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "id": "APB-031",
+    "reason": "Roomr moved to fonoster/roomr (#1103): the case reports no result and its fault patch no longer reaches the code it runs. Waived to cut 0.31.0; fix the test and patch.",
+    "approvedBy": "psanders",
+    "expires": "2026-11-07"
+  }
+]
