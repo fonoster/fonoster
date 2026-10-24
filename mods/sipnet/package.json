@@ -24,7 +24,7 @@
     "@fonoster/logger": "^0.30.0",
     "@fonoster/types": "^0.30.0",
     "@grpc/grpc-js": "~1.14.6",
-    "@routr/sdk": "2.15.2",
+    "@routr/sdk": "2.19.0",
     "zod": "^3.23.8"
   },
   "files": [
