@@ -1,0 +1,130 @@
+name: Deploy
+
+# Rolls a release out to production, the Docker Compose install behind app.fonoster.ai and
+# api.fonoster.ai. release.yaml calls it after every release; run it by hand to redeploy or to roll
+# out an older version: `gh workflow run deploy.yaml -f version=0.31.1`.
+#
+#   1. prepare (environment production-prepare, no approval): ops/deploy/fonoster-deploy prepare
+#      on the server stages the release archive, runs init and check on a copy of the install and
+#      pulls the images. Nothing running changes.
+#   2. deploy (environment production, waits for a required reviewer): fonoster-deploy switch
+#      backs up the install folder and recreates the services on the new version, then the job
+#      smoke-tests the dashboard and the API. A failed switch or smoke test rolls back.
+#
+# The database is never touched. The switch time in the job log (and deploys.log on the server)
+# is the point to restore a database backup to.
+#
+# Each environment holds its own SSH key (secret DEPLOY_SSH_KEY). On the server each key's forced
+# command is fonoster-deploy: production-prepare's key may run only prepare and status. Variables
+# (repository or environment): DEPLOY_HOST, DEPLOY_USER, DEPLOY_KNOWN_HOSTS (ssh-keyscan output),
+# APP_URL and API_HOST. Setup: ops/deploy/README.md.
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: The release to deploy, like 0.31.1
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The release to deploy, like 0.31.1 (empty = the latest release)
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    name: prepare
+    runs-on: ubuntu-latest
+    environment: production-prepare
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED: ${{ inputs.version }}
+        run: |
+          version="${REQUESTED:-$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName)}"
+          version="${version#v}"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::not a version: $version"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Deploying $version" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: SSH key
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Stage the release on the server
+        env:
+          TARGET: ${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: ssh -i ~/.ssh/deploy -o BatchMode=yes "$TARGET" prepare "$VERSION"
+
+  deploy:
+    name: deploy
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: ${{ vars.APP_URL }}
+    env:
+      TARGET: ${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+    steps:
+      - name: SSH key
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Switch to the new version
+        id: switch
+        run: |
+          echo "Switch started $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_STEP_SUMMARY"
+          ssh -i ~/.ssh/deploy -o BatchMode=yes "$TARGET" switch "$VERSION"
+
+      # The dashboard answers, and the API answers a gRPC call (an empty login: InvalidArgument).
+      - name: Smoke test
+        env:
+          APP_URL: ${{ vars.APP_URL }}
+          API_HOST: ${{ vars.API_HOST }}
+        run: |
+          for _ in $(seq 1 12); do
+            app=$(curl -s -o /dev/null -w '%{http_code}' "$APP_URL/" || true)
+            api=$(printf '\0\0\0\0\0' | curl -s --http2 -X POST -o /dev/null -D - \
+              -H 'content-type: application/grpc' -H 'te: trailers' --data-binary @- \
+              "https://$API_HOST/fonoster.identity.v1beta2.Identity/ExchangeCredentials" \
+              | tr -d '\r' | sed -n 's/^grpc-status: //p' || true)
+            echo "dashboard: $app, API grpc-status: ${api:-none}"
+            if [ "$app" = 200 ] && [ "$api" = 3 ]; then exit 0; fi
+            sleep 10
+          done
+          echo "::error::smoke test failed"
+          exit 1
+
+      - name: Roll back
+        if: failure() && steps.switch.outcome != 'skipped'
+        run: |
+          ssh -i ~/.ssh/deploy -o BatchMode=yes "$TARGET" rollback
+          echo "Rolled back $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Summary
+        run: echo "Deployed $VERSION, switched $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_STEP_SUMMARY"

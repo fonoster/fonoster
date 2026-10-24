@@ -99,6 +99,20 @@ describe("@conformance[deployment] release gate and nightly checks", function ()
     expect(Object.values(jobs).some((j) => j.environment)).to.equal(false);
   });
 
+  it("deploys every release to production only after approval, and rolls back a failed switch", function () {
+    const { jobs } = workflow("release.yaml");
+    expect(jobs.deploy?.uses).to.equal("./.github/workflows/deploy.yaml");
+    expect(jobs.deploy?.needs).to.include.members(["images", "bundle"]);
+    const deploy = workflow("deploy.yaml");
+    expect(deploy.jobs.prepare.environment).to.equal("production-prepare");
+    expect(deploy.jobs.deploy.environment?.name).to.equal("production");
+    expect(deploy.jobs.deploy.needs).to.equal("prepare");
+    const rollback = steps(deploy.jobs.deploy).find((s) =>
+      /\brollback\b/.test(s.run ?? "")
+    );
+    expect(String(rollback?.if)).to.include("failure()");
+  });
+
   it("publishes on push only from release.yaml", function () {
     const offenders: string[] = [];
     fs.readdirSync(WORKFLOWS)
