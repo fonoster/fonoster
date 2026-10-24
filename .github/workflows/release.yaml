@@ -156,7 +156,9 @@ jobs:
   images:
     name: images
     needs: npm
-    if: needs.npm.outputs.version != ''
+    # !cancelled(): on a retry the gate is skipped, and a skipped ancestor skips every job after it
+    # unless the condition says otherwise.
+    if: ${{ !cancelled() && needs.npm.result == 'success' && needs.npm.outputs.version != '' }}
     uses: ./.github/workflows/images.yaml
     with:
       version: ${{ needs.npm.outputs.version }}
@@ -167,7 +169,9 @@ jobs:
   bundle:
     name: GitHub release
     needs: npm
-    if: needs.npm.outputs.version != ''
+    # !cancelled(): on a retry the gate is skipped, and a skipped ancestor skips every job after it
+    # unless the condition says otherwise.
+    if: ${{ !cancelled() && needs.npm.result == 'success' && needs.npm.outputs.version != '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -189,9 +193,9 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      # The archive script loads @fonoster/common, so build it and the packages it depends on.
+      # The archive script loads several workspace packages (common, identity, ...): build them all.
       - name: Build the packages the archive needs
-        run: NX_DAEMON=false npx lerna run build --scope @fonoster/common --include-dependencies
+        run: NX_DAEMON=false npm run build
 
       - name: Build the archive
         run: SKIP_IMAGES=1 ops/release/bundle "$VERSION"
