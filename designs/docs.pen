@@ -948,7 +948,7 @@
                               "fill": "$ui:text-secondary",
                               "textGrowth": "fixed-width",
                               "width": 120,
-                              "content": "gateway",
+                              "content": "appbridge",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 18,
                               "fontWeight": "normal"
@@ -1601,7 +1601,7 @@
                               "fill": "$ui:text-secondary",
                               "textGrowth": "fixed-width",
                               "width": 120,
-                              "content": "gateway",
+                              "content": "appbridge",
                               "fontFamily": "$ui:--font-primary",
                               "fontSize": 18,
                               "fontWeight": "normal"
