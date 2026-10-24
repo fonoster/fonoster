@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+#
+# fonoster-deploy: upgrades a Docker Compose install of Fonoster (the release archive, set up with
+# `fonoster-config init`) in place, in two halves so a person can approve in between.
+#
+#   fonoster-deploy prepare <version>   Download the release archive into a staging folder, carry
+#                                       over .env, config/keys and config/overrides, run init and
+#                                       check there, and pull the images. Nothing running changes.
+#   fonoster-deploy switch <version>    Back up the install folder, copy the staged folder over it
+#                                       and recreate the services (docker compose up -d --wait).
+#   fonoster-deploy rollback            Put the last backup back and recreate the services.
+#   fonoster-deploy status              Print the running version and the last deploys.
+#
+# The database is never touched: new versions apply their migrations when the API server starts.
+# Each switch logs its time in deploys.log, the point to restore a database backup to if needed.
+#
+# Over SSH, run it as the key's forced command in authorized_keys; the requested command comes
+# from SSH_ORIGINAL_COMMAND. FONOSTER_DEPLOY_ALLOW limits which commands a key may run:
+#
+#   command="FONOSTER_DEPLOY_ALLOW=prepare,status /usr/local/bin/fonoster-deploy",restrict ssh-ed25519 AAAA... prepare
+#   command="/usr/local/bin/fonoster-deploy",restrict ssh-ed25519 AAAA... deploy
+#
+# Settings (environment):
+#   FONOSTER_DIR          the install folder (default /opt/fonoster)
+#   FONOSTER_DEPLOY_DIR   staging folders, backups and deploys.log (default /var/lib/fonoster-deploy)
+#   FONOSTER_REPO         where releases are downloaded from (default fonoster/fonoster)
+#   FONOSTER_DEPLOY_KEEP  staged releases and backups to keep (default 3)
+#   FONOSTER_DEPLOY_ALLOW commands this caller may run (default prepare,switch,rollback,status)
+set -euo pipefail
+
+LIVE="${FONOSTER_DIR:-/opt/fonoster}"
+WORK="${FONOSTER_DEPLOY_DIR:-/var/lib/fonoster-deploy}"
+REPO="${FONOSTER_REPO:-fonoster/fonoster}"
+KEEP="${FONOSTER_DEPLOY_KEEP:-3}"
+ALLOW="${FONOSTER_DEPLOY_ALLOW:-prepare,switch,rollback,status}"
+
+if [ -n "${SSH_ORIGINAL_COMMAND:-}" ]; then
+  # shellcheck disable=SC2086 # split the requested command into words on purpose
+  set -- $SSH_ORIGINAL_COMMAND
+  # Allow "fonoster-deploy prepare 1.2.3" as well as "prepare 1.2.3".
+  [ "${1:-}" = "fonoster-deploy" ] && shift
+fi
+
+CMD="${1:-}"
+VERSION="${2:-}"
+
+die() {
+  echo "fonoster-deploy: $*" >&2
+  exit 1
+}
+log() { echo "$(date -u +%Y-%m-%dT%H:%M:%SZ) $*" | tee -a "$WORK/deploys.log"; }
+
+case ",$ALLOW," in
+  *",$CMD,"*) ;;
+  *) die "'${CMD:-<none>}' is not allowed here (allowed: $ALLOW)" ;;
+esac
+
+needs_version() {
+  [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "$CMD needs a version like 0.31.1"
+}
+
+running_version() {
+  sed -n 's/^FONOSTER_VERSION=//p' "$LIVE/.env" | tail -1
+}
+
+# Keeps the newest $KEEP entries matching a glob in $WORK.
+prune() {
+  # shellcheck disable=SC2012,SC2086 # names are ours (versions, timestamps); $1 is a glob
+  ls -1dt "$WORK"/$1 2>/dev/null | tail -n +"$((KEEP + 1))" | xargs -r rm -rf
+}
+
+mkdir -p "$WORK"
+chmod 700 "$WORK"
+[ -f "$LIVE/.env" ] || die "$LIVE has no .env: install Fonoster there first (fonoster-config init)"
+
+case "$CMD" in
+  prepare)
+    needs_version
+    stage="$WORK/release-$VERSION"
+    rm -rf "$stage"
+    mkdir -p "$stage"
+    url="https://github.com/$REPO/releases/download/v$VERSION/fonoster-$VERSION.tar.gz"
+    echo "downloading $url"
+    curl -fsSL "$url" | tar xz -C "$stage"
+    new="$stage/fonoster"
+    [ -f "$new/compose.yaml" ] || die "the archive has no fonoster/compose.yaml"
+
+    # What belongs to this install, not to the release.
+    cp -a "$LIVE/.env" "$new/.env"
+    cp -a "$LIVE/config/keys" "$new/config/"
+    [ -d "$LIVE/config/overrides" ] && cp -a "$LIVE/config/overrides" "$new/config/"
+    sed -i "s/^FONOSTER_VERSION=.*/FONOSTER_VERSION=$VERSION/" "$new/.env"
+
+    (
+      cd "$new"
+      npx -y -p "@fonoster/common@$VERSION" fonoster-config init
+      npx -y -p "@fonoster/common@$VERSION" fonoster-config check
+      # Same project name as the install folder, so the pulled images are the ones switch uses.
+      COMPOSE_PROJECT_NAME="$(basename "$LIVE")" docker compose pull --quiet
+    )
+    prune "release-*"
+    log "prepared $VERSION (running $(running_version))"
+    ;;
+
+  switch)
+    needs_version
+    new="$WORK/release-$VERSION/fonoster"
+    [ -f "$new/.env" ] || die "$VERSION is not prepared: run prepare $VERSION first"
+    from="$(running_version)"
+
+    backup="$WORK/backup-$(date -u +%Y%m%dT%H%M%SZ)-$from.tgz"
+    tar -C "$LIVE" -czf "$backup" .
+    chmod 600 "$backup"
+    echo "$backup" > "$WORK/last-backup"
+
+    # The staged folder holds everything: the release's files plus this install's .env, keys and
+    # overrides, already rendered by init. Volumes are untouched.
+    tar -C "$new" -cf - . | tar -C "$LIVE" -xf -
+    (cd "$LIVE" && docker compose up -d --remove-orphans --wait --wait-timeout 900)
+    prune "backup-*.tgz"
+    log "switched $from -> $VERSION"
+    ;;
+
+  rollback)
+    [ -f "$WORK/last-backup" ] || die "no backup to roll back to"
+    backup="$(cat "$WORK/last-backup")"
+    [ -f "$backup" ] || die "the last backup ($backup) is gone"
+    from="$(running_version)"
+    tar -C "$LIVE" -xzf "$backup"
+    (cd "$LIVE" && docker compose up -d --remove-orphans --wait --wait-timeout 900)
+    log "rolled back $from -> $(running_version) from $(basename "$backup")"
+    ;;
+
+  status)
+    echo "running $(running_version) in $LIVE"
+    tail -n 10 "$WORK/deploys.log" 2>/dev/null || true
+    ;;
+
+  *)
+    die "usage: fonoster-deploy prepare|switch <version> | rollback | status"
+    ;;
+esac

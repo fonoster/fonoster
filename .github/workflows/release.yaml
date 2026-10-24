@@ -12,6 +12,8 @@ name: Release
 #   4. images: images.yaml at the release commit (every image in ops/release/images.json).
 #   5. release: the install archive, the notes, the QA report and two release cards (dark and
 #      light) on a published GitHub release, marked latest.
+#   6. deploy: deploy.yaml stages the release on production, then waits for approval in the
+#      production environment before it switches.
 #
 # compose.yaml is never edited: the archive's .env.example carries FONOSTER_VERSION.
 #
@@ -239,3 +241,12 @@ jobs:
             dist/qa/qa-report.md
             dist/release-card-v${{ env.VERSION }}-dark.png
             dist/release-card-v${{ env.VERSION }}-light.png
+
+  deploy:
+    name: deploy
+    needs: [npm, images, bundle]
+    if: ${{ !cancelled() && needs.images.result == 'success' && needs.bundle.result == 'success' }}
+    uses: ./.github/workflows/deploy.yaml
+    with:
+      version: ${{ needs.npm.outputs.version }}
+    secrets: inherit
