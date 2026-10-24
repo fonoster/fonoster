@@ -19,7 +19,7 @@
 // The cloud side of `fonoster-region` (PR-19, PR-21): the operator's admin API for public regions
 // (contract 0), authorized only by the operator key in `x-operator-key`. Never prints the key.
 
-export const DEFAULT_API_URL = "https://api.fonoster.com";
+export const DEFAULT_API_URL = "https://api.fonoster.ai";
 
 export type AdminOptions = {
   /** The control plane's API base URL (the same one the dashboard and SDK use). */

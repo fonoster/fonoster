@@ -92,7 +92,7 @@ class Regions {
     auth = true
   ): Promise<T> {
     const base =
-      this.baseUrl ?? this.client.getHttpUrl?.() ?? "https://api.fonoster.com";
+      this.baseUrl ?? this.client.getHttpUrl?.() ?? "https://api.fonoster.ai";
     const attempt = () =>
       this.fetchFn(`${base}/api/regions${path}`, {
         method,

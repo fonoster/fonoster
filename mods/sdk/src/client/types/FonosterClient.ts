@@ -50,7 +50,7 @@ interface FonosterClient {
   getProvidersClient(): ProvidersClient;
   getUsageClient(): UsageClient;
   getBillingClient(): BillingClient;
-  /** Base URL of the HTTP API (/api/records), e.g. https://api.fonoster.com. */
+  /** Base URL of the HTTP API (/api/records), e.g. https://api.fonoster.ai. */
   getHttpUrl?(): string;
   getMetadata(): unknown;
   refreshToken(): Promise<void>;

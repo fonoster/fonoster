@@ -45,7 +45,7 @@ key ID starts with `WO`. The API key ID (`AP…`) and its secret prove who you a
 <ParamField path="accessKeyId" type="string" required>
   The workspace's access key ID (`WO` and 32 characters). Every request acts on this workspace.
 </ParamField>
-<ParamField path="endpoint" type="string" default="api.fonoster.com">
+<ParamField path="endpoint" type="string" default="api.fonoster.ai">
   The gRPC endpoint, as `host` or `host:port`. Set it to your install's address when you self-host.
 </ParamField>
 <ParamField path="allowInsecure" type="boolean" default="false">
@@ -62,7 +62,7 @@ key ID starts with `WO`. The API key ID (`AP…`) and its secret prove who you a
 ### `WebClient` options (browser)
 
 The browser build exports `WebClient` instead of `Client`. It takes `url` (default
-`https://api.fonoster.com`) and `accessKeyId`, and has the same sign-in methods.
+`https://api.fonoster.ai`) and `accessKeyId`, and has the same sign-in methods.
 
 ### Sign-in and session methods
 

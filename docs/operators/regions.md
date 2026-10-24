@@ -220,7 +220,7 @@ Public regions are created on the cloud side with the operator key (the API serv
 `regions.operatorKey`), then installed and enrolled exactly like a private region:
 
 ```sh
-export FONOSTER_API_URL=https://api.fonoster.com FONOSTER_OPERATOR_KEY=…   # never on the command line in shared shells
+export FONOSTER_API_URL=https://api.fonoster.ai FONOSTER_OPERATOR_KEY=…   # never on the command line in shared shells
 fonoster-region create us-east-2 --name "US East (Ohio)" [--sip-domain sip.us-east-2.fonoster.com]
 # on the new location: install as above, then
 fonoster-region enroll <token>

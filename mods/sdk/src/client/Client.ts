@@ -40,7 +40,7 @@ import { WebhooksClient } from "../generated/node/webhooks_grpc_pb";
 import { AbstractClient } from "./AbstractClient";
 import { TokenRefresherNode } from "./TokenRefresherNode";
 
-const DEFAULT_ENDPOINT = "api.fonoster.com";
+const DEFAULT_ENDPOINT = "api.fonoster.ai";
 
 export class Client extends AbstractClient {
   private readonly endpoint: string;
