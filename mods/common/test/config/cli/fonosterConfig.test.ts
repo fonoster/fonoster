@@ -355,6 +355,30 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(readEnvFile(envFile).get("HOST_IP")).to.equal("192.0.2.10");
     });
 
+    it("merges config/overrides over every render, so a second run keeps the owner's keys", async function () {
+      const dir = unpack();
+      await init(dir);
+      expect(
+        existsSync(join(dir, "config/overrides")),
+        "overrides folder"
+      ).to.equal(true);
+      writeFileSync(
+        join(dir, "config/overrides/appbridge.yaml"),
+        'providers:\n  deepgram:\n    credential:\n      value: "dg_live_4f1c9a"\n'
+      );
+      const run = await init(dir);
+      expect(run.code, run.err).to.equal(0);
+      const appbridge = yamlOf(dir, "appbridge.yaml");
+      expect(appbridge.providers.deepgram.credential.value).to.equal(
+        "dg_live_4f1c9a"
+      );
+      // The rest of the file still comes from the example.
+      expect(appbridge.providers.deepgram.adapter).to.equal("deepgram");
+      expect(appbridge.providers.elevenlabs.credential.value).to.equal(
+        "YOUR_ELEVENLABS_API_KEY"
+      );
+    });
+
     it("generates only a secret a newer bundle adds and appends it", async function () {
       const dir = unpack();
       await init(dir);

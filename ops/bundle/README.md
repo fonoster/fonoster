@@ -22,6 +22,9 @@ HTTPS: set `COMPOSE_FILE=compose.yaml:compose.tls.yaml`, `TLS_CERT`, `TLS_KEY` a
 again and `docker compose up -d`. Envoy then serves 443 with your certificate and redirects 80.
 Or keep plain HTTP behind your own TLS proxy with `HTTP_BIND=127.0.0.1`.
 Vendor keys (Deepgram, ElevenLabs, OpenAI, Groq...) are added per workspace in the dashboard.
+Platform keys and any other setting of your own go in `config/overrides/<file>.yaml` (for example
+`config/overrides/appbridge.yaml`): `init` merges them over the files it writes, so running it again
+or upgrading never resets them.
 
 Call records being written live in the `appbridge-records` volume (`callRecord.dir` in
 `config/appbridge.yaml`, `/var/lib/fonoster/records`), so recreating AppBridge container (an
