@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/dashboard",
-  "version": "0.31.3",
+  "version": "0.32.0",
   "private": true,
   "description": "Fonoster Dashboard",
   "homepage": "https://fonoster.com",
@@ -20,8 +20,8 @@
     "build:storybook": "storybook build"
   },
   "dependencies": {
-    "@fonoster/sdk": "^0.31.3",
-    "@fonoster/types": "^0.31.0",
+    "@fonoster/sdk": "^0.32.0",
+    "@fonoster/types": "^0.32.0",
     "@fontsource/poppins": "^5.3.0",
     "@fontsource/roboto-mono": "^5.3.0",
     "@hookform/resolvers": "^5.0.1",

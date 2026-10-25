@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/mcp",
-  "version": "0.31.3",
+  "version": "0.32.0",
   "description": "Model Context Protocol for Fonoster",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -21,9 +21,9 @@
     "dev": "nodemon --exec tsx --watch src src/index.ts"
   },
   "dependencies": {
-    "@fonoster/common": "^0.31.3",
-    "@fonoster/logger": "^0.31.0",
-    "@fonoster/sdk": "^0.31.3",
+    "@fonoster/common": "^0.32.0",
+    "@fonoster/logger": "^0.32.0",
+    "@fonoster/sdk": "^0.32.0",
     "@modelcontextprotocol/sdk": "^1.4.0"
   },
   "files": [
