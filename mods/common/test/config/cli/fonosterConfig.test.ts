@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { spawnSync } from "child_process";
 import { createPrivateKey, createPublicKey, X509Certificate } from "crypto";
 import {
   appendFileSync,
@@ -560,6 +561,47 @@ describe("@common[config/cli] fonoster-config", function () {
       for (const name of ["localhost", "127.0.0.1", "203.0.113.10"])
         expect(server.checkHost(name) || server.checkIP(name), name).to.be.ok;
       expect(server.checkHost("voice.example.com")).to.equal(undefined);
+      // ECDSA P-256, signed ecdsa-with-SHA256 by Node's crypto (no certificate library).
+      expect(ca.publicKey.asymmetricKeyType).to.equal("ec");
+      expect(ca.publicKey.asymmetricKeyDetails?.namedCurve).to.equal(
+        "prime256v1"
+      );
+      expect(ca.verify(ca.publicKey)).to.equal(true);
+      expect(ca.subject).to.equal("CN=Fonoster local CA");
+      expect(server.issuer).to.equal(ca.subject);
+      expect(server.subjectAltName).to.equal(
+        "DNS:localhost, IP Address:127.0.0.1, IP Address:203.0.113.10"
+      );
+      expect(server.keyUsage).to.deep.equal(["1.3.6.1.5.5.7.3.1"]);
+    });
+
+    it("writes certificates openssl verifies, with the expected extensions", async function () {
+      if (spawnSync("openssl", ["version"]).status !== 0) this.skip();
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      const ca = tlsFile(dir, "ca.pem");
+      const server = tlsFile(dir, "server.pem");
+      const verify = spawnSync("openssl", ["verify", "-CAfile", ca, server], {
+        encoding: "utf8"
+      });
+      expect(verify.status, verify.stderr).to.equal(0);
+      expect(verify.stdout).to.contain(": OK");
+      const text = (file: string) =>
+        spawnSync("openssl", ["x509", "-in", file, "-noout", "-text"], {
+          encoding: "utf8"
+        }).stdout;
+      const caText = text(ca);
+      expect(caText).to.match(/Basic Constraints: critical\s+CA:TRUE/);
+      expect(caText).to.match(
+        /Key Usage: critical\s+Certificate Sign, CRL Sign/
+      );
+      expect(caText).to.contain("Subject Key Identifier");
+      const serverText = text(server);
+      expect(serverText).to.match(/Basic Constraints: critical\s+CA:FALSE/);
+      expect(serverText).to.match(/Key Usage: critical\s+Digital Signature/);
+      expect(serverText).to.contain("TLS Web Server Authentication");
+      expect(serverText).to.contain("Authority Key Identifier");
+      expect(serverText).to.contain("ecdsa-with-SHA256");
     });
 
     it("keeps every file byte for byte on a second run", async function () {

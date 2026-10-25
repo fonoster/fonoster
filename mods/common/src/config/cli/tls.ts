@@ -16,14 +16,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { randomBytes, X509Certificate } from "crypto";
+import {
+  createPrivateKey,
+  generateKeyPairSync,
+  KeyObject,
+  X509Certificate
+} from "crypto";
 import { existsSync, mkdirSync, readFileSync } from "fs";
-import { isIP } from "net";
 import { isAbsolute, join, resolve } from "path";
 import { URL } from "url";
-import * as forge from "node-forge";
 import { writeWithMode } from "./envFile";
 import { CONTAINER_READ } from "./secrets";
+import { createCertificate } from "./x509";
 
 /**
  * The certificate init generates for getting started (https-by-default): a local CA and a server
@@ -42,7 +46,7 @@ const CA_DAYS = 3650;
 const SERVER_DAYS = 397;
 const RENEW_DAYS = 30;
 const OWNER_ONLY = 0o600;
-const CA_NAME = [{ name: "commonName", value: "Fonoster local CA" }];
+const CA_NAME = "Fonoster local CA";
 
 export type LocalTlsResult =
   | { state: "owner" }
@@ -92,75 +96,38 @@ export function fingerprint(pem: string): string {
   return new X509Certificate(pem).fingerprint256;
 }
 
-function serial(): string {
-  // A positive 128-bit serial (high bit clear).
-  const bytes = randomBytes(16);
-  bytes[0] &= 0x7f;
-  return bytes.toString("hex");
-}
+const newKeyPair = () => generateKeyPairSync("ec", { namedCurve: "P-256" });
+
+const keyPem = (key: KeyObject) =>
+  key.export({ type: "pkcs8", format: "pem" }).toString();
 
 function newCa(now: Date) {
-  const keys = forge.pki.rsa.generateKeyPair(2048);
-  const cert = forge.pki.createCertificate();
-  cert.publicKey = keys.publicKey;
-  cert.serialNumber = serial();
-  cert.validity.notBefore = new Date(now.getTime() - DAY);
-  cert.validity.notAfter = new Date(now.getTime() + CA_DAYS * DAY);
-  cert.setSubject(CA_NAME);
-  cert.setIssuer(CA_NAME);
-  cert.setExtensions([
-    { name: "basicConstraints", cA: true, critical: true },
-    { name: "keyUsage", keyCertSign: true, cRLSign: true, critical: true },
-    { name: "subjectKeyIdentifier" }
-  ]);
-  cert.sign(keys.privateKey, forge.md.sha256.create());
-  return {
-    cert: forge.pki.certificateToPem(cert),
-    key: forge.pki.privateKeyToPem(keys.privateKey)
-  };
+  const { publicKey, privateKey } = newKeyPair();
+  const cert = createCertificate({
+    publicKey,
+    subject: CA_NAME,
+    issuer: CA_NAME,
+    signingKey: privateKey,
+    notBefore: new Date(now.getTime() - DAY),
+    notAfter: new Date(now.getTime() + CA_DAYS * DAY),
+    ca: true
+  });
+  return { cert, key: keyPem(privateKey) };
 }
 
-function newServer(
-  caCertPem: string,
-  caKeyPem: string,
-  names: string[],
-  now: Date
-) {
-  const ca = forge.pki.certificateFromPem(caCertPem);
-  const caKey = forge.pki.privateKeyFromPem(caKeyPem);
-  const keys = forge.pki.rsa.generateKeyPair(2048);
-  const cert = forge.pki.createCertificate();
-  cert.publicKey = keys.publicKey;
-  cert.serialNumber = serial();
-  cert.validity.notBefore = new Date(now.getTime() - DAY);
-  cert.validity.notAfter = new Date(now.getTime() + SERVER_DAYS * DAY);
-  cert.setSubject([{ name: "commonName", value: names[0] }]);
-  cert.setIssuer(ca.subject.attributes);
-  cert.setExtensions([
-    { name: "basicConstraints", cA: false },
-    {
-      name: "keyUsage",
-      digitalSignature: true,
-      keyEncipherment: true,
-      critical: true
-    },
-    { name: "extKeyUsage", serverAuth: true },
-    {
-      name: "subjectAltName",
-      altNames: names.map((n) =>
-        isIP(n) ? { type: 7, ip: n } : { type: 2, value: n }
-      )
-    },
-    {
-      name: "authorityKeyIdentifier",
-      keyIdentifier: ca.generateSubjectKeyIdentifier().getBytes()
-    }
-  ]);
-  cert.sign(caKey, forge.md.sha256.create());
-  return {
-    cert: forge.pki.certificateToPem(cert),
-    key: forge.pki.privateKeyToPem(keys.privateKey)
-  };
+function newServer(caKeyPem: string, names: string[], now: Date) {
+  const { publicKey, privateKey } = newKeyPair();
+  const cert = createCertificate({
+    publicKey,
+    subject: names[0],
+    issuer: CA_NAME,
+    signingKey: createPrivateKey(caKeyPem),
+    notBefore: new Date(now.getTime() - DAY),
+    notAfter: new Date(now.getTime() + SERVER_DAYS * DAY),
+    ca: false,
+    names
+  });
+  return { cert, key: keyPem(privateKey) };
 }
 
 /** The names an existing server certificate covers (DNS and IP SANs), lowercased. */
@@ -181,7 +148,8 @@ function needsReissue(
   now: Date
 ): boolean {
   const cert = new X509Certificate(serverPem);
-  if (!cert.checkIssued(new X509Certificate(caPem))) return true;
+  const ca = new X509Certificate(caPem);
+  if (!cert.checkIssued(ca) || !cert.verify(ca.publicKey)) return true;
   if (new Date(cert.validTo).getTime() - now.getTime() < RENEW_DAYS * DAY)
     return true;
   const covered = coveredNames(serverPem);
@@ -223,12 +191,7 @@ export function ensureLocalTls(
     !existsSync(paths.key) ||
     needsReissue(readFileSync(paths.cert, "utf8"), caCert, names, now)
   ) {
-    const server = newServer(
-      caCert,
-      readFileSync(paths.caKey, "utf8"),
-      names,
-      now
-    );
+    const server = newServer(readFileSync(paths.caKey, "utf8"), names, now);
     writeWithMode(paths.key, server.key, OWNER_ONLY);
     writeWithMode(paths.cert, server.cert, CONTAINER_READ);
     if (state === "kept") state = "reissued";
