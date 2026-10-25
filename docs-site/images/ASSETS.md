@@ -34,6 +34,7 @@ One row per asset.
 | `provider-catalog/lifecycle-dark.png`, `lifecycle-light.png` | `self-hosting/provider-catalog` | `designs/docs.pen` → "Docs / Provider catalog / Lifecycle / Dark" (baC6U), "… / Light" (EuqNs) | 1600 × 900 (16:9 preset, exported at 1×) | Diagram Kit v1; PNG, not SVG; build note: `images/provider-catalog/lifecycle.md` |
 | `call-record-keys/rotation-dark.png`, `rotation-light.png` | `self-hosting/call-record-keys` | `designs/docs.pen` → "Docs / Call record keys / Rotation / Dark" (RL0nj), "… / Light" (hbHpH) | 1600 × 900 (16:9 preset, exported at 1×) | Diagram Kit v1; PNG, not SVG; build note: `images/call-record-keys/rotation.md` |
 | `turn-taking-and-audio/recording-precedence-dark.png`, `recording-precedence-light.png` | `self-hosting/turn-taking-and-audio` | `designs/docs.pen` → "Docs / Turn-taking and audio / Recording precedence / Dark" (RI4UX), "… / Light" (n8oFTT) | 1600 × 900 (16:9 preset, exported at 1×) | Diagram Kit v1; PNG, not SVG; build note: `images/turn-taking-and-audio/recording-precedence.md` |
+| `https/renewal-dark.png`, `renewal-light.png` | `self-hosting/https` | `designs/docs.pen` → "Docs / HTTPS / Renewal / Dark" (R9dgNx), "… / Light" (H4G1ug) | 1600 × 900 (16:9 preset, exported at 1×) | Diagram Kit v1; PNG; build note: `images/https/renewal.md` |
 
 ## Diagram Kit
 

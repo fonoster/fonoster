@@ -228,93 +228,11 @@ docker compose restart appbridge autopilot
 
 ## Serve over HTTPS
 
-By default the dashboard and API use plain HTTP on port `8449`, on every interface. That's fine on
-a trusted network. On the internet, passwords, API keys and tokens would cross it in clear text, so
-`init` and `check` print a warning when `PUBLIC_URL` is `http://` on an address that isn't
-loopback or private. Turn on HTTPS in one of two ways.
-
-### Envoy with your certificate
-
-You need a domain name that points to this machine, and a certificate and private key for it in
-PEM files.
-
-<Steps>
-  <Step title="Get a certificate">
-    With [Let's Encrypt](https://letsencrypt.org/), get one with `certbot` while ports `80` and
-    `443` are still free:
-
-    ```bash
-    sudo certbot certonly --standalone -d voice.example.com
-    ```
-
-    It writes `fullchain.pem` and `privkey.pem` in `/etc/letsencrypt/live/voice.example.com/`.
-    Any CA works: use your own files instead.
-  </Step>
-
-  <Step title="Turn on HTTPS in .env">
-    Uncomment and fill these lines in `.env`, and set `PUBLIC_URL` to the certificate's domain:
-
-    ```bash
-    COMPOSE_FILE=compose.yaml:compose.tls.yaml
-    PUBLIC_URL=https://voice.example.com
-    TLS_CERT=/etc/letsencrypt/live/voice.example.com/fullchain.pem
-    TLS_KEY=/etc/letsencrypt/live/voice.example.com/privkey.pem
-    ```
-
-    `COMPOSE_FILE` adds `compose.tls.yaml`, which mounts the two files read-only into Envoy.
-  </Step>
-
-  <Step title="Apply it">
-    Write the configuration again and recreate the services:
-
-    ```bash
-    npx -p @fonoster/common fonoster-config init
-    docker compose up -d
-    ```
-
-    `init` warns if a file is missing or `PUBLIC_URL` isn't `https://`. Envoy now serves HTTPS on
-    port `443` and redirects port `80` to it. Port `8449` is no longer published. Browser calls
-    switch to `wss://voice.example.com/sip` on their own.
-  </Step>
-</Steps>
-
-Envoy reads the certificate when its container is created. After a renewal, recreate it. Because
-Envoy holds port `80`, stop it while `certbot` renews:
-
-```bash
-sudo certbot renew \
-  --pre-hook "cd /path/to/fonoster && docker compose stop envoy" \
-  --post-hook "cd /path/to/fonoster && docker compose up -d --force-recreate envoy"
-```
-
-### A reverse proxy in front
-
-If you already run a proxy that terminates TLS (Caddy, nginx, Traefik, a cloud load balancer),
-keep Envoy on plain HTTP and publish it on this machine only:
-
-```bash
-HTTP_BIND=127.0.0.1
-PUBLIC_URL=https://voice.example.com
-```
-
-Run `init` and `docker compose up -d`, then point the proxy at `127.0.0.1:8449`. The proxy must
-forward gRPC (HTTP/2) and WebSocket upgrades on `/sip`.
-
-### SIP over TLS
-
-SIP stays on UDP and TCP `5060`. To also accept SIP over TLS on `5061`, convert your certificate
-into a PKCS#12 keystore for Routr:
-
-```bash
-mkdir -p config/tls
-openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem \
-  -out config/tls/signaling.p12 -passout pass:<password>
-```
-
-Then uncomment the `routr` lines in `compose.tls.yaml` and the `tls` transport in
-`config/routr-edgeport.example.yaml`, set its `keyStorePassword` and `trustStorePassword` to
-`<password>`, and run `init` and `docker compose up -d`. Carriers and softphones then use
-`transport=tls` on port `5061`. Call media (RTP) isn't encrypted by this.
+By default the dashboard and API use plain HTTP on port `8449`. That's fine on a trusted network.
+On the internet, passwords, API keys and tokens would cross it in clear text, so `init` and `check`
+warn when `PUBLIC_URL` is `http://` on an address that isn't loopback or private. To serve your
+domains over HTTPS with a certificate that renews on its own, see
+[Serve over HTTPS](/self-hosting/https).
 
 ## Let carriers and phones reach you
 

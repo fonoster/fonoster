@@ -122,7 +122,8 @@
                     "group": "Start",
                     "pages": [
                       "self-hosting/overview",
-                      "self-hosting/install-compose"
+                      "self-hosting/install-compose",
+                      "self-hosting/https"
                     ]
                   },
                   {
