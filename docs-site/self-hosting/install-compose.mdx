@@ -236,30 +236,9 @@ domains over HTTPS with a certificate that renews on its own, see
 
 ## Let carriers and phones reach you
 
-Fonoster names SIP addresses after your `domain` in `config/fonoster.yaml`, the way Twilio does:
-
-- **Trunks**: a trunk's inbound URI, where your carrier sends calls, is one label under
-  `pstn.<domain>`. A trunk named Acme gets `acme.pstn.example.com`.
-- **Domains**: a domain, where SIP agents register, is one label under `sip.<domain>`, such as
-  `acme.sip.example.com`.
-
-The API rejects any other name. Point two wildcard DNS records at your SIP address, so every new
-trunk and domain resolves without a new record:
-
-```text
-*.pstn.example.com  →  your SIP address
-*.sip.example.com   →  your SIP address
-```
-
-If your carriers and phones reach you by IP address, or you can't add wildcard records, accept any
-host or IP instead. Set this in `config/fonoster.yaml`, then restart the API server:
-
-```yaml
-features:
-  sip: { names: any }
-```
-
-The dashboard then asks for the full name instead of a label.
+A new install names trunks and domains under `fonoster.local`, which works only on your own
+network. To give them a domain you own, point DNS at this machine and open the SIP and audio ports,
+see [Connect carriers and phones](/self-hosting/carriers-and-phones).
 
 ## Next steps
 

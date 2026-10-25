@@ -1,8 +1,8 @@
 # The API server with its embedded Identity. `fonoster-config init` writes config/fonoster.yaml
 # from this file. Each ${NAME} stays as written: the API server reads it from its environment,
-# which Compose fills from .env, so secrets never land in config/. Edit this example (not the
-# written file) and run init again to change it
-# (https://docs.fonoster.com/self-hosting/install-compose).
+# which Compose fills from .env, so secrets never land in config/. To change a setting, put it in
+# config/overrides/fonoster.yaml and run init again: init merges it over the written file, and
+# upgrades keep it (https://docs.fonoster.com/self-hosting/carriers-and-phones).
 domain: fonoster.local
 appUrl: ${PUBLIC_URL}
 # Browser calls ("Talk to agent") use SIP over WebSocket through Envoy's /sip on appUrl's origin:

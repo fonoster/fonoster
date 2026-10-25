@@ -1,0 +1,136 @@
+---
+title: "Connect carriers and phones"
+sidebarTitle: "Carriers and phones"
+description: "Give your install a real SIP domain so carriers can send you calls and softphones can register."
+---
+
+A new install names every trunk and domain under `fonoster.local`, which works only on your own
+network. Use this page to put your SIP names under a domain you own, so carriers can send calls to
+your trunks and softphones can register from anywhere.
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/carriers-and-phones/sip-names-light.png"
+  alt="Two rows. Carriers: a carrier sends a call to acme.pstn.example.com, the wildcard record *.pstn.example.com points it at your machine, and it reaches the Acme trunk on SIP port 5060. Phones: a softphone registers at acme.sip.example.com, the wildcard record *.sip.example.com points it at your machine, and it signs in to the Acme domain. Call audio uses UDP ports 10000 to 11999."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/carriers-and-phones/sip-names-dark.png"
+  alt="Two rows. Carriers: a carrier sends a call to acme.pstn.example.com, the wildcard record *.pstn.example.com points it at your machine, and it reaches the Acme trunk on SIP port 5060. Phones: a softphone registers at acme.sip.example.com, the wildcard record *.sip.example.com points it at your machine, and it signs in to the Acme domain. Call audio uses UDP ports 10000 to 11999."
+/>
+
+Fonoster names SIP addresses after one setting, `domain`, the way Twilio does:
+
+| What                                                  | Name                    | With `domain: example.com` |
+| ----------------------------------------------------- | ----------------------- | -------------------------- |
+| A trunk's inbound URI, where your carrier sends calls | `<label>.pstn.<domain>` | `acme.pstn.example.com`    |
+| A domain, where SIP agents register                   | `<label>.sip.<domain>`  | `acme.sip.example.com`     |
+
+The dashboard asks only for the label and adds the rest. The API rejects any other name.
+
+## Before you begin
+
+You need:
+
+- Fonoster 0.31.1 or later, installed with Docker Compose. See
+  [Install with Docker Compose](/self-hosting/install-compose).
+- A domain whose DNS you can edit, such as `example.com`.
+- `HOST_IP` in `.env` set to the address carriers and phones reach this machine at. `init` detects
+  it; check it with `npx -p @fonoster/common fonoster-config info`.
+
+Run the commands on this page from your `fonoster` folder.
+
+## Set your domain
+
+<Steps>
+  <Step title="Write an override">
+    Put your domain in `config/overrides/fonoster.yaml`. `init` merges this file over the
+    `config/fonoster.yaml` it writes, so your domain survives later runs and upgrades:
+
+    ```bash
+    printf 'domain: example.com\n' > config/overrides/fonoster.yaml
+    ```
+
+    Don't edit `config/fonoster.yaml` itself: the next `init` or upgrade puts `fonoster.local` back.
+
+  </Step>
+
+  <Step title="Apply it">
+    Write the configuration again and recreate the API server, which reads the domain when it
+    starts:
+
+    ```bash
+    npx -p @fonoster/common fonoster-config init
+    docker compose up -d --force-recreate apiserver
+    ```
+
+    New trunks in the dashboard now end in `.pstn.example.com`, and new domains in
+    `.sip.example.com`.
+
+  </Step>
+</Steps>
+
+<Note>
+  Trunks and domains you created before keep their old names. Edit each one to
+  the new form, for example `acme.pstn.fonoster.local` to
+  `acme.pstn.example.com`. You don't need to recreate them.
+</Note>
+
+## Point your names at this machine
+
+Add two wildcard records in your DNS, so every new trunk and domain resolves without a new record:
+
+| Type | Host     | Value                  |
+| ---- | -------- | ---------------------- |
+| A    | `*.pstn` | this machine's address |
+| A    | `*.sip`  | this machine's address |
+
+Check that a name under each one resolves:
+
+```bash
+dig +short acme.pstn.example.com acme.sip.example.com
+```
+
+## Open the ports
+
+Carriers and phones need these ports open in any firewall in front of this machine, such as your
+cloud provider's:
+
+| Port            | Protocol | For              |
+| --------------- | -------- | ---------------- |
+| `5060`          | UDP, TCP | SIP              |
+| `10000`–`11999` | UDP      | Call audio (RTP) |
+
+With `ufw` on the machine itself:
+
+```bash
+ufw allow 5060/udp && ufw allow 5060/tcp && ufw allow 10000:11999/udp
+```
+
+<Note>
+  On Linux, turn off Docker's userland proxy, or the 2,000 published audio ports
+  exhaust the machine's memory. See [Before you
+  begin](/self-hosting/install-compose#before-you-begin) in the install guide.
+</Note>
+
+## More options
+
+<AccordionGroup>
+  <Accordion title="Accept any host or IP address">
+    If your carriers and phones reach you by IP address, or you can't add wildcard records, accept
+    any name instead. Add this to `config/overrides/fonoster.yaml`, then run `init` and recreate
+    the API server:
+
+    ```yaml config/overrides/fonoster.yaml
+    features:
+      sip: { names: any }
+    ```
+
+    The dashboard then asks for the full name instead of a label.
+
+  </Accordion>
+
+  <Accordion title="SIP over TLS">
+    To accept SIP over TLS on port `5061`, see [SIP over TLS](/self-hosting/https#sip-over-tls).
+  </Accordion>
+</AccordionGroup>

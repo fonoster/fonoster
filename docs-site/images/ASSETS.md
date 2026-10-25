@@ -35,6 +35,7 @@ One row per asset.
 | `call-record-keys/rotation-dark.png`, `rotation-light.png` | `self-hosting/call-record-keys` | `designs/docs.pen` → "Docs / Call record keys / Rotation / Dark" (RL0nj), "… / Light" (hbHpH) | 1600 × 900 (16:9 preset, exported at 1×) | Diagram Kit v1; PNG, not SVG; build note: `images/call-record-keys/rotation.md` |
 | `turn-taking-and-audio/recording-precedence-dark.png`, `recording-precedence-light.png` | `self-hosting/turn-taking-and-audio` | `designs/docs.pen` → "Docs / Turn-taking and audio / Recording precedence / Dark" (RI4UX), "… / Light" (n8oFTT) | 1600 × 900 (16:9 preset, exported at 1×) | Diagram Kit v1; PNG, not SVG; build note: `images/turn-taking-and-audio/recording-precedence.md` |
 | `https/renewal-dark.png`, `renewal-light.png` | `self-hosting/https` | `designs/docs.pen` → "Docs / HTTPS / Renewal / Dark" (R9dgNx), "… / Light" (H4G1ug) | 1600 × 900 (16:9 preset, exported at 1×) | Diagram Kit v1; PNG; build note: `images/https/renewal.md` |
+| `carriers-and-phones/sip-names-dark.png`, `sip-names-light.png` | `self-hosting/carriers-and-phones` | `designs/docs.pen` → "Docs / Carriers and phones / SIP names / Dark" (y7Br8U), "… / Light" (ZW8QA) | 1600 × 900 (16:9 preset, exported at 1×) | Diagram Kit v1; PNG; build note: `images/carriers-and-phones/sip-names.md` |
 
 ## Diagram Kit
 

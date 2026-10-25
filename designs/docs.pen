@@ -51573,6 +51573,770 @@
           "fontWeight": "normal"
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "y7Br8U",
+      "x": 0,
+      "y": 16345,
+      "name": "Docs / Carriers and phones / SIP names / Dark",
+      "theme": {
+        "ui:mode": "dark"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 900,
+      "fill": "$ui:surface-raised",
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 1,
+      "layout": "none",
+      "children": [
+        {
+          "type": "text",
+          "id": "hYWqS",
+          "x": 48,
+          "y": 36,
+          "name": "Title",
+          "fill": "$ui:text-primary",
+          "content": "Connect carriers and phones",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 30,
+          "fontWeight": "600"
+        },
+        {
+          "type": "text",
+          "id": "gpTj7",
+          "x": 48,
+          "y": 80,
+          "name": "Subtitle",
+          "fill": "$ui:text-secondary",
+          "content": "Two wildcard records send every trunk and domain name to your machine.",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 17,
+          "fontWeight": "normal"
+        },
+        {
+          "id": "BKmGp",
+          "type": "ref",
+          "ref": "np3qG",
+          "name": "Carriers",
+          "x": 40,
+          "y": 136,
+          "width": 1520,
+          "height": 300,
+          "fill": "$ui:surface-raised",
+          "descendants": {
+            "djCne": {
+              "content": "CARRIERS · TRUNKS AT <LABEL>.PSTN.<DOMAIN>"
+            }
+          }
+        },
+        {
+          "id": "bbVfW",
+          "type": "ref",
+          "ref": "np3qG",
+          "name": "Phones",
+          "x": 40,
+          "y": 476,
+          "width": 1520,
+          "height": 300,
+          "fill": "$ui:surface-raised",
+          "descendants": {
+            "djCne": {
+              "content": "PHONES · DOMAINS AT <LABEL>.SIP.<DOMAIN>"
+            }
+          }
+        },
+        {
+          "id": "UgFqn",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Carrier",
+          "x": 80,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "radio-tower"
+            },
+            "ezwBW": {
+              "content": "Carrier"
+            },
+            "wOD17": {
+              "content": "sends you calls"
+            }
+          }
+        },
+        {
+          "id": "aSNTa",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "DNS 248",
+          "x": 640,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "network"
+            },
+            "ezwBW": {
+              "content": "DNS"
+            },
+            "wOD17": {
+              "content": "*.pstn.example.com"
+            }
+          }
+        },
+        {
+          "id": "nz54l",
+          "type": "ref",
+          "ref": "pifOQ",
+          "name": "Fonoster 248",
+          "x": 940,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "RcIXt": {
+              "icon": "server"
+            },
+            "Z1grMG": {
+              "content": "Fonoster"
+            },
+            "RXa3g": {
+              "content": "SIP on port 5060"
+            }
+          }
+        },
+        {
+          "id": "R7SFYM",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Trunk Acme",
+          "x": 1280,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "cable"
+            },
+            "ezwBW": {
+              "content": "Trunk Acme"
+            },
+            "wOD17": {
+              "content": "acme.pstn.example.com"
+            }
+          }
+        },
+        {
+          "type": "rectangle",
+          "id": "Y3eG8",
+          "x": 330,
+          "y": 285,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 300,
+          "height": 2
+        },
+        {
+          "id": "LuJ3b",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 630,
+          "y": 280
+        },
+        {
+          "type": "rectangle",
+          "id": "CxM3j",
+          "x": 890,
+          "y": 285,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "exQON",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 930,
+          "y": 280
+        },
+        {
+          "type": "rectangle",
+          "id": "hO4nY",
+          "x": 1190,
+          "y": 285,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 80,
+          "height": 2
+        },
+        {
+          "id": "W0RqnA",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 1270,
+          "y": 280
+        },
+        {
+          "id": "Zd30J",
+          "type": "ref",
+          "ref": "V8p0b",
+          "name": "Pill 248",
+          "x": 362,
+          "y": 272,
+          "descendants": {
+            "r2EmG9": {
+              "content": "call to acme.pstn.example.com"
+            }
+          }
+        },
+        {
+          "id": "b6IE7",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Softphone",
+          "x": 80,
+          "y": 588,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "headset"
+            },
+            "ezwBW": {
+              "content": "Softphone"
+            },
+            "wOD17": {
+              "content": "a SIP agent"
+            }
+          }
+        },
+        {
+          "id": "NrPya",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "DNS 588",
+          "x": 640,
+          "y": 588,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "network"
+            },
+            "ezwBW": {
+              "content": "DNS"
+            },
+            "wOD17": {
+              "content": "*.sip.example.com"
+            }
+          }
+        },
+        {
+          "id": "gFrZi",
+          "type": "ref",
+          "ref": "pifOQ",
+          "name": "Fonoster 588",
+          "x": 940,
+          "y": 588,
+          "width": 250,
+          "descendants": {
+            "RcIXt": {
+              "icon": "server"
+            },
+            "Z1grMG": {
+              "content": "Fonoster"
+            },
+            "RXa3g": {
+              "content": "SIP on port 5060"
+            }
+          }
+        },
+        {
+          "id": "Yr19t",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Domain Acme",
+          "x": 1280,
+          "y": 588,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "building-2"
+            },
+            "ezwBW": {
+              "content": "Domain Acme"
+            },
+            "wOD17": {
+              "content": "acme.sip.example.com"
+            }
+          }
+        },
+        {
+          "type": "rectangle",
+          "id": "Fcrlp",
+          "x": 330,
+          "y": 625,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 300,
+          "height": 2
+        },
+        {
+          "id": "x3emjJ",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 630,
+          "y": 620
+        },
+        {
+          "type": "rectangle",
+          "id": "rzUhz",
+          "x": 890,
+          "y": 625,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "SUi1w",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 930,
+          "y": 620
+        },
+        {
+          "type": "rectangle",
+          "id": "ZY8EM",
+          "x": 1190,
+          "y": 625,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 80,
+          "height": 2
+        },
+        {
+          "id": "ZLK8V",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 1270,
+          "y": 620
+        },
+        {
+          "id": "lKcm2",
+          "type": "ref",
+          "ref": "V8p0b",
+          "name": "Pill 588",
+          "x": 346,
+          "y": 612,
+          "descendants": {
+            "r2EmG9": {
+              "content": "registers at acme.sip.example.com"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "id": "ebLni",
+          "x": 80,
+          "y": 810,
+          "name": "Note",
+          "fill": "$ui:text-secondary",
+          "content": "Once a call connects, its audio uses UDP ports 10000 to 11999.",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 15,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "ZW8QA",
+      "x": 1700,
+      "y": 16345,
+      "name": "Docs / Carriers and phones / SIP names / Light",
+      "theme": {
+        "ui:mode": "light"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 900,
+      "fill": "$ui:surface-raised",
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 1,
+      "layout": "none",
+      "children": [
+        {
+          "type": "text",
+          "id": "NMgaw",
+          "x": 48,
+          "y": 36,
+          "name": "Title",
+          "fill": "$ui:text-primary",
+          "content": "Connect carriers and phones",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 30,
+          "fontWeight": "600"
+        },
+        {
+          "type": "text",
+          "id": "Z5k7rC",
+          "x": 48,
+          "y": 80,
+          "name": "Subtitle",
+          "fill": "$ui:text-secondary",
+          "content": "Two wildcard records send every trunk and domain name to your machine.",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 17,
+          "fontWeight": "normal"
+        },
+        {
+          "id": "HEyDa",
+          "type": "ref",
+          "ref": "np3qG",
+          "name": "Carriers",
+          "x": 40,
+          "y": 136,
+          "width": 1520,
+          "height": 300,
+          "fill": "$ui:surface-raised",
+          "descendants": {
+            "djCne": {
+              "content": "CARRIERS · TRUNKS AT <LABEL>.PSTN.<DOMAIN>"
+            }
+          }
+        },
+        {
+          "id": "TFMof",
+          "type": "ref",
+          "ref": "np3qG",
+          "name": "Phones",
+          "x": 40,
+          "y": 476,
+          "width": 1520,
+          "height": 300,
+          "fill": "$ui:surface-raised",
+          "descendants": {
+            "djCne": {
+              "content": "PHONES · DOMAINS AT <LABEL>.SIP.<DOMAIN>"
+            }
+          }
+        },
+        {
+          "id": "ZyxVX",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Carrier",
+          "x": 80,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "radio-tower"
+            },
+            "ezwBW": {
+              "content": "Carrier"
+            },
+            "wOD17": {
+              "content": "sends you calls"
+            }
+          }
+        },
+        {
+          "id": "Xmbc2",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "DNS 248",
+          "x": 640,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "network"
+            },
+            "ezwBW": {
+              "content": "DNS"
+            },
+            "wOD17": {
+              "content": "*.pstn.example.com"
+            }
+          }
+        },
+        {
+          "id": "CFxkv",
+          "type": "ref",
+          "ref": "pifOQ",
+          "name": "Fonoster 248",
+          "x": 940,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "RcIXt": {
+              "icon": "server"
+            },
+            "Z1grMG": {
+              "content": "Fonoster"
+            },
+            "RXa3g": {
+              "content": "SIP on port 5060"
+            }
+          }
+        },
+        {
+          "id": "G5FRo",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Trunk Acme",
+          "x": 1280,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "cable"
+            },
+            "ezwBW": {
+              "content": "Trunk Acme"
+            },
+            "wOD17": {
+              "content": "acme.pstn.example.com"
+            }
+          }
+        },
+        {
+          "type": "rectangle",
+          "id": "pzvIB",
+          "x": 330,
+          "y": 285,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 300,
+          "height": 2
+        },
+        {
+          "id": "uBDjV",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 630,
+          "y": 280
+        },
+        {
+          "type": "rectangle",
+          "id": "eiIF8",
+          "x": 890,
+          "y": 285,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "LIUkO",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 930,
+          "y": 280
+        },
+        {
+          "type": "rectangle",
+          "id": "D7w1j",
+          "x": 1190,
+          "y": 285,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 80,
+          "height": 2
+        },
+        {
+          "id": "W1pItb",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 1270,
+          "y": 280
+        },
+        {
+          "id": "U1FKqU",
+          "type": "ref",
+          "ref": "V8p0b",
+          "name": "Pill 248",
+          "x": 362,
+          "y": 272,
+          "descendants": {
+            "r2EmG9": {
+              "content": "call to acme.pstn.example.com"
+            }
+          }
+        },
+        {
+          "id": "WZXnP",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Softphone",
+          "x": 80,
+          "y": 588,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "headset"
+            },
+            "ezwBW": {
+              "content": "Softphone"
+            },
+            "wOD17": {
+              "content": "a SIP agent"
+            }
+          }
+        },
+        {
+          "id": "hGQy4",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "DNS 588",
+          "x": 640,
+          "y": 588,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "network"
+            },
+            "ezwBW": {
+              "content": "DNS"
+            },
+            "wOD17": {
+              "content": "*.sip.example.com"
+            }
+          }
+        },
+        {
+          "id": "f0wQO",
+          "type": "ref",
+          "ref": "pifOQ",
+          "name": "Fonoster 588",
+          "x": 940,
+          "y": 588,
+          "width": 250,
+          "descendants": {
+            "RcIXt": {
+              "icon": "server"
+            },
+            "Z1grMG": {
+              "content": "Fonoster"
+            },
+            "RXa3g": {
+              "content": "SIP on port 5060"
+            }
+          }
+        },
+        {
+          "id": "c5wMcq",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Domain Acme",
+          "x": 1280,
+          "y": 588,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "building-2"
+            },
+            "ezwBW": {
+              "content": "Domain Acme"
+            },
+            "wOD17": {
+              "content": "acme.sip.example.com"
+            }
+          }
+        },
+        {
+          "type": "rectangle",
+          "id": "Xr9xu",
+          "x": 330,
+          "y": 625,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 300,
+          "height": 2
+        },
+        {
+          "id": "MyLWY",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 630,
+          "y": 620
+        },
+        {
+          "type": "rectangle",
+          "id": "wSMU7",
+          "x": 890,
+          "y": 625,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "PZo2T",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 930,
+          "y": 620
+        },
+        {
+          "type": "rectangle",
+          "id": "ESIuG",
+          "x": 1190,
+          "y": 625,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 80,
+          "height": 2
+        },
+        {
+          "id": "uZwjN",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 1270,
+          "y": 620
+        },
+        {
+          "id": "EpzLI",
+          "type": "ref",
+          "ref": "V8p0b",
+          "name": "Pill 588",
+          "x": 346,
+          "y": 612,
+          "descendants": {
+            "r2EmG9": {
+              "content": "registers at acme.sip.example.com"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "id": "Vc7wA",
+          "x": 80,
+          "y": 810,
+          "name": "Note",
+          "fill": "$ui:text-secondary",
+          "content": "Once a call connects, its audio uses UDP ports 10000 to 11999.",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 15,
+          "fontWeight": "normal"
+        }
+      ]
     }
   ],
   "imports": {
