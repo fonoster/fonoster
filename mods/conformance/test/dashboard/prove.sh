@@ -38,7 +38,8 @@ if [ "${QA_RUN:-}" = 1 ]; then
     PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/real.xml" \
       node e2e/real-env.cjs --grep "\[$id\]" \
       --grep-invert "\[($(echo "$OWNER_CERT_CASES" | tr ' ' '|'))\]" --reporter=junit || status=1
-    if grep -q "\[$id" e2e/talk-owner-cert.real.spec.ts; then
+    # $id is a JS regex here ("DSH-\d{3}"): grep -E has no \d, so spell it as [0-9].
+    if grep -qE "\[$(printf '%s' "$id" | sed 's/\\d/[0-9]/g')" e2e/talk-owner-cert.real.spec.ts; then
       PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/real-owner-cert.xml" owner_cert_run "\[$id" || status=1
     fi
   fi
