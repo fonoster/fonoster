@@ -63,9 +63,12 @@ again.
 | Routr's services | `one`                | One span per routing step, linked over gRPC                                                                   | None                                                                                                                                              |
 
 AppBridge, the Roomr node and Routr also send their logs. The API server's stay in
-`docker compose logs`. A call's trace starts in AppBridge, under the `traceparent` header of the
-incoming call when it has one. The Roomr node's call span carries both `fonoster.call_ref` and
-`sip.call_id`, so it links Routr's SIP spans to the rest of the call.
+`docker compose logs`. A call is one trace: Routr's `SIP INVITE` span, then the Roomr node's call
+span, AppBridge's `appbridge.call` and, for an agent, Autopilot's spans. Each service passes the
+W3C `traceparent` to the next, on the SIP request and in the session start. When the INVITE
+arrives with a `traceparent` (from a carrier or another proxy), the call joins that trace. The
+Roomr node's call span also carries `sip.call_id`, so later requests of the dialog, such as the
+`BYE`, are found by the same Call-ID.
 Metrics are sent every 15 seconds.
 
 An EdgePort `SIP <METHOD>` span ends as an error when its request gets no final response before

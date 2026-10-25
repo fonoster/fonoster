@@ -35,6 +35,11 @@ carry both, so a search by either one finds the whole call, Routr included.
 - **THEN** querying the collector for its `fonoster.call_ref` returns spans from the control plane, the Roomr node and AppBridge
 - **AND** the logs for that call share the same `fonoster.call_ref`
 
+#### Scenario: A call is one trace
+- **WHEN** a SIP call reaches an Autopilot agent through Routr
+- **THEN** its spans form one trace: Routr's `SIP INVITE`, then `roomr.call.inbound`, `appbridge.call` and `autopilot.session`, each the parent of the next
+- **AND** an INVITE that arrives with a W3C `traceparent` header puts the call in that trace
+
 #### Scenario: From a SIP dialog to the call
 - **WHEN** an operator searches by the `sip.call_id` of a call's INVITE
 - **THEN** they find Routr's SIP transaction spans and the Roomr node's call span, which gives the `fonoster.call_ref`
