@@ -28,3 +28,9 @@ spec:
     # the API port to it.
     - protocol: ws
       port: 5062
+    # Browsers on an https:// dashboard speak SIP over WSS. Envoy terminates TLS and still
+    # proxies them to ws:5062, but Routr routes each request by the transport the browser names,
+    # so it needs a WSS listening point too (Record-Route and self-route matching use its port).
+    # Not published; the keystore above is the self-signed one the image creates.
+    - protocol: wss
+      port: 5063

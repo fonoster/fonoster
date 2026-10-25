@@ -29,6 +29,13 @@ spec:
     # the API port to it.
     - protocol: ws
       port: 5062
+    # Browsers on an https:// dashboard speak SIP over WSS. Envoy terminates TLS and still
+    # proxies them to ws:5062, but Routr routes each request by the transport the browser names,
+    # so it needs a WSS listening point too (Record-Route and self-route matching use its port).
+    # Not published; the keystore above is the self-signed one the image creates, unless
+    # compose.tls.yaml mounts yours for SIP over TLS.
+    - protocol: wss
+      port: 5063
     # SIP over TLS (off by default): uncomment with the routr lines in compose.tls.yaml, which
     # mount your keystore at /etc/routr/certs/signaling.p12 and publish 5061/tcp, and set the
     # keystore passwords above. Carriers and softphones then use sips: or transport=tls on 5061.

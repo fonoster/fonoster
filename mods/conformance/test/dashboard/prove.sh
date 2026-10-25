@@ -10,6 +10,18 @@ id="$1"
 out="$2"
 cd mods/dashboard
 export CI=1 PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/dashboard.xml"
+# The real cases that need the stack behind HTTPS (ops/rebuild/stack tls on): the browser's SIP
+# goes over WSS through Envoy, as on every production install with a certificate.
+HTTPS_CASES="DSH-063"
+https_run() {
+  ../../ops/rebuild/stack tls on >&2 || return 1
+  . ../../ops/rebuild/.local/stack.env
+  E2E_REAL_URL="https://localhost:${RB_HTTPS_PORT:-16443}" \
+    node e2e/real-env.cjs --grep "$1" --reporter=junit
+  rc=$?
+  ../../ops/rebuild/stack tls off >&2 || rc=1
+  return $rc
+}
 # The whole area (run.cjs, QA_RUN=1): the mocked projects, then the real project when the stack is
 # up and seeded, then the Billing page when its profile is on (QA_BILLING=1), each against the
 # stack's own dashboard.
@@ -18,7 +30,11 @@ if [ "${QA_RUN:-}" = 1 ]; then
   npx playwright test --grep "\[$id\]" --reporter=junit || status=1
   if [ -f ../../ops/rebuild/.local/seed.json ]; then
     PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/real.xml" \
-      node e2e/real-env.cjs --grep "\[$id\]" --reporter=junit || status=1
+      node e2e/real-env.cjs --grep "\[$id\]" --grep-invert "\[($(echo "$HTTPS_CASES" | tr ' ' '|'))\]" \
+      --reporter=junit || status=1
+    if grep -q "\[$id" e2e/talk-https.real.spec.ts; then
+      PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/real-https.xml" https_run "\[$id" || status=1
+    fi
   fi
   if [ "${QA_BILLING:-}" = 1 ]; then
     # The calls above used Trial credits: the Billing page case starts from a fresh account.
@@ -32,6 +48,13 @@ if [ "${QA_RUN:-}" = 1 ]; then
   fi
   exit $status
 fi
+case " $HTTPS_CASES " in
+  *" $id "*)
+    # A Routr config fault reaches the stack through `stack tls on` (it renders the configs again).
+    https_run "\[$id\]"
+    exit $?
+    ;;
+esac
 if grep -q "\[$id\]" e2e/*.real.spec.ts e2e-stack/*.spec.ts 2>/dev/null; then
   # A port of this run's own, checked free: a server left by an earlier case would serve that
   # case's build, and the tests would meet the wrong fault. The search stays out of 16000-16999,

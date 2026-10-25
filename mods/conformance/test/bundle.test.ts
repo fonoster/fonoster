@@ -345,11 +345,13 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     expect(read("ops/bundle/.env.example")).to.contain(
       "# COMPOSE_FILE=compose.yaml:compose.tls.yaml"
     );
-    // SIP over TLS is documented, not on.
+    // SIP over TLS is documented, not on. WSS is there for browsers on an https:// dashboard
+    // (Envoy terminates TLS and proxies to ws), and nothing publishes its port.
     const edge = parse(
       read("ops/bundle/config/routr-edgeport.example.yaml")
     ).spec.transport.map((t: { protocol: string }) => t.protocol);
-    expect(edge).to.deep.equal(["tcp", "udp", "ws"]);
+    expect(edge).to.deep.equal(["tcp", "udp", "ws", "wss"]);
+    expect(read("ops/bundle/compose.yaml")).not.to.contain("5063");
     expect(read("ops/bundle/config/routr-edgeport.example.yaml")).to.match(
       /# - protocol: tls\n\s*# {3}port: 5061/
     );
@@ -369,8 +371,8 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     // !override: the plain HTTP port is not published next to them.
     expect(text).to.match(/ports: !override\n/);
     expect(envoy.ports).to.deep.equal([
-      "${HTTPS_BIND:-0.0.0.0}:443:8443",
-      "${HTTPS_BIND:-0.0.0.0}:80:8080"
+      "${HTTPS_BIND:-0.0.0.0}:${HTTPS_PORT:-443}:8443",
+      "${HTTPS_BIND:-0.0.0.0}:${HTTPS_REDIRECT_PORT:-80}:8080"
     ]);
 
     const tls = envoyConfig("envoy-tls.yaml");

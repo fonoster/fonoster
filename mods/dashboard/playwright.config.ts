@@ -31,6 +31,9 @@ const realProject = {
   use: {
     variant: "community" as Variant,
     baseURL: REAL_URL,
+    // E2E_REAL_URL may be the stack behind HTTPS with a self-signed certificate (DSH-063, the
+    // WSS path); http:// ignores this.
+    ignoreHTTPSErrors: true,
     // A fake microphone, granted without a prompt: the talk drawer needs getUserMedia.
     launchOptions: {
       args: [
