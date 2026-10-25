@@ -52337,6 +52337,536 @@
           "fontWeight": "normal"
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "LhHSm",
+      "x": 11880,
+      "y": 0,
+      "name": "Docs / Private regions / Banner / Dark",
+      "theme": {
+        "ui:mode": "dark"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 600,
+      "fill": [
+        "$ui:surface-raised",
+        {
+          "type": "image",
+          "enabled": true,
+          "url": "assets/pattern-hero.png",
+          "mode": "cover"
+        }
+      ],
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 2,
+      "gap": 72,
+      "padding": [
+        0,
+        96
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "dx3f2",
+          "name": "Copy",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "d4tZlx",
+              "name": "Eyebrow",
+              "fill": "$ui:text-secondary",
+              "content": "PRIVATE REGIONS",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 20,
+              "fontWeight": "500",
+              "letterSpacing": 2.4
+            },
+            {
+              "type": "text",
+              "id": "OeWXh",
+              "name": "Headline",
+              "fill": "$ui:text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Your calls, on your servers.",
+              "lineHeight": 1.06,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 68,
+              "fontWeight": "600",
+              "letterSpacing": -2.2
+            },
+            {
+              "type": "text",
+              "id": "P1Sr3U",
+              "name": "Subhead",
+              "fill": "$ui:text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Run a region on your own machines. Calls and keys never leave.",
+              "lineHeight": 1.4,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 26,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "DkgyE",
+          "name": "Terminal",
+          "clip": true,
+          "width": 720,
+          "fill": "$ui:surface-sunken",
+          "cornerRadius": 16,
+          "stroke": "$ui:border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "J3MCHG",
+              "name": "Title bar",
+              "width": "fill_container",
+              "stroke": "$ui:border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 10,
+              "padding": [
+                18,
+                24
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "h7NE6",
+                  "name": "Dot 1",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "V9uZ8q",
+                  "name": "Dot 2",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "o5wEs",
+                  "name": "Dot 3",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "tHFeU",
+                  "name": "Path",
+                  "fill": "$ui:text-muted",
+                  "content": "~/fonoster",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "WBUbB",
+              "name": "Lines",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "padding": [
+                28,
+                32,
+                32,
+                32
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "YTxtR",
+                  "name": "Command",
+                  "gap": 14,
+                  "padding": [
+                    0,
+                    0,
+                    6,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "MJBmQ",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "YpmYE",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "cp cell.env.example .env",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "iXim4",
+                  "name": "Command",
+                  "gap": 14,
+                  "padding": [
+                    0,
+                    0,
+                    6,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "eKOUE",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "iIeo3",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "docker compose run --rm region-agent enroll <token>",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "gtDdO",
+                  "name": "Command",
+                  "gap": 14,
+                  "padding": [
+                    0,
+                    0,
+                    6,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "dqMiS",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "oWczl",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "docker compose up -d",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Izuou",
+      "x": 11880,
+      "y": 680,
+      "name": "Docs / Private regions / Banner / Light",
+      "theme": {
+        "ui:mode": "light"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 600,
+      "fill": [
+        "$ui:surface",
+        {
+          "type": "image",
+          "enabled": true,
+          "url": "assets/pattern-hero.png",
+          "mode": "cover"
+        }
+      ],
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 2,
+      "gap": 72,
+      "padding": [
+        0,
+        96
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "frame",
+          "id": "kmOzR",
+          "name": "Copy",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 24,
+          "children": [
+            {
+              "type": "text",
+              "id": "NVHc2",
+              "name": "Eyebrow",
+              "fill": "$ui:text-secondary",
+              "content": "PRIVATE REGIONS",
+              "fontFamily": "$ui:--font-primary",
+              "fontSize": 20,
+              "fontWeight": "500",
+              "letterSpacing": 2.4
+            },
+            {
+              "type": "text",
+              "id": "tIOA4",
+              "name": "Headline",
+              "fill": "$ui:text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Your calls, on your servers.",
+              "lineHeight": 1.06,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 68,
+              "fontWeight": "600",
+              "letterSpacing": -2.2
+            },
+            {
+              "type": "text",
+              "id": "Ou5i4",
+              "name": "Subhead",
+              "fill": "$ui:text-secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Run a region on your own machines. Calls and keys never leave.",
+              "lineHeight": 1.4,
+              "fontFamily": "$ui:--font-secondary",
+              "fontSize": 26,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "E5iij",
+          "name": "Terminal",
+          "clip": true,
+          "width": 720,
+          "fill": "$ui:surface-sunken",
+          "cornerRadius": 16,
+          "stroke": "$ui:border",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "CDbzS",
+              "name": "Title bar",
+              "width": "fill_container",
+              "stroke": "$ui:border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "gap": 10,
+              "padding": [
+                18,
+                24
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "ellipse",
+                  "id": "Y1odbA",
+                  "name": "Dot 1",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "y1rPv6",
+                  "name": "Dot 2",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "ellipse",
+                  "id": "RBTBv",
+                  "name": "Dot 3",
+                  "fill": "$ui:border",
+                  "width": 12,
+                  "height": 12
+                },
+                {
+                  "type": "text",
+                  "id": "J96yhU",
+                  "name": "Path",
+                  "fill": "$ui:text-muted",
+                  "content": "~/fonoster",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "tQmNs",
+              "name": "Lines",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 12,
+              "padding": [
+                28,
+                32,
+                32,
+                32
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "K5rKD",
+                  "name": "Command",
+                  "gap": 14,
+                  "padding": [
+                    0,
+                    0,
+                    6,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "C2oJLk",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mzaRf",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "cp cell.env.example .env",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "MrnAL",
+                  "name": "Command",
+                  "gap": 14,
+                  "padding": [
+                    0,
+                    0,
+                    6,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "B8IfC",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Mgqzu",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "docker compose run --rm region-agent enroll <token>",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "L72sv",
+                  "name": "Command",
+                  "gap": 14,
+                  "padding": [
+                    0,
+                    0,
+                    6,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "uZOXQ",
+                      "name": "Prompt",
+                      "fill": "$ui:text-muted",
+                      "content": "$",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "FnCch",
+                      "name": "Text",
+                      "fill": "$ui:text-primary",
+                      "content": "docker compose up -d",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 20,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ],
   "imports": {
