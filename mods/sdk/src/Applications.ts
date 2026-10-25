@@ -454,8 +454,10 @@ class Applications {
           getExpectedTool: () => string;
           getActualTool: () => string;
           getPassed: () => boolean;
-          getExpectedParameters: () => { toJavaScript: () => Record<string, unknown> } | undefined;
-          getActualParameters: () => { toJavaScript: () => Record<string, unknown> } | undefined;
+          getExpectedParameters: () =>
+            { toJavaScript: () => Record<string, unknown> } | undefined;
+          getActualParameters: () =>
+            { toJavaScript: () => Record<string, unknown> } | undefined;
           getErrorMessage: () => string;
         }>;
       };

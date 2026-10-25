@@ -40,7 +40,8 @@ function getEnumValue(
 ): number {
   // Added to support the edge case of "PRIVATE" being passed as "ID"
   const realValue = value === "ID" ? "PRIVATE" : value;
-  const values = mappingFor(key, enumMapping) as Record<string, number> | undefined;
+  const values = mappingFor(key, enumMapping) as
+    Record<string, number> | undefined;
   return values?.[realValue] ?? 0;
 }
 
