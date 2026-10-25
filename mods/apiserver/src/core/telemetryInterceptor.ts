@@ -29,7 +29,7 @@ export function createTelemetryInterceptor(telemetry: Telemetry) {
     if (!telemetry.enabled) return call;
     const method = methodDefinition.path;
     let span: ReturnType<Telemetry["startSpan"]> | undefined;
-    return new ServerInterceptingCall(call, {
+    const wrapped = new ServerInterceptingCall(call, {
       start: (next) => {
         next({
           onReceiveMetadata: (metadata, mdNext) => {
@@ -56,5 +56,12 @@ export function createTelemetryInterceptor(telemetry: Telemetry) {
         next(s);
       }
     });
+    // The auth interceptor runs next and reads the request metadata from `call.metadata`, which
+    // only the call grpc-js hands the first interceptor has. Without it every request, the
+    // health check included, is refused as unauthenticated while telemetry is on.
+    (wrapped as unknown as { metadata: unknown }).metadata = (
+      call as unknown as { metadata: unknown }
+    ).metadata;
+    return wrapped;
   };
 }
