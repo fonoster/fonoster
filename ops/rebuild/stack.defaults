@@ -20,6 +20,10 @@ RB_APPBRIDGE_PORT=16808
 RB_MINIO_PORT=16900
 RB_MINIO_CONSOLE_PORT=16901
 RB_CALLER_PORT=16080
+# HTTPS for `ops/rebuild/stack tls on` (a self-signed certificate for localhost): Envoy serves
+# https://localhost:RB_HTTPS_PORT and redirects RB_HTTPS_REDIRECT_PORT to it.
+RB_HTTPS_PORT=16443
+RB_HTTPS_REDIRECT_PORT=16081
 RB_FAKES_OAUTH2_PORT=16704
 # RTPEngine (carrier and softphone media) and the Roomr node's RTP range.
 RTPENGINE_PORT_MIN=16100

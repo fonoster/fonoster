@@ -31,9 +31,17 @@ its own port. Routr SHALL verify connect tokens with Identity's public key.
 - **WHEN** a client opens `ws://<host>:<HTTP_PORT>/sip` with subprotocol `sip`
 - **THEN** the WebSocket opens and SIP requests sent on it reach Routr
 
+#### Scenario: Browser connects over HTTPS
+- **WHEN** the dashboard is served over `https://` (`compose.tls.yaml`) and the browser calls the
+  agent over `wss://<domain>/sip`
+- **THEN** Envoy terminates TLS and proxies to Routr's `ws` transport, Routr routes the call by the
+  WSS transport the browser names (its `wss` listening point, not published), and the call
+  connects and hangs up with no Routr error
+
 #### Scenario: Rendered bundle config
 - **WHEN** `fonoster-config init` renders the bundle
-- **THEN** `routr-edgeport.yaml` lists a `ws` transport on 5062, `envoy.yaml` routes `/sip` to it,
+- **THEN** `routr-edgeport.yaml` lists a `ws` transport on 5062 and a `wss` transport on 5063,
+  `envoy.yaml` routes `/sip` to the `ws` one,
   and `fonoster.yaml` sets no `signalingServer`, so browsers get `ws://<HOST_IP>:<HTTP_PORT>/sip`
   from `appUrl` (`wss://<domain>/sip` with `PUBLIC_URL=https://<domain>`)
 

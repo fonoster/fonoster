@@ -1217,6 +1217,11 @@
     "pri": "P1",
     "trials": null
   },
+  "DSH-063": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
   "XFR-001": {
     "tier": "pr",
     "pri": "P0",

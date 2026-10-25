@@ -88,7 +88,8 @@ Run the commands on this page as root.
     ```
 
     Envoy now serves HTTPS on `443` and redirects `80` to it. Port `8449` closes, and browser calls
-    switch to `wss://` on their own.
+    switch to `wss://` on their own. Envoy passes them to Routr, which also listens for them on
+    port `5063` inside the stack. You don't publish or open that port.
 
   </Step>
 

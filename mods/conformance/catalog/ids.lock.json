@@ -314,5 +314,6 @@
   "XFR-014": "Python SDK: keys, play_dtmf, hold and resume reach the phone",
   "XFR-015": "Autopilot's transfer tool leaves the caller with the operator",
   "XFR-016": "Autopilot's hangup tool says goodbye, then hangs up",
-  "XFR-017": "After a failed transfer Autopilot says so and keeps helping"
+  "XFR-017": "After a failed transfer Autopilot says so and keeps helping",
+  "DSH-063": "Talk drawer over HTTPS: SIP over WSS"
 }

@@ -19,8 +19,8 @@ services:
       - ${TLS_CERT:?set TLS_CERT in .env (the certificate chain, PEM)}:/etc/envoy/tls/fullchain.pem:ro
       - ${TLS_KEY:?set TLS_KEY in .env (the private key, PEM)}:/etc/envoy/tls/privkey.pem:ro
     ports: !override
-      - "${HTTPS_BIND:-0.0.0.0}:443:8443"
-      - "${HTTPS_BIND:-0.0.0.0}:80:8080"
+      - "${HTTPS_BIND:-0.0.0.0}:${HTTPS_PORT:-443}:8443"
+      - "${HTTPS_BIND:-0.0.0.0}:${HTTPS_REDIRECT_PORT:-80}:8080"
 
   # SIP over TLS (SIPS) for carriers and softphones, off by default. Routr needs the certificate
   # as a PKCS#12 keystore (config/routr-edgeport.example.yaml has the matching transport), e.g.:
