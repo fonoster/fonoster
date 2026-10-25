@@ -55,7 +55,8 @@ pack_common() {
   (cd "$ROOT/mods/common" && npx tsc -b && cp -a src/protos dist)
   local tgz
   tgz="$(cd "$ROOT/mods/common" && npm pack --silent --pack-destination "$OUT")"
-  mv "$OUT/$tgz" "$OUT/fonoster-common-$VERSION.tgz"
+  # npm already names a scoped package <scope>-<name>-<version>.tgz; rename only if it did not.
+  [ "$tgz" = "fonoster-common-$VERSION.tgz" ] || mv "$OUT/$tgz" "$OUT/fonoster-common-$VERSION.tgz"
 }
 
 mkdir -p "$OUT"
