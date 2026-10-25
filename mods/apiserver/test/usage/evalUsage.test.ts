@@ -93,10 +93,10 @@ describe("@apiserver/usage eval usage", function () {
         }
       },
       registryProvider: {
-        findUnique: async () => ({ credentialRef: "openai-default" })
+        findUnique: async () => ({ credentialRef: "openai" })
       }
     };
-    const keys = createEvalKeys(db, { "openai-default": "platform-key" });
+    const keys = createEvalKeys(db, { openai: "platform-key" });
     let message = "";
     await keys("openai", "WS1").catch((e: Error) => (message = e.message));
     expect(message).to.match(/^key_unavailable/);

@@ -88,7 +88,7 @@ autopilot:
     agents: { source: database }
     registry: { source: database }
     # Workspaces bring their own LLM keys (dashboard). A platform key instead:
-    #   credentials: { openai-default: { value: "secret://k8s/fonoster-vendors#openai" } }
+    #   credentials: { openai: { value: "secret://k8s/fonoster-vendors#openai" } }
     # with fonoster-vendors in autopilot.secretMounts.
     # cellSecrets: null drops the private-cell default (Helm merges maps).
     workspaceSecrets: { source: database, cellSecrets: null }

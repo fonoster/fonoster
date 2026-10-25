@@ -100,7 +100,7 @@ nats:
 # A workspace's own vendor key wins.
 # evaluations:
 #   credentials:
-#     openai-default: ${OPENAI_API_KEY}
+#     openai: ${OPENAI_API_KEY}
 
 # SMS for phone verification (needed when identity.security asks for it).
 # twilio:

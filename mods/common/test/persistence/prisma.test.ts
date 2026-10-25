@@ -44,7 +44,7 @@ function seedCatalog(r: Registry) {
     id: "elevenlabs",
     adapter: "elevenlabs",
     capabilities: ["tts"],
-    credentialRef: "elevenlabs-default"
+    credentialRef: "elevenlabs"
   });
   r.addModel({
     id: "elevenlabs/turbo-v2",
@@ -70,7 +70,7 @@ function seedCatalog(r: Registry) {
     id: "openai",
     adapter: "openai",
     capabilities: ["llm"],
-    credentialRef: "openai-default"
+    credentialRef: "openai"
   });
   r.addModel({
     id: "openai/gpt-4o",
@@ -463,7 +463,7 @@ describe("@common/persistence (Prisma stores)", function () {
             "--capabilities",
             "stt",
             "--credential-ref",
-            "deepgram-default",
+            "deepgram",
             "--store",
             "database"
           )

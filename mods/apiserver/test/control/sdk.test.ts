@@ -185,7 +185,7 @@ describe("@control: SDK end to end (gRPC + database)", function () {
         id: "deepgram",
         adapter: "deepgram",
         capabilities: ["stt"],
-        credentialRef: "deepgram-default"
+        credentialRef: "deepgram"
       }
     });
     await db.prisma.registryModel.create({

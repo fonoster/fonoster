@@ -87,7 +87,7 @@ function catalog(dir: string, options: { deprecate?: boolean } = {}) {
     id: "openai",
     adapter: "openai",
     capabilities: ["llm"],
-    credentialRef: "openai-default"
+    credentialRef: "openai"
   });
   registry.addModel({
     id: "openai/gpt-4o-mini",
@@ -195,7 +195,7 @@ describe("@autopilot/session hosted Autopilot", function () {
       )
     );
     expect(config.port).to.equal(50061);
-    expect(config.credentials["openai-default"]).to.deep.equal({
+    expect(config.credentials["openai"]).to.deep.equal({
       env: "OPENAI_API_KEY"
     });
     expect(path.isAbsolute(config.registry.file)).to.equal(true);
@@ -376,7 +376,7 @@ describe("@autopilot/session language models through the registry", function () 
     });
     const r = await resolver.resolve("openai/gpt-4o-mini", settings, {});
     expect(r.id).to.equal("openai/gpt-4o-mini");
-    expect(asked).to.deep.equal(["openai-default"]);
+    expect(asked).to.deep.equal(["openai"]);
     expect(r.event).to.equal(undefined);
   });
 
@@ -422,18 +422,18 @@ describe("@autopilot/session language models through the registry", function () 
     const credentials = new LayeredCredentials([
       {
         get: (ref, scope) =>
-          scope.workspaceRef === "ws-1" && ref === "openai-default"
+          scope.workspaceRef === "ws-1" && ref === "openai"
             ? "workspace-key"
             : undefined
       },
-      new ConfigCredentials({ "openai-default": { value: "platform-key" } })
+      new ConfigCredentials({ openai: { value: "platform-key" } })
     ]);
-    expect(
-      await credentials.get("openai-default", { workspaceRef: "ws-1" })
-    ).to.equal("workspace-key");
-    expect(
-      await credentials.get("openai-default", { workspaceRef: "ws-2" })
-    ).to.equal("platform-key");
+    expect(await credentials.get("openai", { workspaceRef: "ws-1" })).to.equal(
+      "workspace-key"
+    );
+    expect(await credentials.get("openai", { workspaceRef: "ws-2" })).to.equal(
+      "platform-key"
+    );
   });
 
   it("[APT-014] never uses the platform key when the workspace's key can't be read", async function () {
@@ -453,7 +453,7 @@ describe("@autopilot/session language models through the registry", function () 
     ]);
     let error: unknown;
     await credentials
-      .get("openai-default", { workspaceRef: "ws-1" })
+      .get("openai", { workspaceRef: "ws-1" })
       .catch((e) => (error = e));
     expect(error).to.be.instanceOf(KeyUnavailableError);
     expect((error as KeyUnavailableError).reason).to.equal("key_unavailable");
@@ -478,7 +478,7 @@ describe("@autopilot/session language models through the registry", function () 
     await resolver
       .resolve("openai/gpt-4o-mini", settings, {})
       .catch((e: Error) => (error = e.message));
-    expect(error).to.contain("no credential openai-default");
+    expect(error).to.contain("no credential openai");
     await resolver
       .resolve("acme/brain", settings, {})
       .catch((e: Error) => (error = e.message));
@@ -687,14 +687,14 @@ describe("@autopilot/session agents and keys from the database (CP-B11)", functi
     };
     const secrets = new DatabaseWorkspaceSecrets(
       new Registry.PrismaWorkspaceKeys(prisma),
-      () => [{ id: "openai", credentialRef: "openai-default" }]
+      () => [{ id: "openai", credentialRef: "openai" }]
     );
-    expect(
-      await secrets.get("openai-default", { workspaceRef: "WO1" })
-    ).to.equal("sk-workspace");
-    expect(
-      await secrets.get("openai-default", { workspaceRef: "WO2" })
-    ).to.equal(undefined);
+    expect(await secrets.get("openai", { workspaceRef: "WO1" })).to.equal(
+      "sk-workspace"
+    );
+    expect(await secrets.get("openai", { workspaceRef: "WO2" })).to.equal(
+      undefined
+    );
     expect(await secrets.get("other-ref", { workspaceRef: "WO1" })).to.equal(
       undefined
     );
@@ -759,10 +759,10 @@ describe("@autopilot/session cell secrets (add-private-regions PR-9)", function 
       new CellSecrets.CellSecretKeys(
         CellSecrets.openCellSecrets({ file, key: "pass" })
       ),
-      () => [{ id: "groq", credentialRef: "groq-default" }]
+      () => [{ id: "groq", credentialRef: "groq" }]
     );
-    expect(await credentials.get("groq-default")).to.equal("gq");
-    expect(await credentials.get("openai-default")).to.equal(undefined);
+    expect(await credentials.get("groq")).to.equal("gq");
+    expect(await credentials.get("openai")).to.equal(undefined);
     fs.rmSync(dir, { recursive: true, force: true });
   });
 });

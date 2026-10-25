@@ -5,11 +5,11 @@
 # dashboard (Settings, provider keys).
 entries:
   # ---- providers -------------------------------------------------------------------------
-  - { kind: provider, id: deepgram, label: "Deepgram", adapter: deepgram, capabilities: [stt, tts], credentialRef: deepgram-default, state: active }
-  - { kind: provider, id: elevenlabs, label: "ElevenLabs", adapter: elevenlabs, capabilities: [tts], credentialRef: elevenlabs-default, state: active }
-  - { kind: provider, id: openai, label: "OpenAI", adapter: openai, capabilities: [llm], credentialRef: openai-default, state: active }
-  - { kind: provider, id: groq, label: "Groq", adapter: groq, capabilities: [llm], credentialRef: groq-default, state: active }
-  - { kind: provider, id: aicoustics, label: "ai-coustics", adapter: aicoustics, capabilities: [nc], credentialRef: aicoustics-default, state: active }
+  - { kind: provider, id: deepgram, label: "Deepgram", adapter: deepgram, capabilities: [stt, tts], credentialRef: deepgram, state: active }
+  - { kind: provider, id: elevenlabs, label: "ElevenLabs", adapter: elevenlabs, capabilities: [tts], credentialRef: elevenlabs, state: active }
+  - { kind: provider, id: openai, label: "OpenAI", adapter: openai, capabilities: [llm], credentialRef: openai, state: active }
+  - { kind: provider, id: groq, label: "Groq", adapter: groq, capabilities: [llm], credentialRef: groq, state: active }
+  - { kind: provider, id: aicoustics, label: "ai-coustics", adapter: aicoustics, capabilities: [nc], credentialRef: aicoustics, state: active }
   # ---- models ----------------------------------------------------------------------------
   - { kind: model, id: deepgram/nova-3, label: "Nova 3", type: stt, features: [streaming, interim-results, word-timings, multilingual], languages: [en, es, multi], settings: [], state: active }
   - { kind: model, id: deepgram/nova-2-phonecall, label: "Nova 2 Phone Call", type: stt, features: [streaming, interim-results, word-timings], languages: [en], settings: [], state: active }

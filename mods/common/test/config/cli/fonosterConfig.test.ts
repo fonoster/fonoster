@@ -557,6 +557,26 @@ describe("@common[config/cli] fonoster-config", function () {
         expect(run.out).to.contain(`config/${f}.yaml: valid`);
     });
 
+    it("warns about a platform key named after no language-model provider in the catalog", async function () {
+      const dir = unpack();
+      await init(dir);
+      writeSchemas(dir);
+      const clean = await cli(["check", "--dir", dir]);
+      expect(clean.err).to.not.contain("credentials.");
+      writeFileSync(
+        join(dir, "config/overrides/autopilot.yaml"),
+        'credentials:\n  openai-default:\n    value: "sk-4f1c9a"\n'
+      );
+      await init(dir);
+      writeSchemas(dir);
+      const run = await cli(["check", "--dir", dir]);
+      expect(run.code, run.err).to.equal(0);
+      expect(run.err).to.contain(
+        "warning: config/autopilot.yaml: credentials.openai-default matches no language-model provider"
+      );
+      expect(run.err).to.contain("(the catalog's names: openai, groq)");
+    });
+
     it("validates against the schemas the bundle ships (exportConfigSchemas)", async function () {
       const dir = unpack();
       await init(dir);

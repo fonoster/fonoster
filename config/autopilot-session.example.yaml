@@ -17,7 +17,7 @@ agents: { file: ./agents.json }
 registry: { file: ./registry.json }
 # Platform keys by credentialRef.
 credentials:
-  openai-default: { env: OPENAI_API_KEY }
+  openai: { env: OPENAI_API_KEY }
 # Workspace Secrets (bring your own key): {<workspaceRef>: {<credentialRef>: key}}, or the
 # workspace vendor keys from the dashboard: { source: database } (also `registry: { source: database }`).
 # workspaceSecrets: { file: ./workspace-secrets.json }
@@ -31,4 +31,4 @@ endpoints:
 # knowledge:
 #   s3: { endpoint: http://minio:9000, region: us-east-1, accessKeyIdRef: s3-id, secretAccessKeyRef: s3-secret }
 #   unstructured: { url: http://unstructured:8000/general/v0/general, apiKeyRef: unstructured }
-#   embeddings: { apiKeyRef: openai-default }
+#   embeddings: { apiKeyRef: openai }

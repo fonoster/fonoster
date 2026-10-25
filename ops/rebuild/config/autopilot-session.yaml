@@ -14,5 +14,5 @@ workspaceSecrets: { source: database }
 database: { url: "${APISERVER_DATABASE_URL}" }
 encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }
 credentials:
-  openai-default: { env: OPENAI_API_KEY }
-  groq-default: { env: GROQ_API_KEY }
+  openai: { env: OPENAI_API_KEY }
+  groq: { env: GROQ_API_KEY }
