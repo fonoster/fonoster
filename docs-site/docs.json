@@ -118,62 +118,31 @@
                 "group": "Self-hosting",
                 "icon": "server",
                 "pages": [
-                  {
-                    "group": "Start",
-                    "pages": [
-                      "self-hosting/overview",
-                      "self-hosting/install-compose",
-                      "self-hosting/https",
-                      "self-hosting/carriers-and-phones"
-                    ]
-                  },
-                  {
-                    "group": "Operate",
-                    "pages": [
-                      "self-hosting/provider-catalog",
-                      "self-hosting/call-record-keys",
-                      "self-hosting/turn-taking-and-audio"
-                    ]
-                  },
-                  {
-                    "group": "Integrations",
-                    "pages": [
-                      "self-hosting/send-call-metrics-to-clickhouse",
-                      "self-hosting/send-telemetry"
-                    ]
-                  }
+                  "self-hosting/overview",
+                  "self-hosting/install-compose",
+                  "self-hosting/https",
+                  "self-hosting/carriers-and-phones",
+                  "self-hosting/provider-catalog",
+                  "self-hosting/call-record-keys",
+                  "self-hosting/turn-taking-and-audio",
+                  "self-hosting/send-call-metrics-to-clickhouse",
+                  "self-hosting/send-telemetry"
                 ]
               },
               {
                 "group": "Private regions",
                 "icon": "globe",
                 "pages": [
-                  {
-                    "group": "Private regions",
-                    "pages": [
-                      "private-regions/overview"
-                    ]
-                  },
-                  {
-                    "group": "Control plane",
-                    "pages": [
-                      "private-regions/host-private-regions"
-                    ]
-                  }
+                  "private-regions/overview",
+                  "private-regions/host-private-regions"
                 ]
               },
               {
                 "group": "Hacking Fonoster",
                 "icon": "code",
                 "pages": [
-                  {
-                    "group": "Start",
-                    "pages": [
-                      "hacking/overview",
-                      "hacking/run-from-source",
-                      "hacking/stripe-fake"
-                    ]
-                  }
+                  "hacking/overview",
+                  "hacking/run-from-source"
                 ]
               }
             ]

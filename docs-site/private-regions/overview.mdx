@@ -1,6 +1,35 @@
 ---
-title: "What a private region is"
-description: "Run calls and keep data on your own infrastructure, joined to Fonoster."
+title: "Overview"
+description: "What a private region is, who this section is for, and where to start."
 ---
 
-This page is a placeholder. It will be written with `/ps:docs`. The planned menu is in `docs-site/MENU.md`.
+A private region is a Fonoster region that runs on your own infrastructure. Calls, call records,
+recordings and your provider keys stay on your machines. Your workspaces still use the same
+dashboard, SDK and CLI as on any other region.
+
+This section is for operators who run a private region. To build agents and voice apps, start at
+the [Introduction](/introduction). To install Fonoster on your own servers without joining a
+control plane, see [Self-hosting](/self-hosting/overview).
+
+## How it works
+
+A region has two parts:
+
+- **The region** runs everything that touches a call: the voice path, Autopilot, storage and the
+  provider keys. It runs on your servers with Docker Compose.
+- **The control plane** is the Fonoster API and dashboard that your workspaces sign in to. It is
+  [Fonoster Cloud](https://app.fonoster.ai), or your own self-hosted install.
+
+The region connects out to the control plane with one outbound TLS connection on port `7422`.
+Nothing connects in to your region over it, and call content and provider keys never leave it.
+
+## Where to start
+
+<CardGroup cols={2}>
+  <Card title="Host private regions" icon="globe" href="/private-regions/host-private-regions">
+    Running your own control plane? Add the region hub so workspaces can connect regions.
+  </Card>
+  <Card title="Self-hosting" icon="server" href="/self-hosting/overview">
+    Install a control plane on your own machine first.
+  </Card>
+</CardGroup>
