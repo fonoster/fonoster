@@ -1,0 +1,221 @@
+---
+title: "Serve over HTTPS"
+sidebarTitle: "HTTPS"
+description: "Serve the dashboard and API on your own domains over HTTPS, with a certificate that renews on its own."
+---
+
+Until you give it a certificate, Fonoster serves the dashboard and API over plain HTTP on port
+`8449`, so passwords, API keys and tokens cross the network in clear text. Use this page to serve
+every name you use over HTTPS, and to renew the certificate without touching the machine again.
+
+<img
+  className="block dark:hidden rounded-xl"
+  src="/images/https/renewal-light.png"
+  alt="Two rows. Serving: browsers and SDKs reach Envoy over HTTPS at app.example.com and api.example.com; Envoy holds the certificate and passes requests to the dashboard and API over plain HTTP inside. Renewing, from the certbot timer twice a day: a pre hook stops Envoy to free port 80, certbot renews with Let's Encrypt, and a post hook recreates Envoy, which loads the new certificate. Each renewal takes the dashboard and API offline for about 10 seconds; calls don't go through Envoy."
+/>
+<img
+  className="hidden dark:block rounded-xl"
+  src="/images/https/renewal-dark.png"
+  alt="Two rows. Serving: browsers and SDKs reach Envoy over HTTPS at app.example.com and api.example.com; Envoy holds the certificate and passes requests to the dashboard and API over plain HTTP inside. Renewing, from the certbot timer twice a day: a pre hook stops Envoy to free port 80, certbot renews with Let's Encrypt, and a post hook recreates Envoy, which loads the new certificate. Each renewal takes the dashboard and API offline for about 10 seconds; calls don't go through Envoy."
+/>
+
+Whatever tool you use, it takes three things: one certificate that covers every name, HTTPS turned
+on in `.env`, and Envoy recreated after each renewal so it loads the new files. This page does them
+with [certbot](https://certbot.eff.org/) and Let's Encrypt. To use other tools, see
+[Other ways](#other-ways).
+
+## Before you begin
+
+You need:
+
+- Fonoster installed with Docker Compose. See [Install with Docker Compose](/self-hosting/install-compose).
+- Every name you serve pointing at this machine, for example `app.example.com` for the dashboard and
+  `api.example.com` for the SDKs. One name for both works too.
+- Ports `80` and `443` free on this machine and open in any firewall in front of it.
+
+Run the commands on this page as root.
+
+## Get a certificate
+
+<Steps>
+  <Step title="Install certbot">
+    Install certbot from your distribution. On Ubuntu and Debian:
+
+    ```bash
+    apt-get update && apt-get install -y certbot
+    ```
+
+    The package also installs a timer that runs renewals twice a day.
+
+  </Step>
+
+  <Step title="Get one certificate for every name">
+    Get a certificate with one `-d` per name. The first name also names the folder the files land in:
+
+    ```bash
+    certbot certonly --standalone --agree-tos --email you@example.com \
+      -d app.example.com -d api.example.com
+    ```
+
+    The certificate and key are in `/etc/letsencrypt/live/app.example.com/` as `fullchain.pem` and
+    `privkey.pem`.
+
+  </Step>
+</Steps>
+
+## Turn on HTTPS
+
+<Steps>
+  <Step title="Set the four lines in .env">
+    In your `fonoster` folder, set these lines in `.env`. `PUBLIC_URL` is the address people open
+    the dashboard at:
+
+    ```bash .env
+    COMPOSE_FILE=compose.yaml:compose.tls.yaml
+    PUBLIC_URL=https://app.example.com
+    TLS_CERT=/etc/letsencrypt/live/app.example.com/fullchain.pem
+    TLS_KEY=/etc/letsencrypt/live/app.example.com/privkey.pem
+    ```
+
+  </Step>
+
+  <Step title="Apply it">
+    Write the configuration again and recreate the services:
+
+    ```bash
+    npx -p @fonoster/common fonoster-config init
+    docker compose up -d
+    ```
+
+    Envoy now serves HTTPS on `443` and redirects `80` to it. Port `8449` closes, and browser calls
+    switch to `wss://` on their own.
+
+  </Step>
+
+  <Step title="Check it">
+    Request the dashboard over HTTPS. It answers `200`:
+
+    ```bash
+    curl -sI https://app.example.com | head -1
+    ```
+
+  </Step>
+</Steps>
+
+## Renew automatically
+
+The timer renews the certificate when it has 30 days left. Envoy holds port `80` and reads the
+certificate only when its container is created, so add two hooks: one stops Envoy before a renewal,
+the other recreates it after.
+
+<Steps>
+  <Step title="Add the hooks">
+    Write the two hook scripts. Change `/opt/fonoster` if your `fonoster` folder is elsewhere:
+
+    ```bash
+    cat > /etc/letsencrypt/renewal-hooks/pre/stop-envoy.sh <<'EOF'
+    #!/bin/sh
+    cd /opt/fonoster && docker compose stop envoy
+    EOF
+    cat > /etc/letsencrypt/renewal-hooks/post/start-envoy.sh <<'EOF'
+    #!/bin/sh
+    cd /opt/fonoster && docker compose up -d --force-recreate envoy
+    EOF
+    chmod +x /etc/letsencrypt/renewal-hooks/pre/stop-envoy.sh \
+      /etc/letsencrypt/renewal-hooks/post/start-envoy.sh
+    ```
+
+  </Step>
+
+  <Step title="Try a renewal">
+    Run a renewal against Let's Encrypt's test servers, hooks included:
+
+    ```bash
+    certbot renew --dry-run
+    ```
+
+    It ends with `Congratulations, all simulated renewals succeeded`. certbot reports the hooks'
+    progress lines as "error output". They aren't errors.
+
+  </Step>
+</Steps>
+
+<Note>
+  Each renewal takes the dashboard and API offline for about ten seconds. Calls
+  in progress aren't affected: SIP and call audio don't go through Envoy.
+</Note>
+
+## Other ways
+
+<AccordionGroup>
+  <Accordion title="DNS challenge (no downtime)">
+    certbot can prove you own the names through your DNS provider instead of port `80`, so Envoy
+    keeps running during renewals. Install your provider's certbot plugin, issue the certificate
+    with it instead of `--standalone`, and keep only the post hook.
+  </Accordion>
+
+  <Accordion title="A proxy in front">
+    If a proxy already terminates TLS (Caddy, nginx, Traefik, a cloud load balancer), keep Envoy on
+    plain HTTP on this machine only and let the proxy hold the certificate:
+
+    ```bash .env
+    HTTP_BIND=127.0.0.1
+    PUBLIC_URL=https://app.example.com
+    ```
+
+    Run `init` and `docker compose up -d`, then point the proxy at `127.0.0.1:8449`. It must forward
+    gRPC (HTTP/2) and WebSocket upgrades on `/sip`.
+
+  </Accordion>
+
+  <Accordion title="A certificate from another CA">
+    Point `TLS_CERT` and `TLS_KEY` at your PEM files: the certificate chain and the private key.
+    After you replace them, recreate Envoy with `docker compose up -d --force-recreate envoy`.
+  </Accordion>
+</AccordionGroup>
+
+## SIP over TLS
+
+<Accordion title="Accept SIP over TLS on port 5061">
+  SIP stays on UDP and TCP `5060`. To also accept SIP over TLS on `5061`, convert your certificate
+  into a PKCS#12 keystore for Routr:
+
+```bash
+mkdir -p config/tls
+openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem \
+  -out config/tls/signaling.p12 -passout pass:<password>
+```
+
+Then uncomment the `routr` lines in `compose.tls.yaml` and the `tls` transport in
+`config/routr-edgeport.example.yaml`, set its `keyStorePassword` and `trustStorePassword` to
+`<password>`, and run `init` and `docker compose up -d`. Carriers and softphones then use
+`transport=tls` on port `5061`. Call audio isn't encrypted by this.
+
+The keystore is a copy of the certificate, so rebuild it after each renewal: add the `openssl`
+line and `docker compose up -d --force-recreate routr` to the post hook.
+
+</Accordion>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="init warns that PUBLIC_URL is http://">
+    HTTPS is on, but `PUBLIC_URL` still starts with `http://`. Set it to `https://` and the
+    certificate's name, then run `init` again.
+  </Accordion>
+
+<Accordion title="init warns that TLS_CERT or TLS_KEY is not set or not found">
+  `COMPOSE_FILE` names `compose.tls.yaml`, so Compose needs both files. Check
+  the two paths in `.env` exist on this machine.
+</Accordion>
+
+<Accordion title="init warns that Envoy still serves plain HTTP">
+  `TLS_CERT` and `TLS_KEY` are set, but `COMPOSE_FILE` doesn't name
+  `compose.tls.yaml`. Add the `COMPOSE_FILE` line.
+</Accordion>
+
+  <Accordion title="certbot can't bind to port 80">
+    Something holds port `80`, usually Envoy. Add the hooks above, or stop Envoy before you issue
+    the first certificate.
+  </Accordion>
+</AccordionGroup>

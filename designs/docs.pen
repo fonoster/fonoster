@@ -50847,6 +50847,732 @@
           ]
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "R9dgNx",
+      "x": 0,
+      "y": 15345,
+      "name": "Docs / HTTPS / Renewal / Dark",
+      "theme": {
+        "ui:mode": "dark"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 900,
+      "fill": "$ui:surface-raised",
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 1,
+      "layout": "none",
+      "children": [
+        {
+          "type": "text",
+          "id": "uJyvP",
+          "x": 48,
+          "y": 36,
+          "name": "Title",
+          "fill": "$ui:text-primary",
+          "content": "Serve over HTTPS",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 30,
+          "fontWeight": "600"
+        },
+        {
+          "type": "text",
+          "id": "GCCGz",
+          "x": 48,
+          "y": 80,
+          "name": "Subtitle",
+          "fill": "$ui:text-secondary",
+          "content": "Envoy holds one certificate for every name. certbot renews it, and two hooks reload Envoy.",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 17,
+          "fontWeight": "normal"
+        },
+        {
+          "id": "KPrEi",
+          "type": "ref",
+          "ref": "np3qG",
+          "name": "Serving",
+          "x": 40,
+          "y": 136,
+          "width": 1520,
+          "height": 300,
+          "fill": "$ui:surface-raised",
+          "descendants": {
+            "djCne": {
+              "content": "SERVING"
+            }
+          }
+        },
+        {
+          "id": "I1ZRDP",
+          "type": "ref",
+          "ref": "np3qG",
+          "name": "Renewing",
+          "x": 40,
+          "y": 476,
+          "width": 1520,
+          "height": 356,
+          "fill": "$ui:surface-raised",
+          "descendants": {
+            "djCne": {
+              "content": "RENEWING · CERTBOT TIMER, TWICE A DAY"
+            }
+          }
+        },
+        {
+          "id": "Mfbm4",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Browser / SDK",
+          "x": 80,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "globe"
+            },
+            "ezwBW": {
+              "content": "Browser / SDK"
+            },
+            "wOD17": {
+              "content": "you and your code"
+            }
+          }
+        },
+        {
+          "id": "nsQQ6",
+          "type": "ref",
+          "ref": "pifOQ",
+          "name": "Envoy",
+          "x": 980,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "RcIXt": {
+              "icon": "lock"
+            },
+            "Z1grMG": {
+              "content": "Envoy"
+            },
+            "RXa3g": {
+              "content": "holds the certificate"
+            }
+          }
+        },
+        {
+          "id": "dD6ff",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Dashboard · API",
+          "x": 1280,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "monitor"
+            },
+            "ezwBW": {
+              "content": "Dashboard · API"
+            },
+            "wOD17": {
+              "content": "plain HTTP inside"
+            }
+          }
+        },
+        {
+          "type": "rectangle",
+          "id": "g4Ak69",
+          "x": 330,
+          "y": 285,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 640,
+          "height": 2
+        },
+        {
+          "id": "BX0K5",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 970,
+          "y": 280
+        },
+        {
+          "type": "rectangle",
+          "id": "QZwHJ",
+          "x": 1230,
+          "y": 285,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "r7efl",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 1270,
+          "y": 280
+        },
+        {
+          "id": "B4yys",
+          "type": "ref",
+          "ref": "V8p0b",
+          "name": "Pill names",
+          "x": 470,
+          "y": 272,
+          "descendants": {
+            "r2EmG9": {
+              "content": "HTTPS · app.example.com, api.example.com"
+            }
+          }
+        },
+        {
+          "id": "oGI98",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "certbot timer",
+          "x": 80,
+          "y": 650,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "timer"
+            },
+            "ezwBW": {
+              "content": "certbot timer"
+            },
+            "wOD17": {
+              "content": "renews at 30 days left"
+            }
+          }
+        },
+        {
+          "id": "kW5hq",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Pre hook",
+          "x": 380,
+          "y": 650,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "pause"
+            },
+            "ezwBW": {
+              "content": "Pre hook"
+            },
+            "wOD17": {
+              "content": "stops Envoy (port 80)"
+            }
+          }
+        },
+        {
+          "id": "d4pZuv",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "certbot renews",
+          "x": 680,
+          "y": 650,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "refresh-cw"
+            },
+            "ezwBW": {
+              "content": "certbot renews"
+            },
+            "wOD17": {
+              "content": "Let's Encrypt, port 80"
+            }
+          }
+        },
+        {
+          "id": "Cvpfy",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Post hook",
+          "x": 980,
+          "y": 650,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "play"
+            },
+            "ezwBW": {
+              "content": "Post hook"
+            },
+            "wOD17": {
+              "content": "recreates Envoy"
+            }
+          }
+        },
+        {
+          "type": "rectangle",
+          "id": "j5bWI",
+          "x": 330,
+          "y": 687,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "zIlAe",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 370,
+          "y": 682
+        },
+        {
+          "type": "rectangle",
+          "id": "L6Vym",
+          "x": 630,
+          "y": 687,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "PWW3D",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 670,
+          "y": 682
+        },
+        {
+          "type": "rectangle",
+          "id": "ATerT",
+          "x": 930,
+          "y": 687,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "tdnSi",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 970,
+          "y": 682
+        },
+        {
+          "type": "rectangle",
+          "id": "uXp28",
+          "x": 1104,
+          "y": 334,
+          "name": "Edge up",
+          "fill": "$ui:accent",
+          "width": 2,
+          "height": 316
+        },
+        {
+          "id": "eZW9T",
+          "type": "ref",
+          "ref": "AdWAH",
+          "name": "Arrow up",
+          "x": 1110,
+          "y": 334,
+          "rotation": 180
+        },
+        {
+          "id": "aXNwS",
+          "type": "ref",
+          "ref": "V8p0b",
+          "name": "Pill loads",
+          "x": 1120,
+          "y": 520,
+          "descendants": {
+            "r2EmG9": {
+              "content": "loads the new certificate"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "id": "VyEFx",
+          "x": 80,
+          "y": 790,
+          "name": "Note",
+          "fill": "$ui:text-secondary",
+          "content": "Each renewal takes the dashboard and API offline for about 10 seconds. Calls don't go through Envoy.",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 15,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "H4G1ug",
+      "x": 1700,
+      "y": 15345,
+      "name": "Docs / HTTPS / Renewal / Light",
+      "theme": {
+        "ui:mode": "light"
+      },
+      "clip": true,
+      "width": 1600,
+      "height": 900,
+      "fill": "$ui:surface-raised",
+      "cornerRadius": 24,
+      "stroke": "$ui:border",
+      "strokeWidth": 1,
+      "layout": "none",
+      "children": [
+        {
+          "type": "text",
+          "id": "CaWNv",
+          "x": 48,
+          "y": 36,
+          "name": "Title",
+          "fill": "$ui:text-primary",
+          "content": "Serve over HTTPS",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 30,
+          "fontWeight": "600"
+        },
+        {
+          "type": "text",
+          "id": "gj3Am",
+          "x": 48,
+          "y": 80,
+          "name": "Subtitle",
+          "fill": "$ui:text-secondary",
+          "content": "Envoy holds one certificate for every name. certbot renews it, and two hooks reload Envoy.",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 17,
+          "fontWeight": "normal"
+        },
+        {
+          "id": "uHRiF",
+          "type": "ref",
+          "ref": "np3qG",
+          "name": "Serving",
+          "x": 40,
+          "y": 136,
+          "width": 1520,
+          "height": 300,
+          "fill": "$ui:surface-raised",
+          "descendants": {
+            "djCne": {
+              "content": "SERVING"
+            }
+          }
+        },
+        {
+          "id": "Lm43Z",
+          "type": "ref",
+          "ref": "np3qG",
+          "name": "Renewing",
+          "x": 40,
+          "y": 476,
+          "width": 1520,
+          "height": 356,
+          "fill": "$ui:surface-raised",
+          "descendants": {
+            "djCne": {
+              "content": "RENEWING · CERTBOT TIMER, TWICE A DAY"
+            }
+          }
+        },
+        {
+          "id": "jya3V",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Browser / SDK",
+          "x": 80,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "globe"
+            },
+            "ezwBW": {
+              "content": "Browser / SDK"
+            },
+            "wOD17": {
+              "content": "you and your code"
+            }
+          }
+        },
+        {
+          "id": "YUqu2",
+          "type": "ref",
+          "ref": "pifOQ",
+          "name": "Envoy",
+          "x": 980,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "RcIXt": {
+              "icon": "lock"
+            },
+            "Z1grMG": {
+              "content": "Envoy"
+            },
+            "RXa3g": {
+              "content": "holds the certificate"
+            }
+          }
+        },
+        {
+          "id": "Cc8Kl",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Dashboard · API",
+          "x": 1280,
+          "y": 248,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "monitor"
+            },
+            "ezwBW": {
+              "content": "Dashboard · API"
+            },
+            "wOD17": {
+              "content": "plain HTTP inside"
+            }
+          }
+        },
+        {
+          "type": "rectangle",
+          "id": "q8mjn",
+          "x": 330,
+          "y": 285,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 640,
+          "height": 2
+        },
+        {
+          "id": "ZQp9q",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 970,
+          "y": 280
+        },
+        {
+          "type": "rectangle",
+          "id": "fq0HR",
+          "x": 1230,
+          "y": 285,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "OYyWV",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 1270,
+          "y": 280
+        },
+        {
+          "id": "p96jS6",
+          "type": "ref",
+          "ref": "V8p0b",
+          "name": "Pill names",
+          "x": 470,
+          "y": 272,
+          "descendants": {
+            "r2EmG9": {
+              "content": "HTTPS · app.example.com, api.example.com"
+            }
+          }
+        },
+        {
+          "id": "ksC2A",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "certbot timer",
+          "x": 80,
+          "y": 650,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "timer"
+            },
+            "ezwBW": {
+              "content": "certbot timer"
+            },
+            "wOD17": {
+              "content": "renews at 30 days left"
+            }
+          }
+        },
+        {
+          "id": "CMx1N",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Pre hook",
+          "x": 380,
+          "y": 650,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "pause"
+            },
+            "ezwBW": {
+              "content": "Pre hook"
+            },
+            "wOD17": {
+              "content": "stops Envoy (port 80)"
+            }
+          }
+        },
+        {
+          "id": "I5WUKC",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "certbot renews",
+          "x": 680,
+          "y": 650,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "refresh-cw"
+            },
+            "ezwBW": {
+              "content": "certbot renews"
+            },
+            "wOD17": {
+              "content": "Let's Encrypt, port 80"
+            }
+          }
+        },
+        {
+          "id": "BnjpW",
+          "type": "ref",
+          "ref": "sEKX6",
+          "name": "Post hook",
+          "x": 980,
+          "y": 650,
+          "width": 250,
+          "descendants": {
+            "a5CMZ": {
+              "icon": "play"
+            },
+            "ezwBW": {
+              "content": "Post hook"
+            },
+            "wOD17": {
+              "content": "recreates Envoy"
+            }
+          }
+        },
+        {
+          "type": "rectangle",
+          "id": "eBDI9",
+          "x": 330,
+          "y": 687,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "nc50b",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 370,
+          "y": 682
+        },
+        {
+          "type": "rectangle",
+          "id": "FZb4z",
+          "x": 630,
+          "y": 687,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "vEA9j",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 670,
+          "y": 682
+        },
+        {
+          "type": "rectangle",
+          "id": "YCVoO",
+          "x": 930,
+          "y": 687,
+          "name": "Edge",
+          "fill": "$ui:accent",
+          "width": 40,
+          "height": 2
+        },
+        {
+          "id": "VBXar",
+          "type": "ref",
+          "ref": "oSkeo",
+          "name": "Arrow",
+          "x": 970,
+          "y": 682
+        },
+        {
+          "type": "rectangle",
+          "id": "F5GROC",
+          "x": 1104,
+          "y": 334,
+          "name": "Edge up",
+          "fill": "$ui:accent",
+          "width": 2,
+          "height": 316
+        },
+        {
+          "id": "ZPmjP",
+          "type": "ref",
+          "ref": "AdWAH",
+          "name": "Arrow up",
+          "x": 1110,
+          "y": 334,
+          "rotation": 180
+        },
+        {
+          "id": "k9pTzC",
+          "type": "ref",
+          "ref": "V8p0b",
+          "name": "Pill loads",
+          "x": 1120,
+          "y": 520,
+          "descendants": {
+            "r2EmG9": {
+              "content": "loads the new certificate"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "id": "DxTF8",
+          "x": 80,
+          "y": 790,
+          "name": "Note",
+          "fill": "$ui:text-secondary",
+          "content": "Each renewal takes the dashboard and API offline for about 10 seconds. Calls don't go through Envoy.",
+          "fontFamily": "$ui:--font-secondary",
+          "fontSize": 15,
+          "fontWeight": "normal"
+        }
+      ]
     }
   ],
   "imports": {
