@@ -73,8 +73,15 @@ Envoy sends HSTS only when the owner's certificate is in use (`init` renders tha
   `FONOSTER_CA_FILE` when no flag is given. Certificate errors suggest `--ca-file`.
 - Region agent: `--ca-file`, plus `FONOSTER_CA_FILE`. It applies to the control plane URL. The hub's
   `tls://` leaf connection keeps its own certificates.
-- `--insecure` / `allowInsecure` / `--allow-insecure` keep meaning plain HTTP and are never
-  suggested for the generated certificate.
+- MCP server: the same SDK option, from `FONOSTER_CA_FILE`.
+- Removed, owner decision 2026-10-25: the CLI's `--insecure` (rejected as an unknown flag with a hint
+  to `--ca-file`) and the MCP server's `MCP_ALLOW_INSECURE`. User-facing tools always use TLS.
+- Kept, for private networks only: the SDK's `allowInsecure` and the region agent's `--allow-insecure`
+  (service to service, in-process tests, `ops/rebuild/e2e.cjs`, the Helm chart's in-cluster region
+  agent). Their docs say so, and no error message suggests them. Removing them too was considered and
+  rejected: it would need TLS on every internal port or a test-only bypass.
+- Webhook delivery to `http://` URLs (`allowInsecureUrls`) and the dev stack's plain NATS leaf
+  (`allowInsecureLeaf`) are not client connections to the API and stay as they are.
 
 ### 7. Services that call the public address
 Audit, then give any service that calls the install's own `https://` address (rather than an
@@ -104,7 +111,8 @@ examples and tests trust it with no flags. Playwright keeps `ignoreHTTPSErrors` 
 1. Spike (Chrome/Safari mic + WSS past the warning; grpc-js trust; library choice).
 2. Certificate generation in `init` (+ `info`/`check`) behind the current overlay, so nothing changes
    for existing installs yet.
-3. Clients' CA option (SDK, CLI, region agent) and `FONOSTER_CA_FILE`.
+3. Clients' CA option (SDK, CLI, MCP, region agent) and `FONOSTER_CA_FILE`; remove the CLI's
+   `--insecure` and `MCP_ALLOW_INSECURE`.
 4. Flip the default (Decision 3), upgrade rules (Decision 5), HSTS rule (Decision 4).
 5. Dev container on `https://localhost`.
 6. Docs and conformance.

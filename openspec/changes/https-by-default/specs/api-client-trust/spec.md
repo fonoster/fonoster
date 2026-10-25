@@ -52,12 +52,33 @@ variable.
 - **WHEN** both `FONOSTER_CA_FILE` and `--ca-file` are set to different files
 - **THEN** the command uses the `--ca-file` one
 
-### Requirement: Plain HTTP stays an explicit choice
+### Requirement: User-facing tools always use TLS
 
-`--insecure` (CLI), `allowInsecure` (SDK) and `--allow-insecure` (region agent) SHALL keep meaning
-"connect without TLS" to a server that really serves plain HTTP. They MUST NOT be needed, or
-suggested, to reach an install that uses the generated certificate.
+The `fonoster` CLI and the MCP server SHALL connect to an API endpoint over TLS only: `--insecure`
+(CLI) and `MCP_ALLOW_INSECURE` (MCP server) are removed, and the docs MUST NOT tell users to connect
+without TLS.
 
-#### Scenario: Plain HTTP server
-- **WHEN** an install has HTTPS turned off and a client connects with `--insecure`
-- **THEN** the connection uses plain HTTP and succeeds
+#### Scenario: Removed flag
+- **WHEN** someone runs `fonoster workspaces login --insecure ...`
+- **THEN** the command fails as an unknown flag and suggests `--ca-file`
+
+#### Scenario: Plain HTTP endpoint
+- **WHEN** the CLI is pointed at an endpoint that only serves plain HTTP
+- **THEN** the connection fails with a TLS error; there is no setting to allow it
+
+### Requirement: Plain connections only inside a private network
+
+The SDK's `allowInsecure` option and the region agent's `--allow-insecure` flag SHALL remain, for
+plain connections inside a private network only (service to service, in-process tests, a region
+agent reaching the API server's internal service in the same cluster). Their documentation MUST say
+so, and no user-facing error or doc MUST suggest them to reach an install that uses the generated
+certificate.
+
+#### Scenario: In-cluster region agent
+- **WHEN** the Helm chart runs a region agent that enrolls against the control plane's internal
+  service in the same cluster with `--allow-insecure`
+- **THEN** it connects without TLS, as today
+
+#### Scenario: Certificate error hint
+- **WHEN** a client fails to verify the generated certificate
+- **THEN** the error suggests `--ca-file` (or the SDK `caFile` option), never an insecure option

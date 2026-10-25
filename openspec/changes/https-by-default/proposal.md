@@ -26,8 +26,12 @@ certificate before going live.
 - `init`, `check` and `info` say when the generated certificate is in use, that it is for getting
   started, and where `ca.pem` is.
 - API clients trust the generated CA explicitly: the SDK takes a CA file, the `fonoster` CLI and the
-  `fonoster-region` agent take `--ca-file`, and all three read one environment variable. `--insecure`
-  stays for servers that really run plain HTTP.
+  `fonoster-region` agent take `--ca-file`, and all of them read one environment variable.
+- **BREAKING**: user-facing tools always use TLS. The CLI's `--insecure` and the MCP server's
+  `MCP_ALLOW_INSECURE` are removed. The SDK's `allowInsecure` and the region agent's
+  `--allow-insecure` stay, documented for private-network use only (service to service, in-process
+  tests, a region agent inside the cluster). Webhook delivery to `http://` URLs and the dev stack's
+  NATS leaf are unrelated and unchanged.
 - Services that call the install's own public `https://` address get the CA.
 - The dev container runs the same way, on `https://localhost`.
 - The docs (install guide, HTTPS page) say the generated certificate is for getting started, show
@@ -37,8 +41,9 @@ certificate before going live.
 ## Capabilities
 
 ### New Capabilities
-- `api-client-trust`: how the SDK, the `fonoster` CLI and the region agent trust a server's
-  certificate authority (CA file option, environment variable, plain-HTTP opt-out).
+- `api-client-trust`: how the SDK, the `fonoster` CLI, the MCP server and the region agent trust a
+  server's certificate authority (CA file option, environment variable), and where plain connections
+  are still allowed (private networks only).
 
 ### Modified Capabilities
 - `self-host-installer`: `init` generates the local CA and server certificate, HTTPS is the default
@@ -56,7 +61,7 @@ certificate before going live.
   `config/fonoster.example.yaml`.
 - `ops/rebuild`: the dev stack and `stack tls on|off`, the dev container's config generation.
 - `mods/sdk/src/client/Client.ts`, `mods/ctl` (login and authenticated commands),
-  `mods/region-agent/src/cli.ts`.
+  `mods/region-agent/src/cli.ts`, `mods/mcp`.
 - Conformance: bundle tests (HTTPS default), dashboard e2e (already runs over HTTPS for DSH-063),
   SDK/CLI tests for the CA option.
 - Docs: `docs-site/self-hosting/install-compose.mdx`, `docs-site/self-hosting/https.mdx`, the
