@@ -187,7 +187,7 @@ appbridge:
 roomr:
   enabled: true
   # Released from fonoster/roomr; the same pin as ops/bundle/compose.yaml.
-  image: { repository: fonoster/roomr, tag: "0.2.6@sha256:a3f1371ad1fb395c82d6cf2b3623632a61f8a5e29725abf878220b0f020786ff", pullPolicy: IfNotPresent }
+  image: { repository: fonoster/roomr, tag: "0.2.7@sha256:4bd9d5b8f480488322229e06aaaa9a9789a25fca38fe1dc48f81d1a1d8f897db", pullPolicy: IfNotPresent }
   # Each pod is one node; its id is the pod name.
   replicas: 2
   # Rollouts drain: on SIGTERM the node fails its gRPC readiness probe, unregisters, publishes

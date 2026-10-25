@@ -71,7 +71,7 @@ services:
       retries: 10
 
   routr:
-    image: fonoster/routr-one:2.19.0
+    image: fonoster/routr-one:2.24.0
     restart: unless-stopped
     depends_on:
       postgres: { condition: service_healthy }
@@ -111,7 +111,7 @@ services:
 
   # Roomr is released from fonoster/roomr: the bundle's pinned image, not built here.
   roomr:
-    image: fonoster/roomr:0.2.6@sha256:a3f1371ad1fb395c82d6cf2b3623632a61f8a5e29725abf878220b0f020786ff
+    image: fonoster/roomr:0.2.7@sha256:4bd9d5b8f480488322229e06aaaa9a9789a25fca38fe1dc48f81d1a1d8f897db
     restart: unless-stopped
     stop_grace_period: ${RB_DRAIN_GRACE:-11m}
     depends_on:
