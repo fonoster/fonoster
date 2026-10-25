@@ -45,7 +45,7 @@
   },
   "devDependencies": {
     "@fonoster/conformance": "^0.32.0",
-    "@routr/common": "^2.19.0"
+    "@routr/common": "^2.24.0"
   },
   "files": [
     "dist"
