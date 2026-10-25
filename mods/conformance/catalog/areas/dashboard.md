@@ -822,3 +822,16 @@ The catalog no longer has the provider's label, so the select shows its id, as t
 The stack serves the dashboard over HTTPS with its generated certificate, as every install does by default, so DSH-015 also runs over `wss://`; DSH-063 asserts the scheme and the WSS socket. Every production install with a certificate serves the dashboard over HTTPS, where the browser speaks `wss://` to Envoy's `/sip`. Envoy terminates TLS and proxies to Routr's `ws` port, but Routr picks a listening point by the transport the browser names, so without a `wss` one it refused every browser call (found on app.fonoster.ai, 2026-10-24). `ops/rebuild/stack reconfigure` renders the configs again and recreates Routr, so a Routr config fault is what the browser meets.
 
 **Pass.** On an `https://` dashboard, Talk to agent, Call: the browser opens a `wss://…/sip` WebSocket, the drawer shows Connected, Hang up shows Call ended with Call again, and Routr logs no error. **Fail.** No connection, an `ws://` socket from an `https://` page, a stuck state, or `no listening point found for transport WSS`.
+
+### DSH-064 Talk drawer on the owner's certificate: HSTS and WSS
+
+- **Spec:** talk-in-browser / SIP over WebSocket on the API port / Browser connects over HTTPS with the owner's certificate
+- **Priority:** P0
+- **Tier:** nightly
+- **Proof:** Never send HSTS (`HSTS: ""` for Envoy in `ops/bundle/compose.yaml`); the dashboard on the owner's certificate then comes without `strict-transport-security` and the test must go red.
+- **Fault:** faults/DSH-064.patch
+- **Test:** mods/dashboard/e2e/talk-owner-cert.real.spec.ts (the `real` project with `ops/rebuild/stack owner-cert on`: TLS_CERT and TLS_KEY from a separate test CA; prove.sh turns it on around the case and back to the generated certificate after)
+
+An install that went live sets `TLS_CERT` and `TLS_KEY` to a real certificate (Let's Encrypt or another CA). Envoy then sends HSTS, which it must never send with the generated certificate (a browser that saw it would refuse the click-through), and browser calls still go over WSS. `ops/rebuild/stack owner-cert on` issues a certificate from a test CA of its own, so the stack takes that path; `off` returns to the generated certificate.
+
+**Pass.** On `https://` with the owner's certificate: the page carries `strict-transport-security: max-age=…`, Talk to agent, Call: a `wss://…/sip` WebSocket opens, the drawer shows Connected, Hang up shows Call ended. **Fail.** No HSTS header, no connection, a stuck state, or no `wss://` socket.

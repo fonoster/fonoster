@@ -18,6 +18,16 @@ export FONOSTER_CA_FILE="$ca" NODE_EXTRA_CA_CERTS="$ca"
 # stack's own dashboard after `ops/rebuild/stack reconfigure` renders the configs again, so the
 # fault is what the browser meets. The area's reset: renders them again once it is reverted.
 CONFIG_CASES="DSH-063"
+# The real cases that need the stack on a certificate of the owner's (`ops/rebuild/stack owner-cert
+# on`): Envoy sends HSTS. The stack goes back to its generated certificate afterward, always.
+OWNER_CERT_CASES="DSH-064"
+owner_cert_run() {
+  ../../ops/rebuild/stack owner-cert on >&2 || { ../../ops/rebuild/stack owner-cert off >&2; return 1; }
+  E2E_REAL_OWNER_CERT=1 node e2e/real-env.cjs --grep "$1" --reporter=junit
+  rc=$?
+  ../../ops/rebuild/stack owner-cert off >&2 || rc=1
+  return $rc
+}
 # The whole area (run.cjs, QA_RUN=1): the mocked projects, then the real project when the stack is
 # up and seeded, then the Billing page when its profile is on (QA_BILLING=1), each against the
 # stack's own dashboard.
@@ -26,7 +36,11 @@ if [ "${QA_RUN:-}" = 1 ]; then
   npx playwright test --grep "\[$id\]" --reporter=junit || status=1
   if [ -f ../../ops/rebuild/.local/seed.json ]; then
     PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/real.xml" \
-      node e2e/real-env.cjs --grep "\[$id\]" --reporter=junit || status=1
+      node e2e/real-env.cjs --grep "\[$id\]" \
+      --grep-invert "\[($(echo "$OWNER_CERT_CASES" | tr ' ' '|'))\]" --reporter=junit || status=1
+    if grep -q "\[$id" e2e/talk-owner-cert.real.spec.ts; then
+      PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/real-owner-cert.xml" owner_cert_run "\[$id" || status=1
+    fi
   fi
   if [ "${QA_BILLING:-}" = 1 ]; then
     # The calls above used Trial credits: the Billing page case starts from a fresh account.
@@ -40,6 +54,12 @@ if [ "${QA_RUN:-}" = 1 ]; then
   fi
   exit $status
 fi
+case " $OWNER_CERT_CASES " in
+  *" $id "*)
+    owner_cert_run "\[$id\]"
+    exit $?
+    ;;
+esac
 case " $CONFIG_CASES " in
   *" $id "*)
     ../../ops/rebuild/stack reconfigure >&2 || exit 1

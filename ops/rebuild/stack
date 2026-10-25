@@ -19,6 +19,10 @@
 #                               render the configs again from ops/bundle and recreate what they
 #                               change (Envoy, the apiserver, the dashboard, Routr, Roomr): a QA
 #                               fault in a bundle config reaches the running stack this way
+#   ops/rebuild/stack owner-cert on|off
+#                               serve a certificate of the owner's instead of the generated one
+#                               (TLS_CERT/TLS_KEY, issued by a separate test CA: Envoy then sends
+#                               HSTS, DSH-064), or back to the generated certificate
 #   ops/rebuild/stack call      place one test call with the caller bot (stack must be up)
 #   ops/rebuild/stack ask       call, say a recorded question, report the turn latency
 #                               (RB_QUESTION=<16 kHz WAV>, RB_TURNS, RB_TRANSCRIBE=1 transcribes)
@@ -52,6 +56,9 @@ SERVICES_ENV="$LOCAL/services.env"
 # code): every harness client trusts its CA through FONOSTER_CA_FILE (SDK, CLI) and
 # NODE_EXTRA_CA_CERTS (Node's fetch and https); the browser projects ignore certificate errors.
 CA_FILE="$CONF/tls/ca.pem"
+# Present while `stack owner-cert on` is in effect: TLS_CERT/TLS_KEY naming a certificate from a
+# separate test CA (.local/owner-tls/), as an owner's real certificate would be.
+OWNER_TLS_ENV="$LOCAL/owner-tls.env"
 OVERLAY="$LOCAL/overlay"
 CONFIG_CLI_DIR="$ROOT/mods/common/dist/config/cli"
 
@@ -87,7 +94,8 @@ compose() {
   [ -f "$HOST_ENV" ] && args+=(--env-file "$HOST_ENV")
   [ -f "$BUNDLE_ENV" ] && args+=(--env-file "$BUNDLE_ENV")
   # HTTPS, as the bundle serves it by default (no compose.http.yaml): the harness takes the path
-  # every install takes.
+  # every install takes. With `owner-cert on`, the owner's certificate instead of the generated one.
+  [ -f "$OWNER_TLS_ENV" ] && args+=(--env-file "$OWNER_TLS_ENV")
   COMPOSE_PROFILES="$(profiles)" docker compose "${args[@]}" "$@"
 }
 
@@ -362,7 +370,7 @@ wait_for() {
 # Verified against the generated CA, so a broken certificate fails here.
 api_ready() {
   local code
-  code="$(curl -s --cacert "$CA_FILE" -o /dev/null -w '%{http_code}' "https://localhost:$RB_API_PORT/api/records")"
+  code="$(curl -s --cacert "${READY_CA:-$CA_FILE}" -o /dev/null -w '%{http_code}' "https://localhost:$RB_API_PORT/api/records")"
   [ "$code" != "000" ] && [ "$code" != "503" ] && [ "$code" != "502" ]
 }
 
@@ -585,7 +593,9 @@ billing_ready() { [ "$(psql_fonoster "select count(*) from billing._prisma_migra
 # Renders the configs again from ops/bundle and recreates what they change (so a Routr config
 # change, or a QA fault in it, is what the browser meets). Roomr registers with Routr, which keeps
 # registrations in memory: it is recreated after Routr and waited for.
-cmd_reconfigure() {
+cmd_reconfigure() { cmd_reconfigure_with "$CA_FILE"; }
+
+cmd_reconfigure_with() {
   local since
   render_configs
   since="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -593,11 +603,48 @@ cmd_reconfigure() {
   compose up -d --force-recreate roomr
   wait_for "Roomr's registration" 60 roomr_registered "$since" \
     || die "Roomr did not register with Routr"
-  wait_for "the apiserver" 90 api_ready || die "the apiserver did not come back"
+  READY_CA="$1" wait_for "the apiserver" 90 api_ready || die "the apiserver did not come back"
 }
 
 roomr_registered() {
   compose logs --since "$1" roomr 2>/dev/null | grep -q '"state":"registered"'
+}
+
+# The owner's certificate (TLS_CERT and TLS_KEY), from a test CA of its own, so the stack takes the
+# path of an install with a real certificate (Envoy sends HSTS); `off` returns to the generated one.
+# Clients that verify trust .local/owner-tls/ca.pem meanwhile; the browser projects ignore errors.
+cmd_owner_cert() {
+  load_env
+  local dir="$LOCAL/owner-tls"
+  case "${1:-}" in
+    on)
+      mkdir -p "$dir"
+      if [ ! -f "$dir/server.pem" ]; then
+        HOST_IP="$RB_HOST_IP" node -e '
+          const fs = require("fs");
+          const { issueCertificates, certificateNames } = require(process.argv[1]);
+          const { ca, server } = issueCertificates(certificateNames(process.env));
+          const out = process.argv[2];
+          fs.writeFileSync(`${out}/ca.pem`, ca.cert);
+          fs.writeFileSync(`${out}/server.pem`, server.cert);
+          fs.writeFileSync(`${out}/server-key.pem`, server.key, { mode: 0o600 });
+        ' "$CONFIG_CLI_DIR/tls.js" "$dir" || die "could not issue the owner certificate"
+      fi
+      {
+        echo "# Rendered by ops/rebuild/stack owner-cert on."
+        echo "TLS_CERT=$dir/server.pem"
+        echo "TLS_KEY=$dir/server-key.pem"
+      } > "$OWNER_TLS_ENV"
+      cmd_reconfigure_with "$dir/ca.pem"
+      log "owner certificate on: https://localhost:$RB_API_PORT (trust $dir/ca.pem; HSTS on)"
+      ;;
+    off)
+      rm -f "$OWNER_TLS_ENV"
+      cmd_reconfigure
+      log "generated certificate on: https://localhost:$RB_API_PORT"
+      ;;
+    *) die "usage: ops/rebuild/stack owner-cert on|off" ;;
+  esac
 }
 
 cmd_down() { [ -f "$STACK_ENV" ] && compose down --remove-orphans; }
@@ -609,8 +656,10 @@ cmd_reset() {
 }
 
 case "${1:-}" in
-  up) cmd_up ;;
-  reconfigure) cmd_reconfigure ;;
+  # `up` serves the generated certificate (an `owner-cert on` left over is dropped).
+  up) rm -f "$OWNER_TLS_ENV"; cmd_up ;;
+  reconfigure) [ -f "$OWNER_TLS_ENV" ] && cmd_reconfigure_with "$LOCAL/owner-tls/ca.pem" || cmd_reconfigure ;;
+  owner-cert) shift; cmd_owner_cert "$@" ;;
   seed) cmd_seed ;;
   info) cmd_info ;;
   call)

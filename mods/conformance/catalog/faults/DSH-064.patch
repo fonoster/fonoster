@@ -1,0 +1,13 @@
+diff --git a/ops/bundle/compose.yaml b/ops/bundle/compose.yaml
+index ec89d66c8..a2bd88254 100644
+--- a/ops/bundle/compose.yaml
++++ b/ops/bundle/compose.yaml
+@@ -302,7 +302,7 @@ services:
+       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+       # HSTS only with the owner's certificate (TLS_CERT set): with the generated one, a browser
+       # that ever saw HSTS for this host would refuse the click-through on its warning.
+-      HSTS: ${TLS_CERT:+max-age=31536000}
++      HSTS: ""
+     # Writes the allowed origins into a copy of envoy.yaml, then starts Envoy.
+     entrypoint: ["/bin/sh", "-c"]
+     command:
