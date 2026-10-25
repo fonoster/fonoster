@@ -41,8 +41,10 @@ const webConfig = {
       "process.env.NODE_ENV": JSON.stringify("browser"),
       preventAssignment: true
     }),
+    // A type error fails the build: the plugin otherwise prints it as a warning and emits anyway.
     typescript({
       tsconfig: "./tsconfig.web.json",
+      noEmitOnError: true,
       exclude: ["src/client/Client.ts", "src/generated/node/*"]
     }),
     commonjs(),

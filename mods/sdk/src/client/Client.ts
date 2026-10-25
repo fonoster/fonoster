@@ -45,7 +45,7 @@ const DEFAULT_ENDPOINT = "api.fonoster.ai";
 export class Client extends AbstractClient {
   private readonly endpoint: string;
   private readonly httpUrl?: string;
-  private readonly tokenRefresherInterceptor: Interceptor;
+  private readonly interceptors: Interceptor[];
   private readonly channelCredentials: ChannelCredentials;
 
   constructor(
@@ -79,9 +79,9 @@ export class Client extends AbstractClient {
     this.endpoint = config?.endpoint ?? DEFAULT_ENDPOINT;
     this.httpUrl = config?.httpUrl;
 
-    this.tokenRefresherInterceptor = config.withoutInterceptors
-      ? null
-      : new TokenRefresherNode(this).createInterceptor().bind(this);
+    this.interceptors = config.withoutInterceptors
+      ? []
+      : [new TokenRefresherNode(this).createInterceptor().bind(this)];
   }
 
   getMetadata(): Metadata {
@@ -93,13 +93,13 @@ export class Client extends AbstractClient {
 
   getApplicationsClient() {
     return new ApplicationsClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
   getCallsClient() {
     return new CallsClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
@@ -113,61 +113,61 @@ export class Client extends AbstractClient {
 
   getSecretsClient() {
     return new SecretsClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
   getAgentsClient() {
     return new AgentsClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
   getAclsClient() {
     return new AclsClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
   getDomainsClient() {
     return new DomainsClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
   getTrunksClient() {
     return new TrunksClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
   getNumbersClient() {
     return new NumbersClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
   getWebhooksClient() {
     return new WebhooksClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
   getProvidersClient() {
     return new ProvidersClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
   getUsageClient() {
     return new UsageClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
   getBillingClient() {
     return new BillingClient(this.endpoint, this.channelCredentials, {
-      interceptors: [this.tokenRefresherInterceptor]
+      interceptors: this.interceptors
     });
   }
 
@@ -182,7 +182,7 @@ export class Client extends AbstractClient {
       this.endpoint,
       this.channelCredentials,
       {
-        interceptors: [this.tokenRefresherInterceptor]
+        interceptors: this.interceptors
       }
     );
   }

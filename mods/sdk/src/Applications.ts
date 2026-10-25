@@ -57,7 +57,11 @@ import {
   UpdateApplicationRequest as UpdateApplicationRequestPB,
   UpdateApplicationResponse as UpdateApplicationResponsePB
 } from "./generated/node/applications_pb";
-import { buildStructOverride, buildStructOverrideReverse } from "./utils";
+import {
+  asStructInput,
+  buildStructOverride,
+  buildStructOverrideReverse
+} from "./utils";
 
 /**
  * @classdesc Fonoster Applications, part of the Fonoster Voice Subsystem,
@@ -391,14 +395,15 @@ class Applications {
     productContainer.setProductRef(request.intelligence.productRef);
     productContainer.setConfig(
       Struct.fromJavaScript(
-        request.intelligence.config as Record<string, unknown>
-      ) as any
+        asStructInput(request.intelligence.config as Record<string, unknown>)
+      )
     );
     requestPB.setIntelligence(productContainer);
 
-    const metadata = this.client.getMetadata() as
-      Record<string, string> | null | undefined;
-    const call = applicationsClient.evaluateIntelligence(requestPB, metadata);
+    const call = applicationsClient.evaluateIntelligence(
+      requestPB,
+      this.client.getMetadata()
+    );
 
     return this.evaluateIntelligenceStreamGenerator(
       call as { on: (event: string, fn: (...args: unknown[]) => void) => void }
@@ -450,9 +455,11 @@ class Applications {
           getActualTool: () => string;
           getPassed: () => boolean;
           getExpectedParameters: () =>
-            { toJavaScript: () => Record<string, unknown> } | undefined;
+            | { toJavaScript: () => Record<string, unknown> }
+            | undefined;
           getActualParameters: () =>
-            { toJavaScript: () => Record<string, unknown> } | undefined;
+            | { toJavaScript: () => Record<string, unknown> }
+            | undefined;
           getErrorMessage: () => string;
         }>;
       };

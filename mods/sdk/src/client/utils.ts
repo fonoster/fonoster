@@ -18,30 +18,43 @@
  */
 import { MappingTuple } from "./types";
 
-function isMapping(key: string, objectMapping: MappingTuple<unknown>): boolean {
-  return objectMapping?.some((tuple) => tuple[0] === key);
+function isMapping(
+  key: string,
+  objectMapping: MappingTuple<unknown> | undefined
+): boolean {
+  return objectMapping?.some((tuple) => tuple[0] === key) ?? false;
+}
+
+/** The value mapped to key (an enum object or a message constructor), if any. */
+function mappingFor(
+  key: string,
+  mapping: MappingTuple<unknown> | undefined
+): unknown {
+  return mapping?.find((tuple) => tuple[0] === key)?.[1];
 }
 
 function getEnumValue(
   key: string,
   value: string,
-  enumMapping: MappingTuple<unknown>
+  enumMapping: MappingTuple<unknown> | undefined
 ): number {
   // Added to support the edge case of "PRIVATE" being passed as "ID"
   const realValue = value === "ID" ? "PRIVATE" : value;
-  const tuple = enumMapping.find((tuple) => tuple[0] === key);
-  return (tuple ? tuple[1][realValue] : 0) as number;
+  const values = mappingFor(key, enumMapping) as
+    | Record<string, number>
+    | undefined;
+  return values?.[realValue] ?? 0;
 }
 
 function getEnumKey(
   key: string,
   value: number,
-  enumMapping: MappingTuple<unknown>
+  enumMapping: MappingTuple<unknown> | undefined
 ): string {
-  const tuple = enumMapping.find((tuple) => tuple[0] === key);
-  const result = Object.keys(tuple[1]).find((k) => tuple[1][k] === value) || "";
+  const values = (mappingFor(key, enumMapping) ?? {}) as Record<string, number>;
+  const result = Object.keys(values).find((k) => values[k] === value) || "";
   // Added to support the edge case of "PRIVATE" being returned as "ID"
   return result === "PRIVATE" ? "ID" : result;
 }
 
-export { getEnumKey, getEnumValue, isMapping };
+export { getEnumKey, getEnumValue, isMapping, mappingFor };

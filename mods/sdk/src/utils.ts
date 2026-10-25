@@ -16,7 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Struct } from "google-protobuf/google/protobuf/struct_pb";
+import {
+  JavaScriptValue,
+  Struct
+} from "google-protobuf/google/protobuf/struct_pb";
 import { TrackCallResponse } from "./generated/web/calls_pb";
 
 type PartialApplicationInput = {
@@ -27,6 +30,13 @@ type PartialApplicationInput = {
   filters?: { name: string; options?: { [key: string]: unknown } }[] | null;
 };
 
+/** Config objects are plain JSON from the caller, which is what a protobuf Struct holds. */
+function asStructInput(value: { [key: string]: unknown }): {
+  [key: string]: JavaScriptValue;
+} {
+  return value as { [key: string]: JavaScriptValue };
+}
+
 /** The Autopilot agent (intelligence.config) and filter options travel as protobuf Structs. */
 function buildStructOverride<T extends PartialApplicationInput>(request: T): T {
   return {
@@ -35,14 +45,16 @@ function buildStructOverride<T extends PartialApplicationInput>(request: T): T {
       ? {
           ...request.intelligence,
           config: request.intelligence.config
-            ? Struct.fromJavaScript(request.intelligence.config)
+            ? Struct.fromJavaScript(asStructInput(request.intelligence.config))
             : undefined
         }
       : undefined,
     filters: request.filters
       ? request.filters.map((f) => ({
           name: f.name,
-          options: f.options ? Struct.fromJavaScript(f.options) : undefined
+          options: f.options
+            ? Struct.fromJavaScript(asStructInput(f.options))
+            : undefined
         }))
       : request.filters
   };
@@ -79,7 +91,7 @@ function buildStructOverrideReverse(request) {
   return result;
 }
 
-function dialStatusToString(status: number): string {
+function dialStatusToString(status: number): string | undefined {
   switch (status) {
     case TrackCallResponse.Status.TRYING:
       return "TRYING";
@@ -98,4 +110,9 @@ function dialStatusToString(status: number): string {
   }
 }
 
-export { buildStructOverride, buildStructOverrideReverse, dialStatusToString };
+export {
+  asStructInput,
+  buildStructOverride,
+  buildStructOverrideReverse,
+  dialStatusToString
+};
