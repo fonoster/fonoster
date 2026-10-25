@@ -24,7 +24,7 @@ services:
 
   # Roomr is released from fonoster/roomr: the bundle's pinned image, not built here.
   roomr:
-    image: fonoster/roomr:0.2.5@sha256:da1497a93872bf5bbba74a32b0784e4495a5afb6b4f69e8b1885a7c32c298a84
+    image: fonoster/roomr:0.2.6@sha256:a3f1371ad1fb395c82d6cf2b3623632a61f8a5e29725abf878220b0f020786ff
 
   appbridge:
     build:
@@ -157,7 +157,7 @@ services:
   # ---- profile `tools`: the SIP caller bot (fonoster/roomr's cmd/sipcaller), HTTP on RB_CALLER_PORT ----
   sipcaller:
     profiles: ["tools"]
-    image: fonoster/roomr:0.2.5@sha256:da1497a93872bf5bbba74a32b0784e4495a5afb6b4f69e8b1885a7c32c298a84
+    image: fonoster/roomr:0.2.6@sha256:a3f1371ad1fb395c82d6cf2b3623632a61f8a5e29725abf878220b0f020786ff
     entrypoint: ["/sipcaller"]
     command: ["-listen", "0.0.0.0:8080", "-host", "${SUBNET_PREFIX}.44"]
     restart: unless-stopped
