@@ -3,25 +3,21 @@
 # mods/conformance/catalog/prove.cjs:  prove.sh DSH-017 /tmp/prove-x
 # Run from the repository root. Mocked cases build the SPA from source (the webServer of
 # playwright.config.ts). Real-stack cases need ops/rebuild/stack up and seeded (DSH-039: with the
-# billing profile); the SPA is built from source and served by vite.prove.config.ts in front of the stack's
-# API, so the fault is what the tests meet. Exits 1 when the run failed.
+# billing profile); the stack serves HTTPS with its generated certificate, as every install does.
+# The SPA is built from source and served by vite.prove.config.ts in front of the stack's API, so
+# the fault is what the tests meet. Exits 1 when the run failed.
 set -u
 id="$1"
 out="$2"
 cd mods/dashboard
 export CI=1 PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/dashboard.xml"
-# The real cases that need the stack behind HTTPS (ops/rebuild/stack tls on): the browser's SIP
-# goes over WSS through Envoy, as on every production install with a certificate.
-HTTPS_CASES="DSH-063"
-https_run() {
-  ../../ops/rebuild/stack tls on >&2 || return 1
-  . ../../ops/rebuild/.local/stack.env
-  E2E_REAL_URL="https://localhost:${RB_HTTPS_PORT:-16443}" \
-    node e2e/real-env.cjs --grep "$1" --reporter=junit
-  rc=$?
-  ../../ops/rebuild/stack tls off >&2 || rc=1
-  return $rc
-}
+# Node (the vite proxy, the SDK in cleanups) trusts the stack's generated CA.
+ca="$(cd ../.. && pwd)/ops/rebuild/.local/config/tls/ca.pem"
+export FONOSTER_CA_FILE="$ca" NODE_EXTRA_CA_CERTS="$ca"
+# The real cases whose fault is in a bundle config (Routr's), not in the SPA: they run against the
+# stack's own dashboard after `ops/rebuild/stack reconfigure` renders the configs again, so the
+# fault is what the browser meets. The area's reset: renders them again once it is reverted.
+CONFIG_CASES="DSH-063"
 # The whole area (run.cjs, QA_RUN=1): the mocked projects, then the real project when the stack is
 # up and seeded, then the Billing page when its profile is on (QA_BILLING=1), each against the
 # stack's own dashboard.
@@ -30,28 +26,24 @@ if [ "${QA_RUN:-}" = 1 ]; then
   npx playwright test --grep "\[$id\]" --reporter=junit || status=1
   if [ -f ../../ops/rebuild/.local/seed.json ]; then
     PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/real.xml" \
-      node e2e/real-env.cjs --grep "\[$id\]" --grep-invert "\[($(echo "$HTTPS_CASES" | tr ' ' '|'))\]" \
-      --reporter=junit || status=1
-    if grep -q "\[$id" e2e/talk-https.real.spec.ts; then
-      PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/real-https.xml" https_run "\[$id" || status=1
-    fi
+      node e2e/real-env.cjs --grep "\[$id\]" --reporter=junit || status=1
   fi
   if [ "${QA_BILLING:-}" = 1 ]; then
     # The calls above used Trial credits: the Billing page case starts from a fresh account.
     ../../ops/rebuild/stack billing-reset >/dev/null || status=1
     . ../../ops/rebuild/.local/stack.env
     PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/billing.xml" \
-      RB_DASHBOARD_URL="http://localhost:$RB_API_PORT" RB_ADMIN_EMAIL="$RB_ADMIN_EMAIL" \
+      RB_DASHBOARD_URL="https://localhost:$RB_API_PORT" RB_ADMIN_EMAIL="$RB_ADMIN_EMAIL" \
       RB_ADMIN_PASSWORD="$RB_ADMIN_PASSWORD" \
       RB_STRIPE_FAKE_URL="http://localhost:${RB_STRIPE_FAKE_PORT:-12111}" \
       npx playwright test -c playwright.stack.config.ts --grep "\[$id\]" --reporter=junit || status=1
   fi
   exit $status
 fi
-case " $HTTPS_CASES " in
+case " $CONFIG_CASES " in
   *" $id "*)
-    # A Routr config fault reaches the stack through `stack tls on` (it renders the configs again).
-    https_run "\[$id\]"
+    ../../ops/rebuild/stack reconfigure >&2 || exit 1
+    node e2e/real-env.cjs --grep "\[$id\]" --reporter=junit
     exit $?
     ;;
 esac
@@ -78,6 +70,8 @@ if grep -q "\[$id\]" e2e/*.real.spec.ts e2e-stack/*.spec.ts 2>/dev/null; then
     [ -n "$port" ] || { echo "no free port in 17000-17399" >&2; exit 1; }
   fi
   vite=../../node_modules/.bin/vite
+  . ../../ops/rebuild/.local/stack.env
+  export PROVE_API_URL="https://localhost:$RB_API_PORT"
   "$vite" build --config vite.prove.config.ts --outDir "$out/spa" --logLevel warn || exit 1
   # The vite binary itself, not npx, so the trap stops the server and not only a wrapper.
   "$vite" preview --config vite.prove.config.ts --outDir "$out/spa" --port "$port" --strictPort \

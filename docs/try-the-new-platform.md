@@ -28,7 +28,8 @@ Ports are in 16000-16999, so the stack runs next to a legacy Fonoster stack. Cha
 
 | Port | What |
 | --- | --- |
-| 16449 | Dashboard and API (Envoy: gRPC, gRPC-Web, `/api`, browser calls at `/sip`) |
+| 16449 | Dashboard and API over HTTPS (Envoy: gRPC, gRPC-Web, `/api`, browser calls at `/sip`) |
+| 16081 | Redirects to HTTPS on 16449 |
 | 16060 | SIP (Routr), UDP and TCP |
 | 16100-16199/udp | Media (RTPEngine) |
 | 16200-16299/udp | Roomr node RTP |
@@ -75,7 +76,7 @@ softphone settings and the number. The values live in `ops/rebuild/.local/seed.j
 
 ## Sign in to the dashboard
 
-Open <http://localhost:16449> and sign in with the email and password `info` prints
+Open <https://localhost:16449> and sign in with the email and password `info` prints
 (`admin@fonoster.local` and a generated password). Pick the **Demo** workspace: the app, the
 number, the domain and the agent are there. Apps and agents you create in the dashboard answer
 calls right away: the API server points every Autopilot app at the hosted Autopilot, which reads
@@ -83,9 +84,10 @@ the agent from the database (edits apply within a few seconds). To talk to an ag
 **Call**: the browser asks for the microphone and calls the saved version of the agent (Mute and
 Hang up are in the panel). The panel also lists the numbers that reach the agent.
 
-Browsers allow the microphone only on HTTPS or `http://localhost`, so open the dashboard at
-<http://localhost:16449> on the machine running the stack. From another machine the Call button is
-replaced by a note until the dashboard is served over HTTPS.
+The stack serves HTTPS with a certificate it generates in `ops/rebuild/.local/config/tls/`, the
+same way every install does until its owner sets a real one. The browser warns once: click through
+it (Advanced, then Proceed). The certificate covers `localhost`, `127.0.0.1` and your LAN address,
+so the microphone and Talk to agent work from another machine on your network too.
 
 ## Register a softphone
 
@@ -136,7 +138,8 @@ RB_QUESTION=my-question.wav RB_TURNS=2 ops/rebuild/stack ask   # 16 kHz mono 16-
 Every call is sealed as a signed record (vCon) in MinIO and indexed by the API server.
 
 - In the database: `ops/rebuild/stack compose exec postgres psql -U postgres -d fonoster -c 'select call_ref, app_ref, status, duration_seconds, location from call_records order by started_at desc limit 5'`
-- Through the API: `GET http://localhost:16449/api/records` (a workspace token), or the dashboard's
+- Through the API: `GET https://localhost:16449/api/records` (a workspace token; `curl --cacert
+  ops/rebuild/.local/config/tls/ca.pem`), or the dashboard's
   call list (it reads the index).
 - The objects: MinIO console <http://localhost:16901> (user and password in `info`), bucket
   `records`.
@@ -149,15 +152,14 @@ with the workspace API key that `ops/rebuild/stack info` prints:
 ```sh
 (cd mods/ctl && npx tsc -b)
 alias fonoster="node $PWD/mods/ctl/bin/run.js"
-ops/rebuild/stack tls on
-fonoster workspaces:login --endpoint localhost:16443 \
-  --ca-file ops/rebuild/.local/tls/fullchain.pem \
+fonoster workspaces:login --endpoint localhost:16449 \
+  --ca-file ops/rebuild/.local/config/tls/ca.pem \
   --access-key-id <API key id> --access-key-secret <API key secret>
 ```
 
-The CLI always uses TLS, so the stack serves HTTPS first (`stack tls on`, a self-signed
-certificate for localhost). `--ca-file` is saved with the workspace, so every command below talks
-to the active workspace with no extra flag.
+The CLI always uses TLS and trusts the stack's generated CA through `--ca-file` (or
+`FONOSTER_CA_FILE`). The file is saved with the workspace, so every command below talks to the
+active workspace with no extra flag.
 
 Applications (a stream: a WebSocket URL + protocol + speech defaults; or an Autopilot agent):
 
@@ -264,7 +266,7 @@ ops/rebuild/stack smoke              # up, seed, one call, checks, down (RB_KEEP
   carry the port you reach) and `EXTERNAL_ADDRS` set to your LAN address. RTPEngine anchors the
   media at the same address, which both your softphone and the containers can reach.
 - **Browser calls** ("Talk to agent"): the dashboard gets a test token from the API server
-  (`CreateTestToken`), opens SIP over WebSocket at `ws://<LAN address>:16449/sip` (Envoy proxies it
+  (`CreateTestToken`), opens SIP over WebSocket at `wss://<host>:16449/sip` (Envoy terminates TLS and proxies it
   to Routr's `ws` transport on 5062 in the container) and calls the roomr Peer with
   `X-App-Ref` naming the agent. Routr checks the token with Identity's public key; RTPEngine turns
   the browser's WebRTC (ICE, DTLS-SRTP) into plain RTP; AppBridge answers only agents of the

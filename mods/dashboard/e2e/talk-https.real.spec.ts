@@ -18,9 +18,9 @@
  */
 import { expect, test } from "@playwright/test";
 
-// The `real` project against the stack behind HTTPS (ops/rebuild/stack tls on, E2E_REAL_URL
-// https://localhost:<RB_HTTPS_PORT>): the browser's SIP goes over WSS to Envoy's /sip, which Envoy
-// proxies to Routr, the path every production install with a certificate takes.
+// The `real` project against the stack, which serves HTTPS with its generated certificate (the
+// bundle's default): the browser's SIP goes over WSS to Envoy's /sip, which Envoy proxies to
+// Routr, the path every install takes.
 const env = (name: string) => {
   const value = process.env[name];
   if (!value) throw new Error(`${name} is not set: run npm run test:e2e:real`);

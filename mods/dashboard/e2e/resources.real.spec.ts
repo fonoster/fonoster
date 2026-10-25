@@ -37,10 +37,10 @@ async function cleanUp() {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const SDK = require("@fonoster/sdk");
   const port = new URL(env("E2E_REAL_API_URL")).port;
+  // Over TLS, trusting the stack's generated CA (FONOSTER_CA_FILE, set by real-env.cjs).
   const client = new SDK.Client({
     accessKeyId: env("E2E_REAL_WORKSPACE_KEY"),
-    endpoint: `localhost:${port}`,
-    allowInsecure: true
+    endpoint: `localhost:${port}`
   });
   await client.login(env("E2E_REAL_EMAIL"), env("E2E_REAL_PASSWORD"));
   const sweep = async (

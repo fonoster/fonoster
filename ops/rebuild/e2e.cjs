@@ -29,7 +29,7 @@
 //      against the region's records key
 //
 // Environment: RB_CALLER, RB_TARGET, RB_REQUEST_HOST, RB_TO, RB_QUESTION (16 kHz mono WAV),
-// RB_API_HTTP (http://host:port), RB_API_ENDPOINT (gRPC host:port), RB_ADMIN_EMAIL,
+// RB_API_HTTP (https://host:port), RB_API_ENDPOINT (gRPC over TLS, host:port), RB_ADMIN_EMAIL,
 // RB_ADMIN_PASSWORD, RB_WORKSPACE (accessKeyId), RB_APP_REF, RB_RECORDS_KEY (the region's
 // records signing key, PEM) and RB_OUT (report directory, optional).
 const fs = require("fs");
@@ -193,10 +193,10 @@ async function main() {
   step(3, `hung up (SIP ${JSON.stringify(ended.sip)})`);
 
   // 4. A sealed, verifiable call record.
+  // Over TLS, trusting the stack's generated CA (FONOSTER_CA_FILE; fetch: NODE_EXTRA_CA_CERTS).
   const client = new SDK.Client({
     endpoint: env("RB_API_ENDPOINT"),
-    accessKeyId: env("RB_WORKSPACE"),
-    allowInsecure: true
+    accessKeyId: env("RB_WORKSPACE")
   });
   await client.login(env("RB_ADMIN_EMAIL"), env("RB_ADMIN_PASSWORD"));
   const headers = {

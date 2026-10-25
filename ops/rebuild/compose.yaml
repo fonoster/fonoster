@@ -57,9 +57,10 @@ services:
     # The fake providers' catalog, applied with the fakes profile (the stack's fonoster.yaml).
     volumes:
       - ../../mods/conformance/fakes.catalog.yaml:/etc/fonoster/catalog.fakes.yaml:ro
-    # The region hub's leaf port and the API port, named by the stack's API server overlay.
+    # The region hub's leaf port and the API's HTTPS port, named by the stack's API server overlay
+    # (regions.controlPlaneUrl).
     environment:
-      HTTP_PORT: ${HTTP_PORT:-8449}
+      HTTPS_PORT: ${HTTPS_PORT:-443}
       LEAF_PORT: ${LEAF_PORT:-7422}
     # One name for the fake OAuth2 provider that the browser (loopback, *.localhost) and identity
     # (the host gateway) both reach on the published port: identity.oauth2.github.url in a local
