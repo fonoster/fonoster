@@ -40,6 +40,14 @@ import {
 import { Harness } from "./Harness";
 import { Frame, Peer } from "./Peer";
 
+/**
+ * Measurements of what the implementation sent to another process (the node's recorded commands).
+ * They only grow, and can trail the frames the app sees (AppBridge sends the node its Hangup as it
+ * ends the session), so an assert on one waits up to this long for it to match.
+ */
+const SETTLING_MEASUREMENTS = new Set(["media.commands"]);
+const SETTLE_MS = 2000;
+
 export type RunOptions = {
   /** Opens the connection to the implementation under test, after setup has been applied. */
   connect: () => Promise<Peer> | Peer;
@@ -506,15 +514,22 @@ class Run {
   ) {
     const harness = this.options.harness;
     for (const [name, expected] of Object.entries(assertions)) {
-      const measured = harness?.measure
-        ? await harness.measure(name, since)
-        : undefined;
-      if (measured !== undefined) {
-        this.result.measurements.push({ step: index, name, value: measured });
+      const pattern = interpolate(expected, this.vars);
+      const deadline =
+        Date.now() + (SETTLING_MEASUREMENTS.has(name) ? SETTLE_MS : 0);
+      let measured: unknown;
+      let r: ReturnType<typeof match>;
+      for (;;) {
+        measured = harness?.measure
+          ? await harness.measure(name, since)
+          : undefined;
+        if (measured === undefined)
+          throw new StepFailure(`the harness cannot measure "${name}"`);
+        r = match(pattern, measured);
+        if (r.ok || Date.now() >= deadline) break;
+        await new Promise((resolve) => setTimeout(resolve, 20));
       }
-      if (measured === undefined)
-        throw new StepFailure(`the harness cannot measure "${name}"`);
-      const r = match(interpolate(expected, this.vars), measured);
+      this.result.measurements.push({ step: index, name, value: measured });
       if (!r.ok) throw new StepFailure(`${name}: ${r.reason}`);
     }
   }

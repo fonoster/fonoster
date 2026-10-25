@@ -25,6 +25,9 @@ import { generate } from "../audio/codecs";
 import { AudioSource } from "../scenario/types";
 import { sharedRoomrFake } from "./sharedRoomrFake";
 
+/** How long stop() waits for the fake to stop its node before going on. */
+const STOP_TIMEOUT_MS = 3000;
+
 // The Roomr node for AppBridge suites (extract-roomr 2.3): a real node in roomr-fake
 // (@fonoster/roomr/fake), whose phone calls it and answers what it dials. For each call the node
 // opens its control stream to the session endpoint (AppBridge) exactly as in production; this
@@ -565,7 +568,14 @@ export class FakeSessionNode extends EventEmitter {
     for (const c of this.calls) c.stopWatching();
     const node = this.node;
     this.node = undefined;
-    await node?.then((n) => n.stop()).catch(() => undefined);
+    // Bounded: the fake's graceful stop can wait on a call whose other side is already gone, and
+    // a test that failed must report its own failure, not a hung teardown.
+    await Promise.race([
+      node?.then((n) => n.stop()).catch(() => undefined),
+      new Promise<void>((resolve) =>
+        setTimeout(resolve, STOP_TIMEOUT_MS).unref()
+      )
+    ]);
     this.removeAllListeners();
   }
 
