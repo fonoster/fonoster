@@ -112,8 +112,8 @@ examples and tests trust it with no flags. Playwright keeps `ignoreHTTPSErrors` 
   process start, so `FONOSTER_CA_FILE` can't be implemented by setting it from code; we pass the CA
   explicitly). `GRPC_DEFAULT_SSL_ROOTS_FILE_PATH` works for grpc-js only and replaces the system
   roots. The docs recommend `NODE_EXTRA_CA_CERTS=ca.pem` for anyone else's Node client.
-- **Safari not verified by the spike** → Chrome passed (click-through, `isSecureContext`, microphone,
-  same-origin WSS). Safari needs a manual check before the build lands.
+- **Click-through browser behavior** → verified in the spike: Chrome (automated) and Safari (owner,
+  2026-10-25) both give a secure context, the microphone and same-origin WSS after the warning.
 - **Port 443 clashes on a developer's machine** → `HTTPS_PORT` is configurable (since #1134).
 - **People go live on the generated certificate** → `init`, `info` and the docs say it's for getting
   started; `check` warns when `PUBLIC_URL` is a public domain still using it.

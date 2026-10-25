@@ -2,7 +2,7 @@
 
 ## 1. Spike (before building)
 
-- [ ] 1.1 With a local CA and server certificate for `localhost`, no HSTS: confirm Chrome and Safari
+- [x] 1.1 With a local CA and server certificate for `localhost`, no HSTS: confirm Chrome and Safari
       allow clicking through the warning, `navigator.mediaDevices.getUserMedia` works on the page, and
       Talk to agent connects over `wss://localhost/sip`. Record results and screenshots. (Chrome passed on `localhost` and `127.0.0.1`, both
       libraries; Safari still needs the owner's manual check.)
