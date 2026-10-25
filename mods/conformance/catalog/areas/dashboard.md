@@ -8,6 +8,7 @@ tester: Playwright in the pinned container. Two projects, mocked (GrpcWebMock, e
 environment: "mocked: no backend; real: compose stack with a seeded workspace; community and cloud editions"
 cadence: mocked project on every pull request; real project nightly and at release
 prove: sh mods/conformance/test/dashboard/prove.sh {id} {junitDir}
+reset: sh mods/conformance/test/dashboard/reset.sh
 capabilities:
   - dashboard
   - talk-in-browser
@@ -816,8 +817,21 @@ The catalog no longer has the provider's label, so the select shows its id, as t
 - **Tier:** nightly
 - **Proof:** Remove the `wss` transport from `ops/bundle/config/routr-edgeport.example.yaml`; Routr then throws `no listening point found for transport WSS` and the test must go red on Connected.
 - **Fault:** faults/DSH-063.patch
-- **Test:** mods/dashboard/e2e/talk-https.real.spec.ts (the `real` project against `ops/rebuild/stack tls on`; prove.sh turns HTTPS on and off around it)
+- **Test:** mods/dashboard/e2e/talk-https.real.spec.ts (the `real` project; the stack serves HTTPS by default. A fault proof runs `ops/rebuild/stack reconfigure` first, and the area's reset renders the configs again after)
 
-DSH-015 covers the drawer over plain HTTP, where the browser speaks `ws://`. Every production install with a certificate serves the dashboard over HTTPS, where the browser speaks `wss://` to Envoy's `/sip`. Envoy terminates TLS and proxies to Routr's `ws` port, but Routr picks a listening point by the transport the browser names, so without a `wss` one it refused every browser call (found on app.fonoster.ai, 2026-10-24). `ops/rebuild/stack tls on` serves the stack on `https://localhost:16443` with a self-signed certificate and renders the configs again, so a Routr config fault is what the browser meets.
+The stack serves the dashboard over HTTPS with its generated certificate, as every install does by default, so DSH-015 also runs over `wss://`; DSH-063 asserts the scheme and the WSS socket. Every production install with a certificate serves the dashboard over HTTPS, where the browser speaks `wss://` to Envoy's `/sip`. Envoy terminates TLS and proxies to Routr's `ws` port, but Routr picks a listening point by the transport the browser names, so without a `wss` one it refused every browser call (found on app.fonoster.ai, 2026-10-24). `ops/rebuild/stack reconfigure` renders the configs again and recreates Routr, so a Routr config fault is what the browser meets.
 
 **Pass.** On an `https://` dashboard, Talk to agent, Call: the browser opens a `wss://…/sip` WebSocket, the drawer shows Connected, Hang up shows Call ended with Call again, and Routr logs no error. **Fail.** No connection, an `ws://` socket from an `https://` page, a stuck state, or `no listening point found for transport WSS`.
+
+### DSH-064 Talk drawer on the owner's certificate: HSTS and WSS
+
+- **Spec:** talk-in-browser / SIP over WebSocket on the API port / Browser connects over HTTPS with the owner's certificate
+- **Priority:** P0
+- **Tier:** nightly
+- **Proof:** Never send HSTS (`HSTS: ""` for Envoy in `ops/bundle/compose.yaml`); the dashboard on the owner's certificate then comes without `strict-transport-security` and the test must go red.
+- **Fault:** faults/DSH-064.patch
+- **Test:** mods/dashboard/e2e/talk-owner-cert.real.spec.ts (the `real` project with `ops/rebuild/stack owner-cert on`: TLS_CERT and TLS_KEY from a separate test CA; prove.sh turns it on around the case and back to the generated certificate after)
+
+An install that went live sets `TLS_CERT` and `TLS_KEY` to a real certificate (Let's Encrypt or another CA). Envoy then sends HSTS, which it must never send with the generated certificate (a browser that saw it would refuse the click-through), and browser calls still go over WSS. `ops/rebuild/stack owner-cert on` issues a certificate from a test CA of its own, so the stack takes that path; `off` returns to the generated certificate.
+
+**Pass.** On `https://` with the owner's certificate: the page carries `strict-transport-security: max-age=…`, Talk to agent, Call: a `wss://…/sip` WebSocket opens, the drawer shows Connected, Hang up shows Call ended. **Fail.** No HSTS header, no connection, a stuck state, or no `wss://` socket.

@@ -24,7 +24,9 @@
 import { defineConfig, mergeConfig, type Plugin } from "vite";
 import base from "./vite.config";
 
-const target = process.env.PROVE_API_URL ?? "http://localhost:16449";
+// The stack over HTTPS; the proxy verifies its certificate against the generated CA
+// (NODE_EXTRA_CA_CERTS, set by prove.sh).
+const target = process.env.PROVE_API_URL ?? "https://localhost:16449";
 const rule = {
   target,
   changeOrigin: true,

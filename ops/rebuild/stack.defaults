@@ -10,7 +10,9 @@ RB_CONFIG_DIR=./.local/config
 RB_REGISTRY=rb-stack
 RB_TAG=dev
 
-# Envoy: the dashboard and the API (gRPC, gRPC-Web and /api) on one port.
+# Envoy: the dashboard and the API (gRPC, gRPC-Web, /api and /sip) on one port, over HTTPS with the
+# certificate the stack generates in .local/config/tls/ (the bundle's default; clients trust
+# .local/config/tls/ca.pem, browsers warn once).
 RB_API_PORT=16449
 # Routr SIP (UDP and TCP). Routr also listens on this port inside its container, so the port
 # in Via and Record-Route is the one softphones reach.
@@ -20,9 +22,7 @@ RB_APPBRIDGE_PORT=16808
 RB_MINIO_PORT=16900
 RB_MINIO_CONSOLE_PORT=16901
 RB_CALLER_PORT=16080
-# HTTPS for `ops/rebuild/stack tls on` (a self-signed certificate for localhost): Envoy serves
-# https://localhost:RB_HTTPS_PORT and redirects RB_HTTPS_REDIRECT_PORT to it.
-RB_HTTPS_PORT=16443
+# Envoy's plain-HTTP port, which only redirects to https://localhost:RB_API_PORT.
 RB_HTTPS_REDIRECT_PORT=16081
 RB_FAKES_OAUTH2_PORT=16704
 # RTPEngine (carrier and softphone media) and the Roomr node's RTP range.

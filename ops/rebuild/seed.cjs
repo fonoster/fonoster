@@ -126,7 +126,8 @@ const agent = (model) => ({
 });
 
 async function login(accessKeyId) {
-  const client = new SDK.Client({ endpoint, accessKeyId, allowInsecure: true });
+  // Over TLS, trusting the stack's generated CA (FONOSTER_CA_FILE, set by ops/rebuild/stack).
+  const client = new SDK.Client({ endpoint, accessKeyId });
   await client.login(env("RB_ADMIN_EMAIL"), env("RB_ADMIN_PASSWORD"));
   return client;
 }

@@ -229,8 +229,12 @@ services:
       RTPENGINE_PORT_MAX: ${RTPENGINE_PORT_MAX:-10100}
       # For a local control plane on plain nats:// and http:// (testing only).
       FONOSTER_REGION_ALLOW_INSECURE: ${FONOSTER_REGION_ALLOW_INSECURE:-}
+      # A control plane that serves its generated certificate (the local stack, an install getting
+      # started): copy its ca.pem into the keys folder and set this to /etc/fonoster/keys/ca.pem.
+      FONOSTER_CA_FILE: ${FONOSTER_CA_FILE:-}
     volumes:
       - ./config/region-agent.yaml:/etc/fonoster/region-agent.yaml:ro
+      - ${CELL_KEYS_DIR:-./.local/keys}:/etc/fonoster/keys:ro
       - region:/var/lib/fonoster-region
       - secrets:/var/lib/fonoster-secrets
 

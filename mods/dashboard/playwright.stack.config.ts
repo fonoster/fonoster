@@ -26,7 +26,9 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   reporter: process.env.CI ? "github" : "list",
   use: {
-    baseURL: process.env.RB_DASHBOARD_URL ?? "http://localhost:16449",
+    baseURL: process.env.RB_DASHBOARD_URL ?? "https://localhost:16449",
+    // The stack's generated certificate: clicked through, as a person does once.
+    ignoreHTTPSErrors: true,
     trace: "retain-on-failure",
     ...devices["Desktop Chrome"]
   }

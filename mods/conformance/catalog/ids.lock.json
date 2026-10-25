@@ -315,5 +315,6 @@
   "XFR-015": "Autopilot's transfer tool leaves the caller with the operator",
   "XFR-016": "Autopilot's hangup tool says goodbye, then hangs up",
   "XFR-017": "After a failed transfer Autopilot says so and keeps helping",
-  "DSH-063": "Talk drawer over HTTPS: SIP over WSS"
+  "DSH-063": "Talk drawer over HTTPS: SIP over WSS",
+  "DSH-064": "Talk drawer on the owner's certificate: HSTS and WSS"
 }

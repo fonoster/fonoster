@@ -31,11 +31,13 @@ if (!fs.existsSync(seedFile)) {
 }
 const seed = JSON.parse(fs.readFileSync(seedFile, "utf8"));
 const port = env.RB_API_PORT ?? "16449";
+// The stack serves HTTPS with the certificate it generates; the SDK (cleanup) trusts its CA.
+const caFile = path.join(local, "config", "tls", "ca.pem");
 const out = {
   // The dashboard under test; prove.sh points it at the SPA served from source.
-  E2E_REAL_URL: process.env.E2E_REAL_URL || `http://localhost:${port}`,
+  E2E_REAL_URL: process.env.E2E_REAL_URL || `https://localhost:${port}`,
   // The stack's API, for tests that use the SDK directly (cleanup); the same origin by default.
-  E2E_REAL_API_URL: `http://localhost:${port}`,
+  E2E_REAL_API_URL: `https://localhost:${port}`,
   E2E_REAL_EMAIL: env.RB_ADMIN_EMAIL,
   E2E_REAL_PASSWORD: env.RB_ADMIN_PASSWORD,
   E2E_REAL_WORKSPACE: seed.workspace.name,
@@ -61,7 +63,12 @@ const result = spawnSync(
   {
     cwd: path.join(__dirname, ".."),
     stdio: "inherit",
-    env: { ...process.env, ...out }
+    env: {
+      ...process.env,
+      ...out,
+      FONOSTER_CA_FILE: caFile,
+      NODE_EXTRA_CA_CERTS: caFile
+    }
   }
 );
 process.exit(result.status ?? 1);

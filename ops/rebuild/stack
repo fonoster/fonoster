@@ -15,10 +15,14 @@
 #                               (upgrade from the Trial, top up) + down (add-billing-page 4.1)
 #   ops/rebuild/stack billing-reset
 #                               a fresh Billing account on the Trial and an empty Stripe fake
-#   ops/rebuild/stack tls on|off
-#                               serve the dashboard and API over HTTPS on localhost:RB_HTTPS_PORT
-#                               (self-signed; browser calls then use WSS) or back to plain HTTP;
-#                               `up` always starts on plain HTTP (DSH-063)
+#   ops/rebuild/stack reconfigure
+#                               render the configs again from ops/bundle and recreate what they
+#                               change (Envoy, the apiserver, the dashboard, Routr, Roomr): a QA
+#                               fault in a bundle config reaches the running stack this way
+#   ops/rebuild/stack owner-cert on|off
+#                               serve a certificate of the owner's instead of the generated one
+#                               (TLS_CERT/TLS_KEY, issued by a separate test CA: Envoy then sends
+#                               HSTS, DSH-064), or back to the generated certificate
 #   ops/rebuild/stack call      place one test call with the caller bot (stack must be up)
 #   ops/rebuild/stack ask       call, say a recorded question, report the turn latency
 #                               (RB_QUESTION=<16 kHz WAV>, RB_TURNS, RB_TRANSCRIBE=1 transcribes)
@@ -48,8 +52,13 @@ BUNDLE_ENV="$LOCAL/bundle.env"
 # present), for the renderer. Compose passes each container only its own (the per-service
 # `environment:` in ops/bundle/compose.yaml and compose.yaml), never this whole file.
 SERVICES_ENV="$LOCAL/services.env"
-# Present while `stack tls on` is in effect: the bundle's HTTPS overlay and its values.
-TLS_ENV="$LOCAL/tls.env"
+# The certificate the stack serves HTTPS with (the bundle's generated one, `fonoster-config init`'s
+# code): every harness client trusts its CA through FONOSTER_CA_FILE (SDK, CLI) and
+# NODE_EXTRA_CA_CERTS (Node's fetch and https); the browser projects ignore certificate errors.
+CA_FILE="$CONF/tls/ca.pem"
+# Present while `stack owner-cert on` is in effect: TLS_CERT/TLS_KEY naming a certificate from a
+# separate test CA (.local/owner-tls/), as an owner's real certificate would be.
+OWNER_TLS_ENV="$LOCAL/owner-tls.env"
 OVERLAY="$LOCAL/overlay"
 CONFIG_CLI_DIR="$ROOT/mods/common/dist/config/cli"
 
@@ -84,13 +93,9 @@ compose() {
     --env-file "$STACK_ENV")
   [ -f "$HOST_ENV" ] && args+=(--env-file "$HOST_ENV")
   [ -f "$BUNDLE_ENV" ] && args+=(--env-file "$BUNDLE_ENV")
-  # The bundle serves HTTPS by default; this harness talks plain HTTP on RB_API_PORT unless
-  # `stack tls on` is in effect (its own certificate, TLS_ENV).
-  if [ -f "$TLS_ENV" ]; then
-    args+=(--env-file "$TLS_ENV")
-  else
-    args+=(-f "$BUNDLE/compose.http.yaml")
-  fi
+  # HTTPS, as the bundle serves it by default (no compose.http.yaml): the harness takes the path
+  # every install takes. With `owner-cert on`, the owner's certificate instead of the generated one.
+  [ -f "$OWNER_TLS_ENV" ] && args+=(--env-file "$OWNER_TLS_ENV")
   COMPOSE_PROFILES="$(profiles)" docker compose "${args[@]}" "$@"
 }
 
@@ -177,7 +182,7 @@ render_configs() {
     echo "RB_HOST_IP=$host_ip"
     echo "ROUTR_EXTERNAL_ADDRS=$host_ip"
     echo "ROUTR_LOCALNETS=$net.40/29"
-    echo "RB_PUBLIC_API_URL=http://localhost:$RB_API_PORT"
+    echo "RB_PUBLIC_API_URL=https://localhost:$RB_API_PORT"
   } > "$HOST_ENV"
 
   # The bundle's Compose and config names (ops/bundle/.env.example) from the stack's: the base
@@ -188,8 +193,9 @@ render_configs() {
     echo "CONFIG_DIR=$RB_CONFIG_DIR"
     echo "HOST_IP=$host_ip"
     echo "SUBNET_PREFIX=$net"
-    echo "HTTP_PORT=$RB_API_PORT"
-    echo "PUBLIC_URL=http://localhost:$RB_API_PORT"
+    echo "HTTPS_PORT=$RB_API_PORT"
+    echo "HTTPS_REDIRECT_PORT=${RB_HTTPS_REDIRECT_PORT:-16081}"
+    echo "PUBLIC_URL=https://localhost:$RB_API_PORT"
     echo "SIP_PORT=$RB_SIP_PORT"
     echo "RTPENGINE_PORT_MIN=$RTPENGINE_PORT_MIN"
     echo "RTPENGINE_PORT_MAX=$RTPENGINE_PORT_MAX"
@@ -273,7 +279,7 @@ render_configs() {
     echo "  operatorKey: \"secret://file/opt/fonoster/keys/region-operator.key\""
     if [[ ",$(profiles)," == *",regions,"* ]] && [ -f "$CONF/region-hub.conf" ]; then
       cat <<'YAML'
-  controlPlaneUrl: "http://${HOST_IP}:${HTTP_PORT}"
+  controlPlaneUrl: "https://${HOST_IP}:${HTTPS_PORT}"
   leafUrl: "nats://${HOST_IP}:${LEAF_PORT}"
   allowInsecureLeaf: true
   signingKey: { file: /opt/fonoster/keys/region-signing.pem }
@@ -301,6 +307,13 @@ YAML
   # Containers read these as another user (local only).
   chmod 644 "$CONF/fonoster.yaml" "$CONF/appbridge.yaml" "$CONF/autopilot.yaml" \
     "$CONF/roomr.yaml" "$CONF/routr-edgeport.yaml"
+  # The generated certificate (a local CA and a server certificate for localhost, 127.0.0.1 and
+  # the host address), kept across runs and reissued when the names change: the same code as init.
+  HOST_IP="$host_ip" PUBLIC_URL="https://localhost:$RB_API_PORT" node -e '
+    const { ensureLocalTls } = require(process.argv[1]);
+    const r = ensureLocalTls(process.argv[2], process.env);
+    if (r.state !== "kept") console.error(`[stack] certificate ${r.state} for ${r.names.join(", ")}`);
+  ' "$CONFIG_CLI_DIR/tls.js" "$LOCAL" || die "could not generate the certificate"
   log "host address $host_ip; platform keys: ${refs:-none}"
 }
 
@@ -354,17 +367,16 @@ wait_for() {
 }
 
 # Envoy answers 503 until the apiserver's HTTP bridge is up; any other status means it serves.
+# Verified against the generated CA, so a broken certificate fails here.
 api_ready() {
   local code
-  code="$(curl -s -o /dev/null -w '%{http_code}' "http://localhost:$RB_API_PORT/api/records")"
+  code="$(curl -s --cacert "${READY_CA:-$CA_FILE}" -o /dev/null -w '%{http_code}' "https://localhost:$RB_API_PORT/api/records")"
   [ "$code" != "000" ] && [ "$code" != "503" ] && [ "$code" != "502" ]
 }
 
-# The same, through Envoy's HTTPS port (`stack tls on`).
-https_api_ready() {
-  local code
-  code="$(curl -sk -o /dev/null -w '%{http_code}' "https://localhost:$RB_HTTPS_PORT/api/records")"
-  [ "$code" != "000" ] && [ "$code" != "503" ] && [ "$code" != "502" ]
+# Node clients of the stack (seed, e2e, the dashboard's real project) trust the generated CA.
+trust_env() {
+  export FONOSTER_CA_FILE="$CA_FILE" NODE_EXTRA_CA_CERTS="$CA_FILE"
 }
 
 cmd_up() {
@@ -390,7 +402,8 @@ cmd_seed() {
   [ -f "$STACK_ENV" ] || die "run 'ops/rebuild/stack up' first"
   load_env
   command -v node >/dev/null || die "node is required (and 'npm install' in the repository)"
-  log "seeding through the API at localhost:$RB_API_PORT"
+  log "seeding through the API at https://localhost:$RB_API_PORT"
+  trust_env
   (cd "$ROOT" && RB_API_ENDPOINT="localhost:$RB_API_PORT" RB_SEED_FILE="$SEED_FILE" \
     node "$HERE/seed.cjs")
   # The apiserver points Autopilot apps at the hosted Autopilot itself (apps.autopilotUrl).
@@ -408,9 +421,10 @@ cmd_info() {
   local sip="$RB_HOST_IP:$RB_SIP_PORT"
   cat >&2 <<EOF
 
-  Dashboard   http://localhost:$RB_API_PORT
+  Dashboard   https://localhost:$RB_API_PORT   (generated certificate: the browser warns once)
               sign in as $RB_ADMIN_EMAIL / $RB_ADMIN_PASSWORD   (local dev password)
-  API         localhost:$RB_API_PORT (gRPC, insecure)
+  API         localhost:$RB_API_PORT (gRPC over TLS; CLI and SDK: --ca-file or FONOSTER_CA_FILE)
+  CA          $CA_FILE
   SIP (Routr) $sip  UDP or TCP
   MinIO       http://localhost:$RB_MINIO_CONSOLE_PORT  ($MINIO_ROOT_USER / $MINIO_ROOT_PASSWORD)
 EOF
@@ -515,10 +529,11 @@ cmd_e2e() {
   local number
   number="$(seed_get number.telUrl)"; number="${number#tel:}"
   wait_for "the caller bot" 30 curl -sf "http://localhost:$RB_CALLER_PORT/calls"
+  trust_env
   (cd "$ROOT" && RB_CALLER="http://localhost:$RB_CALLER_PORT" RB_TARGET="$RB_NET.40:$RB_SIP_PORT" \
     RB_REQUEST_HOST="$(seed_get trunk.inboundUri)" RB_TO="$number" \
     RB_QUESTION="${RB_QUESTION:-$ROOT/mods/appbridge/scripts/fixtures/question-fonoster.wav}" \
-    RB_API_HTTP="http://localhost:$RB_API_PORT" RB_API_ENDPOINT="localhost:$RB_API_PORT" \
+    RB_API_HTTP="https://localhost:$RB_API_PORT" RB_API_ENDPOINT="localhost:$RB_API_PORT" \
     RB_WORKSPACE="$(seed_get workspace.accessKeyId)" RB_APP_REF="$(seed_get app.ref)" \
     RB_RECORDS_KEY="$CONF/keys/records.pem" RB_OUT="${RB_OUT:-$LOCAL/e2e}" \
     node "$HERE/e2e.cjs")
@@ -556,7 +571,8 @@ cmd_billing_page_e2e() {
   cmd_seed
   cmd_billing_reset
   load_env
-  (cd "$ROOT/mods/dashboard" && RB_DASHBOARD_URL="http://localhost:$RB_API_PORT" \
+  trust_env
+  (cd "$ROOT/mods/dashboard" && RB_DASHBOARD_URL="https://localhost:$RB_API_PORT" \
     RB_STRIPE_FAKE_URL="http://localhost:${RB_STRIPE_FAKE_PORT:-12111}" \
     RB_ADMIN_EMAIL="$RB_ADMIN_EMAIL" RB_ADMIN_PASSWORD="$RB_ADMIN_PASSWORD" \
     npx playwright test -c playwright.stack.config.ts)
@@ -574,10 +590,12 @@ cmd_billing_reset() {
 
 billing_ready() { [ "$(psql_fonoster "select count(*) from billing._prisma_migrations")" -ge 1 ]; }
 
-# Recreates what HTTPS changes, with the configs rendered again from ops/bundle (so a Routr config
+# Renders the configs again from ops/bundle and recreates what they change (so a Routr config
 # change, or a QA fault in it, is what the browser meets). Roomr registers with Routr, which keeps
 # registrations in memory: it is recreated after Routr and waited for.
-tls_apply() {
+cmd_reconfigure() { cmd_reconfigure_with "$CA_FILE"; }
+
+cmd_reconfigure_with() {
   local since
   render_configs
   since="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -585,49 +603,47 @@ tls_apply() {
   compose up -d --force-recreate roomr
   wait_for "Roomr's registration" 60 roomr_registered "$since" \
     || die "Roomr did not register with Routr"
+  READY_CA="$1" wait_for "the apiserver" 90 api_ready || die "the apiserver did not come back"
 }
 
 roomr_registered() {
   compose logs --since "$1" roomr 2>/dev/null | grep -q '"state":"registered"'
 }
 
-# HTTPS on localhost with a self-signed certificate (the bundle's default HTTPS, without
-# compose.http.yaml), so browser calls take the WSS path production uses; `tls off` returns to
-# plain HTTP.
-cmd_tls() {
+# The owner's certificate (TLS_CERT and TLS_KEY), from a test CA of its own, so the stack takes the
+# path of an install with a real certificate (Envoy sends HSTS); `off` returns to the generated one.
+# Clients that verify trust .local/owner-tls/ca.pem meanwhile; the browser projects ignore errors.
+cmd_owner_cert() {
   load_env
-  # stack.env files made before these were added fall back to the defaults.
-  : "${RB_HTTPS_PORT:=16443}" "${RB_HTTPS_REDIRECT_PORT:=16081}"
+  local dir="$LOCAL/owner-tls"
   case "${1:-}" in
     on)
-      local dir="$LOCAL/tls"
       mkdir -p "$dir"
-      if [ ! -f "$dir/fullchain.pem" ]; then
-        openssl req -x509 -newkey rsa:2048 -nodes -days 30 -subj "/CN=localhost" \
-          -addext "subjectAltName=DNS:localhost" \
-          -keyout "$dir/privkey.pem" -out "$dir/fullchain.pem" 2>/dev/null
-        chmod 644 "$dir/privkey.pem" "$dir/fullchain.pem"
+      if [ ! -f "$dir/server.pem" ]; then
+        HOST_IP="$RB_HOST_IP" node -e '
+          const fs = require("fs");
+          const { issueCertificates, certificateNames } = require(process.argv[1]);
+          const { ca, server } = issueCertificates(certificateNames(process.env));
+          const out = process.argv[2];
+          fs.writeFileSync(`${out}/ca.pem`, ca.cert);
+          fs.writeFileSync(`${out}/server.pem`, server.cert);
+          fs.writeFileSync(`${out}/server-key.pem`, server.key, { mode: 0o600 });
+        ' "$CONFIG_CLI_DIR/tls.js" "$dir" || die "could not issue the owner certificate"
       fi
       {
-        echo "# Rendered by ops/rebuild/stack tls on."
-        echo "PUBLIC_URL=https://localhost:$RB_HTTPS_PORT"
-        echo "TLS_CERT=$dir/fullchain.pem"
-        echo "TLS_KEY=$dir/privkey.pem"
-        echo "HTTPS_BIND=127.0.0.1"
-        echo "HTTPS_PORT=$RB_HTTPS_PORT"
-        echo "HTTPS_REDIRECT_PORT=$RB_HTTPS_REDIRECT_PORT"
-      } > "$TLS_ENV"
-      tls_apply
-      wait_for "the apiserver over HTTPS" 90 https_api_ready || die "the apiserver did not come back"
-      log "HTTPS on: https://localhost:$RB_HTTPS_PORT (self-signed; CLI and SDK: --ca-file $dir/fullchain.pem)"
+        echo "# Rendered by ops/rebuild/stack owner-cert on."
+        echo "TLS_CERT=$dir/server.pem"
+        echo "TLS_KEY=$dir/server-key.pem"
+      } > "$OWNER_TLS_ENV"
+      cmd_reconfigure_with "$dir/ca.pem"
+      log "owner certificate on: https://localhost:$RB_API_PORT (trust $dir/ca.pem; HSTS on)"
       ;;
     off)
-      rm -f "$TLS_ENV"
-      tls_apply
-      wait_for "the apiserver" 90 api_ready || die "the apiserver did not come back"
-      log "HTTPS off: http://localhost:$RB_API_PORT"
+      rm -f "$OWNER_TLS_ENV"
+      cmd_reconfigure
+      log "generated certificate on: https://localhost:$RB_API_PORT"
       ;;
-    *) die "usage: ops/rebuild/stack tls on|off" ;;
+    *) die "usage: ops/rebuild/stack owner-cert on|off" ;;
   esac
 }
 
@@ -640,8 +656,10 @@ cmd_reset() {
 }
 
 case "${1:-}" in
-  up) rm -f "$TLS_ENV"; cmd_up ;;
-  tls) shift; cmd_tls "$@" ;;
+  # `up` serves the generated certificate (an `owner-cert on` left over is dropped).
+  up) rm -f "$OWNER_TLS_ENV"; cmd_up ;;
+  reconfigure) [ -f "$OWNER_TLS_ENV" ] && cmd_reconfigure_with "$LOCAL/owner-tls/ca.pem" || cmd_reconfigure ;;
+  owner-cert) shift; cmd_owner_cert "$@" ;;
   seed) cmd_seed ;;
   info) cmd_info ;;
   call)

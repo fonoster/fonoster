@@ -67,8 +67,7 @@
 - [x] 4.6 Conformance: bundle tests for the HTTPS default, the opt-out, the upgrade rules and the
       archive; DSH-063 runs against the default stack (no separate TLS switch needed).
       (The release smoke test, `ops/release/smoke`, now checks the default: 200 through the generated
-      CA, no HSTS, the redirect. DSH-063 keeps running through `stack tls on`: the QA stack stays on
-      plain HTTP, see 5.3.)
+      CA, no HSTS, the redirect. DSH-063 runs in the normal real-stack pass, see 5.3.)
 
 ## 5. Dev container on https://localhost
 
@@ -77,9 +76,11 @@
       tests connect without `--insecure`.
 - [x] 5.3 Playwright and the conformance harness work against `https://localhost` (trust the CA or keep
       `ignoreHTTPSErrors`); retire `ops/rebuild/stack tls on|off` if the default makes it redundant.
-      (Not retired: the rebuild stack and the root `compose.yaml` are the QA/CI harness, which talks
-      plain HTTP on `RB_API_PORT`, so they add `compose.http.yaml`; `stack tls on` keeps exercising the
-      HTTPS path for DSH-063. The dev container itself serves `https://localhost:8449`.)
+      (Done in a follow-up: the rebuild stack and the root `compose.yaml`, the QA/CI harness, serve
+      HTTPS on `RB_API_PORT` with the generated certificate; every harness client trusts its CA
+      (`FONOSTER_CA_FILE`, `NODE_EXTRA_CA_CERTS`), the browser projects ignore certificate errors, and
+      `stack tls on|off` is replaced by `stack reconfigure` for config faults (DSH-063). In-process
+      tests keep the API server's internal plain port. The dev container serves `https://localhost:8449`.)
 
 ## 6. Docs
 
