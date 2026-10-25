@@ -1,27 +1,8 @@
-# HTTPS for the dashboard and the API (https://docs.fonoster.com/self-hosting/install-compose).
-# Off by default. Turn it on in .env:
-#
-#   COMPOSE_FILE=compose.yaml:compose.tls.yaml
-#   PUBLIC_URL=https://voice.example.com
-#   TLS_CERT=/etc/letsencrypt/live/voice.example.com/fullchain.pem
-#   TLS_KEY=/etc/letsencrypt/live/voice.example.com/privkey.pem
-#
-# then run `fonoster-config init` again and `docker compose up -d`. Envoy then serves HTTPS on 443
-# and only redirects on 80; the plain HTTP port (HTTP_PORT) is no longer published. The
-# certificate and key are your own files (Let's Encrypt or another CA), mounted read-only; Envoy
-# reads them when its container is created, so recreate it after a renewal
-# (docker compose up -d --force-recreate envoy).
+# HTTPS is the default now (compose.yaml), so this file only keeps older .env files working
+# (COMPOSE_FILE=compose.yaml:compose.tls.yaml) and holds the optional SIP over TLS lines below.
+# Set TLS_CERT and TLS_KEY in .env to serve your own certificate
+# (https://docs.fonoster.com/self-hosting/https).
 services:
-  envoy:
-    volumes:
-      # Replaces compose.yaml's /etc/envoy/envoy.yaml: same routes, served over TLS.
-      - ${CONFIG_DIR:-./config}/envoy-tls.yaml:/etc/envoy/envoy.yaml:ro
-      - ${TLS_CERT:?set TLS_CERT in .env (the certificate chain, PEM)}:/etc/envoy/tls/fullchain.pem:ro
-      - ${TLS_KEY:?set TLS_KEY in .env (the private key, PEM)}:/etc/envoy/tls/privkey.pem:ro
-    ports: !override
-      - "${HTTPS_BIND:-0.0.0.0}:${HTTPS_PORT:-443}:8443"
-      - "${HTTPS_BIND:-0.0.0.0}:${HTTPS_REDIRECT_PORT:-80}:8080"
-
   # SIP over TLS (SIPS) for carriers and softphones, off by default. Routr needs the certificate
   # as a PKCS#12 keystore (config/routr-edgeport.example.yaml has the matching transport), e.g.:
   #
@@ -29,10 +10,12 @@ services:
   #     -out config/tls/signaling.p12 -passout pass:<password>
   #
   # Then uncomment these lines and the tls transport in config/routr-edgeport.example.yaml, set
-  # its keyStorePassword and trustStorePassword to <password>, and run init again.
+  # its keyStorePassword and trustStorePassword to <password>, and run init again. Add this file
+  # to COMPOSE_FILE (COMPOSE_FILE=compose.yaml:compose.tls.yaml).
   #
   # routr:
   #   volumes:
   #     - ${CONFIG_DIR:-./config}/tls/signaling.p12:/etc/routr/certs/signaling.p12:ro
   #   ports:
   #     - "5061:5061/tcp"
+  {}

@@ -1,5 +1,5 @@
-# Envoy configuration without tls for development and testing.
-# Do not use this configuration in production. Please check the docs for examples using tls.
+# Envoy without TLS (compose.http.yaml): plain HTTP on HTTP_PORT, for a TLS proxy in front
+# (HTTP_BIND=127.0.0.1). The default is envoy-tls.yaml.
 static_resources:
   listeners:
     - name: listener_http

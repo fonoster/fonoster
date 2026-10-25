@@ -39,16 +39,22 @@ export function runInfo(options: InfoOptions, io: Io): number {
   const host = env.HOST_IP || "localhost";
   const httpPort = env.HTTP_PORT || "8449";
   const sipPort = env.SIP_PORT || "5060";
-  const publicUrl = env.PUBLIC_URL || `http://${host}:${httpPort}`;
-  // compose.tls.yaml: Envoy serves HTTPS on 443 for PUBLIC_URL's host.
+  const tls = tlsEnabled(env);
+  const httpsPort = env.HTTPS_PORT || "443";
+  const publicUrl =
+    env.PUBLIC_URL ||
+    (tls
+      ? `https://${host}${httpsPort === "443" ? "" : `:${httpsPort}`}`
+      : `http://${host}:${httpPort}`);
+  // HTTPS (the default): Envoy serves HTTPS_PORT for PUBLIC_URL's host.
   let tlsHost = host;
   try {
     tlsHost = new URL(publicUrl).hostname;
   } catch {
     // Not a URL: check and init say so.
   }
-  const api = tlsEnabled(env)
-    ? `${tlsHost}:443 (gRPC and gRPC-Web, TLS)`
+  const api = tls
+    ? `${tlsHost}:${httpsPort} (gRPC and gRPC-Web, TLS)`
     : `${host}:${httpPort} (gRPC and gRPC-Web, plain HTTP)`;
   const lines = [
     `Dashboard   ${publicUrl}`,
@@ -68,14 +74,14 @@ export function runInfo(options: InfoOptions, io: Io): number {
     lines.push(
       `            ${join(options.dir, "config", "tls")}/   certificate generated for getting started`
     );
-    if (tlsEnabled(env))
+    if (tls)
       lines.push(
         "",
         `Certificate ${generated.caCert}`,
         `            SHA-256 ${generated.caFingerprint}`,
         "            Generated for getting started: browsers show a warning once, and API clients",
-        "            must trust this CA file. Use a real certificate (TLS_CERT and TLS_KEY) before",
-        "            going live: https://docs.fonoster.com/self-hosting/https"
+        "            trust this CA file (--ca-file, or FONOSTER_CA_FILE). Use a real certificate",
+        "            (TLS_CERT and TLS_KEY) before going live: https://docs.fonoster.com/self-hosting/https"
       );
   }
   lines.forEach((l) => io.out(l));

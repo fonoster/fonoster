@@ -1,0 +1,16 @@
+# Plain HTTP instead of HTTPS, for a TLS proxy in front (Caddy, nginx, Traefik, a load balancer)
+# that holds the certificate. Turn it on in .env:
+#
+#   COMPOSE_FILE=compose.yaml:compose.http.yaml
+#   HTTP_BIND=127.0.0.1
+#   PUBLIC_URL=https://voice.example.com
+#
+# then run `fonoster-config init` and `docker compose up -d`. Envoy serves plain HTTP on
+# HTTP_PORT (on this machine only with HTTP_BIND=127.0.0.1); point the proxy at it. The proxy must
+# forward gRPC (HTTP/2) and WebSocket upgrades on /sip.
+services:
+  envoy:
+    volumes: !override
+      - ${CONFIG_DIR:-./config}/envoy.yaml:/etc/envoy/envoy.yaml:ro
+    ports: !override
+      - "${HTTP_BIND:-0.0.0.0}:${HTTP_PORT:-8449}:8449"

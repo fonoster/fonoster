@@ -68,7 +68,9 @@ reached. Chrome ignores HSTS headers that arrive over an untrusted connection, s
 certificate alone never creates an entry. The risk is an entry left from an earlier trusted visit to
 the same host (a developer who once trusted another certificate for `localhost`, or a domain that
 goes back from Let's Encrypt to the generated certificate). Envoy sends HSTS only when the owner's
-certificate is in use (`init` renders that choice), and the docs say how to clear a stale entry
+certificate is in use: Compose sets `HSTS` from `${TLS_CERT:+max-age=31536000}`, and Envoy's
+entrypoint drops the marked HSTS lines from `envoy-tls.yaml` when it is empty (built that way
+instead of an `init` render, so no rendered Envoy file is needed), and the docs say how to clear a stale entry
 (`chrome://net-internals/#hsts`).
 
 ### 5. Upgrading existing installs
@@ -80,6 +82,9 @@ certificate is in use (`init` renders that choice), and the docs say how to clea
   changed.
 - Plain HTTP with an owner-edited `PUBLIC_URL`: `init` leaves it, warns that HTTPS is now the
   default, and points to `compose.http.yaml` to stay on plain HTTP.
+- The documented TLS-proxy setup (`HTTP_BIND` set, no `COMPOSE_FILE`, no `TLS_CERT`/`TLS_KEY`):
+  `init` adds `COMPOSE_FILE=compose.yaml:compose.http.yaml`, so it keeps serving plain HTTP to the
+  proxy, and prints the change.
 
 ### 6. Clients
 - SDK (Node): a `caFile` client option. The gRPC channel uses `credentials.createSsl(ca)`; host names

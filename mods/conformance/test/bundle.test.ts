@@ -264,8 +264,8 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       expect(fs.readFileSync(file, "utf8"), file).to.not.match(/rebuild|RB_/i);
   });
 
-  /** Runs the Envoy entrypoint's CORS rewrite (Compose turns $$ into $) on a shipped file. */
-  function corsRewrite(file: string, origins: string) {
+  /** Runs the Envoy entrypoint's rewrite (Compose turns $$ into $) on a shipped file: CORS origins, and the HSTS lines kept only when HSTS is set. */
+  function corsRewrite(file: string, origins: string, hsts = "") {
     const svc = services.envoy as Service & { command?: string[] };
     const work = fs.mkdtempSync(path.join(os.tmpdir(), "bundle-envoy-"));
     const out = path.join(work, "envoy.yaml");
@@ -275,7 +275,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       .replace("/tmp/envoy.yaml", out)
       .replace(/&& exec envoy.*$/, "");
     execFileSync("/bin/sh", ["-c", script], {
-      env: { ...process.env, CORS_ALLOWED_ORIGINS: origins }
+      env: { ...process.env, CORS_ALLOWED_ORIGINS: origins, HSTS: hsts }
     });
     const text = fs.readFileSync(out, "utf8");
     fs.rmSync(work, { recursive: true, force: true });
@@ -294,14 +294,19 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       expect(two).to.contain('- exact: "https://app.example.com"');
       expect(two).to.contain('- exact: "https://b.example.com"');
       expect(two).to.not.contain("__CORS_ALLOWED_ORIGINS__");
-      expect(corsRewrite(file, "").trimEnd(), file).to.equal(envoy.trimEnd());
+      // Unchanged but for the HSTS markers (kept lines with HSTS set, as with the owner's certificate).
+      expect(
+        corsRewrite(file, "", "max-age=31536000").trimEnd(),
+        file
+      ).to.equal(envoy.replace(/^.*__HSTS_(BEGIN|END)__.*\n/gm, "").trimEnd());
     }
     expect(services.envoy.environment?.CORS_ALLOWED_ORIGINS).to.equal(
       "${CORS_ALLOWED_ORIGINS:-}"
     );
   });
 
-  // ---- HTTPS (M10): compose.tls.yaml, opted in from .env; plain HTTP stays the default ----
+  // ---- HTTPS by default (https-by-default): compose.yaml serves envoy-tls.yaml; compose.http.yaml
+  // opts out to plain HTTP; compose.tls.yaml only keeps old .env files working ----
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type Envoy = Record<string, any>;
   const envoyConfig = (file: string): Envoy =>
@@ -315,35 +320,36 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       (f: { name: string }) =>
         f.name === "envoy.filters.network.http_connection_manager"
     ).typed_config;
-  const tlsCompose = () =>
-    parse(fs.readFileSync(path.join(BUNDLE, "compose.tls.yaml"), "utf8"), {
+  const overlay = (file: string) =>
+    parse(fs.readFileSync(path.join(BUNDLE, file), "utf8"), {
       customTags: [
         { tag: "!override", collection: "seq", resolve: (v: unknown) => v }
       ]
     }) as { services: Record<string, Service & { ports?: string[] }> };
 
-  it("serves plain HTTP on HTTP_PORT by default, with no TLS and no 443", function () {
+  it("serves HTTPS on 443 by default, with the generated certificate unless TLS_CERT/TLS_KEY are set", function () {
     const envoy = services.envoy as Service & { ports?: string[] };
     expect(envoy.ports).to.deep.equal([
-      "${HTTP_BIND:-0.0.0.0}:${HTTP_PORT:-8449}:8449"
+      "${HTTPS_BIND:-0.0.0.0}:${HTTPS_PORT:-443}:8443",
+      "${HTTPS_BIND:-0.0.0.0}:${HTTPS_REDIRECT_PORT:-80}:8080"
     ]);
     expect(envoy.volumes).to.deep.equal([
-      "${CONFIG_DIR:-./config}/envoy.yaml:/etc/envoy/envoy.yaml:ro"
+      "${CONFIG_DIR:-./config}/envoy-tls.yaml:/etc/envoy/envoy.yaml:ro",
+      "${TLS_CERT:-${CONFIG_DIR:-./config}/tls/server.pem}:/etc/envoy/tls/fullchain.pem:ro",
+      "${TLS_KEY:-${CONFIG_DIR:-./config}/tls/server-key.pem}:/etc/envoy/tls/privkey.pem:ro"
     ]);
-    const cfg = envoyConfig("envoy.yaml");
-    expect(
-      cfg.static_resources.listeners.map((l: { name: string }) => l.name)
-    ).to.deep.equal(["listener_http"]);
-    expect(read("ops/bundle/config/envoy.yaml")).to.not.contain(
-      "transport_socket"
-    );
-    // .env.example only documents HTTPS: nothing turns it on.
+    // HSTS only with the owner's certificate: a browser that saw it would refuse the click-through
+    // on the generated one's warning.
+    expect(envoy.environment?.HSTS).to.equal("${TLS_CERT:+max-age=31536000}");
+    // .env.example: HTTPS on, the generated certificate (no TLS_CERT/TLS_KEY), an https PUBLIC_URL.
     const example = readEnvFile(path.join(BUNDLE, ".env.example"));
     for (const name of ["COMPOSE_FILE", "TLS_CERT", "TLS_KEY", "HTTP_BIND"])
       expect(example.has(name), name).to.equal(false);
-    expect(tlsEnabled(Object.fromEntries(example))).to.equal(false);
+    expect(example.get("PUBLIC_URL")).to.equal("https://${HOST_IP}");
+    expect(example.get("HTTPS_PORT")).to.equal("443");
+    expect(tlsEnabled(Object.fromEntries(example))).to.equal(true);
     expect(read("ops/bundle/.env.example")).to.contain(
-      "# COMPOSE_FILE=compose.yaml:compose.tls.yaml"
+      "# COMPOSE_FILE=compose.yaml:compose.http.yaml"
     );
     // SIP over TLS is documented, not on. WSS is there for browsers on an https:// dashboard
     // (Envoy terminates TLS and proxies to ws), and nothing publishes its port.
@@ -357,24 +363,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     );
   });
 
-  it("serves HTTPS on 443 with the operator's certificate and redirects 80 (compose.tls.yaml)", function () {
-    const text = fs.readFileSync(path.join(BUNDLE, "compose.tls.yaml"), "utf8");
-    const envoy = tlsCompose().services.envoy;
-    expect(Object.keys(tlsCompose().services)).to.deep.equal(["envoy"]);
-    // Same container path as compose.yaml's mount, so Compose replaces it; the cert and key are
-    // the operator's files, read-only, and required once the file is on.
-    expect(envoy.volumes).to.deep.equal([
-      "${CONFIG_DIR:-./config}/envoy-tls.yaml:/etc/envoy/envoy.yaml:ro",
-      "${TLS_CERT:?set TLS_CERT in .env (the certificate chain, PEM)}:/etc/envoy/tls/fullchain.pem:ro",
-      "${TLS_KEY:?set TLS_KEY in .env (the private key, PEM)}:/etc/envoy/tls/privkey.pem:ro"
-    ]);
-    // !override: the plain HTTP port is not published next to them.
-    expect(text).to.match(/ports: !override\n/);
-    expect(envoy.ports).to.deep.equal([
-      "${HTTPS_BIND:-0.0.0.0}:${HTTPS_PORT:-443}:8443",
-      "${HTTPS_BIND:-0.0.0.0}:${HTTPS_REDIRECT_PORT:-80}:8080"
-    ]);
-
+  it("serves HTTPS with TLS on 8443 and only a redirect on 8080 (envoy-tls.yaml)", function () {
     const tls = envoyConfig("envoy-tls.yaml");
     expect(
       tls.static_resources.listeners.map((l: { name: string }) => l.name)
@@ -424,7 +413,49 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     );
   });
 
-  it("points browser calls at wss:// on the HTTPS origin, ws:// by default", function () {
+  it("sends HSTS only with the owner's certificate (the entrypoint drops it otherwise)", function () {
+    const hsts = /strict-transport-security/;
+    expect(corsRewrite("envoy-tls.yaml", "")).to.not.match(hsts);
+    const withHsts = corsRewrite("envoy-tls.yaml", "", "max-age=31536000");
+    expect(withHsts).to.match(hsts);
+    expect(withHsts).to.not.contain("__HSTS_");
+    // Both parse as Envoy YAML.
+    parse(corsRewrite("envoy-tls.yaml", ""));
+    parse(withHsts);
+  });
+
+  it("opts out to plain HTTP with compose.http.yaml, and keeps old COMPOSE_FILE values working", function () {
+    const http = overlay("compose.http.yaml").services.envoy;
+    expect(read("ops/bundle/compose.http.yaml")).to.match(
+      /volumes: !override\n/
+    );
+    expect(read("ops/bundle/compose.http.yaml")).to.match(/ports: !override\n/);
+    // Only envoy.yaml: no certificate mounted, nothing on 443.
+    expect(http.volumes).to.deep.equal([
+      "${CONFIG_DIR:-./config}/envoy.yaml:/etc/envoy/envoy.yaml:ro"
+    ]);
+    expect(http.ports).to.deep.equal([
+      "${HTTP_BIND:-0.0.0.0}:${HTTP_PORT:-8449}:8449"
+    ]);
+    const cfg = envoyConfig("envoy.yaml");
+    expect(
+      cfg.static_resources.listeners.map((l: { name: string }) => l.name)
+    ).to.deep.equal(["listener_http"]);
+    expect(read("ops/bundle/config/envoy.yaml")).to.not.contain(
+      "transport_socket"
+    );
+    expect(
+      tlsEnabled({ COMPOSE_FILE: "compose.yaml:compose.http.yaml" })
+    ).to.equal(false);
+    // compose.tls.yaml (COMPOSE_FILE=compose.yaml:compose.tls.yaml, from before HTTPS was the
+    // default) is a valid, empty overlay: it changes nothing, HTTPS stays on.
+    expect(overlay("compose.tls.yaml").services).to.deep.equal({});
+    expect(
+      tlsEnabled({ COMPOSE_FILE: "compose.yaml:compose.tls.yaml" })
+    ).to.equal(true);
+  });
+
+  it("points browser calls at wss:// on the HTTPS origin by default, ws:// with plain HTTP", function () {
     const { dir, env } = install();
     const signaling = (publicUrl?: string) =>
       getSignalingServer(
@@ -433,9 +464,12 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
           publicUrl ? { ...env, PUBLIC_URL: publicUrl } : env
         ) as unknown as FonosterConfig
       );
-    expect(signaling()).to.equal("ws://192.0.2.10:8449/sip");
+    expect(signaling()).to.equal("wss://192.0.2.10/sip");
     expect(signaling("https://voice.example.com")).to.equal(
       "wss://voice.example.com/sip"
+    );
+    expect(signaling("http://192.0.2.10:8449")).to.equal(
+      "ws://192.0.2.10:8449/sip"
     );
   });
 

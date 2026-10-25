@@ -10,7 +10,7 @@
 #                                           every secret is kept
 #
 # FONOSTER_DEV_<NAME> in the environment sets <NAME> when .dev/.env is first written, e.g.
-# FONOSTER_DEV_HTTP_PORT=18449 or FONOSTER_DEV_HOST_IP=192.168.1.20 (the address softphones and
+# FONOSTER_DEV_HTTPS_PORT=18449 or FONOSTER_DEV_HOST_IP=192.168.1.20 (the address softphones and
 # the browser reach this machine at; detected otherwise).
 set -eu
 
@@ -53,7 +53,20 @@ if [ "$MODE" = "host" ]; then
     || die "could not build .devcontainer/Dockerfile"
 fi
 
-if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ]; then
+# Before HTTPS was the default, the dev PUBLIC_URL was plain HTTP: move it to the new default (an
+# edited value is kept).
+migrate_public_url() {
+  [ -f "$DEV/.env" ] || return 0
+  if grep -q '^PUBLIC_URL=http://localhost:\${HTTP_PORT}$' "$DEV/.env"; then
+    sed -i.bak 's#^PUBLIC_URL=http://localhost:\${HTTP_PORT}$#PUBLIC_URL=https://localhost:${HTTPS_PORT}#' "$DEV/.env"
+    rm -f "$DEV/.env.bak"
+    log "PUBLIC_URL is https://localhost:\${HTTPS_PORT} now (HTTPS is the default)"
+  fi
+}
+
+# An existing .dev/ is kept, unless it predates HTTPS by default (no certificate in
+# .dev/config/tls/): then init runs again below, which keeps every secret.
+if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ] && [ -f "$DEV/config/tls/server.pem" ]; then
   detected="${FONOSTER_DEV_HOST_IP:-$(detect_host_ip)}"
   [ -z "$detected" ] || printf '%s\n' "$detected" > "$DEV/host-ip.detected"
   warn_stale_host_ip
@@ -88,8 +101,12 @@ awk -v config_dir="$DEV/config" '
     dev["COMPOSE_PROJECT_NAME"] = "fonoster-dev"
     # Apart from a self-hosted install on the same machine (10.216.30).
     dev["SUBNET_PREFIX"] = "10.216.31"
-    # Browsers allow the microphone ("Talk to agent") only on https or http://localhost.
-    dev["PUBLIC_URL"] = "http://localhost:${HTTP_PORT}"
+    # HTTPS on 8449 with the certificate init generates in .dev/config/tls/ (browsers warn once;
+    # the workspace trusts its CA through FONOSTER_CA_FILE). The redirect on 8448.
+    dev["HTTPS_PORT"] = "8449"
+    dev["HTTPS_REDIRECT_PORT"] = "8448"
+    dev["HTTP_PORT"] = "18449"
+    dev["PUBLIC_URL"] = "https://localhost:${HTTPS_PORT}"
   }
   /^[A-Za-z_][A-Za-z0-9_]*=/ {
     name = substr($0, 1, index($0, "=") - 1)
@@ -103,6 +120,8 @@ awk -v config_dir="$DEV/config" '
     print "CONFIG_DIR=" config_dir
   }
 ' "$BUNDLE/.env.example" > "$DEV/.env.example"
+
+migrate_public_url
 
 if [ "$MODE" = "--refresh" ]; then
   # Inside the workspace: the built CLI (post-create builds it), else the source through tsx.

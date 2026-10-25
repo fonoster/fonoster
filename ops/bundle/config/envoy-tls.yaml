@@ -1,6 +1,6 @@
-# Envoy with TLS (compose.tls.yaml): HTTPS on 443 (8443 in the container) with the certificate
-# and key in TLS_CERT and TLS_KEY, and plain HTTP on 80 (8080) answering only with a redirect to
-# HTTPS. Routes, filters and clusters are envoy.yaml's (the bundle tests keep them the same).
+# Envoy with TLS (the default, compose.yaml): HTTPS on 443 (8443 in the container) with the
+# certificate in TLS_CERT and TLS_KEY (or the one init generated in config/tls/), and plain HTTP on
+# 80 (8080) answering only with a redirect to HTTPS. Routes, filters and clusters are envoy.yaml's (the bundle tests keep them the same).
 static_resources:
   listeners:
     - name: listener_http_redirect
@@ -58,12 +58,15 @@ static_resources:
                 virtual_hosts:
                   - name: local_service
                     domains: ["*"]
-                    # Browsers keep to HTTPS for this host once they have seen it (a year).
+                    # Browsers keep to HTTPS for this host once they have seen it (a year). Only with
+                    # the owner's certificate: compose.yaml drops the marked lines when HSTS is empty.
+                    # __HSTS_BEGIN__
                     response_headers_to_add:
                       - append_action: OVERWRITE_IF_EXISTS_OR_ADD
                         header:
                           key: strict-transport-security
                           value: "max-age=31536000"
+                    # __HSTS_END__
                     routes:
                       # SIP over WebSocket to Routr for browser calls ("Talk to agent").
                       - match:
