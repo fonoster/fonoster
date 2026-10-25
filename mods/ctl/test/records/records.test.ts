@@ -64,9 +64,7 @@ describe("@ctl[records]", function () {
   });
 
   it("derives the records API URL from the workspace endpoint", function () {
-    expect(httpUrlFor("localhost:16449", true)).to.equal(
-      "http://localhost:16449"
-    );
+    expect(httpUrlFor("localhost:16449")).to.equal("https://localhost:16449");
     expect(httpUrlFor("api.fonoster.com")).to.equal("https://api.fonoster.com");
     expect(httpUrlFor("https://api.example.com/")).to.equal(
       "https://api.example.com"

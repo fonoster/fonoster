@@ -149,24 +149,27 @@ with the workspace API key that `ops/rebuild/stack info` prints:
 ```sh
 (cd mods/ctl && npx tsc -b)
 alias fonoster="node $PWD/mods/ctl/bin/run.js"
-fonoster workspaces:login --insecure --endpoint localhost:16449 \
+ops/rebuild/stack tls on
+fonoster workspaces:login --endpoint localhost:16443 \
+  --ca-file ops/rebuild/.local/tls/fullchain.pem \
   --access-key-id <API key id> --access-key-secret <API key secret>
 ```
 
-Every command below talks to the active workspace and needs `--insecure` (`-i`) on the local
-stack, which has no TLS.
+The CLI always uses TLS, so the stack serves HTTPS first (`stack tls on`, a self-signed
+certificate for localhost). `--ca-file` is saved with the workspace, so every command below talks
+to the active workspace with no extra flag.
 
 Applications (a stream: a WebSocket URL + protocol + speech defaults; or an Autopilot agent):
 
 ```sh
-fonoster applications:list -i
-fonoster applications:get -i <app-ref>
-fonoster applications:create -i --name "My bot" --url wss://bot.example.com/session \
+fonoster applications:list
+fonoster applications:get <app-ref>
+fonoster applications:create --name "My bot" --url wss://bot.example.com/session \
   --voice deepgram/aura-2-thalia-en --stt-model deepgram/nova-3 --recording on
-fonoster applications:create -i --name "Twilio bot" --url wss://bot.example.com/media --protocol twilio
-fonoster applications:create -i --name Receptionist --agent agent.yaml
-fonoster applications:update -i <app-ref> --patience high --listener wss://rec.example.com/ws,inbound
-fonoster applications:rotate-secret -i <app-ref>   # the new signing secret, shown once
+fonoster applications:create --name "Twilio bot" --url wss://bot.example.com/media --protocol twilio
+fonoster applications:create --name Receptionist --agent agent.yaml
+fonoster applications:update <app-ref> --patience high --listener wss://rec.example.com/ws,inbound
+fonoster applications:rotate-secret <app-ref>   # the new signing secret, shown once
 ```
 
 `create` prints the app's signing secret once (Autopilot agents share the hosted Autopilot's, so
@@ -177,22 +180,22 @@ fields as the API (`url`, `protocol`, `speech`, `audio`, `listeners`, `recording
 Voices and models are catalog ids; vendor keys are per workspace:
 
 ```sh
-fonoster providers:catalog -i --kind voice
-fonoster providers:keys:set -i deepgram          # asks for the key (no echo)
-fonoster providers:keys:list -i
-fonoster providers:keys:delete -i deepgram
+fonoster providers:catalog --kind voice
+fonoster providers:keys:set deepgram          # asks for the key (no echo)
+fonoster providers:keys:list
+fonoster providers:keys:delete deepgram
 ```
 
 Webhooks, call records and outbound calls:
 
 ```sh
-fonoster webhooks:create -i --url https://example.com/hooks -e call.ended -e call_record.sealed
-fonoster webhooks:deliveries -i            # the delivery log; webhooks:resend <delivery-ref>
-fonoster records:list -i --after 2026-10-01
-fonoster records:get -i <call-ref>
-fonoster records:download -i <call-ref>                  # <call-ref>.wav
-fonoster records:download -i <call-ref> --part vcon      # <call-ref>.vcon.json (signed: --part signed)
-fonoster sipnet:calls:create -i -f <from> -t <to> -a <app-ref>   # prints each dial status
+fonoster webhooks:create --url https://example.com/hooks -e call.ended -e call_record.sealed
+fonoster webhooks:deliveries            # the delivery log; webhooks:resend <delivery-ref>
+fonoster records:list --after 2026-10-01
+fonoster records:get <call-ref>
+fonoster records:download <call-ref>                  # <call-ref>.wav
+fonoster records:download <call-ref> --part vcon      # <call-ref>.vcon.json (signed: --part signed)
+fonoster sipnet:calls:create -f <from> -t <to> -a <app-ref>   # prints each dial status
 ```
 
 `webhooks` also has `list`, `get`, `update`, `delete` and `rotate`. `fonoster --help` lists every

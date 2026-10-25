@@ -45,7 +45,11 @@ const webConfig = {
     typescript({
       tsconfig: "./tsconfig.web.json",
       noEmitOnError: true,
-      exclude: ["src/client/Client.ts", "src/generated/node/*"]
+      exclude: [
+        "src/client/Client.ts",
+        "src/client/caTrust.ts",
+        "src/generated/node/*"
+      ]
     }),
     commonjs(),
     resolve({

@@ -38,6 +38,13 @@ import { TrunksClient } from "../generated/node/trunks_grpc_pb";
 import { UsageClient } from "../generated/node/usage_grpc_pb";
 import { WebhooksClient } from "../generated/node/webhooks_grpc_pb";
 import { AbstractClient } from "./AbstractClient";
+import {
+  CaFetch,
+  createCaFetch,
+  readCaFile,
+  resolveCaFile,
+  trustedRoots
+} from "./caTrust";
 import { TokenRefresherNode } from "./TokenRefresherNode";
 
 const DEFAULT_ENDPOINT = "api.fonoster.ai";
@@ -47,11 +54,22 @@ export class Client extends AbstractClient {
   private readonly httpUrl?: string;
   private readonly interceptors: Interceptor[];
   private readonly channelCredentials: ChannelCredentials;
+  private readonly caFetch?: CaFetch;
 
   constructor(
     config: {
       endpoint?: string;
       accessKeyId: string;
+      /**
+       * A PEM file of certificate authorities to trust besides the system's, such as an
+       * install's generated `config/tls/ca.pem`. Default: the FONOSTER_CA_FILE environment
+       * variable. Host names are still verified.
+       */
+      caFile?: string;
+      /**
+       * Connects without TLS. Only for plain connections inside a private network (service to
+       * service, in-process tests); never needed to reach an install over HTTPS: use `caFile`.
+       */
       allowInsecure?: boolean;
       withoutInterceptors?: boolean;
       /** The HTTP API (call records); default https://<endpoint host>. */
@@ -63,9 +81,16 @@ export class Client extends AbstractClient {
       withoutInterceptors: false
     }
   ) {
+    const caFile = config.allowInsecure
+      ? undefined
+      : resolveCaFile(config.caFile);
+    // Read before any connection, so a missing file fails here, naming the path.
+    const ca = caFile ? readCaFile(caFile) : undefined;
     const channelCredentials = config.allowInsecure
       ? credentials.createInsecure()
-      : credentials.createSsl();
+      : credentials.createSsl(
+          ca ? Buffer.from(trustedRoots(ca).join("\n")) : undefined
+        );
 
     super({
       accessKeyId: config.accessKeyId,
@@ -76,6 +101,7 @@ export class Client extends AbstractClient {
     });
 
     this.channelCredentials = channelCredentials;
+    this.caFetch = ca ? createCaFetch(ca) : undefined;
     this.endpoint = config?.endpoint ?? DEFAULT_ENDPOINT;
     this.httpUrl = config?.httpUrl;
 
@@ -169,6 +195,11 @@ export class Client extends AbstractClient {
     return new BillingClient(this.endpoint, this.channelCredentials, {
       interceptors: this.interceptors
     });
+  }
+
+  /** The fetch for the HTTP API when a CA file is trusted; otherwise the global fetch is used. */
+  getFetch(): CaFetch | undefined {
+    return this.caFetch;
   }
 
   getHttpUrl() {

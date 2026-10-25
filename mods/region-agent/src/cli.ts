@@ -21,6 +21,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { CellSecrets, initTelemetry } from "@fonoster/common";
 import { admin, AdminOptions, DEFAULT_API_URL, formatRegions } from "./admin";
+import { controlPlaneFetch } from "./caFetch";
 import { loadAgentConfig, packageVersion } from "./config";
 import {
   DirIdentityStore,
@@ -68,7 +69,10 @@ Region side (on the region's machine)
       --k8s-secret <name>     keep them in a Kubernetes Secret instead ($FONOSTER_REGION_K8S_SECRET)
       --control-plane <url>   refuse tokens for another control plane
       --nats-creds-path <p>   creds path as the cell's NATS server sees it (default /etc/nats/region/leaf.creds)
-      --allow-insecure        accept http:// and nats:// URLs (local testing only)
+      --ca-file <f>           a PEM file of certificate authorities to trust for the control plane, such as
+                              its install's config/tls/ca.pem ($FONOSTER_CA_FILE)
+      --allow-insecure        accept http:// and nats:// URLs: only inside a private network (a region in
+                              the control plane's own network); never needed for HTTPS, use --ca-file
   run [--config <file>]     Run the region agent (default $FONOSTER_REGION_CONFIG or /etc/fonoster/region-agent.yaml)
   status                    Show this cell's region (never the credentials)
   secrets set <name>        Set a secret; the value is read from stdin (or --from-env <VAR>)
@@ -154,9 +158,11 @@ async function readStdin(): Promise<string> {
 }
 
 function adminOptions(a: Args): AdminOptions {
+  const fetch = controlPlaneFetch(flag(a, "ca-file"));
   return {
     api: flag(a, "api", "FONOSTER_API_URL") ?? DEFAULT_API_URL,
-    operatorKey: flag(a, "operator-key", "FONOSTER_OPERATOR_KEY") ?? ""
+    operatorKey: flag(a, "operator-key", "FONOSTER_OPERATOR_KEY") ?? "",
+    ...(fetch ? { fetch } : {})
   };
 }
 
@@ -253,7 +259,8 @@ export async function main(argv: string[], out = process.stdout) {
         /^(1|true|yes)$/i.test(
           process.env.FONOSTER_REGION_ALLOW_INSECURE ?? ""
         ),
-      natsCredsPath: flag(a, "nats-creds-path")
+      natsCredsPath: flag(a, "nats-creds-path"),
+      fetch: controlPlaneFetch(flag(a, "ca-file"))
     });
     print(
       `Enrolled ${identity.kind ?? "the"} region ${identity.regionId ?? identity.regionRef} (${identity.regionRef}).`

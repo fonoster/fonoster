@@ -130,6 +130,22 @@ function newServer(caKeyPem: string, names: string[], now: Date) {
   return { cert, key: keyPem(privateKey) };
 }
 
+/**
+ * A local CA and a server certificate for `names` (DNS names or IP addresses), in memory: the
+ * same certificates `init` writes to config/tls/. For tests and tools that need a trusted TLS
+ * server without files.
+ */
+export function issueCertificates(
+  names: string[],
+  now: Date = new Date()
+): {
+  ca: { cert: string; key: string };
+  server: { cert: string; key: string };
+} {
+  const ca = newCa(now);
+  return { ca, server: newServer(ca.key, names, now) };
+}
+
 /** The names an existing server certificate covers (DNS and IP SANs), lowercased. */
 function coveredNames(pem: string): Set<string> {
   const san = new X509Certificate(pem).subjectAltName ?? "";

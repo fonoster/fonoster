@@ -16,10 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { resolve } from "path";
 import * as SDK from "@fonoster/sdk";
 import { confirm, input, password } from "@inquirer/prompts";
 import { Flags } from "@oclif/core";
-import { BaseCommand } from "../../BaseCommand";
+import { BaseCommand, caHint } from "../../BaseCommand";
 import { addWorkspace, getConfig, WorkspaceConfig } from "../../config";
 import { saveConfig } from "../../config/saveConfig";
 import { CONFIG_FILE } from "../../constants";
@@ -28,7 +29,7 @@ export default class Login extends BaseCommand<typeof Login> {
   static override description = "link a Workspace to the local environment";
   static override examples = [
     "<%= config.bin %> <%= command.id %>",
-    "<%= config.bin %> <%= command.id %> --insecure --endpoint localhost:16449 --access-key-id WO... --access-key-secret ..."
+    "<%= config.bin %> <%= command.id %> --ca-file ./config/tls/ca.pem --endpoint voice.example.com --access-key-id WO... --access-key-secret ..."
   ];
   static override flags = {
     endpoint: Flags.string({
@@ -52,6 +53,7 @@ export default class Login extends BaseCommand<typeof Login> {
       const workspaceFromDB = await this.getWorkspaceFromDB(answers);
       this.saveConfig({
         ...answers,
+        caFile: this.caFile(flags["ca-file"]),
         workspaceAccessKeyId: workspaceFromDB.accessKeyId,
         ref: workspaceFromDB.ref,
         name: workspaceFromDB.name
@@ -89,6 +91,7 @@ export default class Login extends BaseCommand<typeof Login> {
 
       this.saveConfig({
         ...answers,
+        caFile: this.caFile(flags["ca-file"]),
         workspaceAccessKeyId: workspaceFromDB.accessKeyId,
         ref: workspaceFromDB.ref,
         name: workspaceFromDB.name
@@ -99,6 +102,7 @@ export default class Login extends BaseCommand<typeof Login> {
   }
 
   private saveConfig(params: {
+    caFile?: string;
     endpoint: string;
     workspaceAccessKeyId: string;
     accessKeyId: string;
@@ -116,6 +120,7 @@ export default class Login extends BaseCommand<typeof Login> {
     } = params;
 
     const workspace: WorkspaceConfig = {
+      ...(params.caFile ? { caFile: params.caFile } : {}),
       workspaceAccessKeyId,
       endpoint,
       accessKeyId,
@@ -138,13 +143,13 @@ export default class Login extends BaseCommand<typeof Login> {
   }) {
     const { flags } = await this.parse(Login);
     const { endpoint, accessKeyId, accessKeySecret } = params;
-    const client = new SDK.Client({
-      endpoint,
-      accessKeyId,
-      allowInsecure: flags.insecure
-    });
 
     try {
+      const client = new SDK.Client({
+        endpoint,
+        accessKeyId,
+        caFile: this.caFile(flags["ca-file"])
+      });
       await client.loginWithApiKey(accessKeyId, accessKeySecret);
 
       const workspaces = new SDK.Workspaces(client);
@@ -156,7 +161,12 @@ export default class Login extends BaseCommand<typeof Login> {
 
       return workspaceFromDB;
     } catch (e) {
-      this.error(e.message);
+      this.error(caHint(e.message));
     }
+  }
+
+  /** The --ca-file flag as an absolute path, so later commands find it from any folder. */
+  private caFile(flag?: string): string | undefined {
+    return flag ? resolve(flag) : undefined;
   }
 }

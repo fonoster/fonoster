@@ -20,6 +20,7 @@ import { generateKeyPairSync } from "crypto";
 import * as fs from "fs";
 import * as path from "path";
 import { CellSecrets } from "@fonoster/common";
+import { certHint } from "./caFetch";
 import { KubeSecrets } from "./kube";
 import {
   checkUrls,
@@ -148,7 +149,10 @@ export async function enroll(options: EnrollOptions): Promise<RegionIdentity> {
     try {
       return await http(url, init);
     } catch (e) {
-      throw new EnrollError("unreachable", `${url}: ${(e as Error).message}`);
+      throw new EnrollError(
+        "unreachable",
+        certHint(`${url}: ${(e as Error).message}`)
+      );
     }
   };
   const keysRes = await get(`${base}/.well-known/region-keys.json`);

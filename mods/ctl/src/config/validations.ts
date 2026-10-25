@@ -27,6 +27,8 @@ const workspaceConfigSchema = z.object({
   accessKeySecret: z.string().min(1, "The accessKeySecret value is required"),
   workspaceRef: z.string().min(1, "The workspaceRef value is required"),
   workspaceName: z.string().min(1, "The workspaceName value is required"),
+  /** The CA file saved at login (--ca-file), reused by later commands. */
+  caFile: z.string().min(1).optional(),
   active: z.boolean().optional()
 });
 

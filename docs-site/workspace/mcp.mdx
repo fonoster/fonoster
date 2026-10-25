@@ -129,7 +129,7 @@ The server reads these environment variables:
 | `MCP_APIKEY_ACCESS_KEY_ID` | Yes | The API key ID, `AP…`. |
 | `MCP_APIKEY_ACCESS_KEY_SECRET` | Yes | The API key secret. |
 | `MCP_ENDPOINT` | No | The API address. Defaults to Fonoster Cloud, `api.fonoster.ai`. |
-| `MCP_ALLOW_INSECURE` | No | `true` to connect without TLS, for a local install. Defaults to `false`. |
+| `FONOSTER_CA_FILE` | No | A PEM file of certificate authorities to trust, such as an install's generated `config/tls/ca.pem`. The server always connects over TLS. |
 
 On your own install, add `MCP_ENDPOINT` with your API's address. `mcp:configure` doesn't write it,
 so add it to the file by hand.
