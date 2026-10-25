@@ -29,6 +29,7 @@ import {
 import { exposureWarnings } from "./exposure";
 import { renderConfigDir, RenderError } from "./render";
 import { detectHostIp, ensureKeys, generateSecret } from "./secrets";
+import { ensureLocalTls } from "./tls";
 import { Io } from "./types";
 
 export type InitOptions = {
@@ -174,6 +175,14 @@ export async function runInit(options: InitOptions, io: Io): Promise<number> {
       : "keys: kept"
   );
   io.out(`config: ${rendered.map((f) => `config/${f}`).join(", ")}`);
+  const tls = ensureLocalTls(dir, env);
+  if (tls.state === "owner") io.out("tls: using TLS_CERT and TLS_KEY");
+  else
+    io.out(
+      tls.state === "kept"
+        ? `tls: kept (${rel(tls.dir)})`
+        : `tls: ${tls.state === "created" ? "local CA and server certificate created" : "server certificate reissued"} in ${rel(tls.dir)} for ${tls.names.join(", ")} (for getting started)`
+    );
   io.out(`host address: ${hostIp}`);
   exposureWarnings(env, dir).forEach((w) => io.err(`warning: ${w}`));
   io.out("");

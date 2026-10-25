@@ -16,7 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createPrivateKey, createPublicKey } from "crypto";
+import { spawnSync } from "child_process";
+import { createPrivateKey, createPublicKey, X509Certificate } from "crypto";
 import {
   appendFileSync,
   cpSync,
@@ -24,6 +25,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  rmSync,
   statSync,
   writeFileSync
 } from "fs";
@@ -43,6 +45,7 @@ import {
 } from "../../../src/config/cli/render";
 import { encryptionKey, generateSecret } from "../../../src/config/cli/secrets";
 import { runInit } from "../../../src/config/cli/init";
+import { ensureLocalTls } from "../../../src/config/cli/tls";
 import {
   exposureWarnings,
   isLocalHost
@@ -520,6 +523,244 @@ describe("@common[config/cli] fonoster-config", function () {
         "2001:db8::1"
       ])
         expect(isLocalHost(h), h).to.equal(false);
+    });
+  });
+
+  describe("generated certificate (https-by-default)", function () {
+    const TLS_FILES = ["ca.pem", "ca-key.pem", "server.pem", "server-key.pem"];
+    const tlsFile = (dir: string, f: string) => join(dir, "config/tls", f);
+    const certOf = (dir: string, f: string) =>
+      new X509Certificate(readFileSync(tlsFile(dir, f)));
+    const days = (from: string, to: string) =>
+      Math.round((Date.parse(to) - Date.parse(from)) / 86_400_000);
+
+    it("creates a local CA and a server certificate for the install's names", async function () {
+      const dir = unpack();
+      const run = await init(dir, "203.0.113.10");
+      expect(run.code, run.err).to.equal(0);
+      expect(run.out).to.contain(
+        "tls: local CA and server certificate created in config/tls"
+      );
+      expect(run.out).to.contain("(for getting started)");
+      for (const f of TLS_FILES)
+        expect(existsSync(tlsFile(dir, f)), f).to.equal(true);
+      expect(mode(tlsFile(dir, "ca-key.pem"))).to.equal(0o600);
+      expect(mode(tlsFile(dir, "server-key.pem"))).to.equal(0o600);
+      expect(mode(tlsFile(dir, "ca.pem"))).to.equal(0o644);
+      expect(mode(tlsFile(dir, "server.pem"))).to.equal(0o644);
+
+      const ca = certOf(dir, "ca.pem");
+      const server = certOf(dir, "server.pem");
+      expect(ca.ca).to.equal(true);
+      expect(server.ca).to.equal(false);
+      expect(server.checkIssued(ca)).to.equal(true);
+      expect(server.verify(ca.publicKey)).to.equal(true);
+      expect(days(ca.validFrom, ca.validTo)).to.be.within(3650, 3651);
+      expect(days(server.validFrom, server.validTo)).to.be.within(397, 398);
+      // Default PUBLIC_URL is http://${HOST_IP}:8449: its host is the host address.
+      for (const name of ["localhost", "127.0.0.1", "203.0.113.10"])
+        expect(server.checkHost(name) || server.checkIP(name), name).to.be.ok;
+      expect(server.checkHost("voice.example.com")).to.equal(undefined);
+      // ECDSA P-256, signed ecdsa-with-SHA256 by Node's crypto (no certificate library).
+      expect(ca.publicKey.asymmetricKeyType).to.equal("ec");
+      expect(ca.publicKey.asymmetricKeyDetails?.namedCurve).to.equal(
+        "prime256v1"
+      );
+      expect(ca.verify(ca.publicKey)).to.equal(true);
+      expect(ca.subject).to.equal("CN=Fonoster local CA");
+      expect(server.issuer).to.equal(ca.subject);
+      expect(server.subjectAltName).to.equal(
+        "DNS:localhost, IP Address:127.0.0.1, IP Address:203.0.113.10"
+      );
+      expect(server.keyUsage).to.deep.equal(["1.3.6.1.5.5.7.3.1"]);
+    });
+
+    it("writes certificates openssl verifies, with the expected extensions", async function () {
+      if (spawnSync("openssl", ["version"]).status !== 0) this.skip();
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      const ca = tlsFile(dir, "ca.pem");
+      const server = tlsFile(dir, "server.pem");
+      const verify = spawnSync("openssl", ["verify", "-CAfile", ca, server], {
+        encoding: "utf8"
+      });
+      expect(verify.status, verify.stderr).to.equal(0);
+      expect(verify.stdout).to.contain(": OK");
+      const text = (file: string) =>
+        spawnSync("openssl", ["x509", "-in", file, "-noout", "-text"], {
+          encoding: "utf8"
+        }).stdout;
+      const caText = text(ca);
+      expect(caText).to.match(/Basic Constraints: critical\s+CA:TRUE/);
+      expect(caText).to.match(
+        /Key Usage: critical\s+Certificate Sign, CRL Sign/
+      );
+      expect(caText).to.contain("Subject Key Identifier");
+      const serverText = text(server);
+      expect(serverText).to.match(/Basic Constraints: critical\s+CA:FALSE/);
+      expect(serverText).to.match(/Key Usage: critical\s+Digital Signature/);
+      expect(serverText).to.contain("TLS Web Server Authentication");
+      expect(serverText).to.contain("Authority Key Identifier");
+      expect(serverText).to.contain("ecdsa-with-SHA256");
+    });
+
+    it("keeps every file byte for byte on a second run", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      const before = TLS_FILES.map((f) => readFileSync(tlsFile(dir, f)));
+      const run = await init(dir);
+      expect(run.code, run.err).to.equal(0);
+      expect(run.out).to.contain("tls: kept (config/tls)");
+      TLS_FILES.forEach((f, i) =>
+        expect(readFileSync(tlsFile(dir, f)).equals(before[i]), f).to.equal(
+          true
+        )
+      );
+    });
+
+    it("reissues only the server certificate for a new PUBLIC_URL host, keeping the CA", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      const ca = readFileSync(tlsFile(dir, "ca.pem"));
+      const caKey = readFileSync(tlsFile(dir, "ca-key.pem"));
+      appendFileSync(
+        join(dir, ".env"),
+        "PUBLIC_URL=https://voice.example.com\n"
+      );
+      const run = await init(dir);
+      expect(run.out).to.contain("tls: server certificate reissued");
+      expect(run.out).to.contain("voice.example.com");
+      expect(readFileSync(tlsFile(dir, "ca.pem")).equals(ca)).to.equal(true);
+      expect(readFileSync(tlsFile(dir, "ca-key.pem")).equals(caKey)).to.equal(
+        true
+      );
+      const server = certOf(dir, "server.pem");
+      expect(server.checkHost("voice.example.com")).to.equal(
+        "voice.example.com"
+      );
+      expect(server.checkIssued(certOf(dir, "ca.pem"))).to.equal(true);
+    });
+
+    it("reissues the server certificate within 30 days of expiry", function () {
+      const dir = unpack();
+      const env = { HOST_IP: "192.0.2.10" };
+      expect(ensureLocalTls(dir, env).state).to.equal("created");
+      const later = (d: number) => new Date(Date.now() + d * 86_400_000);
+      expect(ensureLocalTls(dir, env, later(300)).state).to.equal("kept");
+      expect(ensureLocalTls(dir, env, later(370)).state).to.equal("reissued");
+    });
+
+    it("generates nothing when .env names the owner's certificate", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      rmSync(join(dir, "config/tls"), { recursive: true });
+      const cert = join(dir, "fullchain.pem");
+      const key = join(dir, "privkey.pem");
+      writeFileSync(cert, "cert");
+      writeFileSync(key, "key");
+      appendFileSync(join(dir, ".env"), `TLS_CERT=${cert}\nTLS_KEY=${key}\n`);
+      const run = await init(dir);
+      expect(run.code, run.err).to.equal(0);
+      expect(run.out).to.contain("tls: using TLS_CERT and TLS_KEY");
+      expect(existsSync(join(dir, "config/tls"))).to.equal(false);
+    });
+
+    it("keeps maintaining the generated files when TLS_CERT and TLS_KEY point at them", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      appendFileSync(
+        join(dir, ".env"),
+        "TLS_CERT=./config/tls/server.pem\nTLS_KEY=./config/tls/server-key.pem\n"
+      );
+      const run = await init(dir);
+      expect(run.out).to.contain("tls: kept (config/tls)");
+    });
+
+    it("info shows the CA file, its fingerprint and the getting-started notice when HTTPS uses it", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      let info = await cli(["info", "--dir", dir]);
+      // HTTPS is not on yet: the files are listed, with no notice.
+      expect(info.out).to.contain("certificate generated for getting started");
+      expect(info.out).to.not.contain("SHA-256");
+      appendFileSync(
+        join(dir, ".env"),
+        [
+          "COMPOSE_FILE=compose.yaml:compose.tls.yaml",
+          "PUBLIC_URL=https://203.0.113.10",
+          "TLS_CERT=./config/tls/server.pem",
+          "TLS_KEY=./config/tls/server-key.pem",
+          ""
+        ].join("\n")
+      );
+      await init(dir);
+      info = await cli(["info", "--dir", dir]);
+      expect(info.code, info.err).to.equal(0);
+      expect(info.out).to.contain(`Certificate ${tlsFile(dir, "ca.pem")}`);
+      expect(info.out).to.contain(
+        `SHA-256 ${certOf(dir, "ca.pem").fingerprint256}`
+      );
+      expect(info.out).to.contain("Use a real certificate");
+    });
+
+    it("info shows no notice with the owner's certificate", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      const cert = join(dir, "fullchain.pem");
+      const key = join(dir, "privkey.pem");
+      writeFileSync(cert, "cert");
+      writeFileSync(key, "key");
+      appendFileSync(
+        join(dir, ".env"),
+        `COMPOSE_FILE=compose.yaml:compose.tls.yaml\nPUBLIC_URL=https://voice.example.com\nTLS_CERT=${cert}\nTLS_KEY=${key}\n`
+      );
+      const info = await cli(["info", "--dir", dir]);
+      expect(info.out).to.not.contain("getting started");
+      expect(info.out).to.not.contain("SHA-256");
+    });
+
+    it("check warns when a public domain is served with the generated certificate", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      appendFileSync(
+        join(dir, ".env"),
+        [
+          "COMPOSE_FILE=compose.yaml:compose.tls.yaml",
+          "PUBLIC_URL=https://voice.example.com",
+          "TLS_CERT=./config/tls/server.pem",
+          "TLS_KEY=./config/tls/server-key.pem",
+          ""
+        ].join("\n")
+      );
+      await init(dir);
+      const check = await cli(["check", "--dir", dir]);
+      expect(check.code, check.err).to.equal(0);
+      expect(check.err).to.contain(
+        "warning: PUBLIC_URL is https://voice.example.com but HTTPS uses the certificate init generated for getting started"
+      );
+    });
+
+    it("check says nothing for the generated certificate on an IP address", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      appendFileSync(
+        join(dir, ".env"),
+        [
+          "COMPOSE_FILE=compose.yaml:compose.tls.yaml",
+          "PUBLIC_URL=https://203.0.113.10",
+          "TLS_CERT=./config/tls/server.pem",
+          "TLS_KEY=./config/tls/server-key.pem",
+          ""
+        ].join("\n")
+      );
+      await init(dir);
+      const check = await cli(["check", "--dir", dir]);
+      expect(check.err).to.not.contain("warning");
+    });
+
+    it("never ships config/tls in the release archive", function () {
+      const script = readFileSync(join(BUNDLE, "../release/bundle"), "utf8");
+      expect(script).to.match(/rm -rf [^\n]*"\$STAGE\/config\/tls"/);
     });
   });
 

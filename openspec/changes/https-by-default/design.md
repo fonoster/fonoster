@@ -33,15 +33,23 @@ Clients trust `ca.pem` once. `init` reissues the server certificate when names c
 same `ca.pem`. A single self-signed certificate would force every client to fetch a new file on each
 change. CA: 10 years. Server certificate: 397 days.
 
-### 2. Generated in Node by `@fonoster/common`, with a small X.509 library
-`init` must not need `openssl` (self-host-installer spec). Node's `crypto` generates keys but can't
-build certificates, so `@fonoster/common` adds **`node-forge`** (spike, 2026-10-25): one package with no
-dependencies, CommonJS, RSA 2048 keys (generated in about 0.2 s). Envoy 1.35, Chrome, grpc-js and
-`fetch` all accept its CA and server certificate (DNS and IP SANs). `@peculiar/x509` also worked
-(ECDSA P-256) but pulls in about 4.6 MB of dependencies and needs the global `reflect-metadata`
-polyfill (through `tsyringe`), which would leak into every consumer of `@fonoster/common`. ECDSA isn't
-needed for a getting-started certificate. We only generate certificates with it, never parse
-untrusted ones.
+### 2. Generated with Node's built-in crypto, no certificate library
+`init` must not need `openssl` (self-host-installer spec), and `@fonoster/common` must not add a
+dependency: every `@fonoster/sdk` user installs it. Node's `crypto` makes the keys
+(`generateKeyPairSync`, ECDSA P-256), signs (`crypto.sign`, ecdsa-with-SHA256, DER signatures) and
+reads and verifies certificates (`crypto.X509Certificate`: names, expiry, `checkIssued`, `verify`).
+The one thing it lacks is building a certificate, so `mods/common/src/config/cli/x509.ts` writes the
+minimal DER for an X.509 v3 TBSCertificate: version, serial, signature algorithm, issuer and subject
+CN, validity, SPKI (from `key.export({ type: "spki", format: "der" })`), and the extensions
+basicConstraints, keyUsage, extKeyUsage serverAuth, subjectAltName (DNS and IP), and subject/authority
+key identifiers. It only ever writes certificates, never parses untrusted ones.
+
+Rejected (spike, 2026-10-25): `node-forge` worked (RSA 2048) but CI's production-dependency audit
+flags it with a high advisory that no version fixes (GHSA-86w9-cpqp-85rv), which every SDK user's
+`npm audit` would show. `@peculiar/x509` worked (ECDSA P-256) but pulls in about 4.6 MB of
+dependencies and the global `reflect-metadata` polyfill. Envoy 1.35, `openssl verify` and `curl
+--cacert` accept the hand-built ECDSA certificates (DNS and IPv4/IPv6 SANs); Chrome and Safari
+accepted the spike's certificates after the click-through.
 
 ### 3. HTTPS becomes the base `compose.yaml`; plain HTTP is the overlay
 Today TLS is the `compose.tls.yaml` overlay. It flips:
@@ -134,5 +142,5 @@ Rollback: an owner sets `COMPOSE_FILE=compose.yaml:compose.http.yaml` and their 
 
 ## Open Questions
 
-- ~~Library choice~~: `node-forge` (Decision 2).
+- ~~Library choice~~: none; Node's built-in crypto plus a minimal DER writer (Decision 2).
 - Should `info` print the CA's SHA-256 fingerprint, so a remote client can check what it fetched?

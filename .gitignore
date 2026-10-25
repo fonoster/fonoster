@@ -9,8 +9,13 @@ dist
 coverage
 .nyc_output
 .keys
-# Signing keys are generated per install (fonoster-config init, ops/rebuild/stack), never committed.
-config/keys/
+# Signing keys and the certificate init generates for getting started (local CA and server
+# certificate) are per install (fonoster-config init, ops/rebuild/stack), never committed: at the
+# root and in the bundle folder, where init may run against ops/bundle itself.
+/config/keys/
+/config/tls/
+/ops/bundle/config/keys/
+/ops/bundle/config/tls/
 *.tsbuildinfo
 tsconfig.tsbuildinfo
 integrations.json
