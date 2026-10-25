@@ -84,7 +84,13 @@ compose() {
     --env-file "$STACK_ENV")
   [ -f "$HOST_ENV" ] && args+=(--env-file "$HOST_ENV")
   [ -f "$BUNDLE_ENV" ] && args+=(--env-file "$BUNDLE_ENV")
-  [ -f "$TLS_ENV" ] && args+=(-f "$BUNDLE/compose.tls.yaml" --env-file "$TLS_ENV")
+  # The bundle serves HTTPS by default; this harness talks plain HTTP on RB_API_PORT unless
+  # `stack tls on` is in effect (its own certificate, TLS_ENV).
+  if [ -f "$TLS_ENV" ]; then
+    args+=(--env-file "$TLS_ENV")
+  else
+    args+=(-f "$BUNDLE/compose.http.yaml")
+  fi
   COMPOSE_PROFILES="$(profiles)" docker compose "${args[@]}" "$@"
 }
 
@@ -585,8 +591,9 @@ roomr_registered() {
   compose logs --since "$1" roomr 2>/dev/null | grep -q '"state":"registered"'
 }
 
-# HTTPS on localhost with a self-signed certificate (the bundle's compose.tls.yaml), so browser
-# calls take the WSS path production uses; `tls off` returns to plain HTTP.
+# HTTPS on localhost with a self-signed certificate (the bundle's default HTTPS, without
+# compose.http.yaml), so browser calls take the WSS path production uses; `tls off` returns to
+# plain HTTP.
 cmd_tls() {
   load_env
   # stack.env files made before these were added fall back to the defaults.

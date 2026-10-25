@@ -235,7 +235,7 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(resolved.database.url).to.equal(
         `postgresql://postgres:${env.POSTGRES_PASSWORD}@postgres:5432/fonoster`
       );
-      expect(resolved.appUrl).to.equal("http://192.0.2.10:8449");
+      expect(resolved.appUrl).to.equal("https://192.0.2.10");
       expect(resolved.regions.public[0].endpoints.sip[0]).to.deep.equal({
         host: "192.0.2.10",
         port: "5060",
@@ -305,7 +305,7 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(fonoster.regions.public[0].endpoints.mediaAddresses).to.deep.equal(
         ["203.0.113.10"]
       );
-      expect(fonoster.appUrl).to.equal("http://203.0.113.10:8449");
+      expect(fonoster.appUrl).to.equal("https://203.0.113.10");
     });
 
     it("exits non-zero and asks for --host-ip when no address is found", async function () {
@@ -425,12 +425,17 @@ describe("@common[config/cli] fonoster-config", function () {
 
     it("warns when PUBLIC_URL is plain HTTP on an address others may reach", async function () {
       const dir = unpack();
-      const run = await init(dir, "203.0.113.10");
+      await init(dir, "203.0.113.10");
+      appendFileSync(
+        join(dir, ".env"),
+        "COMPOSE_FILE=compose.yaml:compose.http.yaml\nPUBLIC_URL=http://203.0.113.10:8449\n"
+      );
+      const run = await init(dir);
       expect(run.code, run.err).to.equal(0);
       expect(run.err).to.contain(
         "warning: PUBLIC_URL is http://203.0.113.10:8449: the dashboard and API"
       );
-      expect(run.err).to.contain("compose.tls.yaml");
+      expect(run.err).to.contain("compose.http.yaml");
       const check = await cli(["check", "--dir", dir]);
       expect(check.code, check.err).to.equal(0);
       expect(check.err).to.contain("warning: PUBLIC_URL is http://");
@@ -481,24 +486,24 @@ describe("@common[config/cli] fonoster-config", function () {
     it("warns about an incomplete HTTPS setup without failing", async function () {
       const dir = unpack();
       await init(dir, "203.0.113.10");
-      appendFileSync(
-        join(dir, ".env"),
-        "COMPOSE_FILE=compose.yaml:compose.tls.yaml\nTLS_CERT=missing/fullchain.pem\n"
-      );
+      appendFileSync(join(dir, ".env"), "TLS_CERT=missing/fullchain.pem\n");
       const run = await init(dir);
       expect(run.code, run.err).to.equal(0);
       expect(run.err).to.contain("TLS_CERT: missing/fullchain.pem not found");
-      expect(run.err).to.contain("TLS_KEY is not set");
-      expect(run.err).to.contain("PUBLIC_URL is http://");
+      expect(run.err).to.contain("set both TLS_CERT and TLS_KEY");
 
-      // A certificate without compose.tls.yaml does nothing.
+      // A certificate with compose.http.yaml does nothing.
       expect(
         exposureWarnings(
-          { PUBLIC_URL: "http://localhost:8449", TLS_CERT: "x" },
+          {
+            COMPOSE_FILE: "compose.yaml:compose.http.yaml",
+            PUBLIC_URL: "http://localhost:8449",
+            TLS_CERT: "x"
+          },
           dir
         )
       ).to.deep.equal([
-        "TLS_CERT/TLS_KEY are set but COMPOSE_FILE does not name compose.tls.yaml: Envoy still serves plain HTTP"
+        "TLS_CERT/TLS_KEY are set but COMPOSE_FILE names compose.http.yaml: Envoy serves plain HTTP"
       ]);
     });
 
@@ -679,28 +684,89 @@ describe("@common[config/cli] fonoster-config", function () {
     it("info shows the CA file, its fingerprint and the getting-started notice when HTTPS uses it", async function () {
       const dir = unpack();
       await init(dir, "203.0.113.10");
-      let info = await cli(["info", "--dir", dir]);
-      // HTTPS is not on yet: the files are listed, with no notice.
-      expect(info.out).to.contain("certificate generated for getting started");
-      expect(info.out).to.not.contain("SHA-256");
-      appendFileSync(
-        join(dir, ".env"),
-        [
-          "COMPOSE_FILE=compose.yaml:compose.tls.yaml",
-          "PUBLIC_URL=https://203.0.113.10",
-          "TLS_CERT=./config/tls/server.pem",
-          "TLS_KEY=./config/tls/server-key.pem",
-          ""
-        ].join("\n")
-      );
-      await init(dir);
-      info = await cli(["info", "--dir", dir]);
+      // HTTPS is the default: right after init, the notice and the CA are shown.
+      const info = await cli(["info", "--dir", dir]);
       expect(info.code, info.err).to.equal(0);
       expect(info.out).to.contain(`Certificate ${tlsFile(dir, "ca.pem")}`);
       expect(info.out).to.contain(
         `SHA-256 ${certOf(dir, "ca.pem").fingerprint256}`
       );
       expect(info.out).to.contain("Use a real certificate");
+      expect(info.out).to.contain("--ca-file");
+      expect(info.out).to.contain("Dashboard   https://203.0.113.10");
+
+      // Plain HTTP (compose.http.yaml): the files are listed, with no notice.
+      appendFileSync(
+        join(dir, ".env"),
+        "COMPOSE_FILE=compose.yaml:compose.http.yaml\n"
+      );
+      const plain = await cli(["info", "--dir", dir]);
+      expect(plain.out).to.contain("certificate generated for getting started");
+      expect(plain.out).to.not.contain("SHA-256");
+    });
+
+    it("upgrades a PUBLIC_URL still on the old plain-HTTP default to HTTPS", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      const envFile = join(dir, ".env");
+      writeFileSync(
+        envFile,
+        readFileSync(envFile, "utf8").replace(
+          /^PUBLIC_URL=.*$/m,
+          "PUBLIC_URL=http://${HOST_IP}:${HTTP_PORT}"
+        )
+      );
+      const run = await init(dir);
+      expect(run.code, run.err).to.equal(0);
+      expect(run.out).to.contain(
+        "changed: PUBLIC_URL http://${HOST_IP}:${HTTP_PORT} -> https://${HOST_IP}"
+      );
+      expect(readEnvFile(envFile).get("PUBLIC_URL")).to.equal(
+        "https://${HOST_IP}"
+      );
+      expect(run.err).to.not.contain("warning");
+    });
+
+    it("keeps an owner-edited http:// PUBLIC_URL and warns that HTTPS is the default", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      const envFile = join(dir, ".env");
+      writeFileSync(
+        envFile,
+        readFileSync(envFile, "utf8").replace(
+          /^PUBLIC_URL=.*$/m,
+          "PUBLIC_URL=http://voice.example.com:8449"
+        )
+      );
+      const run = await init(dir);
+      expect(readEnvFile(envFile).get("PUBLIC_URL")).to.equal(
+        "http://voice.example.com:8449"
+      );
+      expect(run.out).to.not.contain("changed:");
+      expect(run.err).to.contain(
+        "HTTPS is the default now but PUBLIC_URL is http://"
+      );
+      expect(run.err).to.contain("compose.http.yaml");
+    });
+
+    it("moves the documented TLS-proxy setup (HTTP_BIND) to compose.http.yaml", async function () {
+      const dir = unpack();
+      await init(dir, "203.0.113.10");
+      const envFile = join(dir, ".env");
+      appendFileSync(
+        envFile,
+        "HTTP_BIND=127.0.0.1\nPUBLIC_URL=https://voice.example.com\n"
+      );
+      const run = await init(dir);
+      expect(run.out).to.contain(
+        "changed: COMPOSE_FILE=compose.yaml:compose.http.yaml"
+      );
+      expect(readEnvFile(envFile).get("COMPOSE_FILE")).to.equal(
+        "compose.yaml:compose.http.yaml"
+      );
+      // A second run changes nothing more.
+      const again = await init(dir);
+      expect(again.out).to.not.contain("changed:");
     });
 
     it("info shows no notice with the owner's certificate", async function () {
@@ -771,7 +837,7 @@ describe("@common[config/cli] fonoster-config", function () {
       const env = readEnvFile(join(dir, ".env"));
       const run = await cli(["info", "--dir", dir]);
       expect(run.code).to.equal(0);
-      expect(run.out).to.contain("http://192.0.2.10:8449");
+      expect(run.out).to.contain("https://192.0.2.10");
       expect(run.out).to.contain(
         `admin@fonoster.local / ${env.get("OWNER_PASSWORD")}`
       );

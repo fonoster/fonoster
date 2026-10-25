@@ -17,5 +17,11 @@
 # Self-hosting without a checkout: ops/bundle/README.md. Developing Fonoster: the dev container
 # (.devcontainer/, CONTRIBUTING.md); this file is the smoke/CI harness, not a development path.
 include:
-  - path: [ops/bundle/compose.yaml, ops/rebuild/compose.yaml]
+  # compose.http.yaml: this harness talks plain HTTP on HTTP_PORT (the bundle defaults to HTTPS).
+  - path:
+      [
+        ops/bundle/compose.yaml,
+        ops/bundle/compose.http.yaml,
+        ops/rebuild/compose.yaml
+      ]
     project_directory: ops/rebuild

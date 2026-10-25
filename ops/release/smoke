@@ -7,12 +7,14 @@
 # Needs dist/release/<version>/ from `ops/release/bundle <version>` and the bundle images
 # fonoster/<service>:<version> in the local Docker. Unpacks the archive in a temporary folder,
 # runs `fonoster-config init` and `check`, `docker compose up -d`, waits for the apiserver to be
-# healthy and the dashboard to answer 200 through Envoy, then removes everything (volumes too).
+# healthy and the dashboard to answer 200 over HTTPS through Envoy (the certificate init generated,
+# trusted through config/tls/ca.pem; no HSTS with it; the redirect port answers 301), then removes
+# everything (volumes too).
 #
 # Ports, the subnet and the project name come from the environment so a shared host can run it
 # next to other stacks: SMOKE_PROJECT (fonoster-smoke), SMOKE_SUBNET (10.216.30),
-# SMOKE_PORT_BASE (18000: HTTP on base+1, SIP base+2, NATS base+3, MinIO base+4/5, RTPEngine
-# base+10..39, Roomr node base+40..69), SMOKE_TIMEOUT seconds (600), SMOKE_KEEP=1 keeps the stack.
+# SMOKE_PORT_BASE (18000: HTTPS on base+1, SIP base+2, NATS base+3, MinIO base+4/5, the HTTPS
+# redirect base+6, plain HTTP base+7 (unused), RTPEngine base+10..39, Roomr node base+40..69), SMOKE_TIMEOUT seconds (600), SMOKE_KEEP=1 keeps the stack.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -22,7 +24,7 @@ PROJECT="${SMOKE_PROJECT:-fonoster-smoke}"
 SUBNET="${SMOKE_SUBNET:-10.216.30}"
 BASE="${SMOKE_PORT_BASE:-18000}"
 TIMEOUT="${SMOKE_TIMEOUT:-600}"
-HTTP_PORT=$((BASE + 1))
+HTTPS_PORT=$((BASE + 1))
 
 log() { printf '\033[1m[smoke]\033[0m %s\n' "$*" >&2; }
 
@@ -54,7 +56,10 @@ trap cleanup EXIT
 # A .env with this host's ports; init keeps these values and generates the empty secrets.
 sed -e "s/^COMPOSE_PROJECT_NAME=.*/COMPOSE_PROJECT_NAME=$PROJECT/" \
   -e "s/^SUBNET_PREFIX=.*/SUBNET_PREFIX=$SUBNET/" \
-  -e "s/^HTTP_PORT=.*/HTTP_PORT=$HTTP_PORT/" \
+  -e "s/^HTTPS_PORT=.*/HTTPS_PORT=$HTTPS_PORT/" \
+  -e "s/^HTTPS_REDIRECT_PORT=.*/HTTPS_REDIRECT_PORT=$((BASE + 6))/" \
+  -e "s/^HTTP_PORT=.*/HTTP_PORT=$((BASE + 7))/" \
+  -e "s#^PUBLIC_URL=.*#PUBLIC_URL=https://127.0.0.1:$HTTPS_PORT#" \
   -e "s/^SIP_PORT=.*/SIP_PORT=$((BASE + 2))/" \
   -e "s/^NATS_PORT=.*/NATS_PORT=$((BASE + 3))/" \
   -e "s/^MINIO_PORT=.*/MINIO_PORT=$((BASE + 4))/" \
@@ -80,11 +85,18 @@ until [ "$(docker inspect -f '{{.State.Health.Status}}' "$(docker compose ps -q 
 done
 log "apiserver healthy"
 
-until [ "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$HTTP_PORT/")" = "200" ]; do
-  [ "$SECONDS" -lt "$deadline" ] || { log "dashboard did not answer 200 on :$HTTP_PORT after ${TIMEOUT}s"; exit 1; }
+# HTTPS by default, with the certificate init generated: trusted only through its CA.
+https() { curl -s --cacert config/tls/ca.pem "$@" "https://127.0.0.1:$HTTPS_PORT/"; }
+until [ "$(https -o /dev/null -w '%{http_code}')" = "200" ]; do
+  [ "$SECONDS" -lt "$deadline" ] || { log "dashboard did not answer 200 on https :$HTTPS_PORT after ${TIMEOUT}s"; exit 1; }
   sleep 5
 done
-log "dashboard 200 on :$HTTP_PORT"
+log "dashboard 200 on https :$HTTPS_PORT (generated certificate)"
+! https -D - -o /dev/null | grep -qi '^strict-transport-security' \
+  || { log "HSTS sent with the generated certificate"; exit 1; }
+[ "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$((BASE + 6))/")" = "301" ] \
+  || { log "the redirect port did not answer 301"; exit 1; }
+log "no HSTS; :$((BASE + 6)) redirects"
 
 # Every long-running service is still up (none exited or is restarting).
 bad="$(docker compose ps -a --format '{{.Service}} {{.State}}' | awk '$2 != "running" {print}')"

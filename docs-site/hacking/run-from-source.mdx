@@ -18,8 +18,9 @@ You need:
 - `git`.
 
 <Note>
-  The dev container uses port `8449` (dashboard and API) and `5060` (SIP) on
-  your machine. Stop anything else that uses them, such as a Fonoster install.
+  The dev container uses port `8449` (dashboard and API over HTTPS), `8448` (its
+  redirect) and `5060` (SIP) on your machine. Stop anything else that uses them,
+  such as a Fonoster install.
 </Note>
 
 ## Run Fonoster
@@ -73,8 +74,11 @@ You need:
     npm run dev:info
     ```
 
-    Open [http://localhost:8449](http://localhost:8449) in your browser and sign in. You land in a
-    default workspace.
+    Open [https://localhost:8449](https://localhost:8449) in your browser. It warns once about the
+    certificate: the dev container serves the one `fonoster-config init` generated in
+    `.dev/config/tls/`, as a fresh install does. Continue to the site, then sign in. You land in a
+    default workspace. The CLI, the SDK and scripts in the workspace trust that certificate through
+    `FONOSTER_CA_FILE`, with no extra flags.
 
   </Step>
 

@@ -259,7 +259,7 @@ services:
       OWNER_EMAIL: ${OWNER_EMAIL:-admin@fonoster.local}
       OWNER_PASSWORD: ${OWNER_PASSWORD:?run fonoster-config init}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
-      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8449}
+      PUBLIC_URL: ${PUBLIC_URL:-https://localhost}
       RTPENGINE_PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
       RTPENGINE_PORT_MAX: ${RTPENGINE_PORT_MAX:-10999}
       SIP_PORT: ${SIP_PORT:-5060}
@@ -279,28 +279,37 @@ services:
       start_period: 120s
       retries: 30
 
-  # gRPC, gRPC-Web, /api and the dashboard on one port (config/envoy.yaml).
+  # The dashboard and API (gRPC, gRPC-Web, /api, /sip) over HTTPS on 443, and a redirect on 80
+  # (config/envoy-tls.yaml). Without TLS_CERT and TLS_KEY in .env it serves the certificate init
+  # generated in config/tls/ for getting started: browsers warn once and API clients trust
+  # config/tls/ca.pem (--ca-file). Use a real certificate before going live. compose.http.yaml
+  # serves plain HTTP on HTTP_PORT instead, for a TLS proxy in front.
   envoy:
     image: envoyproxy/envoy:v1.35.0
     restart: unless-stopped
     depends_on:
       apiserver: { condition: service_started }
     volumes:
-      - ${CONFIG_DIR:-./config}/envoy.yaml:/etc/envoy/envoy.yaml:ro
-    # Plain HTTP on every interface by default; HTTP_BIND=127.0.0.1 keeps it on this machine (a
-    # reverse proxy in front terminates TLS). compose.tls.yaml serves HTTPS on 443 instead.
+      - ${CONFIG_DIR:-./config}/envoy-tls.yaml:/etc/envoy/envoy.yaml:ro
+      - ${TLS_CERT:-${CONFIG_DIR:-./config}/tls/server.pem}:/etc/envoy/tls/fullchain.pem:ro
+      - ${TLS_KEY:-${CONFIG_DIR:-./config}/tls/server-key.pem}:/etc/envoy/tls/privkey.pem:ro
     ports:
-      - "${HTTP_BIND:-0.0.0.0}:${HTTP_PORT:-8449}:8449"
+      - "${HTTPS_BIND:-0.0.0.0}:${HTTPS_PORT:-443}:8443"
+      - "${HTTPS_BIND:-0.0.0.0}:${HTTPS_REDIRECT_PORT:-80}:8080"
     environment:
       # Other browser origins that may call the API (comma-separated, e.g.
       # https://app.example.com); the dashboard is same-origin and needs none. Empty: none.
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-}
+      # HSTS only with the owner's certificate (TLS_CERT set): with the generated one, a browser
+      # that ever saw HSTS for this host would refuse the click-through on its warning.
+      HSTS: ${TLS_CERT:+max-age=31536000}
     # Writes the allowed origins into a copy of envoy.yaml, then starts Envoy.
     entrypoint: ["/bin/sh", "-c"]
     command:
       - >-
-        awk -v list="$$(printf '%s' "$$CORS_ALLOWED_ORIGINS" | tr -d ' ')"
-        '/__CORS_ALLOWED_ORIGINS__/ { if (list == "") { print; next }
+        awk -v list="$$(printf '%s' "$$CORS_ALLOWED_ORIGINS" | tr -d ' ')" -v hsts="$$HSTS"
+        '/__HSTS_BEGIN__/ { skip = (hsts == ""); next } /__HSTS_END__/ { skip = 0; next } skip { next }
+        /__CORS_ALLOWED_ORIGINS__/ { if (list == "") { print; next }
         ind = $$0; sub(/-.*/, "", ind); n = split(list, o, ",");
         for (i = 1; i <= n; i++) if (o[i] != "") print ind "- exact: \"" o[i] "\""; next }
         { print }' /etc/envoy/envoy.yaml > /tmp/envoy.yaml
@@ -311,7 +320,7 @@ services:
     restart: unless-stopped
     environment:
       # The API as the browser reaches it (Envoy).
-      DASHBOARD_API_URL: ${PUBLIC_URL:-http://localhost:8449}
+      DASHBOARD_API_URL: ${PUBLIC_URL:-https://localhost}
     expose:
       - 3030
 

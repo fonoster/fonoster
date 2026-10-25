@@ -50,36 +50,48 @@
 
 ## 4. HTTPS by default in the bundle
 
-- [ ] 4.1 `compose.yaml` serves HTTPS (TLS Envoy config, 443/80 via `HTTPS_PORT`/`HTTPS_REDIRECT_PORT`,
+- [x] 4.1 `compose.yaml` serves HTTPS (TLS Envoy config, 443/80 via `HTTPS_PORT`/`HTTPS_REDIRECT_PORT`,
       `TLS_CERT`/`TLS_KEY` defaulting to the generated files); new `compose.http.yaml` turns HTTPS off;
       `compose.tls.yaml` kept as an empty compatibility file. Replace the plain-HTTP exposure warning with
       the getting-started notice (moved from 2.4).
-- [ ] 4.2 HSTS only with the owner's certificate (`init` renders the Envoy config accordingly).
-- [ ] 4.3 `.env.example`: `PUBLIC_URL` defaults to `https://${HOST_IP}`; document `compose.http.yaml`.
-- [ ] 4.4 Upgrade rules (Decision 5): rewrite `PUBLIC_URL` only when it equals the old default; warn and
+- [x] 4.2 HSTS only with the owner's certificate (`init` renders the Envoy config accordingly).
+      (Built as Compose interpolation, not an `init` render: `HSTS: ${TLS_CERT:+max-age=31536000}` and
+      the Envoy entrypoint drops the marked HSTS lines when it is empty.)
+- [x] 4.3 `.env.example`: `PUBLIC_URL` defaults to `https://${HOST_IP}`; document `compose.http.yaml`.
+- [x] 4.4 Upgrade rules (Decision 5): rewrite `PUBLIC_URL` only when it equals the old default; warn and
       point to `compose.http.yaml` when it was edited; print what changed.
-- [ ] 4.5 Audit services that call the install's own public `https://` address; give them the CA.
-- [ ] 4.6 Conformance: bundle tests for the HTTPS default, the opt-out, the upgrade rules and the
+- [x] 4.5 Audit services that call the install's own public `https://` address; give them the CA.
+      (Audited: no service calls the install's own public address; the API server uses it only for
+      redirects, links, the enrollment issuer and the secure-cookie flag. Remote region agents use
+      `--ca-file` from stage B.)
+- [x] 4.6 Conformance: bundle tests for the HTTPS default, the opt-out, the upgrade rules and the
       archive; DSH-063 runs against the default stack (no separate TLS switch needed).
+      (The release smoke test, `ops/release/smoke`, now checks the default: 200 through the generated
+      CA, no HSTS, the redirect. DSH-063 keeps running through `stack tls on`: the QA stack stays on
+      plain HTTP, see 5.3.)
 
 ## 5. Dev container on https://localhost
 
-- [ ] 5.1 Dev config generation produces `.dev/config/tls/`; the dev stack serves `https://localhost`.
-- [ ] 5.2 Workspace environment sets `FONOSTER_CA_FILE=.dev/config/tls/ca.pem`; CLI, SDK examples and
+- [x] 5.1 Dev config generation produces `.dev/config/tls/`; the dev stack serves `https://localhost`.
+- [x] 5.2 Workspace environment sets `FONOSTER_CA_FILE=.dev/config/tls/ca.pem`; CLI, SDK examples and
       tests connect without `--insecure`.
-- [ ] 5.3 Playwright and the conformance harness work against `https://localhost` (trust the CA or keep
+- [x] 5.3 Playwright and the conformance harness work against `https://localhost` (trust the CA or keep
       `ignoreHTTPSErrors`); retire `ops/rebuild/stack tls on|off` if the default makes it redundant.
+      (Not retired: the rebuild stack and the root `compose.yaml` are the QA/CI harness, which talks
+      plain HTTP on `RB_API_PORT`, so they add `compose.http.yaml`; `stack tls on` keeps exercising the
+      HTTPS path for DSH-063. The dev container itself serves `https://localhost:8449`.)
 
 ## 6. Docs
 
-- [ ] 6.1 Install guide: HTTPS from the first start, the one-time browser warning, `ca.pem` for API
+- [x] 6.1 Install guide: HTTPS from the first start, the one-time browser warning, `ca.pem` for API
       clients, "use a real certificate before going live", and `compose.http.yaml` for a TLS proxy in front.
-- [ ] 6.2 HTTPS page: lead with "replace the generated certificate", keep certbot as the worked example,
+- [x] 6.2 HTTPS page: lead with "replace the generated certificate", keep certbot as the worked example,
       note HSTS turns on with a real certificate.
-- [ ] 6.3 Dev-container page, SDK, CLI, MCP and region references: `caFile`, `--ca-file`,
+- [x] 6.3 Dev-container page, SDK, CLI, MCP and region references: `caFile`, `--ca-file`,
       `FONOSTER_CA_FILE`; remove every mention of the insecure options.
-- [ ] 6.4 Release notes call out both breaking changes (HTTPS default; CLI `--insecure` and
+- [x] 6.4 Release notes call out both breaking changes (HTTPS default; CLI `--insecure` and
       `MCP_ALLOW_INSECURE` removed) and the rollback for the default (`compose.http.yaml`).
+      (In the stage C PR body; release notes are generated from commits.)
 
 ## Workflow follow-up
 

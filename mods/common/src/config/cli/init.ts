@@ -40,6 +40,9 @@ export type InitOptions = {
   detectHostIp?: () => Promise<string | undefined>;
 };
 
+/** PUBLIC_URL in .env.example before HTTPS became the default. */
+const OLD_DEFAULT_PUBLIC_URL = "http://${HOST_IP}:${HTTP_PORT}";
+
 const HOST = /^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$|^[0-9a-fA-F:]+$/;
 
 /** The .env lines after a run: new values only for missing names or empty secrets. */
@@ -47,8 +50,14 @@ function mergeEnv(
   example: EnvLine[],
   existing: EnvLine[] | undefined,
   hostIp: string
-): { lines: EnvLine[]; added: string[]; generated: string[] } {
+): {
+  lines: EnvLine[];
+  added: string[];
+  generated: string[];
+  changed: string[];
+} {
   const added: string[] = [];
+  const changed: string[] = [];
   const generated: string[] = [];
   const valueFor = (name: string, exampleValue: string) => {
     if (name === "HOST_IP") return hostIp;
@@ -70,20 +79,50 @@ function mergeEnv(
         ? entry(l.name, valueFor(l.name, l.value))
         : l
     );
-    return { lines, added: [], generated };
+    return { lines, added: [], generated, changed };
   }
 
-  // Existing lines stay as they are, except an empty secret (filled) and HOST_IP when
-  // --host-ip names another address.
+  // Existing lines stay as they are, except an empty secret (filled), HOST_IP when --host-ip
+  // names another address, and PUBLIC_URL still on the old plain-HTTP default: HTTPS is the
+  // default now, so it moves to the example's (https-by-default, Decision 5). An owner-edited
+  // PUBLIC_URL is kept; check warns when it is http://.
+  const examplePublicUrl = example.find(
+    (l): l is Extract<EnvLine, { kind: "entry" }> =>
+      l.kind === "entry" && l.name === "PUBLIC_URL"
+  )?.value;
   const lines = existing.map((l) => {
     if (l.kind !== "entry") return l;
     if (l.name === "HOST_IP")
       return l.value === hostIp ? l : entry(l.name, hostIp);
+    if (
+      l.name === "PUBLIC_URL" &&
+      l.value === OLD_DEFAULT_PUBLIC_URL &&
+      examplePublicUrl &&
+      examplePublicUrl !== l.value
+    ) {
+      changed.push(
+        `PUBLIC_URL ${l.value} -> ${examplePublicUrl} (HTTPS is the default now)`
+      );
+      return entry(l.name, examplePublicUrl);
+    }
     if (l.value === "" && generateSecret(l.name) !== undefined)
       return entry(l.name, valueFor(l.name, ""));
     return l;
   });
   const have = envEntries(existing);
+  // The documented setup for a TLS proxy in front (HTTP_BIND set, no certificate, no
+  // COMPOSE_FILE) keeps serving plain HTTP: it moves to compose.http.yaml.
+  if (
+    have.get("HTTP_BIND") &&
+    !have.has("COMPOSE_FILE") &&
+    !have.get("TLS_CERT") &&
+    !have.get("TLS_KEY")
+  ) {
+    lines.push(entry("COMPOSE_FILE", "compose.yaml:compose.http.yaml"));
+    changed.push(
+      "COMPOSE_FILE=compose.yaml:compose.http.yaml (HTTP_BIND is set: plain HTTP for your TLS proxy, as before)"
+    );
+  }
   const missing = example.filter(
     (l): l is Extract<EnvLine, { kind: "entry" }> =>
       l.kind === "entry" && !have.has(l.name)
@@ -98,7 +137,7 @@ function mergeEnv(
       added.push(l.name);
     }
   }
-  return { lines, added, generated };
+  return { lines, added, generated, changed };
 }
 
 export async function runInit(options: InitOptions, io: Io): Promise<number> {
@@ -133,7 +172,11 @@ export async function runInit(options: InitOptions, io: Io): Promise<number> {
     return 1;
   }
 
-  const { lines, added, generated } = mergeEnv(example, existing, hostIp);
+  const { lines, added, generated, changed } = mergeEnv(
+    example,
+    existing,
+    hostIp
+  );
   writeWithMode(envFile, serializeEnvLines(lines), 0o600);
 
   // config/ holds secrets: only the owner may list it. Files inside are readable by the
@@ -167,6 +210,7 @@ export async function runInit(options: InitOptions, io: Io): Promise<number> {
       ? `.env kept${added.length ? `; added ${added.join(", ")}` : ""}`
       : `.env written (${generated.length} secrets generated)`
   );
+  changed.forEach((c) => io.out(`changed: ${c}`));
   const filled = generated.filter((n) => !added.includes(n));
   if (existing && filled.length) io.out(`generated ${filled.join(", ")}`);
   io.out(

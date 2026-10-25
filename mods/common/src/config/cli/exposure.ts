@@ -22,7 +22,9 @@ import { isAbsolute, resolve } from "path";
 import { URL } from "url";
 import { usesOwnerCertificate } from "./tls";
 
-/** The Compose file that turns on HTTPS in Envoy (ops/bundle/compose.tls.yaml). */
+/** The Compose file that turns HTTPS off (plain HTTP on HTTP_PORT, for a TLS proxy in front). */
+export const HTTP_COMPOSE_FILE = "compose.http.yaml";
+/** The old opt-in for HTTPS; HTTPS is the default now, so this file only keeps old .env files working. */
 export const TLS_COMPOSE_FILE = "compose.tls.yaml";
 
 /** Loopback, private and link-local ranges: a URL on them is not reachable from the internet. */
@@ -46,15 +48,23 @@ export function isLocalHost(host: string): boolean {
   return LOCAL.check(h, family === 6 ? "ipv6" : "ipv4");
 }
 
-/** Whether .env turns on compose.tls.yaml (COMPOSE_FILE, `:`- or `,`-separated). */
-export function tlsEnabled(env: Record<string, string | undefined>): boolean {
+/** Whether COMPOSE_FILE (`:`-, `,`- or `;`-separated) names a file. */
+function composeFileNames(
+  env: Record<string, string | undefined>,
+  file: string
+): boolean {
   return (env.COMPOSE_FILE ?? "")
     .split(/[:,;]/)
-    .some((f) => f.trim().replace(/^\.\//, "") === TLS_COMPOSE_FILE);
+    .some((f) => f.trim().replace(/^\.\//, "") === file);
 }
 
-const HOW =
-  "set COMPOSE_FILE=compose.yaml:compose.tls.yaml with TLS_CERT and TLS_KEY in .env (see .env.example), or put a TLS proxy in front with HTTP_BIND=127.0.0.1";
+/** Whether Envoy serves HTTPS: the default, unless COMPOSE_FILE names compose.http.yaml. */
+export function tlsEnabled(env: Record<string, string | undefined>): boolean {
+  return !composeFileNames(env, HTTP_COMPOSE_FILE);
+}
+
+const PLAIN_HTTP =
+  "COMPOSE_FILE=compose.yaml:compose.http.yaml (plain HTTP for a TLS proxy in front, see .env.example)";
 
 /**
  * Warnings about how the dashboard and API are exposed (M10): plain HTTP on an address the
@@ -76,18 +86,18 @@ export function exposureWarnings(
   const tls = tlsEnabled(env);
 
   if (tls) {
+    if (!!env.TLS_CERT !== !!env.TLS_KEY)
+      warnings.push(
+        "set both TLS_CERT and TLS_KEY (your certificate), or neither (the generated one)"
+      );
     ["TLS_CERT", "TLS_KEY"].forEach((name) => {
       const file = env[name];
-      if (!file)
-        warnings.push(
-          `COMPOSE_FILE names ${TLS_COMPOSE_FILE} but ${name} is not set: Compose will refuse to start`
-        );
-      else if (!existsSync(isAbsolute(file) ? file : resolve(dir, file)))
+      if (file && !existsSync(isAbsolute(file) ? file : resolve(dir, file)))
         warnings.push(`${name}: ${file} not found on this machine`);
     });
     if (url && url.protocol !== "https:")
       warnings.push(
-        `HTTPS is on (${TLS_COMPOSE_FILE}) but PUBLIC_URL is ${url.protocol}//: set PUBLIC_URL=https://<the certificate's domain> and run init again`
+        `HTTPS is the default now but PUBLIC_URL is ${url.protocol}//: set PUBLIC_URL=https://<host> and run init again, or keep plain HTTP with ${PLAIN_HTTP}`
       );
     // The generated certificate is for getting started: a public domain needs a real one.
     if (
@@ -97,18 +107,18 @@ export function exposureWarnings(
       !isLocalHost(url.hostname)
     )
       warnings.push(
-        `PUBLIC_URL is ${url.origin} but HTTPS uses the certificate init generated for getting started: browsers warn and clients must trust config/tls/ca.pem. Set TLS_CERT and TLS_KEY to a real certificate before going live (https://docs.fonoster.com/self-hosting/https)`
+        `PUBLIC_URL is ${url.origin} but HTTPS uses the certificate init generated for getting started: browsers warn and clients must trust config/tls/ca.pem (--ca-file). Set TLS_CERT and TLS_KEY to a real certificate before going live (https://docs.fonoster.com/self-hosting/https)`
       );
     return warnings;
   }
 
   if (env.TLS_CERT || env.TLS_KEY)
     warnings.push(
-      `TLS_CERT/TLS_KEY are set but COMPOSE_FILE does not name ${TLS_COMPOSE_FILE}: Envoy still serves plain HTTP`
+      `TLS_CERT/TLS_KEY are set but COMPOSE_FILE names ${HTTP_COMPOSE_FILE}: Envoy serves plain HTTP`
     );
   if (url?.protocol === "http:" && !isLocalHost(url.hostname))
     warnings.push(
-      `PUBLIC_URL is ${url.origin}: the dashboard and API (passwords, API keys, tokens) go over plain HTTP to an address others may reach. For HTTPS, ${HOW}`
+      `PUBLIC_URL is ${url.origin}: the dashboard and API (passwords, API keys, tokens) go over plain HTTP to an address others may reach. Put a TLS proxy in front (HTTP_BIND=127.0.0.1, PUBLIC_URL=https://<its domain>), or drop ${HTTP_COMPOSE_FILE} from COMPOSE_FILE for HTTPS`
     );
   return warnings;
 }

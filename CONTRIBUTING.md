@@ -99,7 +99,8 @@ npm run dev -- appbridge    # or some: apiserver, appbridge, autopilot, dashboar
 Each one reloads when you save its source. The Roomr node runs as a dev container service (the
 bundle's pinned image); it is developed in [fonoster/roomr](https://github.com/fonoster/roomr).
 Open the dashboard at
-`http://localhost:8449` and sign in with the login `npm run dev:info` prints. Calls use fake
+`https://localhost:8449` (it warns once about the generated certificate, as a fresh install does;
+continue to the site) and sign in with the login `npm run dev:info` prints. Calls use fake
 speech and language-model providers, so no vendor keys are needed.
 
 Run the tests in the same terminal: `npm test` (its NATS and database are the dev container's test

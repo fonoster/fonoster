@@ -28,7 +28,8 @@ You need:
 - About 6 GB of free disk for the images.
 
 <Note>
-  Fonoster uses port `8449` (dashboard and API), `5060` UDP and TCP (SIP), the UDP ranges
+  Fonoster uses ports `443` and `80` (dashboard and API over HTTPS, and its redirect), `5060` UDP
+  and TCP (SIP), the UDP ranges
   `10000-10999` and `11000-11999` (call media), and, on localhost only, `4222` (NATS) and `9000-9001`
   (MinIO). Stop anything else that uses them, such as another Fonoster install, or change the ports
   in step 2.
@@ -65,8 +66,9 @@ You need:
     cd fonoster
     ```
 
-    The folder holds `compose.yaml`, `compose.tls.yaml` (for HTTPS, below), `.env.example`, a
-    `config` folder with one example per service and their schemas, and a `README.md`.
+    The folder holds `compose.yaml`, `compose.http.yaml` (plain HTTP behind your own TLS proxy),
+    `compose.tls.yaml` (SIP over TLS), `.env.example`, a `config` folder with one example per service
+    and their schemas, and a `README.md`.
   </Step>
 
   <Step title="Generate the configuration">
@@ -83,6 +85,7 @@ You need:
     .env written (10 secrets generated)
     keys: 3 files created in config/keys
     config: config/appbridge.yaml, config/autopilot.yaml, config/fonoster.yaml, config/roomr.yaml, config/routr-edgeport.yaml
+    tls: local CA and server certificate created in config/tls for localhost, 127.0.0.1, 192.0.2.10 (for getting started)
     host address: 192.0.2.10
 
     Next: docker compose up -d
@@ -92,8 +95,12 @@ You need:
     The host address is the one softphones, carriers and browsers use to reach this machine. To use a
     different one, run `init` again with `--host-ip <address>`.
 
+    `init` also generates a certificate in `config/tls/`, so Fonoster serves HTTPS from its first
+    start. It's for getting started: use a real certificate before you go live
+    ([Serve over HTTPS](/self-hosting/https)).
+
     <Tip>
-      To change a port, edit it in `.env` (for example `HTTP_PORT=8449` or `SIP_PORT=5060`) and run
+      To change a port, edit it in `.env` (for example `HTTPS_PORT=8443` or `SIP_PORT=5060`) and run
       `init` again, then `docker compose up -d`. `init` keeps every secret and only updates the
       configuration. To run a second install on the same machine, also give it its own
       `COMPOSE_PROJECT_NAME` and `SUBNET_PREFIX`, and move every port in the note above.
@@ -144,20 +151,29 @@ You need:
     ```
 
     ```text
-    Dashboard   http://192.0.2.10:8449
+    Dashboard   https://192.0.2.10
     Owner       admin@fonoster.local / <generated password>
-    API         192.0.2.10:8449 (gRPC and gRPC-Web, plain HTTP)
+    API         192.0.2.10:443 (gRPC and gRPC-Web, TLS)
     SIP         192.0.2.10:5060 (UDP and TCP)
 
     Files       /home/you/fonoster/.env   Compose settings and the generated secrets (back it up)
                 /home/you/fonoster/config/   service settings (from config/*.example.*)
                 /home/you/fonoster/config/keys/   signing keys
+                /home/you/fonoster/config/tls/   certificate generated for getting started
+
+    Certificate /home/you/fonoster/config/tls/ca.pem
+                SHA-256 3F:9A:…
+                Generated for getting started: browsers show a warning once, and API clients
+                trust this CA file (--ca-file, or FONOSTER_CA_FILE). Use a real certificate
+                (TLS_CERT and TLS_KEY) before going live: https://docs.fonoster.com/self-hosting/https
     ```
   </Step>
 
   <Step title="Sign in to the dashboard">
-    Open the dashboard address in your browser and sign in with the owner's email and password.
-    On **Choose a workspace**, select your workspace.
+    Open the dashboard address in your browser. It warns that the connection isn't private, because
+    the certificate is the one `init` generated: open the details and continue to the site. Your
+    browser remembers the choice. Then sign in with the owner's email and password, and on **Choose
+    a workspace**, select your workspace.
   </Step>
 </Steps>
 
@@ -175,6 +191,7 @@ Everything lives in the `fonoster` folder:
 | `config/`      | Each service's settings, written by `init` from the examples. They name secrets as `${NAME}`; Compose passes each container only the values its own file names (its `environment:` list in `compose.yaml`) |
 | `config/overrides/` | Your own settings, such as platform keys. `init` merges each file over the one it writes with the same name and never changes them |
 | `config/keys/` | The signing keys. Only the API server mounts Identity's private key; AppBridge gets the public key and its call-record key |
+| `config/tls/`  | The certificate `init` generated for getting started: `ca.pem` (give it to API clients), the server certificate Envoy serves, and their private keys. Not used once you set `TLS_CERT` and `TLS_KEY` |
 
 <Warning>
   Back up `.env` and `config/overrides/`. The encryption key in `.env` protects the vendor keys you store, and they can't be recovered
@@ -228,11 +245,13 @@ docker compose restart appbridge autopilot
 
 ## Serve over HTTPS
 
-By default the dashboard and API use plain HTTP on port `8449`. That's fine on a trusted network.
-On the internet, passwords, API keys and tokens would cross it in clear text, so `init` and `check`
-warn when `PUBLIC_URL` is `http://` on an address that isn't loopback or private. To serve your
-domains over HTTPS with a certificate that renews on its own, see
-[Serve over HTTPS](/self-hosting/https).
+Fonoster serves the dashboard and API over HTTPS from its first start, with the certificate `init`
+generated in `config/tls/`. It gets you started: browsers warn once, and the CLI and SDK trust it
+through `config/tls/ca.pem` (`--ca-file`, or `FONOSTER_CA_FILE`). Before you go live, replace it with
+a real certificate for your domain, see [Serve over HTTPS](/self-hosting/https).
+
+If you already run a TLS proxy (Caddy, nginx, Traefik, a load balancer), serve plain HTTP behind it
+instead: set `COMPOSE_FILE=compose.yaml:compose.http.yaml` and `HTTP_BIND=127.0.0.1` in `.env`.
 
 ## Let carriers and phones reach you
 

@@ -38,6 +38,9 @@ services:
       - ../.dev/config/keys/records.pem:/etc/fonoster/keys/records.pem:ro
       - ../.dev/config/catalog.yaml:/etc/fonoster/catalog.yaml:ro
     environment:
+      # The CLI, the SDK and scripts trust the dev stack's certificate (init generates it in
+      # .dev/config/tls/; Envoy serves it on https://localhost:8449).
+      FONOSTER_CA_FILE: /workspaces/fonoster/.dev/config/tls/ca.pem
       # Tests use their own NATS and database, never the dev stack's.
       CONFORMANCE_NATS_URL: nats://nats-test:4222
       PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster_test
