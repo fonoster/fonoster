@@ -82,6 +82,9 @@ services:
       LOGS_LEVEL: ${ROUTR_LOGS_LEVEL:-info}
       NATS_PUBLISHER_ENABLED: "true"
       NATS_PUBLISHER_URL: nats://routr:${NATS_ROUTR_PASSWORD}@nats:4222
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-}
       RTPENGINE_HOST: rtpengine
       START_INTERNAL_DB: "false"
       # config/routr-edgeport.yaml (SIP on SIP_PORT inside the container too, so Via and
