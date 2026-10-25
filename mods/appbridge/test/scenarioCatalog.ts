@@ -32,7 +32,7 @@ export function catalogFor(scenario: Scenario) {
     id: "fake",
     adapter: "fake",
     capabilities: ["tts", "stt"],
-    credentialRef: "fake-default"
+    credentialRef: "fake"
   });
   r.addModel({ id: "fake/tts", type: "tts", features: ["streaming"] });
   const voices = [{ id: "fake/default" }, ...(c.voices ?? [])];

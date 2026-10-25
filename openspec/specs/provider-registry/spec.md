@@ -36,12 +36,12 @@ load or call code that is not part of the release.
 
 #### Scenario: Adding a provider with a known adapter
 
-- **WHEN** an operator runs `fonoster-registry add-provider deepgram --adapter deepgram --capabilities stt,tts --credential-ref deepgram-default`
-- **THEN** the provider is stored as `active` with `credentialRef: deepgram-default`
+- **WHEN** an operator runs `fonoster-registry add-provider deepgram --adapter deepgram --capabilities stt,tts --credential-ref deepgram`
+- **THEN** the provider is stored as `active` with `credentialRef: deepgram`
 
 #### Scenario: Adding a provider with an unknown adapter
 
-- **WHEN** an operator runs `add-provider acme --adapter acme --capabilities tts --credential-ref acme-default` and no `acme` adapter exists in this version
+- **WHEN** an operator runs `add-provider acme --adapter acme --capabilities tts --credential-ref acme` and no `acme` adapter exists in this version
 - **THEN** the command exits non-zero with `unknown adapter: acme`
 - **AND** nothing is written
 
@@ -107,7 +107,7 @@ MUST be write-only.
 
 #### Scenario: No workspace key falls back to the platform key
 
-- **WHEN** workspace W stored no Deepgram key and the platform credential `deepgram-default` is configured
+- **WHEN** workspace W stored no Deepgram key and the platform credential `deepgram` is configured
 - **THEN** the gateway calls Deepgram with the platform key
 
 #### Scenario: Autopilot resolves its LLM key
@@ -129,7 +129,7 @@ MUST be write-only.
 
 #### Scenario: The noise-cancelling filter falls back to the platform key
 
-- **WHEN** workspace W stored no ai-coustics key and the platform credential `aicoustics-default` is configured
+- **WHEN** workspace W stored no ai-coustics key and the platform credential `aicoustics` is configured
 - **THEN** the gateway starts the filter with the platform key
 
 #### Scenario: No credential at all for the filter
@@ -365,8 +365,8 @@ the same rule as speech providers, and the catalog never holds its key.
 
 #### Scenario: Registering the ai-coustics provider
 
-- **WHEN** an operator runs `fonoster-registry add-provider aicoustics --adapter aicoustics --capabilities nc --credential-ref aicoustics-default`
-- **THEN** the provider is stored as `active` with capability `nc` and `credentialRef: aicoustics-default`
+- **WHEN** an operator runs `fonoster-registry add-provider aicoustics --adapter aicoustics --capabilities nc --credential-ref aicoustics`
+- **THEN** the provider is stored as `active` with capability `nc` and `credentialRef: aicoustics`
 
 #### Scenario: An unknown capability is refused
 
@@ -402,7 +402,7 @@ back to the platform key; the provider is unavailable to that session with the r
 
 #### Scenario: No key stored still uses the platform key
 
-- **WHEN** the lookup answers that workspace W has no Deepgram key and `deepgram-default` is configured
+- **WHEN** the lookup answers that workspace W has no Deepgram key and `deepgram` is configured
 - **THEN** the call proceeds on the platform key
 
 #### Scenario: A provider first needed mid-call

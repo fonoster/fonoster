@@ -7,7 +7,7 @@
       "capabilities": [
         "llm"
       ],
-      "credentialRef": "openai-default",
+      "credentialRef": "openai",
       "state": "active"
     },
     {
@@ -34,7 +34,7 @@
           "capabilities": [
             "llm"
           ],
-          "credentialRef": "openai-default",
+          "credentialRef": "openai",
           "state": "active"
         }
       }

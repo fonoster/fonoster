@@ -232,19 +232,19 @@ render_configs() {
   [ -s "$OVERLAY/appbridge.yaml" ] || echo "{}" > "$OVERLAY/appbridge.yaml"
 
   local creds=""
-  [ -n "${GROQ_API_KEY:-}" ] && creds+="  groq-default: { value: \"\${GROQ_API_KEY}\" }"$'\n'
-  [ -n "${OPENAI_API_KEY:-}" ] && creds+="  openai-default: { value: \"\${OPENAI_API_KEY}\" }"$'\n'
+  [ -n "${GROQ_API_KEY:-}" ] && creds+="  groq: { value: \"\${GROQ_API_KEY}\" }"$'\n'
+  [ -n "${OPENAI_API_KEY:-}" ] && creds+="  openai: { value: \"\${OPENAI_API_KEY}\" }"$'\n'
   [ -n "$creds" ] || creds="  {}"$'\n'
   printf 'credentials:\n%s' "$creds" > "$OVERLAY/autopilot.yaml"
 
   # The API server: the region admin API (operator key) and, with the regions profile, the region
   # hub private regions link to (the bundle leaves both out; ops/rebuild/compose.yaml runs the hub).
   local refs=""
-  [ -n "${DEEPGRAM_API_KEY:-}" ] && refs+="deepgram-default,"
-  [ -n "${ELEVENLABS_API_KEY:-}" ] && refs+="elevenlabs-default,"
-  [ -n "${AICOUSTICS_LICENSE_KEY:-}" ] && refs+="aicoustics-default,"
-  [ -n "${GROQ_API_KEY:-}" ] && refs+="groq-default,"
-  [ -n "${OPENAI_API_KEY:-}" ] && refs+="openai-default,"
+  [ -n "${DEEPGRAM_API_KEY:-}" ] && refs+="deepgram,"
+  [ -n "${ELEVENLABS_API_KEY:-}" ] && refs+="elevenlabs,"
+  [ -n "${AICOUSTICS_LICENSE_KEY:-}" ] && refs+="aicoustics,"
+  [ -n "${GROQ_API_KEY:-}" ] && refs+="groq,"
+  [ -n "${OPENAI_API_KEY:-}" ] && refs+="openai,"
   refs="${refs%,}"
   {
     # The fakes profile runs the fake providers; their catalog makes them one more provider.

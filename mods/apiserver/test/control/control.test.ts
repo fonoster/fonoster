@@ -614,7 +614,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
           id: "deepgram",
           adapter: "deepgram",
           capabilities: ["stt", "tts"],
-          credentialRef: "deepgram-default"
+          credentialRef: "deepgram"
         }
       });
       await p.registryProvider.create({
@@ -753,8 +753,8 @@ describe("@control: applications, webhooks and provider keys (database)", functi
       expect(await keys.get(WS, "deepgram")).to.equal("dg-key-2");
       expect(await keys.get(OTHER, "deepgram")).to.equal(undefined);
       expect(
-        await keys.forCredentialRef(WS, "deepgram-default", [
-          { id: "deepgram", credentialRef: "deepgram-default" }
+        await keys.forCredentialRef(WS, "deepgram", [
+          { id: "deepgram", credentialRef: "deepgram" }
         ])
       ).to.equal("dg-key-2");
 

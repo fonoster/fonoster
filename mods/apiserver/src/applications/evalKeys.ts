@@ -40,7 +40,7 @@ export function createEvalKeys(db: EvalDb, platform: Record<string, string>) {
     const provider = await db.registryProvider.findUnique({
       where: { id: providerId }
     });
-    const ref = provider?.credentialRef ?? `${providerId}-default`;
+    const ref = provider?.credentialRef ?? providerId;
     const key = platform[ref];
     return key ? { key, source: "platform" as const } : undefined;
   };

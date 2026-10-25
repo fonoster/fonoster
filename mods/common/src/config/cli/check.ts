@@ -149,6 +149,47 @@ function loadSchemas(dir: string): Map<string, object> {
   return schemas;
 }
 
+/**
+ * Autopilot reads a platform key by the exact credentialRef of a language-model provider in
+ * config/catalog.yaml; any other name under its `credentials` is never read, and calls that need
+ * the key fail. Warns for each such name, listing the names the catalog uses.
+ */
+export function credentialWarnings(configDir: string): string[] {
+  const catalogFile = join(configDir, "catalog.yaml");
+  const autopilotFile = join(configDir, "autopilot.yaml");
+  if (!existsSync(catalogFile) || !existsSync(autopilotFile)) return [];
+  let entries: unknown;
+  let credentials: unknown;
+  try {
+    entries = (parse(readFileSync(catalogFile, "utf8")) ?? {}).entries;
+    credentials = (parse(readFileSync(autopilotFile, "utf8")) ?? {})
+      .credentials;
+  } catch {
+    return [];
+  }
+  if (
+    !Array.isArray(entries) ||
+    !credentials ||
+    typeof credentials !== "object"
+  )
+    return [];
+  const refs = entries
+    .filter(
+      (e) =>
+        e?.kind === "provider" &&
+        typeof e.credentialRef === "string" &&
+        Array.isArray(e.capabilities) &&
+        e.capabilities.includes("llm")
+    )
+    .map((e) => e.credentialRef as string);
+  return Object.keys(credentials)
+    .filter((name) => !refs.includes(name))
+    .map(
+      (name) =>
+        `config/autopilot.yaml: credentials.${name} matches no language-model provider in config/catalog.yaml and is never used${refs.length ? ` (the catalog's names: ${refs.join(", ")})` : ""}`
+    );
+}
+
 /** Validates config/*.yaml, placeholders resolved from .env, against config/schemas/*.json (D5). */
 export function runCheck(options: CheckOptions, io: Io): number {
   const dir = resolve(options.dir);
@@ -216,6 +257,7 @@ export function runCheck(options: CheckOptions, io: Io): number {
       io.out(`${label}: valid${schema ? "" : " (no schema; values only)"}`);
   }
   exposureWarnings(env, dir).forEach((w) => io.err(`warning: ${w}`));
+  credentialWarnings(configDir).forEach((w) => io.err(`warning: ${w}`));
   if (failed) {
     io.err(`${failed} file${failed > 1 ? "s" : ""} with problems`);
     return 1;

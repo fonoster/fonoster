@@ -177,14 +177,14 @@ describe("@registry scenario suite (spec.md, database)", function () {
         "--capabilities",
         "stt,tts",
         "--credential-ref",
-        "deepgram-default"
+        "deepgram"
       )
     ).to.equal(0);
     expect(
       await db.prisma.registryProvider.findUnique({ where: { id: "deepgram" } })
     ).to.deep.include({
       state: "ACTIVE",
-      credentialRef: "deepgram-default"
+      credentialRef: "deepgram"
     });
   });
 
@@ -199,7 +199,7 @@ describe("@registry scenario suite (spec.md, database)", function () {
         "--capabilities",
         "tts",
         "--credential-ref",
-        "acme-default"
+        "acme"
       )
     ).to.equal(1);
     expect(lines).to.deep.equal(["error: unknown adapter: acme"]);
@@ -246,7 +246,7 @@ describe("@registry scenario suite (spec.md, database)", function () {
         "--capabilities",
         "tts",
         "--credential-ref",
-        "elevenlabs-default"
+        "elevenlabs"
       );
       for (const [id, settings] of [
         ["elevenlabs/flash-v2.5", "stability"],
@@ -398,7 +398,7 @@ describe("@registry scenario suite (spec.md, database)", function () {
     await cli("export");
     const yaml = lines.join("\n");
     expect(yaml).to.contain("deepgram/nova-3");
-    expect(yaml).to.contain("credentialRef: deepgram-default");
+    expect(yaml).to.contain("credentialRef: deepgram");
     expect(yaml).to.not.match(/api[-_]?key|password|token|secret|sk-/i);
   });
 
@@ -494,7 +494,7 @@ describe("@registry scenario suite (spec.md, database)", function () {
         "--capabilities",
         "nc",
         "--credential-ref",
-        "aicoustics-default"
+        "aicoustics"
       )
     ).to.equal(0);
     expect(
@@ -504,7 +504,7 @@ describe("@registry scenario suite (spec.md, database)", function () {
     ).to.deep.include({
       state: "ACTIVE",
       capabilities: ["nc"],
-      credentialRef: "aicoustics-default"
+      credentialRef: "aicoustics"
     });
   });
 
@@ -560,7 +560,7 @@ describe("@registry scenario suite (spec.md, database)", function () {
     fs.writeFileSync(
       file,
       `entries:
-  - { kind: provider, id: acme-tts, adapter: elevenlabs, capabilities: [tts], credentialRef: acme-default, endpoints: { tts: "https://user:pass@tts.example.com" }, state: active }
+  - { kind: provider, id: acme-tts, adapter: elevenlabs, capabilities: [tts], credentialRef: acme, endpoints: { tts: "https://user:pass@tts.example.com" }, state: active }
 `
     );
     const before = await count();
@@ -579,7 +579,7 @@ describe("@registry scenario suite (spec.md, database)", function () {
       "--capabilities",
       "llm",
       "--credential-ref",
-      "openai-default"
+      "openai"
     );
     await cli(
       "add-model",
@@ -1001,7 +1001,7 @@ describe("@registry scenario suite (spec.md, database)", function () {
         "--capabilities",
         "stt,tts",
         "--credential-ref",
-        "deepgram-default"
+        "deepgram"
       );
       await onB("add-model", "deepgram/nova-2", "--type", "stt");
       await onB("plan", "-f", file);

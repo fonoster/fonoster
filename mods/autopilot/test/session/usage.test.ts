@@ -319,18 +319,18 @@ describe("@autopilot model usage", function () {
     };
     const credentials = new LayeredCredentials([
       workspace,
-      new ConfigCredentials({ "openai-default": { value: "platform-key" } })
+      new ConfigCredentials({ openai: { value: "platform-key" } })
     ]);
 
     it("[APT-019] says whose key a credential is", async () => {
       expect(
-        await credentials.resolve("openai-default", { workspaceRef: "ws-own" })
+        await credentials.resolve("openai", { workspaceRef: "ws-own" })
       ).to.deep.equal({
         key: "own-key",
         source: "workspace"
       });
       expect(
-        await credentials.resolve("openai-default", {
+        await credentials.resolve("openai", {
           workspaceRef: "ws-other"
         })
       ).to.deep.equal({
@@ -338,7 +338,7 @@ describe("@autopilot model usage", function () {
         source: "platform"
       });
       expect(
-        await credentials.get("openai-default", { workspaceRef: "ws-own" })
+        await credentials.get("openai", { workspaceRef: "ws-own" })
       ).to.equal("own-key");
     });
 

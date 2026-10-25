@@ -20,6 +20,6 @@ telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
 # Language-model platform keys by the catalog's credentialRef, shared by every workspace. Replace
 # each placeholder with your key. A workspace's own key (dashboard, Vendor keys) is used instead.
 credentials:
-  openai-default: { value: "YOUR_OPENAI_API_KEY" }
-  groq-default: { value: "YOUR_GROQ_API_KEY" }
+  openai: { value: "YOUR_OPENAI_API_KEY" }
+  groq: { value: "YOUR_GROQ_API_KEY" }
 endpoints: {}

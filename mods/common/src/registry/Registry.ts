@@ -137,9 +137,7 @@ export class Registry {
       if (!(CAPABILITIES as string[]).includes(c))
         throw new RegistryError(`unknown capability: ${c}`);
     if (p.credentialRef !== undefined && !REF.test(p.credentialRef))
-      throw new RegistryError(
-        "credentialRef must be a name such as deepgram-default"
-      );
+      throw new RegistryError("credentialRef must be a name such as deepgram");
     for (const [capability, url] of Object.entries(p.endpoints ?? {})) {
       if (!(CAPABILITIES as string[]).includes(capability))
         throw new RegistryError(`unknown endpoint capability: ${capability}`);

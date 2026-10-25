@@ -32,10 +32,10 @@ describe("@appbridge/catalog providers", function () {
   - { kind: model, id: fake/tts, type: tts, features: [streaming], languages: [multi], settings: [], state: active }
   - { kind: model, id: fake/stt, type: stt, features: [streaming], languages: [multi], settings: [], state: active }
   - { kind: voice, id: fake/default, models: [fake/tts], language: multi, state: active }
-  - { kind: provider, id: deepgram, adapter: deepgram, capabilities: [stt, tts], credentialRef: deepgram-default, endpoints: { tts: "https://catalog.deepgram.example" }, state: active }
+  - { kind: provider, id: deepgram, adapter: deepgram, capabilities: [stt, tts], credentialRef: deepgram, endpoints: { tts: "https://catalog.deepgram.example" }, state: active }
   - { kind: model, id: deepgram/aura-2, type: tts, features: [streaming], languages: [en], settings: [], state: active }
   - { kind: voice, id: deepgram/aura-2-thalia-en, models: [deepgram/aura-2], language: en-US, state: active }
-  - { kind: provider, id: elevenlabs, adapter: elevenlabs, capabilities: [tts], credentialRef: elevenlabs-default, state: active }
+  - { kind: provider, id: elevenlabs, adapter: elevenlabs, capabilities: [tts], credentialRef: elevenlabs, state: active }
   - { kind: model, id: elevenlabs/eleven_flash_v2_5, type: tts, features: [streaming], languages: [multi], settings: [], state: active }
   - { kind: voice, id: elevenlabs/rachel, models: [elevenlabs/eleven_flash_v2_5], language: multi, state: active }
 `);

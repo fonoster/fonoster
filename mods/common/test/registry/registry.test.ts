@@ -75,7 +75,7 @@ function elevenlabs(usages = new Usages([])) {
     id: "elevenlabs",
     adapter: "elevenlabs",
     capabilities: ["tts"],
-    credentialRef: "elevenlabs-default"
+    credentialRef: "elevenlabs"
   });
   r.addModel({
     id: "elevenlabs/turbo-v2",
@@ -122,7 +122,7 @@ describe("@common/registry", function () {
       id: "deepgram",
       adapter: "deepgram",
       capabilities: ["stt"],
-      credentialRef: "deepgram-default"
+      credentialRef: "deepgram"
     });
     r.addModel({
       id: "deepgram/nova-3",
@@ -149,7 +149,7 @@ describe("@common/registry", function () {
       id: "groq",
       adapter: "groq",
       capabilities: ["llm"],
-      credentialRef: "groq-default"
+      credentialRef: "groq"
     });
     r.addModel({ id: "groq/openai/gpt-oss-120b", type: "llm" });
     expect(r.show("groq/openai/gpt-oss-120b")).to.include({ type: "llm" });
@@ -191,7 +191,7 @@ describe("@common/registry", function () {
         id: "acme",
         adapter: "acme",
         capabilities: ["tts"],
-        credentialRef: "acme-default"
+        credentialRef: "acme"
       })
     ).to.throw("unknown adapter: acme");
     // Keyless (no credentialRef) and labeled.
@@ -221,12 +221,12 @@ describe("@common/registry", function () {
         id: "aicoustics",
         adapter: "aicoustics",
         capabilities: ["nc"],
-        credentialRef: "aicoustics-default"
+        credentialRef: "aicoustics"
       })
     ).to.deep.include({
       state: "active",
       capabilities: ["nc"],
-      credentialRef: "aicoustics-default"
+      credentialRef: "aicoustics"
     });
     expect(() =>
       r.addProvider({
@@ -254,7 +254,7 @@ describe("@common/registry", function () {
       id: "ollama",
       adapter: "ollama",
       capabilities: ["llm"],
-      credentialRef: "ollama-default",
+      credentialRef: "ollama",
       endpoints: { llm: "http://ollama:11434" }
     });
     expect(r.show("ollama")).to.include({ adapter: "ollama" });
@@ -266,7 +266,7 @@ describe("@common/registry", function () {
         id,
         adapter: "openai",
         capabilities: ["llm"],
-        credentialRef: `${id}-default`,
+        credentialRef: id,
         endpoints
       });
     expect(add("a", { llm: "https://user:pass@llm.example.com" })).to.throw(
@@ -281,11 +281,11 @@ describe("@common/registry", function () {
     const store = new MemoryRegistryStore();
     const r = new Registry({ store });
     r.apply(`entries:
-  - { kind: provider, id: fake, adapter: fake, capabilities: [stt, tts], credentialRef: fake-default, endpoints: { tts: "http://fakes:7001", stt: "ws://fakes:7002" }, state: active }
+  - { kind: provider, id: fake, adapter: fake, capabilities: [stt, tts], credentialRef: fake, endpoints: { tts: "http://fakes:7001", stt: "ws://fakes:7002" }, state: active }
 `);
     expect(
       r.plan(`entries:
-  - { kind: provider, id: fake, adapter: fake, capabilities: [stt, tts], credentialRef: fake-default, endpoints: { stt: "ws://fakes:7002", tts: "http://fakes:7001" }, state: active }
+  - { kind: provider, id: fake, adapter: fake, capabilities: [stt, tts], credentialRef: fake, endpoints: { stt: "ws://fakes:7002", tts: "http://fakes:7001" }, state: active }
 `)
     ).to.deep.equal([]);
   });
@@ -297,7 +297,7 @@ describe("@common/registry", function () {
         id: "deepgram",
         adapter: "deepgram",
         capabilities: ["stt"],
-        credentialRef: "deepgram-default",
+        credentialRef: "deepgram",
         "api-key": "abc123"
       })
     ).to.throw("secrets cannot be stored in the catalog");
@@ -313,10 +313,10 @@ describe("@common/registry", function () {
       id: "deepgram",
       adapter: "deepgram",
       capabilities: ["stt"],
-      credentialRef: "deepgram-default"
+      credentialRef: "deepgram"
     });
     expect(r.export())
-      .to.contain("credentialRef: deepgram-default")
+      .to.contain("credentialRef: deepgram")
       .and.not.match(/key|secret|token/i);
   });
 
@@ -443,7 +443,7 @@ describe("@common/registry", function () {
       id: "openai",
       adapter: "openai",
       capabilities: ["llm"],
-      credentialRef: "openai-default"
+      credentialRef: "openai"
     });
     r.addModel({
       id: "openai/gpt-4o-mini",
@@ -470,7 +470,7 @@ describe("@common/registry", function () {
       id: "elevenlabs",
       adapter: "elevenlabs",
       capabilities: ["tts"],
-      credentialRef: "elevenlabs-default"
+      credentialRef: "elevenlabs"
     });
     b.addModel({
       id: "elevenlabs/turbo-v2",

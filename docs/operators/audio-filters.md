@@ -25,7 +25,7 @@ Noise cancelling is a catalog provider with the capability `nc`, backed by the b
 
 ```sh
 fonoster-registry add-provider aicoustics --adapter aicoustics --capabilities nc \
-  --credential-ref aicoustics-default --label "ai-coustics"
+  --credential-ref aicoustics --label "ai-coustics"
 ```
 
 The key resolves per session the way speech keys do (registry "Each layer resolves the credentials
