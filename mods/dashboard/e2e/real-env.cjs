@@ -57,9 +57,14 @@ if (process.argv.includes("--print")) {
 }
 const { spawnSync } = require("child_process");
 const args = process.argv.slice(2).filter((a) => a !== "--print");
+// One worker: the real cases share one workspace and its Calls list, so calls placed in parallel
+// make "the newest call" ambiguous (DSH-034 read DSH-042's call). An explicit --workers wins.
+const workers = args.some((a) => a.startsWith("--workers"))
+  ? []
+  : ["--workers=1"];
 const result = spawnSync(
   "npx",
-  ["playwright", "test", ...args, "--project", "real"],
+  ["playwright", "test", ...args, ...workers, "--project", "real"],
   {
     cwd: path.join(__dirname, ".."),
     stdio: "inherit",
