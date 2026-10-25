@@ -124,14 +124,14 @@ command -v docker >/dev/null 2>&1 || die "Docker is required"
 host_ip="${FONOSTER_DEV_HOST_IP:-$(detect_host_ip)}"
 [ -n "$host_ip" ] || die "could not find this machine's LAN address: set FONOSTER_DEV_HOST_IP and reopen"
 
-# The real installer, from source, in a throwaway container: no Node needed on the host. Its two
+# The real installer, from source, in a throwaway container: no Node needed on the host. Its
 # dependencies are installed there (versions from package-lock.json).
 log "writing $DEV with fonoster-config init (host address $host_ip)"
 docker run --rm --quiet -v "$ROOT:/src" -w /src -e NPM_CONFIG_UPDATE_NOTIFIER=false \
   -e HOST_IP="$host_ip" -e HOST_UID="$(id -u)" -e HOST_GID="$(id -g)" \
   node:22-alpine sh -ec '
     npm install --prefix /opt/cli --no-audit --no-fund --loglevel=error \
-      yaml@2.9.0 ajv@8.18.0 tsx@4.23.15 >/dev/null
+      yaml@2.9.0 ajv@8.18.0 node-forge@1.4.0 tsx@4.23.15 >/dev/null
     cli() { NODE_PATH=/opt/cli/node_modules /opt/cli/node_modules/.bin/tsx mods/common/src/config/cli/index.ts "$@"; }
     cli init --dir .dev --host-ip "$HOST_IP" >/dev/null
     cli render --dir .dev --config-dir .dev/config --env-file .dev/.env \

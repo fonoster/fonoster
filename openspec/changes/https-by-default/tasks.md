@@ -14,18 +14,18 @@
 
 ## 2. Certificate generation in init
 
-- [ ] 2.1 Generate `config/tls/ca.pem` + `ca-key.pem` (10 years) and `server.pem` + `server-key.pem`
+- [x] 2.1 Generate `config/tls/ca.pem` + `ca-key.pem` (10 years) and `server.pem` + `server-key.pem`
       (397 days) when `TLS_CERT`/`TLS_KEY` are unset; names: `localhost`, `127.0.0.1`, `HOST_IP`, the
       `PUBLIC_URL` host. Key files 0600; certificates readable by the containers.
-- [ ] 2.2 Re-run rules: keep the CA byte for byte; reissue the server certificate only when names change
+- [x] 2.2 Re-run rules: keep the CA byte for byte; reissue the server certificate only when names change
       or it expires within 30 days; generate nothing when `TLS_CERT`/`TLS_KEY` are set.
-- [ ] 2.3 `info`: print `ca.pem` path, its SHA-256 fingerprint and the getting-started notice when the
+- [x] 2.3 `info`: print `ca.pem` path, its SHA-256 fingerprint and the getting-started notice when the
       generated certificate is in use; nothing extra with the owner's certificate.
-- [ ] 2.4 `check`/exposure warnings: replace the plain-HTTP warning with "generated certificate in use,
-      for getting started" and warn when `PUBLIC_URL` is a public domain still on the generated certificate.
-- [ ] 2.5 Make sure `config/tls/` is never in the release archive (`ops/release/bundle`) and is git-ignored
+- [x] 2.4 `check`/exposure warnings: warn when `PUBLIC_URL` is a public domain still on the generated
+      certificate. Replacing the plain-HTTP warning moves to 4.1: plain HTTP stays the default until then.
+- [x] 2.5 Make sure `config/tls/` is never in the release archive (`ops/release/bundle`) and is git-ignored
       wherever a config folder is (`.dev/`, `ops/bundle`).
-- [ ] 2.6 Tests in `mods/common/test/config/cli/fonosterConfig.test.ts` for 2.1–2.4.
+- [x] 2.6 Tests in `mods/common/test/config/cli/fonosterConfig.test.ts` for 2.1–2.4.
 
 ## 3. API clients trust a CA file
 
@@ -51,7 +51,8 @@
 
 - [ ] 4.1 `compose.yaml` serves HTTPS (TLS Envoy config, 443/80 via `HTTPS_PORT`/`HTTPS_REDIRECT_PORT`,
       `TLS_CERT`/`TLS_KEY` defaulting to the generated files); new `compose.http.yaml` turns HTTPS off;
-      `compose.tls.yaml` kept as an empty compatibility file.
+      `compose.tls.yaml` kept as an empty compatibility file. Replace the plain-HTTP exposure warning with
+      the getting-started notice (moved from 2.4).
 - [ ] 4.2 HSTS only with the owner's certificate (`init` renders the Envoy config accordingly).
 - [ ] 4.3 `.env.example`: `PUBLIC_URL` defaults to `https://${HOST_IP}`; document `compose.http.yaml`.
 - [ ] 4.4 Upgrade rules (Decision 5): rewrite `PUBLIC_URL` only when it equals the old default; warn and

@@ -11,6 +11,8 @@ coverage
 .keys
 # Signing keys are generated per install (fonoster-config init, ops/rebuild/stack), never committed.
 config/keys/
+# So is the certificate init generates for getting started (local CA and server certificate).
+**/config/tls/
 *.tsbuildinfo
 tsconfig.tsbuildinfo
 integrations.json

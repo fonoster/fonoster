@@ -20,6 +20,7 @@ import { existsSync } from "fs";
 import { BlockList, isIP } from "net";
 import { isAbsolute, resolve } from "path";
 import { URL } from "url";
+import { usesOwnerCertificate } from "./tls";
 
 /** The Compose file that turns on HTTPS in Envoy (ops/bundle/compose.tls.yaml). */
 export const TLS_COMPOSE_FILE = "compose.tls.yaml";
@@ -87,6 +88,16 @@ export function exposureWarnings(
     if (url && url.protocol !== "https:")
       warnings.push(
         `HTTPS is on (${TLS_COMPOSE_FILE}) but PUBLIC_URL is ${url.protocol}//: set PUBLIC_URL=https://<the certificate's domain> and run init again`
+      );
+    // The generated certificate is for getting started: a public domain needs a real one.
+    if (
+      url &&
+      !usesOwnerCertificate(env, dir) &&
+      isIP(url.hostname.replace(/^\[|\]$/g, "")) === 0 &&
+      !isLocalHost(url.hostname)
+    )
+      warnings.push(
+        `PUBLIC_URL is ${url.origin} but HTTPS uses the certificate init generated for getting started: browsers warn and clients must trust config/tls/ca.pem. Set TLS_CERT and TLS_KEY to a real certificate before going live (https://docs.fonoster.com/self-hosting/https)`
       );
     return warnings;
   }

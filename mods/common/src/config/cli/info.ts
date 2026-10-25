@@ -21,6 +21,7 @@ import { join } from "path";
 import { URL } from "url";
 import { expandEnv, readEnvFile } from "./envFile";
 import { tlsEnabled } from "./exposure";
+import { localTlsOnDisk, usesOwnerCertificate } from "./tls";
 import { Io } from "./types";
 
 export type InfoOptions = { dir: string };
@@ -59,6 +60,24 @@ export function runInfo(options: InfoOptions, io: Io): number {
     `            ${join(options.dir, "config")}/   service settings (from config/*.example.*)`,
     `            ${join(options.dir, "config", "keys")}/   signing keys`
   ];
+  // The certificate init generated for getting started (https-by-default).
+  const generated = usesOwnerCertificate(env, options.dir)
+    ? undefined
+    : localTlsOnDisk(options.dir);
+  if (generated) {
+    lines.push(
+      `            ${join(options.dir, "config", "tls")}/   certificate generated for getting started`
+    );
+    if (tlsEnabled(env))
+      lines.push(
+        "",
+        `Certificate ${generated.caCert}`,
+        `            SHA-256 ${generated.caFingerprint}`,
+        "            Generated for getting started: browsers show a warning once, and API clients",
+        "            must trust this CA file. Use a real certificate (TLS_CERT and TLS_KEY) before",
+        "            going live: https://docs.fonoster.com/self-hosting/https"
+      );
+  }
   lines.forEach((l) => io.out(l));
   return 0;
 }
