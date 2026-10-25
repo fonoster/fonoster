@@ -123,7 +123,8 @@
                     "pages": [
                       "self-hosting/overview",
                       "self-hosting/install-compose",
-                      "self-hosting/https"
+                      "self-hosting/https",
+                      "self-hosting/carriers-and-phones"
                     ]
                   },
                   {

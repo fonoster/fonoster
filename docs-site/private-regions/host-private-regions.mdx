@@ -116,13 +116,12 @@ All commands run in your `fonoster` folder.
   </Step>
 
   <Step title="Connect the API server to the hub">
-    Open `config/fonoster.example.yaml`. Keep the `regions.public` list as it is and add these keys
-    under `regions`, with your domain in `leafUrl`:
+    Put these keys under `regions` in `config/overrides/fonoster.yaml`, with your domain in
+    `leafUrl`. `init` merges the file over the one it writes, so the `regions.public` list stays as
+    it is:
 
-    ```yaml
+    ```yaml config/overrides/fonoster.yaml
     regions:
-      public:
-        # ...keep the default region as it is
       operatorKey: "secret://file/opt/fonoster/keys/region-operator.key"
       leafUrl: "tls://voice.example.com:7422"
       signingKey: { file: /opt/fonoster/keys/region-signing.pem }
@@ -141,7 +140,8 @@ All commands run in your `fonoster` folder.
     | `signingKey`, `hub` | Both turn private regions on. `/opt/fonoster/keys/` is your `config/keys/` folder |
     | `operatorKey` | Turns the region admin API on. Leave it out if you skipped the operator key |
 
-    Edit the example, not `config/fonoster.yaml`: `init` writes that file again from the example.
+    Don't edit `config/fonoster.yaml` or its example: `init` writes the first again, and upgrades
+    replace the second.
 
   </Step>
 
