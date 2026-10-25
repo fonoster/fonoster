@@ -4,11 +4,12 @@
 
 - [ ] 1.1 With a local CA and server certificate for `localhost`, no HSTS: confirm Chrome and Safari
       allow clicking through the warning, `navigator.mediaDevices.getUserMedia` works on the page, and
-      Talk to agent connects over `wss://localhost/sip`. Record results and screenshots.
-- [ ] 1.2 Confirm that with HSTS sent, the warning can't be bypassed (proves Decision 4).
-- [ ] 1.3 Check whether grpc-js honors `GRPC_DEFAULT_SSL_ROOTS_FILE_PATH` and/or `NODE_EXTRA_CA_CERTS`,
+      Talk to agent connects over `wss://localhost/sip`. Record results and screenshots. (Chrome passed on `localhost` and `127.0.0.1`, both
+      libraries; Safari still needs the owner's manual check.)
+- [x] 1.2 Confirm that with HSTS sent, the warning can't be bypassed (proves Decision 4).
+- [x] 1.3 Check whether grpc-js honors `GRPC_DEFAULT_SSL_ROOTS_FILE_PATH` and/or `NODE_EXTRA_CA_CERTS`,
       and whether Node `fetch` honors `NODE_EXTRA_CA_CERTS`; note it for the docs.
-- [ ] 1.4 Choose the X.509 library (`@peculiar/x509` vs `node-forge`): bundle size, API, ECDSA support,
+- [x] 1.4 Choose the X.509 library (`@peculiar/x509` vs `node-forge`): bundle size, API, ECDSA support,
       Envoy compatibility. Update design.md Decision 2 and close the open question.
 
 ## 2. Certificate generation in init

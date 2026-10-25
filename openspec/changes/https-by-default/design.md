@@ -35,9 +35,13 @@ change. CA: 10 years. Server certificate: 397 days.
 
 ### 2. Generated in Node by `@fonoster/common`, with a small X.509 library
 `init` must not need `openssl` (self-host-installer spec). Node's `crypto` generates keys but can't
-build certificates, so `@fonoster/common` adds a pure-JS X.509 library. Candidate: `@peculiar/x509`
-(WebCrypto-based, maintained, ECDSA P-256 keys that Envoy and browsers accept). Alternative:
-`node-forge` (RSA, larger, slower). Pick in the spike by bundle size and API fit.
+build certificates, so `@fonoster/common` adds **`node-forge`** (spike, 2026-10-25): one package with no
+dependencies, CommonJS, RSA 2048 keys (generated in about 0.2 s). Envoy 1.35, Chrome, grpc-js and
+`fetch` all accept its CA and server certificate (DNS and IP SANs). `@peculiar/x509` also worked
+(ECDSA P-256) but pulls in about 4.6 MB of dependencies and needs the global `reflect-metadata`
+polyfill (through `tsyringe`), which would leak into every consumer of `@fonoster/common`. ECDSA isn't
+needed for a getting-started certificate. We only generate certificates with it, never parse
+untrusted ones.
 
 ### 3. HTTPS becomes the base `compose.yaml`; plain HTTP is the overlay
 Today TLS is the `compose.tls.yaml` overlay. It flips:
@@ -50,10 +54,14 @@ Today TLS is the `compose.tls.yaml` overlay. It flips:
   `COMPOSE_FILE=compose.yaml:compose.tls.yaml` (fnai) keep working unchanged.
 
 ### 4. No HSTS with the generated certificate
-Envoy's TLS config sends `strict-transport-security: max-age=31536000`. Browsers refuse to let a
-user click through a certificate warning on a host that sent HSTS, so with the generated
-certificate `localhost` or the server's IP would become unreachable instead of showing one warning.
-Envoy sends HSTS only when the owner's certificate is in use (`init` renders that choice).
+Envoy's TLS config sends `strict-transport-security: max-age=31536000`. Spike (Chrome): when a host has
+an HSTS entry, Chrome removes the "proceed" link from the certificate warning and the page can't be
+reached. Chrome ignores HSTS headers that arrive over an untrusted connection, so the generated
+certificate alone never creates an entry. The risk is an entry left from an earlier trusted visit to
+the same host (a developer who once trusted another certificate for `localhost`, or a domain that
+goes back from Let's Encrypt to the generated certificate). Envoy sends HSTS only when the owner's
+certificate is in use (`init` renders that choice), and the docs say how to clear a stale entry
+(`chrome://net-internals/#hsts`).
 
 ### 5. Upgrading existing installs
 `init` keeps owner values (self-host-installer spec). Existing installs:
@@ -66,8 +74,10 @@ Envoy sends HSTS only when the owner's certificate is in use (`init` renders tha
   default, and points to `compose.http.yaml` to stay on plain HTTP.
 
 ### 6. Clients
-- SDK (Node): a `caFile` client option. The gRPC channel uses `credentials.createSsl(ca)` and the
-  HTTP calls use the same CA. Default: `process.env.FONOSTER_CA_FILE`. The browser `WebClient` is
+- SDK (Node): a `caFile` client option. The gRPC channel uses `credentials.createSsl(ca)`; host names
+  are still verified (spike: a name mismatch fails). Node's global `fetch` has no CA option, so HTTP
+  calls pass the CA through an undici `Agent` (`connect.ca`, matching Node's bundled undici major) or
+  `https.request` with `ca`. Default: `process.env.FONOSTER_CA_FILE`. The browser `WebClient` is
   unchanged (the browser trusts or warns).
 - CLI: `--ca-file` on `workspaces login`, saved with the workspace so later commands reuse it;
   `FONOSTER_CA_FILE` when no flag is given. Certificate errors suggest `--ca-file`.
@@ -98,8 +108,12 @@ examples and tests trust it with no flags. Playwright keeps `ignoreHTTPSErrors` 
 - **The microphone or WSS may not work after a click-through warning in some browser** → the spike
   checks Chrome and Safari first. If one fails, document a workaround (trust `ca.pem` in that browser),
   or revisit before building.
-- **grpc-js and Node `fetch` may ignore `NODE_EXTRA_CA_CERTS`** → we pass the CA explicitly, so this
-  only affects third-party clients; document `GRPC_DEFAULT_SSL_ROOTS_FILE_PATH` if the spike confirms it.
+- **Third-party Node clients** → spike: grpc-js and `fetch` both honor `NODE_EXTRA_CA_CERTS` (read at
+  process start, so `FONOSTER_CA_FILE` can't be implemented by setting it from code; we pass the CA
+  explicitly). `GRPC_DEFAULT_SSL_ROOTS_FILE_PATH` works for grpc-js only and replaces the system
+  roots. The docs recommend `NODE_EXTRA_CA_CERTS=ca.pem` for anyone else's Node client.
+- **Safari not verified by the spike** → Chrome passed (click-through, `isSecureContext`, microphone,
+  same-origin WSS). Safari needs a manual check before the build lands.
 - **Port 443 clashes on a developer's machine** → `HTTPS_PORT` is configurable (since #1134).
 - **People go live on the generated certificate** → `init`, `info` and the docs say it's for getting
   started; `check` warns when `PUBLIC_URL` is a public domain still using it.
@@ -120,5 +134,5 @@ Rollback: an owner sets `COMPOSE_FILE=compose.yaml:compose.http.yaml` and their 
 
 ## Open Questions
 
-- Library choice (`@peculiar/x509` vs `node-forge`): settle in the spike.
+- ~~Library choice~~: `node-forge` (Decision 2).
 - Should `info` print the CA's SHA-256 fingerprint, so a remote client can check what it fetched?
