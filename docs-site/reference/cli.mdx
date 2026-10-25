@@ -38,7 +38,10 @@ Every command accepts this flag:
 
 | Flag | Short | Default | What it does |
 | --- | --- | --- | --- |
-| `--insecure` | `-i` | `false` | Connects to a server without TLS, such as a local install. |
+| `--ca-file <path>` | | `FONOSTER_CA_FILE` | A PEM file of certificate authorities to trust besides your system's, such as an install's generated `config/tls/ca.pem`. Saved with the workspace at login. |
+
+The CLI always connects over TLS. To reach an install that uses its generated certificate, log in
+with `--ca-file` pointing at a copy of the install's `config/tls/ca.pem`.
 
 ## Workspaces
 

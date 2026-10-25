@@ -48,8 +48,14 @@ key ID starts with `WO`. The API key ID (`AP…`) and its secret prove who you a
 <ParamField path="endpoint" type="string" default="api.fonoster.ai">
   The gRPC endpoint, as `host` or `host:port`. Set it to your install's address when you self-host.
 </ParamField>
+<ParamField path="caFile" type="string" default="FONOSTER_CA_FILE">
+  A PEM file of certificate authorities to trust besides your system's, such as an install's
+  generated `config/tls/ca.pem`. Used for gRPC and the HTTP routes. Host names are still checked. A
+  missing file fails when the client is created.
+</ParamField>
 <ParamField path="allowInsecure" type="boolean" default="false">
-  Connect without TLS. Use it only for a local install on plain HTTP.
+  Connect without TLS. Only for plain connections inside a private network, such as one service
+  calling another. To reach an install over HTTPS with its generated certificate, use `caFile`.
 </ParamField>
 <ParamField path="httpUrl" type="string">
   The base URL of the HTTP routes (call records and regions). Default `https://` plus the

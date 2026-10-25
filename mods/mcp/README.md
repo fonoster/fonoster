@@ -114,7 +114,7 @@ Add the following to your `claude_desktop_config.json`:
 | `MCP_APIKEY_ACCESS_KEY_ID` | Your API key access key ID | Yes |
 | `MCP_APIKEY_ACCESS_KEY_SECRET` | Your API key secret | Yes |
 | `MCP_ENDPOINT` | Custom API endpoint (e.g., `localhost:50051`) | No |
-| `MCP_ALLOW_INSECURE` | Allow insecure connections (`true`/`false`) | No |
+| `FONOSTER_CA_FILE` | A PEM file of certificate authorities to trust, such as an install's `config/tls/ca.pem` | No |
 
 ### Testing with the MCP Inspector
 

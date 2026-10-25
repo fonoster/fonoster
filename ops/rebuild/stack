@@ -612,7 +612,7 @@ cmd_tls() {
       } > "$TLS_ENV"
       tls_apply
       wait_for "the apiserver over HTTPS" 90 https_api_ready || die "the apiserver did not come back"
-      log "HTTPS on: https://localhost:$RB_HTTPS_PORT (self-signed)"
+      log "HTTPS on: https://localhost:$RB_HTTPS_PORT (self-signed; CLI and SDK: --ca-file $dir/fullchain.pem)"
       ;;
     off)
       rm -f "$TLS_ENV"

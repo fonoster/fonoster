@@ -51,7 +51,7 @@ const HINTS: Record<EnrollErrorCode, string> = {
   control_plane_mismatch:
     "the token is for a different control plane than --control-plane.",
   insecure_url:
-    "the token points to a plain-text URL; pass --allow-insecure only for local testing.",
+    "the token points to a plain-text URL; --allow-insecure is only for a private network (a region inside the control plane's own network). Over HTTPS with an install's generated certificate, use --ca-file instead.",
   unreachable: "the control plane could not be reached.",
   enroll_failed: "the control plane refused the enrollment."
 };

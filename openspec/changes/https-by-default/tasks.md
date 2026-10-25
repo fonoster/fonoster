@@ -30,22 +30,22 @@
 
 ## 3. API clients trust a CA file
 
-- [ ] 3.1 SDK (Node): `caFile` client option → `credentials.createSsl(ca)` for gRPC and the same CA for
+- [x] 3.1 SDK (Node): `caFile` client option → `credentials.createSsl(ca)` for gRPC and the same CA for
       HTTP calls; default from `FONOSTER_CA_FILE`; missing file fails before connecting, naming the path.
-- [ ] 3.2 CLI: `--ca-file` on `workspaces login`, saved with the workspace and reused; `FONOSTER_CA_FILE`
+- [x] 3.2 CLI: `--ca-file` on `workspaces login`, saved with the workspace and reused; `FONOSTER_CA_FILE`
       fallback; flag wins; certificate errors suggest `--ca-file`.
-- [ ] 3.3 Region agent: `--ca-file` and `FONOSTER_CA_FILE` for the control plane URL.
-- [ ] 3.4 MCP server: CA from `FONOSTER_CA_FILE` through the SDK option.
-- [ ] 3.5 Tests for 3.1–3.4: trusted CA succeeds, no CA fails with the hint, wrong host name fails,
+- [x] 3.3 Region agent: `--ca-file` and `FONOSTER_CA_FILE` for the control plane URL.
+- [x] 3.4 MCP server: CA from `FONOSTER_CA_FILE` through the SDK option.
+- [x] 3.5 Tests for 3.1–3.4: trusted CA succeeds, no CA fails with the hint, wrong host name fails,
       missing file fails, flag beats env var.
 
 ## 3b. Remove the user-facing insecure options
 
-- [ ] 3b.1 Remove the CLI's `--insecure` (unknown flag, hint to `--ca-file`) and the MCP server's
+- [x] 3b.1 Remove the CLI's `--insecure` (unknown flag, hint to `--ca-file`) and the MCP server's
       `MCP_ALLOW_INSECURE`; move their callers and docs to `--ca-file` / `FONOSTER_CA_FILE`.
-- [ ] 3b.2 Document the SDK's `allowInsecure` and the region agent's `--allow-insecure` as
+- [x] 3b.2 Document the SDK's `allowInsecure` and the region agent's `--allow-insecure` as
       private-network only; make sure no error message or doc suggests them for the generated certificate.
-- [ ] 3b.3 Tests: `--insecure` is rejected with the hint; the CLI fails with a TLS error on a plain-HTTP
+- [x] 3b.3 Tests: `--insecure` is rejected with the hint; the CLI fails with a TLS error on a plain-HTTP
       endpoint; certificate errors suggest `--ca-file`.
 
 ## 4. HTTPS by default in the bundle

@@ -18,17 +18,17 @@
  */
 import * as SDK from "@fonoster/sdk";
 import { Command } from "@oclif/core";
-import { BaseCommand } from "./BaseCommand"; // Adjust the import based on your structure
+import { BaseCommand, caHint } from "./BaseCommand";
 import { getActiveWorkspace, getConfig } from "./config";
 import { CONFIG_FILE } from "./constants";
 
 /**
- * The HTTP API (call records, `/api/records`) sits behind the same host and port as gRPC:
- * `http://` for an insecure (local) endpoint, `https://` otherwise (CLI-B3).
+ * The HTTP API (call records, `/api/records`) sits behind the same host and port as gRPC, over
+ * HTTPS (CLI-B3). An endpoint given as a full URL is used as is.
  */
-export function httpUrlFor(endpoint: string, insecure = false): string {
+export function httpUrlFor(endpoint: string): string {
   if (/^https?:\/\//.test(endpoint)) return endpoint.replace(/\/+$/, "");
-  return `${insecure ? "http" : "https"}://${endpoint}`.replace(/\/+$/, "");
+  return `https://${endpoint}`.replace(/\/+$/, "");
 }
 
 export abstract class AuthenticatedCommand<
@@ -48,8 +48,9 @@ export abstract class AuthenticatedCommand<
       const client = new SDK.Client({
         endpoint: activeWorkspace.endpoint,
         accessKeyId: activeWorkspace.workspaceAccessKeyId,
-        allowInsecure: this.flags.insecure,
-        httpUrl: httpUrlFor(activeWorkspace.endpoint, this.flags.insecure)
+        // The flag wins, then the CA saved at login, then FONOSTER_CA_FILE (read by the SDK).
+        caFile: this.flags["ca-file"] ?? activeWorkspace.caFile,
+        httpUrl: httpUrlFor(activeWorkspace.endpoint)
       });
 
       await client.loginWithApiKey(
@@ -59,8 +60,11 @@ export abstract class AuthenticatedCommand<
 
       return client;
     } catch (error) {
+      const detail = (error as Error)?.message ?? "";
       this.error(
-        "Failed to initialize the SDK client. Please try by login to the Workspace again.",
+        caHint(
+          `Failed to initialize the SDK client. Please try by login to the Workspace again.${detail ? ` (${detail})` : ""}`
+        ),
         { exit: 1 }
       );
     }

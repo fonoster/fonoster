@@ -12,7 +12,7 @@ Use this tool to manage your Fonoster resources from the command line. With this
 
 On the new platform: `applications:*` manage streams (your WebSocket server: URL, protocol, speech defaults as catalog ids, listeners, recording, fallback) and Autopilot agents (`--agent`); `webhooks:*` manage workspace webhooks and their delivery log; `records:*` search call records and download recordings and vCons; `providers:*` list the provider catalog and manage the workspace's vendor keys. See [Try the new platform](../../docs/try-the-new-platform.md#from-the-terminal).
 
-> When connecting to your own instance of Fonoster, remember to use your endpoint when login in. Also, remember to use the `--insecure` flag when connecting to a server with no TLS.
+> When connecting to your own instance of Fonoster, remember to use your endpoint when login in. If your install uses its generated certificate, trust it with `--ca-file <path to its config/tls/ca.pem>` (or `FONOSTER_CA_FILE`). The CLI always uses TLS.
 
 <!-- toc -->
 * [Usage](#usage)
@@ -114,11 +114,11 @@ create an API key for the active Workspace
 
 ```
 USAGE
-  $ fonoster apikeys:create [-i] [-e <value>] [-r <value>]
+  $ fonoster apikeys:create [-e <value>] [-r <value>]
 
 FLAGS
   -e, --expiration=<value>  API Key expiration time in days(e.g. 10d) or months(e.g. 10m)
-  -i, --insecure            allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -r, --role=<value>        [default: WORKSPACE_ADMIN] API Key role
 
 DESCRIPTION
@@ -136,13 +136,13 @@ delete an API key from the active Workspace
 
 ```
 USAGE
-  $ fonoster apikeys:delete REF [-i]
+  $ fonoster apikeys:delete REF 
 
 ARGUMENTS
   REF  the ApiKey to delete from the Workspace
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   delete an API key from the active Workspace
@@ -159,10 +159,10 @@ display all API keys in the active Workspace
 
 ```
 USAGE
-  $ fonoster apikeys:list [-i] [-s <value>]
+  $ fonoster apikeys:list [-s <value>]
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 1000] the number of items to show
 
 DESCRIPTION
@@ -180,13 +180,13 @@ generate a new access key secret for an API key
 
 ```
 USAGE
-  $ fonoster apikeys:regenerate REF [-i]
+  $ fonoster apikeys:regenerate REF 
 
 ARGUMENTS
   REF  the Application to update
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   generate a new access key secret for an API key
@@ -203,7 +203,7 @@ add a new Application to the active Workspace
 
 ```
 USAGE
-  $ fonoster applications:create [-i] [-f <value>] [-n <value>] [-u <value>] [--protocol fonoster|twilio] [-a <value>]
+  $ fonoster applications:create [-f <value>] [-n <value>] [-u <value>] [--protocol fonoster|twilio] [-a <value>]
     [--voice <value>] [--language <value>] [--stt-model <value>] [--tts-model <value>] [--silence-timeout <value>]
     [--patience low|normal|high] [--audio-codec pcm16|pcmu] [--audio-rate <value>] [--fallback-app <value>]
     [--fallback-message <value>] [-l <value>...] [--clear-listeners] [--recording off|on|consent]
@@ -212,7 +212,7 @@ FLAGS
   -a, --agent=<value>             a YAML or JSON agent file; makes it an Autopilot agent (hosted by Fonoster)
   -f, --from-file=<value>         a YAML or JSON file with the Application (an `agent` key makes it an Autopilot
                                   agent)
-  -i, --insecure                  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -l, --listener=<value>...       a listen-only socket: <wss-url>[,inbound|outbound|both] (repeatable, at most 4)
   -n, --name=<value>              the Application name
   -u, --url=<value>               the stream's WebSocket URL (ws:// or wss://)
@@ -257,13 +257,13 @@ delete an Application from the active Workspace
 
 ```
 USAGE
-  $ fonoster applications:delete REF [-i]
+  $ fonoster applications:delete REF 
 
 ARGUMENTS
   REF  the Application to delete
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   delete an Application from the active Workspace
@@ -280,11 +280,11 @@ experimental command to test an Autopilot agent
 
 ```
 USAGE
-  $ fonoster applications:eval -f <value> [-i] [-o pretty|json] [--output-file <value>]
+  $ fonoster applications:eval -f <value> [-o pretty|json] [--output-file <value>]
 
 FLAGS
   -f, --file=<value>         (required) path to test cases file (json, yaml, or yml)
-  -i, --insecure             allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -o, --output=<option>      [default: pretty] output format
                              <options: pretty|json>
       --output-file=<value>  write JSON summary to this file (with pretty: also show streamed output)
@@ -310,13 +310,13 @@ retrieve details of an Application by reference
 
 ```
 USAGE
-  $ fonoster applications:get REF [-i]
+  $ fonoster applications:get REF 
 
 ARGUMENTS
   REF  The Application to show details about
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   retrieve details of an Application by reference
@@ -333,10 +333,10 @@ display all Applications in the active Workspace
 
 ```
 USAGE
-  $ fonoster applications:list [-i] [-s <value>]
+  $ fonoster applications:list [-s <value>]
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 1000] the number of items to show
 
 DESCRIPTION
@@ -354,13 +354,13 @@ issue a new signing secret for an Application (the old one stops working)
 
 ```
 USAGE
-  $ fonoster applications:rotate-secret REF [-i]
+  $ fonoster applications:rotate-secret REF 
 
 ARGUMENTS
   REF  the Application whose secret to rotate
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   issue a new signing secret for an Application (the old one stops working)
@@ -377,7 +377,7 @@ modify an Application (only the fields you pass change)
 
 ```
 USAGE
-  $ fonoster applications:update [REF] [-i] [-f <value>] [-n <value>] [-u <value>] [--protocol fonoster|twilio] [-a <value>]
+  $ fonoster applications:update [REF] [-f <value>] [-n <value>] [-u <value>] [--protocol fonoster|twilio] [-a <value>]
     [--voice <value>] [--language <value>] [--stt-model <value>] [--tts-model <value>] [--silence-timeout <value>]
     [--patience low|normal|high] [--audio-codec pcm16|pcmu] [--audio-rate <value>] [--fallback-app <value>]
     [--fallback-message <value>] [-l <value>...] [--clear-listeners] [--recording off|on|consent]
@@ -389,7 +389,7 @@ FLAGS
   -a, --agent=<value>             a YAML or JSON agent file; makes it an Autopilot agent (hosted by Fonoster)
   -f, --from-file=<value>         a YAML or JSON file with the Application (an `agent` key makes it an Autopilot
                                   agent)
-  -i, --insecure                  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -l, --listener=<value>...       a listen-only socket: <wss-url>[,inbound|outbound|both] (repeatable, at most 4)
   -n, --name=<value>              the Application name
   -u, --url=<value>               the stream's WebSocket URL (ws:// or wss://)
@@ -493,10 +493,10 @@ list the provider catalog: the providers, models and voices apps can use (catalo
 
 ```
 USAGE
-  $ fonoster providers:catalog [-i] [-k provider|model|voice] [-t stt|tts|llm]
+  $ fonoster providers:catalog [-k provider|model|voice] [-t stt|tts|llm]
 
 FLAGS
-  -i, --insecure       allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -k, --kind=<option>  only this kind of item
                        <options: provider|model|voice>
   -t, --type=<option>  only this capability
@@ -521,13 +521,13 @@ remove the Workspace's key for a vendor (calls fall back to the platform's key, 
 
 ```
 USAGE
-  $ fonoster providers:keys:delete PROVIDER [-i]
+  $ fonoster providers:keys:delete PROVIDER 
 
 ARGUMENTS
   PROVIDER  the provider id
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   remove the Workspace's key for a vendor (calls fall back to the platform's key, if any)
@@ -544,10 +544,10 @@ list the vendors the Workspace has its own key for (keys are never shown)
 
 ```
 USAGE
-  $ fonoster providers:keys:list [-i]
+  $ fonoster providers:keys:list 
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   list the vendors the Workspace has its own key for (keys are never shown)
@@ -564,13 +564,13 @@ set the Workspace's own key for a speech or LLM vendor (replaces any previous ke
 
 ```
 USAGE
-  $ fonoster providers:keys:set PROVIDER [-i] [--key <value>]
+  $ fonoster providers:keys:set PROVIDER [--key <value>]
 
 ARGUMENTS
   PROVIDER  the provider id (see providers:catalog --kind provider)
 
 FLAGS
-  -i, --insecure     allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
       --key=<value>  the vendor key (omit to type it without echo)
 
 DESCRIPTION
@@ -590,13 +590,13 @@ save a call's recording (WAV), vCon (JSON) or signed vCon (JWS) to a file
 
 ```
 USAGE
-  $ fonoster records:download REF [-i] [-p recording|vcon|signed] [-o <value>] [--version <value>] [--original]
+  $ fonoster records:download REF [-p recording|vcon|signed] [-o <value>] [--version <value>] [--original]
 
 ARGUMENTS
   REF  the call (callRef)
 
 FLAGS
-  -i, --insecure         allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -o, --output=<value>   the file to write (default <call-ref>.<ext>)
   -p, --part=<option>    [default: recording] what to download
                          <options: recording|vcon|signed>
@@ -622,13 +622,13 @@ show the summary of a call record (use records:download for the files)
 
 ```
 USAGE
-  $ fonoster records:get REF [-i] [--version <value>] [--original]
+  $ fonoster records:get REF [--version <value>] [--original]
 
 ARGUMENTS
   REF  the call (callRef)
 
 FLAGS
-  -i, --insecure         allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
       --original         the unredacted record (owner or admin)
       --version=<value>  a record version (default latest)
 
@@ -649,11 +649,11 @@ search the call records (vCon) of the active Workspace, newest first
 
 ```
 USAGE
-  $ fonoster records:list [-i] [--after <value>] [--before <value>] [--number <value>] [--app <value>] [--status
+  $ fonoster records:list [--after <value>] [--before <value>] [--number <value>] [--app <value>] [--status
     <value>] [-s <value>] [-t <value>]
 
 FLAGS
-  -i, --insecure            allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>   [default: 50] the number of items to show
   -t, --page-token=<value>  the token for the next page (printed after a full page)
       --after=<value>       started at or after (ISO date/time)
@@ -681,10 +681,10 @@ add a new Secret to the active Workspace
 
 ```
 USAGE
-  $ fonoster secrets:create [-i]
+  $ fonoster secrets:create 
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   add a new Secret to the active Workspace
@@ -701,13 +701,13 @@ delete a Secret from the active Workspace
 
 ```
 USAGE
-  $ fonoster secrets:delete REF [-i]
+  $ fonoster secrets:delete REF 
 
 ARGUMENTS
   REF  the Secret reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   delete a Secret from the active Workspace
@@ -724,13 +724,13 @@ retrieve details of a Secret by reference
 
 ```
 USAGE
-  $ fonoster secrets:get REF [-i]
+  $ fonoster secrets:get REF 
 
 ARGUMENTS
   REF  The Secret to show details about
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   retrieve details of a Secret by reference
@@ -747,10 +747,10 @@ display all Secrets in the active Workspace
 
 ```
 USAGE
-  $ fonoster secrets:list [-i] [-s <value>]
+  $ fonoster secrets:list [-s <value>]
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 1000] the number of items to show
 
 DESCRIPTION
@@ -768,13 +768,13 @@ modify the value or metadata of a Secret
 
 ```
 USAGE
-  $ fonoster secrets:update REF [-i]
+  $ fonoster secrets:update REF 
 
 ARGUMENTS
   REF  the Secret to update
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   modify the value or metadata of a Secret
@@ -791,10 +791,10 @@ create a new Access Control List (ACL)
 
 ```
 USAGE
-  $ fonoster sipnet:acls:create [-i]
+  $ fonoster sipnet:acls:create 
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   create a new Access Control List (ACL)
@@ -811,13 +811,13 @@ remove an Access Control List (ACL) from the Workspace
 
 ```
 USAGE
-  $ fonoster sipnet:acls:delete REF [-i]
+  $ fonoster sipnet:acls:delete REF 
 
 ARGUMENTS
   REF  the ACL reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   remove an Access Control List (ACL) from the Workspace
@@ -834,13 +834,13 @@ get a specific Access Control List (ACL)
 
 ```
 USAGE
-  $ fonoster sipnet:acls:get REF [-i]
+  $ fonoster sipnet:acls:get REF 
 
 ARGUMENTS
   REF  The ACL reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   get a specific Access Control List (ACL)
@@ -857,10 +857,10 @@ list all Access Control Lists (ACLs)
 
 ```
 USAGE
-  $ fonoster sipnet:acls:list [-i] [-s <value>]
+  $ fonoster sipnet:acls:list [-s <value>]
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 1000] the number of items to show
 
 DESCRIPTION
@@ -878,13 +878,13 @@ update an existing Access Control List (ACL)
 
 ```
 USAGE
-  $ fonoster sipnet:acls:update REF [-i]
+  $ fonoster sipnet:acls:update REF 
 
 ARGUMENTS
   REF  the ACL reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   update an existing Access Control List (ACL)
@@ -901,10 +901,10 @@ add a new SIP Agent to the network
 
 ```
 USAGE
-  $ fonoster sipnet:agents:create [-i]
+  $ fonoster sipnet:agents:create 
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   add a new SIP Agent to the network
@@ -921,13 +921,13 @@ delete a SIP Agent from the network
 
 ```
 USAGE
-  $ fonoster sipnet:agents:delete REF [-i]
+  $ fonoster sipnet:agents:delete REF 
 
 ARGUMENTS
   REF  the Agent reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   delete a SIP Agent from the network
@@ -944,13 +944,13 @@ retrieve details of a SIP Agent
 
 ```
 USAGE
-  $ fonoster sipnet:agents:get REF [-i]
+  $ fonoster sipnet:agents:get REF 
 
 ARGUMENTS
   REF  The Agent reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   retrieve details of a SIP Agent
@@ -967,10 +967,10 @@ display all SIP Agents in the network
 
 ```
 USAGE
-  $ fonoster sipnet:agents:list [-i] [-s <value>]
+  $ fonoster sipnet:agents:list [-s <value>]
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 1000] the number of items to show
 
 DESCRIPTION
@@ -988,13 +988,13 @@ add a new SIP Agent to the network
 
 ```
 USAGE
-  $ fonoster sipnet:agents:update REF [-i]
+  $ fonoster sipnet:agents:update REF 
 
 ARGUMENTS
   REF  the ACL reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   add a new SIP Agent to the network
@@ -1011,13 +1011,13 @@ place an outbound call to a phone number or SIP URI and follow its status
 
 ```
 USAGE
-  $ fonoster sipnet:calls:create -f <value> -t <value> -a <value> [-i] [-o <value>] [-m <value>] [-d]
+  $ fonoster sipnet:calls:create -f <value> -t <value> -a <value> [-o <value>] [-m <value>] [-d]
 
 FLAGS
   -a, --app-ref=<value>   (required) the Application that handles the call
   -d, --detach            print the call ref and return without following the status
   -f, --from=<value>      (required) the number to make the call from
-  -i, --insecure          allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -m, --metadata=<value>  a JSON object the app receives with the session (e.g. '{"name": "John Doe"}')
   -o, --timeout=<value>   [default: 30] seconds to wait for an answer
   -t, --to=<value>        (required) the number or SIP URI to call
@@ -1041,13 +1041,13 @@ get a specific Access Control List (ACL)
 
 ```
 USAGE
-  $ fonoster sipnet:calls:get REF [-i]
+  $ fonoster sipnet:calls:get REF 
 
 ARGUMENTS
   REF  The ACL reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   get a specific Access Control List (ACL)
@@ -1064,10 +1064,10 @@ display all calls made in the active Workspace
 
 ```
 USAGE
-  $ fonoster sipnet:calls:list [-i] [-s <value>]
+  $ fonoster sipnet:calls:list [-s <value>]
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 1000] the number of items to show
 
 DESCRIPTION
@@ -1085,10 +1085,10 @@ add a new set of Credentials to the network
 
 ```
 USAGE
-  $ fonoster sipnet:credentials:create [-i]
+  $ fonoster sipnet:credentials:create 
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   add a new set of Credentials to the network
@@ -1105,13 +1105,13 @@ delete a set of Credentials from the active Workspace
 
 ```
 USAGE
-  $ fonoster sipnet:credentials:delete REF [-i]
+  $ fonoster sipnet:credentials:delete REF 
 
 ARGUMENTS
   REF  the Credentials reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   delete a set of Credentials from the active Workspace
@@ -1128,13 +1128,13 @@ retrieve details of a set of Credentials by reference
 
 ```
 USAGE
-  $ fonoster sipnet:credentials:get REF [-i]
+  $ fonoster sipnet:credentials:get REF 
 
 ARGUMENTS
   REF  The Credentials reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   retrieve details of a set of Credentials by reference
@@ -1151,10 +1151,10 @@ display all Credentials in the active Workspace
 
 ```
 USAGE
-  $ fonoster sipnet:credentials:list [-i] [-s <value>]
+  $ fonoster sipnet:credentials:list [-s <value>]
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 1000] the number of items to show
 
 DESCRIPTION
@@ -1172,13 +1172,13 @@ modify the values or metadata of a set of Credentials
 
 ```
 USAGE
-  $ fonoster sipnet:credentials:update REF [-i]
+  $ fonoster sipnet:credentials:update REF 
 
 ARGUMENTS
   REF  the Credentials reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   modify the values or metadata of a set of Credentials
@@ -1195,10 +1195,10 @@ add a new Domain to the SIP network
 
 ```
 USAGE
-  $ fonoster sipnet:domains:create [-i]
+  $ fonoster sipnet:domains:create 
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   add a new Domain to the SIP network
@@ -1215,13 +1215,13 @@ delete a Domain from the active Workspace
 
 ```
 USAGE
-  $ fonoster sipnet:domains:delete REF [-i]
+  $ fonoster sipnet:domains:delete REF 
 
 ARGUMENTS
   REF  the Domain reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   delete a Domain from the active Workspace
@@ -1238,13 +1238,13 @@ retrieve details of a Domain by reference
 
 ```
 USAGE
-  $ fonoster sipnet:domains:get REF [-i]
+  $ fonoster sipnet:domains:get REF 
 
 ARGUMENTS
   REF  The Domain reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   retrieve details of a Domain by reference
@@ -1261,10 +1261,10 @@ display all Domains in the SIP network
 
 ```
 USAGE
-  $ fonoster sipnet:domains:list [-i] [-s <value>]
+  $ fonoster sipnet:domains:list [-s <value>]
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 1000] the number of items to show
 
 DESCRIPTION
@@ -1282,13 +1282,13 @@ modify the configuration of a Domain
 
 ```
 USAGE
-  $ fonoster sipnet:domains:update REF [-i]
+  $ fonoster sipnet:domains:update REF 
 
 ARGUMENTS
   REF  the Domain reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   modify the configuration of a Domain
@@ -1305,10 +1305,10 @@ add a new Number to the SIP network
 
 ```
 USAGE
-  $ fonoster sipnet:numbers:create [-i]
+  $ fonoster sipnet:numbers:create 
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   add a new Number to the SIP network
@@ -1325,13 +1325,13 @@ delete a Number from the active Workspace
 
 ```
 USAGE
-  $ fonoster sipnet:numbers:delete REF [-i]
+  $ fonoster sipnet:numbers:delete REF 
 
 ARGUMENTS
   REF  the Numbers's reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   delete a Number from the active Workspace
@@ -1348,13 +1348,13 @@ retrieve details of a Number by reference
 
 ```
 USAGE
-  $ fonoster sipnet:numbers:get REF [-i]
+  $ fonoster sipnet:numbers:get REF 
 
 ARGUMENTS
   REF  the Number to show details about
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   retrieve details of a Number by reference
@@ -1371,14 +1371,14 @@ associate a Twilio number with a Fonoster Application
 
 ```
 USAGE
-  $ fonoster sipnet:numbers:linkTwilioNumber [-i] [-b <value>] [-a <value>]
+  $ fonoster sipnet:numbers:linkTwilioNumber [-b <value>] [-a <value>]
 
 FLAGS
   -a, --access-control-list=<value>  [default: 165.22.7.155/32] the access control list to allow (use if running your
                                      Fonoster instance)
   -b, --outbound-uri-base=<value>    the host Twilio sends calls to, under which the trunk's inbound URI is made
                                      (default: pstn.<the server's domain>)
-  -i, --insecure                     allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   associate a Twilio number with a Fonoster Application
@@ -1395,10 +1395,10 @@ display all Numbers in the active Workspace
 
 ```
 USAGE
-  $ fonoster sipnet:numbers:list [-i] [-s <value>]
+  $ fonoster sipnet:numbers:list [-s <value>]
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 1000] the number of items to return
 
 DESCRIPTION
@@ -1416,13 +1416,13 @@ modify the configuration of a Number
 
 ```
 USAGE
-  $ fonoster sipnet:numbers:update REF [-i]
+  $ fonoster sipnet:numbers:update REF 
 
 ARGUMENTS
   REF  the Number to update
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   modify the configuration of a Number
@@ -1439,10 +1439,10 @@ add a new Trunk to the SIP network
 
 ```
 USAGE
-  $ fonoster sipnet:trunks:create [-i]
+  $ fonoster sipnet:trunks:create 
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   add a new Trunk to the SIP network
@@ -1459,13 +1459,13 @@ remove a Trunk from the active Workspace
 
 ```
 USAGE
-  $ fonoster sipnet:trunks:delete REF [-i]
+  $ fonoster sipnet:trunks:delete REF 
 
 ARGUMENTS
   REF  the Trunk's reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   remove a Trunk from the active Workspace
@@ -1482,13 +1482,13 @@ retrieve details of a Trunk by reference
 
 ```
 USAGE
-  $ fonoster sipnet:trunks:get REF [-i]
+  $ fonoster sipnet:trunks:get REF 
 
 ARGUMENTS
   REF  The Trunk's reference
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   retrieve details of a Trunk by reference
@@ -1505,10 +1505,10 @@ display all Trunks in the active Workspace
 
 ```
 USAGE
-  $ fonoster sipnet:trunks:list [-i] [-s <value>]
+  $ fonoster sipnet:trunks:list [-s <value>]
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 1000] the number of items to show
 
 DESCRIPTION
@@ -1526,13 +1526,13 @@ modify the configuration of a Trunk
 
 ```
 USAGE
-  $ fonoster sipnet:trunks:update REF [-i]
+  $ fonoster sipnet:trunks:update REF 
 
 ARGUMENTS
   REF  the Trunk to update
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   modify the configuration of a Trunk
@@ -1550,13 +1550,13 @@ subscribe an HTTPS endpoint to Workspace events
 ```
 USAGE
   $ fonoster webhooks:create -u <value> -e
-    call.started|call.ended|call.failed|call_record.sealed|provider.deprecated... [-i]
+    call.started|call.ended|call.failed|call_record.sealed|provider.deprecated... 
 
 FLAGS
   -e, --event=<option>...  (required) an event to receive (repeatable): call.started, call.ended, call.failed,
                            call_record.sealed, provider.deprecated
                            <options: call.started|call.ended|call.failed|call_record.sealed|provider.deprecated>
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -u, --url=<value>        (required) the endpoint that receives the events (https://)
 
 DESCRIPTION
@@ -1574,13 +1574,13 @@ delete a Webhook from the active Workspace
 
 ```
 USAGE
-  $ fonoster webhooks:delete REF [-i]
+  $ fonoster webhooks:delete REF 
 
 ARGUMENTS
   REF  the Webhook to delete
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   delete a Webhook from the active Workspace
@@ -1597,13 +1597,13 @@ show the delivery log (all Webhooks, or one)
 
 ```
 USAGE
-  $ fonoster webhooks:deliveries [REF] [-i] [-s <value>]
+  $ fonoster webhooks:deliveries [REF] [-s <value>]
 
 ARGUMENTS
   [REF]  only this Webhook's deliveries
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 50] the number of items to show
 
 DESCRIPTION
@@ -1623,13 +1623,13 @@ retrieve details of a Webhook by reference
 
 ```
 USAGE
-  $ fonoster webhooks:get REF [-i]
+  $ fonoster webhooks:get REF 
 
 ARGUMENTS
   REF  the Webhook to show details about
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   retrieve details of a Webhook by reference
@@ -1646,10 +1646,10 @@ display all Webhooks in the active Workspace
 
 ```
 USAGE
-  $ fonoster webhooks:list [-i] [-s <value>]
+  $ fonoster webhooks:list [-s <value>]
 
 FLAGS
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -s, --page-size=<value>  [default: 1000] the number of items to show
 
 DESCRIPTION
@@ -1667,13 +1667,13 @@ send a delivery again (same event id, so receivers can dedupe)
 
 ```
 USAGE
-  $ fonoster webhooks:resend REF [-i]
+  $ fonoster webhooks:resend REF 
 
 ARGUMENTS
   REF  the delivery to resend (see webhooks:deliveries)
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   send a delivery again (same event id, so receivers can dedupe)
@@ -1690,13 +1690,13 @@ issue a new signing secret for a Webhook (the old one keeps working for a while)
 
 ```
 USAGE
-  $ fonoster webhooks:rotate REF [-i]
+  $ fonoster webhooks:rotate REF 
 
 ARGUMENTS
   REF  the Webhook whose secret to rotate
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   issue a new signing secret for a Webhook (the old one keeps working for a while)
@@ -1713,7 +1713,7 @@ change a Webhook's URL or events (--event replaces the list)
 
 ```
 USAGE
-  $ fonoster webhooks:update REF [-i] [-u <value>] [-e
+  $ fonoster webhooks:update REF [-u <value>] [-e
     call.started|call.ended|call.failed|call_record.sealed|provider.deprecated...]
 
 ARGUMENTS
@@ -1723,7 +1723,7 @@ FLAGS
   -e, --event=<option>...  an event to receive (repeatable): call.started, call.ended, call.failed, call_record.sealed,
                            provider.deprecated
                            <options: call.started|call.ended|call.failed|call_record.sealed|provider.deprecated>
-  -i, --insecure           allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
   -u, --url=<value>        the new endpoint
 
 DESCRIPTION
@@ -1777,10 +1777,10 @@ link a Workspace to the local environment
 
 ```
 USAGE
-  $ fonoster workspaces:login [-i]
+  $ fonoster workspaces:login 
 
 FLAGS
-  -i, --insecure  allow connections to a server with no TLS
+      --ca-file=<value>  a PEM file of certificate authorities to trust (default: FONOSTER_CA_FILE)
 
 DESCRIPTION
   link a Workspace to the local environment

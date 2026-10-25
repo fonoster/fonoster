@@ -70,6 +70,7 @@ class Regions {
     // `fetch` throws "Illegal invocation".
     this.fetchFn =
       options.fetch ??
+      (client.getFetch?.() as FetchLike | undefined) ??
       (((input, init) =>
         globalThis.fetch(input, init)) as unknown as FetchLike);
   }

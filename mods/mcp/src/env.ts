@@ -28,12 +28,7 @@ const WORKSPACE_ACCESS_KEY_ID = process.env.MCP_WORKSPACE_ACCESS_KEY_ID;
 const ACCESS_KEY_ID = process.env.MCP_APIKEY_ACCESS_KEY_ID;
 const ACCESS_KEY_SECRET = process.env.MCP_APIKEY_ACCESS_KEY_SECRET;
 const ENDPOINT = process.env.MCP_ENDPOINT;
-const ALLOW_INSECURE = process.env.MCP_ALLOW_INSECURE === "true";
+// The API is always reached over TLS. An install that uses its generated certificate is trusted
+// with FONOSTER_CA_FILE (its config/tls/ca.pem), which the SDK client reads.
 
-export {
-  WORKSPACE_ACCESS_KEY_ID,
-  ACCESS_KEY_ID,
-  ACCESS_KEY_SECRET,
-  ENDPOINT,
-  ALLOW_INSECURE
-};
+export { WORKSPACE_ACCESS_KEY_ID, ACCESS_KEY_ID, ACCESS_KEY_SECRET, ENDPOINT };

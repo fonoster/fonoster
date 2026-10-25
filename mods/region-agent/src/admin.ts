@@ -19,6 +19,8 @@
 // The cloud side of `fonoster-region` (PR-19, PR-21): the operator's admin API for public regions
 // (contract 0), authorized only by the operator key in `x-operator-key`. Never prints the key.
 
+import { certHint } from "./caFetch";
+
 export const DEFAULT_API_URL = "https://api.fonoster.ai";
 
 export type AdminOptions = {
@@ -72,7 +74,7 @@ export async function adminRequest<T = Record<string, unknown>>(
     throw new AdminError(
       0,
       "unreachable",
-      `${url} could not be reached: ${(e as Error).message}`
+      certHint(`${url} could not be reached: ${(e as Error).message}`)
     );
   }
   const text = await res.text();

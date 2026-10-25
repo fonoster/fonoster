@@ -52,6 +52,8 @@ interface FonosterClient {
   getBillingClient(): BillingClient;
   /** Base URL of the HTTP API (/api/records), e.g. https://api.fonoster.ai. */
   getHttpUrl?(): string;
+  /** A fetch for the HTTP API that trusts the client's CA file, when it has one. */
+  getFetch?(): unknown;
   getMetadata(): unknown;
   refreshToken(): Promise<void>;
 }
