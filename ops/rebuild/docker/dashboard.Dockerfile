@@ -15,10 +15,12 @@ COPY mods/sdk ./mods/sdk
 COPY mods/dashboard ./mods/dashboard
 RUN --mount=type=cache,target=/root/.npm \
     npm install --workspace @fonoster/dashboard --workspace @fonoster/sdk \
-      --ignore-scripts --no-audit --no-fund
+      --workspace @fonoster/common --ignore-scripts --no-audit --no-fund
 # The SDK's browser build (rollup), then the dashboard against it (the vite alias resolves
-# @fonoster/sdk to the workspace package).
+# @fonoster/sdk to the workspace package). The SDK imports @fonoster/common's types, and its build
+# fails on a type error, so common's declarations are built first.
 RUN cd mods/types && npx tsc -b \
+  && cd ../common && npx tsc -b \
   && cd ../sdk && npx rollup -c rollup.config.mjs \
   && cd ../dashboard && npx vite build \
   && grep -qr "fonoster.capabilities.v1beta2" dist/assets
