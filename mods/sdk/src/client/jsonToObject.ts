@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { MappingTuple } from "./types";
-import { getEnumValue, isMapping } from "./utils";
+import { getEnumValue, isMapping, mappingFor } from "./utils";
 
 function jsonToObject<J extends Record<string, unknown>, T>(params: {
   json: J;
@@ -68,9 +68,7 @@ function jsonToObject<J extends Record<string, unknown>, T>(params: {
     } else if (isMapping(key, objectMapping)) {
       const objectValue = jsonToObject({
         json: json[key] as Record<string, unknown>,
-        objectConstructor: objectMapping.find(
-          (tuple) => tuple[0] === key
-        )[1] as new () => unknown,
+        objectConstructor: mappingFor(key, objectMapping) as new () => unknown,
         enumMapping,
         objectMapping
       });

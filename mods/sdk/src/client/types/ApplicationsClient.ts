@@ -34,8 +34,7 @@ import {
   UpdateApplicationRequest,
   UpdateApplicationResponse
 } from "../../generated/web/applications_pb";
-import { ClientFunction } from "./common";
-import type { ClientReadableStream } from "grpc-web";
+import { ClientFunction, ServerStreamFunction } from "./common";
 
 type ApplicationsClient = {
   createApplication: ClientFunction<
@@ -55,10 +54,10 @@ type ApplicationsClient = {
     DeleteApplicationRequest,
     DeleteApplicationResponse
   >;
-  evaluateIntelligence: (
-    request: EvaluateIntelligenceRequest,
-    metadata?: Record<string, string> | null
-  ) => ClientReadableStream<EvaluateIntelligenceEvent>;
+  evaluateIntelligence: ServerStreamFunction<
+    EvaluateIntelligenceRequest,
+    EvaluateIntelligenceEvent
+  >;
   createTestToken: ClientFunction<Empty, TestTokenResponse>;
   rotateSigningSecret: ClientFunction<
     RotateSigningSecretRequest,

@@ -26,7 +26,7 @@ import {
 } from "@fonoster/types";
 import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { makeRpcRequest } from "./client/makeRpcRequest";
-import { DataResponse, FonosterClient } from "./client/types";
+import { FonosterClient } from "./client/types";
 import {
   CallDetailRecord as CallDetailRecordPB,
   CallDirection,
@@ -41,7 +41,7 @@ import {
   ListCallsResponse as ListCallsResponsePB,
   TrackCallRequest as TrackCallRequestPB
 } from "./generated/node/calls_pb";
-import { dialStatusToString } from "./utils";
+import { asStructInput, dialStatusToString } from "./utils";
 
 /**
  * @classdesc Fonoster Calls, part of the Fonoster Media subsystem,
@@ -142,10 +142,10 @@ class Calls {
       metadata: this.client.getMetadata(),
       request: {
         ...request,
-        metadata: Struct.fromJavaScript(request.metadata) as unknown as Record<
-          string,
-          unknown
-        >
+        // fromJavaScript(undefined) is an empty Struct, the same as {}.
+        metadata: Struct.fromJavaScript(
+          asStructInput(request.metadata ?? {})
+        ) as unknown as Record<string, unknown>
       }
     });
 
@@ -165,7 +165,7 @@ class Calls {
     let done = false;
     let streamError: Error | null = null;
 
-    call.on("data", (response: DataResponse) => {
+    call.on("data", (response) => {
       const data = response.toObject();
       queue.push(data as { status: number });
     });

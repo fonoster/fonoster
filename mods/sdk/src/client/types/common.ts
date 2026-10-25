@@ -16,28 +16,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Metadata } from "grpc-web";
-
 type MappingTuple<T> = Array<[string, T]>;
 
-type ClientFunction<T, U> = (
-  request: T,
-  metadata: Metadata | unknown | null,
-  callback: (err: Error | null, response: U | null) => void
-) => void;
+/**
+ * A unary RPC as both transports declare it: grpc-js on Node and grpc-web in browsers. Each takes
+ * its own metadata type (grpc-js's Metadata class, grpc-web's string map), and callers always pass
+ * the same client's getMetadata(), so metadata stays opaque here. Declared with method syntax so
+ * either transport's narrower metadata parameter is accepted. On success err is null and response
+ * is set; on failure callers return before reading response.
+ */
+type ClientFunction<T, U> = {
+  rpc(
+    request: T,
+    metadata: unknown,
+    callback: (err: Error | null, response: U) => void
+  ): unknown;
+}["rpc"];
 
 type DataResponse = { toObject: () => unknown };
 
+/** A server stream, typed per event as grpc-js streams and grpc-web's ClientReadableStream emit. */
 type ServerStream<U> = {
-  on: (
-    event: "data" | "error" | "end" | "status",
-    listener: (response: U | Error | DataResponse) => void
-  ) => void;
+  on(event: "data", listener: (response: U) => void): unknown;
+  on(event: "error", listener: (err: Error) => void): unknown;
+  on(event: "end", listener: () => void): unknown;
+  on(event: "status", listener: (status: unknown) => void): unknown;
 };
 
-type ServerStreamFunction<T, U> = (
-  request: T,
-  metadata: Metadata | unknown | null
-) => ServerStream<U>;
+/** Opens a server stream; metadata is opaque for the same reason as in ClientFunction. */
+type ServerStreamFunction<T, U> = {
+  rpc(request: T, metadata: unknown): ServerStream<U>;
+}["rpc"];
 
 export { ClientFunction, DataResponse, MappingTuple, ServerStreamFunction };
