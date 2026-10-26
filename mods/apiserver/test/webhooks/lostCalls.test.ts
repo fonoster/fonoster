@@ -164,4 +164,66 @@ describe("@apiserver/webhooks lost appbridge calls", function () {
     );
     expect(new Set(deliveries).size).to.equal(1);
   });
+
+  describe("one call.ended per call, the first one stored wins (#968)", function () {
+    // AppBridge's own call.ended and the control plane's appbridge-lost one share the id, so
+    // they plan the same delivery per endpoint. The fan-out (bus or not) and AppBridge's database
+    // transport both store with publishOnce (insertDeliveries): an existing delivery stays as is.
+    let store: Webhooks.MemoryWebhookStore;
+    let dispatcher: Webhooks.WebhookDispatcher;
+    const own = () =>
+      Webhooks.callEnded("WS", {
+        callRef: "call-1",
+        appRef: "app-1",
+        from: "+15550001",
+        to: "+15550002",
+        direction: "inbound",
+        durationSeconds: 20,
+        endReason: "caller_hangup"
+      });
+    /** AppBridge's entry is never deleted (it died); the node then reports app_gone. */
+    const lostEvent = async () => {
+      const r = replica();
+      r.lost.onEntry(entry("calls", "call-1", ANSWERED));
+      r.at(20_000);
+      const e = (await r.lost.onAppGone("call-1"))!;
+      return { ...e, workspaceRef: "WS" }; // the fan-out resolves it from the app
+    };
+    const stored = () =>
+      store
+        .deliveries()
+        .map((d) => [d.event.data.endReason, d.status, d.attempts]);
+
+    beforeEach(function () {
+      store = new Webhooks.MemoryWebhookStore();
+      dispatcher = new Webhooks.WebhookDispatcher({ store });
+      dispatcher.createEndpoint({
+        workspaceRef: "WS",
+        url: "https://hooks.example.com/fonoster",
+        events: ["call.ended"]
+      });
+    });
+
+    it("keeps AppBridge's when it is stored first", async function () {
+      expect(await dispatcher.publishOnce(own())).to.have.length(1);
+      const lost = await lostEvent();
+      expect(lost.id).to.equal(own().id);
+      expect(await dispatcher.publishOnce(lost)).to.deep.equal([]);
+      expect(stored()).to.deep.equal([["caller_hangup", "pending", 0]]);
+    });
+
+    it("keeps the appbridge-lost one when AppBridge's reaches the fan-out after the grace period", async function () {
+      expect(await dispatcher.publishOnce(await lostEvent())).to.have.length(1);
+      expect(await dispatcher.publishOnce(own())).to.deep.equal([]);
+      expect(stored()).to.deep.equal([[APPBRIDGE_LOST_REASON, "pending", 0]]);
+    });
+
+    it("never resets a delivered one when AppBridge stores its own afterwards (database transport)", async function () {
+      const [d] = await dispatcher.publishOnce(await lostEvent());
+      store.putDelivery({ ...d, status: "succeeded", attempts: 1 });
+      expect(await dispatcher.publishOnce(own())).to.deep.equal([]);
+      expect(stored()).to.deep.equal([[APPBRIDGE_LOST_REASON, "succeeded", 1]]);
+      expect(await dispatcher.runDue()).to.equal(0);
+    });
+  });
 });

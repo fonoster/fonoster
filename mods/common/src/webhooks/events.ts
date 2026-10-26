@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { randomUUID } from "crypto";
+import { createHash, randomUUID } from "crypto";
 
 // Workspace webhook events, v1 (add-workspace-webhooks W2, W3). Every payload uses the envelope
 // id, type, createdAt, workspaceRef, data; ids stay the same across retries.
@@ -62,10 +62,11 @@ function envelope<D>(
   type: WebhookEventType,
   workspaceRef: string,
   data: D,
+  id = `evt_${randomUUID()}`,
   now = new Date()
 ): WebhookEvent<D> {
   return {
-    id: `evt_${randomUUID()}`,
+    id,
     type,
     createdAt: now.toISOString(),
     workspaceRef,
@@ -76,10 +77,26 @@ function envelope<D>(
 export const callStarted = (workspaceRef: string, call: CallParties) =>
   envelope("call.started", workspaceRef, call);
 
+/**
+ * The id of a call's `call.ended`. It depends on the call only, so AppBridge's own `call.ended`
+ * and the control plane's `appbridge-lost` one for the same call share it: the fan-out stores one
+ * delivery per endpoint (delivery ids depend on the event id) and the first one stored wins.
+ * Without a `callRef` there is nothing to tie it to, so the id is random (calls without one must
+ * not collapse into one event).
+ */
+export function callEndedId(callRef: string): string {
+  if (!callRef) return `evt_${randomUUID()}`;
+  const digest = createHash("sha256")
+    .update(`call.ended\n${callRef}`)
+    .digest("hex")
+    .slice(0, 32);
+  return `evt_end_${digest}`;
+}
+
 export const callEnded = (
   workspaceRef: string,
   call: CallParties & { durationSeconds: number; endReason: string }
-) => envelope("call.ended", workspaceRef, call);
+) => envelope("call.ended", workspaceRef, call, callEndedId(call.callRef));
 
 /**
  * A call that never reached an app (busy, no answer, failed, app unreachable), or one that failed

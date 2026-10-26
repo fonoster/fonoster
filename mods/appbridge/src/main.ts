@@ -262,7 +262,14 @@ async function openDatabase(config: AppBridgeConfig): Promise<{
         w.refreshMs ?? 30_000
       )
     );
-    out.webhooks = (event) => dispatcher.publish(event);
+    // publishOnce, not publish: a call's call.ended has the same id when the control plane sends
+    // its appbridge-lost one, and a delivery already stored (maybe delivered) must stay as it is.
+    out.webhooks = (event) =>
+      void dispatcher
+        .publishOnce(event)
+        .catch((e) =>
+          logger.warn(`webhook not stored: ${(e as Error).message}`)
+        );
   }
   return out;
 }

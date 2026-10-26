@@ -261,7 +261,10 @@ Fonoster keeps trying for 24 hours after the first attempt, then marks the deliv
 Delivery is **at least once**, so plan for two things:
 
 - **Duplicates.** You can get the same event more than once. Every retry and every resend carries
-  the same `id`. Store the ids you've handled and skip the ones you've seen.
+  the same `id`. Store the ids you've handled and skip the ones you've seen. A call's `call.ended`
+  always has the same `id`: if the AppBridge handling the call stops while the call ends, you get
+  one `call.ended`, either its own or one with `endReason` `appbridge-lost`, whichever is stored
+  first.
 - **Order.** Events can arrive out of order. A `call_record.sealed` can arrive before the
   `call.ended` of the same call. Use `createdAt` and `data.callRef` to put them together.
 

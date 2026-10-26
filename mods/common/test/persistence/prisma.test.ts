@@ -30,6 +30,7 @@ import {
 import {
   PrismaWebhookStore,
   WebhookDispatcher,
+  callEnded,
   callStarted,
   verifyWebhook
 } from "../../src/webhooks";
@@ -416,6 +417,78 @@ describe("@common/persistence (Prisma stores)", function () {
       }).runDue();
       expect(sent).to.equal(1);
       expect(receiver.received).to.have.length(1);
+    });
+    it("keeps a call's first stored call.ended, delivered or not, whoever stores the second (#968)", async function () {
+      const options = {
+        allowInsecureUrls: true,
+        allowedDestinations: ["127.0.0.1"]
+      };
+      // The control plane's fan-out and an AppBridge with the database transport.
+      const fanoutStore = await PrismaWebhookStore.open(db.prisma);
+      const fanout = new WebhookDispatcher({ store: fanoutStore, ...options });
+      const endpoint = fanout.createEndpoint({
+        workspaceRef: "WO4",
+        url: receiver.url,
+        events: ["call.ended"]
+      });
+      await fanoutStore.flush();
+      const appbridgeStore = await PrismaWebhookStore.open(db.prisma);
+      const appbridge = new WebhookDispatcher({
+        store: appbridgeStore,
+        ...options
+      });
+      const ended = (callRef: string, endReason: string) =>
+        callEnded("WO4", {
+          callRef,
+          appRef: "a1",
+          from: "+1",
+          to: "+2",
+          direction: "inbound",
+          durationSeconds: 20,
+          endReason
+        });
+      const log = async () =>
+        (await fanoutStore.loadDeliveries({ endpointId: endpoint.id }))
+          .map((d) => [
+            d.event.data.callRef,
+            d.event.data.endReason,
+            d.status,
+            d.attempts
+          ])
+          .sort();
+
+      // c1: AppBridge's first, then the control plane's appbridge-lost.
+      expect(
+        await appbridge.publishOnce(ended("c1", "caller_hangup"))
+      ).to.have.length(1);
+      expect(
+        await fanout.publishOnce(ended("c1", "appbridge-lost"))
+      ).to.deep.equal([]);
+      // c2: appbridge-lost first and delivered, then AppBridge's arrives (an upsert would reset
+      // it to pending and send it again).
+      expect(
+        await fanout.publishOnce(ended("c2", "appbridge-lost"))
+      ).to.have.length(1);
+      expect(await fanout.runDue()).to.equal(1);
+      await fanoutStore.flush();
+      expect(
+        await appbridge.publishOnce(ended("c2", "caller_hangup"))
+      ).to.deep.equal([]);
+      expect(await log()).to.deep.equal([
+        ["c1", "caller_hangup", "pending", 0],
+        ["c2", "appbridge-lost", "succeeded", 1]
+      ]);
+      expect(await appbridge.runDue()).to.equal(1); // c1 only
+      await appbridgeStore.flush();
+      expect(
+        receiver.received.map((r) => {
+          const data = r.json.data as Record<string, unknown>;
+          return [data.callRef, data.endReason];
+        })
+      ).to.deep.equal([
+        ["c2", "appbridge-lost"],
+        ["c1", "caller_hangup"]
+      ]);
     });
   });
 

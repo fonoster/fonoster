@@ -59,7 +59,13 @@ export interface WebhookStore {
   putEndpoint(e: WebhookEndpoint): void;
   deleteEndpoint(id: string): void;
   deliveries(endpointId?: string): Delivery[];
+  /** Stores or updates a delivery (its attempts, a resend). */
   putDelivery(d: Delivery): void;
+  /**
+   * Stores the deliveries that do not exist yet and returns them; one that already exists is left
+   * as it is (the first one stored wins).
+   */
+  insertDeliveries?(xs: Delivery[]): Promise<Delivery[]>;
 }
 
 export class MemoryWebhookStore implements WebhookStore {
@@ -83,6 +89,11 @@ export class MemoryWebhookStore implements WebhookStore {
   }
   putDelivery(x: Delivery) {
     this.d.set(x.id, x);
+  }
+  async insertDeliveries(xs: Delivery[]) {
+    const created = xs.filter((x) => !this.d.has(x.id));
+    created.forEach((x) => this.d.set(x.id, x));
+    return created;
   }
 }
 
@@ -216,6 +227,21 @@ export class WebhookDispatcher {
     const deliveries = this.plan(event);
     deliveries.forEach((d) => this.options.store.putDelivery(d));
     return deliveries;
+  }
+
+  /**
+   * Like `publish`, but a delivery that already exists is left as it is (whatever its status):
+   * the first one stored wins. For producers whose event another process may store too (a call's
+   * `call.ended`, whose id depends on the call). Resolves with the deliveries it stored.
+   */
+  async publishOnce(event: WebhookEvent): Promise<Delivery[]> {
+    const { store } = this.options;
+    const planned = this.plan(event);
+    if (store.insertDeliveries) return store.insertDeliveries(planned);
+    const known = new Set(store.deliveries().map((d) => d.id));
+    const created = planned.filter((d) => !known.has(d.id));
+    created.forEach((d) => store.putDelivery(d));
+    return created;
   }
 
   /** Attempts every pending delivery that is due; returns how many were attempted. */
