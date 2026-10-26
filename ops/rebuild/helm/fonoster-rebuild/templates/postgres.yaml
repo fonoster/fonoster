@@ -40,7 +40,6 @@ spec:
             - { name: TZ, value: UTC }
             - { name: POSTGRES_USER, value: {{ $p.user | quote }} }
             - { name: POSTGRES_DB, value: routr }
-            - { name: PGDATA, value: /var/lib/postgresql/data/pgdata }
             - name: POSTGRES_PASSWORD
               valueFrom: { secretKeyRef: { name: {{ $p.existingSecret | quote }}, key: {{ $p.passwordKey | quote }} } }
           ports:
@@ -48,7 +47,7 @@ spec:
           readinessProbe:
             exec: { command: ["pg_isready", "-U", {{ $p.user | quote }}, "-d", "routr"] }
           volumeMounts:
-            - { name: data, mountPath: /var/lib/postgresql/data }
+            - { name: data, mountPath: /var/lib/postgresql }
             - { name: init, mountPath: /docker-entrypoint-initdb.d, readOnly: true }
           resources:
             {{- toYaml $p.resources | nindent 12 }}

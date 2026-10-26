@@ -52,7 +52,7 @@ record itself. The hand-off list says where those tests go.
 ## Running
 
 ```sh
-docker run -d --name bil-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:16.10-alpine3.22
+docker run -d --name bil-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:18.6-alpine3.24
 docker run -d --name bil-nats -p 4222:4222 nats:2.11.8 -js
 export PERSISTENCE_TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres
 export CONFORMANCE_NATS_URL=nats://127.0.0.1:4222

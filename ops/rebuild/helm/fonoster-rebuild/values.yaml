@@ -124,7 +124,7 @@ envoy:
 # and point the configs at managed services through your Secrets.
 postgres:
   deploy: false
-  image: { repository: postgres, tag: 16.10-alpine3.22 }
+  image: { repository: postgres, tag: 18.6-alpine3.24 }
   user: postgres
   # Existing Secret with the superuser password.
   existingSecret: fonoster-postgres
