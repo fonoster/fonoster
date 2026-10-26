@@ -26,8 +26,12 @@ import { SttAdapter, TtsAdapter } from "./speech";
 // Adapters by catalog adapter id (add-provider-registry P2): a registry provider row names its
 // `adapter`; AppBridge (speech) and Autopilot (LLM) build vendor clients through this table.
 
-/** How a speech adapter is reached: key, endpoint override, provider model, timeout. */
+/**
+ * How a speech adapter is reached: key, endpoint override, provider model, timeout, and the
+ * catalog provider it serves (named in a ProviderAuthError; the adapter id when absent).
+ */
 export type SpeechAdapterOptions = {
+  provider?: string;
   apiKey?: string;
   url?: string;
   model?: string;
@@ -37,6 +41,7 @@ export type SpeechAdapterOptions = {
 export type LlmAdapterFactory = {
   /** The vendor's endpoint when the operator configures none. */
   defaultEndpoint?: string;
+  /** `provider.name` is the catalog provider, named in a ProviderAuthError (else the adapter id). */
   create(
     provider: ThinkProvider,
     model: string,
@@ -57,7 +62,11 @@ function openAiCompatible(adapter: string): LlmAdapterFactory {
   return {
     defaultEndpoint: OPENAI_COMPATIBLE[adapter],
     create: (provider, model, settings) =>
-      new OpenAiCompatibleThink({ name: adapter, ...provider }, model, settings)
+      new OpenAiCompatibleThink(
+        { ...provider, name: provider.name ?? adapter },
+        model,
+        settings
+      )
   };
 }
 
@@ -67,13 +76,15 @@ export const ADAPTERS: Readonly<Record<string, AdapterFactories>> = {
       new DeepgramTtsAdapter({
         apiKey: o.apiKey ?? "",
         baseUrl: o.url,
-        timeoutMs: o.timeoutMs
+        timeoutMs: o.timeoutMs,
+        provider: o.provider
       }),
     stt: (o) =>
       new DeepgramSttAdapter({
         apiKey: o.apiKey ?? "",
         baseUrl: o.url,
-        sttModel: o.model
+        sttModel: o.model,
+        provider: o.provider
       })
   },
   elevenlabs: {
@@ -82,7 +93,8 @@ export const ADAPTERS: Readonly<Record<string, AdapterFactories>> = {
         apiKey: o.apiKey ?? "",
         baseUrl: o.url,
         model: o.model,
-        timeoutMs: o.timeoutMs
+        timeoutMs: o.timeoutMs,
+        provider: o.provider
       })
   },
   openai: { llm: openAiCompatible("openai") },
@@ -95,9 +107,16 @@ export const ADAPTERS: Readonly<Record<string, AdapterFactories>> = {
     keyless: true,
     tts: (o) =>
       o.url
-        ? new FakeTtsAdapter({ url: o.url, timeoutMs: o.timeoutMs ?? 3000 })
+        ? new FakeTtsAdapter({
+            url: o.url,
+            timeoutMs: o.timeoutMs ?? 3000,
+            provider: o.provider
+          })
         : undefined,
-    stt: (o) => (o.url ? new FakeSttAdapter({ url: o.url }) : undefined),
+    stt: (o) =>
+      o.url
+        ? new FakeSttAdapter({ url: o.url, provider: o.provider })
+        : undefined,
     llm: openAiCompatible("fake")
   }
 };

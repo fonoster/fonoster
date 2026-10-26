@@ -22,6 +22,12 @@ import { Usage } from "@fonoster/common";
 export type EmbeddingUsageSink = {
   usage(lines: Usage.UsageLine[]): void;
   missing(catalogId: string): void;
+  /** The vendor rejected the embeddings key (HTTP 401/403): reported once per instance. */
+  keyRejected?(event: {
+    provider: string;
+    catalogId: string;
+    status: number;
+  }): void;
 };
 
 /**
@@ -33,6 +39,11 @@ export type EmbeddingUsageSink = {
 export class MeteredEmbeddings {
   private readonly model: string;
   private readonly baseUrl: string;
+  /**
+   * The status a rejected key was answered with. Once set, no more requests go out: the key
+   * won't start working mid-call, and knowledge is optional, so the call goes on without it.
+   */
+  private rejected?: number;
 
   constructor(
     private readonly options: {
@@ -70,6 +81,7 @@ export class MeteredEmbeddings {
   }
 
   private async embed(input: string[]): Promise<number[][]> {
+    if (this.rejected) throw this.rejectedError(this.rejected);
     const res = await fetch(`${this.baseUrl}/v1/embeddings`, {
       method: "POST",
       headers: {
@@ -78,7 +90,22 @@ export class MeteredEmbeddings {
       },
       body: JSON.stringify({ model: this.model, input })
     });
-    if (!res.ok) throw new Error(`embeddings answered HTTP ${res.status}`);
+    if (res.status === 401 || res.status === 403) {
+      await res.body?.cancel().catch(() => undefined);
+      if (!this.rejected) {
+        this.rejected = res.status;
+        this.options.sink?.keyRejected?.({
+          provider: "openai",
+          catalogId: this.catalogId,
+          status: res.status
+        });
+      }
+      throw this.rejectedError(res.status);
+    }
+    if (!res.ok) {
+      await res.body?.cancel().catch(() => undefined);
+      throw new Error(`embeddings answered HTTP ${res.status}`);
+    }
     const body = (await res.json()) as {
       data: { index: number; embedding: number[] }[];
       usage?: { prompt_tokens?: number };
@@ -98,5 +125,9 @@ export class MeteredEmbeddings {
     return [...body.data]
       .sort((a, b) => a.index - b.index)
       .map((d) => d.embedding);
+  }
+
+  private rejectedError(status: number) {
+    return new Error(`embeddings rejected the credentials (HTTP ${status})`);
   }
 }

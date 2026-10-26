@@ -81,7 +81,10 @@ export const callEnded = (
   call: CallParties & { durationSeconds: number; endReason: string }
 ) => envelope("call.ended", workspaceRef, call);
 
-/** A call that never reached an app (busy, no answer, failed, app unreachable). */
+/**
+ * A call that never reached an app (busy, no answer, failed, app unreachable), or one that failed
+ * mid-call because a vendor rejected the workspace's key (provider_auth_failed).
+ */
 export const callFailed = (
   workspaceRef: string,
   call: {

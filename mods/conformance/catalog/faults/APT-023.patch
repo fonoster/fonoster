@@ -1,11 +1,19 @@
 diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
 --- a/mods/autopilot/src/session/Agent.ts
 +++ b/mods/autopilot/src/session/Agent.ts
-@@ -395,7 +395,6 @@
+@@ -402,7 +402,6 @@
          this.stopped
        )
          return;
--      if (e instanceof ProviderAuthError) return this.keyRejected(e);
+-      if (isProviderAuthError(e)) return this.keyRejected(e);
        logger.error(`autopilot reply failed: ${(e as Error).message}`);
        await this.safely(async () => {
          await this.session.say(
+@@ -716,7 +715,6 @@
+       into.fail(e as Error);
+       // Fatal at once, even for a reply prepared early that is never spoken: a reply discarded
+       // after its key was rejected must not lead to a second request (#1146).
+-      if (isProviderAuthError(e)) void this.keyRejected(e);
+     }
+   }
+ 

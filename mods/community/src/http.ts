@@ -20,6 +20,16 @@ import { isAuthStatus, ProviderAuthError } from "./errors";
 import { SpeechError, Synthesis } from "./speech";
 
 /**
+ * Releases a response whose body won't be read (an error status), so its socket goes back to the
+ * pool instead of staying held until the body is collected.
+ */
+export async function discardBody(res: {
+  body?: { cancel(): Promise<void> } | null;
+}): Promise<void> {
+  await res.body?.cancel().catch(() => undefined);
+}
+
+/**
  * Shared HTTP plumbing for streaming TTS vendors: timeouts, error mapping, body streaming.
  * `timeoutMs` bounds the wait for the response and for each next chunk, not the whole body: the
  * body is read at playback pace, so a reply longer than `timeoutMs` must not count as a stall
@@ -71,19 +81,23 @@ export async function streamingPost(
   }
   disarm();
   // A rejected key is fatal to the call, never retried (#1146).
-  if (isAuthStatus(res.status))
+  if (isAuthStatus(res.status)) {
+    await discardBody(res);
     throw new ProviderAuthError(provider, "tts", res.status);
+  }
   if (res.status === 400 || res.status === 422) {
     throw new SpeechError(
       "bad_message",
       `${vendor} rejected the request (HTTP ${res.status}): ${(await res.text()).slice(0, 200)}`
     );
   }
-  if (!res.ok || !res.body)
+  if (!res.ok || !res.body) {
+    await discardBody(res);
     throw new SpeechError(
       "provider_unavailable",
       `${vendor} answered HTTP ${res.status}`
     );
+  }
 
   const body = res.body;
   return (async function* () {

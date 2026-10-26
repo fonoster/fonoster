@@ -25,6 +25,7 @@ import {
   toFrames
 } from "../audio/pcm";
 import {
+  isProviderAuthError,
   ProviderAuthError,
   SpeechError,
   TtsAdapter,
@@ -406,7 +407,7 @@ export class OutputQueue {
           if (item.abort.signal.aborted) return;
           item.failed = true;
           item.complete = true;
-          const rejected = e instanceof ProviderAuthError;
+          const rejected = isProviderAuthError(e);
           const err =
             e instanceof SpeechError || rejected
               ? e

@@ -29,6 +29,8 @@ export type ElevenLabsOptions = {
   baseUrl?: string;
   model?: string;
   timeoutMs?: number;
+  /** The catalog provider named in a ProviderAuthError (default: elevenlabs). */
+  provider?: string;
 };
 
 export class ElevenLabsTtsAdapter implements TtsAdapter {
@@ -54,7 +56,7 @@ export class ElevenLabsTtsAdapter implements TtsAdapter {
       signal,
       this.options.timeoutMs ?? 3000,
       "ElevenLabs",
-      "elevenlabs"
+      this.options.provider ?? "elevenlabs"
     );
     return { audio };
   }

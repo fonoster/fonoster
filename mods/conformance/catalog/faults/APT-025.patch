@@ -1,7 +1,7 @@
 diff --git a/mods/appbridge/src/session/OutputQueue.ts b/mods/appbridge/src/session/OutputQueue.ts
 --- a/mods/appbridge/src/session/OutputQueue.ts
 +++ b/mods/appbridge/src/session/OutputQueue.ts
-@@ -419,7 +419,6 @@
+@@ -420,7 +420,6 @@
              relatesTo: item.id
            });
            if (!item.started) this.remove(item);

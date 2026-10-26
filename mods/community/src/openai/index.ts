@@ -18,6 +18,7 @@
  */
 import { TextDecoder } from "util";
 import { isAuthStatus, ProviderAuthError } from "../errors";
+import { discardBody } from "../http";
 import {
   ChatMessage,
   Think,
@@ -96,22 +97,28 @@ export class OpenAiCompatibleThink implements Think {
       );
     }
     // A rejected key is fatal to the call, never retried (#1146).
-    if (isAuthStatus(res.status))
+    if (isAuthStatus(res.status)) {
+      await discardBody(res);
       throw new ProviderAuthError(
         this.provider.name ?? "language model",
         "llm",
         res.status
       );
-    if (res.status === 400 || res.status === 422)
+    }
+    if (res.status === 400 || res.status === 422) {
+      await discardBody(res);
       throw new ThinkError(
         "bad_message",
         `language model rejected the request (HTTP ${res.status})`
       );
-    if (!res.ok || !res.body)
+    }
+    if (!res.ok || !res.body) {
+      await discardBody(res);
       throw new ThinkError(
         "provider_unavailable",
         `language model answered HTTP ${res.status}`
       );
+    }
 
     const calls = new Map<number, ToolCall>();
     let usage: TokenUsage | undefined;

@@ -19,7 +19,13 @@
 import * as http from "http";
 import { AddressInfo } from "net";
 import { expect } from "chai";
-import { adapterFor, ProviderAuthError, SttStream, TtsAdapter } from "../src";
+import {
+  adapterFor,
+  isProviderAuthError,
+  ProviderAuthError,
+  SttStream,
+  TtsAdapter
+} from "../src";
 
 // A vendor that rejects the key (#1146): every adapter that takes a vendor key reports it as a
 // ProviderAuthError naming the provider, the kind and the status, never as a generic failure.
@@ -43,9 +49,40 @@ async function vendor(status: number) {
   };
 }
 
-async function think(adapter: string, url: string) {
+/**
+ * A vendor that answers an error status with a body it never finishes: the connection closes only
+ * when the client lets go of the response (`closed` resolves then).
+ */
+async function hangingVendor(status: number) {
+  let release!: () => void;
+  const closed = new Promise<void>((r) => (release = r));
+  const server = http.createServer((req, res) => {
+    req.resume();
+    res.writeHead(status, { "content-type": "application/json" });
+    res.write("{");
+    res.on("close", () => release());
+  });
+  await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+  return {
+    url: `http://127.0.0.1:${(server.address() as AddressInfo).port}`,
+    closed,
+    close: () => {
+      server.closeAllConnections();
+      server.close();
+    }
+  };
+}
+
+async function released(closed: Promise<void>, ms = 1000) {
+  return Promise.race([
+    closed.then(() => true),
+    new Promise<boolean>((r) => setTimeout(() => r(false), ms))
+  ]);
+}
+
+async function think(adapter: string, url: string, name?: string) {
   const llm = adapterFor(adapter)!.llm!.create(
-    { baseUrl: url, apiKey: "bad" },
+    { baseUrl: url, apiKey: "bad", ...(name ? { name } : {}) },
     "m",
     { temperature: 0, maxTokens: 10 }
   );
@@ -177,5 +214,104 @@ describe("@fonoster/community rejected keys", function () {
     } finally {
       v.close();
     }
+  });
+
+  // The registry serves many catalog providers through one adapter (together through openai):
+  // the error names the provider the customer configured, as resolveThink does.
+  it("names the catalog provider, not the adapter serving it", async function () {
+    const v = await vendor(401);
+    try {
+      expectAuthError(
+        await think("openai", v.url, "together"),
+        "together",
+        "llm",
+        401
+      );
+      const deepgram = adapterFor("deepgram")!;
+      expectAuthError(
+        await synthesize(
+          deepgram.tts!({ apiKey: "bad", url: v.url, provider: "dg-eu" })!
+        ),
+        "dg-eu",
+        "tts",
+        401
+      );
+      const sttErrors = await listen(
+        deepgram.stt!({ apiKey: "bad", url: v.url, provider: "dg-eu" })!.open({
+          language: "en-US"
+        })
+      );
+      expectAuthError(sttErrors[0], "dg-eu", "stt", 401);
+      expectAuthError(
+        await synthesize(
+          adapterFor("elevenlabs")!.tts!({
+            apiKey: "bad",
+            url: v.url,
+            provider: "el-2"
+          })!
+        ),
+        "el-2",
+        "tts",
+        401
+      );
+      const fake = adapterFor("fake")!;
+      expectAuthError(
+        await synthesize(fake.tts!({ url: v.url, provider: "voices" })!),
+        "voices",
+        "tts",
+        401
+      );
+      const fakeErrors = await listen(
+        fake.stt!({ url: v.url, provider: "ears" })!.open({
+          language: "en-US"
+        })
+      );
+      expectAuthError(fakeErrors[0], "ears", "stt", 401);
+    } finally {
+      v.close();
+    }
+  });
+
+  // An error answer's body is never read: it is cancelled, so the socket is let go at once.
+  for (const status of [401, 500]) {
+    it(`releases the connection of an HTTP ${status} answer (LLM, vendor TTS, fake TTS)`, async function () {
+      const cases: [string, (url: string) => Promise<unknown>][] = [
+        ["openai", (url) => think("openai", url)],
+        [
+          "deepgram",
+          (url) =>
+            synthesize(adapterFor("deepgram")!.tts!({ apiKey: "bad", url })!)
+        ],
+        ["fake", (url) => synthesize(adapterFor("fake")!.tts!({ url })!)]
+      ];
+      for (const [name, call] of cases) {
+        const v = await hangingVendor(status);
+        try {
+          const e = await call(v.url);
+          expect(e, name).to.be.instanceOf(Error);
+          expect(await released(v.closed), name).to.equal(true);
+        } finally {
+          v.close();
+        }
+      }
+    });
+  }
+
+  it("isProviderAuthError tells the error by its discriminant, not its class", function () {
+    const own = new ProviderAuthError("openai", "llm", 401);
+    // As an error from another copy of @fonoster/community looks: same shape, other class.
+    const foreign = Object.assign(new Error("x"), {
+      reason: "provider_auth_failed",
+      provider: "openai",
+      kind: "llm",
+      status: 401
+    });
+    expect(isProviderAuthError(own)).to.equal(true);
+    expect(isProviderAuthError(foreign)).to.equal(true);
+    expect(isProviderAuthError(new Error("x"))).to.equal(false);
+    expect(isProviderAuthError({ reason: "provider_auth_failed" })).to.equal(
+      false
+    );
+    expect(isProviderAuthError(undefined)).to.equal(false);
   });
 });

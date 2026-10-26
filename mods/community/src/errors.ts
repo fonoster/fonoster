@@ -29,7 +29,10 @@ export class ProviderAuthError extends Error {
   readonly reason = "provider_auth_failed";
 
   constructor(
-    /** The catalog adapter id (deepgram, elevenlabs, openai, groq, fake). */
+    /**
+     * The catalog provider the customer configured (e.g. together), or the adapter id (deepgram,
+     * elevenlabs, openai, groq, fake) when the adapter was built without one.
+     */
     readonly provider: string,
     readonly kind: ProviderKind,
     readonly status: number
@@ -42,4 +45,18 @@ export class ProviderAuthError extends Error {
 /** True for the HTTP statuses a vendor answers a key it does not accept with. */
 export function isAuthStatus(status: number): boolean {
   return status === 401 || status === 403;
+}
+
+/**
+ * True for a ProviderAuthError, told by its discriminant rather than `instanceof`: the class can
+ * be loaded twice (one copy per package that bundles @fonoster/community), and an error from one
+ * copy is not an instance of the other.
+ */
+export function isProviderAuthError(e: unknown): e is ProviderAuthError {
+  const x = e as Partial<ProviderAuthError> | null | undefined;
+  return (
+    x?.reason === "provider_auth_failed" &&
+    typeof x.provider === "string" &&
+    typeof x.kind === "string"
+  );
 }

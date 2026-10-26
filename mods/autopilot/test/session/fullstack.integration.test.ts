@@ -326,10 +326,13 @@ describe("@autopilot full stack: a rejected vendor key fails the call at once", 
     );
 
     const record = new MemoryCallRecordSink();
+    const webhooks: { type: string; data: Record<string, unknown> }[] = [];
     const urls = harness.providerUrls;
     const appbridge = await new AppBridge({
       nats: nc,
       record,
+      webhooks: (e) =>
+        webhooks.push(e as { type: string; data: Record<string, unknown> }),
       config: {
         nats: { url: NATS_URL! },
         session: { listen: "127.0.0.1:0" },
@@ -375,6 +378,7 @@ describe("@autopilot full stack: a rejected vendor key fails the call at once", 
       return {
         harness,
         entries: entries(),
+        webhooks,
         failed,
         at,
         vcon: buildVcon("c1", entries(), { region: "test" }).vcon
@@ -402,14 +406,25 @@ describe("@autopilot full stack: a rejected vendor key fails the call at once", 
     });
     // Hung up at once: the call ends right after it failed.
     expect(call.at("call.ended")! - call.failed!.at).to.be.lessThan(1000);
+    // Every kind ends with the platform-failure reason, and the workspace hears call.failed.
+    const ended = call.entries.find((e) => e.message.type === "call.ended");
+    expect(ended?.message.reason).to.equal("error");
+    expect(
+      call.webhooks
+        .filter((w) => w.type === "call.failed")
+        .map((w) => w.data.reason)
+    ).to.deep.equal(["provider_auth_failed"]);
   }
 
   it("[APT-023] the language model rejects the key: hung up after the first request, record failed", async function () {
     const call = await callWithRejectedKey("llm");
     expectFailedRecord(call, "llm");
     expect(call.harness.llm.requests).to.equal(1);
-    // The caller's question failed it: no error message, no second try.
-    expect(call.failed!.at - call.at("turn.ended")!).to.be.lessThan(1500);
+    // The caller's question failed it (the reply prepared on turn.likely_ended, when the turn
+    // got that far first): no error message, no second try.
+    const asked = call.at("turn.likely_ended") ?? call.at("turn.ended");
+    expect(asked, "the caller's turn").to.be.a("number");
+    expect(call.failed!.at - asked!).to.be.lessThan(1500);
     expect(
       call.harness.tts.synthesized.map((s) => s.text).join(" ")
     ).to.not.include("Sorry");

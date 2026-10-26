@@ -22,6 +22,7 @@ import {
   AppCommandType,
   assertPublicDestination,
   E164,
+  Hangup,
   isSipTarget,
   Roomr,
   SESSION_PROTOCOL,
@@ -59,7 +60,12 @@ import { ProtocolCodec } from "../protocols/types";
 import { CallRecording } from "../record/CallRecording";
 import { CallRecordSink } from "../record/CallRecordSink";
 import { Catalog } from "../speech/Catalog";
-import { ProviderAuthError, SpeechError, SttStream } from "../speech/types";
+import {
+  isProviderAuthError,
+  ProviderAuthError,
+  SpeechError,
+  SttStream
+} from "../speech/types";
 import { telemetry } from "../telemetry";
 import { createDetector } from "../turn/createDetector";
 import { Detector, Estimate } from "../turn/Detector";
@@ -104,6 +110,9 @@ const ALLOWED_ON_HOLD = new Set([
   "record.note",
   "usage.report"
 ]);
+
+/** Why a call failed mid-call (a rejected vendor key), as `hangup({ failure })` carries it. */
+type CallFailure = NonNullable<Hangup["failure"]>;
 
 /**
  * The node's `Ended` cause → the `session.end` reason (redesign-roomr 5.9, voice-session
@@ -828,18 +837,24 @@ export class Call {
 
   /**
    * Fails the call and hangs it up: a provider rejected the key, so the call can't go on (#1146).
-   * The call record's status is `failed` with the reason and the provider, even after answer.
+   * The call record's status is `failed` with the reason and the provider, even after answer, and
+   * the workspace gets `call.failed` like a key that could not be read. The session ends with
+   * `error`, the reason every platform failure ends with, whichever side found it.
    */
-  async failAndHangup(
-    failure: { reason: string; provider: string; kind?: string },
-    reason: SessionEndReason
-  ) {
+  async failAndHangup(failure: CallFailure) {
     if (this.ended || this.hangingUp) return;
     telemetry.count("fonoster.appbridge.keys.rejected", 1, {
       provider: failure.provider
     });
     this.record("event", { type: "call.failed", ...failure });
-    await this.hangup(reason);
+    const app = this.answeredBy ?? this.routedTo;
+    this.deps.webhooks?.(
+      Webhooks.callFailed(app?.workspaceRef ?? "default", {
+        ...this.parties(app),
+        reason: failure.reason
+      })
+    );
+    await this.hangup("error");
   }
 
   /** Hangs the call up on the node and ends the session with a reason. */
@@ -1326,7 +1341,7 @@ export class AppSession {
       };
     this.stt.on("transcript", (t) => this.pacing?.onTranscript(t, Date.now()));
     this.stt.on("error", (e: SpeechError | ProviderAuthError) => {
-      const rejected = e instanceof ProviderAuthError;
+      const rejected = isProviderAuthError(e);
       this.emit({
         type: "error",
         code: e.code,
@@ -1340,10 +1355,11 @@ export class AppSession {
   /** A vendor rejected the workspace's key: no retry, the call fails and hangs up at once. */
   private keyRejected(e: ProviderAuthError) {
     logger.warn(`call ${this.call.callRef}: ${e.message}; failing the call`);
-    void this.call.failAndHangup(
-      { reason: e.reason, provider: e.provider, kind: e.kind },
-      "error"
-    );
+    void this.call.failAndHangup({
+      reason: e.reason,
+      provider: e.provider,
+      kind: e.kind
+    });
   }
 
   // ---- from the call -----------------------------------------------------------------
@@ -1694,10 +1710,7 @@ export class AppSession {
       case "hangup":
         // Autopilot ends a call it can't go on with as failed (a rejected LLM key, #1146).
         if (cmd.failure && this.app.type === "AUTOPILOT")
-          await this.call.failAndHangup(
-            cmd.failure as { reason: string; provider: string; kind?: string },
-            "app_hangup"
-          );
+          await this.call.failAndHangup(cmd.failure as CallFailure);
         else await this.call.hangup("app_hangup");
         return;
       case "dtmf.send":

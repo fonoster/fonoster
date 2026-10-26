@@ -1,7 +1,7 @@
 diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
 --- a/mods/appbridge/src/session/Call.ts
 +++ b/mods/appbridge/src/session/Call.ts
-@@ -1333,7 +1333,6 @@
+@@ -1348,7 +1348,6 @@
          message: `speech recognition: ${e.message}`,
          fatal: rejected
        });

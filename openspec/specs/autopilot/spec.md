@@ -245,8 +245,14 @@ When a provider the call uses (the agent's language model, or the app's speech r
 voice) rejects the key (HTTP 401 or 403, on a request or a WebSocket handshake), its adapter SHALL
 report a typed auth error naming the provider, nothing SHALL retry it, and the call SHALL be hung
 up at once. The call record SHALL have status `failed` with reason `provider_auth_failed` and the
-`provider`, never `completed`. Autopilot ends such a call with `hangup` carrying `failure`;
-AppBridge ends a call whose speech provider rejected the key with a fatal `error` and hangs up.
+`provider` (the catalog provider the workspace configured, not the adapter serving it), never
+`completed`. Autopilot ends such a call with `hangup` carrying `failure`, also when the rejected
+request was a reply prepared early that is never spoken; AppBridge ends a call whose speech
+provider rejected the key with a fatal `error` and hangs up. Whichever side found it, the session
+SHALL end with reason `error` and the workspace SHALL get a `call.failed` webhook with reason
+`provider_auth_failed`. A rejected knowledge-base embeddings key is not fatal, since the agent
+can still answer without knowledge: it SHALL be noted once in the call record
+(`knowledge.key_rejected`) and not asked again for the rest of the call.
 
 #### Scenario: The language model rejects the key
 
