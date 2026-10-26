@@ -161,6 +161,9 @@ describe("@common/webhooks", function () {
       });
     expect(ended("caller_hangup").id).to.equal(ended("appbridge-lost").id);
     expect(ended("x").id).to.equal(callEndedId("c1"));
+    // Without a callRef, calls must not collapse into one id.
+    expect(callEndedId("")).to.match(/^evt_/);
+    expect(callEndedId("")).to.not.equal(callEndedId(""));
   });
 
   it("signs deliveries so receivers can verify them, and rejects stale ones", async function () {
