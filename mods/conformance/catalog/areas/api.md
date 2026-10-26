@@ -934,18 +934,6 @@ ListCalls through each driver with an `appRef` that is not a UUID, and with an e
 
 **Pass.** The malformed filter is INVALID_ARGUMENT and the empty one lists all four of workspace A's calls. **Fail.** The malformed filter is accepted, or the empty one filters.
 
-### API-072 A malformed number filter is rejected
-
-- **Spec:** control-plane / ListCalls validates its number filters / A malformed number filter is rejected
-- **Priority:** P1
-- **Proof:** Take the number check off `from` and `to` in `listCallsRequestSchema`; the malformed filters are accepted and the test goes red.
-- **Fault:** faults/API-072.patch
-- **Test:** mods/conformance/test/api/calls.api.ts
-
-ListCalls through each driver with a `from` and a `to` that are not a number or SIP target, and with a `from` that is one, over the index rows API-069 writes.
-
-**Pass.** Each malformed filter is INVALID_ARGUMENT, and the well-formed one lists all four of workspace A's calls. **Fail.** A malformed filter is accepted, or the well-formed one is refused.
-
 ### API-071 Unanswered outbound calls are recorded as failed
 
 - **Spec:** control-plane / Unanswered outbound calls are recorded as failed / Outbound call ends before the answer
@@ -961,3 +949,19 @@ node's call events as the apiserver does, and a stand-in record writer answers o
 maintenance subject. A node that dies before the answer is not covered (#1107).
 
 **Pass.** The busy call is sealed once, in workspace A, with call.started, call.progress and call.failed (busy), and one call.failed goes to the fan-out; the answered call produces neither. **Fail.** No record, a record in no or another workspace, two of them, or a failed record for an answered call.
+
+### API-072 A malformed number filter is rejected
+
+- **Spec:** control-plane / ListCalls validates its number filters / Number filters match the stored from and to
+- **Spec:** control-plane / ListCalls validates its number filters / A malformed number filter is rejected
+- **Priority:** P1
+- **Proof:** Take the bound and the control-character check off `from` and `to` in `listCallsRequestSchema`; the malformed filters are accepted and the test goes red.
+- **Fault:** faults/API-072.patch
+- **Test:** mods/conformance/test/api/calls.api.ts
+
+Over the index rows API-069 writes (two calls from one number, one from a SIP URI with parameters,
+one from a display-name caller ID, on two `to` numbers), ListCalls through each driver filtered by
+each `from`, each `to` and both together, then with a `from` holding CR/LF and a `to` over 256
+characters.
+
+**Pass.** Each filter lists exactly workspace A's calls with that stored `from` or `to`, and each malformed filter is INVALID_ARGUMENT. **Fail.** A filter lists another number's calls or misses a stored form, or a malformed filter is accepted.

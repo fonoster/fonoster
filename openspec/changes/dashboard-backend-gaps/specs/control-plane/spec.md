@@ -30,11 +30,18 @@ MUST fail with `INVALID_ARGUMENT`. Other workspaces' records MUST NOT be returne
 
 ### Requirement: ListCalls validates its number filters
 
-`ListCalls` SHALL take optional `from` and `to` filters. Empty means no filter; any other value
-MUST be a number or SIP target `CreateCall` accepts as `to` (an E.164 number, a SIP user, or a
-`sip:`, `sips:` or `tel:` URI), and anything else MUST fail with `INVALID_ARGUMENT`.
+`ListCalls` SHALL take optional `from` and `to` filters that match the call record's stored `from`
+and `to` exactly, as the call carried them (an E.164 number, a SIP URI with parameters, a
+display-name caller ID). Empty means no filter. A filter is a search string, not a dial target: a
+value over 256 characters, or one holding a control character (CR, LF, NUL and the rest), MUST fail
+with `INVALID_ARGUMENT`.
+
+#### Scenario: Number filters match the stored from and to
+
+- **WHEN** an SDK user lists calls with a `from` or a `to` in a form the index stores
+- **THEN** only the workspace's calls with exactly that `from` or `to` are returned
 
 #### Scenario: A malformed number filter is rejected
 
-- **WHEN** an SDK user lists calls with a `from` or `to` that is not a number or SIP target
+- **WHEN** an SDK user lists calls with a `from` or `to` over 256 characters or holding a control character
 - **THEN** the request fails with `INVALID_ARGUMENT` and no calls are returned

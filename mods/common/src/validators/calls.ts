@@ -21,6 +21,21 @@ import { z } from "zod";
 import { POSITIVE_INTEGER_MESSAGE, VALID_DATE } from "../messages";
 import { e164Schema, sipTargetSchema } from "./sip";
 
+// A ListCalls number filter is an exact match against the index's stored `from`/`to` (whatever the
+// call carried: an E.164 number, a SIP URI with parameters, a display-name caller ID). It never
+// reaches SIP, so it is a bounded search string: at most 256 characters, no control characters.
+// Empty or unset means no filter (proto3 sends "").
+const MAX_NUMBER_FILTER_LENGTH = 256;
+const numberFilterSchema = z
+  .string()
+  .max(MAX_NUMBER_FILTER_LENGTH, {
+    message: `Must be at most ${MAX_NUMBER_FILTER_LENGTH} characters`
+  })
+  // eslint-disable-next-line no-control-regex
+  .refine((v) => !/[\u0000-\u001f\u007f]/.test(v), {
+    message: "Must not contain control characters"
+  });
+
 // `from` is one of the workspace's Numbers (the Calls service checks ownership); it travels as
 // X-Dod-Number and picks the trunk, so it is an E.164 number. `to` is what the Roomr node dials.
 const createCallRequestSchema = z.object({
@@ -41,9 +56,8 @@ const getCallRequestSchema = z.object({
 const listCallsRequestSchema = z.object({
   after: z.string().datetime({ offset: true, message: VALID_DATE }).optional(),
   before: z.string().datetime({ offset: true, message: VALID_DATE }).optional(),
-  // Empty or unset means no filter; anything else must be a number or SIP target, as CreateCall takes.
-  from: z.union([z.literal(""), sipTargetSchema]).optional(),
-  to: z.union([z.literal(""), sipTargetSchema]).optional(),
+  from: numberFilterSchema.optional(),
+  to: numberFilterSchema.optional(),
   pageSize: z
     .number()
     .int({

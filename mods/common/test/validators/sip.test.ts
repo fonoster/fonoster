@@ -160,8 +160,16 @@ describe("@common[validators/sip]", function () {
   });
 
   describe("listCallsRequestSchema", function () {
-    it("accepts empty, number and SIP target from/to filters", function () {
-      ["", "+15550001111", "1001", "sip:agent@sip.example.com"].forEach((v) =>
+    it("accepts the forms the index stores as from/to filters", function () {
+      [
+        "",
+        "+15550001111",
+        "1001",
+        "sip:agent@sip.example.com",
+        "sip:+15551234567@carrier.example;user=phone",
+        "Acme Support",
+        "x".repeat(256)
+      ].forEach((v) =>
         expect(
           listCallsRequestSchema.safeParse({ from: v, to: v }).success,
           v
@@ -169,17 +177,19 @@ describe("@common[validators/sip]", function () {
       );
     });
 
-    it("refuses from/to filters with CR/LF or URI delimiters", function () {
-      ["+1555\r\nVia: x", "sip:a@b;x=y", "a b"].forEach((v) => {
-        expect(
-          listCallsRequestSchema.safeParse({ from: v }).success,
-          `from ${v}`
-        ).to.equal(false);
-        expect(
-          listCallsRequestSchema.safeParse({ to: v }).success,
-          `to ${v}`
-        ).to.equal(false);
-      });
+    it("refuses from/to filters with control characters or over 256 characters", function () {
+      ["+1555\r\nVia: x", "+1555\u0000", "a\tb", "x".repeat(257)].forEach(
+        (v) => {
+          expect(
+            listCallsRequestSchema.safeParse({ from: v }).success,
+            `from ${JSON.stringify(v)}`
+          ).to.equal(false);
+          expect(
+            listCallsRequestSchema.safeParse({ to: v }).success,
+            `to ${JSON.stringify(v)}`
+          ).to.equal(false);
+        }
+      );
     });
   });
 });

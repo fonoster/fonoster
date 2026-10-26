@@ -257,6 +257,11 @@ class Calls {
    * @param {number} request.pageSize - The number of Calls to retrieve
    * @param {string} request.pageToken - The token to retrieve the next page of Calls
    * @param {string} request.appRef - Optional. Lists only the Calls the App with this reference handled
+   * @param {string} request.from - Optional. Lists only the Calls whose caller is exactly this value, as the Call
+   * carried it (e.g. "+15551234567", "sip:+15551234567@carrier.example;user=phone"). There is no normalization:
+   * "+15551234567" does not match "tel:+15551234567". At most 256 characters, no control characters
+   * (CR, LF, NUL...); otherwise the request fails with INVALID_ARGUMENT
+   * @param {string} request.to - Optional. Lists only the Calls whose callee is exactly this value; same rules as `from`
    * @return {Promise<ListCallsResponse>} - The response object that contains the list of Calls
    * @example
    * const calls = new SDK.Calls(client); // Existing client object
@@ -264,7 +269,8 @@ class Calls {
    * const request = {
    *   pageSize: 10,
    *   pageToken: "00000000-0000-0000-0000-000000000000",
-   *   appRef: "00000000-0000-0000-0000-000000000000" // Optional: only this App's Calls
+   *   appRef: "00000000-0000-0000-0000-000000000000", // Optional: only this App's Calls
+   *   from: "+15551234567" // Optional: only Calls from this number (exact match)
    * };
    *
    * calls

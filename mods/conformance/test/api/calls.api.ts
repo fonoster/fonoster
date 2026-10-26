@@ -24,7 +24,7 @@ import { codeOf, Who } from "./drivers";
 import { getWorld, World } from "./world";
 
 // call-record, the Calls API's view of the index: each record names the app that handled the call,
-// and ListCalls filters by it and rejects a malformed filter (API-069, API-070 and API-072 in mods/conformance/catalog/areas/api.md). The case writes
+// ListCalls filters by it and by from/to, and rejects a malformed filter (API-069, API-070 and API-072 in mods/conformance/catalog/areas/api.md). The case writes
 // the index rows the call-record service would write when it seals a record.
 
 type Record = { ref: string; appRef?: string };
@@ -67,15 +67,19 @@ describe("@api calls", function () {
     callRef: string,
     accessKeyId: string,
     appRef: string | null,
-    minute: number
+    minute: number,
+    numbers: { from: string; to: string } = {
+      from: "+15550001111",
+      to: "+15550002222"
+    }
   ) =>
     world.stack.apiDb.prisma.callRecord.create({
       data: {
         callRef,
         accessKeyId,
         appRef,
-        fromNumber: "+15550001111",
-        toNumber: "+15550002222",
+        fromNumber: numbers.from,
+        toNumber: numbers.to,
         direction: "inbound",
         status: "completed",
         startedAt: new Date(Date.UTC(2026, 9, 22, 12, minute)),
@@ -95,8 +99,15 @@ describe("@api calls", function () {
     appY = await app(a);
     await index(refs.x1, world.wsA.accessKeyId, appX, 1);
     await index(refs.x2, world.wsA.accessKeyId, appX, 2);
-    await index(refs.y, world.wsA.accessKeyId, appY, 3);
-    await index(refs.none, world.wsA.accessKeyId, null, 4);
+    // y and none carry other numbers, in forms the index stores as the call carried them.
+    await index(refs.y, world.wsA.accessKeyId, appY, 3, {
+      from: "sip:+15550003333@carrier.example;user=phone",
+      to: "+15550004444"
+    });
+    await index(refs.none, world.wsA.accessKeyId, null, 4, {
+      from: "Acme Support",
+      to: "+15550002222"
+    });
     // Another workspace's call, handled by an app with the same ref.
     await index(refs.theirs, world.wsB.accessKeyId, appX, 5);
   });
@@ -152,20 +163,44 @@ describe("@api calls", function () {
         ).to.have.members([refs.x1, refs.x2, refs.y, refs.none]);
       });
 
-      it(`[API-072] (${driverName}) a malformed number filter is INVALID_ARGUMENT, a number lists its calls`, async function () {
+      it(`[API-072] (${driverName}) ListCalls filters by from and to, and a malformed number filter is INVALID_ARGUMENT`, async function () {
+        const refsFor = async (request: object) =>
+          ours((await list(request)).items).map((i) => i.ref);
+        expect(
+          await refsFor({ from: "+15550001111" }),
+          "from number"
+        ).to.have.members([refs.x1, refs.x2]);
+        expect(
+          await refsFor({
+            from: "sip:+15550003333@carrier.example;user=phone"
+          }),
+          "from SIP URI"
+        ).to.have.members([refs.y]);
+        expect(
+          await refsFor({ from: "Acme Support" }),
+          "from caller ID"
+        ).to.have.members([refs.none]);
+        expect(
+          await refsFor({ to: "+15550002222" }),
+          "to number"
+        ).to.have.members([refs.x1, refs.x2, refs.none]);
+        expect(
+          await refsFor({ to: "+15550004444" }),
+          "to other number"
+        ).to.have.members([refs.y]);
+        expect(
+          await refsFor({ from: "+15550001111", to: "+15550004444" }),
+          "from and to"
+        ).to.have.members([]);
+
         expect(
           await codeOf(list({ from: "+1555\r\nVia: x" })),
-          "malformed from"
+          "control characters in from"
         ).to.equal(status.INVALID_ARGUMENT);
         expect(
-          await codeOf(list({ to: "sip:a@b;x=y" })),
-          "malformed to"
+          await codeOf(list({ to: "+1".padEnd(257, "5") })),
+          "oversize to"
         ).to.equal(status.INVALID_ARGUMENT);
-        const all = ours((await list({ from: "+15550001111" })).items);
-        expect(
-          all.map((i) => i.ref),
-          "number filter"
-        ).to.have.members([refs.x1, refs.x2, refs.y, refs.none]);
       });
     });
   }
