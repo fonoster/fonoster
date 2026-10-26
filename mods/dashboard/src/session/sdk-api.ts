@@ -31,9 +31,11 @@ import type {
   CallRecordSummary,
   Catalog,
   CatalogEntry,
+  KnowledgeSearch,
   SessionApi,
   SessionApp,
   SessionMessage,
+  ToolCall,
   Turn
 } from "./types";
 
@@ -315,9 +317,11 @@ export function fromVcon(
       (n.toolCalls as Raw[]).map((c) => ({
         at: offset(n.at),
         name: str(c.name),
-        ok: c.ok !== false
+        ok: c.ok !== false,
+        ...toolDetails(c)
       }))
     );
+  const knowledgeSearches = knowledgeSearchesOf(notes, offset);
   const usage = (Array.isArray(meta.usage) ? (meta.usage as Raw[]) : [])
     .filter(
       (l) => typeof l.meter === "string" && typeof l.quantity === "number"
@@ -396,9 +400,57 @@ export function fromVcon(
         }
       : {}),
     toolCalls,
+    knowledgeSearches,
     usage,
     vcon
   };
+}
+
+/** What a tool call entry of an autopilot.turn note says beyond its name and outcome (#1067). */
+function toolDetails(c: Raw): Partial<ToolCall> {
+  const text = (v: unknown) => (typeof v === "string" && v ? v : undefined);
+  const details: Partial<ToolCall> = {
+    method: text(c.method),
+    status: typeof c.status === "number" ? c.status : undefined,
+    durationMs: typeof c.durationMs === "number" ? c.durationMs : undefined,
+    parameters: text(c.parameters),
+    response: text(c.response),
+    error: text(c.error)
+  };
+  return Object.fromEntries(
+    Object.entries(details).filter(([, v]) => v !== undefined)
+  );
+}
+
+/** The knowledge searches of the autopilot.turn notes, in time order. */
+function knowledgeSearchesOf(
+  notes: Raw[],
+  offset: (iso: unknown) => number
+): KnowledgeSearch[] {
+  return notes
+    .filter(
+      (n) => n.kind === "autopilot.turn" && Array.isArray(n.knowledgeSearches)
+    )
+    .flatMap((n) =>
+      (n.knowledgeSearches as Raw[]).map((k) => ({
+        at: offset(n.at),
+        query: str(k.query),
+        ...(typeof k.source === "string" && k.source
+          ? { source: k.source }
+          : {}),
+        passages: (Array.isArray(k.passages) ? (k.passages as Raw[]) : [])
+          .filter((p) => typeof p.text === "string")
+          .map((p) => ({
+            text: str(p.text),
+            ...(typeof p.source === "string" ? { source: p.source } : {}),
+            ...(typeof p.score === "number" ? { score: p.score } : {})
+          })),
+        ...(typeof k.durationMs === "number"
+          ? { durationMs: k.durationMs }
+          : {}),
+        ...(k.timedOut === true ? { timedOut: true } : {})
+      }))
+    );
 }
 
 const seconds = (d?: Date) => (d ? d.toISOString() : undefined);

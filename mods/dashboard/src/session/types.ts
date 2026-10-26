@@ -24,10 +24,7 @@
 export type Protocol = "fonoster" | "twilio";
 export type AppType = "STREAM" | "AUTOPILOT";
 export type AudioCodec =
-  | "pcm16-8000"
-  | "pcm16-16000"
-  | "pcm16-24000"
-  | "pcmu-8000";
+  "pcm16-8000" | "pcm16-16000" | "pcm16-24000" | "pcmu-8000";
 export type ListenerTrack = "inbound" | "outbound" | "both";
 export type Patience = "" | "low" | "normal" | "high";
 /** "" inherits the workspace's policy. */
@@ -192,8 +189,34 @@ export type Turn = {
   stages?: { llmMs: number; ttsMs: number };
 };
 
-/** A tool the agent called during a turn (the autopilot.turn note has names and outcomes only). */
-export type ToolCall = { at: number; name: string; ok: boolean };
+/**
+ * A tool the agent called during a turn (Autopilot's autopilot.turn note). Records from before
+ * #1067 have the name and outcome only; parameters, response and error are JSON text, capped and
+ * redacted like the transcript.
+ */
+export type ToolCall = {
+  at: number;
+  name: string;
+  ok: boolean;
+  method?: string;
+  status?: number;
+  durationMs?: number;
+  parameters?: string;
+  response?: string;
+  error?: string;
+};
+
+/** What the agent looked up in its knowledge for a turn: the query and the top passages found. */
+export type KnowledgeSearch = {
+  at: number;
+  query: string;
+  /** The document the top match came from. */
+  source?: string;
+  passages: { text: string; source?: string; score?: number }[];
+  durationMs?: number;
+  /** The search took too long; the answer went without it. */
+  timedOut?: boolean;
+};
 
 /** One usage line of the call (add-usage-metering): what was used, not what it costs. */
 export type UsageLine = {
@@ -219,6 +242,7 @@ export type CallRecord = CallRecordSummary & {
   /** The AMD verdict, when AMD ran: how sure, on how much audio, and when. */
   amd?: { status: string; confidence?: number; audioMs?: number; at: number };
   toolCalls: ToolCall[];
+  knowledgeSearches: KnowledgeSearch[];
   usage: UsageLine[];
   /** The vCon as the API returned it, for Export JSON. */
   vcon: unknown;

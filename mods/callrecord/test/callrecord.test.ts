@@ -261,6 +261,51 @@ describe("@callrecord", function () {
     );
   });
 
+  it("masks a card number in a turn's tool calls and knowledge searches in the redacted copy", async function () {
+    // Autopilot writes tool parameters and responses as JSON text (#1067), so a card number the
+    // model passed as a number is still a string here and is masked like the transcript.
+    const entries = normalCall("call-3b").map((e) =>
+      e.message.type === "record.note"
+        ? {
+            ...e,
+            message: {
+              ...e.message,
+              data: {
+                kind: "autopilot.turn",
+                toolCalls: [
+                  {
+                    name: "charge",
+                    ok: true,
+                    method: "POST",
+                    status: 200,
+                    durationMs: 120,
+                    parameters: '{"card":4111111111111111}',
+                    response: '{"charged":"4111-1111-1111-1111"}'
+                  }
+                ],
+                knowledgeSearches: [
+                  {
+                    query:
+                      "my card is four one one one one one one one one one one one one one one one",
+                    passages: [{ text: "Cards are charged monthly." }],
+                    durationMs: 40
+                  }
+                ]
+              }
+            }
+          }
+        : e
+    );
+    const sealed = await record("call-3b", entries);
+    const notes = (vcon: ReturnType<typeof decodeVcon>) =>
+      JSON.stringify(vcon.analysis.find((a) => a.type === "app_notes"));
+    const redacted = notes(decodeVcon(sealed.redacted));
+    expect(redacted).to.not.match(/4111|four one one one/);
+    expect(redacted.split(CARD_MASK)).to.have.length(4);
+    expect(redacted).to.contain("Cards are charged monthly.");
+    expect(notes(decodeVcon(sealed.signed))).to.contain("4111111111111111");
+  });
+
   it("detects tampering with a part or the payload", async function () {
     const sealed = await record("call-4");
     const keys = { [KEY.kid]: KEY.publicKeyPem };

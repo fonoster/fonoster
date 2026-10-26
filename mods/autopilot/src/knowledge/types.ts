@@ -21,6 +21,10 @@ import { Embeddings } from "@langchain/core/embeddings";
 type KnowledgeBase = {
   load: () => Promise<void>;
   queryKnowledgeBase: (query: string, k?: number) => Promise<string>;
+  searchKnowledgeBase?: (
+    query: string,
+    k?: number
+  ) => Promise<{ text: string; source?: string; score?: number }[]>;
 };
 
 type S3KnowledgeBaseParams = {

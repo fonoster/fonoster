@@ -36,7 +36,11 @@ import {
   createAutopilotHandler,
   LoadedAgent
 } from "./createAutopilot";
-import { fromKnowledgeBase, KnowledgePort } from "./knowledge";
+import {
+  fromKnowledgeBase,
+  KnowledgePassage,
+  KnowledgePort
+} from "./knowledge";
 import {
   ConfigCredentials,
   CredentialSource,
@@ -330,6 +334,7 @@ export class FileWorkspaceSecrets implements CredentialSource {
 type KnowledgeBaseLike = {
   load(): Promise<void>;
   queryKnowledgeBase(query: string, k?: number): Promise<string>;
+  searchKnowledgeBase?(query: string, k?: number): Promise<KnowledgePassage[]>;
 };
 
 /**
@@ -521,6 +526,13 @@ export function eagerKnowledge(
       find: async (question, signal) => {
         const p = await port;
         return p ? p.find(question, signal) : "";
+      },
+      search: async (question, signal) => {
+        const p = await port;
+        if (!p) return [];
+        if (p.search) return p.search(question, signal);
+        const text = (await p.find(question, signal))?.trim();
+        return text ? [{ text }] : [];
       }
     };
   };

@@ -23,7 +23,16 @@
  */
 export interface KnowledgePort {
   find(question: string, signal: AbortSignal): Promise<string>;
+  /** The same lookup as passages, with where each came from; used instead of `find` when present. */
+  search?(question: string, signal: AbortSignal): Promise<KnowledgePassage[]>;
 }
+
+/** One passage a knowledge search found: its text, the document it came from and its score. */
+export type KnowledgePassage = {
+  text: string;
+  source?: string;
+  score?: number;
+};
 
 /** Knowledge lookups never hold a reply back longer than this. */
 export const KNOWLEDGE_TIMEOUT_MS = 800;
@@ -31,6 +40,12 @@ export const KNOWLEDGE_TIMEOUT_MS = 800;
 /** Adapts the current knowledge bases (mods/autopilot/src/knowledge) to the port. */
 export function fromKnowledgeBase(kb: {
   queryKnowledgeBase(query: string, k?: number): Promise<string>;
+  searchKnowledgeBase?(query: string, k?: number): Promise<KnowledgePassage[]>;
 }): KnowledgePort {
-  return { find: (question) => kb.queryKnowledgeBase(question) };
+  return {
+    find: (question) => kb.queryKnowledgeBase(question),
+    ...(kb.searchKnowledgeBase
+      ? { search: (question: string) => kb.searchKnowledgeBase!(question) }
+      : {})
+  };
 }

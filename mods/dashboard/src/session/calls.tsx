@@ -18,11 +18,12 @@
  */
 /*
  * The Calls page and a call's record (dashboard-call-records), laid out as the Calls frames in
- * designs/dashboard.pen. What a record does not carry yet (answering machine result, tool
- * parameters, knowledge searches, per-stage latency, cost) is left out, not faked.
+ * designs/dashboard.pen. What a record does not carry yet (per-stage latency, cost) is left out,
+ * not faked.
  */
 import { useInfiniteQuery } from "@tanstack/react-query";
 import {
+  BookOpen,
   ChevronRight,
   PhoneCall,
   PhoneIncoming,
@@ -72,6 +73,7 @@ import {
 import type {
   CallRecord,
   CallRecordSummary,
+  KnowledgeSearch,
   SessionApp,
   SessionMessage,
   ToolCall,
@@ -449,7 +451,101 @@ function Row({
 
 type Entry =
   | { kind: "turn"; at: number; turn: Turn }
+  | { kind: "knowledge"; at: number; search: KnowledgeSearch }
   | { kind: "tool"; at: number; tool: ToolCall };
+
+/** A tool's parameters or response: JSON shown indented, anything else as it is. */
+function Payload({ label, text }: { label: string; text: string }) {
+  let shown = text;
+  try {
+    shown = JSON.stringify(JSON.parse(text), null, 2);
+  } catch {
+    // Not JSON (or cut short): shown as recorded.
+  }
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <pre className="max-h-64 overflow-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap text-foreground">
+        {shown}
+      </pre>
+    </div>
+  );
+}
+
+function ToolRow({ tool }: { tool: ToolCall }) {
+  const payloads = [
+    ["Parameters", tool.parameters],
+    ["Response", tool.response],
+    ["Error", tool.error]
+  ].filter((p): p is [string, string] => Boolean(p[1]));
+  return (
+    <Row
+      at={tool.at}
+      icon={<Wrench />}
+      label="tool call"
+      title={
+        <>
+          Tool call <Tag>{tool.name}</Tag>
+          {tool.method && <Tag>{tool.method}</Tag>}
+          {tool.status !== undefined && (
+            <Tag tone={tool.status >= 400 ? "error" : "muted"}>
+              {tool.status}
+            </Tag>
+          )}
+          {tool.durationMs !== undefined && <Tag>{tool.durationMs} ms</Tag>}
+          <Tag tone={tool.ok ? "success" : "error"}>
+            {tool.ok ? "ok" : "failed"}
+          </Tag>
+        </>
+      }
+    >
+      {payloads.length > 0 && (
+        <details className="text-[13px]">
+          <summary className="cursor-pointer text-muted-foreground">
+            {payloads
+              .map(([label], i) => (i ? label.toLowerCase() : label))
+              .join(" and ")}
+          </summary>
+          <div className="mt-2 flex flex-col gap-2">
+            {payloads.map(([label, text]) => (
+              <Payload key={label} label={label} text={text} />
+            ))}
+          </div>
+        </details>
+      )}
+    </Row>
+  );
+}
+
+function KnowledgeRow({ search }: { search: KnowledgeSearch }) {
+  const top = search.passages[0];
+  return (
+    <Row
+      at={search.at}
+      icon={<BookOpen />}
+      label="knowledge search"
+      title={
+        <>
+          Searched knowledge
+          {search.source && <Tag>{search.source}</Tag>}
+          {search.durationMs !== undefined && <Tag>{search.durationMs} ms</Tag>}
+          {search.timedOut && <Tag tone="warning">too slow, not used</Tag>}
+        </>
+      }
+    >
+      <p className="text-[13px] text-foreground">“{search.query}”</p>
+      {top ? (
+        <p className="text-[13px] text-muted-foreground">
+          Top match: {top.text}
+        </p>
+      ) : (
+        !search.timedOut && (
+          <p className="text-[13px] text-muted-foreground">Nothing found.</p>
+        )
+      )}
+    </Row>
+  );
+}
 
 function Timeline({ call, app }: { call: CallRecord; app?: SessionApp }) {
   const entries: Entry[] = [
@@ -457,6 +553,11 @@ function Timeline({ call, app }: { call: CallRecord; app?: SessionApp }) {
       kind: "turn" as const,
       at: turn.startMs,
       turn
+    })),
+    ...call.knowledgeSearches.map((search) => ({
+      kind: "knowledge" as const,
+      at: search.at,
+      search
     })),
     ...call.toolCalls.map((tool) => ({
       kind: "tool" as const,
@@ -493,22 +594,11 @@ function Timeline({ call, app }: { call: CallRecord; app?: SessionApp }) {
           }
         />
       )}
-      {entries.map((e) =>
+      {entries.map((e, i) =>
         e.kind === "tool" ? (
-          <Row
-            key={`tool-${e.at}-${e.tool.name}`}
-            at={e.at}
-            icon={<Wrench />}
-            label="tool call"
-            title={
-              <>
-                Tool call <Tag>{e.tool.name}</Tag>
-                <Tag tone={e.tool.ok ? "success" : "error"}>
-                  {e.tool.ok ? "ok" : "failed"}
-                </Tag>
-              </>
-            }
-          />
+          <ToolRow key={`tool-${e.at}-${e.tool.name}-${i}`} tool={e.tool} />
+        ) : e.kind === "knowledge" ? (
+          <KnowledgeRow key={`knowledge-${e.at}-${i}`} search={e.search} />
         ) : (
           <Row
             key={`turn-${e.turn.index}`}

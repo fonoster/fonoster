@@ -27,3 +27,4 @@ export * from "./sentences";
 export * from "./telemetry";
 export * from "./think";
 export * from "./tools";
+export * from "./traceDetails";

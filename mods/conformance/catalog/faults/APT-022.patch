@@ -1,0 +1,14 @@
+diff --git a/mods/autopilot/src/session/traceDetails.ts b/mods/autopilot/src/session/traceDetails.ts
+index 95cfe1965..86215fa35 100644
+--- a/mods/autopilot/src/session/traceDetails.ts
++++ b/mods/autopilot/src/session/traceDetails.ts
+@@ -95,9 +95,6 @@ export function toolCallTrace(
+     ...(outcome.method ? { method: outcome.method } : {}),
+     ...(outcome.status !== undefined ? { status: outcome.status } : {}),
+     durationMs,
+-    ...(Object.keys(args).length
+-      ? { parameters: capText(json(args), MAX_TOOL_TEXT) }
+-      : {}),
+     ...(outcome.ok && outcome.result !== undefined
+       ? { response: capText(json(outcome.result), MAX_TOOL_TEXT) }
+       : {}),

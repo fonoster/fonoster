@@ -267,7 +267,33 @@ const sampleCall = (): CallRecord => ({
     msg(10300, "app", { type: "hangup" }),
     msg(10400, "appbridge", { type: "session.end", reason: "app_hangup" })
   ],
-  toolCalls: [{ at: 5000, name: "get_balance", ok: true }],
+  toolCalls: [
+    {
+      at: 5000,
+      name: "get_balance",
+      ok: true,
+      method: "GET",
+      status: 200,
+      durationMs: 182,
+      parameters: '{"account":"acme-1042"}',
+      response: '{"balance":42,"currency":"USD"}'
+    }
+  ],
+  knowledgeSearches: [
+    {
+      at: 4900,
+      query: "I want to check my balance",
+      source: "billing-faq.pdf",
+      passages: [
+        {
+          text: "Balances update at midnight.",
+          source: "billing-faq.pdf",
+          score: 0.82
+        }
+      ],
+      durationMs: 64
+    }
+  ],
   usage: [
     { meter: "call.seconds", quantity: 42 },
     { meter: "stt.seconds", quantity: 40, provider: "deepgram" },
