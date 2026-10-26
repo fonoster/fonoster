@@ -1,0 +1,95 @@
+# Every PR must link an issue (process/external.md, process/labels.md).
+# Fails when a PR to the default branch links no issue: labels it `needs-issue` and leaves one
+# kind comment. Never closes the PR. Passes, and drops the label, once an issue is linked.
+# Install in the org's `.github` repo (as a ruleset-required workflow) or in each repo.
+# To make it block merges, add an org ruleset ("Require workflows to pass before merging")
+# or a branch protection rule that requires the `linked-issue` check.
+# Safe on fork PRs: it never checks out PR code, and PR text only reaches the shell via env.
+# Linking from the sidebar's Development box fires no event; edit the description or re-run.
+name: Require linked issue
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: write
+
+concurrency:
+  group: linked-issue-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  linked-issue:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check for a linked issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+          NAME: ${{ github.event.repository.name }}
+          PR: ${{ github.event.pull_request.number }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          AUTHOR_TYPE: ${{ github.event.pull_request.user.type }}
+          BASE: ${{ github.event.pull_request.base.ref }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          LABEL: needs-issue
+          MARKER: "<!-- ps:needs-issue -->"
+        run: |
+          set -euo pipefail
+
+          # Bots (dependabot[bot], github-actions[bot], ...) don't need an issue.
+          if [ "$AUTHOR_TYPE" = "Bot" ]; then
+            echo "Bot author ($AUTHOR); skipping."; exit 0
+          fi
+
+          # Closing keywords only link issues on PRs to the default branch.
+          if [ "$BASE" != "$DEFAULT_BRANCH" ]; then
+            echo "Base is $BASE, not $DEFAULT_BRANCH; skipping."; exit 0
+          fi
+
+          # $owner, $name, $number are GraphQL variables, not shell ones.
+          # shellcheck disable=SC2016
+          linked=$(gh api graphql \
+            -f query='query($owner:String!,$name:String!,$number:Int!){repository(owner:$owner,name:$name){pullRequest(number:$number){closingIssuesReferences(first:10){nodes{number}}}}}' \
+            -f owner="$OWNER" -f name="$NAME" -F number="$PR" \
+            --jq '.data.repository.pullRequest.closingIssuesReferences.nodes | length')
+
+          label_exists() { gh api "repos/$REPO/labels/$LABEL" --silent 2>/dev/null; }
+          has_label() {
+            gh api "repos/$REPO/issues/$PR/labels" --jq '.[].name' | grep -qxF "$LABEL"
+          }
+
+          if [ "$linked" -gt 0 ]; then
+            echo "Linked to $linked issue(s)."
+            if has_label; then
+              gh api -X DELETE "repos/$REPO/issues/$PR/labels/$LABEL" --silent
+            fi
+            exit 0
+          fi
+
+          echo "::error::This pull request links no issue. Add 'Closes #<issue>' to the description."
+
+          if label_exists; then
+            has_label || gh api "repos/$REPO/issues/$PR/labels" -f "labels[]=$LABEL" --silent
+          else
+            echo "Label '$LABEL' doesn't exist in $REPO; not adding it."
+          fi
+
+          # One comment per PR: look for our marker in comments this workflow posted.
+          ours=$(gh api --paginate "repos/$REPO/issues/$PR/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]") | .body')
+          if ! printf '%s' "$ours" | grep -qF "$MARKER"; then
+            body=$(printf '%s\n' \
+              "$MARKER" \
+              "Thanks for opening this pull request! Every pull request here needs a linked issue, so we know what it fixes or adds." \
+              "" \
+              "To link one, add \`Closes #123\` to the description, using the issue's number. If there's no issue yet, say so here and a maintainer will help create one.")
+            gh api "repos/$REPO/issues/$PR/comments" -f body="$body" --silent
+          fi
+
+          exit 1
