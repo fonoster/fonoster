@@ -105,7 +105,11 @@ export function median(values: number[]): number | undefined {
 export function responseTimes(turns: Turn[]) {
   return turns
     .filter((t) => t.side === "agent" && t.firstAudioMs !== undefined)
-    .map((t, i) => ({ turn: i + 1, ms: t.firstAudioMs! }));
+    .map((t, i) => ({
+      turn: i + 1,
+      ms: t.firstAudioMs!,
+      ...(t.stages ? { stages: t.stages } : {})
+    }));
 }
 
 const METER: Record<string, { label: string; unit: string }> = {

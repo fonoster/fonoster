@@ -286,6 +286,25 @@ export function fromVcon(
     )
       t.firstAudioMs = t.startMs - before.endMs;
   });
+  // Autopilot's turn note for an answer comes after the caller's turn.ended and before the next one;
+  // when it has the stage timings, the answer's wait is split into them.
+  const turnNotes = notes.filter(
+    (n) =>
+      n.kind === "autopilot.turn" &&
+      typeof n.llmMs === "number" &&
+      typeof n.ttsMs === "number"
+  );
+  turns.forEach((t, i) => {
+    if (t.firstAudioMs === undefined) return;
+    const asked = turns[i - 1].endMs;
+    const next = turns.slice(i + 1).find((x) => x.side === "caller");
+    const note = turnNotes.find((n) => {
+      const at = offset(n.at);
+      return at >= asked && (!next || at < next.endMs);
+    });
+    if (note)
+      t.stages = { llmMs: note.llmMs as number, ttsMs: note.ttsMs as number };
+  });
   // Autopilot writes one autopilot.turn note per turn, with the tools it called.
   const toolCalls = notes
     .filter((n) => n.kind === "autopilot.turn" && Array.isArray(n.toolCalls))

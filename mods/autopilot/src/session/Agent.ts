@@ -75,6 +75,14 @@ export type TurnTrace = {
   /** ms from turn.ended to the first token, and to the first speak sent. */
   firstTokenMs?: number;
   firstSpeakMs?: number;
+  /**
+   * Where the caller's wait went, in ms, once the first reply audio played: `llmMs` from turn.ended
+   * to the first sentence handed to speech (knowledge lookups and tool calls before the first words
+   * count here), `ttsMs` from that sentence to its first audio (output.started). Absent when no
+   * reply finished playing (an interrupted reply has no exact start on this side).
+   */
+  llmMs?: number;
+  ttsMs?: number;
 };
 
 export interface Recorder {
@@ -439,7 +447,8 @@ export class Agent {
     let completed = false;
     if (!first.done && !abort.signal.aborted) {
       this.send({ type: "REPLY_SPEAKING" });
-      trace.firstSpeakMs = Date.now() - turnEnded;
+      const spokeAt = Date.now();
+      trace.firstSpeakMs = spokeAt - turnEnded;
       const pieces = (async function* () {
         yield first.value;
         for (;;) {
@@ -452,6 +461,16 @@ export class Agent {
         ...this.speechOptions(),
         preempt: preempt || undefined
       });
+      // A finished say's heardMs runs from its first audio (output.started) to output.done, on this
+      // clock. An interrupted one reports audio sent instead, which is not a time: no stages then.
+      if (
+        trace.ttsMs === undefined &&
+        !result.interrupted &&
+        result.heardMs > 0
+      ) {
+        trace.llmMs = spokeAt - turnEnded;
+        trace.ttsMs = Math.max(0, Date.now() - result.heardMs - spokeAt);
+      }
       heard = result.heardText;
       interrupted = result.interrupted;
       completed = !interrupted;

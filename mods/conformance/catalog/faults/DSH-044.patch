@@ -9,5 +9,5 @@ index bf0113707..0a7b8f44b 100644
 -      t.firstAudioMs = t.startMs - before.endMs;
 +      void 0;
    });
-   // Autopilot writes one autopilot.turn note per turn, with the tools it called.
-   const toolCalls = notes
+   // Autopilot's turn note for an answer comes after the caller's turn.ended and before the next one;
+   // when it has the stage timings, the answer's wait is split into them.

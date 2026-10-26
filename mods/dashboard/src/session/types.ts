@@ -181,6 +181,8 @@ export type Turn = {
   heardMs?: number;
   /** Agent turns: from the caller's last word to the agent's first audio, in ms. */
   firstAudioMs?: number;
+  /** Where that wait went, from Autopilot's turn note; records written before it have none. */
+  stages?: { llmMs: number; ttsMs: number };
 };
 
 /** A tool the agent called during a turn (the autopilot.turn note has names and outcomes only). */

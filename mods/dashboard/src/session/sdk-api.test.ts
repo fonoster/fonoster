@@ -228,6 +228,65 @@ describe("SDK adapter", () => {
     expect(record.endReason).toBe("caller_hangup");
     expect(record.recording).toEqual({ sha256: "sha512-x" });
   });
+
+  it("splits an answer's wait by stage from Autopilot's turn note, when it has them", () => {
+    const summary = {
+      callRef: "c1",
+      appRef: "a1",
+      from: "+1",
+      to: "+2",
+      direction: "inbound",
+      startedAt: "2026-10-15T10:00:00.000Z",
+      durationMs: 9000,
+      status: "completed",
+      version: 1
+    };
+    const text = (originator: number, second: number, body: string) => ({
+      type: "text",
+      originator,
+      start: `2026-10-15T10:00:0${second}.000Z`,
+      duration: 1,
+      body
+    });
+    const ended = (second: number) => ({
+      at: `2026-10-15T10:00:0${second + 1}.000Z`,
+      type: "turn.ended"
+    });
+    const record = fromVcon(summary, {
+      vcon: {
+        // Two answers: the first has a note with stages, the second one from an older Autopilot.
+        dialog: [
+          text(0, 1, "Hours?"),
+          text(2, 3, "Nine to five."),
+          text(0, 5, "Thanks"),
+          text(2, 7, "Bye.")
+        ],
+        analysis: [
+          { type: "turn_decisions", body: [ended(1), ended(5)] },
+          {
+            type: "app_notes",
+            body: [
+              {
+                at: "2026-10-15T10:00:04.000Z",
+                kind: "autopilot.turn",
+                llmMs: 600,
+                ttsMs: 300
+              },
+              { at: "2026-10-15T10:00:08.000Z", kind: "autopilot.turn" }
+            ]
+          }
+        ],
+        fonoster: { startedAt: "2026-10-15T10:00:00.000Z" }
+      }
+    });
+    const answers = record.turns.filter((t) => t.side === "agent");
+    expect(answers[0]).toMatchObject({
+      firstAudioMs: 1000,
+      stages: { llmMs: 600, ttsMs: 300 }
+    });
+    expect(answers[1].firstAudioMs).toBe(1000);
+    expect(answers[1].stages).toBeUndefined();
+  });
 });
 
 describe("SDK adapter saves", () => {

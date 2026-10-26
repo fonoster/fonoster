@@ -582,6 +582,42 @@ function Panel({
   );
 }
 
+const STAGES = [
+  { key: "llmMs", label: "LLM", color: "bg-foreground" },
+  { key: "ttsMs", label: "Text-to-speech", color: "bg-primary" }
+] as const;
+
+/** One answer's wait split by stage; the stages never draw past the measured wait. */
+function StageBar({
+  ms,
+  max,
+  stages
+}: {
+  ms: number;
+  max: number;
+  stages: NonNullable<Turn["stages"]>;
+}) {
+  const sum = stages.llmMs + stages.ttsMs;
+  const scale = sum > ms ? ms / sum : 1;
+  const label = STAGES.map((s) => `${s.label} ${stages[s.key]} ms`).join(", ");
+  return (
+    <span
+      role="img"
+      aria-label={label}
+      title={label}
+      className="flex h-1.5 overflow-hidden rounded-full bg-muted"
+    >
+      {STAGES.map((s) => (
+        <span
+          key={s.key}
+          className={cn("block h-full", s.color)}
+          style={{ width: `${((stages[s.key] * scale) / max) * 100}%` }}
+        />
+      ))}
+    </span>
+  );
+}
+
 function ResponseTime({ turns }: { turns: Turn[] }) {
   const times = responseTimes(turns);
   if (!times.length) return null;
@@ -598,6 +634,19 @@ function ResponseTime({ turns }: { turns: Turn[] }) {
       <p className="text-[13px] text-muted-foreground">
         From the caller's last word to the agent's first audio, per turn.
       </p>
+      {times.some((t) => t.stages) && (
+        <ul
+          aria-label="Stages"
+          className="flex gap-4 text-xs text-muted-foreground"
+        >
+          {STAGES.map((stage) => (
+            <li key={stage.key} className="flex items-center gap-1.5">
+              <span className={cn("size-2 rounded-full", stage.color)} />
+              {stage.label}
+            </li>
+          ))}
+        </ul>
+      )}
       <ol className="flex flex-col gap-3">
         {times.map((t) => (
           <li key={t.turn} className="flex flex-col gap-1.5">
@@ -605,12 +654,16 @@ function ResponseTime({ turns }: { turns: Turn[] }) {
               Turn {t.turn}
               <span className="font-mono text-xs">{t.ms} ms</span>
             </span>
-            <span className="h-1.5 rounded-full bg-muted">
-              <span
-                className="block h-full rounded-full bg-foreground"
-                style={{ width: `${(t.ms / max) * 100}%` }}
-              />
-            </span>
+            {t.stages ? (
+              <StageBar ms={t.ms} max={max} stages={t.stages} />
+            ) : (
+              <span className="h-1.5 rounded-full bg-muted">
+                <span
+                  className="block h-full rounded-full bg-foreground"
+                  style={{ width: `${(t.ms / max) * 100}%` }}
+                />
+              </span>
+            )}
           </li>
         ))}
       </ol>

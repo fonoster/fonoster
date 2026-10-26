@@ -93,6 +93,12 @@ describe("call records", () => {
     ]);
     expect(median(times.map((t) => t.ms))).toBe(650);
     expect(median([])).toBeUndefined();
+    expect(
+      responseTimes([
+        turn("caller"),
+        { ...turn("agent", 900), stages: { llmMs: 600, ttsMs: 300 } }
+      ])
+    ).toEqual([{ turn: 1, ms: 900, stages: { llmMs: 600, ttsMs: 300 } }]);
   });
 
   it("states usage without prices", () => {
