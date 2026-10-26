@@ -110,7 +110,7 @@ export async function runWebhookFanout(
     const resolved = await Webhooks.resolveWorkspace(event, workspaceOfApp);
     if (!resolved) return;
     await store.refreshEndpoints(resolved.workspaceRef);
-    const created = await store.insertDeliveries(dispatcher.plan(resolved));
+    const created = await dispatcher.publishOnce(resolved);
     if (created.length) void runDue();
   };
   /** One bus event: resolves when its deliveries are stored (then the event is acknowledged). */
