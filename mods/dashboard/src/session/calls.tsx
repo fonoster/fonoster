@@ -46,6 +46,7 @@ import {
   recordStatus,
   recordsToCsv,
   answeredByWord,
+  callCount,
   responseTimes,
   usageRow
 } from "~/calls/records";
@@ -138,6 +139,9 @@ const mono = "font-mono text-[13px] tabular-nums";
 const tab =
   "-mb-px rounded-none border-b-2 border-transparent px-0 pb-2.5 pt-3 data-[state=active]:border-foreground data-[state=active]:bg-transparent";
 
+/** The next page of a calls query: where the last one ended, and the period's start it used. */
+type CallsPageParam = { pageToken: string; after?: string };
+
 export function CallRecordsList() {
   const navigate = useNavigate();
   const api = useSessionApi();
@@ -156,22 +160,38 @@ export function CallRecordsList() {
       appRef,
       status
     ],
-    initialPageParam: undefined as string | undefined,
-    queryFn: ({ pageParam }) =>
-      api.listCalls({
-        ...(period !== ANY ? { after: rangeStart(period) } : {}),
+    initialPageParam: undefined as CallsPageParam | undefined,
+    // The period's start is set by the first page and kept by the next ones, so Load more pages
+    // through the same calls the first page's total counted.
+    queryFn: async ({ pageParam }) => {
+      const after = pageParam
+        ? pageParam.after
+        : period !== ANY
+          ? rangeStart(period)
+          : undefined;
+      const page = await api.listCalls({
+        ...(after ? { after } : {}),
         ...(direction !== ANY ? { direction } : {}),
         ...(appRef !== ANY ? { appRef } : {}),
         ...(status !== ANY ? { status } : {}),
-        ...(pageParam ? { pageToken: pageParam } : {})
-      }),
-    getNextPageParam: (page) => page.nextPageToken
+        ...(pageParam ? { pageToken: pageParam.pageToken } : {})
+      });
+      return { ...page, after };
+    },
+    getNextPageParam: (page): CallsPageParam | undefined =>
+      page.nextPageToken
+        ? { pageToken: page.nextPageToken, after: page.after }
+        : undefined
   });
   const rows = calls.data?.pages.flatMap((page) => page.items) ?? [];
   const filtered =
     status !== ANY || period !== ANY || direction !== ANY || appRef !== ANY;
   const appOf = (ref: string) => apps.find((a) => a.ref === ref);
-  const count = `${rows.length.toLocaleString("en-US")}${calls.hasNextPage ? "+" : ""} ${rows.length === 1 && !calls.hasNextPage ? "call" : "calls"}`;
+  const count = callCount(
+    rows.length,
+    calls.hasNextPage,
+    calls.data?.pages[0]?.total
+  );
 
   const columns: Column<CallRecordSummary>[] = [
     {
@@ -765,7 +785,12 @@ export function CallRecordView() {
                 Answered by {answeredByWord(call.amd?.status)!.toLowerCase()}
               </Chip>
             )}
-            {fonosterNumber && <Chip>via {fonosterNumber}</Chip>}
+            {fonosterNumber && (
+              <Chip>
+                via {fonosterNumber}
+                {call.trunkName && <> · Trunk {call.trunkName}</>}
+              </Chip>
+            )}
             {isPrivate && !offline && <Chip>Stored in your region</Chip>}
           </div>
         </div>

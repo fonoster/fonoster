@@ -51,7 +51,12 @@ import {
 } from "../envs";
 import { runOutboundCalls } from "../outbound";
 import { subscribeRegistryUsage } from "../providers";
-import { CallRecordsConfig, RecordsDb, runCallRecords } from "../records";
+import {
+  CallRecordsConfig,
+  createTrunkOfNumber,
+  RecordsDb,
+  runCallRecords
+} from "../records";
 import {
   createSnapshotSources,
   RegionsConfig,
@@ -78,6 +83,7 @@ import { httpBridge } from "./httpBridge";
 import { identityConfig } from "./identityConfig";
 import loadServices from "./loadServices";
 import { workspaceRegionHooks } from "./regionHooks";
+import { routrNumbers } from "./routrConfig";
 import services from "./services";
 import { apiserverTelemetry } from "./telemetry";
 import { createTelemetryInterceptor } from "./telemetryInterceptor";
@@ -150,7 +156,8 @@ async function runServices() {
     db: prisma as unknown as RecordsDb,
     relay: { regionOf: regions.regionOf, client: regions.relay },
     onConfigChange: regions.onConfigChange,
-    usage: { directory: () => workspaceRegionHooks.directory() }
+    usage: { directory: () => workspaceRegionHooks.directory() },
+    trunkOf: createTrunkOfNumber(routrNumbers())
   });
 
   // The dashboard's cookie session (M4): refresh token in an httpOnly cookie on its origin

@@ -233,7 +233,9 @@ kept separate. Apps SHALL NOT be able to override the policy.
 ### Requirement: Records are available through the API and the dashboard
 
 The API SHALL fetch a record by `callRef` (latest or a given version) and search records by time
-range, number, app, direction and status, within the caller's workspace. The dashboard SHALL display a record
+range, number, app, direction and status, within the caller's workspace. A search SHALL return the
+exact number of records the query matches on all pages, and each record SHALL name the trunk of the
+workspace's number on the call when it is known. The dashboard SHALL display a record
 and offer download of its recording. When a record is sealed, the platform SHALL
 emit the `call_record.sealed` workspace webhook with the call ref and a link to fetch the record,
 and MUST NOT include record contents in the webhook. Continuous export is not part of this version.
@@ -254,6 +256,24 @@ and MUST NOT include record contents in the webhook. Continuous export is not pa
 
 - **WHEN** a workspace member searches with `direction=outbound`
 - **THEN** only the workspace's outbound records are returned
+
+#### Scenario: Total for the query
+
+- **WHEN** a workspace member searches with filters and gets the first of several pages
+- **THEN** the response carries `total`, the exact count of the workspace's records matching the same filters
+- **AND** later pages of that search don't count again: the first page's `total` stands for the search
+- **AND** paging never skips or repeats a record, even when records share a start time
+
+#### Scenario: The trunk a call used
+
+- **WHEN** a record is indexed for an inbound call to, or an outbound call from, a workspace Number that has a trunk
+- **THEN** the record names that trunk (`trunkName`), and later versions of the record keep it
+- **AND** a call whose trunk can't be known (an internal call, a Number without a trunk, Routr unreachable or not answering within 2 seconds) is indexed with no trunk
+
+#### Scenario: The first index of a call names its trunk
+
+- **WHEN** a later version of a record is indexed
+- **THEN** it keeps the trunk stored when the call was first indexed, or none when none was stored, without asking Routr again
 
 ### Requirement: Calls that never reach an app get a minimal record
 

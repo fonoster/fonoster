@@ -83,6 +83,8 @@ export function fromFixture(
     recordedMs?: number;
     /** When the call started (default 2026-10-20 14:05 UTC). */
     startedAt?: number;
+    /** The trunk of the workspace's number on the call, as the index names it. */
+    trunkName?: string;
   } = {}
 ): RecordFixture {
   const file = JSON.parse(
@@ -149,6 +151,7 @@ export function fromFixture(
     sipStatus:
       (meta.failure as { sipStatus?: number } | undefined)?.sipStatus ?? null,
     amdStatus: (meta.amd as { status?: string } | undefined)?.status ?? null,
+    trunkName: options.trunkName ?? null,
     startedAt: new Date(T0).toISOString(),
     endedAt: new Date(endedAt).toISOString(),
     durationSeconds: Math.round((endedAt - T0) / 1000),
@@ -227,7 +230,14 @@ export function installRecords(
       const page = matching.slice(from, from + pageSize);
       const next =
         from + pageSize < matching.length ? String(from + pageSize) : null;
-      return { json: { items: page, nextPageToken: next } };
+      // As the API: the first page (no page token) carries the query's total.
+      return {
+        json: {
+          items: page,
+          nextPageToken: next,
+          ...(query.get("pageToken") ? {} : { total: matching.length })
+        }
+      };
     })
     .rest("GET", "/api/records/:callRef", ({ params }) => {
       const record = byRef.get(params.callRef);

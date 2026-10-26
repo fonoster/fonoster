@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import SDK from "@routr/sdk";
 import { ROUTR_API_ENDPOINT } from "../envs";
 
 const routrConfig = {
@@ -23,4 +24,9 @@ const routrConfig = {
   insecure: true
 };
 
-export { routrConfig };
+let numbers: InstanceType<typeof SDK.Numbers> | undefined;
+
+/** The apiserver's one client for Routr's Numbers (CreateCall's check, the records' trunks). */
+const routrNumbers = () => (numbers ??= new SDK.Numbers(routrConfig));
+
+export { routrConfig, routrNumbers };

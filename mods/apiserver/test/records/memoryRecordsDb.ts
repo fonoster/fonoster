@@ -28,9 +28,12 @@ type Where = Record<string, unknown>;
 function matches(row: Record<string, unknown>, where: Where): boolean {
   return Object.entries(where).every(([key, cond]) => {
     if (key === "OR") return (cond as Where[]).some((w) => matches(row, w));
+    if (key === "AND") return (cond as Where[]).every((w) => matches(row, w));
     const value = row[key];
     if (cond === null) return value === null || value === undefined;
-    if (cond instanceof Date || typeof cond !== "object") return value === cond;
+    if (cond instanceof Date)
+      return value instanceof Date && value.getTime() === cond.getTime();
+    if (typeof cond !== "object") return value === cond;
     const c = cond as Record<string, unknown>;
     if ("has" in c) return (value as string[]).includes(c.has as string);
     if ("lt" in c && !((value as Date) < (c.lt as Date))) return false;
@@ -39,7 +42,7 @@ function matches(row: Record<string, unknown>, where: Where): boolean {
   });
 }
 
-/** Just enough of Prisma for the records code: equality, null, lt/gte, has, OR, order, take. */
+/** Just enough of Prisma for the records code: equality, null, lt/gte, has, OR/AND, order, take, count. */
 export function memoryRecordsDb() {
   const records = new Map<string, CallRecordRow>();
   const audits: AuditRow[] = [];
@@ -52,12 +55,22 @@ export function memoryRecordsDb() {
         let rows = [...records.values()].filter((r) =>
           matches(r as unknown as Record<string, unknown>, where)
         );
+        // Newest first, then by callRef descending (the search's order).
         if (args.orderBy)
           rows = rows.sort(
-            (a, b) => b.startedAt.getTime() - a.startedAt.getTime()
+            (a, b) =>
+              b.startedAt.getTime() - a.startedAt.getTime() ||
+              (a.callRef < b.callRef ? 1 : a.callRef > b.callRef ? -1 : 0)
           );
         return rows.slice(0, (args.take as number) ?? rows.length);
       },
+      count: async (args) =>
+        [...records.values()].filter((r) =>
+          matches(
+            r as unknown as Record<string, unknown>,
+            (args.where ?? {}) as Where
+          )
+        ).length,
       upsert: async (args) => {
         const where = args.where as { callRef: string };
         const existing = records.get(where.callRef);

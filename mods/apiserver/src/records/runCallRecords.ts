@@ -23,6 +23,7 @@ import { Router } from "express";
 import { connect } from "nats";
 import { IndexUsageDeps, subscribeRecordIndex } from "./createIndexRecord";
 import { createRecordsRouter, RecordsRouterDeps } from "./createRecordsRouter";
+import { TrunkOfNumber } from "./createTrunkOfNumber";
 import { natsMaintenanceClient, runRetention } from "./maintenance";
 import { createStoreResolver } from "./stores";
 import { RecordsDb } from "./types";
@@ -50,6 +51,8 @@ export async function runCallRecords(
     relay?: RecordsRouterDeps["relay"];
     onConfigChange?: (accessKeyId: string) => void;
     usage?: IndexUsageDeps;
+    /** Names the trunk of a call's Number when its record is indexed. */
+    trunkOf?: TrunkOfNumber;
   }
 ): Promise<{ routers: { path: string; router: Router }[] }> {
   if (!config.enabled) return { routers: [] };
@@ -57,7 +60,10 @@ export async function runCallRecords(
     ...natsConnectOptions(deps.natsUrl),
     maxReconnectAttempts: -1
   });
-  await subscribeRecordIndex(nc, deps.db, { usage: deps.usage });
+  await subscribeRecordIndex(nc, deps.db, {
+    usage: deps.usage,
+    trunkOf: deps.trunkOf
+  });
   const maintenance = natsMaintenanceClient(nc, config.maintenanceTimeoutMs);
   const retention = setInterval(
     () =>

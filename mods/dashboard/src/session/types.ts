@@ -149,6 +149,8 @@ export type CallRecordSummary = {
   sipStatus?: number;
   /** Who answered, by AMD: human, voicemail, ivr, machine, unknown; absent when AMD didn't run. */
   amdStatus?: string;
+  /** The trunk of the workspace's number on the call, by name; absent when unknown. */
+  trunkName?: string;
 };
 
 export type CallFilter = {
@@ -161,7 +163,12 @@ export type CallFilter = {
   pageToken?: string;
 };
 
-export type CallPage = { items: CallRecordSummary[]; nextPageToken?: string };
+export type CallPage = {
+  items: CallRecordSummary[];
+  nextPageToken?: string;
+  /** How many calls match the filters, on all pages; absent from older servers. */
+  total?: number;
+};
 
 export type SessionMessage = {
   at: number;

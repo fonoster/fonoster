@@ -201,6 +201,7 @@ type Summary = {
   failureReason?: string | null;
   sipStatus?: number | null;
   amdStatus?: string | null;
+  trunkName?: string | null;
 };
 
 const toSummary = (r: Summary): CallRecordSummary => ({
@@ -216,7 +217,8 @@ const toSummary = (r: Summary): CallRecordSummary => ({
   ...(r.endReason ? { endReason: r.endReason } : {}),
   ...(r.failureReason ? { failureReason: r.failureReason } : {}),
   ...(typeof r.sipStatus === "number" ? { sipStatus: r.sipStatus } : {}),
-  ...(r.amdStatus ? { amdStatus: r.amdStatus } : {})
+  ...(r.amdStatus ? { amdStatus: r.amdStatus } : {}),
+  ...(r.trunkName ? { trunkName: r.trunkName } : {})
 });
 
 /** Turns, decisions and warnings from a record's vCon (add-call-record "The record contains"). */
@@ -469,7 +471,8 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
       });
       return {
         items: (page.items as unknown as Summary[]).map(toSummary),
-        nextPageToken: page.nextPageToken || undefined
+        nextPageToken: page.nextPageToken || undefined,
+        ...(typeof page.total === "number" ? { total: page.total } : {})
       };
     },
     getCall: async (callRef) => {
