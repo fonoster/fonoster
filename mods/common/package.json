@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/common",
-  "version": "0.33.0",
+  "version": "0.34.0",
   "description": "Common library for Fonoster projects",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -19,8 +19,8 @@
     "generate:config-schemas": "tsx scripts/export-config-schemas.ts"
   },
   "dependencies": {
-    "@fonoster/logger": "^0.33.0",
-    "@fonoster/types": "^0.33.0",
+    "@fonoster/logger": "^0.34.0",
+    "@fonoster/types": "^0.34.0",
     "@grpc/grpc-js": "~1.14.6",
     "@grpc/proto-loader": "^0.7.15",
     "@opentelemetry/api": "^1.9.0",
