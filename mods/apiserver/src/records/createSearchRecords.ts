@@ -24,6 +24,7 @@ import {
   ListCallsRequest,
   ListCallsResponse
 } from "@fonoster/types";
+import { failureStatus } from "./failureStatus";
 import { CallRecordRow, RecordsDb } from "./types";
 
 export type RecordSearch = {
@@ -86,19 +87,11 @@ export function createSearchRecords(db: RecordsDb) {
   };
 }
 
-const FAILURE_STATUS: Record<string, CallStatus> = {
-  busy: CallStatus.USER_BUSY,
-  no_answer: CallStatus.NO_ANSWER,
-  rejected: CallStatus.CALL_REJECTED,
-  no_app: CallStatus.NO_ROUTE_DESTINATION
-};
-
 /** A call detail record (the existing Calls API shape) from an index row. */
 export function toCallDetailRecord(row: CallRecordRow): CallDetailRecord {
   const status =
     row.status === "failed"
-      ? (FAILURE_STATUS[row.failureReason ?? ""] ??
-        CallStatus.SERVICE_UNAVAILABLE)
+      ? failureStatus(row.failureReason)
       : CallStatus.NORMAL_CLEARING;
   // The Calls API carries times as epoch seconds (int32 on the wire; the SDK multiplies by 1000).
   return {

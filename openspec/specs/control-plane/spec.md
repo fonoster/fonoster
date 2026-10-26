@@ -62,7 +62,11 @@ and metadata"), so `TrackCall` on any replica follows any call.
 
 #### Scenario: TrackCall says why an unanswered call ended
 - **WHEN** the node publishes `call.ended` with `answered: false` for a tracked call
-- **THEN** the final status carries `hangup_cause`, a `CallStatus` from the SIP status when it names a reason (404 `UNALLOCATED`, 484 `INVALID_NUMBER_FORMAT`, 488 `NOT_ACCEPTABLE_HERE`, 503 `SERVICE_UNAVAILABLE`), else from the cause (`busy` `USER_BUSY`, `no_answer` `NO_ANSWER`, `rejected` `CALL_REJECTED`), else `SERVICE_UNAVAILABLE`
+- **THEN** the final status carries `hangup_cause`, the `CallStatus` that `GetCall` and `ListCalls` report for the same call (its cause: `busy` `USER_BUSY`, `no_answer` `NO_ANSWER`, `rejected` `CALL_REJECTED`; any other cause `SERVICE_UNAVAILABLE`)
+
+#### Scenario: TrackCall says why it failed a call itself
+- **WHEN** `TrackCall` ends a stream `FAILED` itself (placement failed, no node took the call, the node missed its heartbeats, or no final status in time)
+- **THEN** that status carries `hangup_cause` `SERVICE_UNAVAILABLE`
 
 ### Requirement: Call creation picks the least-loaded Roomr node
 

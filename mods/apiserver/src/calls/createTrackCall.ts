@@ -22,13 +22,14 @@ import {
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { BaseApiObject, CallStatus } from "@fonoster/types";
+import { BaseApiObject } from "@fonoster/types";
 import { NatsConnection } from "nats";
 import {
   CALL_EVENTS_WILDCARD,
   MEDIA_CALL_EVENTS_WILDCARD,
   NODE_HEARTBEAT_WILDCARD
 } from "../envs";
+import { failureStatus } from "../records/failureStatus";
 import { CallStream, TrackCallResponse } from "./types";
 
 const FINAL_STATUSES = [
@@ -72,33 +73,6 @@ const UNANSWERED: Record<string, DialStatus> = {
   no_answer: DialStatus.NOANSWER
 };
 
-/** call.ended causes of an unanswered call → the CDR's CallStatus names. */
-const HANGUP_CAUSES: Record<string, CallStatus> = {
-  busy: CallStatus.USER_BUSY,
-  no_answer: CallStatus.NO_ANSWER,
-  rejected: CallStatus.CALL_REJECTED
-};
-
-/** SIP final responses that say more than the node's cause does. */
-const HANGUP_SIP_STATUSES: Record<number, CallStatus> = {
-  404: CallStatus.UNALLOCATED,
-  484: CallStatus.INVALID_NUMBER_FORMAT,
-  488: CallStatus.NOT_ACCEPTABLE_HERE,
-  503: CallStatus.SERVICE_UNAVAILABLE
-};
-
-/**
- * Why an unanswered call ended, from its call.ended (`cause` and `sip_status`): the SIP status
- * when it names a reason, else the cause, else SERVICE_UNAVAILABLE (as the call's record says).
- */
-function toHangupCause(event: Record<string, unknown>): CallStatus {
-  return (
-    HANGUP_SIP_STATUSES[Number(event.sip_status)] ??
-    HANGUP_CAUSES[String(event.cause)] ??
-    CallStatus.SERVICE_UNAVAILABLE
-  );
-}
-
 /**
  * One message as a TrackCall message: the control plane's `{ref, status}` (on
  * `calls.<ref>.events`) as is, and the Roomr node's call.ringing, call.answered and call.ended
@@ -131,7 +105,8 @@ function toTrackMessage(
         : {
             ref,
             status: UNANSWERED[String(event.cause)] ?? DialStatus.FAILED,
-            hangupCause: toHangupCause(event),
+            // The call's record says the same (its failure reason is the node's cause).
+            hangupCause: failureStatus(String(event.cause ?? "")),
             final: true,
             ...node
           };
@@ -142,7 +117,11 @@ function toTrackMessage(
             ref,
             ...(event.status !== undefined ? { status: event.status } : {}),
             ...(event.final === true ? { final: true } : {}),
-            ...node
+            ...node,
+            // The control plane failed the call before any node took it (placement failed).
+            ...(event.status === DialStatus.FAILED
+              ? { hangupCause: failureStatus() }
+              : {})
           } as TrackMessage)
         : undefined;
     default:
@@ -197,12 +176,19 @@ function createTrackCallHandler(
     return true;
   };
 
-  /** Ends a stream that got no final status: FAILED, then the end. */
+  /**
+   * Ends a stream that got no final status: FAILED (why: SERVICE_UNAVAILABLE, the record's word
+   * for a call that failed for no reason of its own), then the end.
+   */
   const fail = (t: Tracked, why: string) => {
     if (!untrack(t)) return;
     logger.warn(`TrackCall ${t.ref}: ${why}; ending with FAILED`);
     try {
-      t.stream.write({ ref: t.ref, status: DialStatus.FAILED });
+      t.stream.write({
+        ref: t.ref,
+        status: DialStatus.FAILED,
+        hangupCause: failureStatus()
+      });
       t.stream.end();
     } catch {
       // the client is gone
@@ -358,9 +344,4 @@ function createTrackCall(nc: NatsConnection, options?: TrackCallOptions) {
   );
 }
 
-export {
-  createTrackCall,
-  createTrackCallHandler,
-  toHangupCause,
-  toTrackMessage
-};
+export { createTrackCall, createTrackCallHandler, toTrackMessage };

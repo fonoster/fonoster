@@ -27,6 +27,7 @@ import {
 import { Struct } from "google-protobuf/google/protobuf/struct_pb";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
+import { getEnumKey } from "./client/utils";
 import {
   CallDetailRecord as CallDetailRecordPB,
   CallDirection,
@@ -41,11 +42,13 @@ import {
   ListCallsResponse as ListCallsResponsePB,
   TrackCallRequest as TrackCallRequestPB
 } from "./generated/node/calls_pb";
-import {
-  asStructInput,
-  dialStatusToString,
-  hangupCauseToString
-} from "./utils";
+import { asStructInput, dialStatusToString } from "./utils";
+
+/** One TrackCall update; the one that ends an unanswered call also says why (e.g. USER_BUSY). */
+type CallStatusUpdate = {
+  status: DialStatus;
+  hangupCause?: CallDetailRecord["status"];
+};
 
 /**
  * @classdesc Fonoster Calls, part of the Fonoster Media subsystem,
@@ -104,7 +107,7 @@ class Calls {
    * @param {string} request.appRef - The reference of the App that will handle the call
    * @param {number} request.timeout - The time in seconds to wait for the call to be answered. Default is 60 seconds
    * @param {Record<string, string>} request.metadata - Optional metadata to be sent to the App. For Autopilot applications, this is added to the context of the conversation.
-   * @return {{ref: string, statusStream: AsyncGenerator<{ status: DialStatus, hangupCause?: CallStatus }>}} - The response object that contains the Call reference and a stream of status updates; the update that ends an unanswered call also says why (hangupCause, e.g. USER_BUSY)
+   * @return {{ref: string, statusStream: AsyncGenerator<CallStatusUpdate>}} - The response object that contains the Call reference and a stream of status updates; the update that ends an unanswered call also says why (hangupCause, e.g. USER_BUSY)
    * @see DialStatus
    * @example
    * const calls = new SDK.Calls(client); // Existing client object
@@ -131,10 +134,7 @@ class Calls {
    */
   async createCall(request: CreateCallRequest): Promise<{
     ref: string;
-    statusStream: AsyncGenerator<{
-      status: DialStatus;
-      hangupCause?: CallDetailRecord["status"];
-    }>;
+    statusStream: AsyncGenerator<CallStatusUpdate>;
   }> {
     const client = this.client.getCallsClient();
 
@@ -186,19 +186,21 @@ class Calls {
       done = true;
     });
 
-    async function* statusStreamGenerator(): AsyncGenerator<{
-      status: DialStatus;
-      hangupCause?: CallDetailRecord["status"];
-    }> {
+    async function* statusStreamGenerator(): AsyncGenerator<CallStatusUpdate> {
       // eslint-disable-next-line no-loops/no-loops
       while (!done || queue.length > 0) {
         if (queue.length > 0) {
           const data = queue.shift()!;
-          const hangupCause = hangupCauseToString(data.hangupCause);
+          // UNKNOWN (0) means none.
+          const hangupCause = data.hangupCause
+            ? getEnumKey("hangupCause", data.hangupCause, [
+                ["hangupCause", CallStatus]
+              ])
+            : undefined;
           yield {
             status: dialStatusToString(data.status),
             ...(hangupCause ? { hangupCause } : {})
-          } as { status: DialStatus; hangupCause?: CallDetailRecord["status"] };
+          } as CallStatusUpdate;
         } else {
           await new Promise<void>((resolve) => setTimeout(resolve, 50));
         }

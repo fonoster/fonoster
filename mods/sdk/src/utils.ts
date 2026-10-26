@@ -20,7 +20,7 @@ import {
   JavaScriptValue,
   Struct
 } from "google-protobuf/google/protobuf/struct_pb";
-import { CallStatus, TrackCallResponse } from "./generated/web/calls_pb";
+import { TrackCallResponse } from "./generated/web/calls_pb";
 
 type PartialApplicationInput = {
   intelligence?: {
@@ -110,18 +110,9 @@ function dialStatusToString(status: number): string | undefined {
   }
 }
 
-/** A TrackCall hangup cause's CallStatus name; undefined when there is none (UNKNOWN). */
-function hangupCauseToString(cause?: number): string | undefined {
-  if (!cause) return undefined;
-  return Object.keys(CallStatus).find(
-    (name) => CallStatus[name as keyof typeof CallStatus] === cause
-  );
-}
-
 export {
   asStructInput,
   buildStructOverride,
   buildStructOverrideReverse,
-  dialStatusToString,
-  hangupCauseToString
+  dialStatusToString
 };

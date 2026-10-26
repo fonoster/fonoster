@@ -203,28 +203,56 @@ describe("@calls/trackCall", function () {
     );
   });
 
-  it("maps call.ended's cause and SIP status to the hangup cause", async function () {
-    const { toHangupCause } = await import("../../src/calls/createTrackCall");
-    const cases: Array<[Record<string, unknown>, CallStatus]> = [
-      [{ cause: "busy", sip_status: 486 }, CallStatus.USER_BUSY],
-      [{ cause: "no_answer", sip_status: 480 }, CallStatus.NO_ANSWER],
-      [{ cause: "no_answer" }, CallStatus.NO_ANSWER],
-      [{ cause: "rejected", sip_status: 603 }, CallStatus.CALL_REJECTED],
-      [{ cause: "rejected", sip_status: 404 }, CallStatus.UNALLOCATED],
-      [
-        { cause: "rejected", sip_status: 484 },
-        CallStatus.INVALID_NUMBER_FORMAT
-      ],
-      [{ cause: "rejected", sip_status: 488 }, CallStatus.NOT_ACCEPTABLE_HERE],
-      [
-        { cause: "node_error", sip_status: 503 },
-        CallStatus.SERVICE_UNAVAILABLE
-      ],
-      [{ cause: "media_timeout" }, CallStatus.SERVICE_UNAVAILABLE],
-      [{}, CallStatus.SERVICE_UNAVAILABLE]
-    ];
-    for (const [event, cause] of cases)
-      expect(toHangupCause(event), JSON.stringify(event)).to.equal(cause);
+  it("ends an unanswered call with the CallStatus its record reports", async function () {
+    const { toTrackMessage } = await import("../../src/calls/createTrackCall");
+    const { toCallDetailRecord } =
+      await import("../../src/records/createSearchRecords");
+    // The node's cause is the record's failure reason (unknown causes: node_error); the SIP
+    // status says nothing more in either.
+    const causes = [
+      ["busy", 486],
+      ["busy", 503],
+      ["no_answer", 480],
+      ["rejected", 603],
+      ["rejected", 404],
+      ["node_error", 503],
+      ["removed", undefined],
+      ["canceled", undefined],
+      ["app_unreachable", undefined],
+      ["media_timeout", undefined],
+      [undefined, undefined]
+    ] as const;
+    const recordOf = (reason: string) =>
+      toCallDetailRecord({
+        callRef: "r",
+        status: "failed",
+        failureReason: reason,
+        startedAt: new Date(0)
+      } as never).status;
+    for (const [cause, sip_status] of causes) {
+      const message = toTrackMessage(
+        { type: "call.ended", answered: false, cause, sip_status },
+        "roomr.events.r"
+      );
+      expect(message?.hangupCause, `${cause} ${sip_status}`).to.equal(
+        recordOf(cause ?? "node_error")
+      );
+    }
+    expect(recordOf("rejected")).to.equal(CallStatus.CALL_REJECTED);
+    expect(recordOf("node_error")).to.equal(CallStatus.SERVICE_UNAVAILABLE);
+  });
+
+  it("gives the control plane's FAILED (placement failed) a hangup cause", async function () {
+    const { toTrackMessage } = await import("../../src/calls/createTrackCall");
+    expect(toTrackMessage({ ref: "r", status: "FAILED" })).to.deep.equal({
+      ref: "r",
+      status: DialStatus.FAILED,
+      hangupCause: CallStatus.SERVICE_UNAVAILABLE
+    });
+    expect(toTrackMessage({ ref: "r", status: "TRYING" })).to.deep.equal({
+      ref: "r",
+      status: DialStatus.TRYING
+    });
   });
 
   it("delivers the hangup cause with the final status of an unanswered call", async function () {
@@ -262,7 +290,7 @@ describe("@calls/trackCall", function () {
       {
         ref: callRef,
         status: DialStatus.FAILED,
-        hangupCause: CallStatus.UNALLOCATED
+        hangupCause: CallStatus.CALL_REJECTED
       }
     ]);
     expect(call.end).to.have.been.calledOnce;
@@ -423,7 +451,8 @@ describe("@calls/trackCall", function () {
       clock.tick(4000); // past nodeStaleMs since node.down, no events, no heartbeats
       expect(s.write.lastCall.args[0]).to.deep.equal({
         ref,
-        status: DialStatus.FAILED
+        status: DialStatus.FAILED,
+        hangupCause: CallStatus.SERVICE_UNAVAILABLE
       });
       expect(s.end).to.have.been.calledOnce;
       expect(h.size()).to.equal(0);
@@ -474,7 +503,11 @@ describe("@calls/trackCall", function () {
         }
       };
       beat(32000);
-      expect(lost.write.lastCall.args[0].status).to.equal(DialStatus.FAILED);
+      expect(lost.write.lastCall.args[0]).to.deep.equal({
+        ref: "lost-ref",
+        status: DialStatus.FAILED,
+        hangupCause: CallStatus.SERVICE_UNAVAILABLE
+      });
       expect(lost.end).to.have.been.calledOnce;
       expect(long.end).to.not.have.been.called; // its node is alive
       beat(30000);
