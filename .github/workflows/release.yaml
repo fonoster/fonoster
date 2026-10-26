@@ -24,9 +24,10 @@ name: Release
 # releasable commits: it publishes the versions npm still lacks, then the images and the GitHub
 # release for the version already tagged.
 #
-# When a retry can't publish a package at all (npm provenance answers 409 for that version on every
-# try), move on to the next version: merge any commit with a `Release-As: x.y.z` footer. A pinned
-# version publishes every package, changed or not.
+# Packages publish one at a time (ops/release/npm-publish.sh). When npm provenance answers 409 for
+# a version, that version can never publish; the release goes on without it and the packages that
+# depend on it, and says so in the run summary. A later release publishes them: any commit with a
+# `Release-As: x.y.z` footer publishes every package, changed or not.
 
 on:
   push:
@@ -145,9 +146,9 @@ jobs:
           # (`Release-As:`) publishes them all, so it can stand in for a version npm refused.
           tag="$(git describe --tags --abbrev=0 --match 'v[0-9]*')"
           if git log --format=%B "$tag..HEAD" | grep -qE '^Release-As: *[0-9]+\.[0-9]+\.[0-9]+ *$'; then
-            npm run release -- --force-publish
+            ops/release/npm-publish.sh npm run release -- --force-publish
           else
-            npm run release
+            ops/release/npm-publish.sh npm run release --
           fi
 
       # Runs on every release run, even with no new commits: publishes any version already in
@@ -158,7 +159,7 @@ jobs:
           # The normal publish leaves gitHead edits in package.json files; from-package refuses a
           # dirty tree, and those edits are not meant to be committed.
           git checkout -- .
-          npx lerna publish from-package --yes --dist-tag latest
+          ops/release/npm-publish.sh npx lerna publish from-package --yes --dist-tag latest
 
       - name: Released version and commit
         id: version
