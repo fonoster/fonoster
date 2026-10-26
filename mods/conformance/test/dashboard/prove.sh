@@ -40,7 +40,10 @@ if [ "${QA_RUN:-}" = 1 ]; then
       --grep-invert "\[($(echo "$OWNER_CERT_CASES" | tr ' ' '|'))\]" --reporter=junit || status=1
     # $id is a JS regex here ("DSH-\d{3}"): grep -E has no \d, so spell it as [0-9].
     if grep -qE "\[$(printf '%s' "$id" | sed 's/\\d/[0-9]/g')" e2e/talk-owner-cert.real.spec.ts; then
-      PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/real-owner-cert.xml" owner_cert_run "\[$id" || status=1
+      # Only the owner-certificate cases: $id selects every real case here, and the others run
+      # above against the generated certificate (their SDK clients trust its CA, not the owner's).
+      PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/real-owner-cert.xml" \
+        owner_cert_run "\[($(echo "$OWNER_CERT_CASES" | tr ' ' '|'))\]" || status=1
     fi
   fi
   if [ "${QA_BILLING:-}" = 1 ]; then
