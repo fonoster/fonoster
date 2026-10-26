@@ -59,7 +59,8 @@ message Start {
   Direction direction = 2;
   string from = 3;
   string to = 4;
-  // Every INVITE header, as received (inbound) or as sent (outbound).
+  // Every INVITE header, as received (inbound) or as sent (outbound), except traceparent: the
+  // call span's W3C trace context, so the session continues the call's trace.
   map<string, string> headers = 5;
   // Opaque to the node: CreateCall's metadata, passed through untouched.
   map<string, string> metadata = 6;

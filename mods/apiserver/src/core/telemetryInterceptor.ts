@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { Telemetry, TRACEPARENT_HEADER } from "@fonoster/common";
-import { ServerInterceptingCall, status } from "@grpc/grpc-js";
+import { Metadata, ServerInterceptingCall, status } from "@grpc/grpc-js";
 
 /**
  * Every gRPC request as a span (`apiserver.grpc`, with rpc.method and rpc.grpc.status_code) and a
@@ -28,33 +28,34 @@ export function createTelemetryInterceptor(telemetry: Telemetry) {
   return (methodDefinition: { path: string }, call: ServerInterceptingCall) => {
     if (!telemetry.enabled) return call;
     const method = methodDefinition.path;
-    let span: ReturnType<Telemetry["startSpan"]> | undefined;
-    return new ServerInterceptingCall(call, {
-      start: (next) => {
-        next({
-          onReceiveMetadata: (metadata, mdNext) => {
-            const parent = metadata.get(TRACEPARENT_HEADER)[0];
-            span = telemetry.startSpan(
-              "apiserver.grpc",
-              { "rpc.system": "grpc", "rpc.method": method },
-              typeof parent === "string" ? parent : undefined
-            );
-            mdNext(metadata);
-          }
-        });
-      },
+    // The span starts here, from the metadata the call already has, not in onReceiveMetadata:
+    // a request the auth interceptor refuses gets its status before `start` runs, and would
+    // otherwise have no span.
+    const metadata = (call as unknown as { metadata?: Metadata }).metadata;
+    const parent = metadata?.get(TRACEPARENT_HEADER)[0];
+    const span = telemetry.startSpan(
+      "apiserver.grpc",
+      { "rpc.system": "grpc", "rpc.method": method },
+      typeof parent === "string" ? parent : undefined
+    );
+    const wrapped = new ServerInterceptingCall(call, {
       sendStatus: (s, next) => {
         const code = status[s.code] ?? String(s.code);
         telemetry.count("fonoster.apiserver.grpc.requests", 1, {
           "rpc.method": method,
           "rpc.grpc.status_code": code
         });
-        span?.end(
+        span.end(
           { "rpc.grpc.status_code": s.code },
           s.code === status.OK ? undefined : code
         );
         next(s);
       }
     });
+    // The auth interceptor runs next and reads the request metadata from `call.metadata`, which
+    // only the call grpc-js hands the first interceptor has. Without it every request, the
+    // health check included, is refused as unauthenticated while telemetry is on.
+    (wrapped as unknown as { metadata?: Metadata }).metadata = metadata;
+    return wrapped;
   };
 }

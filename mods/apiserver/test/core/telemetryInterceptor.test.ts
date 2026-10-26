@@ -16,7 +16,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { initTelemetry, Telemetry, telemetryEnv } from "@fonoster/common";
+import {
+  createAuthInterceptor,
+  initTelemetry,
+  Telemetry,
+  telemetryEnv
+} from "@fonoster/common";
 import { OtlpCollector } from "@fonoster/conformance";
 import * as grpc from "@grpc/grpc-js";
 import { expect } from "chai";
@@ -122,6 +127,64 @@ describe("@apiserver[core/telemetryInterceptor]", function () {
         "rpc.grpc.status_code": "OK"
       }
     });
+  });
+
+  it("leaves the request metadata to the auth interceptor that runs after it", async function () {
+    const { t, spans } = fakeTelemetry();
+    const server = new grpc.Server({
+      interceptors: [
+        createTelemetryInterceptor(t),
+        createAuthInterceptor("unused-public-key", [
+          "/grpc.health.v1.Health/Check"
+        ])
+      ]
+    });
+    new HealthImplementation({ "": "SERVING" }).addToServer(server);
+    const port = await new Promise<number>((resolve, reject) =>
+      server.bindAsync(
+        "127.0.0.1:0",
+        grpc.ServerCredentials.createInsecure(),
+        (e, p) => (e ? reject(e) : resolve(p))
+      )
+    );
+    try {
+      await checkHealth(port);
+      expect(spans).to.deep.equal([
+        { name: "apiserver.grpc", parent: undefined, ended: true }
+      ]);
+    } finally {
+      server.forceShutdown();
+    }
+  });
+
+  it("records a span for a request the auth interceptor refuses", async function () {
+    const { t, spans } = fakeTelemetry();
+    const server = new grpc.Server({
+      interceptors: [
+        createTelemetryInterceptor(t),
+        createAuthInterceptor("unused-public-key", [])
+      ]
+    });
+    new HealthImplementation({ "": "SERVING" }).addToServer(server);
+    const port = await new Promise<number>((resolve, reject) =>
+      server.bindAsync(
+        "127.0.0.1:0",
+        grpc.ServerCredentials.createInsecure(),
+        (e, p) => (e ? reject(e) : resolve(p))
+      )
+    );
+    try {
+      const refused = await checkHealth(port).then(
+        () => undefined,
+        (e: grpc.ServiceError) => e.code
+      );
+      expect(refused).to.equal(grpc.status.UNAUTHENTICATED);
+      expect(spans).to.deep.equal([
+        { name: "apiserver.grpc", parent: undefined, ended: "UNAUTHENTICATED" }
+      ]);
+    } finally {
+      server.forceShutdown();
+    }
   });
 
   // Observability (harden-conformance 1.3): the apiserver's telemetry, built from the config's

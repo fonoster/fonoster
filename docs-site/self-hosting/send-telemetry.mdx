@@ -3,16 +3,17 @@ title: "Send telemetry"
 description: "Send traces, metrics and logs from Fonoster to your OpenTelemetry collector."
 ---
 
-Fonoster services can send traces, metrics and logs over OTLP/HTTP to any OpenTelemetry collector.
-Telemetry is off by default: nothing is sent until you set an endpoint. Every call's spans, logs and
-metrics carry the attribute `fonoster.call_ref`, so you can follow one call across services.
+Every Fonoster service, Routr included, can send traces, metrics and logs over OTLP/HTTP to any
+OpenTelemetry collector. Telemetry is off by default: nothing is sent until you set an endpoint.
+Every call's spans, logs and metrics carry the attribute `fonoster.call_ref`, and the SIP side
+carries `sip.call_id`, so you can follow one call from the SIP edge to your app.
 
 ## Before you begin
 
 You need Fonoster installed with Docker Compose. See
 [Install with Docker Compose](/self-hosting/install-compose). You also need a collector that
 accepts OTLP over HTTP (usually port `4318`) and that the containers can reach. If you don't have
-one yet, [run a local collector](#try-it-with-a-local-collector) first.
+one yet, [run Grafana next to Fonoster](#see-it-in-grafana) first.
 
 ## Turn on telemetry
 
@@ -39,9 +40,9 @@ one yet, [run a local collector](#try-it-with-a-local-collector) first.
   </Step>
 </Steps>
 
-Compose passes `OTEL_EXPORTER_OTLP_ENDPOINT` to the API server, AppBridge, the Roomr node
-and the hosted Autopilot. Each one reads it through `telemetry.otlpEndpoint` in its file in
-`config/`:
+Compose passes `OTEL_EXPORTER_OTLP_ENDPOINT` to the API server, AppBridge, the Roomr node,
+the hosted Autopilot and Routr. Routr reads the variable directly. The others read it through
+`telemetry.otlpEndpoint` in their file in `config/`:
 
 ```yaml
 telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
@@ -53,16 +54,25 @@ again.
 
 ## What each service sends
 
-| Service    | `service.name`       | Traces                              | Metrics                                                                                         |
-| ---------- | -------------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------- |
-| API server | `fonoster-apiserver` | One span per API request            | `fonoster.apiserver.grpc.requests` (by method and status), `fonoster.apiserver.records.indexed` |
-| AppBridge  | `fonoster-appbridge` | `appbridge.call`, one span per call | `fonoster.appbridge.calls.total`, `fonoster.appbridge.calls.active`                             |
-| Roomr node | `fonoster-roomr`     | None                                | `fonoster.roomr.calls.incoming` (by outcome), `fonoster.roomr.rooms.active`                     |
+| Service          | `service.name`       | Traces                                                                                                        | Metrics                                                                                                                                           |
+| ---------------- | -------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| API server       | `fonoster-apiserver` | One span per API request                                                                                      | `fonoster.apiserver.grpc.requests` (by method and status), `fonoster.apiserver.records.indexed`                                                   |
+| AppBridge        | `fonoster-appbridge` | `appbridge.call`, one span per call                                                                           | `fonoster.appbridge.calls.total`, `fonoster.appbridge.calls.active`                                                                               |
+| Roomr node       | `fonoster-roomr`     | `roomr.call.inbound` and `roomr.call.outbound`, one span per call, with `fonoster.call_ref` and `sip.call_id` | `fonoster.roomr.calls.incoming` (by outcome), `fonoster.roomr.rooms.active`                                                                       |
+| Routr EdgePort   | `routr-edgeport`     | `SIP <METHOD>`, one span per SIP request, from arrival to its final response, with `sip.call_id`              | `routr.sip.requests`, `routr.sip.responses` (by status), `routr.sip.timeouts`, `routr.sip.transport_errors`, `routr.sip.send_dropped` (by reason) |
+| Routr's services | `one`                | One span per routing step, linked over gRPC                                                                   | None                                                                                                                                              |
 
-AppBridge also sends its logs; the Roomr node's logs and the API server's stay in
-`docker compose logs`. A call's trace starts in AppBridge, under the `traceparent` header of the
-incoming call when it has one.
+AppBridge, the Roomr node and Routr also send their logs. The API server's stay in
+`docker compose logs`. A call is one trace: Routr's `SIP INVITE` span, then the Roomr node's call
+span, AppBridge's `appbridge.call` and, for an agent, Autopilot's spans. Each service passes the
+W3C `traceparent` to the next, on the SIP request and in the session start. When the INVITE
+arrives with a `traceparent` (from a carrier or another proxy), the call joins that trace. The
+Roomr node's call span also carries `sip.call_id`, so later requests of the dialog, such as the
+`BYE`, are found by the same Call-ID.
 Metrics are sent every 15 seconds.
+
+An EdgePort `SIP <METHOD>` span ends as an error when its request gets no final response before
+the transaction times out (32 seconds). That's how a request the far end never answered shows up.
 
 ## Other settings
 
@@ -95,36 +105,29 @@ trace covers the call), `autopilot.turn` (the caller's final transcript to the e
 `autopilot.llm.request` spans, plus `fonoster.autopilot.turns`, `fonoster.autopilot.llm.requests`
 and `fonoster.autopilot.llm.latency_ms` (the sum of the time to the first token; divide by requests).
 
-## Try it with a local collector
+## See it in Grafana
+
+If you don't have a backend, run `grafana/otel-lgtm` next to Fonoster. It's one container with an
+OpenTelemetry collector, Tempo for traces, Loki for logs, Prometheus for metrics and Grafana to look
+at them. It keeps data on its own disk, so it suits one server, not a cluster.
 
 <Steps>
-  <Step title="Add a collector">
-    Save this collector config as `config/otel-collector.yaml`. It prints what it receives:
-
-    ```yaml
-    receivers:
-      otlp:
-        protocols:
-          http: { endpoint: 0.0.0.0:4318 }
-    exporters:
-      debug: { verbosity: detailed }
-    service:
-      pipelines:
-        traces: { receivers: [otlp], exporters: [debug] }
-        metrics: { receivers: [otlp], exporters: [debug] }
-        logs: { receivers: [otlp], exporters: [debug] }
-    ```
-
-    Then save this as `compose.telemetry.yaml`, next to `compose.yaml`. It runs the collector on
-    Fonoster's network:
+  <Step title="Add the container">
+    Save this as `compose.telemetry.yaml`, next to `compose.yaml`. It runs the stack on Fonoster's
+    network and publishes Grafana on the server's loopback address only:
 
     ```yaml
     services:
-      otel-collector:
-        image: otel/opentelemetry-collector-contrib:0.111.0
+      otel-lgtm:
+        image: grafana/otel-lgtm:0.38.0
         restart: unless-stopped
+        ports:
+          - "127.0.0.1:3000:3000"
         volumes:
-          - ./config/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+          - otel-lgtm-data:/data
+
+    volumes:
+      otel-lgtm-data:
     ```
 
   </Step>
@@ -134,7 +137,7 @@ and `fonoster.autopilot.llm.latency_ms` (the sum of the time to the first token;
 
     ```bash
     COMPOSE_FILE=compose.yaml:compose.telemetry.yaml
-    OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+    OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-lgtm:4318
     ```
 
     If `COMPOSE_FILE` already lists `compose.tls.yaml`, keep it and add
@@ -142,16 +145,83 @@ and `fonoster.autopilot.llm.latency_ms` (the sum of the time to the first token;
 
   </Step>
 
-  <Step title="Start it and watch">
-    Start the collector, recreate the services, and follow the collector's output:
+  <Step title="Start it">
+    Start the container and recreate the services so they get the endpoint:
 
     ```bash
     docker compose up -d --force-recreate
-    docker compose logs -f otel-collector
     ```
 
-    Within 15 seconds, metrics arrive from `fonoster-appbridge` and `fonoster-roomr`. Sign in to
-    the dashboard to see API server spans. Make a call to see its `appbridge.call` span.
+  </Step>
+
+  <Step title="Open Grafana">
+    Open `http://localhost:3000` on the server. Within 15 seconds, metrics arrive from the API
+    server, AppBridge, the Roomr node and Routr's EdgePort. Make a call to see its traces and
+    logs.
+
+    <Note>
+      Grafana listens on the server's loopback address only. From your computer, open an SSH
+      tunnel and browse to `http://localhost:3000`:
+
+      ```bash
+      ssh -L 3000:127.0.0.1:3000 you@your-server
+      ```
+
+    </Note>
 
   </Step>
 </Steps>
+
+## Find a call
+
+In Grafana, open **Explore**.
+
+- **By call ref.** Pick the **Tempo** data source and run this TraceQL query with the call ref from
+  the dashboard's Calls page. It returns the call's spans from AppBridge, the Roomr node and
+  Autopilot:
+
+  ```
+  { span.fonoster.call_ref = "call-d9f359e2fea82902ad23d0e89f70070c" }
+  ```
+
+- **By SIP Call-ID.** Search by the Call-ID of the INVITE (from a softphone, a carrier or a packet
+  capture). It returns Routr's `SIP <METHOD>` spans for that dialog and the Roomr node's call span,
+  which gives you the call ref:
+
+  ```
+  { span.sip.call_id = "a84b4c76e66710@pc33.example.com" }
+  ```
+
+- **Its logs.** Pick the **Loki** data source. This query returns one call's log records from
+  every Fonoster service (Loki writes the attribute's dots as underscores):
+
+  ```
+  {service_name=~"fonoster-.*"} | fonoster_call_ref="call-d9f359e2fea82902ad23d0e89f70070c"
+  ```
+
+## Spot dropped SIP messages
+
+The EdgePort counts every SIP message it drops instead of sending, in `routr.sip.send_dropped`, by
+`routr.drop.reason`. In Grafana, pick the **Prometheus** data source and run:
+
+```
+sum by (routr_drop_reason) (increase(routr_sip_send_dropped_total[1h]))
+```
+
+Each drop also logs a record that names the message's first line and Call-ID, or says it was the
+TLS handshake of a new outbound connection. This **Loki** query lists them:
+
+```
+{service_name="routr-edgeport"} |= "dropping"
+```
+
+The request that was never delivered shows up in **Tempo** as an EdgePort span that ended as an
+error when its transaction timed out:
+
+```
+{ resource.service.name = "routr-edgeport" && status = error }
+```
+
+A browser call that stays connected after your app hangs up is one way this shows up: a
+`SIP BYE` span that ends in error after about 32 seconds, and a drop with reason `ws_reconnect`.
+The EdgePort couldn't deliver the BYE to the browser.
