@@ -184,14 +184,18 @@ export function fromFixture(
   };
 }
 
-/** An Autopilot turn note (autopilot.turn) naming the tools the agent called. */
+/** An Autopilot turn note (autopilot.turn) naming the tools the agent called, and its stage timings. */
 export const toolTurn = (
   atMs: number,
-  toolCalls: { name: string; ok: boolean }[]
+  toolCalls: { name: string; ok: boolean }[],
+  stages?: { llmMs: number; ttsMs: number }
 ): FixtureEntry => ({
   atMs,
   source: "app",
-  message: { type: "record.note", data: { kind: "autopilot.turn", toolCalls } }
+  message: {
+    type: "record.note",
+    data: { kind: "autopilot.turn", toolCalls, ...stages }
+  }
 });
 
 /** The call's usage as AppBridge snapshots it (add-usage-metering). */

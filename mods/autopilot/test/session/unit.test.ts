@@ -164,6 +164,141 @@ steps:
   });
 });
 
+describe("@autopilot/session turn stages", function () {
+  this.timeout(10000);
+
+  it("splits a finished answer's wait into LLM and text-to-speech time", async function () {
+    const traces: TurnTrace[] = [];
+    const harness = await new FakesHarness().start();
+    const server = await new VoiceServer({
+      port: 0,
+      host: "127.0.0.1",
+      signingSecret: "s"
+    }).listen(
+      createAutopilotHandler({
+        agent: { ...base, languageModel: { model: "fake/llm" } },
+        providers: { fake: { baseUrl: harness.llm.url } },
+        recorder: { turn: (t) => traces.push(t), note: () => undefined }
+      })
+    );
+    // The model takes 300 ms; the first audio starts 200 ms after the sentence is handed over;
+    // the second answer is cut off, so it has no stages.
+    const scenario: Scenario = parse(`
+format: fonoster.scenario.v1
+name: stages
+contract: autopilot
+role: appbridge
+setup:
+  providers:
+    llm: { delayMs: 300, script: [{ content: "One." }, { content: "Two. Three." }] }
+steps:
+  - send: { type: session.start, protocol: fonoster.session.v1, sessionRef: s, callRef: c, appRef: a, direction: inbound, from: "1", to: "2", metadata: {}, handoff: null, audio: { codec: pcm16, rate: 16000 }, tracks: [], speech: { voice: v, language: en } }
+  - send: { type: turn.ended, text: "first", language: en, confidence: 1, durationMs: 1 }
+  - expect: { type: speak, last: false }
+    capture: { r1: id }
+  - wait: { ms: 200 }
+  - send: { type: output.started, id: "\${r1}" }
+  - wait: { ms: 100 }
+  - send: { type: output.done, id: "\${r1}" }
+  - send: { type: turn.ended, text: "second", language: en, confidence: 1, durationMs: 1 }
+  - expect: { type: speak, text: "Two. ", last: false }
+    capture: { r2: id }
+  - send: { type: output.started, id: "\${r2}" }
+  - send: { type: output.interrupted, id: "\${r2}", heardText: "Two.", heardMs: 400 }
+  - wait: { ms: 100 }
+`);
+    try {
+      const result = await runScenario(scenario, {
+        harness,
+        connect: () =>
+          new FakeAppBridge({ signingSecret: "s" }).dial(
+            `ws://127.0.0.1:${server.port}/`
+          )
+      });
+      expect(result.status, result.reason).to.equal("passed");
+      expect(traces).to.have.length(2);
+      const [answered, cut] = traces;
+      // The scripted delays are floors; the upper bounds stay loose so a slow CI box does not flake.
+      expect(answered.llmMs).to.be.within(280, 5000);
+      expect(answered.llmMs).to.equal(answered.firstSpeakMs);
+      expect(answered.ttsMs).to.be.within(180, 5000);
+      expect(cut.llmMs).to.equal(undefined);
+      expect(cut.ttsMs).to.equal(undefined);
+    } finally {
+      await server.close();
+      await harness.stop();
+    }
+  });
+  it("leaves the stages out when a tool's start message played before the reply", async function () {
+    const traces: TurnTrace[] = [];
+    const harness = await new FakesHarness().start();
+    const server = await new VoiceServer({
+      port: 0,
+      host: "127.0.0.1",
+      signingSecret: "s"
+    }).listen(
+      createAutopilotHandler({
+        agent: {
+          ...base,
+          languageModel: {
+            model: "fake/llm",
+            tools: [
+              {
+                name: "lookup",
+                description: "d",
+                parameters: { type: "object", properties: {} },
+                requestStartMessage: "One moment.",
+                operation: { method: "get", url: "https://example.com/" }
+              }
+            ]
+          }
+        },
+        providers: { fake: { baseUrl: harness.llm.url } },
+        tools: { run: async () => ({ ok: true, result: {} }) },
+        recorder: { turn: (t) => traces.push(t), note: () => undefined }
+      } as Parameters<typeof createAutopilotHandler>[0])
+    );
+    const scenario: Scenario = parse(`
+format: fonoster.scenario.v1
+name: stages-after-start-message
+contract: autopilot
+role: appbridge
+setup:
+  providers:
+    llm: { script: [{ tool_calls: [{ name: lookup, arguments: {} }] }, { content: "Found it." }] }
+steps:
+  - send: { type: session.start, protocol: fonoster.session.v1, sessionRef: s, callRef: c, appRef: a, direction: inbound, from: "1", to: "2", metadata: {}, handoff: null, audio: { codec: pcm16, rate: 16000 }, tracks: [], speech: { voice: v, language: en } }
+  - send: { type: turn.ended, text: "find it", language: en, confidence: 1, durationMs: 1 }
+  - expect: { type: speak, text: "One moment.", last: true }
+    capture: { m: id }
+  - send: { type: output.started, id: "\${m}" }
+  - expect: { type: speak, text: "Found it.", last: false }
+    capture: { r: id }
+  - send: { type: output.done, id: "\${m}" }
+  - send: { type: output.started, id: "\${r}" }
+  - send: { type: output.done, id: "\${r}" }
+  - wait: { ms: 100 }
+`);
+    try {
+      const result = await runScenario(scenario, {
+        harness,
+        connect: () =>
+          new FakeAppBridge({ signingSecret: "s" }).dial(
+            `ws://127.0.0.1:${server.port}/`
+          )
+      });
+      expect(result.status, result.reason).to.equal("passed");
+      expect(traces).to.have.length(1);
+      expect(traces[0].firstSpeakMs).to.be.a("number");
+      expect(traces[0].llmMs).to.equal(undefined);
+      expect(traces[0].ttsMs).to.equal(undefined);
+    } finally {
+      await server.close();
+      await harness.stop();
+    }
+  });
+});
+
 describe("@autopilot/session knowledge port", function () {
   this.timeout(10000);
 

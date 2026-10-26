@@ -48,6 +48,8 @@ import {
   answeredByWord,
   callCount,
   responseTimes,
+  type Stage,
+  stageSegments,
   usageRow
 } from "~/calls/records";
 import { WaveformPlayer } from "~/calls/waveform-player";
@@ -602,10 +604,62 @@ function Panel({
   );
 }
 
+const STAGE_STYLE: Record<Stage, { label: string; color: string }> = {
+  llm: { label: "LLM", color: "bg-foreground" },
+  tts: { label: "Text-to-speech", color: "bg-primary" },
+  other: { label: "Other", color: "bg-muted-foreground/40" }
+};
+
+type Segment = { label: string; ms: number; color: string };
+
+/** One answer's wait, `ms` of `max` wide; split by stage when there are segments to name. */
+function StageBar({
+  ms,
+  max,
+  segments
+}: {
+  ms: number;
+  max: number;
+  segments?: Segment[];
+}) {
+  const label = segments?.map((s) => `${s.label} ${s.ms} ms`).join(", ");
+  const parts = segments ?? [{ label: "", ms, color: "bg-foreground" }];
+  return (
+    <span className="h-1.5 rounded-full bg-muted">
+      <span
+        {...(label ? { role: "img", "aria-label": label, title: label } : {})}
+        className="flex h-full overflow-hidden rounded-full"
+        style={{ width: `${(ms / max) * 100}%` }}
+      >
+        {parts.map((s) => (
+          <span
+            key={s.label}
+            className={cn("block h-full", s.color)}
+            style={{ width: `${ms ? (s.ms / ms) * 100 : 0}%` }}
+          />
+        ))}
+      </span>
+    </span>
+  );
+}
+
 function ResponseTime({ turns }: { turns: Turn[] }) {
   const times = responseTimes(turns);
   if (!times.length) return null;
   const max = Math.max(...times.map((t) => t.ms), 1);
+  const bars = times.map((t) => ({
+    ...t,
+    segments: t.stages
+      ? stageSegments(t.ms, t.stages).map((s) => ({
+          ...STAGE_STYLE[s.stage],
+          ms: s.ms
+        }))
+      : undefined
+  }));
+  const shown = new Set(
+    bars.flatMap((t) => t.segments ?? []).map((s) => s.label)
+  );
+  const legend = Object.values(STAGE_STYLE).filter((s) => shown.has(s.label));
   return (
     <Panel
       title="Response time"
@@ -618,19 +672,27 @@ function ResponseTime({ turns }: { turns: Turn[] }) {
       <p className="text-[13px] text-muted-foreground">
         From the caller's last word to the agent's first audio, per turn.
       </p>
+      {legend.length > 0 && (
+        <ul
+          aria-label="Stages"
+          className="flex gap-4 text-xs text-muted-foreground"
+        >
+          {legend.map((stage) => (
+            <li key={stage.label} className="flex items-center gap-1.5">
+              <span className={cn("size-2 rounded-full", stage.color)} />
+              {stage.label}
+            </li>
+          ))}
+        </ul>
+      )}
       <ol className="flex flex-col gap-3">
-        {times.map((t) => (
+        {bars.map((t) => (
           <li key={t.turn} className="flex flex-col gap-1.5">
             <span className="flex justify-between text-[13px]">
               Turn {t.turn}
               <span className="font-mono text-xs">{t.ms} ms</span>
             </span>
-            <span className="h-1.5 rounded-full bg-muted">
-              <span
-                className="block h-full rounded-full bg-foreground"
-                style={{ width: `${(t.ms / max) * 100}%` }}
-              />
-            </span>
+            <StageBar ms={t.ms} max={max} segments={t.segments} />
           </li>
         ))}
       </ol>

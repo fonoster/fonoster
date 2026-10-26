@@ -514,9 +514,9 @@ The records API's `direction` search (call-record "Search by direction") is unit
 - **Fault:** faults/DSH-044.patch
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
-The record carries tool names and outcomes (Autopilot's `autopilot.turn` note) and usage quantities (`usage.snapshot`). It doesn't carry the answering machine result, tool parameters and responses, knowledge searches, per-stage latency, the trunk or prices, so the page shows none of them.
+The record carries tool names and outcomes and each answer's LLM and text-to-speech time (Autopilot's `autopilot.turn` note) and usage quantities (`usage.snapshot`). It doesn't carry the answering machine result, tool parameters and responses, knowledge searches, the trunk or prices, so the page shows none of them.
 
-**Pass.** The answer to the caller shows first audio 100 ms and Response time p50 100 ms; the timeline shows the `get_hours` tool call as ok; Usage lists Speech-to-text · deepgram 0:04 and LLM input · gpt-4o-mini 1.2K tokens with no price; In this call reads 2 agent · 1 caller and names get_hours; the Events tab lists `turn.ended`; Export JSON saves `call-1.vcon.json` with its dialog; a call where the caller cut the agent off says interrupted at 0:03 and counts one interruption. **Fail.** A missing or estimated figure, a price, or a vCon that isn't the record's.
+**Pass.** The answer to the caller shows first audio 100 ms and Response time p50 100 ms, its bar split into LLM 60 ms, Text-to-speech 30 ms and Other 10 ms; the timeline shows the `get_hours` tool call as ok; Usage lists Speech-to-text · deepgram 0:04 and LLM input · gpt-4o-mini 1.2K tokens with no price; In this call reads 2 agent · 1 caller and names get_hours; the Events tab lists `turn.ended`; Export JSON saves `call-1.vcon.json` with its dialog; a call where the caller cut the agent off says interrupted at 0:03 and counts one interruption. **Fail.** A missing or estimated figure, a price, or a vCon that isn't the record's.
 
 ### DSH-045 Calls say who answered, by answering machine detection
 

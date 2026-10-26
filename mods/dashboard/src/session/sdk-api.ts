@@ -288,6 +288,26 @@ export function fromVcon(
     )
       t.firstAudioMs = t.startMs - before.endMs;
   });
+  // Autopilot's turn note for an answer comes after the caller's turn.ended and before the next one.
+  // Notes match answers one to one, in time order: each answer takes the first note not yet taken
+  // in its window (with or without stages), so a later answer's note never lands on an earlier one.
+  const turnNotes = notes
+    .filter((n) => n.kind === "autopilot.turn")
+    .map((n) => ({ note: n, at: offset(n.at) }))
+    .sort((a, b) => a.at - b.at);
+  let taken = 0;
+  turns.forEach((t, i) => {
+    if (t.firstAudioMs === undefined) return;
+    const asked = turns[i - 1].endMs;
+    const next = turns.slice(i + 1).find((x) => x.side === "caller");
+    while (taken < turnNotes.length && turnNotes[taken].at < asked) taken++;
+    const match = turnNotes[taken];
+    if (!match || (next && match.at >= next.endMs)) return;
+    taken++;
+    const { llmMs, ttsMs } = match.note;
+    if (typeof llmMs === "number" && typeof ttsMs === "number")
+      t.stages = { llmMs, ttsMs };
+  });
   // Autopilot writes one autopilot.turn note per turn, with the tools it called.
   const toolCalls = notes
     .filter((n) => n.kind === "autopilot.turn" && Array.isArray(n.toolCalls))
@@ -340,8 +360,7 @@ export function fromVcon(
   const recording = dialog.find((d) => d.type === "recording" && d.url);
   const amd = meta.amd as Raw | undefined;
   const failure = meta.failure as
-    | { reason?: unknown; sipStatus?: unknown }
-    | undefined;
+    { reason?: unknown; sipStatus?: unknown } | undefined;
   return {
     ...summary,
     endedAt: detail.endedAt ?? str(meta.endedAt),

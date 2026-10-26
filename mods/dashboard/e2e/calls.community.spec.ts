@@ -232,7 +232,10 @@ test("[DSH-044] shows how the agent did: response time, tools, usage and interru
       callRef: "call-1",
       appRef: "app-1",
       extra: [
-        toolTurn(3760, [{ name: "get_hours", ok: true }]),
+        toolTurn(3760, [{ name: "get_hours", ok: true }], {
+          llmMs: 60,
+          ttsMs: 30
+        }),
         usageSnapshot(5500, [
           {
             meter: "stt.seconds",
@@ -264,9 +267,17 @@ test("[DSH-044] shows how the agent did: response time, tools, usage and interru
     .getByRole("listitem", { name: "agent turn" })
     .nth(1);
   await expect(answer).toContainText("first audio 100 ms");
+  const responseTime = page.getByRole("region", { name: "Response time" });
+  await expect(responseTime).toContainText("p50 100 ms");
+  // Where the wait went, from Autopilot's turn note.
+  await expect(responseTime.getByRole("list", { name: "Stages" })).toHaveText(
+    /LLM\s*Text-to-speech\s*Other/
+  );
   await expect(
-    page.getByRole("region", { name: "Response time" })
-  ).toContainText("p50 100 ms");
+    responseTime.getByRole("img", {
+      name: "LLM 60 ms, Text-to-speech 30 ms, Other 10 ms"
+    })
+  ).toBeVisible();
   const tool = page.getByRole("listitem", { name: "tool call" });
   await expect(tool).toContainText("get_hours");
   await expect(tool).toContainText("ok");

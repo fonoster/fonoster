@@ -29,6 +29,8 @@ export type SayResult = {
   interrupted: boolean;
   heardText: string;
   heardMs: number;
+  /** When this output's first audio started (output.started), in epoch ms on this side. */
+  startedAt?: number;
 };
 
 export type PlayOptions = {
