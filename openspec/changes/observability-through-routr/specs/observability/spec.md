@@ -21,7 +21,7 @@ and SHALL count and log every SIP message it drops instead of sending.
 
 #### Scenario: A dropped SIP message is visible
 - **WHEN** EdgePort drops a message on a WebSocket channel it cannot write to
-- **THEN** the collector receives the `routr.sip.send_dropped` counter and a log record with the method, Call-ID and peer
+- **THEN** the collector receives the `routr.sip.send_dropped` counter, by drop reason, and a log record with the peer and the message's first line and Call-ID, or that it was the TLS handshake of a new connection
 
 ### Requirement: Call signals carry the call ref
 

@@ -41,8 +41,8 @@ one yet, [run Grafana next to Fonoster](#see-it-in-grafana) first.
 </Steps>
 
 Compose passes `OTEL_EXPORTER_OTLP_ENDPOINT` to the API server, AppBridge, the Roomr node,
-the hosted Autopilot and Routr. Routr reads it directly. Each one reads it through `telemetry.otlpEndpoint` in its file in
-`config/`:
+the hosted Autopilot and Routr. Routr reads the variable directly. The others read it through
+`telemetry.otlpEndpoint` in their file in `config/`:
 
 ```yaml
 telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
@@ -155,8 +155,9 @@ at them. It keeps data on its own disk, so it suits one server, not a cluster.
   </Step>
 
   <Step title="Open Grafana">
-    Open `http://localhost:3000` on the server. Within 15 seconds, metrics arrive from every
-    service. Make a call to see its traces and logs.
+    Open `http://localhost:3000` on the server. Within 15 seconds, metrics arrive from the API
+    server, AppBridge, the Roomr node and Routr's EdgePort. Make a call to see its traces and
+    logs.
 
     <Note>
       Grafana listens on the server's loopback address only. From your computer, open an SSH
@@ -208,7 +209,7 @@ sum by (routr_drop_reason) (increase(routr_sip_send_dropped_total[1h]))
 ```
 
 Each drop also logs a record that names the message's first line and Call-ID, or says it was the
-TLS handshake of a new outbound connection. In **Loki**:
+TLS handshake of a new outbound connection. This **Loki** query lists them:
 
 ```
 {service_name="routr-edgeport"} |= "dropping"

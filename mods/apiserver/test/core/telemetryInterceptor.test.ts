@@ -157,6 +157,36 @@ describe("@apiserver[core/telemetryInterceptor]", function () {
     }
   });
 
+  it("records a span for a request the auth interceptor refuses", async function () {
+    const { t, spans } = fakeTelemetry();
+    const server = new grpc.Server({
+      interceptors: [
+        createTelemetryInterceptor(t),
+        createAuthInterceptor("unused-public-key", [])
+      ]
+    });
+    new HealthImplementation({ "": "SERVING" }).addToServer(server);
+    const port = await new Promise<number>((resolve, reject) =>
+      server.bindAsync(
+        "127.0.0.1:0",
+        grpc.ServerCredentials.createInsecure(),
+        (e, p) => (e ? reject(e) : resolve(p))
+      )
+    );
+    try {
+      const refused = await checkHealth(port).then(
+        () => undefined,
+        (e: grpc.ServiceError) => e.code
+      );
+      expect(refused).to.equal(grpc.status.UNAUTHENTICATED);
+      expect(spans).to.deep.equal([
+        { name: "apiserver.grpc", parent: undefined, ended: "UNAUTHENTICATED" }
+      ]);
+    } finally {
+      server.forceShutdown();
+    }
+  });
+
   // Observability (harden-conformance 1.3): the apiserver's telemetry, built from the config's
   // `telemetry.otlpEndpoint` as apiserverTelemetry() does, reaches an OTLP collector.
   it("exports its request spans and counts over OTLP to the configured endpoint", async function () {
