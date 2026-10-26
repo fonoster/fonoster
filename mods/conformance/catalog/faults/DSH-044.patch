@@ -1,13 +1,12 @@
 diff --git a/mods/dashboard/src/session/sdk-api.ts b/mods/dashboard/src/session/sdk-api.ts
-index bf0113707..0a7b8f44b 100644
 --- a/mods/dashboard/src/session/sdk-api.ts
 +++ b/mods/dashboard/src/session/sdk-api.ts
-@@ -284,7 +284,7 @@ export function fromVcon(
+@@ -284,7 +284,7 @@
        before?.side === "caller" &&
        t.startMs >= before.endMs
      )
 -      t.firstAudioMs = t.startMs - before.endMs;
 +      void 0;
    });
-   // Autopilot's turn note for an answer comes after the caller's turn.ended and before the next one;
-   // when it has the stage timings, the answer's wait is split into them.
+   // Autopilot's turn note for an answer comes after the caller's turn.ended and before the next one.
+   // Notes match answers one to one, in time order: each answer takes the first note not yet taken

@@ -112,6 +112,29 @@ export function responseTimes(turns: Turn[]) {
     }));
 }
 
+export type Stage = "llm" | "tts" | "other";
+
+/**
+ * An answer's wait as bar segments that always add up to `ms`. The part the stages don't cover
+ * (end-of-turn detection, transport) is "other". When the stages add up to more than `ms` (they
+ * come from Autopilot's clock, the wait from the record's), both are scaled down to fit and the
+ * segments carry the scaled values, so a label built from them says what the bar draws.
+ */
+export function stageSegments(
+  ms: number,
+  stages: { llmMs: number; ttsMs: number }
+): { stage: Stage; ms: number }[] {
+  const sum = stages.llmMs + stages.ttsMs;
+  const over = sum > ms;
+  const llm = over ? Math.round((stages.llmMs * ms) / sum) : stages.llmMs;
+  const tts = over ? ms - llm : stages.ttsMs;
+  return [
+    { stage: "llm" as const, ms: llm },
+    { stage: "tts" as const, ms: tts },
+    { stage: "other" as const, ms: ms - llm - tts }
+  ].filter((s) => s.ms > 0);
+}
+
 const METER: Record<string, { label: string; unit: string }> = {
   "call.seconds": { label: "Telephony", unit: "s" },
   "stt.seconds": { label: "Speech-to-text", unit: "s" },

@@ -287,6 +287,57 @@ describe("SDK adapter", () => {
     expect(answers[1].firstAudioMs).toBe(1000);
     expect(answers[1].stages).toBeUndefined();
   });
+
+  it("matches turn notes to answers one to one, in time order", () => {
+    const summary = {
+      callRef: "c1",
+      appRef: "a1",
+      from: "+1",
+      to: "+2",
+      direction: "inbound",
+      startedAt: "2026-10-15T10:00:00.000Z",
+      durationMs: 9000,
+      status: "completed",
+      version: 1
+    };
+    const text = (originator: number, second: number, body: string) => ({
+      type: "text",
+      originator,
+      start: `2026-10-15T10:00:0${second}.000Z`,
+      duration: 1,
+      body
+    });
+    const note = (at: string, stages?: { llmMs: number; ttsMs: number }) => ({
+      at: `2026-10-15T10:00:0${at}Z`,
+      kind: "autopilot.turn",
+      ...stages
+    });
+    const record = fromVcon(summary, {
+      vcon: {
+        dialog: [
+          text(0, 1, "Hours?"),
+          text(2, 3, "Nine to five."),
+          text(0, 5, "Thanks"),
+          text(2, 7, "Bye.")
+        ],
+        analysis: [
+          {
+            type: "app_notes",
+            // The first answer's own note has no stages; the next note in its window is not its.
+            body: [
+              note("4.000"),
+              note("4.500", { llmMs: 1, ttsMs: 1 }),
+              note("8.000", { llmMs: 700, ttsMs: 200 })
+            ]
+          }
+        ],
+        fonoster: { startedAt: "2026-10-15T10:00:00.000Z" }
+      }
+    });
+    const answers = record.turns.filter((t) => t.side === "agent");
+    expect(answers[0].stages).toBeUndefined();
+    expect(answers[1].stages).toEqual({ llmMs: 700, ttsMs: 200 });
+  });
 });
 
 describe("SDK adapter saves", () => {

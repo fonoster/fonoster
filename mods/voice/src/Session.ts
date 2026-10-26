@@ -425,7 +425,8 @@ export class Session {
         o?.resolve({
           interrupted: false,
           heardText: o.text,
-          heardMs: o.startedAt ? Date.now() - o.startedAt : 0
+          heardMs: o.startedAt ? Date.now() - o.startedAt : 0,
+          startedAt: o.startedAt
         });
         return;
       }
@@ -434,7 +435,8 @@ export class Session {
         o?.resolve({
           interrupted: true,
           heardText: String(msg.heardText ?? ""),
-          heardMs: Number(msg.heardMs ?? 0)
+          heardMs: Number(msg.heardMs ?? 0),
+          startedAt: o.startedAt
         });
         return;
       }

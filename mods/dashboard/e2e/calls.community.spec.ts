@@ -255,11 +255,11 @@ test("[DSH-044] shows how the agent did: response time, tools, usage and interru
   await expect(responseTime).toContainText("p50 100 ms");
   // Where the wait went, from Autopilot's turn note.
   await expect(responseTime.getByRole("list", { name: "Stages" })).toHaveText(
-    /LLM\s*Text-to-speech/
+    /LLM\s*Text-to-speech\s*Other/
   );
   await expect(
     responseTime.getByRole("img", {
-      name: "LLM 60 ms, Text-to-speech 30 ms"
+      name: "LLM 60 ms, Text-to-speech 30 ms, Other 10 ms"
     })
   ).toBeVisible();
   const tool = page.getByRole("listitem", { name: "tool call" });

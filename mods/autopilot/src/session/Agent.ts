@@ -76,14 +76,28 @@ export type TurnTrace = {
   firstTokenMs?: number;
   firstSpeakMs?: number;
   /**
-   * Where the caller's wait went, in ms, once the first reply audio played: `llmMs` from turn.ended
-   * to the first sentence handed to speech (knowledge lookups and tool calls before the first words
-   * count here), `ttsMs` from that sentence to its first audio (output.started). Absent when no
-   * reply finished playing (an interrupted reply has no exact start on this side).
+   * Where the caller's wait went, in ms, when the turn's first sentence was also its first audio
+   * and the reply played to the end: `llmMs` from turn.ended to that sentence handed to speech
+   * (knowledge lookups and tool calls before the first words count here), `ttsMs` from that
+   * sentence to its own first audio (output.started). Absent when the turn was interrupted, or
+   * when other speech (a tool's start message) went out before the reply.
    */
   llmMs?: number;
   ttsMs?: number;
+  /** Set when speech other than the reply (a tool's start message) went out during the turn. */
+  spokeAhead?: boolean;
 };
+
+/** The note for a finished turn: an interrupted reply carries no stages. */
+function turnNote(trace: TurnTrace): TurnTrace {
+  const note = { ...trace };
+  delete note.spokeAhead;
+  if (note.interrupted) {
+    delete note.llmMs;
+    delete note.ttsMs;
+  }
+  return note;
+}
 
 export interface Recorder {
   turn(trace: TurnTrace): void;
@@ -377,10 +391,12 @@ export class Agent {
         );
         if (builtIn) {
           if (builtIn.name === "transfer") this.transferCallId = builtIn.id;
-          this.recorder.turn({
-            ...trace,
-            toolCalls: [...trace.toolCalls, { name: builtIn.name, ok: true }]
-          });
+          this.recorder.turn(
+            turnNote({
+              ...trace,
+              toolCalls: [...trace.toolCalls, { name: builtIn.name, ok: true }]
+            })
+          );
           this.send({
             type:
               builtIn.name === "hangup"
@@ -393,7 +409,7 @@ export class Agent {
         if (abort.signal.aborted) return;
         source = this.startStream(abort.signal, context);
       }
-      this.recorder.turn(trace);
+      this.recorder.turn(turnNote(trace));
       if (this.reply === abort) this.send({ type: "SPOKEN", source: "reply" });
     } catch (e) {
       if (
@@ -448,7 +464,10 @@ export class Agent {
     if (!first.done && !abort.signal.aborted) {
       this.send({ type: "REPLY_SPEAKING" });
       const spokeAt = Date.now();
-      trace.firstSpeakMs = spokeAt - turnEnded;
+      // Stages are measured on the turn's first sentence only, and only when nothing else was
+      // queued ahead of it, so its first audio is the first audio the caller heard.
+      const measure = trace.firstSpeakMs === undefined && !trace.spokeAhead;
+      trace.firstSpeakMs ??= spokeAt - turnEnded;
       const pieces = (async function* () {
         yield first.value;
         for (;;) {
@@ -461,15 +480,10 @@ export class Agent {
         ...this.speechOptions(),
         preempt: preempt || undefined
       });
-      // A finished say's heardMs runs from its first audio (output.started) to output.done, on this
-      // clock. An interrupted one reports audio sent instead, which is not a time: no stages then.
-      if (
-        trace.ttsMs === undefined &&
-        !result.interrupted &&
-        result.heardMs > 0
-      ) {
+      // startedAt is this say's own output.started, on this clock.
+      if (measure && !result.interrupted && result.startedAt !== undefined) {
         trace.llmMs = spokeAt - turnEnded;
-        trace.ttsMs = Math.max(0, Date.now() - result.heardMs - spokeAt);
+        trace.ttsMs = Math.max(0, result.startedAt - spokeAt);
       }
       heard = result.heardText;
       interrupted = result.interrupted;
@@ -494,6 +508,7 @@ export class Agent {
       );
       // The start message is spoken while the tool runs; AppBridge queues the reply after it.
       if (tool?.requestStartMessage) {
+        trace.spokeAhead = true;
         void this.session
           .say(tool.requestStartMessage, this.speechOptions())
           .catch(() => undefined);

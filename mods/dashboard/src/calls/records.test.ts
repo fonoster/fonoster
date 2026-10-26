@@ -26,6 +26,7 @@ import {
   recordStatus,
   recordsToCsv,
   responseTimes,
+  stageSegments,
   usageRow
 } from "./records";
 
@@ -99,6 +100,24 @@ describe("call records", () => {
         { ...turn("agent", 900), stages: { llmMs: 600, ttsMs: 300 } }
       ])
     ).toEqual([{ turn: 1, ms: 900, stages: { llmMs: 600, ttsMs: 300 } }]);
+  });
+
+  it("splits a wait into segments that always add up to it", () => {
+    // The rest of the wait is Other.
+    expect(stageSegments(100, { llmMs: 60, ttsMs: 30 })).toEqual([
+      { stage: "llm", ms: 60 },
+      { stage: "tts", ms: 30 },
+      { stage: "other", ms: 10 }
+    ]);
+    expect(stageSegments(90, { llmMs: 60, ttsMs: 30 })).toEqual([
+      { stage: "llm", ms: 60 },
+      { stage: "tts", ms: 30 }
+    ]);
+    // Stages longer than the wait are scaled down to fit; the segments carry the scaled values.
+    expect(stageSegments(100, { llmMs: 150, ttsMs: 50 })).toEqual([
+      { stage: "llm", ms: 75 },
+      { stage: "tts", ms: 25 }
+    ]);
   });
 
   it("states usage without prices", () => {
