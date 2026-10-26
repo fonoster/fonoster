@@ -37492,6 +37492,22 @@
                       "gap": 10,
                       "children": [
                         {
+                          "id": "lDLYD",
+                          "type": "ref",
+                          "ref": "ui:4x7RU",
+                          "name": "Talk",
+                          "x": 0,
+                          "y": 0,
+                          "descendants": {
+                            "ui:r97g1": {
+                              "enabled": false
+                            },
+                            "ui:7ZVG7": {
+                              "content": "Talk to app"
+                            }
+                          }
+                        },
+                        {
                           "id": "Ofnm2",
                           "type": "ref",
                           "ref": "ui:ZETEA",
@@ -40818,7 +40834,8 @@
           "id": "tj4YK",
           "x": 1000,
           "y": 0,
-          "name": "Drawer",
+          "name": "Talk drawer",
+          "reusable": true,
           "width": 440,
           "height": 1127,
           "fill": "$ui:--card",
@@ -40868,7 +40885,7 @@
                       "id": "g1Nmj",
                       "name": "Sub",
                       "fill": "$ui:--muted-foreground",
-                      "content": "Tests the saved version",
+                      "content": "Calls reach the saved version",
                       "fontFamily": "$ui:--font-secondary",
                       "fontSize": 12,
                       "fontWeight": "normal"
@@ -40889,143 +40906,6 @@
             },
             {
               "type": "frame",
-              "id": "M5a6Dm",
-              "name": "Mode",
-              "width": "fill_container",
-              "padding": [
-                16,
-                24,
-                0,
-                24
-              ],
-              "children": [
-                {
-                  "type": "frame",
-                  "id": "a6ZVbK",
-                  "name": "Segmented",
-                  "width": "fill_container",
-                  "fill": "$ui:--muted",
-                  "cornerRadius": "$ui:--radius-control",
-                  "gap": 3,
-                  "padding": 3,
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "YdW9f",
-                      "name": "In browser",
-                      "width": "fill_container",
-                      "fill": "$ui:--card",
-                      "cornerRadius": 8,
-                      "gap": 6,
-                      "padding": [
-                        8,
-                        0
-                      ],
-                      "justifyContent": "center",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "icon",
-                          "id": "k5WqC",
-                          "name": "Icon",
-                          "width": 15,
-                          "height": 15,
-                          "icon": "mic",
-                          "library": "Material Symbols Sharp",
-                          "fill": "$ui:--foreground"
-                        },
-                        {
-                          "type": "text",
-                          "id": "lZG8i",
-                          "name": "In browser",
-                          "fill": "$ui:--foreground",
-                          "content": "In browser",
-                          "fontFamily": "$ui:--font-secondary",
-                          "fontSize": 13,
-                          "fontWeight": "normal"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "m9UHZd",
-                      "name": "Call my phone",
-                      "width": "fill_container",
-                      "fill": "#00000000",
-                      "cornerRadius": 8,
-                      "gap": 6,
-                      "padding": [
-                        8,
-                        0
-                      ],
-                      "justifyContent": "center",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "icon",
-                          "id": "qyWu0",
-                          "name": "Icon",
-                          "width": 15,
-                          "height": 15,
-                          "icon": "phone_in_talk",
-                          "library": "Material Symbols Sharp",
-                          "fill": "$ui:--muted-foreground"
-                        },
-                        {
-                          "type": "text",
-                          "id": "tGJau",
-                          "name": "Call my phone",
-                          "fill": "$ui:--muted-foreground",
-                          "content": "Call my phone",
-                          "fontFamily": "$ui:--font-secondary",
-                          "fontSize": 13,
-                          "fontWeight": "normal"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "O9zGl",
-                      "name": "Chat",
-                      "width": "fill_container",
-                      "fill": "#00000000",
-                      "cornerRadius": 8,
-                      "gap": 6,
-                      "padding": [
-                        8,
-                        0
-                      ],
-                      "justifyContent": "center",
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "icon",
-                          "id": "IPxfa",
-                          "name": "Icon",
-                          "width": 15,
-                          "height": 15,
-                          "icon": "chat",
-                          "library": "Material Symbols Sharp",
-                          "fill": "$ui:--muted-foreground"
-                        },
-                        {
-                          "type": "text",
-                          "id": "NMQn2",
-                          "name": "Chat",
-                          "fill": "$ui:--muted-foreground",
-                          "content": "Chat",
-                          "fontFamily": "$ui:--font-secondary",
-                          "fontSize": 13,
-                          "fontWeight": "normal"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "type": "frame",
               "id": "G14YCG",
               "name": "Body",
               "width": "fill_container",
@@ -41034,229 +40914,6 @@
               "gap": 18,
               "padding": 24,
               "children": [
-                {
-                  "type": "frame",
-                  "id": "h1Nfkw",
-                  "name": "Mic",
-                  "width": "fill_container",
-                  "fill": "$ui:--background",
-                  "cornerRadius": "$ui:--radius-control",
-                  "stroke": "$ui:--input",
-                  "strokeWidth": 1,
-                  "strokeAlignment": "inner",
-                  "gap": 10,
-                  "padding": [
-                    10,
-                    12
-                  ],
-                  "alignItems": "center",
-                  "children": [
-                    {
-                      "type": "icon",
-                      "id": "cYXF5",
-                      "name": "Icon",
-                      "width": 15,
-                      "height": 15,
-                      "icon": "mic",
-                      "library": "lucide",
-                      "fill": "$ui:--foreground"
-                    },
-                    {
-                      "type": "text",
-                      "id": "J1esMY",
-                      "name": "MacBook Pro Microphone",
-                      "fill": "$ui:--foreground",
-                      "textGrowth": "fixed-width",
-                      "width": "fill_container",
-                      "content": "MacBook Pro Microphone",
-                      "fontFamily": "$ui:--font-secondary",
-                      "fontSize": 13,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "frame",
-                      "id": "ag4cE",
-                      "name": "Level",
-                      "height": 14,
-                      "gap": 2,
-                      "alignItems": "end",
-                      "children": [
-                        {
-                          "type": "rectangle",
-                          "cornerRadius": 1,
-                          "id": "Ikrrx",
-                          "name": "Bar",
-                          "fill": "$ui:success",
-                          "width": 3,
-                          "height": 4
-                        },
-                        {
-                          "type": "rectangle",
-                          "cornerRadius": 1,
-                          "id": "EybM7",
-                          "name": "Bar",
-                          "fill": "$ui:success",
-                          "width": 3,
-                          "height": 8
-                        },
-                        {
-                          "type": "rectangle",
-                          "cornerRadius": 1,
-                          "id": "jbRWW",
-                          "name": "Bar",
-                          "fill": "$ui:success",
-                          "width": 3,
-                          "height": 12
-                        },
-                        {
-                          "type": "rectangle",
-                          "cornerRadius": 1,
-                          "id": "x66sl",
-                          "name": "Bar",
-                          "fill": "$ui:success",
-                          "width": 3,
-                          "height": 7
-                        },
-                        {
-                          "type": "rectangle",
-                          "cornerRadius": 1,
-                          "id": "Iie68",
-                          "name": "Bar",
-                          "fill": "$ui:success",
-                          "width": 3,
-                          "height": 10
-                        },
-                        {
-                          "type": "rectangle",
-                          "cornerRadius": 1,
-                          "id": "HAXg5",
-                          "name": "Bar",
-                          "fill": "$ui:success",
-                          "width": 3,
-                          "height": 5
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "l0gic2",
-                  "x": 24,
-                  "y": 24,
-                  "name": "Field Your phone",
-                  "enabled": false,
-                  "width": "fill_container(392)",
-                  "layout": "vertical",
-                  "gap": 6,
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "w6Xe82",
-                      "name": "Your phone",
-                      "fill": "$ui:--muted-foreground",
-                      "content": "Your phone",
-                      "fontFamily": "$ui:--font-secondary",
-                      "fontSize": 12,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "frame",
-                      "id": "Y0LG5c",
-                      "name": "Input",
-                      "width": "fill_container",
-                      "fill": "$ui:--background",
-                      "cornerRadius": "$ui:--radius-control",
-                      "stroke": "$ui:--input",
-                      "strokeWidth": 1,
-                      "strokeAlignment": "inner",
-                      "gap": 8,
-                      "padding": [
-                        10,
-                        12
-                      ],
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "rKKo9",
-                          "name": "+1 809 555 0161",
-                          "fill": "$ui:--foreground",
-                          "textGrowth": "fixed-width",
-                          "width": "fill_container",
-                          "content": "+1 809 555 0161",
-                          "fontFamily": "$ui:--font-primary",
-                          "fontSize": 13,
-                          "fontWeight": "normal"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "L1f77",
-                  "x": 24,
-                  "y": 102,
-                  "name": "Field Call from",
-                  "enabled": false,
-                  "width": "fill_container(392)",
-                  "layout": "vertical",
-                  "gap": 6,
-                  "children": [
-                    {
-                      "type": "text",
-                      "id": "K4ub3",
-                      "name": "Call from",
-                      "fill": "$ui:--muted-foreground",
-                      "content": "Call from",
-                      "fontFamily": "$ui:--font-secondary",
-                      "fontSize": 12,
-                      "fontWeight": "normal"
-                    },
-                    {
-                      "type": "frame",
-                      "id": "ABf1z",
-                      "name": "Input",
-                      "width": "fill_container",
-                      "fill": "$ui:--background",
-                      "cornerRadius": "$ui:--radius-control",
-                      "stroke": "$ui:--input",
-                      "strokeWidth": 1,
-                      "strokeAlignment": "inner",
-                      "gap": 8,
-                      "padding": [
-                        10,
-                        12
-                      ],
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "PH1Dn",
-                          "name": "+1 829 555 0199 · Billin",
-                          "fill": "$ui:--foreground",
-                          "textGrowth": "fixed-width",
-                          "width": "fill_container",
-                          "content": "+1 829 555 0199 · Billing outbound",
-                          "fontFamily": "$ui:--font-primary",
-                          "fontSize": 13,
-                          "fontWeight": "normal"
-                        },
-                        {
-                          "type": "icon",
-                          "id": "dI4Yf",
-                          "name": "Chevron",
-                          "width": 14,
-                          "height": 14,
-                          "icon": "chevron-down",
-                          "library": "lucide",
-                          "fill": "$ui:--muted-foreground"
-                        }
-                      ]
-                    }
-                  ]
-                },
                 {
                   "type": "frame",
                   "id": "XbCv2",
@@ -41269,7 +40926,10 @@
                   "strokeAlignment": "inner",
                   "layout": "vertical",
                   "gap": 16,
-                  "padding": 20,
+                  "padding": [
+                    32,
+                    24
+                  ],
                   "alignItems": "center",
                   "children": [
                     {
@@ -41278,7 +40938,7 @@
                       "name": "Pulse",
                       "width": 72,
                       "height": 72,
-                      "fill": "$ui:accent-subtle",
+                      "fill": "$ui:--muted",
                       "cornerRadius": 36,
                       "justifyContent": "center",
                       "alignItems": "center",
@@ -41289,7 +40949,7 @@
                           "name": "Inner",
                           "width": 48,
                           "height": 48,
-                          "fill": "$ui:--primary",
+                          "fill": "$ui:--card",
                           "cornerRadius": 24,
                           "justifyContent": "center",
                           "alignItems": "center",
@@ -41298,11 +40958,11 @@
                               "type": "icon",
                               "id": "UI4RT",
                               "name": "Icon",
-                              "width": 22,
-                              "height": 22,
-                              "icon": "call",
+                              "width": 20,
+                              "height": 20,
+                              "icon": "mic",
                               "library": "Material Symbols Sharp",
-                              "fill": "$ui:on-accent"
+                              "fill": "$ui:--muted-foreground"
                             }
                           ]
                         }
@@ -41321,7 +40981,7 @@
                           "id": "Pd80M",
                           "name": "Connected",
                           "fill": "$ui:--foreground",
-                          "content": "Connected in browser",
+                          "content": "Talk in the browser",
                           "fontFamily": "$ui:--font-secondary",
                           "fontSize": 15,
                           "fontWeight": "500"
@@ -41331,8 +40991,407 @@
                           "id": "mZ3sn",
                           "name": "0:12",
                           "fill": "$ui:--muted-foreground",
-                          "content": "0:12",
+                          "content": "Uses your microphone and speakers.",
+                          "fontFamily": "$ui:font-display",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "CKU1E",
+                      "name": "Button/Default",
+                      "height": 40,
+                      "fill": "$ui:--primary",
+                      "cornerRadius": "$ui:--radius-control",
+                      "gap": 6,
+                      "padding": [
+                        10,
+                        16
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "CTvlE",
+                          "name": "plus",
+                          "width": 16,
+                          "height": 16,
+                          "layout": "none",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "f8eEN",
+                              "x": 0,
+                              "y": 0,
+                              "name": "Icon",
+                              "width": 16,
+                              "height": 16,
+                              "icon": "call",
+                              "library": "Material Symbols Sharp",
+                              "fill": "$ui:--primary-foreground"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "text",
+                          "id": "a28Qz8",
+                          "name": "Button",
+                          "fill": "$ui:--primary-foreground",
+                          "content": "Call",
+                          "lineHeight": 1.4286,
+                          "textAlign": "center",
+                          "textAlignVertical": "middle",
                           "fontFamily": "$ui:--font-primary",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "N8wxIy",
+                  "name": "Numbers",
+                  "width": "fill_container",
+                  "fill": "$ui:surface-sunken",
+                  "cornerRadius": 12,
+                  "stroke": "$ui:--border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": [
+                    24,
+                    20
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "M6BBTy",
+                      "name": "Title row",
+                      "width": "fill_container",
+                      "gap": 12,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "P1aJdq",
+                          "name": "Pulse",
+                          "width": 40,
+                          "height": 40,
+                          "fill": "$ui:--muted",
+                          "cornerRadius": 20,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "dffJB",
+                              "name": "Inner",
+                              "width": 40,
+                              "height": 40,
+                              "cornerRadius": 20,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "CAsTV",
+                                  "name": "Icon",
+                                  "width": 16,
+                                  "height": 16,
+                                  "icon": "call",
+                                  "library": "Material Symbols Sharp",
+                                  "fill": "$ui:--muted-foreground"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "h27lIc",
+                          "name": "Status",
+                          "layout": "vertical",
+                          "gap": 4,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "W81cC",
+                              "name": "Connected",
+                              "fill": "$ui:--foreground",
+                              "content": "Call this number",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 15,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "U5hxP",
+                      "name": "Field Access key ID",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "wANz0",
+                          "name": "Access key ID",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "Claro",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "j9AAnt",
+                          "name": "Value",
+                          "width": "fill_container",
+                          "fill": "$ui:--background",
+                          "cornerRadius": "$ui:--radius-control",
+                          "stroke": "$ui:--input",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Ze6mL",
+                              "name": "WO0000000000000000000000",
+                              "fill": "$ui:--foreground",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "+18295550199",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "icon",
+                              "id": "k5zNnS",
+                              "name": "Copy",
+                              "width": 15,
+                              "height": 15,
+                              "icon": "copy",
+                              "library": "lucide",
+                              "fill": "$ui:--muted-foreground"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mSgqY",
+                      "name": "Field Access key ID",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 6,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "v6Ga3",
+                          "name": "Access key ID",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "Altice",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "TkCZD",
+                          "name": "Value",
+                          "width": "fill_container",
+                          "fill": "$ui:--background",
+                          "cornerRadius": "$ui:--radius-control",
+                          "stroke": "$ui:--input",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "gap": 10,
+                          "padding": [
+                            10,
+                            12
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "EVWcs",
+                              "name": "WO0000000000000000000000",
+                              "fill": "$ui:--foreground",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "+18095550177",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 13,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "icon",
+                              "id": "T6iII",
+                              "name": "Copy",
+                              "width": 15,
+                              "height": 15,
+                              "icon": "copy",
+                              "library": "lucide",
+                              "fill": "$ui:--muted-foreground"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "XDoTP",
+                      "x": 20,
+                      "y": 232,
+                      "name": "Empty",
+                      "enabled": false,
+                      "width": "fill_container(352)",
+                      "layout": "vertical",
+                      "gap": 12,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "uI6Lk",
+                          "name": "Access key ID",
+                          "fill": "$ui:--muted-foreground",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "No phone number is linked yet. Link one to call it.",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "id": "P0Zg2",
+                          "type": "ref",
+                          "ref": "ui:4x7RU",
+                          "name": "Talk",
+                          "x": 0,
+                          "y": 32,
+                          "width": "fill_container",
+                          "descendants": {
+                            "ui:r97g1": {
+                              "enabled": false
+                            },
+                            "ui:7ZVG7": {
+                              "content": "Go to Numbers"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "h5ECe",
+      "x": 6160,
+      "y": 4780,
+      "name": "Apps / Detail / Talk to app",
+      "theme": {
+        "ui:mode": "dark"
+      },
+      "clip": true,
+      "width": 1440,
+      "height": 1127,
+      "layout": "none",
+      "children": [
+        {
+          "id": "aXaEw",
+          "type": "ref",
+          "ref": "ui:aqOKa",
+          "name": "Apps / Detail",
+          "x": 0,
+          "y": 0,
+          "theme": {
+            "ui:mode": "dark"
+          },
+          "height": 1720,
+          "descendants": {
+            "ui:fZcuM": {
+              "fill": "$ui:--sidebar-accent"
+            },
+            "ui:fZcuM/ui:xGT5g": {
+              "fill": "$ui:--sidebar-accent-foreground"
+            },
+            "ui:fZcuM/ui:TXca3": {
+              "fill": "$ui:--sidebar-accent-foreground"
+            },
+            "ui:gOtUO": {
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Oo0AX",
+                  "name": "Content",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "layout": "vertical",
+                  "gap": 16,
+                  "padding": [
+                    20,
+                    32,
+                    24,
+                    32
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "a65NFg",
+                      "name": "Breadcrumb",
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ycVxG",
+                          "name": "Streams",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "Apps",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "mjLa0",
+                          "name": "Sep",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "/",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "kIgGS",
+                          "name": "Current",
+                          "fill": "$ui:--foreground",
+                          "content": "Support line",
+                          "fontFamily": "$ui:--font-secondary",
                           "fontSize": 13,
                           "fontWeight": "normal"
                         }
@@ -41340,157 +41399,1813 @@
                     },
                     {
                       "type": "frame",
-                      "id": "UaoMA",
-                      "name": "Steps",
-                      "gap": 8,
+                      "id": "anAUT",
+                      "name": "Header",
+                      "width": "fill_container",
+                      "padding": [
+                        0,
+                        0,
+                        4,
+                        0
+                      ],
+                      "justifyContent": "space_between",
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "frame",
-                          "id": "ludUc",
-                          "name": "Dialing",
-                          "gap": 5,
+                          "id": "QxFN5",
+                          "name": "Identity",
+                          "gap": 14,
                           "alignItems": "center",
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "tyVFT",
-                              "name": "Icon",
-                              "width": 12,
-                              "height": 12,
-                              "icon": "check",
-                              "library": "lucide",
-                              "fill": "$ui:success"
+                              "type": "frame",
+                              "id": "wcLfk",
+                              "name": "Avatar",
+                              "width": 44,
+                              "height": 44,
+                              "fill": "$ui:--secondary",
+                              "cornerRadius": 10,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "rY5nH",
+                                  "name": "Icon",
+                                  "width": 24,
+                                  "height": 24,
+                                  "icon": "code_blocks",
+                                  "library": "Material Symbols Sharp",
+                                  "fill": "$ui:--foreground"
+                                }
+                              ]
                             },
                             {
-                              "type": "text",
-                              "id": "SKBz4",
-                              "name": "Dialing",
-                              "fill": "$ui:--muted-foreground",
-                              "content": "Dialing",
-                              "fontFamily": "$ui:--font-secondary",
-                              "fontSize": 12,
-                              "fontWeight": "normal"
+                              "type": "frame",
+                              "id": "bK9fT",
+                              "name": "Name block",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "wTvEu",
+                                  "name": "Main menu IVR",
+                                  "fill": "$ui:--foreground",
+                                  "content": "Support line",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 22,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "e4eoZ",
+                                  "name": "Meta",
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "f2G08H",
+                                      "name": "Health",
+                                      "gap": 6,
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "ellipse",
+                                          "id": "S1dgiA",
+                                          "name": "Dot",
+                                          "fill": "$ui:success",
+                                          "width": 6,
+                                          "height": 6
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "zNPQy",
+                                          "name": "Endpoint reachable · las",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Reachable at 2 numbers · Fonoster",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "P6NYde",
+                                      "name": "Ref",
+                                      "fill": "$ui:--muted",
+                                      "cornerRadius": 6,
+                                      "padding": [
+                                        2,
+                                        8
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "AMowC",
+                                          "name": "ap-5a20c7",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "ap-5a20c7",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 11,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         },
                         {
                           "type": "frame",
-                          "id": "c9bU9H",
-                          "name": "Ringing",
-                          "gap": 5,
-                          "alignItems": "center",
+                          "id": "jIo8J",
+                          "name": "Actions",
+                          "gap": 10,
                           "children": [
                             {
-                              "type": "icon",
-                              "id": "Dsj0p",
-                              "name": "Icon",
-                              "width": 12,
-                              "height": 12,
-                              "icon": "check",
-                              "library": "lucide",
-                              "fill": "$ui:success"
+                              "id": "Cy5hF",
+                              "type": "ref",
+                              "ref": "ui:4x7RU",
+                              "name": "Talk",
+                              "x": 0,
+                              "y": 0,
+                              "descendants": {
+                                "ui:r97g1": {
+                                  "enabled": false
+                                },
+                                "ui:7ZVG7": {
+                                  "content": "Talk to app"
+                                }
+                              }
                             },
                             {
-                              "type": "text",
-                              "id": "lSFWz",
-                              "name": "Ringing",
-                              "fill": "$ui:--muted-foreground",
-                              "content": "Ringing",
-                              "fontFamily": "$ui:--font-secondary",
-                              "fontSize": 12,
-                              "fontWeight": "normal"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "vav1g",
-                          "name": "Connected",
-                          "gap": 5,
-                          "alignItems": "center",
-                          "children": [
-                            {
-                              "type": "icon",
-                              "id": "v6FJd7",
-                              "name": "Icon",
-                              "width": 12,
-                              "height": 12,
-                              "icon": "check",
-                              "library": "lucide",
-                              "fill": "$ui:success"
-                            },
-                            {
-                              "type": "text",
-                              "id": "cOuDZ",
-                              "name": "Connected",
-                              "fill": "$ui:--muted-foreground",
-                              "content": "Connected",
-                              "fontFamily": "$ui:--font-secondary",
-                              "fontSize": 12,
-                              "fontWeight": "normal"
+                              "id": "rWAD2",
+                              "type": "ref",
+                              "ref": "ui:ZETEA",
+                              "name": "Save",
+                              "descendants": {
+                                "ui:mRGd3": {
+                                  "enabled": false
+                                },
+                                "ui:q5Hn5": {
+                                  "content": "Save"
+                                }
+                              }
                             }
                           ]
                         }
                       ]
                     },
                     {
-                      "id": "o7Fus",
-                      "type": "ref",
-                      "ref": "ui:ftEoU",
-                      "name": "End call",
-                      "descendants": {
-                        "ui:6KqSk": {
-                          "enabled": false
-                        },
-                        "ui:UQdcX": {
-                          "content": "End call"
-                        }
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "hXWkX",
-                  "name": "Note",
-                  "width": "fill_container",
-                  "fill": "$ui:--muted",
-                  "cornerRadius": "$ui:--radius-control",
-                  "gap": 10,
-                  "padding": [
-                    10,
-                    12
-                  ],
-                  "children": [
-                    {
-                      "type": "icon",
-                      "id": "flgqG",
-                      "name": "Icon",
-                      "width": 14,
-                      "height": 14,
-                      "icon": "info",
-                      "library": "lucide",
-                      "fill": "$ui:--muted-foreground"
-                    },
-                    {
-                      "type": "text",
-                      "id": "nraRu",
-                      "name": "Unsaved changes aren't u",
-                      "fill": "$ui:--muted-foreground",
-                      "textGrowth": "fixed-width",
+                      "type": "frame",
+                      "id": "jsHhz",
+                      "name": "Body",
                       "width": "fill_container",
-                      "content": "Uses the saved version. The call shows up in Calls with its full transcript. Prefer a real phone line? Use Call my phone.",
-                      "lineHeight": 1.5,
-                      "fontFamily": "$ui:--font-secondary",
-                      "fontSize": 12,
-                      "fontWeight": "normal"
+                      "gap": 20,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "D2o4Ls",
+                          "name": "Left",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 16,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "jMRtB",
+                              "name": "Connection",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 14,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "dpdr3",
+                                  "name": "Head",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "kS5DA",
+                                      "name": "Title",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Connection",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 14,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "mjIz8",
+                                  "name": "Field Name",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 6,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "kSGuZ",
+                                      "name": "Label",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Name",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "XWOCA",
+                                      "name": "Input",
+                                      "width": "fill_container",
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "gap": 8,
+                                      "padding": [
+                                        9,
+                                        12
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "of4CV",
+                                          "name": "Value",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Support line",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "yksGO",
+                                  "name": "Field URL",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 6,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "d18lL",
+                                      "name": "Label",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "URL",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "gRjeb",
+                                      "name": "Input",
+                                      "width": "fill_container",
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "gap": 8,
+                                      "padding": [
+                                        9,
+                                        12
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "wTqkD",
+                                          "name": "Value",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "wss://bot.acme.com/agent",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "F86Xk",
+                                      "name": "Hint",
+                                      "fill": "$ui:--muted-foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Fonoster dials this address for every call.",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 11,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "il4AF",
+                                  "name": "Row",
+                                  "width": "fill_container",
+                                  "gap": 14,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "fYtFy",
+                                      "name": "Field Protocol",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 6,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "h5yxf",
+                                          "name": "Label",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Protocol",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "WyOBe",
+                                          "name": "Input",
+                                          "width": "fill_container",
+                                          "fill": "$ui:--background",
+                                          "cornerRadius": "$ui:--radius-control",
+                                          "stroke": "$ui:--input",
+                                          "strokeWidth": 1,
+                                          "strokeAlignment": "inner",
+                                          "gap": 8,
+                                          "padding": [
+                                            9,
+                                            12
+                                          ],
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "zy316",
+                                              "name": "Value",
+                                              "fill": "$ui:--foreground",
+                                              "textGrowth": "fixed-width",
+                                              "width": "fill_container",
+                                              "content": "Fonoster",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 13,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "icon",
+                                              "id": "KeDv4",
+                                              "name": "Chevron",
+                                              "width": 14,
+                                              "height": 14,
+                                              "icon": "chevron-down",
+                                              "library": "lucide",
+                                              "fill": "$ui:--muted-foreground"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "o7miUe",
+                                      "name": "Field Audio format",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 6,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "QlbrB",
+                                          "name": "Label",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Audio format",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "vmp1g",
+                                          "name": "Input",
+                                          "width": "fill_container",
+                                          "fill": "$ui:--background",
+                                          "cornerRadius": "$ui:--radius-control",
+                                          "stroke": "$ui:--input",
+                                          "strokeWidth": 1,
+                                          "strokeAlignment": "inner",
+                                          "gap": 8,
+                                          "padding": [
+                                            9,
+                                            12
+                                          ],
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "IUosZ",
+                                              "name": "Value",
+                                              "fill": "$ui:--foreground",
+                                              "textGrowth": "fixed-width",
+                                              "width": "fill_container",
+                                              "content": "PCM16 16 kHz (default)",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 13,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "icon",
+                                              "id": "xCDrm",
+                                              "name": "Chevron",
+                                              "width": 14,
+                                              "height": 14,
+                                              "icon": "chevron-down",
+                                              "library": "lucide",
+                                              "fill": "$ui:--muted-foreground"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "wYJ4D",
+                              "name": "Speech",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 14,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "wKGbm",
+                                  "name": "Head",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "dHPVA",
+                                      "name": "Title",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Speech",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 14,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "hJltf",
+                                      "name": "Sub",
+                                      "fill": "$ui:--muted-foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Optional. Used when your server doesn't pick a voice or model for the call. Twilio apps run their own speech and don't show this card.",
+                                      "lineHeight": 1.5,
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "qmiaW",
+                                  "name": "Group Voice",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 10,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "RfGlR",
+                                      "name": "Group title",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Voice",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "b9S0u9",
+                                      "name": "Row",
+                                      "width": "fill_container",
+                                      "gap": 14,
+                                      "children": [
+                                        {
+                                          "type": "frame",
+                                          "id": "Pg2pP",
+                                          "name": "Field Provider",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 6,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "ZJAVE",
+                                              "name": "Label",
+                                              "fill": "$ui:--muted-foreground",
+                                              "content": "Provider",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 12,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "o2DHh",
+                                              "name": "Input",
+                                              "width": "fill_container",
+                                              "fill": "$ui:--background",
+                                              "cornerRadius": "$ui:--radius-control",
+                                              "stroke": "$ui:--input",
+                                              "strokeWidth": 1,
+                                              "strokeAlignment": "inner",
+                                              "gap": 8,
+                                              "padding": [
+                                                9,
+                                                12
+                                              ],
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "text",
+                                                  "id": "oW9Fm",
+                                                  "name": "Value",
+                                                  "fill": "$ui:--foreground",
+                                                  "textGrowth": "fixed-width",
+                                                  "width": "fill_container",
+                                                  "content": "Deepgram",
+                                                  "fontFamily": "$ui:--font-secondary",
+                                                  "fontSize": 13,
+                                                  "fontWeight": "normal"
+                                                },
+                                                {
+                                                  "type": "icon",
+                                                  "id": "WClpA",
+                                                  "name": "Chevron",
+                                                  "width": 14,
+                                                  "height": 14,
+                                                  "icon": "chevron-down",
+                                                  "library": "lucide",
+                                                  "fill": "$ui:--muted-foreground"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "yMxb5",
+                                          "name": "Field Voice",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 6,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "zQexY",
+                                              "name": "Label",
+                                              "fill": "$ui:--muted-foreground",
+                                              "content": "Voice",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 12,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "RuNV3",
+                                              "name": "Input",
+                                              "width": "fill_container",
+                                              "fill": "$ui:--background",
+                                              "cornerRadius": "$ui:--radius-control",
+                                              "stroke": "$ui:--input",
+                                              "strokeWidth": 1,
+                                              "strokeAlignment": "inner",
+                                              "gap": 8,
+                                              "padding": [
+                                                9,
+                                                12
+                                              ],
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "text",
+                                                  "id": "uXtdz",
+                                                  "name": "Value",
+                                                  "fill": "$ui:--foreground",
+                                                  "textGrowth": "fixed-width",
+                                                  "width": "fill_container",
+                                                  "content": "Aura 2 Diana",
+                                                  "fontFamily": "$ui:--font-secondary",
+                                                  "fontSize": 13,
+                                                  "fontWeight": "normal"
+                                                },
+                                                {
+                                                  "type": "icon",
+                                                  "id": "gNL5q",
+                                                  "name": "Chevron",
+                                                  "width": 14,
+                                                  "height": 14,
+                                                  "icon": "chevron-down",
+                                                  "library": "lucide",
+                                                  "fill": "$ui:--muted-foreground"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "Vf5KQ",
+                                  "name": "Group Transcriber",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 10,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "UfEAs",
+                                      "name": "Group title",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Transcriber",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "Z2E2A",
+                                      "name": "Row",
+                                      "width": "fill_container",
+                                      "gap": 14,
+                                      "children": [
+                                        {
+                                          "type": "frame",
+                                          "id": "A4rBw",
+                                          "name": "Field Provider",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 6,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "nH9Ak",
+                                              "name": "Label",
+                                              "fill": "$ui:--muted-foreground",
+                                              "content": "Provider",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 12,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "rsTxt",
+                                              "name": "Input",
+                                              "width": "fill_container",
+                                              "fill": "$ui:--background",
+                                              "cornerRadius": "$ui:--radius-control",
+                                              "stroke": "$ui:--input",
+                                              "strokeWidth": 1,
+                                              "strokeAlignment": "inner",
+                                              "gap": 8,
+                                              "padding": [
+                                                9,
+                                                12
+                                              ],
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "text",
+                                                  "id": "oOajV",
+                                                  "name": "Value",
+                                                  "fill": "$ui:--foreground",
+                                                  "textGrowth": "fixed-width",
+                                                  "width": "fill_container",
+                                                  "content": "None",
+                                                  "fontFamily": "$ui:--font-secondary",
+                                                  "fontSize": 13,
+                                                  "fontWeight": "normal"
+                                                },
+                                                {
+                                                  "type": "icon",
+                                                  "id": "e0OCL",
+                                                  "name": "Chevron",
+                                                  "width": 14,
+                                                  "height": 14,
+                                                  "icon": "chevron-down",
+                                                  "library": "lucide",
+                                                  "fill": "$ui:--muted-foreground"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "aHv0V",
+                                          "name": "Spacer",
+                                          "width": "fill_container",
+                                          "height": 1
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "EPWQd",
+                                      "name": "Row",
+                                      "width": "fill_container",
+                                      "gap": 14,
+                                      "children": [
+                                        {
+                                          "type": "frame",
+                                          "id": "OSplD",
+                                          "name": "Field Language",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 6,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "NbkE9",
+                                              "name": "Label",
+                                              "fill": "$ui:--muted-foreground",
+                                              "content": "Language",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 12,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "SVMbg",
+                                              "name": "Input",
+                                              "width": "fill_container",
+                                              "fill": "$ui:--background",
+                                              "cornerRadius": "$ui:--radius-control",
+                                              "stroke": "$ui:--input",
+                                              "strokeWidth": 1,
+                                              "strokeAlignment": "inner",
+                                              "gap": 8,
+                                              "padding": [
+                                                9,
+                                                12
+                                              ],
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "text",
+                                                  "id": "jaZa2",
+                                                  "name": "Value",
+                                                  "fill": "$ui:--foreground",
+                                                  "textGrowth": "fixed-width",
+                                                  "width": "fill_container",
+                                                  "content": "Spanish (Spain)",
+                                                  "fontFamily": "$ui:--font-secondary",
+                                                  "fontSize": 13,
+                                                  "fontWeight": "normal"
+                                                },
+                                                {
+                                                  "type": "icon",
+                                                  "id": "vw36W",
+                                                  "name": "Chevron",
+                                                  "width": 14,
+                                                  "height": 14,
+                                                  "icon": "chevron-down",
+                                                  "library": "lucide",
+                                                  "fill": "$ui:--muted-foreground"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "l0Qd6w",
+                                          "name": "Field Patience",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 6,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "YZZiz",
+                                              "name": "Label",
+                                              "fill": "$ui:--muted-foreground",
+                                              "content": "Patience",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 12,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "A64DiU",
+                                              "name": "Input",
+                                              "width": "fill_container",
+                                              "fill": "$ui:--background",
+                                              "cornerRadius": "$ui:--radius-control",
+                                              "stroke": "$ui:--input",
+                                              "strokeWidth": 1,
+                                              "strokeAlignment": "inner",
+                                              "gap": 8,
+                                              "padding": [
+                                                9,
+                                                12
+                                              ],
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "text",
+                                                  "id": "Lvw5Q",
+                                                  "name": "Value",
+                                                  "fill": "$ui:--foreground",
+                                                  "textGrowth": "fixed-width",
+                                                  "width": "fill_container",
+                                                  "content": "Normal (default)",
+                                                  "fontFamily": "$ui:--font-secondary",
+                                                  "fontSize": 13,
+                                                  "fontWeight": "normal"
+                                                },
+                                                {
+                                                  "type": "icon",
+                                                  "id": "iybVA",
+                                                  "name": "Chevron",
+                                                  "width": 14,
+                                                  "height": 14,
+                                                  "icon": "chevron-down",
+                                                  "library": "lucide",
+                                                  "fill": "$ui:--muted-foreground"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "text",
+                                              "id": "t5rEC",
+                                              "name": "Hint",
+                                              "fill": "$ui:--muted-foreground",
+                                              "textGrowth": "fixed-width",
+                                              "width": "fill_container",
+                                              "content": "How long Fonoster waits before deciding the caller finished.",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 11,
+                                              "fontWeight": "normal"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "QWlow",
+                              "name": "Call handling",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 14,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "lUNGG",
+                                  "name": "Head",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "B7nqY",
+                                      "name": "Title",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Call handling",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 14,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "Em7bZ",
+                                      "name": "Sub",
+                                      "fill": "$ui:--muted-foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Runs on Fonoster before your app hears the call.",
+                                      "lineHeight": 1.5,
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "v8qQf",
+                                  "name": "Group Fallback",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 10,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "BzLHC",
+                                      "name": "Group title",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Fallback",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "jcjf9",
+                                      "name": "Sub",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Used when the URL can't be reached (after about 2.5 seconds of ringing).",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "Uv0MC",
+                                      "name": "Row",
+                                      "width": "fill_container",
+                                      "gap": 14,
+                                      "children": [
+                                        {
+                                          "type": "frame",
+                                          "id": "F5zZMp",
+                                          "name": "Field Fallback",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 6,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "bnozO",
+                                              "name": "Label",
+                                              "fill": "$ui:--muted-foreground",
+                                              "content": "Fallback",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 12,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "K6y9BA",
+                                              "name": "Input",
+                                              "width": "fill_container",
+                                              "fill": "$ui:--background",
+                                              "cornerRadius": "$ui:--radius-control",
+                                              "stroke": "$ui:--input",
+                                              "strokeWidth": 1,
+                                              "strokeAlignment": "inner",
+                                              "gap": 8,
+                                              "padding": [
+                                                9,
+                                                12
+                                              ],
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "text",
+                                                  "id": "nonc7",
+                                                  "name": "Value",
+                                                  "fill": "$ui:--foreground",
+                                                  "textGrowth": "fixed-width",
+                                                  "width": "fill_container",
+                                                  "content": "None",
+                                                  "fontFamily": "$ui:--font-secondary",
+                                                  "fontSize": 13,
+                                                  "fontWeight": "normal"
+                                                },
+                                                {
+                                                  "type": "icon",
+                                                  "id": "K92Tzd",
+                                                  "name": "Chevron",
+                                                  "width": 14,
+                                                  "height": 14,
+                                                  "icon": "chevron-down",
+                                                  "library": "lucide",
+                                                  "fill": "$ui:--muted-foreground"
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "O8595",
+                                          "name": "Field Fallback message",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 6,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "tmlMD",
+                                              "name": "Label",
+                                              "fill": "$ui:--muted-foreground",
+                                              "content": "Fallback message",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 12,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "Ah0tt",
+                                              "name": "Input",
+                                              "width": "fill_container",
+                                              "fill": "$ui:--background",
+                                              "cornerRadius": "$ui:--radius-control",
+                                              "stroke": "$ui:--input",
+                                              "strokeWidth": 1,
+                                              "strokeAlignment": "inner",
+                                              "gap": 8,
+                                              "padding": [
+                                                9,
+                                                12
+                                              ],
+                                              "alignItems": "center",
+                                              "children": [
+                                                {
+                                                  "type": "text",
+                                                  "id": "uSrt6",
+                                                  "name": "Value",
+                                                  "fill": "$ui:--foreground",
+                                                  "textGrowth": "fixed-width",
+                                                  "width": "fill_container",
+                                                  "content": "We are having trouble. Please call back soon.",
+                                                  "fontFamily": "$ui:--font-secondary",
+                                                  "fontSize": 13,
+                                                  "fontWeight": "normal"
+                                                }
+                                              ]
+                                            },
+                                            {
+                                              "type": "text",
+                                              "id": "z5WLPU",
+                                              "name": "Hint",
+                                              "fill": "$ui:--muted-foreground",
+                                              "textGrowth": "fixed-width",
+                                              "width": "fill_container",
+                                              "content": "Spoken before hanging up when no fallback is set.",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 11,
+                                              "fontWeight": "normal"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "kMIxg",
+                                  "name": "Group Listeners",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 10,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "e5Xy8",
+                                      "name": "Group title",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Listeners",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "FoyUq",
+                                      "name": "Sub",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Listen-only WebSocket copies of the call audio, up to 4.",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "id": "iRvl0",
+                                      "type": "ref",
+                                      "ref": "ui:4x7RU",
+                                      "name": "Add listener",
+                                      "descendants": {
+                                        "ui:7ZVG7": {
+                                          "content": "Add listener"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "cJn6r",
+                                  "name": "Row",
+                                  "width": "fill_container",
+                                  "gap": 14,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "eoNsB",
+                                      "name": "Field Recording",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 6,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "oWUVm",
+                                          "name": "Label",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Recording",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "Z0yPM",
+                                          "name": "Input",
+                                          "width": "fill_container",
+                                          "fill": "$ui:--background",
+                                          "cornerRadius": "$ui:--radius-control",
+                                          "stroke": "$ui:--input",
+                                          "strokeWidth": 1,
+                                          "strokeAlignment": "inner",
+                                          "gap": 8,
+                                          "padding": [
+                                            9,
+                                            12
+                                          ],
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "GzrGB",
+                                              "name": "Value",
+                                              "fill": "$ui:--foreground",
+                                              "textGrowth": "fixed-width",
+                                              "width": "fill_container",
+                                              "content": "Workspace default",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 13,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "icon",
+                                              "id": "rY9nS",
+                                              "name": "Chevron",
+                                              "width": 14,
+                                              "height": 14,
+                                              "icon": "chevron-down",
+                                              "library": "lucide",
+                                              "fill": "$ui:--muted-foreground"
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "u35RA",
+                                      "name": "Field Noise cancelling",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 6,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "sg712",
+                                          "name": "Label",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Noise cancelling",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "frame",
+                                          "id": "IGCn1",
+                                          "name": "Input",
+                                          "width": "fill_container",
+                                          "fill": "$ui:--background",
+                                          "cornerRadius": "$ui:--radius-control",
+                                          "stroke": "$ui:--input",
+                                          "strokeWidth": 1,
+                                          "strokeAlignment": "inner",
+                                          "gap": 8,
+                                          "padding": [
+                                            9,
+                                            12
+                                          ],
+                                          "alignItems": "center",
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "O7nV08",
+                                              "name": "Value",
+                                              "fill": "$ui:--foreground",
+                                              "textGrowth": "fixed-width",
+                                              "width": "fill_container",
+                                              "content": "ai-coustics",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 13,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "icon",
+                                              "id": "V96kB",
+                                              "name": "Chevron",
+                                              "width": 14,
+                                              "height": 14,
+                                              "icon": "chevron-down",
+                                              "library": "lucide",
+                                              "fill": "$ui:--muted-foreground"
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "JIJGD",
+                                          "name": "Hint",
+                                          "fill": "$ui:--muted-foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Keeps one speaker: not for speakerphone or IVR.",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 11,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "o9PLzD",
+                                  "name": "AMD",
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "id": "dThvd",
+                                      "type": "ref",
+                                      "ref": "ui:wk1O8",
+                                      "name": "Switch",
+                                      "descendants": {
+                                        "ui:wDpHC": {
+                                          "content": "Detect answering machines",
+                                          "fontSize": 13
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "kyu7K",
+                              "name": "Signing secret",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 14,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "n5dfCH",
+                                  "name": "Head",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "Ud2jF",
+                                      "name": "Title",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Signing secret",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 14,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "l5Gzz1",
+                                      "name": "Sub",
+                                      "fill": "$ui:--muted-foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Fonoster signs every connection with this secret. Check the signature before accepting a call.",
+                                      "lineHeight": 1.5,
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "pFqXg",
+                                  "name": "Hint",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Current secret ends in …a91c",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "id": "haHwy",
+                                  "type": "ref",
+                                  "ref": "ui:4x7RU",
+                                  "name": "Rotate secret",
+                                  "descendants": {
+                                    "ui:r97g1": {
+                                      "enabled": false
+                                    },
+                                    "ui:7ZVG7": {
+                                      "content": "Rotate secret"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "j4ru6M",
+                          "name": "Right",
+                          "width": 360,
+                          "layout": "vertical",
+                          "gap": 16,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "e1LV9q",
+                              "name": "Reachable at",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 10,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "rhHuK",
+                                  "name": "Head",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "abnBn",
+                                      "name": "Reachable at",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Reachable at",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 14,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "b8zNm",
+                                      "name": "Link",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Manage in Numbers →",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "d1z8L",
+                                  "name": "Number",
+                                  "width": "fill_container",
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "TlTff",
+                                      "name": "Icon",
+                                      "width": 16,
+                                      "height": 16,
+                                      "icon": "call",
+                                      "library": "Material Symbols Sharp",
+                                      "fill": "$ui:--muted-foreground"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "ddEpn",
+                                      "name": "+34 910 555 211",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "+34 910 555 211",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "sXI4N",
+                                      "name": "Trunk · Telnyx EU",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Trunk · Telnyx EU",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "qvkkA",
+                              "name": "Recent calls",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "padding": [
+                                16,
+                                20
+                              ],
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "PFqrF",
+                                  "name": "Head",
+                                  "width": "fill_container",
+                                  "padding": [
+                                    0,
+                                    0,
+                                    8,
+                                    0
+                                  ],
+                                  "justifyContent": "space_between",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "hh41e",
+                                      "name": "Recent calls",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Recent calls",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 14,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "lQNHN",
+                                      "name": "Link",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "View all →",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "UUhTa",
+                                  "name": "Call",
+                                  "width": "fill_container",
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": {
+                                    "top": 1
+                                  },
+                                  "strokeAlignment": "inner",
+                                  "gap": 10,
+                                  "padding": [
+                                    10,
+                                    0
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "GFWse",
+                                      "name": "Dot",
+                                      "fill": "$ui:success",
+                                      "width": 6,
+                                      "height": 6
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "E1QWKW",
+                                      "name": "+1 809 555 0142",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "+1 809 555 0142",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "uGwXC",
+                                      "name": "2:05",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "2:05",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "uuyTS",
+                                      "name": "13:58",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "13:58",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "VhKBP",
+                                  "name": "Call",
+                                  "width": "fill_container",
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": {
+                                    "top": 1
+                                  },
+                                  "strokeAlignment": "inner",
+                                  "gap": 10,
+                                  "padding": [
+                                    10,
+                                    0
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "z993A",
+                                      "name": "Dot",
+                                      "fill": "$ui:success",
+                                      "width": 6,
+                                      "height": 6
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "CjZlW",
+                                      "name": "+1 809 555 0155",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "+1 809 555 0155",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "JEFhR",
+                                      "name": "4:51",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "4:51",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "Pr6xM",
+                                      "name": "12:47",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "12:47",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "g6HJ7",
+                                  "name": "Call",
+                                  "width": "fill_container",
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": {
+                                    "top": 1
+                                  },
+                                  "strokeAlignment": "inner",
+                                  "gap": 10,
+                                  "padding": [
+                                    10,
+                                    0
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "E6CPad",
+                                      "name": "Dot",
+                                      "fill": "$ui:danger",
+                                      "width": 6,
+                                      "height": 6
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "xgL4d",
+                                      "name": "+34 600 555 812",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "+34 600 555 812",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "BfBFb",
+                                      "name": "0:09",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "0:09",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "O0Po6b",
+                                      "name": "11:02",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "11:02",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "X4blAY",
+                              "name": "Danger zone",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:danger",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 10,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "rUc4I",
+                                  "name": "Delete stream",
+                                  "fill": "$ui:--foreground",
+                                  "content": "Delete app",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Nv5Oe",
+                                  "name": "Sub",
+                                  "fill": "$ui:--muted-foreground",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Numbers pointing here stop answering until you route them elsewhere.",
+                                  "lineHeight": 1.5,
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "id": "tyG8F",
+                                  "type": "ref",
+                                  "ref": "ui:ftEoU",
+                                  "name": "Delete",
+                                  "descendants": {
+                                    "ui:6KqSk": {
+                                      "enabled": false
+                                    },
+                                    "ui:UQdcX": {
+                                      "content": "Delete app"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
               ]
             }
-          ]
+          }
+        },
+        {
+          "type": "frame",
+          "id": "exZkE",
+          "x": 0,
+          "y": 0,
+          "name": "Overlay",
+          "width": 1440,
+          "height": 1127,
+          "fill": "#00000080",
+          "layout": "none"
+        },
+        {
+          "id": "zoH94",
+          "type": "ref",
+          "ref": "tj4YK",
+          "descendants": {
+            "gPsU7": {
+              "content": "Talk to Support line"
+            },
+            "wANz0": {
+              "content": "Telnyx EU"
+            },
+            "Ze6mL": {
+              "content": "+34910555211"
+            },
+            "mSgqY": {
+              "enabled": false
+            }
+          }
         }
       ]
     },

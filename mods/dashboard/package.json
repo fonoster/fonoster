@@ -55,6 +55,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@fonoster/voice": "^0.32.0",
     "@playwright/test": "^1.64.0",
     "@storybook/addon-a11y": "^8.6.19",
     "@storybook/addon-essentials": "^8.6.19",

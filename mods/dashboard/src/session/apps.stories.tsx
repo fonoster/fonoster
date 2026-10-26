@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import type { Meta, StoryObj } from "@storybook/react";
+import { userEvent, within } from "@storybook/test";
 import { AppsScreen } from ".";
 import { SessionApiProvider } from "./api";
 import { createMockSessionApi } from "./mock-api";
@@ -60,4 +61,15 @@ export const DetailLight: Story = {
 };
 export const DetailNoNumbers: Story = {
   parameters: { screen: { route: route("/w/ws-1/apps/pipecat-bot") } }
+};
+
+/** The app's Talk drawer, opened from Talk to app, with the numbers routed to the app. */
+export const TalkToApp: Story = {
+  ...Detail,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole("button", { name: "Talk to app" })
+    );
+  }
 };

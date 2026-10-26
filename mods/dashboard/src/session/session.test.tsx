@@ -238,6 +238,41 @@ describe("apps", () => {
     ).toHaveAttribute("href", "/w/ws-1/calls/room-1");
   });
 
+  it("talks to an app from its page, listing the numbers routed to it", async () => {
+    const { user } = apps("/w/ws-1/apps/support-line");
+    await user.click(
+      await screen.findByRole("button", { name: "Talk to app" })
+    );
+    const drawer = await screen.findByRole("dialog", {
+      name: "Talk to Support line"
+    });
+    const list = within(drawer).getByRole("region", {
+      name: "Call this number"
+    });
+    expect(within(list).getByLabelText("Telnyx US")).toHaveTextContent(
+      "+18095550123"
+    );
+    expect(within(list).getByLabelText("Telnyx EU")).toHaveTextContent(
+      "+34910555211"
+    );
+    expect(within(list).queryByText("+18095550140")).toBeNull();
+  });
+
+  it("says when no number is routed to the app it talks to", async () => {
+    const { user } = apps("/w/ws-1/apps/pipecat-bot");
+    await user.click(
+      await screen.findByRole("button", { name: "Talk to app" })
+    );
+    const drawer = await screen.findByRole("dialog", {
+      name: "Talk to Pipecat bot"
+    });
+    expect(
+      within(drawer).getByText(
+        "No phone number is linked yet. Link one to call it."
+      )
+    ).toBeInTheDocument();
+  });
+
   it("deletes an app from its page behind a confirmation", async () => {
     const { user, api } = apps("/w/ws-1/apps/pipecat-bot");
     await user.click(await screen.findByRole("button", { name: "Delete app" }));

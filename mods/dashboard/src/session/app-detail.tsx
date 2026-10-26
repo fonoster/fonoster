@@ -27,6 +27,7 @@ import {
 } from "react-router-dom";
 import { Panel } from "~/agents/parts";
 import { RefChip } from "~/agents/agent-detail";
+import { TalkDrawer } from "~/agents/talk/talk-drawer";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
@@ -149,6 +150,7 @@ function AppEditor({
   const [dirty, setDirty] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [deleting, setDeleting] = useState(false);
+  const [talking, setTalking] = useState(false);
   const saveApp = useSessionMutation(
     (api, draft: Omit<Draft, "signingSecretHint">) => api.saveApp(draft),
     { success: "App saved" }
@@ -238,6 +240,9 @@ function AppEditor({
               Unsaved changes
             </span>
           )}
+          <Button variant="outline" onClick={() => setTalking(true)}>
+            Talk to app
+          </Button>
           <Button onClick={save} loading={saveApp.isPending} disabled={!dirty}>
             Save
           </Button>
@@ -417,6 +422,18 @@ function AppEditor({
         </div>
       </div>
 
+      <TalkDrawer
+        open={talking}
+        onOpenChange={setTalking}
+        appRef={saved.ref}
+        name={saved.name}
+        dirty={dirty}
+        numbers={numbers.map((n) => ({
+          ref: n.ref,
+          label: n.trunkName || "Number",
+          telUrl: n.telUrl
+        }))}
+      />
       <ConfirmDialog
         open={deleting}
         onOpenChange={(open) => {

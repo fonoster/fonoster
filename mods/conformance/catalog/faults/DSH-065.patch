@@ -1,0 +1,13 @@
+diff --git a/mods/dashboard/src/session/app-detail.tsx b/mods/dashboard/src/session/app-detail.tsx
+index 85d21e62b..d913054d5 100644
+--- a/mods/dashboard/src/session/app-detail.tsx
++++ b/mods/dashboard/src/session/app-detail.tsx
+@@ -425,7 +425,7 @@ function AppEditor({
+       <TalkDrawer
+         open={talking}
+         onOpenChange={setTalking}
+-        appRef={saved.ref}
++        appRef={`unknown-${saved.ref}`}
+         name={saved.name}
+         dirty={dirty}
+         numbers={numbers.map((n) => ({
