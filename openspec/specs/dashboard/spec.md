@@ -353,7 +353,7 @@ request, show how many calls are listed, export them as CSV, and say when nothin
 
 - **WHEN** the API returns a next page token
 - **THEN** a Load more action fetches the next page with that token and appends it
-- **AND** the count says more calls exist until the last page is loaded
+- **AND** the count is the API's total for the filters (e.g. "1,207 calls"), even before the rest is loaded
 
 #### Scenario: Filter by direction and agent
 
@@ -376,6 +376,7 @@ its failure reason and SIP status. Turn decisions and notes SHALL be on an Event
 
 - **WHEN** the user opens a completed inbound call to the agent Front desk
 - **THEN** the title names the caller and Front desk, and each turn shows who spoke, when and for how long
+- **AND** it says which number the call came through and, when the record names it, the trunk: "via <number> · Trunk <name>"
 
 #### Scenario: A browser test call
 

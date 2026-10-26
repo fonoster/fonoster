@@ -30,6 +30,8 @@ type CallRecordSummary = {
   sipStatus: number | null;
   /** Who answered, by AMD: human, voicemail, ivr, machine or unknown; null when AMD didn't run. */
   amdStatus: string | null;
+  /** The trunk of the workspace's number on the call, by name; null when unknown. */
+  trunkName: string | null;
   startedAt: string;
   endedAt: string | null;
   durationSeconds: number;
@@ -56,6 +58,8 @@ type ListCallRecordsRequest = {
 type ListCallRecordsResponse = {
   items: CallRecordSummary[];
   nextPageToken?: string;
+  /** How many records match the query, on all pages. */
+  total?: number;
 };
 
 /** One version of a record: the vCon (redacted unless `original`) and its signature. */

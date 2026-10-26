@@ -45,16 +45,17 @@ export type RecordSearch = {
 /**
  * Searches the index within one workspace (call-record "Fetch and search": time range, number,
  * app, direction and status; records from other workspaces are never returned). Newest first.
+ * With `total`, also counts every record the query matches, on all pages (#1069).
  */
 export function createSearchRecords(db: RecordsDb) {
-  return async (accessKeyId: string, search: RecordSearch) => {
+  return async (
+    accessKeyId: string,
+    search: RecordSearch,
+    options: { total?: boolean } = {}
+  ) => {
     const startedAt: Record<string, Date> = {};
     if (search.after) startedAt.gte = new Date(search.after);
     if (search.before) startedAt.lt = new Date(search.before);
-    if (search.pageToken) {
-      const token = new Date(Number(search.pageToken));
-      if (!startedAt.lt || token < startedAt.lt) startedAt.lt = token;
-    }
     const where: Record<string, unknown> = {
       accessKeyId,
       erasedAt: null,
@@ -70,18 +71,29 @@ export function createSearchRecords(db: RecordsDb) {
           }
         : {})
     };
+    // The page token only moves the page: the total counts the query without it.
+    let pageWhere = where;
+    if (search.pageToken) {
+      const token = new Date(Number(search.pageToken));
+      if (!startedAt.lt || token < startedAt.lt)
+        pageWhere = { ...where, startedAt: { ...startedAt, lt: token } };
+    }
     const pageSize = Math.min(Math.max(search.pageSize || 50, 1), 500);
-    const items = await db.callRecord.findMany({
-      where,
-      orderBy: { startedAt: "desc" },
-      take: pageSize
-    });
+    const [items, total] = await Promise.all([
+      db.callRecord.findMany({
+        where: pageWhere,
+        orderBy: { startedAt: "desc" },
+        take: pageSize
+      }),
+      options.total ? db.callRecord.count({ where }) : undefined
+    ]);
     return {
       items,
       nextPageToken:
         items.length === pageSize
           ? String(items[items.length - 1].startedAt.getTime())
-          : ""
+          : "",
+      ...(total !== undefined ? { total } : {})
     };
   };
 }

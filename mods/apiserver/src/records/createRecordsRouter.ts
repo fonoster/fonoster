@@ -61,7 +61,8 @@ export type RecordsRouterDeps = {
  * The records API (call-record "Records are available through the API and the dashboard",
  * tasks 5.1 and 4.2), on the apiserver's HTTP port so recordings download as files:
  *
- *   GET    /api/records                        search: after, before, number, appRef, status
+ *   GET    /api/records                        search: after, before, number, appRef, status;
+ *                                              a page of records and the query's total
  *   GET    /api/records/:callRef               the record (redacted; ?original=true, ?version=n)
  *   GET    /api/records/:callRef/recording     the recording (WAV)
  *   GET    /api/records/:callRef/audit         deletions of this record (owner, admin)
@@ -120,6 +121,7 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
     failureReason: row.failureReason,
     sipStatus: row.sipStatus,
     amdStatus: row.amdStatus ?? null,
+    trunkName: row.trunkName ?? null,
     startedAt: row.startedAt.toISOString(),
     endedAt: row.endedAt?.toISOString() ?? null,
     durationSeconds: row.durationSeconds,
@@ -133,19 +135,24 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
     "/",
     handle(async (req, res) => {
       const q = req.query as Record<string, string | undefined>;
-      const result = await search(caller(res).accessKeyId, {
-        after: q.after,
-        before: q.before,
-        number: q.number,
-        appRef: q.appRef,
-        direction: q.direction,
-        status: q.status,
-        pageSize: q.pageSize ? Number(q.pageSize) : undefined,
-        pageToken: q.pageToken
-      });
+      const result = await search(
+        caller(res).accessKeyId,
+        {
+          after: q.after,
+          before: q.before,
+          number: q.number,
+          appRef: q.appRef,
+          direction: q.direction,
+          status: q.status,
+          pageSize: q.pageSize ? Number(q.pageSize) : undefined,
+          pageToken: q.pageToken
+        },
+        { total: true }
+      );
       res.json({
         items: result.items.map(view),
-        nextPageToken: result.nextPageToken
+        nextPageToken: result.nextPageToken,
+        total: result.total
       });
     })
   );

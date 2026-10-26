@@ -46,6 +46,7 @@ import {
   recordStatus,
   recordsToCsv,
   answeredByWord,
+  callCount,
   responseTimes,
   usageRow
 } from "~/calls/records";
@@ -171,7 +172,11 @@ export function CallRecordsList() {
   const filtered =
     status !== ANY || period !== ANY || direction !== ANY || appRef !== ANY;
   const appOf = (ref: string) => apps.find((a) => a.ref === ref);
-  const count = `${rows.length.toLocaleString("en-US")}${calls.hasNextPage ? "+" : ""} ${rows.length === 1 && !calls.hasNextPage ? "call" : "calls"}`;
+  const count = callCount(
+    rows.length,
+    calls.hasNextPage,
+    calls.data?.pages.at(-1)?.total
+  );
 
   const columns: Column<CallRecordSummary>[] = [
     {
@@ -765,7 +770,12 @@ export function CallRecordView() {
                 Answered by {answeredByWord(call.amd?.status)!.toLowerCase()}
               </Chip>
             )}
-            {fonosterNumber && <Chip>via {fonosterNumber}</Chip>}
+            {fonosterNumber && (
+              <Chip>
+                via {fonosterNumber}
+                {call.trunkName && <> · Trunk {call.trunkName}</>}
+              </Chip>
+            )}
             {isPrivate && !offline && <Chip>Stored in your region</Chip>}
           </div>
         </div>

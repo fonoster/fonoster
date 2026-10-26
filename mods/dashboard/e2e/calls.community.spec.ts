@@ -95,7 +95,9 @@ test("[DSH-030] lists calls newest first, filters by status, and loads more", as
   await expect(rows.nth(1)).toContainText("+1 555 000 2222");
   await expect(rows.nth(1)).toContainText("Completed");
   await expect(rows.nth(2)).toContainText("Billing reminders");
-  await expect(page.getByText("2+ calls")).toBeVisible();
+  // The count is the query's total, before the rest is loaded (#1069).
+  await expect(page.getByText("3 calls")).toBeVisible();
+  await expect(rows).toHaveCount(3);
   await expect(table.getByText("Busy")).toHaveCount(0);
   // The third comes with Load more.
   await page.getByRole("button", { name: "Load more" }).click();
@@ -178,7 +180,8 @@ test("[DSH-031] shows a completed call as the conversation, and plays and downlo
     fromFixture("recorded-call", {
       callRef: "call-1",
       appRef: "app-1",
-      recordedMs: 4600
+      recordedMs: 4600,
+      trunkName: "Acme PSTN"
     })
   ]);
   await page.goto("/w/ws-1/calls/call-1");
@@ -186,7 +189,9 @@ test("[DSH-031] shows a completed call as the conversation, and plays and downlo
   await expect(
     page.getByRole("heading", { name: "+1 555 000 5555 with Front desk" })
   ).toBeVisible();
-  await expect(page.getByText("via +1 555 000 2222")).toBeVisible();
+  await expect(
+    page.getByText("via +1 555 000 2222 · Trunk Acme PSTN")
+  ).toBeVisible();
   await expect(page.getByText("The caller hung up")).toBeVisible();
 
   // Each turn: who spoke, when, and for how long.
@@ -241,6 +246,10 @@ test("[DSH-044] shows how the agent did: response time, tools, usage and interru
     fromFixture("handoff", { callRef: "call-cut", appRef: "app-1" })
   ]);
   await page.goto("/w/ws-1/calls/call-1");
+  // No trunk in the index: the number alone.
+  await expect(
+    page.getByText("via +1 555 000 2222", { exact: true })
+  ).toBeVisible();
 
   // The answer to the caller: how long they waited for its first audio.
   const answer = page

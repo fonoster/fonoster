@@ -39,7 +39,7 @@ function matches(row: Record<string, unknown>, where: Where): boolean {
   });
 }
 
-/** Just enough of Prisma for the records code: equality, null, lt/gte, has, OR, order, take. */
+/** Just enough of Prisma for the records code: equality, null, lt/gte, has, OR, order, take, count. */
 export function memoryRecordsDb() {
   const records = new Map<string, CallRecordRow>();
   const audits: AuditRow[] = [];
@@ -58,6 +58,13 @@ export function memoryRecordsDb() {
           );
         return rows.slice(0, (args.take as number) ?? rows.length);
       },
+      count: async (args) =>
+        [...records.values()].filter((r) =>
+          matches(
+            r as unknown as Record<string, unknown>,
+            (args.where ?? {}) as Where
+          )
+        ).length,
       upsert: async (args) => {
         const where = args.where as { callRef: string };
         const existing = records.get(where.callRef);

@@ -439,7 +439,7 @@ Runs against in-memory applications that store what the dashboard sends (`e2e/ap
 
 The records API is served from vCons the call-record module builds from its own fixture calls (`e2e/records.ts`), two to a page.
 
-**Pass.** Today's call (Front desk) is listed before yesterday's (Billing reminders), with the customer, the Fonoster number and Completed; the count reads 2+ calls; the third comes with Load more, reads Busy, its request carries the page token and the count becomes 3 calls; picking Failed asks for `status=failed` and lists only the busy call. **Fail.** A wrong order, a ref instead of the agent's name, no Load more, a lost page token, or a status filter applied only in the browser.
+**Pass.** Today's call (Front desk) is listed before yesterday's (Billing reminders), with the customer, the Fonoster number and Completed; the count reads 3 calls, the API's total, before the third is loaded; the third comes with Load more, reads Busy, its request carries the page token and the count stays 3 calls; picking Failed asks for `status=failed` and lists only the busy call. **Fail.** A wrong order, a ref instead of the agent's name, no Load more, a lost page token, or a status filter applied only in the browser.
 
 ### DSH-031 A completed call reads as the conversation, and its recording plays
 
@@ -452,7 +452,7 @@ The records API is served from vCons the call-record module builds from its own 
 
 Writing this case found that the record builder stamped a caller's turn at its end and wrote no duration; fixed in `mods/callrecord/src/vcon.ts` with a unit test.
 
-**Pass.** The title is `+1 555 000 5555 with Front desk`, the call went via +1 555 000 2222 and the timeline ends with The caller hung up; the caller turn reads 0:01 and 1.8 s, the first agent turn 0:00 and 1.0 s; the recording plays from a blob URL in a waveform player with Play and Seek, and Download saves `call-1.wav`, fetched once. **Fail.** A ref for a title or an app, a code for the ending, a turn without its duration, or a recording that only downloads.
+**Pass.** The title is `+1 555 000 5555 with Front desk`, the call went via +1 555 000 2222 · Trunk Acme PSTN and the timeline ends with The caller hung up; the caller turn reads 0:01 and 1.8 s, the first agent turn 0:00 and 1.0 s; the recording plays from a blob URL in a waveform player with Play and Seek, and Download saves `call-1.wav`, fetched once. **Fail.** A ref for a title or an app, a code for the ending, a turn without its duration, or a recording that only downloads.
 
 ### DSH-032 A failed call says why, with its SIP status
 

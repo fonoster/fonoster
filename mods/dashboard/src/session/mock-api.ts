@@ -385,13 +385,14 @@ export function createMockSessionApi(): SessionApi {
       },
       { ref: "nb-3", telUrl: "tel:+18095550140", trunkName: "Telnyx US" }
     ],
-    listCalls: async (filter = {}) => ({
-      items: calls
+    listCalls: async (filter = {}) => {
+      const items = calls
         .filter((c) => !filter.status || c.status === filter.status)
         .filter((c) => !filter.appRef || c.appRef === filter.appRef)
         .filter((c) => !filter.direction || c.direction === filter.direction)
-        .map(summary)
-    }),
+        .map(summary);
+      return { items, total: items.length };
+    },
     getCall: async (ref) => calls.find((c) => c.callRef === ref),
     recordingUrl: async (ref) => `blob:recording-${ref}`,
     listWebhooks: async () => [...webhooks.values()],

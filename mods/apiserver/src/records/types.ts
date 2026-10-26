@@ -35,6 +35,8 @@ export type CallRecordRow = {
   sipStatus: number | null;
   /** Who answered, by AMD (human, voicemail, ivr, machine, unknown); null when it didn't run. */
   amdStatus?: string | null;
+  /** The trunk of the workspace's number on the call, by name; null when unknown. */
+  trunkName?: string | null;
   startedAt: Date;
   endedAt: Date | null;
   durationSeconds: number;
@@ -73,6 +75,7 @@ export interface RecordsDb {
       where: { callRef: string };
     }): Promise<CallRecordRow | null>;
     findMany(args: Record<string, unknown>): Promise<CallRecordRow[]>;
+    count(args: Record<string, unknown>): Promise<number>;
     upsert(args: Record<string, unknown>): Promise<unknown>;
     update(args: Record<string, unknown>): Promise<unknown>;
   };

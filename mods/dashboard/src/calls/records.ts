@@ -83,6 +83,20 @@ export function answeredByWord(amdStatus?: string): string | undefined {
   return amdStatus ? ANSWERED[amdStatus] : undefined;
 }
 
+/**
+ * How many calls the list holds: the query's total when the API counts it, else the loaded
+ * ones with a plus while more pages exist. Thousands are separated: 1,207 calls.
+ */
+export function callCount(
+  loaded: number,
+  hasMore: boolean,
+  total?: number
+): string {
+  const n = total ?? loaded;
+  const more = total === undefined && hasMore;
+  return `${n.toLocaleString("en-US")}${more ? "+" : ""} ${n === 1 && !more ? "call" : "calls"}`;
+}
+
 /** Milliseconds as a clock: 0:00, 0:24, 2:05, 1:02:09. */
 export function clock(ms: number): string {
   const s = Math.max(0, Math.floor(ms / 1000));

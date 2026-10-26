@@ -19,6 +19,7 @@
 import { describe, expect, it } from "vitest";
 import {
   answeredByWord,
+  callCount,
   clock,
   endedText,
   median,
@@ -109,6 +110,14 @@ describe("call records", () => {
     expect(answeredByWord("ivr")).toBe("IVR");
     expect(answeredByWord("unknown")).toBeUndefined();
     expect(answeredByWord(undefined)).toBeUndefined();
+  });
+
+  it("counts the calls: the query's total, else the loaded ones and a plus", () => {
+    expect(callCount(50, true, 1207)).toBe("1,207 calls");
+    expect(callCount(1, false, 1)).toBe("1 call");
+    expect(callCount(0, false, 0)).toBe("0 calls");
+    expect(callCount(50, true)).toBe("50+ calls");
+    expect(callCount(1, false)).toBe("1 call");
   });
 
   it("says how a call ended", () => {

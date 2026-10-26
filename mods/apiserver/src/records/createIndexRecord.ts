@@ -25,6 +25,7 @@ import { apiserverTelemetry } from "../core/telemetry";
 import { isPrivateRegionRef } from "../regions/types";
 import { ingestUsageIn } from "../usage/ingestUsage";
 import { UsageDb, UsageDirectory } from "../usage/types";
+import { TrunkOfNumber } from "./createTrunkOfNumber";
 import { RecordIndexEntry, RecordsDb } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -50,11 +51,40 @@ export function usageEvents(entry: RecordIndexEntry, workspaceRef: string) {
 }
 
 /**
+ * The trunk the call used, by name: the trunk of the workspace's Number on the call (the callee
+ * of an inbound call, the caller of an outbound one). Undefined when unknown, e.g. for an internal
+ * call or when Routr can't be reached; indexing never fails for it.
+ */
+async function trunkNameOf(
+  entry: RecordIndexEntry,
+  workspaceRef: string | null,
+  trunkOf?: TrunkOfNumber
+) {
+  const number =
+    entry.direction === "inbound"
+      ? entry.to
+      : entry.direction === "outbound"
+        ? entry.from
+        : undefined;
+  if (!trunkOf || !workspaceRef || !number) return undefined;
+  try {
+    return await trunkOf(workspaceRef, number);
+  } catch (e) {
+    logger.warn(`no trunk for ${entry.callRef}: ${(e as Error).message ?? e}`);
+    return undefined;
+  }
+}
+
+/**
  * Upserts a record's index entry. Entries arrive at least once and possibly out of order, so a
  * lower version never overwrites a higher one. An erased record keeps its row, without numbers.
  * The call's usage lines are stored in the same transaction as the row (add-usage-metering D1).
  */
-export function createIndexRecord(db: RecordsDb, usage?: IndexUsageDeps) {
+export function createIndexRecord(
+  db: RecordsDb,
+  usage?: IndexUsageDeps,
+  trunkOf?: TrunkOfNumber
+) {
   return async (entry: RecordIndexEntry) => {
     const existing = await db.callRecord.findUnique({
       where: { callRef: entry.callRef }
@@ -73,8 +103,15 @@ export function createIndexRecord(db: RecordsDb, usage?: IndexUsageDeps) {
       return false;
     }
     const erased = entry.status === "erased";
+    const accessKeyId = existing?.accessKeyId ?? entry.workspaceRef ?? null;
+    // Resolved once, when the call is first indexed: later versions keep the trunk it used.
+    const trunkName =
+      existing?.trunkName ??
+      (erased
+        ? null
+        : ((await trunkNameOf(entry, accessKeyId, trunkOf)) ?? null));
     const data = {
-      accessKeyId: existing?.accessKeyId ?? entry.workspaceRef ?? null,
+      accessKeyId,
       appRef: erased ? (existing?.appRef ?? null) : entry.appRef,
       fromNumber: erased ? null : entry.from,
       toNumber: erased ? null : entry.to,
@@ -84,6 +121,7 @@ export function createIndexRecord(db: RecordsDb, usage?: IndexUsageDeps) {
       failureReason: entry.failureReason,
       sipStatus: entry.sipStatus,
       amdStatus: erased ? null : (entry.amdStatus ?? null),
+      trunkName,
       startedAt:
         erased && existing ? existing.startedAt : new Date(entry.startedAt),
       endedAt: erased
@@ -138,9 +176,13 @@ export const RECORD_INDEX_DURABLE = "apiserver-call-records";
 export async function subscribeRecordIndex(
   nc: NatsConnection,
   db: RecordsDb,
-  options: { ackWaitMs?: number; usage?: IndexUsageDeps } = {}
+  options: {
+    ackWaitMs?: number;
+    usage?: IndexUsageDeps;
+    trunkOf?: TrunkOfNumber;
+  } = {}
 ): Promise<() => Promise<void> | void> {
-  const index = createIndexRecord(db, options.usage);
+  const index = createIndexRecord(db, options.usage, options.trunkOf);
   const handle = async (data: Uint8Array, headers?: MsgHdrs) => {
     let entry: RecordIndexEntry;
     try {

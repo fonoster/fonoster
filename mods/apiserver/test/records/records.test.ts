@@ -178,7 +178,15 @@ describe("@apiserver call records", function () {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "apiserver-records-"));
     const stores = fsStores(dir);
     mem = memoryRecordsDb();
-    const index = createIndexRecord(mem.db);
+    // The workspace's Numbers and their trunks, as Routr has them (#1069).
+    const trunks: Record<string, string> = {
+      "ws-1 +15550002222": "Acme inbound",
+      "ws-1 +15550001111": "Acme outbound"
+    };
+    const index = createIndexRecord(mem.db, undefined, async (ws, e164) => {
+      if (e164 === "+15550009999") throw new Error("routr unreachable");
+      return trunks[`${ws} ${e164}`];
+    });
     writer = new CallRecordWriter({
       ...stores,
       key: {
@@ -255,6 +263,10 @@ describe("@apiserver call records", function () {
     );
     await seal("call-other", call("call-other", { workspaceRef: "ws-2" }));
     await seal("call-rec", call("call-rec", { recording: true }), true);
+    await seal(
+      "call-routr-down",
+      call("call-routr-down", { to: "+15550009999", appRef: "support" })
+    );
 
     const app = express();
     app.use(
@@ -372,7 +384,7 @@ describe("@apiserver call records", function () {
     const all = await (await get("/")).json();
     expect(
       all.items.map((i: { callRef: string }) => i.callRef).sort()
-    ).to.deep.equal(["call-busy", "call-card", "call-rec"]);
+    ).to.deep.equal(["call-busy", "call-card", "call-rec", "call-routr-down"]);
     const byNumber = await (await get("/?number=%2B1999")).json();
     expect(
       byNumber.items.map((i: { callRef: string }) => i.callRef)
@@ -426,6 +438,66 @@ describe("@apiserver call records", function () {
     expect(list.items.find((c) => c.ref === "call-card")!.amdStatus).to.equal(
       "VOICEMAIL"
     );
+  });
+
+  it("returns the query's exact total on every page, with the same filters (#1069)", async function () {
+    const all = await (await get("/?pageSize=2")).json();
+    expect(all.items).to.have.length(2);
+    expect(all.total).to.equal(4);
+    expect(all.nextPageToken).to.not.equal("");
+    const next = await (
+      await get(`/?pageSize=2&pageToken=${all.nextPageToken}`)
+    ).json();
+    expect(next.items).to.have.length(2);
+    expect(next.total).to.equal(4);
+    expect((await (await get("/?status=failed")).json()).total).to.equal(1);
+    expect((await (await get("/?number=%2B1999")).json()).total).to.equal(1);
+    expect(
+      (await (await get("/?after=2030-01-01T00:00:00Z")).json()).total
+    ).to.equal(0);
+  });
+
+  it("names the trunk of the workspace's number on each call (#1069)", async function () {
+    const all = await (await get("/")).json();
+    const byRef = (ref: string) =>
+      all.items.find((i: { callRef: string }) => i.callRef === ref);
+    // Inbound: the callee's trunk; outbound: the caller's.
+    expect(byRef("call-card").trunkName).to.equal("Acme inbound");
+    expect(byRef("call-busy").trunkName).to.equal("Acme outbound");
+    // Unknown when Routr can't say; the call is indexed all the same.
+    expect(byRef("call-routr-down").trunkName).to.equal(null);
+    expect((await (await get("/call-card")).json()).trunkName).to.equal(
+      "Acme inbound"
+    );
+    // A later version keeps the trunk the call used, without asking again.
+    const fresh = memoryRecordsDb();
+    const entry = {
+      callRef: "call-v",
+      workspaceRef: "ws-1",
+      from: "+15550001111",
+      to: "+1999",
+      direction: "outbound",
+      status: "completed",
+      startedAt: new Date(at()).toISOString(),
+      region: "us-east",
+      location: "us-east",
+      version: 1,
+      size: 1,
+      parts: []
+    } as unknown as RecordIndexEntry;
+    await createIndexRecord(fresh.db, undefined, async () => "Acme")(entry);
+    await createIndexRecord(
+      fresh.db,
+      undefined,
+      async () => "Moved"
+    )({
+      ...entry,
+      version: 2
+    });
+    expect(fresh.records.get("call-v")).to.deep.include({
+      version: 2,
+      trunkName: "Acme"
+    });
   });
 
   it("serves ListCalls from the index", async function () {
