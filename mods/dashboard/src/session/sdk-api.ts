@@ -31,6 +31,7 @@ import type {
   CallRecordSummary,
   Catalog,
   CatalogEntry,
+  KnowledgePassage,
   KnowledgeSearch,
   SessionApi,
   SessionApp,
@@ -310,18 +311,23 @@ export function fromVcon(
     if (typeof llmMs === "number" && typeof ttsMs === "number")
       t.stages = { llmMs, ttsMs };
   });
-  // Autopilot writes one autopilot.turn note per turn, with the tools it called.
+  // Autopilot writes one autopilot.turn note per turn, with the tools it called. Since #1067
+  // each call and search carries when it started; older records place them at the note.
+  const startOf = (entry: Raw, note: Raw) =>
+    typeof entry.startedAtMs === "number"
+      ? Math.max(0, entry.startedAtMs - start)
+      : offset(note.at);
   const toolCalls = notes
     .filter((n) => n.kind === "autopilot.turn" && Array.isArray(n.toolCalls))
     .flatMap((n) =>
       (n.toolCalls as Raw[]).map((c) => ({
-        at: offset(n.at),
+        at: startOf(c, n),
         name: str(c.name),
         ok: c.ok !== false,
         ...toolDetails(c)
       }))
     );
-  const knowledgeSearches = knowledgeSearchesOf(notes, offset);
+  const knowledgeSearches = knowledgeSearchesOf(notes, startOf);
   const usage = (Array.isArray(meta.usage) ? (meta.usage as Raw[]) : [])
     .filter(
       (l) => typeof l.meter === "string" && typeof l.quantity === "number"
@@ -364,7 +370,8 @@ export function fromVcon(
   const recording = dialog.find((d) => d.type === "recording" && d.url);
   const amd = meta.amd as Raw | undefined;
   const failure = meta.failure as
-    { reason?: unknown; sipStatus?: unknown } | undefined;
+    | { reason?: unknown; sipStatus?: unknown }
+    | undefined;
   return {
     ...summary,
     endedAt: detail.endedAt ?? str(meta.endedAt),
@@ -422,10 +429,10 @@ function toolDetails(c: Raw): Partial<ToolCall> {
   );
 }
 
-/** The knowledge searches of the autopilot.turn notes, in time order. */
+/** The knowledge searches of the autopilot.turn notes. */
 function knowledgeSearchesOf(
   notes: Raw[],
-  offset: (iso: unknown) => number
+  startOf: (entry: Raw, note: Raw) => number
 ): KnowledgeSearch[] {
   return notes
     .filter(
@@ -433,14 +440,11 @@ function knowledgeSearchesOf(
     )
     .flatMap((n) =>
       (n.knowledgeSearches as Raw[]).map((k) => ({
-        at: offset(n.at),
+        at: startOf(k, n),
         query: str(k.query),
-        ...(typeof k.source === "string" && k.source
-          ? { source: k.source }
-          : {}),
         passages: (Array.isArray(k.passages) ? (k.passages as Raw[]) : [])
           .filter((p) => typeof p.text === "string")
-          .map((p) => ({
+          .map((p): KnowledgePassage => ({
             text: str(p.text),
             ...(typeof p.source === "string" ? { source: p.source } : {}),
             ...(typeof p.score === "number" ? { score: p.score } : {})
@@ -448,7 +452,9 @@ function knowledgeSearchesOf(
         ...(typeof k.durationMs === "number"
           ? { durationMs: k.durationMs }
           : {}),
-        ...(k.timedOut === true ? { timedOut: true } : {})
+        ...(k.timedOut === true ? { timedOut: true } : {}),
+        ...(k.failed === true ? { failed: true } : {}),
+        ...(typeof k.error === "string" && k.error ? { error: k.error } : {})
       }))
     );
 }

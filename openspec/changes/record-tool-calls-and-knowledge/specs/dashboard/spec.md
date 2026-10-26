@@ -9,7 +9,8 @@ the caller's last word to the agent's first audio, per answered turn, with the m
 call recorded as quantities without prices, and the number of turns per side, the interruptions and
 the tools called. Each tool call SHALL show its method, status and latency when the record has them,
 with its parameters and response one click away; each knowledge search SHALL show the query, the
-source and the top match. An agent turn the caller cut off SHALL say when. Export JSON SHALL save the
+source and the top match, or that it failed. Tool calls and searches SHALL be placed at the time they
+started when the record has it. An agent turn the caller cut off SHALL say when. Export JSON SHALL save the
 record's vCon as the API returned it. What the record does not carry SHALL be left out, not
 estimated.
 

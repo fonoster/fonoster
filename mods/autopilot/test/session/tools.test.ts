@@ -30,16 +30,20 @@ import { Document } from "@langchain/core/documents";
 import { SyntheticEmbeddings } from "@langchain/core/utils/testing";
 import { parse } from "yaml";
 import { AbstractKnowledgeBase } from "../../src/knowledge/AbstractKnowledgeBase";
+import { MAX_PROMPT_PASSAGE_TEXT, passagesText } from "../../src/knowledge";
 import {
-  KnowledgePort,
-  MAX_KNOWLEDGE_TEXT,
-  MAX_TOOL_TEXT,
   TurnTrace,
   capText,
   createAutopilotHandler,
   fromKnowledgeBase,
   knowledgeSearchTrace,
+  loggedTurn,
   toolCallTrace
+} from "../../src/session";
+import {
+  KnowledgePort,
+  MAX_KNOWLEDGE_TEXT,
+  MAX_TOOL_TEXT
 } from "../../src/session";
 import { HttpToolPort } from "../../src/session/tools";
 
@@ -92,6 +96,14 @@ describe("@autopilot/session HttpToolPort destinations", function () {
       method: "GET",
       status: 200
     });
+  });
+
+  it("[APT-022] an invalid tool URL is a failed call, not a failed reply", async function () {
+    const port = new HttpToolPort([tool("not a url?key=url-secret")] as never);
+    const out = await port.run("getHours", {}, new AbortController().signal);
+    expect(out).to.include({ ok: false, method: "GET" });
+    expect(out.error).to.be.a("string");
+    expect(out.error).to.not.contain("url-secret");
   });
 });
 
@@ -192,6 +204,7 @@ steps:
       response: '{"open":"9"}'
     });
     expect(tool.durationMs).to.be.a("number");
+    expect(tool.startedAtMs).to.be.within(Date.now() - 10000, Date.now());
     const recorded = JSON.stringify(traces);
     expect(recorded).to.not.contain("secret");
     expect(recorded).to.not.contain("/tool/");
@@ -212,7 +225,7 @@ steps:
     expect(tool).to.not.have.property("response");
   });
 
-  it("[APT-022] records the knowledge search: query, source, top passages and time", async function () {
+  it("[APT-022] records the knowledge search: query, top passages with their document, and time", async function () {
     const traces = await call({
       knowledge: {
         find: async () => "unused",
@@ -226,10 +239,10 @@ steps:
       script: [{ content: "We open at 9." }]
     });
     const [search] = traces[0].knowledgeSearches!;
-    expect(search).to.deep.include({
-      query: "When are you open on monday?",
-      source: "hours.pdf"
-    });
+    expect(search.query).to.equal("When are you open on monday?");
+    expect(search).to.not.have.property("source");
+    expect(search.passages[0].source).to.equal("hours.pdf");
+    expect(search.startedAtMs).to.be.within(Date.now() - 10000, Date.now());
     expect(search.passages.map((p) => p.text)).to.deep.equal([
       "Open 9 to 5.",
       "Closed on holidays.",
@@ -238,6 +251,28 @@ steps:
     expect(search.passages[0].score).to.equal(0.91);
     expect(search.durationMs).to.be.a("number");
     expect(search).to.not.have.property("timedOut");
+    expect(search).to.not.have.property("failed");
+  });
+
+  it("[APT-022] records a knowledge search that failed, with a short error and no stack", async function () {
+    const traces = await call({
+      knowledge: {
+        find: async () => "unused",
+        search: async () => {
+          throw new Error(`vector store down ${"x".repeat(1000)}`);
+        }
+      },
+      script: [{ content: "Hello." }]
+    });
+    const [search] = traces[0].knowledgeSearches!;
+    expect(search).to.deep.include({
+      query: "When are you open on monday?",
+      passages: [],
+      failed: true
+    });
+    expect(search.error).to.match(/^vector store down x+…$/);
+    expect(search.error!.length).to.be.at.most(201);
+    expect(search.error).to.not.contain(" at ");
   });
 
   it("[APT-022] records a knowledge search the reply didn't wait for", async function () {
@@ -259,20 +294,28 @@ steps:
     const capped = capText(long, MAX_TOOL_TEXT);
     expect(capped.length).to.be.at.most(MAX_TOOL_TEXT + 1);
     expect(capped.endsWith("x…")).to.equal(true);
-    expect(capText("four one one one one", 12)).to.equal("…");
+    // A card number spoken as words, cut part way, goes too.
+    const spoken = `card ${"four one one one ".repeat(4).trim()}`;
+    expect(capText(spoken, 30)).to.equal("card…");
     expect(capText("short", 10)).to.equal("short");
+    // Amounts and ordinary words at the cut stay: they can't be part of a card number.
+    expect(capText("you owe 42 dollars", 10)).to.equal("you owe 42…");
+    expect(capText("amount: 1,250.00 USD", 16)).to.equal("amount: 1,250.00…");
+    expect(capText("oh one more thing", 6)).to.equal("oh one…");
 
     const trace = toolCallTrace(
       "lookup",
       { note: "y".repeat(5000) },
       { ok: true, result: { body: "z".repeat(5000) }, method: "GET" },
+      Date.now(),
       12
     );
     expect(trace.parameters!.length).to.be.at.most(MAX_TOOL_TEXT + 1);
     expect(trace.response!.length).to.be.at.most(MAX_TOOL_TEXT + 1);
     const search = knowledgeSearchTrace(
       "q",
-      [{ text: "p".repeat(2000), source: "a.pdf" }],
+      { passages: [{ text: "p".repeat(2000), source: "a.pdf" }] },
+      Date.now(),
       5
     );
     expect(search.passages[0].text.length).to.be.at.most(
@@ -308,5 +351,76 @@ steps:
     expect(
       await port.search!("hours", new AbortController().signal)
     ).to.deep.equal([passage]);
+  });
+
+  it("[APT-022] the model sees each passage's text, capped", async function () {
+    const long = "a".repeat(MAX_PROMPT_PASSAGE_TEXT + 500);
+    expect(
+      passagesText([{ text: long }, { text: "Closed on holidays." }])
+    ).to.equal(`${"a".repeat(MAX_PROMPT_PASSAGE_TEXT)}…\nClosed on holidays.`);
+    // The legacy path (queryKnowledgeBase, used by createChain) is capped the same way.
+    class LongKnowledgeBase extends AbstractKnowledgeBase {
+      async getLoaders() {
+        return [];
+      }
+      async searchKnowledgeBase() {
+        return [{ text: long, source: "a.pdf", score: 1 }];
+      }
+    }
+    const kb = new LongKnowledgeBase({
+      embeddings: new SyntheticEmbeddings({ vectorSize: 8 })
+    });
+    expect(await kb.queryKnowledgeBase("q")).to.equal(
+      `${"a".repeat(MAX_PROMPT_PASSAGE_TEXT)}…`
+    );
+  });
+
+  it("[APT-022] without a call record, the log has no tool payloads or knowledge queries", function () {
+    const logged = JSON.stringify(
+      loggedTurn({
+        userText: "hi",
+        toolCalls: [
+          toolCallTrace(
+            "charge",
+            { card: "param-secret" },
+            { ok: false, error: "error-secret", status: 402, method: "POST" },
+            Date.now(),
+            30
+          ),
+          toolCallTrace(
+            "lookup",
+            {},
+            { ok: true, result: "response-secret" },
+            Date.now(),
+            5
+          )
+        ],
+        knowledgeSearches: [
+          knowledgeSearchTrace(
+            "query-secret",
+            { passages: [{ text: "passage-secret", source: "doc-secret" }] },
+            Date.now(),
+            7
+          ),
+          knowledgeSearchTrace(
+            "q2-secret",
+            { error: new Error("err-secret") },
+            Date.now(),
+            3
+          )
+        ]
+      })
+    );
+    expect(logged).to.not.contain("secret");
+    expect(JSON.parse(logged)).to.deep.include({
+      toolCalls: [
+        { name: "charge", ok: false, status: 402, durationMs: 30 },
+        { name: "lookup", ok: true, durationMs: 5 }
+      ],
+      knowledgeSearches: [
+        { passages: 1, durationMs: 7 },
+        { passages: 0, durationMs: 3, failed: true }
+      ]
+    });
   });
 });

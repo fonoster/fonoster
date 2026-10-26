@@ -377,6 +377,25 @@ steps:
     ).to.have.length(0);
   });
 
+  it("gives the LLM the passages' text, each capped (#1067)", async function () {
+    const long = "a".repeat(1500);
+    const { result, conversations } = await run(
+      {
+        find: async () => "unused",
+        search: async () => [
+          { text: long, source: "a.pdf", score: 0.9 },
+          { text: "Closed on holidays.", source: "b.pdf", score: 0.5 }
+        ]
+      },
+      ["What are your hours?"]
+    );
+    expect(result.status, result.reason).to.equal("passed");
+    expect(conversations[0].messages[1]).to.deep.equal({
+      role: "system",
+      content: `Relevant information:\n${"a".repeat(1000)}…\nClosed on holidays.`
+    });
+  });
+
   it("does not wait for a slow knowledge lookup", async function () {
     const slow: KnowledgePort = {
       find: () => new Promise((r) => setTimeout(() => r("late"), 3000))

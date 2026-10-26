@@ -527,9 +527,10 @@ function KnowledgeRow({ search }: { search: KnowledgeSearch }) {
       title={
         <>
           Searched knowledge
-          {search.source && <Tag>{search.source}</Tag>}
+          {top?.source && <Tag>{top.source}</Tag>}
           {search.durationMs !== undefined && <Tag>{search.durationMs} ms</Tag>}
           {search.timedOut && <Tag tone="warning">too slow, not used</Tag>}
+          {search.failed && <Tag tone="error">failed</Tag>}
         </>
       }
     >
@@ -538,6 +539,10 @@ function KnowledgeRow({ search }: { search: KnowledgeSearch }) {
         <p className="text-[13px] text-muted-foreground">
           Top match: {top.text}
         </p>
+      ) : search.failed ? (
+        search.error && (
+          <p className="text-[13px] text-muted-foreground">{search.error}</p>
+        )
       ) : (
         !search.timedOut && (
           <p className="text-[13px] text-muted-foreground">Nothing found.</p>

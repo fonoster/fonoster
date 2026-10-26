@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { Embeddings } from "@langchain/core/embeddings";
+import { KnowledgePassage } from "./passages";
 
 type KnowledgeBase = {
   load: () => Promise<void>;
@@ -24,7 +25,7 @@ type KnowledgeBase = {
   searchKnowledgeBase?: (
     query: string,
     k?: number
-  ) => Promise<{ text: string; source?: string; score?: number }[]>;
+  ) => Promise<KnowledgePassage[]>;
 };
 
 type S3KnowledgeBaseParams = {

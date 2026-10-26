@@ -22,7 +22,13 @@ import { getLogger } from "@fonoster/logger";
 import { SessionEndedError, SessionError } from "@fonoster/voice";
 import { AsyncQueue } from "./AsyncQueue";
 import { SessionAgent } from "./config";
-import { KNOWLEDGE_TIMEOUT_MS, KnowledgePort } from "./knowledge";
+import {
+  KNOWLEDGE_TIMEOUT_MS,
+  KnowledgePassage,
+  KnowledgePort,
+  passagesText,
+  searchKnowledge
+} from "./knowledge";
 import { sentences } from "./sentences";
 import { telemetry } from "./telemetry";
 import { ChatMessage, Think, ThinkChunk, ToolCall, ToolSpec } from "./think";
@@ -30,6 +36,7 @@ import { ToolPort } from "./tools";
 import {
   knowledgeSearchTrace,
   KnowledgeSearchTrace,
+  loggedTurn,
   toolCallTrace,
   ToolCallTrace
 } from "./traceDetails";
@@ -127,7 +134,8 @@ export function sessionRecorder(session: Session): Recorder {
 }
 
 export const logRecorder: Recorder = {
-  turn: (trace) => logger.verbose("autopilot turn", trace),
+  // Without a call record, tool payloads and knowledge queries stay out of the logs.
+  turn: (trace) => logger.verbose("autopilot turn", loggedTurn(trace)),
   note: (event) => logger.verbose("autopilot note", event)
 };
 
@@ -424,7 +432,10 @@ export class Agent {
           this.recorder.turn(
             turnNote({
               ...trace,
-              toolCalls: [...trace.toolCalls, { name: builtIn.name, ok: true }]
+              toolCalls: [
+                ...trace.toolCalls,
+                { name: builtIn.name, ok: true, startedAtMs: Date.now() }
+              ]
             })
           );
           this.send({
@@ -553,7 +564,7 @@ export class Agent {
       const started = Date.now();
       const outcome = await this.tools.run(call.name, args, abort.signal);
       trace.toolCalls.push(
-        toolCallTrace(call.name, args, outcome, Date.now() - started)
+        toolCallTrace(call.name, args, outcome, started, Date.now() - started)
       );
       this.history.push({
         role: "tool",
@@ -666,33 +677,30 @@ export class Agent {
       setTimeout(() => resolve(undefined), KNOWLEDGE_TIMEOUT_MS)
     );
     const started = Date.now();
+    let passages: KnowledgePassage[] | undefined;
     try {
-      const lookup = knowledge.search
-        ? knowledge.search(question, signal)
-        : knowledge
-            .find(question, signal)
-            .then((text) => (text?.trim() ? [{ text: text.trim() }] : []));
-      const passages = await Promise.race([lookup, timeout]);
+      passages = await Promise.race([
+        searchKnowledge(knowledge, question, signal),
+        timeout
+      ]);
+    } catch (error) {
       searches?.push(
-        knowledgeSearchTrace(
-          question,
-          passages ?? [],
-          Date.now() - started,
-          passages === undefined
-        )
+        knowledgeSearchTrace(question, { error }, started, Date.now() - started)
       );
-      const found = (passages ?? []).map((p) => p.text).join("\n");
-      return found.trim()
-        ? [
-            {
-              role: "system",
-              content: `Relevant information:\n${found.trim()}`
-            }
-          ]
-        : [];
-    } catch {
       return [];
     }
+    searches?.push(
+      knowledgeSearchTrace(
+        question,
+        passages ? { passages } : { timedOut: true },
+        started,
+        Date.now() - started
+      )
+    );
+    const found = passagesText(passages ?? []).trim();
+    return found
+      ? [{ role: "system", content: `Relevant information:\n${found}` }]
+      : [];
   }
 
   private toolSpecs(): ToolSpec[] {

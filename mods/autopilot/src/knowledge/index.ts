@@ -18,5 +18,6 @@
  */
 export * from "./AbstractKnowledgeBase";
 export * from "./FilesKnowledgeBase";
+export * from "./passages";
 export * from "./S3KnowledgeBase";
 export * from "./types";

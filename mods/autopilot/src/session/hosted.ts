@@ -39,7 +39,8 @@ import {
 import {
   fromKnowledgeBase,
   KnowledgePassage,
-  KnowledgePort
+  KnowledgePort,
+  searchKnowledge
 } from "./knowledge";
 import {
   ConfigCredentials,
@@ -529,10 +530,7 @@ export function eagerKnowledge(
       },
       search: async (question, signal) => {
         const p = await port;
-        if (!p) return [];
-        if (p.search) return p.search(question, signal);
-        const text = (await p.find(question, signal))?.trim();
-        return text ? [{ text }] : [];
+        return p ? searchKnowledge(p, question, signal) : [];
       }
     };
   };

@@ -24,7 +24,10 @@
 export type Protocol = "fonoster" | "twilio";
 export type AppType = "STREAM" | "AUTOPILOT";
 export type AudioCodec =
-  "pcm16-8000" | "pcm16-16000" | "pcm16-24000" | "pcmu-8000";
+  | "pcm16-8000"
+  | "pcm16-16000"
+  | "pcm16-24000"
+  | "pcmu-8000";
 export type ListenerTrack = "inbound" | "outbound" | "both";
 export type Patience = "" | "low" | "normal" | "high";
 /** "" inherits the workspace's policy. */
@@ -206,16 +209,25 @@ export type ToolCall = {
   error?: string;
 };
 
+/** One passage a knowledge search found: its text, the document it came from and its score. */
+export type KnowledgePassage = {
+  text: string;
+  source?: string;
+  score?: number;
+};
+
 /** What the agent looked up in its knowledge for a turn: the query and the top passages found. */
 export type KnowledgeSearch = {
   at: number;
   query: string;
-  /** The document the top match came from. */
-  source?: string;
-  passages: { text: string; source?: string; score?: number }[];
+  /** Best first: the first passage's `source` is the document of the top match. */
+  passages: KnowledgePassage[];
   durationMs?: number;
   /** The search took too long; the answer went without it. */
   timedOut?: boolean;
+  /** The search failed; the answer went without it. `error` says why, short. */
+  failed?: boolean;
+  error?: string;
 };
 
 /** One usage line of the call (add-usage-metering): what was used, not what it costs. */

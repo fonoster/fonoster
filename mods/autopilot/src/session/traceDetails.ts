@@ -38,6 +38,8 @@ export const MAX_PASSAGES = 3;
 export type ToolCallTrace = {
   name: string;
   ok: boolean;
+  /** When the call started, in ms since the epoch (orders it within the turn). */
+  startedAtMs?: number;
   /** HTTP tools: the method and the response status. */
   method?: string;
   status?: number;
@@ -51,26 +53,47 @@ export type ToolCallTrace = {
 /** One knowledge search of a turn: the passages found for the caller's words. */
 export type KnowledgeSearchTrace = {
   query: string;
-  /** Where the top match came from (a document name), when the port says. */
-  source?: string;
+  /** At most MAX_PASSAGES, best first; the first one's `source` is the top match's document. */
   passages: KnowledgePassage[];
+  /** When the search started, in ms since the epoch (orders it within the turn). */
+  startedAtMs?: number;
   durationMs: number;
   /** The search took longer than a reply waits for; the reply went without it. */
   timedOut?: boolean;
+  /** The search failed; the reply went without it. `error` is the message, short. */
+  failed?: boolean;
+  error?: string;
 };
+
+/** A failed knowledge search's error is cut at this many characters. */
+export const MAX_KNOWLEDGE_ERROR = 200;
+/** A trailing run of at least this many digits could be part of a card number. */
+const CARD_DIGITS = 13;
 
 const DIGIT_WORDS =
   "zero|oh|one|two|three|four|five|six|seven|eight|nine|cero|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve";
-// A run of digits or digit words at the end of the text, with their separators.
-const TRAILING_NUMBER = new RegExp(
-  `(?:[\\s,.-]*(?:\\d|\\b(?:${DIGIT_WORDS})\\b))+[\\s,.-]*$`,
-  "i"
-);
+const DIGIT = `(?:\\d|\\b(?:${DIGIT_WORDS})\\b)`;
+// A run of digits or digit words at the end of the text, and at the start, with their separators.
+const TRAILING_NUMBER = new RegExp(`(?:[\\s,.-]*${DIGIT})+[\\s,.-]*$`, "i");
+const LEADING_NUMBER = new RegExp(`^(?:[\\s,.-]*${DIGIT})+`, "i");
+const DIGITS = new RegExp(DIGIT, "gi");
 
-/** Caps text at `max` characters, ending with an ellipsis and no partial number. */
+const digitCount = (text: string) => text.match(DIGITS)?.length ?? 0;
+
+/**
+ * Caps text at `max` characters, ending with an ellipsis. A run of digits or digit words cut at
+ * the end is dropped when, with what follows the cut, it is long enough to be part of a card
+ * number (the redaction only recognizes whole ones); amounts and ordinary words stay.
+ */
 export function capText(text: string, max: number): string {
   if (text.length <= max) return text;
-  return `${text.slice(0, max).replace(TRAILING_NUMBER, "")}…`;
+  const head = text.slice(0, max);
+  const trailing = head.match(TRAILING_NUMBER)?.[0] ?? "";
+  const continued = text.slice(max).match(LEADING_NUMBER)?.[0] ?? "";
+  const run = digitCount(trailing) + digitCount(continued);
+  const kept =
+    trailing && run >= CARD_DIGITS ? head.slice(0, -trailing.length) : head;
+  return `${kept}…`;
 }
 
 function json(value: unknown): string {
@@ -87,11 +110,13 @@ export function toolCallTrace(
   name: string,
   args: Record<string, unknown>,
   outcome: ToolOutcome,
+  startedAtMs: number,
   durationMs: number
 ): ToolCallTrace {
   return {
     name,
     ok: outcome.ok,
+    startedAtMs,
     ...(outcome.method ? { method: outcome.method } : {}),
     ...(outcome.status !== undefined ? { status: outcome.status } : {}),
     durationMs,
@@ -107,23 +132,63 @@ export function toolCallTrace(
   };
 }
 
-/** The trace entry for a knowledge search. */
+/** The trace entry for a knowledge search: what it found, or that it timed out or failed. */
 export function knowledgeSearchTrace(
   query: string,
-  passages: KnowledgePassage[],
-  durationMs: number,
-  timedOut = false
+  found:
+    { passages: KnowledgePassage[] } | { timedOut: true } | { error: unknown },
+  startedAtMs: number,
+  durationMs: number
 ): KnowledgeSearchTrace {
-  const kept = passages.slice(0, MAX_PASSAGES).map((p) => ({
-    text: capText(p.text, MAX_KNOWLEDGE_TEXT),
-    ...(p.source ? { source: p.source } : {}),
-    ...(p.score !== undefined ? { score: p.score } : {})
-  }));
+  const passages = "passages" in found ? found.passages : [];
+  const error =
+    "error" in found
+      ? capText(
+          (found.error as Error)?.message ?? String(found.error),
+          MAX_KNOWLEDGE_ERROR
+        )
+      : undefined;
   return {
     query: capText(query, MAX_KNOWLEDGE_TEXT),
-    ...(kept[0]?.source ? { source: kept[0].source } : {}),
-    passages: kept,
+    passages: passages.slice(0, MAX_PASSAGES).map((p) => ({
+      text: capText(p.text, MAX_KNOWLEDGE_TEXT),
+      ...(p.source ? { source: p.source } : {}),
+      ...(p.score !== undefined ? { score: p.score } : {})
+    })),
+    startedAtMs,
     durationMs,
-    ...(timedOut ? { timedOut: true } : {})
+    ...("timedOut" in found ? { timedOut: true } : {}),
+    ...("error" in found ? { failed: true, ...(error ? { error } : {}) } : {})
+  };
+}
+
+/**
+ * The turn as the log sees it when there is no call record: tool names, outcomes, counts and
+ * durations only. Parameters, responses, errors, queries and passages stay out of the logs.
+ */
+export function loggedTurn<
+  T extends {
+    toolCalls: ToolCallTrace[];
+    knowledgeSearches?: KnowledgeSearchTrace[];
+  }
+>(trace: T) {
+  return {
+    ...trace,
+    toolCalls: trace.toolCalls.map((c) => ({
+      name: c.name,
+      ok: c.ok,
+      ...(c.status !== undefined ? { status: c.status } : {}),
+      ...(c.durationMs !== undefined ? { durationMs: c.durationMs } : {})
+    })),
+    ...(trace.knowledgeSearches
+      ? {
+          knowledgeSearches: trace.knowledgeSearches.map((k) => ({
+            passages: k.passages.length,
+            durationMs: k.durationMs,
+            ...(k.timedOut ? { timedOut: true } : {}),
+            ...(k.failed ? { failed: true } : {})
+          }))
+        }
+      : {})
   };
 }

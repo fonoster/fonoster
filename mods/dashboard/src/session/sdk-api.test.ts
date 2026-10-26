@@ -258,6 +258,8 @@ describe("SDK adapter", () => {
                     {
                       name: "get_hours",
                       ok: false,
+                      // Started before the note was written (after the reply).
+                      startedAtMs: Date.parse("2026-10-15T10:00:01.500Z"),
                       method: "GET",
                       status: 503,
                       durationMs: 210,
@@ -268,7 +270,7 @@ describe("SDK adapter", () => {
                   knowledgeSearches: [
                     {
                       query: "When are you open?",
-                      source: "hours.pdf",
+                      startedAtMs: Date.parse("2026-10-15T10:00:01.200Z"),
                       passages: [
                         {
                           text: "Open 9 to 5.",
@@ -283,6 +285,13 @@ describe("SDK adapter", () => {
                       passages: [],
                       durationMs: 800,
                       timedOut: true
+                    },
+                    {
+                      query: "Refunds?",
+                      passages: [],
+                      durationMs: 12,
+                      failed: true,
+                      error: "vector store down"
                     }
                   ]
                 }
@@ -296,7 +305,7 @@ describe("SDK adapter", () => {
     expect(record.toolCalls).toEqual([
       { at: 2000, name: "old_record", ok: true },
       {
-        at: 2000,
+        at: 1500,
         name: "get_hours",
         ok: false,
         method: "GET",
@@ -308,9 +317,8 @@ describe("SDK adapter", () => {
     ]);
     expect(record.knowledgeSearches).toEqual([
       {
-        at: 2000,
+        at: 1200,
         query: "When are you open?",
-        source: "hours.pdf",
         passages: [{ text: "Open 9 to 5.", source: "hours.pdf", score: 0.9 }],
         durationMs: 40
       },
@@ -320,6 +328,14 @@ describe("SDK adapter", () => {
         passages: [],
         durationMs: 800,
         timedOut: true
+      },
+      {
+        at: 2000,
+        query: "Refunds?",
+        passages: [],
+        durationMs: 12,
+        failed: true,
+        error: "vector store down"
       }
     ]);
   });

@@ -529,7 +529,7 @@ The record carries tool names and outcomes and each answer's LLM and text-to-spe
 The record is built by the call-record module and served as its redacted copy, as the records API
 does by default, so the card number in the tool's parameters reaches the page masked.
 
-**Pass.** The Searched knowledge row shows hours.pdf, 42 ms, the query and Top match: Open 9 to 5, Monday to Friday.; the get_hours row shows POST, 200, 180 ms and ok, and expanding Parameters and response shows the indented parameters with `[card number]` and no digits of the card, and the response; the failed book call shows 503, failed and its error. **Fail.** A missing detail, or any digit of the card number on the page.
+**Pass.** The Searched knowledge row shows hours.pdf, 42 ms, the query and Top match: Open 9 to 5, Monday to Friday.; the get_hours row shows POST, 200, 180 ms and ok, and expanding Parameters and response shows the indented parameters with `[card number]` and no digits of the card, and the response; the failed book call shows 503, failed and its error; the failed search shows failed and its error. **Fail.** A missing detail, or any digit of the card number on the page.
 
 ### DSH-045 Calls say who answered, by answering machine detection
 

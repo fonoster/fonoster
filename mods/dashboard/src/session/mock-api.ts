@@ -283,7 +283,6 @@ const sampleCall = (): CallRecord => ({
     {
       at: 4900,
       query: "I want to check my balance",
-      source: "billing-faq.pdf",
       passages: [
         {
           text: "Balances update at midnight.",

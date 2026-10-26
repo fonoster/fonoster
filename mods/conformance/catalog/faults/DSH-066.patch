@@ -1,14 +1,14 @@
 diff --git a/mods/dashboard/src/session/sdk-api.ts b/mods/dashboard/src/session/sdk-api.ts
-index 23dbbe0ae..abacad855 100644
+index 095ce7290..3876fa3d0 100644
 --- a/mods/dashboard/src/session/sdk-api.ts
 +++ b/mods/dashboard/src/session/sdk-api.ts
-@@ -295,8 +295,7 @@ export function fromVcon(
+@@ -301,8 +301,7 @@ export function fromVcon(
        (n.toolCalls as Raw[]).map((c) => ({
-         at: offset(n.at),
+         at: startOf(c, n),
          name: str(c.name),
 -        ok: c.ok !== false,
 -        ...toolDetails(c)
 +        ok: c.ok !== false
        }))
      );
-   const knowledgeSearches = knowledgeSearchesOf(notes, offset);
+   const knowledgeSearches = knowledgeSearchesOf(notes, startOf);

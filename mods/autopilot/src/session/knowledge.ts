@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { KnowledgePassage, passagesText } from "../knowledge/passages";
+
 /**
  * The knowledge port (rework-autopilot A8): one operation, find what is relevant to a question.
  * Implementations (S3 + Unstructured today) are wired by the operator; their keys never live in
@@ -27,12 +29,19 @@ export interface KnowledgePort {
   search?(question: string, signal: AbortSignal): Promise<KnowledgePassage[]>;
 }
 
-/** One passage a knowledge search found: its text, the document it came from and its score. */
-export type KnowledgePassage = {
-  text: string;
-  source?: string;
-  score?: number;
-};
+export type { KnowledgePassage };
+export { passagesText };
+
+/** A port's lookup as passages: its own `search`, or what `find` returned as one passage. */
+export async function searchKnowledge(
+  port: KnowledgePort,
+  question: string,
+  signal: AbortSignal
+): Promise<KnowledgePassage[]> {
+  if (port.search) return port.search(question, signal);
+  const text = (await port.find(question, signal))?.trim();
+  return text ? [{ text }] : [];
+}
 
 /** Knowledge lookups never hold a reply back longer than this. */
 export const KNOWLEDGE_TIMEOUT_MS = 800;

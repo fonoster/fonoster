@@ -57,15 +57,16 @@ export class HttpToolPort implements ToolPort {
     const tool = this.tools.find((t) => t.name === name);
     if (!tool) return { ok: false, error: `unknown tool ${name}` };
     const method = String(tool.operation.method ?? "get").toUpperCase();
-    const url = new URL(tool.operation.url);
-    let body: string | undefined;
-    if (method === "GET") {
-      for (const [k, v] of Object.entries(args))
-        url.searchParams.set(k, String(v));
-    } else {
-      body = JSON.stringify(args);
-    }
     try {
+      // Inside the try: an invalid tool URL is a failed call, recorded like any other.
+      const url = new URL(tool.operation.url);
+      let body: string | undefined;
+      if (method === "GET") {
+        for (const [k, v] of Object.entries(args))
+          url.searchParams.set(k, String(v));
+      } else {
+        body = JSON.stringify(args);
+      }
       const request = safeFetch(url, {
         method,
         headers: {

@@ -23,6 +23,7 @@ import { Document } from "@langchain/core/documents";
 import { Embeddings } from "@langchain/core/embeddings";
 import { VectorStore } from "@langchain/core/vectorstores";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import { KnowledgePassage, passagesText } from "./passages";
 import { KnowledgeBase } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -69,15 +70,11 @@ abstract class AbstractKnowledgeBase implements KnowledgeBase {
   }
 
   async queryKnowledgeBase(query: string, k = 2): Promise<string> {
-    const passages = await this.searchKnowledgeBase(query, k);
-    return passages.map((p) => p.text).join("\n");
+    return passagesText(await this.searchKnowledgeBase(query, k));
   }
 
   /** The best `k` passages for the query, with their document and similarity score. */
-  async searchKnowledgeBase(
-    query: string,
-    k = 2
-  ): Promise<{ text: string; source?: string; score?: number }[]> {
+  async searchKnowledgeBase(query: string, k = 2): Promise<KnowledgePassage[]> {
     const { vectorStore } = this;
 
     if (!vectorStore) {
