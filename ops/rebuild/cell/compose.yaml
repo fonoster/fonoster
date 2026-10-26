@@ -111,7 +111,7 @@ services:
 
   # Roomr is released from fonoster/roomr: the bundle's pinned image, not built here.
   roomr:
-    image: fonoster/roomr:0.2.7@sha256:4bd9d5b8f480488322229e06aaaa9a9789a25fca38fe1dc48f81d1a1d8f897db
+    image: fonoster/roomr:0.3.0@sha256:6f7b3499b550b38fd2f36d64e0807ebc932885694d12951679cae256a9a47c8a
     restart: unless-stopped
     stop_grace_period: ${RB_DRAIN_GRACE:-11m}
     depends_on:

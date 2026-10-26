@@ -127,7 +127,7 @@ services:
   # The Roomr node: config/roomr.yaml. Released from fonoster/roomr and pinned by digest; the pin
   # moves with @fonoster/roomr in mods/conformance (the QA gate checks they match).
   roomr:
-    image: fonoster/roomr:0.2.7@sha256:4bd9d5b8f480488322229e06aaaa9a9789a25fca38fe1dc48f81d1a1d8f897db
+    image: fonoster/roomr:0.3.0@sha256:6f7b3499b550b38fd2f36d64e0807ebc932885694d12951679cae256a9a47c8a
     restart: unless-stopped
     # SIGTERM drains: the node unregisters, publishes node.down and exits when its rooms end or
     # drainWait (config/roomr.yaml, 10m) runs out; the grace period is a little longer.
