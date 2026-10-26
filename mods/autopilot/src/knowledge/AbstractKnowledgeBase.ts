@@ -16,12 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { basename } from "node:path";
 import { getLogger } from "@fonoster/logger";
 import { MemoryVectorStore } from "@langchain/classic/vectorstores/memory";
 import { Document } from "@langchain/core/documents";
 import { Embeddings } from "@langchain/core/embeddings";
 import { VectorStore } from "@langchain/core/vectorstores";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import { KnowledgePassage, passagesText } from "./passages";
 import { KnowledgeBase } from "./types";
 
 const logger = getLogger({ service: "autopilot", filePath: __filename });
@@ -68,16 +70,28 @@ abstract class AbstractKnowledgeBase implements KnowledgeBase {
   }
 
   async queryKnowledgeBase(query: string, k = 2): Promise<string> {
+    return passagesText(await this.searchKnowledgeBase(query, k));
+  }
+
+  /** The best `k` passages for the query, with their document and similarity score. */
+  async searchKnowledgeBase(query: string, k = 2): Promise<KnowledgePassage[]> {
     const { vectorStore } = this;
 
     if (!vectorStore) {
-      logger.verbose("vector store is not initialized, returning empty string");
-      return "";
+      logger.verbose("vector store is not initialized, returning nothing");
+      return [];
     }
 
-    const results = await vectorStore.similaritySearch(query, k);
+    const results = await vectorStore.similaritySearchWithScore(query, k);
 
-    return results.join("\n");
+    return results.map(([doc, score]) => {
+      const source = doc.metadata?.filename ?? doc.metadata?.source;
+      return {
+        text: doc.pageContent,
+        ...(source ? { source: basename(String(source)) } : {}),
+        score
+      };
+    });
   }
 }
 

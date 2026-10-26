@@ -20,7 +20,14 @@ import { URL } from "url";
 import { DestinationPolicy, safeFetch } from "@fonoster/common";
 import { ToolDefinition } from "./config";
 
-export type ToolOutcome = { ok: boolean; result?: unknown; error?: string };
+export type ToolOutcome = {
+  ok: boolean;
+  result?: unknown;
+  error?: string;
+  /** HTTP tools: the method used and the response status (for the call record). */
+  method?: string;
+  status?: number;
+};
 
 /** The tool port (rework-autopilot A7): one operation, run a tool with inputs. */
 export interface ToolPort {
@@ -50,15 +57,16 @@ export class HttpToolPort implements ToolPort {
     const tool = this.tools.find((t) => t.name === name);
     if (!tool) return { ok: false, error: `unknown tool ${name}` };
     const method = String(tool.operation.method ?? "get").toUpperCase();
-    const url = new URL(tool.operation.url);
-    let body: string | undefined;
-    if (method === "GET") {
-      for (const [k, v] of Object.entries(args))
-        url.searchParams.set(k, String(v));
-    } else {
-      body = JSON.stringify(args);
-    }
     try {
+      // Inside the try: an invalid tool URL is a failed call, recorded like any other.
+      const url = new URL(tool.operation.url);
+      let body: string | undefined;
+      if (method === "GET") {
+        for (const [k, v] of Object.entries(args))
+          url.searchParams.set(k, String(v));
+      } else {
+        body = JSON.stringify(args);
+      }
       const request = safeFetch(url, {
         method,
         headers: {
@@ -72,22 +80,25 @@ export class HttpToolPort implements ToolPort {
       });
       if (tool.operation.waitForResponse === false) {
         request.catch(() => undefined);
-        return { ok: true, result: { status: "sent" } };
+        return { ok: true, result: { status: "sent" }, method };
       }
       const res = await request;
       const text = await res.text();
+      const status = res.status;
       if (!res.ok)
         return {
           ok: false,
-          error: `HTTP ${res.status}: ${text.slice(0, 200)}`
+          error: `HTTP ${status}: ${text.slice(0, 200)}`,
+          method,
+          status
         };
       try {
-        return { ok: true, result: JSON.parse(text) };
+        return { ok: true, result: JSON.parse(text), method, status };
       } catch {
-        return { ok: true, result: text };
+        return { ok: true, result: text, method, status };
       }
     } catch (e) {
-      return { ok: false, error: (e as Error).message };
+      return { ok: false, error: (e as Error).message, method };
     }
   }
 }

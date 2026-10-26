@@ -17,10 +17,15 @@
  * limitations under the License.
  */
 import { Embeddings } from "@langchain/core/embeddings";
+import { KnowledgePassage } from "./passages";
 
 type KnowledgeBase = {
   load: () => Promise<void>;
   queryKnowledgeBase: (query: string, k?: number) => Promise<string>;
+  searchKnowledgeBase?: (
+    query: string,
+    k?: number
+  ) => Promise<KnowledgePassage[]>;
 };
 
 type S3KnowledgeBaseParams = {

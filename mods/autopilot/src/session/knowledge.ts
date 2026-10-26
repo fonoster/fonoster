@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { KnowledgePassage, passagesText } from "../knowledge/passages";
+
 /**
  * The knowledge port (rework-autopilot A8): one operation, find what is relevant to a question.
  * Implementations (S3 + Unstructured today) are wired by the operator; their keys never live in
@@ -23,6 +25,22 @@
  */
 export interface KnowledgePort {
   find(question: string, signal: AbortSignal): Promise<string>;
+  /** The same lookup as passages, with where each came from; used instead of `find` when present. */
+  search?(question: string, signal: AbortSignal): Promise<KnowledgePassage[]>;
+}
+
+export type { KnowledgePassage };
+export { passagesText };
+
+/** A port's lookup as passages: its own `search`, or what `find` returned as one passage. */
+export async function searchKnowledge(
+  port: KnowledgePort,
+  question: string,
+  signal: AbortSignal
+): Promise<KnowledgePassage[]> {
+  if (port.search) return port.search(question, signal);
+  const text = (await port.find(question, signal))?.trim();
+  return text ? [{ text }] : [];
 }
 
 /** Knowledge lookups never hold a reply back longer than this. */
@@ -31,6 +49,12 @@ export const KNOWLEDGE_TIMEOUT_MS = 800;
 /** Adapts the current knowledge bases (mods/autopilot/src/knowledge) to the port. */
 export function fromKnowledgeBase(kb: {
   queryKnowledgeBase(query: string, k?: number): Promise<string>;
+  searchKnowledgeBase?(query: string, k?: number): Promise<KnowledgePassage[]>;
 }): KnowledgePort {
-  return { find: (question) => kb.queryKnowledgeBase(question) };
+  return {
+    find: (question) => kb.queryKnowledgeBase(question),
+    ...(kb.searchKnowledgeBase
+      ? { search: (question: string) => kb.searchKnowledgeBase!(question) }
+      : {})
+  };
 }

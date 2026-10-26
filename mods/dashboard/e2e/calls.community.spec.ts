@@ -29,6 +29,7 @@ import {
   fromFixture,
   installRecords,
   toolTurn,
+  turnNote,
   usageSnapshot,
   type RecordFixture
 } from "./records";
@@ -315,6 +316,102 @@ test("[DSH-044] shows how the agent did: response time, tools, usage and interru
   await expect(
     page.getByRole("region", { name: "In this call" })
   ).toContainText(/Interruptions\s*1/);
+});
+
+test("[DSH-066] shows each tool call's request and response and what the agent searched, redacted", async ({
+  page,
+  api
+}) => {
+  await signIn(page, api, [
+    fromFixture("recorded-call", {
+      callRef: "call-1",
+      appRef: "app-1",
+      extra: [
+        turnNote(3760, {
+          knowledgeSearches: [
+            {
+              query: "When are you open?",
+              passages: [
+                {
+                  text: "Open 9 to 5, Monday to Friday.",
+                  source: "hours.pdf",
+                  score: 0.9
+                }
+              ],
+              durationMs: 42
+            },
+            {
+              query: "Do you deliver?",
+              passages: [],
+              durationMs: 7,
+              failed: true,
+              error: "vector store down"
+            }
+          ],
+          toolCalls: [
+            {
+              name: "get_hours",
+              ok: true,
+              method: "POST",
+              status: 200,
+              durationMs: 180,
+              // As Autopilot writes it: JSON text, which the record redacts like the transcript.
+              parameters: '{"day":"monday","card":"4111 1111 1111 1111"}',
+              response: '{"open":"9"}'
+            },
+            {
+              name: "book",
+              ok: false,
+              method: "POST",
+              status: 503,
+              durationMs: 95,
+              error: "HTTP 503: busy"
+            }
+          ]
+        })
+      ]
+    })
+  ]);
+  await page.goto("/w/ws-1/calls/call-1");
+
+  const search = page
+    .getByRole("listitem", { name: "knowledge search" })
+    .filter({ hasText: "When are you open?" });
+  await expect(search).toContainText("Searched knowledge");
+  await expect(search).toContainText("hours.pdf");
+  await expect(search).toContainText("42 ms");
+  await expect(search).toContainText("When are you open?");
+  await expect(search).toContainText(
+    "Top match: Open 9 to 5, Monday to Friday."
+  );
+
+  const tool = page
+    .getByRole("listitem", { name: "tool call" })
+    .filter({ hasText: "get_hours" });
+  await expect(tool).toContainText("POST");
+  await expect(tool).toContainText("200");
+  await expect(tool).toContainText("180 ms");
+  await expect(tool).toContainText("ok");
+  await tool.getByText("Parameters and response").click();
+  await expect(tool).toContainText('"day": "monday"');
+  await expect(tool).toContainText('"open": "9"');
+  // The default read is the redacted copy: the card number is masked.
+  await expect(tool).toContainText("[card number]");
+  await expect(tool).not.toContainText("4111");
+
+  const failed = page
+    .getByRole("listitem", { name: "tool call" })
+    .filter({ hasText: "book" });
+  await expect(failed).toContainText("503");
+  await expect(failed).toContainText("failed");
+  await failed.locator("summary", { hasText: "Error" }).click();
+  await expect(failed).toContainText("HTTP 503: busy");
+
+  const failedSearch = page
+    .getByRole("listitem", { name: "knowledge search" })
+    .filter({ hasText: "Do you deliver?" });
+  await expect(failedSearch).toContainText("failed");
+  await expect(failedSearch).toContainText("vector store down");
 });
 
 test("[DSH-045] says who answered a call, by answering machine detection", async ({

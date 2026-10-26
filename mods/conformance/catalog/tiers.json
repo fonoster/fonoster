@@ -667,6 +667,11 @@
       "rate": 1
     }
   },
+  "APT-022": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
   "APT-023": {
     "tier": "nightly",
     "pri": "P1",
@@ -1103,6 +1108,11 @@
     "trials": null
   },
   "DSH-044": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "DSH-066": {
     "tier": "pr",
     "pri": "P1",
     "trials": null

@@ -192,8 +192,43 @@ export type Turn = {
   stages?: { llmMs: number; ttsMs: number };
 };
 
-/** A tool the agent called during a turn (the autopilot.turn note has names and outcomes only). */
-export type ToolCall = { at: number; name: string; ok: boolean };
+/**
+ * A tool the agent called during a turn (Autopilot's autopilot.turn note). Records from before
+ * #1067 have the name and outcome only; parameters, response and error are JSON text, capped and
+ * redacted like the transcript.
+ */
+export type ToolCall = {
+  at: number;
+  name: string;
+  ok: boolean;
+  method?: string;
+  status?: number;
+  durationMs?: number;
+  parameters?: string;
+  response?: string;
+  error?: string;
+};
+
+/** One passage a knowledge search found: its text, the document it came from and its score. */
+export type KnowledgePassage = {
+  text: string;
+  source?: string;
+  score?: number;
+};
+
+/** What the agent looked up in its knowledge for a turn: the query and the top passages found. */
+export type KnowledgeSearch = {
+  at: number;
+  query: string;
+  /** Best first: the first passage's `source` is the document of the top match. */
+  passages: KnowledgePassage[];
+  durationMs?: number;
+  /** The search took too long; the answer went without it. */
+  timedOut?: boolean;
+  /** The search failed; the answer went without it. `error` says why, short. */
+  failed?: boolean;
+  error?: string;
+};
 
 /** One usage line of the call (add-usage-metering): what was used, not what it costs. */
 export type UsageLine = {
@@ -219,6 +254,7 @@ export type CallRecord = CallRecordSummary & {
   /** The AMD verdict, when AMD ran: how sure, on how much audio, and when. */
   amd?: { status: string; confidence?: number; audioMs?: number; at: number };
   toolCalls: ToolCall[];
+  knowledgeSearches: KnowledgeSearch[];
   usage: UsageLine[];
   /** The vCon as the API returned it, for Export JSON. */
   vcon: unknown;

@@ -198,6 +198,16 @@ export const toolTurn = (
   }
 });
 
+/** An Autopilot turn note (autopilot.turn) with any fields, e.g. tool call details and knowledge searches. */
+export const turnNote = (
+  atMs: number,
+  data: Record<string, unknown>
+): FixtureEntry => ({
+  atMs,
+  source: "app",
+  message: { type: "record.note", data: { kind: "autopilot.turn", ...data } }
+});
+
 /** The call's usage as AppBridge snapshots it (add-usage-metering). */
 export const usageSnapshot = (
   atMs: number,

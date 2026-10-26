@@ -320,5 +320,7 @@
   "DSH-065": "Talk to app: call a stream app, hang up",
   "APT-023": "A language model that rejects the key fails the call at once",
   "APT-024": "Speech recognition that rejects the key fails the call at once",
-  "APT-025": "A voice that rejects the key fails the call at once"
+  "APT-025": "A voice that rejects the key fails the call at once",
+  "APT-022": "Turns record tool call details and knowledge searches",
+  "DSH-066": "The call detail shows each tool call's request and response, and what the agent searched"
 }

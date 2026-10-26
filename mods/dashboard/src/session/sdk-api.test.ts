@@ -227,6 +227,117 @@ describe("SDK adapter", () => {
     expect(record.warnings).toEqual(["Missing: recording"]);
     expect(record.endReason).toBe("caller_hangup");
     expect(record.recording).toEqual({ sha256: "sha512-x" });
+    expect(record.knowledgeSearches).toEqual([]);
+  });
+
+  it("reads tool call details and knowledge searches from the autopilot.turn notes", () => {
+    const record = fromVcon(
+      {
+        callRef: "c1",
+        appRef: "a1",
+        from: "+1",
+        to: "+2",
+        direction: "inbound",
+        startedAt: "2026-10-15T10:00:00.000Z",
+        durationMs: 5000,
+        status: "completed",
+        version: 1
+      },
+      {
+        vcon: {
+          dialog: [],
+          analysis: [
+            {
+              type: "app_notes",
+              body: [
+                {
+                  at: "2026-10-15T10:00:02.000Z",
+                  kind: "autopilot.turn",
+                  toolCalls: [
+                    { name: "old_record", ok: true },
+                    {
+                      name: "get_hours",
+                      ok: false,
+                      // Started before the note was written (after the reply).
+                      startedAtMs: Date.parse("2026-10-15T10:00:01.500Z"),
+                      method: "GET",
+                      status: 503,
+                      durationMs: 210,
+                      parameters: '{"day":"monday"}',
+                      error: "HTTP 503: busy"
+                    }
+                  ],
+                  knowledgeSearches: [
+                    {
+                      query: "When are you open?",
+                      startedAtMs: Date.parse("2026-10-15T10:00:01.200Z"),
+                      passages: [
+                        {
+                          text: "Open 9 to 5.",
+                          source: "hours.pdf",
+                          score: 0.9
+                        }
+                      ],
+                      durationMs: 40
+                    },
+                    {
+                      query: "Parking?",
+                      passages: [],
+                      durationMs: 800,
+                      timedOut: true
+                    },
+                    {
+                      query: "Refunds?",
+                      passages: [],
+                      durationMs: 12,
+                      failed: true,
+                      error: "vector store down"
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          fonoster: { startedAt: "2026-10-15T10:00:00.000Z" }
+        }
+      }
+    );
+    expect(record.toolCalls).toEqual([
+      { at: 2000, name: "old_record", ok: true },
+      {
+        at: 1500,
+        name: "get_hours",
+        ok: false,
+        method: "GET",
+        status: 503,
+        durationMs: 210,
+        parameters: '{"day":"monday"}',
+        error: "HTTP 503: busy"
+      }
+    ]);
+    expect(record.knowledgeSearches).toEqual([
+      {
+        at: 1200,
+        query: "When are you open?",
+        passages: [{ text: "Open 9 to 5.", source: "hours.pdf", score: 0.9 }],
+        durationMs: 40
+      },
+      {
+        at: 2000,
+        query: "Parking?",
+        passages: [],
+        durationMs: 800,
+        timedOut: true
+      },
+      {
+        at: 2000,
+        query: "Refunds?",
+        passages: [],
+        durationMs: 12,
+        failed: true,
+        error: "vector store down"
+      }
+    ]);
   });
 
   it("splits an answer's wait by stage from Autopilot's turn note, when it has them", () => {

@@ -514,9 +514,22 @@ The records API's `direction` search (call-record "Search by direction") is unit
 - **Fault:** faults/DSH-044.patch
 - **Test:** mods/dashboard/e2e/calls.community.spec.ts
 
-The record carries tool names and outcomes and each answer's LLM and text-to-speech time (Autopilot's `autopilot.turn` note) and usage quantities (`usage.snapshot`). It doesn't carry the answering machine result, tool parameters and responses, knowledge searches, the trunk or prices, so the page shows none of them.
+The record carries tool names and outcomes and each answer's LLM and text-to-speech time (Autopilot's `autopilot.turn` note) and usage quantities (`usage.snapshot`); tool details and knowledge searches are DSH-066. It doesn't carry the answering machine result, the trunk or prices, so the page shows none of them.
 
 **Pass.** The answer to the caller shows first audio 100 ms and Response time p50 100 ms, its bar split into LLM 60 ms, Text-to-speech 30 ms and Other 10 ms; the timeline shows the `get_hours` tool call as ok; Usage lists Speech-to-text · deepgram 0:04 and LLM input · gpt-4o-mini 1.2K tokens with no price; In this call reads 2 agent · 1 caller and names get_hours; the Events tab lists `turn.ended`; Export JSON saves `call-1.vcon.json` with its dialog; a call where the caller cut the agent off says interrupted at 0:03 and counts one interruption. **Fail.** A missing or estimated figure, a price, or a vCon that isn't the record's.
+
+### DSH-066 The call detail shows each tool call's request and response, and what the agent searched
+
+- **Spec:** dashboard / The call detail shows how the agent did / Tool calls and knowledge searches
+- **Priority:** P1
+- **Proof:** Don't read the tool call details (`fromVcon` in `session/sdk-api.ts`); the test must go red on the tool's method.
+- **Fault:** faults/DSH-066.patch
+- **Test:** mods/dashboard/e2e/calls.community.spec.ts
+
+The record is built by the call-record module and served as its redacted copy, as the records API
+does by default, so the card number in the tool's parameters reaches the page masked.
+
+**Pass.** The Searched knowledge row shows hours.pdf, 42 ms, the query and Top match: Open 9 to 5, Monday to Friday.; the get_hours row shows POST, 200, 180 ms and ok, and expanding Parameters and response shows the indented parameters with `[card number]` and no digits of the card, and the response; the failed book call shows 503, failed and its error; the failed search shows failed and its error. **Fail.** A missing detail, or any digit of the card number on the page.
 
 ### DSH-045 Calls say who answered, by answering machine detection
 

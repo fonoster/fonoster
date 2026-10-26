@@ -355,6 +355,22 @@ delay. A trend for the release report, never a gate.
 
 **Pass.** Autopilot's own share stays at or under 50 ms at p95 in each of three trials. **Fail.** A p95 over 50 ms.
 
+### APT-022 Turns record tool call details and knowledge searches
+
+- **Spec:** autopilot / Conversation events in the call record / Tool call details
+- **Spec:** autopilot / Conversation events in the call record / Knowledge search details
+- **Spec:** autopilot / Conversation events in the call record / Details are capped
+- **Priority:** P1
+- **Proof:** Don't record a tool's parameters (`toolCallTrace` in `traceDetails.ts`); the tests must go red on the recorded parameters.
+- **Fault:** faults/APT-022.patch
+- **Test:** mods/autopilot/test/session/tools.test.ts
+
+The details are written as text so the call record's redacted copy masks them like the transcript;
+that masking is unit-tested in `mods/callrecord/test/callrecord.test.ts` and shown in the dashboard by
+DSH-066.
+
+**Pass.** A tool call's trace has its start time, method, status, duration, parameters and response (a failed one its status and error; an invalid tool URL is a failed call), and the recorded turn names neither the tool's URL nor its headers; a knowledge search has the query, its start time, at most three passages with their documents and scores, and the duration, or is marked timed out with no passages, or failed with a short error; long parameters, responses and passages are capped, and a cut drops a trailing run only when it could be part of a card number (amounts and words stay); the knowledge base returns passage text, document and score, and the model sees each passage's text capped at 1,000 characters; without a call record the log has tool names, outcomes, counts and durations only. **Fail.** A detail missing, a secret from the tool's URL or headers in the record, an uncapped payload, or a tool payload or knowledge query in the log.
+
 ### APT-023 A language model that rejects the key fails the call at once
 
 - **Spec:** autopilot / A rejected vendor key fails the call at once / The language model rejects the key

@@ -31,9 +31,12 @@ import type {
   CallRecordSummary,
   Catalog,
   CatalogEntry,
+  KnowledgePassage,
+  KnowledgeSearch,
   SessionApi,
   SessionApp,
   SessionMessage,
+  ToolCall,
   Turn
 } from "./types";
 
@@ -308,16 +311,23 @@ export function fromVcon(
     if (typeof llmMs === "number" && typeof ttsMs === "number")
       t.stages = { llmMs, ttsMs };
   });
-  // Autopilot writes one autopilot.turn note per turn, with the tools it called.
+  // Autopilot writes one autopilot.turn note per turn, with the tools it called. Since #1067
+  // each call and search carries when it started; older records place them at the note.
+  const startOf = (entry: Raw, note: Raw) =>
+    typeof entry.startedAtMs === "number"
+      ? Math.max(0, entry.startedAtMs - start)
+      : offset(note.at);
   const toolCalls = notes
     .filter((n) => n.kind === "autopilot.turn" && Array.isArray(n.toolCalls))
     .flatMap((n) =>
       (n.toolCalls as Raw[]).map((c) => ({
-        at: offset(n.at),
+        at: startOf(c, n),
         name: str(c.name),
-        ok: c.ok !== false
+        ok: c.ok !== false,
+        ...toolDetails(c)
       }))
     );
+  const knowledgeSearches = knowledgeSearchesOf(notes, startOf);
   const usage = (Array.isArray(meta.usage) ? (meta.usage as Raw[]) : [])
     .filter(
       (l) => typeof l.meter === "string" && typeof l.quantity === "number"
@@ -360,7 +370,8 @@ export function fromVcon(
   const recording = dialog.find((d) => d.type === "recording" && d.url);
   const amd = meta.amd as Raw | undefined;
   const failure = meta.failure as
-    { reason?: unknown; sipStatus?: unknown } | undefined;
+    | { reason?: unknown; sipStatus?: unknown }
+    | undefined;
   return {
     ...summary,
     endedAt: detail.endedAt ?? str(meta.endedAt),
@@ -396,9 +407,56 @@ export function fromVcon(
         }
       : {}),
     toolCalls,
+    knowledgeSearches,
     usage,
     vcon
   };
+}
+
+/** What a tool call entry of an autopilot.turn note says beyond its name and outcome (#1067). */
+function toolDetails(c: Raw): Partial<ToolCall> {
+  const text = (v: unknown) => (typeof v === "string" && v ? v : undefined);
+  const details: Partial<ToolCall> = {
+    method: text(c.method),
+    status: typeof c.status === "number" ? c.status : undefined,
+    durationMs: typeof c.durationMs === "number" ? c.durationMs : undefined,
+    parameters: text(c.parameters),
+    response: text(c.response),
+    error: text(c.error)
+  };
+  return Object.fromEntries(
+    Object.entries(details).filter(([, v]) => v !== undefined)
+  );
+}
+
+/** The knowledge searches of the autopilot.turn notes. */
+function knowledgeSearchesOf(
+  notes: Raw[],
+  startOf: (entry: Raw, note: Raw) => number
+): KnowledgeSearch[] {
+  return notes
+    .filter(
+      (n) => n.kind === "autopilot.turn" && Array.isArray(n.knowledgeSearches)
+    )
+    .flatMap((n) =>
+      (n.knowledgeSearches as Raw[]).map((k) => ({
+        at: startOf(k, n),
+        query: str(k.query),
+        passages: (Array.isArray(k.passages) ? (k.passages as Raw[]) : [])
+          .filter((p) => typeof p.text === "string")
+          .map((p): KnowledgePassage => ({
+            text: str(p.text),
+            ...(typeof p.source === "string" ? { source: p.source } : {}),
+            ...(typeof p.score === "number" ? { score: p.score } : {})
+          })),
+        ...(typeof k.durationMs === "number"
+          ? { durationMs: k.durationMs }
+          : {}),
+        ...(k.timedOut === true ? { timedOut: true } : {}),
+        ...(k.failed === true ? { failed: true } : {}),
+        ...(typeof k.error === "string" && k.error ? { error: k.error } : {})
+      }))
+    );
 }
 
 const seconds = (d?: Date) => (d ? d.toISOString() : undefined);

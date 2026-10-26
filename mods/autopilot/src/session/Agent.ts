@@ -22,11 +22,24 @@ import { getLogger } from "@fonoster/logger";
 import { SessionEndedError, SessionError } from "@fonoster/voice";
 import { AsyncQueue } from "./AsyncQueue";
 import { SessionAgent } from "./config";
-import { KNOWLEDGE_TIMEOUT_MS, KnowledgePort } from "./knowledge";
+import {
+  KNOWLEDGE_TIMEOUT_MS,
+  KnowledgePassage,
+  KnowledgePort,
+  passagesText,
+  searchKnowledge
+} from "./knowledge";
 import { sentences } from "./sentences";
 import { telemetry } from "./telemetry";
 import { ChatMessage, Think, ThinkChunk, ToolCall, ToolSpec } from "./think";
 import { ToolPort } from "./tools";
+import {
+  knowledgeSearchTrace,
+  KnowledgeSearchTrace,
+  loggedTurn,
+  toolCallTrace,
+  ToolCallTrace
+} from "./traceDetails";
 import type { Session } from "@fonoster/voice";
 
 /** What Autopilot says when a transfer fails and the agent sets no `failedMessage`. */
@@ -72,7 +85,7 @@ export type TurnTrace = {
   replyText: string;
   heardText: string;
   interrupted: boolean;
-  toolCalls: { name: string; ok: boolean }[];
+  toolCalls: ToolCallTrace[];
   /** ms from turn.ended to the first token, and to the first speak sent. */
   firstTokenMs?: number;
   firstSpeakMs?: number;
@@ -87,6 +100,8 @@ export type TurnTrace = {
   ttsMs?: number;
   /** Set when speech other than the reply (a tool's start message) went out during the turn. */
   spokeAhead?: boolean;
+  /** What the knowledge port found for the caller's words (agents with knowledge only). */
+  knowledgeSearches?: KnowledgeSearchTrace[];
 };
 
 /** The note for a finished turn: an interrupted reply carries no stages. */
@@ -119,7 +134,8 @@ export function sessionRecorder(session: Session): Recorder {
 }
 
 export const logRecorder: Recorder = {
-  turn: (trace) => logger.verbose("autopilot turn", trace),
+  // Without a call record, tool payloads and knowledge queries stay out of the logs.
+  turn: (trace) => logger.verbose("autopilot turn", loggedTurn(trace)),
   note: (event) => logger.verbose("autopilot note", event)
 };
 
@@ -129,6 +145,8 @@ type Prepared = {
   chunks: AsyncQueue<ThinkChunk>;
   /** Knowledge found for the prepared text, reused by every round of the reply. */
   context: ChatMessage[];
+  /** The knowledge search behind `context`, for the turn trace. */
+  searches: KnowledgeSearchTrace[];
 };
 
 /** The side effects of Autopilot: everything the state machine asks it to do on the session. */
@@ -254,10 +272,20 @@ export class Agent {
     this.discardPrepared();
     const abort = new AbortController();
     const chunks = new AsyncQueue<ThinkChunk>();
-    const prepared: Prepared = { text, abort, chunks, context: [] };
+    const prepared: Prepared = {
+      text,
+      abort,
+      chunks,
+      context: [],
+      searches: []
+    };
     this.prepared = prepared;
     void (async () => {
-      prepared.context = await this.contextFor(text, abort.signal);
+      prepared.context = await this.contextFor(
+        text,
+        abort.signal,
+        prepared.searches
+      );
       if (abort.signal.aborted) return chunks.end();
       const messages = [
         ...this.messages(prepared.context),
@@ -359,9 +387,11 @@ export class Agent {
 
     try {
       const prepared = this.takePrepared(text);
+      const searches = prepared?.searches ?? [];
+      if (this.knowledge) trace.knowledgeSearches = searches;
       const context = prepared
         ? prepared.context
-        : await this.contextFor(text, abort.signal);
+        : await this.contextFor(text, abort.signal, searches);
       let source = prepared?.chunks ?? this.startStream(abort.signal, context);
       for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
         const outcome = await this.speakRound(
@@ -402,7 +432,10 @@ export class Agent {
           this.recorder.turn(
             turnNote({
               ...trace,
-              toolCalls: [...trace.toolCalls, { name: builtIn.name, ok: true }]
+              toolCalls: [
+                ...trace.toolCalls,
+                { name: builtIn.name, ok: true, startedAtMs: Date.now() }
+              ]
             })
           );
           this.send({
@@ -528,8 +561,11 @@ export class Agent {
       } catch {
         args = {};
       }
+      const started = Date.now();
       const outcome = await this.tools.run(call.name, args, abort.signal);
-      trace.toolCalls.push({ name: call.name, ok: outcome.ok });
+      trace.toolCalls.push(
+        toolCallTrace(call.name, args, outcome, started, Date.now() - started)
+      );
       this.history.push({
         role: "tool",
         tool_call_id: call.id,
@@ -632,28 +668,39 @@ export class Agent {
   /** Knowledge for this turn, as a system message for the request only (never in history). */
   private async contextFor(
     question: string,
-    signal: AbortSignal
+    signal: AbortSignal,
+    searches?: KnowledgeSearchTrace[]
   ): Promise<ChatMessage[]> {
-    if (!this.knowledge) return [];
-    const timeout = new Promise<string>((resolve) =>
-      setTimeout(() => resolve(""), KNOWLEDGE_TIMEOUT_MS)
+    const knowledge = this.knowledge;
+    if (!knowledge) return [];
+    const timeout = new Promise<undefined>((resolve) =>
+      setTimeout(() => resolve(undefined), KNOWLEDGE_TIMEOUT_MS)
     );
+    const started = Date.now();
+    let passages: KnowledgePassage[] | undefined;
     try {
-      const found = await Promise.race([
-        this.knowledge.find(question, signal),
+      passages = await Promise.race([
+        searchKnowledge(knowledge, question, signal),
         timeout
       ]);
-      return found?.trim()
-        ? [
-            {
-              role: "system",
-              content: `Relevant information:\n${found.trim()}`
-            }
-          ]
-        : [];
-    } catch {
+    } catch (error) {
+      searches?.push(
+        knowledgeSearchTrace(question, { error }, started, Date.now() - started)
+      );
       return [];
     }
+    searches?.push(
+      knowledgeSearchTrace(
+        question,
+        passages ? { passages } : { timedOut: true },
+        started,
+        Date.now() - started
+      )
+    );
+    const found = passagesText(passages ?? []).trim();
+    return found
+      ? [{ role: "system", content: `Relevant information:\n${found}` }]
+      : [];
   }
 
   private toolSpecs(): ToolSpec[] {
