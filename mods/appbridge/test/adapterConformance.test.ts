@@ -28,6 +28,7 @@ import {
   DeepgramSttAdapter,
   DeepgramTtsAdapter
 } from "@fonoster/community/deepgram";
+import { ProviderAuthError } from "@fonoster/community";
 import { ElevenLabsTtsAdapter } from "@fonoster/community/elevenlabs";
 
 // Adapter conformance per type (add-provider-registry task 1.5, build log LO-B14): every feature
@@ -341,10 +342,11 @@ describe("@appbridge adapter conformance (registry 1.5)", function () {
       });
 
       it("maps vendor errors to provider_unavailable (and silence to provider_timeout)", async function () {
-        for (const [behavior, code] of [
-          ["status-503", "provider_unavailable"],
-          ["status-401", "provider_unavailable"],
-          ["no-answer", "provider_timeout"]
+        for (const [behavior, code, type] of [
+          ["status-503", "provider_unavailable", SpeechError],
+          // A rejected key is its own error, fatal to the call (#1146).
+          ["status-401", "provider_unavailable", ProviderAuthError],
+          ["no-answer", "provider_timeout", SpeechError]
         ] as const) {
           const v = await ttsStandIn(() => behavior);
           try {
@@ -354,7 +356,7 @@ describe("@appbridge adapter conformance (registry 1.5)", function () {
                 new AbortController().signal
               )
               .catch((x) => x);
-            expect(e, behavior).to.be.instanceOf(SpeechError);
+            expect(e, behavior).to.be.instanceOf(type);
             expect(e.code, behavior).to.equal(code);
           } finally {
             v.close();

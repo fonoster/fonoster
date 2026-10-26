@@ -667,6 +667,21 @@
       "rate": 1
     }
   },
+  "APT-023": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-024": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "APT-025": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
   "BIL-001": {
     "tier": "pr",
     "pri": "P0",

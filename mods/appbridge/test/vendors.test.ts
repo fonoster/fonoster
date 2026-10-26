@@ -97,8 +97,8 @@ describe("@appbridge vendor adapters", function () {
   });
 
   it("maps vendor failures to session error codes", async function () {
+    // A rejected key (401/403) is a ProviderAuthError (community authErrors.test.ts).
     for (const [status, code] of [
-      [401, "provider_unavailable"],
       [503, "provider_unavailable"],
       [400, "bad_message"]
     ] as const) {
@@ -440,7 +440,7 @@ describe("@appbridge vendor adapters", function () {
     stt.close();
     v.server.close();
     expect(errors.map((e) => e.message)).to.deep.equal([
-      "Deepgram STT answered HTTP 401"
+      "deepgram rejected the credentials (HTTP 401)"
     ]);
   });
 

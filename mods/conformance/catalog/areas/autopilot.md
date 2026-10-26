@@ -354,3 +354,46 @@ relative to its baseline: the time from turn.ended to the first speak minus the 
 delay. A trend for the release report, never a gate.
 
 **Pass.** Autopilot's own share stays at or under 50 ms at p95 in each of three trials. **Fail.** A p95 over 50 ms.
+
+### APT-023 A language model that rejects the key fails the call at once
+
+- **Spec:** autopilot / A rejected vendor key fails the call at once / The language model rejects the key
+- **Priority:** P1
+- **Tier:** nightly
+- **Proof:** Autopilot treats a rejected key like any failed reply (`respondTurn` in `Agent.ts` no longer hands the ProviderAuthError to `keyRejected`); the test must go red on the hangup and the failed record.
+- **Fault:** faults/APT-023.patch
+- **Test:** mods/autopilot/test/session/fullstack.integration.test.ts
+
+The full stack of APT-020 with the fake LLM rejecting the key (`rejectKey`). The caller's question
+reaches the model once; the 401 comes back as a ProviderAuthError and Autopilot hangs up with
+`failure`, which AppBridge records as `call.failed`. Without NATS the case fails; it never skips.
+
+**Pass.** One model request, no error message spoken, the call hung up within a moment of the caller's turn, and a record with status `failed`, reason `provider_auth_failed` and provider `fake`. **Fail.** A retry, the error message and a call that goes on, or a record that says `completed`.
+
+### APT-024 Speech recognition that rejects the key fails the call at once
+
+- **Spec:** autopilot / A rejected vendor key fails the call at once / Speech recognition rejects the key
+- **Priority:** P1
+- **Tier:** nightly
+- **Proof:** AppBridge reports the rejected STT handshake to the app but keeps the call (`keyRejected` dropped from the STT error handler in `Call.ts`); the test must go red on the hangup and the failed record.
+- **Fault:** faults/APT-024.patch
+- **Test:** mods/autopilot/test/session/fullstack.integration.test.ts
+
+The full stack of APT-020 with the fake STT refusing the stream's handshake with 401. AppBridge sends
+the app a fatal `error`, does not reconnect, records `call.failed` and hangs up.
+
+**Pass.** One handshake, the call hung up soon after it started, no model request, and a record with status `failed`, reason `provider_auth_failed` and provider `fake`. **Fail.** A reconnect, a call that goes on deaf, or a record that says `completed`.
+
+### APT-025 A voice that rejects the key fails the call at once
+
+- **Spec:** autopilot / A rejected vendor key fails the call at once / The voice rejects the key
+- **Priority:** P1
+- **Tier:** nightly
+- **Proof:** AppBridge reports the rejected `speak` to the app but keeps the call (the output queue no longer calls `onKeyRejected` in `OutputQueue.ts`); the test must go red on the hangup and the failed record.
+- **Fault:** faults/APT-025.patch
+- **Test:** mods/autopilot/test/session/fullstack.integration.test.ts
+
+The full stack of APT-020 with the fake TTS answering 401. The greeting's `speak` fails; AppBridge
+sends a fatal `error` related to it, records `call.failed` and hangs up.
+
+**Pass.** One synthesis request, a fatal `provider_unavailable` error naming the provider, the call hung up at once, and a record with status `failed`, reason `provider_auth_failed` and provider `fake`. **Fail.** A second request, a silent call that goes on, or a record that says `completed`.

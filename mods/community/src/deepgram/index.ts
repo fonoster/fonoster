@@ -19,6 +19,7 @@
 import { EventEmitter } from "events";
 import { URLSearchParams } from "url";
 import WebSocket from "ws";
+import { isAuthStatus, ProviderAuthError } from "../errors";
 import { streamingPost } from "../http";
 import {
   SpeechError,
@@ -66,7 +67,8 @@ export class DeepgramTtsAdapter implements TtsAdapter {
       },
       signal,
       this.options.timeoutMs ?? 3000,
-      "Deepgram TTS"
+      "Deepgram TTS",
+      "deepgram"
     );
     return { audio };
   }
@@ -136,12 +138,15 @@ export class DeepgramSttStream extends EventEmitter implements SttStream {
       rejected = true;
       req.destroy();
       if (this.closed || socket !== this.socket) return;
+      const status = res.statusCode ?? 0;
       this.emit(
         "error",
-        new SpeechError(
-          res.statusCode === 400 ? "bad_message" : "provider_unavailable",
-          `Deepgram STT answered HTTP ${res.statusCode}`
-        )
+        isAuthStatus(status)
+          ? new ProviderAuthError("deepgram", "stt", status)
+          : new SpeechError(
+              status === 400 ? "bad_message" : "provider_unavailable",
+              `Deepgram STT answered HTTP ${status}`
+            )
       );
     });
     socket.on("error", () => undefined);

@@ -317,5 +317,8 @@
   "XFR-017": "After a failed transfer Autopilot says so and keeps helping",
   "DSH-063": "Talk drawer over HTTPS: SIP over WSS",
   "DSH-064": "Talk drawer on the owner's certificate: HSTS and WSS",
-  "DSH-065": "Talk to app: call a stream app, hang up"
+  "DSH-065": "Talk to app: call a stream app, hang up",
+  "APT-023": "A language model that rejects the key fails the call at once",
+  "APT-024": "Speech recognition that rejects the key fails the call at once",
+  "APT-025": "A voice that rejects the key fails the call at once"
 }

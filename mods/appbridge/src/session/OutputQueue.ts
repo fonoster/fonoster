@@ -24,7 +24,12 @@ import {
   SILENT_FRAME,
   toFrames
 } from "../audio/pcm";
-import { SpeechError, TtsAdapter, WordTiming } from "../speech/types";
+import {
+  ProviderAuthError,
+  SpeechError,
+  TtsAdapter,
+  WordTiming
+} from "../speech/types";
 
 // voice-session, "One output queue", "Marks", "Output lifecycle and interruption report".
 // Agent audio, speak items and play items share one queue played at real time; marks are
@@ -108,6 +113,8 @@ export type OutputQueueOptions = {
   /** Receives one 20 ms frame per tick (silence when the queue is empty). */
   sink: (frame: Buffer) => void;
   emit: (event: OutputEvent) => void;
+  /** The TTS vendor rejected the key: the call can't go on (after the error is emitted). */
+  onKeyRejected?: (error: ProviderAuthError) => void;
   maxQueuedMs: number;
   /** Fetches media for play (default: global fetch). */
   fetchMedia?: (url: string, signal: AbortSignal) => Promise<Buffer>;
@@ -399,18 +406,20 @@ export class OutputQueue {
           if (item.abort.signal.aborted) return;
           item.failed = true;
           item.complete = true;
+          const rejected = e instanceof ProviderAuthError;
           const err =
-            e instanceof SpeechError
+            e instanceof SpeechError || rejected
               ? e
               : new SpeechError("internal", (e as Error).message);
           this.options.emit({
             type: "error",
             code: err.code,
             message: err.message,
-            fatal: false,
+            fatal: rejected,
             relatesTo: item.id
           });
           if (!item.started) this.remove(item);
+          if (rejected) this.options.onKeyRejected?.(e);
           return;
         }
       }

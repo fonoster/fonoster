@@ -16,7 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { SessionStart } from "@fonoster/common";
+import { Hangup, SessionStart } from "@fonoster/common";
+
+/** Why a call failed, for `hangup({ failure })`. */
+export type HangupFailure = NonNullable<Hangup["failure"]>;
 import { SessionEndedError, SessionError } from "./errors";
 import {
   GatherOptions,
@@ -357,13 +360,20 @@ export class Session {
     );
   }
 
-  /** Hangs up; resolves when the session ends. */
-  hangup(): Promise<void> {
+  /**
+   * Hangs up; resolves when the session ends. `failure` ends the call as failed in the call record
+   * (@internal: reserved for Fonoster's own apps (Autopilot); AppBridge ignores it from others).
+   */
+  hangup(options: { failure?: HangupFailure } = {}): Promise<void> {
     if (this.endedReason) return Promise.resolve();
     return this.untilEnd(
       ["app_hangup", "caller_hangup", "closed"],
       undefined,
-      () => this.send({ type: "hangup" })
+      () =>
+        this.send({
+          type: "hangup",
+          ...(options.failure ? { failure: options.failure } : {})
+        })
     );
   }
 

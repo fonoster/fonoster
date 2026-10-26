@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { isAuthStatus, ProviderAuthError } from "./errors";
 import { SpeechError, Synthesis } from "./speech";
 
 /**
@@ -29,7 +30,9 @@ export async function streamingPost(
   init: { headers: Record<string, string>; body: string },
   signal: AbortSignal,
   timeoutMs: number,
-  vendor: string
+  vendor: string,
+  /** The catalog adapter id, named in a ProviderAuthError. */
+  provider: string
 ): Promise<Synthesis["audio"]> {
   const controller = new AbortController();
   const abort = () => controller.abort();
@@ -67,6 +70,9 @@ export async function streamingPost(
     );
   }
   disarm();
+  // A rejected key is fatal to the call, never retried (#1146).
+  if (isAuthStatus(res.status))
+    throw new ProviderAuthError(provider, "tts", res.status);
   if (res.status === 400 || res.status === 422) {
     throw new SpeechError(
       "bad_message",

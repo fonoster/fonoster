@@ -19,6 +19,7 @@
 import { EventEmitter } from "events";
 import { URLSearchParams } from "url";
 import WebSocket from "ws";
+import { isAuthStatus, ProviderAuthError } from "../errors";
 import {
   SpeechError,
   SttAdapter,
@@ -65,6 +66,8 @@ export class FakeTtsAdapter implements TtsAdapter {
             `TTS unreachable: ${(e as Error).message}`
           );
     }
+    if (isAuthStatus(res.status))
+      throw new ProviderAuthError("fake", "tts", res.status);
     if (res.status === 400)
       throw new SpeechError("bad_message", "TTS rejected the request");
     if (!res.ok || !res.body)
@@ -122,6 +125,22 @@ class FakeSttStream extends EventEmitter implements SttStream {
       ...(model ? { model } : {})
     });
     this.socket = new WebSocket(`${url}/v1/listen?${query}`);
+    let rejected = false;
+    // A rejected handshake: a refused key is a ProviderAuthError, the rest provider_unavailable.
+    this.socket.on("unexpected-response", (req, res) => {
+      rejected = true;
+      req.destroy();
+      const status = res.statusCode ?? 0;
+      this.emit(
+        "error",
+        isAuthStatus(status)
+          ? new ProviderAuthError("fake", "stt", status)
+          : new SpeechError(
+              "provider_unavailable",
+              `STT answered HTTP ${status}`
+            )
+      );
+    });
     this.socket.on("open", () => {
       this.open = true;
       if (hints) this.socket.send(JSON.stringify({ type: "config", hints }));
@@ -155,8 +174,11 @@ class FakeSttStream extends EventEmitter implements SttStream {
           new SpeechError("bad_message", "STT rejected the stream")
         );
     });
-    this.socket.on("error", (e) =>
-      this.emit("error", new SpeechError("provider_unavailable", e.message))
+    this.socket.on(
+      "error",
+      (e) =>
+        !rejected &&
+        this.emit("error", new SpeechError("provider_unavailable", e.message))
     );
   }
 

@@ -53,7 +53,8 @@ export class ElevenLabsTtsAdapter implements TtsAdapter {
       },
       signal,
       this.options.timeoutMs ?? 3000,
-      "ElevenLabs"
+      "ElevenLabs",
+      "elevenlabs"
     );
     return { audio };
   }

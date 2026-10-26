@@ -264,6 +264,7 @@ Hangup = TypedDict(
     {
         "type": Literal["hangup"],
         "id": NotRequired[str],
+        "failure": NotRequired[dict[str, Any]],
     },
 )
 

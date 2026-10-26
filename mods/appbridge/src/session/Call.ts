@@ -59,7 +59,7 @@ import { ProtocolCodec } from "../protocols/types";
 import { CallRecording } from "../record/CallRecording";
 import { CallRecordSink } from "../record/CallRecordSink";
 import { Catalog } from "../speech/Catalog";
-import { SpeechError, SttStream } from "../speech/types";
+import { ProviderAuthError, SpeechError, SttStream } from "../speech/types";
 import { telemetry } from "../telemetry";
 import { createDetector } from "../turn/createDetector";
 import { Detector, Estimate } from "../turn/Detector";
@@ -826,6 +826,22 @@ export class Call {
     return true;
   }
 
+  /**
+   * Fails the call and hangs it up: a provider rejected the key, so the call can't go on (#1146).
+   * The call record's status is `failed` with the reason and the provider, even after answer.
+   */
+  async failAndHangup(
+    failure: { reason: string; provider: string; kind?: string },
+    reason: SessionEndReason
+  ) {
+    if (this.ended || this.hangingUp) return;
+    telemetry.count("fonoster.appbridge.keys.rejected", 1, {
+      provider: failure.provider
+    });
+    this.record("event", { type: "call.failed", ...failure });
+    await this.hangup(reason);
+  }
+
   /** Hangs the call up on the node and ends the session with a reason. */
   async hangup(reason: SessionEndReason) {
     if (this.ended || this.hangingUp) return;
@@ -1020,6 +1036,7 @@ export class AppSession {
         for (const l of this.listeners) l.agentAudio(frame);
       },
       emit: (e) => this.onOutput(e),
+      onKeyRejected: (e) => this.keyRejected(e),
       maxQueuedMs: deps.config.outputQueueMaxMs ?? DEFAULTS.outputQueueMaxMs
     });
   }
@@ -1308,13 +1325,24 @@ export class AppSession {
         ...this.call.vendorUsage(sttCatalogId, this.app.workspaceRef)
       };
     this.stt.on("transcript", (t) => this.pacing?.onTranscript(t, Date.now()));
-    this.stt.on("error", (e: SpeechError) =>
+    this.stt.on("error", (e: SpeechError | ProviderAuthError) => {
+      const rejected = e instanceof ProviderAuthError;
       this.emit({
         type: "error",
         code: e.code,
         message: `speech recognition: ${e.message}`,
-        fatal: false
-      })
+        fatal: rejected
+      });
+      if (rejected) this.keyRejected(e);
+    });
+  }
+
+  /** A vendor rejected the workspace's key: no retry, the call fails and hangs up at once. */
+  private keyRejected(e: ProviderAuthError) {
+    logger.warn(`call ${this.call.callRef}: ${e.message}; failing the call`);
+    void this.call.failAndHangup(
+      { reason: e.reason, provider: e.provider, kind: e.kind },
+      "error"
     );
   }
 
@@ -1664,7 +1692,13 @@ export class AppSession {
         });
         return;
       case "hangup":
-        await this.call.hangup("app_hangup");
+        // Autopilot ends a call it can't go on with as failed (a rejected LLM key, #1146).
+        if (cmd.failure && this.app.type === "AUTOPILOT")
+          await this.call.failAndHangup(
+            cmd.failure as { reason: string; provider: string; kind?: string },
+            "app_hangup"
+          );
+        else await this.call.hangup("app_hangup");
         return;
       case "dtmf.send":
         this.call.command({ sendDtmf: { digits: String(cmd.digits) } });

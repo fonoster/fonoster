@@ -136,6 +136,41 @@ describe("@conformance/fake providers", function () {
     ).to.equal(200);
   });
 
+  it("rejects the key on every request until told otherwise (rejectKey)", async function () {
+    tts.configure({ rejectKey: true });
+    llm.configure({ rejectKey: true });
+    stt.configure({ rejectKey: true });
+    try {
+      for (const res of [
+        await post(`${tts.url}/v1/synthesize`, { text: "a" }),
+        await post(`${tts.url}/v1/synthesize`, { text: "a" }),
+        await post(`${llm.url}/v1/chat/completions`, { messages: [] })
+      ]) {
+        expect(res.status).to.equal(401);
+        expect(await res.json()).to.deep.include({
+          error: { code: "invalid_api_key", message: "injected invalid key" }
+        });
+      }
+      const socket = new WebSocket(
+        `${stt.url.replace("http", "ws")}/v1/listen?language=en-US`
+      );
+      const status = await new Promise((resolve) =>
+        socket.once("unexpected-response", (req, res) => {
+          req.destroy();
+          resolve(res.statusCode);
+        })
+      );
+      expect(status).to.equal(401);
+    } finally {
+      tts.configure({ rejectKey: false });
+      llm.configure({ rejectKey: false });
+      stt.configure({ rejectKey: false });
+    }
+    expect(
+      (await post(`${tts.url}/v1/synthesize`, { text: "a" })).status
+    ).to.equal(200);
+  });
+
   it("TTS holds the request open for provider_timeout", async function () {
     tts.configure({ failNext: "provider_timeout" });
     const outcome = await Promise.race([

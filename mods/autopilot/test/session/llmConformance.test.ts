@@ -23,6 +23,7 @@ import * as path from "path";
 import { expect } from "chai";
 import { parse } from "yaml";
 import { OPENAI_COMPATIBLE } from "../../src/session/llm";
+import { ProviderAuthError } from "@fonoster/community";
 import {
   OpenAiCompatibleThink,
   ThinkChunk,
@@ -233,11 +234,12 @@ describe("@autopilot LLM adapter conformance (registry 1.5)", function () {
   });
 
   it("maps vendor errors to provider_unavailable (and rejected requests to bad_message)", async function () {
-    for (const [status, code] of [
-      [503, "provider_unavailable"],
-      [429, "provider_unavailable"],
-      [401, "provider_unavailable"],
-      [400, "bad_message"]
+    for (const [status, code, type] of [
+      [503, "provider_unavailable", ThinkError],
+      [429, "provider_unavailable", ThinkError],
+      // A rejected key is its own error, fatal to the call (#1146).
+      [401, "provider_unavailable", ProviderAuthError],
+      [400, "bad_message", ThinkError]
     ] as const) {
       const v = await standIn(() => ({ status }));
       try {
@@ -249,7 +251,7 @@ describe("@autopilot LLM adapter conformance (registry 1.5)", function () {
           ))
             void _;
         })().catch((x) => x);
-        expect(e, String(status)).to.be.instanceOf(ThinkError);
+        expect(e, String(status)).to.be.instanceOf(type);
         expect(e.code, String(status)).to.equal(code);
       } finally {
         v.close();

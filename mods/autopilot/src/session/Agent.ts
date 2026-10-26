@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { CALL_REF_ATTR, Usage } from "@fonoster/common";
+import { ProviderAuthError } from "@fonoster/community";
 import { getLogger } from "@fonoster/logger";
 import { SessionEndedError, SessionError } from "@fonoster/voice";
 import { AsyncQueue } from "./AsyncQueue";
@@ -394,6 +395,7 @@ export class Agent {
         this.stopped
       )
         return;
+      if (e instanceof ProviderAuthError) return this.keyRejected(e);
       logger.error(`autopilot reply failed: ${(e as Error).message}`);
       await this.safely(async () => {
         await this.session.say(
@@ -498,6 +500,21 @@ export class Agent {
   }
 
   // ---- endings ----------------------------------------------------------------------
+
+  /**
+   * The model's vendor rejected the key: retrying can't help, so the call fails and hangs up at
+   * once, without an error message (#1146).
+   */
+  private async keyRejected(e: ProviderAuthError) {
+    logger.error(`autopilot cannot use its language model: ${e.message}`);
+    this.abortReply();
+    clearTimeout(this.idleTimer);
+    await this.safely(() =>
+      this.session.hangup({
+        failure: { reason: e.reason, provider: e.provider, kind: e.kind }
+      })
+    );
+  }
 
   async goodbye() {
     this.abortReply();

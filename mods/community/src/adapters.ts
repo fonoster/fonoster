@@ -57,7 +57,7 @@ function openAiCompatible(adapter: string): LlmAdapterFactory {
   return {
     defaultEndpoint: OPENAI_COMPATIBLE[adapter],
     create: (provider, model, settings) =>
-      new OpenAiCompatibleThink(provider, model, settings)
+      new OpenAiCompatibleThink({ name: adapter, ...provider }, model, settings)
   };
 }
 

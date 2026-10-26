@@ -349,7 +349,21 @@ export const clearSchema = {
 export const hangupSchema = {
   type: "object",
   required: ["type"],
-  properties: { type: { const: "hangup" }, id }
+  properties: {
+    type: { const: "hangup" },
+    id,
+    // Ends the call as failed (call record status `failed`): a provider rejected the key, so the
+    // call could not go on. Reserved for Fonoster's own apps (Autopilot).
+    failure: {
+      type: "object",
+      required: ["reason", "provider"],
+      properties: {
+        reason: { enum: ["provider_auth_failed"] },
+        provider: { type: "string", minLength: 1 },
+        kind: { enum: ["llm", "stt", "tts"] }
+      }
+    }
+  }
 } as const;
 
 export const dtmfSendSchema = {
