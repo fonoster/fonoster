@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/region-agent",
-  "version": "0.34.0",
+  "version": "0.34.1",
   "private": true,
   "description": "The region agent and the fonoster-region ops utility: public and private regions' enrollment, config sync, heartbeats, content relay and region secrets; public region administration",
   "author": "Pedro Sanders <psanders@fonoster.com>",
@@ -21,9 +21,9 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@fonoster/callrecord": "^0.34.0",
-    "@fonoster/common": "^0.34.0",
-    "@fonoster/logger": "^0.34.0",
+    "@fonoster/callrecord": "^0.34.1",
+    "@fonoster/common": "^0.34.1",
+    "@fonoster/logger": "^0.34.1",
     "@prisma/client": "^6.19.1",
     "@routr/sdk": "^2.24.0",
     "nats": "^2.25.0",
