@@ -18,6 +18,7 @@
  */
 import { screen, waitFor, within } from "@testing-library/react";
 import type { ReactElement } from "react";
+import { useLocation } from "react-router-dom";
 import { describe, expect, it } from "vitest";
 import { renderScreen } from "~/test/render";
 import { CallsScreen, AppsScreen } from ".";
@@ -135,6 +136,48 @@ describe("apps", () => {
       url: "wss://bot.example.com",
       protocol: "fonoster"
     });
+  });
+
+  it("drops a new app's secret from the history entry once it is shown", async () => {
+    // What a reload or Back/Forward would bring back: this history entry's state.
+    function HistoryState() {
+      return (
+        <div data-testid="history-state">
+          {JSON.stringify(useLocation().state ?? null)}
+        </div>
+      );
+    }
+    const { user } = renderScreen(
+      <SessionApiProvider value={createMockSessionApi()}>
+        <AppsScreen />
+        <HistoryState />
+      </SessionApiProvider>,
+      { path: "/w/:workspaceRef/apps/*", route: "/w/ws-1/apps" }
+    );
+    await user.click(await screen.findByRole("button", { name: /Create app/ }));
+    const create = await screen.findByRole("dialog", { name: "New app" });
+    await user.type(within(create).getByLabelText("Name"), "Bot");
+    await user.type(
+      within(create).getByLabelText("URL"),
+      "wss://bot.example.com"
+    );
+    await user.click(
+      within(create).getByRole("button", { name: "Create app" })
+    );
+    const dialog = await screen.findByRole("dialog", {
+      name: "Save your signing secret"
+    });
+    const shown = within(dialog).getByLabelText("Signing secret", {
+      exact: true
+    }).textContent;
+    expect(shown).toBeTruthy();
+    await waitFor(() =>
+      expect(screen.getByTestId("history-state")).toHaveTextContent("null")
+    );
+    // Still shown until Done, from the page's own copy.
+    expect(
+      within(dialog).getByLabelText("Signing secret", { exact: true })
+    ).toHaveTextContent(shown!);
   });
 
   it("offers the protocols in plain words; audio format only for Fonoster", async () => {

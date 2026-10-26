@@ -162,6 +162,15 @@ function AppEditor({
   const [secret, setSecret] = useState(
     (location.state as { secret?: string } | null)?.secret
   );
+  // Browsers keep navigation state across reloads and Back/Forward: drop the secret from this
+  // history entry as soon as it is read, so it can't be shown again or read from history.
+  useEffect(() => {
+    if ((location.state as { secret?: string } | null)?.secret)
+      navigate(`${location.pathname}${location.search}`, {
+        replace: true,
+        state: null
+      });
+  }, [location, navigate]);
   const set: SetDraft = (key, value) => {
     setApp((a) => ({ ...a, [key]: value }));
     setDirty(true);

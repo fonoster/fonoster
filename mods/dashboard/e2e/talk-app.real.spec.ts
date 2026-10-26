@@ -96,7 +96,7 @@ test("[DSH-065] talks to a stream app from the browser: call, hang up, record", 
   await create.getByRole("button", { name: "Create app" }).click();
   const shown = page.getByRole("dialog", { name: "Save your signing secret" });
   const secret = (
-    await shown.getByLabel("Signing secret").textContent()
+    await shown.getByLabel("Signing secret", { exact: true }).textContent()
   )?.trim();
   expect(secret).toBeTruthy();
 
