@@ -143,7 +143,7 @@ jobs:
   api:
     name: API area (mods/conformance/catalog/areas/api.md)
     needs: changes
-    if: needs.changes.outputs.node == 'true' || github.event_name == 'workflow_dispatch'
+    if: vars.QA_PAUSED != 'true' && (needs.changes.outputs.node == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     # The apiserver runs in the test process; Postgres, NATS and Routr (which stores the SIP
     # resources) are real.
@@ -210,7 +210,7 @@ jobs:
   autopilot:
     name: Autopilot area (mods/conformance/catalog/areas/autopilot.md)
     needs: changes
-    if: needs.changes.outputs.node == 'true' || github.event_name == 'workflow_dispatch'
+    if: vars.QA_PAUSED != 'true' && (needs.changes.outputs.node == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     # The pr-tier cases need no services: the runner plays AppBridge and the fakes harness serves
     # the LLM, tools and media in the test process. The nightly cases are in conformance.yaml.
@@ -252,7 +252,7 @@ jobs:
   billing:
     name: Billing area (mods/conformance/catalog/areas/billing.md)
     needs: changes
-    if: needs.changes.outputs.node == 'true' || github.event_name == 'workflow_dispatch'
+    if: vars.QA_PAUSED != 'true' && (needs.changes.outputs.node == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     # Metering, the billing service and the Stripe fake: Postgres and NATS (JetStream) are real,
     # Stripe is the fake in the test process. No network, no Stripe account.
@@ -320,7 +320,7 @@ jobs:
   transfers:
     name: Transfers and DTMF area (mods/conformance/catalog/areas/transfers.md)
     needs: changes
-    if: needs.changes.outputs.node == 'true' || needs.changes.outputs.python == 'true' || github.event_name == 'workflow_dispatch'
+    if: vars.QA_PAUSED != 'true' && (needs.changes.outputs.node == 'true' || needs.changes.outputs.python == 'true' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     # The real AppBridge (and Autopilot) in the test process against real Roomr nodes in
     # roomr-fake; the apps are protocol peers, SDK fixture apps (TypeScript and Python) and

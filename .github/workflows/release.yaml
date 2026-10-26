@@ -67,7 +67,8 @@ jobs:
   qa:
     name: QA gate
     needs: plan
-    if: needs.plan.outputs.release != 'none'
+    # QA_PAUSED=true (repository variable) skips the gate while QA is paused; unset it to gate again.
+    if: needs.plan.outputs.release != 'none' && vars.QA_PAUSED != 'true'
     uses: ./.github/workflows/qa-proofs.yaml
     with:
       version: ${{ needs.plan.outputs.release }}
@@ -78,7 +79,7 @@ jobs:
     name: version and npm packages
     needs: [plan, qa]
     # Only after the gate passed, or on a resume (no gate: it ran when the version was cut).
-    if: ${{ !cancelled() && (needs.qa.result == 'success' || (needs.qa.result == 'skipped' && needs.plan.outputs.resume == 'true')) }}
+    if: ${{ !cancelled() && (needs.qa.result == 'success' || (needs.qa.result == 'skipped' && (needs.plan.outputs.resume == 'true' || (vars.QA_PAUSED == 'true' && needs.plan.outputs.release != 'none')))) }}
     runs-on: ubuntu-latest
     # id-token lets npm verify this run (trusted publishing), so no npm token is stored.
     permissions:
