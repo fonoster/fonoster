@@ -235,6 +235,20 @@ The first case of the real project: Chromium with a fake microphone against the 
 
 **Pass.** Talk to agent, Call: the drawer shows Connected with a running timer; Mute reads Unmute; Hang up shows Call ended with Call again; the call then appears in the workspace's calls. **Fail.** No connection, a stuck state, a mute that does not toggle, or no call record.
 
+### DSH-065 Talk to app: call a stream app, hang up
+
+- **Spec:** talk-in-browser / Apps have a Talk drawer / Call a stream app
+- **Spec:** talk-in-browser / A browser call reaches the agent / Call a stream app's session
+- **Priority:** P0
+- **Tier:** nightly
+- **Proof:** Open the drawer for another app (`appRef` on `TalkDrawer` in `session/app-detail.tsx`); with no app to take the call, the test must go red on Connected.
+- **Fault:** faults/DSH-065.patch
+- **Test:** mods/dashboard/e2e/talk-app.real.spec.ts (the `real` project, `npm run test:e2e:real` against `ops/rebuild/stack up && seed`)
+
+The test runs its own stream app: the Voice SDK's `VoiceServer` on the test machine, which AppBridge reaches as `host.docker.internal` (the dev stack maps it to the host gateway and lists it in `FONOSTER_ALLOWED_DESTINATIONS`, as a self-hosted install lists its own private app servers). It creates a STREAM app through the UI, starts the server with the signing secret the dialog shows once, and deletes the app after. When the app hangs up first (`session.hangup()`), the browser stays Connected until Routr forwards the BYE to the WebSocket client (a Routr bug, filed separately), so the browser hangs up here.
+
+**Pass.** On the app's page, Talk to app, Call: the drawer shows Connected and the server receives one session for that app; Hang up shows Call ended with Call again; the app's Recent calls then lists the call. **Fail.** No connection, no session or a session for another app, a stuck state, or no call record.
+
 ### DSH-016 Sign in with email and password on Cloud
 
 - **Spec:** dashboard / Sign-in options follow the advertised methods / Cloud

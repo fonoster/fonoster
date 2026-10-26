@@ -982,6 +982,11 @@
     "pri": "P0",
     "trials": null
   },
+  "DSH-065": {
+    "tier": "nightly",
+    "pri": "P0",
+    "trials": null
+  },
   "DSH-016": {
     "tier": "pr",
     "pri": "P0",

@@ -316,5 +316,6 @@
   "XFR-016": "Autopilot's hangup tool says goodbye, then hangs up",
   "XFR-017": "After a failed transfer Autopilot says so and keeps helping",
   "DSH-063": "Talk drawer over HTTPS: SIP over WSS",
-  "DSH-064": "Talk drawer on the owner's certificate: HSTS and WSS"
+  "DSH-064": "Talk drawer on the owner's certificate: HSTS and WSS",
+  "DSH-065": "Talk to app: call a stream app, hang up"
 }

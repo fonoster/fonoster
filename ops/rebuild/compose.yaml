@@ -36,6 +36,11 @@ services:
       DEEPGRAM_API_KEY: ${DEEPGRAM_API_KEY:-}
       ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
       AICOUSTICS_LICENSE_KEY: ${AICOUSTICS_LICENSE_KEY:-}
+      # A stream app on this machine (DSH-065 starts one): the operator's allow list, as a
+      # self-hosted install would set it for its own private app servers.
+      FONOSTER_ALLOWED_DESTINATIONS: ${FONOSTER_ALLOWED_DESTINATIONS:-host.docker.internal}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "${RB_APPBRIDGE_PORT:-8080}:8080"
 
@@ -62,6 +67,8 @@ services:
     environment:
       HTTPS_PORT: ${HTTPS_PORT:-443}
       LEAF_PORT: ${LEAF_PORT:-7422}
+      # Lets app URLs name a stream app on this machine (AppBridge's allow list above).
+      FONOSTER_ALLOWED_DESTINATIONS: ${FONOSTER_ALLOWED_DESTINATIONS:-host.docker.internal}
     # One name for the fake OAuth2 provider that the browser (loopback, *.localhost) and identity
     # (the host gateway) both reach on the published port: identity.oauth2.github.url in a local
     # overlay is http://fake-oauth2.localhost:${RB_FAKES_OAUTH2_PORT}.

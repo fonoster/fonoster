@@ -18,13 +18,12 @@
  */
 import { Mic, MicOff, Phone, PhoneOff } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { CopyField } from "~/components/data/copy-field";
 import { Alert } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Sheet, SheetContent } from "~/components/ui/sheet";
 import { cn } from "~/lib/utils";
-import { useWorkspace } from "~/lib/workspace";
 import { useAllNumbers } from "../agents.service";
 import {
   canCallFromBrowser,
@@ -47,8 +46,11 @@ function elapsed(since: number | undefined, now: number) {
   return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
+/** A number the drawer lists under "Call this number". */
+export type TalkNumber = { ref: string; label: string; telUrl: string };
+
 /**
- * Talk to the saved agent: from the browser (WebRTC through Routr to the Roomr nodes,
+ * Talk to a saved agent or app: from the browser (WebRTC through Routr to the Roomr nodes,
  * add-talk-in-browser) or by calling one of its numbers.
  */
 export function TalkDrawer({
@@ -56,7 +58,8 @@ export function TalkDrawer({
   onOpenChange,
   appRef,
   name,
-  dirty
+  dirty,
+  numbers
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -64,6 +67,8 @@ export function TalkDrawer({
   name: string;
   /** The editor has unsaved changes the call won't use. */
   dirty: boolean;
+  /** The numbers routed here, when the page already has them; otherwise the drawer loads them. */
+  numbers?: TalkNumber[];
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -88,7 +93,11 @@ export function TalkDrawer({
                 dashboard at localhost on this machine, or call a number below.
               </Alert>
             )}
-            <Numbers appRef={appRef} />
+            {numbers ? (
+              <Numbers numbers={numbers} />
+            ) : (
+              <LoadedNumbers appRef={appRef} />
+            )}
           </>
         )}
       </SheetContent>
@@ -191,7 +200,7 @@ function BrowserCall({ appRef }: { appRef: string }) {
           {call.status === "idle" ? "Call" : "Call again"}
         </Button>
       )}
-      {/* Remote audio: the agent's voice. */}
+      {/* Remote audio: the agent's or app's voice. */}
       <audio ref={call.audioRef} autoPlay className="hidden" />
     </section>
   );
@@ -199,10 +208,33 @@ function BrowserCall({ appRef }: { appRef: string }) {
 
 const display = (telUrl: string) => telUrl.replace(/^tel:/, "");
 
-function Numbers({ appRef }: { appRef: string }) {
-  const workspace = useWorkspace();
+function LoadedNumbers({ appRef }: { appRef: string }) {
   const numbers = useAllNumbers();
-  const linked = (numbers.data ?? []).filter((n) => n.appRef === appRef);
+  return (
+    <Numbers
+      pending={numbers.isPending}
+      failed={numbers.isError}
+      numbers={(numbers.data ?? [])
+        .filter((n) => n.appRef === appRef)
+        .map((n) => ({
+          ref: n.ref,
+          label: n.name || "Number",
+          telUrl: n.telUrl
+        }))}
+    />
+  );
+}
+
+function Numbers({
+  numbers,
+  pending = false,
+  failed = false
+}: {
+  numbers: TalkNumber[];
+  pending?: boolean;
+  failed?: boolean;
+}) {
+  const { workspaceRef } = useParams();
 
   return (
     <section
@@ -216,29 +248,25 @@ function Numbers({ appRef }: { appRef: string }) {
         <p className="font-display text-base font-medium">Call this number</p>
       </div>
 
-      {numbers.isPending ? (
+      {pending ? (
         <p className="font-display text-sm text-muted-foreground">
           Loading numbers…
         </p>
-      ) : numbers.isError ? (
-        <Alert variant="error">Couldn't load this agent's numbers.</Alert>
-      ) : linked.length > 0 ? (
+      ) : failed ? (
+        <Alert variant="error">Couldn't load the numbers.</Alert>
+      ) : numbers.length > 0 ? (
         <div className="flex flex-col gap-3">
-          {linked.map((n) => (
-            <CopyField
-              key={n.ref}
-              label={n.name || "Number"}
-              value={display(n.telUrl)}
-            />
+          {numbers.map((n) => (
+            <CopyField key={n.ref} label={n.label} value={display(n.telUrl)} />
           ))}
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           <p className="font-display text-sm text-muted-foreground">
-            No phone number is linked to this agent yet. Link one to call it.
+            No phone number is linked yet. Link one to call it.
           </p>
           <Button asChild variant="outline">
-            <Link to={`/w/${workspace.ref}/numbers`}>Go to Numbers</Link>
+            <Link to={`/w/${workspaceRef}/numbers`}>Go to Numbers</Link>
           </Button>
         </div>
       )}
