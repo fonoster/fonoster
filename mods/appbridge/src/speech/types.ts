@@ -18,6 +18,8 @@
  */
 // The speech adapter interfaces live in @fonoster/community with the vendor adapters (registry 3.1).
 export {
+  isProviderAuthError,
+  ProviderAuthError,
   SpeechError,
   SttAdapter,
   SttStream,

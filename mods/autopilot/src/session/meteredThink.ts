@@ -30,6 +30,12 @@ export type UsageSink = {
   usage(lines: Usage.UsageLine[]): void;
   /** A completed request whose vendor reported no usage (add-usage-metering). */
   missing(catalogId: string): void;
+  /** The knowledge base's embeddings key was rejected: knowledge is off for this call. */
+  keyRejected?(event: {
+    provider: string;
+    catalogId: string;
+    status: number;
+  }): void;
 };
 
 export type MeteredModel = {

@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// The shared adapter interfaces: speech (STT, TTS) and language models (LLM).
+// The shared adapter interfaces: speech (STT, TTS) and language models (LLM), and their errors.
+export * from "./errors";
 export * from "./llm";
 export * from "./speech";

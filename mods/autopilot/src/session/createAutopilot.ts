@@ -155,6 +155,13 @@ function createSessionRunner(options: AutopilotOptions) {
       missing: (catalogId) => {
         telemetry.count("fonoster.usage.missing", 1, { catalog_id: catalogId });
         recorder.note({ type: "usage_missing", catalogId });
+      },
+      // Knowledge is optional: the call goes on without it, and the record says why (#1146).
+      keyRejected: (event) => {
+        telemetry.count("fonoster.autopilot.knowledge.key_rejected", 1, {
+          provider: event.provider
+        });
+        recorder.note({ type: "knowledge.key_rejected", ...event });
       }
     };
     let think = options.think;

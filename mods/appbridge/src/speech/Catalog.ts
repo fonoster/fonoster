@@ -76,15 +76,21 @@ type Adapters = { tts?: TtsAdapter; stt?: SttAdapter };
 
 /**
  * The adapters a provider gets with a given key, built by its catalog adapter id
- * (@fonoster/community). Keyless providers are built without one.
+ * (@fonoster/community). Keyless providers are built without one. `name` is the catalog provider
+ * (e.g. together), which a rejected key names, not the adapter id it is served by.
  */
-function buildAdapters(p: ProviderConfig, apiKey?: string): Adapters {
+function buildAdapters(
+  name: string,
+  p: ProviderConfig,
+  apiKey?: string
+): Adapters {
   const factories = adapterFor(p.adapter);
   if (!factories) return {};
   const timeoutMs = p.tts?.timeoutMs ?? DEFAULTS.ttsTimeoutMs;
   return {
     tts: p.capabilities.includes("tts")
       ? factories.tts?.({
+          provider: name,
           apiKey,
           url: p.tts?.url,
           model: p.tts?.model,
@@ -92,7 +98,12 @@ function buildAdapters(p: ProviderConfig, apiKey?: string): Adapters {
         })
       : undefined,
     stt: p.capabilities.includes("stt")
-      ? factories.stt?.({ apiKey, url: p.stt?.url, model: p.stt?.model })
+      ? factories.stt?.({
+          provider: name,
+          apiKey,
+          url: p.stt?.url,
+          model: p.stt?.model
+        })
       : undefined
   };
 }
@@ -149,7 +160,7 @@ export class Catalog {
       const p = this.providerConfig(name)!;
       const apiKey = keyless(p) ? undefined : providerKey(p);
       if (!keyless(p) && !apiKey) continue;
-      const built = buildAdapters(p, apiKey);
+      const built = buildAdapters(name, p, apiKey);
       if (built.tts) this.tts.set(name, built.tts);
       if (built.stt) this.stt.set(name, built.stt);
     }
@@ -245,9 +256,11 @@ export class Catalog {
     const p = key && this.providerConfig(provider);
     if (!key || !p) return undefined;
     // Keys that must not be cached are never kept past this resolution.
-    if (this.keySource?.cacheable === false) return buildAdapters(p, key);
+    if (this.keySource?.cacheable === false)
+      return buildAdapters(provider, p, key);
     const id = `${provider}\u0000${key}`;
-    const built = this.keyed.get(id)?.adapters ?? buildAdapters(p, key);
+    const built =
+      this.keyed.get(id)?.adapters ?? buildAdapters(provider, p, key);
     this.keyed.delete(id);
     this.keyed.set(id, { used: this.now(), adapters: built });
     this.prune();
@@ -393,7 +406,7 @@ export class Catalog {
     if (!built) {
       for (const k of this.keylessBuilt.keys())
         if (k.startsWith(`${name}\u0000`)) this.keylessBuilt.delete(k);
-      built = buildAdapters(p);
+      built = buildAdapters(name, p);
       this.keylessBuilt.set(id, built);
     }
     return built;

@@ -58,12 +58,18 @@ export interface Think {
   ): AsyncIterable<ThinkChunk>;
 }
 
-export type ThinkProvider = { baseUrl: string; apiKey?: string };
+export type ThinkProvider = {
+  baseUrl: string;
+  apiKey?: string;
+  /** The catalog adapter id, named in a ProviderAuthError. */
+  name?: string;
+};
 
 /**
  * A language model vendor failed, named like the session error codes (registry "vendor errors
- * map to provider_unavailable", task 1.5): unreachable or 401/403/429/5xx → provider_unavailable,
- * 400/422 → bad_message. An abort is not a provider error and is rethrown as it is.
+ * map to provider_unavailable", task 1.5): unreachable or 429/5xx → provider_unavailable,
+ * 400/422 → bad_message. A rejected key (401/403) is a ProviderAuthError instead. An abort is
+ * not a provider error and is rethrown as it is.
  */
 export class ThinkError extends Error {
   constructor(

@@ -42,6 +42,11 @@ export type ProviderBehavior = {
   script?: Record<string, unknown>[];
   /** LLM only: leave out the usage report, as a vendor that reports no usage would. */
   omitUsage?: boolean;
+  /**
+   * Answer as a vendor that rejects the key, on every request until turned off: HTTP 401 (TTS,
+   * LLM) or a WebSocket handshake refused with 401 (STT).
+   */
+  rejectKey?: boolean;
 };
 
 export type Providers = {

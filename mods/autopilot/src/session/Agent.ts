@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { CALL_REF_ATTR, Usage } from "@fonoster/common";
+import { isProviderAuthError, ProviderAuthError } from "@fonoster/community";
 import { getLogger } from "@fonoster/logger";
 import { SessionEndedError, SessionError } from "@fonoster/voice";
 import { AsyncQueue } from "./AsyncQueue";
@@ -123,6 +124,8 @@ export class Agent {
   /** Whether a reply is prepared on turn.likely_ended (off at high patience or once adapted). */
   private prepareEarly: boolean;
   private stopped = false;
+  /** A vendor rejected the model's key and the call is failing (#1146). */
+  private keyFailed = false;
   send: (event: AgentEvent) => void = () => undefined;
 
   constructor(
@@ -177,6 +180,11 @@ export class Agent {
 
   stop() {
     this.stopped = true;
+    this.endTurns();
+  }
+
+  /** Nothing more is said or prepared: the reply, the prepared reply and the timers stop. */
+  private endTurns() {
     this.abortReply();
     this.discardPrepared();
     clearTimeout(this.idleTimer);
@@ -394,6 +402,7 @@ export class Agent {
         this.stopped
       )
         return;
+      if (isProviderAuthError(e)) return this.keyRejected(e);
       logger.error(`autopilot reply failed: ${(e as Error).message}`);
       await this.safely(async () => {
         await this.session.say(
@@ -498,6 +507,22 @@ export class Agent {
   }
 
   // ---- endings ----------------------------------------------------------------------
+
+  /**
+   * The model's vendor rejected the key: retrying can't help, so the call fails and hangs up at
+   * once, without an error message (#1146).
+   */
+  private async keyRejected(e: ProviderAuthError) {
+    if (this.keyFailed || this.stopped) return;
+    this.keyFailed = true;
+    logger.error(`autopilot cannot use its language model: ${e.message}`);
+    this.endTurns();
+    await this.safely(() =>
+      this.session.hangup({
+        failure: { reason: e.reason, provider: e.provider, kind: e.kind }
+      })
+    );
+  }
 
   async goodbye() {
     this.abortReply();
@@ -682,11 +707,16 @@ export class Agent {
     stream: AsyncIterable<ThinkChunk>,
     into: AsyncQueue<ThinkChunk>
   ) {
+    // The key was rejected and the call is failing: the model is not asked again.
+    if (this.keyFailed) return into.end();
     try {
       for await (const chunk of stream) into.push(chunk);
       into.end();
     } catch (e) {
       into.fail(e as Error);
+      // Fatal at once, even for a reply prepared early that is never spoken: a reply discarded
+      // after its key was rejected must not lead to a second request (#1146).
+      if (isProviderAuthError(e)) void this.keyRejected(e);
     }
   }
 

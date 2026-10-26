@@ -239,6 +239,39 @@ reached, and SHALL stop all work when the session ends.
 - **WHEN** the session sends `session.end` while Autopilot is generating a reply
 - **THEN** Autopilot aborts the generation, sends nothing further and raises no unhandled error
 
+### Requirement: A rejected vendor key fails the call at once
+
+When a provider the call uses (the agent's language model, or the app's speech recognition or
+voice) rejects the key (HTTP 401 or 403, on a request or a WebSocket handshake), its adapter SHALL
+report a typed auth error naming the provider, nothing SHALL retry it, and the call SHALL be hung
+up at once. The call record SHALL have status `failed` with reason `provider_auth_failed` and the
+`provider` (the catalog provider the workspace configured, not the adapter serving it), never
+`completed`. Autopilot ends such a call with `hangup` carrying `failure`, also when the rejected
+request was a reply prepared early that is never spoken; AppBridge ends a call whose speech
+provider rejected the key with a fatal `error` and hangs up. Whichever side found it, the session
+SHALL end with reason `error` and the workspace SHALL get a `call.failed` webhook with reason
+`provider_auth_failed`. A rejected knowledge-base embeddings key is not fatal, since the agent
+can still answer without knowledge: it SHALL be noted once in the call record
+(`knowledge.key_rejected`) and not asked again for the rest of the call.
+
+#### Scenario: The language model rejects the key
+
+- **WHEN** the caller asks a question and the agent's model provider answers with HTTP 401
+- **THEN** Autopilot sends `hangup` with `failure: {reason: "provider_auth_failed", provider, kind: "llm"}`, without the error message and without asking the model again
+- **AND** the call record has status `failed` with reason `provider_auth_failed` naming the provider
+
+#### Scenario: Speech recognition rejects the key
+
+- **WHEN** the app's speech recognition provider refuses the stream's handshake with HTTP 401
+- **THEN** AppBridge sends a fatal `error` naming the provider, does not reconnect, and hangs up
+- **AND** the call record has status `failed` with reason `provider_auth_failed` naming the provider
+
+#### Scenario: The voice rejects the key
+
+- **WHEN** the app's voice provider answers the greeting's `speak` with HTTP 401
+- **THEN** AppBridge sends a fatal `error` related to that `speak`, does not ask again, and hangs up
+- **AND** the call record has status `failed` with reason `provider_auth_failed` naming the provider
+
 ### Requirement: Autopilot is an ordinary application
 
 Autopilot SHALL run as a hosted `VoiceServer` and SHALL use only public session messages of the

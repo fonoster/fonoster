@@ -19,6 +19,8 @@
 import { EventEmitter } from "events";
 import { URLSearchParams } from "url";
 import WebSocket from "ws";
+import { isAuthStatus, ProviderAuthError } from "../errors";
+import { discardBody } from "../http";
 import {
   SpeechError,
   SttAdapter,
@@ -33,7 +35,14 @@ import {
 // built in, like every adapter, and enabled only in test mode.
 
 export class FakeTtsAdapter implements TtsAdapter {
-  constructor(private readonly options: { url: string; timeoutMs: number }) {}
+  constructor(
+    private readonly options: {
+      url: string;
+      timeoutMs: number;
+      /** The catalog provider named in a ProviderAuthError (default: fake). */
+      provider?: string;
+    }
+  ) {}
 
   async synthesize(
     request: { text: string; voice: string; language: string },
@@ -65,13 +74,25 @@ export class FakeTtsAdapter implements TtsAdapter {
             `TTS unreachable: ${(e as Error).message}`
           );
     }
-    if (res.status === 400)
+    if (isAuthStatus(res.status)) {
+      await discardBody(res);
+      throw new ProviderAuthError(
+        this.options.provider ?? "fake",
+        "tts",
+        res.status
+      );
+    }
+    if (res.status === 400) {
+      await discardBody(res);
       throw new SpeechError("bad_message", "TTS rejected the request");
-    if (!res.ok || !res.body)
+    }
+    if (!res.ok || !res.body) {
+      await discardBody(res);
       throw new SpeechError(
         "provider_unavailable",
         `TTS answered HTTP ${res.status}`
       );
+    }
 
     const words = res.headers.get("x-fake-word-timings");
     const body = res.body;
@@ -113,7 +134,13 @@ class FakeSttStream extends EventEmitter implements SttStream {
   private pending: (Buffer | string)[] = [];
   private open = false;
 
-  constructor(url: string, language: string, hints?: string[], model?: string) {
+  constructor(
+    url: string,
+    language: string,
+    hints?: string[],
+    model?: string,
+    provider = "fake"
+  ) {
     super();
     const query = new URLSearchParams({
       language,
@@ -122,6 +149,22 @@ class FakeSttStream extends EventEmitter implements SttStream {
       ...(model ? { model } : {})
     });
     this.socket = new WebSocket(`${url}/v1/listen?${query}`);
+    let rejected = false;
+    // A rejected handshake: a refused key is a ProviderAuthError, the rest provider_unavailable.
+    this.socket.on("unexpected-response", (req, res) => {
+      rejected = true;
+      req.destroy();
+      const status = res.statusCode ?? 0;
+      this.emit(
+        "error",
+        isAuthStatus(status)
+          ? new ProviderAuthError(provider, "stt", status)
+          : new SpeechError(
+              "provider_unavailable",
+              `STT answered HTTP ${status}`
+            )
+      );
+    });
     this.socket.on("open", () => {
       this.open = true;
       if (hints) this.socket.send(JSON.stringify({ type: "config", hints }));
@@ -155,8 +198,11 @@ class FakeSttStream extends EventEmitter implements SttStream {
           new SpeechError("bad_message", "STT rejected the stream")
         );
     });
-    this.socket.on("error", (e) =>
-      this.emit("error", new SpeechError("provider_unavailable", e.message))
+    this.socket.on(
+      "error",
+      (e) =>
+        !rejected &&
+        this.emit("error", new SpeechError("provider_unavailable", e.message))
     );
   }
 
@@ -185,7 +231,13 @@ class FakeSttStream extends EventEmitter implements SttStream {
 }
 
 export class FakeSttAdapter implements SttAdapter {
-  constructor(private readonly options: { url: string }) {}
+  constructor(
+    private readonly options: {
+      url: string;
+      /** The catalog provider named in a ProviderAuthError (default: fake). */
+      provider?: string;
+    }
+  ) {}
 
   open(options: {
     language: string;
@@ -196,7 +248,8 @@ export class FakeSttAdapter implements SttAdapter {
       this.options.url,
       options.language,
       options.hints,
-      options.model
+      options.model,
+      this.options.provider
     );
   }
 }

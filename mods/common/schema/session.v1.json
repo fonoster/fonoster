@@ -650,6 +650,31 @@
           "type": "string",
           "minLength": 1,
           "maxLength": 128
+        },
+        "failure": {
+          "type": "object",
+          "required": [
+            "reason",
+            "provider"
+          ],
+          "properties": {
+            "reason": {
+              "enum": [
+                "provider_auth_failed"
+              ]
+            },
+            "provider": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "enum": [
+                "llm",
+                "stt",
+                "tts"
+              ]
+            }
+          }
         }
       }
     },

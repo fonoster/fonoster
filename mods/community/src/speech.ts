@@ -61,7 +61,10 @@ export type Transcript = {
   turn?: { eot?: number; endOfTurn?: boolean };
 };
 
-/** One streaming recognition session. Emits "transcript" (Transcript) and "error" (SpeechError). */
+/**
+ * One streaming recognition session. Emits "transcript" (Transcript) and "error" (SpeechError, or
+ * ProviderAuthError when the vendor rejects the key).
+ */
 export interface SttStream extends EventEmitter {
   write(frame: Buffer): void;
   update(options: { language?: string; hints?: string[] }): void;

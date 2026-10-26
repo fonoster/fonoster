@@ -20,6 +20,7 @@ import { expect } from "chai";
 import { NatsConnection, connect } from "nats";
 import { FakesHarness } from "@fonoster/conformance";
 import { AppBridge, MemoryCallRecordSink } from "@fonoster/appbridge";
+import { buildVcon } from "@fonoster/callrecord";
 import { VoiceServer } from "@fonoster/voice";
 import { Agent, createAutopilotHandler } from "../../src/session";
 
@@ -278,5 +279,177 @@ describe("@autopilot full stack: Roomr node → appbridge → Autopilot → LLM 
       await autopilot.close();
       await harness.stop();
     }
+  });
+});
+
+// A vendor that rejects the workspace's key fails the call at once (#1146), whichever kind of
+// provider it is: the fake answers 401 (rejectKey), nothing asks it again, the call is hung up and
+// its record says failed with reason provider_auth_failed, naming the provider.
+describe("@autopilot full stack: a rejected vendor key fails the call at once", function () {
+  this.timeout(20000);
+  let nc: NatsConnection;
+
+  before(async function () {
+    if (!NATS_URL)
+      throw new Error(
+        "CONFORMANCE_NATS_URL is not set: the full-stack case needs NATS"
+      );
+    nc = await connect({ servers: NATS_URL });
+  });
+
+  after(async () => nc?.close());
+
+  async function callWithRejectedKey(kind: "llm" | "stt" | "tts") {
+    const harness = await new FakesHarness().start();
+    harness.stt.configure({
+      script: [{ atMs: 600, text: "What are your hours?" }]
+    });
+    harness[kind].configure({ rejectKey: true });
+
+    const autopilot = await new VoiceServer({
+      port: 0,
+      host: "127.0.0.1",
+      signingSecret: SECRET
+    }).listen(
+      createAutopilotHandler({
+        agent: {
+          conversationSettings: {
+            firstMessage: "Hello, this is the clinic.",
+            systemPrompt: "You are the receptionist of a dental clinic.",
+            goodbyeMessage: "Goodbye!",
+            systemErrorMessage: "Sorry, something went wrong."
+          },
+          languageModel: { model: "fake/llm" }
+        },
+        providers: { fake: { baseUrl: harness.llm.url } }
+      })
+    );
+
+    const record = new MemoryCallRecordSink();
+    const webhooks: { type: string; data: Record<string, unknown> }[] = [];
+    const urls = harness.providerUrls;
+    const appbridge = await new AppBridge({
+      nats: nc,
+      record,
+      webhooks: (e) =>
+        webhooks.push(e as { type: string; data: Record<string, unknown> }),
+      config: {
+        nats: { url: NATS_URL! },
+        session: { listen: "127.0.0.1:0" },
+        apps: [
+          {
+            ref: "autopilot",
+            type: "AUTOPILOT",
+            url: `ws://127.0.0.1:${autopilot.port}/`,
+            protocol: "fonoster",
+            signingSecret: SECRET,
+            speech: {
+              voice: "fake/default",
+              language: "en-US",
+              silenceTimeoutMs: 400
+            }
+          }
+        ],
+        providers: {
+          fake: {
+            adapter: "fake",
+            capabilities: ["tts", "stt"],
+            tts: { url: urls.tts },
+            stt: { url: urls.stt }
+          }
+        }
+      }
+    }).start();
+    harness.roomrNode.configure({ endpoint: appbridge.sessionEndpoint });
+
+    try {
+      await harness.roomrNode.offerCall({
+        from: "+15550001111",
+        to: "+15550002222"
+      });
+      const entries = () => [...record.records.values()][0] ?? [];
+      const at = (type: string) =>
+        entries().find((e) => e.message.type === type)?.at;
+      await waitFor(() => harness.roomrNode.call()?.ended, 8000, "the hangup");
+      await waitFor(() => at("call.ended"), 3000, "call.ended");
+      // A moment for a retry, a reconnect or an error message to show up if one were coming.
+      await sleep(500);
+      const failed = entries().find((e) => e.message.type === "call.failed");
+      return {
+        harness,
+        entries: entries(),
+        webhooks,
+        failed,
+        at,
+        vcon: buildVcon("c1", entries(), { region: "test" }).vcon
+      };
+    } finally {
+      await appbridge.stop();
+      await autopilot.close();
+      await harness.stop();
+    }
+  }
+
+  function expectFailedRecord(
+    call: Awaited<ReturnType<typeof callWithRejectedKey>>,
+    kind: string
+  ) {
+    expect(call.failed?.message).to.deep.equal({
+      type: "call.failed",
+      reason: "provider_auth_failed",
+      provider: "fake",
+      kind
+    });
+    expect(call.vcon.fonoster).to.deep.include({
+      status: "failed",
+      failure: { reason: "provider_auth_failed", provider: "fake" }
+    });
+    // Hung up at once: the call ends right after it failed.
+    expect(call.at("call.ended")! - call.failed!.at).to.be.lessThan(1000);
+    // Every kind ends with the platform-failure reason, and the workspace hears call.failed.
+    const ended = call.entries.find((e) => e.message.type === "call.ended");
+    expect(ended?.message.reason).to.equal("error");
+    expect(
+      call.webhooks
+        .filter((w) => w.type === "call.failed")
+        .map((w) => w.data.reason)
+    ).to.deep.equal(["provider_auth_failed"]);
+  }
+
+  it("[APT-023] the language model rejects the key: hung up after the first request, record failed", async function () {
+    const call = await callWithRejectedKey("llm");
+    expectFailedRecord(call, "llm");
+    expect(call.harness.llm.requests).to.equal(1);
+    // The caller's question failed it (the reply prepared on turn.likely_ended, when the turn
+    // got that far first): no error message, no second try.
+    const asked = call.at("turn.likely_ended") ?? call.at("turn.ended");
+    expect(asked, "the caller's turn").to.be.a("number");
+    expect(call.failed!.at - asked!).to.be.lessThan(1500);
+    expect(
+      call.harness.tts.synthesized.map((s) => s.text).join(" ")
+    ).to.not.include("Sorry");
+  });
+
+  it("[APT-024] speech recognition rejects the key: hung up without a reconnect, record failed", async function () {
+    const call = await callWithRejectedKey("stt");
+    expectFailedRecord(call, "stt");
+    expect(call.harness.stt.requests).to.equal(1);
+    expect(call.failed!.at - call.at("call.started")!).to.be.lessThan(3000);
+    expect(call.harness.llm.requests).to.equal(0);
+  });
+
+  it("[APT-025] the voice rejects the key: hung up after the greeting's speak, record failed", async function () {
+    const call = await callWithRejectedKey("tts");
+    expectFailedRecord(call, "tts");
+    expect(call.harness.tts.requests).to.equal(1);
+    const error = call.entries.find(
+      (e) => e.source === "appbridge" && e.message.type === "error"
+    );
+    expect(error?.message).to.include({
+      code: "provider_unavailable",
+      message: "fake rejected the credentials (HTTP 401)",
+      fatal: true
+    });
+    expect(call.harness.llm.requests).to.equal(0);
   });
 });

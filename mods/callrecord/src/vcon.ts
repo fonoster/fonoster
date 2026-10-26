@@ -82,7 +82,8 @@ export function buildVcon(
   // The call's usage: each snapshot holds all of it, so the last one wins (add-usage-metering).
   let usage: unknown[] | undefined;
   let started: Record<string, unknown> | undefined;
-  let failure: { reason: string; sipStatus?: number } | undefined;
+  let failure:
+    { reason: string; sipStatus?: number; provider?: string } | undefined;
   // Who answered (AMD), as AppBridge reported it: the first verdict is the call's.
   let amd: Record<string, unknown> | undefined;
   let recordingPolicy: string | undefined;
@@ -190,7 +191,9 @@ export function buildVcon(
     } else if (e.source === "event" && type === "call.failed") {
       failure ??= {
         reason: String(m.reason),
-        ...(typeof m.sipStatus === "number" ? { sipStatus: m.sipStatus } : {})
+        ...(typeof m.sipStatus === "number" ? { sipStatus: m.sipStatus } : {}),
+        // The provider that failed it (key_unavailable, provider_auth_failed).
+        ...(typeof m.provider === "string" ? { provider: m.provider } : {})
       };
     } else if (e.source === "event" && type === "amd.result") {
       amd ??= {

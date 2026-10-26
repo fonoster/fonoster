@@ -72,3 +72,8 @@ it without the page by adding `&email=<address>` to the authorize URL.
 
 Adapters map these to session `error` codes exactly as they map the real vendor's failures:
 `provider_unavailable`, `provider_timeout`, or `bad_message` for the caller's malformed input.
+
+`rejectKey: true` makes a fake answer as a vendor that rejects the key, on every request or stream
+until it is turned off: HTTP 401 `{error: {code: "invalid_api_key"}}` (TTS, LLM), or the WebSocket
+handshake refused with HTTP 401 (STT). Adapters map a 401 or 403 to their typed auth error, which
+fails the call at once.

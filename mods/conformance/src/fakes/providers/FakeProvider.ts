@@ -129,6 +129,10 @@ export abstract class FakeProvider {
     }
 
     this.requests++;
+    if (this.behavior.rejectKey)
+      return this.json(res, 401, {
+        error: { code: "invalid_api_key", message: "injected invalid key" }
+      });
     const failure = this.takeFailure();
     if (failure === "provider_timeout") {
       // Hold the request open: the caller's own timeout must fire. The hold counts as provider time.
