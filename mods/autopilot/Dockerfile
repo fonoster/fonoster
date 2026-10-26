@@ -27,7 +27,7 @@ RUN for p in types logger common voice autopilot; do (cd mods/$p && npx tsc -b) 
 RUN --mount=type=cache,target=/root/.npm \
     mkdir -p /opt/db && cd /opt/db && echo '{"private":true}' > package.json \
   && npm install --ignore-scripts --no-audit --no-fund \
-      @prisma/client@6.19.2 prisma-field-encryption@1.6.0 prisma@6.19.3 \
+      @prisma/client@6.19.3 prisma-field-encryption@1.6.0 prisma@6.19.3 \
   && npx prisma generate --schema /work/mods/apiserver/schema.prisma \
   && rm -rf node_modules/prisma node_modules/@prisma/engines node_modules/.bin \
   && cp -an node_modules/. /work/node_modules/

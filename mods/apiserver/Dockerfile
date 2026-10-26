@@ -54,7 +54,7 @@ COPY --from=builder --chown=appuser:appuser /work/mods/identity/migrations ./ide
 COPY --from=builder --chown=appuser:appuser /work/mods/identity/schema.prisma ./identity/schema.prisma
 
 RUN apt-get update && apt-get install -y ca-certificates \
-  && npm install -g prisma@6.8.2 npm@latest \
+  && npm install -g prisma@6.19.3 npm@latest \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 

@@ -48,7 +48,7 @@ COPY --from=builder --chown=appuser:appuser /work/mods/logger ./mods/logger
 COPY --from=builder --chown=appuser:appuser /work/mods/types ./mods/types
 
 RUN apt-get update && apt-get install -y ca-certificates \
-    && npm install -g prisma@6.8.2 \
+    && npm install -g prisma@6.19.3 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
