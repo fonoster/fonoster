@@ -4,7 +4,7 @@
 
 - [x] 1.1 `ops/bundle/compose.yaml`: pass `OTEL_EXPORTER_OTLP_ENDPOINT`, `_HEADERS`, `_PROTOCOL` to `routr`
 - [x] 1.2 `send-telemetry.mdx`: a "See it in Grafana" recipe (`grafana/otel-lgtm`), Routr and Roomr rows corrected, search by `sip.call_id`
-- [ ] 1.4 Bundle pins the Routr and Roomr releases that carry fonoster/routr#434 and fonoster/roomr#43 (before merge: the docs describe them)
+- [x] 1.4 Bundle pins the Routr and Roomr releases that carry fonoster/routr#434 and fonoster/roomr#43: routr-one 2.25.0, Roomr 0.3.0
 - [x] 1.3 apiserver: the telemetry interceptor keeps the request metadata for the auth interceptor (with telemetry on, every request, the health check included, was refused)
 
 ## 2. fonoster/roomr
