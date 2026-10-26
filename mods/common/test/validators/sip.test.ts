@@ -17,7 +17,10 @@
  * limitations under the License.
  */
 import { expect } from "chai";
-import { createCallRequestSchema } from "../../src/validators/calls";
+import {
+  createCallRequestSchema,
+  listCallsRequestSchema
+} from "../../src/validators/calls";
 import {
   isSipTarget,
   sipHeaderProblem,
@@ -152,6 +155,40 @@ describe("@common[validators/sip]", function () {
           }).success,
           to
         ).to.equal(false)
+      );
+    });
+  });
+
+  describe("listCallsRequestSchema", function () {
+    it("accepts the forms the index stores as from/to filters", function () {
+      [
+        "",
+        "+15550001111",
+        "1001",
+        "sip:agent@sip.example.com",
+        "sip:+15551234567@carrier.example;user=phone",
+        "Acme Support",
+        "x".repeat(256)
+      ].forEach((v) =>
+        expect(
+          listCallsRequestSchema.safeParse({ from: v, to: v }).success,
+          v
+        ).to.equal(true)
+      );
+    });
+
+    it("refuses from/to filters with control characters or over 256 characters", function () {
+      ["+1555\r\nVia: x", "+1555\u0000", "a\tb", "x".repeat(257)].forEach(
+        (v) => {
+          expect(
+            listCallsRequestSchema.safeParse({ from: v }).success,
+            `from ${JSON.stringify(v)}`
+          ).to.equal(false);
+          expect(
+            listCallsRequestSchema.safeParse({ to: v }).success,
+            `to ${JSON.stringify(v)}`
+          ).to.equal(false);
+        }
       );
     });
   });
