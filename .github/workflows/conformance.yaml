@@ -41,6 +41,8 @@ concurrency:
 
 jobs:
   suites:
+    # Paused on pull requests while QA_PAUSED=true (repository variable); nightly still runs.
+    if: github.event_name != 'pull_request' || vars.QA_PAUSED != 'true'
     name: session, SDK and Autopilot suites (NATS)
     runs-on: ubuntu-latest
     # The region suites keep their control plane's state in throwaway databases on this server.

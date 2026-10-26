@@ -66,7 +66,7 @@ jobs:
   compose:
     name: compose install (bundle)
     needs: changes
-    if: github.event_name != 'pull_request' || needs.changes.outputs.compose == 'true'
+    if: github.event_name != 'pull_request' || (vars.QA_PAUSED != 'true' && needs.changes.outputs.compose == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
@@ -139,7 +139,7 @@ jobs:
   helm:
     name: helm chart
     needs: changes
-    if: github.event_name != 'pull_request' || needs.changes.outputs.helm == 'true'
+    if: github.event_name != 'pull_request' || (vars.QA_PAUSED != 'true' && needs.changes.outputs.helm == 'true')
     runs-on: ubuntu-latest
     env:
       CHART: ops/rebuild/helm/fonoster-rebuild
@@ -171,7 +171,7 @@ jobs:
   devcontainer:
     name: dev container image
     needs: changes
-    if: github.event_name != 'pull_request' || needs.changes.outputs.devcontainer == 'true'
+    if: github.event_name != 'pull_request' || (vars.QA_PAUSED != 'true' && needs.changes.outputs.devcontainer == 'true')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
