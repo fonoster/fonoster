@@ -19,16 +19,8 @@
 // Call statuses shared by the Calls API, the SDK and the CLI. The verb and stream types of the
 // retired voice.proto are gone (cleanbreak CB-B1).
 
-/** Progress of a dialed call, as the Calls API's trackCall reports it. */
-enum DialStatus {
-  TRYING = "TRYING",
-  CANCEL = "CANCEL",
-  ANSWER = "ANSWER",
-  BUSY = "BUSY",
-  PROGRESS = "PROGRESS",
-  NOANSWER = "NOANSWER",
-  FAILED = "FAILED"
-}
+// DialStatus is defined in @fonoster/types (TrackCallResponse's status) and kept here too.
+import { DialStatus } from "@fonoster/types";
 
 /** Answering machine detection verdict (the amd classifier). */
 enum AmdStatus {

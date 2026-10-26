@@ -184,4 +184,6 @@ message TrackCallResponse {
     FAILED = 6;
   }
   Status status = 1;
+  // Why the dial ended, on the message that ends an unanswered call (UNKNOWN otherwise)
+  CallStatus hangup_cause = 2;
 }

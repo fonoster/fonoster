@@ -76,6 +76,30 @@ describe("@ctl[sipnet:calls:create]", function () {
     expect(stdout).to.not.contain("NEVER-SHOWN");
   });
 
+  it("prints why an unanswered call ended", async function () {
+    async function* busy() {
+      yield { status: "TRYING" };
+      yield { status: "BUSY", hangupCause: "USER_BUSY" };
+    }
+    sandbox.stub(SDK.Calls.prototype, "createCall").resolves({
+      ref: "call-3",
+      statusStream: busy() as never
+    });
+
+    const { stdout } = await runCommand([
+      "sipnet:calls:create",
+      "-f",
+      "+1",
+      "-t",
+      "+2",
+      "-a",
+      "app-1"
+    ]);
+
+    expect(stdout).to.contain("Call status: TRYING\n");
+    expect(stdout).to.contain("Call status: BUSY (USER_BUSY)");
+  });
+
   it("returns right away with --detach", async function () {
     sandbox.stub(SDK.Calls.prototype, "createCall").resolves({
       ref: "call-2",

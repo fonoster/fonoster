@@ -29,6 +29,7 @@ import {
   MEDIA_CALL_EVENTS_WILDCARD,
   NODE_HEARTBEAT_WILDCARD
 } from "../envs";
+import { failureStatus } from "../records/failureStatus";
 import { CallStream, TrackCallResponse } from "./types";
 
 const FINAL_STATUSES = [
@@ -104,6 +105,8 @@ function toTrackMessage(
         : {
             ref,
             status: UNANSWERED[String(event.cause)] ?? DialStatus.FAILED,
+            // The call's record says the same (its failure reason is the node's cause).
+            hangupCause: failureStatus(String(event.cause ?? "")),
             final: true,
             ...node
           };
@@ -114,7 +117,11 @@ function toTrackMessage(
             ref,
             ...(event.status !== undefined ? { status: event.status } : {}),
             ...(event.final === true ? { final: true } : {}),
-            ...node
+            ...node,
+            // The control plane failed the call before any node took it (placement failed).
+            ...(event.status === DialStatus.FAILED
+              ? { hangupCause: failureStatus() }
+              : {})
           } as TrackMessage)
         : undefined;
     default:
@@ -169,12 +176,19 @@ function createTrackCallHandler(
     return true;
   };
 
-  /** Ends a stream that got no final status: FAILED, then the end. */
+  /**
+   * Ends a stream that got no final status: FAILED (why: SERVICE_UNAVAILABLE, the record's word
+   * for a call that failed for no reason of its own), then the end.
+   */
   const fail = (t: Tracked, why: string) => {
     if (!untrack(t)) return;
     logger.warn(`TrackCall ${t.ref}: ${why}; ending with FAILED`);
     try {
-      t.stream.write({ ref: t.ref, status: DialStatus.FAILED });
+      t.stream.write({
+        ref: t.ref,
+        status: DialStatus.FAILED,
+        hangupCause: failureStatus()
+      });
       t.stream.end();
     } catch {
       // the client is gone
@@ -183,13 +197,14 @@ function createTrackCallHandler(
 
   /** Writes one message; returns true when the stream is done. */
   const deliver = (t: Tracked, message: TrackMessage) => {
-    const { ref, status } = message;
+    const { ref, status, hangupCause } = message;
     if (message.nodeRef && message.nodeRef !== t.nodeRef) {
       t.nodeRef = message.nodeRef;
     }
     // Any message of the call proves its node is still there (a draining node sends no heartbeats).
     if (t.nodeRef) t.nodeAt = now();
-    if (status) t.stream.write({ ref, status });
+    if (status)
+      t.stream.write({ ref, status, ...(hangupCause ? { hangupCause } : {}) });
     const done =
       message.final === true || (!!status && FINAL_STATUSES.includes(status));
     if (done) {

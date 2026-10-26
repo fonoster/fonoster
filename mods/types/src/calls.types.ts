@@ -36,6 +36,17 @@ enum CallStatus {
   INVALID_NUMBER_FORMAT = "INVALID_NUMBER_FORMAT"
 }
 
+/** Progress of a dialed call, as the Calls API's trackCall reports it. */
+enum DialStatus {
+  TRYING = "TRYING",
+  CANCEL = "CANCEL",
+  ANSWER = "ANSWER",
+  BUSY = "BUSY",
+  PROGRESS = "PROGRESS",
+  NOANSWER = "NOANSWER",
+  FAILED = "FAILED"
+}
+
 enum CallDirection {
   FROM_PSTN = "FROM_PSTN",
   TO_PSTN = "TO_PSTN",
@@ -103,7 +114,10 @@ type CallPublisher = {
 
 type TrackCallResponse = {
   ref: string;
-  status: CallStatus;
+  /** Where the dial is (TrackCall's statuses). */
+  status: DialStatus;
+  /** Why the dial ended, on the message that ends an unanswered or failed call (as its record says). */
+  hangupCause?: CallStatus;
 };
 
 type TrackCallSubscriber = {
@@ -120,6 +134,7 @@ export {
   CallStatus,
   CallType,
   CreateCallRequest,
+  DialStatus,
   ListCallsRequest,
   ListCallsResponse,
   TrackCallResponse,
