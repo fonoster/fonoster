@@ -17,7 +17,10 @@
  * limitations under the License.
  */
 import { expect } from "chai";
-import { createCallRequestSchema } from "../../src/validators/calls";
+import {
+  createCallRequestSchema,
+  listCallsRequestSchema
+} from "../../src/validators/calls";
 import {
   isSipTarget,
   sipHeaderProblem,
@@ -153,6 +156,30 @@ describe("@common[validators/sip]", function () {
           to
         ).to.equal(false)
       );
+    });
+  });
+
+  describe("listCallsRequestSchema", function () {
+    it("accepts empty, number and SIP target from/to filters", function () {
+      ["", "+15550001111", "1001", "sip:agent@sip.example.com"].forEach((v) =>
+        expect(
+          listCallsRequestSchema.safeParse({ from: v, to: v }).success,
+          v
+        ).to.equal(true)
+      );
+    });
+
+    it("refuses from/to filters with CR/LF or URI delimiters", function () {
+      ["+1555\r\nVia: x", "sip:a@b;x=y", "a b"].forEach((v) => {
+        expect(
+          listCallsRequestSchema.safeParse({ from: v }).success,
+          `from ${v}`
+        ).to.equal(false);
+        expect(
+          listCallsRequestSchema.safeParse({ to: v }).success,
+          `to ${v}`
+        ).to.equal(false);
+      });
     });
   });
 });

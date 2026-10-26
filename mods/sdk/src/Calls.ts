@@ -31,13 +31,11 @@ import { getEnumKey } from "./client/utils";
 import {
   CallDetailRecord as CallDetailRecordPB,
   CallDirection,
-  Call as CallPB,
   CallStatus,
   CallType,
   CreateCallRequest as CreateCallRequestPB,
   CreateCallResponse as CreateCallResponsePB,
   GetCallRequest as GetCallRequestPB,
-  GetCallResponse as GetCallResponsePB,
   ListCallsRequest as ListCallsRequestPB,
   ListCallsResponse as ListCallsResponsePB,
   TrackCallRequest as TrackCallRequestPB
@@ -235,7 +233,7 @@ class Calls {
     const client = this.client.getCallsClient();
     return await makeRpcRequest<
       GetCallRequestPB,
-      GetCallResponsePB,
+      CallDetailRecordPB,
       BaseApiObject,
       CallDetailRecord
     >({
@@ -292,7 +290,7 @@ class Calls {
         ["direction", CallDirection],
         ["amdStatus", CallDetailRecordPB.AmdStatus]
       ],
-      repeatableObjectMapping: [["itemsList", CallPB]]
+      repeatableObjectMapping: [["itemsList", CallDetailRecordPB]]
     });
   }
 }

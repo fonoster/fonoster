@@ -24,7 +24,7 @@ import { codeOf, Who } from "./drivers";
 import { getWorld, World } from "./world";
 
 // call-record, the Calls API's view of the index: each record names the app that handled the call,
-// and ListCalls filters by it and rejects a malformed filter (API-069 and API-070 in mods/conformance/catalog/areas/api.md). The case writes
+// and ListCalls filters by it and rejects a malformed filter (API-069, API-070 and API-072 in mods/conformance/catalog/areas/api.md). The case writes
 // the index rows the call-record service would write when it seals a record.
 
 type Record = { ref: string; appRef?: string };
@@ -149,6 +149,22 @@ describe("@api calls", function () {
         expect(
           all.map((i) => i.ref),
           "empty filter"
+        ).to.have.members([refs.x1, refs.x2, refs.y, refs.none]);
+      });
+
+      it(`[API-072] (${driverName}) a malformed number filter is INVALID_ARGUMENT, a number lists its calls`, async function () {
+        expect(
+          await codeOf(list({ from: "+1555\r\nVia: x" })),
+          "malformed from"
+        ).to.equal(status.INVALID_ARGUMENT);
+        expect(
+          await codeOf(list({ to: "sip:a@b;x=y" })),
+          "malformed to"
+        ).to.equal(status.INVALID_ARGUMENT);
+        const all = ours((await list({ from: "+15550001111" })).items);
+        expect(
+          all.map((i) => i.ref),
+          "number filter"
         ).to.have.members([refs.x1, refs.x2, refs.y, refs.none]);
       });
     });

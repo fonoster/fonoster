@@ -27,3 +27,14 @@ MUST fail with `INVALID_ARGUMENT`. Other workspaces' records MUST NOT be returne
 
 - **WHEN** an SDK user lists calls with an `appRef` that is not a UUID
 - **THEN** the request fails with `INVALID_ARGUMENT` and no calls are returned
+
+### Requirement: ListCalls validates its number filters
+
+`ListCalls` SHALL take optional `from` and `to` filters. Empty means no filter; any other value
+MUST be a number or SIP target `CreateCall` accepts as `to` (an E.164 number, a SIP user, or a
+`sip:`, `sips:` or `tel:` URI), and anything else MUST fail with `INVALID_ARGUMENT`.
+
+#### Scenario: A malformed number filter is rejected
+
+- **WHEN** an SDK user lists calls with a `from` or `to` that is not a number or SIP target
+- **THEN** the request fails with `INVALID_ARGUMENT` and no calls are returned

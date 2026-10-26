@@ -1,0 +1,15 @@
+diff --git a/mods/common/src/validators/calls.ts b/mods/common/src/validators/calls.ts
+index a63b85dfa..aead338df 100644
+--- a/mods/common/src/validators/calls.ts
++++ b/mods/common/src/validators/calls.ts
+@@ -42,8 +42,8 @@ const listCallsRequestSchema = z.object({
+   after: z.string().datetime({ offset: true, message: VALID_DATE }).optional(),
+   before: z.string().datetime({ offset: true, message: VALID_DATE }).optional(),
+   // Empty or unset means no filter; anything else must be a number or SIP target, as CreateCall takes.
+-  from: z.union([z.literal(""), sipTargetSchema]).optional(),
+-  to: z.union([z.literal(""), sipTargetSchema]).optional(),
++  from: z.string().optional(),
++  to: z.string().optional(),
+   pageSize: z
+     .number()
+     .int({

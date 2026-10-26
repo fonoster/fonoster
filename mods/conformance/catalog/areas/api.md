@@ -934,6 +934,18 @@ ListCalls through each driver with an `appRef` that is not a UUID, and with an e
 
 **Pass.** The malformed filter is INVALID_ARGUMENT and the empty one lists all four of workspace A's calls. **Fail.** The malformed filter is accepted, or the empty one filters.
 
+### API-072 A malformed number filter is rejected
+
+- **Spec:** control-plane / ListCalls validates its number filters / A malformed number filter is rejected
+- **Priority:** P1
+- **Proof:** Take the number check off `from` and `to` in `listCallsRequestSchema`; the malformed filters are accepted and the test goes red.
+- **Fault:** faults/API-072.patch
+- **Test:** mods/conformance/test/api/calls.api.ts
+
+ListCalls through each driver with a `from` and a `to` that are not a number or SIP target, and with a `from` that is one, over the index rows API-069 writes.
+
+**Pass.** Each malformed filter is INVALID_ARGUMENT, and the well-formed one lists all four of workspace A's calls. **Fail.** A malformed filter is accepted, or the well-formed one is refused.
+
 ### API-071 Unanswered outbound calls are recorded as failed
 
 - **Spec:** control-plane / Unanswered outbound calls are recorded as failed / Outbound call ends before the answer

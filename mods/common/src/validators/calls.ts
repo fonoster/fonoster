@@ -41,6 +41,9 @@ const getCallRequestSchema = z.object({
 const listCallsRequestSchema = z.object({
   after: z.string().datetime({ offset: true, message: VALID_DATE }).optional(),
   before: z.string().datetime({ offset: true, message: VALID_DATE }).optional(),
+  // Empty or unset means no filter; anything else must be a number or SIP target, as CreateCall takes.
+  from: z.union([z.literal(""), sipTargetSchema]).optional(),
+  to: z.union([z.literal(""), sipTargetSchema]).optional(),
   pageSize: z
     .number()
     .int({
