@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/appbridge",
-  "version": "0.34.1",
+  "version": "0.34.2",
   "private": true,
   "description": "AppBridge: serves each call to its app over the Fonoster session protocol",
   "author": "Pedro Sanders <psanders@fonoster.com>",
@@ -24,9 +24,9 @@
     "live-check": "tsx scripts/live-check.ts"
   },
   "dependencies": {
-    "@fonoster/amd": "^0.34.1",
+    "@fonoster/amd": "^0.34.2",
     "@fonoster/callrecord": "^0.34.1",
-    "@fonoster/common": "^0.34.1",
+    "@fonoster/common": "^0.34.2",
     "@fonoster/community": "^0.34.1",
     "@fonoster/identity-client": "^0.34.1",
     "@fonoster/logger": "^0.34.1",
@@ -44,7 +44,7 @@
     "@ai-coustics/aic-sdk": "^0.24.0"
   },
   "devDependencies": {
-    "@fonoster/conformance": "^0.34.1",
+    "@fonoster/conformance": "^0.34.2",
     "@routr/common": "^2.24.0"
   },
   "files": [
