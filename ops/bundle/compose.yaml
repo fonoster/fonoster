@@ -50,7 +50,7 @@ services:
 
   # Routr's database (routr), the API server's (fonoster) and Identity's (fnidentity).
   postgres:
-    image: postgres:16.10-alpine3.22
+    image: postgres:18.6-alpine3.24
     restart: unless-stopped
     environment:
       PGTZ: UTC
@@ -59,7 +59,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
       POSTGRES_DB: routr
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql
       - ${CONFIG_DIR:-./config}/postgres-init.sql:/docker-entrypoint-initdb.d/10-fonoster.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d routr"]

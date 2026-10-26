@@ -109,7 +109,7 @@ jobs:
     # on this server, as they do on the dev container's (PERSISTENCE_TEST_DATABASE_URL).
     services:
       postgres:
-        image: postgres:16.10-alpine3.22
+        image: postgres:18.6-alpine3.24
         env:
           POSTGRES_PASSWORD: postgres
         ports:
@@ -149,7 +149,7 @@ jobs:
     # resources) are real.
     services:
       postgres:
-        image: postgres:16.10-alpine3.22
+        image: postgres:18.6-alpine3.24
         env:
           POSTGRES_PASSWORD: postgres
         ports:
@@ -258,7 +258,7 @@ jobs:
     # Stripe is the fake in the test process. No network, no Stripe account.
     services:
       postgres:
-        image: postgres:16.10-alpine3.22
+        image: postgres:18.6-alpine3.24
         env:
           POSTGRES_PASSWORD: postgres
         ports:

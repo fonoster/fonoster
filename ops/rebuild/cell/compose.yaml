@@ -55,14 +55,14 @@ services:
       retries: 10
 
   postgres:
-    image: postgres:16.10-alpine3.22
+    image: postgres:18.6-alpine3.24
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
       POSTGRES_DB: routr
     volumes:
-      - db:/var/lib/postgresql/data
+      - db:/var/lib/postgresql
       - ../config/postgres-init.sql:/docker-entrypoint-initdb.d/10-fonoster.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d routr"]
