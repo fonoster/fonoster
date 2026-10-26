@@ -16,77 +16,74 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/** One page of Routr's numbers (the Routr SDK's listNumbers), with each Number's trunk. */
-type NumbersPage = {
-  items?: {
-    telUrl?: string;
-    trunk?: { name?: string } | null;
-    extended?: Record<string, unknown> | null;
-  }[];
-  nextPageToken?: string;
-};
+import { NumbersLister, someRoutrNumber } from "../utils/someRoutrNumber";
 
-type TrunkNumbersLister = {
-  listNumbers(request: {
-    pageSize: number;
-    pageToken?: string;
-  }): Promise<NumbersPage>;
-};
-
-/** The name of the trunk of the workspace's Number `e164`, or undefined when it has none. */
+/** The name of the trunk of the workspace's Number, or undefined when it has none. */
 type TrunkOfNumber = (
   accessKeyId: string,
-  e164: string
+  number: string
 ) => Promise<string | undefined>;
 
-const PAGE_SIZE = 200;
-const MAX_PAGES = 100;
+/**
+ * A number as a lookup key: `tel:+1555…`, `sip:+1555…@host;params`, `+1555…` and `1555…` are
+ * the same Number (Routr keeps telUrls; a call's legs may carry a URI or bare digits).
+ */
+function numberKey(number: string): string {
+  const user = number
+    .trim()
+    .replace(/^<?(tel|sips?):/i, "")
+    .split(/[@;>]/)[0];
+  return /^\d+$/.test(user) ? `+${user}` : user;
+}
 
 /**
  * Resolves a call's trunk from its Number when the call's record is indexed (#1069): Routr routes
  * a Number's calls through the Number's trunk, both ways. Routr has no lookup by telUrl, so the
- * Numbers are listed once and kept for `ttlMs`; a miss lists them again, at most every
- * `missMs`, so a Number added since is found.
+ * Numbers are listed once and kept for `ttlMs`. A number not in the list lists them again, at
+ * most every `missMs`, so a Number added since is found; one still missing after that is kept
+ * as unknown until the next listing. One listing runs at a time, and a failed one is not
+ * retried for `missMs`.
  */
 function createTrunkOfNumber(
-  numbers: TrunkNumbersLister,
+  numbers: NumbersLister,
   options: { ttlMs?: number; missMs?: number; now?: () => number } = {}
 ): TrunkOfNumber {
   const ttlMs = options.ttlMs ?? 60_000;
   const missMs = options.missMs ?? 10_000;
   const now = options.now ?? Date.now;
-  let trunks = new Map<string, string>();
+  // By workspace and number: the trunk's name, or null for a Number without one or an unknown number.
+  let trunks = new Map<string, string | null>();
   let loadedAt = -Infinity;
+  let triedAt = -Infinity;
   let loading: Promise<void> | undefined;
 
   const load = () =>
     (loading ??= (async () => {
-      const next = new Map<string, string>();
-      let pageToken: string | undefined;
-      for (let page = 0; page < MAX_PAGES; page++) {
-        const res = await numbers.listNumbers({
-          pageSize: PAGE_SIZE,
-          pageToken
-        });
-        for (const n of res.items ?? []) {
-          const accessKeyId = n.extended?.accessKeyId;
-          if (n.telUrl && n.trunk?.name && typeof accessKeyId === "string")
-            next.set(`${accessKeyId} ${n.telUrl}`, n.trunk.name);
-        }
-        if (!res.nextPageToken || res.nextPageToken === pageToken) break;
-        pageToken = res.nextPageToken;
-      }
+      triedAt = now();
+      const next = new Map<string, string | null>();
+      await someRoutrNumber(numbers, (n) => {
+        const accessKeyId = n.extended?.accessKeyId;
+        if (n.telUrl && typeof accessKeyId === "string")
+          next.set(
+            `${accessKeyId} ${numberKey(n.telUrl)}`,
+            n.trunk?.name || null
+          );
+      });
       trunks = next;
       loadedAt = now();
     })().finally(() => (loading = undefined)));
 
-  return async (accessKeyId, e164) => {
-    if (!accessKeyId || !e164) return undefined;
-    const key = `${accessKeyId} tel:${e164}`;
+  return async (accessKeyId, number) => {
+    if (!accessKeyId || !number) return undefined;
+    const key = `${accessKeyId} ${numberKey(number)}`;
     const age = now() - loadedAt;
-    if (age >= ttlMs || (!trunks.has(key) && age >= missMs)) await load();
-    return trunks.get(key);
+    const due = age >= ttlMs || (!trunks.has(key) && age >= missMs);
+    if (due && (loading || now() - triedAt >= missMs)) {
+      await load();
+      if (!trunks.has(key)) trunks.set(key, null);
+    }
+    return trunks.get(key) ?? undefined;
   };
 }
 
-export { createTrunkOfNumber, TrunkNumbersLister, TrunkOfNumber };
+export { createTrunkOfNumber, numberKey, TrunkOfNumber };

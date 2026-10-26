@@ -25,7 +25,6 @@ import {
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import * as grpc from "@grpc/grpc-js";
-import SDK from "@routr/sdk";
 import { HealthImplementation } from "grpc-health-check";
 import { connect } from "nats";
 import { getConfig } from "../config";
@@ -84,7 +83,7 @@ import { httpBridge } from "./httpBridge";
 import { identityConfig } from "./identityConfig";
 import loadServices from "./loadServices";
 import { workspaceRegionHooks } from "./regionHooks";
-import { routrConfig } from "./routrConfig";
+import { routrNumbers } from "./routrConfig";
 import services from "./services";
 import { apiserverTelemetry } from "./telemetry";
 import { createTelemetryInterceptor } from "./telemetryInterceptor";
@@ -158,7 +157,7 @@ async function runServices() {
     relay: { regionOf: regions.regionOf, client: regions.relay },
     onConfigChange: regions.onConfigChange,
     usage: { directory: () => workspaceRegionHooks.directory() },
-    trunkOf: createTrunkOfNumber(new SDK.Numbers(routrConfig))
+    trunkOf: createTrunkOfNumber(routrNumbers())
   });
 
   // The dashboard's cookie session (M4): refresh token in an httpOnly cookie on its origin

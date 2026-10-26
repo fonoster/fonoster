@@ -58,7 +58,7 @@ type ListCallRecordsRequest = {
 type ListCallRecordsResponse = {
   items: CallRecordSummary[];
   nextPageToken?: string;
-  /** How many records match the query, on all pages. */
+  /** How many records match the query, on all pages; on the first page only. */
   total?: number;
 };
 

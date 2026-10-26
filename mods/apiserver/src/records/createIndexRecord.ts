@@ -53,12 +53,14 @@ export function usageEvents(entry: RecordIndexEntry, workspaceRef: string) {
 /**
  * The trunk the call used, by name: the trunk of the workspace's Number on the call (the callee
  * of an inbound call, the caller of an outbound one). Undefined when unknown, e.g. for an internal
- * call or when Routr can't be reached; indexing never fails for it.
+ * call or when Routr can't be reached or doesn't answer within `timeoutMs`; indexing never fails
+ * or stalls for it (the entry must be acknowledged within the consumer's ack wait).
  */
 async function trunkNameOf(
   entry: RecordIndexEntry,
   workspaceRef: string | null,
-  trunkOf?: TrunkOfNumber
+  trunkOf: TrunkOfNumber | undefined,
+  timeoutMs: number
 ) {
   const number =
     entry.direction === "inbound"
@@ -67,13 +69,27 @@ async function trunkNameOf(
         ? entry.from
         : undefined;
   if (!trunkOf || !workspaceRef || !number) return undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
-    return await trunkOf(workspaceRef, number);
+    return await Promise.race([
+      trunkOf(workspaceRef, number),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error(`Routr did not answer in ${timeoutMs} ms`)),
+          timeoutMs
+        );
+      })
+    ]);
   } catch (e) {
     logger.warn(`no trunk for ${entry.callRef}: ${(e as Error).message ?? e}`);
     return undefined;
+  } finally {
+    clearTimeout(timer);
   }
 }
+
+/** How long indexing waits for a call's trunk before indexing it without one. */
+export const TRUNK_LOOKUP_TIMEOUT_MS = 2_000;
 
 /**
  * Upserts a record's index entry. Entries arrive at least once and possibly out of order, so a
@@ -83,7 +99,8 @@ async function trunkNameOf(
 export function createIndexRecord(
   db: RecordsDb,
   usage?: IndexUsageDeps,
-  trunkOf?: TrunkOfNumber
+  trunkOf?: TrunkOfNumber,
+  trunkTimeoutMs = TRUNK_LOOKUP_TIMEOUT_MS
 ) {
   return async (entry: RecordIndexEntry) => {
     const existing = await db.callRecord.findUnique({
@@ -104,12 +121,14 @@ export function createIndexRecord(
     }
     const erased = entry.status === "erased";
     const accessKeyId = existing?.accessKeyId ?? entry.workspaceRef ?? null;
-    // Resolved once, when the call is first indexed: later versions keep the trunk it used.
-    const trunkName =
-      existing?.trunkName ??
-      (erased
+    // Resolved once, when the call is first indexed: later versions keep what was stored, a
+    // null included, so a Number moved to another trunk since never renames the call's.
+    const trunkName = existing
+      ? (existing.trunkName ?? null)
+      : erased
         ? null
-        : ((await trunkNameOf(entry, accessKeyId, trunkOf)) ?? null));
+        : ((await trunkNameOf(entry, accessKeyId, trunkOf, trunkTimeoutMs)) ??
+          null);
     const data = {
       accessKeyId,
       appRef: erased ? (existing?.appRef ?? null) : entry.appRef,

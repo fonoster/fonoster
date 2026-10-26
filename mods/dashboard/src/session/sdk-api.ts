@@ -340,7 +340,8 @@ export function fromVcon(
   const recording = dialog.find((d) => d.type === "recording" && d.url);
   const amd = meta.amd as Raw | undefined;
   const failure = meta.failure as
-    { reason?: unknown; sipStatus?: unknown } | undefined;
+    | { reason?: unknown; sipStatus?: unknown }
+    | undefined;
   return {
     ...summary,
     endedAt: detail.endedAt ?? str(meta.endedAt),

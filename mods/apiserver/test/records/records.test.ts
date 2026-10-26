@@ -440,7 +440,7 @@ describe("@apiserver call records", function () {
     );
   });
 
-  it("returns the query's exact total on every page, with the same filters (#1069)", async function () {
+  it("returns the query's exact total on the first page, with the same filters (#1069)", async function () {
     const all = await (await get("/?pageSize=2")).json();
     expect(all.items).to.have.length(2);
     expect(all.total).to.equal(4);
@@ -449,7 +449,8 @@ describe("@apiserver call records", function () {
       await get(`/?pageSize=2&pageToken=${all.nextPageToken}`)
     ).json();
     expect(next.items).to.have.length(2);
-    expect(next.total).to.equal(4);
+    // Later pages don't count again: the first page's total stands for the search.
+    expect(next).to.not.have.property("total");
     expect((await (await get("/?status=failed")).json()).total).to.equal(1);
     expect((await (await get("/?number=%2B1999")).json()).total).to.equal(1);
     expect(
@@ -498,6 +499,103 @@ describe("@apiserver call records", function () {
       version: 2,
       trunkName: "Acme"
     });
+
+    // A call first indexed without a trunk keeps none: later versions don't ask Routr again.
+    const none = memoryRecordsDb();
+    let asked = 0;
+    const later = async () => {
+      asked++;
+      return "Moved";
+    };
+    await createIndexRecord(none.db, undefined, async () => undefined)(entry);
+    await createIndexRecord(
+      none.db,
+      undefined,
+      later
+    )({ ...entry, version: 2 });
+    expect(asked).to.equal(0);
+    expect(none.records.get("call-v")).to.deep.include({
+      version: 2,
+      trunkName: null
+    });
+  });
+
+  it("indexes a call without a trunk when Routr doesn't answer in time (#1069)", async function () {
+    const fresh = memoryRecordsDb();
+    const hung = () => new Promise<string | undefined>(() => {});
+    const started = Date.now();
+    const indexed = await createIndexRecord(
+      fresh.db,
+      undefined,
+      hung,
+      50
+    )({
+      callRef: "call-hung",
+      workspaceRef: "ws-1",
+      from: "+15550001111",
+      to: "+1999",
+      direction: "outbound",
+      status: "completed",
+      startedAt: new Date(at()).toISOString(),
+      region: "us-east",
+      location: "us-east",
+      version: 1,
+      size: 1,
+      parts: []
+    } as unknown as RecordIndexEntry);
+    expect(indexed).to.equal(true);
+    expect(Date.now() - started).to.be.below(1000);
+    expect(fresh.records.get("call-hung")).to.deep.include({ trunkName: null });
+  });
+
+  it("pages through records that share a start time without skipping or repeating any (#1069)", async function () {
+    const fresh = memoryRecordsDb();
+    const index = createIndexRecord(fresh.db);
+    const startedAt = new Date(at()).toISOString();
+    // Five calls at the same instant and one before: pages of two cut through the tie.
+    const refs = ["call-a", "call-b", "call-c", "call-d", "call-e"];
+    for (const [i, callRef] of [...refs, "call-early"].entries())
+      await index({
+        callRef,
+        workspaceRef: "ws-1",
+        from: "+15550005555",
+        to: "+15550002222",
+        direction: "inbound",
+        status: "completed",
+        startedAt:
+          callRef === "call-early"
+            ? new Date(Date.parse(startedAt) - 1000).toISOString()
+            : startedAt,
+        region: "us-east",
+        location: "us-east",
+        version: 1,
+        size: 1,
+        parts: [],
+        appRef: `app-${i}`
+      } as unknown as RecordIndexEntry);
+    const { createSearchRecords } = await import("../../src/records");
+    const search = createSearchRecords(fresh.db);
+    const seen: string[] = [];
+    let pageToken: string | undefined;
+    let counted = 0;
+    do {
+      const page = await search(
+        "ws-1",
+        { pageSize: 2, pageToken },
+        { total: true }
+      );
+      if (page.total !== undefined) counted++;
+      seen.push(...page.items.map((r) => r.callRef));
+      pageToken = page.nextPageToken || undefined;
+    } while (pageToken);
+    expect(seen).to.deep.equal([...refs].reverse().concat("call-early"));
+    // Counted once, on the first page.
+    expect(counted).to.equal(1);
+    // An older token (a bare startedAt) still reads as "before it".
+    const legacy = await search("ws-1", {
+      pageToken: String(Date.parse(startedAt))
+    });
+    expect(legacy.items.map((r) => r.callRef)).to.deep.equal(["call-early"]);
   });
 
   it("serves ListCalls from the index", async function () {

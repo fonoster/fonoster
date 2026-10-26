@@ -24,7 +24,10 @@
 export type Protocol = "fonoster" | "twilio";
 export type AppType = "STREAM" | "AUTOPILOT";
 export type AudioCodec =
-  "pcm16-8000" | "pcm16-16000" | "pcm16-24000" | "pcmu-8000";
+  | "pcm16-8000"
+  | "pcm16-16000"
+  | "pcm16-24000"
+  | "pcmu-8000";
 export type ListenerTrack = "inbound" | "outbound" | "both";
 export type Patience = "" | "low" | "normal" | "high";
 /** "" inherits the workspace's policy. */

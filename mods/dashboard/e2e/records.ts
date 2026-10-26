@@ -211,11 +211,7 @@ export const usageSnapshot = (
 export function installRecords(
   api: GrpcWebMock,
   records: RecordFixture[],
-  options: {
-    pageSize?: number;
-    /** The total the API reports, when not the number of matching records. */
-    total?: number;
-  } = {}
+  options: { pageSize?: number } = {}
 ) {
   const byRef = new Map(records.map((r) => [r.callRef, r]));
   const pageSize = options.pageSize ?? 50;
@@ -234,11 +230,12 @@ export function installRecords(
       const page = matching.slice(from, from + pageSize);
       const next =
         from + pageSize < matching.length ? String(from + pageSize) : null;
+      // As the API: the first page (no page token) carries the query's total.
       return {
         json: {
           items: page,
           nextPageToken: next,
-          total: options.total ?? matching.length
+          ...(query.get("pageToken") ? {} : { total: matching.length })
         }
       };
     })

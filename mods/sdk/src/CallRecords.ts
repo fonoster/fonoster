@@ -143,8 +143,8 @@ class CallRecords {
   }
 
   /**
-   * Searches the workspace's records, newest first, a page at a time; `total` counts every
-   * record the query matches, on all pages.
+   * Searches the workspace's records, newest first, a page at a time; the first page's `total`
+   * counts every record the query matches, on all pages.
    */
   async listRecords(
     request: ListCallRecordsRequest = {}

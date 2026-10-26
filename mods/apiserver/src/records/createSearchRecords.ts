@@ -38,14 +38,34 @@ export type RecordSearch = {
   direction?: string;
   status?: string;
   pageSize?: number;
-  /** The previous page's last startedAt (ms). */
+  /** Where the previous page ended: `<startedAt ms>:<callRef>` (a bare startedAt ms is read too). */
   pageToken?: string;
 };
+
+/** A page token: the last record's startedAt and callRef, so records that share a time are not skipped. */
+function pageTokenOf(row: CallRecordRow) {
+  return `${row.startedAt.getTime()}:${row.callRef}`;
+}
+
+/** The records after a page token, in the list's order (startedAt, then callRef, descending). */
+function afterToken(pageToken: string): Record<string, unknown> {
+  const sep = pageToken.indexOf(":");
+  const at = new Date(Number(sep < 0 ? pageToken : pageToken.slice(0, sep)));
+  // An older token (a bare startedAt) keeps its meaning: strictly before it.
+  if (sep < 0) return { startedAt: { lt: at } };
+  return {
+    OR: [
+      { startedAt: { lt: at } },
+      { startedAt: at, callRef: { lt: pageToken.slice(sep + 1) } }
+    ]
+  };
+}
 
 /**
  * Searches the index within one workspace (call-record "Fetch and search": time range, number,
  * app, direction and status; records from other workspaces are never returned). Newest first.
- * With `total`, also counts every record the query matches, on all pages (#1069).
+ * With `total`, the first page (no page token) also counts every record the query matches, on
+ * all pages (#1069); later pages don't count again.
  */
 export function createSearchRecords(db: RecordsDb) {
   return async (
@@ -72,27 +92,24 @@ export function createSearchRecords(db: RecordsDb) {
         : {})
     };
     // The page token only moves the page: the total counts the query without it.
-    let pageWhere = where;
-    if (search.pageToken) {
-      const token = new Date(Number(search.pageToken));
-      if (!startedAt.lt || token < startedAt.lt)
-        pageWhere = { ...where, startedAt: { ...startedAt, lt: token } };
-    }
+    const pageWhere = search.pageToken
+      ? { AND: [where, afterToken(search.pageToken)] }
+      : where;
     const pageSize = Math.min(Math.max(search.pageSize || 50, 1), 500);
     const [items, total] = await Promise.all([
       db.callRecord.findMany({
         where: pageWhere,
-        orderBy: { startedAt: "desc" },
+        orderBy: [{ startedAt: "desc" }, { callRef: "desc" }],
         take: pageSize
       }),
-      options.total ? db.callRecord.count({ where }) : undefined
+      options.total && !search.pageToken
+        ? db.callRecord.count({ where })
+        : undefined
     ]);
     return {
       items,
       nextPageToken:
-        items.length === pageSize
-          ? String(items[items.length - 1].startedAt.getTime())
-          : "",
+        items.length === pageSize ? pageTokenOf(items[items.length - 1]) : "",
       ...(total !== undefined ? { total } : {})
     };
   };

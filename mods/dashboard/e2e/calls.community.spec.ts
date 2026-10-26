@@ -103,10 +103,17 @@ test("[DSH-030] lists calls newest first, filters by status, and loads more", as
   await page.getByRole("button", { name: "Load more" }).click();
   await expect(rows.nth(3)).toContainText("Busy");
   await expect(rows.nth(3)).toContainText("+1 555 000 4444");
+  // The total stays the first page's, and Load more pages through the same period.
   await expect(page.getByText("3 calls")).toBeVisible();
-  expect(
-    api.calls.some((c) => /^GET \/api\/records\?.*pageToken=2/.test(c.method))
-  ).toBe(true);
+  const listed = api.calls
+    .map((c) => c.method)
+    .filter((m) => m.startsWith("GET /api/records?"));
+  const more = listed.find((m) => /pageToken=2/.test(m));
+  expect(more).toBeDefined();
+  const after = (m: string) =>
+    new URLSearchParams(m.split("?")[1]).get("after");
+  expect(after(more!)).toBeTruthy();
+  expect(after(more!)).toBe(after(listed[0]));
 
   await page.getByRole("combobox", { name: "Status" }).click();
   await page.getByRole("option", { name: "Failed" }).click();

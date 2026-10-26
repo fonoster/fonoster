@@ -62,7 +62,8 @@ export type RecordsRouterDeps = {
  * tasks 5.1 and 4.2), on the apiserver's HTTP port so recordings download as files:
  *
  *   GET    /api/records                        search: after, before, number, appRef, status;
- *                                              a page of records and the query's total
+ *                                              a page of records; the first page
+ *                                              also has the query's total
  *   GET    /api/records/:callRef               the record (redacted; ?original=true, ?version=n)
  *   GET    /api/records/:callRef/recording     the recording (WAV)
  *   GET    /api/records/:callRef/audit         deletions of this record (owner, admin)

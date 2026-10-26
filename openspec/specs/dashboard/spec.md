@@ -352,8 +352,8 @@ request, show how many calls are listed, export them as CSV, and say when nothin
 #### Scenario: More than one page
 
 - **WHEN** the API returns a next page token
-- **THEN** a Load more action fetches the next page with that token and appends it
-- **AND** the count is the API's total for the filters (e.g. "1,207 calls"), even before the rest is loaded
+- **THEN** a Load more action fetches the next page with that token and the first page's period start, and appends it
+- **AND** the count is the first page's total for the filters (e.g. "1,207 calls"), even before the rest is loaded
 
 #### Scenario: Filter by direction and agent
 

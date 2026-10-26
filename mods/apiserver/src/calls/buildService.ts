@@ -18,10 +18,9 @@
  */
 import { AuthzClient } from "@fonoster/authz";
 import { getLogger } from "@fonoster/logger";
-import SDK from "@routr/sdk";
 import { connect } from "nats";
 import { prisma } from "../core/db";
-import { routrConfig } from "../core/routrConfig";
+import { routrNumbers } from "../core/routrConfig";
 import {
   AUTHZ_SERVICE_ENABLED,
   AUTHZ_SERVICE_HOST,
@@ -87,7 +86,7 @@ async function buildService() {
       createCall: createCall(
         prisma,
         callPublisher,
-        createIsWorkspaceNumber(new SDK.Numbers(routrConfig)),
+        createIsWorkspaceNumber(routrNumbers()),
         authzAdmission()
       ),
       // Call history from the call-record index (add-call-record 7.1).

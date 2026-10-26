@@ -439,7 +439,7 @@ Runs against in-memory applications that store what the dashboard sends (`e2e/ap
 
 The records API is served from vCons the call-record module builds from its own fixture calls (`e2e/records.ts`), two to a page.
 
-**Pass.** Today's call (Front desk) is listed before yesterday's (Billing reminders), with the customer, the Fonoster number and Completed; the count reads 3 calls, the API's total, before the third is loaded; the third comes with Load more, reads Busy, its request carries the page token and the count stays 3 calls; picking Failed asks for `status=failed` and lists only the busy call. **Fail.** A wrong order, a ref instead of the agent's name, no Load more, a lost page token, or a status filter applied only in the browser.
+**Pass.** Today's call (Front desk) is listed before yesterday's (Billing reminders), with the customer, the Fonoster number and Completed; the count reads 3 calls, the API's total, before the third is loaded; the third comes with Load more, reads Busy, its request carries the page token and the first page's period start (`after`), and the count stays 3 calls, the first page's total; picking Failed asks for `status=failed` and lists only the busy call. **Fail.** A wrong order, a ref instead of the agent's name, no Load more, a lost page token, a period that moves between pages, or a status filter applied only in the browser.
 
 ### DSH-031 A completed call reads as the conversation, and its recording plays
 

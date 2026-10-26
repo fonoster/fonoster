@@ -16,18 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/** One page of Routr's numbers (the Routr SDK's listNumbers). */
-type NumbersPage = {
-  items?: { telUrl?: string; extended?: Record<string, unknown> | null }[];
-  nextPageToken?: string;
-};
-
-type NumbersLister = {
-  listNumbers(request: {
-    pageSize: number;
-    pageToken?: string;
-  }): Promise<NumbersPage>;
-};
+import { NumbersLister, someRoutrNumber } from "../utils/someRoutrNumber";
 
 /** Whether `e164` (CreateCall's `from`) is a Number of the workspace `accessKeyId`. */
 type IsWorkspaceNumber = (
@@ -35,29 +24,19 @@ type IsWorkspaceNumber = (
   e164: string
 ) => Promise<boolean>;
 
-const PAGE_SIZE = 200;
-const MAX_PAGES = 100;
-
 /**
  * CreateCall's `from` becomes X-Dod-Number, which Routr uses to pick the Number's trunk, so it
- * must be one of the caller's own Numbers (security review C2). Routr has no lookup by telUrl in
- * its API, so this pages through the Numbers and matches `tel:<from>` and the workspace.
+ * must be one of the caller's own Numbers (security review C2). It asks Routr every time (no
+ * cache: a Number just removed is refused), matching `tel:<from>` and the workspace.
  */
 function createIsWorkspaceNumber(numbers: NumbersLister): IsWorkspaceNumber {
   return async (accessKeyId, e164) => {
     if (!accessKeyId || !e164) return false;
     const telUrl = `tel:${e164}`;
-    let pageToken: string | undefined;
-    for (let page = 0; page < MAX_PAGES; page++) {
-      const res = await numbers.listNumbers({ pageSize: PAGE_SIZE, pageToken });
-      for (const n of res.items ?? []) {
-        if (n.telUrl === telUrl && n.extended?.accessKeyId === accessKeyId)
-          return true;
-      }
-      if (!res.nextPageToken || res.nextPageToken === pageToken) return false;
-      pageToken = res.nextPageToken;
-    }
-    return false;
+    return someRoutrNumber(
+      numbers,
+      (n) => n.telUrl === telUrl && n.extended?.accessKeyId === accessKeyId
+    );
   };
 }
 
