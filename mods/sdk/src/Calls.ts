@@ -41,7 +41,11 @@ import {
   ListCallsResponse as ListCallsResponsePB,
   TrackCallRequest as TrackCallRequestPB
 } from "./generated/node/calls_pb";
-import { asStructInput, dialStatusToString } from "./utils";
+import {
+  asStructInput,
+  dialStatusToString,
+  hangupCauseToString
+} from "./utils";
 
 /**
  * @classdesc Fonoster Calls, part of the Fonoster Media subsystem,
@@ -100,7 +104,7 @@ class Calls {
    * @param {string} request.appRef - The reference of the App that will handle the call
    * @param {number} request.timeout - The time in seconds to wait for the call to be answered. Default is 60 seconds
    * @param {Record<string, string>} request.metadata - Optional metadata to be sent to the App. For Autopilot applications, this is added to the context of the conversation.
-   * @return {{ref: string, statusStream: AsyncGenerator<{ status: DialStatus }>}} - The response object that contains the Call reference and a stream of status updates
+   * @return {{ref: string, statusStream: AsyncGenerator<{ status: DialStatus, hangupCause?: CallStatus }>}} - The response object that contains the Call reference and a stream of status updates; the update that ends an unanswered call also says why (hangupCause, e.g. USER_BUSY)
    * @see DialStatus
    * @example
    * const calls = new SDK.Calls(client); // Existing client object
@@ -127,7 +131,10 @@ class Calls {
    */
   async createCall(request: CreateCallRequest): Promise<{
     ref: string;
-    statusStream: AsyncGenerator<{ status: DialStatus }>;
+    statusStream: AsyncGenerator<{
+      status: DialStatus;
+      hangupCause?: CallDetailRecord["status"];
+    }>;
   }> {
     const client = this.client.getCallsClient();
 
@@ -161,13 +168,13 @@ class Calls {
     // "error" before that first iteration, Node's EventEmitter has no
     // listener to call and throws, crashing the process instead of
     // surfacing as a rejected promise the caller can catch.
-    const queue: Array<{ status: number }> = [];
+    const queue: Array<{ status: number; hangupCause?: number }> = [];
     let done = false;
     let streamError: Error | null = null;
 
     call.on("data", (response) => {
       const data = response.toObject();
-      queue.push(data as { status: number });
+      queue.push(data as { status: number; hangupCause?: number });
     });
 
     call.on("end", () => {
@@ -181,14 +188,17 @@ class Calls {
 
     async function* statusStreamGenerator(): AsyncGenerator<{
       status: DialStatus;
+      hangupCause?: CallDetailRecord["status"];
     }> {
       // eslint-disable-next-line no-loops/no-loops
       while (!done || queue.length > 0) {
         if (queue.length > 0) {
           const data = queue.shift()!;
-          yield { status: dialStatusToString(data.status) } as {
-            status: DialStatus;
-          };
+          const hangupCause = hangupCauseToString(data.hangupCause);
+          yield {
+            status: dialStatusToString(data.status),
+            ...(hangupCause ? { hangupCause } : {})
+          } as { status: DialStatus; hangupCause?: CallDetailRecord["status"] };
         } else {
           await new Promise<void>((resolve) => setTimeout(resolve, 50));
         }

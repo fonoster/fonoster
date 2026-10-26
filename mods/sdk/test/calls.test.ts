@@ -130,6 +130,52 @@ describe("@sdk[Calls]", function () {
     expect(statuses).to.deep.equal([{ status: "ANSWER" }]);
   });
 
+  it("should yield the hangup cause with the status that ends an unanswered call", async function () {
+    // Arrange
+    const { Calls } = await import("../src/Calls");
+    const stream = new EventEmitter();
+    const client = {
+      createCall: (
+        _req: unknown,
+        _metadata: unknown,
+        callback: (err: Error | null, res: unknown) => void
+      ) =>
+        callback(null, {
+          getRef: () => "00000000-0000-0000-0000-000000000000"
+        }),
+      trackCall: () => stream
+    };
+    const fonosterClient = {
+      getCallsClient: () => client,
+      getMetadata: () => ({})
+    };
+
+    // Act
+    const calls = new Calls(fonosterClient as never);
+    const { statusStream } = await calls.createCall({
+      from: "+18287854037",
+      to: "+17853178070",
+      appRef: "00000000-0000-0000-0000-000000000000"
+    });
+
+    // CallStatus.UNKNOWN (0) is no cause; 7 is USER_BUSY
+    stream.emit("data", { toObject: () => ({ status: 4, hangupCause: 0 }) });
+    stream.emit("data", { toObject: () => ({ status: 3, hangupCause: 7 }) });
+    stream.emit("end");
+
+    const statuses = [];
+    // eslint-disable-next-line no-loops/no-loops
+    for await (const status of statusStream) {
+      statuses.push(status);
+    }
+
+    // Assert
+    expect(statuses).to.deep.equal([
+      { status: "PROGRESS" },
+      { status: "BUSY", hangupCause: "USER_BUSY" }
+    ]);
+  });
+
   it("should map the numeric amdStatus enum to its string name on getCall", async function () {
     // Arrange
     const { Calls } = await import("../src/Calls");

@@ -2049,7 +2049,8 @@ proto.fonoster.calls.v1beta2.TrackCallResponse.prototype.toObject = function(opt
  */
 proto.fonoster.calls.v1beta2.TrackCallResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-status: jspb.Message.getFieldWithDefault(msg, 1, 0)
+status: jspb.Message.getFieldWithDefault(msg, 1, 0),
+hangupCause: jspb.Message.getFieldWithDefault(msg, 2, 0)
   };
 
   if (includeInstance) {
@@ -2090,6 +2091,10 @@ proto.fonoster.calls.v1beta2.TrackCallResponse.deserializeBinaryFromReader = fun
       var value = /** @type {!proto.fonoster.calls.v1beta2.TrackCallResponse.Status} */ (reader.readEnum());
       msg.setStatus(value);
       break;
+    case 2:
+      var value = /** @type {!proto.fonoster.calls.v1beta2.CallStatus} */ (reader.readEnum());
+      msg.setHangupCause(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -2126,6 +2131,13 @@ proto.fonoster.calls.v1beta2.TrackCallResponse.serializeBinaryToWriter = functio
       f
     );
   }
+  f = message.getHangupCause();
+  if (f !== 0.0) {
+    writer.writeEnum(
+      2,
+      f
+    );
+  }
 };
 
 
@@ -2157,6 +2169,24 @@ proto.fonoster.calls.v1beta2.TrackCallResponse.prototype.getStatus = function() 
  */
 proto.fonoster.calls.v1beta2.TrackCallResponse.prototype.setStatus = function(value) {
   return jspb.Message.setProto3EnumField(this, 1, value);
+};
+
+
+/**
+ * optional CallStatus hangup_cause = 2;
+ * @return {!proto.fonoster.calls.v1beta2.CallStatus}
+ */
+proto.fonoster.calls.v1beta2.TrackCallResponse.prototype.getHangupCause = function() {
+  return /** @type {!proto.fonoster.calls.v1beta2.CallStatus} */ (jspb.Message.getFieldWithDefault(this, 2, 0));
+};
+
+
+/**
+ * @param {!proto.fonoster.calls.v1beta2.CallStatus} value
+ * @return {!proto.fonoster.calls.v1beta2.TrackCallResponse} returns this
+ */
+proto.fonoster.calls.v1beta2.TrackCallResponse.prototype.setHangupCause = function(value) {
+  return jspb.Message.setProto3EnumField(this, 2, value);
 };
 
 

@@ -18,6 +18,7 @@
  * limitations under the License.
  */
 import { DialStatus } from "@fonoster/common";
+import { CallStatus } from "@fonoster/types";
 import * as chai from "chai";
 import { expect } from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -179,20 +180,92 @@ describe("@calls/trackCall", function () {
     });
     expect(
       toTrackMessage({ ...ended("busy"), call_ref: callRef, sip_status: 486 })
-    ).to.deep.equal({ ref: callRef, status: DialStatus.BUSY, final: true });
+    ).to.deep.equal({
+      ref: callRef,
+      status: DialStatus.BUSY,
+      hangupCause: CallStatus.USER_BUSY,
+      final: true
+    });
     expect(toTrackMessage(ended("no_answer"), subject)).to.deep.equal({
       ref: callRef,
       status: DialStatus.NOANSWER,
+      hangupCause: CallStatus.NO_ANSWER,
       final: true
     });
     expect(toTrackMessage(ended("rejected"), subject)).to.deep.equal({
       ref: callRef,
       status: DialStatus.FAILED,
+      hangupCause: CallStatus.CALL_REJECTED,
       final: true
     });
     expect(toTrackMessage({ type: "dtmf", digit: "5" }, subject)).to.equal(
       undefined
     );
+  });
+
+  it("maps call.ended's cause and SIP status to the hangup cause", async function () {
+    const { toHangupCause } = await import("../../src/calls/createTrackCall");
+    const cases: Array<[Record<string, unknown>, CallStatus]> = [
+      [{ cause: "busy", sip_status: 486 }, CallStatus.USER_BUSY],
+      [{ cause: "no_answer", sip_status: 480 }, CallStatus.NO_ANSWER],
+      [{ cause: "no_answer" }, CallStatus.NO_ANSWER],
+      [{ cause: "rejected", sip_status: 603 }, CallStatus.CALL_REJECTED],
+      [{ cause: "rejected", sip_status: 404 }, CallStatus.UNALLOCATED],
+      [
+        { cause: "rejected", sip_status: 484 },
+        CallStatus.INVALID_NUMBER_FORMAT
+      ],
+      [{ cause: "rejected", sip_status: 488 }, CallStatus.NOT_ACCEPTABLE_HERE],
+      [
+        { cause: "node_error", sip_status: 503 },
+        CallStatus.SERVICE_UNAVAILABLE
+      ],
+      [{ cause: "media_timeout" }, CallStatus.SERVICE_UNAVAILABLE],
+      [{}, CallStatus.SERVICE_UNAVAILABLE]
+    ];
+    for (const [event, cause] of cases)
+      expect(toHangupCause(event), JSON.stringify(event)).to.equal(cause);
+  });
+
+  it("delivers the hangup cause with the final status of an unanswered call", async function () {
+    const clock = sandbox.useFakeTimers();
+    const { createTrackCall } = await import("../../src/calls/createTrackCall");
+    const callRef = "3c1d9e2a-5b6f-4a7c-8d9e-0f1a2b3c4d5e";
+    const subject = `roomr.events.${callRef}`;
+    const subscription = { callback: sandbox.stub() };
+    const nc = {
+      subscribe: sandbox.stub().returns(subscription)
+    } as unknown as NatsConnection;
+    const trackCall = createTrackCall(nc);
+    const send = (m: Record<string, unknown>) =>
+      subscription.callback(null, { subject, json: () => m });
+    const call = {
+      write: sandbox.stub(),
+      end: sandbox.stub(),
+      request: { ref: callRef }
+    };
+    await trackCall(call, () => {});
+    send({ ref: callRef, status: DialStatus.TRYING });
+    send({ type: "call.ringing", call_ref: callRef, node_ref: "n1" });
+    send({
+      type: "call.ended",
+      call_ref: callRef,
+      node_ref: "n1",
+      cause: "rejected",
+      sip_status: 404,
+      answered: false
+    });
+    clock.tick(600);
+    expect(call.write.args.map((a) => a[0])).to.deep.equal([
+      { ref: callRef, status: DialStatus.TRYING },
+      { ref: callRef, status: DialStatus.PROGRESS },
+      {
+        ref: callRef,
+        status: DialStatus.FAILED,
+        hangupCause: CallStatus.UNALLOCATED
+      }
+    ]);
+    expect(call.end).to.have.been.calledOnce;
   });
 
   describe("every stream ends", function () {

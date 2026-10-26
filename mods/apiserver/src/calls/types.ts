@@ -66,6 +66,8 @@ class CallPlacementError extends Error {
 type TrackCallResponse = {
   ref: string;
   status: DialStatus;
+  /** Why the dial ended, on the message that ends an unanswered call. */
+  hangupCause?: CallStatus;
 };
 
 type CallStream = {

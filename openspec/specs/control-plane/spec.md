@@ -60,6 +60,10 @@ and metadata"), so `TrackCall` on any replica follows any call.
 - **WHEN** the replica that placed a call is killed while the call rings, and `TrackCall` for the call runs on another replica
 - **THEN** that `TrackCall` still receives `ANSWER` when the callee answers, and ends when the node publishes `call.ended` on `roomr.events.<call_ref>`
 
+#### Scenario: TrackCall says why an unanswered call ended
+- **WHEN** the node publishes `call.ended` with `answered: false` for a tracked call
+- **THEN** the final status carries `hangup_cause`, a `CallStatus` from the SIP status when it names a reason (404 `UNALLOCATED`, 484 `INVALID_NUMBER_FORMAT`, 488 `NOT_ACCEPTABLE_HERE`, 503 `SERVICE_UNAVAILABLE`), else from the cause (`busy` `USER_BUSY`, `no_answer` `NO_ANSWER`, `rejected` `CALL_REJECTED`), else `SERVICE_UNAVAILABLE`
+
 ### Requirement: Call creation picks the least-loaded Roomr node
 
 When creating an outbound call the control plane SHALL choose, from the Roomr node heartbeats

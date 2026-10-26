@@ -104,6 +104,8 @@ type CallPublisher = {
 type TrackCallResponse = {
   ref: string;
   status: CallStatus;
+  // Why the dial ended, on the message that ends an unanswered call
+  hangupCause?: CallStatus;
 };
 
 type TrackCallSubscriber = {

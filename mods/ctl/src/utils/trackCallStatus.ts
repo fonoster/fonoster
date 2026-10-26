@@ -19,16 +19,20 @@
 // The dial ends at one of these; the stream may stay open a moment after (the server closes it).
 const FINAL = ["ANSWER", "BUSY", "CANCEL", "FAILED", "NOANSWER", "ERROR"];
 
-/** Prints each dial status until a final one (or the stream ends); returns the last status. */
+/**
+ * Prints each dial status (with why the call ended, when the server says) until a final one
+ * (or the stream ends); returns the last status.
+ */
 export async function trackCallStatus(
-  statusStream: AsyncIterable<{ status: string }>,
+  statusStream: AsyncIterable<{ status: string; hangupCause?: string }>,
   log: (message: string) => void
 ): Promise<string | undefined> {
   let last: string | undefined;
   // eslint-disable-next-line no-loops/no-loops
   for await (const entry of statusStream) {
     last = entry.status;
-    log(`Call status: ${entry.status}`);
+    const cause = entry.hangupCause ? ` (${entry.hangupCause})` : "";
+    log(`Call status: ${entry.status}${cause}`);
     if (FINAL.includes(entry.status)) break;
   }
   return last;

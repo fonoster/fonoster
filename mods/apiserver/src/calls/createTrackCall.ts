@@ -22,7 +22,7 @@ import {
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { BaseApiObject } from "@fonoster/types";
+import { BaseApiObject, CallStatus } from "@fonoster/types";
 import { NatsConnection } from "nats";
 import {
   CALL_EVENTS_WILDCARD,
@@ -72,6 +72,33 @@ const UNANSWERED: Record<string, DialStatus> = {
   no_answer: DialStatus.NOANSWER
 };
 
+/** call.ended causes of an unanswered call → the CDR's CallStatus names. */
+const HANGUP_CAUSES: Record<string, CallStatus> = {
+  busy: CallStatus.USER_BUSY,
+  no_answer: CallStatus.NO_ANSWER,
+  rejected: CallStatus.CALL_REJECTED
+};
+
+/** SIP final responses that say more than the node's cause does. */
+const HANGUP_SIP_STATUSES: Record<number, CallStatus> = {
+  404: CallStatus.UNALLOCATED,
+  484: CallStatus.INVALID_NUMBER_FORMAT,
+  488: CallStatus.NOT_ACCEPTABLE_HERE,
+  503: CallStatus.SERVICE_UNAVAILABLE
+};
+
+/**
+ * Why an unanswered call ended, from its call.ended (`cause` and `sip_status`): the SIP status
+ * when it names a reason, else the cause, else SERVICE_UNAVAILABLE (as the call's record says).
+ */
+function toHangupCause(event: Record<string, unknown>): CallStatus {
+  return (
+    HANGUP_SIP_STATUSES[Number(event.sip_status)] ??
+    HANGUP_CAUSES[String(event.cause)] ??
+    CallStatus.SERVICE_UNAVAILABLE
+  );
+}
+
 /**
  * One message as a TrackCall message: the control plane's `{ref, status}` (on
  * `calls.<ref>.events`) as is, and the Roomr node's call.ringing, call.answered and call.ended
@@ -104,6 +131,7 @@ function toTrackMessage(
         : {
             ref,
             status: UNANSWERED[String(event.cause)] ?? DialStatus.FAILED,
+            hangupCause: toHangupCause(event),
             final: true,
             ...node
           };
@@ -183,13 +211,14 @@ function createTrackCallHandler(
 
   /** Writes one message; returns true when the stream is done. */
   const deliver = (t: Tracked, message: TrackMessage) => {
-    const { ref, status } = message;
+    const { ref, status, hangupCause } = message;
     if (message.nodeRef && message.nodeRef !== t.nodeRef) {
       t.nodeRef = message.nodeRef;
     }
     // Any message of the call proves its node is still there (a draining node sends no heartbeats).
     if (t.nodeRef) t.nodeAt = now();
-    if (status) t.stream.write({ ref, status });
+    if (status)
+      t.stream.write({ ref, status, ...(hangupCause ? { hangupCause } : {}) });
     const done =
       message.final === true || (!!status && FINAL_STATUSES.includes(status));
     if (done) {
@@ -329,4 +358,9 @@ function createTrackCall(nc: NatsConnection, options?: TrackCallOptions) {
   );
 }
 
-export { createTrackCall, createTrackCallHandler, toTrackMessage };
+export {
+  createTrackCall,
+  createTrackCallHandler,
+  toHangupCause,
+  toTrackMessage
+};
