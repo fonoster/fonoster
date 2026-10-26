@@ -99,8 +99,9 @@ isolation is the boundary: the control port (50061) is for the apiserver only an
   stay on the bundle's network.
 - **Helm, pod network** (`roomr.hostNetwork: false`): the chart renders a NetworkPolicy
   (`roomr.networkPolicy`) that admits the control port from the apiserver (plus `controlFrom`),
-  SIP from `sipFrom` (default: pods labelled `app.kubernetes.io/name: routr` in the release's
-  namespace; match your Routr chart) and the RTP range from anywhere.
+  SIP from `sipFrom` (default: the `routr-connect` chart's EdgePort pods, labelled
+  `app.kubernetes.io/name: routr-connect` and `service: edgeport`, in the release's namespace;
+  add a `namespaceSelector` when Routr runs in another one) and the RTP range from anywhere.
 - **Helm, host network** (`roomr.hostNetwork: true`, the default because RTP is a UDP range): a
   NetworkPolicy does not apply to host-network pods, so firewall each host: TCP 50061 only from
   the apiserver's pods (or the cluster's pod CIDR), UDP/TCP 5060 (and the TLS port) only from

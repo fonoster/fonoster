@@ -236,15 +236,16 @@ roomr:
   # Network isolation. Roomr checks neither who calls its RPCs nor where SIP comes from, and
   # trusts the X-App-Ref, X-Call-Ref and X-Call-Direction headers of whoever reaches it. On the
   # pod network (hostNetwork: false) this NetworkPolicy admits the control port only from the
-  # apiserver (plus controlFrom) and the SIP port only from sipFrom (Routr's pods; match your
-  # Routr chart's labels, add a namespaceSelector when it runs in another namespace); RTP stays
+  # apiserver (plus controlFrom) and the SIP port only from sipFrom (Routr's SIP edge: the
+  # routr-connect chart labels its EdgePort pods app.kubernetes.io/name: routr-connect and
+  # service: edgeport; add a namespaceSelector when it runs in another namespace); RTP stays
   # open. A NetworkPolicy does not apply to host-network pods: with hostNetwork: true (the
   # default) a host firewall does the same (docs/operators/rebuild.md, "Network isolation").
   networkPolicy:
     enabled: true
     controlFrom: []
     sipFrom:
-      - podSelector: { matchLabels: { app.kubernetes.io/name: routr } }
+      - podSelector: { matchLabels: { app.kubernetes.io/name: routr-connect, service: edgeport } }
   # Optional SIP over TLS (off by default). `secret` holds tls.crt and tls.key (the node's
   # certificate) and ca.crt (the CA that verifies the outbound proxy's and registrars'
   # certificates on TLS connections the node opens).

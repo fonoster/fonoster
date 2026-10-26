@@ -197,6 +197,31 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(config).to.not.have.property("sessionRegistry");
   });
 
+  // Routr is external to this chart: the labels are those fonoster/routr's ops/charts/connect
+  // (chart name routr-connect, no nameOverride) puts on its EdgePort pods, the SIP edge.
+  it("admits SIP to the Roomr nodes from Routr's EdgePort pods on the pod network", function () {
+    const policy = find(
+      render("--set=roomr.hostNetwork=false"),
+      "NetworkPolicy",
+      "fonoster-roomr"
+    ) as K8sObject & {
+      spec: { ingress: { from?: unknown[]; ports: { port?: number }[] }[] };
+    };
+    const sip = policy.spec.ingress.find((rule) =>
+      rule.ports.some((p) => p.port === 5060)
+    );
+    expect(sip?.from).to.deep.equal([
+      {
+        podSelector: {
+          matchLabels: {
+            "app.kubernetes.io/name": "routr-connect",
+            service: "edgeport"
+          }
+        }
+      }
+    ]);
+  });
+
   it("renders every deployable of the cloud install, with a migrations Job", function () {
     const objs = render("values-cloud.yaml");
     [
