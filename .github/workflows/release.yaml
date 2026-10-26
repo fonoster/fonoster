@@ -23,6 +23,9 @@ name: Release
 # Retry a release that failed partway with `gh workflow run release.yaml` when there are no new
 # releasable commits: it publishes the versions npm still lacks, then the images and the GitHub
 # release for the version already tagged.
+#
+# When a retry can't publish a package at all (npm provenance answers 409 for that version on every
+# try), move on to the next version: merge any commit with a `Release-As: x.y.z` footer.
 
 on:
   push:
