@@ -218,7 +218,9 @@ roomr:
     # "{sessions}"); [] sends no REGISTER.
     # registrations: []
   # This deployment's SIP proxy and registrar (Routr): the node registers as <username>@<domain>
-  # unless sip.registrations is set; outbound INVITEs go to outboundProxy.
+  # unless sip.registrations is set; outbound INVITEs go to outboundProxy. `routr` is a Service
+  # this chart does not create: with the routr-connect chart, point both at its EdgePort Service
+  # (<release>-routr-edgeport), and the region agent's routr endpoint at its API Service.
   routr:
     registrar: routr:5060
     domain: nodes.fonoster.local
@@ -236,15 +238,18 @@ roomr:
   # Network isolation. Roomr checks neither who calls its RPCs nor where SIP comes from, and
   # trusts the X-App-Ref, X-Call-Ref and X-Call-Direction headers of whoever reaches it. On the
   # pod network (hostNetwork: false) this NetworkPolicy admits the control port only from the
-  # apiserver (plus controlFrom) and the SIP port only from sipFrom (Routr's pods; match your
-  # Routr chart's labels, add a namespaceSelector when it runs in another namespace); RTP stays
-  # open. A NetworkPolicy does not apply to host-network pods: with hostNetwork: true (the
+  # apiserver (plus controlFrom) and the SIP port only from sipFrom (Routr's SIP edge: the
+  # routr-connect chart labels its EdgePort pods app.kubernetes.io/name: routr-connect and
+  # service: edgeport; when Routr runs in another namespace, put a namespaceSelector in the SAME
+  # entry as this podSelector, since separate entries widen the rule); RTP stays open. Before
+  # this default, sipFrom selected app.kubernetes.io/name: routr: a Routr whose pods carry that
+  # label must keep it with an override. A NetworkPolicy does not apply to host-network pods: with hostNetwork: true (the
   # default) a host firewall does the same (docs/operators/rebuild.md, "Network isolation").
   networkPolicy:
     enabled: true
     controlFrom: []
     sipFrom:
-      - podSelector: { matchLabels: { app.kubernetes.io/name: routr } }
+      - podSelector: { matchLabels: { app.kubernetes.io/name: routr-connect, service: edgeport } }
   # Optional SIP over TLS (off by default). `secret` holds tls.crt and tls.key (the node's
   # certificate) and ca.crt (the CA that verifies the outbound proxy's and registrars'
   # certificates on TLS connections the node opens).
