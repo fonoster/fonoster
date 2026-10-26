@@ -23,6 +23,7 @@ import {
   WebhookDispatcher,
   WebhookError,
   callEnded,
+  callEndedId,
   callFailed,
   callRecordSealed,
   callStarted,
@@ -147,6 +148,19 @@ describe("@common/webhooks", function () {
       retireOn: "2027-01-31"
     });
     expect(dep.id).to.match(/^evt_/);
+    // call.ended's id depends on the call only (one per call, whoever sends it).
+    const ended = (endReason: string) =>
+      callEnded("W", {
+        callRef: "c1",
+        appRef: "a1",
+        from: "+1",
+        to: "+2",
+        direction: "inbound",
+        durationSeconds: 1,
+        endReason
+      });
+    expect(ended("caller_hangup").id).to.equal(ended("appbridge-lost").id);
+    expect(ended("x").id).to.equal(callEndedId("c1"));
   });
 
   it("signs deliveries so receivers can verify them, and rejects stale ones", async function () {

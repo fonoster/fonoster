@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createHash } from "crypto";
 import { Sessions, Webhooks } from "@fonoster/common";
 
 /** `call.ended`'s `endReason` when AppBridge that owned the call died mid-call. */
@@ -24,8 +23,10 @@ export const APPBRIDGE_LOST_REASON = "appbridge-lost";
 
 /**
  * The `call.ended` the control plane sends for a call whose AppBridge is gone (the node ended it
- * with cause `app_gone`). Its id depends on the call only, so every replica that detects the loss builds the same event and the fan-out
- * stores one delivery per endpoint (delivery ids depend on the event id): delivered once.
+ * with cause `app_gone`). Its id depends on the call only (`Webhooks.callEndedId`), so every
+ * replica that detects the loss builds the same event, and so does an AppBridge that sent its own
+ * `call.ended` just before it died: the fan-out stores one delivery per endpoint (delivery ids
+ * depend on the event id) and the first one wins.
  */
 export function lostCallEnded(
   call: Record<string, unknown>,
@@ -37,7 +38,7 @@ export function lostCallEnded(
   // Only a call that reached an app gets call.ended (voice-session).
   if (!callRef || !appRef) return undefined;
   const startedAt = Date.parse(str(call.startedAt));
-  const event = Webhooks.callEnded("", {
+  return Webhooks.callEnded("", {
     callRef,
     appRef,
     from: str(call.from),
@@ -48,11 +49,6 @@ export function lostCallEnded(
       : 0,
     endReason: APPBRIDGE_LOST_REASON
   });
-  const digest = createHash("sha256")
-    .update(`appbridge-lost\n${callRef}`)
-    .digest("hex")
-    .slice(0, 32);
-  return { ...event, id: `evt_lost_${digest}` };
 }
 
 /** How long after the node's `app_gone` an AppBridge's own end of the call may still show up. */

@@ -32,7 +32,9 @@ media-control's `reason`. When the AppBridge replica that owns an answered call 
 ends, the Roomr node ends the call when the control stream breaks or the app leg goes silent (roomr
 "A silent leg ends the call") and publishes `call.ended` with `cause` `app_gone`; the control plane
 SHALL then send that call's `call.ended` with `endReason` `appbridge-lost`, exactly once per
-`callRef` across its replicas and never in addition to one AppBridge already sent. Every payload
+`callRef` across its replicas and never in addition to one AppBridge already sent. A call's
+`call.ended` `id` MUST derive from its `callRef` alone, whoever sends it, so a call gets one
+`call.ended` delivery per endpoint (the first one stored). Every payload
 MUST use the envelope `id`, `type`, `createdAt`, `workspaceRef` and `data`. `call_record.sealed`
 MUST carry the `callRef` and a link to fetch the record and MUST NOT include the transcript or
 recording.
@@ -48,6 +50,12 @@ recording.
 - **WHEN** G's process dies and the node ends C with `cause` `app_gone`
 - **THEN** the endpoint receives exactly one `call.ended` delivery for C, with `data.endReason` equal to `appbridge-lost` and the `call.started` fields
 - **AND** a call whose AppBridge ended it normally gets no second `call.ended`
+
+#### Scenario: AppBridge ends the call and dies before its session entry is removed
+
+- **GIVEN** an answered call C in a subscribed workspace, owned by AppBridge replica G
+- **WHEN** G sends C's `call.ended` and dies before the session registry drops C's entry, and the node ends C with `cause` `app_gone`
+- **THEN** the endpoint receives exactly one `call.ended` delivery for C, G's, and the control plane's `appbridge-lost` one has the same `id`
 
 #### Scenario: A call that never reaches an app
 

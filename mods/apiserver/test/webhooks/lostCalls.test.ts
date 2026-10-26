@@ -164,4 +164,40 @@ describe("@apiserver/webhooks lost appbridge calls", function () {
     );
     expect(new Set(deliveries).size).to.equal(1);
   });
+
+  it("collapses into AppBridge's own call.ended when its entry's delete never arrived (#968)", async function () {
+    const store = new Webhooks.MemoryWebhookStore();
+    const dispatcher = new Webhooks.WebhookDispatcher({ store });
+    dispatcher.createEndpoint({
+      workspaceRef: "WS",
+      url: "https://hooks.example.com/fonoster",
+      events: ["call.ended"]
+    });
+    // Stored like the fan-out's insertDeliveries: a delivery that already exists is left as it is.
+    const stored = new Map<string, Webhooks.Delivery>();
+    const fanOut = (e: Webhooks.WebhookEvent) =>
+      dispatcher
+        .plan({ ...e, workspaceRef: "WS" })
+        .forEach((d) => stored.has(d.id) || stored.set(d.id, d));
+    const r = replica();
+    r.lost.onEntry(entry("calls", "call-1", ANSWERED));
+    // AppBridge sends its own call.ended, then dies before deleting calls.call-1.
+    const own = Webhooks.callEnded("WS", {
+      callRef: "call-1",
+      appRef: "app-1",
+      from: "+15550001",
+      to: "+15550002",
+      direction: "inbound",
+      durationSeconds: 20,
+      endReason: "caller_hangup"
+    });
+    fanOut(own);
+    r.at(20_000);
+    const lost = await r.lost.onAppGone("call-1");
+    fanOut(lost!);
+    expect(lost!.id).to.equal(own.id);
+    expect(
+      [...stored.values()].map((d) => d.event.data.endReason)
+    ).to.deep.equal(["caller_hangup"]);
+  });
 });
