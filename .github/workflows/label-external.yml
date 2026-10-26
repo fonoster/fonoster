@@ -1,0 +1,54 @@
+# Labels new issues and PRs from outside the org `external` (process/external.md).
+# Outside means author_association is not OWNER, MEMBER or COLLABORATOR. Bots are skipped,
+# and the label is only applied if it exists in the repo. Install in the org's `.github` repo
+# or in each repo. Safe on fork PRs: no checkout, and event text only reaches the shell via env.
+#
+# Caveat: a member whose org membership is private can show up as CONTRIBUTOR (or NONE)
+# instead of MEMBER, so they get `external` by mistake. The default GITHUB_TOKEN can't read
+# private org membership, so the members API doesn't help here. Fix it by making the
+# membership public, or by removing the label by hand. Reported and diagnosed in
+# https://github.com/apache/arrow/issues/34381 (not stated in GitHub's own docs).
+name: Label external
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Label if the author is outside the org
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+          AUTHOR: ${{ github.event.issue.user.login || github.event.pull_request.user.login }}
+          AUTHOR_TYPE: ${{ github.event.issue.user.type || github.event.pull_request.user.type }}
+          ASSOCIATION: ${{ github.event.issue.author_association || github.event.pull_request.author_association }}
+          LABEL: external
+        run: |
+          set -euo pipefail
+
+          if [ "$AUTHOR_TYPE" = "Bot" ]; then
+            echo "Bot author ($AUTHOR); skipping."; exit 0
+          fi
+
+          case "$ASSOCIATION" in
+            OWNER|MEMBER|COLLABORATOR)
+              echo "$AUTHOR is $ASSOCIATION; not external."; exit 0 ;;
+          esac
+
+          if ! gh api "repos/$REPO/labels/$LABEL" --silent 2>/dev/null; then
+            echo "Label '$LABEL' doesn't exist in $REPO; not adding it."; exit 0
+          fi
+
+          echo "$AUTHOR is $ASSOCIATION; labeling #$NUMBER '$LABEL'."
+          gh api "repos/$REPO/issues/$NUMBER/labels" -f "labels[]=$LABEL" --silent
