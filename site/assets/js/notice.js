@@ -12,7 +12,7 @@
   const NOTICE = {
     show: true,
     icon: "triangle-alert",
-    link: "https://github.com/fonoster/fonoster/issues/new?template=bug_report.yaml",
+    link: "https://github.com/fonoster/fonoster/issues/new?template=bug.yml",
     en: {
       lead: "Major upgrades underway.",
       text: "Things may be unstable for a while.[ We're pausing contributions for now, but bug reports are welcome.]",

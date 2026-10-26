@@ -1,7 +1,7 @@
 <a href="https://fonoster.com"><img src="./assets/banner.svg" alt="Fonoster: AI that answers the phone. Build, test, and run voice agents on real phone lines." width="100%"></a>
 
 > [!WARNING]
-> **Major upgrades underway.** We're moving fast, so expect breaking changes and some instability for a while. We're pausing contributions for now, but bug reports are welcome: [report a bug](https://github.com/fonoster/fonoster/issues/new?template=bug_report.yaml).
+> **Major upgrades underway.** We're moving fast, so expect breaking changes and some instability for a while. We're pausing contributions for now, but bug reports are welcome: [report a bug](https://github.com/fonoster/fonoster/issues/new?template=bug.yml).
 
 # The AI that answers the phone.
 

@@ -36,7 +36,7 @@ describe("@ctl[bug]", function () {
     const { stdout } = await runCommand("bug");
     expect(stdout).to.contain("Please report bugs to the link below");
     expect(stdout).to.contain(
-      "https://github.com/fonoster/fonoster/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml&title=%5BBUG%5D%3A+"
+      "https://github.com/fonoster/fonoster/issues/new?template=bug.yml"
     );
   });
 });
