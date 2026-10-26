@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/community",
-  "version": "0.34.1",
+  "version": "0.34.3",
   "description": "Vendor adapters (STT, TTS, LLM) behind shared interfaces, one subpath per vendor",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
