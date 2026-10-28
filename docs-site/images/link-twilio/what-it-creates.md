@@ -31,7 +31,7 @@ Group "YOUR FONOSTER WORKSPACE" (x 992):
   ↓ Number +1 809 555 0123 → Front desk (Node Accent, Autopilot agent); note "points at the app you pick"
 Between the trunks: accent → "incoming calls (origination)" (y 340); muted ← "outbound calls (termination)" (y 420),
   note "to wo7d….pstn.twilio.com"
-Subtitle names the command: fonoster sipnet:numbers:linkTwilioNumber
+Subtitle names the command: fonoster sipnet:numbers:linkTwilio
 Legend: accent = incoming calls · muted = outbound calls
 ```
 

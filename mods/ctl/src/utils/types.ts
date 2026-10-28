@@ -16,21 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-type LinkTwilioNumberToApplicationParams = {
-  phoneNumber: string;
-  accessKeyId: string;
-  aclEntries: string[];
-  originationUriBase: string;
-  applicationRef: string;
-  friendlyName?: string;
-};
-
-type TwilioTrunkParams = {
-  resourceRef: string;
-  originationUriBase: string;
-  aclEntries: string[];
-};
-
 type AppConfig = {
   testCases?: unknown;
   intelligence: {
@@ -42,4 +27,4 @@ type AppConfig = {
   };
 };
 
-export { LinkTwilioNumberToApplicationParams, TwilioTrunkParams, AppConfig };
+export { AppConfig };

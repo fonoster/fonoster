@@ -178,18 +178,28 @@ See [Providers and models](/reference/providers) and
 | Command | What it does |
 | --- | --- |
 | `sipnet:numbers:create` | Adds a number. Asks for a friendly name, the number (E.164), its trunk, its application, city and country. |
-| `sipnet:numbers:linkTwilioNumber` | Links a Twilio number to an application. Asks for a friendly name, the number, the application, and your Twilio Account SID and Auth Token. |
+| `sipnet:numbers:linkTwilio <phoneNumber>` | Links a number from your Twilio account to the workspace. Asks for what the flags below leave out. The old name, `sipnet:numbers:linkTwilioNumber`, still works until the next minor release. |
 | `sipnet:numbers:list` | Lists the workspace's numbers. Flag: `--page-size`, `-s` (default `1000`). |
 | `sipnet:numbers:get <ref>` | Shows a number. |
 | `sipnet:numbers:update <ref>` | Changes a number's friendly name, trunk or application. Asks for each. |
 | `sipnet:numbers:delete <ref>` | Deletes a number. |
 
-`sipnet:numbers:linkTwilioNumber` has two flags for a self-hosted install:
+`sipnet:numbers:linkTwilio` signs in to Twilio with a Standard API key (recommended) or your Auth
+Token, which gives full access to your Twilio account. Twilio's Restricted keys can't link a number.
+The secret never goes in a flag: the command reads it from `TWILIO_API_KEY_SECRET` or
+`TWILIO_AUTH_TOKEN`, or asks for it without echo.
 
-| Flag | Short | Default | What it sets |
-| --- | --- | --- | --- |
-| `--outbound-uri-base` | `-b` | `pstn.<domain>` | The host Twilio sends calls to |
-| `--access-control-list` | `-a` | Fonoster Cloud's address | The addresses Twilio accepts calls from, comma-separated |
+| Flag | Default | What it sets |
+| --- | --- | --- |
+| `--name` | The phone number | The number's name in Fonoster |
+| `--app` | None | The application that answers the number. Not with `--agent`. |
+| `--agent` | None | The SIP agent (AOR) that answers the number. Not with `--app`. |
+| `--account-sid` | Asked | Your Twilio Account SID (`AC…`) |
+| `--api-key-sid` | Asked | Your Standard API key's SID (`SK…`). The secret comes from `TWILIO_API_KEY_SECRET`. Not with `--auth-token`. |
+| `--auth-token` | | Sign in with the Auth Token, from `TWILIO_AUTH_TOKEN` |
+| `--yes` | | Link without asking. Replaces the trunk and route of a number already in the workspace. |
+
+Without a terminal, the command never asks: a missing value exits 1 and names the flag or variable.
 
 See [Numbers and routing](/telephony/numbers) and [Link a Twilio number](/telephony/link-twilio).
 

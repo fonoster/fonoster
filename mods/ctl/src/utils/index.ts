@@ -16,14 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-export * from "./assignTwilioNumberToTrunk";
 export * from "./calculateFutureDate";
-export * from "./createTwilioTrunk";
 export * from "./getFonosterNumberByTelUrl";
 export * from "./getFonosterTrunkByInboundUri";
-export * from "./getTwilioNumber";
-export * from "./getTwilioTrunk";
-export * from "./linkTwilioNumberToApplication";
 export * from "./types";
 export * from "./createOrUpdateApplication";
 export * from "./applicationRequest";
