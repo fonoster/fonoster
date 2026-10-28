@@ -87,7 +87,10 @@ type NumbersApi = {
   ): Promise<ListNumbersResponseExtended>;
 };
 
-/** Twilio credentials: the Account SID with its Auth Token, or a Standard or Restricted API key. */
+/**
+ * Twilio credentials: the Account SID with a Standard API key (recommended), or with its Auth Token
+ * (full account access). Twilio's Restricted keys can't link a number.
+ */
 type TwilioCredentials =
   | { accountSid: string; authToken: string }
   | { accountSid: string; apiKeySid: string; apiKeySecret: string };

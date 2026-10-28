@@ -37,7 +37,16 @@ Account back to its pre-run state at the end: **yes**.
   (`GET`/`POST /v1/Trunks/{sid}/IpAccessControlLists`) with "no requested permission": no
   grantable permission covers it. The new code stops there with `PERMISSION_MISSING` at
   `trunking.trunks.ipAccessControlLists.list`; the old code fails one call later, at the `POST`.
-  Use an Auth Token or a Standard key.
+  Use a Standard key, or the Auth Token.
+
+  A follow-up probe (2026-10-28) with the same Restricted key, call by call on a throwaway trunk:
+  `trunks` create, fetch, update and delete work, and so do the trunk's origination URLs (list,
+  create). The trunk's IP ACLs, credential lists and phone numbers (list and create) all answer
+  "no requested permission". Twilio's Restricted-key permission list for Voice
+  ([PDF](https://docs-resources.prod.twilio.com/documents/Twilio_Restricted_API_Keys_Permissions_-_Voice_Permissions.pdf))
+  lists no `trunking.twilio.com` endpoint at all. The console's
+  `sip.trunks.auth.calls.ip-acl-mappings` and `...credential-list-mappings` don't grant these
+  calls. A Restricted key can create a trunk but can't secure it, so it can't link a number.
 - **A missing permission is 401 with code 70051, not 403.** Steps d and e. The new code maps
   code 70051 to `PERMISSION_MISSING` and 401/20003 to `CREDENTIALS_REFUSED`.
 - **A taken trunk domain is a bare 400.** Step i: `POST /v1/Trunks` from the subaccount with the
