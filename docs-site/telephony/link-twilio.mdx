@@ -19,7 +19,13 @@ You need:
 
 - A Twilio account with a voice-capable phone number in it. Note the number in E.164 format, such
   as `+18095550123`.
-- Your Twilio **Account SID** and **Auth Token**, from the Twilio console.
+- Your Twilio **Account SID**, which starts with `AC`, and one way to sign in to Twilio:
+  - **A Standard API key** (recommended): its SID, which starts with `SK`, and its secret. Create
+    one in the Twilio console under **API keys & tokens**.
+  - **Your Auth Token**. It gives full access to your Twilio account, so prefer an API key.
+
+  Twilio's Restricted keys can't link a number: no Restricted key permission covers the trunk's IP
+  access control list, credential list or phone numbers. Use a Standard key.
 - An Autopilot agent or a stream to send calls to. See
   [Build an Autopilot agent](/autopilot/build-an-agent) or
   [Build a stream with the Voice SDK](/streams/voice-sdk).
@@ -40,23 +46,32 @@ You need:
   </Step>
 
   <Step title="Run the link command">
-    Start the command:
+    Start the command with the number to link:
 
     ```bash
-    fonoster sipnet:numbers:linkTwilioNumber
+    fonoster sipnet:numbers:linkTwilio +18095550123
     ```
 
-    It asks for:
+    It asks only for what your flags leave out:
 
-    | Prompt | What to enter |
-    | --- | --- |
-    | Friendly Name | A name for the number in Fonoster, such as `Support desk`. Leave it empty to use the number itself. |
-    | Number to link (E.164 format) | The Twilio number, such as `+18095550123`. |
-    | Application | The Autopilot agent or stream that answers the number. Pick **None** to choose later. |
-    | Twilio Account SID | Your Account SID, which starts with `AC`. |
-    | Twilio Auth Token | Your Auth Token. The CLI uses it only for this command and doesn't save it. |
+    | Prompt | What to enter | Flag |
+    | --- | --- | --- |
+    | Application | The Autopilot agent or stream that answers the number. Pick **None** to choose later. To send calls to a SIP agent, pass `--agent` instead. | `--app <ref>` or `--agent <aor>` |
+    | Twilio Account SID | Your Account SID, which starts with `AC`. | `--account-sid` |
+    | How do you sign in to Twilio? | **API key** (recommended) or **Auth Token**. | `--api-key-sid <SK…>` or `--auth-token` |
+    | API key SID | Your Standard API key's SID, which starts with `SK`. | `--api-key-sid` |
+    | API key secret, or Twilio Auth Token | The secret, typed without echo. | The `TWILIO_API_KEY_SECRET` or `TWILIO_AUTH_TOKEN` variable |
 
-    Confirm with **Ready?**. The command returns when everything is set up.
+    The number is named after itself in Fonoster. To name it, pass `--name "Support desk"`.
+
+    Fonoster uses your Twilio credentials once, to set up the link, and doesn't store them.
+
+    Confirm the link. Twilio then stops using the number's current voice settings and sends its
+    calls to Fonoster. The command prints the number and its trunk when everything is set up:
+
+    ```text
+    Linked +18095550123 (number 7d1c3b2a-5e4f-4a6b-8c9d-0e1f2a3b4c5d) on Twilio Trunk (a91e0f44-2b3c-4d5e-8f6a-7b8c9d0e1f2a).
+    ```
 
   </Step>
 
@@ -74,6 +89,25 @@ You need:
 
   </Step>
 </Steps>
+
+### Link from a script
+
+Without a terminal, the command never prompts: pass every value as a flag and the secret in an
+environment variable. This links a number to an application with a Standard API key:
+
+```bash
+export TWILIO_API_KEY_SECRET=...
+fonoster sipnet:numbers:linkTwilio +18095550123 \
+  --account-sid AC0123456789abcdef0123456789abcdef \
+  --api-key-sid SK0123456789abcdef0123456789abcdef \
+  --app 4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00 \
+  --yes
+```
+
+To sign in with the Auth Token instead, set `TWILIO_AUTH_TOKEN` and pass `--auth-token` in place of
+`--api-key-sid`. A missing value stops the command with exit code 1 and names the flag or variable,
+such as `Missing --account-sid.` If the number is already in your workspace, the command stops
+unless you pass `--yes`, which replaces the number's trunk and route.
 
 ## What the command sets up
 
@@ -97,6 +131,8 @@ your workspace's access key ID in lowercase, shown here as `wo7d2kq9x4m1c8b3n6p0
   `<access key ID>.pstn.twilio.com`. Fonoster sends your outbound calls there.
 - An IP access control list named `ACL-<access key ID>` on that trunk, holding Fonoster's
   signaling address. Twilio only accepts outbound calls from addresses on this list.
+- A SIP credential list named `CL-<access key ID>` on that trunk, holding the username and password
+  Fonoster signs outbound calls with.
 - An origination URL `sip:<access key ID>.pstn.fonoster.com` on the trunk. Twilio sends calls to
   your number there.
 - Your number moves onto the trunk. Twilio then sends its calls over SIP, not to the number's voice
@@ -106,11 +142,15 @@ your workspace's access key ID in lowercase, shown here as `wo7d2kq9x4m1c8b3n6p0
 
 - A trunk named **Twilio Trunk**, with the inbound URI `<access key ID>.pstn.fonoster.com` and an
   outbound URI pointing at the Twilio termination domain.
+- A credential named `Twilio <access key ID>` on that trunk, matching the one in the Twilio
+  credential list.
 - The number, on that trunk, pointing at the application you picked.
 
 To link more Twilio numbers, run the command again. It reuses the trunks it already created on
 both sides and only adds the number. If the number is already in your workspace, the command
-replaces it.
+replaces its trunk and route.
+
+Numbers linked before this release get the credential when you link them again.
 
 ## Change where calls go
 
@@ -120,27 +160,23 @@ See [Numbers and routing](/telephony/numbers).
 
 ## On your own install
 
-On a self-hosted Fonoster, Twilio has to reach your servers, not Fonoster Cloud. Pass two flags:
-
-```bash
-fonoster sipnet:numbers:linkTwilioNumber \
-  --outbound-uri-base sip.example.com \
-  --access-control-list 203.0.113.10/32
-```
-
-| Flag | Short | What it sets |
-| --- | --- | --- |
-| `--outbound-uri-base` | `-b` | The host Twilio sends calls to. The command prefixes it with your access key ID, so `<access key ID>.pstn.example.com` must resolve to your SIP address. Default `pstn.<domain>`, from the server you're signed in to. |
-| `--access-control-list` | `-a` | The addresses your install sends calls from, comma-separated, as IPs or CIDR ranges. Twilio accepts outbound calls only from these. |
+On a self-hosted Fonoster, the server you're signed in to sets the address Twilio sends calls to
+and the addresses Twilio accepts calls from, so the command needs no extra flags. Set your
+install's public SIP address first: see [Carriers and phones](/self-hosting/carriers-and-phones).
 
 ## Troubleshooting
 
-- **"The number … was not found in your account."** The number isn't in the Twilio account whose
+- **"Twilio didn't accept these credentials."** The Account SID, API key SID or secret is wrong, or
+  the key belongs to another account. Check them in the Twilio console.
+- **"This Twilio key can't … Twilio's Restricted keys can't link numbers; use a Standard API key or
+  the Auth Token."** The key is a Restricted key. Create a Standard key, or use the Auth Token.
+- **"+18095550123 isn't in Twilio account AC…cdef."** The number isn't in the Twilio account whose
   SID you entered. Check the account and the E.164 format.
 - **The number rings but nothing answers.** Check that the number points at an application under
   **Numbers**.
 - **Outbound calls fail.** Twilio rejects calls from addresses outside the trunk's access control
-  list. On your own install, check the `--access-control-list` you passed.
+  list. On your own install, check your public SIP address in
+  [Carriers and phones](/self-hosting/carriers-and-phones).
 
 ## Next steps
 

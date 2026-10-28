@@ -7,6 +7,35 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
+<Update label="v0.37" description="October 2026" tags={["Breaking", "Telephony"]}>
+
+## Breaking changes
+
+- **The CLI links Twilio numbers through the server.** `fonoster sipnet:numbers:linkTwilioNumber`
+  is now `fonoster sipnet:numbers:linkTwilio <phoneNumber>`. The old name still works until the
+  next minor release. `-b` (`--outbound-uri-base`) and `-a` (`--access-control-list`) are removed:
+  the server sets the address Twilio sends calls to and the addresses it accepts calls from, so
+  drop both. Instead of
+
+  ```bash
+  fonoster sipnet:numbers:linkTwilioNumber -b sip.example.com -a 203.0.113.10/32
+  ```
+
+  run
+
+  ```bash
+  fonoster sipnet:numbers:linkTwilio +18095550123
+  ```
+
+## New
+
+- **Link a Twilio number with an API key.** The command signs in with a Standard API key
+  (recommended) or your Auth Token, can send calls to an application (`--app`) or a SIP agent
+  (`--agent`), and runs from scripts with flags and the `TWILIO_API_KEY_SECRET` or
+  `TWILIO_AUTH_TOKEN` variable. See [Link a Twilio number](/telephony/link-twilio).
+
+</Update>
+
 <Update label="v0.30" description="October 2026" tags={["Breaking", "Autopilot", "Streams", "Telephony", "Observe"]}>
 
 Fonoster 0.30 is a new platform. Calls run on a new voice path, Autopilot is rebuilt, and your own
