@@ -325,3 +325,99 @@ export namespace ListNumbersResponse {
   }
 }
 
+export class TwilioCredentials extends jspb.Message {
+  getAccountSid(): string;
+  setAccountSid(value: string): TwilioCredentials;
+
+  getAuthToken(): string;
+  setAuthToken(value: string): TwilioCredentials;
+
+  getApiKeySid(): string;
+  setApiKeySid(value: string): TwilioCredentials;
+
+  getApiKeySecret(): string;
+  setApiKeySecret(value: string): TwilioCredentials;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): TwilioCredentials.AsObject;
+  static toObject(includeInstance: boolean, msg: TwilioCredentials): TwilioCredentials.AsObject;
+  static serializeBinaryToWriter(message: TwilioCredentials, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): TwilioCredentials;
+  static deserializeBinaryFromReader(message: TwilioCredentials, reader: jspb.BinaryReader): TwilioCredentials;
+}
+
+export namespace TwilioCredentials {
+  export type AsObject = {
+    accountSid: string,
+    authToken: string,
+    apiKeySid: string,
+    apiKeySecret: string,
+  }
+}
+
+export class LinkTwilioRequest extends jspb.Message {
+  getPhoneNumber(): string;
+  setPhoneNumber(value: string): LinkTwilioRequest;
+
+  getName(): string;
+  setName(value: string): LinkTwilioRequest;
+
+  getCredentials(): TwilioCredentials | undefined;
+  setCredentials(value?: TwilioCredentials): LinkTwilioRequest;
+  hasCredentials(): boolean;
+  clearCredentials(): LinkTwilioRequest;
+
+  getAgentAor(): string;
+  setAgentAor(value: string): LinkTwilioRequest;
+
+  getAppRef(): string;
+  setAppRef(value: string): LinkTwilioRequest;
+
+  getIngressHandlerCase(): LinkTwilioRequest.IngressHandlerCase;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): LinkTwilioRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: LinkTwilioRequest): LinkTwilioRequest.AsObject;
+  static serializeBinaryToWriter(message: LinkTwilioRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LinkTwilioRequest;
+  static deserializeBinaryFromReader(message: LinkTwilioRequest, reader: jspb.BinaryReader): LinkTwilioRequest;
+}
+
+export namespace LinkTwilioRequest {
+  export type AsObject = {
+    phoneNumber: string,
+    name: string,
+    credentials?: TwilioCredentials.AsObject,
+    agentAor: string,
+    appRef: string,
+  }
+
+  export enum IngressHandlerCase { 
+    INGRESS_HANDLER_NOT_SET = 0,
+    AGENT_AOR = 4,
+    APP_REF = 5,
+  }
+}
+
+export class LinkTwilioResponse extends jspb.Message {
+  getRef(): string;
+  setRef(value: string): LinkTwilioResponse;
+
+  getTrunkRef(): string;
+  setTrunkRef(value: string): LinkTwilioResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): LinkTwilioResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: LinkTwilioResponse): LinkTwilioResponse.AsObject;
+  static serializeBinaryToWriter(message: LinkTwilioResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LinkTwilioResponse;
+  static deserializeBinaryFromReader(message: LinkTwilioResponse, reader: jspb.BinaryReader): LinkTwilioResponse;
+}
+
+export namespace LinkTwilioResponse {
+  export type AsObject = {
+    ref: string,
+    trunkRef: string,
+  }
+}
+

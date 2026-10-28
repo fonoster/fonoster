@@ -20,6 +20,8 @@ import {
   BaseApiObject,
   CreateNumberRequest,
   INumber,
+  LinkTwilioRequest,
+  LinkTwilioResponse,
   ListNumbersRequest,
   ListNumbersResponse,
   UpdateNumberRequest
@@ -32,9 +34,12 @@ import {
   DeleteNumberRequest as DeleteNumberRequestPB,
   DeleteNumberResponse as DeleteNumberResponsePB,
   GetNumberRequest as GetNumberRequestPB,
+  LinkTwilioRequest as LinkTwilioRequestPB,
+  LinkTwilioResponse as LinkTwilioResponsePB,
   ListNumbersRequest as ListNumbersRequestPB,
   ListNumbersResponse as ListNumbersResponsePB,
   Number as NumberPB,
+  TwilioCredentials as TwilioCredentialsPB,
   UpdateNumberRequest as UpdateNumberRequestPB,
   UpdateNumberResponse as UpdateNumberResponsePB
 } from "./generated/node/numbers_pb";
@@ -262,6 +267,55 @@ class Numbers {
       requestPBObjectConstructor: DeleteNumberRequestPB,
       metadata: this.client.getMetadata(),
       request: { ref }
+    });
+  }
+
+  /**
+   * Links a number from your Twilio account to the Workspace, so it rings an Application or
+   * a SIP agent. It provisions the number's Twilio trunk, creates or updates the Fonoster
+   * Number and its "Twilio Trunk", and moves the number to that trunk in Twilio. Calling it
+   * again with the same number converges instead of duplicating. The Twilio credentials are
+   * used for this request and not stored.
+   *
+   * @param {LinkTwilioRequest} request - The request object that contains the necessary information to link a Twilio number
+   * @param {string} request.phoneNumber - The number in E.164; it must be in the Twilio account
+   * @param {string} request.name - The name of the Number (optional; defaults to the phoneNumber)
+   * @param {string} request.appRef - The Application that answers the number (or agentAor)
+   * @param {string} request.agentAor - The SIP agent that answers the number (or appRef)
+   * @param {TwilioCredentials} request.credentials - The Twilio Account SID with a Standard API key (apiKeySid and apiKeySecret) or the Auth Token (authToken)
+   * @return {Promise<LinkTwilioResponse>} - The response object that contains the reference to the Number and to its Trunk
+   * @example
+   * const numbers = new SDK.Numbers(client); // Existing client object
+   *
+   * const request = {
+   *   phoneNumber: "+18095550123",
+   *   name: "Front desk",
+   *   appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00",
+   *   credentials: {
+   *     accountSid: "AC0123456789abcdef0123456789abcdef",
+   *     apiKeySid: "SK0123456789abcdef0123456789abcdef",
+   *     apiKeySecret: process.env.TWILIO_API_KEY_SECRET
+   *   }
+   * };
+   *
+   * numbers
+   *   .linkTwilio(request)
+   *   .then(console.log) // successful response: { ref, trunkRef }
+   *   .catch(console.error); // an error occurred
+   */
+  async linkTwilio(request: LinkTwilioRequest): Promise<LinkTwilioResponse> {
+    const client = this.client.getNumbersClient();
+    return await makeRpcRequest<
+      LinkTwilioRequestPB,
+      LinkTwilioResponsePB,
+      LinkTwilioRequest,
+      LinkTwilioResponse
+    >({
+      method: client.linkTwilio.bind(client),
+      requestPBObjectConstructor: LinkTwilioRequestPB,
+      metadata: this.client.getMetadata(),
+      request,
+      objectMapping: [["credentials", TwilioCredentialsPB]]
     });
   }
 }

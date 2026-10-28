@@ -23,6 +23,8 @@ import {
   DeleteNumberResponse,
   GetNumberRequest,
   Number as INumber,
+  LinkTwilioRequest,
+  LinkTwilioResponse,
   ListNumbersRequest,
   ListNumbersResponse,
   UpdateNumberRequest,
@@ -36,6 +38,7 @@ type NumbersClient = {
   updateNumber: ClientFunction<UpdateNumberRequest, UpdateNumberResponse>;
   listNumbers: ClientFunction<ListNumbersRequest, ListNumbersResponse>;
   deleteNumber: ClientFunction<DeleteNumberRequest, DeleteNumberResponse>;
+  linkTwilio: ClientFunction<LinkTwilioRequest, LinkTwilioResponse>;
 };
 
 export { NumbersClient };

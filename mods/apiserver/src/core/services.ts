@@ -29,12 +29,13 @@ import {
 import { buildApplicationsService } from "../applications";
 import { buildService as buildBillingService } from "../billing/buildService";
 import { buildCallsService } from "../calls";
-import { buildCapabilitiesService } from "../capabilities";
+import { buildCapabilitiesService, connectionDetails } from "../capabilities";
 import { getConfig } from "../config";
 import {
   BILLING_ADDRESS,
   BILLING_ENABLED,
   DOMAIN_NAMES_ROOT,
+  PSTN_ROOT,
   ROUTR_ROOMR_PEER,
   TRUNK_NAMES_ROOT
 } from "../envs";
@@ -88,7 +89,11 @@ const numberRouting = createNumberRouting({
 const numbersService = buildNumbersService(
   routrConfig,
   createCheckNumberPreconditions(prisma),
-  numberRouting
+  numberRouting,
+  {
+    pstnRoot: PSTN_ROOT,
+    signalingAddresses: connectionDetails(getConfig()).signalingAddresses
+  }
 );
 const aclsService = buildAclsService(routrConfig);
 const capabilitiesService = buildCapabilitiesService(getConfig());
