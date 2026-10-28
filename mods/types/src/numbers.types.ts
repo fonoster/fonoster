@@ -87,6 +87,11 @@ type NumbersApi = {
   ): Promise<ListNumbersResponseExtended>;
 };
 
+/** Twilio credentials: the Account SID with its Auth Token, or a Standard or Restricted API key. */
+type TwilioCredentials =
+  | { accountSid: string; authToken: string }
+  | { accountSid: string; apiKeySid: string; apiKeySecret: string };
+
 export {
   CreateNumberRequest,
   CreateNumberRequestExtended,
@@ -95,5 +100,6 @@ export {
   ListNumbersRequest,
   ListNumbersResponse,
   NumbersApi,
+  TwilioCredentials,
   UpdateNumberRequest
 };
