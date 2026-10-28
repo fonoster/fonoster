@@ -1,9 +1,9 @@
 diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
-index e74684b0a..61733f86c 100644
+index d93aff6f5..40f92ca4c 100644
 --- a/mods/appbridge/src/session/Call.ts
 +++ b/mods/appbridge/src/session/Call.ts
-@@ -1653,7 +1653,9 @@ export class AppSession {
-         await this.call.hangup("app_hangup");
+@@ -1714,7 +1714,9 @@ export class AppSession {
+         else await this.call.hangup("app_hangup");
          return;
        case "dtmf.send":
 -        this.call.command({ sendDtmf: { digits: String(cmd.digits) } });
