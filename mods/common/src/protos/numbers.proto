@@ -32,6 +32,8 @@ service Numbers {
   rpc DeleteNumber (DeleteNumberRequest) returns (DeleteNumberResponse) {}
   // List Numbers
   rpc ListNumbers (ListNumbersRequest) returns (ListNumbersResponse) {}
+  // Link a Twilio number: provision its Twilio trunk and route it to an agent or application
+  rpc LinkTwilioNumber (LinkTwilioNumberRequest) returns (LinkTwilioNumberResponse) {}
 }
 
 // The message for the Number resource
@@ -153,4 +155,41 @@ message ListNumbersResponse {
   repeated Number items = 1;
   // Token to retrieve the next page of results, or empty if there are no more results in the list
   string next_page_token = 2;
+}
+
+// Used once for this request; never stored or logged.
+message TwilioCredentials {
+  // The Twilio Account SID (AC…), always required
+  string account_sid = 1;
+  // The account's Auth Token; set this …
+  string auth_token = 2;
+  // … or these two (SK…, a Standard key; Restricted keys can't link)
+  string api_key_sid = 3;
+  // The API key's secret
+  string api_key_secret = 4;
+}
+
+// The request message for Numbers.LinkTwilioNumber
+message LinkTwilioNumberRequest {
+  // The number in E.164; must be in the Twilio account
+  string phone_number = 1;
+  // The name of the Number; defaults to phone_number
+  string name = 2;
+  // The Twilio credentials
+  TwilioCredentials credentials = 3;
+  // This dictates how the number will handle incoming calls
+  oneof ingress_handler {
+    // The call will be forwarded to this agent
+    string agent_aor = 4;
+    // The call will be forward to this application
+    string app_ref = 5;
+  }
+}
+
+// The response message for Numbers.LinkTwilioNumber
+message LinkTwilioNumberResponse {
+  // The Fonoster Number; a number already in the workspace keeps its ref
+  string ref = 1;
+  // The Fonoster "Twilio Trunk"
+  string trunk_ref = 2;
 }

@@ -179,8 +179,11 @@ Phone numbers and where their calls go. `new SDK.Numbers(client)`.
 | `updateNumber({ ref, ...fields })` | Change the name, trunk or destination | `name`, `trunkRef`, `appRef`, `agentAor` | `{ ref }` |
 | `listNumbers({ pageSize, pageToken })` | List numbers | | `{ items, nextPageToken }` |
 | `deleteNumber(ref)` | Remove a number | | `{ ref }` |
+| `linkTwilioNumber(request)` | Bring a number from your Twilio account: Fonoster sets up its Twilio trunk and routes it to your app or SIP agent. Linking it again updates it in place | `phoneNumber` (`+18095550123`), `name` (defaults to `phoneNumber`), one destination: `appRef` or `agentAor`, and `credentials`: `accountSid` with `apiKeySid` and `apiKeySecret` (a Standard API key), or with `authToken` | `{ ref, trunkRef }` |
 
 `telUrl`, `city`, `country` and `countryIsoCode` can't change after creation.
+
+The Twilio credentials are used for this request and not stored.
 
 ## Trunks
 

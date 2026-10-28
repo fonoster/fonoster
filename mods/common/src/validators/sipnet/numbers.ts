@@ -59,4 +59,49 @@ const updateNumberRequestSchema = z
     }
   );
 
-export { createNumberRequestSchema, updateNumberRequestSchema };
+const twilioCredentialsSchema = z
+  .object({
+    accountSid: z
+      .string()
+      .regex(/^AC[0-9a-f]{32}$/, "Invalid Twilio Account SID"),
+    authToken: z.string().min(1, "Value required").optional(),
+    apiKeySid: z
+      .string()
+      .regex(/^SK[0-9a-f]{32}$/, "Invalid Twilio API key SID")
+      .optional(),
+    apiKeySecret: z.string().min(1, "Value required").optional()
+  })
+  .refine(
+    ({ authToken, apiKeySid, apiKeySecret }) =>
+      authToken !== undefined
+        ? apiKeySid === undefined && apiKeySecret === undefined
+        : apiKeySid !== undefined && apiKeySecret !== undefined,
+    {
+      message:
+        "Provide either 'authToken' or both 'apiKeySid' and 'apiKeySecret'"
+    }
+  );
+
+const linkTwilioNumberRequestSchema = z
+  .object({
+    phoneNumber: z
+      .string()
+      .regex(/^\+[1-9]\d{1,14}$/, "Must be an E.164 number"),
+    name: nameSchema.optional(),
+    credentials: twilioCredentialsSchema,
+    agentAor: sipUriSchema.optional(),
+    appRef: z.string().optional()
+  })
+  .refine(
+    ({ agentAor, appRef }) => !(agentAor !== undefined && appRef !== undefined),
+    {
+      message:
+        "You can only provide one of the following fields: 'agentAor' or 'appRef'"
+    }
+  );
+
+export {
+  createNumberRequestSchema,
+  linkTwilioNumberRequestSchema,
+  updateNumberRequestSchema
+};

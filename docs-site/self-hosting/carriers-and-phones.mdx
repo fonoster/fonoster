@@ -107,6 +107,11 @@ With `ufw` on the machine itself:
 ufw allow 5060/udp && ufw allow 5060/tcp && ufw allow 10000:11999/udp
 ```
 
+To link Twilio numbers, the API server also needs outbound HTTPS to `api.twilio.com` and
+`trunking.twilio.com`. The SIP address Twilio allows comes from your install's public signaling
+addresses (`regions.public[].endpoints.signalingAddresses`), so list this machine's public IPv4
+address there.
+
 <Note>
   On Linux, turn off Docker's userland proxy, or the 2,000 published audio ports
   exhaust the machine's memory. See [Before you

@@ -71,6 +71,7 @@ const workspaceResourceAccess = [
   "/fonoster.numbers.v1beta2.Numbers/GetNumber",
   "/fonoster.numbers.v1beta2.Numbers/DeleteNumber",
   "/fonoster.numbers.v1beta2.Numbers/ListNumbers",
+  "/fonoster.numbers.v1beta2.Numbers/LinkTwilioNumber",
   "/fonoster.secrets.v1beta2.Secrets/CreateSecret",
   "/fonoster.secrets.v1beta2.Secrets/UpdateSecret",
   "/fonoster.secrets.v1beta2.Secrets/GetSecret",

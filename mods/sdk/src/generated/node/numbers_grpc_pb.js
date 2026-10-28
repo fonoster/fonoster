@@ -77,6 +77,28 @@ function deserialize_fonoster_numbers_v1beta2_GetNumberRequest(buffer_arg) {
   return numbers_pb.GetNumberRequest.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_numbers_v1beta2_LinkTwilioNumberRequest(arg) {
+  if (!(arg instanceof numbers_pb.LinkTwilioNumberRequest)) {
+    throw new Error('Expected argument of type fonoster.numbers.v1beta2.LinkTwilioNumberRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_numbers_v1beta2_LinkTwilioNumberRequest(buffer_arg) {
+  return numbers_pb.LinkTwilioNumberRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_numbers_v1beta2_LinkTwilioNumberResponse(arg) {
+  if (!(arg instanceof numbers_pb.LinkTwilioNumberResponse)) {
+    throw new Error('Expected argument of type fonoster.numbers.v1beta2.LinkTwilioNumberResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_numbers_v1beta2_LinkTwilioNumberResponse(buffer_arg) {
+  return numbers_pb.LinkTwilioNumberResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_numbers_v1beta2_ListNumbersRequest(arg) {
   if (!(arg instanceof numbers_pb.ListNumbersRequest)) {
     throw new Error('Expected argument of type fonoster.numbers.v1beta2.ListNumbersRequest');
@@ -194,6 +216,18 @@ listNumbers: {
     requestDeserialize: deserialize_fonoster_numbers_v1beta2_ListNumbersRequest,
     responseSerialize: serialize_fonoster_numbers_v1beta2_ListNumbersResponse,
     responseDeserialize: deserialize_fonoster_numbers_v1beta2_ListNumbersResponse,
+  },
+  // Link a Twilio number: provision its Twilio trunk and route it to an agent or application
+linkTwilioNumber: {
+    path: '/fonoster.numbers.v1beta2.Numbers/LinkTwilioNumber',
+    requestStream: false,
+    responseStream: false,
+    requestType: numbers_pb.LinkTwilioNumberRequest,
+    responseType: numbers_pb.LinkTwilioNumberResponse,
+    requestSerialize: serialize_fonoster_numbers_v1beta2_LinkTwilioNumberRequest,
+    requestDeserialize: deserialize_fonoster_numbers_v1beta2_LinkTwilioNumberRequest,
+    responseSerialize: serialize_fonoster_numbers_v1beta2_LinkTwilioNumberResponse,
+    responseDeserialize: deserialize_fonoster_numbers_v1beta2_LinkTwilioNumberResponse,
   },
 };
 

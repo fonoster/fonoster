@@ -1579,6 +1579,7 @@ Note that an active Fonoster deployment is required.
     * [.updateNumber(request)](#Numbers+updateNumber) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
     * [.listNumbers(request)](#Numbers+listNumbers) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
     * [.deleteNumber(ref)](#Numbers+deleteNumber) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+    * [.linkTwilioNumber(request)](#Numbers+linkTwilioNumber) ⇒ <code>Promise.&lt;LinkTwilioNumberResponse&gt;</code>
 
 <a name="new_Numbers_new"></a>
 
@@ -1757,6 +1758,48 @@ const ref = "00000000-0000-0000-0000-000000000000";
 numbers
   .deleteNumber(ref)
   .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+
+<a name="Numbers+linkTwilioNumber"></a>
+
+### numbers.linkTwilioNumber(request) ⇒ <code>Promise.&lt;LinkTwilioNumberResponse&gt;</code>
+Links a number from your Twilio account to the Workspace, so it rings an Application or
+a SIP agent. It provisions the number's Twilio trunk, creates or updates the Fonoster
+Number and its "Twilio Trunk", and moves the number to that trunk in Twilio. Calling it
+again with the same number converges instead of duplicating. The Twilio credentials are
+used for this request and not stored.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;LinkTwilioNumberResponse&gt;</code> - - The response object that contains the reference to the Number and to its Trunk  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>LinkTwilioNumberRequest</code> | The request object that contains the necessary information to link a Twilio number |
+| request.phoneNumber | <code>string</code> | The number in E.164; it must be in the Twilio account |
+| request.name | <code>string</code> | The name of the Number (optional; defaults to the phoneNumber) |
+| request.appRef | <code>string</code> | The Application that answers the number (or agentAor) |
+| request.agentAor | <code>string</code> | The SIP agent that answers the number (or appRef) |
+| request.credentials | <code>TwilioCredentials</code> | The Twilio Account SID with a Standard API key (apiKeySid and apiKeySecret) or the Auth Token (authToken) |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  phoneNumber: "+18095550123",
+  name: "Front desk",
+  appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00",
+  credentials: {
+    accountSid: "AC0123456789abcdef0123456789abcdef",
+    apiKeySid: "SK0123456789abcdef0123456789abcdef",
+    apiKeySecret: process.env.TWILIO_API_KEY_SECRET
+  }
+};
+
+numbers
+  .linkTwilioNumber(request)
+  .then(console.log) // successful response: { ref, trunkRef }
   .catch(console.error); // an error occurred
 ```
 

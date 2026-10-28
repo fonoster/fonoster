@@ -254,5 +254,48 @@ export class NumbersClient {
     this.methodDescriptorListNumbers);
   }
 
+  methodDescriptorLinkTwilioNumber = new grpcWeb.MethodDescriptor(
+    '/fonoster.numbers.v1beta2.Numbers/LinkTwilioNumber',
+    grpcWeb.MethodType.UNARY,
+    numbers_pb.LinkTwilioNumberRequest,
+    numbers_pb.LinkTwilioNumberResponse,
+    (request: numbers_pb.LinkTwilioNumberRequest) => {
+      return request.serializeBinary();
+    },
+    numbers_pb.LinkTwilioNumberResponse.deserializeBinary
+  );
+
+  linkTwilioNumber(
+    request: numbers_pb.LinkTwilioNumberRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<numbers_pb.LinkTwilioNumberResponse>;
+
+  linkTwilioNumber(
+    request: numbers_pb.LinkTwilioNumberRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: numbers_pb.LinkTwilioNumberResponse) => void): grpcWeb.ClientReadableStream<numbers_pb.LinkTwilioNumberResponse>;
+
+  linkTwilioNumber(
+    request: numbers_pb.LinkTwilioNumberRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: numbers_pb.LinkTwilioNumberResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.numbers.v1beta2.Numbers/LinkTwilioNumber',
+        request,
+        metadata || {},
+        this.methodDescriptorLinkTwilioNumber,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.numbers.v1beta2.Numbers/LinkTwilioNumber',
+    request,
+    metadata || {},
+    this.methodDescriptorLinkTwilioNumber);
+  }
+
 }
 
