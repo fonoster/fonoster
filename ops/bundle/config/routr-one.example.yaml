@@ -1,6 +1,7 @@
 # fonoster-config init writes config/routr-one.yaml from this file.
 # ${NAME} values come from the routr container's environment in compose.yaml, so passwords
 # never land in this file. Put your own settings in config/overrides/routr-one.yaml.
+# External Postgres: set spec.database.url in that override; DATABASE_URL on the routr service is ignored.
 kind: RoutrOne
 apiVersion: v2beta1
 ref: routr-one

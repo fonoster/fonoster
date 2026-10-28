@@ -7,6 +7,21 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
+<Update label="v0.38.1" description="October 2026" tags={["Self-hosting"]}>
+
+## Self-hosting
+
+- **The `routr` service waits for its database.** `docker compose up -d --wait` now fails instead
+  of starting with Routr unable to reach Postgres, and the API server starts only after Routr is
+  healthy. An install on the bundled Postgres needs nothing.
+- **If you pointed Routr at an external Postgres with a `DATABASE_URL` variable on the `routr`
+  service**, that variable has been ignored since 0.35.0. Set `spec.database.url` in
+  `config/overrides/routr-one.yaml`, run `npx -p @fonoster/common fonoster-config init`, then
+  `docker compose up -d --wait`. The new `compose.external-db.yaml` overlay turns the bundled
+  Postgres off. See [Use an external Postgres](/self-hosting/external-database).
+
+</Update>
+
 <Update label="v0.37" description="October 2026" tags={["Breaking", "Telephony"]}>
 
 ## Breaking changes

@@ -1,0 +1,138 @@
+---
+title: "Use an external Postgres"
+sidebarTitle: "External Postgres"
+description: "Run the Compose install against a Postgres you manage instead of the bundled one."
+---
+
+The install ships its own Postgres. To use one you manage instead, point every service at it
+through `config/overrides/`, turn the bundled database off, and start. Do this on a new install:
+the bundled database's data isn't moved.
+
+## Before you begin
+
+- Fonoster downloaded and unpacked, but not started yet, see
+  [Install with Docker Compose](/self-hosting/install-compose).
+- A Postgres you can reach from this machine, over TLS. Every URL below ends in
+  `?sslmode=require`; keep it, or the password and your call data travel in clear.
+  Certificate verification (`sslmode=verify-full`) isn't covered here.
+- Docker Compose v2, as the install page says.
+
+## Create the databases
+
+Create three empty databases. The API server creates the tables in `fonoster` and `fnidentity`
+on every start, and Routr does the same in `routr`:
+
+```sql
+CREATE DATABASE routr;
+CREATE DATABASE fonoster;
+CREATE DATABASE fnidentity;
+```
+
+## Point every service at it
+
+Each service takes its database from its override file, with the same credentials in all four.
+This sets the API server's and Identity's:
+
+```yaml config/overrides/fonoster.yaml
+database:
+  url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/fonoster?sslmode=require"
+identity:
+  database:
+    url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/fnidentity?sslmode=require"
+```
+
+AppBridge and Autopilot share the API server's database:
+
+```yaml config/overrides/appbridge.yaml
+database:
+  url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/fonoster?sslmode=require"
+```
+
+```yaml config/overrides/autopilot.yaml
+database:
+  url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/fonoster?sslmode=require"
+```
+
+Routr has its own:
+
+```yaml config/overrides/routr-one.yaml
+spec:
+  database:
+    url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/routr?sslmode=require"
+```
+
+These files hold the database password. Keep them readable by you only, and back them up with
+`.env`:
+
+```bash
+chmod 600 config/overrides/*.yaml
+```
+
+<Warning>
+  Set the Routr database here, not as a `DATABASE_URL` variable on the `routr` service. Since 0.35.0
+  that variable is ignored: Routr reads `config/routr-one.yaml`, and `docker compose logs routr`
+  prints `DATABASE_URL is ignored; spec.database.url in /etc/routr/one.yaml wins`.
+</Warning>
+
+## Turn the bundled Postgres off
+
+The `compose.external-db.yaml` overlay that ships with the install keeps the bundled `postgres`
+from starting. Turn it on in `.env` (add `:compose.http.yaml` after it if you serve plain HTTP):
+
+```bash .env
+COMPOSE_FILE=compose.yaml:compose.external-db.yaml
+```
+
+This is what it does:
+
+```yaml compose.external-db.yaml
+services:
+  postgres:
+    profiles: [bundled-db]
+  routr:
+    depends_on: !override
+      nats: { condition: service_healthy }
+  apiserver:
+    depends_on: !override
+      nats: { condition: service_healthy }
+      routr: { condition: service_healthy }
+```
+
+## Generate, check and start
+
+Write the configuration with the overrides merged in:
+
+```bash
+npx -p @fonoster/common fonoster-config init
+```
+
+Check the files. This validates what you wrote, not the connection:
+
+```bash
+npx -p @fonoster/common fonoster-config check
+```
+
+Start, and wait for every service to be healthy. This is what proves the database is reachable:
+
+```bash
+docker compose up -d --wait
+```
+
+If `routr` can't reach its database, it reports `unhealthy` and the command exits with an error.
+Fix the URL in `config/overrides/routr-one.yaml`, run `init` again and start again.
+
+See what's running:
+
+```bash
+docker compose ps
+```
+
+`postgres` isn't listed, and `routr` shows `healthy`.
+
+<Check>Every service runs against your database.</Check>
+
+<Note>
+  On an external Postgres, the registry tool on
+  [Add providers to the catalog](/self-hosting/provider-catalog) needs your database URL in
+  `FONOSTER_REGISTRY_DATABASE_URL` instead of the bundled one.
+</Note>

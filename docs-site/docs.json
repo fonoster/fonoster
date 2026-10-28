@@ -121,6 +121,7 @@
                   "self-hosting/overview",
                   "self-hosting/install-compose",
                   "self-hosting/https",
+                  "self-hosting/external-database",
                   "self-hosting/carriers-and-phones",
                   "self-hosting/provider-catalog",
                   "self-hosting/call-record-keys",
