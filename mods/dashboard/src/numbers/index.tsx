@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 import type { INumber } from "@fonoster/types";
-import { Ban, Phone, Plus } from "lucide-react";
-import { useState } from "react";
+import { Ban, ChevronDown, Phone, Plus } from "lucide-react";
+import { useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { PageHeader } from "~/app/shell/page";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
@@ -31,11 +31,25 @@ import {
 import { EmptyState } from "~/components/data/empty-state";
 import { RowActions } from "~/components/data/row-actions";
 import { Button } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "~/components/ui/dropdown-menu";
+import { LinkTwilioDrawer } from "./link-twilio-drawer";
 import { useApplicationOptions, useSipAgentOptions } from "./lookups";
 import { NumberDrawer } from "./number-drawer";
 import { useDeleteNumber, useNumbers } from "./numbers.service";
 import { ROUTE_ICONS } from "./route-picker";
-import { formatLocation, formatNumber, routeLabel } from "./routing";
+import {
+  asLinkFlow,
+  formatLocation,
+  formatNumber,
+  LINK_FLOWS,
+  routeLabel,
+  type LinkFlow
+} from "./routing";
 
 export default function NumbersScreen() {
   const list = useNumbers();
@@ -47,16 +61,40 @@ export default function NumbersScreen() {
   const [search] = useSearchParams();
   const [drawerOpen, setDrawerOpen] = useState(search.get("new") === "1");
   const [deleting, setDeleting] = useState<INumber | undefined>();
+  // ?link=twilio (the Overview checklist) opens that flow's drawer.
+  const [linking, setLinking] = useState<LinkFlow | undefined>(
+    asLinkFlow(search.get("link"))
+  );
+  const linkTrigger = useRef<HTMLButtonElement>(null);
 
   const openDrawer = (number?: INumber) => {
     setEditing(number);
     setDrawerOpen(true);
   };
 
-  const add = (
-    <Button onClick={() => openDrawer()}>
-      <Plus aria-hidden /> Create number
-    </Button>
+  const actions = (align: "center" | "end") => (
+    <>
+      <Button onClick={() => openDrawer()}>
+        <Plus aria-hidden /> Create number
+      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button ref={linkTrigger} variant="outline">
+            Link number <ChevronDown aria-hidden />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align={align}>
+          {LINK_FLOWS.map((flow) => (
+            <DropdownMenuItem
+              key={flow.value}
+              onSelect={() => setLinking(flow.value)}
+            >
+              {flow.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>
   );
 
   const columns: Column<INumber>[] = [
@@ -120,7 +158,7 @@ export default function NumbersScreen() {
       <PageHeader
         title="Numbers"
         description="Phone numbers from your trunks, and where each one sends calls."
-        actions={list.items.length > 0 && add}
+        actions={list.items.length > 0 && actions("end")}
       />
       <div className="px-4 pb-8 sm:px-8">
         <DataTable
@@ -140,7 +178,7 @@ export default function NumbersScreen() {
               icon={Phone}
               title="No numbers yet"
               description="Add a number from one of your trunks, then send its calls to an agent, an app or a SIP agent."
-              action={add}
+              action={actions("center")}
             />
           }
         />
@@ -153,6 +191,11 @@ export default function NumbersScreen() {
           setDrawerOpen(false);
           setDeleting(number);
         }}
+      />
+      <LinkTwilioDrawer
+        open={linking === "twilio"}
+        onOpenChange={(open) => !open && setLinking(undefined)}
+        returnFocusTo={linkTrigger}
       />
       <ConfirmDialog
         open={Boolean(deleting)}

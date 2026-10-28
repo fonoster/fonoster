@@ -21,6 +21,7 @@ import { Check, Search } from "lucide-react";
 import type { ComponentType } from "react";
 import { Code, HeadsetMic, SmartToy } from "~/components/icons/material";
 import { useEffect, useId, useMemo, useState } from "react";
+import { Segmented } from "~/components/ui/segmented";
 import { Skeleton } from "~/components/ui/skeleton";
 import { errorMessage } from "~/lib/errors";
 import { cn } from "~/lib/utils";
@@ -120,35 +121,19 @@ export function RoutePicker({
       <span id={labelId} className="font-display text-xs text-foreground">
         When this number is called, send it to
       </span>
-      <div
-        role="radiogroup"
-        aria-labelledby={labelId}
-        className="grid grid-cols-3 gap-1 rounded-control bg-muted p-1"
-      >
-        {ROUTE_KINDS.map((k) => {
-          const Icon = ROUTE_ICONS[k.value];
-          const active = k.value === kind;
-          return (
-            <button
-              key={k.value}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={() => {
-                setKind(k.value);
-                setQuery("");
-              }}
-              className={cn(
-                "flex cursor-pointer items-center justify-center gap-1.5 rounded-[6px] px-2 py-1.5 font-display text-[13px] text-text-secondary outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring",
-                active && "bg-background text-foreground shadow-sm"
-              )}
-            >
-              <Icon className="size-3.5" aria-hidden />
-              {k.label}
-            </button>
-          );
-        })}
-      </div>
+      <Segmented
+        labelledBy={labelId}
+        options={ROUTE_KINDS.map((k) => ({
+          value: k.value,
+          label: k.label,
+          icon: ROUTE_ICONS[k.value]
+        }))}
+        value={kind}
+        onChange={(next) => {
+          setKind(next);
+          setQuery("");
+        }}
+      />
       <div className="overflow-hidden rounded-control border border-input bg-background">
         <label className="flex h-10 items-center gap-2 border-b border-border px-3">
           <Search className="size-3.5 text-muted-foreground" aria-hidden />
@@ -173,7 +158,11 @@ export function RoutePicker({
             </p>
           ) : visible.length === 0 ? (
             <p className="px-3 py-4 font-display text-[13px] text-muted-foreground">
-              {term ? `No ${noun} match “${query.trim()}”.` : `No ${noun} yet.`}
+              {term
+                ? `No ${noun} match “${query.trim()}”.`
+                : apps.length === 0 && sipAgents.length === 0
+                  ? "Create an agent, an app or a SIP agent first."
+                  : `No ${noun} yet.`}
             </p>
           ) : (
             visible.map((option) => {

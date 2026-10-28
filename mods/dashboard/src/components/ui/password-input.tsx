@@ -24,8 +24,12 @@ import { Input } from "./input";
 /** A password box with a show/hide toggle at its right edge. */
 export function PasswordInput({
   className,
+  label = "password",
   ...props
-}: Omit<ComponentProps<"input">, "type">) {
+}: Omit<ComponentProps<"input">, "type"> & {
+  /** What the box holds, for its toggle's name ("Show <label>"). */
+  label?: string;
+}) {
   const [shown, setShown] = useState(false);
   const Icon = shown ? EyeOff : Eye;
   return (
@@ -38,7 +42,7 @@ export function PasswordInput({
       <button
         type="button"
         onClick={() => setShown((s) => !s)}
-        aria-label={shown ? "Hide password" : "Show password"}
+        aria-label={`${shown ? "Hide" : "Show"} ${label}`}
         aria-pressed={shown}
         className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-control text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
       >

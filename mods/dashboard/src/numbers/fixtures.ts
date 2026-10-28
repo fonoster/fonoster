@@ -203,7 +203,8 @@ export function fakeSdk(
       listNumbers: page(data.numbers ?? numbers),
       createNumber: ok({ ref: "n-new" }),
       updateNumber: ok({ ref: "n1" }),
-      deleteNumber: ok({ ref: "n1" })
+      deleteNumber: ok({ ref: "n1" }),
+      linkTwilio: ok({ ref: "n-linked", trunkRef: "tk-twilio" })
     },
     trunks: {
       listTrunks: page(trunkList),

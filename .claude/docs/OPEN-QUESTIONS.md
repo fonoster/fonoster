@@ -54,7 +54,6 @@ Collected from each page's checkpoint. Answer them in your review pass.
 - recording: If the app's voice can't be resolved, the consent prompt is skipped silently and recording still starts (`consentPrompt` returns early). Intended?
 - link-twilio: The command's default ACL entry is `165.22.7.155/32` (marked TODO in `mods/ctl/src/constants.ts`) and the origination base is `pstn.fonoster.com`. Are both still right for v0.30 Cloud?
 - link-twilio: The Fonoster trunk it creates has `sendRegister: true` toward Twilio, which doesn't accept REGISTER on Elastic SIP trunks. Same for every trunk made with `sipnet:trunks:create`. Set it to false?
-- link-twilio: No dashboard flow for Twilio linking. Planned?
 - trunks: Is the inbound URI still globally unique, and does Cloud resolve `*.sip.fonoster.com` (or another suffix) to the SIP edge? The pages use `acme.sip.fonoster.com` / `claro.acme.sip.fonoster.com`, from the dashboard placeholders.
 - trunks: The dashboard shows the region's connection details (SIP address, allowlist) only on the trunk form's hint and SIP agent drawer, plus Settings → Region for private regions. Should the public region's details have a home too?
 - sip-agents: Can a SIP agent call an application directly (dial a number that points at an agent and reach it inside Fonoster), and can two SIP agents on a domain call each other? Not documented until confirmed.

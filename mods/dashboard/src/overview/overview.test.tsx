@@ -102,6 +102,15 @@ describe("Overview", () => {
       within(steps).getByRole("link", { name: "Create number" })
     ).toHaveAttribute("href", "/w/ws-1/numbers?new=1");
     expect(
+      within(steps).getByText("Bring your carrier so you have numbers to use.")
+    ).toBeInTheDocument();
+    expect(
+      within(steps).getByRole("link", { name: "Or link a Twilio number" })
+    ).toHaveAttribute("href", "/w/ws-1/numbers?link=twilio");
+    expect(
+      within(steps).getByRole("link", { name: "Create trunk" })
+    ).toHaveAttribute("href", "/w/ws-1/trunks/new");
+    expect(
       screen.queryByRole("region", { name: "Call volume" })
     ).not.toBeInTheDocument();
   });
