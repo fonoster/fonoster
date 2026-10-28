@@ -61,13 +61,10 @@ Account back to its pre-run state at the end: **yes**.
   credential, only added that credential.
 - **Twilio accepts private addresses in an IP ACL** (the dev stack's `HOST_IP`).
 
-## Step h: one real inbound call (not automated)
+## Step h: dropped
 
-Needs the owner: on api.fonoster.ai, link the number with today's
-`fonoster sipnet:numbers:linkTwilioNumber`, call it from a phone, check the app answers, then put
-the number back on its original trunk and delete the trunk, ACL and Fonoster number.
-
-Outcome: _pending_.
+The owner dropped the real inbound call (2026-10-28): inspecting the trunk the link made in the
+Twilio console is enough. No call was placed.
 
 ## Recording
 
