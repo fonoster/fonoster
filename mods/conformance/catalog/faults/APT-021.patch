@@ -1,12 +1,12 @@
 diff --git a/mods/autopilot/src/session/Agent.ts b/mods/autopilot/src/session/Agent.ts
-index 533e68780..7b99f3d10 100644
+index 6a865032c..a43b79a82 100644
 --- a/mods/autopilot/src/session/Agent.ts
 +++ b/mods/autopilot/src/session/Agent.ts
-@@ -431,6 +431,7 @@ export class Agent {
+@@ -504,6 +504,7 @@ export class Agent {
      let interrupted = false;
      let completed = false;
      if (!first.done && !abort.signal.aborted) {
 +      await new Promise((r) => setTimeout(r, 100));
        this.send({ type: "REPLY_SPEAKING" });
-       trace.firstSpeakMs = Date.now() - turnEnded;
-       const pieces = (async function* () {
+       const spokeAt = Date.now();
+       // Stages are measured on the turn's first sentence only, and only when nothing else was

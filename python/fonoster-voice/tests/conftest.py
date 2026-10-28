@@ -20,14 +20,30 @@ def pytest_configure(config):
     config.addinivalue_line("markers", "case(id): the QA catalog case this test proves")
 
 
+def _case_id(item) -> str | None:
+    marker = item.get_closest_marker("case")
+    return marker.args[0] if marker and marker.args else None
+
+
 @pytest.hookimpl(tryfirst=True)  # before -k deselects by keyword
 def pytest_collection_modifyitems(items):
     for item in items:
-        marker = item.get_closest_marker("case")
-        if marker and marker.args:
-            item._nodeid = f"{item.nodeid} [{marker.args[0]}]"
-            # Also a keyword, so `pytest -k "VSD and 001"` (the prove script) selects it.
-            item.extra_keyword_matches.add(marker.args[0])
+        case_id = _case_id(item)
+        if case_id:
+            # A keyword, so `pytest -k "VSD and 001"` (the prove script) selects it.
+            item.extra_keyword_matches.add(case_id)
+
+
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_makereport(item, call):
+    # The JUnit name comes from the report's nodeid, not the item's (pytest 9 no longer reads
+    # item._nodeid), so the id is put on the report: every reader of the XML then sees
+    # "test_name [VSD-001]" on 8.x and 9.x (#1187).
+    report = yield
+    case_id = _case_id(item)
+    if case_id:
+        report.nodeid = f"{report.nodeid} [{case_id}]"
+    return report
 
 
 def _runs() -> dict[str, str]:

@@ -1,5 +1,5 @@
 diff --git a/mods/autopilot/src/session/createAutopilot.ts b/mods/autopilot/src/session/createAutopilot.ts
-index 1a834a6fd..1c6bc6346 100644
+index 96285c255..c73ea79a9 100644
 --- a/mods/autopilot/src/session/createAutopilot.ts
 +++ b/mods/autopilot/src/session/createAutopilot.ts
 @@ -154,7 +154,6 @@ function createSessionRunner(options: AutopilotOptions) {
@@ -7,6 +7,6 @@ index 1a834a6fd..1c6bc6346 100644
        missing: (catalogId) => {
          telemetry.count("fonoster.usage.missing", 1, { catalog_id: catalogId });
 -        recorder.note({ type: "usage_missing", catalogId });
-       }
-     };
-     let think = options.think;
+       },
+       // Knowledge is optional: the call goes on without it, and the record says why (#1146).
+       keyRejected: (event) => {

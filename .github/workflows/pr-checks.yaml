@@ -30,6 +30,27 @@ jobs:
           exempt-authors: |
             @fonoster.com
 
+  # The QA gate proves each catalog case by applying its fault patch (mods/conformance/catalog/
+  # prove.cjs). A patch whose context moved turns the case unproven and fails the nightly gate
+  # days after the PR that moved it; this fails that PR instead, in seconds (#1187).
+  faults:
+    name: fault patches apply
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Every fault patch applies to this checkout
+        run: |
+          status=0
+          for patch in mods/conformance/catalog/faults/*.patch; do
+            if ! out=$(git apply --check "$patch" 2>&1); then
+              echo "::error file=$patch::${out%%$'\n'*}"
+              status=1
+            fi
+          done
+          exit $status
+
   lint:
     name: eslint and prettier
     runs-on: ubuntu-latest
@@ -512,6 +533,7 @@ jobs:
     needs:
       [
         dco,
+        faults,
         lint,
         changes,
         node,
