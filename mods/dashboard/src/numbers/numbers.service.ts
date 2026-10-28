@@ -19,10 +19,16 @@
 import type {
   CreateNumberRequest,
   INumber,
+  LinkTwilioRequest,
   UpdateNumberRequest
 } from "@fonoster/types";
+import { useQueryClient } from "@tanstack/react-query";
 import { useSdk } from "~/lib/auth";
-import { useResourceList, useResourceMutation } from "~/lib/resource";
+import {
+  useResourceKey,
+  useResourceList,
+  useResourceMutation
+} from "~/lib/resource";
 import { useAllOf } from "./lookups";
 
 const RESOURCE = "numbers";
@@ -67,4 +73,19 @@ export function useDeleteNumber() {
     (ref: string) => sdk.numbers.deleteNumber(ref),
     { success: "Number deleted" }
   );
+}
+
+/**
+ * Links a number from a Twilio account. Errors stay with the caller's form, and
+ * the trunks refresh too: linking creates the workspace's Twilio Trunk.
+ */
+export function useLinkTwilio() {
+  const sdk = useSdk();
+  const queryClient = useQueryClient();
+  const trunks = useResourceKey("trunks");
+  return useResourceMutation(RESOURCE, async (request: LinkTwilioRequest) => {
+    const response = await sdk.numbers.linkTwilio(request);
+    await queryClient.invalidateQueries({ queryKey: trunks });
+    return response;
+  });
 }

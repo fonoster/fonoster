@@ -34,6 +34,18 @@ export const ROUTE_KINDS: { value: RouteKind; label: string; noun: string }[] =
     { value: "sip", label: "SIP agent", noun: "SIP agents" }
   ];
 
+/** The carriers a number can be linked from; each opens its own drawer. */
+export const LINK_FLOWS = [
+  { value: "twilio", label: "Twilio number" }
+] as const;
+
+export type LinkFlow = (typeof LINK_FLOWS)[number]["value"];
+
+/** ?link=<flow> as a known flow, or undefined. */
+export function asLinkFlow(value: string | null): LinkFlow | undefined {
+  return LINK_FLOWS.find((flow) => flow.value === value)?.value;
+}
+
 export function applicationKind(app: Pick<Application, "type">): RouteKind {
   return String(app.type) === "AUTOPILOT" ? "agent" : "app";
 }

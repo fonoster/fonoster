@@ -25,7 +25,7 @@ One Docs tab with groups; Self-hosting, Private regions and Hacking are sections
 | | Bring your Twilio or Pipecat app | H | `streams/bring-your-app` | Run an unmodified Pipecat or Media Streams bot | migrating-to-sessions §4, `python/pipecat-golden` |
 | | Verify request signatures | H | `streams/verify-signatures` | Every stream server must check `x-fonoster-*` headers | migrating-to-sessions §3 |
 | Telephony | Numbers and routing | H | `telephony/numbers` | Shared by both paths, so it gets its own group | sipnet protos |
-| | Link a Twilio number | H | `telephony/link-twilio` | Fastest way to a real number | legacy guide, `mods/ctl` |
+| | Link a Twilio number | H | `telephony/link-twilio` | Fastest way to a real number | legacy guide, `mods/ctl`, `mods/dashboard/src/numbers` |
 | | Connect a SIP trunk | H | `telephony/trunks` | Bring your own carrier | `legacy/guides/linking-any-virtual-number` |
 | | SIP agents (softphones) | H | `telephony/sip-agents` | Test phones and operator phones | sipnet |
 | | Make outbound calls | H | `telephony/outbound-calls` | `createCall`, batches via MCP | Calls API, `mods/mcp` |

@@ -57,6 +57,8 @@ type Step = {
   title: string;
   description: string;
   done: boolean;
+  /** A text link under the description, another way to do the step. */
+  alternative?: { label: string; to: string };
   /** The step's button; primary on the next step to do, outlined on the others. */
   action: (primary: boolean) => ReactNode;
 };
@@ -93,9 +95,12 @@ export function SetupChecklist({
     },
     {
       title: "Connect a trunk",
-      description:
-        "Bring your carrier (Twilio, Telnyx, your local operator…) so you have numbers to use.",
+      description: "Bring your carrier so you have numbers to use.",
       done: setup.hasTrunk,
+      alternative: {
+        label: "Or link a Twilio number",
+        to: `${base}/numbers?link=twilio`
+      },
       action: (primary) => (
         <ActionLink primary={primary} to={`${base}/trunks/new`}>
           Create trunk
@@ -167,6 +172,14 @@ export function SetupChecklist({
               <p className="text-[13px] text-muted-foreground">
                 {step.description}
               </p>
+              {!step.done && step.alternative && (
+                <Link
+                  to={step.alternative.to}
+                  className="self-start text-[13px] text-brand-text underline-offset-4 hover:underline"
+                >
+                  {step.alternative.label}
+                </Link>
+              )}
             </div>
             {!step.done && step.action(i === next)}
           </li>
