@@ -51,6 +51,27 @@ Examples: `mods/identity/src/exchanges/createExchangeApiKey.ts`, `mods/sipnet/sr
 | area: identity | mods/identity, mods/identity-client, mods/authz | security-engineer, database-engineer |
 | area: billing | mods/billing, mods/stripe-fake | database-engineer, security-engineer |
 
+## Labels
+These are the only labels; any other is deleted. An issue's kind is its native issue type (Bug,
+Feature, Task), not a label. Close as "not planned" or "duplicate" instead of labeling.
+
+| Label | Meaning | Applied by |
+| :--- | :--- | :--- |
+| needs-triage | Filed, not yet shaped | Issue forms |
+| needs-info | Waiting on the reporter | /ps:report |
+| ready | Plan approved; agents may implement | A maintainer |
+| not-ready | The implementer refused; see its comment | /ps:implement |
+| blocked | An agent stopped on a blocker | Any ps skill |
+| needs-human | A loop limit was hit or a decision needs a maintainer | Any ps skill |
+| needs-issue | A pull request with no linked issue | require-linked-issue workflow |
+| breaking | Needs a major bump or a migration note | /ps:report |
+| risk: high | A maintainer reviews the plan before work starts | /ps:report |
+| external | Opened by someone outside the org | label-external workflow |
+| good first issue | A ready issue a newcomer can take | A maintainer |
+| dependencies | Dependency update | Dependabot |
+
+Plus one `area:` label per row of `## Areas`.
+
 ## Compatibility
 Breaking changes here:
 - gRPC protos (`mods/common/src/protos`, `mods/identity-client/proto`) and the `@fonoster/sdk` public API.
@@ -108,3 +129,4 @@ Every PR links an issue (`Closes #123`; the `linked-issue` check). Required chec
 - 2026-10-25: Config init generates a local CA and cert when none is given (HTTPS by default).
 - 2026-10-26: Prisma 7 not planned (#935).
 - 2026-10-27: Upgrade old dependency lines to current releases instead of matching old pins.
+- 2026-10-28: One label standard across fonoster, routr and roomr (`## Labels`); kinds are native issue types.

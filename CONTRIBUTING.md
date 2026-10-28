@@ -47,7 +47,7 @@ Over time, we hope you feel comfortable voicing your opinions, giving feedback o
 
 ## Find an Issue
 
-We have good first issues for new contributors, and help wanted issues suitable for any contributor. [good first issue](https://github.com/fonoster/fonoster/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) has extra information to help you make your first contribution. [help wanted](https://github.com/fonoster/fonoster/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22) are issues suitable for someone who isn't a core maintainer and is good to move onto after your first pull request.
+We have good first issues for new contributors. [good first issue](https://github.com/fonoster/fonoster/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) has extra information to help you make your first contribution.
 
 Sometimes, these labels will be fine. That's ok! There is likely still something for you to work on. If you want to contribute but you don't know where to start or can't find a suitable issue, you can reach out to us via  [Discord](https://discord.gg/4QWgSz4hTC) or [GitHub Discussions](https://github.com/fonoster/fonoster/discussions), and we will help you find something.
 
