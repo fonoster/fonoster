@@ -250,6 +250,45 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       });
   });
 
+  it("proves Routr reaches the database routr-one.yaml names before the API server starts", function () {
+    // Healthy = the database spec.database.url names answers `select 1`. print_env is what the
+    // image's own CMD evals, so the check reads the URL exactly as Routr does, and `$$` keeps the
+    // shell variables out of Compose's interpolation (#1186).
+    const check = services.routr.healthcheck?.test;
+    expect(check?.[0]).to.equal("CMD-SHELL");
+    expect(check?.[1]).to.contain(
+      "OUT=$$(su-exec $$USER node ./dist/print_env)"
+    );
+    expect(check?.[1]).to.contain('eval "$$OUT"');
+    expect(check?.[1]).to.contain("psql \"$$DATABASE_URL\" -tAc 'select 1'");
+    expect(services.apiserver.depends_on?.routr).to.deep.equal({
+      condition: "service_healthy"
+    });
+  });
+
+  it("turns the bundled Postgres off with compose.external-db.yaml, Routr still reaches the database it names", function () {
+    const ext = overlay("compose.external-db.yaml").services;
+    expect(read("ops/bundle/compose.external-db.yaml")).to.match(
+      /depends_on: !override\n/
+    );
+    // Never started; the services that waited for it wait for NATS only, and the API server keeps
+    // waiting for Routr's database check.
+    expect(ext.postgres.profiles).to.deep.equal(["bundled-db"]);
+    expect(ext.routr.depends_on).to.deep.equal({
+      nats: { condition: "service_healthy" }
+    });
+    expect(ext.apiserver.depends_on).to.deep.equal({
+      nats: { condition: "service_healthy" },
+      routr: { condition: "service_healthy" }
+    });
+    // The overlay covers every service that depends on postgres in compose.yaml.
+    const onPostgres = Object.entries(services)
+      .filter(([, svc]) => svc.depends_on?.postgres)
+      .map(([name]) => name)
+      .sort();
+    expect(onPostgres).to.deep.equal(["apiserver", "routr"]);
+  });
+
   it("lists no fake provider in its catalog (conformance: fakes are not available in production)", function () {
     const { entries } = parse(
       fs.readFileSync(path.join(BUNDLE, "config", "catalog.yaml"), "utf8")
@@ -323,7 +362,8 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
   const overlay = (file: string) =>
     parse(fs.readFileSync(path.join(BUNDLE, file), "utf8"), {
       customTags: [
-        { tag: "!override", collection: "seq", resolve: (v: unknown) => v }
+        { tag: "!override", collection: "seq", resolve: (v: unknown) => v },
+        { tag: "!override", collection: "map", resolve: (v: unknown) => v }
       ]
     }) as { services: Record<string, Service & { ports?: string[] }> };
 

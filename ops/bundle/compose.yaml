@@ -95,6 +95,20 @@ services:
     ports:
       - "${SIP_PORT:-5060}:${SIP_PORT:-5060}/udp"
       - "${SIP_PORT:-5060}:${SIP_PORT:-5060}/tcp"
+    # Healthy = the database config/routr-one.yaml names answers. Routr reads only that file for
+    # its database (DATABASE_URL in the environment is ignored since routr-one 2.31), and its data
+    # service listens before it can reach the database, so a wrong or unreachable URL would otherwise
+    # start "Up" with every number, trunk and call lookup failing (#1186). The check runs what the
+    # image's own CMD runs, so it reads the URL exactly as Routr does; `$$` keeps the shell variables
+    # out of Compose's interpolation, and its output lands in `docker inspect`'s State.Health.Log.
+    # It relies on the image's internals: /service, su-exec, $USER, dist/print_env and psql. A
+    # routr-one bump must run `docker compose up -d --wait` on the default bundle to see routr healthy.
+    healthcheck:
+      test: ["CMD-SHELL", "cd /service && OUT=$$(su-exec $$USER node ./dist/print_env) && eval \"$$OUT\" && psql \"$$DATABASE_URL\" -tAc 'select 1'"]
+      interval: 10s
+      timeout: 10s
+      retries: 6
+      start_period: 90s
     networks:
       default:
         ipv4_address: ${SUBNET_PREFIX:-10.216.30}.40
@@ -243,7 +257,9 @@ services:
     depends_on:
       postgres: { condition: service_healthy }
       nats: { condition: service_healthy }
-      routr: { condition: service_started }
+      # Routr's check reaches its database; an install whose Routr can't fails `up --wait` here
+      # instead of starting with calls broken.
+      routr: { condition: service_healthy }
     # The ${NAME}s in config/fonoster.yaml.
     environment:
       AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?run fonoster-config init}

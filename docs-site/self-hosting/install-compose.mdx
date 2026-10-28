@@ -254,6 +254,11 @@ a real certificate for your domain, see [Serve over HTTPS](/self-hosting/https).
 If you already run a TLS proxy (Caddy, nginx, Traefik, a load balancer), serve plain HTTP behind it
 instead: set `COMPOSE_FILE=compose.yaml:compose.http.yaml` and `HTTP_BIND=127.0.0.1` in `.env`.
 
+## Use your own Postgres
+
+The install runs its own Postgres. To use one you manage instead, point every service at it before
+the first start, see [Use an external Postgres](/self-hosting/external-database).
+
 ## Let carriers and phones reach you
 
 A new install names trunks and domains under `fonoster.local`, which works only on your own

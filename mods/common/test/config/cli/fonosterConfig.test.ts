@@ -447,6 +447,25 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(routr.spec.signaling.externalAddrs).to.deep.equal(["${HOST_IP}"]);
     });
 
+    it("takes an external database from config/overrides/routr-one.yaml", async function () {
+      // The documented way to run Routr on a Postgres you manage (#1186): the override is merged
+      // over the render, so the URL lands in config/routr-one.yaml and the rest stays the example.
+      const dir = unpack();
+      await init(dir);
+      const url =
+        "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/routr?sslmode=require";
+      writeFileSync(
+        join(dir, "config/overrides/routr-one.yaml"),
+        `spec:\n  database:\n    url: "${url}"\n`
+      );
+      const run = await init(dir);
+      expect(run.code, run.err).to.equal(0);
+      const routr = yamlOf(dir, "routr-one.yaml");
+      expect(routr.spec.database.url).to.equal(url);
+      expect(routr.spec.database.startInternal).to.equal(false);
+      expect(routr.spec.signaling.externalAddrs).to.deep.equal(["${HOST_IP}"]);
+    });
+
     it("routr-one.yaml resolves to the bundle's env from before one.yaml", async function () {
       const dir = unpack();
       await init(dir);
