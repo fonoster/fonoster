@@ -78,6 +78,7 @@ jobs:
               - 'tsconfig.json'
               - '.mocharc.cjs'
               - 'tools/**'
+              - 'ops/release/**'
             python:
               - *workflow
               - 'python/**'
