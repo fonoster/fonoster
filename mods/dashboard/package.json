@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/dashboard",
-  "version": "0.38.0",
+  "version": "0.38.1",
   "private": true,
   "description": "Fonoster Dashboard",
   "homepage": "https://fonoster.com",
@@ -20,7 +20,7 @@
     "build:storybook": "storybook build"
   },
   "dependencies": {
-    "@fonoster/sdk": "^0.38.0",
+    "@fonoster/sdk": "^0.38.1",
     "@fonoster/types": "^0.38.0",
     "@fontsource/poppins": "^5.3.0",
     "@fontsource/roboto-mono": "^5.3.0",
@@ -55,7 +55,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@fonoster/voice": "^0.38.0",
+    "@fonoster/voice": "^0.38.1",
     "@playwright/test": "^1.64.0",
     "@storybook/addon-a11y": "^8.6.19",
     "@storybook/addon-essentials": "^8.6.19",
