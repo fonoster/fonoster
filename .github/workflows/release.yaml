@@ -24,10 +24,16 @@ name: Release
 # releasable commits: it publishes the versions npm still lacks, then the images and the GitHub
 # release for the version already tagged.
 #
-# Packages publish one at a time (ops/release/npm-publish.sh). When npm provenance answers 409 for
-# a version, that version can never publish; the release goes on without it and the packages that
-# depend on it, and says so in the run summary. A later release publishes them: any commit with a
-# `Release-As: x.y.z` footer publishes every package, changed or not.
+# Packages publish one at a time (ops/release/npm-publish.sh). npm provenance sometimes answers 409
+# (TLOG_CREATE_ENTRY_ERROR). When those are the only failures, the publish is retried with
+# `lerna publish from-package`, up to 4 attempts. A package still refused after that, and the
+# packages that depend on it, stay on their previous version, and the run summary lists them.
+# `@fonoster/common` is the exception: every release versions it, and production
+# (`fonoster-deploy prepare`) and self-hosted installs (`fonoster-config init`) need it at the
+# release version. If it is missing or doesn't install, the npm job fails, and images, the GitHub
+# release and the deploy don't run. To finish the release, rerun it with
+# `gh workflow run release.yaml`. A `Release-As: x.y.z` footer publishes every package, changed or
+# not.
 
 on:
   push:
@@ -142,24 +148,26 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git checkout .
-          # lerna publishes only the packages changed since the last tag. A pinned version
-          # (`Release-As:`) publishes them all, so it can stand in for a version npm refused.
+          # lerna publishes only the packages changed since the last tag, plus @fonoster/common
+          # (and so its dependents), which production and self-hosted installs need at every
+          # version. A pinned version (`Release-As:`) publishes them all.
           tag="$(git describe --tags --abbrev=0 --match 'v[0-9]*')"
           if git log --format=%B "$tag..HEAD" | grep -qE '^Release-As: *[0-9]+\.[0-9]+\.[0-9]+ *$'; then
-            ops/release/npm-publish.sh npm run release -- --force-publish
+            ops/release/npm-publish.sh --defer npm run release -- --force-publish
           else
-            ops/release/npm-publish.sh npm run release --
+            ops/release/npm-publish.sh --defer npm run release -- --force-publish @fonoster/common
           fi
 
       # Runs on every release run, even with no new commits: publishes any version already in
-      # package.json that npm doesn't have yet (a run that failed partway). Does nothing otherwise.
+      # package.json that npm doesn't have yet (a run that failed partway, or a 409 above). Does
+      # nothing otherwise. The only publish step that reports refused packages.
       - name: Publish versions missing from npm
         if: steps.next.outputs.release != ''
         run: |
           # The normal publish leaves gitHead edits in package.json files; from-package refuses a
           # dirty tree, and those edits are not meant to be committed.
           git checkout -- .
-          ops/release/npm-publish.sh npx lerna publish from-package --yes --dist-tag latest
+          ops/release/npm-publish.sh --attempts 4 npx lerna publish from-package --yes --dist-tag latest
 
       - name: Released version and commit
         id: version
@@ -167,6 +175,11 @@ jobs:
         run: |
           echo "version=$(node -p "require('./lerna.json').version")" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      # Production and self-hosted installs need @fonoster/common at the release version.
+      - name: Check @fonoster/common installs from npm
+        if: steps.next.outputs.release != '' && (steps.next.outputs.release != 'none' || needs.plan.outputs.resume == 'true')
+        run: ops/release/require-on-npm.sh @fonoster/common "${{ steps.version.outputs.version }}"
 
   images:
     name: images
