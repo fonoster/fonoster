@@ -306,7 +306,7 @@ YAML
     --overlay "$OVERLAY" ${mine[@]+"${mine[@]}"} >/dev/null || die "could not render the configs"
   # Containers read these as another user (local only).
   chmod 644 "$CONF/fonoster.yaml" "$CONF/appbridge.yaml" "$CONF/autopilot.yaml" \
-    "$CONF/roomr.yaml" "$CONF/routr-edgeport.yaml"
+    "$CONF/roomr.yaml" "$CONF/routr-edgeport.yaml" "$CONF/routr-one.yaml"
   # The generated certificate (a local CA and a server certificate for localhost, 127.0.0.1 and
   # the host address), kept across runs and reissued when the names change: the same code as init.
   HOST_IP="$host_ip" PUBLIC_URL="https://localhost:$RB_API_PORT" node -e '

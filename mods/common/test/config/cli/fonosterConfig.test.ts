@@ -54,6 +54,7 @@ import { Io } from "../../../src/config/cli/types";
 import { exportConfigSchemas } from "../../../scripts/export-config-schemas";
 
 const BUNDLE = join(__dirname, "../../../../../ops/bundle");
+const CELL = join(__dirname, "../../../../../ops/rebuild/cell");
 
 type Run = { code: number; out: string; err: string };
 
@@ -125,6 +126,83 @@ function writeSchemas(dir: string) {
   }
 }
 
+/**
+ * The env var each routr-one.yaml key replaces, as Routr's loader maps it (fonoster/routr v2.31.2,
+ * mods/one/src/config/env_map.ts; telemetry.enabled, which it inverts, left out).
+ */
+const ROUTR_ENV_MAP: [key: string, envVar: string][] = [
+  ["database.url", "DATABASE_URL"],
+  ["database.startInternal", "START_INTERNAL_DB"],
+  ["encryption.key", "CLOAK_ENCRYPTION_KEY"],
+  ["apiServer.tls.enabled", "TLS_ON"],
+  ["apiServer.tls.verifyClientCert", "VERIFY_CLIENT_CERT"],
+  ["apiServer.tls.caCert", "CACERT"],
+  ["apiServer.tls.serverCert", "SERVER_CERT"],
+  ["apiServer.tls.serverKey", "SERVER_KEY"],
+  ["signaling.externalAddrs", "EXTERNAL_ADDRS"],
+  ["signaling.localnets", "LOCALNETS"],
+  ["signaling.ignoreLoopbackFromLocalnets", "IGNORE_LOOPBACK_FROM_LOCALNETS"],
+  ["signaling.keyStorePassword", "PKCS12_PASSWORD"],
+  ["signaling.certsPath", "PATH_TO_CERTS"],
+  ["signaling.tls.protocols", "SECURITY_CONTEXT_CLIENT_PROTOCOLS"],
+  ["signaling.tls.cipherSuites", "SECURITY_CONTEXT_CLIENT_CIPHER_SUITES"],
+  ["signaling.stripSessionProgressSdp", "STRIP_SESSION_PROGRESS_SDP"],
+  ["signaling.healthChecks", "ENABLE_HEALTHCHECKS"],
+  ["signaling.sipTraceLevel", "JAIN_SIP_TRACE_LEVEL"],
+  ["signaling.log4j2", "LOG4J2"],
+  ["signaling.publishers.console.enabled", "CONSOLE_PUBLISHER_ENABLED"],
+  ["signaling.publishers.nats.enabled", "NATS_PUBLISHER_ENABLED"],
+  ["signaling.publishers.nats.url", "NATS_PUBLISHER_URL"],
+  ["signaling.publishers.nats.subject", "NATS_PUBLISHER_SUBJECT"],
+  ["connect.verifier.addr", "CONNECT_VERIFIER_ADDR"],
+  ["connect.verifier.publicKeyPath", "CONNECT_VERIFIER_PUBLIC_KEY_PATH"],
+  ["connect.verifier.options", "CONNECT_VERIFIER_OPTIONS"],
+  ["connect.registerDefaultExpires", "REGISTER_DEFAULT_EXPIRES"],
+  ["connect.untrustedHeadersToStrip", "UNTRUSTED_HEADERS_TO_STRIP"],
+  ["connect.trustedEdgeports", "TRUSTED_EDGEPORTS"],
+  ["connect.trustedEdgeportAddresses", "TRUSTED_EDGEPORT_ADDRESSES"],
+  ["location.cache.provider", "LOCATION_CACHE_PROVIDER"],
+  ["location.cache.parameters", "LOCATION_CACHE_PARAMETERS"],
+  ["rtprelay.host", "RTPENGINE_HOST"],
+  ["rtprelay.port", "RTPENGINE_PORT"],
+  ["rtprelay.timeout", "RTPENGINE_TIMEOUT"],
+  ["rtprelay.configPath", "RTPRELAY_CONFIG_PATH"],
+  ["recording.enabled", "RECORD_MESSAGES"],
+  ["recording.mode", "RECORD_MESSAGES_MODE"],
+  ["recording.path", "RECORD_MESSAGES_PATH"],
+  ["telemetry.endpoint", "OTEL_EXPORTER_OTLP_ENDPOINT"],
+  ["telemetry.tracesEndpoint", "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT"],
+  ["telemetry.metricExportIntervalMillis", "OTEL_METRIC_EXPORT_INTERVAL"],
+  ["telemetry.serviceName", "OTEL_SERVICE_NAME"],
+  ["logs.level", "LOGS_LEVEL"],
+  ["logs.format", "LOGS_FORMAT"],
+  ["logs.transport", "LOGS_TRANSPORT"],
+  ["logs.fluent.host", "LOGS_DRIVER_HOST"],
+  ["logs.fluent.port", "LOGS_DRIVER_PORT"],
+  ["logs.fluent.tagPrefix", "LOGS_OPT_TAG_PREFIX"],
+  ["heplify.options", "HEPLIFY_OPTIONS"]
+];
+
+/**
+ * What Routr's loader exports for a routr-one.yaml: its placeholders resolved from `env`, then
+ * each key's value as its env var (lists joined with commas).
+ */
+function routrEnv(text: string, env: Record<string, string | undefined>) {
+  const { spec } = parse(renderTemplate(text, env, "routr-one.yaml", true));
+  const out: Record<string, string> = {};
+  for (const [key, envVar] of ROUTR_ENV_MAP) {
+    const value = key
+      .split(".")
+      .reduce((o, k) => (o as Record<string, unknown>)?.[k], spec as unknown);
+    if (value !== undefined)
+      out[envVar] = Array.isArray(value) ? value.join(",") : String(value);
+  }
+  return out;
+}
+
+const placeholders = (text: string) =>
+  [...text.matchAll(/\$\{([A-Za-z_][A-Za-z0-9_]*)/g)].map((m) => m[1]);
+
 describe("@common[config/cli] fonoster-config", function () {
   this.timeout(30000);
 
@@ -141,6 +219,7 @@ describe("@common[config/cli] fonoster-config", function () {
         "config/autopilot.yaml",
         "config/roomr.yaml",
         "config/routr-edgeport.yaml",
+        "config/routr-one.yaml",
         "config/keys/private.pem",
         "config/keys/public.pem",
         "config/keys/records.pem"
@@ -212,7 +291,7 @@ describe("@common[config/cli] fonoster-config", function () {
         expect(mode(join(dir, f)), f).to.equal(0o644);
     });
 
-    it("keeps secrets in .env: service files hold placeholders, Routr's gets values", async function () {
+    it("keeps secrets in .env: service files and routr-one.yaml hold placeholders, Routr's EdgePort file gets values", async function () {
       const dir = unpack();
       await init(dir);
       const env = Object.fromEntries(readEnvFile(join(dir, ".env")));
@@ -276,7 +355,8 @@ describe("@common[config/cli] fonoster-config", function () {
         "appbridge.yaml",
         "autopilot.yaml",
         "roomr.yaml",
-        "routr-edgeport.yaml"
+        "routr-edgeport.yaml",
+        "routr-one.yaml"
       ]) {
         const text = readFileSync(join(dir, "config", f), "utf8");
         for (const [name, value] of secrets)
@@ -410,6 +490,85 @@ describe("@common[config/cli] fonoster-config", function () {
       const check = await cli(["check", "--dir", dir]);
       for (const text of [run.out, run.err, info.out, check.out, check.err])
         expect(text).to.not.match(/rebuild|RB_/i);
+    });
+  });
+
+  describe("Routr (routr-one.yaml)", function () {
+    const cellFile = () =>
+      readFileSync(join(CELL, "config", "routr-one.yaml"), "utf8");
+
+    it("init writes routr-one.yaml with its placeholders kept", async function () {
+      const dir = unpack();
+      const run = await init(dir);
+      expect(run.code, run.err).to.equal(0);
+      const routr = yamlOf(dir, "routr-one.yaml");
+      expect(routr.spec.database.url).to.equal(
+        "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/routr"
+      );
+      expect(routr.spec.signaling.publishers.nats.url).to.equal(
+        "nats://routr:${NATS_ROUTR_PASSWORD}@nats:4222"
+      );
+      expect(routr.spec.signaling.externalAddrs).to.deep.equal(["${HOST_IP}"]);
+    });
+
+    it("routr-one.yaml resolves to the bundle's env from before one.yaml", async function () {
+      const dir = unpack();
+      await init(dir);
+      const env = expandEnv(readEnvFile(join(dir, ".env")));
+      const text = readFileSync(join(dir, "config", "routr-one.yaml"), "utf8");
+      // The routr service's environment in ops/bundle/compose.yaml before one.yaml.
+      expect(routrEnv(text, env)).to.deep.equal({
+        DATABASE_URL: `postgresql://postgres:${env.POSTGRES_PASSWORD}@postgres:5432/routr`,
+        START_INTERNAL_DB: "false",
+        EXTERNAL_ADDRS: "192.0.2.10",
+        LOCALNETS: "10.216.30.40/29",
+        NATS_PUBLISHER_ENABLED: "true",
+        NATS_PUBLISHER_URL: `nats://routr:${env.NATS_ROUTR_PASSWORD}@nats:4222`,
+        CONNECT_VERIFIER_PUBLIC_KEY_PATH: "/etc/routr/keys/public.pem",
+        RTPENGINE_HOST: "rtpengine",
+        LOGS_LEVEL: "info"
+      });
+      // A placeholder named after a variable Routr maps would be ignored with a warning.
+      const mapped = ROUTR_ENV_MAP.map(([, v]) => v);
+      for (const name of placeholders(text))
+        expect(mapped, name).to.not.include(name);
+    });
+
+    it("the cell's routr-one.yaml resolves to its env from before one.yaml", function () {
+      const env = {
+        ...expandEnv(readEnvFile(join(CELL, "cell.env.example"))),
+        POSTGRES_PASSWORD: "p0stgres-pw",
+        NATS_ROUTR_PASSWORD: "n0a1b2c3"
+      };
+      // The routr service's environment in ops/rebuild/cell/compose.yaml before one.yaml,
+      // less LOCALNETS (still an env var: empty by default).
+      expect(routrEnv(cellFile(), env)).to.deep.equal({
+        DATABASE_URL: "postgresql://postgres:p0stgres-pw@postgres:5432/routr",
+        START_INTERNAL_DB: "false",
+        EXTERNAL_ADDRS: "127.0.0.1",
+        NATS_PUBLISHER_ENABLED: "true",
+        NATS_PUBLISHER_URL: "nats://routr:n0a1b2c3@nats:4222",
+        RTPENGINE_HOST: "rtpengine"
+      });
+      const mapped = ROUTR_ENV_MAP.map(([, v]) => v);
+      for (const name of placeholders(cellFile()))
+        expect(mapped, name).to.not.include(name);
+    });
+
+    it("routr-one.yaml holds no password", async function () {
+      const dir = unpack();
+      await init(dir);
+      const env = expandEnv(readEnvFile(join(dir, ".env")));
+      const text = readFileSync(join(dir, "config", "routr-one.yaml"), "utf8");
+      for (const name of ["POSTGRES_PASSWORD", "NATS_ROUTR_PASSWORD"]) {
+        expect(env[name], name).to.have.length.greaterThan(15);
+        expect(text, name).to.not.contain(env[name]);
+      }
+      // Both files put a placeholder where each URL's password goes.
+      for (const file of [text, cellFile()])
+        expect(
+          [...file.matchAll(/:([^:@\s/]*)@/g)].map((m) => m[1])
+        ).to.deep.equal(["${POSTGRES_PASSWORD}", "${NATS_ROUTR_PASSWORD}"]);
     });
   });
 
@@ -862,6 +1021,9 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(run.code, run.err).to.equal(0);
       for (const f of ["fonoster", "appbridge", "autopilot", "routr-edgeport"])
         expect(run.out).to.contain(`config/${f}.yaml: valid`);
+      expect(run.out).to.contain(
+        "config/routr-one.yaml: valid (no schema; values only)"
+      );
     });
 
     it("warns about a platform key named after no language-model provider in the catalog", async function () {

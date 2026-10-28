@@ -68,31 +68,28 @@ services:
       retries: 10
 
   routr:
-    image: fonoster/routr-one:2.25.0
+    image: fonoster/routr-one:2.31.2
     restart: unless-stopped
     depends_on:
       postgres: { condition: service_healthy }
       nats: { condition: service_healthy }
     environment:
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/routr
-      # The address Routr writes in Via and Record-Route for parties outside LOCALNETS: one that
-      # carriers and softphones reach.
-      EXTERNAL_ADDRS: ${HOST_IP:?run fonoster-config init}
-      LOCALNETS: ${SUBNET_PREFIX:-10.216.30}.40/29
-      LOGS_LEVEL: ${ROUTR_LOGS_LEVEL:-info}
-      NATS_PUBLISHER_ENABLED: "true"
-      NATS_PUBLISHER_URL: nats://routr:${NATS_ROUTR_PASSWORD}@nats:4222
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
-      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
-      OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-}
-      RTPENGINE_HOST: rtpengine
-      START_INTERNAL_DB: "false"
+      # Values config/routr-one.yaml reads as ${NAME}; set them in .env.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      HOST_IP: ${HOST_IP:?run fonoster-config init}
+      SUBNET_PREFIX: ${SUBNET_PREFIX:-10.216.30}
+      NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD}
+      ROUTR_LOGS_LEVEL: ${ROUTR_LOGS_LEVEL:-info}
+      # Not in config/routr-one.yaml: the EdgePort file and the OTLP headers and protocol.
       # config/routr-edgeport.yaml (SIP on SIP_PORT inside the container too, so Via and
       # Record-Route carry the port softphones reach); mounted aside from the image's own.
       CONFIG_PATH: /etc/routr/fonoster/edgeport.yaml
-      # Browser calls: the API server's test tokens are signed with Identity's key.
-      CONNECT_VERIFIER_PUBLIC_KEY_PATH: /etc/routr/keys/public.pem
+      OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
+      OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-}
+      # Stays an env var because one.yaml rejects empty values (telemetry off).
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
     volumes:
+      - ${CONFIG_DIR:-./config}/routr-one.yaml:/etc/routr/one.yaml:ro
       - ${CONFIG_DIR:-./config}/routr-edgeport.yaml:/etc/routr/fonoster/edgeport.yaml:ro
       - ${CONFIG_DIR:-./config}/keys/public.pem:/etc/routr/keys/public.pem:ro
     ports:

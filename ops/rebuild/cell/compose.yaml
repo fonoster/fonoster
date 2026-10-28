@@ -71,22 +71,24 @@ services:
       retries: 10
 
   routr:
-    image: fonoster/routr-one:2.25.0
+    image: fonoster/routr-one:2.31.2
     restart: unless-stopped
     depends_on:
       postgres: { condition: service_healthy }
       nats: { condition: service_healthy }
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@postgres:5432/routr
-      EXTERNAL_ADDRS: ${ROUTR_EXTERNAL_ADDRS:-127.0.0.1}
-      LOCALNETS: ${ROUTR_LOCALNETS:-}
-      NATS_PUBLISHER_ENABLED: "true"
+      # The ${NAME}s in config/routr-one.yaml.
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      ROUTR_EXTERNAL_ADDRS: ${ROUTR_EXTERNAL_ADDRS:-127.0.0.1}
       # Hex passwords only: the password sits in the URL (Routr's NATS client reads user info).
-      NATS_PUBLISHER_URL: nats://routr:${NATS_ROUTR_PASSWORD}@nats:4222
-      RTPENGINE_HOST: ${RB_RTPENGINE_HOST-rtpengine}
-      START_INTERNAL_DB: "false"
+      NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD}
+      RB_RTPENGINE_HOST: ${RB_RTPENGINE_HOST:-rtpengine}
+      # Stays an env var because one.yaml rejects empty values (none by default).
+      LOCALNETS: ${ROUTR_LOCALNETS:-}
       CONFIG_PATH: /etc/routr/stack/edgeport.yaml
     volumes:
+      - ./config/routr-one.yaml:/etc/routr/one.yaml:ro
       - ../config/routr-edgeport.yaml:/etc/routr/stack/edgeport.yaml:ro
     ports:
       - "${RB_SIP_PORT:-5060}:5060/udp"
