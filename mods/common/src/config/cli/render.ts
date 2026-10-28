@@ -24,12 +24,13 @@ import { writeWithMode } from "./envFile";
 /**
  * Renders `config/<name>.example.<ext>` into `config/<name>.<ext>` (self-host bundle, D1).
  *
- * A Fonoster service's file (FONOSTER_SERVICE_FILES) is the example as written: `${NAME}` and
- * `${NAME:-default}` stay placeholders that the service resolves from its container environment,
- * which Compose fills from .env (unify-config-placeholders), so no secret is written into it.
- * Another container's file (Routr's EdgePort) gets the values, since that container cannot
- * resolve them; those hold no secrets. Either way every `${NAME}` without a default must be set,
- * so a missing value fails at init, not at start.
+ * A file whose reader resolves placeholders (KEEPS_PLACEHOLDERS: Fonoster's services and
+ * routr-one's one.yaml) is the example as written: `${NAME}` and `${NAME:-default}` stay
+ * placeholders that the reader resolves from its container environment, which Compose fills from
+ * .env (unify-config-placeholders), so no secret is written into it. Any other file (Routr's
+ * EdgePort) gets the values, since its reader doesn't resolve them; those hold no secrets. Either
+ * way every `${NAME}` without a default must be set, so a missing value fails at init, not at
+ * start.
  *
  * An overlay folder (the development stack's; several merge in order) may hold a
  * `<name>.<ext>` YAML that is deep-merged into the result: objects merge, other values replace,
@@ -45,13 +46,14 @@ export class RenderError extends Error {
   }
 }
 
-/** Config files read by Fonoster's own services: placeholders stay in them. */
-export const FONOSTER_SERVICE_FILES = [
+/** Config files whose reader resolves `${NAME}` itself: placeholders stay in them. */
+export const KEEPS_PLACEHOLDERS = [
   "fonoster",
   "identity",
   "appbridge",
   "autopilot",
-  "roomr"
+  "roomr",
+  "routr-one"
 ];
 
 /**
@@ -126,9 +128,7 @@ export function renderConfigDir(options: RenderOptions): string[] {
   const rendered: { name: string; text: string }[] = [];
   for (const example of listExamples(options.configDir)) {
     const name = renderedName(example)!;
-    const substitute = !FONOSTER_SERVICE_FILES.includes(
-      EXAMPLE.exec(example)![1]
-    );
+    const substitute = !KEEPS_PLACEHOLDERS.includes(EXAMPLE.exec(example)![1]);
     try {
       let text = renderTemplate(
         readFileSync(join(options.configDir, example), "utf8"),

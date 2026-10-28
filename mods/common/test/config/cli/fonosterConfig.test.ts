@@ -54,6 +54,7 @@ import { Io } from "../../../src/config/cli/types";
 import { exportConfigSchemas } from "../../../scripts/export-config-schemas";
 
 const BUNDLE = join(__dirname, "../../../../../ops/bundle");
+const CELL = join(__dirname, "../../../../../ops/rebuild/cell");
 
 type Run = { code: number; out: string; err: string };
 
@@ -125,6 +126,19 @@ function writeSchemas(dir: string) {
   }
 }
 
+/** A routr-one.yaml as Routr reads it: its placeholders resolved from `env`. */
+const routrSpec = (text: string, env: Record<string, string | undefined>) =>
+  parse(renderTemplate(text, env, "routr-one.yaml", true)).spec;
+
+/** The `${NAME}`s a file reads, outside comments. */
+const placeholders = (text: string) => [
+  ...new Set(
+    [...text.replace(/^\s*#.*$/gm, "").matchAll(/\$\{([A-Za-z_]\w*)/g)].map(
+      (m) => m[1]
+    )
+  )
+];
+
 describe("@common[config/cli] fonoster-config", function () {
   this.timeout(30000);
 
@@ -141,6 +155,7 @@ describe("@common[config/cli] fonoster-config", function () {
         "config/autopilot.yaml",
         "config/roomr.yaml",
         "config/routr-edgeport.yaml",
+        "config/routr-one.yaml",
         "config/keys/private.pem",
         "config/keys/public.pem",
         "config/keys/records.pem"
@@ -212,7 +227,7 @@ describe("@common[config/cli] fonoster-config", function () {
         expect(mode(join(dir, f)), f).to.equal(0o644);
     });
 
-    it("keeps secrets in .env: service files hold placeholders, Routr's gets values", async function () {
+    it("keeps secrets in .env: service files and routr-one.yaml hold placeholders, Routr's EdgePort file gets values", async function () {
       const dir = unpack();
       await init(dir);
       const env = Object.fromEntries(readEnvFile(join(dir, ".env")));
@@ -276,7 +291,8 @@ describe("@common[config/cli] fonoster-config", function () {
         "appbridge.yaml",
         "autopilot.yaml",
         "roomr.yaml",
-        "routr-edgeport.yaml"
+        "routr-edgeport.yaml",
+        "routr-one.yaml"
       ]) {
         const text = readFileSync(join(dir, "config", f), "utf8");
         for (const [name, value] of secrets)
@@ -410,6 +426,107 @@ describe("@common[config/cli] fonoster-config", function () {
       const check = await cli(["check", "--dir", dir]);
       for (const text of [run.out, run.err, info.out, check.out, check.err])
         expect(text).to.not.match(/rebuild|RB_/i);
+    });
+  });
+
+  describe("Routr (routr-one.yaml)", function () {
+    const cellFile = () =>
+      readFileSync(join(CELL, "config", "routr-one.yaml"), "utf8");
+
+    it("init writes routr-one.yaml with its placeholders kept", async function () {
+      const dir = unpack();
+      const run = await init(dir);
+      expect(run.code, run.err).to.equal(0);
+      const routr = yamlOf(dir, "routr-one.yaml");
+      expect(routr.spec.database.url).to.equal(
+        "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/routr"
+      );
+      expect(routr.spec.signaling.publishers.nats.url).to.equal(
+        "nats://routr:${NATS_ROUTR_PASSWORD}@nats:4222"
+      );
+      expect(routr.spec.signaling.externalAddrs).to.deep.equal(["${HOST_IP}"]);
+    });
+
+    it("routr-one.yaml resolves to the bundle's env from before one.yaml", async function () {
+      const dir = unpack();
+      await init(dir);
+      const env = expandEnv(readEnvFile(join(dir, ".env")));
+      const text = readFileSync(join(dir, "config", "routr-one.yaml"), "utf8");
+      // The values the bundle's routr service had before one.yaml.
+      expect(routrSpec(text, env)).to.deep.equal({
+        database: {
+          url: `postgresql://postgres:${env.POSTGRES_PASSWORD}@postgres:5432/routr`,
+          startInternal: false
+        },
+        signaling: {
+          externalAddrs: ["192.0.2.10"],
+          localnets: ["10.216.30.40/29"],
+          publishers: {
+            nats: {
+              enabled: true,
+              url: `nats://routr:${env.NATS_ROUTR_PASSWORD}@nats:4222`
+            }
+          }
+        },
+        connect: { verifier: { publicKeyPath: "/etc/routr/keys/public.pem" } },
+        rtprelay: { host: "rtpengine" },
+        logs: { level: "info" }
+      });
+      // Exactly what the routr service passes in ops/bundle/compose.yaml.
+      expect(placeholders(text).sort()).to.deep.equal([
+        "HOST_IP",
+        "NATS_ROUTR_PASSWORD",
+        "POSTGRES_PASSWORD",
+        "ROUTR_LOGS_LEVEL",
+        "SUBNET_PREFIX"
+      ]);
+    });
+
+    it("the cell's routr-one.yaml resolves to its env from before one.yaml", function () {
+      const env = {
+        ...expandEnv(readEnvFile(join(CELL, "cell.env.example"))),
+        POSTGRES_PASSWORD: "p0stgres-pw",
+        NATS_ROUTR_PASSWORD: "n0a1b2c3"
+      };
+      // The values the cell's routr service had before one.yaml, less localnets (empty by
+      // default, so it can't be in the file).
+      expect(routrSpec(cellFile(), env)).to.deep.equal({
+        database: {
+          url: "postgresql://postgres:p0stgres-pw@postgres:5432/routr",
+          startInternal: false
+        },
+        signaling: {
+          externalAddrs: ["127.0.0.1"],
+          publishers: {
+            nats: { enabled: true, url: "nats://routr:n0a1b2c3@nats:4222" }
+          }
+        },
+        rtprelay: { host: "rtpengine" }
+      });
+      // Exactly what the routr service passes in ops/rebuild/cell/compose.yaml.
+      expect(placeholders(cellFile()).sort()).to.deep.equal([
+        "NATS_ROUTR_PASSWORD",
+        "POSTGRES_PASSWORD",
+        "POSTGRES_USER",
+        "RB_RTPENGINE_HOST",
+        "ROUTR_EXTERNAL_ADDRS"
+      ]);
+    });
+
+    it("routr-one.yaml holds no password", async function () {
+      const dir = unpack();
+      await init(dir);
+      const env = expandEnv(readEnvFile(join(dir, ".env")));
+      const text = readFileSync(join(dir, "config", "routr-one.yaml"), "utf8");
+      for (const name of ["POSTGRES_PASSWORD", "NATS_ROUTR_PASSWORD"]) {
+        expect(env[name], name).to.have.length.greaterThan(15);
+        expect(text, name).to.not.contain(env[name]);
+      }
+      // Both files put a placeholder where each URL's password goes.
+      for (const file of [text, cellFile()])
+        expect(
+          [...file.matchAll(/:([^:@\s/]*)@/g)].map((m) => m[1])
+        ).to.deep.equal(["${POSTGRES_PASSWORD}", "${NATS_ROUTR_PASSWORD}"]);
     });
   });
 
@@ -862,6 +979,9 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(run.code, run.err).to.equal(0);
       for (const f of ["fonoster", "appbridge", "autopilot", "routr-edgeport"])
         expect(run.out).to.contain(`config/${f}.yaml: valid`);
+      expect(run.out).to.contain(
+        "config/routr-one.yaml: valid (no schema; values only)"
+      );
     });
 
     it("warns about a platform key named after no language-model provider in the catalog", async function () {

@@ -9,7 +9,7 @@ This guide covers the stack in `ops/rebuild/` (Docker Compose) and `ops/rebuild/
 | Service | Image | Role |
 | --- | --- | --- |
 | `nats` | `nats` | Heartbeats, events and the session registry (JetStream KV). Call control is gRPC: the apiserver calls the node's Roomr service, and each call's control stream runs from the node to AppBridge. |
-| `postgres` | `postgres:18` | Routr's database (Routr runs with `START_INTERNAL_DB=false`). |
+| `postgres` | `postgres:18` | Routr's database (`database.startInternal: false` in `config/routr-one.yaml`). |
 | `routr` | `fonoster/routr-one` | SIP edge. Nodes register to it with their session count. |
 | `rtpengine` | `fonoster/rtpengine` | Carrier-side media relay. |
 | `roomr` | `fonoster/roomr` (pinned by digest) | The SIP and media edge: SIP legs, rooms, mixing, RTP. Released from [fonoster/roomr](https://github.com/fonoster/roomr). |

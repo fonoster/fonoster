@@ -5,7 +5,7 @@ level: L2 Integration (API)
 tier: pr
 uut: The apiserver's services (Identity among them) in one process behind its auth interceptor, on Postgres, with Routr storing the SIP resources; the standalone Identity service; @fonoster/identity-client
 tester: Mocha. One case file run through the Node SDK and through raw gRPC on the canonical protos; the case answers call placement on NATS; a fake SMTP server keeps every email; SQL on Identity's database for states the API cannot reach (expired codes, legacy passwords)
-environment: Postgres 16, fonoster/routr-one 2.19.0 and NATS as service containers; everything else in the test process
+environment: Postgres 16, fonoster/routr-one 2.31.2 and NATS as service containers; everything else in the test process
 cadence: every pull request (the api job of pr-checks); proofs nightly and at release
 prove: sh mods/conformance/test/api/prove.sh {id} {junitDir}
 reset: sh mods/conformance/test/api/rebuild.sh
@@ -47,7 +47,7 @@ areas; see the hand-off list in the README).
 ```sh
 docker run -d --name api-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:18.6-alpine3.24
 docker run -d --name api-nats -p 4222:4222 nats:2.11.8
-docker run -d --name api-routr -p 51907:51907 fonoster/routr-one:2.25.0
+docker run -d --name api-routr -p 51907:51907 fonoster/routr-one:2.31.2
 export PERSISTENCE_TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres
 export ROUTR_API_ENDPOINT=127.0.0.1:51907 CONFORMANCE_NATS_URL=nats://127.0.0.1:4222
 npm run build
