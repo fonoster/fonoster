@@ -37,13 +37,24 @@ const EBEHIND =
   "lerna ERR! EBEHIND Local branch 'main' is behind remote upstream origin/main\n";
 
 // Each call logs its argv to calls.log and answers with attempt-<n>.out and attempt-<n>.status
-// (n counts the publish runs); `npm view` answers from the published file.
+// (n counts the publish runs). `npm view` answers from the published file, or from poll
+// published-after on; `npm install` logs its argv and cwd to installs.log and fails with
+// install.out until poll install-ok-after.
 const FAKE = `#!/usr/bin/env bash
 dir="$(dirname "$0")/.."
 if [ "$1" = view ]; then
   n=$(( $(cat "$dir/views" 2>/dev/null || echo 0) + 1 )); echo "$n" > "$dir/views"
-  grep -qxF "$2" "$dir/published" 2>/dev/null && echo "\${2##*@}"
-  [ -f "$dir/published-after" ] && [ "$n" -ge "$(cat "$dir/published-after")" ] && echo "\${2##*@}"
+  echo "$*" >> "$dir/views.log"
+  for arg in "$@"; do case "$arg" in *@[0-9]*) spec="$arg";; esac; done
+  grep -qxF "$spec" "$dir/published" 2>/dev/null && echo "\${spec##*@}"
+  [ -f "$dir/published-after" ] && [ "$n" -ge "$(cat "$dir/published-after")" ] && echo "\${spec##*@}"
+  exit 0
+fi
+if [ "$1" = install ]; then
+  n=$(( $(cat "$dir/installs" 2>/dev/null || echo 0) + 1 )); echo "$n" > "$dir/installs"
+  echo "$* cwd=$PWD package.json=$(cat package.json)" >> "$dir/installs.log"
+  [ -f "$dir/install-ok-after" ] && [ "$n" -ge "$(cat "$dir/install-ok-after")" ] && exit 0
+  [ -f "$dir/install.out" ] && { cat "$dir/install.out" >&2; exit 1; }
   exit 0
 fi
 n=$(( $(cat "$dir/count" 2>/dev/null || echo 0) + 1 )); echo "$n" > "$dir/count"
@@ -51,6 +62,11 @@ echo "$(basename "$0") $*" >> "$dir/calls.log"
 cat "$dir/attempt-$n.out" 2>/dev/null
 exit "$(cat "$dir/attempt-$n.status" 2>/dev/null || echo 0)"
 `;
+
+// The ETARGET a dry-run install of common@0.35.0 gives while logger@0.35.0 is missing.
+const ETARGET =
+  "npm error code ETARGET\n" +
+  "npm error notarget No matching version found for @fonoster/logger@^0.35.0.\n";
 
 const FROM_PACKAGE = [
   "npx",
@@ -298,7 +314,10 @@ describe("@release npm-publish.sh and require-on-npm.sh", function () {
   });
 
   describe("require-on-npm.sh", () => {
-    it("exits 0 once the version shows up on a later poll", () => {
+    const read = (f: string) =>
+      fs.readFileSync(path.join(dir, f), "utf8").split("\n").filter(Boolean);
+
+    it("exits 0 once the version shows up and installs on a later poll", () => {
       // Arrange
       fs.writeFileSync(path.join(dir, "published-after"), "3");
 
@@ -308,6 +327,10 @@ describe("@release npm-publish.sh and require-on-npm.sh", function () {
       // Assert
       expect(r.status).to.equal(0);
       expect(r.summary).to.equal("");
+      expect(read("views.log")).to.have.length(3);
+      for (const line of [...read("views.log"), ...read("installs.log")]) {
+        expect(line).to.include("--prefer-online");
+      }
     });
 
     it("exits 1 with the error naming the package and version when it never shows up", () => {
@@ -317,14 +340,62 @@ describe("@release npm-publish.sh and require-on-npm.sh", function () {
       // Assert
       expect(r.status).to.equal(1);
       expect(r.out).to.include(
-        "::error::@fonoster/common@0.35.0 is not on npm after the publish attempts."
+        "::error::@fonoster/common@0.35.0 is not installable from npm after the publish attempts. Production and self-hosted installs need it (fonoster-config init), so the release stops before images, the GitHub release and the deploy. Rerun with: gh workflow run release.yaml"
       );
       expect(r.summary).to.include(
-        "### @fonoster/common@0.35.0 did not publish"
+        "### @fonoster/common@0.35.0 is not installable from npm"
       );
-      expect(fs.readFileSync(path.join(dir, "views"), "utf8").trim()).to.equal(
-        "6"
+      expect(read("views.log")).to.have.length(6);
+    });
+
+    it("exits 1 after 6 polls when the version shows but the dry-run install fails with ETARGET", () => {
+      // Arrange
+      fs.writeFileSync(
+        path.join(dir, "published"),
+        "@fonoster/common@0.35.0\n"
       );
+      fs.writeFileSync(path.join(dir, "install.out"), ETARGET);
+
+      // Act
+      const r = run("require-on-npm.sh", ["@fonoster/common", "0.35.0"]);
+
+      // Assert
+      expect(r.status).to.equal(1);
+      expect(read("installs.log")).to.have.length(6);
+      const etarget = r.out.indexOf(
+        "npm error notarget No matching version found for @fonoster/logger@^0.35.0."
+      );
+      expect(etarget).to.be.greaterThan(-1);
+      expect(etarget).to.be.lessThan(r.out.indexOf("::error::"));
+    });
+
+    it("exits 0 when the dry-run install fails on the first poll and passes on a later one, outside the repo", () => {
+      // Arrange
+      fs.writeFileSync(
+        path.join(dir, "published"),
+        "@fonoster/common@0.35.0\n"
+      );
+      fs.writeFileSync(path.join(dir, "install.out"), ETARGET);
+      fs.writeFileSync(path.join(dir, "install-ok-after"), "2");
+
+      // Act
+      const r = run("require-on-npm.sh", ["@fonoster/common", "0.35.0"]);
+
+      // Assert
+      expect(r.status).to.equal(0);
+      const installs = read("installs.log");
+      expect(installs).to.have.length(2);
+      for (const line of installs) {
+        expect(line).to.include(
+          "install --dry-run --prefer-online --no-save --ignore-scripts --no-audit --no-fund @fonoster/common@0.35.0"
+        );
+        expect(line).to.include("package.json={}");
+        const cwd = line.split(" cwd=")[1].split(" package.json=")[0];
+        const repo = path.join(dir, "repo");
+        expect(cwd.replace(/^\/private/, "")).not.to.include(
+          repo.replace(/^\/private/, "")
+        );
+      }
     });
 
     it("exits 2 on a usage error", () => {

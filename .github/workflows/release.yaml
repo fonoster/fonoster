@@ -30,9 +30,10 @@ name: Release
 # packages that depend on it, stay on their previous version, and the run summary lists them.
 # `@fonoster/common` is the exception: every release versions it, and production
 # (`fonoster-deploy prepare`) and self-hosted installs (`fonoster-config init`) need it at the
-# release version. If it is missing, the npm job fails, and images, the GitHub release and the
-# deploy don't run. To finish the release, rerun it with `gh workflow run release.yaml`. A
-# `Release-As: x.y.z` footer publishes every package, changed or not.
+# release version. If it is missing or doesn't install, the npm job fails, and images, the GitHub
+# release and the deploy don't run. To finish the release, rerun it with
+# `gh workflow run release.yaml`. A `Release-As: x.y.z` footer publishes every package, changed or
+# not.
 
 on:
   push:
@@ -139,14 +140,6 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
 
-      # Versions an earlier release left behind publish before this one is cut, so its packages
-      # don't depend on versions npm lacks. Only the last publish step reports refused packages.
-      - name: Publish leftovers from earlier releases
-        if: steps.next.outputs.release != ''
-        run: |
-          git checkout -- .
-          ops/release/npm-publish.sh --attempts 4 --defer npx lerna publish from-package --yes --dist-tag latest
-
       - name: Publish the packages to npm
         if: steps.next.outputs.release != '' && steps.next.outputs.release != 'none'
         env:
@@ -184,7 +177,7 @@ jobs:
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       # Production and self-hosted installs need @fonoster/common at the release version.
-      - name: Check @fonoster/common is on npm
+      - name: Check @fonoster/common installs from npm
         if: steps.next.outputs.release != '' && (steps.next.outputs.release != 'none' || needs.plan.outputs.resume == 'true')
         run: ops/release/require-on-npm.sh @fonoster/common "${{ steps.version.outputs.version }}"
 
