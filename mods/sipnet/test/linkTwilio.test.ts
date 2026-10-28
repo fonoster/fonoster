@@ -49,7 +49,7 @@ const ACCOUNT_SID = "AC0123456789abcdef0123456789abcdef";
 const API_KEY_SID = "SK0123456789abcdef0123456789abcdef";
 const API_KEY_SECRET = "s3cr3t-api-key-secret-value";
 const TWILIO_TRUNK_SID = "TK0123456789abcdef0123456789abcdef";
-const LINK_METHOD = "/fonoster.numbers.v1beta2.Numbers/LinkTwilioNumber";
+const LINK_METHOD = "/fonoster.numbers.v1beta2.Numbers/LinkTwilio";
 
 type Resource = Record<string, unknown> & {
   ref: string;
@@ -121,7 +121,7 @@ async function setup(
     signalingAddresses?: string[];
   } = {}
 ) {
-  const { linkTwilioNumber } = await import("../src/numbers/linkTwilioNumber");
+  const { linkTwilio } = await import("../src/numbers/linkTwilio");
   const numbers = fakeApi("Number", options.numbers);
   const trunks = fakeApi("Trunk", options.trunks);
   const credentials = fakeApi("Credentials", options.credentials);
@@ -134,7 +134,7 @@ async function setup(
     aorOf: sandbox.stub().returns(ROUTR_DEFAULT_PEER_AOR)
   };
 
-  const link = linkTwilioNumber({
+  const link = linkTwilio({
     numbers: numbers as never,
     trunks: trunks as never,
     credentials: credentials as never,
@@ -169,7 +169,7 @@ async function setup(
 
 const owned = { accessKeyId: ACCESS_KEY_ID };
 
-describe("@sipnet[sipnet/linkTwilioNumber]", function () {
+describe("@sipnet[sipnet/linkTwilio]", function () {
   afterEach(function () {
     return sandbox.restore();
   });

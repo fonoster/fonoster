@@ -95,7 +95,7 @@ type TwilioCredentials =
   | { accountSid: string; authToken: string }
   | { accountSid: string; apiKeySid: string; apiKeySecret: string };
 
-type LinkTwilioNumberRequest = {
+type LinkTwilioRequest = {
   /** E.164; must be in the Twilio account. */
   phoneNumber: string;
   /** Defaults to phoneNumber. */
@@ -106,7 +106,7 @@ type LinkTwilioNumberRequest = {
   agentAor?: string;
 };
 
-type LinkTwilioNumberResponse = {
+type LinkTwilioResponse = {
   /** The Fonoster Number; a number already in the workspace keeps its ref. */
   ref: string;
   /** The Fonoster "Twilio Trunk". */
@@ -118,8 +118,8 @@ export {
   CreateNumberRequestExtended,
   INumber,
   INumberExtended,
-  LinkTwilioNumberRequest,
-  LinkTwilioNumberResponse,
+  LinkTwilioRequest,
+  LinkTwilioResponse,
   ListNumbersRequest,
   ListNumbersResponse,
   NumbersApi,

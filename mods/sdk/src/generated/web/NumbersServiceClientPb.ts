@@ -254,47 +254,47 @@ export class NumbersClient {
     this.methodDescriptorListNumbers);
   }
 
-  methodDescriptorLinkTwilioNumber = new grpcWeb.MethodDescriptor(
-    '/fonoster.numbers.v1beta2.Numbers/LinkTwilioNumber',
+  methodDescriptorLinkTwilio = new grpcWeb.MethodDescriptor(
+    '/fonoster.numbers.v1beta2.Numbers/LinkTwilio',
     grpcWeb.MethodType.UNARY,
-    numbers_pb.LinkTwilioNumberRequest,
-    numbers_pb.LinkTwilioNumberResponse,
-    (request: numbers_pb.LinkTwilioNumberRequest) => {
+    numbers_pb.LinkTwilioRequest,
+    numbers_pb.LinkTwilioResponse,
+    (request: numbers_pb.LinkTwilioRequest) => {
       return request.serializeBinary();
     },
-    numbers_pb.LinkTwilioNumberResponse.deserializeBinary
+    numbers_pb.LinkTwilioResponse.deserializeBinary
   );
 
-  linkTwilioNumber(
-    request: numbers_pb.LinkTwilioNumberRequest,
-    metadata?: grpcWeb.Metadata | null): Promise<numbers_pb.LinkTwilioNumberResponse>;
+  linkTwilio(
+    request: numbers_pb.LinkTwilioRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<numbers_pb.LinkTwilioResponse>;
 
-  linkTwilioNumber(
-    request: numbers_pb.LinkTwilioNumberRequest,
+  linkTwilio(
+    request: numbers_pb.LinkTwilioRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.RpcError,
-               response: numbers_pb.LinkTwilioNumberResponse) => void): grpcWeb.ClientReadableStream<numbers_pb.LinkTwilioNumberResponse>;
+               response: numbers_pb.LinkTwilioResponse) => void): grpcWeb.ClientReadableStream<numbers_pb.LinkTwilioResponse>;
 
-  linkTwilioNumber(
-    request: numbers_pb.LinkTwilioNumberRequest,
+  linkTwilio(
+    request: numbers_pb.LinkTwilioRequest,
     metadata?: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.RpcError,
-               response: numbers_pb.LinkTwilioNumberResponse) => void) {
+               response: numbers_pb.LinkTwilioResponse) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
-          '/fonoster.numbers.v1beta2.Numbers/LinkTwilioNumber',
+          '/fonoster.numbers.v1beta2.Numbers/LinkTwilio',
         request,
         metadata || {},
-        this.methodDescriptorLinkTwilioNumber,
+        this.methodDescriptorLinkTwilio,
         callback);
     }
     return this.client_.unaryCall(
     this.hostname_ +
-      '/fonoster.numbers.v1beta2.Numbers/LinkTwilioNumber',
+      '/fonoster.numbers.v1beta2.Numbers/LinkTwilio',
     request,
     metadata || {},
-    this.methodDescriptorLinkTwilioNumber);
+    this.methodDescriptorLinkTwilio);
   }
 
 }

@@ -20,8 +20,8 @@ import {
   BaseApiObject,
   CreateNumberRequest,
   INumber,
-  LinkTwilioNumberRequest,
-  LinkTwilioNumberResponse,
+  LinkTwilioRequest,
+  LinkTwilioResponse,
   ListNumbersRequest,
   ListNumbersResponse,
   UpdateNumberRequest
@@ -34,8 +34,8 @@ import {
   DeleteNumberRequest as DeleteNumberRequestPB,
   DeleteNumberResponse as DeleteNumberResponsePB,
   GetNumberRequest as GetNumberRequestPB,
-  LinkTwilioNumberRequest as LinkTwilioNumberRequestPB,
-  LinkTwilioNumberResponse as LinkTwilioNumberResponsePB,
+  LinkTwilioRequest as LinkTwilioRequestPB,
+  LinkTwilioResponse as LinkTwilioResponsePB,
   ListNumbersRequest as ListNumbersRequestPB,
   ListNumbersResponse as ListNumbersResponsePB,
   Number as NumberPB,
@@ -277,13 +277,13 @@ class Numbers {
    * again with the same number converges instead of duplicating. The Twilio credentials are
    * used for this request and not stored.
    *
-   * @param {LinkTwilioNumberRequest} request - The request object that contains the necessary information to link a Twilio number
+   * @param {LinkTwilioRequest} request - The request object that contains the necessary information to link a Twilio number
    * @param {string} request.phoneNumber - The number in E.164; it must be in the Twilio account
    * @param {string} request.name - The name of the Number (optional; defaults to the phoneNumber)
    * @param {string} request.appRef - The Application that answers the number (or agentAor)
    * @param {string} request.agentAor - The SIP agent that answers the number (or appRef)
    * @param {TwilioCredentials} request.credentials - The Twilio Account SID with a Standard API key (apiKeySid and apiKeySecret) or the Auth Token (authToken)
-   * @return {Promise<LinkTwilioNumberResponse>} - The response object that contains the reference to the Number and to its Trunk
+   * @return {Promise<LinkTwilioResponse>} - The response object that contains the reference to the Number and to its Trunk
    * @example
    * const numbers = new SDK.Numbers(client); // Existing client object
    *
@@ -299,22 +299,20 @@ class Numbers {
    * };
    *
    * numbers
-   *   .linkTwilioNumber(request)
+   *   .linkTwilio(request)
    *   .then(console.log) // successful response: { ref, trunkRef }
    *   .catch(console.error); // an error occurred
    */
-  async linkTwilioNumber(
-    request: LinkTwilioNumberRequest
-  ): Promise<LinkTwilioNumberResponse> {
+  async linkTwilio(request: LinkTwilioRequest): Promise<LinkTwilioResponse> {
     const client = this.client.getNumbersClient();
     return await makeRpcRequest<
-      LinkTwilioNumberRequestPB,
-      LinkTwilioNumberResponsePB,
-      LinkTwilioNumberRequest,
-      LinkTwilioNumberResponse
+      LinkTwilioRequestPB,
+      LinkTwilioResponsePB,
+      LinkTwilioRequest,
+      LinkTwilioResponse
     >({
-      method: client.linkTwilioNumber.bind(client),
-      requestPBObjectConstructor: LinkTwilioNumberRequestPB,
+      method: client.linkTwilio.bind(client),
+      requestPBObjectConstructor: LinkTwilioRequestPB,
       metadata: this.client.getMetadata(),
       request,
       objectMapping: [["credentials", TwilioCredentialsPB]]

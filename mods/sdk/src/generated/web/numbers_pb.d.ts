@@ -355,35 +355,35 @@ export namespace TwilioCredentials {
   }
 }
 
-export class LinkTwilioNumberRequest extends jspb.Message {
+export class LinkTwilioRequest extends jspb.Message {
   getPhoneNumber(): string;
-  setPhoneNumber(value: string): LinkTwilioNumberRequest;
+  setPhoneNumber(value: string): LinkTwilioRequest;
 
   getName(): string;
-  setName(value: string): LinkTwilioNumberRequest;
+  setName(value: string): LinkTwilioRequest;
 
   getCredentials(): TwilioCredentials | undefined;
-  setCredentials(value?: TwilioCredentials): LinkTwilioNumberRequest;
+  setCredentials(value?: TwilioCredentials): LinkTwilioRequest;
   hasCredentials(): boolean;
-  clearCredentials(): LinkTwilioNumberRequest;
+  clearCredentials(): LinkTwilioRequest;
 
   getAgentAor(): string;
-  setAgentAor(value: string): LinkTwilioNumberRequest;
+  setAgentAor(value: string): LinkTwilioRequest;
 
   getAppRef(): string;
-  setAppRef(value: string): LinkTwilioNumberRequest;
+  setAppRef(value: string): LinkTwilioRequest;
 
-  getIngressHandlerCase(): LinkTwilioNumberRequest.IngressHandlerCase;
+  getIngressHandlerCase(): LinkTwilioRequest.IngressHandlerCase;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): LinkTwilioNumberRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: LinkTwilioNumberRequest): LinkTwilioNumberRequest.AsObject;
-  static serializeBinaryToWriter(message: LinkTwilioNumberRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): LinkTwilioNumberRequest;
-  static deserializeBinaryFromReader(message: LinkTwilioNumberRequest, reader: jspb.BinaryReader): LinkTwilioNumberRequest;
+  toObject(includeInstance?: boolean): LinkTwilioRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: LinkTwilioRequest): LinkTwilioRequest.AsObject;
+  static serializeBinaryToWriter(message: LinkTwilioRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LinkTwilioRequest;
+  static deserializeBinaryFromReader(message: LinkTwilioRequest, reader: jspb.BinaryReader): LinkTwilioRequest;
 }
 
-export namespace LinkTwilioNumberRequest {
+export namespace LinkTwilioRequest {
   export type AsObject = {
     phoneNumber: string,
     name: string,
@@ -399,22 +399,22 @@ export namespace LinkTwilioNumberRequest {
   }
 }
 
-export class LinkTwilioNumberResponse extends jspb.Message {
+export class LinkTwilioResponse extends jspb.Message {
   getRef(): string;
-  setRef(value: string): LinkTwilioNumberResponse;
+  setRef(value: string): LinkTwilioResponse;
 
   getTrunkRef(): string;
-  setTrunkRef(value: string): LinkTwilioNumberResponse;
+  setTrunkRef(value: string): LinkTwilioResponse;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): LinkTwilioNumberResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: LinkTwilioNumberResponse): LinkTwilioNumberResponse.AsObject;
-  static serializeBinaryToWriter(message: LinkTwilioNumberResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): LinkTwilioNumberResponse;
-  static deserializeBinaryFromReader(message: LinkTwilioNumberResponse, reader: jspb.BinaryReader): LinkTwilioNumberResponse;
+  toObject(includeInstance?: boolean): LinkTwilioResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: LinkTwilioResponse): LinkTwilioResponse.AsObject;
+  static serializeBinaryToWriter(message: LinkTwilioResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LinkTwilioResponse;
+  static deserializeBinaryFromReader(message: LinkTwilioResponse, reader: jspb.BinaryReader): LinkTwilioResponse;
 }
 
-export namespace LinkTwilioNumberResponse {
+export namespace LinkTwilioResponse {
   export type AsObject = {
     ref: string,
     trunkRef: string,

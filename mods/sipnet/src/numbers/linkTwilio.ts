@@ -33,8 +33,8 @@ import { getLogger } from "@fonoster/logger";
 import {
   CreateTrunkRequestExtended,
   CredentialsApi,
-  LinkTwilioNumberRequest,
-  LinkTwilioNumberResponse,
+  LinkTwilioRequest,
+  LinkTwilioResponse,
   ListRequest,
   ListResponse,
   NumbersApi,
@@ -66,7 +66,7 @@ type TwilioLink = {
   removeOtherTwilioSipCredentials: typeof removeOtherTwilioSipCredentials;
 };
 
-type LinkTwilioNumberDeps = {
+type LinkTwilioDeps = {
   numbers: NumbersApi;
   trunks: TrunkApi;
   credentials: CredentialsApi;
@@ -128,7 +128,7 @@ async function findOwned<T extends { extended?: Record<string, unknown> }>(
   }
 }
 
-function linkTwilioNumber(deps: LinkTwilioNumberDeps) {
+function linkTwilio(deps: LinkTwilioDeps) {
   const {
     numbers,
     trunks,
@@ -146,11 +146,8 @@ function linkTwilioNumber(deps: LinkTwilioNumberDeps) {
   const aclEntries = deps.signalingAddresses.filter(isIpv4Entry);
 
   const fn = async (
-    call: { request: LinkTwilioNumberRequest },
-    callback: (
-      error?: GrpcErrorMessage,
-      response?: LinkTwilioNumberResponse
-    ) => void
+    call: { request: LinkTwilioRequest },
+    callback: (error?: GrpcErrorMessage, response?: LinkTwilioResponse) => void
   ) => {
     const { request } = call;
     const { phoneNumber, appRef, agentAor } = request;
@@ -169,7 +166,7 @@ function linkTwilioNumber(deps: LinkTwilioNumberDeps) {
     };
 
     // Never the request itself: it carries the Twilio secret.
-    logger.verbose("call to linkTwilioNumber", {
+    logger.verbose("call to linkTwilio", {
       phoneNumber,
       credentialKind:
         "authToken" in twilioCredentials && twilioCredentials.authToken
@@ -333,7 +330,7 @@ function linkTwilioNumber(deps: LinkTwilioNumberDeps) {
     callback(null, { ref, trunkRef });
   };
 
-  return withErrorHandlingAndValidation(fn, V.linkTwilioNumberRequestSchema);
+  return withErrorHandlingAndValidation(fn, V.linkTwilioRequestSchema);
 }
 
-export { linkTwilioNumber, LinkTwilioNumberDeps };
+export { linkTwilio, LinkTwilioDeps };

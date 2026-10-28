@@ -82,7 +82,7 @@ const twilioCredentialsSchema = z
     }
   );
 
-const linkTwilioNumberRequestSchema = z
+const linkTwilioRequestSchema = z
   .object({
     phoneNumber: z
       .string()
@@ -102,6 +102,6 @@ const linkTwilioNumberRequestSchema = z
 
 export {
   createNumberRequestSchema,
-  linkTwilioNumberRequestSchema,
+  linkTwilioRequestSchema,
   updateNumberRequestSchema
 };

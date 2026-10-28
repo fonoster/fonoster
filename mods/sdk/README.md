@@ -1579,7 +1579,7 @@ Note that an active Fonoster deployment is required.
     * [.updateNumber(request)](#Numbers+updateNumber) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
     * [.listNumbers(request)](#Numbers+listNumbers) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
     * [.deleteNumber(ref)](#Numbers+deleteNumber) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
-    * [.linkTwilioNumber(request)](#Numbers+linkTwilioNumber) ⇒ <code>Promise.&lt;LinkTwilioNumberResponse&gt;</code>
+    * [.linkTwilio(request)](#Numbers+linkTwilio) ⇒ <code>Promise.&lt;LinkTwilioResponse&gt;</code>
 
 <a name="new_Numbers_new"></a>
 
@@ -1761,9 +1761,9 @@ numbers
   .catch(console.error); // an error occurred
 ```
 
-<a name="Numbers+linkTwilioNumber"></a>
+<a name="Numbers+linkTwilio"></a>
 
-### numbers.linkTwilioNumber(request) ⇒ <code>Promise.&lt;LinkTwilioNumberResponse&gt;</code>
+### numbers.linkTwilio(request) ⇒ <code>Promise.&lt;LinkTwilioResponse&gt;</code>
 Links a number from your Twilio account to the Workspace, so it rings an Application or
 a SIP agent. It provisions the number's Twilio trunk, creates or updates the Fonoster
 Number and its "Twilio Trunk", and moves the number to that trunk in Twilio. Calling it
@@ -1771,11 +1771,11 @@ again with the same number converges instead of duplicating. The Twilio credenti
 used for this request and not stored.
 
 **Kind**: instance method of [<code>Numbers</code>](#Numbers)  
-**Returns**: <code>Promise.&lt;LinkTwilioNumberResponse&gt;</code> - - The response object that contains the reference to the Number and to its Trunk  
+**Returns**: <code>Promise.&lt;LinkTwilioResponse&gt;</code> - - The response object that contains the reference to the Number and to its Trunk  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| request | <code>LinkTwilioNumberRequest</code> | The request object that contains the necessary information to link a Twilio number |
+| request | <code>LinkTwilioRequest</code> | The request object that contains the necessary information to link a Twilio number |
 | request.phoneNumber | <code>string</code> | The number in E.164; it must be in the Twilio account |
 | request.name | <code>string</code> | The name of the Number (optional; defaults to the phoneNumber) |
 | request.appRef | <code>string</code> | The Application that answers the number (or agentAor) |
@@ -1798,7 +1798,7 @@ const request = {
 };
 
 numbers
-  .linkTwilioNumber(request)
+  .linkTwilio(request)
   .then(console.log) // successful response: { ref, trunkRef }
   .catch(console.error); // an error occurred
 ```

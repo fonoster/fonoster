@@ -130,3 +130,4 @@ Every PR links an issue (`Closes #123`; the `linked-issue` check). Required chec
 - 2026-10-26: Prisma 7 not planned (#935).
 - 2026-10-27: Upgrade old dependency lines to current releases instead of matching old pins.
 - 2026-10-28: One label standard across fonoster, routr and roomr (`## Labels`); kinds are native issue types.
+- 2026-10-28: A CLI command and the SDK method it calls share one camelCase name (`sipnet:numbers:linkTwilio` calls `numbers.linkTwilio()`, RPC `LinkTwilio`).

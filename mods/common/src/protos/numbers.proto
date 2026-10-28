@@ -33,7 +33,7 @@ service Numbers {
   // List Numbers
   rpc ListNumbers (ListNumbersRequest) returns (ListNumbersResponse) {}
   // Link a Twilio number: provision its Twilio trunk and route it to an agent or application
-  rpc LinkTwilioNumber (LinkTwilioNumberRequest) returns (LinkTwilioNumberResponse) {}
+  rpc LinkTwilio (LinkTwilioRequest) returns (LinkTwilioResponse) {}
 }
 
 // The message for the Number resource
@@ -169,8 +169,8 @@ message TwilioCredentials {
   string api_key_secret = 4;
 }
 
-// The request message for Numbers.LinkTwilioNumber
-message LinkTwilioNumberRequest {
+// The request message for Numbers.LinkTwilio
+message LinkTwilioRequest {
   // The number in E.164; must be in the Twilio account
   string phone_number = 1;
   // The name of the Number; defaults to phone_number
@@ -186,8 +186,8 @@ message LinkTwilioNumberRequest {
   }
 }
 
-// The response message for Numbers.LinkTwilioNumber
-message LinkTwilioNumberResponse {
+// The response message for Numbers.LinkTwilio
+message LinkTwilioResponse {
   // The Fonoster Number; a number already in the workspace keeps its ref
   string ref = 1;
   // The Fonoster "Twilio Trunk"

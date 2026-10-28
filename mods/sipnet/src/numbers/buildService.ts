@@ -23,14 +23,14 @@ import { ClientOptions } from "../types";
 import { createNumber } from "./createNumber";
 import { NumberRouting } from "./engineRouting";
 import { getNumber } from "./getNumber";
-import { linkTwilioNumber } from "./linkTwilioNumber";
+import { linkTwilio } from "./linkTwilio";
 import { listNumbers } from "./listNumbers";
 import { deleteNumber } from "./operations";
 import { updateNumber } from "./updateNumber";
 
 /**
  * `routing` picks the peer app-linked numbers point at (default: the roomr peer). `twilioLink`
- * is the install's PSTN root and public signaling addresses, for LinkTwilioNumber.
+ * is the install's PSTN root and public signaling addresses, for LinkTwilio.
  */
 function buildService(
   clientOptions: ClientOptions,
@@ -67,7 +67,7 @@ function buildService(
       getNumber: getNumber(client),
       listNumbers: listNumbers(client),
       deleteNumber: deleteNumber(client),
-      linkTwilioNumber: linkTwilioNumber({
+      linkTwilio: linkTwilio({
         numbers: client,
         trunks: new SDK.Trunks(clientOptions),
         credentials: new SDK.Credentials(clientOptions),

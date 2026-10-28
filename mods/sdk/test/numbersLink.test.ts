@@ -19,47 +19,47 @@
 import { expect } from "chai";
 import { FonosterClient } from "../src/client/types";
 import {
-  LinkTwilioNumberRequest,
-  LinkTwilioNumberResponse
+  LinkTwilioRequest,
+  LinkTwilioResponse
 } from "../src/generated/node/numbers_pb";
 import { Numbers } from "../src/Numbers";
 
 const ACCOUNT_SID = "AC0123456789abcdef0123456789abcdef";
 const API_KEY_SID = "SK0123456789abcdef0123456789abcdef";
 
-function fakeClient(sent: { request?: LinkTwilioNumberRequest }) {
-  const response = new LinkTwilioNumberResponse();
+function fakeClient(sent: { request?: LinkTwilioRequest }) {
+  const response = new LinkTwilioResponse();
   response.setRef("number-1");
   response.setTrunkRef("trunk-1");
   return {
     getMetadata: () => ({}),
     getNumbersClient: () => ({
-      linkTwilioNumber: (
-        req: LinkTwilioNumberRequest,
+      linkTwilio: (
+        req: LinkTwilioRequest,
         _metadata: unknown,
-        callback: (e: Error | null, r: LinkTwilioNumberResponse) => void
+        callback: (e: Error | null, r: LinkTwilioResponse) => void
       ) => {
         // Through the wire format, as the server would read it
-        sent.request = LinkTwilioNumberRequest.deserializeBinary(
+        sent.request = LinkTwilioRequest.deserializeBinary(
           req.serializeBinary()
         );
         callback(
           null,
-          LinkTwilioNumberResponse.deserializeBinary(response.serializeBinary())
+          LinkTwilioResponse.deserializeBinary(response.serializeBinary())
         );
       }
     })
   } as unknown as FonosterClient;
 }
 
-describe("@sdk[numbers/linkTwilioNumber]", function () {
+describe("@sdk[numbers/linkTwilio]", function () {
   it("sends the nested API-key credentials and returns { ref, trunkRef }", async function () {
     // Arrange
-    const sent: { request?: LinkTwilioNumberRequest } = {};
+    const sent: { request?: LinkTwilioRequest } = {};
     const numbers = new Numbers(fakeClient(sent));
 
     // Act
-    const response = await numbers.linkTwilioNumber({
+    const response = await numbers.linkTwilio({
       phoneNumber: "+18095550123",
       name: "Front desk",
       appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00",
@@ -88,11 +88,11 @@ describe("@sdk[numbers/linkTwilioNumber]", function () {
 
   it("sends Auth Token credentials and an agent", async function () {
     // Arrange
-    const sent: { request?: LinkTwilioNumberRequest } = {};
+    const sent: { request?: LinkTwilioRequest } = {};
     const numbers = new Numbers(fakeClient(sent));
 
     // Act
-    await numbers.linkTwilioNumber({
+    await numbers.linkTwilio({
       phoneNumber: "+18095550123",
       agentAor: "sip:frontdesk@acme.sip.fonoster.io",
       credentials: { accountSid: ACCOUNT_SID, authToken: "auth-token" }
