@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/devkit",
-  "version": "0.38.0",
+  "version": "0.39.0",
   "private": true,
   "description": "Repository tooling shared by the modules: the dev runner and the README generator.",
   "license": "MIT",

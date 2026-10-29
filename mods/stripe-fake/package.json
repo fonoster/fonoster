@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/stripe-fake",
-  "version": "0.38.0",
+  "version": "0.39.0",
   "private": true,
   "description": "A stateful fake of the part of Stripe Billing that Fonoster's billing uses, with a viewer",
   "author": "Pedro Sanders <psanders@fonoster.com>",
