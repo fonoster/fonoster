@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* global structuredClone, URL */
 /*
  * A stateful fake of the Graph API endpoints the WhatsApp link uses, with no transport: phone
  * numbers (with their tier and calling settings) and tokens (with their permissions and the

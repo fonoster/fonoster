@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/* global RequestInit, Headers, URL, Response */
 import { GraphApiFake } from "./createGraphApiFake";
 
 function headersOf(init?: RequestInit): Record<string, string> {
