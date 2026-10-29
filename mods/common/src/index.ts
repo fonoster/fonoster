@@ -42,6 +42,7 @@ export * as Usage from "./usage";
 export * as CellSecrets from "./cellsecrets";
 export * from "./telemetry";
 export * from "./twilio";
+export * from "./whatsapp";
 export * from "./net";
 export * as Sessions from "./sessions";
 export * as RegionHub from "./regions/hub";
