@@ -37,6 +37,9 @@ function fakeClient(
   response.setSipServerHostname(HOSTNAME);
   response.setSipServerPort(5061);
   response.setSipPasswordSet(sipPasswordSet);
+  response.setPhoneNumber("+525512345678");
+  response.setVerifiedName(sipPasswordSet ? "Acme Dental" : "");
+  response.setMetaConfigured(sipPasswordSet);
   return {
     getMetadata: () => ({}),
     getNumbersClient: () => ({
@@ -85,8 +88,30 @@ describe("@sdk[numbers/linkWhatsApp]", function () {
       trunkRef: "trunk-1",
       sipServerHostname: HOSTNAME,
       sipServerPort: 5061,
-      sipPasswordSet: true
+      sipPasswordSet: true,
+      phoneNumber: "+525512345678",
+      verifiedName: "Acme Dental",
+      metaConfigured: true
     });
+  });
+
+  it("sends the Meta fields and no phone number on the token path", async function () {
+    // Arrange
+    const sent: { request?: LinkWhatsAppRequest } = {};
+    const numbers = new Numbers(fakeClient(sent, true));
+
+    // Act
+    await numbers.linkWhatsApp({
+      phoneNumberId: "106612345678901",
+      accessToken: "EAAGtoken",
+      appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00"
+    });
+
+    // Assert
+    expect(sent.request?.getPhoneNumberId()).to.equal("106612345678901");
+    expect(sent.request?.getAccessToken()).to.equal("EAAGtoken");
+    expect(sent.request?.getPhoneNumber()).to.equal("");
+    expect(sent.request?.getSipPassword()).to.equal("");
   });
 
   it("sends an agentAor without a password, and maps sipPasswordSet false", async function () {

@@ -325,31 +325,34 @@ class Numbers {
 
   /**
    * Links a WhatsApp Business number so it rings an Application or a SIP agent. Fonoster creates
-   * (or updates in place) the number's credential, its TLS trunk to Meta and the Number, and
-   * returns the SIP server hostname to register in WhatsApp Manager. Fonoster calls no Meta API:
-   * the SIP password Meta issued is passed in as `sipPassword`, now or on a later call, and is
-   * stored only on the credential.
+   * (or updates in place) the number's credential, its TLS trunk to Meta and the Number. With a
+   * Meta access token and the number's phone number id, Fonoster also turns on SIP calling in
+   * Meta, points it at this install with SDES and keeps the SIP password Meta issues; the token
+   * is used for those calls and never stored. Without a token, Fonoster calls no Meta API: the
+   * response carries the SIP server to register in WhatsApp Manager, and the Meta-issued
+   * password is passed in as `sipPassword`, now or on a later call.
    *
    * @param {LinkWhatsAppRequest} request - The request object that contains the necessary information to link a WhatsApp number
-   * @param {string} request.phoneNumber - The WhatsApp Business number in E.164
-   * @param {string} request.sipPassword - The SIP password Meta issued for the number (optional; without it the link keeps the current password or sets a placeholder)
-   * @param {string} request.name - The name of the Number (optional; defaults to the phoneNumber)
+   * @param {string} request.phoneNumberId - Meta's id of the phone number (with accessToken)
+   * @param {string} request.accessToken - A Meta System User token with whatsapp_business_management (used once, never stored)
+   * @param {string} request.phoneNumber - The WhatsApp Business number in E.164 (required without an accessToken)
+   * @param {string} request.sipPassword - The SIP password Meta issued for the number (optional, without an accessToken; without it the link keeps the current password or sets a placeholder)
+   * @param {string} request.name - The name of the Number (optional; defaults to Meta's verified name, or the phone number)
    * @param {string} request.appRef - The Application that answers the number (or agentAor)
    * @param {string} request.agentAor - The SIP agent that answers the number (or appRef)
-   * @return {Promise<LinkWhatsAppResponse>} - The response object with the Number's reference, its trunk's reference, the SIP server hostname and port to register in WhatsApp Manager, and whether the SIP password is set
+   * @return {Promise<LinkWhatsAppResponse>} - The response object with the Number's reference, its trunk's reference, the number and Meta's verified name, the SIP server hostname and port, whether the SIP password is set, and whether Meta was configured by this call
    * @example
    * const numbers = new SDK.Numbers(client); // Existing client object
    *
    * const request = {
-   *   phoneNumber: "+525512345678",
-   *   name: "Front desk",
-   *   appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00",
-   *   sipPassword: process.env.WHATSAPP_SIP_PASSWORD
+   *   phoneNumberId: "106612345678901",
+   *   accessToken: process.env.META_ACCESS_TOKEN,
+   *   appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00"
    * };
    *
    * numbers
    *   .linkWhatsApp(request)
-   *   .then(console.log) // successful response: { ref, trunkRef, sipServerHostname, sipServerPort, sipPasswordSet }
+   *   .then(console.log) // successful response: { ref, trunkRef, phoneNumber, verifiedName, sipServerHostname, sipServerPort, sipPasswordSet, metaConfigured }
    *   .catch(console.error); // an error occurred
    */
   async linkWhatsApp(

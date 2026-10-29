@@ -20,7 +20,8 @@ import {
   APP_REF_HEADER,
   GrpcError,
   hasAccess,
-  ROUTR_DEFAULT_PEER_AOR
+  ROUTR_DEFAULT_PEER_AOR,
+  WhatsAppLinkError
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { Role } from "@fonoster/types";
@@ -47,6 +48,10 @@ const INBOUND_URI = `wa-${LABEL}-${DIGITS}.${PSTN_ROOT}`;
 const SECOND_NUMBER = "+525598765432";
 const APP_REF = "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00";
 const SIP_PASSWORD = "m3ta-1ssued-s3cret-passw0rd";
+const PHONE_NUMBER_ID = "106612345678901";
+const ACCESS_TOKEN = "EAAGm0PX4ZCpsBO7ZCZCTOKENZCZCvalue123";
+const META_PASSWORD = "p4ssw0rd-fr0m-meta-settings";
+const VERIFIED_NAME = "Acme Dental";
 const LINK_METHOD = "/fonoster.numbers.v1beta2.Numbers/LinkWhatsApp";
 const TLS_ENDPOINT = {
   host: "sip.pstn.fonoster.local",
@@ -86,6 +91,30 @@ function fakeApi(resource: string, seed: Resource[] = []) {
   return api as typeof api & Record<string, sinon.SinonSpy>;
 }
 
+function fakeWhatsApp() {
+  return {
+    inspectWhatsAppNumber: sandbox.stub().resolves({
+      phoneNumber: PHONE_NUMBER,
+      verifiedName: VERIFIED_NAME,
+      calling: { sip: { servers: [] } }
+    }),
+    enableWhatsAppSipCalling: sandbox.stub().resolves({
+      sipUsername: DIGITS,
+      sipPassword: META_PASSWORD,
+      phoneNumber: PHONE_NUMBER,
+      previousSettings: {}
+    })
+  };
+}
+
+/** The token-path request: no phoneNumber and no sipPassword. */
+const withToken = {
+  phoneNumber: undefined,
+  sipPassword: undefined,
+  phoneNumberId: PHONE_NUMBER_ID,
+  accessToken: ACCESS_TOKEN
+};
+
 function makeCall(request: Record<string, unknown> = {}) {
   const metadata = new grpc.Metadata();
   metadata.set("token", TEST_TOKEN);
@@ -121,6 +150,7 @@ async function setup(
     aorFor: sandbox.stub().resolves(ROUTR_DEFAULT_PEER_AOR),
     aorOf: sandbox.stub().returns(ROUTR_DEFAULT_PEER_AOR)
   };
+  const whatsapp = fakeWhatsApp();
 
   const link = linkWhatsApp({
     numbers: numbers as never,
@@ -130,7 +160,8 @@ async function setup(
     routing,
     checkRefs,
     pstnRoot: PSTN_ROOT,
-    sipEndpoints: options.sipEndpoints ?? [UDP_ENDPOINT, TLS_ENDPOINT]
+    sipEndpoints: options.sipEndpoints ?? [UDP_ENDPOINT, TLS_ENDPOINT],
+    whatsapp
   });
 
   const invoke = async (request: Record<string, unknown> = {}) => {
@@ -145,6 +176,7 @@ async function setup(
     credentials,
     checkNumberPreconditions,
     checkRefs,
+    whatsapp,
     invoke
   };
 }
@@ -220,8 +252,166 @@ describe("@sipnet[sipnet/linkWhatsApp]", function () {
       trunkRef: trunk.ref,
       sipServerHostname: INBOUND_URI,
       sipServerPort: 5061,
-      sipPasswordSet: true
+      sipPasswordSet: true,
+      phoneNumber: PHONE_NUMBER,
+      verifiedName: "",
+      metaConfigured: false
     });
+  });
+
+  it("with an access token, reads the number from Meta, turns on SIP calling pointed at the install with SDES, and keeps Meta's password", async function () {
+    // Arrange
+    const { numbers, trunks, credentials, whatsapp, invoke } = await setup();
+
+    // Act
+    const callback = await invoke({ ...withToken, name: undefined });
+
+    // Assert
+    expect(whatsapp.inspectWhatsAppNumber).to.have.been.calledOnceWithExactly(
+      { accessToken: ACCESS_TOKEN },
+      { phoneNumberId: PHONE_NUMBER_ID }
+    );
+    expect(
+      whatsapp.enableWhatsAppSipCalling
+    ).to.have.been.calledOnceWithExactly(
+      { accessToken: ACCESS_TOKEN },
+      {
+        phoneNumberId: PHONE_NUMBER_ID,
+        sipServer: { hostname: INBOUND_URI, port: 5061 },
+        srtpKeyExchange: "SDES"
+      }
+    );
+    const [credential] = [...credentials.store.values()];
+    const [trunk] = [...trunks.store.values()];
+    const [number] = [...numbers.store.values()];
+    expect(credential).to.include({
+      username: DIGITS,
+      password: META_PASSWORD
+    });
+    expect(trunk).to.include({ inboundUri: INBOUND_URI });
+    expect(number).to.include({ telUrl: TEL_URL, name: VERIFIED_NAME });
+    expect(callback).to.have.been.calledOnceWithExactly(null, {
+      ref: number.ref,
+      trunkRef: trunk.ref,
+      sipServerHostname: INBOUND_URI,
+      sipServerPort: 5061,
+      sipPasswordSet: true,
+      phoneNumber: PHONE_NUMBER,
+      verifiedName: VERIFIED_NAME,
+      metaConfigured: true
+    });
+  });
+
+  it("with an access token, refuses a number another workspace linked before touching Meta's settings", async function () {
+    // Arrange
+    const { trunks, credentials, whatsapp, invoke } = await setup({
+      numbers: [
+        {
+          ref: "number-foreign",
+          telUrl: TEL_URL,
+          extended: { accessKeyId: OTHER_ACCESS_KEY_ID }
+        }
+      ]
+    });
+
+    // Act
+    const callback = await invoke(withToken);
+
+    // Assert
+    expect(callback).to.have.been.calledOnceWithExactly({
+      code: grpc.status.FAILED_PRECONDITION,
+      message: `${PHONE_NUMBER} is already linked in another workspace`
+    });
+    expect(whatsapp.enableWhatsAppSipCalling).to.not.have.been.called;
+    expectNoWrites(credentials, "Credentials");
+    expectNoWrites(trunks, "Trunk");
+  });
+
+  for (const [reason, step, code, message] of [
+    [
+      "TOKEN_REFUSED",
+      "phoneNumbers.get",
+      grpc.status.FAILED_PRECONDITION,
+      "Meta didn't accept this access token"
+    ],
+    [
+      "PERMISSION_MISSING",
+      "settings.post",
+      grpc.status.FAILED_PRECONDITION,
+      "This access token can't manage WhatsApp calling settings; use a System User token with whatsapp_business_management"
+    ],
+    [
+      "NUMBER_NOT_FOUND",
+      "phoneNumbers.get",
+      grpc.status.FAILED_PRECONDITION,
+      `No WhatsApp number with id ${PHONE_NUMBER_ID} is reachable with this access token`
+    ],
+    [
+      "TIER_TOO_LOW",
+      "phoneNumbers.get",
+      grpc.status.FAILED_PRECONDITION,
+      "The number is on messaging tier TIER_1K; WhatsApp calling needs a messaging limit of 2,000 or more"
+    ],
+    [
+      "SIP_SERVER_REJECTED",
+      "settings.post",
+      grpc.status.FAILED_PRECONDITION,
+      `Meta didn't accept ${INBOUND_URI} as the SIP server`
+    ],
+    [
+      "UNAVAILABLE",
+      "settings.post",
+      grpc.status.UNAVAILABLE,
+      "Meta is unavailable; try again"
+    ]
+  ] as const) {
+    it(`maps Meta's ${reason} on ${step} to ${grpc.status[code]} and writes nothing`, async function () {
+      // Arrange
+      const { trunks, credentials, whatsapp, invoke } = await setup();
+      const error = new WhatsAppLinkError(reason, message, step);
+      if (step === "phoneNumbers.get") {
+        whatsapp.inspectWhatsAppNumber.rejects(error);
+      } else {
+        whatsapp.enableWhatsAppSipCalling.rejects(error);
+      }
+
+      // Act
+      const callback = await invoke(withToken);
+
+      // Assert
+      expect(callback).to.have.been.calledOnceWithExactly({ code, message });
+      expectNoWrites(credentials, "Credentials");
+      expectNoWrites(trunks, "Trunk");
+    });
+  }
+
+  it("never logs the access token, and never stores it", async function () {
+    // Arrange
+    const lines: string[] = [];
+    for (const service of ["sipnet", "apiserver", "common"]) {
+      const logger = getLogger({ service, filePath: __filename });
+      for (const level of ["error", "warn", "info", "verbose", "debug"]) {
+        sandbox
+          .stub(logger, level)
+          .callsFake((...args: unknown[]) => lines.push(JSON.stringify(args)));
+      }
+    }
+    const { numbers, trunks, credentials, whatsapp, invoke } = await setup();
+
+    // Act
+    await invoke(withToken);
+    whatsapp.enableWhatsAppSipCalling.rejects(new Error("boom"));
+    await invoke(withToken);
+
+    // Assert
+    expect(lines.length).to.be.greaterThan(0);
+    expect(lines.filter((l) => l.includes(ACCESS_TOKEN))).to.deep.equal([]);
+    const written = [
+      ...numbers.store.values(),
+      ...trunks.store.values(),
+      ...credentials.store.values()
+    ];
+    expect(JSON.stringify(written)).to.not.include(ACCESS_TOKEN);
   });
 
   it("links without a password first, then sets it in place, then keeps it", async function () {
@@ -474,7 +664,23 @@ describe("@sipnet[sipnet/linkWhatsApp]", function () {
   for (const [name, request] of [
     ["a number that isn't E.164", { phoneNumber: "5512345678" }],
     ["a password with a space", { sipPassword: "has a space" }],
-    ["both route kinds", { agentAor: "sip:maria@acme.sip.fonoster.local" }]
+    ["both route kinds", { agentAor: "sip:maria@acme.sip.fonoster.local" }],
+    [
+      "an access token without a phone number id",
+      { ...withToken, phoneNumberId: undefined }
+    ],
+    [
+      "a phone number id without an access token",
+      { ...withToken, accessToken: undefined }
+    ],
+    [
+      "a password together with an access token",
+      { ...withToken, sipPassword: SIP_PASSWORD }
+    ],
+    [
+      "an access token with a space",
+      { ...withToken, accessToken: "EAAG has space" }
+    ]
   ] as const) {
     it(`returns INVALID_ARGUMENT and writes nothing for ${name}`, async function () {
       // Arrange

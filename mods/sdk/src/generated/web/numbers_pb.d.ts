@@ -437,6 +437,12 @@ export class LinkWhatsAppRequest extends jspb.Message {
   getAppRef(): string;
   setAppRef(value: string): LinkWhatsAppRequest;
 
+  getPhoneNumberId(): string;
+  setPhoneNumberId(value: string): LinkWhatsAppRequest;
+
+  getAccessToken(): string;
+  setAccessToken(value: string): LinkWhatsAppRequest;
+
   getIngressHandlerCase(): LinkWhatsAppRequest.IngressHandlerCase;
 
   serializeBinary(): Uint8Array;
@@ -454,6 +460,8 @@ export namespace LinkWhatsAppRequest {
     name: string,
     agentAor: string,
     appRef: string,
+    phoneNumberId: string,
+    accessToken: string,
   }
 
   export enum IngressHandlerCase { 
@@ -479,6 +487,15 @@ export class LinkWhatsAppResponse extends jspb.Message {
   getSipPasswordSet(): boolean;
   setSipPasswordSet(value: boolean): LinkWhatsAppResponse;
 
+  getPhoneNumber(): string;
+  setPhoneNumber(value: string): LinkWhatsAppResponse;
+
+  getVerifiedName(): string;
+  setVerifiedName(value: string): LinkWhatsAppResponse;
+
+  getMetaConfigured(): boolean;
+  setMetaConfigured(value: boolean): LinkWhatsAppResponse;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): LinkWhatsAppResponse.AsObject;
   static toObject(includeInstance: boolean, msg: LinkWhatsAppResponse): LinkWhatsAppResponse.AsObject;
@@ -494,6 +511,9 @@ export namespace LinkWhatsAppResponse {
     sipServerHostname: string,
     sipServerPort: number,
     sipPasswordSet: boolean,
+    phoneNumber: string,
+    verifiedName: string,
+    metaConfigured: boolean,
   }
 }
 

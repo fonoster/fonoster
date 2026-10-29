@@ -3540,7 +3540,9 @@ phoneNumber: jspb.Message.getFieldWithDefault(msg, 1, ""),
 sipPassword: jspb.Message.getFieldWithDefault(msg, 2, ""),
 name: jspb.Message.getFieldWithDefault(msg, 3, ""),
 agentAor: (f = jspb.Message.getField(msg, 4)) == null ? undefined : f,
-appRef: (f = jspb.Message.getField(msg, 5)) == null ? undefined : f
+appRef: (f = jspb.Message.getField(msg, 5)) == null ? undefined : f,
+phoneNumberId: jspb.Message.getFieldWithDefault(msg, 6, ""),
+accessToken: jspb.Message.getFieldWithDefault(msg, 7, "")
   };
 
   if (includeInstance) {
@@ -3596,6 +3598,14 @@ proto.fonoster.numbers.v1beta2.LinkWhatsAppRequest.deserializeBinaryFromReader =
     case 5:
       var value = /** @type {string} */ (reader.readString());
       msg.setAppRef(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPhoneNumberId(value);
+      break;
+    case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAccessToken(value);
       break;
     default:
       reader.skipField();
@@ -3658,6 +3668,20 @@ proto.fonoster.numbers.v1beta2.LinkWhatsAppRequest.serializeBinaryToWriter = fun
   if (f != null) {
     writer.writeString(
       5,
+      f
+    );
+  }
+  f = message.getPhoneNumberId();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
+  f = message.getAccessToken();
+  if (f.length > 0) {
+    writer.writeString(
+      7,
       f
     );
   }
@@ -3790,6 +3814,42 @@ proto.fonoster.numbers.v1beta2.LinkWhatsAppRequest.prototype.hasAppRef = functio
 };
 
 
+/**
+ * optional string phone_number_id = 6;
+ * @return {string}
+ */
+proto.fonoster.numbers.v1beta2.LinkWhatsAppRequest.prototype.getPhoneNumberId = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.numbers.v1beta2.LinkWhatsAppRequest} returns this
+ */
+proto.fonoster.numbers.v1beta2.LinkWhatsAppRequest.prototype.setPhoneNumberId = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional string access_token = 7;
+ * @return {string}
+ */
+proto.fonoster.numbers.v1beta2.LinkWhatsAppRequest.prototype.getAccessToken = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.numbers.v1beta2.LinkWhatsAppRequest} returns this
+ */
+proto.fonoster.numbers.v1beta2.LinkWhatsAppRequest.prototype.setAccessToken = function(value) {
+  return jspb.Message.setProto3StringField(this, 7, value);
+};
+
+
 
 
 
@@ -3826,7 +3886,10 @@ ref: jspb.Message.getFieldWithDefault(msg, 1, ""),
 trunkRef: jspb.Message.getFieldWithDefault(msg, 2, ""),
 sipServerHostname: jspb.Message.getFieldWithDefault(msg, 3, ""),
 sipServerPort: jspb.Message.getFieldWithDefault(msg, 4, 0),
-sipPasswordSet: jspb.Message.getBooleanFieldWithDefault(msg, 5, false)
+sipPasswordSet: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
+phoneNumber: jspb.Message.getFieldWithDefault(msg, 6, ""),
+verifiedName: jspb.Message.getFieldWithDefault(msg, 7, ""),
+metaConfigured: jspb.Message.getBooleanFieldWithDefault(msg, 8, false)
   };
 
   if (includeInstance) {
@@ -3882,6 +3945,18 @@ proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse.deserializeBinaryFromReader 
     case 5:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setSipPasswordSet(value);
+      break;
+    case 6:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setPhoneNumber(value);
+      break;
+    case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setVerifiedName(value);
+      break;
+    case 8:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setMetaConfigured(value);
       break;
     default:
       reader.skipField();
@@ -3944,6 +4019,27 @@ proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse.serializeBinaryToWriter = fu
   if (f) {
     writer.writeBool(
       5,
+      f
+    );
+  }
+  f = message.getPhoneNumber();
+  if (f.length > 0) {
+    writer.writeString(
+      6,
+      f
+    );
+  }
+  f = message.getVerifiedName();
+  if (f.length > 0) {
+    writer.writeString(
+      7,
+      f
+    );
+  }
+  f = message.getMetaConfigured();
+  if (f) {
+    writer.writeBool(
+      8,
       f
     );
   }
@@ -4037,6 +4133,60 @@ proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse.prototype.getSipPasswordSet 
  */
 proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse.prototype.setSipPasswordSet = function(value) {
   return jspb.Message.setProto3BooleanField(this, 5, value);
+};
+
+
+/**
+ * optional string phone_number = 6;
+ * @return {string}
+ */
+proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse.prototype.getPhoneNumber = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse} returns this
+ */
+proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse.prototype.setPhoneNumber = function(value) {
+  return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional string verified_name = 7;
+ * @return {string}
+ */
+proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse.prototype.getVerifiedName = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse} returns this
+ */
+proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse.prototype.setVerifiedName = function(value) {
+  return jspb.Message.setProto3StringField(this, 7, value);
+};
+
+
+/**
+ * optional bool meta_configured = 8;
+ * @return {boolean}
+ */
+proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse.prototype.getMetaConfigured = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 8, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse} returns this
+ */
+proto.fonoster.numbers.v1beta2.LinkWhatsAppResponse.prototype.setMetaConfigured = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 8, value);
 };
 
 

@@ -3138,3 +3138,447 @@ workspaces
   .catch(console.error); // an error occurred
 ```
 
+<a name="Calls"></a>
+
+## Calls
+Fonoster Calls, part of the Fonoster Media subsystem,
+allows you to create, list, and track calls in your deployment.
+Note that an active Fonoster deployment is required.
+
+**Kind**: global class  
+**See**
+
+- AbstractClient
+- FonosterClient
+
+
+* [Calls](#Calls)
+    * [new Calls(client)](#new_Calls_new)
+    * [.createCall(request)](#Calls+createCall) ⇒ <code>Object</code>
+    * [.getCall(ref)](#Calls+getCall) ⇒ <code>Promise.&lt;CallDetailRecord&gt;</code>
+    * [.listCalls(request)](#Calls+listCalls) ⇒ <code>Promise.&lt;ListCallsResponse&gt;</code>
+
+<a name="new_Calls_new"></a>
+
+### new Calls(client)
+Constructs a new Calls object.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| client | <code>FonosterClient</code> | Client object with underlying implementations to make requests to Fonoster's API |
+
+**Example**  
+```js
+const SDK = require("@fonoster/sdk");
+
+async function main(request) {
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
+
+  try {
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
+
+    const calls = new SDK.Calls(client);
+    const response = await calls.createCall(request);
+
+    console.log(response); // successful response
+  } catch (e) {
+    console.error(e); // an error occurred
+  }
+}
+
+const request = {
+  from: "+18287854037",
+  to: "+17853178070",
+  appRef: "00000000-0000-0000-0000-000000000000"
+};
+
+main(request);
+```
+<a name="Calls+createCall"></a>
+
+### calls.createCall(request) ⇒ <code>Object</code>
+Creates a new Call in the Workspace.
+
+**Kind**: instance method of [<code>Calls</code>](#Calls)  
+**Returns**: <code>Object</code> - - The response object that contains the Call reference and a stream of status updates; the update that ends an unanswered call also says why (hangupCause, e.g. USER_BUSY)  
+**See**: DialStatus  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>CreateCallRequest</code> | The request object that contains the necessary information to create a new Call |
+| request.from | <code>string</code> | The number that originated the call |
+| request.to | <code>string</code> | The number that received the call |
+| request.appRef | <code>string</code> | The reference of the App that will handle the call |
+| request.timeout | <code>number</code> | The time in seconds to wait for the call to be answered. Default is 60 seconds |
+| request.metadata | <code>Record.&lt;string, string&gt;</code> | Optional metadata to be sent to the App. For Autopilot applications, this is added to the context of the conversation. |
+
+**Example**  
+```js
+const calls = new SDK.Calls(client); // Existing client object
+
+const request = {
+  from: "+18287854037",
+  to: "+17853178070",
+  appRef: "00000000-0000-0000-0000-000000000000",
+  timeout: 30,
+  metadata: {
+    "name": "John Doe",
+    "preferredLanguage": "en-US"
+  }
+};
+
+const response = await calls.createCall(request);
+const { ref, statusStream } = response;
+
+console.log(ref); // Call reference
+
+for await (const status of statusStream) {
+ console.log(status); // Streamed status
+}
+```
+<a name="Calls+getCall"></a>
+
+### calls.getCall(ref) ⇒ <code>Promise.&lt;CallDetailRecord&gt;</code>
+Retrieves an existing Call in the Workspace.
+
+**Kind**: instance method of [<code>Calls</code>](#Calls)  
+**Returns**: <code>Promise.&lt;CallDetailRecord&gt;</code> - - The response object that contains the Call detail  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ref | <code>string</code> | The reference of the Call to retrieve |
+
+**Example**  
+```js
+const calls = new SDK.Calls(client); // Existing client object
+
+const ref = "00000000-0000-0000-0000-000000000000";
+
+calls
+  .getCall(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Calls+listCalls"></a>
+
+### calls.listCalls(request) ⇒ <code>Promise.&lt;ListCallsResponse&gt;</code>
+Retrieves a list of Calls from a Workspace.
+
+**Kind**: instance method of [<code>Calls</code>](#Calls)  
+**Returns**: <code>Promise.&lt;ListCallsResponse&gt;</code> - - The response object that contains the list of Calls  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>ListCallsRequest</code> | The request object that contains the necessary information to retrieve a list of Calls |
+| request.pageSize | <code>number</code> | The number of Calls to retrieve |
+| request.pageToken | <code>string</code> | The token to retrieve the next page of Calls |
+| request.appRef | <code>string</code> | Optional. Lists only the Calls the App with this reference handled |
+| request.from | <code>string</code> | Optional. Lists only the Calls whose caller is exactly this value, as the Call carried it (e.g. "+15551234567", "sip:+15551234567@carrier.example;user=phone"). There is no normalization: "+15551234567" does not match "tel:+15551234567". At most 256 characters, no control characters (CR, LF, NUL...); otherwise the request fails with INVALID_ARGUMENT |
+| request.to | <code>string</code> | Optional. Lists only the Calls whose callee is exactly this value; same rules as `from` |
+
+**Example**  
+```js
+const calls = new SDK.Calls(client); // Existing client object
+
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000",
+  appRef: "00000000-0000-0000-0000-000000000000", // Optional: only this App's Calls
+  from: "+15551234567" // Optional: only Calls from this number (exact match)
+};
+
+calls
+  .listCalls(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+
+<a name="Numbers"></a>
+
+## Numbers
+Fonoster Numbers, part of the Fonoster SIP Proxy subsystem,
+allows you to create, update, retrieve, and delete SIP Number for your deployment.
+Note that an active Fonoster deployment is required.
+
+**Kind**: global class  
+**See**
+
+- AbstractClient
+- FonosterClient
+
+
+* [Numbers](#Numbers)
+    * [new Numbers(client)](#new_Numbers_new)
+    * [.createNumber(request)](#Numbers+createNumber) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+    * [.getNumber(ref)](#Numbers+getNumber) ⇒ <code>Promise.&lt;Acl&gt;</code>
+    * [.updateNumber(request)](#Numbers+updateNumber) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+    * [.listNumbers(request)](#Numbers+listNumbers) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
+    * [.deleteNumber(ref)](#Numbers+deleteNumber) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+    * [.linkTwilio(request)](#Numbers+linkTwilio) ⇒ <code>Promise.&lt;LinkTwilioResponse&gt;</code>
+    * [.linkWhatsApp(request)](#Numbers+linkWhatsApp) ⇒ <code>Promise.&lt;LinkWhatsAppResponse&gt;</code>
+
+<a name="new_Numbers_new"></a>
+
+### new Numbers(client)
+Constructs a new Numbers object.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| client | <code>FonosterClient</code> | Client object with underlying implementations to make requests to Fonoster's API |
+
+**Example**  
+```js
+const SDK = require("@fonoster/sdk");
+
+async function main(request) {
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
+
+  try {
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
+
+    const numbers = new SDK.Numbers(client);
+    const response = await numbers.createNumber(request);
+
+    console.log(response); // successful response
+  } catch (e) {
+    console.error(e); // an error occurred
+  }
+}
+
+const request = {
+  name: "My Number",
+  telUrl: "tel:+17853178070",
+  city: "Asheville",
+  country: "United States",
+  countryIsoCode: "US"
+};
+
+main(request);
+```
+<a name="Numbers+createNumber"></a>
+
+### numbers.createNumber(request) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+Creates a new Number in the Workspace.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the created Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>CreateNumberRequest</code> | The request object that contains the necessary information to create a new Number |
+| request.name | <code>string</code> | The name of the Number |
+| request.telUrl | <code>string</code> | The telUrl of the Number |
+| request.city | <code>string</code> | The city of the Number |
+| request.country | <code>string</code> | The country of the Number |
+| request.countryIsoCode | <code>string</code> | The countryIsoCode of the Number |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  name: "My Number",
+  telUrl: "tel:+17853178070",
+  city: "Asheville",
+  country: "United States",
+  countryIsoCode: "US"
+};
+
+numbers
+  .createNumber(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+getNumber"></a>
+
+### numbers.getNumber(ref) ⇒ <code>Promise.&lt;Acl&gt;</code>
+Retrieves an existing Number in the Workspace.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;Acl&gt;</code> - - The response object that contains the Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ref | <code>string</code> | The reference of the Number to retrieve |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const ref = "00000000-0000-0000-0000-000000000000";
+
+numbers
+  .getNumber(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+updateNumber"></a>
+
+### numbers.updateNumber(request) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+Updates an existing Number in the Workspace.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the updated Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>UpdateNumberRequest</code> | The request object that contains the necessary information to update an existing Number |
+| request.ref | <code>string</code> | The reference of the Number to update |
+| request.name | <code>string</code> | The name of the Number |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  ref: "00000000-0000-0000-0000-000000000000",
+  name: "My Number"
+};
+
+numbers
+  .updateNumber(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+listNumbers"></a>
+
+### numbers.listNumbers(request) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
+Retrieves a list of Numbers from a Workspace.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;ListNumbersResponse&gt;</code> - - The response object that contains the list of Numbers  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>ListNumbersRequest</code> | The request object that contains the necessary information to retrieve a list of Numbers |
+| request.pageSize | <code>number</code> | The number of Numbers to retrieve |
+| request.pageToken | <code>string</code> | The token to retrieve the next page of Numbers |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+numbers
+  .listNumbers(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+deleteNumber"></a>
+
+### numbers.deleteNumber(ref) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+Deletes an existing Number from Fonoster.
+Note that this operation is irreversible.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the deleted Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ref | <code>string</code> | The reference of the Number to delete |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const ref = "00000000-0000-0000-0000-000000000000";
+
+numbers
+  .deleteNumber(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+linkTwilio"></a>
+
+### numbers.linkTwilio(request) ⇒ <code>Promise.&lt;LinkTwilioResponse&gt;</code>
+Links a number from your Twilio account to the Workspace, so it rings an Application or
+a SIP agent. It provisions the number's Twilio trunk, creates or updates the Fonoster
+Number and its "Twilio Trunk", and moves the number to that trunk in Twilio. Calling it
+again with the same number converges instead of duplicating. The Twilio credentials are
+used for this request and not stored.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;LinkTwilioResponse&gt;</code> - - The response object that contains the reference to the Number and to its Trunk  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>LinkTwilioRequest</code> | The request object that contains the necessary information to link a Twilio number |
+| request.phoneNumber | <code>string</code> | The number in E.164; it must be in the Twilio account |
+| request.name | <code>string</code> | The name of the Number (optional; defaults to the phoneNumber) |
+| request.appRef | <code>string</code> | The Application that answers the number (or agentAor) |
+| request.agentAor | <code>string</code> | The SIP agent that answers the number (or appRef) |
+| request.credentials | <code>TwilioCredentials</code> | The Twilio Account SID with a Standard API key (apiKeySid and apiKeySecret) or the Auth Token (authToken) |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  phoneNumber: "+18095550123",
+  name: "Front desk",
+  appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00",
+  credentials: {
+    accountSid: "AC0123456789abcdef0123456789abcdef",
+    apiKeySid: "SK0123456789abcdef0123456789abcdef",
+    apiKeySecret: process.env.TWILIO_API_KEY_SECRET
+  }
+};
+
+numbers
+  .linkTwilio(request)
+  .then(console.log) // successful response: { ref, trunkRef }
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+linkWhatsApp"></a>
+
+### numbers.linkWhatsApp(request) ⇒ <code>Promise.&lt;LinkWhatsAppResponse&gt;</code>
+Links a WhatsApp Business number so it rings an Application or a SIP agent. Fonoster creates
+(or updates in place) the number's credential, its TLS trunk to Meta and the Number. With a
+Meta access token and the number's phone number id, Fonoster also turns on SIP calling in
+Meta, points it at this install with SDES and keeps the SIP password Meta issues; the token
+is used for those calls and never stored. Without a token, Fonoster calls no Meta API: the
+response carries the SIP server to register in WhatsApp Manager, and the Meta-issued
+password is passed in as `sipPassword`, now or on a later call.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;LinkWhatsAppResponse&gt;</code> - - The response object with the Number's reference, its trunk's reference, the number and Meta's verified name, the SIP server hostname and port, whether the SIP password is set, and whether Meta was configured by this call  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>LinkWhatsAppRequest</code> | The request object that contains the necessary information to link a WhatsApp number |
+| request.phoneNumberId | <code>string</code> | Meta's id of the phone number (with accessToken) |
+| request.accessToken | <code>string</code> | A Meta System User token with whatsapp_business_management (used once, never stored) |
+| request.phoneNumber | <code>string</code> | The WhatsApp Business number in E.164 (required without an accessToken) |
+| request.sipPassword | <code>string</code> | The SIP password Meta issued for the number (optional, without an accessToken; without it the link keeps the current password or sets a placeholder) |
+| request.name | <code>string</code> | The name of the Number (optional; defaults to Meta's verified name, or the phone number) |
+| request.appRef | <code>string</code> | The Application that answers the number (or agentAor) |
+| request.agentAor | <code>string</code> | The SIP agent that answers the number (or appRef) |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  phoneNumberId: "106612345678901",
+  accessToken: process.env.META_ACCESS_TOKEN,
+  appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00"
+};
+
+numbers
+  .linkWhatsApp(request)
+  .then(console.log) // successful response: { ref, trunkRef, phoneNumber, verifiedName, sipServerHostname, sipServerPort, sipPasswordSet, metaConfigured }
+  .catch(console.error); // an error occurred
+```
+

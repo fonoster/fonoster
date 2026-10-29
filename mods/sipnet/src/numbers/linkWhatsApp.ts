@@ -18,9 +18,11 @@
  */
 import net from "node:net";
 import {
+  enableWhatsAppSipCalling,
   getAccessKeyIdFromCall,
   GrpcError,
   GrpcErrorMessage,
+  inspectWhatsAppNumber,
   NumberPreconditionsCheck,
   Validators as V,
   withErrorHandlingAndValidation
@@ -47,12 +49,16 @@ import {
 } from "./convertToRoutrNumber";
 import { NumberRouting } from "./engineRouting";
 import { findAny, findOwned, generatePassword } from "./linkShared";
+import { whatsAppLinkErrorToGrpc } from "./whatsAppLinkErrorToGrpc";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 /** Meta's SIP edge for WhatsApp Business Calling. */
 const META_SIP_HOST = "wa.meta.vc";
 const META_SIP_PORT = 5061;
+
+/** Routr's media relay negotiates SRTP with SDES toward trunks over TLS (routr-rtprelay.yaml). */
+const SRTP_KEY_EXCHANGE = "SDES";
 
 /** A public SIP endpoint of the install, as `regions.public[].endpoints.sip` declares it. */
 type SipEndpoint = { host: string; port: number; transport: string };
@@ -67,6 +73,11 @@ type RoutrTrunkFields = Pick<
   "normalizeToE164" | "rewriteFromWithNumber" | "fromDomain"
 >;
 
+type WhatsAppLink = {
+  inspectWhatsAppNumber: typeof inspectWhatsAppNumber;
+  enableWhatsAppSipCalling: typeof enableWhatsAppSipCalling;
+};
+
 type LinkWhatsAppDeps = {
   numbers: NumbersApi;
   trunks: TrunkApi;
@@ -78,6 +89,7 @@ type LinkWhatsAppDeps = {
   pstnRoot: string;
   /** The install's public SIP endpoints; the TLS one is what the org registers in Meta. */
   sipEndpoints: SipEndpoint[];
+  whatsapp?: WhatsAppLink;
 };
 
 const isTlsHostname = (endpoint: SipEndpoint) =>
@@ -86,8 +98,11 @@ const isTlsHostname = (endpoint: SipEndpoint) =>
 /**
  * Links a WhatsApp Business number: one credential, one TLS trunk to Meta and the Number, all per
  * number, since Meta issues one SIP password per number and a Routr trunk holds one outbound
- * credential. Fonoster calls no Meta API: the response carries the hostname the org registers in
- * WhatsApp Manager, and the Meta-issued password arrives as `sipPassword`, now or on a later call.
+ * credential. With an access token, Fonoster reads the number from Meta, turns on SIP calling
+ * pointed at this install with SDES and keeps the password Meta issues; the token is used for
+ * those calls only. Without one, Fonoster calls no Meta API: the response carries the hostname
+ * the org registers in WhatsApp Manager, and the Meta-issued password arrives as `sipPassword`,
+ * now or on a later call.
  */
 function linkWhatsApp(deps: LinkWhatsAppDeps) {
   const {
@@ -98,7 +113,8 @@ function linkWhatsApp(deps: LinkWhatsAppDeps) {
     routing,
     checkRefs,
     pstnRoot,
-    sipEndpoints
+    sipEndpoints,
+    whatsapp = { inspectWhatsAppNumber, enableWhatsAppSipCalling }
   } = deps;
 
   const fn = async (
@@ -109,18 +125,26 @@ function linkWhatsApp(deps: LinkWhatsAppDeps) {
     ) => void
   ) => {
     const { request } = call;
-    const { phoneNumber, appRef, agentAor, sipPassword } = request;
+    const { appRef, agentAor } = request;
+    const meta =
+      request.accessToken && request.phoneNumberId
+        ? {
+            credentials: { accessToken: request.accessToken },
+            phoneNumberId: request.phoneNumberId.trim()
+          }
+        : undefined;
 
     const accessKeyId = getAccessKeyIdFromCall(
       call as unknown as ServerInterceptingCall
     );
     const label = accessKeyId.toLowerCase();
-    const digits = phoneNumber.replace(/^\+/, "");
-    const inboundUri = `wa-${label}-${digits}.${pstnRoot}`;
-    const telUrl = `tel:${phoneNumber}`;
 
-    // Never the request itself: it may carry the SIP password.
-    logger.verbose("call to linkWhatsApp", { phoneNumber, label });
+    // Never the request itself: it may carry the SIP password or the access token.
+    logger.verbose("call to linkWhatsApp", {
+      phoneNumber: request.phoneNumber,
+      phoneNumberId: meta?.phoneNumberId,
+      label
+    });
 
     try {
       // Validates that the appRef exists in the caller's workspace (RV-B4)
@@ -145,8 +169,33 @@ function linkWhatsApp(deps: LinkWhatsAppDeps) {
       return;
     }
 
+    // With a token, Meta's record of the number is the number: it's what Meta will send.
+    let phoneNumber = request.phoneNumber as string;
+    let verifiedName = "";
+    if (meta) {
+      try {
+        const info = await whatsapp.inspectWhatsAppNumber(meta.credentials, {
+          phoneNumberId: meta.phoneNumberId
+        });
+        phoneNumber = info.phoneNumber;
+        verifiedName = info.verifiedName ?? "";
+      } catch (e) {
+        callback(
+          whatsAppLinkErrorToGrpc(e, {
+            phoneNumberId: meta.phoneNumberId,
+            hostname: ""
+          })
+        );
+        return;
+      }
+    }
+
+    const digits = phoneNumber.replace(/^\+/, "");
+    const inboundUri = `wa-${label}-${digits}.${pstnRoot}`;
+    const telUrl = `tel:${phoneNumber}`;
+
     // Routr lists every workspace's items: a host or number another workspace owns stops the link
-    // before any write (Routr's inbound_uri and tel_url are unique).
+    // before any write, in Meta or Routr (Routr's inbound_uri and tel_url are unique).
     const foreignTrunk = await findAny(
       (r) => trunks.listTrunks(r),
       (t) => t.inboundUri === inboundUri
@@ -168,6 +217,30 @@ function linkWhatsApp(deps: LinkWhatsAppDeps) {
         message: `${phoneNumber} is already linked in another workspace`
       });
       return;
+    }
+
+    // Meta first: if it refuses, nothing in Routr has changed. A trunk pointed at by Meta that
+    // Routr then fails to create is fixed by linking again.
+    let sipPassword = request.sipPassword;
+    if (meta) {
+      try {
+        ({ sipPassword } = await whatsapp.enableWhatsAppSipCalling(
+          meta.credentials,
+          {
+            phoneNumberId: meta.phoneNumberId,
+            sipServer: { hostname: inboundUri, port: tlsEndpoint.port },
+            srtpKeyExchange: SRTP_KEY_EXCHANGE
+          }
+        ));
+      } catch (e) {
+        callback(
+          whatsAppLinkErrorToGrpc(e, {
+            phoneNumberId: meta.phoneNumberId,
+            hostname: inboundUri
+          })
+        );
+        return;
+      }
     }
 
     const trunk = foreignTrunk;
@@ -280,7 +353,7 @@ function linkWhatsApp(deps: LinkWhatsAppDeps) {
       ({ ref } = await numbers.createNumber(
         convertToRoutrNumber(
           {
-            name: request.name || phoneNumber,
+            name: request.name || verifiedName || phoneNumber,
             telUrl,
             city: "unknown",
             country: countryIso3,
@@ -298,7 +371,8 @@ function linkWhatsApp(deps: LinkWhatsAppDeps) {
     logger.verbose("linked the WhatsApp number", {
       phoneNumber,
       label,
-      sipPasswordSet
+      sipPasswordSet,
+      metaConfigured: Boolean(meta)
     });
 
     callback(null, {
@@ -306,11 +380,14 @@ function linkWhatsApp(deps: LinkWhatsAppDeps) {
       trunkRef,
       sipServerHostname: inboundUri,
       sipServerPort: tlsEndpoint.port,
-      sipPasswordSet
+      sipPasswordSet,
+      phoneNumber,
+      verifiedName,
+      metaConfigured: Boolean(meta)
     });
   };
 
   return withErrorHandlingAndValidation(fn, V.linkWhatsAppRequestSchema);
 }
 
-export { linkWhatsApp, LinkWhatsAppDeps, SipEndpoint };
+export { linkWhatsApp, LinkWhatsAppDeps, SipEndpoint, WhatsAppLink };
