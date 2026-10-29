@@ -23,19 +23,18 @@ import type { ComponentProps } from "react";
 import { cn } from "~/lib/utils";
 
 export const buttonVariants = cva(
-  "inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-control font-mono text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
+  "inline-flex shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-control border border-transparent bg-clip-padding font-mono text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-5",
   {
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        outline:
-          "border border-border bg-background text-foreground hover:bg-accent",
-        ghost: "text-foreground hover:bg-accent",
+        outline: "border-border bg-background text-foreground hover:bg-accent",
+        ghost: "text-foreground hover:border-border hover:bg-accent",
         destructive:
           "bg-destructive text-white hover:bg-destructive/90 dark:text-background",
-        link: "h-auto px-0 text-brand-text underline-offset-4 hover:underline"
+        link: "h-auto border-0 px-0 text-brand-text underline-offset-4 hover:underline"
       },
       size: {
         default: "h-10 px-4 py-2.5",
