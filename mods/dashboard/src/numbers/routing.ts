@@ -36,7 +36,8 @@ export const ROUTE_KINDS: { value: RouteKind; label: string; noun: string }[] =
 
 /** The carriers a number can be linked from; each opens its own drawer. */
 export const LINK_FLOWS = [
-  { value: "twilio", label: "Twilio number" }
+  { value: "twilio", label: "Twilio number" },
+  { value: "whatsapp", label: "WhatsApp number" }
 ] as const;
 
 export type LinkFlow = (typeof LINK_FLOWS)[number]["value"];

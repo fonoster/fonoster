@@ -38,6 +38,7 @@ import {
   DropdownMenuTrigger
 } from "~/components/ui/dropdown-menu";
 import { LinkTwilioDrawer } from "./link-twilio-drawer";
+import { LinkWhatsAppDrawer } from "./link-whatsapp-drawer";
 import { useApplicationOptions, useSipAgentOptions } from "./lookups";
 import { NumberDrawer } from "./number-drawer";
 import { useDeleteNumber, useNumbers } from "./numbers.service";
@@ -194,6 +195,11 @@ export default function NumbersScreen() {
       />
       <LinkTwilioDrawer
         open={linking === "twilio"}
+        onOpenChange={(open) => !open && setLinking(undefined)}
+        returnFocusTo={linkTrigger}
+      />
+      <LinkWhatsAppDrawer
+        open={linking === "whatsapp"}
         onOpenChange={(open) => !open && setLinking(undefined)}
         returnFocusTo={linkTrigger}
       />
