@@ -204,7 +204,18 @@ export function fakeSdk(
       createNumber: ok({ ref: "n-new" }),
       updateNumber: ok({ ref: "n1" }),
       deleteNumber: ok({ ref: "n1" }),
-      linkTwilio: ok({ ref: "n-linked", trunkRef: "tk-twilio" })
+      linkTwilio: ok({ ref: "n-linked", trunkRef: "tk-twilio" }),
+      linkWhatsApp: ok({
+        ref: "n-linked",
+        trunkRef: "tk-whatsapp",
+        sipServerHostname:
+          "wa-wo7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3-525512345678.pstn.fonoster.ai",
+        sipServerPort: 5061,
+        sipPasswordSet: true,
+        phoneNumber: "+525512345678",
+        verifiedName: "Acme Dental",
+        metaConfigured: true
+      })
     },
     trunks: {
       listTrunks: page(trunkList),

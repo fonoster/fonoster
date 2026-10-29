@@ -20,9 +20,10 @@ import type {
   CreateNumberRequest,
   INumber,
   LinkTwilioRequest,
+  LinkWhatsAppRequest,
   UpdateNumberRequest
 } from "@fonoster/types";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useSdk } from "~/lib/auth";
 import {
   useResourceKey,
@@ -87,5 +88,27 @@ export function useLinkTwilio() {
     const response = await sdk.numbers.linkTwilio(request);
     await queryClient.invalidateQueries({ queryKey: trunks });
     return response;
+  });
+}
+
+/**
+ * Links a WhatsApp Business number. Errors stay with the caller's form. The numbers and the
+ * trunks refresh when the call settles, on failure too: the server may have created the
+ * number's WhatsApp trunk before the step that failed.
+ */
+export function useLinkWhatsApp() {
+  const sdk = useSdk();
+  const queryClient = useQueryClient();
+  const numbers = useResourceKey(RESOURCE);
+  const trunks = useResourceKey("trunks");
+  return useMutation({
+    mutationFn: (request: LinkWhatsAppRequest) =>
+      sdk.numbers.linkWhatsApp(request),
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: numbers }),
+        queryClient.invalidateQueries({ queryKey: trunks })
+      ]);
+    }
   });
 }

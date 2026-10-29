@@ -78,6 +78,7 @@
                 "pages": [
                   "telephony/numbers",
                   "telephony/link-twilio",
+                  "telephony/link-whatsapp",
                   "telephony/trunks",
                   "telephony/sip-agents",
                   "telephony/outbound-calls",

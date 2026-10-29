@@ -240,3 +240,235 @@ export const Linked: Story = {
     ).toBeInTheDocument();
   }
 };
+
+const WHATSAPP_ROUTE = {
+  path: "/w/:workspaceRef/numbers",
+  url: "/w/ws-1/numbers?link=whatsapp"
+};
+
+const WHATSAPP_LINKED = {
+  ref: "n-linked",
+  trunkRef: "tk-whatsapp",
+  sipServerHostname:
+    "wa-wo7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3-525512345678.pstn.fonoster.ai",
+  sipServerPort: 5061,
+  sipPasswordSet: true,
+  phoneNumber: "+525512345678",
+  verifiedName: "Acme Dental",
+  metaConfigured: true
+};
+
+/** The Numbers page with `linkWhatsApp` answered by `linkWhatsApp`. */
+const withWhatsAppLink =
+  (linkWhatsApp: () => Promise<unknown>) => (auth: AuthContextValue) => {
+    const sdk = fakeSdk(fn as never);
+    return {
+      status: "signedIn" as const,
+      sdk: {
+        ...auth.sdk,
+        ...sdk,
+        numbers: { ...sdk.numbers, linkWhatsApp: fn(linkWhatsApp) }
+      } as never
+    };
+  };
+
+/** Fills the Link WhatsApp number drawer's token side: a route, the phone number ID and a token. */
+async function fillWhatsAppToken(canvasElement: HTMLElement) {
+  const drawer = within(
+    await within(canvasElement.ownerDocument.body).findByRole("dialog")
+  );
+  await userEvent.click(
+    await drawer.findByRole("radio", { name: /Billing reminders/ })
+  );
+  await userEvent.type(
+    drawer.getByLabelText("Phone number ID"),
+    "106612345678901"
+  );
+  await userEvent.type(drawer.getByLabelText("Access token"), "EAAGtoken");
+  return drawer;
+}
+
+/** Fills the SIP password side: the number, a route and the password. */
+async function fillWhatsAppPassword(
+  canvasElement: HTMLElement,
+  password = "meta-issued-password"
+) {
+  const drawer = within(
+    await within(canvasElement.ownerDocument.body).findByRole("dialog")
+  );
+  await userEvent.click(drawer.getByRole("radio", { name: "SIP password" }));
+  await userEvent.type(drawer.getByLabelText("Number"), "+525512345678");
+  await userEvent.click(
+    await drawer.findByRole("radio", { name: /Billing reminders/ })
+  );
+  if (password)
+    await userEvent.type(drawer.getByLabelText("SIP password"), password);
+  return drawer;
+}
+
+/** "Link number" → "WhatsApp number": the drawer, on the Meta access token side. */
+export const LinkWhatsApp: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await canvas.findByRole("button", { name: "Link number" })
+    );
+    await userEvent.click(
+      await body.findByRole("menuitem", { name: "WhatsApp number" })
+    );
+    await expect(
+      await body.findByRole("dialog", { name: "Link WhatsApp number" })
+    ).toBeInTheDocument();
+  }
+};
+export const LinkWhatsAppLight: Story = {
+  ...LinkWhatsApp,
+  globals: { theme: "light" }
+};
+
+export const LinkWhatsAppFilled: Story = {
+  parameters: { screen: { auth: withNumbers(), route: WHATSAPP_ROUTE } },
+  play: async ({ canvasElement }) => {
+    await fillWhatsAppToken(canvasElement);
+  }
+};
+
+export const LinkWhatsAppSipPassword: Story = {
+  parameters: { screen: { auth: withNumbers(), route: WHATSAPP_ROUTE } },
+  play: async ({ canvasElement }) => {
+    await fillWhatsAppPassword(canvasElement);
+  }
+};
+
+/** Submitted; Meta hasn't answered. */
+export const LinkWhatsAppPending: Story = {
+  parameters: {
+    screen: {
+      auth: withWhatsAppLink(() => new Promise(() => {})),
+      route: WHATSAPP_ROUTE
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const drawer = await fillWhatsAppToken(canvasElement);
+    await userEvent.click(drawer.getByRole("button", { name: "Link number" }));
+    await expect(
+      await drawer.findByRole("button", { name: "Linking…" })
+    ).toBeDisabled();
+  }
+};
+
+/** Meta refused the token: the error sits on the Access token field. */
+export const LinkWhatsAppFieldError: Story = {
+  parameters: {
+    screen: {
+      auth: withWhatsAppLink(() =>
+        Promise.reject(
+          Object.assign(new Error("Meta didn't accept this access token"), {
+            code: 9
+          })
+        )
+      ),
+      route: WHATSAPP_ROUTE
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const drawer = await fillWhatsAppToken(canvasElement);
+    await userEvent.click(drawer.getByRole("button", { name: "Link number" }));
+    await expect(
+      await drawer.findByText("Meta didn't accept this access token")
+    ).toBeInTheDocument();
+  }
+};
+
+/** The install can't take WhatsApp calls: a form alert. */
+export const LinkWhatsAppFormAlert: Story = {
+  parameters: {
+    screen: {
+      auth: withWhatsAppLink(() =>
+        Promise.reject(
+          Object.assign(
+            new Error(
+              "This install has no public SIP over TLS address for WhatsApp to send calls to"
+            ),
+            { code: 9 }
+          )
+        )
+      ),
+      route: WHATSAPP_ROUTE
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const drawer = await fillWhatsAppToken(canvasElement);
+    await userEvent.click(drawer.getByRole("button", { name: "Link number" }));
+    await expect(await drawer.findByRole("alert")).toBeInTheDocument();
+  }
+};
+
+/** Linked with a token: Meta is configured, nothing left to do. */
+export const LinkWhatsAppDone: Story = {
+  parameters: {
+    screen: {
+      auth: withWhatsAppLink(() => Promise.resolve(WHATSAPP_LINKED)),
+      route: WHATSAPP_ROUTE
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const drawer = await fillWhatsAppToken(canvasElement);
+    await userEvent.click(drawer.getByRole("button", { name: "Link number" }));
+    await expect(
+      await drawer.findByText(/is linked to Billing reminders/)
+    ).toBeInTheDocument();
+  }
+};
+export const LinkWhatsAppDoneLight: Story = {
+  ...LinkWhatsAppDone,
+  globals: { theme: "light" }
+};
+
+/** Linked with the SIP password: the SIP server to register, the password set. */
+export const LinkWhatsAppDoneSipPassword: Story = {
+  parameters: {
+    screen: {
+      auth: withWhatsAppLink(() =>
+        Promise.resolve({
+          ...WHATSAPP_LINKED,
+          verifiedName: "",
+          metaConfigured: false
+        })
+      ),
+      route: WHATSAPP_ROUTE
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const drawer = await fillWhatsAppPassword(canvasElement);
+    await userEvent.click(drawer.getByRole("button", { name: "Link number" }));
+    await expect(
+      await drawer.findByText("SIP password: set")
+    ).toBeInTheDocument();
+  }
+};
+
+/** Linked without a password yet: the SIP server to register and what's left. */
+export const LinkWhatsAppDoneNoPassword: Story = {
+  parameters: {
+    screen: {
+      auth: withWhatsAppLink(() =>
+        Promise.resolve({
+          ...WHATSAPP_LINKED,
+          sipPasswordSet: false,
+          verifiedName: "",
+          metaConfigured: false
+        })
+      ),
+      route: WHATSAPP_ROUTE
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const drawer = await fillWhatsAppPassword(canvasElement, "");
+    await userEvent.click(drawer.getByRole("button", { name: "Link number" }));
+    await expect(
+      await drawer.findByText(/SIP password: not set yet/)
+    ).toBeInTheDocument();
+  }
+};
