@@ -81,12 +81,18 @@ function makeRoot(): string {
   const root = mkdtempSync(join(tmpdir(), "fonoster-devcontainer-"));
   mkdirSync(join(root, ".devcontainer"));
   for (const entry of ["initialize.sh", "config", "compose.yaml"]) {
-    cpSync(join(REPO, ".devcontainer", entry), join(root, ".devcontainer", entry), {
-      recursive: true
-    });
+    cpSync(
+      join(REPO, ".devcontainer", entry),
+      join(root, ".devcontainer", entry),
+      {
+        recursive: true
+      }
+    );
   }
   mkdirSync(join(root, "ops"));
-  cpSync(join(REPO, "ops/bundle"), join(root, "ops/bundle"), { recursive: true });
+  cpSync(join(REPO, "ops/bundle"), join(root, "ops/bundle"), {
+    recursive: true
+  });
   mkdirSync(join(root, "mods/common"), { recursive: true });
   symlinkSync(join(REPO, "mods/common/src"), join(root, "mods/common/src"));
   symlinkSync(join(REPO, "node_modules"), join(root, "node_modules"));
@@ -165,18 +171,26 @@ describe("@common[config/devContainer]", function () {
     ]) {
       expect(existsSync(config(root, file)), file).to.equal(true);
     }
-    expect(readFileSync(config(root, "routr-edgeport.yaml"), "utf8")).to.not.include(
-      "SSLv3"
-    );
+    expect(
+      readFileSync(config(root, "routr-edgeport.yaml"), "utf8")
+    ).to.not.include("SSLv3");
     expect(hintLines(run.lines)).to.deep.equal([
-      changedLine(["routr-edgeport.yaml", "routr-one.yaml", "routr-rtprelay.yaml"]),
+      changedLine([
+        "routr-edgeport.yaml",
+        "routr-one.yaml",
+        "routr-rtprelay.yaml"
+      ]),
       HINT_COMMAND
     ]);
     const lastRendered = run.lines.findIndex((l) =>
       l.startsWith("[dev-config] rendered ")
     );
     expect(run.lines[lastRendered + 1]).to.equal(
-      changedLine(["routr-edgeport.yaml", "routr-one.yaml", "routr-rtprelay.yaml"])
+      changedLine([
+        "routr-edgeport.yaml",
+        "routr-one.yaml",
+        "routr-rtprelay.yaml"
+      ])
     );
     expect(secrets(root)).to.deep.equal(before);
   });
@@ -214,7 +228,9 @@ describe("@common[config/devContainer]", function () {
 
   it("renders the dev EdgePort with SIP over TLS on 5061, the image's keystore password and no truststore", function () {
     // Arrange
-    const sipPort = Number(readEnvFile(join(base, ".dev/.env")).get("SIP_PORT"));
+    const sipPort = Number(
+      readEnvFile(join(base, ".dev/.env")).get("SIP_PORT")
+    );
 
     // Act
     const text = readFileSync(config(base, "routr-edgeport.yaml"), "utf8");
@@ -292,5 +308,34 @@ describe("@common[config/devContainer]", function () {
     expect(mode(key)).to.equal(0o644);
     expect(readFileSync(key, "base64")).to.equal(bytes);
     expect(mode(config(root, "tls/ca-key.pem"))).to.equal(0o600);
+  });
+
+  it("makes a kept .dev's 0600 server key readable by Routr's user when the container reopens", function () {
+    // Arrange: host mode keeps a current .dev and skips init; docker is stubbed (the image build)
+    const root = copyOfBase();
+    const key = config(root, "tls/server-key.pem");
+    const bytes = readFileSync(key, "base64");
+    chmodSync(key, 0o600);
+    const bin = mkdtempSync(join(tmpdir(), "fonoster-docker-stub-"));
+    writeFileSync(join(bin, "docker"), "#!/bin/sh\nexit 0\n", { mode: 0o755 });
+
+    // Act
+    const run = spawnSync("sh", [".devcontainer/initialize.sh"], {
+      cwd: root,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        PATH: `${bin}:${process.env.PATH}`,
+        FONOSTER_DEV_HOST_IP: HOST_IP
+      }
+    });
+
+    // Assert
+    expect(run.status, run.stderr).to.equal(0);
+    expect(run.stderr).to.include("keeping");
+    expect(mode(key)).to.equal(0o644);
+    expect(readFileSync(key, "base64")).to.equal(bytes);
+    expect(mode(config(root, "tls/ca-key.pem"))).to.equal(0o600);
+    rmSync(bin, { recursive: true, force: true });
   });
 });

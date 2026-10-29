@@ -103,6 +103,10 @@ if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ] && [ -f "$DEV/config/tls/server.pe
   detected="${FONOSTER_DEV_HOST_IP:-$(detect_host_ip)}"
   [ -z "$detected" ] || printf '%s\n' "$detected" > "$DEV/host-ip.detected"
   warn_stale_host_ip
+  # A .dev made before #1200 holds its generated server key 0600, which Routr's user (uid 5000)
+  # can't read on Linux or in a Codespace; init writes it 0644, and a kept .dev gets the same mode
+  # here. The file is always the generated key: an own certificate lives where TLS_KEY points.
+  [ ! -f "$DEV/config/tls/server-key.pem" ] || chmod 0644 "$DEV/config/tls/server-key.pem"
   log "keeping $DEV (npm run dev:config renders it again)"
   exit 0
 fi
