@@ -11,13 +11,15 @@ spec:
     addr: localhost:51901
   securityContext:
     client:
-      protocols: [SSLv3, TLSv1.2]
-      authType: DisabledAll
+      protocols: [TLSv1.3, TLSv1.2]
+      # Disabled = no client certificate is requested; the carrier's certificate chain is still
+      # validated against the JVM's public CAs. Never DisabledAll: it trusts any certificate.
+      authType: Disabled
     keyStorePassword: changeme
-    trustStorePassword: changeme
     keyStore: "/etc/routr/certs/signaling.p12"
-    trustStore: "/etc/routr/certs/signaling.p12"
     keyStoreType: pkcs12
+    # No truststore: EdgePort uses the JVM's cacerts (public CAs). A carrier with a private CA
+    # needs a truststore (trustStore, trustStorePassword) holding that CA.
   methods: [REGISTER, MESSAGE, INVITE, ACK, BYE, CANCEL]
   transport:
     - protocol: tcp

@@ -65,8 +65,9 @@ migrate_public_url() {
 }
 
 # An existing .dev/ is kept, unless it predates HTTPS by default (no certificate in
-# .dev/config/tls/): then init runs again below, which keeps every secret.
-if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ] && [ -f "$DEV/config/tls/server.pem" ]; then
+# .dev/config/tls/) or the rtprelay profiles (no .dev/config/routr-rtprelay.yaml, which the routr
+# service mounts): then init runs again below, which keeps every secret.
+if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ] && [ -f "$DEV/config/tls/server.pem" ] && [ -f "$DEV/config/routr-rtprelay.yaml" ]; then
   detected="${FONOSTER_DEV_HOST_IP:-$(detect_host_ip)}"
   [ -z "$detected" ] || printf '%s\n' "$detected" > "$DEV/host-ip.detected"
   warn_stale_host_ip

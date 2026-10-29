@@ -96,10 +96,14 @@ dig +short acme.pstn.example.com acme.sip.example.com
 Carriers and phones need these ports open in any firewall in front of this machine, such as your
 cloud provider's:
 
-| Port            | Protocol | For              |
-| --------------- | -------- | ---------------- |
-| `5060`          | UDP, TCP | SIP              |
-| `10000`–`11999` | UDP      | Call audio (RTP) |
+| Port            | Protocol | For                                               |
+| --------------- | -------- | ------------------------------------------------- |
+| `5060`          | UDP, TCP | SIP                                               |
+| `5061`          | TCP      | SIP over TLS (carriers that require it, WhatsApp) |
+| `10000`–`11999` | UDP      | Call audio (RTP)                                  |
+
+Port `5061` is off by default; [SIP over TLS](/self-hosting/https#sip-over-tls) turns it on.
+Trunks reached over TLS negotiate SRTP with `AES_CM_128_HMAC_SHA1_80`, the one suite Routr offers.
 
 With `ufw` on the machine itself:
 

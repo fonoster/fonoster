@@ -24,5 +24,7 @@ spec:
       publicKeyPath: /etc/routr/keys/public.pem
   rtprelay:
     host: rtpengine
+    # RTPEngine profile overrides; compose.yaml mounts config/routr-rtprelay.yaml there.
+    configPath: /etc/routr/rtprelay.yaml
   logs:
     level: ${ROUTR_LOGS_LEVEL:-info}

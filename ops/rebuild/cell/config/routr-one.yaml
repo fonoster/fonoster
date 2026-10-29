@@ -15,3 +15,5 @@ spec:
         url: nats://routr:${NATS_ROUTR_PASSWORD}@nats:4222
   rtprelay:
     host: ${RB_RTPENGINE_HOST:-rtpengine}
+    # RTPEngine profile overrides; compose.yaml mounts ../config/routr-rtprelay.yaml there.
+    configPath: /etc/routr/rtprelay.yaml

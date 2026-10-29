@@ -184,23 +184,66 @@ the other recreates it after.
 ## SIP over TLS
 
 <Accordion title="Accept SIP over TLS on port 5061">
-  SIP stays on UDP and TCP `5060`. To also accept SIP over TLS on `5061`, convert your certificate
-  into a PKCS#12 keystore for Routr:
+  SIP stays on UDP and TCP `5060`. To also accept SIP over TLS on `5061`, for carriers that require
+  it (WhatsApp does), you need a certificate that covers the names carriers connect to, a keystore
+  made from it, and a DNS name in Routr's `externalAddrs`.
 
-```bash
-mkdir -p config/tls
-openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem \
-  -out config/tls/signaling.p12 -passout pass:<password>
-```
+  <Steps>
+    <Step title="Get a certificate that covers the SIP names">
+      Carriers reach your trunks at `<label>.pstn.<domain>` (one name per trunk; a linked WhatsApp
+      number gets its own), and they open a second connection to the name Routr writes in
+      `Record-Route` for mid-call requests such as the carrier's hangup. The certificate's names
+      must cover both: the wildcard `*.pstn.<domain>` and one fixed name under it, such as
+      `sip.pstn.<domain>`. Your HTTPS certificate covers only `app.` and `api.`, so request one
+      more. Let's Encrypt issues wildcards only through the DNS challenge, so use your DNS
+      provider's certbot plugin (see [Other ways](#other-ways)) instead of `--standalone`:
 
-Then uncomment the `routr` lines in `compose.tls.yaml`, add it to `COMPOSE_FILE`
-(`COMPOSE_FILE=compose.yaml:compose.tls.yaml`), uncomment the `tls` transport in
-`config/routr-edgeport.example.yaml`, set its `keyStorePassword` and `trustStorePassword` to
-`<password>`, and run `init` and `docker compose up -d`. Carriers and softphones then use
-`transport=tls` on port `5061`. Call audio isn't encrypted by this.
+      ```bash
+      certbot certonly --dns-<provider> \
+        -d '*.pstn.example.com' -d sip.pstn.example.com
+      ```
 
-The keystore is a copy of the certificate, so rebuild it after each renewal: add the `openssl`
-line and `docker compose up -d --force-recreate routr` to the post hook.
+      Point the `*.pstn.<domain>` and `sip.pstn.<domain>` DNS records at this machine.
+    </Step>
+    <Step title="Build the keystore">
+      Routr reads the certificate as a PKCS#12 keystore:
+
+      ```bash
+      mkdir -p config/tls
+      openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem \
+        -out config/tls/signaling.p12 -passout pass:<password>
+      ```
+
+      The keystore is a copy of the certificate, so rebuild it after each renewal: add the
+      `openssl` line and `docker compose up -d --force-recreate routr` to that certificate's
+      post hook.
+    </Step>
+    <Step title="Name the host carriers call back">
+      Routr writes `externalAddrs` in `Record-Route` toward carriers. Over TLS the carrier verifies
+      that name against your certificate, so it must be the fixed DNS name from step 1, not the IP
+      address `init` fills in. Set it in `config/overrides/routr-one.yaml`:
+
+      ```yaml config/overrides/routr-one.yaml
+      spec:
+        signaling:
+          externalAddrs: ["sip.pstn.example.com"]
+      ```
+    </Step>
+    <Step title="Turn the TLS listener on">
+      Uncomment the `routr` lines in `compose.tls.yaml`, add it to `COMPOSE_FILE`
+      (`COMPOSE_FILE=compose.yaml:compose.tls.yaml`), uncomment the `tls` transport in
+      `config/routr-edgeport.example.yaml`, set its `keyStorePassword` to `<password>`, open
+      `5061/tcp` in your firewall, and run `init` and `docker compose up -d`. Carriers and
+      softphones then use `transport=tls` on port `5061`.
+    </Step>
+
+  </Steps>
+
+Routr validates the carrier's certificate chain against the public CAs the JVM ships, and
+speaks TLS 1.2 and 1.3 only. A carrier with a private CA needs a truststore holding that CA:
+set `securityContext.trustStore` and `trustStorePassword` in
+`config/overrides/routr-edgeport.yaml`. Over a TLS trunk, call audio is encrypted with SRTP
+(`AES_CM_128_HMAC_SHA1_80`, the one suite Routr offers); over `5060` it isn't.
 
 </Accordion>
 

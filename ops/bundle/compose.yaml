@@ -91,6 +91,13 @@ services:
     volumes:
       - ${CONFIG_DIR:-./config}/routr-one.yaml:/etc/routr/one.yaml:ro
       - ${CONFIG_DIR:-./config}/routr-edgeport.yaml:/etc/routr/fonoster/edgeport.yaml:ro
+      # Written by init. create_host_path: false makes `up` fail with a clear message when it is
+      # missing (run init), instead of mounting an empty directory Routr can't read.
+      - type: bind
+        source: ${CONFIG_DIR:-./config}/routr-rtprelay.yaml
+        target: /etc/routr/rtprelay.yaml
+        read_only: true
+        bind: { create_host_path: false }
       - ${CONFIG_DIR:-./config}/keys/public.pem:/etc/routr/keys/public.pem:ro
     ports:
       - "${SIP_PORT:-5060}:${SIP_PORT:-5060}/udp"

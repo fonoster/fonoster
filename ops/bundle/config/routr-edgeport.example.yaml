@@ -12,13 +12,15 @@ spec:
     addr: localhost:51901
   securityContext:
     client:
-      protocols: [SSLv3, TLSv1.2]
-      authType: DisabledAll
+      protocols: [TLSv1.3, TLSv1.2]
+      # Disabled = no client certificate is requested; the carrier's certificate chain is still
+      # validated against the JVM's public CAs. Never DisabledAll: it trusts any certificate.
+      authType: Disabled
     keyStorePassword: changeme
-    trustStorePassword: changeme
     keyStore: "/etc/routr/certs/signaling.p12"
-    trustStore: "/etc/routr/certs/signaling.p12"
     keyStoreType: pkcs12
+    # No truststore: EdgePort uses the JVM's cacerts (public CAs). For a carrier with a private CA,
+    # set a truststore (trustStore, trustStorePassword) in config/overrides/routr-edgeport.yaml.
   methods: [REGISTER, MESSAGE, INVITE, ACK, BYE, CANCEL]
   transport:
     - protocol: tcp
@@ -38,6 +40,6 @@ spec:
       port: 5063
     # SIP over TLS (off by default): uncomment with the routr lines in compose.tls.yaml, which
     # mount your keystore at /etc/routr/certs/signaling.p12 and publish 5061/tcp, and set the
-    # keystore passwords above. Carriers and softphones then use sips: or transport=tls on 5061.
+    # keystore password above. Carriers and softphones then use sips: or transport=tls on 5061.
     # - protocol: tls
     #   port: 5061
