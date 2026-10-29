@@ -33,8 +33,7 @@ import net from "node:net";
 const GRAPH_API_VERSION = "v23.0";
 
 type Permission =
-  | "whatsapp_business_management"
-  | "whatsapp_business_messaging";
+  "whatsapp_business_management" | "whatsapp_business_messaging";
 
 type FakeToken = {
   token: string;

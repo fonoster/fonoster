@@ -70,8 +70,7 @@ function toCallingSettings(calling: CallingNode): WhatsAppCallingSettings {
   return {
     status: calling.status as CallingStatus | undefined,
     srtpKeyExchange: calling.srtp_key_exchange_protocol as
-      | SrtpKeyExchange
-      | undefined,
+      SrtpKeyExchange | undefined,
     sip: { status: calling.sip?.status as CallingStatus | undefined, servers }
   };
 }
