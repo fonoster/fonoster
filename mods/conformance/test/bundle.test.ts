@@ -85,6 +85,20 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
   const compose = parse(
     fs.readFileSync(path.join(BUNDLE, "compose.yaml"), "utf8")
   );
+  // Compose's long volume syntax ({ type, source, target, read_only }) is read as the short
+  // form, so every check below sees one shape.
+  type RawVolume =
+    | string
+    | { source: string; target: string; read_only?: boolean };
+  for (const svc of Object.values(
+    compose.services as Record<string, { volumes?: RawVolume[] }>
+  )) {
+    svc.volumes = svc.volumes?.map((v) =>
+      typeof v === "string"
+        ? v
+        : `${v.source}:${v.target}${v.read_only ? ":ro" : ""}`
+    );
+  }
   const services = compose.services as Record<string, Service>;
 
   it("uses published images only, Fonoster's pinned to FONOSTER_VERSION and Roomr's by digest", function () {
