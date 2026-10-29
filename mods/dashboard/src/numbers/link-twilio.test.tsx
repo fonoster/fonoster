@@ -123,7 +123,7 @@ describe("link a Twilio number", () => {
     expect(link.className).toContain("border-border");
 
     await view.user.click(link);
-    expect(await screen.findAllByRole("menuitem")).toHaveLength(1);
+    expect(await screen.findAllByRole("menuitem")).toHaveLength(2);
     await view.user.click(
       screen.getByRole("menuitem", { name: "Twilio number" })
     );
