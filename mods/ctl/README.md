@@ -25,7 +25,7 @@ $ npm install -g @fonoster/ctl
 $ fonoster COMMAND
 running command...
 $ fonoster (--version)
-@fonoster/ctl/0.36.0 darwin-arm64 node-v22.23.3
+@fonoster/ctl/0.38.2 darwin-arm64 node-v22.23.3
 $ fonoster --help [COMMAND]
 USAGE
   $ fonoster COMMAND
@@ -88,6 +88,7 @@ USAGE
 * [`fonoster sipnet:numbers:get REF`](#fonoster-sipnetnumbersget-ref)
 * [`fonoster sipnet:numbers:linkTwilio PHONENUMBER`](#fonoster-sipnetnumberslinktwilio-phonenumber)
 * [`fonoster sipnet:numbers:linkTwilioNumber PHONENUMBER`](#fonoster-sipnetnumberslinktwilionumber-phonenumber)
+* [`fonoster sipnet:numbers:linkWhatsApp [PHONENUMBER]`](#fonoster-sipnetnumberslinkwhatsapp-phonenumber)
 * [`fonoster sipnet:numbers:list`](#fonoster-sipnetnumberslist)
 * [`fonoster sipnet:numbers:update REF`](#fonoster-sipnetnumbersupdate-ref)
 * [`fonoster sipnet:trunks:create`](#fonoster-sipnettrunkscreate)
@@ -130,7 +131,7 @@ EXAMPLES
   $ fonoster apikeys:create
 ```
 
-_See code: [dist/commands/apikeys/create.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/apikeys/create.js)_
+_See code: [dist/commands/apikeys/create.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/apikeys/create.js)_
 
 ## `fonoster apikeys:delete REF`
 
@@ -154,7 +155,7 @@ EXAMPLES
   $ fonoster apikeys:delete
 ```
 
-_See code: [dist/commands/apikeys/delete.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/apikeys/delete.js)_
+_See code: [dist/commands/apikeys/delete.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/apikeys/delete.js)_
 
 ## `fonoster apikeys:list`
 
@@ -176,7 +177,7 @@ EXAMPLES
   $ fonoster apikeys:list
 ```
 
-_See code: [dist/commands/apikeys/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/apikeys/list.js)_
+_See code: [dist/commands/apikeys/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/apikeys/list.js)_
 
 ## `fonoster apikeys:regenerate REF`
 
@@ -200,7 +201,7 @@ EXAMPLES
   $ fonoster apikeys:regenerate
 ```
 
-_See code: [dist/commands/apikeys/regenerate.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/apikeys/regenerate.js)_
+_See code: [dist/commands/apikeys/regenerate.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/apikeys/regenerate.js)_
 
 ## `fonoster applications:create`
 
@@ -262,7 +263,7 @@ EXAMPLES
   $ fonoster applications:create   # asks for the basics
 ```
 
-_See code: [dist/commands/applications/create.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/applications/create.js)_
+_See code: [dist/commands/applications/create.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/applications/create.js)_
 
 ## `fonoster applications:delete REF`
 
@@ -286,7 +287,7 @@ EXAMPLES
   $ fonoster applications:delete
 ```
 
-_See code: [dist/commands/applications/delete.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/applications/delete.js)_
+_See code: [dist/commands/applications/delete.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/applications/delete.js)_
 
 ## `fonoster applications:eval`
 
@@ -317,7 +318,7 @@ EXAMPLES
   $ fonoster applications:eval -f agent.yaml -o json --output-file results.json
 ```
 
-_See code: [dist/commands/applications/eval.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/applications/eval.js)_
+_See code: [dist/commands/applications/eval.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/applications/eval.js)_
 
 ## `fonoster applications:get REF`
 
@@ -341,7 +342,7 @@ EXAMPLES
   $ fonoster applications:get <ref>
 ```
 
-_See code: [dist/commands/applications/get.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/applications/get.js)_
+_See code: [dist/commands/applications/get.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/applications/get.js)_
 
 ## `fonoster applications:list`
 
@@ -363,7 +364,7 @@ EXAMPLES
   $ fonoster applications:list
 ```
 
-_See code: [dist/commands/applications/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/applications/list.js)_
+_See code: [dist/commands/applications/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/applications/list.js)_
 
 ## `fonoster applications:rotate-secret REF`
 
@@ -387,7 +388,7 @@ EXAMPLES
   $ fonoster applications:rotate-secret <ref>
 ```
 
-_See code: [dist/commands/applications/rotate-secret.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/applications/rotate-secret.js)_
+_See code: [dist/commands/applications/rotate-secret.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/applications/rotate-secret.js)_
 
 ## `fonoster applications:update [REF]`
 
@@ -452,7 +453,7 @@ EXAMPLES
   $ fonoster applications:update --from-file app.yaml   # with `ref` in the file
 ```
 
-_See code: [dist/commands/applications/update.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/applications/update.js)_
+_See code: [dist/commands/applications/update.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/applications/update.js)_
 
 ## `fonoster bug`
 
@@ -469,7 +470,7 @@ EXAMPLES
   $ fonoster bug
 ```
 
-_See code: [dist/commands/bug.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/bug.js)_
+_See code: [dist/commands/bug.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/bug.js)_
 
 ## `fonoster feedback`
 
@@ -489,7 +490,7 @@ EXAMPLES
   $ fonoster feedback
 ```
 
-_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/feedback.js)_
+_See code: [dist/commands/feedback.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/feedback.js)_
 
 ## `fonoster mcp:configure`
 
@@ -513,7 +514,7 @@ EXAMPLES
   $ fonoster mcp:configure --client claude --workspace my-workspace
 ```
 
-_See code: [dist/commands/mcp/configure.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/mcp/configure.js)_
+_See code: [dist/commands/mcp/configure.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/mcp/configure.js)_
 
 ## `fonoster providers:catalog`
 
@@ -542,7 +543,7 @@ EXAMPLES
   $ fonoster providers:catalog --kind model --type stt
 ```
 
-_See code: [dist/commands/providers/catalog.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/providers/catalog.js)_
+_See code: [dist/commands/providers/catalog.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/providers/catalog.js)_
 
 ## `fonoster providers:keys:delete PROVIDER`
 
@@ -566,7 +567,7 @@ EXAMPLES
   $ fonoster providers:keys:delete deepgram
 ```
 
-_See code: [dist/commands/providers/keys/delete.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/providers/keys/delete.js)_
+_See code: [dist/commands/providers/keys/delete.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/providers/keys/delete.js)_
 
 ## `fonoster providers:keys:list`
 
@@ -587,7 +588,7 @@ EXAMPLES
   $ fonoster providers:keys:list
 ```
 
-_See code: [dist/commands/providers/keys/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/providers/keys/list.js)_
+_See code: [dist/commands/providers/keys/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/providers/keys/list.js)_
 
 ## `fonoster providers:keys:set PROVIDER`
 
@@ -614,7 +615,7 @@ EXAMPLES
   $ fonoster providers:keys:set elevenlabs --key $ELEVENLABS_API_KEY
 ```
 
-_See code: [dist/commands/providers/keys/set.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/providers/keys/set.js)_
+_See code: [dist/commands/providers/keys/set.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/providers/keys/set.js)_
 
 ## `fonoster records:download REF`
 
@@ -648,7 +649,7 @@ EXAMPLES
   $ fonoster records:download <call-ref> --part signed   # verifiable JWS
 ```
 
-_See code: [dist/commands/records/download.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/records/download.js)_
+_See code: [dist/commands/records/download.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/records/download.js)_
 
 ## `fonoster records:get REF`
 
@@ -676,7 +677,7 @@ EXAMPLES
   $ fonoster records:get <call-ref> --original --version 1
 ```
 
-_See code: [dist/commands/records/get.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/records/get.js)_
+_See code: [dist/commands/records/get.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/records/get.js)_
 
 ## `fonoster records:list`
 
@@ -709,7 +710,7 @@ EXAMPLES
   $ fonoster records:list --app <app-ref> --status failed
 ```
 
-_See code: [dist/commands/records/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/records/list.js)_
+_See code: [dist/commands/records/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/records/list.js)_
 
 ## `fonoster secrets:create`
 
@@ -730,7 +731,7 @@ EXAMPLES
   $ fonoster secrets:create
 ```
 
-_See code: [dist/commands/secrets/create.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/secrets/create.js)_
+_See code: [dist/commands/secrets/create.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/secrets/create.js)_
 
 ## `fonoster secrets:delete REF`
 
@@ -754,7 +755,7 @@ EXAMPLES
   $ fonoster secrets:delete
 ```
 
-_See code: [dist/commands/secrets/delete.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/secrets/delete.js)_
+_See code: [dist/commands/secrets/delete.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/secrets/delete.js)_
 
 ## `fonoster secrets:get REF`
 
@@ -778,7 +779,7 @@ EXAMPLES
   $ fonoster secrets:get
 ```
 
-_See code: [dist/commands/secrets/get.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/secrets/get.js)_
+_See code: [dist/commands/secrets/get.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/secrets/get.js)_
 
 ## `fonoster secrets:list`
 
@@ -800,7 +801,7 @@ EXAMPLES
   $ fonoster secrets:list
 ```
 
-_See code: [dist/commands/secrets/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/secrets/list.js)_
+_See code: [dist/commands/secrets/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/secrets/list.js)_
 
 ## `fonoster secrets:update REF`
 
@@ -824,7 +825,7 @@ EXAMPLES
   $ fonoster secrets:update
 ```
 
-_See code: [dist/commands/secrets/update.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/secrets/update.js)_
+_See code: [dist/commands/secrets/update.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/secrets/update.js)_
 
 ## `fonoster sipnet:acls:create`
 
@@ -845,7 +846,7 @@ EXAMPLES
   $ fonoster sipnet:acls:create
 ```
 
-_See code: [dist/commands/sipnet/acls/create.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/acls/create.js)_
+_See code: [dist/commands/sipnet/acls/create.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/acls/create.js)_
 
 ## `fonoster sipnet:acls:delete REF`
 
@@ -869,7 +870,7 @@ EXAMPLES
   $ fonoster sipnet:acls:delete
 ```
 
-_See code: [dist/commands/sipnet/acls/delete.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/acls/delete.js)_
+_See code: [dist/commands/sipnet/acls/delete.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/acls/delete.js)_
 
 ## `fonoster sipnet:acls:get REF`
 
@@ -893,7 +894,7 @@ EXAMPLES
   $ fonoster sipnet:acls:get
 ```
 
-_See code: [dist/commands/sipnet/acls/get.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/acls/get.js)_
+_See code: [dist/commands/sipnet/acls/get.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/acls/get.js)_
 
 ## `fonoster sipnet:acls:list`
 
@@ -915,7 +916,7 @@ EXAMPLES
   $ fonoster sipnet:acls:list
 ```
 
-_See code: [dist/commands/sipnet/acls/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/acls/list.js)_
+_See code: [dist/commands/sipnet/acls/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/acls/list.js)_
 
 ## `fonoster sipnet:acls:update REF`
 
@@ -939,7 +940,7 @@ EXAMPLES
   $ fonoster sipnet:acls:update
 ```
 
-_See code: [dist/commands/sipnet/acls/update.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/acls/update.js)_
+_See code: [dist/commands/sipnet/acls/update.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/acls/update.js)_
 
 ## `fonoster sipnet:agents:create`
 
@@ -960,7 +961,7 @@ EXAMPLES
   $ fonoster sipnet:agents:create
 ```
 
-_See code: [dist/commands/sipnet/agents/create.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/agents/create.js)_
+_See code: [dist/commands/sipnet/agents/create.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/agents/create.js)_
 
 ## `fonoster sipnet:agents:delete REF`
 
@@ -984,7 +985,7 @@ EXAMPLES
   $ fonoster sipnet:agents:delete
 ```
 
-_See code: [dist/commands/sipnet/agents/delete.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/agents/delete.js)_
+_See code: [dist/commands/sipnet/agents/delete.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/agents/delete.js)_
 
 ## `fonoster sipnet:agents:get REF`
 
@@ -1008,7 +1009,7 @@ EXAMPLES
   $ fonoster sipnet:agents:get
 ```
 
-_See code: [dist/commands/sipnet/agents/get.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/agents/get.js)_
+_See code: [dist/commands/sipnet/agents/get.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/agents/get.js)_
 
 ## `fonoster sipnet:agents:list`
 
@@ -1030,7 +1031,7 @@ EXAMPLES
   $ fonoster sipnet:agents:list
 ```
 
-_See code: [dist/commands/sipnet/agents/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/agents/list.js)_
+_See code: [dist/commands/sipnet/agents/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/agents/list.js)_
 
 ## `fonoster sipnet:agents:update REF`
 
@@ -1054,7 +1055,7 @@ EXAMPLES
   $ fonoster sipnet:agents:update
 ```
 
-_See code: [dist/commands/sipnet/agents/update.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/agents/update.js)_
+_See code: [dist/commands/sipnet/agents/update.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/agents/update.js)_
 
 ## `fonoster sipnet:calls:create`
 
@@ -1085,7 +1086,7 @@ EXAMPLES
   $ fonoster sipnet:calls:create -f +17853178070 -t +18287854037 -a <app-ref> -m '{"name":"Jane"}'
 ```
 
-_See code: [dist/commands/sipnet/calls/create.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/calls/create.js)_
+_See code: [dist/commands/sipnet/calls/create.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/calls/create.js)_
 
 ## `fonoster sipnet:calls:get REF`
 
@@ -1109,7 +1110,7 @@ EXAMPLES
   $ fonoster sipnet:calls:get
 ```
 
-_See code: [dist/commands/sipnet/calls/get.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/calls/get.js)_
+_See code: [dist/commands/sipnet/calls/get.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/calls/get.js)_
 
 ## `fonoster sipnet:calls:list`
 
@@ -1131,7 +1132,7 @@ EXAMPLES
   $ fonoster sipnet:calls:list
 ```
 
-_See code: [dist/commands/sipnet/calls/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/calls/list.js)_
+_See code: [dist/commands/sipnet/calls/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/calls/list.js)_
 
 ## `fonoster sipnet:credentials:create`
 
@@ -1152,7 +1153,7 @@ EXAMPLES
   $ fonoster sipnet:credentials:create
 ```
 
-_See code: [dist/commands/sipnet/credentials/create.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/credentials/create.js)_
+_See code: [dist/commands/sipnet/credentials/create.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/credentials/create.js)_
 
 ## `fonoster sipnet:credentials:delete REF`
 
@@ -1176,7 +1177,7 @@ EXAMPLES
   $ fonoster sipnet:credentials:delete
 ```
 
-_See code: [dist/commands/sipnet/credentials/delete.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/credentials/delete.js)_
+_See code: [dist/commands/sipnet/credentials/delete.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/credentials/delete.js)_
 
 ## `fonoster sipnet:credentials:get REF`
 
@@ -1200,7 +1201,7 @@ EXAMPLES
   $ fonoster sipnet:credentials:get
 ```
 
-_See code: [dist/commands/sipnet/credentials/get.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/credentials/get.js)_
+_See code: [dist/commands/sipnet/credentials/get.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/credentials/get.js)_
 
 ## `fonoster sipnet:credentials:list`
 
@@ -1222,7 +1223,7 @@ EXAMPLES
   $ fonoster sipnet:credentials:list
 ```
 
-_See code: [dist/commands/sipnet/credentials/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/credentials/list.js)_
+_See code: [dist/commands/sipnet/credentials/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/credentials/list.js)_
 
 ## `fonoster sipnet:credentials:update REF`
 
@@ -1246,7 +1247,7 @@ EXAMPLES
   $ fonoster sipnet:credentials:update
 ```
 
-_See code: [dist/commands/sipnet/credentials/update.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/credentials/update.js)_
+_See code: [dist/commands/sipnet/credentials/update.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/credentials/update.js)_
 
 ## `fonoster sipnet:domains:create`
 
@@ -1267,7 +1268,7 @@ EXAMPLES
   $ fonoster sipnet:domains:create
 ```
 
-_See code: [dist/commands/sipnet/domains/create.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/domains/create.js)_
+_See code: [dist/commands/sipnet/domains/create.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/domains/create.js)_
 
 ## `fonoster sipnet:domains:delete REF`
 
@@ -1291,7 +1292,7 @@ EXAMPLES
   $ fonoster sipnet:domains:delete
 ```
 
-_See code: [dist/commands/sipnet/domains/delete.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/domains/delete.js)_
+_See code: [dist/commands/sipnet/domains/delete.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/domains/delete.js)_
 
 ## `fonoster sipnet:domains:get REF`
 
@@ -1315,7 +1316,7 @@ EXAMPLES
   $ fonoster sipnet:domains:get
 ```
 
-_See code: [dist/commands/sipnet/domains/get.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/domains/get.js)_
+_See code: [dist/commands/sipnet/domains/get.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/domains/get.js)_
 
 ## `fonoster sipnet:domains:list`
 
@@ -1337,7 +1338,7 @@ EXAMPLES
   $ fonoster sipnet:domains:list
 ```
 
-_See code: [dist/commands/sipnet/domains/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/domains/list.js)_
+_See code: [dist/commands/sipnet/domains/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/domains/list.js)_
 
 ## `fonoster sipnet:domains:update REF`
 
@@ -1361,7 +1362,7 @@ EXAMPLES
   $ fonoster sipnet:domains:update
 ```
 
-_See code: [dist/commands/sipnet/domains/update.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/domains/update.js)_
+_See code: [dist/commands/sipnet/domains/update.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/domains/update.js)_
 
 ## `fonoster sipnet:numbers:create`
 
@@ -1382,7 +1383,7 @@ EXAMPLES
   $ fonoster sipnet:numbers:create
 ```
 
-_See code: [dist/commands/sipnet/numbers/create.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/numbers/create.js)_
+_See code: [dist/commands/sipnet/numbers/create.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/numbers/create.js)_
 
 ## `fonoster sipnet:numbers:delete REF`
 
@@ -1406,7 +1407,7 @@ EXAMPLES
   $ fonoster sipnet:numbers:delete
 ```
 
-_See code: [dist/commands/sipnet/numbers/delete.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/numbers/delete.js)_
+_See code: [dist/commands/sipnet/numbers/delete.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/numbers/delete.js)_
 
 ## `fonoster sipnet:numbers:get REF`
 
@@ -1430,7 +1431,7 @@ EXAMPLES
   $ fonoster sipnet:numbers:get
 ```
 
-_See code: [dist/commands/sipnet/numbers/get.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/numbers/get.js)_
+_See code: [dist/commands/sipnet/numbers/get.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/numbers/get.js)_
 
 ## `fonoster sipnet:numbers:linkTwilio PHONENUMBER`
 
@@ -1469,7 +1470,7 @@ EXAMPLES
   TWILIO_API_KEY_SECRET=... fonoster sipnet:numbers:linkTwilio +18095550123 --account-sid AC... --api-key-sid SK... --app <ref> --yes
 ```
 
-_See code: [dist/commands/sipnet/numbers/linkTwilio.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/numbers/linkTwilio.js)_
+_See code: [dist/commands/sipnet/numbers/linkTwilio.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/numbers/linkTwilio.js)_
 
 ## `fonoster sipnet:numbers:linkTwilioNumber PHONENUMBER`
 
@@ -1508,6 +1509,41 @@ EXAMPLES
   TWILIO_API_KEY_SECRET=... fonoster sipnet:numbers:linkTwilioNumber +18095550123 --account-sid AC... --api-key-sid SK... --app <ref> --yes
 ```
 
+## `fonoster sipnet:numbers:linkWhatsApp [PHONENUMBER]`
+
+link a WhatsApp Business number to the active workspace
+
+```
+USAGE
+  $ fonoster sipnet:numbers:linkWhatsApp [PHONENUMBER] [--ca-file <value>] [--phone-number-id <value>] [--name <value>] [--app
+    <value> | --agent <value>] [--yes]
+
+ARGUMENTS
+  [PHONENUMBER]  the WhatsApp Business number, in E.164; only when you set up Meta yourself (no --phone-number-id)
+
+FLAGS
+  --agent=<value>            the SIP agent (AOR) that answers the number
+  --app=<value>              the Application that answers the number
+  --ca-file=<value>          a PEM file of certificate authorities to trust, such as an install's config/tls/ca.pem
+                             (default: FONOSTER_CA_FILE)
+  --name=<value>             the Number's name (default: Meta's verified name, or the phone number)
+  --phone-number-id=<value>  Meta's id of the phone number (WhatsApp Manager > Phone numbers); Fonoster then sets up
+                             Meta with a token read from META_ACCESS_TOKEN or a masked prompt
+  --yes                      skip the confirmation; required without a terminal
+
+DESCRIPTION
+  link a WhatsApp Business number to the active workspace
+
+EXAMPLES
+  $ fonoster sipnet:numbers:linkWhatsApp --phone-number-id 106612345678901 --app <ref>   # asks for the token and what's missing
+
+  META_ACCESS_TOKEN=... fonoster sipnet:numbers:linkWhatsApp --phone-number-id 106612345678901 --app <ref> --yes
+
+  WHATSAPP_SIP_PASSWORD=... fonoster sipnet:numbers:linkWhatsApp +525512345678 --app <ref> --yes   # you set up Meta yourself
+```
+
+_See code: [dist/commands/sipnet/numbers/linkWhatsApp.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/numbers/linkWhatsApp.js)_
+
 ## `fonoster sipnet:numbers:list`
 
 display all Numbers in the active Workspace
@@ -1528,7 +1564,7 @@ EXAMPLES
   $ fonoster sipnet:numbers:list
 ```
 
-_See code: [dist/commands/sipnet/numbers/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/numbers/list.js)_
+_See code: [dist/commands/sipnet/numbers/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/numbers/list.js)_
 
 ## `fonoster sipnet:numbers:update REF`
 
@@ -1552,7 +1588,7 @@ EXAMPLES
   $ fonoster sipnet:numbers:update
 ```
 
-_See code: [dist/commands/sipnet/numbers/update.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/numbers/update.js)_
+_See code: [dist/commands/sipnet/numbers/update.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/numbers/update.js)_
 
 ## `fonoster sipnet:trunks:create`
 
@@ -1573,7 +1609,7 @@ EXAMPLES
   $ fonoster sipnet:trunks:create
 ```
 
-_See code: [dist/commands/sipnet/trunks/create.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/trunks/create.js)_
+_See code: [dist/commands/sipnet/trunks/create.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/trunks/create.js)_
 
 ## `fonoster sipnet:trunks:delete REF`
 
@@ -1597,7 +1633,7 @@ EXAMPLES
   $ fonoster sipnet:trunks:delete
 ```
 
-_See code: [dist/commands/sipnet/trunks/delete.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/trunks/delete.js)_
+_See code: [dist/commands/sipnet/trunks/delete.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/trunks/delete.js)_
 
 ## `fonoster sipnet:trunks:get REF`
 
@@ -1621,7 +1657,7 @@ EXAMPLES
   $ fonoster sipnet:trunks:get
 ```
 
-_See code: [dist/commands/sipnet/trunks/get.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/trunks/get.js)_
+_See code: [dist/commands/sipnet/trunks/get.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/trunks/get.js)_
 
 ## `fonoster sipnet:trunks:list`
 
@@ -1643,7 +1679,7 @@ EXAMPLES
   $ fonoster sipnet:trunks:list
 ```
 
-_See code: [dist/commands/sipnet/trunks/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/trunks/list.js)_
+_See code: [dist/commands/sipnet/trunks/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/trunks/list.js)_
 
 ## `fonoster sipnet:trunks:update REF`
 
@@ -1667,7 +1703,7 @@ EXAMPLES
   $ fonoster sipnet:trunks:update
 ```
 
-_See code: [dist/commands/sipnet/trunks/update.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/sipnet/trunks/update.js)_
+_See code: [dist/commands/sipnet/trunks/update.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/sipnet/trunks/update.js)_
 
 ## `fonoster webhooks:create`
 
@@ -1692,7 +1728,7 @@ EXAMPLES
   $ fonoster webhooks:create --url https://example.com/hooks -e call.ended -e call_record.sealed
 ```
 
-_See code: [dist/commands/webhooks/create.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/webhooks/create.js)_
+_See code: [dist/commands/webhooks/create.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/webhooks/create.js)_
 
 ## `fonoster webhooks:delete REF`
 
@@ -1716,7 +1752,7 @@ EXAMPLES
   $ fonoster webhooks:delete <ref>
 ```
 
-_See code: [dist/commands/webhooks/delete.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/webhooks/delete.js)_
+_See code: [dist/commands/webhooks/delete.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/webhooks/delete.js)_
 
 ## `fonoster webhooks:deliveries [REF]`
 
@@ -1743,7 +1779,7 @@ EXAMPLES
   $ fonoster webhooks:deliveries <webhook-ref> -s 20
 ```
 
-_See code: [dist/commands/webhooks/deliveries.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/webhooks/deliveries.js)_
+_See code: [dist/commands/webhooks/deliveries.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/webhooks/deliveries.js)_
 
 ## `fonoster webhooks:get REF`
 
@@ -1767,7 +1803,7 @@ EXAMPLES
   $ fonoster webhooks:get <ref>
 ```
 
-_See code: [dist/commands/webhooks/get.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/webhooks/get.js)_
+_See code: [dist/commands/webhooks/get.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/webhooks/get.js)_
 
 ## `fonoster webhooks:list`
 
@@ -1789,7 +1825,7 @@ EXAMPLES
   $ fonoster webhooks:list
 ```
 
-_See code: [dist/commands/webhooks/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/webhooks/list.js)_
+_See code: [dist/commands/webhooks/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/webhooks/list.js)_
 
 ## `fonoster webhooks:resend REF`
 
@@ -1813,7 +1849,7 @@ EXAMPLES
   $ fonoster webhooks:resend <delivery-ref>
 ```
 
-_See code: [dist/commands/webhooks/resend.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/webhooks/resend.js)_
+_See code: [dist/commands/webhooks/resend.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/webhooks/resend.js)_
 
 ## `fonoster webhooks:rotate REF`
 
@@ -1837,7 +1873,7 @@ EXAMPLES
   $ fonoster webhooks:rotate <ref>
 ```
 
-_See code: [dist/commands/webhooks/rotate.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/webhooks/rotate.js)_
+_See code: [dist/commands/webhooks/rotate.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/webhooks/rotate.js)_
 
 ## `fonoster webhooks:update REF`
 
@@ -1867,7 +1903,7 @@ EXAMPLES
   $ fonoster webhooks:update <ref> --url https://example.com/new
 ```
 
-_See code: [dist/commands/webhooks/update.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/webhooks/update.js)_
+_See code: [dist/commands/webhooks/update.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/webhooks/update.js)_
 
 ## `fonoster workspaces:active`
 
@@ -1884,7 +1920,7 @@ EXAMPLES
   $ fonoster workspaces:active
 ```
 
-_See code: [dist/commands/workspaces/active.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/workspaces/active.js)_
+_See code: [dist/commands/workspaces/active.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/workspaces/active.js)_
 
 ## `fonoster workspaces:list`
 
@@ -1901,7 +1937,7 @@ EXAMPLES
   $ fonoster workspaces:list
 ```
 
-_See code: [dist/commands/workspaces/list.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/workspaces/list.js)_
+_See code: [dist/commands/workspaces/list.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/workspaces/list.js)_
 
 ## `fonoster workspaces:login`
 
@@ -1927,7 +1963,7 @@ EXAMPLES
   $ fonoster workspaces:login --ca-file ./config/tls/ca.pem --endpoint voice.example.com --access-key-id WO... --access-key-secret ...
 ```
 
-_See code: [dist/commands/workspaces/login.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/workspaces/login.js)_
+_See code: [dist/commands/workspaces/login.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/workspaces/login.js)_
 
 ## `fonoster workspaces:logout REF`
 
@@ -1947,7 +1983,7 @@ EXAMPLES
   $ fonoster workspaces:logout
 ```
 
-_See code: [dist/commands/workspaces/logout.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/workspaces/logout.js)_
+_See code: [dist/commands/workspaces/logout.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/workspaces/logout.js)_
 
 ## `fonoster workspaces:use REF`
 
@@ -1967,5 +2003,5 @@ EXAMPLES
   $ fonoster workspaces:use
 ```
 
-_See code: [dist/commands/workspaces/use.js](https://github.com/fonoster/fonoster/blob/v0.36.0/dist/commands/workspaces/use.js)_
+_See code: [dist/commands/workspaces/use.js](https://github.com/fonoster/fonoster/blob/v0.38.2/dist/commands/workspaces/use.js)_
 <!-- commandsstop -->
