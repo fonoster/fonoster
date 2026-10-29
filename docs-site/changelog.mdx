@@ -7,6 +7,17 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
+<Update label="v0.40" description="October 2026" tags={["Self-hosting"]}>
+
+## Self-hosting
+
+- **Routr can read the generated TLS key.** `fonoster-config init` now writes the generated
+  `config/tls/server-key.pem` 0644, like `keys/private.pem`, so Routr's container user can read it
+  for SIP over TLS; `config/` stays 0700. An existing generated key gets the new mode on the next
+  `init`. Keys set through `TLS_CERT` and `TLS_KEY` are not touched.
+
+</Update>
+
 <Update label="v0.39" description="October 2026" tags={["Breaking", "Self-hosting"]}>
 
 ## Breaking changes

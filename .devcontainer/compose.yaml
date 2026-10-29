@@ -65,6 +65,28 @@ services:
 
   routr:
     extends: { file: ../ops/bundle/compose.yaml, service: routr }
+    # SIP over TLS with the generated certificate: the image builds /etc/routr/certs/signaling.p12
+    # from these at every start (keyStorePassword changeme = its PKCS12_PASSWORD default). Long
+    # form with create_host_path: false, as the bundle mounts routr-rtprelay.yaml: a missing file
+    # makes `up` fail with a clear message instead of Docker creating a directory there.
+    volumes:
+      - type: bind
+        source: ../.dev/config/tls/server.pem
+        target: /etc/routr/certs/server.crt
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ../.dev/config/tls/server-key.pem
+        target: /etc/routr/certs/server.key
+        read_only: true
+        bind: { create_host_path: false }
+      - type: bind
+        source: ../.dev/config/tls/ca.pem
+        target: /etc/routr/certs/ca.crt
+        read_only: true
+        bind: { create_host_path: false }
+    ports:
+      - "5061:5061/tcp"
 
   rtpengine:
     extends: { file: ../ops/bundle/compose.yaml, service: rtpengine }

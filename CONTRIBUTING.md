@@ -108,7 +108,13 @@ services) and `npm test -w @fonoster/dashboard`. The suites that need a Roomr no
 in roomr-fake, downloaded by `npm install` for the pinned `@fonoster/roomr`.
 
 `npm run dev:config` renders `.dev/` again after you change a config example or your overrides in
-`.dev/overlay/<service>.yaml`; every secret is kept.
+`.dev/overlay/<service>.yaml`; every secret is kept. When it names changed `routr-*.yaml` files,
+run the `docker compose … --force-recreate routr` line it prints in a terminal on your machine, from
+the repository root: the container has no Docker, and Routr keeps its old image and config until it
+is recreated.
+
+The dev Routr also accepts SIP over TLS on `5061`, with the certificate in `.dev/config/tls/`.
+Check it with `openssl s_client -connect localhost:5061 -CAfile .dev/config/tls/ca.pem`.
 
 Notes:
 
