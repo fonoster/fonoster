@@ -95,6 +95,12 @@ type TwilioCredentials =
   | { accountSid: string; authToken: string }
   | { accountSid: string; apiKeySid: string; apiKeySecret: string };
 
+/**
+ * A Meta System User token with whatsapp_business_management. Used once, to link a WhatsApp
+ * Business number; never stored.
+ */
+type WhatsAppCredentials = { accessToken: string };
+
 type LinkTwilioRequest = {
   /** E.164; must be in the Twilio account. */
   phoneNumber: string;
@@ -124,5 +130,6 @@ export {
   ListNumbersResponse,
   NumbersApi,
   TwilioCredentials,
-  UpdateNumberRequest
+  UpdateNumberRequest,
+  WhatsAppCredentials
 };
