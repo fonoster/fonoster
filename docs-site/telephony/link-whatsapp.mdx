@@ -1,0 +1,285 @@
+---
+title: "Link a WhatsApp Business number"
+description: "Link a WhatsApp Business number from the dashboard or the CLI, and send the calls WhatsApp users make to it to an agent, an app or a SIP agent."
+---
+
+Link a WhatsApp Business number, and calls from WhatsApp users reach the agent, app or SIP agent
+you choose. Fonoster sets up a SIP trunk to Meta in your workspace and, with a Meta access token,
+turns on SIP calling for the number in Meta and points it at Fonoster. You can also place outbound
+calls to a WhatsApp user from it, once that user has granted call permission.
+
+## Before you begin
+
+You need:
+
+- A WhatsApp Business number with Meta's
+  [Calling API](https://developers.facebook.com/docs/whatsapp/cloud-api/calling) enabled for it.
+  Calling is a Meta feature with its own eligibility; Fonoster can't request it for you.
+- The number's **Phone number ID**, from WhatsApp Manager under **Phone numbers**, or from the
+  App Dashboard under **API Setup**.
+- A Meta **System User access token** with the `whatsapp_business_management` permission.
+  Fonoster uses it twice, to read the number and to turn on SIP calling, and doesn't store it. If
+  you'd rather not hand over a token, see
+  [Link with the SIP password instead](#link-with-the-sip-password-instead).
+- An agent, an app or a SIP agent to send calls to. See
+  [Build an Autopilot agent](/autopilot/build-an-agent) or
+  [Build a stream with the Voice SDK](/streams/voice-sdk).
+- For the CLI: [Node.js](https://nodejs.org/) 22 or later.
+
+## Link the number
+
+<Tabs>
+  <Tab title="Dashboard">
+    <Steps>
+      <Step title="Open the link drawer">
+        Go to **Numbers**, click **Link number**, then **WhatsApp number**.
+      </Step>
+      <Step title="Choose where calls go">
+        Under **When this number is called, send it to**, pick the agent, app or SIP agent.
+      </Step>
+      <Step title="Enter the Meta credentials">
+        Under **Credentials**, keep **Meta access token** selected. Enter the **Phone number ID**
+        and the **Access token**.
+      </Step>
+      <Step title="Link it">
+        Click **Link number**. The drawer shows the number, its verified business name, and that
+        SIP calling is on in WhatsApp, pointed at Fonoster with SDES. The number shows in the list
+        on its **WhatsApp Trunk**.
+      </Step>
+    </Steps>
+
+    WhatsApp now sends the number's calls to Fonoster.
+
+    If the number is already in your workspace, linking moves it to its WhatsApp trunk and the
+    route you choose. A new number is named after Meta's verified name; rename it under
+    **Numbers**.
+
+  </Tab>
+  <Tab title="CLI">
+    <Steps>
+      <Step title="Install the CLI and log in">
+        In the dashboard, go to **API keys** and create a key. Then install the `fonoster` CLI and log
+        in to your workspace with the key ID and secret:
+
+        ```bash
+        npm install -g @fonoster/ctl
+        fonoster workspaces:login
+        ```
+
+      </Step>
+
+      <Step title="Run the link command">
+        Start the command with the number's Phone number ID:
+
+        ```bash
+        fonoster sipnet:numbers:linkWhatsApp --phone-number-id 106612345678901
+        ```
+
+        It asks only for what your flags leave out:
+
+        | Prompt | What to enter | Flag |
+        | --- | --- | --- |
+        | Application | The Autopilot agent or stream that answers the number. Pick **None** to choose later. To send calls to a SIP agent, pass `--agent` instead. | `--app <ref>` or `--agent <aor>` |
+        | Meta access token | Your System User token, typed without echo. | The `META_ACCESS_TOKEN` variable |
+
+        The number is named after Meta's verified name. To name it yourself, pass
+        `--name "Support desk"`.
+
+        Confirm the link. The command prints the number and its trunk, and that Meta is set up:
+
+        ```text
+        Linked +525512345678 (Acme Dental) (number 7d1c3b2a-5e4f-4a6b-8c9d-0e1f2a3b4c5d) on WhatsApp Trunk +525512345678 (a91e0f44-2b3c-4d5e-8f6a-7b8c9d0e1f2a).
+        SIP calling is on in WhatsApp, pointed at wa-wo7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3-525512345678.pstn.fonoster.ai:5061 with SDES.
+        ```
+
+      </Step>
+
+      <Step title="Check the number">
+        List your numbers. The linked number is there, on its **WhatsApp Trunk**, pointing at the
+        application you picked:
+
+        ```bash
+        fonoster sipnet:numbers:list
+        ```
+
+      </Step>
+    </Steps>
+
+  </Tab>
+</Tabs>
+
+Call the business from WhatsApp. Your agent, app or SIP agent answers.
+
+<Check>Your WhatsApp Business number rings in Fonoster.</Check>
+
+### Link from a script
+
+Without a terminal, the command never prompts: pass every value as a flag and the token in an
+environment variable. This links a number to an application:
+
+```bash
+export META_ACCESS_TOKEN=...
+fonoster sipnet:numbers:linkWhatsApp \
+  --phone-number-id 106612345678901 \
+  --app 4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00 \
+  --yes
+```
+
+A missing token stops the command with exit code 1 and `Set META_ACCESS_TOKEN to link without a
+terminal.`; a missing `--yes` stops it with `Pass --yes to link without confirmation.`
+
+## Link with the SIP password instead
+
+If you don't want to give Fonoster a Meta token, link the number by itself and set up Meta by hand.
+Fonoster then calls no Meta API.
+
+<Steps>
+  <Step title="Link the number in Fonoster">
+    In the dashboard, under **Credentials** choose **SIP password** and enter the **Number** in
+    E.164, leaving the password empty for now. Or run:
+
+    ```bash
+    fonoster sipnet:numbers:linkWhatsApp +525512345678 --app <ref>
+    ```
+
+    Leave the password prompt empty. Both print the SIP server to register:
+
+    ```text
+    Linked +525512345678 (number 7d1c3b2a-…) on WhatsApp Trunk +525512345678 (a91e0f44-…).
+    Register this SIP server in WhatsApp Manager: wa-wo7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3-525512345678.pstn.fonoster.ai (port 5061).
+    SIP password: not set yet. Run the command again with WHATSAPP_SIP_PASSWORD once you have it from Meta.
+    ```
+
+  </Step>
+  <Step title="Point Meta at Fonoster">
+    In WhatsApp Manager, open the number's **Call settings**, then **Developer settings**, turn on
+    **Use Session Initiation Protocol (SIP)** and click **Set up**. Enter the SIP server Fonoster
+    printed as the hostname (there is no port field; Meta uses 5061) and your Meta app's **App
+    ID**, which can't be edited later. See Meta's
+    [SIP guide](https://developers.facebook.com/docs/whatsapp/cloud-api/calling/sip).
+
+    Fonoster's trunks negotiate SRTP with SDES, and Meta's default is DTLS, so set it with your
+    token:
+
+    ```bash
+    curl -X POST "https://graph.facebook.com/v23.0/<PHONE_NUMBER_ID>/settings" \
+      -H "Authorization: Bearer $META_ACCESS_TOKEN" \
+      -H "Content-Type: application/json" \
+      -d '{"calling":{"srtp_key_exchange_protocol":"SDES"}}'
+    ```
+
+    Then read the SIP password Meta issued for the number (WhatsApp Manager doesn't show it):
+
+    ```bash
+    curl "https://graph.facebook.com/v23.0/<PHONE_NUMBER_ID>/settings?include_sip_credentials=true" \
+      -H "Authorization: Bearer $META_ACCESS_TOKEN"
+    ```
+
+    The password is `calling.sip.servers[].sip_user_password` in the response.
+
+  </Step>
+  <Step title="Set the password in Fonoster">
+    Link the number again with the password. In the dashboard, open **Link number** → **WhatsApp
+    number** again, choose **SIP password**, enter the same number and the password. Or:
+
+    ```bash
+    WHATSAPP_SIP_PASSWORD=... fonoster sipnet:numbers:linkWhatsApp +525512345678 --app <ref> --yes
+    ```
+
+    The last line now reads `SIP password: set.`
+
+  </Step>
+</Steps>
+
+<Check>Your WhatsApp Business number rings in Fonoster.</Check>
+
+## What linking sets up
+
+Linking names everything after your workspace's access key ID in lowercase, shown here as
+`wo7d2kq9x4m1c8b3n6p0r5t2v9y4z7a1e3`, and the number's digits.
+
+**In Fonoster:**
+
+- A trunk named **WhatsApp Trunk +525512345678**, with the inbound URI
+  `wa-wo7d…-525512345678.pstn.fonoster.ai` (one hostname per linked WhatsApp number) and an
+  outbound URI to `wa.meta.vc:5061` over TLS. Meta sends the number's calls to the inbound URI;
+  Fonoster sends your outbound calls to Meta.
+- A credential named **WhatsApp +525512345678** on that trunk, with the number's digits as the
+  username and the SIP password Meta issued.
+- The number, on that trunk, pointing at the application you picked.
+
+**In Meta** (with a token, or by hand): SIP calling on for the number, with the trunk's inbound
+URI as its SIP server and SRTP set to SDES.
+
+If the number is already in your workspace, linking moves it to its WhatsApp trunk and the route
+you choose. To link more WhatsApp numbers, link each one: every number gets its own trunk and
+credential, since Meta issues one SIP password per number.
+
+If you disable and re-enable SIP in Meta, Meta issues a new password. Link the number again with
+the token, or with the new password, and Fonoster updates the credential in place.
+
+## Change where calls go
+
+The linked number is a normal number in your workspace. To send its calls somewhere else, go to
+**Numbers**, open it, and pick a new destination under **When this number is called, send it to**.
+See [Numbers and routing](/telephony/numbers).
+
+## On your own install
+
+Meta reaches your install over SIP over TLS only. A self-hosted Fonoster must accept SIP over TLS
+on `5061` with a certificate that covers `*.pstn.<domain>`, and reach `wa.meta.vc:5061` outbound.
+Set that up first: [SIP over TLS](/self-hosting/https#sip-over-tls) and
+[Carriers and phones](/self-hosting/carriers-and-phones). Linking fails with
+`This install has no public SIP over TLS address for WhatsApp to send calls to` until the install
+declares one.
+
+## Troubleshooting
+
+- **`Meta didn't accept this access token`.** The token is wrong, expired or revoked. Generate a
+  new System User token.
+- **`This access token can't manage WhatsApp calling settings`.** The token lacks
+  `whatsapp_business_management`. Use a System User token with that permission.
+- **`No WhatsApp number with id … is reachable with this access token`.** Check the Phone number ID,
+  and that the token's System User has access to the number's WhatsApp Business Account.
+- **`The number is on messaging tier …`.** Meta requires a messaging limit of 2,000 or more for
+  calling. See Meta's [Calling API](https://developers.facebook.com/docs/whatsapp/cloud-api/calling)
+  eligibility.
+- **`Meta didn't accept … as the SIP server`** or **`Meta is unavailable; try again`.** Try again in
+  a few minutes.
+- **`… is already linked in another workspace`** or **`… is already in use`.** The number, or its
+  hostname, belongs to another workspace on this install. Link it from that workspace.
+- **Calls don't arrive.** With the password path, the hostname registered in WhatsApp Manager must
+  match the one Fonoster printed, SRTP must be set to SDES, and the password must be set (the
+  command's last line says `SIP password: not set yet` until it is).
+- **Outbound calls fail.** A WhatsApp user must grant your business
+  [call permission](https://developers.facebook.com/documentation/business-messaging/whatsapp/calling/user-call-permissions)
+  before you can call them, and Meta restricts calling in some
+  [countries](https://developers.facebook.com/documentation/business-messaging/whatsapp/support#country-restrictions).
+  Fonoster doesn't request call permission for you.
+- **Transfers with mode `refer` don't work on WhatsApp calls.** Meta doesn't accept SIP REFER. Use
+  a cold or warm transfer instead. See [Transfer calls](/telephony/transfers).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Numbers and routing" icon="phone" href="/telephony/numbers">
+    Send each number to the right agent, stream or SIP agent.
+  </Card>
+  <Card
+    title="Make outbound calls"
+    icon="phone-arrow-up-right"
+    href="/telephony/outbound-calls"
+  >
+    Call WhatsApp users who granted call permission.
+  </Card>
+  <Card
+    title="SIP over TLS"
+    icon="lock"
+    href="/self-hosting/https#sip-over-tls"
+  >
+    What your own install needs before Meta can reach it.
+  </Card>
+  <Card title="Link a Twilio number" icon="link" href="/telephony/link-twilio">
+    Bring a number from Twilio the same way.
+  </Card>
+</CardGroup>

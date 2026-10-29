@@ -34,11 +34,11 @@ agent. This page shows how to add a number and how to change where it sends call
 Fonoster doesn't sell numbers. You bring a number you already have from a carrier, in one of two
 ways:
 
-| | Twilio-linked number | Trunk-backed number |
+| | Linked number | Trunk-backed number |
 | --- | --- | --- |
-| Where the number comes from | Your Twilio account | Any carrier that speaks SIP |
+| Where the number comes from | Your Twilio account, or a WhatsApp Business number | Any carrier that speaks SIP |
 | How you set it up | Link it from the dashboard or the CLI. Fonoster creates the trunk on both sides and adds the number. | You create the trunk, then add the number to it |
-| Guide | [Link a Twilio number](/telephony/link-twilio) | [Connect a SIP trunk](/telephony/trunks) |
+| Guide | [Link a Twilio number](/telephony/link-twilio), [Link a WhatsApp Business number](/telephony/link-whatsapp) | [Connect a SIP trunk](/telephony/trunks) |
 
 Both end up the same in your workspace: a number on a trunk. Everything below works for either.
 
@@ -202,6 +202,9 @@ For every command and method, see Numbers in the [CLI reference](/reference/cli#
 <CardGroup cols={2}>
   <Card title="Link a Twilio number" icon="link" href="/telephony/link-twilio">
     The fastest way to a real number.
+  </Card>
+  <Card title="Link a WhatsApp Business number" icon="comment" href="/telephony/link-whatsapp">
+    Answer the calls WhatsApp users make to your business.
   </Card>
   <Card title="Connect a SIP trunk" icon="network-wired" href="/telephony/trunks">
     Bring any carrier that speaks SIP.

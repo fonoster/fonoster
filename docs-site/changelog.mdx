@@ -7,6 +7,26 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
+<Update label="v0.40" description="October 2026" tags={["Telephony", "Self-hosting"]}>
+
+## Telephony
+
+- **Link a WhatsApp Business number.** `fonoster sipnet:numbers:linkWhatsApp`, `numbers.linkWhatsApp`
+  in the SDK and **Link number → WhatsApp number** in the dashboard link a WhatsApp Business number
+  to an agent, app or SIP agent. With a Meta System User token and the number's Phone number ID,
+  Fonoster turns on SIP calling in Meta, points it at your install with SDES and keeps the SIP
+  password Meta issues; the token is used once. Without a token, Fonoster prints the SIP server to
+  register in WhatsApp Manager and takes the password later. See
+  [Link a WhatsApp Business number](/telephony/link-whatsapp).
+
+## Self-hosting
+
+- **WhatsApp needs SIP over TLS.** A self-hosted install must accept SIP over TLS on `5061` with a
+  certificate covering `*.pstn.<domain>` before a WhatsApp number can be linked. See
+  [SIP over TLS](/self-hosting/https#sip-over-tls).
+
+</Update>
+
 <Update label="v0.39" description="October 2026" tags={["Breaking", "Self-hosting"]}>
 
 ## Breaking changes

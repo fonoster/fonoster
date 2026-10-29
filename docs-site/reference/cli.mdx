@@ -179,6 +179,7 @@ See [Providers and models](/reference/providers) and
 | --- | --- |
 | `sipnet:numbers:create` | Adds a number. Asks for a friendly name, the number (E.164), its trunk, its application, city and country. |
 | `sipnet:numbers:linkTwilio <phoneNumber>` | Links a number from your Twilio account to the workspace. Asks for what the flags below leave out. The old name, `sipnet:numbers:linkTwilioNumber`, still works until the next minor release. |
+| `sipnet:numbers:linkWhatsApp [phoneNumber]` | Links a WhatsApp Business number to the workspace. With `--phone-number-id`, Fonoster sets up SIP calling in Meta with a token; with the number alone, you set up Meta yourself. Asks for what the flags below leave out. |
 | `sipnet:numbers:list` | Lists the workspace's numbers. Flag: `--page-size`, `-s` (default `1000`). |
 | `sipnet:numbers:get <ref>` | Shows a number. |
 | `sipnet:numbers:update <ref>` | Changes a number's friendly name, trunk or application. Asks for each. |
@@ -201,7 +202,24 @@ The secret never goes in a flag: the command reads it from `TWILIO_API_KEY_SECRE
 
 Without a terminal, the command never asks: a missing value exits 1 and names the flag or variable.
 
-See [Numbers and routing](/telephony/numbers) and [Link a Twilio number](/telephony/link-twilio).
+`sipnet:numbers:linkWhatsApp` takes either `--phone-number-id` (Fonoster turns on SIP calling in
+Meta, points the number at Fonoster with SDES and keeps the SIP password Meta issues) or the phone
+number by itself (you register the printed SIP server in WhatsApp Manager and paste the password).
+Neither secret goes in a flag: the command reads the token from `META_ACCESS_TOKEN` and the password
+from `WHATSAPP_SIP_PASSWORD`, or asks for them without echo.
+
+| Flag | Default | What it sets |
+| --- | --- | --- |
+| `--phone-number-id` | | Meta's id of the phone number. Fonoster then sets up Meta with the token from `META_ACCESS_TOKEN`. Not with a phone number argument. |
+| `--name` | Meta's verified name, or the phone number | The number's name in Fonoster |
+| `--app` | None | The application that answers the number. Not with `--agent`. |
+| `--agent` | None | The SIP agent (AOR) that answers the number. Not with `--app`. |
+| `--yes` | | Skip the confirmation; required without a terminal. |
+
+Without a terminal, the command never asks: a missing token exits 1 and names the variable.
+
+See [Numbers and routing](/telephony/numbers), [Link a Twilio number](/telephony/link-twilio) and
+[Link a WhatsApp Business number](/telephony/link-whatsapp).
 
 ## Trunks
 
