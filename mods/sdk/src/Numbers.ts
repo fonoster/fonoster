@@ -22,6 +22,8 @@ import {
   INumber,
   LinkTwilioRequest,
   LinkTwilioResponse,
+  LinkWhatsAppRequest,
+  LinkWhatsAppResponse,
   ListNumbersRequest,
   ListNumbersResponse,
   UpdateNumberRequest
@@ -36,6 +38,8 @@ import {
   GetNumberRequest as GetNumberRequestPB,
   LinkTwilioRequest as LinkTwilioRequestPB,
   LinkTwilioResponse as LinkTwilioResponsePB,
+  LinkWhatsAppRequest as LinkWhatsAppRequestPB,
+  LinkWhatsAppResponse as LinkWhatsAppResponsePB,
   ListNumbersRequest as ListNumbersRequestPB,
   ListNumbersResponse as ListNumbersResponsePB,
   Number as NumberPB,
@@ -316,6 +320,52 @@ class Numbers {
       metadata: this.client.getMetadata(),
       request,
       objectMapping: [["credentials", TwilioCredentialsPB]]
+    });
+  }
+
+  /**
+   * Links a WhatsApp Business number so it rings an Application or a SIP agent. Fonoster creates
+   * (or updates in place) the number's credential, its TLS trunk to Meta and the Number, and
+   * returns the SIP server hostname to register in WhatsApp Manager. Fonoster calls no Meta API:
+   * the SIP password Meta issued is passed in as `sipPassword`, now or on a later call, and is
+   * stored only on the credential.
+   *
+   * @param {LinkWhatsAppRequest} request - The request object that contains the necessary information to link a WhatsApp number
+   * @param {string} request.phoneNumber - The WhatsApp Business number in E.164
+   * @param {string} request.sipPassword - The SIP password Meta issued for the number (optional; without it the link keeps the current password or sets a placeholder)
+   * @param {string} request.name - The name of the Number (optional; defaults to the phoneNumber)
+   * @param {string} request.appRef - The Application that answers the number (or agentAor)
+   * @param {string} request.agentAor - The SIP agent that answers the number (or appRef)
+   * @return {Promise<LinkWhatsAppResponse>} - The response object with the Number's reference, its trunk's reference, the SIP server hostname and port to register in WhatsApp Manager, and whether the SIP password is set
+   * @example
+   * const numbers = new SDK.Numbers(client); // Existing client object
+   *
+   * const request = {
+   *   phoneNumber: "+525512345678",
+   *   name: "Front desk",
+   *   appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00",
+   *   sipPassword: process.env.WHATSAPP_SIP_PASSWORD
+   * };
+   *
+   * numbers
+   *   .linkWhatsApp(request)
+   *   .then(console.log) // successful response: { ref, trunkRef, sipServerHostname, sipServerPort, sipPasswordSet }
+   *   .catch(console.error); // an error occurred
+   */
+  async linkWhatsApp(
+    request: LinkWhatsAppRequest
+  ): Promise<LinkWhatsAppResponse> {
+    const client = this.client.getNumbersClient();
+    return await makeRpcRequest<
+      LinkWhatsAppRequestPB,
+      LinkWhatsAppResponsePB,
+      LinkWhatsAppRequest,
+      LinkWhatsAppResponse
+    >({
+      method: client.linkWhatsApp.bind(client),
+      requestPBObjectConstructor: LinkWhatsAppRequestPB,
+      metadata: this.client.getMetadata(),
+      request
     });
   }
 }

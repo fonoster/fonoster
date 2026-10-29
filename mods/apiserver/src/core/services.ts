@@ -92,7 +92,8 @@ const numbersService = buildNumbersService(
   numberRouting,
   {
     pstnRoot: PSTN_ROOT,
-    signalingAddresses: connectionDetails(getConfig()).signalingAddresses
+    signalingAddresses: connectionDetails(getConfig()).signalingAddresses,
+    sipEndpoints: connectionDetails(getConfig()).sip
   }
 );
 const aclsService = buildAclsService(routrConfig);

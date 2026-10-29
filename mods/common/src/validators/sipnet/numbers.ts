@@ -100,8 +100,42 @@ const linkTwilioRequestSchema = z
     }
   );
 
+// Meta's SIP password travels in a digest header; whitespace or a control character would break it
+const sipPasswordSchema = z
+  .string()
+  .min(1)
+  .max(128)
+  .refine(
+    (value) =>
+      !/\s/.test(value) &&
+      [...value].every((char) => {
+        const code = char.charCodeAt(0);
+        return code > 31 && code !== 127;
+      }),
+    { message: "The SIP password can't contain spaces or control characters" }
+  );
+
+const linkWhatsAppRequestSchema = z
+  .object({
+    phoneNumber: z
+      .string()
+      .regex(/^\+[1-9]\d{1,14}$/, "Must be an E.164 number"),
+    sipPassword: sipPasswordSchema.optional(),
+    name: nameSchema.optional(),
+    agentAor: sipUriSchema.optional(),
+    appRef: z.string().optional()
+  })
+  .refine(
+    ({ agentAor, appRef }) => !(agentAor !== undefined && appRef !== undefined),
+    {
+      message:
+        "You can only provide one of the following fields: 'agentAor' or 'appRef'"
+    }
+  );
+
 export {
   createNumberRequestSchema,
   linkTwilioRequestSchema,
+  linkWhatsAppRequestSchema,
   updateNumberRequestSchema
 };

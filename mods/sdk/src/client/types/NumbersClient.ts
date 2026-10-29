@@ -25,6 +25,8 @@ import {
   Number as INumber,
   LinkTwilioRequest,
   LinkTwilioResponse,
+  LinkWhatsAppRequest,
+  LinkWhatsAppResponse,
   ListNumbersRequest,
   ListNumbersResponse,
   UpdateNumberRequest,
@@ -39,6 +41,7 @@ type NumbersClient = {
   listNumbers: ClientFunction<ListNumbersRequest, ListNumbersResponse>;
   deleteNumber: ClientFunction<DeleteNumberRequest, DeleteNumberResponse>;
   linkTwilio: ClientFunction<LinkTwilioRequest, LinkTwilioResponse>;
+  linkWhatsApp: ClientFunction<LinkWhatsAppRequest, LinkWhatsAppResponse>;
 };
 
 export { NumbersClient };

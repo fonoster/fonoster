@@ -113,6 +113,32 @@ type LinkTwilioResponse = {
   trunkRef: string;
 };
 
+type LinkWhatsAppRequest = {
+  /** The WhatsApp Business number in E.164. */
+  phoneNumber: string;
+  /**
+   * The SIP password Meta issued for the number. Optional: without it, the link keeps the current
+   * password or sets a placeholder on a first link. Never logged.
+   */
+  sipPassword?: string;
+  /** Defaults to phoneNumber. */
+  name?: string;
+  appRef?: string;
+  agentAor?: string;
+};
+
+type LinkWhatsAppResponse = {
+  /** The Fonoster Number; a number already in the workspace keeps its ref. */
+  ref: string;
+  /** The Fonoster trunk for this number, `WhatsApp Trunk <+E.164>`. */
+  trunkRef: string;
+  /** The SIP server to register in WhatsApp Manager. */
+  sipServerHostname: string;
+  sipServerPort: number;
+  /** False until a sipPassword was given on this or an earlier link. */
+  sipPasswordSet: boolean;
+};
+
 export {
   CreateNumberRequest,
   CreateNumberRequestExtended,
@@ -120,6 +146,8 @@ export {
   INumberExtended,
   LinkTwilioRequest,
   LinkTwilioResponse,
+  LinkWhatsAppRequest,
+  LinkWhatsAppResponse,
   ListNumbersRequest,
   ListNumbersResponse,
   NumbersApi,

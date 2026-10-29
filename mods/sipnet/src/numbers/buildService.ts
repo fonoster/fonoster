@@ -24,23 +24,31 @@ import { createNumber } from "./createNumber";
 import { NumberRouting } from "./engineRouting";
 import { getNumber } from "./getNumber";
 import { linkTwilio } from "./linkTwilio";
+import { linkWhatsApp, SipEndpoint } from "./linkWhatsApp";
 import { listNumbers } from "./listNumbers";
 import { deleteNumber } from "./operations";
 import { updateNumber } from "./updateNumber";
 
 /**
- * `routing` picks the peer app-linked numbers point at (default: the roomr peer). `twilioLink`
- * is the install's PSTN root and public signaling addresses, for LinkTwilio.
+ * `routing` picks the peer app-linked numbers point at (default: the roomr peer). `carrierLinks`
+ * is what the carrier links read from the install: its PSTN root, its public signaling addresses
+ * (LinkTwilio) and its public SIP endpoints (LinkWhatsApp takes the TLS one).
  */
 function buildService(
   clientOptions: ClientOptions,
   checkNumberPreconditions: NumberPreconditionsCheck,
   routing?: NumberRouting,
-  twilioLink: { pstnRoot: string; signalingAddresses: string[] } = {
+  carrierLinks: {
+    pstnRoot: string;
+    signalingAddresses: string[];
+    sipEndpoints?: SipEndpoint[];
+  } = {
     pstnRoot: "",
-    signalingAddresses: []
+    signalingAddresses: [],
+    sipEndpoints: []
   }
 ) {
+  const { sipEndpoints = [], ...twilioLink } = carrierLinks;
   const client = new SDK.Numbers(clientOptions);
   const checkRefs = createCheckRefs(createRefLookups(clientOptions));
 
@@ -75,6 +83,16 @@ function buildService(
         routing,
         checkRefs,
         ...twilioLink
+      }),
+      linkWhatsApp: linkWhatsApp({
+        numbers: client,
+        trunks: new SDK.Trunks(clientOptions),
+        credentials: new SDK.Credentials(clientOptions),
+        checkNumberPreconditions,
+        routing,
+        checkRefs,
+        pstnRoot: twilioLink.pstnRoot,
+        sipEndpoints
       })
     }
   };

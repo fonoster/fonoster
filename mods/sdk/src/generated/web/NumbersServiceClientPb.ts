@@ -297,5 +297,48 @@ export class NumbersClient {
     this.methodDescriptorLinkTwilio);
   }
 
+  methodDescriptorLinkWhatsApp = new grpcWeb.MethodDescriptor(
+    '/fonoster.numbers.v1beta2.Numbers/LinkWhatsApp',
+    grpcWeb.MethodType.UNARY,
+    numbers_pb.LinkWhatsAppRequest,
+    numbers_pb.LinkWhatsAppResponse,
+    (request: numbers_pb.LinkWhatsAppRequest) => {
+      return request.serializeBinary();
+    },
+    numbers_pb.LinkWhatsAppResponse.deserializeBinary
+  );
+
+  linkWhatsApp(
+    request: numbers_pb.LinkWhatsAppRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<numbers_pb.LinkWhatsAppResponse>;
+
+  linkWhatsApp(
+    request: numbers_pb.LinkWhatsAppRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: numbers_pb.LinkWhatsAppResponse) => void): grpcWeb.ClientReadableStream<numbers_pb.LinkWhatsAppResponse>;
+
+  linkWhatsApp(
+    request: numbers_pb.LinkWhatsAppRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: numbers_pb.LinkWhatsAppResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.numbers.v1beta2.Numbers/LinkWhatsApp',
+        request,
+        metadata || {},
+        this.methodDescriptorLinkWhatsApp,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.numbers.v1beta2.Numbers/LinkWhatsApp',
+    request,
+    metadata || {},
+    this.methodDescriptorLinkWhatsApp);
+  }
+
 }
 

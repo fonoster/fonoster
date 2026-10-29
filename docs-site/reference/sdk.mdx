@@ -29,7 +29,7 @@ const client = new SDK.Client({
 });
 
 await client.loginWithApiKey(
-  process.env.FONOSTER_API_KEY,     // APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1
+  process.env.FONOSTER_API_KEY, // APk3n8q2w7e5r1t9y4u6i0o3p8a2s5d7f1
   process.env.FONOSTER_API_SECRET
 );
 
@@ -43,23 +43,26 @@ key ID starts with `WO`. The API key ID (`AP…`) and its secret prove who you a
 ### `Client` options (Node.js)
 
 <ParamField path="accessKeyId" type="string" required>
-  The workspace's access key ID (`WO` and 32 characters). Every request acts on this workspace.
+  The workspace's access key ID (`WO` and 32 characters). Every request acts on
+  this workspace.
 </ParamField>
 <ParamField path="endpoint" type="string" default="api.fonoster.ai">
-  The gRPC endpoint, as `host` or `host:port`. Set it to your install's address when you self-host.
+  The gRPC endpoint, as `host` or `host:port`. Set it to your install's address
+  when you self-host.
 </ParamField>
 <ParamField path="caFile" type="string" default="FONOSTER_CA_FILE">
-  A PEM file of certificate authorities to trust besides your system's, such as an install's
-  generated `config/tls/ca.pem`. Used for gRPC and the HTTP routes. Host names are still checked. A
-  missing file fails when the client is created.
+  A PEM file of certificate authorities to trust besides your system's, such as
+  an install's generated `config/tls/ca.pem`. Used for gRPC and the HTTP routes.
+  Host names are still checked. A missing file fails when the client is created.
 </ParamField>
 <ParamField path="allowInsecure" type="boolean" default="false">
-  Connect without TLS. Only for plain connections inside a private network, such as one service
-  calling another. To reach an install over HTTPS with its generated certificate, use `caFile`.
+  Connect without TLS. Only for plain connections inside a private network, such
+  as one service calling another. To reach an install over HTTPS with its
+  generated certificate, use `caFile`.
 </ParamField>
 <ParamField path="httpUrl" type="string">
-  The base URL of the HTTP routes (call records and regions). Default `https://` plus the
-  endpoint's host, without the port.
+  The base URL of the HTTP routes (call records and regions). Default `https://`
+  plus the endpoint's host, without the port.
 </ParamField>
 <ParamField path="withoutInterceptors" type="boolean" default="false">
   Turn off automatic token renewal.
@@ -75,18 +78,18 @@ The browser build exports `WebClient` instead of `Client`. It takes `url` (defau
 These are methods of `Client` and `WebClient`. Each sign-in method stores the tokens on the client;
 the client renews the access token before a request when it has expired.
 
-| Method | Purpose |
-| --- | --- |
-| `loginWithApiKey(accessKeyId, accessKeySecret)` | Sign in with an API key. The usual choice for code |
-| `login(username, password, twoFactorCode?)` | Sign in as a user with email and password |
-| `loginWithRefreshToken(refreshToken)` | Sign in with a refresh token you kept |
-| `loginWithVerificationCode(email, code)` | Sign in with the 6-digit code from `sendVerificationCode("EMAIL", email)` |
-| `loginWithOauth2Code("GITHUB", code)` | Sign in with a GitHub OAuth code |
-| `logout()` | Forget the tokens and revoke the refresh token |
-| `refreshToken()` | Renew the access token now |
-| `setAccessKeyId(accessKeyId)` | Switch to another workspace you belong to |
-| `getAccessKeyId()`, `getAccessToken()`, `getRefreshToken()`, `getIdToken()` | Read the current values |
-| `getCapabilities()` | What the deployment supports: sign-in methods, sign-up policy, billing, regions and SIP connection details. Needs no sign-in |
+| Method                                                                      | Purpose                                                                                                                      |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `loginWithApiKey(accessKeyId, accessKeySecret)`                             | Sign in with an API key. The usual choice for code                                                                           |
+| `login(username, password, twoFactorCode?)`                                 | Sign in as a user with email and password                                                                                    |
+| `loginWithRefreshToken(refreshToken)`                                       | Sign in with a refresh token you kept                                                                                        |
+| `loginWithVerificationCode(email, code)`                                    | Sign in with the 6-digit code from `sendVerificationCode("EMAIL", email)`                                                    |
+| `loginWithOauth2Code("GITHUB", code)`                                       | Sign in with a GitHub OAuth code                                                                                             |
+| `logout()`                                                                  | Forget the tokens and revoke the refresh token                                                                               |
+| `refreshToken()`                                                            | Renew the access token now                                                                                                   |
+| `setAccessKeyId(accessKeyId)`                                               | Switch to another workspace you belong to                                                                                    |
+| `getAccessKeyId()`, `getAccessToken()`, `getRefreshToken()`, `getIdToken()` | Read the current values                                                                                                      |
+| `getCapabilities()`                                                         | What the deployment supports: sign-in methods, sign-up policy, billing, regions and SIP connection details. Needs no sign-in |
 
 ## Conventions
 
@@ -104,16 +107,16 @@ the client renews the access token before a request when it has expired.
 An application is a stream (`STREAM`) or an Autopilot agent (`AUTOPILOT`).
 `new SDK.Applications(client)`.
 
-| Method | Purpose | Returns |
-| --- | --- | --- |
-| `createApplication(request)` | Create a stream or an agent | `{ ref, signingSecret, signingSecretHint }`. The secret is shown only here and on rotation; Autopilot agents get none |
-| `getApplication(ref)` | Get one application | `Application` |
-| `updateApplication({ ref, ...fields })` | Replace the application; fields you leave out reset to their defaults. Read it with `getApplication`, change what you need, and send all of it back | `{ ref }`, plus `signingSecret` when the update generated a new one |
-| `listApplications({ pageSize, pageToken })` | List applications | `{ items: Application[], nextPageToken }` |
-| `deleteApplication(ref)` | Delete an application | `{ ref }` |
-| `rotateSigningSecret(ref)` | Replace a stream's signing secret | `{ ref, signingSecret, signingSecretHint }` |
-| `evaluateIntelligence({ intelligence: { config } })` | Run an agent's test cases | An async iterator of events: `stepResult`, `scenarioSummary`, `evalError` |
-| `createTestToken()` | Get a short-lived token for a test call from the browser | `{ domain, displayName, signalingServer, targetAor, username, token }` |
+| Method                                               | Purpose                                                                                                                                             | Returns                                                                                                               |
+| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `createApplication(request)`                         | Create a stream or an agent                                                                                                                         | `{ ref, signingSecret, signingSecretHint }`. The secret is shown only here and on rotation; Autopilot agents get none |
+| `getApplication(ref)`                                | Get one application                                                                                                                                 | `Application`                                                                                                         |
+| `updateApplication({ ref, ...fields })`              | Replace the application; fields you leave out reset to their defaults. Read it with `getApplication`, change what you need, and send all of it back | `{ ref }`, plus `signingSecret` when the update generated a new one                                                   |
+| `listApplications({ pageSize, pageToken })`          | List applications                                                                                                                                   | `{ items: Application[], nextPageToken }`                                                                             |
+| `deleteApplication(ref)`                             | Delete an application                                                                                                                               | `{ ref }`                                                                                                             |
+| `rotateSigningSecret(ref)`                           | Replace a stream's signing secret                                                                                                                   | `{ ref, signingSecret, signingSecretHint }`                                                                           |
+| `evaluateIntelligence({ intelligence: { config } })` | Run an agent's test cases                                                                                                                           | An async iterator of events: `stepResult`, `scenarioSummary`, `evalError`                                             |
+| `createTestToken()`                                  | Get a short-lived token for a test call from the browser                                                                                            | `{ domain, displayName, signalingServer, targetAor, username, token }`                                                |
 
 The request for `createApplication`:
 
@@ -172,30 +175,32 @@ characters), `createdAt` and `updatedAt`.
 
 Phone numbers and where their calls go. `new SDK.Numbers(client)`.
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `createNumber(request)` | Add a number | `name`, `telUrl` (`tel:+18095550123`), `city`, `country`, `countryIsoCode`, `trunkRef`, and one destination: `appRef` or `agentAor` | `{ ref }` |
-| `getNumber(ref)` | Get one number | | `{ ref, name, telUrl, appRef, agentAor, city, country, countryIsoCode, trunk: { ref, name }, createdAt, updatedAt }` |
-| `updateNumber({ ref, ...fields })` | Change the name, trunk or destination | `name`, `trunkRef`, `appRef`, `agentAor` | `{ ref }` |
-| `listNumbers({ pageSize, pageToken })` | List numbers | | `{ items, nextPageToken }` |
-| `deleteNumber(ref)` | Remove a number | | `{ ref }` |
-| `linkTwilio(request)` | Bring a number from your Twilio account: Fonoster sets up its Twilio trunk and routes it to your app or SIP agent. Linking it again updates it in place | `phoneNumber` (`+18095550123`), `name` (defaults to `phoneNumber`), one destination: `appRef` or `agentAor`, and `credentials`: `accountSid` with `apiKeySid` and `apiKeySecret` (a Standard API key), or with `authToken` | `{ ref, trunkRef }` |
+| Method                                 | Purpose                                                                                                                                                                                                       | Key params                                                                                                                                                                                                                 | Returns                                                                                                              |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `createNumber(request)`                | Add a number                                                                                                                                                                                                  | `name`, `telUrl` (`tel:+18095550123`), `city`, `country`, `countryIsoCode`, `trunkRef`, and one destination: `appRef` or `agentAor`                                                                                        | `{ ref }`                                                                                                            |
+| `getNumber(ref)`                       | Get one number                                                                                                                                                                                                |                                                                                                                                                                                                                            | `{ ref, name, telUrl, appRef, agentAor, city, country, countryIsoCode, trunk: { ref, name }, createdAt, updatedAt }` |
+| `updateNumber({ ref, ...fields })`     | Change the name, trunk or destination                                                                                                                                                                         | `name`, `trunkRef`, `appRef`, `agentAor`                                                                                                                                                                                   | `{ ref }`                                                                                                            |
+| `listNumbers({ pageSize, pageToken })` | List numbers                                                                                                                                                                                                  |                                                                                                                                                                                                                            | `{ items, nextPageToken }`                                                                                           |
+| `deleteNumber(ref)`                    | Remove a number                                                                                                                                                                                               |                                                                                                                                                                                                                            | `{ ref }`                                                                                                            |
+| `linkTwilio(request)`                  | Bring a number from your Twilio account: Fonoster sets up its Twilio trunk and routes it to your app or SIP agent. Linking it again updates it in place                                                       | `phoneNumber` (`+18095550123`), `name` (defaults to `phoneNumber`), one destination: `appRef` or `agentAor`, and `credentials`: `accountSid` with `apiKeySid` and `apiKeySecret` (a Standard API key), or with `authToken` | `{ ref, trunkRef }`                                                                                                  |
+| `linkWhatsApp(request)`                | Bring a WhatsApp Business number: Fonoster sets up its trunk to Meta and routes it to your app or SIP agent, and returns the SIP server to register in WhatsApp Manager. Linking it again updates it in place | `phoneNumber` (`+525512345678`), `sipPassword` (optional: the SIP password from Meta's settings endpoint), `name` (defaults to `phoneNumber`), one destination: `appRef` or `agentAor`                                     | `{ ref, trunkRef, sipServerHostname, sipServerPort, sipPasswordSet }`                                                |
 
 `telUrl`, `city`, `country` and `countryIsoCode` can't change after creation.
 
-The Twilio credentials are used for this request and not stored.
+The Twilio credentials are used for this request and not stored. Fonoster calls no Meta API: you
+register the returned SIP server in WhatsApp Manager and paste the SIP password Meta issued.
 
 ## Trunks
 
 SIP connections to your carriers. `new SDK.Trunks(client)`.
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `createTrunk(request)` | Add a trunk | `name`, `inboundUri`, `sendRegister`, `accessControlListRef`, `inboundCredentialsRef`, `outboundCredentialsRef`, `uris` | `{ ref }` |
-| `getTrunk(ref)` | Get one trunk | | `Trunk` |
-| `updateTrunk({ ref, ...fields })` | Change any field | same as create | `{ ref }` |
-| `listTrunks({ pageSize, pageToken })` | List trunks | | `{ items, nextPageToken }` |
-| `deleteTrunk(ref)` | Remove a trunk | | `{ ref }` |
+| Method                                | Purpose          | Key params                                                                                                              | Returns                    |
+| ------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `createTrunk(request)`                | Add a trunk      | `name`, `inboundUri`, `sendRegister`, `accessControlListRef`, `inboundCredentialsRef`, `outboundCredentialsRef`, `uris` | `{ ref }`                  |
+| `getTrunk(ref)`                       | Get one trunk    |                                                                                                                         | `Trunk`                    |
+| `updateTrunk({ ref, ...fields })`     | Change any field | same as create                                                                                                          | `{ ref }`                  |
+| `listTrunks({ pageSize, pageToken })` | List trunks      |                                                                                                                         | `{ items, nextPageToken }` |
+| `deleteTrunk(ref)`                    | Remove a trunk   |                                                                                                                         | `{ ref }`                  |
 
 Each entry in `uris` is the carrier's address for outbound calls: `{ host, port, transport, user,
 weight, priority, enabled }`. `transport` is one of `UDP`, `TCP`, `TLS`, `SCTP`, `WS`, `WSS`.
@@ -204,13 +209,13 @@ weight, priority, enabled }`. `transport` is one of `UDP`, `TCP`, `TLS`, `SCTP`,
 
 SIP domains that SIP agents register to. `new SDK.Domains(client)`.
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `createDomain(request)` | Add a domain | `name`, `domainUri`, `accessControlListRef`, `egressPolicies` (`[{ rule, numberRef }]`) | `{ ref }` |
-| `getDomain(ref)` | Get one domain, with its ACL | | `Domain` |
-| `updateDomain({ ref, ...fields })` | Change the name, ACL or egress policies | | `{ ref }` |
-| `listDomains({ pageSize, pageToken })` | List domains | | `{ items, nextPageToken }` |
-| `deleteDomain(ref)` | Remove a domain | | `{ ref }` |
+| Method                                 | Purpose                                 | Key params                                                                              | Returns                    |
+| -------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------- |
+| `createDomain(request)`                | Add a domain                            | `name`, `domainUri`, `accessControlListRef`, `egressPolicies` (`[{ rule, numberRef }]`) | `{ ref }`                  |
+| `getDomain(ref)`                       | Get one domain, with its ACL            |                                                                                         | `Domain`                   |
+| `updateDomain({ ref, ...fields })`     | Change the name, ACL or egress policies |                                                                                         | `{ ref }`                  |
+| `listDomains({ pageSize, pageToken })` | List domains                            |                                                                                         | `{ items, nextPageToken }` |
+| `deleteDomain(ref)`                    | Remove a domain                         |                                                                                         | `{ ref }`                  |
 
 `domainUri` can't change after creation. Names are one label under your install's roots:
 `<label>.sip.<domain>` for a domain and `<label>.pstn.<domain>` for a trunk's `inboundUri`
@@ -221,47 +226,47 @@ SIP domains that SIP agents register to. `new SDK.Domains(client)`.
 SIP endpoints, such as softphones, that register to a domain. The class is `Agents`; the docs call
 them SIP agents. `new SDK.Agents(client)`.
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `createAgent(request)` | Add a SIP agent | `name`, `username`, `privacy` (`"ID"` or `"NONE"`), `enabled`, `maxContacts`, `expires`, `domainRef`, `credentialsRef` | `{ ref }` |
-| `getAgent(ref)` | Get one SIP agent, with its domain and credentials | | `Agent` |
-| `updateAgent({ ref, ...fields })` | Change any field except `username` | | `{ ref }` |
-| `listAgents({ pageSize, pageToken })` | List SIP agents | | `{ items, nextPageToken }` |
-| `deleteAgent(ref)` | Remove a SIP agent | | `{ ref }` |
+| Method                                | Purpose                                            | Key params                                                                                                             | Returns                    |
+| ------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| `createAgent(request)`                | Add a SIP agent                                    | `name`, `username`, `privacy` (`"ID"` or `"NONE"`), `enabled`, `maxContacts`, `expires`, `domainRef`, `credentialsRef` | `{ ref }`                  |
+| `getAgent(ref)`                       | Get one SIP agent, with its domain and credentials |                                                                                                                        | `Agent`                    |
+| `updateAgent({ ref, ...fields })`     | Change any field except `username`                 |                                                                                                                        | `{ ref }`                  |
+| `listAgents({ pageSize, pageToken })` | List SIP agents                                    |                                                                                                                        | `{ items, nextPageToken }` |
+| `deleteAgent(ref)`                    | Remove a SIP agent                                 |                                                                                                                        | `{ ref }`                  |
 
 ## Credentials
 
 Usernames and passwords for SIP agents and trunks. `new SDK.Credentials(client)`.
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `createCredentials(request)` | Add credentials | `name`, `username`, `password` | `{ ref }` |
-| `getCredentials(ref)` | Get one set (without the password) | | `{ ref, name, username, createdAt, updatedAt }` |
-| `updateCredentials({ ref, name })` | Rename | `name` | `{ ref }` |
-| `listCredentials({ pageSize, pageToken })` | List credentials | | `{ items, nextPageToken }` |
-| `deleteCredentials(ref)` | Remove credentials | | `{ ref }` |
+| Method                                     | Purpose                            | Key params                     | Returns                                         |
+| ------------------------------------------ | ---------------------------------- | ------------------------------ | ----------------------------------------------- |
+| `createCredentials(request)`               | Add credentials                    | `name`, `username`, `password` | `{ ref }`                                       |
+| `getCredentials(ref)`                      | Get one set (without the password) |                                | `{ ref, name, username, createdAt, updatedAt }` |
+| `updateCredentials({ ref, name })`         | Rename                             | `name`                         | `{ ref }`                                       |
+| `listCredentials({ pageSize, pageToken })` | List credentials                   |                                | `{ items, nextPageToken }`                      |
+| `deleteCredentials(ref)`                   | Remove credentials                 |                                | `{ ref }`                                       |
 
 ## Acls
 
 Access control lists of IP addresses and networks. `new SDK.Acls(client)`.
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `createAcl(request)` | Add an ACL | `name`, `allow` (`["203.0.113.0/24"]`), `deny` | `{ ref }` |
-| `getAcl(ref)` | Get one ACL | | `{ ref, name, allow, deny, createdAt, updatedAt }` |
-| `updateAcl({ ref, ...fields })` | Change the name or the lists | `name`, `allow`, `deny` | `{ ref }` |
-| `listAcls({ pageSize, pageToken })` | List ACLs | | `{ items, nextPageToken }` |
-| `deleteAcl(ref)` | Remove an ACL | | `{ ref }` |
+| Method                              | Purpose                      | Key params                                     | Returns                                            |
+| ----------------------------------- | ---------------------------- | ---------------------------------------------- | -------------------------------------------------- |
+| `createAcl(request)`                | Add an ACL                   | `name`, `allow` (`["203.0.113.0/24"]`), `deny` | `{ ref }`                                          |
+| `getAcl(ref)`                       | Get one ACL                  |                                                | `{ ref, name, allow, deny, createdAt, updatedAt }` |
+| `updateAcl({ ref, ...fields })`     | Change the name or the lists | `name`, `allow`, `deny`                        | `{ ref }`                                          |
+| `listAcls({ pageSize, pageToken })` | List ACLs                    |                                                | `{ items, nextPageToken }`                         |
+| `deleteAcl(ref)`                    | Remove an ACL                |                                                | `{ ref }`                                          |
 
 ## Calls
 
 Start outbound calls and read call history. `new SDK.Calls(client)`.
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `createCall(request)` | Dial a number and connect it to an application | `from`, `to`, `appRef` (required), `timeout` (seconds, default 30, up to 120), `metadata` | `{ ref, statusStream }` |
-| `getCall(ref)` | Get one call | | `CallDetailRecord` |
-| `listCalls(request)` | List calls | `after`, `before`, `type`, `status`, `from`, `to`, `appRef`, `pageSize`, `pageToken` | `{ items, nextPageToken }` |
+| Method                | Purpose                                        | Key params                                                                                | Returns                    |
+| --------------------- | ---------------------------------------------- | ----------------------------------------------------------------------------------------- | -------------------------- |
+| `createCall(request)` | Dial a number and connect it to an application | `from`, `to`, `appRef` (required), `timeout` (seconds, default 30, up to 120), `metadata` | `{ ref, statusStream }`    |
+| `getCall(ref)`        | Get one call                                   |                                                                                           | `CallDetailRecord`         |
+| `listCalls(request)`  | List calls                                     | `after`, `before`, `type`, `status`, `from`, `to`, `appRef`, `pageSize`, `pageToken`      | `{ items, nextPageToken }` |
 
 `statusStream` is an async iterator of `{ status }` while the call is dialed. `status` is one of
 `TRYING`, `PROGRESS`, `ANSWER`, `BUSY`, `CANCEL`, `FAILED` or `ERROR` (no answer).
@@ -278,16 +283,16 @@ none did). When answering-machine detection ran, it also has
 Signed call records (vCon) over HTTP. `new SDK.CallRecords(client, { baseUrl?, fetch? })`;
 `baseUrl` defaults to the client's `httpUrl`. See [Call records](/observe/call-records).
 
-| Method | Purpose | Returns |
-| --- | --- | --- |
-| `listRecords(request)` | Search records, newest first. Filters: `after`, `before` (ISO time), `number` (from or to), `appRef`, `status`, `pageSize`, `pageToken` | `{ items, nextPageToken }` |
-| `getRecord(callRef, { version?, original? })` | One record: the vCon and its signature. Redacted unless `original: true` (owner or admin) | `{ ...summary, currentVersion, redacted, vcon, jws }` |
-| `getRecording(callRef, { version?, original? })` | The recording (WAV) | `{ data: ArrayBuffer, contentType, contentHash }` |
-| `getAudit(callRef)` | Deletions and erasures of a record (owner or admin) | `[{ action, part, reason, actor, version, at }]` |
-| `eraseRecord(callRef, reason?)` | Delete every part and keep a signed tombstone (owner or admin) | The API's answer |
-| `deletePart(callRef, part, reason?)` | Delete one part: `recording`, `transcript` or `messages` (owner or admin) | The API's answer |
-| `getRetention()` | The workspace's retention policies | `[{ part, days }]` |
-| `setRetention(part, days)` | Keep a part for `days`; `null` removes the policy (owner or admin) | `{ part, days }` |
+| Method                                           | Purpose                                                                                                                                 | Returns                                               |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `listRecords(request)`                           | Search records, newest first. Filters: `after`, `before` (ISO time), `number` (from or to), `appRef`, `status`, `pageSize`, `pageToken` | `{ items, nextPageToken }`                            |
+| `getRecord(callRef, { version?, original? })`    | One record: the vCon and its signature. Redacted unless `original: true` (owner or admin)                                               | `{ ...summary, currentVersion, redacted, vcon, jws }` |
+| `getRecording(callRef, { version?, original? })` | The recording (WAV)                                                                                                                     | `{ data: ArrayBuffer, contentType, contentHash }`     |
+| `getAudit(callRef)`                              | Deletions and erasures of a record (owner or admin)                                                                                     | `[{ action, part, reason, actor, version, at }]`      |
+| `eraseRecord(callRef, reason?)`                  | Delete every part and keep a signed tombstone (owner or admin)                                                                          | The API's answer                                      |
+| `deletePart(callRef, part, reason?)`             | Delete one part: `recording`, `transcript` or `messages` (owner or admin)                                                               | The API's answer                                      |
+| `getRetention()`                                 | The workspace's retention policies                                                                                                      | `[{ part, days }]`                                    |
+| `setRetention(part, days)`                       | Keep a part for `days`; `null` removes the policy (owner or admin)                                                                      | `{ part, days }`                                      |
 
 A record summary has `callRef`, `appRef`, `from`, `to`, `direction`, `status`, `endReason`,
 `failureReason`, `sipStatus`, `startedAt`, `endedAt`, `durationSeconds`, `region`, `version`,
@@ -298,16 +303,16 @@ A record summary has `callRef`, `appRef`, `from`, `to`, `direction`, `status`, `
 Endpoints that receive workspace events. `new SDK.Webhooks(client)`. See
 [Webhook events](/reference/webhook-events).
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `createWebhook(request)` | Add an endpoint | `url`, `events` (`["call.ended"]`) | `{ ref, secret }`. The secret is shown only here and on rotation |
-| `getWebhook(ref)` | Get one endpoint | | `{ ref, url, events, secretHint, previousSecretUntil, createdAt, updatedAt }` |
-| `listWebhooks({ pageSize, pageToken })` | List endpoints | | `{ items, nextPageToken }` |
-| `updateWebhook({ ref, url?, events? })` | Change the URL or events | | `{ ref }` |
-| `deleteWebhook(ref)` | Remove an endpoint | | `{ ref }` |
-| `rotateWebhookSecret(ref)` | Issue a new secret; the old one keeps verifying until `previousSecretUntil` | | `{ ref, secret, previousSecretUntil }` |
-| `listWebhookDeliveries({ webhookRef?, pageSize? })` | The delivery log, newest first | | `{ items: WebhookDelivery[] }` |
-| `resendWebhookDelivery(ref)` | Send a delivery again now, with the same event id and a new signature | | `WebhookDelivery` |
+| Method                                              | Purpose                                                                     | Key params                         | Returns                                                                       |
+| --------------------------------------------------- | --------------------------------------------------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------- |
+| `createWebhook(request)`                            | Add an endpoint                                                             | `url`, `events` (`["call.ended"]`) | `{ ref, secret }`. The secret is shown only here and on rotation              |
+| `getWebhook(ref)`                                   | Get one endpoint                                                            |                                    | `{ ref, url, events, secretHint, previousSecretUntil, createdAt, updatedAt }` |
+| `listWebhooks({ pageSize, pageToken })`             | List endpoints                                                              |                                    | `{ items, nextPageToken }`                                                    |
+| `updateWebhook({ ref, url?, events? })`             | Change the URL or events                                                    |                                    | `{ ref }`                                                                     |
+| `deleteWebhook(ref)`                                | Remove an endpoint                                                          |                                    | `{ ref }`                                                                     |
+| `rotateWebhookSecret(ref)`                          | Issue a new secret; the old one keeps verifying until `previousSecretUntil` |                                    | `{ ref, secret, previousSecretUntil }`                                        |
+| `listWebhookDeliveries({ webhookRef?, pageSize? })` | The delivery log, newest first                                              |                                    | `{ items: WebhookDelivery[] }`                                                |
+| `resendWebhookDelivery(ref)`                        | Send a delivery again now, with the same event id and a new signature       |                                    | `WebhookDelivery`                                                             |
 
 A `WebhookDelivery` has `ref`, `webhookRef`, `eventId`, `eventType`, `status` (`pending`,
 `succeeded`, `failed`), `attempts`, `lastStatus` (HTTP status of the last attempt, `0` for no
@@ -318,13 +323,13 @@ response), `lastAttemptAt`, `nextAttemptAt` and `createdAt`.
 The catalog of speech and language providers, and your own vendor keys. `new SDK.Providers(client)`.
 See [Providers and models](/reference/providers).
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `listCatalog(request?)` | Providers, models and voices the workspace can use | `kind` (`provider`, `model`, `voice`), `type` (`stt`, `tts`, `llm`) | `{ items: CatalogItem[] }` |
-| `setProviderKey(request)` | Store or replace the workspace's key for a provider | `providerId` (`deepgram`), `key` | `{ ref, providerId, secretRef, createdAt, updatedAt }` |
-| `listProviderKeys()` | The providers you have keys for (never the keys) | | `{ items }` |
-| `deleteProviderKey(providerId)` | Remove your key; the platform's key applies again | | `{ providerId }` |
-| `listWarnings()` | Deprecated or retired catalog items your workspace uses, and where | | `{ items: CatalogWarning[] }` |
+| Method                          | Purpose                                                            | Key params                                                          | Returns                                                |
+| ------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------- | ------------------------------------------------------ |
+| `listCatalog(request?)`         | Providers, models and voices the workspace can use                 | `kind` (`provider`, `model`, `voice`), `type` (`stt`, `tts`, `llm`) | `{ items: CatalogItem[] }`                             |
+| `setProviderKey(request)`       | Store or replace the workspace's key for a provider                | `providerId` (`deepgram`), `key`                                    | `{ ref, providerId, secretRef, createdAt, updatedAt }` |
+| `listProviderKeys()`            | The providers you have keys for (never the keys)                   |                                                                     | `{ items }`                                            |
+| `deleteProviderKey(providerId)` | Remove your key; the platform's key applies again                  |                                                                     | `{ providerId }`                                       |
+| `listWarnings()`                | Deprecated or retired catalog items your workspace uses, and where |                                                                     | `{ items: CatalogWarning[] }`                          |
 
 A `CatalogItem` has `id` (such as `deepgram/nova-3`), `kind`, `state` (`active`, `deprecated`),
 `providerId`, and when they apply `type`, `capabilities`, `languages`, `features`, `models`,
@@ -334,8 +339,8 @@ A `CatalogItem` has `id` (such as `deepgram/nova-3`), `kind`, `state` (`active`,
 
 What the workspace consumed, in quantities, never money. `new SDK.Usage(client)`.
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
+| Method              | Purpose                                                           | Key params                                                                                                                                                           | Returns                |
+| ------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
 | `getUsage(request)` | Usage totals for a range of days (UTC, inclusive), split by meter | `fromDay`, `toDay` (`YYYY-MM-DD`), `groupBy` (any of `day`, `workspace`, `provider`, `model`, `key_source`, `origin`), `allOwned` (owners: every workspace they own) | `{ rows: UsageRow[] }` |
 
 A `UsageRow` has `meter`, `unit` and `quantity`, plus the dimensions you grouped by. Meters:
@@ -359,24 +364,24 @@ const { rows } = await usage.getUsage({
 
 Named secret values stored in the workspace. `new SDK.Secrets(client)`.
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `createSecret(request)` | Store a secret | `name`, `secret` | `{ ref }` |
-| `getSecret(ref)` | Get one secret | | `{ ref, name, secret, createdAt, updatedAt }` |
-| `updateSecret({ ref, ...fields })` | Change the name or value | `name`, `secret` | `{ ref }` |
-| `listSecrets({ pageSize, pageToken })` | List secrets | | `{ items, nextPageToken }` |
-| `deleteSecret(ref)` | Remove a secret | | `{ ref }` |
+| Method                                 | Purpose                  | Key params       | Returns                                       |
+| -------------------------------------- | ------------------------ | ---------------- | --------------------------------------------- |
+| `createSecret(request)`                | Store a secret           | `name`, `secret` | `{ ref }`                                     |
+| `getSecret(ref)`                       | Get one secret           |                  | `{ ref, name, secret, createdAt, updatedAt }` |
+| `updateSecret({ ref, ...fields })`     | Change the name or value | `name`, `secret` | `{ ref }`                                     |
+| `listSecrets({ pageSize, pageToken })` | List secrets             |                  | `{ items, nextPageToken }`                    |
+| `deleteSecret(ref)`                    | Remove a secret          |                  | `{ ref }`                                     |
 
 ## ApiKeys
 
 API keys for the workspace. `new SDK.ApiKeys(client)`. See [API keys and access](/workspace/access).
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `createApiKey(request)` | Create a key | `role` (`WORKSPACE_ADMIN`, the only role), `expiresAt` (seconds since the epoch; omit for no expiry) | `{ ref, accessKeyId, accessKeySecret }`. The secret is shown only here |
-| `regenerateApiKey(ref)` | Replace a key's secret | | `{ ref, accessKeyId, accessKeySecret }` |
-| `listApiKeys({ pageSize, pageToken })` | List keys (never the secrets) | | `{ items: [{ ref, accessKeyId, role, expiresAt, createdAt, updatedAt }], nextPageToken }` |
-| `deleteApiKey(ref)` | Delete a key | | `{ ref }` |
+| Method                                 | Purpose                       | Key params                                                                                           | Returns                                                                                   |
+| -------------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `createApiKey(request)`                | Create a key                  | `role` (`WORKSPACE_ADMIN`, the only role), `expiresAt` (seconds since the epoch; omit for no expiry) | `{ ref, accessKeyId, accessKeySecret }`. The secret is shown only here                    |
+| `regenerateApiKey(ref)`                | Replace a key's secret        |                                                                                                      | `{ ref, accessKeyId, accessKeySecret }`                                                   |
+| `listApiKeys({ pageSize, pageToken })` | List keys (never the secrets) |                                                                                                      | `{ items: [{ ref, accessKeyId, role, expiresAt, createdAt, updatedAt }], nextPageToken }` |
+| `deleteApiKey(ref)`                    | Delete a key                  |                                                                                                      | `{ ref }`                                                                                 |
 
 `expiresAt`, `createdAt` and `updatedAt` of a key are seconds since the epoch.
 
@@ -384,18 +389,18 @@ API keys for the workspace. `new SDK.ApiKeys(client)`. See [API keys and access]
 
 Workspaces you belong to, and their members. `new SDK.Workspaces(client)`.
 
-| Method | Purpose | Key params | Returns |
-| --- | --- | --- | --- |
-| `createWorkspace(request)` | Create a workspace | `name`, `region` (default `default`; fixed for life) | `{ ref, region }` |
-| `getWorkspace(ref)` | Get one workspace | | `{ ref, name, ownerRef, accessKeyId, region, owner, createdAt, updatedAt }` |
-| `updateWorkspace({ ref, name })` | Rename | | `{ ref }` |
-| `deleteWorkspace(ref)` | Delete a workspace | | `{ ref }` |
-| `listWorkspaces()` | Workspaces you belong to | | `{ items }` |
-| `inviteUserToWorkspace(request)` | Invite someone by email | `email`, `name`, `role` | `{ ref }` |
-| `resendWorkspaceMembershipInvitation(userRef)` | Send the invitation again | | `{ userRef }` |
-| `listWorkspaceMembers({ pageSize, pageToken })` | List members | | `{ items: [{ ref, userRef, name, email, role, status, createdAt, updatedAt }], nextPageToken }` |
-| `removeUserFromWorkspace(userRef)` | Remove a member | | `{ userRef }` |
-| `getRegion()` | The workspace's region, its status and connection details | | `Region` |
+| Method                                          | Purpose                                                   | Key params                                           | Returns                                                                                         |
+| ----------------------------------------------- | --------------------------------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `createWorkspace(request)`                      | Create a workspace                                        | `name`, `region` (default `default`; fixed for life) | `{ ref, region }`                                                                               |
+| `getWorkspace(ref)`                             | Get one workspace                                         |                                                      | `{ ref, name, ownerRef, accessKeyId, region, owner, createdAt, updatedAt }`                     |
+| `updateWorkspace({ ref, name })`                | Rename                                                    |                                                      | `{ ref }`                                                                                       |
+| `deleteWorkspace(ref)`                          | Delete a workspace                                        |                                                      | `{ ref }`                                                                                       |
+| `listWorkspaces()`                              | Workspaces you belong to                                  |                                                      | `{ items }`                                                                                     |
+| `inviteUserToWorkspace(request)`                | Invite someone by email                                   | `email`, `name`, `role`                              | `{ ref }`                                                                                       |
+| `resendWorkspaceMembershipInvitation(userRef)`  | Send the invitation again                                 |                                                      | `{ userRef }`                                                                                   |
+| `listWorkspaceMembers({ pageSize, pageToken })` | List members                                              |                                                      | `{ items: [{ ref, userRef, name, email, role, status, createdAt, updatedAt }], nextPageToken }` |
+| `removeUserFromWorkspace(userRef)`              | Remove a member                                           |                                                      | `{ userRef }`                                                                                   |
+| `getRegion()`                                   | The workspace's region, its status and connection details |                                                      | `Region`                                                                                        |
 
 The workspace selected by the client's `accessKeyId` is the one these methods act on, except
 `createWorkspace` and `listWorkspaces`. `role` is `WORKSPACE_OWNER`, `WORKSPACE_ADMIN` or
@@ -405,10 +410,10 @@ The workspace selected by the client's `accessKeyId` is the one these methods ac
 
 The regions a new workspace can use, over HTTP. `new SDK.Regions(client, { baseUrl?, fetch? })`.
 
-| Method | Purpose | Returns |
-| --- | --- | --- |
-| `listRegions()` | The public regions offered and, when signed in, your private regions | `{ items: [{ id, displayName, kind, default, status, … }] }` |
-| `getRegion(region?)` | One region by id or ref; without an argument, the current workspace's | `Region` |
+| Method               | Purpose                                                               | Returns                                                      |
+| -------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `listRegions()`      | The public regions offered and, when signed in, your private regions  | `{ items: [{ id, displayName, kind, default, status, … }] }` |
+| `getRegion(region?)` | One region by id or ref; without an argument, the current workspace's | `Region`                                                     |
 
 Pass a region's `id` to `createWorkspace({ name, region })`. Creating and enrolling private
 regions is covered under [Private regions](/private-regions/overview).

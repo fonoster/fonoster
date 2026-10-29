@@ -421,3 +421,79 @@ export namespace LinkTwilioResponse {
   }
 }
 
+export class LinkWhatsAppRequest extends jspb.Message {
+  getPhoneNumber(): string;
+  setPhoneNumber(value: string): LinkWhatsAppRequest;
+
+  getSipPassword(): string;
+  setSipPassword(value: string): LinkWhatsAppRequest;
+
+  getName(): string;
+  setName(value: string): LinkWhatsAppRequest;
+
+  getAgentAor(): string;
+  setAgentAor(value: string): LinkWhatsAppRequest;
+
+  getAppRef(): string;
+  setAppRef(value: string): LinkWhatsAppRequest;
+
+  getIngressHandlerCase(): LinkWhatsAppRequest.IngressHandlerCase;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): LinkWhatsAppRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: LinkWhatsAppRequest): LinkWhatsAppRequest.AsObject;
+  static serializeBinaryToWriter(message: LinkWhatsAppRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LinkWhatsAppRequest;
+  static deserializeBinaryFromReader(message: LinkWhatsAppRequest, reader: jspb.BinaryReader): LinkWhatsAppRequest;
+}
+
+export namespace LinkWhatsAppRequest {
+  export type AsObject = {
+    phoneNumber: string,
+    sipPassword: string,
+    name: string,
+    agentAor: string,
+    appRef: string,
+  }
+
+  export enum IngressHandlerCase { 
+    INGRESS_HANDLER_NOT_SET = 0,
+    AGENT_AOR = 4,
+    APP_REF = 5,
+  }
+}
+
+export class LinkWhatsAppResponse extends jspb.Message {
+  getRef(): string;
+  setRef(value: string): LinkWhatsAppResponse;
+
+  getTrunkRef(): string;
+  setTrunkRef(value: string): LinkWhatsAppResponse;
+
+  getSipServerHostname(): string;
+  setSipServerHostname(value: string): LinkWhatsAppResponse;
+
+  getSipServerPort(): number;
+  setSipServerPort(value: number): LinkWhatsAppResponse;
+
+  getSipPasswordSet(): boolean;
+  setSipPasswordSet(value: boolean): LinkWhatsAppResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): LinkWhatsAppResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: LinkWhatsAppResponse): LinkWhatsAppResponse.AsObject;
+  static serializeBinaryToWriter(message: LinkWhatsAppResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): LinkWhatsAppResponse;
+  static deserializeBinaryFromReader(message: LinkWhatsAppResponse, reader: jspb.BinaryReader): LinkWhatsAppResponse;
+}
+
+export namespace LinkWhatsAppResponse {
+  export type AsObject = {
+    ref: string,
+    trunkRef: string,
+    sipServerHostname: string,
+    sipServerPort: number,
+    sipPasswordSet: boolean,
+  }
+}
+
