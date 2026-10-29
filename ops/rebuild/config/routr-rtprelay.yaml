@@ -1,0 +1,14 @@
+# Routr's media relay profiles for the rebuild stack (mounted at /etc/routr/rtprelay.yaml). Merged
+# over Routr's default RTPEngine profiles one key at a time: a key here replaces the default's, a
+# list replaces the default list, and anything not mentioned stays as Routr ships it.
+kind: RTPRelay
+apiVersion: v2beta1
+spec:
+  profiles:
+    # Toward a trunk reached over TLS, offer only the mandatory SRTP suite (RFC 4568 §6.2.1).
+    # RTPEngine's default offer also lists NULL_HMAC_SHA1_80 and NULL_HMAC_SHA1_32, which is
+    # authenticated but unencrypted audio.
+    phone-to-secure-phone:
+      SDES: ["only-AES_CM_128_HMAC_SHA1_80"]
+    web-to-secure-phone:
+      SDES: ["only-AES_CM_128_HMAC_SHA1_80"]

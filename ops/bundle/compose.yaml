@@ -91,6 +91,7 @@ services:
     volumes:
       - ${CONFIG_DIR:-./config}/routr-one.yaml:/etc/routr/one.yaml:ro
       - ${CONFIG_DIR:-./config}/routr-edgeport.yaml:/etc/routr/fonoster/edgeport.yaml:ro
+      - ${CONFIG_DIR:-./config}/routr-rtprelay.yaml:/etc/routr/rtprelay.yaml:ro
       - ${CONFIG_DIR:-./config}/keys/public.pem:/etc/routr/keys/public.pem:ro
     ports:
       - "${SIP_PORT:-5060}:${SIP_PORT:-5060}/udp"

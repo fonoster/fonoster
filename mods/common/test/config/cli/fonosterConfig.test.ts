@@ -156,6 +156,7 @@ describe("@common[config/cli] fonoster-config", function () {
         "config/roomr.yaml",
         "config/routr-edgeport.yaml",
         "config/routr-one.yaml",
+        "config/routr-rtprelay.yaml",
         "config/keys/private.pem",
         "config/keys/public.pem",
         "config/keys/records.pem"
@@ -292,7 +293,8 @@ describe("@common[config/cli] fonoster-config", function () {
         "autopilot.yaml",
         "roomr.yaml",
         "routr-edgeport.yaml",
-        "routr-one.yaml"
+        "routr-one.yaml",
+        "routr-rtprelay.yaml"
       ]) {
         const text = readFileSync(join(dir, "config", f), "utf8");
         for (const [name, value] of secrets)
@@ -488,7 +490,7 @@ describe("@common[config/cli] fonoster-config", function () {
           }
         },
         connect: { verifier: { publicKeyPath: "/etc/routr/keys/public.pem" } },
-        rtprelay: { host: "rtpengine" },
+        rtprelay: { host: "rtpengine", configPath: "/etc/routr/rtprelay.yaml" },
         logs: { level: "info" }
       });
       // Exactly what the routr service passes in ops/bundle/compose.yaml.
@@ -520,7 +522,7 @@ describe("@common[config/cli] fonoster-config", function () {
             nats: { enabled: true, url: "nats://routr:n0a1b2c3@nats:4222" }
           }
         },
-        rtprelay: { host: "rtpengine" }
+        rtprelay: { host: "rtpengine", configPath: "/etc/routr/rtprelay.yaml" }
       });
       // Exactly what the routr service passes in ops/rebuild/cell/compose.yaml.
       expect(placeholders(cellFile()).sort()).to.deep.equal([

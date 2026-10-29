@@ -7,6 +7,29 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
+<Update label="v0.39" description="October 2026" tags={["Breaking", "Self-hosting"]}>
+
+## Breaking changes
+
+- **Routr validates carrier certificates over SIP over TLS.** With SIP over TLS on, EdgePort now
+  checks the carrier's certificate chain against the public CAs the JVM ships, and speaks TLS 1.2
+  and 1.3 only (SSLv3 is gone). Before, any certificate was accepted. A carrier with a private CA
+  stops connecting until you set `securityContext.trustStore` and `trustStorePassword` in
+  `config/overrides/routr-edgeport.yaml` to a PKCS#12 holding that CA. Installs that never turned
+  SIP over TLS on are unaffected. There is no hostname check yet.
+
+## Self-hosting
+
+- **One SRTP suite toward TLS trunks.** Routr's media relay now offers only
+  `AES_CM_128_HMAC_SHA1_80` to trunks reached over TLS, from the new `config/routr-rtprelay.yaml`
+  that `init` writes; RTPEngine's default offer also listed the null ciphers. Run
+  `npx -p @fonoster/common fonoster-config init` after upgrading, as always.
+- **The SIP over TLS recipe now covers the names carriers connect to**: a `*.pstn.<domain>`
+  certificate through the DNS challenge, and a DNS name in `signaling.externalAddrs` so carriers
+  can verify the host they call back. See [SIP over TLS](/self-hosting/https#sip-over-tls).
+
+</Update>
+
 <Update label="v0.38.1" description="October 2026" tags={["Self-hosting"]}>
 
 ## Self-hosting

@@ -10,8 +10,9 @@ services:
   #     -out config/tls/signaling.p12 -passout pass:<password>
   #
   # Then uncomment these lines and the tls transport in config/routr-edgeport.example.yaml, set
-  # its keyStorePassword and trustStorePassword to <password>, and run init again. Add this file
-  # to COMPOSE_FILE (COMPOSE_FILE=compose.yaml:compose.tls.yaml).
+  # its keyStorePassword to <password>, and run init again. Add this file to COMPOSE_FILE
+  # (COMPOSE_FILE=compose.yaml:compose.tls.yaml). The certificate must cover the names carriers
+  # connect to: *.pstn.<domain> and the name in signaling.externalAddrs (see the HTTPS docs page).
   #
   # routr:
   #   volumes:

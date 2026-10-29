@@ -90,6 +90,7 @@ services:
     volumes:
       - ./config/routr-one.yaml:/etc/routr/one.yaml:ro
       - ../config/routr-edgeport.yaml:/etc/routr/stack/edgeport.yaml:ro
+      - ../config/routr-rtprelay.yaml:/etc/routr/rtprelay.yaml:ro
     ports:
       - "${RB_SIP_PORT:-5060}:5060/udp"
       - "${RB_SIP_PORT:-5060}:5060/tcp"
