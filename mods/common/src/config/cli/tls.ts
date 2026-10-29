@@ -22,7 +22,7 @@ import {
   KeyObject,
   X509Certificate
 } from "crypto";
-import { existsSync, mkdirSync, readFileSync } from "fs";
+import { chmodSync, existsSync, mkdirSync, readFileSync } from "fs";
 import { isAbsolute, join, resolve } from "path";
 import { URL } from "url";
 import { writeWithMode } from "./envFile";
@@ -208,10 +208,14 @@ export function ensureLocalTls(
     needsReissue(readFileSync(paths.cert, "utf8"), caCert, names, now)
   ) {
     const server = newServer(readFileSync(paths.caKey, "utf8"), names, now);
-    writeWithMode(paths.key, server.key, OWNER_ONLY);
+    writeWithMode(paths.key, server.key, CONTAINER_READ);
     writeWithMode(paths.cert, server.cert, CONTAINER_READ);
     if (state === "kept") state = "reissued";
   }
+  // Routr's image reads the server key as uid 5000 to build its SIP over TLS keystore; a bind mount
+  // bypasses config/'s 0700 but not the file's own mode, as for keys/private.pem. A kept key
+  // written 0600 by an older init gets the mode here too. The CA key stays 0600: nothing mounts it.
+  chmodSync(paths.key, CONTAINER_READ);
   return { state, dir: tls, names, caFingerprint: fingerprint(caCert) };
 }
 

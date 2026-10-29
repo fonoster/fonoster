@@ -19,7 +19,9 @@
   ],
   "workspaceFolder": "/workspaces/fonoster",
   // On the host, before the containers exist: the dev config in .dev/ (secrets, keys, service
-  // files), which Compose needs to start the dependencies. Only the first time.
+  // files), which Compose needs to start the dependencies. Runs each time the editor starts the
+  // container, and rewrites .dev/ only when .dev/config/tls/server.pem or
+  // .dev/config/routr-rtprelay.yaml is missing; otherwise run `npm run dev:config`.
   "initializeCommand": "sh .devcontainer/initialize.sh",
   "postCreateCommand": "bash .devcontainer/post-create.sh",
   // Closing the editor leaves the containers running, so agents and test runs that use them

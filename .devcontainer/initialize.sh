@@ -2,9 +2,12 @@
 # Writes the dev config in .dev/ with `fonoster-config init` (the self-host installer) plus the dev
 # layer in .devcontainer/config/. Secrets are generated there and never committed.
 #
-#   .devcontainer/initialize.sh             on the host, before the dev container starts
-#                                           (initializeCommand): only the first time, needs only
-#                                           a POSIX shell and Docker
+#   .devcontainer/initialize.sh             on the host, each time the editor starts the dev
+#                                           container (initializeCommand); rewrites .dev/ only
+#                                           when .dev/config/tls/server.pem or
+#                                           .dev/config/routr-rtprelay.yaml is missing (otherwise
+#                                           run npm run dev:config); needs only a POSIX shell and
+#                                           Docker
 #   .devcontainer/initialize.sh --refresh   inside the workspace (npm run dev:config): copy the
 #                                           bundle's examples again, add new names, render again;
 #                                           every secret is kept
@@ -40,6 +43,35 @@ warn_stale_host_ip() {
   log "         --env-file .dev/.env up -d --no-deps rtpengine routr) and restart npm run dev."
 }
 
+# The rendered Routr files (not the bundle's *.example.yaml), each with its checksum: taken before
+# a refresh and compared after it, to name the ones that changed. The running Routr keeps its old
+# image and mounts until it is recreated on the host, which the workspace has no Docker to do.
+routr_sums() {
+  for f in "$DEV"/config/routr-*.yaml; do
+    case "$f" in *.example.yaml) continue ;; esac
+    [ -f "$f" ] && printf '%s %s\n' "$(basename "$f")" "$(cksum < "$f")"
+  done
+  return 0
+}
+
+hint_routr_recreate() {
+  changed=""
+  for f in "$DEV"/config/routr-*.yaml; do
+    case "$f" in *.example.yaml) continue ;; esac
+    [ -f "$f" ] || continue
+    name="$(basename "$f")"
+    old="$(printf '%s\n' "$1" | awk -v n="$name" '$1 == n { sub(/^[^ ]+ /, ""); print }')"
+    [ "$old" = "$(cksum < "$f")" ] || changed="${changed:+$changed, }$name"
+  done
+  [ -n "$changed" ] || return 0
+  # --force-recreate: Compose doesn't hash a bind-mounted file's content. No -p: .dev/.env sets
+  # COMPOSE_PROJECT_NAME.
+  log "changed: $changed. The running Routr keeps its old image and config until it is recreated. On the host, from the repository root:"
+  log "  docker compose -f .devcontainer/compose.yaml --env-file .dev/.env up -d --no-deps --force-recreate routr"
+}
+
+[ "$MODE" = "--refresh" ] && routr_before="$(routr_sums)"
+
 # Compose reads .devcontainer/.env: the same values as the dev config.
 ln -sfn ../.dev/.env "$ROOT/.devcontainer/.env"
 
@@ -71,6 +103,10 @@ if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ] && [ -f "$DEV/config/tls/server.pe
   detected="${FONOSTER_DEV_HOST_IP:-$(detect_host_ip)}"
   [ -z "$detected" ] || printf '%s\n' "$detected" > "$DEV/host-ip.detected"
   warn_stale_host_ip
+  # A .dev made before #1200 holds its generated server key 0600, which Routr's user (uid 5000)
+  # can't read on Linux or in a Codespace; init writes it 0644, and a kept .dev gets the same mode
+  # here. The file is always the generated key: an own certificate lives where TLS_KEY points.
+  [ ! -f "$DEV/config/tls/server-key.pem" ] || chmod 0644 "$DEV/config/tls/server-key.pem"
   log "keeping $DEV (npm run dev:config renders it again)"
   exit 0
 fi
@@ -137,6 +173,7 @@ if [ "$MODE" = "--refresh" ]; then
   cli render --dir .dev --config-dir .dev/config --env-file .dev/.env \
     --overlay .devcontainer/config --overlay .dev/overlay
   log "rendered $DEV (secrets kept)"
+  hint_routr_recreate "$routr_before"
   exit 0
 fi
 

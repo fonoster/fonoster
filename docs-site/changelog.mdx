@@ -24,6 +24,10 @@ New releases are listed newest first. For releases up to 0.27, see the
 - **WhatsApp needs SIP over TLS.** A self-hosted install must accept SIP over TLS on `5061` with a
   certificate covering `*.pstn.<domain>` before a WhatsApp number can be linked. See
   [SIP over TLS](/self-hosting/https#sip-over-tls).
+- **Routr can read the generated TLS key.** `fonoster-config init` now writes the generated
+  `config/tls/server-key.pem` 0644, like `keys/private.pem`, so Routr's container user can read it
+  for SIP over TLS; `config/` stays 0700. An existing generated key gets the new mode on the next
+  `init`. Keys set through `TLS_CERT` and `TLS_KEY` are not touched.
 
 </Update>
 

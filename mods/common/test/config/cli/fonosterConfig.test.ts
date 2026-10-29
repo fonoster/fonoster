@@ -20,6 +20,7 @@ import { spawnSync } from "child_process";
 import { createPrivateKey, createPublicKey, X509Certificate } from "crypto";
 import {
   appendFileSync,
+  chmodSync,
   cpSync,
   existsSync,
   mkdirSync,
@@ -688,7 +689,8 @@ describe("@common[config/cli] fonoster-config", function () {
       for (const f of TLS_FILES)
         expect(existsSync(tlsFile(dir, f)), f).to.equal(true);
       expect(mode(tlsFile(dir, "ca-key.pem"))).to.equal(0o600);
-      expect(mode(tlsFile(dir, "server-key.pem"))).to.equal(0o600);
+      // Readable by Routr's container user (uid 5000), which mounts it for SIP over TLS (#1200).
+      expect(mode(tlsFile(dir, "server-key.pem"))).to.equal(0o644);
       expect(mode(tlsFile(dir, "ca.pem"))).to.equal(0o644);
       expect(mode(tlsFile(dir, "server.pem"))).to.equal(0o644);
 
@@ -747,10 +749,11 @@ describe("@common[config/cli] fonoster-config", function () {
       expect(serverText).to.contain("ecdsa-with-SHA256");
     });
 
-    it("keeps every file byte for byte on a second run", async function () {
+    it("keeps every file byte for byte on a second run, and makes an older 0600 server key 0644", async function () {
       const dir = unpack();
       await init(dir, "203.0.113.10");
       const before = TLS_FILES.map((f) => readFileSync(tlsFile(dir, f)));
+      chmodSync(tlsFile(dir, "server-key.pem"), 0o600);
       const run = await init(dir);
       expect(run.code, run.err).to.equal(0);
       expect(run.out).to.contain("tls: kept (config/tls)");
@@ -759,6 +762,8 @@ describe("@common[config/cli] fonoster-config", function () {
           true
         )
       );
+      expect(mode(tlsFile(dir, "server-key.pem"))).to.equal(0o644);
+      expect(mode(tlsFile(dir, "ca-key.pem"))).to.equal(0o600);
     });
 
     it("reissues only the server certificate for a new PUBLIC_URL host, keeping the CA", async function () {
@@ -782,6 +787,7 @@ describe("@common[config/cli] fonoster-config", function () {
         "voice.example.com"
       );
       expect(server.checkIssued(certOf(dir, "ca.pem"))).to.equal(true);
+      expect(mode(tlsFile(dir, "server-key.pem"))).to.equal(0o644);
     });
 
     it("reissues the server certificate within 30 days of expiry", function () {
@@ -801,11 +807,13 @@ describe("@common[config/cli] fonoster-config", function () {
       const key = join(dir, "privkey.pem");
       writeFileSync(cert, "cert");
       writeFileSync(key, "key");
+      chmodSync(key, 0o600);
       appendFileSync(join(dir, ".env"), `TLS_CERT=${cert}\nTLS_KEY=${key}\n`);
       const run = await init(dir);
       expect(run.code, run.err).to.equal(0);
       expect(run.out).to.contain("tls: using TLS_CERT and TLS_KEY");
       expect(existsSync(join(dir, "config/tls"))).to.equal(false);
+      expect(mode(key)).to.equal(0o600);
     });
 
     it("keeps maintaining the generated files when TLS_CERT and TLS_KEY point at them", async function () {
