@@ -95,6 +95,12 @@ type TwilioCredentials =
   | { accountSid: string; authToken: string }
   | { accountSid: string; apiKeySid: string; apiKeySecret: string };
 
+/**
+ * A Meta System User token with whatsapp_business_management. Used once, to link a WhatsApp
+ * Business number; never stored.
+ */
+type WhatsAppCredentials = { accessToken: string };
+
 type LinkTwilioRequest = {
   /** E.164; must be in the Twilio account. */
   phoneNumber: string;
@@ -113,6 +119,49 @@ type LinkTwilioResponse = {
   trunkRef: string;
 };
 
+/**
+ * Links a WhatsApp Business number one of two ways. With `phoneNumberId` and `accessToken`,
+ * Fonoster turns on SIP calling in Meta, points the number at this install with SDES and reads
+ * the SIP password; the token is used for those calls and never stored. Without them, Fonoster
+ * calls no Meta API: `phoneNumber` is required and the Meta-issued password arrives as
+ * `sipPassword`, now or on a later call.
+ */
+type LinkWhatsAppRequest = {
+  /** The WhatsApp Business number in E.164. Required without accessToken; ignored with one. */
+  phoneNumber?: string;
+  /**
+   * The SIP password Meta issued for the number. Optional: without it, the link keeps the current
+   * password or sets a placeholder on a first link. Never logged. Not allowed with accessToken.
+   */
+  sipPassword?: string;
+  /** Meta's id of the phone number (WhatsApp Manager > Phone numbers). Required with accessToken. */
+  phoneNumberId?: string;
+  /** A Meta System User token with whatsapp_business_management. Used once, never stored. */
+  accessToken?: string;
+  /** Defaults to Meta's verified name, or the phone number. */
+  name?: string;
+  appRef?: string;
+  agentAor?: string;
+};
+
+type LinkWhatsAppResponse = {
+  /** The Fonoster Number; a number already in the workspace keeps its ref. */
+  ref: string;
+  /** The Fonoster trunk for this number, `WhatsApp Trunk <+E.164>`. */
+  trunkRef: string;
+  /** The SIP server to register in WhatsApp Manager. */
+  sipServerHostname: string;
+  sipServerPort: number;
+  /** False until a sipPassword was given on this or an earlier link, or Meta issued one. */
+  sipPasswordSet: boolean;
+  /** The linked number in E.164 (from Meta when an accessToken was given). */
+  phoneNumber: string;
+  /** Meta's verified business name for the number; empty without an accessToken. */
+  verifiedName: string;
+  /** True when this call turned on SIP calling in Meta, pointed at sipServerHostname with SDES. */
+  metaConfigured: boolean;
+};
+
 export {
   CreateNumberRequest,
   CreateNumberRequestExtended,
@@ -120,9 +169,12 @@ export {
   INumberExtended,
   LinkTwilioRequest,
   LinkTwilioResponse,
+  LinkWhatsAppRequest,
+  LinkWhatsAppResponse,
   ListNumbersRequest,
   ListNumbersResponse,
   NumbersApi,
   TwilioCredentials,
-  UpdateNumberRequest
+  UpdateNumberRequest,
+  WhatsAppCredentials
 };

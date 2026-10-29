@@ -116,6 +116,14 @@ To link Twilio numbers, the API server also needs outbound HTTPS to `api.twilio.
 addresses (`regions.public[].endpoints.signalingAddresses`), so list this machine's public IPv4
 address there.
 
+To link WhatsApp numbers, the install must accept SIP over TLS on `5061` with a certificate
+covering `*.pstn.<domain>` (one hostname per linked WhatsApp number, all one label under `pstn.`;
+see [SIP over TLS](/self-hosting/https#sip-over-tls)), and Routr needs outbound TLS to
+`wa.meta.vc:5061`. The TLS endpoint must be listed in `regions.public[].endpoints.sip` with
+`transport: tls` and a DNS name as host: that entry, the `tls` transport in
+`config/routr-edgeport.yaml` and the port in `compose.tls.yaml` are declared together, and the API
+server checks only the first.
+
 <Note>
   On Linux, turn off Docker's userland proxy, or the 2,000 published audio ports
   exhaust the machine's memory. See [Before you

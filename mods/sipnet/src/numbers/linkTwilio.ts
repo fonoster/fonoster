@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { randomBytes, randomInt } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import net from "node:net";
 import {
   assignTwilioNumberToTrunk,
@@ -35,8 +35,6 @@ import {
   CredentialsApi,
   LinkTwilioRequest,
   LinkTwilioResponse,
-  ListRequest,
-  ListResponse,
   NumbersApi,
   Transport,
   TrunkApi
@@ -44,22 +42,18 @@ import {
 import { ServerInterceptingCall, status } from "@grpc/grpc-js";
 import { phone } from "phone";
 import { CheckRefs, numberRefs } from "../resources/checkRefs";
-import { filterByAccessKeyId } from "../resources/paginationUtils";
 import { mergeTrunkUpdate } from "../trunks/operations";
 import {
   convertToRoutrNumber,
   convertToRoutrNumberUpdate
 } from "./convertToRoutrNumber";
 import { NumberRouting } from "./engineRouting";
+import { findOwned, generatePassword } from "./linkShared";
 import { twilioLinkErrorToGrpc } from "./twilioLinkErrorToGrpc";
 
 const logger = getLogger({ service: "sipnet", filePath: __filename });
 
 const TWILIO_PSTN_URI_BASE = "pstn.twilio.com";
-const PAGE_SIZE = 100;
-const PASSWORD_ALPHABET =
-  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
 type TwilioLink = {
   provisionTwilioTrunk: typeof provisionTwilioTrunk;
   assignTwilioNumberToTrunk: typeof assignTwilioNumberToTrunk;
@@ -88,45 +82,6 @@ const isIpv4Entry = (address: string) => {
     (prefix === undefined || (/^\d{1,2}$/.test(prefix) && +prefix <= 32))
   );
 };
-
-function generatePassword(): string {
-  for (;;) {
-    const password = Array.from(
-      { length: 24 },
-      () => PASSWORD_ALPHABET[randomInt(PASSWORD_ALPHABET.length)]
-    ).join("");
-    if (
-      /[A-Z]/.test(password) &&
-      /[a-z]/.test(password) &&
-      /\d/.test(password)
-    ) {
-      return password;
-    }
-  }
-}
-
-// The caller's first resource that matches, through every page Routr has.
-async function findOwned<T extends { extended?: Record<string, unknown> }>(
-  list: (request: ListRequest) => Promise<ListResponse<T>>,
-  accessKeyId: string,
-  match: (item: T) => boolean
-): Promise<T | undefined> {
-  let pageToken: string | undefined;
-  for (;;) {
-    const { items = [], nextPageToken } = await list({
-      pageSize: PAGE_SIZE,
-      pageToken
-    });
-    const found = filterByAccessKeyId(
-      items as (T & { extended?: { accessKeyId?: string } })[],
-      accessKeyId
-    ).find(match);
-    if (found || !nextPageToken || items.length < PAGE_SIZE) {
-      return found;
-    }
-    pageToken = nextPageToken;
-  }
-}
 
 function linkTwilio(deps: LinkTwilioDeps) {
   const {

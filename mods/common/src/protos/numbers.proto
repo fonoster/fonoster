@@ -34,6 +34,9 @@ service Numbers {
   rpc ListNumbers (ListNumbersRequest) returns (ListNumbersResponse) {}
   // Link a Twilio number: provision its Twilio trunk and route it to an agent or application
   rpc LinkTwilio (LinkTwilioRequest) returns (LinkTwilioResponse) {}
+  // Link a WhatsApp Business number: its trunk to Meta, its credential and the Number, plus the SIP
+  // server hostname to register in WhatsApp Manager. Fonoster calls no Meta API.
+  rpc LinkWhatsApp (LinkWhatsAppRequest) returns (LinkWhatsAppResponse) {}
 }
 
 // The message for the Number resource
@@ -192,4 +195,49 @@ message LinkTwilioResponse {
   string ref = 1;
   // The Fonoster "Twilio Trunk"
   string trunk_ref = 2;
+}
+
+// The request message for Numbers.LinkWhatsApp
+message LinkWhatsAppRequest {
+  // The WhatsApp Business number in E.164. Required without access_token; with one, Meta's
+  // record of the number wins and this field is ignored.
+  string phone_number = 1;
+  // The SIP password Meta issued for the number (GET /<PNID>/settings?include_sip_credentials=true).
+  // Optional: empty keeps the current one, or sets a placeholder on a first link. Never logged.
+  // Not allowed with access_token: Meta then supplies it.
+  string sip_password = 2;
+  // The name of the Number; defaults to Meta's verified name, or phone_number
+  string name = 3;
+  // This dictates how the number will handle incoming calls
+  oneof ingress_handler {
+    // The call will be forwarded to this agent
+    string agent_aor = 4;
+    // The call will be forward to this application
+    string app_ref = 5;
+  }
+  // Meta's id of the phone number (WhatsApp Manager > Phone numbers). Required with access_token.
+  string phone_number_id = 6;
+  // A Meta System User token with whatsapp_business_management. Used once to turn on SIP calling
+  // for the number, point it at this install with SDES and read the SIP password; never stored
+  // or logged.
+  string access_token = 7;
+}
+
+// The response message for Numbers.LinkWhatsApp
+message LinkWhatsAppResponse {
+  // The Fonoster Number; a number already in the workspace keeps its ref
+  string ref = 1;
+  // The Fonoster trunk for this number, "WhatsApp Trunk <+E.164>"
+  string trunk_ref = 2;
+  // The SIP server to register in WhatsApp Manager: hostname and port
+  string sip_server_hostname = 3;
+  int32 sip_server_port = 4;
+  // false until a sip_password was given on this or an earlier link, or Meta issued one
+  bool sip_password_set = 5;
+  // The linked number in E.164 (from Meta when an access_token was given)
+  string phone_number = 6;
+  // Meta's verified business name for the number; empty without an access_token
+  string verified_name = 7;
+  // true when this call turned on SIP calling in Meta, pointed at sip_server_hostname with SDES
+  bool meta_configured = 8;
 }

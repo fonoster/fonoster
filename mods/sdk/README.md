@@ -693,11 +693,6 @@ apiKeys
 <a name="Applications"></a>
 
 ## Applications
-Fonoster Applications, part of the Fonoster Voice Subsystem,
-allow you to create, update, retrieve, and delete Applications: streams (your own WebSocket
-server) and Autopilot agents.
-Note that an active Fonoster deployment is required.
-
 **Kind**: global class  
 **See**
 
@@ -711,8 +706,9 @@ Note that an active Fonoster deployment is required.
     * [.getApplication(ref)](#Applications+getApplication) ⇒ <code>Promise.&lt;Application&gt;</code>
     * [.updateApplication(request)](#Applications+updateApplication) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
     * [.listApplications(request)](#Applications+listApplications) ⇒ <code>Promise.&lt;ListApplicationsResponse&gt;</code>
-    * [.deleteApplication(ref)](#Applications+deleteApplication) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
-    * [.evaluateIntelligence(request)](#Applications+evaluateIntelligence) ⇒ <code>Promise.&lt;ScenarioEvaluationReport&gt;</code>
+    * [.rotateSigningSecret(ref)](#Applications+rotateSigningSecret) ⇒ <code>Promise.&lt;RotateSigningSecretResponse&gt;</code>
+    * [.evaluateIntelligence(request)](#Applications+evaluateIntelligence) ⇒ <code>AsyncGenerator.&lt;EvaluateIntelligenceEvent&gt;</code>
+    * [.createTestToken()](#Applications+createTestToken) ⇒ <code>Promise.&lt;TestTokenResponse&gt;</code>
 
 <a name="new_Applications_new"></a>
 
@@ -724,49 +720,6 @@ Constructs a new Applications object.
 | --- | --- | --- |
 | client | <code>FonosterClient</code> | Client object with underlying implementations to make requests to Fonoster's API |
 
-**Example**  
-```js
-const SDK = require("@fonoster/sdk");
-
-async function main(request) {
-  const apiKey = "your-api-key";
-  const apiSecret = "your-api-secret"
-  const accessKeyId = "WO00000000000000000000000000000000";
-
-  try {
-    const client = SDK.Client({ accessKeyId });
-    await client.loginWithApiKey(apiKey, apiSecret);
-
-    const apps = new SDK.Applications(client);
-    const response = await apps.createApplication(request);
-
-    console.log(response); // successful response
-  } catch (e) {
-    console.error(e); // an error occurred
-  }
-}
-
-const request = {
-  name: "My application",
-  type: "STREAM",
-  endpoint: "welcome.demo.fonoster.local", // Built-in demo application
-  speechToText: {
-    productRef: "stt.deepgram",
-    config: {
-      model: "nova-2",
-      languageCode: "en-US"
-    }
-  },
-  textToSpeech: {
-    productRef: "tts.elevenlabs",
-    config: {
-      voice: "lrTWbMInQjSJ9q5ywFKP"
-    }
-  }
-};
-
-main(request);
-```
 <a name="Applications+createApplication"></a>
 
 ### applications.createApplication(request) ⇒ <code>Promise.&lt;CreateAppResponse&gt;</code>
@@ -781,15 +734,8 @@ Creates a new Application in Fonoster. The only required fields are the name and
 | request.name | <code>string</code> | The name of the application |
 | request.type | <code>ApplicationType</code> | The type of application: STREAM or AUTOPILOT |
 | request.endpoint | <code>string</code> | The endpoint where the application is hosted |
-| request.speechToText | <code>SpeechToText</code> | The speech-to-text configuration |
-| request.speechToText.productRef | <code>string</code> | The product reference of the speech-to-text engine (e.g., stt.deepgram) |
-| request.speechToText.config | <code>object</code> | The configuration object for the speech-to-text engine (e.g., { model: "nova-2", languageCode: "en-US" }) |
-| request.textToSpeech | <code>TextToSpeech</code> | The text-to-speech configuration |
-| request.textToSpeech.productRef | <code>string</code> | The product reference of the text-to-speech engine (e.g., tts.elevenlabs) |
-| request.textToSpeech.config | <code>object</code> | The configuration object for the text-to-speech engine (e.g., { voice: "lrTWbMInQjSJ9q5ywFKP" }) |
 | request.intelligence | <code>Intelligence</code> | The intelligence configuration |
-| request.intelligence.productRef | <code>string</code> | The product reference of the intelligence engine (e.g., llm.groq) |
-| request.intelligence.config | <code>object</code> | The configuration object for the intelligence engine |
+| request.intelligence.config | <code>object</code> | Autopilot agents: the agent (its model is a catalog id such as openai/gpt-4o-mini) |
 
 **Example**  
 ```js
@@ -798,19 +744,8 @@ const apps = new SDK.Applications(client); // Existing client object
 const request = {
   name: "My application",
   type: "STREAM",
-  endpoint: "welcome.demo.fonoster.local", // Built-in demo application
-  speechToText: {
-    productRef: "stt.deepgram",
-    config: {
-      languageCode: "en-US"
-    }
-  },
-  textToSpeech: {
-    productRef: "tts.elevenlabs",
-    config: {
-      voice: "lrTWbMInQjSJ9q5ywFKP"
-    }
-  }
+  url: "wss://bot.example.com/session",
+  speech: { voice: "elevenlabs/21m00Tcm4TlvDq8ikWAM", language: "en-US" }
 };
 
 apps
@@ -855,15 +790,8 @@ Updates an existing application in Fonoster.
 | request.ref | <code>string</code> | The reference of the application to update |
 | request.name | <code>string</code> | The name of the application |
 | request.endpoint | <code>string</code> | The endpoint where the application is hosted |
-| request.speechToText | <code>SpeechToText</code> | The speech-to-text configuration |
-| request.speechToText.productRef | <code>string</code> | The product reference of the speech-to-text engine (e.g., stt.deepgram) |
-| request.speechToText.config | <code>object</code> | The configuration object for the speech-to-text engine (e.g., { model: "nova-2", languageCode: "en-US" }) |
-| request.textToSpeech | <code>TextToSpeech</code> | The text-to-speech configuration |
-| request.textToSpeech.productRef | <code>string</code> | The product reference of the text-to-speech engine (e.g., tts.elevenlabs) |
-| request.textToSpeech.config | <code>object</code> | The configuration object for the text-to-speech engine (e.g., { voice: "lrTWbMInQjSJ9q5ywFKP" }) |
 | request.intelligence | <code>Intelligence</code> | The intelligence configuration |
-| request.intelligence.productRef | <code>string</code> | The product reference of the intelligence engine (e.g., llm.groq) |
-| request.intelligence.config | <code>object</code> | The configuration object for the intelligence engine |
+| request.intelligence.config | <code>object</code> | Autopilot agents: the agent (its model is a catalog id such as openai/gpt-4o-mini) |
 
 **Example**  
 ```js
@@ -872,7 +800,7 @@ const apps = new SDK.Applications(client); // Existing client object
 const request = {
   ref: "00000000-0000-0000-0000-000000000000",
   name: "My application",
-  endpoint: "welcome.demo.fonoster.local", // Built-in demo application
+  url: "wss://bot.example.com/session"
 };
 
 apps
@@ -908,99 +836,209 @@ apps
   .then(console.log) // successful response
   .catch(console.error); // an error occurred
 ```
-<a name="Applications+deleteApplication"></a>
+<a name="Applications+rotateSigningSecret"></a>
 
-### applications.deleteApplication(ref) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
-Deletes an existing Application from Fonoster.
-Note that this operation is irreversible.
+### applications.rotateSigningSecret(ref) ⇒ <code>Promise.&lt;RotateSigningSecretResponse&gt;</code>
+Replaces the app's signing secret. The old secret stops working at once (no overlap window),
+so redeploy the app with the new one. The secret is returned only here.
 
 **Kind**: instance method of [<code>Applications</code>](#Applications)  
-**Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the deleted application  
+**Returns**: <code>Promise.&lt;RotateSigningSecretResponse&gt;</code> - - The new secret and its hint  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| ref | <code>string</code> | The reference of the Application to delete |
+| ref | <code>string</code> | The application's reference |
 
 **Example**  
 ```js
-const apps = new SDK.Applications(client); // Existing client object
-
-const ref = "00000000-0000-0000-0000-000000000000";
-
-apps
-  .deleteApplication(ref)
-  .then(console.log) // successful response
-  .catch(console.error); // an error occurred
+const { signingSecret } = await applications.rotateSigningSecret("00000000-...");
 ```
 <a name="Applications+evaluateIntelligence"></a>
 
-### applications.evaluateIntelligence(request) ⇒ <code>Promise.&lt;ScenarioEvaluationReport&gt;</code>
+### applications.evaluateIntelligence(request) ⇒ <code>AsyncGenerator.&lt;EvaluateIntelligenceEvent&gt;</code>
 Evaluates the intelligence of an application.
 
 **Kind**: instance method of [<code>Applications</code>](#Applications)  
-**Returns**: <code>Promise.&lt;ScenarioEvaluationReport&gt;</code> - - The response object that contains the evaluation report  
+**Returns**: <code>AsyncGenerator.&lt;EvaluateIntelligenceEvent&gt;</code> - - Stream of evaluation events (step results, scenario summaries, or errors)  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | request | <code>EvaluateIntelligenceRequest</code> | The request object that contains the necessary information to evaluate the intelligence of an application |
-| request.intelligence.productRef | <code>string</code> | The product reference of the intelligence engine (e.g., llm.groq) |
-| request.intelligence.config | <code>object</code> | The configuration object for the intelligence engine |
+| request.intelligence.config | <code>object</code> | Autopilot agents: the agent (its model is a catalog id such as openai/gpt-4o-mini) |
 
 **Example**  
 ```js
-const apps = new SDK.Applications(client); // Existing client object
-
-const request = {
-  intelligence: {
-    productRef: "llm.groq",
-    config: {
-      conversationSettings: {
-        firstMessage: "Hello, how can I help you today?",
-        systemPrompt: "You are a helpful agent.",
-        systemErrorMessage: "I'm sorry, I didn't catch that. Can you say that again?",
-        goodbyeMessage: "Thank you for calling. Have a great day!",
-        languageModel: {
-          provider: "openai",
-          model: "gpt-4o"
-        },
-        testCases: {
-          evalsLanguageModel: {
-            provider: "openai",
-            model: "gpt-4o"
-          },
-          scenarios: [
-            {
-              ref: "Scenario 1",
-              description: "Scenario 1 description",
-              telephonyContext: {
-                callDirection: "FROM_PSTN",
-                ingressNumber: "1234567890",
-                callerNumber: "1234567890"
-              },
-              conversation: [
-                {
-                  userInput: "Hello, how can I help you today?",
-                  expected: {
-                    text: {
-                      type: "EXACT",
-                      response: "Hello, how can I help you today?"
-                    }
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      }
-    }
-  }
-};
-
-apps
-  .evaluateIntelligence(request)
-  .then(console.log) // successful response
-  .catch(console.error); // an error occurred
+const apps = new SDK.Applications(client);
+for await (const event of apps.evaluateIntelligence(request)) {
+  if (event.type === "stepResult") console.log(event.stepResult);
+  if (event.type === "scenarioSummary") console.log(event.scenarioRef, event.overallPassed);
+  if (event.type === "evalError") console.error(event.message);
+}
 ```
+<a name="Applications+createTestToken"></a>
+
+### applications.createTestToken() ⇒ <code>Promise.&lt;TestTokenResponse&gt;</code>
+Creates an Ephemeral Agent token for test calls.
+
+**Kind**: instance method of [<code>Applications</code>](#Applications)  
+**Returns**: <code>Promise.&lt;TestTokenResponse&gt;</code> - - The response object containing the ephemeral agent token and related info  
+**Example**  
+```js
+const apps = new SDK.Applications(client);
+const response = await apps.createTestToken();
+console.log(response.token); // JWT token for test call
+```
+
+<a name="Billing"></a>
+
+## Billing
+Fonoster Cloud's billing for the owner signed in: the balance in credits
+(1 credit = $0.01) by source, the plan, top-ups, auto-recharge and the Stripe Customer Portal.
+Only workspace owners may call it, and only on Fonoster Cloud (the capabilities say
+`billing.enabled`). The account is always the caller's: it covers every workspace they own.
+
+**Kind**: global class  
+
+* [Billing](#Billing)
+    * [new Billing()](#new_Billing_new)
+    * [.getBilling()](#Billing+getBilling)
+    * [.updateAutoRecharge()](#Billing+updateAutoRecharge)
+    * [.createTopUp()](#Billing+createTopUp)
+    * [.subscribe()](#Billing+subscribe)
+    * [.createPortalSession()](#Billing+createPortalSession)
+
+<a name="new_Billing_new"></a>
+
+### new Billing()
+**Example**  
+```js
+const billing = new SDK.Billing(client);
+const { balance, sources } = await billing.getBilling();
+await billing.createTopUp({ credits: 1000 });
+```
+<a name="Billing+getBilling"></a>
+
+### billing.getBilling()
+The balance by source, the plan and auto-recharge.
+
+**Kind**: instance method of [<code>Billing</code>](#Billing)  
+<a name="Billing+updateAutoRecharge"></a>
+
+### billing.updateAutoRecharge()
+Turns auto-recharge on or off, with its threshold and amount in credits.
+
+**Kind**: instance method of [<code>Billing</code>](#Billing)  
+<a name="Billing+createTopUp"></a>
+
+### billing.createTopUp()
+Buys top-up credits, charged to the payment method added in the Customer Portal, with tax on
+top. The credits appear once the payment succeeds.
+
+**Kind**: instance method of [<code>Billing</code>](#Billing)  
+<a name="Billing+subscribe"></a>
+
+### billing.subscribe()
+Moves the owner from the Trial to Pay-as-you-go. Needs a payment method first.
+
+**Kind**: instance method of [<code>Billing</code>](#Billing)  
+<a name="Billing+createPortalSession"></a>
+
+### billing.createPortalSession()
+A Stripe Customer Portal link for payment methods and invoices.
+
+**Kind**: instance method of [<code>Billing</code>](#Billing)  
+
+<a name="CallRecordsError"></a>
+
+## CallRecordsError
+An error answer from the records API (status and its `error` code).
+
+**Kind**: global class  
+
+<a name="CallRecords"></a>
+
+## CallRecords
+Call records (vCon) through the HTTP records API (`/api/records`): search, one
+record (redacted unless you ask for the original and have the owner or admin role), the
+recording, the audit log, erasure and retention.
+
+**Kind**: global class  
+
+* [CallRecords](#CallRecords)
+    * [new CallRecords(client, options)](#new_CallRecords_new)
+    * [.send()](#CallRecords+send)
+    * [.listRecords()](#CallRecords+listRecords)
+    * [.getRecord()](#CallRecords+getRecord)
+    * [.getRecording()](#CallRecords+getRecording)
+    * [.getAudit()](#CallRecords+getAudit)
+    * [.eraseRecord()](#CallRecords+eraseRecord)
+    * [.deletePart()](#CallRecords+deletePart)
+    * [.setRetention()](#CallRecords+setRetention)
+
+<a name="new_CallRecords_new"></a>
+
+### new CallRecords(client, options)
+
+| Param | Type | Description |
+| --- | --- | --- |
+| client | <code>FonosterClient</code> | A logged-in client |
+| options | <code>object</code> | `baseUrl` of the HTTP API (default: the client's), `fetch` |
+
+**Example**  
+```js
+const records = new SDK.CallRecords(client);
+const { items } = await records.listRecords({ after: "2026-10-01T00:00:00Z" });
+const record = await records.getRecord(items[0].callRef);
+```
+<a name="CallRecords+send"></a>
+
+### callRecords.send()
+Sends a request, refreshing the access token once on 401.
+
+**Kind**: instance method of [<code>CallRecords</code>](#CallRecords)  
+<a name="CallRecords+listRecords"></a>
+
+### callRecords.listRecords()
+Searches the workspace's records, newest first, a page at a time; the first page's `total`
+counts every record the query matches, on all pages.
+
+**Kind**: instance method of [<code>CallRecords</code>](#CallRecords)  
+<a name="CallRecords+getRecord"></a>
+
+### callRecords.getRecord()
+One record; the latest version unless `version` is given.
+
+**Kind**: instance method of [<code>CallRecords</code>](#CallRecords)  
+<a name="CallRecords+getRecording"></a>
+
+### callRecords.getRecording()
+The recording (WAV) with its content hash.
+
+**Kind**: instance method of [<code>CallRecords</code>](#CallRecords)  
+<a name="CallRecords+getAudit"></a>
+
+### callRecords.getAudit()
+Deletions and erasures of a record (owner or admin).
+
+**Kind**: instance method of [<code>CallRecords</code>](#CallRecords)  
+<a name="CallRecords+eraseRecord"></a>
+
+### callRecords.eraseRecord()
+Erases the call: every object is deleted and a signed tombstone remains (owner or admin).
+
+**Kind**: instance method of [<code>CallRecords</code>](#CallRecords)  
+<a name="CallRecords+deletePart"></a>
+
+### callRecords.deletePart()
+Deletes one part (recording, transcript, messages) of a record (owner or admin).
+
+**Kind**: instance method of [<code>CallRecords</code>](#CallRecords)  
+<a name="CallRecords+setRetention"></a>
+
+### callRecords.setRetention()
+Sets how many days a part is kept; `null` removes the policy (owner or admin).
+
+**Kind**: instance method of [<code>CallRecords</code>](#CallRecords)  
 
 <a name="Calls"></a>
 
@@ -1068,7 +1106,7 @@ main(request);
 Creates a new Call in the Workspace.
 
 **Kind**: instance method of [<code>Calls</code>](#Calls)  
-**Returns**: <code>Object</code> - - The response object that contains the Call reference and a stream of status updates  
+**Returns**: <code>Object</code> - - The response object that contains the Call reference and a stream of status updates; the update that ends an unanswered call also says why (hangupCause, e.g. USER_BUSY)  
 **See**: DialStatus  
 
 | Param | Type | Description |
@@ -1141,6 +1179,8 @@ Retrieves a list of Calls from a Workspace.
 | request.pageSize | <code>number</code> | The number of Calls to retrieve |
 | request.pageToken | <code>string</code> | The token to retrieve the next page of Calls |
 | request.appRef | <code>string</code> | Optional. Lists only the Calls the App with this reference handled |
+| request.from | <code>string</code> | Optional. Lists only the Calls whose caller is exactly this value, as the Call carried it (e.g. "+15551234567", "sip:+15551234567@carrier.example;user=phone"). There is no normalization: "+15551234567" does not match "tel:+15551234567". At most 256 characters, no control characters (CR, LF, NUL...); otherwise the request fails with INVALID_ARGUMENT |
+| request.to | <code>string</code> | Optional. Lists only the Calls whose callee is exactly this value; same rules as `from` |
 
 **Example**  
 ```js
@@ -1149,7 +1189,8 @@ const calls = new SDK.Calls(client); // Existing client object
 const request = {
   pageSize: 10,
   pageToken: "00000000-0000-0000-0000-000000000000",
-  appRef: "00000000-0000-0000-0000-000000000000" // Optional: only this App's Calls
+  appRef: "00000000-0000-0000-0000-000000000000", // Optional: only this App's Calls
+  from: "+15551234567" // Optional: only Calls from this number (exact match)
 };
 
 calls
@@ -1373,7 +1414,7 @@ Note that an active Fonoster deployment is required.
 * [Domains](#Domains)
     * [new Domains(client)](#new_Domains_new)
     * [.createDomain(request)](#Domains+createDomain) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
-    * [.getDomain(ref)](#Domains+getDomain) ⇒ <code>Promise.&lt;Acl&gt;</code>
+    * [.getDomain(ref)](#Domains+getDomain) ⇒ <code>Promise.&lt;Domain&gt;</code>
     * [.updateDomain(request)](#Domains+updateDomain) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
     * [.listDomains(request)](#Domains+listDomains) ⇒ <code>Promise.&lt;ListDomainsResponse&gt;</code>
     * [.deleteDomain(ref)](#Domains+deleteDomain) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
@@ -1430,10 +1471,10 @@ Creates a new Domain in the Workspace.
 | request | <code>CreateDomainRequest</code> | The request object that contains the necessary information to create a new Domain |
 | request.name | <code>string</code> | The name of the Domain |
 | request.domainUri | <code>string</code> | The URI of the Domain |
-| request.accessControlListRef | <code>AccessControlListRef</code> | The reference to the Access Control List (ACL) to associate with the Domain |
-| request.egressPolicy | <code>Array.&lt;EgressPolicy&gt;</code> | The egress policy of the Domain |
-| request.egressPolicy[].rule | <code>string</code> | A regular expression that defines which calls to send to the PSTN |
-| request.egressPolicy[].numberRef | <code>string</code> | The Number that will be used to send the call to the PSTN |
+| request.accessControlListRef | <code>string</code> | The reference to the Access Control List (ACL) to associate with the Domain |
+| request.egressPolicies | <code>Array.&lt;EgressPolicy&gt;</code> | The egress policy of the Domain |
+| request.egressPolicies[].rule | <code>string</code> | A regular expression that defines which calls to send to the PSTN |
+| request.egressPolicies[].numberRef | <code>string</code> | The Number that will be used to send the call to the PSTN |
 
 **Example**  
 ```js
@@ -1441,7 +1482,14 @@ const domains = new SDK.Domains(client); // Existing client object
 
 const request = {
   name: "My Domain",
-  domainUri: "sip.project.fonoster.io"
+  domainUri: "sip.project.fonoster.io",
+  accessControlListRef: "00000000-0000-0000-0000-000000000001",
+  egressPolicies: [
+    {
+      rule: ".*",
+      numberRef: "00000000-0000-0000-0000-000000000002"
+    }
+  ]
 };
 
 domains
@@ -1451,11 +1499,11 @@ domains
 ```
 <a name="Domains+getDomain"></a>
 
-### domains.getDomain(ref) ⇒ <code>Promise.&lt;Acl&gt;</code>
+### domains.getDomain(ref) ⇒ <code>Promise.&lt;Domain&gt;</code>
 Retrieves an existing Domain in the Workspace.
 
 **Kind**: instance method of [<code>Domains</code>](#Domains)  
-**Returns**: <code>Promise.&lt;Acl&gt;</code> - - The response object that contains the Domain  
+**Returns**: <code>Promise.&lt;Domain&gt;</code> - - The response object that contains the Domain with full ACL object  
 
 | Param | Type | Description |
 | --- | --- | --- |
@@ -1469,7 +1517,12 @@ const ref = "00000000-0000-0000-0000-000000000000";
 
 domains
   .getDomain(ref)
-  .then(console.log) // successful response
+  .then((domain) => {
+    console.log("Domain:", domain.name);
+    console.log("ACL:", domain.accessControlList?.name);
+    console.log("Allowed IPs:", domain.accessControlList?.allow);
+    console.log("Denied IPs:", domain.accessControlList?.deny);
+  })
   .catch(console.error); // an error occurred
 ```
 <a name="Domains+updateDomain"></a>
@@ -1486,10 +1539,10 @@ Updates an existing Domain in the Workspace.
 | request.ref | <code>string</code> | The reference of the Domain to update |
 | request.name | <code>string</code> | The name of the Domain |
 | request.domainUri | <code>string</code> | The URI of the Domain |
-| request.accessControlListRef | <code>AccessControlListRef</code> | The reference to the Access Control List (ACL) to associate with the Domain |
-| request.egressPolicy | <code>Array.&lt;EgressPolicy&gt;</code> | The egress policy of the Domain |
-| request.egressPolicy[].rule | <code>string</code> | A regular expression that defines which calls to send to the PSTN |
-| request.egressPolicy[].numberRef | <code>string</code> | The Number that will be used to send the call to the PSTN |
+| request.accessControlListRef | <code>string</code> | The reference to the Access Control List (ACL) to associate with the Domain |
+| request.egressPolicies | <code>Array.&lt;EgressPolicy&gt;</code> | The egress policy of the Domain |
+| request.egressPolicies[].rule | <code>string</code> | A regular expression that defines which calls to send to the PSTN |
+| request.egressPolicies[].numberRef | <code>string</code> | The Number that will be used to send the call to the PSTN |
 
 **Example**  
 ```js
@@ -1497,7 +1550,13 @@ const domains = new SDK.Domains(client); // Existing client object
 
 const request = {
   ref: "00000000-0000-0000-0000-000000000000",
-  accessControlListRef: "00000000-0000-0000-0000-000000000001"
+  accessControlListRef: "00000000-0000-0000-0000-000000000001",
+  egressPolicies: [
+    {
+      rule: ".*",
+      numberRef: "00000000-0000-0000-0000-000000000002"
+    }
+  ]
 };
 
 domains
@@ -1580,6 +1639,7 @@ Note that an active Fonoster deployment is required.
     * [.listNumbers(request)](#Numbers+listNumbers) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
     * [.deleteNumber(ref)](#Numbers+deleteNumber) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
     * [.linkTwilio(request)](#Numbers+linkTwilio) ⇒ <code>Promise.&lt;LinkTwilioResponse&gt;</code>
+    * [.linkWhatsApp(request)](#Numbers+linkWhatsApp) ⇒ <code>Promise.&lt;LinkWhatsAppResponse&gt;</code>
 
 <a name="new_Numbers_new"></a>
 
@@ -1760,7 +1820,6 @@ numbers
   .then(console.log) // successful response
   .catch(console.error); // an error occurred
 ```
-
 <a name="Numbers+linkTwilio"></a>
 
 ### numbers.linkTwilio(request) ⇒ <code>Promise.&lt;LinkTwilioResponse&gt;</code>
@@ -1802,6 +1861,186 @@ numbers
   .then(console.log) // successful response: { ref, trunkRef }
   .catch(console.error); // an error occurred
 ```
+<a name="Numbers+linkWhatsApp"></a>
+
+### numbers.linkWhatsApp(request) ⇒ <code>Promise.&lt;LinkWhatsAppResponse&gt;</code>
+Links a WhatsApp Business number so it rings an Application or a SIP agent. Fonoster creates
+(or updates in place) the number's credential, its TLS trunk to Meta and the Number, and
+returns the SIP server hostname to register in WhatsApp Manager. Fonoster calls no Meta API:
+the SIP password Meta issued is passed in as `sipPassword`, now or on a later call, and is
+stored only on the credential.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;LinkWhatsAppResponse&gt;</code> - - The response object with the Number's reference, its trunk's reference, the SIP server hostname and port to register in WhatsApp Manager, and whether the SIP password is set  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>LinkWhatsAppRequest</code> | The request object that contains the necessary information to link a WhatsApp number |
+| request.phoneNumber | <code>string</code> | The WhatsApp Business number in E.164 |
+| request.sipPassword | <code>string</code> | The SIP password Meta issued for the number (optional; without it the link keeps the current password or sets a placeholder) |
+| request.name | <code>string</code> | The name of the Number (optional; defaults to the phoneNumber) |
+| request.appRef | <code>string</code> | The Application that answers the number (or agentAor) |
+| request.agentAor | <code>string</code> | The SIP agent that answers the number (or appRef) |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  phoneNumber: "+525512345678",
+  name: "Front desk",
+  appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00",
+  sipPassword: process.env.WHATSAPP_SIP_PASSWORD
+};
+
+numbers
+  .linkWhatsApp(request)
+  .then(console.log) // successful response: { ref, trunkRef, sipServerHostname, sipServerPort, sipPasswordSet }
+  .catch(console.error); // an error occurred
+```
+
+<a name="Providers"></a>
+
+## Providers
+The provider catalog (read-only) and the workspace's own vendor keys. Catalog ids
+(`<provider>/<model-or-voice>`) are what apps use for speech defaults. A key is stored in a
+write-only Secret and never read back.
+
+**Kind**: global class  
+
+* [Providers](#Providers)
+    * [new Providers()](#new_Providers_new)
+    * [.listCatalog()](#Providers+listCatalog)
+    * [.setProviderKey()](#Providers+setProviderKey)
+    * [.listWarnings()](#Providers+listWarnings)
+    * [.deleteProviderKey()](#Providers+deleteProviderKey)
+
+<a name="new_Providers_new"></a>
+
+### new Providers()
+**Example**  
+```js
+const providers = new SDK.Providers(client);
+const { items } = await providers.listCatalog({ kind: "voice" });
+await providers.setProviderKey({ providerId: "deepgram", key: "dg-..." });
+```
+<a name="Providers+listCatalog"></a>
+
+### providers.listCatalog()
+Providers, models and voices this workspace can use (not retired).
+
+**Kind**: instance method of [<code>Providers</code>](#Providers)  
+<a name="Providers+setProviderKey"></a>
+
+### providers.setProviderKey()
+Stores or replaces the workspace's key for a provider.
+
+**Kind**: instance method of [<code>Providers</code>](#Providers)  
+<a name="Providers+listWarnings"></a>
+
+### providers.listWarnings()
+Deprecated or retired catalog items this workspace uses, with the saved configs that name
+them and the apps whose sessions used them lately (the dashboard's warnings).
+
+**Kind**: instance method of [<code>Providers</code>](#Providers)  
+<a name="Providers+deleteProviderKey"></a>
+
+### providers.deleteProviderKey()
+Removes the workspace's key for a provider (the platform key applies again).
+
+**Kind**: instance method of [<code>Providers</code>](#Providers)  
+
+<a name="RegionsError"></a>
+
+## RegionsError
+An error answer from the regions API (status and its `error` code).
+
+**Kind**: global class  
+
+<a name="Regions"></a>
+
+## Regions
+Regions (add-private-regions, PR-12..PR-21) through the HTTP API (`/api/regions`).
+Regions belong to the signed-in user: create a private region (id, display name, SIP domain),
+get its one-time enrollment token, watch its status, re-issue the token, disconnect or delete
+it. A workspace picks a region when it is created (`workspaces.createWorkspace({name, region})`).
+
+**Kind**: global class  
+
+* [Regions](#Regions)
+    * [new Regions()](#new_Regions_new)
+    * [.listRegions()](#Regions+listRegions)
+    * [.createRegion()](#Regions+createRegion)
+    * [.getRegion()](#Regions+getRegion)
+    * [.updateRegion()](#Regions+updateRegion)
+    * [.reissueRegionToken()](#Regions+reissueRegionToken)
+    * [.disconnectRegion()](#Regions+disconnectRegion)
+    * [.deleteRegion()](#Regions+deleteRegion)
+    * [.refOf()](#Regions+refOf)
+
+<a name="new_Regions_new"></a>
+
+### new Regions()
+**Example**  
+```js
+const regions = new SDK.Regions(client);
+const { items } = await regions.listRegions();
+const { ref, token } = await regions.createRegion({
+  id: "acme-hq", displayName: "Acme HQ", sipDomain: "sip.acme.com"
+});
+const region = await regions.getRegion("acme-hq");
+```
+<a name="Regions+listRegions"></a>
+
+### regions.listRegions()
+The regions a new workspace can pick: the offered public regions and, when signed in, your
+private regions (with status).
+
+**Kind**: instance method of [<code>Regions</code>](#Regions)  
+<a name="Regions+createRegion"></a>
+
+### regions.createRegion()
+Creates a private region (PR-15, PR-16, PR-18). The token (`token`, also `enrollmentToken`)
+is returned once; run `fonoster-region enroll <token>` on the region machine.
+
+**Kind**: instance method of [<code>Regions</code>](#Regions)  
+<a name="Regions+getRegion"></a>
+
+### regions.getRegion()
+One region by id or ref; without an argument, the current workspace's region (its status,
+secrets and connection details).
+
+**Kind**: instance method of [<code>Regions</code>](#Regions)  
+<a name="Regions+updateRegion"></a>
+
+### regions.updateRegion()
+Changes a private region's display name (the id never changes).
+
+**Kind**: instance method of [<code>Regions</code>](#Regions)  
+<a name="Regions+reissueRegionToken"></a>
+
+### regions.reissueRegionToken()
+A new one-time enrollment token; enrolling with it revokes the current cell.
+
+**Kind**: instance method of [<code>Regions</code>](#Regions)  
+<a name="Regions+disconnectRegion"></a>
+
+### regions.disconnectRegion()
+Revokes the region's cell now; the region goes back to `waiting`.
+
+**Kind**: instance method of [<code>Regions</code>](#Regions)  
+<a name="Regions+deleteRegion"></a>
+
+### regions.deleteRegion()
+Deletes a private region; refused (`region_in_use`) while any workspace uses it.
+
+**Kind**: instance method of [<code>Regions</code>](#Regions)  
+<a name="Regions+refOf"></a>
+
+### regions.refOf()
+The given region, or the current workspace's region.
+
+**Kind**: instance method of [<code>Regions</code>](#Regions)  
 
 <a name="Secrets"></a>
 
@@ -2234,6 +2473,40 @@ trunks
    .catch(console.error); // an error occurred
 ```
 
+<a name="Usage"></a>
+
+## Usage
+What the workspace consumed: call minutes, speech, language-model tokens, noise
+cancelling, answering-machine detections, recordings and storage. Quantities only, never money.
+Each total says whose key a vendor was called with (`keySource`: `workspace` or `platform`).
+
+**Kind**: global class  
+
+* [Usage](#Usage)
+    * [new Usage()](#new_Usage_new)
+    * [.getUsage()](#Usage+getUsage)
+
+<a name="new_Usage_new"></a>
+
+### new Usage()
+**Example**  
+```js
+const usage = new SDK.Usage(client);
+const { rows } = await usage.getUsage({
+  fromDay: "2026-10-01",
+  toDay: "2026-10-31",
+  groupBy: ["key_source"]
+});
+```
+<a name="Usage+getUsage"></a>
+
+### usage.getUsage()
+Usage totals for a range of days (UTC, inclusive), split by meter and by the dimensions in
+`groupBy` (day, workspace, provider, model, key_source, origin). With `allOwned`, a workspace
+owner gets every workspace they own.
+
+**Kind**: instance method of [<code>Usage</code>](#Usage)  
+
 <a name="Users"></a>
 
 ## Users
@@ -2301,6 +2574,7 @@ Creates a new User in the Workspace.
 | request.email | <code>string</code> | The email of the User |
 | request.password | <code>string</code> | The password of the User |
 | request.avatar | <code>string</code> | The avatar of the User |
+| [request.phone] | <code>string</code> | The phone number of the User (optional) |
 
 **Example**  
 ```js
@@ -2310,7 +2584,8 @@ const request = {
   name: "John Doe",
   email: "john.doe@example.com",
   password: "password",
-  avatar: "https://example.com/avatar.jpg"
+  avatar: "https://example.com/avatar.jpg",
+  phone: "+1234567890"
 };
 
 users
@@ -2378,9 +2653,11 @@ Updates an existing User in the Workspace.
 | --- | --- | --- |
 | request | <code>UpdateUserRequest</code> | The request object that contains the necessary information to update a User |
 | request.ref | <code>string</code> | The reference of the User to update |
-| request.name | <code>string</code> | The name of the User |
-| request.password | <code>string</code> | The password of the User |
-| request.avatar | <code>string</code> | The avatar of the User |
+| [request.name] | <code>string</code> | The name of the User |
+| [request.password] | <code>string</code> | A new password for the User; requires currentPassword and signs the User out everywhere |
+| [request.currentPassword] | <code>string</code> | The User's current password, required to set a new one |
+| [request.avatar] | <code>string</code> | The avatar of the User |
+| [request.phone] | <code>string</code> | The phone number of the User (optional) |
 
 **Example**  
 ```js
@@ -2389,8 +2666,10 @@ const users = new SDK.Users(client); // Existing client object
 const request = {
   ref: "00000000-0000-0000-0000-000000000000",
   name: "John Doe",
-  password: "password",
-  avatar: "https://example.com/avatar.jpg"
+  password: "a-new-password",
+  currentPassword: "the-current-password",
+  avatar: "https://example.com/avatar.jpg",
+  phone: "+1234567890"
 };
 
 users
@@ -2481,6 +2760,71 @@ users
   .catch(console.error); // an error occurred
 ```
 
+<a name="Webhooks"></a>
+
+## Webhooks
+Fonoster Webhooks, a capability of Fonoster's Workspaces. Webhooks receive call
+events (call.started, call.ended, call.failed, call_record.sealed, provider.deprecated),
+signed with the endpoint's secret.
+
+**Kind**: global class  
+
+* [Webhooks](#Webhooks)
+    * [new Webhooks()](#new_Webhooks_new)
+    * [.createWebhook()](#Webhooks+createWebhook)
+    * [.updateWebhook()](#Webhooks+updateWebhook)
+    * [.rotateWebhookSecret()](#Webhooks+rotateWebhookSecret)
+    * [.listWebhookDeliveries()](#Webhooks+listWebhookDeliveries)
+    * [.resendWebhookDelivery()](#Webhooks+resendWebhookDelivery)
+
+<a name="new_Webhooks_new"></a>
+
+### new Webhooks()
+**Example**  
+```js
+const SDK = require("@fonoster/sdk");
+
+async function main() {
+  const client = new SDK.Client({ accessKeyId: "WO00000000000000000000000000000000" });
+  await client.loginWithApiKey("APXXXXXXXXXXXXXXXX", "YYYYYYYYYYYYYYYYY");
+  const webhooks = new SDK.Webhooks(client);
+  const { ref, secret } = await webhooks.createWebhook({
+    url: "https://example.com/fonoster",
+    events: ["call.ended"]
+  });
+}
+```
+<a name="Webhooks+createWebhook"></a>
+
+### webhooks.createWebhook()
+Creates an endpoint. The secret is returned only here and on rotation.
+
+**Kind**: instance method of [<code>Webhooks</code>](#Webhooks)  
+<a name="Webhooks+updateWebhook"></a>
+
+### webhooks.updateWebhook()
+Changes the URL and/or events; fields left out are kept.
+
+**Kind**: instance method of [<code>Webhooks</code>](#Webhooks)  
+<a name="Webhooks+rotateWebhookSecret"></a>
+
+### webhooks.rotateWebhookSecret()
+A new secret; the previous one keeps verifying for 24 hours.
+
+**Kind**: instance method of [<code>Webhooks</code>](#Webhooks)  
+<a name="Webhooks+listWebhookDeliveries"></a>
+
+### webhooks.listWebhookDeliveries()
+The delivery log, newest first (optionally one endpoint's).
+
+**Kind**: instance method of [<code>Webhooks</code>](#Webhooks)  
+<a name="Webhooks+resendWebhookDelivery"></a>
+
+### webhooks.resendWebhookDelivery()
+Sends a delivery again now, with the same event id and a fresh signature.
+
+**Kind**: instance method of [<code>Webhooks</code>](#Webhooks)  
+
 <a name="Workspaces"></a>
 
 ## Workspaces
@@ -2497,7 +2841,10 @@ Note that an active Fonoster deployment is required.
 
 * [Workspaces](#Workspaces)
     * [new Workspaces(client)](#new_Workspaces_new)
-    * [.createWorkspace(request)](#Workspaces+createWorkspace) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+    * [.createWorkspace(request)](#Workspaces+createWorkspace) ⇒ <code>Promise.&lt;CreateWorkspaceResponse&gt;</code>
+    * [.getRegion()](#Workspaces+getRegion) ⇒ <code>Promise.&lt;Region&gt;</code>
+    * [.reissueRegionToken()](#Workspaces+reissueRegionToken) ⇒ <code>Promise.&lt;RegionEnrollmentToken&gt;</code>
+    * [.disconnectRegion()](#Workspaces+disconnectRegion)
     * [.getWorkspace(ref)](#Workspaces+getWorkspace) ⇒ <code>Promise.&lt;Acl&gt;</code>
     * [.updateWorkspace(request)](#Workspaces+updateWorkspace) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
     * [.deleteWorkspace(ref)](#Workspaces+deleteWorkspace) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
@@ -2547,16 +2894,17 @@ main(request);
 ```
 <a name="Workspaces+createWorkspace"></a>
 
-### workspaces.createWorkspace(request) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+### workspaces.createWorkspace(request) ⇒ <code>Promise.&lt;CreateWorkspaceResponse&gt;</code>
 Creates a new Workspace in the system.
 
 **Kind**: instance method of [<code>Workspaces</code>](#Workspaces)  
-**Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the created Workspace  
+**Returns**: <code>Promise.&lt;CreateWorkspaceResponse&gt;</code> - - The reference and the stored region  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | request | <code>CreateWorkspaceRequest</code> | The request object that contains the necessary information to create a new Workspace |
 | request.name | <code>string</code> | The name of the Workspace |
+| request.region | <code>string</code> | An offered public region id (default `default`) or one of your private regions (id or ref, see `Regions.createRegion`); fixed for life |
 
 **Example**  
 ```js
@@ -2571,6 +2919,28 @@ workspaces
   .then(console.log) // successful response
   .catch(console.error); // an error occurred
 ```
+<a name="Workspaces+getRegion"></a>
+
+### workspaces.getRegion() ⇒ <code>Promise.&lt;Region&gt;</code>
+The current workspace's region (add-private-regions): for a private region, the cell's status,
+version, components, active calls and which secrets it needs and has.
+
+**Kind**: instance method of [<code>Workspaces</code>](#Workspaces)  
+**Returns**: <code>Promise.&lt;Region&gt;</code> - - The region view  
+<a name="Workspaces+reissueRegionToken"></a>
+
+### workspaces.reissueRegionToken() ⇒ <code>Promise.&lt;RegionEnrollmentToken&gt;</code>
+Issues a new one-time enrollment token for the current workspace's region (its owner only).
+Enrolling a cell with it revokes the previous cell's credentials.
+
+**Kind**: instance method of [<code>Workspaces</code>](#Workspaces)  
+**Returns**: <code>Promise.&lt;RegionEnrollmentToken&gt;</code> - - The token (shown once) and its expiry  
+<a name="Workspaces+disconnectRegion"></a>
+
+### workspaces.disconnectRegion()
+Revokes the current workspace's region cell now; it goes back to `waiting` (region owner).
+
+**Kind**: instance method of [<code>Workspaces</code>](#Workspaces)  
 <a name="Workspaces+getWorkspace"></a>
 
 ### workspaces.getWorkspace(ref) ⇒ <code>Promise.&lt;Acl&gt;</code>
@@ -2765,6 +3135,450 @@ const userRef = "00000000-0000-0000-0000-000000000000";
 workspaces
   .removeUserFromWorkspace(userRef)
   .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+
+<a name="Calls"></a>
+
+## Calls
+Fonoster Calls, part of the Fonoster Media subsystem,
+allows you to create, list, and track calls in your deployment.
+Note that an active Fonoster deployment is required.
+
+**Kind**: global class  
+**See**
+
+- AbstractClient
+- FonosterClient
+
+
+* [Calls](#Calls)
+    * [new Calls(client)](#new_Calls_new)
+    * [.createCall(request)](#Calls+createCall) ⇒ <code>Object</code>
+    * [.getCall(ref)](#Calls+getCall) ⇒ <code>Promise.&lt;CallDetailRecord&gt;</code>
+    * [.listCalls(request)](#Calls+listCalls) ⇒ <code>Promise.&lt;ListCallsResponse&gt;</code>
+
+<a name="new_Calls_new"></a>
+
+### new Calls(client)
+Constructs a new Calls object.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| client | <code>FonosterClient</code> | Client object with underlying implementations to make requests to Fonoster's API |
+
+**Example**  
+```js
+const SDK = require("@fonoster/sdk");
+
+async function main(request) {
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
+
+  try {
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
+
+    const calls = new SDK.Calls(client);
+    const response = await calls.createCall(request);
+
+    console.log(response); // successful response
+  } catch (e) {
+    console.error(e); // an error occurred
+  }
+}
+
+const request = {
+  from: "+18287854037",
+  to: "+17853178070",
+  appRef: "00000000-0000-0000-0000-000000000000"
+};
+
+main(request);
+```
+<a name="Calls+createCall"></a>
+
+### calls.createCall(request) ⇒ <code>Object</code>
+Creates a new Call in the Workspace.
+
+**Kind**: instance method of [<code>Calls</code>](#Calls)  
+**Returns**: <code>Object</code> - - The response object that contains the Call reference and a stream of status updates; the update that ends an unanswered call also says why (hangupCause, e.g. USER_BUSY)  
+**See**: DialStatus  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>CreateCallRequest</code> | The request object that contains the necessary information to create a new Call |
+| request.from | <code>string</code> | The number that originated the call |
+| request.to | <code>string</code> | The number that received the call |
+| request.appRef | <code>string</code> | The reference of the App that will handle the call |
+| request.timeout | <code>number</code> | The time in seconds to wait for the call to be answered. Default is 60 seconds |
+| request.metadata | <code>Record.&lt;string, string&gt;</code> | Optional metadata to be sent to the App. For Autopilot applications, this is added to the context of the conversation. |
+
+**Example**  
+```js
+const calls = new SDK.Calls(client); // Existing client object
+
+const request = {
+  from: "+18287854037",
+  to: "+17853178070",
+  appRef: "00000000-0000-0000-0000-000000000000",
+  timeout: 30,
+  metadata: {
+    "name": "John Doe",
+    "preferredLanguage": "en-US"
+  }
+};
+
+const response = await calls.createCall(request);
+const { ref, statusStream } = response;
+
+console.log(ref); // Call reference
+
+for await (const status of statusStream) {
+ console.log(status); // Streamed status
+}
+```
+<a name="Calls+getCall"></a>
+
+### calls.getCall(ref) ⇒ <code>Promise.&lt;CallDetailRecord&gt;</code>
+Retrieves an existing Call in the Workspace.
+
+**Kind**: instance method of [<code>Calls</code>](#Calls)  
+**Returns**: <code>Promise.&lt;CallDetailRecord&gt;</code> - - The response object that contains the Call detail  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ref | <code>string</code> | The reference of the Call to retrieve |
+
+**Example**  
+```js
+const calls = new SDK.Calls(client); // Existing client object
+
+const ref = "00000000-0000-0000-0000-000000000000";
+
+calls
+  .getCall(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Calls+listCalls"></a>
+
+### calls.listCalls(request) ⇒ <code>Promise.&lt;ListCallsResponse&gt;</code>
+Retrieves a list of Calls from a Workspace.
+
+**Kind**: instance method of [<code>Calls</code>](#Calls)  
+**Returns**: <code>Promise.&lt;ListCallsResponse&gt;</code> - - The response object that contains the list of Calls  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>ListCallsRequest</code> | The request object that contains the necessary information to retrieve a list of Calls |
+| request.pageSize | <code>number</code> | The number of Calls to retrieve |
+| request.pageToken | <code>string</code> | The token to retrieve the next page of Calls |
+| request.appRef | <code>string</code> | Optional. Lists only the Calls the App with this reference handled |
+| request.from | <code>string</code> | Optional. Lists only the Calls whose caller is exactly this value, as the Call carried it (e.g. "+15551234567", "sip:+15551234567@carrier.example;user=phone"). There is no normalization: "+15551234567" does not match "tel:+15551234567". At most 256 characters, no control characters (CR, LF, NUL...); otherwise the request fails with INVALID_ARGUMENT |
+| request.to | <code>string</code> | Optional. Lists only the Calls whose callee is exactly this value; same rules as `from` |
+
+**Example**  
+```js
+const calls = new SDK.Calls(client); // Existing client object
+
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000",
+  appRef: "00000000-0000-0000-0000-000000000000", // Optional: only this App's Calls
+  from: "+15551234567" // Optional: only Calls from this number (exact match)
+};
+
+calls
+  .listCalls(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+
+<a name="Numbers"></a>
+
+## Numbers
+Fonoster Numbers, part of the Fonoster SIP Proxy subsystem,
+allows you to create, update, retrieve, and delete SIP Number for your deployment.
+Note that an active Fonoster deployment is required.
+
+**Kind**: global class  
+**See**
+
+- AbstractClient
+- FonosterClient
+
+
+* [Numbers](#Numbers)
+    * [new Numbers(client)](#new_Numbers_new)
+    * [.createNumber(request)](#Numbers+createNumber) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+    * [.getNumber(ref)](#Numbers+getNumber) ⇒ <code>Promise.&lt;Acl&gt;</code>
+    * [.updateNumber(request)](#Numbers+updateNumber) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+    * [.listNumbers(request)](#Numbers+listNumbers) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
+    * [.deleteNumber(ref)](#Numbers+deleteNumber) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+    * [.linkTwilio(request)](#Numbers+linkTwilio) ⇒ <code>Promise.&lt;LinkTwilioResponse&gt;</code>
+    * [.linkWhatsApp(request)](#Numbers+linkWhatsApp) ⇒ <code>Promise.&lt;LinkWhatsAppResponse&gt;</code>
+
+<a name="new_Numbers_new"></a>
+
+### new Numbers(client)
+Constructs a new Numbers object.
+
+
+| Param | Type | Description |
+| --- | --- | --- |
+| client | <code>FonosterClient</code> | Client object with underlying implementations to make requests to Fonoster's API |
+
+**Example**  
+```js
+const SDK = require("@fonoster/sdk");
+
+async function main(request) {
+  const apiKey = "your-api-key";
+  const apiSecret = "your-api-secret"
+  const accessKeyId = "WO00000000000000000000000000000000";
+
+  try {
+    const client = SDK.Client({ accessKeyId });
+    await client.loginWithApiKey(apiKey, apiSecret);
+
+    const numbers = new SDK.Numbers(client);
+    const response = await numbers.createNumber(request);
+
+    console.log(response); // successful response
+  } catch (e) {
+    console.error(e); // an error occurred
+  }
+}
+
+const request = {
+  name: "My Number",
+  telUrl: "tel:+17853178070",
+  city: "Asheville",
+  country: "United States",
+  countryIsoCode: "US"
+};
+
+main(request);
+```
+<a name="Numbers+createNumber"></a>
+
+### numbers.createNumber(request) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+Creates a new Number in the Workspace.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the created Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>CreateNumberRequest</code> | The request object that contains the necessary information to create a new Number |
+| request.name | <code>string</code> | The name of the Number |
+| request.telUrl | <code>string</code> | The telUrl of the Number |
+| request.city | <code>string</code> | The city of the Number |
+| request.country | <code>string</code> | The country of the Number |
+| request.countryIsoCode | <code>string</code> | The countryIsoCode of the Number |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  name: "My Number",
+  telUrl: "tel:+17853178070",
+  city: "Asheville",
+  country: "United States",
+  countryIsoCode: "US"
+};
+
+numbers
+  .createNumber(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+getNumber"></a>
+
+### numbers.getNumber(ref) ⇒ <code>Promise.&lt;Acl&gt;</code>
+Retrieves an existing Number in the Workspace.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;Acl&gt;</code> - - The response object that contains the Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ref | <code>string</code> | The reference of the Number to retrieve |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const ref = "00000000-0000-0000-0000-000000000000";
+
+numbers
+  .getNumber(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+updateNumber"></a>
+
+### numbers.updateNumber(request) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+Updates an existing Number in the Workspace.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the updated Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>UpdateNumberRequest</code> | The request object that contains the necessary information to update an existing Number |
+| request.ref | <code>string</code> | The reference of the Number to update |
+| request.name | <code>string</code> | The name of the Number |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  ref: "00000000-0000-0000-0000-000000000000",
+  name: "My Number"
+};
+
+numbers
+  .updateNumber(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+listNumbers"></a>
+
+### numbers.listNumbers(request) ⇒ <code>Promise.&lt;ListNumbersResponse&gt;</code>
+Retrieves a list of Numbers from a Workspace.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;ListNumbersResponse&gt;</code> - - The response object that contains the list of Numbers  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>ListNumbersRequest</code> | The request object that contains the necessary information to retrieve a list of Numbers |
+| request.pageSize | <code>number</code> | The number of Numbers to retrieve |
+| request.pageToken | <code>string</code> | The token to retrieve the next page of Numbers |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  pageSize: 10,
+  pageToken: "00000000-0000-0000-0000-000000000000"
+};
+
+numbers
+  .listNumbers(request)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+deleteNumber"></a>
+
+### numbers.deleteNumber(ref) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
+Deletes an existing Number from Fonoster.
+Note that this operation is irreversible.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the deleted Number  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ref | <code>string</code> | The reference of the Number to delete |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const ref = "00000000-0000-0000-0000-000000000000";
+
+numbers
+  .deleteNumber(ref)
+  .then(console.log) // successful response
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+linkTwilio"></a>
+
+### numbers.linkTwilio(request) ⇒ <code>Promise.&lt;LinkTwilioResponse&gt;</code>
+Links a number from your Twilio account to the Workspace, so it rings an Application or
+a SIP agent. It provisions the number's Twilio trunk, creates or updates the Fonoster
+Number and its "Twilio Trunk", and moves the number to that trunk in Twilio. Calling it
+again with the same number converges instead of duplicating. The Twilio credentials are
+used for this request and not stored.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;LinkTwilioResponse&gt;</code> - - The response object that contains the reference to the Number and to its Trunk  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>LinkTwilioRequest</code> | The request object that contains the necessary information to link a Twilio number |
+| request.phoneNumber | <code>string</code> | The number in E.164; it must be in the Twilio account |
+| request.name | <code>string</code> | The name of the Number (optional; defaults to the phoneNumber) |
+| request.appRef | <code>string</code> | The Application that answers the number (or agentAor) |
+| request.agentAor | <code>string</code> | The SIP agent that answers the number (or appRef) |
+| request.credentials | <code>TwilioCredentials</code> | The Twilio Account SID with a Standard API key (apiKeySid and apiKeySecret) or the Auth Token (authToken) |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  phoneNumber: "+18095550123",
+  name: "Front desk",
+  appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00",
+  credentials: {
+    accountSid: "AC0123456789abcdef0123456789abcdef",
+    apiKeySid: "SK0123456789abcdef0123456789abcdef",
+    apiKeySecret: process.env.TWILIO_API_KEY_SECRET
+  }
+};
+
+numbers
+  .linkTwilio(request)
+  .then(console.log) // successful response: { ref, trunkRef }
+  .catch(console.error); // an error occurred
+```
+<a name="Numbers+linkWhatsApp"></a>
+
+### numbers.linkWhatsApp(request) ⇒ <code>Promise.&lt;LinkWhatsAppResponse&gt;</code>
+Links a WhatsApp Business number so it rings an Application or a SIP agent. Fonoster creates
+(or updates in place) the number's credential, its TLS trunk to Meta and the Number. With a
+Meta access token and the number's phone number id, Fonoster also turns on SIP calling in
+Meta, points it at this install with SDES and keeps the SIP password Meta issues; the token
+is used for those calls and never stored. Without a token, Fonoster calls no Meta API: the
+response carries the SIP server to register in WhatsApp Manager, and the Meta-issued
+password is passed in as `sipPassword`, now or on a later call.
+
+**Kind**: instance method of [<code>Numbers</code>](#Numbers)  
+**Returns**: <code>Promise.&lt;LinkWhatsAppResponse&gt;</code> - - The response object with the Number's reference, its trunk's reference, the number and Meta's verified name, the SIP server hostname and port, whether the SIP password is set, and whether Meta was configured by this call  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| request | <code>LinkWhatsAppRequest</code> | The request object that contains the necessary information to link a WhatsApp number |
+| request.phoneNumberId | <code>string</code> | Meta's id of the phone number (with accessToken) |
+| request.accessToken | <code>string</code> | A Meta System User token with whatsapp_business_management (used once, never stored) |
+| request.phoneNumber | <code>string</code> | The WhatsApp Business number in E.164 (required without an accessToken) |
+| request.sipPassword | <code>string</code> | The SIP password Meta issued for the number (optional, without an accessToken; without it the link keeps the current password or sets a placeholder) |
+| request.name | <code>string</code> | The name of the Number (optional; defaults to Meta's verified name, or the phone number) |
+| request.appRef | <code>string</code> | The Application that answers the number (or agentAor) |
+| request.agentAor | <code>string</code> | The SIP agent that answers the number (or appRef) |
+
+**Example**  
+```js
+const numbers = new SDK.Numbers(client); // Existing client object
+
+const request = {
+  phoneNumberId: "106612345678901",
+  accessToken: process.env.META_ACCESS_TOKEN,
+  appRef: "4a2f8c1e-0b7d-4a51-9e3c-2f6d7a1b9c00"
+};
+
+numbers
+  .linkWhatsApp(request)
+  .then(console.log) // successful response: { ref, trunkRef, phoneNumber, verifiedName, sipServerHostname, sipServerPort, sipPasswordSet, metaConfigured }
   .catch(console.error); // an error occurred
 ```
 

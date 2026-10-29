@@ -99,6 +99,28 @@ function deserialize_fonoster_numbers_v1beta2_LinkTwilioResponse(buffer_arg) {
   return numbers_pb.LinkTwilioResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_numbers_v1beta2_LinkWhatsAppRequest(arg) {
+  if (!(arg instanceof numbers_pb.LinkWhatsAppRequest)) {
+    throw new Error('Expected argument of type fonoster.numbers.v1beta2.LinkWhatsAppRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_numbers_v1beta2_LinkWhatsAppRequest(buffer_arg) {
+  return numbers_pb.LinkWhatsAppRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_numbers_v1beta2_LinkWhatsAppResponse(arg) {
+  if (!(arg instanceof numbers_pb.LinkWhatsAppResponse)) {
+    throw new Error('Expected argument of type fonoster.numbers.v1beta2.LinkWhatsAppResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_numbers_v1beta2_LinkWhatsAppResponse(buffer_arg) {
+  return numbers_pb.LinkWhatsAppResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_numbers_v1beta2_ListNumbersRequest(arg) {
   if (!(arg instanceof numbers_pb.ListNumbersRequest)) {
     throw new Error('Expected argument of type fonoster.numbers.v1beta2.ListNumbersRequest');
@@ -228,6 +250,19 @@ linkTwilio: {
     requestDeserialize: deserialize_fonoster_numbers_v1beta2_LinkTwilioRequest,
     responseSerialize: serialize_fonoster_numbers_v1beta2_LinkTwilioResponse,
     responseDeserialize: deserialize_fonoster_numbers_v1beta2_LinkTwilioResponse,
+  },
+  // Link a WhatsApp Business number: its trunk to Meta, its credential and the Number, plus the SIP
+// server hostname to register in WhatsApp Manager. Fonoster calls no Meta API.
+linkWhatsApp: {
+    path: '/fonoster.numbers.v1beta2.Numbers/LinkWhatsApp',
+    requestStream: false,
+    responseStream: false,
+    requestType: numbers_pb.LinkWhatsAppRequest,
+    responseType: numbers_pb.LinkWhatsAppResponse,
+    requestSerialize: serialize_fonoster_numbers_v1beta2_LinkWhatsAppRequest,
+    requestDeserialize: deserialize_fonoster_numbers_v1beta2_LinkWhatsAppRequest,
+    responseSerialize: serialize_fonoster_numbers_v1beta2_LinkWhatsAppResponse,
+    responseDeserialize: deserialize_fonoster_numbers_v1beta2_LinkWhatsAppResponse,
   },
 };
 
