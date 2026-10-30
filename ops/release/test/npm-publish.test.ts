@@ -310,5 +310,17 @@ describe("@release npm-publish.sh", function () {
       ]);
       expect(r.summary).to.equal("");
     });
+
+    it("passes --concurrency 1 to lerna when npm run release has no --", () => {
+      // Arrange
+      attempts(["", 0]);
+
+      // Act
+      const r = run("npm-publish.sh", ["--defer", "npm", "run", "release"]);
+
+      // Assert
+      expect(r.status).to.equal(0);
+      expect(r.calls).to.deep.equal(["npm run release -- --concurrency 1"]);
+    });
   });
 });
