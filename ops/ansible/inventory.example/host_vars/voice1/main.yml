@@ -40,6 +40,16 @@ fonoster_overrides:
     spec:
       database: { url: "{{ vault_database_url_routr }}" }
       recording: { enabled: true, path: /var/routr/traces, mode: all, redact: true }
+  # The bar above every dashboard page (ops/bundle/config/dashboard.yaml). Change it and rerun
+  # the deploy with the same version; the plan lists config/dashboard.yaml when the text changes.
+  dashboard.yaml:
+    announcement:
+      show: true
+      tone: warning # info (blue), warning (orange) or critical (red)
+      lead: "Scheduled maintenance."
+      text: "Calls may drop on Saturday from 02:00 to 03:00 UTC."
+      cta: "See the status page"
+      link: "https://status.example.com"
 
 # Compose files next to compose.yaml; name them in COMPOSE_FILE.
 fonoster_compose_overlays:

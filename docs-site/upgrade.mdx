@@ -1,0 +1,56 @@
+---
+title: "Upgrade to the new Fonoster"
+description: "The biggest update in Fonoster history: what changes, the three phases of the move to fonoster.ai, and when the old version shuts down."
+---
+
+<Danger>
+  **The new version doesn't work with the old one.** Packages 0.30 and later (the SDK, the CLI and
+  the Voice SDK) don't work with app.fonoster.com or `api.fonoster.com`. Keep the apps that run
+  there on your current packages until you move them to fonoster.ai.
+</Danger>
+
+<Warning>
+  **The old version shuts down soon.** We expect to turn off app.fonoster.com and
+  `api.fonoster.com` in December, or early January at the latest. We'll announce the exact date.
+</Warning>
+
+This is the biggest update in Fonoster history. It changes too much to keep the old version
+working, so nothing moves over for you. Instead, everyone moves in three phases, and your apps keep
+running on the old version until you're ready.
+
+| | Old version | New version |
+| --- | --- | --- |
+| Dashboard | app.fonoster.com | [app.fonoster.ai](https://app.fonoster.ai) |
+| API | `api.fonoster.com` | `api.fonoster.ai` |
+| Packages | 0.27 and earlier | 0.30 and later |
+
+## The three phases
+
+<Steps>
+  <Step title="Phase 1: get to know the new version (now)">
+    Sign up at [app.fonoster.ai](https://app.fonoster.ai) and try it. These docs already describe
+    the new version. Your apps keep running on app.fonoster.com and `api.fonoster.com`; don't use
+    0.30 or later packages with them.
+  </Step>
+  <Step title="Phase 2: move your apps">
+    Set up your agents, numbers and apps again on app.fonoster.ai and point your code at
+    `api.fonoster.ai`. The versions aren't compatible, but prompts and Voice apps look very
+    similar, so most of the work is moving settings. [Migrate from 0.27](/migrate-from-0-27) lists
+    every change.
+  </Step>
+  <Step title="Phase 3: the old version shuts down">
+    app.fonoster.com and `api.fonoster.com` turn off. The new version then moves back to
+    fonoster.com, and fonoster.ai keeps working as an alias, so you don't have to change your
+    code again.
+  </Step>
+</Steps>
+
+## Before you move an app
+
+- Create your account and workspace on [app.fonoster.ai](https://app.fonoster.ai).
+- Add your vendor keys, then set up your agents, numbers, trunks and SIP agents again.
+- Update your packages to 0.30 or later and point them at `api.fonoster.ai`. See
+  [Migrate from 0.27](/migrate-from-0-27).
+- Move your carrier's or Twilio's numbers to the new version last, once the app works there.
+
+Questions? Ask us on [Discord](https://discord.gg/4QWgSz4hTC).

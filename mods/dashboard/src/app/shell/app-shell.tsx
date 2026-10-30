@@ -52,9 +52,9 @@ export function AppShell() {
   };
 
   return (
-    // The shell is exactly the viewport and only the content column scrolls,
-    // so the sidebar never moves, not even with elastic overscroll.
-    <div className="flex h-dvh overflow-hidden bg-background">
+    // The shell fills the viewport under the announcement bar and only the content
+    // column scrolls, so the sidebar never moves, not even with elastic overscroll.
+    <div className="flex h-full overflow-hidden bg-background">
       <Sidebar
         workspace={workspace}
         collapsed={collapsed}

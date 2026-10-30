@@ -1,6 +1,7 @@
 /* fonoster.com — the notice bar above the nav on every page.
    To change it, edit NOTICE and merge to main; the Pages workflow redeploys on any change under site/.
    - show: false hides the bar on every page.
+   - tone: "info" (blue) or "warning" (orange), the same tones as the dashboard and docs bars.
    - icon: any i-* symbol in assets/img/icons.svg (triangle-alert, sparkles, gift, …).
    - link: where the call to action goes. Leave it empty for a bar without one.
    - text: "[...]" is hidden on phones, so keep the essentials outside the brackets.
@@ -11,17 +12,18 @@
 
   const NOTICE = {
     show: true,
+    tone: "warning",
     icon: "triangle-alert",
-    link: "https://github.com/fonoster/fonoster/issues/new?template=bug.yml",
+    link: "https://docs.fonoster.com/upgrade",
     en: {
-      lead: "Major upgrades underway.",
-      text: "Things may be unstable for a while.[ We're pausing contributions for now, but bug reports are welcome.]",
-      cta: "Report a bug"
+      lead: "The biggest update in Fonoster history.",
+      text: "The old version shuts down by early January.",
+      cta: "Read the upgrade plan"
     },
     es: {
-      lead: "Grandes mejoras en curso.",
-      text: "Puede haber inestabilidad temporal.[ Por ahora no aceptamos contribuciones, pero los reportes de errores son bienvenidos.]",
-      cta: "Reportar un error"
+      lead: "La mayor actualización en la historia de Fonoster.",
+      text: "La versión anterior se apaga a más tardar a inicios de enero.",
+      cta: "Ver el plan de migración"
     }
   };
 
@@ -59,6 +61,7 @@
 
   const bar = document.createElement("div");
   bar.className = "notice";
+  if (NOTICE.tone === "warning") bar.dataset.tone = "warning";
   bar.setAttribute("role", "note");
   bar.innerHTML = html(storedLang());
   document.currentScript.after(bar);

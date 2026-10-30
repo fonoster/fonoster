@@ -341,6 +341,9 @@ services:
     environment:
       # The API as the browser reaches it (Envoy).
       DASHBOARD_API_URL: ${PUBLIC_URL:-https://localhost}
+    volumes:
+      # The announcement bar (config/dashboard.yaml), served as /dashboard.yaml.
+      - ${CONFIG_DIR:-./config}/dashboard.yaml:/config/dashboard.yaml:ro
     expose:
       - 3030
 
