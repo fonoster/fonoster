@@ -373,7 +373,7 @@ section[id] {
 
 /* ---------- Notice bar ----------
    A thin strip above the nav for announcements. It scrolls away and the nav stays sticky.
-   It's the one blue element on the site (a transparent sky tint) so it reads apart from the green CTAs.
+   It's blue by default (a transparent sky tint) or orange for warnings, so it reads apart from the green CTAs.
    The icon sits inline so it stays attached to the text when the line wraps.
    assets/js/notice.js draws the markup on every page and holds the message, link, icon, and on/off switch. */
 .notice {
@@ -394,6 +394,21 @@ section[id] {
   --notice-text: #075985;
   --notice-strong: #0c4a6e;
   --notice-icon: #0284c7;
+}
+/* The warning tone (tone: "warning" in notice.js): the same orange as the dashboard and docs bars. */
+.notice[data-tone="warning"] {
+  --notice-bg: rgba(249, 115, 22, 0.14);
+  --notice-line: rgba(249, 115, 22, 0.32);
+  --notice-text: #fdba74;
+  --notice-strong: #ffedd5;
+  --notice-icon: #fb923c;
+}
+:root[data-theme="light"] .notice[data-tone="warning"] {
+  --notice-bg: rgba(249, 115, 22, 0.08);
+  --notice-line: rgba(249, 115, 22, 0.26);
+  --notice-text: #9a3412;
+  --notice-strong: #7c2d12;
+  --notice-icon: #ea580c;
 }
 .notice__in {
   padding-block: 10px;

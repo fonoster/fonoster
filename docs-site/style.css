@@ -91,32 +91,76 @@ kbd {
   font-weight: 600;
 }
 
-/* Banner: the fonoster.com notice bar (site/assets/css/v1.css .notice), not the brand green.
-   The tint sits on the page background so the fixed bar stays opaque. */
+/* Banner: the website's notice bar (site/assets/css/v1.css .notice) in the warning orange the
+   dashboard uses too, not the brand green. Same icon, arrow, size and colors. The tint sits on
+   the page background so the fixed bar stays opaque. */
 #banner {
-  background: linear-gradient(rgba(14, 165, 233, 0.08), rgba(14, 165, 233, 0.08)), #ffffff;
-  border-bottom: 1px solid rgba(14, 165, 233, 0.26);
+  --banner-text: #9a3412;
+  --banner-strong: #7c2d12;
+  --banner-icon: #ea580c;
+  background: linear-gradient(rgba(249, 115, 22, 0.08), rgba(249, 115, 22, 0.08)), #ffffff;
+  border-bottom: 1px solid rgba(249, 115, 22, 0.26);
   font-size: 13px;
   font-weight: 400;
-}
-#banner,
-#banner * {
-  color: #075985 !important;
-}
-#banner strong,
-#banner a {
-  color: #0c4a6e !important;
-  font-weight: 500;
+  line-height: 1.5;
 }
 :root.dark #banner {
-  background: linear-gradient(rgba(14, 165, 233, 0.14), rgba(14, 165, 233, 0.14)), #181818;
-  border-bottom-color: rgba(14, 165, 233, 0.32);
+  --banner-text: #fdba74;
+  --banner-strong: #ffedd5;
+  --banner-icon: #fb923c;
+  background: linear-gradient(rgba(249, 115, 22, 0.14), rgba(249, 115, 22, 0.14)), #181818;
+  border-bottom-color: rgba(249, 115, 22, 0.32);
 }
-:root.dark #banner,
-:root.dark #banner * {
-  color: #7dd3fc !important;
+/* Mintlify paints every banner element white with a layered !important, which an unlayered
+   !important can't beat, so the text color is set with text-fill-color instead. */
+#banner,
+#banner * {
+  -webkit-text-fill-color: var(--banner-text);
 }
-:root.dark #banner strong,
-:root.dark #banner a {
-  color: #e0f2fe !important;
+#banner > div {
+  margin-block: 10px;
+}
+#banner p {
+  text-wrap: balance;
+}
+/* The bold lead is a span, not <strong>. */
+#banner [data-streamdown="strong"],
+#banner a {
+  -webkit-text-fill-color: var(--banner-strong);
+  font-weight: 500;
+}
+#banner p::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: -3px;
+  background-color: var(--banner-icon);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+#banner a {
+  margin-left: 4px;
+  white-space: nowrap;
+  text-decoration-color: color-mix(in srgb, var(--banner-strong) 40%, transparent);
+  text-underline-offset: 3px;
+}
+#banner a:hover {
+  text-decoration-color: var(--banner-strong);
+}
+#banner a::after {
+  content: "";
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-left: 4px;
+  vertical-align: -2px;
+  background-color: var(--banner-strong);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='m12 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+#banner button {
+  color: var(--banner-text);
+}
+#banner button:hover {
+  background: rgba(249, 115, 22, 0.26);
 }
