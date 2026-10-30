@@ -1,0 +1,42 @@
+# AppBridge in a private region (compose.region.yaml): apps, the catalog and webhook endpoints of
+# the region's workspaces come from the region's database, which the region agent writes from the
+# control plane's snapshots; provider keys come from the region's secret store
+# (`docker compose run --rm --no-deps region-agent secrets set <provider>`), never from Fonoster.
+# Each ${NAME} is read from AppBridge's environment.
+nats: { url: "nats://nats:4222", user: appbridge, password: "${NATS_APPBRIDGE_PASSWORD}" }
+rtp: { host: 0.0.0.0, advertiseHost: "${SUBNET_PREFIX}.43" }
+# The session endpoint (roomr.yaml's sessionEndpoint) and its readiness check (grpc.health.v1);
+# on SIGTERM live calls run up to drainWait (stop_grace_period is longer).
+session:
+  listen: 0.0.0.0:50071
+  drainWait: 10m
+mediaTimeout: 15s
+database:
+  urlEnv: APISERVER_DATABASE_URL
+encryption: { key: "${ENCRYPTION_KEY}" }
+appStore: { source: database, cacheMs: 5000 }
+registry: { source: database, refreshMs: 30000 }
+webhooks: { enabled: true }
+cellSecrets:
+  file: /var/lib/fonoster-secrets/secrets.enc
+  keyEnv: FONOSTER_REGION_SECRETS_KEY
+  # A public region: a workspace's own keys are fetched per call from Fonoster through the region
+  # agent, before the region's keys. Leave off for a private region.
+  # workspaceKeysFromCloud: true
+providers:
+  deepgram: { adapter: deepgram, capabilities: [stt, tts] }
+  elevenlabs: { adapter: elevenlabs, capabilities: [tts] }
+callRecord:
+  dir: /var/lib/fonoster/records
+  region: private
+  recording: off
+  store:
+    s3:
+      bucket: records
+      endpoint: "http://minio:9000"
+      region: us-east-1
+      forcePathStyle: true
+      credentials: { accessKeyId: "${MINIO_ROOT_USER}", secretAccessKey: "${MINIO_ROOT_PASSWORD}" }
+  # Keep the kid of records signed before a move to this install (the old cell used cell-records-1),
+  # so they still verify.
+  signingKey: { kid: cell-records-1, privateKeyFile: /etc/fonoster/keys/records.pem }

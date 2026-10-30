@@ -44,8 +44,9 @@ that lists your workspaces); **Your regions** is on it.
    regions. A workspace never changes region afterwards; Settings shows it read-only. Any of your
    workspaces can use the same private region.
 
-The install command in the dashboard is a shortcut. This guide's steps (the `ops/rebuild/cell`
-Compose files and the Helm chart) are the source of truth for the options.
+The install command in the dashboard is a shortcut. This guide's steps (the release archive with
+`compose.region.yaml`, installed with `ansible/playbooks/region.yml`) are the source of truth for
+the options. User-facing steps: `docs-site/private-regions/install-region.mdx`.
 
 ## SIP domain, DNS and TLS
 
@@ -71,86 +72,49 @@ The region's connection details in the dashboard include the SIP domain.
 | Index and usage | Forwards each sealed call record's index entry (never contents) and the month's minutes, per workspace; records of workspaces that are not in the region are not sent. |
 | Secrets | `fonoster-region secrets set <name>` stores provider keys in the region. Values never cross the link. |
 
-## Install with Docker Compose
+## Install with the playbook
+
+A region is the release archive (`fonoster-<v>.tar.gz`, unpacked to `fonoster/`) with
+`COMPOSE_FILE=compose.yaml:compose.region.yaml`: no apiserver, dashboard or Envoy, plus the region
+agent. The playbook in the archive installs it:
 
 1. Create the region in your account area of the dashboard (id, display name, SIP domain). Copy the
    enrollment token (it is valid for 24 hours and works once). Workspaces you create afterwards
    can pick the region.
-2. Prepare the region's settings and its call-record signing key:
+2. From the archive's `ansible` folder, with an inventory made from
+   `inventory.example/region.example.yml` (the token and provider keys in the vault), plan, then
+   apply:
 
    ```sh
-   cp ops/rebuild/cell/cell.env.example ops/rebuild/cell/.env   # fill in every value
-   mkdir -p ops/rebuild/cell/.local/keys
-   openssl ecparam -name prime256v1 -genkey -noout \
-     | openssl pkcs8 -topk8 -nocrypt -out ops/rebuild/cell/.local/keys/records.pem
+   ansible-playbook -i inventory/region.yml playbooks/region.yml --check --diff --ask-vault-pass
+   ansible-playbook -i inventory/region.yml playbooks/region.yml --ask-vault-pass
    ```
 
-3. Enroll (first step, before starting anything else):
+   It installs Docker, enrolls the region once, stores the provider keys in the region's secret
+   store and starts it. The region turns **Connected** in the dashboard after the first heartbeat.
 
-   ```sh
-   docker compose -f ops/rebuild/cell/compose.yaml run --rm --no-deps region-agent enroll <token>
-   ```
+### Without Ansible
 
-   This writes `region.json`, `leaf.creds`, `leaf.conf` and `cell.key` into the `region` volume. The
-   region's NATS includes `leaf.conf`, so NATS does not start until the region is enrolled.
+The playbook runs these commands in the unpacked `fonoster` folder:
 
-4. Set the provider keys your apps need (the dashboard's Secrets page lists the names). The value is
-   read from stdin:
+```sh
+echo "COMPOSE_FILE=compose.yaml:compose.region.yaml" >> .env
+./init.sh --host-ip <the machine's public address>     # secrets, NATS passwords, keys/records.pem
+docker compose run --rm --no-deps region-agent enroll <token>
+docker compose run --rm --no-deps -T region-agent secrets set deepgram < deepgram.key
+docker compose up -d --wait
+```
 
-   ```sh
-   docker compose -f ops/rebuild/cell/compose.yaml run --rm --no-deps -T region-agent \
-     secrets set deepgram < deepgram.key
-   docker compose -f ops/rebuild/cell/compose.yaml run --rm --no-deps region-agent secrets list
-   ```
+`enroll` writes `region.json`, `leaf.creds`, `leaf.conf` and `cell.key` into the `region` volume.
+The region's NATS includes `leaf.conf`, so NATS does not start until the region is enrolled. The
+dashboard's Secrets page lists the provider key names; `secrets list` shows the ones set.
 
-5. Start the region:
-
-   ```sh
-   docker compose -f ops/rebuild/cell/compose.yaml up -d
-   docker compose -f ops/rebuild/cell/compose.yaml logs -f region-agent
-   ```
-
-   The region turns **Connected** in the dashboard after the first heartbeat.
+NATS users: the region gives each service its own NATS user (`NATS_*_PASSWORD` in `.env`, generated
+by `./init.sh`; permissions in `config/nats-permissions/`).
 
 ## Install with Helm
 
-Enable the region agent in the `fonoster-rebuild` chart:
-
-```yaml
-regionAgent:
-  enabled: true
-  enroll:
-    token: "<token>"           # remove after the enroll Job succeeded
-  identitySecret: fonoster-region
-  secretsSecret: fonoster-region-secrets
-  databaseSecret: fonoster-cell-db        # keys: url, key
-  autopilotSecret: fonoster-cell-autopilot # key: secret
-  config:
-    autopilot: { url: "ws://<release>-autopilot:3000" }   # = autopilot.config.publicUrl
-autopilot:
-  enabled: true                            # the cell's own Autopilot (PR-9)
-appbridge:
-  config:
-    cellSecrets: { dir: /var/lib/fonoster-secrets }
-    appStore: { source: database }
-    registry: { source: database }
-    webhooks: { enabled: true }
-    database: { urlEnv: APISERVER_DATABASE_URL }
-    encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }
-```
-
-The enroll Job writes the credentials into the `fonoster-region` Secret. Mount that Secret into your
-NATS server at `/etc/nats/region` and add `include ./region/leaf.conf` to its config (NATS resolves includes relative to the including file, so the config must sit in `/etc/nats`). Set
-provider keys with `kubectl exec deploy/<release>-region-agent -- fonoster-region secrets set
-deepgram --k8s-secret fonoster-region-secrets` (value on stdin), or manage the
-`fonoster-region-secrets` Secret yourself (one key per provider).
-
-NATS users: the Compose region gives each service its own NATS user (`NATS_*_PASSWORD` in `cell.env`,
-permissions in `ops/rebuild/config/nats-permissions/`). Start each password with a letter (for example
-`n$(openssl rand -hex 16)`): NATS can't load a password that starts with a digit. On Kubernetes, give your NATS the same users
-and permission files and create the Secret `nats.auth.secret` (`nats.auth.enabled` is on by default; keys
-`appbridge`, `roomr`, `routr`, `region-agent`); see the operator guide, "NATS users and subject
-permissions".
+The Helm chart (`ops/rebuild/helm`) is unsupported for regions.
 
 ## Firewall
 
@@ -171,14 +135,15 @@ Upgrades are yours: nothing changes in the region until you roll its images.
 
 1. Read the release notes of the target version; stay within the current or previous minor release
    of the control plane (see Versions below).
-2. Compose: set the image tags (`RB_TAG`) and `docker compose -f ops/rebuild/cell/compose.yaml up -d`.
-   Helm: `helm upgrade` with the new image tags. The Roomr nodes drain (calls in progress finish, up
+2. Run the new release's `playbooks/region.yml` with the same inventory (it installs the release it
+   ships in), or follow the self-hosting Upgrade page (`docs-site/self-hosting/upgrade.mdx`) in the
+   region's folder. The Roomr nodes drain (calls in progress finish, up
    to `roomr.drainGraceSeconds`) and the AppBridge replicas keep in-flight sessions until they end.
 3. The region agent reports the new version on its next heartbeat; the dashboard's Region page
    shows it. Config sync resumes on its own if it had paused for an unsupported version.
 
-Enrollment, credentials and secrets survive upgrades (they live in the `region` volume or the
-`fonoster-region` and `fonoster-region-secrets` Secrets).
+Enrollment, credentials and secrets survive upgrades (they live in the `region` and `secrets`
+volumes).
 
 ## Operations
 
@@ -222,11 +187,10 @@ Public regions are created on the cloud side with the operator key (the API serv
 ```sh
 export FONOSTER_API_URL=https://api.fonoster.ai FONOSTER_OPERATOR_KEY=…   # never on the command line in shared shells
 fonoster-region create us-east-2 --name "US East (Ohio)" [--sip-domain sip.us-east-2.fonoster.com]
-# on the new location: install as above, then
-fonoster-region enroll <token>
-fonoster-region secrets set deepgram < deepgram.key   # Fonoster's own provider keys
-# set `cellSecrets.workspaceKeysFromCloud: true` in AppBridge config (workspaces' own keys per
-# call); on Kubernetes: --set regionAgent.workspaceKeysFromCloud=true
+# on the new location: install with playbooks/region.yml, then enroll (the playbook enrolls with
+# the token in its vault; Fonoster's own provider keys go in fonoster_region.secrets)
+# set `cellSecrets.workspaceKeysFromCloud: true` in the region's config/region/appbridge.yaml
+# (workspaces' own keys per call)
 fonoster-region publish us-east-2     # offered in pickers while it is connected
 fonoster-region list [--json]         # every region (public and private) with status
 fonoster-region token us-east-2       # a new token (enrolling with it revokes the machine enrolled now)

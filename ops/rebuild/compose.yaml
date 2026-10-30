@@ -3,12 +3,12 @@
 # source, the fake providers, the SIP caller bot, the region hub and AppBridge's HTTP port. The
 # stack's overlays name a few more ${NAME}s (vendor keys, the leaf port); each service below gets
 # only its own, added to the bundle's per-service `environment:`. `ops/rebuild/stack up`
-# (docs/try-the-new-platform.md) generates the secrets into ops/rebuild/.local, renders the
-# service configs from ops/bundle/config/*.example.* and runs
+# (docs/try-the-new-platform.md) writes .local/.env and the service configs (ops/bundle/config
+# with the stack's overlays, then ops/bundle/init.sh) into ops/rebuild/.local and runs
 #
 #   docker compose --project-directory ops/rebuild \
 #     -f ops/bundle/compose.yaml -f ops/rebuild/compose.yaml \
-#     --env-file .local/stack.env --env-file .local/host.env --env-file .local/bundle.env ...
+#     --env-file .local/.env ...
 #
 # Relative paths below resolve from ops/rebuild (the project directory). Host ports are in the
 # 16000 range (stack.defaults), so the stack runs next to a self-hosted install.

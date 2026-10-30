@@ -7,6 +7,24 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
+<Update label="v0.41" description="October 2026" tags={["Self-hosting"]}>
+
+## Self-hosting
+
+- **`fonoster-config` is gone and the install needs no Node.js.** The archive ships `init.sh` and
+  final `config/*.yaml` files that you edit in place, then recreate the service. `./init.sh` needs
+  only a shell and `openssl`: it writes `.env` with generated secrets, the signing keys and a
+  certificate for getting started, and prints the dashboard address and owner login. Existing
+  installs: follow [Upgrade](/self-hosting/upgrade). `@fonoster/common` no longer has a
+  `fonoster-config` binary.
+- **A private region is the release archive with `compose.region.yaml`**, installed with the
+  playbook that ships in it; `ops/rebuild/cell` is gone. See
+  [Install a private region](/private-regions/install-region).
+- From this release on, every entry that changes a file under `config/` names the file and each key
+  it adds, renames or removes.
+
+</Update>
+
 <Update label="v0.40" description="October 2026" tags={["Telephony", "Self-hosting"]}>
 
 ## Telephony

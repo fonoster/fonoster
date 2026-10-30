@@ -7,10 +7,12 @@ uut: The Ansible playbook in ops/ansible (playbooks/site.yml, roles host and fon
 tester: ops/ansible/test/throwaway.sh. It runs ansible-playbook against test/inventory.yml (this machine, local connection), then checks the live install, the state folder, the containers, the deploy log and the play's output, and writes one JUnit test per check
 environment: A GitHub runner, Ubuntu 24.04 with root, Docker and Node.js; ansible-core 2.21.5 and ansible-lint 26.10.1; archives and images from ops/release/bundle; no certbot, the generated certificate, the bundled Postgres
 cadence: proofs nightly and at release (qa-proofs.yaml)
-prove: JUNIT_DIR={junitDir} bash ops/ansible/test/throwaway.sh 0.0.0-a 0.0.0-b --rollback
+prove: JUNIT_DIR={junitDir} bash ops/bundle/test/install.sh 0.0.0-a; JUNIT_DIR={junitDir} bash ops/ansible/test/throwaway.sh 0.0.0-a 0.0.0-b --rollback
 capabilities:
   - deployment
+  - self-host-installer
 tests:
+  - ops/bundle/test/install.sh
   - ops/ansible/test/throwaway.sh
 ---
 
@@ -27,13 +29,15 @@ in the state folder.
 
 Not here: production itself (the deploy workflow), the Compose bundle's own start (the compose job
 of `stack-smoke.yaml`), the database (the playbook never touches it), the Helm chart (unsupported).
-OPS-001 and OPS-002 are the install script's cases (#1206).
+OPS-001 and OPS-002 are the Compose install's own: a fresh install from the archive, and an upgrade
+from the latest published release with the documented commands (`ops/bundle/test/install.sh`).
 
 ## Running
 
 ```sh
 # On a throwaway Ubuntu 24.04 machine with root or sudo, Docker, Node.js and ansible on PATH:
 npm install && npm run build
+ops/bundle/test/install.sh 0.0.0-a
 THROWAWAY=1 ops/ansible/test/throwaway.sh 0.0.0-a 0.0.0-b --rollback
 node mods/conformance/catalog/prove.cjs --area OPS --timeout 3600   # the proofs, one run per case
 ```
@@ -68,6 +72,36 @@ flowchart LR
 ```
 
 ## Cases
+
+### OPS-001 A fresh install from the archive starts and serves
+
+- **Spec:** self-host-installer / init prepares an install without prompts / Fresh folder
+- **Priority:** P1
+- **Proof:** Stop `init.sh` generating the `_PASSWORD`, `_SECRET`, `_KEY` and `_TOKEN` values; Compose refuses to start on the empty secrets and the test goes red.
+- **Fault:** faults/OPS-001.patch
+- **Test:** ops/bundle/test/install.sh
+
+`ops/release/smoke` on this build's archive: unpack it, pre-seed `.env` with free ports, run
+`./init.sh --host-ip 127.0.0.1` and `docker compose up -d`, then wait for the API server and call
+the dashboard through the generated CA.
+
+**Pass.** Every service is running, the dashboard answers 200 over HTTPS through `config/tls/ca.pem`, no HSTS header is sent with the generated certificate and the redirect port answers 301. **Fail.** Any of those differs.
+
+### OPS-002 An install upgrades in place
+
+- **Spec:** self-host-installer / An install upgrades in place / Secrets, keys and edited files survive
+- **Spec:** self-host-installer / An install upgrades in place / The SIP port survives
+- **Priority:** P1
+- **Proof:** Stop `init.sh` moving `FONOSTER_VERSION` to its release; the upgraded install keeps running the previous release's images and the test goes red.
+- **Fault:** faults/OPS-002.patch
+- **Test:** ops/bundle/test/install.sh
+
+The latest published release is installed the way it documents (its `.env` with `SIP_PORT=19002`
+and an edited `config/fonoster.yaml`) and started. This build's archive is unpacked next to it,
+`.env`, `config/keys`, `config/tls` and the edited file are copied in, `./init.sh` runs and
+`docker compose up -d --wait` starts it under the same project name.
+
+**Pass.** Every service starts; `.env` is the old one with `FONOSTER_VERSION` moved to this build (plus any added names); the keys and certificates are byte-identical; `config/fonoster.yaml` is the edited one; `config/routr-edgeport.yaml` listens on 19002; the API server runs this build's image and the dashboard answers 200 through the kept CA. **Fail.** Any of those differs.
 
 ### OPS-003 Plan then apply serves the dashboard and API
 

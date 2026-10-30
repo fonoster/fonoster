@@ -1,7 +1,8 @@
 # Puts the host on fonoster_version with this inventory's .env, overrides and overlays.
 #
-#   stage   the release under releases/<version> with the inventory's files, rendered and checked
-#           by fonoster-config, and its images
+#   stage   the release under releases/<version> with the inventory's .env and merged overrides,
+#           initialised by its init.sh, and its images
+#   region  with fonoster_region: enroll once, the region's provider keys
 #   switch  a backup, then the stage into fonoster_dir and docker compose up
 #   smoke   the dashboard and the API answer, from the controller
 #
@@ -46,6 +47,10 @@
 
 - name: Stage
   ansible.builtin.import_tasks: stage.yml
+
+- name: Region
+  ansible.builtin.include_tasks: region.yml
+  when: fonoster_region is defined
 
 - name: Switch
   ansible.builtin.import_tasks: switch.yml

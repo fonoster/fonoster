@@ -23,8 +23,7 @@ import * as os from "os";
 import * as path from "path";
 
 // #1180: ops/release/npm-publish.sh retries lerna publish from-package after npm provenance
-// 409s, and ops/release/require-on-npm.sh stops the release when @fonoster/common is missing.
-// Both run against fake `npx` and `npm` placed first on PATH.
+// 409s. It runs against fake `npx` and `npm` placed first on PATH.
 
 const RELEASE = path.join(__dirname, "..");
 
@@ -78,7 +77,7 @@ const FROM_PACKAGE = [
   "latest"
 ];
 
-describe("@release npm-publish.sh and require-on-npm.sh", function () {
+describe("@release npm-publish.sh", function () {
   let dir: string;
 
   beforeEach(() => {
@@ -310,100 +309,6 @@ describe("@release npm-publish.sh and require-on-npm.sh", function () {
         "npm run release -- --force-publish @fonoster/common --concurrency 1"
       ]);
       expect(r.summary).to.equal("");
-    });
-  });
-
-  describe("require-on-npm.sh", () => {
-    const read = (f: string) =>
-      fs.readFileSync(path.join(dir, f), "utf8").split("\n").filter(Boolean);
-
-    it("exits 0 once the version shows up and installs on a later poll", () => {
-      // Arrange
-      fs.writeFileSync(path.join(dir, "published-after"), "3");
-
-      // Act
-      const r = run("require-on-npm.sh", ["@fonoster/common", "0.35.0"]);
-
-      // Assert
-      expect(r.status).to.equal(0);
-      expect(r.summary).to.equal("");
-      expect(read("views.log")).to.have.length(3);
-      for (const line of [...read("views.log"), ...read("installs.log")]) {
-        expect(line).to.include("--prefer-online");
-      }
-    });
-
-    it("exits 1 with the error naming the package and version when it never shows up", () => {
-      // Act
-      const r = run("require-on-npm.sh", ["@fonoster/common", "0.35.0"]);
-
-      // Assert
-      expect(r.status).to.equal(1);
-      expect(r.out).to.include(
-        "::error::@fonoster/common@0.35.0 is not installable from npm after the publish attempts. Production and self-hosted installs need it (fonoster-config init), so the release stops before images, the GitHub release and the deploy. Rerun with: gh workflow run release.yaml"
-      );
-      expect(r.summary).to.include(
-        "### @fonoster/common@0.35.0 is not installable from npm"
-      );
-      expect(read("views.log")).to.have.length(6);
-    });
-
-    it("exits 1 after 6 polls when the version shows but the dry-run install fails with ETARGET", () => {
-      // Arrange
-      fs.writeFileSync(
-        path.join(dir, "published"),
-        "@fonoster/common@0.35.0\n"
-      );
-      fs.writeFileSync(path.join(dir, "install.out"), ETARGET);
-
-      // Act
-      const r = run("require-on-npm.sh", ["@fonoster/common", "0.35.0"]);
-
-      // Assert
-      expect(r.status).to.equal(1);
-      expect(read("installs.log")).to.have.length(6);
-      const etarget = r.out.indexOf(
-        "npm error notarget No matching version found for @fonoster/logger@^0.35.0."
-      );
-      expect(etarget).to.be.greaterThan(-1);
-      expect(etarget).to.be.lessThan(r.out.indexOf("::error::"));
-    });
-
-    it("exits 0 when the dry-run install fails on the first poll and passes on a later one, outside the repo", () => {
-      // Arrange
-      fs.writeFileSync(
-        path.join(dir, "published"),
-        "@fonoster/common@0.35.0\n"
-      );
-      fs.writeFileSync(path.join(dir, "install.out"), ETARGET);
-      fs.writeFileSync(path.join(dir, "install-ok-after"), "2");
-
-      // Act
-      const r = run("require-on-npm.sh", ["@fonoster/common", "0.35.0"]);
-
-      // Assert
-      expect(r.status).to.equal(0);
-      const installs = read("installs.log");
-      expect(installs).to.have.length(2);
-      for (const line of installs) {
-        expect(line).to.include(
-          "install --dry-run --prefer-online --no-save --ignore-scripts --no-audit --no-fund @fonoster/common@0.35.0"
-        );
-        expect(line).to.include("package.json={}");
-        const cwd = line.split(" cwd=")[1].split(" package.json=")[0];
-        const repo = path.join(dir, "repo");
-        expect(cwd.replace(/^\/private/, "")).not.to.include(
-          repo.replace(/^\/private/, "")
-        );
-      }
-    });
-
-    it("exits 2 on a usage error", () => {
-      // Act
-      const r = run("require-on-npm.sh", ["@fonoster/common"]);
-
-      // Assert
-      expect(r.status).to.equal(2);
     });
   });
 });

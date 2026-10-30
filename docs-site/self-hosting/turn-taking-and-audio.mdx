@@ -19,11 +19,9 @@ your `fonoster` folder.
 
 ## Apply a change
 
-Each section below edits `config/gateway.example.yaml`. After you edit it, write the configuration
-and recreate the voice gateway:
+Each section below edits `config/appbridge.yaml`. After you edit it, recreate the voice gateway:
 
 ```bash
-npx -p @fonoster/common fonoster-config init
 docker compose up -d --force-recreate appbridge
 ```
 
@@ -104,8 +102,8 @@ recording starts.
   a recording. With `consent`, you hear the prompt first.
 </Check>
 
-The gateway doesn't start with any value other than `off`, `on` or `consent`. To catch a typo
-first, run `npx -p @fonoster/common fonoster-config check`.
+The gateway doesn't start with any value other than `off`, `on` or `consent`. If it stops after
+your edit, `docker compose logs appbridge` names the key.
 
 ## Turn detection
 

@@ -62,6 +62,7 @@ detector.
 | Start     | Overview and requirements    | E    | `self-hosting/overview`             |
 |           | Make your first call ★       | T    | `self-hosting/first-call`           |
 |           | Install with Docker Compose ✓| T    | `self-hosting/install-compose`      |
+|           | Upgrade ✓                    | H    | `self-hosting/upgrade`              |
 | Operate   | Configure services           | H    | `self-hosting/configure`            |
 |           | Manage the provider catalog  | H    | `self-hosting/provider-catalog`     |
 |           | Rotate call-record keys      | H    | `self-hosting/call-record-keys`     |
@@ -74,8 +75,7 @@ detector.
 |           | Troubleshooting              | H    | `self-hosting/troubleshooting`      |
 | Integrations | Send call metrics to ClickHouse | H | `self-hosting/send-call-metrics-to-clickhouse` |
 |           | Send telemetry               | H    | `self-hosting/send-telemetry`       |
-| Tooling   | Stack installer              | R    | `self-hosting/tooling/stack`        |
-|           | `fonoster` CLI for operators | R    | `self-hosting/tooling/cli`          |
+| Tooling   | `fonoster` CLI for operators | R    | `self-hosting/tooling/cli`          |
 |           | Helm chart values            | R    | `self-hosting/tooling/helm-values`  |
 |           | Configuration reference      | R    | `self-hosting/tooling/configuration`|
 
@@ -85,13 +85,14 @@ detector.
 | ------- | ---------------------------- | ---- | ------------------------------------- |
 | Start   | What a private region is     | E    | `private-regions/overview`            |
 |         | Requirements                 | R    | `private-regions/requirements`        |
-| Operate | Enroll a region              | H    | `private-regions/enroll`              |
+| Operate | Install a region ✓           | H    | `private-regions/install-region`      |
+|         | Enroll a region              | H    | `private-regions/enroll`              |
 |         | Operate and monitor          | H    | `private-regions/operate`             |
 |         | Revoke or move a region      | H    | `private-regions/revoke`              |
 |         | Troubleshooting              | H    | `private-regions/troubleshooting`     |
 | Control plane | Host private regions   | H    | `private-regions/host-private-regions` |
 | Tooling | `fonoster-region` CLI        | R    | `private-regions/tooling/cli`         |
-|         | Region bundle (Compose)      | R    | `private-regions/tooling/region-bundle` |
+|         | Region overlay               | R    | `private-regions/tooling/region-overlay` |
 
 ## Changelog
 

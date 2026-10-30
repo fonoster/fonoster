@@ -1,0 +1,38 @@
+# The Roomr node. Each ${NAME} is read from the node's environment (Compose passes .env). This file is
+# the node's only configuration (its one flag is -config). Roomr's SIP port is not published on
+# the host: only Routr reaches it, over the bundle's network.
+nodeId: "${ROOMR_ID:-node-a}"
+nats: { url: "nats://nats:4222", user: roomr, password: "${NATS_ROOMR_PASSWORD}" }
+# SIP and RTP on the node's fixed address; Compose publishes the RTP range on the host.
+sip:
+  listen: "0.0.0.0:5060"
+  advertise: "${SUBNET_PREFIX}.42"
+  # The node knows no registrar by name; this deployment registers with Routr as the roomr
+  # Peer the API server creates (routr.roomrPeer in fonoster.yaml), and Routr's
+  # least-sessions balancer reads X-Session-Count.
+  registrations:
+    - registrar: "routr:${SIP_PORT}"
+      aor: sip:roomr@default
+      expires: 30s
+      auth: { username: roomr, password: "${ROOMR_PASSWORD}" }
+      headers: { X-Session-Count: "{sessions}" }
+  # Routr's X-Call-Ref names inbound calls; the API server sends it on dialed calls too.
+  callRefHeader: X-Call-Ref
+  # Dialed calls go to Routr unless CreateCall names another proxy (the transport lives in the
+  # URI: sip:routr:5060;transport=tcp).
+  outboundProxy: "sip:routr:${SIP_PORT}"
+rtp:
+  host: 0.0.0.0
+  advertise: "${SUBNET_PREFIX}.42"
+  portMin: "${ROOMR_RTP_PORT_MIN}"
+  portMax: "${ROOMR_RTP_PORT_MAX}"
+# Roomr (gRPC): the API server places outbound calls here (CreateCall). Plaintext; the port is
+# reachable only on the bundle's network.
+control: { grpc: { listen: "0.0.0.0:50061", advertise: "${SUBNET_PREFIX}.42:50061" } }
+# Each call's control stream goes to AppBridge's session endpoint.
+sessionEndpoint: "appbridge:50071"
+# On SIGTERM the node unregisters, stops its heartbeat and waits this long for live rooms to end
+# (compose.yaml's stop_grace_period is longer).
+drainWait: 10m
+# OTLP/HTTP export to your collector; empty (the default) is off.
+telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }

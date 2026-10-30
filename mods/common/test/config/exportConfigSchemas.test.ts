@@ -57,7 +57,7 @@ const EXAMPLES: Record<string, { schema: z.ZodTypeAny; configs: unknown[] }> = {
   identity: { schema: identityServiceConfigSchema, configs: [IDENTITY] },
   appbridge: {
     schema: appBridgeConfigSchema,
-    configs: [yamlFile("ops/rebuild/config/appbridge.yaml")]
+    configs: [yamlFile("ops/bundle/config/appbridge.yaml")]
   },
   autopilot: {
     schema: hostedConfigSchema,

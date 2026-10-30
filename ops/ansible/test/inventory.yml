@@ -47,6 +47,8 @@ all:
             ENCRYPTION_KEY: "k1.aesgcm256.XsXWH96emjC51kW-paat3MBw0zZpS_H7xMjpzT6-gWY="
             AUTOPILOT_SIGNING_SECRET: "499a76fd328c7e25617f64c85c3a3c196d6f62884c034e95"
             ROOMR_PASSWORD: "s58353cfdefd8d48f2ff450f6bce6a690"
+            NATS_REGION_AGENT_PASSWORD: "s0d2f7c1e9b4a6083f5e2d1c7b9a4e6f0"
+            FONOSTER_REGION_SECRETS_KEY: "s7e1a9c3f5b2d4086e9c1a3f5b7d2e4c6"
             OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Basic%2053758fc2d32445f24286972b"
           vault_postgres_password: "sf41312e91d93c767ea80cb1a2f9e3500"
           fonoster_overrides:

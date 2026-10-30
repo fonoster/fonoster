@@ -1,10 +1,10 @@
-# A Postgres you manage instead of the bundled one. Put each service's database URL in
-# config/overrides/ (fonoster.yaml, appbridge.yaml, autopilot.yaml and routr-one.yaml), then turn
-# this overlay on in .env:
+# A Postgres you manage instead of the bundled one. Set each service's database URL in its file
+# under config/ (fonoster.yaml, appbridge.yaml, autopilot.yaml and routr-one.yaml), then turn this
+# overlay on in .env:
 #
 #   COMPOSE_FILE=compose.yaml:compose.external-db.yaml
 #
-# and run `fonoster-config init` and `docker compose up -d --wait`. The bundled postgres is never
+# and run `docker compose up -d --wait`. The bundled postgres is never
 # started, the services that waited for it wait for NATS only, and the API server still starts
 # after Routr's health check reaches the database config/routr-one.yaml names. See
 # https://docs.fonoster.com/self-hosting/external-database.

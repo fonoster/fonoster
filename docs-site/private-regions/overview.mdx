@@ -27,7 +27,8 @@ control plane, see [Self-hosting](/self-hosting/overview).
 A region has two parts:
 
 - **The region** runs everything that touches a call: the voice path, Autopilot, storage and the
-  provider keys. It runs on your servers with Docker Compose.
+  provider keys. It runs on your servers with Docker Compose, installed with the Ansible playbook
+  that ships in the release.
 - **The control plane** is the Fonoster API and dashboard that your workspaces sign in to. It is
   [Fonoster Cloud](https://app.fonoster.ai), or your own self-hosted install.
 
@@ -37,6 +38,9 @@ Nothing connects in to your region over it, and call content and provider keys n
 ## Where to start
 
 <CardGroup cols={2}>
+  <Card title="Install a region" icon="download" href="/private-regions/install-region">
+    Install a private region on your own server and enroll it with a token.
+  </Card>
   <Card title="Host private regions" icon="globe" href="/private-regions/host-private-regions">
     Running your own control plane? Add the region hub so workspaces can connect regions.
   </Card>

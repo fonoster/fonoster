@@ -1,0 +1,16 @@
+# The hosted Autopilot in a private region (compose.region.yaml): agents come from the region's
+# database (synced from Fonoster); LLM keys from the region's secret store. Conversations never
+# leave the region.
+host: 0.0.0.0
+port: 3000
+signingSecret: { env: AUTOPILOT_SIGNING_SECRET }
+# The URL the region's Autopilot apps point to (region-agent.yaml autopilot.url).
+publicUrl: "ws://autopilot:3000"
+agents: { source: database }
+registry: { source: database }
+workspaceSecrets:
+  cellSecrets:
+    file: /var/lib/fonoster-secrets/secrets.enc
+    keyEnv: FONOSTER_REGION_SECRETS_KEY
+database: { url: "${APISERVER_DATABASE_URL}" }
+encryption: { key: "${ENCRYPTION_KEY}" }

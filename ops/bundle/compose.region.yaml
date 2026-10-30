@@ -1,0 +1,103 @@
+# A private region on this machine (https://docs.fonoster.com/private-regions/install-region): the
+# voice path, AppBridge, the hosted Autopilot and the region agent, without the API server, the
+# dashboard and Envoy, which run in Fonoster's control plane. Turn it on in .env:
+#
+#   COMPOSE_FILE=compose.yaml:compose.region.yaml
+#
+# then:
+#
+#   ./init.sh --host-ip <this machine's public address>
+#   docker compose run --rm --no-deps region-agent enroll <token>
+#   docker compose run --rm --no-deps region-agent secrets set deepgram
+#   docker compose up -d --wait
+#
+# The only link to Fonoster is the NATS leaf connection `enroll` writes, outbound only. Provider
+# keys and call content never leave this machine. Only SIP and RTP are published. The Ansible
+# playbook in ansible/ (playbooks/region.yml) does all of this from an inventory.
+x-region-db: &region-db
+  APISERVER_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?run ./init.sh}@postgres:5432/fonoster
+  FONOSTER_REGION_SECRETS_KEY: ${FONOSTER_REGION_SECRETS_KEY:?run ./init.sh}
+
+services:
+  # Fonoster's control plane serves these; Compose refuses a profile on a service another depends
+  # on, so the services below drop it from their depends_on.
+  apiserver:
+    profiles: [control-plane]
+  dashboard:
+    profiles: [control-plane]
+  envoy:
+    profiles: [control-plane]
+    depends_on: !override {}
+
+  # The region's NATS: the leaf link from the `region` volume and the region agent's user.
+  nats:
+    environment:
+      NATS_REGION_AGENT_PASSWORD: ${NATS_REGION_AGENT_PASSWORD:?run ./init.sh}
+    volumes: !override
+      - ${CONFIG_DIR:-./config}/region/nats.conf:/etc/nats/nats.conf:ro
+      - ${CONFIG_DIR:-./config}/nats-permissions:/etc/nats/nats-permissions:ro
+      - region:/etc/nats/region:ro
+      - nats-data:/data
+
+  appbridge:
+    depends_on: !override
+      nats: { condition: service_healthy }
+      region-agent: { condition: service_started }
+    environment:
+      <<: *region-db
+    volumes: !override
+      - ${CONFIG_DIR:-./config}/region/appbridge.yaml:/config/appbridge.yaml:ro
+      - ${CONFIG_DIR:-./config}/keys/records.pem:/etc/fonoster/keys/records.pem:ro
+      - secrets:/var/lib/fonoster-secrets:ro
+      - appbridge-records:/var/lib/fonoster/records
+
+  autopilot:
+    depends_on: !override
+      region-agent: { condition: service_started }
+    environment:
+      <<: *region-db
+    volumes: !override
+      - ${CONFIG_DIR:-./config}/region/autopilot.yaml:/config/autopilot.yaml:ro
+      - secrets:/var/lib/fonoster-secrets:ro
+
+  # The region agent: `run` (the default) migrates the region's database and syncs it with
+  # Fonoster; `enroll <token>` and `secrets ...` are one-off commands
+  # (docker compose run --rm --no-deps region-agent ...).
+  region-agent:
+    image: fonoster/region-agent:${FONOSTER_VERSION:?set FONOSTER_VERSION}
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+      nats: { condition: service_healthy }
+      routr: { condition: service_started }
+      minio: { condition: service_healthy }
+    environment:
+      <<: *region-db
+      APISERVER_ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run ./init.sh}
+      NATS_REGION_AGENT_PASSWORD: ${NATS_REGION_AGENT_PASSWORD:?run ./init.sh}
+      FONOSTER_REGION_SECRETS_FILE: /var/lib/fonoster-secrets/secrets.enc
+      AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?run ./init.sh}
+      ROOMR_PASSWORD: ${ROOMR_PASSWORD:?run ./init.sh}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fonoster}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run ./init.sh}
+      # The region's public connection details (region.endpoints) from the settings Routr and
+      # RTPEngine use; config/region/region-agent.yaml `endpoints` overrides them.
+      EXTERNAL_ADDRS: ${HOST_IP:?run ./init.sh}
+      ROUTR_SIP_PORT: ${SIP_PORT:-5060}
+      RTPENGINE_PUBLIC_IP: ${HOST_IP}
+      RTPENGINE_PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
+      RTPENGINE_PORT_MAX: ${RTPENGINE_PORT_MAX:-10999}
+      # A control plane that serves its generated certificate (getting started): copy its ca.pem
+      # to config/keys/ca.pem and set FONOSTER_CA_FILE=/etc/fonoster/keys/ca.pem in .env.
+      FONOSTER_CA_FILE: ${FONOSTER_CA_FILE:-}
+    volumes:
+      - ${CONFIG_DIR:-./config}/region/region-agent.yaml:/etc/fonoster/region-agent.yaml:ro
+      - ${CONFIG_DIR:-./config}/keys:/etc/fonoster/keys:ro
+      - region:/var/lib/fonoster-region
+      - secrets:/var/lib/fonoster-secrets
+
+volumes:
+  # Written by `enroll`: region.json, leaf.creds, leaf.conf, the region's key, state.json (0600).
+  region:
+  # The region's encrypted secret store.
+  secrets:

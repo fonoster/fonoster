@@ -49,7 +49,7 @@ if [ "${QA_RUN:-}" = 1 ]; then
   if [ "${QA_BILLING:-}" = 1 ]; then
     # The calls above used Trial credits: the Billing page case starts from a fresh account.
     ../../ops/rebuild/stack billing-reset >/dev/null || status=1
-    . ../../ops/rebuild/.local/stack.env
+    . ../../ops/rebuild/.local/.env
     PLAYWRIGHT_JUNIT_OUTPUT_NAME="$out/billing.xml" \
       RB_DASHBOARD_URL="https://localhost:$RB_API_PORT" RB_ADMIN_EMAIL="$RB_ADMIN_EMAIL" \
       RB_ADMIN_PASSWORD="$RB_ADMIN_PASSWORD" \
@@ -94,7 +94,7 @@ if grep -q "\[$id\]" e2e/*.real.spec.ts e2e-stack/*.spec.ts 2>/dev/null; then
     [ -n "$port" ] || { echo "no free port in 17000-17399" >&2; exit 1; }
   fi
   vite=../../node_modules/.bin/vite
-  . ../../ops/rebuild/.local/stack.env
+  . ../../ops/rebuild/.local/.env
   export PROVE_API_URL="https://localhost:$RB_API_PORT"
   "$vite" build --config vite.prove.config.ts --outDir "$out/spa" --logLevel warn || exit 1
   # The vite binary itself, not npx, so the trap stops the server and not only a wrapper.
@@ -110,7 +110,7 @@ if grep -q "\[$id\]" e2e/*.real.spec.ts e2e-stack/*.spec.ts 2>/dev/null; then
   [ -n "$ready" ] || { cat "$out/vite.log" >&2; exit 1; }
   if grep -q "\[$id\]" e2e-stack/*.spec.ts; then
     ../../ops/rebuild/stack billing-reset >/dev/null || exit 1
-    . ../../ops/rebuild/.local/stack.env
+    . ../../ops/rebuild/.local/.env
     RB_DASHBOARD_URL="http://localhost:$port" RB_ADMIN_EMAIL="$RB_ADMIN_EMAIL" \
       RB_ADMIN_PASSWORD="$RB_ADMIN_PASSWORD" \
       RB_STRIPE_FAKE_URL="http://localhost:${RB_STRIPE_FAKE_PORT:-12111}" \

@@ -35,32 +35,30 @@ You need:
 - Fonoster 0.31.1 or later, installed with Docker Compose. See
   [Install with Docker Compose](/self-hosting/install-compose).
 - A domain whose DNS you can edit, such as `example.com`.
-- `HOST_IP` in `.env` set to the address carriers and phones reach this machine at. `init` detects
-  it; check it with `npx -p @fonoster/common fonoster-config info`.
+- `HOST_IP` in `.env` set to the address carriers and phones reach this machine at. `./init.sh` detects
+  it; run `./init.sh` again to print it.
 
 Run the commands on this page from your `fonoster` folder.
 
 ## Set your domain
 
 <Steps>
-  <Step title="Write an override">
-    Put your domain in `config/overrides/fonoster.yaml`. `init` merges this file over the
-    `config/fonoster.yaml` it writes, so your domain survives later runs and upgrades:
+  <Step title="Edit the domain">
+    In `config/fonoster.yaml`, replace `fonoster.local` with your domain:
 
-    ```bash
-    printf 'domain: example.com\n' > config/overrides/fonoster.yaml
+    ```yaml config/fonoster.yaml
+    domain: example.com
     ```
 
-    Don't edit `config/fonoster.yaml` itself: the next `init` or upgrade puts `fonoster.local` back.
+    When you upgrade, carry this edit over to the new release's file (see
+    [Upgrade](/self-hosting/upgrade)).
 
   </Step>
 
   <Step title="Apply it">
-    Write the configuration again and recreate the API server, which reads the domain when it
-    starts:
+    Recreate the API server, which reads the domain when it starts:
 
     ```bash
-    npx -p @fonoster/common fonoster-config init
     docker compose up -d --force-recreate apiserver
     ```
 
@@ -135,11 +133,10 @@ server checks only the first.
 <AccordionGroup>
   <Accordion title="Accept any host or IP address">
     If your carriers and phones reach you by IP address, or you can't add wildcard records, accept
-    any name instead. Add this to `config/overrides/fonoster.yaml`, then run `init` and recreate
-    the API server:
+    any name instead. In `config/fonoster.yaml`, under `features`, change `sip: { names: domain }` to
+    this line, then recreate the API server (`docker compose up -d --force-recreate apiserver`):
 
-    ```yaml config/overrides/fonoster.yaml
-    features:
+    ```yaml config/fonoster.yaml
       sip: { names: any }
     ```
 

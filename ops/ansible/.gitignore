@@ -1,2 +1,4 @@
 # Your inventory (hosts, values and the vault): kept out of this repository.
 /inventory/
+# ansible-lint's cache.
+/.ansible/

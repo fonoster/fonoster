@@ -92,8 +92,7 @@ play() { # <version> <log> [ansible-playbook args]: the exit code of ansible-pla
   shift 2
   (cd "$ANSIBLE" && ansible-playbook -i test/inventory.yml playbooks/site.yml \
     -e "fonoster_version=$v" \
-    -e "fonoster_archive=$ROOT/dist/release/$v/fonoster-$v.tar.gz" \
-    -e "fonoster_common_package=$ROOT/dist/release/$v/fonoster-common-$v.tgz" "$@") >"$out" 2>&1
+    -e "fonoster_archive=$ROOT/dist/release/$v/fonoster-$v.tar.gz" "$@") >"$out" 2>&1
   local rc=$?
   log "ansible-playbook $v $* -> exit $rc ($out)"
   return $rc
@@ -158,11 +157,14 @@ if ! play "$A" "$WORK/apply-a.log"; then
   exit 1
 fi
 record OPS-003 "apply $A exits 0" ok
-extras="$($SUDO find "$LIVE" \( -name '*.example.*' -o -name .env.example -o -name README.md -o -path "$LIVE/config/schemas" \) -print)"
-[ -z "$extras" ] && record OPS-003 "$LIVE holds no examples, README or schemas" ok \
-  || record OPS-003 "$LIVE holds no examples, README or schemas" fail "$extras"
+extras="$($SUDO find "$LIVE" -maxdepth 1 \( -name README.md -o -name ansible \) -print)"
+[ -z "$extras" ] && record OPS-003 "$LIVE holds no README or ansible folder" ok \
+  || record OPS-003 "$LIVE holds no README or ansible folder" fail "$extras"
 bad="$(compose ps -a --format '{{.Service}} {{.State}}' | awk '$2 != "running"')"
 [ -z "$bad" ] && record OPS-003 "every service is running" ok || record OPS-003 "every service is running" fail "$bad"
+$SUDO grep -q "mode: all" "$LIVE/config/routr-one.yaml" && $SUDO grep -q "kind: RoutrOne" "$LIVE/config/routr-one.yaml" \
+  && record OPS-003 "config/routr-one.yaml is the release's file with the inventory's override merged" ok \
+  || record OPS-003 "config/routr-one.yaml is the release's file with the inventory's override merged" fail "$($SUDO cat "$LIVE/config/routr-one.yaml")"
 $SUDO cp "$STATE/tls/ca.pem" "$WORK/ca.pem" && $SUDO chmod 644 "$WORK/ca.pem"
 check OPS-003 "the dashboard answers 200 through the generated CA" \
   sh -c "[ \"\$(curl -s --cacert '$WORK/ca.pem' -o /dev/null -w '%{http_code}' https://127.0.0.1:18443/)\" = 200 ]"
@@ -240,7 +242,9 @@ fi
 # A release that adds a .env name the inventory lacks: the play names it, the live folder stays.
 mkdir -p "$WORK/newname/x"
 tar -xzf "$ROOT/dist/release/$A/fonoster-$A.tar.gz" -C "$WORK/newname/x"
-echo "OPS_THROWAWAY_NEW_NAME=1" >>"$WORK/newname/x/fonoster/.env.example"
+# init.sh's .env template gains a name, as a newer release's would.
+awk '{ print } /^ROOMR_PASSWORD=$/ { print "OPS_THROWAWAY_NEW_NAME=1" }' "$WORK/newname/x/fonoster/init.sh" >"$WORK/newname/init.sh"
+cp "$WORK/newname/init.sh" "$WORK/newname/x/fonoster/init.sh"
 tar -czf "$WORK/newname/fonoster-$A.tar.gz" -C "$WORK/newname/x" fonoster
 (cd "$WORK/newname" && sha256sum "fonoster-$A.tar.gz" >SHA256SUMS)
 before="$(tree_sum "$LIVE")"

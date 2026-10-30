@@ -116,12 +116,12 @@ All commands run in your `fonoster` folder.
   </Step>
 
   <Step title="Connect the API server to the hub">
-    Put these keys under `regions` in `config/overrides/fonoster.yaml`, with your domain in
-    `leafUrl`. `init` merges the file over the one it writes, so the `regions.public` list stays as
-    it is:
+    Add these keys under `regions` in `config/fonoster.yaml`, next to the `public` list, with your
+    domain in `leafUrl`. Leave the `regions.public` list as it is:
 
-    ```yaml config/overrides/fonoster.yaml
+    ```yaml config/fonoster.yaml
     regions:
+      # public: ...keep the list as it is
       operatorKey: "secret://file/opt/fonoster/keys/region-operator.key"
       leafUrl: "tls://voice.example.com:7422"
       signingKey: { file: /opt/fonoster/keys/region-signing.pem }
@@ -140,19 +140,20 @@ All commands run in your `fonoster` folder.
     | `signingKey`, `hub` | Both turn private regions on. `/opt/fonoster/keys/` is your `config/keys/` folder |
     | `operatorKey` | Turns the region admin API on. Leave it out if you skipped the operator key |
 
-    Don't edit `config/fonoster.yaml` or its example: `init` writes the first again, and upgrades
-    replace the second.
+    When you upgrade, carry these keys over to the new release's file (see
+    [Upgrade](/self-hosting/upgrade)).
 
   </Step>
 
-  <Step title="Write the config and restart">
-    Write and check the config, then start the hub and recreate the API server:
+  <Step title="Restart">
+    Start the hub and recreate the API server:
 
     ```bash
-    npx -p @fonoster/common fonoster-config init
-    npx -p @fonoster/common fonoster-config check
     docker compose up -d --force-recreate apiserver
     ```
+
+    If the file has a bad key, the API server stops at start and `docker compose logs apiserver`
+    names it.
 
   </Step>
 </Steps>
@@ -166,7 +167,7 @@ docker compose logs apiserver | grep "regions:"
 ```
 
 The line ends with `enrolled regions on; admin API on`. If it says `off`, check `signingKey` and
-`hub` in `config/fonoster.example.yaml`, and that `region-hub` is healthy in `docker compose ps`.
+`hub` in `config/fonoster.yaml`, and that `region-hub` is healthy in `docker compose ps`.
 
 With an operator key, list every region through the admin API:
 

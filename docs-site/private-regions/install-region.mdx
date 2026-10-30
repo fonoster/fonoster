@@ -1,0 +1,105 @@
+---
+title: "Install a private region"
+description: "Run a private region on your own machine with the Ansible playbook that ships in the release."
+---
+
+A private region runs the voice path, AppBridge and the hosted Autopilot on your machine, so calls,
+recordings and provider keys never leave it. Its only link to Fonoster is one outbound connection.
+You install it with the Ansible playbook in the release archive (`fonoster/ansible`), from an
+inventory you keep.
+
+## Before you begin
+
+You need:
+
+- A private region created in the dashboard (**Settings → Region**) and its install token.
+- A Debian or Ubuntu machine you can reach over SSH as root, with SIP (5060) and the RTP ranges
+  open.
+- `ansible-core` 2.21 on the machine you run the playbook from.
+- DNS records `sip.<your domain>` and `*.sip.<your domain>` pointing at the region's machine.
+- Keys for the speech and LLM providers the region's agents use.
+
+## Install
+
+<Steps>
+  <Step title="Download the release">
+    ```bash
+    curl -fsSL https://github.com/fonoster/fonoster/releases/latest/download/fonoster-$(curl -fsSL https://api.github.com/repos/fonoster/fonoster/releases/latest | sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p').tar.gz | tar -xz
+    ```
+  </Step>
+  <Step title="Run the install command">
+    The dashboard shows this command with your token in place of `<token>`:
+
+    ```bash
+    cd fonoster/ansible && mkdir -p inventory/group_vars/regions && cp inventory.example/region.example.yml inventory/region.yml
+    ansible-vault encrypt_string '<token>' --name vault_enroll_token >> inventory/group_vars/regions/vault.yml
+    ansible-playbook -i inventory/region.yml playbooks/region.yml --check --diff --ask-vault-pass
+    ansible-playbook -i inventory/region.yml playbooks/region.yml --ask-vault-pass
+    ```
+
+    Before the last two lines, edit `inventory/region.yml`: your machine's address
+    (`ansible_host`), `region_sip_domain`, and one `fonoster_region.secrets` entry per provider. Add
+    each secret to the vault the same way as the token, for example:
+
+    ```bash
+    ansible-vault encrypt_string "$(openssl rand -hex 16)" --name vault_postgres_password >> inventory/group_vars/regions/vault.yml
+    ansible-vault encrypt_string '<your Deepgram key>' --name vault_deepgram_key >> inventory/group_vars/regions/vault.yml
+    ```
+
+    The first playbook line is the plan: it shows what would change and changes nothing. The
+    second applies it: it installs Docker, enrolls the region with the token (once), stores the
+    provider keys in the region's secret store and starts the region.
+  </Step>
+  <Step title="Check the region">
+    The region shows **Connected** in the dashboard within a minute.
+  </Step>
+</Steps>
+
+## Upgrade
+
+Download the new release and run the playbook from its `ansible` folder with the same inventory.
+The playbook installs the release it ships in. A run with a used token changes nothing: the region
+is already enrolled.
+
+## Moving from the cell install
+
+A region installed from `ops/rebuild/cell` keeps its enrollment and secrets: they live in the
+`region` and `secrets` volumes, which the new install uses under the same project name. Its
+database, MinIO and records volumes have other names, so you move them. On the region's machine,
+with `COMPOSE_PROJECT_NAME=fonoster-cell` in the inventory's `fonoster_env`:
+
+```bash
+cd ops/rebuild/cell
+docker compose exec -T postgres pg_dump -U postgres fonoster > /root/region.sql
+cp .local/keys/records.pem /root/records.pem
+docker compose stop
+```
+
+Copy `/root/records.pem` to `/var/lib/fonoster/keys/records.pem` before the first apply, so
+records signed before the move still verify (the region's `appbridge.yaml` keeps the kid
+`cell-records-1`). Apply the playbook, then restore the database and copy the two data volumes:
+
+```bash
+cd /opt/fonoster
+docker compose exec -T postgres psql -U postgres fonoster < /root/region.sql
+docker run --rm -v fonoster-cell_minio:/from -v fonoster-cell_minio-data:/to alpine cp -a /from/. /to/
+docker run --rm -v fonoster-cell_records:/from -v fonoster-cell_appbridge-records:/to alpine cp -a /from/. /to/
+docker compose up -d --force-recreate
+```
+
+Keep the old folder until the region shows **Connected**.
+
+## Without Ansible
+
+The playbook runs these commands in the release's `fonoster` folder, which you can also run
+yourself:
+
+```bash
+echo "COMPOSE_FILE=compose.yaml:compose.region.yaml" >> .env
+./init.sh --host-ip <the machine's public address>
+docker compose run --rm --no-deps region-agent enroll <token>
+docker compose run --rm --no-deps -T region-agent secrets set deepgram < deepgram.key
+docker compose up -d --wait
+```
+
+The Helm chart in the repository (`ops/rebuild/helm`) is unsupported.

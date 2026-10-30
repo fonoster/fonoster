@@ -18,15 +18,16 @@ Tested on Ubuntu 24.04 with ansible-core 2.21.5 (ansible-lint 26.10.1). No colle
 - **fonoster** (tag `fonoster`):
   1. Stages the release in `/var/lib/fonoster/releases/<version>` from `fonoster_archive` (the
      GitHub release by default, or a path on the controller), checked against `SHA256SUMS`.
-  2. Writes `.env` from `fonoster_env` and `fonoster_env_secrets`, `config/overrides/<file>` from
-     `fonoster_overrides` and the Compose files in `fonoster_compose_overlays`, and copies the keys
-     and TLS files from `/var/lib/fonoster/{keys,tls}`.
-  3. Runs `fonoster-config init` and `check` in `node:22-alpine`. It fails, naming them, when the
-     release adds a `.env` name the inventory lacks. Keys and TLS files init created are kept in
+  2. Writes `.env` from `fonoster_env` and `fonoster_env_secrets`, deep-merges each
+     `fonoster_overrides` entry over the release's `config/<file>`, writes the Compose files in
+     `fonoster_compose_overlays`, and copies the keys and TLS files from
      `/var/lib/fonoster/{keys,tls}`.
+  3. Runs the release's `init.sh` in the stage (no Node.js). It fails, naming them, when the
+     release adds a `.env` name the inventory lacks. Keys and TLS files `init.sh` created are kept
+     in `/var/lib/fonoster/{keys,tls}`.
   4. Pulls the images, unless `fonoster/apiserver:<version>` is already on the host.
   5. Backs up `/opt/fonoster` to `/var/lib/fonoster/backups/<utc>-<from>.tgz`, then syncs the stage
-     into it, without the example files, `README.md` and `config/schemas`.
+     into it, without `README.md` and `ansible/`.
   6. Runs `docker compose up -d --wait`, recreating the services whose mounted files changed.
   7. Checks from the controller that the dashboard (`fonoster_public_url`) answers 200 and the API
      (`fonoster_api_host`) answers gRPC.
@@ -48,8 +49,8 @@ Copy `inventory.example/` to `inventory/` (git-ignored) and fill it in:
 - `inventory/host_vars/<host>/vault.yml`: the secrets (from `vault.example.yml`), encrypted with
   `ansible-vault encrypt`. Pass `--ask-vault-pass` (or `--vault-password-file`) to every run.
 
-`fonoster_env` and `fonoster_env_secrets` together hold every name of the release's `.env.example`
-(`FONOSTER_VERSION` comes from `fonoster_version`).
+`fonoster_env` and `fonoster_env_secrets` together hold every name of the `.env` the release's
+`init.sh` writes (`FONOSTER_VERSION` comes from `fonoster_version`).
 
 ## Commands
 
@@ -59,7 +60,7 @@ Run them from this folder, so `ansible.cfg` applies:
 ansible-playbook -i inventory/production.yml playbooks/site.yml --check --diff -e fonoster_version=0.40.0   # plan
 ansible-playbook -i inventory/production.yml playbooks/site.yml -e fonoster_version=0.40.0                  # apply
 ansible-playbook -i inventory/production.yml playbooks/site.yml --tags fonoster -e fonoster_version=0.39.2  # another version
-ansible-playbook -i inventory/production.yml playbooks/site.yml -e fonoster_version=0.0.0-a -e fonoster_archive=/path/fonoster-0.0.0-a.tar.gz -e fonoster_common_package=/path/fonoster-common-0.0.0-a.tgz   # local build
+ansible-playbook -i inventory/production.yml playbooks/site.yml -e fonoster_version=0.0.0-a -e fonoster_archive=/path/fonoster-0.0.0-a.tar.gz   # local build
 ansible-playbook -i inventory/production.yml playbooks/rollback.yml   # put the newest backup back
 ```
 
@@ -69,8 +70,8 @@ puts the newest backup of `/opt/fonoster` back, recreates the services and smoke
 `-e fonoster_rollback_since=<YYYYMMDDTHHMMSSZ>`, only a backup made since then). Exit 0 means the host
 converged; 2 means a task failed. A run on a converged host ends with `changed=0`.
 
-A local build comes from `ops/release/bundle <version>`, which writes the archive, the common
-package and `SHA256SUMS` to `dist/release/<version>/`.
+A local build comes from `ops/release/bundle <version>`, which writes the archive and `SHA256SUMS`
+to `dist/release/<version>/`.
 
 ## Test
 
@@ -84,6 +85,17 @@ job of `stack-smoke.yaml` and in the QA gate:
 ```sh
 gh workflow run stack-smoke.yaml --ref <branch>
 ```
+
+## Private regions
+
+`playbooks/region.yml` installs a private region on each host of the `regions` group: the host
+role, then the fonoster role with `COMPOSE_FILE=compose.yaml:compose.region.yaml` (no API server,
+dashboard or Envoy). With `fonoster_region` set, the role enrolls the region once with
+`fonoster_region.enroll_token` (before NATS starts: its config includes the leaf link enroll
+writes) and sets each `fonoster_region.secrets` entry in the region's secret store through stdin,
+only when the set changed. The version defaults to the release the playbook ships in. Start from
+`inventory.example/region.example.yml`; the steps are in
+https://docs.fonoster.com/private-regions/install-region.
 
 ## Fonoster Cloud
 

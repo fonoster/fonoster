@@ -1,4 +1,4 @@
-# Dev layer over .dev/config/fonoster.yaml (fonoster-config render --overlay). Your own overrides:
+# Dev layer over .dev/config/fonoster.yaml (ops/rebuild/merge-config.cjs). Your own overrides:
 # .dev/overlay/fonoster.yaml.
 #
 # The fake providers (npm run dev:fakes) join the catalog as one more provider, `fake`, which

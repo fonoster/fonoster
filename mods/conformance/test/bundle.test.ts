@@ -18,9 +18,9 @@
  */
 // The self-host Compose bundle (add-self-host-installer, unify-config-placeholders):
 // ops/bundle/compose.yaml uses published images only and has no profiles, nothing in it says
-// "rebuild", its copies of the dev stack's static configs stay in sync, and its examples, written
-// the way `fonoster-config init` writes them (placeholders kept), load through each service's own
-// config validation with .env's values, which Compose passes to the containers.
+// "rebuild", its copies of the dev stack's static configs stay in sync, and its config files,
+// after ./init.sh (placeholders kept), load through each service's own config validation with
+// .env's values, which Compose passes to the containers.
 import { execFileSync } from "child_process";
 import * as fs from "fs";
 import * as os from "os";
@@ -42,15 +42,38 @@ import {
   SHARED_VALUE_PATHS
 } from "../../apiserver/src/config/schema";
 import { loadHostedConfig } from "../../autopilot/src/session/hosted";
-import { expandEnv, readEnvFile } from "../../common/src/config/cli/envFile";
-import { tlsEnabled } from "../../common/src/config/cli/exposure";
-import { renderConfigDir } from "../../common/src/config/cli/render";
-import { ensureKeys } from "../../common/src/config/cli/secrets";
+import { expandEnv, readEnvFile } from "../../common/src/config/envFile";
 import { loadConfig as loadAppBridgeConfig } from "../../appbridge/src/config";
 
 const ROOT = path.join(__dirname, "..", "..", "..");
 const BUNDLE = path.join(ROOT, "ops", "bundle");
 const read = (p: string) => fs.readFileSync(path.join(ROOT, p), "utf8");
+
+/** HTTPS unless COMPOSE_FILE turns on the plain-HTTP overlay (what init.sh's summary says). */
+const tlsEnabled = (env: Record<string, string | undefined>) =>
+  !(env.COMPOSE_FILE ?? "").split(":").includes("compose.http.yaml");
+
+/** The secrets of a .env init.sh writes, by name. */
+const SECRET_NAME = /(_PASSWORD|_SECRET|_KEY|_TOKEN)$/;
+
+/** A copy of the bundle's install folder after `./init.sh --host-ip 192.0.2.10`. */
+function initialised(): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "bundle-install-"));
+  fs.cpSync(path.join(BUNDLE, "config"), path.join(dir, "config"), {
+    recursive: true
+  });
+  execFileSync(
+    "sh",
+    [path.join(BUNDLE, "init.sh"), "--dir", dir, "--host-ip", "192.0.2.10"],
+    { stdio: "ignore" }
+  );
+  return dir;
+}
+
+let initEnvCache: Map<string, string> | undefined;
+/** The .env init.sh writes for a new install. */
+const initEnv = () =>
+  (initEnvCache ??= readEnvFile(path.join(initialised(), ".env")));
 
 type Service = {
   image?: string;
@@ -88,8 +111,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
   // Compose's long volume syntax ({ type, source, target, read_only }) is read as the short
   // form, so every check below sees one shape.
   type RawVolume =
-    | string
-    | { source: string; target: string; read_only?: boolean };
+    string | { source: string; target: string; read_only?: boolean };
   for (const svc of Object.values(
     compose.services as Record<string, { volumes?: RawVolume[] }>
   )) {
@@ -157,7 +179,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
   ];
 
   it("passes the OTLP headers and protocol through to every service that gets the endpoint", function () {
-    const env = readEnvFile(path.join(BUNDLE, ".env.example"));
+    const env = initEnv();
     for (const k of OTLP_PASSTHROUGH) expect(env.has(k), k).to.equal(true);
     for (const [svc, s] of Object.entries(services)) {
       if (!s.environment?.OTEL_EXPORTER_OTLP_ENDPOINT) continue;
@@ -191,7 +213,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
         `${svc}: environment`
       ).to.deep.equal(
         [
-          ...placeholders(`${file}.example.yaml`),
+          ...placeholders(`${file}.yaml`),
           // Read by the OpenTelemetry SDK from the environment, not by the config file.
           ...OTLP_PASSTHROUGH
         ].sort()
@@ -313,7 +335,10 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
   });
 
   it("never says rebuild or RB_", function () {
-    for (const file of filesUnder(BUNDLE))
+    // test/ stays in the repository (ops/release/bundle leaves it out of the archive).
+    for (const file of filesUnder(BUNDLE).filter(
+      (f) => !f.startsWith(path.join(BUNDLE, "test"))
+    ))
       expect(fs.readFileSync(file, "utf8"), file).to.not.match(/rebuild|RB_/i);
   });
 
@@ -381,6 +406,77 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       ]
     }) as { services: Record<string, Service & { ports?: string[] }> };
 
+  it("runs a private region with compose.region.yaml: no API server, dashboard or Envoy, a region agent", function () {
+    const region = overlay("compose.region.yaml").services;
+    for (const s of ["apiserver", "dashboard", "envoy"])
+      expect(region[s].profiles, s).to.deep.equal(["control-plane"]);
+    // Nothing left depends on a service the profile turns off.
+    for (const [name, svc] of Object.entries(services)) {
+      const deps = Object.keys((region[name] ?? svc).depends_on ?? {});
+      if (["apiserver", "dashboard", "envoy"].includes(name)) continue;
+      expect(deps, name).to.not.include("apiserver");
+    }
+    expect(region["region-agent"].image).to.equal(
+      "fonoster/region-agent:${FONOSTER_VERSION:?set FONOSTER_VERSION}"
+    );
+    expect(region.nats.volumes).to.include(
+      "${CONFIG_DIR:-./config}/region/nats.conf:/etc/nats/nats.conf:ro"
+    );
+    // Only SIP and RTP are published (the leaf link is outbound).
+    expect(JSON.stringify(region)).to.not.contain('"ports"');
+    // No stack name under ops/bundle (the archive and this test forbid it).
+    expect(read("ops/bundle/compose.region.yaml")).to.not.match(/RB_/);
+  });
+
+  it("lists the region's services in docker compose config", function () {
+    try {
+      execFileSync("docker", ["compose", "version"], { stdio: "ignore" });
+    } catch {
+      return this.skip();
+    }
+    const dir = initialised();
+    for (const f of fs.readdirSync(BUNDLE).filter((n) => n.endsWith(".yaml")))
+      fs.copyFileSync(path.join(BUNDLE, f), path.join(dir, f));
+    const out = execFileSync("docker", ["compose", "config", "--services"], {
+      cwd: dir,
+      encoding: "utf8",
+      env: { ...process.env, COMPOSE_FILE: "compose.yaml:compose.region.yaml" }
+    })
+      .trim()
+      .split("\n");
+    expect(out).to.include("region-agent");
+    for (const s of ["apiserver", "dashboard", "envoy"])
+      expect(out).to.not.include(s);
+  });
+
+  it("loads the region's AppBridge and Autopilot files through their own validation", function () {
+    const { dir, env } = install();
+    const regionEnv = {
+      ...env,
+      APISERVER_DATABASE_URL: "postgresql://postgres:x@postgres:5432/fonoster"
+    };
+    // database.urlEnv is read from the process environment, which Compose fills.
+    const saved = process.env.APISERVER_DATABASE_URL;
+    process.env.APISERVER_DATABASE_URL = regionEnv.APISERVER_DATABASE_URL;
+    let gw: ReturnType<typeof loadAppBridgeConfig>;
+    try {
+      gw = loadAppBridgeConfig(
+        path.join(dir, "region", "appbridge.yaml"),
+        regionEnv
+      );
+    } finally {
+      if (saved === undefined) delete process.env.APISERVER_DATABASE_URL;
+      else process.env.APISERVER_DATABASE_URL = saved;
+    }
+    expect(gw.callRecord?.region).to.equal("private");
+    expect(gw.nats.password).to.equal(env.NATS_APPBRIDGE_PASSWORD);
+    const ap = loadHostedConfig(
+      path.join(dir, "region", "autopilot.yaml"),
+      regionEnv
+    );
+    expect(ap.publicUrl).to.equal("ws://autopilot:3000");
+  });
+
   it("serves HTTPS on 443 by default, with the generated certificate unless TLS_CERT/TLS_KEY are set", function () {
     const envoy = services.envoy as Service & { ports?: string[] };
     expect(envoy.ports).to.deep.equal([
@@ -395,24 +491,24 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     // HSTS only with the owner's certificate: a browser that saw it would refuse the click-through
     // on the generated one's warning.
     expect(envoy.environment?.HSTS).to.equal("${TLS_CERT:+max-age=31536000}");
-    // .env.example: HTTPS on, the generated certificate (no TLS_CERT/TLS_KEY), an https PUBLIC_URL.
-    const example = readEnvFile(path.join(BUNDLE, ".env.example"));
+    // init.sh's .env: HTTPS on, the generated certificate (no TLS_CERT/TLS_KEY), an https PUBLIC_URL.
+    const example = initEnv();
     for (const name of ["COMPOSE_FILE", "TLS_CERT", "TLS_KEY", "HTTP_BIND"])
       expect(example.has(name), name).to.equal(false);
     expect(example.get("PUBLIC_URL")).to.equal("https://${HOST_IP}");
     expect(example.get("HTTPS_PORT")).to.equal("443");
     expect(tlsEnabled(Object.fromEntries(example))).to.equal(true);
-    expect(read("ops/bundle/.env.example")).to.contain(
+    expect(read("ops/bundle/init.sh")).to.contain(
       "# COMPOSE_FILE=compose.yaml:compose.http.yaml"
     );
     // SIP over TLS is documented, not on. WSS is there for browsers on an https:// dashboard
     // (Envoy terminates TLS and proxies to ws), and nothing publishes its port.
     const edge = parse(
-      read("ops/bundle/config/routr-edgeport.example.yaml")
+      read("ops/bundle/config/routr-edgeport.yaml")
     ).spec.transport.map((t: { protocol: string }) => t.protocol);
     expect(edge).to.deep.equal(["tcp", "udp", "ws", "wss"]);
     expect(read("ops/bundle/compose.yaml")).not.to.contain("5063");
-    expect(read("ops/bundle/config/routr-edgeport.example.yaml")).to.match(
+    expect(read("ops/bundle/config/routr-edgeport.yaml")).to.match(
       /# - protocol: tls\n\s*# {3}port: 5061/
     );
   });
@@ -535,7 +631,13 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       expect(read(`ops/bundle/config/${f}`), f).to.equal(
         read(`ops/rebuild/config/${f}`)
       );
-    for (const u of ["apiserver", "appbridge", "roomr", "routr"])
+    for (const u of [
+      "apiserver",
+      "appbridge",
+      "roomr",
+      "routr",
+      "region-agent"
+    ])
       expect(
         body(read(`ops/bundle/config/nats-permissions/${u}.conf`)),
         u
@@ -549,12 +651,10 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     );
   });
 
-  it("names in its examples only values .env.example defines (or that have a default)", function () {
-    const defined = readEnvFile(path.join(BUNDLE, ".env.example"));
+  it("names in its config files only values init.sh's .env defines (or that have a default)", function () {
+    const defined = initEnv();
     const dir = path.join(BUNDLE, "config");
-    for (const f of fs
-      .readdirSync(dir)
-      .filter((n) => n.includes(".example."))) {
+    for (const f of fs.readdirSync(dir).filter((n) => n.endsWith(".yaml"))) {
       const refs = body(fs.readFileSync(path.join(dir, f), "utf8")).match(
         /\$\{[A-Za-z_][A-Za-z0-9_]*(?!:-)\}/g
       );
@@ -563,25 +663,11 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     }
   });
 
-  /** The bundle's config folder written as init writes it, and the env Compose passes. */
+  /** The config folder of an install init.sh prepared, and the env Compose passes. */
   function install() {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "bundle-config-"));
-    fs.cpSync(path.join(BUNDLE, "config"), dir, { recursive: true });
-    ensureKeys(dir);
-    const example = readEnvFile(path.join(BUNDLE, ".env.example"));
-    for (const [k, v] of example)
-      if (v === "") example.set(k, `x${k.length}secret${k}`);
-    example.set("HOST_IP", "192.0.2.10");
-    example.set("OTEL_EXPORTER_OTLP_ENDPOINT", "");
-    example.set("OTEL_EXPORTER_OTLP_HEADERS", "");
-    example.set("OTEL_EXPORTER_OTLP_PROTOCOL", "");
-    example.set(
-      "ENCRYPTION_KEY",
-      "k1.aesgcm256.AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
-    );
-    const env = expandEnv(example);
-    renderConfigDir({ configDir: dir, env });
-    return { dir, env };
+    const root = initialised();
+    const env = expandEnv(readEnvFile(path.join(root, ".env")));
+    return { dir: path.join(root, "config"), env };
   }
 
   function loadApiserver(dir: string, env: Record<string, string>) {
@@ -649,7 +735,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     ]) {
       const text = fs.readFileSync(path.join(dir, f), "utf8");
       for (const [k, v] of Object.entries(env))
-        if (v.includes("secret"))
+        if (SECRET_NAME.test(k) && v)
           expect(text, `${f} holds ${k}`).to.not.contain(v);
     }
   });

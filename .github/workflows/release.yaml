@@ -28,12 +28,9 @@ name: Release
 # (TLOG_CREATE_ENTRY_ERROR). When those are the only failures, the publish is retried with
 # `lerna publish from-package`, up to 4 attempts. A package still refused after that, and the
 # packages that depend on it, stay on their previous version, and the run summary lists them.
-# `@fonoster/common` is the exception: every release versions it, and production (the playbook's
-# stage, ops/ansible) and self-hosted installs (`fonoster-config init`) need it at the
-# release version. If it is missing or doesn't install, the npm job fails, and images, the GitHub
-# release and the deploy don't run. To finish the release, rerun it with
-# `gh workflow run release.yaml`. A `Release-As: x.y.z` footer publishes every package, changed or
-# not.
+# To finish a release, rerun it with `gh workflow run release.yaml`. A `Release-As: x.y.z` footer
+# publishes every package, changed or not. Installs need no npm package: the archive carries
+# init.sh.
 
 on:
   push:
@@ -148,14 +145,13 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git checkout .
-          # lerna publishes only the packages changed since the last tag, plus @fonoster/common
-          # (and so its dependents), which production and self-hosted installs need at every
-          # version. A pinned version (`Release-As:`) publishes them all.
+          # lerna publishes only the packages changed since the last tag. A pinned version
+          # (`Release-As:`) publishes them all.
           tag="$(git describe --tags --abbrev=0 --match 'v[0-9]*')"
           if git log --format=%B "$tag..HEAD" | grep -qE '^Release-As: *[0-9]+\.[0-9]+\.[0-9]+ *$'; then
             ops/release/npm-publish.sh --defer npm run release -- --force-publish
           else
-            ops/release/npm-publish.sh --defer npm run release -- --force-publish @fonoster/common
+            ops/release/npm-publish.sh --defer npm run release
           fi
 
       # Runs on every release run, even with no new commits: publishes any version already in
@@ -175,11 +171,6 @@ jobs:
         run: |
           echo "version=$(node -p "require('./lerna.json').version")" >> "$GITHUB_OUTPUT"
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      # Production and self-hosted installs need @fonoster/common at the release version.
-      - name: Check @fonoster/common installs from npm
-        if: steps.next.outputs.release != '' && (steps.next.outputs.release != 'none' || needs.plan.outputs.resume == 'true')
-        run: ops/release/require-on-npm.sh @fonoster/common "${{ steps.version.outputs.version }}"
 
   images:
     name: images
@@ -221,10 +212,6 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      # The archive script loads several workspace packages (common, identity, ...): build them all.
-      - name: Build the packages the archive needs
-        run: NX_DAEMON=false npm run build
-
       - name: Build the archive
         run: SKIP_IMAGES=1 ops/release/bundle "$VERSION"
 
@@ -263,7 +250,6 @@ jobs:
           fail_on_unmatched_files: false
           files: |
             dist/release/${{ env.VERSION }}/fonoster-${{ env.VERSION }}.tar.gz
-            dist/release/${{ env.VERSION }}/fonoster-common-${{ env.VERSION }}.tgz
             dist/release/${{ env.VERSION }}/SHA256SUMS
             dist/qa/qa-report.md
             dist/release-card-v${{ env.VERSION }}-dark.png

@@ -11,8 +11,7 @@
 # Running this file directly needs the same inputs the stack generates (operator guide:
 # docs/operators/rebuild.md):
 #
-#   docker compose --env-file ops/rebuild/.local/stack.env --env-file ops/rebuild/.local/host.env \
-#     --env-file ops/rebuild/.local/bundle.env up -d
+#   docker compose --env-file ops/rebuild/.local/.env up -d
 #
 # Self-hosting without a checkout: ops/bundle/README.md. Developing Fonoster: the dev container
 # (.devcontainer/, CONTRIBUTING.md); this file is the smoke/CI harness, not a development path.

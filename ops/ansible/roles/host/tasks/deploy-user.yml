@@ -6,6 +6,11 @@
     shell: /bin/bash
   register: deploy_account
 
+# A plan (--check) before the user exists reports no home: the one useradd would make.
+- name: Deploy user's home
+  ansible.builtin.set_fact:
+    deploy_home: "{{ deploy_account.home | default('/home/' ~ deploy_user) }}"
+
 - name: Deploy user's sudo
   ansible.builtin.copy:
     content: "{{ deploy_user }} ALL=(ALL) NOPASSWD: ALL\n"
@@ -15,16 +20,20 @@
 
 - name: Deploy user's SSH folder
   ansible.builtin.file:
-    path: "{{ deploy_account.home }}/.ssh"
+    path: "{{ deploy_home }}/.ssh"
     state: directory
     owner: "{{ deploy_user }}"
     group: "{{ deploy_user }}"
     mode: "0700"
+  # A plan that creates the user can't set an owner that doesn't exist yet.
+  when: not (ansible_check_mode and deploy_account is changed)
 
 - name: Deploy key
   ansible.builtin.copy:
     content: "restrict {{ deploy_authorized_key }}\n"
-    dest: "{{ deploy_account.home }}/.ssh/authorized_keys"
+    dest: "{{ deploy_home }}/.ssh/authorized_keys"
     owner: "{{ deploy_user }}"
     group: "{{ deploy_user }}"
     mode: "0600"
+  # A plan that creates the user can't set an owner that doesn't exist yet.
+  when: not (ansible_check_mode and deploy_account is changed)

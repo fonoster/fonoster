@@ -1,14 +1,13 @@
 # Fonoster on one machine with Docker Compose (https://docs.fonoster.com/self-hosting/install-compose).
 #
-#   npx -p @fonoster/common fonoster-config init     secrets, keys, config/*.yaml and .env
-#   docker compose up -d                              start
-#   npx -p @fonoster/common fonoster-config info     dashboard URL, owner login, SIP address
+#   ./init.sh               .env with the secrets, keys, a certificate, the SIP port; prints the login
+#   docker compose up -d    start
 #
 # Services: NATS, Postgres, Routr, RTPEngine, the Roomr node, AppBridge, MinIO, the API
 # server (with Identity), Envoy, the dashboard and the hosted Autopilot.
 #
 # Every Fonoster service reads one YAML file, mounted at /config/<service>.yaml from config/
-# (written by `fonoster-config init` from the config/*.example.yaml next to it). Secrets are not in
+# (yours to edit; recreate the service after a change). Secrets are not in
 # those files: they hold ${NAME} placeholders the service resolves from its environment. Each
 # service's `environment:` passes it only the .env values its own file names, never the whole
 # .env, and only the API server (Identity) mounts Identity's private signing key; the others get
@@ -32,10 +31,10 @@ services:
     command: ["-c", "/etc/nats/nats.conf"]
     # One user per service, each limited to its own subjects (config/nats-permissions).
     environment:
-      NATS_APISERVER_PASSWORD: ${NATS_APISERVER_PASSWORD:?run fonoster-config init}
-      NATS_APPBRIDGE_PASSWORD: ${NATS_APPBRIDGE_PASSWORD:?run fonoster-config init}
-      NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD:?run fonoster-config init}
-      NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD:?run fonoster-config init}
+      NATS_APISERVER_PASSWORD: ${NATS_APISERVER_PASSWORD:?run ./init.sh}
+      NATS_APPBRIDGE_PASSWORD: ${NATS_APPBRIDGE_PASSWORD:?run ./init.sh}
+      NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD:?run ./init.sh}
+      NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD:?run ./init.sh}
     ports:
       - "${NATS_BIND:-127.0.0.1}:${NATS_PORT:-4222}:4222"
     volumes:
@@ -56,7 +55,7 @@ services:
       PGTZ: UTC
       TZ: UTC
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run ./init.sh}
       POSTGRES_DB: routr
     volumes:
       - postgres-data:/var/lib/postgresql
@@ -76,7 +75,7 @@ services:
     environment:
       # Values config/routr-one.yaml reads as ${NAME}; set them in .env.
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      HOST_IP: ${HOST_IP:?run fonoster-config init}
+      HOST_IP: ${HOST_IP:?run ./init.sh}
       SUBNET_PREFIX: ${SUBNET_PREFIX:-10.216.30}
       NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD}
       ROUTR_LOGS_LEVEL: ${ROUTR_LOGS_LEVEL:-info}
@@ -155,10 +154,10 @@ services:
     # The ${NAME}s in config/roomr.yaml, nothing else from .env.
     environment:
       ROOMR_ID: ${ROOMR_ID:-}
-      ROOMR_PASSWORD: ${ROOMR_PASSWORD:?run fonoster-config init}
+      ROOMR_PASSWORD: ${ROOMR_PASSWORD:?run ./init.sh}
       ROOMR_RTP_PORT_MIN: ${ROOMR_RTP_PORT_MIN:-11000}
       ROOMR_RTP_PORT_MAX: ${ROOMR_RTP_PORT_MAX:-11999}
-      NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD:?run fonoster-config init}
+      NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD:?run ./init.sh}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-}
@@ -184,14 +183,14 @@ services:
     environment:
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-}
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run ./init.sh}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fonoster}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run fonoster-config init}
-      NATS_APPBRIDGE_PASSWORD: ${NATS_APPBRIDGE_PASSWORD:?run fonoster-config init}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run ./init.sh}
+      NATS_APPBRIDGE_PASSWORD: ${NATS_APPBRIDGE_PASSWORD:?run ./init.sh}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run ./init.sh}
       SUBNET_PREFIX: ${SUBNET_PREFIX:-10.216.30}
     volumes:
       - ${CONFIG_DIR:-./config}/appbridge.yaml:/config/appbridge.yaml:ro
@@ -224,12 +223,12 @@ services:
       apiserver: { condition: service_healthy }
     # The ${NAME}s in config/autopilot.yaml.
     environment:
-      AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?run fonoster-config init}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
+      AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?run ./init.sh}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run ./init.sh}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run ./init.sh}
     volumes:
       - ${CONFIG_DIR:-./config}/autopilot.yaml:/config/autopilot.yaml:ro
     expose:
@@ -241,7 +240,7 @@ services:
     restart: unless-stopped
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fonoster}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run fonoster-config init}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run ./init.sh}
       MINIO_DEFAULT_BUCKETS: records
     # Host-only by default; MINIO_BIND=0.0.0.0 opts in.
     ports:
@@ -269,19 +268,19 @@ services:
       routr: { condition: service_healthy }
     # The ${NAME}s in config/fonoster.yaml.
     environment:
-      AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?run fonoster-config init}
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
-      HOST_IP: ${HOST_IP:?run fonoster-config init}
-      ROOMR_PASSWORD: ${ROOMR_PASSWORD:?run fonoster-config init}
+      AUTOPILOT_SIGNING_SECRET: ${AUTOPILOT_SIGNING_SECRET:?run ./init.sh}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run ./init.sh}
+      HOST_IP: ${HOST_IP:?run ./init.sh}
+      ROOMR_PASSWORD: ${ROOMR_PASSWORD:?run ./init.sh}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-fonoster}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run fonoster-config init}
-      NATS_APISERVER_PASSWORD: ${NATS_APISERVER_PASSWORD:?run fonoster-config init}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?run ./init.sh}
+      NATS_APISERVER_PASSWORD: ${NATS_APISERVER_PASSWORD:?run ./init.sh}
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-}
       OWNER_EMAIL: ${OWNER_EMAIL:-admin@fonoster.local}
-      OWNER_PASSWORD: ${OWNER_PASSWORD:?run fonoster-config init}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
+      OWNER_PASSWORD: ${OWNER_PASSWORD:?run ./init.sh}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run ./init.sh}
       PUBLIC_URL: ${PUBLIC_URL:-https://localhost}
       RTPENGINE_PORT_MIN: ${RTPENGINE_PORT_MIN:-10000}
       RTPENGINE_PORT_MAX: ${RTPENGINE_PORT_MAX:-10999}

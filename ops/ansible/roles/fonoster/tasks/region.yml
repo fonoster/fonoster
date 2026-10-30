@@ -1,0 +1,55 @@
+# A private region (fonoster_region set, COMPOSE_FILE with compose.region.yaml): enrolled once,
+# before the switch starts NATS (its config includes the leaf link enroll writes), and the
+# region's provider keys in its secret store. Both run from the stage with the install's project
+# name, so they write the same volumes the live install uses.
+- name: Region enrolled
+  ansible.builtin.command:
+    argv: [docker, compose, run, --rm, --no-deps, --entrypoint, sh, region-agent, -c, test -f /var/lib/fonoster-region/region.json]
+    chdir: "{{ fonoster_stage }}"
+  register: fonoster_enrolled
+  changed_when: false
+  failed_when: fonoster_enrolled.rc not in [0, 1]
+  check_mode: false
+
+# The token works once: a second run with the same (used) token changes nothing.
+- name: Enroll the region
+  ansible.builtin.command:
+    argv: [docker, compose, run, --rm, --no-deps, region-agent, enroll, "{{ fonoster_region.enroll_token }}"]
+    chdir: "{{ fonoster_stage }}"
+  when: fonoster_enrolled.rc != 0 and not ansible_check_mode
+  no_log: true
+  changed_when: true
+
+# Each secret is set when its value changed since the last run (a SHA-256 of the names and values
+# in the state folder); the value goes through stdin, never on a command line.
+- name: Region secrets checksum
+  ansible.builtin.set_fact:
+    fonoster_region_secrets_sum: "{{ fonoster_region.secrets | default({}) | to_json | hash('sha256') }}"
+  no_log: true
+
+- name: Applied region secrets checksum
+  ansible.builtin.slurp:
+    src: "{{ fonoster_state_dir }}/region-secrets.sha256"
+  register: fonoster_region_applied
+  failed_when: false
+
+- name: Region secrets
+  ansible.builtin.command:
+    argv: [docker, compose, run, --rm, --no-deps, -T, region-agent, secrets, set, "{{ item.key }}"]
+    stdin: "{{ item.value }}"
+    stdin_add_newline: false
+    chdir: "{{ fonoster_stage }}"
+  loop: "{{ fonoster_region.secrets | default({}) | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  no_log: true
+  changed_when: true
+  when: >-
+    not ansible_check_mode and
+    (fonoster_region_applied.content | default('') | b64decode) != fonoster_region_secrets_sum
+
+- name: Record the region secrets checksum
+  ansible.builtin.copy:
+    content: "{{ fonoster_region_secrets_sum }}"
+    dest: "{{ fonoster_state_dir }}/region-secrets.sha256"
+    mode: "0600"

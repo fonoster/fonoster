@@ -85,8 +85,8 @@ and VS Code with the Dev Containers extension (or a Codespace, or the
 
 1. Clone the repository (a regular clone, not a `git worktree`) and choose **Reopen in Container**
    (CLI: `npx @devcontainers/cli up --workspace-folder .`).
-2. The first time, it writes the dev config to `.dev/` (secrets, keys and service files from
-   `fonoster-config init`; git-ignored), starts the dependencies (Postgres, NATS, Routr,
+2. The first time, it writes the dev config to `.dev/` (it holds the secrets, keys and service
+   files `init.sh` generated; git-ignored), starts the dependencies (Postgres, NATS, Routr,
    RTPEngine, MinIO, Envoy) and then installs and builds everything. It ends by printing the
    dashboard URL and the owner login.
 3. In the container's terminal, start our components from source:
@@ -107,8 +107,9 @@ Run the tests in the same terminal: `npm test` (its NATS and database are the de
 services) and `npm test -w @fonoster/dashboard`. The suites that need a Roomr node run real nodes
 in roomr-fake, downloaded by `npm install` for the pinned `@fonoster/roomr`.
 
-`npm run dev:config` renders `.dev/` again after you change a config example or your overrides in
-`.dev/overlay/<service>.yaml`; every secret is kept. When it names changed `routr-*.yaml` files,
+`npm run dev:config` merges the dev-owned files again (the bundle's config, `.devcontainer/config`
+and your edits in `.dev/overlay/<service>.yaml`) and re-runs `init.sh`, keeping every secret. Run it
+after you change one of them. When it names changed `routr-*.yaml` files,
 run the `docker compose … --force-recreate routr` line it prints in a terminal on your machine, from
 the repository root: the container has no Docker, and Routr keeps its old image and config until it
 is recreated.

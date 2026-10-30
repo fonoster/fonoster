@@ -45,7 +45,7 @@ WORKDIR /work
 COPY --from=builder --chown=appuser:appuser /work/node_modules ./node_modules
 COPY --from=builder --chown=appuser:appuser /work/package.json ./package.json
 COPY --from=builder --chown=appuser:appuser /work/mods ./mods
-COPY --chown=appuser:appuser ops/rebuild/cell/region-entrypoint.sh /usr/local/bin/fonoster-region-entrypoint
+COPY --chown=appuser:appuser mods/region-agent/entrypoint.sh /usr/local/bin/fonoster-region-entrypoint
 RUN ln -s /work/mods/region-agent/dist/cli.js /usr/local/bin/fonoster-regions \
   && ln -s /work/mods/region-agent/dist/cli.js /usr/local/bin/fonoster-region \
   && chmod +x /work/mods/region-agent/dist/cli.js /usr/local/bin/fonoster-region-entrypoint

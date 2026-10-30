@@ -1,0 +1,11 @@
+diff --git a/ops/bundle/init.sh b/ops/bundle/init.sh
+--- a/ops/bundle/init.sh
++++ b/ops/bundle/init.sh
+@@ -252,7 +252,6 @@
+   HOST_IP=*) line="HOST_IP=$host_ip" ;;
+   # The images of this release: an upgrade copies the old .env next to the new init.sh. The
+   # repository's copy (0.0.0) leaves the dev container's and the stack's as they are.
+-  FONOSTER_VERSION=*) [ "$FONOSTER_VERSION" = 0.0.0 ] || line="FONOSTER_VERSION=$FONOSTER_VERSION" ;;
+   *=)
+     # Only an empty value: a generated one may end in = too (ENCRYPTION_KEY).
+     name="${line%%=*}"

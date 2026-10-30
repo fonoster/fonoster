@@ -168,6 +168,10 @@ jobs:
           "$RUNNER_TEMP/ansible/bin/pip" install --quiet ansible-core==2.21.5 ansible-lint==26.10.1
           echo "$RUNNER_TEMP/ansible/bin" >> "$GITHUB_PATH"
 
+      # A fresh install and an upgrade from the latest release (OPS-001, OPS-002); builds 0.0.0-a.
+      - name: Install and upgrade with init.sh
+        run: ops/bundle/test/install.sh 0.0.0-a
+
       - name: Plan, apply, apply again, switch and back, roll back a failed apply
         run: ops/ansible/test/throwaway.sh 0.0.0-a 0.0.0-b --rollback
 

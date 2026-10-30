@@ -1,5 +1,5 @@
-# The stage: releases/<version> holds the release plus this inventory's files, rendered and
-# checked. It runs in --check too (check_mode: false): a plan downloads, renders, validates and
+# The stage: releases/<version> holds the release plus this inventory's files, merged and
+# initialised (init.sh). It runs in --check too (check_mode: false): a plan downloads, renders, validates and
 # pulls. It is rebuilt from the archive on every run, so nothing from an earlier run carries
 # over; writing it is not a change to the host (changed_when: false), the switch is.
 - name: State folders
@@ -15,7 +15,6 @@
     fonoster_releases: "{{ fonoster_state_dir }}/releases"
     fonoster_stage: "{{ fonoster_state_dir }}/releases/{{ fonoster_version }}"
     fonoster_archive_name: "{{ fonoster_archive | basename }}"
-    fonoster_common_file: "{{ fonoster_common_package is match('^[./~]') }}"
 
 - name: Values of .env
   ansible.builtin.set_fact:
@@ -86,14 +85,6 @@
       SHA256SUMS says {{ fonoster_archive_sha256 or 'nothing for it' }}). Nothing was changed.
     quiet: true
 
-- name: Common package (local)
-  ansible.builtin.copy:
-    src: "{{ fonoster_common_package }}"
-    dest: "{{ fonoster_releases }}/fonoster-common-{{ fonoster_version }}.tgz"
-    mode: "0600"
-  when: fonoster_common_file
-  check_mode: false
-
 # The stage -------------------------------------------------------------------------------------
 - name: Fresh stage
   ansible.builtin.file:
@@ -129,22 +120,26 @@
   changed_when: false
   check_mode: false
 
-- name: Overrides folder
-  ansible.builtin.file:
-    path: "{{ fonoster_stage }}/config/overrides"
-    state: directory
-    mode: "0700"
-  changed_when: false
+# Each override deep-merged over the release's config/<file> (objects merge, other values
+# replace). The merged file can hold a vaulted value (a database URL), so it is never printed.
+- name: Release config files with overrides
+  ansible.builtin.slurp:
+    src: "{{ fonoster_stage }}/config/{{ item }}"
+  loop: "{{ fonoster_overrides.keys() | list }}"
+  register: fonoster_release_configs
   check_mode: false
 
 - name: Overrides
   ansible.builtin.copy:
-    content: "{{ item.value | to_nice_yaml(indent=2) }}"
-    dest: "{{ fonoster_stage }}/config/overrides/{{ item.key }}"
-    mode: "0600"
-  loop: "{{ fonoster_overrides | dict2items }}"
+    content: >-
+      {{ (item.content | b64decode | from_yaml)
+         | combine(fonoster_overrides[item.item], recursive=True)
+         | to_nice_yaml(indent=2) }}
+    dest: "{{ fonoster_stage }}/config/{{ item.item }}"
+    mode: "0644"
+  loop: "{{ fonoster_release_configs.results }}"
   loop_control:
-    label: "{{ item.key }}"
+    label: "{{ item.item }}"
   no_log: true
   diff: false
   changed_when: false
@@ -173,36 +168,15 @@
   changed_when: false
   check_mode: false
 
-# init keeps every .env value and renders config/*.yaml; check validates them. Their output can
-# carry secrets (a database URL in an override), so it is hidden.
-- name: Render and validate (fonoster-config init, check)
+# init.sh keeps every .env value, key and certificate and sets the SIP port in the merged
+# routr-edgeport.yaml, so it runs last. It never prints a secret.
+- name: Initialise (init.sh)
   ansible.builtin.command:
-    argv: >-
-      {{ ['docker', 'run', '--rm', '-v', fonoster_stage ~ ':/install', '-w', '/install',
-          '-v', 'fonoster-npm-cache:/root/.npm']
-         + (['-v', fonoster_releases ~ '/fonoster-common-' ~ fonoster_version ~ '.tgz:/fonoster-common.tgz:ro']
-            if fonoster_common_file else [])
-         + [fonoster_node_image, 'sh', '-c',
-            'npx -y -p "$0" fonoster-config init --host-ip "$1" && npx -y -p "$0" fonoster-config check',
-            '/fonoster-common.tgz' if fonoster_common_file else fonoster_common_package,
-            fonoster_live_env.HOST_IP] }}
-  register: fonoster_render
+    argv: ["sh", "{{ fonoster_stage }}/init.sh", "--dir", "{{ fonoster_stage }}", "--host-ip", "{{ fonoster_env.HOST_IP }}"]
   changed_when: false
-  failed_when: false
-  no_log: true
   check_mode: false
 
-- name: Rendered and valid
-  ansible.builtin.assert:
-    that: fonoster_render.rc == 0
-    fail_msg: >-
-      fonoster-config init or check failed in {{ fonoster_stage }} (exit {{ fonoster_render.rc }}; the
-      output is hidden because it can hold secrets). On the host:
-      docker run --rm -v {{ fonoster_stage }}:/install -w /install {{ fonoster_node_image }}
-      npx -y -p {{ fonoster_common_package }} fonoster-config check
-    quiet: true
-
-# init adds the names a newer release introduces, with values of its own: those belong in the
+# init.sh adds the names a newer release introduces, with values of its own: those belong in the
 # inventory, so stop before anything runs with them.
 - name: Read the rendered .env
   ansible.builtin.slurp:
@@ -216,14 +190,14 @@
     fail_msg: >-
       This release adds {{ fonoster_added | join(', ') }} to .env and the inventory has no value for
       it. Add it to fonoster_env or fonoster_env_secrets ({{ fonoster_stage }}/.env has the value
-      init chose) and run again. Nothing was changed.
+      init.sh chose) and run again. Nothing was changed.
     quiet: true
   vars:
     fonoster_added: >-
       {{ (fonoster_stage_env.content | b64decode | regex_findall('(?m)^([A-Za-z_][A-Za-z0-9_]*)='))
          | difference(fonoster_live_env.keys() | list) }}
 
-# Keys and TLS init created (a first install) become the persistent ones. Files already there
+# Keys and TLS init.sh created (a first install) become the persistent ones. Files already there
 # are never rewritten.
 - name: Persist new keys and TLS
   ansible.builtin.shell: |
@@ -242,8 +216,9 @@
   changed_when: fonoster_persist.stdout != ""
   check_mode: false
 
+# A private region runs no API server: its agent's image says the pull is done.
 - name: Images on the host
-  ansible.builtin.command: docker image inspect fonoster/apiserver:{{ fonoster_version }}
+  ansible.builtin.command: docker image inspect fonoster/{{ 'region-agent' if fonoster_region is defined else 'apiserver' }}:{{ fonoster_version }}
   register: fonoster_image
   changed_when: false
   failed_when: false

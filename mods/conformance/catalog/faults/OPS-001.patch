@@ -1,0 +1,11 @@
+diff --git a/ops/bundle/init.sh b/ops/bundle/init.sh
+--- a/ops/bundle/init.sh
++++ b/ops/bundle/init.sh
+@@ -156,7 +156,6 @@
+   ENCRYPTION_KEY) printf 'k1.aesgcm256.%s=' "$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=\n')" ;;
+   AUTOPILOT_SIGNING_SECRET) openssl rand -hex 24 ;;
+   OWNER_PASSWORD) printf 'p%s' "$(openssl rand -hex 8)" ;;
+-  *_PASSWORD | *_SECRET | *_KEY | *_TOKEN) printf 's%s' "$(openssl rand -hex 16)" ;;
+   esac
+ }
+ 

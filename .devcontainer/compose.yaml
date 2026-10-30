@@ -4,7 +4,7 @@
 # addresses and published ports, so development and self-hosting cannot drift.
 #
 # Values come from .env here, a link to ../.dev/.env that .devcontainer/initialize.sh writes with
-# `fonoster-config init` before the containers start (secrets are generated, never committed).
+# ops/bundle/init.sh before the containers start (secrets are generated, never committed).
 name: ${COMPOSE_PROJECT_NAME:-fonoster-dev}
 
 # The bundle's network: Routr, RTPEngine, the Roomr node and the workspace (AppBridge's RTP) need

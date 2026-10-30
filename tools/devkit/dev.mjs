@@ -47,7 +47,7 @@ const children = new Set();
 let stopping = false;
 
 function devEnv() {
-  const cli = join(ROOT, "mods/common/dist/config/cli/envFile.js");
+  const cli = join(ROOT, "mods/common/dist/config/envFile.js");
   if (!existsSync(join(DEV, ".env")) || !existsSync(cli)) {
     console.error(
       "No dev config or no build: run `bash .devcontainer/post-create.sh` (it runs when the dev container is created)."

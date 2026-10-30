@@ -54,7 +54,6 @@ ops/rebuild/.local/
 /.dev/
 
 # A private cell's local keys (docs/operators/regions.md)
-ops/rebuild/cell/.local/
 
 # The devcontainer CLI writes this lock on each machine
 .devcontainer/devcontainer-lock.json

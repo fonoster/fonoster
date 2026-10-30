@@ -19,7 +19,7 @@
 import { mkdtempSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
-import { issueCertificates } from "@fonoster/common/dist/config/cli/tls";
+import { issueCertificates } from "@fonoster/common/dist/config/certificates";
 
 /** A throwaway CA and a server certificate signed by it, for TLS tests. */
 export type TestCa = {

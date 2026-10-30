@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Runs the `real` Playwright project with the environment read from the rebuild stack's files
-// (ops/rebuild/.local/stack.env and seed.json). Values can hold spaces (the app's name), so the
+// (ops/rebuild/.local/.env and seed.json). Values can hold spaces (the app's name), so the
 // environment is set here, never through shell word-splitting.
 //
 //   npm run test:e2e:real [-- <playwright args>]   (after: ops/rebuild/stack up && stack seed)
@@ -19,11 +19,14 @@ const local = path.join(
 );
 const env = Object.fromEntries(
   fs
-    .readFileSync(path.join(local, "stack.env"), "utf8")
+    .readFileSync(path.join(local, ".env"), "utf8")
     .split("\n")
     .filter((l) => /^[A-Z_]+=/.test(l))
     .map((l) => l.split(/=(.*)/s).slice(0, 2))
 );
+// RB_ADMIN_EMAIL and RB_ADMIN_PASSWORD name the owner's values there (${OWNER_EMAIL}).
+env.RB_ADMIN_EMAIL = env.OWNER_EMAIL;
+env.RB_ADMIN_PASSWORD = env.OWNER_PASSWORD;
 const seedFile = path.join(local, "seed.json");
 if (!fs.existsSync(seedFile)) {
   console.error("Not seeded yet: ops/rebuild/stack seed");

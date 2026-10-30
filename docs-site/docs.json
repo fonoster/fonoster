@@ -121,6 +121,7 @@
                 "pages": [
                   "self-hosting/overview",
                   "self-hosting/install-compose",
+                  "self-hosting/upgrade",
                   "self-hosting/https",
                   "self-hosting/external-database",
                   "self-hosting/carriers-and-phones",
@@ -136,6 +137,7 @@
                 "icon": "globe",
                 "pages": [
                   "private-regions/overview",
+                  "private-regions/install-region",
                   "private-regions/host-private-regions"
                 ]
               },

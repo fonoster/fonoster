@@ -101,6 +101,9 @@ jobs:
               - '.mocharc.cjs'
               - 'tools/**'
               - 'ops/release/**'
+              - 'ops/bundle/**'
+              - 'ops/rebuild/merge-config.cjs'
+              - 'ops/rebuild/test/**'
               - '.devcontainer/**'
             python:
               - *workflow
@@ -116,6 +119,8 @@ jobs:
               - 'mods/types/**'
               - 'mods/common/**'
               - 'package-lock.json'
+              # The private region install command equals this page's (install.test.ts).
+              - 'docs-site/private-regions/install-region.mdx'
             sdk:
               - *workflow
               - 'mods/common/**'

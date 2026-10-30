@@ -119,7 +119,7 @@ describe("@region-agent fonoster-region CLI", function () {
         .readFileSync(
           path.join(
             __dirname,
-            "../../../ops/rebuild/cell/config/region-agent.yaml"
+            "../../../ops/bundle/config/region/region-agent.yaml"
           ),
           "utf8"
         )
@@ -266,9 +266,9 @@ describe("@region-agent fonoster-region CLI", function () {
     expect(now.stderr).to.equal("");
   });
 
-  it("loads the Compose cell's agent config", function () {
+  it("loads the region overlay's agent config", function () {
     const c = loadAgentConfig(
-      path.join(__dirname, "../../../ops/rebuild/cell/config/region-agent.yaml")
+      path.join(__dirname, "../../../ops/bundle/config/region/region-agent.yaml")
     );
     expect(c.heartbeatMs).to.equal(30000);
     expect(c.autopilot?.url).to.equal("ws://autopilot:3000");
