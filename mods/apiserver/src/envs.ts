@@ -137,13 +137,6 @@ export const NATS_CONNECTION = config.nats;
 /** nats.js connect options: the URL plus the apiserver's NATS user, when set (add-platform 4.1). */
 export const NATS = natsConnectOptions(config.nats);
 
-// Default owner (if identity.owner is set, the system creates a user and a workspace)
-export const OWNER_EMAIL = config.identity.owner?.email;
-
-export const OWNER_NAME = config.identity.owner?.name ?? "Admin";
-
-export const OWNER_PASSWORD = config.identity.owner?.password;
-
 export const ROUTR_API_ENDPOINT = config.routr.apiEndpoint;
 
 // The roomr peer every app-linked number points at (add-roomr 4.1)

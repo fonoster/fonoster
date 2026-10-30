@@ -88,7 +88,8 @@ and VS Code with the Dev Containers extension (or a Codespace, or the
 2. The first time, it writes the dev config to `.dev/` (it holds the secrets, keys and service
    files `init.sh` generated; git-ignored), starts the dependencies (Postgres, NATS, Routr,
    RTPEngine, MinIO, Envoy) and then installs and builds everything. It ends by printing the
-   dashboard URL and the owner login.
+   dashboard URL. `npm run dev` creates the first user (`DEV_OWNER_*` in `.dev/.env`); `npm run
+   dev:info` prints it.
 3. In the container's terminal, start our components from source:
 
 ```bash

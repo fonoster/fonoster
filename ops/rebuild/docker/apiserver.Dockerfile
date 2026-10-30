@@ -46,6 +46,10 @@ COPY --from=builder --chown=appuser:appuser /work/mods/apiserver/schema.prisma /
 COPY --from=builder --chown=appuser:appuser /work/mods/identity/migrations /service/identity/migrations
 COPY --from=builder --chown=appuser:appuser /work/mods/identity/schema.prisma /service/identity/schema.prisma
 
+# The first user of an install: docker compose exec -T apiserver fonoster-owner create <email> < pw
+RUN chmod +x /work/mods/apiserver/dist/bin/owner.js \
+  && ln -s /work/mods/apiserver/dist/bin/owner.js /usr/local/bin/fonoster-owner
+
 USER appuser
 WORKDIR /service
 

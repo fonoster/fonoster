@@ -94,7 +94,6 @@ describe("@bundle init.sh", function () {
     const env = readEnvFile(path.join(dir, ".env"));
     expect(env.get("HOST_IP")).to.equal("203.0.113.10");
     expect(env.get("PUBLIC_URL")).to.equal("https://voice.example.com");
-    expect(env.get("OWNER_PASSWORD")).to.match(/^p[0-9a-f]{16}$/);
     expect(env.get("AUTOPILOT_SIGNING_SECRET")).to.match(/^[0-9a-f]{48}$/);
     expect(env.get("ENCRYPTION_KEY")).to.match(
       /^k1\.aesgcm256\.[A-Za-z0-9_-]{43}=$/
@@ -143,11 +142,8 @@ describe("@bundle init.sh", function () {
 
     // A pre-seeded .env is kept: the template's other names are added to it.
     expect(r.out).to.match(/^\.env kept; added FONOSTER_VERSION, /);
-    expect(r.out).to.contain("admin@fonoster.local");
-    expect(r.out).to.match(
-      new RegExp(
-        `\\(password: OWNER_PASSWORD in /\\S*/${path.basename(dir)}/\\.env\\)`
-      )
+    expect(r.out).to.contain(
+      "docker compose exec -T apiserver fonoster-owner create you@example.com < owner.pw"
     );
     for (const [k, v] of env)
       if (SECRET_NAME.test(k) && v)
@@ -166,7 +162,7 @@ describe("@bundle init.sh", function () {
 
     // Assert
     expect(r.status, r.err).to.equal(0);
-    expect(first.out).to.match(/^\.env written \(12 secrets generated\)\n/);
+    expect(first.out).to.match(/^\.env written \(11 secrets generated\)\n/);
     expect(secrets(dir)).to.deep.equal(before);
     expect(r.out).to.contain(".env kept\n");
     expect(r.out).to.contain("keys: kept");

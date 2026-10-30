@@ -24,9 +24,6 @@ const env = Object.fromEntries(
     .filter((l) => /^[A-Z_]+=/.test(l))
     .map((l) => l.split(/=(.*)/s).slice(0, 2))
 );
-// RB_ADMIN_EMAIL and RB_ADMIN_PASSWORD name the owner's values there (${OWNER_EMAIL}).
-env.RB_ADMIN_EMAIL = env.OWNER_EMAIL;
-env.RB_ADMIN_PASSWORD = env.OWNER_PASSWORD;
 const seedFile = path.join(local, "seed.json");
 if (!fs.existsSync(seedFile)) {
   console.error("Not seeded yet: ops/rebuild/stack seed");

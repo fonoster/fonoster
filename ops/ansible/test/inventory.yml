@@ -34,10 +34,8 @@ all:
             OTEL_EXPORTER_OTLP_ENDPOINT: ""
             OTEL_EXPORTER_OTLP_PROTOCOL: ""
             SUBNET_PREFIX: 10.216.30
-            OWNER_EMAIL: ops@example.com
             MINIO_ROOT_USER: fonoster
           fonoster_env_secrets:
-            OWNER_PASSWORD: "p7b9975cb5b93b69c"
             POSTGRES_PASSWORD: "{{ vault_postgres_password }}"
             MINIO_ROOT_PASSWORD: "s1484af1d0ca6a9b0edb668fc5f93b4e1"
             NATS_APISERVER_PASSWORD: "s2e95f3c2e070df5dd9e3335048af076d"

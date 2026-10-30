@@ -1,5 +1,5 @@
 import { logUnhandledRejections, setRootDomain } from "@fonoster/common";
-import { migratePasswordStorage, upsertDefaultUser } from "@fonoster/identity";
+import { migratePasswordStorage } from "@fonoster/identity";
 import { configureLogger, getLogger } from "@fonoster/logger";
 import { getConfig } from "./config";
 import { applyCatalog } from "./core/applyCatalog";
@@ -7,7 +7,6 @@ import { prisma } from "./core/db";
 import { identityConfig } from "./core/identityConfig";
 import runServices from "./core/runServices";
 import { upsertRoomrPeer } from "./core/upsertRoomrPeer";
-import { OWNER_EMAIL, OWNER_NAME, OWNER_PASSWORD } from "./envs";
 
 // Apply fonoster.yaml to the shared modules before serving. Loggers created
 // while the imports above ran switch to the file's settings here.
@@ -20,14 +19,11 @@ import("./core/removeSwaggerNotice");
 async function main() {
   await migratePasswordStorage(identityConfig);
 
-  if (OWNER_EMAIL) {
-    const user = {
-      name: OWNER_NAME,
-      email: OWNER_EMAIL,
-      password: OWNER_PASSWORD
-    };
-    await upsertDefaultUser(identityConfig, user);
-  }
+  // The first user is created with fonoster-owner (bin/owner.ts), not from the config file.
+  if (config.identity.owner)
+    logger.warn(
+      "identity.owner in fonoster.yaml is ignored: create the first user with fonoster-owner create <email>"
+    );
 
   // The provider catalog (add-self-host-installer D7): applied on every start, idempotent. A
   // configured file that can't be read or applied stops the server (IC-B2).

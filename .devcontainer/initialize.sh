@@ -151,6 +151,9 @@ seed_env() {
       print ""
       print "# The dev container: where Compose finds the merged config (absolute, on the host)."
       print "CONFIG_DIR=" config_dir
+      print "# The first user npm run dev creates (fonoster-owner); init.sh generates the password."
+      print "DEV_OWNER_EMAIL=admin@fonoster.local"
+      print "DEV_OWNER_PASSWORD="
     }
   ' > "$DEV/.env"
   chmod 600 "$DEV/.env"

@@ -89,7 +89,6 @@ You need:
     host address: 203.0.113.10
 
     Dashboard   https://203.0.113.10
-    Owner       admin@fonoster.local (password: OWNER_PASSWORD in /opt/fonoster/.env)
     API         203.0.113.10:443 (gRPC and gRPC-Web, TLS)
     SIP         203.0.113.10:5060 (UDP and TCP)
 
@@ -141,13 +140,17 @@ You need:
     `postgres`, `routr` and `rtpengine`, each `Up`.
   </Step>
 
-  <Step title="Get your login">
-    `./init.sh` printed the dashboard address and the owner's email. Run it again any time to see
-    them. The owner's password is `OWNER_PASSWORD` in `.env`. Print it:
+  <Step title="Create your login">
+    Create the first user once. Put a password in a file only you can read, then pass it on stdin, so
+    it never shows on screen or in your shell history:
 
     ```bash
-    grep OWNER_PASSWORD .env
+    (umask 077; openssl rand -hex 16 > owner.pw)
+    docker compose exec -T apiserver fonoster-owner create you@example.com < owner.pw
     ```
+
+    It prints `created you@example.com and its workspace`. Keep the password in your password
+    manager, then delete `owner.pw`. Running the command again changes nothing.
   </Step>
 
   <Step title="Sign in to the dashboard">

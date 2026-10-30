@@ -30,7 +30,6 @@ fonoster_env:
   OTEL_EXPORTER_OTLP_ENDPOINT: ""
   OTEL_EXPORTER_OTLP_PROTOCOL: ""
   SUBNET_PREFIX: 10.216.30
-  OWNER_EMAIL: ops@example.com
   MINIO_ROOT_USER: fonoster
 
 # Deep-merged over the release's config/<file> (objects merge, other values replace).

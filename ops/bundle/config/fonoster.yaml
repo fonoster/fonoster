@@ -50,7 +50,6 @@ identity:
   tokens: { accessTokenExpiresIn: 15m, idTokenExpiresIn: 15m, refreshTokenExpiresIn: 24h }
   security: { contactVerificationRequired: false, twoFactorAuthenticationRequired: false }
   invites: { expiration: 1d }
-  owner: { name: Admin, email: "${OWNER_EMAIL}", password: "${OWNER_PASSWORD}" }
 # This machine as the public region `default`: Routr's SIP port and RTPEngine's range on the host
 # address. Private regions join through a region hub you add yourself:
 # https://docs.fonoster.com/private-regions/host-private-regions

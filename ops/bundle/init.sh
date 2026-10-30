@@ -16,7 +16,7 @@ usage() {
 Usage: ./init.sh [--dir <folder>] [--host-ip <address>]
 
 Writes .env (generated secrets), config/keys and config/tls when missing, sets the SIP port in
-config/routr-edgeport.yaml, and prints the dashboard URL and the owner login. Keeps everything
+config/routr-edgeport.yaml, and prints the dashboard URL and how to create the first user. Keeps everything
 that is already there.
 
   --dir <folder>        the install folder (default: this script's folder)
@@ -125,10 +125,6 @@ OTEL_EXPORTER_OTLP_PROTOCOL=
 # The containers' private network (<prefix>.0/24). Change it if it collides with one of yours.
 SUBNET_PREFIX=10.216.30
 
-# The dashboard owner. The password is generated (it stays in this file).
-OWNER_EMAIL=admin@fonoster.local
-OWNER_PASSWORD=
-
 # Generated secrets. Keep a backup of this file: the encryption key protects stored vendor keys.
 POSTGRES_PASSWORD=
 MINIO_ROOT_USER=fonoster
@@ -155,7 +151,6 @@ secret_for() {
   case "$1" in
   ENCRYPTION_KEY) printf 'k1.aesgcm256.%s=' "$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=\n')" ;;
   AUTOPILOT_SIGNING_SECRET) openssl rand -hex 24 ;;
-  OWNER_PASSWORD) printf 'p%s' "$(openssl rand -hex 8)" ;;
   *_PASSWORD | *_SECRET | *_KEY | *_TOKEN) printf 's%s' "$(openssl rand -hex 16)" ;;
   esac
 }
@@ -482,7 +477,6 @@ HTTPS_PORT="$(env_expanded HTTPS_PORT)"
 HTTPS_PORT="${HTTPS_PORT:-443}"
 HTTP_PORT="$(env_expanded HTTP_PORT)"
 HTTP_PORT="${HTTP_PORT:-8449}"
-OWNER_EMAIL="$(env_expanded OWNER_EMAIL)"
 case ":$(env_expanded COMPOSE_FILE):" in
 *:compose.http.yaml:*) api="$host_ip:$HTTP_PORT (gRPC and gRPC-Web, plain HTTP)" ;;
 *) api="${public_host:-$host_ip}:$HTTPS_PORT (gRPC and gRPC-Web, TLS)" ;;
@@ -505,7 +499,6 @@ echo "$tls_msg"
 echo "host address: $host_ip"
 echo
 echo "Dashboard   ${PUBLIC_URL:-https://$host_ip}"
-echo "Owner       ${OWNER_EMAIL:-(OWNER_EMAIL not set)} (password: OWNER_PASSWORD in $ENV_FILE)"
 echo "API         $api"
 echo "SIP         $host_ip:$SIP_PORT (UDP and TCP)"
 echo
@@ -523,4 +516,7 @@ if [ "$tls_generated" = 1 ]; then
 fi
 echo
 echo "Next: docker compose up -d"
+echo "Then, once: put a password in a file only you can read, and create the first user with it:"
+echo "  (umask 077; openssl rand -hex 16 > owner.pw)"
+echo "  docker compose exec -T apiserver fonoster-owner create you@example.com < owner.pw"
 echo "Run ./init.sh again any time to print this. It keeps every secret."

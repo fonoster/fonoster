@@ -81,7 +81,7 @@ describe("@devcontainer initialize.sh --refresh", function () {
       fs.realpathSync(path.join(dir, ".dev", "config"))
     );
     expect(env.get("HOST_IP")).to.equal("192.0.2.10");
-    expect(env.get("OWNER_PASSWORD")).to.match(/^p[0-9a-f]{16}$/);
+    expect(env.get("DEV_OWNER_PASSWORD")).to.match(/^s[0-9a-f]{32}$/);
     expect(
       fs.existsSync(path.join(dir, ".dev", "config", "keys", "private.pem"))
     ).to.equal(true);

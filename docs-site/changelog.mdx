@@ -14,9 +14,12 @@ New releases are listed newest first. For releases up to 0.27, see the
 - **`fonoster-config` is gone and the install needs no Node.js.** The archive ships `init.sh` and
   final `config/*.yaml` files that you edit in place, then recreate the service. `./init.sh` needs
   only a shell and `openssl`: it writes `.env` with generated secrets, the signing keys and a
-  certificate for getting started, and prints the dashboard address and owner login. Existing
+  certificate for getting started, and prints the dashboard address. Existing
   installs: follow [Upgrade](/self-hosting/upgrade). `@fonoster/common` no longer has a
   `fonoster-config` binary.
+- **No more owner in the config.** `identity.owner`, `OWNER_EMAIL` and `OWNER_PASSWORD` are gone
+  (an `owner:` block left in `config/fonoster.yaml` is ignored). Create a new install's first user
+  with `docker compose exec -T apiserver fonoster-owner create <email> < password-file`.
 - **A private region is the release archive with `compose.region.yaml`**, installed with the
   playbook that ships in it; `ops/rebuild/cell` is gone. See
   [Install a private region](/private-regions/install-region).

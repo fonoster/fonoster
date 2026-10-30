@@ -1,8 +1,7 @@
 # Copy to vault.yml, set the values and encrypt it: ansible-vault encrypt vault.yml
-# Formats: passwords s<32 hex>, OWNER_PASSWORD p<16 hex>, AUTOPILOT_SIGNING_SECRET <48 hex>,
+# Formats: passwords s<32 hex>, AUTOPILOT_SIGNING_SECRET <48 hex>,
 # ENCRYPTION_KEY k1.aesgcm256.<43 base64url characters>= (what init.sh generates).
 fonoster_env_secrets:
-  OWNER_PASSWORD: "p<hex8>"
   POSTGRES_PASSWORD: "s<hex16>"
   MINIO_ROOT_PASSWORD: "s<hex16>"
   NATS_APISERVER_PASSWORD: "s<hex16>"
