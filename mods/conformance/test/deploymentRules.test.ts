@@ -106,26 +106,29 @@ describe("@conformance[deployment] release gate and nightly checks", function ()
     const { plan, apply } = workflow("deploy.yaml").jobs;
     expect(plan, "deploy.jobs.plan is undefined").to.exist;
     expect(apply, "deploy.jobs.apply is undefined").to.exist;
-    // The plan holds no credential that can change production.
+    // The plan holds no credential.
     expect(plan.environment).to.equal("production-prepare");
-    expect(JSON.stringify(plan)).not.to.match(
-      /DEPLOY_SSH_KEY|ANSIBLE_VAULT_PASSWORD/
-    );
-    // The apply waits for approval and runs the playbook.
+    expect(JSON.stringify(plan)).not.to.match(/secrets\./);
+    // The apply waits for approval and runs the release's playbook on the host, rolling back a
+    // failed apply.
     expect(
       typeof apply.environment === "object" && apply.environment.name
     ).to.equal("production");
     expect(apply.needs).to.equal("plan");
-    expect(
-      steps(apply).some((s) =>
-        /ansible-playbook\b[\s\S]*-e fonoster_version=/.test(s.run ?? "")
-      ),
-      "a step runs ansible-playbook -e fonoster_version="
-    ).to.equal(true);
-    const rollback = steps(apply).find((s) =>
-      /\brollback\.yml\b/.test(s.run ?? "")
+    const onHost = (verb: string) =>
+      steps(apply).find((s) =>
+        new RegExp(`bash -s ${verb}\\b[\\s\\S]*deploy-on-host\\.sh`).test(
+          s.run ?? ""
+        )
+      );
+    expect(onHost("apply"), "a step runs deploy-on-host.sh apply").to.exist;
+    expect(String(onHost("rollback")?.if)).to.include("failure()");
+    const script = fs.readFileSync(
+      path.join(ROOT, "ops", "ansible", "deploy-on-host.sh"),
+      "utf8"
     );
-    expect(String(rollback?.if)).to.include("failure()");
+    expect(script).to.match(/ansible-playbook[\s\S]*-e "fonoster_version=/);
+    expect(script).to.contain("playbooks/rollback.yml");
   });
 
   it("leaves no fonoster-deploy in any workflow", function () {

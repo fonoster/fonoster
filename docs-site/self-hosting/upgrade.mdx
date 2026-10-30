@@ -5,7 +5,7 @@ description: "Move a Docker Compose install to a new release and keep your secre
 
 An upgrade unpacks the new release next to your install, carries over the files that are yours and
 starts the new release on the same volumes. Your data, secrets and keys stay. The steps below
-upgrade an install in `/opt/fonoster` to `0.41.0`. Use your own folder and the release you upgrade
+upgrade an install in `/opt/fonoster` to `0.42.0`. Use your own folder and the release you upgrade
 to.
 
 ## Before you begin
@@ -35,24 +35,24 @@ are yours, and you carry them over:
 
 <Steps>
   <Step title="Unpack the new release">
-    Download `fonoster-0.41.0.tar.gz`, then unpack it into a new folder next to your install:
+    Download `fonoster-0.42.0.tar.gz`, then unpack it into a new folder next to your install:
 
     ```bash
-    mkdir /opt/fonoster-0.41.0 && tar -xzf fonoster-0.41.0.tar.gz -C /opt/fonoster-0.41.0 --strip-components=1
+    mkdir /opt/fonoster-0.42.0 && tar -xzf fonoster-0.42.0.tar.gz -C /opt/fonoster-0.42.0 --strip-components=1
     ```
   </Step>
   <Step title="Copy your secrets and keys">
     Copy `.env`, the signing keys and the certificate into the new folder:
 
     ```bash
-    cp -a /opt/fonoster/.env /opt/fonoster-0.41.0/ && cp -a /opt/fonoster/config/keys /opt/fonoster/config/tls /opt/fonoster-0.41.0/config/
+    cp -a /opt/fonoster/.env /opt/fonoster-0.42.0/ && cp -a /opt/fonoster/config/keys /opt/fonoster/config/tls /opt/fonoster-0.42.0/config/
     ```
   </Step>
   <Step title="Carry over your settings">
     List the differences between the two `config/` folders:
 
     ```bash
-    diff -r /opt/fonoster/config /opt/fonoster-0.41.0/config
+    diff -r /opt/fonoster/config /opt/fonoster-0.42.0/config
     ```
 
     For each file you edited, make the same edit in the new release's file. Differences you didn't
@@ -62,7 +62,7 @@ are yours, and you carry them over:
     Run `init.sh` in the new folder, then start it:
 
     ```bash
-    cd /opt/fonoster-0.41.0 && ./init.sh && docker compose up -d --remove-orphans --wait
+    cd /opt/fonoster-0.42.0 && ./init.sh && docker compose up -d --remove-orphans --wait
     ```
 
     `init.sh` keeps every line of `.env`, adds the names the new release introduces and sets
@@ -80,7 +80,7 @@ Keep the old folder until you have checked the new release. To go back, run
 
 ## Upgrading from 0.3x
 
-Releases before 0.41 set up the install with `fonoster-config`, which needed Node.js. It is gone.
+Releases before 0.42 set up the install with `fonoster-config`, which needed Node.js. It is gone.
 The steps above work the same, with these changes:
 
 - You don't need Node.js any more. `init.sh` needs only a shell and `openssl`.

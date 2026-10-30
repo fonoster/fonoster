@@ -39,12 +39,13 @@ You need:
 
     Before the last two lines, edit `inventory/region.yml`: your machine's address
     (`ansible_host`), `region_sip_domain`, and one `fonoster_region.secrets` entry per provider. Add
-    each secret to the vault the same way as the token, for example:
+    each provider key to the vault the same way as the token, for example:
 
     ```bash
-    ansible-vault encrypt_string "$(openssl rand -hex 16)" --name vault_postgres_password >> inventory/group_vars/regions/vault.yml
     ansible-vault encrypt_string '<your Deepgram key>' --name vault_deepgram_key >> inventory/group_vars/regions/vault.yml
     ```
+
+    The region's own passwords and keys are generated on the machine the first time and kept there.
 
     The first playbook line is the plan: it shows what would change and changes nothing. The
     second applies it: it installs Docker, enrolls the region with the token (once), stores the

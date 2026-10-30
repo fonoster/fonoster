@@ -99,47 +99,45 @@ https://docs.fonoster.com/private-regions/install-region.
 
 ## Fonoster Cloud
 
-Fonoster's production host is deployed by `.github/workflows/deploy.yaml` with this playbook, from a
-private inventory repository (`vars.INFRA_INVENTORY_REPO`) that holds only
-`inventory/production.yml` (the host in the `fonoster` and `production` groups, `ansible_user:
-deploy`) and `inventory/group_vars/production/{main.yml,vault.yml}` (`vault.yml` encrypted). Nobody
-edits the server by hand: a change to it is a change to the inventory or to this playbook, then a
-deploy.
+Fonoster's production host is deployed by `.github/workflows/deploy.yaml` with the playbook each
+release ships (`fonoster/ansible` in its archive). The inventory lives on the host, in
+`/etc/fonoster/inventory` (root only, 0700), which no release and no deploy touches:
+`production.yml` (the host in the `fonoster` and `production` groups, `ansible_connection:
+local`) and `group_vars/production/main.yml` (every value, secrets in `fonoster_env_secrets`). No
+vault: the file is as private as `/opt/fonoster/.env` next to it. Nobody edits the install by hand:
+a change goes in the inventory or in this playbook, then a deploy.
 
-- **Plan** (environment `production-prepare`, runs on its own): pins the tag `v<version>` and the
-  inventory's HEAD to SHAs, deletes every `vault.yml`, shows `.env`, overrides and overlays in the
-  run summary with vaulted values as `<vaulted>`, lints and syntax-checks the tag's playbook, and
-  reads the archive's SHA256 from the release's `SHA256SUMS`. It has no SSH key and no vault
-  password. It fails on a version whose tag has no playbook (`version X has no playbook`) and on a
-  `fonoster_env` name ending in `_PASSWORD`, `_SECRET`, `_KEY`, `_TOKEN` or `_HEADERS` with a value
-  (those go in `fonoster_env_secrets`).
-- **Apply** (environment `production`, waits for a reviewer's approval): runs `playbooks/site.yml
-  --tags fonoster` from the plan's SHAs, as `deploy`, with the plan's archive checksum. A failed
-  apply runs `playbooks/rollback.yml`, which restores the backup the switch made; an apply that
-  failed before its switch made none, and nothing is restored. The run summary has from, to, the
-  switch time, the backup name and the rollback's outcome.
-- **By hand:** `gh workflow run deploy.yaml -f version=0.41.0` redeploys or moves to a version (and
+- **Plan** (environment `production-prepare`, runs on its own, no credential): pins the tag
+  `v<version>` and the archive's SHA256 from the release's `SHA256SUMS`, checks that the archive
+  carries the playbook (`version X has no playbook` otherwise) and lints it.
+- **Apply** (environment `production`, waits for a reviewer's approval): over SSH as `deploy`,
+  `ops/ansible/deploy-on-host.sh` installs the pinned ansible-core on the host if needed, downloads
+  the archive, checks it against the plan's SHA256, prints the playbook's `--check --diff`, then
+  applies `site.yml --tags fonoster`. A failed apply runs `rollback.yml`, which restores the backup
+  the switch made; an apply that failed before its switch made none, and nothing is restored. The
+  run summary has from, to, the switch time, the backup name and the rollback's outcome.
+- **By hand:** `gh workflow run deploy.yaml -f version=0.42.0` redeploys or moves to a version (and
   applies inventory changes); add `-f host_role=true` to run the host role too.
 - **On the host:** `/var/lib/fonoster/deploys.log` (`<switch time> <from> -> <to>`, with `rolled
-  back` after a rollback) and the backups of `/opt/fonoster` in `/var/lib/fonoster/backups`. The
-  database is never touched; the switch time is the point to restore a database backup to.
+  back` after a rollback), the backups of `/opt/fonoster` in `/var/lib/fonoster/backups`, the
+  releases' playbooks in `/var/lib/fonoster/deploy`. The database is never touched; the switch time
+  is the point to restore a database backup to.
 
 GitHub setup: both environments restrict deployments to `main`, and `production` has a required
-reviewer. Secrets: `INFRA_INVENTORY_TOKEN` (fine-grained, the inventory repository only, Contents:
-read, with an expiry) in both; `DEPLOY_SSH_KEY` (the deploy user's private key) and
-`ANSIBLE_VAULT_PASSWORD` (`openssl rand -base64 32` or longer) in `production`. Variables:
-`INFRA_INVENTORY_REPO` (owner/name) and `DEPLOY_KNOWN_HOSTS` (`ssh-keyscan` of the host).
+reviewer. Secret `DEPLOY_SSH_KEY` (the deploy user's private key) in `production`. Variables
+`DEPLOY_HOST` (the host's address) and `DEPLOY_KNOWN_HOSTS` (`ssh-keyscan -t ed25519 <host>`).
 
-Owner checklist, once, to move a host that was set up by hand:
+Owner checklist, once, to move a host that was set up by hand (run the playbook on the host, from
+a release's `fonoster/ansible`, with `-i /etc/fonoster/inventory/production.yml`):
 
-1. Copy the `.env` and `config/overrides/*` values from the production host into the private
-   inventory by hand: non-secrets in `main.yml`, secrets in `vault.yml` (`ansible-vault encrypt`).
-   `TLS_KEY` goes in `fonoster_env_secrets` too: it is a path, but its name ends in `_KEY`.
-2. Set `deploy_authorized_key` to the public half of `DEPLOY_SSH_KEY` and create the `deploy` user
-   with the host role.
-3. Run `ansible-playbook -i inventory/production.yml playbooks/site.yml --check --diff --tags host`
-   until it shows only the expected changes: `live-restore` added to `daemon.json`, the certbot
-   hooks replaced, the old `stop-envoy.sh` and `start-envoy.sh` hooks removed.
-4. Apply the host role alone (`--tags host`) in a maintenance window.
-5. Delete `/root/use-managed-db.sh` on the host, and the keys of the old deploy script from root's
+1. Write `/etc/fonoster/inventory` from the host's `/opt/fonoster/.env` and
+   `config/overrides/*`: non-secrets in `fonoster_env`, secrets in `fonoster_env_secrets`,
+   overrides in `fonoster_overrides`, extra Compose files in `fonoster_compose_overlays`.
+2. Copy `/opt/fonoster/config/keys` and `config/tls` into `/var/lib/fonoster/keys` and `tls`.
+3. Set `deploy_authorized_key` to the public half of `DEPLOY_SSH_KEY` in the inventory.
+4. Run `site.yml --check --diff --tags host` until it shows only the expected changes:
+   `live-restore` added to `daemon.json`, the certbot hooks replaced, the old `stop-envoy.sh` and
+   `start-envoy.sh` hooks removed, the `deploy` user.
+5. Apply the host role alone (`--tags host`) in a maintenance window.
+6. Delete `/root/use-managed-db.sh` on the host, and the keys of the old deploy script from root's
    `authorized_keys`.

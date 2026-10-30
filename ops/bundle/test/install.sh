@@ -70,8 +70,13 @@ else
 fi
 
 # OPS-002 An install of the previous release upgrades in place ----------------------------------
-prev="$(curl -fsSL https://api.github.com/repos/fonoster/fonoster/releases/latest | sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p')"
-[ -n "$prev" ] || { record OPS-002 "the previous release is published" fail "no latest release"; exit 1; }
+# The newest published release whose images are on Docker Hub (a release still publishing has none).
+prev=""
+for v in $(curl -fsSL "https://api.github.com/repos/fonoster/fonoster/releases?per_page=5" | sed -n 's/.*"tag_name": *"v\([^"]*\)".*/\1/p'); do
+  [ "$v" != "$V" ] || continue
+  if docker manifest inspect "fonoster/apiserver:$v" >/dev/null 2>&1; then prev="$v"; break; fi
+done
+[ -n "$prev" ] || { record OPS-002 "the previous release is published" fail "no recent release with images"; exit 1; }
 log "previous release $prev"
 mkdir -p "$WORK/old"
 curl -fsSL "https://github.com/fonoster/fonoster/releases/download/v$prev/fonoster-$prev.tar.gz" | tar -xz -C "$WORK/old" \

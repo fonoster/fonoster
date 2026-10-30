@@ -334,6 +334,17 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     ).to.deep.equal([]);
   });
 
+  // The playbook merges overrides with a YAML 1.1 parser, where an unquoted off, on, yes or no is a
+  // boolean: AppBridge refused `recording: off` read as false.
+  it("reads the same under YAML 1.1 as under YAML 1.2 (quoted off, on, yes, no)", function () {
+    for (const file of filesUnder(path.join(BUNDLE, "config")).filter((f) =>
+      f.endsWith(".yaml")
+    )) {
+      const text = fs.readFileSync(file, "utf8");
+      expect(parse(text, { version: "1.1" }), file).to.deep.equal(parse(text));
+    }
+  });
+
   it("never says rebuild or RB_", function () {
     // test/ stays in the repository (ops/release/bundle leaves it out of the archive).
     for (const file of filesUnder(BUNDLE).filter(

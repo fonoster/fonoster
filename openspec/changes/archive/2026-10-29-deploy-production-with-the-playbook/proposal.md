@@ -6,8 +6,8 @@ Production is upgraded by `ops/deploy/fonoster-deploy`, a script installed by ha
 and run over SSH, and the settings that are not in the release (Docker's daemon settings, certbot
 hooks, trace retention, `config/overrides/*`, a managed-database script) live only on the server.
 The 0.35.0 outage came from one of them. The playbook in `ops/ansible` (#1204) already puts a host
-on a version from an inventory; production should be deployed by it, from a private inventory, so
-nothing about the server lives only on the server.
+on a version from an inventory; production should be deployed by it, from an inventory kept on the
+host outside every release, so every setting is written down and applied the same way.
 
 ## What Changes
 

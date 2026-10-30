@@ -1,39 +1,37 @@
 name: Deploy
 
-# Rolls a release out to production with the Ansible playbook (ops/ansible). release.yaml calls it
-# after every release; run it by hand to redeploy, to move to another version or to apply an
-# inventory change: `gh workflow run deploy.yaml -f version=0.41.0` (add `-f host_role=true` to run
-# the host role too).
+# Rolls a release out to production with the Ansible playbook the release ships (fonoster/ansible
+# in its archive). release.yaml calls it after every release; run it by hand to redeploy, to move
+# to another version or to apply an inventory change: `gh workflow run deploy.yaml -f version=0.42.0`
+# (add `-f host_role=true` to run the host role too).
 #
-#   1. plan (environment production-prepare, no approval, no credential that can change production):
-#      resolves the tag v<version> and the private inventory's HEAD to SHAs and checks both out by
-#      SHA, deletes every vault.yml, renders .env, overrides and overlays with vaulted values shown
-#      as <vaulted>, lints and syntax-checks the tag's playbook and reads the archive's SHA256 from
-#      the release's SHA256SUMS. A version whose tag has no playbook fails here.
-#   2. apply (environment production, waits for a required reviewer): checks out the plan's SHAs
-#      and runs playbooks/site.yml --tags fonoster as the deploy user, pinned to the plan's archive
-#      checksum. A failed apply runs playbooks/rollback.yml, which restores the backup the switch
-#      made (none when the apply failed before its switch).
+#   1. plan (environment production-prepare, no approval, no credential): resolves the tag
+#      v<version> to its SHA, reads the archive's SHA256 from the release's SHA256SUMS, checks the
+#      archive against it and that it carries the playbook, and lints that playbook. A version
+#      without a playbook fails here.
+#   2. apply (environment production, waits for a required reviewer): over SSH as the deploy user,
+#      ops/ansible/deploy-on-host.sh downloads that archive on the host, checks it against the
+#      plan's SHA256, prints the playbook's --check --diff, then applies it with the host's
+#      inventory (/etc/fonoster/inventory, root only, never in the repository). A failed apply
+#      restores the backup its switch made (none when it failed before the switch).
 #
 # The database is never touched. The switch time in the summary (and deploys.log on the server) is
 # the point to restore a database backup to. Nobody edits the server by hand: ops/ansible/README.md
 # "Fonoster Cloud".
 #
-# Secrets: production-prepare INFRA_INVENTORY_TOKEN (fine-grained, the inventory repository only,
-# Contents: read); production DEPLOY_SSH_KEY, ANSIBLE_VAULT_PASSWORD, INFRA_INVENTORY_TOKEN.
-# Variables: DEPLOY_KNOWN_HOSTS (ssh-keyscan output), INFRA_INVENTORY_REPO (owner/name).
+# Secret (production): DEPLOY_SSH_KEY. Variables: DEPLOY_HOST, DEPLOY_KNOWN_HOSTS (ssh-keyscan).
 
 on:
   workflow_call:
     inputs:
       version:
-        description: The release to deploy, like 0.40.0
+        description: The release to deploy, like 0.42.0
         type: string
         required: true
   workflow_dispatch:
     inputs:
       version:
-        description: The release to deploy, like 0.40.0 (empty = the latest release)
+        description: The release to deploy, like 0.42.0 (empty = the latest release)
         type: string
         required: false
       host_role:
@@ -56,7 +54,6 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag_sha: ${{ steps.pins.outputs.tag_sha }}
-      inventory_sha: ${{ steps.pins.outputs.inventory_sha }}
       archive_sha256: ${{ steps.pins.outputs.archive_sha256 }}
     steps:
       - name: Version
@@ -70,118 +67,60 @@ jobs:
           [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::not a version: $version"; exit 1; }
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
-      # What the apply runs, by SHA: a tag or an inventory moved after the plan changes nothing.
+      # What the apply runs: the archive at this SHA256, whatever the tag or release does later.
       - name: Pins
         id: pins
         env:
           GH_TOKEN: ${{ github.token }}
-          INVENTORY_TOKEN: ${{ secrets.INFRA_INVENTORY_TOKEN }}
-          INVENTORY_REPO: ${{ vars.INFRA_INVENTORY_REPO }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
           tag_sha=$(gh api "repos/$GITHUB_REPOSITORY/commits/v$VERSION" -q .sha) \
             || { echo "::error::no tag v$VERSION"; exit 1; }
-          inventory_sha=$(GH_TOKEN="$INVENTORY_TOKEN" gh api "repos/$INVENTORY_REPO/commits/HEAD" -q .sha) \
-            || { echo "::error::cannot read the inventory repository $INVENTORY_REPO"; exit 1; }
-          gh release download "v$VERSION" --repo "$GITHUB_REPOSITORY" -p SHA256SUMS -O "$RUNNER_TEMP/SHA256SUMS" \
-            || { echo "::error::release v$VERSION has no SHA256SUMS"; exit 1; }
-          archive_sha256=$(awk -v f="fonoster-$VERSION.tar.gz" '$2 == f || $2 == "*" f { print $1 }' "$RUNNER_TEMP/SHA256SUMS")
+          cd "$RUNNER_TEMP"
+          gh release download "v$VERSION" --repo "$GITHUB_REPOSITORY" -p SHA256SUMS -p "fonoster-$VERSION.tar.gz" \
+            || { echo "::error::release v$VERSION has no SHA256SUMS or archive"; exit 1; }
+          archive_sha256=$(awk -v f="fonoster-$VERSION.tar.gz" '$2 == f || $2 == "*" f { print $1 }' SHA256SUMS)
           [[ "$archive_sha256" =~ ^[0-9a-f]{64}$ ]] \
             || { echo "::error::SHA256SUMS of v$VERSION lists no fonoster-$VERSION.tar.gz"; exit 1; }
+          echo "$archive_sha256  fonoster-$VERSION.tar.gz" | sha256sum -c --quiet - \
+            || { echo "::error::fonoster-$VERSION.tar.gz does not match SHA256SUMS"; exit 1; }
+          tar -xzf "fonoster-$VERSION.tar.gz" fonoster/ansible 2>/dev/null \
+            && [ -f fonoster/ansible/playbooks/site.yml ] && [ -f fonoster/ansible/playbooks/rollback.yml ] \
+            || { echo "::error::version $VERSION has no playbook"; exit 1; }
           {
             echo "tag_sha=$tag_sha"
-            echo "inventory_sha=$inventory_sha"
             echo "archive_sha256=$archive_sha256"
           } >> "$GITHUB_OUTPUT"
 
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Checkout the release's playbook
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.pins.outputs.tag_sha }}
-          path: release
-
-      - name: Checkout the inventory
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ vars.INFRA_INVENTORY_REPO }}
-          ref: ${{ steps.pins.outputs.inventory_sha }}
-          token: ${{ secrets.INFRA_INVENTORY_TOKEN }}
-          path: infra
-          persist-credentials: false
-
-      - name: Playbook, no vault
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
-        run: |
-          [ -f release/ops/ansible/playbooks/site.yml ] && [ -f release/ops/ansible/playbooks/rollback.yml ] \
-            || { echo "::error::version $VERSION has no playbook"; exit 1; }
-          find infra -name vault.yml -print -delete
-
       - name: Ansible
         uses: ./.github/actions/ansible
         with:
           lint: "true"
 
-      # The vault is gone, so a value that names a vaulted one shows as <vaulted>. A secret-named
-      # fonoster_env value belongs in fonoster_env_secrets (vault.yml).
-      - name: Render
-        working-directory: release/ops/ansible
-        run: |
-          ansible-inventory -i "$GITHUB_WORKSPACE/infra/inventory/production.yml" --list > "$RUNNER_TEMP/inventory.json"
-          python3 -I - "$RUNNER_TEMP/inventory.json" > "$RUNNER_TEMP/render.md" <<'EOF'
-          import json, re, sys
-          inv = json.load(open(sys.argv[1]))
-          hosts = inv.get("fonoster", {}).get("hosts", [])
-          if not hosts:
-              sys.exit("::error::the inventory has no host in the fonoster group")
-          SECRET = re.compile(r"(_PASSWORD|_SECRET|_KEY|_TOKEN|_HEADERS)$")
-          def redact(v):
-              if isinstance(v, dict):
-                  return {k: redact(x) for k, x in v.items()}
-              if isinstance(v, list):
-                  return [redact(x) for x in v]
-              return "<vaulted>" if isinstance(v, str) and "vault_" in v else v
-          bad = []
-          for host in hosts:
-              hv = inv["_meta"]["hostvars"].get(host, {})
-              env = hv.get("fonoster_env", {})
-              bad += [f"{host}: {k}" for k, v in env.items() if SECRET.search(k) and v not in ("", None)]
-              print(f"### {host}\n\n.env (fonoster_env; FONOSTER_VERSION and fonoster_env_secrets are added on the host):\n```")
-              print("\n".join(f"{k}={redact(v)}" for k, v in sorted(env.items())))
-              for var in ("fonoster_overrides", "fonoster_compose_overlays"):
-                  print(f"```\n\n{var}:\n```json\n{json.dumps(redact(hv.get(var, {})), indent=2)}")
-              print("```\n")
-          if bad:
-              sys.exit("::error::fonoster_env has secret-named values (move them to fonoster_env_secrets): " + ", ".join(bad))
-          EOF
-          cat "$RUNNER_TEMP/render.md"
-
-      - name: Lint and syntax-check
-        working-directory: release/ops/ansible
+      - name: Lint and syntax-check the release's playbook
+        working-directory: ${{ runner.temp }}/fonoster/ansible
         run: |
           ansible-lint
           for p in site rollback; do
-            ansible-playbook -i "$GITHUB_WORKSPACE/infra/inventory/production.yml" "playbooks/$p.yml" --syntax-check
+            ansible-playbook -i localhost, "playbooks/$p.yml" --syntax-check
           done
 
       - name: Summary
         env:
           VERSION: ${{ steps.version.outputs.version }}
           TAG_SHA: ${{ steps.pins.outputs.tag_sha }}
-          INVENTORY_SHA: ${{ steps.pins.outputs.inventory_sha }}
           ARCHIVE_SHA256: ${{ steps.pins.outputs.archive_sha256 }}
         run: |
           {
             echo "## Plan: $VERSION"
             echo
             echo "- tag v$VERSION: \`$TAG_SHA\`"
-            echo "- inventory: \`$INVENTORY_SHA\`"
             echo "- fonoster-$VERSION.tar.gz SHA256: \`$ARCHIVE_SHA256\`"
             echo
-            cat "$RUNNER_TEMP/render.md"
+            echo "The apply prints the playbook's --check --diff on the host before it changes anything."
           } >> "$GITHUB_STEP_SUMMARY"
 
   apply:
@@ -195,84 +134,62 @@ jobs:
     env:
       VERSION: ${{ needs.plan.outputs.version }}
       ARCHIVE_SHA256: ${{ needs.plan.outputs.archive_sha256 }}
-      INVENTORY: ${{ github.workspace }}/infra/inventory/production.yml
+      TARGET: deploy@${{ vars.DEPLOY_HOST }}
     steps:
-      # Nothing reaches a host without every credential.
+      # Nothing reaches the host without every credential.
       - name: Credentials
         env:
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
-          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
-          INFRA_INVENTORY_TOKEN: ${{ secrets.INFRA_INVENTORY_TOKEN }}
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
           DEPLOY_KNOWN_HOSTS: ${{ vars.DEPLOY_KNOWN_HOSTS }}
         run: |
           missing=""
-          for name in DEPLOY_SSH_KEY ANSIBLE_VAULT_PASSWORD INFRA_INVENTORY_TOKEN DEPLOY_KNOWN_HOSTS; do
+          for name in DEPLOY_SSH_KEY DEPLOY_HOST DEPLOY_KNOWN_HOSTS; do
             [ -n "${!name}" ] || missing="$missing $name"
           done
           [ -z "$missing" ] || { echo "::error::the production environment has no$missing"; exit 1; }
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
 
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Checkout the release's playbook
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.plan.outputs.tag_sha }}
-          path: release
-
-      - name: Checkout the inventory
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ vars.INFRA_INVENTORY_REPO }}
-          ref: ${{ needs.plan.outputs.inventory_sha }}
-          token: ${{ secrets.INFRA_INVENTORY_TOKEN }}
-          path: infra
-          persist-credentials: false
-
-      - name: Ansible
-        uses: ./.github/actions/ansible
-        with:
-          ssh-key: ${{ secrets.DEPLOY_SSH_KEY }}
-          known-hosts: ${{ vars.DEPLOY_KNOWN_HOSTS }}
-          vault-password: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
-
       - name: Apply
         id: apply
-        working-directory: release/ops/ansible
         env:
           HOST_ROLE: ${{ inputs.host_role }}
         run: |
           echo "since=$(date -u +%Y%m%dT%H%M%SZ)" >> "$GITHUB_OUTPUT"
-          tags=fonoster
-          [ "$HOST_ROLE" != true ] || tags=host,fonoster
-          ansible-playbook -i "$INVENTORY" playbooks/site.yml --tags "$tags" \
-            -e fonoster_version="$VERSION" -e fonoster_archive_sha256="$ARCHIVE_SHA256"
+          host=""
+          [ "$HOST_ROLE" != true ] || host=host
+          ssh -i ~/.ssh/deploy -o BatchMode=yes "$TARGET" sudo bash -s apply "$VERSION" "$ARCHIVE_SHA256" $host \
+            < ops/ansible/deploy-on-host.sh
 
       - name: Roll back
         id: rollback
         if: failure() && steps.apply.outcome == 'failure'
-        working-directory: release/ops/ansible
         env:
           SINCE: ${{ steps.apply.outputs.since }}
-        run: ansible-playbook -i "$INVENTORY" playbooks/rollback.yml -e fonoster_rollback_since="$SINCE"
+        run: |
+          ssh -i ~/.ssh/deploy -o BatchMode=yes "$TARGET" sudo bash -s rollback "$VERSION" "$SINCE" \
+            < ops/ansible/deploy-on-host.sh
 
       # deploys.log's last line is "<switch time> <from> -> <to>" (with "rolled back" after a
       # rollback); the newest backup is the install from before the switch.
       - name: Summary
         if: always() && steps.apply.outcome != 'skipped'
-        working-directory: release/ops/ansible
         env:
           TAG_SHA: ${{ needs.plan.outputs.tag_sha }}
-          INVENTORY_SHA: ${{ needs.plan.outputs.inventory_sha }}
           APPLY: ${{ steps.apply.outcome }}
           ROLLBACK: ${{ steps.rollback.outcome }}
         run: |
-          state=$(ansible fonoster -i "$INVENTORY" -b -m ansible.builtin.shell \
-            -a 'echo "deploy: $(tail -n 1 /var/lib/fonoster/deploys.log)"; echo "backup: $(ls -1 /var/lib/fonoster/backups | sort | tail -n 1)"' 2>&1 || true)
+          state=$(ssh -i ~/.ssh/deploy -o BatchMode=yes "$TARGET" sudo bash -s summary \
+            < ops/ansible/deploy-on-host.sh 2>&1 || true)
           {
             echo "## Apply: $VERSION ($APPLY)"
             echo
-            echo "- tag v$VERSION: \`$TAG_SHA\`, inventory: \`$INVENTORY_SHA\`, archive SHA256: \`$ARCHIVE_SHA256\`"
+            echo "- tag v$VERSION: \`$TAG_SHA\`, archive SHA256: \`$ARCHIVE_SHA256\`"
             [ "$ROLLBACK" = skipped ] || echo "- rollback: $ROLLBACK"
             echo
             echo '```'

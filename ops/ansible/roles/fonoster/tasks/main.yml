@@ -16,6 +16,23 @@
     fail_msg: "Set fonoster_version to a release, like -e fonoster_version=0.40.0"
     quiet: true
 
+# Secrets go in fonoster_env_secrets, never in fonoster_env, which a plan shows. TLS_CERT and
+# TLS_KEY are paths.
+- name: No secret in fonoster_env
+  ansible.builtin.assert:
+    that: fonoster_secret_named | length == 0
+    fail_msg: >-
+      fonoster_env has secret-named values (move them to fonoster_env_secrets):
+      {{ fonoster_secret_named | join(', ') }}
+    quiet: true
+  vars:
+    fonoster_secret_named: >-
+      {{ fonoster_env | dict2items
+         | rejectattr('key', 'in', ['TLS_CERT', 'TLS_KEY'])
+         | selectattr('key', 'match', '^.*(_PASSWORD|_SECRET|_KEY|_TOKEN|_HEADERS)$')
+         | rejectattr('value', 'equalto', '')
+         | map(attribute='key') | list }}
+
 # Keys and TLS persist in the state folder. An install whose keys are not there yet must have
 # them copied in first: generating new ones would lock out every token and stored key.
 - name: Empty persistent folders

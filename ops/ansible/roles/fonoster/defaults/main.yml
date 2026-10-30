@@ -19,7 +19,11 @@ fonoster_api_host: ""
 # The play fails when a release adds a name neither of these has.
 fonoster_env: {}
 fonoster_env_secrets: {}
-# Deep-merged over the release's config/<file> (objects merge, other values replace).
+# true: a secret init.sh generates for a name neither has is kept in the state folder
+# (generated.env) and reused, instead of failing the play (private regions).
+fonoster_generate_secrets: false
+# Deep-merged over the release's config/<file> (objects merge, other values replace, null
+# deletes a key).
 fonoster_overrides: {}
 # Compose files written next to compose.yaml (name them in COMPOSE_FILE).
 fonoster_compose_overlays: {}

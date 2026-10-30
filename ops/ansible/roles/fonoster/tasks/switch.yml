@@ -77,10 +77,16 @@
           {{ ns.out | join(' ') }}
       when: fonoster_compose is not skipped
 
+    # AppBridge drains live calls when it stops (up to its stop_grace_period): it goes last and
+    # alone, so the services its calls need stay up meanwhile.
     - name: Recreate them
       ansible.builtin.command:
-        argv: "{{ ['docker', 'compose', 'up', '-d', '--no-deps', '--force-recreate'] + fonoster_recreate.split() }}"
+        argv: "{{ ['docker', 'compose', 'up', '-d', '--no-deps', '--force-recreate'] + item }}"
         chdir: "{{ fonoster_dir }}"
+      loop: >-
+        {{ [fonoster_recreate.split() | reject('equalto', 'appbridge') | list,
+            ['appbridge'] if 'appbridge' in fonoster_recreate.split() else []]
+           | reject('equalto', []) | list }}
       when: fonoster_recreate | default('') != ""
       changed_when: true
 
