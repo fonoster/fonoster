@@ -2,7 +2,7 @@ name: Deploy
 
 # Rolls a release out to production with the Ansible playbook the release ships (fonoster/ansible
 # in its archive). release.yaml calls it after every release; run it by hand to redeploy, to move
-# to another version or to apply an inventory change: `gh workflow run deploy.yaml -f version=0.42.0`
+# to another version or to apply an inventory change: `gh workflow run deploy.yaml -f version=0.43.0`
 # (add `-f host_role=true` to run the host role too).
 #
 #   1. plan (environment production-prepare, no approval, no credential): resolves the tag
@@ -25,13 +25,13 @@ on:
   workflow_call:
     inputs:
       version:
-        description: The release to deploy, like 0.42.0
+        description: The release to deploy, like 0.43.0
         type: string
         required: true
   workflow_dispatch:
     inputs:
       version:
-        description: The release to deploy, like 0.42.0 (empty = the latest release)
+        description: The release to deploy, like 0.43.0 (empty = the latest release)
         type: string
         required: false
       host_role:

@@ -116,7 +116,7 @@ a change goes in the inventory or in this playbook, then a deploy.
   applies `site.yml --tags fonoster`. A failed apply runs `rollback.yml`, which restores the backup
   the switch made; an apply that failed before its switch made none, and nothing is restored. The
   run summary has from, to, the switch time, the backup name and the rollback's outcome.
-- **By hand:** `gh workflow run deploy.yaml -f version=0.42.0` redeploys or moves to a version (and
+- **By hand:** `gh workflow run deploy.yaml -f version=0.43.0` redeploys or moves to a version (and
   applies inventory changes); add `-f host_role=true` to run the host role too.
 - **On the host:** `/var/lib/fonoster/deploys.log` (`<switch time> <from> -> <to>`, with `rolled
   back` after a rollback), the backups of `/opt/fonoster` in `/var/lib/fonoster/backups`, the
