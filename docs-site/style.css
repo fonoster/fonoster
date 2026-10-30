@@ -90,3 +90,33 @@ kbd {
   color: var(--fn-on-accent) !important;
   font-weight: 600;
 }
+
+/* Banner: the fonoster.com notice bar (site/assets/css/v1.css .notice), not the brand green.
+   The tint sits on the page background so the fixed bar stays opaque. */
+#banner {
+  background: linear-gradient(rgba(14, 165, 233, 0.08), rgba(14, 165, 233, 0.08)), #ffffff;
+  border-bottom: 1px solid rgba(14, 165, 233, 0.26);
+  font-size: 13px;
+  font-weight: 400;
+}
+#banner,
+#banner * {
+  color: #075985 !important;
+}
+#banner strong,
+#banner a {
+  color: #0c4a6e !important;
+  font-weight: 500;
+}
+:root.dark #banner {
+  background: linear-gradient(rgba(14, 165, 233, 0.14), rgba(14, 165, 233, 0.14)), #181818;
+  border-bottom-color: rgba(14, 165, 233, 0.32);
+}
+:root.dark #banner,
+:root.dark #banner * {
+  color: #7dd3fc !important;
+}
+:root.dark #banner strong,
+:root.dark #banner a {
+  color: #e0f2fe !important;
+}
