@@ -25,11 +25,13 @@
     state: present
   register: docker_repo
 
+# A plan on a host without Docker's repository can't see its packages yet.
 - name: Docker
   ansible.builtin.apt:
     name: [docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin]
     state: present
     update_cache: "{{ docker_repo is changed }}"
+  when: not (ansible_check_mode and docker_repo is changed)
 
 - name: Docker daemon settings
   ansible.builtin.copy:

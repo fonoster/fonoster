@@ -161,11 +161,14 @@
   changed_when: false
   check_mode: false
 
+# The files only: the folders stay 0755 as init makes them (the containers, which run as other
+# users, read the keys through the folder).
 - name: Persistent keys and TLS into the stage
   ansible.builtin.shell: |
     set -e
-    mkdir -p -m 0755 {{ fonoster_stage }}/config/{{ item }}
+    mkdir -p {{ fonoster_stage }}/config/{{ item }}
     cp -a {{ fonoster_state_dir }}/{{ item }}/. {{ fonoster_stage }}/config/{{ item }}/
+    chmod 0755 {{ fonoster_stage }}/config/{{ item }}
   loop: [keys, tls]
   changed_when: false
   check_mode: false
