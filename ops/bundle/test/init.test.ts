@@ -162,7 +162,7 @@ describe("@bundle init.sh", function () {
 
     // Assert
     expect(r.status, r.err).to.equal(0);
-    expect(first.out).to.match(/^\.env written \(11 secrets generated\)\n/);
+    expect(first.out).to.match(/^\.env written \(12 secrets generated\)\n/);
     expect(secrets(dir)).to.deep.equal(before);
     expect(r.out).to.contain(".env kept\n");
     expect(r.out).to.contain("keys: kept");
@@ -198,6 +198,28 @@ describe("@bundle init.sh", function () {
     expect(readEnvFile(path.join(dir, ".env")).get("SIP_PORT")).to.equal(
       "5060"
     );
+  });
+
+  it("generates NATS_BILLING_PASSWORD, and appends it to an older .env", function () {
+    const dir = folder();
+    init(dir, ["--host-ip", "203.0.113.10"]);
+    const generated = readEnvFile(path.join(dir, ".env")).get(
+      "NATS_BILLING_PASSWORD"
+    );
+    expect(generated).to.match(/^s[0-9a-f]{32}$/);
+    const older = read(dir, ".env")
+      .split("\n")
+      .filter((l) => !/^NATS_BILLING_PASSWORD=/.test(l))
+      .join("\n");
+    fs.writeFileSync(path.join(dir, ".env"), older);
+
+    const r = init(dir);
+
+    expect(r.status, r.err).to.equal(0);
+    expect(r.out).to.contain(".env kept; added NATS_BILLING_PASSWORD");
+    expect(
+      readEnvFile(path.join(dir, ".env")).get("NATS_BILLING_PASSWORD")
+    ).to.match(/^s[0-9a-f]{32}$/);
   });
 
   it("fills an empty secret line of any name, and never regenerates one ending in =", function () {

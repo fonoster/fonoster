@@ -21,11 +21,12 @@ import { AddressInfo } from "net";
 import { expect } from "chai";
 import Stripe from "stripe";
 import { StripeFakeServer } from "@fonoster/stripe-fake";
+import { billingApi } from "../src/api";
 import { applyUsage } from "../src/applyUsage";
 import { ensureAccount } from "../src/admission";
 import { ManualClock } from "../src/clock";
 import { DEFAULT_PLANS } from "../src/config";
-import { balanceOf, grantsOf } from "../src/ledger";
+import { balanceOf, grantsOf, overdraftLimit } from "../src/ledger";
 import { credits } from "../src/money";
 import { NoticeKind } from "../src/notices";
 import { RateCard } from "../src/rateCards";
@@ -381,5 +382,77 @@ describe("@billing stripe", function () {
     expect(summary.data.reduce((s, x) => s + x.aggregated_value, 0)).to.equal(
       12_800
     );
+  });
+
+  it("[BIL-049] a plan cancelled in the portal runs to the period's end, then the owner has no plan", async () => {
+    const { owner, account } = await subscribed();
+    const { stripeSubscriptionId } =
+      await db!.prisma.billingAccount.findUniqueOrThrow({
+        where: { id: account.id }
+      });
+    const statusOf = async () =>
+      (
+        await db!.prisma.billingAccount.findUniqueOrThrow({
+          where: { id: account.id }
+        })
+      ).status;
+    // Cancel plan, then Renew plan, in the Customer Portal.
+    await stripe.subscriptions.update(stripeSubscriptionId!, {
+      cancel_at_period_end: true
+    });
+    await pump();
+    expect(await statusOf()).to.equal("canceling");
+    await stripe.subscriptions.update(stripeSubscriptionId!, {
+      cancel_at_period_end: false
+    });
+    await pump();
+    expect(await statusOf()).to.equal("active");
+    // Cancel again and let the period end.
+    await stripe.subscriptions.update(stripeSubscriptionId!, {
+      cancel_at_period_end: true
+    });
+    await db!.prisma.billingAccount.update({
+      where: { id: account.id },
+      data: {
+        autoRecharge: true,
+        rechargeThreshold: credits(100),
+        rechargeAmount: credits(1000)
+      }
+    });
+    await pump();
+    const { frozen_time } =
+      await stripe.testHelpers.testClocks.retrieve(clockId);
+    await stripe.testHelpers.testClocks.advance(clockId, {
+      frozen_time: frozen_time + 32 * DAY
+    });
+    clock.set(new Date((frozen_time + 32 * DAY) * 1000));
+    await pump();
+    const after = await db!.prisma.billingAccount.findUniqueOrThrow({
+      where: { id: account.id }
+    });
+    expect([after.plan, after.status, after.autoRecharge]).to.deep.equal([
+      "none",
+      "canceled",
+      false
+    ]);
+    expect(after.stripeSubscriptionId).to.equal(null);
+    expect(await overdraftLimit(db!.prisma, after, DEFAULT_PLANS)).to.equal(0n);
+    const api = billingApi({
+      prisma: db!.prisma,
+      plans: DEFAULT_PLANS,
+      clock,
+      stripe
+    });
+    const refused = await api
+      .createTopUp({ ownerRef: owner, credits: 1000 })
+      .catch((e: Error) => e);
+    expect((refused as Error).message).to.match(/need a plan/);
+    // Upgrading again starts a new plan.
+    await api.subscribe({ ownerRef: owner });
+    await pump();
+    const again = await db!.prisma.billingAccount.findUniqueOrThrow({
+      where: { id: account.id }
+    });
+    expect([again.plan, again.status]).to.deep.equal(["payg", "active"]);
   });
 });

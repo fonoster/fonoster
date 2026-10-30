@@ -205,9 +205,8 @@ render_configs() {
     if [[ ",$(profiles)," == *",fakes,"* ]]; then
       echo "catalog: { files: [/etc/fonoster/catalog.fakes.yaml] }"
     fi
-    # With billing: CreateCall asks it first, stored usage goes to it, and the Billing API is on.
+    # With billing: stored usage goes to it, and the Billing API is on.
     if with_billing; then
-      echo "authz: { enabled: true, host: billing }"
       echo "features: { billing: { enabled: true, address: \"billing:50073\" } }"
     fi
     echo "regions:"
@@ -249,8 +248,8 @@ YAML
   log "host address $host_ip; platform keys: ${refs:-none}"
 }
 
-# The billing profile: billing's NATS user next to the others, and its config. Its ${NAME}s come
-# from the billing container's environment (ops/rebuild/compose.yaml). RB_BILLING_TRIAL_CREDITS
+# The billing profile: billing's config (the bundle's nats.conf already has its NATS user). Its
+# ${NAME}s come from the billing container's environment (ops/rebuild/compose.yaml). RB_BILLING_TRIAL_CREDITS
 # sets the Trial's credits (the e2e check uses a few, to run out within one call). The rate cards
 # are the repository's, the first one starting in the past: it starts at launch, and until then
 # nothing would be priced here.
@@ -260,13 +259,6 @@ render_billing() {
   sed -i.bak 's/^startsAt: .*/startsAt: 2026-01-01T00:00:00Z/' "$CONF/rate-cards/1.yaml"
   rm -f "$CONF/rate-cards/1.yaml.bak"
   chmod 644 "$CONF/rate-cards/"*.yaml
-  cp "$HERE/config/nats-permissions/billing.conf" "$CONF/nats-permissions/billing.conf"
-  awk '
-    /^include \.\/nats-permissions\/routr\.conf/ { print; print "include ./nats-permissions/billing.conf"; next }
-    /user: routr,/ { print; print "    { user: billing, password: $NATS_BILLING_PASSWORD, permissions: $BILLING_PERMISSIONS }"; next }
-    { print }
-  ' "$CONF/nats.conf" > "$CONF/nats.conf.tmp" && mv "$CONF/nats.conf.tmp" "$CONF/nats.conf"
-  grep -q "user: billing" "$CONF/nats.conf" || die "could not add the billing user to nats.conf"
   cat > "$CONF/billing.yaml" <<YAML
 # Rendered by ops/rebuild/stack (billing profile). Local only: a fixed Stripe test key and webhook
 # secret the Stripe fake accepts.
@@ -282,7 +274,7 @@ stripe:
   webhookSecret: "\${BILLING_WEBHOOK_SECRET}"
   apiBase: http://stripe-fake:12111
 YAML
-  chmod 644 "$CONF/billing.yaml" "$CONF/nats.conf"
+  chmod 644 "$CONF/billing.yaml"
 }
 
 wait_for() {

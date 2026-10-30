@@ -1,0 +1,20 @@
+# The billing service (compose.billing.yaml). Each ${NAME} comes from the billing container's
+# environment, filled from .env, so secrets never land in config/.
+database: { url: "${BILLING_DATABASE_URL}" }
+nats:
+  {
+    url: "nats://nats:4222",
+    user: billing,
+    password: "${NATS_BILLING_PASSWORD}"
+  }
+identity:
+  databaseUrl: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fnidentity"
+  encryptionKey: "${ENCRYPTION_KEY}"
+# The rate cards inside the billing image.
+rateCards: { dir: /work/mods/billing/rate-cards }
+# The Trial: 7 days and 1,000 credits.
+plans: { trialDays: 7, trialCredits: 1000 }
+stripe:
+  secretKey: "${STRIPE_SECRET_KEY}"
+  webhookSecret: "${STRIPE_WEBHOOK_SECRET}"
+logs: { level: info }

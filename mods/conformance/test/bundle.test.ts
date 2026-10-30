@@ -641,7 +641,8 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
       "appbridge",
       "roomr",
       "routr",
-      "region-agent"
+      "region-agent",
+      "billing"
     ])
       expect(
         body(read(`ops/bundle/config/nats-permissions/${u}.conf`)),
@@ -658,13 +659,23 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
 
   it("names in its config files only values init.sh's .env defines (or that have a default)", function () {
     const defined = initEnv();
+    // billing.yaml is read only with compose.billing.yaml, whose environment sets each of its
+    // names: from .env, with a default, or refusing to start without it (the Stripe keys).
+    const overlay = Object.keys(
+      parse(read("ops/bundle/compose.billing.yaml")).services.billing
+        .environment
+    );
     const dir = path.join(BUNDLE, "config");
     for (const f of fs.readdirSync(dir).filter((n) => n.endsWith(".yaml"))) {
       const refs = body(fs.readFileSync(path.join(dir, f), "utf8")).match(
         /\$\{[A-Za-z_][A-Za-z0-9_]*(?!:-)\}/g
       );
       for (const r of refs ?? [])
-        expect(defined.has(r.slice(2, -1)), `${f}: ${r}`).to.equal(true);
+        expect(
+          defined.has(r.slice(2, -1)) ||
+            (f === "billing.yaml" && overlay.includes(r.slice(2, -1))),
+          `${f}: ${r}`
+        ).to.equal(true);
     }
   });
 

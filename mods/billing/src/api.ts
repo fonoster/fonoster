@@ -91,6 +91,13 @@ export function billingApi(deps: ApiDeps) {
 
   /** Paying needs a card in the Customer Portal; without one the owner is sent there first. */
   const NO_PAYMENT_METHOD = "add a payment method in the Customer Portal first";
+  /** After a plan ends, top-ups and auto-recharge wait for a new one. */
+  function needsPlan(a: { plan: string }) {
+    if (a.plan === "none")
+      throw new BillingError(
+        "top-ups and auto-recharge need a plan: upgrade first"
+      );
+  }
   async function needsPaymentMethod(customerId: string | null) {
     if (!customerId) throw new BillingError(NO_PAYMENT_METHOD);
     const c = await needsStripe().customers.retrieve(customerId);
@@ -110,6 +117,7 @@ export function billingApi(deps: ApiDeps) {
       amount: number;
     }) {
       const a = await account(r.ownerRef);
+      if (r.enabled) needsPlan(a);
       if (r.enabled && (r.threshold <= 0 || r.amount < plans.topupMinCredits))
         throw new BillingError(
           `auto-recharge needs a threshold above 0 and an amount of at least ${plans.topupMinCredits} credits`
@@ -129,6 +137,7 @@ export function billingApi(deps: ApiDeps) {
     async createTopUp(r: { ownerRef: string; credits: number }) {
       needsStripe();
       const a = await account(r.ownerRef);
+      needsPlan(a);
       await needsPaymentMethod(a.stripeCustomerId);
       await prisma.$transaction((tx) => topUp(tx, a.id, r.credits, plans));
       return summary(r.ownerRef);

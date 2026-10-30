@@ -29,14 +29,14 @@ export const customerRoutes: Route[] = [
       if (!customer) throw missing("customer");
       fake.get(customer, "customer", "customer");
       const id = fake.id("bps");
-      // The portal itself is Stripe's page; the fake hands out a link that only names the session.
+      // The portal is Stripe's page, or the fake's own (portal.ts) when portalUrl points at the fake.
       return fake.create("billing_portal.session", "bps", {
         id,
         object: "billing_portal.session",
         configuration: "bpc_fake_default",
         customer,
         return_url: body.return_url ?? null,
-        url: `https://billing.stripe.com/p/session/test_${id}`
+        url: `${fake.portalUrl}/p/session/test_${id}`
       });
     }
   },

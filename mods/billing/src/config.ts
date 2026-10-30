@@ -61,7 +61,7 @@ export const billingConfigSchema = z
       .object({
         /** Trial credits, granted once (no overdraft). */
         trialCredits: z.number().int().nonnegative().default(1000),
-        /** Q2: trial credits expire this many days after the grant. */
+        /** Q2: trial credits expire this many days after the grant (the shipped billing.yaml sets 7). */
         trialDays: z.number().int().positive().default(30),
         /** Pay-as-you-go: the monthly fee in cents and the plan credits it buys. */
         planFeeCents: z.number().int().positive().default(2500),

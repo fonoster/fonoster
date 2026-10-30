@@ -35,6 +35,7 @@ services:
       NATS_APPBRIDGE_PASSWORD: ${NATS_APPBRIDGE_PASSWORD:?run ./init.sh}
       NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD:?run ./init.sh}
       NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD:?run ./init.sh}
+      NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:?run ./init.sh}
     ports:
       - "${NATS_BIND:-127.0.0.1}:${NATS_PORT:-4222}:4222"
     volumes:
@@ -110,7 +111,11 @@ services:
     # It relies on the image's internals: /service, su-exec, $USER, dist/print_env and psql. A
     # routr-one bump must run `docker compose up -d --wait` on the default bundle to see routr healthy.
     healthcheck:
-      test: ["CMD-SHELL", "cd /service && OUT=$$(su-exec $$USER node ./dist/print_env) && eval \"$$OUT\" && psql \"$$DATABASE_URL\" -tAc 'select 1'"]
+      test:
+        [
+          "CMD-SHELL",
+          'cd /service && OUT=$$(su-exec $$USER node ./dist/print_env) && eval "$$OUT" && psql "$$DATABASE_URL" -tAc ''select 1'''
+        ]
       interval: 10s
       timeout: 10s
       retries: 6

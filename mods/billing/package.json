@@ -29,6 +29,7 @@
     "@fonoster/logger": "^0.44.0",
     "@grpc/grpc-js": "~1.14.6",
     "@prisma/client": "^6.19.1",
+    "grpc-health-check": "^2.0.2",
     "nats": "^2.25.0",
     "stripe": "^23.0.0",
     "yaml": "^2.9.0",

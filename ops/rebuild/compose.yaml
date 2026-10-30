@@ -130,11 +130,13 @@ services:
     restart: unless-stopped
     environment:
       STRIPE_FAKE_WEBHOOKS: "http://billing:50072/stripe/webhooks|${BILLING_WEBHOOK_SECRET:-whsec_stack}"
+      # Customer Portal links open the fake's own portal page, as the browser reaches it.
+      STRIPE_FAKE_PORTAL_URL: "http://localhost:${RB_STRIPE_FAKE_PORT:-12111}"
     ports:
       - "${RB_STRIPE_FAKE_PORT:-12111}:12111"
 
-  # ---- profile `billing`: Fonoster Cloud's billing service (add-billing-service; Cloud only, so not
-  # in the bundle). Admission for AppBridge and the apiserver (:50071), Stripe's webhooks (:50072),
+  # ---- profile `billing`: Fonoster Cloud's billing service (add-billing-service; the bundle's
+  # opt-in compose.billing.yaml in production). Admission for AppBridge and the apiserver (:50071), Stripe's webhooks (:50072),
   # the Billing API (:50073). Its tables live in the fonoster database, schema `billing`. The stack
   # renders config/billing.yaml. ----
   billing:

@@ -494,6 +494,116 @@ describe("@stripe-fake", function () {
     expect(session.customer).to.equal(customer.id);
   });
 
+  it("[BIL-051] serves the Customer Portal at portalUrl: change the card, cancel and renew the plan", async () => {
+    // Without portalUrl, links stay on Stripe's host.
+    const plain = await stripe.billingPortal.sessions.create({
+      customer: (await stripe.customers.create()).id
+    });
+    expect(plain.url).to.match(
+      /^https:\/\/billing\.stripe\.com\/p\/session\/test_/
+    );
+    const portalServer = await new StripeFakeServer({
+      port: 0,
+      host: "127.0.0.1",
+      portalUrl: "http://localhost:12111"
+    }).start();
+    try {
+      const port = Number(new URL(portalServer.url).port);
+      const sdk = new Stripe("sk_test_fake", {
+        host: "127.0.0.1",
+        port,
+        protocol: "http",
+        maxNetworkRetries: 0
+      });
+      const endpoint = await sdk.webhookEndpoints.create({
+        url: hooksUrl,
+        enabled_events: ["customer.subscription.updated"]
+      });
+      const customer = await sdk.customers.create({
+        payment_method: "pm_card_visa",
+        invoice_settings: { default_payment_method: "pm_card_visa" }
+      });
+      const product = await sdk.products.create({ name: "Pay-as-you-go" });
+      const price = await sdk.prices.create({
+        product: product.id,
+        currency: "usd",
+        unit_amount: 2500,
+        recurring: { interval: "month" }
+      });
+      const sub = await sdk.subscriptions.create({
+        customer: customer.id,
+        items: [{ price: price.id }]
+      });
+      const session = await sdk.billingPortal.sessions.create({
+        customer: customer.id,
+        return_url: "https://app.fonoster.ai/billing"
+      });
+      expect(session.url).to.match(
+        /^http:\/\/localhost:12111\/p\/session\/test_bps_/
+      );
+      // The page is served by the fake, whatever host the link names.
+      const path = new URL(session.url).pathname;
+      const at = (p: string, init?: RequestInit) =>
+        fetch(`${portalServer.url}${p}`, { redirect: "manual", ...init });
+      const post = (form: Record<string, string>) =>
+        at(path, {
+          method: "POST",
+          headers: { "content-type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams(form).toString()
+        });
+      const shown = await at(path);
+      expect(shown.status).to.equal(200);
+      expect(shown.headers.get("content-type")).to.match(/text\/html/);
+      const html = await shown.text();
+      expect(html).to.contain("Cancel plan");
+      expect(html).to.contain('href="https://app.fonoster.ai/billing"');
+
+      const cancel = await post({ action: "cancel" });
+      expect(cancel.status).to.equal(303);
+      expect(cancel.headers.get("location")).to.equal(path);
+      expect(
+        (await sdk.subscriptions.retrieve(sub.id)).cancel_at_period_end
+      ).to.equal(true);
+      expect(await (await at(path)).text()).to.contain("Renew plan");
+      // The cancel reaches the webhook like Stripe's own: a signed customer.subscription.updated.
+      const canceled = async () => {
+        for (const r of received) {
+          const e = sdk.webhooks.constructEvent(
+            r.body,
+            r.signature,
+            endpoint.secret!
+          );
+          if ((e.data.object as Stripe.Subscription).cancel_at_period_end)
+            return e;
+        }
+      };
+      let event: Stripe.Event | undefined;
+      for (let i = 0; i < 50 && !(event = await canceled()); i++)
+        await new Promise((r) => setTimeout(r, 20));
+      expect(event?.type).to.equal("customer.subscription.updated");
+
+      expect((await post({ action: "renew" })).status).to.equal(303);
+      expect(
+        (await sdk.subscriptions.retrieve(sub.id)).cancel_at_period_end
+      ).to.equal(false);
+
+      expect(
+        (await post({ action: "card", card: "pm_card_mastercard" })).status
+      ).to.equal(303);
+      const updated = (await sdk.customers.retrieve(
+        customer.id
+      )) as Stripe.Customer;
+      const method = await sdk.paymentMethods.retrieve(
+        updated.invoice_settings.default_payment_method as string
+      );
+      expect(method.card?.last4).to.equal("4444");
+
+      expect((await at("/p/session/test_bps_unknown")).status).to.equal(404);
+    } finally {
+      await portalServer.stop();
+    }
+  });
+
   it("[BIL-042] computes tax on a one-off invoice that asks for it, on top of its own items only", async () => {
     await fake("config", { tax_rates: { US: 10 } });
     const customer = await stripe.customers.create({

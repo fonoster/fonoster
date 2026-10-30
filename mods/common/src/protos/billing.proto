@@ -49,10 +49,10 @@ message CreditSource {
 }
 
 message BillingSummary {
-  // trial or payg
+  // trial, payg, or none (the plan was canceled and its period ended)
   string plan = 1;
-  // active, past_due, closed, or ended (a Trial past its 30 days; calls are refused until the
-  // owner subscribes)
+  // active, past_due, canceling (the plan ends at period_end), canceled, or ended (a Trial past
+  // its days; calls are refused until the owner subscribes)
   string status = 2;
   // Credits; negative while in the overdraft
   double balance = 3;

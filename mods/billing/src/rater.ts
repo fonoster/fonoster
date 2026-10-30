@@ -44,7 +44,7 @@ export type Rated = {
 };
 
 /** The shortest call billed (D4, rule 6). */
-export const MIN_CALL_SECONDS = 60;
+export const MIN_CALL_SECONDS = 15;
 
 const INCLUDED = new Set([
   "amd.detections",

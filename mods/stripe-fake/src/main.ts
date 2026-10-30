@@ -19,7 +19,8 @@
  */
 /**
  * Runs the Stripe fake (add-stripe-fake): `fonoster-stripe-fake`. Settings from the environment:
- * STRIPE_FAKE_PORT (12111), STRIPE_FAKE_WEBHOOKS ("url|secret,url|secret"), STRIPE_FAKE_VIEWER_DIR.
+ * STRIPE_FAKE_PORT (12111), STRIPE_FAKE_WEBHOOKS ("url|secret,url|secret"), STRIPE_FAKE_VIEWER_DIR,
+ * STRIPE_FAKE_PORTAL_URL (the fake's address as browsers reach it; portal links go to Stripe without it).
  */
 import { join } from "path";
 import { StripeFakeServer } from "./server";
@@ -36,7 +37,8 @@ void new StripeFakeServer({
   port: Number(process.env.STRIPE_FAKE_PORT ?? 12111),
   viewerDir:
     process.env.STRIPE_FAKE_VIEWER_DIR ?? join(__dirname, "../viewer/dist"),
-  webhooks
+  webhooks,
+  portalUrl: process.env.STRIPE_FAKE_PORTAL_URL
 })
   .start()
   .then((server) =>

@@ -142,7 +142,13 @@ async function invoicePaid(tx: Db, deps: Deps, invoice: Stripe.Invoice) {
       }
   await tx.billingAccount.update({
     where: { id: account.id },
-    data: { plan: "payg", status: "active", periodStart: start, periodEnd: end }
+    data: {
+      plan: "payg",
+      // A plan set to cancel stays so when a retried invoice is paid.
+      status: account.status === "canceling" ? "canceling" : "active",
+      periodStart: start,
+      periodEnd: end
+    }
   });
   const entry = await grant(tx, account.id, {
     kind: "plan_grant",
@@ -265,14 +271,42 @@ export async function applyEvent(tx: Db, deps: Deps, event: Stripe.Event) {
       if (topupPurpose(invoice)) return topupFailed(tx, deps, invoice, true);
       return;
     }
+    // Cancelled in the Customer Portal: the plan runs to the period's end (`canceling`), unless
+    // the owner renews it before then.
+    case "customer.subscription.updated": {
+      const sub = event.data.object as Stripe.Subscription;
+      const account = await accountOfCustomer(tx, sub.customer);
+      if (!account || account.stripeSubscriptionId !== sub.id) return;
+      const status = sub.cancel_at_period_end
+        ? account.status === "active"
+          ? "canceling"
+          : account.status
+        : account.status === "canceling"
+          ? "active"
+          : account.status;
+      if (status !== account.status)
+        await tx.billingAccount.update({
+          where: { id: account.id },
+          data: { status }
+        });
+      return;
+    }
+    // The plan ended: no plan. Credits left still pay for calls, at the Trial's limits; top-ups and
+    // auto-recharge wait for a new plan.
     case "customer.subscription.deleted": {
       const sub = event.data.object as Stripe.Subscription;
       const account = await accountOfCustomer(tx, sub.customer);
-      if (account)
-        await tx.billingAccount.update({
-          where: { id: account.id },
-          data: { status: "closed", stripeSubscriptionId: null }
-        });
+      if (!account || account.stripeSubscriptionId !== sub.id) return;
+      await tx.billingAccount.update({
+        where: { id: account.id },
+        data: {
+          plan: "none",
+          status: "canceled",
+          stripeSubscriptionId: null,
+          autoRecharge: false,
+          rechargePendingAt: null
+        }
+      });
       return;
     }
     default:
