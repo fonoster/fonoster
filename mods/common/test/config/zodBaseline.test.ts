@@ -298,6 +298,18 @@ describe("@common[config/zodBaseline]", function () {
       });
     });
 
+    it("a lowercase custom message keeps its case", function () {
+      const listeners = Array.from({ length: 5 }, () => ({
+        url: "wss://example.com/listen"
+      }));
+      expect(
+        callbackOf(sessionAppInputSchema, { name: "app", listeners })
+      ).to.deep.equal({
+        code: status.INVALID_ARGUMENT,
+        message: 'at most 4 listeners at "listeners"'
+      });
+    });
+
     it("a built-in failure is INVALID_ARGUMENT", function () {
       const { name: _name, ...noName } = trunk;
       expect(callbackOf(createTrunkRequestSchema, noName).code).to.equal(

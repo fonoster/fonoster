@@ -115,7 +115,7 @@ const inviteUserToWorkspaceRequestSchema = z.object({
   email: z.string().email({ message: EMAIL_MESSAGE }),
   name: z.string().max(50, { message: MAX_NAME_MESSAGE }),
   role: z.enum([Role.WORKSPACE_ADMIN, Role.WORKSPACE_MEMBER]),
-  password: z.string().min(8, { message: PASSWORD_MESSAGE }).or(z.undefined())
+  password: z.string().min(8, { message: PASSWORD_MESSAGE }).optional()
 });
 
 const resendWorkspaceMembershipInvitationRequestSchema = z.object({

@@ -92,7 +92,10 @@ async function upsertDefaultUser(
   } catch (error) {
     if (error instanceof z.ZodError) {
       logger.error("validation error on upsertDefaultUser", {
-        error: fromError(error, { prefix: null }).toString()
+        error: fromError(error, {
+          prefix: null,
+          forceTitleCase: false
+        }).toString()
       });
     } else {
       logger.error("error on upsertDefaultUser", { error });
