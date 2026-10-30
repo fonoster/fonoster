@@ -252,4 +252,16 @@ describe("agent payload", () => {
       "fake/llm"
     );
   });
+
+  it("says Enter a number for a non-number", () => {
+    const values = toValues(billingAgent) as any;
+    values.model.maxTokens = "many";
+    values.conversation.idleTimeoutSeconds = Number.NaN;
+    const result = agentSchema.safeParse(values);
+    const byPath = Object.fromEntries(
+      result.error!.issues.map((i) => [i.path.join("."), i.message])
+    );
+    expect(byPath["model.maxTokens"]).toBe("Enter a number");
+    expect(byPath["conversation.idleTimeoutSeconds"]).toBe("Enter a number");
+  });
 });
