@@ -16,6 +16,7 @@ capabilities:
   - identity-service
   - identity-client
   - capabilities
+  - call-record
 tests:
   - mods/conformance/test/api/*.api.ts
   - mods/identity/test/server/standaloneService.test.ts
@@ -40,7 +41,10 @@ handling of the raw message. Identity's token exchanges have no SDK class (the S
 Not here: call placement and media (Call flows), node selection, replicas and the bus
 (`control-plane` scenarios left in `uncovered-scenarios.txt` for the Call flows and Faults areas),
 TLS (Security), the published image (Operations), webhooks, usage, providers and regions (their own
-areas; see the hand-off list in the README).
+areas; see the hand-off list in the README). Of `call-record`, only the vCon's validity is here
+(API-073): the records API is not mounted on this area's stack, so its part URLs and access checks
+are unit-tested (`mods/apiserver/test/records/partUrls.test.ts`), and the rest of the capability
+stays in `uncovered-scenarios.txt`.
 
 ## Running
 
@@ -965,3 +969,21 @@ each `from`, each `to` and both together, then with a `from` holding CR/LF and a
 characters.
 
 **Pass.** Each filter lists exactly workspace A's calls with that stored `from` or `to`, and each malformed filter is INVALID_ARGUMENT. **Fail.** A filter lists another number's calls or misses a stored form, or a malformed filter is accepted.
+
+### API-073 Exported vCons pass the vCon validator
+
+- **Spec:** call-record / Additions after sealing create new versions / An added analysis names its dialog
+- **Priority:** P1
+- **Proof:** Leave `dialog` off `turn_decisions` (`namingDialog` in `mods/callrecord/src/vcon.ts`); vcon-lib rejects every sealed copy and the test goes red naming each file.
+- **Fault:** faults/API-073.patch
+- **Test:** mods/conformance/test/api/vcon.api.ts
+
+Every fixture call (`mods/callrecord/test/fixtures`) sealed by the call-record writer, plus the
+card-number call after an added summary, a recording deletion, a transcript deletion and erasure.
+Each copy, original and redacted, is written as the records API returns it (absolute part URLs)
+and checked by vcon-lib 0.10.0 `Vcon.validate_file` (pinned with hashes in
+`mods/conformance/test/api/vcon-requirements.txt`, run as `$VCON_PYTHON`) and by the pinned
+draft-04 schema. Without `VCON_PYTHON` the case fails; it does not skip.
+
+**Pass.** Every file is valid to both. **Fail.** Any file is rejected; the failure names the file
+and the validator's message.

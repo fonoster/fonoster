@@ -364,7 +364,12 @@ export function buildVcon(
     }
   };
 
-  const vcon: Vcon = { ...base, uuid: randomUUID(), dialog };
+  const vcon: Vcon = {
+    ...base,
+    uuid: randomUUID(),
+    dialog,
+    analysis: base.analysis.map((a) => namingDialog(a, dialog))
+  };
   let redactions = 0;
   const spans: BeepSpan[] = [];
   let unlocatable = false;
@@ -402,31 +407,35 @@ export function buildVcon(
       ? recording.beep?.(spans)
       : undefined;
   if (beeped) parts.push(beeped);
+  const redactedCopyDialog = !redactions
+    ? redactedDialog
+    : beeped
+      ? redactedDialog.map((d) =>
+          d.type === "recording"
+            ? {
+                ...d,
+                filename: beeped.name,
+                url: `parts/${beeped.name}`,
+                content_hash: partHash(beeped),
+                meta: {
+                  ...(d.meta as object),
+                  redacted: { method: "beep", spans: spans.length }
+                }
+              }
+            : d
+        )
+      : redactedDialog.filter((d) => d.type !== "recording");
   const redacted: Vcon = {
     ...base,
     uuid: randomUUID(),
-    dialog: !redactions
-      ? redactedDialog
-      : beeped
-        ? redactedDialog.map((d) =>
-            d.type === "recording"
-              ? {
-                  ...d,
-                  filename: beeped.name,
-                  url: `parts/${beeped.name}`,
-                  content_hash: partHash(beeped),
-                  meta: {
-                    ...(d.meta as object),
-                    redacted: { method: "beep", spans: spans.length }
-                  }
-                }
-              : d
-          )
-        : redactedDialog.filter((d) => d.type !== "recording"),
+    dialog: redactedCopyDialog,
     // Turn decisions carry the caller's words and app notes are free-form: every string in the
-    // analysis is redacted too.
-    analysis: base.analysis.map(
-      (a) => redactStrings(a) as Record<string, unknown>
+    // analysis is redacted too. Its dialog indices are this copy's, which may lack the recording.
+    analysis: base.analysis.map((a) =>
+      namingDialog(
+        redactStrings(a) as Record<string, unknown>,
+        redactedCopyDialog
+      )
     ),
     // The redacted copy does not carry the raw messages, which contain the unredacted text.
     attachments: [],
@@ -444,6 +453,68 @@ export function buildVcon(
     }
   };
   return { vcon, redacted, parts, missing };
+}
+
+/**
+ * An analysis entry that names the dialog it was derived from: every entry of its copy's dialog
+ * (draft-04 4.5.2; vcon-lib requires it). Kept as given when it already names one.
+ */
+export function namingDialog(
+  analysis: Record<string, unknown>,
+  dialog: unknown[]
+): Record<string, unknown> {
+  if (analysis.dialog !== undefined) return analysis;
+  const { type, ...rest } = analysis;
+  return { type, dialog: dialog.map((_, i) => i), ...rest };
+}
+
+const PART_URL = /^parts\/([^/]+)$/;
+
+/**
+ * A copy of `vcon` with every `parts/<name>` url replaced by partUrl(name), the name passed
+ * URI-encoded. Pure; never applied to a signed payload.
+ */
+export function withPartUrls(
+  vcon: Vcon,
+  partUrl: (name: string) => string
+): Vcon {
+  const rewrite = (items: Record<string, unknown>[]) =>
+    items.map((x) => {
+      const m = typeof x.url === "string" ? PART_URL.exec(x.url) : null;
+      return m ? { ...x, url: partUrl(encodeURIComponent(m[1])) } : x;
+    });
+  return {
+    ...vcon,
+    dialog: rewrite(vcon.dialog),
+    attachments: rewrite(vcon.attachments)
+  };
+}
+
+/**
+ * The part names a copy references (`parts/<name>` urls), by role and by file name. Roles are the
+ * dialog type (`recording`) and `messages` for the session messages.
+ */
+export function referencedParts(vcon: Vcon): {
+  byRole: Map<string, string>;
+  names: Set<string>;
+} {
+  const byRole = new Map<string, string>();
+  const names = new Set<string>();
+  const add = (url: unknown, role?: string) => {
+    if (typeof url !== "string" || !url) return;
+    const name = url.replace(/^parts\//, "");
+    names.add(name);
+    if (role && !byRole.has(role)) byRole.set(role, name);
+  };
+  for (const d of vcon.dialog) add(d.url, String(d.type));
+  for (const a of vcon.attachments)
+    add(
+      a.url,
+      a.purpose === "session_messages"
+        ? "messages"
+        : String(a.purpose ?? a.type ?? "messages")
+    );
+  return { byRole, names };
 }
 
 /** Redacts every string inside a JSON value (for the redacted copy's analysis). */

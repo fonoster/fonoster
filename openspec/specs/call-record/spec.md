@@ -121,6 +121,14 @@ deletion removed its contents.
 - **THEN** a new version exists that contains the summary and references the prior version
 - **AND** the prior version is unchanged and still verifies
 
+#### Scenario: An added analysis names its dialog
+
+- **WHEN** an analysis is added to a sealed record without naming the dialog it was derived from
+- **THEN** in each copy of the new version it names every entry of that copy's dialog, and gets an
+  `encoding` when it has none (`none` for a string body, `json` otherwise)
+- **AND** every analysis of every sealed copy names only dialog entries that exist in that copy, so
+  the vCon passes the vCon authors' reference validator (vcon-lib)
+
 ### Requirement: Records are stored in the call's region or the workspace's bucket
 
 A record and its files SHALL be stored in the object storage of the region or cell where the call

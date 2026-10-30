@@ -7,6 +7,17 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
+<Update label="v0.45" description="October 2026" tags={["Observe"]}>
+
+## Observe
+
+- **vCons pass the vCon validator.** Every `analysis` entry now names its `dialog`. The `vcon`
+  returned by the records API, `records:download --part vcon` and **Export JSON** has full file
+  URLs, which you can fetch from the new `GET /api/records/<callRef>/parts/<name>`. Signed records
+  (`jws`) and their signatures are unchanged.
+
+</Update>
+
 <Update label="v0.43" description="October 2026" tags={["Self-hosting"]}>
 
 ## Self-hosting

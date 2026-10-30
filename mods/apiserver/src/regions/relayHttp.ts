@@ -32,6 +32,20 @@ const STATUS: Record<string, number> = {
   rate_limited: 429
 };
 
+/** A relayed record (`record.get`) is read whole to rewrite it, so it has its own cap. */
+export const RELAYED_RECORD_MAX = 4 * 1024 * 1024;
+
+const sendError = (res: Response, e: unknown) => {
+  const code = e instanceof RelayError ? e.code : "relay_failed";
+  return res.status(STATUS[code] ?? 502).json({
+    error: code,
+    message:
+      code === "region_offline"
+        ? "Your region is offline; the call's content stays in your region"
+        : (e as Error).message
+  });
+};
+
 /**
  * Streams relayed content into an HTTP response: headers once the first chunk is in, then each
  * chunk as it arrives. Nothing is written to disk or storage (contract §5).
@@ -47,14 +61,7 @@ export async function relayToResponse(
   try {
     opened = await client.open(regionRef, request);
   } catch (e) {
-    const code = e instanceof RelayError ? e.code : "relay_failed";
-    return res.status(STATUS[code] ?? 502).json({
-      error: code,
-      message:
-        code === "region_offline"
-          ? "Your region is offline; the call's content stays in your region"
-          : (e as Error).message
-    });
+    return sendError(res, e);
   }
   res.status(200);
   res.setHeader("content-type", opened.contentType);
@@ -76,4 +83,39 @@ export async function relayToResponse(
     logger.warn(`relay from ${regionRef} broke off: ${(e as Error).message}`);
     res.destroy(e as Error);
   }
+}
+
+/**
+ * Reads a relayed record (`record.get`, JSON) whole, up to RELAYED_RECORD_MAX, and answers with
+ * it as `change` returns it. Kept in memory only, like a streamed relay.
+ */
+export async function relayRecordToResponse(
+  client: RelayClient,
+  regionRef: string,
+  request: RelayRequest,
+  res: Response,
+  change: (body: Record<string, unknown>) => Record<string, unknown>
+) {
+  const chunks: Buffer[] = [];
+  let size = 0;
+  try {
+    const opened = await client.open(regionRef, request);
+    try {
+      for await (const chunk of opened.chunks) {
+        size += chunk.length;
+        if (size > RELAYED_RECORD_MAX)
+          throw new RelayError(
+            "too_large",
+            "the record from the region is larger than 4 MiB"
+          );
+        chunks.push(chunk);
+      }
+    } finally {
+      opened.close();
+    }
+  } catch (e) {
+    return sendError(res, e);
+  }
+  res.setHeader("cache-control", "no-store");
+  res.json(change(JSON.parse(Buffer.concat(chunks).toString("utf8"))));
 }

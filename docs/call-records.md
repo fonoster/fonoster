@@ -61,6 +61,7 @@ the HTTP API is under `/api/records` with `Authorization: Bearer <access token>`
 | `GET /api/records` | Search: `after`, `before`, `number`, `appRef`, `status`, `pageSize`, `pageToken`. |
 | `GET /api/records/<callRef>` | The record; `?version=n`, `?original=true`. |
 | `GET /api/records/<callRef>/recording` | The recording (WAV). The `x-content-hash` header carries its hash. |
+| `GET /api/records/<callRef>/parts/<name>` | A file the record points to: `recording`, `messages`, or a file name from a `url` in the copy (`recording.wav`, `messages.ndjson`). The `x-content-hash` header carries its hash. Takes `version` and `original`; `messages` is only in the original. |
 
 ## Recordings
 
@@ -151,8 +152,11 @@ fetched key set into its `keyHistory` argument.
 
 Limits to know: the signing key is a bare region key published at a URL the region controls (no
 certificate chain, no external timestamp), so a record proves integrity against the published key
-set, not against a third-party authority. Part `url`s in the vCon are relative (`parts/<name>`);
-download files through the API.
+set, not against a third-party authority. In the `vcon` that `getRecord`,
+`records:download --part vcon` and **Export JSON** return, each file `url` is a full link to
+`GET /api/records/<callRef>/parts/<name>`; fetch it with the same headers as any records request.
+The signed copy (`jws`) keeps the relative form, `parts/<name>`, because that is what the region
+signed; check hashes against the `url` and `content_hash` in the signed payload.
 
 ## Operator notes
 

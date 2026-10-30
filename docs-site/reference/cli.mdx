@@ -339,7 +339,7 @@ fonoster webhooks:create --url https://hooks.example.com/fonoster -e call.ended 
 | --- | --- | --- | --- |
 | `--version` | | Latest | A record version |
 | `--original` | | `false` | The unredacted copy. Needs the owner or admin role. |
-| `--part` | `-p` | `recording` | `records:download` only: `recording` (`.wav`), `vcon` (`.vcon.json`) or `signed` (`.vcon.jws.json`) |
+| `--part` | `-p` | `recording` | `records:download` only: `recording` (`.wav`), `vcon` (`.vcon.json`; file links in it point at the API and need your credentials) or `signed` (`.vcon.jws.json`) |
 | `--output` | `-o` | `<call-ref>.<ext>` | `records:download` only: the file to write |
 
 ```bash

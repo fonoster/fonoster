@@ -2,6 +2,43 @@ autopilot / Conversation events in the call record / Speech ahead of the reply
 autopilot / Conversation events in the call record / Where the wait went
 billing / Billing runs only when enabled / Community install
 billing / Top-ups and auto-recharge / Refund of unused top-up
+call-record / Additions after sealing create new versions / Adding a post-call summary
+call-record / Calls that never reach an app get a minimal record / App unreachable
+call-record / Calls that never reach an app get a minimal record / Busy outbound call
+call-record / Every session produces exactly one call record / A handed-off call still has one record
+call-record / Every session produces exactly one call record / A normal call leaves one record
+call-record / Every session produces exactly one call record / No record store configured
+call-record / Recording is applied by policy / Consent prompt
+call-record / Recording is applied by policy / Recording off
+call-record / Recording is applied by policy / Recording on
+call-record / Records are available through the API and the dashboard / Fetch and search
+call-record / Records are available through the API and the dashboard / Seal notification
+call-record / Records are available through the API and the dashboard / Search by direction
+call-record / Records are available through the API and the dashboard / The first index of a call names its trunk
+call-record / Records are available through the API and the dashboard / The trunk a call used
+call-record / Records are available through the API and the dashboard / Total for the query
+call-record / Records are hashed and signed / Tampering is detected
+call-record / Records are hashed and signed / Verifying a record
+call-record / Records are stored in the call's region or the workspace's bucket / Customer bucket
+call-record / Records are stored in the call's region or the workspace's bucket / Private region keeps its data
+call-record / Records of calls that reach no app carry no vendor usage / Rejected call
+call-record / Redacted copies protect personal data / A card number in a tool call is masked
+call-record / Redacted copies protect personal data / A card number is masked
+call-record / Redacted copies protect personal data / Restricted original
+call-record / Retention follows workspace policy and deletions are audited / Default retention keeps everything
+call-record / Retention follows workspace policy and deletions are audited / Erasing one call
+call-record / Retention follows workspace policy and deletions are audited / Recordings expire, transcripts stay
+call-record / The analytics store is derived from records / Rebuilding analytics
+call-record / The record contains the call's parties, timing, transcript, messages and turns / A deprecated model used on a call is recorded
+call-record / The record contains the call's parties, timing, transcript, messages and turns / LLM exchanges are excluded
+call-record / The record contains the call's parties, timing, transcript, messages and turns / Session messages are captured both ways
+call-record / The record contains the call's parties, timing, transcript, messages and turns / The answering machine verdict is kept
+call-record / The record contains the call's parties, timing, transcript, messages and turns / Turn decisions carry outcomes
+call-record / The record contains the call's parties, timing, transcript, messages and turns / Usage is sealed with the call
+call-record / The record is built during the call and sealed at hangup / A sealed record cannot be edited
+call-record / The record is built during the call and sealed at hangup / An AppBridge crash mid-call still yields a sealed record
+call-record / The record is built during the call and sealed at hangup / AppBridges sharing a record directory
+call-record / The record is built during the call and sealed at hangup / Sealing after a normal hangup
 control-plane / AppBridge is its own TypeScript deployable / Calls spread through the session endpoint
 control-plane / AppBridge is its own TypeScript deployable / No speech in the apiserver
 control-plane / AppBridge is its own TypeScript deployable / Scaling AppBridge replicas alone
