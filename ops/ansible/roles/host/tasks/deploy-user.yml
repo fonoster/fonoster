@@ -1,0 +1,30 @@
+# The user deploy.yaml connects as: sudo without a password, and one key whose authorized_keys line
+# has restrict (no forwarding, no pty).
+- name: Deploy user
+  ansible.builtin.user:
+    name: "{{ deploy_user }}"
+    shell: /bin/bash
+  register: deploy_account
+
+- name: Deploy user's sudo
+  ansible.builtin.copy:
+    content: "{{ deploy_user }} ALL=(ALL) NOPASSWD: ALL\n"
+    dest: /etc/sudoers.d/{{ deploy_user }}
+    mode: "0440"
+    validate: visudo -cf %s
+
+- name: Deploy user's SSH folder
+  ansible.builtin.file:
+    path: "{{ deploy_account.home }}/.ssh"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0700"
+
+- name: Deploy key
+  ansible.builtin.copy:
+    content: "restrict {{ deploy_authorized_key }}\n"
+    dest: "{{ deploy_account.home }}/.ssh/authorized_keys"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0600"

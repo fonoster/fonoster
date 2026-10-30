@@ -12,8 +12,8 @@ name: Release
 #   4. images: images.yaml at the release commit (every image in ops/release/images.json).
 #   5. release: the install archive and its SHA256SUMS, the notes, the QA report and two release
 #      cards (dark and light) on a published GitHub release, marked latest.
-#   6. deploy: deploy.yaml stages the release on production, then waits for approval in the
-#      production environment before it switches.
+#   6. deploy: deploy.yaml plans the release on production with the Ansible playbook (no
+#      credential), then waits for approval in the production environment before it applies.
 #
 # compose.yaml is never edited: the archive's .env.example carries FONOSTER_VERSION.
 #
@@ -28,8 +28,8 @@ name: Release
 # (TLOG_CREATE_ENTRY_ERROR). When those are the only failures, the publish is retried with
 # `lerna publish from-package`, up to 4 attempts. A package still refused after that, and the
 # packages that depend on it, stay on their previous version, and the run summary lists them.
-# `@fonoster/common` is the exception: every release versions it, and production
-# (`fonoster-deploy prepare`) and self-hosted installs (`fonoster-config init`) need it at the
+# `@fonoster/common` is the exception: every release versions it, and production (the playbook's
+# stage, ops/ansible) and self-hosted installs (`fonoster-config init`) need it at the
 # release version. If it is missing or doesn't install, the npm job fails, and images, the GitHub
 # release and the deploy don't run. To finish the release, rerun it with
 # `gh workflow run release.yaml`. A `Release-As: x.y.z` footer publishes every package, changed or

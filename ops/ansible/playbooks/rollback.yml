@@ -1,0 +1,61 @@
+# Puts the newest backup of the live install back, starts it and smoke-tests it. deploy.yaml runs it
+# when an apply fails; the database is never touched.
+#
+#   ansible-playbook -i inventory/production.yml playbooks/rollback.yml [-e fonoster_rollback_since=20261029T120000Z]
+#
+# With fonoster_rollback_since (UTC, as in the backup names), only a backup made at or after it is
+# restored: an apply that failed before its switch made none, and the live install is still the
+# one that ran before it.
+- name: Roll back
+  hosts: fonoster
+  become: true
+  vars:
+    fonoster_rollback_since: ""
+  tasks:
+    - name: Newest backup
+      ansible.builtin.shell: ls -1 {{ fonoster_state_dir }}/backups | grep '\.tgz$' | sort | tail -n 1
+      register: fonoster_backup
+      changed_when: false
+
+    - name: Nothing to roll back
+      ansible.builtin.meta: end_host
+      when: >-
+        fonoster_backup.stdout == "" or
+        fonoster_backup.stdout[:16] < fonoster_rollback_since
+
+    - name: Running version
+      ansible.builtin.shell: sed -n 's/^FONOSTER_VERSION=//p' {{ fonoster_dir }}/.env 2>/dev/null | tail -1
+      register: fonoster_running
+      changed_when: false
+
+    - name: Restore {{ fonoster_backup.stdout }}
+      ansible.builtin.shell: |
+        set -e
+        find {{ fonoster_dir }} -mindepth 1 -delete
+        tar -xzf {{ fonoster_state_dir }}/backups/{{ fonoster_backup.stdout }} -C {{ fonoster_dir }}
+      changed_when: true
+
+    - name: Restored version
+      ansible.builtin.shell: sed -n 's/^FONOSTER_VERSION=//p' {{ fonoster_dir }}/.env | tail -1
+      register: fonoster_restored
+      changed_when: false
+
+    # Recreated, not only started: a service may run the same image with a config file the
+    # failed apply changed.
+    - name: Start the services
+      ansible.builtin.command:
+        cmd: docker compose up -d --remove-orphans --force-recreate --wait --wait-timeout 900
+        chdir: "{{ fonoster_dir }}"
+      changed_when: true
+
+    - name: Smoke test
+      ansible.builtin.import_role:
+        name: fonoster
+        tasks_from: smoke.yml
+
+    - name: Deploy log
+      ansible.builtin.lineinfile:
+        path: "{{ fonoster_state_dir }}/deploys.log"
+        line: "{{ now(utc=true, fmt='%Y-%m-%dT%H:%M:%SZ') }} {{ fonoster_running.stdout or 'none' }} -> {{ fonoster_restored.stdout }} rolled back"
+        create: true
+        mode: "0600"

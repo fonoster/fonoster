@@ -51,6 +51,8 @@ deployment / One YAML config per Fonoster service, no .env / Each container gets
 deployment / One YAML config per Fonoster service, no .env / Placeholder resolved from the container environment
 deployment / One YAML config per Fonoster service, no .env / Secret reference resolved
 deployment / One YAML config per Fonoster service, no .env / Unset placeholder
+deployment / Production deploys run the playbook / The apply runs what the plan showed
+deployment / Production deploys run the playbook / The plan holds no credential
 deployment / Rolling deploys drop no calls / Rendered drain settings
 deployment / Rolling deploys drop no calls / Rollout with live calls
 identity / Id, access, and refresh tokens / A token is not valid across realms

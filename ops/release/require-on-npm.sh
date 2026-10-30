@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # require-on-npm.sh: fails the release when a package's version is not on npm, or doesn't install
-# from it, after the publish steps (release.yaml). Production (`fonoster-deploy prepare`) and
+# from it, after the publish steps (release.yaml). Production (the playbook's stage, ops/ansible) and
 # self-hosted installs (`fonoster-config init`) run `npx -p @fonoster/common@<version>`, so without
 # it the release would publish images, a GitHub release and a deploy that can't install.
 #

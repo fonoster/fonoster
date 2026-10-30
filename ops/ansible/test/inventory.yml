@@ -13,6 +13,8 @@ all:
           fonoster_api_host: 127.0.0.1:18443
           routr_traces_enabled: true
           routr_traces_retention_days: 30
+          # The public half of a key nobody holds: the deploy user exists, nobody logs in as it.
+          deploy_authorized_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK9ify4fU8dVeWDEwjfzwRDlR4n2+MC6hl5Q9F/qofu4 throwaway
           fonoster_env:
             COMPOSE_PROJECT_NAME: fonoster
             COMPOSE_FILE: compose.yaml:compose.traces.yaml

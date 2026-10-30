@@ -50,6 +50,10 @@
 - name: Docker restarted when its settings changed
   ansible.builtin.meta: flush_handlers
 
+- name: Deploy user
+  ansible.builtin.import_tasks: deploy-user.yml
+  when: deploy_authorized_key != ""
+
 - name: Fonoster state folder
   ansible.builtin.file:
     path: /var/lib/fonoster
@@ -78,6 +82,13 @@
     dest: /etc/letsencrypt/renewal-hooks/{{ item }}/fonoster-envoy.sh
     mode: "0755"
   loop: [pre, post]
+  when: certbot_domains | length > 0
+
+- name: Retired renewal hooks
+  ansible.builtin.file:
+    path: /etc/letsencrypt/renewal-hooks/{{ item }}
+    state: absent
+  loop: "{{ certbot_retired_hooks }}"
   when: certbot_domains | length > 0
 
 - name: Certificate

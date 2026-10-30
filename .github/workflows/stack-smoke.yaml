@@ -5,7 +5,8 @@ name: Stack Smoke
 #                 the way a self-hoster does and wait for a healthy apiserver and the dashboard
 #                 (ops/release/smoke)
 #   playbook      put the runner through the Ansible playbook with two local builds: plan, apply,
-#                 apply again, switch versions and back (ops/ansible/test/throwaway.sh, area OPS)
+#                 apply again, switch versions and back, roll back a failed apply
+#                 (ops/ansible/test/throwaway.sh --rollback, area OPS)
 #   e2e           nightly (and on demand): build the stack from source, seed it and place one real
 #                 call through Routr to the hosted Autopilot app with the fake providers; checks the
 #                 greeting, one conversation turn, the hang-up and a sealed, verified call record
@@ -167,8 +168,8 @@ jobs:
           "$RUNNER_TEMP/ansible/bin/pip" install --quiet ansible-core==2.21.5 ansible-lint==26.10.1
           echo "$RUNNER_TEMP/ansible/bin" >> "$GITHUB_PATH"
 
-      - name: Plan, apply, apply again, switch and back
-        run: ops/ansible/test/throwaway.sh 0.0.0-a 0.0.0-b
+      - name: Plan, apply, apply again, switch and back, roll back a failed apply
+        run: ops/ansible/test/throwaway.sh 0.0.0-a 0.0.0-b --rollback
 
   devcontainer:
     name: dev container image

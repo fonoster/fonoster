@@ -8,6 +8,14 @@ docker_daemon_options:
 # Let's Encrypt certificate for these names (standalone, port 80); empty: no certbot.
 certbot_domains: []
 certbot_email: ""
+# Renewal hooks of a host set up by hand, under /etc/letsencrypt/renewal-hooks: removed, the hooks
+# above replace them.
+certbot_retired_hooks: [pre/stop-envoy.sh, post/start-envoy.sh]
+
+# The user deploy.yaml connects as (sudo without a password) and its public key, an authorized_keys
+# line without options (it gets restrict). Empty: no deploy user.
+deploy_user: deploy
+deploy_authorized_key: ""
 
 # The live install, where the renewal hooks run docker compose.
 fonoster_dir: /opt/fonoster

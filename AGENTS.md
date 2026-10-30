@@ -88,7 +88,7 @@ Breaking changes here:
 - `mods/billing`: money and Stripe events.
 - `mods/common/src/protos`: wire contract for every client.
 - `mods/appbridge`: call media and session core.
-- `.github/workflows/release.yaml`, `deploy.yaml`, `ops/release`, `ops/deploy`: every merge to main releases and deploys.
+- `.github/workflows/release.yaml`, `deploy.yaml`, `ops/release`, `ops/ansible`: every merge to main releases and deploys.
 - `mods/apiserver`, `mods/dashboard`: most fix commits since August.
 
 ## Release
@@ -114,8 +114,8 @@ Every PR links an issue (`Closes #123`; the `linked-issue` check). Required chec
 ### database-engineer
 - Prisma 6; `prisma-field-encryption` blocks Prisma 7.
 ### release-engineer
-- Production is app/api.fonoster.ai on one droplet; `fonoster-deploy prepare` then `switch`, rolls
-  back on a failed smoke test.
+- Production is app/api.fonoster.ai on one droplet. `deploy.yaml` runs the Ansible playbook: plan
+  (no credential), apply (approval); rollback restores the last backup; the database is never touched.
 ### technical-writer
 - `docs-site/AGENTS.md` holds the docs editorial policy and vocabulary.
 

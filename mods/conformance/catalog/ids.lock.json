@@ -326,5 +326,6 @@
   "API-072": "A malformed number filter is rejected",
   "OPS-003": "Plan then apply serves the dashboard and API",
   "OPS-004": "Applying the previous version rolls back",
-  "OPS-005": "A second apply changes nothing"
+  "OPS-005": "A second apply changes nothing",
+  "OPS-006": "A failed apply restores the last backup"
 }

@@ -1,0 +1,50 @@
+name: Ansible
+description: >-
+  Installs the pinned ansible-core (and ansible-lint), and with ssh-key the deploy credentials:
+  the SSH key, the known hosts and the vault password file, exported as
+  ANSIBLE_PRIVATE_KEY_FILE and ANSIBLE_VAULT_PASSWORD_FILE.
+
+inputs:
+  lint:
+    description: Also install ansible-lint
+    default: "false"
+  ssh-key:
+    description: The deploy user's private key (empty = no credentials)
+    default: ""
+  known-hosts:
+    description: ssh-keyscan output for the hosts
+    default: ""
+  vault-password:
+    description: The ansible-vault password (at least 32 characters)
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    # The versions ops/ansible/README.md names.
+    - name: ansible-core
+      shell: bash
+      env:
+        LINT: ${{ inputs.lint }}
+      run: |
+        pipx install ansible-core==2.21.5
+        [ "$LINT" != true ] || pipx inject --include-apps ansible-core ansible-lint==26.10.1
+
+    - name: Credentials
+      if: inputs.ssh-key != ''
+      shell: bash
+      env:
+        KEY: ${{ inputs.ssh-key }}
+        KNOWN_HOSTS: ${{ inputs.known-hosts }}
+        VAULT_PASSWORD: ${{ inputs.vault-password }}
+      run: |
+        [ -n "$KNOWN_HOSTS" ] || { echo "::error::known-hosts is empty"; exit 1; }
+        [ "${#VAULT_PASSWORD}" -ge 32 ] || { echo "::error::the vault password has fewer than 32 characters"; exit 1; }
+        install -m 700 -d ~/.ssh
+        printf '%s\n' "$KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+        printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+        (umask 077 && printf '%s' "$VAULT_PASSWORD" > "$RUNNER_TEMP/vault-password")
+        {
+          echo "ANSIBLE_PRIVATE_KEY_FILE=$HOME/.ssh/deploy"
+          echo "ANSIBLE_VAULT_PASSWORD_FILE=$RUNNER_TEMP/vault-password"
+        } >> "$GITHUB_ENV"
