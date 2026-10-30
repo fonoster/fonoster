@@ -1,9 +1,9 @@
 diff --git a/mods/dashboard/src/billing/index.tsx b/mods/dashboard/src/billing/index.tsx
-index a2ba7530e..bb98c3500 100644
+index c38b39ff5..049895409 100644
 --- a/mods/dashboard/src/billing/index.tsx
 +++ b/mods/dashboard/src/billing/index.tsx
-@@ -236,7 +236,7 @@ function Billing({ workspace }: { workspace: Workspace }) {
-           them running.
+@@ -278,7 +278,7 @@ function Billing({ workspace }: { workspace: Workspace }) {
+           2,500 credits a month and buy more.
          </Alert>
        )}
 -      {pastDue && (

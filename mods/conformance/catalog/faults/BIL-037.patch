@@ -1,11 +1,11 @@
 diff --git a/mods/billing/src/admission.ts b/mods/billing/src/admission.ts
-index 654779590..0f201c230 100644
+index 43d9e6ed8..89c184762 100644
 --- a/mods/billing/src/admission.ts
 +++ b/mods/billing/src/admission.ts
 @@ -98,8 +98,6 @@ export class BillingAuthzHandler implements AuthzHandler {
      }
      const account = await ensureAccount(prisma, owner, plans, clock.now());
-     // A Trial past its 30 days: nothing runs until the owner subscribes, whatever the balance.
+     // A Trial past its days (plans.trialDays): nothing runs until the owner subscribes, whatever the balance.
 -    if (account.status === "ended")
 -      return { authorized: false, reason: "trial_ended" };
      const snapshot = await prisma.balanceSnapshot.findUnique({
