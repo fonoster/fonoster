@@ -62,8 +62,8 @@ function formatIssues(error: ZodError): string {
           typeof segment === "number"
             ? `[${segment}]`
             : index === 0
-              ? segment
-              : `.${segment}`
+              ? String(segment)
+              : `.${String(segment)}`
         )
         .join("");
       const where = path || "(root)";

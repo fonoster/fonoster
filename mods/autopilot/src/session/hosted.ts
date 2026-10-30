@@ -81,14 +81,15 @@ export const hostedConfigSchema = z
      * it, never against the request's Host header.
      */
     publicUrl: z.union([wsUrl, z.array(wsUrl).min(1)], {
-      errorMap: (issue, ctx) => ({
-        message:
-          issue.code !== "invalid_union"
-            ? ctx.defaultError
-            : ctx.data === undefined
-              ? "is required: the URL Autopilot apps point to (the apiserver's apps.autopilotUrl)"
+      // A string that isn't a ws URL gets the URL's own message, as before the union.
+      error: (issue) =>
+        issue.code !== "invalid_union"
+          ? undefined
+          : issue.input === undefined
+            ? "is required: the URL Autopilot apps point to (the apiserver's apps.autopilotUrl)"
+            : typeof issue.input === "string"
+              ? "must be a ws:// or wss:// URL"
               : "must be a ws:// or wss:// URL, or a list of them"
-      })
     }),
     /**
      * Apps and their agents: a file `{apps: {<appRef>: {workspaceRef?, agent}}}` (JSON or
@@ -114,7 +115,7 @@ export const hostedConfigSchema = z
         .strict()
     ]),
     /** Platform keys by credentialRef. */
-    credentials: z.record(secretRef).default({}),
+    credentials: z.record(z.string(), secretRef).prefault({}),
     /**
      * Workspace Secrets (bring your own key): a JSON file by workspace and credentialRef, or
      * `database`: the workspace's vendor keys (workspace_provider_keys).
@@ -151,7 +152,7 @@ export const hostedConfigSchema = z
       .strict()
       .optional(),
     /** Endpoint overrides by provider or adapter id (e.g. a local ollama); the catalog's otherwise. */
-    endpoints: z.record(z.string()).default({}),
+    endpoints: z.record(z.string(), z.string()).prefault({}),
     /** The S3 + Unstructured knowledge bases; keys by credentialRef (task 4.1). */
     knowledge: z
       .object({

@@ -29,9 +29,9 @@ export const REGION_KINDS = ["public", "private"] as const;
 export type RegionKind = (typeof REGION_KINDS)[number];
 
 const lineFields = {
-  meter: z
-    .string()
-    .refine(isMeter, (m) => ({ message: `undeclared meter "${m}"` })),
+  meter: z.string().refine(isMeter, {
+    error: (issue) => `undeclared meter "${issue.input}"`
+  }),
   quantity: z.number().finite().nonnegative(),
   provider: z.string().min(1).optional(),
   model: z.string().min(1).optional(),

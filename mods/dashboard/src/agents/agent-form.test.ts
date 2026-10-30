@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { z } from "zod";
 import {
   agentSchema,
   tabsWithErrors,
@@ -182,7 +183,7 @@ describe("agent payload", () => {
     const messages = result.error!.issues.map((i) => i.message);
     expect(messages).toContain("Accept and Content-Type are set for you");
     expect(messages).toContain("That name is taken by a built-in tool");
-    expect(tabsWithErrors(result.error!.format())).toContain("tools");
+    expect(tabsWithErrors(z.formatError(result.error!))).toContain("tools");
   });
 
   it("drops transfer options when the transfer number is cleared", () => {

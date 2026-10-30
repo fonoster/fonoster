@@ -27,17 +27,16 @@ const domainSchema = z
       const domainRegex = /^[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+$/;
       return domainRegex.test(domain);
     },
-    () => ({
-      message: `Invalid domain format. Should be like: "acme.${getRootDomain()}"`
-    })
+    {
+      error: () =>
+        `Invalid domain format. Should be like: "acme.${getRootDomain()}"`
+    }
   )
   .refine(
     (domain) => {
       return domain.endsWith(getRootDomain());
     },
-    () => ({
-      message: `Domain must end with "${getRootDomain()}"`
-    })
+    { error: () => `Domain must end with "${getRootDomain()}"` }
   );
 
 const createDomainRequestSchema = z.object({

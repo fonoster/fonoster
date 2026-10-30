@@ -259,7 +259,7 @@ describe("@apiserver[regions/units]", function () {
     });
 
     it("accepts configured endpoints for public regions", function () {
-      const regions = fonosterConfigSchema.innerType().shape.regions.parse({
+      const regions = fonosterConfigSchema.shape.regions.parse({
         public: [
           {
             id: "default",
@@ -380,7 +380,7 @@ describe("@apiserver[regions/units]", function () {
 
   describe("config (PR-17, PR-19)", function () {
     it("defaults to one public region with the id default and refuses another default id", function () {
-      const regions = fonosterConfigSchema.innerType().shape.regions.parse({});
+      const regions = fonosterConfigSchema.shape.regions.parse({});
       expect(regions.public).to.deep.equal([
         { id: "default", name: "Default", default: true }
       ]);

@@ -38,7 +38,7 @@ const host = (what: string) =>
 
 const integer = (min: number, max: number, message: string) =>
   z
-    .number({ invalid_type_error: message })
+    .number({ error: message })
     .int(message)
     .min(min, message)
     .max(max, message);

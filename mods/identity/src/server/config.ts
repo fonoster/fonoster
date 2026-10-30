@@ -46,7 +46,7 @@ const identityServiceConfigSchema = z.object({
       bindAddr: z.string().default("0.0.0.0:50051"),
       httpBridgePort: z.number().int().positive().default(9000)
     })
-    .default({}),
+    .prefault({}),
   logs: logsSchema,
   database: z.object({ url: z.string().min(1) }),
   encryptionKey: encryptionKeySchema,
@@ -63,7 +63,7 @@ const identityServiceConfigSchema = z.object({
     .extend({
       auth: z
         .object({ user: z.string().default(""), pass: z.string().default("") })
-        .default({})
+        .prefault({})
     })
     .optional(),
   twilio: twilioSchema.optional(),

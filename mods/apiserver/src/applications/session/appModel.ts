@@ -101,7 +101,7 @@ const speechSchema = z
     silenceTimeoutMs: optional(z.number().int().min(100).max(120_000)),
     patience: optional(z.enum(["low", "normal", "high"]))
   })
-  .default({});
+  .prefault({});
 
 const audioSchema = z
   .object({
@@ -121,23 +121,19 @@ export const sessionAppInputSchema = z.object({
   name: z.string().min(1, "name is required").max(255),
   type: z
     .enum(["STREAM", "AUTOPILOT"], {
-      errorMap: (_issue, ctx) => ({
-        message:
-          ctx.data === "EXTERNAL"
-            ? "type EXTERNAL was renamed to STREAM"
-            : "type must be STREAM or AUTOPILOT"
-      })
+      error: (issue) =>
+        issue.input === "EXTERNAL"
+          ? "type EXTERNAL was renamed to STREAM"
+          : "type must be STREAM or AUTOPILOT"
     })
     .default("STREAM"),
   url: optional(wsUrl("url")),
   protocol: optional(
     z.enum(["fonoster", "twilio"], {
-      errorMap: (_issue, ctx) => ({
-        message:
-          ctx.data === "native"
-            ? "protocol native was renamed to fonoster"
-            : "protocol must be fonoster or twilio"
-      })
+      error: (issue) =>
+        issue.input === "native"
+          ? "protocol native was renamed to fonoster"
+          : "protocol must be fonoster or twilio"
     })
   ),
   speech: z.preprocess((v) => v ?? undefined, speechSchema),

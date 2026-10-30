@@ -16,26 +16,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { JSONSchemaToZod } from "@dmitryrechkin/json-schema-to-zod";
-import { z } from "zod";
-import { Tool } from "./types";
+import { expect } from "chai";
 
-type LangchainToolParams = {
-  name: string;
-  description: string;
-  schema: z.ZodObject<z.ZodRawShape>;
-};
+// prisma-field-encryption reads Prisma's DMMF with zod when the extension is built; under the
+// root override it runs on zod 4 (#1224). Building the client connects to nothing.
 
-function convertToolToLangchainTool(customTool: Tool): LangchainToolParams {
-  return {
-    name: customTool.name,
-    description: customTool.description,
-    schema: customTool.parameters?.properties
-      ? (JSONSchemaToZod.convert(
-          customTool.parameters
-        ) as z.ZodObject<z.ZodRawShape>)
-      : z.object({})
-  };
-}
-
-export { convertToolToLangchainTool };
+describe("@apiserver[core/db]", function () {
+  it("builds the Prisma client with field encryption", async function () {
+    const { prisma } = await import("../../src/core/db");
+    expect(prisma.application.findUnique).to.be.a("function");
+  });
+});

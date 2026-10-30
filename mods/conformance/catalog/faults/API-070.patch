@@ -8,7 +8,7 @@ index bbf406b72..e4e07bded 100644
    // Empty or unset means no filter (proto3 sends ""); anything else must be an app ref.
 -  appRef: z
 -    .string()
--    .refine((v) => v === "" || z.string().uuid().safeParse(v).success, {
+-    .refine((v) => v === "" || z.string().guid().safeParse(v).success, {
 -      message: "Invalid application reference"
 -    })
 -    .optional(),

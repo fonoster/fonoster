@@ -25,6 +25,7 @@ import {
   transferToolDefinition,
   Voice
 } from "..";
+import { Tool } from "../tools/types";
 
 function createLanguageModel(params: {
   voice: Voice;
@@ -36,10 +37,11 @@ function createLanguageModel(params: {
   const { languageModel, conversationSettings } = agentConfig;
 
   // The transfer tool is only added if the transfer options exist
+  // Built-in tools have no HTTP operation; the models only read their name and parameters.
   const tools = languageModel.tools.concat(
-    conversationSettings.transferOptions
+    (conversationSettings.transferOptions
       ? [hangupToolDefinition, transferToolDefinition]
-      : [hangupToolDefinition]
+      : [hangupToolDefinition]) as Tool[]
   );
 
   return LanguageModelFactory.getLanguageModel(

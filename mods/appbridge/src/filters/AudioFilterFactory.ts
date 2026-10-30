@@ -33,7 +33,7 @@ const logger = getLogger({ service: "appbridge", filePath: __filename });
 const audioFiltersConfigSchema = z.array(
   z.object({
     name: z.string().min(1),
-    options: z.record(z.unknown()).optional()
+    options: z.record(z.string(), z.unknown()).optional()
   })
 );
 

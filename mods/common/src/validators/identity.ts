@@ -97,7 +97,7 @@ const createUserWithOauth2CodeRequestSchema = z.object({
 });
 
 const updateUserRequestSchema = z.object({
-  ref: z.string().uuid({ message: USER_REF_MESSAGE }),
+  ref: z.string().guid({ message: USER_REF_MESSAGE }),
   name: z
     .string()
     .max(50, { message: MAX_NAME_MESSAGE })
@@ -119,11 +119,11 @@ const inviteUserToWorkspaceRequestSchema = z.object({
 });
 
 const resendWorkspaceMembershipInvitationRequestSchema = z.object({
-  userRef: z.string().uuid({ message: USER_REF_MESSAGE })
+  userRef: z.string().guid({ message: USER_REF_MESSAGE })
 });
 
 const updateWorkspaceRequestSchema = z.object({
-  ref: z.string().uuid({ message: WORKSPACE_REF_MESSAGE }),
+  ref: z.string().guid({ message: WORKSPACE_REF_MESSAGE }),
   /** Only accepted when unchanged: the region is immutable (region_immutable). */
   region: z.string().max(64).optional(),
   name: z
@@ -134,7 +134,7 @@ const updateWorkspaceRequestSchema = z.object({
 });
 
 const removeUserFromWorkspaceRequestSchema = z.object({
-  userRef: z.string().uuid({ message: USER_REF_MESSAGE })
+  userRef: z.string().guid({ message: USER_REF_MESSAGE })
 });
 
 const sendVerificationCodeRequestSchema = z.object({

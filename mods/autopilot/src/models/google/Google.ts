@@ -18,13 +18,26 @@
  */
 import { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import { convertToolToLangchainTool } from "../../tools/convertToolToLangchainTool";
+import { BuiltInTool } from "../../tools/types";
 import { Voice } from "../../voice";
 import { AbstractLanguageModel } from "../AbstractLanguageModel";
 import { TelephonyContext } from "../types";
 import { GoogleParams } from "./types";
 
 const LANGUAGE_MODEL_NAME = "llm.google";
+
+/**
+ * A tool as LangChain's structured tool params, with the tool's JSON Schema as is:
+ * @langchain/google-genai turns it into a Gemini function declaration (and drops the
+ * parameters of a tool that has none).
+ */
+function toGoogleTool(tool: BuiltInTool) {
+  return {
+    name: tool.name,
+    description: tool.description,
+    schema: tool.parameters ?? { type: "object", properties: {} }
+  };
+}
 
 class Google extends AbstractLanguageModel {
   constructor(
@@ -34,9 +47,7 @@ class Google extends AbstractLanguageModel {
   ) {
     const model = new ChatGoogleGenerativeAI({
       ...params
-    }).bindTools(
-      params.tools.map(convertToolToLangchainTool)
-    ) as unknown as BaseChatModel;
+    }).bindTools(params.tools.map(toGoogleTool)) as unknown as BaseChatModel;
 
     super(
       {
@@ -49,4 +60,4 @@ class Google extends AbstractLanguageModel {
   }
 }
 
-export { Google, LANGUAGE_MODEL_NAME };
+export { Google, LANGUAGE_MODEL_NAME, toGoogleTool };

@@ -24,7 +24,7 @@ const usernameSchema = z.string().regex(/^[a-z0-9._-]+$/, {
 });
 
 const baseApiObjectSchema = z.object({
-  ref: z.string().uuid({
+  ref: z.string().guid({
     message: VALID_UUID
   })
 });

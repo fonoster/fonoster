@@ -200,4 +200,14 @@ describe("@common[validators/arrayLimits]", function () {
       message: 'At most 100 entries at "allow"'
     });
   });
+
+  it("stops at the cap: 100,000 invalid entries are one too_big issue", function () {
+    const allow = times(100_000, () => "not an ip");
+    const result = createAclRequestSchema.safeParse({ name: "Office", allow });
+    expect(result.success).to.equal(false);
+    expect(result.error!.issues.map((i) => i.code)).to.deep.equal(["too_big"]);
+    expect(
+      callbackOf(createAclRequestSchema, { name: "Office", allow }).code
+    ).to.equal(status.INVALID_ARGUMENT);
+  });
 });

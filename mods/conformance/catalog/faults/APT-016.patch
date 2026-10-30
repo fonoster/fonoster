@@ -8,6 +8,6 @@ index bad12ba5a..0dbd80097 100644
       */
 -    publicUrl: z.union([wsUrl, z.array(wsUrl).min(1)], {
 +    publicUrl: z.union([z.string(), z.array(wsUrl).min(1)], {
-       errorMap: (issue, ctx) => ({
-         message:
-           issue.code !== "invalid_union"
+       // A string that isn't a ws URL gets the URL's own message, as before the union.
+       error: (issue) =>
+         issue.code !== "invalid_union"

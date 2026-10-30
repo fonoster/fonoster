@@ -38,7 +38,7 @@
     "prisma-field-encryption": "^1.6.0",
     "ws": "^8.18.0",
     "yaml": "^2.9.0",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "optionalDependencies": {
     "@ai-coustics/aic-sdk": "^0.24.0"

@@ -36,10 +36,10 @@ const featuresSchema = z
         /** The billing service's Billing API (host:port); defaults to authz.host:50073. */
         address: z.string().min(1).optional()
       })
-      .default({}),
+      .prefault({}),
     costs: z
       .object({ display: z.enum(["none", "usage", "prices"]).default("usage") })
-      .default({}),
+      .prefault({}),
     calls: z
       .object({
         transcripts: z
@@ -47,10 +47,10 @@ const featuresSchema = z
             store: z.boolean().default(true),
             retentionDays: z.number().int().positive().default(30)
           })
-          .default({}),
-        recordings: z.object({ store: z.boolean().default(false) }).default({})
+          .prefault({}),
+        recordings: z.object({ store: z.boolean().default(false) }).prefault({})
       })
-      .default({}),
+      .prefault({}),
     /**
      * SIP names (trunk inbound URIs, domains): "domain" requires one DNS label
      * under `sip.<domain>` (carriers and phones reach a wildcard `*.sip.<domain>`);
@@ -58,9 +58,9 @@ const featuresSchema = z
      */
     sip: z
       .object({ names: z.enum(["domain", "any"]).default("domain") })
-      .default({})
+      .prefault({})
   })
-  .default({});
+  .prefault({});
 
 /** Where call records live (add-call-record): a directory, or S3-compatible storage. */
 const recordStoreSchema = z.union([
@@ -94,7 +94,7 @@ const callRecordsSchema = z
     retentionIntervalMinutes: z.number().int().positive().default(60),
     maintenanceTimeoutMs: z.number().int().positive().default(30000)
   })
-  .default({});
+  .prefault({});
 
 /**
  * Session apps (voice-session G2): the hosted Autopilot that Autopilot apps point at, and the
@@ -113,7 +113,7 @@ const sessionAppsSchema = z
      */
     allowedDestinations: z.array(z.string().min(1)).optional()
   })
-  .default({});
+  .prefault({});
 
 /**
  * The provider catalog file (add-self-host-installer D7): applied to the registry tables on
@@ -135,8 +135,8 @@ const catalogSchema = z
  * workspace has no key of its own for the provider. Values take `secret://` references (D8).
  */
 const evaluationsSchema = z
-  .object({ credentials: z.record(z.string().min(1)).default({}) })
-  .default({});
+  .object({ credentials: z.record(z.string(), z.string().min(1)).prefault({}) })
+  .prefault({});
 
 /**
  * Workspace webhooks fan-out (add-workspace-webhooks 2.2): events producers publish on the bus
@@ -148,7 +148,7 @@ const webhooksSchema = z
     intervalMs: z.number().int().positive().default(1000),
     refreshMs: z.number().int().positive().default(10000)
   })
-  .default({});
+  .prefault({});
 
 /**
  * Regions (add-private-regions). Public regions come from data (PR-10); private regions need the
@@ -227,12 +227,12 @@ const regionsSchema = z
         /** Relays in flight per region (HTTP 429 beyond). */
         maxConcurrent: z.number().int().positive().default(8)
       })
-      .default({}),
+      .prefault({}),
     /** The release cells are measured against (default: this apiserver's version). */
     currentVersion: z.string().optional(),
     configDebounceMs: z.number().int().nonnegative().default(500)
   })
-  .default({});
+  .prefault({});
 
 /** fonoster.yaml: everything the API server (and embedded Identity) needs. */
 const fonosterConfigSchema = z
@@ -250,7 +250,7 @@ const fonosterConfigSchema = z
         /** How other services reach this one. */
         host: z.string().default("apiserver")
       })
-      .default({}),
+      .prefault({}),
     logs: logsSchema,
     /** OTLP export (empty = off): `otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}"`. */
     telemetry: telemetrySchema,
@@ -266,7 +266,7 @@ const fonosterConfigSchema = z
           .array(z.string().min(1))
           .default(["/fonoster.calls.v1beta2.Calls/CreateCall"])
       })
-      .default({}),
+      .prefault({}),
     features: featuresSchema,
     routr: z
       .object({
@@ -287,9 +287,9 @@ const fonosterConfigSchema = z
             username: z.string().default("roomr"),
             password: z.string().optional()
           })
-          .default({})
+          .prefault({})
       })
-      .default({}),
+      .prefault({}),
     // user/password: the apiserver's NATS user when the server has per-service users
     // (add-platform 4.1); password is usually a secret:// reference.
     nats: z.object({

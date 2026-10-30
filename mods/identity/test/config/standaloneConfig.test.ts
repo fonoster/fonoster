@@ -131,7 +131,9 @@ describe("@identity[server/config]", function () {
 
   it("requires an issuer", function () {
     const { issuer: _issuer, ...rest } = base;
-    expect(() => load(rest)).to.throw(/issuer: Required/);
+    expect(() => load(rest)).to.throw(
+      /issuer: Invalid input: expected string, received undefined/
+    );
   });
 
   it("rejects an encryption key cloak can't use", function () {

@@ -29,7 +29,7 @@ const keysSchema = z
     privateKeyPath: z.string().optional(),
     publicKeyPath: z.string().optional()
   })
-  .default({})
+  .prefault({})
   .transform((keys) => ({
     privateKey: keys.privateKey,
     publicKey: keys.publicKey,
@@ -84,7 +84,7 @@ const authFeaturesSchema = z
       .default(["password"]),
     signup: z.enum(["invite", "open"]).default("invite")
   })
-  .default({});
+  .prefault({});
 
 const tokensSchema = z
   .object({
@@ -92,14 +92,14 @@ const tokensSchema = z
     idTokenExpiresIn: z.string().default("15m"),
     refreshTokenExpiresIn: z.string().default("24h")
   })
-  .default({});
+  .prefault({});
 
 const securitySchema = z
   .object({
     contactVerificationRequired: z.boolean().default(false),
     twoFactorAuthenticationRequired: z.boolean().default(false)
   })
-  .default({});
+  .prefault({});
 
 const invitesSchema = z
   .object({
@@ -109,7 +109,7 @@ const invitesSchema = z
     failUrl: z.string().optional(),
     expiration: z.string().default("1d")
   })
-  .default({});
+  .prefault({});
 
 const oauth2Schema = z
   .object({
@@ -158,7 +158,7 @@ const identitySectionSchema = z
     invites: invitesSchema,
     oauth2: oauth2Schema
   })
-  .default({});
+  .prefault({});
 
 type IdentitySection = z.infer<typeof identitySectionSchema>;
 type SmtpConfigSection = z.infer<typeof smtpSchema>;
