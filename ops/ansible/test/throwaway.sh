@@ -159,21 +159,6 @@ grpc="$(printf '\0\0\0\0\0' | curl -s --cacert "$WORK/ca.pem" --http2 -X POST -o
 env_a="$($SUDO sha256sum "$LIVE/.env" | cut -d' ' -f1)"
 secrets_a="$($SUDO sh -c "cd '$STATE' && find keys tls -type f | LC_ALL=C sort | xargs sha256sum")"
 
-# A release whose SHA256SUMS does not match: nothing reaches the live folder.
-mkdir -p "$WORK/badsum"
-cp "$ROOT/dist/release/$A/fonoster-$A.tar.gz" "$WORK/badsum/"
-printf '%064d  fonoster-%s.tar.gz\n' 0 "$A" >"$WORK/badsum/SHA256SUMS"
-before="$(tree_sum "$LIVE")"
-if play "$A" "$WORK/badsum.log" -e "fonoster_archive=$WORK/badsum/fonoster-$A.tar.gz"; then
-  record OPS-003 "a checksum mismatch fails before $LIVE" fail "the play passed"
-elif ! grep -q "does not match" "$WORK/badsum.log"; then
-  record OPS-003 "a checksum mismatch fails before $LIVE" fail "$(grep -A3 'fatal:' "$WORK/badsum.log" | tail -4)"
-elif [ "$before" != "$(tree_sum "$LIVE")" ]; then
-  record OPS-003 "a checksum mismatch fails before $LIVE" fail "$LIVE changed"
-else
-  record OPS-003 "a checksum mismatch fails before $LIVE" ok
-fi
-
 # OPS-005 A second apply changes nothing ---------------------------------------------------------
 if play "$A" "$WORK/apply-a2.log"; then
   n="$(recap_changed "$WORK/apply-a2.log")"
@@ -192,6 +177,22 @@ if play "$A" "$WORK/apply-routr.log" -e throwaway_routr_logs_level=debug; then
     || record OPS-005 "a changed config/routr-one.yaml recreates only routr" fail "recreated: ${moved:-none}"
 else
   record OPS-005 "a changed config/routr-one.yaml recreates only routr" fail "$(grep -A3 'fatal:' "$WORK/apply-routr.log" | tail -4)"
+fi
+
+# A release whose SHA256SUMS does not match: nothing reaches the live folder (after OPS-005,
+# whose second apply follows a successful one).
+mkdir -p "$WORK/badsum"
+cp "$ROOT/dist/release/$A/fonoster-$A.tar.gz" "$WORK/badsum/"
+printf '%064d  fonoster-%s.tar.gz\n' 0 "$A" >"$WORK/badsum/SHA256SUMS"
+before="$(tree_sum "$LIVE")"
+if play "$A" "$WORK/badsum.log" -e "fonoster_archive=$WORK/badsum/fonoster-$A.tar.gz"; then
+  record OPS-003 "a checksum mismatch fails before $LIVE" fail "the play passed"
+elif ! grep -q "does not match" "$WORK/badsum.log"; then
+  record OPS-003 "a checksum mismatch fails before $LIVE" fail "$(grep -A3 'fatal:' "$WORK/badsum.log" | tail -4)"
+elif [ "$before" != "$(tree_sum "$LIVE")" ]; then
+  record OPS-003 "a checksum mismatch fails before $LIVE" fail "$LIVE changed"
+else
+  record OPS-003 "a checksum mismatch fails before $LIVE" ok
 fi
 
 # OPS-004 Applying the previous version rolls back -----------------------------------------------
