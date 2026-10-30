@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/callrecord",
-  "version": "0.43.0",
+  "version": "0.44.0",
   "description": "Call records: working records during calls, sealed and signed vCon files after hangup",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",
-    "@fonoster/logger": "^0.43.0"
+    "@fonoster/logger": "^0.44.0"
   },
   "files": [
     "dist",
