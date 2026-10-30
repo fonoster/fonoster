@@ -20,6 +20,7 @@ import { status } from "@grpc/grpc-js";
 import { expect } from "chai";
 import { z } from "zod";
 import { sessionAppInputSchema } from "../../../apiserver/src/applications/session/appModel";
+import { getUsageRequestSchema } from "../../../apiserver/src/usage/createGetUsage";
 import { sessionAgentSchema } from "../../src/agents/sessionAgentSchema";
 import { testCasesSchema } from "../../src/agents/testCasesSchema";
 import { toolSchema } from "../../src/agents/tools/toolSchema";
@@ -155,6 +156,34 @@ const ROWS: Row[] = [
     limit: 50,
     input: (n) => testCases([scenario(n)]),
     message: 'At most 50 turns at "scenarios[0].conversation"'
+  },
+  {
+    name: "usage groupBy",
+    schema: getUsageRequestSchema,
+    limit: 7,
+    input: (n) => ({
+      fromDay: "2026-10-01",
+      toDay: "2026-10-30",
+      groupBy: times(n, () => "day")
+    }),
+    message: 'At most 7 dimensions at "groupBy"'
+  },
+  {
+    name: "agent knowledge base",
+    schema: sessionAgentSchema,
+    limit: 50,
+    input: (n) => ({
+      ...agent([]),
+      languageModel: {
+        ...agent([]).languageModel,
+        knowledgeBase: times(n, () => ({
+          type: "s3",
+          title: "Doc",
+          document: "doc.pdf"
+        }))
+      }
+    }),
+    message: 'At most 50 documents at "languageModel.knowledgeBase"'
   },
   {
     name: "agent hints (unchanged)",

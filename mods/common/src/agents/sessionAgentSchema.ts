@@ -60,6 +60,7 @@ export const sessionLanguageModelSchema = z
           document: z.string()
         })
       )
+      .max(50, { message: "At most 50 documents" })
       .default([]),
     provider: removed(
       "provider",

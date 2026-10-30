@@ -54,12 +54,14 @@ const COLUMNS = {
 } as const;
 type Dimension = keyof typeof COLUMNS;
 
-const schema = z
+/** GetUsage's request; exported for the array-limit tests. */
+export const getUsageRequestSchema = z
   .object({
     fromDay: z.string().regex(DAY, "fromDay must be YYYY-MM-DD"),
     toDay: z.string().regex(DAY, "toDay must be YYYY-MM-DD"),
     groupBy: z
       .array(z.enum(Object.keys(COLUMNS) as [Dimension, ...Dimension[]]))
+      .max(7, { message: "At most 7 dimensions" })
       .optional(),
     allOwned: z.boolean().optional()
   })
@@ -142,5 +144,5 @@ export function createGetUsage(db: UsageSql) {
       }))
     });
   };
-  return withErrorHandlingAndValidation(fn, schema);
+  return withErrorHandlingAndValidation(fn, getUsageRequestSchema);
 }
