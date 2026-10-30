@@ -58,7 +58,7 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "devDependencies": {
-    "@fonoster/roomr": "0.3.2"
+    "@fonoster/roomr": "0.4.0"
   },
   "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
   "bin": {
