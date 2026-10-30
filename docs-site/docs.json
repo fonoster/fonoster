@@ -32,6 +32,10 @@
       "family": "Poppins"
     }
   },
+  "banner": {
+    "content": "**The new Fonoster runs on fonoster.ai.** 0.30 and later don't work with api.fonoster.com. [Read the upgrade plan](https://fonoster.com/upgrade)",
+    "dismissible": true
+  },
   "styling": {
     "codeblocks": "system"
   },
