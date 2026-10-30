@@ -113,7 +113,7 @@
           </article>
           <p class="ent" data-reveal style="--i: 3">
             <span data-i18n="pricing.entQ">Need SLAs, volume pricing, or on-prem?</span>
-            <a class="arrow-link" href="mailto:sales@fonoster.com"><span data-i18n="pricing.entLink">Talk to sales</span><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-right"></use></svg></a>
+            <a class="arrow-link" href="mailto:sales@fonoster.com" data-contact><span data-i18n="pricing.entLink">Talk to sales</span><svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-arrow-right"></use></svg></a>
           </p>
         </div>
       </section>
@@ -151,6 +151,26 @@
         </div>
       </div>
     </footer>
+
+    <dialog class="contact" id="contact" aria-labelledby="contact-title">
+      <div class="contact__card">
+        <div class="contact__head">
+          <svg class="icon contact__mail" aria-hidden="true"><use href="../assets/img/icons.svg#i-mail"></use></svg>
+          <button class="contact__close" type="button" aria-label="Close" data-i18n-attr="aria-label:contact.close" data-contact-close>
+            <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-x"></use></svg>
+          </button>
+        </div>
+        <h2 class="contact__title" id="contact-title" data-i18n="contact.title">Contact sales</h2>
+        <p class="contact__line" data-i18n="contact.line">Enterprise plans, Private Regions or support.</p>
+        <div class="contact__field">
+          <input class="contact__email" type="text" value="sales@fonoster.com" readonly aria-label="Email address" data-i18n-attr="aria-label:contact.email" />
+          <button class="btn btn--secondary btn--sm contact__copy" type="button" data-copy>
+            <svg class="icon" aria-hidden="true"><use href="../assets/img/icons.svg#i-copy"></use></svg>
+            <span aria-live="polite" data-i18n="contact.copy">Copy</span>
+          </button>
+        </div>
+      </div>
+    </dialog>
 
     <script src="../assets/js/i18n.js"></script>
     <script src="../assets/js/v1.js"></script>
