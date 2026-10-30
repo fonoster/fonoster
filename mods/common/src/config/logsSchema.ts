@@ -43,7 +43,7 @@ const logsSchema = z
       });
     }
   })
-  .default({});
+  .prefault({});
 
 type LogsConfig = z.infer<typeof logsSchema>;
 

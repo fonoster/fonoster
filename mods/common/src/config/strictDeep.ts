@@ -16,93 +16,97 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-  ZodArray,
-  ZodDefault,
-  ZodEffects,
-  ZodNullable,
-  ZodObject,
-  ZodOptional,
-  ZodRawShape,
-  ZodRecord,
-  ZodTypeAny,
-  ZodUnion
-} from "zod";
+import { z, ZodTypeAny } from "zod";
+
+/** Types with nothing inside them to make strict. */
+const LEAVES = new Set([
+  "string",
+  "number",
+  "bigint",
+  "boolean",
+  "date",
+  "symbol",
+  "undefined",
+  "null",
+  "any",
+  "unknown",
+  "never",
+  "void",
+  "enum",
+  "literal",
+  "nan",
+  "template_literal",
+  "file",
+  "custom",
+  "transform"
+]);
+
+/** Wrappers whose one inner type is `innerType`. */
+const WRAPPERS = new Set([
+  "optional",
+  "nullable",
+  "default",
+  "prefault",
+  "readonly",
+  "catch",
+  "nonoptional"
+]);
 
 /**
  * Returns a copy of `schema` in which every object rejects unknown keys, so a
  * misspelled config key fails validation instead of being silently dropped.
  * Objects declared with `.passthrough()` (free-form blocks such as provider
- * credentials) are left as they are.
+ * credentials) or with a catchall are left open. Throws on a Zod type it can't
+ * look inside, so a new type can't silently stay loose.
  */
 function strictDeep<T extends ZodTypeAny>(schema: T): T {
-  if (schema instanceof ZodObject) {
-    const shape = schema.shape as ZodRawShape;
-    const strictShape = Object.fromEntries(
-      Object.entries(shape).map(([key, value]) => [key, strictDeep(value)])
-    );
-    const unknownKeys =
-      schema._def.unknownKeys === "passthrough" ? "passthrough" : "strict";
+  // Zod 4 internals: each schema's definition and `clone(def)` to rebuild it.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const def = schema._zod.def as any;
+  const rebuild = (changes: Record<string, unknown>) =>
+    // `parent` keeps metadata such as `.describe()` on the copy.
+    schema.clone({ ...def, ...changes }, { parent: true }) as T;
 
-    return new ZodObject({
-      ...schema._def,
-      shape: () => strictShape,
-      unknownKeys
-    }) as unknown as T;
+  if (LEAVES.has(def.type)) return schema;
+
+  if (WRAPPERS.has(def.type)) {
+    return rebuild({ innerType: strictDeep(def.innerType) });
   }
 
-  if (schema instanceof ZodOptional) {
-    return new ZodOptional({
-      ...schema._def,
-      innerType: strictDeep(schema._def.innerType)
-    }) as unknown as T;
+  switch (def.type) {
+    case "object": {
+      const shape = Object.fromEntries(
+        Object.entries((schema as unknown as z.ZodObject).shape).map(
+          ([key, value]) => [key, strictDeep(value as ZodTypeAny)]
+        )
+      );
+      // A passthrough object's catchall is `unknown`; a stripping one has none.
+      const open = def.catchall && def.catchall._zod.def.type !== "never";
+      return rebuild({
+        shape,
+        catchall: open ? strictDeep(def.catchall) : z.never()
+      });
+    }
+    case "array":
+      return rebuild({ element: strictDeep(def.element) });
+    case "union":
+      return rebuild({ options: def.options.map(strictDeep) });
+    case "intersection":
+      return rebuild({
+        left: strictDeep(def.left),
+        right: strictDeep(def.right)
+      });
+    case "record":
+      return rebuild({ valueType: strictDeep(def.valueType) });
+    case "pipe":
+      return rebuild({ in: strictDeep(def.in), out: strictDeep(def.out) });
+    case "lazy": {
+      const getter = def.getter;
+      return rebuild({ getter: () => strictDeep(getter()) });
+    }
+    default:
+      throw new Error(`strictDeep: unsupported Zod type ${def.type}`);
   }
-
-  if (schema instanceof ZodNullable) {
-    return new ZodNullable({
-      ...schema._def,
-      innerType: strictDeep(schema._def.innerType)
-    }) as unknown as T;
-  }
-
-  if (schema instanceof ZodDefault) {
-    return new ZodDefault({
-      ...schema._def,
-      innerType: strictDeep(schema._def.innerType)
-    }) as unknown as T;
-  }
-
-  if (schema instanceof ZodArray) {
-    return new ZodArray({
-      ...schema._def,
-      type: strictDeep(schema._def.type)
-    }) as unknown as T;
-  }
-
-  if (schema instanceof ZodEffects) {
-    return new ZodEffects({
-      ...schema._def,
-      schema: strictDeep(schema._def.schema)
-    }) as unknown as T;
-  }
-
-  if (schema instanceof ZodUnion) {
-    return new ZodUnion({
-      ...schema._def,
-      options: schema._def.options.map((option: ZodTypeAny) =>
-        strictDeep(option)
-      )
-    }) as unknown as T;
-  }
-
-  if (schema instanceof ZodRecord) {
-    return new ZodRecord({
-      ...schema._def,
-      valueType: strictDeep(schema._def.valueType)
-    }) as unknown as T;
-  }
-
-  return schema;
 }
 
 export { strictDeep };

@@ -20,7 +20,10 @@ import { z } from "zod";
 
 const runtimeSchema = z.object({
   apiUrl: z
-    .string({ required_error: "DASHBOARD_API_URL is not set" })
+    .string({
+      error: (issue) =>
+        issue.input === undefined ? "DASHBOARD_API_URL is not set" : undefined
+    })
     .url("DASHBOARD_API_URL must be a URL, e.g. https://api.example.com")
 });
 
@@ -33,8 +36,7 @@ declare global {
 }
 
 export type RuntimeResult =
-  | { ok: true; config: RuntimeConfig }
-  | { ok: false; error: string };
+  { ok: true; config: RuntimeConfig } | { ok: false; error: string };
 
 /** Reads the settings that /config.js put on window at start-up. */
 export function readRuntimeConfig(

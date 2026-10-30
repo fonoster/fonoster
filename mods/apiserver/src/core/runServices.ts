@@ -73,10 +73,7 @@ import { attachUsagePublisher } from "../usage/publishUsage";
 import { runUsageConsumer } from "../usage/runUsageConsumer";
 import { runStorageSnapshots } from "../usage/snapshotStorage";
 import { UsageDb } from "../usage/types";
-import {
-  runWebhookFanout,
-  WebhookFanoutConfig
-} from "../webhooks/runWebhookFanout";
+import { runWebhookFanout } from "../webhooks/runWebhookFanout";
 import { allowList } from "./allowList";
 import { prisma } from "./db";
 import { httpBridge } from "./httpBridge";
@@ -195,7 +192,7 @@ async function runServices() {
   if (WEBHOOKS.fanout) {
     await runWebhookFanout(
       {
-        ...(WEBHOOKS as WebhookFanoutConfig),
+        ...WEBHOOKS,
         enabled: true,
         allowInsecureUrls: SESSION_APPS.allowInsecureWebhooks
       },

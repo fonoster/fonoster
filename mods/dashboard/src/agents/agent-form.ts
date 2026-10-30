@@ -35,7 +35,7 @@ const NUMBER = "Enter a number";
 const VALID_URL = "Must be a valid URL";
 const BETWEEN_0_AND_2 = "Must be a number between 0 and 2";
 
-const num = () => z.number({ invalid_type_error: NUMBER });
+const num = () => z.number({ error: NUMBER });
 const positiveInt = () => num().int(POSITIVE).positive(POSITIVE);
 const positive = () => num().positive(POSITIVE);
 
@@ -54,7 +54,7 @@ const parameterSchema = z.object({
   format: z.enum(["", "enum", "date-time"]),
   required: z.boolean(),
   /** Keys the editor doesn't show (enum values, description…), kept as-is. */
-  extra: z.record(z.unknown())
+  extra: z.record(z.string(), z.unknown())
 });
 
 const headerSchema = z.object({
@@ -152,7 +152,10 @@ export const agentSchema = z
     tools: z.array(toolSchema),
     // The app's audio filters (noise cancelling), set on the Advanced tab.
     filters: z.array(
-      z.object({ name: z.string(), options: z.record(z.unknown()).optional() })
+      z.object({
+        name: z.string(),
+        options: z.record(z.string(), z.unknown()).optional()
+      })
     )
   })
   .superRefine((values, ctx) => {

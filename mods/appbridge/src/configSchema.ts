@@ -69,7 +69,7 @@ const app = z.object({
     .array(
       z.object({
         name: z.string(),
-        options: z.record(z.unknown()).optional()
+        options: z.record(z.string(), z.unknown()).optional()
       })
     )
     .optional(),
@@ -138,7 +138,7 @@ export const appBridgeConfigSchema = z.object({
     })
     .optional(),
   apps: z.array(app).optional(),
-  providers: z.record(provider),
+  providers: z.record(z.string(), provider),
   stt: z.object({ provider: z.string().optional() }).optional(),
   retry: z
     .object({
@@ -227,6 +227,7 @@ export const appBridgeConfigSchema = z.object({
       recording: recordingPolicy.optional(),
       workspaces: z
         .record(
+          z.string(),
           z.object({
             recording: recordingPolicy.optional(),
             store: objectStore.optional()
@@ -257,7 +258,9 @@ export const appBridgeConfigSchema = z.object({
       timeoutMs: z.number().int().positive().optional()
     })
     .optional(),
-  audioFilters: z.record(z.record(z.unknown())).optional()
+  audioFilters: z
+    .record(z.string(), z.record(z.string(), z.unknown()))
+    .optional()
 });
 
 // Drift check: the schema and AppBridgeConfig must describe the same shape. Optionality is

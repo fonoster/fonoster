@@ -1,0 +1,19 @@
+{
+  "capturedWith": "zod 3.25.76",
+  "value": {
+    "host": "0.0.0.0",
+    "port": 50061,
+    "signingSecret": {
+      "value": "s3cret"
+    },
+    "publicUrl": "ws://autopilot:3000",
+    "agents": {
+      "file": "/opt/fonoster/agents.yaml"
+    },
+    "registry": {
+      "file": "/opt/fonoster/registry.json"
+    },
+    "credentials": {},
+    "endpoints": {}
+  }
+}

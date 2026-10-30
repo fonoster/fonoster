@@ -111,7 +111,7 @@ export const agentConfigSchema = z
     appbridge: z
       .object({ address: z.string().default("appbridge:50071") })
       .strict()
-      .default({}),
+      .prefault({}),
     /**
      * The cell's public connection details (task 3.6). Unset fields come from the environment the
      * cell's services use (EXTERNAL_ADDRS, ROUTR_SIP_PORT/RB_SIP_PORT, ROUTR_SIP_TRANSPORTS,

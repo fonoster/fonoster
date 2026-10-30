@@ -68,7 +68,7 @@ export type AudioFilterConfig = {
 export const audioFilterConfigSchema = z
   .object({
     name: z.string().min(1),
-    options: z.record(z.unknown()).optional()
+    options: z.record(z.string(), z.unknown()).optional()
   })
   .strict();
 

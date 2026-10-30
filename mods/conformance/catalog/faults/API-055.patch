@@ -10,4 +10,4 @@ index c796d7824..230a8aafa 100644
 +      .default(["password", "email_code"]),
      signup: z.enum(["invite", "open"]).default("invite")
    })
-   .default({});
+   .prefault({});

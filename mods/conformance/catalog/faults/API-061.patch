@@ -4,7 +4,7 @@ index ba75c3fb3..bbe3a1782 100644
 +++ b/mods/identity/src/server/config.ts
 @@ -48,9 +48,11 @@ const identityServiceConfigSchema = z.object({
      })
-     .default({}),
+     .prefault({}),
    logs: logsSchema,
 -  database: z.object({ url: z.string().min(1) }),
 +  database: z

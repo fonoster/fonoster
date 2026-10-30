@@ -34,7 +34,7 @@ class Deepgram {
         languageCode: z
           .union(
             [z.nativeEnum(VoiceLanguage), z.literal(DEEPGRAM_MULTILINGUAL)],
-            { errorMap: () => ({ message: Messages.VALID_LANGUAGE_CODE }) }
+            { error: Messages.VALID_LANGUAGE_CODE }
           )
           .optional(),
         model: z

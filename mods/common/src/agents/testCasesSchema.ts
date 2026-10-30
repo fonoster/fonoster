@@ -29,37 +29,41 @@ const testCasesSchema = z.object({
     apiKey: z.string().optional()
   }),
   evalsSystemPrompt: z.string().optional(),
-  scenarios: z.array(
-    z.object({
-      ref: z.string(),
-      description: z.string(),
-      telephonyContext: z.object({
-        callDirection: z.nativeEnum(CallDirection),
-        ingressNumber: z.string(),
-        callerNumber: z.string(),
-        metadata: z.record(z.string(), z.string()).optional()
-      }),
-      conversation: z.array(
-        z.object({
-          userInput: z.string(),
-          expected: z.object({
-            text: z.object({
-              type: z.enum(["EXACT", "SIMILAR"]),
-              response: z.string()
-            }),
-            tools: z
-              .array(
-                z.object({
-                  tool: z.string(),
-                  parameters: z.record(z.string(), z.any())
-                })
-              )
-              .optional()
-          })
-        })
-      )
-    })
-  )
+  scenarios: z
+    .array(
+      z.object({
+        ref: z.string(),
+        description: z.string(),
+        telephonyContext: z.object({
+          callDirection: z.nativeEnum(CallDirection),
+          ingressNumber: z.string(),
+          callerNumber: z.string(),
+          metadata: z.record(z.string(), z.string()).optional()
+        }),
+        conversation: z
+          .array(
+            z.object({
+              userInput: z.string(),
+              expected: z.object({
+                text: z.object({
+                  type: z.enum(["EXACT", "SIMILAR"]),
+                  response: z.string()
+                }),
+                tools: z
+                  .array(
+                    z.object({
+                      tool: z.string(),
+                      parameters: z.record(z.string(), z.any())
+                    })
+                  )
+                  .optional()
+              })
+            })
+          )
+          .max(50, { message: "At most 50 turns" })
+      })
+    )
+    .max(100, { message: "At most 100 scenarios" })
 });
 
 export { testCasesSchema };

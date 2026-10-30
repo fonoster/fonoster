@@ -29,7 +29,7 @@ const schema = z.object({
   apiKey: z.string().optional(),
   database: z
     .object({ url: z.string().default("postgresql://localhost/db") })
-    .default({})
+    .prefault({})
 });
 
 describe("@common[config/loadServiceConfig]", function () {
@@ -152,7 +152,7 @@ describe("@common[config/loadServiceConfig]", function () {
     it("prefixes schema failures with the file path and key path", function () {
       const path = write("svc.yaml", "port: not-a-number\n");
       expect(() => load(["--config", path])).to.throw(
-        /invalid svc config at .*svc\.yaml: port: Expected number/
+        /invalid svc config at .*svc\.yaml: port: Invalid input: expected number, received string/
       );
     });
 

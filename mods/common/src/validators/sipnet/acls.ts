@@ -22,6 +22,7 @@ import { nameSchema } from "../common";
 
 const IP_OR_CIDR_MESSAGE = "Must be a valid IP or CIDR range";
 const AT_LEAST_ONE_MESSAGE = "At least one IP or CIDR range is required";
+const AT_MOST_MESSAGE = "At most 100 entries";
 
 const ipOrCidr = z
   .string()
@@ -34,7 +35,10 @@ const ipOrCidr = z
 
 const createAclRequestSchema = z.object({
   name: nameSchema,
-  allow: z.array(ipOrCidr).nonempty({ message: AT_LEAST_ONE_MESSAGE })
+  allow: z
+    .array(ipOrCidr)
+    .nonempty({ message: AT_LEAST_ONE_MESSAGE })
+    .max(100, { message: AT_MOST_MESSAGE })
 });
 
 const updateAclRequestSchema = z.object({
@@ -42,6 +46,7 @@ const updateAclRequestSchema = z.object({
   allow: z
     .array(ipOrCidr)
     .nonempty({ message: AT_LEAST_ONE_MESSAGE })
+    .max(100, { message: AT_MOST_MESSAGE })
     .optional()
 });
 

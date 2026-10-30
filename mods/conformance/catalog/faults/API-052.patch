@@ -10,6 +10,6 @@ index e76b03ab9..f8e28ff41 100644
 -  to: sipTargetSchema,
 +  from: z.string(),
 +  to: z.string(),
-   appRef: z.string().uuid({ message: "Invalid call reference" }),
+   appRef: z.string().guid({ message: "Invalid call reference" }),
    timeout: z
      .number()

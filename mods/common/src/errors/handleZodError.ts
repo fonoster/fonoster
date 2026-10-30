@@ -36,7 +36,9 @@ function handleZodError(
     callback({ code: status.INVALID_ARGUMENT, message });
   } else {
     const validationError = fromError(error, {
-      prefix: null
+      prefix: null,
+      // Custom messages keep their exact text (zod-validation-error 5 title-cases by default).
+      forceTitleCase: false
     });
     logger.error("Error:", { message: validationError.toString() });
     callback({

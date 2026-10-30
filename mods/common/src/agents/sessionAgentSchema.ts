@@ -47,7 +47,10 @@ export const sessionLanguageModelSchema = z
       ),
     temperature: z.number().min(0).max(2).default(0.4),
     maxTokens: z.number().int().positive().default(400),
-    tools: z.array(toolSchema).default([]),
+    tools: z
+      .array(toolSchema)
+      .max(50, { message: "At most 50 tools" })
+      .default([]),
     /** Documents for the knowledge port (same shape as before; wired by the operator). */
     knowledgeBase: z
       .array(
@@ -57,6 +60,7 @@ export const sessionLanguageModelSchema = z
           document: z.string()
         })
       )
+      .max(50, { message: "At most 50 documents" })
       .default([]),
     provider: removed(
       "provider",

@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",
-    "@dmitryrechkin/json-schema-to-zod": "^1.0.1",
     "@fonoster/common": "^0.43.0",
     "@fonoster/community": "^0.43.0",
     "@fonoster/logger": "^0.43.0",
@@ -53,7 +52,7 @@
     "pdf-parse": "^1.1.1",
     "undici": "^7.30.1",
     "xstate": "^5.17.3",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "gitHead": "d4aa82f7926c0f451d2f580c59ab812c74a7f579",
   "devDependencies": {

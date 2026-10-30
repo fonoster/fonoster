@@ -28,7 +28,7 @@ describe("@common[config/strictDeep]", function () {
     const schema = strictDeep(
       z.object({
         smtp: z.object({ host: z.string() }).optional(),
-        logs: z.object({ level: z.string().default("info") }).default({}),
+        logs: z.object({ level: z.string().default("info") }).prefault({}),
         hosts: z.array(z.object({ name: z.string() })).default([])
       })
     );

@@ -1,0 +1,333 @@
+{
+  "capturedWith": "zod 3.25.76",
+  "value": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://fonoster.com/schemas/config/autopilot.json",
+    "title": "Fonoster autopilot configuration (autopilot.yaml)",
+    "type": "object",
+    "properties": {
+      "host": {
+        "type": "string",
+        "default": "0.0.0.0"
+      },
+      "port": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 50061
+      },
+      "allowedDestinations": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "signingSecret": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "env": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "env"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "publicUrl": {
+        "anyOf": [
+          {
+            "type": "string",
+            "pattern": "^wss?:\\/\\/"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^wss?:\\/\\/"
+            },
+            "minItems": 1
+          }
+        ]
+      },
+      "agents": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "file"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "source": {
+                "const": "database"
+              },
+              "cacheMs": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 5000
+              }
+            },
+            "required": [
+              "source"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "registry": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "file"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "source": {
+                "const": "database"
+              },
+              "refreshMs": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "default": 30000
+              }
+            },
+            "required": [
+              "source"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "credentials": {
+        "type": "object",
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "env": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "env"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "workspaceSecrets": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "file"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "source": {
+                "const": "database"
+              }
+            },
+            "required": [
+              "source"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "cellSecrets": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string"
+                  },
+                  "dir": {
+                    "type": "string"
+                  },
+                  "keyEnv": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "cellSecrets"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "database": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "minLength": 1
+          },
+          "clientModule": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "endpoints": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      },
+      "knowledge": {
+        "type": "object",
+        "properties": {
+          "s3": {
+            "type": "object",
+            "properties": {
+              "endpoint": {
+                "type": "string"
+              },
+              "region": {
+                "type": "string",
+                "default": "us-east-1"
+              },
+              "accessKeyIdRef": {
+                "type": "string"
+              },
+              "secretAccessKeyRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "endpoint",
+              "accessKeyIdRef",
+              "secretAccessKeyRef"
+            ],
+            "additionalProperties": false
+          },
+          "unstructured": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "apiKeyRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "url",
+              "apiKeyRef"
+            ],
+            "additionalProperties": false
+          },
+          "embeddings": {
+            "type": "object",
+            "properties": {
+              "apiKeyRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "apiKeyRef"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "s3",
+          "unstructured",
+          "embeddings"
+        ],
+        "additionalProperties": false
+      },
+      "encryption": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "additionalProperties": false
+      },
+      "telemetry": {
+        "type": "object",
+        "properties": {
+          "otlpEndpoint": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "signingSecret",
+      "publicUrl",
+      "agents",
+      "registry"
+    ],
+    "additionalProperties": false
+  }
+}

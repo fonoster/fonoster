@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { z } from "zod";
 import {
   agentSchema,
   tabsWithErrors,
@@ -182,7 +183,7 @@ describe("agent payload", () => {
     const messages = result.error!.issues.map((i) => i.message);
     expect(messages).toContain("Accept and Content-Type are set for you");
     expect(messages).toContain("That name is taken by a built-in tool");
-    expect(tabsWithErrors(result.error!.format())).toContain("tools");
+    expect(tabsWithErrors(z.formatError(result.error!))).toContain("tools");
   });
 
   it("drops transfer options when the transfer number is cleared", () => {
@@ -251,5 +252,17 @@ describe("agent payload", () => {
     expect((request.intelligence!.config as any).languageModel.model).toBe(
       "fake/llm"
     );
+  });
+
+  it("says Enter a number for a non-number", () => {
+    const values = toValues(billingAgent) as any;
+    values.model.maxTokens = "many";
+    values.conversation.idleTimeoutSeconds = Number.NaN;
+    const result = agentSchema.safeParse(values);
+    const byPath = Object.fromEntries(
+      result.error!.issues.map((i) => [i.path.join("."), i.message])
+    );
+    expect(byPath["model.maxTokens"]).toBe("Enter a number");
+    expect(byPath["conversation.idleTimeoutSeconds"]).toBe("Enter a number");
   });
 });

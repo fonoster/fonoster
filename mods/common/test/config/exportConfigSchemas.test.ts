@@ -132,7 +132,7 @@ describe("@common[config/exportConfigSchemas]", function () {
     const json = toJsonSchema(
       z.object({
         free: z.object({ a: z.string() }).passthrough(),
-        map: z.record(z.number()),
+        map: z.record(z.string(), z.number()),
         n: z.number().int().positive().default(3),
         e: z.enum(["x", "y"]).optional()
       })
@@ -156,7 +156,7 @@ describe("@common[config/exportConfigSchemas]", function () {
 
   it("refuses Zod types it can't represent", function () {
     expect(() => toJsonSchema(z.object({ d: z.date() }))).to.throw(
-      /unsupported Zod type ZodDate at d/
+      /unsupported Zod type date at d/
     );
   });
 });

@@ -16,26 +16,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { JSONSchemaToZod } from "@dmitryrechkin/json-schema-to-zod";
-import { z } from "zod";
-import { Tool } from "./types";
+import { uriSchema } from "./trunk-form";
 
-type LangchainToolParams = {
-  name: string;
-  description: string;
-  schema: z.ZodObject<z.ZodRawShape>;
+const uri = {
+  host: "sip.carrier.com",
+  port: 5060,
+  transport: "UDP",
+  user: "",
+  priority: 1,
+  weight: 10,
+  enabled: true
 };
 
-function convertToolToLangchainTool(customTool: Tool): LangchainToolParams {
-  return {
-    name: customTool.name,
-    description: customTool.description,
-    schema: customTool.parameters?.properties
-      ? (JSONSchemaToZod.convert(
-          customTool.parameters
-        ) as z.ZodObject<z.ZodRawShape>)
-      : z.object({})
-  };
-}
-
-export { convertToolToLangchainTool };
+describe("trunk URI messages", () => {
+  it.each([
+    ["port", "1–65535"],
+    ["priority", "0 or more"],
+    ["weight", "0 or more"]
+  ])("a non-number %s says %s", (field, message) => {
+    const result = uriSchema.safeParse({ ...uri, [field]: "x" });
+    expect(
+      result.error!.issues.map((i) => [i.path.join("."), i.message])
+    ).toEqual([[field, message]]);
+  });
+});

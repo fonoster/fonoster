@@ -1,0 +1,899 @@
+{
+  "capturedWith": "zod 3.25.76",
+  "value": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://fonoster.com/schemas/config/apiserver.json",
+    "title": "Fonoster apiserver configuration (fonoster.yaml)",
+    "type": "object",
+    "properties": {
+      "domain": {
+        "type": "string",
+        "minLength": 1
+      },
+      "appUrl": {
+        "type": "string",
+        "minLength": 1
+      },
+      "signalingServer": {
+        "type": "string",
+        "minLength": 1
+      },
+      "server": {
+        "type": "object",
+        "properties": {
+          "bindAddr": {
+            "type": "string",
+            "default": "0.0.0.0:50051"
+          },
+          "httpBridgePort": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "default": 9876
+          },
+          "host": {
+            "type": "string",
+            "default": "apiserver"
+          }
+        },
+        "additionalProperties": false
+      },
+      "logs": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warn",
+              "info",
+              "http",
+              "verbose",
+              "debug",
+              "silly"
+            ],
+            "default": "info"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "json",
+              "text"
+            ],
+            "default": "json"
+          },
+          "transport": {
+            "type": "string",
+            "enum": [
+              "console",
+              "fluent"
+            ],
+            "default": "console"
+          },
+          "fluent": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string"
+              },
+              "port": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "default": 24224
+              },
+              "tagPrefix": {
+                "type": "string",
+                "default": "fonoster-logs"
+              }
+            },
+            "required": [
+              "host"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "telemetry": {
+        "type": "object",
+        "properties": {
+          "otlpEndpoint": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "database": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "encryption": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^k1\\.aesgcm256\\.[A-Za-z0-9_-]{43}=?$"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "additionalProperties": false
+      },
+      "smtp": {
+        "type": "object",
+        "properties": {
+          "host": {
+            "type": "string",
+            "minLength": 1
+          },
+          "port": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "default": 587
+          },
+          "secure": {
+            "type": "boolean",
+            "default": false
+          },
+          "sender": {
+            "type": "string",
+            "minLength": 1
+          },
+          "user": {
+            "type": "string",
+            "default": ""
+          },
+          "password": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "required": [
+          "host",
+          "sender"
+        ],
+        "additionalProperties": false
+      },
+      "authz": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": false
+          },
+          "host": {
+            "type": "string",
+            "minLength": 1
+          },
+          "port": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "default": 50071
+          },
+          "methods": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "features": {
+        "type": "object",
+        "properties": {
+          "auth": {
+            "type": "object",
+            "properties": {
+              "methods": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "password",
+                    "email_code",
+                    "github"
+                  ]
+                },
+                "minItems": 1
+              },
+              "signup": {
+                "type": "string",
+                "enum": [
+                  "invite",
+                  "open"
+                ],
+                "default": "invite"
+              }
+            },
+            "additionalProperties": false
+          },
+          "billing": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": false
+              },
+              "address": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          },
+          "costs": {
+            "type": "object",
+            "properties": {
+              "display": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "usage",
+                  "prices"
+                ],
+                "default": "usage"
+              }
+            },
+            "additionalProperties": false
+          },
+          "calls": {
+            "type": "object",
+            "properties": {
+              "transcripts": {
+                "type": "object",
+                "properties": {
+                  "store": {
+                    "type": "boolean",
+                    "default": true
+                  },
+                  "retentionDays": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 30
+                  }
+                },
+                "additionalProperties": false
+              },
+              "recordings": {
+                "type": "object",
+                "properties": {
+                  "store": {
+                    "type": "boolean",
+                    "default": false
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "sip": {
+            "type": "object",
+            "properties": {
+              "names": {
+                "type": "string",
+                "enum": [
+                  "domain",
+                  "any"
+                ],
+                "default": "domain"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "routr": {
+        "type": "object",
+        "properties": {
+          "apiEndpoint": {
+            "type": "string",
+            "default": "routr:51907"
+          },
+          "sipProxy": {
+            "type": "string",
+            "default": "routr:5060"
+          },
+          "roomrPeer": {
+            "type": "object",
+            "properties": {
+              "aor": {
+                "type": "string",
+                "default": "sip:roomr@default"
+              },
+              "name": {
+                "type": "string",
+                "default": "Roomr nodes"
+              },
+              "username": {
+                "type": "string",
+                "default": "roomr"
+              },
+              "password": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "nats": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "minLength": 1
+          },
+          "user": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "evaluations": {
+        "type": "object",
+        "properties": {
+          "credentials": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "templatesDir": {
+        "type": "string"
+      },
+      "twilio": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "minLength": 1
+          },
+          "accountSid": {
+            "type": "string",
+            "minLength": 1
+          },
+          "authToken": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "phoneNumber",
+          "accountSid",
+          "authToken"
+        ],
+        "additionalProperties": false
+      },
+      "identity": {
+        "type": "object",
+        "properties": {
+          "database": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "issuer": {
+            "type": "string",
+            "minLength": 1
+          },
+          "audience": {
+            "type": "string",
+            "minLength": 1,
+            "default": "api"
+          },
+          "keys": {
+            "type": "object",
+            "properties": {
+              "privateKey": {
+                "type": "string"
+              },
+              "publicKey": {
+                "type": "string"
+              },
+              "privateKeyPath": {
+                "type": "string"
+              },
+              "publicKeyPath": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "tokens": {
+            "type": "object",
+            "properties": {
+              "accessTokenExpiresIn": {
+                "type": "string",
+                "default": "15m"
+              },
+              "idTokenExpiresIn": {
+                "type": "string",
+                "default": "15m"
+              },
+              "refreshTokenExpiresIn": {
+                "type": "string",
+                "default": "24h"
+              }
+            },
+            "additionalProperties": false
+          },
+          "security": {
+            "type": "object",
+            "properties": {
+              "contactVerificationRequired": {
+                "type": "boolean",
+                "default": false
+              },
+              "twoFactorAuthenticationRequired": {
+                "type": "boolean",
+                "default": false
+              }
+            },
+            "additionalProperties": false
+          },
+          "invites": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "failUrl": {
+                "type": "string"
+              },
+              "expiration": {
+                "type": "string",
+                "default": "1d"
+              }
+            },
+            "additionalProperties": false
+          },
+          "oauth2": {
+            "type": "object",
+            "properties": {
+              "github": {
+                "type": "object",
+                "properties": {
+                  "clientId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "clientSecret": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "default": "https://github.com"
+                  },
+                  "apiUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "default": "https://api.github.com"
+                  }
+                },
+                "required": [
+                  "clientId",
+                  "clientSecret"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "github"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "callRecords": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": true
+          },
+          "stores": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "dir": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "dir"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "s3": {
+                      "type": "object",
+                      "properties": {
+                        "bucket": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "prefix": {
+                          "type": "string"
+                        },
+                        "region": {
+                          "type": "string"
+                        },
+                        "endpoint": {
+                          "type": "string"
+                        },
+                        "forcePathStyle": {
+                          "type": "boolean"
+                        },
+                        "credentials": {
+                          "type": "object",
+                          "properties": {
+                            "accessKeyId": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "secretAccessKey": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "required": [
+                            "accessKeyId",
+                            "secretAccessKey"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "bucket"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "s3"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "retentionIntervalMinutes": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "default": 60
+          },
+          "maintenanceTimeoutMs": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "default": 30000
+          }
+        },
+        "additionalProperties": false
+      },
+      "apps": {
+        "type": "object",
+        "properties": {
+          "autopilotUrl": {
+            "type": "string",
+            "minLength": 1,
+            "default": "ws://autopilot:50061"
+          },
+          "autopilotSigningSecret": {
+            "type": "string",
+            "minLength": 1
+          },
+          "allowInsecureWebhooks": {
+            "type": "boolean",
+            "default": false
+          },
+          "allowedDestinations": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "webhooks": {
+        "type": "object",
+        "properties": {
+          "fanout": {
+            "type": "boolean",
+            "default": true
+          },
+          "intervalMs": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "default": 1000
+          },
+          "refreshMs": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "default": 10000
+          }
+        },
+        "additionalProperties": false
+      },
+      "catalog": {
+        "type": "object",
+        "properties": {
+          "file": {
+            "type": "string",
+            "minLength": 1
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "additionalProperties": false
+      },
+      "regions": {
+        "type": "object",
+        "properties": {
+          "public": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9-]+$"
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "default": {
+                  "type": "boolean"
+                },
+                "endpoints": {
+                  "type": "object",
+                  "properties": {
+                    "sip": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "port": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 65535
+                          },
+                          "transport": {
+                            "type": "string",
+                            "enum": [
+                              "udp",
+                              "tcp",
+                              "tls",
+                              "ws",
+                              "wss"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "host",
+                          "port",
+                          "transport"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "signalingAddresses": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "mediaAddresses": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    },
+                    "rtpPorts": {
+                      "type": "object",
+                      "properties": {
+                        "min": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 65535
+                        },
+                        "max": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 65535
+                        }
+                      },
+                      "required": [
+                        "min",
+                        "max"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "id",
+                "name"
+              ],
+              "additionalProperties": false
+            },
+            "minItems": 1
+          },
+          "operatorKey": {
+            "type": "string",
+            "minLength": 16
+          },
+          "privateRegionMonthlyFeeCents": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "controlPlaneUrl": {
+            "type": "string",
+            "minLength": 1
+          },
+          "leafUrl": {
+            "type": "string",
+            "minLength": 1
+          },
+          "allowInsecureLeaf": {
+            "type": "boolean",
+            "default": false
+          },
+          "signingKey": {
+            "type": "object",
+            "properties": {
+              "file": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kid": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "file"
+            ],
+            "additionalProperties": false
+          },
+          "hub": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "minLength": 1
+              },
+              "credentialsFile": {
+                "type": "string",
+                "minLength": 1
+              },
+              "systemCredentialsFile": {
+                "type": "string",
+                "minLength": 1
+              },
+              "operatorSeedFile": {
+                "type": "string",
+                "minLength": 1
+              },
+              "accountSeedFile": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "url",
+              "credentialsFile",
+              "systemCredentialsFile",
+              "operatorSeedFile",
+              "accountSeedFile"
+            ],
+            "additionalProperties": false
+          },
+          "relay": {
+            "type": "object",
+            "properties": {
+              "firstChunkTimeoutMs": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "default": 5000
+              },
+              "idleTimeoutMs": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "default": 10000
+              },
+              "maxBytes": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "default": 268435456
+              },
+              "maxConcurrent": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "default": 8
+              }
+            },
+            "additionalProperties": false
+          },
+          "currentVersion": {
+            "type": "string"
+          },
+          "configDebounceMs": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 500
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "domain",
+      "database",
+      "encryption",
+      "nats"
+    ],
+    "additionalProperties": false
+  }
+}

@@ -53,13 +53,16 @@ const COLUMNS = {
   origin: "origin"
 } as const;
 type Dimension = keyof typeof COLUMNS;
+const DIMENSIONS = Object.keys(COLUMNS).length;
 
-const schema = z
+/** GetUsage's request; exported for the array-limit tests. */
+export const getUsageRequestSchema = z
   .object({
     fromDay: z.string().regex(DAY, "fromDay must be YYYY-MM-DD"),
     toDay: z.string().regex(DAY, "toDay must be YYYY-MM-DD"),
     groupBy: z
       .array(z.enum(Object.keys(COLUMNS) as [Dimension, ...Dimension[]]))
+      .max(DIMENSIONS, { message: `At most ${DIMENSIONS} dimensions` })
       .optional(),
     allOwned: z.boolean().optional()
   })
@@ -142,5 +145,5 @@ export function createGetUsage(db: UsageSql) {
       }))
     });
   };
-  return withErrorHandlingAndValidation(fn, schema);
+  return withErrorHandlingAndValidation(fn, getUsageRequestSchema);
 }

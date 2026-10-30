@@ -47,14 +47,14 @@ export const billingConfigSchema = z
         /** The Billing API (billing.proto), for the apiserver. */
         apiPort: z.number().int().positive().default(50073)
       })
-      .default({}),
+      .prefault({}),
     /** The HTTP server for Stripe's webhooks (`POST /stripe/webhooks`). */
     http: z
       .object({
         bind: z.string().default("0.0.0.0"),
         port: z.number().int().positive().default(50072)
       })
-      .default({}),
+      .prefault({}),
     /** Where the rate card YAML files are (one per version). */
     rateCards: z.object({ dir: z.string().min(1) }),
     plans: z
@@ -81,9 +81,9 @@ export const billingConfigSchema = z
             trial: z.number().int().positive().default(2),
             payg: z.number().int().positive().default(20)
           })
-          .default({})
+          .prefault({})
       })
-      .default({}),
+      .prefault({}),
     /** Where time comes from (D10): the system clock, or a Stripe test clock in tests. */
     clock: z
       .discriminatedUnion("kind", [
@@ -93,7 +93,7 @@ export const billingConfigSchema = z
           clockId: z.string().min(1)
         })
       ])
-      .default({ kind: "system" }),
+      .prefault({ kind: "system" }),
     stripe: z
       .object({
         secretKey: z.string().min(1),

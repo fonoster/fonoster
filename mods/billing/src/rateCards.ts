@@ -28,7 +28,11 @@ import { z } from "zod";
 const price = z.union([
   z.number().nonnegative(),
   z.record(
-    z.union([z.number().nonnegative(), z.record(z.number().nonnegative())])
+    z.string(),
+    z.union([
+      z.number().nonnegative(),
+      z.record(z.string(), z.number().nonnegative())
+    ])
   )
 ]);
 
@@ -38,7 +42,7 @@ export const rateCardSchema = z
     startsAt: z.coerce.date(),
     /** Where the vendor prices came from, and when. */
     source: z.string().min(1),
-    prices: z.record(price)
+    prices: z.record(z.string(), price)
   })
   .strict();
 

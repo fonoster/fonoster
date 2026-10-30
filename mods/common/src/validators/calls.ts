@@ -41,7 +41,7 @@ const numberFilterSchema = z
 const createCallRequestSchema = z.object({
   from: e164Schema,
   to: sipTargetSchema,
-  appRef: z.string().uuid({ message: "Invalid call reference" }),
+  appRef: z.string().guid({ message: "Invalid call reference" }),
   timeout: z
     .number()
     .max(120, { message: "Timeout must be less than 120s" })
@@ -50,7 +50,7 @@ const createCallRequestSchema = z.object({
 });
 
 const getCallRequestSchema = z.object({
-  ref: z.string().uuid({ message: "Invalid call reference" })
+  ref: z.string().guid({ message: "Invalid call reference" })
 });
 
 const listCallsRequestSchema = z.object({
@@ -78,7 +78,7 @@ const listCallsRequestSchema = z.object({
   // Empty or unset means no filter (proto3 sends ""); anything else must be an app ref.
   appRef: z
     .string()
-    .refine((v) => v === "" || z.string().uuid().safeParse(v).success, {
+    .refine((v) => v === "" || z.string().guid().safeParse(v).success, {
       message: "Invalid application reference"
     })
     .optional(),
