@@ -18,7 +18,7 @@ New releases are listed newest first. For releases up to 0.27, see the
   installs: follow [Upgrade](/self-hosting/upgrade). `@fonoster/common` no longer has a
   `fonoster-config` binary.
 - **No more owner in the config.** `identity.owner`, `OWNER_EMAIL` and `OWNER_PASSWORD` are gone
-  (an `owner:` block left in `config/fonoster.yaml` is ignored). Create a new install's first user
+  (remove an `owner:` block from `config/fonoster.yaml`: the API server refuses it). Create a new install's first user
   with `docker compose exec -T apiserver fonoster-owner create <email> < password-file`.
 - **A private region is the release archive with `compose.region.yaml`**, installed with the
   playbook that ships in it; `ops/rebuild/cell` is gone. See

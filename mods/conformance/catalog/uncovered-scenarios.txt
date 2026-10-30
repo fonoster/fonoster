@@ -67,6 +67,8 @@ identity / Users, workspaces, and resource ownership / Workspace belongs to the 
 identity / Users, workspaces, and resource ownership / accessKeyId prefix still identifies the owner type
 identity-client / Per-request token forwarding / Single principal with a configured token
 identity-service / Container image and accept-invite bridge / Published image runs the service
+self-host-installer / An install upgrades in place / Secrets, keys and edited files survive
+self-host-installer / An install upgrades in place / The SIP port survives
 self-host-installer / Local bundle build / Install from local files
 self-host-installer / No rebuild naming in user-facing files and output / Bundle scan
 self-host-installer / No vendor keys at install / Add a key after install

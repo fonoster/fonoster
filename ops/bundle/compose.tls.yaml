@@ -1,5 +1,5 @@
-# HTTPS is the default now (compose.yaml), so this file only keeps older .env files working
-# (COMPOSE_FILE=compose.yaml:compose.tls.yaml) and holds the optional SIP over TLS lines below.
+# SIP over TLS, off by default: uncomment the lines below and add this file to COMPOSE_FILE
+# (COMPOSE_FILE=compose.yaml:compose.tls.yaml). HTTPS needs nothing here (compose.yaml).
 # Set TLS_CERT and TLS_KEY in .env to serve your own certificate
 # (https://docs.fonoster.com/self-hosting/https).
 services:

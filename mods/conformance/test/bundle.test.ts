@@ -395,7 +395,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
   });
 
   // ---- HTTPS by default (https-by-default): compose.yaml serves envoy-tls.yaml; compose.http.yaml
-  // opts out to plain HTTP; compose.tls.yaml only keeps old .env files working ----
+  // opts out to plain HTTP ----
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type Envoy = Record<string, any>;
   const envoyConfig = (file: string): Envoy =>
@@ -585,7 +585,7 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     parse(withHsts);
   });
 
-  it("opts out to plain HTTP with compose.http.yaml, and keeps old COMPOSE_FILE values working", function () {
+  it("opts out to plain HTTP with compose.http.yaml", function () {
     const http = overlay("compose.http.yaml").services.envoy;
     expect(read("ops/bundle/compose.http.yaml")).to.match(
       /volumes: !override\n/
@@ -608,12 +608,6 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     expect(
       tlsEnabled({ COMPOSE_FILE: "compose.yaml:compose.http.yaml" })
     ).to.equal(false);
-    // compose.tls.yaml (COMPOSE_FILE=compose.yaml:compose.tls.yaml, from before HTTPS was the
-    // default) is a valid, empty overlay: it changes nothing, HTTPS stays on.
-    expect(overlay("compose.tls.yaml").services).to.deep.equal({});
-    expect(
-      tlsEnabled({ COMPOSE_FILE: "compose.yaml:compose.tls.yaml" })
-    ).to.equal(true);
   });
 
   it("points browser calls at wss:// on the HTTPS origin by default, ws:// with plain HTTP", function () {

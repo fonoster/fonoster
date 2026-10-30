@@ -77,29 +77,3 @@ are yours, and you carry them over:
 
 Keep the old folder until you have checked the new release. To go back, run
 `docker compose up -d --remove-orphans` in the old folder.
-
-## Upgrading from 0.3x
-
-Releases before 0.42 set up the install with `fonoster-config`, which needed Node.js. It is gone.
-The steps above work the same, with these changes:
-
-- You don't need Node.js any more. `init.sh` needs only a shell and `openssl`.
-- `npx -p @fonoster/common fonoster-config init` becomes `./init.sh`.
-- `fonoster-config info` is `./init.sh` again.
-- `identity.owner` and `OWNER_EMAIL`/`OWNER_PASSWORD` are gone: your existing users keep working.
-  Remove `owner:` from `config/fonoster.yaml` (it is ignored, with a warning) and the two lines
-  from `.env`. A new install creates its first user with `fonoster-owner create` (Install with
-  Docker Compose).
-- `fonoster-config check` is gone. A bad file stops its service at start, and
-  `docker compose logs <service>` names the key.
-- `config/overrides/` is no longer read. The `config/*.yaml` files that `init` rendered in your old
-  install already hold your overrides merged in. Copy those values into the new release's files.
-- The release ships final `config/*.yaml` files, not examples. Remove the old examples from your
-  install folder, if you upgrade in place: `rm config/*.example.yaml`.
-
-After the first upgrade from 0.3x, recreate every container once so each service reads its new
-file:
-
-```bash
-docker compose up -d --force-recreate
-```

@@ -40,7 +40,7 @@ to `config/envoy-tls.yaml`: HTTPS on 443, a redirect on 80, and 8449 unpublished
 Browser calls follow `appUrl` (`ws://` or `wss://…/sip`). `init` and `check` warn
 when `PUBLIC_URL` is `http://` on a non-private address or the HTTPS setup is
 incomplete. SIP over TLS (Routr on 5061) is documented, commented out, in
-`compose.tls.yaml` and `routr-edgeport.example.yaml`
+`compose.tls.yaml` and `config/routr-edgeport.yaml`
 (docs-site/self-hosting/install-compose.mdx).
 
 ## How the files work

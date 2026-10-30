@@ -62,11 +62,11 @@ describe("@rebuild merge-config.cjs", function () {
     });
   });
 
-  it("copies files without an overlay and folders as they are, renames examples, keeps the rest of out", function () {
+  it("copies files without an overlay and folders as they are, keeps the rest of out", function () {
     // Arrange
     const src = dirWith({
       "nats.conf": "# kept byte for byte\nport: 4222\n",
-      "roomr.example.yaml": "# kept\nnodeId: a\n",
+      "roomr.yaml": "# kept\nnodeId: a\n",
       "nats-permissions/roomr.conf": "x\n"
     });
     const out = dirWith({ "keys/private.pem": "KEY\n" });

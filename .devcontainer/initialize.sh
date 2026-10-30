@@ -103,28 +103,11 @@ if [ "$MODE" = "host" ]; then
     || die "could not build .devcontainer/Dockerfile"
 fi
 
-# Before HTTPS was the default, the dev PUBLIC_URL was plain HTTP: move it to the new default (an
-# edited value is kept).
-migrate_public_url() {
-  [ -f "$DEV/.env" ] || return 0
-  if grep -q '^PUBLIC_URL=http://localhost:\${HTTP_PORT}$' "$DEV/.env"; then
-    sed -i.bak 's#^PUBLIC_URL=http://localhost:\${HTTP_PORT}$#PUBLIC_URL=https://localhost:${HTTPS_PORT}#' "$DEV/.env"
-    rm -f "$DEV/.env.bak"
-    log "PUBLIC_URL is https://localhost:\${HTTPS_PORT} now (HTTPS is the default)"
-  fi
-}
-
-# An existing .dev/ is kept, unless it predates HTTPS by default (no certificate in
-# .dev/config/tls/) or the rtprelay profiles (no .dev/config/routr-rtprelay.yaml, which the routr
-# service mounts): then it is written again below, which keeps every secret.
-if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ] && [ -f "$DEV/config/tls/server.pem" ] && [ -f "$DEV/config/routr-rtprelay.yaml" ]; then
+# An existing .dev/ is kept (npm run dev:config writes it again).
+if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ]; then
   detected="${FONOSTER_DEV_HOST_IP:-$(detect_host_ip)}"
   [ -z "$detected" ] || printf '%s\n' "$detected" > "$DEV/host-ip.detected"
   warn_stale_host_ip
-  # A .dev made before #1200 holds its generated server key 0600, which Routr's user (uid 5000)
-  # can't read on Linux or in a Codespace; init writes it 0644, and a kept .dev gets the same mode
-  # here. The file is always the generated key: an own certificate lives where TLS_KEY points.
-  [ ! -f "$DEV/config/tls/server-key.pem" ] || chmod 0644 "$DEV/config/tls/server-key.pem"
   log "keeping $DEV (npm run dev:config writes it again)"
   exit 0
 fi
@@ -160,7 +143,6 @@ seed_env() {
 }
 
 seed_env
-migrate_public_url
 
 if [ "$MODE" = "--refresh" ]; then
   # Inside the workspace: its Node and the repository's yaml package.

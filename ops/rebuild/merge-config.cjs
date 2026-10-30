@@ -4,8 +4,7 @@
 //
 //   node ops/rebuild/merge-config.cjs <bundle config dir> <out dir> [<overlay dir>...]
 //
-// Each bundle file is written to <out dir> under the same name (a `<name>.example.yaml` as
-// `<name>.yaml`). A YAML file with a same-named file in an overlay folder gets each overlay
+// Each bundle file is written to <out dir> under the same name. A YAML file with a same-named file in an overlay folder gets each overlay
 // deep-merged over it, in order: objects merge, other values replace, `null` deletes a key. Files
 // without an overlay, and folders, are copied as they are. Nothing else in <out dir> is touched
 // (keys/, tls/ and the files a stack adds live there too). ${NAME} stays as written; run
@@ -38,7 +37,7 @@ fs.mkdirSync(out, { recursive: true });
 const written = [];
 for (const entry of fs.readdirSync(src, { withFileTypes: true })) {
   const from = path.join(src, entry.name);
-  const name = entry.name.replace(/\.example\.([A-Za-z0-9]+)$/, ".$1");
+  const name = entry.name;
   const to = path.join(out, name);
   if (entry.isDirectory()) {
     fs.cpSync(from, to, { recursive: true });

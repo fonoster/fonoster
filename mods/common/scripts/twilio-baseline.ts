@@ -36,7 +36,7 @@
  * The env file holds TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_TEST_NUMBER,
  * TWILIO_STANDARD_KEY_SID/SECRET, TWILIO_RESTRICTED_KEY_SID/SECRET,
  * TWILIO_RESTRICTED_NOTRUNK_KEY_SID/SECRET and TWILIO_SUBACCOUNT_SID/AUTH_TOKEN.
- * Dev stack access comes from .dev/.env (OWNER_EMAIL, OWNER_PASSWORD, HOST_IP).
+ * Dev stack access comes from .dev/.env (DEV_OWNER_EMAIL, DEV_OWNER_PASSWORD, HOST_IP).
  */
 import { randomBytes } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -323,7 +323,7 @@ async function devWorkspace(): Promise<Fonoster> {
     accessKeyId: "",
     allowInsecure: true
   });
-  await owner.login(devEnv.OWNER_EMAIL, devEnv.OWNER_PASSWORD);
+  await owner.login(devEnv.DEV_OWNER_EMAIL, devEnv.DEV_OWNER_PASSWORD);
   const workspaces = new SDK.Workspaces(owner);
   const { ref } = await workspaces.createWorkspace({
     name: "twilio-baseline-1172"
@@ -334,7 +334,7 @@ async function devWorkspace(): Promise<Fonoster> {
     accessKeyId,
     allowInsecure: true
   });
-  await client.login(devEnv.OWNER_EMAIL, devEnv.OWNER_PASSWORD);
+  await client.login(devEnv.DEV_OWNER_EMAIL, devEnv.DEV_OWNER_PASSWORD);
   return { client, accessKeyId, ref };
 }
 
@@ -421,7 +421,7 @@ async function main(): Promise<void> {
     username: `fonoster-${randomBytes(4).toString("hex")}`,
     password: `${randomBytes(12).toString("base64url")}Aa1`
   });
-  SECRETS.push(devEnv.OWNER_PASSWORD);
+  SECRETS.push(devEnv.DEV_OWNER_PASSWORD);
 
   const old =
     (credentials: TwilioCredentials, phoneNumber = NUMBER) =>

@@ -328,6 +328,5 @@
   "OPS-004": "Applying the previous version rolls back",
   "OPS-005": "A second apply changes nothing",
   "OPS-006": "A failed apply restores the last backup",
-  "OPS-001": "A fresh install from the archive starts and serves",
-  "OPS-002": "An install upgrades in place"
+  "OPS-001": "A fresh install from the archive starts and serves"
 }

@@ -19,12 +19,6 @@ import("./core/removeSwaggerNotice");
 async function main() {
   await migratePasswordStorage(identityConfig);
 
-  // The first user is created with fonoster-owner (bin/owner.ts), not from the config file.
-  if (config.identity.owner)
-    logger.warn(
-      "identity.owner in fonoster.yaml is ignored: create the first user with fonoster-owner create <email>"
-    );
-
   // The provider catalog (add-self-host-installer D7): applied on every start, idempotent. A
   // configured file that can't be read or applied stops the server (IC-B2).
   if (config.catalog) {
