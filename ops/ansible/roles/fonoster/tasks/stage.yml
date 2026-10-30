@@ -1,0 +1,255 @@
+# The stage: releases/<version> holds the release plus this inventory's files, rendered and
+# checked. It runs in --check too (check_mode: false): a plan downloads, renders, validates and
+# pulls. It is rebuilt from the archive on every run, so nothing from an earlier run carries
+# over; writing it is not a change to the host (changed_when: false), the switch is.
+- name: State folders
+  ansible.builtin.file:
+    path: "{{ fonoster_state_dir }}/{{ item }}"
+    state: directory
+    mode: "0700"
+  loop: [releases, backups, keys, tls]
+  check_mode: false
+
+- name: Paths of this version
+  ansible.builtin.set_fact:
+    fonoster_releases: "{{ fonoster_state_dir }}/releases"
+    fonoster_stage: "{{ fonoster_state_dir }}/releases/{{ fonoster_version }}"
+    fonoster_archive_name: "{{ fonoster_archive | basename }}"
+    fonoster_common_file: "{{ fonoster_common_package is match('^[./~]') }}"
+
+- name: Values of .env
+  ansible.builtin.set_fact:
+    fonoster_live_env: "{{ fonoster_env | combine(fonoster_env_secrets, {'FONOSTER_VERSION': fonoster_version}) }}"
+  no_log: true
+
+# Release files ----------------------------------------------------------------------------------
+- name: SHA256SUMS (download)
+  ansible.builtin.get_url:
+    url: "{{ fonoster_sha256sums }}"
+    dest: "{{ fonoster_releases }}/fonoster-{{ fonoster_version }}.SHA256SUMS"
+    mode: "0600"
+    force: true
+  when: fonoster_sha256sums is match('https?://')
+  check_mode: false
+
+- name: SHA256SUMS (local)
+  ansible.builtin.copy:
+    src: "{{ fonoster_sha256sums }}"
+    dest: "{{ fonoster_releases }}/fonoster-{{ fonoster_version }}.SHA256SUMS"
+    mode: "0600"
+  when: fonoster_sha256sums is not match('https?://')
+  check_mode: false
+
+- name: Read SHA256SUMS
+  ansible.builtin.slurp:
+    src: "{{ fonoster_releases }}/fonoster-{{ fonoster_version }}.SHA256SUMS"
+  register: fonoster_sums
+
+- name: Checksum SHA256SUMS lists
+  ansible.builtin.set_fact:
+    fonoster_archive_sha256: >-
+      {{ ((fonoster_sums.content | b64decode)
+          | regex_findall('(?m)^([0-9a-f]{64}) [ *]' ~ (fonoster_archive_name | regex_escape) ~ '$')
+          + ['']) | first }}
+
+- name: Archive (download)
+  ansible.builtin.get_url:
+    url: "{{ fonoster_archive }}"
+    dest: "{{ fonoster_releases }}/fonoster-{{ fonoster_version }}.tar.gz"
+    mode: "0600"
+    checksum: "{{ ('sha256:' ~ fonoster_archive_sha256) if fonoster_archive_sha256 else omit }}"
+  when: fonoster_archive is match('https?://')
+  check_mode: false
+
+- name: Archive (local)
+  ansible.builtin.copy:
+    src: "{{ fonoster_archive }}"
+    dest: "{{ fonoster_releases }}/fonoster-{{ fonoster_version }}.tar.gz"
+    mode: "0600"
+  when: fonoster_archive is not match('https?://')
+  check_mode: false
+
+- name: Archive checksum
+  ansible.builtin.stat:
+    path: "{{ fonoster_releases }}/fonoster-{{ fonoster_version }}.tar.gz"
+    checksum_algorithm: sha256
+  register: fonoster_archive_stat
+
+- name: Archive matches SHA256SUMS
+  ansible.builtin.assert:
+    that:
+      - fonoster_archive_sha256 != ""
+      - fonoster_archive_stat.stat.checksum | default('') == fonoster_archive_sha256
+    fail_msg: >-
+      {{ fonoster_archive_name }} does not match {{ fonoster_sha256sums }}
+      ({{ fonoster_archive_stat.stat.checksum | default('no file') }},
+      SHA256SUMS says {{ fonoster_archive_sha256 or 'nothing for it' }}). Nothing was changed.
+    quiet: true
+
+- name: Common package (local)
+  ansible.builtin.copy:
+    src: "{{ fonoster_common_package }}"
+    dest: "{{ fonoster_releases }}/fonoster-common-{{ fonoster_version }}.tgz"
+    mode: "0600"
+  when: fonoster_common_file
+  check_mode: false
+
+# The stage -------------------------------------------------------------------------------------
+- name: Fresh stage
+  ansible.builtin.file:
+    path: "{{ fonoster_stage }}"
+    state: absent
+  changed_when: false
+  check_mode: false
+
+- name: Stage folder
+  ansible.builtin.file:
+    path: "{{ fonoster_stage }}"
+    state: directory
+    mode: "0700"
+  changed_when: false
+  check_mode: false
+
+- name: Unpack the release
+  ansible.builtin.unarchive:
+    src: "{{ fonoster_releases }}/fonoster-{{ fonoster_version }}.tar.gz"
+    dest: "{{ fonoster_stage }}"
+    remote_src: true
+    extra_opts: [--strip-components=1, --no-same-owner]
+  changed_when: false
+  check_mode: false
+
+- name: .env
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ fonoster_stage }}/.env"
+    mode: "0600"
+  no_log: true
+  diff: false
+  changed_when: false
+  check_mode: false
+
+- name: Overrides folder
+  ansible.builtin.file:
+    path: "{{ fonoster_stage }}/config/overrides"
+    state: directory
+    mode: "0700"
+  changed_when: false
+  check_mode: false
+
+- name: Overrides
+  ansible.builtin.copy:
+    content: "{{ item.value | to_nice_yaml(indent=2) }}"
+    dest: "{{ fonoster_stage }}/config/overrides/{{ item.key }}"
+    mode: "0600"
+  loop: "{{ fonoster_overrides | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  no_log: true
+  diff: false
+  changed_when: false
+  check_mode: false
+
+- name: Compose overlays
+  ansible.builtin.copy:
+    content: "{{ item.value | to_nice_yaml(indent=2) }}"
+    dest: "{{ fonoster_stage }}/{{ item.key }}"
+    mode: "0644"
+  loop: "{{ fonoster_compose_overlays | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  changed_when: false
+  check_mode: false
+
+- name: Persistent keys and TLS into the stage
+  ansible.builtin.shell: |
+    set -e
+    mkdir -p -m 0755 {{ fonoster_stage }}/config/{{ item }}
+    cp -a {{ fonoster_state_dir }}/{{ item }}/. {{ fonoster_stage }}/config/{{ item }}/
+  loop: [keys, tls]
+  changed_when: false
+  check_mode: false
+
+# init keeps every .env value and renders config/*.yaml; check validates them. Their output can
+# carry secrets (a database URL in an override), so it is hidden.
+- name: Render and validate (fonoster-config init, check)
+  ansible.builtin.command:
+    argv: >-
+      {{ ['docker', 'run', '--rm', '-v', fonoster_stage ~ ':/install', '-w', '/install',
+          '-v', 'fonoster-npm-cache:/root/.npm']
+         + (['-v', fonoster_releases ~ '/fonoster-common-' ~ fonoster_version ~ '.tgz:/fonoster-common.tgz:ro']
+            if fonoster_common_file else [])
+         + [fonoster_node_image, 'sh', '-c',
+            'npx -y -p "$0" fonoster-config init --host-ip "$1" && npx -y -p "$0" fonoster-config check',
+            '/fonoster-common.tgz' if fonoster_common_file else fonoster_common_package,
+            fonoster_live_env.HOST_IP] }}
+  register: fonoster_render
+  changed_when: false
+  failed_when: false
+  no_log: true
+  check_mode: false
+
+- name: Rendered and valid
+  ansible.builtin.assert:
+    that: fonoster_render.rc == 0
+    fail_msg: >-
+      fonoster-config init or check failed in {{ fonoster_stage }} (exit {{ fonoster_render.rc }}; the
+      output is hidden because it can hold secrets). On the host:
+      docker run --rm -v {{ fonoster_stage }}:/install -w /install {{ fonoster_node_image }}
+      npx -y -p {{ fonoster_common_package }} fonoster-config check
+    quiet: true
+
+# init adds the names a newer release introduces, with values of its own: those belong in the
+# inventory, so stop before anything runs with them.
+- name: Read the rendered .env
+  ansible.builtin.slurp:
+    src: "{{ fonoster_stage }}/.env"
+  register: fonoster_stage_env
+  no_log: true
+
+- name: The inventory has every .env name
+  ansible.builtin.assert:
+    that: fonoster_added | length == 0
+    fail_msg: >-
+      This release adds {{ fonoster_added | join(', ') }} to .env and the inventory has no value for
+      it. Add it to fonoster_env or fonoster_env_secrets ({{ fonoster_stage }}/.env has the value
+      init chose) and run again. Nothing was changed.
+    quiet: true
+  vars:
+    fonoster_added: >-
+      {{ (fonoster_stage_env.content | b64decode | regex_findall('(?m)^([A-Za-z_][A-Za-z0-9_]*)='))
+         | difference(fonoster_live_env.keys() | list) }}
+
+# Keys and TLS init created (a first install) become the persistent ones. Files already there
+# are never rewritten.
+- name: Persist new keys and TLS
+  ansible.builtin.shell: |
+    set -e
+    [ -d {{ fonoster_stage }}/config/{{ item }} ] || exit 0
+    cd {{ fonoster_stage }}/config/{{ item }}
+    find . -type f | sort | while read -r f; do
+      dest={{ fonoster_state_dir }}/{{ item }}/$f
+      [ -e "$dest" ] && continue
+      mkdir -p "$(dirname "$dest")"
+      cp -a "$f" "$dest"
+      echo "$f"
+    done
+  loop: [keys, tls]
+  register: fonoster_persist
+  changed_when: fonoster_persist.stdout != ""
+  check_mode: false
+
+- name: Images on the host
+  ansible.builtin.command: docker image inspect fonoster/apiserver:{{ fonoster_version }}
+  register: fonoster_image
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Pull the images
+  ansible.builtin.command:
+    cmd: docker compose pull --quiet
+    chdir: "{{ fonoster_stage }}"
+  when: fonoster_image.rc != 0
+  changed_when: false
+  check_mode: false

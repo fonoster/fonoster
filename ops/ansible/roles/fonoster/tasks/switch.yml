@@ -1,0 +1,113 @@
+# The switch: back up the live install, make it the stage (without the examples) and start the
+# services. In --check it only reports what would change.
+- name: Running version
+  ansible.builtin.shell: sed -n 's/^FONOSTER_VERSION=//p' {{ fonoster_dir }}/.env 2>/dev/null | tail -1
+  register: fonoster_running
+  changed_when: false
+  check_mode: false
+
+- name: Rsync arguments
+  ansible.builtin.set_fact:
+    # Checksums, not times: the stage is new on every run, so its times always differ.
+    fonoster_rsync: >-
+      {{ ['rsync', '--recursive', '--links', '--perms', '--owner', '--group', '--checksum',
+          '--delete', '--delete-excluded', '--itemize-changes']
+         + (fonoster_live_excludes | map('regex_replace', '^', '--exclude=') | list)
+         + [fonoster_stage ~ '/', fonoster_dir ~ '/'] }}
+
+- name: What the switch changes
+  ansible.builtin.command:
+    argv: "{{ fonoster_rsync[:1] + ['--dry-run'] + fonoster_rsync[1:] }}"
+  register: fonoster_plan
+  changed_when: false
+  check_mode: false
+
+- name: Planned switch
+  ansible.builtin.debug:
+    msg: >-
+      {{ fonoster_running.stdout or 'nothing' }} -> {{ fonoster_version }}:
+      {{ fonoster_plan.stdout_lines if fonoster_plan.stdout_lines else 'no file changes' }}
+
+# Everything below changes the host: held back in --check.
+- name: Switch
+  when: not ansible_check_mode
+  block:
+    - name: Back up the live install
+      ansible.builtin.shell: |
+        umask 077
+        tar -C {{ fonoster_dir }} -czf {{ fonoster_state_dir }}/backups/{{ now(utc=true, fmt='%Y%m%dT%H%M%SZ') }}-{{ fonoster_running.stdout }}.tgz .
+      when: fonoster_running.stdout != "" and fonoster_plan.stdout_lines | length > 0
+      changed_when: true
+
+    - name: Live folder
+      ansible.builtin.file:
+        path: "{{ fonoster_dir }}"
+        state: directory
+        mode: "0700"
+
+    - name: Switch the live folder to the stage
+      ansible.builtin.command:
+        argv: "{{ fonoster_rsync }}"
+      register: fonoster_sync
+      changed_when: fonoster_sync.stdout_lines | length > 0
+
+    # `up` recreates a service for a new image or environment, not for a changed file it mounts:
+    # those services are recreated by name (a file -> service map from compose.yaml's volumes).
+    - name: Compose configuration
+      ansible.builtin.command:
+        cmd: docker compose config --format json
+        chdir: "{{ fonoster_dir }}"
+      register: fonoster_compose
+      changed_when: false
+      no_log: true
+      when: fonoster_sync is changed and fonoster_running.stdout != ""
+
+    - name: Services whose mounted files changed
+      ansible.builtin.set_fact:
+        fonoster_recreate: >-
+          {%- set changed = fonoster_sync.stdout_lines | map('regex_replace', '^\\S+\\s+', fonoster_dir ~ '/') | list -%}
+          {%- set ns = namespace(out=[]) -%}
+          {%- for name, svc in (fonoster_compose.stdout | from_json).services | dictsort -%}
+            {%- for v in svc.volumes | default([]) if v.type == 'bind' -%}
+              {%- for p in changed if (p == v.source or p.startswith(v.source ~ '/')) and name not in ns.out -%}
+                {%- set ns.out = ns.out + [name] -%}
+              {%- endfor -%}
+            {%- endfor -%}
+          {%- endfor -%}
+          {{ ns.out | join(' ') }}
+      when: fonoster_compose is not skipped
+
+    - name: Recreate them
+      ansible.builtin.command:
+        argv: "{{ ['docker', 'compose', 'up', '-d', '--no-deps', '--force-recreate'] + fonoster_recreate.split() }}"
+        chdir: "{{ fonoster_dir }}"
+      when: fonoster_recreate | default('') != ""
+      changed_when: true
+
+    - name: Start the services
+      ansible.builtin.command:
+        cmd: docker compose up -d --remove-orphans --wait --wait-timeout 900
+        chdir: "{{ fonoster_dir }}"
+      register: fonoster_up
+      changed_when: fonoster_up.stderr is search('\\b(Created|Recreated|Started|Removed)\\b')
+
+    - name: Deploy log
+      ansible.builtin.lineinfile:
+        path: "{{ fonoster_state_dir }}/deploys.log"
+        line: "{{ now(utc=true, fmt='%Y-%m-%dT%H:%M:%SZ') }} {{ fonoster_running.stdout or 'none' }} -> {{ fonoster_version }}"
+        create: true
+        mode: "0600"
+      when: fonoster_sync is changed
+
+    - name: Old stages and backups
+      ansible.builtin.shell: |
+        set -e
+        cd {{ fonoster_state_dir }}/releases
+        for v in $(ls -1dt */ 2>/dev/null | sed 's#/$##' | grep -vxF '{{ fonoster_version }}' | tail -n +{{ fonoster_keep }}); do
+          rm -rf "$v" "fonoster-$v.tar.gz" "fonoster-$v.SHA256SUMS" "fonoster-common-$v.tgz"
+          echo "stage $v"
+        done
+        cd {{ fonoster_state_dir }}/backups
+        ls -1t *.tgz 2>/dev/null | tail -n +{{ fonoster_keep + 1 }} | while read -r b; do rm -f "$b"; echo "backup $b"; done
+      register: fonoster_pruned
+      changed_when: fonoster_pruned.stdout != ""

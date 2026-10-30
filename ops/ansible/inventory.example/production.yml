@@ -1,0 +1,6 @@
+# Copy inventory.example/ to inventory/ (git-ignored) and put your hosts here.
+all:
+  children:
+    fonoster:
+      hosts:
+        voice1: { ansible_host: 203.0.113.10, ansible_user: root }

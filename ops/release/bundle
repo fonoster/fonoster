@@ -6,6 +6,7 @@
 # Writes dist/release/<version>/:
 #   fonoster-<version>.tar.gz          compose.yaml, .env.example, config/ (with schemas/), README.md
 #   fonoster-common-<version>.tgz      @fonoster/common, for `npx -p <tgz> fonoster-config ...`
+#   SHA256SUMS                         both files' SHA-256 (`sha256sum -c SHA256SUMS`)
 # and tags the Fonoster images fonoster/<service>:<version> in the local Docker.
 #
 # The version defaults to lerna.json's plus "-local". SKIP_IMAGES=1 skips the image builds.
@@ -59,10 +60,16 @@ pack_common() {
   [ "$tgz" = "fonoster-common-$VERSION.tgz" ] || mv "$OUT/$tgz" "$OUT/fonoster-common-$VERSION.tgz"
 }
 
+checksums() {
+  log "SHA256SUMS"
+  (cd "$OUT" && shasum -a 256 "fonoster-$VERSION.tar.gz" "fonoster-common-$VERSION.tgz" >SHA256SUMS)
+}
+
 mkdir -p "$OUT"
 [ "${SKIP_IMAGES:-}" = "1" ] || build_images
 build_archive
 pack_common
+checksums
 
 log "done: $OUT"
 cat >&2 <<EOF

@@ -10,8 +10,8 @@ name: Release
 #   3. npm: `npm run release` (lerna publish, dist-tag latest) commits the version bump with
 #      [skip ci], tags v<version> and pushes both to main.
 #   4. images: images.yaml at the release commit (every image in ops/release/images.json).
-#   5. release: the install archive, the notes, the QA report and two release cards (dark and
-#      light) on a published GitHub release, marked latest.
+#   5. release: the install archive and its SHA256SUMS, the notes, the QA report and two release
+#      cards (dark and light) on a published GitHub release, marked latest.
 #   6. deploy: deploy.yaml stages the release on production, then waits for approval in the
 #      production environment before it switches.
 #
@@ -264,6 +264,7 @@ jobs:
           files: |
             dist/release/${{ env.VERSION }}/fonoster-${{ env.VERSION }}.tar.gz
             dist/release/${{ env.VERSION }}/fonoster-common-${{ env.VERSION }}.tgz
+            dist/release/${{ env.VERSION }}/SHA256SUMS
             dist/qa/qa-report.md
             dist/release-card-v${{ env.VERSION }}-dark.png
             dist/release-card-v${{ env.VERSION }}-light.png

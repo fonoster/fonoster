@@ -1,0 +1,17 @@
+# Copy to vault.yml, set the values and encrypt it: ansible-vault encrypt vault.yml
+# Formats: passwords s<32 hex>, OWNER_PASSWORD p<16 hex>, AUTOPILOT_SIGNING_SECRET <48 hex>,
+# ENCRYPTION_KEY k1.aesgcm256.<43 base64url characters>= (what fonoster-config init generates).
+fonoster_env_secrets:
+  OWNER_PASSWORD: "p<hex8>"
+  POSTGRES_PASSWORD: "s<hex16>"
+  MINIO_ROOT_PASSWORD: "s<hex16>"
+  NATS_APISERVER_PASSWORD: "s<hex16>"
+  NATS_APPBRIDGE_PASSWORD: "s<hex16>"
+  NATS_ROOMR_PASSWORD: "s<hex16>"
+  NATS_ROUTR_PASSWORD: "s<hex16>"
+  ENCRYPTION_KEY: "k1.aesgcm256.<43 base64url chars>="
+  AUTOPILOT_SIGNING_SECRET: "<hex24>"
+  ROOMR_PASSWORD: "s<hex16>"
+  OTEL_EXPORTER_OTLP_HEADERS: ""
+vault_database_url_fonoster: "postgresql://fonoster:<password>@db.example.com:25060/fonoster?sslmode=require"
+vault_database_url_routr: "postgresql://fonoster:<password>@db.example.com:25060/routr?sslmode=require"

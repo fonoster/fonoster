@@ -1,3 +1,5 @@
+# Unsupported: Docker Compose is the only official target (deployment spec). The chart stays in the
+# repository, with no CI job and no support.
 apiVersion: v2
 name: fonoster-rebuild
 description: Fonoster AppBridge and Roomr node (add-platform)

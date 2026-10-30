@@ -1,0 +1,14 @@
+diff --git a/ops/ansible/roles/fonoster/defaults/main.yml b/ops/ansible/roles/fonoster/defaults/main.yml
+index eadf71b5c..80c725a91 100644
+--- a/ops/ansible/roles/fonoster/defaults/main.yml
++++ b/ops/ansible/roles/fonoster/defaults/main.yml
+@@ -30,8 +30,4 @@ fonoster_compose_overlays: {}
+ 
+ # Never copied into the live install: only what runs lands there. They stay in the stage, where
+ # init and check use them.
+-fonoster_live_excludes:
+-  - .env.example
+-  - "*.example.*"
+-  - README.md
+-  - config/schemas
++fonoster_live_excludes: []

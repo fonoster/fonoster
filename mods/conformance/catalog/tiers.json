@@ -1262,6 +1262,21 @@
     "pri": "P0",
     "trials": null
   },
+  "OPS-003": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-004": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-005": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
   "XFR-001": {
     "tier": "pr",
     "pri": "P0",

@@ -1,0 +1,48 @@
+# Everything on the host that is not a secret. Secrets go in vault.yml (ansible-vault encrypt).
+fonoster_public_url: https://voice.example.com
+fonoster_api_host: api.example.com
+certbot_domains: [voice.example.com, api.example.com]
+certbot_email: ops@example.com
+routr_traces_enabled: true
+routr_traces_retention_days: 30
+
+# Every non-secret name of the release's .env.example (ops/bundle/.env.example); FONOSTER_VERSION
+# comes from fonoster_version. The play fails when a release adds a name that is in neither this
+# nor fonoster_env_secrets.
+fonoster_env:
+  COMPOSE_PROJECT_NAME: fonoster
+  COMPOSE_FILE: compose.yaml:compose.external-db.yaml:compose.traces.yaml
+  HOST_IP: "{{ ansible_host }}"
+  HTTPS_PORT: "443"
+  HTTPS_REDIRECT_PORT: "80"
+  PUBLIC_URL: "{{ fonoster_public_url }}"
+  TLS_CERT: /etc/letsencrypt/live/voice.example.com/fullchain.pem
+  TLS_KEY: /etc/letsencrypt/live/voice.example.com/privkey.pem
+  HTTP_PORT: "8449"
+  SIP_PORT: "5060"
+  RTPENGINE_PORT_MIN: "10000"
+  RTPENGINE_PORT_MAX: "10999"
+  ROOMR_RTP_PORT_MIN: "11000"
+  ROOMR_RTP_PORT_MAX: "11999"
+  MINIO_PORT: "9000"
+  MINIO_CONSOLE_PORT: "9001"
+  NATS_PORT: "4222"
+  OTEL_EXPORTER_OTLP_ENDPOINT: ""
+  OTEL_EXPORTER_OTLP_PROTOCOL: ""
+  SUBNET_PREFIX: 10.216.30
+  OWNER_EMAIL: ops@example.com
+  MINIO_ROOT_USER: fonoster
+
+# Deep-merged by fonoster-config init over the release's config/<file>.
+fonoster_overrides:
+  fonoster.yaml:
+    database: { url: "{{ vault_database_url_fonoster }}" }
+  routr-one.yaml:
+    spec:
+      database: { url: "{{ vault_database_url_routr }}" }
+      recording: { enabled: true, path: /var/routr/traces, mode: all, redact: true }
+
+# Compose files next to compose.yaml; name them in COMPOSE_FILE.
+fonoster_compose_overlays:
+  compose.traces.yaml:
+    services: { routr: { volumes: ["/var/lib/fonoster/routr-traces:/var/routr/traces"] } }

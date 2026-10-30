@@ -1,0 +1,4 @@
+#!/bin/sh
+# Envoy reads the certificate when it starts. Managed by Ansible (ops/ansible, role host).
+[ -f {{ fonoster_dir }}/compose.yaml ] || exit 0
+cd {{ fonoster_dir }} && docker compose up -d --force-recreate envoy

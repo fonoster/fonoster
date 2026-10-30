@@ -1,0 +1,58 @@
+# The target of throwaway.sh: the machine it runs on (a GitHub runner), as the operator's
+# inventory would describe it. No certbot and no TLS_CERT (the generated certificate), the bundled
+# Postgres, traces on, ports out of the way. The secrets are for this test only; throwaway.sh
+# checks that a plan never prints one.
+all:
+  children:
+    fonoster:
+      hosts:
+        throwaway:
+          ansible_connection: local
+          ansible_python_interpreter: /usr/bin/python3
+          fonoster_public_url: https://127.0.0.1:18443
+          fonoster_api_host: 127.0.0.1:18443
+          routr_traces_enabled: true
+          routr_traces_retention_days: 30
+          fonoster_env:
+            COMPOSE_PROJECT_NAME: fonoster
+            COMPOSE_FILE: compose.yaml:compose.traces.yaml
+            HOST_IP: 127.0.0.1
+            HTTPS_PORT: "18443"
+            HTTPS_REDIRECT_PORT: "18080"
+            PUBLIC_URL: "{{ fonoster_public_url }}"
+            HTTP_PORT: "18449"
+            SIP_PORT: "15060"
+            RTPENGINE_PORT_MIN: "10000"
+            RTPENGINE_PORT_MAX: "10099"
+            ROOMR_RTP_PORT_MIN: "11000"
+            ROOMR_RTP_PORT_MAX: "11099"
+            MINIO_PORT: "19000"
+            MINIO_CONSOLE_PORT: "19001"
+            NATS_PORT: "14222"
+            OTEL_EXPORTER_OTLP_ENDPOINT: ""
+            OTEL_EXPORTER_OTLP_PROTOCOL: ""
+            SUBNET_PREFIX: 10.216.30
+            OWNER_EMAIL: ops@example.com
+            MINIO_ROOT_USER: fonoster
+          fonoster_env_secrets:
+            OWNER_PASSWORD: "p7b9975cb5b93b69c"
+            POSTGRES_PASSWORD: "{{ vault_postgres_password }}"
+            MINIO_ROOT_PASSWORD: "s1484af1d0ca6a9b0edb668fc5f93b4e1"
+            NATS_APISERVER_PASSWORD: "s2e95f3c2e070df5dd9e3335048af076d"
+            NATS_APPBRIDGE_PASSWORD: "s890ce72f17f502c115a5620aea2ed3f6"
+            NATS_ROOMR_PASSWORD: "s5b954c39a29e17f0605d4e43ef128fa4"
+            NATS_ROUTR_PASSWORD: "sfb962f04fdef90ebd3cb2fac20dae0fa"
+            ENCRYPTION_KEY: "k1.aesgcm256.XsXWH96emjC51kW-paat3MBw0zZpS_H7xMjpzT6-gWY="
+            AUTOPILOT_SIGNING_SECRET: "499a76fd328c7e25617f64c85c3a3c196d6f62884c034e95"
+            ROOMR_PASSWORD: "s58353cfdefd8d48f2ff450f6bce6a690"
+            OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Basic%2053758fc2d32445f24286972b"
+          vault_postgres_password: "sf41312e91d93c767ea80cb1a2f9e3500"
+          fonoster_overrides:
+            routr-one.yaml:
+              spec:
+                # throwaway.sh changes it to see that only routr is recreated.
+                logs: { level: "{{ throwaway_routr_logs_level | default('info') }}" }
+                recording: { enabled: true, path: /var/routr/traces, mode: all, redact: true }
+          fonoster_compose_overlays:
+            compose.traces.yaml:
+              services: { routr: { volumes: ["/var/lib/fonoster/routr-traces:/var/routr/traces"] } }

@@ -1,0 +1,113 @@
+# What the machine needs before Fonoster: Docker, a certificate and the trace retention.
+- name: Base packages
+  ansible.builtin.apt:
+    name: [ca-certificates, curl, python3-debian, rsync, tar]
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+# Docker's install guide used to write docker.list; with docker.sources next to it, apt refuses
+# both (two Signed-By values for one repository).
+- name: No other Docker apt source
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/docker.list
+    state: absent
+
+- name: Docker apt repository
+  ansible.builtin.deb822_repository:
+    name: docker
+    types: [deb]
+    uris: https://download.docker.com/linux/{{ ansible_distribution | lower }}
+    suites: ["{{ ansible_distribution_release }}"]
+    components: [stable]
+    architectures: ["{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"]
+    signed_by: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+    state: present
+  register: docker_repo
+
+- name: Docker
+  ansible.builtin.apt:
+    name: [docker-ce, docker-ce-cli, containerd.io, docker-compose-plugin]
+    state: present
+    update_cache: "{{ docker_repo is changed }}"
+
+- name: Docker daemon settings
+  ansible.builtin.copy:
+    content: "{{ docker_daemon_options | to_nice_json }}\n"
+    dest: /etc/docker/daemon.json
+    mode: "0644"
+  notify: Restart docker
+
+- name: Docker running
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+# Fonoster starts on the new daemon settings.
+- name: Docker restarted when its settings changed
+  ansible.builtin.meta: flush_handlers
+
+- name: Fonoster state folder
+  ansible.builtin.file:
+    path: /var/lib/fonoster
+    state: directory
+    mode: "0700"
+
+# Certificate ------------------------------------------------------------------------------------
+- name: Certbot
+  ansible.builtin.apt:
+    name: certbot
+    state: present
+  when: certbot_domains | length > 0
+
+- name: Renewal hook folders
+  ansible.builtin.file:
+    path: /etc/letsencrypt/renewal-hooks/{{ item }}
+    state: directory
+    mode: "0755"
+  loop: [pre, post]
+  when: certbot_domains | length > 0
+
+# The hooks stop Envoy for each renewal (port 80) and recreate it on the new certificate.
+- name: Renewal hooks
+  ansible.builtin.template:
+    src: certbot-{{ item }}.sh.j2
+    dest: /etc/letsencrypt/renewal-hooks/{{ item }}/fonoster-envoy.sh
+    mode: "0755"
+  loop: [pre, post]
+  when: certbot_domains | length > 0
+
+- name: Certificate
+  ansible.builtin.command:
+    argv: >-
+      {{ ['certbot', 'certonly', '--standalone', '--non-interactive', '--agree-tos', '-m', certbot_email,
+          '--pre-hook', '/etc/letsencrypt/renewal-hooks/pre/fonoster-envoy.sh',
+          '--post-hook', '/etc/letsencrypt/renewal-hooks/post/fonoster-envoy.sh']
+         + (certbot_domains | map('regex_replace', '^', '--domains=') | list) }}
+    creates: /etc/letsencrypt/live/{{ certbot_domains[0] }}/fullchain.pem
+  when: certbot_domains | length > 0
+
+# Routr traces -----------------------------------------------------------------------------------
+- name: Routr trace folder
+  ansible.builtin.file:
+    path: "{{ routr_traces_dir }}"
+    state: directory
+    owner: "5000"
+    group: "5000"
+    mode: "0750"
+  when: routr_traces_enabled
+
+- name: Routr trace retention
+  ansible.builtin.copy:
+    content: "e {{ routr_traces_dir }} - - - {{ routr_traces_retention_days }}d\n"
+    dest: /etc/tmpfiles.d/fonoster-routr-traces.conf
+    mode: "0644"
+  when: routr_traces_enabled
+
+- name: Daily tmpfiles clean
+  ansible.builtin.systemd_service:
+    name: systemd-tmpfiles-clean.timer
+    state: started
+    enabled: true
+  when: routr_traces_enabled
