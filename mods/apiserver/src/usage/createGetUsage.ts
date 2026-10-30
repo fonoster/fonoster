@@ -53,6 +53,7 @@ const COLUMNS = {
   origin: "origin"
 } as const;
 type Dimension = keyof typeof COLUMNS;
+const DIMENSIONS = Object.keys(COLUMNS).length;
 
 /** GetUsage's request; exported for the array-limit tests. */
 export const getUsageRequestSchema = z
@@ -61,7 +62,7 @@ export const getUsageRequestSchema = z
     toDay: z.string().regex(DAY, "toDay must be YYYY-MM-DD"),
     groupBy: z
       .array(z.enum(Object.keys(COLUMNS) as [Dimension, ...Dimension[]]))
-      .max(7, { message: "At most 7 dimensions" })
+      .max(DIMENSIONS, { message: `At most ${DIMENSIONS} dimensions` })
       .optional(),
     allOwned: z.boolean().optional()
   })
