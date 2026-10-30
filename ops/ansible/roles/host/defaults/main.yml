@@ -1,0 +1,18 @@
+# Written to /etc/docker/daemon.json. Without userland-proxy false, Docker starts one docker-proxy
+# per published RTP port (about 4,000) and the host runs out of memory; live-restore keeps the
+# containers running while Docker restarts.
+docker_daemon_options:
+  userland-proxy: false
+  live-restore: true
+
+# Let's Encrypt certificate for these names (standalone, port 80); empty: no certbot.
+certbot_domains: []
+certbot_email: ""
+
+# The live install, where the renewal hooks run docker compose.
+fonoster_dir: /opt/fonoster
+
+# Routr's SIP traces (record/replay), kept routr_traces_retention_days.
+routr_traces_enabled: false
+routr_traces_dir: /var/lib/fonoster/routr-traces
+routr_traces_retention_days: 30

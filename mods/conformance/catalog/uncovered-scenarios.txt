@@ -1,3 +1,5 @@
+autopilot / Conversation events in the call record / Speech ahead of the reply
+autopilot / Conversation events in the call record / Where the wait went
 billing / Billing runs only when enabled / Community install
 billing / Top-ups and auto-recharge / Refund of unused top-up
 control-plane / AppBridge is its own TypeScript deployable / Calls spread through the session endpoint
@@ -22,9 +24,35 @@ control-plane / The apiserver is a stateless control plane / Call status survive
 control-plane / The apiserver is a stateless control plane / Losing a replica
 control-plane / The apiserver is a stateless control plane / Management API unchanged
 control-plane / The apiserver is a stateless control plane / TrackCall always ends
+control-plane / The apiserver is a stateless control plane / TrackCall says why an unanswered call ended
+control-plane / The apiserver is a stateless control plane / TrackCall says why it failed a call itself
 dashboard / Member roles can be changed / Promote a member
+dashboard / The call detail shows how the agent did / Where the wait went
 dashboard / The dashboard is configured at run time with one setting / One image, two deployments
 dashboard / The session persists in the browser and ends cleanly / Inline script blocked
+deployment / Deployments are closed by default / A copied development key
+deployment / Deployments are closed by default / Compose bundle over HTTPS
+deployment / Deployments are closed by default / Helm install without NATS users
+deployment / Deployments are closed by default / Plain HTTP on a public address
+deployment / Docker Compose is the official target / Merging releases
+deployment / Docker Compose is the official target / Nightly on both targets
+deployment / Docker Compose is the official target / Nothing releasable
+deployment / Docker Compose is the official target / Release gated
+deployment / Each NATS user reads only its own replies / Another service's reply stays private
+deployment / Each NATS user reads only its own replies / Session registry still works
+deployment / Every service is a plain container / Running with plain docker
+deployment / Media paths are open between the node and AppBridge / Audio under default deny
+deployment / Media paths are open between the node and AppBridge / Compose publishes only RTP
+deployment / Media paths are open between the node and AppBridge / Rendered chart
+deployment / Network isolation guards Roomr's ports / Control port closed to other pods
+deployment / One YAML config per Fonoster service, no .env / A .env file is ignored
+deployment / One YAML config per Fonoster service, no .env / Development mode reads no .env either
+deployment / One YAML config per Fonoster service, no .env / Each container gets only its own values
+deployment / One YAML config per Fonoster service, no .env / Placeholder resolved from the container environment
+deployment / One YAML config per Fonoster service, no .env / Secret reference resolved
+deployment / One YAML config per Fonoster service, no .env / Unset placeholder
+deployment / Rolling deploys drop no calls / Rendered drain settings
+deployment / Rolling deploys drop no calls / Rollout with live calls
 identity / Id, access, and refresh tokens / A token is not valid across realms
 identity / Id, access, and refresh tokens / Token carries realm context and is realm-signed
 identity / Realm isolation / Cross-realm access is denied

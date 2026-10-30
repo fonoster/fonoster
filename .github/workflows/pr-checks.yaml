@@ -80,6 +80,7 @@ jobs:
       python: ${{ steps.filter.outputs.python }}
       dashboard: ${{ steps.filter.outputs.dashboard }}
       sdk: ${{ steps.filter.outputs.sdk }}
+      ansible: ${{ steps.filter.outputs.ansible }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -122,6 +123,9 @@ jobs:
               - 'mods/sdk/**'
               - 'package.json'
               - 'package-lock.json'
+            ansible:
+              - *workflow
+              - 'ops/ansible/**'
 
   node:
     name: node build and unit tests
@@ -528,6 +532,26 @@ jobs:
           fi
           node -e 'const sdk = require("@fonoster/sdk"); if (!sdk.Client) throw new Error("no Client export");'
 
+  # The playbook itself runs in stack-smoke.yaml (playbook (throwaway)); here only its lint.
+  ansible:
+    name: ansible-lint
+    needs: changes
+    if: needs.changes.outputs.ansible == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ansible-core and ansible-lint
+        run: |
+          python3 -m venv "$RUNNER_TEMP/ansible"
+          "$RUNNER_TEMP/ansible/bin/pip" install --quiet ansible-core==2.21.5 ansible-lint==26.10.1
+          echo "$RUNNER_TEMP/ansible/bin" >> "$GITHUB_PATH"
+
+      - name: Lint ops/ansible
+        working-directory: ops/ansible
+        run: ansible-lint
+
   passed:
     name: PR Checks passed
     if: always()
@@ -545,7 +569,8 @@ jobs:
         python,
         dashboard,
         sdk-pack,
-        sdk-install
+        sdk-install,
+        ansible
       ]
     runs-on: ubuntu-latest
     steps:

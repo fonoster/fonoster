@@ -1,0 +1,12 @@
+# Puts each host of the `fonoster` group on fonoster_version: the host (Docker, certificate, trace
+# retention), then Fonoster itself. Run it again with another version to upgrade or to roll back.
+#
+#   ansible-playbook -i inventory/production.yml playbooks/site.yml --check --diff -e fonoster_version=0.40.0   plan
+#   ansible-playbook -i inventory/production.yml playbooks/site.yml -e fonoster_version=0.40.0                  apply
+#   ansible-playbook -i inventory/production.yml playbooks/site.yml --tags fonoster -e fonoster_version=0.39.2  Fonoster only
+- name: Fonoster
+  hosts: fonoster
+  become: true
+  roles:
+    - { role: host, tags: [host] }
+    - { role: fonoster, tags: [fonoster] }

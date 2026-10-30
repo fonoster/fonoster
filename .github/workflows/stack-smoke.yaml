@@ -1,14 +1,15 @@
 name: Stack Smoke
 
-# The deployment targets start (add-platform: Docker Compose and Helm are official targets):
+# The deployment target starts (deployment spec: Docker Compose is the official target):
 #   compose       build the bundle images and the install archive (ops/release/bundle), install it
 #                 the way a self-hoster does and wait for a healthy apiserver and the dashboard
 #                 (ops/release/smoke)
+#   playbook      put the runner through the Ansible playbook with two local builds: plan, apply,
+#                 apply again, switch versions and back (ops/ansible/test/throwaway.sh, area OPS)
 #   e2e           nightly (and on demand): build the stack from source, seed it and place one real
 #                 call through Routr to the hosted Autopilot app with the fake providers; checks the
 #                 greeting, one conversation turn, the hang-up and a sealed, verified call record
 #                 (ops/rebuild/stack e2e; conformance "End-to-end caller bot")
-#   helm          lint and render the chart with each values file, validate with kubeconform
 #   devcontainer  build the dev container's image (when .devcontainer/ changes, and nightly)
 #
 # On pull requests it runs only when the packaging changes (ops/, a Dockerfile, compose.yaml, the
@@ -43,7 +44,7 @@ jobs:
       pull-requests: read
     outputs:
       compose: ${{ steps.filter.outputs.compose }}
-      helm: ${{ steps.filter.outputs.helm }}
+      playbook: ${{ steps.filter.outputs.playbook }}
       devcontainer: ${{ steps.filter.outputs.devcontainer }}
     steps:
       - name: Checkout
@@ -57,9 +58,10 @@ jobs:
           filters: |
             compose:
               - '!ops/rebuild/helm/**'
+              - '!ops/ansible/**'
               - '!.devcontainer/**'
-            helm:
-              - 'ops/rebuild/helm/**'
+            playbook:
+              - 'ops/ansible/**'
             devcontainer:
               - '.devcontainer/**'
 
@@ -136,37 +138,37 @@ jobs:
           path: ${{ runner.temp }}/e2e
           if-no-files-found: ignore
 
-  helm:
-    name: helm chart
+  playbook:
+    name: playbook (throwaway)
     needs: changes
-    if: github.event_name != 'pull_request' || (vars.QA_PAUSED != 'true' && needs.changes.outputs.helm == 'true')
-    runs-on: ubuntu-latest
-    env:
-      CHART: ops/rebuild/helm/fonoster-rebuild
-      KUBECONFORM_VERSION: v0.7.0
+    if: github.event_name != 'pull_request' || (vars.QA_PAUSED != 'true' && needs.changes.outputs.playbook == 'true')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Helm
-        uses: azure/setup-helm@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22.x"
+          cache: npm
 
-      - name: Install kubeconform
+      # The bundle exports the config schemas and packs @fonoster/common (as in the compose job).
+      - name: Install dependencies and build
         run: |
-          curl -fsSL "https://github.com/yannh/kubeconform/releases/download/$KUBECONFORM_VERSION/kubeconform-linux-amd64.tar.gz" \
-            | sudo tar -xz -C /usr/local/bin kubeconform
+          npm install --no-audit --no-fund
+          npm run build
 
-      - name: Lint, render and validate with each values file
+      # The versions ops/ansible/README.md names.
+      - name: Install ansible-core and ansible-lint
         run: |
-          for values in "" values-cloud.yaml values-observability.yaml; do
-            args=()
-            [ -z "$values" ] || args=(-f "$CHART/$values")
-            echo "::group::values.yaml ${values}"
-            helm lint --strict "$CHART" "${args[@]}"
-            helm template fonoster "$CHART" "${args[@]}" \
-              | kubeconform -strict -ignore-missing-schemas -summary -kubernetes-version 1.30.0
-            echo "::endgroup::"
-          done
+          python3 -m venv "$RUNNER_TEMP/ansible"
+          "$RUNNER_TEMP/ansible/bin/pip" install --quiet ansible-core==2.21.5 ansible-lint==26.10.1
+          echo "$RUNNER_TEMP/ansible/bin" >> "$GITHUB_PATH"
+
+      - name: Plan, apply, apply again, switch and back
+        run: ops/ansible/test/throwaway.sh 0.0.0-a 0.0.0-b
 
   devcontainer:
     name: dev container image

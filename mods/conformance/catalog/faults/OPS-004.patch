@@ -1,0 +1,12 @@
+diff --git a/ops/ansible/roles/fonoster/tasks/switch.yml b/ops/ansible/roles/fonoster/tasks/switch.yml
+index b93d12815..aae6c46ef 100644
+--- a/ops/ansible/roles/fonoster/tasks/switch.yml
++++ b/ops/ansible/roles/fonoster/tasks/switch.yml
+@@ -13,6 +13,7 @@
+       {{ ['rsync', '--recursive', '--links', '--perms', '--owner', '--group', '--checksum',
+           '--delete', '--delete-excluded', '--itemize-changes']
+          + (fonoster_live_excludes | map('regex_replace', '^', '--exclude=') | list)
++         + (['--exclude=.env'] if fonoster_running.stdout else [])
+          + [fonoster_stage ~ '/', fonoster_dir ~ '/'] }}
+ 
+ - name: What the switch changes

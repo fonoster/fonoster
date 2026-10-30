@@ -1,0 +1,4 @@
+#!/bin/sh
+# Frees port 80 for the renewal (standalone). Managed by Ansible (ops/ansible, role host).
+[ -f {{ fonoster_dir }}/compose.yaml ] || exit 0
+cd {{ fonoster_dir }} && docker compose stop envoy

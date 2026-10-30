@@ -1,0 +1,39 @@
+# From the controller: the dashboard answers 200 and the API answers an empty ExchangeCredentials
+# with grpc-status 3 (InvalidArgument). With the generated certificate (no TLS_CERT), through the
+# install's CA.
+- name: The install's CA
+  ansible.builtin.slurp:
+    src: "{{ fonoster_state_dir }}/tls/ca.pem"
+  register: fonoster_ca
+  when: not ansible_check_mode and not fonoster_env.TLS_CERT | default('')
+
+- name: Dashboard and API answer
+  ansible.builtin.shell: |
+    set -u
+    opts=""
+    if [ -n "$FONOSTER_CA" ]; then
+      ca=$(mktemp); trap 'rm -f "$ca"' EXIT
+      printf '%s' "$FONOSTER_CA" > "$ca"
+      opts="--cacert $ca"
+    fi
+    for _ in $(seq 1 30); do
+      app=$(curl -s $opts -o /dev/null -w '%{http_code}' "$APP_URL/" || true)
+      api=$(printf '\0\0\0\0\0' | curl -s $opts --http2 -X POST -o /dev/null -D - \
+        -H 'content-type: application/grpc' -H 'te: trailers' --data-binary @- \
+        "https://$API_HOST/fonoster.identity.v1beta2.Identity/ExchangeCredentials" \
+        | tr -d '\r' | sed -n 's/^grpc-status: //p' || true)
+      if [ "$app" = 200 ] && [ "$api" = 3 ]; then echo "dashboard 200, API grpc-status 3"; exit 0; fi
+      sleep 10
+    done
+    echo "dashboard: $app, API grpc-status: ${api:-none}" >&2
+    exit 1
+  args:
+    executable: /bin/bash
+  environment:
+    APP_URL: "{{ fonoster_public_url }}"
+    API_HOST: "{{ fonoster_api_host }}"
+    FONOSTER_CA: "{{ fonoster_ca.content | b64decode if fonoster_ca is not skipped else '' }}"
+  delegate_to: localhost
+  become: false
+  changed_when: false
+  when: not ansible_check_mode and fonoster_public_url != "" and fonoster_api_host != ""

@@ -130,11 +130,11 @@ describe("@conformance[deployment] release gate and nightly checks", function ()
     expect(offenders).to.deep.equal([]);
   });
 
-  it("checks both targets nightly: the Compose install and the Helm chart", function () {
+  it("checks the Compose target and the playbook nightly, and no Helm job", function () {
     const w = workflow("stack-smoke.yaml");
     expect(w.on).to.have.property("schedule");
     // Neither job is limited to pull requests: on schedule both run.
-    ["compose", "helm"].forEach((name) => {
+    ["compose", "playbook"].forEach((name) => {
       const job = w.jobs[name];
       expect(job, name).to.exist;
       expect(job.if ?? "", name).to.match(
@@ -144,12 +144,12 @@ describe("@conformance[deployment] release gate and nightly checks", function ()
     const compose = steps(w.jobs.compose).map((s) => s.run ?? "");
     expect(compose.join("\n")).to.match(/ops\/release\/bundle/);
     expect(compose.join("\n")).to.match(/ops\/release\/smoke/);
-    const helm = steps(w.jobs.helm)
-      .map((s) => s.run ?? "")
-      .join("\n");
-    ["helm lint", "helm template", "kubeconform", "values-cloud.yaml"].forEach(
-      (needle) => expect(helm, needle).to.contain(needle)
+    const playbook = steps(w.jobs.playbook).map((s) => s.run ?? "");
+    expect(playbook.join("\n")).to.contain(
+      "ops/ansible/test/throwaway.sh 0.0.0-a 0.0.0-b"
     );
+    // The Helm chart is unsupported (deployment spec).
+    expect(w.jobs).not.to.have.property("helm");
   });
 });
 

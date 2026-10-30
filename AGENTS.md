@@ -45,7 +45,7 @@ Examples: `mods/identity/src/exchanges/createExchangeApiKey.ts`, `mods/sipnet/sr
 | area: sdk | mods/sdk, mods/types | release-engineer |
 | area: cli | mods/ctl, mods/region-agent | ux-designer, release-engineer |
 | area: dashboard | mods/dashboard, designs/ | ux-designer, visual-designer |
-| area: infra | ops/, .github/workflows, .devcontainer, compose.yaml | release-engineer, security-engineer |
+| area: infra | ops/, ops/ansible, .github/workflows, .devcontainer, compose.yaml | release-engineer, security-engineer |
 | area: docs | docs-site/, docs/ | technical-writer |
 | area: api | mods/apiserver, mods/sipnet, mods/callrecord | database-engineer |
 | area: identity | mods/identity, mods/identity-client, mods/authz | security-engineer, database-engineer |
@@ -79,8 +79,7 @@ Breaking changes here:
   (Node and Python).
 - Webhook event names and payloads (`docs/webhooks.md`).
 - `fonoster` CLI commands and flags (`mods/ctl`), `fonoster-region` CLI.
-- Config files and keys (`config/*.example.*`, per-service YAML), Helm values (`ops/rebuild/helm`),
-  install `.env` (`FONOSTER_VERSION`).
+- Config files and keys (`config/*.example.*`, per-service YAML), install `.env` (`FONOSTER_VERSION`).
 - Prisma schemas and migrations; the production deploy never migrates down.
 
 ## Risk hotspots
@@ -131,3 +130,4 @@ Every PR links an issue (`Closes #123`; the `linked-issue` check). Required chec
 - 2026-10-27: Upgrade old dependency lines to current releases instead of matching old pins.
 - 2026-10-28: One label standard across fonoster, routr and roomr (`## Labels`); kinds are native issue types.
 - 2026-10-28: A CLI command and the SDK method it calls share one camelCase name (`sipnet:numbers:linkTwilio` calls `numbers.linkTwilio()`, RPC `LinkTwilio`).
+- 2026-10-29: Operated hosts are set up and upgraded by the Ansible playbook in `ops/ansible`; Docker Compose is the only official target, the Helm chart is unsupported.

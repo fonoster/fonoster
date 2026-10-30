@@ -1,0 +1,54 @@
+# Puts the host on fonoster_version with this inventory's .env, overrides and overlays.
+#
+#   stage   the release under releases/<version> with the inventory's files, rendered and checked
+#           by fonoster-config, and its images
+#   switch  a backup, then the stage into fonoster_dir and docker compose up
+#   smoke   the dashboard and the API answer, from the controller
+#
+# --check runs the stage and only reports what the switch would change.
+- name: Version
+  ansible.builtin.assert:
+    that:
+      - fonoster_version is defined
+      - fonoster_version is string
+      - fonoster_version is match('^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$')
+    fail_msg: "Set fonoster_version to a release, like -e fonoster_version=0.40.0"
+    quiet: true
+
+# Keys and TLS persist in the state folder. An install whose keys are not there yet must have
+# them copied in first: generating new ones would lock out every token and stored key.
+- name: Empty persistent folders
+  ansible.builtin.shell: |
+    for d in {{ fonoster_guarded | join(' ') }}; do
+      [ -n "$(ls -A "$d" 2>/dev/null)" ] || echo "$d"
+    done
+  vars:
+    fonoster_guarded: >-
+      {{ [fonoster_state_dir ~ '/keys']
+         + ([] if fonoster_env.TLS_CERT | default('') else [fonoster_state_dir ~ '/tls']) }}
+  register: fonoster_empty
+  changed_when: false
+  check_mode: false
+
+- name: Live keys
+  ansible.builtin.stat:
+    path: "{{ fonoster_dir }}/config/keys"
+  register: fonoster_live_keys
+
+- name: Persistent keys and TLS for an existing install
+  ansible.builtin.assert:
+    that: fonoster_empty.stdout_lines | length == 0 or not fonoster_live_keys.stat.exists
+    fail_msg: >-
+      {{ fonoster_empty.stdout_lines | join(' and ') }} is empty, but {{ fonoster_dir }}/config/keys
+      exists. Copy this install's config/keys (and config/tls) there first; the play never generates
+      keys or TLS over an existing install.
+    quiet: true
+
+- name: Stage
+  ansible.builtin.import_tasks: stage.yml
+
+- name: Switch
+  ansible.builtin.import_tasks: switch.yml
+
+- name: Smoke test
+  ansible.builtin.import_tasks: smoke.yml
