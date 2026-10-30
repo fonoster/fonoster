@@ -40,6 +40,7 @@ One Docs tab with groups; Self-hosting, Private regions and Hacking are sections
 | Workspace | Workspaces, members and API keys | H | `workspace/access` | Every API call needs it | identity, legacy concepts |
 | | Use your own provider keys | H | `workspace/provider-keys` | Bring your own Deepgram, OpenAI, ElevenLabs, Groq keys | `docs/providers.md` |
 | | Secrets | H | `workspace/secrets` | Credentials for tools without hardcoding | secrets proto |
+| | Billing (Fonoster Cloud) | H | `workspace/billing` | Trial, Pay-as-you-go, what calls cost, cancelling | `mods/billing`, rate card 1 |
 | | Use Fonoster from an AI assistant (MCP) | H | `workspace/mcp` | Claude or Cursor place calls through `fonoster-mcp` | `mods/mcp` |
 | Reference | API | R | `reference/api` | Short: gRPC, use the SDK, link to `@fonoster/sdk` on npm (owner decision) | protos |
 | | Node SDK | R | `reference/sdk` | The SDK gets its own home | `mods/sdk` |
@@ -52,7 +53,7 @@ One Docs tab with groups; Self-hosting, Private regions and Hacking are sections
 | | Providers and models | R | `reference/providers` | Catalog and deprecations | `ops/bundle/config/catalog.yaml` |
 
 Not built, so never promised: MCP or code tools in Autopilot, Anthropic/Google models on live calls,
-number import, billing, logs, SDK record/mute, dashboard or CLI for retention, a per-app turn-taking
+number import, billing on self-hosted installs, logs, SDK record/mute, dashboard or CLI for retention, a per-app turn-taking
 detector.
 
 ## Self-hosting

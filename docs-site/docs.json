@@ -109,6 +109,7 @@
                   "workspace/access",
                   "workspace/provider-keys",
                   "workspace/secrets",
+                  "workspace/billing",
                   "workspace/mcp"
                 ]
               },

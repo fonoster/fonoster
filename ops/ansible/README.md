@@ -141,3 +141,67 @@ a release's `fonoster/ansible`, with `-i /etc/fonoster/inventory/production.yml`
 5. Apply the host role alone (`--tags host`) in a maintenance window.
 6. Delete `/root/use-managed-db.sh` on the host, and the keys of the old deploy script from root's
    `authorized_keys`.
+
+### Billing
+
+Fonoster Cloud's billing (`compose.billing.yaml`: credits, plans, admission, Stripe) runs only in
+the `production` group. Every operated inventory carries `NATS_BILLING_PASSWORD` in
+`fonoster_env_secrets` (`s<hex16>`), whether billing runs there or not. The steps, in this order:
+
+1. **Before merging the release that ships billing,** add `NATS_BILLING_PASSWORD` to the
+   production inventory, and check that the `fonoster/billing` repository on Docker Hub accepts
+   the release's push.
+2. **Merge.** The release and its deploy run with billing off.
+3. **Billing alone.** In Stripe's live account: activate Stripe Tax; create the webhook endpoint
+   `<PUBLIC_URL>/stripe/webhooks` for `invoice.paid`, `invoice.payment_failed`,
+   `invoice.payment_action_required`, `customer.subscription.updated` and
+   `customer.subscription.deleted`; set the Customer Portal to allow cancelling at the end of the
+   billing period, updating payment methods and the invoice history. Billing creates its products
+   and prices at start. Then add to `group_vars/production/main.yml`, with no apiserver or
+   AppBridge wiring yet:
+
+   ```yaml
+   fonoster_env:
+     COMPOSE_FILE: compose.yaml:compose.external-db.yaml:compose.billing.yaml:compose.traces.yaml
+   fonoster_env_secrets:
+     NATS_BILLING_PASSWORD: "s<hex16>"
+     BILLING_DATABASE_URL: "postgresql://fonoster:<password>@<managed db>:25060/fonoster?schema=billing&sslmode=require"
+     STRIPE_SECRET_KEY: "rk_live_..."
+     STRIPE_WEBHOOK_SECRET: "whsec_..."
+   fonoster_overrides:
+     billing.yaml:
+       identity: { databaseUrl: "<managed db>/fnidentity" }
+   ```
+
+   Redeploy (`gh workflow run deploy.yaml -f version=<version>`). Check that billing is healthy
+   (`docker compose ps billing`), its migrations ran (`docker compose logs billing` shows
+   `prisma migrate deploy` applying them; the database user must be allowed to `CREATE SCHEMA
+   billing`), and that Stripe's "Send test event" on the endpoint gets a 2xx.
+4. **Launch.** Add both switches in one deploy:
+
+   ```yaml
+   fonoster_overrides:
+     fonoster.yaml:
+       features: { billing: { enabled: true, address: "billing:50073" } }
+     appbridge.yaml:
+       authz: { address: "billing:50071", timeoutMs: 500 }
+   ```
+
+   The dashboard shows Billing, and AppBridge asks billing before every call: an owner without
+   credits is refused.
+5. **Rollback.** Remove the `fonoster.yaml` `features.billing` and `appbridge.yaml` `authz`
+   overrides together with `compose.billing.yaml` from `COMPOSE_FILE`, and redeploy the same
+   version. The `billing` schema stays: its migrations only add.
+6. **Watch.** AppBridge `admitted without an answer from authorization`: billing didn't answer,
+   so calls go through for free. Billing `usage has no price on the rate card; not billed`. Billing must consume within 7
+   days, the usage stream's retention; after that, usage is lost.
+
+An operator's changes to one owner, on the host:
+
+```sh
+docker compose exec billing fonoster-billing-admin trial   --email pedro@acme.com --days 45
+docker compose exec billing fonoster-billing-admin credits --email pedro@acme.com --credits 500 --note "support case 123"
+```
+
+`trial` sets the Trial's length from its start (reopening an ended Trial); `credits` adds credits
+(Trial credits on the Trial, like a top-up otherwise). `--owner <user ref>` instead of `--email`.

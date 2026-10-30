@@ -1,12 +1,12 @@
 diff --git a/mods/billing/src/rater.ts b/mods/billing/src/rater.ts
-index aefedd2f3..d591921c3 100644
+index 83f6cea9b..d591921c3 100644
 --- a/mods/billing/src/rater.ts
 +++ b/mods/billing/src/rater.ts
 @@ -44,7 +44,7 @@ export type Rated = {
  };
  
  /** The shortest call billed (D4, rule 6). */
--export const MIN_CALL_SECONDS = 60;
+-export const MIN_CALL_SECONDS = 15;
 +export const MIN_CALL_SECONDS = 30;
  
  const INCLUDED = new Set([

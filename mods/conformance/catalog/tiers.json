@@ -932,6 +932,26 @@
     "pri": "P0",
     "trials": null
   },
+  "BIL-049": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-050": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "BIL-051": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "BIL-052": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
   "DSH-001": {
     "tier": "pr",
     "pri": "P0",
@@ -1283,6 +1303,11 @@
     "trials": null
   },
   "OPS-006": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-007": {
     "tier": "nightly",
     "pri": "P1",
     "trials": null

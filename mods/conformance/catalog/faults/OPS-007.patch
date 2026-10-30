@@ -1,0 +1,15 @@
+diff --git a/ops/bundle/config/envoy-tls.yaml b/ops/bundle/config/envoy-tls.yaml
+index bf1770f79..be39a77ef 100644
+--- a/ops/bundle/config/envoy-tls.yaml
++++ b/ops/bundle/config/envoy-tls.yaml
+@@ -90,10 +90,6 @@ static_resources:
+                             cluster: apiserver-cluster-http
+                         # Stripe's webhooks, for the billing service (ops/bundle/compose.billing.yaml).
+                         # Without that overlay the name never resolves and this path answers 503.
+-                        - match:
+-                            path: "/stripe/webhooks"
+-                          route:
+-                            cluster: billing-cluster
+                         - match:
+                             prefix: "/fonoster.identity.v1beta2.Identity/SendVerificationCode"
+                             headers:

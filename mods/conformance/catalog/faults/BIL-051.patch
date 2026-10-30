@@ -1,0 +1,13 @@
+diff --git a/mods/stripe-fake/src/portal.ts b/mods/stripe-fake/src/portal.ts
+index aaa53a6b2..420763ff6 100644
+--- a/mods/stripe-fake/src/portal.ts
++++ b/mods/stripe-fake/src/portal.ts
+@@ -119,7 +119,7 @@ export async function portal(
+         "post",
+         "/v1/subscriptions/{subscription_exposed_id}",
+         { subscription_exposed_id: sub.id as string },
+-        { cancel_at_period_end: String(form.action === "cancel") }
++        { cancel_at_period_end: String(form.action === "renew") }
+       );
+     }
+     return { status: 303, location: pathname };

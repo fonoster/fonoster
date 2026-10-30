@@ -7,6 +7,35 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
+<Update label="v0.45" description="October 2026" tags={["Cloud", "Self-hosting"]}>
+
+## Cloud
+
+- **Billing is live on Fonoster Cloud.** Every owner starts on a 7-day Trial with 1,000 credits,
+  then upgrades to Pay-as-you-go ($25 a month, 2,500 credits). Calls cost $0.05 a minute, billed
+  by the second with a 15-second minimum, plus AI at cost on Fonoster's keys. See
+  [Billing](/workspace/billing).
+- **Cancel in the Customer Portal.** **Manage plan, payment methods and invoices** opens it. A
+  cancelled plan runs to the end of its month ("Your plan ends on …"), then you have no plan:
+  credits you have left pay for calls at the Trial's limits until they expire.
+
+## Self-hosting
+
+- Installs without the new overlay are unchanged: no billing runs and every call is admitted.
+- **New `compose.billing.yaml`** runs Fonoster Cloud's billing, opt-in, with Stripe keys in `.env`.
+- **`.env` gains `NATS_BILLING_PASSWORD`**, which `./init.sh` generates. **`config/nats.conf`** adds
+  the NATS user `billing` and includes the new **`config/nats-permissions/billing.conf`**; the
+  user is unused without the overlay.
+- **`config/envoy.yaml` and `config/envoy-tls.yaml`** route `/stripe/webhooks` to billing. Without
+  the overlay the path answers 503.
+- **`config/fonoster.yaml`:** `features.billing` no longer needs `authz`, and
+  `features.billing.address` is required when `features.billing.enabled` is true (it no longer
+  defaults to `<authz.host>:50073`).
+- **Operated Ansible hosts must add `NATS_BILLING_PASSWORD` to `fonoster_env_secrets` before
+  deploying this release.** Otherwise the deploy stops and names it, and nothing changes.
+
+</Update>
+
 <Update label="v0.43" description="October 2026" tags={["Self-hosting"]}>
 
 ## Self-hosting
