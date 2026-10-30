@@ -488,6 +488,16 @@ case ":$(env_expanded COMPOSE_FILE):" in
 *) api="${public_host:-$host_ip}:$HTTPS_PORT (gRPC and gRPC-Web, TLS)" ;;
 esac
 
+# Plain HTTP on an address the internet reaches sends logins and API keys in the clear.
+case "$PUBLIC_URL" in
+http://*)
+  case "$public_host" in
+  localhost | 127.* | 10.* | 192.168.* | 172.1[6-9].* | 172.2[0-9].* | 172.3[01].*) ;;
+  *) echo "init: warning: PUBLIC_URL is $PUBLIC_URL: the dashboard and API go over plain HTTP. For HTTPS, set PUBLIC_URL to https:// (https://docs.fonoster.com/self-hosting/https)." >&2 ;;
+  esac
+  ;;
+esac
+
 echo "$env_msg"
 echo "$keys_msg"
 echo "$tls_msg"

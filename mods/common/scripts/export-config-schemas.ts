@@ -17,9 +17,8 @@
  * limitations under the License.
  */
 // Exports each service's config schema to JSON Schema (add-self-host-installer 4.1, D5): the
-// bundle ships them as config/schemas/<svc>.json for `fonoster-config check`. The service schemas
-// live in the service packages, which depend on common, so this script (not common's library)
-// imports them. The bundle build calls:
+// schemas live in the service packages, which depend on common, so this script (not common's
+// library) imports them:
 //
 //   npx tsx mods/common/scripts/export-config-schemas.ts <outDir>
 //

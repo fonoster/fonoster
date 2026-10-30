@@ -16,7 +16,7 @@ Two wildcard records send every trunk and domain name under your domain to your 
 ## Sources (ground truth)
 
 - `docs-site/self-hosting/carriers-and-phones.mdx`
-- `mods/apiserver/src/envs.ts` (PSTN_ROOT, SIP_ROOT), `ops/bundle/config/fonoster.example.yaml`, `ops/bundle/.env.example` (ports)
+- `mods/apiserver/src/envs.ts` (PSTN_ROOT, SIP_ROOT), `ops/bundle/config/fonoster.yaml`, `ops/bundle/init.sh` (the .env ports)
 
 ## Node / edge spec
 

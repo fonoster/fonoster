@@ -67,7 +67,7 @@ services:
       retries: 10
 
   routr:
-    image: fonoster/routr-one:2.31.2
+    image: fonoster/routr-one:2.31.6
     restart: unless-stopped
     depends_on:
       postgres: { condition: service_healthy }
@@ -144,7 +144,7 @@ services:
   # The Roomr node: config/roomr.yaml. Released from fonoster/roomr and pinned by digest; the pin
   # moves with @fonoster/roomr in mods/conformance (the QA gate checks they match).
   roomr:
-    image: fonoster/roomr:0.3.0@sha256:6f7b3499b550b38fd2f36d64e0807ebc932885694d12951679cae256a9a47c8a
+    image: fonoster/roomr:0.3.2@sha256:9e8156b70bd92959fe4c9603fae395a65660c2309cfaabe44dd080f08a38c77d
     restart: unless-stopped
     # SIGTERM drains: the node unregisters, publishes node.down and exits when its rooms end or
     # drainWait (config/roomr.yaml, 10m) runs out; the grace period is a little longer.

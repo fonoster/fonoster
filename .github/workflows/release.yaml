@@ -15,7 +15,7 @@ name: Release
 #   6. deploy: deploy.yaml plans the release on production with the Ansible playbook (no
 #      credential), then waits for approval in the production environment before it applies.
 #
-# compose.yaml is never edited: the archive's .env.example carries FONOSTER_VERSION.
+# compose.yaml is never edited: the archive's init.sh carries FONOSTER_VERSION.
 #
 # Runs queue, never overlap. When main moves while the gate runs, that run stops without
 # publishing; the run queued for the newer push releases everything.

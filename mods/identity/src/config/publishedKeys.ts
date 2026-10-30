@@ -54,7 +54,7 @@ function assertUnpublishedKeys(keys: {
   );
   if (published)
     throw new Error(
-      "identity signing key is the development key once committed to the Fonoster repository: generate your own (fonoster-config init, or openssl genrsa 2048)"
+      "identity signing key is the development key once committed to the Fonoster repository: generate your own (./init.sh, or openssl genrsa 2048)"
     );
   if (PUBLISHED_ENCRYPTION_KEYS.includes(keys.encryptionKey?.trim()))
     throw new Error(

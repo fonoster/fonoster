@@ -111,8 +111,8 @@ node's builder image SHALL be pinned to a patched Go release by digest. The Comp
 offer HTTPS without editing its files: `.env` adding `compose.tls.yaml` to `COMPOSE_FILE`, with
 `TLS_CERT` and `TLS_KEY`, SHALL make Envoy serve TLS on 443 with those files (mounted read-only),
 redirect 80 to HTTPS and stop publishing the plain HTTP port; without it the default install is
-unchanged. `fonoster-config init` and `check` SHALL warn when `PUBLIC_URL` is `http://` on a host
-that is not loopback or private, or when the HTTPS setup is incomplete.
+unchanged. `./init.sh` SHALL warn when `PUBLIC_URL` is `http://` on a host that is not loopback or
+private.
 
 #### Scenario: Helm install without NATS users
 - **WHEN** the chart is rendered with `nats.auth.enabled=false` and no `allowUnauthenticated`
@@ -125,7 +125,7 @@ that is not loopback or private, or when the HTTPS setup is incomplete.
   8449 is not published, and browser calls use `wss://voice.example.com/sip`
 
 #### Scenario: Plain HTTP on a public address
-- **WHEN** `fonoster-config init` runs with `PUBLIC_URL=http://203.0.113.10:8449`
+- **WHEN** `./init.sh` runs with `PUBLIC_URL=http://203.0.113.10:8449`
 - **THEN** it succeeds and warns that the dashboard and API go over plain HTTP, naming how to turn
   on HTTPS
 

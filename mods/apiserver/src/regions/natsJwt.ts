@@ -19,7 +19,7 @@
 import { RegionHub } from "@fonoster/common";
 
 // The NATS JWT helpers and generateRegionHub live in @fonoster/common (regions/hub) so the
-// self-host setup utility (fonoster-config init) can generate the region hub without the
+// region hub setup (fonoster-region-hub-setup) can generate the region hub without the
 // apiserver. Re-exported here so existing imports keep working.
 export const {
   encodeNatsJwt,

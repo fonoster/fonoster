@@ -14,7 +14,7 @@ The Compose stack is `ops/bundle/compose.yaml` (with the development layer
 `ops/rebuild/compose.yaml`; the root `compose.yaml` includes both; docs/operators/rebuild.md), and `ops/rebuild/stack up` renders every file
 below for one machine (docs/try-the-new-platform.md). In the dev container
 (CONTRIBUTING.md) the same files live in the git-ignored `.dev/config/`, written
-by `fonoster-config init` with the dev layer in `.devcontainer/config/`.
+by `ops/bundle/init.sh` after the dev layer in `.devcontainer/config/` is merged in.
 
 The dashboard is a static app behind nginx. At start-up it writes `/config.js`
 and its Content-Security-Policy from `DASHBOARD_API_URL` (the API's public URL as
@@ -25,8 +25,7 @@ the image, so one image serves Community and Cloud.
 ## Quick start
 
 ```bash
-npx -p @fonoster/common fonoster-config init   # in the bundle folder: .env (secrets), config/*.yaml, keys
-npx -p @fonoster/common fonoster-config check  # validate before starting
+./init.sh              # in the bundle folder: .env (secrets), keys, a certificate, the SIP port
 docker compose up -d
 ```
 

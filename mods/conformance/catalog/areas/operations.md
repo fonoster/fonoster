@@ -107,7 +107,7 @@ and an edited `config/fonoster.yaml`) and started. This build's archive is unpac
 
 - **Spec:** deployment / A playbook puts a host on a Fonoster version / Plan then apply
 - **Priority:** P1
-- **Proof:** Empty `fonoster_live_excludes` in the fonoster role's defaults; the release's example files, README and schemas land in `/opt/fonoster` and the test goes red.
+- **Proof:** Empty `fonoster_live_excludes` in the fonoster role's defaults; the release's `README.md` and `ansible/` land in `/opt/fonoster` and the test goes red.
 - **Fault:** faults/OPS-003.patch
 - **Test:** ops/ansible/test/throwaway.sh
 
@@ -117,7 +117,7 @@ checked for what must not be there, every service's state is read, and the dashb
 called through the CA the install generated. An archive whose `SHA256SUMS` does not match must fail
 the play before anything in `/opt/fonoster` changes.
 
-**Pass.** The plan exits 0, prints no secret and creates no `/opt/fonoster/compose.yaml`; the apply exits 0; `/opt/fonoster` has no `*.example.*`, `.env.example`, `README.md` or `config/schemas`; every service is `running`; the dashboard answers 200 and `ExchangeCredentials` answers `grpc-status: 3`; a checksum mismatch fails naming it, with `/opt/fonoster` byte-identical. **Fail.** Any of those differs.
+**Pass.** The plan exits 0, prints no secret and creates no `/opt/fonoster/compose.yaml`; the apply exits 0; `/opt/fonoster` has no `README.md` or `ansible/`, and `config/routr-one.yaml` is the release's with the inventory's override merged; every service is `running`; the dashboard answers 200 and `ExchangeCredentials` answers `grpc-status: 3`; a checksum mismatch fails naming it, with `/opt/fonoster` byte-identical. **Fail.** Any of those differs.
 
 ### OPS-004 Applying the previous version rolls back
 
@@ -130,7 +130,7 @@ the play before anything in `/opt/fonoster` changes.
 After `0.0.0-a` runs, `0.0.0-b` is applied and then `0.0.0-a` again. Each time the running version
 is read from `.env` and from the apiserver container's image. The `.env`, keys and TLS files are
 compared across the three applies. Then two applies that must be refused without touching the live
-install: a copy of the `0.0.0-a` archive whose `.env.example` adds a name, and the state folder's
+install: a copy of the `0.0.0-a` archive whose `init.sh` adds a `.env` name, and the state folder's
 keys moved away from under an existing install.
 
 **Pass.** `0.0.0-b` runs after its apply and `0.0.0-a` after the next; `deploys.log` has `0.0.0-a -> 0.0.0-b` and `0.0.0-b -> 0.0.0-a`; `.env` is byte-identical to the first apply's and the keys and TLS files to every apply's; the added name fails the play naming it, and the empty `/var/lib/fonoster/keys` fails it naming that folder, each with `/opt/fonoster` byte-identical. **Fail.** Any of those differs.

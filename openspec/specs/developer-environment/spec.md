@@ -90,7 +90,7 @@ change to a component's source MUST restart (or hot-reload) that component only.
 #### Scenario: Everything up
 - **WHEN** `npm run dev` runs in the workspace
 - **THEN** the dashboard answers at `http://localhost:<HTTP_PORT>` on the host, the owner can sign
-  in with the login `fonoster-config info --dir .dev` prints, and the apiserver has applied its
+  in with the login `npm run dev:info` prints, and the apiserver has applied its
   migrations
 
 #### Scenario: A call reaches an agent

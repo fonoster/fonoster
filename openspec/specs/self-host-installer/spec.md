@@ -1,7 +1,7 @@
 # self-host-installer Specification
 
 ## Purpose
-The self-host bundle and the `fonoster-config` commands that install and check it.
+The self-host bundle and `init.sh`, which prepares an install of it.
 
 ## Requirements
 

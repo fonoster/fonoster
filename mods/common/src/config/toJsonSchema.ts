@@ -20,8 +20,8 @@ import { ZodFirstPartyTypeKind, ZodTypeAny } from "zod";
 import { strictDeep } from "./strictDeep";
 
 // A small Zod (v3) to JSON Schema converter for the service config schemas (add-self-host-
-// installer 4.1, build log IC-B3): the bundle ships one JSON Schema per service and
-// `fonoster-config check` validates rendered files with them. It covers the Zod types the config
+// installer 4.1, build log IC-B3): one JSON Schema per service, for editors and the schema tests.
+// It covers the Zod types the config
 // schemas use and throws on any other, so a new type can't silently export as "anything".
 // Refinements (superRefine, transform) are not representable and are left out: the services
 // still validate fully on boot.

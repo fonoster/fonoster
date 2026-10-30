@@ -32,3 +32,8 @@ fonoster_compose_overlays: {}
 fonoster_live_excludes:
   - README.md
   - ansible
+# A private region's files, left out of an install that doesn't run compose.region.yaml.
+fonoster_region_files:
+  - compose.region.yaml
+  - config/region
+  - config/nats-permissions/region-agent.conf

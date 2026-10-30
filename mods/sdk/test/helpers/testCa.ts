@@ -31,8 +31,8 @@ export type TestCa = {
 };
 
 /**
- * Issues a CA and a server certificate for `names` (DNS names or IP addresses) with the same code
- * `fonoster-config init` uses, and writes the CA to a file for `caFile`.
+ * Issues a CA and a server certificate for `names` (DNS names or IP addresses), like the ones
+ * init.sh generates, and writes the CA to a file for `caFile`.
  */
 export function makeTestCa(
   names: string[] = ["localhost", "127.0.0.1"]
