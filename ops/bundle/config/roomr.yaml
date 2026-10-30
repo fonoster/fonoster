@@ -34,5 +34,8 @@ sessionEndpoint: "appbridge:50071"
 # On SIGTERM the node unregisters, stops its heartbeat and waits this long for live rooms to end
 # (compose.yaml's stop_grace_period is longer).
 drainWait: 10m
+# A phone leg on hold that sends no audio (no music on hold) ends after this long (Roomr's
+# default is 30m); while it's active, mediaTimeout (15s) applies.
+mediaHoldTimeout: 15m
 # OTLP/HTTP export to your collector; empty (the default) is off.
 telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
