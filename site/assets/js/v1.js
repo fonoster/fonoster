@@ -710,6 +710,50 @@
     });
   };
 
+  /* ---------- "Contact sales": dialog with the address and a copy button ---------- */
+  // Without <dialog> support the links stay plain mailto.
+  const initContact = () => {
+    const dialog = $("#contact");
+    if (!dialog || typeof dialog.showModal !== "function") return;
+    const email = $(".contact__email", dialog);
+    const copy = $("[data-copy]", dialog);
+    const label = $("span", copy);
+    const use = $("use", copy);
+    const track = (name) => typeof window.gtag === "function" && window.gtag("event", name);
+    let reset = null;
+
+    const restore = () => {
+      label.textContent = t("contact.copy");
+      use.setAttribute("href", `${ICONS}#i-copy`);
+    };
+
+    $$("[data-contact]").forEach((link) =>
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        dialog.showModal();
+        copy.focus();
+        track("contact_open");
+      })
+    );
+    $("[data-contact-close]", dialog).addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    copy.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(email.value);
+      } catch (e) {
+        email.select(); // clipboard blocked: leave the address selected for Cmd/Ctrl+C
+        return;
+      }
+      label.textContent = t("contact.copied");
+      use.setAttribute("href", `${ICONS}#i-check`);
+      track("contact_copy");
+      window.clearTimeout(reset);
+      reset = window.setTimeout(restore, 2000);
+    });
+  };
+
   /* ---------- Boot ---------- */
   initPrefs();
   initNav();
@@ -726,5 +770,6 @@
   initLane();
   initPrint();
   initCallMe();
+  initContact();
   setLang(lang, true);
 })();
