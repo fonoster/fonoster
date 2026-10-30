@@ -99,18 +99,47 @@ describe("@conformance[deployment] release gate and nightly checks", function ()
     expect(Object.values(jobs).some((j) => j.environment)).to.equal(false);
   });
 
-  it("deploys every release to production only after approval, and rolls back a failed switch", function () {
+  it("deploys every release to production with the playbook, only after approval, and rolls back a failed apply", function () {
     const { jobs } = workflow("release.yaml");
     expect(jobs.deploy?.uses).to.equal("./.github/workflows/deploy.yaml");
     expect(jobs.deploy?.needs).to.include.members(["images", "bundle"]);
-    const deploy = workflow("deploy.yaml");
-    expect(deploy.jobs.prepare.environment).to.equal("production-prepare");
-    expect(deploy.jobs.deploy.environment?.name).to.equal("production");
-    expect(deploy.jobs.deploy.needs).to.equal("prepare");
-    const rollback = steps(deploy.jobs.deploy).find((s) =>
-      /\brollback\b/.test(s.run ?? "")
+    const { plan, apply } = workflow("deploy.yaml").jobs;
+    expect(plan, "deploy.jobs.plan is undefined").to.exist;
+    expect(apply, "deploy.jobs.apply is undefined").to.exist;
+    // The plan holds no credential.
+    expect(plan.environment).to.equal("production-prepare");
+    expect(JSON.stringify(plan)).not.to.match(/secrets\./);
+    // The apply waits for approval and runs the release's playbook on the host, rolling back a
+    // failed apply.
+    expect(
+      typeof apply.environment === "object" && apply.environment.name
+    ).to.equal("production");
+    expect(apply.needs).to.equal("plan");
+    const onHost = (verb: string) =>
+      steps(apply).find((s) =>
+        new RegExp(`bash -s ${verb}\\b[\\s\\S]*deploy-on-host\\.sh`).test(
+          s.run ?? ""
+        )
+      );
+    expect(onHost("apply"), "a step runs deploy-on-host.sh apply").to.exist;
+    expect(String(onHost("rollback")?.if)).to.include("failure()");
+    const script = fs.readFileSync(
+      path.join(ROOT, "ops", "ansible", "deploy-on-host.sh"),
+      "utf8"
     );
-    expect(String(rollback?.if)).to.include("failure()");
+    expect(script).to.match(/ansible-playbook[\s\S]*-e "fonoster_version=/);
+    expect(script).to.contain("playbooks/rollback.yml");
+  });
+
+  it("leaves no fonoster-deploy in any workflow", function () {
+    fs.readdirSync(WORKFLOWS)
+      .filter((f) => /\.ya?ml$/.test(f))
+      .forEach((file) =>
+        expect(
+          fs.readFileSync(path.join(WORKFLOWS, file), "utf8"),
+          file
+        ).not.to.contain("fonoster-deploy")
+      );
   });
 
   it("publishes on push only from release.yaml", function () {

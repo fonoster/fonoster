@@ -1262,6 +1262,11 @@
     "pri": "P0",
     "trials": null
   },
+  "OPS-001": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
   "OPS-003": {
     "tier": "nightly",
     "pri": "P1",
@@ -1273,6 +1278,11 @@
     "trials": null
   },
   "OPS-005": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-006": {
     "tier": "nightly",
     "pri": "P1",
     "trials": null

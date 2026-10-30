@@ -2,13 +2,14 @@
 # Puts the machine it runs on through the playbook, from nothing, with two local builds, and checks
 # what the playbook promises (catalog area OPS, mods/conformance/catalog/areas/operations.md):
 #
-#   ops/ansible/test/throwaway.sh <a> [<b>]
+#   ops/ansible/test/throwaway.sh <a> [<b>] [--rollback]
 #
 # Builds the archives and images of <a> and <b> (ops/release/bundle; kept when already built),
 # lints, then: plan <a>, apply <a>, apply <a> again, apply <b>, apply <a>, plus the failures (a bad
 # checksum, a release with a .env name the inventory lacks, an install whose keys are not in
-# /var/lib/fonoster/keys). Without <b> the version switch is not checked. The inventory is
-# test/inventory.yml: this machine over a local connection.
+# /var/lib/fonoster/keys). Without <b> the version switch is not checked. --rollback (needs <b>)
+# then applies <b> with a smoke test that fails and checks that playbooks/rollback.yml puts <a>
+# back. The inventory is test/inventory.yml: this machine over a local connection.
 #
 # It deletes /opt/fonoster, /var/lib/fonoster and their containers and volumes first, so it runs
 # only on a throwaway machine: Ubuntu 24.04 with root or sudo, Docker, Node.js and npm (for the
@@ -20,8 +21,13 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 ANSIBLE="$ROOT/ops/ansible"
-A="${1:?usage: ops/ansible/test/throwaway.sh <a> [<b>]}"
-B="${2:-}"
+ROLLBACK=0
+ARGS=()
+for arg in "$@"; do
+  if [ "$arg" = --rollback ]; then ROLLBACK=1; else ARGS+=("$arg"); fi
+done
+A="${ARGS[0]:?usage: ops/ansible/test/throwaway.sh <a> [<b>] [--rollback]}"
+B="${ARGS[1]:-}"
 LIVE=/opt/fonoster
 STATE=/var/lib/fonoster
 PROJECT=fonoster
@@ -32,6 +38,7 @@ SUDO=""
 log() { printf '\033[1m[throwaway]\033[0m %s\n' "$*" >&2; }
 die() { log "$*"; exit 1; }
 
+[ "$ROLLBACK" = 0 ] || [ -n "$B" ] || die "--rollback needs <b>"
 [ "${GITHUB_ACTIONS:-}" = "true" ] || [ "${THROWAWAY:-}" = "1" ] \
   || die "this deletes $LIVE and $STATE: run it on a throwaway machine (THROWAWAY=1)"
 for tool in ansible-playbook ansible-lint ansible-inventory docker rsync; do
@@ -85,10 +92,17 @@ play() { # <version> <log> [ansible-playbook args]: the exit code of ansible-pla
   shift 2
   (cd "$ANSIBLE" && ansible-playbook -i test/inventory.yml playbooks/site.yml \
     -e "fonoster_version=$v" \
-    -e "fonoster_archive=$ROOT/dist/release/$v/fonoster-$v.tar.gz" \
-    -e "fonoster_common_package=$ROOT/dist/release/$v/fonoster-common-$v.tgz" "$@") >"$out" 2>&1
+    -e "fonoster_archive=$ROOT/dist/release/$v/fonoster-$v.tar.gz" "$@") >"$out" 2>&1
   local rc=$?
   log "ansible-playbook $v $* -> exit $rc ($out)"
+  return $rc
+}
+rollback() { # <log> [ansible-playbook args]: the exit code of playbooks/rollback.yml
+  local out="$1"
+  shift
+  (cd "$ANSIBLE" && ansible-playbook -i test/inventory.yml playbooks/rollback.yml "$@") >"$out" 2>&1
+  local rc=$?
+  log "rollback.yml $* -> exit $rc ($out)"
   return $rc
 }
 # Each file under the live folder and its checksum: equal output, byte-identical folder.
@@ -143,11 +157,14 @@ if ! play "$A" "$WORK/apply-a.log"; then
   exit 1
 fi
 record OPS-003 "apply $A exits 0" ok
-extras="$($SUDO find "$LIVE" \( -name '*.example.*' -o -name .env.example -o -name README.md -o -path "$LIVE/config/schemas" \) -print)"
-[ -z "$extras" ] && record OPS-003 "$LIVE holds no examples, README or schemas" ok \
-  || record OPS-003 "$LIVE holds no examples, README or schemas" fail "$extras"
+extras="$($SUDO find "$LIVE" -maxdepth 1 \( -name README.md -o -name ansible \) -print)"
+[ -z "$extras" ] && record OPS-003 "$LIVE holds no README or ansible folder" ok \
+  || record OPS-003 "$LIVE holds no README or ansible folder" fail "$extras"
 bad="$(compose ps -a --format '{{.Service}} {{.State}}' | awk '$2 != "running"')"
 [ -z "$bad" ] && record OPS-003 "every service is running" ok || record OPS-003 "every service is running" fail "$bad"
+$SUDO grep -q "mode: all" "$LIVE/config/routr-one.yaml" && $SUDO grep -q "kind: RoutrOne" "$LIVE/config/routr-one.yaml" \
+  && record OPS-003 "config/routr-one.yaml is the release's file with the inventory's override merged" ok \
+  || record OPS-003 "config/routr-one.yaml is the release's file with the inventory's override merged" fail "$($SUDO cat "$LIVE/config/routr-one.yaml")"
 $SUDO cp "$STATE/tls/ca.pem" "$WORK/ca.pem" && $SUDO chmod 644 "$WORK/ca.pem"
 check OPS-003 "the dashboard answers 200 through the generated CA" \
   sh -c "[ \"\$(curl -s --cacert '$WORK/ca.pem' -o /dev/null -w '%{http_code}' https://127.0.0.1:18443/)\" = 200 ]"
@@ -225,7 +242,9 @@ fi
 # A release that adds a .env name the inventory lacks: the play names it, the live folder stays.
 mkdir -p "$WORK/newname/x"
 tar -xzf "$ROOT/dist/release/$A/fonoster-$A.tar.gz" -C "$WORK/newname/x"
-echo "OPS_THROWAWAY_NEW_NAME=1" >>"$WORK/newname/x/fonoster/.env.example"
+# init.sh's .env template gains a name, as a newer release's would.
+awk '{ print } /^ROOMR_PASSWORD=$/ { print "OPS_THROWAWAY_NEW_NAME=1" }' "$WORK/newname/x/fonoster/init.sh" >"$WORK/newname/init.sh"
+cp "$WORK/newname/init.sh" "$WORK/newname/x/fonoster/init.sh"
 tar -czf "$WORK/newname/fonoster-$A.tar.gz" -C "$WORK/newname/x" fonoster
 (cd "$WORK/newname" && sha256sum "fonoster-$A.tar.gz" >SHA256SUMS)
 before="$(tree_sum "$LIVE")"
@@ -252,3 +271,36 @@ else
   record OPS-004 "empty $STATE/keys over an install fails, naming it" ok
 fi
 $SUDO rmdir "$STATE/keys" && $SUDO mv "$STATE/keys.saved" "$STATE/keys"
+
+# OPS-006 A failed apply restores the last backup -------------------------------------------------
+if [ "$ROLLBACK" = 1 ]; then
+  # A rollback after an apply that never switched (no backup since it began) changes nothing.
+  sleep 1
+  since="$(date -u +%Y%m%dT%H%M%SZ)"
+  before="$(tree_sum "$LIVE")"
+  if rollback "$WORK/rollback-none.log" -e "fonoster_rollback_since=$since"; then
+    [ "$before" = "$(tree_sum "$LIVE")" ] && record OPS-006 "with no backup since the apply began, nothing is restored" ok \
+      || record OPS-006 "with no backup since the apply began, nothing is restored" fail "$LIVE changed"
+  else
+    record OPS-006 "with no backup since the apply began, nothing is restored" fail "$(grep -A3 'fatal:' "$WORK/rollback-none.log" | tail -4)"
+  fi
+
+  # <b> switches, then its smoke test fails (nothing answers on port 1).
+  since="$(date -u +%Y%m%dT%H%M%SZ)"
+  if play "$B" "$WORK/apply-b-bad.log" -e fonoster_public_url=https://127.0.0.1:1; then
+    record OPS-006 "apply $B with a failing smoke test fails" fail "the play passed"
+  else
+    record OPS-006 "apply $B with a failing smoke test fails" ok
+  fi
+  if rollback "$WORK/rollback.log" -e "fonoster_rollback_since=$since"; then
+    record OPS-006 "rollback.yml exits 0 (its smoke test passes)" ok
+  else
+    record OPS-006 "rollback.yml exits 0 (its smoke test passes)" fail "$(grep -A3 'fatal:' "$WORK/rollback.log" | tail -4)"
+  fi
+  [ "$(running_version)" = "$A" ] && [ "$(image_of apiserver)" = "fonoster/apiserver:$A" ] \
+    && record OPS-006 "rollback.yml puts $A back" ok \
+    || record OPS-006 "rollback.yml puts $A back" fail ".env says $(running_version), apiserver runs $(image_of apiserver)"
+  $SUDO tail -n 1 "$STATE/deploys.log" | grep -q " $B -> $A rolled back\$" \
+    && record OPS-006 "deploys.log ends with $B -> $A rolled back" ok \
+    || record OPS-006 "deploys.log ends with $B -> $A rolled back" fail "$($SUDO tail -n 3 "$STATE/deploys.log")"
+fi

@@ -1,0 +1,11 @@
+diff --git a/ops/ansible/playbooks/rollback.yml b/ops/ansible/playbooks/rollback.yml
+--- a/ops/ansible/playbooks/rollback.yml
++++ b/ops/ansible/playbooks/rollback.yml
+@@ -32,7 +32,6 @@
+       ansible.builtin.shell: |
+         set -e
+         find {{ fonoster_dir }} -mindepth 1 -delete
+-        tar -xzf {{ fonoster_state_dir }}/backups/{{ fonoster_backup.stdout }} -C {{ fonoster_dir }}
+       changed_when: true
+ 
+     - name: Restored version

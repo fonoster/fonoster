@@ -56,7 +56,9 @@ COPY --from=builder --chown=appuser:appuser /work/mods/identity/schema.prisma ./
 RUN apt-get update && apt-get install -y ca-certificates \
   && npm install -g prisma@6.19.3 npm@latest \
   && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/* \
+  && chmod +x /work/mods/apiserver/dist/bin/owner.js \
+  && ln -s /work/mods/apiserver/dist/bin/owner.js /usr/local/bin/fonoster-owner
 
 USER appuser
 

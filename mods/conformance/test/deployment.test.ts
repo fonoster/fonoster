@@ -86,7 +86,6 @@ function fakeSecretsDir() {
       identityUrl: "postgresql://u:p@db:5432/fnidentity",
       key: `k1.aesgcm256.${randomBytes(32).toString("base64url")}=`
     },
-    "fonoster-apiserver": { ownerPassword: "owner-pass" },
     "fonoster-autopilot": { secret: "ap-secret" },
     "roomr-peer": { password: "peer-pass" },
     "fonoster-minio": { rootUser: "minio", rootPassword: "minio-pass" },

@@ -13,6 +13,8 @@ all:
           fonoster_api_host: 127.0.0.1:18443
           routr_traces_enabled: true
           routr_traces_retention_days: 30
+          # The public half of a key nobody holds: the deploy user exists, nobody logs in as it.
+          deploy_authorized_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK9ify4fU8dVeWDEwjfzwRDlR4n2+MC6hl5Q9F/qofu4 throwaway
           fonoster_env:
             COMPOSE_PROJECT_NAME: fonoster
             COMPOSE_FILE: compose.yaml:compose.traces.yaml
@@ -32,10 +34,8 @@ all:
             OTEL_EXPORTER_OTLP_ENDPOINT: ""
             OTEL_EXPORTER_OTLP_PROTOCOL: ""
             SUBNET_PREFIX: 10.216.30
-            OWNER_EMAIL: ops@example.com
             MINIO_ROOT_USER: fonoster
           fonoster_env_secrets:
-            OWNER_PASSWORD: "p7b9975cb5b93b69c"
             POSTGRES_PASSWORD: "{{ vault_postgres_password }}"
             MINIO_ROOT_PASSWORD: "s1484af1d0ca6a9b0edb668fc5f93b4e1"
             NATS_APISERVER_PASSWORD: "s2e95f3c2e070df5dd9e3335048af076d"
@@ -45,6 +45,8 @@ all:
             ENCRYPTION_KEY: "k1.aesgcm256.XsXWH96emjC51kW-paat3MBw0zZpS_H7xMjpzT6-gWY="
             AUTOPILOT_SIGNING_SECRET: "499a76fd328c7e25617f64c85c3a3c196d6f62884c034e95"
             ROOMR_PASSWORD: "s58353cfdefd8d48f2ff450f6bce6a690"
+            NATS_REGION_AGENT_PASSWORD: "s0d2f7c1e9b4a6083f5e2d1c7b9a4e6f0"
+            FONOSTER_REGION_SECRETS_KEY: "s7e1a9c3f5b2d4086e9c1a3f5b7d2e4c6"
             OTEL_EXPORTER_OTLP_HEADERS: "Authorization=Basic%2053758fc2d32445f24286972b"
           vault_postgres_password: "sf41312e91d93c767ea80cb1a2f9e3500"
           fonoster_overrides:

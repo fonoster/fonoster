@@ -11,7 +11,6 @@
 #   fonoster-postgres      password                     (postgres.deploy)
 #   fonoster-minio         rootUser, rootPassword       (minio.deploy; also the record store keys)
 #   fonoster-identity-keys private.pem, public.pem      (Identity's RSA pair)
-#   fonoster-apiserver     ownerPassword
 #   fonoster-autopilot     secret                       (Autopilot apps' signing secret)
 #   roomr-peer         password                     (the Roomr nodes' Routr peer)
 #   fonoster-records-key   records.pem                  (EC P-256 key that signs call records)
@@ -65,7 +64,6 @@ apiserver:
       database: { url: "secret://k8s/fonoster-db#identityUrl" }
       audience: api
       keys: { privateKeyPath: /opt/fonoster/keys/private.pem, publicKeyPath: /opt/fonoster/keys/public.pem }
-      owner: { name: Admin, email: admin@fonoster.local, password: "secret://k8s/fonoster-apiserver#ownerPassword" }
 
 dashboard:
   enabled: true

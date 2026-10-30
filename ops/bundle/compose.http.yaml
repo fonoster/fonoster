@@ -5,7 +5,7 @@
 #   HTTP_BIND=127.0.0.1
 #   PUBLIC_URL=https://voice.example.com
 #
-# then run `fonoster-config init` and `docker compose up -d`. Envoy serves plain HTTP on
+# then run ./init.sh and `docker compose up -d`. Envoy serves plain HTTP on
 # HTTP_PORT (on this machine only with HTTP_BIND=127.0.0.1); point the proxy at it. The proxy must
 # forward gRPC (HTTP/2) and WebSocket upgrades on /sip.
 services:

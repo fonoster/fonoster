@@ -16,7 +16,7 @@
 #   ops/rebuild/stack billing-reset
 #                               a fresh Billing account on the Trial and an empty Stripe fake
 #   ops/rebuild/stack reconfigure
-#                               render the configs again from ops/bundle and recreate what they
+#                               write the configs again from ops/bundle and recreate what they
 #                               change (Envoy, the apiserver, the dashboard, Routr, Roomr): a QA
 #                               fault in a bundle config reaches the running stack this way
 #   ops/rebuild/stack owner-cert on|off
@@ -43,40 +43,28 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$HERE/../.." && pwd)"
 LOCAL="$HERE/.local"
 CONF="$LOCAL/config"
-STACK_ENV="$LOCAL/stack.env"
-HOST_ENV="$LOCAL/host.env"
+# The one env file: the stack's settings (stack.defaults), the bundle's names and the secrets
+# ops/bundle/init.sh generates. Compose passes each container only its own values (the per-service
+# `environment:` in ops/bundle/compose.yaml and compose.yaml), never this whole file.
+STACK_ENV="$LOCAL/.env"
 SEED_FILE="$LOCAL/seed.json"
 BUNDLE="$ROOT/ops/bundle"
-BUNDLE_ENV="$LOCAL/bundle.env"
-# The values config/*.yaml reference as ${NAME} (the stack's, the bundle's and the vendor keys
-# present), for the renderer. Compose passes each container only its own (the per-service
-# `environment:` in ops/bundle/compose.yaml and compose.yaml), never this whole file.
-SERVICES_ENV="$LOCAL/services.env"
-# The certificate the stack serves HTTPS with (the bundle's generated one, `fonoster-config init`'s
-# code): every harness client trusts its CA through FONOSTER_CA_FILE (SDK, CLI) and
+# The certificate the stack serves HTTPS with (the one ops/bundle/init.sh generates for every
+# install): every harness client trusts its CA through FONOSTER_CA_FILE (SDK, CLI) and
 # NODE_EXTRA_CA_CERTS (Node's fetch and https); the browser projects ignore certificate errors.
 CA_FILE="$CONF/tls/ca.pem"
 # Present while `stack owner-cert on` is in effect: TLS_CERT/TLS_KEY naming a certificate from a
 # separate test CA (.local/owner-tls/), as an owner's real certificate would be.
 OWNER_TLS_ENV="$LOCAL/owner-tls.env"
 OVERLAY="$LOCAL/overlay"
-CONFIG_CLI_DIR="$ROOT/mods/common/dist/config/cli"
 
 log() { printf '\033[1m[stack]\033[0m %s\n' "$*" >&2; }
 die() { printf '\033[31m[stack] %s\033[0m\n' "$*" >&2; exit 1; }
-rand() { openssl rand -hex "${1:-16}"; }
-# A 32-byte key in base64 without + or / (valid for both Cloak and the apiserver's check).
-# base64url of 32 random bytes, the format `npx @47ng/cloak generate` prints.
-cloak_key() {
-  openssl rand -base64 32 | tr '+/' '-_'
-}
 
 load_env() {
   set -a
   # shellcheck disable=SC1090
   . "$STACK_ENV"
-  # shellcheck disable=SC1090
-  [ -f "$HOST_ENV" ] && . "$HOST_ENV"
   # shellcheck disable=SC1090
   [ -f "$LOCAL/vendor.env" ] && . "$LOCAL/vendor.env"
   set +a
@@ -91,65 +79,60 @@ compose() {
   load_env
   local args=(--project-directory "$HERE" -f "$BUNDLE/compose.yaml" -f "$HERE/compose.yaml"
     --env-file "$STACK_ENV")
-  [ -f "$HOST_ENV" ] && args+=(--env-file "$HOST_ENV")
-  [ -f "$BUNDLE_ENV" ] && args+=(--env-file "$BUNDLE_ENV")
   # HTTPS, as the bundle serves it by default (no compose.http.yaml): the harness takes the path
   # every install takes. With `owner-cert on`, the owner's certificate instead of the generated one.
   [ -f "$OWNER_TLS_ENV" ] && args+=(--env-file "$OWNER_TLS_ENV")
   COMPOSE_PROFILES="$(profiles)" docker compose "${args[@]}" "$@"
 }
 
-# ---- one-time setup: env file with secrets, keys ----
+# ---- one-time setup: .local/.env ----
 
+# .local/.env when it is missing: stack.defaults, the bundle's names derived from them, and empty
+# secret lines that ops/bundle/init.sh fills (it generates every empty _PASSWORD, _SECRET, _KEY and
+# _TOKEN).
 init_local() {
-  mkdir -p "$CONF/keys"
-  if [ ! -f "$STACK_ENV" ]; then
-    log "creating $STACK_ENV (local secrets; never commit it)"
-    {
-      cat "$HERE/stack.defaults"
-      echo
-      echo "# Generated secrets (local only)"
-      echo "POSTGRES_PASSWORD=$(rand)"
-      echo "MINIO_ROOT_USER=fonoster"
-      echo "MINIO_ROOT_PASSWORD=$(rand)"
-      echo "RB_NODE_PASSWORD=$(rand)"
-      echo "AUTOPILOT_SIGNING_SECRET=$(rand 24)"
-      echo "RB_ENCRYPTION_KEY=k1.aesgcm256.$(cloak_key)"
-      echo "RB_ADMIN_EMAIL=admin@fonoster.local"
-      echo "RB_ADMIN_PASSWORD=$(rand 8)"
-      echo "RB_AGENT_PASSWORD=$(rand 8)"
-    } > "$STACK_ENV"
-    chmod 600 "$STACK_ENV"
-  fi
-  # One NATS user per service (add-platform 4.1); added to stack.env files made before them.
-  # NATS parses a variable's value as config, so a password starting with a digit fails to load:
-  # each starts with a letter, and one generated before this rule is replaced.
-  local svc var
-  for svc in APISERVER APPBRIDGE ROOMR ROUTR BILLING; do
-    var="NATS_${svc}_PASSWORD"
-    if grep -q "^$var=[0-9]" "$STACK_ENV"; then
-      sed -i.bak "/^$var=/d" "$STACK_ENV" && rm -f "$STACK_ENV.bak"
-    fi
-    grep -q "^$var=" "$STACK_ENV" || echo "$var=n$(rand)" >> "$STACK_ENV"
-  done
-  if [ ! -f "$CONF/keys/private.pem" ]; then
-    log "generating Identity's signing keys"
-    openssl genrsa -out "$CONF/keys/private.pem" 2048 2>/dev/null
-    openssl rsa -in "$CONF/keys/private.pem" -pubout -out "$CONF/keys/public.pem" 2>/dev/null
-  fi
-  if [ ! -f "$CONF/keys/records.pem" ]; then
-    log "generating the call-record signing key (ES256)"
-    openssl ecparam -name prime256v1 -genkey -noout 2>/dev/null \
-      | openssl pkcs8 -topk8 -nocrypt -out "$CONF/keys/records.pem"
-  fi
-  if [ ! -f "$CONF/region-hub.conf" ]; then
-    log "generating the region hub (private regions: operator, accounts, region-signing key)"
-    (cd "$ROOT" && npx --no-install tsx mods/apiserver/src/bin/regionHubSetup.ts "$CONF" >/dev/null) \
-      || log "could not generate the region hub; private regions stay off"
-  fi
-  # Containers run as another user; local keys only.
-  chmod 644 "$CONF/keys/"*.pem
-  if [ -d "$CONF/keys/region-hub" ]; then chmod 644 "$CONF/keys/region-hub/"*; fi
+  mkdir -p "$CONF"
+  [ -f "$STACK_ENV" ] && return 0
+  log "creating $STACK_ENV (local secrets; never commit it)"
+  # shellcheck disable=SC1091
+  . "$HERE/stack.defaults"
+  {
+    cat "$HERE/stack.defaults"
+    echo
+    echo "# The bundle's names (ops/bundle/init.sh), from the values above."
+    echo "FONOSTER_VERSION=$RB_TAG"
+    echo "CONFIG_DIR=$RB_CONFIG_DIR"
+    echo "SUBNET_PREFIX=$RB_NET"
+    echo "HTTPS_PORT=$RB_API_PORT"
+    echo "HTTPS_REDIRECT_PORT=$RB_HTTPS_REDIRECT_PORT"
+    echo "PUBLIC_URL=https://localhost:$RB_API_PORT"
+    echo "SIP_PORT=$RB_SIP_PORT"
+    echo "ROOMR_RTP_PORT_MIN=$RB_NODE_RTP_MIN"
+    echo "ROOMR_RTP_PORT_MAX=$RB_NODE_RTP_MAX"
+    echo "MINIO_PORT=$RB_MINIO_PORT"
+    echo "MINIO_CONSOLE_PORT=$RB_MINIO_CONSOLE_PORT"
+    echo "NATS_PORT=$RB_NATS_PORT"
+    echo "LEAF_PORT=${RB_LEAF_PORT:-7422}"
+    echo
+    echo "# Secrets: generated by ops/bundle/init.sh (local only)."
+    echo "POSTGRES_PASSWORD="
+    echo "MINIO_ROOT_USER=fonoster"
+    echo "MINIO_ROOT_PASSWORD="
+    local svc
+    for svc in APISERVER APPBRIDGE ROOMR ROUTR BILLING; do
+      echo "NATS_${svc}_PASSWORD="
+    done
+    echo "ENCRYPTION_KEY="
+    echo "AUTOPILOT_SIGNING_SECRET="
+    echo "ROOMR_PASSWORD="
+    echo "RB_AGENT_PASSWORD="
+    echo "BILLING_WEBHOOK_SECRET="
+    echo
+    echo "# The first user (fonoster-owner), as seed.cjs, e2e.cjs and the dashboard proofs sign in."
+    echo "RB_ADMIN_EMAIL=admin@fonoster.local"
+    echo "RB_ADMIN_PASSWORD="
+  } > "$STACK_ENV"
+  chmod 600 "$STACK_ENV"
 }
 
 # The address softphones and the media path reach from both the host and the containers: the
@@ -170,58 +153,12 @@ detect_host_ip() {
   echo "$ip"
 }
 
-# ---- configs (rendered on every `up`, from stack.env and the vendor keys present) ----
+# ---- configs (written on every `up`: the bundle's files, the stack's overlays, init.sh) ----
 
 render_configs() {
   load_env
-  local host_ip net
+  local host_ip
   host_ip="$(detect_host_ip)"
-  net="$RB_NET"
-  {
-    echo "# Rendered by ops/rebuild/stack up (host address, vendor switches)."
-    echo "RB_HOST_IP=$host_ip"
-    echo "ROUTR_EXTERNAL_ADDRS=$host_ip"
-    echo "ROUTR_LOCALNETS=$net.40/29"
-    echo "RB_PUBLIC_API_URL=https://localhost:$RB_API_PORT"
-  } > "$HOST_ENV"
-
-  # The bundle's Compose and config names (ops/bundle/.env.example) from the stack's: the base
-  # compose file and the config examples read only these.
-  {
-    echo "# Rendered by ops/rebuild/stack up: ops/bundle names from stack.env and host.env."
-    echo "FONOSTER_VERSION=${RB_TAG:-dev}"
-    echo "CONFIG_DIR=$RB_CONFIG_DIR"
-    echo "HOST_IP=$host_ip"
-    echo "SUBNET_PREFIX=$net"
-    echo "HTTPS_PORT=$RB_API_PORT"
-    echo "HTTPS_REDIRECT_PORT=${RB_HTTPS_REDIRECT_PORT:-16081}"
-    echo "PUBLIC_URL=https://localhost:$RB_API_PORT"
-    echo "SIP_PORT=$RB_SIP_PORT"
-    echo "RTPENGINE_PORT_MIN=$RTPENGINE_PORT_MIN"
-    echo "RTPENGINE_PORT_MAX=$RTPENGINE_PORT_MAX"
-    echo "ROOMR_RTP_PORT_MIN=$RB_NODE_RTP_MIN"
-    echo "ROOMR_RTP_PORT_MAX=$RB_NODE_RTP_MAX"
-    echo "MINIO_PORT=$RB_MINIO_PORT"
-    echo "MINIO_CONSOLE_PORT=$RB_MINIO_CONSOLE_PORT"
-    echo "NATS_PORT=$RB_NATS_PORT"
-    echo "LEAF_PORT=${RB_LEAF_PORT:-7422}"
-    echo "ENCRYPTION_KEY=$RB_ENCRYPTION_KEY"
-    echo "ROOMR_PASSWORD=$RB_NODE_PASSWORD"
-    echo "OWNER_EMAIL=$RB_ADMIN_EMAIL"
-    echo "OWNER_PASSWORD=$RB_ADMIN_PASSWORD"
-  } > "$BUNDLE_ENV"
-  chmod 600 "$BUNDLE_ENV"
-  {
-    echo "# Rendered by ops/rebuild/stack up: the values the service configs reference (renderer)."
-    cat "$STACK_ENV" "$HOST_ENV" "$BUNDLE_ENV"
-    local k
-    for k in DEEPGRAM_API_KEY ELEVENLABS_API_KEY GROQ_API_KEY OPENAI_API_KEY \
-      OTEL_EXPORTER_OTLP_ENDPOINT OTEL_EXPORTER_OTLP_HEADERS OTEL_EXPORTER_OTLP_PROTOCOL; do
-      [ -n "${!k:-}" ] && echo "$k=${!k}"
-    done
-  } > "$SERVICES_ENV"
-  chmod 600 "$SERVICES_ENV"
-
   # The operator key (PR-19) authorizes the region admin API (fonoster-region create|list|…).
   if [ ! -f "$CONF/keys/region-operator.key" ]; then
     mkdir -p "$CONF/keys"
@@ -229,10 +166,8 @@ render_configs() {
   fi
   chmod 644 "$CONF/keys/region-operator.key"
 
-  # The bundle's config folder (static files and examples), then the stack's own layer: vendor
-  # keys and, with the fakes profile, the fakes' catalog (overlays deep-merged into the rendered
-  # YAML; ops/bundle has neither).
-  cp -R "$BUNDLE/config/." "$CONF/"
+  # The stack's layer over the bundle's files: vendor keys and, with the fakes profile, the fakes'
+  # catalog (deep-merged below; ops/bundle has neither).
   rm -rf "$OVERLAY" && mkdir -p "$OVERLAY"
 
   # Vendor keys become AppBridge's and Autopilot's platform keys. The API server offers every
@@ -292,28 +227,25 @@ render_configs() {
 YAML
     fi
   } > "$OVERLAY/fonoster.yaml"
-  # Your own overrides of the rendered configs, kept across runs: .local/overlay.local/<file>.yaml
-  # (merged after the stack's).
-  local mine=()
-  [ -d "$LOCAL/overlay.local" ] && mine=(--overlay "$LOCAL/overlay.local")
+  # The bundle's files with the stack's overlays, then yours (.local/overlay.local/<file>.yaml,
+  # kept across runs), file by file: keys/, tls/, the region hub and the rate cards stay.
+  node "$HERE/merge-config.cjs" "$BUNDLE/config" "$CONF" "$OVERLAY" "$LOCAL/overlay.local" >/dev/null \
+    || die "could not write the configs"
 
   if with_billing; then render_billing; fi
 
-  # The same renderer `fonoster-config init` uses (mods/common: fonoster-config render).
-  [ -f "$CONFIG_CLI_DIR/index.js" ] \
-    || die "build @fonoster/common first: (cd mods/common && npx tsc -b && cp -a src/protos dist)"
-  node "$CONFIG_CLI_DIR/index.js" render --config-dir "$CONF" --env-file "$SERVICES_ENV" \
-    --overlay "$OVERLAY" ${mine[@]+"${mine[@]}"} >/dev/null || die "could not render the configs"
-  # Containers read these as another user (local only).
-  chmod 644 "$CONF/fonoster.yaml" "$CONF/appbridge.yaml" "$CONF/autopilot.yaml" \
-    "$CONF/roomr.yaml" "$CONF/routr-edgeport.yaml" "$CONF/routr-one.yaml"
-  # The generated certificate (a local CA and a server certificate for localhost, 127.0.0.1 and
-  # the host address), kept across runs and reissued when the names change: the same code as init.
-  HOST_IP="$host_ip" PUBLIC_URL="https://localhost:$RB_API_PORT" node -e '
-    const { ensureLocalTls } = require(process.argv[1]);
-    const r = ensureLocalTls(process.argv[2], process.env);
-    if (r.state !== "kept") console.error(`[stack] certificate ${r.state} for ${r.names.join(", ")}`);
-  ' "$CONFIG_CLI_DIR/tls.js" "$LOCAL" || die "could not generate the certificate"
+  # Last, every time: the secrets, keys and certificate (kept across runs; the certificate is
+  # reissued when the host address changes), HOST_IP, and the SIP port in routr-edgeport.yaml.
+  sh "$BUNDLE/init.sh" --dir "$LOCAL" --host-ip "$host_ip" >/dev/null || die "ops/bundle/init.sh failed"
+  load_env
+
+  if [ ! -f "$CONF/region-hub.conf" ]; then
+    log "generating the region hub (private regions: operator, accounts, region-signing key)"
+    (cd "$ROOT" && npx --no-install tsx mods/apiserver/src/bin/regionHubSetup.ts "$CONF" >/dev/null) \
+      || log "could not generate the region hub; private regions stay off"
+  fi
+  # Containers run as another user; local keys only.
+  if [ -d "$CONF/keys/region-hub" ]; then chmod 644 "$CONF/keys/region-hub/"*; fi
   log "host address $host_ip; platform keys: ${refs:-none}"
 }
 
@@ -388,6 +320,9 @@ cmd_up() {
   compose up -d --build --remove-orphans
   wait_for "the apiserver (migrations, Identity, seed)" 120 api_ready \
     || { compose logs --tail 40 apiserver; die "apiserver did not start"; }
+  # The first user, once (fonoster-owner leaves an existing one alone).
+  printf '%s' "$RB_ADMIN_PASSWORD" | compose exec -T apiserver fonoster-owner create "$RB_ADMIN_EMAIL" >&2 \
+    || die "could not create the first user"
   # Routr's API comes up later (it migrates its own database first); seeding needs it. The
   # apiserver logs the roomr peer once Routr answers.
   wait_for "Routr" 90 routr_ready || { compose logs --tail 20 routr; die "Routr did not start"; }
@@ -418,7 +353,7 @@ psql_fonoster() {
 
 cmd_info() {
   load_env
-  local sip="$RB_HOST_IP:$RB_SIP_PORT"
+  local sip="$HOST_IP:$RB_SIP_PORT"
   cat >&2 <<EOF
 
   Dashboard   https://localhost:$RB_API_PORT   (generated certificate: the browser warns once)
@@ -613,6 +548,22 @@ roomr_registered() {
 # The owner's certificate (TLS_CERT and TLS_KEY), from a test CA of its own, so the stack takes the
 # path of an install with a real certificate (Envoy sends HSTS); `off` returns to the generated one.
 # Clients that verify trust .local/owner-tls/ca.pem meanwhile; the browser projects ignore errors.
+# A test CA of its own and a certificate from it for localhost, 127.0.0.1 and the host address,
+# as an owner's real certificate would be.
+issue_owner_cert() {
+  local dir="$1"
+  printf '[req]\ndistinguished_name=d\nprompt=no\n[d]\nCN=Owner test CA\n[ca]\nbasicConstraints=critical,CA:TRUE\nkeyUsage=critical,keyCertSign\n' >"$dir/ca.cnf"
+  printf '[req]\ndistinguished_name=d\nprompt=no\n[d]\nCN=localhost\n[s]\nbasicConstraints=CA:FALSE\nextendedKeyUsage=serverAuth\nsubjectAltName=DNS:localhost,IP:127.0.0.1,IP:%s\n' "$HOST_IP" >"$dir/server.cnf"
+  openssl ecparam -name prime256v1 -genkey -noout 2>/dev/null | openssl pkcs8 -topk8 -nocrypt -out "$dir/ca-key.pem"
+  openssl req -new -x509 -key "$dir/ca-key.pem" -days 30 -config "$dir/ca.cnf" -extensions ca -out "$dir/ca.pem"
+  openssl ecparam -name prime256v1 -genkey -noout 2>/dev/null | openssl pkcs8 -topk8 -nocrypt -out "$dir/server-key.pem"
+  openssl req -new -key "$dir/server-key.pem" -config "$dir/server.cnf" -out "$dir/server.csr"
+  openssl x509 -req -in "$dir/server.csr" -CA "$dir/ca.pem" -CAkey "$dir/ca-key.pem" -days 30 \
+    -set_serial "0x$(openssl rand -hex 8)" -extfile "$dir/server.cnf" -extensions s -out "$dir/server.pem" 2>/dev/null
+  chmod 600 "$dir/ca-key.pem" "$dir/server-key.pem"
+  rm -f "$dir/ca.cnf" "$dir/server.cnf" "$dir/server.csr"
+}
+
 cmd_owner_cert() {
   load_env
   local dir="$LOCAL/owner-tls"
@@ -620,15 +571,7 @@ cmd_owner_cert() {
     on)
       mkdir -p "$dir"
       if [ ! -f "$dir/server.pem" ]; then
-        HOST_IP="$RB_HOST_IP" node -e '
-          const fs = require("fs");
-          const { issueCertificates, certificateNames } = require(process.argv[1]);
-          const { ca, server } = issueCertificates(certificateNames(process.env));
-          const out = process.argv[2];
-          fs.writeFileSync(`${out}/ca.pem`, ca.cert);
-          fs.writeFileSync(`${out}/server.pem`, server.cert);
-          fs.writeFileSync(`${out}/server-key.pem`, server.key, { mode: 0o600 });
-        ' "$CONFIG_CLI_DIR/tls.js" "$dir" || die "could not issue the owner certificate"
+        issue_owner_cert "$dir" || die "could not issue the owner certificate"
       fi
       {
         echo "# Rendered by ops/rebuild/stack owner-cert on."

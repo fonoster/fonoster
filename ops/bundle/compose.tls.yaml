@@ -1,15 +1,15 @@
-# HTTPS is the default now (compose.yaml), so this file only keeps older .env files working
-# (COMPOSE_FILE=compose.yaml:compose.tls.yaml) and holds the optional SIP over TLS lines below.
+# SIP over TLS, off by default: uncomment the lines below and add this file to COMPOSE_FILE
+# (COMPOSE_FILE=compose.yaml:compose.tls.yaml). HTTPS needs nothing here (compose.yaml).
 # Set TLS_CERT and TLS_KEY in .env to serve your own certificate
 # (https://docs.fonoster.com/self-hosting/https).
 services:
   # SIP over TLS (SIPS) for carriers and softphones, off by default. Routr needs the certificate
-  # as a PKCS#12 keystore (config/routr-edgeport.example.yaml has the matching transport), e.g.:
+  # as a PKCS#12 keystore (config/routr-edgeport.yaml has the matching transport), e.g.:
   #
   #   openssl pkcs12 -export -in fullchain.pem -inkey privkey.pem \
   #     -out config/tls/signaling.p12 -passout pass:<password>
   #
-  # Then uncomment these lines and the tls transport in config/routr-edgeport.example.yaml, set
+  # Then uncomment these lines and the tls transport in config/routr-edgeport.yaml, set
   # its keyStorePassword to <password>, and run init again. Add this file to COMPOSE_FILE
   # (COMPOSE_FILE=compose.yaml:compose.tls.yaml). The certificate must cover the names carriers
   # connect to: *.pstn.<domain> and the name in signaling.externalAddrs (see the HTTPS docs page).

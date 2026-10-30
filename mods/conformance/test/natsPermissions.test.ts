@@ -18,7 +18,7 @@
  */
 // NATS users and subject permissions (add-platform 4.1, build log HD-B1): runs the checked-in
 // ops/rebuild/config/nats.conf (main stack: apiserver, appbridge, roomr, routr) and
-// ops/rebuild/cell/config/nats.conf (a cell: appbridge, roomr, routr, region-agent) in Docker
+// ops/bundle/config/region/nats.conf (a private region: appbridge, roomr, routr, region-agent) in Docker
 // and proves each service reaches its own subjects and nothing else. Opt-in (starts containers):
 //
 //   NATS_ACL_TEST=docker [NATS_ACL_CONTAINER_PREFIX=fonoster-acl] [NATS_ACL_PORT=31400] npm test
@@ -206,7 +206,7 @@ describe("@conformance/nats permissions (per-service users)", function () {
     const cellDir = path.join(work, "cell");
     fs.mkdirSync(path.join(cellDir, "region"), { recursive: true });
     fs.copyFileSync(
-      path.join(ROOT, "ops", "rebuild", "cell", "config", "nats.conf"),
+      path.join(ROOT, "ops", "bundle", "config", "region", "nats.conf"),
       path.join(cellDir, "nats.conf")
     );
     fs.cpSync(perms, path.join(cellDir, "nats-permissions"), {

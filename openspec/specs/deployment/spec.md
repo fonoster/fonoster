@@ -111,8 +111,8 @@ node's builder image SHALL be pinned to a patched Go release by digest. The Comp
 offer HTTPS without editing its files: `.env` adding `compose.tls.yaml` to `COMPOSE_FILE`, with
 `TLS_CERT` and `TLS_KEY`, SHALL make Envoy serve TLS on 443 with those files (mounted read-only),
 redirect 80 to HTTPS and stop publishing the plain HTTP port; without it the default install is
-unchanged. `fonoster-config init` and `check` SHALL warn when `PUBLIC_URL` is `http://` on a host
-that is not loopback or private, or when the HTTPS setup is incomplete.
+unchanged. `./init.sh` SHALL warn when `PUBLIC_URL` is `http://` on a host that is not loopback or
+private.
 
 #### Scenario: Helm install without NATS users
 - **WHEN** the chart is rendered with `nats.auth.enabled=false` and no `allowUnauthenticated`
@@ -125,7 +125,7 @@ that is not loopback or private, or when the HTTPS setup is incomplete.
   8449 is not published, and browser calls use `wss://voice.example.com/sip`
 
 #### Scenario: Plain HTTP on a public address
-- **WHEN** `fonoster-config init` runs with `PUBLIC_URL=http://203.0.113.10:8449`
+- **WHEN** `./init.sh` runs with `PUBLIC_URL=http://203.0.113.10:8449`
 - **THEN** it succeeds and warns that the dashboard and API go over plain HTTP, naming how to turn
   on HTTPS
 
@@ -201,3 +201,23 @@ changing the live install on a bad checksum, an unknown `.env` name or unpersist
 #### Scenario: A second apply changes nothing
 - **WHEN** the playbook is applied again with the same version and inventory
 - **THEN** it reports no change, and a change to one service's config file recreates only that service
+
+### Requirement: Production deploys run the playbook
+
+Production SHALL be deployed by `deploy.yaml` running the playbook the release ships, on the
+host, with an inventory kept on the host outside every release, in two jobs: a plan that holds no
+credential, then an apply in an environment that requires approval. The apply MUST run the archive
+at the checksum the plan pinned and show the playbook's check before it changes anything. A failed apply SHALL restore the backup its switch
+made. The database MUST NOT be touched.
+
+#### Scenario: The plan holds no credential
+- **WHEN** a release is deployed and the plan job runs
+- **THEN** it has no secret, pins the archive's SHA256, and fails a version whose archive has no playbook
+
+#### Scenario: The apply runs what the plan showed
+- **WHEN** the release's archive changes after the plan and the apply is approved
+- **THEN** the apply refuses an archive that does not match the plan's SHA256, and prints the playbook's `--check --diff` before applying
+
+#### Scenario: A failed apply restores the last backup
+- **WHEN** an apply switches to a new version and its smoke test fails
+- **THEN** `rollback.yml` restores the previous install, its smoke test passes and `deploys.log` records `rolled back`

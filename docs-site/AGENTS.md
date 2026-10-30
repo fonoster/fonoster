@@ -35,10 +35,10 @@ the page (a short note, or `<Tabs>`). Don't make a separate page for it.
 Self-hosters and region operators work through tools, so each of those sections has a **Tooling** group
 that documents them from source:
 
-- Self-hosting: the stack installer (`ops/rebuild/stack`), the `fonoster` CLI's operator commands
-  (`mods/ctl`), and the Helm chart values (`ops/rebuild/helm`).
-- Private regions: the `fonoster-region` CLI (`mods/region-agent`) and the cell bundle
-  (`ops/rebuild/cell`).
+- Self-hosting: the init script (`ops/bundle/init.sh`), the `fonoster` CLI's operator commands
+  (`mods/ctl`), and the Helm chart values (`ops/rebuild/helm`, unsupported).
+- Private regions: the `fonoster-region` CLI (`mods/region-agent`), the region overlay
+  (`ops/bundle/compose.region.yaml`) and the playbook (`ops/ansible/playbooks/region.yml`).
 
 Commands, flags and config keys come from the code, never from memory.
 

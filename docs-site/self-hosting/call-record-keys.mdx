@@ -55,19 +55,13 @@ A key directory holds each key as `<kid>.key.pem` (private) and `<kid>.pub.pem` 
   </Step>
 
   <Step title="Point the gateway at the directory">
-    In `config/gateway.example.yaml`, change `signingKey` under `callRecord` to the directory as the
+    In `config/appbridge.yaml`, change `signingKey` under `callRecord` to the directory as the
     gateway sees it:
 
     ```yaml
     callRecord:
       # ...
       signingKey: { dir: /etc/fonoster/record-keys }
-    ```
-
-    Then write the configuration:
-
-    ```bash
-    npx -p @fonoster/common fonoster-config init
     ```
   </Step>
 
@@ -124,7 +118,7 @@ The current key is marked with `*`:
 
   <Step title="Let the gateway read it">
     The tool writes the private key readable by you only, and the gateway runs as another user.
-    Make it readable, as `init` does for the install's other keys:
+    Make it readable, as `init.sh` does for the install's other keys:
 
     ```bash
     chmod 644 config/record-keys/*.key.pem
@@ -159,8 +153,7 @@ set and its records carry no `jku`, so publish one yourself.
   </Step>
 
   <Step title="Name the URL in records">
-    Add the URL as `jku` in `config/gateway.example.yaml`, run `init`, and recreate the gateway as
-    above:
+    Add the URL as `jku` in `config/appbridge.yaml` and recreate the gateway as above:
 
     ```yaml
     signingKey: { dir: /etc/fonoster/record-keys, jku: "https://voice.example.com/.well-known/call-record-keys.json" }
@@ -206,7 +199,8 @@ Your install keeps call records forever by default. Workspace owners and admins 
 part (recording, transcript, messages) with the SDK or the HTTP API. See
 [Retention and erasure](/observe/retention). The API server applies those policies every 60
 minutes. To change how often, set `callRecords.retentionIntervalMinutes` in
-`config/fonoster.example.yaml` and run `init` again.
+`config/fonoster.yaml` and recreate the API server
+(`docker compose up -d --force-recreate apiserver`).
 
 ## Next steps
 

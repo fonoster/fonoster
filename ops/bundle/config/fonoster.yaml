@@ -1,0 +1,67 @@
+# The API server with its embedded Identity. Each ${NAME} is read from the API server's
+# environment, which Compose fills from .env, so secrets never land in config/. Edit this file,
+# then docker compose up -d --force-recreate apiserver; on an upgrade, apply your edits to the new
+# release's file (https://docs.fonoster.com/self-hosting/upgrade).
+domain: fonoster.local
+appUrl: ${PUBLIC_URL}
+# Browser calls ("Talk to agent") use SIP over WebSocket through Envoy's /sip on appUrl's origin:
+# ws:// for http://, wss:// for https:// (compose.tls.yaml). Browsers allow the microphone only on
+# HTTPS or http://localhost, so without TLS open the dashboard on localhost.
+server: { bindAddr: 0.0.0.0:50051, httpBridgePort: 9876, host: apiserver }
+logs: { level: info, format: text, transport: console }
+# OTLP/HTTP export to your collector; empty (the default) is off.
+telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
+database: { url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster" }
+encryption: { key: "${ENCRYPTION_KEY}" }
+authz: { enabled: false }
+features:
+  auth: { methods: [password], signup: invite }
+  billing: { enabled: false }
+  costs: { display: usage }
+  # SIP names: "domain" puts trunk inbound URIs at <label>.pstn.<domain> and domains at
+  # <label>.sip.<domain> (point *.pstn.<domain> and *.sip.<domain> at your SIP address);
+  # "any" takes any host or IP, for carriers and phones that reach you by address.
+  sip: { names: domain }
+# Numbers of apps route to the Roomr nodes' Peer, created at start with this password.
+routr:
+  apiEndpoint: routr:51907
+  # API-originated calls are dialed through Routr's SIP port as the roomr peer.
+  sipProxy: "routr:${SIP_PORT}"
+  roomrPeer: { aor: "sip:roomr@default", username: roomr, password: "${ROOMR_PASSWORD}" }
+nats: { url: "nats://nats:4222", user: apiserver, password: "${NATS_APISERVER_PASSWORD}" }
+# Autopilot apps point at the hosted Autopilot and share its signing secret.
+apps: { autopilotUrl: "ws://autopilot:3000", autopilotSigningSecret: "${AUTOPILOT_SIGNING_SECRET}" }
+callRecords:
+  enabled: true
+  stores:
+    - s3:
+        bucket: records
+        endpoint: "http://minio:9000"
+        region: us-east-1
+        forcePathStyle: true
+        credentials: { accessKeyId: "${MINIO_ROOT_USER}", secretAccessKey: "${MINIO_ROOT_PASSWORD}" }
+# The provider catalog, loaded on every start (adds and updates entries, never removes any).
+# `files: [...]` adds more catalog files, applied after `file` in order.
+catalog: { file: /etc/fonoster/catalog.yaml }
+identity:
+  database: { url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fnidentity" }
+  audience: api
+  keys: { privateKeyPath: /opt/fonoster/keys/private.pem, publicKeyPath: /opt/fonoster/keys/public.pem }
+  tokens: { accessTokenExpiresIn: 15m, idTokenExpiresIn: 15m, refreshTokenExpiresIn: 24h }
+  security: { contactVerificationRequired: false, twoFactorAuthenticationRequired: false }
+  invites: { expiration: 1d }
+# This machine as the public region `default`: Routr's SIP port and RTPEngine's range on the host
+# address. Private regions join through a region hub you add yourself:
+# https://docs.fonoster.com/private-regions/host-private-regions
+regions:
+  public:
+    - id: default
+      name: "Local (this machine)"
+      default: true
+      endpoints:
+        sip:
+          - { host: "${HOST_IP}", port: "${SIP_PORT}", transport: udp }
+          - { host: "${HOST_IP}", port: "${SIP_PORT}", transport: tcp }
+        signalingAddresses: ["${HOST_IP}"]
+        mediaAddresses: ["${HOST_IP}"]
+        rtpPorts: { min: "${RTPENGINE_PORT_MIN}", max: "${RTPENGINE_PORT_MAX}" }

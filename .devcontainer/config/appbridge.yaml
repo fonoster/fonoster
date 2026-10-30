@@ -1,4 +1,4 @@
-# Dev layer over .dev/config/appbridge.yaml (fonoster-config render --overlay; objects merge, `null`
+# Dev layer over .dev/config/appbridge.yaml (ops/rebuild/merge-config.cjs; objects merge, `null`
 # removes a key). Your own overrides: .dev/overlay/appbridge.yaml.
 #
 # AppBridge runs in the workspace, at its fixed address (.devcontainer/compose.yaml).

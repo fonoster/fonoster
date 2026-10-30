@@ -24,7 +24,7 @@ import {
   SHARED_VALUE_PATHS
 } from "../../src/config/schema";
 
-// Values the shipped .env.example provides for ${VAR} references.
+// Values the install's .env (init.sh) provides for ${VAR} references.
 const ENV = {
   POSTGRES_USER: "postgres",
   POSTGRES_PASSWORD: "postgres",

@@ -4,7 +4,8 @@
 Fonoster: the AI that answers the phone. An open-source (MIT) voice platform: Autopilot agents,
 apps over WebSocket streams (protocol `fonoster` | `twilio`), numbers, trunks and SIP agents,
 call records and webhooks. Used as Fonoster Cloud (app/api.fonoster.ai) and self-hosted with
-Docker Compose or Helm. npm workspaces + Lerna monorepo (`mods/*`, `tools/*`), Python packages
+Docker Compose (`./init.sh`, no Node.js); private regions with the Ansible playbook shipped in the
+archive (`ops/ansible`). npm workspaces + Lerna monorepo (`mods/*`, `tools/*`), Python packages
 in `python/`, Mintlify docs in `docs-site/`.
 
 ## Commands
@@ -79,7 +80,9 @@ Breaking changes here:
   (Node and Python).
 - Webhook event names and payloads (`docs/webhooks.md`).
 - `fonoster` CLI commands and flags (`mods/ctl`), `fonoster-region` CLI.
-- Config files and keys (`config/*.example.*`, per-service YAML), install `.env` (`FONOSTER_VERSION`).
+- Config files and keys (`config/*.yaml`), `init.sh` and the `.env` names it writes, install `.env`
+  (`FONOSTER_VERSION`).
+- Ansible inventory variables and vault names (`ops/ansible`).
 - Prisma schemas and migrations; the production deploy never migrates down.
 
 ## Risk hotspots
@@ -88,7 +91,7 @@ Breaking changes here:
 - `mods/billing`: money and Stripe events.
 - `mods/common/src/protos`: wire contract for every client.
 - `mods/appbridge`: call media and session core.
-- `.github/workflows/release.yaml`, `deploy.yaml`, `ops/release`, `ops/deploy`: every merge to main releases and deploys.
+- `.github/workflows/release.yaml`, `deploy.yaml`, `ops/release`, `ops/ansible`: every merge to main releases and deploys.
 - `mods/apiserver`, `mods/dashboard`: most fix commits since August.
 
 ## Release
@@ -114,8 +117,8 @@ Every PR links an issue (`Closes #123`; the `linked-issue` check). Required chec
 ### database-engineer
 - Prisma 6; `prisma-field-encryption` blocks Prisma 7.
 ### release-engineer
-- Production is app/api.fonoster.ai on one droplet; `fonoster-deploy prepare` then `switch`, rolls
-  back on a failed smoke test.
+- Production is app/api.fonoster.ai on one droplet. `deploy.yaml` runs the Ansible playbook: plan
+  (no credential), apply (approval); rollback restores the last backup; the database is never touched.
 ### technical-writer
 - `docs-site/AGENTS.md` holds the docs editorial policy and vocabulary.
 
@@ -131,3 +134,4 @@ Every PR links an issue (`Closes #123`; the `linked-issue` check). Required chec
 - 2026-10-28: One label standard across fonoster, routr and roomr (`## Labels`); kinds are native issue types.
 - 2026-10-28: A CLI command and the SDK method it calls share one camelCase name (`sipnet:numbers:linkTwilio` calls `numbers.linkTwilio()`, RPC `LinkTwilio`).
 - 2026-10-29: Operated hosts are set up and upgraded by the Ansible playbook in `ops/ansible`; Docker Compose is the only official target, the Helm chart is unsupported.
+- 2026-10-29: Until outside self-hosters exist, install and config changes (`init.sh`, the archive, `config/*.yaml`, the region overlay) ship as minor releases, not breaking ones.

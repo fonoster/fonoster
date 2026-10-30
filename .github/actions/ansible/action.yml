@@ -1,0 +1,18 @@
+name: Ansible
+description: Installs the pinned ansible-core and ansible-lint (the versions ops/ansible/README.md names).
+
+inputs:
+  lint:
+    description: Also install ansible-lint
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: ansible-core
+      shell: bash
+      env:
+        LINT: ${{ inputs.lint }}
+      run: |
+        pipx install ansible-core==2.21.5
+        [ "$LINT" != true ] || pipx inject --include-apps ansible-core ansible-lint==26.10.1

@@ -4,7 +4,7 @@ sidebarTitle: "HTTPS"
 description: "Replace the certificate Fonoster generates for getting started with a real one for your domains, which renews on its own."
 ---
 
-Fonoster serves the dashboard and API over HTTPS from its first start, with a certificate `init`
+Fonoster serves the dashboard and API over HTTPS from its first start, with a certificate `init.sh`
 generates in `config/tls/`. That certificate is for getting started: browsers warn about it, and
 API clients have to trust its `ca.pem`. Before you go live, use this page to replace it with a real
 certificate for every name you serve, renewed without touching the machine again.
@@ -82,10 +82,9 @@ Run the commands on this page as root.
   </Step>
 
   <Step title="Apply it">
-    Write the configuration again and recreate the services:
+    Recreate the services that read these lines:
 
     ```bash
-    npx -p @fonoster/common fonoster-config init
     docker compose up -d
     ```
 
@@ -170,7 +169,7 @@ the other recreates it after.
     PUBLIC_URL=https://app.example.com
     ```
 
-    Run `init` and `docker compose up -d`, then point the proxy at `127.0.0.1:8449`. It must forward
+    Run `docker compose up -d`, then point the proxy at `127.0.0.1:8449`. It must forward
     gRPC (HTTP/2) and WebSocket upgrades on `/sip`.
 
   </Accordion>
@@ -221,19 +220,18 @@ the other recreates it after.
     <Step title="Name the host carriers call back">
       Routr writes `externalAddrs` in `Record-Route` toward carriers. Over TLS the carrier verifies
       that name against your certificate, so it must be the fixed DNS name from step 1, not the IP
-      address `init` fills in. Set it in `config/overrides/routr-one.yaml`:
+      address the file has by default (`${HOST_IP}`). Set it under `spec.signaling` in
+      `config/routr-one.yaml`:
 
-      ```yaml config/overrides/routr-one.yaml
-      spec:
-        signaling:
+      ```yaml config/routr-one.yaml
           externalAddrs: ["sip.pstn.example.com"]
       ```
     </Step>
     <Step title="Turn the TLS listener on">
       Uncomment the `routr` lines in `compose.tls.yaml`, add it to `COMPOSE_FILE`
       (`COMPOSE_FILE=compose.yaml:compose.tls.yaml`), uncomment the `tls` transport in
-      `config/routr-edgeport.example.yaml`, set its `keyStorePassword` to `<password>`, open
-      `5061/tcp` in your firewall, and run `init` and `docker compose up -d`. Carriers and
+      `config/routr-edgeport.yaml`, set its `keyStorePassword` to `<password>`, open
+      `5061/tcp` in your firewall, and run `docker compose up -d --force-recreate routr`. Carriers and
       softphones then use `transport=tls` on port `5061`.
     </Step>
 
@@ -242,7 +240,7 @@ the other recreates it after.
 Routr validates the carrier's certificate chain against the public CAs the JVM ships, and
 speaks TLS 1.2 and 1.3 only. A carrier with a private CA needs a truststore holding that CA:
 set `securityContext.trustStore` and `trustStorePassword` in
-`config/overrides/routr-edgeport.yaml`. Over a TLS trunk, call audio is encrypted with SRTP
+`config/routr-edgeport.yaml`, then recreate Routr. Over a TLS trunk, call audio is encrypted with SRTP
 (`AES_CM_128_HMAC_SHA1_80`, the one suite Routr offers); over `5060` it isn't.
 
 </Accordion>
@@ -251,7 +249,7 @@ set `securityContext.trustStore` and `trustStorePassword` in
 
 <AccordionGroup>
   <Accordion title="The browser warns that the connection isn't private">
-    That's the certificate `init` generated for getting started. Open the details and continue to
+    That's the certificate `init.sh` generated for getting started. Open the details and continue to
     the site; the browser remembers it. To make the warning go away, use your own certificate
     (above).
   </Accordion>
@@ -270,15 +268,15 @@ set `securityContext.trustStore` and `trustStorePassword` in
   of them.
 </Accordion>
 
-<Accordion title="init warns that PUBLIC_URL is http://">
-  HTTPS is the default, but `PUBLIC_URL` still starts with `http://`. Set it to
-  `https://` and the certificate's name, then run `init` again. To keep plain
-  HTTP behind your own TLS proxy, use `compose.http.yaml` (above).
+<Accordion title="The dashboard links point at http://">
+  HTTPS is the default, but `PUBLIC_URL` in `.env` still starts with `http://`.
+  Set it to `https://` and the certificate's name, then run `docker compose up -d`.
+  To keep plain HTTP behind your own TLS proxy, use `compose.http.yaml` (above).
 </Accordion>
 
-<Accordion title="init warns that TLS_CERT or TLS_KEY is missing or not found">
-  Set both, or neither for the generated certificate. Check the two paths in
-  `.env` exist on this machine.
+<Accordion title="Envoy doesn't start after you set TLS_CERT and TLS_KEY">
+  Set both, or neither for the generated certificate. Check that the two paths in
+  `.env` exist on this machine, and read `docker compose logs envoy`.
 </Accordion>
 
   <Accordion title="certbot can't bind to port 80">

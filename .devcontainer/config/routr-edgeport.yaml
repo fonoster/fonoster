@@ -1,7 +1,7 @@
-# Dev layer over .dev/config/routr-edgeport.yaml (fonoster-config render --overlay; lists replace,
+# Dev layer over .dev/config/routr-edgeport.yaml (ops/rebuild/merge-config.cjs; lists replace,
 # so the whole transport list is restated). Your own overrides: .dev/overlay/routr-edgeport.yaml.
 #
-# SIP over TLS on 5061 with the certificate init generates in .dev/config/tls/: the routr service
+# SIP over TLS on 5061 with the certificate init.sh generates in .dev/config/tls/: the routr service
 # (.devcontainer/compose.yaml) mounts its PEMs where the routr-one image builds signaling.p12.
 spec:
   transport:

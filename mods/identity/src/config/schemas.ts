@@ -156,8 +156,7 @@ const identitySectionSchema = z
     tokens: tokensSchema,
     security: securitySchema,
     invites: invitesSchema,
-    oauth2: oauth2Schema,
-    owner: ownerSchema
+    oauth2: oauth2Schema
   })
   .default({});
 

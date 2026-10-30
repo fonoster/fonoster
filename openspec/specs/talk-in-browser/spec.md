@@ -49,7 +49,7 @@ with Identity's public key.
 - **THEN** the WebSocket opens and SIP requests sent on it reach Routr
 
 #### Scenario: Rendered bundle config
-- **WHEN** `fonoster-config init` renders the bundle
+- **WHEN** `./init.sh` prepares the bundle
 - **THEN** `routr-edgeport.yaml` lists a `ws` transport on 5062 and a `wss` transport on 5063,
   Envoy routes `/sip` to the `ws` one, and `fonoster.yaml` sets no `signalingServer`, so browsers
   get `wss://<host>/sip` from `appUrl` (`ws://<HOST_IP>:<HTTP_PORT>/sip` when HTTPS is off)

@@ -23,8 +23,7 @@ You need:
 
 - [Docker](https://docs.docker.com/get-docker/) with Compose v2 (`docker compose version` prints
   `v2` or later).
-- [Node.js 22](https://nodejs.org/en/download/) or later. You use it to run the setup tool with `npx`.
-- `curl`.
+- `curl` and `openssl`.
 - About 6 GB of free disk for the images.
 
 <Note>
@@ -62,68 +61,65 @@ You need:
     Download the release and unpack it into a new `fonoster` folder:
 
     ```bash
-    curl -fsSL https://github.com/fonoster/fonoster/releases/download/v0.31.0/fonoster-0.31.0.tar.gz | tar xz
+    curl -fsSL https://github.com/fonoster/fonoster/releases/download/v0.43.0/fonoster-0.43.0.tar.gz | tar xz
     cd fonoster
     ```
 
-    The folder holds `compose.yaml`, `compose.http.yaml` (plain HTTP behind your own TLS proxy),
-    `compose.tls.yaml` (SIP over TLS), `.env.example`, a `config` folder with one example per service
-    and their schemas, and a `README.md`.
+    The folder holds `init.sh`, `compose.yaml`, `compose.http.yaml` (plain HTTP behind your own TLS
+    proxy), `compose.tls.yaml` (SIP over TLS), `compose.external-db.yaml` (your own Postgres),
+    `compose.region.yaml` (a private region), a `config` folder with one file per service, an
+    `ansible` folder (the playbook that installs private regions) and a `README.md`.
   </Step>
 
   <Step title="Generate the configuration">
-    Run `init` to generate the secrets and keys, find this machine's address, and write the
-    configuration:
+    Run `init.sh` to generate the secrets and keys, find this machine's address, and set the SIP
+    port. It needs only a shell and `openssl`:
 
     ```bash
-    npx -p @fonoster/common fonoster-config init
+    ./init.sh
     ```
 
-    It prints what it wrote:
+    It prints what it wrote and how to reach the install:
 
     ```text
-    .env written (10 secrets generated)
+    .env written (12 secrets generated)
     keys: 3 files created in config/keys
-    config: config/appbridge.yaml, config/autopilot.yaml, config/fonoster.yaml, config/roomr.yaml, config/routr-edgeport.yaml, config/routr-one.yaml
-    tls: local CA and server certificate created in config/tls for localhost, 127.0.0.1, 192.0.2.10 (for getting started)
-    host address: 192.0.2.10
+    tls: local CA and server certificate created in config/tls for localhost, 127.0.0.1, 203.0.113.10 (for getting started)
+    config: config/routr-edgeport.yaml SIP port 5060
+    host address: 203.0.113.10
+
+    Dashboard   https://203.0.113.10
+    API         203.0.113.10:443 (gRPC and gRPC-Web, TLS)
+    SIP         203.0.113.10:5060 (UDP and TCP)
+
+    Files       /opt/fonoster/.env            Compose settings and the generated secrets (back it up)
+                /opt/fonoster/config/         one file per service, yours to edit
+                /opt/fonoster/config/keys/    signing keys
+                /opt/fonoster/config/tls/     certificate generated for getting started
+
+    Certificate /opt/fonoster/config/tls/ca.pem
+                SHA-256 3F:9A:...
+                Generated for getting started: browsers show a warning once, and API clients
+                trust this CA file (--ca-file, or FONOSTER_CA_FILE). Use a real certificate
+                (TLS_CERT and TLS_KEY) before going live: https://docs.fonoster.com/self-hosting/https
 
     Next: docker compose up -d
-    Then: npx -p @fonoster/common fonoster-config info (dashboard URL and owner login)
+    Run ./init.sh again any time to print this. It keeps every secret.
     ```
 
     The host address is the one softphones, carriers and browsers use to reach this machine. To use a
-    different one, run `init` again with `--host-ip <address>`.
+    different one, run `./init.sh --host-ip <address>`.
 
-    `init` also generates a certificate in `config/tls/`, so Fonoster serves HTTPS from its first
+    `init.sh` also generates a certificate in `config/tls/`, so Fonoster serves HTTPS from its first
     start. It's for getting started: use a real certificate before you go live
     ([Serve over HTTPS](/self-hosting/https)).
 
     <Tip>
-      To change a port, edit it in `.env` (for example `HTTPS_PORT=8443` or `SIP_PORT=5060`) and run
-      `init` again, then `docker compose up -d`. `init` keeps every secret and only updates the
-      configuration. To run a second install on the same machine, also give it its own
-      `COMPOSE_PROJECT_NAME` and `SUBNET_PREFIX`, and move every port in the note above.
+      To change a port, edit it in `.env` (for example `HTTPS_PORT=8443` or `SIP_PORT=5060`), run
+      `./init.sh` again, then `docker compose up -d`. `init.sh` keeps every secret. To run a second
+      install on the same machine, also give it its own `COMPOSE_PROJECT_NAME` and `SUBNET_PREFIX`,
+      and move every port in the note above.
     </Tip>
-  </Step>
-
-  <Step title="Check the configuration">
-    Validate the configuration before you start:
-
-    ```bash
-    npx -p @fonoster/common fonoster-config check
-    ```
-
-    Each service reports `valid`:
-
-    ```text
-    config/appbridge.yaml: valid
-    config/autopilot.yaml: valid
-    config/fonoster.yaml: valid
-    config/roomr.yaml: valid (no schema; values only)
-    config/routr-edgeport.yaml: valid (no schema; values only)
-    config/routr-one.yaml: valid (no schema; values only)
-    ```
   </Step>
 
   <Step title="Start Fonoster">
@@ -144,35 +140,22 @@ You need:
     `postgres`, `routr` and `rtpengine`, each `Up`.
   </Step>
 
-  <Step title="Get your login">
-    Print the dashboard address and the owner's login:
+  <Step title="Create your login">
+    Create the first user once. Put a password in a file only you can read, then pass it on stdin, so
+    it never shows on screen or in your shell history:
 
     ```bash
-    npx -p @fonoster/common fonoster-config info
+    (umask 077; openssl rand -hex 16 > owner.pw)
+    docker compose exec -T apiserver fonoster-owner create you@example.com < owner.pw
     ```
 
-    ```text
-    Dashboard   https://192.0.2.10
-    Owner       admin@fonoster.local / <generated password>
-    API         192.0.2.10:443 (gRPC and gRPC-Web, TLS)
-    SIP         192.0.2.10:5060 (UDP and TCP)
-
-    Files       /home/you/fonoster/.env   Compose settings and the generated secrets (back it up)
-                /home/you/fonoster/config/   service settings (from config/*.example.*)
-                /home/you/fonoster/config/keys/   signing keys
-                /home/you/fonoster/config/tls/   certificate generated for getting started
-
-    Certificate /home/you/fonoster/config/tls/ca.pem
-                SHA-256 3F:9A:…
-                Generated for getting started: browsers show a warning once, and API clients
-                trust this CA file (--ca-file, or FONOSTER_CA_FILE). Use a real certificate
-                (TLS_CERT and TLS_KEY) before going live: https://docs.fonoster.com/self-hosting/https
-    ```
+    It prints `created you@example.com and its workspace`. Keep the password in your password
+    manager, then delete `owner.pw`. Running the command again changes nothing.
   </Step>
 
   <Step title="Sign in to the dashboard">
     Open the dashboard address in your browser. It warns that the connection isn't private, because
-    the certificate is the one `init` generated: open the details and continue to the site. Your
+    the certificate is the one `init.sh` generated: open the details and continue to the site. Your
     browser remembers the choice. Then sign in with the owner's email and password, and on **Choose
     a workspace**, select your workspace.
   </Step>
@@ -189,15 +172,24 @@ Everything lives in the `fonoster` folder:
 | Path           | What it holds                                                    |
 | -------------- | ---------------------------------------------------------------- |
 | `.env`         | Ports, the host address, the owner's login and every generated secret |
-| `config/`      | Each service's settings, written by `init` from the examples. They name secrets as `${NAME}`; Compose passes each container only the values its own file names (its `environment:` list in `compose.yaml`) |
-| `config/overrides/` | Your own settings, such as platform keys. `init` merges each file over the one it writes with the same name and never changes them |
+| `config/`      | Each service's settings, one file per service, yours to edit. They name secrets as `${NAME}`; Compose passes each container only the values its own file names (its `environment:` list in `compose.yaml`) |
 | `config/keys/` | The signing keys. Only the API server mounts Identity's private key; AppBridge gets the public key and its call-record key |
-| `config/tls/`  | The certificate `init` generated for getting started: `ca.pem` (give it to API clients), the server certificate Envoy serves, and their private keys. Not used once you set `TLS_CERT` and `TLS_KEY` |
+| `config/tls/`  | The certificate `init.sh` generated for getting started: `ca.pem` (give it to API clients), the server certificate Envoy serves, and their private keys. Not used once you set `TLS_CERT` and `TLS_KEY` |
 
 <Warning>
-  Back up `.env` and `config/overrides/`. The encryption key in `.env` protects the vendor keys you store, and they can't be recovered
+  Back up `.env`, `config/keys/` and the `config/` files you edited. The encryption key in `.env` protects the vendor keys you store, and they can't be recovered
   without it.
 </Warning>
+
+To change a setting, edit `config/<service>.yaml`, then recreate that service. For example, after you
+edit `config/appbridge.yaml`:
+
+```bash
+docker compose up -d --force-recreate appbridge
+```
+
+A bad file stops the service at start, and `docker compose logs <service>` names the key. When you
+upgrade, apply your edits to the new release's files, see [Upgrade](/self-hosting/upgrade).
 
 ## Add platform keys
 
@@ -205,37 +197,26 @@ Calls need at least a text-to-speech vendor. Fonoster offers every vendor in its
 workspace, and calls use your platform key for that vendor unless the workspace added its own in the
 dashboard under **Vendor keys**.
 
-`init` writes a placeholder platform key for each vendor. Put your keys in `config/overrides/`, not
-in the files `init` writes: `init` rebuilds `config/*.yaml` every time it runs (when you turn on
-HTTPS, or upgrade) and merges each file in `config/overrides/` over the one with the same name, so
-your keys stay.
+The release's config files hold a placeholder platform key for each vendor, such as
+`YOUR_DEEPGRAM_API_KEY`. Replace the placeholder with your key:
 
-| Vendor            | Override file                     | Setting                                    |
-| ----------------- | --------------------------------- | ------------------------------------------ |
-| Deepgram          | `config/overrides/appbridge.yaml` | `providers.deepgram.credential.value`      |
-| ElevenLabs        | `config/overrides/appbridge.yaml` | `providers.elevenlabs.credential.value`    |
-| OpenAI            | `config/overrides/autopilot.yaml` | `credentials.openai.value`                 |
-| Groq              | `config/overrides/autopilot.yaml` | `credentials.groq.value`                   |
+| Vendor            | File                     | Setting                                    |
+| ----------------- | ------------------------ | ------------------------------------------ |
+| Deepgram          | `config/appbridge.yaml`  | `providers.deepgram.credential.value`      |
+| ElevenLabs        | `config/appbridge.yaml`  | `providers.elevenlabs.credential.value`    |
+| OpenAI            | `config/autopilot.yaml`  | `credentials.openai.value`                 |
+| Groq              | `config/autopilot.yaml`  | `credentials.groq.value`                   |
 
-An override holds only the settings you change. This one sets the Deepgram key:
+For example, this line in `config/appbridge.yaml` sets the Deepgram key:
 
-```yaml config/overrides/appbridge.yaml
-providers:
-  deepgram:
-    credential:
-      value: "4f1c9a27d0b8e6a3c5f2d7b9e1a4c8f0d3b6e9a2"
+```yaml config/appbridge.yaml
+  deepgram: { adapter: deepgram, capabilities: [tts, stt], credential: { value: "4f1c9a27d0b8e6a3c5f2d7b9e1a4c8f0d3b6e9a2" } }
 ```
 
-Write the configuration again so the overrides are merged in:
+Then recreate the two services that read them:
 
 ```bash
-npx -p @fonoster/common fonoster-config init
-```
-
-Then restart the two services that read them:
-
-```bash
-docker compose restart appbridge autopilot
+docker compose up -d --force-recreate appbridge autopilot
 ```
 
 <Note>
@@ -246,7 +227,7 @@ docker compose restart appbridge autopilot
 
 ## Serve over HTTPS
 
-Fonoster serves the dashboard and API over HTTPS from its first start, with the certificate `init`
+Fonoster serves the dashboard and API over HTTPS from its first start, with the certificate `init.sh`
 generated in `config/tls/`. It gets you started: browsers warn once, and the CLI and SDK trust it
 through `config/tls/ca.pem` (`--ca-file`, or `FONOSTER_CA_FILE`). Before you go live, replace it with
 a real certificate for your domain, see [Serve over HTTPS](/self-hosting/https).
@@ -268,6 +249,9 @@ see [Connect carriers and phones](/self-hosting/carriers-and-phones).
 ## Next steps
 
 <CardGroup cols={2}>
+  <Card title="Upgrade" icon="arrow-up" href="/self-hosting/upgrade">
+    Move to a new release and keep your secrets, keys and settings.
+  </Card>
   <Card title="Make your first call" icon="phone">
     Add a vendor key, create an agent, and call it from a softphone.
   </Card>

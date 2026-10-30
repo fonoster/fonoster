@@ -108,8 +108,7 @@ function loadConfig(argv: string[] = process.argv) {
         tokens: config.tokens,
         security: config.security,
         invites: config.invite,
-        oauth2: config.oauth2,
-        owner: config.defaultUser
+        oauth2: config.oauth2
       },
       appUrl,
       databaseUrl,

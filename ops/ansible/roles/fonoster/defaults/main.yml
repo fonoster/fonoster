@@ -5,10 +5,6 @@
 fonoster_repo: fonoster/fonoster
 fonoster_archive: https://github.com/{{ fonoster_repo }}/releases/download/v{{ fonoster_version }}/fonoster-{{ fonoster_version }}.tar.gz
 fonoster_sha256sums: "{{ fonoster_archive | dirname }}/SHA256SUMS"
-# What runs fonoster-config: an npm spec, or a path on the controller to its .tgz (a local build).
-fonoster_common_package: "@fonoster/common@{{ fonoster_version }}"
-# The image fonoster-config runs in, so the host needs no Node.js.
-fonoster_node_image: node:22-alpine
 
 fonoster_dir: /opt/fonoster          # the live install (what docker compose runs)
 fonoster_state_dir: /var/lib/fonoster # stages, backups, keys, TLS and deploys.log
@@ -19,19 +15,25 @@ fonoster_keep: 3                     # stages and backups kept
 fonoster_public_url: ""
 fonoster_api_host: ""
 
-# .env: every name of the release's .env.example (FONOSTER_VERSION comes from fonoster_version).
+# .env: every name init.sh writes (FONOSTER_VERSION comes from fonoster_version).
 # The play fails when a release adds a name neither of these has.
 fonoster_env: {}
 fonoster_env_secrets: {}
-# config/overrides/<file>, deep-merged by init over the release's config/<file>.
+# true: a secret init.sh generates for a name neither has is kept in the state folder
+# (generated.env) and reused, instead of failing the play (private regions).
+fonoster_generate_secrets: false
+# Deep-merged over the release's config/<file> (objects merge, other values replace, null
+# deletes a key).
 fonoster_overrides: {}
 # Compose files written next to compose.yaml (name them in COMPOSE_FILE).
 fonoster_compose_overlays: {}
 
-# Never copied into the live install: only what runs lands there. They stay in the stage, where
-# init and check use them.
+# Never copied into the live install: only what runs (and init.sh) lands there.
 fonoster_live_excludes:
-  - .env.example
-  - "*.example.*"
   - README.md
-  - config/schemas
+  - ansible
+# A private region's files, left out of an install that doesn't run compose.region.yaml.
+fonoster_region_files:
+  - compose.region.yaml
+  - config/region
+  - config/nats-permissions/region-agent.conf

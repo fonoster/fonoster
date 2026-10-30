@@ -1,0 +1,24 @@
+# The hosted Autopilot. Each ${NAME} is read from Autopilot's environment (Compose passes the
+# values this file names). Edit this file, then docker compose up -d --force-recreate autopilot.
+host: 0.0.0.0
+port: 3000
+signingSecret: { value: "${AUTOPILOT_SIGNING_SECRET}" }
+# The URL Autopilot apps point to, exactly as fonoster.yaml's apps.autopilotUrl: signatures are
+# checked against it (never the request's Host header) and bound to each app and workspace.
+publicUrl: "ws://autopilot:3000"
+# Agents, the catalog and workspace vendor keys: the API server's database.
+agents: { source: database, cacheMs: 3000 }
+registry: { source: database, refreshMs: 5000 }
+workspaceSecrets: { source: database }
+database:
+  url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster"
+# The API server's encryption key (the same as fonoster.yaml): workspace vendor keys.
+encryption: { key: "${ENCRYPTION_KEY}" }
+# OTLP/HTTP export to your collector; empty (the default) is off.
+telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
+# Language-model platform keys by the catalog's credentialRef, shared by every workspace. Replace
+# each placeholder with your key. A workspace's own key (dashboard, Vendor keys) is used instead.
+credentials:
+  openai: { value: "YOUR_OPENAI_API_KEY" }
+  groq: { value: "YOUR_GROQ_API_KEY" }
+endpoints: {}

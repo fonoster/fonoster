@@ -1,7 +1,8 @@
 # Puts the host on fonoster_version with this inventory's .env, overrides and overlays.
 #
-#   stage   the release under releases/<version> with the inventory's files, rendered and checked
-#           by fonoster-config, and its images
+#   stage   the release under releases/<version> with the inventory's .env and merged overrides,
+#           initialised by its init.sh, and its images
+#   region  with fonoster_region: enroll once, the region's provider keys
 #   switch  a backup, then the stage into fonoster_dir and docker compose up
 #   smoke   the dashboard and the API answer, from the controller
 #
@@ -14,6 +15,23 @@
       - fonoster_version is match('^\\d+\\.\\d+\\.\\d+(-[0-9A-Za-z.-]+)?$')
     fail_msg: "Set fonoster_version to a release, like -e fonoster_version=0.40.0"
     quiet: true
+
+# Secrets go in fonoster_env_secrets, never in fonoster_env, which a plan shows. TLS_CERT and
+# TLS_KEY are paths.
+- name: No secret in fonoster_env
+  ansible.builtin.assert:
+    that: fonoster_secret_named | length == 0
+    fail_msg: >-
+      fonoster_env has secret-named values (move them to fonoster_env_secrets):
+      {{ fonoster_secret_named | join(', ') }}
+    quiet: true
+  vars:
+    fonoster_secret_named: >-
+      {{ fonoster_env | dict2items
+         | rejectattr('key', 'in', ['TLS_CERT', 'TLS_KEY'])
+         | selectattr('key', 'match', '^.*(_PASSWORD|_SECRET|_KEY|_TOKEN|_HEADERS)$')
+         | rejectattr('value', 'equalto', '')
+         | map(attribute='key') | list }}
 
 # Keys and TLS persist in the state folder. An install whose keys are not there yet must have
 # them copied in first: generating new ones would lock out every token and stored key.
@@ -46,6 +64,10 @@
 
 - name: Stage
   ansible.builtin.import_tasks: stage.yml
+
+- name: Region
+  ansible.builtin.include_tasks: region.yml
+  when: fonoster_region is defined
 
 - name: Switch
   ansible.builtin.import_tasks: switch.yml

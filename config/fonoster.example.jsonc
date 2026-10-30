@@ -13,6 +13,5 @@
     "database": {
       "url": "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/fnidentity",
     },
-    "owner": { "name": "Admin", "email": "admin@fonoster.local", "password": "changeme" },
   },
 }

@@ -1,0 +1,20 @@
+# Puts each host of the `regions` group on a private region: the host (Docker, certificate, trace
+# retention), then Fonoster with compose.region.yaml, enrolled once with fonoster_region's token
+# and with the region's provider keys in its secret store. Run it again with another version to
+# upgrade.
+#
+#   ansible-playbook -i inventory/region.yml playbooks/region.yml --check --diff --ask-vault-pass   plan
+#   ansible-playbook -i inventory/region.yml playbooks/region.yml --ask-vault-pass                  apply
+#
+# fonoster_version defaults to the release this playbook ships in (the archive's init.sh); pass
+# -e fonoster_version=<version> to choose another.
+- name: Private region
+  hosts: regions
+  become: true
+  vars:
+    fonoster_version: >-
+      {{ (lookup('ansible.builtin.file', playbook_dir ~ '/../../init.sh', errors='ignore')
+          | regex_search('(?m)^FONOSTER_VERSION=(\S+)$', '\1') or ['']) | first }}
+  roles:
+    - { role: host, tags: [host] }
+    - { role: fonoster, tags: [fonoster] }

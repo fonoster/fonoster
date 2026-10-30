@@ -1,0 +1,56 @@
+# AppBridge. Each ${NAME} is read from AppBridge's environment (Compose passes .env). Edit this
+# file, then docker compose up -d --force-recreate appbridge.
+nats: { url: "nats://nats:4222", user: appbridge, password: "${NATS_APPBRIDGE_PASSWORD}" }
+# The RTP leg to the Roomr node, on AppBridge's fixed address.
+rtp: { host: 0.0.0.0, advertiseHost: "${SUBNET_PREFIX}.43" }
+# The session endpoint: the Roomr node opens one control stream per call here (roomr.yaml's
+# sessionEndpoint, appbridge:50071); grpc.health.v1 on the same port is the readiness check. On
+# SIGTERM AppBridge keeps its calls up to drainWait (compose.yaml's stop_grace_period is longer).
+session: { listen: "0.0.0.0:50071", drainWait: 10m }
+# End a call when the node's audio stops this long while its control stream stays open.
+mediaTimeout: 15s
+# Speech vendors and their platform keys, shared by every workspace. Replace each placeholder with
+# your key. A workspace's own key (dashboard, Vendor keys) is used instead of the platform's.
+providers:
+  deepgram: { adapter: deepgram, capabilities: [tts, stt], credential: { value: "YOUR_DEEPGRAM_API_KEY" } }
+  elevenlabs: { adapter: elevenlabs, capabilities: [tts], credential: { value: "YOUR_ELEVENLABS_API_KEY" } }
+  # Noise cancelling (apps' filters); the image ships the SDK and model, see docs/operators/audio-filters.md.
+  aicoustics: { adapter: aicoustics, capabilities: [nc], credential: { value: "YOUR_AICOUSTICS_LICENSE_KEY" } }
+stt: { provider: deepgram }
+# Apps, the catalog, workspace vendor keys and webhooks: the API server's database.
+database:
+  url: "postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster"
+# The API server's encryption key (the same as fonoster.yaml): app signing secrets and workspace
+# vendor keys are encrypted columns.
+encryption: { key: "${ENCRYPTION_KEY}" }
+# OTLP/HTTP export to your collector; empty (the default) is off.
+telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
+appStore: { source: database, cacheMs: 3000 }
+# Browser calls ("Talk to agent") carry the API server's test token: answered only for apps of the
+# token's workspace (Identity's public key).
+testCalls: { publicKeyFile: /etc/fonoster/keys/public.pem }
+registry: { source: database, refreshMs: 5000 }
+workspaceKeys: { enabled: true, cacheMs: 5000 }
+webhooks: { enabled: true, refreshMs: 5000 }
+callRecord:
+  # Records being written, sealed into the store when the call ends. The bundle keeps this folder
+  # in the appbridge-records volume, so a recreated appbridge container seals the calls in flight.
+  dir: /var/lib/fonoster/records
+  region: local
+  signingKey: { kid: local-1, privateKeyFile: /etc/fonoster/keys/records.pem }
+  store:
+    s3:
+      bucket: records
+      endpoint: "http://minio:9000"
+      region: us-east-1
+      forcePathStyle: true
+      credentials: { accessKeyId: "${MINIO_ROOT_USER}", secretAccessKey: "${MINIO_ROOT_PASSWORD}" }
+  recording: "off"
+  # Every sealed record's metrics to your ClickHouse (the user needs CREATE DATABASE, CREATE TABLE
+  # and INSERT; add CLICKHOUSE_USER and CLICKHOUSE_PASSWORD to .env):
+  # analytics:
+  #   clickhouse:
+  #     url: "https://clickhouse.example.com:8443"
+  #     database: fonoster
+  #     user: "${CLICKHOUSE_USER}"
+  #     password: "${CLICKHOUSE_PASSWORD}"

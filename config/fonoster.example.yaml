@@ -137,7 +137,3 @@ identity:
   #     clientSecret: github-oauth-secret
   #     # url: https://github.com                  # only for tests (fake GitHub)
   #     # apiUrl: https://api.github.com
-  owner:                                         # first admin, created on first boot
-    name: Admin
-    email: admin@fonoster.local
-    password: changeme

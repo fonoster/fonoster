@@ -47,7 +47,7 @@ areas; see the hand-off list in the README).
 ```sh
 docker run -d --name api-pg -p 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:18.6-alpine3.24
 docker run -d --name api-nats -p 4222:4222 nats:2.11.8
-docker run -d --name api-routr -p 51907:51907 fonoster/routr-one:2.31.2
+docker run -d --name api-routr -p 51907:51907 fonoster/routr-one:2.31.6
 export PERSISTENCE_TEST_DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres
 export ROUTR_API_ENDPOINT=127.0.0.1:51907 CONFORMANCE_NATS_URL=nats://127.0.0.1:4222
 npm run build

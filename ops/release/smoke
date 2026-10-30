@@ -6,8 +6,8 @@
 #
 # Needs dist/release/<version>/ from `ops/release/bundle <version>` and the bundle images
 # fonoster/<service>:<version> in the local Docker. Unpacks the archive in a temporary folder,
-# runs `fonoster-config init` and `check`, `docker compose up -d`, waits for the apiserver to be
-# healthy and the dashboard to answer 200 over HTTPS through Envoy (the certificate init generated,
+# runs ./init.sh, `docker compose up -d`, waits for the apiserver to be
+# healthy and the dashboard to answer 200 over HTTPS through Envoy (the certificate init.sh generated,
 # trusted through config/tls/ca.pem; no HSTS with it; the redirect port answers 301), then removes
 # everything (volumes too).
 #
@@ -34,7 +34,6 @@ WORK="$(mktemp -d)"
 cd "$WORK"
 tar -xzf "$OUT/fonoster-$VERSION.tar.gz"
 cd fonoster
-config() { npx -y -p "$OUT/fonoster-common-$VERSION.tgz" fonoster-config "$@"; }
 
 cleanup() {
   local code=$?
@@ -53,27 +52,27 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# A .env with this host's ports; init keeps these values and generates the empty secrets.
-sed -e "s/^COMPOSE_PROJECT_NAME=.*/COMPOSE_PROJECT_NAME=$PROJECT/" \
-  -e "s/^SUBNET_PREFIX=.*/SUBNET_PREFIX=$SUBNET/" \
-  -e "s/^HTTPS_PORT=.*/HTTPS_PORT=$HTTPS_PORT/" \
-  -e "s/^HTTPS_REDIRECT_PORT=.*/HTTPS_REDIRECT_PORT=$((BASE + 6))/" \
-  -e "s/^HTTP_PORT=.*/HTTP_PORT=$((BASE + 7))/" \
-  -e "s#^PUBLIC_URL=.*#PUBLIC_URL=https://127.0.0.1:$HTTPS_PORT#" \
-  -e "s/^SIP_PORT=.*/SIP_PORT=$((BASE + 2))/" \
-  -e "s/^NATS_PORT=.*/NATS_PORT=$((BASE + 3))/" \
-  -e "s/^MINIO_PORT=.*/MINIO_PORT=$((BASE + 4))/" \
-  -e "s/^MINIO_CONSOLE_PORT=.*/MINIO_CONSOLE_PORT=$((BASE + 5))/" \
-  -e "s/^RTPENGINE_PORT_MIN=.*/RTPENGINE_PORT_MIN=$((BASE + 10))/" \
-  -e "s/^RTPENGINE_PORT_MAX=.*/RTPENGINE_PORT_MAX=$((BASE + 39))/" \
-  -e "s/^ROOMR_RTP_PORT_MIN=.*/ROOMR_RTP_PORT_MIN=$((BASE + 40))/" \
-  -e "s/^ROOMR_RTP_PORT_MAX=.*/ROOMR_RTP_PORT_MAX=$((BASE + 69))/" \
-  .env.example >.env
+# A .env with this host's ports; init.sh keeps these values and adds every other name with its
+# default and the generated secrets.
+cat >.env <<EOF
+COMPOSE_PROJECT_NAME=$PROJECT
+SUBNET_PREFIX=$SUBNET
+HTTPS_PORT=$HTTPS_PORT
+HTTPS_REDIRECT_PORT=$((BASE + 6))
+HTTP_PORT=$((BASE + 7))
+PUBLIC_URL=https://127.0.0.1:$HTTPS_PORT
+SIP_PORT=$((BASE + 2))
+NATS_PORT=$((BASE + 3))
+MINIO_PORT=$((BASE + 4))
+MINIO_CONSOLE_PORT=$((BASE + 5))
+RTPENGINE_PORT_MIN=$((BASE + 10))
+RTPENGINE_PORT_MAX=$((BASE + 39))
+ROOMR_RTP_PORT_MIN=$((BASE + 40))
+ROOMR_RTP_PORT_MAX=$((BASE + 69))
+EOF
 
-log "fonoster-config init"
-config init --host-ip 127.0.0.1 >&2
-log "fonoster-config check"
-config check >&2
+log "./init.sh"
+./init.sh --host-ip 127.0.0.1 >&2
 
 log "docker compose up -d ($PROJECT)"
 docker compose up -d --quiet-pull >&2

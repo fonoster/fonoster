@@ -6,6 +6,6 @@
 set -eu
 case " ${PROVE_FILES:-} " in
   *" ops/bundle/"*)
-    [ -f ops/rebuild/.local/stack.env ] && ops/rebuild/stack reconfigure >&2
+    [ -f ops/rebuild/.local/.env ] && ops/rebuild/stack reconfigure >&2
     ;;
 esac

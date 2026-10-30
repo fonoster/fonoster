@@ -5,7 +5,7 @@ description: "Run the Compose install against a Postgres you manage instead of t
 ---
 
 The install ships its own Postgres. To use one you manage instead, point every service at it
-through `config/overrides/`, turn the bundled database off, and start. Do this on a new install:
+in its file in `config/`, turn the bundled database off, and start. Do this on a new install:
 the bundled database's data isn't moved.
 
 ## Before you begin
@@ -30,43 +30,33 @@ CREATE DATABASE fnidentity;
 
 ## Point every service at it
 
-Each service takes its database from its override file, with the same credentials in all four.
-This sets the API server's and Identity's:
+Each service takes its database URL from its file in `config/`, with the same credentials in all
+four. Replace the bundled URL in each. In `config/fonoster.yaml`, set the API server's `database`
+and Identity's `identity.database`:
 
-```yaml config/overrides/fonoster.yaml
-database:
-  url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/fonoster?sslmode=require"
+```yaml config/fonoster.yaml
+database: { url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/fonoster?sslmode=require" }
 identity:
-  database:
-    url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/fnidentity?sslmode=require"
+  database: { url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/fnidentity?sslmode=require" }
 ```
 
-AppBridge and Autopilot share the API server's database:
+AppBridge and Autopilot share the API server's database. Set `database.url` in
+`config/appbridge.yaml` and in `config/autopilot.yaml`:
 
-```yaml config/overrides/appbridge.yaml
+```yaml config/appbridge.yaml
 database:
   url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/fonoster?sslmode=require"
 ```
 
-```yaml config/overrides/autopilot.yaml
-database:
-  url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/fonoster?sslmode=require"
-```
+Routr has its own, under `spec.database` in `config/routr-one.yaml`:
 
-Routr has its own:
-
-```yaml config/overrides/routr-one.yaml
-spec:
+```yaml config/routr-one.yaml
   database:
-    url: "postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/routr?sslmode=require"
+    url: postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/routr?sslmode=require
 ```
 
-These files hold the database password. Keep them readable by you only, and back them up with
-`.env`:
-
-```bash
-chmod 600 config/overrides/*.yaml
-```
+These files now hold the database password. Back them up with `.env`, and carry them over when you
+[upgrade](/self-hosting/upgrade).
 
 <Warning>
   Set the Routr database here, not as a `DATABASE_URL` variable on the `routr` service. Since 0.35.0
@@ -98,19 +88,7 @@ services:
       routr: { condition: service_healthy }
 ```
 
-## Generate, check and start
-
-Write the configuration with the overrides merged in:
-
-```bash
-npx -p @fonoster/common fonoster-config init
-```
-
-Check the files. This validates what you wrote, not the connection:
-
-```bash
-npx -p @fonoster/common fonoster-config check
-```
+## Start
 
 Start, and wait for every service to be healthy. This is what proves the database is reachable:
 
@@ -119,7 +97,8 @@ docker compose up -d --wait
 ```
 
 If `routr` can't reach its database, it reports `unhealthy` and the command exits with an error.
-Fix the URL in `config/overrides/routr-one.yaml`, run `init` again and start again.
+Fix the URL in `config/routr-one.yaml` and start again. A file with a bad key stops its service at
+start, and `docker compose logs <service>` names the key.
 
 See what's running:
 

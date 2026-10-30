@@ -1,13 +1,18 @@
-# The stage: releases/<version> holds the release plus this inventory's files, rendered and
-# checked. It runs in --check too (check_mode: false): a plan downloads, renders, validates and
+# The stage: releases/<version> holds the release plus this inventory's files, merged and
+# initialised (init.sh). It runs in --check too (check_mode: false): a plan downloads, renders, validates and
 # pulls. It is rebuilt from the archive on every run, so nothing from an earlier run carries
 # over; writing it is not a change to the host (changed_when: false), the switch is.
+# tls/ holds the certificate init.sh generates: none with the owner's own (TLS_CERT).
+- name: Persistent folders
+  ansible.builtin.set_fact:
+    fonoster_tls_dirs: "{{ [] if fonoster_env.TLS_CERT | default('') else ['tls'] }}"
+
 - name: State folders
   ansible.builtin.file:
     path: "{{ fonoster_state_dir }}/{{ item }}"
     state: directory
     mode: "0700"
-  loop: [releases, backups, keys, tls]
+  loop: "{{ ['releases', 'backups', 'keys'] + fonoster_tls_dirs }}"
   check_mode: false
 
 - name: Paths of this version
@@ -15,11 +20,29 @@
     fonoster_releases: "{{ fonoster_state_dir }}/releases"
     fonoster_stage: "{{ fonoster_state_dir }}/releases/{{ fonoster_version }}"
     fonoster_archive_name: "{{ fonoster_archive | basename }}"
-    fonoster_common_file: "{{ fonoster_common_package is match('^[./~]') }}"
+
+# With fonoster_generate_secrets, the secrets init.sh generated on an earlier run (kept in the
+# state folder); the inventory's values win.
+- name: Generated secrets
+  ansible.builtin.slurp:
+    src: "{{ fonoster_state_dir }}/generated.env"
+  register: fonoster_generated
+  failed_when: false
+  no_log: true
 
 - name: Values of .env
   ansible.builtin.set_fact:
-    fonoster_live_env: "{{ fonoster_env | combine(fonoster_env_secrets, {'FONOSTER_VERSION': fonoster_version}) }}"
+    fonoster_generated_env: >-
+      {{ dict((fonoster_generated.content | default('') | b64decode)
+              | regex_findall('(?m)^([A-Za-z_][A-Za-z0-9_]*)=(.*)$'))
+         if fonoster_generate_secrets else {} }}
+  no_log: true
+
+- name: All values of .env
+  ansible.builtin.set_fact:
+    fonoster_live_env: >-
+      {{ fonoster_generated_env
+         | combine(fonoster_env, fonoster_env_secrets, {'FONOSTER_VERSION': fonoster_version}) }}
   no_log: true
 
 # Release files ----------------------------------------------------------------------------------
@@ -86,14 +109,6 @@
       SHA256SUMS says {{ fonoster_archive_sha256 or 'nothing for it' }}). Nothing was changed.
     quiet: true
 
-- name: Common package (local)
-  ansible.builtin.copy:
-    src: "{{ fonoster_common_package }}"
-    dest: "{{ fonoster_releases }}/fonoster-common-{{ fonoster_version }}.tgz"
-    mode: "0600"
-  when: fonoster_common_file
-  check_mode: false
-
 # The stage -------------------------------------------------------------------------------------
 - name: Fresh stage
   ansible.builtin.file:
@@ -129,22 +144,27 @@
   changed_when: false
   check_mode: false
 
-- name: Overrides folder
-  ansible.builtin.file:
-    path: "{{ fonoster_stage }}/config/overrides"
-    state: directory
-    mode: "0700"
-  changed_when: false
+# Each override deep-merged over the release's config/<file> (objects merge, other values
+# replace, null deletes a key). The merged file can hold a secret (a database URL), so it is never
+# printed.
+- name: Release config files with overrides
+  ansible.builtin.slurp:
+    src: "{{ fonoster_stage }}/config/{{ item }}"
+  loop: "{{ fonoster_overrides.keys() | list }}"
+  register: fonoster_release_configs
   check_mode: false
 
 - name: Overrides
   ansible.builtin.copy:
-    content: "{{ item.value | to_nice_yaml(indent=2) }}"
-    dest: "{{ fonoster_stage }}/config/overrides/{{ item.key }}"
-    mode: "0600"
-  loop: "{{ fonoster_overrides | dict2items }}"
+    content: >-
+      {{ (item.content | b64decode | from_yaml)
+         | fonoster_merge(fonoster_overrides[item.item])
+         | to_nice_yaml(indent=2) }}
+    dest: "{{ fonoster_stage }}/config/{{ item.item }}"
+    mode: "0644"
+  loop: "{{ fonoster_release_configs.results }}"
   loop_control:
-    label: "{{ item.key }}"
+    label: "{{ item.item }}"
   no_log: true
   diff: false
   changed_when: false
@@ -158,6 +178,9 @@
   loop: "{{ fonoster_compose_overlays | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
+  # An overlay can hold a secret (an environment value).
+  no_log: true
+  diff: false
   changed_when: false
   check_mode: false
 
@@ -169,40 +192,19 @@
     mkdir -p {{ fonoster_stage }}/config/{{ item }}
     cp -a {{ fonoster_state_dir }}/{{ item }}/. {{ fonoster_stage }}/config/{{ item }}/
     chmod 0755 {{ fonoster_stage }}/config/{{ item }}
-  loop: [keys, tls]
+  loop: "{{ ['keys'] + fonoster_tls_dirs }}"
   changed_when: false
   check_mode: false
 
-# init keeps every .env value and renders config/*.yaml; check validates them. Their output can
-# carry secrets (a database URL in an override), so it is hidden.
-- name: Render and validate (fonoster-config init, check)
+# init.sh keeps every .env value, key and certificate and sets the SIP port in the merged
+# routr-edgeport.yaml, so it runs last. It never prints a secret.
+- name: Initialise (init.sh)
   ansible.builtin.command:
-    argv: >-
-      {{ ['docker', 'run', '--rm', '-v', fonoster_stage ~ ':/install', '-w', '/install',
-          '-v', 'fonoster-npm-cache:/root/.npm']
-         + (['-v', fonoster_releases ~ '/fonoster-common-' ~ fonoster_version ~ '.tgz:/fonoster-common.tgz:ro']
-            if fonoster_common_file else [])
-         + [fonoster_node_image, 'sh', '-c',
-            'npx -y -p "$0" fonoster-config init --host-ip "$1" && npx -y -p "$0" fonoster-config check',
-            '/fonoster-common.tgz' if fonoster_common_file else fonoster_common_package,
-            fonoster_live_env.HOST_IP] }}
-  register: fonoster_render
+    argv: ["sh", "{{ fonoster_stage }}/init.sh", "--dir", "{{ fonoster_stage }}", "--host-ip", "{{ fonoster_env.HOST_IP }}"]
   changed_when: false
-  failed_when: false
-  no_log: true
   check_mode: false
 
-- name: Rendered and valid
-  ansible.builtin.assert:
-    that: fonoster_render.rc == 0
-    fail_msg: >-
-      fonoster-config init or check failed in {{ fonoster_stage }} (exit {{ fonoster_render.rc }}; the
-      output is hidden because it can hold secrets). On the host:
-      docker run --rm -v {{ fonoster_stage }}:/install -w /install {{ fonoster_node_image }}
-      npx -y -p {{ fonoster_common_package }} fonoster-config check
-    quiet: true
-
-# init adds the names a newer release introduces, with values of its own: those belong in the
+# init.sh adds the names a newer release introduces, with values of its own: those belong in the
 # inventory, so stop before anything runs with them.
 - name: Read the rendered .env
   ansible.builtin.slurp:
@@ -210,20 +212,42 @@
   register: fonoster_stage_env
   no_log: true
 
-- name: The inventory has every .env name
-  ansible.builtin.assert:
-    that: fonoster_added | length == 0
-    fail_msg: >-
-      This release adds {{ fonoster_added | join(', ') }} to .env and the inventory has no value for
-      it. Add it to fonoster_env or fonoster_env_secrets ({{ fonoster_stage }}/.env has the value
-      init chose) and run again. Nothing was changed.
-    quiet: true
-  vars:
+- name: Names init.sh added
+  ansible.builtin.set_fact:
     fonoster_added: >-
       {{ (fonoster_stage_env.content | b64decode | regex_findall('(?m)^([A-Za-z_][A-Za-z0-9_]*)='))
          | difference(fonoster_live_env.keys() | list) }}
 
-# Keys and TLS init created (a first install) become the persistent ones. Files already there
+# With fonoster_generate_secrets, a secret init.sh generated is fine (it is kept below).
+- name: The inventory has every .env name
+  ansible.builtin.assert:
+    that: fonoster_missing | length == 0
+    fail_msg: >-
+      This release adds {{ fonoster_missing | join(', ') }} to .env and the inventory has no value for
+      it. Add it to fonoster_env or fonoster_env_secrets ({{ fonoster_stage }}/.env has the value
+      init.sh chose) and run again. Nothing was changed.
+    quiet: true
+  vars:
+    fonoster_missing: >-
+      {{ fonoster_added | reject('match', '^.*(_PASSWORD|_SECRET|_KEY|_TOKEN)$') | list
+         if fonoster_generate_secrets else fonoster_added }}
+
+- name: Keep the secrets init.sh generated
+  ansible.builtin.copy:
+    content: |
+      # Generated by init.sh on this host (fonoster_generate_secrets); the inventory's values win.
+      {% set values = fonoster_generated_env | combine(dict((fonoster_stage_env.content | b64decode)
+           | regex_findall('(?m)^([A-Za-z_][A-Za-z0-9_]*)=(.*)$'))) %}
+      {% for name in (fonoster_generated_env.keys() | list) + fonoster_added %}
+      {{ name }}={{ values[name] }}
+      {% endfor %}
+    dest: "{{ fonoster_state_dir }}/generated.env"
+    mode: "0600"
+  no_log: true
+  diff: false
+  when: fonoster_generate_secrets and fonoster_added | length > 0 and not ansible_check_mode
+
+# Keys and TLS init.sh created (a first install) become the persistent ones. Files already there
 # are never rewritten.
 - name: Persist new keys and TLS
   ansible.builtin.shell: |
@@ -237,13 +261,14 @@
       cp -a "$f" "$dest"
       echo "$f"
     done
-  loop: [keys, tls]
+  loop: "{{ ['keys'] + fonoster_tls_dirs }}"
   register: fonoster_persist
   changed_when: fonoster_persist.stdout != ""
   check_mode: false
 
+# A private region runs no API server: its agent's image says the pull is done.
 - name: Images on the host
-  ansible.builtin.command: docker image inspect fonoster/apiserver:{{ fonoster_version }}
+  ansible.builtin.command: docker image inspect fonoster/{{ 'region-agent' if fonoster_region is defined else 'apiserver' }}:{{ fonoster_version }}
   register: fonoster_image
   changed_when: false
   failed_when: false

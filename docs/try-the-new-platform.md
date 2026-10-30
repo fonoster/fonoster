@@ -24,7 +24,7 @@ fake speech providers unless you give it vendor keys, and prints passwords.
 - A softphone, if you want to talk to it: Linphone or Zoiper.
 
 Ports are in 16000-16999, so the stack runs next to a legacy Fonoster stack. Change them in
-`ops/rebuild/.local/stack.env` (created by the first `up`) if they collide with something.
+`ops/rebuild/.local/.env` (created by the first `up`) if they collide with something.
 
 | Port | What |
 | --- | --- |
@@ -44,8 +44,10 @@ ops/rebuild/stack up
 ```
 
 The first run builds every image from this checkout (several minutes) and creates
-`ops/rebuild/.local/` with the rendered configs, keys and generated secrets (git-ignored). Later
-runs reuse them. `up` prints the dashboard URL and the login when the API server is ready.
+`ops/rebuild/.local/` (git-ignored): one env file, `.local/.env`, seeded from
+`ops/rebuild/stack.defaults` with the secrets `ops/bundle/init.sh` generates, plus the keys and
+`.local/config`. Later runs reuse `.local/.env` and the keys. `.local/config` is regenerated on every
+`up`, so don't edit it by hand: put your own settings in `.local/overlay.local/<file>.yaml`. `up` prints the dashboard URL and the login when the API server is ready.
 
 The stack runs: NATS, Postgres (Routr, the API server and Identity each have a database), Routr,
 RTPEngine, the Roomr node, AppBridge, the hosted Autopilot, MinIO, the API server (it applies
@@ -289,7 +291,7 @@ ops/rebuild/stack smoke              # up, seed, one call, checks, down (RB_KEEP
 - **The softphone registers but calls have no audio.** Your LAN address changed (new network):
   run `ops/rebuild/stack up` again; it re-detects it. Set `RB_HOST_IP` to force one.
 - **`up` waits for the apiserver forever.** `ops/rebuild/stack logs apiserver`. A port collision
-  shows up as a Compose error instead: edit the port in `ops/rebuild/.local/stack.env`.
+  shows up as a Compose error instead: edit the port in `ops/rebuild/.local/.env`.
 - **Calls fail with 480 at Routr.** The Roomr node is not registered yet: Routr takes about a
   minute to start, and the node registers every 15 s (`ops/rebuild/stack logs roomr`).
 - **`seed` waits.** Routr-backed resources (domains, numbers) answer errors until Routr is up; the

@@ -28,7 +28,7 @@
 // for the ${NAME} placeholders of its config file, .dev/config/<service>.yaml (passed explicitly:
 // the AppBridge replicas the tests start look in /config). The Roomr node is a dev container
 // service (the bundle's pinned image), not run from source.
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, symlinkSync, watch } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
@@ -47,7 +47,7 @@ const children = new Set();
 let stopping = false;
 
 function devEnv() {
-  const cli = join(ROOT, "mods/common/dist/config/cli/envFile.js");
+  const cli = join(ROOT, "mods/common/dist/config/envFile.js");
   if (!existsSync(join(DEV, ".env")) || !existsSync(cli)) {
     console.error(
       "No dev config or no build: run `bash .devcontainer/post-create.sh` (it runs when the dev container is created)."
@@ -139,6 +139,21 @@ function apiserver() {
           process.stdout.write("apiserver | migrations failed; not starting\n");
           return;
         }
+        // The first user (DEV_OWNER_* in .dev/.env), once: fonoster-owner leaves an existing one.
+        const owner = spawnSync(
+          TSX,
+          [
+            "mods/apiserver/src/bin/owner.ts",
+            "create",
+            ENV.DEV_OWNER_EMAIL || "admin@fonoster.local",
+            "--config",
+            config("fonoster")
+          ],
+          { cwd: ROOT, input: ENV.DEV_OWNER_PASSWORD || "", encoding: "utf8" }
+        );
+        process.stdout.write(
+          `apiserver | ${(owner.stdout || owner.stderr || "").trim()}\n`
+        );
         run(
           "apiserver",
           ...tsxWatch(

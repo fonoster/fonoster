@@ -21,7 +21,7 @@ import type { AppBridgeConfig } from "./config";
 
 // appbridge.yaml as a Zod schema (add-self-host-installer 4.1, build log IC-B4): AppBridge
 // validates with `validateConfig` (cross-field rules); this schema describes the file's shape so
-// the bundle can ship a JSON Schema for `fonoster-config check`. It must match `AppBridgeConfig`
+// a JSON Schema can be exported from it. It must match `AppBridgeConfig`
 // exactly: the type check at the bottom fails the build when they drift.
 
 const recordingPolicy = z.enum(["off", "on", "consent"]);

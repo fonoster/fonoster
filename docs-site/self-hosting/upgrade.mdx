@@ -1,0 +1,79 @@
+---
+title: "Upgrade"
+description: "Move a Docker Compose install to a new release and keep your secrets, keys, settings and data."
+---
+
+An upgrade unpacks the new release next to your install, carries over the files that are yours and
+starts the new release on the same volumes. Your data, secrets and keys stay. The steps below
+upgrade an install in `/opt/fonoster` to `0.43.0`. Use your own folder and the release you upgrade
+to.
+
+## Before you begin
+
+- Read the [changelog](/changelog) for every release between yours and the new one. An entry that
+  changes a file in `config/` names the file and each key it adds, renames or removes.
+- Back up `.env`, `config/keys/` and the database.
+
+## What the release replaces
+
+The archive replaces the files Fonoster ships. The files that hold your secrets and your settings
+are yours, and you carry them over:
+
+| From the new release | Yours, carried over |
+| --- | --- |
+| `compose.yaml` and the other `compose.*.yaml` files | `.env` (settings and generated secrets) |
+| `init.sh` and `README.md` | `config/keys/` (signing keys) |
+| The `config/` files you didn't edit | `config/tls/` (your certificate) |
+| | The `config/` files you edited |
+
+<Note>
+  Apply your edits to the new release's file. Copy an old file over it only when this release's
+  changelog names no change to it.
+</Note>
+
+## Upgrade
+
+<Steps>
+  <Step title="Unpack the new release">
+    Download `fonoster-0.43.0.tar.gz`, then unpack it into a new folder next to your install:
+
+    ```bash
+    mkdir /opt/fonoster-0.43.0 && tar -xzf fonoster-0.43.0.tar.gz -C /opt/fonoster-0.43.0 --strip-components=1
+    ```
+  </Step>
+  <Step title="Copy your secrets and keys">
+    Copy `.env`, the signing keys and the certificate into the new folder:
+
+    ```bash
+    cp -a /opt/fonoster/.env /opt/fonoster-0.43.0/ && cp -a /opt/fonoster/config/keys /opt/fonoster/config/tls /opt/fonoster-0.43.0/config/
+    ```
+  </Step>
+  <Step title="Carry over your settings">
+    List the differences between the two `config/` folders:
+
+    ```bash
+    diff -r /opt/fonoster/config /opt/fonoster-0.43.0/config
+    ```
+
+    For each file you edited, make the same edit in the new release's file. Differences you didn't
+    make come from the new release: keep them.
+  </Step>
+  <Step title="Start the new release">
+    Run `init.sh` in the new folder, then start it:
+
+    ```bash
+    cd /opt/fonoster-0.43.0 && ./init.sh && docker compose up -d --remove-orphans --wait
+    ```
+
+    `init.sh` keeps every line of `.env`, adds the names the new release introduces and sets
+    `FONOSTER_VERSION` to the new release. `.env` keeps the same `COMPOSE_PROJECT_NAME`, so Compose
+    replaces the old containers and uses the same volumes.
+  </Step>
+</Steps>
+
+<Check>
+  `docker compose ps` lists every service `Up`, and you sign in to the dashboard as before.
+</Check>
+
+Keep the old folder until you have checked the new release. To go back, run
+`docker compose up -d --remove-orphans` in the old folder.

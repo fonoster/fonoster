@@ -12,7 +12,10 @@
     fonoster_rsync: >-
       {{ ['rsync', '--recursive', '--links', '--perms', '--owner', '--group', '--checksum',
           '--delete', '--delete-excluded', '--itemize-changes']
-         + (fonoster_live_excludes | map('regex_replace', '^', '--exclude=') | list)
+         + ((fonoster_live_excludes
+             + ([] if 'compose.region.yaml' in (fonoster_live_env.COMPOSE_FILE | default('')).split(':')
+                else fonoster_region_files))
+            | map('regex_replace', '^', '--exclude=') | list)
          + [fonoster_stage ~ '/', fonoster_dir ~ '/'] }}
 
 - name: What the switch changes
@@ -77,10 +80,16 @@
           {{ ns.out | join(' ') }}
       when: fonoster_compose is not skipped
 
+    # AppBridge drains live calls when it stops (up to its stop_grace_period): it goes last and
+    # alone, so the services its calls need stay up meanwhile.
     - name: Recreate them
       ansible.builtin.command:
-        argv: "{{ ['docker', 'compose', 'up', '-d', '--no-deps', '--force-recreate'] + fonoster_recreate.split() }}"
+        argv: "{{ ['docker', 'compose', 'up', '-d', '--no-deps', '--force-recreate'] + item }}"
         chdir: "{{ fonoster_dir }}"
+      loop: >-
+        {{ [fonoster_recreate.split() | reject('equalto', 'appbridge') | list,
+            ['appbridge'] if 'appbridge' in fonoster_recreate.split() else []]
+           | reject('equalto', []) | list }}
       when: fonoster_recreate | default('') != ""
       changed_when: true
 
@@ -104,7 +113,7 @@
         set -e
         cd {{ fonoster_state_dir }}/releases
         for v in $(ls -1dt */ 2>/dev/null | sed 's#/$##' | grep -vxF '{{ fonoster_version }}' | tail -n +{{ fonoster_keep }}); do
-          rm -rf "$v" "fonoster-$v.tar.gz" "fonoster-$v.SHA256SUMS" "fonoster-common-$v.tgz"
+          rm -rf "$v" "fonoster-$v.tar.gz" "fonoster-$v.SHA256SUMS"
           echo "stage $v"
         done
         cd {{ fonoster_state_dir }}/backups

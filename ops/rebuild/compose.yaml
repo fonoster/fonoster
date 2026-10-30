@@ -3,12 +3,12 @@
 # source, the fake providers, the SIP caller bot, the region hub and AppBridge's HTTP port. The
 # stack's overlays name a few more ${NAME}s (vendor keys, the leaf port); each service below gets
 # only its own, added to the bundle's per-service `environment:`. `ops/rebuild/stack up`
-# (docs/try-the-new-platform.md) generates the secrets into ops/rebuild/.local, renders the
-# service configs from ops/bundle/config/*.example.* and runs
+# (docs/try-the-new-platform.md) writes .local/.env and the service configs (ops/bundle/config
+# with the stack's overlays, then ops/bundle/init.sh) into ops/rebuild/.local and runs
 #
 #   docker compose --project-directory ops/rebuild \
 #     -f ops/bundle/compose.yaml -f ops/rebuild/compose.yaml \
-#     --env-file .local/stack.env --env-file .local/host.env --env-file .local/bundle.env ...
+#     --env-file .local/.env ...
 #
 # Relative paths below resolve from ops/rebuild (the project directory). Host ports are in the
 # 16000 range (stack.defaults), so the stack runs next to a self-hosted install.
@@ -24,7 +24,7 @@ services:
 
   # Roomr is released from fonoster/roomr: the bundle's pinned image, not built here.
   roomr:
-    image: fonoster/roomr:0.3.0@sha256:6f7b3499b550b38fd2f36d64e0807ebc932885694d12951679cae256a9a47c8a
+    image: fonoster/roomr:0.3.2@sha256:9e8156b70bd92959fe4c9603fae395a65660c2309cfaabe44dd080f08a38c77d
 
   appbridge:
     build:
@@ -150,9 +150,9 @@ services:
       stripe-fake: { condition: service_started }
     environment:
       BILLING_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster?schema=billing
-      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run fonoster-config init}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run ops/rebuild/stack up}
       NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:-}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run fonoster-config init}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run ops/rebuild/stack up}
       BILLING_WEBHOOK_SECRET: ${BILLING_WEBHOOK_SECRET:-whsec_stack}
     volumes:
       - ${CONFIG_DIR:-./config}/billing.yaml:/etc/fonoster/billing.yaml:ro
@@ -165,7 +165,7 @@ services:
   # ---- profile `tools`: the SIP caller bot (fonoster/roomr's cmd/sipcaller), HTTP on RB_CALLER_PORT ----
   sipcaller:
     profiles: ["tools"]
-    image: fonoster/roomr:0.3.0@sha256:6f7b3499b550b38fd2f36d64e0807ebc932885694d12951679cae256a9a47c8a
+    image: fonoster/roomr:0.3.2@sha256:9e8156b70bd92959fe4c9603fae395a65660c2309cfaabe44dd080f08a38c77d
     entrypoint: ["/sipcaller"]
     command: ["-listen", "0.0.0.0:8080", "-host", "${SUBNET_PREFIX}.44"]
     restart: unless-stopped

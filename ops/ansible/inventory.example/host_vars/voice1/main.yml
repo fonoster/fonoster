@@ -6,7 +6,7 @@ certbot_email: ops@example.com
 routr_traces_enabled: true
 routr_traces_retention_days: 30
 
-# Every non-secret name of the release's .env.example (ops/bundle/.env.example); FONOSTER_VERSION
+# Every non-secret name of the .env init.sh writes (ops/bundle/init.sh); FONOSTER_VERSION
 # comes from fonoster_version. The play fails when a release adds a name that is in neither this
 # nor fonoster_env_secrets.
 fonoster_env:
@@ -30,10 +30,9 @@ fonoster_env:
   OTEL_EXPORTER_OTLP_ENDPOINT: ""
   OTEL_EXPORTER_OTLP_PROTOCOL: ""
   SUBNET_PREFIX: 10.216.30
-  OWNER_EMAIL: ops@example.com
   MINIO_ROOT_USER: fonoster
 
-# Deep-merged by fonoster-config init over the release's config/<file>.
+# Deep-merged over the release's config/<file> (objects merge, other values replace).
 fonoster_overrides:
   fonoster.yaml:
     database: { url: "{{ vault_database_url_fonoster }}" }

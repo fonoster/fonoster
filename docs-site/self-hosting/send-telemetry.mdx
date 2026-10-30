@@ -49,8 +49,8 @@ telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
 ```
 
 An empty value turns telemetry off. To point one service at a different collector, change that
-line in its `config/<service>.example.yaml` and run `npx -p @fonoster/common fonoster-config init`
-again.
+line in its `config/<service>.yaml` and recreate that service
+(`docker compose up -d --force-recreate <service>`).
 
 ## What each service sends
 

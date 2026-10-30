@@ -29,28 +29,33 @@ passes each service only the `.env` values its own file names (its `environment:
 private key (`keys/private.pem`); AppBridge gets `public.pem` and its `records.pem`. A
 placeholder you add to a service file needs a matching line in that service's `environment:`
 (for example `CLICKHOUSE_USER`). The Roomr node reads `/config/roomr.yaml` (or `-config <file>`, its only flag;
-see `ops/bundle/config/roomr.example.yaml`). It reads no `ROOMR_*`
+see `ops/bundle/config/roomr.yaml`). It reads no `ROOMR_*`
 variables: a value from the environment goes in the file as a `${NAME}` placeholder.
 
 ## Start
 
 To try everything on one machine (generated configs and secrets, seed, smoke test), use
 `ops/rebuild/stack up` instead: see `docs/try-the-new-platform.md`. For your own deployment, use
-the self-host bundle (`ops/bundle/`, `ops/bundle/README.md`): `fonoster-config init` (in
-`@fonoster/common`) generates the secrets and keys and renders `config/*.yaml` from
-`config/*.example.yaml`, and `fonoster-config check` validates them.
+the self-host bundle (`ops/bundle/`, `ops/bundle/README.md`). It ships final `config/*.yaml`
+files you edit in place; `./init.sh` (a POSIX shell script that needs only `openssl`) writes `.env`
+with generated secrets, the signing keys and a getting-started certificate. A bad config file stops
+its service at start, and `docker compose logs <service>` names the key.
 
 ```sh
-cd ops/bundle   # or the unpacked release archive
-npx -p @fonoster/common fonoster-config init
+cd fonoster     # the unpacked release archive
+./init.sh
 docker compose up -d                                  # core, dashboard and hosted Autopilot
 ```
 
 `ops/bundle/compose.yaml` is the one Compose source. `ops/rebuild/compose.yaml` is the
 development layer on it (builds from source, the `fakes` and `tools` profiles); the stack runs
 `docker compose -f ops/bundle/compose.yaml -f ops/rebuild/compose.yaml`, and the root
-`compose.yaml` includes both (give it the stack's env files: `.local/stack.env`, `.local/host.env`,
-`.local/bundle.env`).
+`compose.yaml` includes both (give it the stack's one env file:
+`docker compose --env-file ops/rebuild/.local/.env up -d`). `.local/.env` replaces the older
+`.local/stack.env`, `host.env`, `bundle.env` and `services.env`: the stack seeds it from
+`ops/rebuild/stack.defaults` and `ops/bundle/init.sh` fills its secrets. `.local/config` is
+regenerated on every `up`, so never edit it by hand; put your own settings in
+`.local/overlay.local/<file>.yaml`, which keeps working.
 Neither is a development setup: contributors use the dev container (CONTRIBUTING.md), which
 takes the dependencies from `ops/bundle/compose.yaml` and runs our services from source.
 
@@ -144,9 +149,9 @@ serve. In short: only Roomr nodes publish heartbeats and events (`roomr.nodes.>`
 `region.>`. No call control travels on NATS. The region hub is a separate server in operator mode with per-cell users and is
 unchanged.
 
-- **Passwords**: one per service. `ops/rebuild/stack` generates them into `.local/stack.env`
-  (`NATS_<SERVICE>_PASSWORD`, added to older files on the next `up`); a cell takes them from
-  `cell.env`; the chart from the Secret `nats.auth.secret` (keys `apiserver`, `appbridge`,
+- **Passwords**: one per service. `ops/rebuild/stack` generates them into `.local/.env`
+  (`NATS_<SERVICE>_PASSWORD`, through `ops/bundle/init.sh`); a region takes them from its `.env`,
+  which `./init.sh` fills; the chart from the Secret `nats.auth.secret` (keys `apiserver`, `appbridge`,
   `roomr`, `routr`, `region-agent`).
 - **Service config**: `nats: { url, user, password }` in fonoster.yaml, appbridge.yaml and
   region-agent.yaml and roomr.yaml, with `password: secret://env/NATS_<SERVICE>_PASSWORD`. Routr's

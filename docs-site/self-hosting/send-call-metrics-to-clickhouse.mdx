@@ -28,12 +28,12 @@ You need:
     CLICKHOUSE_PASSWORD=<password>
     ```
 
-    Compose passes these two values to AppBridge container only. Add them before the next step:
-    `init` stops if `config/appbridge.example.yaml` names a value that `.env` doesn't set.
+    Compose passes these two values to the AppBridge container only. Add them before the next step:
+    without them, AppBridge sends an empty user and password.
   </Step>
 
   <Step title="Uncomment the analytics block">
-    Open `config/appbridge.example.yaml`. Under `callRecord`, uncomment `analytics` and set the URL of
+    Open `config/appbridge.yaml`. Under `callRecord`, uncomment `analytics` and set the URL of
     your ClickHouse HTTP interface:
 
     ```yaml
@@ -55,17 +55,19 @@ You need:
     | `user`     | none           | Sent as the ClickHouse user |
     | `password` | none           | Sent as the ClickHouse password |
 
-    Edit the example, not `config/appbridge.yaml`: `init` writes that file again from the example.
+    When you upgrade, carry this edit over to the new release's file (see
+    [Upgrade](/self-hosting/upgrade)).
   </Step>
 
-  <Step title="Write the config and restart AppBridge">
-    Write `config/appbridge.yaml`, check it, and recreate AppBridge:
+  <Step title="Recreate AppBridge">
+    Recreate AppBridge so it reads the file and the new values:
 
     ```bash
-    npx -p @fonoster/common fonoster-config init
-    npx -p @fonoster/common fonoster-config check
     docker compose up -d --force-recreate appbridge
     ```
+
+    If the file has a bad key, AppBridge stops at start and `docker compose logs appbridge` names
+    it.
   </Step>
 </Steps>
 

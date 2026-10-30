@@ -13,19 +13,21 @@ Tested on Ubuntu 24.04 with ansible-core 2.21.5 (ansible-lint 26.10.1). No colle
 - **host** (tag `host`): Docker from Docker's apt repository, with `/etc/docker/daemon.json` set to
   `{"userland-proxy": false, "live-restore": true}`; certbot with renewal hooks that stop and
   recreate Envoy (only when `certbot_domains` is set); the Routr trace folder with a tmpfiles.d
-  retention rule (`routr_traces_enabled`).
+  retention rule (`routr_traces_enabled`); with `deploy_authorized_key`, the `deploy` user (sudo
+  without a password, its one key with `restrict`).
 - **fonoster** (tag `fonoster`):
   1. Stages the release in `/var/lib/fonoster/releases/<version>` from `fonoster_archive` (the
      GitHub release by default, or a path on the controller), checked against `SHA256SUMS`.
-  2. Writes `.env` from `fonoster_env` and `fonoster_env_secrets`, `config/overrides/<file>` from
-     `fonoster_overrides` and the Compose files in `fonoster_compose_overlays`, and copies the keys
-     and TLS files from `/var/lib/fonoster/{keys,tls}`.
-  3. Runs `fonoster-config init` and `check` in `node:22-alpine`. It fails, naming them, when the
-     release adds a `.env` name the inventory lacks. Keys and TLS files init created are kept in
+  2. Writes `.env` from `fonoster_env` and `fonoster_env_secrets`, deep-merges each
+     `fonoster_overrides` entry over the release's `config/<file>`, writes the Compose files in
+     `fonoster_compose_overlays`, and copies the keys and TLS files from
      `/var/lib/fonoster/{keys,tls}`.
+  3. Runs the release's `init.sh` in the stage (no Node.js). It fails, naming them, when the
+     release adds a `.env` name the inventory lacks. Keys and TLS files `init.sh` created are kept
+     in `/var/lib/fonoster/{keys,tls}`.
   4. Pulls the images, unless `fonoster/apiserver:<version>` is already on the host.
   5. Backs up `/opt/fonoster` to `/var/lib/fonoster/backups/<utc>-<from>.tgz`, then syncs the stage
-     into it, without the example files, `README.md` and `config/schemas`.
+     into it, without `README.md` and `ansible/`.
   6. Runs `docker compose up -d --wait`, recreating the services whose mounted files changed.
   7. Checks from the controller that the dashboard (`fonoster_public_url`) answers 200 and the API
      (`fonoster_api_host`) answers gRPC.
@@ -47,8 +49,8 @@ Copy `inventory.example/` to `inventory/` (git-ignored) and fill it in:
 - `inventory/host_vars/<host>/vault.yml`: the secrets (from `vault.example.yml`), encrypted with
   `ansible-vault encrypt`. Pass `--ask-vault-pass` (or `--vault-password-file`) to every run.
 
-`fonoster_env` and `fonoster_env_secrets` together hold every name of the release's `.env.example`
-(`FONOSTER_VERSION` comes from `fonoster_version`).
+`fonoster_env` and `fonoster_env_secrets` together hold every name of the `.env` the release's
+`init.sh` writes (`FONOSTER_VERSION` comes from `fonoster_version`).
 
 ## Commands
 
@@ -58,20 +60,24 @@ Run them from this folder, so `ansible.cfg` applies:
 ansible-playbook -i inventory/production.yml playbooks/site.yml --check --diff -e fonoster_version=0.40.0   # plan
 ansible-playbook -i inventory/production.yml playbooks/site.yml -e fonoster_version=0.40.0                  # apply
 ansible-playbook -i inventory/production.yml playbooks/site.yml --tags fonoster -e fonoster_version=0.39.2  # another version
-ansible-playbook -i inventory/production.yml playbooks/site.yml -e fonoster_version=0.0.0-a -e fonoster_archive=/path/fonoster-0.0.0-a.tar.gz -e fonoster_common_package=/path/fonoster-common-0.0.0-a.tgz   # local build
+ansible-playbook -i inventory/production.yml playbooks/site.yml -e fonoster_version=0.0.0-a -e fonoster_archive=/path/fonoster-0.0.0-a.tar.gz   # local build
+ansible-playbook -i inventory/production.yml playbooks/rollback.yml   # put the newest backup back
 ```
 
 `fonoster_version` has no default. The plan stages the release and pulls its images, then prints
-what the switch would change. Applying an older version is the rollback. Exit 0 means the host
+what the switch would change. Applying an older version is the rollback. `playbooks/rollback.yml`
+puts the newest backup of `/opt/fonoster` back, recreates the services and smoke-tests them (with
+`-e fonoster_rollback_since=<YYYYMMDDTHHMMSSZ>`, only a backup made since then). Exit 0 means the host
 converged; 2 means a task failed. A run on a converged host ends with `changed=0`.
 
-A local build comes from `ops/release/bundle <version>`, which writes the archive, the common
-package and `SHA256SUMS` to `dist/release/<version>/`.
+A local build comes from `ops/release/bundle <version>`, which writes the archive and `SHA256SUMS`
+to `dist/release/<version>/`.
 
 ## Test
 
-`test/throwaway.sh <a> [<b>]` builds both versions, lints, plans, applies `<a>`, applies it again,
-applies `<b>` and `<a>` again, and checks the results (catalog area OPS,
+`test/throwaway.sh <a> [<b>] [--rollback]` builds both versions, lints, plans, applies `<a>`,
+applies it again, applies `<b>` and `<a>` again (with `--rollback`, then `<b>` with a failing smoke
+test and `playbooks/rollback.yml`), and checks the results (catalog area OPS,
 `mods/conformance/catalog/areas/operations.md`). It deletes `/opt/fonoster` and `/var/lib/fonoster`
 first, so it runs only on a throwaway Ubuntu 24.04 machine. CI runs it in the `playbook (throwaway)`
 job of `stack-smoke.yaml` and in the QA gate:
@@ -79,3 +85,59 @@ job of `stack-smoke.yaml` and in the QA gate:
 ```sh
 gh workflow run stack-smoke.yaml --ref <branch>
 ```
+
+## Private regions
+
+`playbooks/region.yml` installs a private region on each host of the `regions` group: the host
+role, then the fonoster role with `COMPOSE_FILE=compose.yaml:compose.region.yaml` (no API server,
+dashboard or Envoy). With `fonoster_region` set, the role enrolls the region once with
+`fonoster_region.enroll_token` (before NATS starts: its config includes the leaf link enroll
+writes) and sets each `fonoster_region.secrets` entry in the region's secret store through stdin,
+only when the set changed. The version defaults to the release the playbook ships in. Start from
+`inventory.example/region.example.yml`; the steps are in
+https://docs.fonoster.com/private-regions/install-region.
+
+## Fonoster Cloud
+
+Fonoster's production host is deployed by `.github/workflows/deploy.yaml` with the playbook each
+release ships (`fonoster/ansible` in its archive). The inventory lives on the host, in
+`/etc/fonoster/inventory` (root only, 0700), which no release and no deploy touches:
+`production.yml` (the host in the `fonoster` and `production` groups, `ansible_connection:
+local`) and `group_vars/production/main.yml` (every value, secrets in `fonoster_env_secrets`). No
+vault: the file is as private as `/opt/fonoster/.env` next to it. Nobody edits the install by hand:
+a change goes in the inventory or in this playbook, then a deploy.
+
+- **Plan** (environment `production-prepare`, runs on its own, no credential): pins the tag
+  `v<version>` and the archive's SHA256 from the release's `SHA256SUMS`, checks that the archive
+  carries the playbook (`version X has no playbook` otherwise) and lints it.
+- **Apply** (environment `production`, waits for a reviewer's approval): over SSH as `deploy`,
+  `ops/ansible/deploy-on-host.sh` installs the pinned ansible-core on the host if needed, downloads
+  the archive, checks it against the plan's SHA256, prints the playbook's `--check --diff`, then
+  applies `site.yml --tags fonoster`. A failed apply runs `rollback.yml`, which restores the backup
+  the switch made; an apply that failed before its switch made none, and nothing is restored. The
+  run summary has from, to, the switch time, the backup name and the rollback's outcome.
+- **By hand:** `gh workflow run deploy.yaml -f version=0.43.0` redeploys or moves to a version (and
+  applies inventory changes); add `-f host_role=true` to run the host role too.
+- **On the host:** `/var/lib/fonoster/deploys.log` (`<switch time> <from> -> <to>`, with `rolled
+  back` after a rollback), the backups of `/opt/fonoster` in `/var/lib/fonoster/backups`, the
+  releases' playbooks in `/var/lib/fonoster/deploy`. The database is never touched; the switch time
+  is the point to restore a database backup to.
+
+GitHub setup: both environments restrict deployments to `main`, and `production` has a required
+reviewer. Secret `DEPLOY_SSH_KEY` (the deploy user's private key) in `production`. Variables
+`DEPLOY_HOST` (the host's address) and `DEPLOY_KNOWN_HOSTS` (`ssh-keyscan -t ed25519 <host>`).
+
+Owner checklist, once, to move a host that was set up by hand (run the playbook on the host, from
+a release's `fonoster/ansible`, with `-i /etc/fonoster/inventory/production.yml`):
+
+1. Write `/etc/fonoster/inventory` from the host's `/opt/fonoster/.env` and
+   `config/overrides/*`: non-secrets in `fonoster_env`, secrets in `fonoster_env_secrets`,
+   overrides in `fonoster_overrides`, extra Compose files in `fonoster_compose_overlays`.
+2. Copy `/opt/fonoster/config/keys` and `config/tls` into `/var/lib/fonoster/keys` and `tls`.
+3. Set `deploy_authorized_key` to the public half of `DEPLOY_SSH_KEY` in the inventory.
+4. Run `site.yml --check --diff --tags host` until it shows only the expected changes:
+   `live-restore` added to `daemon.json`, the certbot hooks replaced, the old `stop-envoy.sh` and
+   `start-envoy.sh` hooks removed, the `deploy` user.
+5. Apply the host role alone (`--tags host`) in a maintenance window.
+6. Delete `/root/use-managed-db.sh` on the host, and the keys of the old deploy script from root's
+   `authorized_keys`.

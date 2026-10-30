@@ -1,8 +1,7 @@
-diff --git a/ops/bundle/config/routr-edgeport.example.yaml b/ops/bundle/config/routr-edgeport.example.yaml
-index 7a2d70134..a51c15aff 100644
---- a/ops/bundle/config/routr-edgeport.example.yaml
-+++ b/ops/bundle/config/routr-edgeport.example.yaml
-@@ -31,13 +31,6 @@ spec:
+diff --git a/ops/bundle/config/routr-edgeport.yaml b/ops/bundle/config/routr-edgeport.yaml
+--- a/ops/bundle/config/routr-edgeport.yaml
++++ b/ops/bundle/config/routr-edgeport.yaml
+@@ -31,13 +31,6 @@
      # the API port to it.
      - protocol: ws
        port: 5062

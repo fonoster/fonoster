@@ -164,7 +164,7 @@ async function main() {
     ? JSON.parse(fs.readFileSync(seedFile, "utf8"))
     : {};
 
-  // The owner (identity.owner in fonoster.yaml) is created on the apiserver's first boot.
+  // The first user is created by ops/rebuild/stack up (fonoster-owner).
   const userClient = await retry("login", () => login(""));
   const workspaces = new SDK.Workspaces(userClient);
   let ws = items(await workspaces.listWorkspaces()).find(

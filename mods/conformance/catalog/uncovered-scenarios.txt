@@ -51,6 +51,8 @@ deployment / One YAML config per Fonoster service, no .env / Each container gets
 deployment / One YAML config per Fonoster service, no .env / Placeholder resolved from the container environment
 deployment / One YAML config per Fonoster service, no .env / Secret reference resolved
 deployment / One YAML config per Fonoster service, no .env / Unset placeholder
+deployment / Production deploys run the playbook / The apply runs what the plan showed
+deployment / Production deploys run the playbook / The plan holds no credential
 deployment / Rolling deploys drop no calls / Rendered drain settings
 deployment / Rolling deploys drop no calls / Rollout with live calls
 identity / Id, access, and refresh tokens / A token is not valid across realms
@@ -65,6 +67,29 @@ identity / Users, workspaces, and resource ownership / Workspace belongs to the 
 identity / Users, workspaces, and resource ownership / accessKeyId prefix still identifies the owner type
 identity-client / Per-request token forwarding / Single principal with a configured token
 identity-service / Container image and accept-invite bridge / Published image runs the service
+self-host-installer / An install upgrades in place / Secrets, keys and edited files survive
+self-host-installer / An install upgrades in place / The SIP port survives
+self-host-installer / Local bundle build / Install from local files
+self-host-installer / No rebuild naming in user-facing files and output / Bundle scan
+self-host-installer / No vendor keys at install / Add a key after install
+self-host-installer / One archive per release / Images match the archive
+self-host-installer / One archive per release / Unpack with one line
+self-host-installer / Provider catalog on boot / First boot
+self-host-installer / Provider catalog on boot / More than one catalog file
+self-host-installer / Provider catalog on boot / Restart
+self-host-installer / Start with plain Compose / Default start
+self-host-installer / Start with plain Compose / HTTPS turned off
+self-host-installer / Start with plain Compose / Telemetry to an existing collector
+self-host-installer / The owner's certificate replaces the generated one / Owner's certificate
+self-host-installer / init generates a certificate for getting started / Fresh install
+self-host-installer / init generates a certificate for getting started / Not in the archive
+self-host-installer / init is safe to run again / New secret after an upgrade
+self-host-installer / init is safe to run again / Re-run keeps secrets
+self-host-installer / init keeps the generated CA / New host name
+self-host-installer / init keeps the generated CA / Re-run keeps the CA
+self-host-installer / init prepares an install without prompts / Host address override
+self-host-installer / init prepares an install without prompts / No address found
+self-host-installer / init prepares an install without prompts / No secret in the service YAMLs
 talk-in-browser / A browser call reaches the agent / Invalid token
 talk-in-browser / SIP over WebSocket on the API port / Browser connects
 talk-in-browser / SIP over WebSocket on the API port / Rendered bundle config
