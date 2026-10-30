@@ -33,17 +33,19 @@ const createTrunkRequestSchema = z.object({
   name: nameSchema,
   sendRegister: z.boolean().optional(),
   inboundUri: hostOrIPSchema,
-  uris: z.array(
-    z.object({
-      host: hostOrIPSchema,
-      port: z.number(),
-      transport: z.nativeEnum(Transport, { message: "Invalid transport" }),
-      user: z.string().optional(),
-      weight: z.number(),
-      priority: z.number(),
-      enabled: z.boolean().optional()
-    })
-  )
+  uris: z
+    .array(
+      z.object({
+        host: hostOrIPSchema,
+        port: z.number(),
+        transport: z.nativeEnum(Transport, { message: "Invalid transport" }),
+        user: z.string().optional(),
+        weight: z.number(),
+        priority: z.number(),
+        enabled: z.boolean().optional()
+      })
+    )
+    .max(10, { message: "At most 10 URIs" })
 });
 
 const updateTrunkRequestSchema = z.object({});

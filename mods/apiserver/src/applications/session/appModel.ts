@@ -181,7 +181,9 @@ export const sessionAppInputSchema = z.object({
   // Struct over gRPC; they are decoded and checked against each filter's public schema below.
   filters: z.preprocess(
     (v) => v ?? [],
-    z.array(z.object({ name: z.string(), options: z.unknown().optional() }))
+    z
+      .array(z.object({ name: z.string(), options: z.unknown().optional() }))
+      .max(50, { message: "At most 50 filters" })
   )
 });
 

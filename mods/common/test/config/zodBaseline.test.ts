@@ -219,12 +219,20 @@ describe("@common[config/zodBaseline]", function () {
         );
 
       it(`${svc}: an unknown key is rejected at every nested object`, function () {
-        const base = fixture(`defaults.${svc}`, asJson(service.schema.parse(service.minimal)));
-        expect(load(svc, base), "the defaults load as a config").to.equal(undefined);
+        const base = fixture(
+          `defaults.${svc}`,
+          asJson(service.schema.parse(service.minimal))
+        );
+        expect(load(svc, base), "the defaults load as a config").to.equal(
+          undefined
+        );
         const paths = objectPaths(base).filter((p) => !isFree(p));
         expect(paths.length).to.be.greaterThan(1);
         for (const p of paths) {
-          expect(load(svc, withKey(base, p, UNKNOWN, "x")), printed(p)).to.equal(
+          expect(
+            load(svc, withKey(base, p, UNKNOWN, "x")),
+            printed(p)
+          ).to.equal(
             `invalid ${svc} config at ${printed(p)}: unknown key "${UNKNOWN}"`
           );
         }
@@ -232,10 +240,13 @@ describe("@common[config/zodBaseline]", function () {
 
       for (const [block, extra] of Object.entries(freeForm)) {
         it(`${svc}: the free-form ${block} block accepts extra keys`, function () {
-          const base = fixture(`defaults.${svc}`, asJson(service.schema.parse(service.minimal)));
-          expect(load(svc, withKey(base, block.split("."), UNKNOWN, extra))).to.equal(
-            undefined
+          const base = fixture(
+            `defaults.${svc}`,
+            asJson(service.schema.parse(service.minimal))
           );
+          expect(
+            load(svc, withKey(base, block.split("."), UNKNOWN, extra))
+          ).to.equal(undefined);
         });
       }
     }
@@ -277,7 +288,10 @@ describe("@common[config/zodBaseline]", function () {
     }
 
     it("a custom-message failure keeps its text and names the field", function () {
-      const bad = { ...trunk, uris: [{ ...trunk.uris[0], transport: "BOGUS" }] };
+      const bad = {
+        ...trunk,
+        uris: [{ ...trunk.uris[0], transport: "BOGUS" }]
+      };
       expect(callbackOf(createTrunkRequestSchema, bad)).to.deep.equal({
         code: status.INVALID_ARGUMENT,
         message: 'Invalid transport at "uris[0].transport"'

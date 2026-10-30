@@ -27,7 +27,10 @@ const toolSchema = z.object({
   parameters: z.object({
     type: z.enum(["object", "array"]),
     properties: z.record(propertySchema),
-    required: z.array(z.string()).optional()
+    required: z
+      .array(z.string())
+      .max(50, { message: "At most 50 required properties" })
+      .optional()
   }),
   requestStartMessage: z.string().optional(),
   operation: z.object({
