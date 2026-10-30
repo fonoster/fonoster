@@ -1,0 +1,13 @@
+{
+  "capturedWith": "zod 3.25.76",
+  "value": {
+    "dataDir": "/var/lib/fonoster-region",
+    "nats": {
+      "url": "nats://localhost:4222"
+    },
+    "appbridge": {
+      "address": "appbridge:50071"
+    },
+    "heartbeatMs": 30000
+  }
+}

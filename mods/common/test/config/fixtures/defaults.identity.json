@@ -1,0 +1,42 @@
+{
+  "capturedWith": "zod 3.25.76",
+  "value": {
+    "server": {
+      "bindAddr": "0.0.0.0:50051",
+      "httpBridgePort": 9000
+    },
+    "logs": {
+      "level": "info",
+      "format": "json",
+      "transport": "console"
+    },
+    "database": {
+      "url": "postgres://u:p@localhost/db"
+    },
+    "encryptionKey": "k1.aesgcm256.QbAsmmaz84hmSaol9HreK-s91rE1Rk8YAAkTq48kZGw=",
+    "issuer": "https://fonoster.local",
+    "audience": "api",
+    "keys": {
+      "privateKeyPath": "/opt/fonoster/keys/private.pem",
+      "publicKeyPath": "/opt/fonoster/keys/public.pem"
+    },
+    "tokens": {
+      "accessTokenExpiresIn": "15m",
+      "idTokenExpiresIn": "15m",
+      "refreshTokenExpiresIn": "24h"
+    },
+    "security": {
+      "contactVerificationRequired": false,
+      "twoFactorAuthenticationRequired": false
+    },
+    "invite": {
+      "expiration": "1d"
+    },
+    "auth": {
+      "methods": [
+        "password"
+      ],
+      "signup": "invite"
+    }
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "capturedWith": "zod 3.25.76",
+  "value": {
+    "domain": "fonoster.local",
+    "server": {
+      "bindAddr": "0.0.0.0:50051",
+      "httpBridgePort": 9876,
+      "host": "apiserver"
+    },
+    "logs": {
+      "level": "info",
+      "format": "json",
+      "transport": "console"
+    },
+    "database": {
+      "url": "postgres://u:p@localhost/db"
+    },
+    "encryption": {
+      "key": "k1.aesgcm256.QbAsmmaz84hmSaol9HreK-s91rE1Rk8YAAkTq48kZGw="
+    },
+    "authz": {
+      "enabled": false,
+      "port": 50071,
+      "methods": [
+        "/fonoster.calls.v1beta2.Calls/CreateCall"
+      ]
+    },
+    "features": {
+      "auth": {
+        "methods": [
+          "password"
+        ],
+        "signup": "invite"
+      },
+      "billing": {
+        "enabled": false
+      },
+      "costs": {
+        "display": "usage"
+      },
+      "calls": {
+        "transcripts": {
+          "store": true,
+          "retentionDays": 30
+        },
+        "recordings": {
+          "store": false
+        }
+      },
+      "sip": {
+        "names": "domain"
+      }
+    },
+    "routr": {
+      "apiEndpoint": "routr:51907",
+      "sipProxy": "routr:5060",
+      "roomrPeer": {
+        "aor": "sip:roomr@default",
+        "name": "Roomr nodes",
+        "username": "roomr"
+      }
+    },
+    "nats": {
+      "url": "nats://localhost:4222"
+    },
+    "evaluations": {
+      "credentials": {}
+    },
+    "identity": {
+      "audience": "api",
+      "keys": {
+        "privateKeyPath": "/opt/fonoster/keys/private.pem",
+        "publicKeyPath": "/opt/fonoster/keys/public.pem"
+      },
+      "tokens": {
+        "accessTokenExpiresIn": "15m",
+        "idTokenExpiresIn": "15m",
+        "refreshTokenExpiresIn": "24h"
+      },
+      "security": {
+        "contactVerificationRequired": false,
+        "twoFactorAuthenticationRequired": false
+      },
+      "invites": {
+        "expiration": "1d"
+      }
+    },
+    "callRecords": {
+      "enabled": true,
+      "stores": [],
+      "retentionIntervalMinutes": 60,
+      "maintenanceTimeoutMs": 30000
+    },
+    "apps": {
+      "autopilotUrl": "ws://autopilot:50061",
+      "allowInsecureWebhooks": false
+    },
+    "webhooks": {
+      "fanout": true,
+      "intervalMs": 1000,
+      "refreshMs": 10000
+    },
+    "regions": {
+      "public": [
+        {
+          "id": "default",
+          "name": "Default",
+          "default": true
+        }
+      ],
+      "allowInsecureLeaf": false,
+      "relay": {
+        "firstChunkTimeoutMs": 5000,
+        "idleTimeoutMs": 10000,
+        "maxBytes": 268435456,
+        "maxConcurrent": 8
+      },
+      "configDebounceMs": 500
+    }
+  }
+}

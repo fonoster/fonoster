@@ -1,0 +1,333 @@
+{
+  "capturedWith": "zod 3.25.76",
+  "value": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://fonoster.com/schemas/config/identity.json",
+    "title": "Fonoster identity configuration (identity.yaml)",
+    "type": "object",
+    "properties": {
+      "server": {
+        "type": "object",
+        "properties": {
+          "bindAddr": {
+            "type": "string",
+            "default": "0.0.0.0:50051"
+          },
+          "httpBridgePort": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "default": 9000
+          }
+        },
+        "additionalProperties": false
+      },
+      "logs": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "error",
+              "warn",
+              "info",
+              "http",
+              "verbose",
+              "debug",
+              "silly"
+            ],
+            "default": "info"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "json",
+              "text"
+            ],
+            "default": "json"
+          },
+          "transport": {
+            "type": "string",
+            "enum": [
+              "console",
+              "fluent"
+            ],
+            "default": "console"
+          },
+          "fluent": {
+            "type": "object",
+            "properties": {
+              "host": {
+                "type": "string"
+              },
+              "port": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "default": 24224
+              },
+              "tagPrefix": {
+                "type": "string",
+                "default": "fonoster-logs"
+              }
+            },
+            "required": [
+              "host"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "database": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "url"
+        ],
+        "additionalProperties": false
+      },
+      "encryptionKey": {
+        "type": "string",
+        "pattern": "^k1\\.aesgcm256\\.[A-Za-z0-9_-]{43}=?$"
+      },
+      "issuer": {
+        "type": "string",
+        "minLength": 1
+      },
+      "audience": {
+        "type": "string",
+        "minLength": 1,
+        "default": "api"
+      },
+      "appUrl": {
+        "type": "string",
+        "minLength": 1
+      },
+      "keys": {
+        "type": "object",
+        "properties": {
+          "privateKey": {
+            "type": "string"
+          },
+          "publicKey": {
+            "type": "string"
+          },
+          "privateKeyPath": {
+            "type": "string"
+          },
+          "publicKeyPath": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "tokens": {
+        "type": "object",
+        "properties": {
+          "accessTokenExpiresIn": {
+            "type": "string",
+            "default": "15m"
+          },
+          "idTokenExpiresIn": {
+            "type": "string",
+            "default": "15m"
+          },
+          "refreshTokenExpiresIn": {
+            "type": "string",
+            "default": "24h"
+          }
+        },
+        "additionalProperties": false
+      },
+      "security": {
+        "type": "object",
+        "properties": {
+          "contactVerificationRequired": {
+            "type": "boolean",
+            "default": false
+          },
+          "twoFactorAuthenticationRequired": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "invite": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "failUrl": {
+            "type": "string"
+          },
+          "expiration": {
+            "type": "string",
+            "default": "1d"
+          }
+        },
+        "additionalProperties": false
+      },
+      "smtp": {
+        "type": "object",
+        "properties": {
+          "host": {
+            "type": "string",
+            "minLength": 1
+          },
+          "port": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "default": 587
+          },
+          "secure": {
+            "type": "boolean",
+            "default": false
+          },
+          "sender": {
+            "type": "string",
+            "minLength": 1
+          },
+          "auth": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "type": "string",
+                "default": ""
+              },
+              "pass": {
+                "type": "string",
+                "default": ""
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "host",
+          "sender"
+        ],
+        "additionalProperties": false
+      },
+      "twilio": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "minLength": 1
+          },
+          "accountSid": {
+            "type": "string",
+            "minLength": 1
+          },
+          "authToken": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "phoneNumber",
+          "accountSid",
+          "authToken"
+        ],
+        "additionalProperties": false
+      },
+      "oauth2": {
+        "type": "object",
+        "properties": {
+          "github": {
+            "type": "object",
+            "properties": {
+              "clientId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "clientSecret": {
+                "type": "string",
+                "minLength": 1
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "default": "https://github.com"
+              },
+              "apiUrl": {
+                "type": "string",
+                "format": "uri",
+                "default": "https://api.github.com"
+              }
+            },
+            "required": [
+              "clientId",
+              "clientSecret"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "github"
+        ],
+        "additionalProperties": false
+      },
+      "auth": {
+        "type": "object",
+        "properties": {
+          "methods": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "password",
+                "email_code",
+                "github"
+              ]
+            },
+            "minItems": 1
+          },
+          "signup": {
+            "type": "string",
+            "enum": [
+              "invite",
+              "open"
+            ],
+            "default": "invite"
+          }
+        },
+        "additionalProperties": false
+      },
+      "defaultUser": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "default": "Admin"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "database",
+      "encryptionKey",
+      "issuer"
+    ],
+    "additionalProperties": false
+  }
+}

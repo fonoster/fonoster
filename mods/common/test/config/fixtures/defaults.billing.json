@@ -1,0 +1,41 @@
+{
+  "capturedWith": "zod 3.25.76",
+  "value": {
+    "database": {
+      "url": "postgres://u:p@localhost/db"
+    },
+    "nats": {
+      "url": "nats://localhost:4222"
+    },
+    "grpc": {
+      "bind": "0.0.0.0",
+      "port": 50071,
+      "apiPort": 50073
+    },
+    "http": {
+      "bind": "0.0.0.0",
+      "port": 50072
+    },
+    "rateCards": {
+      "dir": "/opt/fonoster/rate-cards"
+    },
+    "plans": {
+      "trialCredits": 1000,
+      "trialDays": 30,
+      "planFeeCents": 2500,
+      "planCredits": 2500,
+      "graceHours": 72,
+      "topupMonths": 12,
+      "topupMinCredits": 1000,
+      "overdraftMinCredits": 200,
+      "overdraftPercent": 10,
+      "concurrency": {
+        "trial": 2,
+        "payg": 20
+      }
+    },
+    "clock": {
+      "kind": "system"
+    }
+  }
+}
