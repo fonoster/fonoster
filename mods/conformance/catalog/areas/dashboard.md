@@ -842,11 +842,11 @@ The catalog no longer has the provider's label, so the select shows its id, as t
 - **Spec:** talk-in-browser / SIP over WebSocket on the API port / Browser connects over HTTPS
 - **Priority:** P0
 - **Tier:** nightly
-- **Proof:** Remove the `wss` transport from `ops/bundle/config/routr-edgeport.example.yaml`; Routr then throws `no listening point found for transport WSS` and the test must go red on Connected.
+- **Proof:** Remove the `wss` transport from `ops/bundle/config/routr-edgeport.yaml`; Routr then throws `no listening point found for transport WSS` and the test must go red on Connected.
 - **Fault:** faults/DSH-063.patch
-- **Test:** mods/dashboard/e2e/talk-https.real.spec.ts (the `real` project; the stack serves HTTPS by default. A fault proof runs `ops/rebuild/stack reconfigure` first, and the area's reset renders the configs again after)
+- **Test:** mods/dashboard/e2e/talk-https.real.spec.ts (the `real` project; the stack serves HTTPS by default. A fault proof runs `ops/rebuild/stack reconfigure` first, and the area's reset writes the configs again after)
 
-The stack serves the dashboard over HTTPS with its generated certificate, as every install does by default, so DSH-015 also runs over `wss://`; DSH-063 asserts the scheme and the WSS socket. Every production install with a certificate serves the dashboard over HTTPS, where the browser speaks `wss://` to Envoy's `/sip`. Envoy terminates TLS and proxies to Routr's `ws` port, but Routr picks a listening point by the transport the browser names, so without a `wss` one it refused every browser call (found on app.fonoster.ai, 2026-10-24). `ops/rebuild/stack reconfigure` renders the configs again and recreates Routr, so a Routr config fault is what the browser meets.
+The stack serves the dashboard over HTTPS with its generated certificate, as every install does by default, so DSH-015 also runs over `wss://`; DSH-063 asserts the scheme and the WSS socket. Every production install with a certificate serves the dashboard over HTTPS, where the browser speaks `wss://` to Envoy's `/sip`. Envoy terminates TLS and proxies to Routr's `ws` port, but Routr picks a listening point by the transport the browser names, so without a `wss` one it refused every browser call (found on app.fonoster.ai, 2026-10-24). `ops/rebuild/stack reconfigure` writes the configs again and recreates Routr, so a Routr config fault is what the browser meets.
 
 **Pass.** On an `https://` dashboard, Talk to agent, Call: the browser opens a `wss://…/sip` WebSocket, the drawer shows Connected, Hang up shows Call ended with Call again, and Routr logs no error. **Fail.** No connection, an `ws://` socket from an `https://` page, a stuck state, or `no listening point found for transport WSS`.
 
