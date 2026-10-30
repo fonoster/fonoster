@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/amd",
-  "version": "0.42.0",
+  "version": "0.43.0",
   "description": "Answering-machine-detection model (ONNX) used by AppBridge",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -17,8 +17,8 @@
     "generate:readme": "fonoster-readme"
   },
   "dependencies": {
-    "@fonoster/common": "^0.42.0",
-    "@fonoster/types": "^0.42.0",
+    "@fonoster/common": "^0.43.0",
+    "@fonoster/types": "^0.43.0",
     "onnxruntime-node": "1.30.0"
   },
   "files": [

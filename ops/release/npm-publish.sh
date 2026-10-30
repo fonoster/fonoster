@@ -43,6 +43,12 @@ if [ "$attempts" -gt 1 ] && ! [[ " $* " == *" lerna publish from-package "* ]]; 
   exit 2
 fi
 
+# npm run keeps the flags after the script name for itself unless they follow `--`: without it,
+# `--concurrency 1` below reached lerna as a bare `1` (release run 41045837867).
+if [ "$1" = npm ] && [ "${2:-}" = run ] && ! [[ " $* " == *" -- "* ]]; then
+  set -- "$@" --
+fi
+
 # A package's own version: unchanged packages keep an older one.
 version_of() {
   node -e '
