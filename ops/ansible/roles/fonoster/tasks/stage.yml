@@ -2,12 +2,17 @@
 # initialised (init.sh). It runs in --check too (check_mode: false): a plan downloads, renders, validates and
 # pulls. It is rebuilt from the archive on every run, so nothing from an earlier run carries
 # over; writing it is not a change to the host (changed_when: false), the switch is.
+# tls/ holds the certificate init.sh generates: none with the owner's own (TLS_CERT).
+- name: Persistent folders
+  ansible.builtin.set_fact:
+    fonoster_tls_dirs: "{{ [] if fonoster_env.TLS_CERT | default('') else ['tls'] }}"
+
 - name: State folders
   ansible.builtin.file:
     path: "{{ fonoster_state_dir }}/{{ item }}"
     state: directory
     mode: "0700"
-  loop: [releases, backups, keys, tls]
+  loop: "{{ ['releases', 'backups', 'keys'] + fonoster_tls_dirs }}"
   check_mode: false
 
 - name: Paths of this version
@@ -187,7 +192,7 @@
     mkdir -p {{ fonoster_stage }}/config/{{ item }}
     cp -a {{ fonoster_state_dir }}/{{ item }}/. {{ fonoster_stage }}/config/{{ item }}/
     chmod 0755 {{ fonoster_stage }}/config/{{ item }}
-  loop: [keys, tls]
+  loop: "{{ ['keys'] + fonoster_tls_dirs }}"
   changed_when: false
   check_mode: false
 
@@ -256,7 +261,7 @@
       cp -a "$f" "$dest"
       echo "$f"
     done
-  loop: [keys, tls]
+  loop: "{{ ['keys'] + fonoster_tls_dirs }}"
   register: fonoster_persist
   changed_when: fonoster_persist.stdout != ""
   check_mode: false
