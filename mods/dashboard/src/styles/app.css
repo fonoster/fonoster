@@ -124,3 +124,127 @@
     @apply font-display;
   }
 }
+
+/* The announcement bar (config/dashboard.yaml): fonoster.com's notice bar
+   (site/assets/css/v1.css .notice) in three tones. The tint sits on the page
+   background so the bar is opaque. */
+.fn-announcement {
+  --a-rgb: 14, 165, 233;
+  --a-text: #075985;
+  --a-strong: #0c4a6e;
+  --a-icon: #0284c7;
+  --a-tint: 0.08;
+  --a-line: 0.26;
+  position: relative;
+  flex-shrink: 0;
+  background:
+    linear-gradient(
+      rgba(var(--a-rgb), var(--a-tint)),
+      rgba(var(--a-rgb), var(--a-tint))
+    ),
+    var(--background);
+  border-bottom: 1px solid rgba(var(--a-rgb), var(--a-line));
+  color: var(--a-text);
+  font-family: var(--font-display);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.fn-announcement[data-tone="warning"] {
+  --a-rgb: 249, 115, 22;
+  --a-text: #9a3412;
+  --a-strong: #7c2d12;
+  --a-icon: #ea580c;
+}
+.fn-announcement[data-tone="critical"] {
+  --a-rgb: 239, 68, 68;
+  --a-text: #991b1b;
+  --a-strong: #7f1d1d;
+  --a-icon: #dc2626;
+}
+[data-theme="dark"] .fn-announcement {
+  --a-text: #7dd3fc;
+  --a-strong: #e0f2fe;
+  --a-icon: #38bdf8;
+  --a-tint: 0.14;
+  --a-line: 0.32;
+}
+[data-theme="dark"] .fn-announcement[data-tone="warning"] {
+  --a-text: #fdba74;
+  --a-strong: #ffedd5;
+  --a-icon: #fb923c;
+}
+[data-theme="dark"] .fn-announcement[data-tone="critical"] {
+  --a-text: #fca5a5;
+  --a-strong: #fee2e2;
+  --a-icon: #f87171;
+}
+/* The website's .notice__in, with room on the right for the close button. */
+.fn-announcement p {
+  margin: 0;
+  padding: 10px 48px;
+  text-align: center;
+  text-wrap: balance;
+}
+@media (max-width: 640px) {
+  /* Left-aligned with a hanging indent: wrapped lines start under the text, not the icon. */
+  .fn-announcement p {
+    padding-left: 40px;
+    text-indent: -24px;
+    text-align: left;
+    text-wrap: pretty;
+  }
+  .fn-announcement a {
+    text-indent: 0;
+  }
+}
+.fn-announcement__close {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  display: flex;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--a-text);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+.fn-announcement__close:hover {
+  color: var(--a-strong);
+  background: rgba(var(--a-rgb), var(--a-line));
+}
+.fn-announcement__close svg {
+  width: 16px;
+  height: 16px;
+}
+.fn-announcement__icon {
+  display: inline;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: -3px;
+  color: var(--a-icon);
+}
+.fn-announcement strong,
+.fn-announcement a {
+  color: var(--a-strong);
+  font-weight: 500;
+}
+.fn-announcement a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+.fn-announcement a span {
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  text-underline-offset: 3px;
+}
+.fn-announcement a:hover span {
+  text-decoration-color: currentColor;
+}
+.fn-announcement a svg {
+  width: 14px;
+  height: 14px;
+}

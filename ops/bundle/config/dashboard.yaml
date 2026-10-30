@@ -1,0 +1,13 @@
+# The dashboard. Browsers download this file (/dashboard.yaml), so put nothing secret in it.
+# announcement: the bar above every page. Edit it and recreate the dashboard
+# (docker compose up -d --force-recreate dashboard); with the playbook, set it in
+# fonoster_overrides["dashboard.yaml"].
+#   tone: info (blue), warning (orange) or critical (red)
+#   lead: the bold first words; text: the rest; cta and link: the call to action (optional)
+announcement:
+  show: false
+  tone: info
+  lead: ""
+  text: ""
+  cta: ""
+  link: ""

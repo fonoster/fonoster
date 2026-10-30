@@ -64,6 +64,8 @@ export const storage = {
 export const LEGACY_SESSION_KEY = "fonoster.session";
 
 export const STORAGE_KEYS = {
+  /** The announcement the user closed; a different one shows again. */
+  announcement: "fonoster.announcement",
   nav: "fonoster.nav",
   theme: "fonoster.theme"
 } as const;
