@@ -70,6 +70,19 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
 
+      # vcon-lib for API-073: every package pinned with hashes, no resolver, an isolated venv.
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install vcon-lib
+        run: |
+          python -m venv "$RUNNER_TEMP/vcon"
+          "$RUNNER_TEMP/vcon/bin/pip" install --require-hashes --no-deps \
+            -r mods/conformance/test/api/vcon-requirements.txt
+          echo "VCON_PYTHON=$RUNNER_TEMP/vcon/bin/python" >> "$GITHUB_ENV"
+
       # The API cases run every @fonoster package from source; the standalone Identity and client
       # cases run their build, which prove.sh rebuilds around a fault in them.
       - name: Run and prove

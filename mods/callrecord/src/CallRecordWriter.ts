@@ -36,7 +36,7 @@ import {
   StoredPart,
   Vcon
 } from "./types";
-import { buildVcon, redactStrings } from "./vcon";
+import { buildVcon, namingDialog, redactStrings } from "./vcon";
 
 const logger = getLogger({ service: "callrecord", filePath: __filename });
 
@@ -438,19 +438,21 @@ export class CallRecordWriter {
         analysis: [
           ...v.analysis,
           // The redacted copy gets the additions redacted too (like the sealed analysis, R-B4).
-          // draft-04 2.3.2: an inline body needs its encoding.
+          // draft-04 2.3.2: an inline body needs its encoding. Without a dialog, an addition is
+          // derived from all of this copy's.
           ...(additions.analysis ?? [])
             .map((a) =>
-              a.body !== undefined && a.body !== "" && !a.encoding
-                ? {
+              a.encoding
+                ? a
+                : {
                     ...a,
                     encoding: typeof a.body === "string" ? "none" : "json"
                   }
-                : a
             )
             .map((a) =>
               redacted ? (redactStrings(a) as Record<string, unknown>) : a
             )
+            .map((a) => namingDialog(a, v.dialog))
         ]
       }),
       false,
@@ -512,19 +514,35 @@ export class CallRecordWriter {
         let dialog = v.dialog.map(removedFile);
         let analysis = v.analysis;
         if (parts.includes("transcript")) {
-          dialog = dialog.filter((d) => d.type !== "text");
-          analysis = analysis.map((a) =>
-            a.type === "turn_decisions"
-              ? { ...a, body: [], meta: { deleted: deletion("transcript") } }
-              : a
-          );
+          // The text turns go: each analysis keeps naming the entries that remain.
+          const kept = dialog.flatMap((d, i) => (d.type === "text" ? [] : [i]));
+          dialog = kept.map((i) => dialog[i]);
+          analysis = analysis.map((a) => {
+            const named = Array.isArray(a.dialog)
+              ? {
+                  ...a,
+                  dialog: (a.dialog as number[])
+                    .map((i) => kept.indexOf(i))
+                    .filter((i) => i >= 0)
+                }
+              : a;
+            return a.type === "turn_decisions"
+              ? {
+                  ...named,
+                  body: [],
+                  meta: { deleted: deletion("transcript") }
+                }
+              : named;
+          });
         }
         const f = (v.fonoster ?? {}) as Record<string, unknown>;
         return {
           ...v,
           dialog,
           analysis,
-          attachments: v.attachments.map(removedFile),
+          // vcon-lib needs an attachment's url or inline body: a deleted file's attachment goes,
+          // and fonoster.deletions records it.
+          attachments: v.attachments.filter((a) => removedFile(a) === a),
           fonoster: {
             ...f,
             deletions: [

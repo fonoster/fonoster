@@ -20,14 +20,17 @@ import {
   decodeVcon,
   RECORD_PARTS,
   RecordStore,
-  SignedVcon
+  referencedParts,
+  SignedVcon,
+  Vcon,
+  withPartUrls
 } from "@fonoster/callrecord";
 import { TokenVerifyOptions } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import express, { Request, Response, Router } from "express";
 import { Caller, createHttpAuth } from "../regions/httpAuth";
 import { RelayClient } from "../regions/relay";
-import { relayToResponse } from "../regions/relayHttp";
+import { relayRecordToResponse, relayToResponse } from "../regions/relayHttp";
 import { createSearchRecords } from "./createSearchRecords";
 import { createRecordMaintenance, RecordMaintenanceError } from "./maintenance";
 import { CallRecordRow, MaintenanceClient, RecordsDb } from "./types";
@@ -66,6 +69,7 @@ export type RecordsRouterDeps = {
  *                                              also has the query's total
  *   GET    /api/records/:callRef               the record (redacted; ?original=true, ?version=n)
  *   GET    /api/records/:callRef/recording     the recording (WAV)
+ *   GET    /api/records/:callRef/parts/:name   a file the record points to (by role or name)
  *   GET    /api/records/:callRef/audit         deletions of this record (owner, admin)
  *   DELETE /api/records/:callRef               erase the call (owner, admin)
  *   DELETE /api/records/:callRef/parts/:part   delete one part (owner, admin)
@@ -220,15 +224,41 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
   };
 
   /**
+   * The vCon a client gets: each `parts/<name>` url becomes a link to GET /parts/:name on this
+   * API, for this version and copy. The host is the request's; X-Forwarded-Host is ignored.
+   */
+  const linked = (
+    req: Request,
+    callRef: string,
+    vcon: Vcon,
+    version: number,
+    original: boolean
+  ) => {
+    const forwarded = String(req.headers["x-forwarded-proto"] ?? "")
+      .split(",")[0]
+      .trim();
+    const proto =
+      forwarded === "http" || forwarded === "https" ? forwarded : req.protocol;
+    const base = `${proto}://${req.headers.host}/api/records/${encodeURIComponent(callRef)}/parts/`;
+    return withPartUrls(
+      vcon,
+      (name) =>
+        `${base}${name}?version=${version}${original ? "&original=true" : ""}`
+    );
+  };
+
+  /**
    * For a private workspace: relays the content from its cell and returns true (the response is
-   * sent). Offline regions answer 503 `region_offline`.
+   * sent). Offline regions answer 503 `region_offline`. A part is named `filename` when it
+   * downloads.
    */
   const relayed = async (
     req: Request,
     res: Response,
     row: CallRecordRow,
     op: "record.get" | "record.part",
-    part?: string
+    part?: string,
+    filename = `${row.callRef}.wav`
   ) => {
     const regionRef = await deps.relay?.regionOf(caller(res).accessKeyId);
     // Only records indexed from that region live there (PR-14: same mechanism for public ones).
@@ -248,25 +278,41 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
       });
       return true;
     }
-    await relayToResponse(
-      deps.relay.client,
-      regionRef,
-      {
-        userRef: caller(res).actor,
-        workspaceRef: caller(res).accessKeyId,
-        op,
-        callRef: row.callRef,
-        part,
-        original,
-        version: req.query.version ? Number(req.query.version) : undefined,
-        range:
-          typeof req.headers.range === "string" ? req.headers.range : undefined
-      },
-      res,
-      op === "record.part"
-        ? { "content-disposition": `attachment; filename="${row.callRef}.wav"` }
-        : {}
-    );
+    const request = {
+      userRef: caller(res).actor,
+      workspaceRef: caller(res).accessKeyId,
+      op,
+      callRef: row.callRef,
+      part,
+      original,
+      version: req.query.version ? Number(req.query.version) : undefined,
+      range:
+        typeof req.headers.range === "string" ? req.headers.range : undefined
+    };
+    if (op === "record.get")
+      await relayRecordToResponse(
+        deps.relay.client,
+        regionRef,
+        request,
+        res,
+        (body) =>
+          body.vcon
+            ? {
+                ...body,
+                vcon: linked(
+                  req,
+                  row.callRef,
+                  body.vcon as Vcon,
+                  Number(body.version),
+                  original
+                )
+              }
+            : body
+      );
+    else
+      await relayToResponse(deps.relay.client, regionRef, request, res, {
+        "content-disposition": `attachment; filename="${filename}"`
+      });
     return true;
   };
 
@@ -314,7 +360,13 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
         version: copy.stored.version,
         currentVersion: row.version,
         redacted: !copy.original,
-        vcon: decodeVcon(copy.signed),
+        vcon: linked(
+          req,
+          row.callRef,
+          decodeVcon(copy.signed),
+          copy.stored.version,
+          copy.original
+        ),
         jws: copy.signed,
         parts: copy.stored.manifest.parts
       });
@@ -356,6 +408,49 @@ export function createRecordsRouter(deps: RecordsRouterDeps): Router {
         `attachment; filename="${row.callRef}.wav"`
       );
       res.setHeader("x-content-hash", String(ref.content_hash ?? ""));
+      res.send(data);
+    })
+  );
+
+  router.get(
+    "/:callRef/parts/:name",
+    handle(async (req, res) => {
+      const row = await rowOf(req, res);
+      if (!row) return;
+      const want = String(req.params.name);
+      // The region resolves the name against its copy; the vCon's urls always use file names.
+      if (await relayed(req, res, row, "record.part", want, want)) return;
+      const copy = await copyOf(req, res, row);
+      if (!copy) return;
+      const vcon = decodeVcon(copy.signed);
+      const { byRole, names } = referencedParts(vcon);
+      // Only what the chosen copy references: the redacted copy withholds what it redacted.
+      const name = byRole.get(want) ?? (names.has(want) ? want : undefined);
+      if (!name) {
+        const original =
+          !copy.original && copy.stored.signed
+            ? referencedParts(decodeVcon(copy.stored.signed))
+            : undefined;
+        return original &&
+          (original.byRole.has(want) || original.names.has(want))
+          ? res.status(403).json({
+              error: "permission_denied",
+              message:
+                "the file is withheld from the redacted copy; it needs unredacted access"
+            })
+          : res.status(404).json({ error: "not_found" });
+      }
+      const data = await copy.store.getPart(row.callRef, name);
+      if (!data) return res.status(410).json({ error: "contents_deleted" });
+      const ref = [...vcon.dialog, ...vcon.attachments].find(
+        (x) => x.url === `parts/${name}`
+      );
+      res.setHeader(
+        "content-type",
+        String(ref?.mimetype ?? "application/octet-stream")
+      );
+      res.setHeader("content-disposition", `attachment; filename="${name}"`);
+      res.setHeader("x-content-hash", String(ref?.content_hash ?? ""));
       res.send(data);
     })
   );

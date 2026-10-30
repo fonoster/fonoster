@@ -18,7 +18,12 @@
  */
 import * as fs from "fs";
 import * as path from "path";
-import { decodeVcon, RecordStore, SignedVcon } from "@fonoster/callrecord";
+import {
+  decodeVcon,
+  RecordStore,
+  referencedParts,
+  SignedVcon
+} from "@fonoster/callrecord";
 import { RelayChunk, RelayErrorReply, RelayRequest } from "./types";
 
 // The relay responder (contract 3 `region.R.relay`, PR-5): the control plane asks for a record or
@@ -73,22 +78,6 @@ export function parseRange(
   end = Math.min(end, size - 1);
   if (!(start >= 0) || start > end) throw new RelayError("bad_range");
   return { start, end };
-}
-
-/** Parts a copy of the vCon points to (`parts/<name>` URLs), by name and by role. */
-function referencedParts(vcon: ReturnType<typeof decodeVcon>) {
-  const byRole = new Map<string, string>();
-  const names = new Set<string>();
-  const add = (url: unknown, role?: string) => {
-    if (typeof url !== "string" || !url) return;
-    const name = url.replace(/^parts\//, "");
-    names.add(name);
-    if (role && !byRole.has(role)) byRole.set(role, name);
-  };
-  for (const d of vcon.dialog) add(d.url, String(d.type));
-  for (const a of vcon.attachments)
-    add(a.url, String(a.purpose ?? a.type ?? "messages"));
-  return { byRole, names };
 }
 
 export class RelayResponder {

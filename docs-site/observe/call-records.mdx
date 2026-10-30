@@ -27,7 +27,7 @@ format for conversations. Fonoster writes version `0.4.0` of the format.
 | --- | --- |
 | `parties` | The caller, the callee, and one `agent` party for each application that took the call. A call handed from one application to another is still one record. |
 | `dialog` | The recording, when there is one, and one text entry per turn: what the caller said and what the caller heard of each reply, marked when the caller interrupted it. |
-| `analysis` | `turn_decisions`, how each turn was decided, and `app_notes`, notes your application wrote into the record. |
+| `analysis` | `turn_decisions`, how each turn was decided, and `app_notes`, notes your application wrote into the record. Each entry's `dialog` lists the dialog entries it was derived from. |
 | `attachments` | `messages.ndjson`: every message of the session in both directions, in order, without audio. Only in the original copy. |
 | `fonoster` | The call's details: `callRef`, `region`, start and end times, `endReason`, `status` (`completed`, `failed` or `incomplete`), `direction`, `workspaceRef`, `appRefs`, the `recording` policy, and `missing`. |
 
@@ -260,6 +260,7 @@ With the SDK, `client.getAccessToken()` returns the token after you sign in.
 | `GET /api/records` | Search results, with the filters above as query parameters |
 | `GET /api/records/<callRef>` | The record. Add `?version=<n>` or `?original=true`. |
 | `GET /api/records/<callRef>/recording` | The recording as WAV. The `x-content-hash` header carries its hash. Takes `version` and `original` too. |
+| `GET /api/records/<callRef>/parts/<name>` | A file the record points to: `recording`, `messages`, or a file name from a `url` in the copy, such as `recording.wav` or `messages.ndjson`. The `x-content-hash` header carries its hash. Takes `version` and `original`. `messages` is only in the original. |
 
 This request fetches a record:
 
@@ -271,9 +272,10 @@ curl https://api.fonoster.ai/api/records/9b2f6d4e-1a3c-4e8b-b7d5-2c0f8a6e3d17 \
 
 | Status | Means |
 | --- | --- |
-| `403` | You asked for the original without the owner or admin role, or for a recording only the original has. |
-| `404` | No such record in this workspace, or the call has no recording. |
+| `403` | You asked for the original without the owner or admin role, or for a recording only the original has, or for a file only the original has. |
+| `404` | No such record in this workspace, or the call has no recording, or this copy of the record doesn't point to that file. |
 | `410` | The record was erased, or this part was deleted. See [Retention and erasure](/observe/retention). |
+| `413` | A record from a private region is larger than the API will relay (4 MiB). |
 
 ## Verify a record
 
@@ -349,8 +351,11 @@ two things: the signature over the vCon, and the hash of each file it points to.
 
 A content hash is `sha512-` followed by the base64url SHA-512 of the file. The original copy also
 points to `messages.ndjson` in `attachments`, with its own `content_hash`, which you can check the
-same way. File `url`s in the vCon are relative, such as `parts/recording.wav`; download the files
-through the API.
+same way. In the `vcon` that `getRecord`, `records:download --part vcon` and **Export JSON** return,
+each file `url` is a full link to `GET /api/records/<callRef>/parts/<name>`. Fetch it with the same
+headers as any records request. The signed copy (`jws`) keeps the relative form, `parts/<name>`,
+because that is what the region signed. To check a hash, use the `url` and `content_hash` from the
+signed payload, as the script above does.
 
 <Note>
   A record proves it matches the key set its region publishes. The key isn't backed by a certificate
