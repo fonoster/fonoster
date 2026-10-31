@@ -805,12 +805,12 @@ return URL; the page is fetched and its forms posted.
 
 - **Spec:** billing / Rate cards are versioned / The launch card
 - **Priority:** P0
-- **Proof:** Drop noise cancelling from card 1; `nc.seconds` is rated `unpriced` and the test goes red.
+- **Proof:** Drop cached LLM tokens from card 1; `llm.tokens.cached` is rated `unpriced` and the test goes red.
 - **Fault:** faults/BIL-052.patch
 - **Test:** mods/billing/test/rater.test.ts
 
-Card 1 as shipped against the shipped catalog (`ops/bundle/config/catalog.yaml`): each provider's
-capabilities give its meters (STT seconds, TTS characters, LLM tokens in, out and cached, noise
-cancelling seconds), each with and without each active model, plus OpenAI embeddings.
+Card 1 as shipped against the shipped catalog (`ops/bundle/config/catalog.yaml`), for the launch
+providers: Deepgram's STT seconds and TTS characters, and LLM tokens in, out and cached for every
+LLM provider, each with and without each active model.
 
-**Pass.** A 60-second call is exactly 5 credits; every meter of every provider and model is billable with an amount above zero; `source` is dated and not a draft. **Fail.** Any line is `unpriced` or free.
+**Pass.** A 60-second call is exactly 5 credits; every launch meter of every launch provider and model is billable with an amount above zero; `source` is dated and not a draft. **Fail.** Any line is `unpriced` or free.
