@@ -10,7 +10,22 @@ WORKDIR /work
 RUN apt-get update && apt-get install -y --no-install-recommends openssl \
   && rm -rf /var/lib/apt/lists/*
 
+# Manifests before sources, so the install layer is reused until package-lock.json or one of
+# these package.json files changes.
 COPY package.json package-lock.json lerna.json tsconfig.json ./
+COPY mods/types/package.json ./mods/types/
+COPY mods/logger/package.json ./mods/logger/
+COPY mods/common/package.json ./mods/common/
+COPY mods/callrecord/package.json ./mods/callrecord/
+COPY mods/region-agent/package.json ./mods/region-agent/
+
+# Only the region agent's workspace closure; no @fonoster package may come from the registry except
+# roomr (a package.json missing above would).
+RUN --mount=type=cache,target=/root/.npm \
+    npm install --workspace @fonoster/region-agent --include-workspace-root --ignore-scripts --no-audit --no-fund \
+  && for d in node_modules/@fonoster/*; do [ -L "$d" ] || [ "${d##*/}" = roomr ] || { echo "$d came from the npm registry, not the workspace"; exit 1; }; done \
+  && ls mods/*/package.json > /tmp/install-manifests
+
 COPY mods/types ./mods/types
 COPY mods/logger ./mods/logger
 COPY mods/common ./mods/common
@@ -18,12 +33,12 @@ COPY mods/callrecord ./mods/callrecord
 COPY mods/region-agent ./mods/region-agent
 COPY mods/apiserver/schema.prisma ./mods/apiserver/schema.prisma
 COPY mods/apiserver/migrations ./mods/apiserver/migrations
-
-RUN --mount=type=cache,target=/root/.npm \
-    npm install --workspace @fonoster/region-agent --include-workspace-root --ignore-scripts --no-audit --no-fund
+# A package.json that came only with the sources would leave the install layer blind to it.
+RUN [ "$(ls mods/*/package.json)" = "$(cat /tmp/install-manifests)" ] \
+  || { echo "copy each mods/<package>/package.json before npm install"; exit 1; }
 
 RUN for p in types logger common callrecord region-agent; do \
-      (cd mods/$p && npx tsc -b); \
+      (cd mods/$p && npx tsc -b) || exit 1; \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
   && npm prune --omit=dev --workspace @fonoster/region-agent \

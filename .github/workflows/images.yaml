@@ -112,8 +112,11 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      # No build cache: per-platform scopes would double the entries in the repository's 10 GB
-      # Actions cache, which already evicted the npm caches the PR checks use.
+      # Build cache in the registry, one tag per image and platform (fonoster/<name>:buildcache-<arch>,
+      # cache only, not a runnable image), instead of the GitHub Actions cache: mode=max there
+      # filled the repository's 10 GB and evicted the npm caches the PR checks use, and mode=min
+      # never kept the builder stage's npm install layer. Always read; written (mode=max, so the
+      # builder stages are kept) only when pushing, so a pull request never writes it.
       - name: Build (and push by digest)
         id: build
         uses: docker/build-push-action@v6
@@ -122,6 +125,8 @@ jobs:
           file: ${{ matrix.image.dockerfile }}
           platforms: linux/${{ matrix.platform.arch }}
           outputs: ${{ inputs.push && format('type=image,name=fonoster/{0},push-by-digest=true,name-canonical=true,push=true', matrix.image.name) || 'type=cacheonly' }}
+          cache-from: type=registry,ref=fonoster/${{ matrix.image.name }}:buildcache-${{ matrix.platform.arch }}
+          cache-to: ${{ inputs.push && format('type=registry,ref=fonoster/{0}:buildcache-{1},mode=max', matrix.image.name, matrix.platform.arch) || '' }}
 
       - name: Keep the digest
         if: ${{ inputs.push }}

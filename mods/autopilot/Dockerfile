@@ -10,11 +10,34 @@ WORKDIR /work
 RUN apt-get update && apt-get install -y --no-install-recommends openssl \
   && rm -rf /var/lib/apt/lists/*
 
+# Manifests before sources, so the install layer is reused until package-lock.json or one of
+# these package.json files changes.
 COPY package.json package-lock.json lerna.json tsconfig.json ./
-COPY mods ./mods
+COPY mods/types/package.json ./mods/types/
+COPY mods/logger/package.json ./mods/logger/
+COPY mods/common/package.json ./mods/common/
+COPY mods/voice/package.json ./mods/voice/
+COPY mods/community/package.json ./mods/community/
+COPY mods/autopilot/package.json ./mods/autopilot/
 
+# Only Autopilot's workspace closure; no @fonoster package may come from the registry except roomr
+# (a package.json missing above would).
 RUN --mount=type=cache,target=/root/.npm \
-    npm install --workspace @fonoster/autopilot --include-workspace-root --ignore-scripts --no-audit --no-fund
+    npm install --workspace @fonoster/autopilot --include-workspace-root --ignore-scripts --no-audit --no-fund \
+  && for d in node_modules/@fonoster/*; do [ -L "$d" ] || [ "${d##*/}" = roomr ] || { echo "$d came from the npm registry, not the workspace"; exit 1; }; done \
+  && ls mods/*/package.json > /tmp/install-manifests
+
+# autopilot's `tsc -b` also builds community (a project reference).
+COPY mods/types ./mods/types
+COPY mods/logger ./mods/logger
+COPY mods/common ./mods/common
+COPY mods/voice ./mods/voice
+COPY mods/community ./mods/community
+COPY mods/autopilot ./mods/autopilot
+COPY mods/apiserver/schema.prisma ./mods/apiserver/schema.prisma
+# A package.json that came only with the sources would leave the install layer blind to it.
+RUN [ "$(ls mods/*/package.json)" = "$(cat /tmp/install-manifests)" ] \
+  || { echo "copy each mods/<package>/package.json before npm install"; exit 1; }
 
 # Stops on the first package that fails to compile (failures used to be ignored).
 RUN for p in types logger common voice autopilot; do (cd mods/$p && npx tsc -b) || exit 1; done \

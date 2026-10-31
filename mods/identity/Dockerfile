@@ -17,12 +17,14 @@ WORKDIR /work
 RUN apt-get update && apt-get install -y --no-install-recommends openssl \
   && rm -rf /var/lib/apt/lists/*
 
+# Manifests before sources, so the install layer is reused until package-lock.json or one of
+# these package.json files changes. @fonoster/identity imports common, logger and types; nothing
+# else of the workspace is built.
 COPY package.json package-lock.json lerna.json tsconfig.json ./
-# @fonoster/identity imports common, logger and types; nothing else of the workspace is built.
-COPY mods/types ./mods/types
-COPY mods/logger ./mods/logger
-COPY mods/common ./mods/common
-COPY mods/identity ./mods/identity
+COPY mods/types/package.json ./mods/types/
+COPY mods/logger/package.json ./mods/logger/
+COPY mods/common/package.json ./mods/common/
+COPY mods/identity/package.json ./mods/identity/
 
 # Only Identity's workspace closure. Its devDependency @fonoster/identity-client (tests only) is
 # left as a dangling link (npm still fills mods/identity-client/node_modules from the lockfile, so
@@ -30,7 +32,16 @@ COPY mods/identity ./mods/identity
 RUN --mount=type=cache,target=/root/.npm \
     npm install --workspace @fonoster/identity --include-workspace-root --ignore-scripts --no-audit --no-fund \
   && for d in node_modules/@fonoster/*; do [ -L "$d" ] || [ "${d##*/}" = roomr ] || { echo "$d came from the npm registry, not the workspace"; exit 1; }; done \
+  && ls mods/*/package.json > /tmp/install-manifests \
   && rm -rf mods/identity-client
+
+COPY mods/types ./mods/types
+COPY mods/logger ./mods/logger
+COPY mods/common ./mods/common
+COPY mods/identity ./mods/identity
+# A package.json that came only with the sources would leave the install layer blind to it.
+RUN [ "$(ls mods/*/package.json)" = "$(cat /tmp/install-manifests)" ] \
+  || { echo "copy each mods/<package>/package.json before npm install"; exit 1; }
 
 # The Prisma client goes where the runtime imports it (dist/generated, copy-assets.cjs).
 RUN (cd mods/identity && npx prisma generate --schema schema.prisma) \

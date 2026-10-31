@@ -10,12 +10,43 @@ WORKDIR /work
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
+# Manifests before sources, so the install layer is reused until package-lock.json or one of
+# these package.json files changes.
 COPY package.json package-lock.json lerna.json tsconfig.json ./
-COPY mods ./mods
+COPY mods/types/package.json ./mods/types/
+COPY mods/logger/package.json ./mods/logger/
+COPY mods/common/package.json ./mods/common/
+COPY mods/identity/package.json ./mods/identity/
+COPY mods/authz/package.json ./mods/authz/
+COPY mods/sipnet/package.json ./mods/sipnet/
+COPY mods/callrecord/package.json ./mods/callrecord/
+COPY mods/voice/package.json ./mods/voice/
+COPY mods/community/package.json ./mods/community/
+COPY mods/autopilot/package.json ./mods/autopilot/
+COPY mods/apiserver/package.json ./mods/apiserver/
 
-# Only the apiserver's workspace closure (not the whole monorepo).
+# Only the apiserver's workspace closure (not the whole monorepo); no @fonoster package may come
+# from the registry except roomr (a package.json missing above would).
 RUN --mount=type=cache,target=/root/.npm \
-    npm install --workspace @fonoster/apiserver --ignore-scripts --no-audit --no-fund
+    npm install --workspace @fonoster/apiserver --ignore-scripts --no-audit --no-fund \
+  && for d in node_modules/@fonoster/*; do [ -L "$d" ] || [ "${d##*/}" = roomr ] || { echo "$d came from the npm registry, not the workspace"; exit 1; }; done \
+  && ls mods/*/package.json > /tmp/install-manifests
+
+# autopilot's `tsc -b` also builds community (a project reference).
+COPY mods/types ./mods/types
+COPY mods/logger ./mods/logger
+COPY mods/common ./mods/common
+COPY mods/identity ./mods/identity
+COPY mods/authz ./mods/authz
+COPY mods/sipnet ./mods/sipnet
+COPY mods/callrecord ./mods/callrecord
+COPY mods/voice ./mods/voice
+COPY mods/community ./mods/community
+COPY mods/autopilot ./mods/autopilot
+COPY mods/apiserver ./mods/apiserver
+# A package.json that came only with the sources would leave the install layer blind to it.
+RUN [ "$(ls mods/*/package.json)" = "$(cat /tmp/install-manifests)" ] \
+  || { echo "copy each mods/<package>/package.json before npm install"; exit 1; }
 
 RUN npx prisma generate --schema mods/apiserver/schema.prisma \
   && npx prisma generate --schema mods/identity/schema.prisma

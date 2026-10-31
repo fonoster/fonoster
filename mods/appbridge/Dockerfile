@@ -9,7 +9,25 @@ WORKDIR /work
 RUN apt-get update && apt-get install -y --no-install-recommends openssl \
   && rm -rf /var/lib/apt/lists/*
 
+# Manifests before sources, so the install layer is reused until package-lock.json or one of
+# these package.json files changes.
 COPY package.json package-lock.json lerna.json tsconfig.json ./
+COPY mods/types/package.json ./mods/types/
+COPY mods/logger/package.json ./mods/logger/
+COPY mods/common/package.json ./mods/common/
+COPY mods/callrecord/package.json ./mods/callrecord/
+COPY mods/identity-client/package.json ./mods/identity-client/
+COPY mods/community/package.json ./mods/community/
+COPY mods/amd/package.json ./mods/amd/
+COPY mods/appbridge/package.json ./mods/appbridge/
+
+# Only AppBridge's workspace closure is installed (not the whole monorepo); no @fonoster package
+# may come from the registry except roomr (a package.json missing above would).
+RUN --mount=type=cache,target=/root/.npm \
+    npm install --workspace @fonoster/appbridge --ignore-scripts --no-audit --no-fund \
+  && for d in node_modules/@fonoster/*; do [ -L "$d" ] || [ "${d##*/}" = roomr ] || { echo "$d came from the npm registry, not the workspace"; exit 1; }; done \
+  && ls mods/*/package.json > /tmp/install-manifests
+
 COPY mods/types ./mods/types
 COPY mods/logger ./mods/logger
 COPY mods/common ./mods/common
@@ -23,16 +41,15 @@ COPY mods/appbridge ./mods/appbridge
 # The apiserver schema: `appStore.source: database`, the database registry and webhooks read the
 # control-plane database through a client generated from it.
 COPY mods/apiserver/schema.prisma ./mods/apiserver/schema.prisma
-
-# Only AppBridge's workspace closure is installed (not the whole monorepo).
-RUN --mount=type=cache,target=/root/.npm \
-    npm install --workspace @fonoster/appbridge --ignore-scripts --no-audit --no-fund
+# A package.json that came only with the sources would leave the install layer blind to it.
+RUN [ "$(ls mods/*/package.json)" = "$(cat /tmp/install-manifests)" ] \
+  || { echo "copy each mods/<package>/package.json before npm install"; exit 1; }
 
 # identity-client's .proto is copied from @fonoster/common by its prebuild (git-ignored), which
 # `tsc -b` skips: without this every AppBridge built from a clean checkout crashed at start.
 RUN node mods/identity-client/scripts/sync-proto.mjs \
   && for p in types logger common callrecord identity-client community amd appbridge; do \
-      (cd mods/$p && npx tsc -b); \
+      (cd mods/$p && npx tsc -b) || exit 1; \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
   && npm prune --omit=dev --workspace @fonoster/appbridge \
