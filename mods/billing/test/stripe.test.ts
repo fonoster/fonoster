@@ -377,6 +377,42 @@ describe("@billing stripe", function () {
     expect(await db!.prisma.stripeEvent.count()).to.equal(before);
   });
 
+  it("[BIL-044] drops a webhook body the sender abandons, and keeps answering", async () => {
+    const port = (receiver.address() as AddressInfo).port;
+    // In production an unhandled rejection here ends billing; mocha only reports it.
+    const unhandled: unknown[] = [];
+    const onUnhandled = (reason: unknown) => unhandled.push(reason);
+    process.on("unhandledRejection", onUnhandled);
+    await new Promise<void>((resolve) => {
+      const req = request({
+        host: "127.0.0.1",
+        port,
+        path: "/stripe",
+        method: "POST",
+        headers: { "content-length": "100000" }
+      });
+      req.on("error", () => resolve());
+      req.on("close", () => resolve());
+      req.write(Buffer.alloc(1000, "a"));
+      setTimeout(() => req.destroy(), 50);
+    });
+    await new Promise((r) => setTimeout(r, 100));
+    process.off("unhandledRejection", onUnhandled);
+    expect(unhandled).to.deep.equal([]);
+    const status = await new Promise<number>((resolve, reject) => {
+      const req = request(
+        { host: "127.0.0.1", port, path: "/stripe", method: "POST" },
+        (res) => {
+          res.resume();
+          resolve(res.statusCode!);
+        }
+      );
+      req.on("error", reject);
+      req.end("{}");
+    });
+    expect(status).to.equal(400);
+  });
+
   it("[BIL-045] keeps rating while Stripe is down, then sends everything once", async () => {
     const { owner, customer } = await subscribed();
     await control("rate_limit", { on: true });

@@ -50,13 +50,18 @@ export function webhookReceiver(deps: {
   return async (req: IncomingMessage, res: ServerResponse) => {
     const chunks: Buffer[] = [];
     let size = 0;
-    for await (const c of req) {
-      // A public route: past the limit, answer 413 at once and discard the rest unread into
-      // memory (closing with data unread would reset the connection and lose the answer).
-      if (size > MAX_WEBHOOK_BYTES) continue;
-      size += (c as Buffer).length;
-      if (size > MAX_WEBHOOK_BYTES) res.writeHead(413).end();
-      else chunks.push(c as Buffer);
+    try {
+      for await (const c of req) {
+        // A public route: past the limit, answer 413 at once and discard the rest unread into
+        // memory (closing with data unread would reset the connection and lose the answer).
+        if (size > MAX_WEBHOOK_BYTES) continue;
+        size += (c as Buffer).length;
+        if (size > MAX_WEBHOOK_BYTES) res.writeHead(413).end();
+        else chunks.push(c as Buffer);
+      }
+    } catch {
+      // The sender went away mid-body (aborted, timed out): there is no one to answer.
+      return;
     }
     if (size > MAX_WEBHOOK_BYTES) return;
     const body = Buffer.concat(chunks);

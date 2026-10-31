@@ -703,9 +703,9 @@ declined.
 - **Test:** mods/billing/test/stripe.test.ts
 
 A paid top-up's `invoice.paid` is replayed through the fake's control API. An 8 MiB body is
-posted to the webhook receiver, which is public.
+posted to the webhook receiver, which is public, and a sender abandons another body halfway.
 
-**Pass.** The balance grows by the top-up once; the 8 MiB body is answered 413 and stores no event. **Fail.** It grows twice, or the large body is accepted or not answered 413.
+**Pass.** The balance grows by the top-up once; the 8 MiB body is answered 413 and stores no event; the abandoned body raises no unhandled rejection and the receiver still answers. **Fail.** It grows twice, the large body is accepted or not answered 413, or the abandoned body raises an unhandled rejection.
 
 ### BIL-045 Stripe down does not stop rating
 
