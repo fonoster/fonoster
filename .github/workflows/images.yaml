@@ -4,6 +4,11 @@ name: Images
 # fonoster/<name>:<version> (and :latest when asked). The list is ops/release/images.json, the same
 # one ops/release/bundle builds from, so the published images and the release archive agree.
 # Called by release.yaml; can also be started by hand (e.g. to republish one version).
+#
+# Each platform builds on its own native runner (arm64 on ubuntu-24.04-arm, no QEMU) and pushes by
+# digest; the merge job then tags one manifest list holding both, and fails unless both are in it.
+# push: false builds both platforms and pushes nothing (to check a change to this file or a
+# Dockerfile).
 
 on:
   workflow_call:
@@ -26,6 +31,11 @@ on:
         required: false
         type: string
         default: ""
+      push:
+        description: Push the images and their tags (false builds both platforms and pushes nothing)
+        required: false
+        type: boolean
+        default: true
   workflow_dispatch:
     inputs:
       version:
@@ -45,6 +55,11 @@ on:
         description: Build just this image (a name from ops/release/images.json); empty builds all
         required: false
         type: string
+      push:
+        description: Push the images and their tags (false builds both platforms and pushes nothing)
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -70,22 +85,84 @@ jobs:
           [ "$images" != "[]" ] || { echo "no image named '$ONLY' in ops/release/images.json"; exit 1; }
           echo "images=$images" >> "$GITHUB_OUTPUT"
 
-  publish:
-    name: fonoster/${{ matrix.image.name }}
+  build:
+    name: fonoster/${{ matrix.image.name }} (${{ matrix.platform.arch }})
     needs: list
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
       matrix:
         image: ${{ fromJSON(needs.list.outputs.images) }}
+        platform:
+          - { arch: amd64, runner: ubuntu-24.04 }
+          - { arch: arm64, runner: ubuntu-24.04-arm }
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
 
-      - name: Set up QEMU (arm64)
-        uses: docker/setup-qemu-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        if: ${{ inputs.push }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      # No build cache: per-platform scopes would double the entries in the repository's 10 GB
+      # Actions cache, which already evicted the npm caches the PR checks use.
+      - name: Build (and push by digest)
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.image.context }}
+          file: ${{ matrix.image.dockerfile }}
+          platforms: linux/${{ matrix.platform.arch }}
+          outputs: ${{ inputs.push && format('type=image,name=fonoster/{0},push-by-digest=true,name-canonical=true,push=true', matrix.image.name) || 'type=cacheonly' }}
+
+      - name: Keep the digest
+        if: ${{ inputs.push }}
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/digests"
+          touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
+
+      - name: Upload the digest
+        if: ${{ inputs.push }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.image.name }}-${{ matrix.platform.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    name: fonoster/${{ matrix.image.name }}
+    if: ${{ inputs.push }}
+    needs: [list, build]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ${{ fromJSON(needs.list.outputs.images) }}
+    steps:
+      - name: Download the digests
+        uses: actions/download-artifact@v4
+        with:
+          pattern: digests-${{ matrix.image.name }}-*
+          path: ${{ runner.temp }}/digests
+          merge-multiple: true
+
+      # Both platforms or nothing: no tag points at a one-platform image.
+      - name: Both platforms built
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          set -- *
+          [ "$#" = 2 ] || { echo "expected 2 digests (amd64, arm64), found $#: $*"; exit 1; }
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -96,29 +173,26 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      - name: Tags
-        id: tags
+      - name: Tag the manifest list
+        working-directory: ${{ runner.temp }}/digests
         env:
           NAME: ${{ matrix.image.name }}
           VERSION: ${{ inputs.version }}
           LATEST: ${{ inputs.latest }}
         run: |
-          {
-            echo "tags<<EOF"
-            echo "fonoster/$NAME:$VERSION"
-            [ "$LATEST" != "true" ] || echo "fonoster/$NAME:latest"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          tags=(-t "fonoster/$NAME:$VERSION")
+          [ "$LATEST" != "true" ] || tags+=(-t "fonoster/$NAME:latest")
+          refs=()
+          for d in *; do refs+=("fonoster/$NAME@sha256:$d"); done
+          docker buildx imagetools create "${tags[@]}" "${refs[@]}"
 
-      # mode=min keeps only the final layers: mode=max (every stage, two architectures) filled the
-      # repository's 10 GB Actions cache and evicted the npm caches the PR checks use.
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: ${{ matrix.image.context }}
-          file: ${{ matrix.image.dockerfile }}
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ steps.tags.outputs.tags }}
-          cache-from: type=gha,scope=${{ matrix.image.name }}
-          cache-to: type=gha,mode=min,scope=${{ matrix.image.name }}
+      - name: Both platforms published
+        env:
+          NAME: ${{ matrix.image.name }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          platforms="$(docker buildx imagetools inspect "fonoster/$NAME:$VERSION" --format '{{json .Manifest}}' \
+            | jq -r '[.manifests[].platform | "\(.os)/\(.architecture)"] | join(" ")')"
+          echo "fonoster/$NAME:$VERSION: $platforms"
+          case " $platforms " in *" linux/amd64 "*) ;; *) echo "linux/amd64 missing"; exit 1 ;; esac
+          case " $platforms " in *" linux/arm64 "*) ;; *) echo "linux/arm64 missing"; exit 1 ;; esac
