@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/appbridge",
-  "version": "0.47.1",
+  "version": "0.47.2",
   "private": true,
   "description": "AppBridge: serves each call to its app over the Fonoster session protocol",
   "author": "Pedro Sanders <psanders@fonoster.com>",
@@ -44,7 +44,7 @@
     "@ai-coustics/aic-sdk": "^0.24.0"
   },
   "devDependencies": {
-    "@fonoster/conformance": "^0.47.1",
+    "@fonoster/conformance": "^0.47.2",
     "@routr/common": "^2.24.0"
   },
   "files": [

@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/dashboard",
-  "version": "0.47.1",
+  "version": "0.47.2",
   "private": true,
   "description": "Fonoster Dashboard",
   "homepage": "https://fonoster.com",
@@ -56,7 +56,7 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@fonoster/voice": "^0.47.1",
+    "@fonoster/voice": "^0.47.2",
     "@playwright/test": "^1.64.0",
     "@storybook/addon-a11y": "^8.6.19",
     "@storybook/addon-essentials": "^8.6.19",

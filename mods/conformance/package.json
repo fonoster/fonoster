@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/conformance",
-  "version": "0.47.1",
+  "version": "0.47.2",
   "private": true,
   "description": "Conformance harness for the Fonoster rebuild contracts: scenario files, runners and fakes",
   "author": "Pedro Sanders <psanders@fonoster.com>",
