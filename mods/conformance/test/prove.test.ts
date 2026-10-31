@@ -184,6 +184,34 @@ describe("@conformance/catalog prove.cjs", function () {
     expect(fs.readFileSync(path.join(dir, "add.js"), "utf8")).to.equal(add + "// mine\n");
   });
 
+  // Which cases a run touched: every proof line and every waiver line names one.
+  const touched = (stdout: string) => [...stdout.matchAll(/^(?:proven|UNPROVEN|waived)\s+(TST-\d{3})/gm)].map((m) => m[1]);
+
+  it("proves only its shard with --shard k/N", function () {
+    expect(touched(prove("--shard", "1/2").stdout)).to.deep.equal(["TST-001", "TST-003"]);
+    expect(touched(prove("--shard", "2/2").stdout)).to.deep.equal(["TST-002"]);
+  });
+
+  it("rejects a bad --shard and applies no fault", function () {
+    for (const bad of ["3/2", "0/2", "x", "2"]) {
+      const run = prove("--shard", bad);
+
+      expect(run.status, bad).to.equal(2);
+      expect(run.stderr, bad).to.contain("--shard must be k/N with 1 <= k <= N");
+      expect(fs.readFileSync(path.join(dir, "add.js"), "utf8")).to.equal(add);
+    }
+  });
+
+  it("takes the shard over the --case selection", function () {
+    expect(touched(prove("--case", "TST-002,TST-003", "--shard", "1/2").stdout)).to.deep.equal(["TST-002"]);
+  });
+
+  it("keeps waived cases in the shard index", function () {
+    fs.writeFileSync(path.join(dir, "catalog", "waivers.json"), JSON.stringify([{ id: "TST-001", expires: "2999-01-01", why: "test" }]));
+
+    expect(touched(prove("--shard", "1/2").stdout)).to.deep.equal(["TST-001", "TST-003"]);
+  });
+
   it("report.cjs counts a proof as proven but never as a run", function () {
     prove("--case", "TST-001");
     const report = (results: string) =>
