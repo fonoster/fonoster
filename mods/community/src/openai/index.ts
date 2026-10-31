@@ -50,6 +50,8 @@ export class OpenAiCompatibleThink implements Think {
       maxTokens: number;
       /** Ask for a JSON object reply (catalog feature `json-mode`). */
       jsonMode?: boolean;
+      /** A reasoning model (catalog feature `reasoning`), run with reasoning off. */
+      reasoning?: boolean;
     }
   ) {}
 
@@ -64,7 +66,14 @@ export class OpenAiCompatibleThink implements Think {
       // The final chunk carries the request's token usage (add-usage-metering D6).
       stream_options: { include_usage: true },
       temperature: this.options.temperature,
-      max_tokens: this.options.maxTokens,
+      // Reasoning models refuse max_tokens; effort "none" is the fastest first token and the only
+      // effort at which they accept temperature (#1239).
+      ...(this.options.reasoning
+        ? {
+            max_completion_tokens: this.options.maxTokens,
+            reasoning_effort: "none"
+          }
+        : { max_tokens: this.options.maxTokens }),
       messages: messages.map(toOpenAi),
       ...(tools.length
         ? { tools: tools.map((t) => ({ type: "function", function: t })) }

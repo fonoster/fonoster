@@ -112,12 +112,15 @@ Features decide which apps a model can serve:
 
 | Type  | Required features (a config breaks without them) | Optional features (only degrade)                      |
 | ----- | ------------------------------------------------ | ----------------------------------------------------- |
-| `llm` | `tool-calling`, `streaming`                       | `json-mode`, `vision`                                  |
+| `llm` | `tool-calling`, `streaming`                       | `json-mode`, `vision`, `reasoning`                     |
 | `tts` | `streaming`                                       | `word-timings`, `ssml`                                 |
 | `stt` | `streaming`                                       | `interim-results`, `word-timings`, `turn-detection`, `multilingual` |
 
 An agent with tools needs a language model with `tool-calling`, and the dashboard greys out the
-others. `--settings` lists the vendor settings the model accepts. When a model is retired, settings
+others.
+`reasoning` marks a reasoning model that accepts `reasoning_effort: none` (OpenAI GPT-5.1 and later;
+not the original `gpt-5`, `gpt-5-mini`, `gpt-5-nano`): Fonoster sends `max_completion_tokens` and
+turns reasoning off for low latency. `--settings` lists the vendor settings the model accepts. When a model is retired, settings
 its replacement doesn't accept are dropped.
 
 Add only models Fonoster can run. Speech runs on Deepgram and ElevenLabs, and Autopilot's language

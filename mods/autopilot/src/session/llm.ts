@@ -204,7 +204,9 @@ export class RegistryLlmResolver implements LlmResolver {
         // The catalog provider (e.g. together) names a rejected key, not the adapter (openai).
         { baseUrl, apiKey, name: provider.id },
         id.slice(providerId.length + 1),
-        settings
+        model.features.includes("reasoning")
+          ? { ...settings, reasoning: true }
+          : settings
       ),
       ...(resolution.event
         ? {
