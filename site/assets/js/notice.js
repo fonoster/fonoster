@@ -39,6 +39,8 @@
     `<svg class="icon ${cls}" aria-hidden="true"><use href="${ICONS}#i-${name}"></use></svg>`;
 
   const storedLang = () => {
+    const urlLang = new URLSearchParams(location.search).get("lang");
+    if (urlLang === "es" || urlLang === "en") return urlLang;
     try {
       return localStorage.getItem("fonoster.lang");
     } catch (e) {

@@ -7,6 +7,7 @@ The marketing site. Plain HTML + CSS + JS, deployed as-is to GitHub Pages by `.g
 - Redirects: `v1/` → `/` (old preview links), `docs/` → docs.fonoster.com
 - SEO: `sitemap.xml`, `robots.txt`, canonical + Open Graph tags (`assets/img/og.png`, from the "Share Image" frame in Pencil)
 - Analytics: Google Analytics `G-49RD5H9MR3` in every page head (same property as the previous site)
+- Language: `?lang=es|en` on any page sets the language, saves it (`fonoster.lang` in localStorage) and drops the param from the URL; fonoster.do redirects to `/?lang=es`
 
 ## Preview locally
 
