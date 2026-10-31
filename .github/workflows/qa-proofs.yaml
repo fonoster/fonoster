@@ -526,15 +526,6 @@ jobs:
           echo "Roomr v$V: released, CI passed (fonoster/roomr)" >> "$GITHUB_STEP_SUMMARY"
 
       # Every P0 case passes and is proven, every P1 passes or is waived (report.cjs).
-      - name: Report and gate
-        env:
-          VERSION: ${{ inputs.version || 'nightly' }}
-        run: |
-          mkdir -p reports
-          node mods/conformance/catalog/report.cjs --results reports/junit \
-            --version "$VERSION" --sha "$(git rev-parse --short HEAD)" --out reports/qa-report.md
-          cat reports/qa-report.md >> "$GITHUB_STEP_SUMMARY"
-
       # A lost prove part leaves its cases without proof records, which report.cjs only gates for P0
       # cases: every part's file must be there.
       - name: Every proof part reported
@@ -546,6 +537,15 @@ jobs:
             [ -n "$(find reports/junit -name "$f" -print -quit)" ] || missing="$missing $f"
           done
           [ -z "$missing" ] || { echo "no proof records from:$missing"; exit 1; }
+
+      - name: Report and gate
+        env:
+          VERSION: ${{ inputs.version || 'nightly' }}
+        run: |
+          mkdir -p reports
+          node mods/conformance/catalog/report.cjs --results reports/junit \
+            --version "$VERSION" --sha "$(git rev-parse --short HEAD)" --out reports/qa-report.md
+          cat reports/qa-report.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: The report
         if: always()
