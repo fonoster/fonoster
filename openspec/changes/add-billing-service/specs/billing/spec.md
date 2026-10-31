@@ -19,7 +19,7 @@ admission SHALL behave as before.
 Each usage event SHALL be rated exactly once into a rated line (billable, reason, amount in
 milli-credits, rate card version, invoice category) by fixed rules in a fixed order, the first match
 winning: `private_region`, `byok`, `included` (answering-machine detection, recording, storage),
-`limit_only`, `platform_minutes` (at least 60 s per call), `platform_key` and `addon` (vendor cost).
+`limit_only`, `platform_minutes` (at least 15 s per call), `platform_key` and `addon` (vendor cost).
 
 #### Scenario: Unpriced usage
 
@@ -38,8 +38,8 @@ winning: `private_region`, `byok`, `included` (answering-machine detection, reco
 
 #### Scenario: A short call
 
-- **WHEN** a call lasts 20 seconds
-- **THEN** its `call.seconds` line is billed as 60 seconds
+- **WHEN** a call lasts 5 seconds
+- **THEN** its `call.seconds` line is billed as 15 seconds, and a 20-second call as 20 seconds
 
 #### Scenario: The same usage twice
 
@@ -55,6 +55,12 @@ rated with the card in force at the time it happened.
 
 - **WHEN** card 2 starts on the 15th and a call happened on the 14th but arrives on the 16th
 - **THEN** the call is rated with card 1
+
+#### Scenario: The launch card
+
+- **WHEN** a call on Fonoster's keys uses any meter a provider of the shipped catalog emits
+- **THEN** card 1 prices it (calls at 5 credits a minute) and its `source` names each vendor's
+  price page and the date it was read, so no line of the call is `unpriced`
 
 ### Requirement: The balance is a ledger
 
@@ -78,7 +84,10 @@ Unused grants SHALL be removed by an expiry entry when they expire.
 The service SHALL support a Trial (1,000 credits once, no overdraft) and Pay-as-you-go ($25 a month,
 2,500 plan credits each paid period). Plan credits SHALL stay spendable for usage of their period
 until the period's invoice is finalized. Trial credits left when an owner subscribes SHALL last as
-long as the first plan credits. Top-up credits SHALL expire 12 months after purchase.
+long as the first plan credits. Top-up credits SHALL expire 12 months after purchase. A plan
+cancelled in the Customer Portal SHALL run to its period's end (`canceling`), then leave the owner
+with no plan (`none`, `canceled`): credits left pay for calls at the Trial's limits, with no
+overdraft, top-ups or auto-recharge until the owner subscribes again.
 
 #### Scenario: A paid month
 
@@ -91,6 +100,19 @@ long as the first plan credits. Top-up credits SHALL expire 12 months after purc
   finalized after the Trial's 30 days
 - **THEN** the Trial credits paid for that usage both in the ledger and in Stripe, and the two
   balances agree
+
+#### Scenario: Cancelling the plan
+
+- **WHEN** a Pay-as-you-go owner cancels in the Customer Portal, and the period ends
+- **THEN** the status is `canceling` until then (renewing makes it `active` again), then the plan is
+  `none` with no subscription, auto-recharge off and no overdraft; a top-up is refused until the
+  owner subscribes, which starts a new plan
+
+#### Scenario: No plan
+
+- **WHEN** an owner with no plan and credits left places calls
+- **THEN** calls are admitted up to the Trial's concurrency, refused at zero credits, and turning on
+  auto-recharge is refused with "upgrade first"
 
 #### Scenario: Usage in the last hour of the period
 

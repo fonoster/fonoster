@@ -8,6 +8,7 @@ fonoster_env_secrets:
   NATS_APPBRIDGE_PASSWORD: "s<hex16>"
   NATS_ROOMR_PASSWORD: "s<hex16>"
   NATS_ROUTR_PASSWORD: "s<hex16>"
+  NATS_BILLING_PASSWORD: "s<hex16>"
   ENCRYPTION_KEY: "k1.aesgcm256.<43 base64url chars>="
   AUTOPILOT_SIGNING_SECRET: "<hex24>"
   ROOMR_PASSWORD: "s<hex16>"

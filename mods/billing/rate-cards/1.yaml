@@ -1,13 +1,61 @@
-# Rate card 1 (add-billing-service D3). Prices are credits per unit; 1 credit = $0.01.
+# Rate card 1 (add-billing-service D3), the launch card. Prices are credits per unit; 1 credit = $0.01.
 # A card is never edited once it starts: add <version+1>.yaml with a later startsAt.
 #
-# NOT FINAL. Waiting for the owner:
-#   - call.seconds: the published per-minute price. Proposed 4.8 credits/min (the old $25 for 520
-#     minutes), i.e. 0.08 credits per second.
-#   - Vendor prices (stt, tts, llm, embedding, nc) at cost, from each vendor's price page, with the
-#     date in `source`. Usage with no price here is not billed (reason unpriced) and raises an alert.
+# Calls are $0.05 a minute, billed by the second with a 15-second minimum (rater.ts). AI is at cost
+# from each vendor's published price page. A vendor's `*` is its priciest listed model, for models
+# the card doesn't name; a model is the catalog id usage carries (provider/model).
 version: 1
 startsAt: 2026-11-01T00:00:00Z
-source: "Proposal, 2026-10-21; vendor prices not filled in yet"
+source: >-
+  Fonoster price, 2026-10-30. At cost, read 2026-10-30: Deepgram https://deepgram.com/pricing
+  (Nova-3 streaming $0.0077/min, Nova-2 $0.35/h, Aura-2 $0.030/1K characters); ElevenLabs
+  https://elevenlabs.io/pricing/api (Flash/Turbo $0.04/1K characters); OpenAI model pages
+  https://developers.openai.com/api/docs/models (gpt-4o-mini $0.15 in, $0.075 cached, $0.60 out;
+  gpt-4.1-mini $0.40 in, $0.10 cached, $1.60 out; text-embedding-ada-002 $0.10, per 1M tokens);
+  Groq https://console.groq.com/docs/models (gpt-oss-120b $0.15 in, $0.60 out; gpt-oss-20b $0.075
+  in, $0.30 out, per 1M tokens; no cached rate listed, so cached tokens at the input rate);
+  ai-coustics https://ai-coustics.com/pricing (no per-minute price: Startup plan $135 a month for
+  100,000 minutes, $0.00135/min).
 prices:
-  call.seconds: 0.08
+  # $0.05 a minute: 5/60 credits a second, so 60 seconds rate to exactly 5.000 credits.
+  call.seconds: 0.08333333333333333
+  stt.seconds:
+    deepgram:
+      "deepgram/nova-3": 0.012833333333333334
+      "deepgram/nova-2-phonecall": 0.009722222222222222
+      "*": 0.012833333333333334
+  tts.characters:
+    deepgram: 0.003
+    elevenlabs: 0.004
+  llm.tokens.in:
+    openai:
+      "openai/gpt-4o-mini": 0.000015
+      "openai/gpt-4.1-mini": 0.00004
+      "*": 0.00004
+    groq:
+      "groq/openai/gpt-oss-120b": 0.000015
+      "groq/openai/gpt-oss-20b": 0.0000075
+      "*": 0.000015
+  llm.tokens.cached:
+    openai:
+      "openai/gpt-4o-mini": 0.0000075
+      "openai/gpt-4.1-mini": 0.00001
+      "*": 0.00001
+    groq:
+      "groq/openai/gpt-oss-120b": 0.000015
+      "groq/openai/gpt-oss-20b": 0.0000075
+      "*": 0.000015
+  llm.tokens.out:
+    openai:
+      "openai/gpt-4o-mini": 0.00006
+      "openai/gpt-4.1-mini": 0.00016
+      "*": 0.00016
+    groq:
+      "groq/openai/gpt-oss-120b": 0.00006
+      "groq/openai/gpt-oss-20b": 0.00003
+      "*": 0.00006
+  embedding.tokens:
+    openai: 0.00001
+  # Noise cancelling, an add-on: $0.00135 a minute.
+  nc.seconds:
+    aicoustics: 0.00225

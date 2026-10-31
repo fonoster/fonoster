@@ -20,6 +20,7 @@ import { expect } from "chai";
 import { VoiceRequest } from "@fonoster/authz";
 import { RegistryActiveCalls } from "../src/activeCalls";
 import { BillingAuthzHandler, ensureAccount } from "../src/admission";
+import { billingApi } from "../src/api";
 import { ManualClock } from "../src/clock";
 import { DEFAULT_PLANS } from "../src/config";
 import { debit, expireDue, grant, lockAccount } from "../src/ledger";
@@ -162,6 +163,45 @@ describe("@billing admission", function () {
     });
     active.set("owner-busy", DEFAULT_PLANS.concurrency.payg - 1);
     expect(await check("WO-busy")).to.deep.equal({ authorized: true });
+  });
+
+  it("[BIL-050] admits no plan at the Trial's limits while credits last, and refuses auto-recharge", async () => {
+    const a = await payg("owner-none", "WO-none", 1000);
+    await db!.prisma.billingAccount.update({
+      where: { id: a.id },
+      data: { plan: "none", status: "canceled" }
+    });
+    active.set("owner-none", DEFAULT_PLANS.concurrency.trial - 1);
+    expect(await check("WO-none")).to.deep.equal({ authorized: true });
+    active.set("owner-none", DEFAULT_PLANS.concurrency.trial);
+    expect(await check("WO-none")).to.deep.equal({
+      authorized: false,
+      reason: "concurrency_limit"
+    });
+    // No overdraft without a plan: at zero, calls stop.
+    active.set("owner-none", 0);
+    await db!.prisma.$transaction((tx) =>
+      debit(tx, a.id, credits(1000), "use-none", NOW, NOW)
+    );
+    expect(await check("WO-none")).to.deep.equal({
+      authorized: false,
+      reason: "insufficient_balance"
+    });
+    const refused = await billingApi({
+      prisma: db!.prisma,
+      plans: DEFAULT_PLANS,
+      clock: new ManualClock(NOW)
+    })
+      .updateAutoRecharge({
+        ownerRef: "owner-none",
+        enabled: true,
+        threshold: 500,
+        amount: 2500
+      })
+      .catch((e: Error) => e);
+    expect((refused as Error).message).to.equal(
+      "top-ups and auto-recharge need a plan: upgrade first"
+    );
   });
 
   it("[BIL-035] admits apps without an owner", async () => {

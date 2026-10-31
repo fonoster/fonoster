@@ -1,5 +1,5 @@
 diff --git a/mods/billing/src/stripe/webhooks.ts b/mods/billing/src/stripe/webhooks.ts
-index 872646713..4f6e793d3 100644
+index 5aea65cd5..c322d198d 100644
 --- a/mods/billing/src/stripe/webhooks.ts
 +++ b/mods/billing/src/stripe/webhooks.ts
 @@ -33,7 +33,7 @@ const logger = getLogger({ service: "billing", filePath: __filename });
@@ -9,5 +9,5 @@ index 872646713..4f6e793d3 100644
 -export const MAX_RECHARGE_FAILURES = 3;
 +export const MAX_RECHARGE_FAILURES = 4;
  
- /**
-  * The webhook inbox (D8): verifies Stripe's signature and stores each event once by id. Applying
+ /** The largest webhook body read; Stripe's events are far smaller. */
+ const MAX_WEBHOOK_BYTES = 1024 * 1024;

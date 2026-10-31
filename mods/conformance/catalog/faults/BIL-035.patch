@@ -1,5 +1,5 @@
 diff --git a/mods/billing/src/admission.ts b/mods/billing/src/admission.ts
-index 654779590..11b86aee8 100644
+index 43d9e6ed8..ca18c6106 100644
 --- a/mods/billing/src/admission.ts
 +++ b/mods/billing/src/admission.ts
 @@ -107,7 +107,7 @@ export class BillingAuthzHandler implements AuthzHandler {
@@ -8,6 +8,6 @@ index 654779590..11b86aee8 100644
      if (
 -      activeCalls.count(owner) >=
 +      activeCalls.count(owner) >
-       plans.concurrency[account.plan as "trial" | "payg"]
+       plans.concurrency[account.plan === "payg" ? "payg" : "trial"]
      )
        return { authorized: false, reason: "concurrency_limit" };

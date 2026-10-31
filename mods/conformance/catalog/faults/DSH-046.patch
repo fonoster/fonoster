@@ -1,13 +1,13 @@
 diff --git a/mods/dashboard/src/app/app.tsx b/mods/dashboard/src/app/app.tsx
-index dbd3b1f93..03d3a48cc 100644
+index 1f8200a28..d6aee606c 100644
 --- a/mods/dashboard/src/app/app.tsx
 +++ b/mods/dashboard/src/app/app.tsx
-@@ -45,7 +45,7 @@ export function App({
-         <CapabilitiesProvider
-           client={client}
-           loading={<Splash />}
--          failed={(retry) => <ApiUnreachable apiUrl={apiUrl} onRetry={retry} />}
-+          failed={(retry) => <ApiUnreachable apiUrl={apiUrl} onRetry={() => undefined} />}
-         >
-           <BrowserRouter>
-             <AuthProvider client={client}>
+@@ -51,7 +51,7 @@ export function App({
+               client={client}
+               loading={<Splash />}
+               failed={(retry) => (
+-                <ApiUnreachable apiUrl={apiUrl} onRetry={retry} />
++                <ApiUnreachable apiUrl={apiUrl} onRetry={() => undefined} />
+               )}
+             >
+               <BrowserRouter>

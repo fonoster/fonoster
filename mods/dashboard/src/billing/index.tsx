@@ -122,7 +122,8 @@ function Billing({ workspace }: { workspace: Workspace }) {
     setPollUntil(Date.now() + POLL_MS);
   };
   // Back from the portal with a card: finish the upgrade the owner asked for, once.
-  const resumeUpgrade = params.get("upgrade") === "1" && s?.plan === "trial";
+  const resumeUpgrade =
+    params.get("upgrade") === "1" && s !== undefined && s.plan !== "payg";
   const resumed = useRef(false);
   const { mutate: startSubscription } = subscribe;
   const balanceNow = s?.balance ?? 0;
@@ -170,8 +171,18 @@ function Billing({ workspace }: { workspace: Workspace }) {
   if (!s) return <Loading />;
 
   const trial = s.plan === "trial";
+  // A canceled plan whose period ended: credits left still pay for calls; upgrading starts again.
+  const noPlan = s.plan === "none";
+  const payg = s.plan === "payg";
   const ended = s.status === "ended";
   const pastDue = s.status === "past_due";
+  const canceling = s.status === "canceling";
+  // When the last credits expire: how long a plan that ends still pays for calls.
+  const lastExpiry = s.sources
+    .map((x) => x.expiresAt)
+    .filter(Boolean)
+    .sort()
+    .at(-1);
   const inProgress = waitingFor > 0 && !arrived;
 
   const upgrade = () =>
@@ -186,7 +197,7 @@ function Billing({ workspace }: { workspace: Workspace }) {
       }
     });
 
-  const primary = trial ? (
+  const primary = !payg ? (
     <Button onClick={upgrade} loading={subscribe.isPending || portal.isPending}>
       Upgrade to Pay-as-you-go
     </Button>
@@ -214,9 +225,10 @@ function Billing({ workspace }: { workspace: Workspace }) {
             <Button
               variant="outline"
               onClick={() => portal.mutate(undefined)}
-              loading={portal.isPending && !trial}
+              loading={portal.isPending && payg}
             >
-              <ExternalLink aria-hidden /> Manage payment methods and invoices
+              <ExternalLink aria-hidden /> Manage plan, payment methods and
+              invoices
             </Button>
           )}
           {primary}
@@ -234,6 +246,36 @@ function Billing({ workspace }: { workspace: Workspace }) {
           <strong className="block">Your Trial has ended</strong>
           Calls are paused in your workspaces. Upgrade to Pay-as-you-go to keep
           them running.
+        </Alert>
+      )}
+      {canceling && (
+        <Alert variant="info">
+          <strong className="block">
+            Your plan ends{" "}
+            {s.periodEnd
+              ? `on ${longDate(s.periodEnd)}`
+              : "at the end of this period"}
+          </strong>
+          Calls keep working until then. After that, the credits you have left
+          still pay for calls at the Trial&apos;s limits
+          {lastExpiry ? `, until ${longDate(lastExpiry)}` : ""}. Auto-recharge
+          turns off and you can&apos;t top up. To keep Pay-as-you-go, renew it
+          in Manage plan, payment methods and invoices.
+        </Alert>
+      )}
+      {noPlan && s.balance > 0 && (
+        <Alert variant="info">
+          <strong className="block">You have no plan</strong>
+          Your {credits(s.balance)} credits left still pay for calls
+          {lastExpiry ? ` until ${longDate(lastExpiry)}` : ""}. Upgrade to
+          Pay-as-you-go to get 2,500 credits a month and buy more.
+        </Alert>
+      )}
+      {noPlan && s.balance <= 0 && (
+        <Alert variant="error">
+          <strong className="block">You have no plan</strong>
+          Calls are paused in your workspaces. Upgrade to Pay-as-you-go to get
+          2,500 credits a month and buy more.
         </Alert>
       )}
       {pastDue && (
@@ -254,7 +296,7 @@ function Billing({ workspace }: { workspace: Workspace }) {
 
       <div
         className={
-          trial ? "grid gap-4 md:grid-cols-2" : "grid gap-4 md:grid-cols-3"
+          payg ? "grid gap-4 md:grid-cols-3" : "grid gap-4 md:grid-cols-2"
         }
       >
         <Card label="Balance" value={`${credits(s.balance)} credits`} mono>
@@ -263,15 +305,25 @@ function Billing({ workspace }: { workspace: Workspace }) {
             ? ended
               ? "the Trial's credits expired"
               : "no overdraft on the Trial"
-            : `may go ${credits(s.overdraft)} credits below zero`}
+            : noPlan
+              ? "no overdraft without a plan"
+              : `may go ${credits(s.overdraft)} credits below zero`}
         </Card>
         <Card
           label="Plan"
-          value={trial ? (ended ? "Trial ended" : "Trial") : "Pay-as-you-go"}
+          value={
+            trial
+              ? ended
+                ? "Trial ended"
+                : "Trial"
+              : noPlan
+                ? "No plan"
+                : "Pay-as-you-go"
+          }
         >
           {planLine(s)}
         </Card>
-        {!trial && (
+        {payg && (
           <Card
             label="Auto-recharge"
             value={s.autoRecharge ? "On" : "Off"}
@@ -348,7 +400,10 @@ function planLine(s: BillingSummary) {
     return s.status === "ended"
       ? "Upgrade to keep calls running"
       : `1,000 credits to try${trialEnd ? ` · ends ${longDate(trialEnd)}` : ""}`;
+  if (s.plan === "none") return "Canceled · upgrade for 2,500 credits a month";
   if (s.status === "past_due") return "$25 a month · payment failed";
+  if (s.status === "canceling")
+    return `$25 a month · cancels ${s.periodEnd ? longDate(s.periodEnd) : "at the period's end"}`;
   return `$25 a month · 2,500 credits${s.periodEnd ? ` · renews ${longDate(s.periodEnd)}` : ""}`;
 }
 

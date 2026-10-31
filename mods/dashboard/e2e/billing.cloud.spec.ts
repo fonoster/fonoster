@@ -118,7 +118,7 @@ test("[DSH-036] shows the account, and says when a payment failed or the Trial e
     "600"
   );
   await page
-    .getByRole("button", { name: /Manage payment methods and invoices/ })
+    .getByRole("button", { name: /Manage plan, payment methods and invoices/ })
     .click();
   await expect.poll(() => visits.length).toBe(1);
 

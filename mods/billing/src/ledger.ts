@@ -303,7 +303,7 @@ export async function expireDue(
 }
 
 /**
- * Ends every Trial whose time is up (the account's `trialEndsAt`: 30 days by default, Q2, or what an
+ * Ends every Trial whose time is up (the account's `trialEndsAt`: plans.trialDays from its start, Q2, or what an
  * operator set): the status becomes `ended` and admission refuses its calls until the owner
  * subscribes. Returns how many ended.
  */
@@ -319,7 +319,8 @@ export async function overdraftLimit(
   account: { id: string; plan: string },
   plans: PlanSettings
 ): Promise<bigint> {
-  if (account.plan === "trial") return 0n;
+  // Only Pay-as-you-go may go below zero; the Trial and no plan stop at zero.
+  if (account.plan !== "payg") return 0n;
   const last = await tx.ledgerEntry.findFirst({
     where: { accountId: account.id, kind: "topup_grant" },
     orderBy: { createdAt: "desc" }

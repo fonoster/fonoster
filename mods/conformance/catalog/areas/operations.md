@@ -147,3 +147,19 @@ current time, as after an apply that failed before its switch. Then `0.0.0-b` is
 runs it.
 
 **Pass.** The first rollback exits 0 with `/opt/fonoster` byte-identical; the `0.0.0-b` apply fails; the second rollback exits 0 (its smoke test passes); `.env` and the apiserver container are on `0.0.0-a`; the last line of `deploys.log` ends with `0.0.0-b -> 0.0.0-a rolled back`. **Fail.** Any of those differs.
+
+### OPS-007 Billing runs behind its overlay
+
+- **Spec:** deployment / Production deploys run the playbook / Billing behind its overlay
+- **Priority:** P1
+- **Proof:** Drop the `/stripe/webhooks` route from `config/envoy-tls.yaml`; the unsigned POST reaches the dashboard instead of billing and the test goes red.
+- **Fault:** faults/OPS-007.patch
+- **Test:** ops/ansible/test/throwaway.sh
+
+Last, `0.0.0-a` is planned and applied with the production group's billing values on the test
+inventory: `compose.billing.yaml`, Stripe keys, `features.billing` in `fonoster.yaml` and `authz` in
+`appbridge.yaml`, with a Stripe fake (`fonoster/stripe-fake`) as Stripe through
+`billing.yaml`'s `stripe.apiBase`. An owner whose plan ended with no credits is written to the
+databases, and the admission AppBridge asks (Authz on `billing:50071`) is called for a call of theirs.
+
+**Pass.** The plan's output carries no Stripe secret; billing is running and healthy; an unsigned `POST /stripe/webhooks` through Envoy answers 400; billing has applied a signed event from the fake; the call is refused. **Fail.** Any of those differs.

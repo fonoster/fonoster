@@ -1,12 +1,12 @@
 diff --git a/mods/billing/src/ledger.ts b/mods/billing/src/ledger.ts
-index 005f20678..3775e67bc 100644
+index 7de369daa..246c8afc0 100644
 --- a/mods/billing/src/ledger.ts
 +++ b/mods/billing/src/ledger.ts
-@@ -319,7 +319,6 @@ export async function overdraftLimit(
-   account: { id: string; plan: string },
+@@ -320,7 +320,6 @@ export async function overdraftLimit(
    plans: PlanSettings
  ): Promise<bigint> {
--  if (account.plan === "trial") return 0n;
+   // Only Pay-as-you-go may go below zero; the Trial and no plan stop at zero.
+-  if (account.plan !== "payg") return 0n;
    const last = await tx.ledgerEntry.findFirst({
      where: { accountId: account.id, kind: "topup_grant" },
      orderBy: { createdAt: "desc" }

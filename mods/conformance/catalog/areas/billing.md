@@ -496,14 +496,14 @@ and an owner with no billing account.
 
 - **Spec:** billing / Rated lines follow fixed rules / A short call
 - **Priority:** P0
-- **Proof:** Lower the minimum billed call to 30 seconds; a 20-second call is billed as 30 and the test goes red.
+- **Proof:** Raise the minimum billed call to 30 seconds; a 5-second call is billed as 30 and the test goes red.
 - **Fault:** faults/BIL-029.patch
 - **Test:** mods/billing/test/rater.test.ts
 
 Vendor meters on our key, a short call, noise cancelling, eval tokens and prices by provider and
 model with `*` as the fallback.
 
-**Pass.** Amounts are the card's price times the quantity in milli-credits, a call is billed at least 60 seconds, and each line has its invoice category. **Fail.** Any amount, minimum or category differs.
+**Pass.** Amounts are the card's price times the quantity in milli-credits, a call is billed at least 15 seconds (a 20-second call as 20), and each line has its invoice category. **Fail.** Any amount, minimum or category differs.
 
 ### BIL-030 Usage is rated with the card in force when it happened
 
@@ -702,9 +702,10 @@ declined.
 - **Fault:** faults/BIL-044.patch
 - **Test:** mods/billing/test/stripe.test.ts
 
-A paid top-up's `invoice.paid` is replayed through the fake's control API.
+A paid top-up's `invoice.paid` is replayed through the fake's control API. An 8 MiB body is
+posted to the webhook receiver, which is public, and a sender abandons another body halfway.
 
-**Pass.** The balance grows by the top-up once. **Fail.** It grows twice.
+**Pass.** The balance grows by the top-up once; the 8 MiB body is answered 413 and stores no event; the abandoned body raises no unhandled rejection and the receiver still answers. **Fail.** It grows twice, the large body is accepted or not answered 413, or the abandoned body raises an unhandled rejection.
 
 ### BIL-045 Stripe down does not stop rating
 
@@ -760,3 +761,56 @@ The runner plays the platform: a Pay-as-you-go owner buys 1,000 credits and the 
 card.
 
 **Pass.** Billing hears `invoice.payment_failed`, sends `topup_failed`, and adds no credits (balance 3,500). **Fail.** Credits are added or the owner is not told.
+
+### BIL-049 A plan cancelled in the portal runs to the period's end, then the owner has no plan
+
+- **Spec:** billing / Plans / Cancelling the plan
+- **Priority:** P0
+- **Proof:** Keep the plan `payg` when Stripe deletes the subscription; the owner keeps Pay-as-you-go after the period and the test goes red.
+- **Fault:** faults/BIL-049.patch
+- **Test:** mods/billing/test/stripe.test.ts
+
+A Pay-as-you-go owner cancels through the Stripe fake (`cancel_at_period_end`), renews, cancels
+again, turns auto-recharge on, and the test clock passes the period's end.
+
+**Pass.** The status is `canceling`, then `active` after renewing; after the period the plan is `none`, status `canceled`, no subscription id, auto-recharge off and no overdraft; a top-up fails with "need a plan"; subscribing gives `payg` / `active` again. **Fail.** Any state differs or the top-up goes through.
+
+### BIL-050 No plan: calls at the Trial's limits while credits last
+
+- **Spec:** billing / Plans / No plan
+- **Priority:** P0
+- **Proof:** Give an owner with no plan Pay-as-you-go's concurrency; the third call is admitted and the test goes red.
+- **Fault:** faults/BIL-050.patch
+- **Test:** mods/billing/test/admission.test.ts
+
+An owner with plan `none` and 1,000 credits, with calls in progress at and below the Trial's
+concurrency, then with the credits spent.
+
+**Pass.** Calls are admitted up to the Trial's concurrency and the next is refused with `concurrency_limit`; at zero credits the call is refused with `insufficient_balance`; turning auto-recharge on fails with "top-ups and auto-recharge need a plan: upgrade first". **Fail.** Any decision differs.
+
+### BIL-051 The Stripe fake serves the Customer Portal
+
+- **Spec:** stripe-fake / A Customer Portal page / Cancel in the portal
+- **Priority:** P1
+- **Proof:** Make the portal's Cancel plan set `cancel_at_period_end` to false; the subscription never cancels and the test goes red.
+- **Fault:** faults/BIL-051.patch
+- **Test:** mods/stripe-fake/test/stripeFake.test.ts
+
+A fake started with `portalUrl`, a subscribed customer with a card, and a portal session with a
+return URL; the page is fetched and its forms posted.
+
+**Pass.** The session URL is `<portalUrl>/p/session/test_<id>` (Stripe's host without `portalUrl`); the page is 200 HTML with Cancel plan and the return link; cancel and renew answer 303, set and clear `cancel_at_period_end`, and cancel delivers a signed `customer.subscription.updated`; a test card becomes the default; an unknown session is 404. **Fail.** Any of those differs.
+
+### BIL-052 The launch rate card prices everything a call produces
+
+- **Spec:** billing / Rate cards are versioned / The launch card
+- **Priority:** P0
+- **Proof:** Drop noise cancelling from card 1; `nc.seconds` is rated `unpriced` and the test goes red.
+- **Fault:** faults/BIL-052.patch
+- **Test:** mods/billing/test/rater.test.ts
+
+Card 1 as shipped against the shipped catalog (`ops/bundle/config/catalog.yaml`): each provider's
+capabilities give its meters (STT seconds, TTS characters, LLM tokens in, out and cached, noise
+cancelling seconds), each with and without each active model, plus OpenAI embeddings.
+
+**Pass.** A 60-second call is exactly 5 credits; every meter of every provider and model is billable with an amount above zero; `source` is dated and not a draft. **Fail.** Any line is `unpriced` or free.

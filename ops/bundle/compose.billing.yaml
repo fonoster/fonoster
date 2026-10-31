@@ -1,0 +1,38 @@
+# Fonoster Cloud's billing (rating, credits, admission, Stripe). Self-hosted installs don't need it.
+# Turn it on in .env:
+#   COMPOSE_FILE=compose.yaml:compose.billing.yaml
+#   STRIPE_SECRET_KEY=rk_live_...
+#   STRIPE_WEBHOOK_SECRET=whsec_...
+# then set features.billing in config/fonoster.yaml and authz in config/appbridge.yaml,
+# point Stripe's webhook endpoint at <PUBLIC_URL>/stripe/webhooks, and docker compose up -d --wait.
+#
+# Its tables live in the fonoster database, schema billing (BILLING_DATABASE_URL, migrated at
+# every start); with compose.external-db.yaml, set BILLING_DATABASE_URL in .env to your database.
+services:
+  billing:
+    image: fonoster/billing:${FONOSTER_VERSION:?set FONOSTER_VERSION}
+    restart: unless-stopped
+    # Never postgres: works with compose.external-db.yaml too.
+    depends_on:
+      apiserver: { condition: service_healthy }
+      nats: { condition: service_healthy }
+    # The ${NAME}s in config/billing.yaml.
+    environment:
+      BILLING_DATABASE_URL: ${BILLING_DATABASE_URL:-postgresql://postgres:${POSTGRES_PASSWORD:?run ./init.sh}@postgres:5432/fonoster?schema=billing}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run ./init.sh}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run ./init.sh}
+      NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:?run ./init.sh}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:?set STRIPE_SECRET_KEY in .env}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:?set STRIPE_WEBHOOK_SECRET in .env}
+    volumes:
+      - ${CONFIG_DIR:-./config}/billing.yaml:/etc/fonoster/billing.yaml:ro
+    # Ready = the Authz server (50071) answers SERVING: migrations ran and admission is up.
+    healthcheck:
+      test: ["CMD", "node", "/work/mods/billing/dist/healthcheck.js"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    # Authz for AppBridge (50071), Stripe's webhooks through Envoy (50072), the Billing API for the
+    # API server (50073). Not published.
+    expose: [50071, 50072, 50073]

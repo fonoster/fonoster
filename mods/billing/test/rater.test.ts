@@ -18,7 +18,10 @@
  */
 import { expect } from "chai";
 import { rate } from "../src/rater";
-import { cardAt, priceOf, RateCard } from "../src/rateCards";
+import { join } from "path";
+import { readFileSync } from "fs";
+import { parse } from "yaml";
+import { cardAt, loadRateCards, priceOf, RateCard } from "../src/rateCards";
 import { RecordedUsage } from "../src/usage";
 
 // The rater (add-billing-service D4, billing "Rated lines follow fixed rules"): one case per rule,
@@ -100,7 +103,7 @@ describe("@billing rater", function () {
       ).to.equal("included");
   });
 
-  it("[BIL-029] bills a call for at least 60 seconds (rule 6)", function () {
+  it("[BIL-029] bills a call for at least 15 seconds (rule 6)", function () {
     const call = (quantity: number) =>
       rate(
         usage({
@@ -112,12 +115,13 @@ describe("@billing rater", function () {
         started,
         card
       );
-    expect(call(20)).to.include({
+    expect(call(5)).to.include({
       billable: true,
       reason: "platform_minutes",
-      amount: 4_800n,
+      amount: 1_200n,
       category: "platform_minutes"
     });
+    expect(call(20).amount).to.equal(1_600n);
     expect(call(160).amount).to.equal(12_800n);
     // Browser tests are billed like calls.
     expect(
@@ -212,5 +216,69 @@ describe("@billing rater", function () {
     expect(cardAt([one, two], new Date("2026-10-01T00:00:00Z"))).to.equal(
       undefined
     );
+  });
+
+  it("[BIL-052] card 1 prices every meter each catalog provider emits, with its source", function () {
+    const root = join(__dirname, "../../..");
+    const [one] = loadRateCards(join(__dirname, "../rate-cards"));
+    expect(one.version).to.equal(1);
+    expect(one.source).to.match(/2026-10-30/);
+    expect(one.source).not.to.match(/NOT FINAL|not filled/i);
+    // $0.05 a minute: a 60-second call is exactly 5 credits.
+    expect(
+      rate(
+        usage({ meter: "call.seconds", quantity: 60, provider: undefined }),
+        started,
+        one
+      ).amount
+    ).to.equal(5_000n);
+    // The catalog the bundle ships: which meters each provider's capabilities emit.
+    const { entries } = parse(
+      readFileSync(join(root, "ops/bundle/config/catalog.yaml"), "utf8")
+    ) as {
+      entries: {
+        kind: string;
+        id: string;
+        capabilities?: string[];
+        type?: string;
+        state?: string;
+      }[];
+    };
+    const meters: Record<string, string[]> = {
+      stt: ["stt.seconds"],
+      tts: ["tts.characters"],
+      llm: ["llm.tokens.in", "llm.tokens.out", "llm.tokens.cached"],
+      nc: ["nc.seconds"]
+    };
+    const lines: Partial<RecordedUsage>[] = [
+      // Knowledge bases embed with OpenAI (MeteredEmbeddings).
+      {
+        meter: "embedding.tokens",
+        provider: "openai",
+        model: "openai/text-embedding-ada-002"
+      }
+    ];
+    for (const p of entries.filter((e) => e.kind === "provider"))
+      for (const capability of p.capabilities ?? []) {
+        const models = entries.filter(
+          (e) =>
+            e.kind === "model" &&
+            e.type === capability &&
+            e.state === "active" &&
+            e.id.startsWith(`${p.id}/`)
+        );
+        for (const meter of meters[capability]) {
+          lines.push({ meter, provider: p.id });
+          models.forEach((m) =>
+            lines.push({ meter, provider: p.id, model: m.id })
+          );
+        }
+      }
+    expect(lines.length).to.be.greaterThan(20);
+    for (const line of lines) {
+      const rated = rate(usage({ quantity: 1000, ...line }), started, one);
+      expect(rated.reason, JSON.stringify(line)).not.to.equal("unpriced");
+      expect(rated.amount > 0n, JSON.stringify(line)).to.equal(true);
+    }
   });
 });

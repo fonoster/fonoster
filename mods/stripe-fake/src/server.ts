@@ -25,6 +25,7 @@ import { control } from "./control";
 import { StripeError } from "./errors";
 import { Json, StripeFake } from "./fake";
 import { parseForm } from "./form";
+import { portal } from "./portal";
 import { billingRoutes } from "./resources/billing";
 import { advance } from "./resources/billing";
 import { catalogRoutes } from "./resources/catalog";
@@ -94,6 +95,8 @@ export type StripeFakeServerOptions = {
   validateResponses?: boolean;
   /** Webhook endpoints from config: `[{url, secret}]`. */
   webhooks?: { url: string; secret: string }[];
+  /** The fake's address as browsers reach it, for Customer Portal links (portal.ts). */
+  portalUrl?: string;
 };
 
 export class StripeFakeServer {
@@ -102,7 +105,10 @@ export class StripeFakeServer {
   private ticker?: ReturnType<typeof setInterval>;
 
   constructor(private readonly options: StripeFakeServerOptions = {}) {
-    this.fake = new StripeFake({ webhooks: options.webhooks });
+    this.fake = new StripeFake({
+      webhooks: options.webhooks,
+      portalUrl: options.portalUrl
+    });
   }
 
   get url(): string {
@@ -178,6 +184,22 @@ export class StripeFakeServer {
           200,
           publicView(await control(this.fake, method, url.pathname, body))
         );
+      }
+      if (url.pathname.startsWith("/p/")) {
+        const page = await portal(
+          this.fake,
+          method,
+          url.pathname,
+          method === "post" ? parseForm(await readBody(req)) : {}
+        );
+        if ("location" in page) {
+          res.writeHead(303, { location: page.location });
+          return void res.end();
+        }
+        res.writeHead(page.status, {
+          "content-type": "text/html; charset=utf-8"
+        });
+        return void res.end(page.html);
       }
       if (!url.pathname.startsWith("/v1/") && !url.pathname.startsWith("/v2/"))
         return this.viewer(url.pathname, res);

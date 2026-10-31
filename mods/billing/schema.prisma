@@ -15,9 +15,9 @@ datasource db {
 model BillingAccount {
   id                   String    @id @default(uuid())
   ownerRef             String    @unique @map("owner_ref") @db.VarChar(255)
-  /// trial | payg
+  /// trial | payg | none (a plan that ended)
   plan                 String    @db.VarChar(16)
-  /// active | past_due | closed | ended (a Trial past its 30 days)
+  /// active | past_due | canceling (ends with the period) | canceled | ended (a Trial past its plans.trialDays)
   status               String    @default("active") @db.VarChar(16)
   /// When the Trial ends: the configured default from its start, or what an operator set.
   trialEndsAt          DateTime? @map("trial_ends_at") @db.Timestamptz(3)

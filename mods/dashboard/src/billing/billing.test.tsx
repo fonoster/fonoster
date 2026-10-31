@@ -216,6 +216,102 @@ describe("Billing page", () => {
     );
   });
 
+  it("names the plan on the Customer Portal button", async () => {
+    page(PAYG);
+    expect(
+      await screen.findByRole("button", {
+        name: "Manage plan, payment methods and invoices"
+      })
+    ).toBeInTheDocument();
+  });
+
+  it("says when a canceled plan ends, and what happens after", async () => {
+    page({ ...PAYG, status: "canceling" });
+    expect(
+      await screen.findByText("Your plan ends on Dec 1, 2026")
+    ).toBeInTheDocument();
+    const banner = screen.getByText(
+      "Your plan ends on Dec 1, 2026"
+    ).parentElement!;
+    expect(banner).toHaveTextContent(
+      "Calls keep working until then. After that, the credits you have left still pay for calls at the Trial's limits, until Sep 14, 2027. Auto-recharge turns off and you can't top up. To keep Pay-as-you-go, renew it in Manage plan, payment methods and invoices."
+    );
+    expect(screen.getByRole("region", { name: "Plan" })).toHaveTextContent(
+      "Pay-as-you-go$25 a month · cancels Dec 1, 2026"
+    );
+    expect(screen.getByRole("button", { name: /Top up/ })).toBeInTheDocument();
+  });
+
+  it("after a canceled plan ends, shows no plan with credits left, and offers the upgrade instead of top-ups", async () => {
+    page({
+      ...PAYG,
+      plan: "none",
+      status: "canceled",
+      balance: 640,
+      sources: [
+        { kind: "topup", credits: 640, expiresAt: "2027-10-30T00:00:00.000Z" }
+      ],
+      periodEnd: ""
+    });
+    const title = await screen.findByText("You have no plan");
+    expect(title.parentElement).toHaveTextContent(
+      "Your 640 credits left still pay for calls until Oct 30, 2027. Upgrade to Pay-as-you-go to get 2,500 credits a month and buy more."
+    );
+    expect(screen.getByRole("region", { name: "Balance" })).toHaveTextContent(
+      "$6.40 · no overdraft without a plan"
+    );
+    expect(screen.getByRole("region", { name: "Plan" })).toHaveTextContent(
+      "No planCanceled · upgrade for 2,500 credits a month"
+    );
+    expect(
+      screen.getByRole("button", { name: "Upgrade to Pay-as-you-go" })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Top up/ })).toBeNull();
+    expect(screen.queryByRole("region", { name: "Auto-recharge" })).toBeNull();
+  });
+
+  it("says calls are paused when there is no plan and no credits left", async () => {
+    page({
+      ...PAYG,
+      plan: "none",
+      status: "canceled",
+      balance: 0,
+      sources: [],
+      periodEnd: ""
+    });
+    const title = await screen.findByText("You have no plan");
+    expect(title.closest('[role="alert"]')).not.toBeNull();
+    expect(title.parentElement).toHaveTextContent(
+      "Calls are paused in your workspaces. Upgrade to Pay-as-you-go to get 2,500 credits a month and buy more."
+    );
+  });
+
+  it("sends an owner with no plan and no card to the portal, and finishes the upgrade on return", async () => {
+    const none = {
+      ...PAYG,
+      plan: "none",
+      status: "canceled",
+      balance: 640,
+      periodEnd: ""
+    };
+    const { user, billing } = page(none);
+    billing.subscribe.mockRejectedValueOnce(
+      new Error("add a payment method in the Customer Portal first")
+    );
+    await user.click(
+      await screen.findByRole("button", { name: "Upgrade to Pay-as-you-go" })
+    );
+    await waitFor(() =>
+      expect(billing.createPortalSession).toHaveBeenCalledWith({
+        returnUrl: "http://app.test/billing?from=ws-1&upgrade=1"
+      })
+    );
+    const back = page(none, { route: "/billing?from=ws-1&upgrade=1" });
+    await waitFor(() =>
+      expect(back.billing.subscribe).toHaveBeenCalledTimes(1)
+    );
+  });
+
   it("says the Trial ended, and offers the upgrade", async () => {
     page({ ...PAYG, plan: "trial", status: "ended", balance: 0, sources: [] });
     expect(await screen.findByText("Your Trial has ended")).toBeInTheDocument();

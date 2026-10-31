@@ -1,11 +1,47 @@
 {
   "$comment": "The Fonoster images, built by ops/release/bundle (bundle: true) and published by .github/workflows/images.yaml (all). Paths are relative to the repository root. Roomr is released from fonoster/roomr and pinned by digest in ops/bundle/compose.yaml.",
   "images": [
-    { "name": "appbridge", "context": ".", "dockerfile": "mods/appbridge/Dockerfile", "bundle": true },
-    { "name": "autopilot", "context": ".", "dockerfile": "mods/autopilot/Dockerfile", "bundle": true },
-    { "name": "apiserver", "context": ".", "dockerfile": "ops/rebuild/docker/apiserver.Dockerfile", "bundle": true },
-    { "name": "dashboard", "context": ".", "dockerfile": "ops/rebuild/docker/dashboard.Dockerfile", "bundle": true },
-    { "name": "identity", "context": ".", "dockerfile": "mods/identity/Dockerfile", "bundle": false },
-    { "name": "region-agent", "context": ".", "dockerfile": "ops/rebuild/docker/region-agent.Dockerfile", "bundle": false }
+    {
+      "name": "appbridge",
+      "context": ".",
+      "dockerfile": "mods/appbridge/Dockerfile",
+      "bundle": true
+    },
+    {
+      "name": "autopilot",
+      "context": ".",
+      "dockerfile": "mods/autopilot/Dockerfile",
+      "bundle": true
+    },
+    {
+      "name": "apiserver",
+      "context": ".",
+      "dockerfile": "ops/rebuild/docker/apiserver.Dockerfile",
+      "bundle": true
+    },
+    {
+      "name": "dashboard",
+      "context": ".",
+      "dockerfile": "ops/rebuild/docker/dashboard.Dockerfile",
+      "bundle": true
+    },
+    {
+      "name": "billing",
+      "context": ".",
+      "dockerfile": "ops/rebuild/docker/billing.Dockerfile",
+      "bundle": false
+    },
+    {
+      "name": "identity",
+      "context": ".",
+      "dockerfile": "mods/identity/Dockerfile",
+      "bundle": false
+    },
+    {
+      "name": "region-agent",
+      "context": ".",
+      "dockerfile": "ops/rebuild/docker/region-agent.Dockerfile",
+      "bundle": false
+    }
   ]
 }

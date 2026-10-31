@@ -35,6 +35,9 @@ const HOUR_MS = 3600_000;
 /** Recharges in a row that may fail before auto-recharge turns off. */
 export const MAX_RECHARGE_FAILURES = 3;
 
+/** The largest webhook body read; Stripe's events are far smaller. */
+const MAX_WEBHOOK_BYTES = 1024 * 1024;
+
 /**
  * The webhook inbox (D8): verifies Stripe's signature and stores each event once by id. Applying
  * happens later (`applyEventsOnce`), so a slow apply never makes Stripe retry.
@@ -46,7 +49,21 @@ export function webhookReceiver(deps: {
 }) {
   return async (req: IncomingMessage, res: ServerResponse) => {
     const chunks: Buffer[] = [];
-    for await (const c of req) chunks.push(c as Buffer);
+    let size = 0;
+    try {
+      for await (const c of req) {
+        // A public route: past the limit, answer 413 at once and discard the rest unread into
+        // memory (closing with data unread would reset the connection and lose the answer).
+        if (size > MAX_WEBHOOK_BYTES) continue;
+        size += (c as Buffer).length;
+        if (size > MAX_WEBHOOK_BYTES) res.writeHead(413).end();
+        else chunks.push(c as Buffer);
+      }
+    } catch {
+      // The sender went away mid-body (aborted, timed out): there is no one to answer.
+      return;
+    }
+    if (size > MAX_WEBHOOK_BYTES) return;
     const body = Buffer.concat(chunks);
     let event: Stripe.Event;
     try {
@@ -142,7 +159,13 @@ async function invoicePaid(tx: Db, deps: Deps, invoice: Stripe.Invoice) {
       }
   await tx.billingAccount.update({
     where: { id: account.id },
-    data: { plan: "payg", status: "active", periodStart: start, periodEnd: end }
+    data: {
+      plan: "payg",
+      // A plan set to cancel stays so when a retried invoice is paid.
+      status: account.status === "canceling" ? "canceling" : "active",
+      periodStart: start,
+      periodEnd: end
+    }
   });
   const entry = await grant(tx, account.id, {
     kind: "plan_grant",
@@ -265,14 +288,42 @@ export async function applyEvent(tx: Db, deps: Deps, event: Stripe.Event) {
       if (topupPurpose(invoice)) return topupFailed(tx, deps, invoice, true);
       return;
     }
+    // Cancelled in the Customer Portal: the plan runs to the period's end (`canceling`), unless
+    // the owner renews it before then.
+    case "customer.subscription.updated": {
+      const sub = event.data.object as Stripe.Subscription;
+      const account = await accountOfCustomer(tx, sub.customer);
+      if (!account || account.stripeSubscriptionId !== sub.id) return;
+      const status = sub.cancel_at_period_end
+        ? account.status === "active"
+          ? "canceling"
+          : account.status
+        : account.status === "canceling"
+          ? "active"
+          : account.status;
+      if (status !== account.status)
+        await tx.billingAccount.update({
+          where: { id: account.id },
+          data: { status }
+        });
+      return;
+    }
+    // The plan ended: no plan. Credits left still pay for calls, at the Trial's limits; top-ups and
+    // auto-recharge wait for a new plan.
     case "customer.subscription.deleted": {
       const sub = event.data.object as Stripe.Subscription;
       const account = await accountOfCustomer(tx, sub.customer);
-      if (account)
-        await tx.billingAccount.update({
-          where: { id: account.id },
-          data: { status: "closed", stripeSubscriptionId: null }
-        });
+      if (!account || account.stripeSubscriptionId !== sub.id) return;
+      await tx.billingAccount.update({
+        where: { id: account.id },
+        data: {
+          plan: "none",
+          status: "canceled",
+          stripeSubscriptionId: null,
+          autoRecharge: false,
+          rechargePendingAt: null
+        }
+      });
       return;
     }
     default:

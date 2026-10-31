@@ -97,8 +97,17 @@ export class StripeFake {
   private readonly listeners = new Set<(change: Change) => void>();
   private requestCounter = 0;
 
-  constructor(options: { webhooks?: { url: string; secret: string }[] } = {}) {
+  /** Where Customer Portal links point: Stripe's host, or the fake's own `/p` pages (portal.ts). */
+  readonly portalUrl: string;
+
+  constructor(
+    options: {
+      webhooks?: { url: string; secret: string }[];
+      portalUrl?: string;
+    } = {}
+  ) {
     this.configEndpoints = options.webhooks ?? [];
+    this.portalUrl = options.portalUrl ?? "https://billing.stripe.com";
   }
 
   // ---- ids and time --------------------------------------------------------------------

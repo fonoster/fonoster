@@ -23,6 +23,10 @@ clients trust `config/tls/ca.pem`. Before going live, set `TLS_CERT`, `TLS_KEY` 
 `PUBLIC_URL=https://<domain>` in `.env` and run `docker compose up -d`. Or serve plain HTTP behind
 your own TLS proxy (`compose.http.yaml`).
 
+`compose.billing.yaml` is Fonoster Cloud's billing (credits, plans, Stripe), opt-in: it needs
+Stripe keys (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` in `.env`), and its steps are at the
+top of the file. Without it nothing changes: no billing runs and every call is admitted.
+
 Vendor keys (Deepgram, ElevenLabs, OpenAI, Groq...) are added per workspace in the dashboard.
 Every other setting is in `config/<service>.yaml`, one file per service: edit it, then
 `docker compose up -d --force-recreate <service>`. A bad file stops the service at start, and

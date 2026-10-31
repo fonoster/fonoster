@@ -33,7 +33,7 @@ const featuresSchema = z
     billing: z
       .object({
         enabled: z.boolean().default(false),
-        /** The billing service's Billing API (host:port); defaults to authz.host:50073. */
+        /** The billing service's Billing API (host:port); required when billing is enabled. */
         address: z.string().min(1).optional()
       })
       .prefault({}),
@@ -316,11 +316,11 @@ const fonosterConfigSchema = z
       });
     }
 
-    if (config.features.billing.enabled && !config.authz.enabled) {
+    if (config.features.billing.enabled && !config.features.billing.address) {
       ctx.addIssue({
         code: "custom",
-        path: ["features", "billing", "enabled"],
-        message: "billing needs the authorization service (authz.enabled)"
+        path: ["features", "billing", "address"],
+        message: "required when features.billing.enabled is true"
       });
     }
 

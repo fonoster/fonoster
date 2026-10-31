@@ -20,6 +20,20 @@ false`.
 - **THEN** it receives a customer whose id starts with `cus_` and whose `livemode` is false
 - **AND** `customers.retrieve` with that id returns the same customer
 
+### Requirement: A Customer Portal page
+
+With `STRIPE_FAKE_PORTAL_URL` set (the fake's address as browsers reach it), Customer Portal
+sessions SHALL link to a page the fake serves, where the owner changes the default card to a test
+card, cancels the plan at the period's end or renews it, through the API's own handlers and their
+events. Without it, links name Stripe's host.
+
+#### Scenario: Cancel in the portal
+
+- **WHEN** a portal session's page is opened and its Cancel plan form is posted
+- **THEN** the page answers 303 back to itself, the subscription has `cancel_at_period_end`, and a
+  signed `customer.subscription.updated` is delivered; Renew plan reverses it, and an unknown
+  session answers 404
+
 ### Requirement: Requests and responses follow Stripe's OpenAPI spec
 
 The fake SHALL validate every request and every response against a pinned version of Stripe's public

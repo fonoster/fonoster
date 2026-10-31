@@ -9,7 +9,8 @@
 # checksum, a release with a .env name the inventory lacks, an install whose keys are not in
 # /var/lib/fonoster/keys). Without <b> the version switch is not checked. --rollback (needs <b>)
 # then applies <b> with a smoke test that fails and checks that playbooks/rollback.yml puts <a>
-# back. The inventory is test/inventory.yml: this machine over a local connection.
+# back. Last, it plans and applies <a> with Fonoster Cloud's billing on (OPS-007). The inventory
+# is test/inventory.yml: this machine over a local connection.
 #
 # It deletes /opt/fonoster, /var/lib/fonoster and their containers and volumes first, so it runs
 # only on a throwaway machine: Ubuntu 24.04 with root or sudo, Docker, Node.js and npm (for the
@@ -120,6 +121,14 @@ for v in "$A" $B; do
     log "build $v"
     "$ROOT/ops/release/bundle" "$v" || die "ops/release/bundle $v failed"
   fi
+done
+
+# OPS-007 runs <a> with compose.billing.yaml and a Stripe fake as Stripe: neither image is in the
+# archive's build (bundle: false; the fake is for tests only).
+for img in billing stripe-fake; do
+  docker image inspect "fonoster/$img:$A" >/dev/null 2>&1 \
+    || docker build -q -t "fonoster/$img:$A" -f "$ROOT/ops/rebuild/docker/$img.Dockerfile" "$ROOT" >/dev/null \
+    || die "docker build fonoster/$img:$A failed"
 done
 
 if $SUDO test -f "$LIVE/compose.yaml"; then
@@ -303,4 +312,93 @@ if [ "$ROLLBACK" = 1 ]; then
   $SUDO tail -n 1 "$STATE/deploys.log" | grep -q " $B -> $A rolled back\$" \
     && record OPS-006 "deploys.log ends with $B -> $A rolled back" ok \
     || record OPS-006 "deploys.log ends with $B -> $A rolled back" fail "$($SUDO tail -n 3 "$STATE/deploys.log")"
+fi
+
+# OPS-007 Billing runs behind its overlay ----------------------------------------------------------
+# The production group's billing values (ops/ansible/README.md, Fonoster Cloud) on this inventory,
+# with a Stripe fake as Stripe. Extra vars replace whole variables, so they start from the host's.
+STRIPE_KEY="sk_test_throwaway5f2c9a1e7b3d"
+STRIPE_HOOK="whsec_throwaway8e4b1c7d2a9f"
+(cd "$ANSIBLE" && ansible-inventory -i test/inventory.yml --host throwaway) \
+  | A="$A" STRIPE_KEY="$STRIPE_KEY" STRIPE_HOOK="$STRIPE_HOOK" python3 -c '
+import json, os, sys
+v = json.load(sys.stdin)
+env = dict(v["fonoster_env"])
+env["COMPOSE_FILE"] += ":compose.billing.yaml:compose.stripe-fake.yaml"
+secrets = dict(v["fonoster_env_secrets"], STRIPE_SECRET_KEY=os.environ["STRIPE_KEY"],
+               STRIPE_WEBHOOK_SECRET=os.environ["STRIPE_HOOK"])
+overrides = dict(v["fonoster_overrides"])
+overrides["fonoster.yaml"] = {"features": {"billing": {"enabled": True, "address": "billing:50073"}}}
+overrides["appbridge.yaml"] = {"authz": {"address": "billing:50071", "timeoutMs": 500}}
+overrides["billing.yaml"] = {"stripe": {"apiBase": "http://stripe-fake:12111", "automaticTax": False}}
+overlays = dict(v["fonoster_compose_overlays"])
+overlays["compose.stripe-fake.yaml"] = {"services": {
+    "stripe-fake": {
+        "image": "fonoster/stripe-fake:" + os.environ["A"],
+        "environment": {"STRIPE_FAKE_WEBHOOKS": "http://billing:50072/stripe/webhooks|" + os.environ["STRIPE_HOOK"]},
+    },
+    "billing": {"depends_on": {"stripe-fake": {"condition": "service_started"}}},
+}}
+json.dump({"fonoster_env": env, "fonoster_env_secrets": secrets, "fonoster_overrides": overrides,
+           "fonoster_compose_overlays": overlays,
+           "vault_postgres_password": v["vault_postgres_password"]}, sys.stdout)
+' >"$WORK/billing.json" || die "could not write the billing vars"
+
+if play "$A" "$WORK/plan-billing.log" -e "@$WORK/billing.json" --check --diff; then
+  if grep -qF -e "$STRIPE_KEY" -e "$STRIPE_HOOK" "$WORK/plan-billing.log"; then
+    record OPS-007 "the plan with billing prints no Stripe secret" fail "a Stripe secret is in the plan output"
+  else
+    record OPS-007 "the plan with billing prints no Stripe secret" ok
+  fi
+else
+  record OPS-007 "the plan with billing prints no Stripe secret" fail "$(tail -20 "$WORK/plan-billing.log")"
+fi
+
+if play "$A" "$WORK/apply-billing.log" -e "@$WORK/billing.json"; then
+  health="$(docker inspect -f '{{.State.Status}} {{.State.Health.Status}}' "$(compose ps -q billing)" 2>&1)"
+  [ "$health" = "running healthy" ] && record OPS-007 "billing is running and healthy" ok \
+    || record OPS-007 "billing is running and healthy" fail "billing: $health; $(compose logs --no-color --tail 20 billing 2>&1)"
+
+  code="$(curl -s --cacert "$WORK/ca.pem" -o /dev/null -w '%{http_code}' -X POST \
+    -H 'content-type: application/json' -d '{}' https://127.0.0.1:18443/stripe/webhooks)"
+  [ "$code" = 400 ] && record OPS-007 "an unsigned POST /stripe/webhooks through Envoy answers 400" ok \
+    || record OPS-007 "an unsigned POST /stripe/webhooks through Envoy answers 400" fail "HTTP $code"
+
+  # Billing creates its products and prices in Stripe at start; the fake's signed events come back.
+  applied=0
+  for _ in $(seq 1 30); do
+    applied="$(compose exec -T postgres psql -U postgres -d fonoster -tAc \
+      "select count(*) from billing.stripe_events where applied_at is not null" 2>/dev/null | tr -dc '0-9')"
+    [ "${applied:-0}" -gt 0 ] && break
+    sleep 2
+  done
+  [ "${applied:-0}" -gt 0 ] && record OPS-007 "a signed event from the Stripe fake is applied" ok \
+    || record OPS-007 "a signed event from the Stripe fake is applied" fail "no applied event in billing.stripe_events"
+
+  # An owner whose plan ended with no credits left: the admission AppBridge asks refuses the call.
+  compose exec -T postgres psql -U postgres -v ON_ERROR_STOP=1 -q >"$WORK/ops007-seed.log" 2>&1 <<'SQL'
+\c fnidentity
+insert into users (ref, access_key_id, name, email, updated_at)
+  values ('ops007-owner', 'USops007', 'OPS-007', 'ops007@example.com', now()) on conflict do nothing;
+insert into workspaces (ref, access_key_id, name, owner_ref, updated_at)
+  values ('ops007-ws', 'WOops007', 'OPS-007', 'ops007-owner', now()) on conflict do nothing;
+\c fonoster
+insert into billing.billing_accounts (id, owner_ref, plan, status, updated_at)
+  values ('ops007-account', 'ops007-owner', 'none', 'canceled', now()) on conflict do nothing;
+SQL
+  answer="$(compose exec -T billing node -e '
+const { AuthzClient } = require("@fonoster/authz");
+new AuthzClient("127.0.0.1:50071")
+  .checkSessionAuthorized({ accessKeyId: "WOops007", appRef: "app", callRef: "ops007" })
+  .then((ok) => console.log(ok ? "admitted" : "refused"), (e) => console.log(e.message));
+' 2>&1 | tail -1)"
+  if ! $SUDO grep -q 'billing:50071' "$LIVE/config/appbridge.yaml"; then
+    record OPS-007 "a call for an owner with no credits is refused" fail "config/appbridge.yaml does not ask billing"
+  elif [ "$answer" = refused ]; then
+    record OPS-007 "a call for an owner with no credits is refused" ok
+  else
+    record OPS-007 "a call for an owner with no credits is refused" fail "admission: $answer; $(tail -3 "$WORK/ops007-seed.log")"
+  fi
+else
+  record OPS-007 "billing is running and healthy" fail "$(grep -A3 'fatal:' "$WORK/apply-billing.log" | tail -8)"
 fi
