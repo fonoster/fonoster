@@ -1,11 +1,12 @@
-diff --git a/mods/billing/rate-cards/1.yaml b/mods/billing/rate-cards/1.yaml
-index 532a49747..f8ea471d9 100644
---- a/mods/billing/rate-cards/1.yaml
-+++ b/mods/billing/rate-cards/1.yaml
-@@ -56,6 +56,3 @@ prices:
-       "*": 0.00006
-   embedding.tokens:
-     openai: 0.00001
--  # Noise cancelling, an add-on: $0.00135 a minute.
--  nc.seconds:
--    aicoustics: 0.00225
+diff --git a/mods/billing/rate-cards/2026-11-01.yaml b/mods/billing/rate-cards/2026-11-01.yaml
+index ae6f64a68..53b1ff2df 100644
+--- a/mods/billing/rate-cards/2026-11-01.yaml
++++ b/mods/billing/rate-cards/2026-11-01.yaml
+@@ -23,7 +23,5 @@ prices:
+       "*": 0.003
+   llm.tokens.in:
+     "*": 0.00004
+-  llm.tokens.cached:
+-    "*": 0.00001
+   llm.tokens.out:
+     "*": 0.00016

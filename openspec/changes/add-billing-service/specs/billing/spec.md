@@ -58,9 +58,10 @@ rated with the card in force at the time it happened.
 
 #### Scenario: The launch card
 
-- **WHEN** a call on Fonoster's keys uses any meter a provider of the shipped catalog emits
-- **THEN** card 1 prices it (calls at 5 credits a minute) and its `source` names each vendor's
-  price page and the date it was read, so no line of the call is `unpriced`
+- **WHEN** a call on Fonoster's keys uses Deepgram speech or any LLM of the shipped catalog
+- **THEN** card 1 prices it (calls at 5 credits a minute, LLM tokens at one price for every
+  model) and its `source` names each price page and the date it was read, so no such line is
+  `unpriced`
 
 ### Requirement: The balance is a ledger
 

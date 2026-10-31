@@ -218,7 +218,7 @@ describe("@billing rater", function () {
     );
   });
 
-  it("[BIL-052] card 1 prices every meter each catalog provider emits, with its source", function () {
+  it("[BIL-052] card 1 prices every meter the launch providers emit, with its source", function () {
     const root = join(__dirname, "../../..");
     const [one] = loadRateCards(join(__dirname, "../rate-cards"));
     expect(one.version).to.equal(1);
@@ -232,7 +232,8 @@ describe("@billing rater", function () {
         one
       ).amount
     ).to.equal(5_000n);
-    // The catalog the bundle ships: which meters each provider's capabilities emit.
+    // The catalog the bundle ships: which meters each launch provider's capabilities emit. At
+    // launch the card prices Deepgram speech and every LLM provider; other usage is unpriced.
     const { entries } = parse(
       readFileSync(join(root, "ops/bundle/config/catalog.yaml"), "utf8")
     ) as {
@@ -247,19 +248,16 @@ describe("@billing rater", function () {
     const meters: Record<string, string[]> = {
       stt: ["stt.seconds"],
       tts: ["tts.characters"],
-      llm: ["llm.tokens.in", "llm.tokens.out", "llm.tokens.cached"],
-      nc: ["nc.seconds"]
+      llm: ["llm.tokens.in", "llm.tokens.out", "llm.tokens.cached"]
     };
-    const lines: Partial<RecordedUsage>[] = [
-      // Knowledge bases embed with OpenAI (MeteredEmbeddings).
-      {
-        meter: "embedding.tokens",
-        provider: "openai",
-        model: "openai/text-embedding-ada-002"
-      }
-    ];
+    const launch = (provider: string, capability: string) =>
+      capability === "llm" ||
+      (provider === "deepgram" && ["stt", "tts"].includes(capability));
+    const lines: Partial<RecordedUsage>[] = [];
     for (const p of entries.filter((e) => e.kind === "provider"))
-      for (const capability of p.capabilities ?? []) {
+      for (const capability of (p.capabilities ?? []).filter((c) =>
+        launch(p.id, c)
+      )) {
         const models = entries.filter(
           (e) =>
             e.kind === "model" &&
@@ -274,7 +272,7 @@ describe("@billing rater", function () {
           );
         }
       }
-    expect(lines.length).to.be.greaterThan(20);
+    expect(lines.length).to.be.greaterThan(10);
     for (const line of lines) {
       const rated = rate(usage({ quantity: 1000, ...line }), started, one);
       expect(rated.reason, JSON.stringify(line)).not.to.equal("unpriced");

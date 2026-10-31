@@ -1,0 +1,29 @@
+# Rate card 1 (add-billing-service D3), the launch card. Prices are credits per unit; 1 credit = $0.01.
+# A card is named after the day it starts and is never edited once it starts: add a new card, named
+# after its own startsAt, with the next version.
+#
+# Calls are $0.05 a minute, billed by the second with a 15-second minimum (rater.ts). Deepgram speech
+# is at cost from its price page. LLM tokens have one price for every provider and model, the
+# priciest shipped model's (gpt-4.1-mini). Usage the card doesn't price is not billed (unpriced) and
+# raises an alert.
+version: 1
+startsAt: 2026-11-01T00:00:00Z
+source: >-
+  Fonoster price, 2026-10-30. At cost, read 2026-10-30: Deepgram https://deepgram.com/pricing
+  (Nova-3 streaming $0.0077/min, Aura-2 $0.030/1K characters). LLM tokens at OpenAI gpt-4.1-mini,
+  https://developers.openai.com/api/docs/models ($0.40 in, $0.10 cached, $1.60 out, per 1M tokens).
+prices:
+  # $0.05 a minute: 5/60 credits a second, so 60 seconds rate to exactly 5.000 credits.
+  call.seconds: 0.08333333333333333
+  stt.seconds:
+    deepgram:
+      "*": 0.012833333333333334
+  tts.characters:
+    deepgram:
+      "*": 0.003
+  llm.tokens.in:
+    "*": 0.00004
+  llm.tokens.cached:
+    "*": 0.00001
+  llm.tokens.out:
+    "*": 0.00016
