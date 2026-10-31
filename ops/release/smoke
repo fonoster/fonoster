@@ -45,7 +45,7 @@ cleanup() {
   if [ "${SMOKE_KEEP:-}" = "1" ]; then
     log "kept: $WORK/fonoster (docker compose down -v there to remove it)"
   else
-    # --timeout 0: a throwaway install has no calls to drain (Roomr's drainWait would hold it 10 min).
+    # --timeout 0: a throwaway install has no calls to drain (an AppBridge still starting held it 11 min, #1259).
     docker compose down -v --remove-orphans --timeout 0 >/dev/null 2>&1 || true
     rm -rf "$WORK"
   fi

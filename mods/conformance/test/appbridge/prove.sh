@@ -5,6 +5,7 @@
 set -u
 id="$1"
 out="$2"
+sh mods/conformance/test/appbridge/rebuild.sh || exit 1
 npx mocha --timeout 60000 --exit --grep "\[$id\]" \
   --reporter xunit --reporter-option "output=$out/appbridge.xml" \
   mods/appbridge/test/conformance.test.ts \
@@ -17,4 +18,5 @@ npx mocha --timeout 60000 --exit --grep "\[$id\]" \
   mods/appbridge/test/admission.test.ts \
   mods/appbridge/test/applicationsApi.test.ts \
   mods/appbridge/test/usageReport.test.ts \
-  mods/appbridge/test/replayTool.test.ts
+  mods/appbridge/test/replayTool.test.ts \
+  mods/appbridge/test/signals.test.ts

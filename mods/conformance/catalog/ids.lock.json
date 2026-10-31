@@ -333,5 +333,6 @@
   "BIL-050": "No plan: calls at the Trial's limits while credits last",
   "BIL-051": "The Stripe fake serves the Customer Portal",
   "BIL-052": "The launch rate card prices everything a call produces",
-  "OPS-007": "Billing runs behind its overlay"
+  "OPS-007": "Billing runs behind its overlay",
+  "APB-042": "A stop during start-up exits at once; once serving, SIGTERM drains"
 }
