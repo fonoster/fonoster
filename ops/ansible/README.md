@@ -30,7 +30,8 @@ Tested on Ubuntu 24.04 with ansible-core 2.21.5 (ansible-lint 26.10.1). No colle
      into it, without `README.md` and `ansible/`.
   6. Runs `docker compose up -d --wait`, recreating the services whose mounted files changed.
   7. Checks from the controller that the dashboard (`fonoster_public_url`) answers 200 and the API
-     (`fonoster_api_host`) answers gRPC.
+     (`fonoster_api_host`) answers gRPC, asking up to `fonoster_smoke_retries` times (default 30),
+     10 s apart.
   8. Logs `<utc> <from> -> <to>` in `/var/lib/fonoster/deploys.log` and keeps the last 3 stages and
      backups.
 

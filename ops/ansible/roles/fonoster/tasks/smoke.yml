@@ -16,7 +16,7 @@
       printf '%s' "$FONOSTER_CA" > "$ca"
       opts="--cacert $ca"
     fi
-    for _ in $(seq 1 30); do
+    for _ in $(seq 1 "$RETRIES"); do
       app=$(curl -s $opts -o /dev/null -w '%{http_code}' "$APP_URL/" || true)
       api=$(printf '\0\0\0\0\0' | curl -s $opts --http2 -X POST -o /dev/null -D - \
         -H 'content-type: application/grpc' -H 'te: trailers' --data-binary @- \
@@ -31,6 +31,7 @@
     executable: /bin/bash
   environment:
     APP_URL: "{{ fonoster_public_url }}"
+    RETRIES: "{{ fonoster_smoke_retries }}"
     API_HOST: "{{ fonoster_api_host }}"
     FONOSTER_CA: "{{ fonoster_ca.content | b64decode if fonoster_ca is not skipped else '' }}"
   delegate_to: localhost
