@@ -1,6 +1,6 @@
 # Rate card 1 (add-billing-service D3), the launch card. Prices are credits per unit; 1 credit = $0.01.
-# A card is named after the day it starts and is never edited once it starts: add a new card, named
-# after its own startsAt, with the next version.
+# A card is named after the day it starts (yyyymmdd.yaml) and is never edited once it starts: add a
+# new card, named after its own startsAt, with the next version.
 #
 # Calls are $0.05 a minute, billed by the second with a 15-second minimum (rater.ts). Deepgram speech
 # is at cost from its price page. LLM tokens have one price for every provider and model, the

@@ -64,7 +64,7 @@ export function priceOf(
   return byProvider[model ?? "*"] ?? byProvider["*"];
 }
 
-/** Every card in a directory (`<startsAt date>.yaml`), validated, oldest start first. */
+/** Every card in a directory (`<yyyymmdd of startsAt>.yaml`), validated, oldest start first. */
 export function loadRateCards(dir: string): RateCard[] {
   return readdirSync(dir)
     .filter((f) => /\.ya?ml$/.test(f))

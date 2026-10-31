@@ -1,7 +1,7 @@
-diff --git a/mods/billing/rate-cards/2026-11-01.yaml b/mods/billing/rate-cards/2026-11-01.yaml
+diff --git a/mods/billing/rate-cards/20261101.yaml b/mods/billing/rate-cards/20261101.yaml
 index ae6f64a68..53b1ff2df 100644
---- a/mods/billing/rate-cards/2026-11-01.yaml
-+++ b/mods/billing/rate-cards/2026-11-01.yaml
+--- a/mods/billing/rate-cards/20261101.yaml
++++ b/mods/billing/rate-cards/20261101.yaml
 @@ -23,7 +23,5 @@ prices:
        "*": 0.003
    llm.tokens.in:

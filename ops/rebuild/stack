@@ -256,8 +256,8 @@ YAML
 render_billing() {
   rm -rf "$CONF/rate-cards" && mkdir -p "$CONF/rate-cards"
   cp "$ROOT"/mods/billing/rate-cards/*.yaml "$CONF/rate-cards/"
-  sed -i.bak 's/^startsAt: .*/startsAt: 2026-01-01T00:00:00Z/' "$CONF/rate-cards/2026-11-01.yaml"
-  rm -f "$CONF/rate-cards/2026-11-01.yaml.bak"
+  sed -i.bak 's/^startsAt: .*/startsAt: 2026-01-01T00:00:00Z/' "$CONF/rate-cards/20261101.yaml"
+  rm -f "$CONF/rate-cards/20261101.yaml.bak"
   chmod 644 "$CONF/rate-cards/"*.yaml
   cat > "$CONF/billing.yaml" <<YAML
 # Rendered by ops/rebuild/stack (billing profile). Local only: a fixed Stripe test key and webhook
