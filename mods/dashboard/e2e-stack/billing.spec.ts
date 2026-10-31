@@ -52,9 +52,10 @@ async function stripe(
 test("[DSH-039] an owner upgrades from the Trial and tops up from the Billing page", async ({
   page
 }) => {
-  // The Customer Portal is Stripe's: note where the page sends the owner instead of going there.
+  // The Customer Portal (the Stripe fake's portal page in the stack): note where the page sends
+  // the owner instead of going there.
   const portal: string[] = [];
-  await page.route("https://billing.stripe.com/**", (route) => {
+  await page.route(`${stripeFake()}/p/**`, (route) => {
     portal.push(route.request().url());
     return route.abort();
   });
@@ -79,7 +80,9 @@ test("[DSH-039] an owner upgrades from the Trial and tops up from the Billing pa
   );
 
   // Adding a card happens in the portal: the page creates the customer and sends the owner there.
-  await page.getByRole("button", { name: /Manage payment methods/ }).click();
+  await page
+    .getByRole("button", { name: /Manage plan, payment methods and invoices/ })
+    .click();
   await expect.poll(() => portal.length).toBe(1);
   const [customer] = (await stripe("GET", "/v1/customers?limit=1")).data;
   const card = await stripe("POST", "/v1/payment_methods/pm_card_visa/attach", {
