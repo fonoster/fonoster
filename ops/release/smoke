@@ -9,7 +9,7 @@
 # runs ./init.sh, `docker compose up -d`, waits for the apiserver to be
 # healthy and the dashboard to answer 200 over HTTPS through Envoy (the certificate init.sh generated,
 # trusted through config/tls/ca.pem; no HSTS with it; the redirect port answers 301), then removes
-# everything (volumes too).
+# everything (volumes too), without waiting for a drain.
 #
 # Ports, the subnet and the project name come from the environment so a shared host can run it
 # next to other stacks: SMOKE_PROJECT (fonoster-smoke), SMOKE_SUBNET (10.216.30),
@@ -45,7 +45,8 @@ cleanup() {
   if [ "${SMOKE_KEEP:-}" = "1" ]; then
     log "kept: $WORK/fonoster (docker compose down -v there to remove it)"
   else
-    docker compose down -v --remove-orphans >/dev/null 2>&1 || true
+    # --timeout 0: a throwaway install has no calls to drain (Roomr's drainWait would hold it 10 min).
+    docker compose down -v --remove-orphans --timeout 0 >/dev/null 2>&1 || true
     rm -rf "$WORK"
   fi
   exit "$code"
