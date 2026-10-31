@@ -7,7 +7,9 @@ uut: The Ansible playbook in ops/ansible (playbooks/site.yml, roles host and fon
 tester: ops/ansible/test/throwaway.sh. It runs ansible-playbook against test/inventory.yml (this machine, local connection), then checks the live install, the state folder, the containers, the deploy log and the play's output, and writes one JUnit test per check
 environment: A GitHub runner, Ubuntu 24.04 with root, Docker and Node.js; ansible-core 2.21.5 and ansible-lint 26.10.1; archives and images from ops/release/bundle; no certbot, the generated certificate, the bundled Postgres
 cadence: proofs nightly and at release (qa-proofs.yaml)
-prove: JUNIT_DIR={junitDir} bash ops/bundle/test/install.sh 0.0.0-a; JUNIT_DIR={junitDir} bash ops/ansible/test/throwaway.sh 0.0.0-a 0.0.0-b --rollback
+run: JUNIT_DIR={junitDir} bash ops/bundle/test/install.sh 0.0.0-a; JUNIT_DIR={junitDir} bash ops/ansible/test/throwaway.sh 0.0.0-a 0.0.0-b --rollback
+prove: sh mods/conformance/test/operations/prove.sh {id} {junitDir}
+reset: sh mods/conformance/test/operations/reset.sh
 capabilities:
   - deployment
   - self-host-installer

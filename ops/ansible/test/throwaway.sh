@@ -132,7 +132,7 @@ for img in billing stripe-fake; do
 done
 
 if $SUDO test -f "$LIVE/compose.yaml"; then
-  compose down -v --remove-orphans >/dev/null 2>&1 || true
+  compose down -v --remove-orphans --timeout 0 >/dev/null 2>&1 || true
 fi
 $SUDO rm -rf "$LIVE" "$STATE"
 
@@ -296,7 +296,8 @@ if [ "$ROLLBACK" = 1 ]; then
 
   # <b> switches, then its smoke test fails (nothing answers on port 1).
   since="$(date -u +%Y%m%dT%H%M%SZ)"
-  if play "$B" "$WORK/apply-b-bad.log" -e fonoster_public_url=https://127.0.0.1:1; then
+  # Two smoke tries, not 30: this apply is meant to fail, and each try waits 10 s.
+  if play "$B" "$WORK/apply-b-bad.log" -e fonoster_public_url=https://127.0.0.1:1 -e fonoster_smoke_retries=2; then
     record OPS-006 "apply $B with a failing smoke test fails" fail "the play passed"
   else
     record OPS-006 "apply $B with a failing smoke test fails" ok

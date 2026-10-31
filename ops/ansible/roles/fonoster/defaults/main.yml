@@ -14,6 +14,8 @@ fonoster_keep: 3                     # stages and backups kept
 # fonoster_api_host (host[:port]) answers an empty ExchangeCredentials with grpc-status 3.
 fonoster_public_url: ""
 fonoster_api_host: ""
+# How many times the smoke test asks the dashboard and the API, 10 s apart, before the play fails.
+fonoster_smoke_retries: 30
 
 # .env: every name init.sh writes (FONOSTER_VERSION comes from fonoster_version).
 # The play fails when a release adds a name neither of these has.

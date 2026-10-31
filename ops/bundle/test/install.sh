@@ -52,7 +52,9 @@ if [ ! -f "$OUT/fonoster-$V.tar.gz" ] || ! docker image inspect "fonoster/apiser
 fi
 
 # OPS-001 A fresh install from the archive starts and serves ------------------------------------
-if "$ROOT/ops/release/smoke" "$V" >"$WORK/smoke.log" 2>&1; then
+# Its own subnet: ops/ansible/test/throwaway.sh leaves its install up on 10.216.30 (smoke's
+# default) and the dev container stack uses 10.216.31.
+if SMOKE_SUBNET="${SMOKE_SUBNET:-10.216.90}" "$ROOT/ops/release/smoke" "$V" >"$WORK/smoke.log" 2>&1; then
   record OPS-001 "a fresh install of $V starts, every service runs and the dashboard answers" ok
 else
   record OPS-001 "a fresh install of $V starts, every service runs and the dashboard answers" fail "$(tail -5 "$WORK/smoke.log")"
