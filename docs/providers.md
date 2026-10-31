@@ -6,8 +6,8 @@ form `<provider>/<name>`, for example:
 | Kind | Example ids |
 | --- | --- |
 | STT model | `deepgram/nova-3` |
-| TTS voice | `deepgram/aura-2-thalia-en`, `elevenlabs/EXAVITQu4vr4xnSDxMaL` |
-| LLM | `openai/gpt-4o-mini`, `groq/openai/gpt-oss-120b` |
+| TTS voice | `deepgram/aura-2-thalia-en` |
+| LLM | `openai/gpt-5.4-mini` |
 
 The catalog depends on the platform you use; list what yours offers:
 

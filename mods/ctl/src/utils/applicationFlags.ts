@@ -47,7 +47,7 @@ export const applicationFlags = {
     description: "STT model as a catalog id (e.g. deepgram/nova-3)"
   }),
   "tts-model": Flags.string({
-    description: "TTS model as a catalog id (e.g. elevenlabs/eleven_flash_v2_5)"
+    description: "TTS model as a catalog id (e.g. deepgram/aura-2)"
   }),
   "silence-timeout": Flags.integer({
     description: "milliseconds of caller silence before a silence event"
@@ -97,6 +97,6 @@ export const applicationFlags = {
   }),
   "noise-cancelling": Flags.string({
     description:
-      "noise cancelling on the caller's audio: none, or a noise-cancelling provider (aicoustics)"
+      "noise cancelling on the caller's audio: none, or a noise-cancelling provider in your catalog (such as aicoustics)"
   })
 };

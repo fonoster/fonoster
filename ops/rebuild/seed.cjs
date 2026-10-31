@@ -55,7 +55,7 @@ const LANGUAGE = "en-US";
 const PREFERRED = {
   voice: ["deepgram/aura-2-thalia-en"],
   stt: ["deepgram/nova-3"],
-  llm: ["groq/openai/gpt-oss-120b", "openai/gpt-4o-mini"]
+  llm: ["openai/gpt-5.4-mini"]
 };
 
 /** Whether a catalog item serves the app's language ("multi" or no languages: any). */

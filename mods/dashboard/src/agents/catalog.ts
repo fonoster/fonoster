@@ -187,7 +187,7 @@ export function languageOf(code: string): Language | undefined {
 /** Picked for new agents when the workspace can use them. */
 const PREFERRED = {
   stt: "deepgram/nova-3",
-  llm: "openai/gpt-4o-mini"
+  llm: "openai/gpt-5.4-mini"
 };
 
 /**

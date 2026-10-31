@@ -34,10 +34,12 @@ import {
 // catalog LLM declares is checked against an OpenAI-compatible stand-in, cancelling is fast, and
 // vendor errors map to provider_unavailable. No vendor is called.
 
-const SEED = path.join(
-  __dirname,
-  "../../../../ops/rebuild/config/catalog-seed.yaml"
-);
+// The shipped base catalog plus the vendors it no longer carries (#1240), so every built-in
+// adapter keeps its feature checks.
+const CATALOGS = [
+  path.join(__dirname, "../../../../ops/rebuild/config/catalog-seed.yaml"),
+  path.join(__dirname, "../../../conformance/adapters.catalog.yaml")
+];
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 type Reply = {
@@ -96,11 +98,12 @@ async function standIn(reply: () => Reply) {
   };
 }
 
-const think = (url: string, jsonMode = false) =>
+const think = (url: string, jsonMode = false, reasoning = false) =>
   new OpenAiCompatibleThink({ baseUrl: url, apiKey: "k" }, "m", {
     temperature: 0,
     maxTokens: 50,
-    jsonMode
+    jsonMode,
+    reasoning
   });
 
 const user = [{ role: "user" as const, content: "Hi" }];
@@ -171,6 +174,25 @@ const FEATURES: Record<string, () => Promise<void>> = {
     } finally {
       v.close();
     }
+  },
+  // A reasoning model (#1239) runs with reasoning off and refuses max_tokens.
+  async reasoning() {
+    const v = await standIn(() => ({ text: "ok" }));
+    try {
+      for await (const _ of think(v.url, false, true).stream(
+        user,
+        [],
+        new AbortController().signal
+      ))
+        void _;
+      expect(v.bodies[0]).to.deep.include({
+        reasoning_effort: "none",
+        max_completion_tokens: 50
+      });
+      expect(v.bodies[0]).to.not.have.property("max_tokens");
+    } finally {
+      v.close();
+    }
   }
 };
 
@@ -184,15 +206,16 @@ type SeedEntry = {
 
 describe("@autopilot LLM adapter conformance (registry 1.5)", function () {
   this.timeout(20000);
-  const entries = (
-    parse(fs.readFileSync(SEED, "utf8")) as { entries: SeedEntry[] }
-  ).entries;
+  const entries = CATALOGS.flatMap(
+    (f) =>
+      (parse(fs.readFileSync(f, "utf8")) as { entries: SeedEntry[] }).entries
+  );
   const adapterOf = new Map(
     entries.filter((e) => e.kind === "provider").map((e) => [e.id, e.adapter!])
   );
   const llms = entries.filter((e) => e.kind === "model" && e.type === "llm");
 
-  it("finds the language models the catalog seed declares", function () {
+  it("finds the language models the catalogs declare", function () {
     expect(llms.length).to.be.greaterThan(0);
   });
 

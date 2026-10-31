@@ -272,7 +272,7 @@ describe("@billing rater", function () {
           );
         }
       }
-    expect(lines.length).to.be.greaterThan(10);
+    expect(lines.length).to.be.at.least(10);
     for (const line of lines) {
       const rated = rate(usage({ quantity: 1000, ...line }), started, one);
       expect(rated.reason, JSON.stringify(line)).not.to.equal("unpriced");

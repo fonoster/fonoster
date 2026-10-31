@@ -74,9 +74,7 @@ describe("@apiserver[catalog on boot]", function () {
     const providers = await db.prisma.registryProvider.findMany();
     expect(providers.map((p: { id: string }) => p.id)).to.include.members([
       "deepgram",
-      "elevenlabs",
-      "openai",
-      "groq"
+      "openai"
     ]);
     expect(await db.prisma.registryModel.count()).to.be.greaterThan(0);
     expect(await db.prisma.registryVoice.count()).to.be.greaterThan(0);
@@ -120,13 +118,13 @@ describe("@apiserver[catalog on boot]", function () {
       fs
         .readFileSync(SEED, "utf8")
         .replace(
-          "languages: [en], settings: [], state: active",
-          "languages: [en, es], settings: [], state: active"
+          "languages: [en, es], settings: [], state: active",
+          "languages: [en, es, multi], settings: [], state: active"
         )
     );
     const lines = await applyCatalog(file, db.prisma);
     expect(lines).to.have.length(1);
-    expect(lines[0]).to.match(/update model deepgram\/nova-2-phonecall/);
+    expect(lines[0]).to.match(/update model deepgram\/aura-2/);
     expect(
       await db.prisma.registryModel.findUnique({
         where: { id: "openai/operator-added-model" }

@@ -73,17 +73,14 @@ model together as one agent configuration.
     provider and its key for you, so the agent never holds a key. To use your own key with a
     provider, add it to your workspace: see [Use your own vendor keys](/workspace/provider-keys).
 
-    Live calls run models with an OpenAI-compatible API. These models are in the catalog:
+    Live calls run models with an OpenAI-compatible API. The shipped catalog has this model:
 
     | Model | Catalog ID |
     | --- | --- |
-    | GPT-4o mini (OpenAI) | `openai/gpt-4o-mini` |
-    | GPT-4.1 mini (OpenAI) | `openai/gpt-4.1-mini` |
-    | gpt-oss-120b (Groq) | `groq/openai/gpt-oss-120b` |
-    | gpt-oss-20b (Groq) | `groq/openai/gpt-oss-20b` |
+    | GPT-5.4 mini (OpenAI) | `openai/gpt-5.4-mini` |
 
-    On your own install, you can also run a model with Ollama. The full list, with voices and
-    speech-to-text models, is in [Providers and models](/reference/providers).
+    On your own install, you can also run a model with Ollama. Voices, speech-to-text models and
+    how to add other vendors are in [Providers and models](/reference/providers).
 
     Two settings shape the model's replies:
 
@@ -177,7 +174,7 @@ model together as one agent configuration.
                   }
                 },
                 languageModel: {
-                  model: "openai/gpt-4o-mini",
+                  model: "openai/gpt-5.4-mini",
                   temperature: 0.4,
                   maxTokens: 400
                 }
@@ -218,7 +215,7 @@ model together as one agent configuration.
             phoneNumber: "+18095550100"
             message: "One moment, I'm transferring you to a person."
         languageModel:
-          model: openai/gpt-4o-mini
+          model: openai/gpt-5.4-mini
           temperature: 0.4
           maxTokens: 400
         ```

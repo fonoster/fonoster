@@ -36,10 +36,12 @@ import { ElevenLabsTtsAdapter } from "@fonoster/community/elevenlabs";
 // map to provider_unavailable. Runs against local stand-ins of the vendors; live runs are on demand
 // (mods/appbridge/scripts/live-check.ts), never here.
 
-const SEED = path.join(
-  __dirname,
-  "../../../ops/rebuild/config/catalog-seed.yaml"
-);
+// The shipped base catalog plus the vendors it no longer carries (#1240), so every built-in
+// adapter keeps its feature checks.
+const CATALOGS = [
+  path.join(__dirname, "../../../ops/rebuild/config/catalog-seed.yaml"),
+  path.join(__dirname, "../../conformance/adapters.catalog.yaml")
+];
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 type SeedEntry = {
@@ -50,16 +52,17 @@ type SeedEntry = {
   features?: string[];
 };
 
-/** Declared features of each speech model in the seed, by adapter and type. */
+/** Declared features of each speech model in the catalogs, by adapter and type. */
 function declared(): {
   adapter: string;
   type: string;
   id: string;
   features: string[];
 }[] {
-  const entries = (
-    parse(fs.readFileSync(SEED, "utf8")) as { entries: SeedEntry[] }
-  ).entries;
+  const entries = CATALOGS.flatMap(
+    (f) =>
+      (parse(fs.readFileSync(f, "utf8")) as { entries: SeedEntry[] }).entries
+  );
   const adapterOf = new Map(
     entries.filter((e) => e.kind === "provider").map((e) => [e.id, e.adapter!])
   );
@@ -76,11 +79,7 @@ function declared(): {
 // ---- TTS ------------------------------------------------------------------------------------
 
 type TtsBehavior =
-  | "ok"
-  | "slow-body"
-  | "status-503"
-  | "status-401"
-  | "no-answer";
+  "ok" | "slow-body" | "status-503" | "status-401" | "no-answer";
 
 /** An HTTP stand-in that streams raw 16 kHz PCM the way both TTS vendors answer. */
 async function ttsStandIn(behavior: () => TtsBehavior) {
@@ -290,7 +289,7 @@ describe("@appbridge adapter conformance (registry 1.5)", function () {
 
   const models = declared();
 
-  it("finds the speech models the catalog seed declares", function () {
+  it("finds the speech models the catalogs declare", function () {
     expect(models.map((m) => m.id)).to.include.members([
       "deepgram/nova-3",
       "deepgram/aura-2",

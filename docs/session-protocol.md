@@ -78,7 +78,7 @@ Always the first message.
     { "id": 1, "side": "inbound", "kind": "audio", "codec": "pcm16" },
     { "id": 2, "side": "outbound", "kind": "audio", "codec": "pcm16" }
   ],
-  "speech": { "voice": "elevenlabs/rachel", "language": "en-US" }
+  "speech": { "voice": "deepgram/aura-2-thalia-en", "language": "en-US" }
 }
 ```
 

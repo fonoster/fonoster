@@ -55,7 +55,7 @@ is no synthetic "write a message based on the tool results" prompt.
 
 ## Models by catalog id
 
-`languageModel.model` is one catalog id, `<provider>/<model>`, for example `openai/gpt-4o-mini`.
+`languageModel.model` is one catalog id, `<provider>/<model>`, for example `openai/gpt-5.4-mini`.
 Autopilot asks the provider registry which provider serves it and with which credential ref, then
 uses the workspace's own key for that ref if it has one, otherwise the platform key. No key lives
 in the agent. A retired model resolves to its replacement; using a deprecated or retired model

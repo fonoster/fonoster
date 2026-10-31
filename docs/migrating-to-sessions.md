@@ -92,7 +92,7 @@ An app is now a record with these fields (Dashboard: Streams):
 | `url` | `ws://` or `wss://` address AppBridge dials. Replaces the gRPC endpoint. Apps that only have a gRPC endpoint are **not** dialed; their calls follow the fallback |
 | `protocol` | `fonoster` (session protocol) or `twilio` (Twilio Media Streams) |
 | `signingSecret` | Signs every connection request. Shown once when created or rotated |
-| `speech` | Default `voice` and `language` as **catalog ids** (`elevenlabs/rachel`, `en-US`) rather than vendor settings |
+| `speech` | Default `voice` and `language` as **catalog ids** (`deepgram/aura-2-thalia-en`, `en-US`) rather than vendor settings |
 | `audio` | Format with the `fonoster` protocol: `pcm16` at 8, 16 or 24 kHz, or `pcmu` at 8 kHz (default `pcm16` 16 kHz) |
 | `fallback` | Another app, or a message spoken before hanging up, used when your URL cannot be reached (after about 2.5 s of ringing) |
 | `listeners` | Up to 4 listen-only sockets (`url`, `tracks`: `inbound`, `outbound`, `both`) for monitoring and analytics |
