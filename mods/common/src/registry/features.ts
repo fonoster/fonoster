@@ -27,7 +27,9 @@ export const FEATURES: Record<Capability, Record<string, "hard" | "soft">> = {
     "tool-calling": "hard",
     streaming: "hard",
     "json-mode": "soft",
-    vision: "soft"
+    vision: "soft",
+    // Takes reasoning_effort "none" (OpenAI GPT-5.1 and later; not gpt-5, gpt-5-mini, gpt-5-nano).
+    reasoning: "soft"
   },
   tts: { streaming: "hard", "word-timings": "soft", ssml: "soft" },
   stt: {

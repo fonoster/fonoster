@@ -45,7 +45,12 @@ export type LlmAdapterFactory = {
   create(
     provider: ThinkProvider,
     model: string,
-    settings: { temperature: number; maxTokens: number; jsonMode?: boolean }
+    settings: {
+      temperature: number;
+      maxTokens: number;
+      jsonMode?: boolean;
+      reasoning?: boolean;
+    }
   ): Think;
 };
 
