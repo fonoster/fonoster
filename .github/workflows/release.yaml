@@ -9,7 +9,8 @@ name: Release
 #      anything is published.
 #   3. npm: `npm run release` (lerna publish, dist-tag latest) commits the version bump with
 #      [skip ci], tags v<version> and pushes both to main.
-#   4. images: images.yaml at the release commit (every image in ops/release/images.json).
+#   4. images: images.yaml at the release commit (every image in ops/release/images.json), each
+#      platform built on its own native runner and tagged as one linux/amd64 + linux/arm64 manifest.
 #   5. release: the install archive and its SHA256SUMS, the notes, the QA report and two release
 #      cards (dark and light) on a published GitHub release, marked latest.
 #   6. deploy: deploy.yaml plans the release on production with the Ansible playbook (no
