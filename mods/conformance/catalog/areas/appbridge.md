@@ -8,6 +8,7 @@ tester: The conformance runner, which plays the app against AppBridge with a fak
 environment: NATS (CONFORMANCE_NATS_URL) for node heartbeats, events and the session registry; a throwaway Postgres (PERSISTENCE_TEST_DATABASE_URL) for the cases that read apps the Applications API wrote; everything else in the test process
 cadence: every pull request that touches AppBridge or a scenario file
 prove: sh mods/conformance/test/appbridge/prove.sh {id} {junitDir}
+reset: sh mods/conformance/test/appbridge/rebuild.sh
 capabilities:
   - voice-session
   - turn-taking
@@ -28,6 +29,7 @@ tests:
   - mods/appbridge/test/applicationsApi.test.ts
   - mods/appbridge/test/usageReport.test.ts
   - mods/appbridge/test/replayTool.test.ts
+  - mods/appbridge/test/signals.test.ts
 ---
 
 # AppBridge and the session protocol
@@ -696,3 +698,21 @@ Postgres. AppBridge dials only what the API stored, so an app it can't reach ove
 exist.
 
 **Pass.** A bare host:port, an https:// or a grpc:// endpoint is refused at create with INVALID_ARGUMENT naming `url` and no app is created; an update to https:// is refused the same way and the app keeps its URL; ws:// and wss:// are accepted at create and update and read back as written. **Fail.** An app stored with an endpoint AppBridge can't dial over WebSocket, or a WebSocket one refused.
+
+### APB-042 A stop during start-up exits at once; once serving, SIGTERM drains
+
+- **Spec:** control-plane / AppBridge drains on SIGTERM / Live sessions survive SIGTERM
+- **Priority:** P1
+- **Proof:** Register the SIGTERM and SIGINT handlers only after `start()` returns (`main()` in `mods/appbridge/src/main.ts`); the test must go red on the exit code.
+- **Fault:** faults/APB-042.patch
+- **Test:** mods/appbridge/test/signals.test.ts
+
+The built process (`dist/main.js`) spawned with a config, as the image runs it. Started against a
+NATS that never answers, it gets SIGTERM about 1 s in; started against the test NATS, it gets SIGTERM
+once its Session port reports SERVING. In the image node is PID 1, which ignores a signal it has no
+handler for, so a stop that lands in start-up would wait out the whole stop grace period.
+
+**Pass.** A SIGTERM before the Session port is open exits with code 0 within 3 s, without waiting
+for NATS or the database; a SIGTERM once it is SERVING logs `draining` and exits with code 0, live
+calls drained as in APB-030. **Fail.** The process dies by the signal, or keeps starting until NATS
+or the database gives up.

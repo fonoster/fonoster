@@ -1,0 +1,22 @@
+diff --git a/mods/appbridge/src/main.ts b/mods/appbridge/src/main.ts
+index 35dfb85b1..ab9b44bcc 100644
+--- a/mods/appbridge/src/main.ts
++++ b/mods/appbridge/src/main.ts
+@@ -89,8 +89,6 @@ async function main() {
+     await telemetry.shutdown();
+     process.exit(0);
+   };
+-  process.on("SIGTERM", () => void shutdown(true));
+-  process.on("SIGINT", () => void shutdown(false));
+ 
+   startTelemetry(config.telemetry);
+   if (config.callRecord) {
+@@ -115,6 +113,8 @@ async function main() {
+   appbridge = bridge;
+   started = bridge.start();
+   await started;
++  process.on("SIGTERM", () => void shutdown(true));
++  process.on("SIGINT", () => void shutdown(false));
+   // A signal during start() is already stopping it.
+   if (stopping) return;
+   telemetry.gauge("fonoster.appbridge.calls.active", () => bridge.calls.size);

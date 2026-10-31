@@ -49,12 +49,50 @@ async function main() {
   // APPBRIDGE_CONFIG or the first argument names the file; else /config/appbridge.yaml (or the
   // older /etc/fonoster/appbridge.yaml).
   const config = loadConfig(process.env.APPBRIDGE_CONFIG ?? process.argv[2]);
-  startTelemetry(config.telemetry);
   let record: CallRecordSink | undefined;
   let writer: CallRecordWriter | undefined;
   let sweeper: ReturnType<typeof setInterval> | undefined;
-  // eslint-disable-next-line prefer-const
+  let db: Awaited<ReturnType<typeof openDatabase>> | undefined;
   let appbridge: AppBridge | undefined;
+  let started: Promise<AppBridge> | undefined;
+
+  // Registered before the first await: node is PID 1 in the image, and PID 1 ignores a signal it
+  // has no handler for, so a stop during start-up would wait out the whole stop grace period.
+  let stopping = false;
+  // Before the Session port is open nothing has been admitted: a signal exits at once, without
+  // waiting for the database or NATS. After it, SIGTERM drains (13.3): readiness fails at once,
+  // live calls run until they end or session.drainWait passes; SIGINT (or a second signal) stops
+  // at once.
+  const shutdown = async (drain: boolean) => {
+    if (stopping) {
+      if (!drain) process.exit(1);
+      return;
+    }
+    stopping = true;
+    if (appbridge?.sessionPort === undefined) {
+      logger.info("stopped while starting");
+      await db?.close().catch(() => undefined);
+      await Promise.race([
+        telemetry.shutdown().catch(() => undefined),
+        new Promise((r) => setTimeout(r, 2000))
+      ]);
+      process.exit(0);
+    }
+    logger.info(drain ? "draining" : "shutting down");
+    // start() is past the Session port; calls admitted until it returns are drained too.
+    await started?.catch(() => undefined);
+    if (drain) await appbridge.drain();
+    if (sweeper) clearInterval(sweeper);
+    await appbridge.stop();
+    await writer?.flush();
+    await db?.close();
+    await telemetry.shutdown();
+    process.exit(0);
+  };
+  process.on("SIGTERM", () => void shutdown(true));
+  process.on("SIGINT", () => void shutdown(false));
+
+  startTelemetry(config.telemetry);
   if (config.callRecord) {
     const analytics = analyticsLoader(config.callRecord, () => writer);
     writer = createRecordWriter(config.callRecord, (entry) => {
@@ -65,17 +103,21 @@ async function main() {
   } else if (process.env.APPBRIDGE_RECORD_DIR) {
     record = new JsonlCallRecordSink(process.env.APPBRIDGE_RECORD_DIR);
   }
-  const db = await openDatabase(config);
-  appbridge = await new AppBridge({
+  db = await openDatabase(config);
+  const bridge = new AppBridge({
     config,
     record,
     apps: db.apps,
     registryStore: db.registryStore,
     workspaceKeys: keySource(config, db.workspaceKeys),
     webhooks: db.webhooks
-  }).start();
-  const running = appbridge;
-  telemetry.gauge("fonoster.appbridge.calls.active", () => running.calls.size);
+  });
+  appbridge = bridge;
+  started = bridge.start();
+  await started;
+  // A signal during start() is already stopping it.
+  if (stopping) return;
+  telemetry.gauge("fonoster.appbridge.calls.active", () => bridge.calls.size);
   if (writer) {
     const w = writer;
     // Records of calls whose AppBridge died are sealed by whichever replica sweeps first.
@@ -85,27 +127,6 @@ async function main() {
       config.callRecord?.sweepIntervalMs ?? 10_000
     );
   }
-
-  let stopping = false;
-  // SIGTERM drains (13.3): readiness fails at once, live calls run until they end or
-  // session.drainWait passes; SIGINT (or a second signal) stops at once.
-  const shutdown = async (drain: boolean) => {
-    if (stopping) {
-      if (!drain) process.exit(1);
-      return;
-    }
-    stopping = true;
-    logger.info(drain ? "draining" : "shutting down");
-    if (drain) await appbridge?.drain();
-    if (sweeper) clearInterval(sweeper);
-    await appbridge?.stop();
-    await writer?.flush();
-    await db.close();
-    await telemetry.shutdown();
-    process.exit(0);
-  };
-  process.on("SIGTERM", () => void shutdown(true));
-  process.on("SIGINT", () => void shutdown(false));
 }
 
 /**
