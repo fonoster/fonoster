@@ -13,23 +13,30 @@ FROM node:22-slim AS builder
 LABEL team="Fonoster Team <team@fonoster.com>"
 
 WORKDIR /work
+# openssl lets `prisma generate` pick the runtime's engine (openssl 3).
+RUN apt-get update && apt-get install -y --no-install-recommends openssl \
+  && rm -rf /var/lib/apt/lists/*
 
-COPY package.json package-lock.json lerna.json ./
-COPY mods ./mods
-COPY tsconfig.json ./
+COPY package.json package-lock.json lerna.json tsconfig.json ./
+# @fonoster/identity imports common, logger and types; nothing else of the workspace is built.
+COPY mods/types ./mods/types
+COPY mods/logger ./mods/logger
+COPY mods/common ./mods/common
+COPY mods/identity ./mods/identity
 
+# Only Identity's workspace closure. Its devDependency @fonoster/identity-client (tests only) is
+# left as a dangling link (npm still fills mods/identity-client/node_modules from the lockfile, so
+# that folder goes); no @fonoster package may come from the registry except roomr.
 RUN --mount=type=cache,target=/root/.npm \
-    apt-get update && apt-get install -y git \
-    && npm install --prefer-offline --no-audit \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    npm install --workspace @fonoster/identity --include-workspace-root --ignore-scripts --no-audit --no-fund \
+  && for d in node_modules/@fonoster/*; do [ -L "$d" ] || [ "${d##*/}" = roomr ] || { echo "$d came from the npm registry, not the workspace"; exit 1; }; done \
+  && rm -rf mods/identity-client
 
-RUN npm run build
-
-# Generate the Prisma client and place it where the runtime imports it (dist).
-RUN npx prisma generate --schema mods/identity/schema.prisma \
-    && rm -rf mods/identity/dist/generated \
-    && cp -r mods/identity/src/generated mods/identity/dist/generated
+# The Prisma client goes where the runtime imports it (dist/generated, copy-assets.cjs).
+RUN (cd mods/identity && npx prisma generate --schema schema.prisma) \
+  && for p in types logger common identity; do (cd mods/$p && npx tsc -b) || exit 1; done \
+  && cp -a mods/common/src/protos mods/common/dist/ \
+  && (cd mods/identity && node scripts/copy-assets.cjs)
 
 ##
 # Run stage
