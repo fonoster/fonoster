@@ -44,7 +44,16 @@
   const icon = (name, cls = "") =>
     `<svg class="icon ${cls}" aria-hidden="true"><use href="${ICONS}#i-${name}"></use></svg>`;
 
-  let lang = store.get("fonoster.lang") === "es" ? "es" : "en";
+  // ?lang=es|en (used by the fonoster.do redirect) picks the language and is remembered.
+  const params = new URLSearchParams(location.search);
+  const urlLang = params.get("lang");
+  if (urlLang === "es" || urlLang === "en") {
+    store.set("fonoster.lang", urlLang);
+    params.delete("lang");
+    const query = params.toString();
+    history.replaceState(null, "", location.pathname + (query ? `?${query}` : "") + location.hash);
+  }
+  let lang = (urlLang || store.get("fonoster.lang")) === "es" ? "es" : "en";
   const dict = () => I18N[lang] || I18N.en || {};
   const t = (key) => {
     const value = dict()[key];
