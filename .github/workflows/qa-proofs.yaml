@@ -28,7 +28,12 @@ permissions:
 
 jobs:
   api:
-    name: API area proofs
+    name: API area proofs (${{ matrix.part }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # run: every case once; 1..2: the proofs, split with prove.cjs --shard k/2.
+        part: [run, "1", "2"]
     runs-on: ubuntu-latest
     timeout-minutes: 180
     services:
@@ -74,19 +79,24 @@ jobs:
       # cases run their build, which prove.sh rebuilds around a fault in them.
       - name: Run and prove
         env:
+          PART: ${{ matrix.part }}
           PERSISTENCE_TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/postgres
           ROUTR_API_ENDPOINT: 127.0.0.1:51907
           CONFORMANCE_NATS_URL: nats://127.0.0.1:4222
           LOGS_LEVEL: none
         run: |
-          node mods/conformance/catalog/run.cjs --area API
-          node mods/conformance/catalog/prove.cjs --area API --out reports/junit/proofs-API.xml
+          if [ "$PART" = run ]; then
+            node mods/conformance/catalog/run.cjs --area API
+          else
+            node mods/conformance/catalog/prove.cjs --area API --shard "$PART/2" \
+              --out "reports/junit/proofs-API-$PART.xml"
+          fi
 
       - name: Proof records
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qa-api
+          name: qa-api-${{ matrix.part }}
           path: reports/junit/
           if-no-files-found: ignore
 
@@ -299,7 +309,12 @@ jobs:
           if-no-files-found: ignore
 
   dashboard:
-    name: Dashboard area
+    name: Dashboard area (${{ matrix.part }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # run: every case once; 1..3: the proofs, split with prove.cjs --shard k/3.
+        part: [run, "1", "2", "3"]
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
@@ -333,17 +348,22 @@ jobs:
 
       - name: Run and prove
         env:
+          PART: ${{ matrix.part }}
           QA_BILLING: "1"
           LOGS_LEVEL: none
         run: |
-          node mods/conformance/catalog/run.cjs --area DSH
-          node mods/conformance/catalog/prove.cjs --area DSH --out reports/junit/proofs-DSH.xml
+          if [ "$PART" = run ]; then
+            node mods/conformance/catalog/run.cjs --area DSH
+          else
+            node mods/conformance/catalog/prove.cjs --area DSH --shard "$PART/3" \
+              --out "reports/junit/proofs-DSH-$PART.xml"
+          fi
 
       - name: Results and proof records
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qa-dsh
+          name: qa-dsh-${{ matrix.part }}
           path: reports/junit/
           if-no-files-found: ignore
 
@@ -414,7 +434,12 @@ jobs:
   # The playbook on this runner (ops/ansible/test/throwaway.sh with two local builds). Each proof
   # runs it again with the fault applied; the builds are kept between runs.
   operations:
-    name: Operations area
+    name: Operations area (${{ matrix.part }})
+    strategy:
+      fail-fast: false
+      matrix:
+        # run: every case once; 1..2: the proofs, split with prove.cjs --shard k/2.
+        part: [run, "1", "2"]
     runs-on: ubuntu-24.04
     timeout-minutes: 240
     steps:
@@ -441,15 +466,24 @@ jobs:
           echo "$RUNNER_TEMP/ansible/bin" >> "$GITHUB_PATH"
 
       - name: Run and prove
+        env:
+          PART: ${{ matrix.part }}
         run: |
-          node mods/conformance/catalog/run.cjs --area OPS
-          node mods/conformance/catalog/prove.cjs --area OPS --timeout 3600 --out reports/junit/proofs-OPS.xml
+          if [ "$PART" = run ]; then
+            node mods/conformance/catalog/run.cjs --area OPS
+          else
+            # Both builds without any fault first: a proof reuses them, and the first one must not
+            # build the shared archive with its own fault in it.
+            ops/release/bundle 0.0.0-a && ops/release/bundle 0.0.0-b
+            node mods/conformance/catalog/prove.cjs --area OPS --timeout 3600 --shard "$PART/2" \
+              --out "reports/junit/proofs-OPS-$PART.xml"
+          fi
 
       - name: Results and proof records
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qa-ops
+          name: qa-ops-${{ matrix.part }}
           path: reports/junit/
           if-no-files-found: ignore
 
@@ -492,6 +526,18 @@ jobs:
           echo "Roomr v$V: released, CI passed (fonoster/roomr)" >> "$GITHUB_STEP_SUMMARY"
 
       # Every P0 case passes and is proven, every P1 passes or is waived (report.cjs).
+      # A lost prove part leaves its cases without proof records, which report.cjs only gates for P0
+      # cases: every part's file must be there.
+      - name: Every proof part reported
+        if: ${{ !cancelled() }}
+        run: |
+          missing=""
+          for f in proofs-DSH-1.xml proofs-DSH-2.xml proofs-DSH-3.xml proofs-API-1.xml proofs-API-2.xml \
+            proofs-OPS-1.xml proofs-OPS-2.xml; do
+            [ -n "$(find reports/junit -name "$f" -print -quit)" ] || missing="$missing $f"
+          done
+          [ -z "$missing" ] || { echo "no proof records from:$missing"; exit 1; }
+
       - name: Report and gate
         env:
           VERSION: ${{ inputs.version || 'nightly' }}

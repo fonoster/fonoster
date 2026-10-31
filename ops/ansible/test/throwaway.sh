@@ -134,6 +134,12 @@ done
 if $SUDO test -f "$LIVE/compose.yaml"; then
   compose down -v --remove-orphans --timeout 0 >/dev/null 2>&1 || true
 fi
+# compose down fails when the last run left files it can't load (a proof's fault in the switch);
+# its containers and volumes would then outlive $LIVE and answer the next install's checks.
+left="$($SUDO docker ps -aq --filter label=com.docker.compose.project=fonoster)"
+[ -z "$left" ] || $SUDO docker rm -f -v $left >/dev/null
+left="$($SUDO docker volume ls -q --filter label=com.docker.compose.project=fonoster)"
+[ -z "$left" ] || $SUDO docker volume rm -f $left >/dev/null
 $SUDO rm -rf "$LIVE" "$STATE"
 
 (cd "$ANSIBLE" && ansible-lint) || die "ansible-lint failed"
