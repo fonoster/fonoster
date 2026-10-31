@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createServer, Server } from "http";
+import { createServer, request, Server } from "http";
 import { AddressInfo } from "net";
 import { expect } from "chai";
 import Stripe from "stripe";
@@ -354,6 +354,27 @@ describe("@billing stripe", function () {
     expect(await balanceOf(db!.prisma, account.id)).to.equal(
       before + credits(1000)
     );
+  });
+
+  it("[BIL-044] refuses a webhook body over 1 MiB with 413, keeping none of it", async () => {
+    const before = await db!.prisma.stripeEvent.count();
+    const port = (receiver.address() as AddressInfo).port;
+    const status = await new Promise<number>((resolve, reject) => {
+      const req = request(
+        { host: "127.0.0.1", port, path: "/stripe", method: "POST" },
+        (res) => {
+          res.resume();
+          resolve(res.statusCode!);
+        }
+      );
+      req.on("error", reject);
+      // 8 MiB, sent without waiting: the receiver answers as soon as it has seen too much.
+      const chunk = Buffer.alloc(64 * 1024, "a");
+      for (let i = 0; i < 128; i++) req.write(chunk);
+      req.end();
+    });
+    expect(status).to.equal(413);
+    expect(await db!.prisma.stripeEvent.count()).to.equal(before);
   });
 
   it("[BIL-045] keeps rating while Stripe is down, then sends everything once", async () => {

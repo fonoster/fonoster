@@ -35,6 +35,9 @@ const HOUR_MS = 3600_000;
 /** Recharges in a row that may fail before auto-recharge turns off. */
 export const MAX_RECHARGE_FAILURES = 3;
 
+/** The largest webhook body read; Stripe's events are far smaller. */
+const MAX_WEBHOOK_BYTES = 1024 * 1024;
+
 /**
  * The webhook inbox (D8): verifies Stripe's signature and stores each event once by id. Applying
  * happens later (`applyEventsOnce`), so a slow apply never makes Stripe retry.
@@ -46,7 +49,16 @@ export function webhookReceiver(deps: {
 }) {
   return async (req: IncomingMessage, res: ServerResponse) => {
     const chunks: Buffer[] = [];
-    for await (const c of req) chunks.push(c as Buffer);
+    let size = 0;
+    for await (const c of req) {
+      // A public route: past the limit, answer 413 at once and discard the rest unread into
+      // memory (closing with data unread would reset the connection and lose the answer).
+      if (size > MAX_WEBHOOK_BYTES) continue;
+      size += (c as Buffer).length;
+      if (size > MAX_WEBHOOK_BYTES) res.writeHead(413).end();
+      else chunks.push(c as Buffer);
+    }
+    if (size > MAX_WEBHOOK_BYTES) return;
     const body = Buffer.concat(chunks);
     let event: Stripe.Event;
     try {
