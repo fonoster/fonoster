@@ -38,12 +38,12 @@ const removed = (key: string, message: string) =>
 
 export const sessionLanguageModelSchema = z
   .object({
-    /** A catalog id such as "openai/gpt-4o-mini". */
+    /** A catalog id such as "openai/gpt-5.4-mini". */
     model: z
       .string()
       .regex(
         /^[a-z0-9-]+\/.+/,
-        "model must be a catalog id like openai/gpt-4o-mini"
+        "model must be a catalog id like openai/gpt-5.4-mini"
       ),
     temperature: z.number().min(0).max(2).default(0.4),
     maxTokens: z.number().int().positive().default(400),
@@ -64,7 +64,7 @@ export const sessionLanguageModelSchema = z
       .default([]),
     provider: removed(
       "provider",
-      "use a catalog id in model (for example openai/gpt-4o-mini)"
+      "use a catalog id in model (for example openai/gpt-5.4-mini)"
     ),
     apiKey: removed(
       "apiKey",

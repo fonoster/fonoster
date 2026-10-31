@@ -79,11 +79,10 @@ Each line shows the kind, the catalog ID and the state:
 
 ```text
 model	deepgram/nova-3	active
-model	deepgram/nova-2-phonecall	active
 model	deepgram/aura-2	active
-model	elevenlabs/eleven_flash_v2_5	active
-model	openai/gpt-4o-mini	active
-model	groq/llama-3.3-70b-versatile	retired
+model	openai/gpt-5.4-mini	active
+model	openai/gpt-4o-mini	retired
+model	openai/gpt-4.1-mini	retired
 ```
 
 `registry list` with no argument lists everything, and `registry list provider` or
@@ -91,7 +90,16 @@ model	groq/llama-3.3-70b-versatile	retired
 
 ## Add a model or voice
 
-Add a model with its type, the features it supports, its languages and the settings it accepts:
+The shipped catalog no longer includes ElevenLabs, Groq or ai-coustics; add them back like this.
+Add the provider first, with the adapter it runs on, its capabilities and the name of its key:
+
+```bash
+registry add-provider elevenlabs --label "ElevenLabs" --adapter elevenlabs --capabilities tts \
+  --credential-ref elevenlabs
+```
+
+Then add a model with its type, the features it supports, its languages and the settings it
+accepts:
 
 ```bash
 registry add-model elevenlabs/eleven_turbo_v2_5 --type tts \
@@ -250,7 +258,7 @@ registry plan -f /dev/stdin < catalog.yaml
 registry apply -f /dev/stdin < catalog.yaml
 ```
 
-`plan` prints one line per change, such as `+ add model openai/gpt-4.1-mini` or
+`plan` prints one line per change, such as `+ add model openai/gpt-5.4-mini` or
 `~ deprecate voice deepgram/aura-2-asteria-en → deepgram/aura-2-thalia-en`, or `no changes`.
 
 <Warning>

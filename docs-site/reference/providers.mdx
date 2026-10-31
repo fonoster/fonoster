@@ -1,15 +1,17 @@
 ---
 title: "Providers and models"
-description: "The speech-to-text models, voices and language models in the default catalog, and how deprecations reach you."
+description: "The speech-to-text model, voices and language model in the shipped base catalog, and how deprecations reach you."
 ---
 
 Fonoster calls speech and language vendors for you. Every provider, model and voice has a
 **catalog ID** of the form `<provider>/<name>`, and your applications and agents name them by that
-ID. This page lists the default catalog and explains how a deprecation shows up.
+ID. This page lists the base catalog that a new install ships with, Deepgram and OpenAI, and
+explains how a deprecation shows up.
 
 The catalog your workspace sees can differ: it lists only providers the platform or your workspace
-has a key for, and the operator of a self-hosted install can add or remove entries. To see yours,
-run:
+has a key for, and the operator of a self-hosted install can add or remove entries, for example to
+add ElevenLabs, Groq or ai-coustics (see [Provider catalog](/self-hosting/provider-catalog)). To
+see yours, run:
 
 ```bash
 fonoster providers:catalog
@@ -21,8 +23,8 @@ fonoster providers:catalog
 | --- | --- | --- |
 | `speech.voice` (application) | Voice | `deepgram/aura-2-thalia-en` |
 | `speech.sttModel` (application) | Speech-to-text model | `deepgram/nova-3` |
-| `speech.ttsModel` (application) | Text-to-speech model | `elevenlabs/eleven_flash_v2_5` |
-| `languageModel.model` (agent) | Language model | `openai/gpt-4o-mini` |
+| `speech.ttsModel` (application) | Text-to-speech model | `deepgram/aura-2` |
+| `languageModel.model` (agent) | Language model | `openai/gpt-5.4-mini` |
 | `conversationSettings.voice` (agent) | Voice | `deepgram/aura-2-andromeda-en` |
 
 When you save an application, Fonoster checks its voice and speech models against the catalog. An
@@ -34,17 +36,13 @@ message. See [Autopilot configuration](/reference/autopilot-config) for every fi
 | Provider | Catalog ID | Capabilities |
 | --- | --- | --- |
 | Deepgram | `deepgram` | Speech-to-text, text-to-speech |
-| ElevenLabs | `elevenlabs` | Text-to-speech |
 | OpenAI | `openai` | Language models |
-| Groq | `groq` | Language models |
-| ai-coustics | `aicoustics` | Noise cancelling |
 
 ## Speech-to-text models
 
 | Catalog ID | Languages | Features |
 | --- | --- | --- |
 | `deepgram/nova-3` | `en`, `es`, `multi` | Streaming, interim results, word timings, multilingual |
-| `deepgram/nova-2-phonecall` | `en` | Streaming, interim results, word timings |
 
 `multi` means the model hears more than one language in the same call.
 
@@ -53,52 +51,21 @@ message. See [Autopilot configuration](/reference/autopilot-config) for every fi
 | Catalog ID | Languages | Features |
 | --- | --- | --- |
 | `deepgram/aura-2` | `en`, `es` | Streaming |
-| `elevenlabs/eleven_flash_v2_5` | `en`, `es`, `multi` | Streaming |
 
 ## Voices
 
-Pick a voice that speaks the application's `speech.language`.
-
-### Deepgram Aura-2
-
-These voices run on `deepgram/aura-2`.
+Pick a voice that speaks the application's `speech.language`. These voices run on
+`deepgram/aura-2`.
 
 | Catalog ID | Language | Gender |
 | --- | --- | --- |
 | `deepgram/aura-2-thalia-en` | `en-US` | Female |
 | `deepgram/aura-2-andromeda-en` | `en-US` | Female |
-| `deepgram/aura-2-helena-en` | `en-US` | Female |
-| `deepgram/aura-2-luna-en` | `en-US` | Female |
-| `deepgram/aura-2-asteria-en` | `en-US` | Female |
 | `deepgram/aura-2-apollo-en` | `en-US` | Male |
-| `deepgram/aura-2-arcas-en` | `en-US` | Male |
-| `deepgram/aura-2-orion-en` | `en-US` | Male |
-| `deepgram/aura-2-zeus-en` | `en-US` | Male |
-| `deepgram/aura-2-draco-en` | `en-GB` | Male |
-| `deepgram/aura-2-celeste-es` | `es-CO` | Female |
-| `deepgram/aura-2-estrella-es` | `es-MX` | Female |
 | `deepgram/aura-2-selena-es` | `es-419` | Female |
 | `deepgram/aura-2-aquila-es` | `es-419` | Male |
-| `deepgram/aura-2-javier-es` | `es-MX` | Male |
-| `deepgram/aura-2-nestor-es` | `es-ES` | Male |
 
 `deepgram/aura-2-thalia-en` is the default voice of a new application.
-
-### ElevenLabs
-
-These voices run on `elevenlabs/eleven_flash_v2_5` and speak several languages (`multi`). The
-catalog ID uses ElevenLabs' voice ID.
-
-| Catalog ID | Name | Gender |
-| --- | --- | --- |
-| `elevenlabs/21m00Tcm4TlvDq8ikWAM` | Rachel | Female |
-| `elevenlabs/EXAVITQu4vr4xnSDxMaL` | Sarah | Female |
-| `elevenlabs/cgSgspJ2msm6clMCkdW9` | Jessica | Female |
-| `elevenlabs/XrExE9yKIg1WjnnlVkGX` | Matilda | Female |
-| `elevenlabs/JBFqnCBsd6RMkjVDRZzb` | George | Male |
-| `elevenlabs/nPczCjzI2devNBz1zQrb` | Brian | Male |
-| `elevenlabs/cjVigY5qzO86Huf0OWal` | Eric | Male |
-| `elevenlabs/onwK4e9ZLuTAKqWW03F9` | Daniel | Male |
 
 ## Language models
 
@@ -107,14 +74,13 @@ model with tool calling; every model below has it.
 
 | Catalog ID | State | Features |
 | --- | --- | --- |
-| `openai/gpt-4o-mini` | Active | Streaming, tool calling, JSON mode |
-| `openai/gpt-4.1-mini` | Active | Streaming, tool calling, JSON mode |
-| `groq/openai/gpt-oss-120b` | Active | Streaming, tool calling |
-| `groq/openai/gpt-oss-20b` | Active | Streaming, tool calling |
-| `groq/llama-3.3-70b-versatile` | Retired on 2026-10-15 | Replaced by `groq/openai/gpt-oss-120b` |
+| `openai/gpt-5.4-mini` | Active | Streaming, tool calling, JSON mode, reasoning |
+| `openai/gpt-4o-mini` | Retired | Replaced by `openai/gpt-5.4-mini` |
+| `openai/gpt-4.1-mini` | Retired | Replaced by `openai/gpt-5.4-mini` |
 
-Groq models use Groq's own model name after `groq/`. On a self-hosted install, the operator can
-also add models served by Ollama.
+OpenAI shuts down `gpt-4o-mini` and `gpt-4.1-mini` on 2027-01-14; agents that still name them run
+on `openai/gpt-5.4-mini`. On a self-hosted install, the operator can also add models served by
+Ollama.
 
 ## Deprecation and retirement
 

@@ -334,6 +334,42 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     ).to.deep.equal([]);
   });
 
+  // #1240: a small base, Deepgram and one current OpenAI model; operators add other vendors.
+  it("ships a base catalog of Deepgram and openai/gpt-5.4-mini, retiring the OpenAI models OpenAI shuts down", function () {
+    const { entries } = parse(
+      fs.readFileSync(path.join(BUNDLE, "config", "catalog.yaml"), "utf8")
+    ) as {
+      entries: {
+        kind: string;
+        id: string;
+        type?: string;
+        state: string;
+        replacement?: string;
+      }[];
+    };
+    expect(
+      entries.filter((e) => e.kind === "provider").map((e) => e.id)
+    ).to.deep.equal(["deepgram", "openai"]);
+    expect(
+      entries
+        .filter((e) => e.type === "llm" && e.state === "active")
+        .map((e) => e.id)
+    ).to.deep.equal(["openai/gpt-5.4-mini"]);
+    for (const id of ["openai/gpt-4o-mini", "openai/gpt-4.1-mini"])
+      expect(
+        entries.find((e) => e.id === id),
+        id
+      ).to.deep.include({
+        state: "retired",
+        replacement: "openai/gpt-5.4-mini"
+      });
+    expect(
+      entries
+        .map((e) => e.id)
+        .filter((id) => /^(elevenlabs\/|groq\/|aicoustics)/.test(id))
+    ).to.deep.equal([]);
+  });
+
   // The playbook merges overrides with a YAML 1.1 parser, where an unquoted off, on, yes or no is a
   // boolean: AppBridge refused `recording: off` read as false.
   it("reads the same under YAML 1.1 as under YAML 1.2 (quoted off, on, yes, no)", function () {

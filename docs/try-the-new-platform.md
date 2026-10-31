@@ -213,9 +213,7 @@ committed), one per line, then run `up` and `seed` again:
 ```sh
 # ops/rebuild/.local/vendor.env
 DEEPGRAM_API_KEY=...      # speech-to-text (nova-3) and the default voice (Aura-2)
-ELEVENLABS_API_KEY=...    # optional: ElevenLabs voices (elevenlabs/<voice id>)
-GROQ_API_KEY=...          # the default language model (gpt-oss-120b on Groq)
-OPENAI_API_KEY=...        # optional: OpenAI models (openai/gpt-4o-mini, openai/gpt-4.1-mini)
+OPENAI_API_KEY=...        # the default language model (openai/gpt-5.4-mini)
 ```
 
 ```sh
@@ -228,13 +226,11 @@ catalog also has the fake providers, `fake` (`mods/conformance/fakes.catalog.yam
 like any other that needs no key.
 
 `seed` gives the demo app what the catalog offers: Deepgram's `aura-2-thalia-en` voice and
-`nova-3` transcriber, and Groq's `gpt-oss-120b` (else OpenAI's `gpt-4o-mini`), when their keys
-are present; otherwise the first offered item for English. So with no keys at all the demo app
-runs on the fakes (tones for speech, a scripted recognizer, an echoing model), and with only an
-ElevenLabs key it gets an ElevenLabs voice and the fake transcriber.
+`nova-3` transcriber, and OpenAI's `gpt-5.4-mini`, when their keys are present; otherwise the
+first offered item for English. So with no keys at all the demo app runs on the fakes (tones for
+speech, a scripted recognizer, an echoing model).
 `RB_DEFAULT_VOICE`, `RB_DEFAULT_STT` and `RB_DEFAULT_MODEL` (catalog ids, in `vendor.env` too)
-override that, e.g. `RB_DEFAULT_VOICE=elevenlabs/JBFqnCBsd6RMkjVDRZzb` (George) or
-`RB_DEFAULT_MODEL=openai/gpt-4.1-mini`. Every voice and model in the catalog can also be picked
+override that, e.g. `RB_DEFAULT_VOICE=deepgram/aura-2-apollo-en`. Every voice and model in the catalog can also be picked
 per app or agent in the dashboard. A vendor's voices and models always need its key, the
 platform's or the workspace's; no vendor id is ever answered by a fake.
 
@@ -242,10 +238,6 @@ Keys reach the containers by variable name only (AppBridge for speech, the hoste
 language models) and are never written to the rendered configs. Workspace vendor keys added in
 the dashboard (Vendor keys) replace the platform key for that workspace's calls, for speech and
 language models alike.
-
-Groq retired Llama 3.3 70B, so the catalog marks `groq/llama-3.3-70b-versatile` retired: an
-agent that still names it runs on `groq/openai/gpt-oss-120b` (`groq/openai/gpt-oss-20b` is
-there too).
 
 Measured on a laptop with `ops/rebuild/stack ask` (the caller asks "What is Fonoster?" over
 PCMU): from the end of the question to the first audio of the answer, about 1.5 s with

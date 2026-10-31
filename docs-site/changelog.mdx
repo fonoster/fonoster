@@ -7,6 +7,20 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
+<Update label="v0.47" description="October 2026" tags={["Self-hosting"]}>
+
+## Self-hosting
+
+- **The shipped `config/catalog.yaml` now holds Deepgram and `openai/gpt-5.4-mini`.** A new
+  agent gets `deepgram/nova-3`, a Deepgram Aura-2 voice and `openai/gpt-5.4-mini`.
+  `openai/gpt-4o-mini` and `openai/gpt-4.1-mini`, which OpenAI shuts down on 2027-01-14, are
+  retired: agents that still name them run on `openai/gpt-5.4-mini`.
+- Existing installs keep their other entries until the operator retires them (see
+  [Provider catalog](/self-hosting/provider-catalog)). New installs that need ElevenLabs, Groq or
+  ai-coustics add them.
+
+</Update>
+
 <Update label="v0.45" description="October 2026" tags={["Cloud", "Self-hosting"]}>
 
 ## Cloud

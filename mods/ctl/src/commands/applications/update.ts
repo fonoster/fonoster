@@ -26,7 +26,7 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
   static override readonly description =
     "modify an Application (only the fields you pass change)";
   static override readonly examples = [
-    "<%= config.bin %> <%= command.id %> <ref> --voice elevenlabs/rachel --patience high",
+    "<%= config.bin %> <%= command.id %> <ref> --voice deepgram/aura-2-thalia-en --patience high",
     "<%= config.bin %> <%= command.id %> <ref> --agent agent.yaml",
     "<%= config.bin %> <%= command.id %> <ref> --clear-listeners --listener wss://rec.example.com/ws,inbound",
     "<%= config.bin %> <%= command.id %> <ref> --noise-cancelling aicoustics",

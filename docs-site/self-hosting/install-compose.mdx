@@ -200,12 +200,12 @@ dashboard under **Vendor keys**.
 The release's config files hold a placeholder platform key for each vendor, such as
 `YOUR_DEEPGRAM_API_KEY`. Replace the placeholder with your key:
 
-| Vendor            | File                     | Setting                                    |
-| ----------------- | ------------------------ | ------------------------------------------ |
-| Deepgram          | `config/appbridge.yaml`  | `providers.deepgram.credential.value`      |
-| ElevenLabs        | `config/appbridge.yaml`  | `providers.elevenlabs.credential.value`    |
-| OpenAI            | `config/autopilot.yaml`  | `credentials.openai.value`                 |
-| Groq              | `config/autopilot.yaml`  | `credentials.groq.value`                   |
+| Vendor                                                                       | File                    | Setting                                 |
+| ---------------------------------------------------------------------------- | ----------------------- | --------------------------------------- |
+| Deepgram                                                                     | `config/appbridge.yaml` | `providers.deepgram.credential.value`   |
+| ElevenLabs (add it to the [catalog](/self-hosting/provider-catalog) first)  | `config/appbridge.yaml` | `providers.elevenlabs.credential.value` |
+| OpenAI                                                                       | `config/autopilot.yaml` | `credentials.openai.value`              |
+| Groq (add it to the [catalog](/self-hosting/provider-catalog) first)        | `config/autopilot.yaml` | `credentials.groq.value`                |
 
 For example, this line in `config/appbridge.yaml` sets the Deepgram key:
 
