@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/billing",
-  "version": "0.44.0",
+  "version": "0.45.0",
   "description": "Billing for Fonoster Cloud: rate cards, the credit ledger, admission and Stripe (off by default)",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -23,10 +23,10 @@
     "fonoster-billing-admin": "dist/adminCli.js"
   },
   "dependencies": {
-    "@fonoster/authz": "^0.44.0",
-    "@fonoster/common": "^0.44.0",
-    "@fonoster/identity": "^0.44.0",
-    "@fonoster/logger": "^0.44.0",
+    "@fonoster/authz": "^0.45.0",
+    "@fonoster/common": "^0.45.0",
+    "@fonoster/identity": "^0.45.0",
+    "@fonoster/logger": "^0.45.0",
     "@grpc/grpc-js": "~1.14.6",
     "@prisma/client": "^6.19.1",
     "grpc-health-check": "^2.0.2",
@@ -49,6 +49,6 @@
     "url": "https://github.com/fonoster/fonoster/issues"
   },
   "devDependencies": {
-    "@fonoster/stripe-fake": "^0.44.0"
+    "@fonoster/stripe-fake": "^0.45.0"
   }
 }
