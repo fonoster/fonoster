@@ -5,7 +5,9 @@
 set -u
 id="$1"
 out="$2"
-sh mods/conformance/test/appbridge/rebuild.sh || exit 1
+# Most suites run AppBridge from source; a fault that fails type checking (APB-012) must still run
+# them, so a failed rebuild leaves only the built-process suite (signals) on the previous build.
+sh mods/conformance/test/appbridge/rebuild.sh || echo "rebuild of @fonoster/appbridge failed; dist/ is stale" >&2
 npx mocha --timeout 60000 --exit --grep "\[$id\]" \
   --reporter xunit --reporter-option "output=$out/appbridge.xml" \
   mods/appbridge/test/conformance.test.ts \
