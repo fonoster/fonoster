@@ -4,6 +4,9 @@
 //
 //   node mods/conformance/catalog/prove.cjs --area API [--case API-003,API-007] [--out reports/junit/proofs-API.xml]
 //
+// --shard k/N proves every N-th selected case starting at the k-th (1-based, in the area document's
+// order, waived cases counted), so CI can split an area's proofs across jobs.
+//
 // The area's frontmatter names the command that runs one case and writes JUnit:
 //   prove: npx mocha --config mods/conformance/api/.mocharc.cjs --grep "\[{id}\]" --reporter xunit --reporter-option output={junit}
 // {id} is the case id, {junit} a file and {junitDir} an empty directory this script reads back (every
@@ -29,8 +32,13 @@ const area = loadAreas().find((a) => a.prefix === prefix);
 if (!area) { console.error(`no area with prefix ${prefix} (--area)`); process.exit(2); }
 if (!area.prove) { console.error(`${area.file} has no prove: command`); process.exit(2); }
 const out = args.out || path.join("reports", "junit", `proofs-${prefix}.xml`);
-const cases = area.tests.filter((t) => !only || only.has(t.id));
+let cases = area.tests.filter((t) => !only || only.has(t.id));
 if (only) for (const id of only) if (!cases.some((t) => t.id === id)) { console.error(`${id} is not a ${prefix} case`); process.exit(2); }
+if (args.shard !== undefined) {
+  const [, k, n] = (/^(\d+)\/(\d+)$/.exec(args.shard) || []).map(Number);
+  if (!k || !n || k > n) { console.error("--shard must be k/N with 1 <= k <= N"); process.exit(2); }
+  cases = cases.filter((_, i) => i % n === k - 1);
+}
 
 const git = (...a) => execFileSync("git", a, { cwd: repoRoot, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");

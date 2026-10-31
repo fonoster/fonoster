@@ -132,8 +132,14 @@ for img in billing stripe-fake; do
 done
 
 if $SUDO test -f "$LIVE/compose.yaml"; then
-  compose down -v --remove-orphans >/dev/null 2>&1 || true
+  compose down -v --remove-orphans --timeout 0 >/dev/null 2>&1 || true
 fi
+# compose down fails when the last run left files it can't load (a proof's fault in the switch);
+# its containers and volumes would then outlive $LIVE and answer the next install's checks.
+left="$($SUDO docker ps -aq --filter label=com.docker.compose.project=fonoster)"
+[ -z "$left" ] || $SUDO docker rm -f -v $left >/dev/null
+left="$($SUDO docker volume ls -q --filter label=com.docker.compose.project=fonoster)"
+[ -z "$left" ] || $SUDO docker volume rm -f $left >/dev/null
 $SUDO rm -rf "$LIVE" "$STATE"
 
 (cd "$ANSIBLE" && ansible-lint) || die "ansible-lint failed"
@@ -296,7 +302,8 @@ if [ "$ROLLBACK" = 1 ]; then
 
   # <b> switches, then its smoke test fails (nothing answers on port 1).
   since="$(date -u +%Y%m%dT%H%M%SZ)"
-  if play "$B" "$WORK/apply-b-bad.log" -e fonoster_public_url=https://127.0.0.1:1; then
+  # Two smoke tries, not 30: this apply is meant to fail, and each try waits 10 s.
+  if play "$B" "$WORK/apply-b-bad.log" -e fonoster_public_url=https://127.0.0.1:1 -e fonoster_smoke_retries=2; then
     record OPS-006 "apply $B with a failing smoke test fails" fail "the play passed"
   else
     record OPS-006 "apply $B with a failing smoke test fails" ok

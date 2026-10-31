@@ -10,7 +10,7 @@ attached to the release, where the gate decides.
 | `lib.cjs` | Parser shared by the two scripts |
 | `build.cjs` | Checks the area documents and prints where each area stands |
 | `report.cjs` | Builds the release report from JUnit results; exits 1 when the gate fails |
-| `prove.cjs` | Applies each case's fault patch, runs the case, expects red, reverts; writes proof records |
+| `prove.cjs` | Applies each case's fault patch, runs the case, expects red, reverts; writes proof records. `--shard k/N` proves every N-th case from the k-th, for splitting an area across CI jobs |
 | `faults/<ID>.patch` | The seeded fault of a case, applied by `prove.cjs` |
 | `ids.lock.json` | Every case id with its name; ids are never reused or deleted |
 | `retired.json` | Retired areas by prefix, with why; their ids stay in the lock and are never reused |
