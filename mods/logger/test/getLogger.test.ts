@@ -18,12 +18,35 @@
  */
 import { expect } from "chai";
 import { createSandbox } from "sinon";
+import winston from "winston";
+import { configureLogger } from "../src";
+import { getSettings } from "../src/envs";
 import { getLogger } from "../src/getLogger";
 
+const MESSAGE = Symbol.for("message");
 const sandbox = createSandbox();
 
+/** A transport that keeps every rendered line instead of writing it. */
+class CaptureTransport extends winston.Transport {
+  lines: string[] = [];
+
+  log(info: Record<string | symbol, unknown>, next: () => void) {
+    this.lines.push(info[MESSAGE] as string);
+    next();
+  }
+}
+
 describe("@fonoster/logger/getLogger", function () {
+  // The root test run silences logs with LOGS_LEVEL=none; restore whatever
+  // was in effect so later test files stay quiet.
+  let initialLevel: string;
+
+  before(function () {
+    initialLevel = getSettings().level;
+  });
+
   afterEach(function () {
+    configureLogger({ level: initialLevel, transport: "console" });
     return sandbox.restore();
   });
 
@@ -34,9 +57,67 @@ describe("@fonoster/logger/getLogger", function () {
       service: "timestamp-test",
       filePath: __filename
     });
+    logger.level = "info";
 
     const info = logger.format.transform({ level: "info", message: "hello" });
 
     expect(info.timestamp).to.equal("2026-07-22 00:32:59.123");
+  });
+
+  it("doesn't format a call below the level", function () {
+    // Arrange
+    configureLogger({ level: "info" });
+    const logger = getLogger({ service: "gate-test", filePath: __filename });
+    let calls = 0;
+    const payload = {
+      toJSON() {
+        calls++;
+        return {};
+      }
+    };
+
+    // Act
+    logger.verbose("dropped", { payload });
+
+    // Assert
+    expect(calls).to.equal(0);
+  });
+
+  it("renders a kept call the same as before, redacted", function () {
+    // Arrange
+    sandbox.useFakeTimers(new Date(2026, 6, 22, 0, 32, 59, 123));
+    configureLogger({ level: "info" });
+    const logger = getLogger({ service: "kept-test", filePath: __filename });
+    const capture = new CaptureTransport();
+    // Only the capture: keep test output quiet.
+    logger.clear();
+    logger.add(capture);
+
+    // Act
+    logger.info("kept", { password: "x", a: 1 });
+
+    // Assert
+    expect(capture.lines).to.deep.equal([
+      '2026-07-22 00:32:59.123 [info]: (kept-test) kept {"password":"[redacted]","a":1}'
+    ]);
+  });
+
+  it("follows a level change made by configureLogger", function () {
+    // Arrange
+    configureLogger({ level: "info" });
+    const logger = getLogger({ service: "level-test", filePath: __filename });
+
+    // Act
+    configureLogger({ level: "verbose" });
+    const capture = new CaptureTransport();
+    // Only the capture: keep test output quiet.
+    logger.clear();
+    logger.add(capture);
+    logger.verbose("now kept");
+    logger.silly("still dropped");
+
+    // Assert
+    expect(capture.lines).to.have.length(1);
+    expect(capture.lines[0]).to.contain("now kept");
   });
 });

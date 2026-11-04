@@ -19,6 +19,7 @@
 import fluentLogger from "fluent-logger";
 import winston from "winston";
 import { getEnv } from "./getEnv";
+import { levelGate } from "./levelGate";
 import { redactFormat } from "./redact";
 
 const FluentTransport = fluentLogger.support.winstonTransport();
@@ -67,14 +68,16 @@ function buildTransports() {
 
 buildTransports();
 
-function buildFormat() {
+function buildFormat(logger: winston.Logger) {
   return settings.format === "json"
     ? winston.format.combine(
+        levelGate(logger),
         redactFormat(),
         winston.format.timestamp(),
         winston.format.json()
       )
     : winston.format.combine(
+        levelGate(logger),
         redactFormat(),
         winston.format.colorize(),
         winston.format.simple()

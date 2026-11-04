@@ -18,6 +18,7 @@
  */
 import winston from "winston";
 import { endFluent, getSettings, getTransports } from "./envs";
+import { levelGate } from "./levelGate";
 import { redactFormat } from "./redact";
 import { register } from "./registry";
 
@@ -30,7 +31,17 @@ function getLogger(config: { service?: string; filePath: string }) {
     return loggers.get(key);
   }
 
-  const humanFormat = winston.format.combine(
+  const newLogger = register(
+    winston.createLogger({
+      levels: winston.config.npm.levels,
+      transports: getTransports(),
+      level: getSettings().level
+    })
+  );
+
+  // Set after creation: the format gates on the logger it belongs to.
+  newLogger.format = winston.format.combine(
+    levelGate(newLogger),
     redactFormat(),
     winston.format.timestamp({
       format: "YYYY-MM-DD HH:mm:ss.SSS"
@@ -41,15 +52,6 @@ function getLogger(config: { service?: string; filePath: string }) {
           config.service ? `(${config.service})` : ""
         } ${message} ${JSON.stringify(metadata)}`
     )
-  );
-
-  const newLogger = register(
-    winston.createLogger({
-      levels: winston.config.npm.levels,
-      format: humanFormat,
-      transports: getTransports(),
-      level: getSettings().level
-    })
   );
 
   newLogger.on("finish", endFluent);
