@@ -74,6 +74,9 @@
                   "ref": "ui:S4FXr",
                   "name": "Logo (Stripe: logo PNG)",
                   "descendants": {
+                    "ui:D1zqa": {
+                      "fill": "#008751"
+                    },
                     "ui:k1whzb": {
                       "fill": "#008751"
                     },
