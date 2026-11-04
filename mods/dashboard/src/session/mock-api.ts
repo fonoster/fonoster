@@ -415,6 +415,10 @@ export function createMockSessionApi(): SessionApi {
         .filter((c) => !filter.status || c.status === filter.status)
         .filter((c) => !filter.appRef || c.appRef === filter.appRef)
         .filter((c) => !filter.direction || c.direction === filter.direction)
+        .filter(
+          (c) =>
+            !filter.number || c.from === filter.number || c.to === filter.number
+        )
         .map(summary);
       return { items, total: items.length };
     },

@@ -32,6 +32,19 @@ import {
   voiceApp
 } from "./fixtures";
 
+/** Billing reminders' calls, as the records API lists them. */
+const billingCalls = sampleCalls.slice(0, 3).map((c) => ({
+  callRef: c.ref,
+  appRef: billingAgent.ref,
+  from: c.from,
+  to: c.to,
+  direction: c.direction === "TO_PSTN" ? "outbound" : "inbound",
+  status: "completed",
+  startedAt: new Date(c.startedAt).toISOString(),
+  durationSeconds: c.duration,
+  version: 1
+}));
+
 const withAgents =
   (items: object[], catalog: object[] = sampleCatalogItems) =>
   (auth: AuthContextValue) => ({
@@ -52,11 +65,11 @@ const withAgents =
         listNumbers: fn().mockResolvedValue({ items: sampleNumbers })
       },
       providers: { listCatalog: fn().mockResolvedValue({ items: catalog }) },
-      calls: {
-        listCalls: async (request: { to?: string }) => ({
-          items: request.to === "+18295550199" ? sampleCalls.slice(0, 3) : [],
-          nextPageToken: ""
-        })
+      callRecords: {
+        listRecords: async (request: { appRef?: string }) => {
+          const items = request.appRef === billingAgent.ref ? billingCalls : [];
+          return { items, nextPageToken: "", total: items.length };
+        }
       }
     } as never
   });

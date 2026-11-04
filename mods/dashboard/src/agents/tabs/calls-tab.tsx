@@ -19,12 +19,12 @@
 import type { INumber } from "@fonoster/types";
 import { RecentCalls } from "~/calls/recent-calls";
 
-export function CallsTab({ numbers }: { numbers: INumber[] }) {
-  return (
-    <RecentCalls
-      numbers={numbers}
-      label="Calls"
-      noNumbers="No number is routed to this agent, so it hasn't taken any calls. Route one from Numbers."
-    />
-  );
+export function CallsTab({
+  appRef,
+  numbers
+}: {
+  appRef: string;
+  numbers: INumber[];
+}) {
+  return <RecentCalls appRef={appRef} numbers={numbers} label="Calls" />;
 }

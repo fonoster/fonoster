@@ -160,6 +160,8 @@ export type CallFilter = {
   appRef?: string;
   /** inbound, outbound or internal. */
   direction?: string;
+  /** E.164, e.g. "+18295550199": calls with this number as caller or callee. */
+  number?: string;
   pageToken?: string;
 };
 

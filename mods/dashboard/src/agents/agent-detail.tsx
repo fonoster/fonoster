@@ -292,7 +292,10 @@ function AgentEditor({
             element={<ConfigureTab numbers={numbers} />}
           />
           <Route path="tools" element={<ToolsTab />} />
-          <Route path="calls" element={<CallsTab numbers={numbers} />} />
+          <Route
+            path="calls"
+            element={<CallsTab appRef={app.ref} numbers={numbers} />}
+          />
           <Route
             path="advanced"
             element={

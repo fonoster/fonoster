@@ -544,6 +544,7 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
         ...(filter.after ? { after: filter.after } : {}),
         ...(filter.appRef ? { appRef: filter.appRef } : {}),
         ...(filter.direction ? { direction: filter.direction } : {}),
+        ...(filter.number ? { number: filter.number } : {}),
         ...(filter.pageToken ? { pageToken: filter.pageToken } : {})
       });
       return {
