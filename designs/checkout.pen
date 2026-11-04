@@ -92,7 +92,7 @@
                   "type": "text",
                   "id": "ls4Re",
                   "name": "Headline (Stripe: portal headline)",
-                  "content": "Add a card to move to Pay as you go. Your credits pay for calls in every workspace you own.",
+                  "content": "Your credits pay for calls in every workspace you own.",
                   "width": 420,
                   "textGrowth": "fixed-width",
                   "fill": "#FFFFFF",
@@ -529,7 +529,7 @@
       "x": 1500,
       "y": 0,
       "width": 440,
-      "content": "Only Stripe's own branding settings are used; everything else on the page is fixed by Stripe.\n\nBranding (Dashboard > Settings > Branding):\n- Logo: designs/assets/logo-stripe.png (wordmark, \"ter\" in #008751 so it reads on white invoice PDFs and on #181818)\n- Icon: Fonoster \"F\" mark (emails, hosted invoice page)\n- Brand color (portal header/panel): #181818 (Fonoster dark background, ui:background)\n- Accent color (portal buttons): #39E19E\n\nCustomer portal (Settings > Billing > Customer portal):\n- Business name: Fonoster\n- Headline: \"Add a card to move to Pay as you go. Your credits pay for calls in every workspace you own.\"\n- Default redirect link: the dashboard Billing page (shows \"Return to Fonoster\")\n- Terms of service link: fonoster.ai terms\n\nNot possible on the portal: font and corner style (Checkout only; the portal keeps Stripe's default font, shown here as Inter), plan price, feature list, custom copy on the white side, a dark form side. The white form panel, fields and \"Powered by stripe\" footer are Stripe's.\n\nOptional: open the portal straight on this screen with a payment_method_update deep link (flow_data) instead of the portal home."
+      "content": "Only Stripe's own branding settings are used; everything else on the page is fixed by Stripe.\n\nBranding (Dashboard > Settings > Branding):\n- Logo: designs/assets/logo-stripe.png (wordmark, \"ter\" in #008751 so it reads on white invoice PDFs and on #181818)\n- Icon: Fonoster \"F\" mark (emails, hosted invoice page)\n- Brand color (portal header/panel): #181818 (Fonoster dark background, ui:background)\n- Accent color (portal buttons): #39E19E\n\nCustomer portal (Settings > Billing > Customer portal):\n- Business name: Fonoster\n- Portal header (max 60 chars): \"Your credits pay for calls in every workspace you own.\"\n- Redirect link: https://app.fonoster.ai/billing (shows \"Return to Fonoster\")\n- Terms of service link: none yet; needs a terms page on fonoster.com (set in Public business information)\n\nNot possible on the portal: font and corner style (Checkout only; the portal keeps Stripe's default font, shown here as Inter), plan price, feature list, custom copy on the white side, a dark form side. The white form panel, fields and \"Powered by stripe\" footer are Stripe's.\n\nOptional: open the portal straight on this screen with a payment_method_update deep link (flow_data) instead of the portal home."
     },
     {
       "type": "frame",
