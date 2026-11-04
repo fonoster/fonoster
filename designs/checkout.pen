@@ -1,0 +1,590 @@
+{
+  "version": "2.21",
+  "imports": {
+    "ui": "fonoster.lib.pen"
+  },
+  "children": [
+    {
+      "type": "frame",
+      "id": "AU0bD",
+      "name": "Stripe portal / Add payment method / Fonoster brand",
+      "x": 0,
+      "y": 0,
+      "width": 1440,
+      "height": 960,
+      "clip": true,
+      "fill": "#FFFFFF",
+      "layout": "horizontal",
+      "children": [
+        {
+          "type": "frame",
+          "id": "B4tgI",
+          "name": "Business panel (Stripe: background color, logo, headline)",
+          "theme": {
+            "ui:mode": "dark"
+          },
+          "width": 600,
+          "height": "fill_container",
+          "fill": "$ui:background",
+          "layout": "vertical",
+          "justifyContent": "space_between",
+          "padding": [
+            56,
+            72
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "pa3Y6",
+              "name": "Top",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 48,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "CW8eB",
+                  "name": "Return link (Stripe: default redirect link)",
+                  "gap": 8,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "icon",
+                      "id": "aWtwE",
+                      "library": "lucide",
+                      "icon": "arrow-left",
+                      "width": 16,
+                      "height": 16,
+                      "fill": "#A3A3A3"
+                    },
+                    {
+                      "type": "text",
+                      "id": "dv5wy",
+                      "content": "Return to Fonoster",
+                      "fill": "#A3A3A3",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "ref",
+                  "id": "bjNDO",
+                  "ref": "ui:S4FXr",
+                  "name": "Logo (Stripe: logo PNG)",
+                  "descendants": {
+                    "ui:D1zqa": {
+                      "fill": "#008751"
+                    },
+                    "ui:k1whzb": {
+                      "fill": "#008751"
+                    },
+                    "ui:wc1RL": {
+                      "fill": "#008751"
+                    },
+                    "ui:l9juIO": {
+                      "fill": "#008751"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "ls4Re",
+                  "name": "Headline (Stripe: portal headline)",
+                  "content": "Your credits pay for calls in every workspace you own.",
+                  "width": 420,
+                  "textGrowth": "fixed-width",
+                  "fill": "#FFFFFF",
+                  "fontFamily": "Inter",
+                  "fontSize": 22,
+                  "fontWeight": "600",
+                  "lineHeight": 1.4
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "3Thrk",
+              "name": "Footer (Stripe fixed)",
+              "gap": 16,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "cshDL",
+                  "content": "Powered by stripe",
+                  "fill": "#737373",
+                  "fontFamily": "Inter",
+                  "fontSize": 12
+                },
+                {
+                  "type": "rectangle",
+                  "id": "qick8",
+                  "width": 1,
+                  "height": 14,
+                  "fill": "#404040"
+                },
+                {
+                  "type": "text",
+                  "id": "fUhdx",
+                  "content": "Terms",
+                  "fill": "#737373",
+                  "fontFamily": "Inter",
+                  "fontSize": 12
+                },
+                {
+                  "type": "text",
+                  "id": "a0CoI",
+                  "content": "Privacy",
+                  "fill": "#737373",
+                  "fontFamily": "Inter",
+                  "fontSize": 12
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "cDhVa",
+          "name": "Portal panel (Stripe fixed: white)",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "padding": [
+            96,
+            120
+          ],
+          "children": [
+            {
+              "type": "frame",
+              "id": "b8bEn",
+              "name": "Form",
+              "width": 480,
+              "layout": "vertical",
+              "gap": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "YpAUW",
+                  "content": "Add payment method",
+                  "fill": "#1A1A1A",
+                  "fontFamily": "Inter",
+                  "fontSize": 24,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "NngTW",
+                  "name": "Field Card number",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Id9X0",
+                      "content": "Card number",
+                      "fill": "#404040",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bgjiS",
+                      "name": "Input",
+                      "width": "fill_container",
+                      "height": 46,
+                      "fill": "#FFFFFF",
+                      "cornerRadius": 8,
+                      "stroke": {
+                        "fill": "#39E19E",
+                        "thickness": 2,
+                        "align": "inside"
+                      },
+                      "padding": [
+                        0,
+                        14
+                      ],
+                      "alignItems": "center",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "kZByW",
+                          "content": "1234 1234 1234 1234",
+                          "fill": "#A3A3A3",
+                          "fontFamily": "Inter",
+                          "fontSize": 15
+                        },
+                        {
+                          "type": "icon",
+                          "id": "QChbt",
+                          "library": "lucide",
+                          "icon": "credit-card",
+                          "width": 18,
+                          "height": 18,
+                          "fill": "#A3A3A3"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "gjBT1",
+                  "name": "Row Expiry CVC",
+                  "width": "fill_container",
+                  "gap": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "UNevd",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "RlIXN",
+                          "content": "Expiration date",
+                          "fill": "#404040",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "8EiA0",
+                          "width": "fill_container",
+                          "height": 46,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "stroke": {
+                            "fill": "#E0E0E0",
+                            "thickness": 1,
+                            "align": "inside"
+                          },
+                          "padding": [
+                            0,
+                            14
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "YMJbg",
+                              "content": "MM / YY",
+                              "fill": "#A3A3A3",
+                              "fontFamily": "Inter",
+                              "fontSize": 15
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "SBg0i",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "s0Ygf",
+                          "content": "Security code",
+                          "fill": "#404040",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "S0Bih",
+                          "width": "fill_container",
+                          "height": 46,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "stroke": {
+                            "fill": "#E0E0E0",
+                            "thickness": 1,
+                            "align": "inside"
+                          },
+                          "padding": [
+                            0,
+                            14
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "YUPfT",
+                              "content": "CVC",
+                              "fill": "#A3A3A3",
+                              "fontFamily": "Inter",
+                              "fontSize": 15
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Jn9ue",
+                  "name": "Row Country ZIP",
+                  "width": "fill_container",
+                  "gap": 16,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "dHwSm",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "bPopk",
+                          "content": "Country",
+                          "fill": "#404040",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Hoqdr",
+                          "width": "fill_container",
+                          "height": 46,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "stroke": {
+                            "fill": "#E0E0E0",
+                            "thickness": 1,
+                            "align": "inside"
+                          },
+                          "padding": [
+                            0,
+                            14
+                          ],
+                          "alignItems": "center",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "UI0BK",
+                              "content": "United States",
+                              "fill": "#1A1A1A",
+                              "fontFamily": "Inter",
+                              "fontSize": 15
+                            },
+                            {
+                              "type": "icon",
+                              "id": "TbhOY",
+                              "library": "lucide",
+                              "icon": "chevron-down",
+                              "width": 16,
+                              "height": 16,
+                              "fill": "#737373"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "b5lgs",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 8,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "buqin",
+                          "content": "ZIP",
+                          "fill": "#404040",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "6hoDd",
+                          "width": "fill_container",
+                          "height": 46,
+                          "fill": "#FFFFFF",
+                          "cornerRadius": 8,
+                          "stroke": {
+                            "fill": "#E0E0E0",
+                            "thickness": 1,
+                            "align": "inside"
+                          },
+                          "padding": [
+                            0,
+                            14
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "75jSh",
+                              "content": "12345",
+                              "fill": "#A3A3A3",
+                              "fontFamily": "Inter",
+                              "fontSize": 15
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "h9uZk",
+                  "name": "Default checkbox",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "L2Dnk",
+                      "width": 18,
+                      "height": 18,
+                      "cornerRadius": 4,
+                      "fill": "#39E19E",
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "icon",
+                          "id": "dtAXz",
+                          "library": "lucide",
+                          "icon": "check",
+                          "width": 12,
+                          "height": 12,
+                          "fill": "#011900"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "ioUr2",
+                      "content": "Use as default payment method",
+                      "fill": "#404040",
+                      "fontFamily": "Inter",
+                      "fontSize": 14
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "yELwf",
+                  "name": "Add button (Stripe: button color, rounded)",
+                  "width": "fill_container",
+                  "height": 48,
+                  "fill": "#39E19E",
+                  "cornerRadius": 8,
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "kjmvO",
+                      "content": "Add",
+                      "fill": "#011900",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "sUYBb",
+                  "content": "Cancel",
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "textAlign": "center",
+                  "fill": "#737373",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "note",
+      "id": "HKOVS",
+      "name": "Stripe settings for this design",
+      "x": 1500,
+      "y": 0,
+      "width": 440,
+      "content": "Only Stripe's own branding settings are used; everything else on the page is fixed by Stripe.\n\nBranding (Dashboard > Settings > Branding):\n- Logo: designs/assets/logo-stripe.png (wordmark, \"ter\" in #008751 so it reads on white invoice PDFs and on #181818)\n- Icon: Fonoster \"F\" mark (emails, hosted invoice page)\n- Brand color (portal header/panel): #181818 (Fonoster dark background, ui:background)\n- Accent color (portal buttons): #39E19E\n\nCustomer portal (Settings > Billing > Customer portal):\n- Business name: Fonoster\n- Portal header (max 60 chars): \"Your credits pay for calls in every workspace you own.\"\n- Redirect link: https://app.fonoster.ai/billing (shows \"Return to Fonoster\")\n- Terms of service link: none yet; needs a terms page on fonoster.com (set in Public business information)\n\nNot possible on the portal: font and corner style (Checkout only; the portal keeps Stripe's default font, shown here as Inter), plan price, feature list, custom copy on the white side, a dark form side. The white form panel, fields and \"Powered by stripe\" footer are Stripe's.\n\nOptional: open the portal straight on this screen with a payment_method_update deep link (flow_data) instead of the portal home."
+    },
+    {
+      "type": "frame",
+      "name": "Stripe logo / on white and dark",
+      "x": 0,
+      "y": 1040,
+      "layout": "horizontal",
+      "gap": 0,
+      "children": [
+        {
+          "type": "frame",
+          "width": 480,
+          "height": 200,
+          "fill": "#FFFFFF",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "rectangle",
+              "width": 320,
+              "height": 82.5,
+              "fill": {
+                "type": "image",
+                "url": "assets/logo-stripe.png",
+                "mode": "contain"
+              },
+              "id": "PabWni"
+            }
+          ],
+          "id": "dexEzJ"
+        },
+        {
+          "type": "frame",
+          "width": 480,
+          "height": 200,
+          "fill": "#181818",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "rectangle",
+              "width": 320,
+              "height": 82.5,
+              "fill": {
+                "type": "image",
+                "url": "assets/logo-stripe.png",
+                "mode": "contain"
+              },
+              "id": "LFizQp"
+            }
+          ],
+          "id": "CDoDTr"
+        }
+      ],
+      "id": "DcrTeA"
+    }
+  ]
+}
