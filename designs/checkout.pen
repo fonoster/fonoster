@@ -62,7 +62,7 @@
                       "id": "dv5wy",
                       "content": "Return to Fonoster",
                       "fill": "#A3A3A3",
-                      "fontFamily": "Montserrat",
+                      "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "500"
                     }
@@ -72,7 +72,18 @@
                   "type": "ref",
                   "id": "bjNDO",
                   "ref": "ui:S4FXr",
-                  "name": "Logo (Stripe: logo PNG)"
+                  "name": "Logo (Stripe: logo PNG)",
+                  "descendants": {
+                    "ui:k1whzb": {
+                      "fill": "#008751"
+                    },
+                    "ui:wc1RL": {
+                      "fill": "#008751"
+                    },
+                    "ui:l9juIO": {
+                      "fill": "#008751"
+                    }
+                  }
                 },
                 {
                   "type": "text",
@@ -82,7 +93,7 @@
                   "width": 420,
                   "textGrowth": "fixed-width",
                   "fill": "#FFFFFF",
-                  "fontFamily": "Montserrat",
+                  "fontFamily": "Inter",
                   "fontSize": 22,
                   "fontWeight": "600",
                   "lineHeight": 1.4
@@ -101,7 +112,7 @@
                   "id": "cshDL",
                   "content": "Powered by stripe",
                   "fill": "#737373",
-                  "fontFamily": "Montserrat",
+                  "fontFamily": "Inter",
                   "fontSize": 12
                 },
                 {
@@ -116,7 +127,7 @@
                   "id": "fUhdx",
                   "content": "Terms",
                   "fill": "#737373",
-                  "fontFamily": "Montserrat",
+                  "fontFamily": "Inter",
                   "fontSize": 12
                 },
                 {
@@ -124,7 +135,7 @@
                   "id": "a0CoI",
                   "content": "Privacy",
                   "fill": "#737373",
-                  "fontFamily": "Montserrat",
+                  "fontFamily": "Inter",
                   "fontSize": 12
                 }
               ]
@@ -156,7 +167,7 @@
                   "id": "YpAUW",
                   "content": "Add payment method",
                   "fill": "#1A1A1A",
-                  "fontFamily": "Montserrat",
+                  "fontFamily": "Inter",
                   "fontSize": 24,
                   "fontWeight": "600"
                 },
@@ -173,7 +184,7 @@
                       "id": "Id9X0",
                       "content": "Card number",
                       "fill": "#404040",
-                      "fontFamily": "Montserrat",
+                      "fontFamily": "Inter",
                       "fontSize": 13,
                       "fontWeight": "500"
                     },
@@ -202,7 +213,7 @@
                           "id": "kZByW",
                           "content": "1234 1234 1234 1234",
                           "fill": "#A3A3A3",
-                          "fontFamily": "Montserrat",
+                          "fontFamily": "Inter",
                           "fontSize": 15
                         },
                         {
@@ -237,7 +248,7 @@
                           "id": "RlIXN",
                           "content": "Expiration date",
                           "fill": "#404040",
-                          "fontFamily": "Montserrat",
+                          "fontFamily": "Inter",
                           "fontSize": 13,
                           "fontWeight": "500"
                         },
@@ -264,7 +275,7 @@
                               "id": "YMJbg",
                               "content": "MM / YY",
                               "fill": "#A3A3A3",
-                              "fontFamily": "Montserrat",
+                              "fontFamily": "Inter",
                               "fontSize": 15
                             }
                           ]
@@ -283,7 +294,7 @@
                           "id": "s0Ygf",
                           "content": "Security code",
                           "fill": "#404040",
-                          "fontFamily": "Montserrat",
+                          "fontFamily": "Inter",
                           "fontSize": 13,
                           "fontWeight": "500"
                         },
@@ -310,7 +321,7 @@
                               "id": "YUPfT",
                               "content": "CVC",
                               "fill": "#A3A3A3",
-                              "fontFamily": "Montserrat",
+                              "fontFamily": "Inter",
                               "fontSize": 15
                             }
                           ]
@@ -338,7 +349,7 @@
                           "id": "bPopk",
                           "content": "Country",
                           "fill": "#404040",
-                          "fontFamily": "Montserrat",
+                          "fontFamily": "Inter",
                           "fontSize": 13,
                           "fontWeight": "500"
                         },
@@ -366,7 +377,7 @@
                               "id": "UI0BK",
                               "content": "United States",
                               "fill": "#1A1A1A",
-                              "fontFamily": "Montserrat",
+                              "fontFamily": "Inter",
                               "fontSize": 15
                             },
                             {
@@ -394,7 +405,7 @@
                           "id": "buqin",
                           "content": "ZIP",
                           "fill": "#404040",
-                          "fontFamily": "Montserrat",
+                          "fontFamily": "Inter",
                           "fontSize": 13,
                           "fontWeight": "500"
                         },
@@ -421,7 +432,7 @@
                               "id": "75jSh",
                               "content": "12345",
                               "fill": "#A3A3A3",
-                              "fontFamily": "Montserrat",
+                              "fontFamily": "Inter",
                               "fontSize": 15
                             }
                           ]
@@ -463,7 +474,7 @@
                       "id": "ioUr2",
                       "content": "Use as default payment method",
                       "fill": "#404040",
-                      "fontFamily": "Montserrat",
+                      "fontFamily": "Inter",
                       "fontSize": 14
                     }
                   ]
@@ -484,7 +495,7 @@
                       "id": "kjmvO",
                       "content": "Add",
                       "fill": "#011900",
-                      "fontFamily": "Montserrat",
+                      "fontFamily": "Inter",
                       "fontSize": 15,
                       "fontWeight": "600"
                     }
@@ -498,7 +509,7 @@
                   "textGrowth": "fixed-width",
                   "textAlign": "center",
                   "fill": "#737373",
-                  "fontFamily": "Montserrat",
+                  "fontFamily": "Inter",
                   "fontSize": 14,
                   "fontWeight": "500"
                 }
@@ -515,7 +526,62 @@
       "x": 1500,
       "y": 0,
       "width": 440,
-      "content": "Only Stripe's own branding settings are used; everything else on the page is fixed by Stripe.\n\nBranding (Dashboard > Settings > Branding):\n- Logo: Fonoster wordmark PNG (light text, for the dark panel); Icon: Fonoster mark PNG (min 128x128, < 512 KB)\n- Brand / background color: #181818 (Fonoster dark background, ui:background)\n- Button color: #39E19E\n- Font: Montserrat (Poppins is not offered; Montserrat is the closest geometric sans)\n- Shapes: rounded\n\nCustomer portal (Settings > Billing > Customer portal):\n- Business name: Fonoster\n- Headline: \"Add a card to move to Pay as you go. Your credits pay for calls in every workspace you own.\"\n- Default redirect link: the dashboard Billing page (shows \"Return to Fonoster\")\n- Terms of service link: fonoster.ai terms\n\nNot possible on the portal: plan price, feature list, custom copy on the white side, a dark form side. The white form panel, fields and \"Powered by stripe\" footer are Stripe's.\n\nOptional: open the portal straight on this screen with a payment_method_update deep link (flow_data) instead of the portal home."
+      "content": "Only Stripe's own branding settings are used; everything else on the page is fixed by Stripe.\n\nBranding (Dashboard > Settings > Branding):\n- Logo: designs/assets/logo-stripe.png (wordmark, \"ter\" in #008751 so it reads on white invoice PDFs and on #181818)\n- Icon: Fonoster \"F\" mark (emails, hosted invoice page)\n- Brand color (portal header/panel): #181818 (Fonoster dark background, ui:background)\n- Accent color (portal buttons): #39E19E\n\nCustomer portal (Settings > Billing > Customer portal):\n- Business name: Fonoster\n- Headline: \"Add a card to move to Pay as you go. Your credits pay for calls in every workspace you own.\"\n- Default redirect link: the dashboard Billing page (shows \"Return to Fonoster\")\n- Terms of service link: fonoster.ai terms\n\nNot possible on the portal: font and corner style (Checkout only; the portal keeps Stripe's default font, shown here as Inter), plan price, feature list, custom copy on the white side, a dark form side. The white form panel, fields and \"Powered by stripe\" footer are Stripe's.\n\nOptional: open the portal straight on this screen with a payment_method_update deep link (flow_data) instead of the portal home."
+    },
+    {
+      "type": "frame",
+      "name": "Stripe logo / on white and dark",
+      "x": 0,
+      "y": 1040,
+      "layout": "horizontal",
+      "gap": 0,
+      "children": [
+        {
+          "type": "frame",
+          "width": 480,
+          "height": 200,
+          "fill": "#FFFFFF",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "rectangle",
+              "width": 320,
+              "height": 82.5,
+              "fill": {
+                "type": "image",
+                "url": "assets/logo-stripe.png",
+                "mode": "contain"
+              },
+              "id": "PabWni"
+            }
+          ],
+          "id": "dexEzJ"
+        },
+        {
+          "type": "frame",
+          "width": 480,
+          "height": 200,
+          "fill": "#181818",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "rectangle",
+              "width": 320,
+              "height": 82.5,
+              "fill": {
+                "type": "image",
+                "url": "assets/logo-stripe.png",
+                "mode": "contain"
+              },
+              "id": "LFizQp"
+            }
+          ],
+          "id": "CDoDTr"
+        }
+      ],
+      "id": "DcrTeA"
     }
   ]
 }
