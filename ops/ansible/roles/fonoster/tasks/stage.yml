@@ -144,6 +144,80 @@
   changed_when: false
   check_mode: false
 
+# Files the release doesn't ship (fonoster_files), then lines next to an anchor line of a release
+# file (fonoster_inserts), both before the overrides, so an override merges over the result. Their
+# contents can hold a secret, so they are never printed; the paths and anchors are not secret.
+- name: Release paths of fonoster_files
+  ansible.builtin.stat:
+    path: "{{ fonoster_stage }}/{{ item }}"
+    get_checksum: false
+  loop: "{{ fonoster_files.keys() | list }}"
+  register: fonoster_files_stat
+  check_mode: false
+
+- name: The release ships none of fonoster_files
+  ansible.builtin.assert:
+    that: fonoster_shipped | length == 0
+    fail_msg: >-
+      fonoster_files: this release ships {{ fonoster_shipped | join(', ') }}; add lines with
+      fonoster_inserts or keys with fonoster_overrides instead of replacing it. Nothing was changed.
+    quiet: true
+  vars:
+    fonoster_shipped: "{{ fonoster_files_stat.results | selectattr('stat.exists') | map(attribute='item') | list }}"
+
+- name: Folders of fonoster_files
+  ansible.builtin.file:
+    path: "{{ fonoster_stage }}/{{ item }}"
+    state: directory
+    mode: "0755"
+  loop: "{{ fonoster_files.keys() | map('dirname') | select | unique | list }}"
+  changed_when: false
+  check_mode: false
+
+- name: Files (fonoster_files)
+  ansible.builtin.copy:
+    content: "{{ item.value.rstrip('\n') ~ '\n' }}"
+    dest: "{{ fonoster_stage }}/{{ item.key }}"
+    mode: "0644"
+  loop: "{{ fonoster_files | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"
+  no_log: true
+  diff: false
+  changed_when: false
+  check_mode: false
+
+- name: Release files with inserts
+  ansible.builtin.slurp:
+    src: "{{ fonoster_stage }}/{{ item }}"
+  loop: "{{ fonoster_inserts.keys() | list }}"
+  register: fonoster_insert_sources
+  # A file the release lacks is reported below.
+  failed_when: false
+  no_log: true
+  check_mode: false
+
+- name: Each anchor of fonoster_inserts matches one line
+  ansible.builtin.assert:
+    that: fonoster_insert_problems | length == 0
+    fail_msg: "{{ fonoster_insert_problems | join(' ') }}"
+    quiet: true
+  vars:
+    fonoster_insert_problems: "{{ fonoster_insert_sources.results | fonoster_insert_errors(fonoster_inserts) }}"
+
+- name: Lines (fonoster_inserts)
+  ansible.builtin.copy:
+    content: "{{ item.content | b64decode | fonoster_insert(fonoster_inserts[item.item]) }}"
+    dest: "{{ fonoster_stage }}/{{ item.item }}"
+    mode: "0644"
+  loop: "{{ fonoster_insert_sources.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  no_log: true
+  diff: false
+  changed_when: false
+  check_mode: false
+
 # Each override deep-merged over the release's config/<file> (objects merge, other values
 # replace, null deletes a key). The merged file can hold a secret (a database URL), so it is never
 # printed.

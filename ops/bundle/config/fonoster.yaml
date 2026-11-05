@@ -16,7 +16,6 @@ encryption: { key: "${ENCRYPTION_KEY}" }
 authz: { enabled: false }
 features:
   auth: { methods: [password], signup: invite }
-  billing: { enabled: false }
   costs: { display: usage }
   # SIP names: "domain" puts trunk inbound URIs at <label>.pstn.<domain> and domains at
   # <label>.sip.<domain> (point *.pstn.<domain> and *.sip.<domain> at your SIP address);

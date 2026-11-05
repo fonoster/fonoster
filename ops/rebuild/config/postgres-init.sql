@@ -2,3 +2,4 @@
 -- the Postgres volume is created. The apiserver applies their migrations at start.
 CREATE DATABASE fonoster;
 CREATE DATABASE fnidentity;
+CREATE DATABASE billing;

@@ -35,7 +35,6 @@ services:
       NATS_APPBRIDGE_PASSWORD: ${NATS_APPBRIDGE_PASSWORD:?run ./init.sh}
       NATS_ROOMR_PASSWORD: ${NATS_ROOMR_PASSWORD:?run ./init.sh}
       NATS_ROUTR_PASSWORD: ${NATS_ROUTR_PASSWORD:?run ./init.sh}
-      NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:?run ./init.sh}
     ports:
       - "${NATS_BIND:-127.0.0.1}:${NATS_PORT:-4222}:4222"
     volumes:

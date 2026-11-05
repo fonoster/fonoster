@@ -222,6 +222,7 @@ made. The database MUST NOT be touched.
 - **WHEN** an apply switches to a new version and its smoke test fails
 - **THEN** `rollback.yml` restores the previous install, its smoke test passes and `deploys.log` records `rolled back`
 
+<<<<<<< HEAD
 #### Scenario: The interop watch scans Routr's traces
 - **WHEN** the playbook applies a host with `interop_watch_enabled: true` and Routr writes a finished call's trace
 - **THEN** an hourly timer runs `fonoster-interop scan` as an unprivileged user with no network and the call's far end and case are appended to `/var/lib/fonoster-interop/alerts.jsonl`; with the watch off, no interop file, unit or user exists
@@ -229,3 +230,8 @@ made. The database MUST NOT be touched.
 #### Scenario: Billing behind its overlay
 - **WHEN** the inventory turns on `compose.billing.yaml` with Stripe's keys and wires `fonoster.yaml` and `appbridge.yaml` to billing
 - **THEN** the plan prints no Stripe secret, billing runs healthy, Stripe's webhooks reach it through Envoy, and a call for an owner with no credits is refused
+=======
+#### Scenario: Billing from the inventory
+- **WHEN** the inventory adds billing's files with `fonoster_files` and its NATS user and Envoy route with `fonoster_inserts` (from `ops/cloud/`), with Stripe's keys, and wires `fonoster.yaml` and `appbridge.yaml` to billing
+- **THEN** the plan prints no Stripe secret and no file content or inserted line, billing runs healthy on its own `billing` database, Stripe's webhooks reach it through Envoy, a call for an owner with no credits is refused, and an anchor that matches no line of the release's file fails the plan before the switch, changing nothing
+>>>>>>> origin/main

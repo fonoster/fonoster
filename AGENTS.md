@@ -135,3 +135,4 @@ Every PR links an issue (`Closes #123`; the `linked-issue` check). Required chec
 - 2026-10-28: A CLI command and the SDK method it calls share one camelCase name (`sipnet:numbers:linkTwilio` calls `numbers.linkTwilio()`, RPC `LinkTwilio`).
 - 2026-10-29: Operated hosts are set up and upgraded by the Ansible playbook in `ops/ansible`; Docker Compose is the only official target, the Helm chart is unsupported.
 - 2026-10-29: Until outside self-hosters exist, install and config changes (`init.sh`, the archive, `config/*.yaml`, the region overlay) ship as minor releases, not breaking ones.
+- 2026-11-05: Billing is Fonoster Cloud only: not documented on docs-site and not shipped in the install archive; production gets it from its inventory (`fonoster_files`, `fonoster_inserts`; reference files in `ops/cloud/`). The code stays public.

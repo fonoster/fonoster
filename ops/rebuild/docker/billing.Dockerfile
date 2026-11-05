@@ -1,7 +1,7 @@
 ##
 # The billing service (mods/billing): rating, the credit ledger, admission (Authz) and Stripe.
-# Fonoster Cloud only: released as fonoster/billing (ops/release/images.json) and run by the bundle's
-# opt-in compose.billing.yaml; installs without it don't run it. The rate cards are inside the
+# Fonoster Cloud only: released as fonoster/billing (ops/release/images.json) and run by
+# ops/cloud/compose.billing.yaml, which production's inventory adds; the install archive has none. The rate cards are inside the
 # image, at /work/mods/billing/rate-cards.
 #
 #   docker build -f ops/rebuild/docker/billing.Dockerfile .

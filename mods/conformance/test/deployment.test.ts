@@ -100,6 +100,13 @@ function fakeSecretsDir() {
   return dir;
 }
 
+/** A NATS config's lines without comments or blank lines. */
+const uncommented = (text: string) =>
+  text
+    .split("\n")
+    .filter((l) => l.trim() !== "" && !l.trimStart().startsWith("#"))
+    .join("\n");
+
 describe("@conformance/deployment (Helm chart)", function () {
   this.timeout(60000);
 
@@ -387,10 +394,12 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(on["nats.conf"]).to.contain(
       "{ user: billing, password: $NATS_BILLING_PASSWORD"
     );
-    expect(on["permissions-billing.conf"]).to.equal(
-      fs.readFileSync(
-        path.join(ROOT, "ops/rebuild/config/nats-permissions/billing.conf"),
-        "utf8"
+    expect(uncommented(on["permissions-billing.conf"])).to.equal(
+      uncommented(
+        fs.readFileSync(
+          path.join(ROOT, "ops/cloud/config/nats-permissions/billing.conf"),
+          "utf8"
+        )
       )
     );
   });
@@ -649,9 +658,77 @@ describe("@conformance/deployment (Helm chart)", function () {
     const perms = path.join(ROOT, "ops/rebuild/config/nats-permissions");
     expect(
       fs.readdirSync(path.join(CHART, "files", "nats-permissions"))
-    ).to.deep.equal(fs.readdirSync(perms));
+    ).to.deep.equal([...fs.readdirSync(perms), "billing.conf"].sort());
     fs.readdirSync(perms).forEach((f) =>
       same(`nats-permissions/${f}`, `ops/rebuild/config/nats-permissions/${f}`)
     );
+    // Billing's user is Fonoster Cloud's (ops/cloud, #1273); the chart's comments differ.
+    expect(
+      uncommented(
+        fs.readFileSync(
+          path.join(CHART, "files", "nats-permissions", "billing.conf"),
+          "utf8"
+        )
+      )
+    ).to.equal(
+      uncommented(
+        fs.readFileSync(
+          path.join(ROOT, "ops/cloud/config/nats-permissions/billing.conf"),
+          "utf8"
+        )
+      )
+    );
+  });
+});
+
+// The rebuild stack's billing profile (#1273): billing has its own database, as in the bundle.
+describe("@conformance/deployment (rebuild stack, billing database)", function () {
+  const rebuild = (p: string) =>
+    fs.readFileSync(path.join(ROOT, "ops", "rebuild", p), "utf8");
+
+  it("points billing at its own billing database, created on fresh and existing volumes", function () {
+    const { services } = parseAllDocuments(rebuild("compose.yaml"))[0].toJS();
+    const url = services.billing.environment.BILLING_DATABASE_URL as string;
+    expect(url).to.match(/@postgres:5432\/billing$/);
+    expect(url).not.to.contain("schema=");
+    expect(rebuild("config/postgres-init.sql")).to.match(
+      /^CREATE DATABASE billing;$/m
+    );
+    // An existing volume never reruns postgres-init.sql: a one-shot creates the database first.
+    expect(services["billing-db"].profiles).to.deep.equal(["billing"]);
+    expect(services["billing-db"].command.join(" ")).to.contain(
+      "CREATE DATABASE billing"
+    );
+    expect(services.billing.depends_on["billing-db"]).to.deep.equal({
+      condition: "service_completed_successfully"
+    });
+  });
+
+  it("renders, resets and waits for the billing database, never the fonoster one", function () {
+    const stack = rebuild("stack");
+    expect(stack).not.to.contain("schema=billing");
+    expect(stack).not.to.match(/drop schema if exists billing/i);
+    expect(stack).not.to.contain("billing._prisma_migrations");
+    expect(stack).to.contain('@postgres:5432/billing"');
+    expect(stack).to.match(/^billing_ready\(\) \{.*psql_in billing /m);
+    const resets = stack.match(
+      /psql_in billing "drop schema if exists public cascade; create schema public"/g
+    );
+    expect(resets, "billing-reset and billing-e2e").to.have.length(2);
+  });
+
+  it("takes billing's NATS user from ops/rebuild/config and ops/cloud, never from ops/bundle", function () {
+    const fn = rebuild("stack").match(/^render_billing\(\) \{\n[\s\S]*?^\}$/m);
+    expect(fn, "render_billing").not.to.equal(null);
+    expect(fn![0]).to.contain('cp "$HERE/config/nats.conf" "$CONF/nats.conf"');
+    expect(fn![0]).to.contain(
+      'cp "$ROOT/ops/cloud/config/nats-permissions/billing.conf" "$CONF/nats-permissions/billing.conf"'
+    );
+    expect(fn![0]).not.to.contain("$BUNDLE");
+    expect(
+      fs.existsSync(
+        path.join(ROOT, "ops/rebuild/config/nats-permissions/billing.conf")
+      )
+    ).to.equal(false);
   });
 });
