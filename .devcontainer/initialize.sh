@@ -103,6 +103,36 @@ if [ "$MODE" = "host" ]; then
     || die "could not build .devcontainer/Dockerfile"
 fi
 
+# The dev database volume from before the bundle's Postgres major (16 before #1152, 18 now): the new
+# image refuses the old data and restarts forever. Old volumes hold the data directory itself
+# (PG_VERSION at the top); 18's hold <major>/docker/. Dev data is disposable, so the fix is an empty
+# volume: asked for in a terminal, otherwise the commands are printed. Nothing is deleted without
+# that yes.
+check_postgres_volume() {
+  project="$(sed -n 's/^COMPOSE_PROJECT_NAME=//p' "$DEV/.env" 2>/dev/null | head -n 1)"
+  project="${COMPOSE_PROJECT_NAME:-${project:-fonoster-dev}}"
+  volume="${project}_postgres-data"
+  docker volume inspect "$volume" >/dev/null 2>&1 || return 0
+  want="$(sed -n 's/^ *image: postgres:\([0-9]*\).*/\1/p' "$BUNDLE/compose.yaml" | head -n 1)"
+  have="$(docker run --rm --entrypoint sh -v "$volume:/v:ro" fonoster-dev-workspace -c \
+    'cat /v/PG_VERSION /v/*/docker/PG_VERSION 2>/dev/null | head -n 1' || true)"
+  [ -n "$want" ] && [ -n "$have" ] && [ "$have" -lt "$want" ] || return 0
+  log "WARNING: the dev database ($volume) holds Postgres $have data; the bundle runs Postgres $want,"
+  log "         which refuses it, so Postgres restarts forever. Recreate it empty (dev data is lost):"
+  log "  docker rm -f ${project}-postgres-1; docker volume rm $volume"
+  if [ -t 0 ] && [ -t 2 ]; then
+    printf '[dev-config] recreate %s now? [y/N] ' "$volume" >&2
+    read -r answer || answer=""
+    case "$answer" in
+      y | Y | yes)
+        docker rm -f "${project}-postgres-1" >/dev/null 2>&1 || true
+        docker volume rm "$volume" >/dev/null && log "removed $volume; Compose creates it empty"
+        ;;
+    esac
+  fi
+}
+[ "$MODE" = "host" ] && check_postgres_volume
+
 # An existing .dev/ is kept (npm run dev:config writes it again).
 if [ "$MODE" = "host" ] && [ -f "$DEV/.env" ]; then
   detected="${FONOSTER_DEV_HOST_IP:-$(detect_host_ip)}"
@@ -130,6 +160,9 @@ seed_env() {
       dev["PUBLIC_URL"] = "https://localhost:${HTTPS_PORT}"
       for (k in ENVIRON)
         if (k ~ /^FONOSTER_DEV_/ && k != "FONOSTER_DEV_HOST_IP") dev[substr(k, 14)] = ENVIRON[k]
+      # In this order: a value refers only to names above it (PUBLIC_URL to HTTPS_PORT).
+      n = split("COMPOSE_PROJECT_NAME SUBNET_PREFIX HTTPS_PORT HTTPS_REDIRECT_PORT HTTP_PORT PUBLIC_URL", order, " ")
+      for (i = 1; i <= n; i++) { print order[i] "=" dev[order[i]]; delete dev[order[i]] }
       for (k in dev) print k "=" dev[k]
       print ""
       print "# The dev container: where Compose finds the merged config (absolute, on the host)."
