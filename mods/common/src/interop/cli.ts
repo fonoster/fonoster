@@ -19,7 +19,7 @@
  */
 import * as fs from "fs";
 import { classifyCall } from "./classifyCall";
-import { loadFarEnds } from "./farEnds";
+import { knownFarEnds, loadFarEnds, mergeFarEnds } from "./farEnds";
 import { readCall } from "./readCall";
 import { scan, StateWriteError } from "./scan";
 import { FarEnd } from "./types";
@@ -29,8 +29,8 @@ import { FarEnd } from "./types";
 // case id, never SIP content.
 
 const USAGE = [
-  "usage: fonoster-interop classify <recording.jsonl> --far-ends <far-ends.json>",
-  "       fonoster-interop scan --traces <dir> --far-ends <far-ends.json> --state <dir> [--since 60m]"
+  "usage: fonoster-interop classify <recording.jsonl> [--far-ends <far-ends.json>]",
+  "       fonoster-interop scan --traces <dir> --state <dir> [--far-ends <far-ends.json>] [--since 60m]"
 ].join("\n");
 
 // A window of minutes or hours: 70m, 2h.
@@ -50,22 +50,29 @@ function option(args: string[], name: string): string | undefined {
   return i >= 0 ? args[i + 1] : undefined;
 }
 
-function classify(args: string[], io: Io): number {
-  const file = args[0];
+// The curated list, with --far-ends entries replacing or adding by name; null
+// (after printing why) when the file is bad.
+function farEndsFor(args: string[], io: Io): FarEnd[] | null {
   const farEndsPath = option(args, "--far-ends");
-  if (!file || file.startsWith("--") || !farEndsPath) {
-    io.err(USAGE);
-    return 2;
-  }
-  let farEnds: FarEnd[];
   try {
-    farEnds = loadFarEnds(farEndsPath);
+    const extra = farEndsPath ? loadFarEnds(farEndsPath) : [];
+    return mergeFarEnds(knownFarEnds(), extra);
   } catch (e) {
     io.err(
       `fonoster-interop: bad far ends in ${farEndsPath}: ${(e as Error).message}`
     );
-    return 1;
+    return null;
   }
+}
+
+function classify(args: string[], io: Io): number {
+  const file = args[0];
+  if (!file || file.startsWith("--")) {
+    io.err(USAGE);
+    return 2;
+  }
+  const farEnds = farEndsFor(args, io);
+  if (!farEnds) return 1;
   let match;
   try {
     match = classifyCall(readCall(file), farEnds);
@@ -79,22 +86,14 @@ function classify(args: string[], io: Io): number {
 
 function scanCommand(args: string[], io: Io): number {
   const traces = option(args, "--traces");
-  const farEndsPath = option(args, "--far-ends");
   const state = option(args, "--state");
   const sinceMs = duration(option(args, "--since") ?? "60m");
-  if (!traces || !farEndsPath || !state || !sinceMs) {
+  if (!traces || !state || !sinceMs) {
     io.err(USAGE);
     return 2;
   }
-  let farEnds: FarEnd[];
-  try {
-    farEnds = loadFarEnds(farEndsPath);
-  } catch (e) {
-    io.err(
-      `fonoster-interop: bad far ends in ${farEndsPath}: ${(e as Error).message}`
-    );
-    return 1;
-  }
+  const farEnds = farEndsFor(args, io);
+  if (!farEnds) return 1;
   if (!fs.existsSync(traces) || !fs.statSync(traces).isDirectory()) {
     io.err(`fonoster-interop: cannot read ${traces}`);
     return 1;

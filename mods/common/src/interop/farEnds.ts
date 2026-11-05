@@ -18,6 +18,7 @@
  */
 import * as fs from "fs";
 import { BlockList, isIP } from "net";
+import * as path from "path";
 import { FarEnd } from "./types";
 
 const NAME = /^[a-z0-9-]+$/;
@@ -80,6 +81,22 @@ export function parseFarEnds(input: unknown): FarEnd[] {
       ...(addresses ? { addresses: a as string[] } : {})
     };
   });
+}
+
+/** The curated list of well-known far ends shipped with this package. */
+export function knownFarEnds(): FarEnd[] {
+  return loadFarEnds(path.join(__dirname, "far-ends.known.json"));
+}
+
+/**
+ * The curated list with each extra entry replacing the curated entry of the
+ * same name, or appended when the name is new.
+ */
+export function mergeFarEnds(base: FarEnd[], extra: FarEnd[]): FarEnd[] {
+  const byName = new Map(extra.map((f) => [f.name, f]));
+  const merged = base.map((f) => byName.get(f.name) ?? f);
+  const known = new Set(base.map((f) => f.name));
+  return [...merged, ...extra.filter((f) => !known.has(f.name))];
 }
 
 /** Reads a JSON file of far ends (see parseFarEnds). */

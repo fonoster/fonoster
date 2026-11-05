@@ -1,0 +1,103 @@
+[
+  {
+    "name": "plivo",
+    "label": "Plivo Zentrunk SIP Trunking",
+    "hosts": ["*.zt.plivo.com"],
+    "sources": [
+      "https://plivo.com/docs/sip-trunking/concepts/technical-specifications",
+      "https://docs.plivo.com/docs/sip-trunking/api/trunks"
+    ],
+    "checked": "2026-11-05"
+  },
+  {
+    "name": "signalwire",
+    "label": "SignalWire SIP",
+    "hosts": ["sip.signalwire.com"],
+    "sources": [
+      "https://signalwire.com/docs/platform/allow-signalwire-ips-through-your-firewall"
+    ],
+    "checked": "2026-11-05"
+  },
+  {
+    "name": "telnyx",
+    "label": "Telnyx SIP Trunking",
+    "hosts": [
+      "sip.telnyx.com",
+      "sip.telnyx.eu",
+      "sip.telnyx.com.au",
+      "sip.telnyx.ca",
+      "sip.telnyx.me",
+      "sip.telnyx.asia"
+    ],
+    "addresses": [
+      "192.76.120.10",
+      "64.16.250.10",
+      "185.246.41.140",
+      "185.246.41.141",
+      "103.115.244.145",
+      "103.115.244.146",
+      "192.76.120.31",
+      "64.16.250.13",
+      "185.246.42.128",
+      "185.246.42.129",
+      "103.115.244.158",
+      "103.115.244.159"
+    ],
+    "sources": ["https://sip.telnyx.com/"],
+    "checked": "2026-11-05"
+  },
+  {
+    "name": "twilio",
+    "label": "Twilio Elastic SIP Trunking",
+    "hosts": [
+      "*.pstn.twilio.com",
+      "*.pstn.ashburn.twilio.com",
+      "*.pstn.umatilla.twilio.com",
+      "*.pstn.dublin.twilio.com",
+      "*.pstn.frankfurt.twilio.com",
+      "*.pstn.singapore.twilio.com",
+      "*.pstn.tokyo.twilio.com",
+      "*.pstn.sao-paulo.twilio.com",
+      "*.pstn.sydney.twilio.com"
+    ],
+    "addresses": [
+      "54.172.60.0/30",
+      "54.244.51.0/30",
+      "54.171.127.192/30",
+      "35.156.191.128/30",
+      "54.65.63.192/30",
+      "54.169.127.128/30",
+      "54.252.254.64/30",
+      "177.71.206.192/30"
+    ],
+    "sources": [
+      "https://www.twilio.com/docs/sip-trunking/ip-addresses",
+      "https://www.twilio.com/docs/sip-trunking"
+    ],
+    "checked": "2026-11-05"
+  },
+  {
+    "name": "vonage",
+    "label": "Vonage SIP Trunking",
+    "hosts": [
+      "*.sip-us.vonage.com",
+      "*.sip-eu.vonage.com",
+      "*.sip-ap.vonage.com"
+    ],
+    "sources": [
+      "https://developer.vonage.com/en/sip/sip-dashboard",
+      "https://developer.vonage.com/en/sip/technical-details"
+    ],
+    "checked": "2026-11-05"
+  },
+  {
+    "name": "whatsapp",
+    "label": "WhatsApp Business Calling over SIP (Meta)",
+    "hosts": ["wa.meta.vc", "wa-*"],
+    "sources": [
+      "https://developers.facebook.com/documentation/business-messaging/whatsapp/calling/sip",
+      "https://github.com/fonoster/fonoster/blob/main/mods/sipnet/src/numbers/linkWhatsApp.ts"
+    ],
+    "checked": "2026-11-05"
+  }
+]

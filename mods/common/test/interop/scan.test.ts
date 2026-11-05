@@ -269,9 +269,8 @@ describe("@common/interop scan", function () {
         out
       )
     ).to.equal(1);
-    expect(
-      run(["scan", "--traces", traces, "--far-ends", farEnds], out)
-    ).to.equal(2);
+    expect(run(["scan", "--traces", traces], out)).to.equal(2);
+    expect(run(["scan", "--state", state], out)).to.equal(2);
     expect(
       run(
         [

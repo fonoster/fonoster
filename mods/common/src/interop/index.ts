@@ -21,5 +21,10 @@
 export * from "./types";
 export { CASES, classifyCall, findFailure, hasEnded } from "./classifyCall";
 export { scan } from "./scan";
-export { loadFarEnds, parseFarEnds } from "./farEnds";
+export {
+  knownFarEnds,
+  loadFarEnds,
+  mergeFarEnds,
+  parseFarEnds
+} from "./farEnds";
 export { parseCall, readCall } from "./readCall";

@@ -14,7 +14,7 @@
   "scripts": {
     "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
     "build": "tsc -b tsconfig.json",
-    "postbuild": "cp -a src/protos dist",
+    "postbuild": "cp -a src/protos dist && cp src/interop/far-ends.known.json dist/interop/",
     "generate:session-schema": "tsx scripts/export-session-schema.ts",
     "generate:config-schemas": "tsx scripts/export-config-schemas.ts"
   },
