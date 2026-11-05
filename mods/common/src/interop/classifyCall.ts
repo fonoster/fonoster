@@ -98,6 +98,7 @@ interface Facts {
   byeFromCaller: boolean;
   byeFromCallee: boolean;
   cancelled: boolean;
+  responded: boolean;
   cancelledBySender: boolean;
   finalStatus?: number;
   reInviteWithSdp: boolean;
@@ -165,6 +166,7 @@ function readFacts(records: TraceRecord[], invite: TraceRecord, i0: number) {
     byeFromCaller: byes.some((r) => fromTag(r) === callerTag),
     byeFromCallee: byes.some((r) => fromTag(r) !== callerTag),
     cancelled: cancels.length > 0,
+    responded: after.some((r) => isResponse(r, "INVITE")),
     cancelledBySender: cancels.some((r) => sourceAddress(r) === sender),
     finalStatus: finals.length ? finals[finals.length - 1].status : undefined,
     reInviteWithSdp,
@@ -206,7 +208,7 @@ export const CASES: ReadonlyArray<{
   {
     id: "IOP-005",
     name: "Outbound call cancelled before answer",
-    matches: (f) => outbound(f) && f.cancelled && !f.answered
+    matches: (f) => outbound(f) && f.cancelled && !f.answered && f.responded
   },
   {
     id: "IOP-006",
@@ -316,15 +318,17 @@ export function findFailure(
       IN_DIALOG.includes(r.method)
   );
   const signature =
-    status !== undefined && FAILING_STATUS(status)
-      ? `${status} to INVITE`
-      : status === 408
-        ? "no final response to INVITE"
-        : facts.answered && !facts.acked
-          ? "no ACK for 2xx"
-          : r481
-            ? `481 to ${r481.method}`
-            : undefined;
+    facts.direction === "outbound" && facts.cancelled && !facts.responded
+      ? "no response to INVITE"
+      : status !== undefined && FAILING_STATUS(status)
+        ? `${status} to INVITE`
+        : status === 408
+          ? "no final response to INVITE"
+          : facts.answered && !facts.acked
+            ? "no ACK for 2xx"
+            : r481
+              ? `481 to ${r481.method}`
+              : undefined;
   return signature ? { farEnd: farEnd.name, signature } : null;
 }
 

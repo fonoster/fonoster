@@ -72,7 +72,8 @@ recording modified in the window, skips REGISTER-only files after their first li
 haven't ended yet (they are read again once Routr writes their last message), and reports each far
 end x case the first time it is seen, with the error-severity Routr rule findings its corpus entry
 will need. It also reports failures, calls to a listed far end whose signaling points at the
-interconnect: `<status> to INVITE` (400, 403, 415, 488, 5xx), `no final response to INVITE`
+interconnect: `no response to INVITE` (an outbound INVITE cancelled with no response at all from
+the far end), `<status> to INVITE` (400, 403, 415, 488, 5xx), `no final response to INVITE`
 (408), `no ACK for 2xx`, `481 to <METHOD>`; 404, 480, 484, 486, 487 and 603 are ordinary
 unanswered calls. Evidence alerts once ever, a failure at most once a UTC day. Both go to
 `<state>/alerts.jsonl`; `<state>/state.json` remembers them, and removing it starts over. A REGISTER-only recording, an
@@ -178,7 +179,7 @@ Direction: outbound (DOD). Fixture: `sipjs_wa-dod-invite-cancel_whatsapp_2026102
 2. The caller gives up before the far end answers: a CANCEL follows the INVITE.
 3. No 2xx answers the INVITE. A 487 and the CANCEL's 200 are not required: the far end's may arrive after the recording ends.
 
-**Pass.** The recording classifies as IOP-005: an outbound INVITE, a CANCEL, and no 2xx to the INVITE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-005.
+**Pass.** The recording classifies as IOP-005: an outbound INVITE, at least one response from the far end, a CANCEL, and no 2xx to the INVITE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-005.
 
 ### IOP-006 Inbound call cancelled by the caller
 

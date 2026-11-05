@@ -1,13 +1,13 @@
 diff --git a/mods/common/src/interop/classifyCall.ts b/mods/common/src/interop/classifyCall.ts
-index 1f0a3acbe..1f4f129e8 100644
+index 69f2b6a99..a1f55baf8 100644
 --- a/mods/common/src/interop/classifyCall.ts
 +++ b/mods/common/src/interop/classifyCall.ts
-@@ -206,7 +206,7 @@ export const CASES: ReadonlyArray<{
+@@ -208,7 +208,7 @@ export const CASES: ReadonlyArray<{
    {
      id: "IOP-005",
      name: "Outbound call cancelled before answer",
--    matches: (f) => outbound(f) && f.cancelled && !f.answered
-+    matches: (f) => outbound(f) && f.cancelled
+-    matches: (f) => outbound(f) && f.cancelled && !f.answered && f.responded
++    matches: (f) => outbound(f) && f.cancelled && f.responded
    },
    {
      id: "IOP-006",
