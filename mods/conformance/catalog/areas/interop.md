@@ -88,7 +88,8 @@ in `<state>/state.json`; removing it starts over.
 ## Checking a case yourself
 
 1. Place the call through the far end.
-2. Find its recording, `<UTC time>-<Call-ID>.jsonl`, in the host's `routr_traces_dir`.
+2. Get its recording, `<UTC time>-<Call-ID>.jsonl`: **Download recording** in the widget, or the
+   host's `routr_traces_dir`.
 3. On your machine, run `npx -p @fonoster/common fonoster-interop classify <file>`; it prints the
    far end and the case, or `- -`.
 4. Sanitize it with `rctl trace sanitize` (fonoster/routr `etc/corpus/README.md`) and add it to
@@ -108,6 +109,7 @@ node mods/conformance/catalog/prove.cjs --area IOP     # the proofs, one run per
 
 ## Cases
 
+<a id="iop-001"></a>
 ### IOP-001 Inbound call to a Number answered, caller hangs up
 
 - **Spec:** interop / Each interop case has a signaling signature / Inbound call to a Number answered, caller hangs up
@@ -125,6 +127,7 @@ Direction: inbound (DID). Fixture: `seet-provider_sc-1.3.2-did-invite_agent-1001
 
 **Pass.** The recording classifies as IOP-001: a relayed 2xx to the INVITE, an ACK, a BYE whose From tag is the caller's, and a 2xx to the BYE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-001.
 
+<a id="iop-002"></a>
 ### IOP-002 Inbound call answered, Fonoster hangs up
 
 - **Spec:** interop / Each interop case has a signaling signature / Inbound call answered, Fonoster hangs up
@@ -141,6 +144,7 @@ Direction: inbound (DID). Fixture: `synthetic_did-invite-callee-bye_provider.jso
 
 **Pass.** The recording classifies as IOP-002: a relayed 2xx to the INVITE, an ACK, a BYE whose From tag is the callee's, and a 2xx to the BYE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-002.
 
+<a id="iop-003"></a>
 ### IOP-003 Outbound call from an app answered
 
 - **Spec:** interop / Each interop case has a signaling signature / Outbound call from an app answered
@@ -157,6 +161,7 @@ Direction: outbound (DOD). Fixture: `sipp-peer-asterisk_dod-invite-route-by-alia
 
 **Pass.** The recording classifies as IOP-003: a `peer-to-pstn` INVITE, a relayed 2xx to it, an ACK, a BYE and a 2xx to the BYE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-003.
 
+<a id="iop-004"></a>
 ### IOP-004 SIP agent outbound call answered
 
 - **Spec:** interop / Each interop case has a signaling signature / SIP agent outbound call answered
@@ -173,6 +178,7 @@ Direction: outbound (DOD). Fixture: `sipjs_wa-dod-invite_whatsapp_20261025.jsonl
 
 **Pass.** The recording classifies as IOP-004: an `agent-to-pstn` INVITE, a relayed 2xx to it, an ACK, a BYE and a 2xx to the BYE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-004.
 
+<a id="iop-005"></a>
 ### IOP-005 Outbound call cancelled before answer
 
 - **Spec:** interop / Each interop case has a signaling signature / Outbound call cancelled before answer
@@ -189,6 +195,7 @@ Direction: outbound (DOD). Fixture: `sipjs_wa-dod-invite-cancel_whatsapp_2026102
 
 **Pass.** The recording classifies as IOP-005: an outbound INVITE, at least one response from the far end, a CANCEL, and no 2xx to the INVITE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-005.
 
+<a id="iop-006"></a>
 ### IOP-006 Inbound call cancelled by the caller
 
 - **Spec:** interop / Each interop case has a signaling signature / Inbound call cancelled by the caller
@@ -205,6 +212,7 @@ Direction: inbound (DID). Fixture: `synthetic_did-invite-cancel_provider.jsonl` 
 
 **Pass.** The recording classifies as IOP-006: a `from-pstn` INVITE, a CANCEL from the INVITE's sender, and no 2xx to the INVITE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-006.
 
+<a id="iop-007"></a>
 ### IOP-007 Outbound call busy
 
 - **Spec:** interop / Each interop case has a signaling signature / Outbound call busy
@@ -220,6 +228,7 @@ Direction: outbound (DOD). Fixture: `synthetic_dod-invite-busy_provider.jsonl` (
 
 **Pass.** The recording classifies as IOP-007: an outbound INVITE whose relayed final response is 486. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-007.
 
+<a id="iop-008"></a>
 ### IOP-008 Outbound call declined
 
 - **Spec:** interop / Each interop case has a signaling signature / Outbound call declined
@@ -235,6 +244,7 @@ Direction: outbound (DOD). Fixture: `seet-agent-1001_rr-1.2.1-dod-declined_provi
 
 **Pass.** The recording classifies as IOP-008: an outbound INVITE whose relayed final response is 603. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-008.
 
+<a id="iop-009"></a>
 ### IOP-009 In-dialog re-INVITE with SDP answered
 
 - **Spec:** interop / Each interop case has a signaling signature / In-dialog re-INVITE with SDP answered
@@ -251,6 +261,7 @@ Direction: either. Fixture: `seet-agent-1001_sc-12.2.1-dod-reinvite_provider_202
 
 **Pass.** The recording classifies as IOP-009: after the ACK, an INVITE with a To tag and an SDP body, and a 2xx after it. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-009.
 
+<a id="iop-010"></a>
 ### IOP-010 In-dialog re-INVITE without SDP
 
 - **Spec:** interop / Each interop case has a signaling signature / In-dialog re-INVITE without SDP
@@ -267,6 +278,7 @@ Direction: either. Fixture: `synthetic_dod-reinvite-no-sdp_provider.jsonl` (a ha
 
 **Pass.** The recording classifies as IOP-010: after the ACK, an INVITE with a To tag and no body, a 2xx with SDP, and an ACK with SDP. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-010.
 
+<a id="iop-011"></a>
 ### IOP-011 Blind transfer by REFER
 
 - **Spec:** interop / Each interop case has a signaling signature / Blind transfer by REFER
