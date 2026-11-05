@@ -28,14 +28,6 @@ CREATE DATABASE fonoster;
 CREATE DATABASE fnidentity;
 ```
 
-If you also run billing (`compose.billing.yaml`), create its database too, and set
-`BILLING_DATABASE_URL` in `.env` to it, for example
-`postgresql://fonoster:9f2c7e1b4a8d3c6e5b0a1f7d2e9c4b8a@db.example.com:5432/billing?sslmode=require`:
-
-```sql
-CREATE DATABASE billing;
-```
-
 ## Point every service at it
 
 Each service takes its database URL from its file in `config/`, with the same credentials in all

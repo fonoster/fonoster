@@ -1,15 +1,17 @@
-# Fonoster Cloud's billing (rating, credits, admission, Stripe). Self-hosted installs don't need it.
-# Turn it on in .env:
-#   COMPOSE_FILE=compose.yaml:compose.billing.yaml
-#   STRIPE_SECRET_KEY=rk_live_...
-#   STRIPE_WEBHOOK_SECRET=whsec_...
-# then set features.billing in config/fonoster.yaml and authz in config/appbridge.yaml,
-# point Stripe's webhook endpoint at <PUBLIC_URL>/stripe/webhooks, and docker compose up -d --wait.
+# Fonoster Cloud's billing (rating, credits, admission, Stripe). Not in the install archive:
+# production's inventory writes it next to the release (fonoster_files) and names it in
+# COMPOSE_FILE (ops/cloud/README.md). It needs STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET and
+# NATS_BILLING_PASSWORD in .env, features.billing in config/fonoster.yaml and authz in
+# config/appbridge.yaml, and the NATS user and Envoy route in ops/cloud/inserts.yml.
 #
-# Its tables live in its own database, billing (BILLING_DATABASE_URL, migrated at every start;
-# postgres-init.sql creates it on a new volume); with compose.external-db.yaml, create it on your
-# Postgres and set BILLING_DATABASE_URL in .env to it.
+# Its tables live in its own database, billing (BILLING_DATABASE_URL, migrated at every start).
+# Create it on the Postgres first.
 services:
+  # NATS's billing user (config/nats.conf, from ops/cloud/inserts.yml) reads its password here.
+  nats:
+    environment:
+      NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:?set NATS_BILLING_PASSWORD in .env}
+
   billing:
     image: fonoster/billing:${FONOSTER_VERSION:?set FONOSTER_VERSION}
     restart: unless-stopped
@@ -22,7 +24,7 @@ services:
       BILLING_DATABASE_URL: ${BILLING_DATABASE_URL:-postgresql://postgres:${POSTGRES_PASSWORD:?run ./init.sh}@postgres:5432/billing}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run ./init.sh}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run ./init.sh}
-      NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:?run ./init.sh}
+      NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:?set NATS_BILLING_PASSWORD in .env}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:?set STRIPE_SECRET_KEY in .env}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:?set STRIPE_WEBHOOK_SECRET in .env}
     volumes:

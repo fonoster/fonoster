@@ -29,6 +29,14 @@ fonoster_generate_secrets: false
 fonoster_overrides: {}
 # Compose files written next to compose.yaml (name them in COMPOSE_FILE).
 fonoster_compose_overlays: {}
+# Whole files the release does not ship, written next to it (a path inside the install -> its
+# content). A file the release ships is refused: add lines with fonoster_inserts or keys with
+# fonoster_overrides instead. Never printed.
+fonoster_files: {}
+# Lines added to a release file (a path inside the install -> a list). Each `before` or `after`
+# is a regular expression that must match exactly one line of the release's file; `lines` go right
+# before or after that line, each indented like it. Never printed.
+fonoster_inserts: {}
 
 # Never copied into the live install: only what runs (and init.sh) lands there.
 fonoster_live_excludes:

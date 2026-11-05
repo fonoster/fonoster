@@ -222,6 +222,6 @@ made. The database MUST NOT be touched.
 - **WHEN** an apply switches to a new version and its smoke test fails
 - **THEN** `rollback.yml` restores the previous install, its smoke test passes and `deploys.log` records `rolled back`
 
-#### Scenario: Billing behind its overlay
-- **WHEN** the inventory turns on `compose.billing.yaml` with Stripe's keys and wires `fonoster.yaml` and `appbridge.yaml` to billing
-- **THEN** the plan prints no Stripe secret, billing runs healthy, Stripe's webhooks reach it through Envoy, and a call for an owner with no credits is refused
+#### Scenario: Billing from the inventory
+- **WHEN** the inventory adds billing's files with `fonoster_files` and its NATS user and Envoy route with `fonoster_inserts` (from `ops/cloud/`), with Stripe's keys, and wires `fonoster.yaml` and `appbridge.yaml` to billing
+- **THEN** the plan prints no Stripe secret and no file content or inserted line, billing runs healthy on its own `billing` database, Stripe's webhooks reach it through Envoy, a call for an owner with no credits is refused, and an anchor that matches no line of the release's file fails the plan before the switch, changing nothing

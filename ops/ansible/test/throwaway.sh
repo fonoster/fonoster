@@ -9,8 +9,8 @@
 # checksum, a release with a .env name the inventory lacks, an install whose keys are not in
 # /var/lib/fonoster/keys). Without <b> the version switch is not checked. --rollback (needs <b>)
 # then applies <b> with a smoke test that fails and checks that playbooks/rollback.yml puts <a>
-# back. Last, it plans and applies <a> with Fonoster Cloud's billing on (OPS-007). The inventory
-# is test/inventory.yml: this machine over a local connection.
+# back. Last, it plans and applies <a> with Fonoster Cloud's billing from the inventory (OPS-007).
+# The inventory is test/inventory.yml: this machine over a local connection.
 #
 # It deletes /opt/fonoster, /var/lib/fonoster and their containers and volumes first, so it runs
 # only on a throwaway machine: Ubuntu 24.04 with root or sudo, Docker, Node.js and npm (for the
@@ -321,19 +321,32 @@ if [ "$ROLLBACK" = 1 ]; then
     || record OPS-006 "deploys.log ends with $B -> $A rolled back" fail "$($SUDO tail -n 3 "$STATE/deploys.log")"
 fi
 
-# OPS-007 Billing runs behind its overlay ----------------------------------------------------------
-# The production group's billing values (ops/ansible/README.md, Fonoster Cloud) on this inventory,
-# with a Stripe fake as Stripe. Extra vars replace whole variables, so they start from the host's.
+# OPS-007 Billing runs from the inventory ------------------------------------------------------------
+# Production's billing values (ops/cloud/README.md) on this inventory: billing's files and lines
+# come only from ops/cloud through fonoster_files and fonoster_inserts, with a Stripe fake as
+# Stripe. Extra vars replace whole variables, so they start from the host's. A sentinel secret in a
+# file and in an inserted line must never reach the logs.
 STRIPE_KEY="sk_test_throwaway5f2c9a1e7b3d"
 STRIPE_HOOK="whsec_throwaway8e4b1c7d2a9f"
+SENTINEL="sthrowaway0e7c4a91b5d2f836"
 (cd "$ANSIBLE" && ansible-inventory -i test/inventory.yml --host throwaway) \
-  | A="$A" STRIPE_KEY="$STRIPE_KEY" STRIPE_HOOK="$STRIPE_HOOK" python3 -c '
+  | A="$A" CLOUD="$ROOT/ops/cloud" SENTINEL="$SENTINEL" STRIPE_KEY="$STRIPE_KEY" STRIPE_HOOK="$STRIPE_HOOK" python3 -c '
 import json, os, sys
 v = json.load(sys.stdin)
+cloud = os.environ["CLOUD"]
+def file(p):
+    return "{{ lookup(\"file\", \"%s/%s\") }}" % (cloud, p)
 env = dict(v["fonoster_env"])
 env["COMPOSE_FILE"] += ":compose.billing.yaml:compose.stripe-fake.yaml"
 secrets = dict(v["fonoster_env_secrets"], STRIPE_SECRET_KEY=os.environ["STRIPE_KEY"],
-               STRIPE_WEBHOOK_SECRET=os.environ["STRIPE_HOOK"])
+               STRIPE_WEBHOOK_SECRET=os.environ["STRIPE_HOOK"],
+               NATS_BILLING_PASSWORD="s3c71e08d9a4f2b65c1d7e9a0b4f8c2d6")
+files = {p: file(p) for p in ["compose.billing.yaml", "config/billing.yaml",
+                              "config/nats-permissions/billing.conf"]}
+files["config/throwaway-sentinel.txt"] = os.environ["SENTINEL"]
+inserts = ("{{ lookup(\"file\", \"%s/inserts.yml\") | from_yaml | combine({\"config/postgres-init.sql\": "
+           "[{\"after\": \"^CREATE DATABASE fnidentity;$\", \"lines\": \"-- %s\"}]}) }}"
+           % (cloud, os.environ["SENTINEL"]))
 overrides = dict(v["fonoster_overrides"])
 overrides["fonoster.yaml"] = {"features": {"billing": {"enabled": True, "address": "billing:50073"}}}
 overrides["appbridge.yaml"] = {"authz": {"address": "billing:50071", "timeoutMs": 500}}
@@ -347,9 +360,24 @@ overlays["compose.stripe-fake.yaml"] = {"services": {
     "billing": {"depends_on": {"stripe-fake": {"condition": "service_started"}}},
 }}
 json.dump({"fonoster_env": env, "fonoster_env_secrets": secrets, "fonoster_overrides": overrides,
-           "fonoster_compose_overlays": overlays,
+           "fonoster_compose_overlays": overlays, "fonoster_files": files,
+           "fonoster_inserts": inserts,
            "vault_postgres_password": v["vault_postgres_password"]}, sys.stdout)
 ' >"$WORK/billing.json" || die "could not write the billing vars"
+
+# An anchor that matches no line of the release's file stops the plan, and nothing changes.
+before="$(tree_sum "$LIVE")"
+echo '{"fonoster_inserts": {"config/nats.conf": [{"after": "^throwaway no such line$", "lines": "x"}]}}' \
+  >"$WORK/bad-anchor.json"
+if play "$A" "$WORK/plan-bad-anchor.log" -e "@$WORK/billing.json" -e "@$WORK/bad-anchor.json" --check --diff; then
+  record OPS-007 "an anchor that matches no line fails the plan and changes nothing" fail "the plan passed"
+elif ! grep -qF "fonoster_inserts: config/nats.conf: after '^throwaway no such line\$' matches 0 lines of this release's file (it must match exactly 1); update the anchor from this release's file. Nothing was changed." "$WORK/plan-bad-anchor.log"; then
+  record OPS-007 "an anchor that matches no line fails the plan and changes nothing" fail "$(grep -A3 'fatal:' "$WORK/plan-bad-anchor.log" | tail -4)"
+elif [ "$(tree_sum "$LIVE")" != "$before" ]; then
+  record OPS-007 "an anchor that matches no line fails the plan and changes nothing" fail "$LIVE changed"
+else
+  record OPS-007 "an anchor that matches no line fails the plan and changes nothing" ok
+fi
 
 if play "$A" "$WORK/plan-billing.log" -e "@$WORK/billing.json" --check --diff; then
   if grep -qF -e "$STRIPE_KEY" -e "$STRIPE_HOOK" "$WORK/plan-billing.log"; then
@@ -361,7 +389,16 @@ else
   record OPS-007 "the plan with billing prints no Stripe secret" fail "$(tail -20 "$WORK/plan-billing.log")"
 fi
 
+# Billing's own database, created first as on production's managed Postgres.
+compose exec -T postgres psql -U postgres -tAc "select 1 from pg_database where datname = 'billing'" | grep -q 1 \
+  || compose exec -T postgres psql -U postgres -q -c "CREATE DATABASE billing" >&2
+
 if play "$A" "$WORK/apply-billing.log" -e "@$WORK/billing.json"; then
+  if grep -lF "$SENTINEL" "$WORK/plan-billing.log" "$WORK/apply-billing.log" >&2; then
+    record OPS-007 "a secret in fonoster_files or fonoster_inserts is in neither the plan nor the apply log" fail "the sentinel is in the log above"
+  else
+    record OPS-007 "a secret in fonoster_files or fonoster_inserts is in neither the plan nor the apply log" ok
+  fi
   health="$(docker inspect -f '{{.State.Status}} {{.State.Health.Status}}' "$(compose ps -q billing)" 2>&1)"
   [ "$health" = "running healthy" ] && record OPS-007 "billing is running and healthy" ok \
     || record OPS-007 "billing is running and healthy" fail "billing: $health; $(compose logs --no-color --tail 20 billing 2>&1)"

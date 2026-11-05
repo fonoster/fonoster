@@ -100,6 +100,13 @@ function fakeSecretsDir() {
   return dir;
 }
 
+/** A NATS config's lines without comments or blank lines. */
+const uncommented = (text: string) =>
+  text
+    .split("\n")
+    .filter((l) => l.trim() !== "" && !l.trimStart().startsWith("#"))
+    .join("\n");
+
 describe("@conformance/deployment (Helm chart)", function () {
   this.timeout(60000);
 
@@ -387,10 +394,12 @@ describe("@conformance/deployment (Helm chart)", function () {
     expect(on["nats.conf"]).to.contain(
       "{ user: billing, password: $NATS_BILLING_PASSWORD"
     );
-    expect(on["permissions-billing.conf"]).to.equal(
-      fs.readFileSync(
-        path.join(ROOT, "ops/rebuild/config/nats-permissions/billing.conf"),
-        "utf8"
+    expect(uncommented(on["permissions-billing.conf"])).to.equal(
+      uncommented(
+        fs.readFileSync(
+          path.join(ROOT, "ops/cloud/config/nats-permissions/billing.conf"),
+          "utf8"
+        )
       )
     );
   });
@@ -649,9 +658,25 @@ describe("@conformance/deployment (Helm chart)", function () {
     const perms = path.join(ROOT, "ops/rebuild/config/nats-permissions");
     expect(
       fs.readdirSync(path.join(CHART, "files", "nats-permissions"))
-    ).to.deep.equal(fs.readdirSync(perms));
+    ).to.deep.equal([...fs.readdirSync(perms), "billing.conf"].sort());
     fs.readdirSync(perms).forEach((f) =>
       same(`nats-permissions/${f}`, `ops/rebuild/config/nats-permissions/${f}`)
+    );
+    // Billing's user is Fonoster Cloud's (ops/cloud, #1273); the chart's comments differ.
+    expect(
+      uncommented(
+        fs.readFileSync(
+          path.join(CHART, "files", "nats-permissions", "billing.conf"),
+          "utf8"
+        )
+      )
+    ).to.equal(
+      uncommented(
+        fs.readFileSync(
+          path.join(ROOT, "ops/cloud/config/nats-permissions/billing.conf"),
+          "utf8"
+        )
+      )
     );
   });
 });
@@ -690,5 +715,20 @@ describe("@conformance/deployment (rebuild stack, billing database)", function (
       /psql_in billing "drop schema if exists public cascade; create schema public"/g
     );
     expect(resets, "billing-reset and billing-e2e").to.have.length(2);
+  });
+
+  it("takes billing's NATS user from ops/rebuild/config and ops/cloud, never from ops/bundle", function () {
+    const fn = rebuild("stack").match(/^render_billing\(\) \{\n[\s\S]*?^\}$/m);
+    expect(fn, "render_billing").not.to.equal(null);
+    expect(fn![0]).to.contain('cp "$HERE/config/nats.conf" "$CONF/nats.conf"');
+    expect(fn![0]).to.contain(
+      'cp "$ROOT/ops/cloud/config/nats-permissions/billing.conf" "$CONF/nats-permissions/billing.conf"'
+    );
+    expect(fn![0]).not.to.contain("$BUNDLE");
+    expect(
+      fs.existsSync(
+        path.join(ROOT, "ops/rebuild/config/nats-permissions/billing.conf")
+      )
+    ).to.equal(false);
   });
 });

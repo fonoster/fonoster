@@ -22,33 +22,166 @@ import * as path from "path";
 import { parse } from "yaml";
 import { billingConfigSchema } from "../../../mods/billing/src/config";
 
-// Billing as an opt-in overlay (#1235): compose.billing.yaml adds the billing service; the base
-// install runs none and only gains its NATS user; Envoy routes Stripe's webhooks to it.
+// Billing is Fonoster Cloud only (#1273): the install archive ships none of it and docs-site
+// documents none of it. Production gets it from its inventory (fonoster_files, fonoster_inserts),
+// copied from the reference files in ops/cloud.
 
 const BUNDLE = path.join(__dirname, "..");
-const read = (p: string) => fs.readFileSync(path.join(BUNDLE, p), "utf8");
-const yaml = (p: string) => parse(read(p));
+const ROOT = path.join(BUNDLE, "..", "..");
+const repo = (p: string) => fs.readFileSync(path.join(ROOT, p), "utf8");
+const yaml = (p: string) => parse(repo(p));
 
-/** Every file the archive ships from ops/bundle (its tests stay in the repository). */
-function shipped(dir = BUNDLE): string[] {
+/** Every file under dir, minus the paths in skip (relative to dir). */
+function files(dir: string, skip: string[] = [], base = dir): string[] {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
     const p = path.join(dir, e.name);
-    if (e.isDirectory()) return e.name === "test" ? [] : shipped(p);
-    return [p];
+    if (skip.includes(path.relative(base, p))) return [];
+    return e.isDirectory() ? files(p, skip, base) : [p];
   });
 }
 
-describe("@bundle[billing overlay]", function () {
-  it("runs no billing in the base compose.yaml, only its NATS password", function () {
-    const base = yaml("compose.yaml");
-    expect(base.services).not.to.have.property("billing");
-    expect(base.services.nats.environment.NATS_BILLING_PASSWORD).to.equal(
-      "${NATS_BILLING_PASSWORD:?run ./init.sh}"
+/** What ops/release/bundle puts in the archive: ops/bundle, and ops/ansible as ansible/. */
+function shipped(): { name: string; text: string }[] {
+  const ansible = path.join(ROOT, "ops/ansible");
+  return [
+    ...files(BUNDLE, [".env", "config/keys", "config/tls", "test"]).map(
+      (f) => ({ name: path.relative(BUNDLE, f), file: f })
+    ),
+    ...files(ansible, ["inventory", "test", ".ansible"]).map((f) => ({
+      name: path.join("ansible", path.relative(ansible, f)),
+      file: f
+    }))
+  ].map(({ name, file }) => ({ name, text: fs.readFileSync(file, "utf8") }));
+}
+
+type Insert = { before?: string; after?: string; lines: string };
+const inserts = () => yaml("ops/cloud/inserts.yml") as Record<string, Insert[]>;
+
+describe("@bundle[billing is Fonoster Cloud only]", function () {
+  it("ships nothing that names billing or Stripe", function () {
+    const named = shipped().flatMap(({ name, text }) => [
+      ...(/billing|stripe/i.test(name) ? [name] : []),
+      ...text
+        .split("\n")
+        .map((line, i) => ({ line, at: `${name}:${i + 1}` }))
+        .filter(({ line }) => /billing|stripe/i.test(line))
+        // The apiserver's own publish permission (its code is in the public image).
+        .filter(
+          ({ line }) =>
+            !(
+              name === "config/nats-permissions/apiserver.conf" &&
+              /^\s*"billing\.usage\.>"$/.test(line)
+            )
+        )
+        .map(({ at }) => at)
+    ]);
+    expect(named).to.deep.equal([]);
+  });
+
+  it("documents no billing setup on the public docs", function () {
+    const docs = path.join(ROOT, "docs-site");
+    expect(fs.existsSync(path.join(docs, "workspace/billing.mdx"))).to.equal(
+      false
+    );
+    const setup =
+      /workspace\/billing|compose\.billing|NATS_BILLING_PASSWORD|BILLING_DATABASE_URL|stripe\/webhooks|features\.billing|CREATE DATABASE billing/;
+    const named = files(docs, ["node_modules"])
+      .filter((f) => /\.(md|mdx|json)$/.test(f))
+      .filter((f) => setup.test(fs.readFileSync(f, "utf8")))
+      .map((f) => path.relative(docs, f));
+    expect(named).to.deep.equal([]);
+  });
+
+  it("names neither the test stack nor its variables in anything the archive ships", function () {
+    const named = shipped()
+      .filter(({ text }) => /rebuild|RB_/i.test(text))
+      .map(({ name }) => name);
+    expect(named).to.deep.equal([]);
+  });
+});
+
+describe("@bundle[ops/cloud, billing's reference files]", function () {
+  it("anchors every insert on exactly one line of the bundle's file", function () {
+    for (const [file, list] of Object.entries(inserts())) {
+      const lines = repo(`ops/bundle/${file}`).split("\n");
+      for (const insert of list) {
+        const anchor = insert.before ?? insert.after;
+        expect(anchor, `${file}: before or after`).to.be.a("string");
+        const matches = lines.filter((l) => new RegExp(anchor!).test(l));
+        expect(matches, `${file}: ${anchor}`).to.have.length(1);
+      }
+    }
+  });
+
+  it("adds to the bundle's nats.conf exactly the billing lines the rebuild stack's has", function () {
+    const added = inserts()["config/nats.conf"].flatMap((i) =>
+      i.lines
+        .trimEnd()
+        .split("\n")
+        .map((l) => l.trim())
+    );
+    const body = (text: string) =>
+      text
+        .split("\n")
+        .map((l) => l.trim())
+        .filter((l) => l !== "" && !l.startsWith("#"));
+    const rebuild = body(repo("ops/rebuild/config/nats.conf"));
+    for (const line of added) expect(rebuild, line).to.include(line);
+    expect(rebuild.filter((l) => !added.includes(l))).to.deep.equal(
+      body(repo("ops/bundle/config/nats.conf"))
     );
   });
 
-  it("adds billing without postgres and refuses to start without the Stripe values", function () {
-    const { billing } = yaml("compose.billing.yaml").services;
+  it("routes Stripe's webhooks to billing before Envoy's / matches", function () {
+    const envoy = inserts()["config/envoy-tls.yaml"];
+    const route = envoy.find((i) => i.before?.includes("Region-signing"))!;
+    expect(parse(route.lines)).to.deep.equal([
+      {
+        match: { path: "/stripe/webhooks" },
+        route: { cluster: "billing-cluster" }
+      }
+    ]);
+    const lines = repo("ops/bundle/config/envoy-tls.yaml").split("\n");
+    const at = lines.findIndex((l) => new RegExp(route.before!).test(l));
+    expect(
+      lines.findIndex((l, i) => i > at && /prefix: "\/"$/.test(l))
+    ).to.be.greaterThan(at);
+    const [cluster] = parse(
+      envoy.find((i) => i.before?.includes("dashboard-cluster"))!.lines
+    );
+    expect(cluster.name).to.equal("billing-cluster");
+    expect(
+      cluster.load_assignment.endpoints[0].lb_endpoints[0].endpoint.address
+        .socket_address
+    ).to.deep.equal({ address: "billing", port_value: 50072 });
+  });
+
+  it("keeps a billing.yaml with the 7-day Trial and every secret as a ${NAME}", function () {
+    const config = billingConfigSchema.parse(
+      yaml("ops/cloud/config/billing.yaml")
+    );
+    expect(config.plans).to.include({ trialDays: 7, trialCredits: 1000 });
+    expect(config.rateCards.dir).to.equal("/work/mods/billing/rate-cards");
+    expect(config.stripe).to.include({
+      secretKey: "${STRIPE_SECRET_KEY}",
+      webhookSecret: "${STRIPE_WEBHOOK_SECRET}",
+      automaticTax: true
+    });
+    expect(config.database.url).to.equal("${BILLING_DATABASE_URL}");
+    expect(repo("ops/cloud/config/nats-permissions/billing.conf")).to.contain(
+      "BILLING_PERMISSIONS = {"
+    );
+  });
+
+  it("runs billing in its own billing database and passes NATS its password", function () {
+    const { services } = yaml("ops/cloud/compose.billing.yaml");
+    const { billing } = services;
+    const url = billing.environment.BILLING_DATABASE_URL as string;
+    expect(url).to.match(/@postgres:5432\/billing\}$/);
+    expect(url).not.to.contain("schema=");
+    expect(services.nats.environment.NATS_BILLING_PASSWORD).to.equal(
+      "${NATS_BILLING_PASSWORD:?set NATS_BILLING_PASSWORD in .env}"
+    );
     expect(billing.image).to.equal(
       "fonoster/billing:${FONOSTER_VERSION:?set FONOSTER_VERSION}"
     );
@@ -59,103 +192,10 @@ describe("@bundle[billing overlay]", function () {
     expect(billing.environment.STRIPE_SECRET_KEY).to.equal(
       "${STRIPE_SECRET_KEY:?set STRIPE_SECRET_KEY in .env}"
     );
-    expect(billing.environment.STRIPE_WEBHOOK_SECRET).to.equal(
-      "${STRIPE_WEBHOOK_SECRET:?set STRIPE_WEBHOOK_SECRET in .env}"
-    );
     expect(billing.healthcheck.test).to.deep.equal([
       "CMD",
       "node",
       "/work/mods/billing/dist/healthcheck.js"
     ]);
-  });
-
-  it("ships a billing.yaml with the 7-day Trial and every secret as a ${NAME}", function () {
-    const text = read("config/billing.yaml");
-    const config = billingConfigSchema.parse(parse(text));
-    expect(config.plans).to.include({ trialDays: 7, trialCredits: 1000 });
-    expect(config.rateCards.dir).to.equal("/work/mods/billing/rate-cards");
-    expect(config.stripe).to.include({
-      secretKey: "${STRIPE_SECRET_KEY}",
-      webhookSecret: "${STRIPE_WEBHOOK_SECRET}",
-      automaticTax: true
-    });
-    expect(config.database.url).to.equal("${BILLING_DATABASE_URL}");
-  });
-
-  it("routes POST /stripe/webhooks to billing:50072 before the / matches, in both Envoy files", function () {
-    for (const file of ["config/envoy.yaml", "config/envoy-tls.yaml"]) {
-      const { static_resources: envoy } = yaml(file);
-      const listener = envoy.listeners.find(
-        (l: { name: string }) => l.name !== "listener_http_redirect"
-      );
-      const routes = listener.filter_chains[0].filters[0].typed_config
-        .route_config.virtual_hosts[0].routes as {
-        match: { path?: string; prefix?: string };
-        route: { cluster: string };
-      }[];
-      const webhooks = routes.findIndex(
-        (r) => r.match.path === "/stripe/webhooks"
-      );
-      expect(webhooks, file).to.be.greaterThan(-1);
-      expect(routes[webhooks].route.cluster, file).to.equal("billing-cluster");
-      expect(
-        routes.findIndex((r) => r.match.prefix === "/"),
-        file
-      ).to.be.greaterThan(webhooks);
-      const cluster = envoy.clusters.find(
-        (c: { name: string }) => c.name === "billing-cluster"
-      );
-      expect(
-        cluster.load_assignment.endpoints[0].lb_endpoints[0].endpoint.address
-          .socket_address,
-        file
-      ).to.deep.equal({ address: "billing", port_value: 50072 });
-    }
-  });
-
-  it("gives NATS the billing user with its permissions file", function () {
-    const conf = read("config/nats.conf");
-    expect(conf).to.contain("include ./nats-permissions/billing.conf");
-    expect(conf).to.contain(
-      "{ user: billing, password: $NATS_BILLING_PASSWORD, permissions: $BILLING_PERMISSIONS }"
-    );
-    expect(read("config/nats-permissions/billing.conf")).to.contain(
-      "BILLING_PERMISSIONS = {"
-    );
-  });
-
-  it("keeps billing in its own billing database, created with the others (#1273)", function () {
-    const text = read("compose.billing.yaml");
-    const url = yaml("compose.billing.yaml").services.billing.environment
-      .BILLING_DATABASE_URL as string;
-    expect(url).to.match(/@postgres:5432\/billing\}$/);
-    expect(url).not.to.contain("schema=");
-    expect(url).not.to.contain("/fonoster");
-    expect(text).to.contain("its own database, billing");
-    expect(text).not.to.contain("schema billing");
-    expect(read("config/postgres-init.sql")).to.match(
-      /^CREATE DATABASE billing;$/m
-    );
-  });
-
-  it("tells operators to give billing its own billing database (Ansible README, external Postgres)", function () {
-    const repo = (p: string) =>
-      fs.readFileSync(path.join(BUNDLE, "..", "..", p), "utf8");
-    const readme = repo("ops/ansible/README.md");
-    expect(readme).not.to.contain("schema=billing");
-    expect(readme).not.to.contain("CREATE SCHEMA billing");
-    expect(readme).to.match(
-      /BILLING_DATABASE_URL: "postgresql:\/\/[^"]+\/billing\?sslmode=require"/
-    );
-    expect(repo("docs-site/self-hosting/external-database.mdx")).to.match(
-      /^CREATE DATABASE billing;$/m
-    );
-  });
-
-  it("names neither the test stack nor its variables in anything the archive ships", function () {
-    const named = shipped().filter((f) =>
-      /rebuild|RB_/i.test(fs.readFileSync(f, "utf8"))
-    );
-    expect(named).to.deep.equal([]);
   });
 });

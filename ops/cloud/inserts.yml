@@ -1,0 +1,35 @@
+# The lines production's inventory adds to release files (fonoster_inserts, ops/cloud/README.md):
+# billing's NATS user and Stripe's webhook route. Each before/after is a regular expression that
+# must match exactly one line of the release's file; when a release changes that line, the plan
+# stops until the anchor here and in the inventory is updated.
+config/nats.conf:
+  - after: '^include \./nats-permissions/routr\.conf$'
+    lines: |
+      include ./nats-permissions/billing.conf
+  - after: '^\s*\{ user: routr,'
+    lines: |
+      { user: billing, password: $NATS_BILLING_PASSWORD, permissions: $BILLING_PERMISSIONS }
+config/envoy-tls.yaml:
+  # Before the / matches, which would send it to the dashboard.
+  - before: '^\s*# Region-signing public keys'
+    lines: |
+      # Stripe's webhooks, for the billing service.
+      - match:
+          path: "/stripe/webhooks"
+        route:
+          cluster: billing-cluster
+  - before: '^\s*- name: dashboard-cluster$'
+    lines: |
+      - name: billing-cluster
+        type: logical_dns
+        connect_timeout: 5s
+        lb_policy: round_robin
+        load_assignment:
+          cluster_name: billing-cluster
+          endpoints:
+            - lb_endpoints:
+                - endpoint:
+                    address:
+                      socket_address:
+                        address: billing
+                        port_value: 50072

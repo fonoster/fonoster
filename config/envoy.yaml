@@ -45,12 +45,6 @@ static_resources:
                             path: "/.well-known/region-keys.json"
                           route:
                             cluster: apiserver-cluster-http
-                        # Stripe's webhooks, for the billing service (ops/bundle/compose.billing.yaml).
-                        # Without that overlay the name never resolves and this path answers 503.
-                        - match:
-                            path: "/stripe/webhooks"
-                          route:
-                            cluster: billing-cluster
                         - match:
                             prefix: "/fonoster.identity.v1beta2.Identity/SendVerificationCode"
                             headers:
@@ -202,19 +196,6 @@ static_resources:
                     socket_address:
                       address: routr
                       port_value: 5062
-    - name: billing-cluster
-      type: logical_dns
-      connect_timeout: 5s
-      lb_policy: round_robin
-      load_assignment:
-        cluster_name: billing-cluster
-        endpoints:
-          - lb_endpoints:
-              - endpoint:
-                  address:
-                    socket_address:
-                      address: billing
-                      port_value: 50072
     - name: dashboard-cluster
       type: logical_dns
       connect_timeout: 20s
