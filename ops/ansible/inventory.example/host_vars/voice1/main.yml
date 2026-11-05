@@ -5,6 +5,13 @@ certbot_domains: [voice.example.com, api.example.com]
 certbot_email: ops@example.com
 routr_traces_enabled: true
 routr_traces_retention_days: 30
+# The interop watch (ops/ansible/README.md, Interop watch); off unless enabled.
+# interop_watch_enabled: true
+# interop_far_ends:
+#   - name: acme-carrier
+#     hosts: [sip.acme-carrier.example]
+#     addresses: [198.51.100.0/24]
+# interop_alerts_authorized_key: "ssh-ed25519 AAAA... owner-mac"
 
 # Every non-secret name of the .env init.sh writes (ops/bundle/init.sh); FONOSTER_VERSION
 # comes from fonoster_version. The play fails when a release adds a name that is in neither this

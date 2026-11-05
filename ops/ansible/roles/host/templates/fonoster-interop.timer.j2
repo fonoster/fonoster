@@ -1,0 +1,10 @@
+# Managed by the Ansible role host.
+[Unit]
+Description=Hourly Fonoster interop scan
+
+[Timer]
+OnCalendar=hourly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

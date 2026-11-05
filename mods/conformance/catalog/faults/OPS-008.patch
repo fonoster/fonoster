@@ -1,0 +1,12 @@
+diff --git a/ops/ansible/roles/host/templates/fonoster-interop.service.j2 b/ops/ansible/roles/host/templates/fonoster-interop.service.j2
+index 692107b48..fb3d375d9 100644
+--- a/ops/ansible/roles/host/templates/fonoster-interop.service.j2
++++ b/ops/ansible/roles/host/templates/fonoster-interop.service.j2
+@@ -5,7 +5,6 @@ Description=Fonoster interop scan of Routr's traces
+ [Service]
+ Type=oneshot
+ User=fonoster-interop
+-SupplementaryGroups=5000
+ ExecStart=/usr/bin/node /usr/local/lib/fonoster-interop/node_modules/@fonoster/common/dist/interop/cli.js scan --traces /run/fonoster-interop/traces --far-ends /etc/fonoster-interop/far-ends.json --state /var/lib/fonoster-interop --since 70m
+ StateDirectory=fonoster-interop
+ RuntimeDirectory=fonoster-interop
