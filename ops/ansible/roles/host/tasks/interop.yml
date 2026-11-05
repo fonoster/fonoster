@@ -86,6 +86,23 @@
     create_home: false
 
 # Routr writes its traces as uid 5000; the scan reads them through group 5000 only.
+# systemd resolves SupplementaryGroups=5000 through /etc/group; Routr's uid/gid 5000 has no
+# name on the host, so one is given when no group holds that id.
+- name: Routr's group id on the host
+  ansible.builtin.command:
+    cmd: getent group 5000
+  register: routr_group
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Routr's group
+  ansible.builtin.group:
+    name: routr-traces
+    gid: 5000
+    system: true
+  when: routr_group.rc != 0
+
 # The service sees routr_traces_dir through a read-only bind mount of its own (the unit's
 # BindReadOnlyPaths), so /var/lib/fonoster (0700 root) stays as it is; reading the files takes group
 # 5000 plus read on each file, which the default ACL keeps whatever umask Routr writes with.
