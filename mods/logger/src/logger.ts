@@ -23,11 +23,13 @@ import { register } from "./registry";
 const logger = register(
   winston.createLogger({
     levels: winston.config.npm.levels,
-    format: buildFormat(),
     transports: getTransports(),
     level: getSettings().level
   })
 );
+
+// Set after creation: the format gates on the logger it belongs to.
+logger.format = buildFormat(logger);
 
 logger.on("finish", endFluent);
 

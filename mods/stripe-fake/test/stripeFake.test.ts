@@ -232,7 +232,11 @@ describe("@stripe-fake", function () {
 
   /** A customer on a test clock with a card, a $25 plan and a metered price on a monetary meter. */
   async function cloudCustomer(card = "pm_card_visa") {
-    const start = Date.UTC(2026, 9, 1) / 1000;
+    // Next month's 1st (UTC): events on the test clock carry its frozen time, so it must be ahead
+    // of the real time of the events made before it, or they list out of order.
+    const now = new Date();
+    const start =
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1) / 1000;
     const clock = await stripe.testHelpers.testClocks.create({
       frozen_time: start
     });
@@ -270,7 +274,9 @@ describe("@stripe-fake", function () {
       customer: customer.id,
       items: [{ price: plan.id }, { price: usage.id }]
     });
-    const periodEnd = Date.UTC(2026, 10, 1) / 1000;
+    const begin = new Date(start * 1000);
+    const periodEnd =
+      Date.UTC(begin.getUTCFullYear(), begin.getUTCMonth() + 1, 1) / 1000;
     const grant = (
       value: number,
       category: "paid" | "promotional",
