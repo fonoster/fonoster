@@ -21,7 +21,7 @@ RUN --mount=type=cache,target=/root/.npm \
     npm install --workspace @fonoster/billing --include-workspace-root --ignore-scripts --no-audit --no-fund
 RUN (cd mods/identity && npx prisma generate --schema schema.prisma) \
   && (cd mods/billing && npx prisma generate --schema schema.prisma) \
-  && for p in types logger common identity authz; do (cd mods/$p && npx tsc -b); done \
+  && for p in types logger common identity authz; do (cd mods/$p && npx tsc -b) || exit 1; done \
   && cp -a mods/common/src/protos mods/common/dist/ \
   && (cd mods/identity && node scripts/copy-assets.cjs) \
   && (cd mods/billing && npx tsc -b && node scripts/copy-assets.cjs)

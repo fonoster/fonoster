@@ -32,7 +32,7 @@ RUN --mount=type=cache,target=/root/.npm \
 # `tsc -b` skips: without this every AppBridge built from a clean checkout crashed at start.
 RUN node mods/identity-client/scripts/sync-proto.mjs \
   && for p in types logger common callrecord identity-client community amd appbridge; do \
-      (cd mods/$p && npx tsc -b); \
+      (cd mods/$p && npx tsc -b) || exit 1; \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
   && npm prune --omit=dev --workspace @fonoster/appbridge \
