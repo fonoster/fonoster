@@ -124,8 +124,3 @@
     state: started
     enabled: true
   when: routr_traces_enabled
-
-# Interop evidence ----------------------------------------------------------------------------------
-- name: Interop watch
-  ansible.builtin.import_tasks: interop.yml
-  when: interop_watch_enabled

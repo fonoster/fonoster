@@ -14,7 +14,7 @@ Real calls, copied unchanged from fonoster/routr at commit a37b2bf8a (already sa
 
 `synthetic_*` files are hand-written for cases no recording covers yet, derived from the real calls
 above, with addresses moved to documentation ranges (198.51.100.0/24, 203.0.113.0/24). They are
-never evidence: docs/interop-evidence.md lists only real calls.
+never evidence: evidence is a real call in fonoster/routr `interop/<far-end>/`.
 
 | File | Built from | Case |
 | --- | --- | --- |

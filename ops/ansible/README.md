@@ -14,8 +14,7 @@ Tested on Ubuntu 24.04 with ansible-core 2.21.5 (ansible-lint 26.10.1). No colle
   `{"userland-proxy": false, "live-restore": true}`; certbot with renewal hooks that stop and
   recreate Envoy (only when `certbot_domains` is set); the Routr trace folder with a tmpfiles.d
   retention rule (`routr_traces_enabled`); with `deploy_authorized_key`, the `deploy` user (sudo
-  without a password, its one key with `restrict`); with `interop_watch_enabled` (off by default),
-  the interop watch (below).
+  without a password, its one key with `restrict`).
 - **fonoster** (tag `fonoster`):
   1. Stages the release in `/var/lib/fonoster/releases/<version>` from `fonoster_archive` (the
      GitHub release by default, or a path on the controller), checked against `SHA256SUMS`.
@@ -72,30 +71,23 @@ fonoster_inserts:
         include ./nats-permissions/extra.conf
 ```
 
-### Interop watch
+### Removing the old interop watch
 
-With `interop_watch_enabled: true` (set `routr_traces_enabled` too: the scan reads Routr's traces), the host role installs
-Node.js 22 (NodeSource) and `@fonoster/common` (the highest release at or below `fonoster_version`)
-in `/usr/local/lib/fonoster-interop`, and a `fonoster-interop.timer` that runs
-`fonoster-interop scan` every hour over the last 70 minutes of Routr's traces. The scan runs as the
-`fonoster-interop` user with no network, a read-only system and Routr's traces bind-mounted
-read-only, and writes only `/var/lib/fonoster-interop` (`alerts.jsonl`, `state.json`). What it
-reports is in `mods/conformance/catalog/areas/interop.md`.
+The host role no longer installs the interop watch and nothing removes it for you. On a host that
+had it on, as root:
 
-```yaml
-interop_watch_enabled: true
-# Added to, or replacing by name, the curated far ends @fonoster/common ships.
-interop_far_ends:
-  - name: acme-carrier
-    hosts: [sip.acme-carrier.example]
-    addresses: [198.51.100.0/24]
-# Optional: one key that can only print alerts.jsonl, for the menu bar plugin in
-# ops/interop/swiftbar/README.md. Empty: no reader account.
-interop_alerts_authorized_key: "ssh-ed25519 AAAA... owner-mac"
+```sh
+systemctl disable --now fonoster-interop.timer
+rm -f /etc/systemd/system/fonoster-interop.service /etc/systemd/system/fonoster-interop.timer
+systemctl daemon-reload
+userdel -r interop-alerts
+userdel fonoster-interop
+rm -rf /usr/local/lib/fonoster-interop /etc/fonoster-interop /var/lib/fonoster-interop /var/lib/private/fonoster-interop
 ```
 
-A bad far-ends entry makes the scan exit 1 naming it (`journalctl -u fonoster-interop.service`).
-Turn it off with `systemctl disable --now fonoster-interop.timer` on the host.
+In the inventory, delete `interop_watch_enabled`, `interop_far_ends`,
+`interop_alerts_authorized_key` and `interop_package`. Add any far end you still want to
+`mods/common/src/interop/far-ends.known.json` by pull request, with a source and a `checked` date.
 
 ## Commands
 
@@ -162,9 +154,7 @@ a change goes in the inventory or in this playbook, then a deploy.
   the switch made; an apply that failed before its switch made none, and nothing is restored. The
   run summary has from, to, the switch time, the backup name and the rollback's outcome.
 - **By hand:** `gh workflow run deploy.yaml -f version=0.43.0` redeploys or moves to a version (and
-  applies inventory changes); add `-f host_role=true` to run the host role too. The interop watch
-  is part of the host role: set its values in `group_vars/production/main.yml`, then deploy with
-  `-f host_role=true`.
+  applies inventory changes); add `-f host_role=true` to run the host role too.
 - **On the host:** `/var/lib/fonoster/deploys.log` (`<switch time> <from> -> <to>`, with `rolled
   back` after a rollback), the backups of `/opt/fonoster` in `/var/lib/fonoster/backups`, the
   releases' playbooks in `/var/lib/fonoster/deploy`. The database is never touched; the switch time

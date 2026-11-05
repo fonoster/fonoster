@@ -27,8 +27,8 @@ Twilio, Telnyx. Two directions:
 
 Each case is a signaling signature over the recorded messages. The classifier reports the far end
 and at most one case per call; when several match (a re-INVITE inside an answered call), the
-highest id wins. Evidence for each far end is listed in
-[docs/interop-evidence.md](../../../../docs/interop-evidence.md).
+highest id wins. Evidence for each far end is its sanitized recordings and `manifest.yaml` in
+fonoster/routr [`interop/<far-end>/`](https://github.com/fonoster/routr/tree/main/interop).
 
 Not here: anything only media shows (DTMF, audio both ways, the codec used, hold actually silencing
 the call, early media, SRTP or DTLS keying, AMD, recording), attended transfer (its Replaces spans
@@ -69,12 +69,10 @@ The far ends come from the curated list `@fonoster/common` ships,
 `mods/common/src/interop/far-ends.known.json`: one entry per well-known provider with its
 signaling `hosts` and `addresses`, the provider's own pages they were read from (`sources`) and
 the day they were last compared with them (`checked`). To add or fix a provider, edit its entry in a
-pull request with a source and today's `checked` date. `--far-ends <file>` (the inventory's
-`interop_far_ends` in production) adds entries, or replaces a curated one with the same `name`.
+pull request with a source and today's `checked` date. `--far-ends <file>` adds entries, or replaces a curated one with the same `name`.
 
 Only responses Routr relayed count; retransmissions count once. A REGISTER-only recording, an
-`agent-to-agent` call or a call to an unlisted far end shows no case. The production scan that runs
-this every hour is described in [ops/ansible/README.md](../../../../ops/ansible/README.md).
+`agent-to-agent` call or a call to an unlisted far end shows no case.
 
 `fonoster-interop scan --traces <dir> --state <dir> --since 60m` reads every
 recording modified in the window, skips REGISTER-only files after their first line and calls that
@@ -91,11 +89,14 @@ unanswered calls. Evidence alerts once ever, a failure at most once a UTC day. B
 
 1. Place the call through the far end.
 2. Find its recording, `<UTC time>-<Call-ID>.jsonl`, in the host's `routr_traces_dir`.
-3. Run `fonoster-interop classify <file> --far-ends <far-ends.json>`; it prints the far end and the
-   case, or `- -`.
+3. On your machine, run `npx -p @fonoster/common fonoster-interop classify <file>`; it prints the
+   far end and the case, or `- -`.
 4. Sanitize it with `rctl trace sanitize` (fonoster/routr `etc/corpus/README.md`) and add it to
-   fonoster/routr `interop/<far-end>/manifest.yaml`, so Routr's replay guards it.
-5. Record it in [docs/interop-evidence.md](../../../../docs/interop-evidence.md).
+   fonoster/routr `interop/<far-end>/manifest.yaml`, so Routr's replay guards it. This repository
+   and Routr's are public. Commit only sanitized recordings. Never publish a production recording's
+   file name, a Call-ID, a phone number or a host name. `rctl trace sanitize` applies only your
+   rewrites and recomputes digests: it does not remove SDP lines or headers such as
+   `X-Connect-Token`, so they need rewrites of their own.
 
 ## Running
 

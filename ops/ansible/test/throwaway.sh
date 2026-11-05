@@ -9,9 +9,8 @@
 # checksum, a release with a .env name the inventory lacks, an install whose keys are not in
 # /var/lib/fonoster/keys). Without <b> the version switch is not checked. --rollback (needs <b>)
 # then applies <b> with a smoke test that fails and checks that playbooks/rollback.yml puts <a>
-# back. Then it plans and applies <a> with Fonoster Cloud's billing from the inventory (OPS-007),
-# and last turns the interop watch on (OPS-008). The inventory is test/inventory.yml: this machine
-# over a local connection.
+# back. Then it plans and applies <a> with Fonoster Cloud's billing from the inventory (OPS-007).
+# The inventory is test/inventory.yml: this machine over a local connection.
 #
 # It deletes /opt/fonoster, /var/lib/fonoster and their containers and volumes first, so it runs
 # only on a throwaway machine: Ubuntu 24.04 with root or sudo, Docker, Node.js and npm (for the
@@ -142,13 +141,6 @@ left="$($SUDO docker ps -aq --filter label=com.docker.compose.project=fonoster)"
 left="$($SUDO docker volume ls -q --filter label=com.docker.compose.project=fonoster)"
 [ -z "$left" ] || $SUDO docker volume rm -f $left >/dev/null
 $SUDO rm -rf "$LIVE" "$STATE"
-# What OPS-008 installed on a previous run: the watch-off check and the alert count start clean.
-$SUDO systemctl disable --now fonoster-interop.timer >/dev/null 2>&1 || true
-$SUDO rm -f /etc/systemd/system/fonoster-interop.service /etc/systemd/system/fonoster-interop.timer
-$SUDO systemctl daemon-reload
-$SUDO rm -rf /usr/local/lib/fonoster-interop /etc/fonoster-interop /var/lib/fonoster-interop /var/lib/private/fonoster-interop
-! id interop-alerts >/dev/null 2>&1 || $SUDO userdel -r interop-alerts >/dev/null 2>&1
-! id fonoster-interop >/dev/null 2>&1 || $SUDO userdel fonoster-interop
 
 (cd "$ANSIBLE" && ansible-lint) || die "ansible-lint failed"
 
@@ -180,13 +172,6 @@ if ! play "$A" "$WORK/apply-a.log"; then
   exit 1
 fi
 record OPS-003 "apply $A exits 0" ok
-# OPS-008 with interop_watch_enabled false (the inventory's default), nothing interop exists.
-if $SUDO test -e /etc/systemd/system/fonoster-interop.service || id fonoster-interop >/dev/null 2>&1 \
-  || $SUDO test -e /usr/local/lib/fonoster-interop; then
-  record OPS-008 "with the watch off, no interop file, unit or user exists" fail "found interop files or the user"
-else
-  record OPS-008 "with the watch off, no interop file, unit or user exists" ok
-fi
 extras="$($SUDO find "$LIVE" -maxdepth 1 \( -name README.md -o -name ansible \) -print)"
 [ -z "$extras" ] && record OPS-003 "$LIVE holds no README or ansible folder" ok \
   || record OPS-003 "$LIVE holds no README or ansible folder" fail "$extras"
@@ -460,68 +445,4 @@ new AuthzClient("127.0.0.1:50071")
   fi
 else
   record OPS-007 "billing is running and healthy" fail "$(grep -A3 'fatal:' "$WORK/apply-billing.log" | tail -8)"
-fi
-
-# OPS-008 The interop watch scans Routr's traces -------------------------------------------------
-# A local `npm pack` of mods/common stands in for the npm release (0.0.0-a is not on npm), and a
-# real call from the corpus stands in for production traffic.
-TRACES=/var/lib/fonoster/routr-traces
-FIXTURE="$ROOT/mods/common/test/interop/fixtures/sipjs_wa-dod-invite_whatsapp_20261025.jsonl"
-interop_ok=1
-if ! pkg="$(cd "$ROOT/mods/common" && npm pack --silent --pack-destination "$WORK" 2>"$WORK/pack.log" | tail -1)"; then
-  interop_ok=0
-  record OPS-008 "the watch installs and its timer is enabled" fail "npm pack mods/common: $(tail -3 "$WORK/pack.log")"
-fi
-ssh-keygen -q -t ed25519 -N "" -f "$WORK/interop-key" >/dev/null
-python3 -c '
-import json, sys
-print(json.dumps({"interop_watch_enabled": True,
-                  "interop_far_ends": [{"name": "whatsapp", "hosts": ["wa.meta.vc", "wa-*"]}],
-                  "interop_package": sys.argv[1],
-                  "interop_alerts_authorized_key": open(sys.argv[2]).read().strip()}))
-' "$WORK/$pkg" "$WORK/interop-key.pub" >"$WORK/interop.json"
-
-if [ "$interop_ok" = 1 ]; then
-  if play "$A" "$WORK/plan-interop.log" --check --diff --tags host -e "@$WORK/interop.json"; then
-    record OPS-008 "a plan with the watch on exits 0" ok
-  else
-    record OPS-008 "a plan with the watch on exits 0" fail "$(grep -A3 'fatal:' "$WORK/plan-interop.log" | tail -8)"
-  fi
-fi
-if [ "$interop_ok" = 1 ] && play "$A" "$WORK/apply-interop.log" --tags host -e "@$WORK/interop.json"; then
-  check OPS-008 "the watch installs and its timer is enabled" systemctl is-enabled fonoster-interop.timer
-  user="$(systemctl show -p User --value fonoster-interop.service)"
-  [ "$user" = fonoster-interop ] && record OPS-008 "the scan runs as fonoster-interop" ok \
-    || record OPS-008 "the scan runs as fonoster-interop" fail "User=$user"
-  props="$(systemctl show -p PrivateNetwork -p ProtectSystem -p CapabilityBoundingSet fonoster-interop.service | sort | tr '\n' ' ')"
-  [ "$props" = "CapabilityBoundingSet= PrivateNetwork=yes ProtectSystem=strict " ] \
-    && record OPS-008 "the scan has no network, a read-only system and no capabilities" ok \
-    || record OPS-008 "the scan has no network, a read-only system and no capabilities" fail "$props"
-
-  # A finished call Routr just wrote: owned by uid 5000, modified now.
-  $SUDO install -o 5000 -g 5000 -m 0644 "$FIXTURE" "$TRACES/20261105T120000Z-ops008.jsonl"
-  $SUDO systemctl start fonoster-interop.service
-  lines="$($SUDO cat /var/lib/fonoster-interop/alerts.jsonl 2>/dev/null | grep -c '"case":"IOP-004"')"
-  [ "$lines" = 1 ] && record OPS-008 "a finished call in the traces yields one alert" ok \
-    || record OPS-008 "a finished call in the traces yields one alert" fail "IOP-004 lines: ${lines:-0}; $($SUDO journalctl -u fonoster-interop.service --no-pager -n 10 2>&1)"
-
-  if play "$A" "$WORK/apply-interop2.log" --tags host -e "@$WORK/interop.json"; then
-    n="$(recap_changed "$WORK/apply-interop2.log")"
-    [ "$n" = 0 ] && record OPS-008 "a second apply with the watch changes nothing" ok \
-      || record OPS-008 "a second apply with the watch changes nothing" fail "changed=$n: $(grep -B1 '^changed:' "$WORK/apply-interop2.log" | grep TASK | head -5)"
-  else
-    record OPS-008 "a second apply with the watch changes nothing" fail "$(grep -A3 'fatal:' "$WORK/apply-interop2.log" | tail -4)"
-  fi
-
-  # The reader's key prints the alerts and runs nothing else.
-  command -v sshd >/dev/null || $SUDO apt-get install -y -qq openssh-server >/dev/null 2>&1
-  $SUDO systemctl start ssh >/dev/null 2>&1 || true
-  got="$(ssh -i "$WORK/interop-key" -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-    interop-alerts@127.0.0.1 id 2>/dev/null)"
-  case "$got" in
-    *'"case":"IOP-004"'*) record OPS-008 "the reader's key prints alerts.jsonl, not a command's output" ok ;;
-    *) record OPS-008 "the reader's key prints alerts.jsonl, not a command's output" fail "got: ${got:-nothing}" ;;
-  esac
-else
-  [ "$interop_ok" = 0 ] || record OPS-008 "the watch installs and its timer is enabled" fail "$(grep -A3 'fatal:' "$WORK/apply-interop.log" | tail -8)"
 fi
