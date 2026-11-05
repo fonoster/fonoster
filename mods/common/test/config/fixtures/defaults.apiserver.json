@@ -35,6 +35,13 @@
       "billing": {
         "enabled": false
       },
+      "ops": {
+        "enabled": false,
+        "interop": {
+          "intervalMinutes": 5
+        },
+        "databases": {}
+      },
       "costs": {
         "display": "usage"
       },

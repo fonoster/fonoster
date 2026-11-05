@@ -37,6 +37,28 @@ const featuresSchema = z
         address: z.string().min(1).optional()
       })
       .prefault({}),
+    /** Fonoster's own ops API (mods/ops): off by default, not for self-hosters. */
+    ops: z
+      .object({
+        enabled: z.boolean().default(false),
+        /** The bearer of /api/ops; required when enabled: s + openssl rand -hex 16. */
+        secret: z.string().optional(),
+        interop: z
+          .object({
+            intervalMinutes: z.number().int().positive().default(5)
+          })
+          .prefault({}),
+        /** Read-only database URLs; all required when enabled. */
+        databases: z
+          .object({
+            fonoster: z.string().min(1).optional(),
+            identity: z.string().min(1).optional(),
+            routr: z.string().min(1).optional(),
+            billing: z.string().min(1).optional()
+          })
+          .prefault({})
+      })
+      .prefault({}),
     costs: z
       .object({ display: z.enum(["none", "usage", "prices"]).default("usage") })
       .prefault({}),
@@ -322,6 +344,27 @@ const fonosterConfigSchema = z
         path: ["features", "billing", "address"],
         message: "required when features.billing.enabled is true"
       });
+    }
+
+    const { ops } = config.features;
+    if (ops.enabled) {
+      if (!/^s[0-9a-f]{32}$/.test(ops.secret ?? "")) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["features", "ops", "secret"],
+          message:
+            "required when features.ops.enabled is true: s followed by 32 lowercase hex digits"
+        });
+      }
+      (["fonoster", "identity", "routr", "billing"] as const)
+        .filter((key) => !ops.databases[key])
+        .forEach((key) =>
+          ctx.addIssue({
+            code: "custom",
+            path: ["features", "ops", "databases", key],
+            message: "required when features.ops.enabled is true"
+          })
+        );
     }
 
     if (

@@ -359,6 +359,11 @@
     "pri": "P1",
     "trials": null
   },
+  "API-073": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
   "APB-001": {
     "tier": "pr",
     "pri": "P0",
@@ -1368,6 +1373,11 @@
     "trials": null
   },
   "OPS-007": {
+    "tier": "nightly",
+    "pri": "P1",
+    "trials": null
+  },
+  "OPS-009": {
     "tier": "nightly",
     "pri": "P1",
     "trials": null

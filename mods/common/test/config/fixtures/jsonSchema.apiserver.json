@@ -232,6 +232,52 @@
             },
             "additionalProperties": false
           },
+          "ops": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "default": false
+              },
+              "secret": {
+                "type": "string"
+              },
+              "interop": {
+                "type": "object",
+                "properties": {
+                  "intervalMinutes": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0,
+                    "default": 5
+                  }
+                },
+                "additionalProperties": false
+              },
+              "databases": {
+                "type": "object",
+                "properties": {
+                  "fonoster": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "identity": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "routr": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "billing": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
           "costs": {
             "type": "object",
             "properties": {

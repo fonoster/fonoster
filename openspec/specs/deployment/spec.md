@@ -222,6 +222,10 @@ made. The database MUST NOT be touched.
 - **WHEN** an apply switches to a new version and its smoke test fails
 - **THEN** `rollback.yml` restores the previous install, its smoke test passes and `deploys.log` records `rolled back`
 
+#### Scenario: The ops API runs from the inventory
+- **WHEN** the inventory adds `ops/cloud/compose.ops.yaml` with `fonoster_files` and `COMPOSE_FILE`, `features.ops` with `fonoster_overrides` and its secrets with `fonoster_env_secrets`, and `ops/cloud/ops-role.sql` ran on the Postgres
+- **THEN** `/api/ops/metrics` answers the token through Envoy as `fonoster_ops`, a call in Routr's traces becomes one alert whose recording downloads, the traces are read-only and the state survives recreating the API server, a second apply changes nothing and no plan or apply log holds a secret; without those values `/api/ops/*` answers 404 even with a bearer
+
 #### Scenario: Billing from the inventory
 - **WHEN** the inventory adds billing's files with `fonoster_files` and its NATS user and Envoy route with `fonoster_inserts` (from `ops/cloud/`), with Stripe's keys, and wires `fonoster.yaml` and `appbridge.yaml` to billing
 - **THEN** the plan prints no Stripe secret and no file content or inserted line, billing runs healthy on its own `billing` database, Stripe's webhooks reach it through Envoy, a call for an owner with no credits is refused, and an anchor that matches no line of the release's file fails the plan before the switch, changing nothing

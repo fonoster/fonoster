@@ -1,0 +1,12 @@
+diff --git a/ops/cloud/compose.ops.yaml b/ops/cloud/compose.ops.yaml
+--- a/ops/cloud/compose.ops.yaml
++++ b/ops/cloud/compose.ops.yaml
+@@ -2,8 +2,6 @@
+ # next to the release (fonoster_files) and names it in COMPOSE_FILE (ops/cloud/README.md).
+ services:
+   apiserver:
+-    # Routr's trace folder is 0750, group 5000.
+-    group_add: ["5000"]
+     environment:
+       OPS_SECRET: ${OPS_SECRET:?set OPS_SECRET in .env}
+       OPS_DB_FONOSTER_URL: ${OPS_DB_FONOSTER_URL:?set OPS_DB_FONOSTER_URL in .env}

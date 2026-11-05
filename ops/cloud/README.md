@@ -1,4 +1,4 @@
-# Fonoster Cloud: billing
+# Fonoster Cloud
 
 Fonoster Cloud's billing (credits, plans, admission, Stripe) runs only in the `production` group.
 It is not in the install archive and not on the public docs. Production's inventory adds it to each
@@ -11,6 +11,8 @@ Inventory), from the reference files in this folder:
 | `config/billing.yaml` | Billing's config; each secret is a `${NAME}` from the container's environment |
 | `config/nats-permissions/billing.conf` | Billing's NATS subjects |
 | `inserts.yml` | Billing's NATS user in `config/nats.conf`; `/stripe/webhooks` and `billing-cluster` in `config/envoy-tls.yaml` |
+| `compose.ops.yaml` | The ops API on the API server (`mods/ops`): its secrets, Routr's traces read-only, its state volume |
+| `ops-role.sql` | The ops API's read-only database role, with column grants |
 
 Copy this folder into the inventory as `cloud/` (next to `production.yml`). After a change here,
 copy it again before approving the next release's apply.
@@ -103,3 +105,78 @@ docker compose exec billing fonoster-billing-admin credits --email owner@acme.co
 
 `trial` sets the Trial's length from its start (reopening an ended Trial); `credits` adds credits
 (Trial credits on the Trial, like a top-up otherwise). `--owner <user ref>` instead of `--email`.
+
+## Ops API
+
+Fonoster's own metrics and interop alerts (`mods/ops/README.md`), at `<api host>/api/ops`.
+
+### 1. Database role
+
+Run once by the admin:
+
+```sh
+pw="$(openssl rand -hex 24)"; psql "<admin url to any database>" -v password="$pw" -f ops/cloud/ops-role.sql; echo "$pw"
+```
+
+Then use that value as `<password>` in the four URLs below. On a managed Postgres add
+`sslmode=require` to the admin URL; `\connect` keeps it. The password is hex so it needs no URL
+escaping.
+
+When a release's query reads a new column, grant it first, or `/api/ops/metrics` answers 503. Grants
+are per column on purpose; run them as the tables' owner.
+
+### 2. Inventory
+
+Additions to production's values:
+
+```yaml
+fonoster_env:
+  COMPOSE_FILE: compose.yaml:compose.external-db.yaml:compose.billing.yaml:compose.traces.yaml:compose.ops.yaml
+fonoster_env_secrets:
+  OPS_SECRET: "s<hex16>"   # printf 's%s\n' "$(openssl rand -hex 16)"
+  OPS_DB_FONOSTER_URL: "postgresql://fonoster_ops:<password>@<managed db>:25060/fonoster?uselibpqcompat=true&sslmode=require"
+  OPS_DB_IDENTITY_URL: "postgresql://fonoster_ops:<password>@<managed db>:25060/fnidentity?uselibpqcompat=true&sslmode=require"
+  OPS_DB_ROUTR_URL: "postgresql://fonoster_ops:<password>@<managed db>:25060/routr?uselibpqcompat=true&sslmode=require"
+  OPS_DB_BILLING_URL: "postgresql://fonoster_ops:<password>@<managed db>:25060/billing?uselibpqcompat=true&sslmode=require"
+fonoster_files:
+  compose.ops.yaml: "{{ lookup('file', inventory_dir ~ '/cloud/compose.ops.yaml') }}"
+fonoster_overrides:
+  fonoster.yaml:
+    features:
+      ops:
+        enabled: true
+        secret: "${OPS_SECRET}"
+        databases:
+          fonoster: "${OPS_DB_FONOSTER_URL}"
+          identity: "${OPS_DB_IDENTITY_URL}"
+          routr: "${OPS_DB_ROUTR_URL}"
+          billing: "${OPS_DB_BILLING_URL}"
+```
+
+- `OPS_*` go in `fonoster_env_secrets`, never `fonoster_env`.
+- Bare `?sslmode=require` fails with `DEPTH_ZERO_SELF_SIGNED_CERT`.
+- Use the database's direct port, not a connection pooler, or the read-only start-up options may not
+  apply.
+- `routr_traces_enabled` and `compose.traces.yaml` are required.
+
+### 3. First start
+
+The first scan reads every retained trace, so expect a delay, then alerts for what's already there.
+
+### 4. After a deploy
+
+- No token: 401. With the token: `/api/ops/metrics` gives 200 with `"schema":1`.
+- Pass the token with `curl --config -`, never on the command line.
+- `ops: interop scan failed` and `ops: metrics query failed` in the API server's log say why a 503
+  happened.
+- Don't test by placing production calls.
+
+### 5. Rotating the token
+
+Change `OPS_SECRET`, deploy, update `token=` on the Mac.
+
+### 6. What the token reaches
+
+Recordings of real calls. Routr redacts digest responses, URI passwords and auth headers only; phone
+numbers, IPs, digest usernames, `X-Access-Key-Id`, `X-Connect-Token` and SDP bodies stay. Treat
+downloads as customer data.

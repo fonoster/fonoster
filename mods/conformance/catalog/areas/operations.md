@@ -172,3 +172,19 @@ with no credits is written to the databases, and the admission AppBridge asks (A
 `billing:50071`) is called for a call of theirs.
 
 **Pass.** The plan with the bad anchor fails with `fonoster_inserts: config/nats.conf: after '...' matches 0 lines of this release's file` and `/opt/fonoster` is byte-identical; the plan's output carries no Stripe secret; neither the plan nor the apply log carries the sentinel; billing is running and healthy; an unsigned `POST /stripe/webhooks` through Envoy answers 400; billing has applied a signed event from the fake in the `billing` database; the call is refused. **Fail.** Any of those differs.
+
+### OPS-009 The ops API runs from the inventory
+
+- **Spec:** deployment / Production deploys run the playbook / The ops API runs from the inventory
+- **Priority:** P1
+- **Proof:** Drop `group_add: ["5000"]` from `ops/cloud/compose.ops.yaml`; the scan can't read Routr's traces folder, no alert appears and the test goes red.
+- **Fault:** faults/OPS-009.patch
+- **Test:** ops/ansible/test/throwaway.sh
+
+Last, after OPS-007 and from its values: `ops/cloud/ops-role.sql` runs on the stack's Postgres, and the
+ops API is added only with `fonoster_files`, `COMPOSE_FILE`, `fonoster_overrides` and
+`fonoster_env_secrets`, from `ops/cloud/compose.ops.yaml`, with `intervalMinutes: 1`. A plan and two
+applies run, with a sentinel `OPS_SECRET` and database password. A real call from the corpus is put
+in Routr's traces folder as Routr writes it (uid 5000, modified now). The API server is recreated.
+
+**Pass.** Before the overlay, `/api/ops/interop/alerts` answers 404 through Envoy with any bearer; with the token `/api/ops/metrics` answers 200 with `schema` 1, `users.total` of 1 or more and `billing.present` 1, connecting as `fonoster_ops`; `fonoster_ops` is refused an `INSERT` into `users` and `SELECT email FROM users`; within 150 s the alerts hold exactly one `IOP-004` `whatsapp` alert with that file, and its recording downloads with the fixture's sha256; `touch /var/routr/traces/x` in the API server's container fails; after recreating it the alert is still there once and the next pass succeeds; a second apply changes nothing; neither secret is in the plan or the apply log. **Fail.** Any of those differs, or OPS-007's apply failed.

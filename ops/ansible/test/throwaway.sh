@@ -9,8 +9,9 @@
 # checksum, a release with a .env name the inventory lacks, an install whose keys are not in
 # /var/lib/fonoster/keys). Without <b> the version switch is not checked. --rollback (needs <b>)
 # then applies <b> with a smoke test that fails and checks that playbooks/rollback.yml puts <a>
-# back. Then it plans and applies <a> with Fonoster Cloud's billing from the inventory (OPS-007).
-# The inventory is test/inventory.yml: this machine over a local connection.
+# back. Then it plans and applies <a> with Fonoster Cloud's billing from the inventory (OPS-007),
+# and last adds the ops API to it (OPS-009). The inventory is test/inventory.yml: this machine over
+# a local connection.
 #
 # It deletes /opt/fonoster, /var/lib/fonoster and their containers and volumes first, so it runs
 # only on a throwaway machine: Ubuntu 24.04 with root or sudo, Docker, Node.js and npm (for the
@@ -393,7 +394,9 @@ fi
 compose exec -T postgres psql -U postgres -tAc "select 1 from pg_database where datname = 'billing'" | grep -q 1 \
   || compose exec -T postgres psql -U postgres -q -c "CREATE DATABASE billing" >&2
 
+billing_applied=0
 if play "$A" "$WORK/apply-billing.log" -e "@$WORK/billing.json"; then
+  billing_applied=1
   if grep -lF "$SENTINEL" "$WORK/plan-billing.log" "$WORK/apply-billing.log" >&2; then
     record OPS-007 "a secret in fonoster_files or fonoster_inserts is in neither the plan nor the apply log" fail "the sentinel is in the log above"
   else
@@ -445,4 +448,163 @@ new AuthzClient("127.0.0.1:50071")
   fi
 else
   record OPS-007 "billing is running and healthy" fail "$(grep -A3 'fatal:' "$WORK/apply-billing.log" | tail -8)"
+fi
+
+# OPS-009 The ops API runs from the inventory --------------------------------------------------------
+# Production's values (ops/cloud/README.md, Ops API) on top of OPS-007's: only fonoster_files,
+# COMPOSE_FILE, fonoster_overrides and fonoster_env_secrets, from ops/cloud/compose.ops.yaml. A real
+# call from the corpus stands in for production traffic. The two sentinels must never reach a log.
+OPS_SECRET="s7d1e4b90a3c6f2581e7d4b90a3c6f258"
+OPS_DB_PASSWORD="0a1f7c3e9b5d2486ce10f7a93b5d2486ce10f7a93b5d2486"
+OPS_FILE=20261105T120000Z-ops009.jsonl
+OPS_FIXTURE="$ROOT/mods/common/test/interop/fixtures/sipjs_wa-dod-invite_whatsapp_20261025.jsonl"
+
+ops_get() { # <path> <out>: prints the HTTP status; the token goes on stdin, never in the arguments
+  printf 'header = "Authorization: Bearer %s"\n' "$OPS_SECRET" \
+    | curl -s --cacert "$WORK/ca.pem" --config - -o "$2" -w '%{http_code}' "https://127.0.0.1:18443/api/ops$1"
+}
+ops_psql() { # <database> <sql>: as fonoster_ops
+  compose exec -T -e PGPASSWORD="$OPS_DB_PASSWORD" postgres \
+    psql -h 127.0.0.1 -U fonoster_ops -d "$1" -v ON_ERROR_STOP=1 -c "$2" 2>&1
+}
+ops_alerts() { # prints the number of IOP-004 whatsapp alerts with OPS_FILE, or "none" without a 200
+  [ "$(ops_get /interop/alerts "$WORK/alerts.json")" = 200 ] || { echo none; return; }
+  python3 -c '
+import json, sys
+rows = json.load(open(sys.argv[1]))["alerts"]
+print(sum(1 for a in rows if a.get("case") == "IOP-004" and a.get("far_end") == "whatsapp" and a.get("file") == sys.argv[2]))
+' "$WORK/alerts.json" "$OPS_FILE"
+}
+ops_wait_alert() { # waits up to 150 s for the alert; prints the last count
+  local got=none
+  for _ in $(seq 1 30); do
+    got="$(ops_alerts)"
+    [ "$got" = 1 ] && break
+    sleep 5
+  done
+  echo "$got"
+}
+ops_last_run() { compose exec -T apiserver cat /var/lib/fonoster/ops/state.json 2>/dev/null | python3 -c 'import json, sys; print(json.load(sys.stdin)["lastRun"])' 2>/dev/null; }
+
+ops_overlay() {
+  CLOUD="$ROOT/ops/cloud" OPS_SECRET="$OPS_SECRET" OPS_DB_PASSWORD="$OPS_DB_PASSWORD" python3 -c '
+import json, os, sys
+v = json.load(open(sys.argv[1]))
+cloud, pw = os.environ["CLOUD"], os.environ["OPS_DB_PASSWORD"]
+url = lambda db: "postgresql://fonoster_ops:%s@postgres:5432/%s" % (pw, db)
+v["fonoster_env"]["COMPOSE_FILE"] += ":compose.ops.yaml"
+v["fonoster_env_secrets"].update(OPS_SECRET=os.environ["OPS_SECRET"], OPS_DB_FONOSTER_URL=url("fonoster"),
+                                 OPS_DB_IDENTITY_URL=url("fnidentity"), OPS_DB_ROUTR_URL=url("routr"),
+                                 OPS_DB_BILLING_URL=url("billing"))
+v["fonoster_files"]["compose.ops.yaml"] = "{{ lookup(\"file\", \"%s/compose.ops.yaml\") }}" % cloud
+v["fonoster_overrides"]["fonoster.yaml"]["features"]["ops"] = {
+    "enabled": True, "secret": "${OPS_SECRET}", "interop": {"intervalMinutes": 1},
+    "databases": {"fonoster": "${OPS_DB_FONOSTER_URL}", "identity": "${OPS_DB_IDENTITY_URL}",
+                  "routr": "${OPS_DB_ROUTR_URL}", "billing": "${OPS_DB_BILLING_URL}"}}
+json.dump(v, sys.stdout)
+' "$WORK/billing.json" >"$WORK/ops.json"
+}
+
+ops_case() {
+  local code n metrics sum want before after denied
+  # The default install answers nothing here, whatever the bearer.
+  code="$(ops_get /interop/alerts "$WORK/alerts.json")"
+  [ "$code" = 404 ] && record OPS-009 "without the overlay /api/ops answers 404 even with a bearer" ok \
+    || record OPS-009 "without the overlay /api/ops answers 404 even with a bearer" fail "HTTP $code"
+
+  ops_overlay || { record OPS-009 "the plan with the ops API exits 0" fail "could not write the ops vars"; return; }
+  if ! compose exec -T postgres psql -U postgres -v ON_ERROR_STOP=1 -q -v password="$OPS_DB_PASSWORD" \
+    <"$ROOT/ops/cloud/ops-role.sql" >"$WORK/ops-role.log" 2>&1; then
+    record OPS-009 "ops/cloud/ops-role.sql runs on the stack's Postgres" fail "$(tail -3 "$WORK/ops-role.log")"
+    return
+  fi
+  record OPS-009 "ops/cloud/ops-role.sql runs on the stack's Postgres" ok
+
+  if play "$A" "$WORK/plan-ops.log" -e "@$WORK/ops.json" --check --diff; then
+    record OPS-009 "the plan with the ops API exits 0" ok
+  else
+    record OPS-009 "the plan with the ops API exits 0" fail "$(tail -20 "$WORK/plan-ops.log")"
+  fi
+  if ! play "$A" "$WORK/apply-ops.log" -e "@$WORK/ops.json"; then
+    record OPS-009 "the apply with the ops API exits 0" fail "$(grep -A3 'fatal:' "$WORK/apply-ops.log" | tail -8)"
+    return
+  fi
+  record OPS-009 "the apply with the ops API exits 0" ok
+
+  for _ in $(seq 1 30); do
+    code="$(ops_get /metrics "$WORK/metrics.json")"
+    [ "$code" = 200 ] && break
+    sleep 2
+  done
+  metrics="$(python3 -c '
+import json, sys
+s = json.load(open(sys.argv[1]))
+print("ok" if s["schema"] == 1 and s["users"]["total"] >= 1 and s["billing"]["present"] == 1 else s)
+' "$WORK/metrics.json" 2>&1)"
+  [ "$code" = 200 ] && [ "$metrics" = ok ] && record OPS-009 "/api/ops/metrics answers the token as fonoster_ops" ok \
+    || record OPS-009 "/api/ops/metrics answers the token as fonoster_ops" fail "HTTP $code: $metrics; $(compose logs --no-color --tail 20 apiserver 2>&1 | grep 'ops:')"
+
+  denied="$(ops_psql fnidentity "INSERT INTO users (ref) VALUES ('ops009')")"
+  case "$denied" in
+    *"permission denied"*) record OPS-009 "fonoster_ops can't write to users" ok ;;
+    *) record OPS-009 "fonoster_ops can't write to users" fail "$denied" ;;
+  esac
+  denied="$(ops_psql fnidentity "SELECT email FROM users")"
+  case "$denied" in
+    *"permission denied"*) record OPS-009 "fonoster_ops can't read users.email" ok ;;
+    *) record OPS-009 "fonoster_ops can't read users.email" fail "$denied" ;;
+  esac
+
+  # A finished call Routr just wrote: owned by uid 5000, modified now.
+  $SUDO install -o 5000 -g 5000 -m 0644 "$OPS_FIXTURE" "/var/lib/fonoster/routr-traces/$OPS_FILE"
+  n="$(ops_wait_alert)"
+  [ "$n" = 1 ] && record OPS-009 "a call in the traces yields exactly one alert within 150 s" ok \
+    || record OPS-009 "a call in the traces yields exactly one alert within 150 s" fail "alerts: $n; $(compose logs --no-color --tail 20 apiserver 2>&1 | grep 'ops:')"
+
+  code="$(ops_get "/interop/recordings/$OPS_FILE" "$WORK/recording.jsonl")"
+  sum="$(sha256sum "$WORK/recording.jsonl" 2>/dev/null | cut -d' ' -f1)"
+  want="$(sha256sum "$OPS_FIXTURE" | cut -d' ' -f1)"
+  [ "$code" = 200 ] && [ "$sum" = "$want" ] && record OPS-009 "the alert's recording downloads with the fixture's sha256" ok \
+    || record OPS-009 "the alert's recording downloads with the fixture's sha256" fail "HTTP $code, sha256 ${sum:-none}"
+
+  if compose exec -T apiserver touch /var/routr/traces/x >/dev/null 2>&1; then
+    record OPS-009 "the API server can't write to the traces" fail "touch succeeded"
+  else
+    record OPS-009 "the API server can't write to the traces" ok
+  fi
+
+  if play "$A" "$WORK/apply-ops2.log" -e "@$WORK/ops.json"; then
+    n="$(recap_changed "$WORK/apply-ops2.log")"
+    [ "$n" = 0 ] && record OPS-009 "a second apply with the ops API changes nothing" ok \
+      || record OPS-009 "a second apply with the ops API changes nothing" fail "changed=$n: $(grep -B1 '^changed:' "$WORK/apply-ops2.log" | grep TASK | head -5)"
+  else
+    record OPS-009 "a second apply with the ops API changes nothing" fail "$(grep -A3 'fatal:' "$WORK/apply-ops2.log" | tail -4)"
+  fi
+  if grep -lF -e "$OPS_SECRET" -e "$OPS_DB_PASSWORD" "$WORK/plan-ops.log" "$WORK/apply-ops.log" "$WORK/apply-ops2.log" >&2; then
+    record OPS-009 "no ops secret is in the plan or the apply log" fail "a sentinel is in the log above"
+  else
+    record OPS-009 "no ops secret is in the plan or the apply log" ok
+  fi
+
+  # State survives recreating the container, and the next pass can still write it (uid 1001).
+  before="$(ops_last_run)"
+  compose up -d --force-recreate apiserver >"$WORK/recreate.log" 2>&1
+  n="$(ops_wait_alert)"
+  [ "$n" = 1 ] && record OPS-009 "after recreating the API server the alert is still there once" ok \
+    || record OPS-009 "after recreating the API server the alert is still there once" fail "alerts: $n; $(tail -3 "$WORK/recreate.log")"
+  after="$before"
+  for _ in $(seq 1 30); do
+    after="$(ops_last_run)"
+    [ -n "$after" ] && [ "$after" != "$before" ] && break
+    sleep 5
+  done
+  [ -n "$after" ] && [ "$after" != "$before" ] && [ "$(ops_get /interop/alerts "$WORK/alerts.json")" = 200 ] \
+    && record OPS-009 "after recreating the API server the next pass succeeds" ok \
+    || record OPS-009 "after recreating the API server the next pass succeeds" fail "lastRun ${before:-none} -> ${after:-none}"
+}
+
+if [ "$billing_applied" = 1 ]; then
+  ops_case
+else
+  record OPS-009 "the ops API runs from the inventory" fail "OPS-007's apply failed"
 fi
