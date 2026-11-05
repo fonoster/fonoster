@@ -58,7 +58,10 @@ import {
 // one). No network: Stripe is the fake. The same files run nightly against a Stripe sandbox.
 
 const DAY = 86_400;
-const START = Date.UTC(2026, 10, 1) / 1000;
+// Next month's 1st (UTC): ahead of the database clock, which stamps outbox rows with now(), so
+// they're always due on the test clock.
+const now = new Date();
+const START = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1) / 1000;
 const CARD: RateCard = {
   version: 1,
   startsAt: new Date("2026-01-01T00:00:00Z"),
