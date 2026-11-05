@@ -107,6 +107,8 @@
     cmd: getfacl -pn {{ routr_traces_dir }}
   register: traces_acl
   changed_when: false
+  # A plan may run before the acl package is installed; the ACL then shows as to be set.
+  failed_when: false
   check_mode: false
 
 - name: Routr traces readable by group 5000

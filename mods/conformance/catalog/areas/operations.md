@@ -169,8 +169,7 @@ content and in an insert's `lines`. Before that, a plan with an anchor that matc
 with no credits is written to the databases, and the admission AppBridge asks (Authz on
 `billing:50071`) is called for a call of theirs.
 
-<<<<<<< HEAD
-**Pass.** The plan's output carries no Stripe secret; billing is running and healthy; an unsigned `POST /stripe/webhooks` through Envoy answers 400; billing has applied a signed event from the fake; the call is refused. **Fail.** Any of those differs.
+**Pass.** The plan with the bad anchor fails with `fonoster_inserts: config/nats.conf: after '...' matches 0 lines of this release's file` and `/opt/fonoster` is byte-identical; the plan's output carries no Stripe secret; neither the plan nor the apply log carries the sentinel; billing is running and healthy; an unsigned `POST /stripe/webhooks` through Envoy answers 400; billing has applied a signed event from the fake in the `billing` database; the call is refused. **Fail.** Any of those differs.
 
 ### OPS-008 The interop watch scans Routr's traces
 
@@ -189,6 +188,3 @@ generated reader key; a plan (`--check`) runs before the apply. A real call from
 the scan runs as `fonoster-interop` with no network, `ProtectSystem=strict` and no capabilities, the
 call yields one IOP-004 line in `alerts.jsonl`, a second apply changes nothing, and the reader's key
 prints `alerts.jsonl` instead of running `id`. **Fail.** Any of those differs.
-=======
-**Pass.** The plan with the bad anchor fails with `fonoster_inserts: config/nats.conf: after '...' matches 0 lines of this release's file` and `/opt/fonoster` is byte-identical; the plan's output carries no Stripe secret; neither the plan nor the apply log carries the sentinel; billing is running and healthy; an unsigned `POST /stripe/webhooks` through Envoy answers 400; billing has applied a signed event from the fake in the `billing` database; the call is refused. **Fail.** Any of those differs.
->>>>>>> origin/main
