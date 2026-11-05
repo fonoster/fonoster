@@ -176,10 +176,10 @@ databases, and the admission AppBridge asks (Authz on `billing:50071`) is called
 
 After the first apply of `0.0.0-a` (the watch off), nothing of the watch exists. Last, the host role
 is applied with the watch on: one far end, a local `npm pack` of `mods/common` as the package, and a
-generated reader key. A real call from the corpus is put in Routr's traces folder as Routr writes it
+generated reader key; a plan (`--check`) runs before the apply. A real call from the corpus is put in Routr's traces folder as Routr writes it
 (uid 5000, modified now) and the service is started.
 
-**Pass.** With the watch off there is no interop file, unit or user; with it on the timer is enabled,
+**Pass.** With the watch off there is no interop file, unit or user; the plan with it on exits 0; with it on the timer is enabled,
 the scan runs as `fonoster-interop` with no network, `ProtectSystem=strict` and no capabilities, the
 call yields one IOP-004 line in `alerts.jsonl`, a second apply changes nothing, and the reader's key
 prints `alerts.jsonl` instead of running `id`. **Fail.** Any of those differs.

@@ -142,6 +142,13 @@ left="$($SUDO docker ps -aq --filter label=com.docker.compose.project=fonoster)"
 left="$($SUDO docker volume ls -q --filter label=com.docker.compose.project=fonoster)"
 [ -z "$left" ] || $SUDO docker volume rm -f $left >/dev/null
 $SUDO rm -rf "$LIVE" "$STATE"
+# What OPS-008 installed on a previous run: the watch-off check and the alert count start clean.
+$SUDO systemctl disable --now fonoster-interop.timer >/dev/null 2>&1 || true
+$SUDO rm -f /etc/systemd/system/fonoster-interop.service /etc/systemd/system/fonoster-interop.timer
+$SUDO systemctl daemon-reload
+$SUDO rm -rf /usr/local/lib/fonoster-interop /etc/fonoster-interop /var/lib/fonoster-interop /var/lib/private/fonoster-interop
+! id interop-alerts >/dev/null 2>&1 || $SUDO userdel -r interop-alerts >/dev/null 2>&1
+! id fonoster-interop >/dev/null 2>&1 || $SUDO userdel fonoster-interop
 
 (cd "$ANSIBLE" && ansible-lint) || die "ansible-lint failed"
 
@@ -437,6 +444,13 @@ print(json.dumps({"interop_watch_enabled": True,
                   "interop_alerts_authorized_key": open(sys.argv[2]).read().strip()}))
 ' "$WORK/$pkg" "$WORK/interop-key.pub" >"$WORK/interop.json"
 
+if [ "$interop_ok" = 1 ]; then
+  if play "$A" "$WORK/plan-interop.log" --check --diff --tags host -e "@$WORK/interop.json"; then
+    record OPS-008 "a plan with the watch on exits 0" ok
+  else
+    record OPS-008 "a plan with the watch on exits 0" fail "$(grep -A3 'fatal:' "$WORK/plan-interop.log" | tail -8)"
+  fi
+fi
 if [ "$interop_ok" = 1 ] && play "$A" "$WORK/apply-interop.log" --tags host -e "@$WORK/interop.json"; then
   check OPS-008 "the watch installs and its timer is enabled" systemctl is-enabled fonoster-interop.timer
   user="$(systemctl show -p User --value fonoster-interop.service)"

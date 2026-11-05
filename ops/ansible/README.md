@@ -56,7 +56,7 @@ Copy `inventory.example/` to `inventory/` (git-ignored) and fill it in:
 
 ### Interop watch
 
-With `interop_watch_enabled: true` (it needs `routr_traces_enabled`), the host role installs
+With `interop_watch_enabled: true` (set `routr_traces_enabled` too: the scan reads Routr's traces), the host role installs
 Node.js 22 (NodeSource) and `@fonoster/common` (the highest release at or below `fonoster_version`)
 in `/usr/local/lib/fonoster-interop`, and a `fonoster-interop.timer` that runs
 `fonoster-interop scan` every hour over the last 70 minutes of Routr's traces. The scan runs as the
@@ -71,8 +71,8 @@ interop_far_ends:
   - name: acme-carrier
     hosts: [sip.acme-carrier.example]
     addresses: [198.51.100.0/24]
-# Optional: one key that can only print alerts.jsonl, for the SwiftBar plugin
-# (ops/interop/swiftbar/README.md). Empty: no reader account.
+# Optional: one key that can only print alerts.jsonl, for reading the alerts over SSH.
+# Empty: no reader account.
 interop_alerts_authorized_key: "ssh-ed25519 AAAA... owner-mac"
 ```
 

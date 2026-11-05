@@ -1,10 +1,5 @@
 # The interop watch: Node.js, the fonoster-interop scan from @fonoster/common, and an hourly timer
 # that runs it as an unprivileged, network-isolated user reading Routr's traces through group 5000.
-- name: Interop needs Routr's traces
-  ansible.builtin.assert:
-    that: routr_traces_enabled
-    fail_msg: interop_watch_enabled needs routr_traces_enabled (the scan reads routr_traces_dir)
-
 - name: NodeSource apt repository
   ansible.builtin.deb822_repository:
     name: nodesource
@@ -38,11 +33,12 @@
   register: interop_latest
   changed_when: false
   check_mode: false
-  when: interop_package == ""
+  # A plan may run before Node.js is installed; it then shows the install without the version.
+  when: interop_package == "" and not ansible_check_mode
 
 - name: Interop package spec
   ansible.builtin.set_fact:
-    interop_spec: "{{ interop_package if interop_package != '' else interop_latest.stdout }}"
+    interop_spec: "{{ interop_package if interop_package != '' else interop_latest.stdout | default('@fonoster/common') }}"
 
 - name: Interop package installed
   ansible.builtin.slurp:
@@ -59,7 +55,7 @@
 # Installed by the play, never at run time: the service has no network.
 - name: Interop package
   ansible.builtin.command:
-    cmd: npm install --prefix /usr/local/lib/fonoster-interop --omit=dev --no-audit --no-fund {{ interop_spec }}
+    cmd: npm install --prefix /usr/local/lib/fonoster-interop --omit=dev --ignore-scripts --no-audit --no-fund {{ interop_spec }}
   when: (interop_installed.content | default('') | b64decode | trim) != interop_spec
   notify: Interop package recorded
 
@@ -134,6 +130,8 @@
     state: started
     enabled: true
     daemon_reload: "{{ interop_units is changed }}"
+  # A plan writes no unit, so there is none to start yet.
+  when: not (ansible_check_mode and interop_units is changed)
 
 # The alert reader: one key that can only print alerts.jsonl.
 - name: Interop alerts reader
