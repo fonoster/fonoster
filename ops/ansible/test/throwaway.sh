@@ -374,13 +374,13 @@ if play "$A" "$WORK/apply-billing.log" -e "@$WORK/billing.json"; then
   # Billing creates its products and prices in Stripe at start; the fake's signed events come back.
   applied=0
   for _ in $(seq 1 30); do
-    applied="$(compose exec -T postgres psql -U postgres -d fonoster -tAc \
-      "select count(*) from billing.stripe_events where applied_at is not null" 2>/dev/null | tr -dc '0-9')"
+    applied="$(compose exec -T postgres psql -U postgres -d billing -tAc \
+      "select count(*) from stripe_events where applied_at is not null" 2>/dev/null | tr -dc '0-9')"
     [ "${applied:-0}" -gt 0 ] && break
     sleep 2
   done
   [ "${applied:-0}" -gt 0 ] && record OPS-007 "a signed event from the Stripe fake is applied" ok \
-    || record OPS-007 "a signed event from the Stripe fake is applied" fail "no applied event in billing.stripe_events"
+    || record OPS-007 "a signed event from the Stripe fake is applied" fail "no applied event in stripe_events (billing database)"
 
   # An owner whose plan ended with no credits left: the admission AppBridge asks refuses the call.
   compose exec -T postgres psql -U postgres -v ON_ERROR_STOP=1 -q >"$WORK/ops007-seed.log" 2>&1 <<'SQL'
@@ -389,8 +389,8 @@ insert into users (ref, access_key_id, name, email, updated_at)
   values ('ops007-owner', 'USops007', 'OPS-007', 'ops007@example.com', now()) on conflict do nothing;
 insert into workspaces (ref, access_key_id, name, owner_ref, updated_at)
   values ('ops007-ws', 'WOops007', 'OPS-007', 'ops007-owner', now()) on conflict do nothing;
-\c fonoster
-insert into billing.billing_accounts (id, owner_ref, plan, status, updated_at)
+\c billing
+insert into billing_accounts (id, owner_ref, plan, status, updated_at)
   values ('ops007-account', 'ops007-owner', 'none', 'canceled', now()) on conflict do nothing;
 SQL
   answer="$(compose exec -T billing node -e '
