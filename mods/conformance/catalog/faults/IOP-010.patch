@@ -1,0 +1,13 @@
+diff --git a/mods/common/src/interop/classifyCall.ts b/mods/common/src/interop/classifyCall.ts
+index 1f0a3acbe..e11fbd282 100644
+--- a/mods/common/src/interop/classifyCall.ts
++++ b/mods/common/src/interop/classifyCall.ts
+@@ -146,7 +146,7 @@ function readFacts(records: TraceRecord[], invite: TraceRecord, i0: number) {
+     const ok = answeredLater(i);
+     if (!ok || !hasBody(ok)) return false;
+     const okAt = after.indexOf(ok);
+-    return after.slice(okAt + 1).some((x) => isRequest(x, "ACK") && hasBody(x));
++    return after.slice(okAt + 1).some((x) => isRequest(x, "ACK"));
+   });
+ 
+   const referred =

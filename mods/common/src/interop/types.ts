@@ -1,0 +1,44 @@
+/**
+ * Copyright (C) 2025 by Fonoster Inc (https://fonoster.com)
+ * http://github.com/fonoster/fonoster
+ *
+ * This file is part of Fonoster
+ *
+ * Licensed under the MIT License (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    https://opensource.org/licenses/MIT
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/** A well-known far end: the provider on the other side of a Trunk. */
+export interface FarEnd {
+  /** The corpus `<far-end>` token, e.g. "whatsapp" */
+  name: string;
+  /** Request-URI host globs (`*` matches any characters, dots included) */
+  hosts?: string[];
+  /** Inbound sender addresses: IPs or CIDRs */
+  addresses?: string[];
+}
+
+export type Direction = "inbound" | "outbound";
+
+/** The far end and interop case a recorded call shows. */
+export interface Match {
+  farEnd: string;
+  case: string;
+  direction: Direction;
+}
+
+/** A call to a far end whose signaling points at the interconnect. */
+export interface Failure {
+  farEnd: string;
+  /** e.g. "488 to INVITE", "no ACK for 2xx", "481 to BYE" */
+  signature: string;
+}
