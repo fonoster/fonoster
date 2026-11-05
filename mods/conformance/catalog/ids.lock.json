@@ -345,5 +345,6 @@
   "IOP-008": "Outbound call declined",
   "IOP-009": "In-dialog re-INVITE with SDP answered",
   "IOP-010": "In-dialog re-INVITE without SDP",
-  "IOP-011": "Blind transfer by REFER"
+  "IOP-011": "Blind transfer by REFER",
+  "OPS-008": "The interop watch scans Routr's traces"
 }

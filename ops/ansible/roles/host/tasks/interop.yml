@@ -1,0 +1,169 @@
+# The interop watch: Node.js, the fonoster-interop scan from @fonoster/common, and an hourly timer
+# that runs it as an unprivileged, network-isolated user reading Routr's traces through group 5000.
+- name: NodeSource apt repository
+  ansible.builtin.deb822_repository:
+    name: nodesource
+    types: [deb]
+    uris: https://deb.nodesource.com/node_22.x
+    suites: [nodistro]
+    components: [main]
+    signed_by: https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key
+    state: present
+  register: nodesource_repo
+
+# Ubuntu 24.04's own nodejs is 18, below what @fonoster/common needs (>=20.11.1).
+- name: Node.js and the ACL tools
+  ansible.builtin.apt:
+    name: [nodejs, acl]
+    state: present
+    update_cache: "{{ nodesource_repo is changed }}"
+  when: not (ansible_check_mode and nodesource_repo is changed)
+
+- name: Interop package to install
+  ansible.builtin.shell: |
+    set -o pipefail
+    npm view @fonoster/common versions --json | python3 -c '
+    import json, sys
+    want = tuple(int(x) for x in sys.argv[1].split("-")[0].split("."))
+    ok = [v for v in json.load(sys.stdin) if "-" not in v and tuple(int(x) for x in v.split(".")) <= want]
+    print("@fonoster/common@" + max(ok, key=lambda v: tuple(int(x) for x in v.split("."))))
+    ' "{{ fonoster_version }}"
+  args:
+    executable: /bin/bash
+  register: interop_latest
+  changed_when: false
+  check_mode: false
+  # A plan may run before Node.js is installed; it then shows the install without the version.
+  when: interop_package == "" and not ansible_check_mode
+
+- name: Interop package spec
+  ansible.builtin.set_fact:
+    interop_spec: "{{ interop_package if interop_package != '' else interop_latest.stdout | default('@fonoster/common') }}"
+
+- name: Interop package installed
+  ansible.builtin.slurp:
+    src: /usr/local/lib/fonoster-interop/.installed
+  register: interop_installed
+  failed_when: false
+
+- name: Interop folder
+  ansible.builtin.file:
+    path: /usr/local/lib/fonoster-interop
+    state: directory
+    mode: "0755"
+
+# Installed by the play, never at run time: the service has no network.
+- name: Interop package
+  ansible.builtin.command:
+    cmd: npm install --prefix /usr/local/lib/fonoster-interop --omit=dev --ignore-scripts --no-audit --no-fund {{ interop_spec }}
+  when: (interop_installed.content | default('') | b64decode | trim) != interop_spec
+  notify: Interop package recorded
+
+- name: Interop package recorded now
+  ansible.builtin.meta: flush_handlers
+
+- name: Interop config folder
+  ansible.builtin.file:
+    path: /etc/fonoster-interop
+    state: directory
+    mode: "0755"
+
+- name: Interop far ends
+  ansible.builtin.copy:
+    content: "{{ interop_far_ends | to_nice_json }}\n"
+    dest: /etc/fonoster-interop/far-ends.json
+    mode: "0644"
+
+- name: Interop user
+  ansible.builtin.user:
+    name: fonoster-interop
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
+
+# Routr writes its traces as uid 5000; the scan reads them through group 5000 only.
+# systemd resolves SupplementaryGroups=5000 through /etc/group; Routr's uid/gid 5000 has no
+# name on the host, so one is given when no group holds that id.
+- name: Routr's group id on the host
+  ansible.builtin.command:
+    cmd: getent group 5000
+  register: routr_group
+  changed_when: false
+  failed_when: false
+  check_mode: false
+
+- name: Routr's group
+  ansible.builtin.group:
+    name: routr-traces
+    gid: 5000
+    system: true
+  when: routr_group.rc != 0
+
+# The service sees routr_traces_dir through a read-only bind mount of its own (the unit's
+# BindReadOnlyPaths), so /var/lib/fonoster (0700 root) stays as it is; reading the files takes group
+# 5000 plus read on each file, which the default ACL keeps whatever umask Routr writes with.
+- name: Routr traces' default ACL
+  ansible.builtin.command:
+    cmd: getfacl -pn {{ routr_traces_dir }}
+  register: traces_acl
+  changed_when: false
+  # A plan may run before the acl package is installed; the ACL then shows as to be set.
+  failed_when: false
+  check_mode: false
+
+- name: Routr traces readable by group 5000
+  ansible.builtin.shell: |
+    setfacl -d -m g:5000:r {{ routr_traces_dir }}
+    find {{ routr_traces_dir }} -maxdepth 1 -type f -exec setfacl -m g:5000:r {} +
+  changed_when: true
+  when: "'default:group:5000:r--' not in traces_acl.stdout"
+
+- name: Interop service and timer
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: /etc/systemd/system/{{ item }}
+    mode: "0644"
+  loop: [fonoster-interop.service, fonoster-interop.timer]
+  register: interop_units
+
+- name: Interop timer running
+  ansible.builtin.systemd_service:
+    name: fonoster-interop.timer
+    state: started
+    enabled: true
+    daemon_reload: "{{ interop_units is changed }}"
+  # A plan writes no unit, so there is none to start yet.
+  when: not (ansible_check_mode and interop_units is changed)
+
+# The alert reader: one key that can only print alerts.jsonl.
+- name: Interop alerts reader
+  ansible.builtin.user:
+    name: interop-alerts
+    system: true
+    shell: /bin/sh
+    groups: [fonoster-interop]
+    create_home: true
+  register: interop_reader
+  when: interop_alerts_authorized_key != ""
+
+- name: Interop alerts reader's SSH folder
+  ansible.builtin.file:
+    path: "{{ interop_reader.home | default('/home/interop-alerts') }}/.ssh"
+    state: directory
+    owner: interop-alerts
+    group: interop-alerts
+    mode: "0700"
+  when:
+    - interop_alerts_authorized_key != ""
+    - not (ansible_check_mode and interop_reader is changed)
+
+- name: Interop alerts reader's key
+  ansible.builtin.copy:
+    content: 'restrict,command="cat /var/lib/fonoster-interop/alerts.jsonl" {{ interop_alerts_authorized_key }}{{ "\n" }}'
+    dest: "{{ interop_reader.home | default('/home/interop-alerts') }}/.ssh/authorized_keys"
+    owner: interop-alerts
+    group: interop-alerts
+    mode: "0600"
+  when:
+    - interop_alerts_authorized_key != ""
+    - not (ansible_check_mode and interop_reader is changed)

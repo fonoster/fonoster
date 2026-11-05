@@ -2,3 +2,9 @@
   ansible.builtin.service:
     name: docker
     state: restarted
+
+- name: Interop package recorded
+  ansible.builtin.copy:
+    content: "{{ interop_spec }}\n"
+    dest: /usr/local/lib/fonoster-interop/.installed
+    mode: "0644"

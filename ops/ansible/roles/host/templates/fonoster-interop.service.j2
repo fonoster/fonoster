@@ -1,0 +1,22 @@
+# Managed by the Ansible role host. The hourly interop scan (mods/conformance/catalog/areas/interop.md).
+[Unit]
+Description=Fonoster interop scan of Routr's traces
+
+[Service]
+Type=oneshot
+User=fonoster-interop
+SupplementaryGroups=5000
+ExecStart=/usr/bin/node /usr/local/lib/fonoster-interop/node_modules/@fonoster/common/dist/interop/cli.js scan --traces /run/fonoster-interop/traces --far-ends /etc/fonoster-interop/far-ends.json --state /var/lib/fonoster-interop --since 70m
+StateDirectory=fonoster-interop
+RuntimeDirectory=fonoster-interop
+StateDirectoryMode=0750
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateNetwork=yes
+# Routr's traces, read-only, without reaching through /var/lib/fonoster (0700 root).
+BindReadOnlyPaths={{ routr_traces_dir }}:/run/fonoster-interop/traces
+CapabilityBoundingSet=
+MemoryMax=512M
+TimeoutStartSec=15min
