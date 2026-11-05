@@ -35,3 +35,10 @@ export interface Match {
   case: string;
   direction: Direction;
 }
+
+/** A call to a far end whose signaling points at the interconnect. */
+export interface Failure {
+  farEnd: string;
+  /** e.g. "488 to INVITE", "no ACK for 2xx", "481 to BYE" */
+  signature: string;
+}

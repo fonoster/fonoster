@@ -19,6 +19,7 @@
 // Interop evidence: which far end and interop case (QA catalog area IOP) a
 // recorded Routr call shows.
 export * from "./types";
-export { CASES, classifyCall } from "./classifyCall";
+export { CASES, classifyCall, findFailure, hasEnded } from "./classifyCall";
+export { scan } from "./scan";
 export { loadFarEnds, parseFarEnds } from "./farEnds";
 export { parseCall, readCall } from "./readCall";
