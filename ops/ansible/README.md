@@ -89,8 +89,8 @@ interop_far_ends:
   - name: acme-carrier
     hosts: [sip.acme-carrier.example]
     addresses: [198.51.100.0/24]
-# Optional: one key that can only print alerts.jsonl, for reading the alerts over SSH.
-# Empty: no reader account.
+# Optional: one key that can only print alerts.jsonl, for the menu bar plugin in
+# ops/interop/swiftbar/README.md. Empty: no reader account.
 interop_alerts_authorized_key: "ssh-ed25519 AAAA... owner-mac"
 ```
 
