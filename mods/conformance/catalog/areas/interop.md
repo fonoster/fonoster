@@ -76,6 +76,16 @@ Only responses Routr relayed count; retransmissions count once. A REGISTER-only 
 `agent-to-agent` call or a call to an unlisted far end shows no case. The production scan that runs
 this every hour is described in [ops/ansible/README.md](../../../../ops/ansible/README.md).
 
+`fonoster-interop scan --traces <dir> --state <dir> --since 60m` reads every
+recording modified in the window, skips REGISTER-only files after their first line and calls that
+haven't ended yet (they are read again once Routr writes their last message), and reports each far
+end x case the first time it is seen, with the error-severity Routr rule findings its corpus entry
+will need. It also reports failures, calls to a listed far end whose signaling points at the
+interconnect: `<status> to INVITE` (400, 403, 415, 488, 5xx), `no final response to INVITE`
+(408), `no ACK for 2xx`, `481 to <METHOD>`; 404, 480, 484, 486, 487 and 603 are ordinary
+unanswered calls. Evidence alerts once ever, a failure at most once a UTC day. Both go to
+`<state>/alerts.jsonl`; `<state>/state.json` remembers them, and removing it starts over.
+
 ## Checking a case yourself
 
 1. Place the call through the far end.

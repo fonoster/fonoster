@@ -18,7 +18,7 @@
  */
 import { TraceRecord } from "@routr/common/dist/trace";
 import { matchesAddress, matchesHost } from "./farEnds";
-import { Direction, FarEnd, Match } from "./types";
+import { Direction, Failure, FarEnd, Match } from "./types";
 
 // The recorded message, typed loosely: only a few fields are read.
 interface Message {
@@ -240,15 +240,9 @@ export const CASES: ReadonlyArray<{
   }
 ];
 
-/**
- * Decides which far end and interop case a recorded call shows, or null when
- * it shows none. Only fields a caller can't forge decide the far end: the
- * Request-URI host Routr routed on and the address the INVITE came from.
- */
-export function classifyCall(
-  records: TraceRecord[],
-  farEnds: FarEnd[]
-): Match | null {
+// The far end and the facts of a recorded call to a listed far end, or null
+// when the recording shows no such call.
+function analyzeCall(records: TraceRecord[], farEnds: FarEnd[]) {
   const call = dedupe(records);
   const i0 = call.findIndex(
     (r) =>
@@ -275,6 +269,80 @@ export function classifyCall(
     callDirection,
     ...readFacts(call, invite, i0)
   };
+  return { call: call.slice(i0 + 1), farEnd, facts };
+}
+
+/**
+ * Decides which far end and interop case a recorded call shows, or null when
+ * it shows none. Only fields a caller can't forge decide the far end: the
+ * Request-URI host Routr routed on and the address the INVITE came from.
+ */
+export function classifyCall(
+  records: TraceRecord[],
+  farEnds: FarEnd[]
+): Match | null {
+  const seen = analyzeCall(records, farEnds);
+  if (!seen) return null;
+  const { farEnd, facts } = seen;
   const hit = [...CASES].reverse().find((c) => c.matches(facts));
-  return hit ? { farEnd: farEnd.name, case: hit.id, direction } : null;
+  return hit
+    ? { farEnd: farEnd.name, case: hit.id, direction: facts.direction }
+    : null;
+}
+
+// Final responses to the INVITE that point at the interconnect; 404, 480, 484,
+// 486, 487 and 603 are ordinary unanswered calls.
+const FAILING_STATUS = (status: number) =>
+  [400, 403, 415, 488].includes(status) || (status >= 500 && status < 600);
+const IN_DIALOG = ["BYE", "INVITE", "REFER", "NOTIFY"];
+
+/**
+ * Decides whether a recorded call to a listed far end failed in a way that
+ * points at the interconnect, and how (its failure signature), or null.
+ */
+export function findFailure(
+  records: TraceRecord[],
+  farEnds: FarEnd[]
+): Failure | null {
+  const seen = analyzeCall(records, farEnds);
+  if (!seen) return null;
+  const { call, farEnd, facts } = seen;
+  const status = facts.finalStatus;
+  const r481 = call.find(
+    (r) =>
+      r.kind === "response" &&
+      r.outcome === "relayed" &&
+      r.status === 481 &&
+      IN_DIALOG.includes(r.method)
+  );
+  const signature =
+    status !== undefined && FAILING_STATUS(status)
+      ? `${status} to INVITE`
+      : status === 408
+        ? "no final response to INVITE"
+        : facts.answered && !facts.acked
+          ? "no ACK for 2xx"
+          : r481
+            ? `481 to ${r481.method}`
+            : undefined;
+  return signature ? { farEnd: farEnd.name, signature } : null;
+}
+
+/**
+ * True once a recorded call has ended: a final response to a BYE, a final
+ * non-2xx to the initial INVITE, or a CANCEL.
+ */
+export function hasEnded(records: TraceRecord[]): boolean {
+  const call = dedupe(records);
+  const i0 = call.findIndex(
+    (r) =>
+      isRequest(r, "INVITE") && toTag(r) === "" && r.outcome === "forwarded"
+  );
+  const after = i0 < 0 ? call : call.slice(i0 + 1);
+  return after.some(
+    (r) =>
+      (isResponse(r, "BYE") && isFinal(r)) ||
+      (isResponse(r, "INVITE") && isFinal(r) && !is2xx(r)) ||
+      isRequest(r, "CANCEL")
+  );
 }
