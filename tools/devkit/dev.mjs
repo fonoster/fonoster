@@ -55,7 +55,11 @@ function devEnv() {
     process.exit(1);
   }
   const { readEnvFile, expandEnv } = createRequire(import.meta.url)(cli);
-  return expandEnv(readEnvFile(join(DEV, ".env")), process.env);
+  const entries = readEnvFile(join(DEV, ".env"));
+  // A value may refer to a name further down (initialize.sh wrote the dev keys in no set order
+  // before #1272): the second pass sees every name the first one expanded.
+  const first = expandEnv(entries, process.env);
+  return expandEnv(entries, { ...first, ...process.env });
 }
 
 function prefixer(name) {
@@ -149,7 +153,12 @@ function apiserver() {
             "--config",
             config("fonoster")
           ],
-          { cwd: ROOT, input: ENV.DEV_OWNER_PASSWORD || "", encoding: "utf8" }
+          {
+            cwd: ROOT,
+            env: { ...process.env, ...ENV },
+            input: ENV.DEV_OWNER_PASSWORD || "",
+            encoding: "utf8"
+          }
         );
         process.stdout.write(
           `apiserver | ${(owner.stdout || owner.stderr || "").trim()}\n`

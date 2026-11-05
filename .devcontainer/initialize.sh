@@ -130,6 +130,9 @@ seed_env() {
       dev["PUBLIC_URL"] = "https://localhost:${HTTPS_PORT}"
       for (k in ENVIRON)
         if (k ~ /^FONOSTER_DEV_/ && k != "FONOSTER_DEV_HOST_IP") dev[substr(k, 14)] = ENVIRON[k]
+      # In this order: a value refers only to names above it (PUBLIC_URL to HTTPS_PORT).
+      n = split("COMPOSE_PROJECT_NAME SUBNET_PREFIX HTTPS_PORT HTTPS_REDIRECT_PORT HTTP_PORT PUBLIC_URL", order, " ")
+      for (i = 1; i <= n; i++) { print order[i] "=" dev[order[i]]; delete dev[order[i]] }
       for (k in dev) print k "=" dev[k]
       print ""
       print "# The dev container: where Compose finds the merged config (absolute, on the host)."

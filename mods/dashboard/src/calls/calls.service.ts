@@ -21,7 +21,6 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useSdk } from "~/lib/auth";
 import { PAGE_SIZE } from "~/lib/resource";
 import { useWorkspace } from "~/lib/workspace";
-import { toDate } from "~/lib/format";
 import { rangeStart } from "./format";
 
 const RESOURCE = "calls";
@@ -70,52 +69,5 @@ export function useCall(ref: string) {
   return useQuery<CallDetailRecord>({
     queryKey: [RESOURCE, workspace.ref, "get", ref],
     queryFn: () => sdk.calls.getCall(ref)
-  });
-}
-
-const RECENT_LIMIT = 100;
-
-/**
- * Recent calls to or from some of the workspace's numbers, newest first. Call
- * records don't say which app answered, so an app's calls are the calls on the
- * numbers routed to it now. The range and status filters run on the server.
- */
-export function useCallsForNumbers(
-  telUrls: string[],
-  filters: CallFilters = { range: "30", status: "" }
-) {
-  const sdk = useSdk();
-  const workspace = useWorkspace();
-  const numbers = telUrls.map((telUrl) => telUrl.replace(/^tel:/, "")).sort();
-  return useQuery({
-    queryKey: [RESOURCE, workspace.ref, "numbers", numbers, filters],
-    enabled: numbers.length > 0,
-    queryFn: async () => {
-      const after = rangeStart(filters.range);
-      const pages = await Promise.all(
-        numbers.flatMap((number) =>
-          (["to", "from"] as const).map((side) =>
-            sdk.calls.listCalls({
-              after,
-              [side]: number,
-              ...(filters.status && {
-                status: filters.status as ListCallsRequest["status"]
-              }),
-              pageSize: RECENT_LIMIT
-            })
-          )
-        )
-      );
-      const byRef = new Map<string, CallDetailRecord>();
-      for (const call of pages.flatMap((page) => page.items))
-        byRef.set(call.ref, call);
-      return [...byRef.values()]
-        .sort(
-          (a, b) =>
-            (toDate(b.startedAt)?.getTime() ?? 0) -
-            (toDate(a.startedAt)?.getTime() ?? 0)
-        )
-        .slice(0, RECENT_LIMIT);
-    }
   });
 }
