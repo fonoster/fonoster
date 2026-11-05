@@ -668,17 +668,16 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     expect(read("ops/bundle/config/envoy.yaml")).to.equal(
       read("config/envoy.yaml")
     );
-    for (const f of ["postgres-init.sql"])
-      expect(read(`ops/bundle/config/${f}`), f).to.equal(
-        read(`ops/rebuild/config/${f}`)
-      );
+    // The stack's billing profile also creates billing's database (Fonoster Cloud only, #1273).
+    expect(read("ops/rebuild/config/postgres-init.sql")).to.equal(
+      `${read("ops/bundle/config/postgres-init.sql")}CREATE DATABASE billing;\n`
+    );
     for (const u of [
       "apiserver",
       "appbridge",
       "roomr",
       "routr",
-      "region-agent",
-      "billing"
+      "region-agent"
     ])
       expect(
         body(read(`ops/bundle/config/nats-permissions/${u}.conf`)),
@@ -687,31 +686,25 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     expect(body(read("ops/bundle/config/catalog.yaml"))).to.equal(
       body(read("ops/rebuild/config/catalog-seed.yaml"))
     );
-    // The main NATS's users and settings (the dev file also has a commented leaf block).
+    // The main NATS's users and settings (the dev file also has a commented leaf block, and the
+    // billing user ops/cloud/inserts.yml adds in production; ops/bundle/test/billing.test.ts).
     expect(body(read("ops/bundle/config/nats.conf"))).to.equal(
       body(read("ops/rebuild/config/nats.conf"))
+        .split("\n")
+        .filter((l) => !/billing/i.test(l))
+        .join("\n")
     );
   });
 
   it("names in its config files only values init.sh's .env defines (or that have a default)", function () {
     const defined = initEnv();
-    // billing.yaml is read only with compose.billing.yaml, whose environment sets each of its
-    // names: from .env, with a default, or refusing to start without it (the Stripe keys).
-    const overlay = Object.keys(
-      parse(read("ops/bundle/compose.billing.yaml")).services.billing
-        .environment
-    );
     const dir = path.join(BUNDLE, "config");
     for (const f of fs.readdirSync(dir).filter((n) => n.endsWith(".yaml"))) {
       const refs = body(fs.readFileSync(path.join(dir, f), "utf8")).match(
         /\$\{[A-Za-z_][A-Za-z0-9_]*(?!:-)\}/g
       );
       for (const r of refs ?? [])
-        expect(
-          defined.has(r.slice(2, -1)) ||
-            (f === "billing.yaml" && overlay.includes(r.slice(2, -1))),
-          `${f}: ${r}`
-        ).to.equal(true);
+        expect(defined.has(r.slice(2, -1)), `${f}: ${r}`).to.equal(true);
     }
   });
 

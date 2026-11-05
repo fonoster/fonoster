@@ -140,7 +140,7 @@ The spec (#1046) has open questions Q1–Q7. Every proposed answer is a setting 
   fake, which sends its webhooks to billing. `ops/rebuild/stack` with `RB_PROFILES` naming
   `billing` adds billing's NATS user to `nats.conf`, renders `billing.yaml`, and turns admission on
   for AppBridge (`authz.address`) and the apiserver (`authz`, `features.billing`). Billing's tables
-  are in the `fonoster` database, schema `billing`.
+  are in its own `billing` database (D1; #1273 moved them out of the `fonoster` database).
 - The stack's rate cards are the repository's with card 1 starting 2026-01-01: card 1 starts
   2026-11-01, and until then nothing is priced.
 - `ops/rebuild/stack billing-e2e`: a Trial of 2 credits, a call held 40 s (billed as 60 s, rule 6:

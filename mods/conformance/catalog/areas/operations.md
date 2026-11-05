@@ -150,18 +150,23 @@ runs it.
 
 **Pass.** The first rollback exits 0 with `/opt/fonoster` byte-identical; the `0.0.0-b` apply fails; the second rollback exits 0 (its smoke test passes); `.env` and the apiserver container are on `0.0.0-a`; the last line of `deploys.log` ends with `0.0.0-b -> 0.0.0-a rolled back`. **Fail.** Any of those differs.
 
-### OPS-007 Billing runs behind its overlay
+### OPS-007 Billing runs from the inventory
 
-- **Spec:** deployment / Production deploys run the playbook / Billing behind its overlay
+- **Spec:** deployment / Production deploys run the playbook / Billing from the inventory
 - **Priority:** P1
-- **Proof:** Drop the `/stripe/webhooks` route from `config/envoy-tls.yaml`; the unsigned POST reaches the dashboard instead of billing and the test goes red.
+- **Proof:** Drop the `/stripe/webhooks` entry from `ops/cloud/inserts.yml`; the unsigned POST reaches the dashboard instead of billing and the test goes red.
 - **Fault:** faults/OPS-007.patch
 - **Test:** ops/ansible/test/throwaway.sh
 
-Last, `0.0.0-a` is planned and applied with the production group's billing values on the test
-inventory: `compose.billing.yaml`, Stripe keys, `features.billing` in `fonoster.yaml` and `authz` in
-`appbridge.yaml`, with a Stripe fake (`fonoster/stripe-fake`) as Stripe through
-`billing.yaml`'s `stripe.apiBase`. An owner whose plan ended with no credits is written to the
-databases, and the admission AppBridge asks (Authz on `billing:50071`) is called for a call of theirs.
+Last, `0.0.0-a` is planned and applied with production's billing values on the test inventory,
+billing supplied only through inventory variables: `fonoster_files` (`compose.billing.yaml`,
+`config/billing.yaml`, `config/nats-permissions/billing.conf`) and `fonoster_inserts`
+(`inserts.yml`) built from `ops/cloud/`, Stripe keys and `NATS_BILLING_PASSWORD`, `features.billing`
+in `fonoster.yaml` and `authz` in `appbridge.yaml`, with a Stripe fake (`fonoster/stripe-fake`) as
+Stripe through `billing.yaml`'s `stripe.apiBase`. A sentinel secret is put in a `fonoster_files`
+content and in an insert's `lines`. Before that, a plan with an anchor that matches no line runs.
+`CREATE DATABASE billing` runs on the Postgres before the billing apply. An owner whose plan ended
+with no credits is written to the databases, and the admission AppBridge asks (Authz on
+`billing:50071`) is called for a call of theirs.
 
-**Pass.** The plan's output carries no Stripe secret; billing is running and healthy; an unsigned `POST /stripe/webhooks` through Envoy answers 400; billing has applied a signed event from the fake; the call is refused. **Fail.** Any of those differs.
+**Pass.** The plan with the bad anchor fails with `fonoster_inserts: config/nats.conf: after '...' matches 0 lines of this release's file` and `/opt/fonoster` is byte-identical; the plan's output carries no Stripe secret; neither the plan nor the apply log carries the sentinel; billing is running and healthy; an unsigned `POST /stripe/webhooks` through Envoy answers 400; billing has applied a signed event from the fake in the `billing` database; the call is refused. **Fail.** Any of those differs.

@@ -1,5 +1,6 @@
-# The billing service (compose.billing.yaml). Each ${NAME} comes from the billing container's
-# environment, filled from .env, so secrets never land in config/.
+# The billing service (ops/cloud/compose.billing.yaml), written to config/billing.yaml by the
+# inventory's fonoster_files. Each ${NAME} comes from the billing container's environment, filled
+# from .env, so secrets never land in config/. fonoster_overrides on billing.yaml merges over it.
 database: { url: "${BILLING_DATABASE_URL}" }
 nats:
   {

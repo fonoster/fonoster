@@ -17,7 +17,7 @@
 #   `regions` (the region hub), `billing` (Fonoster Cloud's billing service with the Stripe fake;
 #   not in the default profiles).
 services:
-  # The billing user (nats-permissions/billing.conf), added to nats.conf with the billing profile.
+  # The billing user: the stack writes it into nats.conf with the billing profile (render_billing).
   nats:
     environment:
       NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:-}
@@ -135,10 +135,26 @@ services:
     ports:
       - "${RB_STRIPE_FAKE_PORT:-12111}:12111"
 
-  # ---- profile `billing`: Fonoster Cloud's billing service (add-billing-service; the bundle's
-  # opt-in compose.billing.yaml in production). Admission for AppBridge and the apiserver (:50071), Stripe's webhooks (:50072),
-  # the Billing API (:50073). Its tables live in the fonoster database, schema `billing`. The stack
-  # renders config/billing.yaml. ----
+  # ---- profile `billing`: Fonoster Cloud's billing service (add-billing-service;
+  # ops/cloud/compose.billing.yaml in production). Admission for AppBridge and the apiserver (:50071), Stripe's webhooks (:50072),
+  # the Billing API (:50073). Its tables live in its own database, `billing` (billing-db creates it
+  # on a volume made before it was in postgres-init.sql). The stack renders config/billing.yaml. ----
+  billing-db:
+    profiles: ["billing"]
+    image: postgres:18.6-alpine3.24
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      PGHOST: postgres
+      PGUSER: postgres
+      PGPASSWORD: ${POSTGRES_PASSWORD:?run ops/rebuild/stack up}
+    command:
+      - sh
+      - -c
+      - >-
+        psql -d fonoster -tAc "SELECT 1 FROM pg_database WHERE datname = 'billing'" | grep -q 1
+        || psql -d fonoster -c "CREATE DATABASE billing"
+
   billing:
     profiles: ["billing"]
     build:
@@ -147,11 +163,11 @@ services:
     image: ${RB_REGISTRY:-fonoster}/billing:${RB_TAG:-dev}
     restart: unless-stopped
     depends_on:
-      postgres: { condition: service_healthy }
+      billing-db: { condition: service_completed_successfully }
       nats: { condition: service_healthy }
       stripe-fake: { condition: service_started }
     environment:
-      BILLING_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/fonoster?schema=billing
+      BILLING_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/billing
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:?run ops/rebuild/stack up}
       NATS_BILLING_PASSWORD: ${NATS_BILLING_PASSWORD:-}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?run ops/rebuild/stack up}

@@ -1,8 +1,8 @@
 diff --git a/ops/ansible/roles/fonoster/defaults/main.yml b/ops/ansible/roles/fonoster/defaults/main.yml
 --- a/ops/ansible/roles/fonoster/defaults/main.yml
 +++ b/ops/ansible/roles/fonoster/defaults/main.yml
-@@ -29,9 +29,7 @@
- fonoster_compose_overlays: {}
+@@ -39,9 +39,7 @@ fonoster_files: {}
+ fonoster_inserts: {}
  
  # Never copied into the live install: only what runs (and init.sh) lands there.
 -fonoster_live_excludes:
