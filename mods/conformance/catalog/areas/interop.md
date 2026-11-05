@@ -65,6 +65,13 @@ direction from the `X-Call-Direction` Routr added, and the far end from fields a
   `wa-<accessKeyId>-<digits>.<pstnRoot>` for WhatsApp) against `hosts`, or the address it came from
   against `addresses`.
 
+The far ends come from the curated list `@fonoster/common` ships,
+`mods/common/src/interop/far-ends.known.json`: one entry per well-known provider with its
+signaling `hosts` and `addresses`, the provider's own pages they were read from (`sources`) and
+the day they were last compared with them (`checked`). To add or fix a provider, edit its entry in a
+pull request with a source and today's `checked` date. `--far-ends <file>` (the inventory's
+`interop_far_ends` in production) adds entries, or replaces a curated one with the same `name`.
+
 Only responses Routr relayed count; retransmissions count once. A REGISTER-only recording, an
 `agent-to-agent` call or a call to an unlisted far end shows no case. The production scan that runs
 this every hour is described in [ops/ansible/README.md](../../../../ops/ansible/README.md).

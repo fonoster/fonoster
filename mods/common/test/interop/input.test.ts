@@ -174,7 +174,7 @@ describe("@common/interop input", function () {
     const bad = path.join(dir, "bad.json");
     fs.writeFileSync(bad, JSON.stringify([{ name: "Bad!" }]));
     expect(cli(["classify", ANSWERED, "--far-ends", bad]).code).to.equal(1);
-    expect(cli(["classify", ANSWERED]).code).to.equal(2);
+    expect(cli(["classify"]).code).to.equal(2);
     expect(cli([]).code).to.equal(2);
   });
 });

@@ -20,5 +20,10 @@
 // recorded Routr call shows.
 export * from "./types";
 export { CASES, classifyCall } from "./classifyCall";
-export { loadFarEnds, parseFarEnds } from "./farEnds";
+export {
+  knownFarEnds,
+  loadFarEnds,
+  mergeFarEnds,
+  parseFarEnds
+} from "./farEnds";
 export { parseCall, readCall } from "./readCall";

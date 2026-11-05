@@ -18,7 +18,7 @@
  * limitations under the License.
  */
 import { classifyCall } from "./classifyCall";
-import { loadFarEnds } from "./farEnds";
+import { knownFarEnds, loadFarEnds, mergeFarEnds } from "./farEnds";
 import { readCall } from "./readCall";
 import { FarEnd } from "./types";
 
@@ -26,7 +26,7 @@ import { FarEnd } from "./types";
 // (mods/conformance/catalog/areas/interop.md). Prints only the far end and the
 // case id, never SIP content.
 
-const USAGE = `usage: fonoster-interop classify <recording.jsonl> --far-ends <far-ends.json>`;
+const USAGE = `usage: fonoster-interop classify <recording.jsonl> [--far-ends <far-ends.json>]`;
 
 export interface Io {
   out: (line: string) => void;
@@ -38,22 +38,29 @@ function option(args: string[], name: string): string | undefined {
   return i >= 0 ? args[i + 1] : undefined;
 }
 
-function classify(args: string[], io: Io): number {
-  const file = args[0];
+// The curated list, with --far-ends entries replacing or adding by name; null
+// (after printing why) when the file is bad.
+function farEndsFor(args: string[], io: Io): FarEnd[] | null {
   const farEndsPath = option(args, "--far-ends");
-  if (!file || file.startsWith("--") || !farEndsPath) {
-    io.err(USAGE);
-    return 2;
-  }
-  let farEnds: FarEnd[];
   try {
-    farEnds = loadFarEnds(farEndsPath);
+    const extra = farEndsPath ? loadFarEnds(farEndsPath) : [];
+    return mergeFarEnds(knownFarEnds(), extra);
   } catch (e) {
     io.err(
       `fonoster-interop: bad far ends in ${farEndsPath}: ${(e as Error).message}`
     );
-    return 1;
+    return null;
   }
+}
+
+function classify(args: string[], io: Io): number {
+  const file = args[0];
+  if (!file || file.startsWith("--")) {
+    io.err(USAGE);
+    return 2;
+  }
+  const farEnds = farEndsFor(args, io);
+  if (!farEnds) return 1;
   let match;
   try {
     match = classifyCall(readCall(file), farEnds);
