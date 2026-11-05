@@ -30,7 +30,7 @@ call, the highest-numbered one SHALL be reported.
 - **THEN** the classifier reports IOP-004
 
 #### Scenario: Outbound call cancelled before answer
-- **WHEN** a recording shows an outbound INVITE, a CANCEL and no 2xx to the INVITE
+- **WHEN** a recording shows an outbound INVITE, at least one response from the far end, a CANCEL and no 2xx to the INVITE
 - **THEN** the classifier reports IOP-005
 
 #### Scenario: Inbound call cancelled by the caller
