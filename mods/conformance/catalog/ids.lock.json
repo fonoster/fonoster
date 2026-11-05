@@ -334,5 +334,16 @@
   "BIL-051": "The Stripe fake serves the Customer Portal",
   "BIL-052": "The launch rate card prices everything a call produces",
   "OPS-007": "Billing runs behind its overlay",
-  "APB-042": "A stop during start-up exits at once; once serving, SIGTERM drains"
+  "APB-042": "A stop during start-up exits at once; once serving, SIGTERM drains",
+  "IOP-001": "Inbound call to a Number answered, caller hangs up",
+  "IOP-002": "Inbound call answered, Fonoster hangs up",
+  "IOP-003": "Outbound call from an app answered",
+  "IOP-004": "SIP agent outbound call answered",
+  "IOP-005": "Outbound call cancelled before answer",
+  "IOP-006": "Inbound call cancelled by the caller",
+  "IOP-007": "Outbound call busy",
+  "IOP-008": "Outbound call declined",
+  "IOP-009": "In-dialog re-INVITE with SDP answered",
+  "IOP-010": "In-dialog re-INVITE without SDP",
+  "IOP-011": "Blind transfer by REFER"
 }

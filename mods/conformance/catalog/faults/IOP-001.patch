@@ -1,0 +1,13 @@
+diff --git a/mods/common/src/interop/classifyCall.ts b/mods/common/src/interop/classifyCall.ts
+index 1f0a3acbe..b158cc2df 100644
+--- a/mods/common/src/interop/classifyCall.ts
++++ b/mods/common/src/interop/classifyCall.ts
+@@ -186,7 +186,7 @@ export const CASES: ReadonlyArray<{
+   {
+     id: "IOP-001",
+     name: "Inbound call to a Number answered, caller hangs up",
+-    matches: (f) => inbound(f) && answeredCall(f) && f.byeFromCaller
++    matches: (f) => inbound(f) && answeredCall(f) && f.byeFromCallee
+   },
+   {
+     id: "IOP-002",

@@ -1287,6 +1287,61 @@
     "pri": "P0",
     "trials": null
   },
+  "IOP-001": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "IOP-002": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "IOP-003": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "IOP-004": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "IOP-005": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "IOP-006": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "IOP-007": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "IOP-008": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "IOP-009": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
+  "IOP-010": {
+    "tier": "pr",
+    "pri": "P1",
+    "trials": null
+  },
+  "IOP-011": {
+    "tier": "pr",
+    "pri": "P2",
+    "trials": null
+  },
   "OPS-001": {
     "tier": "nightly",
     "pri": "P1",
