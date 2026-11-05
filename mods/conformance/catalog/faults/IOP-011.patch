@@ -1,8 +1,8 @@
 diff --git a/mods/common/src/interop/classifyCall.ts b/mods/common/src/interop/classifyCall.ts
-index 7437beea9..14cdbb4e9 100644
+index 1f0a3acbe..1198a3758 100644
 --- a/mods/common/src/interop/classifyCall.ts
 +++ b/mods/common/src/interop/classifyCall.ts
-@@ -148,7 +148,7 @@ function readFacts(records: TraceRecord[], invite: TraceRecord, i0: number) {
+@@ -154,7 +154,7 @@ function readFacts(records: TraceRecord[], invite: TraceRecord, i0: number) {
      after.some((r) => isResponse(r, "REFER") && r.status === 202) &&
      after.some(
        (r) =>

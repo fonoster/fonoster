@@ -25,7 +25,7 @@ interface Message {
   requestUri?: { host?: string };
   from?: { tag?: string };
   to?: { tag?: string };
-  via?: { branch?: string }[];
+  via?: { branch?: string; host?: string; received?: string }[];
   extensions?: { name: string; value: string }[];
   body?: string;
 }
@@ -41,6 +41,12 @@ const isFinal = (r: TraceRecord) => (r.status ?? 0) >= 200;
 const toTag = (r: TraceRecord) => msg(r).to?.tag ?? "";
 const fromTag = (r: TraceRecord) => msg(r).from?.tag ?? "";
 const hasBody = (r: TraceRecord) => (msg(r).body ?? "").trim().length > 0;
+
+// The address a request came from. Routr records the top Via's sent-by as the
+// sender, which the sender writes; the received parameter is the packet's real
+// source, added whenever it differs from sent-by (RFC 3261 §18.2.1).
+const sourceAddress = (r: TraceRecord) =>
+  msg(r).via?.[0]?.received || r.request.sender.host;
 
 // Headers by full or compact name (RFC 3261 §7.3.3), case-insensitive.
 function header(r: TraceRecord, ...names: string[]): string | undefined {
@@ -121,7 +127,7 @@ function readFacts(records: TraceRecord[], invite: TraceRecord, i0: number) {
     answered && after.slice(answeredAt + 1).some((r) => isRequest(r, "ACK"));
   const byes = after.filter((r) => isRequest(r, "BYE"));
   const cancels = after.filter((r) => isRequest(r, "CANCEL"));
-  const sender = invite.request.sender.host;
+  const sender = sourceAddress(invite);
 
   // A re-INVITE inside the dialog, answered with a 2xx after it.
   const reInvites = after
@@ -159,7 +165,7 @@ function readFacts(records: TraceRecord[], invite: TraceRecord, i0: number) {
     byeFromCaller: byes.some((r) => fromTag(r) === callerTag),
     byeFromCallee: byes.some((r) => fromTag(r) !== callerTag),
     cancelled: cancels.length > 0,
-    cancelledBySender: cancels.some((r) => r.request.sender.host === sender),
+    cancelledBySender: cancels.some((r) => sourceAddress(r) === sender),
     finalStatus: finals.length ? finals[finals.length - 1].status : undefined,
     reInviteWithSdp,
     reInviteWithoutSdp,
@@ -260,7 +266,7 @@ export function classifyCall(
       : farEnds.find(
           (f) =>
             matchesHost(f, msg(invite).requestUri?.host) ||
-            matchesAddress(f, invite.request.sender.host)
+            matchesAddress(f, sourceAddress(invite))
         );
   if (!farEnd) return null;
 

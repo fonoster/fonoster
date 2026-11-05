@@ -1,8 +1,8 @@
 diff --git a/mods/common/src/interop/classifyCall.ts b/mods/common/src/interop/classifyCall.ts
-index 7437beea9..9a8b2e30e 100644
+index 1f0a3acbe..e50f3d37e 100644
 --- a/mods/common/src/interop/classifyCall.ts
 +++ b/mods/common/src/interop/classifyCall.ts
-@@ -210,7 +210,7 @@ export const CASES: ReadonlyArray<{
+@@ -216,7 +216,7 @@ export const CASES: ReadonlyArray<{
    {
      id: "IOP-007",
      name: "Outbound call busy",

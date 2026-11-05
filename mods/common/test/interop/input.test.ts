@@ -117,6 +117,24 @@ describe("@common/interop input", function () {
     expect(classifyCall(readCall(DID), farEnds)?.farEnd).to.equal("provider");
   });
 
+  it("takes the inbound source from Via received, not the sent-by a caller writes", function () {
+    const farEnds: FarEnd[] = [
+      { name: "provider", addresses: ["198.51.100.0/24"] }
+    ];
+    const forged = readCall(DID);
+    forged.forEach((r) => {
+      const via = (r.request.message as any).via?.[0];
+      if (via) via.host = "198.51.100.7";
+      r.request.sender.host = "198.51.100.7";
+    });
+    expect(classifyCall(forged, farEnds)).to.equal(null);
+    forged.forEach((r) => {
+      const via = (r.request.message as any).via?.[0];
+      if (via) via.received = "198.51.100.7";
+    });
+    expect(classifyCall(forged, farEnds)?.farEnd).to.equal("provider");
+  });
+
   it("names the bad far-ends entry", function () {
     expect(() =>
       parseFarEnds([{ name: "ok", hosts: ["a"] }, { name: "Bad!" }])

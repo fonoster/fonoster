@@ -112,9 +112,10 @@ describe("@common/interop cases", function () {
       "provider",
       "synthetic_did-invite-cancel_provider.jsonl",
       (r) => {
-        r.filter((x) => x.method === "CANCEL").forEach(
-          (x) => (x.request.sender.host = "192.0.2.99")
-        );
+        r.filter((x) => x.method === "CANCEL").forEach((x) => {
+          x.request.sender.host = "192.0.2.99";
+          msg(x).via[0].received = "192.0.2.99";
+        });
         return r;
       }
     );
