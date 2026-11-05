@@ -15,7 +15,7 @@ COPY mods/conformance ./mods/conformance
 RUN --mount=type=cache,target=/root/.npm \
     npm install --workspace @fonoster/conformance --include-workspace-root --ignore-scripts --no-audit --no-fund
 RUN for p in types logger common conformance; do \
-      (cd mods/$p && npx tsc -b); \
+      (cd mods/$p && npx tsc -b) || exit 1; \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
   && npm prune --omit=dev --workspace @fonoster/conformance --include-workspace-root
