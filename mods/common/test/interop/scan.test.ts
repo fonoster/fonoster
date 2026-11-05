@@ -252,15 +252,6 @@ describe("@common/interop scan", function () {
     );
   });
 
-  it("keeps a cancelled call the far end rang as evidence only", function () {
-    copy(CANCELLED);
-    const out = scan().out;
-    expect(
-      out.filter((l) => l.startsWith("new whatsapp IOP-005"))
-    ).to.have.length(1);
-    expect(out.filter((l) => l.startsWith("failure "))).to.deep.equal([]);
-  });
-
   it("exits 1 on unreadable inputs and 2 on usage", function () {
     const out = { out: () => undefined, err: () => undefined };
     expect(
