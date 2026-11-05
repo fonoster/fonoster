@@ -20,7 +20,6 @@ import { screen, within } from "@testing-library/react";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
-import { sampleCalls } from "~/calls/fixtures";
 import AgentsScreen from ".";
 import { agentRow } from "./agents-list";
 import {
@@ -35,18 +34,52 @@ import {
   voiceApp
 } from "./fixtures";
 
-const inboundCall = sampleCalls[2];
+type RawRecord = Record<string, unknown>;
+
+const record = (fields: RawRecord): RawRecord => ({
+  callRef: "call-x",
+  appRef: null,
+  from: null,
+  to: null,
+  direction: "inbound",
+  status: "completed",
+  startedAt: new Date(Date.now() - 5 * 60_000).toISOString(),
+  durationSeconds: 12,
+  version: 1,
+  ...fields
+});
+
+// A browser call (Talk to agent): from the signed-in user, to the agent itself.
+const browserCall = record({
+  callRef: "call-browser",
+  direction: "internal",
+  from: "ada@acme.test",
+  to: "ap-c4410e",
+  appRef: "ap-c4410e"
+});
+// Billing reminders took this call on +34 910 555 210, now routed to Front desk (ES).
+const movedNumberCall = record({
+  callRef: "call-moved",
+  from: "+18095550142",
+  to: "+34910555210",
+  appRef: billingAgent.ref
+});
 
 function setup({
   route = "/w/ws-1/agents",
   apps = [...sampleAgents, voiceApp],
   numbers = sampleNumbers,
-  catalog = sampleCatalogItems
+  catalog = sampleCatalogItems,
+  records = [browserCall, movedNumberCall],
+  pages
 }: {
   route?: string;
   apps?: object[];
   numbers?: object[];
   catalog?: object[];
+  records?: RawRecord[];
+  /** Pages the records API returns in order, instead of filtering `records`. */
+  pages?: object[];
 } = {}) {
   const applications = {
     listApplications: vi.fn().mockResolvedValue({ items: apps }),
@@ -59,14 +92,23 @@ function setup({
     updateApplication: vi.fn().mockResolvedValue({ ref: billingAgent.ref }),
     deleteApplication: vi.fn().mockResolvedValue({ ref: billingAgent.ref })
   };
-  const listCalls = vi.fn().mockImplementation(async (request) => ({
-    items: request.to === "+18295550199" ? [inboundCall] : [],
-    nextPageToken: ""
-  }));
+  const listRecords = vi.fn().mockImplementation(async (request) => {
+    const items = records.filter(
+      (c) =>
+        c.appRef === request.appRef &&
+        (!request.status || c.status === request.status) &&
+        (!request.direction || c.direction === request.direction) &&
+        (!request.number || [c.from, c.to].includes(request.number))
+    );
+    return { items, nextPageToken: "", total: items.length };
+  });
+  for (const page of pages ?? []) listRecords.mockResolvedValueOnce(page);
+  const listCalls = vi.fn().mockResolvedValue({ items: [], nextPageToken: "" });
   const sdk = {
     applications,
     numbers: { listNumbers: vi.fn().mockResolvedValue({ items: numbers }) },
     calls: { listCalls },
+    callRecords: { listRecords },
     providers: {
       listCatalog: vi.fn().mockResolvedValue({ items: catalog })
     }
@@ -78,7 +120,7 @@ function setup({
     </WorkspaceProvider>,
     { auth, path: "/w/:workspaceRef/agents/*", route }
   );
-  return { ...view, applications, listCalls };
+  return { ...view, applications, listCalls, listRecords };
 }
 
 describe("Agents list", () => {
@@ -358,23 +400,6 @@ describe("Agent detail", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("lists the calls on the agent's numbers", async () => {
-    const { listCalls } = setup({
-      route: `/w/ws-1/agents/${billingAgent.ref}/calls`
-    });
-    expect(await screen.findByText("+1 809 555 0142")).toBeInTheDocument();
-    // Both of its numbers, as caller and as callee.
-    const filters = listCalls.mock.calls.map(([request]) =>
-      request.to ? `to ${request.to}` : `from ${request.from}`
-    );
-    expect(filters.sort()).toEqual([
-      "from +18095550177",
-      "from +18295550199",
-      "to +18095550177",
-      "to +18295550199"
-    ]);
-  });
-
   it("deletes the agent from Advanced and returns to the list", async () => {
     const { user, applications } = setup({
       route: `/w/ws-1/agents/${billingAgent.ref}/advanced`
@@ -508,5 +533,126 @@ describe("Agent detail", () => {
     expect(
       await screen.findByText(/This agent doesn't exist or was deleted/)
     ).toBeInTheDocument();
+  });
+});
+
+describe("Agent Calls tab (#1272)", () => {
+  const callsOf = (ref: string) => `/w/ws-1/agents/${ref}/calls`;
+
+  it("lists a browser call to an agent with no routed number", async () => {
+    const { listRecords, listCalls } = setup({ route: callsOf("ap-c4410e") });
+    expect(await screen.findByText("ada@acme.test")).toBeInTheDocument();
+    expect(screen.queryByText("ap-c4410e", { selector: "td *" })).toBeNull();
+    expect(screen.queryByText(/No number is routed/)).toBeNull();
+    const row = screen.getByText("ada@acme.test").closest("tr")!;
+    expect(within(row).getAllByText("—").length).toBeGreaterThan(0);
+    expect(listRecords).toHaveBeenCalledTimes(1);
+    expect(listRecords).toHaveBeenCalledWith(
+      expect.objectContaining({
+        appRef: "ap-c4410e",
+        after: expect.any(String)
+      })
+    );
+    expect(listCalls).not.toHaveBeenCalled();
+  });
+
+  it("keeps a call under the agent that took it after its number moves", async () => {
+    const { unmount } = setup({ route: callsOf(billingAgent.ref) });
+    expect(await screen.findByText("+1 809 555 0142")).toBeInTheDocument();
+    unmount();
+    setup({ route: callsOf("ap-2b8e04") });
+    expect(
+      await screen.findByText("No calls in the last 7 days.")
+    ).toBeInTheDocument();
+    expect(screen.queryByText("+1 809 555 0142")).toBeNull();
+  });
+
+  it("filters by status, direction and number on the server", async () => {
+    const { user, listRecords } = setup({ route: callsOf(billingAgent.ref) });
+    await screen.findByText("+1 809 555 0142");
+    const pick = async (name: string, option: string) => {
+      await user.click(screen.getByRole("combobox", { name }));
+      await user.click(await screen.findByRole("option", { name: option }));
+    };
+    await pick("Status", "Failed");
+    await vi.waitFor(() =>
+      expect(listRecords).toHaveBeenLastCalledWith(
+        expect.objectContaining({ status: "failed" })
+      )
+    );
+    await pick("Direction", "Outbound");
+    await vi.waitFor(() =>
+      expect(listRecords).toHaveBeenLastCalledWith(
+        expect.objectContaining({ status: "failed", direction: "outbound" })
+      )
+    );
+    await pick("Number", "+1 829 555 0199");
+    await vi.waitFor(() =>
+      expect(listRecords).toHaveBeenLastCalledWith(
+        expect.objectContaining({ number: "+18295550199" })
+      )
+    );
+    expect(
+      await screen.findByText("No calls match the filters.")
+    ).toBeInTheDocument();
+  });
+
+  it("offers the routed numbers, then the numbers on its calls", async () => {
+    const browserToBilling = {
+      ...browserCall,
+      to: billingAgent.ref,
+      appRef: billingAgent.ref
+    };
+    const { user, listRecords } = setup({
+      route: callsOf(billingAgent.ref),
+      records: [movedNumberCall, browserToBilling]
+    });
+    await screen.findByText("+1 809 555 0142");
+    await user.click(screen.getByRole("combobox", { name: "Number" }));
+    await vi.waitFor(() =>
+      expect(screen.getAllByRole("option").map((o) => o.textContent)).toEqual([
+        "All numbers",
+        "+1 829 555 0199",
+        "+1 809 555 0177",
+        "+34 910 555 210"
+      ])
+    );
+    await user.click(screen.getByRole("option", { name: "+34 910 555 210" }));
+    await vi.waitFor(() =>
+      expect(listRecords).toHaveBeenLastCalledWith(
+        expect.objectContaining({ number: "+34910555210" })
+      )
+    );
+    // Nothing in the last 24 hours: the picked number stays selectable.
+    listRecords.mockResolvedValue({ items: [], nextPageToken: "", total: 0 });
+    await user.click(screen.getByRole("combobox", { name: "Range" }));
+    await user.click(
+      await screen.findByRole("option", { name: "Last 24 hours" })
+    );
+    await screen.findByText("No calls match the filters.");
+    expect(screen.getByRole("combobox", { name: "Number" })).toHaveTextContent(
+      "+34 910 555 210"
+    );
+  });
+
+  it("counts the API's total and loads the next page from the same start", async () => {
+    const { user, listRecords } = setup({
+      route: callsOf(billingAgent.ref),
+      pages: [
+        { items: [movedNumberCall], nextPageToken: "page-2", total: 1207 },
+        {
+          items: [
+            { ...movedNumberCall, callRef: "call-2", from: "+18095550143" }
+          ],
+          nextPageToken: "",
+          total: 1207
+        }
+      ]
+    });
+    expect(await screen.findByText("1,207 calls")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Load more" }));
+    expect(await screen.findByText("+1 809 555 0143")).toBeInTheDocument();
+    const [first, second] = listRecords.mock.calls.map(([r]) => r);
+    expect(second).toMatchObject({ pageToken: "page-2", after: first.after });
   });
 });

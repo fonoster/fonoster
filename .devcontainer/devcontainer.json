@@ -13,6 +13,7 @@
     "postgres",
     "routr",
     "rtpengine",
+    "roomr",
     "minio",
     "envoy",
     "nats-test"

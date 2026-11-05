@@ -16,75 +16,118 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import type { CallDetailRecord, INumber } from "@fonoster/types";
+import type { INumber } from "@fonoster/types";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DataTable, type Column } from "~/components/data/data-table";
 import { Select } from "~/components/ui/select";
-import { Skeleton } from "~/components/ui/skeleton";
 import { formatNumber } from "~/lib/format";
+import { cn } from "~/lib/utils";
 import { useWorkspace } from "~/lib/workspace";
-import { useCallsForNumbers } from "./calls.service";
+import { errorMessage, useSessionApi, useSessionKey } from "~/session/api";
+import type { CallRecordSummary } from "~/session/types";
+import { DIRECTION_LABEL, RANGES, formatStarted, rangeStart } from "./format";
+import { DirectionIcon, TONE_DOT } from "./parts";
 import {
-  DIRECTION_LABEL,
-  RANGES,
-  STATUS_FILTERS,
-  answeredBy,
-  callDirection,
-  callParties,
-  formatDuration,
-  formatStarted
-} from "./format";
-import { DirectionIcon, StatusDot } from "./parts";
+  answeredByWord,
+  callCount,
+  clock,
+  recordDirection,
+  recordParties,
+  recordStatus
+} from "./records";
 
 const ALL = "all";
 const filterClass = "h-8 w-auto gap-2 rounded-control px-3 text-[13px]";
+const STATUSES = [
+  { value: ALL, label: "Any status" },
+  { value: "completed", label: "Completed" },
+  { value: "failed", label: "Failed" },
+  { value: "incomplete", label: "Incomplete" }
+];
+const DIRECTIONS = [
+  { value: ALL, label: "All directions" },
+  { value: "inbound", label: DIRECTION_LABEL.inbound },
+  { value: "outbound", label: DIRECTION_LABEL.outbound }
+];
+
+/** The next page: where the last one ended, and the range's start the first one used. */
+type PageParam = { pageToken: string; after: string };
+
+/** The workspace's own number on a call, as the API matches it (empty for a browser call). */
+function ownNumber(call: CallRecordSummary): string {
+  if (!recordParties(call).fonosterNumber) return "";
+  return recordDirection(call.direction) === "outbound" ? call.from : call.to;
+}
 
 /**
- * The calls on an app's numbers, filtered by range, direction, number and status, each
- * linking to the call. Used where the designs show "calls this agent handled", which the
- * API can't answer yet: calls to or from the numbers routed to it now.
+ * The calls this app handled (by appRef), filtered by range, direction, number and status, a
+ * page at a time.
  */
 export function RecentCalls({
+  appRef,
   numbers,
-  loadingNumbers,
-  label,
-  noNumbers
+  label
 }: {
+  appRef: string;
+  /** The numbers routed to the app now, offered first in the Number filter. */
   numbers: INumber[];
-  loadingNumbers?: boolean;
   label: string;
-  /** What to say when nothing is routed to the app. */
-  noNumbers: string;
 }) {
   const navigate = useNavigate();
+  const api = useSessionApi();
   const base = `/w/${useWorkspace().ref}/calls`;
   const [range, setRange] = useState("7");
   const [direction, setDirection] = useState(ALL);
   const [number, setNumber] = useState(ALL);
   const [status, setStatus] = useState(ALL);
-  const telUrls = numbers
-    .map((n) => n.telUrl)
-    .filter((t) => number === ALL || t === number);
-  const calls = useCallsForNumbers(telUrls, {
-    range,
-    status: status === ALL ? "" : status
+  const calls = useInfiniteQuery({
+    queryKey: [
+      ...useSessionKey(),
+      "calls",
+      "app",
+      appRef,
+      range,
+      direction,
+      number,
+      status
+    ],
+    initialPageParam: undefined as PageParam | undefined,
+    // Later pages keep the first page's start, so they page through the calls it counted.
+    queryFn: async ({ pageParam }) => {
+      const after = pageParam ? pageParam.after : rangeStart(range);
+      const page = await api.listCalls({
+        appRef,
+        after,
+        ...(direction !== ALL ? { direction } : {}),
+        ...(number !== ALL ? { number } : {}),
+        ...(status !== ALL ? { status } : {}),
+        ...(pageParam ? { pageToken: pageParam.pageToken } : {})
+      });
+      return { ...page, after };
+    },
+    getNextPageParam: (page): PageParam | undefined =>
+      page.nextPageToken
+        ? { pageToken: page.nextPageToken, after: page.after }
+        : undefined
   });
-  const rows = useMemo(
-    () =>
-      (calls.data ?? []).filter(
-        (c) => direction === ALL || callDirection(c.direction) === direction
-      ),
-    [calls.data, direction]
+  const rows = calls.data?.pages.flatMap((page) => page.items) ?? [];
+  const count = callCount(
+    rows.length,
+    calls.hasNextPage,
+    calls.data?.pages[0]?.total
   );
+  const filtered = direction !== ALL || number !== ALL || status !== ALL;
+  const rangeLabel = RANGES.find((r) => r.value === range)?.label ?? "";
 
-  if (loadingNumbers) return <Skeleton className="h-24 w-full" />;
-  if (numbers.length === 0) {
-    return <p className="text-xs text-muted-foreground">{noNumbers}</p>;
-  }
+  const numberValues = numbers.map((n) => n.telUrl.replace(/^tel:/, ""));
+  for (const value of [...rows.map(ownNumber), number])
+    if (value && value !== ALL && !numberValues.includes(value))
+      numberValues.push(value);
 
-  const columns: Column<CallDetailRecord>[] = [
+  const columns: Column<CallRecordSummary>[] = [
     {
       header: "Started",
       className: "w-36 whitespace-nowrap",
@@ -98,8 +141,8 @@ export function RecentCalls({
       header: "Customer",
       cell: (c) => (
         <span className="flex items-center gap-2 whitespace-nowrap">
-          <DirectionIcon direction={c.direction} />
-          <span className="font-mono">{callParties(c).customer}</span>
+          <DirectionIcon direction={recordDirection(c.direction)} />
+          <span className="font-mono">{recordParties(c).customer}</span>
         </span>
       )
     },
@@ -108,7 +151,7 @@ export function RecentCalls({
       className: "w-44",
       cell: (c) => (
         <span className="whitespace-nowrap font-mono text-muted-foreground">
-          {callParties(c).fonosterNumber}
+          {recordParties(c).fonosterNumber || "—"}
         </span>
       )
     },
@@ -116,20 +159,33 @@ export function RecentCalls({
       header: "Duration",
       className: "w-24",
       cell: (c) => (
-        <span className="font-mono">{formatDuration(c.duration)}</span>
+        <span className="font-mono">
+          {c.status === "failed" || !c.durationMs ? "—" : clock(c.durationMs)}
+        </span>
       )
     },
     {
       header: "Status",
       className: "w-36",
-      cell: (c) => <StatusDot status={c.status} />
+      cell: (c) => {
+        const { label, tone } = recordStatus(c);
+        return (
+          <span className="inline-flex items-center gap-2 whitespace-nowrap">
+            <span
+              className={cn("size-1.5 shrink-0 rounded-full", TONE_DOT[tone])}
+              aria-hidden
+            />
+            {label}
+          </span>
+        );
+      }
     },
     {
       header: "Answered by",
       className: "w-32",
       cell: (c) => (
         <span className="text-muted-foreground">
-          {answeredBy(c.amdStatus) ?? "—"}
+          {answeredByWord(c.amdStatus) ?? "—"}
         </span>
       )
     },
@@ -156,11 +212,7 @@ export function RecentCalls({
           aria-label="Direction"
           className={filterClass}
           value={direction}
-          options={[
-            { value: ALL, label: "All directions" },
-            { value: "inbound", label: DIRECTION_LABEL.inbound },
-            { value: "outbound", label: DIRECTION_LABEL.outbound }
-          ]}
+          options={DIRECTIONS}
           onValueChange={setDirection}
         />
         <Select
@@ -169,9 +221,9 @@ export function RecentCalls({
           value={number}
           options={[
             { value: ALL, label: "All numbers" },
-            ...numbers.map((n) => ({
-              value: n.telUrl,
-              label: formatNumber(n.telUrl)
+            ...numberValues.map((value) => ({
+              value,
+              label: formatNumber(value)
             }))
           ]}
           onValueChange={setNumber}
@@ -180,13 +232,12 @@ export function RecentCalls({
           aria-label="Status"
           className={filterClass}
           value={status}
-          options={[{ value: ALL, label: "Any status" }, ...STATUS_FILTERS]}
+          options={STATUSES}
           onValueChange={setStatus}
         />
-        {!calls.isPending && (
+        {!calls.isPending && !calls.error && (
           <span className="ml-auto text-[13px] text-muted-foreground">
-            {rows.length.toLocaleString("en-US")}{" "}
-            {rows.length === 1 ? "call" : "calls"}
+            {count}
           </span>
         )}
       </div>
@@ -194,14 +245,19 @@ export function RecentCalls({
         label={label}
         columns={columns}
         rows={rows}
-        rowKey={(c) => c.ref}
-        onRowClick={(c) => navigate(`${base}/${c.ref}`)}
+        rowKey={(c) => c.callRef}
+        onRowClick={(c) => navigate(`${base}/${c.callRef}`)}
         loading={calls.isPending}
-        error={calls.error}
+        error={calls.error ? errorMessage(calls.error) : undefined}
         onRetry={() => void calls.refetch()}
+        hasMore={calls.hasNextPage}
+        loadingMore={calls.isFetchingNextPage}
+        onLoadMore={() => void calls.fetchNextPage()}
         empty={
           <p className="rounded-xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
-            No calls on these numbers match the filters.
+            {filtered
+              ? "No calls match the filters."
+              : `No calls in the ${rangeLabel.toLowerCase()}.`}
           </p>
         }
       />
