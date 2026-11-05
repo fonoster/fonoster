@@ -43,7 +43,10 @@ import { BillingTestDb, createBillingTestDb } from "./testDb";
 // the official SDK, on a real Postgres (PERSISTENCE_TEST_DATABASE_URL); skipped without one.
 
 const DAY = 86_400;
-const START = Date.UTC(2026, 10, 1) / 1000;
+// Next month's 1st (UTC): ahead of the database clock, which stamps outbox rows with now(), so
+// they're always due on the test clock.
+const now = new Date();
+const START = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1) / 1000;
 const card: RateCard = {
   version: 1,
   startsAt: new Date("2026-01-01T00:00:00Z"),
@@ -190,9 +193,9 @@ describe("@billing stripe", function () {
     await applyUsage(db!.prisma, [card], usage(owner), clock.now());
     await pump();
     await stripe.testHelpers.testClocks.advance(clockId, {
-      frozen_time: START + 31 * DAY
+      frozen_time: START + 32 * DAY
     });
-    clock.set(new Date((START + 31 * DAY) * 1000));
+    clock.set(new Date((START + 32 * DAY) * 1000));
     await pump();
     const invoices = (await stripe.invoices.list({ customer, limit: 10 })).data;
     const cycle = invoices.find(
