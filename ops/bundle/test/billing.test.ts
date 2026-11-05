@@ -124,6 +124,34 @@ describe("@bundle[billing overlay]", function () {
     );
   });
 
+  it("keeps billing in its own billing database, created with the others (#1273)", function () {
+    const text = read("compose.billing.yaml");
+    const url = yaml("compose.billing.yaml").services.billing.environment
+      .BILLING_DATABASE_URL as string;
+    expect(url).to.match(/@postgres:5432\/billing\}$/);
+    expect(url).not.to.contain("schema=");
+    expect(url).not.to.contain("/fonoster");
+    expect(text).to.contain("its own database, billing");
+    expect(text).not.to.contain("schema billing");
+    expect(read("config/postgres-init.sql")).to.match(
+      /^CREATE DATABASE billing;$/m
+    );
+  });
+
+  it("tells operators to give billing its own billing database (Ansible README, external Postgres)", function () {
+    const repo = (p: string) =>
+      fs.readFileSync(path.join(BUNDLE, "..", "..", p), "utf8");
+    const readme = repo("ops/ansible/README.md");
+    expect(readme).not.to.contain("schema=billing");
+    expect(readme).not.to.contain("CREATE SCHEMA billing");
+    expect(readme).to.match(
+      /BILLING_DATABASE_URL: "postgresql:\/\/[^"]+\/billing\?sslmode=require"/
+    );
+    expect(repo("docs-site/self-hosting/external-database.mdx")).to.match(
+      /^CREATE DATABASE billing;$/m
+    );
+  });
+
   it("names neither the test stack nor its variables in anything the archive ships", function () {
     const named = shipped().filter((f) =>
       /rebuild|RB_/i.test(fs.readFileSync(f, "utf8"))

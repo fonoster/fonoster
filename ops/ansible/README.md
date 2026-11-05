@@ -166,7 +166,7 @@ the `production` group. Every operated inventory carries `NATS_BILLING_PASSWORD`
      COMPOSE_FILE: compose.yaml:compose.external-db.yaml:compose.billing.yaml:compose.traces.yaml
    fonoster_env_secrets:
      NATS_BILLING_PASSWORD: "s<hex16>"
-     BILLING_DATABASE_URL: "postgresql://fonoster:<password>@<managed db>:25060/fonoster?schema=billing&sslmode=require"
+     BILLING_DATABASE_URL: "postgresql://fonoster:<password>@<managed db>:25060/billing?sslmode=require"
      STRIPE_SECRET_KEY: "rk_live_..."
      STRIPE_WEBHOOK_SECRET: "whsec_..."
    fonoster_overrides:
@@ -174,10 +174,11 @@ the `production` group. Every operated inventory carries `NATS_BILLING_PASSWORD`
        identity: { databaseUrl: "<managed db>/fnidentity" }
    ```
 
-   Redeploy (`gh workflow run deploy.yaml -f version=<version>`). Check that billing is healthy
-   (`docker compose ps billing`), its migrations ran (`docker compose logs billing` shows
-   `prisma migrate deploy` applying them; the database user must be allowed to `CREATE SCHEMA
-   billing`), and that Stripe's "Send test event" on the endpoint gets a 2xx.
+   Create the database `billing` on the managed Postgres first (`CREATE DATABASE billing;`, as the
+   database user), then redeploy (`gh workflow run deploy.yaml -f version=<version>`). Check that
+   billing is healthy (`docker compose ps billing`), its migrations ran (`docker compose logs
+   billing` shows `prisma migrate deploy` applying them), and that Stripe's "Send test event" on
+   the endpoint gets a 2xx.
 4. **Launch.** Add both switches in one deploy:
 
    ```yaml
@@ -192,7 +193,7 @@ the `production` group. Every operated inventory carries `NATS_BILLING_PASSWORD`
    credits is refused.
 5. **Rollback.** Remove the `fonoster.yaml` `features.billing` and `appbridge.yaml` `authz`
    overrides together with `compose.billing.yaml` from `COMPOSE_FILE`, and redeploy the same
-   version. The `billing` schema stays: its migrations only add.
+   version. The `billing` database stays: its migrations only add.
 6. **Watch.** AppBridge `admitted without an answer from authorization`: billing didn't answer,
    so calls go through for free. Billing `usage has no price on the rate card; not billed`. Billing must consume within 7
    days, the usage stream's retention; after that, usage is lost.

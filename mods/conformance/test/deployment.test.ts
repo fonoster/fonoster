@@ -655,3 +655,40 @@ describe("@conformance/deployment (Helm chart)", function () {
     );
   });
 });
+
+// The rebuild stack's billing profile (#1273): billing has its own database, as in the bundle.
+describe("@conformance/deployment (rebuild stack, billing database)", function () {
+  const rebuild = (p: string) =>
+    fs.readFileSync(path.join(ROOT, "ops", "rebuild", p), "utf8");
+
+  it("points billing at its own billing database, created on fresh and existing volumes", function () {
+    const { services } = parseAllDocuments(rebuild("compose.yaml"))[0].toJS();
+    const url = services.billing.environment.BILLING_DATABASE_URL as string;
+    expect(url).to.match(/@postgres:5432\/billing$/);
+    expect(url).not.to.contain("schema=");
+    expect(rebuild("config/postgres-init.sql")).to.match(
+      /^CREATE DATABASE billing;$/m
+    );
+    // An existing volume never reruns postgres-init.sql: a one-shot creates the database first.
+    expect(services["billing-db"].profiles).to.deep.equal(["billing"]);
+    expect(services["billing-db"].command.join(" ")).to.contain(
+      "CREATE DATABASE billing"
+    );
+    expect(services.billing.depends_on["billing-db"]).to.deep.equal({
+      condition: "service_completed_successfully"
+    });
+  });
+
+  it("renders, resets and waits for the billing database, never the fonoster one", function () {
+    const stack = rebuild("stack");
+    expect(stack).not.to.contain("schema=billing");
+    expect(stack).not.to.match(/drop schema if exists billing/i);
+    expect(stack).not.to.contain("billing._prisma_migrations");
+    expect(stack).to.contain('@postgres:5432/billing"');
+    expect(stack).to.match(/^billing_ready\(\) \{.*psql_in billing /m);
+    const resets = stack.match(
+      /psql_in billing "drop schema if exists public cascade; create schema public"/g
+    );
+    expect(resets, "billing-reset and billing-e2e").to.have.length(2);
+  });
+});
