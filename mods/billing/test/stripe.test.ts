@@ -193,9 +193,9 @@ describe("@billing stripe", function () {
     await applyUsage(db!.prisma, [card], usage(owner), clock.now());
     await pump();
     await stripe.testHelpers.testClocks.advance(clockId, {
-      frozen_time: START + 31 * DAY
+      frozen_time: START + 32 * DAY
     });
-    clock.set(new Date((START + 31 * DAY) * 1000));
+    clock.set(new Date((START + 32 * DAY) * 1000));
     await pump();
     const invoices = (await stripe.invoices.list({ customer, limit: 10 })).data;
     const cycle = invoices.find(
