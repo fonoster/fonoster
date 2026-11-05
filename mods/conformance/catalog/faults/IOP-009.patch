@@ -1,0 +1,13 @@
+diff --git a/mods/common/src/interop/classifyCall.ts b/mods/common/src/interop/classifyCall.ts
+index 7437beea9..b5bf039f7 100644
+--- a/mods/common/src/interop/classifyCall.ts
++++ b/mods/common/src/interop/classifyCall.ts
+@@ -133,7 +133,7 @@ function readFacts(records: TraceRecord[], invite: TraceRecord, i0: number) {
+   const answeredLater = (i: number) =>
+     after.slice(i + 1).find((r) => isResponse(r, "INVITE") && is2xx(r));
+   const reInviteWithSdp = reInvites.some(
+-    ({ r, i }) => hasBody(r) && !!answeredLater(i)
++    ({ r, i }) => !hasBody(r) && !!answeredLater(i)
+   );
+   const reInviteWithoutSdp = reInvites.some(({ r, i }) => {
+     if (hasBody(r)) return false;

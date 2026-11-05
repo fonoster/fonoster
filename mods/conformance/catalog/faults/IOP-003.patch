@@ -1,0 +1,13 @@
+diff --git a/mods/common/src/interop/classifyCall.ts b/mods/common/src/interop/classifyCall.ts
+index 7437beea9..335aa450e 100644
+--- a/mods/common/src/interop/classifyCall.ts
++++ b/mods/common/src/interop/classifyCall.ts
+@@ -190,7 +190,7 @@ export const CASES: ReadonlyArray<{
+   {
+     id: "IOP-003",
+     name: "Outbound call from an app answered",
+-    matches: (f) => f.callDirection === "peer-to-pstn" && answeredCall(f)
++    matches: (f) => f.callDirection === "agent-to-pstn" && answeredCall(f)
+   },
+   {
+     id: "IOP-004",

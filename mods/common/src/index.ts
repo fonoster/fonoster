@@ -47,3 +47,4 @@ export * from "./net";
 export * as Sessions from "./sessions";
 export * as RegionHub from "./regions/hub";
 export * as Roomr from "./roomr";
+export * as Interop from "./interop";
