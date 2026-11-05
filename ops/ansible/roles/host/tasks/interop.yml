@@ -108,7 +108,7 @@
 # 5000 plus read on each file, which the default ACL keeps whatever umask Routr writes with.
 - name: Routr traces' default ACL
   ansible.builtin.command:
-    cmd: getfacl -p {{ routr_traces_dir }}
+    cmd: getfacl -pn {{ routr_traces_dir }}
   register: traces_acl
   changed_when: false
   check_mode: false
