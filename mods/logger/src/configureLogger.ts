@@ -52,7 +52,7 @@ function configureLogger(options: LoggerOptions) {
 
   // Per-service loggers keep their own human-readable format; only the
   // default logger follows logs.format, as it does with LOGS_FORMAT.
-  defaultLogger.format = buildFormat();
+  defaultLogger.format = buildFormat(defaultLogger);
 }
 
 export { configureLogger, LoggerOptions };
