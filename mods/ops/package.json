@@ -1,0 +1,33 @@
+{
+  "name": "@fonoster/ops",
+  "version": "0.49.0",
+  "description": "Fonoster's own ops: the interop scan and a bearer-guarded HTTP API (off by default, not for self-hosters)",
+  "author": "Pedro Sanders <psanders@fonoster.com>",
+  "homepage": "https://github.com/fonoster/fonoster#readme",
+  "license": "MIT",
+  "private": true,
+  "main": "dist/index",
+  "types": "dist/index",
+  "directories": {
+    "src": "src",
+    "test": "test"
+  },
+  "scripts": {
+    "prebuild": "rimraf ./dist tsconfig.tsbuildinfo",
+    "build": "tsc -b tsconfig.json"
+  },
+  "dependencies": {
+    "@fonoster/common": "^0.49.0",
+    "@fonoster/logger": "^0.49.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fonoster/fonoster.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fonoster/fonoster/issues"
+  }
+}
