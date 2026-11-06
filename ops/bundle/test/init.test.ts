@@ -68,10 +68,14 @@ function secrets(dir: string): Record<string, string> {
 /** A PATH with every tool of /usr/bin and /bin except the ones named. */
 function pathWithout(...tools: string[]): string {
   const bin = fs.mkdtempSync(path.join(os.tmpdir(), "init-sh-bin-"));
+  // By name, not fs.existsSync: that is false for a link to a missing file, and the same name in the
+  // next folder would then collide.
+  const linked = new Set<string>();
   for (const d of ["/usr/bin", "/bin", "/usr/sbin", "/sbin"]) {
     if (!fs.existsSync(d)) continue;
     for (const t of fs.readdirSync(d)) {
-      if (tools.includes(t) || fs.existsSync(path.join(bin, t))) continue;
+      if (tools.includes(t) || linked.has(t)) continue;
+      linked.add(t);
       fs.symlinkSync(path.join(d, t), path.join(bin, t));
     }
   }
