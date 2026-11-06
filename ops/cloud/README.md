@@ -122,6 +122,14 @@ Then use that value as `<password>` in the four URLs below. On a managed Postgre
 `sslmode=require` to the admin URL; `\connect` keeps it. The password is hex so it needs no URL
 escaping.
 
+The role must exist before `features.ops` is on. It also needs `USAGE` on schema `public` in the
+`billing` database, which `ops-role.sql` doesn't grant. Where that schema is locked down, run this
+as its owner, connected to `billing`, or `/api/ops/metrics` answers 503:
+
+```sql
+GRANT USAGE ON SCHEMA public TO fonoster_ops;
+```
+
 When a release's query reads a new column, grant it first, or `/api/ops/metrics` answers 503. Grants
 are per column on purpose; run them as the tables' owner.
 
