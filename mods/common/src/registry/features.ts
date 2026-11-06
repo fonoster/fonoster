@@ -29,7 +29,11 @@ export const FEATURES: Record<Capability, Record<string, "hard" | "soft">> = {
     "json-mode": "soft",
     vision: "soft",
     // Takes reasoning_effort "none" (OpenAI GPT-5.1 and later; not gpt-5, gpt-5-mini, gpt-5-nano).
-    reasoning: "soft"
+    reasoning: "soft",
+    // Reasoning can't be turned off, only lowered: reasoning_effort "low" (Groq gpt-oss).
+    "reasoning-low": "soft",
+    // Refuses or ignores temperature, so it's never sent one.
+    "fixed-sampling": "soft"
   },
   tts: { streaming: "hard", "word-timings": "soft", ssml: "soft" },
   stt: {

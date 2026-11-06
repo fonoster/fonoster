@@ -360,7 +360,7 @@ test("[DSH-005] shows the workspace's usage with no money in a community install
   await expect(
     table
       .getByRole("row", { name: /elevenlabs\/rachel/ })
-      .getByText("Fonoster key")
+      .getByText("Platform key")
   ).toBeVisible();
   await expect(page.getByText(/\$|price|balance/i)).toHaveCount(0);
 });

@@ -173,6 +173,26 @@ describe("@bundle[ops/cloud, billing's reference files]", function () {
     );
   });
 
+  it("replaces the base catalog with Cloud's on the API server only", function () {
+    const { services } = yaml("ops/cloud/compose.catalog.yaml");
+    expect(Object.keys(services)).to.deep.equal(["apiserver"]);
+    expect(services.apiserver.volumes).to.deep.equal([
+      "${CONFIG_DIR:-./config}/catalog.cloud.yaml:/etc/fonoster/catalog.yaml:ro"
+    ]);
+  });
+
+  it("lists in Cloud's catalog what the base offers, the same, and nothing retired", function () {
+    type Entry = { id: string; state: string };
+    const cloud = yaml("ops/cloud/config/catalog.yaml").entries as Entry[];
+    const byId = new Map(cloud.map((e) => [e.id, e]));
+    expect(byId.size).to.equal(cloud.length);
+    expect(cloud.filter((e) => e.state !== "active")).to.deep.equal([]);
+    for (const e of (
+      yaml("ops/bundle/config/catalog.yaml").entries as Entry[]
+    ).filter((e) => e.state === "active"))
+      expect(byId.get(e.id), e.id).to.deep.equal(e);
+  });
+
   it("runs billing in its own billing database and passes NATS its password", function () {
     const { services } = yaml("ops/cloud/compose.billing.yaml");
     const { billing } = services;

@@ -6181,7 +6181,8 @@ evaluationType: jspb.Message.getFieldWithDefault(msg, 4, 0),
 passed: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
 errorMessage: jspb.Message.getFieldWithDefault(msg, 6, ""),
 toolEvaluationsList: jspb.Message.toObjectList(msg.getToolEvaluationsList(),
-    proto.fonoster.applications.v1beta2.ToolEvaluationReport.toObject, includeInstance)
+    proto.fonoster.applications.v1beta2.ToolEvaluationReport.toObject, includeInstance),
+firstTokenMs: jspb.Message.getFieldWithDefault(msg, 8, 0)
   };
 
   if (includeInstance) {
@@ -6246,6 +6247,10 @@ proto.fonoster.applications.v1beta2.StepEvaluationReport.deserializeBinaryFromRe
       var value = new proto.fonoster.applications.v1beta2.ToolEvaluationReport;
       reader.readMessage(value,proto.fonoster.applications.v1beta2.ToolEvaluationReport.deserializeBinaryFromReader);
       msg.addToolEvaluations(value);
+      break;
+    case 8:
+      var value = /** @type {number} */ (reader.readInt32());
+      msg.setFirstTokenMs(value);
       break;
     default:
       reader.skipField();
@@ -6324,6 +6329,13 @@ proto.fonoster.applications.v1beta2.StepEvaluationReport.serializeBinaryToWriter
       7,
       f,
       proto.fonoster.applications.v1beta2.ToolEvaluationReport.serializeBinaryToWriter
+    );
+  }
+  f = message.getFirstTokenMs();
+  if (f !== 0) {
+    writer.writeInt32(
+      8,
+      f
     );
   }
 };
@@ -6472,6 +6484,24 @@ proto.fonoster.applications.v1beta2.StepEvaluationReport.prototype.addToolEvalua
  */
 proto.fonoster.applications.v1beta2.StepEvaluationReport.prototype.clearToolEvaluationsList = function() {
   return this.setToolEvaluationsList([]);
+};
+
+
+/**
+ * optional int32 first_token_ms = 8;
+ * @return {number}
+ */
+proto.fonoster.applications.v1beta2.StepEvaluationReport.prototype.getFirstTokenMs = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.fonoster.applications.v1beta2.StepEvaluationReport} returns this
+ */
+proto.fonoster.applications.v1beta2.StepEvaluationReport.prototype.setFirstTokenMs = function(value) {
+  return jspb.Message.setProto3IntField(this, 8, value);
 };
 
 

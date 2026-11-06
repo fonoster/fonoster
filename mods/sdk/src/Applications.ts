@@ -444,6 +444,7 @@ class Applications {
     getStepResult?: () => {
       getScenarioRef: () => string;
       getReport: () => {
+        getFirstTokenMs?: () => number;
         getHumanInput: () => string;
         getExpectedResponse: () => string;
         getAiResponse: () => string;
@@ -494,7 +495,8 @@ class Applications {
             actualParameters:
               t.getActualParameters?.()?.toJavaScript() ?? undefined,
             errorMessage: t.getErrorMessage?.() || undefined
-          }))
+          })),
+          firstTokenMs: report.getFirstTokenMs?.() || undefined
         }
       };
     }

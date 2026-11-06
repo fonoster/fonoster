@@ -19,6 +19,7 @@
 import * as http from "http";
 import { AddressInfo } from "net";
 import { expect } from "chai";
+import { adapterFor } from "../src";
 import { OpenAiCompatibleThink } from "../src/openai";
 
 // GPT-5.1 and later (catalog feature `reasoning`, #1239) take max_completion_tokens, and Autopilot
@@ -67,6 +68,54 @@ describe("@fonoster/community OpenAI-compatible reasoning models", function () {
       reasoning_effort: "none"
     });
     expect(body).to.not.have.property("max_tokens");
+  });
+
+  const sendWith = async (options: Record<string, unknown>) => {
+    const think = new OpenAiCompatibleThink(
+      { baseUrl: url, apiKey: "k" },
+      "m",
+      { maxTokens: 400, ...options }
+    );
+    for await (const _ of think.stream(
+      [{ role: "user", content: "hi" }],
+      [],
+      new AbortController().signal
+    ));
+    return lastBody;
+  };
+
+  it("sends effort low with reasoning left out for a model that can only lower it", async () => {
+    const body = await sendWith({
+      temperature: 0.4,
+      reasoningLow: true,
+      excludeReasoning: true
+    });
+    expect(body).to.include({
+      temperature: 0.4,
+      max_tokens: 400,
+      reasoning_effort: "low",
+      include_reasoning: false
+    });
+  });
+
+  it("sends effort low alone for a vendor with no include_reasoning", async () => {
+    const body = await sendWith({ reasoningLow: true });
+    expect(body).to.include({ reasoning_effort: "low" });
+    expect(body).to.not.have.property("include_reasoning");
+  });
+
+  it("the groq adapter leaves reasoning out", async () => {
+    const groq = adapterFor("groq")!.llm!.create(
+      { baseUrl: url, apiKey: "k" },
+      "m",
+      { maxTokens: 400, reasoningLow: true }
+    );
+    for await (const _ of groq.stream([], [], new AbortController().signal));
+    expect(lastBody).to.include({ include_reasoning: false });
+  });
+
+  it("leaves temperature out when the options have none", async () => {
+    expect(await sendWith({})).to.not.have.property("temperature");
   });
 
   it("keeps max_tokens and no reasoning_effort for other models", async () => {

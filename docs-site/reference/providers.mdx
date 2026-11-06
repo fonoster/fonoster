@@ -69,8 +69,10 @@ Pick a voice that speaks the application's `speech.language`. These voices run o
 
 ## Language models
 
-Autopilot agents run language models with an OpenAI-compatible API. An agent with tools needs a
-model with tool calling; every model below has it.
+We test each language model for speed and tool calling before listing it. Every model below has
+streaming and tool calling, and runs at the lowest reasoning level it allows.
+
+Every install has these models:
 
 | Catalog ID | State | Features |
 | --- | --- | --- |
@@ -81,6 +83,24 @@ model with tool calling; every model below has it.
 OpenAI shuts down `gpt-4o-mini` and `gpt-4.1-mini` on 2027-01-14; agents that still name them run
 on `openai/gpt-5.4-mini`. On a self-hosted install, the operator can also add models served by
 Ollama.
+
+### On Fonoster Cloud
+
+Fonoster Cloud also offers these models. On a self-hosted install, the operator can
+[add them to the catalog](/self-hosting/provider-catalog) with a key for each vendor.
+
+| Catalog ID | Vendor | Features |
+| --- | --- | --- |
+| `openai/gpt-6-luna` | OpenAI | Streaming, tool calling, reasoning |
+| `openai/gpt-6-sol` | OpenAI | Streaming, tool calling, reasoning |
+| `openai/gpt-6.1-terra` | OpenAI | Streaming, tool calling, reasoning |
+| `groq/openai/gpt-oss-120b` | Groq | Streaming, tool calling, low reasoning |
+| `anthropic/claude-haiku-5-5` | Anthropic | Streaming, tool calling, reasoning, fixed sampling |
+| `anthropic/claude-sonnet-5-5` | Anthropic | Streaming, tool calling, low reasoning, fixed sampling |
+| `google/gemini-3.1-flash-lite` | Google | Streaming, tool calling, reasoning |
+| `google/gemini-3.6-flash` | Google | Streaming, tool calling, reasoning, fixed sampling |
+
+A model with fixed sampling takes no temperature, so the agent's `temperature` has no effect on it.
 
 ## Deprecation and retirement
 

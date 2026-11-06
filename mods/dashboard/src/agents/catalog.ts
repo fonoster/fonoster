@@ -32,6 +32,8 @@ export type CatalogOption = {
   provider: string;
   /** Languages served ("multi" = any); empty = not stated. */
   languages: string[];
+  /** Models: catalog features (tool-calling, fixed-sampling, …). */
+  features?: string[];
 };
 
 export type AgentCatalog = {
@@ -54,6 +56,13 @@ export const EMPTY_CATALOG: AgentCatalog = {
   ncProviders: []
 };
 
+/** Whether a language model takes no temperature; a stored value stays and has no effect. */
+export function ignoresTemperature(catalog: AgentCatalog, id: string): boolean {
+  return Boolean(
+    catalog.llm.find((o) => o.id === id)?.features?.includes("fixed-sampling")
+  );
+}
+
 /** The provider of a catalog id ("deepgram/nova-3" → "deepgram"). */
 export function providerOf(id: string): string {
   const slash = id.indexOf("/");
@@ -65,7 +74,8 @@ export function toAgentCatalog(items: CatalogItem[]): AgentCatalog {
     id: i.id,
     label: i.label || i.id.slice(i.providerId.length + 1) || i.id,
     provider: i.providerId,
-    languages: i.languages ?? []
+    languages: i.languages ?? [],
+    features: i.features
   });
   const providers: Record<string, string> = {};
   for (const i of items)

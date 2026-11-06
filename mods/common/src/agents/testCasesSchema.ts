@@ -29,6 +29,8 @@ const testCasesSchema = z.object({
     apiKey: z.string().optional()
   }),
   evalsSystemPrompt: z.string().optional(),
+  /** What the eval returns for a tool on any step, unless the step gives its own result. */
+  toolResults: z.record(z.string(), z.unknown()).optional(),
   scenarios: z
     .array(
       z.object({
@@ -53,7 +55,9 @@ const testCasesSchema = z.object({
                   .array(
                     z.object({
                       tool: z.string(),
-                      parameters: z.record(z.string(), z.any())
+                      parameters: z.record(z.string(), z.any()),
+                      /** What the eval returns to the model for this tool; evals never call tools. */
+                      result: z.unknown().optional()
                     })
                   )
                   .optional()

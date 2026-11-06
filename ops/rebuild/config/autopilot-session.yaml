@@ -16,3 +16,5 @@ encryption: { key: "${APISERVER_ENCRYPTION_KEY}" }
 credentials:
   openai: { env: OPENAI_API_KEY }
   groq: { env: GROQ_API_KEY }
+  anthropic: { env: ANTHROPIC_API_KEY }
+  google: { env: GOOGLE_API_KEY }

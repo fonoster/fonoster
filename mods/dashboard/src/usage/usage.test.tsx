@@ -183,7 +183,7 @@ describe("Usage", () => {
     ).closest("tr")!;
     const eleven = within(table).getByText("elevenlabs/rachel").closest("tr")!;
     expect(within(deepgram).getByText("Your key")).toBeInTheDocument();
-    expect(within(eleven).getByText("Fonoster key")).toBeInTheDocument();
+    expect(within(eleven).getByText("Platform key")).toBeInTheDocument();
     expect(
       screen.getByText("Usage on your own keys is billed by that vendor.")
     ).toBeInTheDocument();

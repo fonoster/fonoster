@@ -1,0 +1,73 @@
+# Rate card 2 (add-qualified-llm-vendors): the language models Fonoster Cloud offers. Prices are credits per unit; 1 credit = $0.01.
+# A card is named after the day it starts (yyyymmdd.yaml) and is never edited once it starts: add a
+# new card, named after its own startsAt, with the next version.
+#
+# Calls and Deepgram speech are as on card 1. LLM tokens are at each vendor's cost, by model. A model
+# this card doesn't list is not billed (unpriced) and raises an alert. llm.tokens.in holds uncached
+# input only, so a cached token is billed once, at its cached price. Anthropic cache writes have no
+# meter and are billed as plain input.
+#
+# Gemini 3.6 Flash doubles on 2027-01-01 ($1.50 in, $0.15 cached, $7.50 out): it needs a new card.
+version: 2
+startsAt: 2026-11-10T00:00:00Z
+source: >-
+  Fonoster price, 2026-11-06. At cost, read 2026-11-06, per 1M tokens in, cached, out. OpenAI
+  https://developers.openai.com/api/docs/pricing (gpt-5.4-mini $0.75, $0.075, $4.50; gpt-6-luna $0.10,
+  $0.01, $0.50; gpt-6-sol $2, $0.20, $10; gpt-6.1-terra $1, $0.05, $5). Groq
+  https://console.groq.com/docs/model/openai/gpt-oss-120b (gpt-oss-120b $0.15, $0.075, $0.60).
+  Anthropic https://platform.claude.com/docs/en/about-claude/pricing (claude-haiku-5-5 $0.10, $0.01,
+  $0.50; claude-sonnet-5-5 $2, $0.10, $10). Google https://ai.google.dev/gemini-api/docs/pricing
+  (gemini-3.1-flash-lite $0.25, $0.025, $1.50; gemini-3.6-flash $0.75, $0.075, $3.75). Deepgram
+  https://deepgram.com/pricing, read 2026-10-30 (Nova-3 streaming $0.0077/min, Aura-2 $0.030/1K
+  characters).
+prices:
+  # $0.05 a minute: 5/60 credits a second, so 60 seconds rate to exactly 5.000 credits.
+  call.seconds: 0.08333333333333333
+  stt.seconds:
+    deepgram:
+      "*": 0.012833333333333334
+  tts.characters:
+    deepgram:
+      "*": 0.003
+  llm.tokens.in:
+    openai:
+      openai/gpt-5.4-mini: 0.000075
+      openai/gpt-6-luna: 0.00001
+      openai/gpt-6-sol: 0.0002
+      openai/gpt-6.1-terra: 0.0001
+    groq:
+      groq/openai/gpt-oss-120b: 0.000015
+    anthropic:
+      anthropic/claude-haiku-5-5: 0.00001
+      anthropic/claude-sonnet-5-5: 0.0002
+    google:
+      google/gemini-3.1-flash-lite: 0.000025
+      google/gemini-3.6-flash: 0.000075
+  llm.tokens.cached:
+    openai:
+      openai/gpt-5.4-mini: 0.0000075
+      openai/gpt-6-luna: 0.000001
+      openai/gpt-6-sol: 0.00002
+      openai/gpt-6.1-terra: 0.000005
+    groq:
+      groq/openai/gpt-oss-120b: 0.0000075
+    anthropic:
+      anthropic/claude-haiku-5-5: 0.000001
+      anthropic/claude-sonnet-5-5: 0.00001
+    google:
+      google/gemini-3.1-flash-lite: 0.0000025
+      google/gemini-3.6-flash: 0.0000075
+  llm.tokens.out:
+    openai:
+      openai/gpt-5.4-mini: 0.00045
+      openai/gpt-6-luna: 0.00005
+      openai/gpt-6-sol: 0.001
+      openai/gpt-6.1-terra: 0.0005
+    groq:
+      groq/openai/gpt-oss-120b: 0.00006
+    anthropic:
+      anthropic/claude-haiku-5-5: 0.00005
+      anthropic/claude-sonnet-5-5: 0.001
+    google:
+      google/gemini-3.1-flash-lite: 0.00015
+      google/gemini-3.6-flash: 0.000375

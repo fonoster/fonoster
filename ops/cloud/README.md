@@ -11,6 +11,7 @@ Inventory), from the reference files in this folder:
 | `config/billing.yaml` | Billing's config; each secret is a `${NAME}` from the container's environment |
 | `config/nats-permissions/billing.conf` | Billing's NATS subjects |
 | `inserts.yml` | Billing's NATS user in `config/nats.conf`; `/stripe/webhooks` and `billing-cluster` in `config/envoy-tls.yaml` |
+| `compose.catalog.yaml`, `config/catalog.yaml` | Cloud's whole catalog, in place of the base one |
 | `compose.ops.yaml` | The ops API on the API server (`mods/ops`): its secrets, Routr's traces read-only, its state volume |
 | `ops-role.sql` | The ops API's read-only database role, with column grants |
 
@@ -46,6 +47,30 @@ fonoster_overrides:
 
 `fonoster_env`, `fonoster_env_secrets` and `fonoster_overrides` keep the rest of production's
 values; only the keys above are billing's.
+
+## The catalog
+
+`config/catalog.yaml` is everything Cloud offers, and nothing else. Production applies it on every start
+in place of the base catalog. To change what Cloud offers, change this file. In `group_vars/production/main.yml`:
+
+```yaml
+fonoster_env:
+  # Add compose.catalog.yaml to the value above.
+  COMPOSE_FILE: compose.yaml:compose.external-db.yaml:compose.billing.yaml:compose.traces.yaml:compose.catalog.yaml
+fonoster_files:
+  compose.catalog.yaml: "{{ lookup('file', inventory_dir ~ '/cloud/compose.catalog.yaml') }}"
+  config/catalog.cloud.yaml: "{{ lookup('file', inventory_dir ~ '/cloud/config/catalog.yaml') }}"
+fonoster_overrides:
+  autopilot.yaml:
+    credentials:
+      groq: { value: "<key>" }
+      anthropic: { value: "<key>" }
+      google: { value: "<key>" }
+```
+
+Each model must have a price on the rate card in force (`mods/billing/rate-cards`). A model without
+one isn't billed on platform keys, and billing logs an alert. Applying a file never removes an entry from
+the database, so taking something off this list leaves its row behind until it is deleted. Before a deploy, `fonoster-registry plan -f <file>` lists what the file would change.
 
 ## Setting it up
 

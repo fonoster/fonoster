@@ -22,8 +22,7 @@ import { AddressInfo, Socket } from "net";
 import * as path from "path";
 import { expect } from "chai";
 import { parse } from "yaml";
-import { OPENAI_COMPATIBLE } from "../../src/session/llm";
-import { ProviderAuthError } from "@fonoster/community";
+import { adapterFor, ProviderAuthError } from "@fonoster/community";
 import {
   OpenAiCompatibleThink,
   ThinkChunk,
@@ -38,7 +37,8 @@ import {
 // adapter keeps its feature checks.
 const CATALOGS = [
   path.join(__dirname, "../../../../ops/rebuild/config/catalog-seed.yaml"),
-  path.join(__dirname, "../../../conformance/adapters.catalog.yaml")
+  path.join(__dirname, "../../../conformance/adapters.catalog.yaml"),
+  path.join(__dirname, "../../../../ops/cloud/config/catalog.yaml")
 ];
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -105,6 +105,21 @@ const think = (url: string, jsonMode = false, reasoning = false) =>
     jsonMode,
     reasoning
   });
+
+async function bodyWith(options: Record<string, unknown>) {
+  const v = await standIn(() => ({ text: "ok" }));
+  try {
+    const t = new OpenAiCompatibleThink({ baseUrl: v.url, apiKey: "k" }, "m", {
+      maxTokens: 50,
+      ...options
+    });
+    for await (const _ of t.stream(user, [], new AbortController().signal))
+      void _;
+    return v.bodies[0];
+  } finally {
+    v.close();
+  }
+}
 
 const user = [{ role: "user" as const, content: "Hi" }];
 
@@ -193,6 +208,16 @@ const FEATURES: Record<string, () => Promise<void>> = {
     } finally {
       v.close();
     }
+  },
+  // A model whose reasoning can't be turned off runs at effort low, with reasoning left out.
+  async "reasoning-low"() {
+    expect(await bodyWith({ reasoningLow: true })).to.deep.include({
+      reasoning_effort: "low"
+    });
+  },
+  // A model that refuses or ignores temperature is never sent one.
+  async "fixed-sampling"() {
+    expect(await bodyWith({})).to.not.have.property("temperature");
   }
 };
 
@@ -223,7 +248,7 @@ describe("@autopilot LLM adapter conformance (registry 1.5)", function () {
     const adapter = adapterOf.get(m.id.split("/")[0])!;
     describe(`${m.id} (${adapter})`, function () {
       it("has a built-in adapter", function () {
-        expect(Object.keys(OPENAI_COMPATIBLE)).to.include(adapter);
+        expect(adapterFor(adapter)?.llm).to.exist;
       });
       for (const feature of m.features ?? [])
         it(`verifies declared feature ${feature}`, async function () {

@@ -25,6 +25,14 @@ import { Flags } from "@oclif/core";
 import * as yaml from "js-yaml";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 import {
+  checkBars,
+  evalPassed,
+  EvalRun,
+  EvalScenarioShape,
+  printRunsSummary,
+  summarizeRuns
+} from "../../utils/evalSummary";
+import {
   buildEvalSummary,
   printEvalError,
   printScenarioHeader,
@@ -62,14 +70,37 @@ export default class EvalIntelligence extends AuthenticatedCommand<
       description:
         "write JSON summary to this file (with pretty: also show streamed output)",
       required: false
+    }),
+    model: Flags.string({
+      description:
+        "catalog id of the language model to test, instead of the one in the file"
+    }),
+    repeat: Flags.integer({
+      description:
+        "how many times to run the test cases; above 1, prints only the summary",
+      default: 1,
+      min: 1
+    }),
+    "max-first-token-p50": Flags.integer({
+      description: "fail if the median time to first token is above this, in ms"
+    }),
+    "max-first-token-p95": Flags.integer({
+      description: "fail if the p95 time to first token is above this, in ms"
+    }),
+    "min-tool-pass": Flags.integer({
+      description: "fail if fewer than this percent of tool steps are right",
+      min: 0,
+      max: 100
+    }),
+    "min-step-pass": Flags.integer({
+      description: "fail if fewer than this percent of steps pass",
+      min: 0,
+      max: 100
     })
   };
 
   public async run(): Promise<void> {
     const { flags } = await this.parse(EvalIntelligence);
-
-    const client = await this.createSdkClient();
-    const applications = new SDK.Applications(client);
 
     const fileContent = fs.readFileSync(flags.file, "utf8");
     const extension = path.extname(flags.file).toLowerCase();
@@ -127,6 +158,8 @@ export default class EvalIntelligence extends AuthenticatedCommand<
     const parsedAutopilotApplication = sessionAgentSchema.parse(
       rawAutopilotApplication.intelligence.config
     );
+    if (flags.model)
+      parsedAutopilotApplication.languageModel.model = flags.model;
     const autopilotApplication = {
       intelligence: {
         productRef: `llm.${parsedAutopilotApplication.languageModel.model.split("/")[0]}`,
@@ -134,58 +167,82 @@ export default class EvalIntelligence extends AuthenticatedCommand<
       }
     };
 
-    const stream = applications.evaluateIntelligence(autopilotApplication);
     const outputJson = flags.output === "json";
     const writeOutputFile = Boolean(flags["output-file"]);
-    const collectEvents = outputJson || writeOutputFile;
-    const events: EvaluateIntelligenceEvent[] = [];
+    const printSteps = !outputJson && flags.repeat === 1;
 
-    let currentScenarioRef: string | null = null;
-    const stepIndexByScenario = new Map<string, number>();
+    const runs: EvalRun[] = [];
+    // eslint-disable-next-line no-loops/no-loops
+    for (let i = 0; i < flags.repeat; i++) {
+      // A new login each pass: a long --repeat outlives one access token.
+      const applications = new SDK.Applications(await this.createSdkClient());
+      const events: EvaluateIntelligenceEvent[] = [];
+      let currentScenarioRef: string | null = null;
+      const stepIndexByScenario = new Map<string, number>();
+      try {
+        for await (const event of applications.evaluateIntelligence(
+          autopilotApplication
+        )) {
+          events.push(event);
+          if (!printSteps) continue;
 
-    try {
-      for await (const event of stream) {
-        if (collectEvents) events.push(event);
-
-        if (outputJson) continue;
-
-        if (event.type === "stepResult") {
-          if (currentScenarioRef !== event.scenarioRef) {
-            currentScenarioRef = event.scenarioRef;
-            printScenarioHeader(event.scenarioRef);
-            stepIndexByScenario.set(event.scenarioRef, 0);
+          if (event.type === "stepResult") {
+            if (currentScenarioRef !== event.scenarioRef) {
+              currentScenarioRef = event.scenarioRef;
+              printScenarioHeader(event.scenarioRef);
+              stepIndexByScenario.set(event.scenarioRef, 0);
+            }
+            const stepIndex = stepIndexByScenario.get(event.scenarioRef) ?? 0;
+            printStepResult(event.scenarioRef, stepIndex, event.stepResult);
+            stepIndexByScenario.set(event.scenarioRef, stepIndex + 1);
+          } else if (event.type === "scenarioSummary") {
+            printScenarioSummary(event.scenarioRef, event.overallPassed);
+          } else if (event.type === "evalError") {
+            printEvalError(event.message);
           }
-          const stepIndex = stepIndexByScenario.get(event.scenarioRef) ?? 0;
-          printStepResult(event.scenarioRef, stepIndex, event.stepResult);
-          stepIndexByScenario.set(event.scenarioRef, stepIndex + 1);
-        } else if (event.type === "scenarioSummary") {
-          printScenarioSummary(event.scenarioRef, event.overallPassed);
-        } else if (event.type === "evalError") {
-          printEvalError(event.message);
         }
-      }
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      if (collectEvents) {
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
         events.push({ type: "evalError", message });
-      } else {
-        printEvalError(message);
+        if (printSteps) printEvalError(message);
       }
+      runs.push(buildEvalSummary(events));
     }
 
-    if (!collectEvents) return;
+    const model = parsedAutopilotApplication.languageModel.model;
+    const summary = summarizeRuns(
+      runs,
+      (parsedAutopilotApplication.testCases?.scenarios ??
+        []) as EvalScenarioShape[]
+    );
+    const bars = checkBars(summary, {
+      maxFirstTokenP50: flags["max-first-token-p50"],
+      maxFirstTokenP95: flags["max-first-token-p95"],
+      minToolPass: flags["min-tool-pass"],
+      minStepPass: flags["min-step-pass"]
+    });
+    const passed = evalPassed(runs, summary, bars);
 
-    const summary = buildEvalSummary(events);
-    const jsonString = JSON.stringify(summary, null, 2);
+    if (!outputJson && (flags.repeat > 1 || bars.length))
+      printRunsSummary(model, summary, bars);
 
-    if (outputJson) {
+    if (outputJson || writeOutputFile) {
+      const result = {
+        // One run keeps the shape this output has always had.
+        ...(flags.repeat === 1 ? runs[0] : { runs }),
+        model,
+        summary,
+        bars,
+        passed
+      };
+      const jsonString = JSON.stringify(result, null, 2);
       if (writeOutputFile && flags["output-file"]) {
         fs.writeFileSync(flags["output-file"], jsonString, "utf8");
       } else {
         console.log(jsonString);
       }
-    } else if (writeOutputFile && flags["output-file"]) {
-      fs.writeFileSync(flags["output-file"], jsonString, "utf8");
     }
+
+    if (!passed) this.exit(1);
   }
 }

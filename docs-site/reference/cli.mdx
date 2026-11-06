@@ -148,6 +148,14 @@ not the plain agent file: the agent's configuration and its `testCases` nest und
 | `--file` | `-f` | | The eval file, with the agent and its `testCases` under `intelligence.config` (JSON, YAML or YML). Required. |
 | `--output` | `-o` | `pretty` | `pretty` or `json` |
 | `--output-file` | | | Also writes a JSON summary to this file |
+| `--model` | | | Runs the agent on this catalog ID instead of the file's |
+| `--repeat` | | `1` | Runs the whole eval this many times, and adds a summary |
+| `--max-first-token-p50` | | | Fails if median time to first token, in ms, is above this |
+| `--max-first-token-p95` | | | Fails if p95 time to first token, in ms, is above this |
+| `--min-tool-pass` | | | Fails if the percentage of tool checks that pass is below this |
+| `--min-step-pass` | | | Fails if the percentage of steps that pass is below this |
+
+The command exits with a non-zero code when a scenario fails, a bar is missed or the run has an error.
 
 Run the test cases and also save a JSON summary:
 

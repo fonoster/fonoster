@@ -326,6 +326,8 @@ message StepEvaluationReport {
   bool passed = 5;
   string error_message = 6;
   repeated ToolEvaluationReport tool_evaluations = 7;
+  // Milliseconds from the end of the turn to the reply's first token; 0 when there was no reply text
+  int32 first_token_ms = 8;
 }
 
 // Scenario evaluation report (full scenario with all steps)

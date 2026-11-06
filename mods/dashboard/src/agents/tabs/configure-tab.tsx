@@ -29,6 +29,7 @@ import { approximateTokens, type AgentValues } from "../agent-form";
 import { formatNumber, useCatalog } from "../agents.service";
 import {
   EMPTY_CATALOG,
+  ignoresTemperature,
   LANGUAGES,
   providerOf,
   providerOptions,
@@ -230,7 +231,9 @@ function ModelAndVoice() {
           label="Language model"
           value={summaryOf(catalog, catalog.llm, model)}
           meta={
-            Number.isFinite(temperature) ? `temp ${temperature}` : undefined
+            Number.isFinite(temperature) && !ignoresTemperature(catalog, model)
+              ? `temp ${temperature}`
+              : undefined
           }
         >
           <CatalogPicker

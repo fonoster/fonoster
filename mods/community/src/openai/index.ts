@@ -46,12 +46,17 @@ export class OpenAiCompatibleThink implements Think {
     private readonly provider: ThinkProvider,
     private readonly model: string,
     private readonly options: {
-      temperature: number;
+      /** Left out of the request when absent (catalog feature `fixed-sampling`). */
+      temperature?: number;
       maxTokens: number;
       /** Ask for a JSON object reply (catalog feature `json-mode`). */
       jsonMode?: boolean;
       /** A reasoning model (catalog feature `reasoning`), run with reasoning off. */
       reasoning?: boolean;
+      /** A model that can only lower reasoning (catalog feature `reasoning-low`). */
+      reasoningLow?: boolean;
+      /** Leave reasoning out of the response (Groq's include_reasoning). */
+      excludeReasoning?: boolean;
     }
   ) {}
 
@@ -65,7 +70,9 @@ export class OpenAiCompatibleThink implements Think {
       stream: true,
       // The final chunk carries the request's token usage (add-usage-metering D6).
       stream_options: { include_usage: true },
-      temperature: this.options.temperature,
+      ...(this.options.temperature === undefined
+        ? {}
+        : { temperature: this.options.temperature }),
       // Reasoning models refuse max_tokens; effort "none" is the fastest first token and the only
       // effort at which they accept temperature (#1239).
       ...(this.options.reasoning
@@ -74,6 +81,8 @@ export class OpenAiCompatibleThink implements Think {
             reasoning_effort: "none"
           }
         : { max_tokens: this.options.maxTokens }),
+      ...(this.options.reasoningLow ? { reasoning_effort: "low" } : {}),
+      ...(this.options.excludeReasoning ? { include_reasoning: false } : {}),
       messages: messages.map(toOpenAi),
       ...(tools.length
         ? { tools: tools.map((t) => ({ type: "function", function: t })) }

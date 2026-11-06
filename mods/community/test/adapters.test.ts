@@ -65,9 +65,11 @@ describe("@fonoster/community adapter table", function () {
     expect(adapterFor("toString")).to.equal(undefined);
     expect(Object.keys(ADAPTERS).sort()).to.deep.equal([
       "aicoustics",
+      "anthropic",
       "deepgram",
       "elevenlabs",
       "fake",
+      "google",
       "groq",
       "ollama",
       "openai"

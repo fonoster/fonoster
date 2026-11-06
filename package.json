@@ -33,6 +33,7 @@
     "dev": "fonoster-dev",
     "dev:config": "sh .devcontainer/initialize.sh --refresh",
     "dev:e2e-setup": "npx playwright install --with-deps chromium",
+    "llm:test": "node mods/ctl/bin/run.js applications:eval -f mods/conformance/llm/agent.yaml --repeat 20 --max-first-token-p50 700 --max-first-token-p95 1300 --min-tool-pass 95",
     "dev:info": "sh ops/bundle/init.sh --dir .dev && grep '^DEV_OWNER_' .dev/.env",
     "format": "prettier --write mods/*/src",
     "generate:protos": "npm run generate:protos -w @fonoster/sdk && npm run build",

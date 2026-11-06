@@ -74,7 +74,7 @@ export default function UsageScreen() {
       className: "w-36",
       cell: (l) => (
         <Badge>
-          {l.keySource === "workspace" ? "Your key" : "Fonoster key"}
+          {l.keySource === "workspace" ? "Your key" : "Platform key"}
         </Badge>
       )
     }
@@ -183,6 +183,8 @@ const VENDORS: Record<string, string> = {
   elevenlabs: "ElevenLabs",
   openai: "OpenAI",
   groq: "Groq",
+  anthropic: "Anthropic",
+  google: "Google",
   ollama: "Ollama",
   aicoustics: "ai-coustics",
   fake: "Fake"

@@ -279,4 +279,44 @@ describe("@billing rater", function () {
       expect(rated.amount > 0n, JSON.stringify(line)).to.equal(true);
     }
   });
+
+  it("card 2 prices each active language model at vendor cost, per token kind", function () {
+    const root = join(__dirname, "../../..");
+    const two = loadRateCards(join(__dirname, "../rate-cards")).find(
+      (c) => c.version === 2
+    )!;
+    expect(two.startsAt.toISOString()).to.equal("2026-11-10T00:00:00.000Z");
+    const { entries } = parse(
+      readFileSync(join(root, "ops/cloud/config/catalog.yaml"), "utf8")
+    ) as { entries: { id: string; type?: string; state?: string }[] };
+    const models = entries.filter(
+      (e) => e.type === "llm" && e.state === "active"
+    );
+    expect(models.length).to.be.at.least(9);
+    for (const m of models)
+      for (const meter of [
+        "llm.tokens.in",
+        "llm.tokens.cached",
+        "llm.tokens.out"
+      ])
+        expect(
+          priceOf(two, meter, m.id.split("/")[0], m.id),
+          `${meter} ${m.id}`
+        ).to.be.greaterThan(0);
+    // A million tokens of gpt-5.4-mini: $0.75 in, $0.075 cached, $4.50 out (1 credit = $0.01).
+    const million = (meter: string) =>
+      rate(
+        usage({
+          meter,
+          quantity: 1_000_000,
+          provider: "openai",
+          model: "openai/gpt-5.4-mini"
+        }),
+        new Date("2026-01-01T00:00:00Z"),
+        two
+      ).amount;
+    expect(million("llm.tokens.in")).to.equal(75_000n);
+    expect(million("llm.tokens.cached")).to.equal(7_500n);
+    expect(million("llm.tokens.out")).to.equal(450_000n);
+  });
 });

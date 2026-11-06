@@ -82,7 +82,7 @@ export async function runSessionEval(
   const reports: SessionScenarioReport[] = [];
   for (const scenario of testCases.scenarios as EvalScenario[]) {
     const report = await evaluateSessionScenario(
-      { ...options, testTextSimilarity },
+      { ...options, testTextSimilarity, toolResults: testCases.toolResults },
       scenario,
       callbacks?.onStepResult
     );

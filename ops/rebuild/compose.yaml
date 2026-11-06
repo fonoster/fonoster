@@ -52,6 +52,8 @@ services:
     # Language-model keys named by the stack's Autopilot overlay (empty: no platform key).
     environment:
       GROQ_API_KEY: ${GROQ_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
 
   apiserver:

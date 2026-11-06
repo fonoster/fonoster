@@ -50,6 +50,8 @@ export type SessionScenarioReport = ScenarioEvaluationReport & {
 
 export type SessionEvalOptions = {
   agent: SessionAgent;
+  /** The test cases' canned tool results, used on any step that gives none of its own. */
+  toolResults?: Record<string, unknown>;
   /** The language model the engine streams from (a registry adapter, or the fake LLM). */
   think: Think;
   testTextSimilarity: (text1: string, text2: string) => Promise<boolean>;
@@ -108,6 +110,14 @@ export async function evaluateSessionScenario(
   const { agent: agentConfig, testTextSimilarity } = options;
   const stepTimeoutMs = options.stepTimeoutMs ?? 60_000;
   const session = new EvalSession(scenario.telephonyContext);
+  // The canned results of the step being evaluated.
+  let cannedResults = new Map<string, unknown>();
+  const tools: ToolPort = options.tools ?? {
+    run: async (name, args, signal) =>
+      cannedResults.has(name)
+        ? { ok: true, result: cannedResults.get(name) }
+        : evalToolPort.run(name, args, signal)
+  };
 
   let agent: Agent | undefined;
   let signal: (() => void) | undefined;
@@ -133,7 +143,7 @@ export async function evaluateSessionScenario(
   const handler = createAutopilotHandler({
     agent: { ...agentConfig, testCases: undefined },
     think,
-    tools: options.tools ?? evalToolPort,
+    tools,
     recorder: {
       turn: (t) => {
         traces.push(t);
@@ -153,6 +163,12 @@ export async function evaluateSessionScenario(
     await settle(session); // greeting
     for (const step of scenario.conversation) {
       const type = step.expected.text.type as unknown as ExpectedTextType;
+      cannedResults = new Map([
+        ...Object.entries(options.toolResults ?? {}),
+        ...(step.expected.tools ?? [])
+          .filter((t) => t.result !== undefined)
+          .map((t): [string, unknown] => [t.tool, t.result])
+      ]);
       const report: SessionStepReport = {
         humanInput: step.userInput,
         expectedResponse: step.expected.text.response,
@@ -201,6 +217,7 @@ export async function evaluateSessionScenario(
       );
       const trace = traces[tracesFrom];
 
+      report.firstTokenMs = trace?.firstTokenMs;
       report.streaming = {
         pieces: reply.flatMap((s) => s.pieces),
         firstTokenMs: trace?.firstTokenMs,
@@ -237,7 +254,8 @@ export async function evaluateSessionScenario(
           report.passed = false;
           report.errorMessage = text.errorMessage;
         }
-        if (step.expected.tools && step.expected.tools.length > 0) {
+        // An empty list is a check too: the model must not call a tool on this step.
+        if (step.expected.tools) {
           const tools = evaluateToolCalls(
             step.expected.tools,
             toolCalls.map((c) => ({ name: c.name, args: parseArgs(c) }))

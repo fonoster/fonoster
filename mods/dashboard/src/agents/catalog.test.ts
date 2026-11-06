@@ -17,7 +17,12 @@
  * limitations under the License.
  */
 import { describe, expect, it } from "vitest";
-import { defaultsFor, type AgentCatalog } from "./catalog";
+import {
+  defaultsFor,
+  ignoresTemperature,
+  toAgentCatalog,
+  type AgentCatalog
+} from "./catalog";
 
 // The shipped base catalog (ops/bundle/config/catalog.yaml, #1240) as ListCatalog offers it, plus
 // an operator-added model listed first, so the preferred one has to win.
@@ -69,5 +74,34 @@ describe("defaultsFor", () => {
       stt: "deepgram/nova-3",
       llm: "openai/gpt-5.4-mini"
     });
+  });
+});
+
+describe("ignoresTemperature", () => {
+  const catalog = toAgentCatalog([
+    {
+      id: "anthropic/claude-haiku-5-5",
+      kind: "model",
+      type: "llm",
+      state: "active",
+      providerId: "anthropic",
+      features: ["streaming", "tool-calling", "fixed-sampling"]
+    },
+    {
+      id: "openai/gpt-5.4-mini",
+      kind: "model",
+      type: "llm",
+      state: "active",
+      providerId: "openai",
+      features: ["streaming", "tool-calling"]
+    }
+  ]);
+
+  it("is true only for a model with fixed-sampling", () => {
+    expect(ignoresTemperature(catalog, "anthropic/claude-haiku-5-5")).toBe(
+      true
+    );
+    expect(ignoresTemperature(catalog, "openai/gpt-5.4-mini")).toBe(false);
+    expect(ignoresTemperature(catalog, "openai/unknown")).toBe(false);
   });
 });

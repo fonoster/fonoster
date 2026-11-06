@@ -34,7 +34,7 @@
 # Billing (Fonoster Cloud only): RB_PROFILES=fakes,tools,billing adds the billing service and the
 # Stripe fake (viewer on RB_STRIPE_FAKE_PORT, 12111); calls are then admitted by billing.
 #
-# Real vendors: put DEEPGRAM_API_KEY, ELEVENLABS_API_KEY, GROQ_API_KEY and/or OPENAI_API_KEY in
+# Real vendors: put DEEPGRAM_API_KEY, ELEVENLABS_API_KEY, GROQ_API_KEY, OPENAI_API_KEY, ANTHROPIC_API_KEY and/or GOOGLE_API_KEY in
 # ops/rebuild/.local/vendor.env (or export them) before `up` and `seed`. The demo app gets what
 # the catalog then offers (docs/try-the-new-platform.md).
 set -euo pipefail
@@ -188,6 +188,8 @@ render_configs() {
   local creds=""
   [ -n "${GROQ_API_KEY:-}" ] && creds+="  groq: { value: \"\${GROQ_API_KEY}\" }"$'\n'
   [ -n "${OPENAI_API_KEY:-}" ] && creds+="  openai: { value: \"\${OPENAI_API_KEY}\" }"$'\n'
+  [ -n "${ANTHROPIC_API_KEY:-}" ] && creds+="  anthropic: { value: \"\${ANTHROPIC_API_KEY}\" }"$'\n'
+  [ -n "${GOOGLE_API_KEY:-}" ] && creds+="  google: { value: \"\${GOOGLE_API_KEY}\" }"$'\n'
   [ -n "$creds" ] || creds="  {}"$'\n'
   printf 'credentials:\n%s' "$creds" > "$OVERLAY/autopilot.yaml"
 
@@ -199,6 +201,8 @@ render_configs() {
   [ -n "${AICOUSTICS_LICENSE_KEY:-}" ] && refs+="aicoustics,"
   [ -n "${GROQ_API_KEY:-}" ] && refs+="groq,"
   [ -n "${OPENAI_API_KEY:-}" ] && refs+="openai,"
+  [ -n "${ANTHROPIC_API_KEY:-}" ] && refs+="anthropic,"
+  [ -n "${GOOGLE_API_KEY:-}" ] && refs+="google,"
   refs="${refs%,}"
   {
     # The fakes profile runs the fake providers; their catalog makes them one more provider.

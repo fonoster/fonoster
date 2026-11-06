@@ -22,6 +22,7 @@ import { EvalAgent, LanguageModel } from "../types";
 type EvalExpectedTool = {
   tool: string;
   parameters?: Record<string, unknown>;
+  result?: unknown;
 };
 
 type EvalConversationStep = {

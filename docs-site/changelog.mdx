@@ -7,6 +7,28 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
+<Update label="Next" description="November 2026" tags={["Autopilot", "CLI"]}>
+
+## Autopilot
+
+- **Fonoster Cloud agents can now run on Anthropic, Google and Groq**, along with more OpenAI
+  models. See [Providers and models](/reference/providers#on-fonoster-cloud). Self-hosted installs
+  keep the same base catalog and can add these vendors to it.
+- Time to first token, tool checks and model comparison in
+  [`applications:eval`](/autopilot/test#compare-language-models).
+
+## Usage
+
+- Input tokens no longer include cached tokens, which are listed on their own.
+- The Usage page now says **Platform key** instead of **Fonoster key**.
+
+## CLI
+
+- **Breaking for scripts:** `fonoster applications:eval` now exits with a non-zero code when a
+  scenario fails, a bar is missed or the run has an error.
+
+</Update>
+
 <Update label="v0.47" description="October 2026" tags={["Self-hosting"]}>
 
 ## Self-hosting

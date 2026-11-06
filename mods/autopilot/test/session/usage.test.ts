@@ -108,7 +108,7 @@ describe("@autopilot model usage", function () {
   const expected = [
     {
       meter: "llm.tokens.in",
-      quantity: 1200,
+      quantity: 400,
       provider: "openai",
       model: "openai/gpt-4o-mini",
       keySource: "platform"

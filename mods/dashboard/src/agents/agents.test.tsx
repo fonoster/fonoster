@@ -319,6 +319,35 @@ describe("Agent detail", () => {
     });
   });
 
+  it("notes a model that doesn't use temperature, keeps the field and drops it from the summary", async () => {
+    const catalog = sampleCatalogItems.map((i) =>
+      i.id === "openai/gpt-4o-mini"
+        ? { ...i, features: ["streaming", "fixed-sampling"] }
+        : i
+    );
+    const { user } = setup({ route, catalog });
+    await screen.findByRole("heading", { name: "Billing reminders" });
+    await vi.waitFor(() =>
+      expect(screen.queryByText(/^temp /)).not.toBeInTheDocument()
+    );
+    await user.click(screen.getByRole("link", { name: "Advanced" }));
+    expect(await screen.findByLabelText("Temperature")).toBeInTheDocument();
+    expect(
+      screen.getByText("This model doesn't use temperature")
+    ).toBeInTheDocument();
+  });
+
+  it("shows no temperature note on a model that uses it", async () => {
+    const { user } = setup({ route });
+    await screen.findByRole("heading", { name: "Billing reminders" });
+    expect(screen.getByText(/^temp /)).toBeInTheDocument();
+    await user.click(screen.getByRole("link", { name: "Advanced" }));
+    await screen.findByLabelText("Temperature");
+    expect(
+      screen.queryByText("This model doesn't use temperature")
+    ).not.toBeInTheDocument();
+  });
+
   it("saves edits from several tabs in one update", async () => {
     const { user, applications } = setup({ route });
     const prompt = await screen.findByLabelText("System prompt");

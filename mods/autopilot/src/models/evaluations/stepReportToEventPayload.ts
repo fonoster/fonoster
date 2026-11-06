@@ -56,7 +56,10 @@ export function stepReportToEventPayload(
         evaluationType: EVALUATION_TYPE_TO_NUM[report.evaluationType] ?? 0,
         passed: report.passed,
         errorMessage: report.errorMessage ?? "",
-        toolEvaluations: (report.toolEvaluations ?? []).map(toolReportToPayload)
+        toolEvaluations: (report.toolEvaluations ?? []).map(
+          toolReportToPayload
+        ),
+        firstTokenMs: report.firstTokenMs ?? 0
       }
     }
   };
