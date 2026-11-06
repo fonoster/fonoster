@@ -241,8 +241,8 @@ With `--repeat`, the CLI adds a summary: time to first token, tool and step pass
 The model must be in your catalog. Time to first token depends on where the API server runs, so run
 from your production region before you compare numbers.
 
-The command exits with a non-zero code when a scenario fails, a bar is missed or the run has an error.
-With no bars set, every scenario must pass.
+The command exits with a non-zero code when a bar is missed or the run has an error. With bars set, only
+the bars decide, so a failed scenario alone doesn't fail the run. With no bars set, every scenario must pass.
 
 ## Keys for test runs
 

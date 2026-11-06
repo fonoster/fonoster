@@ -66,6 +66,15 @@ fonoster_overrides:
       groq: { value: "<key>" }
       anthropic: { value: "<key>" }
       google: { value: "<key>" }
+  # Evals run in the API server, which has its own platform keys. A model without one here takes
+  # live calls but fails its evals.
+  fonoster.yaml:
+    evaluations:
+      credentials:
+        openai: "<key>"
+        groq: "<key>"
+        anthropic: "<key>"
+        google: "<key>"
 ```
 
 Each model must have a price on the rate card in force (`mods/billing/rate-cards`). A model without
@@ -109,6 +118,9 @@ it into the inventory, and run the deploy again. Do it before approving that rel
 
 - **Of a release:** redeploy the previous version. Billing's files and lines are applied to it the
   same way.
+- **Of a language model or vendor:** take it off `config/catalog.yaml` and set it retired with
+  `fonoster-registry retire-model` or `retire-provider`, which also moves saved configs. Removing
+  `compose.catalog.yaml` withdraws nothing: applying a catalog never removes a row.
 - **Of billing:** remove `compose.billing.yaml` from `COMPOSE_FILE`, the `fonoster.yaml`
   `features.billing` and `appbridge.yaml` `authz` overrides, `fonoster_files` and
   `fonoster_inserts` together, and redeploy the same version. The `billing` database stays: its

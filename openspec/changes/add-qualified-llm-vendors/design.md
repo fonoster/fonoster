@@ -146,7 +146,7 @@ Changes to the command and what's under it:
 | Summary | First token p50 and p95, step and tool pass rates, and errors. Shown with `--repeat`, and in the JSON output |
 | Bars | Optional flags: first token p50 and p95, tool pass, step pass. With none, every scenario must pass |
 | `tools: []` | Now means the model must not call a tool on that step. Leaving `tools` out still skips the check |
-| Exit code | Non-zero when a scenario fails, a bar is missed, or the eval errors. **This changes behavior** for scripts that run the command today |
+| Exit code | Non-zero when a bar is missed or the eval errors, and, with no bars, when a scenario fails. **This changes behavior** for scripts that run the command today |
 | Canned tool results | Optional `result` on `expected.tools[]`, and `toolResults` for any step, returned to the model instead of `{status: "ok"}` |
 
 Only steps with no expected tool count toward first token, because `firstTokenMs` on a tool step

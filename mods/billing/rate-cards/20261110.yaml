@@ -12,7 +12,8 @@ version: 2
 startsAt: 2026-11-10T00:00:00Z
 source: >-
   Fonoster price, 2026-11-06. At cost, read 2026-11-06, per 1M tokens in, cached, out. OpenAI
-  https://developers.openai.com/api/docs/pricing (gpt-5.4-mini $0.75, $0.075, $4.50; gpt-6-luna $0.10,
+  https://developers.openai.com/api/docs/pricing (gpt-4o-mini, for eval judges, $0.15, $0.075, $0.60;
+  gpt-5.4-mini $0.75, $0.075, $4.50; gpt-6-luna $0.10,
   $0.01, $0.50; gpt-6-sol $2, $0.20, $10; gpt-6.1-terra $1, $0.05, $5). Groq
   https://console.groq.com/docs/model/openai/gpt-oss-120b (gpt-oss-120b $0.15, $0.075, $0.60).
   Anthropic https://platform.claude.com/docs/en/about-claude/pricing (claude-haiku-5-5 $0.10, $0.01,
@@ -31,6 +32,8 @@ prices:
       "*": 0.003
   llm.tokens.in:
     openai:
+      # The judge for eval test files; not offered to agents.
+      openai/gpt-4o-mini: 0.000015
       openai/gpt-5.4-mini: 0.000075
       openai/gpt-6-luna: 0.00001
       openai/gpt-6-sol: 0.0002
@@ -45,6 +48,7 @@ prices:
       google/gemini-3.6-flash: 0.000075
   llm.tokens.cached:
     openai:
+      openai/gpt-4o-mini: 0.0000075
       openai/gpt-5.4-mini: 0.0000075
       openai/gpt-6-luna: 0.000001
       openai/gpt-6-sol: 0.00002
@@ -59,6 +63,7 @@ prices:
       google/gemini-3.6-flash: 0.0000075
   llm.tokens.out:
     openai:
+      openai/gpt-4o-mini: 0.00006
       openai/gpt-5.4-mini: 0.00045
       openai/gpt-6-luna: 0.00005
       openai/gpt-6-sol: 0.001
