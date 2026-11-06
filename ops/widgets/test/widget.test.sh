@@ -146,11 +146,11 @@ new_env section
 alerts_body "$E5" "$E4" "$F1" "$F488" >"$SHIM_DIR/alerts.body"
 OUT=$(menu)
 has "title and count" "$OUT" "● INTEROP · 4 OPEN"
-has "failure row" "$OUT" "Failing: 488 to INVITE · telnyx · 3 calls · 2026-11-05 14:00 |"
-has "one call" "$OUT" "Failing: no ACK for 2xx · acme · 1 call · 2026-11-05 12:00 |"
-has "evidence row" "$OUT" "New evidence: IOP-004 · whatsapp · 2026-11-05 14:00 |"
+has "failure row" "$OUT" "Failing 488 to INVITE · telnyx · 3 calls · 2026-11-05 14:00 |"
+has "one call" "$OUT" "Failing no ACK for 2xx · acme · 1 call · 2026-11-05 12:00 |"
+has "evidence row" "$OUT" "New evidence IOP-004 · whatsapp · 2026-11-05 14:00 |"
 ORDER=$(grep -E '^(Failing|New evidence)' <<<"$OUT" | sed 's/ ·.*//' | tr '\n' ';')
-eq "failures first, then evidence, each newest first" "Failing: 488 to INVITE;Failing: no ACK for 2xx;New evidence: IOP-004;New evidence: IOP-005;" "$ORDER"
+eq "failures first, then evidence, each newest first" "Failing 488 to INVITE;Failing no ACK for 2xx;New evidence IOP-004;New evidence IOP-005;" "$ORDER"
 SECTIONS=$(grep -E '^(updated |● INTEROP|CALLS)' <<<"$OUT" | sed -E 's/^(updated|● INTEROP|CALLS).*/\1/' | tr '\n' ';')
 eq "between the header and CALLS" "updated;● INTEROP;CALLS;" "$SECTIONS"
 has "CALLS as today" "$OUT" "42 calls |"
@@ -163,7 +163,7 @@ has "refresh" "$OUT" "param1=refresh"
 has "refresh re-runs" "$(grep 'Refresh now' <<<"$OUT")" "refresh=true"
 new_env tzlocal
 alerts_body "$E4" >"$SHIM_DIR/alerts.body"
-has "times are local" "$(TZ=America/New_York "$PLUGIN" | plain)" "New evidence: IOP-004 · whatsapp · 2026-11-05 09:00"
+has "times are local" "$(TZ=America/New_York "$PLUGIN" | plain)" "New evidence IOP-004 · whatsapp · 2026-11-05 09:00"
 
 echo "submenu (frame 5)"
 new_env sub
@@ -462,8 +462,8 @@ PY
 RAW=$(plugin)
 OUT=$(plain <<<"$RAW")
 has "the valid rows show" "$OUT" "● INTEROP · 2 OPEN"
-has "the valid evidence" "$OUT" "New evidence: IOP-004 · whatsapp"
-has "the valid failure" "$OUT" "Failing: 488 to INVITE · telnyx"
+has "the valid evidence" "$OUT" "New evidence IOP-004 · whatsapp"
+has "the valid failure" "$OUT" "Failing 488 to INVITE · telnyx"
 eq "alerts.json holds only the valid rows" 2 "$(python3 -I -c 'import json, sys; print(len(json.load(open(sys.argv[1]))["alerts"]))' "$(CACHE)/alerts.json")"
 for bad_text in 'bash=/bin/sh' 'etc/passwd' 'rm -rf' 'UPPER' 'soon' 'extra'; do
   lacks "the menu has no $bad_text" "$RAW" "$bad_text"
