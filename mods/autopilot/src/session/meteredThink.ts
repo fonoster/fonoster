@@ -82,7 +82,12 @@ export function usageLines(
     keySource: model.keySource
   };
   const lines: Usage.UsageLine[] = [
-    { meter: "llm.tokens.in", quantity: usage.inputTokens, ...key },
+    // Cached tokens have their own meter and price, so each token is billed once.
+    {
+      meter: "llm.tokens.in",
+      quantity: Math.max(0, usage.inputTokens - usage.cachedTokens),
+      ...key
+    },
     { meter: "llm.tokens.out", quantity: usage.outputTokens, ...key }
   ];
   if (usage.cachedTokens > 0)

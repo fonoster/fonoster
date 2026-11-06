@@ -1,0 +1,6 @@
+# Fonoster Cloud's catalog in place of the base one. Not in the install archive: production's inventory
+# writes this next to the release (fonoster_files) and names it in COMPOSE_FILE (ops/cloud/README.md).
+services:
+  apiserver:
+    volumes:
+      - ${CONFIG_DIR:-./config}/catalog.cloud.yaml:/etc/fonoster/catalog.yaml:ro

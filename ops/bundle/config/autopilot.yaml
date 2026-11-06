@@ -21,4 +21,6 @@ telemetry: { otlpEndpoint: "${OTEL_EXPORTER_OTLP_ENDPOINT:-}" }
 credentials:
   openai: { value: "YOUR_OPENAI_API_KEY" }
   groq: { value: "YOUR_GROQ_API_KEY" }
+  anthropic: { value: "YOUR_ANTHROPIC_API_KEY" }
+  google: { value: "YOUR_GOOGLE_API_KEY" }
 endpoints: {}

@@ -26,6 +26,7 @@ import {
   runSessionEval,
   sessionThinkFor
 } from "../../src/models/evaluations/session";
+import { stepReportToEventPayload } from "../../src/models/evaluations/stepReportToEventPayload";
 import { resolveThink } from "../../src/session";
 
 // Conversation evals through the session engine (rework-autopilot 1.4): fake session + FakeLlm,
@@ -246,6 +247,109 @@ describe("@autopilot[evaluations] session engine", function () {
     expect(s.passed).to.equal(false);
     expect(s.errorMessage).to.contain("Language model error");
     expect(s.aiResponse).to.contain("Sorry, something went wrong.");
+  });
+
+  it("fails a step with an empty tool list when the model calls a tool", async function () {
+    const { reports } = await run(
+      [
+        scenario([
+          step("Hello", "Hi.", "EXACT", []),
+          step("Paris?", "It is sunny.", "EXACT", [])
+        ])
+      ],
+      {
+        script: [
+          { content: "Hi." },
+          {
+            tool_calls: [{ name: "getWeather", arguments: { city: "Paris" } }]
+          },
+          { content: "It is sunny." }
+        ]
+      }
+    );
+    const [right, wrong] = reports[0].steps;
+    expect(right.passed, right.errorMessage).to.equal(true);
+    expect(wrong.passed).to.equal(false);
+    expect(wrong.errorMessage).to.contain("Tool invocation count mismatch");
+    expect(wrong.toolEvaluations?.[0].errorMessage).to.contain("getWeather");
+  });
+
+  it("reports the time to the first token on each step", async function () {
+    const { reports, steps } = await run(
+      [scenario([step("Hi", "Hello there.")])],
+      { delayMs: 60, script: [{ content: "Hello there." }] }
+    );
+    expect(reports[0].steps[0].firstTokenMs).to.be.at.least(50);
+    expect(steps[0].firstTokenMs).to.be.at.least(50);
+    expect(
+      stepReportToEventPayload("s1", reports[0].steps[0])
+    ).to.have.nested.property("stepResult.report.firstTokenMs");
+  });
+
+  it("uses the test cases' tool results on steps that give none", async function () {
+    harness.llm.configure({
+      script: [
+        { tool_calls: [{ name: "getWeather", arguments: { city: "Paris" } }] },
+        { content: "It is sunny." }
+      ]
+    });
+    const agent = agentWith([scenario([step("Paris?", "It is sunny.")])]);
+    agent.testCases = {
+      ...agent.testCases!,
+      toolResults: { getWeather: { sky: "sunny" } }
+    };
+    await runSessionEval({
+      agent,
+      think: resolveThink(
+        "fake/llm",
+        { fake: { baseUrl: harness.llm.url } },
+        { temperature: 0, maxTokens: 100 }
+      ),
+      testTextSimilarity: async () => true,
+      stepTimeoutMs: 5000
+    });
+    const tool = harness.llm.conversations[1].messages.filter(
+      (m) => m.role === "tool"
+    );
+    expect(tool.map((m) => JSON.parse(m.content!))).to.deep.equal([
+      { sky: "sunny" }
+    ]);
+  });
+
+  it("returns a test case's canned tool result to the model, and ok for any other call", async function () {
+    const paris = { tool: "getWeather", parameters: { city: "Paris" } };
+    await run(
+      [
+        scenario([
+          step("Paris?", "It is sunny.", "EXACT", [
+            { ...paris, result: { sky: "sunny" } }
+          ]),
+          step("Rome?", "It is fine.", "EXACT", [paris])
+        ])
+      ],
+      {
+        script: [
+          {
+            tool_calls: [{ name: "getWeather", arguments: { city: "Paris" } }]
+          },
+          { content: "It is sunny." },
+          {
+            tool_calls: [{ name: "getWeather", arguments: { city: "Paris" } }]
+          },
+          { content: "It is fine." }
+        ]
+      }
+    );
+    const toolMessages = (i: number) =>
+      harness.llm.conversations[i].messages.filter((m) => m.role === "tool");
+    expect(toolMessages(1).map((m) => JSON.parse(m.content!))).to.deep.equal([
+      { sky: "sunny" }
+    ]);
+    expect(
+      toolMessages(3)
+        .slice(-1)
+        .map((m) => JSON.parse(m.content!))
+    ).to.deep.equal([{ status: "ok" }]);
   });
 
   it("uses the session engine for OpenAI-compatible providers only", function () {

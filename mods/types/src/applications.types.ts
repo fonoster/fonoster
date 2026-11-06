@@ -175,6 +175,8 @@ type StepEvaluationReport = {
   passed: boolean;
   errorMessage?: string;
   toolEvaluations?: ToolEvaluationReport[];
+  /** Milliseconds from the end of the turn to the reply's first token. */
+  firstTokenMs?: number;
 };
 
 type ToolEvaluationReport = {

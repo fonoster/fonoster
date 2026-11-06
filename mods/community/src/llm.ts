@@ -20,7 +20,13 @@
 // behind one interface. Implementations live in one subpath per vendor (openai covers
 // OpenAI, Groq, Ollama and the conformance fake LLM).
 
-export type ToolCall = { id: string; name: string; arguments: string };
+export type ToolCall = {
+  id: string;
+  name: string;
+  arguments: string;
+  /** What the vendor needs back with this call in later requests; never read, only returned. */
+  extraContent?: unknown;
+};
 
 export type ChatMessage =
   | { role: "system" | "user"; content: string }

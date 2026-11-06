@@ -48,8 +48,8 @@ fonoster-registry apply -f <file>
 
 Rules:
 
-- Built-in adapters: `deepgram`, `elevenlabs`, `google`, `azure`, `openai`, `anthropic`, `groq`,
-  `ollama`, `fake`. An entry whose adapter is not built into AppBridge is hidden from users.
+- Built-in adapters: `deepgram`, `elevenlabs`, `openai`, `anthropic`, `google`, `groq`, `ollama`,
+  `aicoustics`, `fake`. An entry whose adapter is not built into AppBridge is hidden from users.
   Adapters shipped for speech today: Deepgram, ElevenLabs and the fakes' protocol; for LLMs,
   OpenAI-compatible ones.
 - A provider without `--credential-ref` is keyless: it is called with no key and offered to every

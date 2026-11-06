@@ -16,9 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { ANTHROPIC_ENDPOINT, AnthropicThink } from "./anthropic";
 import { DeepgramSttAdapter, DeepgramTtsAdapter } from "./deepgram";
 import { ElevenLabsTtsAdapter } from "./elevenlabs";
 import { FakeSttAdapter, FakeTtsAdapter } from "./fake";
+import { GOOGLE_ENDPOINT, GoogleThink } from "./google";
 import { Think, ThinkProvider } from "./llm";
 import { OPENAI_COMPATIBLE, OpenAiCompatibleThink } from "./openai";
 import { SttAdapter, TtsAdapter } from "./speech";
@@ -46,10 +48,11 @@ export type LlmAdapterFactory = {
     provider: ThinkProvider,
     model: string,
     settings: {
-      temperature: number;
+      temperature?: number;
       maxTokens: number;
       jsonMode?: boolean;
       reasoning?: boolean;
+      reasoningLow?: boolean;
     }
   ): Think;
 };
@@ -103,7 +106,39 @@ export const ADAPTERS: Readonly<Record<string, AdapterFactories>> = {
       })
   },
   openai: { llm: openAiCompatible("openai") },
-  groq: { llm: openAiCompatible("groq") },
+  groq: {
+    llm: {
+      defaultEndpoint: OPENAI_COMPATIBLE.groq,
+      create: (provider, model, settings) =>
+        new OpenAiCompatibleThink(
+          { ...provider, name: provider.name ?? "groq" },
+          model,
+          { ...settings, excludeReasoning: settings.reasoningLow }
+        )
+    }
+  },
+  anthropic: {
+    llm: {
+      defaultEndpoint: ANTHROPIC_ENDPOINT,
+      create: (provider, model, settings) =>
+        new AnthropicThink(
+          { ...provider, name: provider.name ?? "anthropic" },
+          model,
+          settings
+        )
+    }
+  },
+  google: {
+    llm: {
+      defaultEndpoint: GOOGLE_ENDPOINT,
+      create: (provider, model, settings) =>
+        new GoogleThink(
+          { ...provider, name: provider.name ?? "google" },
+          model,
+          settings
+        )
+    }
+  },
   ollama: { keyless: true, llm: openAiCompatible("ollama") },
   // Noise cancelling (`nc`): served by the appbridge's aiCoustics filter with the provider's key,
   // so the entry only makes the adapter known to the registry and the gateway config.

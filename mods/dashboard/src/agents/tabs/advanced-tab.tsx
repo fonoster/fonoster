@@ -18,10 +18,12 @@
  */
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type ComponentProps } from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { Button } from "~/components/ui/button";
 import { CallHandlingDrawer } from "~/session/apps";
 import { type AgentValues } from "../agent-form";
+import { useCatalog } from "../agents.service";
+import { EMPTY_CATALOG, ignoresTemperature } from "../catalog";
 import { useFieldError, type AgentPath } from "../fields";
 import { Panel, PanelAction, SettingRow, ValueBox, ValueInput } from "../parts";
 import { NoiseCancellingPanel } from "./noise-cancelling-panel";
@@ -67,13 +69,7 @@ export function AdvancedTab({
         </Panel>
         <Panel title="Language model">
           <div>
-            <NumberRow
-              name="model.temperature"
-              label="Temperature"
-              step={0.1}
-              min={0}
-              max={2}
-            />
+            <TemperatureRow />
             <NumberRow
               name="model.maxTokens"
               label="Max tokens"
@@ -136,6 +132,25 @@ export function AdvancedTab({
 }
 
 const idFor = (name: string) => `agent-${name.replace(/\./g, "-")}`;
+
+function TemperatureRow() {
+  const catalog = useCatalog().data ?? EMPTY_CATALOG;
+  const model = useWatch<AgentValues, "model.model">({ name: "model.model" });
+  return (
+    <NumberRow
+      name="model.temperature"
+      label="Temperature"
+      hint={
+        ignoresTemperature(catalog, model)
+          ? "This model doesn't use temperature"
+          : undefined
+      }
+      step={0.1}
+      min={0}
+      max={2}
+    />
+  );
+}
 
 function NumberRow({
   name,

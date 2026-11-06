@@ -39,7 +39,7 @@ export function evaluateToolCalls(
       passed: false,
       expectedParameters: undefined,
       actualParameters: undefined,
-      errorMessage: `Expected ${expectedTools.length} tool invocation(s), but got ${toolCalls ? toolCalls.length : 0}.`
+      errorMessage: `Expected ${expectedTools.length} tool invocation(s), but got ${toolCalls?.length ?? 0}${toolCalls?.length ? ` (${toolCalls.map((c) => c.name).join(", ")})` : ""}.`
     });
     return {
       evaluations,

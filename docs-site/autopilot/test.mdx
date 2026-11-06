@@ -222,8 +222,27 @@ A few details:
 - To check that a parameter holds a date without fixing its value, set it to `valid-date`. The
   step passes when the value is an ISO 8601 date.
 - A step that takes longer than 60 seconds fails.
+- `tools: []` means the agent must not call a tool on that step. Leaving `tools` out skips the check.
+- Tools don't reach your endpoints. A tool returns the step's `result`, then `testCases.toolResults`
+  for that tool, and otherwise `{"status": "ok"}`.
 - `evalsSystemPrompt` replaces the judge's instructions for `similar` matches. Leave it out to use
   the default.
+
+## Compare language models
+
+Run the same test cases on another model, as many times as you like, and set the bars it must meet:
+
+```bash
+fonoster applications:eval -f front-desk.eval.yaml --model groq/openai/gpt-oss-120b --repeat 20 \
+  --max-first-token-p50 700 --max-first-token-p95 1300 --min-tool-pass 95
+```
+
+With `--repeat`, the CLI adds a summary: time to first token, tool and step pass rates, and errors.
+The model must be in your catalog. Time to first token depends on where the API server runs, so run
+from your production region before you compare numbers.
+
+The command exits with a non-zero code when a bar is missed or the run has an error. With bars set, only
+the bars decide, so a failed scenario alone doesn't fail the run. With no bars set, every scenario must pass.
 
 ## Keys for test runs
 

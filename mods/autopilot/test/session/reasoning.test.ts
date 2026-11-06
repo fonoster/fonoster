@@ -73,6 +73,25 @@ describe("@fonoster/autopilot reasoning models", function () {
     });
   });
 
+  it("the resolver passes reasoning-low and leaves temperature out for fixed-sampling", async function () {
+    registry.addModel({
+      id: "openai/low",
+      type: "llm",
+      features: ["streaming", "reasoning-low"]
+    });
+    registry.addModel({
+      id: "openai/fixed",
+      type: "llm",
+      features: ["streaming", "fixed-sampling"]
+    });
+    expect(await optionsOf("openai/low")).to.deep.equal({
+      temperature: 0.4,
+      maxTokens: 100,
+      reasoningLow: true
+    });
+    expect(await optionsOf("openai/fixed")).to.deep.equal({ maxTokens: 100 });
+  });
+
   it("a catalog entry with feature reasoning is accepted", function () {
     registry.addModel({
       id: "openai/gpt-5.4-mini",

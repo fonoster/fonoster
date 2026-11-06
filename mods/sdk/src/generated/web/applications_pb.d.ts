@@ -746,6 +746,9 @@ export class StepEvaluationReport extends jspb.Message {
   clearToolEvaluationsList(): StepEvaluationReport;
   addToolEvaluations(value?: ToolEvaluationReport, index?: number): ToolEvaluationReport;
 
+  getFirstTokenMs(): number;
+  setFirstTokenMs(value: number): StepEvaluationReport;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): StepEvaluationReport.AsObject;
   static toObject(includeInstance: boolean, msg: StepEvaluationReport): StepEvaluationReport.AsObject;
@@ -763,6 +766,7 @@ export namespace StepEvaluationReport {
     passed: boolean,
     errorMessage: string,
     toolEvaluationsList: Array<ToolEvaluationReport.AsObject>,
+    firstTokenMs: number,
   }
 }
 

@@ -135,7 +135,8 @@ different: it nests the agent and its `testCases` under `intelligence.config`. S
 </ParamField>
 
 <ParamField path="languageModel.temperature" type="number" default="0.4">
-  Sampling temperature, from `0` to `2`. Lower is more consistent.
+  Sampling temperature, from `0` to `2`. Lower is more consistent. A model with the `fixed-sampling`
+  feature ignores it.
 </ParamField>
 
 <ParamField path="languageModel.maxTokens" type="integer" default="400">

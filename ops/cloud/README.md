@@ -11,6 +11,7 @@ Inventory), from the reference files in this folder:
 | `config/billing.yaml` | Billing's config; each secret is a `${NAME}` from the container's environment |
 | `config/nats-permissions/billing.conf` | Billing's NATS subjects |
 | `inserts.yml` | Billing's NATS user in `config/nats.conf`; `/stripe/webhooks` and `billing-cluster` in `config/envoy-tls.yaml` |
+| `compose.catalog.yaml`, `config/catalog.yaml` | Cloud's whole catalog, in place of the base one |
 | `compose.ops.yaml` | The ops API on the API server (`mods/ops`): its secrets, Routr's traces read-only, its state volume |
 | `ops-role.sql` | The ops API's read-only database role, with column grants |
 
@@ -46,6 +47,39 @@ fonoster_overrides:
 
 `fonoster_env`, `fonoster_env_secrets` and `fonoster_overrides` keep the rest of production's
 values; only the keys above are billing's.
+
+## The catalog
+
+`config/catalog.yaml` is everything Cloud offers, and nothing else. Production applies it on every start
+in place of the base catalog. To change what Cloud offers, change this file. In `group_vars/production/main.yml`:
+
+```yaml
+fonoster_env:
+  # Add compose.catalog.yaml to the value above.
+  COMPOSE_FILE: compose.yaml:compose.external-db.yaml:compose.billing.yaml:compose.traces.yaml:compose.catalog.yaml
+fonoster_files:
+  compose.catalog.yaml: "{{ lookup('file', inventory_dir ~ '/cloud/compose.catalog.yaml') }}"
+  config/catalog.cloud.yaml: "{{ lookup('file', inventory_dir ~ '/cloud/config/catalog.yaml') }}"
+fonoster_overrides:
+  autopilot.yaml:
+    credentials:
+      groq: { value: "<key>" }
+      anthropic: { value: "<key>" }
+      google: { value: "<key>" }
+  # Evals run in the API server, which has its own platform keys. A model without one here takes
+  # live calls but fails its evals.
+  fonoster.yaml:
+    evaluations:
+      credentials:
+        openai: "<key>"
+        groq: "<key>"
+        anthropic: "<key>"
+        google: "<key>"
+```
+
+Each model must have a price on the rate card in force (`mods/billing/rate-cards`). A model without
+one isn't billed on platform keys, and billing logs an alert. Applying a file never removes an entry from
+the database, so taking something off this list leaves its row behind until it is deleted. Before a deploy, `fonoster-registry plan -f <file>` lists what the file would change.
 
 ## Setting it up
 
@@ -84,6 +118,9 @@ it into the inventory, and run the deploy again. Do it before approving that rel
 
 - **Of a release:** redeploy the previous version. Billing's files and lines are applied to it the
   same way.
+- **Of a language model or vendor:** take it off `config/catalog.yaml` and set it retired with
+  `fonoster-registry retire-model` or `retire-provider`, which also moves saved configs. Removing
+  `compose.catalog.yaml` withdraws nothing: applying a catalog never removes a row.
 - **Of billing:** remove `compose.billing.yaml` from `COMPOSE_FILE`, the `fonoster.yaml`
   `features.billing` and `appbridge.yaml` `authz` overrides, `fonoster_files` and
   `fonoster_inserts` together, and redeploy the same version. The `billing` database stays: its

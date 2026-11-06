@@ -24,6 +24,14 @@
       "types": "./dist/elevenlabs/index.d.ts",
       "default": "./dist/elevenlabs/index.js"
     },
+    "./anthropic": {
+      "types": "./dist/anthropic/index.d.ts",
+      "default": "./dist/anthropic/index.js"
+    },
+    "./google": {
+      "types": "./dist/google/index.d.ts",
+      "default": "./dist/google/index.js"
+    },
     "./openai": {
       "types": "./dist/openai/index.d.ts",
       "default": "./dist/openai/index.js"

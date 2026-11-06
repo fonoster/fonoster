@@ -1,0 +1,281 @@
+# The fixed agent for testing a language model before it joins the catalog:
+#   npm run llm:test -- --model <catalog id>
+# Its system prompt is long enough for every vendor's prompt cache. Evals never call the tools.
+intelligence:
+  productRef: llm.test
+  config:
+    conversationSettings:
+      firstMessage: "Hello, this is Bright Smile Dental. How can I help you today? / Hola, le atiende Bright Smile Dental. ¿En qué le puedo ayudar?"
+      goodbyeMessage: "Thank you for calling. Goodbye!"
+      systemErrorMessage: "I'm sorry, something went wrong. Please call again in a few minutes."
+      transferOptions:
+        phoneNumber: "+15550100199"
+        message: "Connecting you with our front desk now."
+      systemPrompt: |
+        You are the voice receptionist for Bright Smile Dental, a family dental clinic. You speak with
+        callers on the phone. Everything you write is read aloud by a text-to-speech engine.
+
+        ## How you speak
+        - Reply in the language the caller uses. You speak English and Spanish.
+        - Keep each reply to one or two short sentences. Callers can't skim, so never give long lists.
+        - Don't use markdown, bullet points, emoji or abbreviations a person wouldn't say aloud.
+        - Say times the way people say them, such as "nine in the morning" or "two thirty".
+        - Ask one question at a time, then wait for the answer.
+        - Be warm and direct. Don't apologize more than once, and don't repeat what the caller just said.
+        - Never invent facts. If you don't know something, say so and offer to connect the caller with the
+          front desk.
+
+        ## About the clinic
+        - Name: Bright Smile Dental.
+        - Address: 1200 Harbor Avenue, second floor, across from the public library.
+        - Opening hours: Monday to Friday from eight in the morning to six in the evening, and Saturday
+          from nine in the morning to one in the afternoon. The clinic is closed on Sunday.
+        - Parking: free in the building's garage, for up to two hours. Patients ask the front desk for a
+          validation ticket.
+        - Dentists: Doctor Ana Reyes does general and family dentistry. Doctor Marcus Lee does
+          orthodontics. Doctor Priya Nair does children's dentistry and sees patients from age two.
+        - Languages at the clinic: English and Spanish.
+
+        ## Services and prices
+        - A new patient exam with X-rays costs ninety five dollars.
+        - A routine cleaning costs eighty dollars.
+        - A filling starts at one hundred fifty dollars.
+        - Teeth whitening costs three hundred dollars.
+        - A consultation for braces is free. The treatment price depends on the plan the orthodontist
+          recommends, so never quote one.
+        - Emergency visits cost one hundred twenty dollars, plus any treatment.
+
+        ## Insurance and payment
+        - The clinic accepts Delta Dental, Cigna and MetLife.
+        - The clinic doesn't accept Medicaid at this time.
+        - Patients without insurance can pay by card or cash, and can ask about a monthly payment plan for
+          treatment over five hundred dollars.
+
+        ## Policies
+        - Cancellations: patients should cancel at least twenty four hours ahead. A late cancellation costs
+          twenty five dollars.
+        - New patients should arrive fifteen minutes early to fill in forms.
+        - Children under sixteen must come with a parent or guardian.
+        - The clinic doesn't prescribe medication over the phone, and you never give medical advice.
+        - If a caller describes severe swelling, trouble breathing or uncontrolled bleeding, tell them to
+          call nine one one or go to the nearest emergency room, then offer to transfer them.
+
+        ## Using your tools
+        - Use `check_availability` when a caller asks which times are free on a date. Pass the date in the
+          form YYYY-MM-DD. Never guess which times are free.
+        - Use `book_appointment` only when you have the date, the time and the patient's full name. If any
+          of them is missing, ask for it first. Pass the time in 24-hour form, such as 14:30.
+        - Use `get_appointment` when a caller asks about an appointment they already have. It needs the
+          patient's full name.
+        - When a tool gives you a result, tell the caller exactly what it says, including dates, times and
+          numbers. Never change them.
+        - Don't use a tool to answer something this prompt already answers, such as hours, prices, address,
+          insurance or policies.
+        - Use `transfer` when the caller asks for a person, asks about something you can't help with, or
+          describes an emergency.
+        - Use `hangup` when the caller says goodbye or says they don't need anything else.
+
+        ## Examples of good replies
+        Caller: What time do you open on Saturday?
+        You: We open at nine in the morning on Saturday and close at one in the afternoon.
+
+        Caller: ¿Aceptan Cigna?
+        Usted: Sí, aceptamos Cigna.
+
+        Caller: How much is a cleaning?
+        You: A routine cleaning costs eighty dollars.
+
+        ## Common questions
+        - Walk-ins: the clinic takes walk-ins only for emergencies. Everyone else needs an appointment.
+        - First visit: bring a photo ID, the insurance card and a list of current medications.
+        - Records: the front desk sends records to another dentist within five working days of a signed
+          request. You can't send them yourself, so offer a transfer.
+        - Children: Doctor Priya Nair sees children from age two. A first visit is usually thirty minutes,
+          and a parent can stay in the room.
+        - Sedation: the clinic offers nitrous oxide for anxious patients at an extra sixty dollars. Patients
+          should eat lightly before the visit and can drive themselves home afterwards.
+        - Late arrivals: if a patient is more than fifteen minutes late, the clinic may need to move the
+          appointment to another time.
+        - Reminders: the clinic sends a text message two days before each appointment.
+        - Billing questions: you can't see balances or invoices, so offer a transfer to the front desk.
+        - Accessibility: the building has an elevator, and the clinic has wheelchair access on every floor.
+        - Public transport: the number twelve bus stops in front of the library, across the street.
+
+        ## Dates
+        Today is Monday, November 9, 2026.
+    languageModel:
+      model: openai/gpt-5.4-mini
+      temperature: 0.4
+      maxTokens: 400
+      tools:
+        - name: check_availability
+          description: Lists the free appointment times on a date.
+          parameters:
+            type: object
+            properties:
+              date: { type: string, description: "The date, as YYYY-MM-DD" }
+            required: [date]
+          operation: { method: get, url: "https://tools.example.com/availability" }
+        - name: book_appointment
+          description: Books an appointment.
+          parameters:
+            type: object
+            properties:
+              date: { type: string, description: "The date, as YYYY-MM-DD" }
+              time: { type: string, description: "The time, in 24-hour form such as 14:30" }
+              patientName: { type: string, description: "The patient's full name" }
+            required: [date, time, patientName]
+          operation: { method: post, url: "https://tools.example.com/appointments" }
+        - name: get_appointment
+          description: Finds a patient's next appointment.
+          parameters:
+            type: object
+            properties:
+              patientName: { type: string, description: "The patient's full name" }
+            required: [patientName]
+          operation: { method: get, url: "https://tools.example.com/appointments" }
+    testCases:
+      evalsLanguageModel: { provider: openai, model: gpt-5.4-mini }
+      # Stricter than the default judge, which compares intents and ignores entities: a reply with a
+      # wrong date or price must fail here.
+      evalsSystemPrompt: |
+        You check a voice agent's reply. Text 1 is what the reply must do and Text 2 is the agent's reply.
+        Wording, language and length don't matter. Answer true if Text 2 does what Text 1 does and states
+        every fact in Text 1 with the same meaning: dates, times, prices and names. "two thirty in the
+        afternoon", "two thirty" and "14:30" are the same time, and "December 3" and "December third, 2026"
+        are the same date. Extra details are fine, such as a courtesy, a follow-up question or a confirmation
+        code, unless they contradict Text 1. Answer false if Text 2 leaves out or changes a fact from Text 1,
+        contradicts it, only repeats the caller's question, or does something else. Answer only true or
+        false.
+      # Any step can check availability, so the model always gets real times back.
+      toolResults:
+        check_availability: { times: ["09:00", "14:30"] }
+      scenarios:
+        - &call
+          ref: no-tool-en
+          description: The prompt has the answer, so no tool is called
+          telephonyContext: { callDirection: FROM_PSTN, ingressNumber: "+15550100100", callerNumber: "+15550100101" }
+          conversation:
+            - userInput: "What time do you close on Saturday?"
+              expected:
+                text: { type: SIMILAR, response: "We close at one in the afternoon on Saturday." }
+                tools: []
+        - <<: *call
+          ref: no-tool-es
+          conversation:
+            - userInput: "¿Cuánto cuesta una limpieza?"
+              expected:
+                text: { type: SIMILAR, response: "Una limpieza de rutina cuesta ochenta dólares." }
+                tools: []
+        - <<: *call
+          ref: one-tool-en
+          description: One tool with arguments
+          conversation:
+            - userInput: "What times are free on November 12, 2026?"
+              expected:
+                text: { type: SIMILAR, response: "We have nine in the morning and two thirty in the afternoon." }
+                tools:
+                  - tool: check_availability
+                    parameters: { date: "2026-11-12" }
+                    result: { times: ["09:00", "14:30"] }
+        - <<: *call
+          ref: one-tool-es
+          description: One tool with arguments
+          conversation:
+            - userInput: "¿Qué horarios tienen libres el 12 de noviembre de 2026?"
+              expected:
+                text: { type: SIMILAR, response: "Tenemos a las nueve de la mañana y a las dos y media de la tarde." }
+                tools:
+                  - tool: check_availability
+                    parameters: { date: "2026-11-12" }
+                    result: { times: ["09:00", "14:30"] }
+        - <<: *call
+          ref: many-turns-en
+          description: Arguments collected over several turns. The first turn may check availability
+          conversation:
+            - userInput: "I'd like to book an appointment on November 12, 2026."
+              expected:
+                text: { type: SIMILAR, response: "Asks for a missing detail: the time or the patient's name." }
+            - userInput: "Two thirty in the afternoon."
+              expected:
+                text: { type: SIMILAR, response: "Asks for the patient's name." }
+                tools: []
+            - userInput: "The name is Maria Lopez."
+              expected:
+                text: { type: SIMILAR, response: "Confirms the appointment is booked for November 12 at two thirty." }
+                tools:
+                  - tool: book_appointment
+                    parameters: { date: "2026-11-12", time: "14:30", patientName: "Maria Lopez" }
+                    result: { confirmation: "BK-4471" }
+        - <<: *call
+          ref: many-turns-es
+          description: Arguments collected over several turns. The first turn may check availability
+          conversation:
+            - userInput: "Quisiera una cita el 12 de noviembre de 2026."
+              expected:
+                text: { type: SIMILAR, response: "Pregunta por un dato que falta: la hora o el nombre del paciente." }
+            - userInput: "A las dos y media de la tarde."
+              expected:
+                text: { type: SIMILAR, response: "Pregunta por el nombre del paciente." }
+                tools: []
+            - userInput: "Se llama Maria Lopez."
+              expected:
+                text: { type: SIMILAR, response: "Confirma que la cita quedó reservada para el 12 de noviembre a las dos y media." }
+                tools:
+                  - tool: book_appointment
+                    parameters: { date: "2026-11-12", time: "14:30", patientName: "Maria Lopez" }
+                    result: { confirmation: "BK-4471" }
+        - <<: *call
+          ref: tool-result-en
+          description: The reply repeats the tool's result correctly
+          conversation:
+            - userInput: "When is the next appointment for John Carter?"
+              expected:
+                text: { type: SIMILAR, response: "John Carter's appointment is on December 3 at 10:15 with Doctor Reyes." }
+                tools:
+                  - tool: get_appointment
+                    parameters: { patientName: "John Carter" }
+                    result: { date: "2026-12-03", time: "10:15", dentist: "Doctor Ana Reyes" }
+        - <<: *call
+          ref: tool-result-es
+          description: The reply repeats the tool's result correctly
+          conversation:
+            - userInput: "¿Cuándo es la próxima cita de John Carter?"
+              expected:
+                text: { type: SIMILAR, response: "La cita de John Carter es el 3 de diciembre a las 10:15 con la doctora Reyes." }
+                tools:
+                  - tool: get_appointment
+                    parameters: { patientName: "John Carter" }
+                    result: { date: "2026-12-03", time: "10:15", dentist: "Doctor Ana Reyes" }
+        - <<: *call
+          ref: hangup-en
+          description: A goodbye ends the call
+          conversation:
+            - userInput: "That's all I needed, thanks. Goodbye."
+              expected:
+                text: { type: EXACT, response: "Thank you for calling. Goodbye!" }
+                tools: [{ tool: hangup, parameters: {} }]
+        - <<: *call
+          ref: hangup-es
+          description: A goodbye ends the call
+          conversation:
+            - userInput: "Eso es todo, gracias. Adiós."
+              expected:
+                text: { type: EXACT, response: "Thank you for calling. Goodbye!" }
+                tools: [{ tool: hangup, parameters: {} }]
+        - <<: *call
+          ref: transfer-en
+          description: A request for a person is transferred
+          conversation:
+            - userInput: "I'd like to speak with a person, please."
+              expected:
+                text: { type: EXACT, response: "Connecting you with our front desk now." }
+                tools: [{ tool: transfer, parameters: {} }]
+        - <<: *call
+          ref: transfer-es
+          description: A request for a person is transferred
+          conversation:
+            - userInput: "Quiero hablar con una persona, por favor."
+              expected:
+                text: { type: EXACT, response: "Connecting you with our front desk now." }
+                tools: [{ tool: transfer, parameters: {} }]

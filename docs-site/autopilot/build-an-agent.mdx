@@ -73,11 +73,14 @@ model together as one agent configuration.
     provider and its key for you, so the agent never holds a key. To use your own key with a
     provider, add it to your workspace: see [Use your own vendor keys](/workspace/provider-keys).
 
-    Live calls run models with an OpenAI-compatible API. The shipped catalog has this model:
+    The shipped catalog has this model:
 
     | Model | Catalog ID |
     | --- | --- |
     | GPT-5.4 mini (OpenAI) | `openai/gpt-5.4-mini` |
+
+    Fonoster Cloud also offers models from OpenAI, Anthropic, Google and Groq. See
+    [Providers and models](/reference/providers#on-fonoster-cloud).
 
     On your own install, you can also run a model with Ollama. Voices, speech-to-text models and
     how to add other vendors are in [Providers and models](/reference/providers).
@@ -86,7 +89,7 @@ model together as one agent configuration.
 
     | Setting | Field | Default | Notes |
     | --- | --- | --- | --- |
-    | Temperature | `temperature` | `0.4` | From 0 to 2. Lower is more consistent. |
+    | Temperature | `temperature` | `0.4` | From 0 to 2. Lower is more consistent. Some models don't use it; the dashboard says so. |
     | Max tokens | `maxTokens` | `400` | The longest reply the model can write in one turn. |
 
     The voice, the language and the speech-to-text model belong to the application, as catalog

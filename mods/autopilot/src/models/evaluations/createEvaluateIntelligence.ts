@@ -19,6 +19,7 @@
 import { randomUUID } from "crypto";
 import {
   getAccessKeyIdFromCall,
+  Registry,
   sessionAgentSchema,
   Usage
 } from "@fonoster/common";
@@ -26,6 +27,7 @@ import { getLogger } from "@fonoster/logger";
 import { StepEvaluationReport } from "@fonoster/types";
 import { ServerInterceptingCall } from "@grpc/grpc-js";
 import { Struct, struct } from "pb-util";
+import { RegistryLlmResolver } from "../../session/llm";
 import { meteredThink, UsageSink } from "../../session/meteredThink";
 import { createEvalEffectiveConfig } from "./createEvalEffectiveConfig";
 import { runEval } from "./runEval";
@@ -67,6 +69,9 @@ export type EvalUsageReporter = (
   scope: string
 ) => void;
 
+/** The provider catalog, read fresh for each eval, so a model runs the way a live call runs it. */
+export type EvalCatalog = () => Promise<Registry.Registry>;
+
 const keyOf = (k: EvalKey | string | undefined): EvalKey | undefined =>
   typeof k === "string" ? { key: k, source: "platform" } : k;
 
@@ -76,7 +81,8 @@ const keyOf = (k: EvalKey | string | undefined): EvalKey | undefined =>
  */
 function createEvaluateIntelligence(
   keys: EvalKeySource,
-  reportUsage?: EvalUsageReporter
+  reportUsage?: EvalUsageReporter,
+  catalog?: EvalCatalog
 ) {
   const evaluateIntelligence = async (
     call: ServerStreamCall
@@ -109,7 +115,8 @@ function createEvaluateIntelligence(
         missing: (catalogId) =>
           logger.warn(`eval: ${catalogId} reported no usage`, { accessKeyId })
       };
-      if (!apiKey && provider !== "ollama")
+      // With the catalog, the resolver knows which providers are keyless.
+      if (!catalog && !apiKey && provider !== "ollama")
         throw new Error(`no ${provider} key for this workspace or platform`);
       if (!evaluationApiKey)
         throw new Error(
@@ -128,14 +135,28 @@ function createEvaluateIntelligence(
         }
       };
 
-      // The session engine (streaming replies, structured tool messages) for OpenAI-compatible
-      // providers; the LangChain path stays for the rest until their adapters land (EV-B1).
-      const sessionThink = sessionThinkFor(agent, apiKey);
+      // With the catalog, the model runs as in a live call: same provider, adapter and features.
+      // Without it, the session engine for OpenAI-compatible providers and the LangChain path for
+      // the rest.
+      const resolved = catalog
+        ? await new RegistryLlmResolver({
+            registry: await catalog(),
+            credentials: { get: () => apiKey }
+          }).resolve(
+            agent.languageModel.model,
+            {
+              temperature: agent.languageModel.temperature,
+              maxTokens: agent.languageModel.maxTokens
+            },
+            {}
+          )
+        : undefined;
+      const sessionThink = resolved?.think ?? sessionThinkFor(agent, apiKey);
       if (sessionThink) {
         const think = meteredThink(
           sessionThink,
           {
-            catalogId: agent.languageModel.model,
+            catalogId: resolved?.id ?? agent.languageModel.model,
             keySource: agentKey?.source ?? "platform"
           },
           sink

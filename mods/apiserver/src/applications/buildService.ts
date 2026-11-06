@@ -17,6 +17,7 @@
  * limitations under the License.
  */
 import { createEvaluateIntelligence } from "@fonoster/autopilot";
+import { Registry } from "@fonoster/common";
 import { Prisma } from "../core/db";
 import { EVALUATIONS, SESSION_APPS } from "../envs";
 import { reportEvalUsage } from "../usage/publishUsage";
@@ -39,7 +40,11 @@ function buildService(
 ) {
   const evaluateIntelligence = createEvaluateIntelligence(
     createEvalKeys(prisma, EVALUATIONS.credentials),
-    reportEvalUsage
+    reportEvalUsage,
+    async () =>
+      new Registry.Registry({
+        store: await Registry.PrismaRegistryStore.open(prisma)
+      })
   );
 
   return {
