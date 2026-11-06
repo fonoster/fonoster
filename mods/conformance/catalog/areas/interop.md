@@ -27,8 +27,7 @@ Twilio, Telnyx. Two directions:
 
 Each case is a signaling signature over the recorded messages. The classifier reports the far end
 and at most one case per call; when several match (a re-INVITE inside an answered call), the
-highest id wins. Evidence for each far end is its sanitized recordings and `manifest.yaml` in
-fonoster/routr [`interop/<far-end>/`](https://github.com/fonoster/routr/tree/main/interop).
+highest id wins. [What goes where](#what-goes-where) says which files prove what.
 
 Not here: anything only media shows (DTMF, audio both ways, the codec used, hold actually silencing
 the call, early media, SRTP or DTLS keying, AMD, recording), attended transfer (its Replaces spans
@@ -85,6 +84,20 @@ response to INVITE` (408), `no ACK for 2xx`, `481 to <METHOD>`; 404, 480, 484, 4
 ordinary unanswered calls. One alert per far end and signature counts that UTC day's calls. Both are
 in `<state>/state.json`; removing it starts over.
 
+## What goes where
+
+- **Evidence:** the widget and `state.json` show what real traffic proved.
+- **Routr [`interop/`](https://github.com/fonoster/routr/tree/main/interop):** one sanitized real
+  call per far end and case. Skip a call whose far end and case are already there. Sanitize with
+  `rctl trace sanitize` (fonoster/routr#537) and read the output before the PR. A file with
+  `replay: false` proves the case and catches lint changes, not routing changes.
+- **Fixtures:** the files in `mods/common/test/interop/fixtures` are frozen test data for the
+  classifier, never evidence. They aren't updated per call. A real call may replace a `synthetic_*`
+  file in an ordinary PR when it is worth it.
+- **Providers:** no per-provider test work. The classifier has no provider branches; a provider
+  differs only in `far-ends.known.json`. A new provider is a PR to that file with its source and
+  `checked` date. Evidence then arrives from real traffic.
+
 ## Checking a case yourself
 
 1. Place the call through the far end.
@@ -92,12 +105,13 @@ in `<state>/state.json`; removing it starts over.
    host's `routr_traces_dir`.
 3. On your machine, run `npx -p @fonoster/common fonoster-interop classify <file>`; it prints the
    far end and the case, or `- -`.
-4. Sanitize it with `rctl trace sanitize` (fonoster/routr `etc/corpus/README.md`) and add it to
-   fonoster/routr `interop/<far-end>/manifest.yaml`, so Routr's replay guards it. This repository
-   and Routr's are public. Commit only sanitized recordings. Never publish a production recording's
-   file name, a Call-ID, a phone number or a host name. `rctl trace sanitize` applies only your
-   rewrites and recomputes digests: it does not remove SDP lines or headers such as
-   `X-Connect-Token`, so they need rewrites of their own.
+4. If its far end and case aren't in fonoster/routr `interop/<far-end>/` yet, sanitize it with
+   `rctl trace sanitize` (fonoster/routr `etc/corpus/README.md`) and add it to that folder's
+   `manifest.yaml` ([What goes where](#what-goes-where)). This repository and Routr's are public.
+   Commit only sanitized recordings. Never publish a production recording's file name, a Call-ID, a
+   phone number or a host name. `rctl trace sanitize` applies only your rewrites and recomputes
+   digests: it does not remove SDP lines or headers such as `X-Connect-Token`, so they need rewrites
+   of their own.
 
 ## Running
 
