@@ -48,7 +48,7 @@ Examples: `mods/identity/src/exchanges/createExchangeApiKey.ts`, `mods/sipnet/sr
 | area: dashboard | mods/dashboard, designs/ | ux-designer, visual-designer |
 | area: infra | ops/, ops/ansible, .github/workflows, .devcontainer, compose.yaml | release-engineer, security-engineer |
 | area: docs | docs-site/, docs/ | technical-writer |
-| area: api | mods/apiserver, mods/sipnet, mods/callrecord | database-engineer |
+| area: api | mods/apiserver, mods/sipnet, mods/callrecord, mods/ops | database-engineer |
 | area: identity | mods/identity, mods/identity-client, mods/authz | security-engineer, database-engineer |
 | area: billing | mods/billing, mods/stripe-fake | database-engineer, security-engineer |
 

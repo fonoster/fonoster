@@ -1,0 +1,345 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Documentation of the contract. The enforced check is validate.jq (server) and validate.py (Mac); both are tested against test/good and test/bad.",
+  "title": "Fonoster metrics snapshot, schema 1",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "ts",
+        "users",
+        "workspaces",
+        "apps",
+        "routr",
+        "calls",
+        "daily",
+        "billing"
+      ],
+      "properties": {
+        "schema": {
+          "const": 1
+        },
+        "ts": {
+          "$ref": "#/$defs/ts"
+        },
+        "users": {
+          "description": "verified = email_verified (GitHub signups are verified at creation). github = no password column set (heuristic).",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "verified",
+            "password",
+            "github",
+            "new_24h",
+            "new_7d",
+            "verified_new_24h",
+            "verified_new_7d"
+          ],
+          "properties": {
+            "total": {
+              "$ref": "#/$defs/nat"
+            },
+            "verified": {
+              "$ref": "#/$defs/nat"
+            },
+            "password": {
+              "$ref": "#/$defs/nat"
+            },
+            "github": {
+              "$ref": "#/$defs/nat"
+            },
+            "new_24h": {
+              "$ref": "#/$defs/nat"
+            },
+            "new_7d": {
+              "$ref": "#/$defs/nat"
+            },
+            "verified_new_24h": {
+              "$ref": "#/$defs/nat"
+            },
+            "verified_new_7d": {
+              "$ref": "#/$defs/nat"
+            }
+          }
+        },
+        "workspaces": {
+          "description": "activated_7d = workspaces created in the last 7 days with a completed call of 10 seconds or more; activated_loose_7d = any call.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "new_24h",
+            "new_7d",
+            "active_7d",
+            "activated_7d",
+            "activated_loose_7d"
+          ],
+          "properties": {
+            "total": {
+              "$ref": "#/$defs/nat"
+            },
+            "new_24h": {
+              "$ref": "#/$defs/nat"
+            },
+            "new_7d": {
+              "$ref": "#/$defs/nat"
+            },
+            "active_7d": {
+              "$ref": "#/$defs/nat"
+            },
+            "activated_7d": {
+              "$ref": "#/$defs/nat"
+            },
+            "activated_loose_7d": {
+              "$ref": "#/$defs/nat"
+            }
+          }
+        },
+        "apps": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "autopilot",
+            "stream",
+            "new_7d"
+          ],
+          "properties": {
+            "total": {
+              "$ref": "#/$defs/nat"
+            },
+            "autopilot": {
+              "$ref": "#/$defs/nat"
+            },
+            "stream": {
+              "$ref": "#/$defs/nat"
+            },
+            "new_7d": {
+              "$ref": "#/$defs/nat"
+            }
+          }
+        },
+        "routr": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "agents",
+            "numbers",
+            "trunks",
+            "domains",
+            "new_7d"
+          ],
+          "properties": {
+            "agents": {
+              "$ref": "#/$defs/nat"
+            },
+            "numbers": {
+              "$ref": "#/$defs/nat"
+            },
+            "trunks": {
+              "$ref": "#/$defs/nat"
+            },
+            "domains": {
+              "$ref": "#/$defs/nat"
+            },
+            "new_7d": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "agents",
+                "numbers",
+                "trunks"
+              ],
+              "properties": {
+                "agents": {
+                  "$ref": "#/$defs/nat"
+                },
+                "numbers": {
+                  "$ref": "#/$defs/nat"
+                },
+                "trunks": {
+                  "$ref": "#/$defs/nat"
+                }
+              }
+            }
+          }
+        },
+        "calls": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "h1",
+            "h24",
+            "d7",
+            "minutes_24h",
+            "avg_secs_24h",
+            "under5s_24h",
+            "inbound_24h",
+            "outbound_24h",
+            "by_status_24h",
+            "workspaces_24h"
+          ],
+          "properties": {
+            "total": {
+              "$ref": "#/$defs/nat"
+            },
+            "h1": {
+              "$ref": "#/$defs/nat"
+            },
+            "h24": {
+              "$ref": "#/$defs/nat"
+            },
+            "d7": {
+              "$ref": "#/$defs/nat"
+            },
+            "minutes_24h": {
+              "$ref": "#/$defs/nat"
+            },
+            "avg_secs_24h": {
+              "$ref": "#/$defs/nat"
+            },
+            "under5s_24h": {
+              "$ref": "#/$defs/nat"
+            },
+            "inbound_24h": {
+              "$ref": "#/$defs/nat"
+            },
+            "outbound_24h": {
+              "$ref": "#/$defs/nat"
+            },
+            "workspaces_24h": {
+              "$ref": "#/$defs/nat"
+            },
+            "by_status_24h": {
+              "type": "object",
+              "maxProperties": 16,
+              "propertyNames": {
+                "pattern": "^[a-z0-9_]{1,32}$"
+              },
+              "additionalProperties": {
+                "$ref": "#/$defs/nat"
+              }
+            }
+          }
+        },
+        "daily": {
+          "description": "Last 14 UTC days, oldest first.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "calls",
+            "minutes",
+            "signups",
+            "verified",
+            "converted"
+          ],
+          "properties": {
+            "calls": {
+              "$ref": "#/$defs/series"
+            },
+            "minutes": {
+              "$ref": "#/$defs/series"
+            },
+            "signups": {
+              "$ref": "#/$defs/series"
+            },
+            "verified": {
+              "$ref": "#/$defs/series"
+            },
+            "converted": {
+              "$ref": "#/$defs/series"
+            }
+          }
+        },
+        "billing": {
+          "description": "present = 0 when the billing tables are not installed (everything then 0). converted = owners whose first grant was paid through Stripe.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "present",
+            "accounts",
+            "trial",
+            "payg",
+            "past_due",
+            "converted",
+            "converted_24h",
+            "converted_7d"
+          ],
+          "properties": {
+            "accounts": {
+              "$ref": "#/$defs/nat"
+            },
+            "trial": {
+              "$ref": "#/$defs/nat"
+            },
+            "payg": {
+              "$ref": "#/$defs/nat"
+            },
+            "past_due": {
+              "$ref": "#/$defs/nat"
+            },
+            "converted": {
+              "$ref": "#/$defs/nat"
+            },
+            "converted_24h": {
+              "$ref": "#/$defs/nat"
+            },
+            "converted_7d": {
+              "$ref": "#/$defs/nat"
+            },
+            "present": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        }
+      }
+    },
+    {
+      "description": "Marker left by a failed run.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "ts",
+        "error"
+      ],
+      "properties": {
+        "schema": {
+          "const": 1
+        },
+        "ts": {
+          "$ref": "#/$defs/ts"
+        },
+        "error": {
+          "type": "string",
+          "pattern": "^[a-z_]{1,32}$"
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nat": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "ts": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "series": {
+      "type": "array",
+      "minItems": 14,
+      "maxItems": 14,
+      "items": {
+        "$ref": "#/$defs/nat"
+      }
+    }
+  }
+}

@@ -27,8 +27,8 @@ Twilio, Telnyx. Two directions:
 
 Each case is a signaling signature over the recorded messages. The classifier reports the far end
 and at most one case per call; when several match (a re-INVITE inside an answered call), the
-highest id wins. Evidence for each far end is listed in
-[docs/interop-evidence.md](../../../../docs/interop-evidence.md).
+highest id wins. Evidence for each far end is its sanitized recordings and `manifest.yaml` in
+fonoster/routr [`interop/<far-end>/`](https://github.com/fonoster/routr/tree/main/interop).
 
 Not here: anything only media shows (DTMF, audio both ways, the codec used, hold actually silencing
 the call, early media, SRTP or DTLS keying, AMD, recording), attended transfer (its Replaces spans
@@ -69,33 +69,35 @@ The far ends come from the curated list `@fonoster/common` ships,
 `mods/common/src/interop/far-ends.known.json`: one entry per well-known provider with its
 signaling `hosts` and `addresses`, the provider's own pages they were read from (`sources`) and
 the day they were last compared with them (`checked`). To add or fix a provider, edit its entry in a
-pull request with a source and today's `checked` date. `--far-ends <file>` (the inventory's
-`interop_far_ends` in production) adds entries, or replaces a curated one with the same `name`.
+pull request with a source and today's `checked` date. `--far-ends <file>` adds entries, or replaces a curated one with the same `name`.
 
 Only responses Routr relayed count; retransmissions count once. A REGISTER-only recording, an
-`agent-to-agent` call or a call to an unlisted far end shows no case. The production scan that runs
-this every hour is described in [ops/ansible/README.md](../../../../ops/ansible/README.md).
+`agent-to-agent` call or a call to an unlisted far end shows no case.
 
-`fonoster-interop scan --traces <dir> --state <dir> --since 60m` reads every
-recording modified in the window, skips REGISTER-only files after their first line and calls that
-haven't ended yet (they are read again once Routr writes their last message), and reports each far
-end x case the first time it is seen, with the error-severity Routr rule findings its corpus entry
-will need. It also reports failures, calls to a listed far end whose signaling points at the
-interconnect: `no response to INVITE` (an outbound INVITE cancelled with no response at all from
-the far end), `<status> to INVITE` (400, 403, 415, 488, 5xx), `no final response to INVITE`
-(408), `no ACK for 2xx`, `481 to <METHOD>`; 404, 480, 484, 486, 487 and 603 are ordinary
-unanswered calls. Evidence alerts once ever, a failure at most once a UTC day. Both go to
-`<state>/alerts.jsonl`; `<state>/state.json` remembers them, and removing it starts over.
+The scan runs about every 5 minutes inside the API server when `features.ops` is on
+(`mods/ops/README.md`). It reads only recordings modified since the last run (the first run reads
+all retained traces), skips REGISTER-only files after their first line and calls that haven't ended
+yet (they are read again once Routr writes their last message), and reports each far end x case
+once ever, the first time it is seen. It also reports failures, calls to a listed far end whose
+signaling points at the interconnect: `no response to INVITE` (an outbound INVITE cancelled with no
+response at all from the far end), `<status> to INVITE` (400, 403, 415, 488, 5xx), `no final
+response to INVITE` (408), `no ACK for 2xx`, `481 to <METHOD>`; 404, 480, 484, 486, 487 and 603 are
+ordinary unanswered calls. One alert per far end and signature counts that UTC day's calls. Both are
+in `<state>/state.json`; removing it starts over.
 
 ## Checking a case yourself
 
 1. Place the call through the far end.
-2. Find its recording, `<UTC time>-<Call-ID>.jsonl`, in the host's `routr_traces_dir`.
-3. Run `fonoster-interop classify <file> --far-ends <far-ends.json>`; it prints the far end and the
-   case, or `- -`.
+2. Get its recording, `<UTC time>-<Call-ID>.jsonl`: **Download recording** in the widget, or the
+   host's `routr_traces_dir`.
+3. On your machine, run `npx -p @fonoster/common fonoster-interop classify <file>`; it prints the
+   far end and the case, or `- -`.
 4. Sanitize it with `rctl trace sanitize` (fonoster/routr `etc/corpus/README.md`) and add it to
-   fonoster/routr `interop/<far-end>/manifest.yaml`, so Routr's replay guards it.
-5. Record it in [docs/interop-evidence.md](../../../../docs/interop-evidence.md).
+   fonoster/routr `interop/<far-end>/manifest.yaml`, so Routr's replay guards it. This repository
+   and Routr's are public. Commit only sanitized recordings. Never publish a production recording's
+   file name, a Call-ID, a phone number or a host name. `rctl trace sanitize` applies only your
+   rewrites and recomputes digests: it does not remove SDP lines or headers such as
+   `X-Connect-Token`, so they need rewrites of their own.
 
 ## Running
 
@@ -107,6 +109,7 @@ node mods/conformance/catalog/prove.cjs --area IOP     # the proofs, one run per
 
 ## Cases
 
+<a id="iop-001"></a>
 ### IOP-001 Inbound call to a Number answered, caller hangs up
 
 - **Spec:** interop / Each interop case has a signaling signature / Inbound call to a Number answered, caller hangs up
@@ -124,6 +127,7 @@ Direction: inbound (DID). Fixture: `seet-provider_sc-1.3.2-did-invite_agent-1001
 
 **Pass.** The recording classifies as IOP-001: a relayed 2xx to the INVITE, an ACK, a BYE whose From tag is the caller's, and a 2xx to the BYE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-001.
 
+<a id="iop-002"></a>
 ### IOP-002 Inbound call answered, Fonoster hangs up
 
 - **Spec:** interop / Each interop case has a signaling signature / Inbound call answered, Fonoster hangs up
@@ -140,6 +144,7 @@ Direction: inbound (DID). Fixture: `synthetic_did-invite-callee-bye_provider.jso
 
 **Pass.** The recording classifies as IOP-002: a relayed 2xx to the INVITE, an ACK, a BYE whose From tag is the callee's, and a 2xx to the BYE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-002.
 
+<a id="iop-003"></a>
 ### IOP-003 Outbound call from an app answered
 
 - **Spec:** interop / Each interop case has a signaling signature / Outbound call from an app answered
@@ -156,6 +161,7 @@ Direction: outbound (DOD). Fixture: `sipp-peer-asterisk_dod-invite-route-by-alia
 
 **Pass.** The recording classifies as IOP-003: a `peer-to-pstn` INVITE, a relayed 2xx to it, an ACK, a BYE and a 2xx to the BYE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-003.
 
+<a id="iop-004"></a>
 ### IOP-004 SIP agent outbound call answered
 
 - **Spec:** interop / Each interop case has a signaling signature / SIP agent outbound call answered
@@ -172,6 +178,7 @@ Direction: outbound (DOD). Fixture: `sipjs_wa-dod-invite_whatsapp_20261025.jsonl
 
 **Pass.** The recording classifies as IOP-004: an `agent-to-pstn` INVITE, a relayed 2xx to it, an ACK, a BYE and a 2xx to the BYE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-004.
 
+<a id="iop-005"></a>
 ### IOP-005 Outbound call cancelled before answer
 
 - **Spec:** interop / Each interop case has a signaling signature / Outbound call cancelled before answer
@@ -188,6 +195,7 @@ Direction: outbound (DOD). Fixture: `sipjs_wa-dod-invite-cancel_whatsapp_2026102
 
 **Pass.** The recording classifies as IOP-005: an outbound INVITE, at least one response from the far end, a CANCEL, and no 2xx to the INVITE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-005.
 
+<a id="iop-006"></a>
 ### IOP-006 Inbound call cancelled by the caller
 
 - **Spec:** interop / Each interop case has a signaling signature / Inbound call cancelled by the caller
@@ -204,6 +212,7 @@ Direction: inbound (DID). Fixture: `synthetic_did-invite-cancel_provider.jsonl` 
 
 **Pass.** The recording classifies as IOP-006: a `from-pstn` INVITE, a CANCEL from the INVITE's sender, and no 2xx to the INVITE. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-006.
 
+<a id="iop-007"></a>
 ### IOP-007 Outbound call busy
 
 - **Spec:** interop / Each interop case has a signaling signature / Outbound call busy
@@ -219,6 +228,7 @@ Direction: outbound (DOD). Fixture: `synthetic_dod-invite-busy_provider.jsonl` (
 
 **Pass.** The recording classifies as IOP-007: an outbound INVITE whose relayed final response is 486. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-007.
 
+<a id="iop-008"></a>
 ### IOP-008 Outbound call declined
 
 - **Spec:** interop / Each interop case has a signaling signature / Outbound call declined
@@ -234,6 +244,7 @@ Direction: outbound (DOD). Fixture: `seet-agent-1001_rr-1.2.1-dod-declined_provi
 
 **Pass.** The recording classifies as IOP-008: an outbound INVITE whose relayed final response is 603. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-008.
 
+<a id="iop-009"></a>
 ### IOP-009 In-dialog re-INVITE with SDP answered
 
 - **Spec:** interop / Each interop case has a signaling signature / In-dialog re-INVITE with SDP answered
@@ -250,6 +261,7 @@ Direction: either. Fixture: `seet-agent-1001_sc-12.2.1-dod-reinvite_provider_202
 
 **Pass.** The recording classifies as IOP-009: after the ACK, an INVITE with a To tag and an SDP body, and a 2xx after it. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-009.
 
+<a id="iop-010"></a>
 ### IOP-010 In-dialog re-INVITE without SDP
 
 - **Spec:** interop / Each interop case has a signaling signature / In-dialog re-INVITE without SDP
@@ -266,6 +278,7 @@ Direction: either. Fixture: `synthetic_dod-reinvite-no-sdp_provider.jsonl` (a ha
 
 **Pass.** The recording classifies as IOP-010: after the ACK, an INVITE with a To tag and no body, a 2xx with SDP, and an ACK with SDP. **Fail.** It classifies as another case or none, or its near miss still classifies as IOP-010.
 
+<a id="iop-011"></a>
 ### IOP-011 Blind transfer by REFER
 
 - **Spec:** interop / Each interop case has a signaling signature / Blind transfer by REFER

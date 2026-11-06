@@ -25,6 +25,9 @@
     },
     {
       "path": "../callrecord",
+    },
+    {
+      "path": "../ops",
     }
   ],
   "exclude": ["node_modules", "dist", "test"]

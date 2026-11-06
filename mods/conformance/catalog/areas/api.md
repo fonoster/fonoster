@@ -16,12 +16,14 @@ capabilities:
   - identity-service
   - identity-client
   - capabilities
+  - ops-api
 tests:
   - mods/conformance/test/api/*.api.ts
   - mods/identity/test/server/standaloneService.test.ts
   - mods/identity/test/server/sharedLimits.test.ts
   - mods/identity/test/server/serverFree.test.ts
   - mods/identity-client/test/*.test.ts
+  - mods/ops/test/metrics.test.ts
 ---
 
 # Control-plane API
@@ -965,3 +967,15 @@ each `from`, each `to` and both together, then with a `from` holding CR/LF and a
 characters.
 
 **Pass.** Each filter lists exactly workspace A's calls with that stored `from` or `to`, and each malformed filter is INVALID_ARGUMENT. **Fail.** A filter lists another number's calls or misses a stored form, or a malformed filter is accepted.
+
+### API-073 Metrics are read live with a read-only connection
+
+- **Spec:** ops-api / Metrics are read live with a read-only connection / Metrics are read live with a read-only connection
+- **Priority:** P1
+- **Proof:** Drop `default_transaction_read_only=on` from the connection's options; a write goes through and the test goes red.
+- **Fault:** faults/API-073.patch
+- **Test:** mods/ops/test/metrics.test.ts
+
+Four throwaway databases migrated with the real migrations (`prisma migrate deploy` for the apiserver, Identity and billing; Routr's tables from a fixture), the rows of `mods/ops/test/fixtures`, and the ops router on an in-process Express. `GET /api/ops/metrics` with the token, then with the URL of a database that doesn't exist, 20 failed requests, and a write through the module's own connection as a superuser.
+
+**Pass.** The body validates against `snapshot.v1.json` and its numbers equal the fixtures'; the missing database answers 503 with exactly `{schema, ts, error: "query_failed"}` and neither the body nor the log holds the database name, host or user; the write fails with SQLSTATE 25006; `pg_stat_activity` returns to its baseline. **Fail.** Any of those differs.

@@ -1,0 +1,17 @@
+# Fonoster's own ops API (mods/ops). Not in the install archive: production's inventory writes it
+# next to the release (fonoster_files) and names it in COMPOSE_FILE (ops/cloud/README.md).
+services:
+  apiserver:
+    # Routr's trace folder is 0750, group 5000.
+    group_add: ["5000"]
+    environment:
+      OPS_SECRET: ${OPS_SECRET:?set OPS_SECRET in .env}
+      OPS_DB_FONOSTER_URL: ${OPS_DB_FONOSTER_URL:?set OPS_DB_FONOSTER_URL in .env}
+      OPS_DB_IDENTITY_URL: ${OPS_DB_IDENTITY_URL:?set OPS_DB_IDENTITY_URL in .env}
+      OPS_DB_ROUTR_URL: ${OPS_DB_ROUTR_URL:?set OPS_DB_ROUTR_URL in .env}
+      OPS_DB_BILLING_URL: ${OPS_DB_BILLING_URL:?set OPS_DB_BILLING_URL in .env}
+    volumes:
+      - /var/lib/fonoster/routr-traces:/var/routr/traces:ro
+      - ops-state:/var/lib/fonoster/ops
+volumes:
+  ops-state:

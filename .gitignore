@@ -66,3 +66,6 @@ reports/
 
 # roomr-fake binaries (mods/conformance/scripts/fetch-roomr-fake.cjs)
 .roomr-fake/
+
+# The widget's tests run its Python in place.
+ops/widgets/__pycache__/

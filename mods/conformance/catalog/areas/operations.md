@@ -29,6 +29,8 @@ refuse run there too: an archive that does not match its
 `SHA256SUMS`, a release that adds a `.env` name the inventory lacks, an install whose keys are not
 in the state folder.
 
+OPS-008 is retired, not reused: the interop watch it proved left the host role.
+
 Not here: production itself (the deploy workflow), the Compose bundle's own start (the compose job
 of `stack-smoke.yaml`), the database (the playbook never touches it), the Helm chart (unsupported).
 OPS-001 is the Compose install's own: a fresh install from the archive (`ops/bundle/test/install.sh`).
@@ -171,20 +173,18 @@ with no credits is written to the databases, and the admission AppBridge asks (A
 
 **Pass.** The plan with the bad anchor fails with `fonoster_inserts: config/nats.conf: after '...' matches 0 lines of this release's file` and `/opt/fonoster` is byte-identical; the plan's output carries no Stripe secret; neither the plan nor the apply log carries the sentinel; billing is running and healthy; an unsigned `POST /stripe/webhooks` through Envoy answers 400; billing has applied a signed event from the fake in the `billing` database; the call is refused. **Fail.** Any of those differs.
 
-### OPS-008 The interop watch scans Routr's traces
+### OPS-009 The ops API runs from the inventory
 
-- **Spec:** deployment / Production deploys run the playbook / The interop watch scans Routr's traces
+- **Spec:** deployment / Production deploys run the playbook / The ops API runs from the inventory
 - **Priority:** P1
-- **Proof:** Drop `SupplementaryGroups=5000` from `roles/host/templates/fonoster-interop.service.j2`; the scan can't read Routr's traces folder, no alert is written and the test goes red.
-- **Fault:** faults/OPS-008.patch
+- **Proof:** Drop `group_add: ["5000"]` from `ops/cloud/compose.ops.yaml`; the scan can't read Routr's traces folder, no alert appears and the test goes red.
+- **Fault:** faults/OPS-009.patch
 - **Test:** ops/ansible/test/throwaway.sh
 
-After the first apply of `0.0.0-a` (the watch off), nothing of the watch exists. Last, the host role
-is applied with the watch on: one far end, a local `npm pack` of `mods/common` as the package, and a
-generated reader key; a plan (`--check`) runs before the apply. A real call from the corpus is put in Routr's traces folder as Routr writes it
-(uid 5000, modified now) and the service is started.
+Last, after OPS-007 and from its values: `ops/cloud/ops-role.sql` runs on the stack's Postgres, and the
+ops API is added only with `fonoster_files`, `COMPOSE_FILE`, `fonoster_overrides` and
+`fonoster_env_secrets`, from `ops/cloud/compose.ops.yaml`, with `intervalMinutes: 1`. A plan and two
+applies run, with a sentinel `OPS_SECRET` and database password. A real call from the corpus is put
+in Routr's traces folder as Routr writes it (uid 5000, modified now). The API server is recreated.
 
-**Pass.** With the watch off there is no interop file, unit or user; the plan with it on exits 0; with it on the timer is enabled,
-the scan runs as `fonoster-interop` with no network, `ProtectSystem=strict` and no capabilities, the
-call yields one IOP-004 line in `alerts.jsonl`, a second apply changes nothing, and the reader's key
-prints `alerts.jsonl` instead of running `id`. **Fail.** Any of those differs.
+**Pass.** Before the overlay, `/api/ops/interop/alerts` answers 404 through Envoy with any bearer; with the token `/api/ops/metrics` answers 200 with `schema` 1, `users.total` of 1 or more and `billing.present` 1, connecting as `fonoster_ops`; `fonoster_ops` is refused an `INSERT` into `users` and `SELECT email FROM users`; within 150 s the alerts hold exactly one `IOP-004` `whatsapp` alert with that file, and its recording downloads with the fixture's sha256; `touch /var/routr/traces/x` in the API server's container fails; after recreating it the alert is still there once and the next pass succeeds; a second apply changes nothing; neither secret is in the plan or the apply log. **Fail.** Any of those differs, or OPS-007's apply failed.

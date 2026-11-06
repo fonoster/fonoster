@@ -222,9 +222,9 @@ made. The database MUST NOT be touched.
 - **WHEN** an apply switches to a new version and its smoke test fails
 - **THEN** `rollback.yml` restores the previous install, its smoke test passes and `deploys.log` records `rolled back`
 
-#### Scenario: The interop watch scans Routr's traces
-- **WHEN** the playbook applies a host with `interop_watch_enabled: true` and Routr writes a finished call's trace
-- **THEN** an hourly timer runs `fonoster-interop scan` as an unprivileged user with no network and the call's far end and case are appended to `/var/lib/fonoster-interop/alerts.jsonl`; with the watch off, no interop file, unit or user exists
+#### Scenario: The ops API runs from the inventory
+- **WHEN** the inventory adds `ops/cloud/compose.ops.yaml` with `fonoster_files` and `COMPOSE_FILE`, `features.ops` with `fonoster_overrides` and its secrets with `fonoster_env_secrets`, and `ops/cloud/ops-role.sql` ran on the Postgres
+- **THEN** `/api/ops/metrics` answers the token through Envoy as `fonoster_ops`, a call in Routr's traces becomes one alert whose recording downloads, the traces are read-only and the state survives recreating the API server, a second apply changes nothing and no plan or apply log holds a secret; without those values `/api/ops/*` answers 404 even with a bearer
 
 #### Scenario: Billing from the inventory
 - **WHEN** the inventory adds billing's files with `fonoster_files` and its NATS user and Envoy route with `fonoster_inserts` (from `ops/cloud/`), with Stripe's keys, and wires `fonoster.yaml` and `appbridge.yaml` to billing

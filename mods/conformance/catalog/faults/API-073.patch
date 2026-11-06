@@ -1,0 +1,12 @@
+diff --git a/mods/ops/src/metrics/readSnapshot.ts b/mods/ops/src/metrics/readSnapshot.ts
+--- a/mods/ops/src/metrics/readSnapshot.ts
++++ b/mods/ops/src/metrics/readSnapshot.ts
+@@ -38,7 +38,7 @@ export async function connectReadOnly(url: string): Promise<Client> {
+     connectionString: url,
+     connectionTimeoutMillis: 10000,
+     options:
+-      "-c default_transaction_read_only=on -c statement_timeout=30000 -c lock_timeout=5000 -c TimeZone=UTC"
++      "-c statement_timeout=30000 -c lock_timeout=5000 -c TimeZone=UTC"
+   });
+   // A connection lost between queries emits this; with no listener it would stop the API server.
+   client.on("error", () => undefined);

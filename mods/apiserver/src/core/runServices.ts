@@ -78,6 +78,7 @@ import { allowList } from "./allowList";
 import { prisma } from "./db";
 import { httpBridge } from "./httpBridge";
 import { identityConfig } from "./identityConfig";
+import { loadOps } from "./loadOps";
 import loadServices from "./loadServices";
 import { workspaceRegionHooks } from "./regionHooks";
 import { routrNumbers } from "./routrConfig";
@@ -166,10 +167,15 @@ async function runServices() {
     })
   };
 
+  const ops = await loadOps(getConfig().features.ops);
+
   httpBridge(identityConfig, {
     port: HTTP_BRIDGE_PORT,
-    routers: [...records.routers, ...regions.routers, session]
+    routers: [...ops.routers, ...records.routers, ...regions.routers, session]
   });
+
+  // Not awaited: a first scan over every retained trace can't delay gRPC or the healthcheck.
+  ops.start();
 
   // Bus consumers: webhook fan-out (LO-B1) and the AppBridge replicas' catalog use (LO-B11)
   const bus = await connect({ ...NATS, maxReconnectAttempts: -1 });

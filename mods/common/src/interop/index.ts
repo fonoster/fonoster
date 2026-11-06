@@ -20,7 +20,6 @@
 // recorded Routr call shows.
 export * from "./types";
 export { CASES, classifyCall, findFailure, hasEnded } from "./classifyCall";
-export { scan } from "./scan";
 export {
   knownFarEnds,
   loadFarEnds,

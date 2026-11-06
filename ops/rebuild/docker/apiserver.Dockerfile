@@ -20,10 +20,11 @@ RUN --mount=type=cache,target=/root/.npm \
 RUN npx prisma generate --schema mods/apiserver/schema.prisma \
   && npx prisma generate --schema mods/identity/schema.prisma
 
-RUN for p in types logger common identity authz sipnet callrecord voice autopilot apiserver; do \
+RUN for p in types logger common identity authz sipnet callrecord voice autopilot ops apiserver; do \
       (cd mods/$p && npx tsc -b) || exit 1; \
     done \
   && cp -a mods/common/src/protos mods/common/dist/ \
+  && cp mods/common/src/interop/far-ends.known.json mods/common/dist/interop/ \
   && node mods/identity/scripts/copy-assets.cjs
 
 ##
@@ -49,6 +50,10 @@ COPY --from=builder --chown=appuser:appuser /work/mods/identity/schema.prisma /s
 # The first user of an install: docker compose exec -T apiserver fonoster-owner create <email> < pw
 RUN chmod +x /work/mods/apiserver/dist/bin/owner.js \
   && ln -s /work/mods/apiserver/dist/bin/owner.js /usr/local/bin/fonoster-owner
+
+# The ops API's state (features.ops), owned by the app's user: a named volume mounted there starts
+# with this ownership.
+RUN mkdir -p /var/lib/fonoster/ops && chown -R appuser:appuser /var/lib/fonoster
 
 USER appuser
 WORKDIR /service

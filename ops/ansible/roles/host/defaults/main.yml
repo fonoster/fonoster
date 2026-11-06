@@ -24,18 +24,3 @@ fonoster_dir: /opt/fonoster
 routr_traces_enabled: false
 routr_traces_dir: /var/lib/fonoster/routr-traces
 routr_traces_retention_days: 30
-
-# Interop evidence: an hourly scan of routr_traces_dir for far end x IOP case pairs not yet found,
-# and for failing far ends (mods/conformance/catalog/areas/interop.md). Off unless enabled.
-interop_watch_enabled: false
-# Far ends added to, or replacing by name, the curated list @fonoster/common ships.
-# name = the corpus <far-end> token; hosts match the Request-URI host (globs); addresses match the
-# inbound source (IPs or CIDRs). Empty: the curated list alone.
-interop_far_ends: []
-# One ssh public key (an authorized_keys line without options) allowed to read alerts.jsonl and
-# nothing else. Empty: no reader account.
-interop_alerts_authorized_key: ""
-# What npm installs for the scan. Empty: the highest @fonoster/common release at or below
-# fonoster_version (a release publishes only the packages that changed). The throwaway test passes
-# a local `npm pack` of mods/common.
-interop_package: ""
