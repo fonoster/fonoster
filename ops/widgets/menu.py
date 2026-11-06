@@ -129,8 +129,8 @@ def row_line(a):
     when = D.local_time(a["time"])
     if a["kind"] == "failure":
         calls = "1 call" if a["count"] == 1 else "%s calls" % D.n(a["count"])
-        return "Failing: %s · %s · %s · %s | %s" % (safe(a["signature"]), safe(a["far_end"]), calls, when, FAILING)
-    return "New evidence: %s · %s · %s | %s" % (safe(a["case"]), safe(a["far_end"]), when, MONO1)
+        return "Failing %s · %s · %s · %s | %s" % (safe(a["signature"]), safe(a["far_end"]), calls, when, FAILING)
+    return "New evidence %s · %s · %s | %s" % (safe(a["case"]), safe(a["far_end"]), when, MONO1)
 
 
 def row_submenu(a):
