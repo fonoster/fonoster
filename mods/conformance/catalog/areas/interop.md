@@ -107,10 +107,11 @@ in `<state>/state.json`; removing it starts over.
    far end and the case, or `- -`.
 4. If its far end and case aren't in fonoster/routr `interop/<far-end>/` yet, sanitize it with
    `rctl trace sanitize` (fonoster/routr `etc/corpus/README.md`) and add it to that folder's
-   `manifest.yaml` ([What goes where](#what-goes-where)). This repository and Routr's are public. Commit only sanitized recordings. Never publish a production recording's
-   file name, a Call-ID, a phone number or a host name. `rctl trace sanitize` applies only your
-   rewrites and recomputes digests: it does not remove SDP lines or headers such as
-   `X-Connect-Token`, so they need rewrites of their own.
+   `manifest.yaml` ([What goes where](#what-goes-where)). This repository and Routr's are public.
+   Commit only sanitized recordings. Never publish a production recording's file name, a Call-ID, a
+   phone number or a host name. `rctl trace sanitize` applies only your rewrites and recomputes
+   digests: it does not remove SDP lines or headers such as `X-Connect-Token`, so they need rewrites
+   of their own.
 
 ## Running
 
