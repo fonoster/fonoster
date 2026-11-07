@@ -1,12 +1,12 @@
 diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
-index e74684b0a..187b8086e 100644
+index a4c7c6899..18da79485 100644
 --- a/mods/appbridge/src/session/Call.ts
 +++ b/mods/appbridge/src/session/Call.ts
-@@ -1566,6 +1566,7 @@ export class AppSession {
+@@ -1636,6 +1636,7 @@ export class AppSession {
    ) {
      switch (type) {
        case "speak": {
 +        this.call.command({ sendDtmf: { digits: String(cmd.text) } });
          const voiceId = (cmd.voice as string) ?? this.app.speech.voice;
+         // A voice ID not in the catalog works when its provider is the app's TTS model's.
          const voice = this.deps.catalog.resolveVoice(
-           voiceId,
