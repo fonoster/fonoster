@@ -114,7 +114,9 @@ different: it nests the agent and its `testCases` under `intelligence.config`. S
 </ParamField>
 
 <ParamField path="conversationSettings.voice" type="string">
-  A voice catalog ID that overrides the application's `speech.voice` for this agent.
+  A voice that overrides the application's `speech.voice` for this agent: a catalog ID, or a voice ID
+  of the same provider as the application's `speech.ttsModel`. Any other ID fails when the agent
+  speaks, with `invalid_catalog_id`.
 </ParamField>
 
 <ParamField path="conversationSettings.language" type="string">
