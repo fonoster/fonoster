@@ -31,6 +31,7 @@ import {
   fsStores,
   verifyRecord
 } from "@fonoster/callrecord";
+import { Registry as RegistryNs } from "@fonoster/common";
 import { FakesHarness, Peer } from "@fonoster/conformance";
 import { z } from "zod";
 import { AppConfig, AppBridge } from "../src";
@@ -183,7 +184,11 @@ describe("@AppBridge usage metering", function () {
     };
   }
 
-  async function start(apps: AppConfig[], keyedWorkspace?: string) {
+  async function start(
+    apps: AppConfig[],
+    keyedWorkspace?: string,
+    registryStore?: RegistryNs.RegistryStore
+  ) {
     const urls = harness.providerUrls;
     appbridge = await new AppBridge({
       config: {
@@ -223,6 +228,7 @@ describe("@AppBridge usage metering", function () {
       },
       nats: nc,
       record: writer,
+      registryStore,
       workspaceKeys: keyedWorkspace
         ? {
             get: async (ws: string, provider: string) =>
@@ -257,7 +263,16 @@ describe("@AppBridge usage metering", function () {
   }
 
   it("[BIL-001] seals a call's usage, signed, in the record and its index entry", async () => {
-    await start([app({ recording: "on" })]);
+    await start([
+      app({
+        recording: "on",
+        speech: {
+          voice: "fake/default",
+          language: "en-US",
+          ttsModel: "fake/tts"
+        }
+      })
+    ]);
     const { callRef } = await talk("Hello there.", 1600);
     harness.roomrNode.callerHangup(callRef);
     const { entry, record, vcon } = await sealed(callRef);
@@ -267,7 +282,7 @@ describe("@AppBridge usage metering", function () {
       meter: "tts.characters",
       quantity: 12,
       provider: "fake",
-      model: "fake/default",
+      model: "fake/tts",
       keySource: "platform"
     });
     expect(lineOf(lines, "stt.seconds")).to.deep.include({
@@ -282,6 +297,52 @@ describe("@AppBridge usage metering", function () {
     );
     expect(entry.usage).to.deep.equal(lines);
     expect(entry.origin).to.equal("call");
+  });
+
+  it("[BIL-053] keys TTS characters by the voice's first model when the app names no TTS model", async () => {
+    const store = new RegistryNs.MemoryRegistryStore();
+    new RegistryNs.Registry({ store, actor: "test" }).apply(`entries:
+  - { kind: provider, id: fake, adapter: fake, capabilities: [stt, tts], state: active }
+  - { kind: model, id: fake/tts, type: tts, features: [streaming], languages: [multi], settings: [], state: active }
+  - { kind: model, id: fake/tts-2, type: tts, features: [streaming], languages: [multi], settings: [], state: active }
+  - { kind: voice, id: fake/default, models: [fake/tts-2, fake/tts], language: multi, state: active }
+`);
+    await start([app()], undefined, store);
+    const { callRef } = await talk("Hi.", 0);
+    harness.roomrNode.callerHangup(callRef);
+    const { vcon } = await sealed(callRef);
+    expect(
+      lineOf((vcon.fonoster as { usage?: Line[] }).usage, "tts.characters")
+    ).to.deep.equal({
+      meter: "tts.characters",
+      quantity: 3,
+      provider: "fake",
+      model: "fake/tts-2",
+      keySource: "platform"
+    });
+  });
+
+  it("[BIL-053] keys TTS characters by the app's TTS model, also for a voice not in the catalog", async () => {
+    const store = new RegistryNs.MemoryRegistryStore();
+    new RegistryNs.Registry({ store, actor: "test" }).apply(`entries:
+  - { kind: provider, id: fake, adapter: fake, capabilities: [stt, tts], state: active }
+  - { kind: model, id: fake/tts, type: tts, features: [streaming], languages: [multi], settings: [], state: active }
+`);
+    await start(
+      [
+        app({
+          speech: { voice: "fake/xyz", language: "en-US", ttsModel: "fake/tts" }
+        })
+      ],
+      undefined,
+      store
+    );
+    const { callRef } = await talk("Hi.", 0);
+    harness.roomrNode.callerHangup(callRef);
+    const { vcon } = await sealed(callRef);
+    expect(
+      lineOf((vcon.fonoster as { usage?: Line[] }).usage, "tts.characters")
+    ).to.deep.include({ quantity: 3, provider: "fake", model: "fake/tts" });
   });
 
   it("[BIL-005] says keySource workspace when the workspace has its own key for the vendor", async () => {

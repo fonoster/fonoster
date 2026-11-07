@@ -330,9 +330,12 @@ export class Call {
     };
   }
 
-  /** Counts the characters each TTS request sends to the vendor. */
-  ttsUsage(voiceId: string, workspaceRef?: string) {
-    const key = this.vendorUsage(voiceId, workspaceRef);
+  /**
+   * Counts the characters each TTS request sends to the vendor, keyed by the TTS model's catalog
+   * id (the voice id when no model is known: no registry and no app `ttsModel`).
+   */
+  ttsUsage(modelId: string, workspaceRef?: string) {
+    const key = this.vendorUsage(modelId, workspaceRef);
     return (characters: number) =>
       this.usage.add({ meter: "tts.characters", quantity: characters, ...key });
   }
@@ -515,7 +518,8 @@ export class Call {
     this.record("event", { type: "recording.consent_requested", text });
     const voice = this.deps.catalog.resolveVoice(
       app.speech.voice,
-      app.workspaceRef
+      app.workspaceRef,
+      app.speech.ttsModel
     );
     if (!voice) return;
     await new Promise<void>((resolve) => {
@@ -542,6 +546,8 @@ export class Call {
         preempt: false,
         voice: voice.voice,
         language: app.speech.language,
+        model: voice.model,
+        speed: app.speech.speed,
         adapter: voice.adapter
       });
     });
@@ -723,7 +729,11 @@ export class Call {
   private async fallbackMessage(app: AppConfig) {
     const message = app.fallback?.message;
     const voice = message
-      ? this.deps.catalog.resolveVoice(app.speech.voice, app.workspaceRef)
+      ? this.deps.catalog.resolveVoice(
+          app.speech.voice,
+          app.workspaceRef,
+          app.speech.ttsModel
+        )
       : undefined;
     if (!message || !voice) return this.hangup("error");
     const queue = new OutputQueue({
@@ -749,8 +759,10 @@ export class Call {
       preempt: false,
       voice: voice.voice,
       language: app.speech.language,
+      model: voice.model,
+      speed: app.speech.speed,
       adapter: voice.adapter,
-      onSynthesize: this.ttsUsage(voice.id, app.workspaceRef)
+      onSynthesize: this.ttsUsage(voice.modelId ?? voice.id, app.workspaceRef)
     });
   }
 
@@ -1625,9 +1637,11 @@ export class AppSession {
     switch (type) {
       case "speak": {
         const voiceId = (cmd.voice as string) ?? this.app.speech.voice;
+        // A voice ID not in the catalog works when its provider is the app's TTS model's.
         const voice = this.deps.catalog.resolveVoice(
           voiceId,
-          this.app.workspaceRef
+          this.app.workspaceRef,
+          this.app.speech.ttsModel
         );
         if (!voice) {
           const provider = voiceId?.split("/")[0];
@@ -1666,8 +1680,13 @@ export class AppSession {
           preempt: (cmd.preempt as boolean) ?? false,
           voice: voice.voice,
           language: (cmd.language as string) ?? this.app.speech.language,
+          model: voice.model,
+          speed: this.app.speech.speed,
           adapter: voice.adapter,
-          onSynthesize: this.call.ttsUsage(voice.id, this.app.workspaceRef)
+          onSynthesize: this.call.ttsUsage(
+            voice.modelId ?? voice.id,
+            this.app.workspaceRef
+          )
         });
         return;
       }

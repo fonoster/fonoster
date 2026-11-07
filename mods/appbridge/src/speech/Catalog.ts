@@ -35,6 +35,10 @@ export type VoiceResolution = {
   voice: string;
   /** The catalog id actually used (the replacement, for a retired id). */
   id: string;
+  /** The TTS model's own name, sent to the vendor ("flux"); undefined uses the adapter's. */
+  model?: string;
+  /** The TTS model's catalog id ("deepgram/flux"), which usage is keyed by. */
+  modelId?: string;
   event?: "provider.deprecated_used" | "provider.retired_used";
   replacement?: string;
 };
@@ -287,20 +291,51 @@ export class Catalog {
   }
 
   /**
-   * The TTS adapter and provider voice for a catalog voice id, or undefined if not in the catalog.
-   * With a registry, retired ids resolve to their replacement and `event` says what to record.
+   * The TTS adapter, provider voice and TTS model for a voice id, or undefined if it can't be
+   * spoken. With a registry, retired ids resolve to their replacement and `event` says what to
+   * record; a voice not in the catalog is spoken through the app's `ttsModel` when that is a TTS
+   * model of the same provider. The model is `ttsModel` when the voice works on it (or isn't in
+   * the catalog), else the voice's first model. Without a registry, `ttsModel` is used as given.
    */
-  resolveVoice(id: string, workspaceRef?: string): VoiceResolution | undefined {
+  resolveVoice(
+    id: string,
+    workspaceRef?: string,
+    ttsModel?: string
+  ): VoiceResolution | undefined {
     let resolved = id;
     let event: VoiceResolution["event"];
     let replacement: string | undefined;
+    const sameProvider =
+      ttsModel?.split("/")[0] === id.split("/")[0] ? ttsModel : undefined;
+    let modelId = sameProvider;
     if (this.registry) {
-      const entry = this.registry.store.get(id);
-      if (!entry || entry.kind !== "voice") return undefined;
-      const r = this.registry.registry.resolve(id);
-      resolved = r.id;
-      event = r.event;
-      replacement = r.replacement;
+      const { store, registry } = this.registry;
+      const entry = store.get(id);
+      if (entry && entry.kind !== "voice") return undefined;
+      if (entry) {
+        const r = registry.resolve(id);
+        resolved = r.id;
+        event = r.event;
+        replacement = r.replacement;
+        const voice = store.get(resolved);
+        const models = voice?.kind === "voice" ? voice.models : [];
+        const chosen =
+          ttsModel && models.includes(ttsModel) ? ttsModel : models[0];
+        modelId = chosen && registry.resolve(chosen).id;
+      } else {
+        // A voice ID the developer typed, spoken through the app's TTS model (no lifecycle).
+        const model = sameProvider
+          ? store.get(registry.resolve(sameProvider).id)
+          : undefined;
+        if (
+          model?.kind !== "model" ||
+          model.type !== "tts" ||
+          model.state === "retired" ||
+          model.id.split("/")[0] !== id.split("/")[0]
+        )
+          return undefined;
+        modelId = model.id;
+      }
     }
     const slash = resolved.indexOf("/");
     if (slash <= 0) return undefined;
@@ -312,7 +347,16 @@ export class Catalog {
       this.platform(provider)?.tts;
     const voices = this.config.providers?.[provider]?.voices;
     if (!adapter || (voices && !voices.includes(voice))) return undefined;
-    return { adapter, voice, id: resolved, event, replacement };
+    return {
+      adapter,
+      voice,
+      id: resolved,
+      ...(modelId
+        ? { model: modelId.slice(modelId.indexOf("/") + 1), modelId }
+        : {}),
+      event,
+      replacement
+    };
   }
 
   /**

@@ -73,6 +73,8 @@ type SpeakItem = Base & {
   abort: AbortController;
   voice: string;
   language: string;
+  model?: string;
+  speed?: number;
   adapter: TtsAdapter;
   failed: boolean;
   onSynthesize?: (characters: number) => void;
@@ -97,6 +99,10 @@ export type SpeakRequest = {
   preempt: boolean;
   voice: string;
   language: string;
+  /** The TTS model's own name (`flux`); unset uses the adapter's. */
+  model?: string;
+  /** Speaking rate, 0.7 to 1.2; unset is the voice's normal pace. */
+  speed?: number;
   adapter: TtsAdapter;
   /** Called with the characters (code points) of each text sent to the vendor (usage). */
   onSynthesize?: (characters: number) => void;
@@ -235,6 +241,8 @@ export class OutputQueue {
       abort: new AbortController(),
       voice: req.voice,
       language: req.language,
+      model: req.model,
+      speed: req.speed,
       adapter: req.adapter,
       onSynthesize: req.onSynthesize,
       interruptible: req.interruptible,
@@ -381,7 +389,13 @@ export class OutputQueue {
         item.onSynthesize?.([...text].length);
         try {
           const synthesis = await item.adapter.synthesize(
-            { text, voice: item.voice, language: item.language },
+            {
+              text,
+              voice: item.voice,
+              language: item.language,
+              model: item.model,
+              speed: item.speed
+            },
             item.abort.signal
           );
           for (const w of synthesis.words ?? []) {

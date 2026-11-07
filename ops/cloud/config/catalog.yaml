@@ -9,6 +9,7 @@ entries:
   - { kind: provider, id: groq, label: "Groq", adapter: groq, capabilities: [llm], credentialRef: groq, state: active }
   - { kind: provider, id: anthropic, label: "Anthropic", adapter: anthropic, capabilities: [llm], credentialRef: anthropic, state: active }
   - { kind: provider, id: google, label: "Google", adapter: google, capabilities: [llm], credentialRef: google, state: active }
+  - { kind: provider, id: elevenlabs, label: "ElevenLabs", adapter: elevenlabs, capabilities: [tts], credentialRef: elevenlabs, state: active }
   - { kind: provider, id: aicoustics, label: "ai-coustics", adapter: aicoustics, capabilities: [nc], credentialRef: aicoustics, state: active }
   # ---- language models: tested, see add-qualified-llm-vendors design D1 ----------------------
   - { kind: model, id: openai/gpt-5.4-mini, label: "GPT-5.4 Mini", type: llm, features: [streaming, tool-calling, json-mode, reasoning], languages: [], settings: [], state: active }
@@ -21,24 +22,392 @@ entries:
   - { kind: model, id: google/gemini-3.1-flash-lite, label: "Gemini 3.1 Flash-Lite", type: llm, features: [streaming, tool-calling, reasoning], languages: [], settings: [], state: active }
   - { kind: model, id: google/gemini-3.6-flash, label: "Gemini 3.6 Flash", type: llm, features: [streaming, tool-calling, reasoning, fixed-sampling], languages: [], settings: [], state: active }
   # ---- speech models ----------------------------------------------------------------------
-  - { kind: model, id: deepgram/nova-3, label: "Nova 3", type: stt, features: [streaming, interim-results, word-timings, multilingual], languages: [en, es, multi], settings: [], state: active }
-  - { kind: model, id: deepgram/aura-2, label: "Aura 2", type: tts, features: [streaming], languages: [en, es], settings: [], state: active }
-  # Still used by an app: retire it with `fonoster-registry retire-model`, which moves saved configs.
-  - { kind: model, id: deepgram/nova-2-phonecall, label: "Nova 2 Phone Call", type: stt, features: [streaming, interim-results, word-timings], languages: [en], settings: [], state: active }
+  # Nova 3 is Cloud's only transcriber: it covers every Nova 2 language. Languages are Deepgram's
+  # Nova 3 codes, region codes included. Nova 2 Phone Call left this file: after the deploy, deprecate
+  # it with a replacement, then retire it (ops/cloud/README.md, "After a deploy").
+  - { kind: model, id: deepgram/nova-3, label: "Nova 3", type: stt, features: [streaming, interim-results, word-timings, multilingual], languages: [da, da-DK, tl, ar, ar-AE, ar-DZ, ar-EG, ar-IQ, ar-IR, ar-JO, ar-KW, ar-LB, ar-MA, ar-PS, ar-QA, ar-SA, ar-SD, ar-SY, ar-TD, ar-TN, sk, sk-SK, bg, bg-BG, is, el, en-AU, en-NZ, si, lg, af, be, bn, bs, ca, cs, de, en, en-CA, en-GB, en-IN, en-US, es, et, fa, fi, fr, gl, gu, he, hi, hr, hu, id, it, ja, kn, ko, lt, lv, mk, ml, mr, ms, nb, nl, nl-BE, no, pl, pt, ro, ru, sl, sr, sv, sw, ta, te, th, tr, uk, vi, xh, zh, zh-CN, zh-HK, zh-Hans, zh-Hant, zh-TW, zu, cy, ur, ur-PK, uz, eu, fr-CA, fr-CH, fr-FR, lt-LT, vi-VN, pt-BR, pt-PT, de-CH, it-IT, et-EE, mk-MK, pl-PL, lv-LV, ka, ka-GE, mn, te-IN, mr-IN, hr-HR, sv-SE, tr-TR, cs-CZ, kk, kk-KZ, as, as-IN, ps, ps-AF, af-ZA, hy, hy-AM, ta-IN, id-ID, no-NO, be-BY, bn-IN, bs-BA, ko-KR, es-419, es-AR, es-ES, es-MX, es-US, ja-JP, pa, pa-IN, ru-Latn, ru-RU, gu-IN, sl-SI, sl-SL, hu-HU, kn-IN, ne, nl-NL, de-AT, de-DE, fr-BE, th-TH, sr-RS, multi], settings: [], state: active }
+  # Text to speech (#1323): each vendor's latest model and one generation back. Speed is one 0.7 to
+  # 1.2 range for all; v4 Turbo ignores it today. Voices are written by `fonoster-registry sync-voices`.
+  - { kind: model, id: deepgram/flux, label: "Flux", type: tts, features: [streaming], languages: [bg, bn, ca, cs, da, de, el, en, es, et, fi, fr, gu, hi, hr, hu, id, it, ja, kn, ko, lt, lv, mr, ms, nl, no, pl, pt, ro, ru, sk, sl, sv, ta, te, tl, tr, uk, ur, vi, zh], settings: [], state: active }
+  - { kind: model, id: deepgram/aura-2, label: "Aura 2", type: tts, features: [streaming], languages: [de, en, es, fr, it, ja, nl], settings: [], state: active }
+  - { kind: model, id: elevenlabs/eleven_v4_turbo, label: "v4 Turbo", type: tts, features: [streaming], languages: [af, am, ar, as, ast, az, be, bg, bn, bs, ca, ceb, ckb, cs, cy, da, de, el, en, es, et, fa, ff, fi, fil, fr, ga, gl, gu, ha, he, hi, hr, hu, hy, id, is, it, ja, jv, ka, kam, kk, kn, ko, ky, lb, lg, ln, lo, lt, lv, mi, mk, ml, mn, mr, ms, mt, my, ne, nl, no, ny, oc, or, pa, pl, ps, pt, ro, ru, sd, sk, sl, sn, so, sr, sv, sw, ta, te, tg, th, tr, uk, ur, uz, vi, wo, yo, yue, zh, zu], settings: [], state: active }
+  - { kind: model, id: elevenlabs/eleven_flash_v2_5, label: "Flash v2.5", type: tts, features: [streaming], languages: [ar, bg, cs, da, de, el, en, es, fi, fil, fr, hi, hr, hu, id, it, ja, ko, ms, nl, no, pl, pt, ro, ru, sk, sv, ta, tr, uk, vi, zh], settings: [], state: active }
   # ---- voices -----------------------------------------------------------------------------
-  - { kind: voice, id: deepgram/aura-2-andromeda-en, label: "Aura 2 Andromeda", models: [deepgram/aura-2], language: en-US, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-apollo-en, label: "Aura 2 Apollo", models: [deepgram/aura-2], language: en-US, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-aquila-es, label: "Aura 2 Aquila", models: [deepgram/aura-2], language: es-419, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-arcas-en, label: "Aura 2 Arcas", models: [deepgram/aura-2], language: en-US, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-asteria-en, label: "Aura 2 Asteria", models: [deepgram/aura-2], language: en-US, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-celeste-es, label: "Aura 2 Celeste", models: [deepgram/aura-2], language: es-CO, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-draco-en, label: "Aura 2 Draco", models: [deepgram/aura-2], language: en-GB, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-estrella-es, label: "Aura 2 Estrella", models: [deepgram/aura-2], language: es-MX, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-helena-en, label: "Aura 2 Helena", models: [deepgram/aura-2], language: en-US, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-javier-es, label: "Aura 2 Javier", models: [deepgram/aura-2], language: es-MX, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-luna-en, label: "Aura 2 Luna", models: [deepgram/aura-2], language: en-US, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-nestor-es, label: "Aura 2 Nestor", models: [deepgram/aura-2], language: es-ES, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-orion-en, label: "Aura 2 Orion", models: [deepgram/aura-2], language: en-US, gender: male, state: active }
-  - { kind: voice, id: deepgram/aura-2-selena-es, label: "Aura 2 Selena", models: [deepgram/aura-2], language: es-419, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-thalia-en, label: "Aura 2 Thalia", models: [deepgram/aura-2], language: en-US, gender: female, state: active }
-  - { kind: voice, id: deepgram/aura-2-zeus-en, label: "Aura 2 Zeus", models: [deepgram/aura-2], language: en-US, gender: male, state: active }
+  - { kind: voice, id: deepgram/flux-afsana-bn, label: "Afsana", models: [deepgram/flux], language: bn, gender: female, accent: Bangladeshi, state: active }
+  - { kind: voice, id: deepgram/flux-agnese-lv, label: "Agnese", models: [deepgram/flux], language: lv, gender: female, accent: Latvian, state: active }
+  - { kind: voice, id: deepgram/flux-aina-es, label: "Aina", models: [deepgram/flux], language: es-ES, gender: female, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/flux-ajay-hi, label: "Ajay", models: [deepgram/flux], language: hi, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-alexis-en, label: "Alexis", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-alfredo-es, label: "Alfredo", models: [deepgram/flux], language: es-419, gender: male, accent: "Latin American", state: active }
+  - { kind: voice, id: deepgram/flux-ambreen-ur, label: "Ambreen", models: [deepgram/flux], language: ur, gender: female, accent: Pakistani, state: active }
+  - { kind: voice, id: deepgram/flux-andrei-ru, label: "Andrei", models: [deepgram/flux], language: ru, gender: male, accent: Russian, state: active }
+  - { kind: voice, id: deepgram/flux-angela-it, label: "Angela", models: [deepgram/flux], language: it, gender: female, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/flux-anjali-hi, label: "Anjali", models: [deepgram/flux], language: hi, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-anouk-nl, label: "Anouk", models: [deepgram/flux], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/flux-arjun-hi, label: "Arjun", models: [deepgram/flux], language: hi, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-arnaud-fr, label: "Arnaud", models: [deepgram/flux], language: fr-FR, gender: male, accent: French, state: active }
+  - { kind: voice, id: deepgram/flux-artur-pt, label: "Artur", models: [deepgram/flux], language: pt-PT, gender: male, accent: Portuguese, state: active }
+  - { kind: voice, id: deepgram/flux-axel-sv, label: "Axel", models: [deepgram/flux], language: sv, gender: male, accent: Swedish, state: active }
+  - { kind: voice, id: deepgram/flux-ayumi-ja, label: "Ayumi", models: [deepgram/flux], language: ja, gender: female, accent: Japanese, state: active }
+  - { kind: voice, id: deepgram/flux-bartosz-pl, label: "Bartosz", models: [deepgram/flux], language: pl, gender: male, accent: Polish, state: active }
+  - { kind: voice, id: deepgram/flux-bence-hu, label: "Bence", models: [deepgram/flux], language: hu, gender: male, accent: Hungarian, state: active }
+  - { kind: voice, id: deepgram/flux-benedita-pt, label: "Benedita", models: [deepgram/flux], language: pt-PT, gender: female, accent: Portuguese, state: active }
+  - { kind: voice, id: deepgram/flux-benjamin-de, label: "Benjamin", models: [deepgram/flux], language: de-DE, gender: male, accent: German, state: active }
+  - { kind: voice, id: deepgram/flux-benoit-fr, label: "Benoit", models: [deepgram/flux], language: fr-CA, gender: male, accent: Canadian, state: active }
+  - { kind: voice, id: deepgram/flux-bhavna-gu, label: "Bhavna", models: [deepgram/flux], language: gu, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-bianca-pt, label: "Bianca", models: [deepgram/flux], language: pt-BR, gender: female, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-bo-zh, label: "Bo", models: [deepgram/flux], language: zh, gender: male, accent: "Mainland Chinese", state: active }
+  - { kind: voice, id: deepgram/flux-bram-nl, label: "Bram", models: [deepgram/flux], language: nl-NL, gender: male, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/flux-bree-en, label: "Bree", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-brigitte-fr, label: "Brigitte", models: [deepgram/flux], language: fr-CA, gender: female, accent: Canadian, state: active }
+  - { kind: voice, id: deepgram/flux-brittany-en, label: "Brittany", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-brooke-en, label: "Brooke", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-bruce-en, label: "Bruce", models: [deepgram/flux], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-bruno-pt, label: "Bruno", models: [deepgram/flux], language: pt-BR, gender: male, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-camille-fr, label: "Camille", models: [deepgram/flux], language: fr-FR, gender: female, accent: French, state: active }
+  - { kind: voice, id: deepgram/flux-carmen-es, label: "Carmen", models: [deepgram/flux], language: es-ES, gender: female, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/flux-catarina-pt, label: "Catarina", models: [deepgram/flux], language: pt-PT, gender: female, accent: Portuguese, state: active }
+  - { kind: voice, id: deepgram/flux-cecilia-es, label: "Cecilia", models: [deepgram/flux], language: es-AR, gender: female, accent: Argentine, state: active }
+  - { kind: voice, id: deepgram/flux-charlotta-sv, label: "Charlotta", models: [deepgram/flux], language: sv, gender: female, accent: Swedish, state: active }
+  - { kind: voice, id: deepgram/flux-chiara-it, label: "Chiara", models: [deepgram/flux], language: it, gender: female, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/flux-chiaying-zh, label: "Chiaying", models: [deepgram/flux], language: zh-TW, gender: female, accent: Taiwanese, state: active }
+  - { kind: voice, id: deepgram/flux-chloe-fr, label: "Chloe", models: [deepgram/flux], language: fr-FR, gender: female, accent: French, state: active }
+  - { kind: voice, id: deepgram/flux-christian-de, label: "Christian", models: [deepgram/flux], language: de-AT, gender: male, accent: Austrian, state: active }
+  - { kind: voice, id: deepgram/flux-claudia-pt, label: "Claudia", models: [deepgram/flux], language: pt-BR, gender: female, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-cliff-en, label: "Cliff", models: [deepgram/flux], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-cole-en, label: "Cole", models: [deepgram/flux], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-colin-en, label: "Colin", models: [deepgram/flux], language: en-GB, gender: male, accent: British, state: active }
+  - { kind: voice, id: deepgram/flux-conor-en, label: "Conor", models: [deepgram/flux], language: en-IE, gender: male, accent: Irish, state: active }
+  - { kind: voice, id: deepgram/flux-cosmin-ro, label: "Cosmin", models: [deepgram/flux], language: ro, gender: male, accent: Romanian, state: active }
+  - { kind: voice, id: deepgram/flux-dalibor-hr, label: "Dalibor", models: [deepgram/flux], language: hr, gender: male, accent: Croatian, state: active }
+  - { kind: voice, id: deepgram/flux-danijela-hr, label: "Danijela", models: [deepgram/flux], language: hr, gender: female, accent: Croatian, state: active }
+  - { kind: voice, id: deepgram/flux-denys-uk, label: "Denys", models: [deepgram/flux], language: uk, gender: male, accent: Ukrainian, state: active }
+  - { kind: voice, id: deepgram/flux-desislava-bg, label: "Desislava", models: [deepgram/flux], language: bg, gender: female, accent: Bulgarian, state: active }
+  - { kind: voice, id: deepgram/flux-dewi-id, label: "Dewi", models: [deepgram/flux], language: id, gender: female, accent: Indonesian, state: active }
+  - { kind: voice, id: deepgram/flux-dilek-tr, label: "Dilek", models: [deepgram/flux], language: tr, gender: female, accent: Turkish, state: active }
+  - { kind: voice, id: deepgram/flux-dirk-nl, label: "Dirk", models: [deepgram/flux], language: nl-BE, gender: male, accent: Flemish, state: active }
+  - { kind: voice, id: deepgram/flux-divya-hi, label: "Divya", models: [deepgram/flux], language: hi, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-domagoj-hr, label: "Domagoj", models: [deepgram/flux], language: hr, gender: male, accent: Croatian, state: active }
+  - { kind: voice, id: deepgram/flux-dominika-sk, label: "Dominika", models: [deepgram/flux], language: sk, gender: female, accent: Slovak, state: active }
+  - { kind: voice, id: deepgram/flux-donovan-en, label: "Donovan", models: [deepgram/flux], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-drew-en, label: "Drew", models: [deepgram/flux], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-duvan-es, label: "Duvan", models: [deepgram/flux], language: es-CO, gender: male, accent: Colombian, state: active }
+  - { kind: voice, id: deepgram/flux-ecem-tr, label: "Ecem", models: [deepgram/flux], language: tr, gender: female, accent: Turkish, state: active }
+  - { kind: voice, id: deepgram/flux-edgars-lv, label: "Edgars", models: [deepgram/flux], language: lv, gender: male, accent: Latvian, state: active }
+  - { kind: voice, id: deepgram/flux-eduardo-es, label: "Eduardo", models: [deepgram/flux], language: es-ES, gender: male, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/flux-elise-en, label: "Elise", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-emre-tr, label: "Emre", models: [deepgram/flux], language: tr, gender: male, accent: Turkish, state: active }
+  - { kind: voice, id: deepgram/flux-erlend-no, label: "Erlend", models: [deepgram/flux], language: no, gender: male, accent: Norwegian, state: active }
+  - { kind: voice, id: deepgram/flux-ernesto-es, label: "Ernesto", models: [deepgram/flux], language: es-MX, gender: male, accent: Mexican, state: active }
+  - { kind: voice, id: deepgram/flux-espen-no, label: "Espen", models: [deepgram/flux], language: no, gender: male, accent: Norwegian, state: active }
+  - { kind: voice, id: deepgram/flux-eszter-hu, label: "Eszter", models: [deepgram/flux], language: hu, gender: female, accent: Hungarian, state: active }
+  - { kind: voice, id: deepgram/flux-eunji-ko, label: "Eunji", models: [deepgram/flux], language: ko, gender: female, accent: Korean, state: active }
+  - { kind: voice, id: deepgram/flux-ewa-pl, label: "Ewa", models: [deepgram/flux], language: pl, gender: female, accent: Polish, state: active }
+  - { kind: voice, id: deepgram/flux-fajar-id, label: "Fajar", models: [deepgram/flux], language: id, gender: male, accent: Indonesian, state: active }
+  - { kind: voice, id: deepgram/flux-federico-it, label: "Federico", models: [deepgram/flux], language: it, gender: male, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/flux-fernanda-es, label: "Fernanda", models: [deepgram/flux], language: es-MX, gender: female, accent: Mexican, state: active }
+  - { kind: voice, id: deepgram/flux-fiorella-es, label: "Fiorella", models: [deepgram/flux], language: es-PE, gender: female, accent: Ecuadorian, state: active }
+  - { kind: voice, id: deepgram/flux-fitri-id, label: "Fitri", models: [deepgram/flux], language: id, gender: female, accent: Indonesian, state: active }
+  - { kind: voice, id: deepgram/flux-fleur-nl, label: "Fleur", models: [deepgram/flux], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/flux-florian-fr, label: "Florian", models: [deepgram/flux], language: fr-FR, gender: male, accent: French, state: active }
+  - { kind: voice, id: deepgram/flux-frida-sv, label: "Frida", models: [deepgram/flux], language: sv, gender: female, accent: Swedish, state: active }
+  - { kind: voice, id: deepgram/flux-gemma-en, label: "Gemma", models: [deepgram/flux], language: en-GB, gender: female, accent: British, state: active }
+  - { kind: voice, id: deepgram/flux-gergana-bg, label: "Gergana", models: [deepgram/flux], language: bg, gender: female, accent: Bulgarian, state: active }
+  - { kind: voice, id: deepgram/flux-giorgio-it, label: "Giorgio", models: [deepgram/flux], language: it, gender: male, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/flux-gizem-tr, label: "Gizem", models: [deepgram/flux], language: tr, gender: female, accent: Turkish, state: active }
+  - { kind: voice, id: deepgram/flux-goda-lt, label: "Goda", models: [deepgram/flux], language: lt, gender: female, accent: Lithuanian, state: active }
+  - { kind: voice, id: deepgram/flux-gokul-ta, label: "Gokul", models: [deepgram/flux], language: ta, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-gregor-sl, label: "Gregor", models: [deepgram/flux], language: sl, gender: male, accent: Slovenian, state: active }
+  - { kind: voice, id: deepgram/flux-gustavo-es, label: "Gustavo", models: [deepgram/flux], language: es-MX, gender: male, accent: Mexican, state: active }
+  - { kind: voice, id: deepgram/flux-haley-en, label: "Haley", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-hannah-en, label: "Hannah", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-haoran-zh, label: "Haoran", models: [deepgram/flux], language: zh, gender: male, accent: "Mainland Chinese", state: active }
+  - { kind: voice, id: deepgram/flux-hayato-ja, label: "Hayato", models: [deepgram/flux], language: ja, gender: male, accent: Japanese, state: active }
+  - { kind: voice, id: deepgram/flux-haziq-ms, label: "Haziq", models: [deepgram/flux], language: ms, gender: male, accent: Malaysian, state: active }
+  - { kind: voice, id: deepgram/flux-heather-en, label: "Heather", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-hetal-gu, label: "Hetal", models: [deepgram/flux], language: gu, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-hoa-vi, label: "Hoa", models: [deepgram/flux], language: vi, gender: female, accent: "Southern Vietnamese", state: active }
+  - { kind: voice, id: deepgram/flux-hugo-pt, label: "Hugo", models: [deepgram/flux], language: pt-PT, gender: male, accent: Portuguese, state: active }
+  - { kind: voice, id: deepgram/flux-hyunwoo-ko, label: "Hyunwoo", models: [deepgram/flux], language: ko, gender: male, accent: Korean, state: active }
+  - { kind: voice, id: deepgram/flux-ida-no, label: "Ida", models: [deepgram/flux], language: no, gender: female, accent: Norwegian, state: active }
+  - { kind: voice, id: deepgram/flux-ioana-ro, label: "Ioana", models: [deepgram/flux], language: ro, gender: female, accent: Romanian, state: active }
+  - { kind: voice, id: deepgram/flux-irene-nl, label: "Irene", models: [deepgram/flux], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/flux-ishrat-bn, label: "Ishrat", models: [deepgram/flux], language: bn, gender: female, accent: Bangladeshi, state: active }
+  - { kind: voice, id: deepgram/flux-izzah-ms, label: "Izzah", models: [deepgram/flux], language: ms, gender: female, accent: Malaysian, state: active }
+  - { kind: voice, id: deepgram/flux-jack-en, label: "Jack", models: [deepgram/flux], language: en-GB, gender: male, accent: British, state: active }
+  - { kind: voice, id: deepgram/flux-jaime-es, label: "Jaime", models: [deepgram/flux], language: es-ES, gender: male, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/flux-jakub-cs, label: "Jakub", models: [deepgram/flux], language: cs, gender: male, accent: Czech, state: active }
+  - { kind: voice, id: deepgram/flux-janine-de, label: "Janine", models: [deepgram/flux], language: de-DE, gender: female, accent: German, state: active }
+  - { kind: voice, id: deepgram/flux-jasna-hr, label: "Jasna", models: [deepgram/flux], language: hr, gender: female, accent: Croatian, state: active }
+  - { kind: voice, id: deepgram/flux-jerome-tl, label: "Jerome", models: [deepgram/flux], language: tl, gender: male, accent: Filipino, state: active }
+  - { kind: voice, id: deepgram/flux-jian-zh, label: "Jian", models: [deepgram/flux], language: zh, gender: male, accent: "Mainland Chinese", state: active }
+  - { kind: voice, id: deepgram/flux-jie-zh, label: "Jie", models: [deepgram/flux], language: zh, gender: male, accent: "Mainland Chinese", state: active }
+  - { kind: voice, id: deepgram/flux-jignesh-gu, label: "Jignesh", models: [deepgram/flux], language: gu, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-jomar-tl, label: "Jomar", models: [deepgram/flux], language: tl, gender: male, accent: Filipino, state: active }
+  - { kind: voice, id: deepgram/flux-jordi-ca, label: "Jordi", models: [deepgram/flux], language: ca, gender: male, accent: Catalan, state: active }
+  - { kind: voice, id: deepgram/flux-josipa-hr, label: "Josipa", models: [deepgram/flux], language: hr, gender: female, accent: Croatian, state: active }
+  - { kind: voice, id: deepgram/flux-judit-ca, label: "Judit", models: [deepgram/flux], language: ca, gender: female, accent: Catalan, state: active }
+  - { kind: voice, id: deepgram/flux-julien-fr, label: "Julien", models: [deepgram/flux], language: fr-FR, gender: male, accent: French, state: active }
+  - { kind: voice, id: deepgram/flux-juraj-sk, label: "Juraj", models: [deepgram/flux], language: sk, gender: male, accent: Slovak, state: active }
+  - { kind: voice, id: deepgram/flux-justyna-pl, label: "Justyna", models: [deepgram/flux], language: pl, gender: female, accent: Polish, state: active }
+  - { kind: voice, id: deepgram/flux-jyoti-hi, label: "Jyoti", models: [deepgram/flux], language: hi, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-kacper-pl, label: "Kacper", models: [deepgram/flux], language: pl, gender: male, accent: Polish, state: active }
+  - { kind: voice, id: deepgram/flux-kai-en, label: "Kai", models: [deepgram/flux], language: en-SG, gender: male, accent: Singaporean, state: active }
+  - { kind: voice, id: deepgram/flux-katja-sl, label: "Katja", models: [deepgram/flux], language: sl, gender: female, accent: Slovenian, state: active }
+  - { kind: voice, id: deepgram/flux-kavya-ta, label: "Kavya", models: [deepgram/flux], language: ta, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-kelsey-en, label: "Kelsey", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-kinga-hu, label: "Kinga", models: [deepgram/flux], language: hu, gender: female, accent: Hungarian, state: active }
+  - { kind: voice, id: deepgram/flux-kirill-ru, label: "Kirill", models: [deepgram/flux], language: ru, gender: male, accent: Russian, state: active }
+  - { kind: voice, id: deepgram/flux-kirsi-fi, label: "Kirsi", models: [deepgram/flux], language: fi, gender: female, accent: Finnish, state: active }
+  - { kind: voice, id: deepgram/flux-kit-en, label: "Kit", models: [deepgram/flux], language: en-GB, gender: male, accent: British, state: active }
+  - { kind: voice, id: deepgram/flux-konrad-pl, label: "Konrad", models: [deepgram/flux], language: pl, gender: male, accent: Polish, state: active }
+  - { kind: voice, id: deepgram/flux-kostas-el, label: "Kostas", models: [deepgram/flux], language: el, gender: male, accent: Greek, state: active }
+  - { kind: voice, id: deepgram/flux-kuanyu-zh, label: "Kuanyu", models: [deepgram/flux], language: zh-TW, gender: male, accent: Taiwanese, state: active }
+  - { kind: voice, id: deepgram/flux-leandro-pt, label: "Leandro", models: [deepgram/flux], language: pt-BR, gender: male, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-leonie-de, label: "Leonie", models: [deepgram/flux], language: de-CH, gender: female, accent: Swiss, state: active }
+  - { kind: voice, id: deepgram/flux-liezel-tl, label: "Liezel", models: [deepgram/flux], language: tl, gender: female, accent: Filipino, state: active }
+  - { kind: voice, id: deepgram/flux-lijuan-zh, label: "Lijuan", models: [deepgram/flux], language: zh, gender: female, accent: "Mainland Chinese", state: active }
+  - { kind: voice, id: deepgram/flux-lotte-nl, label: "Lotte", models: [deepgram/flux], language: nl-BE, gender: female, accent: Flemish, state: active }
+  - { kind: voice, id: deepgram/flux-ludvig-sv, label: "Ludvig", models: [deepgram/flux], language: sv, gender: male, accent: Swedish, state: active }
+  - { kind: voice, id: deepgram/flux-luuk-nl, label: "Luuk", models: [deepgram/flux], language: nl-NL, gender: male, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/flux-maeve-en, label: "Maeve", models: [deepgram/flux], language: en-IE, gender: female, accent: Irish, state: active }
+  - { kind: voice, id: deepgram/flux-magdalena-de, label: "Magdalena", models: [deepgram/flux], language: de-AT, gender: female, accent: Austrian, state: active }
+  - { kind: voice, id: deepgram/flux-mamun-bn, label: "Mamun", models: [deepgram/flux], language: bn, gender: male, accent: Bangladeshi, state: active }
+  - { kind: voice, id: deepgram/flux-manjunath-kn, label: "Manjunath", models: [deepgram/flux], language: kn, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-manlok-zh, label: "Manlok", models: [deepgram/flux], language: zh-HK, gender: male, accent: Cantonese, state: active }
+  - { kind: voice, id: deepgram/flux-marcelo-en, label: "Marcelo", models: [deepgram/flux], language: en-PH, gender: male, accent: Filipino, state: active }
+  - { kind: voice, id: deepgram/flux-marcia-pt, label: "Marcia", models: [deepgram/flux], language: pt-BR, gender: female, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-marcus-en, label: "Marcus", models: [deepgram/flux], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-mariana-pt, label: "Mariana", models: [deepgram/flux], language: pt-BR, gender: female, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-marta-pt, label: "Marta", models: [deepgram/flux], language: pt-BR, gender: female, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-martin-es, label: "Martin", models: [deepgram/flux], language: es-AR, gender: male, accent: Argentine, state: active }
+  - { kind: voice, id: deepgram/flux-mateus-pt, label: "Mateus", models: [deepgram/flux], language: pt-BR, gender: male, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-mathieu-fr, label: "Mathieu", models: [deepgram/flux], language: fr-FR, gender: male, accent: French, state: active }
+  - { kind: voice, id: deepgram/flux-matteo-it, label: "Matteo", models: [deepgram/flux], language: it, gender: male, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/flux-mauricio-es, label: "Mauricio", models: [deepgram/flux], language: es-MX, gender: male, accent: Mexican, state: active }
+  - { kind: voice, id: deepgram/flux-maxim-ru, label: "Maxim", models: [deepgram/flux], language: ru, gender: male, accent: Russian, state: active }
+  - { kind: voice, id: deepgram/flux-meena-en, label: "Meena", models: [deepgram/flux], language: en-IN, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-meghan-en, label: "Meghan", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-mehmet-tr, label: "Mehmet", models: [deepgram/flux], language: tr, gender: male, accent: Turkish, state: active }
+  - { kind: voice, id: deepgram/flux-miguel-pt, label: "Miguel", models: [deepgram/flux], language: pt-BR, gender: male, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-mihaela-hr, label: "Mihaela", models: [deepgram/flux], language: hr, gender: female, accent: Croatian, state: active }
+  - { kind: voice, id: deepgram/flux-mikhail-ru, label: "Mikhail", models: [deepgram/flux], language: ru, gender: male, accent: Russian, state: active }
+  - { kind: voice, id: deepgram/flux-mikyung-ko, label: "Mikyung", models: [deepgram/flux], language: ko, gender: female, accent: Korean, state: active }
+  - { kind: voice, id: deepgram/flux-miles-en, label: "Miles", models: [deepgram/flux], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-minh-vi, label: "Minh", models: [deepgram/flux], language: vi, gender: male, accent: "Northern Vietnamese", state: active }
+  - { kind: voice, id: deepgram/flux-minjun-ko, label: "Minjun", models: [deepgram/flux], language: ko, gender: male, accent: Korean, state: active }
+  - { kind: voice, id: deepgram/flux-monique-nl, label: "Monique", models: [deepgram/flux], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/flux-moritz-de, label: "Moritz", models: [deepgram/flux], language: de-DE, gender: male, accent: German, state: active }
+  - { kind: voice, id: deepgram/flux-nadine-de, label: "Nadine", models: [deepgram/flux], language: de-DE, gender: female, accent: German, state: active }
+  - { kind: voice, id: deepgram/flux-natalia-ru, label: "Natalia", models: [deepgram/flux], language: ru, gender: female, accent: Russian, state: active }
+  - { kind: voice, id: deepgram/flux-naveen-en, label: "Naveen", models: [deepgram/flux], language: en-IN, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-neringa-lt, label: "Neringa", models: [deepgram/flux], language: lt, gender: female, accent: Lithuanian, state: active }
+  - { kind: voice, id: deepgram/flux-niels-nl, label: "Niels", models: [deepgram/flux], language: nl-BE, gender: male, accent: Flemish, state: active }
+  - { kind: voice, id: deepgram/flux-nikhil-hi, label: "Nikhil", models: [deepgram/flux], language: hi, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-nikolai-ru, label: "Nikolai", models: [deepgram/flux], language: ru, gender: male, accent: Russian, state: active }
+  - { kind: voice, id: deepgram/flux-noel-tl, label: "Noel", models: [deepgram/flux], language: tl, gender: male, accent: Filipino, state: active }
+  - { kind: voice, id: deepgram/flux-nozomi-ja, label: "Nozomi", models: [deepgram/flux], language: ja, gender: female, accent: Japanese, state: active }
+  - { kind: voice, id: deepgram/flux-olga-ru, label: "Olga", models: [deepgram/flux], language: ru, gender: female, accent: Russian, state: active }
+  - { kind: voice, id: deepgram/flux-oskar-sv, label: "Oskar", models: [deepgram/flux], language: sv, gender: male, accent: Swedish, state: active }
+  - { kind: voice, id: deepgram/flux-paige-en, label: "Paige", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-pallavi-hi, label: "Pallavi", models: [deepgram/flux], language: hi, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-paola-it, label: "Paola", models: [deepgram/flux], language: it, gender: female, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/flux-patricia-es, label: "Patricia", models: [deepgram/flux], language: es-MX, gender: female, accent: Mexican, state: active }
+  - { kind: voice, id: deepgram/flux-pavan-te, label: "Pavan", models: [deepgram/flux], language: te, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-pedro-pt, label: "Pedro", models: [deepgram/flux], language: pt-PT, gender: male, accent: Portuguese, state: active }
+  - { kind: voice, id: deepgram/flux-pernille-da, label: "Pernille", models: [deepgram/flux], language: da, gender: female, accent: Danish, state: active }
+  - { kind: voice, id: deepgram/flux-pierre-fr, label: "Pierre", models: [deepgram/flux], language: fr-CA, gender: male, accent: Canadian, state: active }
+  - { kind: voice, id: deepgram/flux-pilar-es, label: "Pilar", models: [deepgram/flux], language: es-ES, gender: female, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/flux-polina-ru, label: "Polina", models: [deepgram/flux], language: ru, gender: female, accent: Russian, state: active }
+  - { kind: voice, id: deepgram/flux-pontus-sv, label: "Pontus", models: [deepgram/flux], language: sv, gender: male, accent: Swedish, state: active }
+  - { kind: voice, id: deepgram/flux-pooja-mr, label: "Pooja", models: [deepgram/flux], language: mr, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-prachi-hi, label: "Prachi", models: [deepgram/flux], language: hi, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-pratik-mr, label: "Pratik", models: [deepgram/flux], language: mr, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-priya-en, label: "Priya", models: [deepgram/flux], language: en-IN, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-rafael-es, label: "Rafael", models: [deepgram/flux], language: es-ES, gender: male, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/flux-rahul-hi, label: "Rahul", models: [deepgram/flux], language: hi, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-rajesh-hi, label: "Rajesh", models: [deepgram/flux], language: hi, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-rasmus-da, label: "Rasmus", models: [deepgram/flux], language: da, gender: male, accent: Danish, state: active }
+  - { kind: voice, id: deepgram/flux-ravi-te, label: "Ravi", models: [deepgram/flux], language: te, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-renato-pt, label: "Renato", models: [deepgram/flux], language: pt-BR, gender: male, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-ricardo-pt, label: "Ricardo", models: [deepgram/flux], language: pt-PT, gender: male, accent: Portuguese, state: active }
+  - { kind: voice, id: deepgram/flux-rikke-da, label: "Rikke", models: [deepgram/flux], language: da, gender: female, accent: Danish, state: active }
+  - { kind: voice, id: deepgram/flux-ritu-hi, label: "Ritu", models: [deepgram/flux], language: hi, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-rizky-id, label: "Rizky", models: [deepgram/flux], language: id, gender: male, accent: Indonesian, state: active }
+  - { kind: voice, id: deepgram/flux-roberto-pt, label: "Roberto", models: [deepgram/flux], language: pt-BR, gender: male, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-rocco-it, label: "Rocco", models: [deepgram/flux], language: it, gender: male, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/flux-rodrigo-pt, label: "Rodrigo", models: [deepgram/flux], language: pt-BR, gender: male, accent: Brazilian, state: active }
+  - { kind: voice, id: deepgram/flux-rolf-de, label: "Rolf", models: [deepgram/flux], language: de-DE, gender: male, accent: German, state: active }
+  - { kind: voice, id: deepgram/flux-ruben-nl, label: "Ruben", models: [deepgram/flux], language: nl-NL, gender: male, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/flux-rufus-en, label: "Rufus", models: [deepgram/flux], language: en-GB, gender: male, accent: British, state: active }
+  - { kind: voice, id: deepgram/flux-sabbir-bn, label: "Sabbir", models: [deepgram/flux], language: bn, gender: male, accent: Bangladeshi, state: active }
+  - { kind: voice, id: deepgram/flux-sanne-nl, label: "Sanne", models: [deepgram/flux], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/flux-sayaka-ja, label: "Sayaka", models: [deepgram/flux], language: ja, gender: female, accent: Japanese, state: active }
+  - { kind: voice, id: deepgram/flux-sean-en, label: "Sean", models: [deepgram/flux], language: en-GB, gender: male, accent: British, state: active }
+  - { kind: voice, id: deepgram/flux-serkan-tr, label: "Serkan", models: [deepgram/flux], language: tr, gender: male, accent: Turkish, state: active }
+  - { kind: voice, id: deepgram/flux-sharon-en, label: "Sharon", models: [deepgram/flux], language: en-AU, gender: female, accent: Australian, state: active }
+  - { kind: voice, id: deepgram/flux-shreya-hi, label: "Shreya", models: [deepgram/flux], language: hi, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-shufen-zh, label: "Shufen", models: [deepgram/flux], language: zh, gender: female, accent: "Mainland Chinese", state: active }
+  - { kind: voice, id: deepgram/flux-shuvo-bn, label: "Shuvo", models: [deepgram/flux], language: bn, gender: male, accent: Bangladeshi, state: active }
+  - { kind: voice, id: deepgram/flux-sienna-en, label: "Sienna", models: [deepgram/flux], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-signe-no, label: "Signe", models: [deepgram/flux], language: no, gender: female, accent: Norwegian, state: active }
+  - { kind: voice, id: deepgram/flux-silje-no, label: "Silje", models: [deepgram/flux], language: no, gender: female, accent: Norwegian, state: active }
+  - { kind: voice, id: deepgram/flux-sneha-mr, label: "Sneha", models: [deepgram/flux], language: mr, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-sofia-it, label: "Sofia", models: [deepgram/flux], language: it, gender: female, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/flux-solomiya-uk, label: "Solomiya", models: [deepgram/flux], language: uk, gender: female, accent: Ukrainian, state: active }
+  - { kind: voice, id: deepgram/flux-sonja-de, label: "Sonja", models: [deepgram/flux], language: de-DE, gender: female, accent: German, state: active }
+  - { kind: voice, id: deepgram/flux-soojin-ko, label: "Soojin", models: [deepgram/flux], language: ko, gender: female, accent: Korean, state: active }
+  - { kind: voice, id: deepgram/flux-sowmya-ta, label: "Sowmya", models: [deepgram/flux], language: ta, gender: female, accent: "Sri Lankan", state: active }
+  - { kind: voice, id: deepgram/flux-sravani-te, label: "Sravani", models: [deepgram/flux], language: te, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-stefano-it, label: "Stefano", models: [deepgram/flux], language: it, gender: male, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/flux-sumaiya-bn, label: "Sumaiya", models: [deepgram/flux], language: bn, gender: female, accent: Bangladeshi, state: active }
+  - { kind: voice, id: deepgram/flux-sungmin-ko, label: "Sungmin", models: [deepgram/flux], language: ko, gender: male, accent: Korean, state: active }
+  - { kind: voice, id: deepgram/flux-sunita-hi, label: "Sunita", models: [deepgram/flux], language: hi, gender: female, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-sven-de, label: "Sven", models: [deepgram/flux], language: de-DE, gender: male, accent: German, state: active }
+  - { kind: voice, id: deepgram/flux-tanner-en, label: "Tanner", models: [deepgram/flux], language: en-GB, gender: male, accent: British, state: active }
+  - { kind: voice, id: deepgram/flux-teemu-fi, label: "Teemu", models: [deepgram/flux], language: fi, gender: male, accent: Finnish, state: active }
+  - { kind: voice, id: deepgram/flux-teguh-id, label: "Teguh", models: [deepgram/flux], language: id, gender: male, accent: Indonesian, state: active }
+  - { kind: voice, id: deepgram/flux-thierry-fr, label: "Thierry", models: [deepgram/flux], language: fr-FR, gender: male, accent: French, state: active }
+  - { kind: voice, id: deepgram/flux-tibor-hu, label: "Tibor", models: [deepgram/flux], language: hu, gender: male, accent: Hungarian, state: active }
+  - { kind: voice, id: deepgram/flux-tobias-de, label: "Tobias", models: [deepgram/flux], language: de-DE, gender: male, accent: German, state: active }
+  - { kind: voice, id: deepgram/flux-tomas-es, label: "Tomas", models: [deepgram/flux], language: es-CO, gender: male, accent: Colombian, state: active }
+  - { kind: voice, id: deepgram/flux-triin-et, label: "Triin", models: [deepgram/flux], language: et, gender: female, accent: Estonian, state: active }
+  - { kind: voice, id: deepgram/flux-trisha-tl, label: "Trisha", models: [deepgram/flux], language: tl, gender: female, accent: Filipino, state: active }
+  - { kind: voice, id: deepgram/flux-usman-ur, label: "Usman", models: [deepgram/flux], language: ur, gender: male, accent: Pakistani, state: active }
+  - { kind: voice, id: deepgram/flux-valentina-es, label: "Valentina", models: [deepgram/flux], language: es-CO, gender: female, accent: Colombian, state: active }
+  - { kind: voice, id: deepgram/flux-vedran-hr, label: "Vedran", models: [deepgram/flux], language: hr, gender: male, accent: Croatian, state: active }
+  - { kind: voice, id: deepgram/flux-veerle-nl, label: "Veerle", models: [deepgram/flux], language: nl-BE, gender: female, accent: Flemish, state: active }
+  - { kind: voice, id: deepgram/flux-vegard-no, label: "Vegard", models: [deepgram/flux], language: no, gender: male, accent: Norwegian, state: active }
+  - { kind: voice, id: deepgram/flux-verena-de, label: "Verena", models: [deepgram/flux], language: de-DE, gender: female, accent: German, state: active }
+  - { kind: voice, id: deepgram/flux-veronique-fr, label: "Veronique", models: [deepgram/flux], language: fr-CA, gender: female, accent: Canadian, state: active }
+  - { kind: voice, id: deepgram/flux-vikram-hi, label: "Vikram", models: [deepgram/flux], language: hi, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-vincenzo-it, label: "Vincenzo", models: [deepgram/flux], language: it, gender: male, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/flux-vinoth-ta, label: "Vinoth", models: [deepgram/flux], language: ta, gender: male, accent: Indian, state: active }
+  - { kind: voice, id: deepgram/flux-vito-it, label: "Vito", models: [deepgram/flux], language: it, gender: male, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/flux-vladimir-ru, label: "Vladimir", models: [deepgram/flux], language: ru, gender: male, accent: Russian, state: active }
+  - { kind: voice, id: deepgram/flux-wade-en, label: "Wade", models: [deepgram/flux], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-wenbo-zh, label: "Wenbo", models: [deepgram/flux], language: zh, gender: male, accent: "Mainland Chinese", state: active }
+  - { kind: voice, id: deepgram/flux-wenjing-zh, label: "Wenjing", models: [deepgram/flux], language: zh, gender: female, accent: "Mainland Chinese", state: active }
+  - { kind: voice, id: deepgram/flux-wes-en, label: "Wes", models: [deepgram/flux], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/flux-wilma-sv, label: "Wilma", models: [deepgram/flux], language: sv, gender: female, accent: Swedish, state: active }
+  - { kind: voice, id: deepgram/flux-yannick-de, label: "Yannick", models: [deepgram/flux], language: de-CH, gender: male, accent: Swiss, state: active }
+  - { kind: voice, id: deepgram/flux-yasmine-fr, label: "Yasmine", models: [deepgram/flux], language: fr-DZ, gender: female, accent: Algerian, state: active }
+  - { kind: voice, id: deepgram/flux-yawen-zh, label: "Yawen", models: [deepgram/flux], language: zh-TW, gender: female, accent: Taiwanese, state: active }
+  - { kind: voice, id: deepgram/flux-ysabel-es, label: "Ysabel", models: [deepgram/flux], language: es-VE, gender: female, accent: Venezuelan, state: active }
+  - { kind: voice, id: deepgram/flux-yuting-zh, label: "Yuting", models: [deepgram/flux], language: zh-TW, gender: female, accent: Taiwanese, state: active }
+  - { kind: voice, id: deepgram/flux-yvonne-nl, label: "Yvonne", models: [deepgram/flux], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/flux-zeynep-tr, label: "Zeynep", models: [deepgram/flux], language: tr, gender: female, accent: Turkish, state: active }
+  - { kind: voice, id: deepgram/flux-zhen-zh, label: "Zhen", models: [deepgram/flux], language: zh, gender: female, accent: "Mainland Chinese", state: active }
+  - { kind: voice, id: deepgram/flux-zuzanna-pl, label: "Zuzanna", models: [deepgram/flux], language: pl, gender: female, accent: Polish, state: active }
+  - { kind: voice, id: deepgram/aura-2-agathe-fr, label: "Agathe", models: [deepgram/aura-2], language: fr-FR, gender: female, accent: French, state: active }
+  - { kind: voice, id: deepgram/aura-2-agustina-es, label: "Agustina", models: [deepgram/aura-2], language: es-ES, gender: female, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/aura-2-alvaro-es, label: "Álvaro", models: [deepgram/aura-2], language: es-ES, gender: male, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/aura-2-ama-ja, label: "Ama", models: [deepgram/aura-2], language: ja-JP, gender: female, accent: Japanese, state: active }
+  - { kind: voice, id: deepgram/aura-2-amalthea-en, label: "Amalthea", models: [deepgram/aura-2], language: en-PH, gender: female, accent: Filipino, state: active }
+  - { kind: voice, id: deepgram/aura-2-andromeda-en, label: "Andromeda", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-antonia-es, label: "Antonia", models: [deepgram/aura-2], language: es-AR, gender: female, accent: Argentine, state: active }
+  - { kind: voice, id: deepgram/aura-2-apollo-en, label: "Apollo", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-aquila-es, label: "Aquila", models: [deepgram/aura-2], language: es-419, gender: male, accent: "Latin American", state: active }
+  - { kind: voice, id: deepgram/aura-2-arcas-en, label: "Arcas", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-aries-en, label: "Aries", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-asteria-en, label: "Asteria", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-athena-en, label: "Athena", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-atlas-en, label: "Atlas", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-aurelia-de, label: "Aurelia", models: [deepgram/aura-2], language: de-DE, gender: female, accent: German, state: active }
+  - { kind: voice, id: deepgram/aura-2-aurora-en, label: "Aurora", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-beatrix-nl, label: "Beatrix", models: [deepgram/aura-2], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/aura-2-callista-en, label: "Callista", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-carina-es, label: "Carina", models: [deepgram/aura-2], language: es-ES, gender: female, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/aura-2-celeste-es, label: "Celeste", models: [deepgram/aura-2], language: es-CO, gender: female, accent: Colombian, state: active }
+  - { kind: voice, id: deepgram/aura-2-cesare-it, label: "Cesare", models: [deepgram/aura-2], language: it-IT, gender: male, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/aura-2-cinzia-it, label: "Cinzia", models: [deepgram/aura-2], language: it-IT, gender: female, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/aura-2-cora-en, label: "Cora", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-cordelia-en, label: "Cordelia", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-cornelia-nl, label: "Cornelia", models: [deepgram/aura-2], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/aura-2-daphne-nl, label: "Daphne", models: [deepgram/aura-2], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/aura-2-delia-en, label: "Delia", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-demetra-it, label: "Demetra", models: [deepgram/aura-2], language: it-IT, gender: female, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/aura-2-diana-es, label: "Diana", models: [deepgram/aura-2], language: es-ES, gender: female, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/aura-2-dionisio-it, label: "Dionisio", models: [deepgram/aura-2], language: it-IT, gender: male, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/aura-2-draco-en, label: "Draco", models: [deepgram/aura-2], language: en-GB, gender: male, accent: British, state: active }
+  - { kind: voice, id: deepgram/aura-2-ebisu-ja, label: "Ebisu", models: [deepgram/aura-2], language: ja-JP, gender: male, accent: Japanese, state: active }
+  - { kind: voice, id: deepgram/aura-2-elara-de, label: "Elara", models: [deepgram/aura-2], language: de-DE, gender: female, accent: German, state: active }
+  - { kind: voice, id: deepgram/aura-2-electra-en, label: "Electra", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-elio-it, label: "Elio", models: [deepgram/aura-2], language: it-IT, gender: male, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/aura-2-estrella-es, label: "Estrella", models: [deepgram/aura-2], language: es-MX, gender: female, accent: Mexican, state: active }
+  - { kind: voice, id: deepgram/aura-2-fabian-de, label: "Fabian", models: [deepgram/aura-2], language: de-DE, gender: male, accent: German, state: active }
+  - { kind: voice, id: deepgram/aura-2-flavio-it, label: "Flavio", models: [deepgram/aura-2], language: it-IT, gender: male, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/aura-2-fujin-ja, label: "Fujin", models: [deepgram/aura-2], language: ja-JP, gender: male, accent: Japanese, state: active }
+  - { kind: voice, id: deepgram/aura-2-gloria-es, label: "Gloria", models: [deepgram/aura-2], language: es-CO, gender: female, accent: Colombian, state: active }
+  - { kind: voice, id: deepgram/aura-2-harmonia-en, label: "Harmonia", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-hector-fr, label: "Hector", models: [deepgram/aura-2], language: fr-FR, gender: male, accent: French, state: active }
+  - { kind: voice, id: deepgram/aura-2-helena-en, label: "Helena", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-hera-en, label: "Hera", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-hermes-en, label: "Hermes", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-hestia-nl, label: "Hestia", models: [deepgram/aura-2], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/aura-2-hyperion-en, label: "Hyperion", models: [deepgram/aura-2], language: en-AU, gender: male, accent: Australian, state: active }
+  - { kind: voice, id: deepgram/aura-2-iris-en, label: "Iris", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-izanami-ja, label: "Izanami", models: [deepgram/aura-2], language: ja-JP, gender: female, accent: Japanese, state: active }
+  - { kind: voice, id: deepgram/aura-2-janus-en, label: "Janus", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-javier-es, label: "Javier", models: [deepgram/aura-2], language: es-MX, gender: male, accent: "Latin American", state: active }
+  - { kind: voice, id: deepgram/aura-2-julius-de, label: "Julius", models: [deepgram/aura-2], language: de-DE, gender: male, accent: German, state: active }
+  - { kind: voice, id: deepgram/aura-2-juno-en, label: "Juno", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-jupiter-en, label: "Jupiter", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-kara-de, label: "Kara", models: [deepgram/aura-2], language: de-DE, gender: female, accent: German, state: active }
+  - { kind: voice, id: deepgram/aura-2-lara-de, label: "Lara", models: [deepgram/aura-2], language: de-DE, gender: female, accent: German, state: active }
+  - { kind: voice, id: deepgram/aura-2-lars-nl, label: "Lars", models: [deepgram/aura-2], language: nl-NL, gender: male, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/aura-2-leda-nl, label: "Leda", models: [deepgram/aura-2], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/aura-2-livia-it, label: "Livia", models: [deepgram/aura-2], language: it-IT, gender: female, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/aura-2-luciano-es, label: "Luciano", models: [deepgram/aura-2], language: es-MX, gender: male, accent: Mexican, state: active }
+  - { kind: voice, id: deepgram/aura-2-luna-en, label: "Luna", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-maia-it, label: "Maia", models: [deepgram/aura-2], language: it-IT, gender: female, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/aura-2-mars-en, label: "Mars", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-melia-it, label: "Melia", models: [deepgram/aura-2], language: it-IT, gender: female, accent: Italian, state: active }
+  - { kind: voice, id: deepgram/aura-2-minerva-en, label: "Minerva", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-neptune-en, label: "Neptune", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-nestor-es, label: "Néstor", models: [deepgram/aura-2], language: es-ES, gender: male, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/aura-2-odysseus-en, label: "Odysseus", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-olivia-es, label: "Olivia", models: [deepgram/aura-2], language: es-MX, gender: female, accent: Mexican, state: active }
+  - { kind: voice, id: deepgram/aura-2-ophelia-en, label: "Ophelia", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-orion-en, label: "Orion", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-orpheus-en, label: "Orpheus", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-pandora-en, label: "Pandora", models: [deepgram/aura-2], language: en-GB, gender: female, accent: British, state: active }
+  - { kind: voice, id: deepgram/aura-2-phoebe-en, label: "Phoebe", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-pluto-en, label: "Pluto", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-rhea-nl, label: "Rhea", models: [deepgram/aura-2], language: nl-NL, gender: female, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/aura-2-roman-nl, label: "Roman", models: [deepgram/aura-2], language: nl-NL, gender: male, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/aura-2-sander-nl, label: "Sander", models: [deepgram/aura-2], language: nl-NL, gender: male, accent: Dutch, state: active }
+  - { kind: voice, id: deepgram/aura-2-saturn-en, label: "Saturn", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-selena-es, label: "Selena", models: [deepgram/aura-2], language: es-419, gender: female, accent: "Latin American", state: active }
+  - { kind: voice, id: deepgram/aura-2-selene-en, label: "Selene", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-silvia-es, label: "Silvia", models: [deepgram/aura-2], language: es-ES, gender: female, accent: Peninsular, state: active }
+  - { kind: voice, id: deepgram/aura-2-sirio-es, label: "Sirio", models: [deepgram/aura-2], language: es-MX, gender: male, accent: Mexican, state: active }
+  - { kind: voice, id: deepgram/aura-2-thalia-en, label: "Thalia", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-theia-en, label: "Theia", models: [deepgram/aura-2], language: en-AU, gender: female, accent: Australian, state: active }
+  - { kind: voice, id: deepgram/aura-2-uzume-ja, label: "Uzume", models: [deepgram/aura-2], language: ja-JP, gender: female, accent: Japanese, state: active }
+  - { kind: voice, id: deepgram/aura-2-valentina-es, label: "valentina", models: [deepgram/aura-2], language: es-419, gender: female, accent: "Latin American", state: active }
+  - { kind: voice, id: deepgram/aura-2-valerio-es, label: "Valerio", models: [deepgram/aura-2], language: es-MX, gender: male, accent: Mexican, state: active }
+  - { kind: voice, id: deepgram/aura-2-vesta-en, label: "Vesta", models: [deepgram/aura-2], language: en-US, gender: female, accent: American, state: active }
+  - { kind: voice, id: deepgram/aura-2-viktoria-de, label: "Viktoria", models: [deepgram/aura-2], language: de-DE, gender: female, accent: German, state: active }
+  - { kind: voice, id: deepgram/aura-2-zeus-en, label: "Zeus", models: [deepgram/aura-2], language: en-US, gender: male, accent: American, state: active }
+  - { kind: voice, id: elevenlabs/bIHbv24MWmeRgasZH58o, label: "Will", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: male, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/cgSgspJ2msm6clMCkdW9, label: "Jessica", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: female, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/cjVigY5qzO86Huf0OWal, label: "Eric", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: male, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/CwhRBWXzGAHq8TQ4Fs17, label: "Roger", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: male, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/EXAVITQu4vr4xnSDxMaL, label: "Sarah", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: female, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/FGY2WhTYpPnrIDTdsKH5, label: "Laura", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: female, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/hpp4J3VqNfWAUOO0d1Us, label: "Bella", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: female, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/IKne3meq5aSn9XLyUdCD, label: "Charlie", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-AU, gender: male, accent: australian, state: active }
+  - { kind: voice, id: elevenlabs/iP95p4xoKVk53GoZ742B, label: "Chris", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: male, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/JBFqnCBsd6RMkjVDRZzb, label: "George", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-GB, gender: male, accent: british, state: active }
+  - { kind: voice, id: elevenlabs/N2lVS1w4EtoT3dr4eOWO, label: "Callum", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: male, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/nPczCjzI2devNBz1zQrb, label: "Brian", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: male, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/onwK4e9ZLuTAKqWW03F9, label: "Daniel", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-GB, gender: male, accent: british, state: active }
+  - { kind: voice, id: elevenlabs/pFZP5JQG7iQjIQuC4Bku, label: "Lily", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-GB, gender: female, accent: british, state: active }
+  - { kind: voice, id: elevenlabs/pNInz6obpgDQGcFmaJgB, label: "Adam", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en, gender: male, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/pqHfZKP75CvOlQylNhV4, label: "Bill", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: male, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/SAz9YHcvj6GT2YYXdXww, label: "River", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: neutral, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/SOYHLrjzK2X1ezoPC6cr, label: "Harry", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: male, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/TX3LPaxmHKxFdv7VOQHJ, label: "Liam", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: male, accent: american, state: active }
+  - { kind: voice, id: elevenlabs/Xb7hH8MSUJpSbSDYk0k2, label: "Alice", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-GB, gender: female, accent: british, state: active }
+  - { kind: voice, id: elevenlabs/XrExE9yKIg1WjnnlVkGX, label: "Matilda", models: [elevenlabs/eleven_v4_turbo, elevenlabs/eleven_flash_v2_5], language: en-US, gender: female, accent: american, state: active }

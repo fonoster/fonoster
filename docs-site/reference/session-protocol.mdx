@@ -118,13 +118,13 @@ Every command takes an optional `id`. Fields marked required must be present, or
   | --- | --- | --- | --- |
   | `text` | string | yes | Text to speak. May be empty on the last piece |
   | `last` | boolean | no | Default `true`. Send several `speak` with one `id` and `last: false` to stream text into one utterance; the piece with `last: true` ends it |
-  | `voice` | string | no | Catalog id overriding the stream's voice for this item |
+  | `voice` | string | no | Overrides the stream's voice for this item: a catalog id, or a voice ID of the same provider as the app's `speech.ttsModel` |
   | `language` | string | no | Overrides the stream's language for this item |
   | `interruptible` | boolean | no | Default `true`. A hint for your own barge-in logic. Fonoster never stops output on caller speech |
   | `preempt` | boolean | no | Stop what is playing and play this first |
 
-  Without an `id`, Fonoster assigns one. A voice not in the catalog gets `error`
-  `invalid_catalog_id`.
+  Without an `id`, Fonoster assigns one. A voice that isn't in the catalog and isn't of the app's
+  `speech.ttsModel` provider gets `error` `invalid_catalog_id`.
 </ResponseField>
 
 <ResponseField name="play" type="command">
@@ -280,7 +280,7 @@ session that can't continue ends with `session.end`.
 | `read_only` | A listen-only socket sent a command |
 | `provider_unavailable` | The speech or language provider failed |
 | `provider_timeout` | The provider didn't answer in time |
-| `invalid_catalog_id` | A voice or language id isn't in the catalog |
+| `invalid_catalog_id` | A voice or language id isn't in the catalog, and a voice isn't of the app's `speech.ttsModel` provider |
 | `key_unavailable` | The workspace's own key for that provider couldn't be read; the platform key is never used instead |
 | `feature_not_supported` | The provider can't do what was asked |
 | `transfer_failed` | The transfer target couldn't be reached |

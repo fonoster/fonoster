@@ -20,9 +20,11 @@ import { describe, expect, it } from "vitest";
 import {
   defaultsFor,
   ignoresTemperature,
+  languageName,
   toAgentCatalog,
   type AgentCatalog
 } from "./catalog";
+import { cloudCatalog, cloudCatalogItems } from "./fixtures";
 
 // The shipped base catalog (ops/bundle/config/catalog.yaml, #1240) as ListCatalog offers it, plus
 // an operator-added model listed first, so the preferred one has to win.
@@ -39,6 +41,14 @@ const BASE: AgentCatalog = {
       id: "openai/gpt-5.4-mini",
       label: "GPT-5.4 Mini",
       provider: "openai",
+      languages: []
+    }
+  ],
+  tts: [
+    {
+      id: "deepgram/aura-2",
+      label: "Aura 2",
+      provider: "deepgram",
       languages: []
     }
   ],
@@ -74,6 +84,63 @@ describe("defaultsFor", () => {
       stt: "deepgram/nova-3",
       llm: "openai/gpt-5.4-mini"
     });
+  });
+});
+
+describe("defaultsFor on Fonoster Cloud (#1323)", () => {
+  it("starts a new agent in es-MX on Flux Fernanda", () => {
+    expect(defaultsFor(cloudCatalog, "es-MX").voice).toBe(
+      "deepgram/flux-fernanda-es"
+    );
+    expect(defaultsFor(cloudCatalog, "en-US").voice).toBe(
+      "deepgram/flux-hannah-en"
+    );
+  });
+
+  it("falls back to today's voice, then the first offered, when the Flux voice isn't offered", () => {
+    const withoutFernanda = toAgentCatalog(
+      cloudCatalogItems.filter((i) => i.id !== "deepgram/flux-fernanda-es")
+    );
+    expect(defaultsFor(withoutFernanda, "es-MX").voice).toBe(
+      "deepgram/aura-2-estrella-es"
+    );
+    const neither = toAgentCatalog(
+      cloudCatalogItems.filter(
+        (i) =>
+          i.id !== "deepgram/flux-kit-en" && i.id !== "deepgram/aura-2-draco-en"
+      )
+    );
+    // The first offered that speaks the language.
+    expect(defaultsFor(neither, "en-GB").voice).toBe("deepgram/flux-hannah-en");
+  });
+});
+
+describe("toAgentCatalog", () => {
+  it("keeps the TTS models and each voice's models, gender and accent", () => {
+    expect(cloudCatalog.tts.map((o) => o.id)).toEqual([
+      "deepgram/flux",
+      "deepgram/aura-2",
+      "elevenlabs/eleven_v4_turbo",
+      "elevenlabs/eleven_flash_v2_5"
+    ]);
+    expect(
+      cloudCatalog.voices.find((o) => o.id === "deepgram/flux-fernanda-es")
+    ).toMatchObject({
+      label: "Fernanda",
+      models: ["deepgram/flux"],
+      languages: ["es-MX"],
+      gender: "female",
+      accent: "Mexican"
+    });
+  });
+});
+
+describe("languageName", () => {
+  it("names a language code without the code", () => {
+    expect(languageName("es-MX")).toBe("Spanish (Mexico)");
+    expect(languageName("es-419")).toBe("Spanish (Latin America)");
+    expect(languageName("en")).toBe("English");
+    expect(languageName("multi")).toBe("Multilingual");
   });
 });
 

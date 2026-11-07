@@ -298,3 +298,106 @@ export const vendorCatalogItems = sampleCatalogItems.filter(
 );
 export const vendorCatalog = toAgentCatalog(vendorCatalogItems);
 export const fakeOnlyCatalog = toAgentCatalog(fakeCatalogItems);
+
+const voice = (
+  id: string,
+  label: string,
+  language: string,
+  gender: string,
+  accent: string,
+  models: string[]
+) =>
+  item(id, "voice", label, {
+    type: "tts",
+    languages: [language],
+    gender,
+    accent,
+    models
+  } as Partial<CatalogItem>);
+
+/** Flux voices as Deepgram names them; the rest of its 266 are filler. */
+const FLUX_VOICES: [string, string, string, string, string][] = [
+  ["flux-fernanda-es", "Fernanda", "es-MX", "female", "Mexican"],
+  ["flux-ernesto-es", "Ernesto", "es-MX", "male", "Mexican"],
+  ["flux-patricia-es", "Patricia", "es-MX", "female", "Mexican"],
+  ["flux-valentina-es", "Valentina", "es-CO", "female", "Colombian"],
+  ["flux-aina-es", "Aina", "es-ES", "female", "Peninsular"],
+  ["flux-alfredo-es", "Alfredo", "es-419", "male", "Latin American"],
+  ["flux-hannah-en", "Hannah", "en-US", "female", "American"],
+  ["flux-kit-en", "Kit", "en-GB", "male", "British"]
+];
+
+/** Fonoster Cloud's catalog (ops/cloud/config/catalog.yaml, #1323): Flux, Aura-2 and ElevenLabs. */
+export const cloudCatalogItems: CatalogItem[] = [
+  item("deepgram", "provider", "Deepgram", { capabilities: ["stt", "tts"] }),
+  item("elevenlabs", "provider", "ElevenLabs", { capabilities: ["tts"] }),
+  item("openai", "provider", "OpenAI", { capabilities: ["llm"] }),
+  item("openai/gpt-4o-mini", "model", "GPT-4o Mini", { type: "llm" }),
+  item("deepgram/nova-3", "model", "Nova 3", {
+    type: "stt",
+    languages: ["en", "en-US", "en-GB", "es", "es-MX", "es-419", "multi"]
+  }),
+  item("deepgram/flux", "model", "Flux", { type: "tts" }),
+  item("deepgram/aura-2", "model", "Aura 2", { type: "tts" }),
+  item("elevenlabs/eleven_v4_turbo", "model", "Eleven v4 Turbo", {
+    type: "tts"
+  }),
+  item("elevenlabs/eleven_flash_v2_5", "model", "Eleven Flash v2.5", {
+    type: "tts"
+  }),
+  ...FLUX_VOICES.map(([id, label, language, gender, accent]) =>
+    voice(`deepgram/${id}`, label, language, gender, accent, ["deepgram/flux"])
+  ),
+  ...Array.from({ length: 266 - FLUX_VOICES.length }, (_, i) =>
+    voice(
+      `deepgram/flux-voice-${i + 1}-en`,
+      `Voice ${i + 1}`,
+      "en-US",
+      "male",
+      "American",
+      ["deepgram/flux"]
+    )
+  ),
+  voice("deepgram/aura-2-thalia-en", "Thalia", "en-US", "female", "American", [
+    "deepgram/aura-2"
+  ]),
+  voice(
+    "deepgram/aura-2-estrella-es",
+    "Estrella",
+    "es-MX",
+    "female",
+    "Mexican",
+    ["deepgram/aura-2"]
+  ),
+  voice(
+    "elevenlabs/JBFqnCBsd6RMkjVDRZzb",
+    "George",
+    "en-GB",
+    "male",
+    "British",
+    ["elevenlabs/eleven_v4_turbo", "elevenlabs/eleven_flash_v2_5"]
+  ),
+  voice(
+    "elevenlabs/EXAVITQu4vr4xnSDxMaL",
+    "Sarah",
+    "en-US",
+    "female",
+    "American",
+    ["elevenlabs/eleven_v4_turbo", "elevenlabs/eleven_flash_v2_5"]
+  )
+];
+
+export const cloudCatalog = toAgentCatalog(cloudCatalogItems);
+
+/** An agent on Flux (Fonoster Cloud's default voice for es-MX). */
+export const fluxAgent = {
+  ...billingAgent,
+  ref: "ap-flux01",
+  name: "Front desk",
+  speech: {
+    voice: "deepgram/flux-fernanda-es",
+    ttsModel: "deepgram/flux",
+    language: "es-MX",
+    sttModel: "deepgram/nova-3"
+  }
+} as Application;

@@ -26,6 +26,7 @@ import {
   SttAdapter,
   SttStream,
   Synthesis,
+  SynthesisRequest,
   Transcript,
   TtsAdapter
 } from "../speech";
@@ -48,18 +49,21 @@ export class DeepgramTtsAdapter implements TtsAdapter {
   constructor(private readonly options: DeepgramOptions) {}
 
   async synthesize(
-    request: { text: string; voice: string; language: string },
+    request: SynthesisRequest,
     signal: AbortSignal
   ): Promise<Synthesis> {
-    // The voice is a Deepgram Aura model name (catalog id "deepgram/aura-2-thalia-en").
+    // The voice is a Deepgram voice model name (catalog id "deepgram/aura-2-thalia-en"). Flux
+    // voices (model "flux", voices "flux-*") are served by /v2/speak, Aura voices by /v1/speak.
+    const flux = request.model === "flux" || request.voice.startsWith("flux-");
     const query = new URLSearchParams({
       model: request.voice,
       encoding: "linear16",
       sample_rate: "16000",
       container: "none"
     });
+    if (request.speed) query.set("speed", String(request.speed));
     const audio = await streamingPost(
-      `${this.options.baseUrl ?? API}/v1/speak?${query}`,
+      `${this.options.baseUrl ?? API}/${flux ? "v2" : "v1"}/speak?${query}`,
       {
         headers: {
           authorization: `Token ${this.options.apiKey}`,

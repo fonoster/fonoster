@@ -27,9 +27,19 @@ fonoster providers:catalog
 | `languageModel.model` (agent) | Language model | `openai/gpt-5.4-mini` |
 | `conversationSettings.voice` (agent) | Voice | `deepgram/aura-2-andromeda-en` |
 
-When you save an application, Fonoster checks its voice and speech models against the catalog. An
-ID that isn't in the catalog is refused, and so is a retired one, with its replacement in the
-message. See [Autopilot configuration](/reference/autopilot-config) for every field.
+When you save an application, Fonoster checks its voice and speech models against the catalog. A
+model that isn't in the catalog is refused, and so is a retired model or voice, with its
+replacement in the message. See [Autopilot configuration](/reference/autopilot-config) for every
+field.
+
+A voice can also be one that isn't in the catalog, such as a voice from the vendor's own library.
+Write it as `<provider>/<vendor's voice ID>` and set `speech.ttsModel` to a text-to-speech model of
+the same provider. Fonoster uses the ID as you typed it and doesn't check it:
+
+- A wrong ID fails when the agent speaks, with the vendor's error, and the caller hears nothing.
+- A voice that is private to your vendor account works only with
+  [your own vendor key](/workspace/provider-keys).
+- Without `speech.ttsModel`, or with a model of another provider, the save is refused.
 
 ## Providers
 
@@ -54,8 +64,8 @@ message. See [Autopilot configuration](/reference/autopilot-config) for every fi
 
 ## Voices
 
-Pick a voice that speaks the application's `speech.language`. These voices run on
-`deepgram/aura-2`.
+These voices run on `deepgram/aura-2`. A voice's language is the one it was made for; the language
+the agent listens for is set on the transcriber, with `speech.language`.
 
 | Catalog ID | Language | Gender |
 | --- | --- | --- |
@@ -66,6 +76,32 @@ Pick a voice that speaks the application's `speech.language`. These voices run o
 | `deepgram/aura-2-aquila-es` | `es-419` | Male |
 
 `deepgram/aura-2-thalia-en` is the default voice of a new application.
+
+In the catalog (`fonoster providers:catalog`, or `listCatalog` in the SDK), a voice has its
+`language`, its `gender` and, when the vendor gives it, its `accent`, such as `Mexican` or
+`British`.
+
+### Text-to-speech on Fonoster Cloud
+
+Fonoster Cloud offers these text-to-speech models, with every voice the vendor offers for each.
+For ElevenLabs, that means its premade voices; for a voice of your own, enter its voice ID.
+
+| Catalog ID | Vendor | Speed |
+| --- | --- | --- |
+| `deepgram/flux` | Deepgram | Yes |
+| `deepgram/aura-2` | Deepgram | Yes |
+| `elevenlabs/eleven_v4_turbo` | ElevenLabs | Not yet: the vendor ignores it |
+| `elevenlabs/eleven_flash_v2_5` | ElevenLabs | Yes |
+
+Speed is the application's `speech.speed`, from `0.7` to `1.2`. See
+[Autopilot configuration](/reference/autopilot-config#speech).
+
+A new agent on Fonoster Cloud starts on a Flux voice for its language, such as
+`deepgram/flux-fernanda-es` for `es-MX`. Agents you already have keep their voice.
+
+`deepgram/nova-3` is the only speech-to-text model on Fonoster Cloud, with Deepgram's Nova-3
+languages, including regional ones such as `es-MX`, `en-GB` and `es-419`. Agents that used
+`deepgram/nova-2-phonecall` now use `deepgram/nova-3`.
 
 ## Language models
 

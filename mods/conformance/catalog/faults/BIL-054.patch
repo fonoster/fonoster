@@ -1,0 +1,11 @@
+diff --git a/mods/billing/rate-cards/20261111.yaml b/mods/billing/rate-cards/20261111.yaml
+--- a/mods/billing/rate-cards/20261111.yaml
++++ b/mods/billing/rate-cards/20261111.yaml
+@@ -31,7 +31,6 @@
+       "*": 0.012833333333333334
+   tts.characters:
+     deepgram:
+-      deepgram/flux: 0.0045
+       deepgram/aura-2: 0.003
+       "*": 0.003
+     elevenlabs:

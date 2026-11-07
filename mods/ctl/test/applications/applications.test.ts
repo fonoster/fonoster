@@ -196,6 +196,38 @@ describe("@ctl[applications]", function () {
     expect(stdout).to.contain("consent");
     expect(stdout).to.contain("on (3000 ms)");
     expect(stdout).to.contain("…wxyz");
+    expect(stdout).to.match(/SPEED:\s+1\.0\b/);
+  });
+
+  it("sets the speech speed and shows it", async function () {
+    sandbox
+      .stub(SDK.Applications.prototype, "getApplication")
+      .resolves({ ...app, speech: { ...app.speech, speed: 1.1 } } as never);
+    const update = sandbox
+      .stub(SDK.Applications.prototype, "updateApplication")
+      .resolves({ ref: "app-1" });
+
+    await runCommand([
+      "applications:update",
+      "app-1",
+      "--voice",
+      "elevenlabs/AbC123",
+      "--tts-model",
+      "elevenlabs/eleven_v4_turbo",
+      "--speed",
+      "0.9"
+    ]);
+    expect(update.firstCall.args[0].speech).to.include({
+      voice: "elevenlabs/AbC123",
+      ttsModel: "elevenlabs/eleven_v4_turbo",
+      speed: 0.9
+    });
+    // Untouched: the current speed is kept.
+    await runCommand(["applications:update", "app-1", "--name", "Bot3"]);
+    expect(update.secondCall.args[0].speech.speed).to.equal(1.1);
+
+    const { stdout } = await runCommand(["applications:get", "app-1"]);
+    expect(stdout).to.match(/SPEED:\s+1\.1\b/);
   });
 
   it("lists apps with kind, protocol, voice and url", async function () {

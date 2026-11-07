@@ -102,6 +102,114 @@ describe("@appbridge/catalog providers", function () {
     );
   });
 
+  it("resolves a voice not in the catalog through the app's TTS model of the same provider", function () {
+    const catalog = new Catalog(
+      { nats: { url: "nats://x" }, providers: {} } as AppBridgeConfig,
+      catalogStore()
+    );
+    const typed = catalog.resolveVoice("fake/xyz", undefined, "fake/tts");
+    expect(typed).to.deep.include({
+      voice: "xyz",
+      id: "fake/xyz",
+      model: "tts",
+      modelId: "fake/tts",
+      event: undefined
+    });
+    expect(options(typed!.adapter)).to.include({ url: "http://fakes:7001" });
+    // No TTS model, one of another provider, or one that is not a TTS model: not spoken.
+    expect(catalog.resolveVoice("fake/xyz")).to.equal(undefined);
+    expect(
+      catalog.resolveVoice("fake/xyz", undefined, "deepgram/aura-2")
+    ).to.equal(undefined);
+    expect(catalog.resolveVoice("fake/xyz", undefined, "fake/stt")).to.equal(
+      undefined
+    );
+  });
+
+  it("uses the app's TTS model when the voice works on it, else the voice's first model", function () {
+    const store = catalogStore();
+    new RegistryNs.Registry({ store, actor: "test" }).apply(`entries:
+  - { kind: model, id: fake/tts-2, type: tts, features: [streaming], languages: [multi], settings: [], state: active }
+  - { kind: voice, id: fake/both, models: [fake/tts, fake/tts-2], language: multi, state: active }
+`);
+    const catalog = new Catalog(
+      {
+        nats: { url: "nats://x" },
+        providers: {
+          deepgram: {
+            adapter: "deepgram",
+            capabilities: ["tts"],
+            credential: { value: "k" }
+          }
+        }
+      } as AppBridgeConfig,
+      store
+    );
+    const model = (id: string, ttsModel?: string) => {
+      const v = catalog.resolveVoice(id, undefined, ttsModel);
+      return v && { model: v.model, modelId: v.modelId };
+    };
+    expect(model("deepgram/aura-2-thalia-en")).to.deep.equal({
+      model: "aura-2",
+      modelId: "deepgram/aura-2"
+    });
+    expect(model("fake/both", "fake/tts-2")).to.deep.equal({
+      model: "tts-2",
+      modelId: "fake/tts-2"
+    });
+    // A model the voice doesn't work on (a per-command voice of another provider): its first.
+    expect(model("fake/default", "fake/tts-2")).to.deep.equal({
+      model: "tts",
+      modelId: "fake/tts"
+    });
+    expect(model("fake/both", "deepgram/aura-2")).to.deep.equal({
+      model: "tts",
+      modelId: "fake/tts"
+    });
+  });
+
+  it("keeps the provider's voice allowlist for a voice not in the catalog", function () {
+    const catalog = new Catalog(
+      {
+        nats: { url: "nats://x" },
+        providers: {
+          fake: {
+            adapter: "fake",
+            capabilities: ["tts"],
+            tts: { url: "http://fakes:7001" },
+            voices: ["default"]
+          }
+        }
+      } as AppBridgeConfig,
+      catalogStore()
+    );
+    expect(catalog.resolveVoice("fake/xyz", undefined, "fake/tts")).to.equal(
+      undefined
+    );
+    expect(
+      catalog.resolveVoice("fake/default", undefined, "fake/tts")?.modelId
+    ).to.equal("fake/tts");
+  });
+
+  it("uses the app's TTS model as given without a registry", function () {
+    const catalog = new Catalog({
+      nats: { url: "nats://x" },
+      providers: {
+        fake: {
+          adapter: "fake",
+          capabilities: ["tts"],
+          tts: { url: "http://fakes:7001" }
+        }
+      }
+    } as AppBridgeConfig);
+    expect(
+      catalog.resolveVoice("fake/xyz", undefined, "fake/tts")
+    ).to.deep.include({ voice: "xyz", model: "tts", modelId: "fake/tts" });
+    const plain = catalog.resolveVoice("fake/xyz");
+    expect(plain?.voice).to.equal("xyz");
+    expect(plain).to.not.have.property("modelId");
+  });
+
   it("defaults to a keyless STT provider when no other has a platform key", function () {
     const catalog = new Catalog(
       {

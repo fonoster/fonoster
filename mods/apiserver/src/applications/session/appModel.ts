@@ -92,6 +92,8 @@ const blank = (v: unknown) =>
 const optional = <T extends z.ZodTypeAny>(schema: T) =>
   z.preprocess(blank, schema.optional());
 
+const SPEED_RANGE = "speech.speed must be between 0.7 and 1.2";
+
 const speechSchema = z
   .object({
     voice: optional(catalogId("speech.voice")),
@@ -99,7 +101,8 @@ const speechSchema = z
     sttModel: optional(catalogId("speech.sttModel")),
     ttsModel: optional(catalogId("speech.ttsModel")),
     silenceTimeoutMs: optional(z.number().int().min(100).max(120_000)),
-    patience: optional(z.enum(["low", "normal", "high"]))
+    patience: optional(z.enum(["low", "normal", "high"])),
+    speed: optional(z.number().min(0.7, SPEED_RANGE).max(1.2, SPEED_RANGE))
   })
   .prefault({});
 
@@ -292,6 +295,7 @@ export async function toAppColumns(
     speechTtsModel: speech.ttsModel ?? null,
     silenceTimeoutMs: speech.silenceTimeoutMs ?? null,
     patience: speech.patience ?? null,
+    speechSpeed: speech.speed ?? null,
     audio: protocol === "fonoster" && input.audio ? input.audio : null,
     listeners: input.listeners.length ? input.listeners : null,
     fallbackAppRef: input.fallbackAppRef ?? null,
@@ -325,9 +329,38 @@ async function checkCatalogId(
 }
 
 async function checkCatalogIds(db: AppsDb, speech: SessionAppInput["speech"]) {
-  await checkCatalogId(db, "registryVoice", speech.voice, "voice");
   await checkCatalogId(db, "registryModel", speech.sttModel, "speech.sttModel");
   await checkCatalogId(db, "registryModel", speech.ttsModel, "speech.ttsModel");
+  await checkVoice(db, speech);
+}
+
+const providerOf = (id: string) => id.split("/")[0];
+
+/**
+ * A catalog voice must not be retired. A voice the catalog lacks is used as typed (nothing asks
+ * the vendor) when `speech.ttsModel` is a text-to-speech model of the voice's provider.
+ */
+async function checkVoice(db: AppsDb, speech: SessionAppInput["speech"]) {
+  const { voice, ttsModel } = speech;
+  if (!voice || !db.registryVoice) return;
+  if ((await db.registryVoice.count()) === 0) return;
+  const row = await db.registryVoice.findUnique({ where: { id: voice } });
+  if (row) {
+    if (row.state === "RETIRED")
+      throw invalid(
+        `voice ${voice} is retired${row.replacement ? `; use ${row.replacement}` : ""}`
+      );
+    return;
+  }
+  if (!ttsModel)
+    throw invalid(`voice ${voice} is not in the catalog; set speech.ttsModel`);
+  if (providerOf(voice) !== providerOf(ttsModel))
+    throw invalid(
+      `speech.voice ${voice} and speech.ttsModel ${ttsModel} must have the same provider`
+    );
+  const model = await db.registryModel.findUnique({ where: { id: ttsModel } });
+  if (model && model.type !== "tts")
+    throw invalid(`speech.ttsModel ${ttsModel} is not a text-to-speech model`);
 }
 
 /**
@@ -368,7 +401,8 @@ export function rowToApplication(row: Row) {
       sttModel: row.speechSttModel ?? "",
       ttsModel: row.speechTtsModel ?? "",
       silenceTimeoutMs: row.silenceTimeoutMs ?? 0,
-      patience: row.patience ?? ""
+      patience: row.patience ?? "",
+      speed: row.speechSpeed ?? 0
     },
     audio: row.audio ?? undefined,
     fallbackAppRef: row.fallbackAppRef ?? "",

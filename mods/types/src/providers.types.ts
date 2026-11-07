@@ -34,6 +34,8 @@ type CatalogItem = {
   features?: string[];
   models?: string[];
   gender?: string;
+  /** Voices: the accent, when known ("Mexican"). */
+  accent?: string;
   replacement?: string;
   retireOn?: string;
 };

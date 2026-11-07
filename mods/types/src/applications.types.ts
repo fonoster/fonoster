@@ -37,6 +37,8 @@ type SpeechDefaults = {
   ttsModel?: string;
   silenceTimeoutMs?: number;
   patience?: "low" | "normal" | "high";
+  /** Speech speed, 0.7 to 1.2; 0 or unset is the voice's normal pace. */
+  speed?: number;
 };
 
 type AudioFormat = { codec: "pcm16" | "pcmu"; rate: number };

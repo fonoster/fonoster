@@ -280,7 +280,7 @@ describe("@billing rater", function () {
     }
   });
 
-  it("card 2 prices each active language model at vendor cost, per token kind", function () {
+  it("[BIL-054] card 2 prices each active language model at vendor cost, per token kind", function () {
     const root = join(__dirname, "../../..");
     const two = loadRateCards(join(__dirname, "../rate-cards")).find(
       (c) => c.version === 2
@@ -318,5 +318,42 @@ describe("@billing rater", function () {
     expect(million("llm.tokens.in")).to.equal(75_000n);
     expect(million("llm.tokens.cached")).to.equal(7_500n);
     expect(million("llm.tokens.out")).to.equal(450_000n);
+  });
+
+  it("[BIL-054] card 3 keeps card 2's prices and prices each active TTS model at vendor cost", function () {
+    const root = join(__dirname, "../../..");
+    const cards = loadRateCards(join(__dirname, "../rate-cards"));
+    const two = cards.find((c) => c.version === 2)!;
+    const three = cards.find((c) => c.version === 3)!;
+    expect(three.startsAt > two.startsAt).to.equal(true);
+    // A whole card: every meter card 2 prices is priced the same, except tts.characters.
+    const { "tts.characters": tts2, ...rest2 } = two.prices;
+    const { "tts.characters": tts3, ...rest3 } = three.prices;
+    expect(rest3).to.deep.equal(rest2);
+    expect(tts3).to.not.deep.equal(tts2);
+    const { entries } = parse(
+      readFileSync(join(root, "ops/cloud/config/catalog.yaml"), "utf8")
+    ) as { entries: { id: string; type?: string; state?: string }[] };
+    const models = entries.filter(
+      (e) => e.type === "tts" && e.state === "active"
+    );
+    expect(models.length).to.be.at.least(4);
+    for (const m of models)
+      expect(
+        priceOf(three, "tts.characters", m.id.split("/")[0], m.id),
+        m.id
+      ).to.be.greaterThan(0);
+    // 1,000 characters of Flux: $0.045, 4.5 credits in milli-credits.
+    const flux = rate(
+      usage({
+        meter: "tts.characters",
+        quantity: 1000,
+        provider: "deepgram",
+        model: "deepgram/flux"
+      }),
+      new Date("2026-01-01T00:00:00Z"),
+      three
+    ).amount;
+    expect(flux).to.equal(4_500n);
   });
 });

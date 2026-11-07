@@ -57,6 +57,8 @@ message SpeechDefaults {
   int32 silence_timeout_ms = 5;
   // The Pacing policy's patience: low, normal or high (empty: normal)
   string patience = 6;
+  // Speech speed, 0.7 to 1.2 (0 or unset: the voice's normal pace)
+  double speed = 7;
 }
 
 // Caller and agent audio format for the fonoster protocol

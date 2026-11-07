@@ -38,9 +38,19 @@ export type Synthesis = {
   words?: WordTiming[];
 };
 
+export type SynthesisRequest = {
+  text: string;
+  voice: string;
+  language: string;
+  /** The provider's own model name (catalog id `<provider>/<model>`); unset uses the adapter's. */
+  model?: string;
+  /** Speaking rate, 0.7 to 1.2; unset or 0 is the voice's normal pace. */
+  speed?: number;
+};
+
 export interface TtsAdapter {
   synthesize(
-    request: { text: string; voice: string; language: string },
+    request: SynthesisRequest,
     signal: AbortSignal
   ): Promise<Synthesis>;
 }

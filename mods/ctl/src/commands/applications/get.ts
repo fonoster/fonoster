@@ -30,6 +30,10 @@ const or = (value: unknown, fallback = "-") =>
     ? fallback
     : String(value);
 
+/** 1.0 when unset; otherwise the speed as given (1.1, 0.75). */
+const speed = (value?: number) =>
+  !value ? "1.0" : Number.isInteger(value) ? value.toFixed(1) : String(value);
+
 /** The nc provider behind the app's filter, or the filter names for anything else. */
 function noiseCancelling(app: Application): string {
   const filters = app.filters ?? [];
@@ -63,6 +67,7 @@ export function formatApplication(app: Application): string {
     `TTS MODEL: \t${or(speech.ttsModel, "default")}`,
     `SILENCE TIMEOUT: \t${or(speech.silenceTimeoutMs, "default")}`,
     `PATIENCE: \t${or(speech.patience, "normal")}`,
+    `SPEED: \t${speed(speech.speed)}`,
     `AUDIO: \t${app.audio?.codec ? `${app.audio.codec} ${app.audio.rate} Hz` : "default"}`,
     `RECORDING: \t${or(app.recording, "off")}`,
     `AMD: \t${app.amd?.enabled ? `on (${app.amd.windowMs || 4000} ms)` : "off"}`,

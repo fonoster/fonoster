@@ -41,6 +41,7 @@ type ApplicationFlags = {
   "tts-model"?: string;
   "silence-timeout"?: number;
   patience?: string;
+  speed?: number;
   "audio-codec"?: string;
   "audio-rate"?: number;
   "fallback-app"?: string;
@@ -180,6 +181,7 @@ function applyFlags(base: AppRequest, flags: ApplicationFlags): AppRequest {
     speech.silenceTimeoutMs = flags["silence-timeout"];
   if (flags.patience !== undefined)
     speech.patience = flags.patience as typeof speech.patience;
+  if (flags.speed !== undefined) speech.speed = flags.speed;
 
   if (flags["audio-codec"] !== undefined || flags["audio-rate"] !== undefined) {
     const codec = (flags["audio-codec"] ?? request.audio?.codec ?? "pcm16") as

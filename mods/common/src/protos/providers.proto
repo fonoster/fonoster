@@ -62,6 +62,8 @@ message CatalogItem {
   bool keyless = 13;
   // A display name ("Aura 2 Thalia"); empty when the entry has none
   string label = 14;
+  // Voices: accent, when known ("Mexican")
+  string accent = 15;
 }
 
 message ListCatalogRequest {

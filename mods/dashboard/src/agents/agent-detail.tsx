@@ -55,6 +55,7 @@ import {
   numbersFor,
   useAgent,
   useAllNumbers,
+  useCatalog,
   useDeleteAgent,
   useUpdateAgent
 } from "./agents.service";
@@ -149,17 +150,18 @@ function AgentEditor({
   const [talking, setTalking] = useState(search.get("talk") === "1");
   const [deleting, setDeleting] = useState(false);
 
+  const catalog = useCatalog().data;
   const form = useForm<AgentValues>({
     resolver: zodResolver(agentSchema),
-    defaultValues: toValues(app)
+    defaultValues: toValues(app, catalog)
   });
   const { isDirty, errors } = form.formState;
 
-  // Pick up changes saved elsewhere, unless the user is editing.
+  // Pick up changes saved elsewhere, and the catalog once it loads, unless the user is editing.
   useEffect(() => {
-    if (!form.formState.isDirty) form.reset(toValues(app));
+    if (!form.formState.isDirty) form.reset(toValues(app, catalog));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [app]);
+  }, [app, catalog]);
 
   // Warn before leaving the page with unsaved changes.
   useEffect(() => {
@@ -448,4 +450,3 @@ export function RefChip({
     </span>
   );
 }
-

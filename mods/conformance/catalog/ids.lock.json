@@ -347,5 +347,8 @@
   "IOP-010": "In-dialog re-INVITE without SDP",
   "IOP-011": "Blind transfer by REFER",
   "API-073": "Metrics are read live with a read-only connection",
-  "OPS-009": "The ops API runs from the inventory"
+  "OPS-009": "The ops API runs from the inventory",
+  "APB-043": "A typed voice ID and the speed reach the vendor",
+  "BIL-053": "TTS characters are keyed by the TTS model",
+  "BIL-054": "Later rate cards price Cloud's catalog at vendor cost"
 }

@@ -51,4 +51,44 @@ describe("@sdk[Applications]", function () {
     // Assert
     await expect(drain()).to.be.rejectedWith("quota exceeded");
   });
+
+  it("sends speech.speed with the speech defaults", async function () {
+    // Arrange
+    const { Applications } = await import("../src/Applications");
+    const sent: {
+      getSpeech(): { getSpeed(): number; getTtsModel(): string };
+    }[] = [];
+    const fonosterClient = {
+      getApplicationsClient: () => ({
+        createApplication: (
+          request: (typeof sent)[number],
+          _metadata: unknown,
+          callback: (e: unknown, r: unknown) => void
+        ) => {
+          sent.push(request);
+          callback(null, { toObject: () => ({ ref: "app-1" }) });
+        }
+      }),
+      getMetadata: () => ({})
+    };
+    const apps = new Applications(fonosterClient as never);
+
+    // Act
+    await apps.createApplication({
+      name: "Front desk",
+      type: "STREAM",
+      url: "wss://bot.example.com",
+      speech: {
+        voice: "elevenlabs/AbC123",
+        ttsModel: "elevenlabs/eleven_v4_turbo",
+        speed: 1.1
+      }
+    } as never);
+
+    // Assert
+    expect(sent[0].getSpeech().getSpeed()).to.equal(1.1);
+    expect(sent[0].getSpeech().getTtsModel()).to.equal(
+      "elevenlabs/eleven_v4_turbo"
+    );
+  });
 });

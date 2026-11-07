@@ -1,0 +1,492 @@
+{
+  "tts": [
+    {
+      "name": "agathe",
+      "canonical_name": "aura-2-agathe-fr",
+      "architecture": "aura-2",
+      "languages": [
+        "fr",
+        "fr-FR"
+      ],
+      "version": "2025-10-29.0",
+      "uuid": "6fe3f8e3-14d3-456c-9534-766132310608",
+      "metadata": {
+        "accent": "French",
+        "age": "Adult",
+        "display_name": "Agathe",
+        "tags": [
+          "feminine",
+          "charismatic",
+          "cheerful",
+          "enthusiastic",
+          "friendly",
+          "natural"
+        ],
+        "use_cases": [
+          "Interview",
+          "Customer Service",
+          "Casual Chat"
+        ]
+      }
+    },
+    {
+      "name": "andromeda",
+      "canonical_name": "aura-2-andromeda-en",
+      "architecture": "aura-2",
+      "languages": [
+        "en",
+        "en-US"
+      ],
+      "version": "2025-04-15.4",
+      "uuid": "e65d4050-cbf1-4d9a-ab93-f6b399e37074",
+      "metadata": {
+        "accent": "American",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "feminine",
+          "casual",
+          "expressive",
+          "comfortable"
+        ],
+        "use_cases": [
+          "customer service",
+          "IVR"
+        ]
+      }
+    },
+    {
+      "name": "apollo",
+      "canonical_name": "aura-2-apollo-en",
+      "architecture": "aura-2",
+      "languages": [
+        "en",
+        "en-US"
+      ],
+      "version": "2025-04-15.4",
+      "uuid": "3fdf6ff0-bc53-49bf-a444-2a36c4c83d14",
+      "metadata": {
+        "accent": "American",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "masculine",
+          "confident",
+          "comfortable",
+          "casual"
+        ],
+        "use_cases": [
+          "casual chat"
+        ]
+      }
+    },
+    {
+      "name": "aquila",
+      "canonical_name": "aura-2-aquila-es",
+      "architecture": "aura-2",
+      "languages": [
+        "es",
+        "es-419"
+      ],
+      "version": "2025-10-07.2",
+      "uuid": "96e51c94-e559-441f-9fb6-128d0a58cd19",
+      "metadata": {
+        "accent": "Latin American",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "masculine",
+          "casual",
+          "comfortable",
+          "confident",
+          "expressive",
+          "enthusiastic"
+        ],
+        "use_cases": [
+          "casual chat",
+          "informative"
+        ]
+      }
+    },
+    {
+      "name": "arcas",
+      "canonical_name": "aura-2-arcas-en",
+      "architecture": "aura-2",
+      "languages": [
+        "en",
+        "en-US"
+      ],
+      "version": "2025-04-15.4",
+      "uuid": "cc1b9a45-374c-4f59-b667-cbd292945d6f",
+      "metadata": {
+        "accent": "American",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "masculine",
+          "natural",
+          "smooth",
+          "clear",
+          "comfortable"
+        ],
+        "use_cases": [
+          "customer service",
+          "casual chat"
+        ]
+      }
+    },
+    {
+      "name": "asteria",
+      "canonical_name": "aura-2-asteria-en",
+      "architecture": "aura-2",
+      "languages": [
+        "en",
+        "en-US"
+      ],
+      "version": "2025-04-15.4",
+      "uuid": "151f870b-d6ac-4105-b173-b3ef86773633",
+      "metadata": {
+        "accent": "American",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "feminine",
+          "clear",
+          "confident",
+          "knowledgeable",
+          "energetic"
+        ],
+        "use_cases": [
+          "advertising"
+        ]
+      }
+    },
+    {
+      "name": "callista",
+      "canonical_name": "aura-2-callista-en",
+      "architecture": "aura-2",
+      "languages": [
+        "en",
+        "en-US"
+      ],
+      "version": "2025-04-15.4",
+      "uuid": "6854d094-00f4-4d9c-b952-9859140eab96",
+      "metadata": {
+        "accent": "American",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "feminine",
+          "clear",
+          "energetic",
+          "professional",
+          "smooth"
+        ],
+        "use_cases": [
+          "IVR"
+        ]
+      }
+    },
+    {
+      "name": "celeste",
+      "canonical_name": "aura-2-celeste-es",
+      "architecture": "aura-2",
+      "languages": [
+        "es",
+        "es-CO"
+      ],
+      "version": "2025-10-07.2",
+      "uuid": "0dada31c-f176-47be-9191-ed72762d38d2",
+      "metadata": {
+        "accent": "Colombian",
+        "age": "Young Adult",
+        "display_name": null,
+        "tags": [
+          "feminine",
+          "clear",
+          "energetic",
+          "positive",
+          "friendly",
+          "enthusiastic"
+        ],
+        "use_cases": [
+          "casual chat",
+          "advertising",
+          "IVR"
+        ]
+      }
+    },
+    {
+      "name": "draco",
+      "canonical_name": "aura-2-draco-en",
+      "architecture": "aura-2",
+      "languages": [
+        "en",
+        "en-GB"
+      ],
+      "version": "2025-04-15.4",
+      "uuid": "a650a612-07fd-4ce0-84d9-63ebe211d4d8",
+      "metadata": {
+        "accent": "British",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "masculine",
+          "warm",
+          "approachable",
+          "trustworthy",
+          "baritone"
+        ],
+        "use_cases": [
+          "storytelling"
+        ]
+      }
+    },
+    {
+      "name": "estrella",
+      "canonical_name": "aura-2-estrella-es",
+      "architecture": "aura-2",
+      "languages": [
+        "es",
+        "es-MX"
+      ],
+      "version": "2025-10-07.2",
+      "uuid": "b2f11975-8588-48b3-8711-9614905faf1b",
+      "metadata": {
+        "accent": "Mexican",
+        "age": "Mature",
+        "display_name": null,
+        "tags": [
+          "feminine",
+          "approachable",
+          "calm",
+          "comfortable",
+          "expressive",
+          "natural"
+        ],
+        "use_cases": [
+          "interview",
+          "casual chat"
+        ]
+      }
+    },
+    {
+      "name": "helena",
+      "canonical_name": "aura-2-helena-en",
+      "architecture": "aura-2",
+      "languages": [
+        "en",
+        "en-US"
+      ],
+      "version": "2025-04-15.4",
+      "uuid": "4fa750e6-8ade-4394-849f-c104ced3741e",
+      "metadata": {
+        "accent": "American",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "feminine",
+          "caring",
+          "natural",
+          "positive",
+          "friendly",
+          "raspy"
+        ],
+        "use_cases": [
+          "IVR",
+          "casual chat"
+        ]
+      }
+    },
+    {
+      "name": "javier",
+      "canonical_name": "aura-2-javier-es",
+      "architecture": "aura-2",
+      "languages": [
+        "es",
+        "es-MX"
+      ],
+      "version": "2025-10-07.2",
+      "uuid": "aef1526d-48de-4d5f-b618-79f3ce40a471",
+      "metadata": {
+        "accent": "Latin American",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "masculine",
+          "approachable",
+          "calm",
+          "comfortable",
+          "friendly",
+          "professional"
+        ],
+        "use_cases": [
+          "storytelling",
+          "casual chat",
+          "IVR"
+        ]
+      }
+    },
+    {
+      "name": "luna",
+      "canonical_name": "aura-2-luna-en",
+      "architecture": "aura-2",
+      "languages": [
+        "en",
+        "en-US"
+      ],
+      "version": "2025-04-15.4",
+      "uuid": "ec89b76d-3ae8-4d27-85ae-a3d634931016",
+      "metadata": {
+        "accent": "American",
+        "age": "Young Adult",
+        "display_name": null,
+        "tags": [
+          "feminine",
+          "friendly",
+          "natural",
+          "engaging"
+        ],
+        "use_cases": [
+          "IVR"
+        ]
+      }
+    },
+    {
+      "name": "nestor",
+      "canonical_name": "aura-2-nestor-es",
+      "architecture": "aura-2",
+      "languages": [
+        "es",
+        "es-ES"
+      ],
+      "version": "2025-10-07.2",
+      "uuid": "bd02af86-1a78-4b9c-930f-dc56221925b2",
+      "metadata": {
+        "accent": "Peninsular",
+        "age": "Adult",
+        "display_name": "Néstor",
+        "tags": [
+          "masculine",
+          "calm",
+          "professional",
+          "approachable",
+          "clear",
+          "confident"
+        ],
+        "use_cases": [
+          "customer service",
+          "casual chat"
+        ]
+      }
+    },
+    {
+      "name": "orion",
+      "canonical_name": "aura-2-orion-en",
+      "architecture": "aura-2",
+      "languages": [
+        "en",
+        "en-US"
+      ],
+      "version": "2025-04-15.4",
+      "uuid": "1e149a66-e561-4ed5-9253-d742916083aa",
+      "metadata": {
+        "accent": "American",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "masculine",
+          "approachable",
+          "comfortable",
+          "calm",
+          "polite"
+        ],
+        "use_cases": [
+          "informative"
+        ]
+      }
+    },
+    {
+      "name": "selena",
+      "canonical_name": "aura-2-selena-es",
+      "architecture": "aura-2",
+      "languages": [
+        "es",
+        "es-419"
+      ],
+      "version": "2025-10-07.2",
+      "uuid": "a72db4dc-c2ad-4e95-a98b-4d81f9db7961",
+      "metadata": {
+        "accent": "Latin American",
+        "age": "Young Adult",
+        "display_name": null,
+        "tags": [
+          "feminine",
+          "approachable",
+          "calm",
+          "casual",
+          "friendly",
+          "positive"
+        ],
+        "use_cases": [
+          "customer service",
+          "informative"
+        ]
+      }
+    },
+    {
+      "name": "thalia",
+      "canonical_name": "aura-2-thalia-en",
+      "architecture": "aura-2",
+      "languages": [
+        "en",
+        "en-US"
+      ],
+      "version": "2025-04-15.4",
+      "uuid": "245b8e7b-d1ae-4de5-92bc-570f6fec666b",
+      "metadata": {
+        "accent": "American",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "feminine",
+          "clear",
+          "confident",
+          "energetic",
+          "enthusiastic"
+        ],
+        "use_cases": [
+          "casual chat",
+          "customer service",
+          "IVR"
+        ]
+      }
+    },
+    {
+      "name": "angus",
+      "canonical_name": "aura-angus-en",
+      "architecture": "aura",
+      "languages": [
+        "en",
+        "en-IE"
+      ],
+      "version": "2024-11-19.0",
+      "uuid": "b50880e3-4e2e-4e53-ba27-ea0472bf2cf4",
+      "metadata": {
+        "accent": "Irish",
+        "age": "Adult",
+        "display_name": null,
+        "tags": [
+          "masculine",
+          "casual",
+          "friendly",
+          "patient"
+        ],
+        "use_cases": [
+          "casual conversation",
+          "interview"
+        ]
+      }
+    }
+  ]
+}

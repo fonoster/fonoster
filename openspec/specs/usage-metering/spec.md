@@ -53,6 +53,15 @@ app, the call reference, the provider and the model.
 - **THEN** each of the call's usage lines names U, W, the app, the call reference, R and its region
   kind, and origin `call`
 
+#### Scenario: TTS characters name the TTS model
+
+- **WHEN** a call speaks 3 characters with voice `fake/default`, whose models are `fake/tts-2` and
+  `fake/tts`, for an app without `speech.ttsModel`
+- **THEN** the `tts.characters` line has `model: "fake/tts-2"`, the model the vendor got, not the
+  voice
+- **AND** for an app with `speech.ttsModel` `fake/tts` and a voice ID not in the catalog, the line
+  has `model: "fake/tts"`
+
 ### Requirement: Key source per provider
 
 Every line for a vendor meter (STT, TTS, LLM, embeddings, noise cancelling) SHALL record

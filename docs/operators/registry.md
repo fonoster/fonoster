@@ -34,7 +34,7 @@ Point the AppBridge replicas at the same catalog: `registry: {source: database, 
 ```sh
 fonoster-registry add-provider <id> --adapter <a> --capabilities stt,tts [--credential-ref <name>] [--endpoints tts=<url>,stt=<url>,llm=<url>] [--label <name>]
 fonoster-registry add-model <provider/model> --type stt|tts|llm [--features a,b] [--languages en,es] [--settings s] [--label <name>]
-fonoster-registry add-voice <provider/voice> --models <m1,m2> [--language en] [--gender female] [--label <name>]
+fonoster-registry add-voice <provider/voice> --models <m1,m2> [--language en] [--gender female] [--accent <accent>] [--label <name>]
 fonoster-registry deprecate-provider|deprecate-model|deprecate-voice <id> --replacement <id> --retire-on YYYY-MM-DD
 fonoster-registry retire-provider|retire-model|retire-voice <id> [--voice-map old=new,...] --yes
 fonoster-registry usage <id>
@@ -44,6 +44,7 @@ fonoster-registry history [<id>]
 fonoster-registry export
 fonoster-registry plan -f <file>
 fonoster-registry apply -f <file>
+fonoster-registry sync-voices deepgram|elevenlabs -f <file>
 ```
 
 Rules:
@@ -58,6 +59,7 @@ Rules:
   URLs, no user information). AppBridge's and Autopilot's own config wins over it (appbridge
   `providers.<id>.tts.url`, Autopilot `endpoints.<id>`); without either, the adapter's default.
 - `--label` is the name the dashboard shows ("Aura 2 Thalia"); without one it shows the id.
+- `--accent` is the voice's accent ("Mexican"); the dashboard shows it next to the voice.
 - The fake providers are an ordinary keyless provider, `fake`, in
   `mods/conformance/fakes.catalog.yaml`. Development and test stacks add it with the API server's
   `catalog.files`; a production catalog does not list it.
@@ -125,6 +127,28 @@ fonoster-registry apply -f catalog.yaml          # apply it; "no changes" when a
 `ops/rebuild/config/catalog-seed.yaml` is a starting catalog (Deepgram, ElevenLabs, OpenAI, Groq).
 Load it once after the API server has migrated:
 `fonoster-registry apply -f ops/rebuild/config/catalog-seed.yaml --store database`.
+
+## Write a vendor's voices into a catalog file (sync-voices)
+
+`sync-voices` asks a vendor for its voices and writes them into a catalog file, for that vendor's
+`tts` models already listed in the file. It writes the file only, never a store: review the diff,
+then `plan` and `apply` it.
+
+```sh
+DEEPGRAM_API_KEY=... fonoster-registry sync-voices deepgram -f catalog.yaml
+ELEVENLABS_API_KEY=... fonoster-registry sync-voices elevenlabs -f catalog.yaml
+```
+
+- Deepgram: every Flux and Aura voice (`GET /v2/models` and `/v1/models`) whose model is in the file.
+  Reads `DEEPGRAM_API_KEY`.
+- ElevenLabs: the premade voices only, on every ElevenLabs model in the file. Reads
+  `ELEVENLABS_API_KEY`.
+- It changes only that vendor's voice lines: every other line and comment stays byte for byte. A
+  voice still offered keeps its id and its state and gets the vendor's label, language, gender and
+  accent. A voice the vendor no longer offers stays in the file and is listed under "no longer
+  offered"; deprecate or retire it yourself. It exits 0 either way.
+- It prints what it did: `added <n> (<model> <n>, ...)` (ElevenLabs: `(premade only)`), `kept <n>`,
+  `no longer offered <n>`.
 
 ## Multi-region notes
 

@@ -30,6 +30,7 @@ import {
 } from "./prisma";
 import { Registry, RegistryError } from "./Registry";
 import { FileRegistryStore } from "./stores";
+import { runSyncVoices } from "./syncVoices";
 import { Capability, ItemKind } from "./types";
 
 // fonoster-registry: the operator utility for the provider registry (add-provider-registry P9).
@@ -101,12 +102,15 @@ const HELP = `fonoster-registry <command>
 
   add-provider <id> --adapter <a> --capabilities stt,tts,llm,nc [--credential-ref <name>] [--endpoints tts=<url>,stt=<url>]
   add-model <provider/model> --type stt|tts|llm [--features a,b] [--languages en,es] [--settings s]
-  add-voice <provider/voice> --models <m1,m2> [--language en] [--gender female]
+  add-voice <provider/voice> --models <m1,m2> [--language en] [--gender female] [--accent <accent>]
                           add-* take [--label "<display name>"]; no --credential-ref: keyless
   deprecate-provider|deprecate-model|deprecate-voice <id> --replacement <id> --retire-on YYYY-MM-DD
   retire-provider|retire-model|retire-voice <id> [--voice-map old=new,...] --yes
   usage <id> | list [provider|model|voice] | show <id> | history [<id>]
   export | plan -f <file> | apply -f <file>
+  sync-voices deepgram|elevenlabs -f <file>
+                          writes the vendor's voices for its tts models in the file (the file only);
+                          reads DEEPGRAM_API_KEY or ELEVENLABS_API_KEY
 
   --store file|database   where the catalog lives (default: FONOSTER_REGISTRY_STORE or file)
   --database-url <url>    with --store database (default: FONOSTER_REGISTRY_DATABASE_URL)`;
@@ -127,7 +131,8 @@ const OPTIONS: Record<string, string[]> = {
     "settings",
     "models",
     "language",
-    "gender"
+    "gender",
+    "accent"
   ],
   deprecate: ["replacement", "retire-on"],
   retire: ["voice-map", "yes"]
@@ -297,6 +302,7 @@ function execute(
           models: list(flags.models),
           language: flags.language as string | undefined,
           gender: flags.gender as string | undefined,
+          accent: opt(flags.accent),
           label: opt(flags.label)
         });
         break;
@@ -412,7 +418,12 @@ export async function runTraced(
   let code = 1;
   let error: string | undefined;
   try {
-    code = usesDatabase(argv) ? await runWithDatabase(argv) : run(argv);
+    code =
+      command === "sync-voices"
+        ? await runSyncVoices(argv)
+        : usesDatabase(argv)
+          ? await runWithDatabase(argv)
+          : run(argv);
     return code;
   } catch (e) {
     error = (e as Error).message;

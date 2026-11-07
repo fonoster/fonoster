@@ -7,7 +7,7 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
-<Update label="Next" description="November 2026" tags={["Autopilot", "CLI"]}>
+<Update label="Next" description="November 2026" tags={["Autopilot", "CLI", "Self-hosting"]}>
 
 ## Autopilot
 
@@ -16,16 +16,41 @@ New releases are listed newest first. For releases up to 0.27, see the
   keep the same base catalog and can add these vendors to it.
 - Time to first token, tool checks and model comparison in
   [`applications:eval`](/autopilot/test#compare-language-models).
+- **A new voice picker.** Pick a vendor, a model, then one of its voices, filter them by name, or
+  enter a voice ID. Set the speed from 0.7× to 1.2×. The transcriber now asks for the provider and
+  the model first, then a language from that model's languages. See
+  [Build an agent](/autopilot/build-an-agent).
+- **Fonoster Cloud adds Deepgram Flux, every Aura-2 voice and ElevenLabs** (its premade voices).
+  New agents start on a Flux voice. Agents that used Deepgram Nova-2 Phone Call move to Nova-3,
+  now the only transcriber on Fonoster Cloud. See
+  [Text-to-speech on Fonoster Cloud](/reference/providers#text-to-speech-on-fonoster-cloud).
+- **`speech.speed`** sets how fast the agent speaks, from `0.7` to `1.2`. See
+  [Autopilot configuration](/reference/autopilot-config#speech).
+- **Voice IDs that aren't in the catalog** work when `speech.ttsModel` names a model of the same
+  vendor. Fonoster doesn't check them. See
+  [Providers and models](/reference/providers#where-catalog-ids-go).
 
 ## Usage
 
 - Input tokens no longer include cached tokens, which are listed on their own.
 - The Usage page now says **Platform key** instead of **Fonoster key**.
+- **`tts.characters` grouped by `model` now reports the text-to-speech model**, such as
+  `deepgram/aura-2`, not the voice. Rows from before the release still carry the voice.
 
 ## CLI
 
 - **Breaking for scripts:** `fonoster applications:eval` now exits with a non-zero code when a
   bar is missed or the run has an error, and, with no bars set, when a scenario fails.
+- `--speed` on `applications:create` and `applications:update`, from `0.7` to `1.2`.
+  `applications:get` shows the speed.
+
+## Self-hosting
+
+- `fonoster-registry sync-voices deepgram|elevenlabs -f <file>` writes a vendor's voices into a
+  catalog file, for the vendor's text-to-speech models already in it. Review the change, then
+  `plan` and `apply` it.
+- `fonoster-registry add-voice` takes `--accent`, such as `--accent Mexican`. See
+  [Provider catalog](/self-hosting/provider-catalog#add-a-model-or-voice).
 
 </Update>
 

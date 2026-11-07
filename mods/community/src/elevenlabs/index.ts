@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 import { streamingPost } from "../http";
-import { Synthesis, TtsAdapter } from "../speech";
+import { Synthesis, SynthesisRequest, TtsAdapter } from "../speech";
 
 // ElevenLabs TTS, ported from mods/apiserver/src/voice/tts/ElevenLabs.ts onto the streaming
 // adapter interface. Asks for raw 16 kHz PCM (AppBridge's internal format), so no conversion.
@@ -37,7 +37,7 @@ export class ElevenLabsTtsAdapter implements TtsAdapter {
   constructor(private readonly options: ElevenLabsOptions) {}
 
   async synthesize(
-    request: { text: string; voice: string; language: string },
+    request: SynthesisRequest,
     signal: AbortSignal
   ): Promise<Synthesis> {
     // The voice is an ElevenLabs voice id (catalog id "elevenlabs/<voice id>").
@@ -50,7 +50,9 @@ export class ElevenLabsTtsAdapter implements TtsAdapter {
         },
         body: JSON.stringify({
           text: request.text,
-          model_id: this.options.model ?? "eleven_flash_v2_5"
+          // The request's model (catalog id "elevenlabs/<model id>"), else the provider's.
+          model_id: request.model ?? this.options.model ?? "eleven_flash_v2_5",
+          ...(request.speed ? { voice_settings: { speed: request.speed } } : {})
         })
       },
       signal,

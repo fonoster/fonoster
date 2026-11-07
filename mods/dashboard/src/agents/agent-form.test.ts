@@ -19,6 +19,7 @@
 import { z } from "zod";
 import {
   agentSchema,
+  type AgentValues,
   tabsWithErrors,
   toRequest,
   toUpdateRequest,
@@ -26,6 +27,7 @@ import {
 } from "./agent-form";
 import {
   billingAgent,
+  cloudCatalog,
   fakeOnlyCatalog,
   sampleCatalog,
   vendorCatalog
@@ -44,7 +46,8 @@ describe("agent payload", () => {
     expect(request.speech).toEqual({
       voice: "deepgram/aura-2-celeste-es",
       language: "es-419",
-      sttModel: "deepgram/nova-3"
+      sttModel: "deepgram/nova-3",
+      speed: 0
     });
     const config = request.intelligence!.config as Record<string, any>;
     const saved = billingAgent.intelligence!.config as any;
@@ -246,8 +249,10 @@ describe("agent payload", () => {
     );
     expect(request.speech).toEqual({
       voice: "fake/default",
+      ttsModel: "fake/tts",
       language: "en-US",
-      sttModel: "fake/stt"
+      sttModel: "fake/stt",
+      speed: 0
     });
     expect((request.intelligence!.config as any).languageModel.model).toBe(
       "fake/llm"
@@ -264,5 +269,98 @@ describe("agent payload", () => {
     );
     expect(byPath["model.maxTokens"]).toBe("Enter a number");
     expect(byPath["conversation.idleTimeoutSeconds"]).toBe("Enter a number");
+  });
+
+  it("starts a new agent in es-MX on Flux Fernanda (#1323)", () => {
+    expect(
+      toRequest(templateValues("blank", "Front desk", "es-MX", cloudCatalog))
+        .speech
+    ).toMatchObject({
+      voice: "deepgram/flux-fernanda-es",
+      ttsModel: "deepgram/flux",
+      language: "es-MX"
+    });
+  });
+});
+
+describe("voice, model and speed (#1323)", () => {
+  const onFlux = {
+    ...billingAgent,
+    speech: {
+      voice: "deepgram/flux-fernanda-es",
+      ttsModel: "deepgram/flux",
+      language: "es-MX",
+      sttModel: "deepgram/nova-3"
+    }
+  } as typeof billingAgent;
+
+  it("saves a typed voice ID with its vendor and the model", () => {
+    const values = toValues(onFlux, cloudCatalog);
+    values.tts.voice = "";
+    values.tts.voiceId = "flux-kit-en";
+    expect(toRequest(values).speech).toMatchObject({
+      voice: "deepgram/flux-kit-en",
+      ttsModel: "deepgram/flux"
+    });
+  });
+
+  it("saves the speed, and 1.0× as unset", () => {
+    const values = toValues(onFlux, cloudCatalog);
+    expect(values.tts.speed).toBe(1);
+    expect(toRequest(values).speech).toMatchObject({ speed: 0 });
+    values.tts.speed = 1.1;
+    const request = toUpdateRequest(onFlux.ref, values, onFlux);
+    expect(request.speech).toMatchObject({ speed: 1.1 });
+    expect(
+      toValues({ ...onFlux, speech: request.speech } as never, cloudCatalog).tts
+        .speed
+    ).toBe(1.1);
+  });
+
+  it("starts the model from the saved one, else the voice's first", () => {
+    expect(toValues(onFlux, cloudCatalog).tts).toMatchObject({
+      provider: "deepgram",
+      model: "deepgram/flux",
+      voice: "deepgram/flux-fernanda-es",
+      voiceId: ""
+    });
+    const { ttsModel: _, ...noModel } = onFlux.speech!;
+    expect(
+      toValues({ ...onFlux, speech: noModel } as never, cloudCatalog).tts.model
+    ).toBe("deepgram/flux");
+  });
+
+  it("opens a voice the catalog doesn't offer as a voice ID and saves it unchanged", () => {
+    for (const speech of [
+      { ...onFlux.speech, voice: "deepgram/my-private-voice" },
+      // An unavailable voice saved without a model.
+      billingAgent.speech
+    ]) {
+      const app = { ...onFlux, speech } as typeof billingAgent;
+      const values = toValues(app, cloudCatalog);
+      expect(values.tts.voice).toBe("");
+      expect(values.tts.voiceId).toBe(speech!.voice!.split("/")[1]);
+      expect(toUpdateRequest(app.ref, values, app).speech).toEqual({
+        ...speech,
+        speed: 0
+      });
+    }
+  });
+
+  it("asks for a voice when neither the list nor the ID has one, and bounds the speed", () => {
+    const issues = (tts: Partial<AgentValues["tts"]>) => {
+      const values = toValues(onFlux, cloudCatalog);
+      Object.assign(values.tts, tts);
+      return agentSchema
+        .safeParse(values)
+        .error?.issues.map((i) => [i.path.join("."), i.message]);
+    };
+    expect(issues({ voice: "", voiceId: " " })).toEqual([
+      ["tts.voice", "Pick a voice"]
+    ]);
+    expect(issues({ speed: 1.3 })).toEqual([
+      ["tts.speed", "Must be between 0.7 and 1.2"]
+    ]);
+    expect(issues({ speed: 0.7 })).toBeUndefined();
   });
 });

@@ -359,7 +359,8 @@ gender: jspb.Message.getFieldWithDefault(msg, 10, ""),
 replacement: jspb.Message.getFieldWithDefault(msg, 11, ""),
 retireOn: jspb.Message.getFieldWithDefault(msg, 12, ""),
 keyless: jspb.Message.getBooleanFieldWithDefault(msg, 13, false),
-label: jspb.Message.getFieldWithDefault(msg, 14, "")
+label: jspb.Message.getFieldWithDefault(msg, 14, ""),
+accent: jspb.Message.getFieldWithDefault(msg, 15, "")
   };
 
   if (includeInstance) {
@@ -451,6 +452,10 @@ proto.fonoster.providers.v1beta2.CatalogItem.deserializeBinaryFromReader = funct
     case 14:
       var value = /** @type {string} */ (reader.readString());
       msg.setLabel(value);
+      break;
+    case 15:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setAccent(value);
       break;
     default:
       reader.skipField();
@@ -576,6 +581,13 @@ proto.fonoster.providers.v1beta2.CatalogItem.serializeBinaryToWriter = function(
   if (f.length > 0) {
     writer.writeString(
       14,
+      f
+    );
+  }
+  f = message.getAccent();
+  if (f.length > 0) {
+    writer.writeString(
+      15,
       f
     );
   }
@@ -907,6 +919,24 @@ proto.fonoster.providers.v1beta2.CatalogItem.prototype.getLabel = function() {
  */
 proto.fonoster.providers.v1beta2.CatalogItem.prototype.setLabel = function(value) {
   return jspb.Message.setProto3StringField(this, 14, value);
+};
+
+
+/**
+ * optional string accent = 15;
+ * @return {string}
+ */
+proto.fonoster.providers.v1beta2.CatalogItem.prototype.getAccent = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 15, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.fonoster.providers.v1beta2.CatalogItem} returns this
+ */
+proto.fonoster.providers.v1beta2.CatalogItem.prototype.setAccent = function(value) {
+  return jspb.Message.setProto3StringField(this, 15, value);
 };
 
 
