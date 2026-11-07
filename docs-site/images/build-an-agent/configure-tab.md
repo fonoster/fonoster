@@ -17,7 +17,7 @@ Where an agent's main settings live.
 
 The main content of the screen (breadcrumb, agent header, tabs, Configure body). The app sidebar is cropped. The "Unsaved changes" marker was dropped.
 
-Sample data swapped in: Front desk, English first/goodbye/error messages and prompt, Aura 2 Thalia en-US voice, one number +1 809 555 0123 (Claro), silence 2 × 10 s, max 10 min, transfer +1 809 555 0100.
+Sample data swapped in: Front desk, English first/goodbye/error messages and prompt, OpenAI GPT-5.4 Mini, voice Deepgram · Aura 2 · Thalia at 1.0×, transcriber Deepgram · Nova 3 in en-US (closed rows, as after #1324), one number +1 809 555 0123 (Claro), silence 2 × 10 s, max 10 min, transfer +1 809 555 0100.
 
 Colors and fonts are `$ui:` tokens from the `ui` library (fonoster.lib.pen), so the frame's
 `theme: { "ui:mode": … }` gives light and dark. The dashboard design is dark; light is the same frame

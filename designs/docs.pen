@@ -36657,7 +36657,7 @@
                               "id": "p1X0N",
                               "name": "OpenAI · gpt-4o-mini",
                               "fill": "$ui:--foreground",
-                              "content": "OpenAI · gpt-4o-mini",
+                              "content": "OpenAI · GPT-5.4 Mini",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -36726,7 +36726,7 @@
                               "id": "Wbhvj",
                               "name": "Deepgram · Aura 2 Thalia",
                               "fill": "$ui:--foreground",
-                              "content": "Deepgram · Aura 2 Thalia",
+                              "content": "Deepgram · Aura 2 · Thalia",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -36738,7 +36738,7 @@
                           "id": "lvMZo",
                           "name": "en-US",
                           "fill": "$ui:--muted-foreground",
-                          "content": "en-US",
+                          "content": "1.0×",
                           "fontFamily": "$ui:--font-primary",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -36795,7 +36795,7 @@
                               "id": "yE3Rk",
                               "name": "Deepgram · nova-3",
                               "fill": "$ui:--foreground",
-                              "content": "Deepgram · nova-3",
+                              "content": "Deepgram · Nova 3",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -36807,7 +36807,7 @@
                           "id": "tEgzl",
                           "name": "multi",
                           "fill": "$ui:--muted-foreground",
-                          "content": "multi",
+                          "content": "en-US",
                           "fontFamily": "$ui:--font-primary",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -38031,7 +38031,7 @@
                               "id": "OWT1Q",
                               "name": "OpenAI · gpt-4o-mini",
                               "fill": "$ui:--foreground",
-                              "content": "OpenAI · gpt-4o-mini",
+                              "content": "OpenAI · GPT-5.4 Mini",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -38100,7 +38100,7 @@
                               "id": "TYDuu",
                               "name": "Deepgram · Aura 2 Thalia",
                               "fill": "$ui:--foreground",
-                              "content": "Deepgram · Aura 2 Thalia",
+                              "content": "Deepgram · Aura 2 · Thalia",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -38112,7 +38112,7 @@
                           "id": "V8vGoQ",
                           "name": "en-US",
                           "fill": "$ui:--muted-foreground",
-                          "content": "en-US",
+                          "content": "1.0×",
                           "fontFamily": "$ui:--font-primary",
                           "fontSize": 11,
                           "fontWeight": "normal"
@@ -38169,7 +38169,7 @@
                               "id": "g6k0kN",
                               "name": "Deepgram · nova-3",
                               "fill": "$ui:--foreground",
-                              "content": "Deepgram · nova-3",
+                              "content": "Deepgram · Nova 3",
                               "fontFamily": "$ui:--font-secondary",
                               "fontSize": 13,
                               "fontWeight": "normal"
@@ -38181,7 +38181,7 @@
                           "id": "qbsdt",
                           "name": "multi",
                           "fill": "$ui:--muted-foreground",
-                          "content": "multi",
+                          "content": "en-US",
                           "fontFamily": "$ui:--font-primary",
                           "fontSize": 11,
                           "fontWeight": "normal"
