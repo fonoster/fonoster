@@ -26,6 +26,7 @@ model Application {
   speechSttModel   String? @map("speech_stt_model") @db.VarChar(255)
   speechTtsModel   String? @map("speech_tts_model") @db.VarChar(255)
   speechSettings   Json?   @map("speech_settings")
+  speechSpeed      Float?  @map("speech_speed")
   silenceTimeoutMs Int?    @map("silence_timeout_ms")
   audio            Json?
   filters          Json?
@@ -226,6 +227,7 @@ model RegistryVoice {
   label       String?       @db.VarChar(255)
   language       String?       @db.VarChar(64)
   gender         String?       @db.VarChar(32)
+  accent         String?       @db.VarChar(64)
   ownerWorkspace String?       @map("owner_workspace")
   state          RegistryState @default(ACTIVE)
   replacement    String?       @db.VarChar(255)

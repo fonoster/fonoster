@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import type { Application } from "@fonoster/types";
 import { screen, within } from "@testing-library/react";
 import { WorkspaceProvider } from "~/lib/workspace";
 import { fakeAuth, renderScreen } from "~/test/render";
@@ -24,6 +25,8 @@ import AgentsScreen from ".";
 import { agentRow } from "./agents-list";
 import {
   billingAgent,
+  cloudCatalogItems,
+  fluxAgent,
   sampleAgents,
   sampleNumbers,
   fakeCatalogItems,
@@ -71,12 +74,15 @@ function setup({
   numbers = sampleNumbers,
   catalog = sampleCatalogItems,
   records = [browserCall, movedNumberCall],
-  pages
+  pages,
+  catalogLoading = false
 }: {
   route?: string;
   apps?: object[];
   numbers?: object[];
   catalog?: object[];
+  /** ListCatalog never answers. */
+  catalogLoading?: boolean;
   records?: RawRecord[];
   /** Pages the records API returns in order, instead of filtering `records`. */
   pages?: object[];
@@ -84,7 +90,9 @@ function setup({
   const applications = {
     listApplications: vi.fn().mockResolvedValue({ items: apps }),
     getApplication: vi.fn().mockImplementation(async (ref: string) => {
-      const app = sampleAgents.find((a) => a.ref === ref);
+      const app = [...(apps as Application[]), ...sampleAgents].find(
+        (a) => a.ref === ref
+      );
       if (!app) throw Object.assign(new Error("not found"), { code: 5 });
       return app;
     }),
@@ -110,7 +118,9 @@ function setup({
     calls: { listCalls },
     callRecords: { listRecords },
     providers: {
-      listCatalog: vi.fn().mockResolvedValue({ items: catalog })
+      listCatalog: catalogLoading
+        ? vi.fn().mockReturnValue(new Promise(() => {}))
+        : vi.fn().mockResolvedValue({ items: catalog })
     }
   };
   const auth = fakeAuth({ status: "signedIn", sdk: sdk as never });
@@ -259,21 +269,21 @@ describe("Agent detail", () => {
     const { user, applications } = setup({ route, catalog: fakeCatalogItems });
     await screen.findByRole("heading", { name: "Billing reminders" });
     await user.click(screen.getByRole("button", { name: /^Voice/ }));
-    await user.click(screen.getByLabelText("Voice"));
-    expect(
-      (await screen.findAllByRole("option")).map((o) => o.textContent)
-    ).toEqual(["deepgram/aura-2-celeste-es (unavailable)"]);
-    await user.keyboard("{Escape}");
-    await user.click(screen.getByLabelText("Provider"));
+    // The saved voice isn't offered: it shows as a typed voice ID.
+    expect(await screen.findByLabelText("Or enter a voice ID")).toHaveValue(
+      "aura-2-celeste-es"
+    );
+    await user.click(screen.getByLabelText("Vendor"));
     expect(
       (await screen.findAllByRole("option")).map((o) => o.textContent)
     ).toEqual(["deepgram (unavailable)", "Fakes"]);
     await user.click(screen.getByRole("option", { name: "Fakes" }));
+    expect(screen.getByLabelText("Or enter a voice ID")).toHaveValue("");
     await user.click(screen.getByRole("button", { name: "Save" }));
     expect(applications.updateApplication).toHaveBeenCalledTimes(1);
     expect(
       applications.updateApplication.mock.calls[0][0].speech
-    ).toMatchObject({ voice: "fake/default" });
+    ).toMatchObject({ voice: "fake/default", ttsModel: "fake/tts" });
   });
 
   it("shows the header, numbers and configure fields", async () => {
@@ -562,6 +572,267 @@ describe("Agent detail", () => {
     expect(
       await screen.findByText(/This agent doesn't exist or was deleted/)
     ).toBeInTheDocument();
+  });
+});
+
+// These render the 266-voice Flux list, which is slow on CI runners.
+describe("Voice and transcriber (#1323)", { timeout: 30_000 }, () => {
+  const onFlux = fluxAgent;
+  const onEleven = {
+    ...onFlux,
+    ref: "ap-eleven1",
+    speech: {
+      ...onFlux.speech,
+      voice: "elevenlabs/EXAVITQu4vr4xnSDxMaL",
+      ttsModel: "elevenlabs/eleven_v4_turbo",
+      speed: 1.1
+    }
+  } as Application;
+  const open = (app: Application, extra: Parameters<typeof setup>[0] = {}) =>
+    setup({
+      route: `/w/ws-1/agents/${app.ref}/configure`,
+      apps: [app],
+      catalog: cloudCatalogItems,
+      ...extra
+    });
+  const openVoice = async (user: ReturnType<typeof setup>["user"]) => {
+    await user.click(await screen.findByRole("button", { name: /^Voice/ }));
+    return screen.findByRole("radiogroup", { name: "Voices" });
+  };
+  const pick = async (
+    user: ReturnType<typeof setup>["user"],
+    label: string,
+    option: string
+  ) => {
+    await user.click(screen.getByLabelText(label));
+    await user.click(await screen.findByRole("option", { name: option }));
+  };
+  const savedSpeech = (
+    applications: ReturnType<typeof setup>["applications"]
+  ) => applications.updateApplication.mock.calls[0][0].speech;
+
+  it("shows the vendor, model and voice, and the speed, on the closed row", async () => {
+    open(onFlux);
+    const row = await screen.findByRole("button", { name: /^Voice/ });
+    await vi.waitFor(() =>
+      expect(row).toHaveTextContent("Deepgram · Flux · Fernanda")
+    );
+    expect(row).toHaveTextContent("1.0×");
+    expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+  });
+
+  it("filters the model's voices by name, with chips and a count", async () => {
+    const { user } = open(onFlux);
+    const voices = await openVoice(user);
+    expect(screen.getByLabelText("Vendor")).toHaveTextContent("Deepgram");
+    expect(screen.getByLabelText("Model")).toHaveTextContent("Flux");
+    expect(within(voices).getAllByRole("radio")).toHaveLength(266);
+    expect(
+      within(voices).getByRole("radio", { name: "Fernanda" })
+    ).toBeChecked();
+    expect(screen.getByText("266 voices")).toBeInTheDocument();
+
+    const filter = screen.getByRole("searchbox", {
+      name: "Filter voices by name"
+    });
+    await user.type(filter, "fer");
+    const shown = within(voices).getAllByRole("radio");
+    expect(shown).toHaveLength(1);
+    expect(shown[0]).toHaveAccessibleName("Fernanda");
+    expect(shown[0]).toHaveAccessibleDescription("es-mx female mexican");
+    expect(screen.getByText("1 of 266 voices")).toBeInTheDocument();
+
+    await user.clear(filter);
+    await user.type(filter, "zzz");
+    expect(within(voices).queryAllByRole("radio")).toHaveLength(0);
+    expect(
+      screen.getByText(
+        'No voices match "zzz". Check the spelling or enter a voice ID below.'
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText("0 of 266 voices")).toBeInTheDocument();
+    // The selected voice stays selected while hidden.
+    expect(screen.getByRole("button", { name: /^Voice/ })).toHaveTextContent(
+      "Deepgram · Flux · Fernanda"
+    );
+  });
+
+  it("shows a loading state, not no match, while the catalog loads", async () => {
+    const { user } = open(onFlux, { catalogLoading: true });
+    await user.click(await screen.findByRole("button", { name: /^Voice/ }));
+    expect(await screen.findByText("Loading voices…")).toBeInTheDocument();
+    expect(screen.queryByText(/No voices match/)).not.toBeInTheDocument();
+  });
+
+  it("keeps the voice across a model switch and the speed across a vendor switch", async () => {
+    const { user, applications } = open(onEleven);
+    const voices = await openVoice(user);
+    expect(within(voices).getByRole("radio", { name: "Sarah" })).toBeChecked();
+    expect(screen.getByRole("slider", { name: "Speed" })).toHaveAttribute(
+      "aria-valuetext",
+      "1.1×"
+    );
+    await pick(user, "Model", "Eleven Flash v2.5");
+    expect(within(voices).getByRole("radio", { name: "Sarah" })).toBeChecked();
+
+    await pick(user, "Vendor", "Deepgram");
+    expect(screen.getByLabelText("Model")).toHaveTextContent("Flux");
+    expect(
+      within(voices).getByRole("radio", { name: "Fernanda" })
+    ).toBeChecked();
+    expect(screen.getByRole("slider", { name: "Speed" })).toHaveAttribute(
+      "aria-valuetext",
+      "1.1×"
+    );
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(savedSpeech(applications)).toMatchObject({
+      voice: "deepgram/flux-fernanda-es",
+      ttsModel: "deepgram/flux",
+      speed: 1.1
+    });
+  });
+
+  it("saves a typed voice ID with the model, and a list pick clears it", async () => {
+    const { user, applications } = open(onFlux);
+    const voices = await openVoice(user);
+    const voiceId = screen.getByLabelText("Or enter a voice ID");
+    expect(voiceId).toHaveAttribute("placeholder", "Voice ID");
+    await user.type(voiceId, "flux-kit-en");
+    expect(
+      within(voices).queryByRole("radio", { checked: true })
+    ).not.toBeInTheDocument();
+    // A model switch keeps a typed ID.
+    await pick(user, "Model", "Aura 2");
+    expect(voiceId).toHaveValue("flux-kit-en");
+    await pick(user, "Model", "Flux");
+    await user.click(screen.getByRole("button", { name: /^Voice/ }));
+    expect(screen.getByRole("button", { name: /^Voice/ })).toHaveTextContent(
+      "Deepgram · Flux · flux-kit-en"
+    );
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(savedSpeech(applications)).toMatchObject({
+      voice: "deepgram/flux-kit-en",
+      ttsModel: "deepgram/flux"
+    });
+
+    await user.click(screen.getByRole("button", { name: /^Voice/ }));
+    await user.click(
+      within(
+        await screen.findByRole("radiogroup", { name: "Voices" })
+      ).getByRole("radio", { name: "Ernesto" })
+    );
+    expect(screen.getByLabelText("Or enter a voice ID")).toHaveValue("");
+  });
+
+  it("blocks the save with Pick a voice when the ID is cleared and no voice is checked", async () => {
+    const { user, applications } = open(onFlux);
+    await openVoice(user);
+    const voiceId = screen.getByLabelText("Or enter a voice ID");
+    await user.type(voiceId, "x");
+    await user.clear(voiceId);
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(await screen.findByText("Pick a voice")).toBeInTheDocument();
+    expect(screen.getByRole("radiogroup", { name: "Voices" })).toHaveAttribute(
+      "aria-invalid",
+      "true"
+    );
+    expect(applications.updateApplication).not.toHaveBeenCalled();
+  });
+
+  it("opens saved agents unchanged: a typed voice, an unavailable voice, a language not offered", async () => {
+    const typed = {
+      ...onFlux,
+      speech: { ...onFlux.speech, voice: "deepgram/my-private-voice" }
+    } as Application;
+    const unavailable = {
+      ...onFlux,
+      speech: {
+        voice: "deepgram/aura-2-celeste-es",
+        language: "pt-BR",
+        sttModel: "deepgram/nova-3"
+      }
+    } as Application;
+    for (const [app, row] of [
+      [typed, "Deepgram · Flux · my-private-voice"],
+      [unavailable, "Deepgram · aura-2-celeste-es"]
+    ] as const) {
+      const { user, applications, unmount } = open(app);
+      const voiceRow = await screen.findByRole("button", { name: /^Voice/ });
+      await vi.waitFor(() => expect(voiceRow).toHaveTextContent(row));
+      expect(voiceRow).toHaveTextContent("1.0×");
+      expect(screen.getByRole("button", { name: "Save" })).toBeDisabled();
+      await user.click(voiceRow);
+      expect(screen.getByLabelText("Or enter a voice ID")).toHaveValue(
+        app.speech!.voice!.split("/")[1]
+      );
+      const prompt = screen.getByLabelText("System prompt");
+      await user.clear(prompt);
+      await user.type(prompt, "Be brief.");
+      await user.click(screen.getByRole("button", { name: "Save" }));
+      expect(savedSpeech(applications)).toEqual({ ...app.speech, speed: 0 });
+      unmount();
+    }
+  });
+
+  it("offers the transcriber's languages from its model, by name, after provider and model", async () => {
+    const { user } = open({
+      ...onFlux,
+      speech: { ...onFlux.speech, language: "pt-BR" }
+    } as Application);
+    const row = await screen.findByRole("button", { name: /^Transcriber/ });
+    expect(row).toHaveTextContent("pt-BR");
+    await user.click(row);
+    const panel = screen.getByRole("region", { name: "Model & voice" });
+    const fields = within(panel)
+      .getAllByRole("combobox")
+      .map((c) => c.getAttribute("id"))
+      .map((id) => panel.querySelector(`label[for="${id}"]`)?.textContent);
+    expect(fields).toEqual(["Provider", "Model", "Language"]);
+    expect(screen.getByLabelText("Model")).toHaveTextContent("Nova 3");
+    await user.click(screen.getByLabelText("Language"));
+    expect(
+      (await screen.findAllByRole("option", {}, { timeout: 10_000 })).map(
+        (o) => o.textContent
+      )
+    ).toEqual([
+      "pt-BR (unavailable)",
+      "English",
+      "English (United States)",
+      "English (United Kingdom)",
+      "Spanish",
+      "Spanish (Mexico)",
+      "Spanish (Latin America)",
+      "Multilingual"
+    ]);
+  });
+
+  it("is operable by keyboard with named controls", async () => {
+    const { user, applications } = open(onFlux);
+    const voices = await openVoice(user);
+    within(voices).getByRole("radio", { name: "Fernanda" }).focus();
+    await user.keyboard("{ArrowDown}");
+    expect(
+      within(voices).getByRole("radio", { name: "Ernesto" })
+    ).toBeChecked();
+    expect(
+      screen.getByRole("searchbox", { name: "Filter voices by name" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("textbox", { name: "Or enter a voice ID" })
+    ).toBeInTheDocument();
+    const speed = screen.getByRole("slider", { name: "Speed" });
+    expect(speed).toHaveAttribute("aria-valuetext", "1.0×");
+    speed.focus();
+    await user.keyboard("{ArrowRight}");
+    expect(speed).toHaveAttribute("aria-valuetext", "1.1×");
+    await user.keyboard("{ArrowLeft}{ArrowLeft}");
+    expect(speed).toHaveAttribute("aria-valuetext", "0.9×");
+    await user.keyboard("{ArrowRight}{ArrowRight}");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(savedSpeech(applications)).toMatchObject({
+      voice: "deepgram/flux-ernesto-es",
+      speed: 1.1
+    });
   });
 });
 

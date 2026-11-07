@@ -284,12 +284,17 @@ These application fields apply to an Autopilot agent. Set them on the applicatio
 ### Speech
 
 <ParamField path="speech.voice" type="string" default="deepgram/aura-2-thalia-en">
-  The voice, as a catalog ID. It must be in the catalog and not retired. CLI: `--voice`.
+  The voice, as a catalog ID that isn't retired. It can also be any `<provider>/<id>` that isn't
+  in the catalog, such as a voice from the vendor's own library, when `speech.ttsModel` names a
+  model of the same provider. Fonoster doesn't check that ID: a wrong one fails when the agent
+  speaks. Without `speech.ttsModel` the save fails with
+  `voice <id> is not in the catalog; set speech.ttsModel`. See
+  [Providers and models](/reference/providers#where-catalog-ids-go). CLI: `--voice`.
 </ParamField>
 
 <ParamField path="speech.language" type="string" default="en-US">
-  The language the caller speaks and the agent answers in, from 2 to 64 characters. The voice must
-  speak it. CLI: `--language`.
+  The language the caller speaks, from 2 to 64 characters, such as `es-MX`. It belongs to the
+  transcriber: pick one of the speech-to-text model's languages. CLI: `--language`.
 </ParamField>
 
 <ParamField path="speech.sttModel" type="string">
@@ -297,8 +302,16 @@ These application fields apply to an Autopilot agent. Set them on the applicatio
 </ParamField>
 
 <ParamField path="speech.ttsModel" type="string">
-  The text-to-speech model, as a catalog ID, such as `deepgram/aura-2`. CLI:
-  `--tts-model`.
+  The text-to-speech model the vendor gets, as a catalog ID, such as `deepgram/aura-2`. It applies
+  when the voice runs on it, and it's required for a voice that isn't in the catalog. When unset,
+  the voice's first model is used. CLI: `--tts-model`.
+</ParamField>
+
+<ParamField path="speech.speed" type="number">
+  How fast the agent speaks, from `0.7` to `1.2`, such as `1.1`. Unset (or `0`) is `1.0`, the
+  voice's normal pace. A value out of range fails with
+  `speech.speed must be between 0.7 and 1.2`. Some models ignore it; see
+  [Providers and models](/reference/providers#text-to-speech-on-fonoster-cloud). CLI: `--speed`.
 </ParamField>
 
 <ParamField path="speech.patience" type="string">
@@ -379,6 +392,7 @@ async function main() {
       voice: "deepgram/aura-2-thalia-en",
       language: "en-US",
       sttModel: "deepgram/nova-3",
+      speed: 1.1,
       patience: "normal"
     },
     recording: "consent",
@@ -497,7 +511,7 @@ languageModel:
 
 ```bash
 fonoster applications:create --name "Front desk" --agent agent.yaml \
-  --voice deepgram/aura-2-thalia-en --language en-US --stt-model deepgram/nova-3 \
+  --voice deepgram/aura-2-thalia-en --language en-US --stt-model deepgram/nova-3 --speed 1.1 \
   --recording consent --fallback-app 3a9d7c2e-5f1b-4c8a-9e60-7b2d4f1a8c35 \
   --fallback-message "Sorry, we can't take your call right now. Please call again later."
 ```

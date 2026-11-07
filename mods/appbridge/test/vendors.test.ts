@@ -207,6 +207,81 @@ describe("@appbridge vendor adapters", function () {
     expect(Buffer.concat(chunks).length).to.equal(640);
   });
 
+  it("Deepgram TTS sends Flux voices to /v2/speak and Aura voices to /v1/speak, with the speed", async function () {
+    const speak = async (request: {
+      voice: string;
+      model?: string;
+      speed?: number;
+    }) => {
+      const v = await vendor((_req, res) => res.writeHead(200).end());
+      const tts = new DeepgramTtsAdapter({ apiKey: "k", baseUrl: v.url });
+      await drain(
+        (
+          await tts.synthesize(
+            { text: "Hola", language: "es-MX", ...request },
+            new AbortController().signal
+          )
+        ).audio
+      );
+      v.server.close();
+      return v.seen.url;
+    };
+    const query = "encoding=linear16&sample_rate=16000&container=none";
+    expect(
+      await speak({ voice: "flux-fernanda-es", model: "flux", speed: 1.1 })
+    ).to.equal(`/v2/speak?model=flux-fernanda-es&${query}&speed=1.1`);
+    // A typed Flux voice is recognized by its name too.
+    expect(await speak({ voice: "flux-kit-en" })).to.equal(
+      `/v2/speak?model=flux-kit-en&${query}`
+    );
+    expect(
+      await speak({ voice: "aura-2-thalia-en", model: "aura-2", speed: 0 })
+    ).to.equal(`/v1/speak?model=aura-2-thalia-en&${query}`);
+    expect(
+      await speak({ voice: "aura-2-thalia-en", model: "aura-2", speed: 0.8 })
+    ).to.equal(`/v1/speak?model=aura-2-thalia-en&${query}&speed=0.8`);
+  });
+
+  it("ElevenLabs sends the request's model and speed, and no voice settings without a speed", async function () {
+    const speak = async (request: { model?: string; speed?: number }) => {
+      const v = await vendor((_req, res) => res.writeHead(200).end());
+      const tts = new ElevenLabsTtsAdapter({
+        apiKey: "xi-key",
+        baseUrl: v.url,
+        model: "eleven_flash_v2_5"
+      });
+      await drain(
+        (
+          await tts.synthesize(
+            { text: "Hola", voice: "AbC123", language: "es", ...request },
+            new AbortController().signal
+          )
+        ).audio
+      );
+      v.server.close();
+      return { url: v.seen.url, body: JSON.parse(v.seen.body!) };
+    };
+    expect(await speak({ model: "eleven_v4_turbo", speed: 1.1 })).to.deep.equal(
+      {
+        url: "/v1/text-to-speech/AbC123/stream?output_format=pcm_16000",
+        body: {
+          text: "Hola",
+          model_id: "eleven_v4_turbo",
+          voice_settings: { speed: 1.1 }
+        }
+      }
+    );
+    expect((await speak({ model: "eleven_v4_turbo" })).body).to.deep.equal({
+      text: "Hola",
+      model_id: "eleven_v4_turbo"
+    });
+    // No model in the request: the provider's.
+    expect((await speak({ speed: 0 })).body).to.deep.equal({
+      text: "Hola",
+      model_id: "eleven_flash_v2_5"
+    });
+  });
+
   it("Deepgram STT streams audio and reports interim and final transcripts", async function () {
     const connections: { url: string; auth?: string; closeStream: boolean }[] =
       [];

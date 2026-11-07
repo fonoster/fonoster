@@ -119,6 +119,7 @@ export class PrismaRegistryStore extends MemoryRegistryStore {
           models: v.models.map((r: { modelId: string }) => r.modelId),
           language: opt(v.language),
           gender: opt(v.gender),
+          accent: opt(v.accent),
           ownerWorkspace: opt(v.ownerWorkspace),
           state: fromState(v.state),
           replacement: opt(v.replacement),
@@ -180,6 +181,7 @@ export class PrismaRegistryStore extends MemoryRegistryStore {
           providerId: provider,
           language: e.language ?? null,
           gender: e.gender ?? null,
+          accent: e.accent ?? null,
           ownerWorkspace: e.ownerWorkspace ?? null,
           ...common
         };

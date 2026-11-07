@@ -1,0 +1,61 @@
+{
+  "voices": [
+    {
+      "voice_id": "generatedVoice000001",
+      "name": "Designed voice - Warm",
+      "category": "generated",
+      "labels": {
+        "language": "es",
+        "accent": "dominican"
+      },
+      "verified_languages": []
+    },
+    {
+      "voice_id": "SAz9YHcvj6GT2YYXdXww",
+      "name": "River - Relaxed, Neutral, Informative",
+      "category": "premade",
+      "labels": {
+        "use_case": "conversational",
+        "gender": "neutral",
+        "descriptive": "calm",
+        "language": "en",
+        "accent": "american",
+        "age": "middle_aged"
+      },
+      "verified_languages": [
+        {
+          "language": "en",
+          "model_id": "eleven_v2_flash",
+          "accent": "american",
+          "locale": "en-US"
+        },
+        {
+          "language": "en",
+          "model_id": "eleven_flash_v2",
+          "accent": "american",
+          "locale": "en-US"
+        }
+      ]
+    },
+    {
+      "voice_id": "professionalVoice001",
+      "name": "Library voice",
+      "category": "professional",
+      "labels": {
+        "gender": "female",
+        "language": "es"
+      },
+      "verified_languages": [
+        {
+          "language": "es",
+          "model_id": "eleven_multilingual_v2",
+          "accent": "colombian",
+          "locale": "es-CO"
+        }
+      ]
+    }
+  ],
+  "has_more": false,
+  "total_count": 7,
+  "next_page_token": null
+}

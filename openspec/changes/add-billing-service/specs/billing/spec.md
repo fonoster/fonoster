@@ -63,6 +63,12 @@ rated with the card in force at the time it happened.
   model) and its `source` names each price page and the date it was read, so no such line is
   `unpriced`
 
+#### Scenario: Later cards price Cloud's catalog at vendor cost
+
+- **WHEN** a card after the launch card is in force
+- **THEN** it holds every meter the card before it prices, and each active language model and TTS model in Fonoster Cloud's catalog has a price above zero for its meters
+- **AND** card 3 prices `tts.characters` by TTS model: 1,000 characters of `deepgram/flux` cost 4.5 credits
+
 ### Requirement: The balance is a ledger
 
 The balance SHALL be the sum of append-only ledger entries in milli-credits. Credits SHALL be spent

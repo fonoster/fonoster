@@ -16,6 +16,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as http from "http";
+import { AddressInfo } from "net";
 import { expect } from "chai";
 import { NatsConnection, StringCodec, connect } from "nats";
 import {
@@ -68,6 +70,8 @@ describe("@appbridge integration", function () {
   let other: FakeApp;
   let appbridge: AppBridge;
   let record: MemoryCallRecordSink;
+  /** Local stand-ins for a vendor's HTTP API, closed after each test. */
+  const vendors: http.Server[] = [];
 
   before(async function () {
     if (!NATS_URL) return this.skip();
@@ -86,6 +90,7 @@ describe("@appbridge integration", function () {
     await appbridge?.stop();
     await harness?.stop();
     await other?.stop();
+    for (const v of vendors.splice(0)) v.close();
   });
 
   function app(
@@ -815,6 +820,112 @@ describe("@appbridge integration", function () {
     expect(used[0].message).to.include({
       id: "fake/old",
       replacement: "fake/new"
+    });
+  });
+
+  it("[APB-043] speaks a typed voice ID through the app's TTS model at the app's speed", async function () {
+    const seen: string[] = [];
+    const vendor = http.createServer((req, res) => {
+      seen.push(req.url!);
+      req.resume();
+      req.on("end", () => res.writeHead(200).end(Buffer.alloc(3200)));
+    });
+    await new Promise<void>((r) => vendor.listen(0, "127.0.0.1", r));
+    vendors.push(vendor);
+    const file = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), "registry-")),
+      "registry.json"
+    );
+    const registry = new RegistryNs.Registry({
+      store: new RegistryNs.FileRegistryStore(file)
+    });
+    registry.addProvider({
+      id: "fake",
+      adapter: "fake",
+      capabilities: ["tts", "stt"],
+      credentialRef: "none"
+    });
+    registry.addModel({ id: "fake/tts", type: "tts", features: ["streaming"] });
+    registry.addVoice({ id: "fake/default", models: ["fake/tts"] });
+    registry.addProvider({
+      id: "deepgram",
+      adapter: "deepgram",
+      capabilities: ["tts"],
+      credentialRef: "deepgram"
+    });
+    registry.addModel({
+      id: "deepgram/flux",
+      type: "tts",
+      features: ["streaming"]
+    });
+    const urls = harness.providerUrls;
+    await start(
+      [
+        app("a", harness.app.url, {
+          speech: {
+            voice: "deepgram/flux-kit-en",
+            ttsModel: "deepgram/flux",
+            speed: 1.1,
+            language: "en-US"
+          }
+        })
+      ],
+      {
+        registry: { file },
+        providers: {
+          fake: {
+            adapter: "fake",
+            capabilities: ["tts", "stt"],
+            tts: { url: urls.tts },
+            stt: { url: urls.stt }
+          },
+          deepgram: {
+            adapter: "deepgram",
+            capabilities: ["tts"],
+            credential: { value: "dg-key" },
+            tts: {
+              url: `http://127.0.0.1:${(vendor.address() as AddressInfo).port}`
+            }
+          }
+        }
+      }
+    );
+    await harness.roomrNode.offerCall();
+    const { peer } = await harness.app.nextConnection();
+    await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+    peer.sendJson({ type: "speak", id: "r1", text: "Hello.", last: true });
+    await waitFor(
+      () => json(peer).find((m) => m.type === "output.done" && m.id === "r1"),
+      5000
+    );
+    // A per-item voice ID of the app's TTS model's provider works; one of another provider doesn't.
+    peer.sendJson({
+      type: "speak",
+      id: "r2",
+      text: "Again.",
+      last: true,
+      voice: "deepgram/flux-hannah-en"
+    });
+    peer.sendJson({
+      type: "speak",
+      id: "r3",
+      text: "Who?",
+      last: true,
+      voice: "fake/xyz"
+    });
+    await waitFor(
+      () => json(peer).find((m) => m.type === "output.done" && m.id === "r2"),
+      5000
+    );
+
+    const query = "encoding=linear16&sample_rate=16000&container=none";
+    expect(seen).to.deep.equal([
+      `/v2/speak?model=flux-kit-en&${query}&speed=1.1`,
+      `/v2/speak?model=flux-hannah-en&${query}&speed=1.1`
+    ]);
+    expect(json(peer).find((m) => m.type === "error")).to.include({
+      code: "invalid_catalog_id",
+      relatesTo: "r3"
     });
   });
 

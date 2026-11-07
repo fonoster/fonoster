@@ -28,12 +28,17 @@ import type {
   UpdateApplicationRequest
 } from "@fonoster/types";
 import { z } from "zod";
-import { mergeUpdate } from "~/lib/app-request";
+import { mergeUpdate, type SpeechRequest } from "~/lib/app-request";
+import { firstModelOf, providerOf, type AgentCatalog } from "./catalog";
 
 const POSITIVE = "Must be a positive number";
 const NUMBER = "Enter a number";
 const VALID_URL = "Must be a valid URL";
 const BETWEEN_0_AND_2 = "Must be a number between 0 and 2";
+const SPEED_RANGE = "Must be between 0.7 and 1.2";
+
+/** Speech speed: 0.7× to 1.2×; 1.0× is the voice's normal pace (saved as unset). */
+export const SPEED = { min: 0.7, max: 1.2, normal: 1 };
 
 const num = () => z.number({ error: NUMBER });
 const positiveInt = () => num().int(POSITIVE).positive(POSITIVE);
@@ -116,9 +121,22 @@ export const agentSchema = z
       .min(1, "Name the agent")
       .max(255, "Use at most 255 characters"),
     // Catalog ids (deepgram/aura-2-thalia-en); the provider is the id's prefix.
-    tts: z.object({
-      voice: z.string().min(1, "Pick a voice")
-    }),
+    tts: z
+      .object({
+        /** The vendor (provider id). */
+        provider: z.string(),
+        /** The TTS model; "" when unknown (a saved voice the catalog doesn't offer). */
+        model: z.string(),
+        /** The voice picked in the list; "" when a voice ID is typed. */
+        voice: z.string(),
+        /** A typed voice ID, without the provider; it wins over the list. */
+        voiceId: z.string(),
+        speed: num().min(SPEED.min, SPEED_RANGE).max(SPEED.max, SPEED_RANGE)
+      })
+      .refine((tts) => tts.voice || tts.voiceId.trim(), {
+        message: "Pick a voice",
+        path: ["voice"]
+      }),
     stt: z.object({
       model: z.string().min(1, "Pick a model"),
       languageCode: z.string().min(1, "Pick a language")
@@ -245,8 +263,40 @@ function toolToValues(raw: unknown): ToolValues {
   };
 }
 
-/** The editor's values for a saved agent; missing settings get defaults. */
-export function toValues(app: Application): AgentValues {
+/**
+ * The voice row's values for a saved voice. With the catalog, a voice it doesn't offer shows as a
+ * typed voice ID; the model is the saved one, else the voice's first.
+ */
+function ttsValues(speech: Json, catalog?: AgentCatalog): AgentValues["tts"] {
+  const voice = str(speech.voice) || DEFAULT_VOICE;
+  const model =
+    str(speech.ttsModel) || (catalog ? firstModelOf(catalog, voice) : "");
+  const provider = providerOf(model) || providerOf(voice);
+  const typed = catalog && !catalog.voices.some((o) => o.id === voice);
+  return {
+    provider,
+    model,
+    voice: typed ? "" : voice,
+    voiceId: typed ? voice.slice(provider ? provider.length + 1 : 0) : "",
+    speed: numOr(speech.speed, 0) || SPEED.normal
+  };
+}
+
+/** The voice to save: the typed ID (with its provider) or the list's voice. */
+function voiceOf(tts: AgentValues["tts"]): string {
+  const id = tts.voiceId.trim();
+  if (!id) return tts.voice;
+  return tts.provider ? `${tts.provider}/${id}` : id;
+}
+
+/**
+ * The editor's values for a saved agent; missing settings get defaults. Without the catalog
+ * (still loading), the saved voice stays as the list's pick.
+ */
+export function toValues(
+  app: Application,
+  catalog?: AgentCatalog
+): AgentValues {
   const config = obj(app.intelligence?.config);
   // The session app model (CP-B13): catalog ids on the app's speech defaults.
   const speech = obj(app.speech);
@@ -257,7 +307,7 @@ export function toValues(app: Application): AgentValues {
 
   return {
     name: app.name ?? "",
-    tts: { voice: str(speech.voice) || DEFAULT_VOICE },
+    tts: ttsValues(speech, catalog),
     stt: {
       model: str(speech.sttModel) || DEFAULT_STT,
       languageCode: str(speech.language, "en-US")
@@ -399,15 +449,21 @@ export function toRequest(
       : []
   };
 
+  const speech: SpeechRequest = {
+    voice: voiceOf(values.tts),
+    // Left out when unknown, so an update keeps the saved one.
+    ...(values.tts.model ? { ttsModel: values.tts.model } : {}),
+    language: values.stt.languageCode,
+    sttModel: values.stt.model,
+    // 0 = unset: the voice's normal pace.
+    speed: values.tts.speed === SPEED.normal ? 0 : values.tts.speed
+  };
+
   return {
     name: values.name.trim(),
     // @fonoster/types is CommonJS: no runtime enum imports in the browser.
     type: "AUTOPILOT" as CreateApplicationRequest["type"],
-    speech: {
-      voice: values.tts.voice,
-      language: values.stt.languageCode,
-      sttModel: values.stt.model
-    },
+    speech,
     filters: values.filters,
     intelligence: {
       config: {

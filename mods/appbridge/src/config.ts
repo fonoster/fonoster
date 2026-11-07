@@ -46,6 +46,13 @@ export type AppConfig = {
     detector?: string;
     /** STT model catalog id (e.g. `deepgram/nova-3`); default: the deployment's STT provider. */
     sttModel?: string;
+    /**
+     * TTS model catalog id (e.g. `deepgram/flux`), sent to the vendor; default: the voice's first
+     * model. A voice that is not in the catalog is spoken through it when they share a provider.
+     */
+    ttsModel?: string;
+    /** Speaking rate, 0.7 to 1.2; unset is the voice's normal pace. */
+    speed?: number;
     /** Words to bias recognition toward (names, brands); sent on every STT stream. */
     hints?: string[];
   };
@@ -379,6 +386,10 @@ export function validateConfig(config: AppBridgeConfig): string[] {
     if (app.speech?.sttModel && !/^[a-z0-9-]+\/.+/.test(app.speech.sttModel))
       problems.push(
         `app ${app.ref}: sttModel must be a catalog id like deepgram/nova-3`
+      );
+    if (app.speech?.ttsModel && !/^[a-z0-9-]+\/.+/.test(app.speech.ttsModel))
+      problems.push(
+        `app ${app.ref}: ttsModel must be a catalog id like deepgram/aura-2`
       );
     if (
       app.speech?.hints &&

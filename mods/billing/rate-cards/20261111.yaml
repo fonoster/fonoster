@@ -1,0 +1,86 @@
+# Rate card 3 (#1323): Fonoster Cloud's text-to-speech models. Prices are credits per unit; 1 credit = $0.01.
+# A card is named after the day it starts (yyyymmdd.yaml) and is never edited once it starts: add a
+# new card, named after its own startsAt, with the next version.
+#
+# A whole copy of card 2 with only tts.characters changed: each TTS model at the vendor's cost.
+# tts.characters usage names the TTS model (deepgram/flux), not the voice. The "*" prices bill usage
+# that still names a voice, from AppBridges deployed before #1323, at the cheaper model's price.
+# LLM tokens are at each vendor's cost, by model, as on card 2. A model this card doesn't list is
+# not billed (unpriced) and raises an alert. llm.tokens.in holds uncached input only.
+#
+# Gemini 3.6 Flash doubles on 2027-01-01 ($1.50 in, $0.15 cached, $7.50 out): it needs a new card.
+version: 3
+startsAt: 2026-11-11T00:00:00Z
+source: >-
+  Fonoster price, 2026-11-07. At cost, read 2026-11-06, per 1M tokens in, cached, out. OpenAI
+  https://developers.openai.com/api/docs/pricing (gpt-4o-mini, for eval judges, $0.15, $0.075, $0.60;
+  gpt-5.4-mini $0.75, $0.075, $4.50; gpt-6-luna $0.10,
+  $0.01, $0.50; gpt-6-sol $2, $0.20, $10; gpt-6.1-terra $1, $0.05, $5). Groq
+  https://console.groq.com/docs/model/openai/gpt-oss-120b (gpt-oss-120b $0.15, $0.075, $0.60).
+  Anthropic https://platform.claude.com/docs/en/about-claude/pricing (claude-haiku-5-5 $0.10, $0.01,
+  $0.50; claude-sonnet-5-5 $2, $0.10, $10). Google https://ai.google.dev/gemini-api/docs/pricing
+  (gemini-3.1-flash-lite $0.25, $0.025, $1.50; gemini-3.6-flash $0.75, $0.075, $3.75). Deepgram
+  https://deepgram.com/pricing, read 2026-10-30 (Nova-3 streaming $0.0077/min, Aura-2 $0.030/1K
+  characters), and read 2026-11-07 (Flux TTS $0.045/1K characters). ElevenLabs
+  https://elevenlabs.io/pricing/api, read 2026-11-07 (v4 Turbo and Flash v2.5 $0.04/1K characters).
+prices:
+  # $0.05 a minute: 5/60 credits a second, so 60 seconds rate to exactly 5.000 credits.
+  call.seconds: 0.08333333333333333
+  stt.seconds:
+    deepgram:
+      "*": 0.012833333333333334
+  tts.characters:
+    deepgram:
+      deepgram/flux: 0.0045
+      deepgram/aura-2: 0.003
+      "*": 0.003
+    elevenlabs:
+      elevenlabs/eleven_v4_turbo: 0.004
+      elevenlabs/eleven_flash_v2_5: 0.004
+      "*": 0.004
+  llm.tokens.in:
+    openai:
+      # The judge for eval test files; not offered to agents.
+      openai/gpt-4o-mini: 0.000015
+      openai/gpt-5.4-mini: 0.000075
+      openai/gpt-6-luna: 0.00001
+      openai/gpt-6-sol: 0.0002
+      openai/gpt-6.1-terra: 0.0001
+    groq:
+      groq/openai/gpt-oss-120b: 0.000015
+    anthropic:
+      anthropic/claude-haiku-5-5: 0.00001
+      anthropic/claude-sonnet-5-5: 0.0002
+    google:
+      google/gemini-3.1-flash-lite: 0.000025
+      google/gemini-3.6-flash: 0.000075
+  llm.tokens.cached:
+    openai:
+      openai/gpt-4o-mini: 0.0000075
+      openai/gpt-5.4-mini: 0.0000075
+      openai/gpt-6-luna: 0.000001
+      openai/gpt-6-sol: 0.00002
+      openai/gpt-6.1-terra: 0.000005
+    groq:
+      groq/openai/gpt-oss-120b: 0.0000075
+    anthropic:
+      anthropic/claude-haiku-5-5: 0.000001
+      anthropic/claude-sonnet-5-5: 0.00001
+    google:
+      google/gemini-3.1-flash-lite: 0.0000025
+      google/gemini-3.6-flash: 0.0000075
+  llm.tokens.out:
+    openai:
+      openai/gpt-4o-mini: 0.00006
+      openai/gpt-5.4-mini: 0.00045
+      openai/gpt-6-luna: 0.00005
+      openai/gpt-6-sol: 0.001
+      openai/gpt-6.1-terra: 0.0005
+    groq:
+      groq/openai/gpt-oss-120b: 0.00006
+    anthropic:
+      anthropic/claude-haiku-5-5: 0.00005
+      anthropic/claude-sonnet-5-5: 0.001
+    google:
+      google/gemini-3.1-flash-lite: 0.00015
+      google/gemini-3.6-flash: 0.000375

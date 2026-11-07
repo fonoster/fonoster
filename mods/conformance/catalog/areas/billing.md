@@ -814,3 +814,35 @@ providers: Deepgram's STT seconds and TTS characters, and LLM tokens in, out and
 LLM provider, each with and without each active model.
 
 **Pass.** A 60-second call is exactly 5 credits; every launch meter of every launch provider and model is billable with an amount above zero; `source` is dated and not a draft. **Fail.** Any line is `unpriced` or free.
+
+### BIL-053 TTS characters are keyed by the TTS model
+
+- **Spec:** usage-metering / Usage attribution / TTS characters name the TTS model
+- **Priority:** P0
+- **Proof:** Key TTS usage by the voice id again (`ttsUsage` callers in `Call.ts`); the line says `fake/default` and the test goes red.
+- **Fault:** faults/BIL-053.patch
+- **Test:** mods/appbridge/test/usage.test.ts
+
+Calls through the real AppBridge on the fakes with an in-memory catalog, sealed with the real
+record writer. Rate card 3 prices `tts.characters` by model, so the line must name the model the
+vendor got.
+
+**Pass.** An app without `ttsModel` whose voice works on `fake/tts-2` and `fake/tts` gets a
+`tts.characters` line with `model: "fake/tts-2"`; an app with `ttsModel` `fake/tts` and a voice ID
+not in the catalog gets `model: "fake/tts"`. **Fail.** A line names the voice, or a model the
+vendor did not get.
+
+### BIL-054 Later rate cards price Cloud's catalog at vendor cost
+
+- **Spec:** billing / Rate cards are versioned / Later cards price Cloud's catalog at vendor cost
+- **Priority:** P0
+- **Proof:** Drop `deepgram/flux` from card 3; Flux is priced at the `"*"` fallback and the test goes red.
+- **Fault:** faults/BIL-054.patch
+- **Test:** mods/billing/test/rater.test.ts
+
+Cards 2 and 3 as shipped against Fonoster Cloud's catalog (`ops/cloud/config/catalog.yaml`).
+
+**Pass.** Every active language model has a price for tokens in, cached and out on card 2; card 3
+keeps every price card 2 has except `tts.characters`, prices every active TTS model above zero, and
+1,000 Flux characters cost 4.5 credits. **Fail.** A model in the catalog is unpriced, or card 3
+drops a price card 2 has.

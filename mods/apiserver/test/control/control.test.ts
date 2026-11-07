@@ -370,25 +370,122 @@ describe("@control: applications, webhooks and provider keys (database)", functi
           replacement: "elevenlabs/rachel"
         }
       });
+      await db.prisma.registryModel.create({
+        data: {
+          id: "elevenlabs/eleven_v4_turbo",
+          providerId: "elevenlabs",
+          type: "tts"
+        }
+      });
+      await db.prisma.registryModel.create({
+        data: { id: "deepgram/flux", providerId: "deepgram", type: "tts" }
+      });
       const create = createCreateApplication(db.prisma, CONFIG);
-      const unknown = await invoke(create, {
-        name: "x",
-        url: "wss://a.example.com",
-        speech: { voice: "elevenlabs/nobody" }
+      const withSpeech = (speech: Record<string, unknown>) =>
+        invoke<{ ref: string }>(create, {
+          name: "x",
+          url: "wss://a.example.com",
+          speech
+        });
+
+      // A voice that isn't in the catalog needs a TTS model of its provider.
+      const noModel = await withSpeech({ voice: "elevenlabs/AbC123" }).catch(
+        (e) => e
+      );
+      expect(noModel.code).to.equal(grpc.status.INVALID_ARGUMENT);
+      expect(noModel.message).to.equal(
+        "voice elevenlabs/AbC123 is not in the catalog; set speech.ttsModel"
+      );
+      const otherProvider = await withSpeech({
+        voice: "elevenlabs/AbC123",
+        ttsModel: "deepgram/flux"
       }).catch((e) => e);
-      expect(unknown.message).to.match(/not in the catalog/);
-      const retired = await invoke(create, {
-        name: "x",
-        url: "wss://a.example.com",
-        speech: { voice: "elevenlabs/old" }
-      }).catch((e) => e);
+      expect(otherProvider.code).to.equal(grpc.status.INVALID_ARGUMENT);
+      expect(otherProvider.message).to.equal(
+        "speech.voice elevenlabs/AbC123 and speech.ttsModel deepgram/flux must have the same provider"
+      );
+      const typed = await withSpeech({
+        voice: "elevenlabs/AbC123",
+        ttsModel: "elevenlabs/eleven_v4_turbo"
+      });
+      const typedRow = await db.prisma.application.findUnique({
+        where: { ref: typed.ref }
+      });
+      expect(typedRow).to.include({
+        speechVoice: "elevenlabs/AbC123",
+        speechTtsModel: "elevenlabs/eleven_v4_turbo"
+      });
+
+      const retired = await withSpeech({ voice: "elevenlabs/old" }).catch(
+        (e) => e
+      );
       expect(retired.message).to.match(/retired; use elevenlabs\/rachel/);
+      const retiredWithModel = await withSpeech({
+        voice: "elevenlabs/old",
+        ttsModel: "elevenlabs/eleven_v4_turbo"
+      }).catch((e) => e);
+      expect(retiredWithModel.message).to.match(
+        /retired; use elevenlabs\/rachel/
+      );
       await invoke(create, {
         name: "ok",
         url: "wss://a.example.com",
         speech: { voice: "elevenlabs/rachel" }
       });
       await db.prisma.registryVoice.deleteMany({});
+      await db.prisma.registryModel.deleteMany({});
+    });
+
+    it("checks the speech speed and reads it back", async function () {
+      const create = createCreateApplication(db.prisma, CONFIG);
+      const withSpeed = (speed?: number) =>
+        invoke<{ ref: string }>(create, {
+          name: "Speed",
+          url: "wss://a.example.com",
+          speech: { voice: "deepgram/aura-2-thalia-en", speed }
+        });
+      for (const speed of [1.3, 0.69]) {
+        const err = await withSpeed(speed).catch((e) => e);
+        expect(err.code).to.equal(grpc.status.INVALID_ARGUMENT);
+        expect(err.message).to.match(
+          /^speech\.speed must be between 0\.7 and 1\.2/
+        );
+      }
+      for (const speed of [0.7, 1.2]) {
+        const { ref } = await withSpeed(speed);
+        const row = await db.prisma.application.findUnique({ where: { ref } });
+        expect(row.speechSpeed).to.equal(speed);
+      }
+      for (const speed of [0, undefined]) {
+        const { ref } = await withSpeed(speed);
+        const row = await db.prisma.application.findUnique({ where: { ref } });
+        expect(row.speechSpeed).to.equal(null);
+        const app = await invoke<{ speech: { speed: number } }>(
+          createGetApplication(db.prisma),
+          { ref }
+        );
+        expect(app.speech.speed).to.equal(0);
+      }
+
+      const { ref } = await withSpeed(1.1);
+      const app = await invoke<{ speech: { speed: number } }>(
+        createGetApplication(db.prisma),
+        { ref }
+      );
+      expect(app.speech.speed).to.equal(1.1);
+      await invoke(createUpdateApplication(db.prisma, CONFIG), {
+        ref,
+        name: "Speed",
+        url: "wss://a.example.com",
+        speech: { voice: "deepgram/aura-2-thalia-en", speed: 0.69 }
+      })
+        .then(() => expect.fail("update took speed 0.69"))
+        .catch((e) =>
+          expect(e.message).to.match(
+            /^speech\.speed must be between 0\.7 and 1\.2/
+          )
+        );
+      await db.prisma.application.deleteMany({ where: { name: "Speed" } });
     });
 
     it("lists the workspace's apps, newest first", async function () {
@@ -650,6 +747,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
           id: "deepgram/aura-2-thalia-en",
           providerId: "deepgram",
           language: "en-US",
+          accent: "American",
           models: { create: [{ modelId: "deepgram/aura-2" }] }
         }
       });
@@ -682,7 +780,8 @@ describe("@control: applications, webhooks and provider keys (database)", functi
         kind: "voice",
         state: "active",
         models: ["deepgram/aura-2"],
-        languages: ["en-US"]
+        languages: ["en-US"],
+        accent: "American"
       });
       const deprecated = all.items.find((i) => i.id === "deepgram/aura-2");
       expect(deprecated).to.include({

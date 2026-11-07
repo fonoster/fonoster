@@ -96,7 +96,7 @@ A community install offers only the password method. A valid sign-in lands on th
 - **Spec:** dashboard / Agent pickers offer the catalog / A saved item that is no longer offered
 - **Spec:** dashboard / Agent pickers offer the catalog / A saved agent opens with its configuration
 - **Priority:** P1
-- **Proof:** Make `CatalogPicker` drop a provider the catalog no longer offers instead of marking it unavailable; the test must go red on the Provider select.
+- **Proof:** Make `withUnavailable` (`configure-tab.tsx`) drop a saved provider, model or language the catalog no longer offers instead of marking it unavailable; the test must go red on the Provider select.
 - **Fault:** faults/DSH-004.patch
 - **Test:** mods/dashboard/e2e/community.spec.ts
 

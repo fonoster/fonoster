@@ -716,3 +716,21 @@ handler for, so a stop that lands in start-up would wait out the whole stop grac
 for NATS or the database; a SIGTERM once it is SERVING logs `draining` and exits with code 0, live
 calls drained as in APB-030. **Fail.** The process dies by the signal, or keeps starting until NATS
 or the database gives up.
+
+### APB-043 A typed voice ID and the speed reach the vendor
+
+- **Spec:** voice-session / Streamed speech output / A voice ID not in the catalog speaks through the app's TTS model
+- **Spec:** voice-session / Streamed speech output / Invalid catalog id
+- **Priority:** P0
+- **Proof:** Leave the speed off the speak items (`dispatch` in `Call.ts`); the test must go red on the vendor's first request.
+- **Fault:** faults/APB-043.patch
+- **Test:** mods/appbridge/test/integration.test.ts
+
+An app on a catalog with the `deepgram/flux` model and no Flux voices, with voice
+`deepgram/flux-kit-en`, TTS model `deepgram/flux` and speed 1.1. AppBridge's Deepgram adapter
+talks to a local stand-in for Deepgram's HTTP API, which records each request.
+
+**Pass.** The app's default voice and a per-item voice `deepgram/flux-hannah-en` each reach
+`/v2/speak` with their voice as `model` and `speed=1.1`; a per-item voice `fake/xyz`, not in the
+catalog and of another provider, is answered with invalid_catalog_id for its id. **Fail.** A typed
+voice is refused, goes to `/v1/speak`, loses the speed, or a voice of another provider is spoken.

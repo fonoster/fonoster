@@ -156,7 +156,11 @@ the session.
 AppBridge SHALL accept `speak` with `id`, `text`, `last`, optional `voice`, optional `language`,
 `interruptible` and optional `preempt`. Pieces with the same `id` SHALL be spoken as one continuous
 utterance, which ends with the piece marked `last: true`. `voice` and `language` SHALL be catalog
-ids that override the app's defaults for that item only.
+ids that override the app's defaults for that item only; `voice` may also be a voice ID that is not
+in the catalog when its provider is that of the app's `speech.ttsModel`. Every item SHALL be
+synthesized at the app's `speech.speed`, when set, with the app's `speech.ttsModel` (resolved
+through deprecation) when the voice works on it or is not in the catalog, else with the voice's
+first model.
 
 #### Scenario: Tokens streamed as they arrive
 - **WHEN** the app sends `speak` `{id: "r1", text: "Hello, ", last: false}` and then `{id: "r1", text: "how can I help?", last: true}`
@@ -169,8 +173,13 @@ ids that override the app's defaults for that item only.
 - **AND** later items without `voice` use the app default
 
 #### Scenario: Invalid catalog id
-- **WHEN** the app sends `speak` with a `voice` that is not in the catalog
+- **WHEN** the app sends `speak` with a `voice` that is not in the catalog and whose provider is not the provider of the app's `speech.ttsModel`
 - **THEN** AppBridge sends `error` with `code: "invalid_catalog_id"` and `relatesTo` set to the item's `id`
+
+#### Scenario: A voice ID not in the catalog speaks through the app's TTS model
+- **WHEN** an app's `speech.voice` is `deepgram/flux-kit-en`, which is not in the catalog, its `speech.ttsModel` is `deepgram/flux` and its `speech.speed` is 1.1
+- **THEN** each item is synthesized by Deepgram with voice `flux-kit-en`, model `flux` and speed 1.1
+- **AND** an item whose `voice` is another ID not in the catalog of the same provider is spoken the same way
 
 ### Requirement: Playing media
 

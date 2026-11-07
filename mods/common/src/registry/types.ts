@@ -66,6 +66,8 @@ export type VoiceEntry = {
   models: string[];
   language?: string;
   gender?: string;
+  /** The voice's accent, when known ("Mexican"). */
+  accent?: string;
   /** Set for a workspace's own (cloned) voice. */
   ownerWorkspace?: string;
   state: Lifecycle;

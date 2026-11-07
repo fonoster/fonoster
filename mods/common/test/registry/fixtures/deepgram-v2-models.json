@@ -1,0 +1,114 @@
+{
+  "tts": [
+    {
+      "name": "afsana",
+      "canonical_name": "flux-afsana-bn",
+      "architecture": "flux-tts",
+      "languages": [
+        "bn"
+      ],
+      "version": "2026-10-20.0",
+      "uuid": "a8cc4922-99a0-44e1-bd2f-a7bc1038736d",
+      "metadata": {
+        "accent": "Bangladeshi",
+        "age": "Young Adult",
+        "display_name": "Afsana",
+        "tags": [
+          "feminine",
+          "clear",
+          "melodic",
+          "expressive"
+        ],
+        "use_cases": [
+          "Customer Service",
+          "IVR",
+          "Narration"
+        ]
+      }
+    },
+    {
+      "name": "fernanda",
+      "canonical_name": "flux-fernanda-es",
+      "architecture": "flux-tts",
+      "languages": [
+        "es",
+        "es-MX"
+      ],
+      "version": "2026-10-20.0",
+      "uuid": "e53ec585-8b2b-4232-9a04-fbf807bd8e44",
+      "metadata": {
+        "accent": "Mexican",
+        "age": "Young Adult",
+        "display_name": "Fernanda",
+        "tags": [
+          "feminine",
+          "polite",
+          "clear",
+          "caring"
+        ],
+        "use_cases": [
+          "Customer Service",
+          "IVR",
+          "Narration"
+        ]
+      }
+    },
+    {
+      "name": "hannah",
+      "canonical_name": "flux-hannah-en",
+      "architecture": "flux-tts",
+      "languages": [
+        "en",
+        "en-US"
+      ],
+      "version": "2026-10-13.0",
+      "uuid": "2a6e9e52-c0b9-405f-8217-c1186859e7e3",
+      "metadata": {
+        "accent": "American",
+        "age": "Young Adult",
+        "display_name": "Hannah",
+        "tags": [
+          "feminine",
+          "clear",
+          "confident",
+          "thoughtful",
+          "pleasant",
+          "nice"
+        ],
+        "use_cases": [
+          "Casual Chat",
+          "Storytelling"
+        ]
+      }
+    },
+    {
+      "name": "kit",
+      "canonical_name": "flux-kit-en",
+      "architecture": "flux-tts",
+      "languages": [
+        "en",
+        "en-GB"
+      ],
+      "version": "2026-10-13.0",
+      "uuid": "4e3ed4e6-caa5-45a9-8d46-9a986062a9f3",
+      "metadata": {
+        "accent": "British",
+        "age": "Young Adult",
+        "display_name": "Kit",
+        "tags": [
+          "masculine",
+          "friendly",
+          "energetic",
+          "thoughtful",
+          "calm",
+          "helpful"
+        ],
+        "use_cases": [
+          "Customer Service",
+          "Narration",
+          "Financial Services"
+        ]
+      }
+    }
+  ]
+}

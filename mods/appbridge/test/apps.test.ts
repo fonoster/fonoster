@@ -106,12 +106,16 @@ describe("@appbridge apps", function () {
       signingSecret: "s",
       speechVoice: "deepgram/aura-2-thalia-en",
       speechSttModel: "deepgram/nova-3",
+      speechTtsModel: "deepgram/aura-2",
+      speechSpeed: 1.1,
       speechSettings: { hints: ["Fonoster", 7] }
     })!.speech;
     expect(speech).to.deep.equal({
       voice: "deepgram/aura-2-thalia-en",
       language: "en-US",
       sttModel: "deepgram/nova-3",
+      ttsModel: "deepgram/aura-2",
+      speed: 1.1,
       hints: ["Fonoster"]
     });
   });

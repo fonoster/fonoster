@@ -25,7 +25,9 @@ import AgentsScreen from ".";
 import { sampleCalls } from "~/calls/fixtures";
 import {
   billingAgent,
+  cloudCatalogItems,
   fakeCatalogItems,
+  fluxAgent,
   sampleAgents,
   sampleCatalogItems,
   sampleNumbers,
@@ -55,7 +57,8 @@ const withAgents =
         listApplications: fn().mockResolvedValue({ items }),
         getApplication: fn().mockImplementation(
           async (ref: string) =>
-            sampleAgents.find((agent) => agent.ref === ref) ?? billingAgent
+            [...sampleAgents, fluxAgent].find((agent) => agent.ref === ref) ??
+            billingAgent
         ),
         createApplication: fn().mockResolvedValue({ ref: billingAgent.ref }),
         updateApplication: fn().mockResolvedValue({ ref: billingAgent.ref }),
@@ -141,6 +144,21 @@ export const ConfigureFakesOnly: Story = {
     screen: {
       auth: withAgents([...sampleAgents, voiceApp], fakeCatalogItems),
       route: route(`/w/ws-1/agents/${billingAgent.ref}/configure`)
+    }
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByRole("button", { name: /^Voice/ })
+    );
+  }
+};
+/** Fonoster Cloud's catalog (#1323): an agent on Flux with the Voice row open. */
+export const ConfigureVoiceOpen: Story = {
+  parameters: {
+    screen: {
+      auth: withAgents([...sampleAgents, fluxAgent], cloudCatalogItems),
+      route: route(`/w/ws-1/agents/${fluxAgent.ref}/configure`)
     }
   },
   play: async ({ canvasElement }) => {

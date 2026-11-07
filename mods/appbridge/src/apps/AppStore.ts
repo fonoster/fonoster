@@ -89,6 +89,8 @@ export function appFromRow(row: Row): AppConfig | undefined {
   };
   if (row.type === "AUTOPILOT" || row.type === "STREAM") app.type = row.type;
   if (row.speechSttModel) app.speech.sttModel = row.speechSttModel as string;
+  if (row.speechTtsModel) app.speech.ttsModel = row.speechTtsModel as string;
+  if (row.speechSpeed) app.speech.speed = row.speechSpeed as number;
   // speech_settings.hints (or keyterms): the app's default recognition hints (VO-B3).
   const settings = (row.speechSettings ?? {}) as Record<string, unknown>;
   const hints = settings.hints ?? settings.keyterms;

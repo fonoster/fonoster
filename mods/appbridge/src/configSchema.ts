@@ -54,6 +54,8 @@ const app = z.object({
     patience: z.enum(["low", "normal", "high"]).optional(),
     detector: z.string().optional(),
     sttModel: z.string().optional(),
+    ttsModel: z.string().optional(),
+    speed: z.number().optional(),
     hints: z.array(z.string()).optional()
   }),
   audio: z

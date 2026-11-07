@@ -136,10 +136,11 @@ The request for `createApplication`:
 <ParamField body="speech" type="object">
   Speech defaults. Voices and models are catalog ids, such as `deepgram/aura-2-thalia-en`.
   <Expandable title="properties">
-    <ParamField body="voice" type="string">Default voice.</ParamField>
-    <ParamField body="language" type="string">Default language, such as `en-US`.</ParamField>
+    <ParamField body="voice" type="string">Default voice. A voice that isn't in the catalog, such as `elevenlabs/<voice id>`, needs `ttsModel` of the same provider and isn't checked.</ParamField>
+    <ParamField body="language" type="string">The language the transcriber listens for, such as `en-US`.</ParamField>
     <ParamField body="sttModel" type="string">Speech-to-text model.</ParamField>
-    <ParamField body="ttsModel" type="string">Text-to-speech model.</ParamField>
+    <ParamField body="ttsModel" type="string">Text-to-speech model the vendor gets. Unset: the voice's first model.</ParamField>
+    <ParamField body="speed" type="number">Speech speed, from `0.7` to `1.2`, such as `1.1`. `getApplication` returns `0` when unset, which is the voice's normal pace.</ParamField>
     <ParamField body="silenceTimeoutMs" type="number">Silence timeout in milliseconds.</ParamField>
     <ParamField body="patience" type='"low" | "normal" | "high"'>How long the turn detector waits before it ends the caller's turn.</ParamField>
   </Expandable>
@@ -334,7 +335,7 @@ See [Providers and models](/reference/providers).
 
 A `CatalogItem` has `id` (such as `deepgram/nova-3`), `kind`, `state` (`active`, `deprecated`),
 `providerId`, and when they apply `type`, `capabilities`, `languages`, `features`, `models`,
-`gender`, `replacement` and `retireOn`.
+`gender`, `accent` (voices, such as `Mexican`), `replacement` and `retireOn`.
 
 ## Usage
 
@@ -350,7 +351,8 @@ A `UsageRow` has `meter`, `unit` and `quantity`, plus the dimensions you grouped
 `amd.detections`, `amd.seconds`, `recording.seconds` and `storage.bytes` (the peak in the range,
 or the day's reading when grouped by `day`). `keySource` says whether a vendor was called with your
 own key (`workspace`) or the platform's (`platform`); `origin` tells calls (`call`) from browser
-tests (`browser_test`) and evals (`eval`).
+tests (`browser_test`) and evals (`eval`). For `tts.characters`, `model` is the text-to-speech
+model, such as `deepgram/aura-2`, not the voice.
 
 ```ts
 const usage = new SDK.Usage(client);

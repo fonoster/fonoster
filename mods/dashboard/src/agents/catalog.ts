@@ -34,6 +34,12 @@ export type CatalogOption = {
   languages: string[];
   /** Models: catalog features (tool-calling, fixed-sampling, …). */
   features?: string[];
+  /** Voices: the TTS models the voice exists on, the default first. */
+  models?: string[];
+  /** Voices: female, male…, when known. */
+  gender?: string;
+  /** Voices: the accent ("Mexican"), when known. */
+  accent?: string;
 };
 
 export type AgentCatalog = {
@@ -42,6 +48,8 @@ export type AgentCatalog = {
   /** Providers that need no key (the fakes, local models). */
   keyless?: string[];
   llm: CatalogOption[];
+  /** Text-to-speech models. */
+  tts: CatalogOption[];
   voices: CatalogOption[];
   stt: CatalogOption[];
   /** Noise-cancelling (`nc`) providers the workspace can use, by label. */
@@ -51,6 +59,7 @@ export type AgentCatalog = {
 export const EMPTY_CATALOG: AgentCatalog = {
   providers: {},
   llm: [],
+  tts: [],
   voices: [],
   stt: [],
   ncProviders: []
@@ -69,13 +78,19 @@ export function providerOf(id: string): string {
   return slash > 0 ? id.slice(0, slash) : "";
 }
 
-export function toAgentCatalog(items: CatalogItem[]): AgentCatalog {
-  const option = (i: CatalogItem): CatalogOption => ({
+// `accent` (#1323) is new in ListCatalog; declared here until @fonoster/types has it.
+type Item = CatalogItem & { accent?: string };
+
+export function toAgentCatalog(items: Item[]): AgentCatalog {
+  const option = (i: Item): CatalogOption => ({
     id: i.id,
     label: i.label || i.id.slice(i.providerId.length + 1) || i.id,
     provider: i.providerId,
     languages: i.languages ?? [],
-    features: i.features
+    features: i.features,
+    models: i.models,
+    gender: i.gender || undefined,
+    accent: i.accent || undefined
   });
   const providers: Record<string, string> = {};
   for (const i of items)
@@ -87,6 +102,9 @@ export function toAgentCatalog(items: CatalogItem[]): AgentCatalog {
       .map((i) => i.id),
     llm: items
       .filter((i) => i.kind === "model" && i.type === "llm")
+      .map(option),
+    tts: items
+      .filter((i) => i.kind === "model" && i.type === "tts")
       .map(option),
     voices: items.filter((i) => i.kind === "voice").map(option),
     stt: items
@@ -145,8 +163,10 @@ export function speaks(option: CatalogOption, languageCode: string): boolean {
 }
 
 export type Language = SelectOption & {
-  /** The voice picked for agents created in this language, when offered. */
+  /** The voice picked for agents created in this language, when offered (Flux, on Fonoster Cloud). */
   voice: string;
+  /** Picked when `voice` isn't offered (the base catalog's Aura-2 voice). */
+  fallback: string;
   /** Prompts for templates: Spanish for es-*, English otherwise. */
   locale: "en" | "es";
 };
@@ -155,43 +175,77 @@ export const LANGUAGES: Language[] = [
   {
     value: "en-US",
     label: "English (US) · en-US",
-    voice: "deepgram/aura-2-thalia-en",
+    voice: "deepgram/flux-hannah-en",
+    fallback: "deepgram/aura-2-thalia-en",
     locale: "en"
   },
   {
     value: "en-GB",
     label: "English (UK) · en-GB",
-    voice: "deepgram/aura-2-draco-en",
+    voice: "deepgram/flux-kit-en",
+    fallback: "deepgram/aura-2-draco-en",
     locale: "en"
   },
   {
     value: "es-419",
     label: "Spanish (Latin America) · es-419",
-    voice: "deepgram/aura-2-celeste-es",
+    voice: "deepgram/flux-alfredo-es",
+    fallback: "deepgram/aura-2-celeste-es",
     locale: "es"
   },
   {
     value: "es-MX",
     label: "Spanish (Mexico) · es-MX",
-    voice: "deepgram/aura-2-estrella-es",
+    voice: "deepgram/flux-fernanda-es",
+    fallback: "deepgram/aura-2-estrella-es",
     locale: "es"
   },
   {
     value: "es-ES",
     label: "Spanish (Spain) · es-ES",
-    voice: "deepgram/aura-2-nestor-es",
+    voice: "deepgram/flux-aina-es",
+    fallback: "deepgram/aura-2-nestor-es",
     locale: "es"
   },
   {
     value: "multi",
     label: "Multilingual (English + Spanish) · multi",
-    voice: "deepgram/aura-2-celeste-es",
+    voice: "deepgram/flux-fernanda-es",
+    fallback: "deepgram/aura-2-celeste-es",
     locale: "es"
   }
 ];
 
 export function languageOf(code: string): Language | undefined {
   return LANGUAGES.find((language) => language.value === code);
+}
+
+const languageNames = new Intl.DisplayNames(["en"], {
+  type: "language",
+  languageDisplay: "standard"
+});
+
+/** A language code's name: "es-MX" → "Spanish (Mexico)", "multi" → "Multilingual". */
+export function languageName(code: string): string {
+  if (code === "multi") return "Multilingual";
+  try {
+    return languageNames.of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
+/** The TTS model a voice is used with when none is set: its first. */
+export function firstModelOf(catalog: AgentCatalog, voice: string): string {
+  return catalog.voices.find((o) => o.id === voice)?.models?.[0] ?? "";
+}
+
+/** A model's voices, in catalog order. */
+export function voicesOf(
+  catalog: AgentCatalog,
+  model: string
+): CatalogOption[] {
+  return catalog.voices.filter((o) => o.models?.includes(model));
 }
 
 /** Picked for new agents when the workspace can use them. */
@@ -210,18 +264,22 @@ export function defaultsFor(
   languageCode: string
 ): { voice: string; stt: string; llm: string } {
   const free = new Set(catalog.keyless ?? []);
-  const pick = (all: CatalogOption[], preferred?: string) => {
+  const pick = (all: CatalogOption[], ...preferred: string[]) => {
     const keyless = all.filter((o) => free.has(o.provider));
     const options = keyless.length ? keyless : all;
     return (
-      options.find((o) => o.id === preferred)?.id ??
+      preferred.find((id) => options.some((o) => o.id === id)) ??
       options.find((o) => speaks(o, languageCode))?.id ??
       options[0]?.id ??
       ""
     );
   };
+  const language = languageOf(languageCode);
   return {
-    voice: pick(catalog.voices, languageOf(languageCode)?.voice),
+    voice: pick(
+      catalog.voices,
+      ...(language ? [language.voice, language.fallback] : [])
+    ),
     stt: pick(
       catalog.stt.filter((o) => speaks(o, languageCode)),
       PREFERRED.stt

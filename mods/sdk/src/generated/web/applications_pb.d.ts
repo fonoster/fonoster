@@ -23,6 +23,9 @@ export class SpeechDefaults extends jspb.Message {
   getPatience(): string;
   setPatience(value: string): SpeechDefaults;
 
+  getSpeed(): number;
+  setSpeed(value: number): SpeechDefaults;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SpeechDefaults.AsObject;
   static toObject(includeInstance: boolean, msg: SpeechDefaults): SpeechDefaults.AsObject;
@@ -39,6 +42,7 @@ export namespace SpeechDefaults {
     ttsModel: string,
     silenceTimeoutMs: number,
     patience: string,
+    speed: number,
   }
 }
 

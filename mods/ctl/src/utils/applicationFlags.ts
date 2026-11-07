@@ -56,6 +56,16 @@ export const applicationFlags = {
     description: "how long to wait before taking the turn",
     options: ["low", "normal", "high"]
   }),
+  speed: Flags.custom<number>({
+    description:
+      "speech speed, from 0.7 to 1.2; 1.0 is the voice's normal pace",
+    parse: async (input) => {
+      const speed = Number(input);
+      if (!input.trim() || Number.isNaN(speed))
+        throw new Error(`--speed must be a number, from 0.7 to 1.2`);
+      return speed;
+    }
+  })(),
   "audio-codec": Flags.string({
     description: "audio frames for fonoster-protocol streams",
     options: ["pcm16", "pcmu"]

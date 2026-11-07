@@ -1,0 +1,81 @@
+{
+  "voices": [
+    {
+      "voice_id": "CwhRBWXzGAHq8TQ4Fs17",
+      "name": "Roger - Laid-Back, Casual, Resonant",
+      "category": "premade",
+      "labels": {
+        "use_case": "conversational",
+        "gender": "male",
+        "descriptive": "classy",
+        "language": "en",
+        "accent": "american",
+        "age": "middle_aged"
+      },
+      "verified_languages": [
+        {
+          "language": "en",
+          "model_id": "eleven_v2_flash",
+          "accent": "american",
+          "locale": "en-US"
+        },
+        {
+          "language": "en",
+          "model_id": "eleven_flash_v2",
+          "accent": "american",
+          "locale": "en-US"
+        }
+      ]
+    },
+    {
+      "voice_id": "cl0nedVoice000000001",
+      "name": "My cloned voice",
+      "category": "cloned",
+      "labels": {},
+      "verified_languages": []
+    },
+    {
+      "voice_id": "JBFqnCBsd6RMkjVDRZzb",
+      "name": "George - Warm, Captivating Storyteller",
+      "category": "premade",
+      "labels": {
+        "use_case": "narrative_story",
+        "gender": "male",
+        "descriptive": "mature",
+        "language": "en",
+        "accent": "british",
+        "age": "middle_aged"
+      },
+      "verified_languages": [
+        {
+          "language": "en",
+          "model_id": "eleven_v2_flash",
+          "accent": "british",
+          "locale": "en-GB"
+        },
+        {
+          "language": "en",
+          "model_id": "eleven_flash_v2",
+          "accent": "british",
+          "locale": "en-GB"
+        }
+      ]
+    },
+    {
+      "voice_id": "pNInz6obpgDQGcFmaJgB",
+      "name": "Adam - Dominant, Firm",
+      "category": "premade",
+      "labels": {
+        "use_case": "social_media",
+        "gender": "male",
+        "language": "en",
+        "accent": "american",
+        "age": "middle_aged"
+      },
+      "verified_languages": []
+    }
+  ],
+  "has_more": true,
+  "total_count": 7,
+  "next_page_token": "page-2"
+}

@@ -140,6 +140,7 @@ export function createProvidersHandlers(db: ProvidersDb) {
           languages: v.language ? [v.language] : [],
           models: (v.models as { modelId: string }[]).map((r) => r.modelId),
           gender: v.gender ?? "",
+          accent: v.accent ?? "",
           replacement: v.replacement ?? "",
           retireOn: v.retireOn ?? ""
         }))

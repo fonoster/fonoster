@@ -249,6 +249,7 @@ export class Registry {
       models: string[];
       language?: string;
       gender?: string;
+      accent?: string;
       ownerWorkspace?: string;
       label?: string;
     } & Record<string, unknown>
@@ -267,6 +268,7 @@ export class Registry {
       models: input.models,
       language: input.language,
       gender: input.gender,
+      accent: input.accent,
       ownerWorkspace: input.ownerWorkspace,
       state: "active"
     };

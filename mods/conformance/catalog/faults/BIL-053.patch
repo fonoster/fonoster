@@ -1,0 +1,15 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1683,10 +1683,7 @@
+           model: voice.model,
+           speed: this.app.speech.speed,
+           adapter: voice.adapter,
+-          onSynthesize: this.call.ttsUsage(
+-            voice.modelId ?? voice.id,
+-            this.app.workspaceRef
+-          )
++          onSynthesize: this.call.ttsUsage(voice.id, this.app.workspaceRef)
+         });
+         return;
+       }

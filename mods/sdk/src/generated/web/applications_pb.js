@@ -659,7 +659,8 @@ language: jspb.Message.getFieldWithDefault(msg, 2, ""),
 sttModel: jspb.Message.getFieldWithDefault(msg, 3, ""),
 ttsModel: jspb.Message.getFieldWithDefault(msg, 4, ""),
 silenceTimeoutMs: jspb.Message.getFieldWithDefault(msg, 5, 0),
-patience: jspb.Message.getFieldWithDefault(msg, 6, "")
+patience: jspb.Message.getFieldWithDefault(msg, 6, ""),
+speed: jspb.Message.getFloatingPointFieldWithDefault(msg, 7, 0.0)
   };
 
   if (includeInstance) {
@@ -719,6 +720,10 @@ proto.fonoster.applications.v1beta2.SpeechDefaults.deserializeBinaryFromReader =
     case 6:
       var value = /** @type {string} */ (reader.readString());
       msg.setPatience(value);
+      break;
+    case 7:
+      var value = /** @type {number} */ (reader.readDouble());
+      msg.setSpeed(value);
       break;
     default:
       reader.skipField();
@@ -788,6 +793,13 @@ proto.fonoster.applications.v1beta2.SpeechDefaults.serializeBinaryToWriter = fun
   if (f.length > 0) {
     writer.writeString(
       6,
+      f
+    );
+  }
+  f = message.getSpeed();
+  if (f !== 0.0) {
+    writer.writeDouble(
+      7,
       f
     );
   }
@@ -899,6 +911,24 @@ proto.fonoster.applications.v1beta2.SpeechDefaults.prototype.getPatience = funct
  */
 proto.fonoster.applications.v1beta2.SpeechDefaults.prototype.setPatience = function(value) {
   return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional double speed = 7;
+ * @return {number}
+ */
+proto.fonoster.applications.v1beta2.SpeechDefaults.prototype.getSpeed = function() {
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 7, 0.0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.fonoster.applications.v1beta2.SpeechDefaults} returns this
+ */
+proto.fonoster.applications.v1beta2.SpeechDefaults.prototype.setSpeed = function(value) {
+  return jspb.Message.setProto3FloatField(this, 7, value);
 };
 
 

@@ -29,7 +29,7 @@ the application around it:
 | --- | --- | --- |
 | Conversation settings | The prompt, the fixed messages, and how calls behave | `conversationSettings` |
 | Language model | The model, its sampling settings, [tools](/autopilot/tools) and [knowledge base](/autopilot/knowledge-base) | `languageModel` |
-| Speech | The voice, the language and the speech-to-text model | `speech` on the application |
+| Speech | The voice, its speed, and the transcriber and its language | `speech` on the application |
 
 In the dashboard, these settings are spread over the agent's **Configure**, **Tools** and
 **Advanced** tabs. With the SDK and the CLI, you send the conversation settings and the language
@@ -92,13 +92,39 @@ model together as one agent configuration.
     | Temperature | `temperature` | `0.4` | From 0 to 2. Lower is more consistent. Some models don't use it; the dashboard says so. |
     | Max tokens | `maxTokens` | `400` | The longest reply the model can write in one turn. |
 
-    The voice, the language and the speech-to-text model belong to the application, as catalog
-    IDs: for example `deepgram/aura-2-thalia-en`, `en-US` and `deepgram/nova-3`. The voice must
-    speak the language you pick.
+    The voice, the speech speed and the transcriber belong to the application:
+
+    | Setting | Field | Example | Notes |
+    | --- | --- | --- | --- |
+    | Voice | `speech.voice` | `deepgram/aura-2-thalia-en` | A catalog ID, or a voice ID of your own. |
+    | Text-to-speech model | `speech.ttsModel` | `deepgram/aura-2` | When unset, the voice's first model. |
+    | Speed | `speech.speed` | `1.1` | From `0.7` to `1.2`. Unset is `1.0`, the voice's normal pace. |
+    | Speech-to-text model | `speech.sttModel` | `deepgram/nova-3` | The transcriber. |
+    | Language | `speech.language` | `en-US` | The language the transcriber listens for. |
 
     In the dashboard, the model, voice and transcriber are in the **Model & voice** panel on the
-    **Configure** tab. Temperature and max tokens are under **Language model** on the
-    **Advanced** tab.
+    **Configure** tab:
+
+    - **Voice**: pick a vendor, then a model, then one of that model's voices. Type in
+      **Filter by name** to narrow the list, or enter a voice ID under **Or enter a voice ID**.
+      Set **Speed** from 0.7× to 1.2×. The list shows every voice of the model, whatever the
+      language, with chips for each voice's language, gender and accent.
+    - **Transcriber**: pick a provider, then a model, then a language from the languages that
+      model hears.
+
+    A voice ID that isn't in the catalog, such as one from the vendor's own library, is used as you
+    type it and isn't checked, so a wrong ID fails only when the agent speaks. With the SDK or the
+    CLI, write it as `<provider>/<id>` and set `speech.ttsModel` to a model of the same vendor. See
+    [Providers and models](/reference/providers#where-catalog-ids-go).
+
+    Temperature and max tokens are under **Language model** on the **Advanced** tab.
+
+    <Note>
+      On Fonoster Cloud, a new agent starts on a Deepgram Flux voice for the language you choose,
+      such as `deepgram/flux-fernanda-es` for `es-MX`. Fonoster Cloud also offers ElevenLabs
+      voices. See
+      [Text-to-speech on Fonoster Cloud](/reference/providers#text-to-speech-on-fonoster-cloud).
+    </Note>
 
   </Step>
 
@@ -153,7 +179,8 @@ model together as one agent configuration.
             speech: {
               voice: "deepgram/aura-2-thalia-en",
               language: "en-US",
-              sttModel: "deepgram/nova-3"
+              sttModel: "deepgram/nova-3",
+              speed: 1.1
             },
             intelligence: {
               config: {
@@ -223,11 +250,11 @@ model together as one agent configuration.
           maxTokens: 400
         ```
 
-        Create the agent with its voice, language and transcriber:
+        Create the agent with its voice, speed, language and transcriber:
 
         ```bash
         fonoster applications:create --name "Front desk" --agent agent.yaml \
-          --voice deepgram/aura-2-thalia-en --language en-US --stt-model deepgram/nova-3
+          --voice deepgram/aura-2-thalia-en --speed 1.1 --language en-US --stt-model deepgram/nova-3
         ```
 
         To change an existing agent, edit the file and update it by its ref. The CLI keeps the

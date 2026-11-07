@@ -53,6 +53,9 @@ export class CatalogItem extends jspb.Message {
   getLabel(): string;
   setLabel(value: string): CatalogItem;
 
+  getAccent(): string;
+  setAccent(value: string): CatalogItem;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CatalogItem.AsObject;
   static toObject(includeInstance: boolean, msg: CatalogItem): CatalogItem.AsObject;
@@ -77,6 +80,7 @@ export namespace CatalogItem {
     retireOn: string,
     keyless: boolean,
     label: string,
+    accent: string,
   }
 }
 

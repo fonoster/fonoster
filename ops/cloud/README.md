@@ -81,6 +81,42 @@ Each model must have a price on the rate card in force (`mods/billing/rate-cards
 one isn't billed on platform keys, and billing logs an alert. Applying a file never removes an entry from
 the database, so taking something off this list leaves its row behind until it is deleted. Before a deploy, `fonoster-registry plan -f <file>` lists what the file would change.
 
+AppBridge speaks with ElevenLabs on the platform's key. Before a release that adds or changes
+ElevenLabs, confirm that production's `appbridge.yaml` has a real key on a paid ElevenLabs plan
+under `providers.elevenlabs` (in the inventory's `fonoster_overrides`):
+
+```yaml
+fonoster_overrides:
+  appbridge.yaml:
+    providers:
+      elevenlabs: { adapter: elevenlabs, capabilities: [tts], credential: { value: "<key>" } }
+```
+
+### Refresh the voices
+
+The voices in `config/catalog.yaml` are written by `fonoster-registry sync-voices`, one vendor at a
+time, from a checkout of this repository with `@fonoster/common` built:
+
+```sh
+DEEPGRAM_API_KEY=... fonoster-registry sync-voices deepgram -f ops/cloud/config/catalog.yaml
+ELEVENLABS_API_KEY=... fonoster-registry sync-voices elevenlabs -f ops/cloud/config/catalog.yaml
+```
+
+- It writes the voices of the vendor's `tts` models already listed in the file, and changes
+  nothing else: other vendors' lines and every comment stay byte for byte. It writes the file
+  only, never a database.
+- For ElevenLabs it writes the premade voices only, never cloned or generated ones.
+- A voice already in the file keeps its id. A voice the vendor no longer offers stays in the file
+  and is listed under `no longer offered`; the command still exits 0.
+- Open a pull request with the change and review the diff.
+- Don't delete a voice the vendor no longer offers. Deprecate it with a replacement: on the host (the `registry`
+  function, see After a deploy), `registry deprecate-voice <id> --replacement <id> --retire-on YYYY-MM-DD`, and set the same
+  `state: deprecated`, `replacement` and `retireOn` on its line in the file, or the next start
+  sets it back to active. Retire it on that date, which moves saved agents to the replacement.
+- Before approving the next release's apply, copy the folder into the inventory again and run
+  `fonoster-registry plan -f` with the new file against production's database: it should only add
+  or update.
+
 ## Setting it up
 
 1. **Database.** Create `billing` on the managed Postgres, as the database user
@@ -97,6 +133,22 @@ the database, so taking something off this list leaves its row behind until it i
    its `--check --diff`: billing's files and lines are there, and nothing else of billing changed.
 
 ## After a deploy
+
+- **Once, after the release that took Nova-2 Phone Call off the catalog (#1323):** move the
+  agents that still name `deepgram/nova-2-phonecall` to Nova-3. Retiring needs a deprecated entry
+  with a replacement, so deprecate it first with today's date, then retire it. Without `--yes`,
+  `retire-model` only prints what would change; it rewrites the saved configs (3 at the time of
+  writing) to `deepgram/nova-3`. On the host, with the `registry` shell function from the docs'
+  Provider catalog page ("Run the tool"), which runs `fonoster-registry` in the API server against
+  the database:
+
+  ```sh
+  registry deprecate-model deepgram/nova-2-phonecall --replacement deepgram/nova-3 --retire-on <today>
+  registry retire-model deepgram/nova-2-phonecall
+  registry retire-model deepgram/nova-2-phonecall --yes
+  ```
+
+  Deprecating sends each affected workspace a `provider.deprecated` webhook.
 
 - An unsigned `POST <PUBLIC_URL>/stripe/webhooks` answers 400 (it reached billing; 200 with the
   dashboard's page means the route is missing).

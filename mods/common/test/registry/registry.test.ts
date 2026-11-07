@@ -16,7 +16,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import { expect } from "chai";
+import { run } from "../../src/registry/cli";
 import {
   MemoryRegistryStore,
   Registry,
@@ -454,6 +458,63 @@ describe("@common/registry", function () {
     const report = r.impact("openai/gpt-4o-mini", "openai/tiny");
     expect(report.unmappable).to.have.length(1);
     expect(report.lines[0].text).to.contain("requires tool-calling");
+  });
+
+  it("adds a voice with an accent and shows it", function () {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "registry-"));
+    const previous = process.env.FONOSTER_REGISTRY_FILE;
+    process.env.FONOSTER_REGISTRY_FILE = path.join(dir, "registry.json");
+    const out: string[] = [];
+    const cli = (...argv: string[]) => run(argv, (s) => out.push(s));
+    try {
+      expect(
+        cli(
+          "add-provider",
+          "deepgram",
+          "--adapter",
+          "deepgram",
+          "--capabilities",
+          "tts",
+          "--credential-ref",
+          "deepgram"
+        )
+      ).to.equal(0);
+      expect(
+        cli("add-model", "deepgram/flux", "--type", "tts", "--label", "Flux")
+      ).to.equal(0);
+      expect(
+        cli(
+          "add-voice",
+          "deepgram/flux-fernanda-es",
+          "--models",
+          "deepgram/flux",
+          "--language",
+          "es-MX",
+          "--gender",
+          "female",
+          "--accent",
+          "Mexican",
+          "--label",
+          "Fernanda"
+        )
+      ).to.equal(0);
+      out.length = 0;
+      expect(cli("show", "deepgram/flux-fernanda-es")).to.equal(0);
+      expect(JSON.parse(out.join("\n"))).to.include({
+        id: "deepgram/flux-fernanda-es",
+        label: "Fernanda",
+        language: "es-MX",
+        gender: "female",
+        accent: "Mexican"
+      });
+      out.length = 0;
+      cli("export");
+      expect(out.join("\n")).to.contain("accent: Mexican");
+    } finally {
+      if (previous === undefined) delete process.env.FONOSTER_REGISTRY_FILE;
+      else process.env.FONOSTER_REGISTRY_FILE = previous;
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("syncs two registries with plan and apply, idempotently", function () {

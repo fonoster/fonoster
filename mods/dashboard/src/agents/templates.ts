@@ -20,8 +20,14 @@
  * Starting points for a new agent. Each template is a short, real-world
  * prompt with its messages, in English (en-*) or Spanish (es-*, multi).
  */
-import { defaultsFor, languageOf, type AgentCatalog } from "./catalog";
-import { DEFAULTS, type AgentValues } from "./agent-form";
+import {
+  defaultsFor,
+  firstModelOf,
+  languageOf,
+  providerOf,
+  type AgentCatalog
+} from "./catalog";
+import { DEFAULTS, SPEED, type AgentValues } from "./agent-form";
 
 export type TemplateId = "receptionist" | "reminders" | "blank";
 
@@ -175,7 +181,13 @@ export function templateValues(
 
   return {
     name,
-    tts: { voice: picked.voice },
+    tts: {
+      provider: providerOf(picked.voice),
+      model: firstModelOf(catalog, picked.voice),
+      voice: picked.voice,
+      voiceId: "",
+      speed: SPEED.normal
+    },
     stt: { model: picked.stt, languageCode },
     conversation: {
       firstMessage: copy.firstMessage,

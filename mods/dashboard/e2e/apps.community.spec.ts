@@ -104,9 +104,9 @@ test("[DSH-028] creates an agent from a template, saves its prompt and a tool, r
   expect(JSON.stringify(agentConfig(apps, "app-1").languageModel)).toContain(
     "fake"
   );
-  // ...while the voice picker offers both providers by label.
+  // ...while the voice picker offers both vendors by label.
   await page.getByRole("button", { name: /^Voice/ }).click();
-  await page.getByRole("combobox", { name: "Provider" }).click();
+  await page.getByRole("combobox", { name: "Vendor", exact: true }).click();
   await expect(page.getByRole("option", { name: "Fakes" })).toBeVisible();
   await expect(page.getByRole("option", { name: "Deepgram" })).toBeVisible();
   await page.keyboard.press("Escape");

@@ -293,9 +293,11 @@ test("[DSH-004] lists and opens an agent with its saved configuration", async ({
     "Hi, how can I help?"
   );
 
-  // The saved voice's provider is no longer offered: kept and marked unavailable, not replaced.
+  // The saved voice's vendor is no longer offered: kept and marked unavailable, not replaced.
   await page.getByRole("button", { name: /^Voice/ }).click();
-  await expect(page.getByLabel("Provider")).toHaveText(/deepgram \(unavailable\)/);
+  await expect(
+    page.getByRole("combobox", { name: "Vendor", exact: true })
+  ).toHaveText(/deepgram \(unavailable\)/);
 });
 
 
