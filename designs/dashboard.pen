@@ -1,5 +1,5 @@
 {
-  "version": "2.21",
+  "version": "2.22",
   "children": [
     {
       "id": "MHGSm",
@@ -5870,7 +5870,7 @@
                                       "id": "wJnQx",
                                       "name": "Value",
                                       "fill": "$ui:--foreground",
-                                      "content": "Deepgram · Aura 2 Celeste",
+                                      "content": "Deepgram · Flux · Fernanda",
                                       "fontFamily": "$ui:--font-secondary",
                                       "fontSize": 13,
                                       "fontWeight": "normal"
@@ -5882,7 +5882,7 @@
                                   "id": "c1zLkC",
                                   "name": "Meta",
                                   "fill": "$ui:--muted-foreground",
-                                  "content": "es-419",
+                                  "content": "1.0×",
                                   "fontFamily": "$ui:--font-primary",
                                   "fontSize": 11,
                                   "fontWeight": "normal"
@@ -5939,7 +5939,7 @@
                                       "id": "lf4zH",
                                       "name": "Value",
                                       "fill": "$ui:--foreground",
-                                      "content": "Deepgram · nova-3",
+                                      "content": "Deepgram · Nova 3",
                                       "fontFamily": "$ui:--font-secondary",
                                       "fontSize": 13,
                                       "fontWeight": "normal"
@@ -5951,7 +5951,7 @@
                                   "id": "apbyV",
                                   "name": "Meta",
                                   "fill": "$ui:--muted-foreground",
-                                  "content": "multi",
+                                  "content": "es-MX",
                                   "fontFamily": "$ui:--font-primary",
                                   "fontSize": 11,
                                   "fontWeight": "normal"
@@ -109029,6 +109029,2575 @@
           ]
         }
       ]
+    },
+    {
+      "id": "n7JIr",
+      "type": "ref",
+      "ref": "ui:aqOKa",
+      "name": "Agent / Detail / Configure / Voice open",
+      "x": 12340,
+      "y": 3100,
+      "height": 1920,
+      "theme": {
+        "ui:mode": "dark"
+      },
+      "descendants": {
+        "ui:itw6f": {
+          "fill": "$ui:--sidebar-accent"
+        },
+        "ui:itw6f/ui:xGT5g": {
+          "fill": "$ui:--sidebar-accent-foreground"
+        },
+        "ui:itw6f/ui:TXca3": {
+          "fill": "$ui:--sidebar-accent-foreground"
+        },
+        "ui:gOtUO": {
+          "children": [
+            {
+              "type": "frame",
+              "id": "aCxuH",
+              "name": "Content",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "padding": [
+                20,
+                32,
+                0,
+                32
+              ],
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "uzMP3",
+                  "name": "Breadcrumb",
+                  "gap": 6,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "G2GHS",
+                      "name": "Agents",
+                      "fill": "$ui:--muted-foreground",
+                      "content": "Agents",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "tF7dK",
+                      "name": "Sep",
+                      "fill": "$ui:--muted-foreground",
+                      "content": "/",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "pi1zO",
+                      "name": "Current",
+                      "fill": "$ui:--foreground",
+                      "content": "Billing reminders",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IBteK",
+                  "name": "Agent header",
+                  "width": "fill_container",
+                  "padding": [
+                    14,
+                    0,
+                    18,
+                    0
+                  ],
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "sHPWw",
+                      "name": "Identity",
+                      "gap": 14,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "T6ryY",
+                          "name": "Avatar",
+                          "width": 44,
+                          "height": 44,
+                          "fill": "$ui:--secondary",
+                          "cornerRadius": 10,
+                          "justifyContent": "center",
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "icon",
+                              "id": "O7NjuK",
+                              "name": "Icon",
+                              "width": 24,
+                              "height": 24,
+                              "icon": "smart_toy",
+                              "library": "Material Symbols Sharp",
+                              "fill": "$ui:--foreground"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "V9JYQ",
+                          "name": "Name block",
+                          "layout": "vertical",
+                          "gap": 4,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "S60BEJ",
+                              "name": "Title row",
+                              "gap": 6,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "HXkPe",
+                                  "name": "Agent name",
+                                  "fill": "$ui:--foreground",
+                                  "content": "Billing reminders",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 22,
+                                  "fontWeight": "600"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "FdHmC",
+                                  "name": "Rename button",
+                                  "width": 28,
+                                  "height": 28,
+                                  "cornerRadius": 8,
+                                  "justifyContent": "center",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "vOLY6",
+                                      "name": "Pencil",
+                                      "width": 15,
+                                      "height": 15,
+                                      "icon": "pencil",
+                                      "library": "lucide",
+                                      "fill": "$ui:--muted-foreground"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Y8Ol4r",
+                              "name": "Meta",
+                              "gap": 10,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "WTTXb",
+                                  "name": "Live",
+                                  "gap": 6,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "RiM7B",
+                                      "name": "Dot",
+                                      "fill": "$ui:success",
+                                      "width": 6,
+                                      "height": 6
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "Q3znx2",
+                                      "name": "Live on",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Reachable at",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "Hrtdd",
+                                      "name": "+1 829 555 0199",
+                                      "fill": "$ui:--foreground",
+                                      "content": "2 numbers",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "ABVX6",
+                                  "name": "Dot sep",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "·",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "a1RUP",
+                                  "name": "Ref chip",
+                                  "fill": "$ui:--muted",
+                                  "cornerRadius": 6,
+                                  "gap": 6,
+                                  "padding": [
+                                    2,
+                                    8
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "y32w9",
+                                      "name": "ap-7f3c91",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "ap-7f3c91",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 11,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "icon",
+                                      "id": "VRCwY",
+                                      "name": "Copy",
+                                      "width": 11,
+                                      "height": 11,
+                                      "icon": "copy",
+                                      "library": "lucide",
+                                      "fill": "$ui:--muted-foreground"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "R3xNO",
+                      "name": "Actions",
+                      "gap": 10,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "jfM3w",
+                          "name": "Unsaved",
+                          "gap": 6,
+                          "padding": [
+                            0,
+                            6,
+                            0,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "ellipse",
+                              "id": "SqSwU",
+                              "name": "Dot",
+                              "fill": "$ui:warning",
+                              "width": 6,
+                              "height": 6
+                            },
+                            {
+                              "type": "text",
+                              "id": "hve04",
+                              "name": "Unsaved changes",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "Unsaved changes",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "id": "wgRA8",
+                          "type": "ref",
+                          "ref": "ui:4x7RU",
+                          "name": "Talk",
+                          "descendants": {
+                            "ui:r97g1": {
+                              "enabled": false
+                            },
+                            "ui:7ZVG7": {
+                              "content": "Talk to agent"
+                            }
+                          }
+                        },
+                        {
+                          "id": "tduIZ",
+                          "type": "ref",
+                          "ref": "ui:ZETEA",
+                          "name": "Save",
+                          "descendants": {
+                            "ui:mRGd3": {
+                              "enabled": false
+                            },
+                            "ui:q5Hn5": {
+                              "content": "Save"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "LzJW6",
+                  "name": "Tabs",
+                  "width": "fill_container",
+                  "stroke": "$ui:--border",
+                  "strokeWidth": {
+                    "bottom": 1
+                  },
+                  "strokeAlignment": "inner",
+                  "gap": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "dtLuG",
+                      "name": "Tab Configure",
+                      "stroke": "$ui:--foreground",
+                      "strokeWidth": {
+                        "bottom": 2
+                      },
+                      "strokeAlignment": "inner",
+                      "gap": 6,
+                      "padding": [
+                        10,
+                        0,
+                        12,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "rQgFS",
+                          "name": "Configure",
+                          "fill": "$ui:--foreground",
+                          "content": "Configure",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 14,
+                          "fontWeight": "500"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "X5PL9",
+                      "name": "Tab Tools",
+                      "stroke": "#00000000",
+                      "strokeWidth": {
+                        "bottom": 2
+                      },
+                      "strokeAlignment": "inner",
+                      "gap": 6,
+                      "padding": [
+                        10,
+                        0,
+                        12,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "fkRSN",
+                          "name": "Tools",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "Tools",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "flTCT",
+                          "name": "Count",
+                          "fill": "$ui:--muted",
+                          "cornerRadius": 6,
+                          "padding": [
+                            1,
+                            6
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "O1NUO",
+                              "name": "2",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "2",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "RzfMq",
+                      "name": "Tab Knowledge",
+                      "stroke": "#00000000",
+                      "strokeWidth": {
+                        "bottom": 2
+                      },
+                      "strokeAlignment": "inner",
+                      "gap": 6,
+                      "padding": [
+                        10,
+                        0,
+                        12,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "GSvmn",
+                          "name": "Knowledge",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "Knowledge",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "A9tfR",
+                          "name": "Count",
+                          "fill": "$ui:--muted",
+                          "cornerRadius": 6,
+                          "padding": [
+                            1,
+                            6
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "a5RcyA",
+                              "name": "1",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "2",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "zbFpj",
+                      "name": "Tab Tests",
+                      "stroke": "#00000000",
+                      "strokeWidth": {
+                        "bottom": 2
+                      },
+                      "strokeAlignment": "inner",
+                      "gap": 6,
+                      "padding": [
+                        10,
+                        0,
+                        12,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "JjP8a",
+                          "name": "Tests",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "Tests",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "cTYrU",
+                          "name": "Count",
+                          "fill": "$ui:--muted",
+                          "cornerRadius": 6,
+                          "padding": [
+                            1,
+                            6
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "xC2Z6",
+                              "name": "3",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "3",
+                              "fontFamily": "$ui:--font-primary",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "ZgHII",
+                      "name": "Tab Calls",
+                      "stroke": "#00000000",
+                      "strokeWidth": {
+                        "bottom": 2
+                      },
+                      "strokeAlignment": "inner",
+                      "gap": 6,
+                      "padding": [
+                        10,
+                        0,
+                        12,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "xAncE",
+                          "name": "Calls",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "Calls",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "EzAS4",
+                      "name": "Tab Advanced",
+                      "stroke": "#00000000",
+                      "strokeWidth": {
+                        "bottom": 2
+                      },
+                      "strokeAlignment": "inner",
+                      "gap": 6,
+                      "padding": [
+                        10,
+                        0,
+                        12,
+                        0
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Aulcw",
+                          "name": "Advanced",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "Advanced",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "k65vz",
+                  "name": "Configure body",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "gap": 20,
+                  "padding": [
+                    20,
+                    0,
+                    24,
+                    0
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "EgCl3",
+                      "name": "Left",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "layout": "vertical",
+                      "gap": 16,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "wjyL0",
+                          "name": "Prompt",
+                          "width": "fill_container",
+                          "height": "fill_container",
+                          "fill": "$ui:--card",
+                          "cornerRadius": 12,
+                          "stroke": "$ui:--border",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "layout": "vertical",
+                          "gap": 14,
+                          "padding": 20,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "U8vtaj",
+                              "name": "Panel header",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "r4F8s6",
+                                  "name": "Conversation",
+                                  "fill": "$ui:--foreground",
+                                  "content": "Conversation",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "SnEd6",
+                              "name": "Field First message",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "Ebd94",
+                                  "name": "Label row",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "G47UP",
+                                      "name": "First message",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "First message",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "F5jyyL",
+                                  "name": "Input",
+                                  "width": "fill_container",
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "gap": 8,
+                                  "padding": [
+                                    9,
+                                    12
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "TdVxU",
+                                      "name": "Value",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Hola, le llamo de Acme sobre su factura pendiente. ¿Tiene un minuto?",
+                                      "lineHeight": 1.6,
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "XMBYP",
+                              "name": "Field System prompt",
+                              "width": "fill_container",
+                              "height": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "uDBrG",
+                                  "name": "Label row",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "Hwj1k",
+                                      "name": "System prompt",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "System prompt",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "E8W8aP",
+                                      "name": "Hint",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "1,284 tokens",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 11,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "kvFvK",
+                                  "name": "Input",
+                                  "width": "fill_container",
+                                  "height": "fill_container",
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "gap": 8,
+                                  "padding": [
+                                    9,
+                                    12
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "ls4NI",
+                                      "name": "Value",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "# Role\nYou are Sofía, a friendly billing assistant for Acme.\n\n# Goal\nRemind the customer about their open invoice and agree on a payment date.\n\n# Rules\n- Be polite and brief; never pressure the customer.\n- Confirm the date back before ending the call.\n- If they ask for a human, transfer the call.",
+                                      "lineHeight": 1.6,
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "QjYkA",
+                              "name": "Messages row",
+                              "width": "fill_container",
+                              "gap": 14,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "q1Udf8",
+                                  "name": "Field Goodbye message",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 6,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "JgxBB",
+                                      "name": "Label row",
+                                      "width": "fill_container",
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "bElo5",
+                                          "name": "Goodbye message",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Goodbye message",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "vffUO",
+                                      "name": "Input",
+                                      "width": "fill_container",
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "gap": 8,
+                                      "padding": [
+                                        9,
+                                        12
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "TTgJd",
+                                          "name": "Value",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Gracias por su tiempo. ¡Que tenga buen día!",
+                                          "lineHeight": 1.6,
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "L1HGvE",
+                                  "name": "Field Error message",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 6,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "BDvUc",
+                                      "name": "Label row",
+                                      "width": "fill_container",
+                                      "justifyContent": "space_between",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "l7a5B",
+                                          "name": "Error message",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Error message",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "MUxm6",
+                                      "name": "Input",
+                                      "width": "fill_container",
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "gap": 8,
+                                      "padding": [
+                                        9,
+                                        12
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "aGttv",
+                                          "name": "Value",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "Disculpe, hubo un error. Le llamamos luego.",
+                                          "lineHeight": 1.6,
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Bik3v",
+                      "name": "Right",
+                      "width": 360,
+                      "layout": "vertical",
+                      "gap": 16,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "bCKFV",
+                          "name": "Model & voice",
+                          "width": "fill_container",
+                          "fill": "$ui:--card",
+                          "cornerRadius": 12,
+                          "stroke": "$ui:--border",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "layout": "vertical",
+                          "gap": 12,
+                          "padding": 20,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "b7HCl",
+                              "name": "Model & voice",
+                              "fill": "$ui:--foreground",
+                              "content": "Model & voice",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "LXsTK",
+                              "name": "Row Language model",
+                              "width": "fill_container",
+                              "fill": "$ui:--background",
+                              "cornerRadius": "$ui:--radius-control",
+                              "stroke": "$ui:--input",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "gap": 10,
+                              "padding": [
+                                10,
+                                12
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "Efvjb",
+                                  "name": "Text",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "S2gxIs",
+                                      "name": "Label",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Language model",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 11,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "FNTfJ",
+                                      "name": "Value",
+                                      "fill": "$ui:--foreground",
+                                      "content": "OpenAI · gpt-4o-mini",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "U9Toi",
+                                  "name": "Meta",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "temp 0.4",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "icon",
+                                  "id": "sa8zG",
+                                  "name": "Chevron",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "chevron-down",
+                                  "library": "lucide",
+                                  "fill": "$ui:--muted-foreground"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "ys96S",
+                              "name": "Voice open",
+                              "width": "fill_container",
+                              "fill": "$ui:--background",
+                              "cornerRadius": "$ui:--radius-control",
+                              "stroke": "$ui:--ring",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 12,
+                              "padding": 12,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "PxR3Z",
+                                  "name": "Header",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "DHCEF",
+                                      "name": "Label",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Voice",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 11,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "icon",
+                                      "id": "h8WqM2",
+                                      "name": "Chevron",
+                                      "width": 14,
+                                      "height": 14,
+                                      "icon": "chevron-up",
+                                      "library": "lucide",
+                                      "fill": "$ui:--muted-foreground"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "OC2Ul",
+                                  "name": "Vendor and model",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 12,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "PduWd",
+                                      "name": "Vendor",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 4,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "N2nE69",
+                                          "name": "Label",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Vendor",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 11,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "id": "fOI9D",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "name": "Vendor select",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "Deepgram"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "igX2x",
+                                      "name": "Model",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 4,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "riIhX",
+                                          "name": "Label",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Model",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 11,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "id": "ajSgy",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "name": "Model select",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "Flux"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "t3GcF",
+                                  "name": "Filter",
+                                  "width": "fill_container",
+                                  "height": 32,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": 6,
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "gap": 8,
+                                  "padding": [
+                                    0,
+                                    10
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "icon",
+                                      "id": "MO04u",
+                                      "name": "Search icon",
+                                      "width": 13,
+                                      "height": 13,
+                                      "icon": "search",
+                                      "library": "lucide",
+                                      "fill": "$ui:--muted-foreground"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "MLJWk",
+                                      "name": "Placeholder",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Filter by name",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "Yl2Xw",
+                                  "name": "Voice list",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 2,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "ADnjz",
+                                      "name": "Voice Fernanda",
+                                      "width": "fill_container",
+                                      "fill": "$ui:--accent",
+                                      "cornerRadius": 6,
+                                      "gap": 8,
+                                      "padding": [
+                                        8,
+                                        10
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "frame",
+                                          "id": "uUHUN",
+                                          "name": "Text",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 5,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "n0teW",
+                                              "name": "Name",
+                                              "fill": "$ui:--foreground",
+                                              "content": "Fernanda",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 13,
+                                              "fontWeight": "500"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "PSque",
+                                              "name": "Chips",
+                                              "gap": 4,
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "j9PEt6",
+                                                  "name": "Chip es-MX",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "IUfcu",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "es-mx",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "cajdh",
+                                                  "name": "Chip female",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "PyVBn",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "female",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "K1dVr",
+                                                  "name": "Chip Mexican",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "f3sInN",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "mexican",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        },
+                                        {
+                                          "type": "icon",
+                                          "id": "TlAAl",
+                                          "name": "Selected",
+                                          "width": 14,
+                                          "height": 14,
+                                          "icon": "check",
+                                          "library": "lucide",
+                                          "fill": "$ui:--foreground"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "A1JsKK",
+                                      "name": "Voice Ernesto",
+                                      "width": "fill_container",
+                                      "fill": "#00000000",
+                                      "cornerRadius": 6,
+                                      "gap": 8,
+                                      "padding": [
+                                        8,
+                                        10
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "frame",
+                                          "id": "NNEa4",
+                                          "name": "Text",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 5,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "MqkNH",
+                                              "name": "Name",
+                                              "fill": "$ui:--foreground",
+                                              "content": "Ernesto",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 13,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "P3j9O0",
+                                              "name": "Chips",
+                                              "gap": 4,
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "LzJ1r",
+                                                  "name": "Chip es-MX",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "ALlq6",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "es-mx",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "HhBro",
+                                                  "name": "Chip male",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "NyC8Q",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "male",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "IpJvC",
+                                                  "name": "Chip Mexican",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "jIZTh",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "mexican",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "WDaha",
+                                      "name": "Voice Patricia",
+                                      "width": "fill_container",
+                                      "fill": "#00000000",
+                                      "cornerRadius": 6,
+                                      "gap": 8,
+                                      "padding": [
+                                        8,
+                                        10
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "frame",
+                                          "id": "Hgfkj",
+                                          "name": "Text",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 5,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "wdrzx",
+                                              "name": "Name",
+                                              "fill": "$ui:--foreground",
+                                              "content": "Patricia",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 13,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "gNS60",
+                                              "name": "Chips",
+                                              "gap": 4,
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "nBe58",
+                                                  "name": "Chip es-MX",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "S0b3a",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "es-mx",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "nCz5G",
+                                                  "name": "Chip female",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "aV32C",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "female",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "U1erH",
+                                                  "name": "Chip Mexican",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "idrHK",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "mexican",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "lEhm2",
+                                      "name": "Voice Valentina",
+                                      "width": "fill_container",
+                                      "fill": "#00000000",
+                                      "cornerRadius": 6,
+                                      "gap": 8,
+                                      "padding": [
+                                        8,
+                                        10
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "frame",
+                                          "id": "ek6S4",
+                                          "name": "Text",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 5,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "sMpjX",
+                                              "name": "Name",
+                                              "fill": "$ui:--foreground",
+                                              "content": "Valentina",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 13,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "ZlcCm",
+                                              "name": "Chips",
+                                              "gap": 4,
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "yTttY",
+                                                  "name": "Chip es-CO",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "NXHFS",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "es-co",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "IgaFH",
+                                                  "name": "Chip female",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "Wbx7m",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "female",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "Da3KH",
+                                                  "name": "Chip Colombian",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "e7XMR5",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "colombian",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "Mv2up",
+                                      "name": "Voice Aina",
+                                      "width": "fill_container",
+                                      "fill": "#00000000",
+                                      "cornerRadius": 6,
+                                      "gap": 8,
+                                      "padding": [
+                                        8,
+                                        10
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "frame",
+                                          "id": "F47TvL",
+                                          "name": "Text",
+                                          "width": "fill_container",
+                                          "layout": "vertical",
+                                          "gap": 5,
+                                          "children": [
+                                            {
+                                              "type": "text",
+                                              "id": "kX7xL",
+                                              "name": "Name",
+                                              "fill": "$ui:--foreground",
+                                              "content": "Aina",
+                                              "fontFamily": "$ui:--font-secondary",
+                                              "fontSize": 13,
+                                              "fontWeight": "normal"
+                                            },
+                                            {
+                                              "type": "frame",
+                                              "id": "YtPKg",
+                                              "name": "Chips",
+                                              "gap": 4,
+                                              "children": [
+                                                {
+                                                  "type": "frame",
+                                                  "id": "t5IhZ",
+                                                  "name": "Chip es-ES",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "WoPNm",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "es-es",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "ys7S8",
+                                                  "name": "Chip female",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "gFdJo",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "female",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                },
+                                                {
+                                                  "type": "frame",
+                                                  "id": "ubmEB",
+                                                  "name": "Chip Peninsular",
+                                                  "fill": "$ui:--muted",
+                                                  "cornerRadius": 4,
+                                                  "padding": [
+                                                    2,
+                                                    6
+                                                  ],
+                                                  "children": [
+                                                    {
+                                                      "type": "text",
+                                                      "id": "p2TLgW",
+                                                      "name": "Chip text",
+                                                      "fill": "$ui:--muted-foreground",
+                                                      "content": "peninsular",
+                                                      "fontFamily": "$ui:--font-primary",
+                                                      "fontSize": 10,
+                                                      "fontWeight": "normal"
+                                                    }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Jvnb3",
+                                  "name": "Count",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "266 voices",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "eOIDl",
+                                  "name": "Voice ID",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "S0pXHp",
+                                      "name": "Label",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Or enter a voice ID",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 11,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "id": "H9FHOQ",
+                                      "type": "ref",
+                                      "ref": "ui:cqqfg",
+                                      "name": "Voice ID input",
+                                      "width": "fill_container",
+                                      "descendants": {
+                                        "ui:ehaeO": {
+                                          "content": "Voice ID",
+                                          "fill": "$ui:--muted-foreground"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "RAjSF",
+                                  "name": "Speed",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 6,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "z3Cl3",
+                                      "name": "Speed header",
+                                      "width": "fill_container",
+                                      "justifyContent": "space_between",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "sMXPF",
+                                          "name": "Label",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Speed",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 11,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "OOFpj",
+                                          "name": "Value",
+                                          "fill": "$ui:--foreground",
+                                          "content": "1.0×",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 11,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "hPY2z",
+                                      "name": "Track",
+                                      "width": "fill_container",
+                                      "height": 16,
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "rectangle",
+                                          "cornerRadius": 2,
+                                          "id": "uMRj3",
+                                          "name": "Filled",
+                                          "fill": "$ui:--primary",
+                                          "width": 85,
+                                          "height": 4
+                                        },
+                                        {
+                                          "type": "ellipse",
+                                          "id": "V2kAJf",
+                                          "name": "Thumb",
+                                          "fill": "$ui:--foreground",
+                                          "width": 14,
+                                          "height": 14
+                                        },
+                                        {
+                                          "type": "rectangle",
+                                          "cornerRadius": 2,
+                                          "id": "LZ5I8",
+                                          "name": "Rest",
+                                          "fill": "$ui:--muted",
+                                          "width": "fill_container",
+                                          "height": 4
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "BrYWK",
+                                      "name": "Range",
+                                      "width": "fill_container",
+                                      "justifyContent": "space_between",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "xU5M0",
+                                          "name": "Min",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "0.7×",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 10,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "SebgW",
+                                          "name": "Max",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "1.2×",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 10,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "zqJ1r",
+                              "name": "Transcriber open",
+                              "width": "fill_container",
+                              "fill": "$ui:--background",
+                              "cornerRadius": "$ui:--radius-control",
+                              "stroke": "$ui:--ring",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 12,
+                              "padding": 12,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "XtWBD",
+                                  "name": "Header",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "ok13p",
+                                      "name": "Label",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Transcriber",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 11,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "icon",
+                                      "id": "QYJoL",
+                                      "name": "Chevron",
+                                      "width": 14,
+                                      "height": 14,
+                                      "icon": "chevron-up",
+                                      "library": "lucide",
+                                      "fill": "$ui:--muted-foreground"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "bDERP",
+                                  "name": "Provider and model",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 12,
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "AlkX1",
+                                      "name": "Provider",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 4,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "D51d24",
+                                          "name": "Label",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Provider",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 11,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "id": "zTkHo",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "name": "Provider select",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "Deepgram"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "W7KqU",
+                                      "name": "Model",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 4,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "a2Uib",
+                                          "name": "Label",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Model",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 11,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "id": "onvte",
+                                          "type": "ref",
+                                          "ref": "ui:Vc5jL",
+                                          "name": "Model select",
+                                          "width": "fill_container",
+                                          "descendants": {
+                                            "ui:JbPGR": {
+                                              "content": "Nova 3"
+                                            }
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "rS3oX",
+                                  "name": "Language",
+                                  "width": "fill_container",
+                                  "layout": "vertical",
+                                  "gap": 4,
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "dLNaF",
+                                      "name": "Label",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Language",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 11,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "id": "hULJB",
+                                      "type": "ref",
+                                      "ref": "ui:Vc5jL",
+                                      "name": "Language select",
+                                      "width": "fill_container",
+                                      "descendants": {
+                                        "ui:JbPGR": {
+                                          "content": "Spanish (Mexico)"
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "TwTHA",
+                          "name": "Phone numbers",
+                          "width": "fill_container",
+                          "fill": "$ui:--card",
+                          "cornerRadius": 12,
+                          "stroke": "$ui:--border",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "layout": "vertical",
+                          "gap": 12,
+                          "padding": 20,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "D3c6HX",
+                              "name": "Panel header",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "yBmMc",
+                                  "name": "Phone numbers",
+                                  "fill": "$ui:--foreground",
+                                  "content": "Reachable at",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "WjhUq",
+                                  "name": "Assign",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Manage in Numbers →",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "VX0ii",
+                              "name": "Number",
+                              "width": "fill_container",
+                              "gap": 10,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "C5pcY",
+                                  "name": "Icon",
+                                  "width": 16,
+                                  "height": 16,
+                                  "icon": "call",
+                                  "library": "Material Symbols Sharp",
+                                  "fill": "$ui:--muted-foreground"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "NP9az",
+                                  "name": "+1 829 555 0199",
+                                  "fill": "$ui:--foreground",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "+1 829 555 0199",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "r1Cix",
+                                  "name": "via Trunk · Claro",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Trunk · Claro",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "zwJI4",
+                              "name": "Number 2",
+                              "width": "fill_container",
+                              "gap": 10,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "Vpvwr",
+                                  "name": "Icon",
+                                  "width": 16,
+                                  "height": 16,
+                                  "icon": "call",
+                                  "library": "Material Symbols Sharp",
+                                  "fill": "$ui:--muted-foreground"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "IZU3S",
+                                  "name": "+1 809 555 0177",
+                                  "fill": "$ui:--foreground",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "+1 809 555 0177",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "Tfw5D",
+                                  "name": "Trunk · Altice",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Trunk · Altice",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "SwqW7",
+                              "name": "Direction note",
+                              "fill": "$ui:--muted-foreground",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Numbers point to agents. To route another number here, edit it in Numbers.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "wA3aj",
+                          "name": "Behavior",
+                          "width": "fill_container",
+                          "fill": "$ui:--card",
+                          "cornerRadius": 12,
+                          "stroke": "$ui:--border",
+                          "strokeWidth": 1,
+                          "strokeAlignment": "inner",
+                          "layout": "vertical",
+                          "gap": 12,
+                          "padding": 20,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "vv1Xl",
+                              "name": "Behavior",
+                              "fill": "$ui:--foreground",
+                              "content": "Behavior",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "AJNTK",
+                              "name": "Row Let callers interrupt",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "KTJA3",
+                                  "name": "Let callers interrupt",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Let callers interrupt",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "P2jizl",
+                                  "name": "Switch",
+                                  "width": 32,
+                                  "height": 18,
+                                  "fill": "$ui:--primary",
+                                  "cornerRadius": 9,
+                                  "padding": 2,
+                                  "justifyContent": "end",
+                                  "children": [
+                                    {
+                                      "type": "ellipse",
+                                      "id": "uwHW7",
+                                      "name": "Knob",
+                                      "fill": "$ui:on-accent",
+                                      "width": 14,
+                                      "height": 14
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "bcC0F",
+                              "name": "Row Hang up after silence",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "x9AfkX",
+                                  "name": "Hang up after silence",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Hang up after silence",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "h2fvEC",
+                                  "name": "Input",
+                                  "width": 150,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    7,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "xl93j",
+                                      "name": "3 × 10 s",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "3 × 10 s",
+                                      "textAlign": "right",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "NbTwT",
+                              "name": "Row Max call length",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "K0Dng",
+                                  "name": "Max call length",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Max call length",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "p4CfI",
+                                  "name": "Input",
+                                  "width": 150,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    7,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "E0dgm",
+                                      "name": "30 min",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "30 min",
+                                      "textAlign": "right",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "qUawk",
+                              "name": "Row Transfer to an operator",
+                              "width": "fill_container",
+                              "justifyContent": "space_between",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "S54Gv2",
+                                  "name": "Transfer to an operator",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Transfer to an operator",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "u39nFr",
+                                  "name": "Input",
+                                  "width": 150,
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "padding": [
+                                    7,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "W3D4y",
+                                      "name": "+1 809 555 0100",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "+1 809 555 0100",
+                                      "textAlign": "right",
+                                      "fontFamily": "$ui:--font-primary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "BHFSX",
+                              "name": "Field Transfer message",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "r25CKP",
+                                  "name": "Label row",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "y75fW",
+                                      "name": "Says before transferring",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Says before transferring",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "ZUxjo",
+                                  "name": "Input",
+                                  "width": "fill_container",
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "gap": 8,
+                                  "padding": [
+                                    9,
+                                    12
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "fAtPY",
+                                      "name": "Value",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "One moment, I'm transferring you to a person.",
+                                      "lineHeight": 1.6,
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "LlBcF",
+                              "name": "Field Transfer failed message",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 6,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "CGEBa",
+                                  "name": "Label row",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "SFcpL",
+                                      "name": "Says if the transfer fails",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "Says if the transfer fails",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "n1wpJJ",
+                                  "name": "Input",
+                                  "width": "fill_container",
+                                  "fill": "$ui:--background",
+                                  "cornerRadius": "$ui:--radius-control",
+                                  "stroke": "$ui:--input",
+                                  "strokeWidth": 1,
+                                  "strokeAlignment": "inner",
+                                  "gap": 8,
+                                  "padding": [
+                                    9,
+                                    12
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "MgWrE",
+                                      "name": "Value",
+                                      "fill": "$ui:--foreground",
+                                      "textGrowth": "fixed-width",
+                                      "width": "fill_container",
+                                      "content": "Sorry, I couldn't connect you. How else can I help?",
+                                      "lineHeight": 1.6,
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
     }
   ],
   "imports": {
