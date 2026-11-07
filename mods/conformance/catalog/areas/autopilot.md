@@ -174,18 +174,16 @@ had no case.
 
 **Pass.** `hangup` speaks the goodbye and sends hangup after output.done; `transfer` speaks the transfer message and sends transfer to the agent's number. **Fail.** A call left open, or a transfer to another number.
 
-### APT-007 Voices and recognition hints come from the agent
+### APT-007 Recognition hints come from the agent
 
-- **Spec:** autopilot / Plugs, not vendors / Voice override
 - **Spec:** autopilot / Plugs, not vendors / Recognition hints
 - **Priority:** P1
 - **Proof:** Send all but the first hint (`greet` in `Agent.ts`); the tests must go red on recognition-hints.
 - **Fault:** faults/APT-007.patch
 - **Test:** mods/autopilot/test/session/conformance.test.ts, mods/autopilot/test/session/hosted.test.ts
-- **Runs:** scenarios/autopilot/voice-override.yaml
 - **Runs:** scenarios/autopilot/recognition-hints.yaml
 
-**Pass.** Every speak carries the agent's voice, and the agent's hints go out with listen.update when the session starts. **Fail.** The app's default voice, or a hint missing.
+**Pass.** The agent's hints go out with listen.update when the session starts. **Fail.** A hint missing.
 
 ### APT-008 Idle handling
 

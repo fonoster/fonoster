@@ -249,17 +249,12 @@ export async function listWarnings(
   for (const app of apps as Record<string, unknown>[]) {
     const config = app.intelligence as { config?: unknown } | null;
     const agent = config?.config as
-      | {
-          languageModel?: { model?: string };
-          conversationSettings?: { voice?: string };
-        }
-      | undefined;
+      { languageModel?: { model?: string } } | undefined;
     const refs: [string | undefined | null, WarningUse["kind"], string][] = [
       [app.speechVoice as string, "app", "voice"],
       [app.speechTtsModel as string, "app", "ttsModel"],
       [app.speechSttModel as string, "app", "sttModel"],
-      [agent?.languageModel?.model, "agent", "llm"],
-      [agent?.conversationSettings?.voice, "agent", "voice"]
+      [agent?.languageModel?.model, "agent", "llm"]
     ];
     for (const [id, kind, field] of refs) {
       if (!id) continue;

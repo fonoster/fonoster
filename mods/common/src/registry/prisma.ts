@@ -242,8 +242,7 @@ type SpeechRow = {
 type Origin =
   | { kind: "app-tts"; row: SpeechRow }
   | { kind: "app-stt"; row: SpeechRow }
-  | { kind: "agent-llm"; row: SpeechRow; model: string }
-  | { kind: "agent-voice"; row: SpeechRow; voice: string };
+  | { kind: "agent-llm"; row: SpeechRow; model: string };
 
 export type RewriteConflict = { usage: Usage; reason: string };
 
@@ -254,8 +253,7 @@ export type PrismaUsageSourceOptions = {
 
 /**
  * Usages of catalog ids in apps (speech defaults: voice, TTS and STT models) and agents (the
- * Autopilot agent in an app's Intelligence config: `languageModel.model`, and
- * `conversationSettings.voice`). Legacy rows with raw vendor names are not usages until migrated
+ * Autopilot agent in an app's Intelligence config: `languageModel.model`). Legacy rows with raw vendor names are not usages until migrated
  * to catalog ids (task 5.1).
  */
 export class PrismaUsageSource implements UsageSource {
@@ -330,11 +328,7 @@ export class PrismaUsageSource implements UsageSource {
         );
       }
       const agent = row.intelligence?.config as
-        | {
-            languageModel?: { model?: string; tools?: unknown[] };
-            conversationSettings?: { voice?: string };
-          }
-        | undefined;
+        { languageModel?: { model?: string; tools?: unknown[] } } | undefined;
       const llm = agent?.languageModel?.model;
       const config = {
         kind: "agent" as const,
@@ -353,20 +347,6 @@ export class PrismaUsageSource implements UsageSource {
               : ["streaming"]
           },
           { kind: "agent-llm", row, model: llm }
-        );
-      }
-      const voice = agent?.conversationSettings?.voice;
-      if (voice === id) {
-        add(
-          {
-            workspace: row.accessKeyId,
-            config,
-            model: row.speechTtsModel ?? undefined,
-            voice,
-            settings: [],
-            requires: ["streaming"]
-          },
-          { kind: "agent-voice", row, voice }
         );
       }
     }
@@ -415,21 +395,10 @@ export class PrismaUsageSource implements UsageSource {
     }
     const config = JSON.parse(
       JSON.stringify(row.intelligence?.config ?? {})
-    ) as {
-      languageModel?: { model?: string };
-      conversationSettings?: { voice?: string };
-    };
-    let path: string[];
-    let expected: string;
-    if (origin.kind === "agent-llm") {
-      path = ["languageModel", "model"];
-      expected = origin.model;
-      if (change.model) config.languageModel!.model = change.model;
-    } else {
-      path = ["conversationSettings", "voice"];
-      expected = origin.voice;
-      if (change.voice) config.conversationSettings!.voice = change.voice;
-    }
+    ) as { languageModel?: { model?: string } };
+    const path = ["languageModel", "model"];
+    const expected = origin.model;
+    if (change.model) config.languageModel!.model = change.model;
     this.writes.push(async () => {
       const { count } = await this.prisma.intelligence.updateMany({
         where: { applicationRef: row.ref, config: { path, equals: expected } },

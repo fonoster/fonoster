@@ -25,8 +25,8 @@ run, or that have no key available to your workspace, are not listed.
 
 - **Apps**: `speech.voice` and `speech.sttModel` take catalog ids, for example
   `voice: deepgram/aura-2-thalia-en`, `sttModel: deepgram/nova-3`.
-- **Autopilot agents**: the language model (`languageModel.model`) and voice
-  (`conversationSettings.voice`) take catalog ids. An agent with tools needs an LLM that
+- **Autopilot agents**: the language model (`languageModel.model`) takes a catalog id; the voice
+  is the app's `speech.voice`. An agent with tools needs an LLM that
   supports tool calling.
 - An id that is not in the catalog is refused (the app gets an `invalid_catalog_id` error, which is not fatal to the call).
 
