@@ -26,11 +26,6 @@ import type {
 // applications/session/appModel.ts): a field left out is cleared. Every update the dashboard sends
 // starts from the app's full current state (this function) and overlays only what was edited.
 
-// `speed` (#1323) is new in SpeechDefaults; declared here until @fonoster/types has it.
-export type SpeechRequest = NonNullable<CreateApplicationRequest["speech"]> & {
-  speed?: number;
-};
-
 /** Drops proto3's "" and 0 placeholders. */
 const set = <T>(v: T | "" | 0 | null | undefined): T | undefined =>
   v === "" || v === 0 || v === null || v === undefined ? undefined : v;
@@ -39,7 +34,7 @@ const set = <T>(v: T | "" | 0 | null | undefined): T | undefined =>
 export function applicationToRequest(
   app: Application
 ): CreateApplicationRequest {
-  const speech = (app.speech ?? {}) as SpeechRequest;
+  const speech = app.speech ?? {};
   const config = app.intelligence?.config;
   return {
     name: app.name,
@@ -54,7 +49,7 @@ export function applicationToRequest(
       silenceTimeoutMs: set(speech.silenceTimeoutMs),
       patience: set(speech.patience),
       speed: set(speech.speed)
-    } as SpeechRequest,
+    },
     audio: app.audio?.codec
       ? { codec: app.audio.codec, rate: app.audio.rate }
       : undefined,
