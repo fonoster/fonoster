@@ -105,7 +105,7 @@
   "APT-004": "Barge-in stops speech and keeps history honest",
   "APT-005": "Tools are structured and behind a port",
   "APT-006": "Built-in hangup and transfer",
-  "APT-007": "Voices and recognition hints come from the agent",
+  "APT-007": "Recognition hints come from the agent",
   "APT-008": "Idle handling",
   "APT-009": "Optional filler while thinking",
   "APT-010": "Every turn is traced in the call record",

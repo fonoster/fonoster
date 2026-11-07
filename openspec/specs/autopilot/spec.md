@@ -153,11 +153,6 @@ and tools through ports. Agent configs MUST NOT contain vendor credentials.
 - **WHEN** an agent config contains `apiKey`
 - **THEN** validation rejects it with a message pointing to workspace secrets
 
-#### Scenario: Voice override
-
-- **WHEN** an agent sets a voice different from the app default
-- **THEN** each `speak` Autopilot sends carries that voice's catalog id
-
 #### Scenario: Recognition hints
 
 - **WHEN** an agent lists recognition `hints` (names, brands)

@@ -113,16 +113,8 @@ different: it nests the agent and its `testCases` under `intelligence.config`. S
   </Expandable>
 </ParamField>
 
-<ParamField path="conversationSettings.voice" type="string">
-  A voice catalog ID that overrides the application's `speech.voice` for this agent.
-</ParamField>
-
-<ParamField path="conversationSettings.language" type="string">
-  A language that overrides the application's `speech.language` for this agent, such as `en-US`.
-</ParamField>
-
 <Warning>
-  The dashboard doesn't keep `patience`, `hints`, `filler`, `voice` and `language` yet. If you save
+  The dashboard doesn't keep `patience`, `hints` and `filler` yet. If you save
   the agent in the dashboard, set them again with the SDK or the CLI.
 </Warning>
 

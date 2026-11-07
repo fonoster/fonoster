@@ -115,9 +115,6 @@ export const sessionConversationSettingsSchema = z
     hints: z.array(z.string().min(1)).max(100).optional(),
     /** Played with play() while thinking; the reply preempts it (A9). */
     filler: z.object({ url: z.string().url() }).optional(),
-    /** Catalog ids overriding the app's speech defaults on every speak. */
-    voice: z.string().optional(),
-    language: z.string().optional(),
     vad: removed(
       "vad",
       "turn detection moved to AppBridge (turn-taking configuration)"

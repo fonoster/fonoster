@@ -802,11 +802,7 @@ export class Agent {
   }
 
   private speechOptions() {
-    return {
-      voice: this.settings.voice,
-      language: this.settings.language,
-      interruptible: this.settings.allowUserBargeIn
-    };
+    return { interruptible: this.settings.allowUserBargeIn };
   }
 
   /** Runs session work; a session that has ended stops everything quietly. */
