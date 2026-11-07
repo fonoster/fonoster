@@ -200,16 +200,21 @@ function FAKE_CATALOG() {
       );
     }
     if (kind !== "provider") i.setLanguagesList(["en-US", "es-ES"]);
+    // A voice names the TTS model it works on; the voice picker lists vendors by their models.
+    if (kind === "voice")
+      i.setModelsList([provider === "fake" ? "fake/tts" : "deepgram/aura-2"]);
     return i;
   };
   return [
     item("fake", "provider", "Fakes"),
     item("fake/llm", "model", "Fake LLM", "llm"),
     item("fake/stt", "model", "Fake transcriber", "stt"),
+    item("fake/tts", "model", "Fake TTS", "tts"),
     item("fake/default", "voice", "Fake voice", "tts"),
     // A keyed provider next to the fakes: a new agent must still prefer the keyless one.
     item("deepgram", "provider", "Deepgram"),
     item("deepgram/nova-3", "model", "Nova 3", "stt"),
+    item("deepgram/aura-2", "model", "Aura 2", "tts"),
     item("deepgram/aura-2-thalia-en", "voice", "Thalia", "tts")
   ];
 }
