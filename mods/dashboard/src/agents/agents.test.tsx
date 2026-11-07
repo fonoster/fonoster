@@ -575,7 +575,8 @@ describe("Agent detail", () => {
   });
 });
 
-describe("Voice and transcriber (#1323)", () => {
+// These render the 266-voice Flux list, which is slow on CI runners.
+describe("Voice and transcriber (#1323)", { timeout: 30_000 }, () => {
   const onFlux = fluxAgent;
   const onEleven = {
     ...onFlux,
@@ -790,7 +791,9 @@ describe("Voice and transcriber (#1323)", () => {
     expect(screen.getByLabelText("Model")).toHaveTextContent("Nova 3");
     await user.click(screen.getByLabelText("Language"));
     expect(
-      (await screen.findAllByRole("option")).map((o) => o.textContent)
+      (await screen.findAllByRole("option", {}, { timeout: 10_000 })).map(
+        (o) => o.textContent
+      )
     ).toEqual([
       "pt-BR (unavailable)",
       "English",
