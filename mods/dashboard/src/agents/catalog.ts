@@ -78,11 +78,8 @@ export function providerOf(id: string): string {
   return slash > 0 ? id.slice(0, slash) : "";
 }
 
-// `accent` (#1323) is new in ListCatalog; declared here until @fonoster/types has it.
-type Item = CatalogItem & { accent?: string };
-
-export function toAgentCatalog(items: Item[]): AgentCatalog {
-  const option = (i: Item): CatalogOption => ({
+export function toAgentCatalog(items: CatalogItem[]): AgentCatalog {
+  const option = (i: CatalogItem): CatalogOption => ({
     id: i.id,
     label: i.label || i.id.slice(i.providerId.length + 1) || i.id,
     provider: i.providerId,

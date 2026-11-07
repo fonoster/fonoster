@@ -28,7 +28,7 @@ import type {
   UpdateApplicationRequest
 } from "@fonoster/types";
 import { z } from "zod";
-import { mergeUpdate, type SpeechRequest } from "~/lib/app-request";
+import { mergeUpdate } from "~/lib/app-request";
 import { firstModelOf, providerOf, type AgentCatalog } from "./catalog";
 
 const POSITIVE = "Must be a positive number";
@@ -449,7 +449,7 @@ export function toRequest(
       : []
   };
 
-  const speech: SpeechRequest = {
+  const speech: NonNullable<CreateApplicationRequest["speech"]> = {
     voice: voiceOf(values.tts),
     // Left out when unknown, so an update keeps the saved one.
     ...(values.tts.model ? { ttsModel: values.tts.model } : {}),
