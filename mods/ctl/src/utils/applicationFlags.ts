@@ -94,7 +94,7 @@ export const applicationFlags = {
   }),
   recording: Flags.string({
     description: "the recording policy",
-    options: ["off", "on", "consent"]
+    options: ["off", "on"]
   }),
   amd: Flags.boolean({
     description:

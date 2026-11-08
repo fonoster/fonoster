@@ -1,25 +1,18 @@
 ---
-title: "Record calls and ask for consent"
+title: "Record calls"
 sidebarTitle: "Record calls"
-description: "Turn call recording on or off for an application, play a consent prompt first, and find the recording after the call."
+description: "Turn call recording on or off for an application and find the recording after the call."
 ---
 
-Fonoster records calls by policy, not from your code. You set a recording policy on the
-application, and every call it takes follows it. The recording is saved with the call's signed
+Fonoster records calls by a setting on the application, not from your code. Recording is `off`
+by default; set it to `on` and every call the application takes is recorded from the moment it
+reaches your application. The recording is saved with the call's signed
 [call record](/observe/call-records).
-
-## The policies
-
-| Policy | What happens |
-| --- | --- |
-| `off` | Nothing is recorded. |
-| `on` | The whole call is recorded from the moment it reaches your application. |
-| `consent` | The caller first hears a consent prompt, then recording starts. |
 
 Your application can't start, stop or pause the recording during the call. The Voice SDK has no
 record verb.
 
-## Set the policy
+## Turn recording on
 
 <Tabs>
   <Tab title="Dashboard">
@@ -27,8 +20,7 @@ record verb.
     - **Autopilot agent**: open the agent, go to the **Advanced** tab, and choose **Edit** on the
       **Call handling** panel.
 
-    Under **Recording**, choose **Off**, **On** or **On after consent prompt**, then choose
-    **Save**. **Workspace default** leaves the choice to the default (see below).
+    Turn on **Record calls**, then choose **Save**.
   </Tab>
   <Tab title="SDK">
     Set `recording` when you create or update the application. An update replaces the whole
@@ -37,56 +29,20 @@ record verb.
     ```javascript
     const apps = new SDK.Applications(client);
     const app = await apps.getApplication("6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31");
-    await apps.updateApplication({ ...app, recording: "consent" });
+    await apps.updateApplication({ ...app, recording: "on" });
     ```
   </Tab>
   <Tab title="CLI">
     ```bash
-    fonoster applications:update 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31 --recording consent
+    fonoster applications:update 6c1e2f4a-8b3d-4e7a-9f10-2d5c7b9e4a31 --recording on
     ```
 
-    `--recording` takes `off`, `on` or `consent`.
+    `--recording` takes `off` or `on`.
   </Tab>
 </Tabs>
 
-## Which policy applies
-
-Fonoster uses the first policy that's set, in this order:
-
-1. The application's policy.
-2. The workspace's policy.
-3. The region's default.
-4. `off`.
-
-An application left on **Workspace default** follows the workspace's policy, or the region's
-default if the workspace has none. To be sure a call is recorded, or not, set the policy on the
-application.
-
-<Note>
-  On your own install, the operator sets the workspace policies and the region default in the call
-  record configuration. See [Tune turn-taking and audio](/self-hosting/turn-taking-and-audio).
-</Note>
-
 If the call goes to the application's fallback because the application couldn't be reached, the
-fallback application's policy applies.
-
-## The consent prompt
-
-With `consent`, Fonoster answers the call and plays the consent prompt before your application
-starts. Your agent's first message, or your stream's first `say`, comes after it. The caller can't
-interrupt the prompt.
-
-- **Words**: "This call will be recorded." On your own install, the operator can change the
-  wording.
-- **Voice and language**: the application's voice and language, from its `speech` settings.
-
-The wording isn't translated: it's the same text for every application. A Spanish agent reads the
-English sentence in its Spanish voice. If your callers don't speak English, check what they hear,
-or ask for consent in your own words (see below).
-
-The call record notes that consent was requested. Recording starts after the prompt, whatever the
-caller does. If the caller doesn't agree, they hang up. To let callers decline and stay on the line,
-set the policy to `off`, ask for consent in your own words, and keep your own record of the answer.
+fallback application's own setting applies.
 
 ## What you get
 

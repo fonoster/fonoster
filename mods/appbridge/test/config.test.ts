@@ -101,6 +101,50 @@ describe("@appbridge/config", function () {
       expect(validateConfig(c).join()).to.contain("audio must be pcm16");
     }
   });
+
+  describe("recording is set only on the app", function () {
+    const load = (config: unknown) => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gw-recording-"));
+      const file = path.join(dir, "appbridge.yaml");
+      fs.writeFileSync(file, JSON.stringify(config));
+      return () => loadConfig(file);
+    };
+    const callRecord = {
+      dir: "/tmp/records",
+      region: "test",
+      signingKey: { kid: "k", privateKeyFile: "/k.pem" }
+    };
+
+    it("refuses callRecord.recording", function () {
+      expect(
+        load({ ...base(), callRecord: { ...callRecord, recording: "on" } })
+      ).to.throw(/callRecord: unknown key "recording"/);
+    });
+
+    it("refuses callRecord.consentPrompt", function () {
+      expect(
+        load({ ...base(), callRecord: { ...callRecord, consentPrompt: "Hi." } })
+      ).to.throw(/callRecord: unknown key "consentPrompt"/);
+    });
+
+    it("refuses callRecord.workspaces.<ref>.recording", function () {
+      expect(
+        load({
+          ...base(),
+          callRecord: {
+            ...callRecord,
+            workspaces: { WO1: { recording: "on" } }
+          }
+        })
+      ).to.throw(/callRecord\.workspaces\.WO1: unknown key "recording"/);
+    });
+
+    it("refuses apps[].recording: consent", function () {
+      const c = base();
+      (c.apps[0] as { recording?: string }).recording = "consent";
+      expect(load(c)).to.throw(/apps\[0\]\.recording: Invalid option/);
+    });
+  });
 });
 
 describe("@appbridge/call-record key set", function () {

@@ -41,7 +41,7 @@ ignores `endpoint`, `textToSpeech` and `speechToText` without an error, so check
 | CLI `--assistant` | `--agent` |
 | CLI `--flavor` | `--protocol` |
 | Voice SDK `(req, res)` handler | `(session)` handler and a signing secret |
-| `record()` | The recording policy on the application |
+| `record()` | The application's `recording` setting, `off` or `on` |
 
 ## Update your applications
 
@@ -264,7 +264,7 @@ app's `url`, and your handler gets a single argument: the session.
     | `sgather()` | `session.on("turn.ended" \| "transcript.partial" \| "dtmf")` |
     | `stream()` | `session.audio` |
     | `mute()`, `unmute()` | `hold()`, `resume()` |
-    | `record()` | The application's recording policy (see below) |
+    | `record()` | The application's `recording` setting (see below) |
     | `setAudioFilters()` | Removed |
 
     [Voice SDK reference](/reference/voice-sdk) has every method and event.
@@ -296,9 +296,8 @@ If you subscribe to an old event name, Fonoster refuses it and names the replace
 
 ## Get recordings from the call record
 
-Recording is no longer a step in your code. Set the application's `recording` policy to `off`,
-`on` or `consent` (a consent prompt plays first). See
-[Record calls and ask for consent](/telephony/recording).
+Recording is no longer a step in your code. Set the application's `recording` to `on` (it's `off`
+by default). See [Record calls](/telephony/recording).
 
 Recording URLs built from the app ref and an ID no longer exist. Each call's recording is part of
 its call record. List your calls with the CLI, then download a call's recording by its call ref:

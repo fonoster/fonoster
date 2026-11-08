@@ -429,21 +429,11 @@ export class Call {
     try {
       await this.joinRoom();
       const policy = recordingPolicy(this.deps.config, reached?.app ?? app);
-      if (reached && policy === "consent") {
-        // The caller hears the consent prompt before recording starts and before the app's
-        // session begins (call-record "Consent prompt").
-        this.takeCall();
-        await this.consentPrompt(reached.app);
-        if (this.ended) return socket?.terminate();
-        await this.startRecording(policy);
-        this.attach(reached.app, reached.socket, null);
-      } else {
-        if (reached) void this.startRecording(policy);
-        // Answer (or Ready) once the app's socket is open and session.start is sent (VS12,
-        // voice-session "AppBridge answers on the stream").
-        if (reached) this.attach(reached.app, reached.socket, null);
-        this.takeCall();
-      }
+      if (reached) void this.startRecording(policy);
+      // Answer (or Ready) once the app's socket is open and session.start is sent (VS12,
+      // voice-session "AppBridge answers on the stream").
+      if (reached) this.attach(reached.app, reached.socket, null);
+      this.takeCall();
     } catch (e) {
       logger.error(
         `call ${this.callRef}: could not set up media: ${(e as Error).message}`
@@ -508,49 +498,6 @@ export class Call {
   private async startRecording(policy: ReturnType<typeof recordingPolicy>) {
     if (policy === "off") return;
     await this.recording.start(policy);
-  }
-
-  /** Speaks the consent prompt alone (no app session yet) and resolves when it has played. */
-  private async consentPrompt(app: AppConfig) {
-    const text =
-      this.deps.config.callRecord?.consentPrompt ??
-      "This call will be recorded.";
-    this.record("event", { type: "recording.consent_requested", text });
-    const voice = this.deps.catalog.resolveVoice(
-      app.speech.voice,
-      app.workspaceRef,
-      app.speech.ttsModel
-    );
-    if (!voice) return;
-    await new Promise<void>((resolve) => {
-      const queue = new OutputQueue({
-        sink: (f) => this.rtp.send(f),
-        maxQueuedMs: DEFAULTS.outputQueueMaxMs,
-        emit: (e) => {
-          if (
-            e.type === "output.done" ||
-            e.type === "output.interrupted" ||
-            e.type === "error"
-          ) {
-            queue.stop();
-            resolve();
-          }
-        }
-      });
-      queue.start();
-      queue.speak({
-        id: "consent",
-        text,
-        last: true,
-        interruptible: false,
-        preempt: false,
-        voice: voice.voice,
-        language: app.speech.language,
-        model: voice.model,
-        speed: app.speech.speed,
-        adapter: voice.adapter
-      });
-    });
   }
 
   private parties(app?: AppConfig) {

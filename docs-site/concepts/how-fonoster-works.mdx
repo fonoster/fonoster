@@ -107,8 +107,7 @@ Every call leaves a **call record**: who took part, the transcript, and the reco
 was on. Fonoster signs each record, so you can prove it wasn't changed. You read records in the
 dashboard under **Calls**, or from the SDK, the CLI or the HTTP API.
 
-Recording is a policy, not a step in your code. Set it to `off`, `on`, or `consent`, which plays a
-consent prompt first. An application's policy wins over the workspace's.
+Recording is a setting on the application, not a step in your code: `off` (the default) or `on`.
 
 **Webhooks** tell your systems when things happen. Fonoster posts an event to your URL when a call
 starts (`call.started`), ends (`call.ended`) or fails to connect (`call.failed`), and when its

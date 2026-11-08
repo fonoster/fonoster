@@ -43,7 +43,7 @@ const app = {
   },
   audio: { codec: "pcm16", rate: 16000 },
   listeners: [{ url: "wss://rec.example.com/ws", tracks: "inbound" }],
-  recording: "consent",
+  recording: "on",
   amd: { enabled: true, windowMs: 3000 },
   fallbackAppRef: "app-0",
   fallbackMessage: "",
@@ -145,6 +145,20 @@ describe("@ctl[applications]", function () {
     expect(stdout).to.contain("Application updated: app-1");
   });
 
+  it("refuses --recording consent", async function () {
+    const { error } = await runCommand([
+      "applications:update",
+      "app-1",
+      "--recording",
+      "consent"
+    ]);
+
+    expect(error?.message).to.contain(
+      "Expected --recording=consent to be one of: off, on"
+    );
+    expect(error?.oclif?.exit).to.equal(2);
+  });
+
   it("turns AMD on and off (AO-B1)", async function () {
     const create = sandbox
       .stub(SDK.Applications.prototype, "createApplication")
@@ -193,7 +207,7 @@ describe("@ctl[applications]", function () {
     expect(stdout).to.contain("deepgram/nova-3");
     expect(stdout).to.contain("pcm16 16000 Hz");
     expect(stdout).to.contain("wss://rec.example.com/ws (inbound)");
-    expect(stdout).to.contain("consent");
+    expect(stdout).to.match(/RECORDING:\s+on\b/);
     expect(stdout).to.contain("on (3000 ms)");
     expect(stdout).to.contain("…wxyz");
     expect(stdout).to.match(/SPEED:\s+1\.0\b/);

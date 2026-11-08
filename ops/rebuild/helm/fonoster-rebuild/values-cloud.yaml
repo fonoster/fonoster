@@ -122,7 +122,6 @@ appbridge:
           credentials:
             accessKeyId: "secret://k8s/fonoster-minio#rootUser"
             secretAccessKey: "secret://k8s/fonoster-minio#rootPassword"
-      recording: "off"
 
 roomr:
   routr:

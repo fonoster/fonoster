@@ -45,7 +45,7 @@ type AudioFormat = { codec: "pcm16" | "pcmu"; rate: number };
 
 type AppListener = { url: string; tracks?: "inbound" | "outbound" | "both" };
 
-type RecordingPolicy = "off" | "on" | "consent";
+type RecordingPolicy = "off" | "on";
 
 /** An audio filter run on the caller's audio before STT (voice-session, "Audio filters"). */
 type AudioFilter = { name: string; options?: Record<string, unknown> };
@@ -68,7 +68,7 @@ type SessionAppFields = {
   fallbackAppRef?: string;
   fallbackMessage?: string;
   listeners?: AppListener[];
-  /** Empty inherits the workspace's policy. */
+  /** Empty is off. */
   recording?: RecordingPolicy | "";
   /** Off when unset. */
   amd?: AmdSettings;

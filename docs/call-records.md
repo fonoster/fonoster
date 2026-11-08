@@ -64,9 +64,8 @@ the HTTP API is under `/api/records` with `Authorization: Bearer <access token>`
 
 ## Recordings
 
-Recording is a policy, not an app decision: `off`, `on`, or `consent` (the caller hears a consent
-prompt first). AppBridge applies the first one set of: the app, the workspace, the region
-default, and `off`. Apps cannot override it. The file is a stereo WAV at 16 kHz: left channel the
+Recording is a setting on the app: `off` (the default) or `on`. Only the app's setting decides;
+the app's code can't start or stop it during the call. The file is a stereo WAV at 16 kHz: left channel the
 caller, right channel the agent.
 
 Download it with `fonoster records:download <callRef>` (saves `<callRef>.wav`) or from the call
@@ -158,8 +157,7 @@ download files through the API.
 
 - AppBridge config `callRecord` turns records on: `dir` (working records), `region`, `signingKey`
   (`{dir, jku}` for a key directory, or `{kid, privateKeyFile}`), `store` (S3-compatible bucket;
-  default a local `sealed` folder for development), `recording`, `workspaces.<ref>.{recording,store}`,
-  `consentPrompt`, `recordUrl`.
+  default a local `sealed` folder for development), `workspaces.<ref>.store`, `recordUrl`.
 - Keys: `fonoster-callrecord keys rotate|list|retire|publish --dir <dir>`. Rotation takes effect
   without a restart. Retiring deletes an old private key but keeps its public half published.
 - Apiserver `callRecords`: `enabled`, `stores`, `retentionIntervalMinutes`.

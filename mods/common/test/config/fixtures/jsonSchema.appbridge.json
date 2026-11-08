@@ -257,8 +257,7 @@
               "type": "string",
               "enum": [
                 "off",
-                "on",
-                "consent"
+                "on"
               ]
             },
             "amd": {
@@ -678,27 +677,11 @@
               }
             ]
           },
-          "recording": {
-            "type": "string",
-            "enum": [
-              "off",
-              "on",
-              "consent"
-            ]
-          },
           "workspaces": {
             "type": "object",
             "additionalProperties": {
               "type": "object",
               "properties": {
-                "recording": {
-                  "type": "string",
-                  "enum": [
-                    "off",
-                    "on",
-                    "consent"
-                  ]
-                },
                 "store": {
                   "anyOf": [
                     {
@@ -767,9 +750,6 @@
               },
               "additionalProperties": false
             }
-          },
-          "consentPrompt": {
-            "type": "string"
           },
           "recordUrl": {
             "type": "string"
