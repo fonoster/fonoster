@@ -6,8 +6,8 @@ description: "Remove background noise and other voices from the caller's audio b
 
 Callers phone from kitchens, cars and shop floors. A TV in the background, a second person talking
 or street noise reaches the transcriber as speech, and your agent answers things nobody said to it.
-Noise cancelling cleans the caller's audio before speech recognition and turn detection: it keeps
-the person on the call and suppresses noise and other voices around them.
+Noise cancelling cleans the caller's audio before your app, speech recognition and turn detection
+get it: it keeps the person on the call and suppresses noise and other voices around them.
 
 Noise cancelling runs on Fonoster, before your application gets the audio. You turn it on per
 application, and nothing in your code changes.
@@ -73,8 +73,9 @@ The dashboard sets the filter with its defaults. Use the SDK or the CLI's `--fro
   phone menu that answers your outbound call, and for hold music. Turn it off on applications that
   take those calls.
 - **A little delay.** Filtering adds about 30 milliseconds to the caller's audio.
-- **Recordings are not filtered.** Call recordings keep the audio as it arrived. Only what the
-  transcriber and your application hear is filtered.
+- **Recordings are not filtered.** Call recordings and listen-only sockets keep the audio as it
+  arrived, which is what you want for audits. Only what the transcriber and your application hear
+  is filtered.
 - **Twilio-compatible apps too.** The filter runs before the audio reaches your app, whatever the
   protocol.
 

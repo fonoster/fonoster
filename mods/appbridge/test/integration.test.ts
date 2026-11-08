@@ -574,6 +574,71 @@ describe("@appbridge integration", function () {
     expect(frames).to.be.greaterThan(10);
   });
 
+  describe("[APB-016] filters the app's stream for both protocols", function () {
+    const registerMute = () =>
+      AudioFilterFactory.registerFilter("test-mute-stream", {
+        description: "silences everything (test only)",
+        optionsSchema: z.object({}),
+        publicOptionsSchema: z.object({}),
+        create: () => ({
+          name: "test-mute-stream",
+          delayMs: 0,
+          process: (frame: Int16Array) => new Int16Array(frame.length)
+        })
+      });
+    const filters = [{ name: "test-mute-stream" }];
+    // Caller frames start with track id 1; the rest is 16-bit PCM.
+    const audibleCallerFrames = (peer: Peer) =>
+      peer.frames.items
+        .filter((f) => f.kind === "binary" && (f.data as Buffer)[0] === 1)
+        .map((f) => (f.data as Buffer).subarray(1))
+        .filter((pcm) =>
+          Array.from({ length: pcm.length >> 1 }).some(
+            (_, i) => pcm.readInt16LE(i * 2) !== 0
+          )
+        ).length;
+
+    it("a fonoster app that sends no Speech command hears filtered audio; its listener hears raw audio", async function () {
+      registerMute();
+      await start([
+        app("a", harness.app.url, {
+          filters,
+          listeners: [{ url: other.url }]
+        })
+      ]);
+      await harness.roomrNode.offerCall();
+      const { peer } = await harness.app.nextConnection();
+      const listener = (await other.nextConnection()).peer;
+      await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+      await waitFor(() =>
+        json(listener).find((m) => m.type === "session.start")
+      );
+      harness.roomrNode.callerSpeaks({ kind: "tone", ms: 600 });
+      await waitFor(() => audibleCallerFrames(listener) > 10 || undefined);
+      await sleep(300);
+      expect(audibleCallerFrames(peer)).to.equal(0);
+    });
+
+    it("a twilio app hears filtered audio in its media events", async function () {
+      registerMute();
+      await start([app("a", harness.app.url, { protocol: "twilio", filters })]);
+      await harness.roomrNode.offerCall();
+      const { peer } = await harness.app.nextConnection();
+      await waitFor(() => json(peer).find((m) => m.event === "start"));
+      harness.roomrNode.callerSpeaks({ kind: "tone", ms: 600 });
+      await sleep(900);
+      const media = json(peer).filter((m) => m.event === "media");
+      expect(media.length).to.be.greaterThan(10);
+      // μ-law silence is 0xFF (or 0x7F); the tone would produce other bytes.
+      const audible = media.filter((m) =>
+        Buffer.from((m.media as { payload: string }).payload, "base64").some(
+          (b) => b !== 0xff && b !== 0x7f
+        )
+      );
+      expect(audible).to.have.length(0);
+    });
+  });
+
   it("[APB-016] continues unfiltered and records the failure when a filter cannot be created", async function () {
     await start([
       app("a", harness.app.url, { filters: [{ name: "does-not-exist" }] })
