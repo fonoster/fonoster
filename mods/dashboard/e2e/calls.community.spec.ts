@@ -192,6 +192,16 @@ test("[DSH-031] shows a completed call as the conversation, and plays and downlo
       trunkName: "Acme PSTN"
     })
   ]);
+  // The preview sends the image's Content-Security-Policy; blob: URLs it blocks are recorded
+  // (zod's caught eval probe is blocked too, by design).
+  await page.addInitScript(() => {
+    const blocked: string[] = [];
+    Object.assign(window, { __cspBlocked: blocked });
+    document.addEventListener("securitypolicyviolation", (e) => {
+      if (e.blockedURI.startsWith("blob:"))
+        blocked.push(`${e.effectiveDirective} ${e.blockedURI}`);
+    });
+  });
   await page.goto("/w/ws-1/calls/call-1");
 
   await expect(
@@ -222,6 +232,23 @@ test("[DSH-031] shows a completed call as the conversation, and plays and downlo
   const download = page.getByRole("link", { name: "Download" });
   await expect(download).toHaveAttribute("download", "call-1.wav");
   expect(api.callsTo("GET /api/records/call-1/recording")).toHaveLength(1);
+  // The audio loads (its length is known) under the CSP, and the waveform's fetch of the same
+  // blob: URL isn't blocked either.
+  await expect
+    .poll(() =>
+      player.evaluate((audio: HTMLAudioElement) => ({
+        error: audio.error?.code ?? null,
+        seconds: Number.isFinite(audio.duration)
+          ? Math.round(audio.duration * 10) / 10
+          : null
+      }))
+    )
+    .toEqual({ error: null, seconds: 4.6 });
+  expect(
+    await page.evaluate(
+      () => (window as unknown as { __cspBlocked: string[] }).__cspBlocked
+    )
+  ).toEqual([]);
 });
 
 test("[DSH-044] shows how the agent did: response time, tools, usage and interruptions, and exports the vCon", async ({

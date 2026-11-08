@@ -1,10 +1,11 @@
 #!/bin/sh
-# Writes the dashboard's runtime settings from DASHBOARD_API_URL, the only
-# variable it reads. Runs from the nginx image's /docker-entrypoint.d.
+# Writes the dashboard's runtime settings from DASHBOARD_API_URL. Runs from the nginx image's
+# /docker-entrypoint.d. FONOSTER_HTML_DIR and FONOSTER_NGINX_CONF_DIR move its output for the
+# dashboard's e2e preview, which sends the same Content-Security-Policy (vite.config.ts).
 set -eu
 
-HTML=/usr/share/nginx/html
-CONF_DIR=/etc/nginx/fonoster
+HTML="${FONOSTER_HTML_DIR:-/usr/share/nginx/html}"
+CONF_DIR="${FONOSTER_NGINX_CONF_DIR:-/etc/nginx/fonoster}"
 mkdir -p "$CONF_DIR"
 
 API_URL="${DASHBOARD_API_URL:-}"
@@ -22,9 +23,10 @@ else
 fi
 
 # connect-src allows ws: and wss: for the browser-call SIP signaling server (signalingServer in
-# fonoster.yaml; plain ws: on installs without TLS).
+# fonoster.yaml; plain ws: on installs without TLS). media-src and connect-src allow blob: because
+# call recordings are fetched with the API token, then played and drawn from a blob: URL.
 cat > "$CONF_DIR/security-headers.conf" <<CONF
-add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://avatars.githubusercontent.com; font-src 'self'; connect-src 'self' ${API_ORIGIN} ws: wss:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://avatars.githubusercontent.com; font-src 'self'; media-src 'self' blob:; connect-src 'self' ${API_ORIGIN} ws: wss: blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'" always;
 add_header X-Content-Type-Options "nosniff" always;
 add_header Referrer-Policy "same-origin" always;
 CONF
