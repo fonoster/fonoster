@@ -58,7 +58,6 @@ import type {
   ListenerTrack,
   Patience,
   Protocol,
-  RecordingPolicy,
   SessionApp
 } from "./types";
 
@@ -87,13 +86,7 @@ const TRACKS = [
   { value: "outbound", label: "Agent" },
   { value: "both", label: "Both" }
 ];
-/** Select values can't be empty: "inherit" and "default" stand for "". */
-const RECORDING = [
-  { value: "inherit", label: "Workspace default" },
-  { value: "off", label: "Off" },
-  { value: "on", label: "On" },
-  { value: "consent", label: "On after consent prompt" }
-];
+/** Select values can't be empty: "default" stands for "". */
 const PATIENCE = [
   { value: "default", label: "Normal (default)" },
   { value: "low", label: "Low: answer quickly" },
@@ -905,21 +898,8 @@ export function CallHandlingFields({
         </Button>
       </Group>
 
-      <Pair columns={columns}>
-        <Field label="Recording">
-          {(p) => (
-            <Select
-              {...p}
-              value={app.recording || "inherit"}
-              options={RECORDING}
-              onValueChange={(v) =>
-                set("recording", (v === "inherit" ? "" : v) as RecordingPolicy)
-              }
-            />
-          )}
-        </Field>
-
-        {noiseCancelling && (
+      {noiseCancelling && (
+        <Pair columns={columns}>
           <Field
             label="Noise cancelling"
             hint="Removes background noise and other voices before your app listens. Keeps one speaker: not for speakerphone or IVR."
@@ -935,8 +915,16 @@ export function CallHandlingFields({
               />
             )}
           </Field>
-        )}
-      </Pair>
+        </Pair>
+      )}
+
+      <label className="flex items-center gap-3 font-display text-[13px]">
+        <Switch
+          checked={app.recording === "on"}
+          onCheckedChange={(on) => set("recording", on ? "on" : "off")}
+        />
+        Record calls
+      </label>
 
       <label className="flex items-center gap-3 font-display text-[13px]">
         <Switch

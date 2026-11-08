@@ -31,7 +31,7 @@ export type AudioCodec =
 export type ListenerTrack = "inbound" | "outbound" | "both";
 export type Patience = "" | "low" | "normal" | "high";
 /** "" inherits the workspace's policy. */
-export type RecordingPolicy = "" | "off" | "on" | "consent";
+export type RecordingPolicy = "" | "off" | "on";
 
 /** One audio filter of an app, as the API stores it. */
 export type AudioFilterSetting = {

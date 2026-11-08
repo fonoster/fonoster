@@ -425,7 +425,7 @@ Runs against in-memory applications that store what the dashboard sends (`e2e/ap
 - **Fault:** faults/DSH-029.patch
 - **Test:** mods/dashboard/e2e/apps.community.spec.ts
 
-**Pass.** New app refuses an `https://` URL with nothing sent; a `wss://` app is created as a Fonoster stream app, its page opens with the signing secret and the only-time warning, and the secret is gone after "I've saved it"; switching to Twilio hides Speech; On after consent prompt saves `recording: "consent"`; Rotate secret takes one confirmation and shows the new secret once; Delete app needs `DELETE` and returns to the list. **Fail.** A non-WebSocket URL sent, a secret shown twice, speech settings on a Twilio app, a wrong recording policy, or a delete without `DELETE`.
+**Pass.** New app refuses an `https://` URL with nothing sent; a `wss://` app is created as a Fonoster stream app, its page opens with the signing secret and the only-time warning, and the secret is gone after "I've saved it"; switching to Twilio hides Speech; "Record calls" starts off, saves `recording: "on"` and, turned off, `recording: "off"`; Rotate secret takes one confirmation and shows the new secret once; Delete app needs `DELETE` and returns to the list. **Fail.** A non-WebSocket URL sent, a secret shown twice, speech settings on a Twilio app, a wrong recording policy, or a delete without `DELETE`.
 
 ### DSH-030 The Calls list: newest first, filtered by status, more on request
 
