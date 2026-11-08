@@ -15,7 +15,7 @@ NEWEST = {
     "users": {"total": 128, "verified": 99, "password": 71, "github": 57, "new_24h": 3, "new_7d": 11,
               "verified_new_24h": 2, "verified_new_7d": 9},
     "workspaces": {"total": 96, "new_24h": 2, "new_7d": 8, "active_7d": 14, "activated_7d": 5,
-                   "activated_loose_7d": 7},
+                   "activated_loose_7d": 7, "activated_total": 31},
     "apps": {"total": 61, "autopilot": 44, "stream": 17, "new_7d": 4},
     "routr": {"agents": 40, "numbers": 22, "trunks": 9, "domains": 12,
               "new_7d": {"agents": 2, "numbers": 1, "trunks": 0}},
@@ -29,7 +29,9 @@ NEWEST = {
               "converted": [0, 1, 0, 0, 1, 0, 2, 0, 1, 0, 0, 1, 0, 1]},
 }
 BILLING = {"present": 1, "accounts": 40, "trial": 28, "payg": 12, "past_due": 1,
-           "converted": 9, "converted_24h": 1, "converted_7d": 3}
+           "converted": 9, "converted_24h": 1, "converted_7d": 3,
+           "credits_purchased": 250000, "credits_purchased_used": 61234, "credits_free": 120000,
+           "credits_free_used": 45050, "credits_overdraft": 1200, "credits_expired": 8000}
 
 
 def iso(epoch):

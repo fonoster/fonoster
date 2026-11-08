@@ -81,7 +81,13 @@ opened per request and closed after it.
 - `verified`: `email_verified`.
 - `activated_7d`: a workspace created in the last 7 days with a completed call of 10 seconds or more
   (`activated_loose_7d`: any call).
+- `activated_total`: a workspace with a completed call of 10 seconds or more, any time (a deleted
+  workspace's calls still count).
 - converted: an owner's first grant paid through Stripe (`balance_ledger` kind
   `plan_grant`/`topup_grant`, source `invoice:%`).
+- `credits_*`: credits (1 credit = $0.01), rounded down. `purchased`: grants paid through Stripe;
+  `free`: every other grant (trial, operator), less what a trial carry-over moved to a new grant;
+  `purchased_used` and `free_used`: debits taken from them; `overdraft`: usage no grant has paid
+  yet; `expired`: what grants lost when they expired. Refunds aren't in the ledger yet.
 
 The document of the shape is [schema/snapshot.v1.json](schema/snapshot.v1.json).

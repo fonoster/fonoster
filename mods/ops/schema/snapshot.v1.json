@@ -66,7 +66,7 @@
           }
         },
         "workspaces": {
-          "description": "activated_7d = workspaces created in the last 7 days with a completed call of 10 seconds or more; activated_loose_7d = any call.",
+          "description": "activated_7d = workspaces created in the last 7 days with a completed call of 10 seconds or more; activated_loose_7d = any call; activated_total = workspaces with a completed call of 10 seconds or more, any time (deleted workspaces included).",
           "type": "object",
           "additionalProperties": false,
           "required": [
@@ -75,7 +75,8 @@
             "new_7d",
             "active_7d",
             "activated_7d",
-            "activated_loose_7d"
+            "activated_loose_7d",
+            "activated_total"
           ],
           "properties": {
             "total": {
@@ -95,18 +96,16 @@
             },
             "activated_loose_7d": {
               "$ref": "#/$defs/nat"
+            },
+            "activated_total": {
+              "$ref": "#/$defs/nat"
             }
           }
         },
         "apps": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "total",
-            "autopilot",
-            "stream",
-            "new_7d"
-          ],
+          "required": ["total", "autopilot", "stream", "new_7d"],
           "properties": {
             "total": {
               "$ref": "#/$defs/nat"
@@ -125,13 +124,7 @@
         "routr": {
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "agents",
-            "numbers",
-            "trunks",
-            "domains",
-            "new_7d"
-          ],
+          "required": ["agents", "numbers", "trunks", "domains", "new_7d"],
           "properties": {
             "agents": {
               "$ref": "#/$defs/nat"
@@ -148,11 +141,7 @@
             "new_7d": {
               "type": "object",
               "additionalProperties": false,
-              "required": [
-                "agents",
-                "numbers",
-                "trunks"
-              ],
+              "required": ["agents", "numbers", "trunks"],
               "properties": {
                 "agents": {
                   "$ref": "#/$defs/nat"
@@ -230,13 +219,7 @@
           "description": "Last 14 UTC days, oldest first.",
           "type": "object",
           "additionalProperties": false,
-          "required": [
-            "calls",
-            "minutes",
-            "signups",
-            "verified",
-            "converted"
-          ],
+          "required": ["calls", "minutes", "signups", "verified", "converted"],
           "properties": {
             "calls": {
               "$ref": "#/$defs/series"
@@ -256,7 +239,7 @@
           }
         },
         "billing": {
-          "description": "present = 0 when the billing tables are not installed (everything then 0). converted = owners whose first grant was paid through Stripe.",
+          "description": "present = 0 when the billing tables are not installed (everything then 0). converted = owners whose first grant was paid through Stripe. credits_* are credits (1 credit = $0.01), rounded down: purchased = grants paid through Stripe, free = every other grant, *_used = debits taken from them, overdraft = usage no grant has paid yet, expired = what grants lost at expiry.",
           "type": "object",
           "additionalProperties": false,
           "required": [
@@ -267,7 +250,13 @@
             "past_due",
             "converted",
             "converted_24h",
-            "converted_7d"
+            "converted_7d",
+            "credits_purchased",
+            "credits_purchased_used",
+            "credits_free",
+            "credits_free_used",
+            "credits_overdraft",
+            "credits_expired"
           ],
           "properties": {
             "accounts": {
@@ -295,6 +284,24 @@
               "type": "integer",
               "minimum": 0,
               "maximum": 1
+            },
+            "credits_purchased": {
+              "$ref": "#/$defs/nat"
+            },
+            "credits_purchased_used": {
+              "$ref": "#/$defs/nat"
+            },
+            "credits_free": {
+              "$ref": "#/$defs/nat"
+            },
+            "credits_free_used": {
+              "$ref": "#/$defs/nat"
+            },
+            "credits_overdraft": {
+              "$ref": "#/$defs/nat"
+            },
+            "credits_expired": {
+              "$ref": "#/$defs/nat"
             }
           }
         }
@@ -304,11 +311,7 @@
       "description": "Marker left by a failed run.",
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "schema",
-        "ts",
-        "error"
-      ],
+      "required": ["schema", "ts", "error"],
       "properties": {
         "schema": {
           "const": 1

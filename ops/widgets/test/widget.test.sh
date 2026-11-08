@@ -109,7 +109,7 @@ print("yes" if red > 50 and not (left[0] > 200 and left[1] < 100) else "no")
 '; }
 
 # ================================================================= metrics parity
-echo "validate.py parity (test/good, test/bad copied unchanged from fonoster/metrics)"
+echo "validate.py parity (test/good, test/bad)"
 py_valid() { python3 -I -c '
 import sys
 sys.path.insert(0, sys.argv[1])
@@ -157,6 +157,9 @@ has "CALLS as today" "$OUT" "42 calls |"
 has "calls detail as today" "$OUT" "97% completed · avg 1m12s · 3 under 5s"
 has "GROWTH as today" "$OUT" "99 verified users   +2 today · +9 in 7 days"
 has "BILLING as today" "$OUT" "12 on plan · 28 on trial · 1 past due"
+has "credits bought vs used" "$OUT" "\$2,500.00 bought · \$612.34 used (24%) |"
+has "free credits" "$OUT" "free \$450.50 used of \$1,200.00 · \$12.00 unpaid · \$80.00 expired |"
+has "activated ever" "$OUT" "31 activated ever   32% of 96 workspaces |"
 has "BUILT as today" "$OUT" "40 SIP agents · 22 numbers · 9 trunks"
 lacks "Open report is gone" "$OUT" "Open report"
 has "refresh" "$OUT" "param1=refresh"
