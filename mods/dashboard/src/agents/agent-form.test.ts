@@ -96,7 +96,7 @@ describe("agent payload", () => {
       fallbackAppRef: "app-fallback",
       fallbackMessage: "One moment",
       listeners: [{ url: "wss://listen.example.com", tracks: "inbound" }],
-      recording: "consent",
+      recording: "on",
       amd: { enabled: true, windowMs: 3000 }
     } as unknown as typeof billingAgent;
     const values = { ...toValues(saved), name: "Renamed" };
@@ -110,7 +110,7 @@ describe("agent payload", () => {
       fallbackAppRef: "app-fallback",
       fallbackMessage: "One moment",
       listeners: [{ url: "wss://listen.example.com", tracks: "inbound" }],
-      recording: "consent",
+      recording: "on",
       amd: { enabled: true, windowMs: 3000 },
       speech: {
         voice: "deepgram/aura-2-celeste-es",

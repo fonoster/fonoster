@@ -239,10 +239,21 @@ test("[DSH-029] creates an app, shows its secret once, saves its recording polic
   await expect(page.getByRole("heading", { name: "Speech" })).toHaveCount(0);
   await choose(page, "Protocol", "Fonoster");
 
-  await choose(page, "Recording", "On after consent prompt");
+  // Recording is one switch, off for a new app: no other recording choices.
+  await expect(page.getByText("Workspace default")).toHaveCount(0);
+  await expect(page.getByText("On after consent prompt")).toHaveCount(0);
+  const record = page.getByRole("switch", { name: "Record calls" });
+  await expect(record).not.toBeChecked();
+  await record.focus();
+  await page.keyboard.press("Space");
+  await expect(record).toBeChecked();
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("App saved")).toBeVisible();
-  expect(apps.saved("app-1").recording).toBe("consent");
+  expect(apps.saved("app-1").recording).toBe("on");
+  await record.click();
+  await page.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByText("App saved").last()).toBeVisible();
+  await expect.poll(() => apps.saved("app-1").recording).toBe("off");
 
   // Rotate: one confirmation, no typing, and the new secret is shown once.
   await page.getByRole("button", { name: "Rotate secret" }).click();

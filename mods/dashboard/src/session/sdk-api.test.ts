@@ -40,7 +40,7 @@ describe("SDK adapter", () => {
     fallbackAppRef: "",
     fallbackMessage: "Sorry",
     listeners: [{ url: "wss://l", tracks: "inbound" }],
-    recording: "consent",
+    recording: "on",
     createdAt: new Date(),
     updatedAt: new Date()
   } as unknown as Application;
@@ -52,7 +52,7 @@ describe("SDK adapter", () => {
       type: "STREAM",
       audio: "pcmu-8000",
       fallback: { message: "Sorry" },
-      recording: "consent",
+      recording: "on",
       speech: {
         voice: "elevenlabs/rachel",
         language: "es-419",
@@ -66,7 +66,7 @@ describe("SDK adapter", () => {
       protocol: "fonoster",
       audio: { codec: "pcmu", rate: 8000 },
       fallbackMessage: "Sorry",
-      recording: "consent",
+      recording: "on",
       listeners: [{ url: "wss://l", tracks: "inbound" }]
     });
     expect(request.fallbackAppRef).toBeUndefined();
@@ -541,7 +541,7 @@ describe("SDK adapter saves", () => {
       url: "wss://bot.example.com",
       audio: { codec: "pcmu", rate: 8000 },
       listeners: [{ url: "wss://l", tracks: "inbound" }],
-      recording: "consent",
+      recording: "on",
       amd: { enabled: true, windowMs: 3000 },
       intelligence: undefined
     } as unknown as Application;
@@ -554,7 +554,7 @@ describe("SDK adapter saves", () => {
       url: "wss://bot.example.com",
       audio: { codec: "pcmu", rate: 8000 },
       listeners: [{ url: "wss://l", tracks: "inbound" }],
-      recording: "consent",
+      recording: "on",
       amd: { enabled: true, windowMs: 3000 },
       speech: { ttsModel: "deepgram/aura-2", silenceTimeoutMs: 9000 }
     });

@@ -38521,67 +38521,6 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "xvWcn",
-                                  "name": "Field Recording",
-                                  "width": "fill_container",
-                                  "layout": "vertical",
-                                  "gap": 6,
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "pM4u0",
-                                      "name": "Label",
-                                      "fill": "$ui:--muted-foreground",
-                                      "content": "Recording",
-                                      "fontFamily": "$ui:--font-secondary",
-                                      "fontSize": 12,
-                                      "fontWeight": "normal"
-                                    },
-                                    {
-                                      "type": "frame",
-                                      "id": "KtilV",
-                                      "name": "Input",
-                                      "width": "fill_container",
-                                      "fill": "$ui:--background",
-                                      "cornerRadius": "$ui:--radius-control",
-                                      "stroke": "$ui:--input",
-                                      "strokeWidth": 1,
-                                      "strokeAlignment": "inner",
-                                      "gap": 8,
-                                      "padding": [
-                                        9,
-                                        12
-                                      ],
-                                      "alignItems": "center",
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "kkQSO",
-                                          "name": "Value",
-                                          "fill": "$ui:--foreground",
-                                          "textGrowth": "fixed-width",
-                                          "width": "fill_container",
-                                          "content": "Workspace default",
-                                          "fontFamily": "$ui:--font-secondary",
-                                          "fontSize": 13,
-                                          "fontWeight": "normal"
-                                        },
-                                        {
-                                          "type": "icon",
-                                          "id": "y9z7OY",
-                                          "name": "Chevron",
-                                          "width": 14,
-                                          "height": 14,
-                                          "icon": "chevron-down",
-                                          "library": "lucide",
-                                          "fill": "$ui:--muted-foreground"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "frame",
                                   "id": "OjH3Y",
                                   "name": "Field Noise cancelling",
                                   "width": "fill_container",
@@ -38652,6 +38591,27 @@
                                       "fontWeight": "normal"
                                     }
                                   ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "Ppnhy",
+                              "name": "Record calls",
+                              "gap": 10,
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "id": "30bmM",
+                                  "type": "ref",
+                                  "ref": "ui:wk1O8",
+                                  "name": "Switch",
+                                  "descendants": {
+                                    "ui:wDpHC": {
+                                      "content": "Record calls",
+                                      "fontSize": 13
+                                    }
+                                  }
                                 }
                               ]
                             },
@@ -42557,67 +42517,6 @@
                                   "children": [
                                     {
                                       "type": "frame",
-                                      "id": "eoNsB",
-                                      "name": "Field Recording",
-                                      "width": "fill_container",
-                                      "layout": "vertical",
-                                      "gap": 6,
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "oWUVm",
-                                          "name": "Label",
-                                          "fill": "$ui:--muted-foreground",
-                                          "content": "Recording",
-                                          "fontFamily": "$ui:--font-secondary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
-                                        },
-                                        {
-                                          "type": "frame",
-                                          "id": "Z0yPM",
-                                          "name": "Input",
-                                          "width": "fill_container",
-                                          "fill": "$ui:--background",
-                                          "cornerRadius": "$ui:--radius-control",
-                                          "stroke": "$ui:--input",
-                                          "strokeWidth": 1,
-                                          "strokeAlignment": "inner",
-                                          "gap": 8,
-                                          "padding": [
-                                            9,
-                                            12
-                                          ],
-                                          "alignItems": "center",
-                                          "children": [
-                                            {
-                                              "type": "text",
-                                              "id": "GzrGB",
-                                              "name": "Value",
-                                              "fill": "$ui:--foreground",
-                                              "textGrowth": "fixed-width",
-                                              "width": "fill_container",
-                                              "content": "Workspace default",
-                                              "fontFamily": "$ui:--font-secondary",
-                                              "fontSize": 13,
-                                              "fontWeight": "normal"
-                                            },
-                                            {
-                                              "type": "icon",
-                                              "id": "rY9nS",
-                                              "name": "Chevron",
-                                              "width": 14,
-                                              "height": 14,
-                                              "icon": "chevron-down",
-                                              "library": "lucide",
-                                              "fill": "$ui:--muted-foreground"
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type": "frame",
                                       "id": "u35RA",
                                       "name": "Field Noise cancelling",
                                       "width": "fill_container",
@@ -42688,6 +42587,27 @@
                                           "fontWeight": "normal"
                                         }
                                       ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "FBsyU",
+                                  "name": "Record calls",
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "id": "75u9T",
+                                      "type": "ref",
+                                      "ref": "ui:wk1O8",
+                                      "name": "Switch",
+                                      "descendants": {
+                                        "ui:wDpHC": {
+                                          "content": "Record calls",
+                                          "fontSize": 13
+                                        }
+                                      }
                                     }
                                   ]
                                 },
@@ -93229,67 +93149,6 @@
                                   "children": [
                                     {
                                       "type": "frame",
-                                      "id": "kcrj1",
-                                      "name": "Field Recording",
-                                      "width": "fill_container",
-                                      "layout": "vertical",
-                                      "gap": 6,
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "uX7t6",
-                                          "name": "Label",
-                                          "fill": "$ui:--muted-foreground",
-                                          "content": "Recording",
-                                          "fontFamily": "$ui:--font-secondary",
-                                          "fontSize": 12,
-                                          "fontWeight": "normal"
-                                        },
-                                        {
-                                          "type": "frame",
-                                          "id": "wfUk1",
-                                          "name": "Input",
-                                          "width": "fill_container",
-                                          "fill": "$ui:--background",
-                                          "cornerRadius": "$ui:--radius-control",
-                                          "stroke": "$ui:--input",
-                                          "strokeWidth": 1,
-                                          "strokeAlignment": "inner",
-                                          "gap": 8,
-                                          "padding": [
-                                            9,
-                                            12
-                                          ],
-                                          "alignItems": "center",
-                                          "children": [
-                                            {
-                                              "type": "text",
-                                              "id": "tnw5r",
-                                              "name": "Value",
-                                              "fill": "$ui:--foreground",
-                                              "textGrowth": "fixed-width",
-                                              "width": "fill_container",
-                                              "content": "Workspace default",
-                                              "fontFamily": "$ui:--font-secondary",
-                                              "fontSize": 13,
-                                              "fontWeight": "normal"
-                                            },
-                                            {
-                                              "type": "icon",
-                                              "id": "TBW5p",
-                                              "name": "Chevron",
-                                              "width": 14,
-                                              "height": 14,
-                                              "icon": "chevron-down",
-                                              "library": "lucide",
-                                              "fill": "$ui:--muted-foreground"
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type": "frame",
                                       "id": "VFXHH",
                                       "name": "Field Noise cancelling",
                                       "width": "fill_container",
@@ -93360,6 +93219,27 @@
                                           "fontWeight": "normal"
                                         }
                                       ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "k7xSX",
+                                  "name": "Record calls",
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "id": "opjXA",
+                                      "type": "ref",
+                                      "ref": "ui:wk1O8",
+                                      "name": "Switch",
+                                      "descendants": {
+                                        "ui:wDpHC": {
+                                          "content": "Record calls",
+                                          "fontSize": 13
+                                        }
+                                      }
                                     }
                                   ]
                                 },
@@ -111598,6 +111478,1902 @@
           ]
         }
       }
+    },
+    {
+      "type": "frame",
+      "id": "e7w1FS",
+      "x": 13880,
+      "y": 3100,
+      "name": "Agent / Detail / Advanced / Call handling drawer",
+      "clip": true,
+      "width": 1440,
+      "height": 1000,
+      "layout": "none",
+      "children": [
+        {
+          "id": "0OeT8r",
+          "type": "ref",
+          "ref": "ui:aqOKa",
+          "theme": {
+            "ui:mode": "dark"
+          },
+          "height": 1000,
+          "descendants": {
+            "ui:itw6f": {
+              "fill": "$ui:--sidebar-accent"
+            },
+            "ui:itw6f/ui:xGT5g": {
+              "fill": "$ui:--sidebar-accent-foreground"
+            },
+            "ui:itw6f/ui:TXca3": {
+              "fill": "$ui:--sidebar-accent-foreground"
+            },
+            "ui:gOtUO": {
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ulLD5t",
+                  "name": "Content",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "layout": "vertical",
+                  "padding": [
+                    20,
+                    32,
+                    0,
+                    32
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "zrv59H",
+                      "name": "Breadcrumb",
+                      "gap": 6,
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "pEEBCt",
+                          "name": "Agents",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "Agents",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "joSMON",
+                          "name": "Sep",
+                          "fill": "$ui:--muted-foreground",
+                          "content": "/",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wRctG0",
+                          "name": "Current",
+                          "fill": "$ui:--foreground",
+                          "content": "Billing reminders",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "kN97uM",
+                      "name": "Agent header",
+                      "width": "fill_container",
+                      "padding": [
+                        14,
+                        0,
+                        18,
+                        0
+                      ],
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "KptXUV",
+                          "name": "Identity",
+                          "gap": 14,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "2Ppc0j",
+                              "name": "Avatar",
+                              "width": 44,
+                              "height": 44,
+                              "fill": "$ui:--secondary",
+                              "cornerRadius": 10,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "icon",
+                                  "id": "uJMZOs",
+                                  "name": "Icon",
+                                  "width": 24,
+                                  "height": 24,
+                                  "icon": "smart_toy",
+                                  "library": "Material Symbols Sharp",
+                                  "fill": "$ui:--foreground"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "IuaJPX",
+                              "name": "Name block",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "Yk3Zy1",
+                                  "name": "Title row",
+                                  "gap": 6,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "ZAk1FM",
+                                      "name": "Agent name",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Billing reminders",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 22,
+                                      "fontWeight": "600"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "xTKWSC",
+                                      "name": "Rename button",
+                                      "width": 28,
+                                      "height": 28,
+                                      "cornerRadius": 8,
+                                      "justifyContent": "center",
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "icon",
+                                          "id": "FWXVj6",
+                                          "name": "Pencil",
+                                          "width": 15,
+                                          "height": 15,
+                                          "icon": "pencil",
+                                          "library": "lucide",
+                                          "fill": "$ui:--muted-foreground"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "tS2pRB",
+                                  "name": "Meta",
+                                  "gap": 10,
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "tRkL3Y",
+                                      "name": "Live",
+                                      "gap": 6,
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "ellipse",
+                                          "id": "lruuSe",
+                                          "name": "Dot",
+                                          "fill": "$ui:success",
+                                          "width": 6,
+                                          "height": 6
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "A9U36d",
+                                          "name": "Live on",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Reachable at",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "h6iZRk",
+                                          "name": "+1 829 555 0199",
+                                          "fill": "$ui:--foreground",
+                                          "content": "2 numbers",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "8z8jv6",
+                                      "name": "Dot sep",
+                                      "fill": "$ui:--muted-foreground",
+                                      "content": "·",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12,
+                                      "fontWeight": "normal"
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "alGn8V",
+                                      "name": "Ref chip",
+                                      "fill": "$ui:--muted",
+                                      "cornerRadius": 6,
+                                      "gap": 6,
+                                      "padding": [
+                                        2,
+                                        8
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "pqMMGM",
+                                          "name": "ap-7f3c91",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "ap-7f3c91",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 11,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "icon",
+                                          "id": "GYIs1W",
+                                          "name": "Copy",
+                                          "width": 11,
+                                          "height": 11,
+                                          "icon": "copy",
+                                          "library": "lucide",
+                                          "fill": "$ui:--muted-foreground"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "yxSueZ",
+                          "name": "Actions",
+                          "gap": 10,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "HrDlDq",
+                              "name": "Unsaved",
+                              "gap": 6,
+                              "padding": [
+                                0,
+                                6,
+                                0,
+                                0
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "NSlqME",
+                                  "name": "Dot",
+                                  "fill": "$ui:warning",
+                                  "width": 6,
+                                  "height": 6
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "YsDuPq",
+                                  "name": "Unsaved changes",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Unsaved changes",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "id": "OdFVyB",
+                              "type": "ref",
+                              "ref": "ui:4x7RU",
+                              "name": "Talk",
+                              "descendants": {
+                                "ui:r97g1": {
+                                  "enabled": false
+                                },
+                                "ui:7ZVG7": {
+                                  "content": "Talk to agent"
+                                }
+                              }
+                            },
+                            {
+                              "id": "0wE5wm",
+                              "type": "ref",
+                              "ref": "ui:ZETEA",
+                              "name": "Save",
+                              "descendants": {
+                                "ui:mRGd3": {
+                                  "enabled": false
+                                },
+                                "ui:q5Hn5": {
+                                  "content": "Save"
+                                }
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "uojyDz",
+                      "name": "Tabs",
+                      "width": "fill_container",
+                      "stroke": "$ui:--border",
+                      "strokeWidth": {
+                        "bottom": 1
+                      },
+                      "strokeAlignment": "inner",
+                      "gap": 24,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "2OLoNV",
+                          "name": "Tab Configure",
+                          "stroke": "#00000000",
+                          "strokeWidth": {
+                            "bottom": 2
+                          },
+                          "strokeAlignment": "inner",
+                          "gap": 6,
+                          "padding": [
+                            10,
+                            0,
+                            12,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "l9ICjE",
+                              "name": "Configure",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "Configure",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "39WN1Q",
+                          "name": "Tab Tools",
+                          "stroke": "#00000000",
+                          "strokeWidth": {
+                            "bottom": 2
+                          },
+                          "strokeAlignment": "inner",
+                          "gap": 6,
+                          "padding": [
+                            10,
+                            0,
+                            12,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "hTyoyx",
+                              "name": "Tools",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "Tools",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "f37t3y",
+                              "name": "Count",
+                              "fill": "$ui:--muted",
+                              "cornerRadius": 6,
+                              "padding": [
+                                1,
+                                6
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "ecIdld",
+                                  "name": "2",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "2",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "dec4O4",
+                          "name": "Tab Knowledge",
+                          "stroke": "#00000000",
+                          "strokeWidth": {
+                            "bottom": 2
+                          },
+                          "strokeAlignment": "inner",
+                          "gap": 6,
+                          "padding": [
+                            10,
+                            0,
+                            12,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "VY0KSh",
+                              "name": "Knowledge",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "Knowledge",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "by0i7W",
+                              "name": "Count",
+                              "fill": "$ui:--muted",
+                              "cornerRadius": 6,
+                              "padding": [
+                                1,
+                                6
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "PrKdfg",
+                                  "name": "1",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "2",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "qMUGUV",
+                          "name": "Tab Tests",
+                          "stroke": "#00000000",
+                          "strokeWidth": {
+                            "bottom": 2
+                          },
+                          "strokeAlignment": "inner",
+                          "gap": 6,
+                          "padding": [
+                            10,
+                            0,
+                            12,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "sWk5Va",
+                              "name": "Tests",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "Tests",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "TYNl6Y",
+                              "name": "Count",
+                              "fill": "$ui:--muted",
+                              "cornerRadius": 6,
+                              "padding": [
+                                1,
+                                6
+                              ],
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "RpQ2DB",
+                                  "name": "3",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "3",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 11,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "rq8cCq",
+                          "name": "Tab Calls",
+                          "stroke": "#00000000",
+                          "strokeWidth": {
+                            "bottom": 2
+                          },
+                          "strokeAlignment": "inner",
+                          "gap": 6,
+                          "padding": [
+                            10,
+                            0,
+                            12,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "CTvkBg",
+                              "name": "Calls",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "Calls",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Az4fhm",
+                          "name": "Tab Advanced",
+                          "stroke": "$ui:--foreground",
+                          "strokeWidth": {
+                            "bottom": 2
+                          },
+                          "strokeAlignment": "inner",
+                          "gap": 6,
+                          "padding": [
+                            10,
+                            0,
+                            12,
+                            0
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "VL11un",
+                              "name": "Advanced",
+                              "fill": "$ui:--foreground",
+                              "content": "Advanced",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 14,
+                              "fontWeight": "500"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "LjPwO5",
+                      "name": "Advanced body",
+                      "width": "fill_container",
+                      "height": "fill_container",
+                      "gap": 20,
+                      "padding": [
+                        20,
+                        0,
+                        24,
+                        0
+                      ],
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "ZfoOYF",
+                          "name": "Left",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 16,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "ULcqL3",
+                              "name": "Call limits",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "zOge7B",
+                                  "name": "Head",
+                                  "layout": "vertical",
+                                  "gap": 3,
+                                  "padding": [
+                                    0,
+                                    0,
+                                    8,
+                                    0
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "WzeSJp",
+                                      "name": "Call limits",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Call limits",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 14,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "wcmZl7",
+                                  "name": "Row Max call length",
+                                  "width": "fill_container",
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": {
+                                    "top": 1
+                                  },
+                                  "strokeAlignment": "inner",
+                                  "gap": 16,
+                                  "padding": [
+                                    10,
+                                    0
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "qDz82j",
+                                      "name": "Text",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 2,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "kqEqcG",
+                                          "name": "Max call length",
+                                          "fill": "$ui:--foreground",
+                                          "content": "Max call length",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "oIxztk",
+                                          "name": "Desc",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Hard stop for every call",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "sYOwbo",
+                                      "name": "Input",
+                                      "width": 150,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "WUoCEW",
+                                          "name": "30 min",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "30 min",
+                                          "textAlign": "right",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "SbP3b9",
+                                  "name": "Row Idle message",
+                                  "width": "fill_container",
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": {
+                                    "top": 1
+                                  },
+                                  "strokeAlignment": "inner",
+                                  "gap": 16,
+                                  "padding": [
+                                    10,
+                                    0
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "6uLmsF",
+                                      "name": "Text",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 2,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "ALbW1C",
+                                          "name": "Idle message",
+                                          "fill": "$ui:--foreground",
+                                          "content": "Idle message",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "2TM4B4",
+                                          "name": "Desc",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Said when the caller goes quiet",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "vqbXKV",
+                                      "name": "Input",
+                                      "width": 150,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "p2TR93",
+                                          "name": "¿Sigue ahí?",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "¿Sigue ahí?",
+                                          "textAlign": "right",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "V9zCzi",
+                                  "name": "Row Idle timeout · repeats",
+                                  "width": "fill_container",
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": {
+                                    "top": 1
+                                  },
+                                  "strokeAlignment": "inner",
+                                  "gap": 16,
+                                  "padding": [
+                                    10,
+                                    0
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "pAzlr7",
+                                      "name": "Text",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 2,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "ywdpJM",
+                                          "name": "Idle timeout · repeats",
+                                          "fill": "$ui:--foreground",
+                                          "content": "Idle timeout · repeats",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "aaTHYo",
+                                          "name": "Desc",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Wait, then repeat this many times before hanging up",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "gKop9Y",
+                                      "name": "Input",
+                                      "width": 150,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "8rf3LS",
+                                          "name": "10 s · 3×",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "10 s · 3×",
+                                          "textAlign": "right",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "woIlJd",
+                                  "name": "Row Initial DTMF",
+                                  "width": "fill_container",
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": {
+                                    "top": 1
+                                  },
+                                  "strokeAlignment": "inner",
+                                  "gap": 16,
+                                  "padding": [
+                                    10,
+                                    0
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "DndJId",
+                                      "name": "Text",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 2,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "CuhtWH",
+                                          "name": "Initial DTMF",
+                                          "fill": "$ui:--foreground",
+                                          "content": "Initial DTMF",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "SowtQC",
+                                          "name": "Desc",
+                                          "fill": "$ui:--muted-foreground",
+                                          "content": "Digits sent when the call connects (IVR traversal)",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "j1s97b",
+                                      "name": "Input",
+                                      "width": 150,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "8WeBQw",
+                                          "name": "—",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "—",
+                                          "textAlign": "right",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "bG36Lp",
+                              "name": "Language model",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 4,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "YkvlHK",
+                                  "name": "Head",
+                                  "layout": "vertical",
+                                  "gap": 3,
+                                  "padding": [
+                                    0,
+                                    0,
+                                    8,
+                                    0
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "BO4em1",
+                                      "name": "Language model",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Language model",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 14,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "BhFEEe",
+                                  "name": "Row Temperature",
+                                  "width": "fill_container",
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": {
+                                    "top": 1
+                                  },
+                                  "strokeAlignment": "inner",
+                                  "gap": 16,
+                                  "padding": [
+                                    10,
+                                    0
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "jeDvkm",
+                                      "name": "Text",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 2,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "ln99Wa",
+                                          "name": "Temperature",
+                                          "fill": "$ui:--foreground",
+                                          "content": "Temperature",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "ZnfEC0",
+                                      "name": "Input",
+                                      "width": 150,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "t3SMNQ",
+                                          "name": "0.4",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "0.4",
+                                          "textAlign": "right",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "oXKC62",
+                                  "name": "Row Max tokens",
+                                  "width": "fill_container",
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": {
+                                    "top": 1
+                                  },
+                                  "strokeAlignment": "inner",
+                                  "gap": 16,
+                                  "padding": [
+                                    10,
+                                    0
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "Wnq4fJ",
+                                      "name": "Text",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 2,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "HVYbFv",
+                                          "name": "Max tokens",
+                                          "fill": "$ui:--foreground",
+                                          "content": "Max tokens",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "LOzDdf",
+                                      "name": "Input",
+                                      "width": 150,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "wi8r7x",
+                                          "name": "300",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "300",
+                                          "textAlign": "right",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "B6u1Pw",
+                          "name": "Right",
+                          "width": 420,
+                          "layout": "vertical",
+                          "gap": 16,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "OIsv3G",
+                              "name": "Noise cancelling",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 12,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "picxEl",
+                                  "name": "Head",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "UFXyRb",
+                                      "name": "Noise cancelling",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Noise cancelling",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 14,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "bRujWr",
+                                  "name": "Sub",
+                                  "fill": "$ui:--muted-foreground",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Removes background noise and other voices before the agent listens. Keeps one speaker: not for speakerphone or IVR. Adds about 30 ms.",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "frame",
+                                  "id": "9U3I4M",
+                                  "name": "Row Provider",
+                                  "width": "fill_container",
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": {
+                                    "top": 1
+                                  },
+                                  "strokeAlignment": "inner",
+                                  "gap": 16,
+                                  "padding": [
+                                    10,
+                                    0
+                                  ],
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "frame",
+                                      "id": "9D9p96",
+                                      "name": "Text",
+                                      "width": "fill_container",
+                                      "layout": "vertical",
+                                      "gap": 2,
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "8ZJh1k",
+                                          "name": "Provider",
+                                          "fill": "$ui:--foreground",
+                                          "content": "Provider",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 13,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "text",
+                                          "id": "IZvk6p",
+                                          "name": "Desc",
+                                          "fill": "$ui:--muted-foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "None, or a vendor your workspace can use",
+                                          "fontFamily": "$ui:--font-secondary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "type": "frame",
+                                      "id": "TZgeay",
+                                      "name": "Input",
+                                      "width": 150,
+                                      "fill": "$ui:--background",
+                                      "cornerRadius": "$ui:--radius-control",
+                                      "stroke": "$ui:--input",
+                                      "strokeWidth": 1,
+                                      "strokeAlignment": "inner",
+                                      "gap": 8,
+                                      "padding": [
+                                        7,
+                                        10
+                                      ],
+                                      "alignItems": "center",
+                                      "children": [
+                                        {
+                                          "type": "text",
+                                          "id": "25ATLG",
+                                          "name": "ai-coustics",
+                                          "fill": "$ui:--foreground",
+                                          "textGrowth": "fixed-width",
+                                          "width": "fill_container",
+                                          "content": "ai-coustics",
+                                          "fontFamily": "$ui:--font-primary",
+                                          "fontSize": 12,
+                                          "fontWeight": "normal"
+                                        },
+                                        {
+                                          "type": "icon",
+                                          "id": "A2F0ZW",
+                                          "name": "Chevron",
+                                          "width": 14,
+                                          "height": 14,
+                                          "icon": "chevron-down",
+                                          "library": "lucide",
+                                          "fill": "$ui:--muted-foreground"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "OlGPNa",
+                              "name": "Call handling",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 8,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "7pfjbq",
+                                  "name": "Head",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "liKzXm",
+                                      "name": "Title",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Call handling",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 14,
+                                      "fontWeight": "500"
+                                    },
+                                    {
+                                      "type": "text",
+                                      "id": "0Q1v2K",
+                                      "name": "Action",
+                                      "fill": "$ui:accent-text",
+                                      "content": "Edit",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 13,
+                                      "fontWeight": "normal"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "HUTAHn",
+                                  "name": "Body",
+                                  "fill": "$ui:--muted-foreground",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Fallback, listeners, recording and answering-machine detection.",
+                                  "lineHeight": 1.5,
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "b8h4aC",
+                              "name": "Moved out of the agent",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:--border",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 8,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "id": "WiBe0m",
+                                  "name": "Head",
+                                  "width": "fill_container",
+                                  "justifyContent": "space_between",
+                                  "alignItems": "center",
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "id": "iGEnvI",
+                                      "name": "Title",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Moved out of the agent",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 14,
+                                      "fontWeight": "500"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "XB8MXk",
+                                  "name": "Body",
+                                  "fill": "$ui:--muted-foreground",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Turn detection runs in Fonoster, call events go to workspace Webhooks, and vendor keys and endpoints come from Vendor keys and the provider catalog.",
+                                  "lineHeight": 1.5,
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "zzKKrd",
+                              "name": "Danger zone",
+                              "width": "fill_container",
+                              "fill": "$ui:--card",
+                              "cornerRadius": 12,
+                              "stroke": "$ui:danger",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "layout": "vertical",
+                              "gap": 12,
+                              "padding": 20,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "Axgab3",
+                                  "name": "Delete agent",
+                                  "fill": "$ui:--foreground",
+                                  "content": "Delete agent",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 14,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "text",
+                                  "id": "tMSJjg",
+                                  "name": "Sub",
+                                  "fill": "$ui:--muted-foreground",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "Numbers pointing to this agent stop answering until you route them elsewhere.",
+                                  "lineHeight": 1.5,
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 12,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "id": "VAFyWA",
+                                  "type": "ref",
+                                  "ref": "ui:ftEoU",
+                                  "name": "Delete",
+                                  "descendants": {
+                                    "ui:6KqSk": {
+                                      "enabled": false
+                                    },
+                                    "ui:UQdcX": {
+                                      "content": "Delete agent"
+                                    }
+                                  }
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "x": 0,
+          "y": 0,
+          "name": "Shell"
+        },
+        {
+          "type": "frame",
+          "id": "3ZA0FY",
+          "x": 0,
+          "y": 0,
+          "name": "Overlay",
+          "width": 1440,
+          "height": 1000,
+          "fill": "#000000A6",
+          "layout": "none"
+        },
+        {
+          "type": "frame",
+          "id": "fBMBSc",
+          "x": 960,
+          "y": 0,
+          "name": "Drawer",
+          "width": 480,
+          "height": 1000,
+          "fill": "$ui:--card",
+          "stroke": "$ui:--border",
+          "strokeWidth": {
+            "left": 1
+          },
+          "strokeAlignment": "inner",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Ec242v",
+              "name": "Drawer header",
+              "width": "fill_container",
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "strokeAlignment": "inner",
+              "padding": [
+                20,
+                24
+              ],
+              "justifyContent": "space_between",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "knrVsH",
+                  "name": "Title",
+                  "width": 400,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "dlsECx",
+                      "name": "Title",
+                      "fill": "$ui:--foreground",
+                      "content": "Call handling",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 18,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "70Ii57",
+                      "name": "Sub",
+                      "fill": "$ui:--muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Billing reminders",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 13,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "icon",
+                  "id": "BPfePC",
+                  "name": "Close",
+                  "width": 18,
+                  "height": 18,
+                  "icon": "x",
+                  "library": "lucide",
+                  "fill": "$ui:--muted-foreground"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "q4a6J1",
+              "name": "Drawer body",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 22,
+              "padding": 24,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "3OIgqY",
+                  "name": "Group Fallback",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "StBGXO",
+                      "name": "Group title",
+                      "fill": "$ui:--foreground",
+                      "content": "Fallback",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "eihvAZ",
+                      "name": "Sub",
+                      "fill": "$ui:--muted-foreground",
+                      "content": "Used when the URL can't be reached (after about 2.5 seconds of ringing).",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "36mBsE",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "gap": 14,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "fGtm0S",
+                          "name": "Field Fallback",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "iCo0PD",
+                              "name": "Label",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "Fallback",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "iqxB0i",
+                              "name": "Input",
+                              "width": "fill_container",
+                              "fill": "$ui:--background",
+                              "cornerRadius": "$ui:--radius-control",
+                              "stroke": "$ui:--input",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "gap": 8,
+                              "padding": [
+                                9,
+                                12
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "8Dq88J",
+                                  "name": "Value",
+                                  "fill": "$ui:--foreground",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "None",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                },
+                                {
+                                  "type": "icon",
+                                  "id": "Vaqb9T",
+                                  "name": "Chevron",
+                                  "width": 14,
+                                  "height": 14,
+                                  "icon": "chevron-down",
+                                  "library": "lucide",
+                                  "fill": "$ui:--muted-foreground"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Dstvpd",
+                          "name": "Field Fallback message",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 6,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "pNSfAz",
+                              "name": "Label",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "Fallback message",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "1RPQvY",
+                              "name": "Input",
+                              "width": "fill_container",
+                              "fill": "$ui:--background",
+                              "cornerRadius": "$ui:--radius-control",
+                              "stroke": "$ui:--input",
+                              "strokeWidth": 1,
+                              "strokeAlignment": "inner",
+                              "gap": 8,
+                              "padding": [
+                                9,
+                                12
+                              ],
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "UjnJFw",
+                                  "name": "Value",
+                                  "fill": "$ui:--foreground",
+                                  "textGrowth": "fixed-width",
+                                  "width": "fill_container",
+                                  "content": "We are having trouble. Please call back soon.",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13,
+                                  "fontWeight": "normal"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "text",
+                              "id": "Z2eq5i",
+                              "name": "Hint",
+                              "fill": "$ui:--muted-foreground",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Spoken before hanging up when no fallback is set.",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 11,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "A8fYYp",
+                  "name": "Group Listeners",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "xhQN9v",
+                      "name": "Group title",
+                      "fill": "$ui:--foreground",
+                      "content": "Listeners",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "sBYSsF",
+                      "name": "Sub",
+                      "fill": "$ui:--muted-foreground",
+                      "content": "Listen-only WebSocket copies of the call audio, up to 4.",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "id": "uRl5WI",
+                      "type": "ref",
+                      "ref": "ui:4x7RU",
+                      "name": "Add listener",
+                      "descendants": {
+                        "ui:7ZVG7": {
+                          "content": "Add listener"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IF0Z4l",
+                  "name": "Record calls",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "1wqLmp",
+                      "type": "ref",
+                      "ref": "ui:wk1O8",
+                      "name": "Switch",
+                      "descendants": {
+                        "ui:wDpHC": {
+                          "content": "Record calls",
+                          "fontSize": 13
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IRY7kB",
+                  "name": "AMD",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "id": "AWTLun",
+                      "type": "ref",
+                      "ref": "ui:wk1O8",
+                      "name": "Switch",
+                      "descendants": {
+                        "ui:wDpHC": {
+                          "content": "Detect answering machines",
+                          "fontSize": 13
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "2IvBx2",
+              "name": "Drawer footer",
+              "width": "fill_container",
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "strokeAlignment": "inner",
+              "gap": 10,
+              "padding": [
+                16,
+                24
+              ],
+              "justifyContent": "end",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "0Xl9To",
+                  "name": "Buttons",
+                  "gap": 10,
+                  "children": [
+                    {
+                      "id": "2iGB79",
+                      "type": "ref",
+                      "ref": "ui:Svd9t",
+                      "name": "Cancel",
+                      "descendants": {
+                        "ui:Xphxk": {
+                          "enabled": false
+                        },
+                        "ui:yqG8L": {
+                          "content": "Cancel"
+                        }
+                      }
+                    },
+                    {
+                      "id": "T3vl26",
+                      "type": "ref",
+                      "ref": "ui:ZETEA",
+                      "name": "Save",
+                      "descendants": {
+                        "ui:mRGd3": {
+                          "enabled": false
+                        },
+                        "ui:q5Hn5": {
+                          "content": "Save"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "theme": {
+            "ui:mode": "dark"
+          }
+        }
+      ]
     }
   ],
   "imports": {
