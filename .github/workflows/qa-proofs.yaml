@@ -72,7 +72,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       # The API cases run every @fonoster package from source; the standalone Identity and client
@@ -125,7 +125,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       # Autopilot runs from source; a fault in @fonoster/common (APT-013) is rebuilt by prove.sh
@@ -184,7 +184,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       - name: Run and prove
@@ -233,7 +233,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
           python -m pip install -e python/fonoster-conformance -e "python/fonoster-voice[test]"
           python -m venv "$RUNNER_TEMP/pipecat"
@@ -287,7 +287,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
           python -m pip install -e python/fonoster-voice
 
@@ -335,7 +335,7 @@ jobs:
 
       - name: Install dependencies, build and Chromium
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
           (cd mods/dashboard && npx playwright install --with-deps chromium)
 
@@ -408,7 +408,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
           (cd mods/stripe-fake && npx playwright install --with-deps chromium)
 
@@ -456,7 +456,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       - name: Install ansible-core and ansible-lint
@@ -505,7 +505,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       # Unit tests over recordings: no services.

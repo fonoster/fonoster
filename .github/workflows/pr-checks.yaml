@@ -163,7 +163,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       # Everything that needs no NATS; the NATS suites are in conformance.yaml.
@@ -214,7 +214,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       - name: API cases (JUnit in reports/junit)
@@ -258,7 +258,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       - name: Autopilot cases (JUnit in reports/junit)
@@ -320,7 +320,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       - name: Billing cases (JUnit in reports/junit)
@@ -380,7 +380,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
           python -m pip install -e python/fonoster-voice
 
@@ -447,7 +447,7 @@ jobs:
       # The dashboard reads the SDK's and types' dist.
       - name: Install dependencies and build the SDK
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npx lerna run build --scope @fonoster/sdk --include-dependencies
 
       - name: Typecheck and unit tests
@@ -487,7 +487,7 @@ jobs:
 
       - name: Install dependencies and build the SDK
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npx lerna run build --scope @fonoster/sdk --include-dependencies
 
       - name: Pack
