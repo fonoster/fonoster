@@ -22,9 +22,10 @@ else
 fi
 
 # connect-src allows ws: and wss: for the browser-call SIP signaling server (signalingServer in
-# fonoster.yaml; plain ws: on installs without TLS).
+# fonoster.yaml; plain ws: on installs without TLS). media-src and connect-src allow blob: because
+# call recordings are fetched with the API token, then played and drawn from a blob: URL.
 cat > "$CONF_DIR/security-headers.conf" <<CONF
-add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://avatars.githubusercontent.com; font-src 'self'; connect-src 'self' ${API_ORIGIN} ws: wss:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://avatars.githubusercontent.com; font-src 'self'; media-src 'self' blob:; connect-src 'self' ${API_ORIGIN} ws: wss: blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'" always;
 add_header X-Content-Type-Options "nosniff" always;
 add_header Referrer-Policy "same-origin" always;
 CONF
