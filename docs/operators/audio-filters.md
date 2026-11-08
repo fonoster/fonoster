@@ -1,8 +1,11 @@
 # Audio filters (noise cancelling)
 
 An app can list audio filters in its configuration (`filters: [{ name, options }]`, set through
-the Applications API, the SDK, the CLI or the dashboard's *Noise cancelling* select). The
-appbridge runs them on the caller's audio before speech recognition and turn detection. One filter
+the Applications API, the SDK, the CLI or the dashboard's *Noise cancelling* select). AppBridge
+starts them with the session, for `fonoster` and `twilio` apps alike, and runs them on the caller's
+audio before it reaches the app's stream, speech recognition and turn detection. Call recordings and
+answering-machine detection take the caller's audio from the Roomr node directly, and listen-only
+sockets get it before the filters, so all three stay unfiltered. One filter
 exists: **`aiCoustics`**, the ai-coustics Quail Voice Focus model, which keeps the main speaker and
 suppresses noise and background voices. It runs in the AppBridge process through the vendor's Node
 SDK, `@ai-coustics/aic-sdk` (0.24.0 in `package-lock.json`).

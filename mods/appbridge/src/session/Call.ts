@@ -1113,15 +1113,17 @@ export class AppSession {
     for (const f of early) this.onFrame(f.data as Buffer, f.isBinary);
     void this.addListeners(start);
     this.queue.start();
+    // Filters start with the session, for both protocols, so the app's stream is filtered too
+    // (voice-session, "Audio filters come from app configuration").
+    void this.startFilters();
     // Speech recognition starts with the app's first Speech-layer command, so audio-only apps
     // never pay for it (build log B18).
   }
 
-  /** Starts STT, filters and turn-taking once, replaying the caller audio kept so far. */
+  /** Starts STT and turn-taking once, replaying the (filtered) caller audio kept so far. */
   private ensureSpeech() {
     if (this.speechStarted || !this.codec.speechLayer || this.closed) return;
     this.speechStarted = true;
-    void this.startFilters();
     this.startSpeech();
     for (const frame of this.recentCaller) this.toStt(frame);
     this.recentCaller = [];
@@ -1379,25 +1381,32 @@ export class AppSession {
   callerAudio(frame: Buffer) {
     // On hold the app hears nothing and gets no turn events (B24).
     if (this.closed || this.call.onHold) return;
-    this.codec.callerAudio(frame);
+    // Listen-only sockets get the raw audio, like recordings and AMD (which tap the node).
     for (const l of this.listeners) l.callerAudio(frame);
-    if (!this.speechStarted) {
-      this.recentCaller.push(frame);
-      if (this.recentCaller.length > RECENT_CALLER_FRAMES)
-        this.recentCaller.shift();
-      return;
-    }
     const chain = this.filters;
-    if (!chain) return this.hear(frame, Date.now());
+    if (!chain) return this.filtered(frame, Date.now());
     // Filters are asynchronous; a promise chain keeps frames in order.
     const at = Date.now();
     this.filtering = this.filtering
       .then(() => chain.process(bufferToInt16(frame)))
       .then((out) => {
         this.ncUsage.forEach((key) => this.call.usage.addMillis(key, FRAME_MS));
-        this.hear(int16ToBuffer(out), at);
+        this.filtered(int16ToBuffer(out), at);
       })
-      .catch(() => this.hear(frame, at));
+      .catch(() => this.filtered(frame, at));
+  }
+
+  /** Caller audio after the app's filters: the app's stream, then STT and turn detection. */
+  private filtered(frame: Buffer, at: number) {
+    if (this.closed) return;
+    this.codec.callerAudio(frame);
+    if (!this.speechStarted) {
+      this.recentCaller.push(frame);
+      if (this.recentCaller.length > RECENT_CALLER_FRAMES)
+        this.recentCaller.shift();
+      return;
+    }
+    this.hear(frame, at);
   }
 
   private closeFilters() {
