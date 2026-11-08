@@ -7,7 +7,7 @@ rss: true
 New releases are listed newest first. For releases up to 0.27, see the
 [legacy changelog](/legacy/changelog).
 
-<Update label="Next" description="November 2026" tags={["Autopilot", "CLI", "Self-hosting"]}>
+<Update label="Next" description="November 2026" tags={["Autopilot", "Telephony", "CLI", "Self-hosting"]}>
 
 ## Autopilot
 
@@ -30,6 +30,13 @@ New releases are listed newest first. For releases up to 0.27, see the
   vendor. Fonoster doesn't check them. See
   [Providers and models](/reference/providers#where-catalog-ids-go).
 
+## Telephony
+
+- **Recording is set only on the application, `off` or `on`.** `consent` and its prompt are gone,
+  and there is no workspace or install default. Applications left on **Workspace default** are no
+  longer recorded: set recording to on for each application that needs it. See
+  [Record calls](/telephony/recording).
+
 ## Usage
 
 - Input tokens no longer include cached tokens, which are listed on their own.
@@ -51,6 +58,10 @@ New releases are listed newest first. For releases up to 0.27, see the
   `plan` and `apply` it.
 - `fonoster-registry add-voice` takes `--accent`, such as `--accent Mexican`. See
   [Provider catalog](/self-hosting/provider-catalog#add-a-model-or-voice).
+- **Delete `callRecord.recording`, `callRecord.consentPrompt` and
+  `callRecord.workspaces.<ref>.recording`** from `config/appbridge.yaml` and
+  `config/region/appbridge.yaml`. AppBridge doesn't start while they're set, and its log says
+  `callRecord: unknown key "recording"`.
 
 </Update>
 
@@ -244,7 +255,7 @@ working. To update what you built, see [Migrate from 0.27](/migrate-from-0-27).
 - **Answering-machine detection** per application. See
   [Detect answering machines](/telephony/amd).
 - **Recording by policy**: `off`, `on` or `consent`, with a consent prompt. See
-  [Record calls and ask for consent](/telephony/recording).
+  [Record calls](/telephony/recording).
 - **Fallbacks**: a fallback application and message for when an application can't be reached.
 
 ### Observe

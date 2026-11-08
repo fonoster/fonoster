@@ -160,7 +160,7 @@ message Application {
   string fallback_message = 16;
   // Listen-only sockets
   repeated Listener listeners = 17;
-  // Recording policy: off, on or consent (empty: the workspace's)
+  // Recording: off or on (empty: off)
   string recording = 18;
   // Answering-machine detection (off when unset)
   AmdSettings amd = 19;
@@ -196,7 +196,7 @@ message CreateApplicationRequest {
   string fallback_message = 12;
   // Listen-only sockets
   repeated Listener listeners = 13;
-  // Recording policy: off, on or consent (empty: the workspace's)
+  // Recording: off or on (empty: off)
   string recording = 14;
   // Answering-machine detection (off when unset)
   AmdSettings amd = 15;
@@ -266,7 +266,7 @@ message UpdateApplicationRequest {
   string fallback_message = 13;
   // Listen-only sockets
   repeated Listener listeners = 14;
-  // Recording policy: off, on or consent (empty: the workspace's)
+  // Recording: off or on (empty: off)
   string recording = 15;
   // Answering-machine detection (off when unset)
   AmdSettings amd = 16;

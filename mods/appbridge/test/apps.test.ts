@@ -33,6 +33,7 @@ import {
   PrismaAppStore,
   YamlAppStore,
   appFromRow,
+  recordingPolicy,
   validateConfig
 } from "../src";
 
@@ -127,19 +128,29 @@ describe("@appbridge apps", function () {
       url: "wss://bot.example.com",
       signingSecret: "s",
       patience: "high",
-      recording: "consent"
+      recording: "on"
     });
     expect(app?.speech.patience).to.equal("high");
-    expect(app?.recording).to.equal("consent");
+    expect(app?.recording).to.equal("on");
     const bad = appFromRow({
       ref: "b",
       url: "wss://bot.example.com",
       signingSecret: "s",
       patience: "eager",
-      recording: "maybe"
+      recording: "consent"
     });
     expect(bad?.speech.patience).to.be.undefined;
     expect(bad?.recording).to.be.undefined;
+  });
+
+  it("recordingPolicy: only the app decides", function () {
+    const config = {
+      callRecord: { recording: "on" }
+    } as unknown as AppBridgeConfig;
+    expect(recordingPolicy(config, yamlApp("a"))).to.equal("off");
+    expect(recordingPolicy(config, yamlApp("b", { recording: "on" }))).to.equal(
+      "on"
+    );
   });
 
   it("appFromRow: reads the amd columns (AO-B1)", function () {

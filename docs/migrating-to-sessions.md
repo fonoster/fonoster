@@ -67,7 +67,7 @@ connection that is not signed by AppBridge. See [the voice SDK](./voice-sdk.md) 
 | `dial(number)` | `transfer(to, { mode })`; `mode` is `cold`, `warm` (use `completeTransfer()`) or `refer` |
 | `stream()` | `session.audio` (`onFrame`, `send`, `mark`, `clear`): raw audio in the session's format (PCM16 16 kHz by default), not the old WAV stream |
 | `sgather()` | `session.on("turn.ended" \| "transcript.partial" \| "dtmf")` |
-| `record()` | Recording is an app policy (`off`, `on`, `on after consent prompt`); the recording is attached to the call record |
+| `record()` | Recording is an app setting (`off` or `on`); the recording is attached to the call record |
 | `setAudioFilters()` | Audio filters are part of the app's configuration |
 | `mute()` / `unmute()` | `hold()` / `resume()` |
 
@@ -96,7 +96,7 @@ An app is now a record with these fields (Dashboard: Streams):
 | `audio` | Format with the `fonoster` protocol: `pcm16` at 8, 16 or 24 kHz, or `pcmu` at 8 kHz (default `pcm16` 16 kHz) |
 | `fallback` | Another app, or a message spoken before hanging up, used when your URL cannot be reached (after about 2.5 s of ringing) |
 | `listeners` | Up to 4 listen-only sockets (`url`, `tracks`: `inbound`, `outbound`, `both`) for monitoring and analytics |
-| recording policy | `off`, `on`, `on after consent prompt`. Apps cannot override it |
+| recording | `off` or `on`, set only on the app; the app's code cannot change it during a call |
 
 A number points to an app; Routr passes the app to AppBridge, which connects to its URL.
 

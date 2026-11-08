@@ -157,8 +157,8 @@ The request for `createApplication`:
 <ParamField body="listeners" type="object[]">
   Listen-only WebSockets: `{ url, tracks: "inbound" | "outbound" | "both" }`. Up to 4 are dialed.
 </ParamField>
-<ParamField body="recording" type='"off" | "on" | "consent" | ""'>
-  Recording policy. Empty inherits the workspace's policy. See [Recording](/telephony/recording).
+<ParamField body="recording" type='"off" | "on" | ""'>
+  Records the application's calls when `on`. Empty is `off`. See [Record calls](/telephony/recording).
 </ParamField>
 <ParamField body="amd" type="object">
   Answering-machine detection: `{ enabled, windowMs }`. `windowMs` defaults to 4000 (500 to

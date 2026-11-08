@@ -29,7 +29,6 @@ providers:
 callRecord:
   dir: /var/lib/fonoster/records
   region: private
-  recording: "off"
   store:
     s3:
       bucket: records

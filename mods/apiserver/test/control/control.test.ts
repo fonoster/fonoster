@@ -109,7 +109,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
         protocol: "twilio",
         speech: { voice: "elevenlabs/rachel", language: "es-419" },
         listeners: [{ url: "wss://qa.example.com/listen", tracks: "inbound" }],
-        recording: "consent",
+        recording: "on",
         fallbackMessage: "We are having trouble, call back later."
       });
       expect(res.signingSecret).to.have.length.greaterThan(30);
@@ -127,7 +127,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
         signingSecret: secret,
         speechVoice: "elevenlabs/rachel",
         speechLanguage: "es-419",
-        recording: "consent",
+        recording: "on",
         endpoint: "wss://bot.example.com/session"
       });
       // Twilio protocol: the audio format is Twilio's, not stored.
@@ -147,7 +147,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
       expect(app.listeners).to.deep.equal([
         { url: "wss://qa.example.com/listen", tracks: "inbound" }
       ]);
-      expect(app.recording).to.equal("consent");
+      expect(app.recording).to.equal("on");
       expect(app.amd).to.deep.equal({ enabled: false, windowMs: 0 });
     });
 
@@ -187,6 +187,10 @@ describe("@control: applications, webhooks and provider keys (database)", functi
             listeners: Array(5).fill({ url: "wss://l.example.com" })
           },
           /at most 4 listeners/
+        ],
+        [
+          { name: "x", url: "wss://a.example.com", recording: "consent" },
+          /expected one of "off"\|"on" at "recording"/
         ]
       ];
       for (const [request, message] of cases) {

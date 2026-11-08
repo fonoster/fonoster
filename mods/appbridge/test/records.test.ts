@@ -39,12 +39,11 @@ import {
   AppBridge,
   AppBridgeConfig,
   maintenanceSubject,
-  REGISTRY_USED_SUBJECT,
-  recordingPolicy
+  REGISTRY_USED_SUBJECT
 } from "../src";
 
-// Call records from a running AppBridge (add-call-record): recording by policy through
-// listener.attach, the consent prompt, minimal records, call_record.sealed and the index entry,
+// Call records from a running AppBridge (add-call-record): recording by the app's setting through
+// listener.attach, minimal records, call_record.sealed and the index entry,
 // and retention or erasure requests from the control plane. Needs NATS.
 const NATS_URL = process.env.CONFORMANCE_NATS_URL;
 const sc = StringCodec();
@@ -181,21 +180,6 @@ describe("@AppBridge call records", function () {
     return (await store.getSealed(callRef))!;
   }
 
-  it("resolves the recording policy: app, then workspace, then region default", function () {
-    const config = {
-      callRecord: {
-        recording: "on",
-        workspaces: { "ws-2": { recording: "consent" } }
-      }
-    } as unknown as AppBridgeConfig;
-    expect(recordingPolicy(config, app({ recording: "off" }))).to.equal("off");
-    expect(recordingPolicy(config, app({ workspaceRef: "ws-2" }))).to.equal(
-      "consent"
-    );
-    expect(recordingPolicy(config, app())).to.equal("on");
-    expect(recordingPolicy({} as AppBridgeConfig, app())).to.equal("off");
-  });
-
   it("records both sides when the policy is on, and the record references it with its hash", async function () {
     await start([app({ recording: "on" })]);
     const { callRef } = await harness.roomrNode.offerCall();
@@ -259,35 +243,6 @@ describe("@AppBridge call records", function () {
     expect(
       harness.roomrNode.commands.some((c) => c.command.type === "addListener")
     ).to.equal(false);
-  });
-
-  it("plays the consent prompt before recording starts and notes it in the record", async function () {
-    await start([app({ recording: "consent" })], {
-      consentPrompt: "This call is recorded for quality."
-    });
-    const since = Date.now();
-    const { callRef } = await harness.roomrNode.offerCall();
-    const { peer } = await harness.app.nextConnection();
-    await waitFor(
-      () => json(peer).find((m) => m.type === "session.start"),
-      8000
-    );
-    // The prompt played before the app's session started.
-    expect(await harness.roomrNode.outputAudioMs(since)).to.be.greaterThan(200);
-    // AddListener goes on the control stream before session.start goes to the app, but the two
-    // travel different connections: wait for it to reach the node before comparing the order.
-    await waitFor(() =>
-      harness.roomrNode.commands.find((c) => c.command.type === "addListener")
-    );
-    const types = harness.roomrNode.commands.map((c) => c.command.type);
-    expect(types.indexOf("answer")).to.be.lessThan(
-      types.indexOf("addListener")
-    );
-    harness.roomrNode.callerHangup(callRef);
-    const vcon = decodeVcon((await sealedRecord(callRef)).signed);
-    expect(vcon.fonoster).to.deep.include({
-      recording: { policy: "consent", consentRequested: true }
-    });
   });
 
   it("seals a minimal record with call.failed for a call with no app", async function () {

@@ -163,7 +163,7 @@ export const sessionAppInputSchema = z.object({
       )
       .max(4, "at most 4 listeners")
   ),
-  recording: optional(z.enum(["off", "on", "consent"])),
+  recording: optional(z.enum(["off", "on"])),
   // AO-B1: answering-machine detection; absent (or enabled false) is off.
   amd: z.preprocess(
     (v) => v ?? undefined,

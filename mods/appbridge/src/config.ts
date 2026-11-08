@@ -25,9 +25,9 @@ import type { ObjectStoreConfig } from "@fonoster/callrecord";
 
 export type Protocol = "fonoster" | "twilio";
 
-/** Full-call recording policy (call-record "Recording is applied by policy"). */
-export type RecordingPolicy = "off" | "on" | "consent";
-export const RECORDING_POLICIES: RecordingPolicy[] = ["off", "on", "consent"];
+/** Full-call recording, set only on the app (call-record "Recording is applied by policy"). */
+export type RecordingPolicy = "off" | "on";
+export const RECORDING_POLICIES: RecordingPolicy[] = ["off", "on"];
 
 /** An app: a WebSocket URL, a protocol and speech defaults (voice-session, G2). */
 export type AppConfig = {
@@ -252,15 +252,8 @@ export type AppBridgeConfig = {
      * disk, for development). `{s3: {bucket, endpoint, ...}}` for S3-compatible storage.
      */
     store?: ObjectStoreConfig;
-    /** Recording policy when neither the app nor its workspace sets one (default off). */
-    recording?: RecordingPolicy;
-    /** Per-workspace settings: recording policy and the workspace's own bucket. */
-    workspaces?: Record<
-      string,
-      { recording?: RecordingPolicy; store?: ObjectStoreConfig }
-    >;
-    /** What the caller hears before recording starts under the `consent` policy (O6, interim). */
-    consentPrompt?: string;
+    /** Per-workspace settings: the workspace's own bucket. */
+    workspaces?: Record<string, { store?: ObjectStoreConfig }>;
     /** Base URL of the records API, for the link in `call_record.sealed` (default /api/records). */
     recordUrl?: string;
     /**
@@ -442,12 +435,6 @@ export function validateConfig(config: AppBridgeConfig): string[] {
     !(cr.signingKey?.kid && cr.signingKey?.privateKeyFile)
   )
     problems.push("callRecord.signingKey: set dir, or kid and privateKeyFile");
-  for (const policy of [
-    cr?.recording,
-    ...Object.values(cr?.workspaces ?? {}).map((w) => w.recording)
-  ])
-    if (policy && !RECORDING_POLICIES.includes(policy))
-      problems.push(`callRecord: unknown recording policy ${policy}`);
   const h = config.http;
   if (h && !h.identity && !(h.accountSid && h.authToken)) {
     problems.push("http: set identity.endpoint, or accountSid and authToken");
@@ -521,17 +508,10 @@ export function databaseUrl(config: AppBridgeConfig): string | undefined {
   return d.url ?? process.env[d.urlEnv ?? "APISERVER_DATABASE_URL"];
 }
 
-/** The recording policy for a call: the app's, else its workspace's, else the region default. */
+/** The recording policy for a call: only the app decides; unset is off. */
 export function recordingPolicy(
-  config: AppBridgeConfig,
+  _config: AppBridgeConfig,
   app: AppConfig
 ): RecordingPolicy {
-  return (
-    app.recording ??
-    (app.workspaceRef
-      ? config.callRecord?.workspaces?.[app.workspaceRef]?.recording
-      : undefined) ??
-    config.callRecord?.recording ??
-    "off"
-  );
+  return app.recording ?? "off";
 }

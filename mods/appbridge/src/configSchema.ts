@@ -24,7 +24,7 @@ import type { AppBridgeConfig } from "./config";
 // a JSON Schema can be exported from it. It must match `AppBridgeConfig`
 // exactly: the type check at the bottom fails the build when they drift.
 
-const recordingPolicy = z.enum(["off", "on", "consent"]);
+const recordingPolicy = z.enum(["off", "on"]);
 
 const objectStore = z.union([
   z.object({ dir: z.string() }),
@@ -226,17 +226,9 @@ export const appBridgeConfigSchema = z.object({
         .optional(),
       sweepIntervalMs: z.number().optional(),
       store: objectStore.optional(),
-      recording: recordingPolicy.optional(),
       workspaces: z
-        .record(
-          z.string(),
-          z.object({
-            recording: recordingPolicy.optional(),
-            store: objectStore.optional()
-          })
-        )
+        .record(z.string(), z.object({ store: objectStore.optional() }))
         .optional(),
-      consentPrompt: z.string().optional(),
       recordUrl: z.string().optional(),
       analytics: z
         .object({

@@ -121,7 +121,7 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
       "stt-model": "deepgram/nova-3",
       patience: "high",
       listener: ["wss://rec.example.com/ws,outbound"],
-      recording: "consent"
+      recording: "on"
     });
 
     const request = createStub.firstCall.args[0];
@@ -130,7 +130,7 @@ describe("@ctl[utils/createOrUpdateApplication]", function () {
       type: "STREAM",
       url: "wss://bot.example.com/media",
       protocol: "twilio",
-      recording: "consent"
+      recording: "on"
     });
     expect(request.speech).to.deep.equal({
       voice: "elevenlabs/rachel",

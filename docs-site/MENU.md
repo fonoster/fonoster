@@ -33,7 +33,7 @@ One Docs tab with groups; Self-hosting, Private regions and Hacking are sections
 | | Transfer calls | H | `telephony/transfers` | Cold, warm, refer | voice SDK, `transferOptions` |
 | | DTMF | H | `telephony/dtmf` | IVRs and PINs: gather digits, `playDtmf`, `initialDtmf` | voice SDK |
 | | Detect answering machines | H | `telephony/amd` | App `amd` setting and the `amd.result` event | voice-session spec |
-| | Record calls and ask for consent | H | `telephony/recording` | Policy off/on/consent and its precedence | `docs/call-records.md` |
+| | Record calls | H | `telephony/recording` | On or off per application | `docs/call-records.md` |
 | Observe | Webhooks | H | `observe/webhooks` | Events, signing, retries, resend | `docs/webhooks.md` |
 | | Call records (vCon) | H | `observe/call-records` | Signed, verifiable records: fetch, recording, verify | `docs/call-records.md` |
 | | Retention and erasure | H | `observe/retention` | Privacy requests; SDK and HTTP only | `docs/call-records.md` |

@@ -319,8 +319,8 @@ These application fields apply to an Autopilot agent. Set them on the applicatio
 ### Recording
 
 <ParamField path="recording" type="string">
-  `off`, `on` or `consent`. Leave it out to follow the workspace's policy. See
-  [Record calls and ask for consent](/telephony/recording). CLI: `--recording`.
+  `off` or `on`. Leave it out and calls aren't recorded. See
+  [Record calls](/telephony/recording). CLI: `--recording`.
 </ParamField>
 
 ### Answering-machine detection
@@ -387,7 +387,7 @@ async function main() {
       speed: 1.1,
       patience: "normal"
     },
-    recording: "consent",
+    recording: "on",
     amd: { enabled: false },
     fallbackAppRef: "3a9d7c2e-5f1b-4c8a-9e60-7b2d4f1a8c35",
     fallbackMessage: "Sorry, we can't take your call right now. Please call again later.",
@@ -504,6 +504,6 @@ languageModel:
 ```bash
 fonoster applications:create --name "Front desk" --agent agent.yaml \
   --voice deepgram/aura-2-thalia-en --language en-US --stt-model deepgram/nova-3 --speed 1.1 \
-  --recording consent --fallback-app 3a9d7c2e-5f1b-4c8a-9e60-7b2d4f1a8c35 \
+  --recording on --fallback-app 3a9d7c2e-5f1b-4c8a-9e60-7b2d4f1a8c35 \
   --fallback-message "Sorry, we can't take your call right now. Please call again later."
 ```
