@@ -135,7 +135,7 @@ jobs:
       - name: Install dependencies and build
         if: steps.next.outputs.release != '' && (steps.next.outputs.release != 'none' || needs.plan.outputs.resume == 'true')
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       - name: Publish the packages to npm
@@ -211,7 +211,7 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: .github/scripts/npm-install.sh
 
       - name: Build the archive
         run: SKIP_IMAGES=1 ops/release/bundle "$VERSION"

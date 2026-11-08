@@ -78,7 +78,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       - name: Run the suites that need NATS
@@ -175,7 +175,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
           python -m pip install -r python/pipecat-golden/requirements.txt
 
@@ -240,7 +240,7 @@ jobs:
 
       - name: Install dependencies and build
         run: |
-          npm install --no-audit --no-fund
+          .github/scripts/npm-install.sh
           npm run build
 
       - name: Load (T2), ten replicas at 1,000 calls
