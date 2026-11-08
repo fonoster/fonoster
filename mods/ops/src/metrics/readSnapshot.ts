@@ -88,7 +88,8 @@ export async function readSnapshot(databases: OpsDatabases) {
       ...idn.workspaces,
       active_7d: fon.active_7d,
       activated_7d: fon.activated_7d,
-      activated_loose_7d: fon.activated_loose_7d
+      activated_loose_7d: fon.activated_loose_7d,
+      activated_total: fon.activated_total
     },
     apps: fon.apps,
     routr,

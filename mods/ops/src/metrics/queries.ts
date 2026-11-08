@@ -91,6 +91,8 @@ SELECT json_build_object(
                      AND status = 'completed' AND duration_seconds >= 10),
   'activated_loose_7d', (SELECT count(DISTINCT access_key_id) FROM call_records
                          WHERE access_key_id = ANY($1::text[])),
+  'activated_total', (SELECT count(DISTINCT access_key_id) FROM call_records
+                      WHERE status = 'completed' AND duration_seconds >= 10),
   'daily', json_build_object(
     'calls', (SELECT json_agg(c ORDER BY d) FROM (
         SELECT days.d, count(r.call_ref) AS c
@@ -116,13 +118,34 @@ SELECT json_build_object(
     'trunks', (SELECT count(*) FROM trunks WHERE created_at > now() - interval '7 days'))
 ) AS o`;
 
-/** Converted = an owner's first grant paid through Stripe (source "invoice:<id>"). */
+/**
+ * Converted = an owner's first grant paid through Stripe (source "invoice:<id>").
+ * Credits (1 credit = 1000 milli-credits = $0.01), rounded down: purchased = grants paid through
+ * Stripe; free = every other grant, minus what a trial carry-over moved to a new grant (its expiry
+ * has source "carry:<grant>"), so a carried grant counts once; used = debits, by the kind of grant
+ * they took from; overdraft = usage no grant has paid yet; expired = what grants lost at expiry.
+ */
 export const BILLING = `
 WITH firsts AS (
   SELECT account_id, min(created_at) AS at
   FROM public.balance_ledger
   WHERE kind IN ('plan_grant', 'topup_grant') AND source LIKE 'invoice:%'
-  GROUP BY account_id)
+  GROUP BY account_id),
+grants AS (
+  SELECT id, (kind IN ('plan_grant', 'topup_grant') AND source LIKE 'invoice:%') AS paid
+  FROM public.balance_ledger
+  WHERE kind LIKE '%\\_grant'),
+credits AS (
+  SELECT
+    coalesce(sum(l.amount_milli) FILTER (WHERE g.paid AND l.id = g.id), 0) AS purchased,
+    coalesce(sum(l.amount_milli) FILTER (WHERE NOT g.paid AND l.id = g.id), 0)
+      + coalesce(sum(l.amount_milli) FILTER (WHERE l.kind = 'expiry' AND l.source LIKE 'carry:%'), 0) AS free,
+    -coalesce(sum(l.amount_milli) FILTER (WHERE l.kind = 'debit' AND g.paid AND l.grant_id = g.id), 0) AS purchased_used,
+    -coalesce(sum(l.amount_milli) FILTER (WHERE l.kind = 'debit' AND NOT g.paid AND l.grant_id = g.id), 0) AS free_used,
+    -coalesce(sum(l.amount_milli) FILTER (WHERE l.bucket = 'overdraft'), 0) AS overdraft,
+    -coalesce(sum(l.amount_milli) FILTER (WHERE l.kind = 'expiry' AND l.source LIKE 'expiry:%'), 0) AS expired
+  FROM public.balance_ledger l
+  LEFT JOIN grants g ON g.id = coalesce(l.grant_id, l.id))
 SELECT json_build_object(
   'present', 1,
   'accounts', (SELECT count(*) FROM public.billing_accounts),
@@ -132,6 +155,12 @@ SELECT json_build_object(
   'converted', (SELECT count(*) FROM firsts),
   'converted_24h', (SELECT count(*) FROM firsts WHERE at > now() - interval '24 hours'),
   'converted_7d', (SELECT count(*) FROM firsts WHERE at > now() - interval '7 days'),
+  'credits_purchased', (SELECT floor(greatest(purchased, 0) / 1000)::bigint FROM credits),
+  'credits_purchased_used', (SELECT floor(greatest(purchased_used, 0) / 1000)::bigint FROM credits),
+  'credits_free', (SELECT floor(greatest(free, 0) / 1000)::bigint FROM credits),
+  'credits_free_used', (SELECT floor(greatest(free_used, 0) / 1000)::bigint FROM credits),
+  'credits_overdraft', (SELECT floor(greatest(overdraft, 0) / 1000)::bigint FROM credits),
+  'credits_expired', (SELECT floor(greatest(expired, 0) / 1000)::bigint FROM credits),
   'daily', json_build_object('converted', (SELECT json_agg(c ORDER BY d) FROM (
       SELECT days.d, count(f.account_id) AS c
       FROM (SELECT ((now() AT TIME ZONE 'UTC')::date - 13 + i) AS d FROM generate_series(0, 13) AS i) days

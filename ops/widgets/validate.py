@@ -72,7 +72,7 @@ def _snapshot(o):
                              "verified_new_24h", "verified_new_7d"]):
         return False
     if not nats(o["workspaces"], ["total", "new_24h", "new_7d", "active_7d", "activated_7d",
-                                  "activated_loose_7d"]):
+                                  "activated_loose_7d", "activated_total"]):
         return False
     if not nats(o["apps"], ["total", "autopilot", "stream", "new_7d"]):
         return False
@@ -89,7 +89,9 @@ def _snapshot(o):
         return False
     b = o["billing"]
     if not (nats(b, ["present", "accounts", "trial", "payg", "past_due",
-                     "converted", "converted_24h", "converted_7d"]) and b["present"] <= 1):
+                     "converted", "converted_24h", "converted_7d",
+                     "credits_purchased", "credits_purchased_used", "credits_free", "credits_free_used",
+                     "credits_overdraft", "credits_expired"]) and b["present"] <= 1):
         return False
     d = o["daily"]
     return (keys_are(d, ["calls", "minutes", "signups", "verified", "converted"])

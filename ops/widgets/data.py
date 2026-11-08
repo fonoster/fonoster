@@ -160,6 +160,23 @@ def activation(s):
     return a, n, (a * 100 // n if n else None)
 
 
+def activation_total(s):
+    """(activated any time, workspaces, pct or None). Calls of deleted workspaces still count, so it
+    is capped at the workspaces there are."""
+    t = s["workspaces"]["total"]
+    a = min(s["workspaces"]["activated_total"], t)
+    return a, t, (a * 100 // t if t else None)
+
+
+def money(credits):
+    """Credits as dollars (1 credit = $0.01): $1,234.56."""
+    return "$%s.%02d" % ("{:,}".format(credits // 100), credits % 100)
+
+
+def used_pct(used, of):
+    return None if of == 0 else min(100, used * 100 // of)  # rounds down: never overstate
+
+
 def billing_on(s):
     """True only when the server has billing; otherwise billing shows nothing (zeros would look real)."""
     return s["billing"]["present"] == 1

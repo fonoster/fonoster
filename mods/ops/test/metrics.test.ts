@@ -153,7 +153,10 @@ describe("@ops/metrics", function () {
     const s = JSON.parse(res.text);
 
     const schema = JSON.parse(
-      fs.readFileSync(path.join(__dirname, "../schema/snapshot.v1.json"), "utf8")
+      fs.readFileSync(
+        path.join(__dirname, "../schema/snapshot.v1.json"),
+        "utf8"
+      )
     );
     const validate = new Ajv2020({ strict: false }).compile(schema);
     expect(validate(s), JSON.stringify(validate.errors)).to.equal(true);
@@ -175,7 +178,8 @@ describe("@ops/metrics", function () {
       new_7d: 3,
       active_7d: 4,
       activated_7d: 1,
-      activated_loose_7d: 3
+      activated_loose_7d: 3,
+      activated_total: 2
     });
     expect(s.apps).to.deep.equal({
       total: 4,
@@ -212,7 +216,13 @@ describe("@ops/metrics", function () {
       past_due: 1,
       converted: 3,
       converted_24h: 1,
-      converted_7d: 2
+      converted_7d: 2,
+      credits_purchased: 8500,
+      credits_purchased_used: 1030,
+      credits_free: 1200,
+      credits_free_used: 300,
+      credits_overdraft: 50,
+      credits_expired: 500
     });
     Object.values(s.daily).forEach((series) =>
       expect(series).to.have.length(14)

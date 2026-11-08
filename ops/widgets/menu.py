@@ -215,9 +215,19 @@ def menu(data, now):
         out.append("%s activated   no new workspaces in 7 days | %s" % (D.n(act), MONO3))
     else:
         out.append("%s activated   %d%% of %s new in 7 days | %s" % (D.n(act), act_pct, D.n(new), MONO3))
+    ever, ws, ever_pct = D.activation_total(s)
+    if ever_pct is not None:
+        out.append("%s activated ever   %d%% of %s workspaces | %s" % (D.n(ever), ever_pct, D.n(ws), MONO3))
     if D.billing_on(s):
         b = s["billing"]
         out += ["---", title("BILLING")]
+        bought, spent = b["credits_purchased"], b["credits_purchased_used"]
+        pct = D.used_pct(spent, bought)
+        out.append("%s bought · %s used%s | %s" % (
+            D.money(bought), D.money(spent), "" if pct is None else " (%d%%)" % pct, MONO1))
+        out.append("free %s used of %s · %s unpaid · %s expired | %s" % (
+            D.money(b["credits_free_used"]), D.money(b["credits_free"]), D.money(b["credits_overdraft"]),
+            D.money(b["credits_expired"]), MONO3))
         out.append("%s on plan · %s on trial · %s past due | %s" % (
             D.n(b["payg"]), D.n(b["trial"]), D.n(b["past_due"]), MONO3))
     out += ["---", title("BUILT")]

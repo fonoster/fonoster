@@ -12,4 +12,4 @@ GRANT SELECT (call_ref, access_key_id, started_at, duration_seconds, direction, 
 GRANT SELECT (created_at) ON agents, numbers, trunks, domains TO fonoster_ops;
 \connect billing
 GRANT SELECT (plan, status) ON billing_accounts TO fonoster_ops;
-GRANT SELECT (account_id, kind, source, created_at) ON balance_ledger TO fonoster_ops;
+GRANT SELECT (id, account_id, kind, bucket, amount_milli, grant_id, source, created_at) ON balance_ledger TO fonoster_ops;
