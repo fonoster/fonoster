@@ -452,7 +452,7 @@ The records API is served from vCons the call-record module builds from its own 
 
 Writing this case found that the record builder stamped a caller's turn at its end and wrote no duration; fixed in `mods/callrecord/src/vcon.ts` with a unit test.
 
-**Pass.** The title is `+1 555 000 5555 with Front desk`, the call went via +1 555 000 2222 · Trunk Acme PSTN and the timeline ends with The caller hung up; the caller turn reads 0:01 and 1.8 s, the first agent turn 0:00 and 1.0 s; the recording plays from a blob URL in a waveform player with Play and Seek, and Download saves `call-1.wav`, fetched once. **Fail.** A ref for a title or an app, a code for the ending, a turn without its duration, or a recording that only downloads.
+**Pass.** The title is `+1 555 000 5555 with Front desk`, the call went via +1 555 000 2222 · Trunk Acme PSTN and the timeline ends with The caller hung up; the caller turn reads 0:01 and 1.8 s, the first agent turn 0:00 and 1.0 s; the recording plays from a blob URL in a waveform player with Play and Seek, and loads (4.6 s) under the image's Content-Security-Policy, which the e2e preview sends, with no blob: URL blocked; Download saves `call-1.wav`, fetched once. **Fail.** A ref for a title or an app, a code for the ending, a turn without its duration, a recording that only downloads, or one the CSP blocks.
 
 ### DSH-032 A failed call says why, with its SIP status
 

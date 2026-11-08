@@ -1,10 +1,11 @@
 #!/bin/sh
-# Writes the dashboard's runtime settings from DASHBOARD_API_URL, the only
-# variable it reads. Runs from the nginx image's /docker-entrypoint.d.
+# Writes the dashboard's runtime settings from DASHBOARD_API_URL. Runs from the nginx image's
+# /docker-entrypoint.d. FONOSTER_HTML_DIR and FONOSTER_NGINX_CONF_DIR move its output for the
+# dashboard's e2e preview, which sends the same Content-Security-Policy (vite.config.ts).
 set -eu
 
-HTML=/usr/share/nginx/html
-CONF_DIR=/etc/nginx/fonoster
+HTML="${FONOSTER_HTML_DIR:-/usr/share/nginx/html}"
+CONF_DIR="${FONOSTER_NGINX_CONF_DIR:-/etc/nginx/fonoster}"
 mkdir -p "$CONF_DIR"
 
 API_URL="${DASHBOARD_API_URL:-}"
