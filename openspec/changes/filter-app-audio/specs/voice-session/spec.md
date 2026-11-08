@@ -4,7 +4,7 @@
 
 ### Requirement: Audio filters come from app configuration
 
-Filtered audio is for the AI only. The gateway SHALL start the app's configured audio filters when the session starts, for every
+Filtered audio is for the AI and the app only. The gateway SHALL start the app's configured audio filters when the session starts, for every
 protocol, whether or not the app uses the Speech layer. It SHALL apply them to the caller's audio
 before that audio reaches the app's stream, speech recognition and turn detection. Call recordings,
 answering-machine detection and listen-only sockets SHALL get the caller's unfiltered audio. A
