@@ -16,7 +16,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { execFileSync } from "node:child_process";
+import { mkdtempSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
@@ -45,8 +48,40 @@ const runtimeConfigFromEnv = (): Plugin => ({
   }
 });
 
+// `vite preview` (the e2e suite's server) sends the Content-Security-Policy the image's nginx
+// sends, written by the same script for public/config.js's API URL, so the e2e tests fail on
+// anything the CSP blocks in production (#1342: recordings played from blob: URLs).
+const imageCsp = (): Plugin => ({
+  name: "fonoster-image-csp",
+  configurePreviewServer(server) {
+    const file = (path: string) =>
+      fileURLToPath(new URL(path, import.meta.url));
+    const apiUrl = /apiUrl:\s*"([^"]+)"/.exec(
+      readFileSync(file("./public/config.js"), "utf8")
+    )?.[1];
+    const dir = mkdtempSync(join(tmpdir(), "fonoster-dashboard-csp-"));
+    execFileSync("sh", [file("./nginx/40-fonoster-config.sh")], {
+      env: {
+        ...process.env,
+        DASHBOARD_API_URL: apiUrl ?? "",
+        FONOSTER_HTML_DIR: dir,
+        FONOSTER_NGINX_CONF_DIR: dir
+      },
+      stdio: "ignore"
+    });
+    const csp = /Content-Security-Policy "([^"]+)"/.exec(
+      readFileSync(join(dir, "security-headers.conf"), "utf8")
+    )?.[1];
+    if (!csp) throw new Error("nginx/40-fonoster-config.sh wrote no CSP");
+    server.middlewares.use((_req, res, next) => {
+      res.setHeader("Content-Security-Policy", csp);
+      next();
+    });
+  }
+});
+
 export default defineConfig({
-  plugins: [react(), tailwindcss(), runtimeConfigFromEnv()],
+  plugins: [react(), tailwindcss(), runtimeConfigFromEnv(), imageCsp()],
   resolve: {
     alias: {
       "~": fileURLToPath(new URL("./src", import.meta.url)),
