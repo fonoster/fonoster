@@ -431,6 +431,21 @@ describe("@apiserver[regions/units]", function () {
         { name: "groq", usedBy: ["Ada"] }
       ]);
     });
+
+    it("names the noise-cancelling provider of an app's filters", function () {
+      const { ids, secrets } = catalogUse(
+        [
+          { ref: "a1", name: "Sales", filters: [{ name: "aiCoustics" }] },
+          { ref: "a2", name: "Ada", filters: [{ name: "unknownFilter" }] }
+        ],
+        []
+      );
+      expect(ids).to.not.include("aicoustics");
+      expect(secrets).to.deep.equal([
+        { name: "aicoustics", usedBy: ["Sales"] },
+        { name: "deepgram", usedBy: ["Ada", "Sales"] }
+      ]);
+    });
   });
 
   describe("config change hook", function () {

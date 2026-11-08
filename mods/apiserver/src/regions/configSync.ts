@@ -16,6 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { AudioFilters } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { LinkPublisher, RegionService } from "./service";
 import { RegionRow, RegionsDb, subjects } from "./types";
@@ -76,19 +77,31 @@ export function catalogUse(
 ) {
   const ids = new Set<string>();
   const usedBy = new Map<string, Set<string>>();
-  const use = (id: string | undefined, by: string) => {
-    if (!id) return;
-    ids.add(id);
-    const provider = providerOf(id);
+  const need = (provider: string | undefined, by: string) => {
     if (!provider) return;
     if (!usedBy.has(provider)) usedBy.set(provider, new Set());
     usedBy.get(provider)!.add(by);
+  };
+  const use = (id: string | undefined, by: string) => {
+    if (!id) return;
+    ids.add(id);
+    need(providerOf(id), by);
   };
   for (const app of apps) {
     const name = String(app.name ?? app.ref);
     use((app.speechVoice as string) || DEFAULT_SPEECH.voice, name);
     use((app.speechSttModel as string) || DEFAULT_SPEECH.sttModel, name);
     if (app.speechTtsModel) use(app.speechTtsModel as string, name);
+    // A noise-cancelling filter runs with its `nc` provider's key, which the cell must hold too.
+    const filters = Array.isArray(app.filters) ? app.filters : [];
+    filters.forEach((f: { name?: unknown }) =>
+      need(
+        typeof f?.name === "string"
+          ? AudioFilters.providerOfFilter(f.name)
+          : undefined,
+        name
+      )
+    );
   }
   for (const a of agents) {
     const app = apps.find((x) => x.ref === a.appRef);
