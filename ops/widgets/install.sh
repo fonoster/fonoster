@@ -45,6 +45,11 @@ mkdir -p "$STAGE/assets"
 cp "$HERE/$PLUGIN" "$HERE/fetch.sh" "$HERE/menu.py" "$HERE/data.py" "$HERE/icon.py" "$HERE/validate.py" "$STAGE/"
 cp -R "$HERE/assets/." "$STAGE/assets/"
 chmod 755 "$STAGE/$PLUGIN" "$STAGE/fetch.sh"
+# "Save as image" draws the dropdown with card.swift; without swiftc the menu leaves that item out.
+if ! { mkdir -p "$STAGE/bin" && xcrun swiftc -O "$HERE/card.swift" -o "$STAGE/bin/card" 2>/dev/null; }; then
+  rm -rf "${STAGE:?}/bin"
+  echo "swiftc not found (xcode-select --install), so the menu has no Save as image." >&2
+fi
 
 mkdir -p "$(dirname "$DEST")"
 rm -rf "${DEST:?}"

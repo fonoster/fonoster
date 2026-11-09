@@ -31,6 +31,12 @@ the URL and token out of this repository.
 
 Times are local; a failure's day is UTC.
 
+## Save as image
+
+**Save as image** puts the dropdown on your Desktop as a PNG card, without the menu items, and copies it
+to the clipboard. `install.sh` builds the card tool (`card.swift`) with `swiftc`; without the Xcode command
+line tools (`xcode-select --install`) the menu leaves the item out.
+
 ## Recordings
 
 A downloaded recording is a real call. Keep it private until it is sanitized (`interop.md`, step 4).
