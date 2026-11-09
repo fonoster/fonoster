@@ -11,7 +11,7 @@
 # ops/widgets/README.md.
 #
 # Called with no argument it prints the menu. The menu items call it again with one word:
-#   refresh | copy | quit | clear <far_end> <case> | clear-failure <far_end> <signature_with_underscores>
+#   refresh | image | copy | quit | clear <far_end> <case> | clear-failure <far_end> <signature_with_underscores>
 #   | download <far_end> <case or signature_with_underscores>
 # Anything else is ignored.
 
@@ -32,6 +32,13 @@ case "${1:-}" in
     ;;
   refresh)
     rm -f "$HOME/.cache/fonoster-ops/notice"
+    ;;
+  image)
+    # The dropdown as one PNG card on the Desktop, also on the clipboard.
+    out="$HOME/Desktop/Fonoster metrics $(date '+%Y-%m-%d at %H.%M.%S').png"
+    if python3 -I "$DIR/menu.py" --card | "$DIR/bin/card" "$out" >/dev/null 2>&1; then
+      osascript -e 'on run {p}' -e 'set the clipboard to (read (POSIX file p) as «class PNGf»)' -e 'end run' "$out" >/dev/null 2>&1 || true
+    fi
     ;;
   copy)
     python3 -I "$DIR/menu.py" last-json | pbcopy

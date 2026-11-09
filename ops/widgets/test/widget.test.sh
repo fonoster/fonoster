@@ -505,7 +505,21 @@ plugin refresh
 eq "refresh itself fetches nothing: SwiftBar re-runs the plugin" 0 "$(wc -l <"$SHIM_LOG" | tr -d ' ')"
 lacks "no color= in the menu (SwiftBar makes such a line clickable)" "$(plugin)" "color="
 
-# ================================================================= install
+# ================================================================= save as image
+echo "save as image (menu.py --card)"
+new_env card
+alerts_body "$E4" >"$SHIM_DIR/alerts.body"
+plugin >/dev/null
+CARD=$(python3 -I "$ROOT/menu.py" --card)
+lacks "card: no menu bar title" "$CARD" "templateImage="
+lacks "card: nothing clickable" "$CARD" "bash="
+eq "card: no submenus" 0 "$(grep -c '^--[^-]' <<<"$CARD" || true)"
+has "card: section titles keep their role" "$CARD" $'\035title\tCALLS · LAST 24 HOURS'
+has "card: the open alerts title" "$CARD" $'\035error\t● INTEROP · 1 OPEN'
+has "card: alert rows" "$CARD" $'\035main\tNew evidence IOP-004'
+lacks "card: no ansi colors" "$CARD" $'\033['
+lacks "no card tool: no Save as image" "$(menu)" "Save as image"
+
 echo "install.sh (copy out of the repo, link into SwiftBar, uninstall)"
 new_env inst
 IH="$WORK/install-home"
@@ -514,6 +528,16 @@ HOME="$IH" FONOSTER_OPS_PLUGIN_DIR="$IH/plugins" "$ROOT/install.sh" >/dev/null
 IDEST="$IH/Library/Application Support/FonosterOps"
 [ -f "$IDEST/menu.py" ] && [ -f "$IDEST/assets/logo-menu-dark.png" ] && ok "widget copied" || bad "widget not copied"
 [ ! -e "$IDEST/assets/fonts" ] && ok "no fonts" || bad "fonts copied"
+if xcrun --find swiftc >/dev/null 2>&1; then # the same check install.sh makes
+  [ -x "$IDEST/bin/card" ] && ok "card tool built" || bad "card tool not built"
+  plugin >/dev/null
+  has "installed menu offers Save as image" "$(HOME="$H" python3 -I "$IDEST/menu.py" | plain)" "Save as image"
+  HOME="$H" python3 -I "$IDEST/menu.py" --card | "$IDEST/bin/card" "$WORK/card.png" && ok "card exits 0" || bad "card failed"
+  eq "card is a PNG" "89504e47" "$(head -c 4 "$WORK/card.png" | xxd -p)"
+  printf -- '---\n' | "$IDEST/bin/card" "$WORK/empty.png" && bad "nothing to draw should fail" || ok "nothing to draw fails"
+else
+  echo "  skip swiftc not available"
+fi
 eq "SwiftBar link points at the copy" "$IDEST/fonoster-ops.5m.sh" "$(readlink "$IH/plugins/fonoster-ops.5m.sh")"
 eq "the copy runs on its own" "☎ ✕" "$(HOME="$IH" python3 -I "$IDEST/menu.py" | head -n 1)"
 HOME="$IH" FONOSTER_OPS_PLUGIN_DIR="$IH/plugins" "$ROOT/install.sh" --uninstall >/dev/null

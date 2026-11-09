@@ -3,6 +3,7 @@
 
   menu.py                                  the menu (title, then the dropdown after `---`)
   menu.py last-json                        the last good snapshot as one JSON line
+  menu.py --card                           the dropdown's information lines for card (Save as image)
   menu.py row <far_end> <key>              a row of alerts.json: "<file>\t<label>", or nothing
   menu.py clear <far_end> <case>           clears that evidence, when it is a row of alerts.json
   menu.py clear-failure <far_end> <key>    clears that failure, when it is a row of alerts.json
@@ -32,7 +33,8 @@ DARK = os.environ.get("OS_APPEARANCE", "Dark") != "Light"
 # Nearest colors to designs/widget.nib that SwiftBar's 256-color table can produce:
 # t1 #FFFFFF / #252525, t3 #C2C2C2 / #6B6B6B, t4 #8D8D8D, accent (SwiftBar has no exact match for #39E19E).
 INK = {"main": 231 if DARK else 235, "detail": 251 if DARK else 242, "head": 245, "title": 245,
-       "accent": 79 if DARK else 29, "warn": 214 if DARK else 166, "error": 203 if DARK else 160}
+       "accent": 79 if DARK else 29, "warn": 214 if DARK else 166, "failing": 214 if DARK else 166,
+       "error": 203 if DARK else 160}
 
 
 def paint(text, role):
@@ -45,11 +47,33 @@ MONO1 = "font=Menlo size=12 ansi=true role=main"  # the main line of a section
 MONO3 = "font=Menlo size=12 ansi=true role=detail"  # the detail lines
 ACCENT = "font=Menlo size=12 ansi=true role=accent"  # paying customers
 WARN = "size=11 ansi=true role=warn"  # a warning under a title
-FAILING = "font=Menlo size=12 ansi=true role=warn"  # a failing far end
+FAILING = "font=Menlo size=12 ansi=true role=failing"  # a failing far end
+
+
+CARD_TOOL = os.path.join(HERE, "bin", "card")  # built by install.sh when swiftc is available
+
+
+def card_lines(lines):
+    """The dropdown's information for card.swift: no menu bar title, no submenus, nothing clickable."""
+    out = []
+    for line in lines[lines.index("---") + 1:] if "---" in lines else []:
+        text, sep, params = line.partition(" | ")
+        words = params.split(" ")
+        if line == "---" or line.startswith("| image="):
+            out.append(line)
+            continue
+        if text.startswith("--") or any(w.startswith(("bash=", "href=")) for w in words):
+            continue
+        role = next((w[5:] for w in words if w.startswith("role=")), None)
+        if sep and role in INK:
+            out.append("\x1d%s\t%s" % (role, text))
+    return out
 
 
 def colorize(line):
     """Turns `text | ... role=X` into the ansi-colored text with the role dropped."""
+    if CARD:  # card_lines reads the roles
+        return line
     text, sep, params = line.partition(" | ")
     words = params.split(" ")
     role = next((w[5:] for w in words if w.startswith("role=")), None)
@@ -150,7 +174,9 @@ def interop_section(data, rows):
     why = alerts_line(data)
     if not rows and why is None:
         return []
-    if rows:
+    if rows and CARD:
+        head = "● INTEROP · %d OPEN | role=error" % len(rows)
+    elif rows:
         head = "%s%s | font=HelveticaNeue-Bold size=11 ansi=true" % (
             paint("● ", "error"), paint("INTEROP · %d OPEN" % len(rows), "title"))
     else:
@@ -164,6 +190,9 @@ def interop_section(data, rows):
         out.append(row_line(a))
         out += row_submenu(a)
     return out
+
+
+CARD = False  # set by --card
 
 
 def menu(data, now):
@@ -233,7 +262,10 @@ def menu(data, now):
     out += ["---", title("BUILT")]
     out.append("%s apps · %s Autopilot · %s Stream | %s" % (D.n(a["total"]), D.n(a["autopilot"]), D.n(a["stream"]), MONO3))
     out.append("%s SIP agents · %s numbers · %s trunks | %s" % (D.n(r["agents"]), D.n(r["numbers"]), D.n(r["trunks"]), MONO3))
-    out += ["---", action("Refresh now", "refresh", extra="refresh=true"),
+    out.append("---")
+    if os.access(CARD_TOOL, os.X_OK):
+        out.append(action("Save as image", "image"))
+    out += [action("Refresh now", "refresh", extra="refresh=true"),
             action("Copy last snapshot (JSON)", "copy"), "---", action("Quit", "quit")]
     return [colorize(line) for line in out]
 
@@ -258,7 +290,10 @@ def main(argv):
         if a:
             D.write_clear(a)
         return 0
-    for line in menu(data, now):
+    global CARD
+    CARD = args == ["--card"]
+    lines = menu(data, now)
+    for line in card_lines(lines) if CARD else lines:
         print(line)
     return 0
 
