@@ -44,10 +44,10 @@ export function useCreateApiKey() {
   );
 }
 
-export function useRegenerateApiKey() {
+export function useRotateApiKey() {
   const sdk = useSdk();
   return useResourceMutation<string, CreateApiKeyResponse>(RESOURCE, (ref) =>
-    sdk.apiKeys.regenerateApiKey(ref)
+    sdk.apiKeys.rotateApiKey(ref)
   );
 }
 

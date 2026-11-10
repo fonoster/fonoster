@@ -397,28 +397,6 @@ function deserialize_fonoster_identity_v1beta2_ListWorkspacesResponse(buffer_arg
   return identity_pb.ListWorkspacesResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
-function serialize_fonoster_identity_v1beta2_RegenerateApiKeyRequest(arg) {
-  if (!(arg instanceof identity_pb.RegenerateApiKeyRequest)) {
-    throw new Error('Expected argument of type fonoster.identity.v1beta2.RegenerateApiKeyRequest');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_fonoster_identity_v1beta2_RegenerateApiKeyRequest(buffer_arg) {
-  return identity_pb.RegenerateApiKeyRequest.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_fonoster_identity_v1beta2_RegenerateApiKeyResponse(arg) {
-  if (!(arg instanceof identity_pb.RegenerateApiKeyResponse)) {
-    throw new Error('Expected argument of type fonoster.identity.v1beta2.RegenerateApiKeyResponse');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_fonoster_identity_v1beta2_RegenerateApiKeyResponse(buffer_arg) {
-  return identity_pb.RegenerateApiKeyResponse.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
 function serialize_fonoster_identity_v1beta2_RemoveUserFromWorkspaceRequest(arg) {
   if (!(arg instanceof identity_pb.RemoveUserFromWorkspaceRequest)) {
     throw new Error('Expected argument of type fonoster.identity.v1beta2.RemoveUserFromWorkspaceRequest');
@@ -494,6 +472,28 @@ function serialize_fonoster_identity_v1beta2_RevokeTokenResponse(arg) {
 
 function deserialize_fonoster_identity_v1beta2_RevokeTokenResponse(buffer_arg) {
   return identity_pb.RevokeTokenResponse.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_RotateApiKeyRequest(arg) {
+  if (!(arg instanceof identity_pb.RotateApiKeyRequest)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.RotateApiKeyRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_RotateApiKeyRequest(buffer_arg) {
+  return identity_pb.RotateApiKeyRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_fonoster_identity_v1beta2_RotateApiKeyResponse(arg) {
+  if (!(arg instanceof identity_pb.RotateApiKeyResponse)) {
+    throw new Error('Expected argument of type fonoster.identity.v1beta2.RotateApiKeyResponse');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_identity_v1beta2_RotateApiKeyResponse(buffer_arg) {
+  return identity_pb.RotateApiKeyResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_fonoster_identity_v1beta2_SendResetPasswordCodeRequest(arg) {
@@ -842,16 +842,16 @@ createApiKey: {
     responseSerialize: serialize_fonoster_identity_v1beta2_ListApiKeysResponse,
     responseDeserialize: deserialize_fonoster_identity_v1beta2_ListApiKeysResponse,
   },
-  regenerateApiKey: {
-    path: '/fonoster.identity.v1beta2.Identity/RegenerateApiKey',
+  rotateApiKey: {
+    path: '/fonoster.identity.v1beta2.Identity/RotateApiKey',
     requestStream: false,
     responseStream: false,
-    requestType: identity_pb.RegenerateApiKeyRequest,
-    responseType: identity_pb.RegenerateApiKeyResponse,
-    requestSerialize: serialize_fonoster_identity_v1beta2_RegenerateApiKeyRequest,
-    requestDeserialize: deserialize_fonoster_identity_v1beta2_RegenerateApiKeyRequest,
-    responseSerialize: serialize_fonoster_identity_v1beta2_RegenerateApiKeyResponse,
-    responseDeserialize: deserialize_fonoster_identity_v1beta2_RegenerateApiKeyResponse,
+    requestType: identity_pb.RotateApiKeyRequest,
+    responseType: identity_pb.RotateApiKeyResponse,
+    requestSerialize: serialize_fonoster_identity_v1beta2_RotateApiKeyRequest,
+    requestDeserialize: deserialize_fonoster_identity_v1beta2_RotateApiKeyRequest,
+    responseSerialize: serialize_fonoster_identity_v1beta2_RotateApiKeyResponse,
+    responseDeserialize: deserialize_fonoster_identity_v1beta2_RotateApiKeyResponse,
   },
   // Token exchange actions
 exchangeCredentials: {

@@ -18,8 +18,8 @@
  */
 /*
  * An in-memory workspace behind GrpcWebMock: its name, API keys, webhooks and
- * members, kept the way the API keeps them (secrets returned once, on create,
- * regenerate or rotate). Registered after the fixture's defaults, so its
+ * members, kept the way the API keeps them (secrets returned once, on create
+ * or rotate). Registered after the fixture's defaults, so its
  * Identity/ListWorkspaces wins.
  */
 import { createRequire } from "node:module";
@@ -145,7 +145,7 @@ export class FakeWorkspace {
         return response;
       });
 
-    // API keys: the secret only comes back from create and regenerate.
+    // API keys: the secret only comes back from create and rotate.
     const keyMessage = (row: ApiKeyRow) => {
       const key = new identity.ApiKey();
       key.setRef(row.ref);
@@ -180,11 +180,11 @@ export class FakeWorkspace {
         response.setAccessKeySecret(row.secret);
         return response;
       })
-      .on("Identity/RegenerateApiKey", (bytes) => {
-        const { ref } = decode("RegenerateApiKeyRequest", bytes);
+      .on("Identity/RotateApiKey", (bytes) => {
+        const { ref } = decode("RotateApiKeyRequest", bytes);
         const row = this.apiKeys.get(ref)!;
-        row.secret = `regenerated-${ref}`;
-        const response = new identity.RegenerateApiKeyResponse();
+        row.secret = `rotated-${ref}`;
+        const response = new identity.RotateApiKeyResponse();
         response.setRef(ref);
         response.setAccessKeyId(row.accessKeyId);
         response.setAccessKeySecret(row.secret);

@@ -37,7 +37,7 @@ const withKeys = (items: object[]) => (auth: AuthContextValue) => ({
     apiKeys: {
       listApiKeys: fn().mockResolvedValue({ items }),
       createApiKey: fn().mockResolvedValue(created),
-      regenerateApiKey: fn().mockResolvedValue(created),
+      rotateApiKey: fn().mockResolvedValue(created),
       deleteApiKey: fn().mockResolvedValue({ ref: "ak-1" })
     }
   } as never
@@ -82,7 +82,7 @@ export const Empty: Story = {
   parameters: { screen: { auth: withKeys([]) } }
 };
 
-/** The once-only secret, as shown after Create or Regenerate. */
+/** The once-only secret, as shown after Create or Rotate. */
 export const SaveSecret: Story = {
   render: () => (
     <WorkspaceProvider value={testWorkspace}>

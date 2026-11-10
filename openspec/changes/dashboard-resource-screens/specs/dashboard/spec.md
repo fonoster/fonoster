@@ -6,7 +6,7 @@
 
 Every resource screen SHALL list the workspace's items with an empty state and one Create action,
 and SHALL create and edit in a form that keeps the API's message when a save is refused. Deleting or
-removing SHALL need `DELETE` typed; Rotate and Regenerate SHALL take one click.
+removing SHALL need `DELETE` typed; Rotate SHALL take one click.
 
 #### Scenario: Empty state
 
@@ -164,7 +164,7 @@ shown after it is saved; editing SHALL offer New value, left empty to keep the c
 ### Requirement: API keys show their secret once
 
 Creating an API key SHALL ask for a role and an expiry (never, 30 days, 90 days, 1 year), and SHALL show
-the key's secret once, in a dialog that says it won't be shown again. Regenerate SHALL replace the
+the key's secret once, in a dialog that says it won't be shown again. Rotate SHALL replace the
 secret in one click and show the new one once. Delete SHALL ask to type `DELETE`.
 
 #### Scenario: Create an API key
@@ -173,9 +173,9 @@ secret in one click and show the new one once. Delete SHALL ask to type `DELETE`
 - **THEN** the dialog shows the access key ID and secret with the warning that this is the only time
 - **AND** after it is closed the list shows the key without its secret
 
-#### Scenario: Regenerate an API key
+#### Scenario: Rotate an API key
 
-- **WHEN** the user regenerates a key
+- **WHEN** the user rotates a key
 - **THEN** one confirmation replaces the secret, and the new secret is shown once
 
 ### Requirement: Webhooks deliver signed events to HTTPS endpoints

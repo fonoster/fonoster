@@ -349,16 +349,16 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 
 **Pass.** `ab` and a name with spaces are refused with nothing sent; when the API refuses the create, its message shows in the still-open drawer with the name kept and nothing listed; the saved secret is listed without its value; editing shows an empty New value; delete needs `DELETE`. **Fail.** An invalid name sent, the API's message lost, or the value shown.
 
-### DSH-024 API keys: the secret once, Regenerate in one click
+### DSH-024 API keys: the secret once, Rotate in one click
 
 - **Spec:** dashboard / API keys show their secret once / Create an API key
-- **Spec:** dashboard / API keys show their secret once / Regenerate an API key
+- **Spec:** dashboard / API keys show their secret once / Rotate an API key
 - **Priority:** P0
-- **Proof:** Make the Regenerate confirmation ask for `DELETE` (`api-keys/index.tsx`); the test must go red on the confirmation.
+- **Proof:** Make the Rotate confirmation ask for `DELETE` (`api-keys/index.tsx`); the test must go red on the confirmation.
 - **Fault:** faults/DSH-024.patch
 - **Test:** mods/dashboard/e2e/resources.community.spec.ts
 
-**Pass.** A Workspace admin key expiring in 90 days is requested with that expiry; the dialog shows the secret with the only-time warning and closes only after "I've saved it"; the list never shows the secret; Regenerate takes one confirmation and shows the new secret once; delete needs `DELETE`. **Fail.** A secret shown twice or listed, or Regenerate asking for `DELETE`.
+**Pass.** A Workspace admin key expiring in 90 days is requested with that expiry; the dialog shows the secret with the only-time warning and closes only after "I've saved it"; the list never shows the secret; Rotate takes one confirmation and shows the new secret once; delete needs `DELETE`. **Fail.** A secret shown twice or listed, or Rotate asking for `DELETE`.
 
 ### DSH-025 Webhooks: HTTPS only, the secret once, and rotation
 

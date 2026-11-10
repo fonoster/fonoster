@@ -99,7 +99,7 @@ const workspaceResourceOwnerOrAdminAccess = [
   "/fonoster.identity.v1beta2.Identity/CreateApiKey",
   "/fonoster.identity.v1beta2.Identity/DeleteApiKey",
   "/fonoster.identity.v1beta2.Identity/ListApiKeys",
-  "/fonoster.identity.v1beta2.Identity/RegenerateApiKey"
+  "/fonoster.identity.v1beta2.Identity/RotateApiKey"
 ];
 
 // Billing belongs to the owner (add-billing-service): only owners see or change it.

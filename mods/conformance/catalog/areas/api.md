@@ -581,7 +581,7 @@ A member of Acme creates an API key through both clients.
 - **Fault:** faults/API-041.patch
 - **Test:** mods/conformance/test/api/identity.api.ts
 
-The admin of Acme deletes and regenerates a key of Bravo through both clients.
+The admin of Acme deletes and rotates a key of Bravo through both clients.
 
 **Pass.** `NOT_FOUND` both times and Bravo's key still exchanges. **Fail.** Either call succeeds or the key stops working.
 

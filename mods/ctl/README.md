@@ -37,7 +37,7 @@ USAGE
 * [`fonoster apikeys:create`](#fonoster-apikeyscreate)
 * [`fonoster apikeys:delete REF`](#fonoster-apikeysdelete-ref)
 * [`fonoster apikeys:list`](#fonoster-apikeyslist)
-* [`fonoster apikeys:regenerate REF`](#fonoster-apikeysregenerate-ref)
+* [`fonoster apikeys:rotate REF`](#fonoster-apikeysrotate-ref)
 * [`fonoster applications:create`](#fonoster-applicationscreate)
 * [`fonoster applications:delete REF`](#fonoster-applicationsdelete-ref)
 * [`fonoster applications:eval`](#fonoster-applicationseval)
@@ -179,16 +179,16 @@ EXAMPLES
 
 _See code: [dist/commands/apikeys/list.js](https://github.com/fonoster/fonoster/blob/v0.52.1/dist/commands/apikeys/list.js)_
 
-## `fonoster apikeys:regenerate REF`
+## `fonoster apikeys:rotate REF`
 
 generate a new access key secret for an API key
 
 ```
 USAGE
-  $ fonoster apikeys:regenerate REF [--ca-file <value>]
+  $ fonoster apikeys:rotate REF [--ca-file <value>]
 
 ARGUMENTS
-  REF  the Application to update
+  REF  the API key to rotate
 
 FLAGS
   --ca-file=<value>  a PEM file of certificate authorities to trust, such as an install's config/tls/ca.pem (default:
@@ -198,10 +198,10 @@ DESCRIPTION
   generate a new access key secret for an API key
 
 EXAMPLES
-  $ fonoster apikeys:regenerate
+  $ fonoster apikeys:rotate
 ```
 
-_See code: [dist/commands/apikeys/regenerate.js](https://github.com/fonoster/fonoster/blob/v0.52.1/dist/commands/apikeys/regenerate.js)_
+_See code: [dist/commands/apikeys/rotate.js](https://github.com/fonoster/fonoster/blob/v0.52.1/dist/commands/apikeys/rotate.js)_
 
 ## `fonoster applications:create`
 

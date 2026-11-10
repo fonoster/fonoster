@@ -49,8 +49,6 @@ import {
   ListWorkspaceMembersResponse,
   ListWorkspacesRequest,
   ListWorkspacesResponse,
-  RegenerateApiKeyRequest,
-  RegenerateApiKeyResponse,
   RemoveUserFromWorkspaceRequest,
   RemoveUserFromWorkspaceResponse,
   ResendWorkspaceMembershipInvitationRequest,
@@ -58,6 +56,8 @@ import {
   ResetPasswordRequest,
   RevokeTokenRequest,
   RevokeTokenResponse,
+  RotateApiKeyRequest,
+  RotateApiKeyResponse,
   SendResetPasswordCodeRequest,
   SendVerificationCodeRequest,
   UpdateUserRequest,
@@ -72,10 +72,7 @@ import { ClientFunction } from "../types";
 type IdentityClient = {
   // ApiKeys
   createApiKey: ClientFunction<CreateApiKeyRequest, CreateApiKeyResponse>;
-  regenerateApiKey: ClientFunction<
-    RegenerateApiKeyRequest,
-    RegenerateApiKeyResponse
-  >;
+  rotateApiKey: ClientFunction<RotateApiKeyRequest, RotateApiKeyResponse>;
   listApiKeys: ClientFunction<ListApiKeysRequest, ListApiKeysResponse>;
   deleteApiKey: ClientFunction<DeleteApiKeyRequest, DeleteApiKeyResponse>;
   // Exchanges

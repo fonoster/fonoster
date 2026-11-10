@@ -545,7 +545,7 @@ Note that an active Fonoster deployment is required.
 * [ApiKeys](#ApiKeys)
     * [new ApiKeys(client)](#new_ApiKeys_new)
     * [.createApiKey(request)](#ApiKeys+createApiKey) ⇒ <code>Promise.&lt;CreateApiKeyResponse&gt;</code>
-    * [.regenerateApiKey(ref)](#ApiKeys+regenerateApiKey) ⇒ <code>Promise.&lt;CreateApiKeyResponse&gt;</code>
+    * [.rotateApiKey(ref)](#ApiKeys+rotateApiKey) ⇒ <code>Promise.&lt;CreateApiKeyResponse&gt;</code>
     * [.listApiKeys(request)](#ApiKeys+listApiKeys) ⇒ <code>Promise.&lt;ListApiKeysResponse&gt;</code>
     * [.deleteApiKey(ref)](#ApiKeys+deleteApiKey) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
 
@@ -613,18 +613,18 @@ apiKeys
   .then(console.log) // successful response
   .catch(console.error); // an error occurred
 ```
-<a name="ApiKeys+regenerateApiKey"></a>
+<a name="ApiKeys+rotateApiKey"></a>
 
-### apiKeys.regenerateApiKey(ref) ⇒ <code>Promise.&lt;CreateApiKeyResponse&gt;</code>
-Regenerates an existing ApiKey for a Workspace.
+### apiKeys.rotateApiKey(ref) ⇒ <code>Promise.&lt;CreateApiKeyResponse&gt;</code>
+Rotates an existing ApiKey for a Workspace.
 Note that this operation is irreversible.
 
 **Kind**: instance method of [<code>ApiKeys</code>](#ApiKeys)  
-**Returns**: <code>Promise.&lt;CreateApiKeyResponse&gt;</code> - - The response object that contains the reference to the regenerated ApiKey  
+**Returns**: <code>Promise.&lt;CreateApiKeyResponse&gt;</code> - - The response object that contains the reference to the rotated ApiKey  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| ref | <code>string</code> | The reference of the ApiKey to regenerate |
+| ref | <code>string</code> | The reference of the ApiKey to rotate |
 
 **Example**  
 ```js
@@ -633,7 +633,7 @@ const apiKeys = new SDK.ApiKeys(client); // Existing client object
 const ref = "00000000-0000-0000-0000-000000000000";
 
 apiKeys
-  .regenerateApiKey(ref)
+  .rotateApiKey(ref)
   .then(console.log) // successful response
   .catch(console.error); // an error occurred
 ```

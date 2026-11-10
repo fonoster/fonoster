@@ -73,7 +73,7 @@ type CreateApiKeyRequest = {
   expiresAt?: number;
 };
 
-type RegenerateApiKeyResponse = {
+type RotateApiKeyResponse = {
   ref: string;
   accessKeyId: string;
   accessKeySecret: string;
@@ -123,7 +123,7 @@ export {
   CreateUserRequest,
   ListApiKeysRequest,
   ListApiKeysResponse,
-  RegenerateApiKeyResponse,
+  RotateApiKeyResponse,
   ListWorkspaceMembersRequest,
   ListWorkspaceMembersResponse,
   UpdateUserRequest,

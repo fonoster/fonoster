@@ -40,10 +40,10 @@ function setup(items: object[] = []) {
   const apiKeys = {
     listApiKeys: vi.fn().mockResolvedValue({ items }),
     createApiKey: vi.fn().mockResolvedValue(created),
-    regenerateApiKey: vi.fn().mockResolvedValue({
+    rotateApiKey: vi.fn().mockResolvedValue({
       ...created,
       ref: "ak-1",
-      accessKeySecret: "regenerated-secret"
+      accessKeySecret: "rotated-secret"
     }),
     deleteApiKey: vi.fn().mockResolvedValue({ ref: "ak-1" })
   };
@@ -130,21 +130,19 @@ describe("API keys", () => {
     expect(Math.round(days)).toBe(30);
   });
 
-  it("asks before regenerating, then shows the new secret", async () => {
+  it("asks before rotating, then shows the new secret", async () => {
     const { user, apiKeys } = setup([key]);
     await user.click(
       await screen.findByRole("button", {
         name: `Actions for ${key.accessKeyId}`
       })
     );
-    await user.click(
-      await screen.findByRole("menuitem", { name: "Regenerate" })
-    );
-    expect(apiKeys.regenerateApiKey).not.toHaveBeenCalled();
-    await user.click(screen.getByRole("button", { name: "Regenerate" }));
-    expect(apiKeys.regenerateApiKey).toHaveBeenCalledWith("ak-1");
+    await user.click(await screen.findByRole("menuitem", { name: "Rotate" }));
+    expect(apiKeys.rotateApiKey).not.toHaveBeenCalled();
+    await user.click(screen.getByRole("button", { name: "Rotate" }));
+    expect(apiKeys.rotateApiKey).toHaveBeenCalledWith("ak-1");
     expect(await screen.findByLabelText("API secret")).toHaveTextContent(
-      "regenerated-secret"
+      "rotated-secret"
     );
   });
 

@@ -18,7 +18,7 @@ and how the platform uses Routr (numbers route to apps through the media-node pe
 
 - One requirement for what every resource screen shares: list, empty state, one Create action,
   create and edit in a drawer or page, errors shown in the form, a toast on success, and deleting or
-  removing asks to type `DELETE` while Rotate and Regenerate stay one click.
+  removing asks to type `DELETE` while Rotate stays one click.
 - One requirement per SIP network resource with its fields, its validation and what can't change
   after creation.
 - One requirement per workspace resource: Secrets, API keys, Webhooks, Members, Settings.

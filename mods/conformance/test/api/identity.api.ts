@@ -688,7 +688,7 @@ describe("@api identity", function () {
       ).to.equal(before);
     });
 
-    it("[API-041] deleting or regenerating another workspace's key is NOT_FOUND and the key is unchanged", async function () {
+    it("[API-041] deleting or rotating another workspace's key is NOT_FOUND and the key is unchanged", async function () {
       const key = (await id(
         await world.as(world.ownerB, world.wsB),
         "createApiKey",
@@ -705,9 +705,9 @@ describe("@api identity", function () {
         ).to.equal(status.NOT_FOUND);
         expect(
           await codeOf(
-            d.call(adminA, "ApiKeys", "regenerateApiKey", { ref: key.ref })
+            d.call(adminA, "ApiKeys", "rotateApiKey", { ref: key.ref })
           ),
-          `${d.name} regenerate`
+          `${d.name} rotate`
         ).to.equal(status.NOT_FOUND);
       }
 

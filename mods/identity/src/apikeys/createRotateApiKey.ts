@@ -23,7 +23,7 @@ import {
   withErrorHandlingAndValidation
 } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
-import { BaseApiObject, RegenerateApiKeyResponse } from "@fonoster/types";
+import { BaseApiObject, RotateApiKeyResponse } from "@fonoster/types";
 import { ServerInterceptingCall, status } from "@grpc/grpc-js";
 import { Prisma } from "../db";
 import { createRefreshTokenStore } from "../exchanges/refreshTokens";
@@ -37,15 +37,12 @@ const notAdmin = {
   message: "Only workspace owners and admins can manage API keys"
 };
 
-function createRegenerateApiKey(prisma: Prisma) {
+function createRotateApiKey(prisma: Prisma) {
   const refreshTokens = createRefreshTokenStore(prisma);
 
-  const regenerateApiKey = async (
+  const rotateApiKey = async (
     call: { request: BaseApiObject },
-    callback: (
-      error: GrpcErrorMessage,
-      response?: RegenerateApiKeyResponse
-    ) => void
+    callback: (error: GrpcErrorMessage, response?: RotateApiKeyResponse) => void
   ) => {
     const { request } = call;
     const { ref } = request;
@@ -54,7 +51,7 @@ function createRegenerateApiKey(prisma: Prisma) {
       call as unknown as ServerInterceptingCall
     );
 
-    logger.info("regenerating ApiKey", { ref, accessKeyId });
+    logger.info("rotating ApiKey", { ref, accessKeyId });
 
     if (!isWorkspaceAdminCall(call)) {
       return callback(notAdmin);
@@ -88,7 +85,7 @@ function createRegenerateApiKey(prisma: Prisma) {
     });
   };
 
-  return withErrorHandlingAndValidation(regenerateApiKey, V.emptySchema);
+  return withErrorHandlingAndValidation(rotateApiKey, V.emptySchema);
 }
 
-export { createRegenerateApiKey };
+export { createRotateApiKey };

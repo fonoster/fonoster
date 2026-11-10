@@ -542,7 +542,7 @@ async function savedIt(page: Page) {
   await expect(dialog).toBeHidden();
 }
 
-test("[DSH-024] shows an API key's secret once, regenerates it in one click, and deletes it", async ({
+test("[DSH-024] shows an API key's secret once, rotates it in one click, and deletes it", async ({
   page,
   api
 }) => {
@@ -576,21 +576,19 @@ test("[DSH-024] shows an API key's secret once, regenerates it in one click, and
   ).toBeVisible();
   await expect(page.getByText(key.secret)).toHaveCount(0);
 
-  // Regenerate: one confirmation, no typing, and the new secret is shown once.
+  // Rotate: one confirmation, no typing, and the new secret is shown once.
   await page
     .getByRole("button", { name: `Actions for ${key.accessKeyId}` })
     .click();
-  await page.getByRole("menuitem", { name: "Regenerate" }).click();
+  await page.getByRole("menuitem", { name: "Rotate" }).click();
   await expect(page.getByRole("dialog").getByLabel(/Type DELETE/)).toHaveCount(
     0
   );
   await page
     .getByRole("dialog")
-    .getByRole("button", { name: "Regenerate" })
+    .getByRole("button", { name: "Rotate" })
     .click();
-  await expect(page.getByRole("dialog")).toContainText(
-    `regenerated-${key.ref}`
-  );
+  await expect(page.getByRole("dialog")).toContainText(`rotated-${key.ref}`);
   await savedIt(page);
 
   await deleteRow(page, key.accessKeyId);

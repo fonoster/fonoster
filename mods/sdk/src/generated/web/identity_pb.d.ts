@@ -934,43 +934,43 @@ export namespace ListApiKeysResponse {
   }
 }
 
-export class RegenerateApiKeyRequest extends jspb.Message {
+export class RotateApiKeyRequest extends jspb.Message {
   getRef(): string;
-  setRef(value: string): RegenerateApiKeyRequest;
+  setRef(value: string): RotateApiKeyRequest;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): RegenerateApiKeyRequest.AsObject;
-  static toObject(includeInstance: boolean, msg: RegenerateApiKeyRequest): RegenerateApiKeyRequest.AsObject;
-  static serializeBinaryToWriter(message: RegenerateApiKeyRequest, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): RegenerateApiKeyRequest;
-  static deserializeBinaryFromReader(message: RegenerateApiKeyRequest, reader: jspb.BinaryReader): RegenerateApiKeyRequest;
+  toObject(includeInstance?: boolean): RotateApiKeyRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: RotateApiKeyRequest): RotateApiKeyRequest.AsObject;
+  static serializeBinaryToWriter(message: RotateApiKeyRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RotateApiKeyRequest;
+  static deserializeBinaryFromReader(message: RotateApiKeyRequest, reader: jspb.BinaryReader): RotateApiKeyRequest;
 }
 
-export namespace RegenerateApiKeyRequest {
+export namespace RotateApiKeyRequest {
   export type AsObject = {
     ref: string,
   }
 }
 
-export class RegenerateApiKeyResponse extends jspb.Message {
+export class RotateApiKeyResponse extends jspb.Message {
   getRef(): string;
-  setRef(value: string): RegenerateApiKeyResponse;
+  setRef(value: string): RotateApiKeyResponse;
 
   getAccessKeyId(): string;
-  setAccessKeyId(value: string): RegenerateApiKeyResponse;
+  setAccessKeyId(value: string): RotateApiKeyResponse;
 
   getAccessKeySecret(): string;
-  setAccessKeySecret(value: string): RegenerateApiKeyResponse;
+  setAccessKeySecret(value: string): RotateApiKeyResponse;
 
   serializeBinary(): Uint8Array;
-  toObject(includeInstance?: boolean): RegenerateApiKeyResponse.AsObject;
-  static toObject(includeInstance: boolean, msg: RegenerateApiKeyResponse): RegenerateApiKeyResponse.AsObject;
-  static serializeBinaryToWriter(message: RegenerateApiKeyResponse, writer: jspb.BinaryWriter): void;
-  static deserializeBinary(bytes: Uint8Array): RegenerateApiKeyResponse;
-  static deserializeBinaryFromReader(message: RegenerateApiKeyResponse, reader: jspb.BinaryReader): RegenerateApiKeyResponse;
+  toObject(includeInstance?: boolean): RotateApiKeyResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: RotateApiKeyResponse): RotateApiKeyResponse.AsObject;
+  static serializeBinaryToWriter(message: RotateApiKeyResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): RotateApiKeyResponse;
+  static deserializeBinaryFromReader(message: RotateApiKeyResponse, reader: jspb.BinaryReader): RotateApiKeyResponse;
 }
 
-export namespace RegenerateApiKeyResponse {
+export namespace RotateApiKeyResponse {
   export type AsObject = {
     ref: string,
     accessKeyId: string,

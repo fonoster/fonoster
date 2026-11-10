@@ -69,7 +69,7 @@ index 000000000..cd5d4ae9e
 +  rpc CreateApiKey (CreateApiKeyRequest) returns (CreateApiKeyResponse) {}
 +  rpc DeleteApiKey (DeleteApiKeyRequest) returns (DeleteApiKeyResponse) {}
 +  rpc ListApiKeys (ListApiKeysRequest) returns (ListApiKeysResponse) {}
-+  rpc RegenerateApiKey (RegenerateApiKeyRequest) returns (RegenerateApiKeyResponse) {}
++  rpc RotateApiKey (RotateApiKeyRequest) returns (RotateApiKeyResponse) {}
 +
 +  // Token exchange actions
 +  rpc ExchangeCredentials (ExchangeCredentialsRequest) returns (ExchangeCredentialsResponse) {}
@@ -310,11 +310,11 @@ index 000000000..cd5d4ae9e
 +  string next_page_token = 2;
 +}
 +
-+message RegenerateApiKeyRequest {
++message RotateApiKeyRequest {
 +  string ref = 1;
 +}
 +
-+message RegenerateApiKeyResponse {
++message RotateApiKeyResponse {
 +  string ref = 1;
 +  string access_key_id = 2;
 +  string access_key_secret = 3;
