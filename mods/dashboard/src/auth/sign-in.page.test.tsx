@@ -25,6 +25,18 @@ import SignInPage from "./sign-in.page";
 
 const at = { path: "/sign-in" };
 
+vi.mock("~/lib/dashboard-file", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("~/lib/dashboard-file")>()),
+  loadDashboardFile: async () => ({
+    legal: {
+      terms: "https://example.com/terms",
+      privacy: "https://example.com/privacy"
+    }
+  })
+}));
+
+const AGREEMENT = "By continuing, you agree to the Terms and Privacy Policy.";
+
 describe("SignInPage", () => {
   describe("community (password, invite-only)", () => {
     it("shows email and password, and no GitHub or sign-up", () => {
@@ -112,6 +124,27 @@ describe("SignInPage", () => {
         screen.getByRole("heading", { name: "You're invited" })
       ).toBeInTheDocument();
       expect(screen.getByText("Invite accepted")).toBeInTheDocument();
+    });
+
+    it("links the Terms and Privacy Policy, also when invited", async () => {
+      const first = renderScreen(<SignInPage />, at);
+      expect(await screen.findByText(/By continuing/)).toHaveTextContent(
+        AGREEMENT
+      );
+      first.unmount();
+
+      markInviteInFlight();
+      renderScreen(<SignInPage />, at);
+      expect(
+        screen.getByRole("heading", { name: "You're invited" })
+      ).toBeInTheDocument();
+      expect(await screen.findByText(/By continuing/)).toHaveTextContent(
+        AGREEMENT
+      );
+      expect(screen.getByRole("link", { name: "Terms" })).toHaveAttribute(
+        "href",
+        "https://example.com/terms"
+      );
     });
   });
 

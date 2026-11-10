@@ -32,6 +32,7 @@ import { useAuth } from "~/lib/auth";
 import { useAuthMethods } from "~/lib/capabilities";
 import { GrpcCode, errorMessage, grpcCode } from "~/lib/errors";
 import { AuthLayout, authButton, authInput } from "./auth-layout";
+import { LegalLine } from "./legal-line";
 import { startGitHubSignIn } from "./github";
 import { holdSignInPassword, inviteInFlight } from "./invite";
 import { EMAIL_CONTACT, email } from "./schemas";
@@ -124,6 +125,7 @@ export default function SignInPage() {
             : "Email me a sign-in code instead"}
         </button>
       )}
+      <LegalLine />
     </AuthLayout>
   );
 }

@@ -1,7 +1,7 @@
 # The dashboard. Browsers download this file (/dashboard.yaml), so put nothing secret in it.
-# announcement: the bar above every page. Edit it and recreate the dashboard
-# (docker compose up -d --force-recreate dashboard); with the playbook, set it in
-# fonoster_overrides["dashboard.yaml"].
+# Edit it and recreate the dashboard (docker compose up -d --force-recreate dashboard);
+# with the playbook, set it in fonoster_overrides["dashboard.yaml"].
+# announcement: the bar above every page.
 #   tone: info (blue), warning (orange) or critical (red)
 #   lead: the bold first words; text: the rest; cta and link: the call to action (optional)
 announcement:
@@ -11,3 +11,10 @@ announcement:
   text: ""
   cta: ""
   link: ""
+# legal: the line under Sign in and Create account that links your Terms and Privacy Policy
+#   (http or https URLs).
+#   terms: your Terms URL; privacy: your Privacy Policy URL. Leave one empty to leave its
+#   link out; with both empty the line doesn't show.
+legal:
+  terms: ""
+  privacy: ""

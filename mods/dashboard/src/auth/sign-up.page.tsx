@@ -30,6 +30,7 @@ import { useAuth } from "~/lib/auth";
 import { useAuthMethods } from "~/lib/capabilities";
 import { GrpcCode, errorMessage, grpcCode } from "~/lib/errors";
 import { AuthLayout, authButton, authInput } from "./auth-layout";
+import { LegalLine } from "./legal-line";
 import { email, newPassword } from "./schemas";
 
 const schema = z.object({
@@ -127,6 +128,7 @@ function SignUpForm() {
           Create account
         </Button>
       </form>
+      <LegalLine />
     </AuthLayout>
   );
 }

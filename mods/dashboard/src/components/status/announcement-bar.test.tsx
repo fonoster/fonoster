@@ -34,7 +34,7 @@ const upgrade: Announcement = {
 const renderBar = (announcement: Announcement | null) =>
   render(
     <QueryClientProvider client={new QueryClient()}>
-      <AnnouncementBar load={async () => announcement} />
+      <AnnouncementBar load={async () => ({ announcement })} />
     </QueryClientProvider>
   );
 
