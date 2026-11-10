@@ -484,10 +484,15 @@ describe("@conformance[bundle] self-host Compose bundle", function () {
     const dir = initialised();
     for (const f of fs.readdirSync(BUNDLE).filter((n) => n.endsWith(".yaml")))
       fs.copyFileSync(path.join(BUNDLE, f), path.join(dir, f));
+    // Compose prefers the caller's environment to .env, so a POSTGRES_PASSWORD (even an empty
+    // one) in the test runner's shell would replace the install's: drop every name .env sets.
+    const env = { ...process.env };
+    for (const name of readEnvFile(path.join(dir, ".env")).keys())
+      delete env[name];
     const out = execFileSync("docker", ["compose", "config", "--services"], {
       cwd: dir,
       encoding: "utf8",
-      env: { ...process.env, COMPOSE_FILE: "compose.yaml:compose.region.yaml" }
+      env: { ...env, COMPOSE_FILE: "compose.yaml:compose.region.yaml" }
     })
       .trim()
       .split("\n");
