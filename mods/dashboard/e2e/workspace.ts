@@ -48,6 +48,21 @@ export type WebhookRow = {
   secret: string;
   previousSecretUntil: number;
 };
+/** A delivery in the log, with the event it sent (stored as JSON text, as the API keeps it). */
+export type DeliveryRow = {
+  ref: string;
+  webhookRef: string;
+  status: "pending" | "succeeded" | "failed";
+  attempts: number;
+  lastStatus: number;
+  event: {
+    id: string;
+    type: string;
+    createdAt: string;
+    workspaceRef: string;
+    data: Record<string, unknown>;
+  };
+};
 export type MemberRow = {
   ref: string;
   userRef: string;
@@ -64,6 +79,7 @@ export class FakeWorkspace {
   deleted = false;
   readonly apiKeys = new Map<string, ApiKeyRow>();
   readonly webhooks = new Map<string, WebhookRow>();
+  readonly deliveries: DeliveryRow[] = [];
   readonly members = new Map<string, MemberRow>();
   private seq = 0;
 
@@ -254,7 +270,21 @@ export class FakeWorkspace {
       })
       .on("Webhooks/ListWebhookDeliveries", () => {
         const list = new w.ListWebhookDeliveriesResponse();
-        list.setItemsList([]);
+        list.setItemsList(
+          this.deliveries.map((row) => {
+            const m = new w.WebhookDelivery();
+            m.setRef(row.ref);
+            m.setWebhookRef(row.webhookRef);
+            m.setEventId(row.event.id);
+            m.setEventType(row.event.type);
+            m.setStatus(row.status);
+            m.setAttempts(row.attempts);
+            m.setLastStatus(row.lastStatus);
+            m.setCreatedAt(NOW);
+            m.setEvent(JSON.stringify(row.event));
+            return m;
+          })
+        );
         return list;
       })
       .on("Webhooks/CreateWebhook", (bytes) => {

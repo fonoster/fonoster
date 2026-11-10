@@ -18,9 +18,10 @@
  */
 import { formatStarted } from "~/calls/format";
 import { Plus, RefreshCw, Webhook as WebhookIcon } from "lucide-react";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { PageHeader } from "~/app/shell/page";
 import { ConfirmDialog } from "~/components/data/confirm-dialog";
+import { useCopy } from "~/components/data/copy-field";
 import {
   DataTable,
   MutedCell,
@@ -64,6 +65,11 @@ const DELIVERY_STATUS: Record<string, { label: string; className: string }> = {
   failed: { label: "failed", className: "text-destructive" }
 };
 
+const statusClass = (status: string) =>
+  DELIVERY_STATUS[status]?.className ?? "text-muted-foreground";
+const statusLabel = (status: string) =>
+  DELIVERY_STATUS[status]?.label ?? status;
+
 /** "https://hooks.example.com/fonoster" → "hooks.example.com/fonoster", for drawer titles. */
 function hostAndPath(url: string) {
   return url.replace(/^https?:\/\//, "");
@@ -96,6 +102,9 @@ export default function WebhooksScreen() {
   const [shown, setShown] = useState<Shown>();
   const [rotating, setRotating] = useState<Webhook>();
   const [deleting, setDeleting] = useState<Webhook>();
+  const [viewing, setViewing] = useState<WebhookDelivery>();
+  /** Each row's "View" button, so closing a delivery returns focus to its row. */
+  const openers = useRef(new Map<string, HTMLButtonElement>());
 
   const webhooks = endpoints.data ?? [];
   const urlOf = (ref: string) => webhooks.find((w) => w.ref === ref)?.url;
@@ -142,7 +151,23 @@ export default function WebhooksScreen() {
   const deliveryColumns: Column<WebhookDelivery>[] = [
     {
       header: "Event",
-      cell: (d) => <NameCell mono name={d.eventType} sub={d.eventId} />
+      cell: (d) => (
+        <button
+          type="button"
+          ref={(el) => {
+            if (el) openers.current.set(d.ref, el);
+            else openers.current.delete(d.ref);
+          }}
+          aria-label={`View ${d.eventType} ${d.eventId}`}
+          className="block w-full min-w-0 cursor-pointer rounded-control text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          onClick={(e) => {
+            e.stopPropagation();
+            setViewing(d);
+          }}
+        >
+          <NameCell mono name={d.eventType} sub={d.eventId} />
+        </button>
+      )
     },
     {
       header: "Endpoint",
@@ -171,13 +196,8 @@ export default function WebhooksScreen() {
       header: "Status",
       className: "w-28",
       cell: (d) => (
-        <span
-          className={cn(
-            "text-[13px]",
-            DELIVERY_STATUS[d.status]?.className ?? "text-muted-foreground"
-          )}
-        >
-          {DELIVERY_STATUS[d.status]?.label ?? d.status}
+        <span className={cn("text-[13px]", statusClass(d.status))}>
+          {statusLabel(d.status)}
         </span>
       )
     },
@@ -190,7 +210,11 @@ export default function WebhooksScreen() {
           variant="outline"
           disabled={resend.isPending}
           aria-label={`Resend ${d.eventId}`}
-          onClick={() => resend.mutate(d.ref)}
+          onClick={(e) => {
+            // Resend stays in the row; it doesn't open the delivery.
+            e.stopPropagation();
+            resend.mutate(d.ref);
+          }}
         >
           Resend
         </Button>
@@ -231,6 +255,7 @@ export default function WebhooksScreen() {
             columns={deliveryColumns}
             rows={deliveries.data ?? []}
             rowKey={(d) => d.ref}
+            onRowClick={setViewing}
             loading={deliveries.loading}
             error={deliveries.error}
             onRetry={deliveries.reload}
@@ -251,6 +276,12 @@ export default function WebhooksScreen() {
           setEditing(undefined);
           setDeleting(w);
         }}
+      />
+      <DeliveryDrawer
+        delivery={viewing}
+        endpoint={viewing && urlOf(viewing.webhookRef)}
+        onClose={() => setViewing(undefined)}
+        opener={() => viewing && openers.current.get(viewing.ref)}
       />
       <SecretDialog
         title="Save your signing secret"
@@ -301,6 +332,94 @@ export default function WebhooksScreen() {
         }
       />
     </>
+  );
+}
+
+/** A delivery, read-only: its status, endpoint and the event it sent. */
+function DeliveryDrawer({
+  delivery,
+  endpoint,
+  onClose,
+  opener
+}: {
+  delivery?: WebhookDelivery;
+  /** The webhook's URL; absent when the webhook was deleted. */
+  endpoint?: string;
+  onClose: () => void;
+  /** The row button to focus when the drawer closes. */
+  opener: () => HTMLElement | undefined;
+}) {
+  const { copied, copy } = useCopy();
+  const body = delivery ? JSON.stringify(delivery.event, null, 2) : "";
+  const attempts = delivery?.attempts ?? 0;
+  const label = delivery ? statusLabel(delivery.status) : "";
+
+  return (
+    <Sheet open={Boolean(delivery)} onOpenChange={(open) => !open && onClose()}>
+      {delivery && (
+        <SheetContent
+          monoTitle
+          title={delivery.eventType}
+          description={<span className="font-mono">{delivery.eventId}</span>}
+          onCloseAutoFocus={(event) => {
+            const el = opener();
+            if (!el) return;
+            event.preventDefault();
+            el.focus();
+          }}
+        >
+          <div className="flex flex-col gap-1.5 font-display text-[13px]">
+            <p>
+              <span className={statusClass(delivery.status)}>
+                {label.charAt(0).toUpperCase() + label.slice(1)}
+              </span>
+              <span className="text-muted-foreground">
+                {` · ${attempts} ${attempts === 1 ? "attempt" : "attempts"} · last ${delivery.lastStatus || "no response"}`}
+                {delivery.status === "pending" &&
+                  delivery.nextAttemptAt &&
+                  ` · next try ${when(delivery.nextAttemptAt)}`}
+              </span>
+            </p>
+            <p
+              className={cn(
+                "truncate text-muted-foreground",
+                endpoint && "font-mono text-[12px]"
+              )}
+            >
+              {endpoint ? hostAndPath(endpoint) : "Deleted webhook"}
+            </p>
+            <p className="text-muted-foreground">
+              Sent {when(delivery.createdAt)}
+            </p>
+          </div>
+          <section className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <h3 className="font-display text-[13px] font-medium">Body</h3>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void copy(body)}
+              >
+                {copied ? "Copied" : "Copy body"}
+              </Button>
+            </div>
+            <p className="font-display text-xs text-muted-foreground">
+              The event as Fonoster stored it. Key order can differ from the
+              bytes your server received, so don&apos;t use it to check a
+              signature.
+            </p>
+            <pre
+              role="region"
+              aria-label="Body"
+              tabIndex={0}
+              className="overflow-auto rounded-control border border-border bg-background p-3 font-mono text-[12px] leading-5 text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              {body}
+            </pre>
+          </section>
+        </SheetContent>
+      )}
+    </Sheet>
   );
 }
 

@@ -644,6 +644,60 @@ test("[DSH-025] creates a webhook on HTTPS only, shows its secret once, and rota
   await savedIt(page);
 });
 
+test("[DSH-067] opens a webhook delivery and shows the event JSON it sent", async ({
+  page,
+  api
+}) => {
+  const ws = new FakeWorkspace("ws-1", "Acme Support", ada.ref);
+  ws.webhooks.set("wh-1", {
+    ref: "wh-1",
+    url: "https://hooks.acme.example/fonoster",
+    events: ["call.ended"],
+    secret: "whsec_wh-1",
+    previousSecretUntil: 0
+  });
+  const event = {
+    id: "evt_end_66a869c6",
+    type: "call.ended",
+    createdAt: "2026-10-31T13:33:00.000Z",
+    workspaceRef: "ws-1",
+    data: {
+      callRef: "call-7a1e",
+      durationSeconds: 15,
+      endReason: "caller_hangup"
+    }
+  };
+  ws.deliveries.push({
+    ref: "whd-1",
+    webhookRef: "wh-1",
+    status: "failed",
+    attempts: 5,
+    lastStatus: 500,
+    event
+  });
+  await signInTo(page, api, ws);
+  await openSection(page, "Webhooks");
+
+  const opener = page.getByRole("button", {
+    name: "View call.ended evt_end_66a869c6"
+  });
+  await opener.focus();
+  await page.keyboard.press("Enter");
+  const drawer = page.getByRole("dialog", { name: "call.ended" });
+  await expect(drawer).toContainText("evt_end_66a869c6");
+  await expect(drawer).toContainText("Failed · 5 attempts · last 500");
+  await expect(drawer).toContainText("hooks.acme.example/fonoster");
+  await expect(drawer).toContainText("don't use it to check a signature");
+  await expect(drawer.getByRole("region", { name: "Body" })).toHaveText(
+    JSON.stringify(event, null, 2)
+  );
+  await expect(drawer.getByRole("button", { name: /Resend/ })).toHaveCount(0);
+
+  await page.keyboard.press("Escape");
+  await expect(drawer).toBeHidden();
+  await expect(opener).toBeFocused();
+});
+
 test("[DSH-026] invites a member with a role and removes one", async ({
   page,
   api

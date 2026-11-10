@@ -24,10 +24,7 @@
 export type Protocol = "fonoster" | "twilio";
 export type AppType = "STREAM" | "AUTOPILOT";
 export type AudioCodec =
-  | "pcm16-8000"
-  | "pcm16-16000"
-  | "pcm16-24000"
-  | "pcmu-8000";
+  "pcm16-8000" | "pcm16-16000" | "pcm16-24000" | "pcmu-8000";
 export type ListenerTrack = "inbound" | "outbound" | "both";
 export type Patience = "" | "low" | "normal" | "high";
 /** "" inherits the workspace's policy. */
@@ -287,7 +284,11 @@ export type WebhookDelivery = {
   status: string;
   attempts: number;
   lastStatus?: number;
+  /** When a retrying delivery tries again. */
+  nextAttemptAt?: string;
   createdAt?: string;
+  /** The event Fonoster sent, as stored; key order can differ from the bytes the receiver got. */
+  event: Record<string, unknown>;
 };
 
 export type VendorKey = { providerId: string; updatedAt?: string };

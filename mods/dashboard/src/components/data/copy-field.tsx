@@ -21,6 +21,24 @@ import { useState } from "react";
 import { toast } from "~/components/ui/sonner";
 import { cn } from "~/lib/utils";
 
+/**
+ * Copies text to the clipboard; `copied` is true for 1.5 s after. When the browser blocks it,
+ * a toast says to select and copy the text instead.
+ */
+export function useCopy() {
+  const [copied, setCopied] = useState(false);
+  const copy = async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      toast.error("Couldn't copy. Select the text and copy it instead.");
+    }
+  };
+  return { copied, copy };
+}
+
 /** A read-only value with a copy button (keys, refs, secrets shown once). */
 export function CopyField({
   label,
@@ -34,17 +52,7 @@ export function CopyField({
   emphasis?: boolean;
   className?: string;
 }) {
-  const [copied, setCopied] = useState(false);
-
-  const copy = async () => {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1500);
-    } catch {
-      toast.error("Couldn't copy. Select the text and copy it instead.");
-    }
-  };
+  const { copied, copy } = useCopy();
 
   return (
     <div className={cn("flex flex-col gap-1.5", className)}>
@@ -65,7 +73,7 @@ export function CopyField({
         </code>
         <button
           type="button"
-          onClick={() => void copy()}
+          onClick={() => void copy(value)}
           aria-label={`Copy ${label}`}
           className="cursor-pointer rounded-[6px] p-1 text-muted-foreground hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
         >

@@ -1,0 +1,12 @@
+diff --git a/mods/dashboard/src/session/sdk-api.ts b/mods/dashboard/src/session/sdk-api.ts
+--- a/mods/dashboard/src/session/sdk-api.ts
++++ b/mods/dashboard/src/session/sdk-api.ts
+@@ -605,7 +605,7 @@
+     listDeliveries: async (webhookRef) =>
+       (
+         await sdk.webhooks.listWebhookDeliveries({ webhookRef, pageSize: 100 })
+-      ).items.map(toDelivery),
++      ).items.map((d) => ({ ...toDelivery(d), event: {} })),
+     resendDelivery: async (ref) =>
+       toDelivery(await sdk.webhooks.resendWebhookDelivery(ref)),
+     listVendorKeys: async () =>

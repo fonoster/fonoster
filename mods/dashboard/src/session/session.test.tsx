@@ -19,7 +19,9 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import type { ReactElement } from "react";
 import { useLocation } from "react-router-dom";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { formatStarted } from "~/calls/format";
+import { toast } from "~/components/ui/sonner";
 import { renderScreen } from "~/test/render";
 import { CallsScreen, AppsScreen } from ".";
 import { SessionApiProvider } from "./api";
@@ -493,6 +495,148 @@ describe("webhooks", () => {
       expect((await api.listWebhooks())[0].events).toContain("call.failed")
     );
     expect((await api.listWebhooks())[0].secretHint).toBe(before.secretHint);
+  });
+
+  it("[DSH-067] opens a delivery and shows the event JSON it sent", async () => {
+    const { user, api } = render(
+      <WebhooksScreen />,
+      "/w/:workspaceRef/webhooks",
+      "/w/ws-1/webhooks"
+    );
+    const [delivery] = await api.listDeliveries();
+    const opener = await screen.findByRole("button", {
+      name: /^View call\.ended evt_1/
+    });
+    opener.focus();
+    await user.keyboard("{Enter}");
+    const drawer = await screen.findByRole("dialog", { name: "call.ended" });
+    expect(drawer).toHaveTextContent("evt_1");
+    expect(drawer).toHaveTextContent("Failed · 3 attempts · last 500");
+    expect(drawer).toHaveTextContent("hooks.example.com/fonoster");
+    expect(drawer).not.toHaveTextContent("https://");
+    expect(drawer).toHaveTextContent(
+      "The event as Fonoster stored it. Key order can differ from the bytes your server received, so don't use it to check a signature."
+    );
+    const body = within(drawer).getByRole("region", { name: "Body" });
+    expect(body.textContent).toBe(JSON.stringify(delivery.event, null, 2));
+    expect(
+      within(drawer).queryByRole("button", { name: /Resend/ })
+    ).not.toBeInTheDocument();
+
+    const copied = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: copied },
+      configurable: true
+    });
+    await user.click(within(drawer).getByRole("button", { name: "Copy body" }));
+    expect(copied).toHaveBeenCalledWith(
+      JSON.stringify(delivery.event, null, 2)
+    );
+    expect(
+      await within(drawer).findByRole("button", { name: "Copied" })
+    ).toBeInTheDocument();
+
+    await user.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    );
+    expect(opener).toHaveFocus();
+  });
+
+  it("opens a delivery from its row, but not from Resend", async () => {
+    const { user } = render(
+      <WebhooksScreen />,
+      "/w/:workspaceRef/webhooks",
+      "/w/ws-1/webhooks"
+    );
+    const table = await screen.findByRole("table", { name: "Deliveries" });
+    await user.click(
+      await within(table).findByRole("button", { name: "Resend evt_1" })
+    );
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    await user.click(
+      within(table).getByText("https://hooks.example.com/fonoster")
+    );
+    const drawer = await screen.findByRole("dialog", { name: "call.ended" });
+
+    // A blocked clipboard says how to copy instead.
+    const failed = vi.spyOn(toast, "error");
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: vi.fn().mockRejectedValue(new Error("blocked")) },
+      configurable: true
+    });
+    await user.click(within(drawer).getByRole("button", { name: "Copy body" }));
+    expect(failed).toHaveBeenCalledWith(
+      "Couldn't copy. Select the text and copy it instead."
+    );
+    failed.mockRestore();
+
+    await user.click(screen.getByRole("button", { name: "Close" }));
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    );
+    expect(
+      within(table).getByRole("button", { name: /^View call\.ended evt_1/ })
+    ).toHaveFocus();
+  });
+
+  it("reads a delivered, a retrying and a deleted webhook's delivery", async () => {
+    const api = createMockSessionApi();
+    const event = (id: string) => ({ id, type: "call.ended", data: {} });
+    const nextAttemptAt = "2026-10-15T12:40:00.000Z";
+    const { user } = renderScreen(
+      <SessionApiProvider
+        value={{
+          ...api,
+          listDeliveries: async () => [
+            {
+              ref: "whd_ok",
+              webhookRef: "whe_1",
+              eventId: "evt_ok",
+              eventType: "call.ended",
+              status: "succeeded",
+              attempts: 1,
+              lastStatus: 200,
+              event: event("evt_ok")
+            },
+            {
+              ref: "whd_retry",
+              webhookRef: "whe_gone",
+              eventId: "evt_retry",
+              eventType: "call.ended",
+              status: "pending",
+              attempts: 2,
+              lastStatus: 0,
+              nextAttemptAt,
+              event: event("evt_retry")
+            }
+          ]
+        }}
+      >
+        <WebhooksScreen />
+      </SessionApiProvider>,
+      { path: "/w/:workspaceRef/webhooks", route: "/w/ws-1/webhooks" }
+    );
+
+    await user.click(
+      await screen.findByRole("button", { name: "View call.ended evt_ok" })
+    );
+    let drawer = await screen.findByRole("dialog", { name: "call.ended" });
+    expect(drawer).toHaveTextContent("Delivered · 1 attempt · last 200");
+    expect(drawer).toHaveTextContent("hooks.example.com/fonoster");
+    await user.keyboard("{Escape}");
+    await waitFor(() =>
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: "View call.ended evt_retry" })
+    );
+    drawer = await screen.findByRole("dialog", { name: "call.ended" });
+    expect(drawer).toHaveTextContent(
+      `Retrying · 2 attempts · last no response · next try ${formatStarted(nextAttemptAt)}`
+    );
+    expect(drawer).toHaveTextContent("Deleted webhook");
   });
 
   it("validates endpoints", () => {
