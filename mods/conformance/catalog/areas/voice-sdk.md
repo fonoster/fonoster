@@ -161,6 +161,7 @@ flowchart LR
 
 - **Spec:** voice-sdk / gather is built from events / Speech
 - **Spec:** voice-sdk / gather is built from events / Timeout
+- **Spec:** voice-sdk / gather is built from events / A turn already in progress
 - **Spec:** voice-sdk / TypeScript and Python parity / A shared scenario
 - **Priority:** P0
 - **Proof:** Lose the caller's transcript when gather ends (`feedGather` in `mods/voice/src/Session.ts`); the test must go red on gather-speech.
@@ -169,6 +170,10 @@ flowchart LR
 - **Runs:** scenarios/voice-sdk/gather-speech.yaml
 - **Runs:** scenarios/voice-sdk/gather-timeout.yaml
 - **Runs:** scenarios/voice-sdk/say-then-gather.yaml
+- **Runs:** scenarios/voice-sdk/gather-turn-in-progress.yaml
+- **Runs:** scenarios/voice-sdk/gather-twice.yaml
+- **Runs:** scenarios/voice-sdk/gather-turn-never-ends.yaml
+- **Runs:** scenarios/voice-sdk/gather-turn-abandoned.yaml
 
 **Pass.** gather resolves with the caller's final transcript, resolves empty on timeout, and say then gather behaves the same in both SDKs. **Fail.** A partial taken as the answer, a gather that never ends, or the SDKs disagreeing.
 

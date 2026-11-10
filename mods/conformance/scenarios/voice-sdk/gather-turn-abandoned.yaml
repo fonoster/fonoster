@@ -1,0 +1,33 @@
+format: fonoster.scenario.v1
+name: gather-turn-abandoned
+contract: voice-sdk
+role: appbridge
+fixture: say-then-gather-shape
+spec: "gather is built from events / A turn already in progress"
+description: The caller is mid-turn when gather starts and the turn ends abandoned; gather resolves with empty speech.
+steps:
+  - send:
+      type: session.start
+      protocol: fonoster.session.v1
+      sessionRef: sess-1
+      callRef: call-1
+      appRef: app-1
+      direction: inbound
+      from: "+15550001111"
+      to: "+15550002222"
+      metadata: {}
+      handoff: null
+      audio: { codec: pcm16, rate: 16000 }
+      tracks:
+        - { id: 1, side: inbound, kind: audio, codec: pcm16 }
+        - { id: 2, side: outbound, kind: audio, codec: pcm16 }
+      speech: { voice: fonoster/default, language: en-US }
+  - expect: { type: speak, text: "What's your name?", last: true }
+    capture: { sid: id }
+  - send: { type: output.started, id: "${sid}" }
+  - send: { type: turn.user_started }
+  - send: { type: output.interrupted, id: "${sid}", heardText: "What's your", heardMs: 600 }
+  - wait: { ms: 600 }
+  - send: { type: turn.ended, text: "", abandoned: true }
+  - expect: { type: speak, text: "Speech: []", last: true }
+    within_ms: 1000

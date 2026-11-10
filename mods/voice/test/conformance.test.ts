@@ -135,6 +135,33 @@ const FIXTURES: Record<string, Handler> = {
     const g = await s.gather({ maxDigits: 4 });
     await s.say(`PIN ${g.digits} (heard: ${r.heardText})`);
   },
+  "say-then-gather-speech": async (s: Session) => {
+    await s.say("What's your name?");
+    const g = await s.gather({ timeout: 300 });
+    await s.say(g.speech ? `Name: ${g.speech}` : "No input.");
+  },
+  "say-then-gather-shape": async (s: Session) => {
+    await s.say("What's your name?");
+    const g = await s.gather({ timeout: 300 });
+    await s.say(g.speech !== undefined ? `Speech: [${g.speech}]` : "No input.");
+  },
+  "gather-twice": async (s: Session) => {
+    const a = await s.gather({ timeout: 300 });
+    await s.say(`First: ${a.speech || "none"}`);
+    const b = await s.gather({ timeout: 300 });
+    await s.say(
+      b.speech === undefined && b.digits === undefined
+        ? "No input."
+        : "Got input."
+    );
+  },
+  "gather-after-stale-turn": async (s: Session) => {
+    await s.say("What's your name?");
+    for (let n = 1; n <= 3; n++) {
+      const g = await s.gather({ timeout: 300 });
+      await s.say(g.speech ? `Name: ${g.speech}` : `No input ${n}.`);
+    }
+  },
   "gather-echo": async (session: Session) => {
     const r = await session.gather({ finishOnKey: "#" });
     if (r.speech !== undefined) await session.say(`You said: ${r.speech}`);
