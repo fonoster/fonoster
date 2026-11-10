@@ -80,7 +80,8 @@ function toDelivery(row: Row) {
     lastAttemptAt: seconds(row.lastAttemptAt as Date | null),
     nextAttemptAt:
       row.status === "pending" ? seconds(row.nextAttemptAt as Date) : 0,
-    createdAt: seconds(row.createdAt as Date)
+    createdAt: seconds(row.createdAt as Date),
+    event: JSON.stringify(row.event)
   };
 }
 
@@ -242,6 +243,23 @@ export function createWebhooksHandlers(
     callback(null, { items: rows.map(toDelivery) });
   };
 
+  const findDelivery = async (ref: string, accessKeyId: string) => {
+    const row = await db.webhookDelivery.findFirst({
+      where: { ref, accessKeyId }
+    });
+    if (!row) throw notFound(`delivery not found: ${ref}`);
+    return row as Row;
+  };
+
+  /** One delivery of the caller's workspace, with the event it sends. */
+  const getWebhookDelivery = async (
+    call: Call<{ ref: string }>,
+    callback: Callback<unknown>
+  ) => {
+    const row = await findDelivery(call.request.ref, workspace(call));
+    callback(null, toDelivery(row));
+  };
+
   /** Sends again now with the original event id and a fresh signature (W6). */
   const resendWebhookDelivery = async (
     call: Call<{ ref: string }>,
@@ -249,10 +267,7 @@ export function createWebhooksHandlers(
   ) => {
     const accessKeyId = workspace(call);
     const { ref } = call.request;
-    const row = await db.webhookDelivery.findFirst({
-      where: { ref, accessKeyId }
-    });
-    if (!row) throw notFound(`delivery not found: ${ref}`);
+    await findDelivery(ref, accessKeyId);
     const store = await Webhooks.PrismaWebhookStore.open(db);
     await store.loadDeliveries({ id: ref, workspaceRef: accessKeyId }, 1);
     const dispatcher = new Webhooks.WebhookDispatcher({
@@ -275,6 +290,7 @@ export function createWebhooksHandlers(
     deleteWebhook: withErrorHandling(deleteWebhook),
     rotateWebhookSecret: withErrorHandling(rotateWebhookSecret),
     listWebhookDeliveries: withErrorHandling(listWebhookDeliveries),
-    resendWebhookDelivery: withErrorHandling(resendWebhookDelivery)
+    resendWebhookDelivery: withErrorHandling(resendWebhookDelivery),
+    getWebhookDelivery: withErrorHandling(getWebhookDelivery)
   };
 }

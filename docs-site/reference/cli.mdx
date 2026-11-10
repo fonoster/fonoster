@@ -309,6 +309,7 @@ See [Make outbound calls](/telephony/outbound-calls).
 | `webhooks:rotate <ref>` | Issues a new signing secret. The old one keeps working for 24 hours. |
 | `webhooks:deliveries [ref]` | Shows the delivery log, for all webhooks or one. Flag: `--page-size`, `-s` (default `50`). |
 | `webhooks:resend <delivery-ref>` | Sends a delivery again, with the same event ID. |
+| `webhooks:getWebhookDelivery <delivery-ref>` | Shows a delivery and the event it sent, as JSON. |
 
 | Command | Flag | Short | What it sets |
 | --- | --- | --- | --- |

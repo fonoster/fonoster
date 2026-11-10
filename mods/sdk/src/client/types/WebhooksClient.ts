@@ -21,6 +21,7 @@ import {
   CreateWebhookResponse,
   DeleteWebhookRequest,
   DeleteWebhookResponse,
+  GetWebhookDeliveryRequest,
   GetWebhookRequest,
   ListWebhookDeliveriesRequest,
   ListWebhookDeliveriesResponse,
@@ -52,6 +53,10 @@ type WebhooksClient = {
   >;
   resendWebhookDelivery: ClientFunction<
     ResendWebhookDeliveryRequest,
+    WebhookDelivery
+  >;
+  getWebhookDelivery: ClientFunction<
+    GetWebhookDeliveryRequest,
     WebhookDelivery
   >;
 };

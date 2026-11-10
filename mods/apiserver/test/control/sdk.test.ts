@@ -175,6 +175,32 @@ describe("@control: SDK end to end (gRPC + database)", function () {
       (await webhooks.getWebhook(ref)).previousSecretUntil
     ).to.be.instanceOf(Date);
     expect((await webhooks.listWebhookDeliveries()).items).to.deep.equal([]);
+    const event = {
+      id: "evt_sdk1",
+      type: "call.ended",
+      createdAt: "2026-10-31T13:58:40.912Z",
+      workspaceRef: WS,
+      data: { callRef: "c1", durationSeconds: 42, endReason: "completed" }
+    };
+    await db.prisma.webhookDelivery.create({
+      data: {
+        ref: "whd_sdk1",
+        endpointRef: ref,
+        accessKeyId: WS,
+        eventId: event.id,
+        eventType: event.type,
+        event,
+        status: "failed",
+        attempts: 6,
+        lastStatus: 400,
+        nextAttemptAt: new Date()
+      }
+    });
+    const { items } = await webhooks.listWebhookDeliveries();
+    expect(items[0].event).to.deep.equal(event);
+    const delivery = await webhooks.getWebhookDelivery("whd_sdk1");
+    expect(delivery).to.deep.include({ ref: "whd_sdk1", status: "failed" });
+    expect(delivery.event).to.deep.equal(event);
     await webhooks.deleteWebhook(ref);
     expect((await webhooks.listWebhooks()).items).to.deep.equal([]);
   });

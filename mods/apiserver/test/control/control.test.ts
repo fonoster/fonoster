@@ -651,6 +651,15 @@ describe("@control: applications, webhooks and provider keys (database)", functi
           handlers().createWebhook,
           { url: `http://127.0.0.1:${port}/hook`, events: ["call.ended"] }
         );
+        const event = Webhooks.callEnded(WS, {
+          callRef: "c1",
+          from: "+1",
+          to: "+2",
+          direction: "inbound",
+          durationSeconds: 3,
+          endReason: "hangup"
+        } as never);
+        const stored = JSON.parse(JSON.stringify(event));
         await db.prisma.webhookDelivery.create({
           data: {
             ref: "whd_test1",
@@ -658,14 +667,7 @@ describe("@control: applications, webhooks and provider keys (database)", functi
             accessKeyId: WS,
             eventId: "evt_1",
             eventType: "call.ended",
-            event: Webhooks.callEnded(WS, {
-              callRef: "c1",
-              from: "+1",
-              to: "+2",
-              direction: "inbound",
-              durationSeconds: 3,
-              endReason: "hangup"
-            } as never),
+            event,
             status: "failed",
             attempts: 3,
             lastStatus: 500,
@@ -682,6 +684,28 @@ describe("@control: applications, webhooks and provider keys (database)", functi
           status: "failed",
           lastStatus: 500
         });
+        expect(list.items[0].event, "the delivery's event JSON").to.be.a(
+          "string"
+        );
+        expect(JSON.parse(list.items[0].event as string)).to.deep.equal(stored);
+        const got = await invoke<Record<string, unknown>>(
+          handlers().getWebhookDelivery,
+          { ref: "whd_test1" }
+        );
+        expect(got).to.include({ ref: "whd_test1", status: "failed" });
+        expect(JSON.parse(got.event as string)).to.deep.equal(stored);
+        const otherList = await invoke<{ items: unknown[] }>(
+          handlers().listWebhookDeliveries,
+          {},
+          OTHER
+        );
+        expect(otherList.items).to.deep.equal([]);
+        const otherGet = await invoke(
+          handlers().getWebhookDelivery,
+          { ref: "whd_test1" },
+          OTHER
+        ).catch((e) => e);
+        expect(otherGet.code).to.equal(grpc.status.NOT_FOUND);
         const resent = await invoke<Record<string, unknown>>(
           handlers().resendWebhookDelivery,
           { ref: "whd_test1" }

@@ -66,6 +66,17 @@ function deserialize_fonoster_webhooks_v1beta2_DeleteWebhookResponse(buffer_arg)
   return webhooks_pb.DeleteWebhookResponse.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_fonoster_webhooks_v1beta2_GetWebhookDeliveryRequest(arg) {
+  if (!(arg instanceof webhooks_pb.GetWebhookDeliveryRequest)) {
+    throw new Error('Expected argument of type fonoster.webhooks.v1beta2.GetWebhookDeliveryRequest');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_fonoster_webhooks_v1beta2_GetWebhookDeliveryRequest(buffer_arg) {
+  return webhooks_pb.GetWebhookDeliveryRequest.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_fonoster_webhooks_v1beta2_GetWebhookRequest(arg) {
   if (!(arg instanceof webhooks_pb.GetWebhookRequest)) {
     throw new Error('Expected argument of type fonoster.webhooks.v1beta2.GetWebhookRequest');
@@ -294,6 +305,18 @@ resendWebhookDelivery: {
     responseType: webhooks_pb.WebhookDelivery,
     requestSerialize: serialize_fonoster_webhooks_v1beta2_ResendWebhookDeliveryRequest,
     requestDeserialize: deserialize_fonoster_webhooks_v1beta2_ResendWebhookDeliveryRequest,
+    responseSerialize: serialize_fonoster_webhooks_v1beta2_WebhookDelivery,
+    responseDeserialize: deserialize_fonoster_webhooks_v1beta2_WebhookDelivery,
+  },
+  // One delivery, with the event it sends
+getWebhookDelivery: {
+    path: '/fonoster.webhooks.v1beta2.Webhooks/GetWebhookDelivery',
+    requestStream: false,
+    responseStream: false,
+    requestType: webhooks_pb.GetWebhookDeliveryRequest,
+    responseType: webhooks_pb.WebhookDelivery,
+    requestSerialize: serialize_fonoster_webhooks_v1beta2_GetWebhookDeliveryRequest,
+    requestDeserialize: deserialize_fonoster_webhooks_v1beta2_GetWebhookDeliveryRequest,
     responseSerialize: serialize_fonoster_webhooks_v1beta2_WebhookDelivery,
     responseDeserialize: deserialize_fonoster_webhooks_v1beta2_WebhookDelivery,
   },

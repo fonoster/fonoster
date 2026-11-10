@@ -38,6 +38,8 @@ service Webhooks {
   rpc ListWebhookDeliveries(ListWebhookDeliveriesRequest) returns (ListWebhookDeliveriesResponse) {}
   // Send a delivery again now (same event id, fresh signature)
   rpc ResendWebhookDelivery(ResendWebhookDeliveryRequest) returns (WebhookDelivery) {}
+  // One delivery, with the event it sends
+  rpc GetWebhookDelivery(GetWebhookDeliveryRequest) returns (WebhookDelivery) {}
 }
 
 message Webhook {
@@ -122,6 +124,9 @@ message WebhookDelivery {
   int32 last_attempt_at = 8;
   int32 next_attempt_at = 9;
   int32 created_at = 10;
+  // The event envelope sent as the request body, as JSON. Same value as sent; key order
+  // may differ from the bytes of an earlier attempt, so verify signatures on received bytes.
+  string event = 11;
 }
 
 message ListWebhookDeliveriesRequest {
@@ -136,5 +141,9 @@ message ListWebhookDeliveriesResponse {
 }
 
 message ResendWebhookDeliveryRequest {
+  string ref = 1;
+}
+
+message GetWebhookDeliveryRequest {
   string ref = 1;
 }

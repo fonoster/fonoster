@@ -210,4 +210,61 @@ describe("@ctl[webhooks]", function () {
     expect(resend).to.have.been.calledOnceWith("dl-1");
     expect(stdout).to.contain("Resent call.ended (evt-1) as dl-2: pending");
   });
+
+  it("shows a delivery and the event it sent", async function () {
+    const event = {
+      id: "evt-1",
+      type: "call.ended",
+      createdAt: "2026-10-31T13:58:40.912Z",
+      workspaceRef: "WO1",
+      data: { callRef: "c1", durationSeconds: 42 }
+    };
+    const get = sandbox
+      .stub(SDK.Webhooks.prototype, "getWebhookDelivery")
+      .resolves({
+        ref: "dl-1",
+        webhookRef: "wh-1",
+        eventId: "evt-1",
+        eventType: "call.ended",
+        status: "failed",
+        attempts: 6,
+        lastStatus: 400,
+        lastAttemptAt: new Date("2026-10-31T14:22:07Z"),
+        createdAt: new Date("2026-10-31T13:58:41Z"),
+        event
+      });
+
+    const { stdout } = await runCommand([
+      "webhooks:getWebhookDelivery",
+      "dl-1"
+    ]);
+
+    expect(get).to.have.been.calledOnceWith("dl-1");
+    expect(stdout).to.contain("DELIVERY DETAILS");
+    expect(stdout).to.match(/STATUS:\s+failed/);
+    expect(stdout).to.match(/HTTP:\s+400/);
+    expect(stdout).to.contain(
+      "The event as Fonoster stored it. Key order can differ from the bytes your server received, so don't use it to check a signature."
+    );
+    expect(stdout).to.contain(JSON.stringify(event, null, 2));
+  });
+
+  it("fails on an unknown delivery", async function () {
+    sandbox
+      .stub(SDK.Webhooks.prototype, "getWebhookDelivery")
+      .rejects(
+        Object.assign(
+          new Error("5 NOT_FOUND: delivery not found: dl-missing"),
+          { code: 5 }
+        )
+      );
+
+    const { error } = await runCommand([
+      "webhooks:getWebhookDelivery",
+      "dl-missing"
+    ]);
+
+    expect(error?.message).to.contain("delivery not found: dl-missing");
+    expect(error?.oclif?.exit).to.equal(2);
+  });
 });

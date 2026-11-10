@@ -313,6 +313,9 @@ export class WebhookDelivery extends jspb.Message {
   getCreatedAt(): number;
   setCreatedAt(value: number): WebhookDelivery;
 
+  getEvent(): string;
+  setEvent(value: string): WebhookDelivery;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): WebhookDelivery.AsObject;
   static toObject(includeInstance: boolean, msg: WebhookDelivery): WebhookDelivery.AsObject;
@@ -333,6 +336,7 @@ export namespace WebhookDelivery {
     lastAttemptAt: number,
     nextAttemptAt: number,
     createdAt: number,
+    event: string,
   }
 }
 
@@ -391,6 +395,24 @@ export class ResendWebhookDeliveryRequest extends jspb.Message {
 }
 
 export namespace ResendWebhookDeliveryRequest {
+  export type AsObject = {
+    ref: string,
+  }
+}
+
+export class GetWebhookDeliveryRequest extends jspb.Message {
+  getRef(): string;
+  setRef(value: string): GetWebhookDeliveryRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetWebhookDeliveryRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetWebhookDeliveryRequest): GetWebhookDeliveryRequest.AsObject;
+  static serializeBinaryToWriter(message: GetWebhookDeliveryRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetWebhookDeliveryRequest;
+  static deserializeBinaryFromReader(message: GetWebhookDeliveryRequest, reader: jspb.BinaryReader): GetWebhookDeliveryRequest;
+}
+
+export namespace GetWebhookDeliveryRequest {
   export type AsObject = {
     ref: string,
   }

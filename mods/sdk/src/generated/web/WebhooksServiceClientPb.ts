@@ -383,5 +383,48 @@ export class WebhooksClient {
     this.methodDescriptorResendWebhookDelivery);
   }
 
+  methodDescriptorGetWebhookDelivery = new grpcWeb.MethodDescriptor(
+    '/fonoster.webhooks.v1beta2.Webhooks/GetWebhookDelivery',
+    grpcWeb.MethodType.UNARY,
+    webhooks_pb.GetWebhookDeliveryRequest,
+    webhooks_pb.WebhookDelivery,
+    (request: webhooks_pb.GetWebhookDeliveryRequest) => {
+      return request.serializeBinary();
+    },
+    webhooks_pb.WebhookDelivery.deserializeBinary
+  );
+
+  getWebhookDelivery(
+    request: webhooks_pb.GetWebhookDeliveryRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<webhooks_pb.WebhookDelivery>;
+
+  getWebhookDelivery(
+    request: webhooks_pb.GetWebhookDeliveryRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: webhooks_pb.WebhookDelivery) => void): grpcWeb.ClientReadableStream<webhooks_pb.WebhookDelivery>;
+
+  getWebhookDelivery(
+    request: webhooks_pb.GetWebhookDeliveryRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: webhooks_pb.WebhookDelivery) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.webhooks.v1beta2.Webhooks/GetWebhookDelivery',
+        request,
+        metadata || {},
+        this.methodDescriptorGetWebhookDelivery,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.webhooks.v1beta2.Webhooks/GetWebhookDelivery',
+    request,
+    metadata || {},
+    this.methodDescriptorGetWebhookDelivery);
+  }
+
 }
 
