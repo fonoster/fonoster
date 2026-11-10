@@ -102,7 +102,13 @@ export default function WebhooksScreen() {
   const [shown, setShown] = useState<Shown>();
   const [rotating, setRotating] = useState<Webhook>();
   const [deleting, setDeleting] = useState<Webhook>();
-  const [viewing, setViewing] = useState<WebhookDelivery>();
+  /** The delivery in the drawer; kept while it closes, so focus can go back to its row. */
+  const [viewing, setViewing] = useState<{
+    delivery: WebhookDelivery;
+    open: boolean;
+  }>();
+  const view = (delivery: WebhookDelivery) =>
+    setViewing({ delivery, open: true });
   /** Each row's "View" button, so closing a delivery returns focus to its row. */
   const openers = useRef(new Map<string, HTMLButtonElement>());
 
@@ -162,7 +168,7 @@ export default function WebhooksScreen() {
           className="block w-full min-w-0 cursor-pointer rounded-control text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
           onClick={(e) => {
             e.stopPropagation();
-            setViewing(d);
+            view(d);
           }}
         >
           <NameCell mono name={d.eventType} sub={d.eventId} />
@@ -255,7 +261,7 @@ export default function WebhooksScreen() {
             columns={deliveryColumns}
             rows={deliveries.data ?? []}
             rowKey={(d) => d.ref}
-            onRowClick={setViewing}
+            onRowClick={view}
             loading={deliveries.loading}
             error={deliveries.error}
             onRetry={deliveries.reload}
@@ -278,10 +284,11 @@ export default function WebhooksScreen() {
         }}
       />
       <DeliveryDrawer
-        delivery={viewing}
-        endpoint={viewing && urlOf(viewing.webhookRef)}
-        onClose={() => setViewing(undefined)}
-        opener={() => viewing && openers.current.get(viewing.ref)}
+        open={Boolean(viewing?.open)}
+        delivery={viewing?.delivery}
+        endpoint={viewing && urlOf(viewing.delivery.webhookRef)}
+        onClose={() => setViewing((v) => v && { ...v, open: false })}
+        opener={() => viewing && openers.current.get(viewing.delivery.ref)}
       />
       <SecretDialog
         title="Save your signing secret"
@@ -337,11 +344,13 @@ export default function WebhooksScreen() {
 
 /** A delivery, read-only: its status, endpoint and the event it sent. */
 function DeliveryDrawer({
+  open,
   delivery,
   endpoint,
   onClose,
   opener
 }: {
+  open: boolean;
   delivery?: WebhookDelivery;
   /** The webhook's URL; absent when the webhook was deleted. */
   endpoint?: string;
@@ -355,7 +364,7 @@ function DeliveryDrawer({
   const label = delivery ? statusLabel(delivery.status) : "";
 
   return (
-    <Sheet open={Boolean(delivery)} onOpenChange={(open) => !open && onClose()}>
+    <Sheet open={open} onOpenChange={(next) => !next && onClose()}>
       {delivery && (
         <SheetContent
           monoTitle
