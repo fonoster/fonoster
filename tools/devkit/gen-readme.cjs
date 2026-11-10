@@ -26,6 +26,11 @@ const allJSFiles = getJSFiles(path.join(process.cwd(), "dist"));
 
 let fullDocumentation = ''; // Store the entire documentation here
 
+// The file that documented each class. A class found in two files means stale
+// build output in dist (for example dist/node/src left by a tsc-only emit), and
+// documenting both would append a second, different copy of the class.
+const classFiles = new Map();
+
 for (const file of allJSFiles) {
   if (file.includes("/generated/")) continue; // Skip generated files
 
@@ -40,6 +45,14 @@ for (const file of allJSFiles) {
   /* create a documentation section for each class */
   for (const className of classNames) {
     if (["Scanner", "Walker", "Parser", "Filter"].includes(className)) continue;
+    if (classFiles.has(className)) {
+      console.error(
+        `Class ${className} is documented in both ${classFiles.get(className)} and ${file}. ` +
+          "dist has stale build output: run a clean build (npm run build) and try again."
+      );
+      process.exit(1);
+    }
+    classFiles.set(className, file);
     const template = `{{#class name="${className}"}}{{>docs}}{{/class}}\n`;
     fullDocumentation += jsdoc2md.renderSync({
       data: templateData,
