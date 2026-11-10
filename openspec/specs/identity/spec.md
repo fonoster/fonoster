@@ -102,7 +102,7 @@ Refresh tokens SHALL be time-based and expire after a configurable lifetime. Eac
 carry a `jti` recorded by Identity and SHALL be usable for one exchange, which issues the next token
 of the same sign-in (family). Reusing a token more than 30 seconds after its first use SHALL revoke
 its family. `RevokeToken` (public: holding the refresh token authorizes it) SHALL revoke the token's
-family, a password reset SHALL revoke all of the user's refresh tokens, and regenerating or deleting
+family, a password reset SHALL revoke all of the user's refresh tokens, and rotating or deleting
 an API key SHALL revoke the key's. Access tokens already issued stay valid until they expire.
 
 #### Scenario: Refresh token expires
@@ -256,7 +256,7 @@ passwords.
 
 ### Requirement: API keys are managed by workspace owners and admins
 
-`CreateApiKey`, `ListApiKeys`, `RegenerateApiKey` and `DeleteApiKey` SHALL require the caller to be
+`CreateApiKey`, `ListApiKeys`, `RotateApiKey` and `DeleteApiKey` SHALL require the caller to be
 an owner or admin of the workspace named by the call's `accessKeyId`, and SHALL act only on keys of
 that workspace. API keys act as `WORKSPACE_ADMIN`. A key past its `expiresAt` SHALL NOT exchange or
 refresh.
@@ -268,7 +268,7 @@ refresh.
 
 #### Scenario: Another workspace's key
 
-- **WHEN** an admin of workspace A calls `DeleteApiKey` or `RegenerateApiKey` with the ref of a key
+- **WHEN** an admin of workspace A calls `DeleteApiKey` or `RotateApiKey` with the ref of a key
   of workspace B
 - **THEN** the call fails with `NOT_FOUND` and the key is unchanged
 

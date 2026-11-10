@@ -126,7 +126,7 @@ export interface CreateApiKeyRequest {
   expiresAt?: number;
 }
 
-/** Create/regenerate response — the only time the secret is returned. */
+/** Create/rotate response — the only time the secret is returned. */
 export interface ApiKeyCredentials {
   ref: string;
   accessKeyId: string;
@@ -375,12 +375,12 @@ export class IdentityClient {
   }
 
   /** Rotate a key's secret in place; the new secret is returned (shown once). */
-  regenerateApiKey(
+  rotateApiKey(
     ref: string,
     accessKeyId: string,
     token: string
   ): Promise<ApiKeyCredentials> {
-    return this.unary("regenerateApiKey", { ref }, { token, accessKeyId });
+    return this.unary("rotateApiKey", { ref }, { token, accessKeyId });
   }
 
   /** Permanently delete a key (this is the revocation mechanism). */

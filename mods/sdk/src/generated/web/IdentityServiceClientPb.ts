@@ -943,47 +943,47 @@ export class IdentityClient {
     this.methodDescriptorListApiKeys);
   }
 
-  methodDescriptorRegenerateApiKey = new grpcWeb.MethodDescriptor(
-    '/fonoster.identity.v1beta2.Identity/RegenerateApiKey',
+  methodDescriptorRotateApiKey = new grpcWeb.MethodDescriptor(
+    '/fonoster.identity.v1beta2.Identity/RotateApiKey',
     grpcWeb.MethodType.UNARY,
-    identity_pb.RegenerateApiKeyRequest,
-    identity_pb.RegenerateApiKeyResponse,
-    (request: identity_pb.RegenerateApiKeyRequest) => {
+    identity_pb.RotateApiKeyRequest,
+    identity_pb.RotateApiKeyResponse,
+    (request: identity_pb.RotateApiKeyRequest) => {
       return request.serializeBinary();
     },
-    identity_pb.RegenerateApiKeyResponse.deserializeBinary
+    identity_pb.RotateApiKeyResponse.deserializeBinary
   );
 
-  regenerateApiKey(
-    request: identity_pb.RegenerateApiKeyRequest,
-    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.RegenerateApiKeyResponse>;
+  rotateApiKey(
+    request: identity_pb.RotateApiKeyRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<identity_pb.RotateApiKeyResponse>;
 
-  regenerateApiKey(
-    request: identity_pb.RegenerateApiKeyRequest,
+  rotateApiKey(
+    request: identity_pb.RotateApiKeyRequest,
     metadata: grpcWeb.Metadata | null,
     callback: (err: grpcWeb.RpcError,
-               response: identity_pb.RegenerateApiKeyResponse) => void): grpcWeb.ClientReadableStream<identity_pb.RegenerateApiKeyResponse>;
+               response: identity_pb.RotateApiKeyResponse) => void): grpcWeb.ClientReadableStream<identity_pb.RotateApiKeyResponse>;
 
-  regenerateApiKey(
-    request: identity_pb.RegenerateApiKeyRequest,
+  rotateApiKey(
+    request: identity_pb.RotateApiKeyRequest,
     metadata?: grpcWeb.Metadata | null,
     callback?: (err: grpcWeb.RpcError,
-               response: identity_pb.RegenerateApiKeyResponse) => void) {
+               response: identity_pb.RotateApiKeyResponse) => void) {
     if (callback !== undefined) {
       return this.client_.rpcCall(
         this.hostname_ +
-          '/fonoster.identity.v1beta2.Identity/RegenerateApiKey',
+          '/fonoster.identity.v1beta2.Identity/RotateApiKey',
         request,
         metadata || {},
-        this.methodDescriptorRegenerateApiKey,
+        this.methodDescriptorRotateApiKey,
         callback);
     }
     return this.client_.unaryCall(
     this.hostname_ +
-      '/fonoster.identity.v1beta2.Identity/RegenerateApiKey',
+      '/fonoster.identity.v1beta2.Identity/RotateApiKey',
     request,
     metadata || {},
-    this.methodDescriptorRegenerateApiKey);
+    this.methodDescriptorRotateApiKey);
   }
 
   methodDescriptorExchangeCredentials = new grpcWeb.MethodDescriptor(

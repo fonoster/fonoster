@@ -22,8 +22,8 @@ import {
   CreateApiKeyResponse,
   ListApiKeysRequest,
   ListApiKeysResponse,
-  RegenerateApiKeyResponse,
-  Role
+  Role,
+  RotateApiKeyResponse
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
@@ -35,8 +35,8 @@ import {
   DeleteApiKeyResponse as DeleteApiKeyResponsePB,
   ListApiKeysRequest as ListApiKeysRequestPB,
   ListApiKeysResponse as ListApiKeysResponsePB,
-  RegenerateApiKeyRequest as RegenerateApiKeyRequestPB,
-  RegenerateApiKeyResponse as RegenerateApiKeyResponsePB
+  RotateApiKeyRequest as RotateApiKeyRequestPB,
+  RotateApiKeyResponse as RotateApiKeyResponsePB
 } from "./generated/node/identity_pb";
 
 /**
@@ -122,31 +122,31 @@ class ApiKeys {
   }
 
   /**
-   * Regenerates an existing ApiKey for a Workspace.
+   * Rotates an existing ApiKey for a Workspace.
    * Note that this operation is irreversible.
    *
-   * @param {string} ref - The reference of the ApiKey to regenerate
-   * @return {Promise<CreateApiKeyResponse>} - The response object that contains the reference to the regenerated ApiKey
+   * @param {string} ref - The reference of the ApiKey to rotate
+   * @return {Promise<CreateApiKeyResponse>} - The response object that contains the reference to the rotated ApiKey
    * @example
    * const apiKeys = new SDK.ApiKeys(client); // Existing client object
    *
    * const ref = "00000000-0000-0000-0000-000000000000";
    *
    * apiKeys
-   *   .regenerateApiKey(ref)
+   *   .rotateApiKey(ref)
    *   .then(console.log) // successful response
    *   .catch(console.error); // an error occurred
    */
-  async regenerateApiKey(ref: string): Promise<CreateApiKeyResponse> {
+  async rotateApiKey(ref: string): Promise<CreateApiKeyResponse> {
     const client = this.client.getIdentityClient();
     return await makeRpcRequest<
-      RegenerateApiKeyRequestPB,
-      RegenerateApiKeyResponsePB,
+      RotateApiKeyRequestPB,
+      RotateApiKeyResponsePB,
       BaseApiObject,
-      RegenerateApiKeyResponse
+      RotateApiKeyResponse
     >({
-      method: client.regenerateApiKey.bind(client),
-      requestPBObjectConstructor: RegenerateApiKeyRequestPB,
+      method: client.rotateApiKey.bind(client),
+      requestPBObjectConstructor: RotateApiKeyRequestPB,
       metadata: this.client.getMetadata(),
       request: { ref }
     });

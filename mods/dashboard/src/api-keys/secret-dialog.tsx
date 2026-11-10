@@ -25,7 +25,7 @@ export function sdkSnippet(workspaceAccessKeyId: string) {
   return `const client = new SDK.Client({ accessKeyId: "${workspaceAccessKeyId}" });\nawait client.loginWithApiKey(apiKey, apiSecret);`;
 }
 
-/** A new (or regenerated) key's secret, the only time it can be read, with an SDK snippet. */
+/** A new (or rotated) key's secret, the only time it can be read, with an SDK snippet. */
 export function ApiKeySecretDialog({
   apiKey,
   workspaceAccessKeyId,

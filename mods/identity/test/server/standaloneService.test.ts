@@ -243,7 +243,7 @@ describe("@identity[standalone service] (needs PERSISTENCE_TEST_DATABASE_URL)", 
 
     // Bob, in his own workspace, can't touch Alice's key by its ref...
     await rejectsWith(
-      client.regenerateApiKey(key.ref, bob.workspace, bob.token),
+      client.rotateApiKey(key.ref, bob.workspace, bob.token),
       status.NOT_FOUND
     );
     await rejectsWith(

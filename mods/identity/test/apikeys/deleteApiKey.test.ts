@@ -57,14 +57,14 @@ const KEY = { ref: "key-1", accessKeyId: "APkey0001" };
 const handlers = async () => ({
   delete: (await import("../../src/apikeys/createDeleteApiKey"))
     .createDeleteApiKey,
-  regenerate: (await import("../../src/apikeys/createRegenerateApiKey"))
-    .createRegenerateApiKey
+  rotate: (await import("../../src/apikeys/createRotateApiKey"))
+    .createRotateApiKey
 });
 
-describe("@identity[apikeys/deleteApiKey and regenerateApiKey]", function () {
+describe("@identity[apikeys/deleteApiKey and rotateApiKey]", function () {
   afterEach(() => sandbox.restore());
 
-  (["delete", "regenerate"] as const).forEach((name) => {
+  (["delete", "rotate"] as const).forEach((name) => {
     describe(name, function () {
       it("acts on a key of the caller's workspace and ends its sessions", async function () {
         const prisma = fakePrisma(KEY);
@@ -83,7 +83,9 @@ describe("@identity[apikeys/deleteApiKey and regenerateApiKey]", function () {
         expect(prisma.apiKey.findFirst.firstCall.args[0]).to.deep.equal({
           where: { ref: KEY.ref, workspace: { accessKeyId: WORKSPACE_A } }
         });
-        expect(prisma.refreshToken.updateMany.firstCall.args[0].where).to.include({
+        expect(
+          prisma.refreshToken.updateMany.firstCall.args[0].where
+        ).to.include({
           accessKeyId: KEY.accessKeyId
         });
       });

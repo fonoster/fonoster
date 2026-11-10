@@ -36,7 +36,7 @@ import {
   type ApiKey,
   useApiKeys,
   useDeleteApiKey,
-  useRegenerateApiKey
+  useRotateApiKey
 } from "./api-keys.service";
 import { CreateApiKeyDialog } from "./create-api-key-dialog";
 import { ApiKeySecretDialog, type CreatedKey } from "./secret-dialog";
@@ -53,10 +53,10 @@ export default function ApiKeysScreen() {
   const workspace = useWorkspace();
   const list = useApiKeys();
   const remove = useDeleteApiKey();
-  const regenerate = useRegenerateApiKey();
+  const rotate = useRotateApiKey();
   const [creating, setCreating] = useState(false);
   const [shown, setShown] = useState<CreatedKey | undefined>();
-  const [regenerating, setRegenerating] = useState<ApiKey | undefined>();
+  const [rotating, setRotating] = useState<ApiKey | undefined>();
   const [deleting, setDeleting] = useState<ApiKey | undefined>();
 
   const add = (
@@ -94,8 +94,8 @@ export default function ApiKeysScreen() {
       className: "w-12",
       cell: (k) => (
         <RowActions label={k.accessKeyId} onDelete={() => setDeleting(k)}>
-          <DropdownMenuItem onSelect={() => setRegenerating(k)}>
-            <RefreshCw /> Regenerate
+          <DropdownMenuItem onSelect={() => setRotating(k)}>
+            <RefreshCw /> Rotate
           </DropdownMenuItem>
         </RowActions>
       )
@@ -142,23 +142,23 @@ export default function ApiKeysScreen() {
         onDone={() => setShown(undefined)}
       />
       <ConfirmDialog
-        open={Boolean(regenerating)}
+        open={Boolean(rotating)}
         onOpenChange={(open) => {
           if (!open) {
-            setRegenerating(undefined);
-            regenerate.reset();
+            setRotating(undefined);
+            rotate.reset();
           }
         }}
-        title={`Regenerate ${regenerating?.accessKeyId ?? "API key"}?`}
+        title={`Rotate ${rotating?.accessKeyId ?? "API key"}?`}
         description="The current secret stops working right away. Anything using it needs the new one."
-        confirmLabel="Regenerate"
-        pending={regenerate.isPending}
-        error={regenerate.error}
+        confirmLabel="Rotate"
+        pending={rotate.isPending}
+        error={rotate.error}
         onConfirm={() =>
-          regenerating &&
-          regenerate.mutate(regenerating.ref, {
+          rotating &&
+          rotate.mutate(rotating.ref, {
             onSuccess: (key) => {
-              setRegenerating(undefined);
+              setRotating(undefined);
               setShown(key);
             }
           })

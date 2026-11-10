@@ -30,7 +30,7 @@ export const SYNCED_SERVICES = [
   "Webhooks"
 ];
 
-const WRITE = /^(create|update|delete|rotate|regenerate|resend)/;
+const WRITE = /^(create|update|delete|rotate|resend)/;
 
 type Service = {
   definition: { serviceName: string };

@@ -20,9 +20,7 @@ import * as SDK from "@fonoster/sdk";
 import { Args } from "@oclif/core";
 import { AuthenticatedCommand } from "../../AuthenticatedCommand";
 
-export default class Regenerate extends AuthenticatedCommand<
-  typeof Regenerate
-> {
+export default class Rotate extends AuthenticatedCommand<typeof Rotate> {
   static override readonly description =
     "generate a new access key secret for an API key";
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
@@ -34,14 +32,14 @@ export default class Regenerate extends AuthenticatedCommand<
   };
 
   public async run(): Promise<void> {
-    const { args } = await this.parse(Regenerate);
+    const { args } = await this.parse(Rotate);
     const { ref } = args;
 
     const client = await this.createSdkClient();
     const apiKeys = new SDK.ApiKeys(client);
-    const result = await apiKeys.regenerateApiKey(ref);
+    const result = await apiKeys.rotateApiKey(ref);
 
-    this.log("Access Key created successfully!");
+    this.log("Access Key rotated successfully!");
     this.log(`Access Key ID: ${result.accessKeyId}`);
     this.log(`Access Key Secret: ${result.accessKeySecret}`);
     this.log("");

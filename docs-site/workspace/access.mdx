@@ -181,7 +181,7 @@ To sign in from code, you need three values:
 | --- | --- | --- |
 | Workspace access key ID | `WO` and 32 characters | **Settings** > **General** > **Access key ID**, or `fonoster workspaces:active` |
 | API key ID | `AP` and 32 characters | **API keys**, or `fonoster apikeys:list` |
-| API key secret | 64 characters | Shown once, when you create or regenerate the key |
+| API key secret | 64 characters | Shown once, when you create or rotate the key |
 
 The workspace access key ID tells Fonoster which workspace a request is for. The API key ID and
 secret prove who you are. They're different values: don't put the API key ID where the workspace
@@ -244,9 +244,9 @@ You can log in to several workspaces, one API key each, and switch between them:
   delete it.
 </Note>
 
-## Regenerate or delete a key
+## Rotate or delete a key
 
-**Regenerate** a key when its secret may have leaked. The key keeps its ID and gets a new secret.
+**Rotate** a key when its secret may have leaked. The key keeps its ID and gets a new secret.
 The old secret stops working right away, and clients signed in with it can't renew their session.
 Anything that uses the key needs the new secret.
 
@@ -255,7 +255,7 @@ undone.
 
 <Tabs>
   <Tab title="Dashboard">
-    Go to **API keys**. Choose **Regenerate** on the key's row, or open its **⋯** menu and choose
+    Go to **API keys**. Choose **Rotate** on the key's row, or open its **⋯** menu and choose
     **Delete**, then confirm.
   </Tab>
   <Tab title="SDK">
@@ -263,7 +263,7 @@ undone.
     const apiKeys = new SDK.ApiKeys(client);
 
     // A new secret for the same key
-    const { accessKeySecret } = await apiKeys.regenerateApiKey(
+    const { accessKeySecret } = await apiKeys.rotateApiKey(
       "0b8f3c2e-6d4a-4e1f-9a7b-3c5d2e8f1a64"
     );
 
@@ -272,11 +272,11 @@ undone.
     ```
   </Tab>
   <Tab title="CLI">
-    Find the key's ref, then regenerate or delete it:
+    Find the key's ref, then rotate or delete it:
 
     ```bash
     fonoster apikeys:list
-    fonoster apikeys:regenerate 0b8f3c2e-6d4a-4e1f-9a7b-3c5d2e8f1a64
+    fonoster apikeys:rotate 0b8f3c2e-6d4a-4e1f-9a7b-3c5d2e8f1a64
     fonoster apikeys:delete 0b8f3c2e-6d4a-4e1f-9a7b-3c5d2e8f1a64
     ```
   </Tab>

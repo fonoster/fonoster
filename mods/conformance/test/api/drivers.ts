@@ -82,7 +82,7 @@ const SERVICES: Record<
 
 /** SDK methods whose argument is the bare ref, not a request object. */
 const REF_ONLY =
-  /^(get|delete)[A-Z]|^regenerateApiKey$|^resendWorkspaceMembershipInvitation$|^removeUserFromWorkspace$/;
+  /^(get|delete)[A-Z]|^rotateApiKey$|^resendWorkspaceMembershipInvitation$|^removeUserFromWorkspace$/;
 
 /** SDK method -> RPC, where the names differ. */
 const RPC_NAMES: Record<string, string> = {};

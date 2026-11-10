@@ -49,7 +49,7 @@ export default class Create extends AuthenticatedCommand<typeof Create> {
       role: flags.role as Role
     });
 
-    this.log("Access Key regenerated successfully!");
+    this.log("Access Key created successfully!");
     this.log(`Access Key ID: ${result.accessKeyId}`);
     this.log(`Access Key Secret: ${result.accessKeySecret}`);
     this.log("");

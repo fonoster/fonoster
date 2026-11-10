@@ -36,7 +36,7 @@ export const CONFIRM_WORD = "DELETE";
 /**
  * Asks before a destructive action; stays open and shows the error if it fails.
  * Deleting or removing something also needs CONFIRM_WORD typed in; actions that
- * keep the resource (Rotate, Regenerate) don't.
+ * keep the resource (Rotate) don't.
  */
 export function ConfirmDialog({
   open,
