@@ -113374,6 +113374,1062 @@
           }
         }
       ]
+    },
+    {
+      "type": "frame",
+      "id": "7heXh",
+      "name": "Webhooks / Delivery / Drawer (delivered)",
+      "x": 13860,
+      "y": 16320,
+      "width": 1440,
+      "height": 960,
+      "clip": true,
+      "layout": "none",
+      "children": [
+        {
+          "type": "ref",
+          "id": "4LqqZ",
+          "ref": "ui:aqOKa",
+          "name": "Shell",
+          "x": 0,
+          "y": 0,
+          "theme": {
+            "ui:mode": "dark"
+          },
+          "descendants": {
+            "ui:P3kyM": {
+              "fill": "$ui:--sidebar-accent"
+            },
+            "ui:P3kyM/ui:xGT5g": {
+              "fill": "$ui:--sidebar-accent-foreground"
+            },
+            "ui:P3kyM/ui:TXca3": {
+              "fill": "$ui:--sidebar-accent-foreground"
+            },
+            "ui:gOtUO": {
+              "children": [
+                {
+                  "type": "frame",
+                  "name": "Content",
+                  "width": "fill_container",
+                  "height": "fill_container",
+                  "layout": "vertical",
+                  "gap": 20,
+                  "padding": [
+                    28,
+                    32,
+                    24,
+                    32
+                  ],
+                  "children": [
+                    {
+                      "type": "frame",
+                      "name": "Page header",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "name": "Title",
+                          "layout": "vertical",
+                          "gap": 4,
+                          "children": [
+                            {
+                              "type": "text",
+                              "fill": "$ui:--foreground",
+                              "content": "Webhooks",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 22,
+                              "fontWeight": "600"
+                            },
+                            {
+                              "type": "text",
+                              "fill": "$ui:--muted-foreground",
+                              "content": "Signed HTTPS callbacks for call events. Verify the X-Fonoster-Signature header with the endpoint's secret.",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 13
+                            }
+                          ]
+                        },
+                        {
+                          "type": "ref",
+                          "ref": "ui:ZETEA",
+                          "name": "Create webhook",
+                          "descendants": {
+                            "ui:q5Hn5": {
+                              "content": "Create webhook"
+                            }
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "name": "Recent deliveries",
+                      "fill": "$ui:--foreground",
+                      "content": "Recent deliveries",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "name": "Deliveries table",
+                      "clip": true,
+                      "width": "fill_container",
+                      "fill": "$ui:--card",
+                      "cornerRadius": 12,
+                      "stroke": "$ui:--border",
+                      "strokeWidth": 1,
+                      "strokeAlignment": "inner",
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "name": "Header row",
+                          "width": "fill_container",
+                          "height": 40,
+                          "fill": "$ui:--muted",
+                          "padding": [
+                            0,
+                            20
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "width": "fill_container",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "EVENT",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 11,
+                                  "letterSpacing": 0.5
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 300,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "ENDPOINT",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 11,
+                                  "letterSpacing": 0.5
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 140,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "CREATED",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 11,
+                                  "letterSpacing": 0.5
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 120,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "ATTEMPTS",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 11,
+                                  "letterSpacing": 0.5
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 110,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "STATUS",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 11,
+                                  "letterSpacing": 0.5
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 90,
+                              "height": 14
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "name": "Row (opened)",
+                          "width": "fill_container",
+                          "height": 58,
+                          "fill": "$ui:--muted",
+                          "stroke": "$ui:--border",
+                          "strokeWidth": {
+                            "top": 1
+                          },
+                          "strokeAlignment": "inner",
+                          "padding": [
+                            0,
+                            20
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "name": "Event button",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--foreground",
+                                  "content": "call.ended",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "ev-81c2f0",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 11
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 300,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "api.acme.com/fonoster/events",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 140,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Oct 19, 09:42",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 120,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "1 · last 200",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 110,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:success",
+                                  "content": "delivered",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 90,
+                              "justifyContent": "end",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "name": "Resend",
+                                  "cornerRadius": 8,
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Resend",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "height": 58,
+                          "stroke": "$ui:--border",
+                          "strokeWidth": {
+                            "top": 1
+                          },
+                          "strokeAlignment": "inner",
+                          "padding": [
+                            0,
+                            20
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "name": "Event button",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--foreground",
+                                  "content": "call_record.sealed",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "ev-81c2f1",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 11
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 300,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "api.acme.com/fonoster/events",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 140,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Oct 19, 09:42",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 120,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "3 · last 503",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 110,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:warning",
+                                  "content": "retrying",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 90,
+                              "justifyContent": "end",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "name": "Resend",
+                                  "cornerRadius": 8,
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Resend",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "height": 58,
+                          "stroke": "$ui:--border",
+                          "strokeWidth": {
+                            "top": 1
+                          },
+                          "strokeAlignment": "inner",
+                          "padding": [
+                            0,
+                            20
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "frame",
+                              "name": "Event button",
+                              "width": "fill_container",
+                              "layout": "vertical",
+                              "gap": 2,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--foreground",
+                                  "content": "call.failed",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 13,
+                                  "fontWeight": "500"
+                                },
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "ev-7f00aa",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 11
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 300,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "ops.acme.com/alerts",
+                                  "fontFamily": "$ui:--font-primary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 140,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "Oct 18, 22:10",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 120,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--muted-foreground",
+                                  "content": "8 · no response",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 110,
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "fill": "$ui:--destructive",
+                                  "content": "failed",
+                                  "fontFamily": "$ui:--font-secondary",
+                                  "fontSize": 13
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "width": 90,
+                              "justifyContent": "end",
+                              "children": [
+                                {
+                                  "type": "frame",
+                                  "name": "Resend",
+                                  "cornerRadius": 8,
+                                  "stroke": "$ui:--border",
+                                  "strokeWidth": 1,
+                                  "padding": [
+                                    4,
+                                    10
+                                  ],
+                                  "children": [
+                                    {
+                                      "type": "text",
+                                      "fill": "$ui:--foreground",
+                                      "content": "Resend",
+                                      "fontFamily": "$ui:--font-secondary",
+                                      "fontSize": 12
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "frame",
+          "id": "w7eyz",
+          "name": "Overlay",
+          "x": 0,
+          "y": 0,
+          "width": 1440,
+          "height": 960,
+          "fill": "#000000A6",
+          "layout": "none"
+        },
+        {
+          "type": "frame",
+          "id": "LoPPf",
+          "name": "Drawer",
+          "x": 960,
+          "y": 0,
+          "theme": {
+            "ui:mode": "dark"
+          },
+          "width": 480,
+          "height": 960,
+          "fill": "$ui:--card",
+          "stroke": "$ui:--border",
+          "strokeWidth": {
+            "left": 1
+          },
+          "strokeAlignment": "inner",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "pzQbc",
+              "name": "Drawer header",
+              "width": "fill_container",
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "strokeAlignment": "inner",
+              "padding": [
+                20,
+                24
+              ],
+              "justifyContent": "space_between",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "lAiY1",
+                  "name": "Title",
+                  "width": 400,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ofnVG",
+                      "name": "Event type",
+                      "fill": "$ui:--foreground",
+                      "content": "call.ended",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 18,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "lY0RK",
+                      "name": "Event id",
+                      "fill": "$ui:--muted-foreground",
+                      "content": "ev-81c2f0",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 13
+                    }
+                  ]
+                },
+                {
+                  "type": "icon",
+                  "id": "1oKcY",
+                  "name": "Close",
+                  "width": 18,
+                  "height": 18,
+                  "icon": "x",
+                  "library": "lucide",
+                  "fill": "$ui:--muted-foreground"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "zAvA8",
+              "name": "Drawer body",
+              "width": "fill_container",
+              "height": "fill_container",
+              "layout": "vertical",
+              "gap": 22,
+              "padding": 24,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "zwH9G",
+                  "name": "Summary",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 6,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "pzvbc",
+                      "name": "Status line",
+                      "gap": 0,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "cqKmb",
+                          "name": "Status",
+                          "fill": "$ui:success",
+                          "content": "Delivered",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 13,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "text",
+                          "id": "kmtFZ",
+                          "name": "Detail",
+                          "fill": "$ui:--foreground",
+                          "content": " · 1 attempt · last 200",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 13
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "d6Su4",
+                      "name": "Endpoint",
+                      "fill": "$ui:--muted-foreground",
+                      "content": "api.acme.com/fonoster/events",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 13
+                    },
+                    {
+                      "type": "text",
+                      "id": "XQBqa",
+                      "name": "Sent",
+                      "fill": "$ui:--muted-foreground",
+                      "content": "Sent Oct 19, 09:42",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 13
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Adj67",
+                  "name": "Body section",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "1wRMr",
+                      "name": "Label row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "9SuOg",
+                          "name": "Body",
+                          "fill": "$ui:--foreground",
+                          "content": "Body",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 13,
+                          "fontWeight": "500"
+                        },
+                        {
+                          "type": "frame",
+                          "id": "SCoip",
+                          "name": "Copy body",
+                          "cornerRadius": 8,
+                          "stroke": "$ui:--border",
+                          "strokeWidth": 1,
+                          "padding": [
+                            4,
+                            10
+                          ],
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "eh9B6",
+                              "name": "Label",
+                              "fill": "$ui:--foreground",
+                              "content": "Copy body",
+                              "fontFamily": "$ui:--font-secondary",
+                              "fontSize": 12
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "text",
+                      "id": "kQgns",
+                      "name": "Note",
+                      "fill": "$ui:--muted-foreground",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "The event as Fonoster stored it. Key order can differ from the bytes your server received, so don't use it to check a signature.",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 12
+                    },
+                    {
+                      "type": "frame",
+                      "id": "JnaVa",
+                      "name": "Body region",
+                      "width": "fill_container",
+                      "fill": "$ui:--background",
+                      "cornerRadius": 8,
+                      "stroke": "$ui:--border",
+                      "strokeWidth": 1,
+                      "strokeAlignment": "inner",
+                      "padding": [
+                        12,
+                        14
+                      ],
+                      "clip": true,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ivY2F",
+                          "name": "JSON",
+                          "fill": "$ui:--foreground",
+                          "textGrowth": "auto",
+                          "lineHeight": 1.5,
+                          "content": "{\n  \"id\": \"ev-81c2f0\",\n  \"type\": \"call.ended\",\n  \"createdAt\": \"2026-10-19T09:42:07.114Z\",\n  \"workspaceRef\": \"ws_4f1a9c\",\n  \"data\": {\n    \"callRef\": \"call-7a1e30d2\",\n    \"appRef\": \"app-2b9e41\",\n    \"from\": \"+15551230001\",\n    \"to\": \"+15551230002\",\n    \"direction\": \"inbound\",\n    \"durationSeconds\": 83,\n    \"endReason\": \"caller_hangup\"\n  }\n}",
+                          "fontFamily": "$ui:--font-primary",
+                          "fontSize": 12
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "0tDSX",
+      "name": "Webhooks / Delivery / Drawer (failed)",
+      "x": 15400,
+      "y": 16320,
+      "theme": {
+        "ui:mode": "dark"
+      },
+      "width": 480,
+      "height": 960,
+      "fill": "$ui:--card",
+      "stroke": "$ui:--border",
+      "strokeWidth": {
+        "left": 1
+      },
+      "strokeAlignment": "inner",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "yb50K",
+          "name": "Drawer header",
+          "width": "fill_container",
+          "stroke": "$ui:--border",
+          "strokeWidth": {
+            "bottom": 1
+          },
+          "strokeAlignment": "inner",
+          "padding": [
+            20,
+            24
+          ],
+          "justifyContent": "space_between",
+          "children": [
+            {
+              "type": "frame",
+              "id": "feUum",
+              "name": "Title",
+              "width": 400,
+              "layout": "vertical",
+              "gap": 4,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ssPFb",
+                  "fill": "$ui:--foreground",
+                  "content": "call.failed",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 18,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "QMYMs",
+                  "fill": "$ui:--muted-foreground",
+                  "content": "ev-7f00aa",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13
+                }
+              ]
+            },
+            {
+              "type": "icon",
+              "id": "DW9mN",
+              "name": "Close",
+              "width": 18,
+              "height": 18,
+              "icon": "x",
+              "library": "lucide",
+              "fill": "$ui:--muted-foreground"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "dxks6",
+          "name": "Drawer body",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 22,
+          "padding": 24,
+          "children": [
+            {
+              "type": "frame",
+              "id": "PvDv5",
+              "name": "Summary",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "IQGAa",
+                  "name": "Status line",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "uvXm1",
+                      "fill": "$ui:--destructive",
+                      "content": "Failed",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "pPo8p",
+                      "fill": "$ui:--foreground",
+                      "content": " · 8 attempts · last no response",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 13
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "QwM8J",
+                  "fill": "$ui:--muted-foreground",
+                  "content": "ops.acme.com/alerts",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13
+                },
+                {
+                  "type": "text",
+                  "id": "YtSRt",
+                  "fill": "$ui:--muted-foreground",
+                  "content": "Sent Oct 18, 22:10",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "l1XDp",
+              "name": "Body section",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "jt4xn",
+                  "name": "Label row",
+                  "width": "fill_container",
+                  "justifyContent": "space_between",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "hUYQX",
+                      "fill": "$ui:--foreground",
+                      "content": "Body",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 13,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "vPL2S",
+                      "name": "Copy body (copied)",
+                      "cornerRadius": 8,
+                      "stroke": "$ui:--border",
+                      "strokeWidth": 1,
+                      "padding": [
+                        4,
+                        10
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ddeub",
+                          "fill": "$ui:--foreground",
+                          "content": "Copied",
+                          "fontFamily": "$ui:--font-secondary",
+                          "fontSize": 12
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "Ppjuo",
+                  "fill": "$ui:--muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "The event as Fonoster stored it. Key order can differ from the bytes your server received, so don't use it to check a signature.",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 12
+                },
+                {
+                  "type": "frame",
+                  "id": "0g8N0",
+                  "name": "Body region",
+                  "width": "fill_container",
+                  "fill": "$ui:--background",
+                  "cornerRadius": 8,
+                  "stroke": "$ui:--border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "padding": [
+                    12,
+                    14
+                  ],
+                  "clip": true,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "EQUQq",
+                      "fill": "$ui:--foreground",
+                      "lineHeight": 1.5,
+                      "content": "{\n  \"id\": \"ev-7f00aa\",\n  \"type\": \"call.failed\",\n  \"createdAt\": \"2026-10-18T22:10:31.502Z\",\n  \"workspaceRef\": \"ws_4f1a9c\",\n  \"data\": {\n    \"callRef\": \"call-19c4be70\",\n    \"appRef\": \"app-2b9e41\",\n    \"from\": \"+15551230007\",\n    \"to\": \"+15551230002\",\n    \"direction\": \"inbound\",\n    \"reason\": \"app_unreachable\"\n  }\n}",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 12
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "note",
+      "id": "sDe8x",
+      "x": 15400,
+      "y": 17320,
+      "width": 480,
+      "content": "#1271 delivery drawer. Delivered frame on the left; this one shows Failed (red, same word/color as the row) and the Copy body button after a click (\"Copied\" for 1.5 s). Retrying reads: Retrying · 2 attempts · last no response · next try <when>. Deleted endpoint reads \"Deleted webhook\". Read-only: no footer, no Resend. Row click or the event-type button (Tab, Enter) opens it; X, Esc or outside click closes and returns focus."
     }
   ],
   "imports": {
