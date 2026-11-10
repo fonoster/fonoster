@@ -40,6 +40,7 @@ import {
 } from "../utils";
 import { isMethodEnabled } from "../utils/authMethods";
 import { createGenerateWorkspaceInviteToken } from "../utils/createGenerateWorkspaceInviteToken";
+import { emailLogoUrl } from "../utils/emailLogoUrl";
 import { generateOneTimePassword } from "../utils/generateOneTimePassword";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 import { passwordColumns } from "../utils/userPasswords";
@@ -184,7 +185,8 @@ function createInviteUserToWorkspace(
       workspaceName: newMember.workspace.name,
       // Without a one-time password the "existing user" email (a link) fits.
       isExistingUser: isExistingUser || !oneTimePassword,
-      inviteUrl: `${identityConfig.workspaceInviteUrl}?token=${inviteeToken}`
+      inviteUrl: `${identityConfig.workspaceInviteUrl}?token=${inviteeToken}`,
+      logoUrl: emailLogoUrl(identityConfig)
     });
 
     callback(null, {

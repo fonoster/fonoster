@@ -65,6 +65,7 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
         sender: "Fonoster <info@fonoster.local>",
         auth: {}
       },
+      issuer: "https://id.acme.test",
       privateKey: TEST_PRIVATE_KEY,
       auth: { methods: ["password"], signup: "invite" }
     } as IdentityConfig;
@@ -131,6 +132,7 @@ describe("@identity[workspace/inviteUserToWorkspace]", function () {
         sender: "Fonoster <info@fonoster.local>",
         auth: {}
       },
+      issuer: "https://id.acme.test",
       privateKey: TEST_PRIVATE_KEY,
       auth: { methods: ["password"], signup: "invite" }
     } as IdentityConfig;

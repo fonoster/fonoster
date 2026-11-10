@@ -30,6 +30,7 @@ import { IdentityConfig } from "../exchanges";
 import { CallWithAddress, clientAddress } from "../utils/clientAddress";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
 import { createSendEmail } from "../utils/createSendEmail";
+import { emailLogoUrl } from "../utils/emailLogoUrl";
 import { createSharedRateLimiter } from "../utils/rateLimiter";
 import { sendVerificationEmail } from "./sendVerificationEmail";
 import { sendVerificationMessage } from "./sendVerificationMessage";
@@ -89,7 +90,8 @@ function createSendVerificationCode(
     if (actualContactType === ContactType.EMAIL) {
       sendVerificationEmail(sendEmail, {
         recipient: request.value,
-        verificationCode
+        verificationCode,
+        logoUrl: emailLogoUrl(identityConfig)
       }).catch((error) => {
         logger.error("failed to send verification email", {
           recipient: request.value,

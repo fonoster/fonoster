@@ -1,39 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Fonoster - Email Verification</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
+  <title>Your Fonoster verification code</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      line-height: 1.6;
-      padding: 20px;
-    }
-    .container {
-      background: #fff;
-      padding: 20px;
-    }
-    .verification-code {
-      font-size: 1.5em;
-      font-weight: bold;
-    }
     @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #181818;
-        color: #f4f4f4;
-      }
-      .container {
-        background: #181818;
-      }
+      .page { background-color: #181818 !important; }
+      .card { background-color: #202020 !important; border-color: #333333 !important; }
+      .text { color: #FFFFFF !important; }
+      .muted { color: #C2C2C2 !important; }
+      .code { background-color: #252525 !important; border-color: #333333 !important; }
+      .rule { border-color: #333333 !important; }
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <p>To continue with your Fonoster account, please verify your email with the code below:</p>
-    <p class="verification-code">{{verificationCode}}</p>
-    <p>If you didn't request this code, you can ignore this message.</p>
-  </div>
+<body class="page" style="margin:0;padding:0;background-color:#F4F4F4;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">Enter this code to verify your email. It expires in 5 minutes.</div>
+  <table role="presentation" class="page" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F4F4F4;">
+    <tr>
+      <td align="center" style="padding:24px;">
+        <table role="presentation" class="card" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;background-color:#FFFFFF;border:1px solid #E8E8E8;border-radius:10px;">
+          <tr>
+            <td style="padding:24px 32px;background-color:#FFFFFF;border-bottom:1px solid #E8E8E8;border-radius:10px 10px 0 0;">
+              <img src="{{logoUrl}}" width="124" height="32" alt="Fonoster" style="display:block;border:0;">
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px;">
+              <h1 class="text" style="margin:0 0 16px;font-family:Poppins, Helvetica, Arial, sans-serif;font-size:24px;line-height:1.3;font-weight:600;color:#252525;">Verify your email</h1>
+              <p class="text" style="margin:0 0 16px;font-family:Poppins, Helvetica, Arial, sans-serif;font-size:15px;line-height:1.6;color:#252525;">Enter this code in Fonoster to verify your email address:</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 16px;">
+                <tr>
+                  <td class="code" align="center" style="padding:16px 0;background-color:#F4F4F4;border:1px solid #E8E8E8;border-radius:10px;">
+                    <span class="text" data-verification-code style="font-family:'Roboto Mono', Menlo, Consolas, monospace;font-size:32px;font-weight:500;letter-spacing:8px;color:#252525;">{{verificationCode}}</span>
+                  </td>
+                </tr>
+              </table>
+              <p class="text" style="margin:0;font-family:Poppins, Helvetica, Arial, sans-serif;font-size:15px;line-height:1.6;color:#252525;">The code expires in 5 minutes.</p>
+            </td>
+          </tr>
+          <tr>
+            <td class="rule" style="padding:20px 32px;border-top:1px solid #E8E8E8;">
+              <p class="muted" style="margin:0;font-family:Poppins, Helvetica, Arial, sans-serif;font-size:13px;line-height:1.6;color:#555555;">If you didn't ask for this code, you can ignore this email.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>

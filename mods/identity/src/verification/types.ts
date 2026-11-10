@@ -39,6 +39,8 @@ type VerificationParams = {
   templateDir?: string;
   recipient: string;
   verificationCode: string;
+  /** Email only: the logo the email loads. */
+  logoUrl?: string;
 };
 
 type SendEmailVerificationCode = (

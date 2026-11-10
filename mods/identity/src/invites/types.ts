@@ -25,6 +25,7 @@ type InviteParams = {
   isExistingUser: boolean;
   oneTimePassword?: string;
   workspaceName: string;
+  logoUrl: string;
 };
 
 type SendInvite = (

@@ -24,14 +24,15 @@ async function sendResetPasswordEmail(
   sendEmail: (params: EmailParams) => Promise<void>,
   request: SendResetPasswordEmailRequest
 ) {
-  const { recipient, resetPasswordUrl, templateDir } = request;
+  const { recipient, resetPasswordUrl, templateDir, logoUrl } = request;
 
   await sendEmail({
     to: recipient,
-    subject: "Reset Password",
+    subject: "Reset your Fonoster password",
     html: createResetPasswordBody({
       templateDir,
-      resetPasswordUrl
+      resetPasswordUrl,
+      logoUrl
     })
   });
 }

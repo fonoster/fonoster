@@ -24,7 +24,7 @@ import { VerificationParams } from "./types";
 function createBodyForVerificationEmail(
   params: Omit<VerificationParams, "recipient">
 ) {
-  const { verificationCode, templateDir: emailTemplateDir } = params;
+  const { verificationCode, logoUrl, templateDir: emailTemplateDir } = params;
 
   const template = TemplatesEnum.VERIFY_EMAIL;
 
@@ -36,7 +36,8 @@ function createBodyForVerificationEmail(
   return compileTemplate({
     filePath: templatePath,
     data: {
-      verificationCode
+      verificationCode,
+      logoUrl
     }
   });
 }
