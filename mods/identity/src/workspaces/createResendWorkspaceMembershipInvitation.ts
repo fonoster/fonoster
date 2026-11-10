@@ -35,6 +35,7 @@ import { SendInvite } from "../invites";
 import { createSendEmail } from "../utils";
 import { isMethodEnabled } from "../utils/authMethods";
 import { createGenerateWorkspaceInviteToken } from "../utils/createGenerateWorkspaceInviteToken";
+import { emailLogoUrl } from "../utils/emailLogoUrl";
 import { generateOneTimePassword } from "../utils/generateOneTimePassword";
 import { getUserRefFromToken } from "../utils/getUserRefFromToken";
 import { passwordColumns } from "../utils/userPasswords";
@@ -132,7 +133,8 @@ function createResendWorkspaceMembershipInvitation(
       oneTimePassword,
       workspaceName: member.workspace.name,
       isExistingUser: !oneTimePassword,
-      inviteUrl: `${identityConfig.workspaceInviteUrl}?token=${inviteeToken}`
+      inviteUrl: `${identityConfig.workspaceInviteUrl}?token=${inviteeToken}`,
+      logoUrl: emailLogoUrl(identityConfig)
     });
 
     callback(null, {

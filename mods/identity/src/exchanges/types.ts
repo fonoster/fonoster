@@ -73,6 +73,11 @@ type IdentityConfig = {
    * `<issuer>/reset-password`.
    */
   resetPasswordUrl?: string;
+  /**
+   * The logo the account emails load (served by the dashboard). Defaults to
+   * `<issuer>/logo-email.png`.
+   */
+  emailLogoUrl?: string;
   contactVerificationRequired: boolean;
   twoFactorAuthenticationRequired: boolean;
   /** Absent when outgoing email isn't configured; sending email then fails clearly. */

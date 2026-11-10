@@ -39,7 +39,8 @@ describe("@identity[invites/createInviteBody]", function () {
       isExistingUser: false,
       workspaceName: WORKSPACE_NAME,
       oneTimePassword: "123456",
-      inviteUrl: "http://example.com?token=jwt"
+      inviteUrl: "http://example.com?token=jwt",
+      logoUrl: "http://example.com/logo-email.png"
     };
 
     const { createInviteBody } =
@@ -51,7 +52,9 @@ describe("@identity[invites/createInviteBody]", function () {
 
     // Assert
     expect(result).to.be.a("string");
-    expect(result).to.contain("You have been invited to join the workspace");
+    expect(result).to.contain(
+      `You've been invited to the ${WORKSPACE_NAME} workspace on Fonoster.`
+    );
     expect(result).to.contain(WORKSPACE_NAME);
     expect(result).to.contain("http://example.com?token&#x3D;jwt");
     expect(result).to.contain("123456");
@@ -63,7 +66,8 @@ describe("@identity[invites/createInviteBody]", function () {
       isExistingUser: true,
       workspaceName: WORKSPACE_NAME,
       inviteUrl: "http://example.com?token=jwt",
-      oneTimePassword: "123456"
+      oneTimePassword: "123456",
+      logoUrl: "http://example.com/logo-email.png"
     };
 
     const { createInviteBody } =
@@ -74,7 +78,9 @@ describe("@identity[invites/createInviteBody]", function () {
 
     // Assert
     expect(result).to.be.a("string");
-    expect(result).to.contain("You have been invited to join the workspace");
+    expect(result).to.contain(
+      `You've been invited to the ${WORKSPACE_NAME} workspace on Fonoster.`
+    );
     expect(result).to.contain(WORKSPACE_NAME);
     expect(result).to.contain("http://example.com?token&#x3D;jwt");
     expect(result).to.not.contain("123456");

@@ -24,7 +24,7 @@ import { SendResetPasswordEmailRequest } from "./types";
 function createResetPasswordBody(
   params: Omit<SendResetPasswordEmailRequest, "recipient">
 ) {
-  const { templateDir: emailTemplateDir, resetPasswordUrl } = params;
+  const { templateDir: emailTemplateDir, resetPasswordUrl, logoUrl } = params;
 
   const template = TemplatesEnum.RESET_PASSWORD;
 
@@ -36,7 +36,8 @@ function createResetPasswordBody(
   return compileTemplate({
     filePath: templatePath,
     data: {
-      resetPasswordUrl
+      resetPasswordUrl,
+      logoUrl
     }
   });
 }

@@ -56,6 +56,7 @@ describe("@identity[workspace/resendWorkspaceMembershipInvitation]", function ()
         sender: "Fonoster <info@fonoster.local>",
         auth: {}
       },
+      issuer: "https://id.acme.test",
       privateKey: TEST_PRIVATE_KEY
     } as IdentityConfig;
 

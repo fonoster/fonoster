@@ -30,18 +30,20 @@ async function sendInvite(
     oneTimePassword,
     isExistingUser,
     workspaceName,
-    templateDir
+    templateDir,
+    logoUrl
   } = request;
 
   await sendEmail({
     to: recipient,
-    subject: "Invitation to join a Fonoster workspace",
+    subject: `You're invited to ${workspaceName} on Fonoster`,
     html: createInviteBody({
       templateDir,
       isExistingUser,
       workspaceName,
       oneTimePassword: isExistingUser ? undefined : oneTimePassword,
-      inviteUrl
+      inviteUrl,
+      logoUrl
     })
   });
 }

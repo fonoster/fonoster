@@ -40,7 +40,8 @@ describe("@identity[invites/sendInvite]", function () {
       inviteUrl: "http://example.com?token=jwt",
       oneTimePassword: "123456",
       workspaceName: "My Workspace",
-      isExistingUser: false
+      isExistingUser: false,
+      logoUrl: "http://example.com/logo-email.png"
     };
 
     const { sendInvite } =

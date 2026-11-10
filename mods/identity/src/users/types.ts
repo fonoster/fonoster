@@ -20,6 +20,7 @@ type SendResetPasswordEmailRequest = {
   recipient: string;
   templateDir?: string;
   resetPasswordUrl: string;
+  logoUrl: string;
 };
 
 type UserUpdateInput = {

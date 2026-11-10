@@ -30,6 +30,7 @@ import { IdentityConfig } from "../exchanges/types";
 import { createSendEmail } from "../utils";
 import { CallWithAddress, clientAddress } from "../utils/clientAddress";
 import { createGenerateVerificationCode } from "../utils/createGenerateVerificationCode";
+import { emailLogoUrl } from "../utils/emailLogoUrl";
 import { createSharedRateLimiter } from "../utils/rateLimiter";
 import { sendResetPasswordEmail } from "./sendResetPasswordEmail";
 const logger = getLogger({ service: "identity", filePath: __filename });
@@ -105,7 +106,8 @@ function createSendResetPasswordCode(
 
     await sendResetPasswordEmail(createSendEmail(identityConfig), {
       recipient: username,
-      resetPasswordUrl: `${resetPasswordUrl}?token=${encodeURIComponent(encodedPayload)}`
+      resetPasswordUrl: `${resetPasswordUrl}?token=${encodeURIComponent(encodedPayload)}`,
+      logoUrl: emailLogoUrl(identityConfig)
     });
 
     callback(null);

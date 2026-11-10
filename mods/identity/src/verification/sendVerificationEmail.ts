@@ -24,14 +24,15 @@ async function sendVerificationEmail(
   sendEmail: (params: EmailParams) => Promise<void>,
   request: VerificationParams
 ) {
-  const { recipient, verificationCode, templateDir } = request;
+  const { recipient, verificationCode, templateDir, logoUrl } = request;
 
   await sendEmail({
     to: recipient,
-    subject: "Your verification code",
+    subject: "Your Fonoster verification code",
     html: createBodyForVerificationEmail({
       templateDir,
-      verificationCode
+      verificationCode,
+      logoUrl
     })
   });
 }

@@ -27,7 +27,8 @@ function createInviteBody(params: Omit<InviteParams, "recipient">) {
     isExistingUser,
     workspaceName,
     oneTimePassword,
-    inviteUrl
+    inviteUrl,
+    logoUrl
   } = params;
 
   const template = isExistingUser
@@ -44,7 +45,8 @@ function createInviteBody(params: Omit<InviteParams, "recipient">) {
     data: {
       workspaceName,
       oneTimePassword,
-      inviteUrl
+      inviteUrl,
+      logoUrl
     }
   });
 }
