@@ -108,7 +108,9 @@ export async function ensureRecordedUsageStream(nc: NatsConnection) {
 /**
  * Publishes one batch of unpublished usage, oldest first, each with its usage id as the message id
  * (JetStream drops a repeat), then marks the batch published. A crash between the two only
- * publishes the batch again. Returns how many were published.
+ * publishes the batch again. Rows without an owner are skipped and stay unpublished: there is no
+ * subject to publish them on, and one of them must not hold back the rest. Returns how many were
+ * published.
  */
 export async function publishRecordedUsageOnce(
   nc: NatsConnection,
@@ -118,7 +120,8 @@ export async function publishRecordedUsageOnce(
   const rows = await db.$queryRawUnsafe<Row[]>(
     `SELECT id, owner_ref, workspace_ref, app_ref, call_ref, region, region_kind, origin, meter,
             quantity, provider, model, key_source, occurred_at
-       FROM usage_events WHERE published_at IS NULL ORDER BY recorded_at, id LIMIT $1`,
+       FROM usage_events WHERE published_at IS NULL AND owner_ref <> ''
+      ORDER BY recorded_at, id LIMIT $1`,
     batch
   );
   if (!rows.length) return 0;

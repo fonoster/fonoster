@@ -22,6 +22,7 @@ const spec = [
   "mods/apiserver/test/usage/getUsage.test.ts",
   "mods/apiserver/test/usage/consumer.test.ts",
   "mods/apiserver/test/usage/recordedUsage.test.ts",
+  "mods/apiserver/test/usage/ownerlessUsage.test.ts",
   "mods/apiserver/test/usage/evalUsage.test.ts",
   "mods/apiserver/test/usage/fullstack.test.ts",
   "mods/apiserver/test/billing/proxy.test.ts",
