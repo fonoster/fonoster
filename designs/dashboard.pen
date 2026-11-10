@@ -86546,7 +86546,7 @@
                   "id": "Zkrz4",
                   "name": "Label",
                   "fill": "$ui:--foreground",
-                  "content": "Regenerate",
+                  "content": "Rotate",
                   "fontFamily": "$ui:--font-secondary",
                   "fontSize": 13,
                   "fontWeight": "normal"
@@ -97894,7 +97894,7 @@
           "fill": "#451A03",
           "textGrowth": "fixed-width",
           "width": "fill_container",
-          "content": "• Every delete or remove (all resources) asks to type DELETE. Rotate and Regenerate stay one click; a workspace asks for its name.",
+          "content": "• Every delete or remove (all resources) asks to type DELETE. Rotate stays one click; a workspace asks for its name.",
           "lineHeight": 1.45,
           "fontFamily": "Poppins",
           "fontSize": 12,

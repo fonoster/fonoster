@@ -26,7 +26,7 @@ export default class Rotate extends AuthenticatedCommand<typeof Rotate> {
   static override readonly examples = ["<%= config.bin %> <%= command.id %>"];
   static override readonly args = {
     ref: Args.string({
-      description: "the Application to update",
+      description: "the API key to rotate",
       required: true
     })
   };

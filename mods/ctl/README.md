@@ -188,7 +188,7 @@ USAGE
   $ fonoster apikeys:rotate REF [--ca-file <value>]
 
 ARGUMENTS
-  REF  the Application to update
+  REF  the API key to rotate
 
 FLAGS
   --ca-file=<value>  a PEM file of certificate authorities to trust, such as an install's config/tls/ca.pem (default:
