@@ -350,5 +350,6 @@
   "OPS-009": "The ops API runs from the inventory",
   "APB-043": "A typed voice ID and the speed reach the vendor",
   "BIL-053": "TTS characters are keyed by the TTS model",
-  "BIL-054": "Later rate cards price Cloud's catalog at vendor cost"
+  "BIL-054": "Later rate cards price Cloud's catalog at vendor cost",
+  "BIL-055": "A usage row with no owner does not hold back the rest"
 }

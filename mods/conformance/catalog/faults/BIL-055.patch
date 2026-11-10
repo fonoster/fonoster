@@ -1,0 +1,12 @@
+diff --git a/mods/apiserver/src/usage/publishRecordedUsage.ts b/mods/apiserver/src/usage/publishRecordedUsage.ts
+--- a/mods/apiserver/src/usage/publishRecordedUsage.ts
++++ b/mods/apiserver/src/usage/publishRecordedUsage.ts
+@@ -120,7 +120,7 @@
+   const rows = await db.$queryRawUnsafe<Row[]>(
+     `SELECT id, owner_ref, workspace_ref, app_ref, call_ref, region, region_kind, origin, meter,
+             quantity, provider, model, key_source, occurred_at
+-       FROM usage_events WHERE published_at IS NULL AND owner_ref <> ''
++       FROM usage_events WHERE published_at IS NULL
+       ORDER BY recorded_at, id LIMIT $1`,
+     batch
+   );

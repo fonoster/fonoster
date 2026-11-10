@@ -124,4 +124,36 @@ describe("@apiserver/usage billing outbox", function () {
       idOf(3)
     ]);
   });
+
+  it("[BIL-055] publishes the owned usage behind an ownerless row and leaves that row unpublished", async () => {
+    const store = db!.prisma as UsageDb;
+    // A deleted workspace: no owner to look up, so the oldest unpublished row is ownerless.
+    await store.$transaction((tx) =>
+      ingestUsageIn(tx, { workspace: async () => undefined }, [event(4)])
+    );
+    for (const n of [5, 6])
+      await store.$transaction((tx) =>
+        ingestUsageIn(
+          tx,
+          { workspace: async () => ({ ownerRef: "user-owner" }) },
+          [event(n)]
+        )
+      );
+    expect(await publishRecordedUsageOnce(nc!, store)).to.equal(2);
+    expect(await publishRecordedUsageOnce(nc!, store)).to.equal(0);
+    expect((await streamed()).map((e) => e.id)).to.deep.equal([
+      idOf(1),
+      idOf(2),
+      idOf(3),
+      idOf(5),
+      idOf(6)
+    ]);
+    const [ownerless] = await store.$queryRawUnsafe<
+      { owner_ref: string; published_at: Date | null }[]
+    >(
+      "SELECT owner_ref, published_at FROM usage_events WHERE id = $1",
+      idOf(4)
+    );
+    expect(ownerless).to.deep.equal({ owner_ref: "", published_at: null });
+  });
 });

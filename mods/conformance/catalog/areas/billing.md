@@ -846,3 +846,19 @@ Cards 2 and 3 as shipped against Fonoster Cloud's catalog (`ops/cloud/config/cat
 keeps every price card 2 has except `tts.characters`, prices every active TTS model above zero, and
 1,000 Flux characters cost 4.5 credits. **Fail.** A model in the catalog is unpriced, or card 3
 drops a price card 2 has.
+
+### BIL-055 A usage row with no owner does not hold back the rest
+
+- **Spec:** usage-metering / Stored usage is published for billing / A usage row with no owner does not hold back the rest
+- **Priority:** P0
+- **Proof:** Drop the owner filter from the billing outbox's query; the ownerless row is published to `billing.usage.`, NATS rejects it and the test goes red.
+- **Fault:** faults/BIL-055.patch
+- **Test:** mods/apiserver/test/usage/recordedUsage.test.ts, mods/apiserver/test/usage/ownerlessUsage.test.ts
+
+A usage row with an empty owner (a deleted workspace) is the oldest unpublished, with owned rows
+stored after it; the outbox runs against Postgres and NATS, and against a fake that applies the
+query's filters.
+
+**Pass.** The owned rows reach `FONOSTER_USAGE_RECORDED` in order and are marked published; the
+ownerless row stays in `usage_events` with `published_at` empty. **Fail.** The publisher throws,
+an owned row is missing or out of order, or the ownerless row is published or marked.
