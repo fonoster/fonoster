@@ -1,0 +1,12 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index bf194c10e..ec47219e3 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1637,7 +1637,6 @@ export class AppSession {
+           voice: voice.voice,
+           language: (cmd.language as string) ?? this.app.speech.language,
+           model: voice.model,
+-          speed: this.app.speech.speed,
+           adapter: voice.adapter,
+           onSynthesize: this.call.ttsUsage(
+             voice.modelId ?? voice.id,

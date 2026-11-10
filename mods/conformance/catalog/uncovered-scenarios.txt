@@ -1,5 +1,22 @@
+autopilot / Anthropic models through a native adapter / A call the agent opens
+autopilot / Anthropic models through a native adapter / A refusal
+autopilot / Anthropic models through a native adapter / A tool round
+autopilot / Anthropic models through a native adapter / Caching and usage
 autopilot / Conversation events in the call record / Speech ahead of the reply
 autopilot / Conversation events in the call record / Where the wait went
+autopilot / Evals can check that no tool is called / A tool call where none is expected
+autopilot / Evals can use canned tool results / A canned result
+autopilot / Evals can use canned tool results / A tool call with no canned result
+autopilot / Evals report time to first token / A reply
+autopilot / Evals run models the way calls do / A model the catalog does not have
+autopilot / Evals run models the way calls do / Eval on a reasoning model
+autopilot / Google models through a native adapter / A bad key
+autopilot / Google models through a native adapter / A thought signature
+autopilot / Language models run at their lowest reasoning level / A model that can only lower reasoning
+autopilot / Language models run at their lowest reasoning level / A model that can turn reasoning off
+autopilot / Language models run at their lowest reasoning level / An Anthropic model
+autopilot / Temperature only reaches models that take it / A model that takes temperature
+autopilot / Temperature only reaches models that take it / Stored temperature on a model that does not take it
 billing / Billing runs only when enabled / Community install
 billing / Top-ups and auto-recharge / Refund of unused top-up
 control-plane / AppBridge is its own TypeScript deployable / Calls spread through the session endpoint
@@ -26,10 +43,18 @@ control-plane / The apiserver is a stateless control plane / Management API unch
 control-plane / The apiserver is a stateless control plane / TrackCall always ends
 control-plane / The apiserver is a stateless control plane / TrackCall says why an unanswered call ended
 control-plane / The apiserver is a stateless control plane / TrackCall says why it failed a call itself
+dashboard / Developers can enter a voice ID / A Deepgram voice ID
 dashboard / Member roles can be changed / Promote a member
+dashboard / One speed control for every model / Switching vendors keeps the speed
+dashboard / Temperature says when a model does not use it / A model that does not use temperature
+dashboard / Temperature says when a model does not use it / A model that uses temperature
+dashboard / Temperature says when a model does not use it / Switching back
 dashboard / The call detail shows how the agent did / Where the wait went
 dashboard / The dashboard is configured at run time with one setting / One image, two deployments
 dashboard / The session persists in the browser and ends cleanly / Inline script blocked
+dashboard / The transcriber picker is provider, model, language / Languages come from the model
+dashboard / The voice picker is vendor, model, voice / Changing the model
+dashboard / The voice picker is vendor, model, voice / Filtering by name
 deployment / Deployments are closed by default / A copied development key
 deployment / Deployments are closed by default / Compose bundle over HTTPS
 deployment / Deployments are closed by default / Helm install without NATS users

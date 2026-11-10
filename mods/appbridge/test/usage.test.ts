@@ -18,6 +18,8 @@
  */
 import { createSign, generateKeyPairSync } from "crypto";
 import * as fs from "fs";
+import * as http from "http";
+import { AddressInfo } from "net";
 import * as os from "os";
 import * as path from "path";
 import { expect } from "chai";
@@ -187,7 +189,8 @@ describe("@AppBridge usage metering", function () {
   async function start(
     apps: AppConfig[],
     keyedWorkspace?: string,
-    registryStore?: RegistryNs.RegistryStore
+    registryStore?: RegistryNs.RegistryStore,
+    vendors: Record<string, unknown> = {}
   ) {
     const urls = harness.providerUrls;
     appbridge = await new AppBridge({
@@ -216,7 +219,8 @@ describe("@AppBridge usage metering", function () {
             ...(keyedWorkspace ? { keyless: false } : {}),
             tts: { url: urls.tts },
             stt: { url: urls.stt }
-          }
+          },
+          ...vendors
         },
         testCalls: { publicKeyFile: path.join(dir, "identity.pem") },
         callRecord: {
@@ -343,6 +347,60 @@ describe("@AppBridge usage metering", function () {
     expect(
       lineOf((vcon.fonoster as { usage?: Line[] }).usage, "tts.characters")
     ).to.deep.include({ quantity: 3, provider: "fake", model: "fake/tts" });
+  });
+
+  it("[BIL-056] names deepgram/flux, not the voice, on a Flux voice's TTS characters", async () => {
+    // A local stand-in for Deepgram's HTTP API.
+    const vendor = http.createServer((req, res) => {
+      req.resume();
+      req.on("end", () => res.writeHead(200).end(Buffer.alloc(3200)));
+    });
+    await new Promise<void>((r) => vendor.listen(0, "127.0.0.1", r));
+    const store = new RegistryNs.MemoryRegistryStore();
+    new RegistryNs.Registry({ store, actor: "test" }).apply(`entries:
+  - { kind: provider, id: fake, adapter: fake, capabilities: [stt, tts], state: active }
+  - { kind: model, id: fake/tts, type: tts, features: [streaming], languages: [multi], settings: [], state: active }
+  - { kind: voice, id: fake/default, models: [fake/tts], language: multi, state: active }
+  - { kind: provider, id: deepgram, adapter: deepgram, capabilities: [tts], state: active }
+  - { kind: model, id: deepgram/flux, type: tts, features: [streaming], languages: [multi], settings: [], state: active }
+  - { kind: voice, id: deepgram/flux-fernanda-es, models: [deepgram/flux], language: es, state: active }
+`);
+    try {
+      await start(
+        [
+          app({
+            speech: { voice: "deepgram/flux-fernanda-es", language: "es-MX" }
+          })
+        ],
+        undefined,
+        store,
+        {
+          deepgram: {
+            adapter: "deepgram",
+            capabilities: ["tts"],
+            credential: { value: "platform-key" },
+            tts: {
+              url: `http://127.0.0.1:${(vendor.address() as AddressInfo).port}`
+            }
+          }
+        }
+      );
+      const text = "Hola. ".repeat(20); // 120 characters
+      const { callRef } = await talk(text, 0);
+      harness.roomrNode.callerHangup(callRef);
+      const { vcon } = await sealed(callRef);
+      expect(
+        lineOf((vcon.fonoster as { usage?: Line[] }).usage, "tts.characters")
+      ).to.deep.equal({
+        meter: "tts.characters",
+        quantity: 120,
+        provider: "deepgram",
+        model: "deepgram/flux",
+        keySource: "platform"
+      });
+    } finally {
+      vendor.close();
+    }
   });
 
   it("[BIL-005] says keySource workspace when the workspace has its own key for the vendor", async () => {

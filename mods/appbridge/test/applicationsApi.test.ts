@@ -269,6 +269,54 @@ describe("@appbridge apps from the Applications API (database)", function () {
     expect(await urlOf(wss.ref)).to.equal("ws://bot.example.com/other");
   });
 
+  it("[APB-046] refuses a speech speed outside 0.7 to 1.2, at create and at update, naming speech.speed", async function () {
+    const speech = (speed: number) => ({
+      voice: "fake/default",
+      language: "en-US",
+      speed
+    });
+    const apps = () => db.prisma.application.count();
+    const speedOf = async (ref: string) =>
+      (
+        await invoke<{ speech: { speed: number } }>(
+          createGetApplication(db.prisma),
+          { ref }
+        )
+      ).speech.speed;
+
+    const before = await apps();
+    const refused = await invoke(createCreateApplication(db.prisma, config()), {
+      name: "Too fast",
+      type: "STREAM",
+      url: harness.app.url,
+      speech: speech(1.3)
+    }).catch(failure);
+    expect(refused).to.include({ code: grpc.status.INVALID_ARGUMENT });
+    expect((refused as { message: string }).message).to.contain("speech.speed");
+    expect(await apps()).to.equal(before);
+
+    const ok = await invoke<{ ref: string }>(
+      createCreateApplication(db.prisma, config()),
+      {
+        name: "Brisk",
+        type: "STREAM",
+        url: harness.app.url,
+        speech: speech(1.1)
+      }
+    );
+    expect(await speedOf(ok.ref)).to.equal(1.1);
+    const slow = await invoke(createUpdateApplication(db.prisma, config()), {
+      ref: ok.ref,
+      name: "Brisk",
+      type: "STREAM",
+      url: harness.app.url,
+      speech: speech(0.6)
+    }).catch(failure);
+    expect(slow).to.include({ code: grpc.status.INVALID_ARGUMENT });
+    expect((slow as { message: string }).message).to.contain("speech.speed");
+    expect(await speedOf(ok.ref)).to.equal(1.1);
+  });
+
   describe("audio filters set through the Applications API", function () {
     // Stands in for the ai-coustics filter (the SDK and its model are not in the test
     // environment): same name and public options, and it counts the frames it filtered.

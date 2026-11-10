@@ -351,5 +351,9 @@
   "APB-043": "A typed voice ID and the speed reach the vendor",
   "BIL-053": "TTS characters are keyed by the TTS model",
   "BIL-054": "Later rate cards price Cloud's catalog at vendor cost",
-  "BIL-055": "A usage row with no owner does not hold back the rest"
+  "BIL-055": "A usage row with no owner does not hold back the rest",
+  "APB-044": "Every app's stream hears filtered audio; recordings and listeners stay raw",
+  "APB-045": "The app's speech speed reaches the vendor in its own form",
+  "APB-046": "A speech speed out of range is refused, naming speech.speed",
+  "BIL-056": "A Flux voice's TTS characters name the Flux model"
 }

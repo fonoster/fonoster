@@ -574,7 +574,7 @@ describe("@appbridge integration", function () {
     expect(frames).to.be.greaterThan(10);
   });
 
-  describe("[APB-016] filters the app's stream for both protocols", function () {
+  describe("filters the app's stream for both protocols", function () {
     const registerMute = () =>
       AudioFilterFactory.registerFilter("test-mute-stream", {
         description: "silences everything (test only)",
@@ -598,28 +598,47 @@ describe("@appbridge integration", function () {
           )
         ).length;
 
-    it("a fonoster app that sends no Speech command hears filtered audio; its listener hears raw audio", async function () {
+    it("[APB-044] a fonoster app that sends no Speech command hears filtered audio; its listener and recording get raw audio", async function () {
       registerMute();
+      // A sink that keeps recordings, so the call is recorded next to its record.
+      const recordings = fs.mkdtempSync(path.join(os.tmpdir(), "recordings-"));
+      record = Object.assign(new MemoryCallRecordSink(), {
+        recordingDir: (callRef: string) => path.join(recordings, callRef)
+      });
       await start([
         app("a", harness.app.url, {
           filters,
+          recording: "on",
           listeners: [{ url: other.url }]
         })
       ]);
-      await harness.roomrNode.offerCall();
+      const { callRef } = await harness.roomrNode.offerCall();
       const { peer } = await harness.app.nextConnection();
       const listener = (await other.nextConnection()).peer;
       await waitFor(() => json(peer).find((m) => m.type === "session.start"));
       await waitFor(() =>
         json(listener).find((m) => m.type === "session.start")
       );
+      await waitFor(() =>
+        [...record.records.values()][0]?.find(
+          (e) => e.message.type === "recording.started"
+        )
+      );
       harness.roomrNode.callerSpeaks({ kind: "tone", ms: 600 });
       await waitFor(() => audibleCallerFrames(listener) > 10 || undefined);
       await sleep(300);
       expect(audibleCallerFrames(peer)).to.equal(0);
+      harness.roomrNode.callerHangup(callRef);
+      await waitFor(() => record.closed.has(callRef) || undefined);
+      const pcm = fs.readFileSync(path.join(recordings, callRef, "caller.pcm"));
+      const loud = Array.from({ length: pcm.length >> 1 }).filter(
+        (_, i) => Math.abs(pcm.readInt16LE(i * 2)) > 1000
+      ).length;
+      fs.rmSync(recordings, { recursive: true, force: true });
+      expect(loud).to.be.greaterThan(1600); // ≥ 100 ms of the caller's tone
     });
 
-    it("a twilio app hears filtered audio in its media events", async function () {
+    it("[APB-044] a twilio app hears filtered audio in its media events", async function () {
       registerMute();
       await start([app("a", harness.app.url, { protocol: "twilio", filters })]);
       await harness.roomrNode.offerCall();
@@ -991,6 +1010,135 @@ describe("@appbridge integration", function () {
     expect(json(peer).find((m) => m.type === "error")).to.include({
       code: "invalid_catalog_id",
       relatesTo: "r3"
+    });
+  });
+
+  describe("the app's speech speed reaches the vendor", function () {
+    /** A local stand-in for a vendor's HTTP API; records each request's path and body. */
+    async function standIn() {
+      const seen: { url: string; body: string }[] = [];
+      const server = http.createServer((req, res) => {
+        const chunks: Buffer[] = [];
+        req.on("data", (c: Buffer) => chunks.push(c));
+        req.on("end", () => {
+          seen.push({ url: req.url!, body: Buffer.concat(chunks).toString() });
+          res.writeHead(200).end(Buffer.alloc(3200));
+        });
+      });
+      await new Promise<void>((r) => server.listen(0, "127.0.0.1", r));
+      vendors.push(server);
+      const url = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+      return { seen, url };
+    }
+
+    /** Starts AppBridge with one vendor in the catalog and an app on its voice at speed 1.1. */
+    async function speakTwice(vendor: {
+      provider: string;
+      model: string;
+      voice: string;
+      url: string;
+    }) {
+      const file = path.join(
+        fs.mkdtempSync(path.join(os.tmpdir(), "registry-")),
+        "registry.json"
+      );
+      const registry = new RegistryNs.Registry({
+        store: new RegistryNs.FileRegistryStore(file)
+      });
+      registry.addProvider({
+        id: "fake",
+        adapter: "fake",
+        capabilities: ["tts", "stt"],
+        credentialRef: "none"
+      });
+      registry.addModel({
+        id: "fake/tts",
+        type: "tts",
+        features: ["streaming"]
+      });
+      registry.addVoice({ id: "fake/default", models: ["fake/tts"] });
+      registry.addProvider({
+        id: vendor.provider,
+        adapter: vendor.provider,
+        capabilities: ["tts"],
+        credentialRef: vendor.provider
+      });
+      registry.addModel({
+        id: vendor.model,
+        type: "tts",
+        features: ["streaming"]
+      });
+      registry.addVoice({ id: vendor.voice, models: [vendor.model] });
+      const urls = harness.providerUrls;
+      await start(
+        [
+          app("a", harness.app.url, {
+            speech: { voice: vendor.voice, speed: 1.1, language: "es-MX" }
+          })
+        ],
+        {
+          registry: { file },
+          providers: {
+            fake: {
+              adapter: "fake",
+              capabilities: ["tts", "stt"],
+              tts: { url: urls.tts },
+              stt: { url: urls.stt }
+            },
+            [vendor.provider]: {
+              adapter: vendor.provider,
+              capabilities: ["tts"],
+              credential: { value: "platform-key" },
+              tts: { url: vendor.url }
+            }
+          }
+        }
+      );
+      await harness.roomrNode.offerCall();
+      const { peer } = await harness.app.nextConnection();
+      await waitFor(() => json(peer).find((m) => m.type === "session.start"));
+      for (const id of ["r1", "r2"]) {
+        peer.sendJson({ type: "speak", id, text: "Hola.", last: true });
+        await waitFor(
+          () => json(peer).find((m) => m.type === "output.done" && m.id === id),
+          5000
+        );
+      }
+    }
+
+    it("[APB-045] sends an ElevenLabs voice on Flash v2.5 the app's speed as voice_settings.speed", async function () {
+      const vendor = await standIn();
+      await speakTwice({
+        provider: "elevenlabs",
+        model: "elevenlabs/eleven_flash_v2_5",
+        voice: "elevenlabs/AbC123",
+        url: vendor.url
+      });
+      expect(vendor.seen).to.have.length(2);
+      for (const request of vendor.seen) {
+        expect(request.url).to.equal(
+          "/v1/text-to-speech/AbC123/stream?output_format=pcm_16000"
+        );
+        expect(JSON.parse(request.body)).to.deep.include({
+          model_id: "eleven_flash_v2_5",
+          voice_settings: { speed: 1.1 }
+        });
+      }
+    });
+
+    it("[APB-045] sends deepgram/flux-fernanda-es the app's speed as the speed query parameter", async function () {
+      const vendor = await standIn();
+      await speakTwice({
+        provider: "deepgram",
+        model: "deepgram/flux",
+        voice: "deepgram/flux-fernanda-es",
+        url: vendor.url
+      });
+      const query = "encoding=linear16&sample_rate=16000&container=none";
+      expect(vendor.seen.map((r) => r.url)).to.deep.equal([
+        `/v2/speak?model=flux-fernanda-es&${query}&speed=1.1`,
+        `/v2/speak?model=flux-fernanda-es&${query}&speed=1.1`
+      ]);
     });
   });
 
