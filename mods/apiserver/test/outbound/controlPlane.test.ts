@@ -26,6 +26,7 @@ import { createCall } from "../../src/calls/createCall";
 import { callPublisher } from "../../src/calls/createCallPublisher";
 import { createTrackCall } from "../../src/calls/createTrackCall";
 import { Prisma } from "../../src/core/db";
+import { NODE_HEARTBEAT_WILDCARD } from "../../src/envs";
 import { runOutboundCalls } from "../../src/outbound";
 import { TEST_TOKEN, TEST_UUID } from "../utils";
 
@@ -159,10 +160,29 @@ describe("@apiserver[control plane] stateless replicas", function () {
   let client: NatsConnection;
   let bucket: string;
   const cleanup: (() => unknown)[] = [];
+  /**
+   * The node events (`node.heartbeat`, `node.down`) the client has received, per node, and the
+   * one `settle()` waits for: a node's first heartbeat, or its `node.down` once it said it.
+   */
+  const seen = new Map<string, Set<string>>();
+  const awaited = new Map<string, string>();
 
   before(async function () {
     if (!URL) return this.skip();
     client = await connect({ servers: URL, name: "control-plane-client" });
+    client.subscribe(NODE_HEARTBEAT_WILDCARD, {
+      callback: (err, msg) => {
+        if (err) return;
+        try {
+          const event = decode(msg.data);
+          if (!seen.has(event.node_ref)) seen.set(event.node_ref, new Set());
+          seen.get(event.node_ref)!.add(event.type);
+        } catch {
+          // not a node event
+        }
+      }
+    });
+    await client.flush();
   });
 
   beforeEach(() => {
@@ -171,6 +191,8 @@ describe("@apiserver[control plane] stateless replicas", function () {
 
   afterEach(async () => {
     for (const fn of cleanup.splice(0).reverse()) await fn();
+    seen.clear();
+    awaited.clear();
     const jsm = await client.jetstreamManager().catch(() => undefined);
     await jsm?.streams.delete(`KV_${bucket}`).catch(() => undefined);
   });
@@ -197,16 +219,28 @@ describe("@apiserver[control plane] stateless replicas", function () {
     const n = new FakeRoomr({ nc: client, nodeRef, ...options });
     await n.start();
     cleanup.push(() => n.stop());
+    awaited.set(n.nodeRef, "node.heartbeat");
+    const down = n.down.bind(n);
+    n.down = async () => {
+      await down();
+      awaited.set(n.nodeRef, "node.down");
+    };
     return n;
   };
 
   /**
-   * Waits until every replica has seen what the client published so far (the nodes' heartbeats):
-   * the client's flush means the server has it, and a replica's flush returns after the server
-   * delivered everything queued for that replica before the PONG.
+   * Waits until every replica has seen the nodes' latest state. The nodes publish on the fake's
+   * own NATS connection, so no flush here covers them: wait until the client received each
+   * node's awaited event (the server has it, and has queued it for every subscriber), then flush
+   * each replica (its PONG comes after everything the server queued for it before the PING).
    */
   const settle = async () => {
-    await client.flush();
+    await until(
+      () =>
+        [...awaited].every(([ref, type]) => seen.get(ref)?.has(type) ?? false),
+      5000,
+      `node events ${JSON.stringify([...awaited])}`
+    );
     for (const r of live) if (!r.nc.isClosed()) await r.nc.flush();
   };
 
