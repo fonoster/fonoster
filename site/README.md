@@ -3,7 +3,7 @@
 The marketing site. Plain HTML + CSS + JS, deployed as-is to GitHub Pages by `.github/workflows/gh-pages.yml` (everything in `site/` except this README).
 
 - Designs: `designs/website.pen` (frames: Home, Autopilot, Streams, Private Regions, Pricing — each Desktop + Mobile — plus Nav / Products menu, 404 / Desktop, Share Image, Components)
-- Pages: `index.html` (home), `streams/` (Bidirectional Streams), `autopilot/`, `private-regions/`, `pricing/`, `404.html` (absolute paths, since GitHub Pages serves it at any missing URL)
+- Pages: `index.html` (home), `streams/` (Bidirectional Streams), `autopilot/`, `private-regions/`, `pricing/`, `terms/` and `privacy/` (legal text, English only; linked from every footer and from Stripe's public details), `404.html` (absolute paths, since GitHub Pages serves it at any missing URL)
 - Redirects: `v1/` → `/` (old preview links), `docs/` → docs.fonoster.com
 - SEO: `sitemap.xml`, `robots.txt`, canonical + Open Graph tags (`assets/img/og.png`, from the "Share Image" frame in Pencil)
 - Analytics: Google Analytics `G-49RD5H9MR3` in every page head (same property as the previous site)

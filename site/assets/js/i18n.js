@@ -194,6 +194,8 @@ window.FONOSTER_I18N = {
 
     "final.title": "Your first agent\non the phone today.",
     "footer.rights": "© 2026 Fonoster Inc.",
+    "footer.terms": "Terms",
+    "footer.privacy": "Privacy",
     "contact.title": "Contact sales",
     "contact.line": "Enterprise plans, Private Regions or support.",
     "contact.email": "Email address",
@@ -545,6 +547,8 @@ window.FONOSTER_I18N = {
 
     "final.title": "Tu primer agente,\nal teléfono hoy.",
     "footer.rights": "© 2026 Fonoster Inc.",
+    "footer.terms": "Términos",
+    "footer.privacy": "Privacidad",
     "contact.title": "Hablar con ventas",
     "contact.line": "Planes enterprise, Private Regions o soporte.",
     "contact.email": "Correo electrónico",
