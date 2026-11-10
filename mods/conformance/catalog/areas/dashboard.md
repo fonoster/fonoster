@@ -372,6 +372,18 @@ Runs against an in-memory SIP network that answers like the API (`e2e/sipnet.ts`
 
 **Pass.** An `http://` URL is refused with nothing sent; a webhook for Call ended and Call record sealed shows its signing secret once and is listed with both events; Rotate takes one confirmation that says the previous secret keeps verifying for 24 hours, and shows the new secret once. **Fail.** Plain HTTP accepted, a secret shown again, or Rotate asking for `DELETE`.
 
+### DSH-067 A webhook delivery shows the event JSON Fonoster sent
+
+- **Spec:** dashboard / A webhook delivery shows the event it sent / Open a delivery
+- **Priority:** P1
+- **Proof:** Drop `event` in `listDeliveries` (`session/sdk-api.ts`); the test must go red on the JSON shown.
+- **Fault:** faults/DSH-067.patch
+- **Test:** mods/dashboard/e2e/resources.community.spec.ts
+
+The fake returns the delivery's event as JSON text, as the API does (`WebhookDelivery.event`), and the SDK parses it. Copy body and the blocked-clipboard toast are unit tests (`session.test.tsx`), since the mocked project grants no clipboard.
+
+**Pass.** Tab to the failed delivery's event type and press Enter: the drawer is titled `call.ended`, reads Failed · 5 attempts · last 500, `hooks.acme.example/fonoster` and the signature note, its Body region shows the event as `JSON.stringify(event, null, 2)`, and it offers no Resend; Esc closes it and focus is back on the event type. **Fail.** No drawer from the keyboard, a missing or truncated body, a Resend in the drawer, or focus lost on close.
+
 ### DSH-026 Invite a member with a role and remove one
 
 - **Spec:** dashboard / Members are invited and removed in Settings / Invite a member

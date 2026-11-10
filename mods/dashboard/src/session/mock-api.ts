@@ -360,7 +360,18 @@ export function createMockSessionApi(): SessionApi {
       status: "failed",
       attempts: 3,
       lastStatus: 500,
-      createdAt: "2026-10-15T12:05:00.000Z"
+      createdAt: "2026-10-15T12:05:00.000Z",
+      event: {
+        id: "evt_1",
+        type: "call.ended",
+        createdAt: "2026-10-15T12:05:00.000Z",
+        workspaceRef: "ws-1",
+        data: {
+          callRef: "call-1",
+          durationSeconds: 15,
+          endReason: "caller_hangup"
+        }
+      }
     }
   ];
   const keys = new Map<string, VendorKey>([

@@ -20,7 +20,8 @@ import type {
   Application,
   CatalogItem,
   CreateApplicationRequest,
-  UpdateApplicationRequest
+  UpdateApplicationRequest,
+  WebhookDelivery as SdkWebhookDelivery
 } from "@fonoster/types";
 import { mergeUpdate } from "~/lib/app-request";
 import type { FonosterSdk } from "~/lib/client";
@@ -37,7 +38,8 @@ import type {
   SessionApp,
   SessionMessage,
   ToolCall,
-  Turn
+  Turn,
+  WebhookDelivery
 } from "./types";
 
 // The SessionApi over the SDK: Applications, Providers and Webhooks (gRPC-Web) and CallRecords
@@ -370,8 +372,7 @@ export function fromVcon(
   const recording = dialog.find((d) => d.type === "recording" && d.url);
   const amd = meta.amd as Raw | undefined;
   const failure = meta.failure as
-    | { reason?: unknown; sipStatus?: unknown }
-    | undefined;
+    { reason?: unknown; sipStatus?: unknown } | undefined;
   return {
     ...summary,
     endedAt: detail.endedAt ?? str(meta.endedAt),
@@ -460,6 +461,20 @@ function knowledgeSearchesOf(
 }
 
 const seconds = (d?: Date) => (d ? d.toISOString() : undefined);
+
+/** A delivery with its dates as ISO strings and the event it sent. */
+const toDelivery = (d: SdkWebhookDelivery): WebhookDelivery => ({
+  ref: d.ref,
+  webhookRef: d.webhookRef,
+  eventId: d.eventId,
+  eventType: d.eventType,
+  status: d.status,
+  attempts: d.attempts,
+  lastStatus: d.lastStatus,
+  nextAttemptAt: seconds(d.nextAttemptAt),
+  createdAt: seconds(d.createdAt),
+  event: d.event
+});
 
 export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
   const listAll = async () => {
@@ -590,11 +605,9 @@ export function createSdkSessionApi(sdk: FonosterSdk): SessionApi {
     listDeliveries: async (webhookRef) =>
       (
         await sdk.webhooks.listWebhookDeliveries({ webhookRef, pageSize: 100 })
-      ).items.map((d) => ({ ...d, createdAt: seconds(d.createdAt) })),
-    resendDelivery: async (ref) => {
-      const d = await sdk.webhooks.resendWebhookDelivery(ref);
-      return { ...d, createdAt: seconds(d.createdAt) };
-    },
+      ).items.map(toDelivery),
+    resendDelivery: async (ref) =>
+      toDelivery(await sdk.webhooks.resendWebhookDelivery(ref)),
     listVendorKeys: async () =>
       (await sdk.providers.listProviderKeys()).items.map((k) => ({
         providerId: k.providerId,
