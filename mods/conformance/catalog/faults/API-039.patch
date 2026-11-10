@@ -1,8 +1,8 @@
 diff --git a/mods/identity/src/workspaces/createResendWorkspaceMembershipInvitation.ts b/mods/identity/src/workspaces/createResendWorkspaceMembershipInvitation.ts
-index 2557fa875..ecf19efb3 100644
+index f048e1adb..a2c20cd5c 100644
 --- a/mods/identity/src/workspaces/createResendWorkspaceMembershipInvitation.ts
 +++ b/mods/identity/src/workspaces/createResendWorkspaceMembershipInvitation.ts
-@@ -127,13 +127,7 @@ function createResendWorkspaceMembershipInvitation(
+@@ -128,14 +128,7 @@ function createResendWorkspaceMembershipInvitation(
        });
      }
  
@@ -11,7 +11,8 @@ index 2557fa875..ecf19efb3 100644
 -      oneTimePassword,
 -      workspaceName: member.workspace.name,
 -      isExistingUser: !oneTimePassword,
--      inviteUrl: `${identityConfig.workspaceInviteUrl}?token=${inviteeToken}`
+-      inviteUrl: `${identityConfig.workspaceInviteUrl}?token=${inviteeToken}`,
+-      logoUrl: emailLogoUrl(identityConfig)
 -    });
 +    logger.verbose("invitation renewed", { inviteeToken: !!inviteeToken });
  
