@@ -2248,6 +2248,54 @@ section[id] {
 .nf .dots__wave {
   animation: wave-slow 12s var(--ease-in-out) 0.8s infinite;
 }
+
+/* ---------- Legal (terms, privacy) ---------- */
+.legal {
+  max-width: 760px;
+  padding-block: 96px;
+  color: var(--text-2);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.legal h1 {
+  color: var(--text-1);
+}
+.legal .legal__date {
+  margin: 12px 0 40px;
+  color: var(--text-4);
+  font: 400 13px var(--mono);
+}
+.legal h2 {
+  margin: 40px 0 12px;
+  color: var(--text-1);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.legal p,
+.legal ul {
+  margin: 0 0 16px;
+}
+.legal ul {
+  padding-left: 22px;
+}
+.legal li + li {
+  margin-top: 6px;
+}
+.legal b {
+  color: var(--text-1);
+  font-weight: 500;
+}
+.legal a {
+  color: var(--text-1);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .legal {
+    padding-block: 48px 64px;
+  }
+}
 @media (max-width: 640px) {
   .pricing__in,
   .nf__in {
