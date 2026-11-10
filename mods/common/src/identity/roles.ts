@@ -38,6 +38,7 @@ const workspaceResourceAccess = [
   "/fonoster.webhooks.v1beta2.Webhooks/RotateWebhookSecret",
   "/fonoster.webhooks.v1beta2.Webhooks/ListWebhookDeliveries",
   "/fonoster.webhooks.v1beta2.Webhooks/ResendWebhookDelivery",
+  "/fonoster.webhooks.v1beta2.Webhooks/GetWebhookDelivery",
   "/fonoster.providers.v1beta2.Providers/ListCatalog",
   "/fonoster.providers.v1beta2.Providers/ListProviderKeys",
   "/fonoster.providers.v1beta2.Providers/ListWarnings",

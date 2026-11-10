@@ -274,7 +274,8 @@ If you delete a webhook, its pending deliveries fail.
 
 The delivery log lists each delivery, newest first: the event type and id, its status (`pending`,
 `succeeded` or `failed`), how many attempts it took, the HTTP status of the last attempt (`0` means
-no answer), and when the last and next attempts happen.
+no answer), and when the last and next attempts happen. Each delivery also holds the event Fonoster
+sent, as JSON.
 
 <Tabs>
   <Tab title="Dashboard">
@@ -291,6 +292,12 @@ no answer), and when the last and next attempts happen.
       pageSize: 20
     });
     ```
+
+    Each item's `event` is the event Fonoster sent:
+
+    ```javascript
+    console.log(JSON.stringify(items[0].event, null, 2));
+    ```
   </Tab>
   <Tab title="CLI">
     Show the log for all webhooks, or pass a webhook's ref to see only its deliveries:
@@ -298,8 +305,18 @@ no answer), and when the last and next attempts happen.
     ```bash
     fonoster webhooks:deliveries whe_3f9a1c7e-5b2d-4e8f-a6c1-9d0b7e2f4a18 --page-size 20
     ```
+
+    Show one delivery and the event it sent:
+
+    ```bash
+    fonoster webhooks:getWebhookDelivery whd_7c2e9a41-0b3d-4f6e-8a15-c9d2e7b4f031
+    ```
   </Tab>
 </Tabs>
+
+The event shown is the one Fonoster stored, not the request bytes. Its keys can come back in a
+different order, so it won't match the signature. Use it to read what was sent. To test signature
+checks, resend the delivery.
 
 ## Resend a delivery
 

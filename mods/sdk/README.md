@@ -2776,6 +2776,7 @@ signed with the endpoint's secret.
     * [.rotateWebhookSecret()](#Webhooks+rotateWebhookSecret)
     * [.listWebhookDeliveries()](#Webhooks+listWebhookDeliveries)
     * [.resendWebhookDelivery()](#Webhooks+resendWebhookDelivery)
+    * [.getWebhookDelivery(ref)](#Webhooks+getWebhookDelivery) ⇒ <code>Promise.&lt;WebhookDelivery&gt;</code>
 
 <a name="new_Webhooks_new"></a>
 
@@ -2815,7 +2816,8 @@ A new secret; the previous one keeps verifying for 24 hours.
 <a name="Webhooks+listWebhookDeliveries"></a>
 
 ### webhooks.listWebhookDeliveries()
-The delivery log, newest first (optionally one endpoint's).
+The delivery log, newest first (optionally one endpoint's). Each delivery includes the event
+that was sent.
 
 **Kind**: instance method of [<code>Webhooks</code>](#Webhooks)  
 <a name="Webhooks+resendWebhookDelivery"></a>
@@ -2824,6 +2826,25 @@ The delivery log, newest first (optionally one endpoint's).
 Sends a delivery again now, with the same event id and a fresh signature.
 
 **Kind**: instance method of [<code>Webhooks</code>](#Webhooks)  
+<a name="Webhooks+getWebhookDelivery"></a>
+
+### webhooks.getWebhookDelivery(ref) ⇒ <code>Promise.&lt;WebhookDelivery&gt;</code>
+One delivery, with the event it sent. Key order in `event` can differ from the bytes the
+receiver got, so don't use it to check a signature.
+
+**Kind**: instance method of [<code>Webhooks</code>](#Webhooks)  
+**Returns**: <code>Promise.&lt;WebhookDelivery&gt;</code> - - The delivery  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ref | <code>string</code> | The delivery's reference |
+
+**Example**  
+```js
+const webhooks = new SDK.Webhooks(client);
+const delivery = await webhooks.getWebhookDelivery("whd_3f9c2a71e4b8d05c6a1e");
+console.log(JSON.stringify(delivery.event, null, 2));
+```
 
 <a name="Workspaces"></a>
 

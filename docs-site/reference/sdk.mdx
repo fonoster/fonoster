@@ -315,10 +315,12 @@ Endpoints that receive workspace events. `new SDK.Webhooks(client)`. See
 | `rotateWebhookSecret(ref)`                          | Issue a new secret; the old one keeps verifying until `previousSecretUntil` |                                    | `{ ref, secret, previousSecretUntil }`                                        |
 | `listWebhookDeliveries({ webhookRef?, pageSize? })` | The delivery log, newest first                                              |                                    | `{ items: WebhookDelivery[] }`                                                |
 | `resendWebhookDelivery(ref)`                        | Send a delivery again now, with the same event id and a new signature       |                                    | `WebhookDelivery`                                                             |
+| `getWebhookDelivery(ref)`                           | Get one delivery, with the event it sent                                    |                                    | `WebhookDelivery`                                                             |
 
 A `WebhookDelivery` has `ref`, `webhookRef`, `eventId`, `eventType`, `status` (`pending`,
 `succeeded`, `failed`), `attempts`, `lastStatus` (HTTP status of the last attempt, `0` for no
-response), `lastAttemptAt`, `nextAttemptAt` and `createdAt`.
+response), `lastAttemptAt`, `nextAttemptAt`, `createdAt` and `event` (the event Fonoster sent: `id`, `type`,
+`createdAt`, `workspaceRef`, `data`; see [Webhook events](/reference/webhook-events)).
 
 ## Providers
 

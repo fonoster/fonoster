@@ -27,7 +27,8 @@ import {
   RotateWebhookSecretResponse,
   UpdateWebhookRequest,
   Webhook,
-  WebhookDelivery
+  WebhookDelivery,
+  WebhookEvent
 } from "@fonoster/types";
 import { makeRpcRequest } from "./client/makeRpcRequest";
 import { FonosterClient } from "./client/types";
@@ -36,6 +37,7 @@ import {
   CreateWebhookResponse as CreateWebhookResponsePB,
   DeleteWebhookRequest as DeleteWebhookRequestPB,
   DeleteWebhookResponse as DeleteWebhookResponsePB,
+  GetWebhookDeliveryRequest as GetWebhookDeliveryRequestPB,
   GetWebhookRequest as GetWebhookRequestPB,
   ListWebhookDeliveriesRequest as ListWebhookDeliveriesRequestPB,
   ListWebhookDeliveriesResponse as ListWebhookDeliveriesResponsePB,
@@ -69,7 +71,8 @@ function toDelivery(raw: Raw): WebhookDelivery {
   return {
     ...(raw as unknown as WebhookDelivery),
     lastAttemptAt: date(raw.lastAttemptAt),
-    nextAttemptAt: date(raw.nextAttemptAt)
+    nextAttemptAt: date(raw.nextAttemptAt),
+    event: JSON.parse((raw.event as string) || "{}") as WebhookEvent
   };
 }
 
@@ -206,7 +209,10 @@ class Webhooks {
     };
   }
 
-  /** The delivery log, newest first (optionally one endpoint's). */
+  /**
+   * The delivery log, newest first (optionally one endpoint's). Each delivery includes the event
+   * that was sent.
+   */
   async listWebhookDeliveries(
     request: ListWebhookDeliveriesRequest = {}
   ): Promise<ListWebhookDeliveriesResponse> {
@@ -237,6 +243,33 @@ class Webhooks {
     >({
       method: client.resendWebhookDelivery.bind(client),
       requestPBObjectConstructor: ResendWebhookDeliveryRequestPB,
+      metadata: this.client.getMetadata(),
+      request: { ref }
+    });
+    return toDelivery(raw);
+  }
+
+  /**
+   * One delivery, with the event it sent. Key order in `event` can differ from the bytes the
+   * receiver got, so don't use it to check a signature.
+   *
+   * @param {string} ref - The delivery's reference
+   * @return {Promise<WebhookDelivery>} - The delivery
+   * @example
+   * const webhooks = new SDK.Webhooks(client);
+   * const delivery = await webhooks.getWebhookDelivery("whd_3f9c2a71e4b8d05c6a1e");
+   * console.log(JSON.stringify(delivery.event, null, 2));
+   */
+  async getWebhookDelivery(ref: string): Promise<WebhookDelivery> {
+    const client = this.client.getWebhooksClient();
+    const raw = await makeRpcRequest<
+      GetWebhookDeliveryRequestPB,
+      WebhookDeliveryPB,
+      BaseApiObject,
+      Raw
+    >({
+      method: client.getWebhookDelivery.bind(client),
+      requestPBObjectConstructor: GetWebhookDeliveryRequestPB,
       metadata: this.client.getMetadata(),
       request: { ref }
     });

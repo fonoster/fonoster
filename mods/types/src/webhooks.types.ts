@@ -51,6 +51,17 @@ type RotateWebhookSecretResponse = {
   previousSecretUntil: Date;
 };
 
+/** The event envelope a webhook delivery sends as its request body. */
+type WebhookEvent = {
+  id: string;
+  /** call.started | call.ended | call.failed | call_record.sealed | provider.deprecated */
+  type: string;
+  /** ISO 8601 */
+  createdAt: string;
+  workspaceRef: string;
+  data: Record<string, unknown>;
+};
+
 type WebhookDelivery = {
   ref: string;
   webhookRef: string;
@@ -63,6 +74,11 @@ type WebhookDelivery = {
   lastAttemptAt?: Date;
   nextAttemptAt?: Date;
   createdAt: Date;
+  /**
+   * The event Fonoster sent, as stored. Key order can differ from the bytes the receiver got, so
+   * don't use it to check a signature.
+   */
+  event: WebhookEvent;
 };
 
 type ListWebhookDeliveriesRequest = { webhookRef?: string; pageSize?: number };
@@ -79,5 +95,6 @@ export {
   RotateWebhookSecretResponse,
   UpdateWebhookRequest,
   Webhook,
-  WebhookDelivery
+  WebhookDelivery,
+  WebhookEvent
 };
