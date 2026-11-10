@@ -734,3 +734,54 @@ talks to a local stand-in for Deepgram's HTTP API, which records each request.
 `/v2/speak` with their voice as `model` and `speed=1.1`; a per-item voice `fake/xyz`, not in the
 catalog and of another provider, is answered with invalid_catalog_id for its id. **Fail.** A typed
 voice is refused, goes to `/v1/speak`, loses the speed, or a voice of another provider is spoken.
+
+### APB-044 Every app's stream hears filtered audio; recordings and listeners stay raw
+
+- **Spec:** voice-session / Audio filters come from app configuration / A Fonoster app that only streams audio
+- **Spec:** voice-session / Audio filters come from app configuration / A Twilio app
+- **Spec:** voice-session / Audio filters come from app configuration / Recordings and listeners stay unfiltered
+- **Priority:** P1
+- **Proof:** Send the app's stream the caller's audio before the filters (`callerAudio` in `Call.ts`); the tests must go red on the app hearing the tone.
+- **Fault:** faults/APB-044.patch
+- **Test:** mods/appbridge/test/integration.test.ts
+
+An app with a test filter that silences every frame. A `fonoster` app that never sends a Speech
+command, recorded (`recording: "on"`) and with a listen-only socket; and a `twilio` app. The fake
+Roomr node plays a 600 ms tone as the caller.
+
+**Pass.** The `fonoster` app gets no audible caller frame and the `twilio` app's `media` events
+carry only μ-law silence, while the listen-only socket gets the tone and the recording's caller
+side holds at least 100 ms of it. **Fail.** An app hears the caller's unfiltered audio, or the
+listener or the recording gets the filtered audio.
+
+### APB-045 The app's speech speed reaches the vendor in its own form
+
+- **Spec:** voice-session / Speech speed reaches the vendor / ElevenLabs
+- **Spec:** voice-session / Speech speed reaches the vendor / Deepgram
+- **Priority:** P1
+- **Proof:** Leave the app's speed off the speak items (`dispatch` in `Call.ts`); the tests must go red on the vendor's requests.
+- **Fault:** faults/APB-045.patch
+- **Test:** mods/appbridge/test/integration.test.ts
+
+An app at speed 1.1 speaks twice through AppBridge's vendor adapter, which talks to a local
+stand-in for the vendor's HTTP API that records each request: once with the ElevenLabs voice
+`elevenlabs/AbC123` on `elevenlabs/eleven_flash_v2_5`, once with `deepgram/flux-fernanda-es` on
+`deepgram/flux`.
+
+**Pass.** Each ElevenLabs request carries `model_id` `eleven_flash_v2_5` and `voice_settings.speed`
+1.1; each Deepgram request goes to `/v2/speak` with `speed=1.1`. **Fail.** A request without the
+speed, or with it in another vendor's form.
+
+### APB-046 A speech speed out of range is refused, naming speech.speed
+
+- **Spec:** voice-session / Speech speed reaches the vendor / Out of range
+- **Priority:** P1
+- **Proof:** Raise the speed's upper bound to 1.5 (`appModel.ts` in the apiserver); the test must go red on the create at 1.3.
+- **Fault:** faults/APB-046.patch
+- **Test:** mods/appbridge/test/applicationsApi.test.ts
+
+The Applications API's create and update handlers on a throwaway Postgres, as in APB-041.
+
+**Pass.** A create at speed 1.3 and an update to 0.6 fail with `INVALID_ARGUMENT` naming
+`speech.speed`, and neither is stored; a create at 1.1 is stored at 1.1. **Fail.** A speed outside
+0.7 to 1.2 is stored, or the error does not name the field.

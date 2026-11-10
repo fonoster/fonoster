@@ -1,0 +1,20 @@
+diff --git a/mods/appbridge/src/session/Call.ts b/mods/appbridge/src/session/Call.ts
+index bf194c10e..f63da3087 100644
+--- a/mods/appbridge/src/session/Call.ts
++++ b/mods/appbridge/src/session/Call.ts
+@@ -1330,6 +1330,7 @@ export class AppSession {
+     if (this.closed || this.call.onHold) return;
+     // Listen-only sockets get the raw audio, like recordings and AMD (which tap the node).
+     for (const l of this.listeners) l.callerAudio(frame);
++    this.codec.callerAudio(frame);
+     const chain = this.filters;
+     if (!chain) return this.filtered(frame, Date.now());
+     // Filters are asynchronous; a promise chain keeps frames in order.
+@@ -1346,7 +1347,6 @@ export class AppSession {
+   /** Caller audio after the app's filters: the app's stream, then STT and turn detection. */
+   private filtered(frame: Buffer, at: number) {
+     if (this.closed) return;
+-    this.codec.callerAudio(frame);
+     if (!this.speechStarted) {
+       this.recentCaller.push(frame);
+       if (this.recentCaller.length > RECENT_CALLER_FRAMES)

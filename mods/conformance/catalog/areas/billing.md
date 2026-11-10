@@ -862,3 +862,19 @@ query's filters.
 **Pass.** The owned rows reach `FONOSTER_USAGE_RECORDED` in order and are marked published; the
 ownerless row stays in `usage_events` with `published_at` empty. **Fail.** The publisher throws,
 an owned row is missing or out of order, or the ownerless row is published or marked.
+
+### BIL-056 A Flux voice's TTS characters name the Flux model
+
+- **Spec:** usage-metering / TTS usage names the TTS model / A Flux voice
+- **Priority:** P0
+- **Proof:** Key TTS usage by the voice id again (`ttsUsage` in `dispatch`, `Call.ts`); the line says `deepgram/flux-fernanda-es` and the test goes red.
+- **Fault:** faults/BIL-056.patch
+- **Test:** mods/appbridge/test/usage.test.ts
+
+A call through the real AppBridge on the fakes, sealed with the real record writer, with an
+in-memory catalog holding `deepgram/flux` and the voice `deepgram/flux-fernanda-es`. The Deepgram
+adapter talks to a local stand-in for Deepgram's HTTP API, on the platform key.
+
+**Pass.** The app speaks 120 characters and the call's usage has one `tts.characters` line: provider
+`deepgram`, model `deepgram/flux`, quantity 120, keySource `platform`. **Fail.** The line names the
+voice, another provider or another quantity.

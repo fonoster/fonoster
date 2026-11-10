@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/applications/session/appModel.ts b/mods/apiserver/src/applications/session/appModel.ts
+index 845d8eeb0..3f5eed21c 100644
+--- a/mods/apiserver/src/applications/session/appModel.ts
++++ b/mods/apiserver/src/applications/session/appModel.ts
+@@ -102,7 +102,7 @@ const speechSchema = z
+     ttsModel: optional(catalogId("speech.ttsModel")),
+     silenceTimeoutMs: optional(z.number().int().min(100).max(120_000)),
+     patience: optional(z.enum(["low", "normal", "high"])),
+-    speed: optional(z.number().min(0.7, SPEED_RANGE).max(1.2, SPEED_RANGE))
++    speed: optional(z.number().min(0.7, SPEED_RANGE).max(1.5, SPEED_RANGE))
+   })
+   .prefault({});
+ 
