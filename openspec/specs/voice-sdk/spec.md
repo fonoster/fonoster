@@ -191,6 +191,16 @@ protocol message.
   any `turn.ended`
 - **THEN** `gather` collects digits and ignores speech until it resolves
 
+#### Scenario: A turn already in progress
+
+- **WHEN** the caller is mid-turn (a `turn.user_started` with no `turn.ended` yet) as
+  `gather({ source: "speech_and_dtmf" })` starts, or a `turn.user_started` arrives while it is pending
+- **THEN** `gather` waits for that turn instead of its normal timer and resolves with the turn's
+  `turn.ended` text (an abandoned turn gives `{ speech: "" }`)
+- **AND** if no `turn.ended` arrives within `timeout` + 10 s (restarted by each `turn.user_started`,
+  `turn.likely_ended` and `turn.resumed`), `gather` resolves with neither `speech` nor `digits`, and
+  that turn's late `turn.ended` arriving with no gather pending is dropped
+
 ### Requirement: Events are exposed as subscriptions
 
 The session SHALL expose `on(event, callback)` for `turn.user_started`, `turn.likely_ended`,

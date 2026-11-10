@@ -15,6 +15,9 @@ from typing import Any, AsyncIterable, Awaitable, Callable, Protocol
 from .errors import SessionEndedError, SessionError
 
 DEFAULT_GATHER_TIMEOUT = 4.0
+#: How long past its timeout a gather waits for a turn in progress to end. Mirrors AppBridge's
+#: 10 s abandon window, so a turn AppBridge never ends can't hold a gather forever.
+GATHER_TURN_BACKSTOP = 10.0
 #: Commands that make AppBridge start listening (speech recognition and turn events).
 SPEECH_COMMANDS = {"speak", "play", "subscribe", "listen.update"}
 MAX_BUFFERED_INPUTS = 32
@@ -64,6 +67,8 @@ class _Gather:
         self.future = future
         self.digits = ""
         self.timer: asyncio.TimerHandle | None = None
+        # The timer is the backstop for a turn in progress, not the normal timeout.
+        self.backstop = False
 
 
 class _Audio:
@@ -118,6 +123,10 @@ class Session:
         self._listeners: dict[str, list[Callback]] = {}
         self._gather: _Gather | None = None
         self._buffered: list[dict[str, Any]] = []
+        # The caller is mid-turn: a turn.user_started with no turn.ended yet.
+        self._mid_turn = False
+        # A gather gave up on the current turn; its late turn.ended is dropped, not buffered.
+        self._turn_expired = False
         self._last_warm_transfer: str | None = None
         # A pending complete_transfer(), failed when AppBridge refuses it.
         self._completing: asyncio.Future | None = None
@@ -197,7 +206,11 @@ class Session:
         future = asyncio.get_running_loop().create_future()
         g = _Gather(source != "dtmf", source != "speech", max_digits, finish_on_key, timeout, future)
         self._gather = g
-        self._arm(g)
+        # A caller already talking gets to finish: wait for the turn, not the normal timer.
+        if g.speech and self._mid_turn:
+            self._arm_backstop(g)
+        else:
+            self._arm(g)
         backlog, self._buffered = self._buffered, []
         for item in backlog:
             if self._gather is not g:
@@ -329,9 +342,10 @@ class Session:
             self._barge_in()
             self._emit(t, {})
             self._input({"type": "turn.user_started"})
+        elif t in ("turn.likely_ended", "turn.resumed"):
+            self._emit(t, {k: v for k, v in msg.items() if k != "type"})
+            self._input({"type": t})
         elif t in (
-            "turn.likely_ended",
-            "turn.resumed",
             "turn.backchannel",
             "transcript.partial",
             "turn.estimate",
@@ -365,9 +379,19 @@ class Session:
     # ---- gather -----------------------------------------------------------------------
 
     def _input(self, item: dict[str, Any]) -> None:
+        if item["type"] == "turn.user_started":
+            self._mid_turn = True
+            self._turn_expired = False
+        elif item["type"] == "turn.ended":
+            expired = self._turn_expired
+            self._mid_turn = False
+            self._turn_expired = False
+            # The late end of a turn a gather already gave up on doesn't answer the next gather.
+            if expired and not self._gather:
+                return
         if self._gather:
             self._feed(item)
-        elif item["type"] != "turn.user_started":
+        elif item["type"] in ("turn.ended", "dtmf"):
             self._buffered.append(item)
             if len(self._buffered) > MAX_BUFFERED_INPUTS:
                 self._buffered.pop(0)
@@ -375,10 +399,11 @@ class Session:
     def _feed(self, item: dict[str, Any]) -> None:
         g = self._gather
         assert g is not None
-        if item["type"] == "turn.user_started":
+        if item["type"] in ("turn.user_started", "turn.likely_ended", "turn.resumed"):
             # The caller is talking: wait for the end of the turn instead of timing out mid-sentence.
-            if g.speech and not g.digits and g.timer:
-                g.timer.cancel()
+            # Each turn event restarts the backstop.
+            if g.speech and not g.digits and (item["type"] == "turn.user_started" or g.backstop):
+                self._arm_backstop(g)
             return
         if item["type"] == "turn.ended":
             # First input wins: once digits started, speech is ignored.
@@ -397,9 +422,22 @@ class Session:
     def _arm(self, g: _Gather) -> None:
         if g.timer:
             g.timer.cancel()
+        g.backstop = False
         g.timer = asyncio.get_running_loop().call_later(
             g.timeout, lambda: self._end_gather(GatherResult(digits=g.digits) if g.digits else GatherResult())
         )
+
+    def _arm_backstop(self, g: _Gather) -> None:
+        if g.timer:
+            g.timer.cancel()
+        g.backstop = True
+        g.timer = asyncio.get_running_loop().call_later(g.timeout + GATHER_TURN_BACKSTOP, self._give_up_turn)
+
+    def _give_up_turn(self) -> None:
+        # The turn never ended: give up on it, so its late turn.ended can't answer a later gather.
+        self._mid_turn = False
+        self._turn_expired = True
+        self._end_gather(GatherResult())
 
     def _end_gather(self, result: GatherResult) -> None:
         g = self._gather
