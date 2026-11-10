@@ -19,22 +19,25 @@
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ArrowRight, Info, TriangleAlert, X } from "lucide-react";
 import { useState } from "react";
-import { type Announcement, loadAnnouncement } from "~/lib/announcement";
+import { parseAnnouncement } from "~/lib/announcement";
+import { DASHBOARD_FILE_KEY, loadDashboardFile } from "~/lib/dashboard-file";
 import { STORAGE_KEYS, storage } from "~/lib/storage";
 
 const ICONS = { info: Info, warning: TriangleAlert, critical: AlertCircle };
 
 /** The bar above every page: fonoster.com's notice bar, from config/dashboard.yaml. */
 export function AnnouncementBar({
-  load = loadAnnouncement
+  load = loadDashboardFile
 }: {
-  load?: () => Promise<Announcement | null>;
+  /** The parsed config/dashboard.yaml. */
+  load?: () => Promise<unknown>;
 }) {
   const { data } = useQuery({
-    queryKey: ["announcement"],
+    queryKey: DASHBOARD_FILE_KEY,
     queryFn: load,
     staleTime: Infinity,
-    retry: false
+    retry: false,
+    select: parseAnnouncement
   });
   const [closed, setClosed] = useState(() =>
     storage.get(STORAGE_KEYS.announcement)

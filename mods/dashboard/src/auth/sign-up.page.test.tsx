@@ -22,6 +22,18 @@ import { communityCapabilities } from "~/lib/fixtures";
 import { fakeAuth, grpcError, renderScreen } from "~/test/render";
 import SignUpPage from "./sign-up.page";
 
+vi.mock("~/lib/dashboard-file", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("~/lib/dashboard-file")>()),
+  loadDashboardFile: async () => ({
+    legal: {
+      terms: "https://example.com/terms",
+      privacy: "https://example.com/privacy"
+    }
+  })
+}));
+
+const AGREEMENT = "By continuing, you agree to the Terms and Privacy Policy.";
+
 const open = {
   ...communityCapabilities,
   auth: { methods: ["password" as const], signup: "open" as const }
@@ -71,5 +83,16 @@ describe("SignUpPage", () => {
     await user.type(screen.getByLabelText("Password"), "a-good-password");
     await user.click(screen.getByRole("button", { name: "Create account" }));
     expect(await screen.findByText(/already exists/)).toBeInTheDocument();
+  });
+
+  it("links the Terms and Privacy Policy under Create account", async () => {
+    renderScreen(<SignUpPage />, { path: "/sign-up", capabilities: open });
+    const line = await screen.findByText(/By continuing/);
+    expect(line).toHaveTextContent(AGREEMENT);
+    expect(
+      screen
+        .getByRole("button", { name: "Create account" })
+        .compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 });

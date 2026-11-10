@@ -50,18 +50,3 @@ export function parseAnnouncement(source: unknown): Announcement | null {
   // Only web links, so the file can't put a javascript: URL in the bar.
   return /^https?:\/\//.test(a.link) ? a : { ...a, cta: "", link: "" };
 }
-
-/** Downloads /dashboard.yaml; the YAML parser loads only when the file is there. */
-export async function loadAnnouncement(): Promise<Announcement | null> {
-  const res = await fetch("/dashboard.yaml", { cache: "no-store" });
-  const type = res.headers.get("content-type") ?? "";
-  // The dev server answers unknown paths with index.html.
-  if (!res.ok || type.includes("html")) return null;
-  const { parse } = await import("yaml");
-  try {
-    return parseAnnouncement(parse(await res.text()));
-  } catch (err) {
-    console.warn("dashboard.yaml doesn't parse:", err);
-    return null;
-  }
-}
