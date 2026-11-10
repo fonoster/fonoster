@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/ops",
-  "version": "0.55.0",
+  "version": "0.56.0",
   "description": "Fonoster's own ops: the interop scan and a bearer-guarded HTTP API (off by default, not for self-hosters)",
   "author": "Pedro Sanders <psanders@fonoster.com>",
   "homepage": "https://github.com/fonoster/fonoster#readme",
@@ -17,8 +17,8 @@
     "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
-    "@fonoster/common": "^0.55.0",
-    "@fonoster/logger": "^0.55.0",
+    "@fonoster/common": "^0.56.0",
+    "@fonoster/logger": "^0.56.0",
     "express": "^5.0.1",
     "pg": "^8.23.1"
   },

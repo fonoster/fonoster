@@ -1,6 +1,6 @@
 {
   "name": "@fonoster/identity-client",
-  "version": "0.55.0",
+  "version": "0.56.0",
   "description": "Lightweight client for the Fonoster Identity gRPC service",
   "license": "MIT",
   "repository": {
