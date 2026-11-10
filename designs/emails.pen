@@ -1,0 +1,2142 @@
+{
+  "version": "2.21",
+  "imports": {
+    "ui": "fonoster.lib.pen"
+  },
+  "children": [
+    {
+      "type": "frame",
+      "id": "U35mG",
+      "name": "Email / Invite new user",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "n92Hg",
+          "name": "Annotations",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "WnM5U",
+              "name": "Annotation / Template",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fUelM",
+                  "name": "Label",
+                  "content": "TEMPLATE",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "UUZMl",
+                  "name": "Value",
+                  "content": "mods/identity/src/templates/inviteNewUser.hbs",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "LNGVg",
+              "name": "Annotation / Subject",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Fesny",
+                  "name": "Label",
+                  "content": "SUBJECT",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "Ho4tx",
+                  "name": "Value",
+                  "content": "You're invited to Acme on Fonoster",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "yr5Y1",
+              "name": "Annotation / Preheader",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "kvhee",
+                  "name": "Label",
+                  "content": "PREHEADER",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "eatDf",
+                  "name": "Value",
+                  "content": "Accept the invitation, then sign in with the temporary password inside.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "wqdz1",
+              "name": "Annotation / Template parameters (sample = parameter)",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ystP9",
+                  "name": "Label",
+                  "content": "TEMPLATE PARAMETERS (SAMPLE = PARAMETER)",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "181f5",
+                  "name": "Value",
+                  "content": "Acme = {{workspaceName}}\n83sgd9e6ar = {{oneTimePassword}}\nAccept invitation (link) = {{inviteUrl}}",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "3JC04",
+              "name": "Annotation / Colors (ui:mode light, token = hex)",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "nRXSV",
+                  "name": "Label",
+                  "content": "COLORS (UI:MODE LIGHT, TOKEN = HEX)",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "BIqAe",
+                  "name": "Value",
+                  "content": "--background = #F4F4F4  (page background)\n--card = #FFFFFF  (card)\n--foreground = #252525  (text)\n--muted-foreground = #555555  (muted text)\n--primary = #39E19E  (button / --primary)\n--primary-foreground = #011900  (button label / --primary-foreground)\n--border = #E8E8E8  (border)\n--muted = #F4F4F4  (code box)\nheader band: --card, fixed light = #FFFFFF in light and dark",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "Vz2pK",
+              "name": "Annotation / Logo",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "gDbbk",
+                  "name": "Label",
+                  "content": "LOGO",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "JHk5C",
+                  "name": "Value",
+                  "content": "logo-email.png, display 124 x 32 px, file 248 x 64 px (2x), light Logo variant on a baked #FFFFFF background; src <appUrl>/logo-email.png",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            }
+          ],
+          "gap": 12,
+          "width": "fill_container"
+        },
+        {
+          "type": "frame",
+          "id": "R1oA9",
+          "name": "Email",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "OTpHU",
+              "name": "Header band",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "ref",
+                  "id": "6dqSR",
+                  "ref": "ui:S4FXr",
+                  "name": "Logo (logo-email.png)",
+                  "width": 124,
+                  "height": 32
+                }
+              ],
+              "theme": {
+                "ui:mode": "light"
+              },
+              "fill": "$ui:--card",
+              "width": "fill_container",
+              "padding": [
+                24,
+                32
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "strokeAlignment": "inner"
+            },
+            {
+              "type": "frame",
+              "id": "96w0q",
+              "name": "Body",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "PHnXA",
+                  "name": "Heading",
+                  "content": "Join Acme on Fonoster",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 24,
+                  "fontWeight": "600",
+                  "lineHeight": 1.3,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "q85QR",
+                  "name": "Body",
+                  "content": "You've been invited to the Acme workspace on Fonoster.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "exDSz",
+                  "name": "Body",
+                  "content": "Your temporary password:",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "DmVJ7",
+                  "name": "Code box",
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "rIVo8",
+                      "name": "Code",
+                      "content": "83sgd9e6ar",
+                      "fill": "$ui:--foreground",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 18,
+                      "fontWeight": "500",
+                      "letterSpacing": 1
+                    }
+                  ],
+                  "fill": "$ui:--muted",
+                  "stroke": "$ui:--border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "cornerRadius": "$ui:--radius-control",
+                  "padding": [
+                    10,
+                    16
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "2qpoi",
+                  "name": "Body",
+                  "content": "Accept the invitation, then sign in with this email address and the temporary password. You'll be asked to choose a new password.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "yN0TL",
+                  "name": "Button (primary)",
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "8HABy",
+                      "name": "Label",
+                      "content": "Accept invitation",
+                      "fill": "$ui:--primary-foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "lineHeight": 1.6
+                    }
+                  ],
+                  "fill": "$ui:--primary",
+                  "cornerRadius": "$ui:--radius-control",
+                  "padding": [
+                    12,
+                    24
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "fEZ5L",
+                  "name": "Note",
+                  "content": "If the link has expired, ask the person who invited you to send it again.",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 16,
+              "padding": 32,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "xbpKz",
+              "name": "Footer",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "NnO3k",
+                  "name": "Footer text",
+                  "content": "You got this email because someone invited you to a workspace on Fonoster. If you weren't expecting it, you can ignore it.",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "width": "fill_container",
+              "padding": [
+                20,
+                32
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "strokeAlignment": "inner"
+            }
+          ],
+          "fill": "$ui:--card",
+          "stroke": "$ui:--border",
+          "strokeWidth": 1,
+          "cornerRadius": "$ui:--radius-control",
+          "clip": true,
+          "width": "fill_container"
+        }
+      ],
+      "theme": {
+        "ui:mode": "light"
+      },
+      "fill": "$ui:--background",
+      "x": 0,
+      "y": 0,
+      "width": 600,
+      "gap": 24,
+      "padding": 24
+    },
+    {
+      "type": "frame",
+      "id": "9Y4IF",
+      "name": "Email / Invite existing user",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "VR7RD",
+          "name": "Annotations",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "nTBa0",
+              "name": "Annotation / Template",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "nQTzK",
+                  "name": "Label",
+                  "content": "TEMPLATE",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "vdqFF",
+                  "name": "Value",
+                  "content": "mods/identity/src/templates/inviteExistingUser.hbs",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "R78CN",
+              "name": "Annotation / Subject",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "oXjIx",
+                  "name": "Label",
+                  "content": "SUBJECT",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "UZSOZ",
+                  "name": "Value",
+                  "content": "You're invited to Acme on Fonoster",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "o2UDb",
+              "name": "Annotation / Preheader",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "c65al",
+                  "name": "Label",
+                  "content": "PREHEADER",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "TKQ6j",
+                  "name": "Value",
+                  "content": "Accept the invitation to start working in Acme.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "7tuTa",
+              "name": "Annotation / Template parameters (sample = parameter)",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "LPz9t",
+                  "name": "Label",
+                  "content": "TEMPLATE PARAMETERS (SAMPLE = PARAMETER)",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "AL104",
+                  "name": "Value",
+                  "content": "Acme = {{workspaceName}}\nAccept invitation (link) = {{inviteUrl}}",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "zfjee",
+              "name": "Annotation / Colors (ui:mode light, token = hex)",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "mJ5Z8",
+                  "name": "Label",
+                  "content": "COLORS (UI:MODE LIGHT, TOKEN = HEX)",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "8RdN9",
+                  "name": "Value",
+                  "content": "--background = #F4F4F4  (page background)\n--card = #FFFFFF  (card)\n--foreground = #252525  (text)\n--muted-foreground = #555555  (muted text)\n--primary = #39E19E  (button / --primary)\n--primary-foreground = #011900  (button label / --primary-foreground)\n--border = #E8E8E8  (border)\n--muted = #F4F4F4  (code box)\nheader band: --card, fixed light = #FFFFFF in light and dark",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "rN4NQ",
+              "name": "Annotation / Logo",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "qOpFC",
+                  "name": "Label",
+                  "content": "LOGO",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "9iOpQ",
+                  "name": "Value",
+                  "content": "logo-email.png, display 124 x 32 px, file 248 x 64 px (2x), light Logo variant on a baked #FFFFFF background; src <appUrl>/logo-email.png",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            }
+          ],
+          "gap": 12,
+          "width": "fill_container"
+        },
+        {
+          "type": "frame",
+          "id": "Sh0G0",
+          "name": "Email",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "fIhG2",
+              "name": "Header band",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "ref",
+                  "id": "LfDJW",
+                  "ref": "ui:S4FXr",
+                  "name": "Logo (logo-email.png)",
+                  "width": 124,
+                  "height": 32
+                }
+              ],
+              "theme": {
+                "ui:mode": "light"
+              },
+              "fill": "$ui:--card",
+              "width": "fill_container",
+              "padding": [
+                24,
+                32
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "strokeAlignment": "inner"
+            },
+            {
+              "type": "frame",
+              "id": "5mBqM",
+              "name": "Body",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "aeh5s",
+                  "name": "Heading",
+                  "content": "Join Acme on Fonoster",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 24,
+                  "fontWeight": "600",
+                  "lineHeight": 1.3,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "plTzg",
+                  "name": "Body",
+                  "content": "You've been invited to the Acme workspace on Fonoster.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "MCCoA",
+                  "name": "Body",
+                  "content": "Accept the invitation, then sign in to start working in it.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "Vme5D",
+                  "name": "Button (primary)",
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sWwhL",
+                      "name": "Label",
+                      "content": "Accept invitation",
+                      "fill": "$ui:--primary-foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "lineHeight": 1.6
+                    }
+                  ],
+                  "fill": "$ui:--primary",
+                  "cornerRadius": "$ui:--radius-control",
+                  "padding": [
+                    12,
+                    24
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "mMUKQ",
+                  "name": "Note",
+                  "content": "If the link has expired, ask the person who invited you to send it again.",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 16,
+              "padding": 32,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "CZDRG",
+              "name": "Footer",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "jpRR5",
+                  "name": "Footer text",
+                  "content": "You got this email because someone invited you to a workspace on Fonoster. If you weren't expecting it, you can ignore it.",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "width": "fill_container",
+              "padding": [
+                20,
+                32
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "strokeAlignment": "inner"
+            }
+          ],
+          "fill": "$ui:--card",
+          "stroke": "$ui:--border",
+          "strokeWidth": 1,
+          "cornerRadius": "$ui:--radius-control",
+          "clip": true,
+          "width": "fill_container"
+        }
+      ],
+      "theme": {
+        "ui:mode": "light"
+      },
+      "fill": "$ui:--background",
+      "x": 680,
+      "y": 0,
+      "width": 600,
+      "gap": 24,
+      "padding": 24
+    },
+    {
+      "type": "frame",
+      "id": "KWLGP",
+      "name": "Email / Reset password",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "73Kqt",
+          "name": "Annotations",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "E5Xcl",
+              "name": "Annotation / Template",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "xV0CC",
+                  "name": "Label",
+                  "content": "TEMPLATE",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "kD9RV",
+                  "name": "Value",
+                  "content": "mods/identity/src/templates/resetPassword.hbs",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "DynRf",
+              "name": "Annotation / Subject",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "FpWCI",
+                  "name": "Label",
+                  "content": "SUBJECT",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "cDmAT",
+                  "name": "Value",
+                  "content": "Reset your Fonoster password",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "yznl4",
+              "name": "Annotation / Preheader",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "8yEtq",
+                  "name": "Label",
+                  "content": "PREHEADER",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "HaQ2a",
+                  "name": "Value",
+                  "content": "Use this link within 5 minutes to choose a new password.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "AbCfP",
+              "name": "Annotation / Template parameters (sample = parameter)",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "m2BbN",
+                  "name": "Label",
+                  "content": "TEMPLATE PARAMETERS (SAMPLE = PARAMETER)",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "I8BEW",
+                  "name": "Value",
+                  "content": "Reset password (link) = {{resetPasswordUrl}}\n\"5 minutes\" is fixed copy: identity's VERIFICATION_CODE_EXPIRATION (5 * 60 * 1000 ms), not a template parameter.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "kEh13",
+              "name": "Annotation / Colors (ui:mode light, token = hex)",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "sljec",
+                  "name": "Label",
+                  "content": "COLORS (UI:MODE LIGHT, TOKEN = HEX)",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "bSgHg",
+                  "name": "Value",
+                  "content": "--background = #F4F4F4  (page background)\n--card = #FFFFFF  (card)\n--foreground = #252525  (text)\n--muted-foreground = #555555  (muted text)\n--primary = #39E19E  (button / --primary)\n--primary-foreground = #011900  (button label / --primary-foreground)\n--border = #E8E8E8  (border)\n--muted = #F4F4F4  (code box)\nheader band: --card, fixed light = #FFFFFF in light and dark",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "53fWK",
+              "name": "Annotation / Logo",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "wBcGg",
+                  "name": "Label",
+                  "content": "LOGO",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "t1vTF",
+                  "name": "Value",
+                  "content": "logo-email.png, display 124 x 32 px, file 248 x 64 px (2x), light Logo variant on a baked #FFFFFF background; src <appUrl>/logo-email.png",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            }
+          ],
+          "gap": 12,
+          "width": "fill_container"
+        },
+        {
+          "type": "frame",
+          "id": "8m0KI",
+          "name": "Email",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "36rK6",
+              "name": "Header band",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "ref",
+                  "id": "7laAp",
+                  "ref": "ui:S4FXr",
+                  "name": "Logo (logo-email.png)",
+                  "width": 124,
+                  "height": 32
+                }
+              ],
+              "theme": {
+                "ui:mode": "light"
+              },
+              "fill": "$ui:--card",
+              "width": "fill_container",
+              "padding": [
+                24,
+                32
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "strokeAlignment": "inner"
+            },
+            {
+              "type": "frame",
+              "id": "3szBq",
+              "name": "Body",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "WiWVl",
+                  "name": "Heading",
+                  "content": "Reset your password",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 24,
+                  "fontWeight": "600",
+                  "lineHeight": 1.3,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "Qw4HO",
+                  "name": "Body",
+                  "content": "We got a request to reset the password for your Fonoster account.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "0zMXI",
+                  "name": "Body",
+                  "content": "Select the button to choose a new password. The link expires in 5 minutes.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "AaE1W",
+                  "name": "Button (primary)",
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "sGLJI",
+                      "name": "Label",
+                      "content": "Reset password",
+                      "fill": "$ui:--primary-foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "lineHeight": 1.6
+                    }
+                  ],
+                  "fill": "$ui:--primary",
+                  "cornerRadius": "$ui:--radius-control",
+                  "padding": [
+                    12,
+                    24
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "qJKZo",
+                  "name": "Note",
+                  "content": "If the link has expired, request a new one from the sign-in page.",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 16,
+              "padding": 32,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "JLXrO",
+              "name": "Footer",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "ij824",
+                  "name": "Footer text",
+                  "content": "If you didn't ask to reset your password, ignore this email. Your password won't change.",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "width": "fill_container",
+              "padding": [
+                20,
+                32
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "strokeAlignment": "inner"
+            }
+          ],
+          "fill": "$ui:--card",
+          "stroke": "$ui:--border",
+          "strokeWidth": 1,
+          "cornerRadius": "$ui:--radius-control",
+          "clip": true,
+          "width": "fill_container"
+        }
+      ],
+      "theme": {
+        "ui:mode": "light"
+      },
+      "fill": "$ui:--background",
+      "x": 1360,
+      "y": 0,
+      "width": 600,
+      "gap": 24,
+      "padding": 24
+    },
+    {
+      "type": "frame",
+      "id": "TPODD",
+      "name": "Email / Verification code",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "gAGDy",
+          "name": "Annotations",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Mqugi",
+              "name": "Annotation / Template",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "iBjkk",
+                  "name": "Label",
+                  "content": "TEMPLATE",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "PSaQA",
+                  "name": "Value",
+                  "content": "mods/identity/src/templates/verifyEmail.hbs",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "czD72",
+              "name": "Annotation / Subject",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "sRlbE",
+                  "name": "Label",
+                  "content": "SUBJECT",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "sbw5w",
+                  "name": "Value",
+                  "content": "Your Fonoster verification code",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "B3etz",
+              "name": "Annotation / Preheader",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "M914X",
+                  "name": "Label",
+                  "content": "PREHEADER",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "wuojS",
+                  "name": "Value",
+                  "content": "Enter this code to verify your email. It expires in 5 minutes.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "PdV23",
+              "name": "Annotation / Template parameters (sample = parameter)",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "NxUzv",
+                  "name": "Label",
+                  "content": "TEMPLATE PARAMETERS (SAMPLE = PARAMETER)",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "HdnVa",
+                  "name": "Value",
+                  "content": "482917 = {{verificationCode}}\n\"5 minutes\" is fixed copy: identity's VERIFICATION_CODE_EXPIRATION (5 * 60 * 1000 ms), not a template parameter.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "fCco4",
+              "name": "Annotation / Colors (ui:mode light, token = hex)",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "5CzRq",
+                  "name": "Label",
+                  "content": "COLORS (UI:MODE LIGHT, TOKEN = HEX)",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "mg4Fp",
+                  "name": "Value",
+                  "content": "--background = #F4F4F4  (page background)\n--card = #FFFFFF  (card)\n--foreground = #252525  (text)\n--muted-foreground = #555555  (muted text)\n--primary = #39E19E  (button / --primary)\n--primary-foreground = #011900  (button label / --primary-foreground)\n--border = #E8E8E8  (border)\n--muted = #F4F4F4  (code box)\nheader band: --card, fixed light = #FFFFFF in light and dark",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "b8GAS",
+              "name": "Annotation / Logo",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "44IFb",
+                  "name": "Label",
+                  "content": "LOGO",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "wy250",
+                  "name": "Value",
+                  "content": "logo-email.png, display 124 x 32 px, file 248 x 64 px (2x), light Logo variant on a baked #FFFFFF background; src <appUrl>/logo-email.png",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            }
+          ],
+          "gap": 12,
+          "width": "fill_container"
+        },
+        {
+          "type": "frame",
+          "id": "nkuoP",
+          "name": "Email",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "GTf0B",
+              "name": "Header band",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "ref",
+                  "id": "iwuGp",
+                  "ref": "ui:S4FXr",
+                  "name": "Logo (logo-email.png)",
+                  "width": 124,
+                  "height": 32
+                }
+              ],
+              "theme": {
+                "ui:mode": "light"
+              },
+              "fill": "$ui:--card",
+              "width": "fill_container",
+              "padding": [
+                24,
+                32
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "strokeAlignment": "inner"
+            },
+            {
+              "type": "frame",
+              "id": "SO3Dk",
+              "name": "Body",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "dmLVV",
+                  "name": "Heading",
+                  "content": "Verify your email",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 24,
+                  "fontWeight": "600",
+                  "lineHeight": 1.3,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "gk9i0",
+                  "name": "Body",
+                  "content": "Enter this code in Fonoster to verify your email address:",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "PQK85",
+                  "name": "Code box",
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "MPrHA",
+                      "name": "Code",
+                      "content": "482917",
+                      "fill": "$ui:--foreground",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 32,
+                      "fontWeight": "500",
+                      "letterSpacing": 8
+                    }
+                  ],
+                  "fill": "$ui:--muted",
+                  "stroke": "$ui:--border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "cornerRadius": "$ui:--radius-control",
+                  "padding": [
+                    16,
+                    24
+                  ],
+                  "width": "fill_container",
+                  "alignItems": "center"
+                },
+                {
+                  "type": "text",
+                  "id": "wJEmi",
+                  "name": "Body",
+                  "content": "The code expires in 5 minutes.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 16,
+              "padding": 32,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "AapLv",
+              "name": "Footer",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Ycpb8",
+                  "name": "Footer text",
+                  "content": "If you didn't ask for this code, you can ignore this email.",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "width": "fill_container",
+              "padding": [
+                20,
+                32
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "strokeAlignment": "inner"
+            }
+          ],
+          "fill": "$ui:--card",
+          "stroke": "$ui:--border",
+          "strokeWidth": 1,
+          "cornerRadius": "$ui:--radius-control",
+          "clip": true,
+          "width": "fill_container"
+        }
+      ],
+      "theme": {
+        "ui:mode": "light"
+      },
+      "fill": "$ui:--background",
+      "x": 2040,
+      "y": 0,
+      "width": 600,
+      "gap": 24,
+      "padding": 24
+    },
+    {
+      "type": "frame",
+      "id": "PDrqT",
+      "name": "Email / Invite new user (dark)",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "NK2FB",
+          "name": "Annotations",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "fVcUn",
+              "name": "Annotation / Template",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pCYhZ",
+                  "name": "Label",
+                  "content": "TEMPLATE",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "hNGNl",
+                  "name": "Value",
+                  "content": "mods/identity/src/templates/inviteNewUser.hbs",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "JsxYB",
+              "name": "Annotation / Subject",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Q02d3",
+                  "name": "Label",
+                  "content": "SUBJECT",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "XlZUb",
+                  "name": "Value",
+                  "content": "You're invited to Acme on Fonoster",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "R3O9r",
+              "name": "Annotation / Preheader",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "dRzkE",
+                  "name": "Label",
+                  "content": "PREHEADER",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "wcNsS",
+                  "name": "Value",
+                  "content": "Accept the invitation, then sign in with the temporary password inside.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "MqW5G",
+              "name": "Annotation / Template parameters (sample = parameter)",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "IMTR3",
+                  "name": "Label",
+                  "content": "TEMPLATE PARAMETERS (SAMPLE = PARAMETER)",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "QwIZF",
+                  "name": "Value",
+                  "content": "Acme = {{workspaceName}}\n83sgd9e6ar = {{oneTimePassword}}\nAccept invitation (link) = {{inviteUrl}}",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "3h4Wp",
+              "name": "Annotation / Colors (ui:mode dark, token = hex)",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "5eaG8",
+                  "name": "Label",
+                  "content": "COLORS (UI:MODE DARK, TOKEN = HEX)",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "fKvoe",
+                  "name": "Value",
+                  "content": "--background = #181818  (page background)\n--card = #202020  (card)\n--foreground = #FFFFFF  (text)\n--muted-foreground = #C2C2C2  (muted text)\n--primary = #39E19E  (button / --primary)\n--primary-foreground = #011900  (button label / --primary-foreground)\n--border = #333333  (border)\n--muted = #252525  (code box)\nheader band: --card, fixed light = #FFFFFF in light and dark",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "buPp8",
+              "name": "Annotation / Logo",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pkqBc",
+                  "name": "Label",
+                  "content": "LOGO",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 11,
+                  "fontWeight": "600",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "ln0CK",
+                  "name": "Value",
+                  "content": "logo-email.png, display 124 x 32 px, file 248 x 64 px (2x), light Logo variant on a baked #FFFFFF background; src <appUrl>/logo-email.png",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-primary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 2,
+              "width": "fill_container"
+            }
+          ],
+          "gap": 12,
+          "width": "fill_container"
+        },
+        {
+          "type": "frame",
+          "id": "drqi7",
+          "name": "Email",
+          "layout": "vertical",
+          "children": [
+            {
+              "type": "frame",
+              "id": "4aHTO",
+              "name": "Header band",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "ref",
+                  "id": "kTzN0",
+                  "ref": "ui:S4FXr",
+                  "name": "Logo (logo-email.png)",
+                  "width": 124,
+                  "height": 32
+                }
+              ],
+              "theme": {
+                "ui:mode": "light"
+              },
+              "fill": "$ui:--card",
+              "width": "fill_container",
+              "padding": [
+                24,
+                32
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "bottom": 1
+              },
+              "strokeAlignment": "inner"
+            },
+            {
+              "type": "frame",
+              "id": "MIolk",
+              "name": "Body",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "5jqLW",
+                  "name": "Heading",
+                  "content": "Join Acme on Fonoster",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 24,
+                  "fontWeight": "600",
+                  "lineHeight": 1.3,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "FFlUI",
+                  "name": "Body",
+                  "content": "You've been invited to the Acme workspace on Fonoster.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "text",
+                  "id": "V5z9q",
+                  "name": "Body",
+                  "content": "Your temporary password:",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "gsKeO",
+                  "name": "Code box",
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "73uLj",
+                      "name": "Code",
+                      "content": "83sgd9e6ar",
+                      "fill": "$ui:--foreground",
+                      "fontFamily": "$ui:--font-primary",
+                      "fontSize": 18,
+                      "fontWeight": "500",
+                      "letterSpacing": 1
+                    }
+                  ],
+                  "fill": "$ui:--muted",
+                  "stroke": "$ui:--border",
+                  "strokeWidth": 1,
+                  "strokeAlignment": "inner",
+                  "cornerRadius": "$ui:--radius-control",
+                  "padding": [
+                    10,
+                    16
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "ej4kl",
+                  "name": "Body",
+                  "content": "Accept the invitation, then sign in with this email address and the temporary password. You'll be asked to choose a new password.",
+                  "fill": "$ui:--foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 15,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                },
+                {
+                  "type": "frame",
+                  "id": "f1LWl",
+                  "name": "Button (primary)",
+                  "layout": "vertical",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "smkvQ",
+                      "name": "Label",
+                      "content": "Accept invitation",
+                      "fill": "$ui:--primary-foreground",
+                      "fontFamily": "$ui:--font-secondary",
+                      "fontSize": 15,
+                      "fontWeight": "600",
+                      "lineHeight": 1.6
+                    }
+                  ],
+                  "fill": "$ui:--primary",
+                  "cornerRadius": "$ui:--radius-control",
+                  "padding": [
+                    12,
+                    24
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "1Njwr",
+                  "name": "Note",
+                  "content": "If the link has expired, ask the person who invited you to send it again.",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 14,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "gap": 16,
+              "padding": 32,
+              "width": "fill_container"
+            },
+            {
+              "type": "frame",
+              "id": "KEVC7",
+              "name": "Footer",
+              "layout": "vertical",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "j7hps",
+                  "name": "Footer text",
+                  "content": "You got this email because someone invited you to a workspace on Fonoster. If you weren't expecting it, you can ignore it.",
+                  "fill": "$ui:--muted-foreground",
+                  "fontFamily": "$ui:--font-secondary",
+                  "fontSize": 13,
+                  "fontWeight": "400",
+                  "lineHeight": 1.6,
+                  "width": "fill_container",
+                  "textGrowth": "fixed-width"
+                }
+              ],
+              "width": "fill_container",
+              "padding": [
+                20,
+                32
+              ],
+              "stroke": "$ui:--border",
+              "strokeWidth": {
+                "top": 1
+              },
+              "strokeAlignment": "inner"
+            }
+          ],
+          "fill": "$ui:--card",
+          "stroke": "$ui:--border",
+          "strokeWidth": 1,
+          "cornerRadius": "$ui:--radius-control",
+          "clip": true,
+          "width": "fill_container"
+        }
+      ],
+      "theme": {
+        "ui:mode": "dark"
+      },
+      "fill": "$ui:--background",
+      "x": 2720,
+      "y": 0,
+      "width": 600,
+      "gap": 24,
+      "padding": 24
+    }
+  ]
+}
