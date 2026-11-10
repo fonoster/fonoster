@@ -140,6 +140,32 @@ async def say_then_gather(s):
     await s.say(f"PIN {g.digits} (heard: {r.heard_text})")
 
 
+async def say_then_gather_speech(s):
+    await s.say("What's your name?")
+    g = await s.gather(timeout=0.3)
+    await s.say(f"Name: {g.speech}" if g.speech else "No input.")
+
+
+async def say_then_gather_shape(s):
+    await s.say("What's your name?")
+    g = await s.gather(timeout=0.3)
+    await s.say(f"Speech: [{g.speech}]" if g.speech is not None else "No input.")
+
+
+async def gather_twice(s):
+    a = await s.gather(timeout=0.3)
+    await s.say(f"First: {a.speech or 'none'}")
+    b = await s.gather(timeout=0.3)
+    await s.say("No input." if b.speech is None and b.digits is None else "Got input.")
+
+
+async def gather_after_stale_turn(s):
+    await s.say("What's your name?")
+    for n in range(1, 4):
+        g = await s.gather(timeout=0.3)
+        await s.say(f"Name: {g.speech}" if g.speech else f"No input {n}.")
+
+
 async def record_note(s):
     await s.note({"kind": "turn", "firstTokenMs": 420})
 
@@ -166,6 +192,10 @@ FIXTURES = {
     "audio-mark": audio_mark,
     "say-error": say_error,
     "say-then-gather": say_then_gather,
+    "say-then-gather-speech": say_then_gather_speech,
+    "say-then-gather-shape": say_then_gather_shape,
+    "gather-twice": gather_twice,
+    "gather-after-stale-turn": gather_after_stale_turn,
 }
 
 SCENARIOS = load_scenarios("voice-sdk")

@@ -27,3 +27,7 @@ same scenario. Keep fixtures tiny; they exercise the SDK, not app logic.
 | `say-error` | `(session)` | `say("Hi")`; if it rejects with a session error, `say("Error: " + code)`. |
 | `say-then-gather` | `(session)` | `r = await say("Please enter your PIN.")`; `g = await gather({ maxDigits: 4 })`; `say("PIN " + digits + " (heard: " + r.heardText + ")")`. Digits pressed during the say count (type-ahead). |
 | `record-note` | `(session)` | `await note({ kind: "turn", firstTokenMs: 420 })`. (`note` is internal, reserved for Fonoster's own apps; both SDKs still implement it.) |
+| `say-then-gather-speech` | `(session)` | `await say("What's your name?")`; `g = await gather({ timeout: 300 })`; `say(g.speech ? "Name: " + g.speech : "No input.")`. |
+| `say-then-gather-shape` | `(session)` | `await say("What's your name?")`; `g = await gather({ timeout: 300 })`; `say(g.speech !== undefined ? "Speech: [" + g.speech + "]" : "No input.")` (Python `g.speech is not None`). |
+| `gather-twice` | `(session)` | `a = await gather({ timeout: 300 })`; `say("First: " + (a.speech \|\| "none"))`; `b = await gather({ timeout: 300 })`; `say(b.speech === undefined && b.digits === undefined ? "No input." : "Got input.")`. |
+| `gather-after-stale-turn` | `(session)` | `await say("What's your name?")`; then three times, n = 1, 2, 3: `g = await gather({ timeout: 300 })`, `say(g.speech ? "Name: " + g.speech : "No input " + n + ".")`. |

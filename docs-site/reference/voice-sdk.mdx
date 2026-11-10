@@ -139,7 +139,7 @@ Read-only fields from the call's `session.start` message.
   | `source` | `source` | `"speech_and_dtmf"` | `"speech"`, `"dtmf"` or `"speech_and_dtmf"` |
   | `maxDigits` | `max_digits` | none | Resolve once this many digits arrive |
   | `finishOnKey` | `finish_on_key` | none | Resolve when this key is pressed (the key isn't included) |
-  | `timeout` | `timeout` | `4000` ms / `4.0` s | Time to wait for input. Restarts after each digit; paused while the caller is talking |
+  | `timeout` | `timeout` | `4000` ms / `4.0` s | Time to wait for input. Restarts after each digit. While the caller is talking, gather waits for them to finish, and gives up 10 s after the timeout if they go quiet without finishing. |
 
   Once a digit arrives, speech is ignored. Only one `gather` can be pending; a second one
   rejects. Speech and digits that arrive while no `gather` is pending are kept (up to 32) and

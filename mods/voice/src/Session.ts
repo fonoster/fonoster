@@ -62,6 +62,8 @@ type Gather = {
   timeoutMs: number;
   digits: string;
   timer?: ReturnType<typeof setTimeout>;
+  /** The timer is the backstop for a turn in progress, not the normal timeout. */
+  backstop?: boolean;
   resolve: (r: GatherResult) => void;
   reject: (e: Error) => void;
 };
@@ -69,9 +71,16 @@ type Gather = {
 type Input =
   | { type: "dtmf"; digit: string }
   | { type: "turn.ended"; text: string }
-  | { type: "turn.user_started" };
+  | { type: "turn.user_started" }
+  | { type: "turn.likely_ended" }
+  | { type: "turn.resumed" };
 
 const DEFAULT_GATHER_TIMEOUT_MS = 4000;
+/**
+ * How long past its timeout a gather waits for a turn in progress to end. Mirrors AppBridge's 10 s
+ * abandon window, so a turn AppBridge never ends can't hold a gather forever.
+ */
+const GATHER_TURN_BACKSTOP_MS = 10000;
 /** Commands that make AppBridge start listening (speech recognition and turn events). */
 const SPEECH_COMMANDS = new Set([
   "speak",
@@ -123,6 +132,10 @@ export class Session {
   private frameListeners = new Set<(frame: Buffer, trackId: number) => void>();
   private gatherState?: Gather;
   private buffered: Input[] = [];
+  /** The caller is mid-turn: a turn.user_started with no turn.ended yet. */
+  private midTurn = false;
+  /** A gather gave up on the current turn; its late turn.ended is dropped, not buffered. */
+  private turnExpired = false;
   private lastWarmTransfer?: string;
   /** A pending completeTransfer(), rejected when AppBridge refuses it. */
   private completing?: (e: Error) => void;
@@ -247,7 +260,9 @@ export class Session {
         reject
       };
       this.gatherState = g;
-      this.armGatherTimer(g);
+      // A caller already talking gets to finish: wait for the turn, not the normal timer.
+      if (g.speech && this.midTurn) this.armBackstop(g);
+      else this.armGatherTimer(g);
       // Inputs that arrived before the gather (type-ahead) count, in order.
       const backlog = this.buffered;
       this.buffered = [];
@@ -473,6 +488,8 @@ export class Session {
         return this.input({ type: "turn.user_started" });
       case "turn.likely_ended":
       case "turn.resumed":
+        this.emit(type, this.without(msg, "type"));
+        return this.input({ type });
       case "turn.backchannel":
       case "transcript.partial":
       case "turn.estimate":
@@ -517,17 +534,37 @@ export class Session {
   // ---- gather -----------------------------------------------------------------------
 
   private input(input: Input) {
+    if (input.type === "turn.user_started") {
+      this.midTurn = true;
+      this.turnExpired = false;
+    } else if (input.type === "turn.ended") {
+      const expired = this.turnExpired;
+      this.midTurn = false;
+      this.turnExpired = false;
+      // The late end of a turn a gather already gave up on doesn't answer the next gather.
+      if (expired && !this.gatherState) return;
+    }
     if (this.gatherState) return this.feedGather(input);
-    if (input.type === "turn.user_started") return;
+    if (input.type !== "turn.ended" && input.type !== "dtmf") return;
     this.buffered.push(input);
     if (this.buffered.length > MAX_BUFFERED_INPUTS) this.buffered.shift();
   }
 
   private feedGather(input: Input) {
     const g = this.gatherState!;
-    if (input.type === "turn.user_started") {
+    if (
+      input.type === "turn.user_started" ||
+      input.type === "turn.likely_ended" ||
+      input.type === "turn.resumed"
+    ) {
       // The caller is talking: wait for the end of the turn instead of timing out mid-sentence.
-      if (g.speech && !g.digits && g.timer) clearTimeout(g.timer);
+      // Each turn event restarts the backstop.
+      if (
+        g.speech &&
+        !g.digits &&
+        (input.type === "turn.user_started" || g.backstop)
+      )
+        this.armBackstop(g);
       return;
     }
     if (input.type === "turn.ended") {
@@ -546,10 +583,22 @@ export class Session {
 
   private armGatherTimer(g: Gather) {
     if (g.timer) clearTimeout(g.timer);
+    g.backstop = false;
     g.timer = setTimeout(
       () => this.endGather(g.digits ? { digits: g.digits } : {}),
       g.timeoutMs
     );
+  }
+
+  private armBackstop(g: Gather) {
+    if (g.timer) clearTimeout(g.timer);
+    g.backstop = true;
+    g.timer = setTimeout(() => {
+      // The turn never ended: give up on it, so its late turn.ended can't answer a later gather.
+      this.midTurn = false;
+      this.turnExpired = true;
+      this.endGather({});
+    }, g.timeoutMs + GATHER_TURN_BACKSTOP_MS);
   }
 
   private endGather(result: GatherResult) {
