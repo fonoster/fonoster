@@ -208,3 +208,35 @@ export namespace CreatePortalSessionResponse {
   }
 }
 
+export class CloseAccountRequest extends jspb.Message {
+  getOwnerRef(): string;
+  setOwnerRef(value: string): CloseAccountRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CloseAccountRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: CloseAccountRequest): CloseAccountRequest.AsObject;
+  static serializeBinaryToWriter(message: CloseAccountRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CloseAccountRequest;
+  static deserializeBinaryFromReader(message: CloseAccountRequest, reader: jspb.BinaryReader): CloseAccountRequest;
+}
+
+export namespace CloseAccountRequest {
+  export type AsObject = {
+    ownerRef: string,
+  }
+}
+
+export class CloseAccountResponse extends jspb.Message {
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): CloseAccountResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: CloseAccountResponse): CloseAccountResponse.AsObject;
+  static serializeBinaryToWriter(message: CloseAccountResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): CloseAccountResponse;
+  static deserializeBinaryFromReader(message: CloseAccountResponse, reader: jspb.BinaryReader): CloseAccountResponse;
+}
+
+export namespace CloseAccountResponse {
+  export type AsObject = {
+  }
+}
+

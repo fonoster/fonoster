@@ -26,9 +26,20 @@ import { PlanSettings } from "./config";
 import { PrismaClient } from "./db";
 import { balanceOf, canPay, grantsOf, overdraftLimit } from "./ledger";
 import { credits, toCredits } from "./money";
-import { BillingError, subscribe, topUp } from "./stripe/accounts";
+import {
+  BALANCE_DUE,
+  BillingError,
+  closeAccount,
+  subscribe,
+  topUp
+} from "./stripe/accounts";
 
 const logger = getLogger({ service: "billing", filePath: __filename });
+
+/** A request the API can't act on (INVALID_ARGUMENT). */
+export class InvalidRequest extends Error {}
+/** A dependency (Stripe) couldn't be asked (UNAVAILABLE). */
+export class Unavailable extends Error {}
 
 export type BillingSummary = {
   plan: string;
@@ -170,6 +181,34 @@ export function billingApi(deps: ApiDeps) {
         ...(r.returnUrl ? { return_url: r.returnUrl } : {})
       });
       return { url: session.url };
+    },
+
+    /**
+     * Before the owner is deleted (#1376): refuses while anything is owed, else turns auto-recharge
+     * off and cancels the plan. An owner with no account has nothing to close.
+     */
+    async closeAccount(r: { ownerRef: string }) {
+      if (!r.ownerRef) throw new InvalidRequest("owner_ref is required");
+      const a = await prisma.billingAccount.findUnique({
+        where: { ownerRef: r.ownerRef }
+      });
+      if (!a) return {};
+      // The one Stripe read: an open invoice must be current, so it isn't taken from the outbox.
+      if (deps.stripe && a.stripeCustomerId) {
+        const open = await deps.stripe.invoices
+          .list({ customer: a.stripeCustomerId, status: "open", limit: 1 })
+          .catch((e: Error) => {
+            logger.warn("could not list the owner's open invoices", {
+              accountId: a.id,
+              error: e.message
+            });
+            throw new Unavailable("couldn't check the user's billing");
+          });
+        if (open.data.length) throw new BillingError(BALANCE_DUE);
+      }
+      await prisma.$transaction((tx) => closeAccount(tx, a.id));
+      logger.verbose("billing account closed", { accountId: a.id });
+      return {};
     }
   };
 }
@@ -200,16 +239,24 @@ export async function serveBillingApi(
       try {
         cb(null, await fn(call.request));
       } catch (e) {
-        const invalid = e instanceof BillingError;
-        if (!invalid)
+        const code =
+          e instanceof BillingError
+            ? grpc.status.FAILED_PRECONDITION
+            : e instanceof InvalidRequest
+              ? grpc.status.INVALID_ARGUMENT
+              : e instanceof Unavailable
+                ? grpc.status.UNAVAILABLE
+                : grpc.status.INTERNAL;
+        if (code === grpc.status.INTERNAL)
           logger.error("billing API call failed", {
             error: (e as Error).message
           });
         cb({
-          code: invalid
-            ? grpc.status.FAILED_PRECONDITION
-            : grpc.status.INTERNAL,
-          message: invalid ? (e as Error).message : "Internal server error."
+          code,
+          message:
+            code === grpc.status.INTERNAL
+              ? "Internal server error."
+              : (e as Error).message
         });
       }
     };
@@ -218,7 +265,8 @@ export async function serveBillingApi(
     updateAutoRecharge: unary(api.updateAutoRecharge),
     createTopUp: unary(api.createTopUp),
     subscribe: unary(api.subscribe),
-    createPortalSession: unary(api.createPortalSession)
+    createPortalSession: unary(api.createPortalSession),
+    closeAccount: unary(api.closeAccount)
   });
   const bound = await new Promise<number>((resolve, reject) =>
     server.bindAsync(

@@ -244,3 +244,39 @@ credits before tax: tax is charged on top and never becomes credits.
 
 - **WHEN** an owner in a taxed location buys 1,000 credits
 - **THEN** Stripe charges $10 plus the tax it computes, and the ledger gains 1,000 credits
+
+### Requirement: Closing an account when its owner is deleted
+
+Before Identity deletes a user, it SHALL ask billing to close the user's account (`CloseAccount`,
+internal to the platform). The account is settled when its balance is not below zero, its status is
+not `past_due`, no recharge is in flight, nothing unsent in the outbox would charge the owner
+(meter events, credit grants, top-up invoices), and Stripe has no open invoice for the customer. A
+settled account SHALL get auto-recharge turned off and, on Pay-as-you-go, its subscription canceled
+now through the outbox, with no proration, refund or final invoice; the
+`customer.subscription.deleted` webhook ends the plan. An account that is not settled SHALL be
+refused with FAILED_PRECONDITION, and the user SHALL NOT be deleted. When Stripe or billing cannot be
+asked, the user SHALL NOT be deleted. The account, its ledger and its Stripe customer SHALL stay.
+
+#### Scenario: A settled owner is deleted
+
+- **WHEN** a Pay-as-you-go owner with a balance of zero or more, no open invoice and nothing unsent
+  is deleted
+- **THEN** the subscription is canceled at Stripe, the plan is `none` and `canceled`, auto-recharge
+  is off, and the ledger is unchanged
+
+#### Scenario: An owner with a balance due
+
+- **WHEN** an owner whose balance is below zero, whose plan is `past_due`, or with usage Stripe has
+  not been told of is deleted
+- **THEN** the delete is refused with FAILED_PRECONDITION "the user has a balance due: pay it under
+  Billing, then delete the user", and the user, the account and the subscription are unchanged
+
+#### Scenario: An open invoice at Stripe
+
+- **WHEN** an owner with an open invoice at Stripe is deleted
+- **THEN** the delete is refused with FAILED_PRECONDITION and nothing changes
+
+#### Scenario: An owner with no billing account
+
+- **WHEN** an owner who never had a billing account is deleted
+- **THEN** closing succeeds and no account is created

@@ -97,7 +97,7 @@ function buildIdentityService(identityConfig: IdentityConfig) {
         identityConfig
       ),
       getUser: createGetUser(prisma),
-      deleteUser: createDeleteUser(prisma),
+      deleteUser: createDeleteUser(prisma, identityConfig.billing),
       updateUser: createUpdateUser(prisma),
       sendResetPasswordCode: createSendResetPasswordCode(
         prisma,

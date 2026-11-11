@@ -254,5 +254,48 @@ export class BillingClient {
     this.methodDescriptorCreatePortalSession);
   }
 
+  methodDescriptorCloseAccount = new grpcWeb.MethodDescriptor(
+    '/fonoster.billing.v1beta2.Billing/CloseAccount',
+    grpcWeb.MethodType.UNARY,
+    billing_pb.CloseAccountRequest,
+    billing_pb.CloseAccountResponse,
+    (request: billing_pb.CloseAccountRequest) => {
+      return request.serializeBinary();
+    },
+    billing_pb.CloseAccountResponse.deserializeBinary
+  );
+
+  closeAccount(
+    request: billing_pb.CloseAccountRequest,
+    metadata?: grpcWeb.Metadata | null): Promise<billing_pb.CloseAccountResponse>;
+
+  closeAccount(
+    request: billing_pb.CloseAccountRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: billing_pb.CloseAccountResponse) => void): grpcWeb.ClientReadableStream<billing_pb.CloseAccountResponse>;
+
+  closeAccount(
+    request: billing_pb.CloseAccountRequest,
+    metadata?: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: billing_pb.CloseAccountResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/fonoster.billing.v1beta2.Billing/CloseAccount',
+        request,
+        metadata || {},
+        this.methodDescriptorCloseAccount,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/fonoster.billing.v1beta2.Billing/CloseAccount',
+    request,
+    metadata || {},
+    this.methodDescriptorCloseAccount);
+  }
+
 }
 

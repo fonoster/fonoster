@@ -2746,6 +2746,7 @@ users
 ### users.deleteUser(ref) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
 Deletes an existing User from Fonoster.
 Note that this operation is irreversible.
+Where billing is on, the user's plan is canceled, and the delete fails with FAILED_PRECONDITION while the user has a balance due.
 
 **Kind**: instance method of [<code>Users</code>](#Users)  
 **Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the deleted User  
