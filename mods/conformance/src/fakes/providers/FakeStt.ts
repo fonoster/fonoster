@@ -34,6 +34,11 @@ export type SttScriptEntry = {
    */
   eot?: number;
   endOfTurn?: boolean;
+  /**
+   * A final the recognizer holds until asked: never fires on audio time, only on a `finalize`
+   * received once atMs of audio has been heard.
+   */
+  onFinalize?: boolean;
 };
 
 /**
@@ -45,9 +50,10 @@ export type SttScriptEntry = {
  *             turn?: {eot?, endOfTurn?}}   (turn only for scripted turn signals)
  *
  * Transcripts are scripted against caller-audio time: an entry fires once the stream has carried
- * atMs of audio, after the configured delay. Injected failures close the socket with code 1011
- * (provider_unavailable) or 1008 (bad_request); provider_timeout accepts audio and never answers;
- * rejectKey refuses the handshake with HTTP 401.
+ * atMs of audio, after the configured delay. An onFinalize entry waits for a finalize instead, as
+ * a recognizer holding its final does; a finalize releases only entries whose atMs has been heard.
+ * Injected failures close the socket with code 1011 (provider_unavailable) or 1008 (bad_request);
+ * provider_timeout accepts audio and never answers; rejectKey refuses the handshake with HTTP 401.
  *
  * Implementations' built-in "fake" adapters speak this protocol (see PROVIDERS.md).
  */
@@ -133,9 +139,11 @@ export class FakeStt extends FakeProvider {
     ].sort((a, b) => a.atMs - b.atMs);
     let lastEnd = 0;
 
-    const emitDue = (all = false) => {
-      while (pending.length && (all || pending[0].atMs <= stream.audioMs)) {
-        const entry = pending.shift()!;
+    const emitDue = (finalizing = false) => {
+      for (const entry of [...pending]) {
+        if (entry.atMs > stream.audioMs) break;
+        if (entry.onFinalize && !finalizing) continue;
+        pending.splice(pending.indexOf(entry), 1);
         const message = {
           type: "transcript",
           text: entry.text,

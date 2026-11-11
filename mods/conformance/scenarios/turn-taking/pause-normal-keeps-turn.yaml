@@ -1,0 +1,32 @@
+format: fonoster.scenario.v1
+name: pause-normal-keeps-turn
+contract: turn-taking
+role: app
+spec: "A turn ends on silence even when the recognizer holds its final / A pause shorter than the default timeout keeps one turn"
+description: >
+  With the default patience (normal, 600 ms), the final asked for 200 ms into a 700 ms pause
+  starts a 600 ms silence count that the caller interrupts (200 + fake delay 0 + 600 > 700 ms),
+  so one turn carries "one, two" and "three".
+  Caller audio reaches the recognizer about 60 ms into the stream: "one, two" is 60-660 ms, the
+  pause 660-1360 ms and "three" 1360-1960 ms, so each held final is asked for about 200 ms
+  (voice debounce) into its silence, with a partial pending.
+setup:
+  providers:
+    stt:
+      script:
+        - { atMs: 400, text: "one, two", final: false }
+        - { atMs: 600, text: "one, two", onFinalize: true }
+        - { atMs: 1700, text: "three", final: false }
+        - { atMs: 1900, text: "three", onFinalize: true }
+steps:
+  - expect: { type: session.start }
+  - send: { type: listen.update }
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - wait: { ms: 600 }
+    label: spoke
+  - expect_none: { type: turn.ended }
+    for_ms: 700
+  - caller: { audio: { kind: tone, ms: 600 } }
+  - wait: { ms: 600 }
+  - expect: { type: turn.ended, text: "one, two three" }
+    within_ms: 2000

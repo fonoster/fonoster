@@ -78,6 +78,11 @@ export type Transcript = {
 export interface SttStream extends EventEmitter {
   write(frame: Buffer): void;
   update(options: { language?: string; hints?: string[] }): void;
+  /**
+   * Ask the recognizer to emit the final transcript for audio heard so far. A no-op while the
+   * stream is not connected (reconnecting, closing or closed); never queued.
+   */
+  finalize?(): void;
   close(): void;
 }
 

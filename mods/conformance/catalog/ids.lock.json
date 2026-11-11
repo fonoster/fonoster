@@ -355,6 +355,7 @@
   "APB-044": "Every app's stream hears filtered audio; recordings and listeners stay raw",
   "APB-045": "The app's speech speed reaches the vendor in its own form",
   "APB-046": "A speech speed out of range is refused, naming speech.speed",
+  "APB-047": "A turn ends on silence when the recognizer holds its final",
   "BIL-056": "A Flux voice's TTS characters name the Flux model",
   "DSH-067": "A webhook delivery shows the event JSON Fonoster sent",
   "BIL-057": "Deleting a user cancels their plan, or is refused while they owe"
