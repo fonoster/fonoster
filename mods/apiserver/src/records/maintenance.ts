@@ -20,7 +20,13 @@ import { RECORD_PARTS } from "@fonoster/callrecord";
 import { getLogger } from "@fonoster/logger";
 import { NatsConnection, StringCodec } from "nats";
 import { PRIVATE_REGION_PREFIX, WorkspaceDirectory } from "../regions/types";
-import { AuditEntry, MaintenanceClient, RecordsDb } from "./types";
+import {
+  AuditEntry,
+  MaintenanceClient,
+  RecordsDb,
+  WorkspaceErasureDb,
+  WorkspaceSipResources
+} from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 const sc = StringCodec();
@@ -190,16 +196,62 @@ export async function runRetention(
 export const WORKSPACE_ERASURE_GRACE_DAYS = 30;
 
 /**
- * Erases the call records of workspaces deleted more than 30 days ago (#1318). Only Identity's
- * deletion records start an erase, never a workspace merely missing from the directory, and a
- * workspace whose key exists again (an operator restore) keeps its records. Records in a private
- * region stay. A record that fails is retried on the next run; a failing directory ends the run.
+ * Deletes what a deleted workspace left outside its call records (#1321): its applications (their
+ * vendor credentials cascade), webhook endpoints and deliveries, and secrets (its provider keys
+ * cascade) in this database, then its numbers and its trunks in Routr. In that order, stopping at
+ * the first failure, so its secrets never go while an application remains, nor its trunks before
+ * its numbers. Every delete is safe to repeat: the next run finishes what this one couldn't.
+ */
+async function deleteWorkspaceData(
+  db: WorkspaceErasureDb,
+  sip: WorkspaceSipResources,
+  accessKeyId: string
+) {
+  try {
+    const where = { accessKeyId };
+    const applications = await db.application.deleteMany({ where });
+    const webhookEndpoints = await db.webhookEndpoint.deleteMany({ where });
+    const webhookDeliveries = await db.webhookDelivery.deleteMany({ where });
+    const secrets = await db.secret.deleteMany({ where });
+    const numbers = await sip.numbers(accessKeyId);
+    for (const ref of numbers) await sip.deleteNumber(ref);
+    const trunks = await sip.trunks(accessKeyId);
+    for (const ref of trunks) await sip.deleteTrunk(ref);
+    const removed = {
+      applications: applications.count,
+      webhookEndpoints: webhookEndpoints.count,
+      webhookDeliveries: webhookDeliveries.count,
+      secrets: secrets.count,
+      numbers: numbers.length,
+      trunks: trunks.length
+    };
+    // Every run comes back here for every deleted workspace; most find nothing left.
+    if (Object.values(removed).some((count) => count > 0))
+      logger.info(`deleted the data of deleted workspace ${accessKeyId}`, {
+        removed
+      });
+  } catch (e) {
+    logger.warn(
+      `deleting the data of deleted workspace ${accessKeyId} failed: ${(e as Error).message}`
+    );
+  }
+}
+
+/**
+ * Acts on Identity's deletion records. First, for every deleted workspace and with no grace, it
+ * deletes the workspace's applications, secrets, webhooks, numbers and trunks (#1321). Then it
+ * erases the call records of workspaces deleted more than 30 days ago (#1318). Only a deletion
+ * record starts either, never a workspace merely missing from the directory, and a workspace
+ * whose key exists again (an operator restore) keeps everything. Records in a private region
+ * stay. A workspace or a record that fails is retried on the next run; a failing directory ends
+ * the run.
  */
 export async function runWorkspaceErasure(
-  db: RecordsDb,
+  db: WorkspaceErasureDb,
   maintenance: MaintenanceClient,
   directory: WorkspaceDirectory | undefined,
-  now = new Date()
+  now = new Date(),
+  sip: WorkspaceSipResources
 ) {
   const done: string[] = [];
   if (!directory) return done;
@@ -207,7 +259,13 @@ export async function runWorkspaceErasure(
   const cutoff =
     now.getTime() - WORKSPACE_ERASURE_GRACE_DAYS * 24 * 3600 * 1000;
   try {
-    for (const { accessKeyId, deletedAt } of await directory.deleted()) {
+    const deletions = await directory.deleted();
+    // Before any record: a slow or failing region below can't hold these deletes back.
+    for (const { accessKeyId } of deletions) {
+      if (await directory.workspace(accessKeyId)) continue;
+      await deleteWorkspaceData(db, sip, accessKeyId);
+    }
+    for (const { accessKeyId, deletedAt } of deletions) {
       if (deletedAt.getTime() >= cutoff) continue;
       // Right before its records: the workspace may have been recreated with the same key.
       if (await directory.workspace(accessKeyId)) continue;

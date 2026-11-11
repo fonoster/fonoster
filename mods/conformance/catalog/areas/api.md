@@ -1000,3 +1000,19 @@ documented restore), and then deleted again.
 
 **Pass.** Each delete leaves a deletion record; the first sweep requests nothing; the second asks the region to erase both records with reason `workspace deleted` and actor `system:workspace-deleted`, and the index rows are erased (numbers and parts cleared) with one `erase` audit entry each, while workspace A's record stays; the re-created workspace doesn't count as deleted and keeps its record, and after its second delete the deletion record is dated now and the sweep still erases nothing. **Fail.** No deletion record after the cascade, an erase inside the grace, a missing audit entry, a live workspace's record erased, a re-created workspace counted as deleted, or a second delete that keeps the first delete's date.
 
+
+### API-075 Deleting a workspace removes its apps, secrets, webhooks, numbers and trunks
+
+- **Spec:** identity / Users, workspaces, and resource ownership / A deleted workspace's resources are deleted
+- **Priority:** P0
+- **Proof:** Drop the `secret.deleteMany` from `runWorkspaceErasure`'s first pass (`apiserver/src/records/maintenance.ts`); the deleted workspace's secret and provider key stay and the test goes red.
+- **Fault:** faults/API-075.patch
+- **Test:** mods/conformance/test/api/workspaceData.api.ts
+
+A new owner's two workspaces, each with an application that has an `intelligence_services` row, a
+secret bound as its `openai` provider key, a webhook endpoint and a delivery in the apiserver's
+database, and a number and a trunk in a stand-in for Routr that holds each workspace's refs.
+Neither has a call record. One workspace is deleted through DeleteWorkspace, and the sweep runs one
+tick, as the apiserver's retention timer runs it, with Identity's directory on its database.
+
+**Pass.** The deleted workspace has no row left in `applications`, `intelligence_services`, `secrets`, `workspace_provider_keys`, `webhook_endpoints` and `webhook_deliveries`, and no provider key resolves for it; Routr's stand-in holds only the live workspace's number and trunk; the live workspace's rows and its provider key are unchanged. **Fail.** Any of the deleted workspace's rows or refs is left, or anything of the live workspace is gone.

@@ -289,10 +289,10 @@ function DangerZone({ isOwner }: { isOwner: boolean }) {
           Delete workspace
         </h2>
         <p className="font-display text-xs text-muted-foreground">
-          Ends access for every member and stops calls to its numbers now. Call
-          records and recordings are erased after 30 days.
-          {isPrivate && ` ${PRIVATE_REGION_KEEPS}`} Agents, apps, numbers and
-          trunks aren&apos;t deleted. Can&apos;t be undone.
+          Ends access for every member and stops calls to its numbers now.
+          Deletes agents, apps, secrets, vendor keys, webhooks, numbers and
+          trunks. Call records and recordings are erased after 30 days.
+          {isPrivate && ` ${PRIVATE_REGION_KEEPS}`} Can&apos;t be undone.
         </p>
       </div>
       <div className="flex flex-col items-start gap-1.5">
@@ -316,7 +316,7 @@ function DangerZone({ isOwner }: { isOwner: boolean }) {
           if (!open) remove.reset();
         }}
         title={`Delete ${workspace.name}?`}
-        description={`Every member loses access to this workspace, and calls to its numbers stop now. Its call records and recordings are erased after 30 days.${isPrivate ? ` ${PRIVATE_REGION_KEEPS}` : ""} Its agents, apps, numbers and trunks aren't deleted. This can't be undone.`}
+        description={`Every member loses access to this workspace, and calls to its numbers stop now. Its agents, apps, secrets, vendor keys, webhooks, numbers and trunks are deleted. Its call records and recordings are erased after 30 days.${isPrivate ? ` ${PRIVATE_REGION_KEEPS}` : ""} This can't be undone.`}
         expected={workspace.name}
         confirmLabel="Delete workspace"
         pending={remove.isPending}

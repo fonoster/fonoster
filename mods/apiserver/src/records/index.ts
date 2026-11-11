@@ -20,6 +20,7 @@ export * from "./createIndexRecord";
 export * from "./createRecordsRouter";
 export * from "./createSearchRecords";
 export * from "./createTrunkOfNumber";
+export * from "./createWorkspaceSipResources";
 export * from "./maintenance";
 export * from "./runCallRecords";
 export * from "./stores";

@@ -26,6 +26,12 @@ A resource created within a workspace SHALL be tagged with that workspace's `acc
 - **WHEN** an `accessKeyId` is inspected
 - **THEN** a `US` prefix denotes a user owner and a `WO` prefix denotes a workspace owner
 
+#### Scenario: A deleted workspace's resources are deleted
+
+- **WHEN** a workspace is deleted, directly or with its owner, and no workspace with its access key exists again
+- **THEN** on its next sweep, with no grace, the control plane deletes the applications, secrets, provider keys, webhook endpoints and webhook deliveries tagged with that workspace's `accessKeyId`, and its numbers and trunks in Routr
+- **AND** the resources of every other workspace stay as they are
+
 ### Requirement: Role-based access control
 
 Identity SHALL enforce role-based access control. A role SHALL be described by a set of allowed

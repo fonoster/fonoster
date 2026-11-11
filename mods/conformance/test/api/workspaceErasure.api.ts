@@ -106,7 +106,15 @@ describe("@api identity: a deleted workspace's call records", function () {
     return runWorkspaceErasure(
       world.stack.apiDb.prisma as never,
       natsMaintenanceClient(nc, 5000),
-      createWorkspaceDirectory(world.stack.identityPrisma as never)
+      createWorkspaceDirectory(world.stack.identityPrisma as never),
+      undefined,
+      // These workspaces have no numbers or trunks (API-075 covers those).
+      {
+        numbers: async () => [],
+        trunks: async () => [],
+        deleteNumber: async () => undefined,
+        deleteTrunk: async () => undefined
+      }
     );
   }
 

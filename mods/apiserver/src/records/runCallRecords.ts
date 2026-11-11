@@ -31,7 +31,7 @@ import {
   runWorkspaceErasure
 } from "./maintenance";
 import { createStoreResolver } from "./stores";
-import { RecordsDb } from "./types";
+import { WorkspaceErasureDb, WorkspaceSipResources } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
 
@@ -44,8 +44,8 @@ export type CallRecordsConfig = {
 
 /**
  * Starts the control plane's side of call records: the index consumer, the retention job (with the
- * erasure of deleted workspaces' records) and the records API router (mounted on the HTTP bridge
- * at /api/records).
+ * erasure of deleted workspaces' data and records) and the records API router (mounted on the HTTP
+ * bridge at /api/records).
  */
 export async function runCallRecords(
   config: CallRecordsConfig,
@@ -53,7 +53,7 @@ export async function runCallRecords(
     natsUrl: NatsTarget;
     identityPublicKey: string;
     identityTokenOptions?: RecordsRouterDeps["identityTokenOptions"];
-    db: RecordsDb;
+    db: WorkspaceErasureDb;
     relay?: RecordsRouterDeps["relay"];
     onConfigChange?: (accessKeyId: string) => void;
     usage?: IndexUsageDeps;
@@ -61,6 +61,8 @@ export async function runCallRecords(
     trunkOf?: TrunkOfNumber;
     /** Identity's workspaces once attached: deleted workspaces' records are erased (#1318). */
     workspaces?: () => WorkspaceDirectory | undefined;
+    /** Routr's numbers and trunks: a deleted workspace's are deleted (#1321). */
+    sip: WorkspaceSipResources;
   }
 ): Promise<{ routers: { path: string; router: Router }[] }> {
   if (!config.enabled) return { routers: [] };
@@ -83,7 +85,13 @@ export async function runCallRecords(
         )
         .catch((e) => logger.error(`retention failed: ${e.message}`))
         .then(() =>
-          runWorkspaceErasure(deps.db, maintenance, deps.workspaces?.())
+          runWorkspaceErasure(
+            deps.db,
+            maintenance,
+            deps.workspaces?.(),
+            undefined,
+            deps.sip
+          )
         )
         .then(
           (erased) =>
