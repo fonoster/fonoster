@@ -183,6 +183,39 @@ timeout before the turn ends.
 - **THEN** `turn.ended` is emitted after T milliseconds of silence, within AppBridge latency
   budget
 
+### Requirement: A turn ends on silence even when the recognizer holds its final
+
+When the caller goes silent during a turn with a partial transcript pending and no final since,
+AppBridge's Pacing policy SHALL ask the recognizer once for its final, and again only after the
+caller speaks again. The recognizer's final then starts the silence count as usual, so the turn
+ends about the silence timeout, scaled by patience, after it. A recognizer that cannot be asked
+MUST behave as before.
+
+#### Scenario: The recognizer is asked for its final
+
+- **WHEN** the recognizer sends a partial and holds the final until asked
+- **AND** the caller speaks and goes silent
+- **THEN** AppBridge asks for the final and the app receives `turn.ended` with the partial's text
+  within 2 seconds of the caller stopping
+
+#### Scenario: A pause longer than the impatient timeout splits the turn
+
+- **WHEN** an app with patience `low` hears a caller who pauses 700 ms between two phrases
+- **THEN** `turn.ended` with the first phrase arrives during the pause
+- **AND** the second phrase starts a new turn
+
+#### Scenario: A pause shorter than the default timeout keeps one turn
+
+- **WHEN** an app with the default patience hears a caller who pauses 700 ms between two phrases
+- **THEN** no `turn.ended` arrives during the pause
+- **AND** one `turn.ended` carries both phrases
+
+#### Scenario: A pause shorter than the patient timeout keeps one turn
+
+- **WHEN** an app with patience `high` hears a caller who pauses 700 ms between two phrases
+- **THEN** no `turn.ended` arrives during the pause
+- **AND** one `turn.ended` carries both phrases
+
 ### Requirement: Every turn decision is recorded with its outcome
 
 AppBridge SHALL append to the call record every turn event it emits, with the estimate and facts
