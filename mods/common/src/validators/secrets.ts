@@ -21,16 +21,25 @@ import { z } from "zod";
 // Allows only letters, numbers, underscores, and hyphens
 const validNameRegex = /^[a-zA-Z0-9_-]+$/;
 
+const secretNameSchema = z
+  .string()
+  .regex(validNameRegex, {
+    message:
+      "Name can only contain letters, numbers, underscores, or hyphens. No spaces allowed"
+  })
+  .min(3, { message: "Name must be at least 3 characters long" })
+  .max(32, { message: "Name must be at most 32 characters long" });
+
 const createSecretRequestSchema = z.object({
-  name: z
-    .string()
-    .regex(validNameRegex, {
-      message:
-        "Name can only contain letters, numbers, underscores, or hyphens. No spaces allowed"
-    })
-    .min(3, { message: "Name must be at least 3 characters long" })
-    .max(32, { message: "Name must be at most 32 characters long" }),
+  name: secretNameSchema,
   secret: z.string()
 });
 
-export { createSecretRequestSchema };
+// An empty name or secret (proto3's default for a field left out) keeps the stored one.
+const updateSecretRequestSchema = z.object({
+  ref: z.string(),
+  name: z.union([z.literal(""), secretNameSchema]).optional(),
+  secret: z.string().optional()
+});
+
+export { createSecretRequestSchema, updateSecretRequestSchema };

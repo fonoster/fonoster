@@ -372,10 +372,10 @@ Named secret values stored in the workspace. `new SDK.Secrets(client)`.
 | Method                                 | Purpose                  | Key params       | Returns                                       |
 | -------------------------------------- | ------------------------ | ---------------- | --------------------------------------------- |
 | `createSecret(request)`                | Store a secret           | `name`, `secret` | `{ ref }`                                     |
-| `getSecret(ref)`                       | Get one secret           |                  | `{ ref, name, secret, createdAt, updatedAt }` |
-| `updateSecret({ ref, ...fields })`     | Change the name or value | `name`, `secret` | `{ ref }`                                     |
-| `listSecrets({ pageSize, pageToken })` | List secrets             |                  | `{ items, nextPageToken }`                    |
-| `deleteSecret(ref)`                    | Remove a secret          |                  | `{ ref }`                                     |
+| `getSecret(ref)`                       | Get one secret           |                  | `{ ref, name, secret, createdAt, updatedAt }`. `secret` is filled only for an API key, and never for a vendor key (`provider-key/…`) |
+| `updateSecret({ ref, ...fields })`     | Change the name or value. A field left out or empty keeps its value. Refuses a vendor key | `name`, `secret` | `{ ref }`                                     |
+| `listSecrets({ pageSize, pageToken })` | List secrets, without values |              | `{ items, nextPageToken }`                    |
+| `deleteSecret(ref)`                    | Remove a secret. Refuses a vendor key |     | `{ ref }`                                     |
 
 ## ApiKeys
 

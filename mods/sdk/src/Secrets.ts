@@ -122,7 +122,9 @@ class Secrets {
   }
 
   /**
-   * Retrieves an existing Secret in the Workspace.
+   * Retrieves an existing Secret in the Workspace. The value (`secret`) is returned only to a
+   * client signed in with an API key, and never for a vendor key (`provider-key/*`); everyone else
+   * gets the ref, name and dates.
    *
    * @param {string} ref - The reference of the Secret to retrieve
    * @return {Promise<Acl>} - The response object that contains the Secret
@@ -152,7 +154,8 @@ class Secrets {
   }
 
   /**
-   * Updates an existing Secret in the Workspace.
+   * Updates an existing Secret in the Workspace. A name or secret left out or empty keeps the
+   * stored one. Vendor keys (`provider-key/*`) are refused; set them with `Providers`.
    *
    * @param {UpdateSecretRequest} request - The request object that contains the necessary information to update an existing Secret
    * @param {string} request.ref - The reference of the Secret to update
@@ -188,7 +191,7 @@ class Secrets {
   }
 
   /**
-   * Retrieves a list of Secrets from a Workspace.
+   * Retrieves a list of Secrets from a Workspace, without their values.
    *
    * @param {ListSecretsRequest} request - The request object that contains the necessary information to retrieve a list of Secrets
    * @param {number} request.pageSize - The secret of Secrets to retrieve

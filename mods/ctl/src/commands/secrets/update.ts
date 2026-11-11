@@ -50,8 +50,8 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
         required: true,
         default: secretFromDB.name
       }),
-      type: await password({
-        message: "Secret"
+      secret: await password({
+        message: "Secret (leave empty to keep the current one)"
       }),
       confirm: await confirm({
         message: "Ready?"
@@ -66,7 +66,8 @@ export default class Update extends AuthenticatedCommand<typeof Update> {
     try {
       await secrets.updateSecret({
         ref: args.ref,
-        ...answers
+        name: answers.name,
+        ...(answers.secret ? { secret: answers.secret } : {})
       } as UpdateSecretRequest);
 
       this.log("Done!");

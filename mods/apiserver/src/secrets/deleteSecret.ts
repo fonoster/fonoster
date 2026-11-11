@@ -21,6 +21,7 @@ import { getLogger } from "@fonoster/logger";
 import { BaseApiObject } from "@fonoster/types";
 import { Prisma } from "../core/db";
 import { withErrorHandlingAndValidationAndAccess } from "../utils/withErrorHandlingAndValidationAndAccess";
+import { isVendorKey, vendorKeyError } from "./access";
 import { createGetFnUtil } from "./createGetFnUtil";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -34,6 +35,10 @@ function deleteSecret(prisma: Prisma) {
     const { ref } = call.request;
 
     logger.verbose("call to deleteSecret", { ref });
+
+    if (isVendorKey((await getFn(ref)).name)) {
+      throw vendorKeyError();
+    }
 
     await prisma.secret.delete({ where: { ref } });
 

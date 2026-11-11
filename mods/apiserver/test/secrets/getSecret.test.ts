@@ -34,7 +34,7 @@ describe("@secrets/getSecret", function () {
     return sandbox.restore();
   });
 
-  it("should get a secret by id", async function () {
+  it("should get a secret by id, without its value for a person signed in", async function () {
     // Arrange
     const metadata = new grpc.Metadata();
     metadata.set("token", TEST_TOKEN);
@@ -75,7 +75,7 @@ describe("@secrets/getSecret", function () {
     expect(prisma.secret.findUnique).to.have.been.calledTwice;
     expect(response).have.property("ref", secret.ref);
     expect(response).have.property("name", secret.name);
-    expect(response).have.property("secret", secret.secret);
+    expect(response).have.property("secret", "");
   });
 
   it("should throw an error if the secret is not found", async function () {

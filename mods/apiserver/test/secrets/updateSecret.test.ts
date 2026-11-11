@@ -44,7 +44,7 @@ describe("@secrets/updateSecret", function () {
       metadata,
       request: {
         ref: "123",
-        name: "My new secret name",
+        name: "my-new-secret-name",
         secret: "123456"
       }
     };
@@ -82,7 +82,7 @@ describe("@secrets/updateSecret", function () {
       metadata,
       request: {
         ref: "123",
-        name: "My new secret name",
+        name: "my-new-secret-name",
         secret: "123456"
       }
     };

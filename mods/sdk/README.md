@@ -2137,7 +2137,9 @@ secrets
 <a name="Secrets+getSecret"></a>
 
 ### secrets.getSecret(ref) ⇒ <code>Promise.&lt;Acl&gt;</code>
-Retrieves an existing Secret in the Workspace.
+Retrieves an existing Secret in the Workspace. The value (`secret`) is returned only to a
+client signed in with an API key, and never for a vendor key (`provider-key/*`); everyone else
+gets the ref, name and dates.
 
 **Kind**: instance method of [<code>Secrets</code>](#Secrets)  
 **Returns**: <code>Promise.&lt;Acl&gt;</code> - - The response object that contains the Secret  
@@ -2160,7 +2162,8 @@ secrets
 <a name="Secrets+updateSecret"></a>
 
 ### secrets.updateSecret(request) ⇒ <code>Promise.&lt;BaseApiObject&gt;</code>
-Updates an existing Secret in the Workspace.
+Updates an existing Secret in the Workspace. A name or secret left out or empty keeps the
+stored one. Vendor keys (`provider-key/*`) are refused; set them with `Providers`.
 
 **Kind**: instance method of [<code>Secrets</code>](#Secrets)  
 **Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the updated Secret  
@@ -2189,7 +2192,7 @@ secrets
 <a name="Secrets+listSecrets"></a>
 
 ### secrets.listSecrets(request) ⇒ <code>Promise.&lt;ListSecretsResponse&gt;</code>
-Retrieves a list of Secrets from a Workspace.
+Retrieves a list of Secrets from a Workspace, without their values.
 
 **Kind**: instance method of [<code>Secrets</code>](#Secrets)  
 **Returns**: <code>Promise.&lt;ListSecretsResponse&gt;</code> - - The response object that contains the list of Secrets  
