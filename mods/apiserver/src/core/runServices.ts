@@ -54,8 +54,9 @@ import { subscribeRegistryUsage } from "../providers";
 import {
   CallRecordsConfig,
   createTrunkOfNumber,
-  RecordsDb,
-  runCallRecords
+  createWorkspaceSipResources,
+  runCallRecords,
+  WorkspaceErasureDb
 } from "../records";
 import {
   createSnapshotSources,
@@ -82,7 +83,7 @@ import { identityConfig } from "./identityConfig";
 import { loadOps } from "./loadOps";
 import loadServices from "./loadServices";
 import { workspaceRegionHooks } from "./regionHooks";
-import { routrNumbers } from "./routrConfig";
+import { routrNumbers, routrTrunks } from "./routrConfig";
 import services from "./services";
 import { apiserverTelemetry } from "./telemetry";
 import { createTelemetryInterceptor } from "./telemetryInterceptor";
@@ -152,12 +153,19 @@ async function runServices() {
       issuer: IDENTITY_ISSUER,
       audience: IDENTITY_AUDIENCE
     },
-    db: prisma as unknown as RecordsDb,
+    db: prisma as unknown as WorkspaceErasureDb,
     relay: { regionOf: regions.regionOf, client: regions.relay },
     onConfigChange: regions.onConfigChange,
     usage: { directory: () => workspaceRegionHooks.directory() },
     // Never service.directory: its empty stand-in answers "no workspace" for every key.
     workspaces: () => workspaceRegionHooks.directory(),
+    // A deleted workspace's numbers and trunks: listed through sipnet's handlers, which filter
+    // by workspace, and deleted on Routr itself (the gRPC delete handlers need a caller's token).
+    sip: createWorkspaceSipResources({
+      handlers,
+      numbers: routrNumbers(),
+      trunks: routrTrunks()
+    }),
     trunkOf: createTrunkOfNumber(routrNumbers())
   });
 

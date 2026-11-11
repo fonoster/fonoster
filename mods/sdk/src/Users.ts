@@ -298,7 +298,7 @@ class Users {
   /**
    * Deletes an existing User from Fonoster.
    * Note that this operation is irreversible.
-   * The workspaces the user owns are deleted: calls to their numbers stop, and their call records and recordings are erased 30 days later.
+   * The workspaces the user owns are deleted, with their applications, secrets, provider keys, webhooks, numbers and trunks. Their call records and recordings are erased 30 days later.
    * Where billing is on, the user's plan is canceled, and the delete fails with FAILED_PRECONDITION while the user has a balance due.
    *
    * @param {string} ref - The reference of the User to delete

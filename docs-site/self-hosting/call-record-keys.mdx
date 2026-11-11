@@ -206,9 +206,10 @@ minutes. To change how often, set `callRecords.retentionIntervalMinutes` in
 ## Restore a deleted workspace's call records
 
 Within 30 days of a delete, you can keep a workspace's call records. Only the records come back:
-the workspace's members, and anything else deleted with it, don't. Look up its access key id in
-Identity's database (`SELECT * FROM workspace_deletions ORDER BY deleted_at DESC;`), then, in that
-database:
+the workspace's members, and anything else deleted with it, don't; the workspace's agents, apps,
+secrets, webhooks, numbers and trunks were deleted within the hour of the delete and don't. Look up
+its access key id in Identity's database
+(`SELECT * FROM workspace_deletions ORDER BY deleted_at DESC;`), then, in that database:
 
 ```sql
 INSERT INTO workspaces (ref, access_key_id, name, owner_ref, region)

@@ -182,11 +182,11 @@ describe("Settings · General", () => {
     const { user } = setup();
     const danger = screen.getByRole("region", { name: "Danger zone" });
     expect(danger).toHaveTextContent(
-      "Ends access for every member and stops calls to its numbers now. Call records and recordings are erased after 30 days. Agents, apps, numbers and trunks aren't deleted. Can't be undone."
+      "Ends access for every member and stops calls to its numbers now. Deletes agents, apps, secrets, vendor keys, webhooks, numbers and trunks. Call records and recordings are erased after 30 days. Can't be undone."
     );
     await user.click(screen.getByRole("button", { name: "Delete workspace" }));
     expect(screen.getByRole("dialog")).toHaveTextContent(
-      "Every member loses access to this workspace, and calls to its numbers stop now. Its call records and recordings are erased after 30 days. Its agents, apps, numbers and trunks aren't deleted. This can't be undone."
+      "Every member loses access to this workspace, and calls to its numbers stop now. Its agents, apps, secrets, vendor keys, webhooks, numbers and trunks are deleted. Its call records and recordings are erased after 30 days. This can't be undone."
     );
     expect(screen.queryByText(/private region/)).not.toBeInTheDocument();
   });
@@ -201,12 +201,12 @@ describe("Settings · General", () => {
     const danger = screen.getByRole("region", { name: "Danger zone" });
     await vi.waitFor(() =>
       expect(danger).toHaveTextContent(
-        `Call records and recordings are erased after 30 days. ${keeps} Agents, apps, numbers and trunks aren't deleted.`
+        `Deletes agents, apps, secrets, vendor keys, webhooks, numbers and trunks. Call records and recordings are erased after 30 days. ${keeps} Can't be undone.`
       )
     );
     await user.click(screen.getByRole("button", { name: "Delete workspace" }));
     expect(screen.getByRole("dialog")).toHaveTextContent(
-      `Its call records and recordings are erased after 30 days. ${keeps} Its agents, apps, numbers and trunks aren't deleted.`
+      `Its agents, apps, secrets, vendor keys, webhooks, numbers and trunks are deleted. Its call records and recordings are erased after 30 days. ${keeps} This can't be undone.`
     );
   });
 

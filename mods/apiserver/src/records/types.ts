@@ -90,6 +90,37 @@ export interface RecordsDb {
   };
 }
 
+type DeleteByWorkspace = {
+  deleteMany(args: {
+    where: { accessKeyId: string };
+  }): Promise<{ count: number }>;
+};
+
+/**
+ * What the erasure of deleted workspaces uses of the Prisma client (#1321): the records' slice,
+ * and the tables that hold a workspace's applications, secrets and webhooks.
+ */
+export type WorkspaceErasureDb = RecordsDb & {
+  /** Their tts_services, stt_services and intelligence_services rows cascade. */
+  application: DeleteByWorkspace;
+  /** Their workspace_provider_keys rows cascade. */
+  secret: DeleteByWorkspace;
+  webhookEndpoint: DeleteByWorkspace;
+  webhookDelivery: DeleteByWorkspace;
+};
+
+/** A workspace's numbers and trunks in Routr, for the erasure of deleted workspaces (#1321). */
+export type WorkspaceSipResources = {
+  /** The refs of the numbers whose `extended.accessKeyId` is the workspace's. */
+  numbers(accessKeyId: string): Promise<string[]>;
+  /** The refs of the trunks whose `extended.accessKeyId` is the workspace's. */
+  trunks(accessKeyId: string): Promise<string[]>;
+  /** Resolves when the number is deleted, or was already gone. */
+  deleteNumber(ref: string): Promise<void>;
+  /** Resolves when the trunk is deleted, or was already gone. */
+  deleteTrunk(ref: string): Promise<void>;
+};
+
 /** Sends retention and erasure requests to the region that holds the record. */
 export type MaintenanceClient = (
   region: string,

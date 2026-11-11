@@ -289,12 +289,17 @@ delete it.
 
 Only the owner can delete a workspace. Go to **Settings** > **General** and, under
 **Danger zone**, choose **Delete workspace**. Every member loses access, and calls to the
-workspace's numbers stop, right away. Fonoster erases the workspace's call records and recordings
-30 days later. Its agents, apps, numbers and trunks aren't deleted. This can't be undone.
+workspace's numbers stop, right away. Fonoster deletes its agents, apps, secrets, vendor keys,
+webhooks, numbers and trunks, and erases its call records and recordings 30 days later. This can't
+be undone.
 
-If the workspace uses a private region, its call records and recordings aren't erased. Deleting a
-user also deletes the workspaces they own, with the same result. For each call, Fonoster keeps a
-signed tombstone with no parties and no content. Your usage totals stay.
+The deletes run in the background and usually finish within about an hour. Until then, your server
+can still receive events from the workspace's webhooks. Deleting a number here doesn't release it
+at your carrier, and deleting a vendor key doesn't revoke it at the vendor, so do both there too.
+If the workspace uses a private region, its call records, recordings and the vendor keys set on
+that region aren't erased, and the region removes its copies of the webhooks the next time it syncs
+with Fonoster. Deleting a user also deletes the workspaces they own, with the same result. For each
+call, Fonoster keeps a signed tombstone with no parties and no content. Your usage totals stay.
 
 <Warning>
   Download any recordings and records you need first. After you delete the workspace, you can't

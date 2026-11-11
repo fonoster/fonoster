@@ -19,8 +19,8 @@
 import {
   AuditRow,
   CallRecordRow,
-  RecordsDb,
-  RetentionRow
+  RetentionRow,
+  WorkspaceErasureDb
 } from "../../src/records";
 
 type Where = Record<string, unknown>;
@@ -47,12 +47,62 @@ function matches(row: Record<string, unknown>, where: Where): boolean {
   });
 }
 
-/** Just enough of Prisma for the records code: equality, null, lt/gte, has, startsWith, OR/AND/NOT, order, take, count. */
+type Owned = { ref: string; accessKeyId: string };
+
+/**
+ * Just enough of Prisma for the records code: equality, null, lt/gte, has, startsWith, OR/AND/NOT,
+ * order, take, count. And for the erasure of deleted workspaces (#1321): `deleteMany` by workspace
+ * on applications, secrets, webhook endpoints and deliveries, with the database's cascades
+ * (an application's vendor services, a secret's provider keys) and the order of the deletes.
+ */
 export function memoryRecordsDb() {
   const records = new Map<string, CallRecordRow>();
   const audits: AuditRow[] = [];
   const retention: (RetentionRow & { ref: string })[] = [];
-  const db: RecordsDb = {
+  const applications: Owned[] = [];
+  /** tts_services, stt_services and intelligence_services rows: they go with their application. */
+  const appServices: { table: string; applicationRef: string }[] = [];
+  const secrets: Owned[] = [];
+  /** workspace_provider_keys rows: they go with their secret. Not part of WorkspaceErasureDb. */
+  const providerKeys: {
+    accessKeyId: string;
+    providerId: string;
+    secretRef: string;
+  }[] = [];
+  const endpoints: Owned[] = [];
+  const deliveries: (Owned & { endpointRef: string })[] = [];
+  /** Every `deleteMany` by workspace, in order: `<model>:<accessKeyId>`. */
+  const deletes: string[] = [];
+  const keep = <T>(rows: T[], test: (row: T) => boolean) =>
+    rows.splice(0, rows.length, ...rows.filter(test));
+  const deleteOwned =
+    (model: string, rows: Owned[], cascade?: (gone: string[]) => void) =>
+    async ({ where }: { where: { accessKeyId: string } }) => {
+      deletes.push(`${model}:${where.accessKeyId}`);
+      const gone = rows
+        .filter((r) => r.accessKeyId === where.accessKeyId)
+        .map((r) => r.ref);
+      keep(rows, (r) => r.accessKeyId !== where.accessKeyId);
+      cascade?.(gone);
+      return { count: gone.length };
+    };
+  const db: WorkspaceErasureDb = {
+    application: {
+      deleteMany: deleteOwned("application", applications, (gone) =>
+        keep(appServices, (s) => !gone.includes(s.applicationRef))
+      )
+    },
+    secret: {
+      deleteMany: deleteOwned("secret", secrets, (gone) =>
+        keep(providerKeys, (k) => !gone.includes(k.secretRef))
+      )
+    },
+    webhookEndpoint: {
+      deleteMany: deleteOwned("webhookEndpoint", endpoints)
+    },
+    webhookDelivery: {
+      deleteMany: deleteOwned("webhookDelivery", deliveries)
+    },
     callRecord: {
       findUnique: async ({ where }) => records.get(where.callRef) ?? null,
       findMany: async (args) => {
@@ -136,5 +186,17 @@ export function memoryRecordsDb() {
       }
     }
   };
-  return { db, records, audits, retention };
+  return {
+    db,
+    records,
+    audits,
+    retention,
+    applications,
+    appServices,
+    secrets,
+    providerKeys,
+    endpoints,
+    deliveries,
+    deletes
+  };
 }

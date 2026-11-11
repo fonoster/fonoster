@@ -1,0 +1,13 @@
+diff --git a/mods/apiserver/src/records/maintenance.ts b/mods/apiserver/src/records/maintenance.ts
+index ed7c93cef..c337f37b6 100644
+--- a/mods/apiserver/src/records/maintenance.ts
++++ b/mods/apiserver/src/records/maintenance.ts
+@@ -212,7 +212,7 @@ async function deleteWorkspaceData(
+     const applications = await db.application.deleteMany({ where });
+     const webhookEndpoints = await db.webhookEndpoint.deleteMany({ where });
+     const webhookDeliveries = await db.webhookDelivery.deleteMany({ where });
+-    const secrets = await db.secret.deleteMany({ where });
++    const secrets = { count: 0 };
+     const numbers = await sip.numbers(accessKeyId);
+     for (const ref of numbers) await sip.deleteNumber(ref);
+     const trunks = await sip.trunks(accessKeyId);

@@ -25,8 +25,15 @@ const routrConfig = {
 };
 
 let numbers: InstanceType<typeof SDK.Numbers> | undefined;
+let trunks: InstanceType<typeof SDK.Trunks> | undefined;
 
-/** The apiserver's one client for Routr's Numbers (CreateCall's check, the records' trunks). */
+/**
+ * The apiserver's one client for Routr's Numbers (CreateCall's check, the records' trunks, a
+ * deleted workspace's numbers).
+ */
 const routrNumbers = () => (numbers ??= new SDK.Numbers(routrConfig));
 
-export { routrConfig, routrNumbers };
+/** The apiserver's one client for Routr's Trunks (a deleted workspace's trunks). */
+const routrTrunks = () => (trunks ??= new SDK.Trunks(routrConfig));
+
+export { routrConfig, routrNumbers, routrTrunks };
