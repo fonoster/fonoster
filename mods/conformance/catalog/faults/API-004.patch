@@ -1,5 +1,5 @@
 diff --git a/mods/common/src/validators/secrets.ts b/mods/common/src/validators/secrets.ts
-index 70cab2621..b951763ea 100644
+index a47e5b9d7..3ae0e2d42 100644
 --- a/mods/common/src/validators/secrets.ts
 +++ b/mods/common/src/validators/secrets.ts
 @@ -19,7 +19,7 @@
@@ -9,5 +9,5 @@ index 70cab2621..b951763ea 100644
 -const validNameRegex = /^[a-zA-Z0-9_-]+$/;
 +const validNameRegex = /^.*$/;
  
- const createSecretRequestSchema = z.object({
-   name: z
+ const secretNameSchema = z
+   .string()
