@@ -1,7 +1,9 @@
-# Fonoster Cloud's whole catalog: production applies this file on every start, in place of the base
+# Fonoster Cloud's whole catalog: production applies it on every start, in place of the base
 # config/catalog.yaml (compose.catalog.yaml). Everything Cloud offers is here, and nothing else.
-# No keys here. A language model needs a price on the rate card in force (mods/billing/rate-cards), or
-# its usage on platform keys isn't billed.
+# No keys here. Each model carries its vendor cost per meter (`cost`), where it was read (`source`)
+# and, only when Fonoster charges other than cost, its `price`. `npm run generate:catalog` writes
+# catalog.cloud.yaml (this file without those keys, which production applies), the next rate card
+# when a price changes (mods/billing/rate-cards), and the docs tables. Never edit those by hand.
 entries:
   # ---- providers -------------------------------------------------------------------------
   - { kind: provider, id: deepgram, label: "Deepgram", adapter: deepgram, capabilities: [stt, tts], credentialRef: deepgram, state: active }
@@ -12,26 +14,179 @@ entries:
   - { kind: provider, id: elevenlabs, label: "ElevenLabs", adapter: elevenlabs, capabilities: [tts], credentialRef: elevenlabs, state: active }
   - { kind: provider, id: aicoustics, label: "ai-coustics", adapter: aicoustics, capabilities: [nc], credentialRef: aicoustics, state: active }
   # ---- language models: tested, see add-qualified-llm-vendors design D1 ----------------------
-  - { kind: model, id: openai/gpt-5.4-mini, label: "GPT-5.4 Mini", type: llm, features: [streaming, tool-calling, json-mode, reasoning], languages: [], settings: [], state: active }
-  - { kind: model, id: openai/gpt-6-luna, label: "GPT-6 Luna", type: llm, features: [streaming, tool-calling, reasoning], languages: [], settings: [], state: active }
-  - { kind: model, id: openai/gpt-6-sol, label: "GPT-6 Sol", type: llm, features: [streaming, tool-calling, reasoning], languages: [], settings: [], state: active }
-  - { kind: model, id: openai/gpt-6.1-terra, label: "GPT-6.1 Terra", type: llm, features: [streaming, tool-calling, reasoning], languages: [], settings: [], state: active }
-  - { kind: model, id: groq/openai/gpt-oss-120b, label: "GPT-OSS 120B", type: llm, features: [streaming, tool-calling, reasoning-low], languages: [], settings: [], state: active }
-  - { kind: model, id: anthropic/claude-haiku-5-5, label: "Claude Haiku 5.5", type: llm, features: [streaming, tool-calling, reasoning, fixed-sampling], languages: [], settings: [], state: active }
-  - { kind: model, id: anthropic/claude-sonnet-5-5, label: "Claude Sonnet 5.5", type: llm, features: [streaming, tool-calling, reasoning-low, fixed-sampling], languages: [], settings: [], state: active }
-  - { kind: model, id: google/gemini-3.1-flash-lite, label: "Gemini 3.1 Flash-Lite", type: llm, features: [streaming, tool-calling, reasoning], languages: [], settings: [], state: active }
-  - { kind: model, id: google/gemini-3.6-flash, label: "Gemini 3.6 Flash", type: llm, features: [streaming, tool-calling, reasoning, fixed-sampling], languages: [], settings: [], state: active }
+  - kind: model
+    id: openai/gpt-5.4-mini
+    label: "GPT-5.4 Mini"
+    type: llm
+    features: [streaming, tool-calling, json-mode, reasoning]
+    languages: []
+    settings: []
+    state: active
+    cost:
+      llm.tokens.in: { usd: 0.75, per: 1000000 }   # uncached input only
+      llm.tokens.cached: { usd: 0.075, per: 1000000 }
+      llm.tokens.out: { usd: 4.50, per: 1000000 }
+    source: "https://developers.openai.com/api/docs/pricing (2026-11-06)"
+  - kind: model
+    id: openai/gpt-6-luna
+    label: "GPT-6 Luna"
+    type: llm
+    features: [streaming, tool-calling, reasoning]
+    languages: []
+    settings: []
+    state: active
+    cost:
+      llm.tokens.in: { usd: 0.10, per: 1000000 }
+      llm.tokens.cached: { usd: 0.01, per: 1000000 }
+      llm.tokens.out: { usd: 0.50, per: 1000000 }
+    source: "https://developers.openai.com/api/docs/pricing (2026-11-06)"
+  - kind: model
+    id: openai/gpt-6-sol
+    label: "GPT-6 Sol"
+    type: llm
+    features: [streaming, tool-calling, reasoning]
+    languages: []
+    settings: []
+    state: active
+    cost:
+      llm.tokens.in: { usd: 2, per: 1000000 }
+      llm.tokens.cached: { usd: 0.20, per: 1000000 }
+      llm.tokens.out: { usd: 10, per: 1000000 }
+    source: "https://developers.openai.com/api/docs/pricing (2026-11-06)"
+  - kind: model
+    id: openai/gpt-6.1-terra
+    label: "GPT-6.1 Terra"
+    type: llm
+    features: [streaming, tool-calling, reasoning]
+    languages: []
+    settings: []
+    state: active
+    cost:
+      llm.tokens.in: { usd: 1, per: 1000000 }
+      llm.tokens.cached: { usd: 0.05, per: 1000000 }
+      llm.tokens.out: { usd: 5, per: 1000000 }
+    source: "https://developers.openai.com/api/docs/pricing (2026-11-06)"
+  - kind: model
+    id: groq/openai/gpt-oss-120b
+    label: "GPT-OSS 120B"
+    type: llm
+    features: [streaming, tool-calling, reasoning-low]
+    languages: []
+    settings: []
+    state: active
+    cost:
+      llm.tokens.in: { usd: 0.15, per: 1000000 }
+      llm.tokens.cached: { usd: 0.075, per: 1000000 }
+      llm.tokens.out: { usd: 0.60, per: 1000000 }
+    source: "https://console.groq.com/docs/model/openai/gpt-oss-120b (2026-11-06)"
+  - kind: model
+    id: anthropic/claude-haiku-5-5
+    label: "Claude Haiku 5.5"
+    type: llm
+    features: [streaming, tool-calling, reasoning, fixed-sampling]
+    languages: []
+    settings: []
+    state: active
+    cost:
+      llm.tokens.in: { usd: 0.10, per: 1000000 }
+      llm.tokens.cached: { usd: 0.01, per: 1000000 }
+      llm.tokens.out: { usd: 0.50, per: 1000000 }
+    source: "https://platform.claude.com/docs/en/about-claude/pricing (2026-11-06)"
+  - kind: model
+    id: anthropic/claude-sonnet-5-5
+    label: "Claude Sonnet 5.5"
+    type: llm
+    features: [streaming, tool-calling, reasoning-low, fixed-sampling]
+    languages: []
+    settings: []
+    state: active
+    cost:
+      llm.tokens.in: { usd: 2, per: 1000000 }
+      llm.tokens.cached: { usd: 0.10, per: 1000000 }
+      llm.tokens.out: { usd: 10, per: 1000000 }
+    source: "https://platform.claude.com/docs/en/about-claude/pricing (2026-11-06)"
+  - kind: model
+    id: google/gemini-3.1-flash-lite
+    label: "Gemini 3.1 Flash-Lite"
+    type: llm
+    features: [streaming, tool-calling, reasoning]
+    languages: []
+    settings: []
+    state: active
+    cost:
+      llm.tokens.in: { usd: 0.25, per: 1000000 }
+      llm.tokens.cached: { usd: 0.025, per: 1000000 }
+      llm.tokens.out: { usd: 1.50, per: 1000000 }
+    source: "https://ai.google.dev/gemini-api/docs/pricing (2026-11-06)"
+  - kind: model
+    id: google/gemini-3.6-flash
+    label: "Gemini 3.6 Flash"
+    type: llm
+    features: [streaming, tool-calling, reasoning, fixed-sampling]
+    languages: []
+    settings: []
+    state: active
+    cost:
+      llm.tokens.in: { usd: 0.75, per: 1000000 }
+      llm.tokens.cached: { usd: 0.075, per: 1000000 }
+      llm.tokens.out: { usd: 3.75, per: 1000000 }
+    source: "https://ai.google.dev/gemini-api/docs/pricing (2026-11-06)"
   # ---- speech models ----------------------------------------------------------------------
   # Nova 3 is Cloud's only transcriber: it covers every Nova 2 language. Languages are Deepgram's
   # Nova 3 codes, region codes included. Nova 2 Phone Call left this file: after the deploy, deprecate
   # it with a replacement, then retire it (ops/cloud/README.md, "After a deploy").
-  - { kind: model, id: deepgram/nova-3, label: "Nova 3", type: stt, features: [streaming, interim-results, word-timings, multilingual], languages: [da, da-DK, tl, ar, ar-AE, ar-DZ, ar-EG, ar-IQ, ar-IR, ar-JO, ar-KW, ar-LB, ar-MA, ar-PS, ar-QA, ar-SA, ar-SD, ar-SY, ar-TD, ar-TN, sk, sk-SK, bg, bg-BG, is, el, en-AU, en-NZ, si, lg, af, be, bn, bs, ca, cs, de, en, en-CA, en-GB, en-IN, en-US, es, et, fa, fi, fr, gl, gu, he, hi, hr, hu, id, it, ja, kn, ko, lt, lv, mk, ml, mr, ms, nb, nl, nl-BE, no, pl, pt, ro, ru, sl, sr, sv, sw, ta, te, th, tr, uk, vi, xh, zh, zh-CN, zh-HK, zh-Hans, zh-Hant, zh-TW, zu, cy, ur, ur-PK, uz, eu, fr-CA, fr-CH, fr-FR, lt-LT, vi-VN, pt-BR, pt-PT, de-CH, it-IT, et-EE, mk-MK, pl-PL, lv-LV, ka, ka-GE, mn, te-IN, mr-IN, hr-HR, sv-SE, tr-TR, cs-CZ, kk, kk-KZ, as, as-IN, ps, ps-AF, af-ZA, hy, hy-AM, ta-IN, id-ID, no-NO, be-BY, bn-IN, bs-BA, ko-KR, es-419, es-AR, es-ES, es-MX, es-US, ja-JP, pa, pa-IN, ru-Latn, ru-RU, gu-IN, sl-SI, sl-SL, hu-HU, kn-IN, ne, nl-NL, de-AT, de-DE, fr-BE, th-TH, sr-RS, multi], settings: [], state: active }
+  - kind: model
+    id: deepgram/nova-3
+    label: "Nova 3"
+    type: stt
+    features: [streaming, interim-results, word-timings, multilingual]
+    languages: [da, da-DK, tl, ar, ar-AE, ar-DZ, ar-EG, ar-IQ, ar-IR, ar-JO, ar-KW, ar-LB, ar-MA, ar-PS, ar-QA, ar-SA, ar-SD, ar-SY, ar-TD, ar-TN, sk, sk-SK, bg, bg-BG, is, el, en-AU, en-NZ, si, lg, af, be, bn, bs, ca, cs, de, en, en-CA, en-GB, en-IN, en-US, es, et, fa, fi, fr, gl, gu, he, hi, hr, hu, id, it, ja, kn, ko, lt, lv, mk, ml, mr, ms, nb, nl, nl-BE, no, pl, pt, ro, ru, sl, sr, sv, sw, ta, te, th, tr, uk, vi, xh, zh, zh-CN, zh-HK, zh-Hans, zh-Hant, zh-TW, zu, cy, ur, ur-PK, uz, eu, fr-CA, fr-CH, fr-FR, lt-LT, vi-VN, pt-BR, pt-PT, de-CH, it-IT, et-EE, mk-MK, pl-PL, lv-LV, ka, ka-GE, mn, te-IN, mr-IN, hr-HR, sv-SE, tr-TR, cs-CZ, kk, kk-KZ, as, as-IN, ps, ps-AF, af-ZA, hy, hy-AM, ta-IN, id-ID, no-NO, be-BY, bn-IN, bs-BA, ko-KR, es-419, es-AR, es-ES, es-MX, es-US, ja-JP, pa, pa-IN, ru-Latn, ru-RU, gu-IN, sl-SI, sl-SL, hu-HU, kn-IN, ne, nl-NL, de-AT, de-DE, fr-BE, th-TH, sr-RS, multi]
+    settings: []
+    state: active
+    cost: { stt.seconds: { usd: 0.0077, per: 60 } }
+    source: "https://deepgram.com/pricing (2026-10-30)"
   # Text to speech (#1323): each vendor's latest model and one generation back. Speed is one 0.7 to
   # 1.2 range for all; v4 Turbo ignores it today. Voices are written by `fonoster-registry sync-voices`.
-  - { kind: model, id: deepgram/flux, label: "Flux", type: tts, features: [streaming], languages: [bg, bn, ca, cs, da, de, el, en, es, et, fi, fr, gu, hi, hr, hu, id, it, ja, kn, ko, lt, lv, mr, ms, nl, no, pl, pt, ro, ru, sk, sl, sv, ta, te, tl, tr, uk, ur, vi, zh], settings: [], state: active }
-  - { kind: model, id: deepgram/aura-2, label: "Aura 2", type: tts, features: [streaming], languages: [de, en, es, fr, it, ja, nl], settings: [], state: active }
-  - { kind: model, id: elevenlabs/eleven_v4_turbo, label: "v4 Turbo", type: tts, features: [streaming], languages: [af, am, ar, as, ast, az, be, bg, bn, bs, ca, ceb, ckb, cs, cy, da, de, el, en, es, et, fa, ff, fi, fil, fr, ga, gl, gu, ha, he, hi, hr, hu, hy, id, is, it, ja, jv, ka, kam, kk, kn, ko, ky, lb, lg, ln, lo, lt, lv, mi, mk, ml, mn, mr, ms, mt, my, ne, nl, no, ny, oc, or, pa, pl, ps, pt, ro, ru, sd, sk, sl, sn, so, sr, sv, sw, ta, te, tg, th, tr, uk, ur, uz, vi, wo, yo, yue, zh, zu], settings: [], state: active }
-  - { kind: model, id: elevenlabs/eleven_flash_v2_5, label: "Flash v2.5", type: tts, features: [streaming], languages: [ar, bg, cs, da, de, el, en, es, fi, fil, fr, hi, hr, hu, id, it, ja, ko, ms, nl, no, pl, pt, ro, ru, sk, sv, ta, tr, uk, vi, zh], settings: [], state: active }
+  - kind: model
+    id: deepgram/flux
+    label: "Flux"
+    type: tts
+    features: [streaming]
+    languages: [bg, bn, ca, cs, da, de, el, en, es, et, fi, fr, gu, hi, hr, hu, id, it, ja, kn, ko, lt, lv, mr, ms, nl, no, pl, pt, ro, ru, sk, sl, sv, ta, te, tl, tr, uk, ur, vi, zh]
+    settings: []
+    state: active
+    cost: { tts.characters: { usd: 0.045, per: 1000 } }
+    source: "https://deepgram.com/pricing (2026-11-07)"
+  - kind: model
+    id: deepgram/aura-2
+    label: "Aura 2"
+    type: tts
+    features: [streaming]
+    languages: [de, en, es, fr, it, ja, nl]
+    settings: []
+    state: active
+    cost: { tts.characters: { usd: 0.030, per: 1000 } }
+    source: "https://deepgram.com/pricing (2026-10-30)"
+  - kind: model
+    id: elevenlabs/eleven_v4_turbo
+    label: "v4 Turbo"
+    type: tts
+    features: [streaming]
+    languages: [af, am, ar, as, ast, az, be, bg, bn, bs, ca, ceb, ckb, cs, cy, da, de, el, en, es, et, fa, ff, fi, fil, fr, ga, gl, gu, ha, he, hi, hr, hu, hy, id, is, it, ja, jv, ka, kam, kk, kn, ko, ky, lb, lg, ln, lo, lt, lv, mi, mk, ml, mn, mr, ms, mt, my, ne, nl, no, ny, oc, or, pa, pl, ps, pt, ro, ru, sd, sk, sl, sn, so, sr, sv, sw, ta, te, tg, th, tr, uk, ur, uz, vi, wo, yo, yue, zh, zu]
+    settings: []
+    state: active
+    cost: { tts.characters: { usd: 0.04, per: 1000 } }
+    source: "https://elevenlabs.io/pricing/api (2026-11-07)"
+  - kind: model
+    id: elevenlabs/eleven_flash_v2_5
+    label: "Flash v2.5"
+    type: tts
+    features: [streaming]
+    languages: [ar, bg, cs, da, de, el, en, es, fi, fil, fr, hi, hr, hu, id, it, ja, ko, ms, nl, no, pl, pt, ro, ru, sk, sv, ta, tr, uk, vi, zh]
+    settings: []
+    state: active
+    cost: { tts.characters: { usd: 0.04, per: 1000 } }
+    source: "https://elevenlabs.io/pricing/api (2026-11-07)"
   # ---- voices -----------------------------------------------------------------------------
   - { kind: voice, id: deepgram/flux-afsana-bn, label: "Afsana", models: [deepgram/flux], language: bn, gender: female, accent: Bangladeshi, state: active }
   - { kind: voice, id: deepgram/flux-agnese-lv, label: "Agnese", models: [deepgram/flux], language: lv, gender: female, accent: Latvian, state: active }

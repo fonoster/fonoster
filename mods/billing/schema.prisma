@@ -121,7 +121,7 @@ model BalanceSnapshot {
 model StripeOutbox {
   id            String    @id @default(uuid())
   accountId     String?   @map("account_id")
-  /// customer | subscription | meter_event | credit_grant | topup_invoice | refund
+  /// customer | subscription | meter_event | credit_grant | topup_invoice | refund | cancel_subscription
   kind          String    @db.VarChar(32)
   payload       Json
   attempts      Int       @default(0)

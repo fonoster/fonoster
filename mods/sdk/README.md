@@ -2747,6 +2747,7 @@ users
 Deletes an existing User from Fonoster.
 Note that this operation is irreversible.
 The workspaces the user owns are deleted: calls to their numbers stop, and their call records and recordings are erased 30 days later.
+Where billing is on, the user's plan is canceled, and the delete fails with FAILED_PRECONDITION while the user has a balance due.
 
 **Kind**: instance method of [<code>Users</code>](#Users)  
 **Returns**: <code>Promise.&lt;BaseApiObject&gt;</code> - - The response object that contains the reference to the deleted User  

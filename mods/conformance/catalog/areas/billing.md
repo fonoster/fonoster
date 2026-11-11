@@ -25,6 +25,7 @@ tests:
   - mods/billing/test/operator.test.ts
   - mods/billing/test/stripe.test.ts
   - mods/billing/test/api.test.ts
+  - mods/billing/test/closeAccount.test.ts
   - mods/apiserver/test/usage/*.test.ts
   - mods/apiserver/test/billing/proxy.test.ts
   - mods/appbridge/test/usage.test.ts
@@ -878,3 +879,29 @@ adapter talks to a local stand-in for Deepgram's HTTP API, on the platform key.
 **Pass.** The app speaks 120 characters and the call's usage has one `tts.characters` line: provider
 `deepgram`, model `deepgram/flux`, quantity 120, keySource `platform`. **Fail.** The line names the
 voice, another provider or another quantity.
+
+### BIL-057 Deleting a user cancels their plan, or is refused while they owe
+
+- **Spec:** billing / Closing an account when its owner is deleted / A settled owner is deleted
+- **Spec:** billing / Closing an account when its owner is deleted / An owner with a balance due
+- **Spec:** billing / Closing an account when its owner is deleted / An open invoice at Stripe
+- **Spec:** billing / Closing an account when its owner is deleted / An owner with no billing account
+- **Priority:** P0
+- **Proof:** Skip the balance check in `closeAccount` (`mods/billing/src/stripe/accounts.ts`); an owner below zero is closed and the test goes red.
+- **Fault:** faults/BIL-057.patch
+- **Test:** mods/billing/test/closeAccount.test.ts, mods/apiserver/test/billing/proxy.test.ts
+
+`CloseAccount` over gRPC against the Stripe fake, on Postgres: Pay-as-you-go owners with a card and
+auto-recharge on, one per case, set up to owe in one way each (a negative balance, `past_due`, an
+open invoice at the fake, an unsent meter event); a Trial owner; an owner with no account; the fake
+unreachable. The apiserver's client for Identity against a stub billing service.
+
+**Pass.** A settled owner's subscription is canceled at the fake and, once the webhook is applied,
+the account is `none` / `canceled` with auto-recharge off and the same ledger rows; each owing owner
+gets FAILED_PRECONDITION with "the user has a balance due: pay it under Billing, then delete the
+user" and the account, outbox and subscription are unchanged; a Trial owner only has auto-recharge
+turned off; no account is created for an owner without one; calling twice enqueues one cancel;
+Stripe unreachable gives UNAVAILABLE and changes nothing; an empty owner_ref gives
+INVALID_ARGUMENT; the apiserver's Billing service does not serve `closeAccount`. **Fail.** Any
+owing owner is closed, a state differs, or `closeAccount` is served.
+

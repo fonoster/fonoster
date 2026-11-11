@@ -54,9 +54,17 @@ type WorkspaceRegionHooks = {
   }): void;
 };
 
+/** Billing (Fonoster Cloud): closes the user's billing account before the user is deleted. */
+type BillingHooks = {
+  /** Rejects with the gRPC error of billing's CloseAccount (FAILED_PRECONDITION while owing). */
+  closeAccount(ownerRef: string): Promise<void>;
+};
+
 type IdentityConfig = {
   /** Workspace regions (control plane); absent means the default public region only. */
   regions?: WorkspaceRegionHooks;
+  /** Billing (Fonoster Cloud); absent where billing is off (self-hosted). */
+  billing?: BillingHooks;
   dbUrl: string;
   issuer: string;
   audience: string;
@@ -132,6 +140,7 @@ type ExchangeRefreshTokenRequest = z.infer<
 >;
 
 export {
+  BillingHooks,
   RegionWorkspace,
   WorkspaceRegionHooks,
   ExchangeApiKeysRequest,

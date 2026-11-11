@@ -169,6 +169,43 @@ describe("@common/registry sync-voices", function () {
     expect(written!.split("\n")).to.include(zeus);
   });
 
+  it("leaves a model's block-style lines and its cost byte for byte (#1241)", async function () {
+    // Cloud's source catalog writes models in block style, with their vendor cost.
+    const flow = CATALOG.split("\n").find((l) =>
+      l.includes("kind: model, id: deepgram/flux,")
+    )!;
+    const languages = /languages: (\[[^\]]*\])/.exec(flow)![1];
+    const block = [
+      "  - kind: model",
+      "    id: deepgram/flux",
+      '    label: "Flux"',
+      "    type: tts",
+      "    features: [streaming]",
+      `    languages: ${languages}`,
+      "    settings: []",
+      "    state: active",
+      "    cost: { tts.characters: { usd: 0.045, per: 1000 } }",
+      '    source: "https://deepgram.com/pricing (2026-11-07)"'
+    ].join("\n");
+    const file = CATALOG.replace(flow, block);
+
+    const { code, written } = await sync(
+      "deepgram",
+      deepgram().fetch,
+      { DEEPGRAM_API_KEY: "dg-test" },
+      file
+    );
+
+    expect(code).to.equal(0);
+    expect(written).to.contain(block);
+    expect(otherLines(written!, "deepgram")).to.deep.equal(
+      otherLines(file, "deepgram")
+    );
+    expect(voice(written!, "deepgram/flux-fernanda-es")?.models).to.deep.equal([
+      "deepgram/flux"
+    ]);
+  });
+
   it("changes nothing on a second run", async function () {
     const env = { DEEPGRAM_API_KEY: "dg-test" };
     const first = await sync("deepgram", deepgram().fetch, env);

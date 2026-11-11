@@ -28,6 +28,7 @@ import {
 } from "@fonoster/sipnet";
 import { buildApplicationsService } from "../applications";
 import { buildService as buildBillingService } from "../billing/buildService";
+import { createCloseAccount } from "../billing/createCloseAccount";
 import { buildCallsService } from "../calls";
 import { buildCapabilitiesService, connectionDetails } from "../capabilities";
 import { getConfig } from "../config";
@@ -72,7 +73,11 @@ const secretsService = buildSecretsService(prisma);
 const callsService = buildCallsService();
 const identityService = buildIdentityService({
   ...identityConfig,
-  regions: workspaceRegionHooks
+  regions: workspaceRegionHooks,
+  // Fonoster Cloud: deleting a user cancels their plan, or is refused while they owe (#1376).
+  ...(BILLING_ENABLED
+    ? { billing: { closeAccount: createCloseAccount(BILLING_ADDRESS) } }
+    : {})
 });
 const agentsService = buildAgentsService(routrConfig);
 const domainsService = buildDomainsService(routrConfig, {
