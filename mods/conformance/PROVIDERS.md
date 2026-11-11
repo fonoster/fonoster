@@ -31,11 +31,13 @@ Response: HTTP 200, `application/octet-stream`, audio streamed in 20 ms chunks a
 | --- | --- | --- |
 | client → fake | binary | Caller audio in the format from the query string |
 | client → fake | `{type: "config", language?, hints?}` | Changes language or hints for later transcripts |
-| client → fake | `{type: "finalize"}` | Emits every remaining scripted transcript now |
+| client → fake | `{type: "finalize"}` | Emits the entries already due and every `onFinalize` entry whose `atMs` ≤ audio heard so far; later entries keep waiting |
 | fake → client | `{type: "transcript", text, final, language, confidence, startMs, endMs, turn?}` | A scripted transcript; `turn: {eot?, endOfTurn?}` when the script entry sets `eot` or `endOfTurn` (a turn-aware recognizer) |
 
-Transcripts are scripted as `[{atMs, text, final?, language?}]`. An entry fires once the stream
-has carried `atMs` of audio, after the configured delay.
+Transcripts are scripted as `[{atMs, text, final?, language?, onFinalize?}]`. An entry fires once
+the stream has carried `atMs` of audio, after the configured delay. An `onFinalize` entry never
+fires on audio time, only on a `finalize` received once its `atMs` of audio has been heard, as a
+recognizer that holds its final until asked.
 
 ## LLM: `POST {llm}/v1/chat/completions`
 

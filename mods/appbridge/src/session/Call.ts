@@ -1258,6 +1258,7 @@ export class AppSession {
         },
         // The app owns interruption (B22): AppBridge only reports turn.user_started.
         interruption: () => this.labeler.interruption(Date.now()),
+        finalize: () => this.stt?.finalize?.(),
         patience: (change) =>
           this.call.record("event", { type: "turn.patience", ...change })
       },

@@ -67,6 +67,8 @@ export type PacingHandlers = {
   estimate(estimate: Estimate): void;
   /** Caller speech of kind interruption while agent output plays. */
   interruption(): void;
+  /** The caller went silent with a partial pending: ask the recognizer for its final. */
+  finalize?(): void;
   /** Patience changed (app setting or within-call adaptation); for the call record. */
   patience?(change: {
     patience: Patience;
@@ -89,6 +91,8 @@ export class Pacing {
   private lastSpeechAt = 0;
   private finals: Transcript[] = [];
   private partialText = "";
+  /** The recognizer was asked for its final during this silence (#1266). */
+  private finalizeAsked = false;
   private language: string;
   private readonly prepare: number;
   private readonly commit: number;
@@ -208,9 +212,18 @@ export class Pacing {
       this.backchannelUntil = at + BACKCHANNEL_TRANSCRIPT_WINDOW_MS;
     }
     this.wasSpeaking = estimate.speaking;
-    if (estimate.speaking) this.lastSpeechAt = at;
+    if (estimate.speaking) {
+      this.lastSpeechAt = at;
+      this.finalizeAsked = false;
+    }
 
     if (!this.inTurn) return;
+    // A recognizer may hold its final for seconds after the caller stops (#1266): ask for it once
+    // per silence, so the Detector's silence count starts from a final that arrives promptly.
+    if (!estimate.speaking && this.partialText && !this.finalizeAsked) {
+      this.finalizeAsked = true;
+      this.handlers.finalize?.();
+    }
     if (
       !estimate.speaking &&
       !this.finals.length &&
