@@ -20,6 +20,8 @@ in `python/`, Mintlify docs in `docs-site/`.
   `npm run test:e2e -w @fonoster/dashboard` (Playwright).
 - Docs: `npm run start:docs` (port 3333), `npm run check:docs`.
 - Protos changed: `npm run generate:protos`.
+- Cloud catalog changed (`ops/cloud/config/catalog.yaml`): `npm run generate:catalog`; CI runs
+  `npm run check:catalog`.
 - Default Verify: `npm run lint && npm run build && npm test`; dashboard area adds the dashboard tests;
   a QA area's cases per `mods/conformance/catalog/areas/<area>.md`.
 

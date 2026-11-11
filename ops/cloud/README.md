@@ -11,7 +11,7 @@ Inventory), from the reference files in this folder:
 | `config/billing.yaml` | Billing's config; each secret is a `${NAME}` from the container's environment |
 | `config/nats-permissions/billing.conf` | Billing's NATS subjects |
 | `inserts.yml` | Billing's NATS user in `config/nats.conf`; `/stripe/webhooks` and `billing-cluster` in `config/envoy-tls.yaml` |
-| `compose.catalog.yaml`, `config/catalog.yaml` | Cloud's whole catalog, in place of the base one |
+| `compose.catalog.yaml`, `config/catalog.cloud.yaml` | Cloud's whole catalog, in place of the base one, generated from `config/catalog.yaml` |
 | `compose.ops.yaml` | The ops API on the API server (`mods/ops`): its secrets, Routr's traces read-only, its state volume |
 | `ops-role.sql` | The ops API's read-only database role, with column grants |
 
@@ -50,8 +50,10 @@ values; only the keys above are billing's.
 
 ## The catalog
 
-`config/catalog.yaml` is everything Cloud offers, and nothing else. Production applies it on every start
-in place of the base catalog. To change what Cloud offers, change this file. In `group_vars/production/main.yml`:
+`config/catalog.yaml` is everything Cloud offers, and nothing else, with what each model costs.
+Production applies `config/catalog.cloud.yaml`, generated from it, on every start in place of the
+base catalog. To change what Cloud offers or what a model costs, change `config/catalog.yaml` and run
+`npm run generate:catalog`. In `group_vars/production/main.yml`:
 
 ```yaml
 fonoster_env:
@@ -59,7 +61,7 @@ fonoster_env:
   COMPOSE_FILE: compose.yaml:compose.external-db.yaml:compose.billing.yaml:compose.traces.yaml:compose.catalog.yaml
 fonoster_files:
   compose.catalog.yaml: "{{ lookup('file', inventory_dir ~ '/cloud/compose.catalog.yaml') }}"
-  config/catalog.cloud.yaml: "{{ lookup('file', inventory_dir ~ '/cloud/config/catalog.yaml') }}"
+  config/catalog.cloud.yaml: "{{ lookup('file', inventory_dir ~ '/cloud/config/catalog.cloud.yaml') }}"
 fonoster_overrides:
   autopilot.yaml:
     credentials:
@@ -77,9 +79,45 @@ fonoster_overrides:
         google: "<key>"
 ```
 
-Each model must have a price on the rate card in force (`mods/billing/rate-cards`). A model without
-one isn't billed on platform keys, and billing logs an alert. Applying a file never removes an entry from
-the database, so taking something off this list leaves its row behind until it is deleted. Before a deploy, `fonoster-registry plan -f <file>` lists what the file would change.
+Before #1241 that lookup read `/cloud/config/catalog.yaml`. Change it once, and before approving the
+next apply read its `--check --diff`: `config/catalog.cloud.yaml` loses its comment lines and gains no
+`cost` or `source` key, and no entry is added, removed or changed. If the inventory still read the
+source, the API server would apply the `cost` and `source` keys and rewrite those rows on every start.
+
+Applying a file never removes an entry from the database, so taking something off this list leaves
+its row behind until it is deleted. Before a deploy, `fonoster-registry plan -f <file>` lists what
+the file would change.
+
+### Prices
+
+Every model that is `active` or `deprecated` carries, in `config/catalog.yaml`:
+
+- `cost`: the vendor's price for each meter of its type, as `{ usd, per }` (`llm`:
+  `llm.tokens.in` for uncached input, `llm.tokens.cached`, `llm.tokens.out`; `stt`: `stt.seconds`;
+  `tts`: `tts.characters`).
+- `source`: the vendor's pricing URL and the date it was read, such as
+  `"https://deepgram.com/pricing (2026-11-07)"`.
+- `price`, only when Fonoster charges other than cost: the same shape as `cost`, used instead of it.
+
+Providers and voices carry none of them. After any change, run `npm run generate:catalog`. It writes:
+
+- `config/catalog.cloud.yaml`: this file without `cost`, `price` and `source`, one entry per line.
+- `docs-site/snippets/cloud-tts-models.mdx` and `cloud-llm-models.mdx`: the docs' Cloud model tables.
+- The next rate card, `mods/billing/rate-cards/<yyyymmdd>.yaml`, only when a model's price in
+  credits (`usd / per / 0.01`) differs from the newest card on `origin/main`. It is a copy of that
+  card with each changed price set and the next `version`. It starts at the next UTC midnight, or 7
+  days later when it changes a price that card already has (a vendor price change, or a new model a
+  provider's `*` already prices). It never starts on or before the card it copies.
+
+Never edit `config/catalog.cloud.yaml`, the snippets or a card once it starts by hand: change this
+file and generate again. Running `generate` again replaces this branch's own card. `npm run
+check:catalog` (in PR Checks) fails when any of them is stale, when a model lacks a cost or a source,
+or when this branch's card starts too soon or was computed from a card that is no longer the newest.
+
+A pull request that writes a rate card is titled `feat(billing): …` (or `fix(billing): …`) so it
+releases: billing loads cards from its image at start. Approve its deploy before the card's
+`startsAt`. Rebase it on main and run `npm run check:catalog` again just before merging: if another
+card merged first, run `npm run generate:catalog`.
 
 AppBridge speaks with ElevenLabs on the platform's key. Before a release that adds or changes
 ElevenLabs, confirm that production's `appbridge.yaml` has a real key on a paid ElevenLabs plan
@@ -108,6 +146,7 @@ ELEVENLABS_API_KEY=... fonoster-registry sync-voices elevenlabs -f ops/cloud/con
 - For ElevenLabs it writes the premade voices only, never cloned or generated ones.
 - A voice already in the file keeps its id. A voice the vendor no longer offers stays in the file
   and is listed under `no longer offered`; the command still exits 0.
+- Run `npm run generate:catalog`, so `config/catalog.cloud.yaml` has the new voices.
 - Open a pull request with the change and review the diff.
 - Don't delete a voice the vendor no longer offers. Deprecate it with a replacement: on the host (the `registry`
   function, see After a deploy), `registry deprecate-voice <id> --replacement <id> --retire-on YYYY-MM-DD`, and set the same
