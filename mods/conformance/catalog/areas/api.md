@@ -979,3 +979,21 @@ characters.
 Four throwaway databases migrated with the real migrations (`prisma migrate deploy` for the apiserver, Identity and billing; Routr's tables from a fixture), the rows of `mods/ops/test/fixtures`, and the ops router on an in-process Express. `GET /api/ops/metrics` with the token, then with the URL of a database that doesn't exist, 20 failed requests, and a write through the module's own connection as a superuser.
 
 **Pass.** The body validates against `snapshot.v1.json` and its numbers equal the fixtures'; the missing database answers 503 with exactly `{schema, ts, error: "query_failed"}` and neither the body nor the log holds the database name, host or user; the write fails with SQLSTATE 25006; `pg_stat_activity` returns to its baseline. **Fail.** Any of those differs.
+
+### API-074 Deleting a workspace erases its call records after 30 days
+
+- **Spec:** identity / Deleting a workspace erases its call records after 30 days / A workspace deleted directly
+- **Spec:** identity / Deleting a workspace erases its call records after 30 days / A workspace deleted with its owner
+- **Priority:** P0
+- **Proof:** Drop the 30-day grace from `runWorkspaceErasure` (`apiserver/src/records/maintenance.ts`); the records are erased at the first sweep and the test goes red.
+- **Fault:** faults/API-074.patch
+- **Test:** mods/conformance/test/api/workspaceErasure.api.ts
+
+A new owner's workspace with two call records in a public region, and a record of workspace A.
+The workspace is deleted through DeleteWorkspace, or with its owner through DeleteUser (the
+cascade). The sweep runs as the apiserver's retention timer runs it, with Identity's directory on
+its database, once right after the delete and once after the deletion record is set back 31 days;
+a stand-in record writer answers on the region's maintenance subject.
+
+**Pass.** Each delete leaves a deletion record; the first sweep requests nothing; the second asks the region to erase both records with reason `workspace deleted` and actor `system:workspace-deleted`, and the index rows are erased (numbers and parts cleared) with one `erase` audit entry each, while workspace A's record stays. **Fail.** No deletion record after the cascade, an erase inside the grace, a missing audit entry, or a live workspace's record erased.
+

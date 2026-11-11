@@ -1,0 +1,14 @@
+diff --git a/mods/apiserver/src/records/maintenance.ts b/mods/apiserver/src/records/maintenance.ts
+index 8eeff7705..dea7ee3e7 100644
+--- a/mods/apiserver/src/records/maintenance.ts
++++ b/mods/apiserver/src/records/maintenance.ts
+@@ -208,7 +208,8 @@ export async function runWorkspaceErasure(
+     now.getTime() - WORKSPACE_ERASURE_GRACE_DAYS * 24 * 3600 * 1000;
+   try {
+     for (const { accessKeyId, deletedAt } of await directory.deleted()) {
+-      if (deletedAt.getTime() >= cutoff) continue;
++      void deletedAt;
++      void cutoff;
+       // Right before its records: the workspace may have been recreated with the same key.
+       if (await directory.workspace(accessKeyId)) continue;
+       const rows = await db.callRecord.findMany({

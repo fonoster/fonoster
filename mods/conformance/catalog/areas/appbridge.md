@@ -26,6 +26,7 @@ tests:
   - mods/appbridge/test/failedCallRecord.test.ts
   - mods/appbridge/test/gonode.test.ts
   - mods/appbridge/test/admission.test.ts
+  - mods/appbridge/test/workspaceDeleted.test.ts
   - mods/appbridge/test/applicationsApi.test.ts
   - mods/appbridge/test/usageReport.test.ts
   - mods/appbridge/test/replayTool.test.ts
@@ -808,3 +809,20 @@ and the final starts the silence count.
 **Pass.** The held final is asked for and the turn ends within 2 s of the caller stopping; a 700 ms
 pause splits the turn at patience low and keeps one turn at normal and high. **Fail.** A turn that
 waits for a final nobody asked for, or a short pause that splits the turn at normal or high patience.
+
+### APB-048 Calls to a deleted workspace are refused
+
+- **Spec:** voice-session / Calls to a deleted workspace are refused / A call to a deleted workspace is refused
+- **Spec:** voice-session / Calls to a deleted workspace are refused / The control plane does not answer
+- **Spec:** voice-session / Calls to a deleted workspace are refused / An app without a workspace
+- **Priority:** P0
+- **Proof:** Admit the call when the answer is `deleted: true` (`onIncoming` in `AppBridge.ts`); the test must go red on the refused call.
+- **Fault:** faults/APB-048.patch
+- **Test:** mods/appbridge/test/workspaceDeleted.test.ts
+
+The fake Roomr node offers inbound calls to an app of workspace WO-A; the apiserver is a fake behind
+the NATS connection's `workspaces.deleted` request that answers deleted, not deleted, nothing
+(timeout), an error, no responders or a malformed reply. Admission is a recording fake that admits.
+
+**Pass.** A deleted workspace's call is rejected with 404 (never 200), reaches neither admission nor the app, and records and sends `call.failed` with reason `workspace_deleted`; a second call within 60 s is refused without a new request; a live workspace is asked on every call and runs; no answer within 300 ms, an error, no responders or a malformed reply admit the call and log `admitted without a workspace check`; an app without a workspace makes no request. **Fail.** A deleted workspace's call answered, a live one refused, or a missing answer that holds the call up or refuses it.
+

@@ -72,6 +72,7 @@ import { Call, CallInfo } from "./session/Call";
 import { Catalog, WorkspaceKeySource } from "./speech/Catalog";
 import { telemetry } from "./telemetry";
 import { headerValue, TestCallVerifier } from "./testCalls";
+import { WorkspaceDeletionCheck } from "./workspaceDeleted";
 
 const logger = getLogger({ service: "appbridge", filePath: __filename });
 const sc = StringCodec();
@@ -190,6 +191,7 @@ export class AppBridge {
   private readonly amdClassifier?: AmdClassifier;
   private readonly testCalls: TestCallVerifier;
   private readonly admission?: Admission;
+  private workspaceCheck?: WorkspaceDeletionCheck;
 
   get config() {
     return this.options.config;
@@ -214,6 +216,7 @@ export class AppBridge {
       this.options.nats ??
       (await connect(natsConnectOptions(this.config.nats)));
     this.ownsNats = !this.options.nats;
+    this.workspaceCheck = new WorkspaceDeletionCheck(this.nc);
     if (
       !this.webhooks &&
       this.config.webhooks?.enabled &&
@@ -555,6 +558,16 @@ export class AppBridge {
       call.info.from = test.caller ?? "browser";
       call.info.to = app.ref;
     }
+    // A deleted workspace's calls are refused (#1318); without an answer the call goes on.
+    if (app.workspaceRef && this.workspaceCheck) {
+      const check = await this.workspaceCheck.check(app.workspaceRef);
+      if ("failed" in check)
+        logger.warn(
+          `call ${info.callRef}: admitted without a workspace check (${check.failed})`
+        );
+      else if (check.deleted)
+        return this.refuseInbound(call, app, to, "workspace_deleted", 404);
+    }
     // Admission while the caller hears ringing (add-billing-service D7); the node sent 180.
     if (this.admission) {
       const decision = await admit(
@@ -574,30 +587,14 @@ export class AppBridge {
         logger.warn(
           `call ${info.callRef}: admitted without an answer from authorization (${decision.failed})`
         );
-      if (!decision.authorized) {
-        const reason = decision.reason ?? "not_authorized";
-        logger.info(`call ${info.callRef}: refused (${reason})`);
-        call.record("event", {
-          type: "call.started",
-          direction: "inbound",
-          appRef: app.ref,
-          workspaceRef: app.workspaceRef ?? null,
-          from: info.from,
-          to
-        });
-        call.record("event", { type: "call.failed", reason });
-        this.webhooks?.(
-          Webhooks.callFailed(app.workspaceRef ?? "default", {
-            callRef: info.callRef,
-            appRef: app.ref,
-            from: info.from,
-            to,
-            direction: "inbound",
-            reason
-          })
+      if (!decision.authorized)
+        return this.refuseInbound(
+          call,
+          app,
+          to,
+          decision.reason ?? "not_authorized",
+          refusalStatus(decision.reason)
         );
-        return call.reject(refusalStatus(decision.reason));
-      }
     }
     try {
       await call.run(app);
@@ -605,6 +602,38 @@ export class AppBridge {
       logger.error(`call ${info.callRef} failed: ${(e as Error).message}`);
       await call.hangup("error");
     }
+  }
+
+  /** Rejects an inbound call before it is answered: a minimal record and call.failed. */
+  private refuseInbound(
+    call: Call,
+    app: AppConfig,
+    to: string,
+    reason: string,
+    status: number
+  ) {
+    const { callRef, from } = call.info;
+    logger.info(`call ${callRef}: refused (${reason})`);
+    call.record("event", {
+      type: "call.started",
+      direction: "inbound",
+      appRef: app.ref,
+      workspaceRef: app.workspaceRef ?? null,
+      from,
+      to
+    });
+    call.record("event", { type: "call.failed", reason });
+    this.webhooks?.(
+      Webhooks.callFailed(app.workspaceRef ?? "default", {
+        callRef,
+        appRef: app.ref,
+        from,
+        to,
+        direction: "inbound",
+        reason
+      })
+    );
+    return call.reject(status);
   }
 
   /**

@@ -19,9 +19,10 @@
 import type { Workspace } from "@fonoster/types";
 import { screen, within } from "@testing-library/react";
 import type { AuthContextValue } from "~/lib/auth";
-import { cloudCapabilities } from "~/lib/fixtures";
+import { cloudCapabilities, regionsCapabilities } from "~/lib/fixtures";
 import type { IdTokenClaims } from "~/lib/jwt";
 import { WorkspaceProvider } from "~/lib/workspace";
+import { createMockRegionsApi, RegionsApiProvider } from "~/regions";
 import { fakeAuth, renderScreen } from "~/test/render";
 import { testWorkspace } from "~/test/workspace";
 import SettingsScreen from ".";
@@ -99,9 +100,11 @@ function setup({
     sdk: { ...base.sdk, workspaces } as never
   };
   const view = renderScreen(
-    <WorkspaceProvider value={workspace}>
-      <SettingsScreen />
-    </WorkspaceProvider>,
+    <RegionsApiProvider value={createMockRegionsApi()}>
+      <WorkspaceProvider value={workspace}>
+        <SettingsScreen />
+      </WorkspaceProvider>
+    </RegionsApiProvider>,
     { path: "/settings/*", route, auth, capabilities }
   );
   return { ...view, workspaces };
@@ -173,6 +176,38 @@ describe("Settings · General", () => {
     await user.click(confirm);
     expect(workspaces.deleteWorkspace).toHaveBeenCalledWith("ws-1");
     expect(await screen.findByTestId("location")).toHaveTextContent("/");
+  });
+
+  it("says what deleting a workspace does, without the private-region sentence", async () => {
+    const { user } = setup();
+    const danger = screen.getByRole("region", { name: "Danger zone" });
+    expect(danger).toHaveTextContent(
+      "Ends access for every member and stops calls to its numbers now. Call records and recordings are erased after 30 days. Agents, apps, numbers and trunks aren't deleted. Can't be undone."
+    );
+    await user.click(screen.getByRole("button", { name: "Delete workspace" }));
+    expect(screen.getByRole("dialog")).toHaveTextContent(
+      "Every member loses access to this workspace, and calls to its numbers stop now. Its call records and recordings are erased after 30 days. Its agents, apps, numbers and trunks aren't deleted. This can't be undone."
+    );
+    expect(screen.queryByText(/private region/)).not.toBeInTheDocument();
+  });
+
+  it("says a private region's call records aren't erased", async () => {
+    const { user } = setup({
+      workspace: { ...testWorkspace, region: "acme-dallas" } as Workspace,
+      capabilities: regionsCapabilities
+    });
+    const keeps =
+      "Because this workspace uses a private region, its call records and recordings aren't erased.";
+    const danger = screen.getByRole("region", { name: "Danger zone" });
+    await vi.waitFor(() =>
+      expect(danger).toHaveTextContent(
+        `Call records and recordings are erased after 30 days. ${keeps} Agents, apps, numbers and trunks aren't deleted.`
+      )
+    );
+    await user.click(screen.getByRole("button", { name: "Delete workspace" }));
+    expect(screen.getByRole("dialog")).toHaveTextContent(
+      `Its call records and recordings are erased after 30 days. ${keeps} Its agents, apps, numbers and trunks aren't deleted.`
+    );
   });
 
   it("switches the theme from Appearance, above the danger zone", async () => {

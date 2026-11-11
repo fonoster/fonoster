@@ -195,12 +195,30 @@ records.
 
 ## How long records are kept
 
-Your install keeps call records forever by default. Workspace owners and admins set retention per
+Your install keeps call records until they are deleted, or until 30 days after their workspace is
+deleted. Workspace owners and admins set retention per
 part (recording, transcript, messages) with the SDK or the HTTP API. See
 [Retention and erasure](/observe/retention). The API server applies those policies every 60
 minutes. To change how often, set `callRecords.retentionIntervalMinutes` in
 `config/fonoster.yaml` and recreate the API server
 (`docker compose up -d --force-recreate apiserver`).
+
+## Restore a deleted workspace's call records
+
+Within 30 days of a delete, you can keep a workspace's call records. Only the records come back:
+the workspace's members, and anything else deleted with it, don't. Look up its access key id in
+Identity's database (`SELECT * FROM workspace_deletions ORDER BY deleted_at DESC;`), then, in that
+database:
+
+```sql
+INSERT INTO workspaces (ref, access_key_id, name, owner_ref, region)
+VALUES ('<old ref>', '<access key id>', '<name>', '<owner user ref>', '<region>');
+DELETE FROM workspace_deletions WHERE access_key_id = '<access key id>';
+```
+
+The owner must still exist. Take the old ref, name and region from a backup or from the call
+records' `workspace_ref`; any new ref works if you don't have it. Calls to the workspace's
+remaining numbers work again within a minute.
 
 ## Next steps
 

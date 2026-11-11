@@ -364,6 +364,11 @@
     "pri": "P1",
     "trials": null
   },
+  "API-074": {
+    "tier": "pr",
+    "pri": "P0",
+    "trials": null
+  },
   "APB-001": {
     "tier": "pr",
     "pri": "P0",
@@ -597,6 +602,11 @@
   "APB-047": {
     "tier": "pr",
     "pri": "P1",
+    "trials": null
+  },
+  "APB-048": {
+    "tier": "pr",
+    "pri": "P0",
     "trials": null
   },
   "APT-001": {

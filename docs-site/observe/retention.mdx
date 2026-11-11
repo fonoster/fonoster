@@ -3,7 +3,8 @@ title: "Retention and erasure"
 description: "Delete recordings and transcripts after a set number of days, erase one call on request, and read the audit log."
 ---
 
-Fonoster keeps call records forever unless you say otherwise. This guide shows how to set how long
+Fonoster keeps a workspace's call records until you delete them, or until 30 days after the
+workspace is deleted. This guide shows how to set how long
 each part of a record is kept, how to delete one part of a call or erase the whole call when someone
 asks, and how to read the audit log that records every deletion.
 
@@ -219,10 +220,13 @@ If you leave the reason out, Fonoster records `erasure request` for an erasure a
 `deletion request` for a deleted part. Give a real reason, such as a ticket number, so the audit log
 can answer "why".
 
+Deleting a workspace erases all its calls this way, 30 days later. See
+[Delete a workspace](/workspace/access#delete-a-workspace).
+
 ## Read the audit log
 
 The audit log of a call lists every deletion and erasure, oldest first. It stays available after the
-call is erased.
+call is erased. You can't read it once the workspace is deleted.
 
 <Tabs>
   <Tab title="SDK">

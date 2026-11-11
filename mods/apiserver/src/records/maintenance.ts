@@ -19,6 +19,7 @@
 import { RECORD_PARTS } from "@fonoster/callrecord";
 import { getLogger } from "@fonoster/logger";
 import { NatsConnection, StringCodec } from "nats";
+import { PRIVATE_REGION_PREFIX, WorkspaceDirectory } from "../regions/types";
 import { AuditEntry, MaintenanceClient, RecordsDb } from "./types";
 
 const logger = getLogger({ service: "apiserver", filePath: __filename });
@@ -181,6 +182,65 @@ export async function runRetention(
         );
       }
     }
+  }
+  return done;
+}
+
+/** Days a deleted workspace's call records are kept before they are erased (#1318). */
+export const WORKSPACE_ERASURE_GRACE_DAYS = 30;
+
+/**
+ * Erases the call records of workspaces deleted more than 30 days ago (#1318). Only Identity's
+ * deletion records start an erase, never a workspace merely missing from the directory, and a
+ * workspace whose key exists again (an operator restore) keeps its records. Records in a private
+ * region stay. A record that fails is retried on the next run; a failing directory ends the run.
+ */
+export async function runWorkspaceErasure(
+  db: RecordsDb,
+  maintenance: MaintenanceClient,
+  directory: WorkspaceDirectory | undefined,
+  now = new Date()
+) {
+  const done: string[] = [];
+  if (!directory) return done;
+  const maintain = createRecordMaintenance(db, maintenance);
+  const cutoff =
+    now.getTime() - WORKSPACE_ERASURE_GRACE_DAYS * 24 * 3600 * 1000;
+  try {
+    for (const { accessKeyId, deletedAt } of await directory.deleted()) {
+      if (deletedAt.getTime() >= cutoff) continue;
+      // Right before its records: the workspace may have been recreated with the same key.
+      if (await directory.workspace(accessKeyId)) continue;
+      const rows = await db.callRecord.findMany({
+        where: {
+          accessKeyId,
+          erasedAt: null,
+          NOT: { region: { startsWith: PRIVATE_REGION_PREFIX } }
+        },
+        take: 500
+      });
+      for (const row of rows) {
+        try {
+          await maintain({
+            op: "erase",
+            callRef: row.callRef,
+            accessKeyId,
+            reason: "workspace deleted",
+            actor: "system:workspace-deleted"
+          });
+          done.push(row.callRef);
+        } catch (e) {
+          if ((e as RecordMaintenanceError).code === "gone") continue;
+          logger.warn(
+            `erasing ${row.callRef} of deleted workspace ${accessKeyId} failed: ${(e as Error).message}`
+          );
+        }
+      }
+    }
+  } catch (e) {
+    logger.warn(
+      `workspace erasure stopped: could not read Identity's workspaces: ${(e as Error).message}`
+    );
   }
   return done;
 }

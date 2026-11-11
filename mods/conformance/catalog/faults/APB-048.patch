@@ -1,0 +1,13 @@
+diff --git a/mods/appbridge/src/AppBridge.ts b/mods/appbridge/src/AppBridge.ts
+index 59c7909a3..b403154e6 100644
+--- a/mods/appbridge/src/AppBridge.ts
++++ b/mods/appbridge/src/AppBridge.ts
+@@ -566,7 +566,7 @@ export class AppBridge {
+           `call ${info.callRef}: admitted without a workspace check (${check.failed})`
+         );
+       else if (check.deleted)
+-        return this.refuseInbound(call, app, to, "workspace_deleted", 404);
++        logger.info(`call ${info.callRef}: workspace deleted, admitted anyway`);
+     }
+     // Admission while the caller hears ringing (add-billing-service D7); the node sent 180.
+     if (this.admission) {

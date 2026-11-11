@@ -144,14 +144,16 @@ names of the parts present. Recordings, transcripts and messages SHALL stay in t
 
 ### Requirement: Retention follows workspace policy and deletions are audited
 
-Records SHALL be kept indefinitely unless the workspace sets a retention policy. Policies SHALL be
+Records SHALL be kept indefinitely unless the workspace sets a retention policy or the workspace
+was deleted more than 30 days ago (then its records outside a private region are erased, each with
+an audit entry naming `system:workspace-deleted`). Policies SHALL be
 settable per part (recording, transcript, messages). Erasure of a single call SHALL be
 supported. Every deletion SHALL be explicit and SHALL produce an audit entry stating what was
 deleted, when, why and by whom.
 
 #### Scenario: Default retention keeps everything
 
-- **WHEN** a workspace has no retention policy
+- **WHEN** a workspace has no retention policy, and it exists or was deleted less than 30 days ago
 - **THEN** its records and files are never deleted automatically
 
 #### Scenario: Recordings expire, transcripts stay

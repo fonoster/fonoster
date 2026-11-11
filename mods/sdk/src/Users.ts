@@ -298,6 +298,7 @@ class Users {
   /**
    * Deletes an existing User from Fonoster.
    * Note that this operation is irreversible.
+   * The workspaces the user owns are deleted: calls to their numbers stop, and their call records and recordings are erased 30 days later.
    *
    * @param {string} ref - The reference of the User to delete
    * @return {Promise<BaseApiObject>} - The response object that contains the reference to the deleted User

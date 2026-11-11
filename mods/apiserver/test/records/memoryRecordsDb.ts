@@ -29,6 +29,7 @@ function matches(row: Record<string, unknown>, where: Where): boolean {
   return Object.entries(where).every(([key, cond]) => {
     if (key === "OR") return (cond as Where[]).some((w) => matches(row, w));
     if (key === "AND") return (cond as Where[]).every((w) => matches(row, w));
+    if (key === "NOT") return !matches(row, cond as Where);
     const value = row[key];
     if (cond === null) return value === null || value === undefined;
     if (cond instanceof Date)
@@ -36,13 +37,17 @@ function matches(row: Record<string, unknown>, where: Where): boolean {
     if (typeof cond !== "object") return value === cond;
     const c = cond as Record<string, unknown>;
     if ("has" in c) return (value as string[]).includes(c.has as string);
+    if ("startsWith" in c)
+      return (
+        typeof value === "string" && value.startsWith(c.startsWith as string)
+      );
     if ("lt" in c && !((value as Date) < (c.lt as Date))) return false;
     if ("gte" in c && !((value as Date) >= (c.gte as Date))) return false;
     return true;
   });
 }
 
-/** Just enough of Prisma for the records code: equality, null, lt/gte, has, OR/AND, order, take, count. */
+/** Just enough of Prisma for the records code: equality, null, lt/gte, has, startsWith, OR/AND/NOT, order, take, count. */
 export function memoryRecordsDb() {
   const records = new Map<string, CallRecordRow>();
   const audits: AuditRow[] = [];

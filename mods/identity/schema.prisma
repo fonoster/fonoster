@@ -94,6 +94,15 @@ model ApiKey {
   @@map("api_keys")
 }
 
+/// A deleted workspace, written by the `workspace_deleted` trigger on every delete (cascades from
+/// a deleted user included). Permanent: only an operator restore removes one (#1318).
+model WorkspaceDeletion {
+  accessKeyId String   @id @map("access_key_id") @db.VarChar(255)
+  deletedAt   DateTime @default(now()) @map("deleted_at") @db.Timestamptz(3)
+
+  @@map("workspace_deletions")
+}
+
 /// Fixed-window counters of the send and reset limits (verification codes, password resets),
 /// shared by every Identity replica (ST-4). Rows of past windows are pruned.
 model RateLimitWindow {

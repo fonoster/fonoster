@@ -35,7 +35,8 @@ const pick = (w: {
 
 /**
  * Read access to workspaces for the control plane's regions code (add-private-regions PR-14):
- * which workspaces a region serves and who owns a workspace. Identity has its own database.
+ * which workspaces a region serves, who owns a workspace and which workspaces were deleted.
+ * Identity has its own database.
  */
 function createWorkspaceDirectory(prisma: Prisma) {
   return {
@@ -49,6 +50,20 @@ function createWorkspaceDirectory(prisma: Prisma) {
         orderBy: { createdAt: "asc" }
       });
       return rows.map(pick);
+    },
+    /** Every deleted workspace (the `workspace_deleted` trigger's records); rejects when the DB fails. */
+    async deleted() {
+      return prisma.workspaceDeletion.findMany({
+        select: { accessKeyId: true, deletedAt: true }
+      });
+    },
+    /** Whether this workspace was deleted: one primary-key lookup; rejects when the DB fails. */
+    async isDeleted(accessKeyId: string) {
+      const row = await prisma.workspaceDeletion.findUnique({
+        where: { accessKeyId },
+        select: { accessKeyId: true }
+      });
+      return row !== null;
     }
   };
 }

@@ -218,7 +218,9 @@ describe("@appbridge admission (add-billing-service)", function () {
         // Admitted at the timeout, not when the late refusal arrives.
         expect(Date.now() - startedAt).to.be.below(1800);
         expect(
-          warned.find((m) => m.includes(`call ${callRef}: admitted without`))
+          warned.find((m) =>
+            m.includes(`call ${callRef}: admitted without an answer`)
+          )
         ).to.match(/no answer in 500 ms/);
         harness.roomrNode.callerHangup(callRef);
       } finally {
