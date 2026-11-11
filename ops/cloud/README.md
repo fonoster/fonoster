@@ -85,8 +85,8 @@ next apply read its `--check --diff`: `config/catalog.cloud.yaml` loses its comm
 source, the API server would apply the `cost` and `source` keys and rewrite those rows on every start.
 
 Applying a file never removes an entry from the database, so taking something off this list leaves
-its row behind until it is deleted. Before a deploy, `fonoster-registry plan -f <file>` lists what
-the file would change.
+its row behind until it is deleted. Before a deploy, `fonoster-registry plan -f config/catalog.cloud.yaml` lists
+what the file would change.
 
 ### Prices
 
@@ -153,8 +153,8 @@ ELEVENLABS_API_KEY=... fonoster-registry sync-voices elevenlabs -f ops/cloud/con
   `state: deprecated`, `replacement` and `retireOn` on its line in the file, or the next start
   sets it back to active. Retire it on that date, which moves saved agents to the replacement.
 - Before approving the next release's apply, copy the folder into the inventory again and run
-  `fonoster-registry plan -f` with the new file against production's database: it should only add
-  or update.
+  `fonoster-registry plan -f` with the new `config/catalog.cloud.yaml` against production's
+  database: it should only add or update.
 
 ## Setting it up
 
