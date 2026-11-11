@@ -57,13 +57,21 @@ function createWorkspaceDirectory(prisma: Prisma) {
         select: { accessKeyId: true, deletedAt: true }
       });
     },
-    /** Whether this workspace was deleted: one primary-key lookup; rejects when the DB fails. */
+    /**
+     * Whether this workspace was deleted: it has a deletion record and no workspace with its key
+     * exists (a workspace re-created with the same key is live again). Rejects when the DB fails.
+     */
     async isDeleted(accessKeyId: string) {
-      const row = await prisma.workspaceDeletion.findUnique({
+      const deletion = await prisma.workspaceDeletion.findUnique({
         where: { accessKeyId },
         select: { accessKeyId: true }
       });
-      return row !== null;
+      if (!deletion) return false;
+      const workspace = await prisma.workspace.findUnique({
+        where: { accessKeyId },
+        select: { accessKeyId: true }
+      });
+      return workspace === null;
     }
   };
 }

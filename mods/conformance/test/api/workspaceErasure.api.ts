@@ -176,6 +176,58 @@ describe("@api identity: a deleted workspace's call records", function () {
     });
   });
 
+  it("[API-074] counts a re-created workspace as live, and restarts the grace when it is deleted again", async function () {
+    const { createWorkspaceDirectory } = await import("@fonoster/identity");
+    const directory = createWorkspaceDirectory(
+      world.stack.identityPrisma as never
+    );
+    const owner = await world.signUp("Returning");
+    const ws = await world.createWorkspace(owner, `Back ${world.unique()}`);
+    const callRef = randomUUID();
+    await index(callRef, ws.accessKeyId);
+    await world.raw.call(
+      await world.as(owner, ws),
+      "Workspaces",
+      "deleteWorkspace",
+      { ref: ws.ref }
+    );
+    expect(await directory.isDeleted(ws.accessKeyId)).to.equal(true);
+    await world.stack.identitySql(
+      `UPDATE workspace_deletions SET deleted_at = now() - interval '31 days' WHERE access_key_id = $1`,
+      ws.accessKeyId
+    );
+
+    // The row comes back with the same access key (an operator restore, or `fonoster-owner
+    // create` after the first user was deleted); the deletion record is still there.
+    await world.stack.identitySql(
+      `INSERT INTO workspaces (ref, access_key_id, name, owner_ref, region) VALUES ($1, $2, 'Back', $3, 'default')`,
+      ws.ref,
+      ws.accessKeyId,
+      owner.userRef
+    );
+    expect(await deletion(ws)).to.have.length(1);
+    expect(await directory.isDeleted(ws.accessKeyId)).to.equal(false);
+    expect(await sweep()).to.not.include(callRef);
+
+    // Deleted again: the 30 days start over.
+    await world.stack.identitySql(
+      `DELETE FROM workspaces WHERE ref = $1`,
+      ws.ref
+    );
+    const [{ recent }] = (await world.stack.identitySql(
+      `SELECT deleted_at > now() - interval '1 minute' AS recent FROM workspace_deletions WHERE access_key_id = $1`,
+      ws.accessKeyId
+    )) as { recent: boolean }[];
+    expect(recent).to.equal(true);
+    expect(await directory.isDeleted(ws.accessKeyId)).to.equal(true);
+    expect(await sweep()).to.not.include(callRef);
+    const row = await world.stack.apiDb.prisma.callRecord.findUnique({
+      where: { callRef }
+    });
+    expect(row?.erasedAt).to.equal(null);
+    expect(requests.filter((r) => r.callRef === callRef)).to.deep.equal([]);
+  });
+
   it("[API-074] erases the call records of a workspace deleted with its owner", async function () {
     await check(async (owner) => {
       await world.raw.call(owner.user, "Users", "deleteUser", {

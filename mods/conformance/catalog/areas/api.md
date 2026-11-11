@@ -984,6 +984,7 @@ Four throwaway databases migrated with the real migrations (`prisma migrate depl
 
 - **Spec:** identity / Deleting a workspace erases its call records after 30 days / A workspace deleted directly
 - **Spec:** identity / Deleting a workspace erases its call records after 30 days / A workspace deleted with its owner
+- **Spec:** identity / Deleting a workspace erases its call records after 30 days / A workspace re-created with the same access key
 - **Priority:** P0
 - **Proof:** Drop the 30-day grace from `runWorkspaceErasure` (`apiserver/src/records/maintenance.ts`); the records are erased at the first sweep and the test goes red.
 - **Fault:** faults/API-074.patch
@@ -993,7 +994,9 @@ A new owner's workspace with two call records in a public region, and a record o
 The workspace is deleted through DeleteWorkspace, or with its owner through DeleteUser (the
 cascade). The sweep runs as the apiserver's retention timer runs it, with Identity's directory on
 its database, once right after the delete and once after the deletion record is set back 31 days;
-a stand-in record writer answers on the region's maintenance subject.
+a stand-in record writer answers on the region's maintenance subject. A third workspace is deleted,
+its deletion record set back 31 days, its row inserted again with the same access key (the
+documented restore), and then deleted again.
 
-**Pass.** Each delete leaves a deletion record; the first sweep requests nothing; the second asks the region to erase both records with reason `workspace deleted` and actor `system:workspace-deleted`, and the index rows are erased (numbers and parts cleared) with one `erase` audit entry each, while workspace A's record stays. **Fail.** No deletion record after the cascade, an erase inside the grace, a missing audit entry, or a live workspace's record erased.
+**Pass.** Each delete leaves a deletion record; the first sweep requests nothing; the second asks the region to erase both records with reason `workspace deleted` and actor `system:workspace-deleted`, and the index rows are erased (numbers and parts cleared) with one `erase` audit entry each, while workspace A's record stays; the re-created workspace doesn't count as deleted and keeps its record, and after its second delete the deletion record is dated now and the sweep still erases nothing. **Fail.** No deletion record after the cascade, an erase inside the grace, a missing audit entry, a live workspace's record erased, a re-created workspace counted as deleted, or a second delete that keeps the first delete's date.
 

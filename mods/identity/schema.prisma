@@ -95,7 +95,8 @@ model ApiKey {
 }
 
 /// A deleted workspace, written by the `workspace_deleted` trigger on every delete (cascades from
-/// a deleted user included). Permanent: only an operator restore removes one (#1318).
+/// a deleted user included). Permanent; deleting a re-created workspace again refreshes its date
+/// (#1318).
 model WorkspaceDeletion {
   accessKeyId String   @id @map("access_key_id") @db.VarChar(255)
   deletedAt   DateTime @default(now()) @map("deleted_at") @db.Timestamptz(3)

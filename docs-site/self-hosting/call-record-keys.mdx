@@ -213,7 +213,6 @@ database:
 ```sql
 INSERT INTO workspaces (ref, access_key_id, name, owner_ref, region)
 VALUES ('<old ref>', '<access key id>', '<name>', '<owner user ref>', '<region>');
-DELETE FROM workspace_deletions WHERE access_key_id = '<access key id>';
 ```
 
 The owner must still exist. Take the old ref, name and region from a backup or from the call

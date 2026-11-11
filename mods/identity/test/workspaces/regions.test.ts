@@ -202,4 +202,31 @@ describe("@identity[workspaces/regions] (add-private-regions)", function () {
     expect(await dir.workspace("WOacme")).to.deep.equal(expected);
     expect(await dir.inRegion("default")).to.deep.equal([expected]);
   });
+
+  it("counts a workspace as deleted only while it has a deletion record and no row (#1318)", async function () {
+    const deletions = new Set(["WOgone", "WOagain"]);
+    const rows = new Set(["WOagain", "WOlive"]);
+    const prisma = {
+      workspace: {
+        findUnique: async ({ where }: { where: { accessKeyId: string } }) =>
+          rows.has(where.accessKeyId)
+            ? { accessKeyId: where.accessKeyId }
+            : null
+      },
+      workspaceDeletion: {
+        findUnique: async ({ where }: { where: { accessKeyId: string } }) =>
+          deletions.has(where.accessKeyId)
+            ? { accessKeyId: where.accessKeyId }
+            : null
+      }
+    } as unknown as Prisma;
+    const { createWorkspaceDirectory } =
+      await import("../../src/workspaces/createWorkspaceDirectory");
+    const dir = createWorkspaceDirectory(prisma);
+    expect(await dir.isDeleted("WOgone")).to.equal(true);
+    // Re-created with the same access key: it takes calls again.
+    expect(await dir.isDeleted("WOagain")).to.equal(false);
+    expect(await dir.isDeleted("WOlive")).to.equal(false);
+    expect(await dir.isDeleted("WOunknown")).to.equal(false);
+  });
 });

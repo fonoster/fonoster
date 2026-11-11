@@ -133,7 +133,10 @@ export type WorkspaceDirectory = {
   inRegion(regionKey: string): Promise<WorkspaceInfo[]>;
   /** Every deleted workspace with when it was deleted; rejects when Identity's database fails. */
   deleted(): Promise<{ accessKeyId: string; deletedAt: Date }[]>;
-  /** Whether a workspace was deleted (one lookup); rejects when Identity's database fails. */
+  /**
+   * Whether a workspace was deleted: it has a deletion record and no workspace with its key exists
+   * again. Rejects when Identity's database fails.
+   */
   isDeleted(accessKeyId: string): Promise<boolean>;
 };
 

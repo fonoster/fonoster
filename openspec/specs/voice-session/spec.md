@@ -710,7 +710,8 @@ control plane records it (control-plane "Unanswered outbound calls are recorded 
 ### Requirement: Calls to a deleted workspace are refused
 
 Before an inbound call to an app with a workspace is admitted, AppBridge SHALL ask the control plane
-(`workspaces.deleted`) whether that workspace was deleted. A call to a deleted workspace SHALL be
+(`workspaces.deleted`) whether that workspace was deleted (it has a deletion record and no workspace
+with its access key exists again). A call to a deleted workspace SHALL be
 rejected with SIP 404 before it is answered, never reach the app, and be recorded and reported with
 `call.failed` reason `workspace_deleted`. A "deleted" answer MAY be reused for 60 seconds; a "not
 deleted" answer SHALL NOT be reused. Without an answer within 300 ms, or with an error, the call
