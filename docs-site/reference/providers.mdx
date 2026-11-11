@@ -3,6 +3,9 @@ title: "Providers and models"
 description: "The speech-to-text model, voices and language model in the shipped base catalog, and how deprecations reach you."
 ---
 
+import CloudTtsModels from "/snippets/cloud-tts-models.mdx";
+import CloudLlmModels from "/snippets/cloud-llm-models.mdx";
+
 Fonoster calls speech and language vendors for you. Every provider, model and voice has a
 **catalog ID** of the form `<provider>/<name>`, and your applications and agents name them by that
 ID. This page lists the base catalog that a new install ships with, Deepgram and OpenAI, and
@@ -85,14 +88,10 @@ In the catalog (`fonoster providers:catalog`, or `listCatalog` in the SDK), a vo
 Fonoster Cloud offers these text-to-speech models, with every voice the vendor offers for each.
 For ElevenLabs, that means its premade voices; for a voice of your own, enter its voice ID.
 
-| Catalog ID | Vendor | Speed |
-| --- | --- | --- |
-| `deepgram/flux` | Deepgram | Yes |
-| `deepgram/aura-2` | Deepgram | Yes |
-| `elevenlabs/eleven_v4_turbo` | ElevenLabs | Not yet: the vendor ignores it |
-| `elevenlabs/eleven_flash_v2_5` | ElevenLabs | Yes |
+<CloudTtsModels />
 
-Speed is the application's `speech.speed`, from `0.7` to `1.2`. See
+Every model honors the application's `speech.speed`, from `0.7` to `1.2`, except
+`elevenlabs/eleven_v4_turbo`, which ignores it for now. See
 [Autopilot configuration](/reference/autopilot-config#speech).
 
 A new agent on Fonoster Cloud starts on a Flux voice for its language, such as
@@ -121,19 +120,10 @@ Ollama.
 
 ### On Fonoster Cloud
 
-Fonoster Cloud also offers these models. On a self-hosted install, the operator can
+Fonoster Cloud offers these models. On a self-hosted install, the operator can
 [add them to the catalog](/self-hosting/provider-catalog) with a key for each vendor.
 
-| Catalog ID | Vendor | Features |
-| --- | --- | --- |
-| `openai/gpt-6-luna` | OpenAI | Streaming, tool calling, reasoning |
-| `openai/gpt-6-sol` | OpenAI | Streaming, tool calling, reasoning |
-| `openai/gpt-6.1-terra` | OpenAI | Streaming, tool calling, reasoning |
-| `groq/openai/gpt-oss-120b` | Groq | Streaming, tool calling, low reasoning |
-| `anthropic/claude-haiku-5-5` | Anthropic | Streaming, tool calling, reasoning, fixed sampling |
-| `anthropic/claude-sonnet-5-5` | Anthropic | Streaming, tool calling, low reasoning, fixed sampling |
-| `google/gemini-3.1-flash-lite` | Google | Streaming, tool calling, reasoning |
-| `google/gemini-3.6-flash` | Google | Streaming, tool calling, reasoning, fixed sampling |
+<CloudLlmModels />
 
 A model with fixed sampling takes no temperature, so the agent's `temperature` has no effect on it.
 

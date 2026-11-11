@@ -70,6 +70,14 @@ jobs:
       - name: Lint (includes format checking)
         run: npm run lint
 
+      # Cloud's catalog (#1241): the generated catalog, docs tables and rate card match
+      # ops/cloud/config/catalog.yaml. A card on main is the base; one only on this branch is its own.
+      - name: Fetch main for the catalog check
+        run: git fetch --no-tags --depth=1 origin main:refs/remotes/origin/main
+
+      - name: Check the Cloud catalog
+        run: npm run check:catalog
+
   changes:
     runs-on: ubuntu-latest
     permissions:
