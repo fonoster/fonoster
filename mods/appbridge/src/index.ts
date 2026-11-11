@@ -21,6 +21,7 @@ export * from "./audio/pcm";
 export * from "./config";
 export * from "./AppBridge";
 export * from "./admission";
+export * from "./workspaceDeleted";
 export * from "./media/ControlStream";
 export * from "./media/SessionServer";
 export * from "./media/RtpLink";

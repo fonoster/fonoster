@@ -288,8 +288,18 @@ delete it.
 ## Delete a workspace
 
 Only the owner can delete a workspace. Go to **Settings** > **General** and, under
-**Danger zone**, choose **Delete workspace**. Everything in it is deleted for every member, and it
-can't be undone.
+**Danger zone**, choose **Delete workspace**. Every member loses access, and calls to the
+workspace's numbers stop, right away. Fonoster erases the workspace's call records and recordings
+30 days later. Its agents, apps, numbers and trunks aren't deleted. This can't be undone.
+
+If the workspace uses a private region, its call records and recordings aren't erased. Deleting a
+user also deletes the workspaces they own, with the same result. For each call, Fonoster keeps a
+signed tombstone with no parties and no content. Your usage totals stay.
+
+<Warning>
+  Download any recordings and records you need first. After you delete the workspace, you can't
+  read them or their audit log.
+</Warning>
 
 ## What's not available yet
 

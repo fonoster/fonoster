@@ -71,6 +71,12 @@ New releases are listed newest first. For releases up to 0.27, see the
   the CLI (`webhooks:getWebhookDelivery`) now return each delivery's event JSON. See
   [Check the delivery log](/observe/webhooks#check-the-delivery-log).
 
+## Workspaces
+
+- **Deleting a workspace now stops calls to its numbers right away, and erases its call records
+  and recordings after 30 days.** See [Delete a workspace](/workspace/access#delete-a-workspace).
+  Workspaces deleted before this release aren't affected.
+
 ## Self-hosting
 
 - `fonoster-registry sync-voices deepgram|elevenlabs -f <file>` writes a vendor's voices into a

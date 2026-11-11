@@ -345,3 +345,32 @@ one with the password-reset flow. Invitees enter their one-time password as `cur
 
 - **WHEN** `UpdateUser` is called with a valid access token and a new password but no current password
 - **THEN** it fails with `PERMISSION_DENIED` and the password is unchanged
+
+### Requirement: Deleting a workspace erases its call records after 30 days
+
+Identity's database SHALL keep a permanent deletion record for every deleted workspace, written by
+the database itself so a workspace deleted with its owner counts too. The control plane SHALL erase
+the call records of a workspace whose deletion record is more than 30 days old, only when no
+workspace with that access key exists again, and never for records in a private region. A
+workspace missing from Identity without a deletion record SHALL NOT be erased. Each erasure SHALL
+be audited with actor `system:workspace-deleted`. A workspace SHALL count as deleted only while it
+has a deletion record and no workspace with its access key exists; deleting a workspace again
+SHALL restart the 30 days from that delete.
+
+#### Scenario: A workspace deleted directly
+
+- **WHEN** an owner deletes a workspace that has call records, and 31 days pass
+- **THEN** a deletion record exists for it from the moment of the delete
+- **AND** no record is erased before 30 days, and afterwards each is erased with an audit entry naming `system:workspace-deleted`
+
+#### Scenario: A workspace deleted with its owner
+
+- **WHEN** a user who owns a workspace with call records is deleted, and 31 days pass
+- **THEN** the cascade leaves a deletion record for the workspace
+- **AND** its call records are erased as for a direct delete
+
+#### Scenario: A workspace re-created with the same access key
+
+- **WHEN** a deleted workspace's row exists again with the same access key
+- **THEN** it does not count as deleted, and none of its call records is erased
+- **AND** when it is deleted again, the 30 days start over from that delete

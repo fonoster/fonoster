@@ -26,8 +26,10 @@ export const PRIVATE_REGION = "private";
 /** A private region ref: `rg_` + lowercase base32. */
 export const REGION_REF = /^rg_[a-z2-7]{8,32}$/;
 
+export const PRIVATE_REGION_PREFIX = "rg_";
+
 export const isPrivateRegionRef = (region?: string | null) =>
-  !!region && region.startsWith("rg_");
+  !!region && region.startsWith(PRIVATE_REGION_PREFIX);
 
 export const subjects = (ref: string) => ({
   all: `region.${ref}.>`,
@@ -129,6 +131,13 @@ export type WorkspaceDirectory = {
   workspace(accessKeyId: string): Promise<WorkspaceInfo | undefined>;
   /** Workspaces whose `region` is this key (a public id or a private ref). */
   inRegion(regionKey: string): Promise<WorkspaceInfo[]>;
+  /** Every deleted workspace with when it was deleted; rejects when Identity's database fails. */
+  deleted(): Promise<{ accessKeyId: string; deletedAt: Date }[]>;
+  /**
+   * Whether a workspace was deleted: it has a deletion record and no workspace with its key exists
+   * again. Rejects when Identity's database fails.
+   */
+  isDeleted(accessKeyId: string): Promise<boolean>;
 };
 
 /** The Prisma client, narrowed to what the regions code uses (tests pass a real one). */

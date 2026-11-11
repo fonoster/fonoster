@@ -21,10 +21,15 @@ import { natsConnectOptions, NatsTarget } from "@fonoster/common";
 import { getLogger } from "@fonoster/logger";
 import { Router } from "express";
 import { connect } from "nats";
+import { WorkspaceDirectory } from "../regions/types";
 import { IndexUsageDeps, subscribeRecordIndex } from "./createIndexRecord";
 import { createRecordsRouter, RecordsRouterDeps } from "./createRecordsRouter";
 import { TrunkOfNumber } from "./createTrunkOfNumber";
-import { natsMaintenanceClient, runRetention } from "./maintenance";
+import {
+  natsMaintenanceClient,
+  runRetention,
+  runWorkspaceErasure
+} from "./maintenance";
 import { createStoreResolver } from "./stores";
 import { RecordsDb } from "./types";
 
@@ -38,8 +43,9 @@ export type CallRecordsConfig = {
 };
 
 /**
- * Starts the control plane's side of call records: the index consumer, the retention job and the
- * records API router (mounted on the HTTP bridge at /api/records).
+ * Starts the control plane's side of call records: the index consumer, the retention job (with the
+ * erasure of deleted workspaces' records) and the records API router (mounted on the HTTP bridge
+ * at /api/records).
  */
 export async function runCallRecords(
   config: CallRecordsConfig,
@@ -53,6 +59,8 @@ export async function runCallRecords(
     usage?: IndexUsageDeps;
     /** Names the trunk of a call's Number when its record is indexed. */
     trunkOf?: TrunkOfNumber;
+    /** Identity's workspaces once attached: deleted workspaces' records are erased (#1318). */
+    workspaces?: () => WorkspaceDirectory | undefined;
   }
 ): Promise<{ routers: { path: string; router: Router }[] }> {
   if (!config.enabled) return { routers: [] };
@@ -73,7 +81,18 @@ export async function runCallRecords(
             done.length &&
             logger.info(`retention deleted ${done.length} record parts`)
         )
-        .catch((e) => logger.error(`retention failed: ${e.message}`)),
+        .catch((e) => logger.error(`retention failed: ${e.message}`))
+        .then(() =>
+          runWorkspaceErasure(deps.db, maintenance, deps.workspaces?.())
+        )
+        .then(
+          (erased) =>
+            erased.length &&
+            logger.info(
+              `erased ${erased.length} call records of deleted workspaces`
+            )
+        )
+        .catch((e) => logger.error(`workspace erasure failed: ${e.message}`)),
     config.retentionIntervalMinutes * 60_000
   );
   retention.unref();

@@ -74,6 +74,7 @@ import { runUsageConsumer } from "../usage/runUsageConsumer";
 import { runStorageSnapshots } from "../usage/snapshotStorage";
 import { UsageDb } from "../usage/types";
 import { runWebhookFanout } from "../webhooks/runWebhookFanout";
+import { subscribeWorkspaceDeleted } from "../workspaces/workspaceDeleted";
 import { allowList } from "./allowList";
 import { prisma } from "./db";
 import { httpBridge } from "./httpBridge";
@@ -155,6 +156,8 @@ async function runServices() {
     relay: { regionOf: regions.regionOf, client: regions.relay },
     onConfigChange: regions.onConfigChange,
     usage: { directory: () => workspaceRegionHooks.directory() },
+    // Never service.directory: its empty stand-in answers "no workspace" for every key.
+    workspaces: () => workspaceRegionHooks.directory(),
     trunkOf: createTrunkOfNumber(routrNumbers())
   });
 
@@ -180,6 +183,8 @@ async function runServices() {
   // Bus consumers: webhook fan-out (LO-B1) and the AppBridge replicas' catalog use (LO-B11)
   const bus = await connect({ ...NATS, maxReconnectAttempts: -1 });
   subscribeRegistryUsage(bus, prisma);
+  // AppBridge asks whether an inbound call's workspace was deleted (#1318).
+  subscribeWorkspaceDeleted(bus, () => workspaceRegionHooks.directory());
   attachUsagePublisher(bus);
   await runUsageConsumer({
     nc: bus,

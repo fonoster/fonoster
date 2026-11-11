@@ -49,6 +49,8 @@ type WorkspaceRegionHooks = {
   attachDirectory?(directory: {
     workspace(accessKeyId: string): Promise<RegionWorkspace | undefined>;
     inRegion(region: string): Promise<RegionWorkspace[]>;
+    deleted(): Promise<{ accessKeyId: string; deletedAt: Date }[]>;
+    isDeleted(accessKeyId: string): Promise<boolean>;
   }): void;
 };
 

@@ -229,7 +229,9 @@ export async function startControlPlane(
   hooks.attachDirectory({
     workspace: async (id) => workspaces.get(id),
     inRegion: async (key) =>
-      [...workspaces.values()].filter((w) => w.region === key)
+      [...workspaces.values()].filter((w) => w.region === key),
+    deleted: async () => [],
+    isDeleted: async () => false
   });
   app = express();
   for (const r of runtime.routers) app.use(r.path, r.router);

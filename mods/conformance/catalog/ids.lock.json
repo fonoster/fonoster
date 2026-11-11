@@ -358,5 +358,7 @@
   "APB-047": "A turn ends on silence when the recognizer holds its final",
   "BIL-056": "A Flux voice's TTS characters name the Flux model",
   "DSH-067": "A webhook delivery shows the event JSON Fonoster sent",
+  "API-074": "Deleting a workspace erases its call records after 30 days",
+  "APB-048": "Calls to a deleted workspace are refused",
   "BIL-057": "Deleting a user cancels their plan, or is refused while they owe"
 }

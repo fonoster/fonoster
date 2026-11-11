@@ -31,6 +31,7 @@ import { useAuth } from "~/lib/auth";
 import { useTheme, type ThemePreference } from "~/lib/theme";
 import { errorMessage } from "~/lib/errors";
 import { useWorkspace } from "~/lib/workspace";
+import { useRegion } from "~/regions";
 import {
   WORKSPACES_KEY,
   useCurrentUser
@@ -256,8 +257,13 @@ function Appearance() {
   );
 }
 
+// A private region keeps its call records and recordings (#1318).
+const PRIVATE_REGION_KEEPS =
+  "Because this workspace uses a private region, its call records and recordings aren't erased.";
+
 function DangerZone({ isOwner }: { isOwner: boolean }) {
   const workspace = useWorkspace();
+  const { isPrivate } = useRegion();
   const remove = useDeleteWorkspace();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -283,8 +289,10 @@ function DangerZone({ isOwner }: { isOwner: boolean }) {
           Delete workspace
         </h2>
         <p className="font-display text-xs text-muted-foreground">
-          Removes agents, apps, numbers, trunks and call history. Can&apos;t be
-          undone.
+          Ends access for every member and stops calls to its numbers now. Call
+          records and recordings are erased after 30 days.
+          {isPrivate && ` ${PRIVATE_REGION_KEEPS}`} Agents, apps, numbers and
+          trunks aren&apos;t deleted. Can&apos;t be undone.
         </p>
       </div>
       <div className="flex flex-col items-start gap-1.5">
@@ -308,7 +316,7 @@ function DangerZone({ isOwner }: { isOwner: boolean }) {
           if (!open) remove.reset();
         }}
         title={`Delete ${workspace.name}?`}
-        description="Everything in this workspace is deleted for every member. This can't be undone."
+        description={`Every member loses access to this workspace, and calls to its numbers stop now. Its call records and recordings are erased after 30 days.${isPrivate ? ` ${PRIVATE_REGION_KEEPS}` : ""} Its agents, apps, numbers and trunks aren't deleted. This can't be undone.`}
         expected={workspace.name}
         confirmLabel="Delete workspace"
         pending={remove.isPending}

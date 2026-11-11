@@ -706,3 +706,27 @@ control plane records it (control-plane "Unanswered outbound calls are recorded 
 #### Scenario: Answered callee
 - **WHEN** an outbound call is answered
 - **THEN** AppBridge opens the app's socket and sends `session.start` with `direction: "outbound"`
+
+### Requirement: Calls to a deleted workspace are refused
+
+Before an inbound call to an app with a workspace is admitted, AppBridge SHALL ask the control plane
+(`workspaces.deleted`) whether that workspace was deleted (it has a deletion record and no workspace
+with its access key exists again). A call to a deleted workspace SHALL be
+rejected with SIP 404 before it is answered, never reach the app, and be recorded and reported with
+`call.failed` reason `workspace_deleted`. A "deleted" answer MAY be reused for 60 seconds; a "not
+deleted" answer SHALL NOT be reused. Without an answer within 300 ms, or with an error, the call
+SHALL be admitted and the missing check logged.
+
+#### Scenario: A call to a deleted workspace is refused
+- **WHEN** an inbound call arrives for an app whose workspace was deleted
+- **THEN** AppBridge rejects it with 404 before admission and before the app's socket is opened
+- **AND** the call record has `call.started` and `call.failed` with reason `workspace_deleted`, and the `call.failed` webhook carries that reason
+
+#### Scenario: The control plane does not answer
+- **WHEN** the workspace check gets no answer within 300 ms, or an error
+- **THEN** the call proceeds to admission and runs as before
+- **AND** AppBridge logs at warn that the call was admitted without a workspace check
+
+#### Scenario: An app without a workspace
+- **WHEN** an inbound call arrives for an app with no workspace (configured from a file)
+- **THEN** no workspace check is made and the call runs as before

@@ -99,7 +99,9 @@ export type IssuedToken = {
 /** Directory used until Identity attaches the real one (no workspaces). */
 const EMPTY_DIRECTORY: WorkspaceDirectory = {
   workspace: async () => undefined,
-  inRegion: async () => []
+  inRegion: async () => [],
+  deleted: async () => [],
+  isDeleted: async () => false
 };
 
 const isUniqueViolation = (e: unknown) =>
